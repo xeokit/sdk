@@ -5,8 +5,6 @@ import {createMat4, createVec3, transformPoint3} from "@xeokit/matrix";
 import {BasicAggregation, BasicEntity} from "@xeokit/basictypes";
 import {createUUID} from "@xeokit/utils";
 import {PointsPrimitive} from "@xeokit/constants";
-
-import '@loaders.gl/polyfills';
 import {parse} from '@loaders.gl/core';
 import {LASLoader} from '@loaders.gl/las';
 import {FloatArrayParam} from "@xeokit/math";
@@ -172,25 +170,28 @@ export function loadLAS(params: {
                 meshIds
             });
 
-            const rootMetaObjectId = createUUID();
+            if (dataModel) {
 
-            dataModel.createObject({
-                id: rootMetaObjectId,
-                type: BasicEntity,
-                name: "Model",
-            });
+                const rootMetaObjectId = createUUID();
 
-            dataModel.createObject({
-                id: entityId,
-                type: BasicEntity,
-                name: "PointCloud (LAZ)",
-            });
+                dataModel.createObject({
+                    id: rootMetaObjectId,
+                    type: BasicEntity,
+                    name: "Model",
+                });
 
-            dataModel.createRelationship({
-                type: BasicAggregation,
-                relatingObjectId: rootMetaObjectId,
-                relatedObjectId: entityId
-            });
+                dataModel.createObject({
+                    id: entityId,
+                    type: BasicEntity,
+                    name: "PointCloud (LAZ)",
+                });
+
+                dataModel.createRelationship({
+                    type: BasicAggregation,
+                    relatingObjectId: rootMetaObjectId,
+                    relatedObjectId: entityId
+                });
+            }
 
             resolve();
 

@@ -230,7 +230,7 @@
 					"fileName": "index.ts",
 					"line": 408,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L408"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L408"
 				}
 			],
 			"signatures": [
@@ -253,7 +253,7 @@
 							"fileName": "index.ts",
 							"line": 408,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L408"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L408"
 						}
 					],
 					"parameters": [
@@ -297,7 +297,7 @@
 					"fileName": "index.ts",
 					"line": 289,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L289"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L289"
 				}
 			],
 			"signatures": [
@@ -320,7 +320,7 @@
 							"fileName": "index.ts",
 							"line": 289,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L289"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L289"
 						}
 					],
 					"parameters": [
@@ -397,7 +397,7 @@
 					"fileName": "index.ts",
 					"line": 255,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L255"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L255"
 				}
 			],
 			"signatures": [
@@ -420,7 +420,7 @@
 							"fileName": "index.ts",
 							"line": 255,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L255"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L255"
 						}
 					],
 					"parameters": [
@@ -493,7 +493,7 @@
 											"fileName": "index.ts",
 											"line": 279,
 											"character": 8,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L279"
+											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L279"
 										}
 									],
 									"type": {
@@ -518,7 +518,7 @@
 											"fileName": "index.ts",
 											"line": 278,
 											"character": 8,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L278"
+											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L278"
 										}
 									],
 									"type": {
@@ -547,7 +547,7 @@
 									"fileName": "index.ts",
 									"line": 277,
 									"character": 11,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L277"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L277"
 								}
 							]
 						}
@@ -566,7 +566,7 @@
 					"fileName": "index.ts",
 					"line": 372,
 					"character": 11,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L372"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L372"
 				}
 			],
 			"signatures": [
@@ -589,7 +589,7 @@
 							"fileName": "index.ts",
 							"line": 375,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L375"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L375"
 						}
 					],
 					"parameters": [
@@ -662,7 +662,7 @@
 											"fileName": "index.ts",
 											"line": 377,
 											"character": 8,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L377"
+											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L377"
 										}
 									],
 									"type": {
@@ -686,7 +686,7 @@
 											"fileName": "index.ts",
 											"line": 376,
 											"character": 8,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L376"
+											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L376"
 										}
 									],
 									"type": {
@@ -714,7 +714,7 @@
 									"fileName": "index.ts",
 									"line": 375,
 									"character": 90,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L375"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L375"
 								}
 							]
 						}
@@ -733,7 +733,7 @@
 					"fileName": "index.ts",
 					"line": 235,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L235"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L235"
 				}
 			],
 			"signatures": [
@@ -756,7 +756,7 @@
 							"fileName": "index.ts",
 							"line": 235,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L235"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L235"
 						}
 					],
 					"parameters": [
@@ -816,7 +816,7 @@
 					"fileName": "index.ts",
 					"line": 320,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L320"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L320"
 				}
 			],
 			"signatures": [
@@ -839,7 +839,7 @@
 							"fileName": "index.ts",
 							"line": 320,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L320"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L320"
 						}
 					],
 					"parameters": [
@@ -916,7 +916,7 @@
 					"fileName": "index.ts",
 					"line": 492,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L492"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L492"
 				}
 			],
 			"signatures": [
@@ -931,7 +931,7 @@
 							"fileName": "index.ts",
 							"line": 492,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L492"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L492"
 						}
 					],
 					"parameters": [
@@ -991,7 +991,7 @@
 					"fileName": "index.ts",
 					"line": 512,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L512"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L512"
 				}
 			],
 			"signatures": [
@@ -1006,7 +1006,7 @@
 							"fileName": "index.ts",
 							"line": 512,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L512"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L512"
 						}
 					],
 					"parameters": [
@@ -1073,7 +1073,7 @@
 					"fileName": "index.ts",
 					"line": 307,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L307"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L307"
 				}
 			],
 			"signatures": [
@@ -1096,7 +1096,7 @@
 							"fileName": "index.ts",
 							"line": 307,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L307"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L307"
 						}
 					],
 					"parameters": [
@@ -1173,7 +1173,7 @@
 					"fileName": "index.ts",
 					"line": 336,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L336"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L336"
 				}
 			],
 			"signatures": [
@@ -1196,7 +1196,7 @@
 							"fileName": "index.ts",
 							"line": 336,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L336"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L336"
 						}
 					],
 					"parameters": [
@@ -1273,7 +1273,7 @@
 					"fileName": "index.ts",
 					"line": 473,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L473"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L473"
 				}
 			],
 			"signatures": [
@@ -1288,7 +1288,7 @@
 							"fileName": "index.ts",
 							"line": 473,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L473"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L473"
 						}
 					],
 					"parameters": [
@@ -1360,7 +1360,7 @@
 					"fileName": "index.ts",
 					"line": 481,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L481"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L481"
 				}
 			],
 			"signatures": [
@@ -1375,7 +1375,7 @@
 							"fileName": "index.ts",
 							"line": 481,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L481"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L481"
 						}
 					],
 					"parameters": [
@@ -1452,7 +1452,7 @@
 					"fileName": "index.ts",
 					"line": 212,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L212"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L212"
 				}
 			],
 			"signatures": [
@@ -1475,7 +1475,7 @@
 							"fileName": "index.ts",
 							"line": 212,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L212"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L212"
 						}
 					],
 					"parameters": [
@@ -1552,7 +1552,7 @@
 											"fileName": "index.ts",
 											"line": 228,
 											"character": 8,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L228"
+											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L228"
 										}
 									],
 									"type": {
@@ -1576,7 +1576,7 @@
 											"fileName": "index.ts",
 											"line": 227,
 											"character": 8,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L227"
+											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L227"
 										}
 									],
 									"type": {
@@ -1604,7 +1604,7 @@
 									"fileName": "index.ts",
 									"line": 226,
 									"character": 11,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L226"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L226"
 								}
 							]
 						}
@@ -1623,7 +1623,7 @@
 					"fileName": "index.ts",
 					"line": 349,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L349"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L349"
 				}
 			],
 			"signatures": [
@@ -1646,7 +1646,7 @@
 							"fileName": "index.ts",
 							"line": 349,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L349"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L349"
 						}
 					],
 					"parameters": [
@@ -1687,7 +1687,7 @@
 											"fileName": "index.ts",
 											"line": 349,
 											"character": 77,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L349"
+											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L349"
 										}
 									],
 									"type": {
@@ -1711,7 +1711,7 @@
 											"fileName": "index.ts",
 											"line": 349,
 											"character": 55,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L349"
+											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L349"
 										}
 									],
 									"type": {
@@ -1739,461 +1739,10 @@
 									"fileName": "index.ts",
 									"line": 349,
 									"character": 53,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L349"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L349"
 								}
 							]
 						}
-					}
-				}
-			]
-		},
-		{
-			"id": 88,
-			"name": "octEncodeNormal",
-			"variant": "declaration",
-			"kind": 64,
-			"flags": {
-				"isPrivate": true
-			},
-			"sources": [
-				{
-					"fileName": "index.ts",
-					"line": 723,
-					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L723"
-				}
-			],
-			"signatures": [
-				{
-					"id": 89,
-					"name": "octEncodeNormal",
-					"variant": "signature",
-					"kind": 4096,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "index.ts",
-							"line": 723,
-							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L723"
-						}
-					],
-					"parameters": [
-						{
-							"id": 90,
-							"name": "array",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../math/src/index.ts",
-									"qualifiedName": "FloatArrayParam"
-								},
-								"name": "FloatArrayParam",
-								"package": "@xeokit/math"
-							}
-						},
-						{
-							"id": 91,
-							"name": "i",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "intrinsic",
-								"name": "number"
-							}
-						},
-						{
-							"id": 92,
-							"name": "xfunc",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							}
-						},
-						{
-							"id": 93,
-							"name": "yfunc",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							}
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Int8Array"
-						},
-						"name": "Int8Array",
-						"package": "typescript"
-					}
-				}
-			]
-		},
-		{
-			"id": 80,
-			"name": "octEncodeNormals",
-			"variant": "declaration",
-			"kind": 64,
-			"flags": {
-				"isPrivate": true
-			},
-			"sources": [
-				{
-					"fileName": "index.ts",
-					"line": 665,
-					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L665"
-				}
-			],
-			"signatures": [
-				{
-					"id": 81,
-					"name": "octEncodeNormals",
-					"variant": "signature",
-					"kind": 4096,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "index.ts",
-							"line": 665,
-							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L665"
-						}
-					],
-					"parameters": [
-						{
-							"id": 82,
-							"name": "normals",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../math/src/index.ts",
-									"qualifiedName": "FloatArrayParam"
-								},
-								"name": "FloatArrayParam",
-								"package": "@xeokit/math"
-							}
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Int8Array"
-						},
-						"name": "Int8Array",
-						"package": "typescript"
-					}
-				}
-			]
-		},
-		{
-			"id": 83,
-			"name": "octEncodeVec3",
-			"variant": "declaration",
-			"kind": 64,
-			"flags": {
-				"isPrivate": true
-			},
-			"sources": [
-				{
-					"fileName": "index.ts",
-					"line": 705,
-					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L705"
-				}
-			],
-			"signatures": [
-				{
-					"id": 84,
-					"name": "octEncodeVec3",
-					"variant": "signature",
-					"kind": 4096,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "index.ts",
-							"line": 705,
-							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L705"
-						}
-					],
-					"parameters": [
-						{
-							"id": 85,
-							"name": "p",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../math/src/index.ts",
-									"qualifiedName": "FloatArrayParam"
-								},
-								"name": "FloatArrayParam",
-								"package": "@xeokit/math"
-							}
-						},
-						{
-							"id": 86,
-							"name": "xfunc",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							}
-						},
-						{
-							"id": 87,
-							"name": "yfunc",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							}
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Int8Array"
-						},
-						"name": "Int8Array",
-						"package": "typescript"
-					}
-				}
-			]
-		},
-		{
-			"id": 68,
-			"name": "quantizePositions3",
-			"variant": "declaration",
-			"kind": 64,
-			"flags": {
-				"isPrivate": true
-			},
-			"sources": [
-				{
-					"fileName": "index.ts",
-					"line": 580,
-					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L580"
-				}
-			],
-			"signatures": [
-				{
-					"id": 69,
-					"name": "quantizePositions3",
-					"variant": "signature",
-					"kind": 4096,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "index.ts",
-							"line": 580,
-							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L580"
-						}
-					],
-					"parameters": [
-						{
-							"id": 70,
-							"name": "positions",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../math/src/index.ts",
-									"qualifiedName": "FloatArrayParam"
-								},
-								"name": "FloatArrayParam",
-								"package": "@xeokit/math"
-							}
-						},
-						{
-							"id": 71,
-							"name": "aabb",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../math/src/index.ts",
-									"qualifiedName": "FloatArrayParam"
-								},
-								"name": "FloatArrayParam",
-								"package": "@xeokit/math"
-							}
-						},
-						{
-							"id": 72,
-							"name": "positionsDecompressMatrix",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../math/src/index.ts",
-									"qualifiedName": "FloatArrayParam"
-								},
-								"name": "FloatArrayParam",
-								"package": "@xeokit/math"
-							}
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint16Array"
-						},
-						"name": "Uint16Array",
-						"package": "typescript"
-					}
-				}
-			]
-		},
-		{
-			"id": 73,
-			"name": "transformAndOctEncodeNormals",
-			"variant": "declaration",
-			"kind": 64,
-			"flags": {
-				"isPrivate": true
-			},
-			"sources": [
-				{
-					"fileName": "index.ts",
-					"line": 610,
-					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L610"
-				}
-			],
-			"signatures": [
-				{
-					"id": 74,
-					"name": "transformAndOctEncodeNormals",
-					"variant": "signature",
-					"kind": 4096,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "index.ts",
-							"line": 610,
-							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/compression/src/index.ts#L610"
-						}
-					],
-					"parameters": [
-						{
-							"id": 75,
-							"name": "worldNormalMatrix",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../math/src/index.ts",
-									"qualifiedName": "FloatArrayParam"
-								},
-								"name": "FloatArrayParam",
-								"package": "@xeokit/math"
-							}
-						},
-						{
-							"id": 76,
-							"name": "normals",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../math/src/index.ts",
-									"qualifiedName": "FloatArrayParam"
-								},
-								"name": "FloatArrayParam",
-								"package": "@xeokit/math"
-							}
-						},
-						{
-							"id": 77,
-							"name": "lenNormals",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "intrinsic",
-								"name": "number"
-							}
-						},
-						{
-							"id": 78,
-							"name": "compressedNormals",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../math/src/index.ts",
-									"qualifiedName": "FloatArrayParam"
-								},
-								"name": "FloatArrayParam",
-								"package": "@xeokit/math"
-							}
-						},
-						{
-							"id": 79,
-							"name": "lenCompressedNormals",
-							"variant": "param",
-							"kind": 32768,
-							"flags": {},
-							"type": {
-								"type": "intrinsic",
-								"name": "number"
-							}
-						}
-					],
-					"type": {
-						"type": "intrinsic",
-						"name": "number"
 					}
 				}
 			]
@@ -2216,12 +1765,7 @@
 				50,
 				55,
 				1,
-				41,
-				88,
-				80,
-				83,
-				68,
-				73
+				41
 			]
 		}
 	],
@@ -2505,110 +2049,6 @@
 		"67": {
 			"sourceFileName": "src/index.ts",
 			"qualifiedName": "result"
-		},
-		"68": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "quantizePositions3"
-		},
-		"69": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "quantizePositions3"
-		},
-		"70": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "positions"
-		},
-		"71": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "aabb"
-		},
-		"72": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "positionsDecompressMatrix"
-		},
-		"73": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "transformAndOctEncodeNormals"
-		},
-		"74": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "transformAndOctEncodeNormals"
-		},
-		"75": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "worldNormalMatrix"
-		},
-		"76": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "normals"
-		},
-		"77": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "lenNormals"
-		},
-		"78": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "compressedNormals"
-		},
-		"79": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "lenCompressedNormals"
-		},
-		"80": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "octEncodeNormals"
-		},
-		"81": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "octEncodeNormals"
-		},
-		"82": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "normals"
-		},
-		"83": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "octEncodeVec3"
-		},
-		"84": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "octEncodeVec3"
-		},
-		"85": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "p"
-		},
-		"86": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "xfunc"
-		},
-		"87": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "yfunc"
-		},
-		"88": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "octEncodeNormal"
-		},
-		"89": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "octEncodeNormal"
-		},
-		"90": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "array"
-		},
-		"91": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "i"
-		},
-		"92": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "xfunc"
-		},
-		"93": {
-			"sourceFileName": "src/index.ts",
-			"qualifiedName": "yfunc"
 		},
 		"94": {
 			"sourceFileName": "src/index.ts",

@@ -258,7 +258,7 @@
 							"fileName": "KTX2TextureTranscoder.ts",
 							"line": 88,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
 						}
 					],
 					"signatures": [
@@ -281,7 +281,7 @@
 									"fileName": "KTX2TextureTranscoder.ts",
 									"line": 88,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
 								}
 							],
 							"parameters": [
@@ -329,7 +329,7 @@
 															"fileName": "KTX2TextureTranscoder.ts",
 															"line": 88,
 															"character": 26,
-															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
 														}
 													],
 													"type": {
@@ -358,7 +358,7 @@
 															"fileName": "KTX2TextureTranscoder.ts",
 															"line": 88,
 															"character": 51,
-															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
 														}
 													],
 													"type": {
@@ -381,7 +381,7 @@
 													"fileName": "KTX2TextureTranscoder.ts",
 													"line": 88,
 													"character": 24,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
 												}
 											]
 										}
@@ -398,385 +398,6 @@
 					]
 				},
 				{
-					"id": 21,
-					"name": "#supportedFileTypes",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "KTX2TextureTranscoder.ts",
-							"line": 76,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L76"
-						}
-					],
-					"type": {
-						"type": "array",
-						"elementType": {
-							"type": "intrinsic",
-							"name": "string"
-						}
-					}
-				},
-				{
-					"id": 9,
-					"name": "#transcoderBinary",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "KTX2TextureTranscoder.ts",
-							"line": 71,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L71"
-						}
-					],
-					"type": {
-						"type": "intrinsic",
-						"name": "any"
-					}
-				},
-				{
-					"id": 8,
-					"name": "#transcoderPath",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "KTX2TextureTranscoder.ts",
-							"line": 70,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L70"
-						}
-					],
-					"type": {
-						"type": "intrinsic",
-						"name": "string"
-					}
-				},
-				{
-					"id": 10,
-					"name": "#transcoderPending",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "KTX2TextureTranscoder.ts",
-							"line": 72,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L72"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Promise"
-						},
-						"typeArguments": [
-							{
-								"type": "intrinsic",
-								"name": "void"
-							}
-						],
-						"name": "Promise",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 22,
-					"name": "#withCredentials",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "KTX2TextureTranscoder.ts",
-							"line": 77,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L77"
-						}
-					],
-					"type": {
-						"type": "intrinsic",
-						"name": "boolean"
-					}
-				},
-				{
-					"id": 13,
-					"name": "#workerConfig",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "KTX2TextureTranscoder.ts",
-							"line": 75,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
-						}
-					],
-					"type": {
-						"type": "reflection",
-						"declaration": {
-							"id": 14,
-							"name": "__type",
-							"variant": "declaration",
-							"kind": 65536,
-							"flags": {},
-							"children": [
-								{
-									"id": 15,
-									"name": "astcSupported",
-									"variant": "declaration",
-									"kind": 1024,
-									"flags": {},
-									"sources": [
-										{
-											"fileName": "KTX2TextureTranscoder.ts",
-											"line": 75,
-											"character": 28,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "any"
-									}
-								},
-								{
-									"id": 20,
-									"name": "bptcSupported",
-									"variant": "declaration",
-									"kind": 1024,
-									"flags": {},
-									"sources": [
-										{
-											"fileName": "KTX2TextureTranscoder.ts",
-											"line": 75,
-											"character": 128,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "any"
-									}
-								},
-								{
-									"id": 19,
-									"name": "dxtSupported",
-									"variant": "declaration",
-									"kind": 1024,
-									"flags": {},
-									"sources": [
-										{
-											"fileName": "KTX2TextureTranscoder.ts",
-											"line": 75,
-											"character": 109,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "any"
-									}
-								},
-								{
-									"id": 16,
-									"name": "etc1Supported",
-									"variant": "declaration",
-									"kind": 1024,
-									"flags": {},
-									"sources": [
-										{
-											"fileName": "KTX2TextureTranscoder.ts",
-											"line": 75,
-											"character": 48,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "any"
-									}
-								},
-								{
-									"id": 18,
-									"name": "etc2Supported",
-									"variant": "declaration",
-									"kind": 1024,
-									"flags": {},
-									"sources": [
-										{
-											"fileName": "KTX2TextureTranscoder.ts",
-											"line": 75,
-											"character": 89,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "any"
-									}
-								},
-								{
-									"id": 17,
-									"name": "pvrtcSupported",
-									"variant": "declaration",
-									"kind": 1024,
-									"flags": {},
-									"sources": [
-										{
-											"fileName": "KTX2TextureTranscoder.ts",
-											"line": 75,
-											"character": 68,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
-										}
-									],
-									"type": {
-										"type": "intrinsic",
-										"name": "any"
-									}
-								}
-							],
-							"groups": [
-								{
-									"title": "Properties",
-									"children": [
-										15,
-										20,
-										19,
-										16,
-										18,
-										17
-									]
-								}
-							],
-							"sources": [
-								{
-									"fileName": "KTX2TextureTranscoder.ts",
-									"line": 75,
-									"character": 26,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L75"
-								}
-							]
-						}
-					}
-				},
-				{
-					"id": 11,
-					"name": "#workerPool",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "KTX2TextureTranscoder.ts",
-							"line": 73,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L73"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../utils/src/WorkerPool.ts",
-							"qualifiedName": "WorkerPool"
-						},
-						"name": "WorkerPool",
-						"package": "@xeokit/utils"
-					}
-				},
-				{
-					"id": 12,
-					"name": "#workerSourceURL",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "KTX2TextureTranscoder.ts",
-							"line": 74,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L74"
-						}
-					],
-					"type": {
-						"type": "intrinsic",
-						"name": "string"
-					}
-				},
-				{
-					"id": 33,
-					"name": "#initTranscoder",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "KTX2TextureTranscoder.ts",
-							"line": 167,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L167"
-						}
-					],
-					"signatures": [
-						{
-							"id": 34,
-							"name": "#initTranscoder",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"sources": [
-								{
-									"fileName": "KTX2TextureTranscoder.ts",
-									"line": 167,
-									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L167"
-								}
-							],
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-									"qualifiedName": "Promise"
-								},
-								"typeArguments": [
-									{
-										"type": "intrinsic",
-										"name": "void"
-									}
-								],
-								"name": "Promise",
-								"package": "typescript"
-							}
-						}
-					]
-				},
-				{
 					"id": 31,
 					"name": "destroy",
 					"variant": "declaration",
@@ -787,7 +408,7 @@
 							"fileName": "KTX2TextureTranscoder.ts",
 							"line": 161,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L161"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L161"
 						}
 					],
 					"signatures": [
@@ -810,7 +431,7 @@
 									"fileName": "KTX2TextureTranscoder.ts",
 									"line": 161,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L161"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L161"
 								}
 							],
 							"type": {
@@ -841,7 +462,7 @@
 							"fileName": "KTX2TextureTranscoder.ts",
 							"line": 110,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L110"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L110"
 						}
 					],
 					"signatures": [
@@ -864,7 +485,7 @@
 									"fileName": "KTX2TextureTranscoder.ts",
 									"line": 110,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L110"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L110"
 								}
 							],
 							"parameters": [
@@ -921,7 +542,7 @@
 							"fileName": "KTX2TextureTranscoder.ts",
 							"line": 128,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
 						}
 					],
 					"signatures": [
@@ -955,7 +576,7 @@
 									"fileName": "KTX2TextureTranscoder.ts",
 									"line": 128,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
 								}
 							],
 							"parameters": [
@@ -1013,7 +634,7 @@
 													"fileName": "KTX2TextureTranscoder.ts",
 													"line": 128,
 													"character": 47,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
+													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
 												}
 											]
 										}
@@ -1063,22 +684,8 @@
 					]
 				},
 				{
-					"title": "Properties",
-					"children": [
-						21,
-						9,
-						8,
-						10,
-						22,
-						13,
-						11,
-						12
-					]
-				},
-				{
 					"title": "Methods",
 					"children": [
-						33,
 						31,
 						23,
 						26
@@ -1090,7 +697,7 @@
 					"fileName": "KTX2TextureTranscoder.ts",
 					"line": 68,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/ktx2/src/KTX2TextureTranscoder.ts#L68"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L68"
 				}
 			],
 			"implementedTypes": [
@@ -1155,66 +762,6 @@
 			"sourceFileName": "src/KTX2TextureTranscoder.ts",
 			"qualifiedName": "__type.workerLimit"
 		},
-		"8": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "KTX2TextureTranscoder.#transcoderPath"
-		},
-		"9": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "KTX2TextureTranscoder.#transcoderBinary"
-		},
-		"10": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "KTX2TextureTranscoder.#transcoderPending"
-		},
-		"11": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "KTX2TextureTranscoder.#workerPool"
-		},
-		"12": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "KTX2TextureTranscoder.#workerSourceURL"
-		},
-		"13": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "KTX2TextureTranscoder.#workerConfig"
-		},
-		"14": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "__type"
-		},
-		"15": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "__type.astcSupported"
-		},
-		"16": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "__type.etc1Supported"
-		},
-		"17": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "__type.pvrtcSupported"
-		},
-		"18": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "__type.etc2Supported"
-		},
-		"19": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "__type.dxtSupported"
-		},
-		"20": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "__type.bptcSupported"
-		},
-		"21": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "KTX2TextureTranscoder.#supportedFileTypes"
-		},
-		"22": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "KTX2TextureTranscoder.#withCredentials"
-		},
 		"23": {
 			"sourceFileName": "src/KTX2TextureTranscoder.ts",
 			"qualifiedName": "KTX2TextureTranscoder.init"
@@ -1254,14 +801,6 @@
 		"32": {
 			"sourceFileName": "src/KTX2TextureTranscoder.ts",
 			"qualifiedName": "KTX2TextureTranscoder.destroy"
-		},
-		"33": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "KTX2TextureTranscoder.#initTranscoder"
-		},
-		"34": {
-			"sourceFileName": "src/KTX2TextureTranscoder.ts",
-			"qualifiedName": "KTX2TextureTranscoder.#initTranscoder"
 		}
 	}
 }

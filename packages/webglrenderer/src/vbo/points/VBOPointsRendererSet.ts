@@ -222,14 +222,14 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
         src.push("#version 300 es");
         src.push("// Points batching color vertex shader");
         src.push("uniform int renderPass;");
-        src.push("in vec3 position;");
-        src.push("in vec4 color;");
-        src.push("in float flags;");
         src.push("uniform mat4 worldMatrix;");
         src.push("uniform mat4 viewMatrix;");
         src.push("uniform mat4 projMatrix;");
         src.push("uniform mat4 positionsDecodeMatrix;");
         src.push("uniform float pointSize;");
+        src.push("in vec3 position;");
+        src.push("in vec4 color;");
+        src.push("in float flags;");
         if (pointsMaterial.perspectivePoints) {
             src.push("uniform float nearPlaneHeight;");
         }
@@ -252,13 +252,15 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
         // src.push(`if (colorFlag != renderPass) {`);
         // src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
         // src.push("} else {");
-        if (pointsMaterial.filterIntensity) {
-            src.push("float intensity = float(color.a) / 255.0;")
-            src.push("if (intensity < intensityRange[0] || intensity > intensityRange[1]) {");
-            src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-            src.push("} else {");
-        }
+        // if (pointsMaterial.filterIntensity) {
+        //     src.push("float intensity = float(color.a) / 255.0;")
+        //     src.push("if (intensity < intensityRange[0] || intensity > intensityRange[1]) {");
+        //     src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        //     src.push("} else {");
+        // }
         src.push("vec4 worldPosition = worldMatrix * (positionsDecodeMatrix * vec4(position, 1.0)); ");
+        //src.push("vec4 worldPosition =  vec4(position/2000.0, 1.0); ");
+     //      src.push("vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
         src.push("vec4 viewPosition  = viewMatrix * worldPosition; ");
         src.push("vColor = vec4(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);");
         if (clipping) {
@@ -278,9 +280,9 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
             src.push("gl_PointSize = pointSize;");
         }
     //    src.push("}");
-        if (pointsMaterial.filterIntensity) {
-            src.push("}");
-        }
+    //     if (pointsMaterial.filterIntensity) {
+    //         src.push("}");
+    //     }
         src.push("}");
         return joinSansComments(src);
     }
@@ -336,6 +338,7 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
             src.push("}");
         }
         src.push("   outColor = vColor;");
+        //src.push("   outColor = vec4(1.0,1.0,1.0,1.0);");
         if (view.logarithmicDepthBufferEnabled) {
             src.push("gl_FragDepth = log2( vFragDepth ) * logDepthBufFC * 0.5;");
         }
@@ -360,6 +363,7 @@ class VBOBatchingPointsColorRenderer extends VBOBatchingPointsRenderer {
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
         gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
+        gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array | GLfloat[]>vboPointsLayer.rendererModel.worldMatrix);
         gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
         gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
     }
@@ -514,6 +518,7 @@ class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingPointsRenderer {
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
         gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
+        gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array | GLfloat[]>vboPointsLayer.rendererModel.worldMatrix);
         gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
         gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
     }
@@ -656,6 +661,7 @@ export class VBOBatchingPointsPickMeshRenderer extends VBOBatchingPointsRenderer
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
         gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
+        gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array | GLfloat[]>vboPointsLayer.rendererModel.worldMatrix);
         gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
         gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
     }

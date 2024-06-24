@@ -18,19 +18,19 @@
     <h3>Major components used</h3>
     <ul>
         <li>
-            <a href="../docs/classes/_xeokit_viewer.Viewer.html" target="_other">Viewer</a>
+            <a href="../docs/api/classes/_xeokit_viewer.Viewer.html" target="_other">Viewer</a>
         </li>
         <li>
-            <a href="../docs/classes/_xeokit_webglrenderer.WebGLRenderer.html" target="_other">WebGLRenderer</a>
+            <a href="../docs/api/classes/_xeokit_webglrenderer.WebGLRenderer.html" target="_other">WebGLRenderer</a>
         </li>
         <li>
-            <a href="../docs/classes/_xeokit_viewer.View.html" target="_other">View</a>
+            <a href="../docs/api/classes/_xeokit_viewer.View.html" target="_other">View</a>
         </li>
         <li>
-            <a href="../docs/classes/_xeokit_scene.SceneModel.html" target="_other">SceneModel</a>
+            <a href="../docs/api/classes/_xeokit_scene.SceneModel.html" target="_other">SceneModel</a>
         </li>
         <li>
-            <a href="../docs/classes/_xeokit_core.SDKError.html" target="_other">SDKError</a>
+            <a href="../docs/api/classes/_xeokit_core.SDKError.html" target="_other">SDKError</a>
         </li>
     </ul>
 </div>
@@ -57,16 +57,18 @@
         canvasId: "myCanvas"
     });
 
-    view.camera.eye = [0, 0, 20];
+    view.camera.eye = [0, 0, 200];
     view.camera.look = [0, 0, 0];
     view.camera.up = [0, 1, 0];
 
     const sceneModel = scene.createModel({
-        id: "myModel"
+        id: "myModel",
+        scale: [0.2, 0.2, 0.2]
     });
 
     if (sceneModel instanceof xeokit.core.SDKError) {
         log(`Error creating SceneModel: ${sceneModel.message}`);
+
     } else {
 
         const positions = [];
@@ -74,11 +76,11 @@
 
         const map = {};
 
-        for (let i = 0; i < 2000;) {
+        for (let i = 0; i < 50000;) {
 
-            const x = Math.random()*100;
-            const y = Math.random()*100;
-            const z = Math.random()*100;
+            const x = Math.random() * 1500 - 750;
+            const y = Math.random() * 1500 - 750;
+            const z = Math.random() * 1500 - 750;
 
             const hash = "" + x + "." + y + "." + z;
             if (map[hash]) {
@@ -91,10 +93,10 @@
             positions.push(y);
             positions.push(z);
 
-            colors.push(Math.random()*255);
-            colors.push(Math.random()*255);
-            colors.push(Math.random()*255);
-            colors.push(Math.random()*255);
+            colors.push(Math.random() * 255);
+            colors.push(Math.random() * 255);
+            colors.push(Math.random() * 255);
+            colors.push(255);
 
             i++;
         }
@@ -108,11 +110,7 @@
 
         sceneModel.createMesh({
             id: "pointsMesh",
-            geometryId: "pointsGeometry",
-            // position: [0, 0, 0],
-            // scale: [1, 1, 1],
-            // //rotation: [0, 0, 0],
-            color: [1, 0.3, 0.3]
+            geometryId: "pointsGeometry"
         });
 
         sceneModel.createObject({
@@ -127,6 +125,11 @@
             throw e;
         });
     }
+
+    viewer.onTick.subscribe(() => {
+        view.camera.orbitYaw(0.5);
+        view.camera.orbitPitch(0.1);
+    });
 
 </script>
 

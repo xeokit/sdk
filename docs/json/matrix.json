@@ -46,7 +46,7 @@
 					"fileName": "index.ts",
 					"line": 545,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L545"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L545"
 				}
 			],
 			"type": {
@@ -71,7 +71,7 @@
 					"fileName": "index.ts",
 					"line": 170,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L170"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L170"
 				}
 			],
 			"signatures": [
@@ -94,7 +94,7 @@
 							"fileName": "index.ts",
 							"line": 170,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L170"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L170"
 						}
 					],
 					"parameters": [
@@ -172,7 +172,7 @@
 					"fileName": "index.ts",
 					"line": 182,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L182"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L182"
 				}
 			],
 			"signatures": [
@@ -187,7 +187,7 @@
 							"fileName": "index.ts",
 							"line": 182,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L182"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L182"
 						}
 					],
 					"parameters": [
@@ -260,7 +260,7 @@
 					"fileName": "index.ts",
 					"line": 103,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L103"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L103"
 				}
 			],
 			"signatures": [
@@ -283,7 +283,7 @@
 							"fileName": "index.ts",
 							"line": 103,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L103"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L103"
 						}
 					],
 					"parameters": [
@@ -361,7 +361,7 @@
 					"fileName": "index.ts",
 					"line": 117,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L117"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L117"
 				}
 			],
 			"signatures": [
@@ -384,7 +384,7 @@
 							"fileName": "index.ts",
 							"line": 117,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L117"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L117"
 						}
 					],
 					"parameters": [
@@ -457,7 +457,7 @@
 					"fileName": "index.ts",
 					"line": 1999,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1999"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1999"
 				}
 			],
 			"signatures": [
@@ -480,7 +480,7 @@
 							"fileName": "index.ts",
 							"line": 1999,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1999"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1999"
 						}
 					],
 					"parameters": [
@@ -541,7 +541,7 @@
 					"fileName": "index.ts",
 					"line": 536,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L536"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L536"
 				}
 			],
 			"signatures": [
@@ -564,7 +564,7 @@
 							"fileName": "index.ts",
 							"line": 536,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L536"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L536"
 						}
 					],
 					"parameters": [
@@ -619,7 +619,7 @@
 					"fileName": "index.ts",
 					"line": 672,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L672"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L672"
 				}
 			],
 			"signatures": [
@@ -648,7 +648,7 @@
 							"fileName": "index.ts",
 							"line": 672,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L672"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L672"
 						}
 					],
 					"parameters": [
@@ -703,7 +703,7 @@
 					"fileName": "index.ts",
 					"line": 209,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L209"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L209"
 				}
 			],
 			"signatures": [
@@ -726,7 +726,7 @@
 							"fileName": "index.ts",
 							"line": 209,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L209"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L209"
 						}
 					],
 					"parameters": [
@@ -781,7 +781,7 @@
 					"fileName": "index.ts",
 					"line": 1527,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1527"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1527"
 				}
 			],
 			"signatures": [
@@ -804,7 +804,7 @@
 							"fileName": "index.ts",
 							"line": 1527,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1527"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1527"
 						}
 					],
 					"parameters": [
@@ -897,7 +897,7 @@
 					"fileName": "index.ts",
 					"line": 2215,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2215"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2215"
 				}
 			],
 			"signatures": [
@@ -931,7 +931,7 @@
 							"fileName": "index.ts",
 							"line": 2215,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2215"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2215"
 						}
 					],
 					"parameters": [
@@ -992,7 +992,7 @@
 					"fileName": "index.ts",
 					"line": 624,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L624"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L624"
 				}
 			],
 			"signatures": [
@@ -1015,7 +1015,7 @@
 							"fileName": "index.ts",
 							"line": 624,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L624"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L624"
 						}
 					],
 					"parameters": [
@@ -1061,7 +1061,7 @@
 					"fileName": "index.ts",
 					"line": 658,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L658"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L658"
 				}
 			],
 			"signatures": [
@@ -1084,7 +1084,7 @@
 							"fileName": "index.ts",
 							"line": 658,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L658"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L658"
 						}
 					],
 					"parameters": [
@@ -1130,7 +1130,7 @@
 					"fileName": "index.ts",
 					"line": 52,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L52"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L52"
 				}
 			],
 			"signatures": [
@@ -1153,7 +1153,7 @@
 							"fileName": "index.ts",
 							"line": 52,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L52"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L52"
 						}
 					],
 					"parameters": [
@@ -1199,7 +1199,7 @@
 					"fileName": "index.ts",
 					"line": 60,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L60"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L60"
 				}
 			],
 			"signatures": [
@@ -1222,7 +1222,7 @@
 							"fileName": "index.ts",
 							"line": 60,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L60"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L60"
 						}
 					],
 					"parameters": [
@@ -1268,7 +1268,7 @@
 					"fileName": "index.ts",
 					"line": 68,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L68"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L68"
 				}
 			],
 			"signatures": [
@@ -1291,7 +1291,7 @@
 							"fileName": "index.ts",
 							"line": 68,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L68"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L68"
 						}
 					],
 					"parameters": [
@@ -1337,7 +1337,7 @@
 					"fileName": "index.ts",
 					"line": 409,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L409"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L409"
 				}
 			],
 			"signatures": [
@@ -1360,7 +1360,7 @@
 							"fileName": "index.ts",
 							"line": 409,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L409"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L409"
 						}
 					],
 					"parameters": [
@@ -1438,7 +1438,7 @@
 					"fileName": "index.ts",
 					"line": 392,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L392"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L392"
 				}
 			],
 			"signatures": [
@@ -1461,7 +1461,7 @@
 							"fileName": "index.ts",
 							"line": 392,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L392"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L392"
 						}
 					],
 					"parameters": [
@@ -1519,7 +1519,7 @@
 					"fileName": "index.ts",
 					"line": 1541,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1541"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1541"
 				}
 			],
 			"signatures": [
@@ -1542,7 +1542,7 @@
 							"fileName": "index.ts",
 							"line": 1544,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1544"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1544"
 						}
 					],
 					"parameters": [
@@ -1629,7 +1629,7 @@
 					"fileName": "index.ts",
 					"line": 1691,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1691"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1691"
 				}
 			],
 			"signatures": [
@@ -1652,7 +1652,7 @@
 							"fileName": "index.ts",
 							"line": 1691,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1691"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1691"
 						}
 					],
 					"parameters": [
@@ -1691,7 +1691,7 @@
 					"fileName": "index.ts",
 					"line": 489,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L489"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L489"
 				}
 			],
 			"signatures": [
@@ -1706,7 +1706,7 @@
 							"fileName": "index.ts",
 							"line": 491,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L491"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L491"
 						}
 					],
 					"parameters": [
@@ -1761,7 +1761,7 @@
 					"fileName": "index.ts",
 					"line": 465,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L465"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L465"
 				}
 			],
 			"signatures": [
@@ -1776,7 +1776,7 @@
 							"fileName": "index.ts",
 							"line": 467,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L467"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L467"
 						}
 					],
 					"parameters": [
@@ -1831,7 +1831,7 @@
 					"fileName": "index.ts",
 					"line": 331,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L331"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L331"
 				}
 			],
 			"signatures": [
@@ -1854,7 +1854,7 @@
 							"fileName": "index.ts",
 							"line": 331,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L331"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L331"
 						}
 					],
 					"parameters": [
@@ -1927,7 +1927,7 @@
 					"fileName": "index.ts",
 					"line": 371,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L371"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L371"
 				}
 			],
 			"signatures": [
@@ -1950,7 +1950,7 @@
 							"fileName": "index.ts",
 							"line": 371,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L371"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L371"
 						}
 					],
 					"parameters": [
@@ -2023,7 +2023,7 @@
 					"fileName": "index.ts",
 					"line": 304,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L304"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L304"
 				}
 			],
 			"signatures": [
@@ -2046,7 +2046,7 @@
 							"fileName": "index.ts",
 							"line": 304,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L304"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L304"
 						}
 					],
 					"parameters": [
@@ -2124,7 +2124,7 @@
 					"fileName": "index.ts",
 					"line": 344,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L344"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L344"
 				}
 			],
 			"signatures": [
@@ -2147,7 +2147,7 @@
 							"fileName": "index.ts",
 							"line": 344,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L344"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L344"
 						}
 					],
 					"parameters": [
@@ -2220,7 +2220,7 @@
 					"fileName": "index.ts",
 					"line": 317,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L317"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L317"
 				}
 			],
 			"signatures": [
@@ -2243,7 +2243,7 @@
 							"fileName": "index.ts",
 							"line": 317,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L317"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L317"
 						}
 					],
 					"parameters": [
@@ -2321,7 +2321,7 @@
 					"fileName": "index.ts",
 					"line": 357,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L357"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L357"
 				}
 			],
 			"signatures": [
@@ -2344,7 +2344,7 @@
 							"fileName": "index.ts",
 							"line": 357,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L357"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L357"
 						}
 					],
 					"parameters": [
@@ -2417,7 +2417,7 @@
 					"fileName": "index.ts",
 					"line": 444,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L444"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L444"
 				}
 			],
 			"signatures": [
@@ -2440,7 +2440,7 @@
 							"fileName": "index.ts",
 							"line": 444,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L444"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L444"
 						}
 					],
 					"parameters": [
@@ -2495,7 +2495,7 @@
 					"fileName": "index.ts",
 					"line": 45,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L45"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L45"
 				}
 			],
 			"signatures": [
@@ -2518,7 +2518,7 @@
 							"fileName": "index.ts",
 							"line": 45,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L45"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L45"
 						}
 					],
 					"parameters": [
@@ -2573,7 +2573,7 @@
 					"fileName": "index.ts",
 					"line": 385,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L385"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L385"
 				}
 			],
 			"signatures": [
@@ -2596,7 +2596,7 @@
 							"fileName": "index.ts",
 							"line": 385,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L385"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L385"
 						}
 					],
 					"parameters": [
@@ -2651,7 +2651,7 @@
 					"fileName": "index.ts",
 					"line": 1842,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1842"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1842"
 				}
 			],
 			"signatures": [
@@ -2685,7 +2685,7 @@
 							"fileName": "index.ts",
 							"line": 1842,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1842"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1842"
 						}
 					],
 					"parameters": [
@@ -2783,7 +2783,7 @@
 					"fileName": "index.ts",
 					"line": 779,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L779"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L779"
 				}
 			],
 			"signatures": [
@@ -2806,7 +2806,7 @@
 							"fileName": "index.ts",
 							"line": 779,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L779"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L779"
 						}
 					],
 					"parameters": [
@@ -2918,7 +2918,7 @@
 					"fileName": "index.ts",
 					"line": 709,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L709"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L709"
 				}
 			],
 			"signatures": [
@@ -2941,7 +2941,7 @@
 							"fileName": "index.ts",
 							"line": 709,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L709"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L709"
 						}
 					],
 					"parameters": [
@@ -3019,7 +3019,7 @@
 					"fileName": "index.ts",
 					"line": 241,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L241"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L241"
 				}
 			],
 			"signatures": [
@@ -3042,7 +3042,7 @@
 							"fileName": "index.ts",
 							"line": 241,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L241"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L241"
 						}
 					],
 					"parameters": [
@@ -3083,7 +3083,7 @@
 					"fileName": "index.ts",
 					"line": 842,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L842"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L842"
 				}
 			],
 			"signatures": [
@@ -3106,7 +3106,7 @@
 							"fileName": "index.ts",
 							"line": 842,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L842"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L842"
 						}
 					],
 					"parameters": [
@@ -3152,7 +3152,7 @@
 					"fileName": "index.ts",
 					"line": 816,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L816"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L816"
 				}
 			],
 			"signatures": [
@@ -3175,7 +3175,7 @@
 							"fileName": "index.ts",
 							"line": 816,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L816"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L816"
 						}
 					],
 					"parameters": [
@@ -3221,7 +3221,7 @@
 					"fileName": "index.ts",
 					"line": 1824,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1824"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1824"
 				}
 			],
 			"signatures": [
@@ -3255,7 +3255,7 @@
 							"fileName": "index.ts",
 							"line": 1824,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1824"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1824"
 						}
 					],
 					"parameters": [
@@ -3308,7 +3308,7 @@
 					"fileName": "index.ts",
 					"line": 1006,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1006"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1006"
 				}
 			],
 			"signatures": [
@@ -3331,7 +3331,7 @@
 							"fileName": "index.ts",
 							"line": 1006,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1006"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1006"
 						}
 					],
 					"parameters": [
@@ -3393,7 +3393,7 @@
 					"fileName": "index.ts",
 					"line": 2232,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2232"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2232"
 				}
 			],
 			"signatures": [
@@ -3427,7 +3427,7 @@
 							"fileName": "index.ts",
 							"line": 2232,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2232"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2232"
 						}
 					],
 					"parameters": [
@@ -3487,7 +3487,7 @@
 					"fileName": "index.ts",
 					"line": 861,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L861"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L861"
 				}
 			],
 			"signatures": [
@@ -3510,7 +3510,7 @@
 							"fileName": "index.ts",
 							"line": 861,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L861"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L861"
 						}
 					],
 					"parameters": [
@@ -3549,7 +3549,7 @@
 					"fileName": "index.ts",
 					"line": 473,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L473"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L473"
 				}
 			],
 			"signatures": [
@@ -3572,7 +3572,7 @@
 							"fileName": "index.ts",
 							"line": 473,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L473"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L473"
 						}
 					],
 					"parameters": [
@@ -3611,7 +3611,7 @@
 					"fileName": "index.ts",
 					"line": 461,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L461"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L461"
 				}
 			],
 			"signatures": [
@@ -3634,7 +3634,7 @@
 							"fileName": "index.ts",
 							"line": 461,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L461"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L461"
 						}
 					],
 					"parameters": [
@@ -3673,7 +3673,7 @@
 					"fileName": "index.ts",
 					"line": 436,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L436"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L436"
 				}
 			],
 			"signatures": [
@@ -3720,7 +3720,7 @@
 							"fileName": "index.ts",
 							"line": 436,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L436"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L436"
 						}
 					],
 					"parameters": [
@@ -3767,7 +3767,7 @@
 					"fileName": "index.ts",
 					"line": 1796,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1796"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1796"
 				}
 			],
 			"signatures": [
@@ -3790,7 +3790,7 @@
 							"fileName": "index.ts",
 							"line": 1796,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1796"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1796"
 						}
 					],
 					"parameters": [
@@ -3901,7 +3901,7 @@
 					"fileName": "index.ts",
 					"line": 480,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L480"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L480"
 				}
 			],
 			"signatures": [
@@ -3924,7 +3924,7 @@
 							"fileName": "index.ts",
 							"line": 480,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L480"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L480"
 						}
 					],
 					"parameters": [
@@ -4023,7 +4023,7 @@
 					"fileName": "index.ts",
 					"line": 919,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L919"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L919"
 				}
 			],
 			"signatures": [
@@ -4046,7 +4046,7 @@
 							"fileName": "index.ts",
 							"line": 919,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L919"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L919"
 						}
 					],
 					"parameters": [
@@ -4140,7 +4140,7 @@
 					"fileName": "index.ts",
 					"line": 632,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L632"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L632"
 				}
 			],
 			"signatures": [
@@ -4163,7 +4163,7 @@
 							"fileName": "index.ts",
 							"line": 632,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L632"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L632"
 						}
 					],
 					"parameters": [
@@ -4225,7 +4225,7 @@
 					"fileName": "index.ts",
 					"line": 1724,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1724"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1724"
 				}
 			],
 			"signatures": [
@@ -4248,7 +4248,7 @@
 							"fileName": "index.ts",
 							"line": 1724,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1724"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1724"
 						}
 					],
 					"parameters": [
@@ -4322,7 +4322,7 @@
 					"fileName": "index.ts",
 					"line": 1900,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1900"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1900"
 				}
 			],
 			"signatures": [
@@ -4345,7 +4345,7 @@
 							"fileName": "index.ts",
 							"line": 1900,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1900"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1900"
 						}
 					],
 					"parameters": [
@@ -4422,7 +4422,7 @@
 					"fileName": "index.ts",
 					"line": 1189,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1189"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1189"
 				}
 			],
 			"signatures": [
@@ -4445,7 +4445,7 @@
 							"fileName": "index.ts",
 							"line": 1189,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1189"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1189"
 						}
 					],
 					"parameters": [
@@ -4522,7 +4522,7 @@
 					"fileName": "index.ts",
 					"line": 1131,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1131"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1131"
 				}
 			],
 			"signatures": [
@@ -4560,7 +4560,7 @@
 							"fileName": "index.ts",
 							"line": 1131,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1131"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1131"
 						}
 					],
 					"parameters": [
@@ -4638,7 +4638,7 @@
 					"fileName": "index.ts",
 					"line": 1111,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1111"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1111"
 				}
 			],
 			"signatures": [
@@ -4661,7 +4661,7 @@
 							"fileName": "index.ts",
 							"line": 1111,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1111"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1111"
 						}
 					],
 					"parameters": [
@@ -4739,7 +4739,7 @@
 					"fileName": "index.ts",
 					"line": 2034,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2034"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2034"
 				}
 			],
 			"signatures": [
@@ -4762,7 +4762,7 @@
 							"fileName": "index.ts",
 							"line": 2034,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2034"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2034"
 						}
 					],
 					"parameters": [
@@ -4839,7 +4839,7 @@
 					"fileName": "index.ts",
 					"line": 158,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L158"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L158"
 				}
 			],
 			"signatures": [
@@ -4862,7 +4862,7 @@
 							"fileName": "index.ts",
 							"line": 158,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L158"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L158"
 						}
 					],
 					"parameters": [
@@ -4935,7 +4935,7 @@
 					"fileName": "index.ts",
 					"line": 145,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L145"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L145"
 				}
 			],
 			"signatures": [
@@ -4958,7 +4958,7 @@
 							"fileName": "index.ts",
 							"line": 145,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L145"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L145"
 						}
 					],
 					"parameters": [
@@ -5031,7 +5031,7 @@
 					"fileName": "index.ts",
 					"line": 289,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L289"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L289"
 				}
 			],
 			"signatures": [
@@ -5054,7 +5054,7 @@
 							"fileName": "index.ts",
 							"line": 289,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L289"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L289"
 						}
 					],
 					"parameters": [
@@ -5132,7 +5132,7 @@
 					"fileName": "index.ts",
 					"line": 131,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L131"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L131"
 				}
 			],
 			"signatures": [
@@ -5155,7 +5155,7 @@
 							"fileName": "index.ts",
 							"line": 131,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L131"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L131"
 						}
 					],
 					"parameters": [
@@ -5228,7 +5228,7 @@
 					"fileName": "index.ts",
 					"line": 76,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L76"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L76"
 				}
 			],
 			"signatures": [
@@ -5251,7 +5251,7 @@
 							"fileName": "index.ts",
 							"line": 76,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L76"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L76"
 						}
 					],
 					"parameters": [
@@ -5313,7 +5313,7 @@
 					"fileName": "index.ts",
 					"line": 89,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L89"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L89"
 				}
 			],
 			"signatures": [
@@ -5336,7 +5336,7 @@
 							"fileName": "index.ts",
 							"line": 89,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L89"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L89"
 						}
 					],
 					"parameters": [
@@ -5398,7 +5398,7 @@
 					"fileName": "index.ts",
 					"line": 2197,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2197"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2197"
 				}
 			],
 			"signatures": [
@@ -5432,7 +5432,7 @@
 							"fileName": "index.ts",
 							"line": 2197,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2197"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2197"
 						}
 					],
 					"parameters": [
@@ -5493,7 +5493,7 @@
 					"fileName": "index.ts",
 					"line": 528,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L528"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L528"
 				}
 			],
 			"signatures": [
@@ -5516,7 +5516,7 @@
 							"fileName": "index.ts",
 							"line": 528,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L528"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L528"
 						}
 					],
 					"parameters": [
@@ -5576,7 +5576,7 @@
 					"fileName": "index.ts",
 					"line": 520,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L520"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L520"
 				}
 			],
 			"signatures": [
@@ -5614,7 +5614,7 @@
 							"fileName": "index.ts",
 							"line": 520,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L520"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L520"
 						}
 					],
 					"parameters": [
@@ -5676,7 +5676,7 @@
 					"fileName": "index.ts",
 					"line": 510,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L510"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L510"
 				}
 			],
 			"signatures": [
@@ -5699,7 +5699,7 @@
 							"fileName": "index.ts",
 							"line": 510,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L510"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L510"
 						}
 					],
 					"parameters": [
@@ -5759,7 +5759,7 @@
 					"fileName": "index.ts",
 					"line": 743,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L743"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L743"
 				}
 			],
 			"signatures": [
@@ -5782,7 +5782,7 @@
 							"fileName": "index.ts",
 							"line": 743,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L743"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L743"
 						}
 					],
 					"parameters": [
@@ -5894,7 +5894,7 @@
 					"fileName": "index.ts",
 					"line": 694,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L694"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L694"
 				}
 			],
 			"signatures": [
@@ -5917,7 +5917,7 @@
 							"fileName": "index.ts",
 							"line": 694,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L694"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L694"
 						}
 					],
 					"parameters": [
@@ -6007,7 +6007,7 @@
 					"fileName": "index.ts",
 					"line": 2242,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2242"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2242"
 				}
 			],
 			"signatures": [
@@ -6041,7 +6041,7 @@
 							"fileName": "index.ts",
 							"line": 2242,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2242"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2242"
 						}
 					],
 					"parameters": [
@@ -6102,7 +6102,7 @@
 					"fileName": "index.ts",
 					"line": 2018,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2018"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2018"
 				}
 			],
 			"signatures": [
@@ -6125,7 +6125,7 @@
 							"fileName": "index.ts",
 							"line": 2018,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2018"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2018"
 						}
 					],
 					"parameters": [
@@ -6197,7 +6197,7 @@
 					"fileName": "index.ts",
 					"line": 2095,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2095"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2095"
 				}
 			],
 			"signatures": [
@@ -6220,7 +6220,7 @@
 							"fileName": "index.ts",
 							"line": 2095,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2095"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2095"
 						}
 					],
 					"parameters": [
@@ -6282,7 +6282,7 @@
 					"fileName": "index.ts",
 					"line": 2143,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2143"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2143"
 				}
 			],
 			"signatures": [
@@ -6305,7 +6305,7 @@
 							"fileName": "index.ts",
 							"line": 2143,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2143"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2143"
 						}
 					],
 					"parameters": [
@@ -6365,7 +6365,7 @@
 					"fileName": "index.ts",
 					"line": 2268,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2268"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2268"
 				}
 			],
 			"signatures": [
@@ -6388,7 +6388,7 @@
 							"fileName": "index.ts",
 							"line": 2268,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2268"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2268"
 						}
 					],
 					"parameters": [
@@ -6521,7 +6521,7 @@
 					"fileName": "index.ts",
 					"line": 502,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L502"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L502"
 				}
 			],
 			"signatures": [
@@ -6563,7 +6563,7 @@
 							"fileName": "index.ts",
 							"line": 502,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L502"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L502"
 						}
 					],
 					"parameters": [
@@ -6639,7 +6639,7 @@
 					"fileName": "index.ts",
 					"line": 874,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L874"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L874"
 				}
 			],
 			"signatures": [
@@ -6662,7 +6662,7 @@
 							"fileName": "index.ts",
 							"line": 874,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L874"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L874"
 						}
 					],
 					"parameters": [
@@ -6735,7 +6735,7 @@
 					"fileName": "index.ts",
 					"line": 1493,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1493"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1493"
 				}
 			],
 			"signatures": [
@@ -6769,7 +6769,7 @@
 							"fileName": "index.ts",
 							"line": 1493,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1493"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1493"
 						}
 					],
 					"parameters": [
@@ -6846,7 +6846,7 @@
 					"fileName": "index.ts",
 					"line": 1435,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1435"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1435"
 				}
 			],
 			"signatures": [
@@ -6869,7 +6869,7 @@
 							"fileName": "index.ts",
 							"line": 1435,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1435"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1435"
 						}
 					],
 					"parameters": [
@@ -6930,7 +6930,7 @@
 					"fileName": "index.ts",
 					"line": 1466,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1466"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1466"
 				}
 			],
 			"signatures": [
@@ -6953,7 +6953,7 @@
 							"fileName": "index.ts",
 							"line": 1466,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1466"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1466"
 						}
 					],
 					"parameters": [
@@ -7014,7 +7014,7 @@
 					"fileName": "index.ts",
 					"line": 1475,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1475"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1475"
 				}
 			],
 			"signatures": [
@@ -7037,7 +7037,7 @@
 							"fileName": "index.ts",
 							"line": 1477,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1477"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1477"
 						}
 					],
 					"parameters": [
@@ -7116,7 +7116,7 @@
 					"fileName": "index.ts",
 					"line": 1516,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1516"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1516"
 				}
 			],
 			"signatures": [
@@ -7139,7 +7139,7 @@
 							"fileName": "index.ts",
 							"line": 1516,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1516"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1516"
 						}
 					],
 					"parameters": [
@@ -7178,7 +7178,7 @@
 					"fileName": "index.ts",
 					"line": 1456,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1456"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1456"
 				}
 			],
 			"signatures": [
@@ -7193,7 +7193,7 @@
 							"fileName": "index.ts",
 							"line": 1456,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1456"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1456"
 						}
 					],
 					"parameters": [
@@ -7254,7 +7254,7 @@
 					"fileName": "index.ts",
 					"line": 1621,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1621"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1621"
 				}
 			],
 			"signatures": [
@@ -7277,7 +7277,7 @@
 							"fileName": "index.ts",
 							"line": 1621,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1621"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1621"
 						}
 					],
 					"parameters": [
@@ -7353,7 +7353,7 @@
 					"fileName": "index.ts",
 					"line": 454,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L454"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L454"
 				}
 			],
 			"signatures": [
@@ -7368,7 +7368,7 @@
 							"fileName": "index.ts",
 							"line": 454,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L454"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L454"
 						}
 					],
 					"parameters": [
@@ -7407,7 +7407,7 @@
 					"fileName": "index.ts",
 					"line": 449,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L449"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L449"
 				}
 			],
 			"signatures": [
@@ -7422,7 +7422,7 @@
 							"fileName": "index.ts",
 							"line": 449,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L449"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L449"
 						}
 					],
 					"parameters": [
@@ -7461,7 +7461,7 @@
 					"fileName": "index.ts",
 					"line": 425,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L425"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L425"
 				}
 			],
 			"signatures": [
@@ -7476,7 +7476,7 @@
 							"fileName": "index.ts",
 							"line": 425,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L425"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L425"
 						}
 					],
 					"parameters": [
@@ -7515,7 +7515,7 @@
 					"fileName": "index.ts",
 					"line": 275,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L275"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L275"
 				}
 			],
 			"signatures": [
@@ -7562,7 +7562,7 @@
 							"fileName": "index.ts",
 							"line": 275,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L275"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L275"
 						}
 					],
 					"parameters": [
@@ -7659,7 +7659,7 @@
 					"fileName": "index.ts",
 					"line": 229,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L229"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L229"
 				}
 			],
 			"signatures": [
@@ -7682,7 +7682,7 @@
 							"fileName": "index.ts",
 							"line": 229,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L229"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L229"
 						}
 					],
 					"parameters": [
@@ -7760,7 +7760,7 @@
 					"fileName": "index.ts",
 					"line": 216,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L216"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L216"
 				}
 			],
 			"signatures": [
@@ -7783,7 +7783,7 @@
 							"fileName": "index.ts",
 							"line": 216,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L216"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L216"
 						}
 					],
 					"parameters": [
@@ -7861,7 +7861,7 @@
 					"fileName": "index.ts",
 					"line": 195,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L195"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L195"
 				}
 			],
 			"signatures": [
@@ -7884,7 +7884,7 @@
 							"fileName": "index.ts",
 							"line": 195,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L195"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L195"
 						}
 					],
 					"parameters": [
@@ -7962,7 +7962,7 @@
 					"fileName": "index.ts",
 					"line": 255,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L255"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L255"
 				}
 			],
 			"signatures": [
@@ -7985,7 +7985,7 @@
 							"fileName": "index.ts",
 							"line": 255,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L255"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L255"
 						}
 					],
 					"parameters": [
@@ -8058,7 +8058,7 @@
 					"fileName": "index.ts",
 					"line": 1230,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1230"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1230"
 				}
 			],
 			"signatures": [
@@ -8096,7 +8096,7 @@
 							"fileName": "index.ts",
 							"line": 1230,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1230"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1230"
 						}
 					],
 					"parameters": [
@@ -8174,7 +8174,7 @@
 					"fileName": "index.ts",
 					"line": 1248,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1248"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1248"
 				}
 			],
 			"signatures": [
@@ -8212,7 +8212,7 @@
 							"fileName": "index.ts",
 							"line": 1248,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1248"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1248"
 						}
 					],
 					"parameters": [
@@ -8288,7 +8288,7 @@
 					"fileName": "index.ts",
 					"line": 1262,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1262"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1262"
 				}
 			],
 			"signatures": [
@@ -8326,7 +8326,7 @@
 							"fileName": "index.ts",
 							"line": 1262,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1262"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1262"
 						}
 					],
 					"parameters": [
@@ -8405,7 +8405,7 @@
 					"fileName": "index.ts",
 					"line": 1316,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1316"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1316"
 				}
 			],
 			"signatures": [
@@ -8428,7 +8428,7 @@
 							"fileName": "index.ts",
 							"line": 1316,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1316"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1316"
 						}
 					],
 					"parameters": [
@@ -8506,7 +8506,7 @@
 					"fileName": "index.ts",
 					"line": 1362,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1362"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1362"
 				}
 			],
 			"signatures": [
@@ -8529,7 +8529,7 @@
 							"fileName": "index.ts",
 							"line": 1362,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1362"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1362"
 						}
 					],
 					"parameters": [
@@ -8607,7 +8607,7 @@
 					"fileName": "index.ts",
 					"line": 2303,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2303"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2303"
 				}
 			],
 			"signatures": [
@@ -8630,7 +8630,7 @@
 							"fileName": "index.ts",
 							"line": 2303,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2303"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2303"
 						}
 					],
 					"parameters": [
@@ -8773,7 +8773,7 @@
 					"fileName": "index.ts",
 					"line": 1402,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1402"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1402"
 				}
 			],
 			"signatures": [
@@ -8796,7 +8796,7 @@
 							"fileName": "index.ts",
 							"line": 1402,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1402"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1402"
 						}
 					],
 					"parameters": [
@@ -8874,7 +8874,7 @@
 					"fileName": "index.ts",
 					"line": 1418,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1418"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1418"
 				}
 			],
 			"signatures": [
@@ -8912,7 +8912,7 @@
 							"fileName": "index.ts",
 							"line": 1418,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1418"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1418"
 						}
 					],
 					"parameters": [
@@ -8990,7 +8990,7 @@
 					"fileName": "index.ts",
 					"line": 1597,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1597"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1597"
 				}
 			],
 			"signatures": [
@@ -9013,7 +9013,7 @@
 							"fileName": "index.ts",
 							"line": 1597,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1597"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1597"
 						}
 					],
 					"parameters": [
@@ -9091,7 +9091,7 @@
 					"fileName": "index.ts",
 					"line": 1590,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1590"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1590"
 				}
 			],
 			"signatures": [
@@ -9114,7 +9114,7 @@
 							"fileName": "index.ts",
 							"line": 1590,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1590"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1590"
 						}
 					],
 					"parameters": [
@@ -9175,7 +9175,7 @@
 					"fileName": "index.ts",
 					"line": 1660,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1660"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1660"
 				}
 			],
 			"signatures": [
@@ -9198,7 +9198,7 @@
 							"fileName": "index.ts",
 							"line": 1660,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1660"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1660"
 						}
 					],
 					"parameters": [
@@ -9260,7 +9260,7 @@
 					"fileName": "index.ts",
 					"line": 1670,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1670"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1670"
 				}
 			],
 			"signatures": [
@@ -9283,7 +9283,7 @@
 							"fileName": "index.ts",
 							"line": 1672,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1672"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1672"
 						}
 					],
 					"parameters": [
@@ -9360,7 +9360,7 @@
 					"fileName": "index.ts",
 					"line": 1683,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1683"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1683"
 				}
 			],
 			"signatures": [
@@ -9383,7 +9383,7 @@
 							"fileName": "index.ts",
 							"line": 1683,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1683"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1683"
 						}
 					],
 					"parameters": [
@@ -9438,7 +9438,7 @@
 					"fileName": "index.ts",
 					"line": 1649,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1649"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1649"
 				}
 			],
 			"signatures": [
@@ -9461,7 +9461,7 @@
 							"fileName": "index.ts",
 							"line": 1649,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1649"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1649"
 						}
 					],
 					"parameters": [
@@ -9523,7 +9523,7 @@
 					"fileName": "index.ts",
 					"line": 1061,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1061"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1061"
 				}
 			],
 			"signatures": [
@@ -9546,7 +9546,7 @@
 							"fileName": "index.ts",
 							"line": 1061,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1061"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1061"
 						}
 					],
 					"parameters": [
@@ -9608,7 +9608,7 @@
 					"fileName": "index.ts",
 					"line": 593,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L593"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L593"
 				}
 			],
 			"signatures": [
@@ -9631,7 +9631,7 @@
 							"fileName": "index.ts",
 							"line": 593,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L593"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L593"
 						}
 					],
 					"parameters": [
@@ -9724,7 +9724,7 @@
 					"fileName": "index.ts",
 					"line": 2060,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2060"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2060"
 				}
 			],
 			"signatures": [
@@ -9739,7 +9739,7 @@
 							"fileName": "index.ts",
 							"line": 2060,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L2060"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L2060"
 						}
 					],
 					"parameters": [
@@ -9816,7 +9816,7 @@
 					"fileName": "index.ts",
 					"line": 1960,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1960"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1960"
 				}
 			],
 			"signatures": [
@@ -9831,7 +9831,7 @@
 							"fileName": "index.ts",
 							"line": 1960,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L1960"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L1960"
 						}
 					],
 					"parameters": [
@@ -9908,7 +9908,7 @@
 					"fileName": "index.ts",
 					"line": 577,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L577"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L577"
 				}
 			],
 			"signatures": [
@@ -9931,7 +9931,7 @@
 							"fileName": "index.ts",
 							"line": 577,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/matrix/src/index.ts#L577"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/matrix/src/index.ts#L577"
 						}
 					],
 					"parameters": [

@@ -457,59 +457,73 @@ export abstract class DTXLayerRenderer {
         // }
 
         if (samplers.positionsCompressedDataTexture) {
-            renderState.dataTextureSet.positionsCompressedDataTexture.bindTexture(program, samplers.positionsCompressedDataTexture, renderContext.nextTextureUnit);
+            program.bindTexture("positionsCompressedDataTexture", renderState.dataTextureSet.positionsCompressedDataTexture, 0);
+            //renderState.dataTextureSet.positionsCompressedDataTexture.bindTexture(program, samplers.positionsCompressedDataTexture, 0);
             this.renderStats.numTextureBinds++;
         }
 
         if (samplers.subMeshInstanceMatricesDataTexture) {
-            renderState.dataTextureSet.subMeshInstanceMatricesDataTexture.bindTexture(program, samplers.subMeshInstanceMatricesDataTexture, renderContext.nextTextureUnit);
+            program.bindTexture("subMeshInstanceMatricesDataTexture", renderState.dataTextureSet.subMeshInstanceMatricesDataTexture, 1);
+           // renderState.dataTextureSet.subMeshInstanceMatricesDataTexture.bindTexture(program, samplers.subMeshInstanceMatricesDataTexture, 1);
             this.renderStats.numTextureBinds++;
         }
 
         if (samplers.subMeshAttributesDataTexture) {
-            renderState.dataTextureSet.subMeshAttributesDataTexture.bindTexture(program, samplers.subMeshAttributesDataTexture, renderContext.nextTextureUnit);
+            program.bindTexture("subMeshAttributesDataTexture", renderState.dataTextureSet.subMeshAttributesDataTexture, 2);
+            // renderState.dataTextureSet.subMeshAttributesDataTexture.bindTexture(program, samplers.subMeshAttributesDataTexture, 2);
             this.renderStats.numTextureBinds++;
         }
 
         const glPrimitive = (layer.primitive === TrianglesPrimitive ? gl.TRIANGLES : (layer.primitive === LinesPrimitive ? gl.LINES : gl.POINTS));
 
-        if (samplers.primitiveToSubMeshLookupDataTexture) {
-            if (renderState.numIndices8Bits > 0) {
-                renderState.dataTextureSet.primitiveToSubMeshLookup8BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
-                renderState.dataTextureSet.indices8BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
-                gl.drawArrays(glPrimitive, 0, renderState.numIndices8Bits);
-                this.renderStats.numDrawArrays++;
-            }
-            if (renderState.numIndices16Bits > 0) {
-                renderState.dataTextureSet.primitiveToSubMeshLookup16BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
-                renderState.dataTextureSet.indices16BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
-                gl.drawArrays(glPrimitive, 0, renderState.numIndices16Bits);
-                this.renderStats.numDrawArrays++;
-            }
-            if (renderState.numIndices32Bits > 0) {
-                renderState.dataTextureSet.primitiveToSubMeshLookup32BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
-                renderState.dataTextureSet.indices32BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
-                gl.drawArrays(glPrimitive, 0, renderState.numIndices32Bits);
-                this.renderStats.numDrawArrays++;
-            }
-        }
-
         if (samplers.baseColorMap) {
-            samplers.baseColorMap.bindTexture(renderState.materialTextureSet.colorRendererTexture.texture2D, renderContext.nextTextureUnit);
+           // program.bindTexture("colorRendererTexture", renderState.materialTextureSet.colorRendererTexture, 3);
+        //    samplers.baseColorMap.bindTexture(renderState.materialTextureSet.colorRendererTexture.texture2D, 3);
             this.renderStats.numTextureBinds++;
         }
         if (samplers.metallicRoughMap) {
-            samplers.metallicRoughMap.bindTexture(renderState.materialTextureSet.metallicRoughnessRendererTexture.texture2D, renderContext.nextTextureUnit);
+            samplers.metallicRoughMap.bindTexture(renderState.materialTextureSet.metallicRoughnessRendererTexture.texture2D, 4);
             this.renderStats.numTextureBinds++;
         }
         if (samplers.emissiveMap) {
-            samplers.emissiveMap.bindTexture(renderState.materialTextureSet.emissiveRendererTexture.texture2D, renderContext.nextTextureUnit);
+            samplers.emissiveMap.bindTexture(renderState.materialTextureSet.emissiveRendererTexture.texture2D, 5);
             this.renderStats.numTextureBinds++;
         }
         if (samplers.occlusionMap) {
-            samplers.occlusionMap.bindTexture(renderState.materialTextureSet.occlusionRendererTexture.texture2D, renderContext.nextTextureUnit);
+            samplers.occlusionMap.bindTexture(renderState.materialTextureSet.occlusionRendererTexture.texture2D, 6);
             this.renderStats.numTextureBinds++;
         }
+
+        if (samplers.primitiveToSubMeshLookupDataTexture) {
+            if (renderState.numIndices8Bits > 0) {
+                program.bindTexture("primitiveToSubMeshLookupDataTexture", renderState.dataTextureSet.primitiveToSubMeshLookup8BitsDataTexture, 7);
+                program.bindTexture("indicesDataTexture", renderState.dataTextureSet.indices8BitsDataTexture, 8);
+
+                // renderState.dataTextureSet.primitiveToSubMeshLookup8BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, 7);
+                // renderState.dataTextureSet.indices8BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, 8);
+                gl.drawArrays(glPrimitive, 0, renderState.numIndices8Bits);
+                this.renderStats.numDrawArrays++;
+            }
+             if (renderState.numIndices16Bits > 0) {
+                 program.bindTexture("primitiveToSubMeshLookupDataTexture", renderState.dataTextureSet.primitiveToSubMeshLookup16BitsDataTexture, 7);
+                 program.bindTexture("indicesDataTexture", renderState.dataTextureSet.indices16BitsDataTexture, 8);
+
+                 // renderState.dataTextureSet.primitiveToSubMeshLookup16BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, 7);
+                 // renderState.dataTextureSet.indices16BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, 8);
+                 gl.drawArrays(glPrimitive, 0, renderState.numIndices16Bits);
+                 this.renderStats.numDrawArrays++;
+             }
+             if (renderState.numIndices32Bits > 0) {
+                 program.bindTexture("primitiveToSubMeshLookupDataTexture", renderState.dataTextureSet.primitiveToSubMeshLookup32BitsDataTexture, 7);
+                 program.bindTexture("indicesDataTexture", renderState.dataTextureSet.indices32BitsDataTexture, 8);
+
+                 // renderState.dataTextureSet.primitiveToSubMeshLookup32BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, 7);
+                 // renderState.dataTextureSet.indices32BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, 8);
+                 gl.drawArrays(glPrimitive, 0, renderState.numIndices32Bits);
+                 this.renderStats.numDrawArrays++;
+             }
+        }
+
 
     }
 
@@ -537,8 +551,6 @@ export abstract class DTXLayerRenderer {
 
     protected get vertCommonDefs(): string {
         return `
-                // LayerRenderer.vertCommonDefs()
-
                 uniform     int         renderPass;
                 uniform     mat4        sceneModelMatrix;
                 uniform     mat4        viewMatrix;
@@ -554,13 +566,10 @@ export abstract class DTXLayerRenderer {
     protected get vertLogDepthBufDefs(): string {
         if (!this.renderContext.view.logarithmicDepthBufferEnabled) {
             return `
-                // LayerRenderer.vertLogDepthBufDefs()
                 `;
 
         }
         return `
-                // LayerRenderer.vertLogDepthBufDefs()
-
                 uniform     float       logDepthBufFC;
                 out         float       fragDepth;
                 out         float       isPerspective;
@@ -570,8 +579,6 @@ export abstract class DTXLayerRenderer {
     protected get vertLogDepthBuf(): string {
         if (this.renderContext.view.logarithmicDepthBufferEnabled) {
             return `
-                    // LayerRenderer.vertLogDepthBuf()
-
                     fragDepth = 1.0 + clipPos.w;
                     isPerspective = float (isPerspectiveMatrix(projMatrix));
                     `;
@@ -618,8 +625,6 @@ export abstract class DTXLayerRenderer {
 
     protected get fragColorDefs(): string {
         return `
-                // LayerRenderer.fragColorDefs()
-
                 uniform         vec4    color;
                 out             vec4     outColor;`;
     }
@@ -627,8 +632,6 @@ export abstract class DTXLayerRenderer {
     protected get fragLogDepthBufDefs(): string {
         if (this.renderContext.view.logarithmicDepthBufferEnabled) {
             return `
-                    // LayerRenderer.fragLogDepthBufDefs()
-
                     in float isPerspective;
                     uniform float logDepthBufFC;
                     in float fragDepth;`;
@@ -640,8 +643,6 @@ export abstract class DTXLayerRenderer {
     protected get fragLogDepthBuf(): string {
         if (this.renderContext.view.logarithmicDepthBufferEnabled) {
             return `
-                    // LayerRenderer.fragLogDepthBuf()
-
                     gl_FragDepth = isPerspective == 0.0 ? gl_FragCoord.z : log2( fragDepth ) * logDepthBufFC * 0.5;`;
         } else {
             return "";
@@ -651,8 +652,6 @@ export abstract class DTXLayerRenderer {
     protected get fragSlicingDefs(): string {
         const src = [];
         src.push(`
-                // LayerRenderer.fragSlicingDefs()
-
                 in vec4 worldPosition;
                 in vec4 meshFlags2;`);
         for (let i = 0, len = this.renderContext.view.sectionPlanesList.length; i < len; i++) {
@@ -668,8 +667,6 @@ export abstract class DTXLayerRenderer {
         const clipping = (this.renderContext.view.sectionPlanesList.length > 0);
         if (clipping) {
             src.push(`
-                    // LayerRenderer.fragSlicing()
-
                     bool clippable = (float(meshFlags2.x) > 0.0);
                     if (clippable) {
                           float dist = 0.0;`);
@@ -688,22 +685,16 @@ export abstract class DTXLayerRenderer {
 
     protected get fragGammaDefs(): string {
         return `
-            // LayerRenderer.fragSlicing()
-
             uniform float gammaFactor;
-
             vec4 linearToLinear( in vec4 value ) {
                 return value;
             }
-
             vec4 sRGBToLinear( in vec4 value ) {
                 return vec4( mix( pow( value.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), value.rgb * 0.0773993808, vec3( lessThanEqual( value.rgb, vec3( 0.04045 ) ) ) ), value.w );
             }
-
             vec4 gammaToLinear( in vec4 value) {
                 return vec4( pow( value.xyz, vec3( gammaFactor ) ), value.w );
             }
-
             vec4 linearToGamma( in vec4 value, in float gammaFactor ) {
                 return vec4( pow( value.xyz, vec3( 1.0 / gammaFactor ) ), value.w );");
             }`;
@@ -724,3 +715,5 @@ export abstract class DTXLayerRenderer {
         this.program = null;
     }
 }
+
+

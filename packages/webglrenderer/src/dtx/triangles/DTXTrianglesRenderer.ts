@@ -7,34 +7,34 @@ import {DTXTrianglesLayer} from "./DTXTrianglesLayer";
  */
 export abstract class DTXTrianglesRenderer extends DTXLayerRenderer {
 
-    draw( layer: DTXTrianglesLayer, renderPass: number) {
-
-        super.draw(layer, renderPass);
-
-        const renderState = layer.renderState;
-        const program = this.program;
-        const renderContext = this.renderContext;
-        const gl = this.renderContext.gl;
-        const samplers = this.samplers;
-
-        if (samplers.primitiveToSubMeshLookupDataTexture) {
-            if (renderState.numIndices8Bits > 0) {
-                renderState.dataTextureSet.primitiveToSubMeshLookup8BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
-                renderState.dataTextureSet.indices8BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
-                gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices8Bits);
-            }
-            if (renderState.numIndices16Bits > 0) {
-                renderState.dataTextureSet.primitiveToSubMeshLookup16BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
-                renderState.dataTextureSet.indices16BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
-                gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices16Bits);
-            }
-            if (renderState.numIndices32Bits > 0) {
-                renderState.dataTextureSet.primitiveToSubMeshLookup32BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
-                renderState.dataTextureSet.indices32BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
-                gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices32Bits);
-            }
-        }
-    }
+    // draw( layer: DTXTrianglesLayer, renderPass: number) {
+    //
+    //     super.draw(layer, renderPass);
+    //
+    //     const renderState = layer.renderState;
+    //     const program = this.program;
+    //     const renderContext = this.renderContext;
+    //     const gl = this.renderContext.gl;
+    //     const samplers = this.samplers;
+    //
+    //     if (samplers.primitiveToSubMeshLookupDataTexture) {
+    //         if (renderState.numIndices8Bits > 0) {
+    //             renderState.dataTextureSet.primitiveToSubMeshLookup8BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
+    //             renderState.dataTextureSet.indices8BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
+    //             gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices8Bits);
+    //         }
+    //         if (renderState.numIndices16Bits > 0) {
+    //             renderState.dataTextureSet.primitiveToSubMeshLookup16BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
+    //             renderState.dataTextureSet.indices16BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
+    //             gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices16Bits);
+    //         }
+    //         if (renderState.numIndices32Bits > 0) {
+    //             renderState.dataTextureSet.primitiveToSubMeshLookup32BitsDataTexture.bindTexture(program, samplers.primitiveToSubMeshLookupDataTexture, renderContext.nextTextureUnit);
+    //             renderState.dataTextureSet.indices32BitsDataTexture.bindTexture(program, samplers.indicesDataTexture, renderContext.nextTextureUnit);
+    //             gl.drawArrays(gl.TRIANGLES, 0, renderState.numIndices32Bits);
+    //         }
+    //     }
+    // }
 
     /**
      * Vertex shader lighting definitions.
@@ -50,9 +50,6 @@ export abstract class DTXTrianglesRenderer extends DTXLayerRenderer {
         //     return normalize(v);
         // }`);
         src.push(`
-
-            // TrianglesRenderer.vertTrianglesLightingDefs()
-
             uniform vec4 lightAmbient;`);
         for (let i = 0, len = this.renderContext.view.lightsList.length; i < len; i++) {
             const light = this.renderContext.view.lightsList[i];
@@ -80,17 +77,16 @@ export abstract class DTXTrianglesRenderer extends DTXLayerRenderer {
      */
     protected get vertTrianglesDataTextureDefs(): string {
         return `
+                uniform mediump usampler2D              positionsCompressedDataTexture;
+                uniform mediump sampler2D               subMeshInstanceMatricesDataTexture;
+                uniform lowp    usampler2D              subMeshAttributesDataTexture;
+                uniform mediump usampler2D              primitiveToSubMeshLookupDataTexture;
+                uniform highp   usampler2D              indicesDataTexture;
 
-                // TrianglesRenderer.vertTrianglesDataTextureDefs()
-
-                uniform mediump usampler2D              primitiveToSubMeshLookupDataTexture;    // Maps primitive -> SubMesh index
-                uniform lowp    usampler2D              subMeshAttributesDataTexture;           // Per SubMesh flags, color, pick color
-                uniform mediump sampler2D               subMeshInstanceMatricesDataTexture;     // Per SubMesh instancing matrix
-                uniform mediump sampler2D               subMeshDecompressMatricesDataTexture;   // Per SubMesh positions decompress matrix
-                uniform highp   sampler2D               subMeshOffsetsDataTexture;              // Per SubMesh offset translation vector
-                uniform mediump usampler2D              positionsCompressedDataTexture;         // All compressed vertex positions
-                uniform highp   usampler2D              indicesDataTexture;                     // All indices
-                uniform highp   usampler2D              edgeIndicesDataTexture;                 // All edge indices`
+                uniform highp   sampler2D               subMeshDecompressMatricesDataTexture;
+                uniform highp   sampler2D               subMeshOffsetsDataTexture;
+                uniform highp   usampler2D              edgeIndicesDataTexture;
+                `
     }
 
     /**
@@ -100,22 +96,14 @@ export abstract class DTXTrianglesRenderer extends DTXLayerRenderer {
     protected get vertTriangleVertexPosition() {
         return `
 
-                // TrianglesRenderer.vertTriangleVertexPosition()
-
-                // Primitive -> SubMesh lookup
-
                 int     primitiveIndex                  = gl_VertexID / 3;
                 ivec2   primitiveIndexCoords            = ivec2((primitiveIndex >> 3) & 4095, (primitiveIndex >> 3) >> 12);
 
                 int     subMeshIndex                    = int( texelFetch( primitiveToSubMeshLookupDataTexture, primitiveIndexCoords, 0 ).r );
                 ivec2   subMeshIndexCoords              = ivec2(subMeshIndex % 512, subMeshIndex / 512);
 
-                // SubMesh Flags
-
                 uvec4   flags                           = texelFetch( subMeshAttributesDataTexture, ivec2(subMeshIndexCoords.x * 8 + 2, subMeshIndexCoords.y ), 0);
                 uvec4   flags2                          = texelFetch( subMeshAttributesDataTexture, ivec2(subMeshIndexCoords.x * 8 + 3, subMeshIndexCoords.y ), 0);
-
-                // Render pass masking
 
                 if (int(flags.z) != renderPass) {
                     gl_Position = vec4(3.0, 3.0, 3.0, 1.0); // Outside clip volume
@@ -189,7 +177,6 @@ export abstract class DTXTrianglesRenderer extends DTXLayerRenderer {
 
         const src = [`
 
-                // TrianglesRenderer.vertTrianglesLighting()
 `];
 
         src.push("vec4      viewPosition    = viewMatrix * worldPosition; ");
@@ -227,9 +214,6 @@ export abstract class DTXTrianglesRenderer extends DTXLayerRenderer {
      */
     protected get vertTriangleEdgesVertexPosition() {
         return `
-
-                // TrianglesRenderer.vertTriangleEdgesVertexPosition()
-
                 int     primitiveIndex                  = gl_VertexID / 2;
                 int     h_packed_object_id_index        = (primitiveIndex >> 3) & 4095;
                 int     v_packed_object_id_index        = (primitiveIndex >> 3) >> 12;

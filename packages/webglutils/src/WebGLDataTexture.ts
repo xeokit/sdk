@@ -25,7 +25,7 @@ export class WebGLDataTexture implements WebGLAbstractTexture {
         textureHeight?: number,
         textureData?: any,
         onDestroyed?: Function
-    }={}) {
+    } = {}) {
         this.gl = params.gl;
         this.texture = params.texture;
         this.textureWidth = params.textureWidth;
@@ -51,7 +51,7 @@ export class WebGLDataTexture implements WebGLAbstractTexture {
      * Unbinds this WebGLDataTexture from whichever {@link WebGLSampler} it's currently bound to, if any.
      * @param unit
      */
-    bind(unit: number) : boolean{
+    bind(unit: number): boolean {
         if (!this.gl || !this.texture) {
             return false;
         }

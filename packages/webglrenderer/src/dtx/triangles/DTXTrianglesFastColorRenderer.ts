@@ -11,9 +11,6 @@ export class DTXTrianglesFastColorRenderer extends DTXTrianglesRenderer {
 
     buildVertexShader(): string {
         return `${this.vertHeader}
-
-            // TrianglesFastColorRenderer Vertex Shader
-
             ${this.vertCommonDefs}
             ${this.vertTrianglesDataTextureDefs}
             ${this.vertSlicingDefs}
@@ -29,9 +26,6 @@ export class DTXTrianglesFastColorRenderer extends DTXTrianglesRenderer {
 
     buildFragmentShader(): string {
         return `${this.fragHeader}
-
-            // TrianglesFastColorRenderer Fragment Shader
-
             ${this.fragSlicingDefs}
             ${this.fragTrianglesLightingDefs}
             ${this.fragLogDepthBufDefs}

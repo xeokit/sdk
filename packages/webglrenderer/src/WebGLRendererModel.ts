@@ -36,7 +36,9 @@ import {PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} f
 import {RenderStats} from "./RenderStats";
 import {RenderFlags} from "./RenderFlags";
 import {Layer} from "./Layer";
-import {VBOPointsLayer} from "./vbo/points/VBOPointsLayer";
+import {VBOPointsBatchingLayer} from "./vbo/batching/points/VBOPointsBatchingLayer";
+import {VBOTrianglesBatchingLayer} from "./vbo/batching/triangles/VBOTrianglesBatchingLayer";
+
 
 const defaultScale = createVec3([1, 1, 1]);
 const defaultPosition = createVec3([0, 0, 0]);
@@ -411,7 +413,19 @@ export class WebGLRendererModel extends Component implements RendererModel {
             case TrianglesPrimitive:
             case SolidPrimitive:
             case SurfacePrimitive:
-                layer = new DTXTrianglesLayer(<LayerParams>{
+                // layer = new DTXTrianglesLayer(<LayerParams>{
+                //     gl: this.#renderContext.gl,
+                //     renderContext: this.#renderContext,
+                //     view: this.#view,
+                //     rendererModel: this,
+                //     primitive: geometry.primitive,
+                //     textureSet,
+                //     layerIndex: 0,
+                //     origin
+                // });
+                // this.log(`Creating new DTXTrianglesLayer`);
+
+                layer = new VBOTrianglesBatchingLayer(<LayerParams>{
                     gl: this.#renderContext.gl,
                     renderContext: this.#renderContext,
                     view: this.#view,
@@ -421,10 +435,10 @@ export class WebGLRendererModel extends Component implements RendererModel {
                     layerIndex: 0,
                     origin
                 });
-                this.log(`Creating new DTXTrianglesLayer`);
+                this.log(`Creating new VBOTrianglesBatchingLayer`);
                 break;
             case PointsPrimitive:
-                layer = new VBOPointsLayer(<LayerParams>{
+                layer = new VBOPointsBatchingLayer(<LayerParams>{
                     gl: this.#renderContext.gl,
                     renderContext: this.#renderContext,
                     view: this.#view,
@@ -434,7 +448,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
                     layerIndex: 0,
                     origin
                 });
-                this.log(`Creating new VBOPointsLayer`);
+                this.log(`Creating new VBOPointsBatchingLayer`);
                 break;
             default:
                 this.error(`Primitive type not supported: ${geometry.primitive}`);

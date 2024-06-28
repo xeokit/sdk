@@ -1536,6 +1536,24 @@ export function composeMat4(
 }
 
 /**
+ * Composes a 4x4 matrix from the given position, euler rotation angles and scale.
+ * @param position
+ * @param rotation
+ * @param scale
+ * @param mat
+ */
+export function composeMat4Euler(
+    position: FloatArrayParam,
+    rotation: FloatArrayParam,
+    scale: FloatArrayParam,
+    mat: FloatArrayParam = createMat4()): FloatArrayParam {
+    quatToRotationMat4(eulerToQuat(rotation, "XYZ", identityQuat()), mat);
+    scaleMat4v(scale, mat);
+    translateMat4v(position, mat);
+    return mat;
+}
+
+/**
  * Decomposes a 4x4 matrix into position, quaternion and scale.
  */
 export const decomposeMat4 = (() => {

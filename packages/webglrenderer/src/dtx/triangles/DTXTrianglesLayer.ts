@@ -1,6 +1,6 @@
 import {DTXLayer} from "../DTXLayer";
 import {DTXTrianglesRendererSet, getRenderers} from "./DTXTrianglesRendererSet";
-import {LayerParams} from "../../LayerParams";
+import {DTXLayerParams} from "../DTXLayerParams";
 import {RENDER_PASSES} from "../../RENDER_PASSES";
 import {Layer} from "../../Layer";
 
@@ -11,7 +11,7 @@ export class DTXTrianglesLayer extends DTXLayer implements Layer {
 
     #rendererSet: DTXTrianglesRendererSet;
 
-    constructor(layerParams: LayerParams) {
+    constructor(layerParams: DTXLayerParams) {
         super(layerParams);
         this.#rendererSet = getRenderers(this.rendererModel.webglRenderer);
     }

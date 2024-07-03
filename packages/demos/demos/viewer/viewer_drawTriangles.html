@@ -40,11 +40,12 @@
 
     import {log} from "../../js/logger.js";
 
-    import * as xeokit from "./../../js/xeokit-demo-bundle.js";
+    import * as xeokit from "./../../js/xeokit-demo-bundle.js?foo=";
 
     const scene = new xeokit.scene.Scene();
 
     const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -60,6 +61,7 @@
     view.camera.eye = [0, 0, 20];
     view.camera.look = [0, 0, 0];
     view.camera.up = [0, 1, 0];
+
 
     const sceneModel = scene.createModel({
         id: "myModel"

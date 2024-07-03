@@ -4,15 +4,15 @@ import {MeshCounts} from "./MeshCounts";
 import {SceneGeometry, SceneMesh} from "@xeokit/scene";
 import {FloatArrayParam} from "@xeokit/math";
 import {LayerMeshParams} from "./LayerMeshParams";
+import {RenderContext} from "./RenderContext";
 
 /**
  * @private
  */
 export interface Layer {
 
-    gl: WebGL2RenderingContext;
+    renderContext: RenderContext;
     primitive: number;
-    view: View;
     rendererModel: WebGLRendererModel;
     layerIndex: number;
     sortId: string;

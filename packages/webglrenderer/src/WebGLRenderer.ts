@@ -52,6 +52,7 @@ export class WebGLRenderer implements Renderer {
     #canvasTransparent: boolean;
     #transparentEnabled: boolean;
     #edgesEnabled: boolean;
+    #shadersDirty: boolean;
     #imageDirty: boolean;
     #saoEnabled: boolean;
     #pbrEnabled: boolean;
@@ -87,6 +88,7 @@ export class WebGLRenderer implements Renderer {
      */
     readonly onDestroyed: EventEmitter<WebGLRenderer, boolean>;
 
+
     /**
      * Creates a WebGLRenderer.
      *
@@ -111,6 +113,7 @@ export class WebGLRenderer implements Renderer {
         this.#layerList = [];
         this.#layerListDirty = true;
         this.#stateSortDirty = true;
+        this.#shadersDirty = true;
         this.#imageDirty = true;
         this.#transparentEnabled = true;
         this.#edgesEnabled = true;
@@ -538,7 +541,7 @@ export class WebGLRenderer implements Renderer {
      * * Can't find a View attached to this WebGLRenderer with the given handle.
      */
     setNeedsRebuild(viewIndex?: number): void {
-        this.#rendererSet.needRebuild();
+        this.#shadersDirty = true;
     }
 
     /**
@@ -576,6 +579,10 @@ export class WebGLRenderer implements Renderer {
             throw new SDKError("Can't render with WebGLRenderer - no View is attached");
         }
         this.renderStats.reset();
+        if ( this.#shadersDirty) {
+            this.onCompiled.dispatch(this, true);
+            this.#shadersDirty = false;
+        }
         params = params || {};
         if (params.force) {
             this.#imageDirty = true;

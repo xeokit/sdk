@@ -2,7 +2,6 @@ import type {FloatArrayParam} from "@xeokit/math";
 import  {SceneGeometryBucket} from "./SceneGeometryBucket";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import type {RendererGeometry} from "./RendererGeometry";
-import {SceneMesh} from "./SceneMesh";
 import {createAABB3} from "@xeokit/boundaries";
 
 /**

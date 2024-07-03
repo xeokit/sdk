@@ -1,7 +1,6 @@
 import type {FloatArrayParam} from "@xeokit/math";
 import {MeshCounts} from "./../MeshCounts";
 import {SceneGeometry, SceneGeometryBucket, SceneMesh} from "@xeokit/scene";
-import type {LayerParams} from "./../LayerParams";
 import {LayerMeshParams} from "../LayerMeshParams";
 import {WebGLRendererModel} from "./../WebGLRendererModel";
 import {DTXRenderState} from "./DTXRenderState";
@@ -16,6 +15,8 @@ import {SCENE_OBJECT_FLAGS} from "./../SCENE_OBJECT_FLAGS";
 import {RENDER_PASSES} from "./../RENDER_PASSES";
 import {SDKError} from "@xeokit/core";
 import {Layer} from "../Layer";
+import {RenderContext} from "../RenderContext";
+import {DTXLayerParams} from "./DTXLayerParams";
 
 const tempMat4a = <Float64Array>identityMat4();
 const tempUint8Array4 = new Uint8Array(4);
@@ -57,6 +58,7 @@ const DEFAULT_MATRIX = identityMat4();
  */
 export abstract class DTXLayer implements Layer {
 
+    renderContext: RenderContext;
     gl: WebGL2RenderingContext;
     primitive: number;
     view: View;
@@ -91,14 +93,14 @@ export abstract class DTXLayer implements Layer {
 
     #onViewerTick: () => void;
 
-    constructor(layerParams: LayerParams) {
+    constructor(dtxLayerParams: DTXLayerParams) {
 
-        this.gl = layerParams.gl;
-        this.primitive = layerParams.primitive;
-        this.view = layerParams.view;
-        this.rendererModel = layerParams.rendererModel;
-        this.layerIndex = layerParams.layerIndex;
-        this.sortId = `tris-dtx-${this.#layerNumber}-${layerParams.primitive}`;
+        this.renderContext = dtxLayerParams.renderContext;
+        this.primitive = dtxLayerParams.primitive;
+        this.view = dtxLayerParams.view;
+        this.rendererModel = dtxLayerParams.rendererModel;
+        this.layerIndex = dtxLayerParams.layerIndex;
+        this.sortId = `tris-dtx-${this.#layerNumber}-${dtxLayerParams.primitive}`;
         this.meshCounts = new MeshCounts();
 
         this.#layerNumber = numLayers++;
@@ -118,8 +120,8 @@ export abstract class DTXLayer implements Layer {
         this.aabbDirty = true;
 
         this.renderState = <DTXRenderState>{
-            origin: createVec3(layerParams.origin),
-            primitive: layerParams.primitive,
+            origin: createVec3(dtxLayerParams.origin),
+            primitive: dtxLayerParams.primitive,
             dataTextureSet: null, // Created in #build
             numIndices8Bits: 0, // These counts are used by GL draw calls
             numIndices16Bits: 0,
@@ -435,7 +437,7 @@ export abstract class DTXLayer implements Layer {
         if (this.#built) {
             throw new SDKError("Already built");
         }
-        this.renderState.dataTextureSet = new DTXTextureSet(this.gl, this.#dataTextureBuffer);
+        this.renderState.dataTextureSet = new DTXTextureSet(this.renderContext.gl, this.#dataTextureBuffer);
         this.#deferredAttributesUpdateDirty = false;
         this.#deferredMatricesUpdateDirty = false;
         this.#onViewerTick = this.rendererModel.viewer.onTick.subscribe((viewer: Viewer, tickParams: TickParams) => {
@@ -640,7 +642,7 @@ export abstract class DTXLayer implements Layer {
 
     #setSubMeshColor(sublayerMeshIndex: number, color: FloatArrayParam) {
         const textureState = this.renderState.dataTextureSet;
-        const gl = this.gl;
+        const gl = this.renderContext.gl;
         tempUint8Array4 [0] = color[0];
         tempUint8Array4 [1] = color[1];
         tempUint8Array4 [2] = color[2];
@@ -753,7 +755,7 @@ export abstract class DTXLayer implements Layer {
 
         let f3 = (visible && (!culled) && pickable) ? RENDER_PASSES.PICK : RENDER_PASSES.NOT_RENDERED;
         const dataTextureSet = this.renderState.dataTextureSet;
-        const gl = this.gl;
+        const gl = this.renderContext.gl;
         tempUint8Array4 [0] = f0;
         tempUint8Array4 [1] = f1;
         tempUint8Array4 [2] = f2;
@@ -795,7 +797,7 @@ export abstract class DTXLayer implements Layer {
         }
         const clippable = !!(flags & SCENE_OBJECT_FLAGS.CLIPPABLE) ? 255 : 0;
         const textureState = this.renderState.dataTextureSet;
-        const gl = this.gl;
+        const gl = this.renderContext.gl;
         tempUint8Array4 [0] = clippable;
         tempUint8Array4 [1] = 0;
         tempUint8Array4 [2] = 1;
@@ -829,7 +831,7 @@ export abstract class DTXLayer implements Layer {
         this.#deferredAttributesUpdateEnabled = false;
         if (this.#deferredAttributesUpdateDirty) {
             this.#deferredAttributesUpdateDirty = false;
-            const gl = this.gl;
+            const gl = this.renderContext.gl;
             const subMeshAttributesDataTexture = this.renderState.dataTextureSet.subMeshAttributesDataTexture;
             gl.bindTexture(gl.TEXTURE_2D, subMeshAttributesDataTexture.texture);
             gl.texSubImage2D(
@@ -865,7 +867,7 @@ export abstract class DTXLayer implements Layer {
         // //     return;
         // // }
         // const textureState = this.renderState.dataTextureSet;
-        // const gl = this.gl;
+        // const gl = this.renderContext.gl;
         // tempFloat32Array3 [0] = offset[0];
         // tempFloat32Array3 [1] = offset[1];
         // tempFloat32Array3 [2] = offset[2];
@@ -918,7 +920,7 @@ export abstract class DTXLayer implements Layer {
         //     return;
         // }
         const textureState = this.renderState.dataTextureSet;
-        const gl = this.gl;
+        const gl = this.renderContext.gl;
         tempMat4a.set(matrix);
         textureState.subMeshInstanceMatricesDataTexture.textureData.set(tempMat4a, sublayerMeshIndex * 16);
         if (this.#deferredMatricesUpdateEnabled) {
@@ -948,7 +950,7 @@ export abstract class DTXLayer implements Layer {
         if (this.#deferredMatricesUpdateDirty) {
             console.log("@xeokit/webglrenderer!Layer.commitDeferredMatrices()");
             const subMeshInstanceMatricesDataTexture = this.renderState.dataTextureSet.subMeshInstanceMatricesDataTexture;
-            const gl = this.gl;
+            const gl = this.renderContext.gl;
             gl.bindTexture(gl.TEXTURE_2D, subMeshInstanceMatricesDataTexture.texture);
             gl.texSubImage2D(
                 gl.TEXTURE_2D,

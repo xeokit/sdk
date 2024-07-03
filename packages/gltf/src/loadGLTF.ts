@@ -1,4 +1,4 @@
-import  '@loaders.gl/polyfills';
+// import  '@loaders.gl/polyfills';
 import {parse} from '@loaders.gl/core';
 import {GLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 

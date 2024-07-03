@@ -1,5 +1,4 @@
 import {Layer} from "../../Layer";
-import {View} from "@xeokit/viewer";
 import {WebGLRendererModel} from "../../WebGLRendererModel";
 import {MeshCounts} from "../../MeshCounts";
 import {FloatArrayParam} from "@xeokit/math";
@@ -16,7 +15,7 @@ import {RENDER_PASSES} from "../../RENDER_PASSES";
 import {WebGLArrayBuf} from "@xeokit/webglutils";
 import {RenderContext} from "../../RenderContext";
 import {getScratchMemory, putScratchMemory} from "../ScratchMemory";
-import {LayerParams} from "../../LayerParams";
+import {VBOBatchingLayerParams} from "./VBOBatchingLayerParams";
 
 import {compressUVs, decompressPoint3, getUVBounds, quantizePositions3} from "@xeokit/compression";
 import {VBOBatchingRendererSet} from "./VBOBatchingRendererSet";
@@ -38,9 +37,7 @@ const tempVec4b = createVec4();
  */
 export class VBOBatchingLayer implements Layer {
 
-    gl: WebGL2RenderingContext;
     primitive: number;
-    view: View;
     rendererModel: WebGLRendererModel;
     layerIndex: number;
     meshCounts: MeshCounts;
@@ -69,29 +66,25 @@ export class VBOBatchingLayer implements Layer {
     #portions: number[];
     #rendererSet: VBOBatchingRendererSet;
 
-    constructor(layerParams: LayerParams, rendererSet: VBOBatchingRendererSet) {
+    constructor(vBOBatchingLayerParams: VBOBatchingLayerParams, rendererSet: VBOBatchingRendererSet) {
 
-        this.renderContext = layerParams.renderContext;
-        this.gl = layerParams.gl;
-        this.primitive = layerParams.primitive;
-        this.view = layerParams.view;
-        this.rendererModel = layerParams.rendererModel;
-        this.layerIndex = layerParams.layerIndex;
-        this.sortId = `points-vbo-${this.#layerNumber}-${layerParams.primitive}`;
+        this.renderContext = vBOBatchingLayerParams.renderContext;
+        this.primitive = vBOBatchingLayerParams.primitive;
+        this.rendererModel = vBOBatchingLayerParams.rendererModel;
+        this.layerIndex = vBOBatchingLayerParams.layerIndex;
+        this.sortId = `VBOBatchingLayer-${vBOBatchingLayerParams.primitive}`;
         this.meshCounts = new MeshCounts();
+
         this.#layerNumber = numLayers++;
         this.#portions = [];
-
         this.#buffer = new VBOBatchingBuffer();
         this.#scratchMemory = getScratchMemory();
-
         this.#rendererSet = rendererSet;
-
         this.#built = false;
         this.#aabb = collapseAABB3(); // Model-space AABB
         this.aabbDirty = true;
 
-        this.renderState = <VBOBatchingRenderState>{
+        this.renderState =<VBOBatchingRenderState> {
             numVertices: 0,
             positionsBuf: null,
             indicesBuf: null,
@@ -264,7 +257,7 @@ export class VBOBatchingLayer implements Layer {
         }
 
         const state = this.renderState;
-        const gl = this.gl;
+        const gl = this.renderContext.gl;
         const buffer = this.#buffer;
 
         if (buffer.positions.length > 0) {
@@ -588,9 +581,15 @@ export class VBOBatchingLayer implements Layer {
     }
 
     setLayerMeshMatrix(layerMeshIndex: number, matrix: FloatArrayParam): void {
+        if (!this.#built) {
+            throw new SDKError("Not built");
+        }
     }
 
     setLayerMeshOffset(layerMeshIndex: number, offset: FloatArrayParam): void {
+        if (!this.#built) {
+            throw new SDKError("Not built");
+        }
     }
 
     drawColorOpaque() {

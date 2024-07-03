@@ -73,6 +73,13 @@ class DirLight extends Component {
     }
 
     /**
+     * The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
+     */
+    get space(): String {
+        return this.#state.space;
+    }
+
+    /**
      * Sets the direction in which the DirLight is shining.
      *
      * Default value is ````[1.0, 1.0, 1.0]````.

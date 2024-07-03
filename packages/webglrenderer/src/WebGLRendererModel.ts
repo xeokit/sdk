@@ -29,7 +29,8 @@ import {WebGLRendererTexture} from "./WebGLRendererTexture";
 import {WebGLRendererObject} from "./WebGLRendererObject";
 import {WebGLRendererMesh} from "./WebGLRendererMesh";
 import {WebGLRendererTextureSet} from "./WebGLRendererTextureSet";
-import type {LayerParams} from "./LayerParams";
+import type {VBOInstancingLayerParams} from "./vbo/instancing/VBOInstancingLayerParams";
+import type {VBOBatchingLayerParams} from "./vbo/batching/VBOBatchingLayerParams";
 import type {WebGLTileManager} from "./WebGLTileManager";
 import {MeshCounts} from "./MeshCounts";
 import {PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
@@ -38,6 +39,7 @@ import {RenderFlags} from "./RenderFlags";
 import {Layer} from "./Layer";
 import {VBOPointsBatchingLayer} from "./vbo/batching/points/VBOPointsBatchingLayer";
 import {VBOTrianglesBatchingLayer} from "./vbo/batching/triangles/VBOTrianglesBatchingLayer";
+import {VBOTrianglesInstancingLayer} from "./vbo/instancing/triangles/VBOTrianglesInstancingLayer";
 
 
 const defaultScale = createVec3([1, 1, 1]);
@@ -347,7 +349,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const textureSetId = mesh.textureSet ? (<SceneTextureSet>mesh.textureSet).id : defaultTextureSetId;
         const rendererTextureSet = this.rendererTextureSets[textureSetId];
         if (!rendererTextureSet) {
-            throw new SDKError("SceneTextureSet not found");
+            this.error(`TextureSet with ID "${textureSetId}" not found in WebGLRendererModel`);
         }
         const layer = this.#getLayer(textureSetId, mesh);
         if (!layer) {
@@ -379,9 +381,9 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const g = rendererMesh.pickId >> 8 & 0xFF;
         const r = rendererMesh.pickId & 0xFF;
         const pickColor = new Uint8Array([r, g, b, a]);
-    //    collapseAABB3(rendererMesh.aabb);
+        //    collapseAABB3(rendererMesh.aabb);
         const meshIndex = layer.createLayerMesh({pickColor}, mesh);
-      //  expandAABB3(this.#aabb, rendererMesh.aabb);
+        //  expandAABB3(this.#aabb, rendererMesh.aabb);
         rendererMesh.layer = layer;
         rendererMesh.meshIndex = meshIndex;
         this.rendererMeshes[mesh.id] = rendererMesh;
@@ -389,12 +391,13 @@ export class WebGLRendererModel extends Component implements RendererModel {
     }
 
     #getLayer(textureSetId: string, mesh: SceneMesh): Layer | undefined {
-        const geometry = mesh.geometry;
+        const sceneGeometry = mesh.geometry;
+        const instancing = sceneGeometry.numMeshes > 1;
         const origin = mesh.origin;
-        const layerId = `${textureSetId}.${geometry.primitive}.${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}`;
+        const layerId = `VBO-${instancing ? "Instancing" : "Batching"}-${textureSetId}.${sceneGeometry.primitive}.${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}`;
         let layer = this.#currentLayers[layerId];
         if (layer) {
-            if (layer.canCreateLayerMesh(geometry)) {
+            if (layer.canCreateLayerMesh(sceneGeometry)) {
                 return layer;
             } else {
                 layer.build();
@@ -409,50 +412,71 @@ export class WebGLRendererModel extends Component implements RendererModel {
                 return;
             }
         }
-        switch (geometry.primitive) {
-            case TrianglesPrimitive:
-            case SolidPrimitive:
-            case SurfacePrimitive:
-                // layer = new DTXTrianglesLayer(<LayerParams>{
-                //     gl: this.#renderContext.gl,
-                //     renderContext: this.#renderContext,
-                //     view: this.#view,
-                //     rendererModel: this,
-                //     primitive: geometry.primitive,
-                //     textureSet,
-                //     layerIndex: 0,
-                //     origin
-                // });
-                // this.log(`Creating new DTXTrianglesLayer`);
-
-                layer = new VBOTrianglesBatchingLayer(<LayerParams>{
-                    gl: this.#renderContext.gl,
-                    renderContext: this.#renderContext,
-                    view: this.#view,
-                    rendererModel: this,
-                    primitive: geometry.primitive,
-                    textureSet,
-                    layerIndex: 0,
-                    origin
-                });
-                this.log(`Creating new VBOTrianglesBatchingLayer`);
-                break;
-            case PointsPrimitive:
-                layer = new VBOPointsBatchingLayer(<LayerParams>{
-                    gl: this.#renderContext.gl,
-                    renderContext: this.#renderContext,
-                    view: this.#view,
-                    rendererModel: this,
-                    primitive: geometry.primitive,
-                    textureSet,
-                    layerIndex: 0,
-                    origin
-                });
-                this.log(`Creating new VBOPointsBatchingLayer`);
-                break;
-            default:
-                this.error(`Primitive type not supported: ${geometry.primitive}`);
-                return;
+        console.log(instancing)
+        if (instancing) {
+            switch (sceneGeometry.primitive) {
+                case TrianglesPrimitive:
+                case SolidPrimitive:
+                case SurfacePrimitive:
+                    layer = new VBOTrianglesInstancingLayer({
+                        renderContext: this.#renderContext,
+                        view: this.#view,
+                        rendererModel: this,
+                        sceneGeometry,
+                        textureSet,
+                        layerIndex: 0,
+                        origin
+                    });
+                    this.log(`Creating new VBOTrianglesInstancingLayer`);
+                    break;
+                case PointsPrimitive:
+                    // layer = new VBOPointsInstancingLayer(<VBOInstancingLayerParams>{
+                    //     renderContext: this.#renderContext,
+                    //     view: this.#view,
+                    //     rendererModel: this,
+                    //     sceneGeometry,
+                    //     textureSet,
+                    //     layerIndex: 0,
+                    //     origin
+                    // });
+                    this.log(`Creating new VBOPointsInstancingLayer`);
+                    break;
+                default:
+                    this.error(`Primitive type not supported: ${sceneGeometry.primitive}`);
+                    return;
+            }
+        } else {
+            switch (sceneGeometry.primitive) {
+                case TrianglesPrimitive:
+                case SolidPrimitive:
+                case SurfacePrimitive:
+                    layer = new VBOTrianglesBatchingLayer({
+                        renderContext: this.#renderContext,
+                        view: this.#view,
+                        rendererModel: this,
+                        primitive: sceneGeometry.primitive,
+                        textureSet,
+                        layerIndex: 0,
+                        origin
+                    });
+                    this.log(`Creating new VBOTrianglesBatchingLayer`);
+                    break;
+                case PointsPrimitive:
+                    layer = new VBOPointsBatchingLayer({
+                        renderContext: this.#renderContext,
+                        view: this.#view,
+                        rendererModel: this,
+                        primitive: sceneGeometry.primitive,
+                        textureSet,
+                        layerIndex: 0,
+                        origin
+                    });
+                    this.log(`Creating new VBOPointsBatchingLayer`);
+                    break;
+                default:
+                    this.error(`Primitive type not supported: ${sceneGeometry.primitive}`);
+                    return;
+            }
         }
         this.#layers[layerId] = layer;
         this.layerList.push(layer);

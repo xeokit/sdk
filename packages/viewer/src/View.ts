@@ -22,8 +22,8 @@ import {PointsMaterial} from "./PointsMaterial";
 import {Camera} from "./Camera";
 import type {PointLight} from "./PointLight";
 import {CameraFlightAnimation} from "./CameraFlightAnimation";
-import type {AmbientLight} from "./AmbientLight";
-import type {DirLight} from "./DirLight";
+import {AmbientLight} from "./AmbientLight";
+import {DirLight} from "./DirLight";
 import type {RendererObject} from "@xeokit/scene/src/RendererObject";
 import type {PickParams} from "./PickParams";
 import type {PickResult} from "./PickResult";
@@ -683,6 +683,26 @@ class View extends Component {
         this.onSectionPlaneDestroyed = new EventEmitter(
             new EventDispatcher<View, SectionPlane>()
         );
+
+        new AmbientLight(this, {
+            color: [1.0, 1.0, 1.0],
+            intensity: 0.7
+        });
+
+        new DirLight(this, {
+            dir: [0.8, -.5, -0.5],
+            color: [0.67, 0.67, 1.0],
+            intensity: 0.7,
+            space: "world"
+        });
+
+        new DirLight(this, {
+            dir: [-0.8, -1.0, 0.5],
+            color: [1, 1, .9],
+            intensity: 0.9,
+            space: "world"
+        });
+
     }
 
     /**
@@ -1190,9 +1210,9 @@ class View extends Component {
      * Destroys the light sources in this View.
      */
     clearLights(): void {
-        const objectIds = Object.keys(this.lights);
-        for (let i = 0, len = objectIds.length; i < len; i++) {
-            this.lights[objectIds[i]].destroy();
+        const lightIds = Object.keys(this.lights);
+        for (let i = 0, len = lightIds.length; i < len; i++) {
+            this.lights[lightIds[i]].destroy();
         }
     }
 
@@ -1211,7 +1231,7 @@ class View extends Component {
         for (let i = 0, len = lights.length; i < len; i++) {
             const light: any = lights[i];
             hashParts.push("/");
-            hashParts.push(light.type);
+            hashParts.push(light instanceof DirLight ? "d" : "p");
             hashParts.push(light.space === "world" ? "w" : "v");
             if (light.castsShadow) {
                 hashParts.push("sh");
@@ -1227,10 +1247,6 @@ class View extends Component {
         this.#lightsHash = hashParts.join("");
         return this.#lightsHash;
     }
-
-    //createLight(lightParams) {
-    //
-    // }
 
     /**
      * @private

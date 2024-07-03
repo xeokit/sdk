@@ -1,5 +1,4 @@
 import {VBOBatchingLayer} from "../../VBOBatchingLayer";
-import {createRTCViewMat} from "@xeokit/rtc";
 import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 
 /**
@@ -8,7 +7,8 @@ import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 export class VBOTrianglesBatchingColorRenderer extends VBOBatchingRenderer {
 
     getHash(): string {
-        return "";
+        const view = this.renderContext.view;
+        return `${view.getLightsHash()}-${view.getSectionPlanesHash()}-${view.logarithmicDepthBufferEnabled}`;
     }
 
     buildVertexShader(): string [] {
@@ -127,7 +127,6 @@ export class VBOTrianglesBatchingColorRenderer extends VBOBatchingRenderer {
     draw(vboBatchingLayer: VBOBatchingLayer, renderPass: number): void {
         const gl = this.renderContext.gl;
         const renderState = vboBatchingLayer.renderState;
-        gl.drawArrays(gl.POINTS, 0, vboBatchingLayer.renderState.positionsBuf.numItems);
         gl.drawElements(gl.TRIANGLES, renderState.indicesBuf.numItems, renderState.indicesBuf.itemType, 0);
     }
 }

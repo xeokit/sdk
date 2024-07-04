@@ -18,7 +18,7 @@ import {getScratchMemory, putScratchMemory} from "../ScratchMemory";
 import {VBOBatchingLayerParams} from "./VBOBatchingLayerParams";
 
 import {compressUVs, decompressPoint3, getUVBounds, quantizePositions3} from "@xeokit/compression";
-import {VBOBatchingRendererSet} from "./VBOBatchingRendererSet";
+import {VBORendererSet} from "../VBORendererSet";
 
 const tempMat4a = <Float64Array>identityMat4();
 const tempUint8Array4 = new Uint8Array(4);
@@ -64,9 +64,9 @@ export class VBOBatchingLayer implements Layer {
     #buffer: VBOBatchingBuffer;
     renderContext: RenderContext;
     #portions: number[];
-    #rendererSet: VBOBatchingRendererSet;
+    #rendererSet: VBORendererSet;
 
-    constructor(vBOBatchingLayerParams: VBOBatchingLayerParams, rendererSet: VBOBatchingRendererSet) {
+    constructor(vBOBatchingLayerParams: VBOBatchingLayerParams, rendererSet: VBORendererSet) {
 
         this.renderContext = vBOBatchingLayerParams.renderContext;
         this.primitive = vBOBatchingLayerParams.primitive;
@@ -600,7 +600,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.colorRenderer) {
-            this.#rendererSet.colorRenderer.render(this, RENDER_PASSES.COLOR_OPAQUE);
+            this.#rendererSet.colorRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.COLOR_OPAQUE);
         }
     }
 
@@ -612,7 +612,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.colorRenderer) {
-            this.#rendererSet.colorRenderer.render(this, RENDER_PASSES.COLOR_TRANSPARENT);
+            this.#rendererSet.colorRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.COLOR_TRANSPARENT);
         }
     }
 
@@ -624,7 +624,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.depthRenderer) {
-            this.#rendererSet.depthRenderer.render(this, RENDER_PASSES.COLOR_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
+            this.#rendererSet.depthRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.COLOR_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
         }
     }
 
@@ -636,7 +636,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.normalsRenderer) {
-            this.#rendererSet.normalsRenderer.render(this, RENDER_PASSES.COLOR_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
+            this.#rendererSet.normalsRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.COLOR_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
         }
     }
 
@@ -647,7 +647,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.silhouetteRenderer) {
-            this.#rendererSet.silhouetteRenderer.render(this, RENDER_PASSES.SILHOUETTE_XRAYED);
+            this.#rendererSet.silhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.SILHOUETTE_XRAYED);
         }
     }
 
@@ -658,7 +658,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.silhouetteRenderer) {
-            this.#rendererSet.silhouetteRenderer.render(this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
+            this.#rendererSet.silhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
         }
     }
 
@@ -669,7 +669,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.silhouetteRenderer) {
-            this.#rendererSet.silhouetteRenderer.render(this, RENDER_PASSES.SILHOUETTE_SELECTED);
+            this.#rendererSet.silhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.SILHOUETTE_SELECTED);
         }
     }
 
@@ -680,7 +680,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
-            this.#rendererSet.edgesColorRenderer.render(this, RENDER_PASSES.EDGES_COLOR_OPAQUE);
+            this.#rendererSet.edgesColorRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.EDGES_COLOR_OPAQUE);
         }
     }
 
@@ -692,7 +692,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
-            this.#rendererSet.edgesColorRenderer.render(this, RENDER_PASSES.EDGES_COLOR_TRANSPARENT);
+            this.#rendererSet.edgesColorRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.EDGES_COLOR_TRANSPARENT);
         }
     }
 
@@ -704,7 +704,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.render(this, RENDER_PASSES.EDGES_HIGHLIGHTED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.EDGES_HIGHLIGHTED);
         }
     }
 
@@ -716,7 +716,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.render(this, RENDER_PASSES.EDGES_SELECTED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.EDGES_SELECTED);
         }
     }
 
@@ -728,7 +728,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.render(this, RENDER_PASSES.EDGES_XRAYED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.EDGES_XRAYED);
         }
     }
 
@@ -738,7 +738,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.occlusionRenderer) {
-            this.#rendererSet.occlusionRenderer.render(this, RENDER_PASSES.COLOR_OPAQUE);
+            this.#rendererSet.occlusionRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.COLOR_OPAQUE);
         }
     }
 
@@ -757,7 +757,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.pickMeshRenderer) {
-            this.#rendererSet.pickMeshRenderer.render(this, RENDER_PASSES.PICK);
+            this.#rendererSet.pickMeshRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.PICK);
         }
     }
 
@@ -766,7 +766,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.pickDepthRenderer) {
-            this.#rendererSet.pickDepthRenderer.render(this, RENDER_PASSES.PICK);
+            this.#rendererSet.pickDepthRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.PICK);
         }
     }
 
@@ -775,7 +775,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.snapInitRenderer) {
-            this.#rendererSet.snapInitRenderer.render(this, RENDER_PASSES.PICK);
+            this.#rendererSet.snapInitRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.PICK);
         }
     }
 
@@ -784,7 +784,7 @@ export class VBOBatchingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.snapRenderer) {
-            this.#rendererSet.snapRenderer.render(this, RENDER_PASSES.PICK);
+            this.#rendererSet.snapRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.PICK);
         }
     }
 

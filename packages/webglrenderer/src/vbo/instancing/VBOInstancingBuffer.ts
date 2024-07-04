@@ -33,6 +33,9 @@ export class VBOInstancingBuffer {
         this.offsets = [];
         this.indices = [];
         this.edgeIndices = [];
+        this.modelMatrixCol0 = [];
+        this.modelMatrixCol1 = [];
+        this.modelMatrixCol2 = [];
     }
 }
 

@@ -1,27 +1,27 @@
-import {RenderContext} from "../../RenderContext";
-import {VBOInstancingRenderer} from "./VBOInstancingRenderer";
-import {RenderStats} from "../../RenderStats";
-import {WebGLRenderer} from "../../WebGLRenderer";
+import {RenderContext} from "../RenderContext";
+import {VBORenderer} from "./VBORenderer";
+import {RenderStats} from "../RenderStats";
+import {WebGLRenderer} from "../WebGLRenderer";
 
 /**
  * @private
  */
-export class VBOInstancingRendererSet {
+export class VBORendererSet {
 
     renderContext: RenderContext;
     renderStats: RenderStats;
 
-    #colorRenderer: VBOInstancingRenderer;
-    #silhouetteRenderer: VBOInstancingRenderer;
-    #pickMeshRenderer: VBOInstancingRenderer;
-    #pickDepthRenderer: VBOInstancingRenderer;
-    #occlusionRenderer: VBOInstancingRenderer;
-    #snapInitRenderer: VBOInstancingRenderer;
-    #snapRenderer: VBOInstancingRenderer;
-    edgesColorRenderer: VBOInstancingRenderer;
-    edgesSilhouetteRenderer: VBOInstancingRenderer;
-    depthRenderer: VBOInstancingRenderer;
-    normalsRenderer: VBOInstancingRenderer;
+    #colorRenderer: VBORenderer;
+    #silhouetteRenderer: VBORenderer;
+    #pickMeshRenderer: VBORenderer;
+    #pickDepthRenderer: VBORenderer;
+    #occlusionRenderer: VBORenderer;
+    #snapInitRenderer: VBORenderer;
+    #snapRenderer: VBORenderer;
+    edgesColorRenderer: VBORenderer;
+    edgesSilhouetteRenderer: VBORenderer;
+    depthRenderer: VBORenderer;
+    normalsRenderer: VBORenderer;
 
     constructor(webglRenderer: WebGLRenderer) {
         this.renderContext = webglRenderer.renderContext;
@@ -63,80 +63,80 @@ export class VBOInstancingRendererSet {
 
     }
 
-    get colorRenderer(): VBOInstancingRenderer {
+    get colorRenderer(): VBORenderer {
         if (!this.#colorRenderer) {
-            this.#colorRenderer = this.createColorRenderer();
+            this.#colorRenderer = this.createLambertRenderer();
         }
         return this.#colorRenderer;
     }
 
-    get silhouetteRenderer(): VBOInstancingRenderer {
+    get silhouetteRenderer(): VBORenderer {
         if (!this.#silhouetteRenderer) {
             this.#silhouetteRenderer = this.createSilhouetteRenderer();
         }
         return this.#silhouetteRenderer;
     }
 
-    get pickMeshRenderer(): VBOInstancingRenderer {
+    get pickMeshRenderer(): VBORenderer {
         if (!this.#pickMeshRenderer) {
             this.#pickMeshRenderer  = this.createPickMeshRenderer();
         }
         return this.#pickMeshRenderer;
     }
 
-    get pickDepthRenderer(): VBOInstancingRenderer {
+    get pickDepthRenderer(): VBORenderer {
         if (!this.#pickDepthRenderer) {
             this.#pickDepthRenderer = this.createPickDepthRenderer();
         }
         return this.#pickDepthRenderer;
     }
 
-    get occlusionRenderer(): VBOInstancingRenderer {
+    get occlusionRenderer(): VBORenderer {
         if (!this.#occlusionRenderer) {
             this.#occlusionRenderer = this.createOcclusionRenderer();
         }
         return this.#occlusionRenderer;
     }
 
-    get snapInitRenderer(): VBOInstancingRenderer {
+    get snapInitRenderer(): VBORenderer {
         if (!this.#snapInitRenderer) {
             this.#snapInitRenderer = this.createSnapInitRenderer();
         }
         return this.#snapInitRenderer;
     }
 
-    get snapRenderer(): VBOInstancingRenderer {
+    get snapRenderer(): VBORenderer {
         if (!this.#snapRenderer) {
             this.#snapInitRenderer = this.createSnapRenderer();
         }
         return this.#snapRenderer;
     }
 
-    protected createColorRenderer(): VBOInstancingRenderer {
+    protected createLambertRenderer(): VBORenderer {
         return null;
     }
 
-    protected createSilhouetteRenderer(): VBOInstancingRenderer {
+    protected createSilhouetteRenderer(): VBORenderer {
         return null;
     }
 
-    protected createPickMeshRenderer(): VBOInstancingRenderer {
+    protected createPickMeshRenderer(): VBORenderer {
         return null;
     }
 
-    protected createPickDepthRenderer(): VBOInstancingRenderer {
+    protected createPickDepthRenderer(): VBORenderer {
         return null;
     }
 
-    protected createOcclusionRenderer(): VBOInstancingRenderer {
+    protected createOcclusionRenderer(): VBORenderer {
         return null;
     }
 
-    protected createSnapInitRenderer(): VBOInstancingRenderer {
+    protected createSnapInitRenderer(): VBORenderer {
         return null;
     }
 
-    protected createSnapRenderer(): VBOInstancingRenderer {
+    protected createSnapRenderer(): VBORenderer {
         return null;
     }
 
@@ -172,14 +172,14 @@ export class RendererSetFactory {
 
     #rendererSets: {};
 
-    #createRendererSet: (webglRenderer: WebGLRenderer) => VBOInstancingRendererSet;
+    #createRendererSet: (webglRenderer: WebGLRenderer) => VBORendererSet;
 
-    constructor(createRendererSet:(webglRenderer)=> VBOInstancingRendererSet) {
+    constructor(createRendererSet:(webglRenderer)=> VBORendererSet) {
         this.#rendererSets = {};
         this.#createRendererSet = createRendererSet;
     }
 
-    getRenderers(webglRenderer: WebGLRenderer): VBOInstancingRendererSet {
+    getRenderers(webglRenderer: WebGLRenderer): VBORendererSet {
         const viewerId = webglRenderer.viewer.id;
         let rendererSet = this.#rendererSets[viewerId];
         if (!rendererSet) {

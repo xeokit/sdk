@@ -6,40 +6,26 @@ import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 /**
  * @private
  */
-class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingRenderer {
+export class VBOPointsBatchingSilhouetteRenderer extends VBOBatchingRenderer {
 
     getHash(): string {
         return "";
     }
 
-    buildVertexShader() : string[]{
+    buildVertexShader(src: string[]) {
         const renderContext = this.renderContext;
         const view = renderContext.view;
         const clipping = view.getNumAllocatedSectionPlanes() > 0;
         const pointsMaterial = view.pointsMaterial;
-        const src = [];
-        src.push('#version 300 es');
-        src.push("// Points batching silhouette vertex shader");
-        src.push("uniform int renderPass;");
-        src.push("in vec3 position;");
-        src.push("in float flags;");
-        src.push("uniform mat4 worldMatrix;");
-        src.push("uniform mat4 viewMatrix;");
-        src.push("uniform mat4 projMatrix;");
-        src.push("uniform mat4 positionsDecodeMatrix;");
+        this.vertexHeader(src);
+        this.vertexCommonDefs(src);
+        this.vertexSlicingDefs(src);
         src.push("uniform vec4 color;");
         src.push("uniform float pointSize;");
         if (pointsMaterial.perspectivePoints) {
             src.push("uniform float nearPlaneHeight;");
         }
-        if (view.logarithmicDepthBufferEnabled) {
-            src.push("uniform float logDepthBufFC;");
-            src.push("out float vFragDepth;");
-        }
-        if (clipping) {
-            src.push("out vec4 vWorldPosition;");
-            src.push("out float vFlags;");
-        }
+
         src.push("void main(void) {");
         // silhouetteFlag = NOT_RENDERED | SILHOUETTE_HIGHLIGHTED | SILHOUETTE_SELECTED | SILHOUETTE_XRAYED
         // renderPass = SILHOUETTE_HIGHLIGHTED | SILHOUETTE_SELECTED | | SILHOUETTE_XRAYED
@@ -67,17 +53,13 @@ class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingRenderer {
         }
         src.push("}");
         src.push("}");
-        return src;
     }
 
-    buildFragmentShader(): string[] {
+    buildFragmentShader(src: string[]) {
         const renderContext = this.renderContext;
         const view = renderContext.view;
         const clipping = view.getNumAllocatedSectionPlanes() > 0;
-        const pointsMaterial = view.pointsMaterial;
-        const src = [];
-        src.push('#version 300 es');
-        src.push("// Points batching silhouette vertex shader");
+        this.fragmentHeader(src);
         src.push("#ifdef GL_FRAGMENT_PRECISION_HIGH");
         src.push("precision highp float;");
         src.push("precision highp int;");
@@ -85,10 +67,6 @@ class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingRenderer {
         src.push("precision mediump float;");
         src.push("precision mediump int;");
         src.push("#endif");
-        if (view.logarithmicDepthBufferEnabled) {
-            src.push("uniform float logDepthBufFC;");
-            src.push("in float vFragDepth;");
-        }
         if (clipping) {
             src.push("in vec4 vWorldPosition;");
             src.push("in float vFlags;");
@@ -108,28 +86,13 @@ class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingRenderer {
             src.push("       discard;");
             src.push("  }");
         }
-        if (clipping) {
-            src.push("  bool clippable = (int(vFlags) >> 16 & 0xF) == 1;");
-            src.push("  if (clippable) {");
-            src.push("  float dist = 0.0;");
-            for (let i = 0, len = view.getNumAllocatedSectionPlanes(); i < len; i++) {
-                src.push("if (sectionPlaneActive" + i + ") {");
-                src.push("   dist += clamp(dot(-sectionPlaneDir" + i + ".xyz, vWorldPosition.xyz - sectionPlanePos" + i + ".xyz), 0.0, 1000.0);");
-                src.push("}");
-            }
-            src.push("  if (dist > 0.0) { discard; }");
-            src.push("}");
-        }
-        if (view.logarithmicDepthBufferEnabled) {
-            src.push("gl_FragDepth = log2( vFragDepth ) * logDepthBufFC * 0.5;");
-        }
+        this.fragmentSlicingLogic(src);
         src.push("outColor = color;");
         src.push("}");
-        return src;
     }
 
-    draw(vboBatchingLayer: VBOBatchingLayer, renderPass: number): void {
-        this.bind();
+    drawVBOBatchingLayer(vboBatchingLayer: VBOBatchingLayer, renderPass: number): void {
+        this.bind(renderPass);
         const view = this.renderContext.view;
         let material;
         if (renderPass === RENDER_PASSES.SILHOUETTE_XRAYED) {
@@ -144,7 +107,7 @@ class VBOBatchingPointsSilhouetteRenderer extends VBOBatchingRenderer {
         const gl = this.renderContext.gl;
         const color = material.fillColor;
         const alpha = material.fillAlpha;
-        gl.uniform4f(this.uniforms.color, color[0], color[1], color[2], alpha);
+        gl.uniform4f(this.uniforms.silhouetteColor, color[0], color[1], color[2], alpha);
         const attributes = this.attributes;
         const renderState = vboBatchingLayer.renderState;
         attributes.position.bindArrayBuffer(renderState.positionsBuf);

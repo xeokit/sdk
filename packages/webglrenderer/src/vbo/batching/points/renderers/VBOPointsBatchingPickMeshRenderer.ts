@@ -5,28 +5,21 @@ import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 /**
  * @private
  */
-export class VBOBatchingPointsPickMeshRenderer extends VBOBatchingRenderer {
+export class VBOPointsBatchingPickMeshRenderer extends VBOBatchingRenderer {
 
     getHash(): string {
         return "";
     }
 
-    buildVertexShader(): string[] {
+    buildVertexShader(src: string[]) {
         const renderContext = this.renderContext;
         const view = renderContext.view;
         const clipping = view.getNumAllocatedSectionPlanes() > 0;
         const pointsMaterial = view.pointsMaterial;
-        const src = [];
-        src.push('#version 300 es');
-        src.push("// Points batching pick mesh vertex shader");
-        src.push("uniform int renderPass;");
-        src.push("in vec3 position;");
-        src.push("in float flags;");
+        this.vertexHeader(src);
+        this.vertexCommonDefs(src);
+        this.vertexSlicingDefs(src);
         src.push("in vec4 pickColor;");
-        src.push("uniform mat4 worldMatrix;");
-        src.push("uniform mat4 viewMatrix;");
-        src.push("uniform mat4 projMatrix;");
-        src.push("uniform mat4 positionsDecodeMatrix;");
         src.push("uniform float pointSize;");
         if (pointsMaterial.perspectivePoints) {
             src.push("uniform float nearPlaneHeight;");
@@ -35,10 +28,7 @@ export class VBOBatchingPointsPickMeshRenderer extends VBOBatchingRenderer {
             src.push("uniform float logDepthBufFC;");
             src.push("out float vFragDepth;");
         }
-        if (clipping) {
-            src.push("out vec4 vWorldPosition;");
-            src.push("out float vFlags;");
-        }
+
         src.push("out vec4 vPickColor;");
         src.push("void main(void) {");
         // pickFlag = NOT_RENDERED | PICK
@@ -69,14 +59,12 @@ export class VBOBatchingPointsPickMeshRenderer extends VBOBatchingRenderer {
         src.push("gl_PointSize += 10.0;");
         src.push("  }");
         src.push("}");
-        return src;
     }
 
-    buildFragmentShader(): string[] {
+    buildFragmentShader(src: string[]) {
         const renderContext = this.renderContext;
         const view = renderContext.view;
         const clipping = view.getNumAllocatedSectionPlanes() > 0;
-        const src = [];
         src.push(`#version 300 es
         // Points batching pick mesh vertex shader
         #ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -126,11 +114,10 @@ export class VBOBatchingPointsPickMeshRenderer extends VBOBatchingRenderer {
         }
         src.push("   outColor = vPickColor; ");
         src.push("}");
-        return src;
     }
 
-    draw(vboBatchingLayer: VBOBatchingLayer, renderPass: number) {
-        this.bind();
+    drawVBOBatchingLayer(vboBatchingLayer: VBOBatchingLayer, renderPass: number) {
+        this.bind(renderPass);
         const gl = this.renderContext.gl;
         const attributes = this.attributes;
         const renderState = vboBatchingLayer.renderState;

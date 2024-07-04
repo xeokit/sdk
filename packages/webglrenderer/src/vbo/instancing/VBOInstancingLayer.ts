@@ -4,7 +4,6 @@ import {SceneGeometry, SceneMesh} from "@xeokit/scene";
 import {WebGLArrayBuf} from "@xeokit/webglutils";
 import {FloatArrayParam} from "@xeokit/math";
 import {VBOInstancingRenderState} from "./VBOInstancingRenderState";
-import {VBOInstancingRendererSet} from "./VBOInstancingRendererSet";
 import {collapseAABB3, createOBB3, expandAABB3} from "@xeokit/boundaries";
 import {MeshCounts} from "../../MeshCounts";
 import {VBOInstancingBuffer} from "./VBOInstancingBuffer";
@@ -15,6 +14,7 @@ import {createMat4, createVec3, createVec4} from "@xeokit/matrix";
 import {SCENE_OBJECT_FLAGS} from "../../SCENE_OBJECT_FLAGS";
 import {RENDER_PASSES} from "../../RENDER_PASSES";
 import {LayerMeshParams} from "../../LayerMeshParams";
+import {VBORendererSet} from "../VBORendererSet";
 
 const tempUint8Vec4 = new Uint8Array(4);
 const tempFloat32 = new Float32Array(1);
@@ -38,7 +38,7 @@ export class VBOInstancingLayer implements Layer {
 
     rendererModel: WebGLRendererModel;
     renderState: VBOInstancingRenderState;
-    #rendererSet: VBOInstancingRendererSet;
+    #rendererSet: VBORendererSet;
 
     #aabb: FloatArrayParam;
     layerIndex: number;
@@ -52,7 +52,7 @@ export class VBOInstancingLayer implements Layer {
     #built: boolean;
     renderContext: RenderContext;
 
-    constructor(layerParams: VBOInstancingLayerParams, rendererSet: VBOInstancingRendererSet) {
+    constructor(layerParams: VBOInstancingLayerParams, rendererSet: VBORendererSet) {
 
         console.info("Creating VBOInstancingLayer");
 
@@ -92,22 +92,6 @@ export class VBOInstancingLayer implements Layer {
             modelNormalMatrixCol2Buf: null,
             pickColorsBuf: null
         };
-
-        // Vertex arrays
-        this.#buffer.colors = [];
-        this.#buffer.metallicRoughness = [];
-        this.#buffer.pickColors = [];
-
-        // Modeling matrix per instance, array for each column
-
-        this.#buffer.modelMatrixCol0 = [];
-        this.#buffer.modelMatrixCol1 = [];
-        this.#buffer.modelMatrixCol2 = [];
-
-        // Modeling normal matrix per instance, array for each column
-        this.#buffer.modelNormalMatrixCol0 = [];
-        this.#buffer.modelNormalMatrixCol1 = [];
-        this.#buffer.modelNormalMatrixCol2 = [];
 
         this.#portions = [];
         this.#meshes = [];
@@ -705,7 +689,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.colorRenderer) {
-            this.#rendererSet.colorRenderer.render(this, RENDER_PASSES.COLOR_OPAQUE);
+            this.#rendererSet.colorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE);
         }
     }
 
@@ -717,7 +701,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.colorRenderer) {
-            this.#rendererSet.colorRenderer.render(this, RENDER_PASSES.COLOR_TRANSPARENT);
+            this.#rendererSet.colorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_TRANSPARENT);
         }
     }
 
@@ -729,7 +713,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.depthRenderer) {
-            this.#rendererSet.depthRenderer.render(this, RENDER_PASSES.COLOR_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
+            this.#rendererSet.depthRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
         }
     }
 
@@ -741,7 +725,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.normalsRenderer) {
-            this.#rendererSet.normalsRenderer.render(this, RENDER_PASSES.COLOR_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
+            this.#rendererSet.normalsRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
         }
     }
 
@@ -752,7 +736,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.silhouetteRenderer) {
-            this.#rendererSet.silhouetteRenderer.render(this, RENDER_PASSES.SILHOUETTE_XRAYED);
+            this.#rendererSet.silhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.SILHOUETTE_XRAYED);
         }
     }
 
@@ -763,7 +747,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.silhouetteRenderer) {
-            this.#rendererSet.silhouetteRenderer.render(this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
+            this.#rendererSet.silhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
         }
     }
 
@@ -774,7 +758,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.silhouetteRenderer) {
-            this.#rendererSet.silhouetteRenderer.render(this, RENDER_PASSES.SILHOUETTE_SELECTED);
+            this.#rendererSet.silhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.SILHOUETTE_SELECTED);
         }
     }
 
@@ -785,7 +769,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
-            this.#rendererSet.edgesColorRenderer.render(this, RENDER_PASSES.EDGES_COLOR_OPAQUE);
+            this.#rendererSet.edgesColorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.EDGES_COLOR_OPAQUE);
         }
     }
 
@@ -797,7 +781,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
-            this.#rendererSet.edgesColorRenderer.render(this, RENDER_PASSES.EDGES_COLOR_TRANSPARENT);
+            this.#rendererSet.edgesColorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.EDGES_COLOR_TRANSPARENT);
         }
     }
 
@@ -809,7 +793,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.render(this, RENDER_PASSES.EDGES_HIGHLIGHTED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.EDGES_HIGHLIGHTED);
         }
     }
 
@@ -821,7 +805,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.render(this, RENDER_PASSES.EDGES_SELECTED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.EDGES_SELECTED);
         }
     }
 
@@ -833,7 +817,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.render(this, RENDER_PASSES.EDGES_XRAYED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.EDGES_XRAYED);
         }
     }
 
@@ -843,7 +827,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.occlusionRenderer) {
-            this.#rendererSet.occlusionRenderer.render(this, RENDER_PASSES.COLOR_OPAQUE);
+            this.#rendererSet.occlusionRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE);
         }
     }
 
@@ -862,7 +846,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.pickMeshRenderer) {
-            this.#rendererSet.pickMeshRenderer.render(this, RENDER_PASSES.PICK);
+            this.#rendererSet.pickMeshRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.PICK);
         }
     }
 
@@ -871,7 +855,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.pickDepthRenderer) {
-            this.#rendererSet.pickDepthRenderer.render(this, RENDER_PASSES.PICK);
+            this.#rendererSet.pickDepthRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.PICK);
         }
     }
 
@@ -880,7 +864,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.snapInitRenderer) {
-            this.#rendererSet.snapInitRenderer.render(this, RENDER_PASSES.PICK);
+            this.#rendererSet.snapInitRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.PICK);
         }
     }
 
@@ -889,7 +873,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.snapRenderer) {
-            this.#rendererSet.snapRenderer.render(this, RENDER_PASSES.PICK);
+            this.#rendererSet.snapRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.PICK);
         }
     }
 

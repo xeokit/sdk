@@ -11,7 +11,7 @@ export class VBOPointsBatchingPickMeshRenderer extends VBOBatchingRenderer {
         return "";
     }
 
-    buildVertexShader(src: string[]) {
+    buildVertexShader(src: string[]) :void{
         const renderContext = this.renderContext;
         const view = renderContext.view;
         const clipping = view.getNumAllocatedSectionPlanes() > 0;
@@ -61,7 +61,7 @@ export class VBOPointsBatchingPickMeshRenderer extends VBOBatchingRenderer {
         src.push("}");
     }
 
-    buildFragmentShader(src: string[]) {
+    buildFragmentShader(src: string[]) :void{
         const renderContext = this.renderContext;
         const view = renderContext.view;
         const clipping = view.getNumAllocatedSectionPlanes() > 0;
@@ -116,7 +116,7 @@ export class VBOPointsBatchingPickMeshRenderer extends VBOBatchingRenderer {
         src.push("}");
     }
 
-    drawVBOBatchingLayer(vboBatchingLayer: VBOBatchingLayer, renderPass: number) {
+    drawVBOBatchingLayerPrimitives(vboBatchingLayer: VBOBatchingLayer, renderPass: number) {
         this.bind(renderPass);
         const gl = this.renderContext.gl;
         const attributes = this.attributes;

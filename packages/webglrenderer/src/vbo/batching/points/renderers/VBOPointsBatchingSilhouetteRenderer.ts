@@ -12,7 +12,7 @@ export class VBOPointsBatchingSilhouetteRenderer extends VBOBatchingRenderer {
         return "";
     }
 
-    buildVertexShader(src: string[]) {
+    buildVertexShader(src: string[]) :void{
         const renderContext = this.renderContext;
         const view = renderContext.view;
         const clipping = view.getNumAllocatedSectionPlanes() > 0;
@@ -55,7 +55,7 @@ export class VBOPointsBatchingSilhouetteRenderer extends VBOBatchingRenderer {
         src.push("}");
     }
 
-    buildFragmentShader(src: string[]) {
+    buildFragmentShader(src: string[]):void {
         const renderContext = this.renderContext;
         const view = renderContext.view;
         const clipping = view.getNumAllocatedSectionPlanes() > 0;
@@ -91,7 +91,7 @@ export class VBOPointsBatchingSilhouetteRenderer extends VBOBatchingRenderer {
         src.push("}");
     }
 
-    drawVBOBatchingLayer(vboBatchingLayer: VBOBatchingLayer, renderPass: number): void {
+    drawVBOBatchingLayerPrimitives(vboBatchingLayer: VBOBatchingLayer, renderPass: number): void {
         this.bind(renderPass);
         const view = this.renderContext.view;
         let material;

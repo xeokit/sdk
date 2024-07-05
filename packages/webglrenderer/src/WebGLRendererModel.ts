@@ -33,13 +33,15 @@ import type {VBOInstancingLayerParams} from "./vbo/instancing/VBOInstancingLayer
 import type {VBOBatchingLayerParams} from "./vbo/batching/VBOBatchingLayerParams";
 import type {WebGLTileManager} from "./WebGLTileManager";
 import {MeshCounts} from "./MeshCounts";
-import {PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
+import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
 import {RenderStats} from "./RenderStats";
 import {RenderFlags} from "./RenderFlags";
 import {Layer} from "./Layer";
 import {VBOPointsBatchingLayer} from "./vbo/batching/points/VBOPointsBatchingLayer";
 import {VBOTrianglesBatchingLayer} from "./vbo/batching/triangles/VBOTrianglesBatchingLayer";
 import {VBOTrianglesInstancingLayer} from "./vbo/instancing/triangles/VBOTrianglesInstancingLayer";
+import {VBOLinesInstancingLayer} from "./vbo/instancing/lines/VBOLinesInstancingLayer";
+import {VBOLinesBatchingLayer} from "./vbo/batching/lines/VBOLinesBatchingLayer";
 
 
 const defaultScale = createVec3([1, 1, 1]);
@@ -392,9 +394,10 @@ export class WebGLRendererModel extends Component implements RendererModel {
 
     #getLayer(textureSetId: string, mesh: SceneMesh): Layer | undefined {
         const sceneGeometry = mesh.geometry;
+        const primitive = sceneGeometry.primitive;
         const instancing = sceneGeometry.numMeshes > 1;
         const origin = mesh.origin;
-        const layerId = `VBO-${instancing ? "Instancing" : "Batching"}-${textureSetId}.${sceneGeometry.primitive}.${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}`;
+        const layerId = `VBO-${instancing ? "Instancing" : "Batching"}-${textureSetId}.${primitive}.${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}`;
         let layer = this.#currentLayers[layerId];
         if (layer) {
             if (layer.canCreateLayerMesh(sceneGeometry)) {
@@ -412,7 +415,6 @@ export class WebGLRendererModel extends Component implements RendererModel {
                 return;
             }
         }
-        console.log(instancing)
         if (instancing) {
             switch (sceneGeometry.primitive) {
                 case TrianglesPrimitive:
@@ -428,6 +430,18 @@ export class WebGLRendererModel extends Component implements RendererModel {
                         origin
                     });
                     this.log(`Creating new VBOTrianglesInstancingLayer`);
+                    break;
+                case LinesPrimitive:
+                    layer = new VBOLinesInstancingLayer({
+                        renderContext: this.#renderContext,
+                        view: this.#view,
+                        rendererModel: this,
+                        sceneGeometry,
+                        textureSet,
+                        layerIndex: 0,
+                        origin
+                    });
+                    this.log(`Creating new VBOLinesInstancingLayer`);
                     break;
                 case PointsPrimitive:
                     // layer = new VBOPointsInstancingLayer(<VBOInstancingLayerParams>{
@@ -454,19 +468,31 @@ export class WebGLRendererModel extends Component implements RendererModel {
                         renderContext: this.#renderContext,
                         view: this.#view,
                         rendererModel: this,
-                        primitive: sceneGeometry.primitive,
+                        primitive,
                         textureSet,
                         layerIndex: 0,
                         origin
                     });
                     this.log(`Creating new VBOTrianglesBatchingLayer`);
                     break;
+                case LinesPrimitive:
+                    layer = new VBOLinesBatchingLayer({
+                        primitive,
+                        renderContext: this.#renderContext,
+                        view: this.#view,
+                        rendererModel: this,
+                        textureSet,
+                        layerIndex: 0,
+                        origin
+                    });
+                    this.log(`Creating new VBOLinesBatchingLayer`);
+                    break;
                 case PointsPrimitive:
                     layer = new VBOPointsBatchingLayer({
                         renderContext: this.#renderContext,
                         view: this.#view,
                         rendererModel: this,
-                        primitive: sceneGeometry.primitive,
+                        primitive,
                         textureSet,
                         layerIndex: 0,
                         origin

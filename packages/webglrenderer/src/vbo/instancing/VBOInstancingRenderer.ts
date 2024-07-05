@@ -8,17 +8,20 @@ import {VBORenderer} from "../VBORenderer";
 export abstract class VBOInstancingRenderer extends VBORenderer{
 
     renderVBOInstancingLayer(vboInstancingLayer: VBOInstancingLayer, renderPass: number): void {
-        this.bind(renderPass);
+        if (!this.bind(renderPass)) {
+            return;
+        }
         const attributes = this.attributes;
         const renderState = vboInstancingLayer.renderState;
         const gl = this.renderContext.gl;
+        gl.uniform1i(this.uniforms.renderPass, renderPass);
         attributes.position.bindArrayBuffer(renderState.positionsBuf);
+        if (attributes.uv) {
+            attributes.uv.bindArrayBuffer(renderState.uvBuf);
+        }
         if (attributes.flags) {
             attributes.flags.bindArrayBuffer(renderState.flagsBuf);
             gl.vertexAttribDivisor(attributes.flags.location, 1);
-        }
-        if (attributes.uv) {
-            attributes.uv.bindArrayBuffer(renderState.uvBuf);
         }
         if (attributes.pickColor) {
             attributes.pickColor.bindArrayBuffer(renderState.pickColorsBuf);
@@ -29,9 +32,8 @@ export abstract class VBOInstancingRenderer extends VBORenderer{
             gl.vertexAttribDivisor(attributes.color.location, 1);
         }
         if (attributes.intensity) {
-            // attributes.intensity.bindArrayBuffer(renderState.intensitiesBuf);
+            // attributes.intensity.bindArrayBuffer(renderState.pointIntensitiesBuf);
         }
-        gl.uniform1i(this.uniforms.renderPass, renderPass);
         if (attributes.modelMatrixCol0) {
             attributes.modelMatrixCol0.bindArrayBuffer(renderState.modelMatrixCol0Buf);
             gl.vertexAttribDivisor(attributes.modelMatrixCol0.location, 1);
@@ -50,8 +52,8 @@ export abstract class VBOInstancingRenderer extends VBORenderer{
         if (renderState.indicesBuf) {
             renderState.indicesBuf.bind();
         }
-        this.drawVBOInstancingLayer(vboInstancingLayer, renderPass);
+        this.drawVBOInstancingLayerPrimitives(vboInstancingLayer, renderPass);
     }
 
-    abstract drawVBOInstancingLayer(vboInstancingLayer: VBOInstancingLayer, renderPass: number);
+    abstract drawVBOInstancingLayerPrimitives(vboInstancingLayer: VBOInstancingLayer, renderPass: number);
 }

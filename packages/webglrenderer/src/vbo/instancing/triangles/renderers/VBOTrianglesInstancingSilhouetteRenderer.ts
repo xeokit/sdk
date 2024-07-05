@@ -10,12 +10,12 @@ export class VBOTrianglesInstancingSilhouetteRenderer extends VBOInstancingRende
         return this.slicingHash;
     }
 
-    buildVertexShader(src: string[]) {
+    buildVertexShader(src: string[]):void {
         this.vertexHeader(src);
         this.vertexCommonDefs(src);
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexSilhouetteShadingDefs(src);
+        this.vertexDrawSilhouetteDefs(src);
         src.push("void main(void) {");
         // colorFlag = NOT_RENDERED | COLOR_OPAQUE | COLOR_TRANSPARENT
         // renderPass = COLOR_OPAQUE
@@ -24,24 +24,24 @@ export class VBOTrianglesInstancingSilhouetteRenderer extends VBOInstancingRende
         src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
         src.push("} else {");
         this.vertexInstancingTransformLogic(src);
-        this.vertexSilhouetteShadingLogic(src);
+        this.vertexDrawSilhouetteLogic(src);
         this.vertexSlicingLogic(src);
         src.push("}");
         src.push("}");
     }
 
-    buildFragmentShader(src: string[]) {
+    buildFragmentShader(src: string[]): void {
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
         this.fragmentSlicingDefs(src);
-        this.fragmentSilhouetteShadingDefs(src);
+        this.fragmentDrawSilhouetteDefs(src);
         src.push("void main(void) {");
         this.fragmentSlicingLogic(src);
-        this.fragmentSilhouetteShadingLogic(src);
+        this.fragmentDrawSilhouetteLogic(src);
         src.push("}");
     }
 
-    drawVBOInstancingLayer(vboInstancingLayer: VBOInstancingLayer, renderPass: number): void {
+    drawVBOInstancingLayerPrimitives(vboInstancingLayer: VBOInstancingLayer, renderPass: number): void {
         const gl = this.renderContext.gl;
         const renderState = vboInstancingLayer.renderState;
         gl.drawElementsInstanced(gl.TRIANGLES, renderState.indicesBuf.numItems, renderState.indicesBuf.itemType, 0, renderState.numInstances);

@@ -12,9 +12,9 @@
 <label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
 <canvas id="myCanvas"></canvas>
 <div class="slideout-sidebar">
-    <h1>Drawing a triangle with a Viewer configured with a WebGLRenderer</h1>
+    <h1>Drawing triangles with a Viewer configured with a WebGLRenderer</h1>
     <p>In tis example, we're creating a Viewer configured with a WebGLRenderer and a Scene. Then we build a SceneModel
-        with a simple triangle geometry.</p>
+        with simple triangles geometry.</p>
     <h3>Major components used</h3>
     <ul>
         <li>
@@ -58,10 +58,9 @@
         canvasId: "myCanvas"
     });
 
-    view.camera.eye = [0, 0, 20];
-    view.camera.look = [0, 0, 0];
+    view.camera.eye = [0, -5, 20];
+    view.camera.look = [0, -5, 0];
     view.camera.up = [0, 1, 0];
-
 
     const sceneModel = scene.createModel({
         id: "myModel"
@@ -161,7 +160,7 @@
 
         sceneModel.build().then(() => {
 
-        //    view.setObjectsVisible(["purpleTableTop"], true)
+          //  view.setObjectsSelected(["purpleTableTop"], true)
 
         }).catch((e) => {
             log(`Error building SceneModel: ${e}`);

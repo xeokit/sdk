@@ -11,7 +11,7 @@ export class VBOTrianglesInstancingPickMeshRenderer extends VBOInstancingRendere
         return this.slicingHash;
     }
 
-    buildVertexShader(src: string[]) {
+    buildVertexShader(src: string[]): void {
         this.vertexHeader(src);
         this.vertexCommonDefs(src);
         this.vertexInstancingTransformDefs(src);
@@ -31,7 +31,7 @@ export class VBOTrianglesInstancingPickMeshRenderer extends VBOInstancingRendere
         src.push("}");
     }
 
-    buildFragmentShader(src: string[]) {
+    buildFragmentShader(src: string[]) : void{
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
         this.fragmentSlicingDefs(src);
@@ -42,7 +42,7 @@ export class VBOTrianglesInstancingPickMeshRenderer extends VBOInstancingRendere
         src.push("}");
     }
 
-    drawVBOInstancingLayer(vboInstancingLayer: VBOInstancingLayer, renderPass: number): void {
+    drawVBOInstancingLayerPrimitives(vboInstancingLayer: VBOInstancingLayer, renderPass: number): void {
         const gl = this.renderContext.gl;
         const renderState = vboInstancingLayer.renderState;
         gl.drawElementsInstanced(gl.TRIANGLES, renderState.indicesBuf.numItems, renderState.indicesBuf.itemType, 0, renderState.numInstances);

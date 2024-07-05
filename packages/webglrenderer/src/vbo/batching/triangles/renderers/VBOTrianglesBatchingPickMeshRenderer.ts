@@ -10,7 +10,7 @@ export class VBOTrianglesBatchingPickMeshRenderer extends VBOBatchingRenderer {
         return this.slicingHash;
     }
 
-    buildVertexShader(src: string[]) {
+    buildVertexShader(src: string[]) :void{
         this.vertexHeader(src);
         this.vertexCommonDefs(src);
         this.vertexBatchingTransformDefs(src);
@@ -30,7 +30,7 @@ export class VBOTrianglesBatchingPickMeshRenderer extends VBOBatchingRenderer {
         src.push("}");
     }
 
-    buildFragmentShader(src: string[]) {
+    buildFragmentShader(src: string[]):void {
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
         this.fragmentSlicingDefs(src);
@@ -41,7 +41,7 @@ export class VBOTrianglesBatchingPickMeshRenderer extends VBOBatchingRenderer {
         src.push("}");
     }
 
-    drawVBOBatchingLayer(vboBatchingLayer: VBOBatchingLayer, renderPass: number): void {
+    drawVBOBatchingLayerPrimitives(vboBatchingLayer: VBOBatchingLayer, renderPass: number): void {
         const gl = this.renderContext.gl;
         const renderState = vboBatchingLayer.renderState;
         gl.drawElements(gl.TRIANGLES, renderState.indicesBuf.numItems, renderState.indicesBuf.itemType, 0);

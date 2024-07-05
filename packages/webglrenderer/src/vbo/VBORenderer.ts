@@ -3,7 +3,6 @@ import {OrthoProjectionType} from "@xeokit/constants";
 import {AmbientLight, DirLight, PointLight} from "@xeokit/viewer";
 import {RenderContext} from "../RenderContext";
 import {RENDER_PASSES} from "../RENDER_PASSES";
-import {VBOInstancingRenderer} from "./instancing/VBOInstancingRenderer";
 import {VBOInstancingLayer} from "./instancing/VBOInstancingLayer";
 import {VBOBatchingLayer} from "./batching/VBOBatchingLayer";
 
@@ -35,8 +34,6 @@ export abstract class VBORenderer {
     hash: string;
     program: WebGLProgram | null;
     errors: string[];
-
-    instancing: boolean;
     edges: boolean;
 
     #needRebuild: boolean;
@@ -85,12 +82,24 @@ export abstract class VBORenderer {
     constructor(renderContext: RenderContext, cfg: { edges: boolean } = {edges: false}) {
         this.renderContext = renderContext;
         this.#needRebuild = true;
-        //  this.instancing = cfg.instancing;
         this.edges = cfg.edges;
         this.build();
     }
 
     abstract getHash(): string;
+
+    get lambertShadingHash() {
+        return this.renderContext.view.getLightsHash();
+    }
+
+    get slicingHash() {
+        return this.renderContext.view.getSectionPlanesHash();
+    }
+
+    get pointsHash() {
+        const pointsMaterial = this.renderContext.view.pointsMaterial;
+        return `${pointsMaterial.roundPoints}-${pointsMaterial.perspectivePoints}`;
+    }
 
     needRebuild() {
         this.#needRebuild = true;
@@ -206,18 +215,6 @@ export abstract class VBORenderer {
 
     abstract buildFragmentShader(src: string[]);
 
-    get lambertShadingHash() {
-        return this.renderContext.view.getLightsHash();
-    }
-
-    get slicingHash() {
-        return this.renderContext.view.getSectionPlanesHash();
-    }
-
-    get pointsHash() {
-        return "";
-    }
-
     vertexHeader(src: string[]) {
         src.push('#version 300 es');
         src.push("// vertexHeader")
@@ -252,19 +249,6 @@ export abstract class VBORenderer {
         src.push("in vec4 modelMatrixCol2;");
     }
 
-    vertexLambertShadingDefs(src: string[]) {
-        src.push("// ------------------- vertexLambertShadingDefs")
-        src.push("in vec4 color;");
-        src.push("out vec4 vColor;");
-        src.push("out vec4 vViewPosition;");
-    }
-
-    vertexSilhouetteShadingDefs(src: string[]) {
-        src.push("// ------------------- vertexSilhouetteShadingDefs")
-        src.push("uniform vec4 silhouetteColor;");
-        src.push("out vec4 vColor;");
-    }
-
     vertexPickMeshShadingDefs(src: string[]) {
         src.push("// ------------------- vertexPickMeshShadingDefs")
         src.push("in vec4 pickColor;");
@@ -279,7 +263,7 @@ export abstract class VBORenderer {
         }
     }
 
-    vertexSlicingLogic( src: string[]) {
+    vertexSlicingLogic(src: string[]) {
         if (this.renderContext.view.getNumAllocatedSectionPlanes() > 0) {
             src.push("// ------------------- vertexSlicingLogic")
             src.push("vWorldPosition = worldPosition;");
@@ -301,14 +285,39 @@ export abstract class VBORenderer {
         src.push("gl_Position = projMatrix * viewPosition;");
     }
 
-    vertexLambertShadingLogic(src: string[]) {
-        src.push("// ------------------- vertexLambertShadingLogic")
-        src.push("vColor = vec4(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);");
+    vertexDrawLambertDefs(src: string[]) {
+        src.push("// ------------------- vertexDrawLambertDefs")
+        src.push("in  vec4 color;");
+        src.push("out vec4 vColor;");
+        src.push("out vec4 vViewPosition;");
     }
 
-    vertexSilhouetteShadingLogic(src: string[]) {
-        src.push("// ------------------- vertexSilhouetteShadingLogic")
+    vertexDrawLambertLogic(src: string[]) { // Depends on vertexInstancingTransformLogic / vertexBatchingTransformLogic
+        src.push("// ------------------- vertexDrawLambertLogic")
+        src.push("vColor = vec4(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);");
+        src.push("vViewPosition = viewPosition;");
+    }
+
+    vertexDrawSilhouetteDefs(src: string[]) {
+        src.push("// ------------------- vertexDrawSilhouetteDefs")
+        src.push("uniform vec4 silhouetteColor;");
+        src.push("out vec4 vColor;");
+    }
+
+    vertexDrawSilhouetteLogic(src: string[]) {
+        src.push("// ------------------- vertexDrawSilhouetteLogic")
         src.push("vColor = vec4(float(silhouetteColor.r) / 255.0, float(silhouetteColor.g) / 255.0, float(silhouetteColor.b) / 255.0, 1.0);");
+    }
+
+    vertexDrawFlatColorDefs(src: string[]) {
+        src.push("// ------------------- vertexDrawFlatColorDefs")
+        src.push("in vec4 color;");
+        src.push("out vec4 vColor;");
+    }
+
+    vertexDrawFlatColorLogic(src: string[]) {
+        src.push("// ------------------- vertexDrawFlatColorLogic")
+        src.push("vColor = vec4(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);");
     }
 
     vertexPickMeshShadingLogic(src: string[]) {
@@ -332,8 +341,8 @@ export abstract class VBORenderer {
         src.push("#endif");
     }
 
-    fragmentLambertShadingDefs(src: string[]) {
-        src.push("// ------------------- fragmentLambertShadingDefs")
+    fragmentDrawLambertDefs(src: string[]) {
+        src.push("// ------------------- fragmentDrawLambertDefs")
         const view = this.renderContext.view;
         src.push("in vec4 vColor;");
         src.push("out vec4 outColor;");
@@ -345,18 +354,18 @@ export abstract class VBORenderer {
             if (light instanceof AmbientLight) {
                 continue;
             }
-            src.push("uniform vec4 lightColor" + i + ";");
+            src.push(`uniform vec4 lightColor${i};`);
             if (light instanceof DirLight) {
-                src.push("uniform vec3 lightDir" + i + ";");
+                src.push(`uniform vec3 lightDir${i};`);
             }
             if (light instanceof PointLight) {
-                src.push("uniform vec3 lightPos" + i + ";");
+                src.push(`uniform vec3 lightPos${i};`);
             }
         }
     }
 
-    fragmentLambertShadingLogic(src: string[]) {
-        src.push("// ------------------- fragmentLambertShadingLogic")
+    fragmentDrawLambertLogic(src: string[]) {
+        src.push("// ------------------- fragmentDrawLambertLogic")
         const view = this.renderContext.view;
         src.push("vec3 reflectedColor = vec3(0.0, 0.0, 0.0);");
         src.push("vec3 viewLightDir = vec3(0.0, 0.0, -1.0);");
@@ -371,44 +380,55 @@ export abstract class VBORenderer {
             }
             if (light instanceof DirLight) {
                 if (light.space === "view") {
-                    src.push("viewLightDir = normalize(lightDir" + i + ");");
+                    src.push(`viewLightDir = normalize(lightDir${i});`);
                 } else {
-                    src.push("viewLightDir = normalize((viewMatrix * vec4(lightDir" + i + ", 0.0)).xyz);");
+                    src.push(`viewLightDir = normalize((viewMatrix * vec4(lightDir${i}, 0.0)).xyz);`);
                 }
             } else if (light instanceof PointLight) {
                 if (light.space === "view") {
-                    src.push("viewLightDir = -normalize(lightPos" + i + " - viewPosition.xyz);");
+                    src.push(`viewLightDir = -normalize(lightPos${i} - viewPosition.xyz);`);
                 } else {
-                    src.push("viewLightDir = -normalize((viewMatrix * vec4(lightPos" + i + ", 0.0)).xyz);");
+                    src.push(`viewLightDir = -normalize((viewMatrix * vec4(lightPos${i}, 0.0)).xyz);`);
                 }
             } else {
                 continue;
             }
             src.push("lambertian = max(dot(-viewNormal, viewLightDir), 0.0);");
-            src.push("reflectedColor += lambertian * (lightColor" + i + ".rgb * lightColor" + i + ".a);");
+            src.push(`reflectedColor += lambertian * (lightColor${i}.rgb * lightColor${i}.a);`);
         }
         src.push("outColor = vec4((lightAmbient.rgb * lightAmbient.a * vColor.rgb) + (reflectedColor * vColor.rgb), vColor.a);");
     }
 
-    fragmentSilhouetteShadingDefs(src: string[]) {
-        src.push("// ------------------- fragmentSilhouetteShadingDefs")
+    fragmentDrawSilhouetteDefs(src: string[]) {
+        src.push("// ------------------- fragmentDrawSilhouetteDefs")
         src.push("in vec4 vColor;");
         src.push("out vec4 outColor;");
     }
 
-    fragmentSilhouetteShadingLogic(src:string[]) {
-        src.push("// ------------------- fragmentSilhouetteShadingLogic")
+    fragmentDrawSilhouetteLogic(src: string[]) {
+        src.push("// ------------------- fragmentDrawSilhouetteLogic")
+        src.push("outColor = vColor;");
+    }
+
+    fragmentDrawFlatColorDefs(src: string[]) {
+        src.push("// ------------------- fragmentDrawFlatColorDefs")
+        src.push("in vec4 vColor;");
+        src.push("out vec4 outColor;");
+    }
+
+    fragmentDrawFlatColorLogic(src: string[]) {
+        src.push("// ------------------- fragmentDrawFlatColorLogic")
         src.push("outColor = vColor;");
     }
 
     fragmentPickMeshShadingDefs(src: string[]) {
-        src.push("// ------------------- fragmentSilhouetteShadingDefs")
+        src.push("// ------------------- fragmentDrawSilhouetteDefs")
         src.push("in vec4 vPickColor;");
         src.push("out vec4 outColor;");
     }
 
-    fragmentPickMeshShadingLogic(src:string[]) {
-        src.push("// ------------------- fragmentSilhouetteShadingLogic")
+    fragmentPickMeshShadingLogic(src: string[]) {
+        src.push("// ------------------- fragmentDrawSilhouetteLogic")
         src.push("outColor = vPickColor;");
     }
 
@@ -444,11 +464,7 @@ export abstract class VBORenderer {
         src.push("  }");
     }
 
-    protected get sectionPlanesHash(): string {
-        return "";
-    }
-
-    bind(renderPass: number): void {
+    bind(renderPass: number): boolean {
         const view = this.renderContext.view;
         const gl = this.renderContext.gl;
         const uniforms = this.uniforms;
@@ -460,15 +476,15 @@ export abstract class VBORenderer {
         if (!this.program) {
             this.build();
             if (this.errors) {
-                return;
+                return false;
             }
             this.renderContext.lastProgramId = -1;
         }
         if (!this.program) {
-            return;
+            return false;
         }
         if (this.renderContext.lastProgramId === this.program.id) {
-            return; // Already bound
+            return true; // Already bound
         }
         this.program.bind();
         this.renderContext.lastProgramId = this.program.id;
@@ -537,14 +553,15 @@ export abstract class VBORenderer {
                 }
             }
         }
+        return true;
     }
 
     renderVBOInstancingLayer(vboInstancinglayer: VBOInstancingLayer, renderPass: number) {
-
+        // Default no-op
     }
 
     renderVBOBatchingLayer(vboInstancinglayer: VBOBatchingLayer, renderPass: number) {
-
+        // Default no-op
     }
 
     destroy() {

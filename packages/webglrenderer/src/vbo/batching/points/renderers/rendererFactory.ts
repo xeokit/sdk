@@ -1,6 +1,6 @@
 import {WebGLRenderer} from "../../../../WebGLRenderer";
 import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
-import {VBOPointsBatchingLambertRenderer} from "./VBOPointsBatchingLambertRenderer";
+import {VBOPointsBatchingDrawRenderer} from "./VBOPointsBatchingDrawRenderer";
 import {VBOPointsBatchingPickMeshRenderer} from "./VBOPointsBatchingPickMeshRenderer";
 import {VBOPointsBatchingSilhouetteRenderer} from "./VBOPointsBatchingSilhouetteRenderer";
 import {RendererSetFactory, VBORendererSet} from "../../../VBORendererSet";
@@ -12,8 +12,8 @@ import {VBORenderer} from "../../../VBORenderer";
  */
  class RendererFactory extends VBORendererSet {
 
-    createLambertRenderer(): VBOBatchingRenderer {
-       return new VBOPointsBatchingLambertRenderer(this.renderContext);
+    createDrawRenderer(): VBOBatchingRenderer {
+       return new VBOPointsBatchingDrawRenderer(this.renderContext);
     }
 
     createPickMeshRenderer(): VBORenderer {

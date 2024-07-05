@@ -1,6 +1,6 @@
 import {WebGLRenderer} from "../../../../WebGLRenderer";
 import {RendererSetFactory, VBORendererSet} from "../../../VBORendererSet";
-import {VBOTrianglesInstancingLambertRenderer} from "./VBOTrianglesInstancingLambertRenderer";
+import {VBOTrianglesInstancingDrawRenderer} from "./VBOTrianglesInstancingDrawRenderer";
 import {VBOTrianglesInstancingSilhouetteRenderer} from "./VBOTrianglesInstancingSilhouetteRenderer";
 import {VBORenderer} from "../../../VBORenderer";
 import {VBOTrianglesInstancingPickMeshRenderer} from "./VBOTrianglesInstancingPickMeshRenderer";
@@ -10,8 +10,8 @@ import {VBOTrianglesInstancingPickMeshRenderer} from "./VBOTrianglesInstancingPi
  */
 class RendererFactory extends VBORendererSet {
 
-    createLambertRenderer(): VBORenderer {
-        return new VBOTrianglesInstancingLambertRenderer(this.renderContext);
+    createDrawRenderer(): VBORenderer {
+        return new VBOTrianglesInstancingDrawRenderer(this.renderContext);
     }
 
     createSilhouetteRenderer(): VBORenderer {

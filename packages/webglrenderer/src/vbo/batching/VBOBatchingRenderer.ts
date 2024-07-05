@@ -9,7 +9,9 @@ import {VBORenderer} from "../VBORenderer";
 export abstract class VBOBatchingRenderer extends VBORenderer {
 
     renderVBOBatchingLayer(vboBatchingLayer: VBOBatchingLayer, renderPass: number): void {
-        this.bind(renderPass);
+        if (!this.bind(renderPass)) {
+            return;
+        }
         const attributes = this.attributes;
         const renderState = vboBatchingLayer.renderState;
         const gl = this.renderContext.gl;
@@ -30,7 +32,7 @@ export abstract class VBOBatchingRenderer extends VBORenderer {
             attributes.color.bindArrayBuffer(renderState.colorsBuf);
         }
         if (attributes.intensity) {
-            //attributes.intensity.bindArrayBuffer(renderState.intensitiesBuf);
+            //attributes.intensity.bindArrayBuffer(renderState.pointIntensitiesBuf);
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
         gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
@@ -39,8 +41,8 @@ export abstract class VBOBatchingRenderer extends VBORenderer {
         if (renderState.indicesBuf) {
             renderState.indicesBuf.bind();
         }
-        this.drawVBOBatchingLayer(vboBatchingLayer, renderPass);
+        this.drawVBOBatchingLayerPrimitives(vboBatchingLayer, renderPass);
     }
 
-    abstract drawVBOBatchingLayer(vboBatchingLayer: VBOBatchingLayer, renderPass: number);
+    abstract drawVBOBatchingLayerPrimitives(vboBatchingLayer: VBOBatchingLayer, renderPass: number);
 }

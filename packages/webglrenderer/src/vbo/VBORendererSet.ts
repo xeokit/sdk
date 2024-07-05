@@ -65,7 +65,7 @@ export class VBORendererSet {
 
     get colorRenderer(): VBORenderer {
         if (!this.#colorRenderer) {
-            this.#colorRenderer = this.createLambertRenderer();
+            this.#colorRenderer = this.createDrawRenderer();
         }
         return this.#colorRenderer;
     }
@@ -112,7 +112,7 @@ export class VBORendererSet {
         return this.#snapRenderer;
     }
 
-    protected createLambertRenderer(): VBORenderer {
+    protected createDrawRenderer(): VBORenderer {
         return null;
     }
 

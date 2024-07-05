@@ -1262,12 +1262,11 @@ class View extends Component {
         this.viewer.renderer.setImageDirty(this.viewIndex);
     }
 
-
     /**
      * @private
      */
     getAmbientColorAndIntensity(): FloatArrayParam {
-        return [0, 0, 0, 1];
+        return [0.5, 0.5, 0.5, 1];
     }
 
     /**

@@ -9,12 +9,13 @@ import {RENDER_PASSES} from "./RENDER_PASSES";
 import type {Pickable} from "./Pickable";
 import {WebGLRendererModel} from "./WebGLRendererModel";
 import type {Capabilities, TextureTranscoder} from "@xeokit/core";
-import {SDKError} from "@xeokit/core";
+import {EventEmitter, SDKError} from "@xeokit/core";
 import type {RendererObject, SceneModel} from "@xeokit/scene";
 import {WebGLTileManager} from "./WebGLTileManager";
-import {Layer} from "./Layer";
-import {RendererSet} from "./RendererSet";
+import {DTXTrianglesLayer} from "./dtx/triangles/DTXTrianglesLayer";
+import {DTXTrianglesRendererSet} from "./dtx/triangles/DTXTrianglesRendererSet";
 import {RenderStats} from "./RenderStats";
+import {EventDispatcher} from "strongly-typed-events";
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
@@ -26,24 +27,38 @@ const isSafari = (ua && ua[1].toLowerCase() === "safari");
  */
 export class WebGLRenderer implements Renderer {
 
+    /**
+     * Interfaces through which each {@link @xeokit/viewer!ViewObject | ViewObject} shows/hides/highlights/selects/xrays/colorizes
+     * its {@link @xeokit/scene!SceneObject | SceneObject} within the WebGLRenderer that's
+     * configured on its {@link @xeokit/viewer!Viewer | Viewer}.
+     *
+     * @internal
+     */
     rendererObjects: { [key: string]: RendererObject };
 
+    /**
+     * @internal
+     */
     renderStats: RenderStats;
 
+    /**
+     * @internal
+     */
     tileManager: WebGLTileManager | null;
 
     #viewer: Viewer;
     #view: View;
-    #renderContext: RenderContext;
+    renderContext: RenderContext;
     #canvasTransparent: boolean;
     #transparentEnabled: boolean;
     #edgesEnabled: boolean;
+    #shadersDirty: boolean;
     #imageDirty: boolean;
     #saoEnabled: boolean;
     #pbrEnabled: boolean;
     #backgroundColor: FloatArrayParam;
     #rendererModels: { [key: string]: WebGLRendererModel };
-    #layerList: Layer[];
+    #layerList: DTXTrianglesLayer[];
     #layerListDirty: boolean;
     #stateSortDirty: boolean;
     #pickIDs = new Map({});
@@ -55,21 +70,33 @@ export class WebGLRenderer implements Renderer {
     // #saoOcclusionRenderer: null | SAOOcclusionRenderer;
     // #saoDepthLimitedBlurRenderer: SAODepthLimitedBlurRenderer;
     #textureTranscoder: TextureTranscoder;
-    //  #rendererSet: RendererSet;
     #viewMatrixDirty: boolean;
-    #rendererSet: RendererSet;
+    #rendererSet: DTXTrianglesRendererSet;
     #destroyed: boolean;
 
     #onViewCameraMatrix: () => void | null;
 
     /**
-     Creates a WebGLRenderer.
+     * @internal
+     * @event
+     */
+    readonly onCompiled: EventEmitter<WebGLRenderer, boolean>;
 
-     @param params Configs
-     @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererModel.createTexture}
-     to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
-     to {@link rendererModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererModel````
-     will then be in a format supported by this transcoder.
+    /**
+     * @internal
+     * @event
+     */
+    readonly onDestroyed: EventEmitter<WebGLRenderer, boolean>;
+
+
+    /**
+     * Creates a WebGLRenderer.
+     *
+     * @param params Configs
+     * @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererModel.createTexture}
+     * to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
+     * to {@link rendererModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererModel````
+     * will then be in a format supported by this transcoder.
      */
     constructor(params: {
         textureTranscoder?: TextureTranscoder
@@ -77,7 +104,7 @@ export class WebGLRenderer implements Renderer {
         this.renderStats = new RenderStats();
         this.rendererObjects = {};
         this.tileManager = null;
-        this.#renderContext = null;
+        this.renderContext = null;
         this.#textureTranscoder = params.textureTranscoder || new KTX2TextureTranscoder({});
         this.#canvasTransparent = false;
         this.#alphaDepthMask = false;
@@ -86,6 +113,7 @@ export class WebGLRenderer implements Renderer {
         this.#layerList = [];
         this.#layerListDirty = true;
         this.#stateSortDirty = true;
+        this.#shadersDirty = true;
         this.#imageDirty = true;
         this.#transparentEnabled = true;
         this.#edgesEnabled = true;
@@ -100,6 +128,9 @@ export class WebGLRenderer implements Renderer {
         this.#rendererModels = {};
         this.#viewMatrixDirty = true;
         this.#destroyed = false;
+
+        this.onCompiled = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
+        this.onDestroyed = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
     }
 
     /**
@@ -122,7 +153,6 @@ export class WebGLRenderer implements Renderer {
      * Gets the capabilities of this WebGLRenderer.
      *
      * @param capabilities Returns the capabilities of this WebGLRenderer.
-     *
      * @internal
      */
     getCapabilities(capabilities: Capabilities): void {
@@ -191,7 +221,7 @@ export class WebGLRenderer implements Renderer {
         this.#view = null;
         this.#rendererSet.destroy();
         this.#rendererSet = null;
-        this.#renderContext = null;
+        this.renderContext = null;
         this.#layerList = [];
         this.rendererObjects = {};
         this.tileManager = null;
@@ -204,7 +234,7 @@ export class WebGLRenderer implements Renderer {
      * created with {@link @xeokit/scene!Scene.createModel | Scene.createModel}, for the new View.
      *
      * You can only attach as many Views as indicated in {@link  @xeokit/core!Capabilities.maxViews | Capabilities.maxViews}, as returned by
-     * {@link @xeokit/viewer!Renderer.getCapabilities | Renderer.getCapabilities}.
+     * {@link @xeokit/webglrenderer!WebGLRenderer.getCapabilities | Renderer.getCapabilities}.
      *
      * You must attach a View before you can attach a SceneModel.
      *
@@ -239,9 +269,9 @@ export class WebGLRenderer implements Renderer {
             return new SDKError(`Failed to get a WebGL2 context on the View's canvas (HTMLCanvasElement with ID "${view.canvasElement.id}")`);
         }
         gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
-        this.#renderContext = new RenderContext(this.#viewer, this.#view, gl);
+        this.renderContext = new RenderContext(this.#viewer, this.#view, gl, this);
         this.tileManager = new WebGLTileManager({camera: view.camera, gl});
-        this.#rendererSet = new RendererSet(this.#renderContext, this.renderStats);
+        this.#rendererSet = new DTXTrianglesRendererSet(this.renderContext, this.renderStats);
         view.camera.onViewMatrix.subscribe(this.#onViewCameraMatrix = () => {
             this.#viewMatrixDirty = true;
         });
@@ -285,7 +315,7 @@ export class WebGLRenderer implements Renderer {
         this.#view = null;
         this.#rendererSet.destroy();
         this.#rendererSet = null;
-        this.#renderContext = null;
+        this.renderContext = null;
         this.#layerList = [];
         this.rendererObjects = {};
         this.tileManager = null;
@@ -305,7 +335,7 @@ export class WebGLRenderer implements Renderer {
      *
      * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
      *
-     * You must first attach a View with {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView} before you can attach a SceneModel.
+     * You must first attach a View with {@link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView} before you can attach a SceneModel.
      *
      * @param sceneModel
      * @internal
@@ -328,7 +358,7 @@ export class WebGLRenderer implements Renderer {
             view: this.#view,
             textureTranscoder: this.#textureTranscoder,
             webglRenderer: this,
-            renderContext: this.#renderContext
+            renderContext: this.renderContext
         });
         this.#rendererModels[rendererModel.id] = rendererModel;
         this.#attachRendererObjects(rendererModel);
@@ -345,6 +375,10 @@ export class WebGLRenderer implements Renderer {
 
     /**
      * Detaches a {@link @xeokit/scene!SceneModel | SceneModel} from this WebGLRenderer.
+     *
+     * Detaches and destroys the {@link @xeokit/scene!RendererModel}, {@link @xeokit/scene!RendererObject} and
+     * {@link @xeokit/scene!RendererMesh},
+     * {@link @xeokit/scene!RendererTexture} instances that were attached in {@link @xeokit/webglrenderer!WebGLRenderer.attachSceneModel}.
      *
      * @internal
      * @returns *void*
@@ -400,15 +434,15 @@ export class WebGLRenderer implements Renderer {
     }
 
     /**
-     * TODO
+     * Indicates that the WebGLRenderer needs to draw a new frame.
      * @internal
      */
-    setImageDirty(viewIndex?: number) {
+    setImageDirty(viewIndex?: number): void {
         this.#imageDirty = true;
     }
 
     /**
-     * TODO
+     * Sets the WebGLRenderer's background color.
      * @internal
      */
     setBackgroundColor(viewIndex: number, color: FloatArrayParam): void { // @ts-ignore
@@ -417,7 +451,8 @@ export class WebGLRenderer implements Renderer {
     }
 
     /**
-     * TODO
+     * Sets whether the WebGLRenderer draws edges.
+     * Triggers a new frame render.
      * @internal
      */
     setEdgesEnabled(viewIndex: number, enabled: boolean): void {
@@ -426,7 +461,8 @@ export class WebGLRenderer implements Renderer {
     }
 
     /**
-     * TODO
+     * Sets whether the WebGLRenderer draws with physically-based rendering.
+     * Triggers a new frame render.
      * @internal
      */
     setPBREnabled(viewIndex: number, enabled: boolean): void {
@@ -434,16 +470,14 @@ export class WebGLRenderer implements Renderer {
         this.#imageDirty = true;
     }
 
-    /**
-     * TODO
-     * @internal
-     */
+
     getSAOSupported(): boolean {
         return isSafari && WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_standard_derivatives"];
     }
 
     /**
-     * TODO
+     * Sets whether the WebGLRenderer draws with SAO.
+     * Triggers a new frame render.
      * @internal
      */
     setSAOEnabled(viewIndex: number, enabled: boolean): void {
@@ -452,8 +486,16 @@ export class WebGLRenderer implements Renderer {
     }
 
     /**
-     * TODO
+     * Enable/disable rendering of transparent objects for the given View.
+     *
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+     * @param enabled Whether to enable or disable transparent objects for the View.
      * @internal
+     * @returns *void*
+     * * Success.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * No View is currently attached to this Renderer.
+     * * Can't find a View attached to this Renderer with the given handle.
      */
     setTransparentEnabled(viewIndex: number, enabled: boolean): void {
         this.#transparentEnabled = enabled;
@@ -461,17 +503,24 @@ export class WebGLRenderer implements Renderer {
     }
 
     /**
-     * TODO
+     * Clears this WebGLRenderer for the given view.
+     *
      * @internal
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+     * @returns *void*
+     * * Success.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * No View is currently attached to this WebGLRenderer.
+     * * Can't find a View attached to this WebGLRenderer with the given handle.
      */
-    clear(viewIndex: number) {
+    clear(viewIndex: number): void | SDKError {
         if (!this.#viewer) {
             throw new SDKError("Can't clear canvas with WebGLRenderer - no Viewer and View is attached");
         }
         if (!this.#view) {
             throw new SDKError("Can't clear canvas with WebGLRenderer - no View is attached");
         }
-        const gl = this.#renderContext.gl;
+        const gl = this.renderContext.gl;
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         if (this.#canvasTransparent) {
             gl.clearColor(1, 1, 1, 1);
@@ -482,24 +531,43 @@ export class WebGLRenderer implements Renderer {
     };
 
     /**
-     * TODO
+     * Triggers a rebuild of the shaders within this WebGLRenderer for the given View.
      * @internal
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+     * @returns *void*
+     * * Success.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * No View is currently attached to this WebGLRenderer.
+     * * Can't find a View attached to this WebGLRenderer with the given handle.
      */
-    needsRebuild(viewIndex?: number): void {
-        this.#rendererSet.needRebuild();
+    setNeedsRebuild(viewIndex?: number): void {
+        this.#shadersDirty = true;
     }
 
     /**
-     * TODO
+     * Gets if a new frame needs to be rendered for the given View.
      * @internal
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+     * @returns *boolean*
+     * * True if a new frame needs to be rendered for the View.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * No View is currently attached to this WebGLRenderer.
+     * * Can't find a View attached to this WebGLRenderer with the given handle.
      */
-    needsRender(viewIndex?: number): boolean {
+    getNeedsRender(viewIndex?: number): boolean {
         return (this.#imageDirty || this.#layerListDirty || this.#stateSortDirty);
     }
 
     /**
-     * TODO
+     * Renders a frame for a View.
+     *
+     * @param params Rendering params.
+     * @param [params.force=false] True to force a render, else only render if needed.
      * @internal
+     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+     * @returns *{@link @xeokit/core!SDKError}*
+     * * No View is currently attached to this Renderer.
+     * * Can't find a View attached to this Renderer with the given handle.
      */
     render(viewIndex: number, params: {
         force?: boolean;
@@ -511,6 +579,10 @@ export class WebGLRenderer implements Renderer {
             throw new SDKError("Can't render with WebGLRenderer - no View is attached");
         }
         this.renderStats.reset();
+        if ( this.#shadersDirty) {
+            this.onCompiled.dispatch(this, true);
+            this.#shadersDirty = false;
+        }
         params = params || {};
         if (params.force) {
             this.#imageDirty = true;
@@ -554,22 +626,22 @@ export class WebGLRenderer implements Renderer {
     }
 
     #buildLayerList(): void {
-        let lenDrawableList = 0;
+        let lenLayerList = 0;
         for (let id in this.#rendererModels) {
             const rendererModel = this.#rendererModels[id];
             for (let i = 0, len = rendererModel.layerList.length; i < len; i++) {
-                this.#layerList[lenDrawableList++] = rendererModel.layerList[i];
+                this.#layerList[lenLayerList++] = rendererModel.layerList[i];
             }
         }
-        this.#layerList.length = lenDrawableList;
+        this.#layerList.length = lenLayerList;
     }
 
     #sortLayerList(): void {
-        this.#layerList.sort((a, b) => {
-            if (a.sortId < b.sortId) {
+        this.#layerList.sort((layer1, layer2) => {
+            if (layer1.sortId < layer2.sortId) {
                 return -1;
             }
-            if (a.sortId > b.sortId) {
+            if (layer1.sortId > layer2.sortId) {
                 return 1;
             }
             return 0;
@@ -588,13 +660,13 @@ export class WebGLRenderer implements Renderer {
 
     #activateExtensions() {
         if (WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_element_index_uint"]) {
-            this.#extensionHandles.OES_element_index_uint = this.#renderContext.gl.getExtension("OES_element_index_uint");
+            this.#extensionHandles.OES_element_index_uint = this.renderContext.gl.getExtension("OES_element_index_uint");
         }
         if (this.#logarithmicDepthBufferEnabled && WEBGL_INFO.SUPPORTED_EXTENSIONS["EXT_frag_depth"]) {
-            this.#extensionHandles.EXT_frag_depth = this.#renderContext.gl.getExtension('EXT_frag_depth');
+            this.#extensionHandles.EXT_frag_depth = this.renderContext.gl.getExtension('EXT_frag_depth');
         }
         if (WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"]) {
-            this.#extensionHandles.WEBGL_depth_texture = this.#renderContext.gl.getExtension('WEBGL_depth_texture');
+            this.#extensionHandles.WEBGL_depth_texture = this.renderContext.gl.getExtension('WEBGL_depth_texture');
         }
     }
 
@@ -633,8 +705,8 @@ export class WebGLRenderer implements Renderer {
     #drawDepth(params: {
         clear: boolean
     }) {
-        this.#renderContext.reset();
-        const gl = this.#renderContext.gl;
+        this.renderContext.reset();
+        const gl = this.renderContext.gl;
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.clearColor(0, 0, 0, 0);
         gl.enable(gl.DEPTH_TEST);
@@ -651,7 +723,7 @@ export class WebGLRenderer implements Renderer {
         //     //     continue;
         //     // }
         //     // if (layer.drawFlags.colorOpaque) {
-        //     //     //    layer.drawDepth(this.#renderContext);
+        //     //     //    layer.drawDepth(this.renderContext);
         //     // }
         // }
         // const numVertexAttribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; // Fixes https://github.com/xeokit/xeokit-sdk/issues/174
@@ -665,25 +737,25 @@ export class WebGLRenderer implements Renderer {
     }) {
 
         const view = this.#view;
-        const renderContext = this.#renderContext;
+        const renderContext = this.renderContext;
         const gl = renderContext.gl;
 
-        const normalDrawSAOBin: Layer[] = [];
-        const edgesColorOpaqueBin: Layer[] = [];
-        const normalFillTransparentBin: Layer[] = [];
-        const edgesColorTransparentBin: Layer[] = [];
-        const xrayedSilhouetteOpaqueBin: Layer[] = [];
-        const xrayEdgesOpaqueBin: Layer[] = [];
-        const xrayedSilhouetteTransparentBin: Layer[] = [];
-        const xrayEdgesTransparentBin: Layer[] = [];
-        const highlightedSilhouetteOpaqueBin: Layer[] = [];
-        const highlightedEdgesOpaqueBin: Layer[] = [];
-        const highlightedSilhouetteTransparentBin: Layer[] = [];
-        const highlightedEdgesTransparentBin: Layer[] = [];
-        const selectedSilhouetteOpaqueBin: Layer[] = [];
-        const selectedEdgesOpaqueBin: Layer[] = [];
-        const selectedSilhouetteTransparentBin: Layer[] = [];
-        const selectedEdgesTransparentBin: Layer[] = [];
+        const normalDrawSAOBin: DTXTrianglesLayer[] = [];
+        const edgesColorOpaqueBin: DTXTrianglesLayer[] = [];
+        const normalFillTransparentBin: DTXTrianglesLayer[] = [];
+        const edgesColorTransparentBin: DTXTrianglesLayer[] = [];
+        const xrayedSilhouetteOpaqueBin: DTXTrianglesLayer[] = [];
+        const xrayEdgesOpaqueBin: DTXTrianglesLayer[] = [];
+        const xrayedSilhouetteTransparentBin: DTXTrianglesLayer[] = [];
+        const xrayEdgesTransparentBin: DTXTrianglesLayer[] = [];
+        const highlightedSilhouetteOpaqueBin: DTXTrianglesLayer[] = [];
+        const highlightedEdgesOpaqueBin: DTXTrianglesLayer[] = [];
+        const highlightedSilhouetteTransparentBin: DTXTrianglesLayer[] = [];
+        const highlightedEdgesTransparentBin: DTXTrianglesLayer[] = [];
+        const selectedSilhouetteOpaqueBin: DTXTrianglesLayer[] = [];
+        const selectedEdgesOpaqueBin: DTXTrianglesLayer[] = [];
+        const selectedSilhouetteTransparentBin: DTXTrianglesLayer[] = [];
+        const selectedEdgesTransparentBin: DTXTrianglesLayer[] = [];
 
         renderContext.reset();
         renderContext.withSAO = false;
@@ -734,11 +806,11 @@ export class WebGLRenderer implements Renderer {
             }
 
             if (meshCounts.numTransparent < meshCounts.numMeshes) {
-                this.#drawLayer(layer, RENDER_PASSES.COLOR_OPAQUE);
+                layer.drawColorOpaque();
             }
 
             if (this.#transparentEnabled) {
-                if (meshCounts.numTransparent) {
+                if (meshCounts.numTransparent > 0) {
                     normalFillTransparentBin.push(layer);
                 }
             }
@@ -781,21 +853,24 @@ export class WebGLRenderer implements Renderer {
                     if (meshCounts.numTransparent > 0) {
                         edgesColorTransparentBin.push(layer);
                     }
-                    if (view.selectedMaterial.edgeAlpha < 1.0) {
-                        selectedEdgesTransparentBin.push(layer);
-                    } else {
-                        selectedEdgesOpaqueBin.push(layer);
-                    }
-                    if (view.xrayMaterial.edgeAlpha < 1.0) {
-                        xrayEdgesTransparentBin.push(layer);
-                    } else {
-                        xrayEdgesOpaqueBin.push(layer);
-                    }
-                    if (view.highlightMaterial.edgeAlpha < 1.0) {
-                        highlightedEdgesTransparentBin.push(layer);
-                    } else {
-                        highlightedEdgesOpaqueBin.push(layer);
-                    }
+                    // if (view.selectedMaterial.edgeAlpha < 1.0) {
+                    //     selectedEdgesTransparentBin.push(layer);
+                    // } else {
+                    //     selectedEdgesOpaqueBin.push(layer);
+                    // }
+                    // if (meshCounts.numXRayed > 0) {
+                    //     if (view.xrayMaterial.edgeAlpha < 1.0) {
+                    //         xrayEdgesTransparentBin.push(layer);
+                    //     } else {
+                    //         xrayEdgesOpaqueBin.push(layer);
+                    //     }
+                    // }
+                    //
+                    // if (view.highlightMaterial.edgeAlpha < 1.0) {
+                    //     highlightedEdgesTransparentBin.push(layer);
+                    // } else {
+                    //     highlightedEdgesOpaqueBin.push(layer);
+                    // }
                 }
             }
         }
@@ -805,24 +880,26 @@ export class WebGLRenderer implements Renderer {
         if (normalDrawSAOBin.length > 0) {
             renderContext.withSAO = true;
             for (let i = 0; i < normalDrawSAOBin.length; i++) {
-                //    this.#drawLayer(normalDrawSAOBin[i], RENDER_PASSES.COLOR_OPAQUE, layer.rendererModel.qualityRender);
-                //    normalDrawSAOBin[i].drawColorOpaque(renderContext);
+                normalDrawSAOBin[i].drawColorOpaque();
             }
         }
 
         for (let i = 0; i < edgesColorOpaqueBin.length; i++) {
-            this.#drawLayer(edgesColorOpaqueBin[i], RENDER_PASSES.EDGES_COLOR_OPAQUE);
+            edgesColorOpaqueBin[i].drawColorOpaque();
         }
 
         for (let i = 0; i < xrayedSilhouetteOpaqueBin.length; i++) {
-            this.#drawLayer(xrayedSilhouetteOpaqueBin[i], RENDER_PASSES.SILHOUETTE_XRAYED);
+            xrayedSilhouetteOpaqueBin[i].drawSilhouetteXRayed();
         }
 
         for (let i = 0; i < xrayEdgesOpaqueBin.length; i++) {
-            this.#drawLayer(xrayEdgesOpaqueBin[i], RENDER_PASSES.EDGES_XRAYED);
+            xrayEdgesOpaqueBin[i].drawEdgesXRayed();
         }
 
-        if (xrayedSilhouetteTransparentBin.length > 0 || xrayEdgesTransparentBin.length > 0 || normalFillTransparentBin.length > 0 || edgesColorTransparentBin.length > 0) {
+        if (xrayedSilhouetteTransparentBin.length > 0 ||
+            xrayEdgesTransparentBin.length > 0 ||
+            normalFillTransparentBin.length > 0 ||
+            edgesColorTransparentBin.length > 0) {
             gl.enable(gl.CULL_FACE);
             gl.enable(gl.BLEND);
             if (this.#canvasTransparent) {
@@ -837,19 +914,19 @@ export class WebGLRenderer implements Renderer {
                 gl.depthMask(false);
             }
             for (let i = 0; i < xrayEdgesTransparentBin.length; i++) {
-                this.#drawLayer(xrayEdgesTransparentBin[i], RENDER_PASSES.EDGES_XRAYED);
+                xrayEdgesTransparentBin[i].drawEdgesXRayed();
             }
             for (let i = 0; i < xrayedSilhouetteTransparentBin.length; i++) {
-                this.#drawLayer(xrayedSilhouetteTransparentBin[i], RENDER_PASSES.SILHOUETTE_XRAYED);
+                xrayedSilhouetteTransparentBin[i].drawSilhouetteXRayed();
             }
             if (normalFillTransparentBin.length > 0 || edgesColorTransparentBin.length > 0) {
                 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             }
             for (let i = 0; i < edgesColorTransparentBin.length; i++) {
-                this.#drawLayer(edgesColorTransparentBin[i], RENDER_PASSES.EDGES_COLOR_TRANSPARENT);
+                edgesColorTransparentBin[i].drawEdgesColorTranslucent();
             }
             for (let i = 0; i < normalFillTransparentBin.length; i++) {
-                this.#drawLayer(normalFillTransparentBin[i], RENDER_PASSES.COLOR_TRANSPARENT);
+                normalFillTransparentBin[i].drawColorTranslucent();
             }
             gl.disable(gl.BLEND);
             if (!this.#alphaDepthMask) {
@@ -861,14 +938,16 @@ export class WebGLRenderer implements Renderer {
             renderContext.lastProgramId = -1; // HACK
             gl.clear(gl.DEPTH_BUFFER_BIT);
             for (let i = 0; i < highlightedEdgesOpaqueBin.length; i++) {
-                this.#drawLayer(highlightedEdgesOpaqueBin[i], RENDER_PASSES.EDGES_HIGHLIGHTED);
+                highlightedEdgesOpaqueBin[i].drawEdgesHighlighted();
             }
             for (let i = 0; i < highlightedSilhouetteOpaqueBin.length; i++) {
-                this.#drawLayer(highlightedSilhouetteOpaqueBin[i], RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
+                highlightedSilhouetteOpaqueBin[i].drawSilhouetteHighlighted();
             }
         }
 
-        if (highlightedSilhouetteTransparentBin.length > 0 || highlightedEdgesTransparentBin.length > 0 || highlightedSilhouetteOpaqueBin.length > 0) {
+        if (highlightedSilhouetteTransparentBin.length > 0 ||
+            highlightedEdgesTransparentBin.length > 0 ||
+            highlightedSilhouetteOpaqueBin.length > 0) {
             renderContext.lastProgramId = -1;
             gl.clear(gl.DEPTH_BUFFER_BIT);
             gl.enable(gl.CULL_FACE);
@@ -880,10 +959,10 @@ export class WebGLRenderer implements Renderer {
                 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             }
             for (let i = 0; i < highlightedEdgesTransparentBin.length; i++) {
-                this.#drawLayer(highlightedEdgesTransparentBin[i], RENDER_PASSES.EDGES_HIGHLIGHTED);
+                highlightedEdgesTransparentBin[i].drawEdgesHighlighted();
             }
             for (let i = 0; i < highlightedSilhouetteTransparentBin.length; i++) {
-                this.#drawLayer(highlightedSilhouetteTransparentBin[i], RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
+                highlightedSilhouetteTransparentBin[i].drawSilhouetteHighlighted();
             }
             gl.disable(gl.BLEND);
         }
@@ -892,10 +971,10 @@ export class WebGLRenderer implements Renderer {
             renderContext.lastProgramId = -1;
             gl.clear(gl.DEPTH_BUFFER_BIT);
             for (let i = 0; i < selectedEdgesOpaqueBin.length; i++) {
-                this.#drawLayer(selectedEdgesOpaqueBin[i], RENDER_PASSES.EDGES_SELECTED);
+                selectedEdgesOpaqueBin[i].drawEdgesSelected();
             }
             for (let i = 0; i < selectedSilhouetteOpaqueBin.length; i++) {
-                this.#drawLayer(selectedSilhouetteOpaqueBin[i], RENDER_PASSES.SILHOUETTE_SELECTED);
+                selectedSilhouetteOpaqueBin[i].drawSilhouetteSelected();
             }
         }
 
@@ -911,10 +990,10 @@ export class WebGLRenderer implements Renderer {
                 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             }
             for (let i = 0; i < selectedEdgesTransparentBin.length; i++) {
-                this.#drawLayer(selectedEdgesTransparentBin[i], RENDER_PASSES.EDGES_SELECTED);
+                selectedEdgesTransparentBin[i].drawEdgesSelected();
             }
             for (let i = 0; i < selectedSilhouetteTransparentBin.length; i++) {
-                this.#drawLayer(selectedSilhouetteTransparentBin[i], RENDER_PASSES.SILHOUETTE_SELECTED);
+                selectedSilhouetteTransparentBin[i].drawSilhouetteSelected();
             }
             gl.disable(gl.BLEND);
         }
@@ -932,11 +1011,6 @@ export class WebGLRenderer implements Renderer {
         }
     }
 
-    #drawLayer(layer: Layer, renderPass: number): void {
-        this.#renderContext.renderPass = renderPass;
-        layer.draw(this.#rendererSet);
-    }
-
     destroy() {
         if (this.#destroyed) {
             return;
@@ -945,5 +1019,6 @@ export class WebGLRenderer implements Renderer {
             this.detachViewer();
         }
         this.#destroyed = true;
+        this.onDestroyed.dispatch(this, true);
     }
 }

@@ -13,11 +13,11 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "\"@xeokit/data\""
+				"text": "\"@xeokit/data\" | @xeokit/data"
 			},
 			{
 				"kind": "text",
-				"text": " to assign basic types to "
+				"text": "  to assign basic types to "
 			},
 			{
 				"kind": "inline-tag",
@@ -40,11 +40,11 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "\"@xeokit/treeview\""
+				"text": "\"@xeokit/treeview\" | @xeokit/treeview"
 			},
 			{
 				"kind": "text",
-				"text": ", to configure the appearance and behaviour of\n"
+				"text": " , to configure the appearance and behaviour of\n"
 			},
 			{
 				"kind": "inline-tag",
@@ -83,7 +83,7 @@
 					"fileName": "index.ts",
 					"line": 32,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/basictypes/src/index.ts#L32"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/basictypes/src/index.ts#L32"
 				}
 			],
 			"type": {
@@ -113,7 +113,7 @@
 					"fileName": "index.ts",
 					"line": 27,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/basictypes/src/index.ts#L27"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/basictypes/src/index.ts#L27"
 				}
 			],
 			"type": {
@@ -143,7 +143,7 @@
 					"fileName": "index.ts",
 					"line": 46,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/basictypes/src/index.ts#L46"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/basictypes/src/index.ts#L46"
 				}
 			],
 			"type": {
@@ -159,7 +159,7 @@
 							"fileName": "index.ts",
 							"line": 46,
 							"character": 24,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/basictypes/src/index.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/basictypes/src/index.ts#L46"
 						}
 					],
 					"indexSignature": {
@@ -173,7 +173,7 @@
 								"fileName": "index.ts",
 								"line": 46,
 								"character": 26,
-								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/basictypes/src/index.ts#L46"
+								"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/basictypes/src/index.ts#L46"
 							}
 						],
 						"parameters": [
@@ -219,7 +219,7 @@
 					"fileName": "index.ts",
 					"line": 38,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/basictypes/src/index.ts#L38"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/basictypes/src/index.ts#L38"
 				}
 			],
 			"type": {
@@ -235,7 +235,7 @@
 							"fileName": "index.ts",
 							"line": 38,
 							"character": 24,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/basictypes/src/index.ts#L38"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/basictypes/src/index.ts#L38"
 						}
 					],
 					"indexSignature": {
@@ -249,7 +249,7 @@
 								"fileName": "index.ts",
 								"line": 38,
 								"character": 26,
-								"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/basictypes/src/index.ts#L38"
+								"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/basictypes/src/index.ts#L38"
 							}
 						],
 						"parameters": [

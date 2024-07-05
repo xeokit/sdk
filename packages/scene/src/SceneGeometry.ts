@@ -2,7 +2,7 @@ import type {FloatArrayParam} from "@xeokit/math";
 import  {SceneGeometryBucket} from "./SceneGeometryBucket";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import type {RendererGeometry} from "./RendererGeometry";
-import {SceneMesh} from "./SceneMesh";
+import {createAABB3} from "@xeokit/boundaries";
 
 /**
  * A geometry in a {@link @xeokit/scene!SceneModel}.
@@ -79,6 +79,7 @@ export class SceneGeometry {
         this.id = params.id;
         this.positionsDecompressMatrix = params.positionsDecompressMatrix;
         this.primitive = params.primitive;
+        this.aabb = params.aabb ? params.aabb.slice() : createAABB3();
         this.numMeshes = 0;
     }
 

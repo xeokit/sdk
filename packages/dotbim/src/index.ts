@@ -60,16 +60,15 @@
  *
  *              const fileData = JSON.parse(data);
  *
- *              return loadDotBIM({
- *                  data: fileData,
+ *              loadDotBIM({
+ *                  fileData,
  *                  sceneModel,
  *                  dataModel
+ *              }).then(() => {
+ *                  sceneModel.build();
+ *                  dataModel.build();
  *              });
- *
- *          }).then(() => {
- *              sceneModel.build();
- *              dataModel.build();
- *          });
+ *          })
  * }
  * ````
  *

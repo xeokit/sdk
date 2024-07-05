@@ -1,7 +1,7 @@
 import {createMat4, createVec3} from "@xeokit/matrix";
 import {collapseAABB3, expandAABB3Points3} from "@xeokit/boundaries";
 import {PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
-import {quantizePositions3} from "@xeokit/compression";
+import {compressRGBColors, quantizePositions3} from "@xeokit/compression";
 
 import {buildEdgeIndices} from "./buildEdgeIndices";
 import {uniquifyPositions} from "./calculateUniquePositions";
@@ -37,7 +37,8 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
             positionsDecompressMatrix,
             uvsDecompressMatrix: undefined,
             geometryBuckets: [{
-                positionsCompressed
+                positionsCompressed,
+                colorsCompressed: geometryParams.colors ? compressRGBColors(geometryParams.colors) : null
             }]
         };
         return geometryCompressedParams;

@@ -93,8 +93,11 @@ export class WebGLProgram {
                     fragment: string
                 }) {
 
+        console.log("WebGLProgram constructor")
         console.log("-----------------------------------------------------")
+        console.log("\nshaderSource.vertex:\n");
         console.log(shaderSource.vertex);
+        console.log("\nshaderSource.fragment:\n");
         console.log(shaderSource.fragment);
 
         console.log("-----------------------------------------------------")
@@ -179,16 +182,19 @@ export class WebGLProgram {
             const u = gl.getActiveUniform(this.handle, i);
             if (u) {
                 let uName = u.name;
+
                 if (uName[uName.length - 1] === "\u0000") {
                     uName = uName.substr(0, uName.length - 1);
                 }
                 const location = gl.getUniformLocation(this.handle, uName);
-                if ((u.type === gl.SAMPLER_2D) || (u.type === gl.SAMPLER_CUBE) || (u.type === 35682)) {
+                if ((u.type === gl.SAMPLER_2D) || (u.type === gl.SAMPLER_CUBE) ||  (u.type === 35682) || (u.type === 36306)) {
                     // @ts-ignore
                     this.samplers[uName] = new WebGLSampler(gl, location);
+                    console.log("Sampler found: " + uName + " at location " + location);
                 } else {
                     // @ts-ignore
                     this.uniforms[uName] = location;
+                    console.log("Uniform found: " + uName + " at location " + location);
                 }
             }
         }
@@ -199,6 +205,7 @@ export class WebGLProgram {
             if (a) {
                 const location = gl.getAttribLocation(this.handle, a.name);
                 this.attributes[a.name] = new WebGLAttribute(gl, location);
+                console.log("Attribute found: " + a.name + " at location " + location);
             }
         }
 

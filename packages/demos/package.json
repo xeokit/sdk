@@ -39,6 +39,7 @@
         "@xeokit/curves": "^0.1.0",
         "@xeokit/data": "^0.1.0",
         "@xeokit/dotbim": "^0.1.0",
+        "@xeokit/gltf": "^0.1.0",
         "@xeokit/ifctypes": "^0.1.0",
         "@xeokit/kdtree2": "^0.1.0",
         "@xeokit/kdtree3": "^0.1.0",
@@ -57,6 +58,7 @@
         "@xeokit/webglutils": "^0.1.0",
         "@xeokit/webifc": "^0.1.0",
         "@xeokit/dtx": "^0.1.0",
+        "@xeokit/las": "^0.1.0",
         "web-ifc": "^0.0.35",
         "earcut-typescript": "^2.2.3"
     }

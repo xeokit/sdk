@@ -91,7 +91,7 @@
 					"fileName": "loadGLTF.ts",
 					"line": 57,
 					"character": 16,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/gltf/src/loadGLTF.ts#L57"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/gltf/src/loadGLTF.ts#L57"
 				}
 			],
 			"signatures": [
@@ -163,7 +163,7 @@
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
-								"text": "@xeokit/gltf"
+								"text": "\"@xeokit/gltf\" | @xeokit/gltf"
 							},
 							{
 								"kind": "text",
@@ -214,7 +214,7 @@
 							"fileName": "loadGLTF.ts",
 							"line": 57,
 							"character": 16,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/gltf/src/loadGLTF.ts#L57"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/gltf/src/loadGLTF.ts#L57"
 						}
 					],
 					"parameters": [
@@ -271,7 +271,7 @@
 													"fileName": "loadGLTF.ts",
 													"line": 60,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/gltf/src/loadGLTF.ts#L60"
+													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/gltf/src/loadGLTF.ts#L60"
 												}
 											],
 											"type": {
@@ -303,7 +303,7 @@
 													"fileName": "loadGLTF.ts",
 													"line": 58,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/gltf/src/loadGLTF.ts#L58"
+													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/gltf/src/loadGLTF.ts#L58"
 												}
 											],
 											"type": {
@@ -329,7 +329,7 @@
 													"fileName": "loadGLTF.ts",
 													"line": 61,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/gltf/src/loadGLTF.ts#L61"
+													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/gltf/src/loadGLTF.ts#L61"
 												}
 											],
 											"type": {
@@ -361,7 +361,7 @@
 													"fileName": "loadGLTF.ts",
 													"line": 59,
 													"character": 4,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/gltf/src/loadGLTF.ts#L59"
+													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/gltf/src/loadGLTF.ts#L59"
 												}
 											],
 											"type": {
@@ -391,7 +391,7 @@
 											"fileName": "loadGLTF.ts",
 											"line": 57,
 											"character": 33,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/gltf/src/loadGLTF.ts#L57"
+											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/gltf/src/loadGLTF.ts#L57"
 										}
 									]
 								}

@@ -276,7 +276,7 @@
 //             this.#program.destroy();
 //         }
 //         const scene = this.#scene;
-//         const gl = scene.canvas.gl;
+//         const gl =   this.renderContext.gl;;
 //         const sectionPlanesState = scene.#sectionPlanesState;
 //         this.#program = new WebGLProgram(gl, this._shaderSource);
 //         if (this.#program.errors) {
@@ -307,7 +307,7 @@
 //     drawMarkers() {
 //
 //         const scene = this.#scene;
-//         const gl = scene.canvas.gl;
+//         const gl =   this.renderContext.gl;;
 //         const program = this.#program;
 //         const sectionPlanesState = scene.#sectionPlanesState;
 //         const camera = scene.camera;

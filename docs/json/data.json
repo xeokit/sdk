@@ -399,11 +399,11 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
@@ -419,7 +419,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 86,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L86"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L86"
 						}
 					],
 					"signatures": [
@@ -438,11 +438,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for usage."
+										"text": "  for usage."
 									}
 								]
 							},
@@ -451,7 +451,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 86,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L86"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L86"
 								}
 							],
 							"type": {
@@ -471,31 +471,6 @@
 						"type": "reference",
 						"target": -1,
 						"name": "Component.constructor"
-					}
-				},
-				{
-					"id": 52,
-					"name": "#private",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "core/dist/Component.d.ts",
-							"line": 12,
-							"character": 4
-						}
-					],
-					"type": {
-						"type": "intrinsic",
-						"name": "any"
-					},
-					"inheritedFrom": {
-						"type": "reference",
-						"target": -1,
-						"name": "Component.#private"
 					}
 				},
 				{
@@ -633,7 +608,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 21,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L21"
 						}
 					],
 					"type": {
@@ -649,7 +624,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 21,
 									"character": 28,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L21"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L21"
 								}
 							],
 							"indexSignature": {
@@ -663,7 +638,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 21,
 										"character": 30,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L21"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L21"
 									}
 								],
 								"parameters": [
@@ -729,7 +704,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 31,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L31"
 						}
 					],
 					"type": {
@@ -745,7 +720,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 31,
 									"character": 29,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L31"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L31"
 								}
 							],
 							"indexSignature": {
@@ -759,7 +734,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 31,
 										"character": 31,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L31"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L31"
 									}
 								],
 								"parameters": [
@@ -843,7 +818,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 46,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L46"
 						}
 					],
 					"type": {
@@ -859,7 +834,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 46,
 									"character": 35,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L46"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L46"
 								}
 							],
 							"indexSignature": {
@@ -873,7 +848,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 46,
 										"character": 37,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L46"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L46"
 									}
 								],
 								"parameters": [
@@ -902,7 +877,7 @@
 												"fileName": "data/src/Data.ts",
 												"line": 46,
 												"character": 52,
-												"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L46"
+												"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L46"
 											}
 										],
 										"indexSignature": {
@@ -916,7 +891,7 @@
 													"fileName": "data/src/Data.ts",
 													"line": 46,
 													"character": 54,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L46"
+													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L46"
 												}
 											],
 											"parameters": [
@@ -1036,7 +1011,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 58,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L58"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L58"
 						}
 					],
 					"type": {
@@ -1094,7 +1069,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 65,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L65"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L65"
 						}
 					],
 					"type": {
@@ -1152,7 +1127,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 72,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L72"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L72"
 						}
 					],
 					"type": {
@@ -1210,7 +1185,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 79,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L79"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L79"
 						}
 					],
 					"type": {
@@ -1277,7 +1252,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 26,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L26"
 						}
 					],
 					"type": {
@@ -1293,7 +1268,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 26,
 									"character": 34,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L26"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L26"
 								}
 							],
 							"indexSignature": {
@@ -1307,7 +1282,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 26,
 										"character": 36,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L26"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L26"
 									}
 								],
 								"parameters": [
@@ -1391,7 +1366,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 40,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L40"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L40"
 						}
 					],
 					"type": {
@@ -1407,7 +1382,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 40,
 									"character": 33,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L40"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L40"
 								}
 							],
 							"indexSignature": {
@@ -1421,7 +1396,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 40,
 										"character": 35,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L40"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L40"
 									}
 								],
 								"parameters": [
@@ -1478,7 +1453,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 51,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L51"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L51"
 						}
 					],
 					"type": {
@@ -1494,7 +1469,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 51,
 									"character": 32,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L51"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L51"
 								}
 							],
 							"indexSignature": {
@@ -1508,7 +1483,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 51,
 										"character": 34,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L51"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L51"
 									}
 								],
 								"parameters": [
@@ -1651,7 +1626,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 279,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L279"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L279"
 						}
 					],
 					"signatures": [
@@ -1703,11 +1678,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for usage."
+										"text": "  for usage."
 									}
 								],
 								"blockTags": [
@@ -1745,7 +1720,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 279,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L279"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L279"
 								}
 							],
 							"type": {
@@ -1780,7 +1755,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 129,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L129"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L129"
 						}
 					],
 					"signatures": [
@@ -1898,11 +1873,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for more details on usage."
+										"text": "  for more details on usage."
 									}
 								],
 								"blockTags": [
@@ -1945,7 +1920,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 129,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L129"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L129"
 								}
 							],
 							"parameters": [
@@ -2043,7 +2018,7 @@
 															"fileName": "data/src/Data.ts",
 															"line": 133,
 															"character": 12,
-															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L133"
+															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L133"
 														}
 													],
 													"type": {
@@ -2067,7 +2042,7 @@
 															"fileName": "data/src/Data.ts",
 															"line": 132,
 															"character": 12,
-															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L132"
+															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L132"
 														}
 													],
 													"type": {
@@ -2093,7 +2068,7 @@
 													"fileName": "data/src/Data.ts",
 													"line": 131,
 													"character": 18,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L131"
+													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L131"
 												}
 											]
 										}
@@ -2134,7 +2109,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 302,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L302"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L302"
 						}
 					],
 					"signatures": [
@@ -2219,11 +2194,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for usage."
+										"text": "  for usage."
 									}
 								],
 								"blockTags": [
@@ -2261,7 +2236,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 302,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L302"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L302"
 								}
 							],
 							"type": {
@@ -2391,7 +2366,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 167,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L167"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L167"
 						}
 					],
 					"signatures": [
@@ -2441,11 +2416,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for usage."
+										"text": "  for usage."
 									}
 								],
 								"blockTags": [
@@ -2494,7 +2469,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 167,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L167"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L167"
 								}
 							],
 							"parameters": [
@@ -2638,7 +2613,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 191,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L191"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L191"
 						}
 					],
 					"signatures": [
@@ -2679,11 +2654,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for usage."
+										"text": "  for usage."
 									}
 								],
 								"blockTags": [
@@ -2721,7 +2696,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 191,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L191"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L191"
 								}
 							],
 							"parameters": [
@@ -2918,7 +2893,6 @@
 				{
 					"title": "Properties",
 					"children": [
-						52,
 						54,
 						55,
 						53,
@@ -2962,7 +2936,7 @@
 					"fileName": "data/src/Data.ts",
 					"line": 15,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Data.ts#L15"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Data.ts#L15"
 				}
 			],
 			"extendedTypes": [
@@ -2992,260 +2966,15 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
 			"children": [
-				{
-					"id": 73,
-					"name": "constructor",
-					"variant": "declaration",
-					"kind": 512,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "data/src/DataModel.ts",
-							"line": 134,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L134"
-						}
-					],
-					"signatures": [
-						{
-							"id": 74,
-							"name": "new DataModel",
-							"variant": "signature",
-							"kind": 16384,
-							"flags": {
-								"isPrivate": true
-							},
-							"sources": [
-								{
-									"fileName": "data/src/DataModel.ts",
-									"line": 134,
-									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L134"
-								}
-							],
-							"parameters": [
-								{
-									"id": 75,
-									"name": "data",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "reference",
-										"target": 1,
-										"name": "Data",
-										"package": "@xeokit/data"
-									}
-								},
-								{
-									"id": 76,
-									"name": "id",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "intrinsic",
-										"name": "string"
-									}
-								},
-								{
-									"id": 77,
-									"name": "dataModelParams",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "reference",
-										"target": 221,
-										"name": "DataModelParams",
-										"package": "@xeokit/data"
-									}
-								},
-								{
-									"id": 78,
-									"name": "options",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {
-										"isOptional": true
-									},
-									"type": {
-										"type": "reflection",
-										"declaration": {
-											"id": 79,
-											"name": "__type",
-											"variant": "declaration",
-											"kind": 65536,
-											"flags": {},
-											"children": [
-												{
-													"id": 81,
-													"name": "excludeTypes",
-													"variant": "declaration",
-													"kind": 1024,
-													"flags": {
-														"isOptional": true
-													},
-													"sources": [
-														{
-															"fileName": "data/src/DataModel.ts",
-															"line": 140,
-															"character": 12,
-															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L140"
-														}
-													],
-													"type": {
-														"type": "array",
-														"elementType": {
-															"type": "intrinsic",
-															"name": "string"
-														}
-													}
-												},
-												{
-													"id": 82,
-													"name": "globalizeObjectIds",
-													"variant": "declaration",
-													"kind": 1024,
-													"flags": {
-														"isOptional": true
-													},
-													"sources": [
-														{
-															"fileName": "data/src/DataModel.ts",
-															"line": 141,
-															"character": 12,
-															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L141"
-														}
-													],
-													"type": {
-														"type": "intrinsic",
-														"name": "boolean"
-													}
-												},
-												{
-													"id": 80,
-													"name": "includeTypes",
-													"variant": "declaration",
-													"kind": 1024,
-													"flags": {
-														"isOptional": true
-													},
-													"sources": [
-														{
-															"fileName": "data/src/DataModel.ts",
-															"line": 139,
-															"character": 12,
-															"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L139"
-														}
-													],
-													"type": {
-														"type": "array",
-														"elementType": {
-															"type": "intrinsic",
-															"name": "string"
-														}
-													}
-												}
-											],
-											"groups": [
-												{
-													"title": "Properties",
-													"children": [
-														81,
-														82,
-														80
-													]
-												}
-											],
-											"sources": [
-												{
-													"fileName": "data/src/DataModel.ts",
-													"line": 138,
-													"character": 18,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L138"
-												}
-											]
-										}
-									}
-								}
-							],
-							"type": {
-								"type": "reference",
-								"target": 72,
-								"name": "DataModel",
-								"package": "@xeokit/data"
-							},
-							"overwrites": {
-								"type": "reference",
-								"target": -1,
-								"name": "Component.constructor"
-							}
-						}
-					],
-					"overwrites": {
-						"type": "reference",
-						"target": -1,
-						"name": "Component.constructor"
-					}
-				},
-				{
-					"id": 118,
-					"name": "#destroyed",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "data/src/DataModel.ts",
-							"line": 129,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L129"
-						}
-					],
-					"type": {
-						"type": "intrinsic",
-						"name": "boolean"
-					}
-				},
-				{
-					"id": 140,
-					"name": "#private",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "core/dist/Component.d.ts",
-							"line": 12,
-							"character": 4
-						}
-					],
-					"type": {
-						"type": "intrinsic",
-						"name": "any"
-					},
-					"inheritedFrom": {
-						"type": "reference",
-						"target": -1,
-						"name": "Component.#private"
-					}
-				},
 				{
 					"id": 88,
 					"name": "author",
@@ -3268,7 +2997,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 51,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L51"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L51"
 						}
 					],
 					"type": {
@@ -3322,7 +3051,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 127,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L127"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L127"
 						}
 					],
 					"type": {
@@ -3352,7 +3081,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 56,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L56"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L56"
 						}
 					],
 					"type": {
@@ -3382,7 +3111,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 61,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L61"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L61"
 						}
 					],
 					"type": {
@@ -3412,7 +3141,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 24,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L24"
 						}
 					],
 					"type": {
@@ -3517,7 +3246,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 31,
 							"character": 28,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L31"
 						}
 					],
 					"type": {
@@ -3552,7 +3281,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 36,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L36"
 						}
 					],
 					"type": {
@@ -3608,7 +3337,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 80,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L80"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L80"
 						}
 					],
 					"type": {
@@ -3624,7 +3353,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 80,
 									"character": 20,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L80"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L80"
 								}
 							],
 							"indexSignature": {
@@ -3638,7 +3367,7 @@
 										"fileName": "data/src/DataModel.ts",
 										"line": 80,
 										"character": 22,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L80"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L80"
 									}
 								],
 								"parameters": [
@@ -3712,7 +3441,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 96,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L96"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L96"
 						}
 					],
 					"type": {
@@ -3728,7 +3457,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 96,
 									"character": 26,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L96"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L96"
 								}
 							],
 							"indexSignature": {
@@ -3742,7 +3471,7 @@
 										"fileName": "data/src/DataModel.ts",
 										"line": 96,
 										"character": 28,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L96"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L96"
 									}
 								],
 								"parameters": [
@@ -3771,7 +3500,7 @@
 												"fileName": "data/src/DataModel.ts",
 												"line": 96,
 												"character": 43,
-												"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L96"
+												"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L96"
 											}
 										],
 										"indexSignature": {
@@ -3785,7 +3514,7 @@
 													"fileName": "data/src/DataModel.ts",
 													"line": 96,
 													"character": 45,
-													"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L96"
+													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L96"
 												}
 											],
 											"parameters": [
@@ -3863,7 +3592,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 119,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L119"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L119"
 						}
 					],
 					"type": {
@@ -3970,7 +3699,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 41,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L41"
 						}
 					],
 					"type": {
@@ -4036,7 +3765,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 73,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L73"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L73"
 						}
 					],
 					"type": {
@@ -4052,7 +3781,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 73,
 									"character": 34,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L73"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L73"
 								}
 							],
 							"indexSignature": {
@@ -4066,7 +3795,7 @@
 										"fileName": "data/src/DataModel.ts",
 										"line": 73,
 										"character": 36,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L73"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L73"
 									}
 								],
 								"parameters": [
@@ -4122,7 +3851,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 103,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L103"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L103"
 						}
 					],
 					"type": {
@@ -4157,7 +3886,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 46,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L46"
 						}
 					],
 					"type": {
@@ -4231,7 +3960,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 90,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L90"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L90"
 						}
 					],
 					"type": {
@@ -4247,7 +3976,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 90,
 									"character": 24,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L90"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L90"
 								}
 							],
 							"indexSignature": {
@@ -4261,7 +3990,7 @@
 										"fileName": "data/src/DataModel.ts",
 										"line": 90,
 										"character": 26,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L90"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L90"
 									}
 								],
 								"parameters": [
@@ -4309,7 +4038,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 66,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L66"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L66"
 						}
 					],
 					"type": {
@@ -4357,7 +4086,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 108,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L108"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L108"
 						}
 					],
 					"type": {
@@ -4373,7 +4102,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 108,
 									"character": 32,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L108"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L108"
 								}
 							],
 							"indexSignature": {
@@ -4387,7 +4116,7 @@
 										"fileName": "data/src/DataModel.ts",
 										"line": 108,
 										"character": 34,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L108"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L108"
 									}
 								],
 								"parameters": [
@@ -4412,59 +4141,6 @@
 					}
 				},
 				{
-					"id": 137,
-					"name": "#removeObjectFromModels",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "data/src/DataModel.ts",
-							"line": 655,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L655"
-						}
-					],
-					"signatures": [
-						{
-							"id": 138,
-							"name": "#removeObjectFromModels",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"sources": [
-								{
-									"fileName": "data/src/DataModel.ts",
-									"line": 655,
-									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L655"
-								}
-							],
-							"parameters": [
-								{
-									"id": 139,
-									"name": "dataObject",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "reference",
-										"target": 159,
-										"name": "DataObject",
-										"package": "@xeokit/data"
-									}
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "void"
-							}
-						}
-					]
-				},
-				{
 					"id": 131,
 					"name": "build",
 					"variant": "declaration",
@@ -4475,7 +4151,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 502,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L502"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L502"
 						}
 					],
 					"signatures": [
@@ -4543,11 +4219,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for usage."
+										"text": "  for usage."
 									}
 								],
 								"blockTags": [
@@ -4576,7 +4252,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 502,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L502"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L502"
 								}
 							],
 							"type": {
@@ -4718,7 +4394,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 330,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L330"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L330"
 						}
 					],
 					"signatures": [
@@ -4807,11 +4483,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for more usage info."
+										"text": "  for more usage info."
 									}
 								],
 								"blockTags": [
@@ -4860,7 +4536,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 330,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L330"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L330"
 								}
 							],
 							"parameters": [
@@ -4920,7 +4596,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 257,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L257"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L257"
 						}
 					],
 					"signatures": [
@@ -4983,11 +4659,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for more usage info."
+										"text": "  for more usage info."
 									}
 								],
 								"blockTags": [
@@ -5036,7 +4712,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 257,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L257"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L257"
 								}
 							],
 							"parameters": [
@@ -5096,7 +4772,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 442,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L442"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L442"
 						}
 					],
 					"signatures": [
@@ -5187,11 +4863,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for more usage info."
+										"text": "  for more usage info."
 									}
 								],
 								"blockTags": [
@@ -5249,7 +4925,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 442,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L442"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L442"
 								}
 							],
 							"parameters": [
@@ -5309,7 +4985,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 598,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L598"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L598"
 						}
 					],
 					"signatures": [
@@ -5350,11 +5026,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for usage."
+										"text": "  for usage."
 									}
 								],
 								"blockTags": [
@@ -5392,7 +5068,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 598,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L598"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L598"
 								}
 							],
 							"type": {
@@ -5522,7 +5198,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 184,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L184"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L184"
 						}
 					],
 					"signatures": [
@@ -5541,11 +5217,11 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "\"@xeokit/data\""
+										"text": "\"@xeokit/data\" | @xeokit/data"
 									},
 									{
 										"kind": "text",
-										"text": " for usage."
+										"text": "  for usage."
 									}
 								],
 								"blockTags": [
@@ -5583,7 +5259,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 184,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L184"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L184"
 								}
 							],
 							"parameters": [
@@ -5633,7 +5309,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 519,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L519"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L519"
 						}
 					],
 					"signatures": [
@@ -5656,7 +5332,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 519,
 									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L519"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L519"
 								}
 							],
 							"type": {
@@ -5909,16 +5585,8 @@
 			],
 			"groups": [
 				{
-					"title": "Constructors",
-					"children": [
-						73
-					]
-				},
-				{
 					"title": "Properties",
 					"children": [
-						118,
-						140,
 						88,
 						117,
 						89,
@@ -5942,7 +5610,6 @@
 				{
 					"title": "Methods",
 					"children": [
-						137,
 						131,
 						157,
 						155,
@@ -5971,7 +5638,7 @@
 					"fileName": "data/src/DataModel.ts",
 					"line": 19,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModel.ts#L19"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModel.ts#L19"
 				}
 			],
 			"extendedTypes": [
@@ -6064,158 +5731,15 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
 			"children": [
-				{
-					"id": 160,
-					"name": "constructor",
-					"variant": "declaration",
-					"kind": 512,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "data/src/DataObject.ts",
-							"line": 80,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L80"
-						}
-					],
-					"signatures": [
-						{
-							"id": 161,
-							"name": "new DataObject",
-							"variant": "signature",
-							"kind": 16384,
-							"flags": {
-								"isPrivate": true
-							},
-							"sources": [
-								{
-									"fileName": "data/src/DataObject.ts",
-									"line": 80,
-									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L80"
-								}
-							],
-							"parameters": [
-								{
-									"id": 162,
-									"name": "data",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "reference",
-										"target": 1,
-										"name": "Data",
-										"package": "@xeokit/data"
-									}
-								},
-								{
-									"id": 163,
-									"name": "model",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "reference",
-										"target": 72,
-										"name": "DataModel",
-										"package": "@xeokit/data"
-									}
-								},
-								{
-									"id": 164,
-									"name": "id",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "intrinsic",
-										"name": "string"
-									}
-								},
-								{
-									"id": 165,
-									"name": "originalSystemId",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "intrinsic",
-										"name": "string"
-									}
-								},
-								{
-									"id": 166,
-									"name": "name",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "intrinsic",
-										"name": "string"
-									}
-								},
-								{
-									"id": 167,
-									"name": "description",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "intrinsic",
-										"name": "string"
-									}
-								},
-								{
-									"id": 168,
-									"name": "type",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "intrinsic",
-										"name": "number"
-									}
-								},
-								{
-									"id": 169,
-									"name": "propertySets",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {
-										"isOptional": true
-									},
-									"type": {
-										"type": "array",
-										"elementType": {
-											"type": "reference",
-											"target": 210,
-											"name": "PropertySet",
-											"package": "@xeokit/data"
-										}
-									}
-								}
-							],
-							"type": {
-								"type": "reference",
-								"target": 159,
-								"name": "DataObject",
-								"package": "@xeokit/data"
-							}
-						}
-					]
-				},
 				{
 					"id": 170,
 					"name": "data",
@@ -6242,7 +5766,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 19,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L19"
 						}
 					],
 					"type": {
@@ -6275,7 +5799,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 47,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L47"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L47"
 						}
 					],
 					"type": {
@@ -6341,7 +5865,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 31,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L31"
 						}
 					],
 					"type": {
@@ -6375,7 +5899,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 24,
 							"character": 11,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L24"
 						}
 					],
 					"type": {
@@ -6411,7 +5935,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 42,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L42"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L42"
 						}
 					],
 					"type": {
@@ -6449,7 +5973,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 37,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L37"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L37"
 						}
 					],
 					"type": {
@@ -6485,7 +6009,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 57,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L57"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L57"
 						}
 					],
 					"type": {
@@ -6556,7 +6080,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 73,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L73"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L73"
 						}
 					],
 					"type": {
@@ -6572,7 +6096,7 @@
 									"fileName": "data/src/DataObject.ts",
 									"line": 73,
 									"character": 29,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L73"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L73"
 								}
 							],
 							"indexSignature": {
@@ -6586,7 +6110,7 @@
 										"fileName": "data/src/DataObject.ts",
 										"line": 74,
 										"character": 8,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L74"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L74"
 									}
 								],
 								"parameters": [
@@ -6673,7 +6197,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 64,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L64"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L64"
 						}
 					],
 					"type": {
@@ -6689,7 +6213,7 @@
 									"fileName": "data/src/DataObject.ts",
 									"line": 64,
 									"character": 30,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L64"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L64"
 								}
 							],
 							"indexSignature": {
@@ -6703,7 +6227,7 @@
 										"fileName": "data/src/DataObject.ts",
 										"line": 65,
 										"character": 8,
-										"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L65"
+										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L65"
 									}
 								],
 								"parameters": [
@@ -6754,7 +6278,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 52,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L52"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L52"
 						}
 					],
 					"type": {
@@ -6764,12 +6288,6 @@
 				}
 			],
 			"groups": [
-				{
-					"title": "Constructors",
-					"children": [
-						160
-					]
-				},
 				{
 					"title": "Properties",
 					"children": [
@@ -6791,7 +6309,7 @@
 					"fileName": "data/src/DataObject.ts",
 					"line": 14,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObject.ts#L14"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObject.ts#L14"
 				}
 			]
 		},
@@ -6819,11 +6337,11 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
@@ -6851,7 +6369,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 39,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Property.ts#L39"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Property.ts#L39"
 						}
 					],
 					"type": {
@@ -6881,7 +6399,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 19,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Property.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Property.ts#L19"
 						}
 					],
 					"type": {
@@ -6911,7 +6429,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 14,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Property.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Property.ts#L14"
 						}
 					],
 					"type": {
@@ -6944,7 +6462,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 29,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Property.ts#L29"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Property.ts#L29"
 						}
 					],
 					"type": {
@@ -6983,7 +6501,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 24,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Property.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Property.ts#L24"
 						}
 					],
 					"type": {
@@ -7014,7 +6532,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 34,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Property.ts#L34"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Property.ts#L34"
 						}
 					],
 					"type": {
@@ -7050,7 +6568,7 @@
 					"fileName": "data/src/Property.ts",
 					"line": 9,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Property.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Property.ts#L9"
 				}
 			]
 		},
@@ -7116,85 +6634,15 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
 			"children": [
-				{
-					"id": 211,
-					"name": "constructor",
-					"variant": "declaration",
-					"kind": 512,
-					"flags": {
-						"isPrivate": true
-					},
-					"sources": [
-						{
-							"fileName": "data/src/PropertySet.ts",
-							"line": 51,
-							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySet.ts#L51"
-						}
-					],
-					"signatures": [
-						{
-							"id": 212,
-							"name": "new PropertySet",
-							"variant": "signature",
-							"kind": 16384,
-							"flags": {
-								"isPrivate": true
-							},
-							"sources": [
-								{
-									"fileName": "data/src/PropertySet.ts",
-									"line": 51,
-									"character": 4,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySet.ts#L51"
-								}
-							],
-							"parameters": [
-								{
-									"id": 213,
-									"name": "dataModel",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "reference",
-										"target": 72,
-										"name": "DataModel",
-										"package": "@xeokit/data"
-									}
-								},
-								{
-									"id": 214,
-									"name": "propertySetCfg",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "reference",
-										"target": 249,
-										"name": "PropertySetParams",
-										"package": "@xeokit/data"
-									}
-								}
-							],
-							"type": {
-								"type": "reference",
-								"target": 210,
-								"name": "PropertySet",
-								"package": "@xeokit/data"
-							}
-						}
-					]
-				},
 				{
 					"id": 216,
 					"name": "id",
@@ -7235,7 +6683,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 26,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySet.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySet.ts#L26"
 						}
 					],
 					"type": {
@@ -7265,7 +6713,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 18,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySet.ts#L18"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySet.ts#L18"
 						}
 					],
 					"type": {
@@ -7300,7 +6748,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 36,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySet.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySet.ts#L36"
 						}
 					],
 					"type": {
@@ -7331,7 +6779,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 31,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySet.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySet.ts#L31"
 						}
 					],
 					"type": {
@@ -7361,7 +6809,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 46,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySet.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySet.ts#L46"
 						}
 					],
 					"type": {
@@ -7396,7 +6844,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 41,
 							"character": 20,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySet.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySet.ts#L41"
 						}
 					],
 					"type": {
@@ -7406,12 +6854,6 @@
 				}
 			],
 			"groups": [
-				{
-					"title": "Constructors",
-					"children": [
-						211
-					]
-				},
 				{
 					"title": "Properties",
 					"children": [
@@ -7429,7 +6871,7 @@
 					"fileName": "data/src/PropertySet.ts",
 					"line": 13,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySet.ts#L13"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySet.ts#L13"
 				}
 			]
 		},
@@ -7457,11 +6899,11 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
@@ -7514,7 +6956,7 @@
 							"fileName": "data/src/Relationship.ts",
 							"line": 31,
 							"character": 13,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Relationship.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Relationship.ts#L31"
 						}
 					],
 					"type": {
@@ -7572,7 +7014,7 @@
 							"fileName": "data/src/Relationship.ts",
 							"line": 23,
 							"character": 13,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Relationship.ts#L23"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Relationship.ts#L23"
 						}
 					],
 					"type": {
@@ -7603,7 +7045,7 @@
 							"fileName": "data/src/Relationship.ts",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Relationship.ts#L15"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Relationship.ts#L15"
 						}
 					],
 					"type": {
@@ -7627,7 +7069,7 @@
 					"fileName": "data/src/Relationship.ts",
 					"line": 8,
 					"character": 13,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/Relationship.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/Relationship.ts#L8"
 				}
 			]
 		},
@@ -7655,11 +7097,11 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
@@ -7694,7 +7136,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelContentParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelContentParams.ts#L21"
 						}
 					],
 					"type": {
@@ -7737,7 +7179,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelContentParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelContentParams.ts#L16"
 						}
 					],
 					"type": {
@@ -7780,7 +7222,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelContentParams.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelContentParams.ts#L26"
 						}
 					],
 					"type": {
@@ -7809,7 +7251,7 @@
 					"fileName": "data/src/DataModelContentParams.ts",
 					"line": 11,
 					"character": 17,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelContentParams.ts#L11"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelContentParams.ts#L11"
 				}
 			],
 			"extendedBy": [
@@ -7853,11 +7295,11 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
@@ -7883,7 +7325,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelParams.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelParams.ts#L31"
 						}
 					],
 					"type": {
@@ -7912,7 +7354,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelParams.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelParams.ts#L36"
 						}
 					],
 					"type": {
@@ -7941,7 +7383,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelParams.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelParams.ts#L41"
 						}
 					],
 					"type": {
@@ -7977,7 +7419,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelParams.ts#L16"
 						}
 					],
 					"type": {
@@ -8015,7 +7457,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelContentParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelContentParams.ts#L21"
 						}
 					],
 					"type": {
@@ -8054,7 +7496,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelParams.ts#L21"
 						}
 					],
 					"type": {
@@ -8101,7 +7543,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelContentParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelContentParams.ts#L16"
 						}
 					],
 					"type": {
@@ -8149,7 +7591,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelContentParams.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelContentParams.ts#L26"
 						}
 					],
 					"type": {
@@ -8188,7 +7630,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelParams.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelParams.ts#L26"
 						}
 					],
 					"type": {
@@ -8226,7 +7668,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelParams.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelParams.ts#L46"
 						}
 					],
 					"type": {
@@ -8257,7 +7699,7 @@
 					"fileName": "data/src/DataModelParams.ts",
 					"line": 9,
 					"character": 17,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataModelParams.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataModelParams.ts#L9"
 				}
 			],
 			"extendedTypes": [
@@ -8302,11 +7744,11 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
@@ -8332,7 +7774,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObjectParams.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObjectParams.ts#L36"
 						}
 					],
 					"type": {
@@ -8422,7 +7864,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 15,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObjectParams.ts#L15"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObjectParams.ts#L15"
 						}
 					],
 					"type": {
@@ -8449,7 +7891,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObjectParams.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObjectParams.ts#L31"
 						}
 					],
 					"type": {
@@ -8487,7 +7929,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObjectParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObjectParams.ts#L21"
 						}
 					],
 					"type": {
@@ -8525,7 +7967,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObjectParams.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObjectParams.ts#L41"
 						}
 					],
 					"type": {
@@ -8564,7 +8006,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObjectParams.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObjectParams.ts#L26"
 						}
 					],
 					"type": {
@@ -8591,7 +8033,7 @@
 					"fileName": "data/src/DataObjectParams.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/DataObjectParams.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/DataObjectParams.ts#L6"
 				}
 			]
 		},
@@ -8629,11 +8071,11 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
@@ -8669,7 +8111,7 @@
 							"fileName": "data/src/PropertyParams.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertyParams.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertyParams.ts#L31"
 						}
 					],
 					"type": {
@@ -8706,7 +8148,7 @@
 							"fileName": "data/src/PropertyParams.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertyParams.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertyParams.ts#L11"
 						}
 					],
 					"type": {
@@ -8745,7 +8187,7 @@
 							"fileName": "data/src/PropertyParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertyParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertyParams.ts#L21"
 						}
 					],
 					"type": {
@@ -8782,7 +8224,7 @@
 							"fileName": "data/src/PropertyParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertyParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertyParams.ts#L16"
 						}
 					],
 					"type": {
@@ -8821,7 +8263,7 @@
 							"fileName": "data/src/PropertyParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertyParams.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertyParams.ts#L26"
 						}
 					],
 					"type": {
@@ -8856,7 +8298,7 @@
 					"fileName": "data/src/PropertyParams.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertyParams.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertyParams.ts#L6"
 				}
 			]
 		},
@@ -8893,11 +8335,11 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
@@ -8939,7 +8381,7 @@
 							"fileName": "data/src/PropertySetParams.ts",
 							"line": 15,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySetParams.ts#L15"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySetParams.ts#L15"
 						}
 					],
 					"type": {
@@ -8966,7 +8408,7 @@
 							"fileName": "data/src/PropertySetParams.ts",
 							"line": 20,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySetParams.ts#L20"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySetParams.ts#L20"
 						}
 					],
 					"type": {
@@ -9003,7 +8445,7 @@
 							"fileName": "data/src/PropertySetParams.ts",
 							"line": 30,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySetParams.ts#L30"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySetParams.ts#L30"
 						}
 					],
 					"type": {
@@ -9035,7 +8477,7 @@
 							"fileName": "data/src/PropertySetParams.ts",
 							"line": 25,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySetParams.ts#L25"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySetParams.ts#L25"
 						}
 					],
 					"type": {
@@ -9060,7 +8502,7 @@
 					"fileName": "data/src/PropertySetParams.ts",
 					"line": 8,
 					"character": 17,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/PropertySetParams.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/PropertySetParams.ts#L8"
 				}
 			]
 		},
@@ -9097,11 +8539,11 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
@@ -9134,7 +8576,7 @@
 							"fileName": "data/src/RelationshipParams.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/RelationshipParams.ts#L22"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/RelationshipParams.ts#L22"
 						}
 					],
 					"type": {
@@ -9170,7 +8612,7 @@
 							"fileName": "data/src/RelationshipParams.ts",
 							"line": 17,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/RelationshipParams.ts#L17"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/RelationshipParams.ts#L17"
 						}
 					],
 					"type": {
@@ -9197,7 +8639,7 @@
 							"fileName": "data/src/RelationshipParams.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/RelationshipParams.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/RelationshipParams.ts#L12"
 						}
 					],
 					"type": {
@@ -9221,7 +8663,7 @@
 					"fileName": "data/src/RelationshipParams.ts",
 					"line": 7,
 					"character": 17,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/RelationshipParams.ts#L7"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/RelationshipParams.ts#L7"
 				}
 			]
 		},
@@ -9276,11 +8718,11 @@
 					{
 						"kind": "inline-tag",
 						"tag": "@link",
-						"text": "\"@xeokit/data\""
+						"text": "\"@xeokit/data\" | @xeokit/data"
 					},
 					{
 						"kind": "text",
-						"text": " for usage."
+						"text": "  for usage."
 					}
 				]
 			},
@@ -9315,7 +8757,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 42,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L42"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L42"
 						}
 					],
 					"type": {
@@ -9365,7 +8807,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 62,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L62"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L62"
 						}
 					],
 					"type": {
@@ -9415,7 +8857,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 52,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L52"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L52"
 						}
 					],
 					"type": {
@@ -9456,7 +8898,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 37,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L37"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L37"
 						}
 					],
 					"type": {
@@ -9506,7 +8948,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 57,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L57"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L57"
 						}
 					],
 					"type": {
@@ -9556,7 +8998,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 47,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L47"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L47"
 						}
 					],
 					"type": {
@@ -9610,7 +9052,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 32,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L32"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L32"
 						}
 					],
 					"type": {
@@ -9670,7 +9112,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 83,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L83"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L83"
 						}
 					],
 					"type": {
@@ -9686,7 +9128,7 @@
 									"fileName": "data/src/SearchParams.ts",
 									"line": 83,
 									"character": 21,
-									"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L83"
+									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L83"
 								}
 							],
 							"signatures": [
@@ -9740,7 +9182,7 @@
 											"fileName": "data/src/SearchParams.ts",
 											"line": 83,
 											"character": 21,
-											"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L83"
+											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L83"
 										}
 									],
 									"parameters": [
@@ -9819,7 +9261,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 69,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L69"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L69"
 						}
 					],
 					"type": {
@@ -9882,7 +9324,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 76,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L76"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L76"
 						}
 					],
 					"type": {
@@ -9936,7 +9378,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 25,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L25"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L25"
 						}
 					],
 					"type": {
@@ -9978,7 +9420,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 18,
 							"character": 4,
-							"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L18"
+							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L18"
 						}
 					],
 					"type": {
@@ -10011,7 +9453,7 @@
 					"fileName": "data/src/SearchParams.ts",
 					"line": 11,
 					"character": 17,
-					"url": "https://github.com/DhivinX/xeokit-sdk/blob/6c4548dd7/packages/data/src/SearchParams.ts#L11"
+					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/data/src/SearchParams.ts#L11"
 				}
 			]
 		}
@@ -10230,10 +9672,6 @@
 			"sourceFileName": "src/Data.ts",
 			"qualifiedName": "Data.destroy"
 		},
-		"52": {
-			"sourceFileName": "../core/src/Component.ts",
-			"qualifiedName": "Component.#private"
-		},
 		"53": {
 			"sourceFileName": "../core/src/Component.ts",
 			"qualifiedName": "Component.id"
@@ -10313,46 +9751,6 @@
 		"72": {
 			"sourceFileName": "src/DataModel.ts",
 			"qualifiedName": "DataModel"
-		},
-		"73": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "DataModel.__constructor"
-		},
-		"74": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "DataModel"
-		},
-		"75": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "data"
-		},
-		"76": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "id"
-		},
-		"77": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "dataModelParams"
-		},
-		"78": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "options"
-		},
-		"79": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "__type"
-		},
-		"80": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "__type.includeTypes"
-		},
-		"81": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "__type.excludeTypes"
-		},
-		"82": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "__type.globalizeObjectIds"
 		},
 		"83": {
 			"sourceFileName": "src/DataModel.ts",
@@ -10470,10 +9868,6 @@
 			"sourceFileName": "src/DataModel.ts",
 			"qualifiedName": "DataModel.built"
 		},
-		"118": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "DataModel.#destroyed"
-		},
 		"119": {
 			"sourceFileName": "src/DataModel.ts",
 			"qualifiedName": "DataModel.fromJSON"
@@ -10545,22 +9939,6 @@
 		"136": {
 			"sourceFileName": "src/DataModel.ts",
 			"qualifiedName": "DataModel.destroy"
-		},
-		"137": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "DataModel.#removeObjectFromModels"
-		},
-		"138": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "DataModel.#removeObjectFromModels"
-		},
-		"139": {
-			"sourceFileName": "src/DataModel.ts",
-			"qualifiedName": "dataObject"
-		},
-		"140": {
-			"sourceFileName": "../core/src/Component.ts",
-			"qualifiedName": "Component.#private"
 		},
 		"141": {
 			"sourceFileName": "../core/src/Component.ts",
@@ -10637,46 +10015,6 @@
 		"159": {
 			"sourceFileName": "src/DataObject.ts",
 			"qualifiedName": "DataObject"
-		},
-		"160": {
-			"sourceFileName": "src/DataObject.ts",
-			"qualifiedName": "DataObject.__constructor"
-		},
-		"161": {
-			"sourceFileName": "src/DataObject.ts",
-			"qualifiedName": "DataObject"
-		},
-		"162": {
-			"sourceFileName": "src/DataObject.ts",
-			"qualifiedName": "data"
-		},
-		"163": {
-			"sourceFileName": "src/DataObject.ts",
-			"qualifiedName": "model"
-		},
-		"164": {
-			"sourceFileName": "src/DataObject.ts",
-			"qualifiedName": "id"
-		},
-		"165": {
-			"sourceFileName": "src/DataObject.ts",
-			"qualifiedName": "originalSystemId"
-		},
-		"166": {
-			"sourceFileName": "src/DataObject.ts",
-			"qualifiedName": "name"
-		},
-		"167": {
-			"sourceFileName": "src/DataObject.ts",
-			"qualifiedName": "description"
-		},
-		"168": {
-			"sourceFileName": "src/DataObject.ts",
-			"qualifiedName": "type"
-		},
-		"169": {
-			"sourceFileName": "src/DataObject.ts",
-			"qualifiedName": "propertySets"
 		},
 		"170": {
 			"sourceFileName": "src/DataObject.ts",
@@ -10797,22 +10135,6 @@
 		"210": {
 			"sourceFileName": "src/PropertySet.ts",
 			"qualifiedName": "PropertySet"
-		},
-		"211": {
-			"sourceFileName": "src/PropertySet.ts",
-			"qualifiedName": "PropertySet.__constructor"
-		},
-		"212": {
-			"sourceFileName": "src/PropertySet.ts",
-			"qualifiedName": "PropertySet"
-		},
-		"213": {
-			"sourceFileName": "src/PropertySet.ts",
-			"qualifiedName": "dataModel"
-		},
-		"214": {
-			"sourceFileName": "src/PropertySet.ts",
-			"qualifiedName": "propertySetCfg"
 		},
 		"215": {
 			"sourceFileName": "src/PropertySet.ts",

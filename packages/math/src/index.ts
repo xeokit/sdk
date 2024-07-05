@@ -78,3 +78,22 @@ export function newFloatArray(values?: number | FloatArrayParam): FloatArrayPara
     return new Float64Array(values);
 }
 
+
+export const MAX_INT= 10000000;
+
+/**
+ * Maximum safe inverse.
+ *
+ * Returns:
+ * - x != 0 => 1/x,
+ * - x == 1 => 1
+ *
+ * @param {number} x
+ */
+export function safeInv(x:number) {
+    const retVal = 1 / x;
+    if (isNaN(retVal) || !isFinite(retVal)) {
+        return 1;
+    }
+    return retVal;
+}

@@ -46,6 +46,8 @@ export * as cityjson from "@xeokit/cityjson";
 export * as dotbim from "@xeokit/dotbim";
 export * as webifc from "@xeokit/webifc";
 export * as dtx from "@xeokit/dtx";
+export * as las from "@xeokit/las";
+export * as gltf from "@xeokit/gltf";
 
 // Viewer
 

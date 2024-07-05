@@ -91,6 +91,13 @@ class PointLight extends Component {
     }
 
     /**
+     * The coordinate system the PointLight is defined in - ````"view"```` or ````"space"````.
+     */
+    get space(): String {
+        return this.#state.space;
+    }
+
+    /**
      * Gets the position of this PointLight.
      *
      * This will be either World- or View-space, depending on the value of {@link PointLight.space}.

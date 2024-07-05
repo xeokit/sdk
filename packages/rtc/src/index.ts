@@ -172,7 +172,7 @@ export function rtcToWorldPos(rtcCenter: FloatArrayParam, rtcPos: FloatArrayPara
  * @param rtcPlanePos
  * @returns {*}
  */
-export function getPlaneRTCPos(dist: number, dir: FloatArrayParam, rtcCenter: FloatArrayParam, rtcPlanePos: FloatArrayParam) {
+export function getPlaneRTCPos(dist: number, dir: FloatArrayParam, rtcCenter: FloatArrayParam, rtcPlanePos: FloatArrayParam) : FloatArrayParam{
     const rtcCenterToPlaneDist = dotVec3(dir, rtcCenter) + dist;
     const dirNormalized = normalizeVec3(dir, tempVec3a);
     mulVec3Scalar(dirNormalized, -rtcCenterToPlaneDist, rtcPlanePos);

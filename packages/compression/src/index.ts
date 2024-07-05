@@ -733,4 +733,15 @@ export function octEncodeNormal(array: FloatArrayParam, i: number, xfunc: string
     return new Int8Array([Math[xfunc](x * 127.5 + (x < 0 ? -1 : 0)), Math[yfunc](y * 127.5 + (y < 0 ? -1 : 0))]);
 }
 
+/**
+ * Compresses a flat array of floatinging point RGB/RGBA colors.
+ */
+export function compressRGBColors(colors: FloatArrayParam) { // http://cg.postech.ac.kr/research/mesh_comp_mobile/mesh_comp_mobile_conference.pdf
+    const lenColors = colors.length;
+    const colorsCompressed = new Uint16Array(lenColors);
+    for (let i = 0; i < lenColors; i++) {
+        colorsCompressed[i + 0] = Math.floor(colors[i] * 255);
+    }
+    return colorsCompressed;
+}
 

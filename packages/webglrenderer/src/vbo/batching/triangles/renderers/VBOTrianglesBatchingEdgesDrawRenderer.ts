@@ -4,7 +4,7 @@ import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 /**
  * @private
  */
-export class VBOTrianglesBatchingDrawRenderer extends VBOBatchingRenderer {
+export class VBOTrianglesBatchingEdgesDrawRenderer extends VBOBatchingRenderer {
 
     getHash(): string {
         const view = this.renderContext.view;
@@ -16,11 +16,11 @@ export class VBOTrianglesBatchingDrawRenderer extends VBOBatchingRenderer {
         this.vertexCommonDefs(src);
         this.vertexBatchingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexDrawLambertDefs(src);
-        this.openVertexMain(src);
+        this.vertexDrawEdgesColorDefs(src);
+        this.openVertexEdgesMain(src);
         {
             this.vertexBatchingTransformLogic(src);
-            this.vertexDrawLambertLogic(src);
+            this.vertexDrawEdgesColorLogic(src);
             this.vertexSlicingLogic(src);
         }
         this.closeVertexMain(src);
@@ -30,11 +30,11 @@ export class VBOTrianglesBatchingDrawRenderer extends VBOBatchingRenderer {
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
         this.fragmentSlicingDefs(src);
-        this.fragmentDrawLambertDefs(src);
+        this.fragmentDrawEdgesColorDefs(src);
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
-            this.fragmentDrawLambertLogic(src);
+            this.fragmentDrawEdgesColorLogic(src);
         }
         src.push("}");
     }
@@ -42,6 +42,6 @@ export class VBOTrianglesBatchingDrawRenderer extends VBOBatchingRenderer {
     drawVBOBatchingLayerPrimitives(vboBatchingLayer: VBOBatchingLayer, renderPass: number): void {
         const gl = this.renderContext.gl;
         const renderState = vboBatchingLayer.renderState;
-        gl.drawElements(gl.TRIANGLES, renderState.indicesBuf.numItems, renderState.indicesBuf.itemType, 0);
+        gl.drawElements(gl.LINES, renderState.edgeIndicesBuf.numItems, renderState.edgeIndicesBuf.itemType, 0);
     }
 }

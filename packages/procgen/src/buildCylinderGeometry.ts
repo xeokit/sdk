@@ -34,11 +34,11 @@ export function buildCylinderGeometry(cfg: {
     radiusTop: number;
     height: number
 } = {
-    radiusTop: 0,
-    radiusBottom: 0,
-    height: 0,
-    radialSegments: 0,
-    heightSegments: 0,
+    radiusTop: 1,
+    radiusBottom: 1,
+    height: 1,
+    radialSegments: 60,
+    heightSegments: 1,
     openEnded: false,
     center: [0, 0, 0]
 }): GeometryArrays  {

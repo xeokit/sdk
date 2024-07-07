@@ -423,7 +423,6 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                 if (!primitive._geometryId) {
                     const geometryId = "geometry-" + ctx.nextId++;
 
-
                     const geometryParams: SceneGeometryParams = {
                         id: geometryId,
                         primitive: 0,

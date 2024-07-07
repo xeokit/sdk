@@ -263,66 +263,121 @@ export abstract class VBORenderer {
         }
     }
 
+    openVertexMain(src: string[]) {
+        src.push("void main(void) {");
+        src.push(`      if ((int(flags) & 0xF) != renderPass) {`);
+        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        src.push("      } else {");
+    }
+
+    openVertexSilhouetteMain(src: string[]) {
+        src.push("void main(void) {");
+        src.push(`      if ((int(flags) >> 4 & 0xF) != renderPass) {`);
+        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        src.push("      } else {");
+    }
+
+    openVertexPickMain(src: string[]) {
+        src.push("void main(void) {");
+        src.push(`      if ((int(flags) >> 12 & 0xF) != renderPass) {`);
+        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        src.push("      } else {");
+    }
+
+    openVertexEdgesMain(src: string[]) {
+        src.push("void main(void) {");
+        src.push(`      if ((int(flags) >> 8 & 0xF) != renderPass) {`);
+        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        src.push("      } else {");
+    }
+
+    closeVertexMain(src: string[]) {
+        src.push("      }");
+        src.push("}");
+    }
+
     vertexSlicingLogic(src: string[]) {
         if (this.renderContext.view.getNumAllocatedSectionPlanes() > 0) {
-            src.push("// ------------------- vertexSlicingLogic")
-            src.push("vWorldPosition = worldPosition;");
-            src.push("vClippable = (int(flags) >> 16 & 0xF) == 1;");
+            src.push("      // ------------------- vertexSlicingLogic")
+            src.push("      vWorldPosition = worldPosition;");
+            src.push("      vClippable = (int(flags) >> 16 & 0xF) == 1;");
         }
     }
 
     vertexBatchingTransformLogic(src: string[]) {
-        src.push("// ------------------- vertexBatchingTransformLogic")
-        src.push("vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
-        src.push("vec4 viewPosition  = viewMatrix * worldPosition; ");
-        src.push("gl_Position = projMatrix * viewPosition;");
+        src.push("          // ------------------- vertexBatchingTransformLogic")
+        src.push("          vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
+        src.push("          vec4 viewPosition  = viewMatrix * worldPosition; ");
+        src.push("          gl_Position = projMatrix * viewPosition;");
     }
 
     vertexInstancingTransformLogic(src: string[]) {
-        src.push("// ------------------- vertexInstancingTransformLogic")
-        src.push("vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
-        src.push("vec4 viewPosition  = viewMatrix * vec4(dot(worldPosition, modelMatrixCol0), dot(worldPosition, modelMatrixCol1), dot(worldPosition, modelMatrixCol2), 1.0); ");
-        src.push("gl_Position = projMatrix * viewPosition;");
+        src.push("          // ------------------- vertexInstancingTransformLogic")
+        src.push("          vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
+        src.push("          vec4 viewPosition  = viewMatrix * vec4(dot(worldPosition, modelMatrixCol0), dot(worldPosition, modelMatrixCol1), dot(worldPosition, modelMatrixCol2), 1.0); ");
+        src.push("          gl_Position = projMatrix * viewPosition;");
     }
 
     vertexDrawLambertDefs(src: string[]) {
-        src.push("// ------------------- vertexDrawLambertDefs")
-        src.push("in  vec4 color;");
-        src.push("out vec4 vColor;");
-        src.push("out vec4 vViewPosition;");
+        src.push("          // ------------------- vertexDrawLambertDefs")
+        src.push("          in  vec4 color;");
+        src.push("          out vec4 vColor;");
+        src.push("          out vec4 vViewPosition;");
     }
 
     vertexDrawLambertLogic(src: string[]) { // Depends on vertexInstancingTransformLogic / vertexBatchingTransformLogic
-        src.push("// ------------------- vertexDrawLambertLogic")
-        src.push("vColor = vec4(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);");
-        src.push("vViewPosition = viewPosition;");
+        src.push("          // ------------------- vertexDrawLambertLogic")
+        src.push("          vColor = vec4(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);");
+        src.push("          vViewPosition = viewPosition;");
     }
 
     vertexDrawSilhouetteDefs(src: string[]) {
-        src.push("// ------------------- vertexDrawSilhouetteDefs")
-        src.push("uniform vec4 silhouetteColor;");
-        src.push("out vec4 vColor;");
+        src.push("          // ------------------- vertexDrawSilhouetteDefs")
+        src.push("          uniform vec4 silhouetteColor;");
+        src.push("          out vec4 vColor;");
     }
 
     vertexDrawSilhouetteLogic(src: string[]) {
-        src.push("// ------------------- vertexDrawSilhouetteLogic")
-        src.push("vColor = vec4(float(silhouetteColor.r) / 255.0, float(silhouetteColor.g) / 255.0, float(silhouetteColor.b) / 255.0, 1.0);");
+        src.push("          // ------------------- vertexDrawSilhouetteLogic")
+        src.push("          vColor = vec4(silhouetteColor.r, silhouetteColor.g, silhouetteColor.b, 0.5);");
     }
 
     vertexDrawFlatColorDefs(src: string[]) {
-        src.push("// ------------------- vertexDrawFlatColorDefs")
-        src.push("in vec4 color;");
-        src.push("out vec4 vColor;");
+        src.push("          // ------------------- vertexDrawFlatColorDefs")
+        src.push("          in vec4 color;");
+        src.push("          out vec4 vColor;");
     }
 
     vertexDrawFlatColorLogic(src: string[]) {
-        src.push("// ------------------- vertexDrawFlatColorLogic")
-        src.push("vColor = vec4(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);");
+        src.push("          // ------------------- vertexDrawFlatColorLogic")
+        src.push("          vColor = vec4(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);");
+    }
+
+    vertexDrawEdgesColorDefs(src: string[]) {
+        src.push("          // ------------------- vertexDrawEdgesColorDefs")
+        src.push("          in vec4 color;");
+        src.push("          out vec4 vColor;");
+    }
+
+    vertexDrawEdgesColorLogic(src: string[]) {
+        src.push("          // ------------------- vertexDrawEdgesColorLogic")
+        src.push("          vColor = vec4(1.0, float(color.g-300.0) / 255.0, float(color.b-0.5) / 255.0, 1.0);");
+    }
+
+    vertexDrawEdgesSilhouetteDefs(src: string[]) {
+        src.push("          // ------------------- vertexDrawEdgesSilhouetteDefs")
+        src.push("          uniform vec4 silhouetteColor;");
+        src.push("          out vec4 vColor;");
+    }
+
+    vertexDrawEdgesSilhouetteLogic(src: string[]) {
+        src.push("          // ------------------- vertexDrawEdgesSilhouetteLogic")
+        src.push("          vColor = vec4(silhouetteColor.r, silhouetteColor.g, silhouetteColor.b, 0.5);");
     }
 
     vertexPickMeshShadingLogic(src: string[]) {
-        src.push("// ------------------- vertexPickMeshShadingLogic")
-        src.push("vPickColor = vec4(float(pickColor.r) / 255.0, float(pickColor.g) / 255.0, float(pickColor.b) / 255.0, float(pickColor.a) / 255.0);");
+        src.push("          // ------------------- vertexPickMeshShadingLogic")
+        src.push("          vPickColor = vec4(float(pickColor.r) / 255.0, float(pickColor.g) / 255.0, float(pickColor.b) / 255.0, float(pickColor.a) / 255.0);");
     }
 
     fragmentHeader(src: string[]) {
@@ -418,6 +473,28 @@ export abstract class VBORenderer {
 
     fragmentDrawFlatColorLogic(src: string[]) {
         src.push("// ------------------- fragmentDrawFlatColorLogic")
+        src.push("outColor = vColor;");
+    }
+
+    fragmentDrawEdgesColorDefs(src: string[]) {
+        src.push("// ------------------- fragmentDrawEdgesColorDefs")
+        src.push("in vec4 vColor;");
+        src.push("out vec4 outColor;");
+    }
+
+    fragmentDrawEdgesColorLogic(src: string[]) {
+        src.push("// ------------------- fragmentDrawEdgesColorLogic")
+        src.push("outColor = vColor;");
+    }
+
+    fragmentDrawEdgesSilhouetteDefs(src: string[]) {
+        src.push("// ------------------- fragmentDrawEdgesSilhouetteDefs")
+        src.push("in vec4 vColor;");
+        src.push("out vec4 outColor;");
+    }
+
+    fragmentDrawEdgesSilhouetteLogic(src: string[]) {
+        src.push("// ------------------- fragmentDrawEdgesSilhouetteLogic")
         src.push("outColor = vColor;");
     }
 

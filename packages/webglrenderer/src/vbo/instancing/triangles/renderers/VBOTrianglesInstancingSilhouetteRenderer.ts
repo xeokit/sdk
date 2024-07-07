@@ -10,24 +10,19 @@ export class VBOTrianglesInstancingSilhouetteRenderer extends VBOInstancingRende
         return this.slicingHash;
     }
 
-    buildVertexShader(src: string[]):void {
+    buildVertexShader(src: string[]): void {
         this.vertexHeader(src);
         this.vertexCommonDefs(src);
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
         this.vertexDrawSilhouetteDefs(src);
-        src.push("void main(void) {");
-        // colorFlag = NOT_RENDERED | COLOR_OPAQUE | COLOR_TRANSPARENT
-        // renderPass = COLOR_OPAQUE
-        src.push(`int colorFlag = int(flags) & 0xF;`);
-        src.push(`if (colorFlag != renderPass) {`);
-        src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        src.push("} else {");
-        this.vertexInstancingTransformLogic(src);
-        this.vertexDrawSilhouetteLogic(src);
-        this.vertexSlicingLogic(src);
-        src.push("}");
-        src.push("}");
+        this.openVertexSilhouetteMain(src);
+        {
+            this.vertexInstancingTransformLogic(src);
+            this.vertexDrawSilhouetteLogic(src);
+            this.vertexSlicingLogic(src);
+        }
+        this.closeVertexMain(src);
     }
 
     buildFragmentShader(src: string[]): void {
@@ -36,8 +31,10 @@ export class VBOTrianglesInstancingSilhouetteRenderer extends VBOInstancingRende
         this.fragmentSlicingDefs(src);
         this.fragmentDrawSilhouetteDefs(src);
         src.push("void main(void) {");
-        this.fragmentSlicingLogic(src);
-        this.fragmentDrawSilhouetteLogic(src);
+        {
+            this.fragmentSlicingLogic(src);
+            this.fragmentDrawSilhouetteLogic(src);
+        }
         src.push("}");
     }
 

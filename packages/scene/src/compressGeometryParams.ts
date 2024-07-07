@@ -54,7 +54,7 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
             positionsCompressed,
             uvs: geometryParams.uvs,
             indices: geometryParams.indices,
-            edgeIndices: edgeIndices
+            edgeIndices
         });
         const numUniquePositions = uniquePositionsCompressed.length / 3;
         const geometryBuckets = <{

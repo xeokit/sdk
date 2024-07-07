@@ -1582,32 +1582,9 @@ const letters = {
  * Creates wireframe vector text {@link @xeokit/scene!SceneGeometry}.
  *
  * ## Usage
- *
- * Creating a {@link @xeokit/scene!SceneMesh} with vector text {@link @xeokit/scene!SceneGeometry}:
- *
+
  * ````javascript
  *
- * import {Viewer, SceneMesh, buildVectorTextGeometry, ReadableGeometry, PhongMaterial} from "xeokit-viewer.es.js";
- *
- * const viewer = new Viewer({
- *      canvasId: "myView"
- * });
- *
- * viewer.camera.eye = [0, 0, 100];
- * viewer.camera.look = [0, 0, 0];
- * viewer.camera.up = [0, 1, 0];
- *
- * new SceneMesh(viewer.scene, {
- *      geometry: new ReadableGeometry(viewer.scene, buildVectorTextGeometry({
- *          origin: [0,0,0],
- *          text: "On the other side of the screen, it all looked so easy"
- *      }),
- *      material: new PhongMaterial(viewer.scene, {
- *         diffuseMap: new SceneTexture(viewer.scene, {
- *             src: "textures/diffuse/uvGrid2.jpg"
- *         })
- *      })
- * });
  * ````
  *
  * @function buildVectorTextGeometry

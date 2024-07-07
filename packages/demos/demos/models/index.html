@@ -18,20 +18,22 @@
 <div class="content-overlay" id="viewer-overlay"></div>
 <iframe class="content-container" id="viewer" src="../default.html"></iframe>
 <div class="slideout-sidebar">
-    <div id="index"><h1><a href="http://xeokit.io">xeokit</a> / <a href="../">Examples</a> / Scene Graph</h1></div>
+    <div id="index"><h1><a href="http://xeokit.io">xeokit</a> / <a href="../">Examples</a> / Models</h1></div>
 </div>
 </body>
 <script>
     const files = {
         "Building Models": [
-            "#Using builder methods",
-            ["sceneModel_dataModel_builderMethods", "Building a SceneModel and DataModel using builder methods"]
+            "#Using model builder methods",
+            ["models_sceneModel_dataModel_builderMethods", "Building a SceneModel and DataModel using builder methods"],
+            ["models_sceneModel_dataModel_fromJSON", "Building a SceneModel and DataModel from JSON"],
+            ["models_sceneModel_lines", "Drawing triangles with a Viewer"],
+            ["models_sceneModel_points", "Drawing lines with a Viewer"],
         ],
-        "Deserializing Models": [
-            "#Creating models from JSON",
-            ["ImagePlane_groundPlane", "Google satellite image embedded in ground plane"],
-            ["ImagePlane_groundPlane_narrow", "Google satellite image embedded in ground plane"],
-            ["ImagePlane_imageInSectionPlane", "Plan view image embedded in section plane"]
+
+        "Building Geometry": [
+            "#Using geometry builder functions",
+            ["procgen_geometries", "Using geometry builder functions"]
         ]
     };
 

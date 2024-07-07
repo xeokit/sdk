@@ -14,6 +14,10 @@ export * as curves from "@xeokit/curves";
 export * as boundaries from "@xeokit/boundaries";
 export * as compression from "@xeokit/compression";
 
+// Geometry generation
+
+export * as procgen from "@xeokit/procgen";
+
 // Localization
 
 export * as locale from "@xeokit/locale";

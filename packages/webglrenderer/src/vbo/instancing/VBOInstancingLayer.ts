@@ -712,9 +712,9 @@ export class VBOInstancingLayer implements Layer {
             this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
             return;
         }
-        if (this.#rendererSet.depthRenderer) {
-            this.#rendererSet.depthRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
-        }
+        // if (this.#rendererSet.depthRenderer) {
+        //     this.#rendererSet.depthRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
+        // }
     }
 
     drawNormals(): void {
@@ -724,9 +724,9 @@ export class VBOInstancingLayer implements Layer {
             this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
             return;
         }
-        if (this.#rendererSet.normalsRenderer) {
-            this.#rendererSet.normalsRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
-        }
+        // if (this.#rendererSet.normalsRenderer) {
+        //     this.#rendererSet.normalsRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
+        // }
     }
 
     drawSilhouetteXRayed(): void {
@@ -931,6 +931,14 @@ export class VBOInstancingLayer implements Layer {
         if (renderState.pickColorsBuf) {
             renderState.pickColorsBuf.destroy();
             renderState.pickColorsBuf = null;
+        }
+        if (renderState.indicesBuf) {
+            renderState.indicesBuf.destroy();
+            renderState.indicesBuf = null;
+        }
+        if (renderState.edgeIndicesBuf) {
+            renderState.edgeIndicesBuf.destroy();
+            renderState.indicesBuf = null;
         }
         this.renderState = null;
     }

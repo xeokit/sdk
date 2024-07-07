@@ -16,18 +16,13 @@ export class VBOTrianglesInstancingDrawRenderer extends VBOInstancingRenderer {
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
         this.vertexDrawLambertDefs(src);
-        src.push("void main(void) {");
-        // colorFlag = NOT_RENDERED | COLOR_OPAQUE | COLOR_TRANSPARENT
-        // renderPass = COLOR_OPAQUE
-        src.push(`int colorFlag = int(flags) & 0xF;`);
-        src.push(`if (colorFlag != renderPass) {`);
-        src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        src.push("} else {");
-        this.vertexInstancingTransformLogic(src);
-        this.vertexDrawLambertLogic(src);
-        this.vertexSlicingLogic(src);
-        src.push("}");
-        src.push("}");
+        this.openVertexMain(src);
+        {
+            this.vertexInstancingTransformLogic(src);
+            this.vertexDrawLambertLogic(src);
+            this.vertexSlicingLogic(src);
+        }
+        this.closeVertexMain(src);
     }
 
     buildFragmentShader(src: string[]): void {
@@ -36,8 +31,10 @@ export class VBOTrianglesInstancingDrawRenderer extends VBOInstancingRenderer {
         this.fragmentSlicingDefs(src);
         this.fragmentDrawLambertDefs(src);
         src.push("void main(void) {");
-        this.fragmentSlicingLogic(src);
-        this.fragmentDrawLambertLogic(src);
+        {
+            this.fragmentSlicingLogic(src);
+            this.fragmentDrawLambertLogic(src);
+        }
         src.push("}");
     }
 

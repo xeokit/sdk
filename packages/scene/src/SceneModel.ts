@@ -287,6 +287,11 @@ export class SceneModel extends Component {
                 this.createGeometry(sceneModelParams.geometries[i]);
             }
         }
+        if (sceneModelParams.geometriesCompressed) {
+            for (let i = 0, len = sceneModelParams.geometriesCompressed.length; i < len; i++) {
+                this.createGeometryCompressed(sceneModelParams.geometriesCompressed[i]);
+            }
+        }
         if (sceneModelParams.textures) {
             for (let i = 0, len = sceneModelParams.textures.length; i < len; i++) {
                 this.createTexture(sceneModelParams.textures[i]);

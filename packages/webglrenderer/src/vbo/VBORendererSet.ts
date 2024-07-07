@@ -18,10 +18,10 @@ export class VBORendererSet {
     #occlusionRenderer: VBORenderer;
     #snapInitRenderer: VBORenderer;
     #snapRenderer: VBORenderer;
-    edgesColorRenderer: VBORenderer;
-    edgesSilhouetteRenderer: VBORenderer;
-    depthRenderer: VBORenderer;
-    normalsRenderer: VBORenderer;
+    #edgesColorRenderer: VBORenderer;
+    #edgesSilhouetteRenderer: VBORenderer;
+    #depthRenderer: VBORenderer;
+    #normalsRenderer: VBORenderer;
 
     constructor(webglRenderer: WebGLRenderer) {
         this.renderContext = webglRenderer.renderContext;
@@ -36,6 +36,10 @@ export class VBORendererSet {
         if (this.#silhouetteRenderer && (!this.#silhouetteRenderer.getValid())) {
             this.#silhouetteRenderer.destroy();
             this.#silhouetteRenderer = null;
+        }
+        if (this.#edgesColorRenderer && (!this.#edgesColorRenderer.getValid())) {
+            this.#edgesColorRenderer.destroy();
+            this.#edgesColorRenderer = null;
         }
         if (this.#pickMeshRenderer && (!this.#pickMeshRenderer.getValid())) {
             this.#pickMeshRenderer.destroy();
@@ -75,6 +79,20 @@ export class VBORendererSet {
             this.#silhouetteRenderer = this.createSilhouetteRenderer();
         }
         return this.#silhouetteRenderer;
+    }
+
+    get edgesColorRenderer(): VBORenderer {
+        if (!this.#edgesColorRenderer) {
+            this.#edgesColorRenderer = this.createEdgesColorRenderer();
+        }
+        return this.#edgesColorRenderer;
+    }
+
+    get edgesSilhouetteRenderer(): VBORenderer {
+        if (!this.#edgesSilhouetteRenderer) {
+            this.#edgesSilhouetteRenderer = this.createEdgesSilhouetteRenderer();
+        }
+        return this.#edgesSilhouetteRenderer;
     }
 
     get pickMeshRenderer(): VBORenderer {
@@ -120,6 +138,14 @@ export class VBORendererSet {
         return null;
     }
 
+    protected createEdgesColorRenderer(): VBORenderer {
+        return null;
+    }
+
+    protected createEdgesSilhouetteRenderer(): VBORenderer {
+        return null;
+    }
+
     protected createPickMeshRenderer(): VBORenderer {
         return null;
     }
@@ -146,6 +172,9 @@ export class VBORendererSet {
         }
         if (this.#silhouetteRenderer) {
             this.#silhouetteRenderer.destroy();
+        }
+        if (this.#edgesColorRenderer) {
+            this.#edgesColorRenderer.destroy();
         }
         if (this.#pickMeshRenderer) {
             this.#pickMeshRenderer.destroy();

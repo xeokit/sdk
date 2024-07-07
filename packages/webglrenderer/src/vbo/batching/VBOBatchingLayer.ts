@@ -122,7 +122,7 @@ export class VBOBatchingLayer implements Layer {
             numVertices += bucket.positionsCompressed.length;
             numIndices += bucket.indices ? bucket.indices.length : 0;
         });
-        return ((this.#buffer.positions.length + numVertices) < (this.#buffer.maxVerts * 3)
+        return ((this.#buffer.positions.length + numVertices) < (this.#buffer.maxVerts)
             && (this.#buffer.indices.length + numIndices) < (this.#buffer.maxIndices));
     }
 
@@ -141,7 +141,8 @@ export class VBOBatchingLayer implements Layer {
         const positionsIndex = buffer.positions.length;
         const vertsIndex = positionsIndex / 3;
 
-        let numLayerMeshVerts = buffer.positions.length / 3;
+        let numLayerVerts = buffer.positions.length / 3;
+        let numLayerMeshVerts =0;
 
         for (let bucketIndex = 0, lenBuckets = geometry.geometryBuckets.length; bucketIndex < lenBuckets; bucketIndex++) {
 
@@ -162,13 +163,13 @@ export class VBOBatchingLayer implements Layer {
 
             if (indices) {
                 for (let i = 0, len = indices.length; i < len; i++) {
-                    buffer.indices.push(numLayerMeshVerts + indices[i]);
+                    buffer.indices.push(numLayerVerts + indices[i]);
                 }
             }
 
             if (edgeIndices) {
                 for (let i = 0, len = edgeIndices.length; i < len; i++) {
-                    buffer.edgeIndices.push(numLayerMeshVerts + edgeIndices[i]);
+                    buffer.edgeIndices.push(numLayerVerts + edgeIndices[i]);
                 }
             }
 
@@ -202,6 +203,7 @@ export class VBOBatchingLayer implements Layer {
                 }
             }
 
+            numLayerVerts += numBucketVerts;
             numLayerMeshVerts += numBucketVerts;
         }
 
@@ -218,9 +220,7 @@ export class VBOBatchingLayer implements Layer {
             }
         }
 
-        const pickColorsBase = buffer.pickColors.length;
-        const lenPickColors = numLayerMeshVerts * 4;
-        for (let i = pickColorsBase, len = pickColorsBase + lenPickColors; i < len; i += 4) {
+        for (let i = 0, len = numLayerMeshVerts; i < len; i += 4) {
             buffer.pickColors.push(pickColor[0]);
             buffer.pickColors.push(pickColor[1]);
             buffer.pickColors.push(pickColor[2]);
@@ -238,7 +238,7 @@ export class VBOBatchingLayer implements Layer {
         const layerMeshIndex = this.#portions.length / 2;
 
         this.#portions.push(vertsIndex);
-        this.#portions.push(numLayerMeshVerts);
+        this.#portions.push(numLayerVerts);
 
         this.meshCounts.numMeshes++;
         this.rendererModel.meshCounts.numMeshes++;
@@ -256,83 +256,83 @@ export class VBOBatchingLayer implements Layer {
             throw new SDKError("Already built");
         }
 
-        const state = this.renderState;
+        const renderState = this.renderState;
         const gl = this.renderContext.gl;
         const buffer = this.#buffer;
 
         if (buffer.positions.length > 0) {
             // if (this.#preCompressedPositionsExpected) {
             // const positions = new Uint16Array(buffer.positions);
-            // state.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, positions, buffer.positions.length, 3, gl.STATIC_DRAW);
+            // renderState.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, positions, buffer.positions.length, 3, gl.STATIC_DRAW);
             // } else {
             const positions = new Float32Array(buffer.positions);
             positions3ToAABB3(positions, this.#aabb, null);
-            const quantizedPositions = quantizePositions3(positions, this.#aabb, state.positionsDecodeMatrix);
-            state.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, quantizedPositions, buffer.positions.length, 3, gl.STATIC_DRAW);
+            const quantizedPositions = quantizePositions3(positions, this.#aabb, renderState.positionsDecodeMatrix);
+            renderState.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, quantizedPositions, buffer.positions.length, 3, gl.STATIC_DRAW);
             //}
         }
 
         if (buffer.colors.length > 0) {
             const colors = new Uint8Array(buffer.colors);
             let normalized = false;
-            state.colorsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, colors, buffer.colors.length, 4, gl.STATIC_DRAW, normalized);
+            renderState.colorsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, colors, buffer.colors.length, 4, gl.STATIC_DRAW, normalized);
         }
 
         if (buffer.positions.length > 0) { // Because we build flags arrays here, get their length from the positions array
             const flagsLength = buffer.positions.length / 3;
             const flags = new Float32Array(flagsLength);
             let notNormalized = false;
-            state.flagsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, flags, flags.length, 1, gl.DYNAMIC_DRAW, notNormalized);
+            renderState.flagsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, flags, flags.length, 1, gl.DYNAMIC_DRAW, notNormalized);
         }
 
         if (buffer.pickColors.length > 0) {
             const pickColors = new Uint8Array(buffer.pickColors);
             let normalized = false;
-            state.pickColorsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, pickColors, buffer.pickColors.length, 4, gl.STATIC_DRAW, normalized);
+            renderState.pickColorsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, pickColors, buffer.pickColors.length, 4, gl.STATIC_DRAW, normalized);
         }
 
         if (buffer.indices.length > 0) {
             const indices = new Uint32Array(buffer.indices);
-            state.indicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, buffer.indices.length, 1, gl.STATIC_DRAW);
+            renderState.indicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, buffer.indices.length, 1, gl.STATIC_DRAW);
         }
 
         if (buffer.edgeIndices.length > 0) {
             const edgeIndices = new Uint32Array(buffer.edgeIndices);
-            state.edgeIndicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, edgeIndices, buffer.edgeIndices.length, 1, gl.STATIC_DRAW);
+            renderState.edgeIndicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, edgeIndices, buffer.edgeIndices.length, 1, gl.STATIC_DRAW);
         }
 
         if (buffer.uv.length > 0) {
-            if (!state.uvDecodeMatrix) {
+            if (!renderState.uvDecodeMatrix) {
                 const bounds = getUVBounds(buffer.uv);
                 const result = compressUVs(buffer.uv, bounds.min, bounds.max);
                 const uv = result.quantized;
                 let notNormalized = false;
-                state.uvDecodeMatrix = createMat3(result.decompressMatrix);
-                state.uvBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW, notNormalized);
+                renderState.uvDecodeMatrix = createMat3(result.decompressMatrix);
+                renderState.uvBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW, notNormalized);
             } else {
                 let notNormalized = false;
-                state.uvBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, buffer.uv, buffer.uv.length, 2, gl.STATIC_DRAW, notNormalized);
+                renderState.uvBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, buffer.uv, buffer.uv.length, 2, gl.STATIC_DRAW, notNormalized);
             }
         }
 
         if (buffer.metallicRoughness.length > 0) {
             const metallicRoughness = new Uint8Array(buffer.metallicRoughness);
             let normalized = false;
-            state.metallicRoughnessBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, metallicRoughness, buffer.metallicRoughness.length, 2, gl.STATIC_DRAW, normalized);
+            renderState.metallicRoughnessBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, metallicRoughness, buffer.metallicRoughness.length, 2, gl.STATIC_DRAW, normalized);
         }
 
         this.renderState.pbrSupported
-            = !!state.metallicRoughnessBuf
-            && !!state.uvBuf
-            && !!state.normalsBuf
-            && !!state.textureSet
-            && !!state.textureSet.colorTexture
-            && !!state.textureSet.metallicRoughnessTexture;
+            = !!renderState.metallicRoughnessBuf
+            && !!renderState.uvBuf
+            && !!renderState.normalsBuf
+            && !!renderState.textureSet
+            && !!renderState.textureSet.colorTexture
+            && !!renderState.textureSet.metallicRoughnessTexture;
 
         this.renderState.colorTextureSupported
-            = !!state.uvBuf
-            && !!state.textureSet
-            && !!state.textureSet.colorTexture;
+            = !!renderState.uvBuf
+            && !!renderState.textureSet
+            && !!renderState.textureSet.colorTexture;
 
         this.#buffer = null;
         this.#built = true;
@@ -623,9 +623,9 @@ export class VBOBatchingLayer implements Layer {
             this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
             return;
         }
-        if (this.#rendererSet.depthRenderer) {
-            this.#rendererSet.depthRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.COLOR_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
-        }
+        // if (this.#rendererSet.depthRenderer) {
+        //     this.#rendererSet.depthRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.COLOR_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
+        // }
     }
 
     drawNormals() {
@@ -635,9 +635,9 @@ export class VBOBatchingLayer implements Layer {
             this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
             return;
         }
-        if (this.#rendererSet.normalsRenderer) {
-            this.#rendererSet.normalsRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.COLOR_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
-        }
+        // if (this.#rendererSet.normalsRenderer) {
+        //     this.#rendererSet.normalsRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.COLOR_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
+        // }
     }
 
     drawSilhouetteXRayed() {
@@ -798,36 +798,40 @@ export class VBOBatchingLayer implements Layer {
     }
 
     destroy() {
-        const state = this.renderState;
-        if (state.positionsBuf) {
-            state.positionsBuf.destroy();
-            state.positionsBuf = null;
+        const renderState = this.renderState;
+        if (renderState.positionsBuf) {
+            renderState.positionsBuf.destroy();
+            renderState.positionsBuf = null;
         }
-        if (state.offsetsBuf) {
-            state.offsetsBuf.destroy();
-            state.offsetsBuf = null;
+        if (renderState.offsetsBuf) {
+            renderState.offsetsBuf.destroy();
+            renderState.offsetsBuf = null;
         }
-        if (state.colorsBuf) {
-            state.colorsBuf.destroy();
-            state.colorsBuf = null;
+        if (renderState.colorsBuf) {
+            renderState.colorsBuf.destroy();
+            renderState.colorsBuf = null;
         }
-        if (state.flagsBuf) {
-            state.flagsBuf.destroy();
-            state.flagsBuf = null;
+        if (renderState.flagsBuf) {
+            renderState.flagsBuf.destroy();
+            renderState.flagsBuf = null;
         }
-        if (state.pickColorsBuf) {
-            state.pickColorsBuf.destroy();
-            state.pickColorsBuf = null;
+        if (renderState.pickColorsBuf) {
+            renderState.pickColorsBuf.destroy();
+            renderState.pickColorsBuf = null;
         }
-        if (state.uvBuf) {
-            state.uvBuf.destroy();
-            state.uvBuf = null;
+        if (renderState.uvBuf) {
+            renderState.uvBuf.destroy();
+            renderState.uvBuf = null;
         }
-        if (state.indicesBuf) {
-            state.indicesBuf.destroy();
-            state.indicesBuf = null;
+        if (renderState.indicesBuf) {
+            renderState.indicesBuf.destroy();
+            renderState.indicesBuf = null;
         }
-        //state.destroy();
+        if (renderState.edgeIndicesBuf) {
+            renderState.edgeIndicesBuf.destroy();
+            renderState.edgeIndicesBuf = null;
+        }
+        //renderState.destroy();
         putScratchMemory();
     }
 

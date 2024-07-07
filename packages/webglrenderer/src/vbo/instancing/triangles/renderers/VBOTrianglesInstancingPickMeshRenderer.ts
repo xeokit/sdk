@@ -17,18 +17,13 @@ export class VBOTrianglesInstancingPickMeshRenderer extends VBOInstancingRendere
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
         this.vertexPickMeshShadingDefs(src);
-        src.push("void main(void) {");
-        // colorFlag = NOT_RENDERED | COLOR_OPAQUE | COLOR_TRANSPARENT
-        // renderPass = COLOR_OPAQUE
-        src.push(`int colorFlag = int(flags) & 0xF;`);
-        src.push(`if (colorFlag != renderPass) {`);
-        src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        src.push("} else {");
-        this.vertexInstancingTransformLogic(src);
-        this.vertexPickMeshShadingLogic(src);
-        this.vertexSlicingLogic(src);
-        src.push("}");
-        src.push("}");
+        this.openVertexPickMain(src);
+        {
+            this.vertexInstancingTransformLogic(src);
+            this.vertexPickMeshShadingLogic(src);
+            this.vertexSlicingLogic(src);
+        }
+        this.closeVertexMain(src);
     }
 
     buildFragmentShader(src: string[]) : void{
@@ -37,8 +32,10 @@ export class VBOTrianglesInstancingPickMeshRenderer extends VBOInstancingRendere
         this.fragmentSlicingDefs(src);
         this.fragmentPickMeshShadingDefs(src);
         src.push("void main(void) {");
-        this.fragmentSlicingLogic(src);
-        this.fragmentPickMeshShadingLogic(src);
+        {
+            this.fragmentSlicingLogic(src);
+            this.fragmentPickMeshShadingLogic(src);
+        }
         src.push("}");
     }
 

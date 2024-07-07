@@ -412,7 +412,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             textureSet = this.rendererTextureSets[textureSetId];
             if (!textureSet) {
                 this.error(`TextureSet with ID "${textureSetId}" not found in WebGLRendererModel - ensure that you create it first with createTextureSet()`);
-                return;
+                // Create layer without texture set
             }
         }
         if (instancing) {
@@ -527,7 +527,14 @@ export class WebGLRendererModel extends Component implements RendererModel {
         for (let i = 0, len = meshes.length; i < len; i++) {
             const mesh = meshes[i];
             const rendererMesh = <WebGLRendererMesh>this.rendererMeshes[mesh.id];
-            rendererMeshes.push(rendererMesh);
+            if (!rendererMesh) {
+                console.error("WebGLRendererMesh not found: + " + mesh.id);
+            } else {
+                rendererMeshes.push(rendererMesh);
+            }
+        }
+        if (rendererMeshes.length === 0) {
+            return;
         }
         const rendererObject = new WebGLRendererObject({
             id: objectId,

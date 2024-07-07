@@ -4,6 +4,10 @@ import {VBOTrianglesBatchingDrawRenderer} from "./VBOTrianglesBatchingDrawRender
 import {VBORenderer} from "../../../VBORenderer";
 import {VBOTrianglesBatchingPickMeshRenderer} from "./VBOTrianglesBatchingPickMeshRenderer";
 import {VBOTrianglesBatchingSilhouetteRenderer} from "./VBOTrianglesBatchingSilhouetteRenderer";
+import {VBOTrianglesBatchingEdgesDrawRenderer} from "./VBOTrianglesBatchingEdgesDrawRenderer";
+import {VBOTrianglesBatchingEdgesSilhouetteRenderer} from "./VBOTrianglesBatchingEdgesSilhouetteRenderer";
+
+
 
 /**
  * @private
@@ -20,6 +24,14 @@ class RendererFactory extends VBORendererSet {
 
     createSilhouetteRenderer(): VBORenderer {
         return new VBOTrianglesBatchingSilhouetteRenderer(this.renderContext);
+    }
+
+    createEdgesColorRenderer(): VBORenderer {
+        return new VBOTrianglesBatchingEdgesDrawRenderer(this.renderContext);
+    }
+
+    createEdgesSilhouetteRenderer(): VBORenderer {
+        return new VBOTrianglesBatchingEdgesSilhouetteRenderer(this.renderContext);
     }
 }
 

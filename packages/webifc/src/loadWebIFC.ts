@@ -1,4 +1,11 @@
-import {createMat4, createVec3, transformPositions3} from "@xeokit/matrix";
+import {
+    createMat4,
+    createVec3,
+    createVec4,
+    transformPoint3,
+    transformPoint4,
+    transformPositions3
+} from "@xeokit/matrix";
 import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
 //import * as WebIFC from "web-ifc/web-ifc-api-node";
@@ -7,6 +14,9 @@ import {IfcElement, IfcRelAggregates, typeCodes} from "@xeokit/ifctypes";
 import {worldToRTCPositions} from "@xeokit/rtc";
 import {TrianglesPrimitive} from "@xeokit/constants";
 import {SDKError} from "@xeokit/core";
+
+const tempVec4a = createVec4();
+const tempVec4b = createVec4();
 
 /**
  * @private
@@ -95,8 +105,8 @@ function parseDataModel(ctx: ParsingContext) {
     const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, WebIFC.IFCPROJECT);
     const ifcProjectId = lines.get(0);
     const ifcProject = ctx.ifcAPI.GetLine(ctx.modelId, ifcProjectId);
-    parsePropertySets(ctx);
     parseDataObjectAggregation(ctx, ifcProject);
+    parsePropertySets(ctx);
 }
 
 function parsePropertySets(ctx: any) {
@@ -142,7 +152,7 @@ function parsePropertySets(ctx: any) {
                 for (let i = 0, len = relatedObjects.length; i < len; i++) {
                     const relatedObject = relatedObjects[i];
                     const dataObjectId = relatedObject.GlobalId.value;
-                    const dataObject = ctx.dataObjects[dataObjectId];
+                    const dataObject = ctx.dataModel.objects[dataObjectId];
                     if (dataObject) {
                         if (!dataObject.propertySetIds) {
                             dataObject.propertySetIds = [];
@@ -214,7 +224,6 @@ function parseRelatedItemsOfType(ctx: ParsingContext, id: any, relation: string,
     }
 }
 
-
 function parseSceneModel(ctx: ParsingContext) {
     ctx.ifcAPI.StreamAllMeshes(ctx.modelId, (flatMesh) => {
         // TODO: Can we do geometry reuse with web-ifc?
@@ -233,13 +242,18 @@ function parseSceneModel(ctx: ParsingContext) {
             // De-interleave vertex arrays
             const positions = new Float64Array(vertexData.length / 2);
             const normals = new Float32Array(vertexData.length / 2);
-            for (let k = 0, l = 0, lenk = vertexData.length / 6; k < lenk; k++, l += 3) {
-                positions[l + 0] = vertexData[k * 6 + 0];
-                positions[l + 1] = vertexData[k * 6 + 1];
-                positions[l + 2] = vertexData[k * 6 + 2];
-            }
             (<Float64Array>matrix).set(placedGeometry.flatTransformation);
-            transformPositions3(matrix, positions);
+            for (let k = 0, l = 0, lenk = vertexData.length / 6; k < lenk; k++, l += 3) {
+                tempVec4a[0] = vertexData[k * 6 + 0];
+                tempVec4a[1] = vertexData[k * 6 + 1];
+                tempVec4a[2] = vertexData[k * 6 + 2];
+                tempVec4a[3] = 1;
+                transformPoint4(matrix, tempVec4a, tempVec4b);
+                positions[l + 0] = tempVec4b[0];
+                positions[l + 1] = tempVec4b[1];
+                positions[l + 2] = tempVec4b[2];
+            }
+
             const rtcNeeded = worldToRTCPositions(positions, positions, origin);
             const geometryId = "" + ctx.nextId++;
             ctx.sceneModel.createGeometry({

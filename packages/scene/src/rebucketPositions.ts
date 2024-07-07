@@ -24,7 +24,7 @@ export function rebucketPositions(
 
     const positionsCompressed = (mesh.positionsCompressed || []);
     const indices = preSortIndices(mesh.indices || [], bitsPerBucket);
-    const edgeIndices: any = [];//preSortEdgeIndices(mesh.edgeIndices || []);
+    const edgeIndices = preSortEdgeIndices(mesh.edgeIndices || []);
 
     /**
      * Code adapted from https://stackoverflow.com/questions/22697936/binary-search-in-javascript

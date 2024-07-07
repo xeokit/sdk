@@ -8,34 +8,9 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  * Creates a torus-shaped {@link @xeokit/scene!SceneGeometry}.
  *
  * ## Usage
- * Creating a {@link @xeokit/scene!SceneMesh} with a torus-shaped {@link @xeokit/scene!SceneGeometry}:
  *
  * ````javascript
- * import {Viewer, SceneMesh, buildTorusGeometry, TrianglesLayerGeometryBucket, PhongMaterial, SceneTexture} from "xeokit-viewer.es.js";
- *
- * const viewer = new Viewer({
- *      canvasId: "myView"
- * });
- *
- * viewer.camera.eye = [0, 0, 5];
- * viewer.camera.look = [0, 0, 0];
- * viewer.camera.up = [0, 1, 0];
- *
- * new SceneMesh(viewer.scene, {
- *      geometry: new TrianglesLayerGeometryBucket(viewer.scene, buildTorusGeometry({
- *          center: [0,0,0],
- *          radius: 1.0,
- *          tube: 0.5,
- *          radialSegments: 32,
- *          tubeSegments: 24,
- *          arc: Math.PI * 2.0
- *      }),
- *      material: new PhongMaterial(viewer.scene, {
- *         diffuseMap: new SceneTexture(viewer.scene, {
- *             src: "textures/diffuse/uvGrid2.jpg"
- *         })
- *      })
- * });
+
  * ````
  *
  * @function buildTorusGeometry
@@ -177,10 +152,10 @@ export function buildTorusGeometry(cfg: {
     }
 
     return apply(cfg, {
-        primitive:TrianglesPrimitive,
+        primitive: TrianglesPrimitive,
         positions: positions,
-        normals: normals,
-        uv: uvs,
+        // normals: normals,
+        // uv: uvs,
         indices: indices
     });
 }

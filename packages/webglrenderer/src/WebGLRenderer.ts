@@ -885,7 +885,7 @@ export class WebGLRenderer implements Renderer {
         }
 
         for (let i = 0; i < edgesColorOpaqueBin.length; i++) {
-            edgesColorOpaqueBin[i].drawColorOpaque();
+            edgesColorOpaqueBin[i].drawEdgesColorOpaque();
         }
 
         for (let i = 0; i < xrayedSilhouetteOpaqueBin.length; i++) {

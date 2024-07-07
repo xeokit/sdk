@@ -4,6 +4,9 @@ import {VBOTrianglesInstancingDrawRenderer} from "./VBOTrianglesInstancingDrawRe
 import {VBOTrianglesInstancingSilhouetteRenderer} from "./VBOTrianglesInstancingSilhouetteRenderer";
 import {VBORenderer} from "../../../VBORenderer";
 import {VBOTrianglesInstancingPickMeshRenderer} from "./VBOTrianglesInstancingPickMeshRenderer";
+import {VBOTrianglesInstancingEdgesDrawRenderer} from "./VBOTrianglesInstancingEdgesDrawRenderer";
+import {VBOTrianglesInstancingEdgesSilhouetteRenderer} from "./VBOTrianglesInstancingEdgesSilhouetteRenderer";
+
 
 /**
  * @private
@@ -20,6 +23,14 @@ class RendererFactory extends VBORendererSet {
 
     createPickMeshRenderer(): VBORenderer {
         return new VBOTrianglesInstancingPickMeshRenderer(this.renderContext);
+    }
+
+    createEdgesColorRenderer(): VBORenderer {
+        return new VBOTrianglesInstancingEdgesDrawRenderer(this.renderContext);
+    }
+
+    createEdgesSilhouetteRenderer(): VBORenderer {
+        return new VBOTrianglesInstancingEdgesSilhouetteRenderer(this.renderContext);
     }
 }
 

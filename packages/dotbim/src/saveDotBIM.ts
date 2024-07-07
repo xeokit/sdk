@@ -158,10 +158,10 @@ function modelToDotBIM(params: { dataModel: DataModel; sceneModel: SceneModel })
             mesh_id: dbMesh.mesh_id,
             type: info.type,
             color: {
-                r: color[0],
-                g: color[1],
-                b: color[2],
-                a: firstMesh.opacity
+                r: color[0] * 255.0,
+                g: color[1] * 255.0,
+                b: color[2] * 255.0,
+                a: firstMesh.opacity * 255.0
             },
             vector: {
                 x: position[0],

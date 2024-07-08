@@ -1,7 +1,5 @@
 import {
-    JPEGMediaType,
     LinesPrimitive,
-    PNGMediaType,
     PointsPrimitive,
     SolidPrimitive,
     SurfacePrimitive,
@@ -11,8 +9,6 @@ import type {DataModel, DataModelParams} from "@xeokit/data";
 import type {SceneGeometryBucketParams, SceneGeometryCompressedParams, SceneModel} from "@xeokit/scene";
 import type {DTXData} from "./DTXData";
 import type {FloatArrayParam} from "@xeokit/math";
-
-const NUM_TEXTURE_ATTRIBUTES = 9;
 
 /**
  * @private
@@ -25,16 +21,7 @@ export function dtxToModel(params: {
 
     const dtxData = params.dtxData;
     const sceneModel = params.sceneModel;
-    const dataModel = params.dataModel;
 
-    if (dataModel) {
-        if (dtxData.metadata) {
-            dataModel.fromJSON(<DataModelParams>dtxData.metadata);
-        }
-    }
-
-    const numTextures = dtxData.eachTextureDataPortion.length;
-    const numTextureSets = dtxData.eachTextureSetTextures.length / 5;
     const numBuckets = dtxData.eachBucketPositionsPortion.length;
     const numMeshes = dtxData.eachMeshGeometriesPortion.length;
     const numObjects = dtxData.eachObjectMeshesPortion.length;
@@ -46,89 +33,6 @@ export function dtxToModel(params: {
         [key: string]: boolean
     } = {};
 
-    // Create textures
-
-    for (let textureIndex = 0; textureIndex < numTextures; textureIndex++) {
-
-        const atLastTexture = (textureIndex === (numTextures - 1));
-        const textureDataPortionStart = dtxData.eachTextureDataPortion[textureIndex];
-        const textureDataPortionEnd = atLastTexture ? dtxData.textureData.length : (dtxData.eachTextureDataPortion[textureIndex + 1]);
-        const textureDataPortionSize = textureDataPortionEnd - textureDataPortionStart;
-        const textureDataPortionExists = (textureDataPortionSize > 0);
-        const textureAttrBaseIdx = (textureIndex * NUM_TEXTURE_ATTRIBUTES);
-
-        const compressed = (dtxData.eachTextureAttributes[textureAttrBaseIdx] === 1);
-        const mediaType = dtxData.eachTextureAttributes[textureAttrBaseIdx + 1];
-        const width = dtxData.eachTextureAttributes[textureAttrBaseIdx + 2];
-        const height = dtxData.eachTextureAttributes[textureAttrBaseIdx + 3];
-        const minFilter = dtxData.eachTextureAttributes[textureAttrBaseIdx + 4];
-        const magFilter = dtxData.eachTextureAttributes[textureAttrBaseIdx + 5]; // LinearFilter | NearestFilter
-        const wrapS = dtxData.eachTextureAttributes[textureAttrBaseIdx + 6]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-        const wrapT = dtxData.eachTextureAttributes[textureAttrBaseIdx + 7]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-        const wrapR = dtxData.eachTextureAttributes[textureAttrBaseIdx + 8]; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-
-        if (textureDataPortionExists) {
-
-            const imageDataSubarray = new Uint8Array(dtxData.textureData.subarray(textureDataPortionStart, textureDataPortionEnd));
-            const arrayBuffer = imageDataSubarray.buffer;
-            const textureId = `texture-${textureIndex}`;
-
-            if (compressed) {
-
-                sceneModel.createTexture({
-                    id: textureId,
-                    buffers: [arrayBuffer],
-                    minFilter,
-                    magFilter,
-                    wrapS,
-                    wrapT,
-                    wrapR
-                });
-
-            } else {
-
-                const mimeType = mediaType === JPEGMediaType ? "image/jpeg" : (mediaType === PNGMediaType ? "image/png" : "image/gif");
-                const blob = new Blob([arrayBuffer], {type: mimeType});
-                const urlCreator = window.URL || window.webkitURL;
-                const imageUrl = urlCreator.createObjectURL(blob);
-                const img = document.createElement('img');
-                img.src = imageUrl;
-
-                sceneModel.createTexture({
-                    id: textureId,
-                    image: img,
-                    mediaType,
-                    minFilter,
-                    magFilter,
-                    wrapS,
-                    wrapT,
-                    wrapR
-                });
-            }
-        }
-    }
-
-    // Create texture sets
-
-    for (let textureSetIndex = 0; textureSetIndex < numTextureSets; textureSetIndex++) {
-
-        const eachTextureSetTexturesIndex = textureSetIndex * 5; // Five textures per set
-        const textureSetId = `textureSet-${textureSetIndex}`;
-        const colorTextureIndex = dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex];
-        const metallicRoughnessTextureIndex = dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex + 1];
-        const normalsTextureIndex = dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex + 2];
-        const emissiveTextureIndex = dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex + 3];
-        const occlusionTextureIndex = dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex + 4];
-
-        sceneModel.createTextureSet({
-            id: textureSetId,
-            colorTextureId: colorTextureIndex >= 0 ? `texture-${colorTextureIndex}` : undefined,
-            normalsTextureId: normalsTextureIndex >= 0 ? `texture-${normalsTextureIndex}` : undefined,
-            metallicRoughnessTextureId: metallicRoughnessTextureIndex >= 0 ? `texture-${metallicRoughnessTextureIndex}` : undefined,
-            emissiveTextureId: emissiveTextureIndex >= 0 ? `texture-${emissiveTextureIndex}` : undefined,
-            occlusionTextureId: occlusionTextureIndex >= 0 ? `texture-${occlusionTextureIndex}` : undefined
-        });
-    }
 
     // Iterate objects
 
@@ -148,8 +52,6 @@ export function dtxToModel(params: {
 
             const geometryIndex = dtxData.eachMeshGeometriesPortion[meshIndex];
             const atLastGeometry = (geometryIndex === (numGeometries - 1));
-            const textureSetIndex = dtxData.eachMeshTextureSet[meshIndex];
-            const textureSetId = (textureSetIndex >= 0) ? `textureSet-${textureSetIndex}` : undefined;
 
             const meshColor = decompressColor(dtxData.eachMeshMaterialAttributes.subarray((meshIndex * 6), (meshIndex * 6) + 3));
             const meshOpacity = dtxData.eachMeshMaterialAttributes[(meshIndex * 6) + 3] / 255.0;
@@ -255,7 +157,6 @@ export function dtxToModel(params: {
             sceneModel.createMesh({
                 id: meshId,
                 geometryId,
-                textureSetId,
                 matrix: meshMatrix,
                 color: meshColor,
                 metallic: meshMetallic,

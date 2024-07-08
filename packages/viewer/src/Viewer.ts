@@ -113,6 +113,8 @@ export class Viewer extends Component {
      */
     readonly renderer: Renderer;
 
+    #tickifiedFunctions: {};
+
     /**
      * Creates a Viewer.
      *
@@ -173,7 +175,67 @@ export class Viewer extends Component {
 
         this.renderer = params.renderer;
 
+        this.#tickifiedFunctions = {};
+
+
         scheduler.registerViewer(this);
+    }
+
+    /**
+     * This method will "tickify" the provided `cb` function.
+     *
+     * This means, the function will be wrapped so:
+     *
+     * - it runs time-aligned to scene ticks
+     * - it runs maximum once per scene-tick
+     *
+     * @param {Function} cb The function to tickify
+     * @returns {Function}
+     */
+    tickify(cb: any): any {
+        let cbString = cb.toString();
+
+        /**
+         * Check if the function is already tickified, and if so return the cached one.
+         */
+        if (cbString in this.#tickifiedFunctions) {
+            return this.#tickifiedFunctions[cbString].wrapperFunc;
+        }
+
+        let alreadyRun = 0;
+        let needToRun = 0;
+
+        let lastArgs;
+
+        /**
+         * The provided `cb` function is replaced with a "set-dirty" function
+         *
+         * @type {Function}
+         */
+        const wrapperFunc = function (...args) {
+            lastArgs = args;
+            needToRun++;
+        };
+
+        /**
+         * An each scene tick, if the "dirty-flag" is set, run the `cb` function.
+         *
+         * This will make it run time-aligned to the scene tick.
+         */
+        const tickSubId = this.onTick.sub(() => {
+            const tmp = needToRun;
+            if (tmp > alreadyRun) {
+                alreadyRun = tmp;
+                cb(...lastArgs);
+            }
+        });
+
+        /**
+         * And, store the list of subscribers.
+         */
+        this.#tickifiedFunctions[cbString] = {tickSubId, wrapperFunc};
+
+        return wrapperFunc;
     }
 
     /**

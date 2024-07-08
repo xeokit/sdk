@@ -72,6 +72,8 @@
     view.camera.zoom(5);
     view.camera.orbitPitch(20);
 
+    const cameraControl = new xeokit.cameraControl.CameraControl(view, {});
+
     const ifcAPI = new WebIFC.IfcAPI();
 
     ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
@@ -125,9 +127,7 @@
         });
     }
 
-    viewer.onTick.subscribe(() => {
-        view.camera.orbitYaw(0.5);
-    });
+
 
 </script>
 

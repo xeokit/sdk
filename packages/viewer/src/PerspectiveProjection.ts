@@ -6,6 +6,7 @@ import {Component, EventEmitter} from "@xeokit/core";
 import {PerspectiveProjectionType} from "@xeokit/constants";
 import type {FloatArrayParam} from "@xeokit/math";
 import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "@xeokit/matrix";
+import {Projection} from "./Projection";
 
 /**
  * PerspectiveProjection projection configuration for a {@link @xeokit/viewer!Camera} .
@@ -17,7 +18,7 @@ import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, tran
  * * {@link @xeokit/viewer!PerspectiveProjection.near | PerspectiveProjection.near} and {@link @xeokit/viewer!PerspectiveProjection.far| PerspectiveProjection.far} specify the distances to the clipping planes.
  * * {@link @xeokit/viewer!PerspectiveProjection.onProjMatrix | PerspectiveProjection.onProjMatrix} will fire an event whenever {@link @xeokit/viewer!PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-export class PerspectiveProjection extends Component {
+export class PerspectiveProjection extends Component implements Projection {
 
     /**
      * The Camera this PerspectiveProjection belongs to.
@@ -127,7 +128,7 @@ export class PerspectiveProjection extends Component {
     /**
      * Sets the PerspectiveProjection's FOV axis.
      *
-     * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis. 
+     * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
      *
      * Default value ````"min"````.
      *

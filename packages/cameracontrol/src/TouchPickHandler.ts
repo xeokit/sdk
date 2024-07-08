@@ -1,43 +1,63 @@
-
-
+import {PickResult, View} from "@xeokit/viewer";
 import {distVec2, subVec3} from "@xeokit/matrix";
-import type {PickResult} from "@xeokit/viewer";
+
 
 const TAP_INTERVAL = 150;
 const DBL_TAP_INTERVAL = 325;
 const TAP_DISTANCE_THRESHOLD = 4;
 
+const getCanvasPosFromEvent = function (event, canvasPos) {
+    if (!event) {
+        event = window.event;
+        canvasPos[0] = event.x;
+        canvasPos[1] = event.y;
+    } else {
+        let element = event.target;
+        let totalOffsetLeft = 0;
+        let totalOffsetTop = 0;
+        while (element.offsetParent) {
+            totalOffsetLeft += element.offsetLeft;
+            totalOffsetTop += element.offsetTop;
+            element = element.offsetParent;
+        }
+        canvasPos[0] = event.pageX - totalOffsetLeft;
+        canvasPos[1] = event.pageY - totalOffsetTop;
+    }
+    return canvasPos;
+};
+
 /**
  * @private
  */
-class TouchPickHandler {
-    #view: any;
-    private _canvasTouchStartHandler: (e: any) => void;
-    private _canvasTouchEndHandler: (e: any) => void;
+export class TouchPickHandler {
 
-    constructor(components: any, controllers: any, configs: any, states: any, updates: any) {
+    #view: View;
+    #canvasTouchStartHandler: (e) => void;
+    #canvasTouchEndHandler: (e) => void;
 
-        this.#view = components.view;
+    constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
+
+        this.#view = view;
 
         const pickController = controllers.pickController;
         const cameraControl = controllers.cameraControl;
 
         let touchStartTime;
-        const activeTouches: any[] = [];
+        const activeTouches = [];
         const tapStartPos = new Float32Array(2);
         let tapStartTime = -1;
         let lastTapTime = -1;
 
-        const canvas = this.#view.canvas.canvas;
+        const canvasElement = this.#view.canvasElement;
 
         const flyCameraTo = (pickResult?: PickResult) => {
             let pos;
             if (pickResult && pickResult.worldPos) {
                 pos = pickResult.worldPos
             }
-            const aabb = (pickResult && pickResult.viewObject) ? pickResult.viewObject.aabb : this.#view.viewer.aabb;
+            const aabb = pickResult ? pickResult.viewObject.aabb : view.aabb;
             if (pos) { // Fly to look at point, don't change eye->look dist
-                const camera = this.#view.camera;
+                const camera = view.camera;
                 const diff = subVec3(camera.eye, camera.look, []);
                 controllers.cameraFlight.flyTo({
                     aabb: aabb
@@ -50,7 +70,7 @@ class TouchPickHandler {
             }
         };
 
-        canvas.addEventListener("touchstart", this._canvasTouchStartHandler = (e) => {
+        canvasElement.addEventListener("touchstart", this.#canvasTouchStartHandler = (e) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -68,21 +88,21 @@ class TouchPickHandler {
 
             if (touches.length === 1 && changedTouches.length === 1) {
                 tapStartTime = touchStartTime;
-                tapStartPos[0] = touches[0].pageX;
-                tapStartPos[1] = touches[0].pageY;
 
-                const rightClickClientX = touches[0].clientX;
-                const rightClickClientY = touches[0].clientY;
+                getCanvasPosFromEvent(touches[0], tapStartPos);
+
+                const rightClickClientX = tapStartPos[0];
+                const rightClickClientY = tapStartPos[1];
 
                 const rightClickPageX = touches[0].pageX;
                 const rightClickPageY = touches[0].pageY;
 
                 states.longTouchTimeout = setTimeout(() => {
-                    controllers.cameraControl.onRightClick.dispatch(cameraControl, { // For context menus
+                    controllers.cameraControl.fire("rightClick", { // For context menus
                         pagePos: [Math.round(rightClickPageX), Math.round(rightClickPageY)],
                         canvasPos: [Math.round(rightClickClientX), Math.round(rightClickClientY)],
                         event: e
-                    });
+                    }, true);
 
                     states.longTouchTimeout = null;
                 }, configs.longTapTimeout);
@@ -96,8 +116,7 @@ class TouchPickHandler {
             }
 
             for (let i = 0, len = touches.length; i < len; ++i) {
-                activeTouches[i][0] = touches[i].pageX;
-                activeTouches[i][1] = touches[i].pageY;
+                getCanvasPosFromEvent(touches[i], activeTouches[i]);
             }
 
             activeTouches.length = touches.length;
@@ -105,7 +124,7 @@ class TouchPickHandler {
         }, {passive: true});
 
 
-        canvas.addEventListener("touchend", this._canvasTouchEndHandler = (e) => {
+        canvasElement.addEventListener("touchend", this.#canvasTouchEndHandler = (e) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -115,7 +134,7 @@ class TouchPickHandler {
             const touches = e.touches;
             const changedTouches = e.changedTouches;
 
-            const pickedSurfaceSubs = cameraControl.events.hasSubs("pickedSurface");
+            const pickedSurfaceSubs = cameraControl.hasSubs("pickedSurface");
 
             if (states.longTouchTimeout !== null) {
                 clearTimeout(states.longTouchTimeout);
@@ -132,8 +151,7 @@ class TouchPickHandler {
 
                         // Double-tap
 
-                        pickController.pickCursorPos[0] = Math.round(changedTouches[0].clientX);
-                        pickController.pickCursorPos[1] = Math.round(changedTouches[0].clientY);
+                        getCanvasPosFromEvent(changedTouches[0], pickController.pickCursorPos);
                         pickController.schedulePickEntity = true;
                         pickController.schedulePickSurface = pickedSurfaceSubs;
 
@@ -141,17 +159,19 @@ class TouchPickHandler {
 
                         if (pickController.pickResult) {
 
-                            cameraControl.onDoublePickedSurface.dispatch(cameraControl, pickController.pickResult);
+                            pickController.pickResult.touchInput = true;
+
+                            cameraControl.fire("doublePicked", pickController.pickResult);
 
                             if (pickController.pickedSurface) {
-                                cameraControl.onPickedSurface.dispatch(cameraControl, pickController.pickResult);
+                                cameraControl.fire("doublePickedSurface", pickController.pickResult);
                             }
 
                             if (configs.doublePickFlyTo) {
                                 flyCameraTo(pickController.pickResult);
                             }
                         } else {
-                            cameraControl.onDoublePickedNothing.dispatch(cameraControl, null);
+                            cameraControl.fire("doublePickedNothing");
                             if (configs.doublePickFlyTo) {
                                 flyCameraTo();
                             }
@@ -163,8 +183,7 @@ class TouchPickHandler {
 
                         // Single-tap
 
-                        pickController.pickCursorPos[0] = Math.round(changedTouches[0].clientX);
-                        pickController.pickCursorPos[1] = Math.round(changedTouches[0].clientY);
+                        getCanvasPosFromEvent(changedTouches[0], pickController.pickCursorPos);
                         pickController.schedulePickEntity = true;
                         pickController.schedulePickSurface = pickedSurfaceSubs;
 
@@ -172,14 +191,16 @@ class TouchPickHandler {
 
                         if (pickController.pickResult) {
 
-                            cameraControl.onPicked.dispatch(cameraControl, pickController.pickResult);
+                            pickController.pickResult.touchInput = true;
+
+                            cameraControl.fire("picked", pickController.pickResult);
 
                             if (pickController.pickedSurface) {
-                                cameraControl.onPickedSurface.dispatch(cameraControl,  pickController.pickResult);
+                                cameraControl.fire("pickedSurface", pickController.pickResult);
                             }
 
                         } else {
-                            cameraControl.onPickedNothing.dispatch(cameraControl) ;
+                            cameraControl.fire("pickedNothing");
                         }
 
                         lastTapTime = currentTime;
@@ -196,25 +217,22 @@ class TouchPickHandler {
                 activeTouches[i][1] = touches[i].pageY;
             }
 
-            e.stopPropagation();
+            //  e.stopPropagation();
 
         }, {passive: true});
 
     }
 
-    reset() {
+    reset(): void {
         // TODO
         // tapStartTime = -1;
         // lastTapTime = -1;
 
     }
 
-    destroy() {
-        const canvas = this.#view.canvas.canvas;
-        canvas.removeEventListener("touchstart", this._canvasTouchStartHandler);
-        canvas.removeEventListener("touchend", this._canvasTouchEndHandler);
+    destroy(): void {
+        const canvasElement = this.#view.canvasElement;
+        canvasElement.removeEventListener("touchstart", this.#canvasTouchStartHandler);
+        canvasElement.removeEventListener("touchend", this.#canvasTouchEndHandler);
     }
 }
-
-
-export {TouchPickHandler};

@@ -70,6 +70,8 @@
 
     view.camera.zoom(-20)
 
+    const cameraControl = new xeokit.cameraControl.CameraControl(view, {});
+
     const sceneModel = scene.createModel({
         id: "myModel",
         scale: [0.2, 0.2, 0.2],

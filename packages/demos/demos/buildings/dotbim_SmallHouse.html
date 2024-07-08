@@ -68,6 +68,8 @@
     view.camera.look = [0, 0, 0];
     view.camera.up = [0, 1, 0];
 
+    const cameraControl = new xeokit.cameraControl.CameraControl(view, {});
+
     const sceneModel = scene.createModel({
         id: "myModel",
         scale: [0.2, 0.2, 0.2],
@@ -108,9 +110,6 @@
         });
     }
 
-    viewer.onTick.subscribe(() => {
-        view.camera.orbitYaw(0.5);
-    });
 
 </script>
 

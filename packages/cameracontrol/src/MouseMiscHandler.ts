@@ -1,20 +1,20 @@
-import type { View } from "@xeokit/viewer";
-
-
 /**
  * @private
  */
+import {View} from "@xeokit/viewer";
+
 class MouseMiscHandler {
+
     #view: View;
-    #mouseEnterHandler: any;
-    #mouseMoveHandler: any;
-    #mouseLeaveHandler: any;
-    #mouseDownHandler: any;
-    #mouseUpHandler: any;
+    #mouseEnterHandler: () => void;
+    #mouseLeaveHandler: () => void;
+    #mouseMoveHandler: (e) => void;
+    #mouseDownHandler: (e) => void;
+    #mouseUpHandler: (e) => void;
 
-    constructor(components: any, controllers: any, configs: any, states: any, updates: any) {
+    constructor(view:View, controllers, configs, states, updates) {
 
-        this.#view = components.view;
+        this.#view = view;
 
         const canvasElement = this.#view.canvasElement;
 
@@ -24,24 +24,22 @@ class MouseMiscHandler {
 
         canvasElement.addEventListener("mouseleave", this.#mouseLeaveHandler = () => {
             states.mouseover = false;
-            // @ts-ignore
             canvasElement.style.cursor = null;
         });
 
-        document.addEventListener("mousemove", this.#mouseMoveHandler = (e: any) => {
-            getViewPosFromEvent(e, canvasElement, states.pointerViewPos);
+        document.addEventListener("mousemove", this.#mouseMoveHandler = (e) => {
+            getCanvasPosFromEvent(e, canvasElement, states.pointerCanvasPos);
         });
 
-        canvasElement.addEventListener("mousedown", this.#mouseDownHandler = (e: Event) => {
+        canvasElement.addEventListener("mousedown", this.#mouseDownHandler = (e) => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
-            getViewPosFromEvent(e, canvasElement, states.pointerViewPos);
+            getCanvasPosFromEvent(e, canvasElement, states.pointerCanvasPos);
             states.mouseover = true;
         });
 
-        canvasElement.addEventListener("mouseup",
-            this.#mouseUpHandler = (e:Event) => {
+        canvasElement.addEventListener("mouseup", this.#mouseUpHandler = (e) => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
@@ -52,7 +50,9 @@ class MouseMiscHandler {
     }
 
     destroy() {
+
         const canvasElement = this.#view.canvasElement;
+
         document.removeEventListener("mousemove", this.#mouseMoveHandler);
         canvasElement.removeEventListener("mouseenter", this.#mouseEnterHandler);
         canvasElement.removeEventListener("mouseleave", this.#mouseLeaveHandler);
@@ -61,15 +61,15 @@ class MouseMiscHandler {
     }
 }
 
-function getViewPosFromEvent(event: any, canvasElement: any, canvasPos: number[]) {
+function getCanvasPosFromEvent(event, canvasElement, canvasPos) {
     if (!event) {
         event = window.event;
         canvasPos[0] = event.x;
         canvasPos[1] = event.y;
     } else {
-        const {x, y} = canvasElement.getBoundingClientRect();
-        canvasPos[0] = event.clientX - x;
-        canvasPos[1] = event.clientY - y;
+        const { left, top } = canvasElement.getBoundingClientRect();
+        canvasPos[0] = event.clientX - left;
+        canvasPos[1] = event.clientY - top;
     }
     return canvasPos;
 }

@@ -5,6 +5,7 @@ import {Component, EventEmitter} from "@xeokit/core";
 import {FrustumProjectionType} from "@xeokit/constants";
 import type {FloatArrayParam} from "@xeokit/math";
 import {createMat4, frustumMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "@xeokit/matrix";
+import {Projection} from "./Projection";
 
 /**
  *  FrustumProjection-based perspective projection configuration for a {@link @xeokit/viewer!Camera} .
@@ -14,7 +15,7 @@ import {createMat4, frustumMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transpos
  * * {@link FrustumProjection.near} and {@link FrustumProjection.far} specify the distances to the clipping planes.
  * * {@link FrustumProjection.onProjMatrix} will fire an event whenever {@link FrustumProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-export class FrustumProjection extends Component {
+export class FrustumProjection extends Component implements Projection {
 
     /**
      * The type of this projection.

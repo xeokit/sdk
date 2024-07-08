@@ -32,6 +32,7 @@ import {
     PerspectiveProjectionType
 } from "@xeokit/constants";
 import {Frustum3, setFrustum3} from "@xeokit/boundaries";
+import {Projection} from "./Projection";
 
 
 const tempVec3 = createVec3();
@@ -430,7 +431,7 @@ class Camera extends Component {
      *
      * @returns {PerspectiveProjection|OrthoProjection|FrustumProjection|CustomProjection} The currently active projection is active.
      */
-    get projection(): PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection {
+    get projection(): Projection {
         return this.#activeProjection;
     }
 

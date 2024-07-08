@@ -1,30 +1,56 @@
-import {createVec2, lenVec3, subVec3} from "@xeokit/matrix";
+/**
+ * @private
+ */
+import {createVec2, createVec3, lenVec3, subVec3} from "@xeokit/matrix";
+import {KEY_SHIFT} from "./keycodes";
+import {View} from "@xeokit/viewer";
 import {PerspectiveProjectionType} from "@xeokit/constants";
-import type {View} from "@xeokit/viewer";
-import * as keycodes from "./keycodes";
+
 
 const canvasPos = createVec2();
+
+export const getCanvasPosFromEvent = function (event, canvasPos) {
+    if (!event) {
+        event = window.event;
+        canvasPos[0] = event.x;
+        canvasPos[1] = event.y;
+    } else {
+        let element = event.target;
+        let totalOffsetLeft = 0;
+        let totalOffsetTop = 0;
+        let totalScrollX = 0;
+        let totalScrollY = 0;
+        while (element.offsetParent) {
+          totalOffsetLeft += element.offsetLeft;
+          totalOffsetTop += element.offsetTop;
+          totalScrollX += element.scrollLeft;
+          totalScrollY += element.scrollTop;
+          element = element.offsetParent;
+        }
+        canvasPos[0] = event.pageX + totalScrollX - totalOffsetLeft;
+        canvasPos[1] = event.pageY + totalScrollY - totalOffsetTop;
+    }
+    return canvasPos;
+};
 
 /**
  * @private
  */
 export class MousePanRotateDollyHandler {
-
+    #canvasMouseMoveHandler: (e) => void;
+    #documentKeyDownHandler: (e) => void;
+    #documentKeyUpHandler: (e) => void;
     #view: View;
+    #documentMouseUpHandler: (e) => void;
+    #mouseEnterHandler: () => void;
+    #mouseDownHandler: (e) => void;
+    #documentMouseMoveHandler: (e) => void;
+    #mouseUpHandler: (e) => void;
+    #mouseWheelHandler: (e) => void;
 
-    #documentKeyDownHandler: (e: any) => void;
-    #documentKeyUpHandler: (e: any) => void;
-    #mouseDownHandler: (e: any) => void;
-    #documentMouseMoveHandler: () => void;
-    #canvasMouseMoveHandler: (e: any) => void;
-    #documentMouseUpHandler: (e: any) => void;
-    #mouseUpHandler: (e: any) => void;
-    #mouseEnterHandler: (e: any) => void;
-    #mouseWheelHandler: (e: { deltaY: number; preventDefault: () => void }) => void;
+    constructor(view:View, controllers:any, configs:any, states:any, updates:any) {
 
-    constructor(components: any, controllers: any, configs: any, states: any, updates: any) {
-
-        this.#view = components.view;
+        this.#view = view;
 
         const pickController = controllers.pickController;
 
@@ -35,21 +61,24 @@ export class MousePanRotateDollyHandler {
         let xRotateDelta = 0;
         let yRotateDelta = 0;
 
-        let mouseDownLeft: boolean;
-        let mouseDownMiddle: boolean;
-        let mouseDownRight: boolean;
+        let mouseDownLeft;
+        let mouseDownMiddle;
+        let mouseDownRight;
 
         let mouseDownPicked = false;
-        const pickedWorldPos = new Float64Array(3);
+        const pickedWorldPos = createVec3();
 
-        let mouseMovedOnViewSinceLastWheel = true;
+        let mouseMovedOnCanvasSinceLastWheel = true;
 
         const canvasElement = this.#view.canvasElement;
 
-        const keyDown: any[] = [];
+        const keyDown = [];
 
         document.addEventListener("keydown", this.#documentKeyDownHandler = (e) => {
-            if (!(configs.active && configs.pointerEnabled) || (!configs.keyboardEnabled)) {
+            // if (!(configs.active && configs.pointerEnabled) || (!view.input.keyboardEnabled)) {
+            //     return;
+            // }
+            if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
             const keyCode = e.keyCode;
@@ -57,7 +86,10 @@ export class MousePanRotateDollyHandler {
         });
 
         document.addEventListener("keyup", this.#documentKeyUpHandler = (e) => {
-            if (!(configs.active && configs.pointerEnabled) || (!configs.keyboardEnabled)) {
+            // if (!(configs.active && configs.pointerEnabled) || (!view.input.keyboardEnabled)) {
+            //     return;
+            // }
+            if (!(configs.active && configs.pointerEnabled) ) {
                 return;
             }
             const keyCode = e.keyCode;
@@ -75,16 +107,18 @@ export class MousePanRotateDollyHandler {
         function setMousedownPositions() {
             xRotateDelta = 0;
             yRotateDelta = 0;
-            lastX = states.pointerViewPos[0];
-            lastY = states.pointerViewPos[1];
-            lastXDown = states.pointerViewPos[0];
-            lastYDown = states.pointerViewPos[1];
+
+            lastX = states.pointerCanvasPos[0];
+            lastY = states.pointerCanvasPos[1];
+            lastXDown = states.pointerCanvasPos[0];
+            lastYDown = states.pointerCanvasPos[1];
         }
 
         function setMousedownPick() {
-            pickController.pickCursorPos = states.pointerViewPos;
+            pickController.pickCursorPos = states.pointerCanvasPos;
             pickController.schedulePickSurface = true;
             pickController.update();
+
             if (pickController.picked && pickController.pickedSurface && pickController.pickResult && pickController.pickResult.worldPos) {
                 mouseDownPicked = true;
                 pickedWorldPos.set(pickController.pickResult.worldPos);
@@ -94,35 +128,55 @@ export class MousePanRotateDollyHandler {
         }
 
         canvasElement.addEventListener("mousedown", this.#mouseDownHandler = (e) => {
+
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
+
             switch (e.which) {
+
                 case 1: // Left button
-                    if (keyDown[keycodes.KEY_SHIFT] || configs.planView) {
+
+                    if (keyDown[KEY_SHIFT] || configs.planView) {
+
                         mouseDownLeft = true;
+
                         setMousedownState();
+
                     } else {
+
                         mouseDownLeft = true;
+
                         setMousedownState(false);
                     }
+
                     break;
+
                 case 2: // Middle/both buttons
+
                     mouseDownMiddle = true;
+
                     setMousedownState();
+
                     break;
+
                 case 3: // Right button
+
                     mouseDownRight = true;
+
                     if (configs.panRightClick) {
+
                         setMousedownState();
                     }
+
                     break;
+
                 default:
                     break;
             }
         });
 
-        document.addEventListener("mousemove", this.#documentMouseMoveHandler = () => {
+        document.addEventListener("mousemove", this.#documentMouseMoveHandler = (e) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -134,35 +188,36 @@ export class MousePanRotateDollyHandler {
 
             // Scaling drag-rotate to canvas boundary
 
-            const canvasBoundary = this.#view.boundary;
-            const canvasWidth = canvasBoundary[0];
-            const canvasHeight = canvasBoundary[1];
-            const x = states.pointerViewPos[0];
-            const y = states.pointerViewPos[1];
+            const canvasBoundary = view.boundary;
 
-            const panning = keyDown[keycodes.KEY_SHIFT] || configs.planView || (!configs.panRightClick && mouseDownMiddle) || (configs.panRightClick && mouseDownRight);
+            const canvasWidth = canvasBoundary[2];
+            const canvasHeight = canvasBoundary[3];
+            const x = states.pointerCanvasPos[0];
+            const y = states.pointerCanvasPos[1];
+
+            const panning = keyDown[KEY_SHIFT] || configs.planView || (!configs.panRightClick && mouseDownMiddle) || (configs.panRightClick && mouseDownRight);
+
+            const xDelta = document.pointerLockElement ? e.movementX : (x - lastX);
+            const yDelta = document.pointerLockElement ? e.movementY : (y - lastY);
 
             if (panning) {
 
-                const xPanDelta = (x - lastX);
-                const yPanDelta = (y - lastY);
-
-                const camera = this.#view.camera;
+                const camera = view.camera;
 
                 // We use only canvasHeight here so that aspect ratio does not distort speed
 
                 if (camera.projectionType === PerspectiveProjectionType) {
 
-                    const depth = Math.abs(mouseDownPicked ? lenVec3(subVec3(pickedWorldPos, this.#view.camera.eye, [])) : this.#view.camera.eyeLookDist);
+                    const depth = Math.abs(mouseDownPicked ? lenVec3(subVec3(pickedWorldPos, view.camera.eye, [])) : view.camera.eyeLookDist);
                     const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
 
-                    updates.panDeltaX += (1.5 * xPanDelta * targetDistance / canvasHeight);
-                    updates.panDeltaY += (1.5 * yPanDelta * targetDistance / canvasHeight);
+                    updates.panDeltaX += (1.5 * xDelta * targetDistance / canvasHeight);
+                    updates.panDeltaY += (1.5 * yDelta * targetDistance / canvasHeight);
 
                 } else {
 
-                    updates.panDeltaX += 0.5 * camera.orthoProjection.scale * (xPanDelta / canvasHeight);
-                    updates.panDeltaY += 0.5 * camera.orthoProjection.scale * (yPanDelta / canvasHeight);
+                    updates.panDeltaX += 0.5 * camera.orthoProjection.scale * (xDelta / canvasHeight);
+                    updates.panDeltaY += 0.5 * camera.orthoProjection.scale * (yDelta / canvasHeight);
                 }
 
             } else if (mouseDownLeft && !mouseDownMiddle && !mouseDownRight) {
@@ -170,12 +225,12 @@ export class MousePanRotateDollyHandler {
                 if (!configs.planView) { // No rotating in plan-view mode
 
                     if (configs.firstPerson) {
-                        updates.rotateDeltaY -= ((x - lastX) / canvasWidth) * configs.dragRotationRate / 2;
-                        updates.rotateDeltaX += ((y - lastY) / canvasHeight) * (configs.dragRotationRate / 4);
+                        updates.rotateDeltaY -= (xDelta / canvasWidth) * configs.dragRotationRate / 2;
+                        updates.rotateDeltaX += (yDelta / canvasHeight) * (configs.dragRotationRate / 4);
 
                     } else {
-                        updates.rotateDeltaY -= ((x - lastX) / canvasWidth) * (configs.dragRotationRate * 1.5);
-                        updates.rotateDeltaX += ((y - lastY) / canvasHeight) * (configs.dragRotationRate * 1.5);
+                        updates.rotateDeltaY -= (xDelta / canvasWidth) * (configs.dragRotationRate * 1.5);
+                        updates.rotateDeltaX += (yDelta / canvasHeight) * (configs.dragRotationRate * 1.5);
                     }
                 }
             }
@@ -194,7 +249,7 @@ export class MousePanRotateDollyHandler {
                 return;
             }
 
-            mouseMovedOnViewSinceLastWheel = true;
+            mouseMovedOnCanvasSinceLastWheel = true;
         });
 
         document.addEventListener("mouseup", this.#documentMouseUpHandler = (e) => {
@@ -230,11 +285,11 @@ export class MousePanRotateDollyHandler {
             }
             switch (e.which) {
                 case 3: // Right button
-                    getViewPosFromEvent(e, canvasPos);
+                    getCanvasPosFromEvent(e, canvasPos);
                     const x = canvasPos[0];
                     const y = canvasPos[1];
                     if (Math.abs(x - lastXDown) < 3 && Math.abs(y - lastYDown) < 3) {
-                        controllers.cameraControl.events.fire("rightClick", { // For context menus
+                        controllers.cameraControl.fire("rightClick", { // For context menus
                             pagePos: [Math.round(e.pageX), Math.round(e.pageY)],
                             canvasPos: canvasPos,
                             event: e
@@ -258,14 +313,14 @@ export class MousePanRotateDollyHandler {
         const maxElapsed = 1 / 20;
         const minElapsed = 1 / 60;
 
-        let secsNowLast: number | null = null;
+        let secsNowLast = null;
 
-        canvasElement.addEventListener("wheel", this.#mouseWheelHandler = (e: { deltaY: number; preventDefault: () => void; }) => {
+        canvasElement.addEventListener("wheel", this.#mouseWheelHandler = (e) => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
             const secsNow = performance.now() / 1000.0;
-            let secsElapsed = (secsNowLast !== null) ? (secsNow - secsNowLast) : 0;
+            var secsElapsed = (secsNowLast !== null) ? (secsNow - secsNowLast) : 0;
             secsNowLast = secsNow;
             if (secsElapsed > maxElapsed) {
                 secsElapsed = maxElapsed;
@@ -280,13 +335,12 @@ export class MousePanRotateDollyHandler {
             const normalizedDelta = delta / Math.abs(delta);
             updates.dollyDelta += -normalizedDelta * secsElapsed * configs.mouseWheelDollyRate;
 
-            if (mouseMovedOnViewSinceLastWheel) {
+            if (mouseMovedOnCanvasSinceLastWheel) {
                 states.followPointerDirty = true;
-                mouseMovedOnViewSinceLastWheel = false;
+                mouseMovedOnCanvasSinceLastWheel = false;
             }
 
-            e.preventDefault();
-        });
+        }, {passive: true});
     }
 
     reset() {
@@ -307,25 +361,5 @@ export class MousePanRotateDollyHandler {
         canvasElement.removeEventListener("wheel", this.#mouseWheelHandler);
     }
 }
-
-const getViewPosFromEvent = function (event: any, canvasPos: any) {
-    if (!event) {
-        event = window.event;
-        canvasPos[0] = event.x;
-        canvasPos[1] = event.y;
-    } else {
-        let element = event.target;
-        let totalOffsetLeft = 0;
-        let totalOffsetTop = 0;
-        while (element.offsetParent) {
-            totalOffsetLeft += element.offsetLeft;
-            totalOffsetTop += element.offsetTop;
-            element = element.offsetParent;
-        }
-        canvasPos[0] = event.pageX - totalOffsetLeft;
-        canvasPos[1] = event.pageY - totalOffsetTop;
-    }
-    return canvasPos;
-};
 
 

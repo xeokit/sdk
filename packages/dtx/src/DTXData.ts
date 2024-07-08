@@ -8,38 +8,6 @@
 export interface DTXData {
 
     /**
-     * Arbitrary metadata JSON for the [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
-     */
-    metadata: any;
-
-    /**
-     * Combined data for all textures in the [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
-     */
-    textureData: Uint8Array;
-
-    /**
-     * For each texture, a pointer to its portion in {@link DTXData.textureData}.
-     */
-    eachTextureDataPortion: Uint32Array;
-
-    /**
-     * For each texture, a set of attributes.
-     *
-     * The attributes for each texture are:
-     *
-     * * SceneTexture compressed? - 0 (no) or 1 (yes)
-     * * {@link @xeokit/scene!SceneTexture.mediaType}
-     * * {@link @xeokit/scene!SceneTexture.width}
-     * * {@link @xeokit/scene!SceneTexture.height}
-     * * {@link @xeokit/scene!SceneTexture.minFilter}
-     * * {@link @xeokit/scene!SceneTexture.magFilter}
-     * * {@link @xeokit/scene!SceneTexture.wrapS}
-     * * {@link @xeokit/scene!SceneTexture.wrapT}
-     * * {@link @xeokit/scene!SceneTexture.wrapR}
-     */
-    eachTextureAttributes: Uint16Array;
-
-    /**
      * Combined vertex positions array for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     positions: Uint16Array;
@@ -48,11 +16,6 @@ export interface DTXData {
      * Combined vertex colors array for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
     colors: Uint8Array;
-
-    /**
-     * Combined vertex UV coordinates for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
-     */
-    uvs: Float32Array;
 
     /**
      * Combined 8-bit indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
@@ -85,11 +48,6 @@ export interface DTXData {
     edgeIndices32Bit: Uint32Array;
 
     /**
-     * For each texture set, a set of pointers into eachTextureDataPortion.
-     */
-    eachTextureSetTextures: Int32Array;
-
-    /**
      * Combined list of all positions dequantization matrices.
      */
     decodeMatrices: Float32Array;
@@ -103,11 +61,6 @@ export interface DTXData {
      * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.colors}.
      */
     eachBucketColorsPortion: Uint32Array;
-
-    /**
-     * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.uvs}.
-     */
-    eachBucketUVsPortion: Uint32Array;
 
     /**
      * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.indices8Bit}, {@link DTXData.indices16Bit} or {@link DTXData.indices32Bit}.
@@ -163,11 +116,6 @@ export interface DTXData {
      * For each mesh, a pointer to its RTC origin in {@link DTXData.origins}.
      */
     eachMeshOriginsPortion: Uint32Array;
-
-    /**
-     * For each mesh, a pointer to its texture set in {@link DTXData.textureSets}.
-     */
-    eachMeshTextureSet: Int32Array; // Allow -1 values, to indicate no SceneTextureSet
 
     /**
      * For each mesh, a set of sixe material attribute values.

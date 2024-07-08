@@ -2,13 +2,8 @@
  * @private
  */
 export interface DTXDataDeflated {
-    metadata: Buffer;
-    textureData: Buffer;
-    eachTextureDataPortion: Buffer;
-    eachTextureAttributes: Buffer;
     positions: Buffer;
     colors: Buffer;
-    uvs: Buffer;
     indices8Bit: Buffer;
     indices16Bit: Buffer;
     indices32Bit: Buffer;
@@ -19,7 +14,6 @@ export interface DTXDataDeflated {
     decodeMatrices: Buffer;
     eachBucketPositionsPortion: Buffer;
     eachBucketColorsPortion: Buffer;
-    eachBucketUVsPortion: Buffer;
     eachBucketIndicesPortion: Buffer;
     eachBucketEdgeIndicesPortion: Buffer;
     eachBucketIndicesBitness: Buffer;
@@ -31,7 +25,6 @@ export interface DTXDataDeflated {
     eachMeshGeometriesPortion: Buffer;
     eachMeshMatricesPortion: Buffer;
     eachMeshOriginsPortion: Buffer;
-    eachMeshTextureSet: Buffer;
     eachMeshMaterialAttributes: Buffer;
     eachGeometryId: Buffer;
     eachMeshId: Buffer;

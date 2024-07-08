@@ -1,8 +1,6 @@
 import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
 import {
-    ClampToEdgeWrapping,
-    LinearMipmapLinearFilter,
     LinesPrimitive,
     PointsPrimitive,
     SolidPrimitive,
@@ -25,17 +23,12 @@ export function modelToDTX(params: {
 }): DTXData {
 
     const sceneModel = params.sceneModel;
-    const dataModel = params.dataModel;
 
     const geometriesList = Object.values(sceneModel.geometries);
-    const texturesList = Object.values(sceneModel.textures);
-    const textureSetsList = Object.values(sceneModel.textureSets);
     const meshesList = Object.values(sceneModel.meshes);
     const objectsList = Object.values(sceneModel.objects);
 
     const numGeometries = geometriesList.length;
-    const numTextures = texturesList.length;
-    const numTextureSets = textureSetsList.length;
     const numMeshes = meshesList.length;
     const numObjects = objectsList.length;
 
@@ -92,33 +85,20 @@ export function modelToDTX(params: {
         }
     }
 
-    for (let textureIndex = 0; textureIndex < numTextures; textureIndex++) {
-        const texture = texturesList[textureIndex];
-        const imageData = texture.imageData;
-        lenTextures += imageData.byteLength;
-    }
-
     lenDecodeMatrices = numGeometries * 16;
 
     const dtxData: DTXData = {
-        metadata: dataModel ? dataModel.getJSON() : {},
-        textureData: new Uint8Array(lenTextures), // All textures
-        eachTextureDataPortion: new Uint32Array(numTextures), // For each texture, an index to its first element in textureData
-        eachTextureAttributes: new Uint16Array(numTextures * NUM_TEXTURE_ATTRIBUTES),
         positions: new Uint16Array(lenPositions), // All geometry arrays
         colors: new Uint8Array(lenColors),
-        uvs: new Float32Array(lenUVs),
         indices8Bit: new Uint8Array(lenIndices8Bit),
         indices16Bit: new Uint16Array(lenIndices16Bit),
         indices32Bit: new Uint32Array(lenIndices32Bit),
         edgeIndices8Bit: new Uint8Array(lenEdgeIndices8Bit),
         edgeIndices16Bit: new Uint16Array(lenEdgeIndices16Bit),
         edgeIndices32Bit: new Uint32Array(lenEdgeIndices32Bit),
-        eachTextureSetTextures: new Int32Array(numTextureSets * 5), // For each texture set, a set of five SceneTexture indices [color, metal/roughness,normals,emissive,occlusion]; each index has value -1 if no texture
         decodeMatrices: new Float32Array(lenDecodeMatrices), // TODO
         eachBucketPositionsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.positions. Every primitive type has positions.
         eachBucketColorsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.colors. If the next geometry has the same index, then this geometry has no colors.
-        eachBucketUVsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.uvs. If the next geometry has the same index, then this geometry has no UVs.
         eachBucketIndicesPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.indices. If the next geometry has the same index, then this geometry has no indices.
         eachBucketEdgeIndicesPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.edgeIndices. If the next geometry has the same index, then this geometry has no edge indices.
         eachBucketIndicesBitness: new Uint8Array(lenBuckets), // TODO
@@ -130,7 +110,6 @@ export function modelToDTX(params: {
         eachMeshGeometriesPortion: new Uint32Array(numMeshes), // For each mesh, an index into the eachGeometry* arrays
         eachMeshMatricesPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in dtxData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
         eachMeshOriginsPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in dtxData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
-        eachMeshTextureSet: new Int32Array(numMeshes), // For each mesh, the index of its texture set in dtxData.eachTextureSetTextures; this array contains signed integers so that we can use -1 to indicate when a mesh has no texture set
         eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES), // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
         eachGeometryId: [], // For each geometry, an ID string
         eachMeshId: [], // For each mesh, an ID string
@@ -141,7 +120,6 @@ export function modelToDTX(params: {
     let countBuckets = 0;
     let countPositions = 0;
     let countColors = 0;
-    let countUVs = 0;
     let countIndices8Bit = 0;
     let countIndices16Bit = 0;
     let countIndices32Bit = 0;
@@ -193,7 +171,6 @@ export function modelToDTX(params: {
 
             dtxData.eachBucketPositionsPortion [countBuckets] = countPositions;
             dtxData.eachBucketColorsPortion [countBuckets] = countColors;
-            dtxData.eachBucketUVsPortion [countBuckets] = countUVs;
             dtxData.eachBucketIndicesBitness [countBuckets] = bucketIndicesBitness;
 
             dtxData.positions.set(geometryBucket.positionsCompressed, countPositions);
@@ -244,55 +221,12 @@ export function modelToDTX(params: {
                 countColors += geometryBucket.colorsCompressed.length;
             }
 
-            if (geometryBucket.uvsCompressed) {
-                dtxData.uvs.set(geometryBucket.uvsCompressed, countUVs);
-                countUVs += geometryBucket.uvsCompressed.length;
-            }
-
             countBuckets++;
         }
 
         geometryIndices[geometry.id] = geometryIndex;
         dtxData.eachGeometryId[geometryIndex] = geometry.id;
         geometryIndex++;
-    }
-
-    // Textures
-
-    for (let textureIndex = 0, numTextures = texturesList.length, portionIdx = 0; textureIndex < numTextures; textureIndex++) {
-
-        const texture = texturesList[textureIndex];
-        const imageData = texture.imageData;
-
-        dtxData.textureData.set(imageData, portionIdx);
-        dtxData.eachTextureDataPortion[textureIndex] = portionIdx;
-
-        portionIdx += imageData.byteLength;
-
-        let textureAttrIdx = textureIndex * NUM_TEXTURE_ATTRIBUTES;
-        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.compressed ? 1 : 0;
-        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.mediaType || 0; // GIFMediaType | PNGMediaType | JPEGMediaType
-        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.width;
-        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.height;
-        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.minFilter || LinearMipmapLinearFilter; // LinearMipmapLinearFilter | LinearMipMapNearestFilter | NearestMipMapNearestFilter | NearestMipMapLinearFilter | LinearMipMapLinearFilter
-        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.magFilter || LinearMipmapLinearFilter; // LinearFilter | NearestFilter
-        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.wrapS || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.wrapT || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-        dtxData.eachTextureAttributes[textureAttrIdx++] = texture.wrapR || ClampToEdgeWrapping; // ClampToEdgeWrapping | MirroredRepeatWrapping | RepeatWrapping
-
-        textureIndices[texture.id] = textureIndex;
-    }
-
-    // SceneTexture sets
-
-    for (let textureSetIndex = 0, numTextureSets = textureSetsList.length, eachTextureSetTexturesIndex = 0; textureSetIndex < numTextureSets; textureSetIndex++) {
-        const textureSet = textureSetsList[textureSetIndex];
-        dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.colorTexture ? textureIndices[textureSet.colorTexture.id] : -1; // Color map
-        dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.metallicRoughnessTexture ? textureIndices[textureSet.metallicRoughnessTexture.id] : -1; // Metal/rough map
-        dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.emissiveTexture ? textureIndices[textureSet.emissiveTexture.id] : -1; // Emissive map
-        dtxData.eachTextureSetTextures[eachTextureSetTexturesIndex++] = textureSet.occlusionTexture ? textureIndices[textureSet.occlusionTexture.id] : -1; // Occlusion map
-
-        textureSetIndices[textureSet.id] = textureSetIndex;
     }
 
     // Meshes and objects
@@ -335,8 +269,6 @@ export function modelToDTX(params: {
                 dtxData.origins[originsIndex++] = origin[2];
             }
             dtxData.eachMeshOriginsPortion [countMeshes] = originLookupIndex;
-
-            dtxData.eachMeshTextureSet[countMeshes] = mesh.textureSet ? textureSetIndices[mesh.textureSet.id] : -1;
 
             dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[0] * 255); // Color RGB
             dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[1] * 255);

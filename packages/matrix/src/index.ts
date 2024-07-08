@@ -629,7 +629,7 @@ export function createMat3(values?: FloatArrayParam): FloatArrayParam {
 /**
  * Converts a 3x3 matrix to 4x4.
  */
-export function mat3ToMat4(mat3: FloatArrayParam, mat4?: FloatArrayParam) : FloatArrayParam{
+export function mat3ToMat4(mat3: FloatArrayParam, mat4?: FloatArrayParam): FloatArrayParam {
     if (!mat4) {
         mat4 = createMat4();
     }
@@ -813,7 +813,7 @@ export function frustumMat4(
 /**
  * Returns a 4x4 identity matrix.
  */
-export function identityMat4(dest?: FloatArrayParam) : FloatArrayParam{
+export function identityMat4(dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = createMat4();
     }
@@ -839,7 +839,7 @@ export function identityMat4(dest?: FloatArrayParam) : FloatArrayParam{
 /**
  * Returns a 3x3 identity matrix.
  */
-export function identityMat3(dest?: FloatArrayParam) : FloatArrayParam{
+export function identityMat3(dest?: FloatArrayParam): FloatArrayParam {
     if (!dest) {
         dest = createMat4();
     }
@@ -2336,3 +2336,57 @@ export function transformRay(matrix: FloatArrayParam, rayOrigin: FloatArrayParam
     rayDirDest[1] = tempVec4b[1];
     rayDirDest[2] = tempVec4b[2];
 }
+
+/**
+ Transforms a Canvas-space position into a World-space ray, in the context of a Camera.
+ @method canvasPosToWorldRay
+ @static
+ @param {Number[]} viewMatrix View matrix
+ @param {Number[]} projMatrix Projection matrix
+ @param {String} projection Projection type (e.g. "ortho")
+ @param {Number[]} canvasPos The Canvas-space position.
+ @param {Number[]} worldRayOrigin The World-space ray origin.
+ @param {Number[]} worldRayDir The World-space ray direction.
+ */
+export const canvasPosToWorldRay = ((() => {
+
+    const pvMatInv = new Float64Array(16);
+    const vec4Near = new Float64Array(4);
+    const vec4Far = new Float64Array(4);
+
+    const clipToWorld = (clipX, clipY, clipZ, isOrtho, outVec4) => {
+        outVec4[0] = clipX;
+        outVec4[1] = clipY;
+        outVec4[2] = clipZ;
+        outVec4[3] = 1;
+
+        transformVec4(pvMatInv, outVec4, outVec4);
+        if (!isOrtho)
+            mulVec4Scalar(outVec4, 1 / outVec4[3]);
+    };
+
+    return (canvas, viewMatrix, projMatrix, projection, canvasPos, worldRayOrigin, worldRayDir) => {
+        const isOrtho = projection === "ortho";
+
+        mulMat4(projMatrix, viewMatrix, pvMatInv);
+        inverseMat4(pvMatInv, pvMatInv);
+
+        // Calculate clip space coordinates, which will be in range
+        // of x=[-1..1] and y=[-1..1], with y=(+1) at top
+
+        const clipX = 2 * canvasPos[0] / canvas.width - 1;  // Calculate clip space coordinates
+        const clipY = 1 - 2 * canvasPos[1] / canvas.height;
+
+        clipToWorld(clipX, clipY, -1, isOrtho, vec4Near);
+
+        clipToWorld(clipX, clipY, 1, isOrtho, vec4Far);
+
+        worldRayOrigin[0] = vec4Near[0];
+        worldRayOrigin[1] = vec4Near[1];
+        worldRayOrigin[2] = vec4Near[2];
+
+        subVec3(vec4Far, vec4Near, worldRayDir);
+
+        normalizeVec3(worldRayDir);
+    };
+}))();

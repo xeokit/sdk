@@ -1,10 +1,12 @@
-
 import {EventDispatcher} from "strongly-typed-events";
 import type {Camera} from "./Camera";
 import {Component, EventEmitter} from "@xeokit/core";
 import type {FloatArrayParam} from "@xeokit/math";
 import {OrthoProjectionType} from "@xeokit/constants";
-import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4} from "@xeokit/matrix";
+import {createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4} from "@xeokit/matrix";
+import {Projection} from "./Projection";
+
+
 
 /**
  * Orthographic projection configuration for a {@link @xeokit/viewer!Camera} .
@@ -16,7 +18,7 @@ import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transpose
  * * {@link @xeokit/viewer!OrthoProjection.near | OrthoProjection.near} and {@link @xeokit/viewer!OrthoProjection.far | OrthoProjection.far} indicated the distances to the clipping planes.
  * * {@link @xeokit/viewer!OrthoProjection.onProjMatrix | OrthoProjection.onProjMatrix} will fire an event whenever {@link @xeokit/viewer!OrthoProjection.projMatrix | OrthoProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-export class OrthoProjection extends Component {
+export class OrthoProjection extends Component implements Projection {
 
     /**
      * The Camera this OrthoProjection belongs to.

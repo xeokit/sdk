@@ -6,6 +6,7 @@ import {Component, EventEmitter} from "@xeokit/core";
 import type {FloatArrayParam} from "@xeokit/math";
 import {CustomProjectionType} from "@xeokit/constants";
 import {identityMat4, inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "@xeokit/matrix";
+import {Projection} from "./Projection";
 
 /**
  * Configures a custom projection for a {@link @xeokit/viewer!Camera} .
@@ -13,7 +14,7 @@ import {identityMat4, inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, transpo
  * * Located at {@link Camera.customProjection}.
  * * {@link CustomProjection.onProjMatrix} will fire an event whenever {@link CustomProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-class CustomProjection extends Component {
+class CustomProjection  extends Component implements Projection {
 
     /**
      * The Camera this CustomProjection belongs to.

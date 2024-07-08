@@ -62,6 +62,10 @@
     view.camera.look = [0, -5, 0];
     view.camera.up = [0, 1, 0];
 
+    view.edges.enabled = true;
+    view.edges.renderModes = [xeokit.constants.QualityRender];
+    view.setRenderMode(xeokit.constants.QualityRender);
+
     const sceneModel = scene.createModel({
         id: "myModel"
     });
@@ -160,7 +164,8 @@
 
         sceneModel.build().then(() => {
 
-          //  view.setObjectsSelected(["purpleTableTop"], true)
+            view.setObjectsSelected(["purpleTableTop"], true)
+            view.objects["purpleTableTop"].edges = true;
 
         }).catch((e) => {
             log(`Error building SceneModel: ${e}`);

@@ -14,6 +14,10 @@ export * as curves from "@xeokit/curves";
 export * as boundaries from "@xeokit/boundaries";
 export * as compression from "@xeokit/compression";
 
+// Geometry generation
+
+export * as procgen from "@xeokit/procgen";
+
 // Localization
 
 export * as locale from "@xeokit/locale";
@@ -57,3 +61,4 @@ export * as ktx2 from "@xeokit/ktx2";
 export * as cameraControl from "@xeokit/cameracontrol";
 export * as bcf from "@xeokit/bcf";
 export * as treeview from "@xeokit/treeview";
+

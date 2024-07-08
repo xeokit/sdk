@@ -1,7 +1,5 @@
-
-
-import {lenVec3, subVec3, createVec3} from "@xeokit/matrix";
-import type {View} from "@xeokit/viewer";
+import {View} from "@xeokit/viewer";
+import {createVec3, lenVec3, subVec3} from "@xeokit/matrix";
 
 const SCALE_DOLLY_EACH_FRAME = 1; // Recalculate dolly speed for eye->target distance on each Nth frame
 const EPSILON = 0.001;
@@ -12,15 +10,13 @@ const tempVec3 = createVec3();
  *
  * @private
  */
-class CameraUpdater {
-
-    #onTick: any;
+export class CameraUpdater {
     #view: View;
+    #onTick: () => void;
 
-    constructor(view: any, controllers: any, configs: any, states: any, updates: any) {
+    constructor(view: View, controllers, configs, states, updates) {
 
         this.#view = view;
-
         const camera = view.camera;
         const pickController = controllers.pickController;
         const pivotController = controllers.pivotController;
@@ -28,7 +24,7 @@ class CameraUpdater {
 
         let countDown = SCALE_DOLLY_EACH_FRAME; // Decrements on each tick
         let dollyDistFactor = 1.0; // Calculated when countDown is zero
-        let followPointerWorldPos: any = null; // Holds the pointer's World position when configs.followPointer is true
+        let followPointerWorldPos = null; // Holds the pointer's World position when configs.followPointer is true
 
         this.#onTick = view.viewer.onTick.subscribe(() => {
 
@@ -84,7 +80,7 @@ class CameraUpdater {
 
                             if (configs.followPointer && states.followPointerDirty) {
 
-                                pickController.pickCursorPos = states.pointerViewPos;
+                                pickController.pickCursorPos = states.pointerCanvasPos;
                                 pickController.schedulePickSurface = true;
                                 pickController.update();
 
@@ -110,6 +106,9 @@ class CameraUpdater {
                         }
                     }
                 }
+            } else {
+                dollyDistFactor = 1;
+                followPointerWorldPos = null;
             }
 
             const dollyDeltaForDist = (updates.dollyDelta * dollyDistFactor);
@@ -250,7 +249,7 @@ class CameraUpdater {
                     }
 
                     if (configs.followPointer) {
-                        const dolliedThroughSurface = panController.dollyToViewPos(followPointerWorldPos, states.pointerViewPos, -dollyDeltaForDist);
+                        const dolliedThroughSurface = panController.dollyToCanvasPos(followPointerWorldPos, states.pointerCanvasPos, -dollyDeltaForDist);
                         if (dolliedThroughSurface) {
                             states.followPointerDirty = true;
                         }
@@ -279,7 +278,7 @@ class CameraUpdater {
                 } else if (configs.planView) {
 
                     if (configs.followPointer) {
-                        const dolliedThroughSurface = panController.dollyToViewPos(followPointerWorldPos, states.pointerViewPos, -dollyDeltaForDist);
+                        const dolliedThroughSurface = panController.dollyToCanvasPos(followPointerWorldPos, states.pointerCanvasPos, -dollyDeltaForDist);
                         if (dolliedThroughSurface) {
                             states.followPointerDirty = true;
                         }
@@ -291,7 +290,7 @@ class CameraUpdater {
                 } else { // Orbiting
 
                     if (configs.followPointer) {
-                        const dolliedThroughSurface = panController.dollyToViewPos(followPointerWorldPos, states.pointerViewPos, -dollyDeltaForDist);
+                        const dolliedThroughSurface = panController.dollyToCanvasPos(followPointerWorldPos, states.pointerCanvasPos, -dollyDeltaForDist);
                         if (dolliedThroughSurface) {
                             states.followPointerDirty = true;
                         }
@@ -310,9 +309,9 @@ class CameraUpdater {
         });
     }
 
+
     destroy() {
-        this.#view.viewer.onTick.unsubscribe(this.#onTick);
+        this.#view.viewer.onTick.unsub(this.#onTick);
     }
 }
 
-export {CameraUpdater};

@@ -1,7 +1,7 @@
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fviewer.svg)](https://badge.fury.io/js/%40xeokit%2Fviewer)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/viewer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/viewer)
- * 
+ *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="media://images/xeokit_viewer_logo.png"/>
  *
  * # xeokit Scene Viewer
@@ -326,7 +326,7 @@
  * });
  *
  * environmentViewLayer.setViewModes(["qualityViewMode"]};
- * 
+ *
  * myViewer.viewModes.setActiveViewMode("quality");
  * ````
  *
@@ -336,6 +336,7 @@ export * from "./Viewer";
 export * from "./ViewParams";
 export * from "./Renderer";
 export * from "./Camera";
+export * from "./Projection";
 export * from "./FrustumProjection";
 export * from "./OrthoProjection";
 export * from "./PerspectiveProjection";

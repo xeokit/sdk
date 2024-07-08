@@ -64,9 +64,13 @@
         canvasId: "myCanvas"
     });
 
-    view.camera.eye = [0, 0, 50];
-    view.camera.look = [0, 0, 0];
-    view.camera.up = [0, 1, 0];
+    view.camera.eye = [1394.38, 3.78, -247.05];
+    view.camera.look = [1391.46, 0.89, -244.24];
+    view.camera.up = [-0.41, 0.81, 0.40];
+
+    view.camera.zoom(-20)
+
+    const cameraControl = new xeokit.cameraControl.CameraControl(view, {});
 
     const sceneModel = scene.createModel({
         id: "myModel",
@@ -96,6 +100,8 @@
                     dataModel.build();
                     sceneModel.build();
 
+                    console.log(dataModel.getJSON())
+
                 }).catch(error => {
 
                     dataModel.destroy();
@@ -105,7 +111,6 @@
                 });
             });
 
-
         }).catch((e) => {
             log(`Error building SceneModel: ${e}`);
             throw e;
@@ -113,8 +118,11 @@
     }
 
     viewer.onTick.subscribe(() => {
-        view.camera.orbitYaw(0.5);
+       // view.camera.orbitYaw(0.5);
     });
+
+    window.data = data;
+    window.view = view;
 
 </script>
 

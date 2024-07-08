@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xeokit SDK Examples</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .card {
+            transition: transform 0.2s; /* Add smooth transition effect */
+        }
+
+        .card:hover {
+            transform: scale(1.05); /* Slightly enlarge the card on hover */
+        }
+
+        .card {
+            display: block;
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            text-decoration: none;
+        }
+
+        .card h4.card-title {
+            color: inherit;
+        }
+
+        .card p.card-text {
+            color: inherit;
+        }
+
+        .thumbnail {
+
+            max-width: 100%;
+            min-height: 200px;
+            max-height: 200px; /* Adjust this value for the desired height */
+            object-fit: cover; /* Maintain aspect ratio and cover thumbnail area */
+        }
+
+        a.card-link {
+            font-size: 18px;
+            color: inherit;
+            text-decoration: none;
+            display: block;
+        }
+
+
+        .card-title {
+            color: black;
+        }
+
+        .card:hover .card-title {
+            color: blue;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+
+
+
+</script>
+<div class="container mt-5">
+    <h2 class="mb-3"><a href="https://xeokit.io">xeokit</a> / SDK Demos</h2>
+    <a href="https://badge.fury.io/js/@xeokit%2Fxeokit-sdk"><img src="https://badge.fury.io/js/@xeokit%2Fxeokit-sdk.svg"
+                                                                 alt="npm version" height="18"></a>
+    <br><br>
+    <p>These examples demonstrate various features of the xeokit SDK, that you can use to build your
+        own custom applications for viewing models in the Browser. For an idea of what you can build with xeokit, also
+        check out some live examples of xeokit's bundled <a href="./bimviewer.html">BIMViewer</a>.</p>
+    <p>We reorganized these SDK examples in v2.4. Find the old examples index <a href ="./indexOld.html">here.</a></p>
+    <br>
+
+    <h2>Viewing Models</h2>
+    <br>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+
+            <!-- Buildings -->
+
+            <a href="./buildings" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail" src="../assets/images/holterTower.png" alt="Thumbnail 1">
+                    <div class="card-body">
+                        <h4 class="card-title">Viewing Building Models</h4>
+                        <p class="card-text">Using the xeokit SDK to view building models loaded from IFC, glTF and
+                            XKT.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+
+            <!-- Cities -->
+
+            <a href="./cities" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail" src="../assets/images/lyon_city.png" alt="Thumbnail 2">
+                    <div class="card-body">
+                        <h4 class="card-title">Viewing City Models</h4>
+                        <p class="card-text">Using the xeokit SDK to view city models loaded from glTF, CityJSON,
+                            CityGML and
+                            XKT.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4 mb-4">
+
+            <!-- LiDAR -->
+
+            <a href="./lidar" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail" src="../assets/images/mapPointCloud.png"
+                         alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Viewing LiDAR Scans</h4>
+                        <p class="card-text">Using the xeokit SDK to view LiDAR scans loaded from LAS, LAZ, glTF and
+                            XKT.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 mb-4">
+
+            <!-- CAD -->
+
+            <a href="./cad" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="https://github.com/xeokit/xeokit.io/blob/master/img/gear-300x200.gif?raw=true"
+                         alt="Thumbnail 1">
+                    <div class="card-body">
+                        <h4 class="card-title">Viewing CAD Models</h4>
+                        <p class="card-text">Using the xeokit SDK to view CAD models loaded from 3DXML, glTF, STL and
+                            XKT.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Navigating Models -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./navigation" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../assets/images/treeview.png"
+                         alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Navigating Models</h4>
+                        <p class="card-text">Components for navigating models: TreeView, NavCube, ContextMenu,
+                            AxisGizmo, CameraControl, CameraPathAnimation etc.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Bookmarking -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./bookmarking" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail" src="../assets/images/BCFViewpointsPlugin.png"
+                         alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Bookmarking Model Views</h4>
+                        <p class="card-text">Saving and loading bookmarks, including how to exchange Building
+                            Collaboration Viewpoints (BCF)
+                            with other BIM software.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Snapshots -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./snapshots" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail" src="../assets/images/xktWithTextures.png"
+                         alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Capturing Snapshots</h4>
+                        <p class="card-text">How to capture JPEG and PNG snapshots of a xeokit SDK viewer.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Customizing the Viewer -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./viewer" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail" src="../assets/images/i1n8.png"
+                         alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Customizing the Viewer</h4>
+                        <p class="card-text">Configuring language translations, customizing the loading spinner,
+                            enabling ambient
+                            shadows, enabling the
+                            logarathmic depth buffer, and more.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Performance -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./performance" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../assets/images/aphs.png"
+                         alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Accelerating Performance</h4>
+                        <p class="card-text">How to make the xeokit SDK viewer work at peak performance, using view
+                            frustum culling, LoD culling, resolution scaling and more.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br><br>
+    <h2>Interacting with Objects</h2>
+    <br>
+
+    <div class="row">
+
+        <!-- Measuring Objects -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./measurement" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../assets/images/distanceMeasurements.png"
+                         alt="Thumbnail 1">
+                    <div class="card-body">
+                        <h4 class="card-title">Measuring Objects</h4>
+                        <p class="card-text">Measuring angles and distances on models.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Slicing Objects -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./slicing" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../assets/images/sectionPlane.png"
+                         alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Slicing Objects</h4>
+                        <p class="card-text">Slicing models with interactive section planes to reveal internal
+                            structures.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+
+        <!-- Picking Objects -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./picking" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../assets/images/picking.png" alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Picking Objects</h4>
+                        <p class="card-text">How to pick objects in a xeokit Viewer, interactively or
+                            programmatically.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Emphasising Objects -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./emphasising" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="https://github.com/xeokit/xeokit.io/blob/master/img/docs/PerformanceModel/PerformanceModel.png?raw=true"
+                         alt="Thumbnail 2">
+                    <div class="card-body">
+                        <h4 class="card-title">Emphasising Objects</h4>
+                        <p class="card-text">Changing the appearance of selected objects: colorizing, highlighting
+                            and
+                            X-raying.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Labelling Objects -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./annotations" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../assets/images/annotations.png"
+                         alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Labelling Objects</h4>
+                        <p class="card-text">Pinning fully-customizable HTML labels to the surfaces of model
+                            objects.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <br><br>
+    <h2>Programming Scene Content</h2>
+    <br>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <a href="./scenemodel" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../assets/images/sceneModelTextured.png"
+                         alt="Thumbnail 2">
+                    <div class="card-body">
+                        <h4 class="card-title">SceneModel Examples</h4>
+                        <p class="card-text">Low-level programming examples and tests for xeokit's high-performance
+                            model
+                            representation. Use these to build custom model loaders. Also useful to debug model viewing
+                            issues.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <a href="./scenegraph" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../assets/images/geometry.png" alt="Thumbnail 2">
+                    <div class="card-body">
+                        <h4 class="card-title">Scene Graph Examples</h4>
+                        <p class="card-text">Creating custom scene elements using xeokit's scene graph; materials,
+                            transforms,
+                            geometries, billboards, sprites and more. Use these to build custom viewer gizmos.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+
+</div>
+
+<!-- Include Bootstrap JS and jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

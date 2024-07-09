@@ -35,7 +35,6 @@ export function modelToDTX(params: {
     let lenBuckets = 0;
     let lenPositions = 0;
     let lenColors = 0;
-    let lenUVs = 0;
     let lenIndices8Bit = 0;
     let lenIndices16Bit = 0;
     let lenIndices32Bit = 0;
@@ -43,8 +42,8 @@ export function modelToDTX(params: {
     let lenEdgeIndices16Bit = 0;
     let lenEdgeIndices32Bit = 0;
     let lenMatrices = numMeshes * 16;
-    let lenTextures = 0;
     let lenDecodeMatrices = 0;
+    let lenOrigins = 0;
 
     const geometryIndices: { [key: string]: number } = {};
     const textureIndices: { [key: string]: number } = {};
@@ -78,17 +77,28 @@ export function modelToDTX(params: {
                         lenEdgeIndices32Bit += geometryBucket.edgeIndices.length;
                     }
                 }
-                if (geometryBucket.uvsCompressed) {
-                    lenUVs += geometryBucket.uvsCompressed.length;
+                if (geometryBucket.colorsCompressed) {
+                    lenColors += geometryBucket.colorsCompressed.length;
                 }
             }
         }
     }
 
+    const originExists = {};
+    for (let meshIndex = 0; meshIndex < numMeshes; meshIndex++) {
+        const mesh = meshesList [meshIndex];
+        const originHash = `${mesh.origin[0]}-${mesh.origin[1]}-${mesh.origin[2]}`;
+       if (!originExists[originHash]) {
+            originExists[originHash] = true;
+            lenOrigins++;
+        }
+    }
+
+
     lenDecodeMatrices = numGeometries * 16;
 
     const dtxData: DTXData = {
-        positions: new Uint16Array(lenPositions), // All geometry arrays
+        positions: new Uint16Array(lenPositions),
         colors: new Uint8Array(lenColors),
         indices8Bit: new Uint8Array(lenIndices8Bit),
         indices16Bit: new Uint16Array(lenIndices16Bit),
@@ -106,7 +116,7 @@ export function modelToDTX(params: {
         eachGeometryBucketPortion: new Uint32Array(numGeometries), // TODO
         eachGeometryDecodeMatricesPortion: new Uint32Array(numGeometries), // Positions dequantization matrices
         matrices: new Float32Array(numMeshes * 16), // Modeling matrices
-        origins: new Float64Array(numMeshes * 16), // Modeling matrices
+        origins: new Float64Array(lenOrigins * 3), // Origins
         eachMeshGeometriesPortion: new Uint32Array(numMeshes), // For each mesh, an index into the eachGeometry* arrays
         eachMeshMatricesPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in dtxData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
         eachMeshOriginsPortion: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in dtxData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.

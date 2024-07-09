@@ -2,12 +2,13 @@ import type {DTXDataDeflated} from "./DTXDataDeflated";
 import type {DTXData} from "./DTXData";
 import * as pako from "pako";
 
+
 /**
  * @private
  */
 export function deflateDTX(dtxData: DTXData): DTXDataDeflated {
     return <DTXDataDeflated>{
-              positions: pako.deflate(dtxData.positions.buffer),
+        positions: pako.deflate(dtxData.positions.buffer),
         colors: pako.deflate(dtxData.colors.buffer),
         indices8Bit: pako.deflate(dtxData.indices8Bit.buffer),
         indices16Bit: pako.deflate(dtxData.indices16Bit.buffer),

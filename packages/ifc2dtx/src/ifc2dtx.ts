@@ -66,7 +66,6 @@ if (dataModel instanceof SDKError) {
                     dataModel.build();
 
                     const dtxArrayBuffer = saveDTX({
-                        dataModel,
                         sceneModel
                     });
 

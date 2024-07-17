@@ -776,6 +776,11 @@ class Camera extends Component {
         this.onProjMatrix.dispatch(this, this.#activeProjection.projMatrix);
     }
 
+    setDirty() {
+        super.setDirty();
+        this.view.redraw();
+    }
+
     clean() {
         const state = this.#state;
         // In ortho mode, build the view matrix with an eye position that's translated

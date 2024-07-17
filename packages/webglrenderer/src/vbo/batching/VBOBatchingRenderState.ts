@@ -16,8 +16,8 @@ export interface VBOBatchingRenderState {
     pickColorsBuf: WebGLArrayBuf;
     positionsDecodeMatrix: FloatArrayParam;
     offsetsBuf: WebGLArrayBuf;
-    colorsBuf: WebGLArrayBuf;
-    flagsBuf: WebGLArrayBuf;
+    colorsBuf: WebGLArrayBuf[];
+    flagsBufs: WebGLArrayBuf[];
     origin: FloatArrayParam;
     positionsBuf: WebGLArrayBuf;
     indicesBuf: WebGLArrayBuf;

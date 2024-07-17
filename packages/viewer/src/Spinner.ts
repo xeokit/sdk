@@ -238,7 +238,7 @@ class Spinner extends Component {
                 <div class="sk-circle10 sk-circle"></div>\
                 <div class="sk-circle11 sk-circle"></div>\
                 <div class="sk-circle12 sk-circle"></div>\
-                </div>';
+                </div><div><span>Cancel</span></div>';
         this._canvas.parentElement.appendChild(element);
         this._element = element;
         this._isCustom = false;

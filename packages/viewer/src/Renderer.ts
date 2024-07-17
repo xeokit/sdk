@@ -43,7 +43,8 @@ export interface Renderer {
     /**
      * TODO
      */
-   //  rendererModels: { [key: string]: RendererModel };
+
+    //  rendererModels: { [key: string]: RendererModel };
 
     /**
      * Initializes this Renderer by attaching a {@link @xeokit/viewer!Viewer}.
@@ -118,7 +119,7 @@ export interface Renderer {
      * * No Viewer is attached to this Renderer.
      * * View is not currently attachedto this Renderer.
      */
-    detachView(view:View): SDKError | void;
+    detachView(view: View): SDKError | void;
 
     /**
      * Attaches a {@link @xeokit/scene!SceneModel | SceneModel} to this Renderer.
@@ -308,4 +309,44 @@ export interface Renderer {
      * * Can't find a View attached to this Renderer with the given handle.
      */
     pickViewObject(viewIndex: number, params: {}): SDKError | ViewObject | null;
+
+    /**
+     * Enters snapshot mode for the given View.
+     *
+     * @param viewIndex
+     * @param params
+     */
+    beginSnapshot(viewIndex: number, params?: {
+        width: number,
+        height: number
+    });
+
+    /**
+     * When in snapshot mode, renders a frame of the current Scene state to the snapshot canvas.
+     */
+    renderSnapshot();
+
+    /**
+     * When in snapshot mode, gets an image of the snapshot canvas.
+     *
+     * @returns {String} The image data URI.
+     */
+    readSnapshot(params): string;
+
+    /**
+     * Returns an HTMLCanvas containing an image of the snapshot canvas.
+     *
+     * - The HTMLCanvas has a CanvasRenderingContext2D.
+     * - Expects the caller to draw more things on the HTMLCanvas (annotations etc).
+     *
+     * @returns {HTMLCanvasElement}
+     */
+    readSnapshotAsCanvas(params): HTMLCanvasElement;
+
+    /**
+     * Exits snapshot mode.
+     *
+     * Switches rendering back to the main canvas.
+     */
+    endSnapshot();
 }

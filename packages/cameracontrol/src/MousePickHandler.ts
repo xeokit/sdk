@@ -289,7 +289,7 @@ class MousePickHandler {
 
                         if (firstClickPickSurface) {
 
-                            cameraControl.onPickedSurface(cameraControl, firstClickPickResult);
+                            cameraControl.onPickedSurface.dispatch(cameraControl, firstClickPickResult);
 
                             if ((!configs.firstPerson) && configs.followPointer) {
                                 controllers.pivotController.setPivotPos(firstClickPickResult.worldPos);
@@ -299,9 +299,9 @@ class MousePickHandler {
                             }
                         }
                     } else {
-                        cameraControl.onPickedNothing(cameraControl, {
+                        cameraControl.onPickedNothing.dispatch(cameraControl, {
                             canvasPos: states.pointerCanvasPos
-                        }, true);
+                        });
                     }
 
                     this.#clicks = 0;

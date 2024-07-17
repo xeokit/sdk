@@ -30,6 +30,24 @@ import type {PickResult} from "./PickResult";
 import {SnapshotResult} from "./SnapshotResult";
 import type {SnapshotParams} from "./SnapshotParams";
 import {ResolutionScale} from "./ResolutionScale";
+import html2canvas from './../node_modules/html2canvas/dist/html2canvas.esm.js';
+
+/**
+ * Event that signifies the beginning of a canvas snapshot captured with
+ */
+export interface SnapshotStartedEvent {
+    width: number;
+    height:number;
+}
+
+/**
+ *
+ */
+export interface SnapshotFinishedEvent {
+    width: number;
+    height:number;
+}
+
 
 /**
  * An independently-configurable view of the models in a {@link @xeokit/viewer!Viewer}.
@@ -118,7 +136,7 @@ class View extends Component {
     /**
      * The HTML canvas.
      */
-    public canvasElement: HTMLCanvasElement;
+    public canvasElement: HTMLElement;
 
     /**
      * Indicates if this View is transparent.
@@ -370,6 +388,20 @@ class View extends Component {
      */
     readonly onSectionPlaneDestroyed: EventEmitter<View, SectionPlane>;
 
+    /**
+     * Emits an event each time a snapshot is initiated with {@link View.getSnapshot}.
+     *
+     * @event
+     */
+    readonly onSnapshotStarted: EventEmitter<View, SnapshotStartedEvent>;
+
+    /**
+     * Emits an event each time a snapshot is completed with {@link View.getSnapshot}.
+     *
+     * @event
+     */
+    readonly onSnapshotFinished: EventEmitter<View, SnapshotFinishedEvent>;
+
     #onTick: () => void;
 
     #renderMode: number = QualityRender;
@@ -393,6 +425,7 @@ class View extends Component {
     #qualityRender: boolean;
     #lightsHash: string | null = null;
     #sectionPlanesHash: string | null = null;
+    #snapshotBegun: boolean;
 
     /**
      * @private
@@ -403,7 +436,7 @@ class View extends Component {
         scale?: number;
         units?: number;
         canvasId?: string;
-        canvasElement: HTMLCanvasElement;
+        canvasElement: HTMLElement;
         backgroundColor?: any[];
         backgroundColorFromAmbientLight?: boolean;
         premultipliedAlpha?: boolean;
@@ -420,8 +453,8 @@ class View extends Component {
             options.canvasElement ||
             document.getElementById(<string>options.canvasId);
 
-        if (!(canvas instanceof HTMLCanvasElement)) {
-            throw "Mandatory View config expected: valid canvasId or canvasElement";
+        if (!(canvas instanceof HTMLElement)) {
+            throw "Mandatory View config expected: valid HTMLElement";
         }
 
         this.canvasElement = canvas;
@@ -455,6 +488,7 @@ class View extends Component {
         this.#opacityObjectIds = null;
         this.#qualityRender = !!options.qualityRender;
         this.gammaOutput = true;
+        this.#snapshotBegun = false;
 
         this.#sectionPlanesHash = null;
         this.#lightsHash = null;
@@ -483,8 +517,8 @@ class View extends Component {
         this.#backgroundColorFromAmbientLight =
             !!options.backgroundColorFromAmbientLight;
         this.transparent = !!options.transparent;
-        this.canvasElement.width = this.canvasElement.clientWidth;
-        this.canvasElement.height = this.canvasElement.clientHeight;
+        // this.canvasElement.width = this.canvasElement.clientWidth;
+        // this.canvasElement.height = this.canvasElement.clientHeight;
         this.boundary = [
             this.canvasElement.offsetLeft,
             this.canvasElement.offsetTop,
@@ -534,12 +568,12 @@ class View extends Component {
                         //////////////////////////////////////////////////////////////////////////////////////
                         // TODO: apply resolutionscale properly
                         //////////////////////////////////////////////////////////////////////////////////////
-                        canvasElement.width = Math.round(
-                            canvasElement.clientWidth * this.resolutionScale.resolutionScale
-                        );
-                        canvasElement.height = Math.round(
-                            canvasElement.clientHeight * this.resolutionScale.resolutionScale
-                        );
+                        // canvasElement.width = Math.round(
+                        //     canvasElement.clientWidth * this.resolutionScale.resolutionScale
+                        // );
+                        // canvasElement.height = Math.round(
+                        //     canvasElement.clientHeight * this.resolutionScale.resolutionScale
+                        // );
                     }
                     const boundary = this.boundary;
                     boundary[0] = canvasElement.offsetLeft;
@@ -682,6 +716,14 @@ class View extends Component {
 
         this.onSectionPlaneDestroyed = new EventEmitter(
             new EventDispatcher<View, SectionPlane>()
+        );
+
+        this.onSnapshotStarted = new EventEmitter(
+            new EventDispatcher<View, null>()
+        );
+
+        this.onSnapshotFinished = new EventEmitter(
+            new EventDispatcher<View, null>()
         );
 
         new AmbientLight(this, {
@@ -1516,12 +1558,87 @@ class View extends Component {
     }
 
     /**
+     * Enter snapshot mode.
+     *
+     * Switches rendering to a hidden snapshot canvas.
+     *
+     * Exit snapshot mode using {@link Viewer#endSnapshot}.
+     */
+    beginSnapshot() {
+        if (this.#snapshotBegun) {
+            return;
+        }
+        this.viewer.renderer.beginSnapshot(this.viewIndex);
+        this.#snapshotBegun = true;
+    }
+
+    /**
      * Captures a snapshot image of this View.
      *
      * @param snapshotParams
      * @param snapshotResult
      */
     getSnapshot(snapshotParams: SnapshotParams, snapshotResult?: SnapshotResult): SnapshotResult {
+        // const needFinishSnapshot = (!this.#snapshotBegun);
+        // const resize = (snapshotParams.width !== undefined && snapshotParams.height !== undefined);
+        // const canvas = this.canvasElement;
+        // const saveWidth = canvas.clientWidth;
+        // const saveHeight = canvas.clientHeight;
+        // const width = snapshotParams.width ? Math.floor(snapshotParams.width) : canvas.width;
+        // const height = snapshotParams.height ? Math.floor(snapshotParams.height) : canvas.height;
+        //
+        // if (resize) {
+        //     // canvas.width = width;
+        //     // canvas.height = height;
+        // }
+        //
+        // if (!this.#snapshotBegun) {
+        //     this.onSnapshotStarted.dispatch(this, {
+        //         width,
+        //         height
+        //     });
+        // }
+
+        // if (!snapshotParams.includeGizmos) {
+        //     this.sendToPlugins("snapshotStarting"); // Tells plugins to hide things that shouldn't be in snapshot
+        // }
+        //
+        // const captured = {};
+        // for (let i = 0, len = this._plugins.length; i < len; i++) {
+        //     const plugin = this._plugins[i];
+        //     if (plugin.getContainerElement) {
+        //         const container = plugin.getContainerElement();
+        //         if (container !== document.body) {
+        //             if (!captured[container.id]) {
+        //                 captured[container.id] = true;
+        //                 html2canvas(container).then(function (canvas) {
+        //                     document.body.appendChild(canvas);
+        //                 });
+        //             }
+        //         }
+        //     }
+        // }
+        //
+        // this.scene._renderer.renderSnapshot();
+        //
+        // const imageDataURI = this.scene._renderer.readSnapshot(snapshotParams);
+        //
+        // if (resize) {
+        //     canvas.width = saveWidth;
+        //     canvas.height = saveHeight;
+        //
+        //     this.scene.glRedraw();
+        // }
+        //
+        // if (!snapshotParams.includeGizmos) {
+        //     this.sendToPlugins("snapshotFinished");
+        // }
+        //
+        // if (needFinishSnapshot) {
+        //     this.endSnapshot();
+        // }
+
+    //    return imageDataURI;
         return new SnapshotResult();
     }
 

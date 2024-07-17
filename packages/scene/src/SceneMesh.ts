@@ -83,9 +83,7 @@ export class SceneMesh {
         this.textureSet = meshParams.textureSet;
         this.rendererMesh = null;
         this.color = meshParams.color || new Float32Array([1, 1, 1]);
-        this.metallic = (meshParams.metallic !== null && meshParams.metallic !== undefined) ? meshParams.metallic : 0;
-        this.roughness = (meshParams.roughness !== null && meshParams.roughness !== undefined) ? meshParams.roughness : 1;
-        this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
+         this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
         this.origin = new Float32Array(meshParams.origin !== undefined ? meshParams.origin : [0, 0, 0]);
         this.streamLayerIndex = meshParams.streamLayerIndex !== undefined ? meshParams.streamLayerIndex : 0;
     }
@@ -154,68 +152,6 @@ export class SceneMesh {
         }
         if (this.object) {
             this.object.setAABBDirty();
-        }
-    }
-
-    /**
-     * Gets this SceneMesh's metallic factor.
-     *
-     * This is in the range ````[0..1]```` and indicates how metallic this SceneMesh is.
-     *
-     * ````1```` is metal, ````0```` is non-metal.
-     *
-     * Default value is ````1.0````.
-     */
-    get metallic(): number {
-        return this.#metallic;
-    }
-
-    /**
-     * Sets this SceneMesh's metallic factor.
-     *
-     * This is in the range ````[0..1]```` and indicates how metallic this SceneMesh is.
-     *
-     * ````1```` is metal, ````0```` is non-metal.
-     *
-     * Default value is ````1.0````.
-     */
-    set metallic(value: number) {
-        value = (value !== undefined && value !== null) ? value : 1.0;
-        if (this.#metallic === value) {
-            return;
-        }
-        this.#metallic = value;
-        if (this.rendererMesh) {
-            this.rendererMesh.setMetallic(this.#metallic);
-        }
-    }
-
-    /**
-     * Gets this SceneMesh's roughness factor.
-     *
-     * This factor is in the range ````[0..1]````, where ````0```` is fully smooth,````1```` is fully rough.
-     *
-     * Default value is ````1.0````.
-     */
-    get roughness(): number {
-        return this.#roughness;
-    }
-
-    /**
-     * Sets this SceneMesh's roughness factor.
-     *
-     * This factor is in the range ````[0..1]````, where ````0```` is fully smooth,````1```` is fully rough.
-     *
-     * Default value is ````1.0````.
-     */
-    set roughness(value: number) {
-        value = (value !== undefined && value !== null) ? value : 1.0;
-        if (this.#roughness === value) {
-            return;
-        }
-        this.#roughness = value;
-        if (this.rendererMesh) {
-            this.rendererMesh.setRoughness(this.#roughness);
         }
     }
 

@@ -174,7 +174,7 @@ export class WebGLRenderBuffer {
         height?: number;
         width?: number;
         format?: string;
-    }): Uint8Array {
+    }): HTMLImageElement {
         const gl = this.#gl;
         const imageDataCache = this.#getImageDataCache();
         const pixelData = imageDataCache.pixelData;
@@ -204,7 +204,7 @@ export class WebGLRenderBuffer {
                 image = Canvas2Image.saveAsJPEG(canvas, true, imageWidth, imageHeight, flipy);
         }
         // @ts-ignore
-        return image.src;
+        return image;
     }
 
     #getImageDataCache() {

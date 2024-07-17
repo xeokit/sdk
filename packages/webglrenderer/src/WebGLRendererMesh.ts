@@ -21,8 +21,6 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
     rendererGeometry: RendererGeometry;
     rendererTextureSet: RendererTextureSet;
     matrix: FloatArrayParam;
-    metallic: number;
-    roughness: number;
     opacity: number;
     pickId: number;
     tileManager: WebGLTileManager;
@@ -31,17 +29,16 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
     aabb: FloatArrayParam;
     layer: Layer;
     meshIndex: number;
-    colorize: FloatArrayParam;
-    colorizing: boolean;
-    transparent: boolean;
+    colorize: FloatArrayParam[];
+    colorizing: boolean[];
+    transparent: boolean[];
+    attribs: any;
 
     constructor(params: {
         tileManager: WebGLTileManager,
         layer: Layer,
         id: string,
         matrix: FloatArrayParam;
-        metallic: number;
-        roughness: number;
         color: FloatArrayParam,
         opacity: number,
         rendererTextureSet: RendererTextureSet
@@ -52,14 +49,18 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         this.tileManager = params.tileManager;
         this.id = params.id;
         this.pickId = 0;
+        this.attribs = [];
         this.color = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
-        this.colorize = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
-        this.colorizing = false;
-        this.transparent = (params.opacity < 255);
+        for (let i = 0; i < 4; i++) {
+            this.attribs.push({
+                colorize: [params.color[0], params.color[1], params.color[2], params.opacity], // [0..255]
+                colorizing: false,
+                transparent: (params.opacity < 255),
+            });
+        }
+
         this.layer = params.layer;
         this.matrix = params.matrix;
-        this.metallic = params.metallic;
-        this.roughness = params.roughness;
         this.opacity = params.opacity;
         this.aabb = createAABB3();
         this.rendererTextureSet = params.rendererTextureSet;
@@ -75,16 +76,8 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         this.sceneObjectRenderer = sceneObjectRenderer;
     }
 
-    uploadRendererState(flags: number) {
-        this.layer.setLayerMeshFlags(this.meshIndex, flags, this.transparent);
-    }
-
-    commitRendererState() {
-        this.layer.commitRendererState();
-    }
-
-    setVisible(flags: any) {
-        this.layer.setLayerMeshVisible(this.meshIndex, flags, this.transparent);
+    setVisible(viewIndex: number, flags: any) {
+        this.layer.setLayerMeshVisible(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
     }
 
     setMatrix(matrix: FloatArrayParam): void {
@@ -98,7 +91,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
             ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a), tempMat4b)
             : matrix);
         if (tileChanged) {
-         //   this.layer.setLayerMeshViewMatrixIndex(this.meshIndex, this.tile.index);
+            //   this.layer.setLayerMeshViewMatrixIndex(this.meshIndex, this.tile.index);
         }
     }
 
@@ -114,72 +107,77 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         this.color[1] = color[1];
         this.color[2] = color[2];
         if (!this.colorizing) {
-            this.layer.setLayerMeshColor(this.meshIndex, this.color, setOpacity);
+            for (let viewIndex = 0, len = this.layer.rendererModel.viewer.viewList.length; viewIndex < len; viewIndex++) {
+                this.layer.setLayerMeshColor(viewIndex, this.meshIndex, color, setOpacity);
+            }
         }
     }
 
-    setColorize(colorize: FloatArrayParam | null) {
+    setColorize(viewIndex: number, colorize: FloatArrayParam | null) {
         const setOpacity = false;
+        const attribs = this.attribs[viewIndex];
+        const meshColorize = attribs.colorize[viewIndex];
         if (colorize) {
-            this.colorize[0] = colorize[0];
-            this.colorize[1] = colorize[1];
-            this.colorize[2] = colorize[2];
-            this.layer.setLayerMeshColor(this.meshIndex, this.colorize, setOpacity);
-            this.colorizing = true;
+            meshColorize[0] = colorize[0];
+            meshColorize[1] = colorize[1];
+            meshColorize[2] = colorize[2];
+            this.layer.setLayerMeshColor(viewIndex, this.meshIndex, meshColorize, setOpacity);
+            attribs.colorizing = true;
         } else {
-            this.layer.setLayerMeshColor(this.meshIndex, this.color, setOpacity);
-            this.colorizing = false;
+            this.layer.setLayerMeshColor(viewIndex, this.meshIndex, meshColorize, setOpacity);
+            attribs.colorizing = false;
         }
     }
 
-    setOpacity(opacity: number, flags: number) {
+    setOpacity(viewIndex: number, opacity: number, flags: number) {
         const setOpacity = true;
+        const attribs = this.attribs[viewIndex];
         const newTransparent = (opacity < 255);
-        const lastTransparent = this.transparent;
+        const lastTransparent = attribs.transparent;
         const changingTransparency = (lastTransparent !== newTransparent);
-        this.color[3] = opacity;
-        this.colorize[3] = opacity;
-        this.transparent = newTransparent;
+        attribs.color[3] = opacity;
+        attribs.colorize[3] = opacity;
+        attribs.transparent = newTransparent;
         if (this.colorizing) {
-            this.layer.setLayerMeshColor(this.meshIndex, this.colorize, setOpacity);
+            this.layer.setLayerMeshColor(viewIndex, this.meshIndex, attribs.colorize, setOpacity);
         } else {
-            this.layer.setLayerMeshColor(this.meshIndex, this.color, setOpacity);
+            this.layer.setLayerMeshColor(viewIndex, this.meshIndex, attribs.color, setOpacity);
         }
         if (changingTransparency) {
-            this.layer.setLayerMeshTransparent(this.meshIndex, flags, newTransparent);
+            this.layer.setLayerMeshTransparent(viewIndex, this.meshIndex, flags, newTransparent);
         }
     }
 
-    setHighlighted(flags: number) {
-        this.layer.setLayerMeshHighlighted(this.meshIndex, flags, this.transparent);
+    setHighlighted(viewIndex: number, flags: number) {
+        this.layer.setLayerMeshHighlighted(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
     }
 
-    setXRayed(flags: number) {
-        this.layer.setLayerMeshXRayed(this.meshIndex, flags, this.transparent);
+    setXRayed(viewIndex: number, flags: number) {
+        this.layer.setLayerMeshXRayed(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
     }
 
-    setSelected(flags: number) {
-        this.layer.setLayerMeshSelected(this.meshIndex, flags, this.transparent);
+    setSelected(viewIndex: number, flags: number) {
+        this.layer.setLayerMeshSelected(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
     }
 
-    setEdges(flags: number) {
-        this.layer.setLayerMeshEdges(this.meshIndex, flags, this.transparent);
+    setEdges(viewIndex: number, flags: number) {
+        this.layer.setLayerMeshEdges(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
     }
 
-    setClippable(flags: number) {
-        this.layer.setLayerMeshClippable(this.meshIndex, flags);
+    setClippable(viewIndex: number, flags: number) {
+        this.layer.setLayerMeshClippable(viewIndex, this.meshIndex, flags);
     }
 
-    setCollidable(flags: number) {
-        this.layer.setLayerMeshCollidable(this.meshIndex, flags);
+    setCollidable(viewIndex: number, flags: number) {
+        this.layer.setLayerMeshCollidable(viewIndex, this.meshIndex, flags);
     }
 
-    setPickable(flags: number) {
-        this.layer.setLayerMeshPickable(this.meshIndex, flags, this.transparent);
+    setPickable(viewIndex: number, flags: number) {
+        this.layer.setLayerMeshPickable(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
     }
 
-    setCulled(flags: number) {
-        this.layer.setLayerMeshCulled(this.meshIndex, flags, this.transparent);
+    setCulled(viewIndex: number, flags: number) {
+        this.layer.setLayerMeshCulled(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
     }
 
     canPickTriangle() {
@@ -202,9 +200,13 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         //this.sceneObjectRenderer.rendererModel.drawPickNormals(renderContext);
     }
 
-    // delegatePickedEntity(): SceneObjectRendererCommands {
-    //     return <SceneObjectRendererCommands>this.sceneObjectRenderer;
-    // }
+    initFlags(viewIndex: number, flags: number) {
+        this.layer.initFlags(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
+    }
+
+    commitRendererState(viewIndex: number) {
+        this.layer.commitRendererState(viewIndex);
+    }
 
     destroy() {
         if (this.tile && this.tileManager) {

@@ -31,24 +31,6 @@ export interface RendererMesh {
     setColor(color: FloatArrayParam): void;
 
     /**
-     * Loads a material metalness value into the {@link @xeokit/viewer!Renderer}.
-     *
-     * {@link @xeokit/scene!SceneMesh} calls this when we update {@link @xeokit/scene!SceneMesh | SceneMesh.metalness}.
-     *
-     * @internal
-     */
-    setMetallic(metallic: number): void;
-
-    /**
-     * Loads a meterial roughness value into the {@link @xeokit/viewer!Renderer}.
-     *
-     * {@link @xeokit/scene!SceneMesh} calls this when we update {@link @xeokit/scene!SceneMesh | SceneMesh.roughness}.
-     *
-     * @internal
-     */
-    setRoughness(roughness: number): void;
-
-    /**
      * Sends an opacity factor update to the renderers.
      */
   //  setOpacity(opacity: number): void;

@@ -265,35 +265,35 @@ export abstract class VBORenderer {
 
     openVertexMain(src: string[]) {
         src.push("void main(void) {");
-        src.push(`      if ((int(flags) & 0xF) != renderPass) {`);
-        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        src.push("      } else {");
+        // src.push(`      if ((int(flags) & 0xF) != renderPass) {`);
+        // src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        // src.push("      } else {");
     }
 
     openVertexSilhouetteMain(src: string[]) {
         src.push("void main(void) {");
-        src.push(`      if ((int(flags) >> 4 & 0xF) != renderPass) {`);
-        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        src.push("      } else {");
+        // src.push(`      if ((int(flags) >> 4 & 0xF) != renderPass) {`);
+        // src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        // src.push("      } else {");
     }
 
     openVertexPickMain(src: string[]) {
         src.push("void main(void) {");
-        src.push(`      if ((int(flags) >> 12 & 0xF) != renderPass) {`);
-        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        src.push("      } else {");
+        // src.push(`      if ((int(flags) >> 12 & 0xF) != renderPass) {`);
+        // src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        // src.push("      } else {");
     }
 
     openVertexEdgesMain(src: string[]) {
         src.push("void main(void) {");
-        src.push(`      if ((int(flags) >> 8 & 0xF) != renderPass) {`);
-        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        src.push("      } else {");
+        // src.push(`      if ((int(flags) >> 8 & 0xF) != renderPass) {`);
+        // src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        // src.push("      } else {");
     }
 
     closeVertexMain(src: string[]) {
         src.push("      }");
-        src.push("}");
+ //       src.push("}");
     }
 
     vertexSlicingLogic(src: string[]) {

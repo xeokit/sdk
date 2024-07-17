@@ -40,7 +40,7 @@ export class VBOBatchingLayer implements Layer {
     primitive: number;
     rendererModel: WebGLRendererModel;
     layerIndex: number;
-    meshCounts: MeshCounts;
+    meshCounts: MeshCounts[];
     renderState: VBOBatchingRenderState;
     sortId: string;
 
@@ -73,7 +73,12 @@ export class VBOBatchingLayer implements Layer {
         this.rendererModel = vBOBatchingLayerParams.rendererModel;
         this.layerIndex = vBOBatchingLayerParams.layerIndex;
         this.sortId = `VBOBatchingLayer-${vBOBatchingLayerParams.primitive}`;
-        this.meshCounts = new MeshCounts();
+        this.meshCounts = [
+            new MeshCounts(),
+            new MeshCounts(),
+            new MeshCounts(),
+            new MeshCounts()
+        ];
 
         this.#layerNumber = numLayers++;
         this.#portions = [];
@@ -84,13 +89,13 @@ export class VBOBatchingLayer implements Layer {
         this.#aabb = collapseAABB3(); // Model-space AABB
         this.aabbDirty = true;
 
-        this.renderState =<VBOBatchingRenderState> {
+        this.renderState = <VBOBatchingRenderState>{
             numVertices: 0,
             positionsBuf: null,
             indicesBuf: null,
             offsetsBuf: null,
-            colorsBuf: null,
-            flagsBuf: null,
+            colorsBuf: [],
+            flagsBufs: [],
             positionsDecodeMatrix: createMat4(),
             origin: createVec3(),
             pbrSupported: false
@@ -133,8 +138,6 @@ export class VBOBatchingLayer implements Layer {
         }
 
         const geometry = sceneMesh.geometry;
-        const metallic = sceneMesh.metallic;
-        const roughness = sceneMesh.roughness;
         const color = sceneMesh.color;
         const pickColor = layerMeshParams.pickColor;
         const buffer = this.#buffer;
@@ -142,7 +145,7 @@ export class VBOBatchingLayer implements Layer {
         const vertsIndex = positionsIndex / 3;
 
         let numLayerVerts = buffer.positions.length / 3;
-        let numLayerMeshVerts =0;
+        let numLayerMeshVerts = 0;
 
         for (let bucketIndex = 0, lenBuckets = geometry.geometryBuckets.length; bucketIndex < lenBuckets; bucketIndex++) {
 
@@ -227,21 +230,22 @@ export class VBOBatchingLayer implements Layer {
             buffer.pickColors.push(pickColor[3]);
         }
 
-        const metallicValue = (metallic !== null && metallic !== undefined) ? metallic : 0;
-        const roughnessValue = (roughness !== null && roughness !== undefined) ? roughness : 255;
-
-        for (let i = 0; i < numLayerMeshVerts; i++) {
-            buffer.metallicRoughness.push(metallicValue);
-            buffer.metallicRoughness.push(roughnessValue);
-        }
-
         const layerMeshIndex = this.#portions.length / 2;
 
         this.#portions.push(vertsIndex);
         this.#portions.push(numLayerVerts);
 
-        this.meshCounts.numMeshes++;
-        this.rendererModel.meshCounts.numMeshes++;
+        for (let viewIndex = 0, len = this.meshCounts.length; viewIndex < len; viewIndex++) {
+            this.meshCounts[viewIndex].numMeshes++;
+            this.rendererModel.meshCounts[viewIndex].numMeshes++;
+
+
+
+//////////////////// HACK
+            this.meshCounts[viewIndex].numVisible++;
+            this.rendererModel.meshCounts[viewIndex].numVisible++;
+            /////////////////////////////////////////////////
+        }
 
         return layerMeshIndex;
     }
@@ -259,6 +263,7 @@ export class VBOBatchingLayer implements Layer {
         const renderState = this.renderState;
         const gl = this.renderContext.gl;
         const buffer = this.#buffer;
+        const numViews = this.meshCounts.length;
 
         if (buffer.positions.length > 0) {
             // if (this.#preCompressedPositionsExpected) {
@@ -275,14 +280,18 @@ export class VBOBatchingLayer implements Layer {
         if (buffer.colors.length > 0) {
             const colors = new Uint8Array(buffer.colors);
             let normalized = false;
-            renderState.colorsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, colors, buffer.colors.length, 4, gl.STATIC_DRAW, normalized);
+            for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+                renderState.colorsBuf[viewIndex] = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, colors, buffer.colors.length, 4, gl.STATIC_DRAW, normalized);
+            }
         }
 
         if (buffer.positions.length > 0) { // Because we build flags arrays here, get their length from the positions array
             const flagsLength = buffer.positions.length / 3;
             const flags = new Float32Array(flagsLength);
             let notNormalized = false;
-            renderState.flagsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, flags, flags.length, 1, gl.DYNAMIC_DRAW, notNormalized);
+            for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+                renderState.flagsBufs[viewIndex] = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, flags, flags.length, 1, gl.DYNAMIC_DRAW, notNormalized);
+            }
         }
 
         if (buffer.pickColors.length > 0) {
@@ -338,154 +347,154 @@ export class VBOBatchingLayer implements Layer {
         this.#built = true;
     }
 
-    initFlags(layerMeshIndex: number, flags: number, transparent: boolean) {
+    initFlags(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean) {
         if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
-            this.meshCounts.numVisible++;
-            this.rendererModel.meshCounts.numVisible++;
+            this.meshCounts[viewIndex].numVisible++;
+            this.rendererModel.meshCounts[viewIndex].numVisible++;
         }
         if (flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) {
-            this.meshCounts.numHighlighted++;
-            this.rendererModel.meshCounts.numHighlighted++;
+            this.meshCounts[viewIndex].numHighlighted++;
+            this.rendererModel.meshCounts[viewIndex].numHighlighted++;
         }
         if (flags & SCENE_OBJECT_FLAGS.XRAYED) {
-            this.meshCounts.numXRayed++;
-            this.rendererModel.meshCounts.numXRayed++;
+            this.meshCounts[viewIndex].numXRayed++;
+            this.rendererModel.meshCounts[viewIndex].numXRayed++;
         }
         if (flags & SCENE_OBJECT_FLAGS.SELECTED) {
-            this.meshCounts.numSelected++;
-            this.rendererModel.meshCounts.numSelected++;
+            this.meshCounts[viewIndex].numSelected++;
+            this.rendererModel.meshCounts[viewIndex].numSelected++;
         }
         if (flags & SCENE_OBJECT_FLAGS.CLIPPABLE) {
-            this.meshCounts.numClippable++;
-            this.rendererModel.meshCounts.numClippable++;
+            this.meshCounts[viewIndex].numClippable++;
+            this.rendererModel.meshCounts[viewIndex].numClippable++;
         }
         if (flags & SCENE_OBJECT_FLAGS.PICKABLE) {
-            this.meshCounts.numPickable++;
-            this.rendererModel.meshCounts.numPickable++;
+            this.meshCounts[viewIndex].numPickable++;
+            this.rendererModel.meshCounts[viewIndex].numPickable++;
         }
         if (flags & SCENE_OBJECT_FLAGS.CULLED) {
-            this.meshCounts.numCulled++;
-            this.rendererModel.meshCounts.numCulled++;
+            this.meshCounts[viewIndex].numCulled++;
+            this.rendererModel.meshCounts[viewIndex].numCulled++;
         }
         if (transparent) {
-            this.meshCounts.numTransparent++;
-            this.rendererModel.meshCounts.numTransparent++;
+            this.meshCounts[viewIndex].numTransparent++;
+            this.rendererModel.meshCounts[viewIndex].numTransparent++;
         }
-        this.setLayerMeshFlags(layerMeshIndex, flags, transparent);
+        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshVisible(layerMeshIndex: number, flags: number, transparent: boolean): void {
+    setLayerMeshVisible(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
-            this.meshCounts.numVisible++;
-            this.rendererModel.meshCounts.numVisible++;
+            this.meshCounts[viewIndex].numVisible++;
+            this.rendererModel.meshCounts[viewIndex].numVisible++;
         } else {
-            this.meshCounts.numVisible--;
-            this.rendererModel.meshCounts.numVisible--;
+            this.meshCounts[viewIndex].numVisible--;
+            this.rendererModel.meshCounts[viewIndex].numVisible--;
         }
-        this.setLayerMeshFlags(layerMeshIndex, flags, transparent);
+        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshHighlighted(layerMeshIndex: number, flags: number, transparent: boolean): void {
+    setLayerMeshHighlighted(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) {
-            this.meshCounts.numHighlighted++;
-            this.rendererModel.meshCounts.numHighlighted++;
+            this.meshCounts[viewIndex].numHighlighted++;
+            this.rendererModel.meshCounts[viewIndex].numHighlighted++;
         } else {
-            this.meshCounts.numHighlighted--;
-            this.rendererModel.meshCounts.numHighlighted--;
+            this.meshCounts[viewIndex].numHighlighted--;
+            this.rendererModel.meshCounts[viewIndex].numHighlighted--;
         }
-        this.setLayerMeshFlags(layerMeshIndex, flags, transparent);
+        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshXRayed(layerMeshIndex: number, flags: number, transparent: boolean): void {
+    setLayerMeshXRayed(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.XRAYED) {
-            this.meshCounts.numXRayed++;
-            this.rendererModel.meshCounts.numXRayed++;
+            this.meshCounts[viewIndex].numXRayed++;
+            this.rendererModel.meshCounts[viewIndex].numXRayed++;
         } else {
-            this.meshCounts.numXRayed--;
-            this.rendererModel.meshCounts.numXRayed--;
+            this.meshCounts[viewIndex].numXRayed--;
+            this.rendererModel.meshCounts[viewIndex].numXRayed--;
         }
-        this.setLayerMeshFlags(layerMeshIndex, flags, transparent);
+        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshSelected(layerMeshIndex: number, flags: number, transparent: boolean): void {
+    setLayerMeshSelected(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.SELECTED) {
-            this.meshCounts.numSelected++;
-            this.rendererModel.meshCounts.numSelected++;
+            this.meshCounts[viewIndex].numSelected++;
+            this.rendererModel.meshCounts[viewIndex].numSelected++;
         } else {
-            this.meshCounts.numSelected--;
-            this.rendererModel.meshCounts.numSelected--;
+            this.meshCounts[viewIndex].numSelected--;
+            this.rendererModel.meshCounts[viewIndex].numSelected--;
         }
-        this.setLayerMeshFlags(layerMeshIndex, flags, transparent);
+        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshEdges(layerMeshIndex: number, flags: number, transparent: boolean): void {
+    setLayerMeshEdges(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
         // Not applicable to point clouds
     }
 
-    setLayerMeshClippable(layerMeshIndex: number, flags: number): void {
+    setLayerMeshClippable(viewIndex: number, layerMeshIndex: number, flags: number): void {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.CLIPPABLE) {
-            this.meshCounts.numClippable++;
-            this.rendererModel.meshCounts.numClippable++;
+            this.meshCounts[viewIndex].numClippable++;
+            this.rendererModel.meshCounts[viewIndex].numClippable++;
         } else {
-            this.meshCounts.numClippable--;
-            this.rendererModel.meshCounts.numClippable--;
+            this.meshCounts[viewIndex].numClippable--;
+            this.rendererModel.meshCounts[viewIndex].numClippable--;
         }
-        this.setLayerMeshFlags(layerMeshIndex, flags);
+        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags);
     }
 
-    setLayerMeshCulled(layerMeshIndex: number, flags: number, transparent: boolean): void {
+    setLayerMeshCulled(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.CULLED) {
-            this.meshCounts.numCulled++;
-            this.rendererModel.meshCounts.numCulled++;
+            this.meshCounts[viewIndex].numCulled++;
+            this.rendererModel.meshCounts[viewIndex].numCulled++;
         } else {
-            this.meshCounts.numCulled--;
-            this.rendererModel.meshCounts.numCulled--;
+            this.meshCounts[viewIndex].numCulled--;
+            this.rendererModel.meshCounts[viewIndex].numCulled--;
         }
-        this.setLayerMeshFlags(layerMeshIndex, flags, transparent);
+        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshCollidable(layerMeshIndex: number, flags: number): void {
+    setLayerMeshCollidable(viewIndex: number, layerMeshIndex: number, flags: number): void {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
     }
 
-    setLayerMeshPickable(layerMeshIndex: number, flags: number, transparent: boolean): void {
+    setLayerMeshPickable(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
         if (flags & SCENE_OBJECT_FLAGS.PICKABLE) {
-            this.meshCounts.numPickable++;
-            this.rendererModel.meshCounts.numPickable++;
+            this.meshCounts[viewIndex].numPickable++;
+            this.rendererModel.meshCounts[viewIndex].numPickable++;
         } else {
-            this.meshCounts.numPickable--;
-            this.rendererModel.meshCounts.numPickable--;
+            this.meshCounts[viewIndex].numPickable--;
+            this.rendererModel.meshCounts[viewIndex].numPickable--;
         }
-        this.setLayerMeshFlags(layerMeshIndex, flags, transparent);
+        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshColor(layerMeshIndex: number, color: FloatArrayParam): void {
+    setLayerMeshColor(viewIndex: number, layerMeshIndex: number, color: FloatArrayParam): void {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -503,25 +512,27 @@ export class VBOBatchingLayer implements Layer {
             tempArray[i + 1] = g;
             tempArray[i + 2] = b;
         }
-        this.renderState.colorsBuf.setData(tempArray, firstColor);
+        this.renderState.colorsBuf[viewIndex].setData(tempArray, firstColor);
     }
 
-    setLayerMeshTransparent(layerMeshIndex: number, flags: number, transparent: boolean): void {
+    setLayerMeshTransparent(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
         if (transparent) {
-            this.meshCounts.numTransparent++;
-            this.rendererModel.meshCounts.numTransparent++;
+            this.meshCounts[viewIndex].numTransparent++;
+            this.rendererModel.meshCounts[viewIndex].numTransparent++;
         } else {
-            this.meshCounts.numTransparent--;
-            this.rendererModel.meshCounts.numTransparent--;
+            this.meshCounts[viewIndex].numTransparent--;
+            this.rendererModel.meshCounts[viewIndex].numTransparent--;
         }
-        this.setLayerMeshFlags(layerMeshIndex, flags, transparent);
+        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshFlags(layerMeshIndex: number, flags: number, transparent: boolean = false): void {
+    setLayerMeshFlags(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean = false): void {
 
         if (!this.#built) {
             throw new SDKError("Not built");
         }
+
+        const view = this.renderContext.viewer.viewList[viewIndex];
 
         const portionsIdx = layerMeshIndex * 2;
         const vertexBase = this.#portions[portionsIdx];
@@ -539,8 +550,8 @@ export class VBOBatchingLayer implements Layer {
 
         let colorFlag;
         if (!visible || culled || xrayed
-            || (highlighted && !this.renderContext.view.highlightMaterial.glowThrough)
-            || (selected && !this.renderContext.view.selectedMaterial.glowThrough)) {
+            || (highlighted && !view.highlightMaterial.glowThrough)
+            || (selected && !view.selectedMaterial.glowThrough)) {
             colorFlag = RENDER_PASSES.NOT_RENDERED;
         } else {
             if (transparent) {
@@ -577,7 +588,7 @@ export class VBOBatchingLayer implements Layer {
             tempArray[i] = vertFlag;
         }
 
-        this.renderState.flagsBuf.setData(tempArray, firstFlag);
+        this.renderState.flagsBufs[viewIndex].setData(tempArray, firstFlag);
     }
 
     setLayerMeshMatrix(layerMeshIndex: number, matrix: FloatArrayParam): void {
@@ -586,17 +597,18 @@ export class VBOBatchingLayer implements Layer {
         }
     }
 
-    setLayerMeshOffset(layerMeshIndex: number, offset: FloatArrayParam): void {
+    setLayerMeshOffset(viewIndex: number, layerMeshIndex: number, offset: FloatArrayParam): void {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
     }
 
     drawColorOpaque() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numTransparent === this.meshCounts.numMeshes ||
-            this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
             return;
         }
         if (this.#rendererSet.colorRenderer) {
@@ -605,10 +617,11 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawColorTranslucent() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numTransparent === 0 ||
-            this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numTransparent === 0 ||
+            this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
             return;
         }
         if (this.#rendererSet.colorRenderer) {
@@ -617,10 +630,11 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawDepth() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numTransparent === this.meshCounts.numMeshes ||
-            this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
             return;
         }
         // if (this.#rendererSet.depthRenderer) {
@@ -629,10 +643,11 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawNormals() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numTransparent === this.meshCounts.numMeshes ||
-            this.meshCounts.numXRayed === this.meshCounts.numMeshes) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
             return;
         }
         // if (this.#rendererSet.normalsRenderer) {
@@ -641,9 +656,10 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawSilhouetteXRayed() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numXRayed === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numXRayed === 0) {
             return;
         }
         if (this.#rendererSet.silhouetteRenderer) {
@@ -652,9 +668,10 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawSilhouetteHighlighted() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numHighlighted === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numHighlighted === 0) {
             return;
         }
         if (this.#rendererSet.silhouetteRenderer) {
@@ -663,9 +680,10 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawSilhouetteSelected() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numSelected === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numSelected === 0) {
             return;
         }
         if (this.#rendererSet.silhouetteRenderer) {
@@ -674,9 +692,10 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawEdgesColorOpaque() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numEdges === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numEdges === 0) {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
@@ -685,10 +704,11 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawEdgesColorTranslucent() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numEdges === 0 ||
-            this.meshCounts.numTransparent === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numEdges === 0 ||
+            this.meshCounts[viewIndex].numTransparent === 0) {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
@@ -697,10 +717,11 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawEdgesHighlighted() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numEdges === 0 ||
-            this.meshCounts.numHighlighted === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numEdges === 0 ||
+            this.meshCounts[viewIndex].numHighlighted === 0) {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
@@ -709,10 +730,11 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawEdgesSelected() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numEdges === 0 ||
-            this.meshCounts.numSelected === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numEdges === 0 ||
+            this.meshCounts[viewIndex].numSelected === 0) {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
@@ -721,10 +743,11 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawEdgesXRayed() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0 ||
-            this.meshCounts.numEdges === 0 ||
-            this.meshCounts.numXRayed === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numEdges === 0 ||
+            this.meshCounts[viewIndex].numXRayed === 0) {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
@@ -733,8 +756,9 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawOcclusion() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-            this.meshCounts.numVisible === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0) {
             return;
         }
         if (this.#rendererSet.occlusionRenderer) {
@@ -743,8 +767,9 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawShadow() {
-        // if (this.meshCounts.numCulled === this.meshCounts.numMeshes ||
-        //     this.meshCounts.numVisible === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        // if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+        //     this.meshCounts[viewIndex].numVisible === 0) {
         //     return;
         // }
         // if (this.#rendererSet.shadowRenderer) {
@@ -753,7 +778,8 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawPickMesh() {
-        if (this.meshCounts.numVisible === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numVisible === 0) {
             return;
         }
         if (this.#rendererSet.pickMeshRenderer) {
@@ -762,7 +788,8 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawPickDepths() {
-        if (this.meshCounts.numVisible === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numVisible === 0) {
             return;
         }
         if (this.#rendererSet.pickDepthRenderer) {
@@ -771,7 +798,8 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawSnapInit() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes || this.meshCounts[viewIndex].numVisible === 0) {
             return;
         }
         if (this.#rendererSet.snapInitRenderer) {
@@ -780,7 +808,8 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawSnap() {
-        if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0) {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes || this.meshCounts[viewIndex].numVisible === 0) {
             return;
         }
         if (this.#rendererSet.snapRenderer) {
@@ -789,7 +818,7 @@ export class VBOBatchingLayer implements Layer {
     }
 
     drawPickNormals() {
-        // if (this.meshCounts.numCulled === this.meshCounts.numMeshes || this.meshCounts.numVisible === 0) {
+        // if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes || this.meshCounts[viewIndex].numVisible === 0) {
         //     return;
         // }
         // if (this.#rendererSet.pickNormalsRenderer) {
@@ -807,13 +836,17 @@ export class VBOBatchingLayer implements Layer {
             renderState.offsetsBuf.destroy();
             renderState.offsetsBuf = null;
         }
-        if (renderState.colorsBuf) {
-            renderState.colorsBuf.destroy();
-            renderState.colorsBuf = null;
+        for (let viewIndex = 0, len = renderState.colorsBuf.length; viewIndex < len; viewIndex++) {
+            if (renderState.colorsBuf[viewIndex]) {
+                renderState.colorsBuf[viewIndex].destroy();
+                renderState.colorsBuf[viewIndex] = null;
+            }
         }
-        if (renderState.flagsBuf) {
-            renderState.flagsBuf.destroy();
-            renderState.flagsBuf = null;
+        for (let viewIndex = 0, len = renderState.flagsBufs.length; viewIndex < len; viewIndex++) {
+            if (renderState.flagsBufs[viewIndex]) {
+                renderState.flagsBufs[viewIndex].destroy();
+                renderState.flagsBufs[viewIndex] = null;
+            }
         }
         if (renderState.pickColorsBuf) {
             renderState.pickColorsBuf.destroy();
@@ -835,7 +868,7 @@ export class VBOBatchingLayer implements Layer {
         putScratchMemory();
     }
 
-    commitRendererState(): void {
+    commitRendererState(viewIndex: number): void {
     }
 
     isEmpty(): boolean {

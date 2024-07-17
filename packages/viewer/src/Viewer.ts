@@ -11,7 +11,6 @@ import type {Renderer} from "./Renderer";
 import type {ViewParams} from "./ViewParams";
 import type {TickParams} from "./TickParams";
 
-
 /**
  * A Browser-based 2D/3D model viewer.
  *
@@ -282,8 +281,8 @@ export class Viewer extends Component {
         }
         // @ts-ignore
         const canvasElement = params.canvasElement || document.getElementById(params.canvasId);
-        if (!(canvasElement instanceof HTMLCanvasElement)) {
-            return new SDKError("Mandatory View config expected: valid canvasId or canvasElement");
+        if (!(canvasElement instanceof HTMLElement)) {
+            return new SDKError("Mandatory View config expected: valid canvasId or HTMLElement");
         }
         const view = new View(apply({viewId, viewer: this}, params));
         {
@@ -370,7 +369,9 @@ export class Viewer extends Component {
      */
     render(params: any) {
         for (let viewIndex = 0; viewIndex < this.viewList.length; viewIndex++) {
-            this.renderer.render(viewIndex, {force: true});
+            // console.log("this.renderer.render()");
+            // console.log("...");
+             this.renderer.render(viewIndex, {force: false});
         }
     }
 

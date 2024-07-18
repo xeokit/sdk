@@ -249,16 +249,16 @@ export class WebGLRendererModel extends Component implements RendererModel {
         // step populates the data arrays for the data textures, second step loads the
         // entire arrays into the textures, collapsing zillions of gl.texSubImage2D calls.
         const numViews = this.viewer.viewList.length;
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-                this.rendererObjectsList[i].initFlags(viewIndex);
-            }
-        }
-        for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-            for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
-                this.rendererObjectsList[i].commitRendererState(viewIndex);
-            }
-        }
+        // for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+        //     for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+        //         this.rendererObjectsList[i].initFlags(viewIndex);
+        //     }
+        // }
+        // for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
+        //     for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+        //         this.rendererObjectsList[i].commitRendererState(viewIndex);
+        //     }
+        // }
     }
 
     #attachTexture(texture: SceneTexture): void {

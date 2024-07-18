@@ -36,9 +36,8 @@ class WebGLRendererView {
 
     isPrimaryView: boolean;
     gl: WebGL2RenderingContext;
-    webglCanvasElement: HTMLCanvasElement;
 
-    constructor( gl: WebGL2RenderingContext, view: View, webglCanvasElement: HTMLCanvasElement) {
+    constructor(gl: WebGL2RenderingContext, view: View) {
         this.gl = gl;
         this.view = view;
         this.transparencyEnabled = true;
@@ -51,8 +50,6 @@ class WebGLRendererView {
         this.transparentEnabled = true;
         this.backgroundColor = createVec3();
         this.saveCanvasBoundary = view.htmlElement.getBoundingClientRect();
-        this.webglCanvasElement = webglCanvasElement;
-        this.isPrimaryView = (!!webglCanvasElement);
     }
 
     destroy() {
@@ -129,6 +126,9 @@ export class WebGLRenderer implements Renderer {
      */
     readonly onDestroyed: EventEmitter<WebGLRenderer, boolean>;
 
+    #webglCanvasElement: HTMLCanvasElement;
+    #gl: WebGL2RenderingContext;
+
 
     /**
      * Creates a WebGLRenderer.
@@ -171,6 +171,37 @@ export class WebGLRenderer implements Renderer {
 
         this.onCompiled = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
         this.onDestroyed = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
+
+        this.#webglCanvasElement = document.createElement('canvas');
+        const webglCanvasElement = this.#webglCanvasElement;
+        webglCanvasElement.width = 400;
+        webglCanvasElement.height = 400;
+        webglCanvasElement.style.position = 'absolute';
+        webglCanvasElement.style.top = '50px';
+        webglCanvasElement.style.left = '50px';
+        webglCanvasElement.style.border = '1px solid black';
+        webglCanvasElement.style["pointer-events"] = "none";
+        webglCanvasElement.style["z-index"] = 100000; // HACK
+
+        document.body.appendChild(webglCanvasElement);
+        const WEBGL_CONTEXT_NAMES = ["webgl2"];
+        const contextAttr = {};
+        let gl: WebGL2RenderingContext | null = null;
+        for (let i = 0; !gl && i < WEBGL_CONTEXT_NAMES.length; i++) {
+            try {  // @ts-ignore
+                gl = webglCanvasElement.getContext(WEBGL_CONTEXT_NAMES[i], contextAttr);
+            } catch (e) { // Try with next context name
+            }
+        }
+        if (!gl) {
+            //return new SDKError(`Failed to get a WebGL2 context on the View's canvas (HTMLCanvasElement with ID "${view.htmlElement.id}")`);
+        }
+        gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
+
+        this.#gl = gl;
+
+        // this.tileManager = new WebGLTileManager({camera: view.camera, gl});
+        this.#renderBufferManager = new WebGLRenderBufferManager(gl, webglCanvasElement);
     }
 
     /**
@@ -234,6 +265,7 @@ export class WebGLRenderer implements Renderer {
         }
         this.#viewer = viewer;
         this.#textureTranscoder.init(this.#viewer.capabilities);
+        this.renderContext = new RenderContext(this.#viewer, this.#gl, this);
     }
 
     /**
@@ -292,53 +324,23 @@ export class WebGLRenderer implements Renderer {
         if (this.#rendererViews[view.id]) {
             return new SDKError("Can't attach additional View to WebGLRenderer - View already attached (see WebViewerCapabilities.maxViews)");
         }
-        let webglCanvasElement;
-        if (this.#rendererViewsList.length === 0) {
-            webglCanvasElement = document.createElement('canvas');
-            webglCanvasElement.width = 400;
-            webglCanvasElement.height = 400;
-            webglCanvasElement.style.position = 'absolute';
-            webglCanvasElement.style.top = '50px';
-            webglCanvasElement.style.left = '50px';
-            webglCanvasElement.style.border = '1px solid black';
-            webglCanvasElement.style["pointer-events"] = "none";
-            webglCanvasElement.style["z-index"] = 100000; // HACK
 
-            document.body.appendChild(webglCanvasElement);
-            const WEBGL_CONTEXT_NAMES = ["webgl2"];
-            const contextAttr = {};
-            let gl: WebGL2RenderingContext | null = null;
-            for (let i = 0; !gl && i < WEBGL_CONTEXT_NAMES.length; i++) {
-                try {  // @ts-ignore
-                    gl = webglCanvasElement.getContext(WEBGL_CONTEXT_NAMES[i], contextAttr);
-                } catch (e) { // Try with next context name
-                }
-            }
-            if (!gl) {
-                return new SDKError(`Failed to get a WebGL2 context on the View's canvas (HTMLCanvasElement with ID "${view.htmlElement.id}")`);
-            }
-            gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
-
-            this.renderContext = new RenderContext(this.#viewer, gl, this);
-           // this.tileManager = new WebGLTileManager({camera: view.camera, gl});
-            this.#renderBufferManager = new WebGLRenderBufferManager(gl, webglCanvasElement, view);
-        }
         view.camera.onViewMatrix.subscribe(this.#onViewCameraMatrix = () => {
             this.#viewMatrixDirty = true;
         });
         const isPrimaryView = (this.#rendererViewsList.length === 0);
 
-            // const context2d = view.htmlElement.getContext('2d');
-            //
-            // //////////////////
-            // context2d.fillStyle = 'blue'; // Set the fill color
-            // context2d.fillRect(50, 50, 200, 100); // x, y, width, height
-            // context2d.strokeStyle = 'red'; // Set the stroke color
-            // context2d.lineWidth = 5; // Set the line width
-            // context2d.strokeRect(100, 200, 150, 75); // x, y, width, height
+        // const context2d = view.htmlElement.getContext('2d');
+        //
+        // //////////////////
+        // context2d.fillStyle = 'blue'; // Set the fill color
+        // context2d.fillRect(50, 50, 200, 100); // x, y, width, height
+        // context2d.strokeStyle = 'red'; // Set the stroke color
+        // context2d.lineWidth = 5; // Set the line width
+        // context2d.strokeRect(100, 200, 150, 75); // x, y, width, height
 ////
 
-        const rendererView = new WebGLRendererView( this.renderContext.gl, view, webglCanvasElement);
+        const rendererView = new WebGLRendererView(this.renderContext.gl, view);
         this.#rendererViews[view.id] = rendererView;
         view.viewIndex = this.#rendererViewsList.length;
         this.#rendererViewsList.push(rendererView);
@@ -683,7 +685,7 @@ export class WebGLRenderer implements Renderer {
             this.onCompiled.dispatch(this, true);
             this.#shadersDirty = false;
         }
-       // params = params || {};
+        // params = params || {};
         if (params.force) {
             rendererView.imageDirty = true;
         }
@@ -732,21 +734,19 @@ export class WebGLRenderer implements Renderer {
             (<HTMLImageElement>activeRendererView.view.htmlElement).src = image;
         }
 
-        const primaryWebGLCanvasElement = primaryRendererView.webglCanvasElement;
+        const webglCanvasElement = this.#webglCanvasElement;
 
         const targetView = targetRendererView.view;
         const targetCanvasElement = targetView.htmlElement;
         const targetCanvasBoundingRect = targetCanvasElement.getBoundingClientRect();
 
-        primaryWebGLCanvasElement.style["left"] = `${targetCanvasBoundingRect.left}px`;
-        primaryWebGLCanvasElement.style["top"] = `${targetCanvasBoundingRect.top}px`;
-        primaryWebGLCanvasElement.style["width"] = `${targetCanvasBoundingRect.width}px`;
-        primaryWebGLCanvasElement.style["height"] = `${targetCanvasBoundingRect.height}px`;
-
-        primaryWebGLCanvasElement.width = targetCanvasBoundingRect.width;
-        primaryWebGLCanvasElement.height = targetCanvasBoundingRect.height;
-
-        primaryWebGLCanvasElement.style["z-index"] = 100000;
+        webglCanvasElement.style["left"] = `${targetCanvasBoundingRect.left}px`;
+        webglCanvasElement.style["top"] = `${targetCanvasBoundingRect.top}px`;
+        webglCanvasElement.style["width"] = `${targetCanvasBoundingRect.width}px`;
+        webglCanvasElement.style["height"] = `${targetCanvasBoundingRect.height}px`;
+        webglCanvasElement.width = targetCanvasBoundingRect.width;
+        webglCanvasElement.height = targetCanvasBoundingRect.height;
+        webglCanvasElement.style["z-index"] = 100000;
 
         this.#activeRendererView = targetRendererView;
     }
@@ -1225,7 +1225,7 @@ export class WebGLRenderer implements Renderer {
         return "";
     }
 
-    readSnapshotAsCanvas() : HTMLCanvasElement{
+    readSnapshotAsCanvas(): HTMLCanvasElement {
         // const rendererView = this.#rendererViewsList[viewIndex];
         // if (!rendererView) {
         //     throw new SDKError(`Can't read snapshot with WebGLRenderer.readSnapshotAsCanvas() - no View attached at given viewIndex: ${viewIndex}`);

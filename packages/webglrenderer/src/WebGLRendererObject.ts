@@ -42,6 +42,11 @@ export class WebGLRendererObject implements RendererObject {
         this.sceneObject = params.sceneObject;
         this.rendererModel = params.rendererModel;
         this.rendererMeshes = params.rendererMeshes || [];
+
+        ///////////////////////////////////
+        // FIXME: start off at 1,1,1,1 ?
+        ///////////////////////////////////
+
         this.#flags = [0, 0, 0, 0];
         this.#aabb = params.aabb;
         this.#offsetAABB = createAABB3(params.aabb);

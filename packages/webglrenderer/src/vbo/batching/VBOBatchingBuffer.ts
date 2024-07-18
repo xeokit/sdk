@@ -9,7 +9,6 @@ export class VBOBatchingBuffer {
     positions: number[];
     colors: number[];
     uv: number[];
-    metallicRoughness: number[];
     normals: number[];
     pickColors: number[];
     offsets: number[];
@@ -25,7 +24,6 @@ export class VBOBatchingBuffer {
         this.positions = [];
         this.colors = [];
         this.uv = [];
-        this.metallicRoughness = [];
         this.normals = [];
         this.pickColors = [];
         this.offsets = [];

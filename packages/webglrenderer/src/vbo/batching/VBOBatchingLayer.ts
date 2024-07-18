@@ -242,8 +242,8 @@ export class VBOBatchingLayer implements Layer {
 
 
 //////////////////// HACK
-            this.meshCounts[viewIndex].numVisible++;
-            this.rendererModel.meshCounts[viewIndex].numVisible++;
+//             this.meshCounts[viewIndex].numVisible++;
+//             this.rendererModel.meshCounts[viewIndex].numVisible++;
             /////////////////////////////////////////////////
         }
 
@@ -266,15 +266,10 @@ export class VBOBatchingLayer implements Layer {
         const numViews = this.meshCounts.length;
 
         if (buffer.positions.length > 0) {
-            // if (this.#preCompressedPositionsExpected) {
-            // const positions = new Uint16Array(buffer.positions);
-            // renderState.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, positions, buffer.positions.length, 3, gl.STATIC_DRAW);
-            // } else {
             const positions = new Float32Array(buffer.positions);
             positions3ToAABB3(positions, this.#aabb, null);
             const quantizedPositions = quantizePositions3(positions, this.#aabb, renderState.positionsDecodeMatrix);
             renderState.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, quantizedPositions, buffer.positions.length, 3, gl.STATIC_DRAW);
-            //}
         }
 
         if (buffer.colors.length > 0) {
@@ -322,12 +317,6 @@ export class VBOBatchingLayer implements Layer {
                 let notNormalized = false;
                 renderState.uvBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, buffer.uv, buffer.uv.length, 2, gl.STATIC_DRAW, notNormalized);
             }
-        }
-
-        if (buffer.metallicRoughness.length > 0) {
-            const metallicRoughness = new Uint8Array(buffer.metallicRoughness);
-            let normalized = false;
-            renderState.metallicRoughnessBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, metallicRoughness, buffer.metallicRoughness.length, 2, gl.STATIC_DRAW, normalized);
         }
 
         this.renderState.pbrSupported

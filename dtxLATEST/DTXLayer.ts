@@ -64,7 +64,7 @@ export abstract class DTXLayer implements Layer {
     view: View;
     rendererModel: WebGLRendererModel;
     layerIndex: number;
-    meshCounts: MeshCounts;
+    meshCounts: MeshCounts[];
     renderState: DTXRenderState;
     sortId: string;
     dataTextureBuffer: DTXBuffer;
@@ -465,7 +465,7 @@ export abstract class DTXLayer implements Layer {
         this.#deferredAttributesUpdateEnabled = true;
     }
 
-    setLayerMeshFlags(layerMeshIndex: number, flags: number, meshTransparent: boolean) {
+    setLayerMeshFlags(viewIndex: number, layerMeshIndex: number, flags: number, meshTransparent: boolean) {
         if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
             this.meshCounts.numVisible++;
             this.rendererModel.meshCounts.numVisible++;
@@ -512,7 +512,7 @@ export abstract class DTXLayer implements Layer {
         this.#commitDeferredMatrices();
     }
 
-    setLayerMeshVisible(layerMeshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshVisible(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -526,7 +526,7 @@ export abstract class DTXLayer implements Layer {
         this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshHighlighted(layerMeshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshHighlighted(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -540,7 +540,7 @@ export abstract class DTXLayer implements Layer {
         this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshXRayed(layerMeshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshXRayed(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -554,7 +554,7 @@ export abstract class DTXLayer implements Layer {
         this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshSelected(layerMeshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshSelected(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -568,7 +568,7 @@ export abstract class DTXLayer implements Layer {
         this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshEdges(layerMeshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshEdges(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -582,7 +582,7 @@ export abstract class DTXLayer implements Layer {
         this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshClippable(layerMeshIndex: number, flags: number) {
+    setLayerMeshClippable(viewIndex: number, layerMeshIndex: number, flags: number) {
         if (!this.#built) {
             throw new SDKError("Not built");
         }
@@ -596,7 +596,7 @@ export abstract class DTXLayer implements Layer {
         this.#setMeshFlags2(layerMeshIndex, flags);
     }
 
-    setLayerMeshCulled(layerMeshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshCulled(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
@@ -616,7 +616,7 @@ export abstract class DTXLayer implements Layer {
         }
     }
 
-    setLayerMeshPickable(layerMeshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshPickable(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
@@ -630,7 +630,7 @@ export abstract class DTXLayer implements Layer {
         this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshColor(layerMeshIndex: number, color: FloatArrayParam, setOpacity: boolean) {
+    setLayerMeshColor(viewIndex: number, layerMeshIndex: number, color: FloatArrayParam, setOpacity: boolean) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
@@ -671,7 +671,7 @@ export abstract class DTXLayer implements Layer {
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    setLayerMeshTransparent(layerMeshIndex: number, flags: number, transparent: boolean) {
+    setLayerMeshTransparent(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
@@ -685,7 +685,7 @@ export abstract class DTXLayer implements Layer {
         this.#setMeshFlags(layerMeshIndex, flags, transparent);
     }
 
-    #setMeshFlags(layerMeshIndex: number, flags: number, transparent: boolean, deferred: boolean = false) {
+    #setMeshFlags(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean, deferred: boolean = false) {
         const subMeshIndices = this.#meshToSubMeshLookup[layerMeshIndex];
         for (let i = 0, len = subMeshIndices.length; i < len; i++) {
             this.#setSubMeshFlags(subMeshIndices[i], flags, transparent, deferred);
@@ -784,7 +784,7 @@ export abstract class DTXLayer implements Layer {
         // gl.bindTexture (gl.TEXTURE_2D, null);
     }
 
-    #setMeshFlags2(layerMeshIndex: number, flags: number, deferred = false) {
+    #setMeshFlags2(viewIndex: number, layerMeshIndex: number, flags: number, deferred = false) {
         const subMeshIndices = this.#meshToSubMeshLookup[layerMeshIndex];
         for (let i = 0, len = subMeshIndices.length; i < len; i++) {
             this.#setSubMeshFlags2(subMeshIndices[i], flags, deferred);
@@ -848,7 +848,7 @@ export abstract class DTXLayer implements Layer {
         }
     }
 
-    setLayerMeshOffset(layerMeshIndex: number, offset: FloatArrayParam) {
+    setLayerMeshOffset(viewIndex: number, layerMeshIndex: number, offset: FloatArrayParam) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }
@@ -904,7 +904,7 @@ export abstract class DTXLayer implements Layer {
         this.#deferredMatricesUpdateEnabled = true;
     }
 
-    setLayerMeshMatrix(layerMeshIndex: number, matrix: FloatArrayParam) {
+    setLayerMeshMatrix(viewIndex: number, layerMeshIndex: number, matrix: FloatArrayParam) {
         if (!this.#built) {
             throw new SDKError("Not finalized");
         }

@@ -11,9 +11,9 @@ export class WebGLRenderBufferManager {
     #renderBuffersScaled: { [key: string]: WebGLRenderBuffer };
     #webglCanvas: HTMLCanvasElement;
 
-    constructor(gl: WebGL2RenderingContext, webglCanvas: HTMLCanvasElement, view: View) {
+    constructor(gl: WebGL2RenderingContext, webglCanvas: HTMLCanvasElement) {
         this.#gl = gl;
-        this.#view = view;
+     //   this.#view = view;
         this.#webglCanvas= webglCanvas;
         this.#renderBuffersBasic = {};
         this.#renderBuffersScaled = {};
@@ -23,7 +23,8 @@ export class WebGLRenderBufferManager {
         depthTexture: boolean;
         size: number[];
     }) {
-        const renderBuffers = this.#view.resolutionScale.enabled ? this.#renderBuffersBasic : this.#renderBuffersScaled;
+    //    const renderBuffers = this.#view.resolutionScale.enabled ? this.#renderBuffersBasic : this.#renderBuffersScaled;
+        const renderBuffers =this.#renderBuffersBasic;
         let renderBuffer = renderBuffers[id];
         if (!renderBuffer) {
             renderBuffer = new WebGLRenderBuffer(this.#webglCanvas, this.#gl, options);

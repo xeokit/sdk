@@ -85,7 +85,6 @@ export class VBOInstancingLayer implements Layer {
             pbrSupported: false,
             positionsDecodeMatrix: layerParams.sceneGeometry.positionsDecompressMatrix,
             colorsBuf: [],
-            metallicRoughnessBuf: null,
             flagsBufs: [],
             offsetsBuf: null,
             modelMatrixBuf: null,
@@ -207,8 +206,8 @@ export class VBOInstancingLayer implements Layer {
             this.rendererModel.meshCounts[viewIndex].numMeshes++;
 
 //////////////////// HACK
-            this.meshCounts[viewIndex].numVisible++;
-            this.rendererModel.meshCounts[viewIndex].numVisible++;
+//             this.meshCounts[viewIndex].numVisible++;
+//             this.rendererModel.meshCounts[viewIndex].numVisible++;
             /////////////////////////////////////////////////
         }
 
@@ -230,8 +229,8 @@ export class VBOInstancingLayer implements Layer {
         if (colorsLength > 0) {
             let notNormalized = false;
             const colors = new Uint8Array(this.#buffer.colors);
-            for (let i = 0; i < numViews; i++) {
-                renderState.colorsBuf[i] = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, colors, this.#buffer.colors.length, 4, gl.DYNAMIC_DRAW, notNormalized);
+            for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+                renderState.colorsBuf[viewIndex] = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, colors, this.#buffer.colors.length, 4, gl.DYNAMIC_DRAW, notNormalized);
             }
             this.#buffer.colors = []; // Release memory
         }
@@ -240,8 +239,8 @@ export class VBOInstancingLayer implements Layer {
             // get their length from the colors array
             let notNormalized = false;
             const flagsArray = new Float32Array(flagsLength);
-            for (let i = 0; i < numViews; i++) {
-                renderState.flagsBufs[i] = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, flagsArray, flagsLength, 1, gl.DYNAMIC_DRAW, notNormalized);
+            for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
+                renderState.flagsBufs[viewIndex] = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, flagsArray, flagsLength, 1, gl.DYNAMIC_DRAW, notNormalized);
             }
         }
         const numBuckets = sceneGeometry.geometryBuckets.length;

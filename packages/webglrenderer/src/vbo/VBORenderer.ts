@@ -265,35 +265,36 @@ export abstract class VBORenderer {
 
     openVertexMain(src: string[]) {
         src.push("void main(void) {");
-        // src.push(`      if ((int(flags) & 0xF) != renderPass) {`);
-        // src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        // src.push("      } else {");
+        src.push(`      int colorFlag = int(flags) & 0xF;`);
+        src.push(`      if (colorFlag != renderPass) {`);
+        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        src.push("      } else {");
     }
 
     openVertexSilhouetteMain(src: string[]) {
         src.push("void main(void) {");
-        // src.push(`      if ((int(flags) >> 4 & 0xF) != renderPass) {`);
-        // src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        // src.push("      } else {");
-    }
-
-    openVertexPickMain(src: string[]) {
-        src.push("void main(void) {");
-        // src.push(`      if ((int(flags) >> 12 & 0xF) != renderPass) {`);
-        // src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        // src.push("      } else {");
+        src.push(`      if ((int(flags) >> 4 & 0xF) != renderPass) {`);
+        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        src.push("      } else {");
     }
 
     openVertexEdgesMain(src: string[]) {
         src.push("void main(void) {");
-        // src.push(`      if ((int(flags) >> 8 & 0xF) != renderPass) {`);
-        // src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        // src.push("      } else {");
+        src.push(`      if ((int(flags) >> 8 & 0xF) != renderPass) {`);
+        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        src.push("      } else {");
+    }
+
+    openVertexPickMain(src: string[]) {
+        src.push("void main(void) {");
+        src.push(`      if ((int(flags) >> 12 & 0xF) != renderPass) {`);
+        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        src.push("      } else {");
     }
 
     closeVertexMain(src: string[]) {
         src.push("      }");
- //       src.push("}");
+        src.push("}");
     }
 
     vertexSlicingLogic(src: string[]) {
@@ -565,6 +566,7 @@ export abstract class VBORenderer {
         }
         this.program.bind();
         this.renderContext.lastProgramId = this.program.id;
+        gl.uniform1i(uniforms.renderPass, renderPass);
         if (uniforms.projMatrix) {
             gl.uniformMatrix4fv(uniforms.projMatrix, false, <Float32Array | GLfloat[]>view.camera.projMatrix);
         }

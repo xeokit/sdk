@@ -273,9 +273,9 @@ export class PerspectiveProjection extends Component implements Projection {
      */
     unproject(canvasPos: FloatArrayParam, screenZ: number, screenPos: FloatArrayParam, viewPos: FloatArrayParam, worldPos: FloatArrayParam): FloatArrayParam {
 
-        const canvasElement = this.camera.view.canvasElement;
-        const halfViewWidth = canvasElement.offsetWidth / 2.0;
-        const halfViewHeight = canvasElement.offsetHeight / 2.0;
+        const htmlElement = this.camera.view.htmlElement;
+        const halfViewWidth = htmlElement.offsetWidth / 2.0;
+        const halfViewHeight = htmlElement.offsetHeight / 2.0;
 
         screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
         screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;

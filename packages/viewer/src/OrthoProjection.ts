@@ -270,7 +270,7 @@ export class OrthoProjection extends Component implements Projection {
         viewPos: FloatArrayParam,
         worldPos: FloatArrayParam): FloatArrayParam {
 
-        const canvas = this.camera.view.canvasElement;
+        const canvas = this.camera.view.htmlElement;
 
         const halfViewWidth = canvas.offsetWidth / 2.0;
         const halfViewHeight = canvas.offsetHeight / 2.0;

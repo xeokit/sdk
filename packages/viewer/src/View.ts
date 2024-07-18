@@ -83,7 +83,7 @@ export interface SnapshotFinishedEvent {
  * ````javascript
  * const view1 = myViewer.createView({
  *      id: "myView",
- *      canvasId: "myView1"
+ *      elementId: "myView1"
  * });
  *
  * view1.camera.eye = [-3.933, 2.855, 27.018];
@@ -99,7 +99,7 @@ export interface SnapshotFinishedEvent {
  * ```` javascript
  * const view2 = myViewer.createView({
  *      id: "myView2",
- *      canvasId: "myView2"
+ *      elementId: "myView2"
  * });
  *
  * view2.camera.eye = [-1.4, 1.5, 15.8];
@@ -136,7 +136,7 @@ class View extends Component {
     /**
      * The HTML canvas.
      */
-    public canvasElement: HTMLElement;
+    public htmlElement: HTMLElement;
 
     /**
      * Indicates if this View is transparent.
@@ -435,8 +435,8 @@ class View extends Component {
         origin?: number[];
         scale?: number;
         units?: number;
-        canvasId?: string;
-        canvasElement: HTMLElement;
+        elementId?: string;
+        htmlElement: HTMLElement;
         backgroundColor?: any[];
         backgroundColorFromAmbientLight?: boolean;
         premultipliedAlpha?: boolean;
@@ -450,14 +450,14 @@ class View extends Component {
         this.viewer = options.viewer;
 
         const canvas =
-            options.canvasElement ||
-            document.getElementById(<string>options.canvasId);
+            options.htmlElement ||
+            document.getElementById(<string>options.elementId);
 
         if (!(canvas instanceof HTMLElement)) {
             throw "Mandatory View config expected: valid HTMLElement";
         }
 
-        this.canvasElement = canvas;
+        this.htmlElement = canvas;
         this.viewIndex = 0;
         this.objects = {};
         this.visibleObjects = {};
@@ -517,16 +517,16 @@ class View extends Component {
         this.#backgroundColorFromAmbientLight =
             !!options.backgroundColorFromAmbientLight;
         this.transparent = !!options.transparent;
-        // this.canvasElement.width = this.canvasElement.clientWidth;
-        // this.canvasElement.height = this.canvasElement.clientHeight;
+        // this.htmlElement.width = this.htmlElement.clientWidth;
+        // this.htmlElement.height = this.htmlElement.clientHeight;
         this.boundary = [
-            this.canvasElement.offsetLeft,
-            this.canvasElement.offsetTop,
-            this.canvasElement.clientWidth,
-            this.canvasElement.clientHeight,
+            this.htmlElement.offsetLeft,
+            this.htmlElement.offsetTop,
+            this.htmlElement.clientWidth,
+            this.htmlElement.clientHeight,
         ];
 
-        // Publish canvasElement size and position changes on each scene tick
+        // Publish htmlElement size and position changes on each scene tick
 
         let lastWindowWidth = 0;
         let lastWindowHeight = 0;
@@ -539,18 +539,18 @@ class View extends Component {
         let lastResolutionScale: null | number = null;
 
         this.#onTick = this.viewer.onTick.subscribe(() => {
-            const canvasElement = this.canvasElement;
+            const htmlElement = this.htmlElement;
             const newResolutionScale = this.resolutionScale.resolutionScale !== lastResolutionScale;
             const newWindowSize =
                 window.innerWidth !== lastWindowWidth ||
                 window.innerHeight !== lastWindowHeight;
             const newViewSize =
-                canvasElement.clientWidth !== lastViewWidth ||
-                canvasElement.clientHeight !== lastViewHeight;
+                htmlElement.clientWidth !== lastViewWidth ||
+                htmlElement.clientHeight !== lastViewHeight;
             const newViewPos =
-                canvasElement.offsetLeft !== lastViewOffsetLeft ||
-                canvasElement.offsetTop !== lastViewOffsetTop;
-            const parent = canvasElement.parentElement;
+                htmlElement.offsetLeft !== lastViewOffsetLeft ||
+                htmlElement.offsetTop !== lastViewOffsetTop;
+            const parent = htmlElement.parentElement;
             const newParent = parent !== lastParent;
 
             if (
@@ -562,22 +562,22 @@ class View extends Component {
             ) {
                 //   this._spinner._adjustPosition();
                 if (newResolutionScale || newViewSize || newViewPos) {
-                    const newWidth = canvasElement.clientWidth;
-                    const newHeight = canvasElement.clientHeight;
+                    const newWidth = htmlElement.clientWidth;
+                    const newHeight = htmlElement.clientHeight;
                     if (newResolutionScale || newViewSize) {
                         //////////////////////////////////////////////////////////////////////////////////////
                         // TODO: apply resolutionscale properly
                         //////////////////////////////////////////////////////////////////////////////////////
-                        // canvasElement.width = Math.round(
-                        //     canvasElement.clientWidth * this.resolutionScale.resolutionScale
+                        // htmlElement.width = Math.round(
+                        //     htmlElement.clientWidth * this.resolutionScale.resolutionScale
                         // );
-                        // canvasElement.height = Math.round(
-                        //     canvasElement.clientHeight * this.resolutionScale.resolutionScale
+                        // htmlElement.height = Math.round(
+                        //     htmlElement.clientHeight * this.resolutionScale.resolutionScale
                         // );
                     }
                     const boundary = this.boundary;
-                    boundary[0] = canvasElement.offsetLeft;
-                    boundary[1] = canvasElement.offsetTop;
+                    boundary[0] = htmlElement.offsetLeft;
+                    boundary[1] = htmlElement.offsetTop;
                     boundary[2] = newWidth;
                     boundary[3] = newHeight;
                     if (!newResolutionScale || newViewSize) {
@@ -595,8 +595,8 @@ class View extends Component {
                     lastWindowHeight = window.innerHeight;
                 }
                 if (newViewPos) {
-                    lastViewOffsetLeft = canvasElement.offsetLeft;
-                    lastViewOffsetTop = canvasElement.offsetTop;
+                    lastViewOffsetLeft = htmlElement.offsetLeft;
+                    lastViewOffsetTop = htmlElement.offsetTop;
                 }
                 lastParent = parent;
             }
@@ -1581,7 +1581,7 @@ class View extends Component {
     getSnapshot(snapshotParams: SnapshotParams, snapshotResult?: SnapshotResult): SnapshotResult {
         // const needFinishSnapshot = (!this.#snapshotBegun);
         // const resize = (snapshotParams.width !== undefined && snapshotParams.height !== undefined);
-        // const canvas = this.canvasElement;
+        // const canvas = this.htmlElement;
         // const saveWidth = canvas.clientWidth;
         // const saveHeight = canvas.clientHeight;
         // const width = snapshotParams.width ? Math.floor(snapshotParams.width) : canvas.width;

@@ -33,20 +33,20 @@ describe('Viewer', () => {
     it('Creates a View for a canvas in the DOM', () => {
         view = viewer.createView({
             id: "myView",
-            canvasId: "myCanvas"
+            elementId: "myCanvas"
         });
         expect(view instanceof View).toBe(true);
         expect(viewer.numViews).toEqual(1);
         expect(viewer.viewList.length).toEqual(1);
         expect(viewer.viewList[0].id).toEqual(view.id);
-        expect(view.canvasElement instanceof HTMLCanvasElement).toBe(true);
-        expect(view.canvasElement.id).toBe("myCanvas");
+        expect(view.htmlElement instanceof HTMLCanvasElement).toBe(true);
+        expect(view.htmlElement.id).toBe("myCanvas");
     });
 
     it('Prevent creating excess Views', () => {
         const view2 = viewer.createView({
             id: "myView2",
-            canvasId: "myCanvas"
+            elementId: "myCanvas"
         });
         expect(view2 instanceof SDKError).toBe(true);
         expect(viewer.numViews).toEqual(1);

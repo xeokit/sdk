@@ -72,7 +72,7 @@ const offsetEye = createVec3();
  * const viewer = new Viewer();
  *
  * const view = new View(viewer, {
- *      canvasId: "myCanvas1"
+ *      elementId: "myCanvas1"
  * });
  *
  * const camera = view.camera;

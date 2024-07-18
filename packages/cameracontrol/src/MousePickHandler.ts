@@ -31,7 +31,7 @@ class MousePickHandler {
         let leftDown = false;
         let rightDown = false;
 
-        const canvasElement = this.#view.canvasElement;
+        const htmlElement = this.#view.htmlElement;
 
         const flyCameraTo = (pickResult?: PickResult) => {
             let pos;
@@ -69,7 +69,7 @@ class MousePickHandler {
                 if (cameraControl.onRayMove.count > 0) {
                     const origin = createVec3();
                     const direction = createVec3();
-                    canvasPosToWorldRay(view.canvasElement, view.camera.viewMatrix, view.camera.projMatrix, view.camera.projection, states.pointerCanvasPos, origin, direction);
+                    canvasPosToWorldRay(view.htmlElement, view.camera.viewMatrix, view.camera.projMatrix, view.camera.projection, states.pointerCanvasPos, origin, direction);
                     cameraControl.onRayMove.dispatch(cameraControl, {
                         canvasPos: states.pointerCanvasPos,
                         ray: {
@@ -141,9 +141,9 @@ class MousePickHandler {
             }
         );
 
-        canvasElement.addEventListener("mousemove", tickifiedMouseMoveFn);
+        htmlElement.addEventListener("mousemove", tickifiedMouseMoveFn);
 
-        canvasElement.addEventListener('mousedown', this.#canvasMouseDownHandler = (e) => {
+        htmlElement.addEventListener('mousedown', this.#canvasMouseDownHandler = (e) => {
 
             if (e.which === 1) {
                 leftDown = true;
@@ -209,7 +209,7 @@ class MousePickHandler {
             }
         });
 
-        canvasElement.addEventListener('mouseup', this.#canvasMouseUpHandler = (e) => {
+        htmlElement.addEventListener('mouseup', this.#canvasMouseUpHandler = (e) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -384,11 +384,11 @@ class MousePickHandler {
     }
 
     destroy() {
-        const canvasElement = this.#view.canvasElement;
-        canvasElement.removeEventListener("mousemove", this.#canvasMouseMoveHandler);
-        canvasElement.removeEventListener("mousedown", this.#canvasMouseDownHandler);
+        const htmlElement = this.#view.htmlElement;
+        htmlElement.removeEventListener("mousemove", this.#canvasMouseMoveHandler);
+        htmlElement.removeEventListener("mousedown", this.#canvasMouseDownHandler);
         document.removeEventListener("mouseup", this.#documentMouseUpHandler);
-        canvasElement.removeEventListener("mouseup", this.#canvasMouseUpHandler);
+        htmlElement.removeEventListener("mouseup", this.#canvasMouseUpHandler);
         if (this.#timeout) {
             window.clearTimeout(this.#timeout);
             this.#timeout = null;

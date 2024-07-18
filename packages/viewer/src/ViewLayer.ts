@@ -83,7 +83,7 @@ import type {Scene, SceneModel} from "@xeokit/scene";
  * ````javascript
  * const view1 = myViewer.createView({
  *      id: "myView",
- *      canvasId: "myView1",
+ *      elementId: "myView1",
  *      autoLayers: true // <<----------- Default
  * });
  *
@@ -171,7 +171,7 @@ import type {Scene, SceneModel} from "@xeokit/scene";
  * ````javascript
  * const view1 = myViewer.createView({
  *      id: "myView",
- *      canvasId: "myCanvas1",
+ *      elementId: "myCanvas1",
  *      autoLayers: false // <<----------- Override default
  * });
  *

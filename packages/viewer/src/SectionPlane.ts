@@ -29,7 +29,7 @@ import type {FloatArrayParam} from "@xeokit/math";
  * import {Viewer, GLTFLoaderPlugin, SectionPlane} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
- *      canvasId: "myCanvas"
+ *      elementId: "myCanvas"
  * });
  *
  * const gltfLoaderPlugin = new GLTFModelsPlugin(viewer, {

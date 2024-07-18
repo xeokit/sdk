@@ -35,12 +35,12 @@ export interface ViewParams {
     /**
      * ID of an HTMLCanvasElement in the DOM.
      */
-    canvasId?: string;
+    elementId?: string;
 
     /**
      *
      */
-    canvasElement?: HTMLCanvasElement;
+    htmlElement?: HTMLCanvasElement;
 
     backgroundColor?: FloatArrayParam;
 

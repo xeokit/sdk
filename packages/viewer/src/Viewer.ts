@@ -250,7 +250,7 @@ export class Viewer extends Component {
      * ````javascript
      * const view1 = myViewer.createView({
      *      id: "myView",
-     *      canvasId: "myView1"
+     *      elementId: "myView1"
      *  });
      *
      * if (view1 instanceof SDKError) {
@@ -280,9 +280,9 @@ export class Viewer extends Component {
             return new SDKError(`View with ID "${viewId}" already exists in this Viewer`);
         }
         // @ts-ignore
-        const canvasElement = params.canvasElement || document.getElementById(params.canvasId);
-        if (!(canvasElement instanceof HTMLElement)) {
-            return new SDKError("Mandatory View config expected: valid canvasId or HTMLElement");
+        const htmlElement = params.htmlElement || document.getElementById(params.elementId);
+        if (!(htmlElement instanceof HTMLElement)) {
+            return new SDKError("Mandatory View config expected: valid elementId or HTMLElement");
         }
         const view = new View(apply({viewId, viewer: this}, params));
         {

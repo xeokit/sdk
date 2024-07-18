@@ -26,7 +26,7 @@
 //         const renderBuffers = (this.#view.resolutionScale === 1.0) ? this.#renderBuffersBasic : this.#renderBuffersScaled;
 //         let renderBuffer = renderBuffers[id];
 //         if (!renderBuffer) {
-//             renderBuffer = new WebGLRenderBuffer(this.#view.canvasElement, this.#gl, options);
+//             renderBuffer = new WebGLRenderBuffer(this.#view.htmlElement, this.#gl, options);
 //             renderBuffers[id] = renderBuffer;
 //         }
 //         return renderBuffer;

@@ -50,7 +50,7 @@ class WebGLRendererView {
         this.edgesEnabled = false;
         this.transparentEnabled = true;
         this.backgroundColor = createVec3();
-        this.saveCanvasBoundary = view.canvasElement.getBoundingClientRect();
+        this.saveCanvasBoundary = view.htmlElement.getBoundingClientRect();
         this.webglCanvasElement = webglCanvasElement;
         this.isPrimaryView = (!!webglCanvasElement);
     }
@@ -197,10 +197,10 @@ export class WebGLRenderer implements Renderer {
      */
     getCapabilities(capabilities: Capabilities): void {
         capabilities.maxViews = 4;
-        const canvasElement = document.createElement('canvas');
+        const htmlElement = document.createElement('canvas');
         let gl;
         try {
-            gl = canvasElement.getContext("webgl2");
+            gl = htmlElement.getContext("webgl2");
         } catch (e) {
             console.error('Failed to get a WebGL context');
         }
@@ -315,7 +315,7 @@ export class WebGLRenderer implements Renderer {
                 }
             }
             if (!gl) {
-                return new SDKError(`Failed to get a WebGL2 context on the View's canvas (HTMLCanvasElement with ID "${view.canvasElement.id}")`);
+                return new SDKError(`Failed to get a WebGL2 context on the View's canvas (HTMLCanvasElement with ID "${view.htmlElement.id}")`);
             }
             gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
 
@@ -328,7 +328,7 @@ export class WebGLRenderer implements Renderer {
         });
         const isPrimaryView = (this.#rendererViewsList.length === 0);
 
-            // const context2d = view.canvasElement.getContext('2d');
+            // const context2d = view.htmlElement.getContext('2d');
             //
             // //////////////////
             // context2d.fillStyle = 'blue'; // Set the fill color
@@ -710,11 +710,12 @@ export class WebGLRenderer implements Renderer {
         }
         const activeRendererView = this.#activeRendererView;
         if (activeRendererView) {
-            const activeCanvasBoundingRect = activeRendererView.view.canvasElement.getBoundingClientRect();
+            const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
             const primarySnapshotBuffer = this.#renderBufferManager.getRenderBuffer("snapshot", {
                 depthTexture: false,
                 size: [activeCanvasBoundingRect.width, activeCanvasBoundingRect.height]
             });
+            primarySnapshotBuffer.setSize([activeCanvasBoundingRect.width, activeCanvasBoundingRect.height]);
             primarySnapshotBuffer.bind();
             primarySnapshotBuffer.clear();
             this.#draw({
@@ -727,13 +728,13 @@ export class WebGLRenderer implements Renderer {
                 width: activeCanvasBoundingRect.width
             });
             primarySnapshotBuffer.unbind();
-            (<HTMLImageElement>activeRendererView.view.canvasElement).src = image.src;
+            (<HTMLImageElement>activeRendererView.view.htmlElement).src = image;
         }
 
         const primaryWebGLCanvasElement = primaryRendererView.webglCanvasElement;
 
         const targetView = targetRendererView.view;
-        const targetCanvasElement = targetView.canvasElement;
+        const targetCanvasElement = targetView.htmlElement;
         const targetCanvasBoundingRect = targetCanvasElement.getBoundingClientRect();
 
         primaryWebGLCanvasElement.style["left"] = `${targetCanvasBoundingRect.left}px`;

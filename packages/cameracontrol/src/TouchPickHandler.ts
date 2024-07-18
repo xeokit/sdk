@@ -48,7 +48,7 @@ export class TouchPickHandler {
         let tapStartTime = -1;
         let lastTapTime = -1;
 
-        const canvasElement = this.#view.canvasElement;
+        const htmlElement = this.#view.htmlElement;
 
         const flyCameraTo = (pickResult?: PickResult) => {
             let pos;
@@ -70,7 +70,7 @@ export class TouchPickHandler {
             }
         };
 
-        canvasElement.addEventListener("touchstart", this.#canvasTouchStartHandler = (e) => {
+        htmlElement.addEventListener("touchstart", this.#canvasTouchStartHandler = (e) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -124,7 +124,7 @@ export class TouchPickHandler {
         }, {passive: true});
 
 
-        canvasElement.addEventListener("touchend", this.#canvasTouchEndHandler = (e) => {
+        htmlElement.addEventListener("touchend", this.#canvasTouchEndHandler = (e) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -231,8 +231,8 @@ export class TouchPickHandler {
     }
 
     destroy(): void {
-        const canvasElement = this.#view.canvasElement;
-        canvasElement.removeEventListener("touchstart", this.#canvasTouchStartHandler);
-        canvasElement.removeEventListener("touchend", this.#canvasTouchEndHandler);
+        const htmlElement = this.#view.htmlElement;
+        htmlElement.removeEventListener("touchstart", this.#canvasTouchStartHandler);
+        htmlElement.removeEventListener("touchend", this.#canvasTouchEndHandler);
     }
 }

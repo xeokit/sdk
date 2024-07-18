@@ -47,7 +47,7 @@ const unitsInfo = {
  *
  * const view1 = myViewer.createView({
  *      id: "myView",
- *      canvasId: "myCanvas1"
+ *      elementId: "myCanvas1"
  * });
  *
  * const metrics = view1.metrics;

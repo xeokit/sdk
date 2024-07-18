@@ -105,7 +105,7 @@
  * ````javascript
  * const view1 = myViewer.createView({
  *     id: "myView",
- *     canvasId: "myView1"
+ *     elementId: "myView1"
  * });
  *
  * view1.camera.eye = [-3.933, 2.855, 27.018];
@@ -228,7 +228,7 @@
  * ```` javascript
  * const view2 = myViewer.createView({
  *      id: "myView2",
- *      canvasId: "myView2"
+ *      elementId: "myView2"
  * });
  *
  * view2.camera.eye = [-3.933, 2.855, 27.018];

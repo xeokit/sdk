@@ -55,7 +55,7 @@ if (dataModel instanceof SDKError) {
         loadLAS({fileData: sourceData, dataModel, sceneModel}).then(() => {
             sceneModel.build().then(() => {
                 dataModel.build();
-                const dtxArrayBuffer = saveDTX({dataModel, sceneModel});
+                const dtxArrayBuffer = saveDTX({ sceneModel});
                 const outputDir = getBasePath(options.output).trim();
                 if (outputDir !== "" && !fs.existsSync(outputDir)) {
                     fs.mkdirSync(outputDir, {recursive: true});

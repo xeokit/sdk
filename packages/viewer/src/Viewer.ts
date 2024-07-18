@@ -11,7 +11,6 @@ import type {Renderer} from "./Renderer";
 import type {ViewParams} from "./ViewParams";
 import type {TickParams} from "./TickParams";
 
-
 /**
  * A Browser-based 2D/3D model viewer.
  *
@@ -177,6 +176,12 @@ export class Viewer extends Component {
 
         this.#tickifiedFunctions = {};
 
+        this.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
+            this.renderer.attachSceneModel(sceneModel);
+        });
+        this.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
+            this.renderer.detachSceneModel(sceneModel);
+        });
 
         scheduler.registerViewer(this);
     }
@@ -251,7 +256,7 @@ export class Viewer extends Component {
      * ````javascript
      * const view1 = myViewer.createView({
      *      id: "myView",
-     *      canvasId: "myView1"
+     *      elementId: "myView1"
      *  });
      *
      * if (view1 instanceof SDKError) {
@@ -281,9 +286,9 @@ export class Viewer extends Component {
             return new SDKError(`View with ID "${viewId}" already exists in this Viewer`);
         }
         // @ts-ignore
-        const canvasElement = params.canvasElement || document.getElementById(params.canvasId);
-        if (!(canvasElement instanceof HTMLCanvasElement)) {
-            return new SDKError("Mandatory View config expected: valid canvasId or canvasElement");
+        const htmlElement = params.htmlElement || document.getElementById(params.elementId);
+        if (!(htmlElement instanceof HTMLElement)) {
+            return new SDKError("Mandatory View config expected: valid elementId or HTMLElement");
         }
         const view = new View(apply({viewId, viewer: this}, params));
         {
@@ -301,16 +306,19 @@ export class Viewer extends Component {
         });
         // Renderer.attachSceneModel creates RendererObjects in Renderer.rendererObjects,
         // which are then expected by View.initViewObjects
+
+        ////////////////////////////////////////////////////////
+        // FIXME
+        // FIXME
+        // FIXME
         // TODO: assumes one View
-        this.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
-            this.renderer.attachSceneModel(sceneModel);
-        });
-        this.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
-            this.renderer.detachSceneModel(sceneModel);
-        });
+        ////////////////////////////////////////////////////////
+
+
         for (let id in this.scene.models) {
             this.renderer.attachSceneModel(this.scene.models[id]);
         }
+
         view.initViewObjects();
         this.onViewCreated.dispatch(this, view);
         this.log(`View created (id = "${view.viewId}")`);
@@ -370,7 +378,9 @@ export class Viewer extends Component {
      */
     render(params: any) {
         for (let viewIndex = 0; viewIndex < this.viewList.length; viewIndex++) {
-            this.renderer.render(viewIndex, {force: true});
+            // console.log("this.renderer.render()");
+            // console.log("...");
+             this.renderer.render(viewIndex, {force: false});
         }
     }
 

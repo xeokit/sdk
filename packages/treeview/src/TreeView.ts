@@ -28,7 +28,7 @@ export class TreeView extends Component {
      * into a hierarchy that reflects a depth-first traversal from the root DataObjects that follows each DataObject's
      * outgoing Relationships of the type given in {@link TreeView.linkType | TreeView.linkType}.
      */
-    static AggregationHierarchy: 0;
+    static AggregationHierarchy = 0;
 
     /**
      * Hierarchy mode that groups the {@link TreeViewNode | TreeViewNodes} by type.
@@ -39,7 +39,7 @@ export class TreeView extends Component {
      * {@link @xeokit/viewer!ViewObject | ViewObjects} of the same ID, then the TreeViewNodes will have checkboxes
      * that we can use to show, hide, and X-ray their ViewObjects.
      */
-    static TypesHierarchy: 1;
+    static TypesHierarchy = 1;
 
     /**
      * Hierarchy mode that arranges the {@link TreeViewNode | TreeViewNodes} into an n-level grouped hierarchy.
@@ -50,7 +50,7 @@ export class TreeView extends Component {
      * as ````TreeViewParams.groupTypes[2]````, and so on. Once descended beyond the length of ````TreeViewParams.groupTypes````,
      * the TreeViewNodes are just grouped by type.
      */
-    static GroupsHierarchy: 2;
+    static GroupsHierarchy = 2;
 
     /**
      * The semantic {@link @xeokit/data!Data | Data} model that determines the structure of this TreeView.
@@ -617,11 +617,11 @@ export class TreeView extends Component {
 
         this.#rootNodes = [];
         this.#objectNodes = {};
-        if (this.#validate()) {
-            this.#createEnabledNodes();
-        } else {
-            this.#createDisabledNodes();
-        }
+        //    if (this.#validate()) {
+        this.#createEnabledNodes();
+        // } else {
+        //     this.#createDisabledNodes();
+        // }
     }
 
     #validate(): boolean {
@@ -700,33 +700,38 @@ export class TreeView extends Component {
     }
 
     #createDisabledNodes(): void { // Creates empty HTML nodes for data graph roots
-        const rootDataObjects = this.data.rootObjects;
-        for (let objectId in rootDataObjects) {
-            const dataObject = rootDataObjects[objectId];
-            const dataObjectType = dataObject.type;
-            const name = dataObject.name;
-            const rootName = (name && name !== "" && name !== "Undefined" && name !== "Default") ? name : `${dataObjectType}`; // TODO: type is a number - needs to be human-readable
-            const ul = document.createElement('ul');
-            const li = document.createElement('li');
-            ul.appendChild(li);
-            this.#containerElement.appendChild(ul);
-            this.#rootElement = ul;
-            const switchElement = document.createElement('a');
-            switchElement.href = '#';
-            switchElement.textContent = '!';
-            switchElement.classList.add('warn');
-            switchElement.classList.add('warning');
-            li.appendChild(switchElement);
-            const span = document.createElement('span');
-            span.textContent = rootName;
-            li.appendChild(span);
+        const objects = this.data.objects;
+        for (let objectId in objects) {
+            const dataObject = objects[objectId];
+            if (Object.keys(dataObject.relating).length === 0) {
+                const dataObjectType = dataObject.type;
+                const name = dataObject.name;
+                const rootName = (name && name !== "" && name !== "Undefined" && name !== "Default") ? name : `${dataObjectType}`; // TODO: type is a number - needs to be human-readable
+                const ul = document.createElement('ul');
+                const li = document.createElement('li');
+                ul.appendChild(li);
+                this.#containerElement.appendChild(ul);
+                this.#rootElement = ul;
+                const switchElement = document.createElement('a');
+                switchElement.href = '#';
+                switchElement.textContent = '!';
+                switchElement.classList.add('warn');
+                switchElement.classList.add('warning');
+                li.appendChild(switchElement);
+                const span = document.createElement('span');
+                span.textContent = rootName;
+                li.appendChild(span);
+            }
         }
     }
 
     #findEmptyNodes(): void {
-        const rootDataObjects = this.data.rootObjects;
-        for (let objectId in rootDataObjects) {
-            this.#findEmptyNodes2(rootDataObjects[objectId]);
+        const objects = this.data.objects;
+        for (let objectId in objects) {
+            const dataObject = objects[objectId];
+            if (Object.keys(dataObject.relating).length === 0) {
+                this.#findEmptyNodes2(dataObject);
+            }
         }
     }
 
@@ -754,9 +759,12 @@ export class TreeView extends Component {
     }
 
     #buildGroupsNodes(): void {
-        const rootDataObjects = this.data.rootObjects;
-        for (let id in rootDataObjects) {
-            this.#buildGroupsNodes2(rootDataObjects[id], [], null, null, null);
+        const objects = this.data.objects;
+        for (let objectId in objects) {
+            const dataObject = objects[objectId];
+            if (Object.keys(dataObject.relating).length === 0) {
+                this.#buildGroupsNodes2(dataObject, [], null, null, null);
+            }
         }
     }
 
@@ -874,9 +882,12 @@ export class TreeView extends Component {
     }
 
     #buildTypesNodes() {
-        const rootDataObjects = this.data.rootObjects;
-        for (let id in rootDataObjects) {
-            this.#buildTypesNodes2(rootDataObjects[id], null, null);
+        const objects = this.data.objects;
+        for (let objectId in objects) {
+            const dataObject = objects[objectId];
+            if (Object.keys(dataObject.relating).length === 0) {
+                this.#buildTypesNodes2(dataObject, null, null);
+            }
         }
     }
 
@@ -962,9 +973,12 @@ export class TreeView extends Component {
     }
 
     #buildAggregationNodes() {
-        const rootDataObjects = this.data.rootObjects;
-        for (let id in rootDataObjects) {
-            this.#buildAggregationNodes2(rootDataObjects[id], null);
+        const objects = this.data.objects;
+        for (let objectId in objects) {
+            const dataObject = objects[objectId];
+            if (Object.keys(dataObject.relating).length === 0) {
+                this.#buildAggregationNodes2(dataObject, null);
+            }
         }
     }
 

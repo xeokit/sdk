@@ -106,9 +106,6 @@ export class Component {
      * Flags this component as having a defered state updates it needs to perform.
      */
     protected setDirty(): void {
-        if (this.dirty) {
-            return;
-        }
         this.dirty = true;
     }
 

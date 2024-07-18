@@ -10,7 +10,6 @@ import {SceneGeometry} from "@xeokit/scene";
  */
 export interface VBOInstancingLayerParams {
     renderContext: RenderContext;
-    view: View;
     rendererModel: WebGLRendererModel;
     sceneGeometry: SceneGeometry;
     layerIndex: number;

@@ -46,7 +46,7 @@ class TouchPanRotateAndDollyHandler {
         const touch0Vec = createVec2();
 
         const lastCanvasTouchPosList = [];
-        const canvas = this.#view.canvasElement;
+        const canvas = this.#view.htmlElement;
 
         let numTouches = 0;
         let tapStartTime = -1;
@@ -285,7 +285,7 @@ class TouchPanRotateAndDollyHandler {
     }
 
     destroy() {
-        const canvas = this.#view.canvasElement;
+        const canvas = this.#view.htmlElement;
         canvas.removeEventListener("touchstart", this.#canvasTouchStartHandler);
         canvas.removeEventListener("touchend", this.#canvasTouchEndHandler);
         canvas.removeEventListener("touchmove", this.#canvasTouchMoveHandler);

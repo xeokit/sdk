@@ -40,7 +40,8 @@
         "@xeokit/matrix": "^0.1.0",
         "@xeokit/scene": "^0.1.0",
         "@xeokit/utils": "^0.1.0",
-        "strongly-typed-events": "3.0.7"
+        "strongly-typed-events": "3.0.7",
+        "html2canvas": "^1.4.1"
     },
     "devDependencies": {
         "jest-electron": "^0.1.12",

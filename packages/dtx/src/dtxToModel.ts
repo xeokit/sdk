@@ -5,7 +5,6 @@ import {
     SurfacePrimitive,
     TrianglesPrimitive
 } from "@xeokit/constants";
-import type {DataModel, DataModelParams} from "@xeokit/data";
 import type {SceneGeometryBucketParams, SceneGeometryCompressedParams, SceneModel} from "@xeokit/scene";
 import type {DTXData} from "./DTXData";
 import type {FloatArrayParam} from "@xeokit/math";
@@ -15,8 +14,7 @@ import type {FloatArrayParam} from "@xeokit/math";
  */
 export function dtxToModel(params: {
     dtxData: DTXData,
-    sceneModel: SceneModel,
-    dataModel?: DataModel
+    sceneModel: SceneModel
 }): void {
 
     const dtxData = params.dtxData;
@@ -55,8 +53,6 @@ export function dtxToModel(params: {
 
             const meshColor = decompressColor(dtxData.eachMeshMaterialAttributes.subarray((meshIndex * 6), (meshIndex * 6) + 3));
             const meshOpacity = dtxData.eachMeshMaterialAttributes[(meshIndex * 6) + 3] / 255.0;
-            const meshMetallic = dtxData.eachMeshMaterialAttributes[(meshIndex * 6) + 4] / 255.0;
-            const meshRoughness = dtxData.eachMeshMaterialAttributes[(meshIndex * 6) + 5] / 255.0;
 
             const meshId = dtxData.eachMeshId[meshIndex];
             const meshMatrixIndex = dtxData.eachMeshMatricesPortion[meshIndex];
@@ -123,15 +119,13 @@ export function dtxToModel(params: {
 
                         case TrianglesPrimitive:
                             geometryBucketParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? dtxData.positions.length : dtxData.eachBucketPositionsPortion [bucketIndex + 1]);
-                            //   geometryBucketParams.uvsCompressed = dtxData.uvs.subarray(dtxData.eachBucketUVsPortion [bucketIndex], atLastBucket ? dtxData.uvs.length : dtxData.eachBucketUVsPortion [bucketIndex + 1]);
-                            geometryBucketParams.indices = indices.subarray(dtxData.eachBucketIndicesPortion [bucketIndex], atLastBucketIndex ? indices.length : dtxData.eachBucketIndicesPortion [bucketIndex + 1]);
+                              geometryBucketParams.indices = indices.subarray(dtxData.eachBucketIndicesPortion [bucketIndex], atLastBucketIndex ? indices.length : dtxData.eachBucketIndicesPortion [bucketIndex + 1]);
                             geometryBucketParams.edgeIndices = edgeIndices.subarray(dtxData.eachBucketEdgeIndicesPortion [bucketIndex], atLastBucketIndex ? edgeIndices.length : dtxData.eachBucketEdgeIndicesPortion [bucketIndex + 1]);
                             bucketValid = (geometryBucketParams.positionsCompressed.length > 0 && geometryBucketParams.indices.length > 0);
                             break;
 
                         case PointsPrimitive:
                             geometryBucketParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? dtxData.positions.length : dtxData.eachBucketPositionsPortion [bucketIndex + 1]);
-                            // geometryBucketParams.colorsCompressed = dtxData.positions.subarray(dtxData.eachBucketPositionsPortion [bucketIndex], atLastBucket ? dtxData.positions.length : dtxData.eachBucketPositionsPortion [bucketIndex + 1]);
                             bucketValid = (geometryBucketParams.positionsCompressed.length > 0);
                             break;
 
@@ -159,8 +153,6 @@ export function dtxToModel(params: {
                 geometryId,
                 matrix: meshMatrix,
                 color: meshColor,
-                metallic: meshMetallic,
-                roughness: meshRoughness,
                 opacity: meshOpacity,
                 origin: meshOrigin
             });

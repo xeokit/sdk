@@ -860,7 +860,7 @@ export class CameraControl extends Component {
 
         this.view = view;
 
-        this.view.canvasElement.oncontextmenu = (e) => {
+        this.view.htmlElement.oncontextmenu = (e) => {
             e.preventDefault();
         };
 

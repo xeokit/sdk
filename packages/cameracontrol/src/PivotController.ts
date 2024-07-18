@@ -136,7 +136,7 @@ class PivotController {
     updatePivotElement() {
 
         // const camera = this.#view.camera;
-        // const canvasElement = this.#view.canvasElement;
+        // const htmlElement = this.#view.htmlElement;
         //
         // if (this.#pivoting && this.#cameraDirty) {
         //
@@ -152,9 +152,9 @@ class PivotController {
         //     this.#pivotCanvasPos[1] = Math.floor((1 - this.#pivotProjPos[1] / this.#pivotProjPos[3]) * canvasHeight / 2);
         //
         //     // data-textures: avoid to do continuous DOM layout calculations
-        //     let canvasBoundingRect = canvasElement.#lastBoundingClientRect;
-        //     if (!canvasBoundingRect || canvasElement.#canvasSizeChanged) {
-        //         canvasBoundingRect = canvasElement.#lastBoundingClientRect = canvasElement.getBoundingClientRect ();
+        //     let canvasBoundingRect = htmlElement.#lastBoundingClientRect;
+        //     if (!canvasBoundingRect || htmlElement.#canvasSizeChanged) {
+        //         canvasBoundingRect = htmlElement.#lastBoundingClientRect = htmlElement.getBoundingClientRect ();
         //     }
         //
         //     if (this.#pivotElement) {

@@ -20,7 +20,7 @@ export function inflateDTX(dtxDataDeflated: DTXDataDeflated): DTXData {
         edgeIndices8Bit: new Uint8Array(inflate(dtxDataDeflated.edgeIndices8Bit)),
         edgeIndices16Bit: new Uint16Array(inflate(dtxDataDeflated.edgeIndices16Bit)),
         edgeIndices32Bit: new Uint32Array(inflate(dtxDataDeflated.edgeIndices32Bit)),
-         decodeMatrices: new Float32Array(inflate(dtxDataDeflated.decodeMatrices)),
+        decodeMatrices: new Float32Array(inflate(dtxDataDeflated.decodeMatrices)),
         eachBucketPositionsPortion: new Uint32Array(inflate(dtxDataDeflated.eachBucketPositionsPortion)),
         eachBucketColorsPortion: new Uint32Array(inflate(dtxDataDeflated.eachBucketColorsPortion)),
         eachBucketIndicesPortion: new Uint32Array(inflate(dtxDataDeflated.eachBucketIndicesPortion)),
@@ -38,6 +38,6 @@ export function inflateDTX(dtxDataDeflated: DTXDataDeflated): DTXData {
         eachGeometryId: JSON.parse(pako.inflate(dtxDataDeflated.eachGeometryId, {to: 'string'})),
         eachMeshId: JSON.parse(pako.inflate(dtxDataDeflated.eachMeshId, {to: 'string'})),
         eachObjectId: JSON.parse(pako.inflate(dtxDataDeflated.eachObjectId, {to: 'string'})),
-        eachObjectMeshesPortion: new Uint32Array(inflate(dtxDataDeflated.eachObjectMeshesPortion)),
+        eachObjectMeshesPortion: new Uint32Array(inflate(dtxDataDeflated.eachObjectMeshesPortion))
     };
 }

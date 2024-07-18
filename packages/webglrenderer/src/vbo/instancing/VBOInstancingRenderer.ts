@@ -13,6 +13,8 @@ export abstract class VBOInstancingRenderer extends VBORenderer{
         }
         const attributes = this.attributes;
         const renderState = vboInstancingLayer.renderState;
+        const view = this.renderContext.view;
+        const viewIndex = view.viewIndex;
         const gl = this.renderContext.gl;
         gl.uniform1i(this.uniforms.renderPass, renderPass);
         attributes.position.bindArrayBuffer(renderState.positionsBuf);
@@ -20,16 +22,16 @@ export abstract class VBOInstancingRenderer extends VBORenderer{
             attributes.uv.bindArrayBuffer(renderState.uvBuf);
         }
         if (attributes.flags) {
-            attributes.flags.bindArrayBuffer(renderState.flagsBuf);
+            attributes.flags.bindArrayBuffer(renderState.flagsBufs[viewIndex]);
             gl.vertexAttribDivisor(attributes.flags.location, 1);
+        }
+        if (attributes.color) {
+            attributes.color.bindArrayBuffer(renderState.colorsBuf[viewIndex]);
+            gl.vertexAttribDivisor(attributes.color.location, 1);
         }
         if (attributes.pickColor) {
             attributes.pickColor.bindArrayBuffer(renderState.pickColorsBuf);
             gl.vertexAttribDivisor(attributes.pickColor.location, 1);
-        }
-        if (attributes.color) {
-            attributes.color.bindArrayBuffer(renderState.colorsBuf);
-            gl.vertexAttribDivisor(attributes.color.location, 1);
         }
         if (attributes.intensity) {
             // attributes.intensity.bindArrayBuffer(renderState.pointIntensitiesBuf);

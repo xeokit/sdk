@@ -61,7 +61,7 @@
 
     const view = viewer.createView({
         id: "myView",
-        canvasId: "myCanvas"
+        elementId: "myCanvas"
     });
 
     view.camera.eye = [1394.38, 3.78, -247.05];
@@ -100,7 +100,15 @@
                     dataModel.build();
                     sceneModel.build();
 
-                    console.log(dataModel.getJSON())
+                  //  console.log(dataModel.getJSON())
+
+                    const arrayBuf = xeokit.dtx.saveDTX({
+                        sceneModel,
+                        dataModel
+                    })
+
+                    downloadArrayBuffer(arrayBuf, "housePlan.dtx")
+
 
                 }).catch(error => {
 
@@ -123,6 +131,34 @@
 
     window.data = data;
     window.view = view;
+
+
+
+
+    function downloadArrayBuffer(arrayBuffer, fileName) {
+        // Create a Blob from the ArrayBuffer
+        const blob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
+
+        // Create an object URL from the Blob
+        const url = URL.createObjectURL(blob);
+
+        // Create an anchor element and set the href attribute to the object URL
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+
+        // Append the anchor element to the body
+        document.body.appendChild(a);
+
+        // Trigger a click on the anchor element to start the download
+        a.click();
+
+        // Remove the anchor element from the body
+        document.body.removeChild(a);
+
+        // Revoke the object URL to free up memory
+        URL.revokeObjectURL(url);
+    }
 
 </script>
 

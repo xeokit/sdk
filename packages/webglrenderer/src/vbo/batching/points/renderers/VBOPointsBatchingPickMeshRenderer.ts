@@ -118,6 +118,8 @@ export class VBOPointsBatchingPickMeshRenderer extends VBOBatchingRenderer {
 
     drawVBOBatchingLayerPrimitives(vboBatchingLayer: VBOBatchingLayer, renderPass: number) {
         this.bind(renderPass);
+        const view = this.renderContext.view;
+        const viewIndex = view.viewIndex;
         const gl = this.renderContext.gl;
         const attributes = this.attributes;
         const renderState = vboBatchingLayer.renderState;
@@ -126,7 +128,7 @@ export class VBOPointsBatchingPickMeshRenderer extends VBOBatchingRenderer {
             attributes.pickColor.bindArrayBuffer(renderState.pickColorsBuf);
         }
         if (attributes.flags) {
-            attributes.flags.bindArrayBuffer(renderState.flagsBuf);
+            attributes.flags.bindArrayBuffer(renderState.flagsBufs[viewIndex]);
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
         gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);

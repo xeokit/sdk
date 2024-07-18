@@ -9,7 +9,6 @@ export class VBOInstancingBuffer {
     positions: number[];
     colors: number[];
     uv: number[];
-    metallicRoughness: number[];
     normals: number[];
     pickColors: number[];
     offsets: number[];
@@ -27,7 +26,6 @@ export class VBOInstancingBuffer {
         this.positions = [];
         this.colors = [];
         this.uv = [];
-        this.metallicRoughness = [];
         this.normals = [];
         this.pickColors = [];
         this.offsets = [];

@@ -27,12 +27,12 @@ describe('Viewer with autoLayers:false', () => {
     it('Creates a View for a canvas in the DOM', () => {
         view = viewer.createView({
             id: "myView",
-            canvasId: "myCanvas",
+            elementId: "myCanvas",
             autoLayers: false
         });
         expect(view instanceof View).toBe(true);
-        expect(view.canvasElement instanceof HTMLCanvasElement).toBe(true);
-        expect(view.canvasElement.id).toBe("myCanvas");
+        expect(view.htmlElement instanceof HTMLCanvasElement).toBe(true);
+        expect(view.htmlElement.id).toBe("myCanvas");
     });
 
     it("Create ViewLayers", () => {

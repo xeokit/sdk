@@ -16,7 +16,7 @@ export interface Layer {
     rendererModel: WebGLRendererModel;
     layerIndex: number;
     sortId: string;
-    meshCounts: MeshCounts;
+    meshCounts: MeshCounts[];
 
     //---------------------------------------------------------
     // Builder methods
@@ -34,35 +34,35 @@ export interface Layer {
     // State update methods
     //---------------------------------------------------------
 
-    setLayerMeshFlags(layerMeshIndex: number, flags: number, meshTransparent: boolean): void;
+    setLayerMeshFlags(viewIndex: number, layerMeshIndex: number, flags: number, meshTransparent: boolean): void;
 
-    setLayerMeshVisible(layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshVisible(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshHighlighted(layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshHighlighted(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshXRayed(layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshXRayed(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshSelected(layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshSelected(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshEdges(layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshEdges(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshClippable(layerMeshIndex: number, flags: number): void;
+    setLayerMeshClippable(viewIndex: number, layerMeshIndex: number, flags: number): void;
 
-    setLayerMeshCulled(layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshCulled(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshCollidable(layerMeshIndex, flags): void;
+    setLayerMeshCollidable(viewIndex: number, layerMeshIndex, flags): void;
 
-    setLayerMeshPickable(layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshPickable(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshColor(layerMeshIndex: number, color: FloatArrayParam, setOpacity: boolean): void;
+    setLayerMeshColor(viewIndex: number, layerMeshIndex: number, color: FloatArrayParam, setOpacity: boolean): void;
 
-    setLayerMeshTransparent(layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshTransparent(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshOffset(layerMeshIndex: number, offset: FloatArrayParam): void;
+    setLayerMeshOffset(viewIndex: number, layerMeshIndex: number, offset: FloatArrayParam): void;
 
-    setLayerMeshMatrix(layerMeshIndex: number, matrix: FloatArrayParam): void;
+    setLayerMeshMatrix( layerMeshIndex: number, matrix: FloatArrayParam): void;
 
-    commitRendererState(): void;
+    commitRendererState(viewIndex: number): void;
 
     //---------------------------------------------------------
     // Drawing methods
@@ -107,4 +107,6 @@ export interface Layer {
     drawPickNormals(): void;
 
     destroy(): void;
+
+    initFlags(viewIndex: number, meshIndex: number, flags: number, transparent): void;
 }

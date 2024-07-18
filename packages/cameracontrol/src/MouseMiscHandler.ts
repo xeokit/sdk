@@ -16,30 +16,30 @@ class MouseMiscHandler {
 
         this.#view = view;
 
-        const canvasElement = this.#view.canvasElement;
+        const htmlElement = this.#view.htmlElement;
 
-        canvasElement.addEventListener("mouseenter", this.#mouseEnterHandler = () => {
+        htmlElement.addEventListener("mouseenter", this.#mouseEnterHandler = () => {
             states.mouseover = true;
         });
 
-        canvasElement.addEventListener("mouseleave", this.#mouseLeaveHandler = () => {
+        htmlElement.addEventListener("mouseleave", this.#mouseLeaveHandler = () => {
             states.mouseover = false;
-            canvasElement.style.cursor = null;
+            htmlElement.style.cursor = null;
         });
 
         document.addEventListener("mousemove", this.#mouseMoveHandler = (e) => {
-            getCanvasPosFromEvent(e, canvasElement, states.pointerCanvasPos);
+            getCanvasPosFromEvent(e, htmlElement, states.pointerCanvasPos);
         });
 
-        canvasElement.addEventListener("mousedown", this.#mouseDownHandler = (e) => {
+        htmlElement.addEventListener("mousedown", this.#mouseDownHandler = (e) => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
-            getCanvasPosFromEvent(e, canvasElement, states.pointerCanvasPos);
+            getCanvasPosFromEvent(e, htmlElement, states.pointerCanvasPos);
             states.mouseover = true;
         });
 
-        canvasElement.addEventListener("mouseup", this.#mouseUpHandler = (e) => {
+        htmlElement.addEventListener("mouseup", this.#mouseUpHandler = (e) => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
@@ -51,23 +51,23 @@ class MouseMiscHandler {
 
     destroy() {
 
-        const canvasElement = this.#view.canvasElement;
+        const htmlElement = this.#view.htmlElement;
 
         document.removeEventListener("mousemove", this.#mouseMoveHandler);
-        canvasElement.removeEventListener("mouseenter", this.#mouseEnterHandler);
-        canvasElement.removeEventListener("mouseleave", this.#mouseLeaveHandler);
-        canvasElement.removeEventListener("mousedown", this.#mouseDownHandler);
-        canvasElement.removeEventListener("mouseup", this.#mouseUpHandler);
+        htmlElement.removeEventListener("mouseenter", this.#mouseEnterHandler);
+        htmlElement.removeEventListener("mouseleave", this.#mouseLeaveHandler);
+        htmlElement.removeEventListener("mousedown", this.#mouseDownHandler);
+        htmlElement.removeEventListener("mouseup", this.#mouseUpHandler);
     }
 }
 
-function getCanvasPosFromEvent(event, canvasElement, canvasPos) {
+function getCanvasPosFromEvent(event, htmlElement, canvasPos) {
     if (!event) {
         event = window.event;
         canvasPos[0] = event.x;
         canvasPos[1] = event.y;
     } else {
-        const { left, top } = canvasElement.getBoundingClientRect();
+        const { left, top } = htmlElement.getBoundingClientRect();
         canvasPos[0] = event.clientX - left;
         canvasPos[1] = event.clientY - top;
     }

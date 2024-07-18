@@ -131,9 +131,9 @@ export class RenderContext {
 
     public webglRenderer: WebGLRenderer;
 
-    constructor(viewer: Viewer, view: View, gl: WebGL2RenderingContext, webglRenderer: WebGLRenderer) {
+    constructor(viewer: Viewer, gl: WebGL2RenderingContext, webglRenderer: WebGLRenderer) {
         this.viewer = viewer;
-        this.view = view;
+        this.view = null;
         this.gl = gl;
         this.webglRenderer = webglRenderer;
         this.reset();

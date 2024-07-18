@@ -19,7 +19,7 @@ export class WebGLRendererObject implements RendererObject {
 
     readonly rendererMeshes: WebGLRendererMesh[];
 
-    #flags: number;
+    #flags: number[];
     #aabb: FloatArrayParam;
     #offsetAABB: FloatArrayParam;
     #offset: FloatArrayParam;
@@ -42,7 +42,12 @@ export class WebGLRendererObject implements RendererObject {
         this.sceneObject = params.sceneObject;
         this.rendererModel = params.rendererModel;
         this.rendererMeshes = params.rendererMeshes || [];
-        this.#flags = 0;
+
+        ///////////////////////////////////
+        // FIXME: start off at 1,1,1,1 ?
+        ///////////////////////////////////
+
+        this.#flags = [0, 0, 0, 0];
         this.#aabb = params.aabb;
         this.#offsetAABB = createAABB3(params.aabb);
         this.#offset = createVec3();
@@ -60,92 +65,92 @@ export class WebGLRendererObject implements RendererObject {
     }
 
     setVisible(viewIndex: number, visible: boolean): void {
-        if (!!(this.#flags & SCENE_OBJECT_FLAGS.VISIBLE) === visible) {
+        if (!!(this.#flags[viewIndex] & SCENE_OBJECT_FLAGS.VISIBLE) === visible) {
             return;
         }
-        this.#flags = visible ? this.#flags | SCENE_OBJECT_FLAGS.VISIBLE : this.#flags & ~SCENE_OBJECT_FLAGS.VISIBLE;
+        this.#flags[viewIndex] = visible ? this.#flags[viewIndex] | SCENE_OBJECT_FLAGS.VISIBLE : this.#flags[viewIndex] & ~SCENE_OBJECT_FLAGS.VISIBLE;
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].setVisible(this.#flags);
+            this.rendererMeshes[i].setVisible(viewIndex, this.#flags[viewIndex]);
         }
     }
 
     setHighlighted(viewIndex: number, highlighted: boolean): void {
-        if (!!(this.#flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) === highlighted) {
+        if (!!(this.#flags[viewIndex] & SCENE_OBJECT_FLAGS.HIGHLIGHTED) === highlighted) {
             return;
         }
-        this.#flags = highlighted ? this.#flags | SCENE_OBJECT_FLAGS.HIGHLIGHTED : this.#flags & ~SCENE_OBJECT_FLAGS.HIGHLIGHTED;
+        this.#flags[viewIndex] = highlighted ? this.#flags[viewIndex] | SCENE_OBJECT_FLAGS.HIGHLIGHTED : this.#flags[viewIndex] & ~SCENE_OBJECT_FLAGS.HIGHLIGHTED;
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].setHighlighted(this.#flags);
+            this.rendererMeshes[i].setHighlighted(viewIndex, this.#flags[viewIndex]);
         }
     }
 
     setXRayed(viewIndex: number, xrayed: boolean): void {
-        if (!!(this.#flags & SCENE_OBJECT_FLAGS.XRAYED) === xrayed) {
+        if (!!(this.#flags[viewIndex] & SCENE_OBJECT_FLAGS.XRAYED) === xrayed) {
             return;
         }
-        this.#flags = xrayed ? this.#flags | SCENE_OBJECT_FLAGS.XRAYED : this.#flags & ~SCENE_OBJECT_FLAGS.XRAYED;
+        this.#flags[viewIndex] = xrayed ? this.#flags[viewIndex] | SCENE_OBJECT_FLAGS.XRAYED : this.#flags[viewIndex] & ~SCENE_OBJECT_FLAGS.XRAYED;
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].setXRayed(this.#flags);
+            this.rendererMeshes[i].setXRayed(viewIndex, this.#flags[viewIndex]);
         }
     }
 
     setSelected(viewIndex: number, selected: boolean): void {
-        if (!!(this.#flags & SCENE_OBJECT_FLAGS.SELECTED) === selected) {
+        if (!!(this.#flags[viewIndex] & SCENE_OBJECT_FLAGS.SELECTED) === selected) {
             return;
         }
-        this.#flags = selected ? this.#flags | SCENE_OBJECT_FLAGS.SELECTED : this.#flags & ~SCENE_OBJECT_FLAGS.SELECTED;
+        this.#flags[viewIndex] = selected ? this.#flags[viewIndex] | SCENE_OBJECT_FLAGS.SELECTED : this.#flags[viewIndex] & ~SCENE_OBJECT_FLAGS.SELECTED;
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].setSelected(this.#flags);
+            this.rendererMeshes[i].setSelected(viewIndex, this.#flags[viewIndex]);
         }
     }
 
     setEdges(viewIndex: number, edges: boolean): void {
-        if (!!(this.#flags & SCENE_OBJECT_FLAGS.EDGES) === edges) {
+        if (!!(this.#flags[viewIndex] & SCENE_OBJECT_FLAGS.EDGES) === edges) {
             return;
         }
-        this.#flags = edges ? this.#flags | SCENE_OBJECT_FLAGS.EDGES : this.#flags & ~SCENE_OBJECT_FLAGS.EDGES;
+        this.#flags[viewIndex] = edges ? this.#flags[viewIndex] | SCENE_OBJECT_FLAGS.EDGES : this.#flags[viewIndex] & ~SCENE_OBJECT_FLAGS.EDGES;
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].setEdges(this.#flags);
+            this.rendererMeshes[i].setEdges(viewIndex, this.#flags[viewIndex]);
         }
     }
 
     setCulled(viewIndex: number, culled: boolean): void {
-        if (!!(this.#flags & SCENE_OBJECT_FLAGS.CULLED) === culled) {
+        if (!!(this.#flags[viewIndex] & SCENE_OBJECT_FLAGS.CULLED) === culled) {
             return;
         }
-        this.#flags = culled ? this.#flags | SCENE_OBJECT_FLAGS.CULLED : this.#flags & ~SCENE_OBJECT_FLAGS.CULLED;
+        this.#flags[viewIndex] = culled ? this.#flags[viewIndex] | SCENE_OBJECT_FLAGS.CULLED : this.#flags[viewIndex] & ~SCENE_OBJECT_FLAGS.CULLED;
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].setCulled(this.#flags);
+            this.rendererMeshes[i].setCulled(viewIndex, this.#flags[viewIndex]);
         }
     }
 
     setClippable(viewIndex: number, clippable: boolean): void {
-        if ((!!(this.#flags & SCENE_OBJECT_FLAGS.CLIPPABLE)) === clippable) {
+        if ((!!(this.#flags[viewIndex] & SCENE_OBJECT_FLAGS.CLIPPABLE)) === clippable) {
             return;
         }
-        this.#flags = clippable ? this.#flags | SCENE_OBJECT_FLAGS.CLIPPABLE : this.#flags & ~SCENE_OBJECT_FLAGS.CLIPPABLE;
+        this.#flags[viewIndex] = clippable ? this.#flags[viewIndex] | SCENE_OBJECT_FLAGS.CLIPPABLE : this.#flags[viewIndex] & ~SCENE_OBJECT_FLAGS.CLIPPABLE;
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].setClippable(this.#flags);
+            this.rendererMeshes[i].setClippable(viewIndex, this.#flags[viewIndex]);
         }
     }
 
     setCollidable(viewIndex: number, collidable: boolean): void {
-        if (!!(this.#flags & SCENE_OBJECT_FLAGS.COLLIDABLE) === collidable) {
+        if (!!(this.#flags[viewIndex] & SCENE_OBJECT_FLAGS.COLLIDABLE) === collidable) {
             return;
         }
-        this.#flags = collidable ? this.#flags | SCENE_OBJECT_FLAGS.COLLIDABLE : this.#flags & ~SCENE_OBJECT_FLAGS.COLLIDABLE;
+        this.#flags[viewIndex] = collidable ? this.#flags[viewIndex] | SCENE_OBJECT_FLAGS.COLLIDABLE : this.#flags[viewIndex] & ~SCENE_OBJECT_FLAGS.COLLIDABLE;
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].setCollidable(this.#flags);
+            this.rendererMeshes[i].setCollidable(viewIndex, this.#flags[viewIndex]);
         }
     }
 
     setPickable(viewIndex: number, pickable: boolean): void {
-        if (!!(this.#flags & SCENE_OBJECT_FLAGS.PICKABLE) === pickable) {
+        if (!!(this.#flags[viewIndex] & SCENE_OBJECT_FLAGS.PICKABLE) === pickable) {
             return;
         }
-        this.#flags = pickable ? this.#flags | SCENE_OBJECT_FLAGS.PICKABLE : this.#flags & ~SCENE_OBJECT_FLAGS.PICKABLE;
+        this.#flags[viewIndex] = pickable ? this.#flags[viewIndex] | SCENE_OBJECT_FLAGS.PICKABLE : this.#flags[viewIndex] & ~SCENE_OBJECT_FLAGS.PICKABLE;
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].setPickable(this.#flags);
+            this.rendererMeshes[i].setPickable(viewIndex, this.#flags[viewIndex]);
         }
     }
 
@@ -155,11 +160,11 @@ export class WebGLRendererObject implements RendererObject {
             tempIntRGB[1] = Math.floor(color[1] * 255.0);
             tempIntRGB[2] = Math.floor(color[2] * 255.0);
             for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-                this.rendererMeshes[i].setColorize(tempIntRGB);
+                this.rendererMeshes[i].setColorize(viewIndex, tempIntRGB);
             }
         } else {
             for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-                this.rendererMeshes[i].setColorize(null);
+                this.rendererMeshes[i].setColorize(viewIndex, null);
             }
         }
     }
@@ -178,17 +183,19 @@ export class WebGLRendererObject implements RendererObject {
                 opacity = 1;
             }
             opacityQuantized = Math.floor(opacity * 255.0); // Quantize
+            // @ts-ignore
             if (lastOpacityQuantized === opacityQuantized) {
                 return;
             }
         } else {
             opacityQuantized = 255.0;
+            // @ts-ignore
             if (lastOpacityQuantized === opacityQuantized) {
                 return;
             }
         }
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].setOpacity(opacityQuantized, this.#flags);
+            this.rendererMeshes[i].setOpacity(viewIndex, opacityQuantized, this.#flags[viewIndex]);
         }
     }
 
@@ -196,15 +203,15 @@ export class WebGLRendererObject implements RendererObject {
         // TODO
     }
 
-    uploadRendererState(): void {
+    initFlags(viewIndex: number): void {
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].uploadRendererState(this.#flags);
+            this.rendererMeshes[i].initFlags(viewIndex, this.#flags[viewIndex]);
         }
     }
 
-    commitRendererState(): void {
+    commitRendererState(viewIndex: number): void {
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].commitRendererState();
+            this.rendererMeshes[i].commitRendererState(viewIndex);
         }
     }
 

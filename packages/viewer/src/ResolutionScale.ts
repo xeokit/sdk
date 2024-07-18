@@ -31,12 +31,12 @@ import {FastRender, QualityRender} from "@xeokit/constants";
 //         return;
 //     }
 //     this.#resolutionScale = resolutionScale;
-//     const canvasElement = this.canvasElement;
-//     canvasElement.width = Math.round(
-//         canvasElement.clientWidth * this.#resolutionScale
+//     const htmlElement = this.htmlElement;
+//     htmlElement.width = Math.round(
+//         htmlElement.clientWidth * this.#resolutionScale
 //     );
-//     canvasElement.height = Math.round(
-//         canvasElement.clientHeight * this.#resolutionScale
+//     htmlElement.height = Math.round(
+//         htmlElement.clientHeight * this.#resolutionScale
 //     );
 //     this.redraw();
 // }

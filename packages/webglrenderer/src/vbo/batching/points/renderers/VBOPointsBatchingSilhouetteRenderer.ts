@@ -94,6 +94,7 @@ export class VBOPointsBatchingSilhouetteRenderer extends VBOBatchingRenderer {
     drawVBOBatchingLayerPrimitives(vboBatchingLayer: VBOBatchingLayer, renderPass: number): void {
         this.bind(renderPass);
         const view = this.renderContext.view;
+        const viewIndex = view.viewIndex;
         let material;
         if (renderPass === RENDER_PASSES.SILHOUETTE_XRAYED) {
             material = view.xrayMaterial;
@@ -112,10 +113,10 @@ export class VBOPointsBatchingSilhouetteRenderer extends VBOBatchingRenderer {
         const renderState = vboBatchingLayer.renderState;
         attributes.position.bindArrayBuffer(renderState.positionsBuf);
         if (attributes.color) {
-            attributes.color.bindArrayBuffer(renderState.colorsBuf);
+            attributes.color.bindArrayBuffer(renderState.colorsBuf[viewIndex]);
         }
         if (attributes.flags) {
-            attributes.flags.bindArrayBuffer(renderState.flagsBuf);
+            attributes.flags.bindArrayBuffer(renderState.flagsBufs[viewIndex]);
         }
         gl.uniform1i(this.uniforms.renderPass, renderPass);
         gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);

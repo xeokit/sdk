@@ -131,12 +131,12 @@ export class WebGLRenderBuffer {
                 throw "Incomplete framebuffer: " + status;
         }
         this.#buffer = {
-            framebuf: framebuf,
-            renderbuf: renderbuf,
+            framebuf,
+            renderbuf,
             texture: colorTexture,
-            depthTexture: depthTexture,
-            width: width,
-            height: height
+            depthTexture,
+            width,
+            height
         };
         this.#bound = false;
     }
@@ -174,7 +174,7 @@ export class WebGLRenderBuffer {
         height?: number;
         width?: number;
         format?: string;
-    }): Uint8Array {
+    }): any {
         const gl = this.#gl;
         const imageDataCache = this.#getImageDataCache();
         const pixelData = imageDataCache.pixelData;
@@ -184,27 +184,58 @@ export class WebGLRenderBuffer {
         gl.readPixels(0, 0, this.#buffer.width, this.#buffer.height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
         imageData.data.set(pixelData);
         context.putImageData(imageData, 0, 0);
-        const imageWidth = params.width || canvas.width;
-        const imageHeight = params.height || canvas.height;
-        const format = params.format || "jpeg";
-        const flipy = true; // Account for WebGL texture flipping
-        let image;
-        switch (format) {
-            case "jpeg":
-                image = Canvas2Image.saveAsJPEG(canvas, true, imageWidth, imageHeight, flipy);
-                break;
-            case "png":
-                image = Canvas2Image.saveAsPNG(canvas, true, imageWidth, imageHeight, flipy);
-                break;
-            case "bmp":
-                image = Canvas2Image.saveAsBMP(canvas, true, imageWidth, imageHeight, flipy);
-                break;
-            default:
-                console.error("Unsupported image format: '" + format + "' - supported types are 'jpeg', 'bmp' and 'png' - defaulting to 'jpeg'");
-                image = Canvas2Image.saveAsJPEG(canvas, true, imageWidth, imageHeight, flipy);
+
+        const width = params.width || canvas.width;
+         const height = params.height || canvas.height;
+
+        // flip Y
+        context.save();
+        context.globalCompositeOperation = 'copy';
+        context.scale(1, -1);
+        context.drawImage(canvas, 0, -height, width, height);
+        context.restore();
+
+        let format = params.format || "png";
+        if (format !== "jpeg" && format !== "png" && format !== "bmp") {
+            console.error("Unsupported image format: '" + format + "' - supported types are 'jpeg', 'bmp' and 'png' - defaulting to 'png'");
+            format = "png";
         }
-        // @ts-ignore
-        return image.src;
+        return canvas.toDataURL(`image/${format}`);
+        //
+        // const imageWidth = params.width || canvas.width;
+        // const imageHeight = params.height || canvas.height;
+        // const format = params.format || "jpeg";
+        // const flipy = true; // Account for WebGL texture flipping
+        // let image;
+        // switch (format) {
+        //     case "jpeg":
+        //         image = Canvas2Image.saveAsJPEG(canvas, true, imageWidth, imageHeight, flipy);
+        //         break;
+        //     case "png":
+        //         image = Canvas2Image.saveAsPNG(canvas, true, imageWidth, imageHeight, flipy);
+        //         break;
+        //     case "bmp":
+        //         image = Canvas2Image.saveAsBMP(canvas, true, imageWidth, imageHeight, flipy);
+        //         break;
+        //     default:
+        //         console.error("Unsupported image format: '" + format + "' - supported types are 'jpeg', 'bmp' and 'png' - defaulting to 'jpeg'");
+        //         image = Canvas2Image.saveAsJPEG(canvas, true, imageWidth, imageHeight, flipy);
+        // }
+        // // @ts-ignore
+        // return image;
+    }
+
+    /**
+     * Redas image from this render buffer as a image data.
+     */
+    readImageData(): any {
+        const gl = this.#gl;
+        const imageDataCache = this.#getImageDataCache();
+        const pixelData = imageDataCache.pixelData;
+        const imageData = imageDataCache.imageData;
+        gl.readPixels(0, 0, this.#buffer.width, this.#buffer.height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
+        imageData.data.set(pixelData);
+        return imageData;
     }
 
     #getImageDataCache() {
@@ -226,9 +257,9 @@ export class WebGLRenderBuffer {
             const imageData = context.createImageData(bufferWidth, bufferHeight);
             imageDataCache = {
                 pixelData: new Uint8Array(bufferWidth * bufferHeight * 4),
-                canvas: canvas,
-                context: context,
-                imageData: imageData,
+                canvas,
+                context,
+                imageData,
                 width: bufferWidth,
                 height: bufferHeight
             };

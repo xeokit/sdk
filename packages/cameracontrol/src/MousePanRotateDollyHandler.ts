@@ -70,7 +70,7 @@ export class MousePanRotateDollyHandler {
 
         let mouseMovedOnCanvasSinceLastWheel = true;
 
-        const canvasElement = this.#view.canvasElement;
+        const htmlElement = this.#view.htmlElement;
 
         const keyDown = [];
 
@@ -97,7 +97,7 @@ export class MousePanRotateDollyHandler {
         });
 
         function setMousedownState(pick = true) {
-            canvasElement.style.cursor = "move";
+            htmlElement.style.cursor = "move";
             setMousedownPositions();
             if (pick) {
                 setMousedownPick();
@@ -127,7 +127,7 @@ export class MousePanRotateDollyHandler {
             }
         }
 
-        canvasElement.addEventListener("mousedown", this.#mouseDownHandler = (e) => {
+        htmlElement.addEventListener("mousedown", this.#mouseDownHandler = (e) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -239,7 +239,7 @@ export class MousePanRotateDollyHandler {
             lastY = y;
         });
 
-        canvasElement.addEventListener("mousemove", this.#canvasMouseMoveHandler = (e) => {
+        htmlElement.addEventListener("mousemove", this.#canvasMouseMoveHandler = (e) => {
 
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
@@ -279,7 +279,7 @@ export class MousePanRotateDollyHandler {
             yRotateDelta = 0;
         });
 
-        canvasElement.addEventListener("mouseup", this.#mouseUpHandler = (e) => {
+        htmlElement.addEventListener("mouseup", this.#mouseUpHandler = (e) => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
@@ -299,10 +299,10 @@ export class MousePanRotateDollyHandler {
                 default:
                     break;
             }
-            canvasElement.style.removeProperty("cursor");
+            htmlElement.style.removeProperty("cursor");
         });
 
-        canvasElement.addEventListener("mouseenter", this.#mouseEnterHandler = () => {
+        htmlElement.addEventListener("mouseenter", this.#mouseEnterHandler = () => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
@@ -315,7 +315,7 @@ export class MousePanRotateDollyHandler {
 
         let secsNowLast = null;
 
-        canvasElement.addEventListener("wheel", this.#mouseWheelHandler = (e) => {
+        htmlElement.addEventListener("wheel", this.#mouseWheelHandler = (e) => {
             if (!(configs.active && configs.pointerEnabled)) {
                 return;
             }
@@ -348,17 +348,17 @@ export class MousePanRotateDollyHandler {
 
     destroy() {
 
-        const canvasElement = this.#view.canvasElement;
+        const htmlElement = this.#view.htmlElement;
 
         document.removeEventListener("keydown", this.#documentKeyDownHandler);
         document.removeEventListener("keyup", this.#documentKeyUpHandler);
-        canvasElement.removeEventListener("mousedown", this.#mouseDownHandler);
+        htmlElement.removeEventListener("mousedown", this.#mouseDownHandler);
         document.removeEventListener("mousemove", this.#documentMouseMoveHandler);
-        canvasElement.removeEventListener("mousemove", this.#canvasMouseMoveHandler);
+        htmlElement.removeEventListener("mousemove", this.#canvasMouseMoveHandler);
         document.removeEventListener("mouseup", this.#documentMouseUpHandler);
-        canvasElement.removeEventListener("mouseup", this.#mouseUpHandler);
-        canvasElement.removeEventListener("mouseenter", this.#mouseEnterHandler);
-        canvasElement.removeEventListener("wheel", this.#mouseWheelHandler);
+        htmlElement.removeEventListener("mouseup", this.#mouseUpHandler);
+        htmlElement.removeEventListener("mouseenter", this.#mouseEnterHandler);
+        htmlElement.removeEventListener("wheel", this.#mouseWheelHandler);
     }
 }
 

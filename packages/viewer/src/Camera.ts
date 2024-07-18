@@ -72,7 +72,7 @@ const offsetEye = createVec3();
  * const viewer = new Viewer();
  *
  * const view = new View(viewer, {
- *      canvasId: "myCanvas1"
+ *      elementId: "myCanvas1"
  * });
  *
  * const camera = view.camera;
@@ -774,6 +774,11 @@ class Camera extends Component {
         this.clean();
         this.onProjectionType.dispatch(this, this.#state.projectionType);
         this.onProjMatrix.dispatch(this, this.#activeProjection.projMatrix);
+    }
+
+    setDirty() {
+        super.setDirty();
+        this.view.redraw();
     }
 
     clean() {

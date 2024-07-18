@@ -33,7 +33,7 @@ class PickController {
 
         this.#cameraControl = cameraControl;
 
-        this.#view.canvasElement.oncontextmenu = function (e) {
+        this.#view.htmlElement.oncontextmenu = function (e) {
             e.preventDefault();
         };
 

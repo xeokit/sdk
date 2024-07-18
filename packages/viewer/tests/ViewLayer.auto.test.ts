@@ -26,11 +26,11 @@ describe('Viewer with autoLayers:true', () => {
     it('Creates a View for a canvas in the DOM', () => {
         view = viewer.createView({
             id: "myView",
-            canvasId: "myCanvas"
+            elementId: "myCanvas"
         });
         expect(view instanceof View).toBe(true);
-        expect(view.canvasElement instanceof HTMLCanvasElement).toBe(true);
-        expect(view.canvasElement.id).toBe("myCanvas");
+        expect(view.htmlElement instanceof HTMLCanvasElement).toBe(true);
+        expect(view.htmlElement.id).toBe("myCanvas");
     });
 
     it("View contain ViewLayers for SceneModel", async () => {

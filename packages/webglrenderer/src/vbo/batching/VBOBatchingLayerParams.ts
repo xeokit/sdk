@@ -9,7 +9,6 @@ import {RenderContext} from "./../../RenderContext";
  */
 export interface VBOBatchingLayerParams {
     renderContext: RenderContext;
-    view: View;
     rendererModel: WebGLRendererModel;
     primitive: number;
     layerIndex: number;

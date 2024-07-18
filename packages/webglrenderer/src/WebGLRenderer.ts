@@ -715,6 +715,7 @@ export class WebGLRenderer implements Renderer {
                 depthTexture: false,
                 size: [activeCanvasBoundingRect.width, activeCanvasBoundingRect.height]
             });
+            console.log("");
             primarySnapshotBuffer.setSize([activeCanvasBoundingRect.width, activeCanvasBoundingRect.height]);
             primarySnapshotBuffer.bind();
             primarySnapshotBuffer.clear();

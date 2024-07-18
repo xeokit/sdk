@@ -257,9 +257,9 @@ export class WebGLRenderBuffer {
             const imageData = context.createImageData(bufferWidth, bufferHeight);
             imageDataCache = {
                 pixelData: new Uint8Array(bufferWidth * bufferHeight * 4),
-                canvas: canvas,
-                context: context,
-                imageData: imageData,
+                canvas,
+                context,
+                imageData,
                 width: bufferWidth,
                 height: bufferHeight
             };

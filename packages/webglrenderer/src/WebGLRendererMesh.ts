@@ -116,7 +116,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
     setColorize(viewIndex: number, colorize: FloatArrayParam | null) {
         const setOpacity = false;
         const attribs = this.attribs[viewIndex];
-        const meshColorize = attribs.colorize[viewIndex];
+        const meshColorize = attribs.colorize;
         if (colorize) {
             meshColorize[0] = colorize[0];
             meshColorize[1] = colorize[1];

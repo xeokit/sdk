@@ -33,11 +33,10 @@ class WebGLRendererView {
     transparentEnabled: boolean;
     pbrEnabled: boolean;
     saveCanvasBoundary: DOMRect;
-
-    isPrimaryView: boolean;
     gl: WebGL2RenderingContext;
+    renderBufferManager: WebGLRenderBufferManager;
 
-    constructor(gl: WebGL2RenderingContext, view: View) {
+    constructor(gl: WebGL2RenderingContext, webglCanvasElement: HTMLCanvasElement, view: View) {
         this.gl = gl;
         this.view = view;
         this.transparencyEnabled = true;
@@ -50,10 +49,12 @@ class WebGLRendererView {
         this.transparentEnabled = true;
         this.backgroundColor = createVec3();
         this.saveCanvasBoundary = view.htmlElement.getBoundingClientRect();
+        this.renderBufferManager = new WebGLRenderBufferManager(gl, webglCanvasElement);
+
     }
 
     destroy() {
-
+        this.renderBufferManager.destroy();
     }
 }
 
@@ -85,7 +86,6 @@ export class WebGLRenderer implements Renderer {
 
     #rendererViews: { [key: string]: WebGLRendererView };
     #rendererViewsList: WebGLRendererView[];
-    #primaryRendererView: WebGLRendererView;
     #activeRendererView: WebGLRendererView;
 
     #viewer: Viewer;
@@ -98,7 +98,6 @@ export class WebGLRenderer implements Renderer {
     #layerListDirty: boolean;
     #stateSortDirty: boolean;
     #pickIDs = new Map({});
-    // #renderBufferManager: GLRenderBufferManager;
     #extensionHandles: any;
     #logarithmicDepthBufferEnabled: boolean;
     #alphaDepthMask: boolean;
@@ -109,8 +108,6 @@ export class WebGLRenderer implements Renderer {
     #viewMatrixDirty: boolean;
     #snapshotBound: boolean;
     #destroyed: boolean;
-
-    #renderBufferManager: WebGLRenderBufferManager;
 
     #onViewCameraMatrix: () => void | null;
 
@@ -128,7 +125,6 @@ export class WebGLRenderer implements Renderer {
 
     #webglCanvasElement: HTMLCanvasElement;
     #gl: WebGL2RenderingContext;
-
 
     /**
      * Creates a WebGLRenderer.
@@ -166,7 +162,6 @@ export class WebGLRenderer implements Renderer {
 
         this.#rendererViews = {};
         this.#rendererViewsList = [];
-        this.#primaryRendererView = null;
         this.#activeRendererView = null;
 
         this.onCompiled = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
@@ -182,26 +177,15 @@ export class WebGLRenderer implements Renderer {
         webglCanvasElement.style.border = '1px solid black';
         webglCanvasElement.style["pointer-events"] = "none";
         webglCanvasElement.style["z-index"] = 100000; // HACK
-
         document.body.appendChild(webglCanvasElement);
-        const WEBGL_CONTEXT_NAMES = ["webgl2"];
         const contextAttr = {};
-        let gl: WebGL2RenderingContext | null = null;
-        for (let i = 0; !gl && i < WEBGL_CONTEXT_NAMES.length; i++) {
-            try {  // @ts-ignore
-                gl = webglCanvasElement.getContext(WEBGL_CONTEXT_NAMES[i], contextAttr);
-            } catch (e) { // Try with next context name
-            }
+        this.#gl = <WebGL2RenderingContext>webglCanvasElement.getContext("webgl2", contextAttr);
+        if (!this.#gl) {
+            throw new SDKError(`Failed to get a WebGL2 context`);
         }
-        if (!gl) {
-            //return new SDKError(`Failed to get a WebGL2 context on the View's canvas (HTMLCanvasElement with ID "${view.htmlElement.id}")`);
-        }
-        gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
-
-        this.#gl = gl;
+        this.#gl.hint(this.#gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this.#gl.NICEST);
 
         // this.tileManager = new WebGLTileManager({camera: view.camera, gl});
-        this.#renderBufferManager = new WebGLRenderBufferManager(gl, webglCanvasElement);
     }
 
     /**
@@ -328,26 +312,10 @@ export class WebGLRenderer implements Renderer {
         view.camera.onViewMatrix.subscribe(this.#onViewCameraMatrix = () => {
             this.#viewMatrixDirty = true;
         });
-        const isPrimaryView = (this.#rendererViewsList.length === 0);
-
-        // const context2d = view.htmlElement.getContext('2d');
-        //
-        // //////////////////
-        // context2d.fillStyle = 'blue'; // Set the fill color
-        // context2d.fillRect(50, 50, 200, 100); // x, y, width, height
-        // context2d.strokeStyle = 'red'; // Set the stroke color
-        // context2d.lineWidth = 5; // Set the line width
-        // context2d.strokeRect(100, 200, 150, 75); // x, y, width, height
-////
-
-        const rendererView = new WebGLRendererView(this.renderContext.gl, view);
+        const rendererView = new WebGLRendererView(this.renderContext.gl, this.#webglCanvasElement, view);
         this.#rendererViews[view.id] = rendererView;
         view.viewIndex = this.#rendererViewsList.length;
         this.#rendererViewsList.push(rendererView);
-        if (isPrimaryView) {
-            this.#primaryRendererView = rendererView;
-            this.#activeRendererView = rendererView;
-        }
     }
 
     // #updateViewIndices() {
@@ -666,8 +634,8 @@ export class WebGLRenderer implements Renderer {
      *
      * @internal
      * @param viewIndex Handle to the View, returned earlier by {@param params Rendering params.
-@param [params.force=false] True to force a render, else only render if needed.
-@link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+     * @param [params.force=false] True to force a render, else only render if needed.
+     * @link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
      * @returns *{@link @xeokit/core!SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
@@ -702,10 +670,6 @@ export class WebGLRenderer implements Renderer {
     }
 
     activateView(viewIndex: number) {
-        const primaryRendererView = this.#primaryRendererView;
-        if (!primaryRendererView) {
-            throw new SDKError(`Can't activate View - no primary View attached`);
-        }
         const targetRendererView = this.#rendererViewsList[viewIndex];
         if (!targetRendererView) {
             throw new SDKError(`Can't activate View - no such target View attached: ${viewIndex}`);
@@ -713,7 +677,7 @@ export class WebGLRenderer implements Renderer {
         const activeRendererView = this.#activeRendererView;
         if (activeRendererView) {
             const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
-            const primarySnapshotBuffer = this.#renderBufferManager.getRenderBuffer("snapshot", {
+            const primarySnapshotBuffer = activeRendererView.renderBufferManager.getRenderBuffer("snapshot", {
                 depthTexture: false,
                 size: [activeCanvasBoundingRect.width, activeCanvasBoundingRect.height]
             });
@@ -1263,7 +1227,6 @@ export class WebGLRenderer implements Renderer {
         if (this.#viewer) {
             this.detachViewer();
         }
-        this.#renderBufferManager.destroy();
         this.#destroyed = true;
         this.onDestroyed.dispatch(this, true);
     }

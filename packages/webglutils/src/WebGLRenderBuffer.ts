@@ -225,6 +225,19 @@ export class WebGLRenderBuffer {
         // return image;
     }
 
+    /**
+     * Redas image from this render buffer as a image data.
+     */
+    readImageData(): any {
+        const gl = this.#gl;
+        const imageDataCache = this.#getImageDataCache();
+        const pixelData = imageDataCache.pixelData;
+        const imageData = imageDataCache.imageData;
+        gl.readPixels(0, 0, this.#buffer.width, this.#buffer.height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
+        imageData.data.set(pixelData);
+        return imageData;
+    }
+
     #getImageDataCache() {
         const bufferWidth = this.#buffer.width;
         const bufferHeight = this.#buffer.height;

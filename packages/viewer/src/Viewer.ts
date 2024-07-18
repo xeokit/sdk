@@ -176,6 +176,12 @@ export class Viewer extends Component {
 
         this.#tickifiedFunctions = {};
 
+        this.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
+            this.renderer.attachSceneModel(sceneModel);
+        });
+        this.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
+            this.renderer.detachSceneModel(sceneModel);
+        });
 
         scheduler.registerViewer(this);
     }
@@ -300,16 +306,19 @@ export class Viewer extends Component {
         });
         // Renderer.attachSceneModel creates RendererObjects in Renderer.rendererObjects,
         // which are then expected by View.initViewObjects
+
+        ////////////////////////////////////////////////////////
+        // FIXME
+        // FIXME
+        // FIXME
         // TODO: assumes one View
-        this.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
-            this.renderer.attachSceneModel(sceneModel);
-        });
-        this.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
-            this.renderer.detachSceneModel(sceneModel);
-        });
+        ////////////////////////////////////////////////////////
+
+
         for (let id in this.scene.models) {
             this.renderer.attachSceneModel(this.scene.models[id]);
         }
+
         view.initViewObjects();
         this.onViewCreated.dispatch(this, view);
         this.log(`View created (id = "${view.viewId}")`);

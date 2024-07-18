@@ -95,7 +95,13 @@ export class ViewObject {
         };
 
         this.#rendererObject.setVisible(this.layer.view.viewIndex, this.#state.visible);
+
+       // this.#rendererObject.initFlags(this.layer.view.viewIndex, this.#state);
+
         this.layer.objectVisibilityUpdated(this, this.#state.visible, true);
+
+        //this.#rendererObject.setClippable(this.layer.view.viewIndex, this.#state.clippable);
+
     }
 
     /**

@@ -733,8 +733,8 @@ class View extends Component {
 
         new DirLight(this, {
             dir: [0.8, -.5, -0.5],
-            color: [0.67, 0.67, 1.0],
-            intensity: 0.7,
+            color: [0.8, 0.8, 1.0],
+            intensity: 1.0,
             space: "world"
         });
 

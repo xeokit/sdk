@@ -39,7 +39,7 @@ via BCF Viewpoints and bring your AECO models to life with xeokit.
 
 Work in progress;
 
-* https://xeokit.github.io/sdk/packages/examples/
+* [Live Demos](https://xeokit.github.io/sdk/packages/demos/demos/)
 
 # Modules
 

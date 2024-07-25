@@ -1,4 +1,4 @@
-import {View} from "@xeokit/viewer";
+
 import {WebGLRendererModel} from "./WebGLRendererModel";
 import {MeshCounts} from "./MeshCounts";
 import {SceneGeometry, SceneMesh} from "@xeokit/scene";
@@ -43,8 +43,6 @@ export interface Layer {
     setLayerMeshXRayed(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
     setLayerMeshSelected(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
-
-    setLayerMeshEdges(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
     setLayerMeshClippable(viewIndex: number, layerMeshIndex: number, flags: number): void;
 

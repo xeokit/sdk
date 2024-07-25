@@ -95,4 +95,9 @@ export interface SceneModelParams {
      * Will be "default" by default.
      */
     layerId?: string;
+
+    /**
+     * TODO
+     */
+    retained?: boolean;
 }

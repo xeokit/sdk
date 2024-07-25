@@ -44,7 +44,6 @@ export abstract class VBORenderer {
         silhouetteColor: WebGLUniformLocation;
         gammaFactor: WebGLUniformLocation;
         pickZNear: WebGLUniformLocation;
-        logDepthBufFC: WebGLUniformLocation;
         renderPass: WebGLUniformLocation;
         snapCameraEyeRTC: WebGLUniformLocation;
         pointSize: WebGLUniformLocation;
@@ -145,7 +144,6 @@ export abstract class VBORenderer {
             worldMatrix: program.getLocation("worldMatrix"),
             positionsDecodeMatrix: program.getLocation("positionsDecodeMatrix"),
             snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
-            logDepthBufFC: program.getLocation("logDepthBufFC"),
             pointSize: program.getLocation("pointSize"),
             intensityRange: program.getLocation("intensityRange"),
             nearPlaneHeight: program.getLocation("nearPlaneHeight"),
@@ -253,6 +251,20 @@ export abstract class VBORenderer {
         src.push("// ------------------- vertexPickMeshShadingDefs")
         src.push("in vec4 pickColor;");
         src.push("out vec4 vPickColor;");
+
+        src.push("uniform vec2 drawingBufferSize;");
+        src.push("uniform vec2 pickClipPos;");
+
+        src.push("vec4 remapClipPos(vec4 clipPos) {");
+        src.push("    clipPos.xy /= clipPos.w;");
+        //if (viewportSize === 1) {
+            src.push("    clipPos.xy = (clipPos.xy - pickClipPos) * drawingBufferSize;");
+        // } else {
+        //     src.push(`    clipPos.xy = (clipPos.xy - pickClipPos) * (drawingBufferSize / float(${viewportSize}));`);
+        // }
+        src.push("    clipPos.xy *= clipPos.w;")
+        src.push("    return clipPos;")
+        src.push("}");
     }
 
     vertexSlicingDefs(src: string[]) {
@@ -263,36 +275,38 @@ export abstract class VBORenderer {
         }
     }
 
-    openVertexMain(src: string[]) {
+    vertexColorMainOpenBlock(src: string[]) {
         src.push("void main(void) {");
         src.push(`      int colorFlag = int(flags) & 0xF;`);
         src.push(`      if (colorFlag != renderPass) {`);
-        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);");
         src.push("      } else {");
     }
 
     openVertexSilhouetteMain(src: string[]) {
         src.push("void main(void) {");
         src.push(`      if ((int(flags) >> 4 & 0xF) != renderPass) {`);
-        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
+        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);");
         src.push("      } else {");
     }
 
     openVertexEdgesMain(src: string[]) {
         src.push("void main(void) {");
-        src.push(`      if ((int(flags) >> 8 & 0xF) != renderPass) {`);
-        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        src.push("      } else {");
     }
 
     openVertexPickMain(src: string[]) {
         src.push("void main(void) {");
-        src.push(`      if ((int(flags) >> 12 & 0xF) != renderPass) {`);
-        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
-        src.push("      } else {");
+        src.push(`      int pickFlag = int(flags) >> 8 & 0xF;`);
+        src.push(`      if (pickFlag != renderPass) {`);
+        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);");
     }
 
-    closeVertexMain(src: string[]) {
+    vertexColorMainCloseBlock(src: string[]) {
+        src.push("      }");
+        src.push("}");
+    }
+
+    vertexPickMainCloseBlock(src: string[]) {
         src.push("      }");
         src.push("}");
     }
@@ -301,22 +315,36 @@ export abstract class VBORenderer {
         if (this.renderContext.view.getNumAllocatedSectionPlanes() > 0) {
             src.push("      // ------------------- vertexSlicingLogic")
             src.push("      vWorldPosition = worldPosition;");
-            src.push("      vClippable = (int(flags) >> 16 & 0xF) == 1;");
+            src.push("      vClippable = (int(flags) >> 12 & 0xF) == 1;");
         }
     }
 
-    vertexBatchingTransformLogic(src: string[]) {
-        src.push("          // ------------------- vertexBatchingTransformLogic")
+    vertexDrawBatchingTransformLogic(src: string[]) {
+        src.push("          // ------------------- vertexDrawBatchingTransformLogic")
         src.push("          vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
         src.push("          vec4 viewPosition  = viewMatrix * worldPosition; ");
         src.push("          gl_Position = projMatrix * viewPosition;");
     }
 
-    vertexInstancingTransformLogic(src: string[]) {
-        src.push("          // ------------------- vertexInstancingTransformLogic")
+    vertexPickBatchingTransformLogic(src: string[]) {
+        src.push("          // ------------------- vertexDrawBatchingTransformLogic")
+        src.push("          vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
+        src.push("          vec4 viewPosition  = viewMatrix * worldPosition; ");
+        src.push("          gl_Position = remapClipPos(projMatrix * viewPosition);");
+    }
+
+    vertexDrawInstancingTransformLogic(src: string[]) {
+        src.push("          // ------------------- vertexDrawInstancingTransformLogic")
         src.push("          vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
         src.push("          vec4 viewPosition  = viewMatrix * vec4(dot(worldPosition, modelMatrixCol0), dot(worldPosition, modelMatrixCol1), dot(worldPosition, modelMatrixCol2), 1.0); ");
         src.push("          gl_Position = projMatrix * viewPosition;");
+    }
+
+    vertexPickInstancingTransformLogic(src: string[]) {
+        src.push("          // ------------------- vertexDrawInstancingTransformLogic")
+        src.push("          vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
+        src.push("          vec4 viewPosition  = viewMatrix * vec4(dot(worldPosition, modelMatrixCol0), dot(worldPosition, modelMatrixCol1), dot(worldPosition, modelMatrixCol2), 1.0); ");
+        src.push("          gl_Position = remapClipPos(projMatrix * viewPosition);");
     }
 
     vertexDrawLambertDefs(src: string[]) {
@@ -326,7 +354,7 @@ export abstract class VBORenderer {
         src.push("          out vec4 vViewPosition;");
     }
 
-    vertexDrawLambertLogic(src: string[]) { // Depends on vertexInstancingTransformLogic / vertexBatchingTransformLogic
+    vertexDrawLambertLogic(src: string[]) { // Depends on vertexDrawInstancingTransformLogic / vertexDrawBatchingTransformLogic
         src.push("          // ------------------- vertexDrawLambertLogic")
         src.push("          vColor = vec4(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);");
         src.push("          vViewPosition = viewPosition;");
@@ -362,7 +390,7 @@ export abstract class VBORenderer {
 
     vertexDrawEdgesColorLogic(src: string[]) {
         src.push("          // ------------------- vertexDrawEdgesColorLogic")
-        src.push("          vColor = vec4(1.0, float(color.g-300.0) / 255.0, float(color.b-0.5) / 255.0, 1.0);");
+        src.push("          vColor = vec4(float(color.r-200.0) / 255.0, float(color.g-200.0) / 255.0, float(color.b-200.0) / 255.0, 1.0);");
     }
 
     vertexDrawEdgesSilhouetteDefs(src: string[]) {
@@ -542,6 +570,60 @@ export abstract class VBORenderer {
         src.push("  }");
     }
 
+    vertexDrawPointsColorsDefs(src: string[]): void {
+        src.push("in vec4 color;");
+        src.push("out vec4 vColor;");
+    }
+
+    vertexDrawPointsColorsLogic(src: string[]): void {
+        src.push("vColor = vec4(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);");
+    }
+
+    vertexPointsGeometryDefs(src: string[]): void {
+        const pointsMaterial = this.renderContext.view.pointsMaterial;
+        if (pointsMaterial.perspectivePoints) {
+            src.push("uniform float nearPlaneHeight;");
+        }
+        if (pointsMaterial.filterIntensity) {
+            src.push("uniform vec2 intensityRange;");
+        }
+    }
+
+    vertexPointsFilterLogicOpenBlock(src: string[]) {
+        const pointsMaterial = this.renderContext.view.pointsMaterial;
+        if (pointsMaterial.filterIntensity) {
+            src.push("float intensity = float(color.a) / 255.0;")
+            src.push("if (intensity < intensityRange[0] || intensity > intensityRange[1]) {");
+            src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);");
+            src.push("} else {");
+        }
+    }
+
+    vertexPointsFilterLogicCloseBlock(src: string[]) {
+        src.push("}");
+    }
+
+    vertexPointsGeometryLogic(src: string[]) {
+        const pointsMaterial = this.renderContext.view.pointsMaterial;
+        if (pointsMaterial.perspectivePoints) {
+            src.push("gl_PointSize = (nearPlaneHeight * pointSize) / clipPos.w;");
+            src.push("gl_PointSize = max(gl_PointSize, " + Math.floor(pointsMaterial.minPerspectivePointSize) + ".0);");
+            src.push("gl_PointSize = min(gl_PointSize, " + Math.floor(pointsMaterial.maxPerspectivePointSize) + ".0);");
+        } else {
+            src.push("gl_PointSize = pointSize;");
+        }
+    }
+
+    fragmentPointsGeometryLogic(src: string[]): void {
+        if (this.renderContext.view.pointsMaterial.roundPoints) {
+            src.push("  vec2 cxy = 2.0 * gl_PointCoord - 1.0;");
+            src.push("  float r = dot(cxy, cxy);");
+            src.push("  if (r > 1.0) {");
+            src.push("       discard;");
+            src.push("  }");
+        }
+    }
+
     bind(renderPass: number): boolean {
         const view = this.renderContext.view;
         const gl = this.renderContext.gl;
@@ -568,7 +650,11 @@ export abstract class VBORenderer {
         this.renderContext.lastProgramId = this.program.id;
         gl.uniform1i(uniforms.renderPass, renderPass);
         if (uniforms.projMatrix) {
-            gl.uniformMatrix4fv(uniforms.projMatrix, false, <Float32Array | GLfloat[]>view.camera.projMatrix);
+            gl.uniformMatrix4fv(uniforms.projMatrix, false,
+                <Float32Array | GLfloat[]>
+                    (renderPass === RENDER_PASSES.PICK
+                    ? this.renderContext.pickProjMatrix
+                    : view.camera.projMatrix));
         }
         if (uniforms.pointSize) {
             gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);
@@ -579,6 +665,12 @@ export abstract class VBORenderer {
         if (uniforms.pickZNear) {
             gl.uniform1f(uniforms.pickZNear, this.renderContext.pickZNear);
             gl.uniform1f(uniforms.pickZFar, this.renderContext.pickZFar);
+        }
+        if (uniforms.drawingBufferSize) {
+            gl.uniform2f(uniforms.drawingBufferSize, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        }
+        if (uniforms.pickClipPos) {
+            gl.uniform2fv(uniforms.pickClipPos, <Float32Array>this.renderContext.pickClipPos);
         }
         if (uniforms.lightAmbient) {
             gl.uniform4fv(uniforms.lightAmbient, <Float32Array>view.getAmbientColorAndIntensity());

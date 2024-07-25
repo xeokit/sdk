@@ -18,11 +18,11 @@ export class VBOTrianglesBatchingPickMeshRenderer extends VBOBatchingRenderer {
         this.vertexPickMeshShadingDefs(src);
         this.openVertexPickMain(src);
         {
-            this.vertexBatchingTransformLogic(src);
+            this.vertexPickBatchingTransformLogic(src);
             this.vertexPickMeshShadingLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.closeVertexMain(src);
+        this.vertexPickMainCloseBlock(src);
     }
 
     buildFragmentShader(src: string[]):void {

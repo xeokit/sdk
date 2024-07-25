@@ -428,13 +428,6 @@ export class VBOBatchingLayer implements Layer {
         this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
     }
 
-    setLayerMeshEdges(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
-        if (!this.#built) {
-            throw new SDKError("Not built");
-        }
-        // Not applicable to point clouds
-    }
-
     setLayerMeshClippable(viewIndex: number, layerMeshIndex: number, flags: number): void {
         if (!this.#built) {
             throw new SDKError("Not built");
@@ -571,9 +564,8 @@ export class VBOBatchingLayer implements Layer {
             let vertFlag = 0;
             vertFlag |= colorFlag;
             vertFlag |= silhouetteFlag << 4;
-            // no edges
-            vertFlag |= pickFlag << 12;
-            vertFlag |= clippableFlag << 16;
+            vertFlag |= pickFlag << 8;
+            vertFlag |= clippableFlag << 12;
             tempArray[i] = vertFlag;
         }
 
@@ -683,12 +675,11 @@ export class VBOBatchingLayer implements Layer {
     drawEdgesColorOpaque() {
         const viewIndex = this.renderContext.view.viewIndex;
         if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numEdges === 0) {
+            this.meshCounts[viewIndex].numVisible === 0) {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
-            this.#rendererSet.edgesColorRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.EDGES_COLOR_OPAQUE);
+            this.#rendererSet.edgesColorRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.COLOR_OPAQUE);
         }
     }
 
@@ -696,12 +687,11 @@ export class VBOBatchingLayer implements Layer {
         const viewIndex = this.renderContext.view.viewIndex;
         if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
             this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numEdges === 0 ||
             this.meshCounts[viewIndex].numTransparent === 0) {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
-            this.#rendererSet.edgesColorRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.EDGES_COLOR_TRANSPARENT);
+            this.#rendererSet.edgesColorRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.COLOR_TRANSPARENT);
         }
     }
 
@@ -709,12 +699,11 @@ export class VBOBatchingLayer implements Layer {
         const viewIndex = this.renderContext.view.viewIndex;
         if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
             this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numEdges === 0 ||
             this.meshCounts[viewIndex].numHighlighted === 0) {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.EDGES_HIGHLIGHTED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
         }
     }
 
@@ -722,12 +711,11 @@ export class VBOBatchingLayer implements Layer {
         const viewIndex = this.renderContext.view.viewIndex;
         if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
             this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numEdges === 0 ||
             this.meshCounts[viewIndex].numSelected === 0) {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.EDGES_SELECTED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.SILHOUETTE_SELECTED);
         }
     }
 
@@ -735,12 +723,11 @@ export class VBOBatchingLayer implements Layer {
         const viewIndex = this.renderContext.view.viewIndex;
         if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
             this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numEdges === 0 ||
             this.meshCounts[viewIndex].numXRayed === 0) {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.EDGES_XRAYED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.SILHOUETTE_XRAYED);
         }
     }
 

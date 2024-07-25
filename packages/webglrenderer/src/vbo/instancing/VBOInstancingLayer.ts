@@ -77,6 +77,7 @@ export class VBOInstancingLayer implements Layer {
         this.renderState = <VBOInstancingRenderState>{
             numVertices: 0,
             numIndices: 0,
+            numEdgeIndices: 0,
             numInstances: 0,
             obb: createOBB3(),
             origin: createVec3(layerParams.origin),
@@ -407,10 +408,6 @@ export class VBOInstancingLayer implements Layer {
             this.meshCounts[viewIndex].numClippable++;
             this.rendererModel.meshCounts[viewIndex].numClippable++;
         }
-        if (flags & SCENE_OBJECT_FLAGS.EDGES) {
-            this.meshCounts[viewIndex].numEdges++;
-            this.rendererModel.meshCounts[viewIndex].numEdges++;
-        }
         if (flags & SCENE_OBJECT_FLAGS.PICKABLE) {
             this.meshCounts[viewIndex].numPickable++;
             this.rendererModel.meshCounts[viewIndex].numPickable++;
@@ -478,20 +475,6 @@ export class VBOInstancingLayer implements Layer {
         } else {
             this.meshCounts[viewIndex].numSelected--;
             this.rendererModel.meshCounts[viewIndex].numSelected--;
-        }
-        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
-    }
-
-    setLayerMeshEdges(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
-        if (!this.#built) {
-            throw "Not finalized";
-        }
-        if (flags & SCENE_OBJECT_FLAGS.EDGES) {
-            this.meshCounts[viewIndex].numEdges++;
-            this.rendererModel.meshCounts[viewIndex].numEdges++;
-        } else {
-            this.meshCounts[viewIndex].numEdges--;
-            this.rendererModel.meshCounts[viewIndex].numEdges--;
         }
         this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
     }
@@ -580,7 +563,6 @@ export class VBOInstancingLayer implements Layer {
         const xrayed = !!(flags & SCENE_OBJECT_FLAGS.XRAYED);
         const highlighted = !!(flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED);
         const selected = !!(flags & SCENE_OBJECT_FLAGS.SELECTED);
-        const edges = !!(flags & SCENE_OBJECT_FLAGS.EDGES);
         const pickable = !!(flags & SCENE_OBJECT_FLAGS.PICKABLE);
         const culled = !!(flags & SCENE_OBJECT_FLAGS.CULLED);
 
@@ -610,25 +592,6 @@ export class VBOInstancingLayer implements Layer {
             silhouetteFlag = RENDER_PASSES.NOT_RENDERED;
         }
 
-        let edgeFlag = 0;
-        if (!visible || culled) {
-            edgeFlag = RENDER_PASSES.NOT_RENDERED;
-        } else if (selected) {
-            edgeFlag = RENDER_PASSES.EDGES_SELECTED;
-        } else if (highlighted) {
-            edgeFlag = RENDER_PASSES.EDGES_HIGHLIGHTED;
-        } else if (xrayed) {
-            edgeFlag = RENDER_PASSES.EDGES_XRAYED;
-        } else if (edges) {
-            if (transparent) {
-                edgeFlag = RENDER_PASSES.EDGES_COLOR_TRANSPARENT;
-            } else {
-                edgeFlag = RENDER_PASSES.EDGES_COLOR_OPAQUE;
-            }
-        } else {
-            edgeFlag = RENDER_PASSES.NOT_RENDERED;
-        }
-
         const pickFlag = (visible && !culled && pickable) ? RENDER_PASSES.PICK : RENDER_PASSES.NOT_RENDERED;
 
         const clippableFlag = !!(flags & SCENE_OBJECT_FLAGS.CLIPPABLE) ? 1 : 0;
@@ -636,9 +599,8 @@ export class VBOInstancingLayer implements Layer {
         let vertFlag = 0;
         vertFlag |= colorFlag;
         vertFlag |= silhouetteFlag << 4;
-        vertFlag |= edgeFlag << 8;
-        vertFlag |= pickFlag << 12;
-        vertFlag |= clippableFlag << 16;
+        vertFlag |= pickFlag << 8;
+        vertFlag |= clippableFlag << 12;
 
         tempFloat32[0] = vertFlag;
 
@@ -783,12 +745,11 @@ export class VBOInstancingLayer implements Layer {
     drawEdgesColorOpaque(): void {
         const viewIndex = this.renderContext.view.viewIndex;
         if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numEdges === 0) {
+            this.meshCounts[viewIndex].numVisible === 0) {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
-            this.#rendererSet.edgesColorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.EDGES_COLOR_OPAQUE);
+            this.#rendererSet.edgesColorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE);
         }
     }
 
@@ -796,12 +757,11 @@ export class VBOInstancingLayer implements Layer {
         const viewIndex = this.renderContext.view.viewIndex;
         if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
             this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numEdges === 0 ||
             this.meshCounts[viewIndex].numTransparent === 0) {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
-            this.#rendererSet.edgesColorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.EDGES_COLOR_TRANSPARENT);
+            this.#rendererSet.edgesColorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_TRANSPARENT);
         }
     }
 
@@ -809,12 +769,11 @@ export class VBOInstancingLayer implements Layer {
         const viewIndex = this.renderContext.view.viewIndex;
         if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
             this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numEdges === 0 ||
             this.meshCounts[viewIndex].numHighlighted === 0) {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.EDGES_HIGHLIGHTED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
         }
     }
 
@@ -822,12 +781,11 @@ export class VBOInstancingLayer implements Layer {
         const viewIndex = this.renderContext.view.viewIndex;
         if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
             this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numEdges === 0 ||
             this.meshCounts[viewIndex].numSelected === 0) {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.EDGES_SELECTED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.SILHOUETTE_SELECTED);
         }
     }
 
@@ -835,12 +793,11 @@ export class VBOInstancingLayer implements Layer {
         const viewIndex = this.renderContext.view.viewIndex;
         if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
             this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numEdges === 0 ||
             this.meshCounts[viewIndex].numXRayed === 0) {
             return;
         }
         if (this.#rendererSet.edgesSilhouetteRenderer) {
-            this.#rendererSet.edgesSilhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.EDGES_XRAYED);
+            this.#rendererSet.edgesSilhouetteRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.SILHOUETTE_XRAYED);
         }
     }
 

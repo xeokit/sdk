@@ -16,13 +16,15 @@ export class VBOTrianglesInstancingDrawRenderer extends VBOInstancingRenderer {
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
         this.vertexDrawLambertDefs(src);
-        this.openVertexMain(src);
+        // this.vertexColorMainOpenBlock(src);
+        src.push("void main(void) {");
         {
-            this.vertexInstancingTransformLogic(src);
+            this.vertexDrawInstancingTransformLogic(src);
             this.vertexDrawLambertLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.closeVertexMain(src);
+      //  this.vertexColorMainCloseBlock(src);
+        src.push("}");
     }
 
     buildFragmentShader(src: string[]): void {

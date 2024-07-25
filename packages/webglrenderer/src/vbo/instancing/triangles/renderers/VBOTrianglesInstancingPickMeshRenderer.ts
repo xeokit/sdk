@@ -19,11 +19,11 @@ export class VBOTrianglesInstancingPickMeshRenderer extends VBOInstancingRendere
         this.vertexPickMeshShadingDefs(src);
         this.openVertexPickMain(src);
         {
-            this.vertexInstancingTransformLogic(src);
+            this.vertexPickInstancingTransformLogic(src);
             this.vertexPickMeshShadingLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.closeVertexMain(src);
+        this.vertexPickMainCloseBlock(src);
     }
 
     buildFragmentShader(src: string[]) : void{

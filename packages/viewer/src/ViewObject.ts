@@ -62,7 +62,6 @@ export class ViewObject {
         xrayed: boolean;
         selected: boolean;
         highlighted: boolean;
-        edges: boolean;
         colorize: Float32Array;
         colorized: boolean;
         opacityUpdated: boolean;
@@ -88,7 +87,6 @@ export class ViewObject {
             xrayed: false,
             selected: false,
             highlighted: false,
-            edges: false,
             colorize: new Float32Array(4),
             colorized: false,
             opacityUpdated: false,
@@ -102,6 +100,7 @@ export class ViewObject {
 
         //this.#rendererObject.setClippable(this.layer.view.viewIndex, this.#state.clippable);
 
+        this.#rendererObject.setPickable(this.layer.view.viewIndex, this.#state.pickable);
     }
 
     /**
@@ -169,28 +168,6 @@ export class ViewObject {
             throw result;
         }
         this.layer.objectXRayedUpdated(this, xrayed);
-        this.layer.redraw();
-    }
-
-    /**
-     * Gets if this ViewObject shows edges.
-     */
-    get edges(): boolean {
-        return this.#state.edges;
-    }
-
-    /**
-     * Sets if this ViewObject shows edges.
-     */
-    set edges(edges: boolean) {
-        if (this.#state.edges === edges) {
-            return;
-        }
-        this.#state.edges = edges;
-        const result = this.#rendererObject.setEdges(this.layer.view.viewIndex, edges);
-        if (result instanceof SDKError) {
-            throw result;
-        }
         this.layer.redraw();
     }
 

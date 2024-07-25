@@ -100,19 +100,6 @@ export interface RendererObject {
     setSelected(viewHandle: number, selected: boolean): void | SDKError;
 
     /**
-     * Sets whether the {@link @xeokit/viewer!ViewObject} is rendered with enhanced edges in the given {@link View}.
-     *
-     * @internal
-     * @param viewHandle Handle to the {@link View}, which was returned by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
-     * @param edges Whether to show edges for the {@link @xeokit/viewer!ViewObject} in the {@link View}.
-     * @returns *void*
-     * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
-     * * No {@link View} found in the Renderer for the given handle.
-     */
-    setEdges(viewHandle: number, edges: boolean): void | SDKError;
-
-    /**
      * Sets whether the {@link @xeokit/viewer!ViewObject} is visually culled from the given {@link View}.
      *
      * @internal

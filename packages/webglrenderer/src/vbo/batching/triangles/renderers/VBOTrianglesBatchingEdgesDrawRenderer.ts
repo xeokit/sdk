@@ -1,32 +1,36 @@
 import {VBOBatchingLayer} from "../../VBOBatchingLayer";
 import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
+import {RenderContext} from "../../../../RenderContext";
 
 /**
  * @private
  */
 export class VBOTrianglesBatchingEdgesDrawRenderer extends VBOBatchingRenderer {
 
-    getHash(): string {
-        const view = this.renderContext.view;
-        return `${view.getLightsHash()}-${view.getSectionPlanesHash()}`;
+    constructor(renderContext: RenderContext) {
+        super(renderContext, { edges: true});
     }
 
-    buildVertexShader(src: string[]):void {
+    getHash(): string {
+        return this.slicingHash;
+    }
+
+    buildVertexShader(src: string[]): void {
         this.vertexHeader(src);
         this.vertexCommonDefs(src);
         this.vertexBatchingTransformDefs(src);
         this.vertexSlicingDefs(src);
         this.vertexDrawEdgesColorDefs(src);
-        this.openVertexEdgesMain(src);
+        this.vertexColorMainOpenBlock(src);
         {
-            this.vertexBatchingTransformLogic(src);
+            this.vertexDrawBatchingTransformLogic(src);
             this.vertexDrawEdgesColorLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.closeVertexMain(src);
+        this.vertexColorMainCloseBlock(src);
     }
 
-    buildFragmentShader(src: string[]) :void{
+    buildFragmentShader(src: string[]): void {
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
         this.fragmentSlicingDefs(src);

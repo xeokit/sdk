@@ -22,7 +22,7 @@ export class VBOLinesBatchingDrawRenderer extends VBOBatchingRenderer {
         src.push(`if ((int(flags) & 0xF) != renderPass) {`);
         src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);"); // Cull vertex
         src.push("} else {");
-        this.vertexBatchingTransformLogic(src);
+        this.vertexDrawBatchingTransformLogic(src);
         this.vertexDrawFlatColorLogic(src);
         this.vertexSlicingLogic(src);
         src.push("}");

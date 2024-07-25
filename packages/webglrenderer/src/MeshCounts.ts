@@ -7,7 +7,6 @@ export class MeshCounts {
     numMeshes: number;
     numVisible: number;
     numTransparent: number;
-    numEdges: number;
     numXRayed: number;
     numSelected: number;
     numHighlighted: number;
@@ -23,7 +22,6 @@ export class MeshCounts {
         this.numMeshes = 0;
         this.numVisible = 0;
         this.numTransparent = 0;
-        this.numEdges = 0;
         this.numXRayed = 0;
         this.numSelected = 0;
         this.numHighlighted = 0;

@@ -1,11 +1,12 @@
 import {VBOInstancingLayer} from "./VBOInstancingLayer";
 import {createRTCViewMat} from "@xeokit/rtc";
 import {VBORenderer} from "../VBORenderer";
+import {RENDER_PASSES} from "../../RENDER_PASSES";
 
 /**
  * @private
  */
-export abstract class VBOInstancingRenderer extends VBORenderer{
+export abstract class VBOInstancingRenderer extends VBORenderer {
 
     renderVBOInstancingLayer(vboInstancingLayer: VBOInstancingLayer, renderPass: number): void {
         if (!this.bind(renderPass)) {
@@ -49,8 +50,14 @@ export abstract class VBOInstancingRenderer extends VBORenderer{
             gl.vertexAttribDivisor(attributes.modelMatrixCol2.location, 1);
         }
         gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
+
         gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array | GLfloat[]>vboInstancingLayer.rendererModel.worldMatrix);
-        gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
+        gl.uniformMatrix4fv(this.uniforms.viewMatrix, false,
+            <Float32Array | GLfloat[]>createRTCViewMat(
+                renderPass === RENDER_PASSES.PICK
+                    ? this.renderContext.pickViewMatrix
+                    : this.renderContext.view.camera.viewMatrix,
+                renderState.origin));
         if (renderState.indicesBuf) {
             renderState.indicesBuf.bind();
         }

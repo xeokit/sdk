@@ -18,7 +18,7 @@ export class VBOLinesInstancingPickMeshRenderer extends VBOInstancingRenderer {
         this.vertexPickMeshShadingDefs(src);
         this.openVertexPickMain(src);
         {
-            this.vertexInstancingTransformLogic(src);
+            this.vertexDrawInstancingTransformLogic(src);
             this.vertexPickMeshShadingLogic(src);
             this.vertexSlicingLogic(src);
         }

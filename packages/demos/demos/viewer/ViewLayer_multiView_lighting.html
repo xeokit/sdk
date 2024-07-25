@@ -1,0 +1,244 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="../../css/pageStyle.css" rel="stylesheet"/>
+    <style>
+
+        body {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+        }
+
+        #myCanvas1 {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+            width: 1000px;
+            height: 800px;
+            left: 20px;
+            top: 70px;
+            position: absolute;
+            /*border: 1px solid white;*/
+            padding: 0px;
+            /*background: red;*/
+        }
+
+        #myCanvas2 {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+            width: 500px;
+            height: 390px;
+            left: 1030px;
+            top: 70px;
+            position: absolute;
+            /*border: 1px solid white;*/
+            /*background: yellow;*/
+            padding: 0px;
+        }
+
+        #myCanvas3 {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+            width: 500px;
+            height: 400px;
+            left: 1030px;
+            top: 470px;
+            position: absolute;
+            /*border: 1px solid white;*/
+            padding: 0px;
+            /*background: green;*/
+        }
+
+
+    </style>
+</head>
+<body>
+<input type="checkbox" id="info-button"/>
+<label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
+
+<!-- Virtual canvases -->
+
+<img id="myCanvas1">
+<img id="myCanvas2"/>
+<img id="myCanvas3"/>
+
+<div class="slideout-sidebar">
+    <h1>Using multiple Views with ViewLayers</h1>
+    <p></p>
+    <h3>Major components used</h3>
+    <ul>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.Viewer.html" target="_other">Viewer</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_webglrenderer.WebGLRenderer.html" target="_other">WebGLRenderer</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.View.html" target="_other">View</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_scene.SceneModel.html" target="_other">SceneModel</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_core.SDKError.html" target="_other">SDKError</a>
+        </li>
+    </ul>
+</div>
+</body>
+
+<script type="module">
+
+    import * as xeokit from "./../../js/xeokit-demo-bundle.js";
+
+    //-----------------------------------------------------------------------------------------
+    // Create a Viewer with a Scene and a WebGLRenderer
+    //-----------------------------------------------------------------------------------------
+
+    const scene = new xeokit.scene.Scene();
+
+    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer
+    });
+
+    //-----------------------------------------------------------------------------------------
+    // Create View 1
+    //
+    // Has a green directional light
+    //-----------------------------------------------------------------------------------------
+
+    {
+        const view = viewer.createView({
+            id: "myView1",
+            elementId: "myCanvas1"
+        });
+
+        view.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
+        view.camera.eye = [15, 0, 15];
+        view.camera.look = [0, 0, 0];
+        view.camera.up = [0, 1, 0];
+        view.camera.orbitPitch(20);
+
+        new xeokit.cameraControl.CameraControl(view, {});
+
+        view.clearLights();
+
+        new xeokit.viewer.AmbientLight(view, {
+            color: [1.0, 1.0, 1.0],
+            intensity: 0.8
+        });
+
+        new xeokit.viewer.DirLight(view, {
+            dir: [-0.8, 1.0, -0.5],
+            color: [0, 1, 0],
+            intensity: 1.0,
+            space: "world"
+        });
+    }
+
+    //-----------------------------------------------------------------------------------------
+    // Create View 2
+    //
+    // Has a blue directional light
+    //-----------------------------------------------------------------------------------------
+
+    {
+        const view = viewer.createView({
+            id: "myView2",
+            elementId: "myCanvas2"
+        });
+
+        view.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
+        view.camera.eye = [15, 0, 15];
+        view.camera.look = [0, 0, 0];
+        view.camera.up = [0, 1, 0];
+        view.camera.orbitPitch(20);
+
+        new xeokit.cameraControl.CameraControl(view, {});
+
+        view.clearLights();
+
+        new xeokit.viewer.AmbientLight(view, {
+            color: [1.0, 1.0, 1.0],
+            intensity: 0.8
+        });
+
+        new xeokit.viewer.DirLight(view, {
+            dir: [-0.8, 1.0, -0.5],
+            color: [0, 0, 1],
+            intensity: 1.0,
+            space: "world"
+        });
+    }
+
+    //-----------------------------------------------------------------------------------------
+    // Create View 3
+    //
+    //  Has a red directional light
+    //-----------------------------------------------------------------------------------------
+
+    {
+        const view = viewer.createView({
+            id: "myView3",
+            elementId: "myCanvas3"
+        });
+
+        view.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
+        view.camera.eye = [15, 0, 15];
+        view.camera.look = [0, 0, 0];
+        view.camera.up = [0, 1, 0];
+        view.camera.orbitPitch(20);
+
+        new xeokit.cameraControl.CameraControl(view, {});
+
+        view.clearLights();
+
+        new xeokit.viewer.AmbientLight(view, {
+            color: [1.0, 1.0, 1.0],
+            intensity: 0.8
+        });
+
+        new xeokit.viewer.DirLight(view, {
+            dir: [-0.8, 1.0, -0.5],
+            color: [1, 0, 0],
+            intensity: 1.0,
+            space: "world"
+        });
+
+    }
+
+    //-----------------------------------------------------------------------------------------
+    // Create a SceneModel containing a simple house model
+    //-----------------------------------------------------------------------------------------
+
+    fetch("../../data/SceneModels/IfcOpenHouse4-SceneModel.json").then(response => {
+        response.json().then(fileData => {
+            const sceneModel = scene.createModel({
+                id: "myModel"
+            });
+            sceneModel.fromJSON(fileData);
+            sceneModel.build();
+        });
+    });
+
+</script>
+
+</html>

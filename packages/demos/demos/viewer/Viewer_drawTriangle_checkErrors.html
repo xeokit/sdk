@@ -14,7 +14,8 @@
 <div class="slideout-sidebar">
     <h1>Drawing a triangle with a Viewer configured with a WebGLRenderer</h1>
     <p>In tis example, we're creating a Viewer configured with a WebGLRenderer and a Scene. Then we build a SceneModel
-        with a simple triangle geometry. In this example, we're also checking at each step for the occurrance of an error.</p>
+        with a simple triangle geometry. In this example, we're also checking at each step for the occurrance of an
+        error.</p>
     <h3>Major components used</h3>
     <ul>
         <li>
@@ -63,6 +64,19 @@
         log(`View created: "${view.id}"`);
     }
 
+    view.camera.eye = [0, 0, 10]; // Default
+    view.camera.look = [0, 0, 0]; // Default
+    view.camera.up = [0, 1, 0]; // Default
+
+    view.camera.projectionType = xeokit.constants.PerspectiveProjectionType; // Default
+    view.camera.perspectiveProjection.fov = 60; // Default
+    view.camera.perspectiveProjection.near = 0.1; // Default
+    view.camera.perspectiveProjection.far = 10000; // Default
+
+    view.backfaces = true; // FIXME
+
+    new xeokit.cameraControl.CameraControl(view);
+
     const sceneModel = scene.createModel({
         id: "myModel"
     });
@@ -77,9 +91,9 @@
             id: "boxGeometry",
             primitive: xeokit.constants.TrianglesPrimitive,
             positions: [
-                -0.5, 0.5, 0.0,
-                -0.5, -0.5, 0.0,
-                0.5, -0.5, 0.0,
+                0.0, 1.5, 0.0,
+                -1.5, -1.5, 0.0,
+                1.5, -1.5, 0.0,
             ],
             indices: [
                 0, 1, 2
@@ -95,15 +109,15 @@
         const triangleMesh = sceneModel.createMesh({
             id: "triangleMesh",
             geometryId: "boxGeometry",
-            position: [0, 0, 0],
-            scale: [1, 1, 1],
-            rotation: [0, 0, 0],
-            color: [1, 0.3, 0.3]
+            position: [0, 0, 0], // Default
+            scale: [1, 1, 1], // Default
+            rotation: [0, 0, 0], // Default
+            color: [1, 1.0, 1.0] // Default
         });
 
         if (triangleMesh instanceof xeokit.core.SDKError) {
             log(`Error creating SceneMesh: ${triangleMesh.message}`);
-        }else {
+        } else {
             log(`SceneMesh created: "${triangleMesh.id}"`);
         }
 
@@ -114,7 +128,7 @@
 
         if (triangleSceneObject instanceof xeokit.core.SDKError) {
             log(`Error creating SceneObject: ${triangleSceneObject.message}`);
-        }else {
+        } else {
             log(`SceneObject created: "${triangleSceneObject.id}"`);
         }
 

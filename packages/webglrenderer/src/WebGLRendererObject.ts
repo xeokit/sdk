@@ -3,7 +3,7 @@ import {createVec3} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
 import {SCENE_OBJECT_FLAGS} from './SCENE_OBJECT_FLAGS';
 import type {WebGLRendererMesh} from "./WebGLRendererMesh";
-import type {RendererModel, RendererObject, SceneObject} from "@xeokit/scene";
+import type {RendererModel, RendererObject} from "@xeokit/scene";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 
@@ -14,7 +14,6 @@ export class WebGLRendererObject implements RendererObject {
 
     readonly id: string;
     readonly rendererModel: RendererModel;
-    readonly sceneObject: SceneObject;
     readonly layerId: string | null;
 
     readonly rendererMeshes: WebGLRendererMesh[];
@@ -32,14 +31,12 @@ export class WebGLRendererObject implements RendererObject {
      */
     constructor(params: {
         id: string,
-        sceneObject: SceneObject,
         rendererModel: RendererModel,
         rendererMeshes: WebGLRendererMesh[],
         aabb: any,
         layerId?: string
     }) {
         this.id = params.id;
-        this.sceneObject = params.sceneObject;
         this.rendererModel = params.rendererModel;
         this.rendererMeshes = params.rendererMeshes || [];
 
@@ -101,16 +98,6 @@ export class WebGLRendererObject implements RendererObject {
         this.#flags[viewIndex] = selected ? this.#flags[viewIndex] | SCENE_OBJECT_FLAGS.SELECTED : this.#flags[viewIndex] & ~SCENE_OBJECT_FLAGS.SELECTED;
         for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
             this.rendererMeshes[i].setSelected(viewIndex, this.#flags[viewIndex]);
-        }
-    }
-
-    setEdges(viewIndex: number, edges: boolean): void {
-        if (!!(this.#flags[viewIndex] & SCENE_OBJECT_FLAGS.EDGES) === edges) {
-            return;
-        }
-        this.#flags[viewIndex] = edges ? this.#flags[viewIndex] | SCENE_OBJECT_FLAGS.EDGES : this.#flags[viewIndex] & ~SCENE_OBJECT_FLAGS.EDGES;
-        for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-            this.rendererMeshes[i].setEdges(viewIndex, this.#flags[viewIndex]);
         }
     }
 

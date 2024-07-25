@@ -29,6 +29,10 @@ export class WebGLRenderBufferManager {
         if (!renderBuffer) {
             renderBuffer = new WebGLRenderBuffer(this.#webglCanvas, this.#gl, options);
             renderBuffers[id] = renderBuffer;
+        } else {
+            if (options && options.size) {
+                renderBuffer.setSize(options.size);
+            }
         }
         return renderBuffer;
     }

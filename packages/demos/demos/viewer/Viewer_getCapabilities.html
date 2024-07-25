@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="../../css/pageStyle.css" rel="stylesheet"/>
+</head>
+<body>
+<input type="checkbox" id="info-button"/>
+<label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
+<canvas id="myCanvas"></canvas>
+<div class="slideout-sidebar">
+    <h1>Querying the capabilities of a Viewer configured with a WebGLRenderer</h1>
+    <p></p>
+    <h3>Major components used</h3>
+    <ul>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.Viewer.html" target="_other">Viewer</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_webglrenderer.WebGLRenderer.html" target="_other">WebGLRenderer</a>
+        </li>
+        <li>
+            <a href="../docs/interfaces/_xeokit_core.Capabilities.html" target="_other">Capabilitis</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.View.html" target="_other">View</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_scene.SceneModel.html" target="_other">SceneModel</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_core.SDKError.html" target="_other">SDKError</a>
+        </li>
+    </ul>
+</div>
+</body>
+
+<script type="module">
+
+    import {log} from "../../js/logger.js";
+
+    import * as xeokit from "./../../js/xeokit-demo-bundle.js";
+
+    const scene = new xeokit.scene.Scene();
+
+    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer
+    });
+
+    const capabilities = viewer.capabilities;
+
+    log(`viewer.capabilities.headless = ${viewer.capabilities.headless}`);
+    log(`viewer.capabilities.maxViews = ${viewer.capabilities.maxViews}`);
+    log(`viewer.capabilities.dxtSupported = ${viewer.capabilities.dxtSupported}`);
+    log(`viewer.capabilities.etc1Supported = ${viewer.capabilities.etc1Supported}`);
+    log(`viewer.capabilities.etc2Supported = ${viewer.capabilities.etc2Supported}`);
+    log(`viewer.capabilities.bptcSupported = ${viewer.capabilities.bptcSupported}`);
+    log(`viewer.capabilities.astcSupported = ${viewer.capabilities.astcSupported}`);
+    log(`viewer.capabilities.pvrtcSupported = ${viewer.capabilities.pvrtcSupported}`);
+
+</script>
+
+</html>

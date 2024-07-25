@@ -1,6 +1,7 @@
 import {VBOBatchingLayer} from "./VBOBatchingLayer";
 import {createRTCViewMat} from "@xeokit/rtc";
 import {VBORenderer} from "../VBORenderer";
+import {RENDER_PASSES} from "../../RENDER_PASSES";
 
 
 /**
@@ -36,7 +37,12 @@ export abstract class VBOBatchingRenderer extends VBORenderer {
         gl.uniform1i(this.uniforms.renderPass, renderPass);
         gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
         gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array | GLfloat[]>vboBatchingLayer.rendererModel.worldMatrix);
-        gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(view.camera.viewMatrix, renderState.origin));
+        gl.uniformMatrix4fv(this.uniforms.viewMatrix, false,
+            <Float32Array | GLfloat[]>createRTCViewMat(
+                renderPass === RENDER_PASSES.PICK
+                    ? this.renderContext.pickViewMatrix
+                    : this.renderContext.view.camera.viewMatrix,
+                renderState.origin));
         if (renderState.indicesBuf) {
             renderState.indicesBuf.bind();
         }

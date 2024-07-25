@@ -18,11 +18,11 @@ export class VBOTrianglesBatchingSilhouetteRenderer extends VBOBatchingRenderer 
         this.vertexDrawSilhouetteDefs(src);
         this.openVertexSilhouetteMain(src);
         {
-            this.vertexBatchingTransformLogic(src);
+            this.vertexDrawBatchingTransformLogic(src);
             this.vertexDrawSilhouetteLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.closeVertexMain(src);
+        this.vertexColorMainCloseBlock(src);
     }
 
     buildFragmentShader(src: string[]): void {

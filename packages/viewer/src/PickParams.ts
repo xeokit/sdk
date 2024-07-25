@@ -27,9 +27,19 @@ export interface PickParams  {
     rayPick?: boolean;
 
     /**
-     * Set this ````true```` when ray-picking to pick a 3D position on the surface of the picked object.
+     * Set this ````true```` to pick a {@link @xeokit/viewer!ViewObject | ViewObjects}.
+     */
+    pickViewObject?: boolean;
+
+    /**
+     * Set this ````true```` to pick a 3D position on a surface.
      */
     pickSurface?: boolean;
+
+    /**
+     * Set this ````false```` to not pick invisible {@link @xeokit/viewer!ViewObject | ViewObjects}. Default is ````true````.
+     */
+    pickInvisible?: boolean;
 
     /**
      * Set this ````true```` when ray-picking to pick the normal vector on the surface of the picked object.
@@ -37,32 +47,22 @@ export interface PickParams  {
     pickSurfaceNormal?: boolean;
 
     /**
-     * Don't pick {@link @xeokit/viewer!ViewObject | ViewObjects} with these IDs.
+     * Canvas coordinates, used when {@link PickParams.rayPick} is ````false````.
      */
-    excludeViewObjectIds?: string[];
-
-    /**
-     * Only pick from among {@link @xeokit/viewer!ViewObject | ViewObjects} with these IDs.
-     */
-    includeViewObjectIds?: string[];
-
-    /**
-     * Ray-picking direction, used when {@link PickParams.rayPick} is ````true````.
-     */
-    direction?: FloatArrayParam;
+    canvasPos?: FloatArrayParam;
 
     /**
      * Ray-picking origin, used when {@link PickParams.rayPick} is ````true````.
      */
-    origin?: FloatArrayParam;
+    rayOrigin?: FloatArrayParam;
+
+    /**
+     * Ray-picking direction, used when {@link PickParams.rayPick} is ````true````.
+     */
+    rayDirection?: FloatArrayParam;
 
     /**
      * Ray-picking direction matrix, used when {@link PickParams.rayPick} is ````true````.
      */
-    matrix?: FloatArrayParam;
-
-    /**
-     * Canvas coordinates, used when {@link PickParams.rayPick} is ````false````.
-     */
-    canvasPos?: FloatArrayParam;
+    rayMatrix?: FloatArrayParam;
 }

@@ -176,6 +176,9 @@ export class VBORendererSet {
         if (this.#edgesColorRenderer) {
             this.#edgesColorRenderer.destroy();
         }
+        if (this.#edgesSilhouetteRenderer) {
+            this.#edgesSilhouetteRenderer.destroy();
+        }
         if (this.#pickMeshRenderer) {
             this.#pickMeshRenderer.destroy();
         }

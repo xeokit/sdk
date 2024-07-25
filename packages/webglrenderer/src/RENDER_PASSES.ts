@@ -19,16 +19,8 @@ export const RENDER_PASSES = {
     SILHOUETTE_SELECTED: 4,
     SILHOUETTE_XRAYED: 5,
 
-    // Edges rendering - mutually exclusive modes
-
-    EDGES_COLOR_OPAQUE: 6,
-    EDGES_COLOR_TRANSPARENT: 7,
-    EDGES_HIGHLIGHTED: 8,
-    EDGES_SELECTED: 9,
-    EDGES_XRAYED: 10,
-
     // Picking
 
-    PICK: 11
+    PICK: 6
 };
 

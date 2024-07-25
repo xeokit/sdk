@@ -6,6 +6,8 @@ import type {SDKError} from "@xeokit/core";
 import type {ViewObject} from "./ViewObject";
 import type {RendererObject} from "@xeokit/scene/src/RendererObject";
 import type {SceneModel} from "@xeokit/scene";
+import {PickParams} from "./PickParams";
+import {PickResult} from "./PickResult";
 
 /**
  * Defines the contract for the rendering strategy used internally within a {@link @xeokit/viewer!Viewer}.
@@ -301,14 +303,18 @@ export interface Renderer {
      * Picks a ViewerObject within a View.
      *
      * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
-     * @param params Picking params.
      * @internal
-     * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @param viewIndex Handle to the View, returned earlier by {@xeokit/viewer!Renderer.attachView | Renderer.attachView}.
+     * @param pickParams Picking parameters.
+     * @param pickResult Picking results, when caller wants to manage them externally.
+     * @throws {@link @xeokit/core!SDKError}
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
+     * * Illegal picking parameters given.
+     * @returns {@link @xeokit/viewer!PickResult}
+     * * Picking attempt completed.
      */
-    pickViewObject(viewIndex: number, params: {}): SDKError | ViewObject | null;
+    pick(viewIndex: number, pickParams: PickParams, pickResult?: PickResult):  PickResult | null;
 
     /**
      * Enters snapshot mode for the given View.

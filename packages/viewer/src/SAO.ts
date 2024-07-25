@@ -49,27 +49,14 @@ export class SAO extends Component {
     }
 
     /**
-     * Sets which rendering modes in which to render SAO.
+     * Sets which rendering modes in which to render edges.
      *
-     * Supported rendering modes are:
+     * Accepted modes are {@link @xeokit/constants!QualityRender} and {@link @xeokit/constants!FastRender}.
      *
-     * * {@link @xeokit/constants!FastRender | FastRender} - Fast rendering mode for smooth interactivity.
-     * * {@link @xeokit/constants!QualityRender | QualityRender} - Quality rendering mode for maximum image fidelity.
-     *
-     * Default value is [{@link @xeokit/constants!QualityRender | QualityRender}].
-     *
-     * @param renderModes The rendering modes
-     * @returns *{@link @xeokit/core!SDKError}*
-     * * Rendering mode not supported.
+     * Default value is [{@link @xeokit/constants!QualityRender}].
      */
-    setRenderModes(renderModes: number[]): SDKError | void {
-        for (let i = 0, len = renderModes.length; i < len; i++) {
-            const renderMode = renderModes[i];
-            if (renderMode !== QualityRender && renderMode !== FastRender) {
-                return new SDKError(`Failed to set render modes for SAO - unsupported mode - supported modes are FastRender and QualityRender`);
-            }
-        }
-        this.#state.renderModes = renderModes;
+    set renderModes(value: number[]) {
+        this.#state.renderModes = value;
         this.view.redraw();
     }
 

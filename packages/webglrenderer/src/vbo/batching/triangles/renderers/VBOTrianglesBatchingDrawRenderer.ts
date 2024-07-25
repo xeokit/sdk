@@ -17,13 +17,13 @@ export class VBOTrianglesBatchingDrawRenderer extends VBOBatchingRenderer {
         this.vertexBatchingTransformDefs(src);
         this.vertexSlicingDefs(src);
         this.vertexDrawLambertDefs(src);
-        this.openVertexMain(src);
+        this.vertexColorMainOpenBlock(src);
         {
-            this.vertexBatchingTransformLogic(src);
+            this.vertexDrawBatchingTransformLogic(src);
             this.vertexDrawLambertLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.closeVertexMain(src);
+        this.vertexColorMainCloseBlock(src);
     }
 
     buildFragmentShader(src: string[]) :void{

@@ -13,7 +13,6 @@ export const SCENE_OBJECT_FLAGS = {
     XRAYED: 1 << 8,
     HIGHLIGHTED: 1 << 9,
     SELECTED: 1 << 10,
-    EDGES: 1 << 11,
-    BACKFACES: 1 << 12,
-    TRANSPARENT: 1 << 13
+    BACKFACES: 1 << 11,
+    TRANSPARENT: 1 << 12
 };

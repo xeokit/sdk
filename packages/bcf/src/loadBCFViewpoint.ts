@@ -316,8 +316,8 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
         if (rayCast) {
             const hit = view.pick({
                 pickSurface: true,  // <<------ This causes picking to find the intersection point on the viewObject
-                origin: eye,
-                direction: look
+                rayOrigin: eye,
+                rayDirection: look
             });
             look = (hit ? hit.worldPos : addVec3(eye, look, tempVec3));
         } else {

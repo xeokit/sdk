@@ -60,7 +60,6 @@ export class WebGLRendererModel extends Component implements RendererModel {
 
     declare readonly id: string;
     readonly viewer: Viewer;
-    sceneModel: SceneModel | null;
     readonly qualityRender: boolean;
     declare readonly destroyed: boolean;
 
@@ -128,7 +127,6 @@ export class WebGLRendererModel extends Component implements RendererModel {
         super(params.viewer);
 
         this.id = params.id;
-        this.sceneModel = params.sceneModel
         this.viewer = params.viewer;
 
         this.meshCounts = [
@@ -537,7 +535,6 @@ export class WebGLRendererModel extends Component implements RendererModel {
         }
         const rendererObject = new WebGLRendererObject({
             id: objectId,
-            sceneObject,
             rendererModel: this,
             rendererMeshes,
             aabb: sceneObject.aabb,
@@ -739,13 +736,11 @@ export class WebGLRendererModel extends Component implements RendererModel {
                 }
             }
         }
-        if (meshCounts.numEdges > 0) {
-            const edgeMaterial = this.viewer[viewIndex].edges;
-            if (edgeMaterial.enabled) {
-                renderFlags.edgesOpaque = (meshCounts.numTransparent < meshCounts.numMeshes);
-                if (meshCounts.numTransparent > 0) {
-                    renderFlags.edgesTransparent = true;
-                }
+        const edgeMaterial = this.viewer[viewIndex].edges;
+        if (edgeMaterial.enabled) {
+            renderFlags.edgesOpaque = (meshCounts.numTransparent < meshCounts.numMeshes);
+            if (meshCounts.numTransparent > 0) {
+                renderFlags.edgesTransparent = true;
             }
         }
         if (meshCounts.numSelected > 0) {
@@ -847,7 +842,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         if (this.destroyed) {
             return;
         }
-        this.#detachSceneModel();
+      //  this.detachSceneModel();
         //  this.#view.camera.onViewMatrix.unsubscribe(this.#onCameraViewMatrix);
         for (let layerId in this.#currentLayers) {
             if (this.#currentLayers.hasOwnProperty(layerId)) {
@@ -876,49 +871,49 @@ export class WebGLRendererModel extends Component implements RendererModel {
         super.destroy();
     }
 
-    #detachSceneModel(): void {
-        const sceneModel = this.sceneModel;
-        if (!sceneModel) {
-            return;
-        }
-        const textures = sceneModel.textures;
-        const geometries = sceneModel.geometries;
-        const meshes = sceneModel.meshes;
-        const objects = sceneModel.objects;
-        if (textures) {
-            for (let textureId in textures) {
-                const texture = textures[textureId];
-                if (texture.rendererTexture) {
-                    texture.rendererTexture = null;
-                }
-            }
-        }
-        if (geometries) {
-            for (let geometryId in geometries) {
-                const geometry = geometries[geometryId];
-                if (geometry.rendererGeometry) {
-                    geometry.rendererGeometry = null;
-                }
-            }
-        }
-        if (meshes) {
-            for (let meshId in meshes) {
-                const mesh = meshes[meshId];
-                if (mesh.rendererMesh) {
-                    mesh.rendererMesh = null;
-                }
-            }
-        }
-        if (objects) {
-            for (let objectId in objects) {
-                const object = objects[objectId];
-                if (object.rendererObject) {
-                    object.rendererObject = null;
-                }
-            }
-        }
-        this.sceneModel = null;
-    }
+    // detachSceneModel(): void {
+    //     const sceneModel = this.sceneModel;
+    //     if (!sceneModel) {
+    //         return;
+    //     }
+    //     const textures = sceneModel.textures;
+    //     const geometries = sceneModel.geometries;
+    //     const meshes = sceneModel.meshes;
+    //     const objects = sceneModel.objects;
+    //     if (textures) {
+    //         for (let textureId in textures) {
+    //             const texture = textures[textureId];
+    //             if (texture.rendererTexture) {
+    //                 texture.rendererTexture = null;
+    //             }
+    //         }
+    //     }
+    //     if (geometries) {
+    //         for (let geometryId in geometries) {
+    //             const geometry = geometries[geometryId];
+    //             if (geometry.rendererGeometry) {
+    //                 geometry.rendererGeometry = null;
+    //             }
+    //         }
+    //     }
+    //     if (meshes) {
+    //         for (let meshId in meshes) {
+    //             const mesh = meshes[meshId];
+    //             if (mesh.rendererMesh) {
+    //                 mesh.rendererMesh = null;
+    //             }
+    //         }
+    //     }
+    //     if (objects) {
+    //         for (let objectId in objects) {
+    //             const object = objects[objectId];
+    //             if (object.rendererObject) {
+    //                 object.rendererObject = null;
+    //             }
+    //         }
+    //     }
+    //     this.sceneModel = null;
+    // }
 }
 
 

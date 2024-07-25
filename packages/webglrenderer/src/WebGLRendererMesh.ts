@@ -25,7 +25,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
     pickId: number;
     tileManager: WebGLTileManager;
     tile: Tile;
-    sceneObjectRenderer: RendererObject | null;
+    rendererObject: RendererObject | null;
     aabb: FloatArrayParam;
     layer: Layer;
     meshIndex: number;
@@ -45,7 +45,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         rendererGeometry: RendererGeometry,
         meshIndex: number
     }) {
-        this.sceneObjectRenderer = null;
+        this.rendererObject = null;
         this.tileManager = params.tileManager;
         this.id = params.id;
         this.pickId = 0;
@@ -72,8 +72,8 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         throw new Error("Method not implemented.");
     }
 
-    setRendererObject(sceneObjectRenderer: RendererObject) {
-        this.sceneObjectRenderer = sceneObjectRenderer;
+    setRendererObject(rendererObject: RendererObject) {
+        this.rendererObject = rendererObject;
     }
 
     setVisible(viewIndex: number, flags: any) {
@@ -160,10 +160,6 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         this.layer.setLayerMeshSelected(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
     }
 
-    setEdges(viewIndex: number, flags: number) {
-        this.layer.setLayerMeshEdges(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
-    }
-
     setClippable(viewIndex: number, flags: number) {
         this.layer.setLayerMeshClippable(viewIndex, this.meshIndex, flags);
     }
@@ -197,7 +193,7 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
     }
 
     drawPickNormals(renderContext: RenderContext) {
-        //this.sceneObjectRenderer.rendererModel.drawPickNormals(renderContext);
+        //this.rendererObject.rendererModel.drawPickNormals(renderContext);
     }
 
     initFlags(viewIndex: number, flags: number) {

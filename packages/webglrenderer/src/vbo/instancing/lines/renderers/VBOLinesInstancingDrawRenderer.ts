@@ -16,13 +16,13 @@ export class VBOLinesInstancingDrawRenderer extends VBOInstancingRenderer {
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
         this.vertexDrawFlatColorDefs(src);
-        this.openVertexMain(src);
+        this.vertexColorMainOpenBlock(src);
         {
-            this.vertexInstancingTransformLogic(src);
+            this.vertexDrawInstancingTransformLogic(src);
             this.vertexDrawFlatColorLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.closeVertexMain(src);
+        this.vertexColorMainCloseBlock(src);
     }
 
     buildFragmentShader(src: string[]): void {
@@ -31,8 +31,10 @@ export class VBOLinesInstancingDrawRenderer extends VBOInstancingRenderer {
         this.fragmentSlicingDefs(src);
         this.fragmentDrawFlatColorDefs(src);
         src.push("void main(void) {");
-        this.fragmentSlicingLogic(src);
-        this.fragmentDrawFlatColorLogic(src);
+        {
+            this.fragmentSlicingLogic(src);
+            this.fragmentDrawFlatColorLogic(src);
+        }
         src.push("}");
     }
 

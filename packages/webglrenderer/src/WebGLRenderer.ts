@@ -1,7 +1,7 @@
 import {Map} from "@xeokit/utils";
-import {createVec3} from "@xeokit/matrix";
+import {addVec3, createMat4, createVec2, createVec3, cross3Vec3, lookAtMat4v, normalizeVec3} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
-import type {Renderer, View, Viewer, ViewObject} from "@xeokit/viewer";
+import type {Renderer, View, Viewer} from "@xeokit/viewer";
 import {KTX2TextureTranscoder} from "@xeokit/ktx2";
 import {RenderContext} from "./RenderContext";
 import {getWebGLExtension, WEBGL_INFO} from "@xeokit/webglutils";
@@ -15,6 +15,8 @@ import {RenderStats} from "./RenderStats";
 import {EventDispatcher} from "strongly-typed-events";
 import {Layer} from "./Layer";
 import {WebGLRenderBufferManager} from "./WebGLRenderBufferManager";
+import {PickParams, PickResult} from "@xeokit/viewer";
+import {WebGLRendererMesh} from "./WebGLRendererMesh";
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
@@ -36,6 +38,8 @@ class WebGLRendererView {
     gl: WebGL2RenderingContext;
     renderBufferManager: WebGLRenderBufferManager;
 
+    pickIDs: Map;
+
     constructor(gl: WebGL2RenderingContext, webglCanvasElement: HTMLCanvasElement, view: View) {
         this.gl = gl;
         this.view = view;
@@ -45,18 +49,31 @@ class WebGLRendererView {
         this.canvasTransparent = false;
         this.pbrEnabled = false;
         this.saoEnabled = false;
-        this.edgesEnabled = false;
+        this.edgesEnabled = true;
         this.transparentEnabled = true;
         this.backgroundColor = createVec3();
         this.saveCanvasBoundary = view.htmlElement.getBoundingClientRect();
         this.renderBufferManager = new WebGLRenderBufferManager(gl, webglCanvasElement);
-
+        this.pickIDs = new Map({});
     }
 
     destroy() {
         this.renderBufferManager.destroy();
     }
 }
+
+const tempVec3a = createVec3();
+const tempVec3b = createVec3();
+const tempVec3c = createVec3();
+const tempMat4b = createMat4();
+
+const pickTemps = {
+    pickCanvasPos: createVec2(),
+    pickWorldRayDir: createVec3(),
+    pickWorldRayOrigin: createVec3(),
+    pickViewMatrix: createMat4(),
+    pickProjMatrix: createMat4()
+};
 
 /**
  * A WebGL-based rendering strategy for a {@link @xeokit/viewer!Viewer | Viewer}.
@@ -83,6 +100,9 @@ export class WebGLRenderer implements Renderer {
      * @internal
      */
     tileManager: WebGLTileManager | null;
+
+
+    #pickBufferManager: WebGLRenderBufferManager;
 
     #rendererViews: { [key: string]: WebGLRendererView };
     #rendererViewsList: WebGLRendererView[];
@@ -126,6 +146,8 @@ export class WebGLRenderer implements Renderer {
     #webglCanvasElement: HTMLCanvasElement;
     #gl: WebGL2RenderingContext;
 
+    #pickResult: PickResult;
+
     /**
      * Creates a WebGLRenderer.
      *
@@ -164,6 +186,8 @@ export class WebGLRenderer implements Renderer {
         this.#rendererViewsList = [];
         this.#activeRendererView = null;
 
+        this.#pickResult = new PickResult();
+
         this.onCompiled = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
         this.onDestroyed = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
 
@@ -178,12 +202,20 @@ export class WebGLRenderer implements Renderer {
         webglCanvasElement.style["pointer-events"] = "none";
         webglCanvasElement.style["z-index"] = 100000; // HACK
         document.body.appendChild(webglCanvasElement);
-        const contextAttr = {};
+        const contextAttr = {
+            alpha: true,
+            preserveDrawingBuffer: true,
+            stencil: false,
+            premultipliedAlpha: false,
+            antialias: true
+        };
         this.#gl = <WebGL2RenderingContext>webglCanvasElement.getContext("webgl2", contextAttr);
         if (!this.#gl) {
             throw new SDKError(`Failed to get a WebGL2 context`);
         }
         this.#gl.hint(this.#gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this.#gl.NICEST);
+
+        this.#pickBufferManager = new WebGLRenderBufferManager(this.#gl, webglCanvasElement);
 
         // this.tileManager = new WebGLTileManager({camera: view.camera, gl});
     }
@@ -456,6 +488,7 @@ export class WebGLRenderer implements Renderer {
             rendererModel.destroy();
             delete this.#rendererModels[sceneModel.id];
             this.#layerListDirty = true;
+            sceneModel.rendererModel = null;
         }
     }
 
@@ -659,7 +692,7 @@ export class WebGLRenderer implements Renderer {
         }
         this.#updateLayerList();
         if (rendererView.imageDirty) {
-            this.activateView(viewIndex);
+            this.#activateView(viewIndex);
             this.#draw({
                 viewIndex,
                 clear: true
@@ -669,7 +702,7 @@ export class WebGLRenderer implements Renderer {
         }
     }
 
-    activateView(viewIndex: number) {
+    #activateView(viewIndex: number) {
         const targetRendererView = this.#rendererViewsList[viewIndex];
         if (!targetRendererView) {
             throw new SDKError(`Can't activate View - no such target View attached: ${viewIndex}`);
@@ -681,8 +714,6 @@ export class WebGLRenderer implements Renderer {
                 depthTexture: false,
                 size: [activeCanvasBoundingRect.width, activeCanvasBoundingRect.height]
             });
-            console.log("");
-            primarySnapshotBuffer.setSize([activeCanvasBoundingRect.width, activeCanvasBoundingRect.height]);
             primarySnapshotBuffer.bind();
             primarySnapshotBuffer.clear();
             this.#draw({
@@ -714,21 +745,6 @@ export class WebGLRenderer implements Renderer {
 
         this.#activeRendererView = targetRendererView;
     }
-
-    /**
-     * TODO
-     * @internal
-     */
-    pickViewObject(viewIndex: number, params: {}): ViewObject | null {
-        if (!this.#viewer) {
-            throw new SDKError("Can't pick object with WebGLRenderer - no Viewer and View is attached");
-        }
-        const rendererView = this.#rendererViewsList[viewIndex];
-        if (!rendererView) {
-            throw new SDKError(`Can't pick object with WebGLRenderer - no View attached at given viewInded: ${viewIndex}`);
-        }
-        return null;
-    };
 
     #updateLayerList(): void {
         if (this.#layerListDirty) {
@@ -977,31 +993,28 @@ export class WebGLRenderer implements Renderer {
             }
 
             if (rendererView.edgesEnabled && view.edges.enabled) {
-                if (meshCounts.numEdges > 0) {
-                    if (meshCounts.numTransparent < meshCounts.numMeshes) {
-                        edgesColorOpaqueBin.push(layer);
+                if (meshCounts.numTransparent < meshCounts.numMeshes) {
+                    edgesColorOpaqueBin.push(layer);
+                }
+                if (meshCounts.numTransparent > 0) {
+                    edgesColorTransparentBin.push(layer);
+                }
+                if (view.selectedMaterial.edgeAlpha < 1.0) {
+                    selectedEdgesTransparentBin.push(layer);
+                } else {
+                    selectedEdgesOpaqueBin.push(layer);
+                }
+                if (meshCounts.numXRayed > 0) {
+                    if (view.xrayMaterial.edgeAlpha < 1.0) {
+                        xrayEdgesTransparentBin.push(layer);
+                    } else {
+                        xrayEdgesOpaqueBin.push(layer);
                     }
-                    if (meshCounts.numTransparent > 0) {
-                        edgesColorTransparentBin.push(layer);
-                    }
-                    // if (view.selectedMaterial.edgeAlpha < 1.0) {
-                    //     selectedEdgesTransparentBin.push(layer);
-                    // } else {
-                    //     selectedEdgesOpaqueBin.push(layer);
-                    // }
-                    // if (meshCounts.numXRayed > 0) {
-                    //     if (view.xrayMaterial.edgeAlpha < 1.0) {
-                    //         xrayEdgesTransparentBin.push(layer);
-                    //     } else {
-                    //         xrayEdgesOpaqueBin.push(layer);
-                    //     }
-                    // }
-                    //
-                    // if (view.highlightMaterial.edgeAlpha < 1.0) {
-                    //     highlightedEdgesTransparentBin.push(layer);
-                    // } else {
-                    //     highlightedEdgesOpaqueBin.push(layer);
-                    // }
+                }
+                if (view.highlightMaterial.edgeAlpha < 1.0) {
+                    highlightedEdgesTransparentBin.push(layer);
+                } else {
+                    highlightedEdgesOpaqueBin.push(layer);
                 }
             }
         }
@@ -1142,6 +1155,261 @@ export class WebGLRenderer implements Renderer {
         }
     }
 
+    /**
+     * TODO
+     * @internal
+     */
+    pick(viewIndex: number,
+         pickParams: PickParams,
+         pickResult = this.#pickResult): PickResult | null {
+
+        if (!this.#viewer) {
+            throw new SDKError("Can't pick object with WebGLRenderer - no Viewer and View is attached");
+        }
+
+        const targetRendererView = this.#rendererViewsList[viewIndex];
+        if (!targetRendererView) {
+            throw new SDKError(`Can't pick object with WebGLRenderer - no View attached at given viewInded: ${viewIndex}`);
+        }
+
+        const view = targetRendererView.view;
+
+        if (this.#shadersDirty) {
+            this.onCompiled.dispatch(this, true);
+            this.#shadersDirty = false;
+        }
+
+        this.#updateLayerList();
+
+        pickResult.reset();
+
+        const {
+            pickCanvasPos,
+            pickViewMatrix,
+            pickProjMatrix,
+            pickWorldRayOrigin,
+            pickWorldRayDir
+        } = pickTemps;
+
+        if (pickParams.canvasPos) {
+
+            // @ts-ignore
+            pickCanvasPos.set(pickParams.canvasPos);
+            // @ts-ignore
+            pickViewMatrix.set(view.camera.viewMatrix);
+            // @ts-ignore
+            pickProjMatrix.set(view.camera.projMatrix);
+            pickResult.canvasPos = pickParams.canvasPos;
+        } else {
+
+            // Picking with arbitrary World-space ray
+            // Align camera along ray and fire ray through center of canvas
+
+            if (pickParams.rayMatrix) {
+
+                // Ray defined using matrix
+
+                // @ts-ignore
+                pickViewMatrix.set(params.rayMatrix);
+                // @ts-ignore
+                pickProjMatrix.set(view.camera.projMatrix);
+            } else {
+
+                // Ray defined as origin and direction
+
+                pickWorldRayOrigin.set(pickParams.rayOrigin || [0, 0, 0]);
+                pickWorldRayDir.set(pickParams.rayDirection || [0, 0, 1]);
+                const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a);
+                tempVec3b[0] = Math.random();
+                tempVec3b[1] = Math.random();
+                tempVec3b[2] = Math.random();
+                normalizeVec3(tempVec3b);
+                cross3Vec3(pickWorldRayDir, tempVec3b, tempVec3c);
+                // @ts-ignore
+                pickViewMatrix.set(lookAtMat4v(pickWorldRayOrigin, look, tempVec3c, tempMat4b));
+                // @ts-ignore
+                pickProjMatrix.set(view.camera.orthoProjection.projMatrix);
+                pickResult.origin = pickWorldRayOrigin;
+                pickResult.direction = pickWorldRayDir;
+            }
+            pickCanvasPos[0] = targetRendererView.view.htmlElement.clientWidth * 0.5;
+            pickCanvasPos[1] = targetRendererView.view.htmlElement.clientHeight * 0.5;
+        }
+
+        if (pickParams.pickViewObject) {
+            const rendererMesh = this.#pickMesh(viewIndex, targetRendererView, {
+                pickCanvasPos,
+                pickViewMatrix,
+                pickProjMatrix,
+                pickInvisible: !!pickParams.pickInvisible
+            });
+            if (rendererMesh) {
+                const rendererObject = rendererMesh.rendererObject;
+                const view = targetRendererView.view;
+                const viewObject = view.objects[rendererObject.id];
+                pickResult.viewObject = viewObject;
+            }
+        }
+
+        // if (params.pickSurface) {
+        //     const worldPos = this.#pickSurface(viewIndex, targetRendererView, {
+        //         pickCanvasPos,
+        //         pickViewMatrix,
+        //         pickProjMatrix,
+        //         pickInvisible: params.pickInvisible
+        //     });
+        //     if (worldPos) {
+        //         pickResult.worldPos = worldPos;
+        //     }
+        // }
+
+        return pickResult;
+    };
+
+    #pickMesh(viewIndex: number,
+              targetRendererView: WebGLRendererView,
+              params: {
+                  pickCanvasPos: FloatArrayParam,
+                  pickViewMatrix: FloatArrayParam,
+                  pickProjMatrix: FloatArrayParam,
+                  pickInvisible: boolean
+              }): WebGLRendererMesh {
+
+        const gl = this.#gl
+        const view = targetRendererView.view;
+        const targetCanvasBoundingRect = targetRendererView.view.htmlElement.getBoundingClientRect();
+        const pickProjMatrix = params.pickProjMatrix;
+        const pickViewMatrix = params.pickViewMatrix;
+        const resolutionScale = view.resolutionScale;
+        const renderContext = this.renderContext;
+        const pickBuffer = this.#pickBufferManager.getRenderBuffer("pickMesh", {
+            depthTexture: false,
+            size: [1, 1]
+        });
+        pickBuffer.bind();
+        pickBuffer.clear();
+        renderContext.reset();
+        renderContext.backfaces = true;
+        renderContext.frontface = true; // "ccw"
+        renderContext.pickViewMatrix = pickViewMatrix;
+        renderContext.pickProjMatrix = pickProjMatrix;
+        renderContext.pickInvisible = !!params.pickInvisible;
+        renderContext.pickClipPos = [
+            this.#getClipPosX(params.pickCanvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
+            this.#getClipPosY(params.pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
+        ];
+        gl.viewport(0, 0, 1, 1);
+        gl.depthMask(true);
+        gl.enable(gl.DEPTH_TEST);
+        gl.disable(gl.CULL_FACE);
+        gl.disable(gl.BLEND);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        for (let i = 0, len = this.#layerList.length; i < len; i++) {
+            const layer = this.#layerList[i];
+            const meshCounts = layer.meshCounts[viewIndex];
+            if (meshCounts.numPickable < meshCounts.numMeshes ||
+                meshCounts.numCulled === meshCounts.numMeshes ||
+                meshCounts.numVisible === 0) {
+                continue;
+            }
+            layer.drawPickMesh();
+        }
+        const pix = pickBuffer.read(0, 0);
+        const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
+
+        console.log("pickID = " + pickID);
+        pickBuffer.unbind();
+
+        if (pickID < 0) {
+            return null;
+        }
+
+        return <WebGLRendererMesh>this.#pickIDs.items[pickID];
+    }
+
+    #pickWorldPos(
+        viewIndex: number,
+        params: {
+            canvasPos: FloatArrayParam,
+            pickViewMatrix: FloatArrayParam,
+            pickProjMatrix: FloatArrayParam,
+            pickInvisible: boolean,
+            layer?: Layer
+        }): WebGLRendererMesh | null {
+
+        const targetRendererView = this.#rendererViewsList[viewIndex];
+        if (!targetRendererView) {
+            throw new SDKError(`Can't activate View - no such target View attached: ${viewIndex}`);
+        }
+
+        const gl = this.#gl
+        const view = targetRendererView.view;
+        const pickProjMatrix = params.pickProjMatrix;
+        const pickViewMatrix = params.pickViewMatrix;
+        const resolutionScale = view.resolutionScale;
+        const renderContext = this.renderContext;
+
+        const targetCanvasBoundingRect = targetRendererView.view.htmlElement.getBoundingClientRect();
+        const pickBuffer = targetRendererView.renderBufferManager.getRenderBuffer("pickDepth", {
+            depthTexture: true,
+            size: [targetCanvasBoundingRect.width, targetCanvasBoundingRect.height]
+        });
+        pickBuffer.setSize([targetCanvasBoundingRect.width, targetCanvasBoundingRect.height]);
+        pickBuffer.bind();
+        pickBuffer.clear();
+
+        renderContext.reset();
+        renderContext.backfaces = true;
+        renderContext.frontface = true; // "ccw"
+        renderContext.pickViewMatrix = pickViewMatrix;
+        renderContext.pickProjMatrix = pickProjMatrix;
+        renderContext.pickInvisible = !!params.pickInvisible;
+        renderContext.pickClipPos[0] = this.#getClipPosX(params.canvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth);
+        renderContext.pickClipPos[0] = this.#getClipPosY(params.canvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight);
+
+        gl.viewport(0, 0, 1, 1);
+        gl.depthMask(true);
+        gl.enable(gl.DEPTH_TEST);
+        gl.disable(gl.CULL_FACE);
+        gl.disable(gl.BLEND);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        if (params.layer) {
+            params.layer.drawPickDepths();
+        } else {
+            for (let i = 0, len = this.#layerList.length; i < len; i++) {
+                const layer = this.#layerList[i];
+                const meshCounts = layer.meshCounts[viewIndex];
+                if (meshCounts.numPickable < meshCounts.numMeshes ||
+                    meshCounts.numCulled === meshCounts.numMeshes ||
+                    meshCounts.numVisible === 0) {
+                    continue;
+                }
+                layer.drawPickDepths();
+            }
+        }
+
+        const pix = pickBuffer.read(0, 0);
+
+        pickBuffer.unbind();
+
+        const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
+        if (pickID < 0) {
+            return null;
+        }
+
+        return <WebGLRendererMesh>this.#pickIDs.items[pickID];
+    }
+
+
+    #getClipPosX(pos: number, size: number) {
+        return 2 * (pos / size) - 1;
+    }
+
+    #getClipPosY(pos: number, size: number) {
+        return 1 - 2 * (pos / size);
+    }
+
     beginSnapshot(viewIndex: number, params?: {
         width: number,
         height: number
@@ -1227,6 +1495,7 @@ export class WebGLRenderer implements Renderer {
         if (this.#viewer) {
             this.detachViewer();
         }
+        this.#pickBufferManager.destroy();
         this.#destroyed = true;
         this.onDestroyed.dispatch(this, true);
     }

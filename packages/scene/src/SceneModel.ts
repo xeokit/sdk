@@ -23,6 +23,8 @@ import type {Scene} from "./Scene";
 import type {SceneModelStats} from "./SceneModelStats";
 import {composeMat4, eulerToQuat, identityMat4, identityQuat} from "@xeokit/matrix";
 import {SceneModelStreamParams} from "./SceneModelStreamParams";
+import {SceneQuantizationRange} from "./SceneQuantizationRange";
+import {SceneQuantizationRangeParams} from "./SceneQuantizationRangeParams";
 
 // DTX texture types
 
@@ -146,6 +148,13 @@ export class SceneModel extends Component {
     public readonly geometries: { [key: string]: SceneGeometry };
 
     /**
+     * {@link @xeokit/scene!SceneQuantizationRange | SceneQuantizationRanges} within this SceneModel, each mapped to {@link @xeokit/scene!SceneQuantizationRange.id | SceneQuantizationRange.id}.
+     *
+     * * Created by {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}.
+     */
+    public readonly quantizationRanges: { [key: string]: SceneQuantizationRange };
+
+    /**
      * {@link @xeokit/scene!SceneTexture | Textures} within this SceneModel, each mapped to {@link @xeokit/scene!SceneTexture.id | SceneTexture.id}.
      *
      * * Created by {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}.
@@ -211,6 +220,13 @@ export class SceneModel extends Component {
      */
     public readonly stats: SceneModelStats;
 
+    /**
+     * TODO
+     *
+     * @see {@link @xeokit/scene!SceneModelParams | SceneModelParams}.
+     */
+    public readonly retained: boolean;
+
     #texturesList: SceneTexture[];
     #numObjects: number;
     #meshUsedByObject: { [key: string]: boolean };
@@ -236,6 +252,7 @@ export class SceneModel extends Component {
         this.layerId = sceneModelParams.layerId;
         this.edgeThreshold = 10;
         this.geometries = {};
+        this.quantizationRanges = {};
         this.textures = {};
         this.#texturesList = [];
         this.textureSets = {};
@@ -259,6 +276,8 @@ export class SceneModel extends Component {
         };
 
         this.fromJSON(sceneModelParams);
+
+        this.retained = (sceneModelParams.retained !== false);
     }
 
     /**
@@ -315,9 +334,9 @@ export class SceneModel extends Component {
     }
 
     /**
-     * Creates a new {@link Transform} within this SceneModel.
+     * Creates a new {@link SceneTransform} within this SceneModel.
      *
-     * * Stores the new {@link Transform} in {@link @xeokit/scene!SceneModel.transforms | SceneModel.transforms}.
+     * * Stores the new {@link SceneTransform} in {@link @xeokit/scene!SceneModel.transforms | SceneModel.transforms}.
      *
      * ### Usage
      *
@@ -333,7 +352,7 @@ export class SceneModel extends Component {
      * See {@link "@xeokit/scene" | @xeokit/scene}  for more usage info.
      *
      * @param transformParams Transform creation parameters.
-     * @returns *{@link Transform}*
+     * @returns *{@link SceneTransform}*
      * * On success
      * @returns *{@link @xeokit/core!SDKError}*
      * * If SceneModel has already been built or destroyed.
@@ -700,6 +719,29 @@ export class SceneModel extends Component {
     }
 
     /**
+     *
+     * @param quantizationRangeParams
+     */
+    createQuantizationRange(quantizationRangeParams: SceneQuantizationRangeParams) : SceneQuantizationRange | SDKError {
+        if (this.destroyed) {
+            return new SDKError("Failed to add SceneQuantizationRange to SceneModel - SceneModel already destroyed");
+        }
+        if (this.built) {
+            return new SDKError("Failed to add SceneQuantizationRange to SceneModel - SceneModel already built");
+        }
+        if (!quantizationRangeParams) {
+            return new SDKError("Failed to add SceneQuantizationRange to SceneModel - Parameters expected: geometryCompressedParams");
+        }
+        const quantizationRangeId = quantizationRangeParams.id;
+        if (this.quantizationRanges[quantizationRangeId]) {
+            return new SDKError(`Failed to add SceneQuantizationRange to SceneModel - SceneQuantizationRange with this ID already created: ${quantizationRangeId}`);
+        }
+        const quantizationRange = new SceneQuantizationRange(quantizationRangeParams);
+        this.quantizationRanges[quantizationRangeId] = quantizationRange;
+        return quantizationRange;
+    }
+
+    /**
      * Creates a new {@link @xeokit/scene!SceneMesh} within this SceneModel.
      *
      * * Stores the new {@link @xeokit/scene!SceneMesh} in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}.
@@ -987,7 +1029,6 @@ export class SceneModel extends Component {
         });
         return sceneModelParams;
     }
-
 
     // #compressTextures(): Promise<any> {
     //     let countTextures = this.#texturesList.length;

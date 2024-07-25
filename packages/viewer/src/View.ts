@@ -30,14 +30,13 @@ import type {PickResult} from "./PickResult";
 import {SnapshotResult} from "./SnapshotResult";
 import type {SnapshotParams} from "./SnapshotParams";
 import {ResolutionScale} from "./ResolutionScale";
-import html2canvas from './../node_modules/html2canvas/dist/html2canvas.esm.js';
 
 /**
  * Event that signifies the beginning of a canvas snapshot captured with
  */
 export interface SnapshotStartedEvent {
     width: number;
-    height:number;
+    height: number;
 }
 
 /**
@@ -45,7 +44,7 @@ export interface SnapshotStartedEvent {
  */
 export interface SnapshotFinishedEvent {
     width: number;
-    height:number;
+    height: number;
 }
 
 
@@ -659,7 +658,7 @@ class View extends Component {
         this.resolutionScale = new ResolutionScale(this, {
             enabled: true,
             renderModes: [FastRender],
-            resolutionScale: 0.5
+            resolutionScale: 1.0
         });
 
         this.pointsMaterial = new PointsMaterial(this, {
@@ -728,7 +727,7 @@ class View extends Component {
 
         new AmbientLight(this, {
             color: [1.0, 1.0, 1.0],
-            intensity: 0.7
+            intensity: 1.0
         });
 
         new DirLight(this, {
@@ -741,7 +740,14 @@ class View extends Component {
         new DirLight(this, {
             dir: [-0.8, -1.0, 0.5],
             color: [1, 1, .9],
-            intensity: 0.9,
+            intensity: 1.0,
+            space: "world"
+        });
+
+        new DirLight(this, {
+            dir: [-0.8, -1.0, -0.5],
+            color: [.0, .0, 1],
+            intensity: 1.0,
             space: "world"
         });
 
@@ -1547,14 +1553,19 @@ class View extends Component {
     }
 
     /**
-     * Attempts to pick a {@link ViewObject} in this View.
+     * Attempts to pick a ViewObject in this View.
      *
-     * @param pickParams
-     * @param pickResult
+     * @param pickParams Picking parameters.
+     * @param pickResult Picking results, when caller wants to manage them externally.
+     * @throws {@link @xeokit/core!SDKError}
+     * * No View is currently attached to this Renderer.
+     * * Can't find a View attached to this Renderer with the given handle.
+     * * Illegal picking parameters given.
+     * @returns {@link @xeokit/viewer!PickResult}
+     * * Picking attempt completed.
      */
     pick(pickParams: PickParams, pickResult?: PickResult): PickResult | null {
-        return null;
-
+        return this.viewer.renderer.pick(this.viewIndex, pickParams, pickResult);
     }
 
     /**
@@ -1638,7 +1649,7 @@ class View extends Component {
         //     this.endSnapshot();
         // }
 
-    //    return imageDataURI;
+        //    return imageDataURI;
         return new SnapshotResult();
     }
 

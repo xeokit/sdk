@@ -23,18 +23,41 @@
 </body>
 <script>
     const files = {
-        "Getting Started": [
-            "#Simple Viewer Examples",
+        "Basic Viewer Usage": [
+
+            "#Creating basic viewers",
+
             ["viewer_drawTriangles", "Drawing triangles with a Viewer"],
             ["viewer_drawLines", "Drawing lines with a Viewer"],
             ["viewer_drawPoints", "Drawing points with a Viewer"],
             ["viewer_getCapabilities", "Querying the capabilities of a Viewer"]
         ],
 
-        "Multiple Views": [
-            "#Multi-View Examples",
-            ["viewer_multiView_loadWebIFC", "Viewer with multiple Views of IFC model"],
-            ["viewer_multiView_SceneModel", "Viewer with multiple Views of simple SceneModel"]
+        "Multi-Canvas Viewers": [
+
+            "#Creating Viewers with multiple canvases",
+
+            ["View_multiView_loadWebIFC", "Viewer with multiple Views of IFC model"],
+            ["View_multiView_SceneModel", "Viewer with multiple Views of simple SceneModel"]
+        ],
+
+        "ViewLayers": [
+
+            "#Organizing viewer objects in layers",
+
+            ["ViewLayer_auto", "Viewer with View containing automatically-created ViewLayers"],
+            ["ViewLayer_manual", "Viewer with View containing manually-created ViewLayers"],
+
+            ["ViewLayer_multiView", "Using ViewLayers in a Viewer with multiple Views"],
+            ["ViewLayer_multiView_multiModels", "Viewer with multiple Views showing different models"],
+            ["ViewLayer_multiView_lighting", "Viewer with multiple Views, each with different lighting"]
+        ],
+
+        "Render Modes": [
+
+            "#Using render modes to select emphasis effects",
+
+            ["renderModes_View_multiView", "Using render modes in a Viewer with multiple Views"]
         ]
     };
 

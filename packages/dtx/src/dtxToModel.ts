@@ -23,7 +23,7 @@ export function dtxToModel(params: {
     const numBuckets = dtxData.eachBucketPositionsPortion.length;
     const numMeshes = dtxData.eachMeshGeometriesPortion.length;
     const numObjects = dtxData.eachObjectMeshesPortion.length;
-    const numGeometries = dtxData.eachGeometryDecodeMatricesPortion.length;
+    const numGeometries = dtxData.eachGeometryAABBPortion.length;
 
     let nextMeshId = 0;
 
@@ -89,8 +89,8 @@ export function dtxToModel(params: {
                         break;
                 }
 
-                const geometryDecodeMatrixIndex = dtxData.eachGeometryDecodeMatricesPortion[geometryIndex];
-                geometryCompressedParams.positionsDecompressMatrix = dtxData.decodeMatrices.slice(geometryDecodeMatrixIndex, geometryDecodeMatrixIndex + 16);
+                const geometryAABB = dtxData.eachGeometryAABBPortion[geometryIndex];
+                geometryCompressedParams.aabb = dtxData.aabbs.slice(geometryAABB, geometryAABB + 6);
 
                 let geometryValid = false;
 
@@ -119,7 +119,7 @@ export function dtxToModel(params: {
 
                         case TrianglesPrimitive:
                             geometryBucketParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachBucketPositionsPortion [bucketIndex], atLastBucketIndex ? dtxData.positions.length : dtxData.eachBucketPositionsPortion [bucketIndex + 1]);
-                              geometryBucketParams.indices = indices.subarray(dtxData.eachBucketIndicesPortion [bucketIndex], atLastBucketIndex ? indices.length : dtxData.eachBucketIndicesPortion [bucketIndex + 1]);
+                            geometryBucketParams.indices = indices.subarray(dtxData.eachBucketIndicesPortion [bucketIndex], atLastBucketIndex ? indices.length : dtxData.eachBucketIndicesPortion [bucketIndex + 1]);
                             geometryBucketParams.edgeIndices = edgeIndices.subarray(dtxData.eachBucketEdgeIndicesPortion [bucketIndex], atLastBucketIndex ? edgeIndices.length : dtxData.eachBucketEdgeIndicesPortion [bucketIndex + 1]);
                             bucketValid = (geometryBucketParams.positionsCompressed.length > 0 && geometryBucketParams.indices.length > 0);
                             break;

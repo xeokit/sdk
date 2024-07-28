@@ -3895,7 +3895,7 @@ export const IfcZShapeProfileDef = 1773;
 /**
  * Map of type codes for all IFC type names.
  */
-export const typeCodes: { [key: string]: number } = {
+export const ifcTypeCodes: { [key: string]: number } = {
     "IfcActionRequest": 1000,
     "IfcActor": 1001,
     "IfcActorRole": 1002,
@@ -4675,7 +4675,7 @@ export const typeCodes: { [key: string]: number } = {
 /**
  * Map of type names for all IFC type codes.
  */
-export const typeNames: { [key: number]: string } = {
+export const ifcTypeNames: { [key: number]: string } = {
     1000: "IfcActionRequest",
     1001: "IfcActor",
     1002: "IfcActorRole",

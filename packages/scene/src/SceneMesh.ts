@@ -5,6 +5,7 @@ import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneTextureSet} from "./SceneTextureSet";
 import type {SceneObject} from "./SceneObject";
 import type {SceneMeshParams} from "./SceneMeshParams";
+import {SceneTile} from "./SceneTile";
 
 /**
  * A mesh in a {@link @xeokit/scene!SceneModel}.
@@ -22,17 +23,22 @@ export class SceneMesh {
      *
      * SceneMesh is stored by this ID in {@link @xeokit/scene!SceneModel.meshes}.
      */
-    id: string;
+    readonly id: string;
+
+    /**
+     * {@link @xeokit/scene!SceneTile} this SceneMesh belongs to.
+     */
+    readonly tile: SceneTile;
 
     /**
      * {@link @xeokit/scene!SceneGeometry} used by this SceneMesh.
      */
-    geometry: SceneGeometry;
+    readonly geometry: SceneGeometry;
 
     /**
      * {@link @xeokit/scene!SceneTextureSet} used by this SceneMesh.
      */
-    textureSet?: SceneTextureSet;
+    readonly textureSet?: SceneTextureSet;
 
     /**
      *  Internal interface through which a {@link @xeokit/scene!SceneMesh} can load property updates into a renderers.
@@ -74,7 +80,7 @@ export class SceneMesh {
         opacity?: number;
         roughness?: number;
         metallic?: number;
-        origin?: FloatArrayParam;
+        tile: SceneTile;
         streamLayerIndex?: number;
     }) {
         this.id = meshParams.id;
@@ -83,8 +89,8 @@ export class SceneMesh {
         this.textureSet = meshParams.textureSet;
         this.rendererMesh = null;
         this.color = meshParams.color || new Float32Array([1, 1, 1]);
-         this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
-        this.origin = new Float32Array(meshParams.origin !== undefined ? meshParams.origin : [0, 0, 0]);
+        this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
+        this.tile = meshParams.tile;
         this.streamLayerIndex = meshParams.streamLayerIndex !== undefined ? meshParams.streamLayerIndex : 0;
     }
 
@@ -191,7 +197,8 @@ export class SceneMesh {
             color: Array.from(this.#color),
             metallic: this.#metallic,
             roughness: this.#roughness,
-            opacity: this.#opacity
+            opacity: this.#opacity,
+            origin: Array.from(this.tile.origin)
         };
         if (!isIdentityMat4(this.#matrix)) {
             meshParams.matrix = Array.from(this.#matrix);

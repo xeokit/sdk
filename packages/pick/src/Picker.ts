@@ -11,7 +11,7 @@ import type {FloatArrayParam} from "@xeokit/math";
 import type {RayPickResult} from "./RayPickResult";
 import type {MarqueePickResult} from "./MarqueePickResult";
 import {PickPrimsCache} from "./PickPrimsCache";
-import {decompressPositions3} from "@xeokit/compression";
+import {decompressPositions3WithAABB3} from "@xeokit/compression";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/constants";
 import type {SceneGeometry, SceneGeometryBucket, SceneObject} from "@xeokit/scene";
 import {MeshHit} from "./MeshHit";
@@ -206,9 +206,9 @@ export class Picker {
         // @ts-ignore
         let primsKdTree3 = this.#pickPrimsCache[kdTreeId];
         if (!primsKdTree3) {
-            const positions = decompressPositions3(
+            const positions = decompressPositions3WithAABB3(
                 geometryBucket.positionsCompressed,
-                geometry.positionsDecompressMatrix,
+                geometry.aabb,
                 new Float32Array(geometryBucket.positionsCompressed.length));
             primsKdTree3 = {
                 primsKdTree3: createPrimsKdTree3(geometry.primitive, positions, geometryBucket.indices),

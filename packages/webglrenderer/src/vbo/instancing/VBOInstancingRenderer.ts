@@ -49,8 +49,8 @@ export abstract class VBOInstancingRenderer extends VBORenderer {
             attributes.modelMatrixCol2.bindArrayBuffer(renderState.modelMatrixCol2Buf);
             gl.vertexAttribDivisor(attributes.modelMatrixCol2.location, 1);
         }
-        gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
-
+        gl.uniform3fv(this.uniforms.positionsDecompressOffset, <Float32Array | GLfloat[]>renderState.positionsDecompressOffset);
+        gl.uniform3fv(this.uniforms.positionsDecompressScale, <Float32Array | GLfloat[]>renderState.positionsDecompressScale);
         gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array | GLfloat[]>vboInstancingLayer.rendererModel.worldMatrix);
         gl.uniformMatrix4fv(this.uniforms.viewMatrix, false,
             <Float32Array | GLfloat[]>createRTCViewMat(

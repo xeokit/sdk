@@ -106,7 +106,7 @@ export function modelToDTX(params: {
         edgeIndices8Bit: new Uint8Array(lenEdgeIndices8Bit),
         edgeIndices16Bit: new Uint16Array(lenEdgeIndices16Bit),
         edgeIndices32Bit: new Uint32Array(lenEdgeIndices32Bit),
-        decodeMatrices: new Float32Array(lenDecodeMatrices), // TODO
+        aabbs: new Float32Array(lenDecodeMatrices), // TODO
         eachBucketPositionsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.positions. Every primitive type has positions.
         eachBucketColorsPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.colors. If the next geometry has the same index, then this geometry has no colors.
         eachBucketIndicesPortion: new Uint32Array(lenBuckets), // For each geometry, an index to its first element in dtxData.indices. If the next geometry has the same index, then this geometry has no indices.
@@ -114,7 +114,7 @@ export function modelToDTX(params: {
         eachBucketIndicesBitness: new Uint8Array(lenBuckets), // TODO
         eachGeometryPrimitiveType: new Uint8Array(numGeometries), // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points)
         eachGeometryBucketPortion: new Uint32Array(numGeometries), // TODO
-        eachGeometryDecodeMatricesPortion: new Uint32Array(numGeometries), // Positions dequantization matrices
+        eachGeometryAABBPortion: new Uint32Array(numGeometries), // Positions dequantization matrices
         matrices: new Float32Array(numMeshes * 16), // Modeling matrices
         origins: new Float64Array(lenOrigins * 3), // Origins
         eachMeshGeometriesPortion: new Uint32Array(numMeshes), // For each mesh, an index into the eachGeometry* arrays
@@ -167,9 +167,9 @@ export function modelToDTX(params: {
         }
         dtxData.eachGeometryPrimitiveType [geometryIndex] = primitiveType;
         dtxData.eachGeometryBucketPortion [geometryIndex] = countBuckets;
-        dtxData.eachGeometryDecodeMatricesPortion [geometryIndex] = countDecodeMatrices;
+        dtxData.eachGeometryAABBPortion [geometryIndex] = countDecodeMatrices;
 
-        dtxData.decodeMatrices.set(geometry.positionsDecompressMatrix, countDecodeMatrices); // TODO: only add decode matrix if different from what's already added
+        dtxData.aabbs.set(geometry.aabb, countDecodeMatrices); // TODO: only add decode matrix if different from what's already added
         countDecodeMatrices += 16;
 
         for (let i = 0, len = geometryBuckets.length; i < len; i++) {
@@ -284,8 +284,6 @@ export function modelToDTX(params: {
             dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[1] * 255);
             dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[2] * 255);
             dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.opacity * 255); // Opacity
-            dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.metallic * 255); // Metallic
-            dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.roughness * 255); // Roughness
 
             countMeshes++;
         }

@@ -15,9 +15,9 @@ export class VBOBatchingBuffer {
     indices: number[];
     edgeIndices: number[];
 
-    constructor(maxGeometryBatchSize: number = 4000000) {
-        if (maxGeometryBatchSize > 4000000) {
-            maxGeometryBatchSize = 4000000;
+    constructor(maxGeometryBatchSize: number = 400000) {
+        if (maxGeometryBatchSize > 400000) {
+            maxGeometryBatchSize = 400000;
         }
         this.maxVerts = maxGeometryBatchSize;
         this.maxIndices = maxGeometryBatchSize

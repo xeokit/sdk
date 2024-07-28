@@ -84,6 +84,8 @@ export class Scene extends Component {
         this.#onModelDestroys = {};
         this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
         this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+        this.onTileCreated = new EventEmitter(new EventDispatcher<Scene, SceneTile>());
+        this.onTileDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneTile>());
     }
 
     /**
@@ -273,7 +275,7 @@ export class Scene extends Component {
         this.#aabbDirty = true;
     }
 
-    #getTile(origin: FloatArrayParam):SceneTile {
+    getTile(origin: FloatArrayParam):SceneTile {
         const tileId = `${origin[0]}-${origin[1]}-${origin[2]}`;
         let tile = this.tiles[tileId];
         if (tile) {
@@ -287,7 +289,7 @@ export class Scene extends Component {
         return tile;
     }
 
-    #putTile(tile: SceneTile): void {
+    putTile(tile: SceneTile): void {
         if (this.tiles[tile.id] === undefined) {
             return;
         }

@@ -47,7 +47,7 @@
             "path": "packages/utils"
         },
         {
-            "path": "packages/cameraControl"
+            "path": "packages/cameracontrol"
         },
         {
             "path": "packages/cityjson"
@@ -111,6 +111,12 @@
         },
         {
             "path": "packages/testutils"
+        },
+        {
+            "path": "packages/metamodel"
+        },
+        {
+            "path": "packages/xkt"
         }
     ]
 }

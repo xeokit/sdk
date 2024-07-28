@@ -59,6 +59,7 @@
         "@xeokit/webifc": "^0.1.0",
         "@xeokit/dtx": "^0.1.0",
         "@xeokit/las": "^0.1.0",
+        "@xeokit/xkt": "^0.1.0",
         "web-ifc": "^0.0.35",
         "earcut-typescript": "^2.2.3"
     }

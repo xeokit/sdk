@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="../../css/pageStyle.css" rel="stylesheet"/>
+</head>
+<body>
+<input type="checkbox" id="info-button"/>
+<label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
+<canvas id="myCanvas"></canvas>
+<div class="slideout-sidebar">
+    <h1>Drawing a triangle with a Viewer configured with a WebGLRenderer</h1>
+    <p>In tis example, we're creating a Viewer configured with a WebGLRenderer and a Scene. Then we build a SceneModel
+        with a simple triangle geometry.</p>
+    <h3>Major components used</h3>
+    <ul>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.Viewer.html" target="_other">Viewer</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_webglrenderer.WebGLRenderer.html" target="_other">WebGLRenderer</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.View.html" target="_other">View</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_scene.SceneModel.html" target="_other">SceneModel</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_data.DataModel.html" target="_other">DataModel</a>
+        </li>
+        <li>
+            <a href="../docs/api/functions/_xeokit_webifc.loadWebIFC.html" target="_other">loadWebIFC</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_core.SDKError.html" target="_other">SDKError</a>
+        </li>
+    </ul>
+</div>
+</body>
+
+<script type="module">
+
+    import {log} from "../../js/logger.js";
+
+    //-----------------------------------------------------------------------------------------
+    // Import xeokit SDK from the JavaScript bundle that we've built for these examples
+    //-----------------------------------------------------------------------------------------
+
+    import * as xeokit from "./../../js/xeokit-demo-bundle.js";
+
+    const scene = new xeokit.scene.Scene();
+    const data = new xeokit.data.Data();
+
+    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer
+    });
+
+    const view = viewer.createView({
+        id: "myView",
+        elementId: "myCanvas"
+    });
+
+    view.camera.eye = [-3.933, 2.855, 27.018];
+    view.camera.look = [4.400, 3.724, 8.899];
+    view.camera.up = [-0.018, 0.999, 0.039];
+
+    view.camera.zoom(5);
+    view.camera.orbitPitch(20);
+
+    new xeokit.cameraControl.CameraControl(view, {});
+
+    const sceneModel = scene.createModel({
+        id: "myModel"
+    });
+
+    const dataModel = data.createModel({
+        id: "myModel"
+    });
+
+    if (sceneModel instanceof xeokit.core.SDKError) {
+        log(`Error creating SceneModel: ${sceneModel.message}`);
+
+    } else {
+
+        fetch("../../data/SceneModels/IfcOpenHouse4-SceneModel.json").then(response => {
+
+            response.json().then(sceneModelJSON => {
+
+                fetch("../../data/DataModels/IfcOpenHouse4-DataModel.json").then(response => {
+
+                    response.json().then(dataModelJSON => {
+
+                        dataModel.fromJSON(dataModelJSON);
+                        sceneModel.fromJSON(sceneModelJSON);
+
+                        dataModel.build();
+                        sceneModel.build();
+
+
+                        const dotbim = xeokit.dotbim.saveDotBIM({
+                            dataModel, sceneModel
+                        })
+
+                        console.log(dotbim)
+                    });
+                });
+            });
+        });
+    }
+
+</script>
+
+</html>

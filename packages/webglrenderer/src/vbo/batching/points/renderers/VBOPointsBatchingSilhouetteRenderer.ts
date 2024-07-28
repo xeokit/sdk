@@ -92,36 +92,36 @@ export class VBOPointsBatchingSilhouetteRenderer extends VBOBatchingRenderer {
     }
 
     drawVBOBatchingLayerPrimitives(vboBatchingLayer: VBOBatchingLayer, renderPass: number): void {
-        this.bind(renderPass);
-        const view = this.renderContext.view;
-        const viewIndex = view.viewIndex;
-        let material;
-        if (renderPass === RENDER_PASSES.SILHOUETTE_XRAYED) {
-            material = view.xrayMaterial;
-        } else if (renderPass === RENDER_PASSES.SILHOUETTE_HIGHLIGHTED) {
-            material = view.highlightMaterial;
-        } else if (renderPass === RENDER_PASSES.SILHOUETTE_SELECTED) {
-            material = view.selectedMaterial;
-        } else {
-            return;
-        }
-        const gl = this.renderContext.gl;
-        const color = material.fillColor;
-        const alpha = material.fillAlpha;
-        gl.uniform4f(this.uniforms.silhouetteColor, color[0], color[1], color[2], alpha);
-        const attributes = this.attributes;
-        const renderState = vboBatchingLayer.renderState;
-        attributes.position.bindArrayBuffer(renderState.positionsBuf);
-        if (attributes.color) {
-            attributes.color.bindArrayBuffer(renderState.colorsBuf[viewIndex]);
-        }
-        if (attributes.flags) {
-            attributes.flags.bindArrayBuffer(renderState.flagsBufs[viewIndex]);
-        }
-        gl.uniform1i(this.uniforms.renderPass, renderPass);
-        gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
-        gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array | GLfloat[]>vboBatchingLayer.rendererModel.worldMatrix);
-        gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
-        gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
+        // this.bind(renderPass);
+        // const view = this.renderContext.view;
+        // const viewIndex = view.viewIndex;
+        // let material;
+        // if (renderPass === RENDER_PASSES.SILHOUETTE_XRAYED) {
+        //     material = view.xrayMaterial;
+        // } else if (renderPass === RENDER_PASSES.SILHOUETTE_HIGHLIGHTED) {
+        //     material = view.highlightMaterial;
+        // } else if (renderPass === RENDER_PASSES.SILHOUETTE_SELECTED) {
+        //     material = view.selectedMaterial;
+        // } else {
+        //     return;
+        // }
+        // const gl = this.renderContext.gl;
+        // const color = material.fillColor;
+        // const alpha = material.fillAlpha;
+        // gl.uniform4f(this.uniforms.silhouetteColor, color[0], color[1], color[2], alpha);
+        // const attributes = this.attributes;
+        // const renderState = vboBatchingLayer.renderState;
+        // attributes.position.bindArrayBuffer(renderState.positionsBuf);
+        // if (attributes.color) {
+        //     attributes.color.bindArrayBuffer(renderState.colorsBuf[viewIndex]);
+        // }
+        // if (attributes.flags) {
+        //     attributes.flags.bindArrayBuffer(renderState.flagsBufs[viewIndex]);
+        // }
+        // gl.uniform1i(this.uniforms.renderPass, renderPass);
+        // gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
+        // gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array | GLfloat[]>vboBatchingLayer.rendererModel.worldMatrix);
+        // gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
+        // gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
     }
 }

@@ -117,23 +117,24 @@ export class VBOPointsBatchingPickMeshRenderer extends VBOBatchingRenderer {
     }
 
     drawVBOBatchingLayerPrimitives(vboBatchingLayer: VBOBatchingLayer, renderPass: number) {
-        this.bind(renderPass);
-        const view = this.renderContext.view;
-        const viewIndex = view.viewIndex;
-        const gl = this.renderContext.gl;
-        const attributes = this.attributes;
-        const renderState = vboBatchingLayer.renderState;
-        attributes.position.bindArrayBuffer(renderState.positionsBuf);
-        if (attributes.pickColor) {
-            attributes.pickColor.bindArrayBuffer(renderState.pickColorsBuf);
-        }
-        if (attributes.flags) {
-            attributes.flags.bindArrayBuffer(renderState.flagsBufs[viewIndex]);
-        }
-        gl.uniform1i(this.uniforms.renderPass, renderPass);
-        gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
-        gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array | GLfloat[]>vboBatchingLayer.rendererModel.worldMatrix);
-        gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
-        gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
+        // this.bind(renderPass);
+        // const view = this.renderContext.view;
+        // const viewIndex = view.viewIndex;
+        // const gl = this.renderContext.gl;
+        // const attributes = this.attributes;
+        // const renderState = vboBatchingLayer.renderState;
+        // attributes.position.bindArrayBuffer(renderState.positionsBuf);
+        // if (attributes.pickColor) {
+        //     attributes.pickColor.bindArrayBuffer(renderState.pickColorsBuf);
+        // }
+        // if (attributes.flags) {
+        //     attributes.flags.bindArrayBuffer(renderState.flagsBufs[viewIndex]);
+        // }
+        // gl.uniform1i(this.uniforms.renderPass, renderPass);
+        // gl.uniformMatrix4fv(this.uniforms.positionsDecodeMatrix, false, <Float32Array | GLfloat[]>renderState.positionsDecodeMatrix);
+        //
+        // gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array | GLfloat[]>vboBatchingLayer.rendererModel.worldMatrix);
+        // gl.uniformMatrix4fv(this.uniforms.viewMatrix, false, <Float32Array | GLfloat[]>createRTCViewMat(this.renderContext.view.camera.viewMatrix, renderState.origin));
+        // gl.drawArrays(gl.POINTS, 0, renderState.positionsBuf.numItems);
     }
 }

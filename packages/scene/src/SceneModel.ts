@@ -25,6 +25,7 @@ import {composeMat4, eulerToQuat, identityMat4, identityQuat} from "@xeokit/matr
 import {SceneModelStreamParams} from "./SceneModelStreamParams";
 import {SceneQuantizationRange} from "./SceneQuantizationRange";
 import {SceneQuantizationRangeParams} from "./SceneQuantizationRangeParams";
+import {SceneTile} from "./SceneTile";
 
 // DTX texture types
 
@@ -97,7 +98,7 @@ export class SceneModel extends Component {
      *
      * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
      */
-   public  streamParams?: SceneModelStreamParams;
+    public streamParams?: SceneModelStreamParams;
 
     /**
      * The {@link @xeokit/scene!Scene} that contains this SceneModel.
@@ -170,6 +171,16 @@ export class SceneModel extends Component {
     public readonly textureSets: { [key: string]: SceneTextureSet };
 
     /**
+     * The {@link @xeokit/scene!SceneTile | Tiles} used by this SceneModel, each mapped to {@link @xeokit/scene!SceneTile.id | SceneTile.id}.
+     */
+    public readonly tiles: { [key: string]: SceneTile };
+
+    /**
+     * The {@link @xeokit/scene!SceneTile | Tiles} used by this SceneModel.
+     */
+    public readonly tilesList: SceneTile [];
+
+    /**
      * {@link @xeokit/scene!SceneMesh | Meshes} within this SceneModel, each mapped to {@link @xeokit/scene!SceneMesh.id | SceneMesh.id}.
      *
      * * Created by {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.
@@ -231,6 +242,7 @@ export class SceneModel extends Component {
     #numObjects: number;
     #meshUsedByObject: { [key: string]: boolean };
 
+
     /**
      * @private
      */
@@ -240,6 +252,9 @@ export class SceneModel extends Component {
         });
 
         this.scene = scene;
+
+        this.tiles = {};
+        this.tilesList = [];
 
         this.onBuilt = new EventEmitter(new EventDispatcher<SceneModel, null>());
         this.onDestroyed = new EventEmitter(new EventDispatcher<SceneModel, null>());
@@ -722,7 +737,7 @@ export class SceneModel extends Component {
      *
      * @param quantizationRangeParams
      */
-    createQuantizationRange(quantizationRangeParams: SceneQuantizationRangeParams) : SceneQuantizationRange | SDKError {
+    createQuantizationRange(quantizationRangeParams: SceneQuantizationRangeParams): SceneQuantizationRange | SDKError {
         if (this.destroyed) {
             return new SDKError("Failed to add SceneQuantizationRange to SceneModel - SceneModel already destroyed");
         }
@@ -813,7 +828,12 @@ export class SceneModel extends Component {
                 matrix = identityMat4();
             }
         }
-        // const meshIndex = this.meshesList.length;
+        const origin = meshParams.origin || [0, 0, 0];
+        const tile = this.scene.getTile(origin);
+        if (!this.tiles[tile.id]) {
+            this.tiles[tile.id] = tile;
+            this.tilesList.push(tile);
+        }
         const mesh = new SceneMesh({
             id: meshParams.id,
             geometry,
@@ -823,7 +843,7 @@ export class SceneModel extends Component {
             opacity: meshParams.opacity,
             roughness: meshParams.roughness,
             metallic: meshParams.metallic,
-            origin: meshParams.origin
+            tile
         });
         geometry.numMeshes++;
         this.meshes[meshParams.id] = mesh;
@@ -1028,6 +1048,18 @@ export class SceneModel extends Component {
             sceneModelParams.objects.push((<SceneObject>value).getJSON());
         });
         return sceneModelParams;
+    }
+
+    /**
+     * Destroys this SceneModel.
+     *
+     * Sets {@link Component.destroyed} ````true````.
+     */
+    destroy() {
+        for (let i = 0, len = this.tilesList.length; i < len; i++) {
+            this.scene.putTile(this.tilesList[i]);
+        }
+        super.destroy();
     }
 
     // #compressTextures(): Promise<any> {

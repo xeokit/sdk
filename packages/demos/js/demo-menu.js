@@ -104,11 +104,11 @@ for (let i = 0, len = sectionNames.length; i < len; i++) {
         }
 
         const fileNameComponents = fileName.split('_');
-        //    fileNameComponents.shift();
         const fileNamePath = fileNameComponents.join(' / ');
         const fileNameDiv = document.createElement('div');
         fileNameDiv.className = 'link';
         fileNameDiv.textContent = fileNamePath; // expandCamel(name);
+     //   fileNameDiv.textContent = fileNamePath.substring(fileNamePath.indexOf('/')+1); // expandCamel(name);
         fileNameDiv.addEventListener('click', (function () {
             const _file = fileName;
             return function () {

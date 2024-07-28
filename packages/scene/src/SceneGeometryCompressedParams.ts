@@ -34,13 +34,6 @@ export interface SceneGeometryCompressedParams {
     primitive: number;
 
     /**
-     * Matrix to decompress {@link @xeokit/scene!SceneGeometryBucketParams.positionsCompressed}.
-     *
-     * The Viewer uses this matrix internally to decompress {@link @xeokit/scene!SceneGeometryBucketParams.positionsCompressed | SceneGeometryBucketParams.positionsCompressed}.
-     */
-    positionsDecompressMatrix: FloatArrayParam;
-
-    /**
      * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
      */
     aabb?: FloatArrayParam;

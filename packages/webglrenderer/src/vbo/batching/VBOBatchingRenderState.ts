@@ -1,5 +1,6 @@
 import {WebGLArrayBuf} from "@xeokit/webglutils";
 import {FloatArrayParam} from "@xeokit/math";
+import {createVec3} from "@xeokit/matrix";
 
 /**
  * @private
@@ -14,7 +15,8 @@ export interface VBOBatchingRenderState {
     edgeIndicesBuf: WebGLArrayBuf;
     numVertices: number;
     pickColorsBuf: WebGLArrayBuf;
-    positionsDecodeMatrix: FloatArrayParam;
+    positionsDecompressScale: FloatArrayParam,
+    positionsDecompressOffset: FloatArrayParam,
     offsetsBuf: WebGLArrayBuf;
     colorsBuf: WebGLArrayBuf[];
     flagsBufs: WebGLArrayBuf[];

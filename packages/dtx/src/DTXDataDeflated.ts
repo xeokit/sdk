@@ -11,7 +11,7 @@ export interface DTXDataDeflated {
     edgeIndices16Bit: Buffer;
     edgeIndices32Bit: Buffer;
     eachTextureSetTextures: Buffer;
-    decodeMatrices: Buffer;
+    aabbs: Buffer;
     eachBucketPositionsPortion: Buffer;
     eachBucketColorsPortion: Buffer;
     eachBucketIndicesPortion: Buffer;
@@ -19,7 +19,7 @@ export interface DTXDataDeflated {
     eachBucketIndicesBitness: Buffer;
     eachGeometryPrimitiveType: Buffer;
     eachGeometryBucketPortion: Buffer;
-    eachGeometryDecodeMatricesPortion: Buffer;
+    eachGeometryAABBPortion: Buffer;
     matrices: Buffer;
     origins: Buffer;
     eachMeshGeometriesPortion: Buffer;

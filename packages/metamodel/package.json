@@ -1,0 +1,42 @@
+{
+    "name": "@xeokit/metamodel",
+    "private": false,
+    "version": "0.1.0",
+    "description": "Legacy metamodel loader for xeokit",
+    "types": "dist/index.d.ts",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "scripts": {
+        "test": "jest --passWithNoTests",
+        "_dist": "tsc",
+        "lint": "eslint . --fix",
+        "docs": "typedoc --json ../../docs/json/xkt.json --options typedoc.json --validation.invalidLink false",
+        "publish": "npm publish --access public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/xeokit/sdk.git"
+    },
+    "author": "Lindsay Kay",
+    "license": "SEE LICENSE IN LICENSE.md",
+    "bugs": {
+        "url": "https://github.com/xeokit/sdk/issues"
+    },
+    "homepage": "https://xeokit.io",
+    "files": [
+        "src/",
+        "dist/",
+        "README.md",
+        "package.json"
+    ],
+    "keywords": [],
+    "dependencies": {
+        "@xeokit/core": "^0.1.0",
+        "@xeokit/data": "^0.1.0",
+        "@xeokit/ifctypes": "^0.1.0"
+    },
+    "devDependencies": {
+        "@jest/globals": "^29.5.0",
+        "jest-html-reporter": "^3.10.2"
+    }
+}

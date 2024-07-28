@@ -22,37 +22,32 @@ const rtcCenter = createVec3();
  */
 export function compressGeometryParams(geometryParams: SceneGeometryParams): SceneGeometryCompressedParams {
     // const rtcNeeded = worldToRTCPositions(geometryParams.positions, geometryParams.positions, rtcCenter);
-    const positionsDecompressMatrix = createMat4();
     const aabb = collapseAABB3();
     expandAABB3Points3(aabb, geometryParams.positions);
-    const positionsCompressed = quantizePositions3(geometryParams.positions, aabb, positionsDecompressMatrix);
+    const positionsCompressed = quantizePositions3(geometryParams.positions, aabb);
 
     if (geometryParams.primitive === PointsPrimitive) {
-        const geometryCompressedParams: SceneGeometryCompressedParams = {
+       return {
             id: geometryParams.id,
             primitive: PointsPrimitive,
             aabb,
-            positionsDecompressMatrix,
             uvsDecompressMatrix: undefined,
             geometryBuckets: [{
                 positionsCompressed,
                 colorsCompressed: geometryParams.colors ? compressRGBColors(geometryParams.colors) : null
             }]
         };
-        return geometryCompressedParams;
     }
     if (geometryParams.primitive === LinesPrimitive) {
-        const geometryCompressedParams: SceneGeometryCompressedParams = {
+        return {
             id: geometryParams.id,
             primitive: LinesPrimitive,
             aabb,
-            positionsDecompressMatrix,
             geometryBuckets: [{
                 positionsCompressed,
                 indices: geometryParams.indices
             }]
         };
-        return geometryCompressedParams;
     } else {
 
         const HACK_REBUCKET_TRIANGLES_ENABLED = false;
@@ -60,15 +55,14 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
         const edgeIndices = (geometryParams.primitive === SolidPrimitive
             || geometryParams.primitive === SurfacePrimitive
             || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices
-            ? buildEdgeIndices(positionsCompressed, geometryParams.indices, positionsDecompressMatrix, 10)
+            ? buildEdgeIndices(positionsCompressed, geometryParams.indices, aabb, 10)
             : null;
 
         if (!HACK_REBUCKET_TRIANGLES_ENABLED) {
-            const geometryCompressedParams: SceneGeometryCompressedParams = { // Assume that closed triangle mesh is decomposed into open surfaces
+            return { // Assume that closed triangle mesh is decomposed into open surfaces
                 id: geometryParams.id,
                 primitive: geometryParams.primitive,
                 aabb,
-                positionsDecompressMatrix,
                 geometryBuckets: [
                     {
                         positionsCompressed,
@@ -77,7 +71,6 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
                     }
                 ]
             };
-            return geometryCompressedParams;
         } else {
             let uniquePositionsCompressed: IntArrayParam;
             let uniqueIndices: Uint32Array;
@@ -102,15 +95,13 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
                 indices: uniqueIndices,
                 edgeIndices: uniqueEdgeIndices,
             }, (numUniquePositions > (1 << 16)) ? 16 : 8);
-            const geometryCompressedParams: SceneGeometryCompressedParams = { // Assume that closed triangle mesh is decomposed into open surfaces
+            return { // Assume that closed triangle mesh is decomposed into open surfaces
                 id: geometryParams.id,
                 primitive: (geometryParams.primitive === SolidPrimitive && geometryBuckets.length > 1) ? TrianglesPrimitive : geometryParams.primitive,
                 aabb,
-                positionsDecompressMatrix,
                 uvsDecompressMatrix: undefined,
                 geometryBuckets
             };
-            return geometryCompressedParams;
         }
 
     }

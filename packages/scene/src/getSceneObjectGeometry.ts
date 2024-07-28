@@ -1,6 +1,6 @@
 import type {SceneObject} from "./SceneObject";
 import type {SceneMesh} from "./SceneMesh";
-import {decompressPositions3} from "@xeokit/compression";
+import {decompressPositions3WithAABB3} from "@xeokit/compression";
 import {transformPositions3} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
 import type {SceneGeometry} from "./SceneGeometry";
@@ -113,7 +113,7 @@ class GeometryViewImpl {
     get positionsDecompressed(): FloatArrayParam {
         if (!this.#positionsDecompressed) {
             this.#positionsDecompressed = new Float32Array((<SceneGeometryBucket>this.geometryBucket).positionsCompressed.length);
-            decompressPositions3((<SceneGeometryBucket>this.geometryBucket).positionsCompressed, (<SceneGeometry>this.geometry).positionsDecompressMatrix, this.#positionsDecompressed);
+            decompressPositions3WithAABB3((<SceneGeometryBucket>this.geometryBucket).positionsCompressed, (<SceneGeometry>this.geometry).aabb, this.#positionsDecompressed);
         }
         return this.#positionsDecompressed;
     }

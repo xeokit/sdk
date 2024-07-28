@@ -74,6 +74,11 @@ export class VBOInstancingLayer implements Layer {
             new MeshCounts()
         ];
 
+        const geometry = layerParams.sceneGeometry;
+        const aabb = geometry.aabb;
+        const positionsDecompressOffset = createVec3([aabb[0], aabb[1], aabb[2]]);
+        const positionsDecompressScale = createVec3([(aabb[3] - aabb[0]) / 65535, (aabb[4] - aabb[1]) / 65535, (aabb[5] - aabb[2]) / 65535]);
+
         this.renderState = <VBOInstancingRenderState>{
             numVertices: 0,
             numIndices: 0,
@@ -84,7 +89,8 @@ export class VBOInstancingLayer implements Layer {
             sceneGeometry: layerParams.sceneGeometry,
             textureSet: layerParams.textureSet,
             pbrSupported: false,
-            positionsDecodeMatrix: layerParams.sceneGeometry.positionsDecompressMatrix,
+            positionsDecompressScale,
+            positionsDecompressOffset,
             colorsBuf: [],
             flagsBufs: [],
             offsetsBuf: null,
@@ -329,7 +335,6 @@ export class VBOInstancingLayer implements Layer {
         if (positionsCompressed && positionsCompressed.length > 0) {
             const normalized = false;
             renderState.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, new Uint16Array(positionsCompressed), positionsCompressed.length, 3, gl.STATIC_DRAW, normalized);
-            renderState.positionsDecodeMatrix = createMat4(this.renderState.sceneGeometry.positionsDecompressMatrix);
         }
         if (indices && indices.length > 0) {
             renderState.indicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint32Array(indices), indices.length, 1, gl.STATIC_DRAW);

@@ -2,7 +2,8 @@ import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
 import {SDKError} from "@xeokit/core";
 import {TrianglesPrimitive} from "@xeokit/constants";
-import {typeCodes} from "@xeokit/ifctypes";
+import {ifcTypeCodes} from "@xeokit/ifctypes";
+import {FloatArrayParam} from "@xeokit/math";
 
 
 /**
@@ -32,6 +33,7 @@ export function loadDotBIM(params: {
                                dataModel?: DataModel
                            },
                            options: {
+                               translate?: FloatArrayParam,
                                error?: (errMsg: string) => void;
                            } = {}): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
@@ -56,7 +58,8 @@ export function loadDotBIM(params: {
             dataModel: params.dataModel,
             nextId: 0,
             error: options.error || function (errMsg: string) {
-            }
+            },
+            translate: options.translate
         };
         parseDotBIM(ctx);
         resolve();
@@ -98,9 +101,13 @@ function parseDotBIM(ctx: any) {
                 id: meshId,
                 geometryId,
                 color: color ? [color.r, color.g, color.b] : undefined,
-                opacity: color? color.a : 1.0,
+                opacity: color ? color.a : 1.0,
                 quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : undefined,
-                position: vector ? [vector.x, vector.y, vector.z] : undefined
+                position: vector
+                    ? (ctx.translate
+                        ? [vector.x + ctx.translate[0], vector.y + ctx.translate[1], vector.z + ctx.translate[2]]
+                        : [vector.x, vector.y, vector.z])
+                    : (ctx.translate ? ctx.translate : undefined)
             });
             if (mesh instanceof SDKError) {
                 ctx.error(`[SceneModel.createMesh]: ${mesh.message}`);
@@ -119,7 +126,7 @@ function parseDotBIM(ctx: any) {
             if (!ctx.dataModel.objects[element.guid]) {
                 const dataObject = ctx.dataModel.createObject({
                     id: objectId,
-                    type: typeCodes[element.type],
+                    type: ifcTypeCodes[element.type],
                     name: info.Name,
                     description: info.Description
                 });

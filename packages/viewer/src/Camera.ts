@@ -33,6 +33,7 @@ import {
 } from "@xeokit/constants";
 import {Frustum3, setFrustum3} from "@xeokit/boundaries";
 import {Projection} from "./Projection";
+import {SceneGeometry, SceneMesh, SceneModelParams, SceneObject} from "@xeokit/scene";
 
 
 const tempVec3 = createVec3();
@@ -927,6 +928,21 @@ class Camera extends Component {
         this.eye = addVec3(this.#state.look, mulVec3Scalar(dir, newLenLook), tempVec3d);
     }
 
+    // /**
+    //  * Gets this Camera as JSON.
+    //  */
+    // getJSON(): CameraParams {
+    //     const cameraParams = <CameraParams>{
+    //         eye: Array.from(this.#state.eye),
+    //         look: Array.from(this.#state.look),
+    //         up: Array.from(this.#state.up),
+    //         worldUp: Array.from(this.#state.worldUp),
+    //         worldRight: Array.from(this.#state.worldRight),
+    //         worldForward: Array.from(this.#state.worldForward),
+    //         projectionType: this.projectionType
+    //     };
+    //     return cameraParams;
+    // }
 
     /**
      * @private

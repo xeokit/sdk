@@ -38,7 +38,7 @@
 import type {FloatArrayParam, IntArrayParam, } from "@xeokit/math";
 import {MAX_DOUBLE, MIN_DOUBLE, newFloatArray} from "@xeokit/math";
 import {createMat4, createVec2, createVec3, lenVec3, mulMat4, subVec3} from "@xeokit/matrix";
-import {decompressPoint3} from "@xeokit/compression";
+import {decompressPoint3WithMat4} from "@xeokit/compression";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -550,7 +550,7 @@ export const positions3ToAABB3 = (() => {
                 p[1] = positions[i + 1];
                 p[2] = positions[i + 2];
 
-                decompressPoint3(p, positionsDecompressMatrix, p);
+                decompressPoint3WithMat4(p, positionsDecompressMatrix, p);
 
                 x = p[0];
                 y = p[1];

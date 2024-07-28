@@ -75,7 +75,9 @@ export function loadGLTF(params: {
                 throw new SDKError("DataModel already built");
             }
         }
-        parse(params.fileData, GLTFLoader, {}).then((gltfData) => {
+        parse(params.fileData, GLTFLoader, {
+            loadImages: false
+        }).then((gltfData) => {
             const processedGLTF = postProcessGLTF(gltfData);
             const ctx: ParsingContext = {
                 gltfData: processedGLTF,
@@ -99,7 +101,7 @@ export function loadGLTF(params: {
     });
 }
 
-function parseTextures(ctx:any) {
+function parseTextures(ctx: any) {
     if (!ctx.sceneModel) {
         return;
     }
@@ -112,7 +114,7 @@ function parseTextures(ctx:any) {
     }
 }
 
-function parseTexture(ctx:any, texture:any) {
+function parseTexture(ctx: any, texture: any) {
     if (!texture.source || !texture.source.image) {
         return;
     }
@@ -372,7 +374,7 @@ function parseScene(ctx: ParsingContext, scene: any) {
     }
 }
 
-const deferredMeshIds:string[] = [];
+const deferredMeshIds: string[] = [];
 
 function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null | FloatArrayParam) {
 

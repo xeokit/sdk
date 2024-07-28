@@ -52,7 +52,8 @@ export abstract class VBORenderer {
         pickClipPos: WebGLUniformLocation;
         drawingBufferSize: WebGLUniformLocation;
         worldMatrix: WebGLUniformLocation;
-        positionsDecodeMatrix: WebGLUniformLocation;
+        positionsDecompressOffset: WebGLUniformLocation;
+        positionsDecompressScale: WebGLUniformLocation;
         sectionPlanes: any[];
         sceneModelMatrix: WebGLUniformLocation;
         projMatrix: WebGLUniformLocation;
@@ -142,7 +143,8 @@ export abstract class VBORenderer {
             viewMatrix: program.getLocation("viewMatrix"),
             projMatrix: program.getLocation("projMatrix"),
             worldMatrix: program.getLocation("worldMatrix"),
-            positionsDecodeMatrix: program.getLocation("positionsDecodeMatrix"),
+            positionsDecompressOffset: program.getLocation("positionsDecompressOffset"),
+            positionsDecompressScale: program.getLocation("positionsDecompressScale"),
             snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
             pointSize: program.getLocation("pointSize"),
             intensityRange: program.getLocation("intensityRange"),
@@ -231,7 +233,8 @@ export abstract class VBORenderer {
         src.push("uniform mat4 viewMatrix;");
         src.push("uniform mat4 projMatrix;");
         src.push("uniform mat4 worldMatrix;");
-        src.push("uniform mat4 positionsDecodeMatrix;");
+        src.push("uniform vec3 positionsDecompressOffset;");
+        src.push("uniform vec3 positionsDecompressScale;");
         src.push("in vec3 position;");
     }
 
@@ -240,7 +243,8 @@ export abstract class VBORenderer {
         src.push("uniform mat4 viewMatrix;");
         src.push("uniform mat4 projMatrix;");
         src.push("uniform mat4 worldMatrix;");
-        src.push("uniform mat4 positionsDecodeMatrix;");
+        src.push("uniform vec3 positionsDecompressOffset;");
+        src.push("uniform vec3 positionsDecompressScale;");
         src.push("in vec3 position;");
         src.push("in vec4 modelMatrixCol0;");
         src.push("in vec4 modelMatrixCol1;");
@@ -279,14 +283,14 @@ export abstract class VBORenderer {
         src.push("void main(void) {");
         src.push(`      int colorFlag = int(flags) & 0xF;`);
         src.push(`      if (colorFlag != renderPass) {`);
-        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);");
+        src.push("          gl_Position = vec4(2.0, 0.0, 0.0, 0.0);");
         src.push("      } else {");
     }
 
     openVertexSilhouetteMain(src: string[]) {
         src.push("void main(void) {");
         src.push(`      if ((int(flags) >> 4 & 0xF) != renderPass) {`);
-        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);");
+        src.push("          gl_Position = vec4(2.0, 0.0, 0.0, 0.0);");
         src.push("      } else {");
     }
 
@@ -298,7 +302,7 @@ export abstract class VBORenderer {
         src.push("void main(void) {");
         src.push(`      int pickFlag = int(flags) >> 8 & 0xF;`);
         src.push(`      if (pickFlag != renderPass) {`);
-        src.push("          gl_Position = vec4(0.0, 0.0, 0.0, 0.0);");
+        src.push("          gl_Position = vec4(2.0, 0.0, 0.0, 0.0);");
     }
 
     vertexColorMainCloseBlock(src: string[]) {
@@ -321,28 +325,28 @@ export abstract class VBORenderer {
 
     vertexDrawBatchingTransformLogic(src: string[]) {
         src.push("          // ------------------- vertexDrawBatchingTransformLogic")
-        src.push("          vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
+        src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
         src.push("          vec4 viewPosition  = viewMatrix * worldPosition; ");
         src.push("          gl_Position = projMatrix * viewPosition;");
     }
 
     vertexPickBatchingTransformLogic(src: string[]) {
         src.push("          // ------------------- vertexDrawBatchingTransformLogic")
-        src.push("          vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
+        src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
         src.push("          vec4 viewPosition  = viewMatrix * worldPosition; ");
         src.push("          gl_Position = remapClipPos(projMatrix * viewPosition);");
     }
 
     vertexDrawInstancingTransformLogic(src: string[]) {
         src.push("          // ------------------- vertexDrawInstancingTransformLogic")
-        src.push("          vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
+        src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
         src.push("          vec4 viewPosition  = viewMatrix * vec4(dot(worldPosition, modelMatrixCol0), dot(worldPosition, modelMatrixCol1), dot(worldPosition, modelMatrixCol2), 1.0); ");
         src.push("          gl_Position = projMatrix * viewPosition;");
     }
 
     vertexPickInstancingTransformLogic(src: string[]) {
         src.push("          // ------------------- vertexDrawInstancingTransformLogic")
-        src.push("          vec4 worldPosition = (positionsDecodeMatrix * vec4(position, 1.0)); ");
+        src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
         src.push("          vec4 viewPosition  = viewMatrix * vec4(dot(worldPosition, modelMatrixCol0), dot(worldPosition, modelMatrixCol1), dot(worldPosition, modelMatrixCol2), 1.0); ");
         src.push("          gl_Position = remapClipPos(projMatrix * viewPosition);");
     }
@@ -594,7 +598,7 @@ export abstract class VBORenderer {
         if (pointsMaterial.filterIntensity) {
             src.push("float intensity = float(color.a) / 255.0;")
             src.push("if (intensity < intensityRange[0] || intensity > intensityRange[1]) {");
-            src.push("   gl_Position = vec4(0.0, 0.0, 0.0, 0.0);");
+            src.push("   gl_Position = vec4(2.0, 0.0, 0.0, 0.0);");
             src.push("} else {");
         }
     }

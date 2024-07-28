@@ -232,7 +232,7 @@ export function getPositions3MinMax(array: FloatArrayParam, min?: FloatArrayPara
 /**
  * Creates a de-quantization matrix from a boundary.
  */
-export function createPositions3DecompressMat4(aabb: FloatArrayParam, positionsDecompressMatrix: FloatArrayParam): FloatArrayParam {
+export function createPositions3DecompressMat4(aabb: FloatArrayParam, positionsDecompressMatrix?: FloatArrayParam): FloatArrayParam {
     positionsDecompressMatrix = positionsDecompressMatrix || createMat4();
     const xmin = aabb[0];
     const ymin = aabb[1];
@@ -284,9 +284,9 @@ export function compressPositions3(array: FloatArrayParam, min: FloatArrayParam,
  * Compresses a 3D position
  * @param p
  * @param aabb
- * @param q
+ * @param dest
  */
-export function compressPoint3(p: FloatArrayParam, aabb: FloatArrayParam, dest: FloatArrayParam = p) {
+export function compressPoint3WithAABB3(p: FloatArrayParam, aabb: FloatArrayParam, dest: FloatArrayParam = p) {
     const multiplier = new Float32Array([
         aabb[3] !== aabb[0] ? 65535 / (aabb[3] - aabb[0]) : 0,
         aabb[4] !== aabb[1] ? 65535 / (aabb[4] - aabb[1]) : 0,
@@ -304,10 +304,30 @@ export function compressPoint3(p: FloatArrayParam, aabb: FloatArrayParam, dest: 
  * @param decompressMatrix
  * @param dest
  */
-export function decompressPoint3(position: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: FloatArrayParam = position): FloatArrayParam {
+export function decompressPoint3WithMat4(position: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: FloatArrayParam = position): FloatArrayParam {
     dest[0] = position[0] * decompressMatrix[0] + decompressMatrix[12];
     dest[1] = position[1] * decompressMatrix[5] + decompressMatrix[13];
     dest[2] = position[2] * decompressMatrix[10] + decompressMatrix[14];
+    return dest;
+}
+
+/**
+ * Decompresses a 3D position
+ * @param position
+ * @param aabb
+ * @param dest
+ */
+export function decompressPoint3WithAABB3(position: FloatArrayParam, aabb: FloatArrayParam, dest: FloatArrayParam = position): FloatArrayParam {
+    const xScale = (aabb[3] - aabb[0]) / 65535;
+    const xOffset = aabb[0];
+    const yScale = (aabb[4] - aabb[1]) / 65535;
+    const yOffset = aabb[1];
+    const zScale = (aabb[5] - aabb[2]) / 65535;
+    const zOffset = aabb[2];
+
+    dest[0] = position[0] * xScale + xOffset;
+    dest[1] = position[1] * yScale + yOffset;
+    dest[2] = position[2] * zScale + zOffset;
     return dest;
 }
 
@@ -317,7 +337,7 @@ export function decompressPoint3(position: FloatArrayParam, decompressMatrix: Fl
  * @param decompressMatrix
  * @param dest
  */
-export function decompressAABB3(aabb: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: FloatArrayParam = aabb): FloatArrayParam {
+export function decompressAABB3WithMat4(aabb: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: FloatArrayParam = aabb): FloatArrayParam {
     dest[0] = aabb[0] * decompressMatrix[0] + decompressMatrix[12];
     dest[1] = aabb[1] * decompressMatrix[5] + decompressMatrix[13];
     dest[2] = aabb[2] * decompressMatrix[10] + decompressMatrix[14];
@@ -328,16 +348,59 @@ export function decompressAABB3(aabb: FloatArrayParam, decompressMatrix: FloatAr
 }
 
 /**
+ * Decompresses an axis-aligned 3D boundary
+ * @param aabb
+ * @param aabb2
+ * @param dest
+ */
+export function decompressAABB3WithAABB3(aabb: FloatArrayParam, aabb2: FloatArrayParam, dest: FloatArrayParam = aabb): FloatArrayParam {
+    const xScale = (aabb2[3] - aabb2[0]) / 65535;
+    const xOffset = aabb2[0];
+    const yScale = (aabb2[4] - aabb2[1]) / 65535;
+    const yOffset = aabb2[1];
+    const zScale = (aabb2[5] - aabb2[2]) / 65535;
+    const zOffset = aabb2[2];
+    dest[0] = aabb[0] * xScale + xOffset;
+    dest[1] = aabb[1] * yScale + yOffset;
+    dest[2] = aabb[2] * zScale + zOffset;
+    dest[3] = aabb[3] * xScale + xOffset;
+    dest[4] = aabb[4] * yScale + yOffset;
+    dest[5] = aabb[5] * zScale + zOffset;
+    return dest;
+}
+
+/**
  * Decompresses a flat array of positions
  * @param positions
  * @param decompressMatrix
  * @param dest
  */
-export function decompressPositions3(positions: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: Float32Array = new Float32Array(positions.length)): Float32Array {
+export function decompressPositions3WithMat4(positions: FloatArrayParam, decompressMatrix: FloatArrayParam, dest: Float32Array = new Float32Array(positions.length)): Float32Array {
     for (let i = 0, len = positions.length; i < len; i += 3) {
         dest[i + 0] = positions[i + 0] * decompressMatrix[0] + decompressMatrix[12];
         dest[i + 1] = positions[i + 1] * decompressMatrix[5] + decompressMatrix[13];
         dest[i + 2] = positions[i + 2] * decompressMatrix[10] + decompressMatrix[14];
+    }
+    return dest;
+}
+
+/**
+ * Decompresses a flat array of positions
+ * @param positions
+ * @param decompressMatrix
+ * @param dest
+ */
+export function decompressPositions3WithAABB3(positions: FloatArrayParam, aabb: FloatArrayParam, dest: Float32Array = new Float32Array(positions.length)): Float32Array {
+    const xScale = (aabb[3] - aabb[0]);
+    const xOffset = aabb[0];
+    const yScale = (aabb[4] - aabb[1]);
+    const yOffset = aabb[1];
+    const zScale = (aabb[5] - aabb[2]);
+    const zOffset = aabb[2];
+    for (let i = 0, len = positions.length; i < len; i += 3) {
+        dest[i + 0] = positions[i + 0] * xScale + xOffset;
+        dest[i + 1] = positions[i + 1] * yScale + yOffset;
+        dest[i + 2] = positions[i + 2] * zScale + zOffset;
     }
     return dest;
 }
@@ -577,7 +640,7 @@ function octDecodeVec2s(octs: Int8Array, result: FloatArrayParam): FloatArrayPar
 /**
  * @private
  */
-export function quantizePositions3(positions: FloatArrayParam, aabb: FloatArrayParam, positionsDecompressMatrix: FloatArrayParam) { // http://cg.postech.ac.kr/research/mesh_comp_mobile/mesh_comp_mobile_conference.pdf
+export function quantizePositions3AndCreateMat4(positions: FloatArrayParam, aabb: FloatArrayParam, positionsDecompressMatrix: FloatArrayParam) { // http://cg.postech.ac.kr/research/mesh_comp_mobile/mesh_comp_mobile_conference.pdf
     const lenPositions = positions.length;
     const positionsCompressed = new Uint16Array(lenPositions);
     const xmin = aabb[0];
@@ -601,6 +664,31 @@ export function quantizePositions3(positions: FloatArrayParam, aabb: FloatArrayP
     identityMat4(scale);
     scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale);
     mulMat4(translate, scale, positionsDecompressMatrix);
+    return positionsCompressed;
+}
+
+/**
+ * @private
+ */
+export function quantizePositions3(positions: FloatArrayParam, aabb: FloatArrayParam) { // http://cg.postech.ac.kr/research/mesh_comp_mobile/mesh_comp_mobile_conference.pdf
+    const lenPositions = positions.length;
+    const positionsCompressed = new Uint16Array(lenPositions);
+    const xmin = aabb[0];
+    const ymin = aabb[1];
+    const zmin = aabb[2];
+    const xwid = aabb[3] - xmin;
+    const ywid = aabb[4] - ymin;
+    const zwid = aabb[5] - zmin;
+    const maxInt = 65525;
+    const xMultiplier = maxInt / xwid;
+    const yMultiplier = maxInt / ywid;
+    const zMultiplier = maxInt / zwid;
+    const verify = (num: number) => num >= 0 ? num : 0;
+    for (let i = 0; i < lenPositions; i += 3) {
+        positionsCompressed[i + 0] = Math.floor(verify(positions[i + 0] - xmin) * xMultiplier);
+        positionsCompressed[i + 1] = Math.floor(verify(positions[i + 1] - ymin) * yMultiplier);
+        positionsCompressed[i + 2] = Math.floor(verify(positions[i + 2] - zmin) * zMultiplier);
+    }
     return positionsCompressed;
 }
 

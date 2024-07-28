@@ -101,5 +101,5 @@ export interface SceneMeshParams {
     /**
      * Optional RTC coordinate origin for the new {@link @xeokit/scene!SceneMesh}.
      */
-    origin?:FloatArrayParam;
+    origin?: FloatArrayParam;
 }

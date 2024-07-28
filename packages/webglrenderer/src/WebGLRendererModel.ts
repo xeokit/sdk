@@ -13,7 +13,6 @@ import type {
     RendererTexture,
     RendererTextureSet,
     SceneGeometry,
-    SceneGeometryCompressedParams,
     SceneMesh,
     SceneModel,
     SceneObject,
@@ -399,7 +398,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const sceneGeometry = mesh.geometry;
         const primitive = sceneGeometry.primitive;
         const instancing = sceneGeometry.numMeshes > 1;
-        const origin = mesh.origin;
+        const origin = mesh.tile.origin;
         const layerId = `VBO-${instancing ? "Instancing" : "Batching"}-${textureSetId}.${primitive}.${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}`;
         let layer = this.#currentLayers[layerId];
         if (layer) {

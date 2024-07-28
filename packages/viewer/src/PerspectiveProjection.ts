@@ -68,7 +68,7 @@ export class PerspectiveProjection extends Component implements Projection {
 
         this.#state = {
             near: cfg.near || 0.1,
-            far: cfg.far || 2000.0,
+            far: cfg.far || 10000.0,
             fov: cfg.fov || 60.0,
             fovAxis: cfg.fovAxis || "min",
             projMatrix: createMat4(),

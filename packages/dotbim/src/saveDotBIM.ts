@@ -1,9 +1,9 @@
 import type {DataModel} from "@xeokit/data";
 import type {SceneModel} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
-import {decompressPoint3} from "@xeokit/compression";
+import {decompressPoint3WithAABB3, decompressPoint3WithMat4} from "@xeokit/compression";
 import {createVec3, createVec4, decomposeMat4} from "@xeokit/matrix";
-import {typeNames} from "@xeokit/ifctypes";
+import {ifcTypeNames} from "@xeokit/ifctypes";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -60,7 +60,7 @@ function modelToDotBIM(params: { dataModel: DataModel; sceneModel: SceneModel })
 
     for (let i = 0, len = geometries.length; i < len; i++) {
         const geometry = geometries[i];
-        const positionsDecompressMatrix = geometry.positionsDecompressMatrix;
+        const aabb = geometry.aabb;
         const geometryBuckets = geometry.geometryBuckets;
         const coordinates = [];
         const indices = [];
@@ -75,7 +75,7 @@ function modelToDotBIM(params: { dataModel: DataModel; sceneModel: SceneModel })
                     tempVec3a[0] = positionsCompressed[k];
                     tempVec3a[1] = positionsCompressed[k + 1];
                     tempVec3a[2] = positionsCompressed[k + 2];
-                    decompressPoint3(tempVec3a, positionsDecompressMatrix, tempVec3b);
+                    decompressPoint3WithAABB3(tempVec3a, aabb, tempVec3b);
                     coordinates.push(tempVec3b[0]);
                     coordinates.push(tempVec3b[1]);
                     coordinates.push(tempVec3b[2]);
@@ -143,7 +143,7 @@ function modelToDotBIM(params: { dataModel: DataModel; sceneModel: SceneModel })
         if (params.dataModel) {
             dataObject = params.dataModel.objects[sceneObject.id];
             if (dataObject) {
-                info.type = typeNames[dataObject.type];
+                info.type = ifcTypeNames[dataObject.type];
                 info.Name = dataObject.name;
                 info.Description = dataObject.description;
             }

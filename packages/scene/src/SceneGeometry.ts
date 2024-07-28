@@ -31,11 +31,6 @@ export class SceneGeometry {
     primitive: number;
 
     /**
-     * Matrix to decompress {@link @xeokit/scene!SceneGeometryBucketParams.positionsCompressed}.
-     */
-    positionsDecompressMatrix: FloatArrayParam;
-
-    /**
      * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
      */
     aabb?: FloatArrayParam;
@@ -77,7 +72,6 @@ export class SceneGeometry {
             this.geometryBuckets[i] = new SceneGeometryBucket(params.geometryBuckets[i]);
         }
         this.id = params.id;
-        this.positionsDecompressMatrix = params.positionsDecompressMatrix;
         this.primitive = params.primitive;
         this.aabb = params.aabb ? params.aabb.slice() : createAABB3();
         this.numMeshes = 0;
@@ -90,7 +84,7 @@ export class SceneGeometry {
         const geometryParams = <SceneGeometryCompressedParams>{
             id: this.id,
             primitive: this.primitive,
-            positionsDecompressMatrix: Array.from(this.positionsDecompressMatrix),
+            aabb: Array.from(this.aabb),
             geometryBuckets: []
         };
         for (let i = 0, len = this.geometryBuckets.length; i < len; i++) {

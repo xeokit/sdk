@@ -52,6 +52,7 @@ export * as webifc from "@xeokit/webifc";
 export * as dtx from "@xeokit/dtx";
 export * as las from "@xeokit/las";
 export * as gltf from "@xeokit/gltf";
+export * as xkt from "@xeokit/xkt";
 
 // Viewer
 

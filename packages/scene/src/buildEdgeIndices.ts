@@ -1,6 +1,6 @@
 import {DEGTORAD, type FloatArrayParam, type IntArrayParam} from "@xeokit/math";
 import {createVec3, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "@xeokit/matrix";
-import {decompressPoint3} from "@xeokit/compression";
+import {decompressPoint3WithAABB3, decompressPoint3WithMat4} from "@xeokit/compression";
 
 const uniquePositions: number[] = [];
 const indicesLookup: number[] = [];
@@ -55,13 +55,13 @@ function weldVertices(positions: FloatArrayParam, indices: IntArrayParam) {
     }
 }
 
-function buildFaces(numIndices: number, positionsDecompressMatrix: FloatArrayParam) {
+function buildFaces(numIndices: number, aabb: FloatArrayParam) {
     numFaces = 0;
     for (let i = 0, len = numIndices; i < len; i += 3) {
         const ia = ((weldedIndices[i]) * 3);
         const ib = ((weldedIndices[i + 1]) * 3);
         const ic = ((weldedIndices[i + 2]) * 3);
-        if (positionsDecompressMatrix) {
+        if (aabb) {
             compa[0] = uniquePositions[ia];
             compa[1] = uniquePositions[ia + 1];
             compa[2] = uniquePositions[ia + 2];
@@ -72,9 +72,9 @@ function buildFaces(numIndices: number, positionsDecompressMatrix: FloatArrayPar
             compc[1] = uniquePositions[ic + 1];
             compc[2] = uniquePositions[ic + 2];
             // Decode
-            decompressPoint3(compa, positionsDecompressMatrix, a);
-            decompressPoint3(compb, positionsDecompressMatrix, b);
-            decompressPoint3(compc, positionsDecompressMatrix, c);
+            decompressPoint3WithAABB3(compa, aabb, a);
+            decompressPoint3WithAABB3(compb, aabb, b);
+            decompressPoint3WithAABB3(compc, aabb, c);
         } else {
             a[0] = uniquePositions[ia];
             a[1] = uniquePositions[ia + 1];
@@ -107,11 +107,11 @@ function buildFaces(numIndices: number, positionsDecompressMatrix: FloatArrayPar
 export function buildEdgeIndices(
     positions: FloatArrayParam,
     indices: IntArrayParam,
-    positionsDecompressMatrix: FloatArrayParam,
+    aabb: FloatArrayParam,
     edgeThreshold: number): IntArrayParam {
 
     weldVertices(positions, indices);
-    buildFaces(indices.length, positionsDecompressMatrix);
+    buildFaces(indices.length, aabb);
 
     const edgeIndices = [];
     const thresholdDot = Math.cos(DEGTORAD * edgeThreshold);

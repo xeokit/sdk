@@ -19,7 +19,8 @@ export interface VBOInstancingRenderState {
     edgeIndicesBuf: WebGLArrayBuf;
     numVertices: number;
     pickColorsBuf: WebGLArrayBuf;
-    positionsDecodeMatrix: FloatArrayParam;
+    positionsDecompressScale: FloatArrayParam,
+    positionsDecompressOffset: FloatArrayParam,
     offsetsBuf: WebGLArrayBuf;
     colorsBuf: WebGLArrayBuf[];
     flagsBufs: WebGLArrayBuf[];

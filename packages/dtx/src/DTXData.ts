@@ -50,7 +50,7 @@ export interface DTXData {
     /**
      * Combined list of all positions dequantization matrices.
      */
-    decodeMatrices: Float32Array;
+    aabbs: Float32Array;
 
     /**
      * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.positions}.
@@ -88,9 +88,9 @@ export interface DTXData {
     eachGeometryBucketPortion: Uint32Array;
 
     /**
-     * For each geometry, a pointer to a positions dequantization matrix.
+     * For each geometry, a pointer to an AABB.
      */
-    eachGeometryDecodeMatricesPortion: Uint32Array;
+    eachGeometryAABBPortion: Uint32Array;
 
     /**
      * Combined list of all modeling transform matrices in this [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.

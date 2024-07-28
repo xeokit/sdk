@@ -10,7 +10,7 @@ import type {SceneModel} from "@xeokit/scene";
 import type {DataModel} from "@xeokit/data";
 //import * as WebIFC from "web-ifc/web-ifc-api-node";
 import * as WebIFC from "web-ifc";
-import {IfcElement, IfcRelAggregates, typeCodes} from "@xeokit/ifctypes";
+import {IfcElement, IfcRelAggregates, ifcTypeCodes} from "@xeokit/ifctypes";
 import {worldToRTCPositions} from "@xeokit/rtc";
 import {TrianglesPrimitive} from "@xeokit/constants";
 import {SDKError} from "@xeokit/core";
@@ -177,7 +177,7 @@ function createDataObject(ctx: ParsingContext, ifcElement: any, parentDataObject
     const id = ifcElement.GlobalId.value;
     const type = ifcElement.__proto__.constructor.name;
     const name = (ifcElement.Name && ifcElement.Name.value !== "") ? ifcElement.Name.value : type;
-    let typeCode = typeCodes[type];
+    let typeCode = ifcTypeCodes[type];
     if (typeCode == undefined) {
         typeCode = IfcElement;
         // TODO: Log this

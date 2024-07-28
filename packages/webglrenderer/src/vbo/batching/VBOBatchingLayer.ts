@@ -17,7 +17,12 @@ import {RenderContext} from "../../RenderContext";
 import {getScratchMemory, putScratchMemory} from "../ScratchMemory";
 import {VBOBatchingLayerParams} from "./VBOBatchingLayerParams";
 
-import {compressUVs, decompressPoint3, getUVBounds, quantizePositions3} from "@xeokit/compression";
+import {
+    compressUVs, decompressPoint3WithAABB3,
+
+    getUVBounds,
+    quantizePositions3
+} from "@xeokit/compression";
 import {VBORendererSet} from "../VBORendererSet";
 
 const tempMat4a = <Float64Array>identityMat4();
@@ -96,8 +101,9 @@ export class VBOBatchingLayer implements Layer {
             offsetsBuf: null,
             colorsBuf: [],
             flagsBufs: [],
-            positionsDecodeMatrix: createMat4(),
-            origin: createVec3(),
+            positionsDecompressScale: createVec3(),
+            positionsDecompressOffset: createVec3(),
+            origin: createVec3(vBOBatchingLayerParams.origin),
             pbrSupported: false
         };
     }
@@ -154,11 +160,9 @@ export class VBOBatchingLayer implements Layer {
             const edgeIndices = geometryBucket.edgeIndices;
             const positionsCompressed = geometryBucket.positionsCompressed;
             const uvCompressed = geometryBucket.uvsCompressed;
-            const positionsDecompressMatrix = geometry.positionsDecompressMatrix;
+            const geometryAABB = geometry.aabb;
             const colorsCompressed = geometryBucket.colorsCompressed;
             const numBucketVerts = positionsCompressed.length / 3;
-
-            expandAABB3(this.#aabb, geometry.aabb);
 
             if (!positionsCompressed) {
                 throw "positionsCompressed expected";
@@ -180,7 +184,7 @@ export class VBOBatchingLayer implements Layer {
                 tempVec3a[0] = positionsCompressed[k];
                 tempVec3a[1] = positionsCompressed[k + 1];
                 tempVec3a[2] = positionsCompressed[k + 2];
-                decompressPoint3(tempVec3a, positionsDecompressMatrix, tempVec4a);
+                decompressPoint3WithAABB3(tempVec3a, geometryAABB, tempVec4a);
                 if (sceneMesh.matrix) {
                     tempVec4a[3] = 1.0;
                     transformPoint4(sceneMesh.matrix, tempVec4a, tempVec4b);
@@ -268,8 +272,15 @@ export class VBOBatchingLayer implements Layer {
         if (buffer.positions.length > 0) {
             const positions = new Float32Array(buffer.positions);
             positions3ToAABB3(positions, this.#aabb, null);
-            const quantizedPositions = quantizePositions3(positions, this.#aabb, renderState.positionsDecodeMatrix);
+            const quantizedPositions = quantizePositions3(positions, this.#aabb);
             renderState.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, quantizedPositions, buffer.positions.length, 3, gl.STATIC_DRAW);
+            // @ts-ignore
+            renderState.positionsDecompressOffset.set([this.#aabb[0], this.#aabb[1], this.#aabb[2]]);
+            // @ts-ignore
+            renderState.positionsDecompressScale.set([
+                (this.#aabb[3] - this.#aabb[0]) / 65535,
+                (this.#aabb[4] - this.#aabb[1]) / 65535,
+                (this.#aabb[5] - this.#aabb[2]) / 65535]);
         }
 
         if (buffer.colors.length > 0) {
@@ -520,7 +531,7 @@ export class VBOBatchingLayer implements Layer {
         const vertexBase = this.#portions[portionsIdx];
         const numVerts = this.#portions[portionsIdx + 1];
         const firstFlag = vertexBase;
-        const lenFlags = numVerts;
+        const lenFlags = numVerts - vertexBase;
         const tempArray = this.#scratchMemory.getFloat32Array(lenFlags);
 
         const visible = !!(flags & SCENE_OBJECT_FLAGS.VISIBLE);

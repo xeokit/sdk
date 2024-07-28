@@ -1,7 +1,7 @@
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fbcf.svg)](https://badge.fury.io/js/%40xeokit%2Fbcf)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/bcf/badge)](https://www.jsdelivr.com/package/npm/@xeokit/bcf)
- * 
+ *
  * <img style="padding:20px; padding-bottom:10px; " src="media://images/xeokit_bcf_logo.png"/>
  *
  * # xeokit BCF Viewpoint Importer and Exporter
@@ -48,7 +48,7 @@
  * * create a {@link @xeokit/scene!Scene | Scene} and a {@link @xeokit/data!Data | Data},
  * * initialize a Viewer with the Scene and a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer},
  * * create a new {@link @xeokit/viewer!View | View}, {@link @xeokit/scene!SceneModel | SceneModel} and {@link @xeokit/data!DataModel | DataModel},
- * * load a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file using the {@link @xeokit/dtx!loadDTX | loadDTX} function, and
+ * * load a [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file using the {@link @xeokit/xkt!loadXKT | loadXKT} function, and
  * * build the Scene and Data models, rendering the 3D model in the web browser.
  *
  * ````javascript
@@ -56,7 +56,7 @@
  * import {Data} from "@xeoki/data";
  * import {Viewer} from "@xeokit/viewer";
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
- * import {loadDTX} from "@xeokit/loadDTX";
+ * import {loadXKT} from "@xeokit/xkt";
  * import {saveBCFViewpoint, loadBCFViewpoint} from "@xeokit/bcf";
  * import * as ifcTypes from "@xeokit/ifctypes";
  *
@@ -81,10 +81,10 @@
  *     id: "myModel"
  * });
  *
- * fetch("myModel.dtx").then(response => {
+ * fetch("myModel.xkt").then(response => {
  *     response.arrayBuffer().then(data => {
  *
- *          loadDTX({ data, sceneModel, dataModel });
+ *          loadXKT({ data, sceneModel, dataModel });
  *
  *          sceneModel.build();
  *          dataModel.build();
@@ -92,20 +92,20 @@
  * });
  * ````
  *
- * When our [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
+ * When our [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) has loaded, that call to {@link @xeokit/scene!SceneModel.build | SceneModel.build} will finalize our SceneModel
  * and cause it to immediately appear in the View's canvas.
  *
  * That call will also trigger {@link @xeokit/scene!SceneModel.onBuilt | SceneModel.onBuilt} and
  * {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt} events.
  *
- * On the DataModel.onBuilt event, we'll customize the View by arranging the {@link @xeokit/viewer!Camera} and applying
+ * On the SceneModel.onBuilt event, we'll customize the View by arranging the {@link @xeokit/viewer!Camera} and applying
  * an X-ray effect tp a couple of objects, then we'll use {@link @xeokit/bcf!saveBCFViewpoint} to save the state of the View to
  * a BCF viewpoint.
  *
  * Once the SceneModel and DataModel have been built, we can no longer add anything to them.
  *
  * ````javascript
- * dataModel.onBuilt.one(()=>{
+ * sceneModel.onBuilt.one(()=>{
  *
  *     view.camera.eye = [0,0,-33];
  *     view.camera.look = [0,0,0];
@@ -174,7 +174,7 @@
  *      layerId: "foreground"
  * });
  *
- * //...create some objects, load DTX etc
+ * //...create some objects, load XKT etc
  *
  * sceneModel.build();
  *
@@ -183,7 +183,7 @@
  *      layerId: "background"
  * });
  *
- * //...create some objects, load DTX etc
+ * //...create some objects, load XKT etc
  *
  * myOtherSceneModel.build();
  * ````

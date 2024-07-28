@@ -1,15 +1,15 @@
 /**
- * TODO
+ * A bitmap snapshot of the viewpoint.
  */
 export interface BCFSnapshot {
 
     /**
-     * TODO
+     * Format of the snapshot.
      */
     snapshot_type: "png" | "jpeg",
 
     /**
-     * TODO
+     * Snapshot image data.
      */
     snapshot_data: string
 }

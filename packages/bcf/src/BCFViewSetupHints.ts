@@ -1,35 +1,35 @@
 /**
- * TODO
+ * Setup hints.
  */
 export interface BCFViewSetupHints {
 
     /**
-     * TODO
+     * Translucency of openings.
      */
     openings_translucent: boolean;
 
     /**
-     * TODO
+     * Translucency of space boundaries.
      */
     space_boundaries_translucent: boolean;
 
     /**
-     * TODO
+     * Visibility of openings.
      */
     openings_visible: boolean;
 
     /**
-     * TODO
+     * Visibility of space boundaries.
      */
     space_boundaries_visible: boolean;
 
     /**
-     * TODO
+     * Translucency of spaces.
      */
     spaces_translucent: boolean;
 
     /**
-     * TODO
+     * Visibility of spaces.
      */
     spaces_visible: boolean;
 }

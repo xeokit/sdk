@@ -31,21 +31,23 @@
     ],
     "keywords": [],
     "dependencies": {
+        "@xeokit/boundaries": "^0.1.0",
+        "@xeokit/compression": "^0.1.0",
         "@xeokit/config": "^0.1.0",
         "@xeokit/constants": "^0.1.0",
-        "@xeokit/compression": "^0.1.0",
         "@xeokit/core": "^0.1.0",
-        "@xeokit/utils": "^0.1.0",
         "@xeokit/data": "^0.1.0",
-        "@xeokit/math": "^0.1.0",
-        "@xeokit/boundaries": "^0.1.0",
-        "@xeokit/matrix": "^0.1.0",
-        "@xeokit/scene": "^0.1.0",
         "@xeokit/ifctypes": "^0.1.0",
-        "@xeokit/metamodel": "^0.1.0"
+        "@xeokit/math": "^0.1.0",
+        "@xeokit/matrix": "^0.1.0",
+        "@xeokit/metamodel": "^0.1.0",
+        "@xeokit/scene": "^0.1.0",
+        "@xeokit/utils": "^0.1.0",
+        "pako": "^2.0.4"
     },
     "devDependencies": {
         "@jest/globals": "^29.5.0",
+        "@types/pako": "^2.0.0",
         "jest-html-reporter": "^3.10.2"
     }
 }

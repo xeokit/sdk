@@ -16,10 +16,10 @@ import {packDTX} from "./packDTX";
  * @param params
  * @param params.sceneModel - The SceneModel to export to DTX.
  * @returns The [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data in an ArrayBuffer.
- * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been destroyed.
- * @returns {@link @xeokit/core!SDKError} If the SceneModel has not yet been built.
- * @returns {@link @xeokit/core!SDKError} If the DataModel has already been destroyed.
- * @returns {@link @xeokit/core!SDKError} If the DataModel has not yet been built.
+ * @returns {@link @xeokit/core!SDKError | SDKError} If the SceneModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError | SDKError} If the SceneModel has not yet been built.
+ * @returns {@link @xeokit/core!SDKError | SDKError} If the DataModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError | SDKError} If the DataModel has not yet been built.
  */
 export function saveDTX(params: {
     sceneModel: SceneModel

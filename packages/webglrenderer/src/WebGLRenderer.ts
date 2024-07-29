@@ -268,7 +268,7 @@ export class WebGLRenderer implements Renderer {
      * @param viewer Viewer to attach.
      * @returns *void*
      * * Viewer successfully attached.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * A Viewer is already attached to this Renderer.
      * * The given Viewer is already attached to another Renderer.
      */
@@ -290,7 +290,7 @@ export class WebGLRenderer implements Renderer {
      * @internal
      * @returns *void*
      * * Viewer successfully detached.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No Viewer is currently attached to this WebGLRenderer.
      */
     detachViewer(): SDKError | void {
@@ -328,7 +328,7 @@ export class WebGLRenderer implements Renderer {
      * @param view The View to attach.
      * @returns *void*
      * * View successfully attached.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No Viewer is attached to this WebGLRenderer.
      * * Caller attempted to attach too many Views.
      * * The WebGLRenderer failed to get a WebGL2 context on the View's canvas.
@@ -368,7 +368,7 @@ export class WebGLRenderer implements Renderer {
      * @param view The View to detach.
      * @returns *void*
      * * View successfully detached.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No Viewer is attached to this WebGLRenderer.
      * * View is not currently attached to this WebGLRenderer.
      */
@@ -420,7 +420,7 @@ export class WebGLRenderer implements Renderer {
      * @internal
      * @returns *void*
      * * SceneModel successfully attached.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this WebGLRenderer.
      * * SceneModel already attached to this WebGLRenderer, or to another Renderer.
      */
@@ -462,7 +462,7 @@ export class WebGLRenderer implements Renderer {
      * @internal
      * @returns *void*
      * * SceneModel successfully detached.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this WebGLRenderer.
      * * SceneModel is not attached to this WebGLRenderer.
      */
@@ -589,7 +589,7 @@ export class WebGLRenderer implements Renderer {
      * @internal
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
@@ -608,7 +608,7 @@ export class WebGLRenderer implements Renderer {
      * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this WebGLRenderer.
      * * Can't find a View attached to this WebGLRenderer with the given handle.
      */
@@ -636,7 +636,7 @@ export class WebGLRenderer implements Renderer {
      * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this WebGLRenderer.
      * * Can't find a View attached to this WebGLRenderer with the given handle.
      */
@@ -650,7 +650,7 @@ export class WebGLRenderer implements Renderer {
      * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
      * @returns *boolean*
      * * True if a new frame needs to be rendered for the View.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this WebGLRenderer.
      * * Can't find a View attached to this WebGLRenderer with the given handle.
      */
@@ -669,7 +669,7 @@ export class WebGLRenderer implements Renderer {
      * @param viewIndex Handle to the View, returned earlier by {@param params Rendering params.
      * @param [params.force=false] True to force a render, else only render if needed.
      * @link @xeokit/webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */

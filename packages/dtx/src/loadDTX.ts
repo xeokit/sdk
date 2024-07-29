@@ -19,7 +19,7 @@ import {dtxToModel} from "./dtxToModel";
  * @param params.fileData - [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data
  * @param params.sceneModel - SceneModel to load into.
  * @returns {Promise} Resolves when [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) has been loaded.
- * @throws *{@link @xeokit/core!SDKError}*
+ * @throws *{@link @xeokit/core!SDKError | SDKError}*
  * * If the SceneModel has already been destroyed.
  * * If the SceneModel has already been built.
  * * If the DataModel has already been destroyed.

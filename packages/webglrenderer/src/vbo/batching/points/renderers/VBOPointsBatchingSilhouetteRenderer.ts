@@ -40,9 +40,9 @@ export class VBOPointsBatchingSilhouetteRenderer extends VBOBatchingRenderer {
             src.push("vFlags = flags;");
         }
         src.push("vec4 clipPos = projMatrix * viewPosition;");
-        if (view.logarithmicDepthBufferEnabled) {
-            src.push("vFragDepth = 1.0 + clipPos.w;");
-        }
+        // if (view.logarithmicDepthBufferEnabled) {
+        //     src.push("vFragDepth = 1.0 + clipPos.w;");
+        // }
         src.push("gl_Position = clipPos;");
         if (pointsMaterial.perspectivePoints) {
             src.push("gl_PointSize = (nearPlaneHeight * pointSize) / clipPos.w;");

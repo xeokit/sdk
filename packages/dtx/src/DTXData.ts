@@ -1,3 +1,4 @@
+
 /**
  *  DTX file data.
  *
@@ -18,34 +19,14 @@ export interface DTXData {
     colors: Uint8Array;
 
     /**
-     * Combined 8-bit indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
-     */
-    indices8Bit: Uint8Array;
-
-    /**
-     * Combined 16-bit indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
-     */
-    indices16Bit: Uint16Array;
-
-    /**
      * Combined 32-bit indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
-    indices32Bit: Uint32Array;
-
-    /**
-     * Combined 8-bit edge indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
-     */
-    edgeIndices8Bit: Uint8Array;
-
-    /**
-     * Combined 16-bit edge indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
-     */
-    edgeIndices16Bit: Uint16Array;
+    indices: Uint32Array;
 
     /**
      * Combines 32-bit edge indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
-    edgeIndices32Bit: Uint32Array;
+    edgeIndices: Uint32Array;
 
     /**
      * Combined list of all positions dequantization matrices.
@@ -53,29 +34,24 @@ export interface DTXData {
     aabbs: Float32Array;
 
     /**
-     * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.positions}.
+     * For each geometry, a pointer to the base of its portion in {@link DTXData.positions}.
      */
-    eachBucketPositionsPortion: Uint32Array;
+    eachGeometryPositionsBase: Uint32Array;
 
     /**
-     * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.colors}.
+     * For each geometry, a pointer to the base of its portion in {@link DTXData.colors}.
      */
-    eachBucketColorsPortion: Uint32Array;
+    eachGeometryColorsBase: Uint32Array;
 
     /**
-     * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.indices8Bit}, {@link DTXData.indices16Bit} or {@link DTXData.indices32Bit}.
+     * For each geometry, a pointer to the base of its portion in {@link DTXData.indices}.
      */
-    eachBucketIndicesPortion: Uint32Array;
+    eachGeometryIndicesBase: Uint32Array;
 
     /**
-     * For each geometry bucket, a pointer to the base of its portion in {@link DTXData.edgeIndices8Bit}, {@link DTXData.edgeIndices16Bit} or {@link DTXData.edgeIndices32Bit}.
+     * For each geometry, a pointer to the base of its portion in {@link DTXData.edgeIndices}.
      */
-    eachBucketEdgeIndicesPortion: Uint32Array;
-
-    /**
-     * For each geometry bucket, the number of bits used to represent primitive and edge indices - 0 == 8 bits, 1 == 16 bits, and 3 == 32 bits.
-     */
-    eachBucketIndicesBitness: Uint8Array;
+    eachGeometryEdgeIndicesBase: Uint32Array;
 
     /**
      * For each geometry, the primitive type.
@@ -83,14 +59,9 @@ export interface DTXData {
     eachGeometryPrimitiveType: Uint8Array;
 
     /**
-     * For each geometry, a pointer to its first bucket in ````DTXData.eachBucket*````.
-     */
-    eachGeometryBucketPortion: Uint32Array;
-
-    /**
      * For each geometry, a pointer to an AABB.
      */
-    eachGeometryAABBPortion: Uint32Array;
+    eachGeometryAABBBase: Uint32Array;
 
     /**
      * Combined list of all modeling transform matrices in this [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
@@ -105,17 +76,17 @@ export interface DTXData {
     /**
      * For each mesh, a pointer to its portion of geometries in ````DTXData.eachGeometry*````
      */
-    eachMeshGeometriesPortion: Uint32Array;
+    eachMeshGeometriesBase: Uint32Array;
 
     /**
      * For each mesh, a pointer to its matrix in {@link DTXData.matrices}.
      */
-    eachMeshMatricesPortion: Uint32Array;
+    eachMeshMatricesBase: Uint32Array;
 
     /**
      * For each mesh, a pointer to its RTC origin in {@link DTXData.origins}.
      */
-    eachMeshOriginsPortion: Uint32Array;
+    eachMeshOriginsBase: Uint32Array;
 
     /**
      * For each mesh, a set of sixe material attribute values.
@@ -132,16 +103,6 @@ export interface DTXData {
     eachMeshMaterialAttributes: Uint8Array;
 
     /**
-     * For each geometry, a unique ID.
-     */
-    eachGeometryId: string[];
-
-    /**
-     * For each mesh, a unique ID.
-     */
-    eachMeshId: string[];
-
-    /**
      * For each object, a unique ID.
      */
     eachObjectId: string[];
@@ -149,5 +110,5 @@ export interface DTXData {
     /**
      * For each object, a pointer to its forst mesh in DTXata.eachMesh*
      */
-    eachObjectMeshesPortion: Uint32Array;
+    eachObjectMeshesBase: Uint32Array;
 }

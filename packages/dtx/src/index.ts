@@ -39,7 +39,7 @@
  * ## Usage
  *
  * In the example below, we'll use {@link loadDTX} to import a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file into a {@link @xeokit/data!DataModel | DataModel} and
- * a {@link @xeokit/scene!SceneModel | SceneModel}. The {@link @xeokit/core!SDKError} class
+ * a {@link @xeokit/scene!SceneModel | SceneModel}. The {@link @xeokit/core!SDKError | SDKError} class
  * is used to handle errors that may occur during the process:
  *
  * ````javascript

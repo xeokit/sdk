@@ -24,10 +24,10 @@ export class VBOPointsBatchingPickMeshRenderer extends VBOBatchingRenderer {
         if (pointsMaterial.perspectivePoints) {
             src.push("uniform float nearPlaneHeight;");
         }
-        if (view.logarithmicDepthBufferEnabled) {
-            src.push("uniform float logDepthBufFC;");
-            src.push("out float vFragDepth;");
-        }
+        // if (view.logarithmicDepthBufferEnabled) {
+        //     src.push("uniform float logDepthBufFC;");
+        //     src.push("out float vFragDepth;");
+        // }
 
         src.push("out vec4 vPickColor;");
         src.push("void main(void) {");
@@ -45,9 +45,9 @@ export class VBOPointsBatchingPickMeshRenderer extends VBOBatchingRenderer {
             src.push("      vFlags = flags;");
         }
         src.push("vec4 clipPos = projMatrix * viewPosition;");
-        if (view.logarithmicDepthBufferEnabled) {
-            src.push("vFragDepth = 1.0 + clipPos.w;");
-        }
+        // if (view.logarithmicDepthBufferEnabled) {
+        //     src.push("vFragDepth = 1.0 + clipPos.w;");
+        // }
         src.push("gl_Position = clipPos;");
         if (pointsMaterial.perspectivePoints) {
             src.push("gl_PointSize = (nearPlaneHeight * pointSize) / clipPos.w;");
@@ -74,10 +74,10 @@ export class VBOPointsBatchingPickMeshRenderer extends VBOBatchingRenderer {
         precision mediump float;
         precision mediump int;
         #endif`);
-        if (view.logarithmicDepthBufferEnabled) {
-            src.push("uniform float logDepthBufFC;");
-            src.push("in float vFragDepth;");
-        }
+        // if (view.logarithmicDepthBufferEnabled) {
+        //     src.push("uniform float logDepthBufFC;");
+        //     src.push("in float vFragDepth;");
+        // }
         if (clipping) {
             src.push("in vec4 vWorldPosition;");
             src.push("in float vFlags;");
@@ -109,9 +109,9 @@ export class VBOPointsBatchingPickMeshRenderer extends VBOBatchingRenderer {
             src.push("      if (dist > 0.0) { discard; }");
             src.push("  }");
         }
-        if (view.logarithmicDepthBufferEnabled) {
-            src.push("gl_FragDepth = log2( vFragDepth ) * logDepthBufFC * 0.5;");
-        }
+        // if (view.logarithmicDepthBufferEnabled) {
+        //     src.push("gl_FragDepth = log2( vFragDepth ) * logDepthBufFC * 0.5;");
+        // }
         src.push("   outColor = vPickColor; ");
         src.push("}");
     }

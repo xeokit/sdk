@@ -29,7 +29,7 @@ const MAX_VERTICES = 500000; // TODO: Rough estimate
  * @param params.fp64 - Whether to assume that LAS positions are stored in 64-bit floats instead of 32-bit. Default is true.
  * @param params.colorDepth - Whether to assume that LAS colors are encoded using 8 or 16 bits. Accepted values are 8, 16 an "auto".
  * @returns {Promise} Resolves when LAS has been loaded.
- * @throws *{@link @xeokit/core!SDKError}*
+ * @throws *{@link @xeokit/core!SDKError | SDKError}*
  * * If the SceneModel has already been destroyed.
  * * If the SceneModel has already been built.
  * * If the DataModel has already been destroyed.

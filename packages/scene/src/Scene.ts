@@ -177,7 +177,7 @@ export class Scene extends Component {
      * @param  sceneModelParams Creation parameters for the new {@link @xeokit/scene!SceneModel}.
      * @returns *{@link @xeokit/scene!SceneModel}*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * This Scene has already been destroyed.
      * * A SceneModel with the given ID already exists in this Scene.
      */
@@ -222,7 +222,7 @@ export class Scene extends Component {
      * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
      * @returns *void*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * This Scene has already been destroyed.
      */
     clear(): void | SDKError {
@@ -245,7 +245,7 @@ export class Scene extends Component {
      *
      * @returns *void*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * This Scene has already been destroyed.
      */
     destroy(): void | SDKError {

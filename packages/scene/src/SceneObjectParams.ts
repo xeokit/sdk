@@ -28,7 +28,7 @@ export interface SceneObjectParams {
      * represent it. When the object has a {@link @xeokit/scene!SceneObjectParams.layerId} property, then each View will first
      * ensure that it has a {@link @xeokit/viewer!ViewLayer} with this ID, and will register the ViewObject in that ViewLayer.
      *
-     * Overrides {@link @xeokit/scene!SceneObjectParams.layerId}.
+     * Overridden by {@link @xeokit/scene!SceneObjectParams.layerId | SceneObjectParams.layerId}.
      */
     layerId?: string;
 }

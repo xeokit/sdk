@@ -55,7 +55,7 @@ export interface RendererObject {
      * @param visible Whether to make the {@link @xeokit/viewer!ViewObject} visible.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No {@link View} found in the Renderer for the given handle.
      */
     setVisible(viewHandle: number, visible: boolean): void | SDKError;
@@ -68,7 +68,7 @@ export interface RendererObject {
      * @param highlighted Whether to make the {@link @xeokit/viewer!ViewObject} highlighted.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No {@link View} found in the Renderer for the given handle.
      */
     setHighlighted(viewHandle: number, highlighted: boolean): void | SDKError;
@@ -81,7 +81,7 @@ export interface RendererObject {
      * @param xrayed Whether to make the {@link @xeokit/viewer!ViewObject} X-rayed.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No {@link View} found in the Renderer for the given handle.
      */
     setXRayed(viewHandle: number, xrayed: boolean): void | SDKError;
@@ -94,7 +94,7 @@ export interface RendererObject {
      * @param selected Whether to make the {@link @xeokit/viewer!ViewObject} selected.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No {@link View} found in the Renderer for the given handle.
      */
     setSelected(viewHandle: number, selected: boolean): void | SDKError;
@@ -107,7 +107,7 @@ export interface RendererObject {
      * @param culled Whether to cull the {@link @xeokit/viewer!ViewObject} in the {@link View}.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No {@link View} found in the Renderer for the given handle.
      */
     setCulled(viewHandle: number, culled: boolean): void | SDKError;
@@ -120,7 +120,7 @@ export interface RendererObject {
      * @param clippable Whether to make the {@link @xeokit/viewer!ViewObject} in the {@link View} clippable.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No {@link View} found in the Renderer for the given handle.
      */
     setClippable(viewHandle: number, clippable: boolean): void | SDKError;
@@ -133,7 +133,7 @@ export interface RendererObject {
      * @param collidable Whether to make the {@link @xeokit/viewer!ViewObject} in the {@link View} collidable.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No {@link View} found in the Renderer for the given handle.
      */
     setCollidable(viewHandle: number, collidable: boolean): void | SDKError;
@@ -146,7 +146,7 @@ export interface RendererObject {
      * @param pickable Whether to make the {@link @xeokit/viewer!ViewObject} in the {@link View} pickable.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No {@link View} found in the Renderer for the given handle.
      */
     setPickable(viewHandle: number, pickable: boolean): void | SDKError;
@@ -159,7 +159,7 @@ export interface RendererObject {
      * @param color Color to set the {@link @xeokit/viewer!ViewObject} in the {@link View} to.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No {@link View} found in the Renderer for the given handle.
      */
     setColorize(viewHandle: number, color?: FloatArrayParam): void | SDKError;
@@ -172,7 +172,7 @@ export interface RendererObject {
      * @param opacity Opacity to set the {@link @xeokit/viewer!ViewObject} in the {@link View} to.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No {@link View} found in the Renderer for the given handle.
      */
     setOpacity(viewHandle: number, opacity?: number): void | SDKError;
@@ -185,7 +185,7 @@ export interface RendererObject {
      * @param offset Offset to apply to the {@link @xeokit/viewer!ViewObject} in the {@link View}.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No {@link View} found in the Renderer for the given handle.
      */
     setOffset(viewHandle: number, offset: FloatArrayParam): void | SDKError;

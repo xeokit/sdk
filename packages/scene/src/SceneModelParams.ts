@@ -32,6 +32,15 @@ export interface SceneModelParams {
     id: string;
 
     /**
+     * Whether IDs of the {@link @xeokit/scene!SceneObject | SceneObjects} are globalized.
+     *
+     * When globalized, the IDs are prefixed with the value of {@link @xeokit/scene!SceneModel.id | SceneModel.id}
+     *
+     * Default is ````false````.
+     */
+    globalizedIds?: boolean
+
+    /**
      * 4x4 transform matrix.
      */
     matrix?: FloatArrayParam;
@@ -93,6 +102,8 @@ export interface SceneModelParams {
      * optional ID of the {@link @xeokit/viewer!ViewLayer | ViewLayer} to view the SceneModel in.
      *
      * Will be "default" by default.
+     *
+     * Overrides {@link @xeokit/scene!SceneObjectParams.layerId | SceneObjectParams.layerId}.
      */
     layerId?: string;
 

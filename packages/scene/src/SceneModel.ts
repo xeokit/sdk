@@ -106,6 +106,15 @@ export class SceneModel extends Component {
     public readonly scene: Scene;
 
     /**
+     * Whether IDs of {@link @xeokit/scene!SceneObject | SceneObjects} are globalized.
+     *
+     * When globalized, the IDs are prefixed with the value of {@link @xeokit/scene!SceneModel.id | SceneModel.id}
+     *
+     * This is ````false```` by default.
+     */
+    declare public readonly globalizedIds: boolean;
+
+    /**
      * Unique ID of this SceneModel.
      *
      * SceneModel are stored against this ID in {@link @xeokit/scene!Scene.models | Scene.models}.
@@ -263,6 +272,7 @@ export class SceneModel extends Component {
         this.#meshUsedByObject = {};
 
         this.streamParams = sceneModelParams.streamParams;
+        this.globalizedIds = (!!sceneModelParams.globalizedIds);
         this.id = sceneModelParams.id || "default";
         this.layerId = sceneModelParams.layerId;
         this.edgeThreshold = 10;
@@ -303,7 +313,7 @@ export class SceneModel extends Component {
      * @param sceneModelParams
      * @returns *void*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If this SceneModel has already been built.
      * * If this SceneModel has already been destroyed.
      * * A duplicate component ({@link @xeokit/scene!SceneObject}, {@link @xeokit/scene!SceneMesh},
@@ -369,7 +379,7 @@ export class SceneModel extends Component {
      * @param transformParams Transform creation parameters.
      * @returns *{@link SceneTransform}*
      * * On success
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If SceneModel has already been built or destroyed.
      */
     createTransform(transformParams: SceneTransformParams): void | SDKError {
@@ -414,7 +424,7 @@ export class SceneModel extends Component {
      * @param textureParams - SceneTexture creation parameters.
      * @returns *{@link @xeokit/scene!SceneTexture}*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If SceneModel has already been built or destroyed.
      * * Invalid SceneTextureParams were given.
      * * SceneTexture with given ID already exists in this Scene.
@@ -471,7 +481,7 @@ export class SceneModel extends Component {
      *
      * @returns *{@link @xeokit/scene!SceneTextureSet}*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If SceneModel has already been built or destroyed.
      * * Invalid SceneTextureSetParams were given.
      * * SceneTextureSet with given ID already exists in this SceneModel.
@@ -575,7 +585,7 @@ export class SceneModel extends Component {
      * @param geometryParams Non-compressed geometry parameters.
      * @returns *{@link @xeokit/scene!SceneGeometry}*
      *  * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid SceneGeometryParams were given.
@@ -697,7 +707,7 @@ export class SceneModel extends Component {
      * @param geometryCompressedParams Pre-compressed geometry parameters.
      * @returns *{@link @xeokit/scene!SceneGeometry}*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid SceneGeometryParams were given.
@@ -787,7 +797,7 @@ export class SceneModel extends Component {
      * @param meshParams Pre-compressed mesh parameters.
      * @returns *{@link @xeokit/scene!SceneMesh}*
      *  * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid SceneMeshParams were given.
@@ -880,7 +890,7 @@ export class SceneModel extends Component {
      * @param objectParams SceneObject parameters.
      * @returns *{@link @xeokit/scene!SceneObject}*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If this SceneModel has already been destroyed.
      * * If this SceneModel has already been built.
      * * Invalid ObjectParams were given.
@@ -899,8 +909,9 @@ export class SceneModel extends Component {
         if (objectParams.meshIds.length === 0) {
             return new SDKError("Failed to create SceneObject - no meshes specified");
         }
-        if (this.scene.objects[objectParams.id]) {
-            return new SDKError(`Failed to create SceneObject - SceneObject already exists in Scene: ${objectParams.id}`);
+        const objectId = this.globalizedIds ? `${this.id}.${objectParams.id}` : objectParams.id;
+        if (this.scene.objects[objectId]) {
+            return new SDKError(`Failed to create SceneObject - SceneObject already exists in Scene: ${objectId}`);
         }
         const meshIds = objectParams.meshIds;
         const meshes = [];
@@ -917,9 +928,9 @@ export class SceneModel extends Component {
             this.#meshUsedByObject[mesh.id] = true;
         }
         const sceneObject = new SceneObject({
-            id: objectParams.id,
+            id: objectId,
             originallSystemId: objectParams.originalSystemId,
-            layerId: objectParams.layerId || this.layerId,
+            layerId:  this.layerId || objectParams.layerId,
             model: this,
             meshes
         });
@@ -928,7 +939,7 @@ export class SceneModel extends Component {
             mesh.object = sceneObject;
         }
         this.#numObjects++;
-        this.objects[objectParams.id] = sceneObject;
+        this.objects[objectId] = sceneObject;
         this.stats.numObjects++;
         return sceneObject;
     }
@@ -967,7 +978,7 @@ export class SceneModel extends Component {
      *
      * See {@link "@xeokit/scene" | @xeokit/scene}  for more usage info.
      *
-     * @throws *{@link @xeokit/core!SDKError}*
+     * @throws *{@link @xeokit/core!SDKError | SDKError}*
      * * If SceneModel has already been built or destroyed.
      * * If no SceneObjects were created in this SceneModel.
      */

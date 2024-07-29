@@ -8,7 +8,7 @@
     "module": "dist/index.js",
     "scripts": {
         "test": "jest --passWithNoTests",
-        "_dist": "tsc",
+        "dist": "tsc",
         "lint": "eslint . --fix",
         "docs": "typedoc --json ../../docs/json/xkt.json --options typedoc.json --validation.invalidLink false",
         "publish": "npm publish --access public"
@@ -31,6 +31,7 @@
     ],
     "keywords": [],
     "dependencies": {
+        "@xeokit/config": "^0.1.0",
         "@xeokit/core": "^0.1.0",
         "@xeokit/data": "^0.1.0",
         "@xeokit/ifctypes": "^0.1.0"

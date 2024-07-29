@@ -26,8 +26,7 @@
         "src/",
         "dist/",
         "README.md",
-        "package.json",
-        "package-lock.json"
+        "package.json"
     ],
     "keywords": [],
     "dependencies": {

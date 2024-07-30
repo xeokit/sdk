@@ -16,7 +16,7 @@ import {IfcRelAggregates, ifcTypeCodes} from "@xeokit/ifctypes";
  * @param params.fileData - [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data
  * @param params.dataModel - DataModel to load into.
  * @returns {Promise} Resolves when metadata has been loaded.
- * @throws *{@link @xeokit/core!SDKError}*
+ * @throws *{@link @xeokit/core!SDKError | SDKError}*
  * * If the DataModel has already been destroyed.
  * * If the DataModel has already been built.
  */

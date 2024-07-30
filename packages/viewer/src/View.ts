@@ -149,11 +149,6 @@ class View extends Component {
     public readonly boundary: number[];
 
     /**
-     * Whether the logarithmic depth buffer is enabled for this View.
-     */
-    readonly logarithmicDepthBufferEnabled: boolean;
-
-    /**
      * Configures Scalable Ambient Obscurance (SAO) for this View.
      */
     readonly sao: SAO;
@@ -441,7 +436,6 @@ class View extends Component {
         premultipliedAlpha?: boolean;
         transparent?: boolean;
         qualityRender?: boolean;
-        logarithmicDepthBufferEnabled?: boolean;
         autoLayers?: boolean;
     }) {
         super(null, options);
@@ -682,9 +676,6 @@ class View extends Component {
 
         this.autoLayers = options.autoLayers !== false;
 
-        this.logarithmicDepthBufferEnabled =
-            !!options.logarithmicDepthBufferEnabled;
-
         this.onObjectCreated = new EventEmitter(
             new EventDispatcher<View, ViewObject>()
         );
@@ -815,7 +806,7 @@ class View extends Component {
      * Default value is {@link @xeokit/constants!QualityRender | QualityRender}.
      *
      * @param renderMode The rendering mode
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * Rendering mode not supported.
      */
     setRenderMode(renderMode: number): SDKError | void {
@@ -1557,7 +1548,7 @@ class View extends Component {
      *
      * @param pickParams Picking parameters.
      * @param pickResult Picking results, when caller wants to manage them externally.
-     * @throws {@link @xeokit/core!SDKError}
+     * @throws {@link @xeokit/core!SDKError | SDKError}
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      * * Illegal picking parameters given.

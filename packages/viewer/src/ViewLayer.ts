@@ -918,7 +918,7 @@ class ViewLayer extends Component {
         for (let id in sceneObjects) {
             const sceneObject = sceneObjects[id];
             const rendererViewObject = this.viewer.renderer.rendererObjects[id];
-            if (rendererViewObject.layerId == this.id) {
+            if (sceneObject.layerId == this.id) {
                if (!this.objects[id]) {
                    const viewObject = new ViewObject(this, sceneObject, rendererViewObject);
                    this.objects[viewObject.id] = viewObject;

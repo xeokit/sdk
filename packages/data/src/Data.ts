@@ -122,7 +122,7 @@ export class Data extends Component {
      * @param  [options.excludeRelating] When provided, never create {@link @xeokit/data!DataObject | DataObjects} with types in this list.
      * @returns {@link @xeokit/data!DataModel}
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * This Data has already been destroyed.
      * * A DataModel with the given ID already exists in this Data.
      */
@@ -161,7 +161,7 @@ export class Data extends Component {
      * @param type The type.
      * @returns {string[]}
      * * Array of {@link DataObject.id}s on success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * This Data has already been destroyed.
      */
     getObjectIdsByType(type: string): string[] | SDKError {
@@ -183,7 +183,7 @@ export class Data extends Component {
      * @param searchParams Search parameters.
      * @returns *void*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * This Data has already been destroyed.
      * * The specified starting DataObject was not found in this Data.
      * * The specified starting DataObject is contained in a different Data than this one.
@@ -273,7 +273,7 @@ export class Data extends Component {
      *
      * @returns *void*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * This Data has already been destroyed.
      */
     clear(): void | SDKError {
@@ -296,7 +296,7 @@ export class Data extends Component {
      *
      * @returns *void*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * This Data has already been destroyed.
      */
     destroy(): void | SDKError {

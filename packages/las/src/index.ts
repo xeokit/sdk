@@ -1,7 +1,7 @@
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Flas.svg)](https://badge.fury.io/js/%40xeokit%2Flas)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/las/badge)](https://www.jsdelivr.com/package/npm/@xeokit/las)
- * 
+ *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="media://images/autzen.png"/>
  *
  * <br>
@@ -39,7 +39,7 @@
  * ## Usage
  *
  * In the example below, we'll import an LAS file into a {@link @xeokit/scene!SceneModel | SceneModel}
- * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core!SDKError} class
+ * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core!SDKError | SDKError} class
  * is used to handle errors that may occur during the process:
  *
  * ````javascript

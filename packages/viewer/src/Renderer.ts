@@ -55,7 +55,7 @@ export interface Renderer {
      * @param viewer Viewer to attach.
      * @returns *void*
      * * Viewer successfully attached.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * A Viewer is already attached to this Renderer.
      * * The given Viewer is already attached to another Renderer.
      */
@@ -67,7 +67,7 @@ export interface Renderer {
      * @internal
      * @returns *void*
      * * Viewer successfully detached.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No Viewer is currently attached to this Renderer.
      */
     detachViewer(): SDKError | void;
@@ -101,7 +101,7 @@ export interface Renderer {
      * @param view The View to attach.
      * @returns *void*
      * * Handle to the View within this Renderer. Use this handle to update Renderer state for the View.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No Viewer is attached to this Renderer.
      * * Caller attempted to attach too many Views.
      * * The WebGLRenderer failed to initialize for the new View.
@@ -117,7 +117,7 @@ export interface Renderer {
      * @param view The View to detach.
      * @returns *void*
      * * View successfully detached.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No Viewer is attached to this Renderer.
      * * View is not currently attachedto this Renderer.
      */
@@ -143,7 +143,7 @@ export interface Renderer {
      * @internal
      * @returns *void*
      * * SceneModel successfully attached.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * SceneModel already attached to this Renderer, or to another Renderer.
      */
@@ -160,7 +160,7 @@ export interface Renderer {
      * @param sceneModel The SceneModel
      * @returns *void*
      * * SceneModel successfully detached.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * The SceneModel is not attached to this Renderer.
      */
@@ -174,7 +174,7 @@ export interface Renderer {
      * @internal
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
@@ -188,7 +188,7 @@ export interface Renderer {
      * @internal
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
@@ -202,7 +202,7 @@ export interface Renderer {
      * @internal
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
@@ -216,7 +216,7 @@ export interface Renderer {
      * @internal
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
@@ -230,7 +230,7 @@ export interface Renderer {
      * @internal
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
@@ -243,7 +243,7 @@ export interface Renderer {
      * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
@@ -256,7 +256,7 @@ export interface Renderer {
      * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
@@ -268,7 +268,7 @@ export interface Renderer {
      * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @returns *void*
      * * Success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
@@ -280,7 +280,7 @@ export interface Renderer {
      * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @returns *boolean*
      * * True if a new frame needs to be rendered for the View.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
@@ -293,7 +293,7 @@ export interface Renderer {
      * @param [params.force=false] True to force a render, else only render if needed.
      * @internal
      * @param viewIndex Handle to the View, returned earlier by {@link @xeokit/viewer!Renderer.attachView | Renderer.attachView}.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
@@ -307,7 +307,7 @@ export interface Renderer {
      * @param viewIndex Handle to the View, returned earlier by {@xeokit/viewer!Renderer.attachView | Renderer.attachView}.
      * @param pickParams Picking parameters.
      * @param pickResult Picking results, when caller wants to manage them externally.
-     * @throws {@link @xeokit/core!SDKError}
+     * @throws {@link @xeokit/core!SDKError | SDKError}
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      * * Illegal picking parameters given.

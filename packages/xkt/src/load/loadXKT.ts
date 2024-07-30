@@ -21,7 +21,7 @@ const parsers = {
  * @param params.fileData - [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data
  * @param params.sceneModel - SceneModel to load into.
  * @returns {Promise} Resolves when [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) has been loaded.
- * @throws *{@link @xeokit/core!SDKError}*
+ * @throws *{@link @xeokit/core!SDKError | SDKError}*
  * * If the SceneModel has already been destroyed.
  * * If the SceneModel has already been built.
  */

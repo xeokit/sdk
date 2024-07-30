@@ -96,7 +96,13 @@ class Edges extends Component {
      * Default is ````true````.
      */
     get enabled(): boolean {
-        return this.#state.enabled;
+
+        /////////////////////////////////////////////////////////////////////////
+        // HACK
+        /////////////////////////////////////////////////////////////////////////
+        return false;
+
+   //     return this.#state.enabled;
     }
 
     /**

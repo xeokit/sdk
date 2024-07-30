@@ -54,6 +54,8 @@ export interface ViewParams {
 
     colorTextureEnabled?: boolean;
 
+    edgesEnabled?: boolean;
+
     /**
      * Whether the {@link @xeokit/viewer!View} will automatically create {@link @xeokit/viewer!ViewLayer | ViewLayers} on-demand
      * as {@link @xeokit/viewer!ViewObject | ViewObjects} are created.

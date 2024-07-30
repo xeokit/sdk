@@ -35,7 +35,7 @@
  * ## Usage
  *
  * In the example below, we'll import an IFC file into a {@link @xeokit/scene!SceneModel | SceneModel}
- * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core!SDKError} class
+ * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core!SDKError | SDKError} class
  * is used to handle errors that may occur during the process. Note how we initialize the
  * [WebIFC](https://github.com/IFCjs/web-ifc) API externally and pass it in as a parameter for {@link loadWebIFC}.
  *

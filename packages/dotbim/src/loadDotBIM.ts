@@ -21,7 +21,7 @@ import {FloatArrayParam} from "@xeokit/math";
  * @param options - .BIM loading options
  * @param options.error - Callback to log any non-fatal errors that occur while loading.
  * @returns {Promise} Resolves when .BIM has been loaded into the SceneModel and/or DataModel.
- * @throws *{@link @xeokit/core!SDKError}*
+ * @throws *{@link @xeokit/core!SDKError | SDKError}*
  * * If the SceneModel has already been destroyed.
  * * If the SceneModel has already been built.
  * * If the DataModel has already been destroyed.

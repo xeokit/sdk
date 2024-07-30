@@ -273,7 +273,7 @@ export class Viewer extends Component {
      * @param params View configuration.
      * @returns *{@link View}*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If View already exists with the given ID.
      * * Attempted to create too many Views - see {@link Capabilities.maxViews | Capabilities.maxViews}.
      */

@@ -76,7 +76,7 @@
  * guided uniformly by the same set of types across all the DataObjects and Relationships in the graph.
  *
  * To create our DataModel, we will use the following code, which creates a new Data object and then
- * creates a DataModel from a set of objects, relationships, and property sets. The {@link @xeokit/core!SDKError} class
+ * creates a DataModel from a set of objects, relationships, and property sets. The {@link @xeokit/core!SDKError | SDKError} class
  * is used to handle errors that may occur during the process:
  *
  * ````javascript

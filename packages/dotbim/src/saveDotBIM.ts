@@ -18,10 +18,10 @@ const tempVec3b = createVec3();
  * @param params.model - The SceneModel to export to .BIM.
  * @param params.dataModel - The DataModel to export to .BIM.
  * @returns The .BIM file data in an JSON object.
- * @returns {@link @xeokit/core!SDKError} If the SceneModel has already been destroyed.
- * @returns {@link @xeokit/core!SDKError} If the SceneModel has not yet been built.
- * @returns {@link @xeokit/core!SDKError} If the DataModel has already been destroyed.
- * @returns {@link @xeokit/core!SDKError} If the DataModel has not yet been built.
+ * @returns {@link @xeokit/core!SDKError | SDKError} If the SceneModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError | SDKError} If the SceneModel has not yet been built.
+ * @returns {@link @xeokit/core!SDKError | SDKError} If the DataModel has already been destroyed.
+ * @returns {@link @xeokit/core!SDKError | SDKError} If the DataModel has not yet been built.
  */
 export function saveDotBIM(params: {
     sceneModel: SceneModel,

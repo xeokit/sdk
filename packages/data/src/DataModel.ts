@@ -174,7 +174,7 @@ export class DataModel extends Component {
      * @param dataModelParams
      * @returns *void*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If this DataModel has already been built.
      * * If this DataModel has already been destroyed.
      * * A duplicate PropertySet was already created for this DataModel.
@@ -247,7 +247,7 @@ export class DataModel extends Component {
      * @param propertySetCfg - PropertySet creation parameters.
      * @returns *{@link PropertySet}*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If this DataModel has already been built.
      * * If this DataModel has already been destroyed.
      * * A PropertySet of the given ID was already created for this DataModel. While it's OK
@@ -319,7 +319,7 @@ export class DataModel extends Component {
      * @param dataObjectParams - DataObject creation parameters.
      * @returns *{@link DataObject}*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If this DataModel has already been built.
      * * If this DataModel has already been destroyed.
      * * A DataObject of the given ID was already created in this DataModel. While it's OK
@@ -434,7 +434,7 @@ export class DataModel extends Component {
      * @param relationshipParams - Relationship creation parameters.
      * @returns *{@link @xeokit/data!Relationship}*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If this DataModel has already been built or destroyed.
      * * The *relating* DataObject was not found in the {@link Data} that contains this DataModel.
      * * The *related* DataObject was not found in the Data that contains this DataModel.
@@ -496,7 +496,7 @@ export class DataModel extends Component {
      *
      * See {@link "@xeokit/data" | @xeokit/data}  for usage.
      *
-     * @throws *{@link @xeokit/core!SDKError}*
+     * @throws *{@link @xeokit/core!SDKError | SDKError}*
      * * If DataModel has already been built or destroyed.
      */
     build(): Promise<DataModel> {
@@ -592,7 +592,7 @@ export class DataModel extends Component {
      *
      * @returns *void*
      * * On success.
-     * @returns *{@link @xeokit/core!SDKError}*
+     * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If this DataModel has already been destroyed.
      */
     destroy(): void | SDKError {

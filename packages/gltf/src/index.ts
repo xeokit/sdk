@@ -1,7 +1,7 @@
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fgltf.svg)](https://badge.fury.io/js/%40xeokit%2Fgltf)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/gltf/badge)](https://www.jsdelivr.com/package/npm/@xeokit/gltf)
- * 
+ *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="media://images/xeokit_gltf_logo.svg"/>
  *
  * # xeokit glTF Importer
@@ -37,7 +37,7 @@
  * ## Usage
  *
  * In the example below, we'll import a glTF file into a {@link @xeokit/scene!SceneModel | SceneModel}
- * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core!SDKError} class
+ * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core!SDKError | SDKError} class
  * is used to handle errors that may occur during the process:
  *
  * ````javascript

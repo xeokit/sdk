@@ -48,7 +48,7 @@ interface ParsingContext {
  * @param params.dataModel - DataModel to load into. For glTF, this will create a basic aggregation hierarchy (see {@link "@xeokit/basictypes/basicTypes"}).
  * @returns {Promise} Resolves when glTF has been loaded.
  * @returns {Promise} Resolves when glTF has been loaded into the SceneModel and/or DataModel.
- * @throws *{@link @xeokit/core!SDKError}*
+ * @throws *{@link @xeokit/core!SDKError | SDKError}*
  * * If the SceneModel has already been destroyed.
  * * If the SceneModel has already been built.
  * * If the DataModel has already been destroyed.

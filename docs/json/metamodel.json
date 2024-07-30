@@ -1,0 +1,355 @@
+{
+	"id": 0,
+	"name": "@xeokit/metamodel",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fmetamodel.svg)](https://badge.fury.io/js/%40xeokit%2Fmetamodel)\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/metamodel/badge)](https://www.jsdelivr.com/package/npm/@xeokit/metamodel)\n\n<img  style=\"padding:0px; padding-top:30px; padding-bottom:10px; height:130px;\" src=\"media://images/xeokit_logo_mesh.png\"/>\n\n# xeokit [Legacy Metamodel](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#metamodel) Importer and Exporter\n\n---\n\n### *Import data models from xeokit's [legacy metamodel](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#metamodel) format*\n\n---\n\nTo import a [legacy metamodel](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#metamodel) model into xeokit, use the "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "loadMetamodel",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": " function, which will load the file into\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": ".\n\n<br>\n\n[![](https://mermaid.ink/img/pako:eNqNU01rwzAM_StBpw1a2K6h9DB6W8tKs8EOvqixsro4dvDHIJT-99lx0iaMlubi6El6T0_GJyg1J8ihlGjtSuCPwZopprgwVDqhVbbexbjLZ0VJijahQ2YnprLwCZ5OvT-GepuC0hA6-uigp-eE7b2QfAg4WWd0G8NzZB_4V-iwo7_H3hjdkHFtQff0ErYjidGFPYhmmtleWR4aMQ241si_3z-3GNZkhx0sFk2MyZFZLhOExmD75quKTALsZXM9_eB0Qi8T_ZW48qq7hcg7qivwlx4Z4zFVm9juqE5sM3hhMJ8vGbwyKEYKt6tWV93e4pCZ9OTZlyWbXWzYqD3xelP7dtVIuzd66R_3_NOGGdRkahQ8PI9uNQzcgWpikIdfThV66RiEFYVS9E4XrSohd8bTDHwTdk39g4K8QmkDSlw4bTb9k4vH-Q8aQzAW?type=png)](https://mermaid.live/edit#pako:eNqNU01rwzAM_StBpw1a2K6h9DB6W8tKs8EOvqixsro4dvDHIJT-99lx0iaMlubi6El6T0_GJyg1J8ihlGjtSuCPwZopprgwVDqhVbbexbjLZ0VJijahQ2YnprLwCZ5OvT-GepuC0hA6-uigp-eE7b2QfAg4WWd0G8NzZB_4V-iwo7_H3hjdkHFtQff0ErYjidGFPYhmmtleWR4aMQ241si_3z-3GNZkhx0sFk2MyZFZLhOExmD75quKTALsZXM9_eB0Qi8T_ZW48qq7hcg7qivwlx4Z4zFVm9juqE5sM3hhMJ8vGbwyKEYKt6tWV93e4pCZ9OTZlyWbXWzYqD3xelP7dtVIuzd66R_3_NOGGdRkahQ8PI9uNQzcgWpikIdfThV66RiEFYVS9E4XrSohd8bTDHwTdk39g4K8QmkDSlw4bTb9k4vH-Q8aQzAW)\n\n<br>\n\n## Installation\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\nnpm install @xeokit/metamodel\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\n\n## Usage\n\nIn the example below, we'll use "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "loadMetamodel",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": " to import an [METAMODEL](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#metamodel) file into a\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": ". The "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/core!SDKError | SDKError"
+			},
+			{
+				"kind": "text",
+				"text": " class\nis used to handle errors that may occur during the process:\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\nimport {Data} from \"@xeokit/data\";\nimport {loadMetamodel} from \"@xeokit/metamodel\";\n\nconst data = new Data();\n\nconst dataModel = data.createModel({\n    id: \"myModel\n});\n\nif (dataModel instanceof SDKError) {\n     console.error(dataModel.message);\n} else {\n     fetch(\"myModel.metamodel\").then(response => {\n\n        response.json().then(data => {\n\n             loadMetamodel({ data, dataModel });\n\n             dataModel.build();\n         });\n     });\n});\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 1,
+			"name": "loadMetamodel",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "loadMetamodel.ts",
+					"line": 23,
+					"character": 16,
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/metamodel/src/loadMetamodel.ts#L23"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2,
+					"name": "loadMetamodel",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Imports [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) metadata\ninto a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!DataModel | DataModel"
+							},
+							{
+								"kind": "text",
+								"text": ".\n\n* Expects "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!DataModel.built | DataModel.built"
+							},
+							{
+								"kind": "text",
+								"text": " and\n"
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!DataModel.destroyed | DataModel.destroyed"
+							},
+							{
+								"kind": "text",
+								"text": " to be "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "\n\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "\"@xeokit/xkt\" | @xeokit/xkt"
+							},
+							{
+								"kind": "text",
+								"text": " for usage."
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Resolves when metadata has been loaded."
+									}
+								]
+							},
+							{
+								"tag": "@throws",
+								"content": [
+									{
+										"kind": "text",
+										"text": "*"
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/core!SDKError | SDKError"
+									},
+									{
+										"kind": "text",
+										"text": "*\n* If the DataModel has already been destroyed.\n* If the DataModel has already been built."
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "loadMetamodel.ts",
+							"line": 23,
+							"character": 16,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/metamodel/src/loadMetamodel.ts#L23"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Loading parameters."
+									}
+								]
+							},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 4,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 6,
+											"name": "dataModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "DataModel to load into."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadMetamodel.ts",
+													"line": 25,
+													"character": 4,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/metamodel/src/loadMetamodel.ts#L25"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../data/src/DataModel.ts",
+													"qualifiedName": "DataModel"
+												},
+												"name": "DataModel",
+												"package": "@xeokit/data"
+											}
+										},
+										{
+											"id": 5,
+											"name": "fileData",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "[XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data"
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadMetamodel.ts",
+													"line": 24,
+													"character": 4,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/metamodel/src/loadMetamodel.ts#L24"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												6,
+												5
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "loadMetamodel.ts",
+											"line": 23,
+											"character": 38,
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/metamodel/src/loadMetamodel.ts#L23"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "intrinsic",
+								"name": "void"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Functions",
+			"children": [
+				1
+			]
+		}
+	],
+	"packageName": "@xeokit/metamodel",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/metamodel\n\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_metamodel.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/loadMetamodel.ts",
+			"qualifiedName": "loadMetamodel"
+		},
+		"2": {
+			"sourceFileName": "src/loadMetamodel.ts",
+			"qualifiedName": "loadMetamodel"
+		},
+		"3": {
+			"sourceFileName": "src/loadMetamodel.ts",
+			"qualifiedName": "params"
+		},
+		"4": {
+			"sourceFileName": "src/loadMetamodel.ts",
+			"qualifiedName": "__type"
+		},
+		"5": {
+			"sourceFileName": "src/loadMetamodel.ts",
+			"qualifiedName": "__type.fileData"
+		},
+		"6": {
+			"sourceFileName": "src/loadMetamodel.ts",
+			"qualifiedName": "__type.dataModel"
+		}
+	}
+}

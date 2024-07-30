@@ -1,0 +1,689 @@
+{
+	"id": 0,
+	"name": "@xeokit/xkt",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"comment": {
+		"summary": [
+			{
+				"kind": "text",
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fxkt.svg)](https://badge.fury.io/js/%40xeokit%2Fxkt)\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/xkt/badge)](https://www.jsdelivr.com/package/npm/@xeokit/xkt)\n\n<img  style=\"padding:0px; padding-top:30px; padding-bottom:10px; height:130px;\" src=\"media://images/xeokit_logo_mesh.png\"/>\n\n# xeokit [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) Importer and Exporter\n\n---\n\n### *Import models as xeokit's native binary [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format*\n\n---\n\nThe xeokit SDK allows us to import 3D models from [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt), which is xeokit's\nnative runtime asset delivery format for model representations and semantics.\n\nThe [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format compresses large double-precision model geometry to\na compact payload that loads quickly over the Web into a xeokit viewer running in the browser.\n\nTo import a [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) model into xeokit, use the "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "loadXKT",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": " function, which will load the file into\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": ".\n\nUse the "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/metamodel!loadMetamodel | loadMetamodel"
+			},
+			{
+				"kind": "text",
+				"text": " function to load legacy JSON metadata into a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": ".\n\n<br>\n\n[![](https://mermaid.ink/img/pako:eNqNU01rwzAM_StBpw1a2K6h9DB6W8tKs8EOvqixsro4dvDHIJT-99lx0iaMlubi6El6T0_GJyg1J8ihlGjtSuCPwZopprgwVDqhVbbexbjLZ0VJijahQ2YnprLwCZ5OvT-GepuC0hA6-uigp-eE7b2QfAg4WWd0G8NzZB_4V-iwo7_H3hjdkHFtQff0ErYjidGFPYhmmtleWR4aMQ241si_3z-3GNZkhx0sFk2MyZFZLhOExmD75quKTALsZXM9_eB0Qi8T_ZW48qq7hcg7qivwlx4Z4zFVm9juqE5sM3hhMJ8vGbwyKEYKt6tWV93e4pCZ9OTZlyWbXWzYqD3xelP7dtVIuzd66R_3_NOGGdRkahQ8PI9uNQzcgWpikIdfThV66RiEFYVS9E4XrSohd8bTDHwTdk39g4K8QmkDSlw4bTb9k4vH-Q8aQzAW?type=png)](https://mermaid.live/edit#pako:eNqNU01rwzAM_StBpw1a2K6h9DB6W8tKs8EOvqixsro4dvDHIJT-99lx0iaMlubi6El6T0_GJyg1J8ihlGjtSuCPwZopprgwVDqhVbbexbjLZ0VJijahQ2YnprLwCZ5OvT-GepuC0hA6-uigp-eE7b2QfAg4WWd0G8NzZB_4V-iwo7_H3hjdkHFtQff0ErYjidGFPYhmmtleWR4aMQ241si_3z-3GNZkhx0sFk2MyZFZLhOExmD75quKTALsZXM9_eB0Qi8T_ZW48qq7hcg7qivwlx4Z4zFVm9juqE5sM3hhMJ8vGbwyKEYKt6tWV93e4pCZ9OTZlyWbXWzYqD3xelP7dtVIuzd66R_3_NOGGdRkahQ8PI9uNQzcgWpikIdfThV66RiEFYVS9E4XrSohd8bTDHwTdk39g4K8QmkDSlw4bTb9k4vH-Q8aQzAW)\n\n<br>\n\n## Installation\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````bash\nnpm install @xeokit/xkt\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\n\n## Usage\n\nIn the example below, we'll use "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "loadXKT",
+				"target": 1
+			},
+			{
+				"kind": "text",
+				"text": " to import an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file into a\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": ". The "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/core!SDKError | SDKError"
+			},
+			{
+				"kind": "text",
+				"text": " class\nis used to handle errors that may occur during the process:\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\nimport {Scene} from \"@xeokit/scene\";\nimport {loadXKT, saveXKT} from \"@xeokit/xkt\";\n\nconst scene = new Scene();\n\nconst sceneModel = scene.createModel({\n    id: \"myModel\n});\n\nif (sceneModel instanceof SDKError) {\n     console.error(dataModel.message);\n} else {\n     fetch(\"myModel.xkt\").then(response => {\n\n        response.arrayBuffer().then(data => {\n\n             loadXKT({ data, dataModel, sceneModel });\n\n             sceneModel.build();\n         });\n     });\n});\n````"
+			}
+		]
+	},
+	"children": [
+		{
+			"id": 15,
+			"name": "XKTManifest",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 17,
+					"name": "metaModelFiles",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "loadXKTManifest.ts",
+							"line": 12,
+							"character": 4,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L12"
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "intrinsic",
+							"name": "string"
+						}
+					}
+				},
+				{
+					"id": 16,
+					"name": "xktFiles",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "loadXKTManifest.ts",
+							"line": 11,
+							"character": 4,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L11"
+						}
+					],
+					"type": {
+						"type": "array",
+						"elementType": {
+							"type": "intrinsic",
+							"name": "string"
+						}
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						17,
+						16
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "loadXKTManifest.ts",
+					"line": 10,
+					"character": 17,
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L10"
+				}
+			]
+		},
+		{
+			"id": 1,
+			"name": "loadXKT",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "load/loadXKT.ts",
+					"line": 28,
+					"character": 16,
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/load/loadXKT.ts#L28"
+				}
+			],
+			"signatures": [
+				{
+					"id": 2,
+					"name": "loadXKT",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Imports [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data from an ArrayBuffer\ninto a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel | SceneModel"
+							},
+							{
+								"kind": "text",
+								"text": ".\n\n* Expects "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.built | SceneModel.built"
+							},
+							{
+								"kind": "text",
+								"text": " and\n"
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneModel.destroyed | SceneModel.destroyed"
+							},
+							{
+								"kind": "text",
+								"text": " to be "
+							},
+							{
+								"kind": "code",
+								"text": "````false````"
+							},
+							{
+								"kind": "text",
+								"text": "\n\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "\"@xeokit/xkt\" | @xeokit/xkt"
+							},
+							{
+								"kind": "text",
+								"text": " for usage.\n\nSee "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/xkt!XKTData"
+							},
+							{
+								"kind": "text",
+								"text": " for insights into the structure of a [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file."
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Resolves when [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) has been loaded."
+									}
+								]
+							},
+							{
+								"tag": "@throws",
+								"content": [
+									{
+										"kind": "text",
+										"text": "*"
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/core!SDKError | SDKError"
+									},
+									{
+										"kind": "text",
+										"text": "*\n* If the SceneModel has already been destroyed.\n* If the SceneModel has already been built."
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "load/loadXKT.ts",
+							"line": 28,
+							"character": 16,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/load/loadXKT.ts#L28"
+						}
+					],
+					"parameters": [
+						{
+							"id": 3,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Loading parameters."
+									}
+								]
+							},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 4,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 5,
+											"name": "fileData",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "[XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file data"
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "load/loadXKT.ts",
+													"line": 29,
+													"character": 4,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/load/loadXKT.ts#L29"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+													"qualifiedName": "ArrayBuffer"
+												},
+												"name": "ArrayBuffer",
+												"package": "typescript"
+											}
+										},
+										{
+											"id": 6,
+											"name": "sceneModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "SceneModel to load into."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "load/loadXKT.ts",
+													"line": 30,
+													"character": 4,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/load/loadXKT.ts#L30"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../scene/src/SceneModel.ts",
+													"qualifiedName": "SceneModel"
+												},
+												"name": "SceneModel",
+												"package": "@xeokit/scene"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												5,
+												6
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "load/loadXKT.ts",
+											"line": 28,
+											"character": 32,
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/load/loadXKT.ts#L28"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "intrinsic",
+								"name": "void"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 7,
+			"name": "loadXKTManifest",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "loadXKTManifest.ts",
+					"line": 19,
+					"character": 16,
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L19"
+				}
+			],
+			"signatures": [
+				{
+					"id": 8,
+					"name": "loadXKTManifest",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "loadXKTManifest.ts",
+							"line": 19,
+							"character": 16,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L19"
+						}
+					],
+					"parameters": [
+						{
+							"id": 9,
+							"name": "params",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 10,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 14,
+											"name": "dataModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "loadXKTManifest.ts",
+													"line": 23,
+													"character": 4,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L23"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../data/src/DataModel.ts",
+													"qualifiedName": "DataModel"
+												},
+												"name": "DataModel",
+												"package": "@xeokit/data"
+											}
+										},
+										{
+											"id": 12,
+											"name": "manifest",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"sources": [
+												{
+													"fileName": "loadXKTManifest.ts",
+													"line": 21,
+													"character": 4,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L21"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": 15,
+												"name": "XKTManifest",
+												"package": "@xeokit/xkt"
+											}
+										},
+										{
+											"id": 13,
+											"name": "sceneModel",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "loadXKTManifest.ts",
+													"line": 22,
+													"character": 4,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L22"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"sourceFileName": "../scene/src/SceneModel.ts",
+													"qualifiedName": "SceneModel"
+												},
+												"name": "SceneModel",
+												"package": "@xeokit/scene"
+											}
+										},
+										{
+											"id": 11,
+											"name": "src",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"sources": [
+												{
+													"fileName": "loadXKTManifest.ts",
+													"line": 20,
+													"character": 4,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L20"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												14,
+												12,
+												13,
+												11
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "loadXKTManifest.ts",
+											"line": 19,
+											"character": 40,
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L19"
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "intrinsic",
+								"name": "void"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Interfaces",
+			"children": [
+				15
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				1,
+				7
+			]
+		}
+	],
+	"packageName": "@xeokit/xkt",
+	"packageVersion": "0.1.0",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# @xeokit/xkt\n\n* See [API Documentation](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html)"
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": ""
+		},
+		"1": {
+			"sourceFileName": "src/load/loadXKT.ts",
+			"qualifiedName": "loadXKT"
+		},
+		"2": {
+			"sourceFileName": "src/load/loadXKT.ts",
+			"qualifiedName": "loadXKT"
+		},
+		"3": {
+			"sourceFileName": "src/load/loadXKT.ts",
+			"qualifiedName": "params"
+		},
+		"4": {
+			"sourceFileName": "src/load/loadXKT.ts",
+			"qualifiedName": "__type"
+		},
+		"5": {
+			"sourceFileName": "src/load/loadXKT.ts",
+			"qualifiedName": "__type.fileData"
+		},
+		"6": {
+			"sourceFileName": "src/load/loadXKT.ts",
+			"qualifiedName": "__type.sceneModel"
+		},
+		"7": {
+			"sourceFileName": "src/loadXKTManifest.ts",
+			"qualifiedName": "loadXKTManifest"
+		},
+		"8": {
+			"sourceFileName": "src/loadXKTManifest.ts",
+			"qualifiedName": "loadXKTManifest"
+		},
+		"9": {
+			"sourceFileName": "src/loadXKTManifest.ts",
+			"qualifiedName": "params"
+		},
+		"10": {
+			"sourceFileName": "src/loadXKTManifest.ts",
+			"qualifiedName": "__type"
+		},
+		"11": {
+			"sourceFileName": "src/loadXKTManifest.ts",
+			"qualifiedName": "__type.src"
+		},
+		"12": {
+			"sourceFileName": "src/loadXKTManifest.ts",
+			"qualifiedName": "__type.manifest"
+		},
+		"13": {
+			"sourceFileName": "src/loadXKTManifest.ts",
+			"qualifiedName": "__type.sceneModel"
+		},
+		"14": {
+			"sourceFileName": "src/loadXKTManifest.ts",
+			"qualifiedName": "__type.dataModel"
+		},
+		"15": {
+			"sourceFileName": "src/loadXKTManifest.ts",
+			"qualifiedName": "XKTManifest"
+		},
+		"16": {
+			"sourceFileName": "src/loadXKTManifest.ts",
+			"qualifiedName": "XKTManifest.xktFiles"
+		},
+		"17": {
+			"sourceFileName": "src/loadXKTManifest.ts",
+			"qualifiedName": "XKTManifest.metaModelFiles"
+		}
+	}
+}

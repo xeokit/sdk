@@ -17,7 +17,7 @@ import type {GeometryArrays} from "./GeometryArrays";
  *
  * @function buildBoxLinesGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID, unique among all components in the parent {@link @xeokit/scene!Scene | Scene}, generated automatically when omitted.
  * @param [cfg.center]  3D point indicating the center position.
  * @param [cfg.xSize=1.0]  Half-size on the X-axis.
  * @param [cfg.ySize=1.0]  Half-size on the Y-axis.

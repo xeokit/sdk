@@ -10,7 +10,7 @@ import {PickParams} from "./PickParams";
 import {PickResult} from "./PickResult";
 
 /**
- * Defines the contract for the rendering strategy used internally within a {@link @xeokit/viewer!Viewer}.
+ * Defines the contract for the rendering strategy used internally within a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * A Viewer uses an implementation of this internally to allocate and render geometry and materials using an
  * available browser 3D graphics API, such as WebGL or WebGPU.
@@ -49,7 +49,7 @@ export interface Renderer {
     //  rendererModels: { [key: string]: RendererModel };
 
     /**
-     * Initializes this Renderer by attaching a {@link @xeokit/viewer!Viewer}.
+     * Initializes this Renderer by attaching a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      * @param viewer Viewer to attach.
@@ -62,7 +62,7 @@ export interface Renderer {
     attachViewer(viewer: Viewer): void | SDKError;
 
     /**
-     * Detaches the {@link @xeokit/viewer!Viewer} that is currently attached, if any.
+     * Detaches the {@link @xeokit/viewer!Viewer | Viewer} that is currently attached, if any.
      *
      * @internal
      * @returns *void*

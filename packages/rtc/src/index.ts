@@ -13,7 +13,7 @@
  * ---
  *
  * * Math functions for working with relative-to-center (RTC) coordinate systems
- * * Used internally within {@link @xeokit/viewer!Viewer}
+ * * Used internally within {@link @xeokit/viewer!Viewer | Viewer}
  *
  * ## Installation
  *

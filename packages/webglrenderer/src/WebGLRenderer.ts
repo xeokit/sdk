@@ -262,7 +262,7 @@ export class WebGLRenderer implements Renderer {
     }
 
     /**
-     * Initializes this WebGLRenderer by attaching a {@link @xeokit/viewer!Viewer}.
+     * Initializes this WebGLRenderer by attaching a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      * @param viewer Viewer to attach.
@@ -285,7 +285,7 @@ export class WebGLRenderer implements Renderer {
     }
 
     /**
-     * Detaches the {@link @xeokit/viewer!Viewer} that is currently attached, if any.
+     * Detaches the {@link @xeokit/viewer!Viewer | Viewer} that is currently attached, if any.
      *
      * @internal
      * @returns *void*

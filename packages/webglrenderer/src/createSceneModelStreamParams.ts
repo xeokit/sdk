@@ -16,7 +16,7 @@ const MAX_DATA_TEXTURE_HEIGHT = 1 << 16;
 
 /**
  * Enables a {@link @xeokit/scene!SceneModel} to be progressively loaded
- * into {@link @xeokit/viewer!Viewer} that's configured with a {@link @xeokit/webglrenderer!WebGLRenderer}.
+ * into {@link @xeokit/viewer!Viewer | Viewer} that's configured with a {@link @xeokit/webglrenderer!WebGLRenderer}.
  *
  * @param sceneModel
  */

@@ -1,0 +1,263 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="../../css/pageStyle.css" rel="stylesheet"/>
+    <style>
+
+        body {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+        }
+
+        #myCanvas1 {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+            width: 1000px;
+            height: 800px;
+            left: 20px;
+            top: 70px;
+            position: absolute;
+            /*border: 1px solid white;*/
+            padding: 0px;
+            /*background: red;*/
+        }
+
+        #myCanvas2 {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+            width: 500px;
+            height: 390px;
+            left: 1030px;
+            top: 70px;
+            position: absolute;
+            /*border: 1px solid white;*/
+            /*background: yellow;*/
+            padding: 0px;
+        }
+
+        #myCanvas3 {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+            width: 500px;
+            height: 400px;
+            left: 1030px;
+            top: 470px;
+            position: absolute;
+            /*border: 1px solid white;*/
+            padding: 0px;
+            /*background: green;*/
+        }
+
+
+    </style>
+</head>
+<body>
+<input type="checkbox" id="info-button"/>
+<label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
+
+<!-- Virtual canvases -->
+
+<img id="myCanvas1">
+<img id="myCanvas2"/>
+<img id="myCanvas3"/>
+
+<div class="slideout-sidebar">
+    <h1>Using multiple Views with ViewLayers</h1>
+    <p></p>
+    <h3>Major components used</h3>
+    <ul>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.Viewer.html" target="_other">Viewer</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_webglrenderer.WebGLRenderer.html" target="_other">WebGLRenderer</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.View.html" target="_other">View</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_scene.SceneModel.html" target="_other">SceneModel</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_data.DataModel.html" target="_other">DataModel</a>
+        </li>
+        <li>
+            <a href="../docs/api/functions/_xeokit_webifc.loadWebIFC.html" target="_other">loadWebIFC</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_core.SDKError.html" target="_other">SDKError</a>
+        </li>
+    </ul>
+</div>
+</body>
+
+<script type="module">
+
+    //-----------------------------------------------------------------------------------------
+    // Import xeokit SDK from the JavaScript bundle that we've built for these examples
+    //-----------------------------------------------------------------------------------------
+
+    import * as xeokit from "./../../js/xeokit-demo-bundle.js";
+
+    const scene = new xeokit.scene.Scene();
+
+    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer
+    });
+
+    {
+        const view = viewer.createView({
+            id: "myView1",
+            elementId: "myCanvas1",
+            autoLayers: false,
+            edges: false
+        });
+
+        view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
+        view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
+        view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
+
+        view.createLayer({
+            id: "layer1"
+        });
+
+
+        new xeokit.cameraControl.CameraControl(view, {});
+    }
+
+    {
+        const view = viewer.createView({
+            id: "myView2",
+            elementId: "myCanvas2",
+            autoLayers: false
+        });
+
+        view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
+        view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
+        view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
+
+        view.createLayer({
+            id: "layer2"
+        });
+
+        new xeokit.cameraControl.CameraControl(view, {});
+    }
+
+    {
+        const view = viewer.createView({
+            id: "myView3",
+            elementId: "myCanvas3",
+            autoLayers: false
+        });
+
+        view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
+        view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
+        view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
+
+        view.createLayer({
+            id: "layer3"
+        });
+
+        new xeokit.cameraControl.CameraControl(view, {});
+    }
+
+    const sceneModel = scene.createModel({
+        id: "myModel",
+        layerId: "layer1"
+    });
+
+    fetch("../../data/xkt/MAP.xkt").then(response => {
+        response.arrayBuffer().then(fileData => {
+            xeokit.xkt.loadXKT({
+                fileData,
+                sceneModel
+            }).then(() => {
+
+                sceneModel.build();
+
+                // Convert to DTX
+
+                {
+                    const dtxData = xeokit.dtx.saveDTX({
+                        sceneModel
+                    });
+
+                    const sceneModelDTX = scene.createModel({
+                        id: "myDTXModel",
+                        layerId: "layer3",
+                        globalizedIds: true
+                    });
+
+                    saveArrayBuffer(dtxData, "MAP.dtx")
+                    xeokit.dtx.loadDTX({
+                        fileData: dtxData,
+                        sceneModel: sceneModelDTX
+                    }).then(() => {
+
+                        sceneModelDTX.build()
+                    });
+
+                }
+
+                // Convert to JSON
+
+                {
+                    const json = sceneModel.getJSON();
+                    const sceneModelJSON = scene.createModel({
+                        id: "myJSONModel",
+                        layerId: "layer2",
+                        globalizedIds: true
+                    });
+                    sceneModelJSON.fromJSON(json);
+                    sceneModelJSON.build()
+                }
+            });
+        });
+    });
+
+
+    function saveArrayBuffer(arrayBuffer, filename) {
+        // Create a new Blob object using the ArrayBuffer
+        const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
+
+        // Create a link element
+        const link = document.createElement('a');
+
+        // Set the download attribute with a filename
+        link.download = filename;
+
+        // Create an object URL for the Blob and set it as the href attribute
+        link.href = window.URL.createObjectURL(blob);
+
+        // Append the link to the body (this step is necessary for some browsers)
+        document.body.appendChild(link);
+
+        // Programmatically click the link to trigger the download
+        link.click();
+
+        // Remove the link from the document
+        document.body.removeChild(link);
+    }
+</script>
+
+</html>

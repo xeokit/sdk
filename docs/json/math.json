@@ -26,7 +26,7 @@
 	},
 	"children": [
 		{
-			"id": 9,
+			"id": 12,
 			"name": "FloatArrayParam",
 			"variant": "declaration",
 			"kind": 2097152,
@@ -44,7 +44,7 @@
 					"fileName": "index.ts",
 					"line": 35,
 					"character": 12,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/math/src/index.ts#L35"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L35"
 				}
 			],
 			"type": {
@@ -124,7 +124,7 @@
 			}
 		},
 		{
-			"id": 10,
+			"id": 13,
 			"name": "IntArrayParam",
 			"variant": "declaration",
 			"kind": 2097152,
@@ -142,7 +142,7 @@
 					"fileName": "index.ts",
 					"line": 40,
 					"character": 12,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/math/src/index.ts#L40"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L40"
 				}
 			],
 			"type": {
@@ -204,7 +204,7 @@
 			}
 		},
 		{
-			"id": 13,
+			"id": 16,
 			"name": "DEGTORAD",
 			"variant": "declaration",
 			"kind": 32,
@@ -224,7 +224,7 @@
 					"fileName": "index.ts",
 					"line": 55,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/math/src/index.ts#L55"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L55"
 				}
 			],
 			"type": {
@@ -234,7 +234,7 @@
 			"defaultValue": "0.0174532925"
 		},
 		{
-			"id": 12,
+			"id": 15,
 			"name": "MAX_DOUBLE",
 			"variant": "declaration",
 			"kind": 32,
@@ -254,7 +254,7 @@
 					"fileName": "index.ts",
 					"line": 50,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/math/src/index.ts#L50"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L50"
 				}
 			],
 			"type": {
@@ -264,7 +264,29 @@
 			"defaultValue": "Number.MAX_SAFE_INTEGER"
 		},
 		{
-			"id": 11,
+			"id": 18,
+			"name": "MAX_INT",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 82,
+					"character": 13,
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L82"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 10000000
+			},
+			"defaultValue": "10000000"
+		},
+		{
+			"id": 14,
 			"name": "MIN_DOUBLE",
 			"variant": "declaration",
 			"kind": 32,
@@ -284,7 +306,7 @@
 					"fileName": "index.ts",
 					"line": 45,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/math/src/index.ts#L45"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L45"
 				}
 			],
 			"type": {
@@ -294,7 +316,7 @@
 			"defaultValue": "-Number.MAX_SAFE_INTEGER"
 		},
 		{
-			"id": 14,
+			"id": 17,
 			"name": "RADTODEG",
 			"variant": "declaration",
 			"kind": 32,
@@ -314,7 +336,7 @@
 					"fileName": "index.ts",
 					"line": 60,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/math/src/index.ts#L60"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L60"
 				}
 			],
 			"type": {
@@ -334,7 +356,7 @@
 					"fileName": "index.ts",
 					"line": 69,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/math/src/index.ts#L69"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L69"
 				}
 			],
 			"signatures": [
@@ -368,7 +390,7 @@
 							"fileName": "index.ts",
 							"line": 69,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/math/src/index.ts#L69"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L69"
 						}
 					],
 					"parameters": [
@@ -448,7 +470,7 @@
 					"fileName": "index.ts",
 					"line": 76,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/math/src/index.ts#L76"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L76"
 				}
 			],
 			"signatures": [
@@ -468,7 +490,7 @@
 								"kind": "inline-tag",
 								"tag": "@link",
 								"text": "FloatArrayParam",
-								"target": 9,
+								"target": 12,
 								"tsLinkText": ""
 							},
 							{
@@ -482,7 +504,7 @@
 							"fileName": "index.ts",
 							"line": 76,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/math/src/index.ts#L76"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L76"
 						}
 					],
 					"parameters": [
@@ -503,7 +525,7 @@
 									},
 									{
 										"type": "reference",
-										"target": 9,
+										"target": 12,
 										"name": "FloatArrayParam",
 										"package": "@xeokit/math"
 									}
@@ -513,9 +535,66 @@
 					],
 					"type": {
 						"type": "reference",
-						"target": 9,
+						"target": 12,
 						"name": "FloatArrayParam",
 						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 9,
+			"name": "safeInv",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 93,
+					"character": 16,
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L93"
+				}
+			],
+			"signatures": [
+				{
+					"id": 10,
+					"name": "safeInv",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Maximum safe inverse.\n\nReturns:\n- x != 0 => 1/x,\n- x == 1 => 1"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 93,
+							"character": 16,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/math/src/index.ts#L93"
+						}
+					],
+					"parameters": [
+						{
+							"id": 11,
+							"name": "x",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "number"
 					}
 				}
 			]
@@ -525,24 +604,26 @@
 		{
 			"title": "Type Aliases",
 			"children": [
-				9,
-				10
+				12,
+				13
 			]
 		},
 		{
 			"title": "Variables",
 			"children": [
-				13,
-				12,
-				11,
-				14
+				16,
+				15,
+				18,
+				14,
+				17
 			]
 		},
 		{
 			"title": "Functions",
 			"children": [
 				1,
-				6
+				6,
+				9
 			]
 		}
 	],
@@ -593,27 +674,43 @@
 		},
 		"9": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "FloatArrayParam"
+			"qualifiedName": "safeInv"
 		},
 		"10": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "IntArrayParam"
+			"qualifiedName": "safeInv"
 		},
 		"11": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "MIN_DOUBLE"
+			"qualifiedName": "x"
 		},
 		"12": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "MAX_DOUBLE"
+			"qualifiedName": "FloatArrayParam"
 		},
 		"13": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "DEGTORAD"
+			"qualifiedName": "IntArrayParam"
 		},
 		"14": {
 			"sourceFileName": "src/index.ts",
+			"qualifiedName": "MIN_DOUBLE"
+		},
+		"15": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "MAX_DOUBLE"
+		},
+		"16": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "DEGTORAD"
+		},
+		"17": {
+			"sourceFileName": "src/index.ts",
 			"qualifiedName": "RADTODEG"
+		},
+		"18": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "MAX_INT"
 		}
 	}
 }

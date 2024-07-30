@@ -23,7 +23,7 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/viewer!Viewer"
+				"text": "@xeokit/viewer!Viewer | Viewer"
 			},
 			{
 				"kind": "text",
@@ -68,7 +68,7 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/viewer!Viewer"
+				"text": "@xeokit/viewer!Viewer | Viewer"
 			},
 			{
 				"kind": "text",
@@ -121,7 +121,7 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/viewer!Viewer"
+				"text": "@xeokit/viewer!Viewer | Viewer"
 			},
 			{
 				"kind": "text",
@@ -174,7 +174,7 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/viewer!Viewer"
+				"text": "@xeokit/viewer!Viewer | Viewer"
 			},
 			{
 				"kind": "text",
@@ -258,7 +258,7 @@
 							"fileName": "KTX2TextureTranscoder.ts",
 							"line": 88,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
 						}
 					],
 					"signatures": [
@@ -281,7 +281,7 @@
 									"fileName": "KTX2TextureTranscoder.ts",
 									"line": 88,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
 								}
 							],
 							"parameters": [
@@ -329,7 +329,7 @@
 															"fileName": "KTX2TextureTranscoder.ts",
 															"line": 88,
 															"character": 26,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
 														}
 													],
 													"type": {
@@ -358,7 +358,7 @@
 															"fileName": "KTX2TextureTranscoder.ts",
 															"line": 88,
 															"character": 51,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
 														}
 													],
 													"type": {
@@ -381,7 +381,7 @@
 													"fileName": "KTX2TextureTranscoder.ts",
 													"line": 88,
 													"character": 24,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L88"
 												}
 											]
 										}
@@ -408,7 +408,7 @@
 							"fileName": "KTX2TextureTranscoder.ts",
 							"line": 161,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L161"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L161"
 						}
 					],
 					"signatures": [
@@ -431,7 +431,7 @@
 									"fileName": "KTX2TextureTranscoder.ts",
 									"line": 161,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L161"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L161"
 								}
 							],
 							"type": {
@@ -462,7 +462,7 @@
 							"fileName": "KTX2TextureTranscoder.ts",
 							"line": 110,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L110"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L110"
 						}
 					],
 					"signatures": [
@@ -485,7 +485,7 @@
 									"fileName": "KTX2TextureTranscoder.ts",
 									"line": 110,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L110"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L110"
 								}
 							],
 							"parameters": [
@@ -542,7 +542,7 @@
 							"fileName": "KTX2TextureTranscoder.ts",
 							"line": 128,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
 						}
 					],
 					"signatures": [
@@ -576,7 +576,7 @@
 									"fileName": "KTX2TextureTranscoder.ts",
 									"line": 128,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
 								}
 							],
 							"parameters": [
@@ -634,7 +634,7 @@
 													"fileName": "KTX2TextureTranscoder.ts",
 													"line": 128,
 													"character": 47,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L128"
 												}
 											]
 										}
@@ -697,7 +697,7 @@
 					"fileName": "KTX2TextureTranscoder.ts",
 					"line": 68,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/ktx2/src/KTX2TextureTranscoder.ts#L68"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/ktx2/src/KTX2TextureTranscoder.ts#L68"
 				}
 			],
 			"implementedTypes": [

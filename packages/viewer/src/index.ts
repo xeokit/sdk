@@ -14,7 +14,7 @@
  *
  * ## Features
  *
- * * Use a {@link @xeokit/viewer!Viewer} to interactively view a {@link @xeokit/scene!Scene} in all major browsers, including mobile.
+ * * Use a {@link @xeokit/viewer!Viewer | Viewer} to interactively view a {@link @xeokit/scene!Scene | Scene} in all major browsers, including mobile.
  * * A Viewer has a {@link @xeokit/viewer!Renderer}, which is a pluggable strategy that adapts the Viewer to use various browser graphics APIs. Currently we have two
  * Renderer implementations:
  * {@link @xeokit/webglrenderer!WebGLRenderer} and WebGPURenderer.
@@ -74,13 +74,13 @@
  * import {CameraControl} from "@xeokit/cameracontrol";
  * ````
  *
- * Create a {@link @xeokit/scene!Scene} to hold our scene graph:
+ * Create a {@link @xeokit/scene!Scene | Scene} to hold our scene graph:
  *
  * ````javascript
  * const scene = new Scene();
  * ````
  *
- * Create a {@link @xeokit/viewer!Viewer} to view our Scene.
+ * Create a {@link @xeokit/viewer!Viewer | Viewer} to view our Scene.
  *
  * We'll configured it with
  * a {@link @xeokit/webglrenderer!WebGLRenderer}, which will adapt the Viewer to use the browser's WebGL graphics API.

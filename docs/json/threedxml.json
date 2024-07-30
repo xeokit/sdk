@@ -67,7 +67,7 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/core!SDKError"
+				"text": "@xeokit/core!SDKError | SDKError"
 			},
 			{
 				"kind": "text",
@@ -91,7 +91,7 @@
 					"fileName": "load3DXML.ts",
 					"line": 63,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L63"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L63"
 				}
 			],
 			"signatures": [
@@ -190,7 +190,7 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "@xeokit/core!SDKError"
+										"text": "@xeokit/core!SDKError | SDKError"
 									},
 									{
 										"kind": "text",
@@ -205,7 +205,7 @@
 							"fileName": "load3DXML.ts",
 							"line": 63,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L63"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L63"
 						}
 					],
 					"parameters": [
@@ -253,7 +253,7 @@
 													"fileName": "load3DXML.ts",
 													"line": 66,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L66"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L66"
 												}
 											],
 											"type": {
@@ -287,7 +287,7 @@
 													"fileName": "load3DXML.ts",
 													"line": 68,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L68"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L68"
 												}
 											],
 											"type": {
@@ -303,7 +303,7 @@
 															"fileName": "load3DXML.ts",
 															"line": 68,
 															"character": 12,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L68"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L68"
 														}
 													],
 													"signatures": [
@@ -313,20 +313,12 @@
 															"variant": "signature",
 															"kind": 4096,
 															"flags": {},
-															"comment": {
-																"summary": [
-																	{
-																		"kind": "text",
-																		"text": "Error logging callback."
-																	}
-																]
-															},
 															"sources": [
 																{
 																	"fileName": "load3DXML.ts",
 																	"line": 68,
 																	"character": 12,
-																	"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L68"
+																	"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L68"
 																}
 															],
 															"parameters": [
@@ -370,7 +362,7 @@
 													"fileName": "load3DXML.ts",
 													"line": 64,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L64"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L64"
 												}
 											],
 											"type": {
@@ -404,7 +396,7 @@
 													"fileName": "load3DXML.ts",
 													"line": 67,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L67"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L67"
 												}
 											],
 											"type": {
@@ -420,7 +412,7 @@
 															"fileName": "load3DXML.ts",
 															"line": 67,
 															"character": 10,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L67"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L67"
 														}
 													],
 													"signatures": [
@@ -430,20 +422,12 @@
 															"variant": "signature",
 															"kind": 4096,
 															"flags": {},
-															"comment": {
-																"summary": [
-																	{
-																		"kind": "text",
-																		"text": "Logging callback."
-																	}
-																]
-															},
 															"sources": [
 																{
 																	"fileName": "load3DXML.ts",
 																	"line": 67,
 																	"character": 10,
-																	"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L67"
+																	"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L67"
 																}
 															],
 															"parameters": [
@@ -487,7 +471,7 @@
 													"fileName": "load3DXML.ts",
 													"line": 65,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L65"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L65"
 												}
 											],
 											"type": {
@@ -518,7 +502,7 @@
 											"fileName": "load3DXML.ts",
 											"line": 63,
 											"character": 34,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L63"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L63"
 										}
 									]
 								}
@@ -554,7 +538,7 @@
 					"fileName": "load3DXML.ts",
 					"line": 469,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L469"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L469"
 				}
 			],
 			"signatures": [
@@ -569,7 +553,7 @@
 							"fileName": "load3DXML.ts",
 							"line": 469,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/threedxml/src/load3DXML.ts#L469"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/threedxml/src/load3DXML.ts#L469"
 						}
 					],
 					"parameters": [

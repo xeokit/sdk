@@ -26,7 +26,7 @@
 	},
 	"children": [
 		{
-			"id": 61,
+			"id": 67,
 			"name": "GeometryArrays",
 			"variant": "declaration",
 			"kind": 2097152,
@@ -44,20 +44,20 @@
 					"fileName": "GeometryArrays.ts",
 					"line": 9,
 					"character": 12,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/GeometryArrays.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/GeometryArrays.ts#L9"
 				}
 			],
 			"type": {
 				"type": "reflection",
 				"declaration": {
-					"id": 62,
+					"id": 68,
 					"name": "__type",
 					"variant": "declaration",
 					"kind": 65536,
 					"flags": {},
 					"children": [
 						{
-							"id": 67,
+							"id": 73,
 							"name": "indices",
 							"variant": "declaration",
 							"kind": 1024,
@@ -69,7 +69,7 @@
 									"fileName": "GeometryArrays.ts",
 									"line": 14,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/GeometryArrays.ts#L14"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/GeometryArrays.ts#L14"
 								}
 							],
 							"type": {
@@ -83,7 +83,7 @@
 							}
 						},
 						{
-							"id": 65,
+							"id": 71,
 							"name": "normals",
 							"variant": "declaration",
 							"kind": 1024,
@@ -95,7 +95,7 @@
 									"fileName": "GeometryArrays.ts",
 									"line": 12,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/GeometryArrays.ts#L12"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/GeometryArrays.ts#L12"
 								}
 							],
 							"type": {
@@ -109,7 +109,7 @@
 							}
 						},
 						{
-							"id": 64,
+							"id": 70,
 							"name": "positions",
 							"variant": "declaration",
 							"kind": 1024,
@@ -119,7 +119,7 @@
 									"fileName": "GeometryArrays.ts",
 									"line": 11,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/GeometryArrays.ts#L11"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/GeometryArrays.ts#L11"
 								}
 							],
 							"type": {
@@ -133,7 +133,7 @@
 							}
 						},
 						{
-							"id": 63,
+							"id": 69,
 							"name": "primitive",
 							"variant": "declaration",
 							"kind": 1024,
@@ -143,7 +143,7 @@
 									"fileName": "GeometryArrays.ts",
 									"line": 10,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/GeometryArrays.ts#L10"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/GeometryArrays.ts#L10"
 								}
 							],
 							"type": {
@@ -152,7 +152,7 @@
 							}
 						},
 						{
-							"id": 66,
+							"id": 72,
 							"name": "uv",
 							"variant": "declaration",
 							"kind": 1024,
@@ -164,7 +164,7 @@
 									"fileName": "GeometryArrays.ts",
 									"line": 13,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/GeometryArrays.ts#L13"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/GeometryArrays.ts#L13"
 								}
 							],
 							"type": {
@@ -182,11 +182,11 @@
 						{
 							"title": "Properties",
 							"children": [
-								67,
-								65,
-								64,
-								63,
-								66
+								73,
+								71,
+								70,
+								69,
+								72
 							]
 						}
 					],
@@ -195,7 +195,7 @@
 							"fileName": "GeometryArrays.ts",
 							"line": 9,
 							"character": 29,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/GeometryArrays.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/GeometryArrays.ts#L9"
 						}
 					]
 				}
@@ -212,7 +212,7 @@
 					"fileName": "buildBoxGeometry.ts",
 					"line": 26,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxGeometry.ts#L26"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxGeometry.ts#L26"
 				}
 			],
 			"signatures": [
@@ -277,7 +277,7 @@
 							"fileName": "buildBoxGeometry.ts",
 							"line": 26,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxGeometry.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxGeometry.ts#L26"
 						}
 					],
 					"parameters": [
@@ -325,7 +325,7 @@
 													"fileName": "buildBoxGeometry.ts",
 													"line": 27,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxGeometry.ts#L27"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxGeometry.ts#L27"
 												}
 											],
 											"type": {
@@ -357,7 +357,7 @@
 													"fileName": "buildBoxGeometry.ts",
 													"line": 29,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxGeometry.ts#L29"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxGeometry.ts#L29"
 												}
 											],
 											"type": {
@@ -386,7 +386,7 @@
 													"fileName": "buildBoxGeometry.ts",
 													"line": 28,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxGeometry.ts#L28"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxGeometry.ts#L28"
 												}
 											],
 											"type": {
@@ -415,7 +415,7 @@
 													"fileName": "buildBoxGeometry.ts",
 													"line": 30,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxGeometry.ts#L30"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxGeometry.ts#L30"
 												}
 											],
 											"type": {
@@ -440,7 +440,7 @@
 											"fileName": "buildBoxGeometry.ts",
 											"line": 26,
 											"character": 38,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxGeometry.ts#L26"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxGeometry.ts#L26"
 										}
 									]
 								}
@@ -453,7 +453,7 @@
 						"types": [
 							{
 								"type": "reference",
-								"target": 61,
+								"target": 67,
 								"name": "GeometryArrays",
 								"package": "@xeokit/procgen"
 							},
@@ -472,7 +472,7 @@
 			]
 		},
 		{
-			"id": 9,
+			"id": 15,
 			"name": "buildBoxLinesGeometry",
 			"variant": "declaration",
 			"kind": 64,
@@ -482,12 +482,12 @@
 					"fileName": "buildBoxLinesGeometry.ts",
 					"line": 27,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
 				}
 			],
 			"signatures": [
 				{
-					"id": 10,
+					"id": 16,
 					"name": "buildBoxLinesGeometry",
 					"variant": "signature",
 					"kind": 4096,
@@ -556,12 +556,12 @@
 							"fileName": "buildBoxLinesGeometry.ts",
 							"line": 27,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
 						}
 					],
 					"parameters": [
 						{
-							"id": 11,
+							"id": 17,
 							"name": "cfg",
 							"variant": "param",
 							"kind": 32768,
@@ -577,14 +577,14 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 12,
+									"id": 18,
 									"name": "__type",
 									"variant": "declaration",
 									"kind": 65536,
 									"flags": {},
 									"children": [
 										{
-											"id": 13,
+											"id": 19,
 											"name": "center",
 											"variant": "declaration",
 											"kind": 1024,
@@ -604,7 +604,7 @@
 													"fileName": "buildBoxLinesGeometry.ts",
 													"line": 28,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxLinesGeometry.ts#L28"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxLinesGeometry.ts#L28"
 												}
 											],
 											"type": {
@@ -639,7 +639,7 @@
 											}
 										},
 										{
-											"id": 15,
+											"id": 21,
 											"name": "xSize",
 											"variant": "declaration",
 											"kind": 1024,
@@ -659,7 +659,7 @@
 													"fileName": "buildBoxLinesGeometry.ts",
 													"line": 30,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxLinesGeometry.ts#L30"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxLinesGeometry.ts#L30"
 												}
 											],
 											"type": {
@@ -668,7 +668,7 @@
 											}
 										},
 										{
-											"id": 14,
+											"id": 20,
 											"name": "ySize",
 											"variant": "declaration",
 											"kind": 1024,
@@ -688,7 +688,7 @@
 													"fileName": "buildBoxLinesGeometry.ts",
 													"line": 29,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxLinesGeometry.ts#L29"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxLinesGeometry.ts#L29"
 												}
 											],
 											"type": {
@@ -697,7 +697,7 @@
 											}
 										},
 										{
-											"id": 16,
+											"id": 22,
 											"name": "zSize",
 											"variant": "declaration",
 											"kind": 1024,
@@ -717,7 +717,7 @@
 													"fileName": "buildBoxLinesGeometry.ts",
 													"line": 31,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxLinesGeometry.ts#L31"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxLinesGeometry.ts#L31"
 												}
 											],
 											"type": {
@@ -730,10 +730,10 @@
 										{
 											"title": "Properties",
 											"children": [
-												13,
-												15,
-												14,
-												16
+												19,
+												21,
+												20,
+												22
 											]
 										}
 									],
@@ -742,7 +742,7 @@
 											"fileName": "buildBoxLinesGeometry.ts",
 											"line": 27,
 											"character": 43,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildBoxLinesGeometry.ts#L27"
 										}
 									]
 								}
@@ -752,7 +752,7 @@
 					],
 					"type": {
 						"type": "reference",
-						"target": 61,
+						"target": 67,
 						"name": "GeometryArrays",
 						"package": "@xeokit/procgen"
 					}
@@ -760,7 +760,7 @@
 			]
 		},
 		{
-			"id": 17,
+			"id": 23,
 			"name": "buildCylinderGeometry",
 			"variant": "declaration",
 			"kind": 64,
@@ -770,12 +770,12 @@
 					"fileName": "buildCylinderGeometry.ts",
 					"line": 28,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildCylinderGeometry.ts#L28"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildCylinderGeometry.ts#L28"
 				}
 			],
 			"signatures": [
 				{
-					"id": 18,
+					"id": 24,
 					"name": "buildCylinderGeometry",
 					"variant": "signature",
 					"kind": 4096,
@@ -844,12 +844,12 @@
 							"fileName": "buildCylinderGeometry.ts",
 							"line": 28,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildCylinderGeometry.ts#L28"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildCylinderGeometry.ts#L28"
 						}
 					],
 					"parameters": [
 						{
-							"id": 19,
+							"id": 25,
 							"name": "cfg",
 							"variant": "param",
 							"kind": 32768,
@@ -865,14 +865,14 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 20,
+									"id": 26,
 									"name": "__type",
 									"variant": "declaration",
 									"kind": 65536,
 									"flags": {},
 									"children": [
 										{
-											"id": 22,
+											"id": 28,
 											"name": "center",
 											"variant": "declaration",
 											"kind": 1024,
@@ -890,7 +890,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 30,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildCylinderGeometry.ts#L30"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildCylinderGeometry.ts#L30"
 												}
 											],
 											"type": {
@@ -925,7 +925,7 @@
 											}
 										},
 										{
-											"id": 27,
+											"id": 33,
 											"name": "height",
 											"variant": "declaration",
 											"kind": 1024,
@@ -943,7 +943,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 35,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildCylinderGeometry.ts#L35"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildCylinderGeometry.ts#L35"
 												}
 											],
 											"type": {
@@ -952,7 +952,7 @@
 											}
 										},
 										{
-											"id": 24,
+											"id": 30,
 											"name": "heightSegments",
 											"variant": "declaration",
 											"kind": 1024,
@@ -970,7 +970,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 32,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildCylinderGeometry.ts#L32"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildCylinderGeometry.ts#L32"
 												}
 											],
 											"type": {
@@ -979,7 +979,7 @@
 											}
 										},
 										{
-											"id": 25,
+											"id": 31,
 											"name": "openEnded",
 											"variant": "declaration",
 											"kind": 1024,
@@ -997,7 +997,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 33,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildCylinderGeometry.ts#L33"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildCylinderGeometry.ts#L33"
 												}
 											],
 											"type": {
@@ -1006,7 +1006,7 @@
 											}
 										},
 										{
-											"id": 23,
+											"id": 29,
 											"name": "radialSegments",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1024,7 +1024,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 31,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildCylinderGeometry.ts#L31"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildCylinderGeometry.ts#L31"
 												}
 											],
 											"type": {
@@ -1033,7 +1033,7 @@
 											}
 										},
 										{
-											"id": 21,
+											"id": 27,
 											"name": "radiusBottom",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1051,7 +1051,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 29,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildCylinderGeometry.ts#L29"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildCylinderGeometry.ts#L29"
 												}
 											],
 											"type": {
@@ -1060,7 +1060,7 @@
 											}
 										},
 										{
-											"id": 26,
+											"id": 32,
 											"name": "radiusTop",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1078,7 +1078,7 @@
 													"fileName": "buildCylinderGeometry.ts",
 													"line": 34,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildCylinderGeometry.ts#L34"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildCylinderGeometry.ts#L34"
 												}
 											],
 											"type": {
@@ -1091,13 +1091,13 @@
 										{
 											"title": "Properties",
 											"children": [
-												22,
+												28,
+												33,
+												30,
+												31,
+												29,
 												27,
-												24,
-												25,
-												23,
-												21,
-												26
+												32
 											]
 										}
 									],
@@ -1106,7 +1106,7 @@
 											"fileName": "buildCylinderGeometry.ts",
 											"line": 28,
 											"character": 43,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildCylinderGeometry.ts#L28"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildCylinderGeometry.ts#L28"
 										}
 									]
 								}
@@ -1116,7 +1116,7 @@
 					],
 					"type": {
 						"type": "reference",
-						"target": 61,
+						"target": 67,
 						"name": "GeometryArrays",
 						"package": "@xeokit/procgen"
 					}
@@ -1124,7 +1124,216 @@
 			]
 		},
 		{
-			"id": 53,
+			"id": 9,
+			"name": "buildGridGeometry",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "buildGridGeometry.ts",
+					"line": 22,
+					"character": 16,
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildGridGeometry.ts#L22"
+				}
+			],
+			"signatures": [
+				{
+					"id": 10,
+					"name": "buildGridGeometry",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Creates a grid-shaped "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneGeometry"
+							},
+							{
+								"kind": "text",
+								"text": ".\n\n## Usage\n\nCreating a "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneMesh"
+							},
+							{
+								"kind": "text",
+								"text": " with a grid-shaped "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/scene!SceneGeometry"
+							},
+							{
+								"kind": "text",
+								"text": ":\n\n"
+							},
+							{
+								"kind": "code",
+								"text": "````javascript\n\n````"
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@function",
+								"content": [
+									{
+										"kind": "text",
+										"text": "buildGridGeometry"
+									}
+								]
+							},
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "Configuration for a "
+									},
+									{
+										"kind": "inline-tag",
+										"tag": "@link",
+										"text": "@xeokit/scene!SceneGeometry"
+									},
+									{
+										"kind": "text",
+										"text": " subtype."
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "buildGridGeometry.ts",
+							"line": 22,
+							"character": 16,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildGridGeometry.ts#L22"
+						}
+					],
+					"parameters": [
+						{
+							"id": 11,
+							"name": "cfg",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Configs"
+									}
+								]
+							},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 12,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 14,
+											"name": "divisions",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "Number of divisions on X and Z axis.."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "buildGridGeometry.ts",
+													"line": 24,
+													"character": 4,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildGridGeometry.ts#L24"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "number"
+											},
+											"defaultValue": "1"
+										},
+										{
+											"id": 13,
+											"name": "size",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "Dimension on the X and Z-axis."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "buildGridGeometry.ts",
+													"line": 23,
+													"character": 4,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildGridGeometry.ts#L23"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "number"
+											},
+											"defaultValue": "1"
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												14,
+												13
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "buildGridGeometry.ts",
+											"line": 22,
+											"character": 40,
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildGridGeometry.ts#L22"
+										}
+									]
+								}
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 67,
+						"name": "GeometryArrays",
+						"package": "@xeokit/procgen"
+					}
+				}
+			]
+		},
+		{
+			"id": 59,
 			"name": "buildPlaneGeometry",
 			"variant": "declaration",
 			"kind": 64,
@@ -1134,12 +1343,12 @@
 					"fileName": "buildPlaneGeometry.ts",
 					"line": 48,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildPlaneGeometry.ts#L48"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildPlaneGeometry.ts#L48"
 				}
 			],
 			"signatures": [
 				{
-					"id": 54,
+					"id": 60,
 					"name": "buildPlaneGeometry",
 					"variant": "signature",
 					"kind": 4096,
@@ -1217,12 +1426,12 @@
 							"fileName": "buildPlaneGeometry.ts",
 							"line": 48,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildPlaneGeometry.ts#L48"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildPlaneGeometry.ts#L48"
 						}
 					],
 					"parameters": [
 						{
-							"id": 55,
+							"id": 61,
 							"name": "cfg",
 							"variant": "param",
 							"kind": 32768,
@@ -1238,14 +1447,14 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 56,
+									"id": 62,
 									"name": "__type",
 									"variant": "declaration",
 									"kind": 65536,
 									"flags": {},
 									"children": [
 										{
-											"id": 60,
+											"id": 66,
 											"name": "center",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1263,7 +1472,7 @@
 													"fileName": "buildPlaneGeometry.ts",
 													"line": 52,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildPlaneGeometry.ts#L52"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildPlaneGeometry.ts#L52"
 												}
 											],
 											"type": {
@@ -1276,7 +1485,7 @@
 											"defaultValue": "..."
 										},
 										{
-											"id": 59,
+											"id": 65,
 											"name": "xSegments",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1294,7 +1503,7 @@
 													"fileName": "buildPlaneGeometry.ts",
 													"line": 51,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildPlaneGeometry.ts#L51"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildPlaneGeometry.ts#L51"
 												}
 											],
 											"type": {
@@ -1304,7 +1513,7 @@
 											"defaultValue": "1"
 										},
 										{
-											"id": 57,
+											"id": 63,
 											"name": "xSize",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1322,7 +1531,7 @@
 													"fileName": "buildPlaneGeometry.ts",
 													"line": 49,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildPlaneGeometry.ts#L49"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildPlaneGeometry.ts#L49"
 												}
 											],
 											"type": {
@@ -1332,7 +1541,7 @@
 											"defaultValue": "0"
 										},
 										{
-											"id": 58,
+											"id": 64,
 											"name": "zSize",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1350,7 +1559,7 @@
 													"fileName": "buildPlaneGeometry.ts",
 													"line": 50,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildPlaneGeometry.ts#L50"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildPlaneGeometry.ts#L50"
 												}
 											],
 											"type": {
@@ -1364,10 +1573,10 @@
 										{
 											"title": "Properties",
 											"children": [
-												60,
-												59,
-												57,
-												58
+												66,
+												65,
+												63,
+												64
 											]
 										}
 									],
@@ -1376,7 +1585,7 @@
 											"fileName": "buildPlaneGeometry.ts",
 											"line": 48,
 											"character": 41,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildPlaneGeometry.ts#L48"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildPlaneGeometry.ts#L48"
 										}
 									]
 								}
@@ -1386,7 +1595,7 @@
 					],
 					"type": {
 						"type": "reference",
-						"target": 61,
+						"target": 67,
 						"name": "GeometryArrays",
 						"package": "@xeokit/procgen"
 					}
@@ -1394,7 +1603,7 @@
 			]
 		},
 		{
-			"id": 28,
+			"id": 34,
 			"name": "buildSphereGeometry",
 			"variant": "declaration",
 			"kind": 64,
@@ -1402,14 +1611,14 @@
 			"sources": [
 				{
 					"fileName": "buildSphereGeometry.ts",
-					"line": 47,
+					"line": 23,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildSphereGeometry.ts#L47"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildSphereGeometry.ts#L23"
 				}
 			],
 			"signatures": [
 				{
-					"id": 29,
+					"id": 35,
 					"name": "buildSphereGeometry",
 					"variant": "signature",
 					"kind": 4096,
@@ -1427,29 +1636,11 @@
 							},
 							{
 								"kind": "text",
-								"text": ".\n\n## Usage\n\nCreating a "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneMesh"
-							},
-							{
-								"kind": "text",
-								"text": " with a sphere-shaped "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneGeometry"
-							},
-							{
-								"kind": "text",
-								"text": ": :\n\n"
+								"text": ".\n\n## Usage\n\n"
 							},
 							{
 								"kind": "code",
-								"text": "````javascript\nimport {Viewer, SceneMesh, buildSphereGeometry, TrianglesLayerGeometryBucket, PhongMaterial, SceneTexture} from \"xeokit-viewer.es.js\";\n\nconst viewer = new Viewer({\n    canvasId: \"myView\"\n});\n\nviewer.camera.eye = [0, 0, 5];\nviewer.camera.look = [0, 0, 0];\nviewer.camera.up = [0, 1, 0];\n\nnew SceneMesh(viewer.scene, {\n     geometry: new TrianglesLayerGeometryBucket(viewer.scene, buildSphereGeometry({\n         center: [0,0,0],\n         radius: 1.5,\n         heightSegments: 60,\n         widthSegments: 60\n     }),\n     material: new PhongMaterial(viewer.scene, {\n        diffuseMap: new SceneTexture(viewer.scene, {\n            src: \"textures/diffuse/uvGrid2.jpg\"\n        })\n     })\n});\n````"
+								"text": "````javascript\n\n````"
 							}
 						],
 						"blockTags": [
@@ -1485,14 +1676,14 @@
 					"sources": [
 						{
 							"fileName": "buildSphereGeometry.ts",
-							"line": 47,
+							"line": 23,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildSphereGeometry.ts#L47"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildSphereGeometry.ts#L23"
 						}
 					],
 					"parameters": [
 						{
-							"id": 30,
+							"id": 36,
 							"name": "cfg",
 							"variant": "param",
 							"kind": 32768,
@@ -1508,14 +1699,14 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 31,
+									"id": 37,
 									"name": "__type",
 									"variant": "declaration",
 									"kind": 65536,
 									"flags": {},
 									"children": [
 										{
-											"id": 32,
+											"id": 38,
 											"name": "center",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1531,9 +1722,9 @@
 											"sources": [
 												{
 													"fileName": "buildSphereGeometry.ts",
-													"line": 48,
+													"line": 24,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildSphereGeometry.ts#L48"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildSphereGeometry.ts#L24"
 												}
 											],
 											"type": {
@@ -1545,7 +1736,7 @@
 											}
 										},
 										{
-											"id": 33,
+											"id": 39,
 											"name": "heightSegments",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1561,9 +1752,9 @@
 											"sources": [
 												{
 													"fileName": "buildSphereGeometry.ts",
-													"line": 49,
+													"line": 25,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildSphereGeometry.ts#L49"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildSphereGeometry.ts#L25"
 												}
 											],
 											"type": {
@@ -1572,7 +1763,7 @@
 											}
 										},
 										{
-											"id": 34,
+											"id": 40,
 											"name": "radius",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1588,9 +1779,9 @@
 											"sources": [
 												{
 													"fileName": "buildSphereGeometry.ts",
-													"line": 50,
+													"line": 26,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildSphereGeometry.ts#L50"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildSphereGeometry.ts#L26"
 												}
 											],
 											"type": {
@@ -1599,7 +1790,7 @@
 											}
 										},
 										{
-											"id": 35,
+											"id": 41,
 											"name": "widthSegments",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1615,9 +1806,9 @@
 											"sources": [
 												{
 													"fileName": "buildSphereGeometry.ts",
-													"line": 51,
+													"line": 27,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildSphereGeometry.ts#L51"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildSphereGeometry.ts#L27"
 												}
 											],
 											"type": {
@@ -1630,19 +1821,19 @@
 										{
 											"title": "Properties",
 											"children": [
-												32,
-												33,
-												34,
-												35
+												38,
+												39,
+												40,
+												41
 											]
 										}
 									],
 									"sources": [
 										{
 											"fileName": "buildSphereGeometry.ts",
-											"line": 47,
+											"line": 23,
 											"character": 41,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildSphereGeometry.ts#L47"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildSphereGeometry.ts#L23"
 										}
 									]
 								}
@@ -1652,7 +1843,7 @@
 					],
 					"type": {
 						"type": "reference",
-						"target": 61,
+						"target": 67,
 						"name": "GeometryArrays",
 						"package": "@xeokit/procgen"
 					}
@@ -1660,7 +1851,7 @@
 			]
 		},
 		{
-			"id": 36,
+			"id": 42,
 			"name": "buildTorusGeometry",
 			"variant": "declaration",
 			"kind": 64,
@@ -1668,14 +1859,14 @@
 			"sources": [
 				{
 					"fileName": "buildTorusGeometry.ts",
-					"line": 52,
+					"line": 27,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildTorusGeometry.ts#L52"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildTorusGeometry.ts#L27"
 				}
 			],
 			"signatures": [
 				{
-					"id": 37,
+					"id": 43,
 					"name": "buildTorusGeometry",
 					"variant": "signature",
 					"kind": 4096,
@@ -1693,29 +1884,11 @@
 							},
 							{
 								"kind": "text",
-								"text": ".\n\n## Usage\nCreating a "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneMesh"
-							},
-							{
-								"kind": "text",
-								"text": " with a torus-shaped "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneGeometry"
-							},
-							{
-								"kind": "text",
-								"text": ":\n\n"
+								"text": ".\n\n## Usage\n\n"
 							},
 							{
 								"kind": "code",
-								"text": "````javascript\nimport {Viewer, SceneMesh, buildTorusGeometry, TrianglesLayerGeometryBucket, PhongMaterial, SceneTexture} from \"xeokit-viewer.es.js\";\n\nconst viewer = new Viewer({\n     canvasId: \"myView\"\n});\n\nviewer.camera.eye = [0, 0, 5];\nviewer.camera.look = [0, 0, 0];\nviewer.camera.up = [0, 1, 0];\n\nnew SceneMesh(viewer.scene, {\n     geometry: new TrianglesLayerGeometryBucket(viewer.scene, buildTorusGeometry({\n         center: [0,0,0],\n         radius: 1.0,\n         tube: 0.5,\n         radialSegments: 32,\n         tubeSegments: 24,\n         arc: Math.PI * 2.0\n     }),\n     material: new PhongMaterial(viewer.scene, {\n        diffuseMap: new SceneTexture(viewer.scene, {\n            src: \"textures/diffuse/uvGrid2.jpg\"\n        })\n     })\n});\n````"
+								"text": "````javascript\n\n````"
 							}
 						],
 						"blockTags": [
@@ -1751,14 +1924,14 @@
 					"sources": [
 						{
 							"fileName": "buildTorusGeometry.ts",
-							"line": 52,
+							"line": 27,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildTorusGeometry.ts#L52"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildTorusGeometry.ts#L27"
 						}
 					],
 					"parameters": [
 						{
-							"id": 38,
+							"id": 44,
 							"name": "cfg",
 							"variant": "param",
 							"kind": 32768,
@@ -1774,14 +1947,14 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 39,
+									"id": 45,
 									"name": "__type",
 									"variant": "declaration",
 									"kind": 65536,
 									"flags": {},
 									"children": [
 										{
-											"id": 41,
+											"id": 47,
 											"name": "arc",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1799,9 +1972,9 @@
 											"sources": [
 												{
 													"fileName": "buildTorusGeometry.ts",
-													"line": 54,
+													"line": 29,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildTorusGeometry.ts#L54"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildTorusGeometry.ts#L29"
 												}
 											],
 											"type": {
@@ -1810,7 +1983,7 @@
 											}
 										},
 										{
-											"id": 42,
+											"id": 48,
 											"name": "center",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1828,9 +2001,9 @@
 											"sources": [
 												{
 													"fileName": "buildTorusGeometry.ts",
-													"line": 55,
+													"line": 30,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildTorusGeometry.ts#L55"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildTorusGeometry.ts#L30"
 												}
 											],
 											"type": {
@@ -1842,7 +2015,7 @@
 											}
 										},
 										{
-											"id": 43,
+											"id": 49,
 											"name": "radialSegments",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1860,9 +2033,9 @@
 											"sources": [
 												{
 													"fileName": "buildTorusGeometry.ts",
-													"line": 56,
+													"line": 31,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildTorusGeometry.ts#L56"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildTorusGeometry.ts#L31"
 												}
 											],
 											"type": {
@@ -1871,7 +2044,7 @@
 											}
 										},
 										{
-											"id": 44,
+											"id": 50,
 											"name": "radius",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1889,9 +2062,9 @@
 											"sources": [
 												{
 													"fileName": "buildTorusGeometry.ts",
-													"line": 57,
+													"line": 32,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildTorusGeometry.ts#L57"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildTorusGeometry.ts#L32"
 												}
 											],
 											"type": {
@@ -1900,7 +2073,7 @@
 											}
 										},
 										{
-											"id": 40,
+											"id": 46,
 											"name": "tube",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1918,9 +2091,9 @@
 											"sources": [
 												{
 													"fileName": "buildTorusGeometry.ts",
-													"line": 53,
+													"line": 28,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildTorusGeometry.ts#L53"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildTorusGeometry.ts#L28"
 												}
 											],
 											"type": {
@@ -1929,7 +2102,7 @@
 											}
 										},
 										{
-											"id": 45,
+											"id": 51,
 											"name": "tubeSegments",
 											"variant": "declaration",
 											"kind": 1024,
@@ -1947,9 +2120,9 @@
 											"sources": [
 												{
 													"fileName": "buildTorusGeometry.ts",
-													"line": 58,
+													"line": 33,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildTorusGeometry.ts#L58"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildTorusGeometry.ts#L33"
 												}
 											],
 											"type": {
@@ -1962,21 +2135,21 @@
 										{
 											"title": "Properties",
 											"children": [
-												41,
-												42,
-												43,
-												44,
-												40,
-												45
+												47,
+												48,
+												49,
+												50,
+												46,
+												51
 											]
 										}
 									],
 									"sources": [
 										{
 											"fileName": "buildTorusGeometry.ts",
-											"line": 52,
+											"line": 27,
 											"character": 40,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildTorusGeometry.ts#L52"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildTorusGeometry.ts#L27"
 										}
 									]
 								}
@@ -1986,7 +2159,7 @@
 					],
 					"type": {
 						"type": "reference",
-						"target": 61,
+						"target": 67,
 						"name": "GeometryArrays",
 						"package": "@xeokit/procgen"
 					}
@@ -1994,7 +2167,7 @@
 			]
 		},
 		{
-			"id": 46,
+			"id": 52,
 			"name": "buildVectorTextGeometry",
 			"variant": "declaration",
 			"kind": 64,
@@ -2002,14 +2175,14 @@
 			"sources": [
 				{
 					"fileName": "buildVectorTextGeometry.ts",
-					"line": 1622,
+					"line": 1599,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildVectorTextGeometry.ts#L1622"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildVectorTextGeometry.ts#L1599"
 				}
 			],
 			"signatures": [
 				{
-					"id": 47,
+					"id": 53,
 					"name": "buildVectorTextGeometry",
 					"variant": "signature",
 					"kind": 4096,
@@ -2027,29 +2200,11 @@
 							},
 							{
 								"kind": "text",
-								"text": ".\n\n## Usage\n\nCreating a "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneMesh"
-							},
-							{
-								"kind": "text",
-								"text": " with vector text "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneGeometry"
-							},
-							{
-								"kind": "text",
-								"text": ":\n\n"
+								"text": ".\n\n## Usage\n\n"
 							},
 							{
 								"kind": "code",
-								"text": "````javascript\n\nimport {Viewer, SceneMesh, buildVectorTextGeometry, ReadableGeometry, PhongMaterial} from \"xeokit-viewer.es.js\";\n\nconst viewer = new Viewer({\n     canvasId: \"myView\"\n});\n\nviewer.camera.eye = [0, 0, 100];\nviewer.camera.look = [0, 0, 0];\nviewer.camera.up = [0, 1, 0];\n\nnew SceneMesh(viewer.scene, {\n     geometry: new ReadableGeometry(viewer.scene, buildVectorTextGeometry({\n         origin: [0,0,0],\n         text: \"On the other side of the screen, it all looked so easy\"\n     }),\n     material: new PhongMaterial(viewer.scene, {\n        diffuseMap: new SceneTexture(viewer.scene, {\n            src: \"textures/diffuse/uvGrid2.jpg\"\n        })\n     })\n});\n````"
+								"text": "````javascript\n\n````"
 							}
 						],
 						"blockTags": [
@@ -2085,14 +2240,14 @@
 					"sources": [
 						{
 							"fileName": "buildVectorTextGeometry.ts",
-							"line": 1622,
+							"line": 1599,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildVectorTextGeometry.ts#L1622"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildVectorTextGeometry.ts#L1599"
 						}
 					],
 					"parameters": [
 						{
-							"id": 48,
+							"id": 54,
 							"name": "cfg",
 							"variant": "param",
 							"kind": 32768,
@@ -2108,14 +2263,14 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 49,
+									"id": 55,
 									"name": "__type",
 									"variant": "declaration",
 									"kind": 65536,
 									"flags": {},
 									"children": [
 										{
-											"id": 51,
+											"id": 57,
 											"name": "origin",
 											"variant": "declaration",
 											"kind": 1024,
@@ -2131,9 +2286,9 @@
 											"sources": [
 												{
 													"fileName": "buildVectorTextGeometry.ts",
-													"line": 1624,
+													"line": 1601,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildVectorTextGeometry.ts#L1624"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildVectorTextGeometry.ts#L1601"
 												}
 											],
 											"type": {
@@ -2145,7 +2300,7 @@
 											}
 										},
 										{
-											"id": 50,
+											"id": 56,
 											"name": "size",
 											"variant": "declaration",
 											"kind": 1024,
@@ -2161,9 +2316,9 @@
 											"sources": [
 												{
 													"fileName": "buildVectorTextGeometry.ts",
-													"line": 1623,
+													"line": 1600,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildVectorTextGeometry.ts#L1623"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildVectorTextGeometry.ts#L1600"
 												}
 											],
 											"type": {
@@ -2172,7 +2327,7 @@
 											}
 										},
 										{
-											"id": 52,
+											"id": 58,
 											"name": "text",
 											"variant": "declaration",
 											"kind": 1024,
@@ -2188,9 +2343,9 @@
 											"sources": [
 												{
 													"fileName": "buildVectorTextGeometry.ts",
-													"line": 1625,
+													"line": 1602,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildVectorTextGeometry.ts#L1625"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildVectorTextGeometry.ts#L1602"
 												}
 											],
 											"type": {
@@ -2203,18 +2358,18 @@
 										{
 											"title": "Properties",
 											"children": [
-												51,
-												50,
-												52
+												57,
+												56,
+												58
 											]
 										}
 									],
 									"sources": [
 										{
 											"fileName": "buildVectorTextGeometry.ts",
-											"line": 1622,
+											"line": 1599,
 											"character": 45,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/procgen/src/buildVectorTextGeometry.ts#L1622"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/procgen/src/buildVectorTextGeometry.ts#L1599"
 										}
 									]
 								}
@@ -2224,7 +2379,7 @@
 					],
 					"type": {
 						"type": "reference",
-						"target": 61,
+						"target": 67,
 						"name": "GeometryArrays",
 						"package": "@xeokit/procgen"
 					}
@@ -2236,19 +2391,20 @@
 		{
 			"title": "Type Aliases",
 			"children": [
-				61
+				67
 			]
 		},
 		{
 			"title": "Functions",
 			"children": [
 				1,
+				15,
+				23,
 				9,
-				17,
-				53,
-				28,
-				36,
-				46
+				59,
+				34,
+				42,
+				52
 			]
 		}
 	],
@@ -2298,238 +2454,262 @@
 			"qualifiedName": "__type.zSize"
 		},
 		"9": {
-			"sourceFileName": "src/buildBoxLinesGeometry.ts",
-			"qualifiedName": "buildBoxLinesGeometry"
+			"sourceFileName": "src/buildGridGeometry.ts",
+			"qualifiedName": "buildGridGeometry"
 		},
 		"10": {
-			"sourceFileName": "src/buildBoxLinesGeometry.ts",
-			"qualifiedName": "buildBoxLinesGeometry"
+			"sourceFileName": "src/buildGridGeometry.ts",
+			"qualifiedName": "buildGridGeometry"
 		},
 		"11": {
-			"sourceFileName": "src/buildBoxLinesGeometry.ts",
+			"sourceFileName": "src/buildGridGeometry.ts",
 			"qualifiedName": "cfg"
 		},
 		"12": {
-			"sourceFileName": "src/buildBoxLinesGeometry.ts",
-			"qualifiedName": "__type"
+			"sourceFileName": "src/buildGridGeometry.ts",
+			"qualifiedName": "__object"
 		},
 		"13": {
-			"sourceFileName": "src/buildBoxLinesGeometry.ts",
-			"qualifiedName": "__type.center"
+			"sourceFileName": "src/buildGridGeometry.ts",
+			"qualifiedName": "__object.size"
 		},
 		"14": {
-			"sourceFileName": "src/buildBoxLinesGeometry.ts",
-			"qualifiedName": "__type.ySize"
+			"sourceFileName": "src/buildGridGeometry.ts",
+			"qualifiedName": "__object.divisions"
 		},
 		"15": {
 			"sourceFileName": "src/buildBoxLinesGeometry.ts",
-			"qualifiedName": "__type.xSize"
+			"qualifiedName": "buildBoxLinesGeometry"
 		},
 		"16": {
 			"sourceFileName": "src/buildBoxLinesGeometry.ts",
-			"qualifiedName": "__type.zSize"
+			"qualifiedName": "buildBoxLinesGeometry"
 		},
 		"17": {
-			"sourceFileName": "src/buildCylinderGeometry.ts",
-			"qualifiedName": "buildCylinderGeometry"
-		},
-		"18": {
-			"sourceFileName": "src/buildCylinderGeometry.ts",
-			"qualifiedName": "buildCylinderGeometry"
-		},
-		"19": {
-			"sourceFileName": "src/buildCylinderGeometry.ts",
+			"sourceFileName": "src/buildBoxLinesGeometry.ts",
 			"qualifiedName": "cfg"
 		},
-		"20": {
-			"sourceFileName": "src/buildCylinderGeometry.ts",
+		"18": {
+			"sourceFileName": "src/buildBoxLinesGeometry.ts",
 			"qualifiedName": "__type"
 		},
+		"19": {
+			"sourceFileName": "src/buildBoxLinesGeometry.ts",
+			"qualifiedName": "__type.center"
+		},
+		"20": {
+			"sourceFileName": "src/buildBoxLinesGeometry.ts",
+			"qualifiedName": "__type.ySize"
+		},
 		"21": {
-			"sourceFileName": "src/buildCylinderGeometry.ts",
-			"qualifiedName": "__type.radiusBottom"
+			"sourceFileName": "src/buildBoxLinesGeometry.ts",
+			"qualifiedName": "__type.xSize"
 		},
 		"22": {
-			"sourceFileName": "src/buildCylinderGeometry.ts",
-			"qualifiedName": "__type.center"
+			"sourceFileName": "src/buildBoxLinesGeometry.ts",
+			"qualifiedName": "__type.zSize"
 		},
 		"23": {
 			"sourceFileName": "src/buildCylinderGeometry.ts",
-			"qualifiedName": "__type.radialSegments"
+			"qualifiedName": "buildCylinderGeometry"
 		},
 		"24": {
 			"sourceFileName": "src/buildCylinderGeometry.ts",
-			"qualifiedName": "__type.heightSegments"
+			"qualifiedName": "buildCylinderGeometry"
 		},
 		"25": {
 			"sourceFileName": "src/buildCylinderGeometry.ts",
-			"qualifiedName": "__type.openEnded"
+			"qualifiedName": "cfg"
 		},
 		"26": {
 			"sourceFileName": "src/buildCylinderGeometry.ts",
-			"qualifiedName": "__type.radiusTop"
+			"qualifiedName": "__type"
 		},
 		"27": {
 			"sourceFileName": "src/buildCylinderGeometry.ts",
-			"qualifiedName": "__type.height"
+			"qualifiedName": "__type.radiusBottom"
 		},
 		"28": {
-			"sourceFileName": "src/buildSphereGeometry.ts",
-			"qualifiedName": "buildSphereGeometry"
-		},
-		"29": {
-			"sourceFileName": "src/buildSphereGeometry.ts",
-			"qualifiedName": "buildSphereGeometry"
-		},
-		"30": {
-			"sourceFileName": "src/buildSphereGeometry.ts",
-			"qualifiedName": "cfg"
-		},
-		"31": {
-			"sourceFileName": "src/buildSphereGeometry.ts",
-			"qualifiedName": "__type"
-		},
-		"32": {
-			"sourceFileName": "src/buildSphereGeometry.ts",
+			"sourceFileName": "src/buildCylinderGeometry.ts",
 			"qualifiedName": "__type.center"
 		},
-		"33": {
-			"sourceFileName": "src/buildSphereGeometry.ts",
+		"29": {
+			"sourceFileName": "src/buildCylinderGeometry.ts",
+			"qualifiedName": "__type.radialSegments"
+		},
+		"30": {
+			"sourceFileName": "src/buildCylinderGeometry.ts",
 			"qualifiedName": "__type.heightSegments"
+		},
+		"31": {
+			"sourceFileName": "src/buildCylinderGeometry.ts",
+			"qualifiedName": "__type.openEnded"
+		},
+		"32": {
+			"sourceFileName": "src/buildCylinderGeometry.ts",
+			"qualifiedName": "__type.radiusTop"
+		},
+		"33": {
+			"sourceFileName": "src/buildCylinderGeometry.ts",
+			"qualifiedName": "__type.height"
 		},
 		"34": {
 			"sourceFileName": "src/buildSphereGeometry.ts",
-			"qualifiedName": "__type.radius"
+			"qualifiedName": "buildSphereGeometry"
 		},
 		"35": {
 			"sourceFileName": "src/buildSphereGeometry.ts",
-			"qualifiedName": "__type.widthSegments"
+			"qualifiedName": "buildSphereGeometry"
 		},
 		"36": {
-			"sourceFileName": "src/buildTorusGeometry.ts",
-			"qualifiedName": "buildTorusGeometry"
-		},
-		"37": {
-			"sourceFileName": "src/buildTorusGeometry.ts",
-			"qualifiedName": "buildTorusGeometry"
-		},
-		"38": {
-			"sourceFileName": "src/buildTorusGeometry.ts",
+			"sourceFileName": "src/buildSphereGeometry.ts",
 			"qualifiedName": "cfg"
 		},
-		"39": {
-			"sourceFileName": "src/buildTorusGeometry.ts",
+		"37": {
+			"sourceFileName": "src/buildSphereGeometry.ts",
 			"qualifiedName": "__type"
 		},
+		"38": {
+			"sourceFileName": "src/buildSphereGeometry.ts",
+			"qualifiedName": "__type.center"
+		},
+		"39": {
+			"sourceFileName": "src/buildSphereGeometry.ts",
+			"qualifiedName": "__type.heightSegments"
+		},
 		"40": {
-			"sourceFileName": "src/buildTorusGeometry.ts",
-			"qualifiedName": "__type.tube"
+			"sourceFileName": "src/buildSphereGeometry.ts",
+			"qualifiedName": "__type.radius"
 		},
 		"41": {
-			"sourceFileName": "src/buildTorusGeometry.ts",
-			"qualifiedName": "__type.arc"
+			"sourceFileName": "src/buildSphereGeometry.ts",
+			"qualifiedName": "__type.widthSegments"
 		},
 		"42": {
 			"sourceFileName": "src/buildTorusGeometry.ts",
-			"qualifiedName": "__type.center"
+			"qualifiedName": "buildTorusGeometry"
 		},
 		"43": {
 			"sourceFileName": "src/buildTorusGeometry.ts",
-			"qualifiedName": "__type.radialSegments"
+			"qualifiedName": "buildTorusGeometry"
 		},
 		"44": {
 			"sourceFileName": "src/buildTorusGeometry.ts",
-			"qualifiedName": "__type.radius"
+			"qualifiedName": "cfg"
 		},
 		"45": {
 			"sourceFileName": "src/buildTorusGeometry.ts",
-			"qualifiedName": "__type.tubeSegments"
-		},
-		"46": {
-			"sourceFileName": "src/buildVectorTextGeometry.ts",
-			"qualifiedName": "buildVectorTextGeometry"
-		},
-		"47": {
-			"sourceFileName": "src/buildVectorTextGeometry.ts",
-			"qualifiedName": "buildVectorTextGeometry"
-		},
-		"48": {
-			"sourceFileName": "src/buildVectorTextGeometry.ts",
-			"qualifiedName": "cfg"
-		},
-		"49": {
-			"sourceFileName": "src/buildVectorTextGeometry.ts",
 			"qualifiedName": "__type"
 		},
+		"46": {
+			"sourceFileName": "src/buildTorusGeometry.ts",
+			"qualifiedName": "__type.tube"
+		},
+		"47": {
+			"sourceFileName": "src/buildTorusGeometry.ts",
+			"qualifiedName": "__type.arc"
+		},
+		"48": {
+			"sourceFileName": "src/buildTorusGeometry.ts",
+			"qualifiedName": "__type.center"
+		},
+		"49": {
+			"sourceFileName": "src/buildTorusGeometry.ts",
+			"qualifiedName": "__type.radialSegments"
+		},
 		"50": {
-			"sourceFileName": "src/buildVectorTextGeometry.ts",
-			"qualifiedName": "__type.size"
+			"sourceFileName": "src/buildTorusGeometry.ts",
+			"qualifiedName": "__type.radius"
 		},
 		"51": {
-			"sourceFileName": "src/buildVectorTextGeometry.ts",
-			"qualifiedName": "__type.origin"
+			"sourceFileName": "src/buildTorusGeometry.ts",
+			"qualifiedName": "__type.tubeSegments"
 		},
 		"52": {
 			"sourceFileName": "src/buildVectorTextGeometry.ts",
-			"qualifiedName": "__type.text"
+			"qualifiedName": "buildVectorTextGeometry"
 		},
 		"53": {
-			"sourceFileName": "src/buildPlaneGeometry.ts",
-			"qualifiedName": "buildPlaneGeometry"
+			"sourceFileName": "src/buildVectorTextGeometry.ts",
+			"qualifiedName": "buildVectorTextGeometry"
 		},
 		"54": {
-			"sourceFileName": "src/buildPlaneGeometry.ts",
-			"qualifiedName": "buildPlaneGeometry"
-		},
-		"55": {
-			"sourceFileName": "src/buildPlaneGeometry.ts",
+			"sourceFileName": "src/buildVectorTextGeometry.ts",
 			"qualifiedName": "cfg"
 		},
+		"55": {
+			"sourceFileName": "src/buildVectorTextGeometry.ts",
+			"qualifiedName": "__type"
+		},
 		"56": {
-			"sourceFileName": "src/buildPlaneGeometry.ts",
-			"qualifiedName": "__object"
+			"sourceFileName": "src/buildVectorTextGeometry.ts",
+			"qualifiedName": "__type.size"
 		},
 		"57": {
-			"sourceFileName": "src/buildPlaneGeometry.ts",
-			"qualifiedName": "__object.xSize"
+			"sourceFileName": "src/buildVectorTextGeometry.ts",
+			"qualifiedName": "__type.origin"
 		},
 		"58": {
-			"sourceFileName": "src/buildPlaneGeometry.ts",
-			"qualifiedName": "__object.zSize"
+			"sourceFileName": "src/buildVectorTextGeometry.ts",
+			"qualifiedName": "__type.text"
 		},
 		"59": {
 			"sourceFileName": "src/buildPlaneGeometry.ts",
-			"qualifiedName": "__object.xSegments"
+			"qualifiedName": "buildPlaneGeometry"
 		},
 		"60": {
 			"sourceFileName": "src/buildPlaneGeometry.ts",
-			"qualifiedName": "__object.center"
+			"qualifiedName": "buildPlaneGeometry"
 		},
 		"61": {
+			"sourceFileName": "src/buildPlaneGeometry.ts",
+			"qualifiedName": "cfg"
+		},
+		"62": {
+			"sourceFileName": "src/buildPlaneGeometry.ts",
+			"qualifiedName": "__object"
+		},
+		"63": {
+			"sourceFileName": "src/buildPlaneGeometry.ts",
+			"qualifiedName": "__object.xSize"
+		},
+		"64": {
+			"sourceFileName": "src/buildPlaneGeometry.ts",
+			"qualifiedName": "__object.zSize"
+		},
+		"65": {
+			"sourceFileName": "src/buildPlaneGeometry.ts",
+			"qualifiedName": "__object.xSegments"
+		},
+		"66": {
+			"sourceFileName": "src/buildPlaneGeometry.ts",
+			"qualifiedName": "__object.center"
+		},
+		"67": {
 			"sourceFileName": "src/GeometryArrays.ts",
 			"qualifiedName": "GeometryArrays"
 		},
-		"62": {
+		"68": {
 			"sourceFileName": "src/GeometryArrays.ts",
 			"qualifiedName": "__type"
 		},
-		"63": {
+		"69": {
 			"sourceFileName": "src/GeometryArrays.ts",
 			"qualifiedName": "__type.primitive"
 		},
-		"64": {
+		"70": {
 			"sourceFileName": "src/GeometryArrays.ts",
 			"qualifiedName": "__type.positions"
 		},
-		"65": {
+		"71": {
 			"sourceFileName": "src/GeometryArrays.ts",
 			"qualifiedName": "__type.normals"
 		},
-		"66": {
+		"72": {
 			"sourceFileName": "src/GeometryArrays.ts",
 			"qualifiedName": "__type.uv"
 		},
-		"67": {
+		"73": {
 			"sourceFileName": "src/GeometryArrays.ts",
 			"qualifiedName": "__type.indices"
 		}

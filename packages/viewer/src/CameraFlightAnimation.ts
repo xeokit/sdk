@@ -133,10 +133,10 @@ class CameraFlightAnimation extends Component {
      *  * When the target is an explicit {@link @xeokit/viewer!Camera}  position, given as ````eye````, ````look```` and ````up````, then CameraFlightAnimation will interpolate the {@link @xeokit/viewer!Camera}  to that target and stop there.
      *
      * @param {Object|Component} [params=Scene] Either a parameters object or a {@link @xeokit/core!Component} subtype that has
-     * an AABB. Defaults to the {@link @xeokit/scene!Scene}, which causes the {@link @xeokit/viewer!Camera}  to fit the Scene in view.
+     * an AABB. Defaults to the {@link @xeokit/scene!Scene | Scene}, which causes the {@link @xeokit/viewer!Camera}  to fit the Scene in view.
      * @param [params.arc=0] Factor in range ````[0..1]```` indicating how much the {@link @xeokit/viewer!Camera.eye | Camera.eye} position
      * will swing away from its {@link @xeokit/viewer!Camera.look | Camera.look} position as it flies to the target.
-     * @param {Number|String|Component} [params.component] ID or instance of a component to fly to. Defaults to the entire {@link @xeokit/scene!Scene}.
+     * @param {Number|String|Component} [params.component] ID or instance of a component to fly to. Defaults to the entire {@link @xeokit/scene!Scene | Scene}.
      * @param [params.aabb] World-space axis-aligned bounding box (AABB) target to fly to.
      * @param [params.eye] Position to fly the eye position to.
      * @param [params.look] Position to fly the look position to.
@@ -581,7 +581,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * Indicates if this CameraFlightAnimation will orient the {@link @xeokit/viewer!Camera} 
+     * Indicates if this CameraFlightAnimation will orient the {@link @xeokit/viewer!Camera}
      * in the direction that it is flying.
      *
      * Default value is ````false````.
@@ -591,7 +591,7 @@ class CameraFlightAnimation extends Component {
     }
 
     /**
-     * Indicates if this CameraFlightAnimation will orient the {@link @xeokit/viewer!Camera} 
+     * Indicates if this CameraFlightAnimation will orient the {@link @xeokit/viewer!Camera}
      * in the direction that it is flying.
      *
      * Default value is ````false````.

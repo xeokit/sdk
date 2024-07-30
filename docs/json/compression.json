@@ -220,7 +220,7 @@
 	},
 	"children": [
 		{
-			"id": 47,
+			"id": 62,
 			"name": "compressNormals",
 			"variant": "declaration",
 			"kind": 64,
@@ -228,14 +228,14 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 408,
+					"line": 471,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L408"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L471"
 				}
 			],
 			"signatures": [
 				{
-					"id": 48,
+					"id": 63,
 					"name": "compressNormals",
 					"variant": "signature",
 					"kind": 4096,
@@ -251,14 +251,14 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 408,
+							"line": 471,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L408"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L471"
 						}
 					],
 					"parameters": [
 						{
-							"id": 49,
+							"id": 64,
 							"name": "array",
 							"variant": "param",
 							"kind": 32768,
@@ -288,7 +288,7 @@
 		},
 		{
 			"id": 21,
-			"name": "compressPoint3",
+			"name": "compressPoint3WithAABB3",
 			"variant": "declaration",
 			"kind": 64,
 			"flags": {},
@@ -297,13 +297,13 @@
 					"fileName": "index.ts",
 					"line": 289,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L289"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L289"
 				}
 			],
 			"signatures": [
 				{
 					"id": 22,
-					"name": "compressPoint3",
+					"name": "compressPoint3WithAABB3",
 					"variant": "signature",
 					"kind": 4096,
 					"flags": {},
@@ -320,7 +320,7 @@
 							"fileName": "index.ts",
 							"line": 289,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L289"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L289"
 						}
 					],
 					"parameters": [
@@ -397,7 +397,7 @@
 					"fileName": "index.ts",
 					"line": 255,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L255"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L255"
 				}
 			],
 			"signatures": [
@@ -420,7 +420,7 @@
 							"fileName": "index.ts",
 							"line": 255,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L255"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L255"
 						}
 					],
 					"parameters": [
@@ -493,7 +493,7 @@
 											"fileName": "index.ts",
 											"line": 279,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L279"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L279"
 										}
 									],
 									"type": {
@@ -518,7 +518,7 @@
 											"fileName": "index.ts",
 											"line": 278,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L278"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L278"
 										}
 									],
 									"type": {
@@ -547,7 +547,7 @@
 									"fileName": "index.ts",
 									"line": 277,
 									"character": 11,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L277"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L277"
 								}
 							]
 						}
@@ -556,7 +556,74 @@
 			]
 		},
 		{
-			"id": 94,
+			"id": 113,
+			"name": "compressRGBColors",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 827,
+					"character": 16,
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L827"
+				}
+			],
+			"signatures": [
+				{
+					"id": 114,
+					"name": "compressRGBColors",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Compresses a flat array of floatinging point RGB/RGBA colors."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 827,
+							"character": 16,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L827"
+						}
+					],
+					"parameters": [
+						{
+							"id": 115,
+							"name": "colors",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Uint16Array"
+						},
+						"name": "Uint16Array",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 116,
 			"name": "compressUVs",
 			"variant": "declaration",
 			"kind": 64,
@@ -564,14 +631,14 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 372,
+					"line": 435,
 					"character": 11,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L372"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L435"
 				}
 			],
 			"signatures": [
 				{
-					"id": 95,
+					"id": 117,
 					"name": "compressUVs",
 					"variant": "signature",
 					"kind": 4096,
@@ -587,14 +654,14 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 375,
+							"line": 438,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L375"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L438"
 						}
 					],
 					"parameters": [
 						{
-							"id": 96,
+							"id": 118,
 							"name": "array",
 							"variant": "param",
 							"kind": 32768,
@@ -610,7 +677,7 @@
 							}
 						},
 						{
-							"id": 97,
+							"id": 119,
 							"name": "min",
 							"variant": "param",
 							"kind": 32768,
@@ -626,7 +693,7 @@
 							}
 						},
 						{
-							"id": 98,
+							"id": 120,
 							"name": "max",
 							"variant": "param",
 							"kind": 32768,
@@ -645,14 +712,14 @@
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 99,
+							"id": 121,
 							"name": "__type",
 							"variant": "declaration",
 							"kind": 65536,
 							"flags": {},
 							"children": [
 								{
-									"id": 101,
+									"id": 123,
 									"name": "decompressMatrix",
 									"variant": "declaration",
 									"kind": 1024,
@@ -660,9 +727,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 377,
+											"line": 440,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L377"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L440"
 										}
 									],
 									"type": {
@@ -676,7 +743,7 @@
 									}
 								},
 								{
-									"id": 100,
+									"id": 122,
 									"name": "quantized",
 									"variant": "declaration",
 									"kind": 1024,
@@ -684,9 +751,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 376,
+											"line": 439,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L376"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L439"
 										}
 									],
 									"type": {
@@ -704,17 +771,17 @@
 								{
 									"title": "Properties",
 									"children": [
-										101,
-										100
+										123,
+										122
 									]
 								}
 							],
 							"sources": [
 								{
 									"fileName": "index.ts",
-									"line": 375,
+									"line": 438,
 									"character": 90,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L375"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L438"
 								}
 							]
 						}
@@ -733,7 +800,7 @@
 					"fileName": "index.ts",
 					"line": 235,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L235"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L235"
 				}
 			],
 			"signatures": [
@@ -756,7 +823,7 @@
 							"fileName": "index.ts",
 							"line": 235,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L235"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L235"
 						}
 					],
 					"parameters": [
@@ -781,7 +848,9 @@
 							"name": "positionsDecompressMatrix",
 							"variant": "param",
 							"kind": 32768,
-							"flags": {},
+							"flags": {
+								"isOptional": true
+							},
 							"type": {
 								"type": "reference",
 								"target": {
@@ -806,23 +875,23 @@
 			]
 		},
 		{
-			"id": 31,
-			"name": "decompressAABB3",
+			"id": 41,
+			"name": "decompressAABB3WithAABB3",
 			"variant": "declaration",
 			"kind": 64,
 			"flags": {},
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 320,
+					"line": 356,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L320"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L356"
 				}
 			],
 			"signatures": [
 				{
-					"id": 32,
-					"name": "decompressAABB3",
+					"id": 42,
+					"name": "decompressAABB3WithAABB3",
 					"variant": "signature",
 					"kind": 4096,
 					"flags": {},
@@ -837,14 +906,14 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 320,
+							"line": 356,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L320"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L356"
 						}
 					],
 					"parameters": [
 						{
-							"id": 33,
+							"id": 43,
 							"name": "aabb",
 							"variant": "param",
 							"kind": 32768,
@@ -860,8 +929,8 @@
 							}
 						},
 						{
-							"id": 34,
-							"name": "decompressMatrix",
+							"id": 44,
+							"name": "aabb2",
 							"variant": "param",
 							"kind": 32768,
 							"flags": {},
@@ -876,7 +945,7 @@
 							}
 						},
 						{
-							"id": 35,
+							"id": 45,
 							"name": "dest",
 							"variant": "param",
 							"kind": 32768,
@@ -906,7 +975,107 @@
 			]
 		},
 		{
-			"id": 60,
+			"id": 36,
+			"name": "decompressAABB3WithMat4",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 340,
+					"character": 16,
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L340"
+				}
+			],
+			"signatures": [
+				{
+					"id": 37,
+					"name": "decompressAABB3WithMat4",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Decompresses an axis-aligned 3D boundary"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 340,
+							"character": 16,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L340"
+						}
+					],
+					"parameters": [
+						{
+							"id": 38,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 39,
+							"name": "decompressMatrix",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 40,
+							"name": "dest",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "aabb"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
+			"id": 75,
 			"name": "decompressNormal",
 			"variant": "declaration",
 			"kind": 64,
@@ -914,14 +1083,14 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 492,
+					"line": 555,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L492"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L555"
 				}
 			],
 			"signatures": [
 				{
-					"id": 61,
+					"id": 76,
 					"name": "decompressNormal",
 					"variant": "signature",
 					"kind": 4096,
@@ -929,14 +1098,14 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 492,
+							"line": 555,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L492"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L555"
 						}
 					],
 					"parameters": [
 						{
-							"id": 62,
+							"id": 77,
 							"name": "oct",
 							"variant": "param",
 							"kind": 32768,
@@ -952,7 +1121,7 @@
 							}
 						},
 						{
-							"id": 63,
+							"id": 78,
 							"name": "result",
 							"variant": "param",
 							"kind": 32768,
@@ -981,7 +1150,7 @@
 			]
 		},
 		{
-			"id": 64,
+			"id": 79,
 			"name": "decompressNormals",
 			"variant": "declaration",
 			"kind": 64,
@@ -989,14 +1158,14 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 512,
+					"line": 575,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L512"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L575"
 				}
 			],
 			"signatures": [
 				{
-					"id": 65,
+					"id": 80,
 					"name": "decompressNormals",
 					"variant": "signature",
 					"kind": 4096,
@@ -1004,14 +1173,14 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 512,
+							"line": 575,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L512"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L575"
 						}
 					],
 					"parameters": [
 						{
-							"id": 66,
+							"id": 81,
 							"name": "octs",
 							"variant": "param",
 							"kind": 32768,
@@ -1034,7 +1203,7 @@
 							}
 						},
 						{
-							"id": 67,
+							"id": 82,
 							"name": "result",
 							"variant": "param",
 							"kind": 32768,
@@ -1063,8 +1232,108 @@
 			]
 		},
 		{
+			"id": 31,
+			"name": "decompressPoint3WithAABB3",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 320,
+					"character": 16,
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L320"
+				}
+			],
+			"signatures": [
+				{
+					"id": 32,
+					"name": "decompressPoint3WithAABB3",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Decompresses a 3D position"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 320,
+							"character": 16,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L320"
+						}
+					],
+					"parameters": [
+						{
+							"id": 33,
+							"name": "position",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 34,
+							"name": "aabb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 35,
+							"name": "dest",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							},
+							"defaultValue": "position"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
 			"id": 26,
-			"name": "decompressPoint3",
+			"name": "decompressPoint3WithMat4",
 			"variant": "declaration",
 			"kind": 64,
 			"flags": {},
@@ -1073,13 +1342,13 @@
 					"fileName": "index.ts",
 					"line": 307,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L307"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L307"
 				}
 			],
 			"signatures": [
 				{
 					"id": 27,
-					"name": "decompressPoint3",
+					"name": "decompressPoint3WithMat4",
 					"variant": "signature",
 					"kind": 4096,
 					"flags": {},
@@ -1096,7 +1365,7 @@
 							"fileName": "index.ts",
 							"line": 307,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L307"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L307"
 						}
 					],
 					"parameters": [
@@ -1163,23 +1432,23 @@
 			]
 		},
 		{
-			"id": 36,
-			"name": "decompressPositions3",
+			"id": 51,
+			"name": "decompressPositions3WithAABB3",
 			"variant": "declaration",
 			"kind": 64,
 			"flags": {},
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 336,
+					"line": 393,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L336"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L393"
 				}
 			],
 			"signatures": [
 				{
-					"id": 37,
-					"name": "decompressPositions3",
+					"id": 52,
+					"name": "decompressPositions3WithAABB3",
 					"variant": "signature",
 					"kind": 4096,
 					"flags": {},
@@ -1194,14 +1463,14 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 336,
+							"line": 393,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L336"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L393"
 						}
 					],
 					"parameters": [
 						{
-							"id": 38,
+							"id": 53,
 							"name": "positions",
 							"variant": "param",
 							"kind": 32768,
@@ -1217,8 +1486,8 @@
 							}
 						},
 						{
-							"id": 39,
-							"name": "decompressMatrix",
+							"id": 54,
+							"name": "aabb",
 							"variant": "param",
 							"kind": 32768,
 							"flags": {},
@@ -1233,7 +1502,7 @@
 							}
 						},
 						{
-							"id": 40,
+							"id": 55,
 							"name": "dest",
 							"variant": "param",
 							"kind": 32768,
@@ -1263,38 +1532,46 @@
 			]
 		},
 		{
-			"id": 50,
-			"name": "decompressUV",
+			"id": 46,
+			"name": "decompressPositions3WithMat4",
 			"variant": "declaration",
 			"kind": 64,
 			"flags": {},
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 473,
+					"line": 378,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L473"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L378"
 				}
 			],
 			"signatures": [
 				{
-					"id": 51,
-					"name": "decompressUV",
+					"id": 47,
+					"name": "decompressPositions3WithMat4",
 					"variant": "signature",
 					"kind": 4096,
 					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Decompresses a flat array of positions"
+							}
+						]
+					},
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 473,
+							"line": 378,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L473"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L378"
 						}
 					],
 					"parameters": [
 						{
-							"id": 52,
-							"name": "uv",
+							"id": 48,
+							"name": "positions",
 							"variant": "param",
 							"kind": 32768,
 							"flags": {},
@@ -1309,7 +1586,7 @@
 							}
 						},
 						{
-							"id": 53,
+							"id": 49,
 							"name": "decompressMatrix",
 							"variant": "param",
 							"kind": 32768,
@@ -1325,7 +1602,99 @@
 							}
 						},
 						{
-							"id": 54,
+							"id": 50,
+							"name": "dest",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+									"qualifiedName": "Float32Array"
+								},
+								"name": "Float32Array",
+								"package": "typescript"
+							},
+							"defaultValue": "..."
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Float32Array"
+						},
+						"name": "Float32Array",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 65,
+			"name": "decompressUV",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 536,
+					"character": 16,
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L536"
+				}
+			],
+			"signatures": [
+				{
+					"id": 66,
+					"name": "decompressUV",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 536,
+							"character": 16,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L536"
+						}
+					],
+					"parameters": [
+						{
+							"id": 67,
+							"name": "uv",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 68,
+							"name": "decompressMatrix",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 69,
 							"name": "dest",
 							"variant": "param",
 							"kind": 32768,
@@ -1350,7 +1719,7 @@
 			]
 		},
 		{
-			"id": 55,
+			"id": 70,
 			"name": "decompressUVs",
 			"variant": "declaration",
 			"kind": 64,
@@ -1358,14 +1727,14 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 481,
+					"line": 544,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L481"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L544"
 				}
 			],
 			"signatures": [
 				{
-					"id": 56,
+					"id": 71,
 					"name": "decompressUVs",
 					"variant": "signature",
 					"kind": 4096,
@@ -1373,14 +1742,14 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 481,
+							"line": 544,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L481"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L544"
 						}
 					],
 					"parameters": [
 						{
-							"id": 57,
+							"id": 72,
 							"name": "uvs",
 							"variant": "param",
 							"kind": 32768,
@@ -1396,7 +1765,7 @@
 							}
 						},
 						{
-							"id": 58,
+							"id": 73,
 							"name": "decompressMatrix",
 							"variant": "param",
 							"kind": 32768,
@@ -1412,7 +1781,7 @@
 							}
 						},
 						{
-							"id": 59,
+							"id": 74,
 							"name": "dest",
 							"variant": "param",
 							"kind": 32768,
@@ -1452,7 +1821,7 @@
 					"fileName": "index.ts",
 					"line": 212,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L212"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L212"
 				}
 			],
 			"signatures": [
@@ -1475,7 +1844,7 @@
 							"fileName": "index.ts",
 							"line": 212,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L212"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L212"
 						}
 					],
 					"parameters": [
@@ -1552,7 +1921,7 @@
 											"fileName": "index.ts",
 											"line": 228,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L228"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L228"
 										}
 									],
 									"type": {
@@ -1576,7 +1945,7 @@
 											"fileName": "index.ts",
 											"line": 227,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L227"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L227"
 										}
 									],
 									"type": {
@@ -1604,7 +1973,7 @@
 									"fileName": "index.ts",
 									"line": 226,
 									"character": 11,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L226"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L226"
 								}
 							]
 						}
@@ -1613,7 +1982,7 @@
 			]
 		},
 		{
-			"id": 41,
+			"id": 56,
 			"name": "getUVBounds",
 			"variant": "declaration",
 			"kind": 64,
@@ -1621,14 +1990,14 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 349,
+					"line": 412,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L349"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L412"
 				}
 			],
 			"signatures": [
 				{
-					"id": 42,
+					"id": 57,
 					"name": "getUVBounds",
 					"variant": "signature",
 					"kind": 4096,
@@ -1644,14 +2013,14 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 349,
+							"line": 412,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L349"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L412"
 						}
 					],
 					"parameters": [
 						{
-							"id": 43,
+							"id": 58,
 							"name": "array",
 							"variant": "param",
 							"kind": 32768,
@@ -1670,14 +2039,14 @@
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 44,
+							"id": 59,
 							"name": "__type",
 							"variant": "declaration",
 							"kind": 65536,
 							"flags": {},
 							"children": [
 								{
-									"id": 46,
+									"id": 61,
 									"name": "max",
 									"variant": "declaration",
 									"kind": 1024,
@@ -1685,9 +2054,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 349,
+											"line": 412,
 											"character": 77,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L349"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L412"
 										}
 									],
 									"type": {
@@ -1701,7 +2070,7 @@
 									}
 								},
 								{
-									"id": 45,
+									"id": 60,
 									"name": "min",
 									"variant": "declaration",
 									"kind": 1024,
@@ -1709,9 +2078,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 349,
+											"line": 412,
 											"character": 55,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L349"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L412"
 										}
 									],
 									"type": {
@@ -1729,17 +2098,17 @@
 								{
 									"title": "Properties",
 									"children": [
-										46,
-										45
+										61,
+										60
 									]
 								}
 							],
 							"sources": [
 								{
 									"fileName": "index.ts",
-									"line": 349,
+									"line": 412,
 									"character": 53,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/compression/src/index.ts#L349"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L412"
 								}
 							]
 						}
@@ -1752,20 +2121,24 @@
 		{
 			"title": "Functions",
 			"children": [
-				47,
+				62,
 				21,
 				13,
-				94,
+				113,
+				116,
 				9,
-				31,
-				60,
-				64,
-				26,
+				41,
 				36,
-				50,
-				55,
+				75,
+				79,
+				31,
+				26,
+				51,
+				46,
+				65,
+				70,
 				1,
-				41
+				56
 			]
 		}
 	],
@@ -1864,11 +2237,11 @@
 		},
 		"21": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "compressPoint3"
+			"qualifiedName": "compressPoint3WithAABB3"
 		},
 		"22": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "compressPoint3"
+			"qualifiedName": "compressPoint3WithAABB3"
 		},
 		"23": {
 			"sourceFileName": "src/index.ts",
@@ -1884,11 +2257,11 @@
 		},
 		"26": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressPoint3"
+			"qualifiedName": "decompressPoint3WithMat4"
 		},
 		"27": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressPoint3"
+			"qualifiedName": "decompressPoint3WithMat4"
 		},
 		"28": {
 			"sourceFileName": "src/index.ts",
@@ -1904,19 +2277,19 @@
 		},
 		"31": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressAABB3"
+			"qualifiedName": "decompressPoint3WithAABB3"
 		},
 		"32": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressAABB3"
+			"qualifiedName": "decompressPoint3WithAABB3"
 		},
 		"33": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "aabb"
+			"qualifiedName": "position"
 		},
 		"34": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressMatrix"
+			"qualifiedName": "aabb"
 		},
 		"35": {
 			"sourceFileName": "src/index.ts",
@@ -1924,15 +2297,15 @@
 		},
 		"36": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressPositions3"
+			"qualifiedName": "decompressAABB3WithMat4"
 		},
 		"37": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressPositions3"
+			"qualifiedName": "decompressAABB3WithMat4"
 		},
 		"38": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "positions"
+			"qualifiedName": "aabb"
 		},
 		"39": {
 			"sourceFileName": "src/index.ts",
@@ -1944,141 +2317,213 @@
 		},
 		"41": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "getUVBounds"
+			"qualifiedName": "decompressAABB3WithAABB3"
 		},
 		"42": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "getUVBounds"
+			"qualifiedName": "decompressAABB3WithAABB3"
 		},
 		"43": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "array"
+			"qualifiedName": "aabb"
 		},
 		"44": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "__type"
+			"qualifiedName": "aabb2"
 		},
 		"45": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "__type.min"
+			"qualifiedName": "dest"
 		},
 		"46": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "__type.max"
+			"qualifiedName": "decompressPositions3WithMat4"
 		},
 		"47": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "compressNormals"
+			"qualifiedName": "decompressPositions3WithMat4"
 		},
 		"48": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "compressNormals"
+			"qualifiedName": "positions"
 		},
 		"49": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "array"
+			"qualifiedName": "decompressMatrix"
 		},
 		"50": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressUV"
+			"qualifiedName": "dest"
 		},
 		"51": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressUV"
+			"qualifiedName": "decompressPositions3WithAABB3"
 		},
 		"52": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "uv"
+			"qualifiedName": "decompressPositions3WithAABB3"
 		},
 		"53": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressMatrix"
+			"qualifiedName": "positions"
 		},
 		"54": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "dest"
+			"qualifiedName": "aabb"
 		},
 		"55": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressUVs"
+			"qualifiedName": "dest"
 		},
 		"56": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressUVs"
+			"qualifiedName": "getUVBounds"
 		},
 		"57": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "uvs"
+			"qualifiedName": "getUVBounds"
 		},
 		"58": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressMatrix"
+			"qualifiedName": "array"
 		},
 		"59": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "dest"
+			"qualifiedName": "__type"
 		},
 		"60": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressNormal"
+			"qualifiedName": "__type.min"
 		},
 		"61": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressNormal"
+			"qualifiedName": "__type.max"
 		},
 		"62": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "oct"
+			"qualifiedName": "compressNormals"
 		},
 		"63": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "result"
+			"qualifiedName": "compressNormals"
 		},
 		"64": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressNormals"
+			"qualifiedName": "array"
 		},
 		"65": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "decompressNormals"
+			"qualifiedName": "decompressUV"
 		},
 		"66": {
 			"sourceFileName": "src/index.ts",
-			"qualifiedName": "octs"
+			"qualifiedName": "decompressUV"
 		},
 		"67": {
 			"sourceFileName": "src/index.ts",
+			"qualifiedName": "uv"
+		},
+		"68": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "decompressMatrix"
+		},
+		"69": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "dest"
+		},
+		"70": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "decompressUVs"
+		},
+		"71": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "decompressUVs"
+		},
+		"72": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "uvs"
+		},
+		"73": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "decompressMatrix"
+		},
+		"74": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "dest"
+		},
+		"75": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "decompressNormal"
+		},
+		"76": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "decompressNormal"
+		},
+		"77": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "oct"
+		},
+		"78": {
+			"sourceFileName": "src/index.ts",
 			"qualifiedName": "result"
 		},
-		"94": {
+		"79": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "decompressNormals"
+		},
+		"80": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "decompressNormals"
+		},
+		"81": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "octs"
+		},
+		"82": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "result"
+		},
+		"113": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "compressRGBColors"
+		},
+		"114": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "compressRGBColors"
+		},
+		"115": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "colors"
+		},
+		"116": {
 			"sourceFileName": "src/index.ts",
 			"qualifiedName": "compressUVs"
 		},
-		"95": {
+		"117": {
 			"sourceFileName": "src/index.ts",
 			"qualifiedName": "compressUVs"
 		},
-		"96": {
+		"118": {
 			"sourceFileName": "src/index.ts",
 			"qualifiedName": "array"
 		},
-		"97": {
+		"119": {
 			"sourceFileName": "src/index.ts",
 			"qualifiedName": "min"
 		},
-		"98": {
+		"120": {
 			"sourceFileName": "src/index.ts",
 			"qualifiedName": "max"
 		},
-		"99": {
+		"121": {
 			"sourceFileName": "src/index.ts",
 			"qualifiedName": "__type"
 		},
-		"100": {
+		"122": {
 			"sourceFileName": "src/index.ts",
 			"qualifiedName": "__type.quantized"
 		},
-		"101": {
+		"123": {
 			"sourceFileName": "src/index.ts",
 			"qualifiedName": "__type.decompressMatrix"
 		}

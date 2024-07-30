@@ -1589,7 +1589,7 @@ const letters = {
  *
  * @function buildVectorTextGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID, unique among all components in the parent {@link @xeokit/scene!Scene | Scene}, generated automatically when omitted.
  * @param [cfg.center]  3D point indicating the center position.
  * @param [cfg.origin] 3D point indicating the top left corner.
  * @param [cfg.size=1] Size of each character.

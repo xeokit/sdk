@@ -115,12 +115,12 @@
 			},
 			{
 				"kind": "text",
-				"text": ",\n* load a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file using the "
+				"text": ",\n* load a [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file using the "
 			},
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/dtx!loadDTX | loadDTX"
+				"text": "@xeokit/xkt!loadXKT | loadXKT"
 			},
 			{
 				"kind": "text",
@@ -128,11 +128,11 @@
 			},
 			{
 				"kind": "code",
-				"text": "````javascript\nimport {Scene} from \"@xeokit/scene\";\nimport {Data} from \"@xeoki/data\";\nimport {Viewer} from \"@xeokit/viewer\";\nimport {WebGLRenderer} from \"@xeokit/webglrenderer\";\nimport {loadDTX} from \"@xeokit/loadDTX\";\nimport {saveBCFViewpoint, loadBCFViewpoint} from \"@xeokit/bcf\";\nimport * as ifcTypes from \"@xeokit/ifctypes\";\n\nconst scene = new Scene();\nconst data = new Data();\n\nconst viewer = new Viewer({\n     scene,\n     renderers: new WebGLRenderer()\n});\n\nconst view = viewer.createView({\n    id: \"myView\",\n    canvasId: \"myCanvas\"\n});\n\nconst sceneModel = scene.createModel({\n    id: \"myModel\"\n});\n\nconst dataModel = data.createModel({\n    id: \"myModel\"\n});\n\nfetch(\"myModel.dtx\").then(response => {\n    response.arrayBuffer().then(data => {\n\n         loadDTX({ data, sceneModel, dataModel });\n\n         sceneModel.build();\n         dataModel.build();\n    });\n});\n````"
+				"text": "````javascript\nimport {Scene} from \"@xeokit/scene\";\nimport {Data} from \"@xeoki/data\";\nimport {Viewer} from \"@xeokit/viewer\";\nimport {WebGLRenderer} from \"@xeokit/webglrenderer\";\nimport {loadXKT} from \"@xeokit/xkt\";\nimport {saveBCFViewpoint, loadBCFViewpoint} from \"@xeokit/bcf\";\nimport * as ifcTypes from \"@xeokit/ifctypes\";\n\nconst scene = new Scene();\nconst data = new Data();\n\nconst viewer = new Viewer({\n     scene,\n     renderers: new WebGLRenderer()\n});\n\nconst view = viewer.createView({\n    id: \"myView\",\n    canvasId: \"myCanvas\"\n});\n\nconst sceneModel = scene.createModel({\n    id: \"myModel\"\n});\n\nconst dataModel = data.createModel({\n    id: \"myModel\"\n});\n\nfetch(\"myModel.xkt\").then(response => {\n    response.arrayBuffer().then(data => {\n\n         loadXKT({ data, sceneModel, dataModel });\n\n         sceneModel.build();\n         dataModel.build();\n    });\n});\n````"
 			},
 			{
 				"kind": "text",
-				"text": "\n\nWhen our [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) has loaded, that call to "
+				"text": "\n\nWhen our [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) has loaded, that call to "
 			},
 			{
 				"kind": "inline-tag",
@@ -159,7 +159,7 @@
 			},
 			{
 				"kind": "text",
-				"text": " events.\n\nOn the DataModel.onBuilt event, we'll customize the View by arranging the "
+				"text": " events.\n\nOn the SceneModel.onBuilt event, we'll customize the View by arranging the "
 			},
 			{
 				"kind": "inline-tag",
@@ -181,7 +181,7 @@
 			},
 			{
 				"kind": "code",
-				"text": "````javascript\ndataModel.onBuilt.one(()=>{\n\n    view.camera.eye = [0,0,-33];\n    view.camera.look = [0,0,0];\n    view.camera.up = [0,0,0];\n\n    view.setObjectsVisible(view.objectIds, false);\n    view.setObjectsVisible([\"myObject1\", \"myObject2\", \"myObject3\", ...], true);\n\n    view.setObjectsXRayed([\"myObject1\", \"myObject\", ...], true);\n\n    const bcfViewpoint = saveBCFViewpoint({\n        view: view\n    });\n\n});\n````"
+				"text": "````javascript\nsceneModel.onBuilt.one(()=>{\n\n    view.camera.eye = [0,0,-33];\n    view.camera.look = [0,0,0];\n    view.camera.up = [0,0,0];\n\n    view.setObjectsVisible(view.objectIds, false);\n    view.setObjectsVisible([\"myObject1\", \"myObject2\", \"myObject3\", ...], true);\n\n    view.setObjectsXRayed([\"myObject1\", \"myObject\", ...], true);\n\n    const bcfViewpoint = saveBCFViewpoint({\n        view: view\n    });\n\n});\n````"
 			},
 			{
 				"kind": "text",
@@ -242,7 +242,7 @@
 			},
 			{
 				"kind": "code",
-				"text": "````javascript\nimport {Scene} from \"@xeokit/scene\";\nimport {Data} from \"@xeoki/data\";\nimport {Viewer} from \"@xeokit/viewer\";\nimport {WebGLRenderer} from \"@xeokit/webglrenderer\";\nimport {loadBCFViewpoint} from \"@xeokit/bcf\";\n\nconst viewer = new Viewer({\n    id: \"myViewer\",\n    scene,\n    renderers: new WebGLRenderer({\n        //...\n    })\n});\n\nconst view = viewer.createView({\n    id: \"myView\",\n    canvasId: \"myView1\"\n});\n\nconst foregroundViewLayer = view.createLayer({\n    id: \"foreground\"\n});\n\nconst backgroundViewLayer = view.createLayer({\n    id: \"background\"\n});\n\nconst sceneModel = scene.createModel({\n     id: \"myModel\",\n     layerId: \"foreground\"\n});\n\n//...create some objects, load DTX etc\n\nsceneModel.build();\n\nconst myOtherSceneModel = scene.createModel({\n     id: \"myOtherModel\",\n     layerId: \"background\"\n});\n\n//...create some objects, load DTX etc\n\nmyOtherSceneModel.build();\n````"
+				"text": "````javascript\nimport {Scene} from \"@xeokit/scene\";\nimport {Data} from \"@xeoki/data\";\nimport {Viewer} from \"@xeokit/viewer\";\nimport {WebGLRenderer} from \"@xeokit/webglrenderer\";\nimport {loadBCFViewpoint} from \"@xeokit/bcf\";\n\nconst viewer = new Viewer({\n    id: \"myViewer\",\n    scene,\n    renderers: new WebGLRenderer({\n        //...\n    })\n});\n\nconst view = viewer.createView({\n    id: \"myView\",\n    canvasId: \"myView1\"\n});\n\nconst foregroundViewLayer = view.createLayer({\n    id: \"foreground\"\n});\n\nconst backgroundViewLayer = view.createLayer({\n    id: \"background\"\n});\n\nconst sceneModel = scene.createModel({\n     id: \"myModel\",\n     layerId: \"foreground\"\n});\n\n//...create some objects, load XKT etc\n\nsceneModel.build();\n\nconst myOtherSceneModel = scene.createModel({\n     id: \"myOtherModel\",\n     layerId: \"background\"\n});\n\n//...create some objects, load XKT etc\n\nmyOtherSceneModel.build();\n````"
 			},
 			{
 				"kind": "text",
@@ -360,7 +360,7 @@
 							"fileName": "BCFBitmap.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L16"
 						}
 					],
 					"type": {
@@ -387,7 +387,7 @@
 							"fileName": "BCFBitmap.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L11"
 						}
 					],
 					"type": {
@@ -414,7 +414,7 @@
 							"fileName": "BCFBitmap.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L36"
 						}
 					],
 					"type": {
@@ -441,7 +441,7 @@
 							"fileName": "BCFBitmap.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L21"
 						}
 					],
 					"type": {
@@ -470,7 +470,7 @@
 							"fileName": "BCFBitmap.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L26"
 						}
 					],
 					"type": {
@@ -493,7 +493,7 @@
 											"fileName": "BCFBitmap.ts",
 											"line": 26,
 											"character": 14,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L26"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L26"
 										}
 									],
 									"type": {
@@ -512,7 +512,7 @@
 											"fileName": "BCFBitmap.ts",
 											"line": 26,
 											"character": 20,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L26"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L26"
 										}
 									],
 									"type": {
@@ -531,7 +531,7 @@
 											"fileName": "BCFBitmap.ts",
 											"line": 26,
 											"character": 26,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L26"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L26"
 										}
 									],
 									"type": {
@@ -555,7 +555,7 @@
 									"fileName": "BCFBitmap.ts",
 									"line": 26,
 									"character": 12,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L26"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L26"
 								}
 							]
 						}
@@ -580,7 +580,7 @@
 							"fileName": "BCFBitmap.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L31"
 						}
 					],
 					"type": {
@@ -603,7 +603,7 @@
 											"fileName": "BCFBitmap.ts",
 											"line": 31,
 											"character": 10,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L31"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L31"
 										}
 									],
 									"type": {
@@ -622,7 +622,7 @@
 											"fileName": "BCFBitmap.ts",
 											"line": 31,
 											"character": 16,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L31"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L31"
 										}
 									],
 									"type": {
@@ -641,7 +641,7 @@
 											"fileName": "BCFBitmap.ts",
 											"line": 31,
 											"character": 23,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L31"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L31"
 										}
 									],
 									"type": {
@@ -665,7 +665,7 @@
 									"fileName": "BCFBitmap.ts",
 									"line": 31,
 									"character": 8,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L31"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L31"
 								}
 							]
 						}
@@ -690,7 +690,7 @@
 					"fileName": "BCFBitmap.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFBitmap.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFBitmap.ts#L6"
 				}
 			]
 		},
@@ -730,7 +730,7 @@
 							"fileName": "BCFClippingPlane.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFClippingPlane.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFClippingPlane.ts#L16"
 						}
 					],
 					"type": {
@@ -759,7 +759,7 @@
 							"fileName": "BCFClippingPlane.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFClippingPlane.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFClippingPlane.ts#L11"
 						}
 					],
 					"type": {
@@ -786,7 +786,7 @@
 							"fileName": "BCFClippingPlane.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFClippingPlane.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFClippingPlane.ts#L26"
 						}
 					],
 					"type": {
@@ -815,7 +815,7 @@
 							"fileName": "BCFClippingPlane.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFClippingPlane.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFClippingPlane.ts#L36"
 						}
 					],
 					"type": {
@@ -842,7 +842,7 @@
 							"fileName": "BCFClippingPlane.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFClippingPlane.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFClippingPlane.ts#L21"
 						}
 					],
 					"type": {
@@ -871,7 +871,7 @@
 							"fileName": "BCFClippingPlane.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFClippingPlane.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFClippingPlane.ts#L31"
 						}
 					],
 					"type": {
@@ -900,7 +900,7 @@
 					"fileName": "BCFClippingPlane.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFClippingPlane.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFClippingPlane.ts#L6"
 				}
 			]
 		},
@@ -938,7 +938,7 @@
 							"fileName": "BCFColoringComponent.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFColoringComponent.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFColoringComponent.ts#L16"
 						}
 					],
 					"type": {
@@ -965,7 +965,7 @@
 							"fileName": "BCFColoringComponent.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFColoringComponent.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFColoringComponent.ts#L11"
 						}
 					],
 					"type": {
@@ -993,7 +993,7 @@
 					"fileName": "BCFColoringComponent.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFColoringComponent.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFColoringComponent.ts#L6"
 				}
 			]
 		},
@@ -1033,7 +1033,7 @@
 							"fileName": "BCFComponent.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFComponent.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFComponent.ts#L19"
 						}
 					],
 					"type": {
@@ -1060,7 +1060,7 @@
 							"fileName": "BCFComponent.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFComponent.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFComponent.ts#L9"
 						}
 					],
 					"type": {
@@ -1089,7 +1089,7 @@
 							"fileName": "BCFComponent.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFComponent.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFComponent.ts#L14"
 						}
 					],
 					"type": {
@@ -1113,7 +1113,7 @@
 					"fileName": "BCFComponent.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFComponent.ts#L4"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFComponent.ts#L4"
 				}
 			]
 		},
@@ -1151,7 +1151,7 @@
 							"fileName": "BCFComponents.ts",
 							"line": 13,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFComponents.ts#L13"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFComponents.ts#L13"
 						}
 					],
 					"type": {
@@ -1185,7 +1185,7 @@
 							"fileName": "BCFComponents.ts",
 							"line": 23,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFComponents.ts#L23"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFComponents.ts#L23"
 						}
 					],
 					"type": {
@@ -1217,7 +1217,7 @@
 							"fileName": "BCFComponents.ts",
 							"line": 28,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFComponents.ts#L28"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFComponents.ts#L28"
 						}
 					],
 					"type": {
@@ -1251,7 +1251,7 @@
 							"fileName": "BCFComponents.ts",
 							"line": 18,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFComponents.ts#L18"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFComponents.ts#L18"
 						}
 					],
 					"type": {
@@ -1278,7 +1278,7 @@
 					"fileName": "BCFComponents.ts",
 					"line": 8,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFComponents.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFComponents.ts#L8"
 				}
 			]
 		},
@@ -1316,7 +1316,7 @@
 							"fileName": "BCFLine.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFLine.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFLine.ts#L16"
 						}
 					],
 					"type": {
@@ -1345,7 +1345,7 @@
 							"fileName": "BCFLine.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFLine.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFLine.ts#L11"
 						}
 					],
 					"type": {
@@ -1370,7 +1370,7 @@
 					"fileName": "BCFLine.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFLine.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFLine.ts#L6"
 				}
 			]
 		},
@@ -1408,7 +1408,7 @@
 							"fileName": "BCFOrthogonalCamera.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFOrthogonalCamera.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFOrthogonalCamera.ts#L16"
 						}
 					],
 					"type": {
@@ -1437,7 +1437,7 @@
 							"fileName": "BCFOrthogonalCamera.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFOrthogonalCamera.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFOrthogonalCamera.ts#L21"
 						}
 					],
 					"type": {
@@ -1466,7 +1466,7 @@
 							"fileName": "BCFOrthogonalCamera.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFOrthogonalCamera.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFOrthogonalCamera.ts#L11"
 						}
 					],
 					"type": {
@@ -1495,7 +1495,7 @@
 							"fileName": "BCFOrthogonalCamera.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFOrthogonalCamera.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFOrthogonalCamera.ts#L26"
 						}
 					],
 					"type": {
@@ -1520,7 +1520,7 @@
 					"fileName": "BCFOrthogonalCamera.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFOrthogonalCamera.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFOrthogonalCamera.ts#L6"
 				}
 			]
 		},
@@ -1558,7 +1558,7 @@
 							"fileName": "BCFPerspectiveCamera.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFPerspectiveCamera.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFPerspectiveCamera.ts#L16"
 						}
 					],
 					"type": {
@@ -1587,7 +1587,7 @@
 							"fileName": "BCFPerspectiveCamera.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFPerspectiveCamera.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFPerspectiveCamera.ts#L21"
 						}
 					],
 					"type": {
@@ -1616,7 +1616,7 @@
 							"fileName": "BCFPerspectiveCamera.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFPerspectiveCamera.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFPerspectiveCamera.ts#L11"
 						}
 					],
 					"type": {
@@ -1645,7 +1645,7 @@
 							"fileName": "BCFPerspectiveCamera.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFPerspectiveCamera.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFPerspectiveCamera.ts#L26"
 						}
 					],
 					"type": {
@@ -1670,7 +1670,7 @@
 					"fileName": "BCFPerspectiveCamera.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFPerspectiveCamera.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFPerspectiveCamera.ts#L6"
 				}
 			]
 		},
@@ -1708,7 +1708,7 @@
 							"fileName": "BCFSelectionComponent.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFSelectionComponent.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFSelectionComponent.ts#L11"
 						}
 					],
 					"type": {
@@ -1735,7 +1735,7 @@
 							"fileName": "BCFSelectionComponent.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFSelectionComponent.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFSelectionComponent.ts#L16"
 						}
 					],
 					"type": {
@@ -1763,7 +1763,7 @@
 					"fileName": "BCFSelectionComponent.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFSelectionComponent.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFSelectionComponent.ts#L6"
 				}
 			]
 		},
@@ -1777,7 +1777,7 @@
 				"summary": [
 					{
 						"kind": "text",
-						"text": "TODO"
+						"text": "A bitmap snapshot of the viewpoint."
 					}
 				]
 			},
@@ -1792,7 +1792,7 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "TODO"
+								"text": "Snapshot image data."
 							}
 						]
 					},
@@ -1801,7 +1801,7 @@
 							"fileName": "BCFSnapshot.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFSnapshot.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFSnapshot.ts#L14"
 						}
 					],
 					"type": {
@@ -1819,7 +1819,7 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "TODO"
+								"text": "Format of the snapshot."
 							}
 						]
 					},
@@ -1828,7 +1828,7 @@
 							"fileName": "BCFSnapshot.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFSnapshot.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFSnapshot.ts#L9"
 						}
 					],
 					"type": {
@@ -1860,7 +1860,7 @@
 					"fileName": "BCFSnapshot.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFSnapshot.ts#L4"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFSnapshot.ts#L4"
 				}
 			]
 		},
@@ -1898,7 +1898,7 @@
 							"fileName": "BCFTranslucencyComponent.ts",
 							"line": 17,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFTranslucencyComponent.ts#L17"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFTranslucencyComponent.ts#L17"
 						}
 					],
 					"type": {
@@ -1925,7 +1925,7 @@
 							"fileName": "BCFTranslucencyComponent.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFTranslucencyComponent.ts#L22"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFTranslucencyComponent.ts#L22"
 						}
 					],
 					"type": {
@@ -1957,7 +1957,7 @@
 							"fileName": "BCFTranslucencyComponent.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFTranslucencyComponent.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFTranslucencyComponent.ts#L12"
 						}
 					],
 					"type": {
@@ -1983,7 +1983,7 @@
 					"fileName": "BCFTranslucencyComponent.ts",
 					"line": 7,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFTranslucencyComponent.ts#L7"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFTranslucencyComponent.ts#L7"
 				}
 			]
 		},
@@ -2021,7 +2021,7 @@
 							"fileName": "BCFVector.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFVector.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFVector.ts#L9"
 						}
 					],
 					"type": {
@@ -2048,7 +2048,7 @@
 							"fileName": "BCFVector.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFVector.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFVector.ts#L14"
 						}
 					],
 					"type": {
@@ -2075,7 +2075,7 @@
 							"fileName": "BCFVector.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFVector.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFVector.ts#L19"
 						}
 					],
 					"type": {
@@ -2099,7 +2099,7 @@
 					"fileName": "BCFVector.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFVector.ts#L4"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFVector.ts#L4"
 				}
 			]
 		},
@@ -2113,7 +2113,7 @@
 				"summary": [
 					{
 						"kind": "text",
-						"text": "TODO"
+						"text": "Setup hints."
 					}
 				]
 			},
@@ -2128,7 +2128,7 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "TODO"
+								"text": "Translucency of openings."
 							}
 						]
 					},
@@ -2137,7 +2137,7 @@
 							"fileName": "BCFViewSetupHints.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewSetupHints.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewSetupHints.ts#L9"
 						}
 					],
 					"type": {
@@ -2155,7 +2155,7 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "TODO"
+								"text": "Visibility of openings."
 							}
 						]
 					},
@@ -2164,7 +2164,7 @@
 							"fileName": "BCFViewSetupHints.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewSetupHints.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewSetupHints.ts#L19"
 						}
 					],
 					"type": {
@@ -2182,7 +2182,7 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "TODO"
+								"text": "Translucency of space boundaries."
 							}
 						]
 					},
@@ -2191,7 +2191,7 @@
 							"fileName": "BCFViewSetupHints.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewSetupHints.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewSetupHints.ts#L14"
 						}
 					],
 					"type": {
@@ -2209,7 +2209,7 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "TODO"
+								"text": "Visibility of space boundaries."
 							}
 						]
 					},
@@ -2218,7 +2218,7 @@
 							"fileName": "BCFViewSetupHints.ts",
 							"line": 24,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewSetupHints.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewSetupHints.ts#L24"
 						}
 					],
 					"type": {
@@ -2236,7 +2236,7 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "TODO"
+								"text": "Translucency of spaces."
 							}
 						]
 					},
@@ -2245,7 +2245,7 @@
 							"fileName": "BCFViewSetupHints.ts",
 							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewSetupHints.ts#L29"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewSetupHints.ts#L29"
 						}
 					],
 					"type": {
@@ -2263,7 +2263,7 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "TODO"
+								"text": "Visibility of spaces."
 							}
 						]
 					},
@@ -2272,7 +2272,7 @@
 							"fileName": "BCFViewSetupHints.ts",
 							"line": 34,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewSetupHints.ts#L34"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewSetupHints.ts#L34"
 						}
 					],
 					"type": {
@@ -2299,7 +2299,7 @@
 					"fileName": "BCFViewSetupHints.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewSetupHints.ts#L4"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewSetupHints.ts#L4"
 				}
 			]
 		},
@@ -2348,7 +2348,7 @@
 							"fileName": "BCFViewpoint.ts",
 							"line": 42,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewpoint.ts#L42"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewpoint.ts#L42"
 						}
 					],
 					"type": {
@@ -2382,7 +2382,7 @@
 							"fileName": "BCFViewpoint.ts",
 							"line": 47,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewpoint.ts#L47"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewpoint.ts#L47"
 						}
 					],
 					"type": {
@@ -2416,7 +2416,7 @@
 							"fileName": "BCFViewpoint.ts",
 							"line": 57,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewpoint.ts#L57"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewpoint.ts#L57"
 						}
 					],
 					"type": {
@@ -2447,7 +2447,7 @@
 							"fileName": "BCFViewpoint.ts",
 							"line": 37,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewpoint.ts#L37"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewpoint.ts#L37"
 						}
 					],
 					"type": {
@@ -2481,7 +2481,7 @@
 							"fileName": "BCFViewpoint.ts",
 							"line": 27,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewpoint.ts#L27"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewpoint.ts#L27"
 						}
 					],
 					"type": {
@@ -2512,7 +2512,7 @@
 							"fileName": "BCFViewpoint.ts",
 							"line": 32,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewpoint.ts#L32"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewpoint.ts#L32"
 						}
 					],
 					"type": {
@@ -2543,7 +2543,7 @@
 							"fileName": "BCFViewpoint.ts",
 							"line": 52,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewpoint.ts#L52"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewpoint.ts#L52"
 						}
 					],
 					"type": {
@@ -2573,7 +2573,7 @@
 					"fileName": "BCFViewpoint.ts",
 					"line": 22,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFViewpoint.ts#L22"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFViewpoint.ts#L22"
 				}
 			]
 		},
@@ -2611,7 +2611,7 @@
 							"fileName": "BCFVisibilityComponent.ts",
 							"line": 17,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFVisibilityComponent.ts#L17"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFVisibilityComponent.ts#L17"
 						}
 					],
 					"type": {
@@ -2638,7 +2638,7 @@
 							"fileName": "BCFVisibilityComponent.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFVisibilityComponent.ts#L22"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFVisibilityComponent.ts#L22"
 						}
 					],
 					"type": {
@@ -2670,7 +2670,7 @@
 							"fileName": "BCFVisibilityComponent.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFVisibilityComponent.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFVisibilityComponent.ts#L12"
 						}
 					],
 					"type": {
@@ -2696,7 +2696,7 @@
 					"fileName": "BCFVisibilityComponent.ts",
 					"line": 7,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/BCFVisibilityComponent.ts#L7"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/BCFVisibilityComponent.ts#L7"
 				}
 			]
 		},
@@ -2752,7 +2752,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 24,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L24"
 						}
 					],
 					"type": {
@@ -2801,7 +2801,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L41"
 						}
 					],
 					"type": {
@@ -2827,7 +2827,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L12"
 						}
 					],
 					"type": {
@@ -2892,7 +2892,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 65,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L65"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L65"
 						}
 					],
 					"type": {
@@ -2916,7 +2916,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 17,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L17"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L17"
 						}
 					],
 					"type": {
@@ -2981,7 +2981,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 53,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L53"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L53"
 						}
 					],
 					"type": {
@@ -3005,7 +3005,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 13,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L13"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L13"
 						}
 					],
 					"type": {
@@ -3026,7 +3026,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L19"
 						}
 					],
 					"type": {
@@ -3047,7 +3047,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L16"
 						}
 					],
 					"type": {
@@ -3068,7 +3068,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 15,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L15"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L15"
 						}
 					],
 					"type": {
@@ -3089,7 +3089,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L14"
 						}
 					],
 					"type": {
@@ -3161,7 +3161,7 @@
 							"fileName": "LoadBCFViewpointParams.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L36"
 						}
 					],
 					"type": {
@@ -3199,7 +3199,7 @@
 					"fileName": "LoadBCFViewpointParams.ts",
 					"line": 10,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/LoadBCFViewpointParams.ts#L10"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/LoadBCFViewpointParams.ts#L10"
 				}
 			]
 		},
@@ -3249,7 +3249,7 @@
 							"fileName": "SaveBCFViewpointParams.ts",
 							"line": 10,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L10"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L10"
 						}
 					],
 					"type": {
@@ -3312,9 +3312,9 @@
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 51,
+							"line": 89,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L51"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L89"
 						}
 					],
 					"type": {
@@ -3355,7 +3355,7 @@
 							},
 							{
 								"kind": "text",
-								"text": " that have the given IDs.\n\nThe "
+								"text": " that match these IDs.\n\nThe "
 							},
 							{
 								"kind": "inline-tag",
@@ -3380,9 +3380,9 @@
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 39,
+							"line": 77,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L39"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L77"
 						}
 					],
 					"type": {
@@ -3401,12 +3401,29 @@
 					"flags": {
 						"isOptional": true
 					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Value to set on "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/bcf!BCFSetupHints.openingsVisible | BCFSetupHints.openingsVisible"
+							},
+							{
+								"kind": "text",
+								"text": " within the BCF viewpoint."
+							}
+						]
+					},
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 17,
+							"line": 47,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L17"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L47"
 						}
 					],
 					"type": {
@@ -3422,12 +3439,29 @@
 					"flags": {
 						"isOptional": true
 					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Value to set on "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/bcf!BCFSetupHints.openings_translucent | BCFSetupHints.openings_translucent"
+							},
+							{
+								"kind": "text",
+								"text": " within the BCF viewpoint."
+							}
+						]
+					},
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 14,
+							"line": 32,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L32"
 						}
 					],
 					"type": {
@@ -3443,12 +3477,20 @@
 					"flags": {
 						"isOptional": true
 					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Identifies the system that authors this BCF viewpoint."
+							}
+						]
+					},
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 12,
+							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L22"
 						}
 					],
 					"type": {
@@ -3464,12 +3506,29 @@
 					"flags": {
 						"isOptional": true
 					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Whether to flip the direction of the "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/viewer!SectionPlane | SectionPlanes"
+							},
+							{
+								"kind": "text",
+								"text": " captured in the BCF viewpoint."
+							}
+						]
+					},
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 13,
+							"line": 27,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L13"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L27"
 						}
 					],
 					"type": {
@@ -3485,12 +3544,29 @@
 					"flags": {
 						"isOptional": true
 					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Whether to capture a snapshot image in the BCF viewpoint.\n\nThe snapshot would be saved in "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/bcf!BCFViewpoint.snapshot | BCFViewpoint.snapshot"
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 11,
+							"line": 17,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L17"
 						}
 					],
 					"type": {
@@ -3506,12 +3582,29 @@
 					"flags": {
 						"isOptional": true
 					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Value to set on "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/bcf!BCFSetupHints.spaceBoundariesVisible | BCFSetupHints.spaceBoundariesVisible"
+							},
+							{
+								"kind": "text",
+								"text": " within the BCF viewpoint."
+							}
+						]
+					},
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 18,
+							"line": 52,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L18"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L52"
 						}
 					],
 					"type": {
@@ -3527,12 +3620,29 @@
 					"flags": {
 						"isOptional": true
 					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Value to set on "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/bcf!BCFSetupHints.space_boundaries_translucent | BCFSetupHints.space_boundaries_translucent"
+							},
+							{
+								"kind": "text",
+								"text": " within the BCF viewpoint."
+							}
+						]
+					},
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 15,
+							"line": 37,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L15"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L37"
 						}
 					],
 					"type": {
@@ -3548,12 +3658,29 @@
 					"flags": {
 						"isOptional": true
 					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Value to set on "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/bcf!BCFSetupHints.spacesVisible | BCFSetupHints.spacesVisible"
+							},
+							{
+								"kind": "text",
+								"text": " within the BCF viewpoint."
+							}
+						]
+					},
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 19,
+							"line": 57,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L57"
 						}
 					],
 					"type": {
@@ -3569,12 +3696,29 @@
 					"flags": {
 						"isOptional": true
 					},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Value to set on "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "@xeokit/bcf!BCFSetupHints.spaces_translucent | BCFSetupHints.spaces_translucent"
+							},
+							{
+								"kind": "text",
+								"text": " within the BCF viewpoint."
+							}
+						]
+					},
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 16,
+							"line": 42,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L42"
 						}
 					],
 					"type": {
@@ -3592,7 +3736,7 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "A "
+								"text": "The "
 							},
 							{
 								"kind": "inline-tag",
@@ -3619,16 +3763,16 @@
 							},
 							{
 								"kind": "text",
-								"text": " in the given target View."
+								"text": " in this View."
 							}
 						]
 					},
 					"sources": [
 						{
 							"fileName": "SaveBCFViewpointParams.ts",
-							"line": 27,
+							"line": 65,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L27"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L65"
 						}
 					],
 					"type": {
@@ -3667,7 +3811,7 @@
 					"fileName": "SaveBCFViewpointParams.ts",
 					"line": 8,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/SaveBCFViewpointParams.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/SaveBCFViewpointParams.ts#L8"
 				}
 			]
 		},
@@ -3682,7 +3826,7 @@
 					"fileName": "loadBCFViewpoint.ts",
 					"line": 23,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/loadBCFViewpoint.ts#L23"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/loadBCFViewpoint.ts#L23"
 				}
 			],
 			"signatures": [
@@ -3714,15 +3858,6 @@
 							},
 							{
 								"kind": "text",
-								"text": " or a "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/viewer!ViewLayer | ViewLayer"
-							},
-							{
-								"kind": "text",
 								"text": ".\n\nSee "
 							},
 							{
@@ -3741,7 +3876,7 @@
 							"fileName": "loadBCFViewpoint.ts",
 							"line": 23,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/loadBCFViewpoint.ts#L23"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/loadBCFViewpoint.ts#L23"
 						}
 					],
 					"parameters": [
@@ -3785,7 +3920,7 @@
 					"fileName": "saveBCFViewpoint.ts",
 					"line": 16,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/saveBCFViewpoint.ts#L16"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/saveBCFViewpoint.ts#L16"
 				}
 			],
 			"signatures": [
@@ -3805,15 +3940,6 @@
 								"kind": "inline-tag",
 								"tag": "@link",
 								"text": "@xeokit/viewer!View | View"
-							},
-							{
-								"kind": "text",
-								"text": " or a "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/viewer!ViewLayer | ViewLayer"
 							},
 							{
 								"kind": "text",
@@ -3855,7 +3981,7 @@
 							"fileName": "saveBCFViewpoint.ts",
 							"line": 16,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/bcf/src/saveBCFViewpoint.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/bcf/src/saveBCFViewpoint.ts#L16"
 						}
 					],
 					"parameters": [

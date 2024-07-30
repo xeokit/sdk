@@ -49,9 +49,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 804,
+							"line": 803,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L804"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L803"
 						}
 					],
 					"signatures": [
@@ -72,9 +72,9 @@
 							"sources": [
 								{
 									"fileName": "index.ts",
-									"line": 804,
+									"line": 803,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L804"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L803"
 								}
 							],
 							"type": {
@@ -105,9 +105,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 799,
+							"line": 798,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L799"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L798"
 						}
 					],
 					"type": {
@@ -138,9 +138,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 794,
+					"line": 793,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L794"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L793"
 				}
 			]
 		},
@@ -179,9 +179,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 751,
+							"line": 750,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L751"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L750"
 						}
 					],
 					"signatures": [
@@ -202,9 +202,9 @@
 							"sources": [
 								{
 									"fileName": "index.ts",
-									"line": 751,
+									"line": 750,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L751"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L750"
 								}
 							],
 							"type": {
@@ -227,9 +227,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 746,
+							"line": 745,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L746"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L745"
 						}
 					],
 					"type": {
@@ -253,9 +253,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 745,
+							"line": 744,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L745"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L744"
 						}
 					],
 					"type": {
@@ -274,9 +274,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 744,
+							"line": 743,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L744"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L743"
 						}
 					],
 					"type": {
@@ -298,9 +298,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 764,
+							"line": 763,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L764"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L763"
 						}
 					],
 					"signatures": [
@@ -321,9 +321,9 @@
 							"sources": [
 								{
 									"fileName": "index.ts",
-									"line": 764,
+									"line": 763,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L764"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L763"
 								}
 							],
 							"parameters": [
@@ -405,9 +405,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 742,
+					"line": 741,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L742"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L741"
 				}
 			]
 		},
@@ -430,9 +430,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 779,
+					"line": 778,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L779"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L778"
 				}
 			],
 			"type": {
@@ -460,9 +460,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 784,
+					"line": 783,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L784"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L783"
 				}
 			],
 			"type": {
@@ -490,9 +490,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 789,
+					"line": 788,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L789"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L788"
 				}
 			],
 			"type": {
@@ -520,9 +520,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 176,
+					"line": 175,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L176"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L175"
 				}
 			],
 			"type": {
@@ -545,9 +545,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 476,
+					"line": 475,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L476"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L475"
 				}
 			],
 			"signatures": [
@@ -568,9 +568,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 476,
+							"line": 475,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L476"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L475"
 						}
 					],
 					"parameters": [
@@ -629,9 +629,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 603,
+					"line": 602,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L603"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L602"
 				}
 			],
 			"signatures": [
@@ -652,9 +652,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 603,
+							"line": 602,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L603"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L602"
 						}
 					],
 					"parameters": [
@@ -713,9 +713,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 265,
+					"line": 264,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L265"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L264"
 				}
 			],
 			"signatures": [
@@ -736,9 +736,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 265,
+							"line": 264,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L265"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L264"
 						}
 					],
 					"parameters": [
@@ -781,9 +781,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 279,
+					"line": 278,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L279"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L278"
 				}
 			],
 			"signatures": [
@@ -804,9 +804,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 279,
+							"line": 278,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L279"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L278"
 						}
 					],
 					"parameters": [
@@ -849,9 +849,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 147,
+					"line": 146,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L147"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L146"
 				}
 			],
 			"signatures": [
@@ -872,9 +872,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 147,
+							"line": 146,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L147"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L146"
 						}
 					],
 					"parameters": [
@@ -927,9 +927,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 1060,
+					"line": 1059,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L1060"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L1059"
 				}
 			],
 			"signatures": [
@@ -950,9 +950,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 1060,
+							"line": 1059,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L1060"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L1059"
 						}
 					],
 					"parameters": [
@@ -1005,9 +1005,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 159,
+					"line": 158,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L159"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L158"
 				}
 			],
 			"signatures": [
@@ -1028,9 +1028,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 159,
+							"line": 158,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L159"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L158"
 						}
 					],
 					"parameters": [
@@ -1083,9 +1083,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 1048,
+					"line": 1047,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L1048"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L1047"
 				}
 			],
 			"signatures": [
@@ -1106,9 +1106,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 1048,
+							"line": 1047,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L1048"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L1047"
 						}
 					],
 					"parameters": [
@@ -1161,9 +1161,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 67,
+					"line": 66,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L67"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L66"
 				}
 			],
 			"signatures": [
@@ -1184,9 +1184,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 67,
+							"line": 66,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L67"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L66"
 						}
 					],
 					"parameters": [
@@ -1230,9 +1230,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 51,
+					"line": 50,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L51"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L50"
 				}
 			],
 			"signatures": [
@@ -1253,9 +1253,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 51,
+							"line": 50,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L51"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L50"
 						}
 					],
 					"parameters": [
@@ -1299,9 +1299,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 59,
+					"line": 58,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L59"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L58"
 				}
 			],
 			"signatures": [
@@ -1322,9 +1322,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 59,
+							"line": 58,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L59"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L58"
 						}
 					],
 					"parameters": [
@@ -1368,9 +1368,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 83,
+					"line": 82,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L83"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L82"
 				}
 			],
 			"signatures": [
@@ -1391,9 +1391,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 83,
+							"line": 82,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L83"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L82"
 						}
 					],
 					"parameters": [
@@ -1437,9 +1437,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 75,
+					"line": 74,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L75"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L74"
 				}
 			],
 			"signatures": [
@@ -1460,9 +1460,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 75,
+							"line": 74,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L75"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L74"
 						}
 					],
 					"parameters": [
@@ -1506,9 +1506,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 89,
+					"line": 88,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L89"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L88"
 				}
 			],
 			"signatures": [
@@ -1529,9 +1529,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 89,
+							"line": 88,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L89"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L88"
 						}
 					],
 					"parameters": [
@@ -1601,9 +1601,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 367,
+					"line": 366,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L367"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L366"
 				}
 			],
 			"signatures": [
@@ -1624,9 +1624,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 367,
+							"line": 366,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L367"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L366"
 						}
 					],
 					"parameters": [
@@ -1684,9 +1684,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 418,
+					"line": 417,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L418"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L417"
 				}
 			],
 			"signatures": [
@@ -1707,9 +1707,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 418,
+							"line": 417,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L418"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L417"
 						}
 					],
 					"parameters": [
@@ -1767,9 +1767,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 342,
+					"line": 341,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L342"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L341"
 				}
 			],
 			"signatures": [
@@ -1790,9 +1790,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 342,
+							"line": 341,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L342"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L341"
 						}
 					],
 					"parameters": [
@@ -1850,9 +1850,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 386,
+					"line": 385,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L386"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L385"
 				}
 			],
 			"signatures": [
@@ -1873,9 +1873,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 386,
+							"line": 385,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L386"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L385"
 						}
 					],
 					"parameters": [
@@ -1933,9 +1933,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 442,
+					"line": 441,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L442"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L441"
 				}
 			],
 			"signatures": [
@@ -1956,9 +1956,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 442,
+							"line": 441,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L442"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L441"
 						}
 					],
 					"parameters": [
@@ -2016,9 +2016,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 252,
+					"line": 251,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L252"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L251"
 				}
 			],
 			"signatures": [
@@ -2039,9 +2039,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 252,
+							"line": 251,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L252"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L251"
 						}
 					],
 					"parameters": [
@@ -2100,9 +2100,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 229,
+					"line": 228,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L229"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L228"
 				}
 			],
 			"signatures": [
@@ -2123,9 +2123,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 229,
+							"line": 228,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L229"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L228"
 						}
 					],
 					"parameters": [
@@ -2162,9 +2162,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 239,
+					"line": 238,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L239"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L238"
 				}
 			],
 			"signatures": [
@@ -2185,9 +2185,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 239,
+							"line": 238,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L239"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L238"
 						}
 					],
 					"parameters": [
@@ -2246,9 +2246,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 195,
+					"line": 194,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L195"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L194"
 				}
 			],
 			"signatures": [
@@ -2269,9 +2269,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 200,
+							"line": 199,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L200"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L199"
 						}
 					],
 					"parameters": [
@@ -2324,9 +2324,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 719,
+					"line": 718,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L719"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L718"
 				}
 			],
 			"signatures": [
@@ -2347,9 +2347,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 719,
+							"line": 718,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L719"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L718"
 						}
 					],
 					"parameters": [
@@ -2408,9 +2408,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 1009,
+					"line": 1008,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L1009"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L1008"
 				}
 			],
 			"signatures": [
@@ -2456,9 +2456,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 1009,
+							"line": 1008,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L1009"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L1008"
 						}
 					],
 					"parameters": [
@@ -2527,9 +2527,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 1021,
+					"line": 1020,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L1021"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L1020"
 				}
 			],
 			"signatures": [
@@ -2575,9 +2575,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 1021,
+							"line": 1020,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L1021"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L1020"
 						}
 					],
 					"parameters": [
@@ -2630,9 +2630,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 990,
+					"line": 989,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L990"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L989"
 				}
 			],
 			"signatures": [
@@ -2678,9 +2678,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 990,
+							"line": 989,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L990"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L989"
 						}
 					],
 					"parameters": [
@@ -2749,9 +2749,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 883,
+					"line": 882,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L883"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L882"
 				}
 			],
 			"signatures": [
@@ -2772,9 +2772,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 883,
+							"line": 882,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L883"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L882"
 						}
 					],
 					"parameters": [
@@ -2827,9 +2827,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 849,
+					"line": 848,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L849"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L848"
 				}
 			],
 			"signatures": [
@@ -2850,9 +2850,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 849,
+							"line": 848,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L849"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L848"
 						}
 					],
 					"parameters": [
@@ -2902,9 +2902,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 952,
+					"line": 951,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L952"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L951"
 				}
 			],
 			"signatures": [
@@ -2959,9 +2959,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 952,
+							"line": 951,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L952"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L951"
 						}
 					],
 					"parameters": [
@@ -3027,9 +3027,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 977,
+					"line": 976,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L977"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L976"
 				}
 			],
 			"signatures": [
@@ -3075,9 +3075,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 977,
+							"line": 976,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L977"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L976"
 						}
 					],
 					"parameters": [
@@ -3127,9 +3127,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 965,
+					"line": 964,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L965"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L964"
 				}
 			],
 			"signatures": [
@@ -3184,9 +3184,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 965,
+							"line": 964,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L965"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L964"
 						}
 					],
 					"parameters": [
@@ -3236,9 +3236,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 938,
+					"line": 937,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L938"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L937"
 				}
 			],
 			"signatures": [
@@ -3284,9 +3284,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 938,
+							"line": 937,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L938"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L937"
 						}
 					],
 					"parameters": [
@@ -3368,9 +3368,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 924,
+					"line": 923,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L924"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L923"
 				}
 			],
 			"signatures": [
@@ -3425,9 +3425,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 924,
+							"line": 923,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L924"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L923"
 						}
 					],
 					"parameters": [
@@ -3493,9 +3493,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 661,
+					"line": 660,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L661"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L660"
 				}
 			],
 			"signatures": [
@@ -3516,9 +3516,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 661,
+							"line": 660,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L661"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L660"
 						}
 					],
 					"parameters": [
@@ -3578,9 +3578,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 526,
+					"line": 525,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L526"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L525"
 				}
 			],
 			"signatures": [
@@ -3601,9 +3601,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 529,
+							"line": 528,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L529"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L528"
 						}
 					],
 					"parameters": [
@@ -3677,9 +3677,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 816,
+					"line": 815,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L816"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L815"
 				}
 			],
 			"signatures": [
@@ -3700,9 +3700,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 816,
+							"line": 815,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L816"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L815"
 						}
 					],
 					"parameters": [
@@ -3772,9 +3772,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 101,
+					"line": 100,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L101"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L100"
 				}
 			],
 			"signatures": [
@@ -3795,9 +3795,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 101,
+							"line": 100,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/boundaries/src/index.ts#L101"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/boundaries/src/index.ts#L100"
 						}
 					],
 					"parameters": [

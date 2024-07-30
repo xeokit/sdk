@@ -38,7 +38,7 @@ import type {GeometryArrays} from "./GeometryArrays";
  * @function buildPlaneGeometry
  * @param cfg Configs
  * @param [cfg.center]  3D point indicating the center position.
- * @param [cfg.id] Optional ID for the {@link @xeokit/scene!SceneGeometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!SceneGeometry}, unique among all components in the parent {@link @xeokit/scene!Scene | Scene}, generated automatically when omitted.
  * @param [cfg.xSize=1] Dimension on the X-axis.
  * @param [cfg.zSize=1] Dimension on the Z-axis.
  * @param [cfg.xSegments=1] Number of segments on the X-axis.

@@ -52,7 +52,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 89,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L89"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L89"
 						}
 					],
 					"signatures": [
@@ -75,7 +75,7 @@
 									"fileName": "WebGLArrayBuf.ts",
 									"line": 89,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L89"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L89"
 								}
 							],
 							"parameters": [
@@ -218,7 +218,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L29"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L29"
 						}
 					],
 					"type": {
@@ -237,7 +237,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 54,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L54"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L54"
 						}
 					],
 					"type": {
@@ -264,7 +264,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L9"
 						}
 					],
 					"type": {
@@ -296,7 +296,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 84,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L84"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L84"
 						}
 					],
 					"type": {
@@ -328,7 +328,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L19"
 						}
 					],
 					"type": {
@@ -355,7 +355,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 64,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L64"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L64"
 						}
 					],
 					"type": {
@@ -382,7 +382,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L14"
 						}
 					],
 					"type": {
@@ -409,7 +409,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 49,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L49"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L49"
 						}
 					],
 					"type": {
@@ -436,7 +436,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 69,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L69"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L69"
 						}
 					],
 					"type": {
@@ -463,7 +463,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 59,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L59"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L59"
 						}
 					],
 					"type": {
@@ -482,7 +482,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 79,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L79"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L79"
 						}
 					],
 					"type": {
@@ -509,7 +509,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 74,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L74"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L74"
 						}
 					],
 					"type": {
@@ -536,7 +536,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 24,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L24"
 						}
 					],
 					"type": {
@@ -563,7 +563,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 44,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L44"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L44"
 						}
 					],
 					"type": {
@@ -582,7 +582,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 153,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L153"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L153"
 						}
 					],
 					"signatures": [
@@ -597,7 +597,7 @@
 									"fileName": "WebGLArrayBuf.ts",
 									"line": 153,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L153"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L153"
 								}
 							],
 							"parameters": [
@@ -631,7 +631,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 196,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L196"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L196"
 						}
 					],
 					"signatures": [
@@ -654,7 +654,7 @@
 									"fileName": "WebGLArrayBuf.ts",
 									"line": 196,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L196"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L196"
 								}
 							],
 							"type": {
@@ -675,7 +675,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 216,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L216"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L216"
 						}
 					],
 					"signatures": [
@@ -698,7 +698,7 @@
 									"fileName": "WebGLArrayBuf.ts",
 									"line": 216,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L216"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L216"
 								}
 							],
 							"type": {
@@ -719,7 +719,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 175,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L175"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L175"
 						}
 					],
 					"signatures": [
@@ -742,7 +742,7 @@
 									"fileName": "WebGLArrayBuf.ts",
 									"line": 175,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L175"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L175"
 								}
 							],
 							"parameters": [
@@ -787,7 +787,7 @@
 							"fileName": "WebGLArrayBuf.ts",
 							"line": 206,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L206"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L206"
 						}
 					],
 					"signatures": [
@@ -810,7 +810,7 @@
 									"fileName": "WebGLArrayBuf.ts",
 									"line": 206,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L206"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L206"
 								}
 							],
 							"type": {
@@ -863,7 +863,7 @@
 					"fileName": "WebGLArrayBuf.ts",
 					"line": 4,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLArrayBuf.ts#L4"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLArrayBuf.ts#L4"
 				}
 			]
 		},
@@ -893,7 +893,7 @@
 							"fileName": "WebGLAttribute.ts",
 							"line": 15,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAttribute.ts#L15"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAttribute.ts#L15"
 						}
 					],
 					"signatures": [
@@ -916,7 +916,7 @@
 									"fileName": "WebGLAttribute.ts",
 									"line": 15,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAttribute.ts#L15"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAttribute.ts#L15"
 								}
 							],
 							"parameters": [
@@ -968,7 +968,7 @@
 							"fileName": "WebGLAttribute.ts",
 							"line": 7,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAttribute.ts#L7"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAttribute.ts#L7"
 						}
 					],
 					"type": {
@@ -992,7 +992,7 @@
 							"fileName": "WebGLAttribute.ts",
 							"line": 8,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAttribute.ts#L8"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAttribute.ts#L8"
 						}
 					],
 					"type": {
@@ -1011,7 +1011,7 @@
 							"fileName": "WebGLAttribute.ts",
 							"line": 24,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAttribute.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAttribute.ts#L24"
 						}
 					],
 					"signatures": [
@@ -1034,7 +1034,7 @@
 									"fileName": "WebGLAttribute.ts",
 									"line": 24,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAttribute.ts#L24"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAttribute.ts#L24"
 								}
 							],
 							"parameters": [
@@ -1086,7 +1086,7 @@
 					"fileName": "WebGLAttribute.ts",
 					"line": 6,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAttribute.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAttribute.ts#L6"
 				}
 			]
 		},
@@ -1116,7 +1116,7 @@
 							"fileName": "WebGLDataTexture.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L21"
 						}
 					],
 					"signatures": [
@@ -1139,7 +1139,7 @@
 									"fileName": "WebGLDataTexture.ts",
 									"line": 21,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L21"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L21"
 								}
 							],
 							"parameters": [
@@ -1171,7 +1171,7 @@
 															"fileName": "WebGLDataTexture.ts",
 															"line": 22,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L22"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L22"
 														}
 													],
 													"type": {
@@ -1197,7 +1197,7 @@
 															"fileName": "WebGLDataTexture.ts",
 															"line": 27,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L27"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L27"
 														}
 													],
 													"type": {
@@ -1223,7 +1223,7 @@
 															"fileName": "WebGLDataTexture.ts",
 															"line": 23,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L23"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L23"
 														}
 													],
 													"type": {
@@ -1249,7 +1249,7 @@
 															"fileName": "WebGLDataTexture.ts",
 															"line": 26,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L26"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L26"
 														}
 													],
 													"type": {
@@ -1270,7 +1270,7 @@
 															"fileName": "WebGLDataTexture.ts",
 															"line": 25,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L25"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L25"
 														}
 													],
 													"type": {
@@ -1291,7 +1291,7 @@
 															"fileName": "WebGLDataTexture.ts",
 															"line": 24,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L24"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L24"
 														}
 													],
 													"type": {
@@ -1318,7 +1318,7 @@
 													"fileName": "WebGLDataTexture.ts",
 													"line": 21,
 													"character": 24,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L21"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L21"
 												}
 											]
 										}
@@ -1348,7 +1348,7 @@
 							"fileName": "WebGLDataTexture.ts",
 							"line": 10,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L10"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L10"
 						}
 					],
 					"type": {
@@ -1374,7 +1374,7 @@
 							"fileName": "WebGLDataTexture.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L11"
 						}
 					],
 					"type": {
@@ -1400,7 +1400,7 @@
 							"fileName": "WebGLDataTexture.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L14"
 						}
 					],
 					"type": {
@@ -1421,7 +1421,7 @@
 							"fileName": "WebGLDataTexture.ts",
 							"line": 13,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L13"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L13"
 						}
 					],
 					"type": {
@@ -1442,7 +1442,7 @@
 							"fileName": "WebGLDataTexture.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L12"
 						}
 					],
 					"type": {
@@ -1461,7 +1461,7 @@
 							"fileName": "WebGLDataTexture.ts",
 							"line": 54,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L54"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L54"
 						}
 					],
 					"signatures": [
@@ -1481,7 +1481,7 @@
 										"kind": "inline-tag",
 										"tag": "@link",
 										"text": "WebGLSampler",
-										"target": 182,
+										"target": 208,
 										"tsLinkText": ""
 									},
 									{
@@ -1495,7 +1495,7 @@
 									"fileName": "WebGLDataTexture.ts",
 									"line": 54,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L54"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L54"
 								}
 							],
 							"parameters": [
@@ -1539,7 +1539,7 @@
 							"fileName": "WebGLDataTexture.ts",
 							"line": 43,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L43"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L43"
 						}
 					],
 					"signatures": [
@@ -1559,7 +1559,7 @@
 										"kind": "inline-tag",
 										"tag": "@link",
 										"text": "WebGLSampler",
-										"target": 182,
+										"target": 208,
 										"tsLinkText": ""
 									},
 									{
@@ -1573,7 +1573,7 @@
 									"fileName": "WebGLDataTexture.ts",
 									"line": 43,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L43"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L43"
 								}
 							],
 							"parameters": [
@@ -1598,7 +1598,7 @@
 									"flags": {},
 									"type": {
 										"type": "reference",
-										"target": 182,
+										"target": 208,
 										"name": "WebGLSampler",
 										"package": "@xeokit/webglutils"
 									}
@@ -1633,7 +1633,7 @@
 							"fileName": "WebGLDataTexture.ts",
 							"line": 84,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L84"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L84"
 						}
 					],
 					"signatures": [
@@ -1648,7 +1648,7 @@
 									"fileName": "WebGLDataTexture.ts",
 									"line": 84,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L84"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L84"
 								}
 							],
 							"type": {
@@ -1669,7 +1669,7 @@
 							"fileName": "WebGLDataTexture.ts",
 							"line": 64,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L64"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L64"
 						}
 					],
 					"signatures": [
@@ -1684,7 +1684,7 @@
 									"fileName": "WebGLDataTexture.ts",
 									"line": 64,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L64"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L64"
 								}
 							],
 							"type": {
@@ -1705,7 +1705,7 @@
 							"fileName": "WebGLDataTexture.ts",
 							"line": 74,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L74"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L74"
 						}
 					],
 					"signatures": [
@@ -1720,7 +1720,7 @@
 									"fileName": "WebGLDataTexture.ts",
 									"line": 74,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L74"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L74"
 								}
 							],
 							"parameters": [
@@ -1787,13 +1787,13 @@
 					"fileName": "WebGLDataTexture.ts",
 					"line": 8,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLDataTexture.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLDataTexture.ts#L8"
 				}
 			],
 			"implementedTypes": [
 				{
 					"type": "reference",
-					"target": 205,
+					"target": 231,
 					"name": "WebGLAbstractTexture",
 					"package": "@xeokit/webglutils"
 				}
@@ -1825,7 +1825,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 90,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L90"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L90"
 						}
 					],
 					"signatures": [
@@ -1848,7 +1848,7 @@
 									"fileName": "WebGLProgram.ts",
 									"line": 90,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L90"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L90"
 								}
 							],
 							"parameters": [
@@ -1894,7 +1894,7 @@
 															"fileName": "WebGLProgram.ts",
 															"line": 93,
 															"character": 20,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L93"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L93"
 														}
 													],
 													"type": {
@@ -1913,7 +1913,7 @@
 															"fileName": "WebGLProgram.ts",
 															"line": 92,
 															"character": 20,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L92"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L92"
 														}
 													],
 													"type": {
@@ -1936,7 +1936,7 @@
 													"fileName": "WebGLProgram.ts",
 													"line": 91,
 													"character": 30,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L91"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L91"
 												}
 											]
 										}
@@ -1971,7 +1971,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 68,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L68"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L68"
 						}
 					],
 					"type": {
@@ -1998,7 +1998,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 33,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L33"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L33"
 						}
 					],
 					"type": {
@@ -2014,7 +2014,7 @@
 									"fileName": "WebGLProgram.ts",
 									"line": 33,
 									"character": 16,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L33"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L33"
 								}
 							],
 							"indexSignature": {
@@ -2028,7 +2028,7 @@
 										"fileName": "WebGLProgram.ts",
 										"line": 33,
 										"character": 18,
-										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L33"
+										"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L33"
 									}
 								],
 								"parameters": [
@@ -2073,7 +2073,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 63,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L63"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L63"
 						}
 					],
 					"type": {
@@ -2100,7 +2100,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 48,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L48"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L48"
 						}
 					],
 					"type": {
@@ -2130,12 +2130,12 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 28,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L28"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L28"
 						}
 					],
 					"type": {
 						"type": "reference",
-						"target": 193,
+						"target": 219,
 						"name": "WebGLShader",
 						"package": "@xeokit/webglutils"
 					}
@@ -2159,7 +2159,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 73,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L73"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L73"
 						}
 					],
 					"type": {
@@ -2191,7 +2191,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 83,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L83"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L83"
 						}
 					],
 					"type": {
@@ -2220,7 +2220,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 18,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L18"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L18"
 						}
 					],
 					"type": {
@@ -2247,7 +2247,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 58,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L58"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L58"
 						}
 					],
 					"type": {
@@ -2274,7 +2274,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 38,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L38"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L38"
 						}
 					],
 					"type": {
@@ -2290,7 +2290,7 @@
 									"fileName": "WebGLProgram.ts",
 									"line": 38,
 									"character": 14,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L38"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L38"
 								}
 							],
 							"indexSignature": {
@@ -2304,7 +2304,7 @@
 										"fileName": "WebGLProgram.ts",
 										"line": 38,
 										"character": 16,
-										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L38"
+										"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L38"
 									}
 								],
 								"parameters": [
@@ -2322,7 +2322,7 @@
 								],
 								"type": {
 									"type": "reference",
-									"target": 182,
+									"target": 208,
 									"name": "WebGLSampler",
 									"package": "@xeokit/webglutils"
 								}
@@ -2349,7 +2349,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 78,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L78"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L78"
 						}
 					],
 					"type": {
@@ -2376,7 +2376,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 43,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L43"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L43"
 						}
 					],
 					"type": {
@@ -2392,7 +2392,7 @@
 									"fileName": "WebGLProgram.ts",
 									"line": 43,
 									"character": 14,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L43"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L43"
 								}
 							],
 							"indexSignature": {
@@ -2406,7 +2406,7 @@
 										"fileName": "WebGLProgram.ts",
 										"line": 43,
 										"character": 16,
-										"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L43"
+										"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L43"
 									}
 								],
 								"parameters": [
@@ -2454,7 +2454,7 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 53,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L53"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L53"
 						}
 					],
 					"type": {
@@ -2481,12 +2481,12 @@
 							"fileName": "WebGLProgram.ts",
 							"line": 23,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L23"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L23"
 						}
 					],
 					"type": {
 						"type": "reference",
-						"target": 193,
+						"target": 219,
 						"name": "WebGLShader",
 						"package": "@xeokit/webglutils"
 					}
@@ -2500,9 +2500,9 @@
 					"sources": [
 						{
 							"fileName": "WebGLProgram.ts",
-							"line": 211,
+							"line": 218,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L211"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L218"
 						}
 					],
 					"signatures": [
@@ -2523,9 +2523,9 @@
 							"sources": [
 								{
 									"fileName": "WebGLProgram.ts",
-									"line": 211,
+									"line": 218,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L211"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L218"
 								}
 							],
 							"type": {
@@ -2544,9 +2544,9 @@
 					"sources": [
 						{
 							"fileName": "WebGLProgram.ts",
-							"line": 248,
+							"line": 255,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L248"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L255"
 						}
 					],
 					"signatures": [
@@ -2567,9 +2567,9 @@
 							"sources": [
 								{
 									"fileName": "WebGLProgram.ts",
-									"line": 248,
+									"line": 255,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L248"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L255"
 								}
 							],
 							"parameters": [
@@ -2592,7 +2592,7 @@
 									"flags": {},
 									"type": {
 										"type": "reference",
-										"target": 205,
+										"target": 231,
 										"name": "WebGLAbstractTexture",
 										"package": "@xeokit/webglutils"
 									}
@@ -2625,9 +2625,9 @@
 					"sources": [
 						{
 							"fileName": "WebGLProgram.ts",
-							"line": 263,
+							"line": 270,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L263"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L270"
 						}
 					],
 					"signatures": [
@@ -2648,9 +2648,9 @@
 							"sources": [
 								{
 									"fileName": "WebGLProgram.ts",
-									"line": 263,
+									"line": 270,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L263"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L270"
 								}
 							],
 							"type": {
@@ -2669,9 +2669,9 @@
 					"sources": [
 						{
 							"fileName": "WebGLProgram.ts",
-							"line": 230,
+							"line": 237,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L230"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L237"
 						}
 					],
 					"signatures": [
@@ -2692,9 +2692,9 @@
 							"sources": [
 								{
 									"fileName": "WebGLProgram.ts",
-									"line": 230,
+									"line": 237,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L230"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L237"
 								}
 							],
 							"parameters": [
@@ -2728,9 +2728,9 @@
 					"sources": [
 						{
 							"fileName": "WebGLProgram.ts",
-							"line": 222,
+							"line": 229,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L222"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L229"
 						}
 					],
 					"signatures": [
@@ -2751,9 +2751,9 @@
 							"sources": [
 								{
 									"fileName": "WebGLProgram.ts",
-									"line": 222,
+									"line": 229,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L222"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L229"
 								}
 							],
 							"parameters": [
@@ -2790,9 +2790,9 @@
 					"sources": [
 						{
 							"fileName": "WebGLProgram.ts",
-							"line": 238,
+							"line": 245,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L238"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L245"
 						}
 					],
 					"signatures": [
@@ -2813,9 +2813,9 @@
 							"sources": [
 								{
 									"fileName": "WebGLProgram.ts",
-									"line": 238,
+									"line": 245,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L238"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L245"
 								}
 							],
 							"parameters": [
@@ -2833,7 +2833,7 @@
 							],
 							"type": {
 								"type": "reference",
-								"target": 182,
+								"target": 208,
 								"name": "WebGLSampler",
 								"package": "@xeokit/webglutils"
 							}
@@ -2884,813 +2884,12 @@
 					"fileName": "WebGLProgram.ts",
 					"line": 13,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLProgram.ts#L13"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLProgram.ts#L13"
 				}
 			]
 		},
 		{
-			"id": 131,
-			"name": "WebGLRenderBuffer",
-			"variant": "declaration",
-			"kind": 128,
-			"flags": {},
-			"comment": {
-				"summary": [
-					{
-						"kind": "text",
-						"text": "Represents a WebGL2 render buffer."
-					}
-				]
-			},
-			"children": [
-				{
-					"id": 132,
-					"name": "constructor",
-					"variant": "declaration",
-					"kind": 512,
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "WebGLRenderBuffer.ts",
-							"line": 26,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L26"
-						}
-					],
-					"signatures": [
-						{
-							"id": 133,
-							"name": "new WebGLRenderBuffer",
-							"variant": "signature",
-							"kind": 16384,
-							"flags": {},
-							"comment": {
-								"summary": [
-									{
-										"kind": "text",
-										"text": "Creates a new render buffer."
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "WebGLRenderBuffer.ts",
-									"line": 26,
-									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L26"
-								}
-							],
-							"parameters": [
-								{
-									"id": 134,
-									"name": "canvas",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "reference",
-										"target": {
-											"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.dom.d.ts",
-											"qualifiedName": "HTMLCanvasElement"
-										},
-										"name": "HTMLCanvasElement",
-										"package": "typescript"
-									}
-								},
-								{
-									"id": 135,
-									"name": "gl",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "reference",
-										"target": {
-											"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.dom.d.ts",
-											"qualifiedName": "WebGL2RenderingContext"
-										},
-										"name": "WebGL2RenderingContext",
-										"package": "typescript"
-									}
-								},
-								{
-									"id": 136,
-									"name": "options",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "reflection",
-										"declaration": {
-											"id": 137,
-											"name": "__type",
-											"variant": "declaration",
-											"kind": 65536,
-											"flags": {},
-											"children": [
-												{
-													"id": 138,
-													"name": "depthTexture",
-													"variant": "declaration",
-													"kind": 1024,
-													"flags": {},
-													"sources": [
-														{
-															"fileName": "WebGLRenderBuffer.ts",
-															"line": 27,
-															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L27"
-														}
-													],
-													"type": {
-														"type": "intrinsic",
-														"name": "boolean"
-													}
-												},
-												{
-													"id": 139,
-													"name": "size",
-													"variant": "declaration",
-													"kind": 1024,
-													"flags": {},
-													"sources": [
-														{
-															"fileName": "WebGLRenderBuffer.ts",
-															"line": 28,
-															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L28"
-														}
-													],
-													"type": {
-														"type": "array",
-														"elementType": {
-															"type": "intrinsic",
-															"name": "number"
-														}
-													}
-												}
-											],
-											"groups": [
-												{
-													"title": "Properties",
-													"children": [
-														138,
-														139
-													]
-												}
-											],
-											"sources": [
-												{
-													"fileName": "WebGLRenderBuffer.ts",
-													"line": 26,
-													"character": 80,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L26"
-												}
-											]
-										}
-									}
-								}
-							],
-							"type": {
-								"type": "reference",
-								"target": 131,
-								"name": "WebGLRenderBuffer",
-								"package": "@xeokit/webglutils"
-							}
-						}
-					]
-				},
-				{
-					"id": 153,
-					"name": "bind",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "WebGLRenderBuffer.ts",
-							"line": 50,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L50"
-						}
-					],
-					"signatures": [
-						{
-							"id": 154,
-							"name": "bind",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"comment": {
-								"summary": [
-									{
-										"kind": "text",
-										"text": "Binds this render buffer."
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "WebGLRenderBuffer.ts",
-									"line": 50,
-									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L50"
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "void"
-							}
-						}
-					]
-				},
-				{
-					"id": 157,
-					"name": "clear",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "WebGLRenderBuffer.ts",
-							"line": 147,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L147"
-						}
-					],
-					"signatures": [
-						{
-							"id": 158,
-							"name": "clear",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"comment": {
-								"summary": [
-									{
-										"kind": "text",
-										"text": "Clears this render buffer."
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "WebGLRenderBuffer.ts",
-									"line": 147,
-									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L147"
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "void"
-							}
-						}
-					]
-				},
-				{
-					"id": 180,
-					"name": "destroy",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "WebGLRenderBuffer.ts",
-							"line": 310,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L310"
-						}
-					],
-					"signatures": [
-						{
-							"id": 181,
-							"name": "destroy",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"comment": {
-								"summary": [
-									{
-										"kind": "text",
-										"text": "Destroys this render buffer."
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "WebGLRenderBuffer.ts",
-									"line": 310,
-									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L310"
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "void"
-							}
-						}
-					]
-				},
-				{
-					"id": 178,
-					"name": "getDepthTexture",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "WebGLRenderBuffer.ts",
-							"line": 283,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L283"
-						}
-					],
-					"signatures": [
-						{
-							"id": 179,
-							"name": "getDepthTexture",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"comment": {
-								"summary": [
-									{
-										"kind": "text",
-										"text": "Gets the depth texture component of this render buffer, if any."
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "WebGLRenderBuffer.ts",
-									"line": 283,
-									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L283"
-								}
-							],
-							"type": {
-								"type": "reference",
-								"target": 205,
-								"name": "WebGLAbstractTexture",
-								"package": "@xeokit/webglutils"
-							}
-						}
-					]
-				},
-				{
-					"id": 174,
-					"name": "getTexture",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "WebGLRenderBuffer.ts",
-							"line": 252,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L252"
-						}
-					],
-					"signatures": [
-						{
-							"id": 175,
-							"name": "getTexture",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"comment": {
-								"summary": [
-									{
-										"kind": "text",
-										"text": "Gets a texture that has the contents of this render buffer."
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "WebGLRenderBuffer.ts",
-									"line": 252,
-									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L252"
-								}
-							],
-							"type": {
-								"type": "reference",
-								"target": 205,
-								"name": "WebGLAbstractTexture",
-								"package": "@xeokit/webglutils"
-							}
-						}
-					]
-				},
-				{
-					"id": 176,
-					"name": "hasDepthTexture",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "WebGLRenderBuffer.ts",
-							"line": 276,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L276"
-						}
-					],
-					"signatures": [
-						{
-							"id": 177,
-							"name": "hasDepthTexture",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"comment": {
-								"summary": [
-									{
-										"kind": "text",
-										"text": "Does this render buffer have a depth texture component?"
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "WebGLRenderBuffer.ts",
-									"line": 276,
-									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L276"
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "boolean"
-							}
-						}
-					]
-				},
-				{
-					"id": 159,
-					"name": "read",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "WebGLRenderBuffer.ts",
-							"line": 160,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L160"
-						}
-					],
-					"signatures": [
-						{
-							"id": 160,
-							"name": "read",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"comment": {
-								"summary": [
-									{
-										"kind": "text",
-										"text": "Reads a pixel from this render buffer."
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "WebGLRenderBuffer.ts",
-									"line": 160,
-									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L160"
-								}
-							],
-							"parameters": [
-								{
-									"id": 161,
-									"name": "pickX",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "intrinsic",
-										"name": "number"
-									}
-								},
-								{
-									"id": 162,
-									"name": "pickY",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "intrinsic",
-										"name": "number"
-									}
-								}
-							],
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-									"qualifiedName": "Uint8Array"
-								},
-								"name": "Uint8Array",
-								"package": "typescript"
-							}
-						}
-					]
-				},
-				{
-					"id": 163,
-					"name": "readImage",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "WebGLRenderBuffer.ts",
-							"line": 173,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L173"
-						}
-					],
-					"signatures": [
-						{
-							"id": 164,
-							"name": "readImage",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"comment": {
-								"summary": [
-									{
-										"kind": "text",
-										"text": "Redas an image from this render buffer."
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "WebGLRenderBuffer.ts",
-									"line": 173,
-									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L173"
-								}
-							],
-							"parameters": [
-								{
-									"id": 165,
-									"name": "params",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "reflection",
-										"declaration": {
-											"id": 166,
-											"name": "__type",
-											"variant": "declaration",
-											"kind": 65536,
-											"flags": {},
-											"children": [
-												{
-													"id": 169,
-													"name": "format",
-													"variant": "declaration",
-													"kind": 1024,
-													"flags": {
-														"isOptional": true
-													},
-													"sources": [
-														{
-															"fileName": "WebGLRenderBuffer.ts",
-															"line": 176,
-															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L176"
-														}
-													],
-													"type": {
-														"type": "intrinsic",
-														"name": "string"
-													}
-												},
-												{
-													"id": 167,
-													"name": "height",
-													"variant": "declaration",
-													"kind": 1024,
-													"flags": {
-														"isOptional": true
-													},
-													"sources": [
-														{
-															"fileName": "WebGLRenderBuffer.ts",
-															"line": 174,
-															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L174"
-														}
-													],
-													"type": {
-														"type": "intrinsic",
-														"name": "number"
-													}
-												},
-												{
-													"id": 168,
-													"name": "width",
-													"variant": "declaration",
-													"kind": 1024,
-													"flags": {
-														"isOptional": true
-													},
-													"sources": [
-														{
-															"fileName": "WebGLRenderBuffer.ts",
-															"line": 175,
-															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L175"
-														}
-													],
-													"type": {
-														"type": "intrinsic",
-														"name": "number"
-													}
-												}
-											],
-											"groups": [
-												{
-													"title": "Properties",
-													"children": [
-														169,
-														167,
-														168
-													]
-												}
-											],
-											"sources": [
-												{
-													"fileName": "WebGLRenderBuffer.ts",
-													"line": 173,
-													"character": 22,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L173"
-												}
-											]
-										}
-									}
-								}
-							],
-							"type": {
-								"type": "reference",
-								"target": {
-									"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-									"qualifiedName": "Uint8Array"
-								},
-								"name": "Uint8Array",
-								"package": "typescript"
-							}
-						}
-					]
-				},
-				{
-					"id": 150,
-					"name": "setSize",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "WebGLRenderBuffer.ts",
-							"line": 43,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L43"
-						}
-					],
-					"signatures": [
-						{
-							"id": 151,
-							"name": "setSize",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"comment": {
-								"summary": [
-									{
-										"kind": "text",
-										"text": "Sets the size of this render buffer."
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "WebGLRenderBuffer.ts",
-									"line": 43,
-									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L43"
-								}
-							],
-							"parameters": [
-								{
-									"id": 152,
-									"name": "size",
-									"variant": "param",
-									"kind": 32768,
-									"flags": {},
-									"type": {
-										"type": "array",
-										"elementType": {
-											"type": "intrinsic",
-											"name": "number"
-										}
-									}
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "void"
-							}
-						}
-					]
-				},
-				{
-					"id": 172,
-					"name": "unbind",
-					"variant": "declaration",
-					"kind": 2048,
-					"flags": {},
-					"sources": [
-						{
-							"fileName": "WebGLRenderBuffer.ts",
-							"line": 243,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L243"
-						}
-					],
-					"signatures": [
-						{
-							"id": 173,
-							"name": "unbind",
-							"variant": "signature",
-							"kind": 4096,
-							"flags": {},
-							"comment": {
-								"summary": [
-									{
-										"kind": "text",
-										"text": "Unbinds this render buffer."
-									}
-								]
-							},
-							"sources": [
-								{
-									"fileName": "WebGLRenderBuffer.ts",
-									"line": 243,
-									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L243"
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "void"
-							}
-						}
-					]
-				}
-			],
-			"groups": [
-				{
-					"title": "Constructors",
-					"children": [
-						132
-					]
-				},
-				{
-					"title": "Methods",
-					"children": [
-						153,
-						157,
-						180,
-						178,
-						174,
-						176,
-						159,
-						163,
-						150,
-						172
-					]
-				}
-			],
-			"sources": [
-				{
-					"fileName": "WebGLRenderBuffer.ts",
-					"line": 7,
-					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLRenderBuffer.ts#L7"
-				}
-			]
-		},
-		{
-			"id": 182,
+			"id": 208,
 			"name": "WebGLSampler",
 			"variant": "declaration",
 			"kind": 128,
@@ -3705,7 +2904,7 @@
 			},
 			"children": [
 				{
-					"id": 183,
+					"id": 209,
 					"name": "constructor",
 					"variant": "declaration",
 					"kind": 512,
@@ -3715,12 +2914,12 @@
 							"fileName": "WebGLSampler.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLSampler.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLSampler.ts#L16"
 						}
 					],
 					"signatures": [
 						{
-							"id": 184,
+							"id": 210,
 							"name": "new WebGLSampler",
 							"variant": "signature",
 							"kind": 16384,
@@ -3738,12 +2937,12 @@
 									"fileName": "WebGLSampler.ts",
 									"line": 16,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLSampler.ts#L16"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLSampler.ts#L16"
 								}
 							],
 							"parameters": [
 								{
-									"id": 185,
+									"id": 211,
 									"name": "gl",
 									"variant": "param",
 									"kind": 32768,
@@ -3759,7 +2958,7 @@
 									}
 								},
 								{
-									"id": 186,
+									"id": 212,
 									"name": "location",
 									"variant": "param",
 									"kind": 32768,
@@ -3777,7 +2976,7 @@
 							],
 							"type": {
 								"type": "reference",
-								"target": 182,
+								"target": 208,
 								"name": "WebGLSampler",
 								"package": "@xeokit/webglutils"
 							}
@@ -3785,7 +2984,7 @@
 					]
 				},
 				{
-					"id": 189,
+					"id": 215,
 					"name": "bindTexture",
 					"variant": "declaration",
 					"kind": 2048,
@@ -3795,12 +2994,12 @@
 							"fileName": "WebGLSampler.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLSampler.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLSampler.ts#L26"
 						}
 					],
 					"signatures": [
 						{
-							"id": 190,
+							"id": 216,
 							"name": "bindTexture",
 							"variant": "signature",
 							"kind": 4096,
@@ -3818,25 +3017,25 @@
 									"fileName": "WebGLSampler.ts",
 									"line": 26,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLSampler.ts#L26"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLSampler.ts#L26"
 								}
 							],
 							"parameters": [
 								{
-									"id": 191,
+									"id": 217,
 									"name": "texture",
 									"variant": "param",
 									"kind": 32768,
 									"flags": {},
 									"type": {
 										"type": "reference",
-										"target": 205,
+										"target": 231,
 										"name": "WebGLAbstractTexture",
 										"package": "@xeokit/webglutils"
 									}
 								},
 								{
-									"id": 192,
+									"id": 218,
 									"name": "unit",
 									"variant": "param",
 									"kind": 32768,
@@ -3859,13 +3058,13 @@
 				{
 					"title": "Constructors",
 					"children": [
-						183
+						209
 					]
 				},
 				{
 					"title": "Methods",
 					"children": [
-						189
+						215
 					]
 				}
 			],
@@ -3874,12 +3073,12 @@
 					"fileName": "WebGLSampler.ts",
 					"line": 6,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLSampler.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLSampler.ts#L6"
 				}
 			]
 		},
 		{
-			"id": 193,
+			"id": 219,
 			"name": "WebGLShader",
 			"variant": "declaration",
 			"kind": 128,
@@ -3894,7 +3093,7 @@
 			},
 			"children": [
 				{
-					"id": 194,
+					"id": 220,
 					"name": "constructor",
 					"variant": "declaration",
 					"kind": 512,
@@ -3904,12 +3103,12 @@
 							"fileName": "WebGLShader.ts",
 							"line": 32,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLShader.ts#L32"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLShader.ts#L32"
 						}
 					],
 					"signatures": [
 						{
-							"id": 195,
+							"id": 221,
 							"name": "new WebGLShader",
 							"variant": "signature",
 							"kind": 16384,
@@ -3927,12 +3126,12 @@
 									"fileName": "WebGLShader.ts",
 									"line": 32,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLShader.ts#L32"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLShader.ts#L32"
 								}
 							],
 							"parameters": [
 								{
-									"id": 196,
+									"id": 222,
 									"name": "gl",
 									"variant": "param",
 									"kind": 32768,
@@ -3948,7 +3147,7 @@
 									}
 								},
 								{
-									"id": 197,
+									"id": 223,
 									"name": "type",
 									"variant": "param",
 									"kind": 32768,
@@ -3959,7 +3158,7 @@
 									}
 								},
 								{
-									"id": 198,
+									"id": 224,
 									"name": "source",
 									"variant": "param",
 									"kind": 32768,
@@ -3972,7 +3171,7 @@
 							],
 							"type": {
 								"type": "reference",
-								"target": 193,
+								"target": 219,
 								"name": "WebGLShader",
 								"package": "@xeokit/webglutils"
 							}
@@ -3980,7 +3179,7 @@
 					]
 				},
 				{
-					"id": 200,
+					"id": 226,
 					"name": "allocated",
 					"variant": "declaration",
 					"kind": 1024,
@@ -3998,7 +3197,7 @@
 							"fileName": "WebGLShader.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLShader.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLShader.ts#L14"
 						}
 					],
 					"type": {
@@ -4007,7 +3206,7 @@
 					}
 				},
 				{
-					"id": 201,
+					"id": 227,
 					"name": "compiled",
 					"variant": "declaration",
 					"kind": 1024,
@@ -4025,7 +3224,7 @@
 							"fileName": "WebGLShader.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLShader.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLShader.ts#L19"
 						}
 					],
 					"type": {
@@ -4034,7 +3233,7 @@
 					}
 				},
 				{
-					"id": 199,
+					"id": 225,
 					"name": "errors",
 					"variant": "declaration",
 					"kind": 1024,
@@ -4052,7 +3251,7 @@
 							"fileName": "WebGLShader.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLShader.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLShader.ts#L9"
 						}
 					],
 					"type": {
@@ -4064,7 +3263,7 @@
 					}
 				},
 				{
-					"id": 202,
+					"id": 228,
 					"name": "handle",
 					"variant": "declaration",
 					"kind": 1024,
@@ -4082,18 +3281,18 @@
 							"fileName": "WebGLShader.ts",
 							"line": 24,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLShader.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLShader.ts#L24"
 						}
 					],
 					"type": {
 						"type": "reference",
-						"target": 193,
+						"target": 219,
 						"name": "WebGLShader",
 						"package": "@xeokit/webglutils"
 					}
 				},
 				{
-					"id": 203,
+					"id": 229,
 					"name": "destroy",
 					"variant": "declaration",
 					"kind": 2048,
@@ -4103,12 +3302,12 @@
 							"fileName": "WebGLShader.ts",
 							"line": 65,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLShader.ts#L65"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLShader.ts#L65"
 						}
 					],
 					"signatures": [
 						{
-							"id": 204,
+							"id": 230,
 							"name": "destroy",
 							"variant": "signature",
 							"kind": 4096,
@@ -4126,7 +3325,7 @@
 									"fileName": "WebGLShader.ts",
 									"line": 65,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLShader.ts#L65"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLShader.ts#L65"
 								}
 							],
 							"type": {
@@ -4141,22 +3340,22 @@
 				{
 					"title": "Constructors",
 					"children": [
-						194
+						220
 					]
 				},
 				{
 					"title": "Properties",
 					"children": [
-						200,
-						201,
-						199,
-						202
+						226,
+						227,
+						225,
+						228
 					]
 				},
 				{
 					"title": "Methods",
 					"children": [
-						203
+						229
 					]
 				}
 			],
@@ -4165,12 +3364,12 @@
 					"fileName": "WebGLShader.ts",
 					"line": 4,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLShader.ts#L4"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLShader.ts#L4"
 				}
 			]
 		},
 		{
-			"id": 213,
+			"id": 239,
 			"name": "WebGLTexture",
 			"variant": "declaration",
 			"kind": 128,
@@ -4185,7 +3384,7 @@
 			},
 			"children": [
 				{
-					"id": 214,
+					"id": 240,
 					"name": "constructor",
 					"variant": "declaration",
 					"kind": 512,
@@ -4195,12 +3394,12 @@
 							"fileName": "WebGLTexture.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L41"
 						}
 					],
 					"signatures": [
 						{
-							"id": 215,
+							"id": 241,
 							"name": "new WebGLTexture",
 							"variant": "signature",
 							"kind": 16384,
@@ -4210,12 +3409,12 @@
 									"fileName": "WebGLTexture.ts",
 									"line": 41,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L41"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L41"
 								}
 							],
 							"parameters": [
 								{
-									"id": 216,
+									"id": 242,
 									"name": "params",
 									"variant": "param",
 									"kind": 32768,
@@ -4223,14 +3422,14 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 217,
+											"id": 243,
 											"name": "__type",
 											"variant": "declaration",
 											"kind": 65536,
 											"flags": {},
 											"children": [
 												{
-													"id": 227,
+													"id": 253,
 													"name": "flipY",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4242,7 +3441,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 51,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L51"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L51"
 														}
 													],
 													"type": {
@@ -4251,7 +3450,7 @@
 													}
 												},
 												{
-													"id": 220,
+													"id": 246,
 													"name": "format",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4263,7 +3462,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 44,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L44"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L44"
 														}
 													],
 													"type": {
@@ -4272,7 +3471,7 @@
 													}
 												},
 												{
-													"id": 218,
+													"id": 244,
 													"name": "gl",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4282,7 +3481,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 42,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L42"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L42"
 														}
 													],
 													"type": {
@@ -4296,7 +3495,7 @@
 													}
 												},
 												{
-													"id": 225,
+													"id": 251,
 													"name": "preloadColor",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4308,7 +3507,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 49,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L49"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L49"
 														}
 													],
 													"type": {
@@ -4322,7 +3521,7 @@
 													}
 												},
 												{
-													"id": 226,
+													"id": 252,
 													"name": "premultiplyAlpha",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4334,7 +3533,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 50,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L50"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L50"
 														}
 													],
 													"type": {
@@ -4343,7 +3542,7 @@
 													}
 												},
 												{
-													"id": 219,
+													"id": 245,
 													"name": "target",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4355,7 +3554,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 43,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L43"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L43"
 														}
 													],
 													"type": {
@@ -4364,7 +3563,7 @@
 													}
 												},
 												{
-													"id": 221,
+													"id": 247,
 													"name": "type",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4376,7 +3575,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 45,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L45"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L45"
 														}
 													],
 													"type": {
@@ -4385,7 +3584,7 @@
 													}
 												},
 												{
-													"id": 224,
+													"id": 250,
 													"name": "wrapR",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4397,7 +3596,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 48,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L48"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L48"
 														}
 													],
 													"type": {
@@ -4406,7 +3605,7 @@
 													}
 												},
 												{
-													"id": 222,
+													"id": 248,
 													"name": "wrapS",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4418,7 +3617,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 46,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L46"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L46"
 														}
 													],
 													"type": {
@@ -4427,7 +3626,7 @@
 													}
 												},
 												{
-													"id": 223,
+													"id": 249,
 													"name": "wrapT",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4439,7 +3638,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 47,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L47"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L47"
 														}
 													],
 													"type": {
@@ -4452,16 +3651,16 @@
 												{
 													"title": "Properties",
 													"children": [
-														227,
-														220,
-														218,
-														225,
-														226,
-														219,
-														221,
-														224,
-														222,
-														223
+														253,
+														246,
+														244,
+														251,
+														252,
+														245,
+														247,
+														250,
+														248,
+														249
 													]
 												}
 											],
@@ -4470,7 +3669,7 @@
 													"fileName": "WebGLTexture.ts",
 													"line": 41,
 													"character": 24,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L41"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L41"
 												}
 											]
 										}
@@ -4479,7 +3678,7 @@
 							],
 							"type": {
 								"type": "reference",
-								"target": 213,
+								"target": 239,
 								"name": "WebGLTexture",
 								"package": "@xeokit/webglutils"
 							}
@@ -4487,7 +3686,7 @@
 					]
 				},
 				{
-					"id": 286,
+					"id": 312,
 					"name": "_uploadProps",
 					"variant": "declaration",
 					"kind": 2048,
@@ -4497,12 +3696,12 @@
 							"fileName": "WebGLTexture.ts",
 							"line": 359,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L359"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L359"
 						}
 					],
 					"signatures": [
 						{
-							"id": 287,
+							"id": 313,
 							"name": "_uploadProps",
 							"variant": "signature",
 							"kind": 4096,
@@ -4512,12 +3711,12 @@
 									"fileName": "WebGLTexture.ts",
 									"line": 359,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L359"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L359"
 								}
 							],
 							"parameters": [
 								{
-									"id": 288,
+									"id": 314,
 									"name": "props",
 									"variant": "param",
 									"kind": 32768,
@@ -4525,14 +3724,14 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 289,
+											"id": 315,
 											"name": "__type",
 											"variant": "declaration",
 											"kind": 65536,
 											"flags": {},
 											"children": [
 												{
-													"id": 292,
+													"id": 318,
 													"name": "encoding",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4544,7 +3743,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 362,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L362"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L362"
 														}
 													],
 													"type": {
@@ -4553,7 +3752,7 @@
 													}
 												},
 												{
-													"id": 294,
+													"id": 320,
 													"name": "flipY",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4565,7 +3764,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 364,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L364"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L364"
 														}
 													],
 													"type": {
@@ -4574,7 +3773,7 @@
 													}
 												},
 												{
-													"id": 290,
+													"id": 316,
 													"name": "format",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4586,7 +3785,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 360,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L360"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L360"
 														}
 													],
 													"type": {
@@ -4595,7 +3794,7 @@
 													}
 												},
 												{
-													"id": 291,
+													"id": 317,
 													"name": "internalFormat",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4607,7 +3806,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 361,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L361"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L361"
 														}
 													],
 													"type": {
@@ -4616,7 +3815,7 @@
 													}
 												},
 												{
-													"id": 298,
+													"id": 324,
 													"name": "magFilter",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4628,7 +3827,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 368,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L368"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L368"
 														}
 													],
 													"type": {
@@ -4637,7 +3836,7 @@
 													}
 												},
 												{
-													"id": 297,
+													"id": 323,
 													"name": "minFilter",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4649,7 +3848,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 367,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L367"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L367"
 														}
 													],
 													"type": {
@@ -4658,7 +3857,7 @@
 													}
 												},
 												{
-													"id": 295,
+													"id": 321,
 													"name": "premultiplyAlpha",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4670,7 +3869,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 365,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L365"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L365"
 														}
 													],
 													"type": {
@@ -4679,7 +3878,7 @@
 													}
 												},
 												{
-													"id": 293,
+													"id": 319,
 													"name": "type",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4691,7 +3890,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 363,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L363"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L363"
 														}
 													],
 													"type": {
@@ -4700,7 +3899,7 @@
 													}
 												},
 												{
-													"id": 296,
+													"id": 322,
 													"name": "unpackAlignment",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4710,7 +3909,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 366,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L366"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L366"
 														}
 													],
 													"type": {
@@ -4719,7 +3918,7 @@
 													}
 												},
 												{
-													"id": 301,
+													"id": 327,
 													"name": "wrapR",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4731,7 +3930,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 371,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L371"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L371"
 														}
 													],
 													"type": {
@@ -4740,7 +3939,7 @@
 													}
 												},
 												{
-													"id": 299,
+													"id": 325,
 													"name": "wrapS",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4752,7 +3951,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 369,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L369"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L369"
 														}
 													],
 													"type": {
@@ -4761,7 +3960,7 @@
 													}
 												},
 												{
-													"id": 300,
+													"id": 326,
 													"name": "wrapT",
 													"variant": "declaration",
 													"kind": 1024,
@@ -4773,7 +3972,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 370,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L370"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L370"
 														}
 													],
 													"type": {
@@ -4786,18 +3985,18 @@
 												{
 													"title": "Properties",
 													"children": [
-														292,
-														294,
-														290,
-														291,
-														298,
-														297,
-														295,
-														293,
-														296,
-														301,
-														299,
-														300
+														318,
+														320,
+														316,
+														317,
+														324,
+														323,
+														321,
+														319,
+														322,
+														327,
+														325,
+														326
 													]
 												}
 											],
@@ -4806,7 +4005,7 @@
 													"fileName": "WebGLTexture.ts",
 													"line": 359,
 													"character": 24,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L359"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L359"
 												}
 											]
 										}
@@ -4821,7 +4020,7 @@
 					]
 				},
 				{
-					"id": 302,
+					"id": 328,
 					"name": "bind",
 					"variant": "declaration",
 					"kind": 2048,
@@ -4831,12 +4030,12 @@
 							"fileName": "WebGLTexture.ts",
 							"line": 419,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L419"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L419"
 						}
 					],
 					"signatures": [
 						{
-							"id": 303,
+							"id": 329,
 							"name": "bind",
 							"variant": "signature",
 							"kind": 4096,
@@ -4846,12 +4045,12 @@
 									"fileName": "WebGLTexture.ts",
 									"line": 419,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L419"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L419"
 								}
 							],
 							"parameters": [
 								{
-									"id": 304,
+									"id": 330,
 									"name": "unit",
 									"variant": "param",
 									"kind": 32768,
@@ -4880,7 +4079,7 @@
 					}
 				},
 				{
-					"id": 308,
+					"id": 334,
 					"name": "destroy",
 					"variant": "declaration",
 					"kind": 2048,
@@ -4890,12 +4089,12 @@
 							"fileName": "WebGLTexture.ts",
 							"line": 445,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L445"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L445"
 						}
 					],
 					"signatures": [
 						{
-							"id": 309,
+							"id": 335,
 							"name": "destroy",
 							"variant": "signature",
 							"kind": 4096,
@@ -4905,7 +4104,7 @@
 									"fileName": "WebGLTexture.ts",
 									"line": 445,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L445"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L445"
 								}
 							],
 							"type": {
@@ -4916,7 +4115,7 @@
 					]
 				},
 				{
-					"id": 267,
+					"id": 293,
 					"name": "setCompressedData",
 					"variant": "declaration",
 					"kind": 2048,
@@ -4926,12 +4125,12 @@
 							"fileName": "WebGLTexture.ts",
 							"line": 231,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L231"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L231"
 						}
 					],
 					"signatures": [
 						{
-							"id": 268,
+							"id": 294,
 							"name": "setCompressedData",
 							"variant": "signature",
 							"kind": 4096,
@@ -4941,12 +4140,12 @@
 									"fileName": "WebGLTexture.ts",
 									"line": 231,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L231"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L231"
 								}
 							],
 							"parameters": [
 								{
-									"id": 269,
+									"id": 295,
 									"name": "params",
 									"variant": "param",
 									"kind": 32768,
@@ -4970,7 +4169,7 @@
 					]
 				},
 				{
-					"id": 250,
+					"id": 276,
 					"name": "setImage",
 					"variant": "declaration",
 					"kind": 2048,
@@ -4980,12 +4179,12 @@
 							"fileName": "WebGLTexture.ts",
 							"line": 113,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L113"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L113"
 						}
 					],
 					"signatures": [
 						{
-							"id": 251,
+							"id": 277,
 							"name": "setImage",
 							"variant": "signature",
 							"kind": 4096,
@@ -4995,12 +4194,12 @@
 									"fileName": "WebGLTexture.ts",
 									"line": 113,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L113"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L113"
 								}
 							],
 							"parameters": [
 								{
-									"id": 252,
+									"id": 278,
 									"name": "image",
 									"variant": "param",
 									"kind": 32768,
@@ -5016,7 +4215,7 @@
 									}
 								},
 								{
-									"id": 253,
+									"id": 279,
 									"name": "props",
 									"variant": "param",
 									"kind": 32768,
@@ -5024,14 +4223,14 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 254,
+											"id": 280,
 											"name": "__type",
 											"variant": "declaration",
 											"kind": 65536,
 											"flags": {},
 											"children": [
 												{
-													"id": 257,
+													"id": 283,
 													"name": "encoding",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5043,7 +4242,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 116,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L116"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L116"
 														}
 													],
 													"type": {
@@ -5052,7 +4251,7 @@
 													}
 												},
 												{
-													"id": 259,
+													"id": 285,
 													"name": "flipY",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5064,7 +4263,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 118,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L118"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L118"
 														}
 													],
 													"type": {
@@ -5073,7 +4272,7 @@
 													}
 												},
 												{
-													"id": 255,
+													"id": 281,
 													"name": "format",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5085,7 +4284,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 114,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L114"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L114"
 														}
 													],
 													"type": {
@@ -5094,7 +4293,7 @@
 													}
 												},
 												{
-													"id": 256,
+													"id": 282,
 													"name": "internalFormat",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5106,7 +4305,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 115,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L115"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L115"
 														}
 													],
 													"type": {
@@ -5115,7 +4314,7 @@
 													}
 												},
 												{
-													"id": 263,
+													"id": 289,
 													"name": "magFilter",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5127,7 +4326,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 122,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L122"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L122"
 														}
 													],
 													"type": {
@@ -5136,7 +4335,7 @@
 													}
 												},
 												{
-													"id": 262,
+													"id": 288,
 													"name": "minFilter",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5148,7 +4347,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 121,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L121"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L121"
 														}
 													],
 													"type": {
@@ -5157,7 +4356,7 @@
 													}
 												},
 												{
-													"id": 260,
+													"id": 286,
 													"name": "premultiplyAlpha",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5169,7 +4368,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 119,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L119"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L119"
 														}
 													],
 													"type": {
@@ -5178,7 +4377,7 @@
 													}
 												},
 												{
-													"id": 258,
+													"id": 284,
 													"name": "type",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5190,7 +4389,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 117,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L117"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L117"
 														}
 													],
 													"type": {
@@ -5199,7 +4398,7 @@
 													}
 												},
 												{
-													"id": 261,
+													"id": 287,
 													"name": "unpackAlignment",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5211,7 +4410,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 120,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L120"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L120"
 														}
 													],
 													"type": {
@@ -5220,7 +4419,7 @@
 													}
 												},
 												{
-													"id": 266,
+													"id": 292,
 													"name": "wrapR",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5232,7 +4431,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 125,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L125"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L125"
 														}
 													],
 													"type": {
@@ -5241,7 +4440,7 @@
 													}
 												},
 												{
-													"id": 264,
+													"id": 290,
 													"name": "wrapS",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5253,7 +4452,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 123,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L123"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L123"
 														}
 													],
 													"type": {
@@ -5262,7 +4461,7 @@
 													}
 												},
 												{
-													"id": 265,
+													"id": 291,
 													"name": "wrapT",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5274,7 +4473,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 124,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L124"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L124"
 														}
 													],
 													"type": {
@@ -5287,18 +4486,18 @@
 												{
 													"title": "Properties",
 													"children": [
-														257,
-														259,
-														255,
-														256,
-														263,
-														262,
-														260,
-														258,
-														261,
-														266,
-														264,
-														265
+														283,
+														285,
+														281,
+														282,
+														289,
+														288,
+														286,
+														284,
+														287,
+														292,
+														290,
+														291
 													]
 												}
 											],
@@ -5307,7 +4506,7 @@
 													"fileName": "WebGLTexture.ts",
 													"line": 113,
 													"character": 45,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L113"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L113"
 												}
 											]
 										}
@@ -5323,7 +4522,7 @@
 					]
 				},
 				{
-					"id": 244,
+					"id": 270,
 					"name": "setPreloadColor",
 					"variant": "declaration",
 					"kind": 2048,
@@ -5333,12 +4532,12 @@
 							"fileName": "WebGLTexture.ts",
 							"line": 77,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L77"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L77"
 						}
 					],
 					"signatures": [
 						{
-							"id": 245,
+							"id": 271,
 							"name": "setPreloadColor",
 							"variant": "signature",
 							"kind": 4096,
@@ -5348,12 +4547,12 @@
 									"fileName": "WebGLTexture.ts",
 									"line": 77,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L77"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L77"
 								}
 							],
 							"parameters": [
 								{
-									"id": 246,
+									"id": 272,
 									"name": "value",
 									"variant": "param",
 									"kind": 32768,
@@ -5377,7 +4576,7 @@
 					]
 				},
 				{
-					"id": 270,
+					"id": 296,
 					"name": "setProps",
 					"variant": "declaration",
 					"kind": 2048,
@@ -5387,12 +4586,12 @@
 							"fileName": "WebGLTexture.ts",
 							"line": 339,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L339"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L339"
 						}
 					],
 					"signatures": [
 						{
-							"id": 271,
+							"id": 297,
 							"name": "setProps",
 							"variant": "signature",
 							"kind": 4096,
@@ -5402,12 +4601,12 @@
 									"fileName": "WebGLTexture.ts",
 									"line": 339,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L339"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L339"
 								}
 							],
 							"parameters": [
 								{
-									"id": 272,
+									"id": 298,
 									"name": "props",
 									"variant": "param",
 									"kind": 32768,
@@ -5415,14 +4614,14 @@
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 273,
+											"id": 299,
 											"name": "__type",
 											"variant": "declaration",
 											"kind": 65536,
 											"flags": {},
 											"children": [
 												{
-													"id": 276,
+													"id": 302,
 													"name": "encoding",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5434,7 +4633,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 342,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L342"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L342"
 														}
 													],
 													"type": {
@@ -5443,7 +4642,7 @@
 													}
 												},
 												{
-													"id": 278,
+													"id": 304,
 													"name": "flipY",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5455,7 +4654,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 344,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L344"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L344"
 														}
 													],
 													"type": {
@@ -5464,7 +4663,7 @@
 													}
 												},
 												{
-													"id": 274,
+													"id": 300,
 													"name": "format",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5476,7 +4675,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 340,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L340"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L340"
 														}
 													],
 													"type": {
@@ -5485,7 +4684,7 @@
 													}
 												},
 												{
-													"id": 275,
+													"id": 301,
 													"name": "internalFormat",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5497,7 +4696,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 341,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L341"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L341"
 														}
 													],
 													"type": {
@@ -5506,7 +4705,7 @@
 													}
 												},
 												{
-													"id": 282,
+													"id": 308,
 													"name": "magFilter",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5518,7 +4717,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 348,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L348"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L348"
 														}
 													],
 													"type": {
@@ -5527,7 +4726,7 @@
 													}
 												},
 												{
-													"id": 281,
+													"id": 307,
 													"name": "minFilter",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5539,7 +4738,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 347,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L347"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L347"
 														}
 													],
 													"type": {
@@ -5548,7 +4747,7 @@
 													}
 												},
 												{
-													"id": 279,
+													"id": 305,
 													"name": "premultiplyAlpha",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5560,7 +4759,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 345,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L345"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L345"
 														}
 													],
 													"type": {
@@ -5569,7 +4768,7 @@
 													}
 												},
 												{
-													"id": 277,
+													"id": 303,
 													"name": "type",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5581,7 +4780,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 343,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L343"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L343"
 														}
 													],
 													"type": {
@@ -5590,7 +4789,7 @@
 													}
 												},
 												{
-													"id": 280,
+													"id": 306,
 													"name": "unpackAlignment",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5600,7 +4799,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 346,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L346"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L346"
 														}
 													],
 													"type": {
@@ -5609,7 +4808,7 @@
 													}
 												},
 												{
-													"id": 285,
+													"id": 311,
 													"name": "wrapR",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5621,7 +4820,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 351,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L351"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L351"
 														}
 													],
 													"type": {
@@ -5630,7 +4829,7 @@
 													}
 												},
 												{
-													"id": 283,
+													"id": 309,
 													"name": "wrapS",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5642,7 +4841,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 349,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L349"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L349"
 														}
 													],
 													"type": {
@@ -5651,7 +4850,7 @@
 													}
 												},
 												{
-													"id": 284,
+													"id": 310,
 													"name": "wrapT",
 													"variant": "declaration",
 													"kind": 1024,
@@ -5663,7 +4862,7 @@
 															"fileName": "WebGLTexture.ts",
 															"line": 350,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L350"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L350"
 														}
 													],
 													"type": {
@@ -5676,18 +4875,18 @@
 												{
 													"title": "Properties",
 													"children": [
-														276,
-														278,
-														274,
-														275,
-														282,
-														281,
-														279,
-														277,
-														280,
-														285,
-														283,
-														284
+														302,
+														304,
+														300,
+														301,
+														308,
+														307,
+														305,
+														303,
+														306,
+														311,
+														309,
+														310
 													]
 												}
 											],
@@ -5696,7 +4895,7 @@
 													"fileName": "WebGLTexture.ts",
 													"line": 339,
 													"character": 20,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L339"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L339"
 												}
 											]
 										}
@@ -5711,7 +4910,7 @@
 					]
 				},
 				{
-					"id": 247,
+					"id": 273,
 					"name": "setTarget",
 					"variant": "declaration",
 					"kind": 2048,
@@ -5721,12 +4920,12 @@
 							"fileName": "WebGLTexture.ts",
 							"line": 109,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L109"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L109"
 						}
 					],
 					"signatures": [
 						{
-							"id": 248,
+							"id": 274,
 							"name": "setTarget",
 							"variant": "signature",
 							"kind": 4096,
@@ -5736,12 +4935,12 @@
 									"fileName": "WebGLTexture.ts",
 									"line": 109,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L109"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L109"
 								}
 							],
 							"parameters": [
 								{
-									"id": 249,
+									"id": 275,
 									"name": "target",
 									"variant": "param",
 									"kind": 32768,
@@ -5760,7 +4959,7 @@
 					]
 				},
 				{
-					"id": 305,
+					"id": 331,
 					"name": "unbind",
 					"variant": "declaration",
 					"kind": 2048,
@@ -5770,12 +4969,12 @@
 							"fileName": "WebGLTexture.ts",
 							"line": 433,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L433"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L433"
 						}
 					],
 					"signatures": [
 						{
-							"id": 306,
+							"id": 332,
 							"name": "unbind",
 							"variant": "signature",
 							"kind": 4096,
@@ -5785,12 +4984,12 @@
 									"fileName": "WebGLTexture.ts",
 									"line": 433,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L433"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L433"
 								}
 							],
 							"parameters": [
 								{
-									"id": 307,
+									"id": 333,
 									"name": "unit",
 									"variant": "param",
 									"kind": 32768,
@@ -5823,21 +5022,21 @@
 				{
 					"title": "Constructors",
 					"children": [
-						214
+						240
 					]
 				},
 				{
 					"title": "Methods",
 					"children": [
-						286,
-						302,
-						308,
-						267,
-						250,
-						244,
+						312,
+						328,
+						334,
+						293,
+						276,
 						270,
-						247,
-						305
+						296,
+						273,
+						331
 					]
 				}
 			],
@@ -5846,20 +5045,20 @@
 					"fileName": "WebGLTexture.ts",
 					"line": 22,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLTexture.ts#L22"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLTexture.ts#L22"
 				}
 			],
 			"implementedTypes": [
 				{
 					"type": "reference",
-					"target": 205,
+					"target": 231,
 					"name": "WebGLAbstractTexture",
 					"package": "@xeokit/webglutils"
 				}
 			]
 		},
 		{
-			"id": 205,
+			"id": 231,
 			"name": "WebGLAbstractTexture",
 			"variant": "declaration",
 			"kind": 2097152,
@@ -5877,20 +5076,20 @@
 					"fileName": "WebGLAbstractTexture.ts",
 					"line": 4,
 					"character": 12,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAbstractTexture.ts#L4"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAbstractTexture.ts#L4"
 				}
 			],
 			"type": {
 				"type": "reflection",
 				"declaration": {
-					"id": 206,
+					"id": 232,
 					"name": "__type",
 					"variant": "declaration",
 					"kind": 65536,
 					"flags": {},
 					"children": [
 						{
-							"id": 207,
+							"id": 233,
 							"name": "bind",
 							"variant": "declaration",
 							"kind": 2048,
@@ -5900,12 +5099,12 @@
 									"fileName": "WebGLAbstractTexture.ts",
 									"line": 10,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAbstractTexture.ts#L10"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAbstractTexture.ts#L10"
 								}
 							],
 							"signatures": [
 								{
-									"id": 208,
+									"id": 234,
 									"name": "bind",
 									"variant": "signature",
 									"kind": 4096,
@@ -5923,12 +5122,12 @@
 											"fileName": "WebGLAbstractTexture.ts",
 											"line": 10,
 											"character": 4,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAbstractTexture.ts#L10"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAbstractTexture.ts#L10"
 										}
 									],
 									"parameters": [
 										{
-											"id": 209,
+											"id": 235,
 											"name": "unit",
 											"variant": "param",
 											"kind": 32768,
@@ -5947,7 +5146,7 @@
 							]
 						},
 						{
-							"id": 210,
+							"id": 236,
 							"name": "unbind",
 							"variant": "declaration",
 							"kind": 2048,
@@ -5957,12 +5156,12 @@
 									"fileName": "WebGLAbstractTexture.ts",
 									"line": 16,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAbstractTexture.ts#L16"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAbstractTexture.ts#L16"
 								}
 							],
 							"signatures": [
 								{
-									"id": 211,
+									"id": 237,
 									"name": "unbind",
 									"variant": "signature",
 									"kind": 4096,
@@ -5980,12 +5179,12 @@
 											"fileName": "WebGLAbstractTexture.ts",
 											"line": 16,
 											"character": 4,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAbstractTexture.ts#L16"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAbstractTexture.ts#L16"
 										}
 									],
 									"parameters": [
 										{
-											"id": 212,
+											"id": 238,
 											"name": "unit",
 											"variant": "param",
 											"kind": 32768,
@@ -6008,8 +5207,8 @@
 						{
 							"title": "Methods",
 							"children": [
-								207,
-								210
+								233,
+								236
 							]
 						}
 					],
@@ -6018,7 +5217,7 @@
 							"fileName": "WebGLAbstractTexture.ts",
 							"line": 4,
 							"character": 35,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WebGLAbstractTexture.ts#L4"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WebGLAbstractTexture.ts#L4"
 						}
 					]
 				}
@@ -6031,13 +5230,13 @@
 				},
 				{
 					"type": "reference",
-					"target": 213,
+					"target": 239,
 					"name": "WebGLTexture"
 				}
 			]
 		},
 		{
-			"id": 314,
+			"id": 340,
 			"name": "Canvas2Image",
 			"variant": "declaration",
 			"kind": 32,
@@ -6068,7 +5267,7 @@
 					"fileName": "canvas2image.ts",
 					"line": 9,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L9"
 				}
 			],
 			"type": {
@@ -6077,202 +5276,7 @@
 					{
 						"type": "reflection",
 						"declaration": {
-							"id": 315,
-							"name": "__type",
-							"variant": "declaration",
-							"kind": 65536,
-							"flags": {},
-							"children": [
-								{
-									"id": 316,
-									"name": "saveAsBMP",
-									"variant": "declaration",
-									"kind": 1024,
-									"flags": {},
-									"sources": [
-										{
-											"fileName": "canvas2image.ts",
-											"line": 17,
-											"character": 12,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L17"
-										}
-									],
-									"type": {
-										"type": "reflection",
-										"declaration": {
-											"id": 317,
-											"name": "__type",
-											"variant": "declaration",
-											"kind": 65536,
-											"flags": {},
-											"sources": [
-												{
-													"fileName": "canvas2image.ts",
-													"line": 17,
-													"character": 23,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L17"
-												}
-											],
-											"signatures": [
-												{
-													"id": 318,
-													"name": "__type",
-													"variant": "signature",
-													"kind": 4096,
-													"flags": {},
-													"sources": [
-														{
-															"fileName": "canvas2image.ts",
-															"line": 17,
-															"character": 23,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L17"
-														}
-													],
-													"type": {
-														"type": "intrinsic",
-														"name": "void"
-													}
-												}
-											]
-										}
-									},
-									"defaultValue": "..."
-								},
-								{
-									"id": 322,
-									"name": "saveAsJPEG",
-									"variant": "declaration",
-									"kind": 1024,
-									"flags": {},
-									"sources": [
-										{
-											"fileName": "canvas2image.ts",
-											"line": 21,
-											"character": 12,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L21"
-										}
-									],
-									"type": {
-										"type": "reflection",
-										"declaration": {
-											"id": 323,
-											"name": "__type",
-											"variant": "declaration",
-											"kind": 65536,
-											"flags": {},
-											"sources": [
-												{
-													"fileName": "canvas2image.ts",
-													"line": 21,
-													"character": 24,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L21"
-												}
-											],
-											"signatures": [
-												{
-													"id": 324,
-													"name": "__type",
-													"variant": "signature",
-													"kind": 4096,
-													"flags": {},
-													"sources": [
-														{
-															"fileName": "canvas2image.ts",
-															"line": 21,
-															"character": 24,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L21"
-														}
-													],
-													"type": {
-														"type": "intrinsic",
-														"name": "void"
-													}
-												}
-											]
-										}
-									},
-									"defaultValue": "..."
-								},
-								{
-									"id": 319,
-									"name": "saveAsPNG",
-									"variant": "declaration",
-									"kind": 1024,
-									"flags": {},
-									"sources": [
-										{
-											"fileName": "canvas2image.ts",
-											"line": 19,
-											"character": 12,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L19"
-										}
-									],
-									"type": {
-										"type": "reflection",
-										"declaration": {
-											"id": 320,
-											"name": "__type",
-											"variant": "declaration",
-											"kind": 65536,
-											"flags": {},
-											"sources": [
-												{
-													"fileName": "canvas2image.ts",
-													"line": 19,
-													"character": 23,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L19"
-												}
-											],
-											"signatures": [
-												{
-													"id": 321,
-													"name": "__type",
-													"variant": "signature",
-													"kind": 4096,
-													"flags": {},
-													"sources": [
-														{
-															"fileName": "canvas2image.ts",
-															"line": 19,
-															"character": 23,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L19"
-														}
-													],
-													"type": {
-														"type": "intrinsic",
-														"name": "void"
-													}
-												}
-											]
-										}
-									},
-									"defaultValue": "..."
-								}
-							],
-							"groups": [
-								{
-									"title": "Properties",
-									"children": [
-										316,
-										322,
-										319
-									]
-								}
-							],
-							"sources": [
-								{
-									"fileName": "canvas2image.ts",
-									"line": 16,
-									"character": 15,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L16"
-								}
-							]
-						}
-					},
-					{
-						"type": "reflection",
-						"declaration": {
-							"id": 325,
+							"id": 341,
 							"name": "__type",
 							"variant": "declaration",
 							"kind": 65536,
@@ -6287,9 +5291,9 @@
 									"sources": [
 										{
 											"fileName": "canvas2image.ts",
-											"line": 208,
-											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L208"
+											"line": 17,
+											"character": 12,
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L17"
 										}
 									],
 									"type": {
@@ -6303,9 +5307,9 @@
 											"sources": [
 												{
 													"fileName": "canvas2image.ts",
-													"line": 208,
-													"character": 19,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L208"
+													"line": 17,
+													"character": 23,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L17"
 												}
 											],
 											"signatures": [
@@ -6318,14 +5322,209 @@
 													"sources": [
 														{
 															"fileName": "canvas2image.ts",
+															"line": 17,
+															"character": 23,
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L17"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "void"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 348,
+									"name": "saveAsJPEG",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "canvas2image.ts",
+											"line": 21,
+											"character": 12,
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L21"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 349,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "canvas2image.ts",
+													"line": 21,
+													"character": 24,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L21"
+												}
+											],
+											"signatures": [
+												{
+													"id": 350,
+													"name": "__type",
+													"variant": "signature",
+													"kind": 4096,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "canvas2image.ts",
+															"line": 21,
+															"character": 24,
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L21"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "void"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 345,
+									"name": "saveAsPNG",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "canvas2image.ts",
+											"line": 19,
+											"character": 12,
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L19"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 346,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "canvas2image.ts",
+													"line": 19,
+													"character": 23,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L19"
+												}
+											],
+											"signatures": [
+												{
+													"id": 347,
+													"name": "__type",
+													"variant": "signature",
+													"kind": 4096,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "canvas2image.ts",
+															"line": 19,
+															"character": 23,
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L19"
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "void"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										342,
+										348,
+										345
+									]
+								}
+							],
+							"sources": [
+								{
+									"fileName": "canvas2image.ts",
+									"line": 16,
+									"character": 15,
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L16"
+								}
+							]
+						}
+					},
+					{
+						"type": "reflection",
+						"declaration": {
+							"id": 351,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"children": [
+								{
+									"id": 368,
+									"name": "saveAsBMP",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "canvas2image.ts",
+											"line": 208,
+											"character": 8,
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L208"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 369,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "canvas2image.ts",
+													"line": 208,
+													"character": 19,
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L208"
+												}
+											],
+											"signatures": [
+												{
+													"id": 370,
+													"name": "__type",
+													"variant": "signature",
+													"kind": 4096,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "canvas2image.ts",
 															"line": 208,
 															"character": 19,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L208"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L208"
 														}
 													],
 													"parameters": [
 														{
-															"id": 345,
+															"id": 371,
 															"name": "oCanvas",
 															"variant": "param",
 															"kind": 32768,
@@ -6341,7 +5540,7 @@
 															}
 														},
 														{
-															"id": 346,
+															"id": 372,
 															"name": "bReturnImg",
 															"variant": "param",
 															"kind": 32768,
@@ -6352,7 +5551,7 @@
 															}
 														},
 														{
-															"id": 347,
+															"id": 373,
 															"name": "iWidth",
 															"variant": "param",
 															"kind": 32768,
@@ -6363,7 +5562,7 @@
 															}
 														},
 														{
-															"id": 348,
+															"id": 374,
 															"name": "iHeight",
 															"variant": "param",
 															"kind": 32768,
@@ -6374,7 +5573,7 @@
 															}
 														},
 														{
-															"id": 349,
+															"id": 375,
 															"name": "flipy",
 															"variant": "param",
 															"kind": 32768,
@@ -6410,7 +5609,7 @@
 									"defaultValue": "..."
 								},
 								{
-									"id": 334,
+									"id": 360,
 									"name": "saveAsJPEG",
 									"variant": "declaration",
 									"kind": 1024,
@@ -6420,13 +5619,13 @@
 											"fileName": "canvas2image.ts",
 											"line": 193,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L193"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L193"
 										}
 									],
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 335,
+											"id": 361,
 											"name": "__type",
 											"variant": "declaration",
 											"kind": 65536,
@@ -6436,12 +5635,12 @@
 													"fileName": "canvas2image.ts",
 													"line": 193,
 													"character": 20,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L193"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L193"
 												}
 											],
 											"signatures": [
 												{
-													"id": 336,
+													"id": 362,
 													"name": "__type",
 													"variant": "signature",
 													"kind": 4096,
@@ -6451,12 +5650,12 @@
 															"fileName": "canvas2image.ts",
 															"line": 193,
 															"character": 20,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L193"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L193"
 														}
 													],
 													"parameters": [
 														{
-															"id": 337,
+															"id": 363,
 															"name": "oCanvas",
 															"variant": "param",
 															"kind": 32768,
@@ -6472,7 +5671,7 @@
 															}
 														},
 														{
-															"id": 338,
+															"id": 364,
 															"name": "bReturnImg",
 															"variant": "param",
 															"kind": 32768,
@@ -6483,7 +5682,7 @@
 															}
 														},
 														{
-															"id": 339,
+															"id": 365,
 															"name": "iWidth",
 															"variant": "param",
 															"kind": 32768,
@@ -6494,7 +5693,7 @@
 															}
 														},
 														{
-															"id": 340,
+															"id": 366,
 															"name": "iHeight",
 															"variant": "param",
 															"kind": 32768,
@@ -6505,7 +5704,7 @@
 															}
 														},
 														{
-															"id": 341,
+															"id": 367,
 															"name": "flipy",
 															"variant": "param",
 															"kind": 32768,
@@ -6541,7 +5740,7 @@
 									"defaultValue": "..."
 								},
 								{
-									"id": 326,
+									"id": 352,
 									"name": "saveAsPNG",
 									"variant": "declaration",
 									"kind": 1024,
@@ -6551,13 +5750,13 @@
 											"fileName": "canvas2image.ts",
 											"line": 180,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L180"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L180"
 										}
 									],
 									"type": {
 										"type": "reflection",
 										"declaration": {
-											"id": 327,
+											"id": 353,
 											"name": "__type",
 											"variant": "declaration",
 											"kind": 65536,
@@ -6567,12 +5766,12 @@
 													"fileName": "canvas2image.ts",
 													"line": 180,
 													"character": 19,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L180"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L180"
 												}
 											],
 											"signatures": [
 												{
-													"id": 328,
+													"id": 354,
 													"name": "__type",
 													"variant": "signature",
 													"kind": 4096,
@@ -6582,12 +5781,12 @@
 															"fileName": "canvas2image.ts",
 															"line": 180,
 															"character": 19,
-															"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L180"
+															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L180"
 														}
 													],
 													"parameters": [
 														{
-															"id": 329,
+															"id": 355,
 															"name": "oCanvas",
 															"variant": "param",
 															"kind": 32768,
@@ -6603,7 +5802,7 @@
 															}
 														},
 														{
-															"id": 330,
+															"id": 356,
 															"name": "bReturnImg",
 															"variant": "param",
 															"kind": 32768,
@@ -6614,7 +5813,7 @@
 															}
 														},
 														{
-															"id": 331,
+															"id": 357,
 															"name": "iWidth",
 															"variant": "param",
 															"kind": 32768,
@@ -6625,7 +5824,7 @@
 															}
 														},
 														{
-															"id": 332,
+															"id": 358,
 															"name": "iHeight",
 															"variant": "param",
 															"kind": 32768,
@@ -6636,7 +5835,7 @@
 															}
 														},
 														{
-															"id": 333,
+															"id": 359,
 															"name": "flipy",
 															"variant": "param",
 															"kind": 32768,
@@ -6676,9 +5875,9 @@
 								{
 									"title": "Properties",
 									"children": [
-										342,
-										334,
-										326
+										368,
+										360,
+										352
 									]
 								}
 							],
@@ -6687,7 +5886,7 @@
 									"fileName": "canvas2image.ts",
 									"line": 179,
 									"character": 11,
-									"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/canvas2image.ts#L179"
+									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/canvas2image.ts#L179"
 								}
 							]
 						}
@@ -6697,7 +5896,7 @@
 			"defaultValue": "..."
 		},
 		{
-			"id": 355,
+			"id": 381,
 			"name": "WEBGL_INFO",
 			"variant": "declaration",
 			"kind": 32,
@@ -6717,13 +5916,13 @@
 					"fileName": "WEBGL_INFO.ts",
 					"line": 4,
 					"character": 6,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WEBGL_INFO.ts#L4"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WEBGL_INFO.ts#L4"
 				}
 			],
 			"type": {
 				"type": "reflection",
 				"declaration": {
-					"id": 356,
+					"id": 382,
 					"name": "__type",
 					"variant": "declaration",
 					"kind": 65536,
@@ -6733,11 +5932,11 @@
 							"fileName": "WEBGL_INFO.ts",
 							"line": 4,
 							"character": 18,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WEBGL_INFO.ts#L4"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WEBGL_INFO.ts#L4"
 						}
 					],
 					"indexSignature": {
-						"id": 357,
+						"id": 383,
 						"name": "__index",
 						"variant": "signature",
 						"kind": 8192,
@@ -6747,12 +5946,12 @@
 								"fileName": "WEBGL_INFO.ts",
 								"line": 5,
 								"character": 4,
-								"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/WEBGL_INFO.ts#L5"
+								"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/WEBGL_INFO.ts#L5"
 							}
 						],
 						"parameters": [
 							{
-								"id": 358,
+								"id": 384,
 								"name": "key",
 								"variant": "param",
 								"kind": 32768,
@@ -6773,7 +5972,7 @@
 			"defaultValue": "..."
 		},
 		{
-			"id": 350,
+			"id": 376,
 			"name": "convertWebGLConstant",
 			"variant": "declaration",
 			"kind": 64,
@@ -6783,12 +5982,12 @@
 					"fileName": "convertWebGLConstant.ts",
 					"line": 71,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/convertWebGLConstant.ts#L71"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/convertWebGLConstant.ts#L71"
 				}
 			],
 			"signatures": [
 				{
-					"id": 351,
+					"id": 377,
 					"name": "convertWebGLConstant",
 					"variant": "signature",
 					"kind": 4096,
@@ -6806,12 +6005,12 @@
 							"fileName": "convertWebGLConstant.ts",
 							"line": 71,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/convertWebGLConstant.ts#L71"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/convertWebGLConstant.ts#L71"
 						}
 					],
 					"parameters": [
 						{
-							"id": 352,
+							"id": 378,
 							"name": "gl",
 							"variant": "param",
 							"kind": 32768,
@@ -6827,7 +6026,7 @@
 							}
 						},
 						{
-							"id": 353,
+							"id": 379,
 							"name": "constantVal",
 							"variant": "param",
 							"kind": 32768,
@@ -6838,7 +6037,7 @@
 							}
 						},
 						{
-							"id": 354,
+							"id": 380,
 							"name": "encoding",
 							"variant": "param",
 							"kind": 32768,
@@ -6859,7 +6058,7 @@
 			]
 		},
 		{
-			"id": 310,
+			"id": 336,
 			"name": "getWebGLExtension",
 			"variant": "declaration",
 			"kind": 64,
@@ -6869,12 +6068,12 @@
 					"fileName": "getWebGLExtension.ts",
 					"line": 6,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/getWebGLExtension.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/getWebGLExtension.ts#L6"
 				}
 			],
 			"signatures": [
 				{
-					"id": 311,
+					"id": 337,
 					"name": "getWebGLExtension",
 					"variant": "signature",
 					"kind": 4096,
@@ -6892,12 +6091,12 @@
 							"fileName": "getWebGLExtension.ts",
 							"line": 6,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webglutils/src/getWebGLExtension.ts#L6"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webglutils/src/getWebGLExtension.ts#L6"
 						}
 					],
 					"parameters": [
 						{
-							"id": 312,
+							"id": 338,
 							"name": "gl",
 							"variant": "param",
 							"kind": 32768,
@@ -6913,7 +6112,7 @@
 							}
 						},
 						{
-							"id": 313,
+							"id": 339,
 							"name": "name",
 							"variant": "param",
 							"kind": 32768,
@@ -6940,30 +6139,29 @@
 				40,
 				50,
 				82,
-				131,
-				182,
-				193,
-				213
+				208,
+				219,
+				239
 			]
 		},
 		{
 			"title": "Type Aliases",
 			"children": [
-				205
+				231
 			]
 		},
 		{
 			"title": "Variables",
 			"children": [
-				314,
-				355
+				340,
+				381
 			]
 		},
 		{
 			"title": "Functions",
 			"children": [
-				350,
-				310
+				376,
+				336
 			]
 		}
 	],
@@ -7484,721 +6682,469 @@
 			"sourceFileName": "src/WebGLProgram.ts",
 			"qualifiedName": "WebGLProgram.destroy"
 		},
-		"131": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer"
-		},
-		"132": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.__constructor"
-		},
-		"133": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer"
-		},
-		"134": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "canvas"
-		},
-		"135": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "gl"
-		},
-		"136": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "options"
-		},
-		"137": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "__type"
-		},
-		"138": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "__type.depthTexture"
-		},
-		"139": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "__type.size"
-		},
-		"150": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.setSize"
-		},
-		"151": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.setSize"
-		},
-		"152": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "size"
-		},
-		"153": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.bind"
-		},
-		"154": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.bind"
-		},
-		"157": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.clear"
-		},
-		"158": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.clear"
-		},
-		"159": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.read"
-		},
-		"160": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.read"
-		},
-		"161": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "pickX"
-		},
-		"162": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "pickY"
-		},
-		"163": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.readImage"
-		},
-		"164": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.readImage"
-		},
-		"165": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "params"
-		},
-		"166": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "__type"
-		},
-		"167": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "__type.height"
-		},
-		"168": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "__type.width"
-		},
-		"169": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "__type.format"
-		},
-		"172": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.unbind"
-		},
-		"173": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.unbind"
-		},
-		"174": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.getTexture"
-		},
-		"175": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.getTexture"
-		},
-		"176": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.hasDepthTexture"
-		},
-		"177": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.hasDepthTexture"
-		},
-		"178": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.getDepthTexture"
-		},
-		"179": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.getDepthTexture"
-		},
-		"180": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.destroy"
-		},
-		"181": {
-			"sourceFileName": "src/WebGLRenderBuffer.ts",
-			"qualifiedName": "WebGLRenderBuffer.destroy"
-		},
-		"182": {
+		"208": {
 			"sourceFileName": "src/WebGLSampler.ts",
 			"qualifiedName": "WebGLSampler"
 		},
-		"183": {
+		"209": {
 			"sourceFileName": "src/WebGLSampler.ts",
 			"qualifiedName": "WebGLSampler.__constructor"
 		},
-		"184": {
+		"210": {
 			"sourceFileName": "src/WebGLSampler.ts",
 			"qualifiedName": "WebGLSampler"
 		},
-		"185": {
+		"211": {
 			"sourceFileName": "src/WebGLSampler.ts",
 			"qualifiedName": "gl"
 		},
-		"186": {
+		"212": {
 			"sourceFileName": "src/WebGLSampler.ts",
 			"qualifiedName": "location"
 		},
-		"189": {
+		"215": {
 			"sourceFileName": "src/WebGLSampler.ts",
 			"qualifiedName": "WebGLSampler.bindTexture"
 		},
-		"190": {
+		"216": {
 			"sourceFileName": "src/WebGLSampler.ts",
 			"qualifiedName": "WebGLSampler.bindTexture"
 		},
-		"191": {
+		"217": {
 			"sourceFileName": "src/WebGLSampler.ts",
 			"qualifiedName": "texture"
 		},
-		"192": {
+		"218": {
 			"sourceFileName": "src/WebGLSampler.ts",
 			"qualifiedName": "unit"
 		},
-		"193": {
+		"219": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "WebGLShader"
 		},
-		"194": {
+		"220": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "WebGLShader.__constructor"
 		},
-		"195": {
+		"221": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "WebGLShader"
 		},
-		"196": {
+		"222": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "gl"
 		},
-		"197": {
+		"223": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "type"
 		},
-		"198": {
+		"224": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "source"
 		},
-		"199": {
+		"225": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "WebGLShader.errors"
 		},
-		"200": {
+		"226": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "WebGLShader.allocated"
 		},
-		"201": {
+		"227": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "WebGLShader.compiled"
 		},
-		"202": {
+		"228": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "WebGLShader.handle"
 		},
-		"203": {
+		"229": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "WebGLShader.destroy"
 		},
-		"204": {
+		"230": {
 			"sourceFileName": "src/WebGLShader.ts",
 			"qualifiedName": "WebGLShader.destroy"
 		},
-		"205": {
+		"231": {
 			"sourceFileName": "src/WebGLAbstractTexture.ts",
 			"qualifiedName": "WebGLAbstractTexture"
 		},
-		"206": {
+		"232": {
 			"sourceFileName": "src/WebGLAbstractTexture.ts",
 			"qualifiedName": "__type"
 		},
-		"207": {
+		"233": {
 			"sourceFileName": "src/WebGLAbstractTexture.ts",
 			"qualifiedName": "__type.bind"
 		},
-		"208": {
+		"234": {
 			"sourceFileName": "src/WebGLAbstractTexture.ts",
 			"qualifiedName": "__type.bind"
 		},
-		"209": {
+		"235": {
 			"sourceFileName": "src/WebGLAbstractTexture.ts",
 			"qualifiedName": "unit"
 		},
-		"210": {
+		"236": {
 			"sourceFileName": "src/WebGLAbstractTexture.ts",
 			"qualifiedName": "__type.unbind"
 		},
-		"211": {
+		"237": {
 			"sourceFileName": "src/WebGLAbstractTexture.ts",
 			"qualifiedName": "__type.unbind"
 		},
-		"212": {
+		"238": {
 			"sourceFileName": "src/WebGLAbstractTexture.ts",
 			"qualifiedName": "unit"
 		},
-		"213": {
+		"239": {
 			"sourceFileName": "src/WebGLTexture.ts",
 			"qualifiedName": "WebGLTexture"
 		},
-		"214": {
+		"240": {
 			"sourceFileName": "src/WebGLTexture.ts",
 			"qualifiedName": "WebGLTexture.__constructor"
 		},
-		"215": {
+		"241": {
 			"sourceFileName": "src/WebGLTexture.ts",
 			"qualifiedName": "WebGLTexture"
 		},
-		"216": {
+		"242": {
 			"sourceFileName": "src/WebGLTexture.ts",
 			"qualifiedName": "params"
 		},
-		"217": {
+		"243": {
 			"sourceFileName": "src/WebGLTexture.ts",
 			"qualifiedName": "__type"
-		},
-		"218": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.gl"
-		},
-		"219": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.target"
-		},
-		"220": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.format"
-		},
-		"221": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.type"
-		},
-		"222": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapS"
-		},
-		"223": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapT"
-		},
-		"224": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapR"
-		},
-		"225": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.preloadColor"
-		},
-		"226": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.premultiplyAlpha"
-		},
-		"227": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.flipY"
 		},
 		"244": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.setPreloadColor"
+			"qualifiedName": "__type.gl"
 		},
 		"245": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.setPreloadColor"
+			"qualifiedName": "__type.target"
 		},
 		"246": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "value"
+			"qualifiedName": "__type.format"
 		},
 		"247": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.setTarget"
+			"qualifiedName": "__type.type"
 		},
 		"248": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.setTarget"
+			"qualifiedName": "__type.wrapS"
 		},
 		"249": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "target"
+			"qualifiedName": "__type.wrapT"
 		},
 		"250": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.setImage"
+			"qualifiedName": "__type.wrapR"
 		},
 		"251": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.setImage"
+			"qualifiedName": "__type.preloadColor"
 		},
 		"252": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "image"
+			"qualifiedName": "__type.premultiplyAlpha"
 		},
 		"253": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "props"
-		},
-		"254": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type"
-		},
-		"255": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.format"
-		},
-		"256": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.internalFormat"
-		},
-		"257": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.encoding"
-		},
-		"258": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.type"
-		},
-		"259": {
-			"sourceFileName": "src/WebGLTexture.ts",
 			"qualifiedName": "__type.flipY"
-		},
-		"260": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.premultiplyAlpha"
-		},
-		"261": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.unpackAlignment"
-		},
-		"262": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.minFilter"
-		},
-		"263": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.magFilter"
-		},
-		"264": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapS"
-		},
-		"265": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapT"
-		},
-		"266": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapR"
-		},
-		"267": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.setCompressedData"
-		},
-		"268": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.setCompressedData"
-		},
-		"269": {
-			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "params"
 		},
 		"270": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.setProps"
+			"qualifiedName": "WebGLTexture.setPreloadColor"
 		},
 		"271": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.setProps"
+			"qualifiedName": "WebGLTexture.setPreloadColor"
 		},
 		"272": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "props"
+			"qualifiedName": "value"
 		},
 		"273": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type"
+			"qualifiedName": "WebGLTexture.setTarget"
 		},
 		"274": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.format"
+			"qualifiedName": "WebGLTexture.setTarget"
 		},
 		"275": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.internalFormat"
+			"qualifiedName": "target"
 		},
 		"276": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.encoding"
+			"qualifiedName": "WebGLTexture.setImage"
 		},
 		"277": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.type"
+			"qualifiedName": "WebGLTexture.setImage"
 		},
 		"278": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.flipY"
+			"qualifiedName": "image"
 		},
 		"279": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.premultiplyAlpha"
+			"qualifiedName": "props"
 		},
 		"280": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.unpackAlignment"
+			"qualifiedName": "__type"
 		},
 		"281": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.minFilter"
+			"qualifiedName": "__type.format"
 		},
 		"282": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.magFilter"
+			"qualifiedName": "__type.internalFormat"
 		},
 		"283": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapS"
+			"qualifiedName": "__type.encoding"
 		},
 		"284": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapT"
+			"qualifiedName": "__type.type"
 		},
 		"285": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapR"
+			"qualifiedName": "__type.flipY"
 		},
 		"286": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture._uploadProps"
+			"qualifiedName": "__type.premultiplyAlpha"
 		},
 		"287": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture._uploadProps"
+			"qualifiedName": "__type.unpackAlignment"
 		},
 		"288": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "props"
+			"qualifiedName": "__type.minFilter"
 		},
 		"289": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type"
+			"qualifiedName": "__type.magFilter"
 		},
 		"290": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.format"
+			"qualifiedName": "__type.wrapS"
 		},
 		"291": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.internalFormat"
+			"qualifiedName": "__type.wrapT"
 		},
 		"292": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.encoding"
+			"qualifiedName": "__type.wrapR"
 		},
 		"293": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.type"
+			"qualifiedName": "WebGLTexture.setCompressedData"
 		},
 		"294": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.flipY"
+			"qualifiedName": "WebGLTexture.setCompressedData"
 		},
 		"295": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.premultiplyAlpha"
+			"qualifiedName": "params"
 		},
 		"296": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.unpackAlignment"
+			"qualifiedName": "WebGLTexture.setProps"
 		},
 		"297": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.minFilter"
+			"qualifiedName": "WebGLTexture.setProps"
 		},
 		"298": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.magFilter"
+			"qualifiedName": "props"
 		},
 		"299": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapS"
+			"qualifiedName": "__type"
 		},
 		"300": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapT"
+			"qualifiedName": "__type.format"
 		},
 		"301": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "__type.wrapR"
+			"qualifiedName": "__type.internalFormat"
 		},
 		"302": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.bind"
+			"qualifiedName": "__type.encoding"
 		},
 		"303": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.bind"
+			"qualifiedName": "__type.type"
 		},
 		"304": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "unit"
+			"qualifiedName": "__type.flipY"
 		},
 		"305": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.unbind"
+			"qualifiedName": "__type.premultiplyAlpha"
 		},
 		"306": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.unbind"
+			"qualifiedName": "__type.unpackAlignment"
 		},
 		"307": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "unit"
+			"qualifiedName": "__type.minFilter"
 		},
 		"308": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.destroy"
+			"qualifiedName": "__type.magFilter"
 		},
 		"309": {
 			"sourceFileName": "src/WebGLTexture.ts",
-			"qualifiedName": "WebGLTexture.destroy"
+			"qualifiedName": "__type.wrapS"
 		},
 		"310": {
-			"sourceFileName": "src/getWebGLExtension.ts",
-			"qualifiedName": "getWebGLExtension"
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.wrapT"
 		},
 		"311": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.wrapR"
+		},
+		"312": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "WebGLTexture._uploadProps"
+		},
+		"313": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "WebGLTexture._uploadProps"
+		},
+		"314": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "props"
+		},
+		"315": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type"
+		},
+		"316": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.format"
+		},
+		"317": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.internalFormat"
+		},
+		"318": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.encoding"
+		},
+		"319": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.type"
+		},
+		"320": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.flipY"
+		},
+		"321": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.premultiplyAlpha"
+		},
+		"322": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.unpackAlignment"
+		},
+		"323": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.minFilter"
+		},
+		"324": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.magFilter"
+		},
+		"325": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.wrapS"
+		},
+		"326": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.wrapT"
+		},
+		"327": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "__type.wrapR"
+		},
+		"328": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "WebGLTexture.bind"
+		},
+		"329": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "WebGLTexture.bind"
+		},
+		"330": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "unit"
+		},
+		"331": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "WebGLTexture.unbind"
+		},
+		"332": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "WebGLTexture.unbind"
+		},
+		"333": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "unit"
+		},
+		"334": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "WebGLTexture.destroy"
+		},
+		"335": {
+			"sourceFileName": "src/WebGLTexture.ts",
+			"qualifiedName": "WebGLTexture.destroy"
+		},
+		"336": {
 			"sourceFileName": "src/getWebGLExtension.ts",
 			"qualifiedName": "getWebGLExtension"
 		},
-		"312": {
+		"337": {
+			"sourceFileName": "src/getWebGLExtension.ts",
+			"qualifiedName": "getWebGLExtension"
+		},
+		"338": {
 			"sourceFileName": "src/getWebGLExtension.ts",
 			"qualifiedName": "gl"
 		},
-		"313": {
+		"339": {
 			"sourceFileName": "src/getWebGLExtension.ts",
 			"qualifiedName": "name"
 		},
-		"314": {
+		"340": {
 			"sourceFileName": "src/canvas2image.ts",
 			"qualifiedName": "Canvas2Image"
 		},
-		"315": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__object"
-		},
-		"316": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__object.saveAsBMP"
-		},
-		"317": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__function"
-		},
-		"318": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__function"
-		},
-		"319": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__object.saveAsPNG"
-		},
-		"320": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__function"
-		},
-		"321": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__function"
-		},
-		"322": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__object.saveAsJPEG"
-		},
-		"323": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__function"
-		},
-		"324": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__function"
-		},
-		"325": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__object"
-		},
-		"326": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__object.saveAsPNG"
-		},
-		"327": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__function"
-		},
-		"328": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__function"
-		},
-		"329": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "oCanvas"
-		},
-		"330": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "bReturnImg"
-		},
-		"331": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "iWidth"
-		},
-		"332": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "iHeight"
-		},
-		"333": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "flipy"
-		},
-		"334": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__object.saveAsJPEG"
-		},
-		"335": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__function"
-		},
-		"336": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "__function"
-		},
-		"337": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "oCanvas"
-		},
-		"338": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "bReturnImg"
-		},
-		"339": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "iWidth"
-		},
-		"340": {
-			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "iHeight"
-		},
 		"341": {
 			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "flipy"
+			"qualifiedName": "__object"
 		},
 		"342": {
 			"sourceFileName": "src/canvas2image.ts",
@@ -8214,53 +7160,157 @@
 		},
 		"345": {
 			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "oCanvas"
+			"qualifiedName": "__object.saveAsPNG"
 		},
 		"346": {
 			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "bReturnImg"
+			"qualifiedName": "__function"
 		},
 		"347": {
 			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "iWidth"
+			"qualifiedName": "__function"
 		},
 		"348": {
 			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "iHeight"
+			"qualifiedName": "__object.saveAsJPEG"
 		},
 		"349": {
 			"sourceFileName": "src/canvas2image.ts",
-			"qualifiedName": "flipy"
+			"qualifiedName": "__function"
 		},
 		"350": {
-			"sourceFileName": "src/convertWebGLConstant.ts",
-			"qualifiedName": "convertWebGLConstant"
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "__function"
 		},
 		"351": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "__object"
+		},
+		"352": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "__object.saveAsPNG"
+		},
+		"353": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "__function"
+		},
+		"354": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "__function"
+		},
+		"355": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "oCanvas"
+		},
+		"356": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "bReturnImg"
+		},
+		"357": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "iWidth"
+		},
+		"358": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "iHeight"
+		},
+		"359": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "flipy"
+		},
+		"360": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "__object.saveAsJPEG"
+		},
+		"361": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "__function"
+		},
+		"362": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "__function"
+		},
+		"363": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "oCanvas"
+		},
+		"364": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "bReturnImg"
+		},
+		"365": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "iWidth"
+		},
+		"366": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "iHeight"
+		},
+		"367": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "flipy"
+		},
+		"368": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "__object.saveAsBMP"
+		},
+		"369": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "__function"
+		},
+		"370": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "__function"
+		},
+		"371": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "oCanvas"
+		},
+		"372": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "bReturnImg"
+		},
+		"373": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "iWidth"
+		},
+		"374": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "iHeight"
+		},
+		"375": {
+			"sourceFileName": "src/canvas2image.ts",
+			"qualifiedName": "flipy"
+		},
+		"376": {
 			"sourceFileName": "src/convertWebGLConstant.ts",
 			"qualifiedName": "convertWebGLConstant"
 		},
-		"352": {
+		"377": {
+			"sourceFileName": "src/convertWebGLConstant.ts",
+			"qualifiedName": "convertWebGLConstant"
+		},
+		"378": {
 			"sourceFileName": "src/convertWebGLConstant.ts",
 			"qualifiedName": "gl"
 		},
-		"353": {
+		"379": {
 			"sourceFileName": "src/convertWebGLConstant.ts",
 			"qualifiedName": "constantVal"
 		},
-		"354": {
+		"380": {
 			"sourceFileName": "src/convertWebGLConstant.ts",
 			"qualifiedName": "encoding"
 		},
-		"355": {
+		"381": {
 			"sourceFileName": "src/WEBGL_INFO.ts",
 			"qualifiedName": "WEBGL_INFO"
 		},
-		"356": {
+		"382": {
 			"sourceFileName": "src/WEBGL_INFO.ts",
 			"qualifiedName": "__type"
 		},
-		"357": {
+		"383": {
 			"sourceFileName": "src/WEBGL_INFO.ts",
 			"qualifiedName": "__type.__index"
 		}

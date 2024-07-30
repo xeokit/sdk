@@ -19,7 +19,7 @@
  *
  * To elaborate further:
  *
- * * The {@link @xeokit/scene!Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn,
+ * * The {@link @xeokit/scene!Scene | Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn,
  * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | Meshes}, {@link @xeokit/scene!SceneGeometry | Geometries}, {@link @xeokit/scene!SceneGeometryBucket | GeometryBuckets}, and {@link @xeokit/scene!SceneTexture | Textures}.
  * * Textures undergo compression to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) via the Basis Universal codec.
  * * SceneGeometry undergoes compression through bucketing and quantization.

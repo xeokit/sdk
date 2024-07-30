@@ -37,7 +37,7 @@ import type {Scene, SceneModel} from "@xeokit/scene";
  * ### Automatic ViewLayers
  *
  * By default, each {@link @xeokit/viewer!View} automatically lazy-creates ViewLayers within itself as required. As {@link RendererObject | ViewerObjects} appear in the
- * {@link @xeokit/viewer!Viewer}, {@link @xeokit/viewer!ViewObject | ViewObjects} and Viewlayers magically appear in each existing View.
+ * {@link @xeokit/viewer!Viewer | Viewer}, {@link @xeokit/viewer!ViewObject | ViewObjects} and Viewlayers magically appear in each existing View.
  *
  * Recall that, whenever a {@link RendererObject} is created, each existing {@link @xeokit/viewer!View} will automatically create a
  * corresponding {@link @xeokit/viewer!ViewObject} to represent and control that ViewerObject's appearance within the View's canvas.
@@ -68,7 +68,7 @@ import type {Scene, SceneModel} from "@xeokit/scene";
  *
  * ### Exampe 1: Automatic ViewLayers
  *
- * Create a {@link @xeokit/viewer!Viewer}:
+ * Create a {@link @xeokit/viewer!Viewer | Viewer}:
  *
  *````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -155,7 +155,7 @@ import type {Scene, SceneModel} from "@xeokit/scene";
  *
  * ### Example 2: Manual ViewLayers
  *
- * Create a {@link @xeokit/viewer!Viewer}:
+ * Create a {@link @xeokit/viewer!Viewer | Viewer}:
  *
  * ````javascript
  * import {Viewer} from "@xeokit/viewer";
@@ -274,7 +274,7 @@ class ViewLayer extends Component {
      * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      *
      * The ViewLayer automatically ensures that there is a {@link @xeokit/viewer!ViewObject} here for
-     * each {@link RendererObject} in the {@link @xeokit/viewer!Viewer}
+     * each {@link RendererObject} in the {@link @xeokit/viewer!Viewer | Viewer}
      */
     readonly objects: { [key: string]: ViewObject };
 
@@ -947,7 +947,7 @@ class ViewLayer extends Component {
     /**
      * Destroys this ViewLayer.
      *
-     * Causes {@link @xeokit/viewer!Viewer} to fire a "viewDestroyed" event.
+     * Causes {@link @xeokit/viewer!Viewer | Viewer} to fire a "viewDestroyed" event.
      */
     destroy() {
         this.#destroyViewObjects();

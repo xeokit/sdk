@@ -67,7 +67,7 @@ const offsetEye = createVec3();
  *
  * ## Getting a View's Camera
  *
- * Let's create a {@link @xeokit/viewer!Viewer} with a single {@link @xeokit/viewer!View}, from which we'll get a Camera:
+ * Let's create a {@link @xeokit/viewer!Viewer | Viewer} with a single {@link @xeokit/viewer!View}, from which we'll get a Camera:
  *
  * ````javascript
  * const viewer = new Viewer();

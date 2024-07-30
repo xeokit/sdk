@@ -15,7 +15,7 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  *
  * @function buildTorusGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link @xeokit/scene!SceneGeometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!SceneGeometry}, unique among all components in the parent {@link @xeokit/scene!Scene | Scene}, generated automatically when omitted.
  * @param [cfg.center] 3D point indicating the center position.
  * @param [cfg.radius=1] The overall radius.
  * @param [cfg.tube=0.3] The tube radius.

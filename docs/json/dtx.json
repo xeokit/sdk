@@ -8,7 +8,16 @@
 		"summary": [
 			{
 				"kind": "text",
-				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fdtx.svg)](https://badge.fury.io/js/%40xeokit%2Fdtx)\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/dtx/badge)](https://www.jsdelivr.com/package/npm/@xeokit/dtx)\n\n<img  style=\"padding:0px; padding-top:30px; padding-bottom:10px; height:130px;\" src=\"media://images/xeokit_logo_mesh.png\"/>\n\n# xeokit [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) Importer and Exporter\n\n---\n\n### *Import and export models as xeokit's native binary [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format*\n\n---\n\nThe xeokit SDK allows us to import 3D models from [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx), which is xeokit's\nnative runtime asset delivery format for model representations and semantics.\n\nThe [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format compresses large double-precision model representations and semantic data to a compact payload that\nloads quickly over the Web into a xeokit viewer running in the browser.\n\nTo import a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) model into xeokit, use the "
+				"text": "[![npm version](https://badge.fury.io/js/%40xeokit%2Fdtx.svg)](https://badge.fury.io/js/%40xeokit%2Fdtx)\n[![](https://data.jsdelivr.com/v1/package/npm/@xeokit/dtx/badge)](https://www.jsdelivr.com/package/npm/@xeokit/dtx)\n\n<img  style=\"padding:0px; padding-top:30px; padding-bottom:10px; height:130px;\" src=\"media://images/xeokit_logo_mesh.png\"/>\n\n# xeokit [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) Format Importer and Exporter\n\n---\n\n### *Import and export SceneModels as xeokit's native binary [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format*\n\n---\n\nThis package allows us to import and export xeokit "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModels"
+			},
+			{
+				"kind": "text",
+				"text": " as [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx), a\ncompact binary-encoded runtime asset delivery format for geometry and materials.\n\nTo import a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) model into xeokit, use the "
 			},
 			{
 				"kind": "inline-tag",
@@ -27,22 +36,13 @@
 			},
 			{
 				"kind": "text",
-				"text": " and a "
-			},
-			{
-				"kind": "inline-tag",
-				"tag": "@link",
-				"text": "@xeokit/data!DataModel | DataModel"
-			},
-			{
-				"kind": "text",
-				"text": ".\n\nTo export a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) model from xeokit, use the "
+				"text": ". To export a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) model, use the "
 			},
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
 				"text": "saveDTX",
-				"target": 8
+				"target": 7
 			},
 			{
 				"kind": "text",
@@ -55,16 +55,7 @@
 			},
 			{
 				"kind": "text",
-				"text": " and a "
-			},
-			{
-				"kind": "inline-tag",
-				"tag": "@link",
-				"text": "@xeokit/data!DataModel | DataModel"
-			},
-			{
-				"kind": "text",
-				"text": " to [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data.\n\n<br>\n\n[![](https://mermaid.ink/img/pako:eNqNU01rwzAM_StBpw1a2K6h9DB6W8tKs8EOvqixsro4dvDHIJT-99lx0iaMlubi6El6T0_GJyg1J8ihlGjtSuCPwZopprgwVDqhVbbexbjLZ0VJijahQ2YnprLwCZ5OvT-GepuC0hA6-uigp-eE7b2QfAg4WWd0G8NzZB_4V-iwo7_H3hjdkHFtQff0ErYjidGFPYhmmtleWR4aMQ241si_3z-3GNZkhx0sFk2MyZFZLhOExmD75quKTALsZXM9_eB0Qi8T_ZW48qq7hcg7qivwlx4Z4zFVm9juqE5sM3hhMJ8vGbwyKEYKt6tWV93e4pCZ9OTZlyWbXWzYqD3xelP7dtVIuzd66R_3_NOGGdRkahQ8PI9uNQzcgWpikIdfThV66RiEFYVS9E4XrSohd8bTDHwTdk39g4K8QmkDSlw4bTb9k4vH-Q8aQzAW?type=png)](https://mermaid.live/edit#pako:eNqNU01rwzAM_StBpw1a2K6h9DB6W8tKs8EOvqixsro4dvDHIJT-99lx0iaMlubi6El6T0_GJyg1J8ihlGjtSuCPwZopprgwVDqhVbbexbjLZ0VJijahQ2YnprLwCZ5OvT-GepuC0hA6-uigp-eE7b2QfAg4WWd0G8NzZB_4V-iwo7_H3hjdkHFtQff0ErYjidGFPYhmmtleWR4aMQ241si_3z-3GNZkhx0sFk2MyZFZLhOExmD75quKTALsZXM9_eB0Qi8T_ZW48qq7hcg7qivwlx4Z4zFVm9juqE5sM3hhMJ8vGbwyKEYKt6tWV93e4pCZ9OTZlyWbXWzYqD3xelP7dtVIuzd66R_3_NOGGdRkahQ8PI9uNQzcgWpikIdfThV66RiEFYVS9E4XrSohd8bTDHwTdk39g4K8QmkDSlw4bTb9k4vH-Q8aQzAW)\n\n<br>\n\n## Installation\n\n"
+				"text": " to [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx).\n\n<br>\n\n[![](https://mermaid.ink/img/pako:eNqNkk1PwzAMhv9K5RNI3dSPtemqaafd2ASiICGUS9a4ENQ2U5MixrT_Tvo1WiEQvaSvHT9-rfgEqeQIMaQ5U2oj2EvFClrSkosKUy1kaW3vG93mrSTFEnemIrdOtLTMJ3h3yv2bua86kVbINN62oavrLravRc4HwVHpSh4beW7oA38rGX-6ebhjxoUaWqxWh0ajxmq97kKZyHHDNOuUurjqcR0s72DfmKwu25Eayuhewt7xP03HbSYA1QH-aDSZi4JDYTZbU3ApJCNob3hITYpi61Ghsi6mVIOdOP8V29u7pMZFP7BgQ4FVwQQ3S9EOREG_YoEUYvPLMWN1rimYwcxVVmuZHMsUYl3VaEN94Obh-zWCOGO5MlHkQstq1y9ac9hwYCXEJ_iA2HP8eRiFAXHDZUA8J7DhCPHCieYRWRDPJ15EiB-cbfiU0kCdeeD4hLjL0DFh33Nb2HOba1ycvwAqVO7G?type=png)](https://mermaid.live/edit#pako:eNqNkk1PwzAMhv9K5RNI3dSPtemqaafd2ASiICGUS9a4ENQ2U5MixrT_Tvo1WiEQvaSvHT9-rfgEqeQIMaQ5U2oj2EvFClrSkosKUy1kaW3vG93mrSTFEnemIrdOtLTMJ3h3yv2bua86kVbINN62oavrLravRc4HwVHpSh4beW7oA38rGX-6ebhjxoUaWqxWh0ajxmq97kKZyHHDNOuUurjqcR0s72DfmKwu25Eayuhewt7xP03HbSYA1QH-aDSZi4JDYTZbU3ApJCNob3hITYpi61Ghsi6mVIOdOP8V29u7pMZFP7BgQ4FVwQQ3S9EOREG_YoEUYvPLMWN1rimYwcxVVmuZHMsUYl3VaEN94Obh-zWCOGO5MlHkQstq1y9ac9hwYCXEJ_iA2HP8eRiFAXHDZUA8J7DhCPHCieYRWRDPJ15EiB-cbfiU0kCdeeD4hLjL0DFh33Nb2HOba1ycvwAqVO7G)\n\n<br>\n\n## Installation\n\n"
 			},
 			{
 				"kind": "code",
@@ -82,16 +73,7 @@
 			},
 			{
 				"kind": "text",
-				"text": " to import a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file into a "
-			},
-			{
-				"kind": "inline-tag",
-				"tag": "@link",
-				"text": "@xeokit/data!DataModel | DataModel"
-			},
-			{
-				"kind": "text",
-				"text": " and\na "
+				"text": " to import a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file into\na "
 			},
 			{
 				"kind": "inline-tag",
@@ -105,15 +87,15 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/core!SDKError"
+				"text": "@xeokit/core!SDKError | SDKError"
 			},
 			{
 				"kind": "text",
-				"text": " class\nis used to handle errors that may occur during the process:\n\n"
+				"text": " class is used to handle errors that may occur during the process:\n\n"
 			},
 			{
 				"kind": "code",
-				"text": "````javascript\nimport {Data} from \"@xeokit/data\";\nimport {Scene} from \"@xeokit/scene\";\nimport {loadDTX, saveDTX} from \"@xeokit/dtx\";\n\nconst data = new Data();\nconst scene = new Scene();\n\nconst dataModel = data.createModel({\n    id: \"myModel\n});\n\nconst sceneModel = scene.createModel({\n    id: \"myModel\n});\n\nif (dataModel instanceof SDKError) {\n     console.error(dataModel.message);\n} else if (sceneModel instanceof SDKError) {\n     console.error(dataModel.message);\n} else {\n     fetch(\"myModel.dtx\").then(response => {\n\n        response.arrayBuffer().then(data => {\n\n             loadDTX({ data, dataModel, sceneModel });\n\n             dataModel.build();\n             sceneModel.build();\n         });\n     });\n});\n````"
+				"text": "````javascript\nimport {Scene} from \"@xeokit/scene\";\nimport {loadDTX, saveDTX} from \"@xeokit/dtx\";\n\nconst scene = new Scene();\n\nconst sceneModel = scene.createModel({\n    id: \"myModel\n});\n\nif (sceneModel instanceof SDKError) {\n     console.error(dataModel.message);\n} else {\n     fetch(\"myModel.dtx\").then(response => {\n        response.arrayBuffer().then(fileData => {\n             loadDTX({ fileData, sceneModel });\n             sceneModel.build();\n         });\n     });\n});\n````"
 			},
 			{
 				"kind": "text",
@@ -122,7 +104,7 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/dtx!saveDTX"
+				"text": "@xeokit/dtx!saveDTX | saveDTX"
 			},
 			{
 				"kind": "text",
@@ -131,20 +113,11 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/data!DataModel | DataModel"
-			},
-			{
-				"kind": "text",
-				"text": " and "
-			},
-			{
-				"kind": "inline-tag",
-				"tag": "@link",
 				"text": "@xeokit/scene!SceneModel | SceneModel"
 			},
 			{
 				"kind": "text",
-				"text": " to\n[DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data in an ArrayBuffer:\n\n"
+				"text": " back to\n[DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx):\n\n"
 			},
 			{
 				"kind": "code",
@@ -154,7 +127,7 @@
 	},
 	"children": [
 		{
-			"id": 14,
+			"id": 12,
 			"name": "DTXData",
 			"variant": "declaration",
 			"kind": 256,
@@ -169,7 +142,39 @@
 			},
 			"children": [
 				{
-					"id": 20,
+					"id": 17,
+					"name": "aabbs",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Combined list of all positions dequantization matrices."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "DTXData.ts",
+							"line": 34,
+							"character": 4,
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L34"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Float32Array"
+						},
+						"name": "Float32Array",
+						"package": "typescript"
+					}
+				},
+				{
+					"id": 14,
 					"name": "colors",
 					"variant": "declaration",
 					"kind": 1024,
@@ -185,9 +190,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 50,
+							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L50"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L19"
 						}
 					],
 					"type": {
@@ -201,8 +206,8 @@
 					}
 				},
 				{
-					"id": 29,
-					"name": "decodeMatrices",
+					"id": 23,
+					"name": "eachGeometryAABBBase",
 					"variant": "declaration",
 					"kind": 1024,
 					"flags": {},
@@ -210,31 +215,31 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "Combined list of all positions dequantization matrices."
+								"text": "For each geometry, a pointer to an AABB."
 							}
 						]
 					},
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 95,
+							"line": 64,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L95"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L64"
 						}
 					],
 					"type": {
 						"type": "reference",
 						"target": {
 							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Float32Array"
+							"qualifiedName": "Uint32Array"
 						},
-						"name": "Float32Array",
+						"name": "Uint32Array",
 						"package": "typescript"
 					}
 				},
 				{
-					"id": 31,
-					"name": "eachBucketColorsPortion",
+					"id": 19,
+					"name": "eachGeometryColorsBase",
 					"variant": "declaration",
 					"kind": 1024,
 					"flags": {},
@@ -242,13 +247,13 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each geometry bucket, a pointer to the base of its portion in "
+								"text": "For each geometry, a pointer to the base of its portion in "
 							},
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
 								"text": "DTXData.colors",
-								"target": 20,
+								"target": 14,
 								"tsLinkText": ""
 							},
 							{
@@ -260,9 +265,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 105,
+							"line": 44,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L105"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L44"
 						}
 					],
 					"type": {
@@ -276,8 +281,8 @@
 					}
 				},
 				{
-					"id": 34,
-					"name": "eachBucketEdgeIndicesPortion",
+					"id": 21,
+					"name": "eachGeometryEdgeIndicesBase",
 					"variant": "declaration",
 					"kind": 1024,
 					"flags": {},
@@ -285,35 +290,13 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each geometry bucket, a pointer to the base of its portion in "
+								"text": "For each geometry, a pointer to the base of its portion in "
 							},
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
-								"text": "DTXData.edgeIndices8Bit",
-								"target": 25,
-								"tsLinkText": ""
-							},
-							{
-								"kind": "text",
-								"text": ", "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "DTXData.edgeIndices16Bit",
-								"target": 26,
-								"tsLinkText": ""
-							},
-							{
-								"kind": "text",
-								"text": " or "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "DTXData.edgeIndices32Bit",
-								"target": 27,
+								"text": "DTXData.edgeIndices",
+								"target": 16,
 								"tsLinkText": ""
 							},
 							{
@@ -325,9 +308,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 120,
+							"line": 54,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L120"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L54"
 						}
 					],
 					"type": {
@@ -341,8 +324,8 @@
 					}
 				},
 				{
-					"id": 35,
-					"name": "eachBucketIndicesBitness",
+					"id": 20,
+					"name": "eachGeometryIndicesBase",
 					"variant": "declaration",
 					"kind": 1024,
 					"flags": {},
@@ -350,67 +333,13 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each geometry bucket, the number of bits used to represent primitive and edge indices - 0 == 8 bits, 1 == 16 bits, and 3 == 32 bits."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 125,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L125"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint8Array"
-						},
-						"name": "Uint8Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 33,
-					"name": "eachBucketIndicesPortion",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each geometry bucket, a pointer to the base of its portion in "
+								"text": "For each geometry, a pointer to the base of its portion in "
 							},
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
-								"text": "DTXData.indices8Bit",
-								"target": 22,
-								"tsLinkText": ""
-							},
-							{
-								"kind": "text",
-								"text": ", "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "DTXData.indices16Bit",
-								"target": 23,
-								"tsLinkText": ""
-							},
-							{
-								"kind": "text",
-								"text": " or "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "DTXData.indices32Bit",
-								"target": 24,
+								"text": "DTXData.indices",
+								"target": 15,
 								"tsLinkText": ""
 							},
 							{
@@ -422,9 +351,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 115,
+							"line": 49,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L115"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L49"
 						}
 					],
 					"type": {
@@ -438,8 +367,8 @@
 					}
 				},
 				{
-					"id": 30,
-					"name": "eachBucketPositionsPortion",
+					"id": 18,
+					"name": "eachGeometryPositionsBase",
 					"variant": "declaration",
 					"kind": 1024,
 					"flags": {},
@@ -447,13 +376,13 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each geometry bucket, a pointer to the base of its portion in "
+								"text": "For each geometry, a pointer to the base of its portion in "
 							},
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
 								"text": "DTXData.positions",
-								"target": 19,
+								"target": 13,
 								"tsLinkText": ""
 							},
 							{
@@ -465,9 +394,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 100,
+							"line": 39,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L100"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L39"
 						}
 					],
 					"type": {
@@ -481,152 +410,7 @@
 					}
 				},
 				{
-					"id": 32,
-					"name": "eachBucketUVsPortion",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each geometry bucket, a pointer to the base of its portion in "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "DTXData.uvs",
-								"target": 21,
-								"tsLinkText": ""
-							},
-							{
-								"kind": "text",
-								"text": "."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 110,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L110"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint32Array"
-						},
-						"name": "Uint32Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 37,
-					"name": "eachGeometryBucketPortion",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each geometry, a pointer to its first bucket in "
-							},
-							{
-								"kind": "code",
-								"text": "````DTXData.eachBucket*````"
-							},
-							{
-								"kind": "text",
-								"text": "."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 135,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L135"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint32Array"
-						},
-						"name": "Uint32Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 38,
-					"name": "eachGeometryDecodeMatricesPortion",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each geometry, a pointer to a positions dequantization matrix."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 140,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L140"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint32Array"
-						},
-						"name": "Uint32Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 46,
-					"name": "eachGeometryId",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each geometry, a unique ID."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 189,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L189"
-						}
-					],
-					"type": {
-						"type": "array",
-						"elementType": {
-							"type": "intrinsic",
-							"name": "string"
-						}
-					}
-				},
-				{
-					"id": 36,
+					"id": 22,
 					"name": "eachGeometryPrimitiveType",
 					"variant": "declaration",
 					"kind": 1024,
@@ -642,9 +426,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 130,
+							"line": 59,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L130"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L59"
 						}
 					],
 					"type": {
@@ -658,8 +442,8 @@
 					}
 				},
 				{
-					"id": 41,
-					"name": "eachMeshGeometriesPortion",
+					"id": 26,
+					"name": "eachMeshGeometriesBase",
 					"variant": "declaration",
 					"kind": 1024,
 					"flags": {},
@@ -678,9 +462,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 155,
+							"line": 79,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L155"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L79"
 						}
 					],
 					"type": {
@@ -694,37 +478,7 @@
 					}
 				},
 				{
-					"id": 47,
-					"name": "eachMeshId",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each mesh, a unique ID."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 194,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L194"
-						}
-					],
-					"type": {
-						"type": "array",
-						"elementType": {
-							"type": "intrinsic",
-							"name": "string"
-						}
-					}
-				},
-				{
-					"id": 45,
+					"id": 29,
 					"name": "eachMeshMaterialAttributes",
 					"variant": "declaration",
 					"kind": 1024,
@@ -740,9 +494,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 184,
+							"line": 103,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L184"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L103"
 						}
 					],
 					"type": {
@@ -756,8 +510,8 @@
 					}
 				},
 				{
-					"id": 42,
-					"name": "eachMeshMatricesPortion",
+					"id": 27,
+					"name": "eachMeshMatricesBase",
 					"variant": "declaration",
 					"kind": 1024,
 					"flags": {},
@@ -771,7 +525,7 @@
 								"kind": "inline-tag",
 								"tag": "@link",
 								"text": "DTXData.matrices",
-								"target": 39,
+								"target": 24,
 								"tsLinkText": ""
 							},
 							{
@@ -783,9 +537,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 160,
+							"line": 84,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L160"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L84"
 						}
 					],
 					"type": {
@@ -799,8 +553,8 @@
 					}
 				},
 				{
-					"id": 43,
-					"name": "eachMeshOriginsPortion",
+					"id": 28,
+					"name": "eachMeshOriginsBase",
 					"variant": "declaration",
 					"kind": 1024,
 					"flags": {},
@@ -814,7 +568,7 @@
 								"kind": "inline-tag",
 								"tag": "@link",
 								"text": "DTXData.origins",
-								"target": 40,
+								"target": 25,
 								"tsLinkText": ""
 							},
 							{
@@ -826,9 +580,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 165,
+							"line": 89,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L165"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L89"
 						}
 					],
 					"type": {
@@ -842,48 +596,7 @@
 					}
 				},
 				{
-					"id": 44,
-					"name": "eachMeshTextureSet",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each mesh, a pointer to its texture set in "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "DTXData.textureSets"
-							},
-							{
-								"kind": "text",
-								"text": "."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 170,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L170"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Int32Array"
-						},
-						"name": "Int32Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 48,
+					"id": 30,
 					"name": "eachObjectId",
 					"variant": "declaration",
 					"kind": 1024,
@@ -899,9 +612,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 199,
+							"line": 108,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L199"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L108"
 						}
 					],
 					"type": {
@@ -913,8 +626,8 @@
 					}
 				},
 				{
-					"id": 49,
-					"name": "eachObjectMeshesPortion",
+					"id": 31,
+					"name": "eachObjectMeshesBase",
 					"variant": "declaration",
 					"kind": 1024,
 					"flags": {},
@@ -929,9 +642,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 204,
+							"line": 113,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L204"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L113"
 						}
 					],
 					"type": {
@@ -945,215 +658,8 @@
 					}
 				},
 				{
-					"id": 18,
-					"name": "eachTextureAttributes",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each texture, a set of attributes.\n\nThe attributes for each texture are:\n\n* SceneTexture compressed? - 0 (no) or 1 (yes)\n* "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneTexture.mediaType"
-							},
-							{
-								"kind": "text",
-								"text": "\n* "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneTexture.width"
-							},
-							{
-								"kind": "text",
-								"text": "\n* "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneTexture.height"
-							},
-							{
-								"kind": "text",
-								"text": "\n* "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneTexture.minFilter"
-							},
-							{
-								"kind": "text",
-								"text": "\n* "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneTexture.magFilter"
-							},
-							{
-								"kind": "text",
-								"text": "\n* "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneTexture.wrapS"
-							},
-							{
-								"kind": "text",
-								"text": "\n* "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneTexture.wrapT"
-							},
-							{
-								"kind": "text",
-								"text": "\n* "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/scene!SceneTexture.wrapR"
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 40,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L40"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint16Array"
-						},
-						"name": "Uint16Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 17,
-					"name": "eachTextureDataPortion",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each texture, a pointer to its portion in "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "DTXData.textureData",
-								"target": 16,
-								"tsLinkText": ""
-							},
-							{
-								"kind": "text",
-								"text": "."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 23,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L23"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint32Array"
-						},
-						"name": "Uint32Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 28,
-					"name": "eachTextureSetTextures",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each texture set, a set of pointers into eachTextureDataPortion."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 90,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L90"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Int32Array"
-						},
-						"name": "Int32Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 26,
-					"name": "edgeIndices16Bit",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "Combined 16-bit edge indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 80,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L80"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint16Array"
-						},
-						"name": "Uint16Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 27,
-					"name": "edgeIndices32Bit",
+					"id": 16,
+					"name": "edgeIndices",
 					"variant": "declaration",
 					"kind": 1024,
 					"flags": {},
@@ -1168,9 +674,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 85,
+							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L85"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L29"
 						}
 					],
 					"type": {
@@ -1184,72 +690,8 @@
 					}
 				},
 				{
-					"id": 25,
-					"name": "edgeIndices8Bit",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "Combined 8-bit edge indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 75,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L75"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint8Array"
-						},
-						"name": "Uint8Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 23,
-					"name": "indices16Bit",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "Combined 16-bit indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 65,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L65"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint16Array"
-						},
-						"name": "Uint16Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 24,
-					"name": "indices32Bit",
+					"id": 15,
+					"name": "indices",
 					"variant": "declaration",
 					"kind": 1024,
 					"flags": {},
@@ -1264,9 +706,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 70,
+							"line": 24,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L70"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L24"
 						}
 					],
 					"type": {
@@ -1280,39 +722,7 @@
 					}
 				},
 				{
-					"id": 22,
-					"name": "indices8Bit",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "Combined 8-bit indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 60,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L60"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint8Array"
-						},
-						"name": "Uint8Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 39,
+					"id": 24,
 					"name": "matrices",
 					"variant": "declaration",
 					"kind": 1024,
@@ -1328,9 +738,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 145,
+							"line": 69,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L145"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L69"
 						}
 					],
 					"type": {
@@ -1344,34 +754,7 @@
 					}
 				},
 				{
-					"id": 15,
-					"name": "metadata",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "Arbitrary metadata JSON for the [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 13,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L13"
-						}
-					],
-					"type": {
-						"type": "intrinsic",
-						"name": "any"
-					}
-				},
-				{
-					"id": 40,
+					"id": 25,
 					"name": "origins",
 					"variant": "declaration",
 					"kind": 1024,
@@ -1387,9 +770,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 150,
+							"line": 74,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L150"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L74"
 						}
 					],
 					"type": {
@@ -1403,7 +786,7 @@
 					}
 				},
 				{
-					"id": 19,
+					"id": 13,
 					"name": "positions",
 					"variant": "declaration",
 					"kind": 1024,
@@ -1419,9 +802,9 @@
 					"sources": [
 						{
 							"fileName": "DTXData.ts",
-							"line": 45,
+							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L45"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L14"
 						}
 					],
 					"type": {
@@ -1433,120 +816,40 @@
 						"name": "Uint16Array",
 						"package": "typescript"
 					}
-				},
-				{
-					"id": 16,
-					"name": "textureData",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "Combined data for all textures in the [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 18,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L18"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint8Array"
-						},
-						"name": "Uint8Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 21,
-					"name": "uvs",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "Combined vertex UV coordinates for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 55,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L55"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Float32Array"
-						},
-						"name": "Float32Array",
-						"package": "typescript"
-					}
 				}
 			],
 			"groups": [
 				{
 					"title": "Properties",
 					"children": [
-						20,
-						29,
-						31,
-						34,
-						35,
-						33,
-						30,
-						32,
-						37,
-						38,
-						46,
-						36,
-						41,
-						47,
-						45,
-						42,
-						43,
-						44,
-						48,
-						49,
-						18,
 						17,
-						28,
-						26,
-						27,
-						25,
+						14,
 						23,
-						24,
-						22,
-						39,
-						15,
-						40,
 						19,
+						21,
+						20,
+						18,
+						22,
+						26,
+						29,
+						27,
+						28,
+						30,
+						31,
 						16,
-						21
+						15,
+						24,
+						25,
+						13
 					]
 				}
 			],
 			"sources": [
 				{
 					"fileName": "DTXData.ts",
-					"line": 8,
+					"line": 9,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/DTXData.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L9"
 				}
 			]
 		},
@@ -1559,9 +862,9 @@
 			"sources": [
 				{
 					"fileName": "loadDTX.ts",
-					"line": 32,
+					"line": 28,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/loadDTX.ts#L32"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/loadDTX.ts#L28"
 				}
 			],
 			"signatures": [
@@ -1575,21 +878,12 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "Imports [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data from an ArrayBuffer into a "
+								"text": "Imports [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data from an ArrayBuffer\ninto a "
 							},
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
 								"text": "@xeokit/scene!SceneModel | SceneModel"
-							},
-							{
-								"kind": "text",
-								"text": "\nand/or a "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/data!DataModel | DataModel"
 							},
 							{
 								"kind": "text",
@@ -1608,32 +902,6 @@
 								"kind": "inline-tag",
 								"tag": "@link",
 								"text": "@xeokit/scene!SceneModel.destroyed | SceneModel.destroyed"
-							},
-							{
-								"kind": "text",
-								"text": " to be "
-							},
-							{
-								"kind": "code",
-								"text": "````false````"
-							},
-							{
-								"kind": "text",
-								"text": "\n* Expects "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/data!DataModel.built | DataModel.built"
-							},
-							{
-								"kind": "text",
-								"text": " and\n"
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/data!DataModel.destroyed | DataModel.destroyed"
 							},
 							{
 								"kind": "text",
@@ -1686,7 +954,7 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "@xeokit/core!SDKError"
+										"text": "@xeokit/core!SDKError | SDKError"
 									},
 									{
 										"kind": "text",
@@ -1699,9 +967,9 @@
 					"sources": [
 						{
 							"fileName": "loadDTX.ts",
-							"line": 32,
+							"line": 28,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/loadDTX.ts#L32"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/loadDTX.ts#L28"
 						}
 					],
 					"parameters": [
@@ -1729,40 +997,6 @@
 									"flags": {},
 									"children": [
 										{
-											"id": 7,
-											"name": "dataModel",
-											"variant": "declaration",
-											"kind": 1024,
-											"flags": {
-												"isOptional": true
-											},
-											"comment": {
-												"summary": [
-													{
-														"kind": "text",
-														"text": "Optional DataModel to load into."
-													}
-												]
-											},
-											"sources": [
-												{
-													"fileName": "loadDTX.ts",
-													"line": 35,
-													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/loadDTX.ts#L35"
-												}
-											],
-											"type": {
-												"type": "reference",
-												"target": {
-													"sourceFileName": "../data/src/DataModel.ts",
-													"qualifiedName": "DataModel"
-												},
-												"name": "DataModel",
-												"package": "@xeokit/data"
-											}
-										},
-										{
 											"id": 5,
 											"name": "fileData",
 											"variant": "declaration",
@@ -1779,9 +1013,9 @@
 											"sources": [
 												{
 													"fileName": "loadDTX.ts",
-													"line": 33,
+													"line": 29,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/loadDTX.ts#L33"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/loadDTX.ts#L29"
 												}
 											],
 											"type": {
@@ -1811,9 +1045,9 @@
 											"sources": [
 												{
 													"fileName": "loadDTX.ts",
-													"line": 34,
+													"line": 30,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/loadDTX.ts#L34"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/loadDTX.ts#L30"
 												}
 											],
 											"type": {
@@ -1831,7 +1065,6 @@
 										{
 											"title": "Properties",
 											"children": [
-												7,
 												5,
 												6
 											]
@@ -1840,9 +1073,9 @@
 									"sources": [
 										{
 											"fileName": "loadDTX.ts",
-											"line": 32,
+											"line": 28,
 											"character": 32,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/loadDTX.ts#L32"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/loadDTX.ts#L28"
 										}
 									]
 								}
@@ -1868,7 +1101,7 @@
 			]
 		},
 		{
-			"id": 8,
+			"id": 7,
 			"name": "saveDTX",
 			"variant": "declaration",
 			"kind": 64,
@@ -1876,14 +1109,14 @@
 			"sources": [
 				{
 					"fileName": "saveDTX.ts",
-					"line": 25,
+					"line": 24,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/saveDTX.ts#L25"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/saveDTX.ts#L24"
 				}
 			],
 			"signatures": [
 				{
-					"id": 9,
+					"id": 8,
 					"name": "saveDTX",
 					"variant": "signature",
 					"kind": 4096,
@@ -1898,15 +1131,6 @@
 								"kind": "inline-tag",
 								"tag": "@link",
 								"text": "@xeokit/scene!SceneModel | SceneModel"
-							},
-							{
-								"kind": "text",
-								"text": " and/or a "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "@xeokit/data!DataModel | DataModel"
 							},
 							{
 								"kind": "text",
@@ -1947,7 +1171,7 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "@xeokit/core!SDKError"
+										"text": "@xeokit/core!SDKError | SDKError"
 									},
 									{
 										"kind": "text",
@@ -1961,7 +1185,7 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "@xeokit/core!SDKError"
+										"text": "@xeokit/core!SDKError | SDKError"
 									},
 									{
 										"kind": "text",
@@ -1975,7 +1199,7 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "@xeokit/core!SDKError"
+										"text": "@xeokit/core!SDKError | SDKError"
 									},
 									{
 										"kind": "text",
@@ -1989,7 +1213,7 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "@xeokit/core!SDKError"
+										"text": "@xeokit/core!SDKError | SDKError"
 									},
 									{
 										"kind": "text",
@@ -2002,14 +1226,14 @@
 					"sources": [
 						{
 							"fileName": "saveDTX.ts",
-							"line": 25,
+							"line": 24,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/saveDTX.ts#L25"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/saveDTX.ts#L24"
 						}
 					],
 					"parameters": [
 						{
-							"id": 10,
+							"id": 9,
 							"name": "params",
 							"variant": "param",
 							"kind": 32768,
@@ -2017,48 +1241,14 @@
 							"type": {
 								"type": "reflection",
 								"declaration": {
-									"id": 11,
+									"id": 10,
 									"name": "__type",
 									"variant": "declaration",
 									"kind": 65536,
 									"flags": {},
 									"children": [
 										{
-											"id": 13,
-											"name": "dataModel",
-											"variant": "declaration",
-											"kind": 1024,
-											"flags": {
-												"isOptional": true
-											},
-											"comment": {
-												"summary": [
-													{
-														"kind": "text",
-														"text": "Optional DataModel to export to DTX."
-													}
-												]
-											},
-											"sources": [
-												{
-													"fileName": "saveDTX.ts",
-													"line": 27,
-													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/saveDTX.ts#L27"
-												}
-											],
-											"type": {
-												"type": "reference",
-												"target": {
-													"sourceFileName": "../data/src/DataModel.ts",
-													"qualifiedName": "DataModel"
-												},
-												"name": "DataModel",
-												"package": "@xeokit/data"
-											}
-										},
-										{
-											"id": 12,
+											"id": 11,
 											"name": "sceneModel",
 											"variant": "declaration",
 											"kind": 1024,
@@ -2074,9 +1264,9 @@
 											"sources": [
 												{
 													"fileName": "saveDTX.ts",
-													"line": 26,
+													"line": 25,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/saveDTX.ts#L26"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/saveDTX.ts#L25"
 												}
 											],
 											"type": {
@@ -2094,17 +1284,16 @@
 										{
 											"title": "Properties",
 											"children": [
-												13,
-												12
+												11
 											]
 										}
 									],
 									"sources": [
 										{
 											"fileName": "saveDTX.ts",
-											"line": 25,
+											"line": 24,
 											"character": 32,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/dtx/src/saveDTX.ts#L25"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/saveDTX.ts#L24"
 										}
 									]
 								}
@@ -2128,14 +1317,14 @@
 		{
 			"title": "Interfaces",
 			"children": [
-				14
+				12
 			]
 		},
 		{
 			"title": "Functions",
 			"children": [
 				1,
-				8
+				7
 			]
 		}
 	],
@@ -2177,8 +1366,8 @@
 			"qualifiedName": "__type.sceneModel"
 		},
 		"7": {
-			"sourceFileName": "src/loadDTX.ts",
-			"qualifiedName": "__type.dataModel"
+			"sourceFileName": "src/saveDTX.ts",
+			"qualifiedName": "saveDTX"
 		},
 		"8": {
 			"sourceFileName": "src/saveDTX.ts",
@@ -2186,167 +1375,95 @@
 		},
 		"9": {
 			"sourceFileName": "src/saveDTX.ts",
-			"qualifiedName": "saveDTX"
+			"qualifiedName": "params"
 		},
 		"10": {
 			"sourceFileName": "src/saveDTX.ts",
-			"qualifiedName": "params"
+			"qualifiedName": "__type"
 		},
 		"11": {
 			"sourceFileName": "src/saveDTX.ts",
-			"qualifiedName": "__type"
-		},
-		"12": {
-			"sourceFileName": "src/saveDTX.ts",
 			"qualifiedName": "__type.sceneModel"
 		},
-		"13": {
-			"sourceFileName": "src/saveDTX.ts",
-			"qualifiedName": "__type.dataModel"
-		},
-		"14": {
+		"12": {
 			"sourceFileName": "src/DTXData.ts",
 			"qualifiedName": "DTXData"
 		},
-		"15": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.metadata"
-		},
-		"16": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.textureData"
-		},
-		"17": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachTextureDataPortion"
-		},
-		"18": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachTextureAttributes"
-		},
-		"19": {
+		"13": {
 			"sourceFileName": "src/DTXData.ts",
 			"qualifiedName": "DTXData.positions"
 		},
-		"20": {
+		"14": {
 			"sourceFileName": "src/DTXData.ts",
 			"qualifiedName": "DTXData.colors"
 		},
+		"15": {
+			"sourceFileName": "src/DTXData.ts",
+			"qualifiedName": "DTXData.indices"
+		},
+		"16": {
+			"sourceFileName": "src/DTXData.ts",
+			"qualifiedName": "DTXData.edgeIndices"
+		},
+		"17": {
+			"sourceFileName": "src/DTXData.ts",
+			"qualifiedName": "DTXData.aabbs"
+		},
+		"18": {
+			"sourceFileName": "src/DTXData.ts",
+			"qualifiedName": "DTXData.eachGeometryPositionsBase"
+		},
+		"19": {
+			"sourceFileName": "src/DTXData.ts",
+			"qualifiedName": "DTXData.eachGeometryColorsBase"
+		},
+		"20": {
+			"sourceFileName": "src/DTXData.ts",
+			"qualifiedName": "DTXData.eachGeometryIndicesBase"
+		},
 		"21": {
 			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.uvs"
+			"qualifiedName": "DTXData.eachGeometryEdgeIndicesBase"
 		},
 		"22": {
 			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.indices8Bit"
+			"qualifiedName": "DTXData.eachGeometryPrimitiveType"
 		},
 		"23": {
 			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.indices16Bit"
+			"qualifiedName": "DTXData.eachGeometryAABBBase"
 		},
 		"24": {
 			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.indices32Bit"
+			"qualifiedName": "DTXData.matrices"
 		},
 		"25": {
 			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.edgeIndices8Bit"
+			"qualifiedName": "DTXData.origins"
 		},
 		"26": {
 			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.edgeIndices16Bit"
+			"qualifiedName": "DTXData.eachMeshGeometriesBase"
 		},
 		"27": {
 			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.edgeIndices32Bit"
+			"qualifiedName": "DTXData.eachMeshMatricesBase"
 		},
 		"28": {
 			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachTextureSetTextures"
+			"qualifiedName": "DTXData.eachMeshOriginsBase"
 		},
 		"29": {
 			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.decodeMatrices"
+			"qualifiedName": "DTXData.eachMeshMaterialAttributes"
 		},
 		"30": {
 			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachBucketPositionsPortion"
+			"qualifiedName": "DTXData.eachObjectId"
 		},
 		"31": {
 			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachBucketColorsPortion"
-		},
-		"32": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachBucketUVsPortion"
-		},
-		"33": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachBucketIndicesPortion"
-		},
-		"34": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachBucketEdgeIndicesPortion"
-		},
-		"35": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachBucketIndicesBitness"
-		},
-		"36": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachGeometryPrimitiveType"
-		},
-		"37": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachGeometryBucketPortion"
-		},
-		"38": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachGeometryDecodeMatricesPortion"
-		},
-		"39": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.matrices"
-		},
-		"40": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.origins"
-		},
-		"41": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachMeshGeometriesPortion"
-		},
-		"42": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachMeshMatricesPortion"
-		},
-		"43": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachMeshOriginsPortion"
-		},
-		"44": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachMeshTextureSet"
-		},
-		"45": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachMeshMaterialAttributes"
-		},
-		"46": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachGeometryId"
-		},
-		"47": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachMeshId"
-		},
-		"48": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachObjectId"
-		},
-		"49": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachObjectMeshesPortion"
+			"qualifiedName": "DTXData.eachObjectMeshesBase"
 		}
 	}
 }

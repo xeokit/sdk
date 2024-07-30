@@ -39,7 +39,7 @@ class DirLight extends Component {
     /**
      * @param view View that owns this DirLight. When destroyed, the View will destroy this DirLight as well.
      * @param options The DirLight configuration
-     * @param [options.id] Optional ID, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+     * @param [options.id] Optional ID, unique among all components in the parent {@link @xeokit/scene!Scene | Scene}, generated automatically when omitted.
      * @param [options.dir=[1.0, 1.0, 1.0]]  A unit vector indicating the direction that the light is shining,  given in either World or View space, depending on the value of the ````space```` parameter.
      * @param [options.color=[0.7, 0.7, 0.8 ]] The color of this DirLight.
      * @param [options.intensity=1.0] The intensity of this DirLight, as a factor in range ````[0..1]````.

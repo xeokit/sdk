@@ -1,7 +1,7 @@
 /**
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fktx2.svg)](https://badge.fury.io/js/%40xeokit%2Fktx2)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/ktx2/badge)](https://www.jsdelivr.com/package/npm/@xeokit/ktx2)
- * 
+ *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:140px;" src="media://images/xeokit_ktx_logo.svg"/>
  *
  * # xeokit KTX2 SceneTexture Transcoder
@@ -13,7 +13,7 @@
  * ---
  *
  * * Provides {@link KTX2TextureTranscoder}
- * * Configure a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} that has a {@link KTX2TextureTranscoder}
+ * * Configure a {@link @xeokit/viewer!Viewer | Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} that has a {@link KTX2TextureTranscoder}
  * * Then a Viewer is able to view a {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} that has KTX2-encoded compressed textures
  * * Uses the [Basis Universal GPU SceneTexture Codec](https://github.com/BinomialLLC/basis_universal) to
  * transcode [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures.
@@ -44,7 +44,7 @@
  *
  * ### Loading an DTX file containing [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures into a Viewer
  *
- * Create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
+ * Create a {@link @xeokit/viewer!Viewer | Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
  * {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}. Then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer, and use {@link loadDTX} to
  * load a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file with KTX2-compressed textures into the SceneModel. For each [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture in the file, the
  * KTX2TextureTranscoder will transparently transcode the [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) data for us.
@@ -88,7 +88,7 @@
  *
  * ### Loading KTX2 texture files into a Viewer
  *
- * As in the previous example, create a {@link @xeokit/viewer!Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
+ * As in the previous example, create a {@link @xeokit/viewer!Viewer | Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
  * {@link @xeokit/ktx2!KTX2TextureTranscoder}, then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
  *
  * This time, we'll build the SceneModel ourselves, using its builder methods. When we
@@ -164,7 +164,7 @@
  *
  * ### Loading [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture ArrayBuffers into a Viewer
  *
- * As in the previous two examples, create a {@link @xeokit/viewer!Viewer} that has a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
+ * As in the previous two examples, create a {@link @xeokit/viewer!Viewer | Viewer} that has a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
  * {@link @xeokit/ktx2!KTX2TextureTranscoder}, and then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
  *
  * Once more, build the SceneModel using its builder methods. This time, call builder method

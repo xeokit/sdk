@@ -67,7 +67,7 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/core!SDKError"
+				"text": "@xeokit/core!SDKError | SDKError"
 			},
 			{
 				"kind": "text",
@@ -89,9 +89,9 @@
 			"sources": [
 				{
 					"fileName": "loadLAS.ts",
-					"line": 40,
+					"line": 38,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L40"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L38"
 				}
 			],
 			"signatures": [
@@ -190,7 +190,7 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "@xeokit/core!SDKError"
+										"text": "@xeokit/core!SDKError | SDKError"
 									},
 									{
 										"kind": "text",
@@ -203,9 +203,9 @@
 					"sources": [
 						{
 							"fileName": "loadLAS.ts",
-							"line": 40,
+							"line": 38,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L40"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L38"
 						}
 					],
 					"parameters": [
@@ -251,9 +251,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 44,
+													"line": 42,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L44"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L42"
 												}
 											],
 											"type": {
@@ -280,9 +280,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 48,
+													"line": 46,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L48"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L46"
 												}
 											],
 											"type": {
@@ -318,9 +318,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 43,
+													"line": 41,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L43"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L41"
 												}
 											],
 											"type": {
@@ -350,9 +350,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 41,
+													"line": 39,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L41"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L39"
 												}
 											],
 											"type": {
@@ -384,9 +384,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 47,
+													"line": 45,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L47"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L45"
 												}
 											],
 											"type": {
@@ -405,9 +405,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 49,
+													"line": 47,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L49"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L47"
 												}
 											],
 											"type": {
@@ -437,9 +437,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 42,
+													"line": 40,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L42"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L40"
 												}
 											],
 											"type": {
@@ -471,9 +471,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 46,
+													"line": 44,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L46"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L44"
 												}
 											],
 											"type": {
@@ -500,9 +500,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 45,
+													"line": 43,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L45"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L43"
 												}
 											],
 											"type": {
@@ -535,9 +535,9 @@
 									"sources": [
 										{
 											"fileName": "loadLAS.ts",
-											"line": 40,
+											"line": 38,
 											"character": 32,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/las/src/loadLAS.ts#L40"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/las/src/loadLAS.ts#L38"
 										}
 									]
 								}

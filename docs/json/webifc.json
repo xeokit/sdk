@@ -67,7 +67,7 @@
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/core!SDKError"
+				"text": "@xeokit/core!SDKError | SDKError"
 			},
 			{
 				"kind": "text",
@@ -99,9 +99,9 @@
 			"sources": [
 				{
 					"fileName": "loadWebIFC.ts",
-					"line": 45,
+					"line": 55,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webifc/src/loadWebIFC.ts#L45"
+					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webifc/src/loadWebIFC.ts#L55"
 				}
 			],
 			"signatures": [
@@ -200,7 +200,7 @@
 									{
 										"kind": "inline-tag",
 										"tag": "@link",
-										"text": "@xeokit/core!SDKError"
+										"text": "@xeokit/core!SDKError | SDKError"
 									},
 									{
 										"kind": "text",
@@ -213,9 +213,9 @@
 					"sources": [
 						{
 							"fileName": "loadWebIFC.ts",
-							"line": 45,
+							"line": 55,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webifc/src/loadWebIFC.ts#L45"
+							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webifc/src/loadWebIFC.ts#L55"
 						}
 					],
 					"parameters": [
@@ -261,9 +261,9 @@
 											"sources": [
 												{
 													"fileName": "loadWebIFC.ts",
-													"line": 49,
+													"line": 59,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webifc/src/loadWebIFC.ts#L49"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webifc/src/loadWebIFC.ts#L59"
 												}
 											],
 											"type": {
@@ -293,9 +293,9 @@
 											"sources": [
 												{
 													"fileName": "loadWebIFC.ts",
-													"line": 46,
+													"line": 56,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webifc/src/loadWebIFC.ts#L46"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webifc/src/loadWebIFC.ts#L56"
 												}
 											],
 											"type": {
@@ -325,9 +325,9 @@
 											"sources": [
 												{
 													"fileName": "loadWebIFC.ts",
-													"line": 47,
+													"line": 57,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webifc/src/loadWebIFC.ts#L47"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webifc/src/loadWebIFC.ts#L57"
 												}
 											],
 											"type": {
@@ -357,9 +357,9 @@
 											"sources": [
 												{
 													"fileName": "loadWebIFC.ts",
-													"line": 48,
+													"line": 58,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webifc/src/loadWebIFC.ts#L48"
+													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webifc/src/loadWebIFC.ts#L58"
 												}
 											],
 											"type": {
@@ -387,9 +387,9 @@
 									"sources": [
 										{
 											"fileName": "loadWebIFC.ts",
-											"line": 45,
+											"line": 55,
 											"character": 35,
-											"url": "https://github.com/xeokit/sdk/blob/bbcda94dd/packages/webifc/src/loadWebIFC.ts#L45"
+											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/webifc/src/loadWebIFC.ts#L55"
 										}
 									]
 								}

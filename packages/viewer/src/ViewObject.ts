@@ -17,7 +17,7 @@ import {SDKError} from "@xeokit/core";
  *
  * ## Overview
  *
- * Every View automatically maintains within itself a ViewObject for each {@link @xeokit/scene!SceneModel | SceneObject} that exists in the {@link @xeokit/viewer!Viewer}.
+ * Every View automatically maintains within itself a ViewObject for each {@link @xeokit/scene!SceneModel | SceneObject} that exists in the {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * Whenever we create a SceneObject, each View will automatically create a corresponding ViewObject within itself. When
  * we destroy a SceneObject, each View will automatically destroy its corresponding ViewObject. The ViewObjects in a View

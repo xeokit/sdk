@@ -49,7 +49,7 @@ export interface SnapshotFinishedEvent {
 
 
 /**
- * An independently-configurable view of the models in a {@link @xeokit/viewer!Viewer}.
+ * An independently-configurable view of the models in a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * See {@link "@xeokit/viewer" | @xeokit/viewer} for usage.
  *
@@ -112,7 +112,7 @@ export interface SnapshotFinishedEvent {
 class View extends Component {
 
     /**
-     ID of this View, unique within the {@link @xeokit/viewer!Viewer}.
+     ID of this View, unique within the {@link @xeokit/viewer!Viewer | Viewer}.
      */
     declare viewId: string;
 
@@ -209,7 +209,7 @@ class View extends Component {
      * Each {@link @xeokit/viewer!ViewObject} is mapped here by {@link @xeokit/viewer!ViewObject.id}.
      *
      * The View automatically ensures that there is a {@link @xeokit/viewer!ViewObject} here for
-     * each {@link RendererObject} in the {@link @xeokit/viewer!Viewer}
+     * each {@link RendererObject} in the {@link @xeokit/viewer!Viewer | Viewer}
      */
     readonly objects: { [key: string]: ViewObject };
 
@@ -1672,7 +1672,7 @@ class View extends Component {
     /**
      * Destroys this View.
      *
-     * Causes {@link @xeokit/viewer!Viewer} to fire a "viewDestroyed" event.
+     * Causes {@link @xeokit/viewer!Viewer | Viewer} to fire a "viewDestroyed" event.
      */
     destroy() {
         this.viewer.onTick.unsubscribe(this.#onTick);

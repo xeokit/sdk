@@ -9,7 +9,7 @@
  * ## xeokit Tree View UI
  *
  * * {@link @xeokit/treeview!TreeView}
- * * Fast HTML tree view to navigate federated models in a {@link @xeokit/viewer!Viewer}
+ * * Fast HTML tree view to navigate federated models in a {@link @xeokit/viewer!Viewer | Viewer}
  * * Use with a {@link @xeokit/viewer!View | View} and a semantic {@link @xeokit/data!Data} model
  * * Supports Industry Foundation Classes ([IFC](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ifc))
  * * Supports any schema expressable as ER graph with aggregation relationships
@@ -33,7 +33,7 @@
  * import {loadDTX} from "@xeokit/dtx";
  * ````
  *
- * Create a {@link @xeokit/viewer!Viewer}, configured with a {@link @xeokit/webglrenderer!WebGLRenderer}:
+ * Create a {@link @xeokit/viewer!Viewer | Viewer}, configured with a {@link @xeokit/webglrenderer!WebGLRenderer}:
  *
  * ````javascript
  * const myViewer = new Viewer({

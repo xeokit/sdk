@@ -13,7 +13,7 @@ import {TrianglesPrimitive} from "@xeokit/constants";
  *
  * @function buildSphereGeometry
  * @param cfg Configs
- * @param [cfg.id] Optional ID for the {@link @xeokit/scene!SceneGeometry}, unique among all components in the parent {@link @xeokit/scene!Scene}, generated automatically when omitted.
+ * @param [cfg.id] Optional ID for the {@link @xeokit/scene!SceneGeometry}, unique among all components in the parent {@link @xeokit/scene!Scene | Scene}, generated automatically when omitted.
  * @param [cfg.center]  3D point indicating the center position.
  * @param [cfg.radius=1]  Radius.
  * @param [cfg.heightSegments=24] Number of latitudinal bands.

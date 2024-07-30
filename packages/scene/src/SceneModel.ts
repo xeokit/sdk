@@ -79,13 +79,13 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
 /**
  * xeokit SceneGeometry and Materials Model.
  *
- * * A representation of a model's geometry and materials within a {@link @xeokit/scene!Scene}.
+ * * A representation of a model's geometry and materials within a {@link @xeokit/scene!Scene | Scene}.
  * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | Meshes}, {@link @xeokit/scene!SceneGeometry | Geometries} and {@link @xeokit/scene!SceneTexture | Textures}.
  * * Compresses textures using [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis)
  * * Compresses geometry using [bucketing](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-quantization)
- * * Viewable in the Browser with {@link @xeokit/viewer!Viewer}
- * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF}, {@link @xeokit/las!loadLAS}, {@link @xeokit/cityjson!loadCityJSON}, {@link @xeokit/dtx!loadDTX} (etc)
- * * Exportable to [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format using {@link @xeokit/dtx!saveDTX}
+ * * Viewable in the Browser with {@link @xeokit/viewer!Viewer | Viewer}
+ * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF | loadGLTF}, {@link @xeokit/dotbim!loadDotBIM | loadDotBIM}, {@link @xeokit/las!loadLAS | loadLAS}, {@link @xeokit/cityjson!loadCityJSON | loadCityJSON}, {@link @xeokit/dtx!loadDTX | loadDTX}, {@link @xeokit/xkt!loadXKT | loadXKT} (etc)
+ * * Exportable to [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format using {@link @xeokit/dtx!saveDTX | saveDTX}
  * * Programmatically buildable using builder methods
  *
  * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
@@ -101,7 +101,7 @@ export class SceneModel extends Component {
     public streamParams?: SceneModelStreamParams;
 
     /**
-     * The {@link @xeokit/scene!Scene} that contains this SceneModel.
+     * The {@link @xeokit/scene!Scene | Scene} that contains this SceneModel.
      */
     public readonly scene: Scene;
 
@@ -122,7 +122,7 @@ export class SceneModel extends Component {
     declare public readonly id: string;
 
     /**
-     * If we want to view this SceneModel with a {@link @xeokit/viewer!Viewer}, an
+     * If we want to view this SceneModel with a {@link @xeokit/viewer!Viewer | Viewer}, an
      * optional ID of a {@link @xeokit/viewer!ViewLayer | ViewLayer} to view it in.
      */
     public readonly layerId?: string;
@@ -867,7 +867,7 @@ export class SceneModel extends Component {
      * * Stores the new {@link @xeokit/scene!SceneObject} in {@link @xeokit/scene!SceneModel.objects | SceneModel.objects} and {@link @xeokit/scene!Scene.objects | Scene.objects}.
      * * Fires an event via {@link @xeokit/scene!Scene.onObjectCreated | Scene.onObjectCreated}.
      * * Each {@link @xeokit/scene!SceneMesh} is allowed to belong to one SceneObject.
-     * * SceneObject IDs must be unique within the SceneModel's {@link @xeokit/scene!Scene}.
+     * * SceneObject IDs must be unique within the SceneModel's {@link @xeokit/scene!Scene | Scene}.
      *
      * ### Usage
      *

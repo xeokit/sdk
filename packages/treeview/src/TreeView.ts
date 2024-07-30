@@ -426,7 +426,7 @@ export class TreeView extends Component {
      * If a node is previously highlighted, de-highlights that node and collapses the tree first.
      *
      * Note that if the TreeView was configured with ````pruneEmptyNodes: true```` (default configuration), then the
-     * node won't exist in the tree if it has no viewObjects in the {@link @xeokit/scene!Scene}. in that case, nothing will happen.
+     * node won't exist in the tree if it has no viewObjects in the {@link @xeokit/scene!Scene | Scene}. in that case, nothing will happen.
      *
      * Within the DOM, the node is represented by an ````<li>```` element. This method will add a ````.highlighted-node```` class to
      * the element to make it appear highlighted, removing that class when de-highlighting it again. See the CSS rules

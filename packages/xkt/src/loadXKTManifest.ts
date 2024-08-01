@@ -1,7 +1,7 @@
 import {SceneModel} from "@xeokit/scene";
 import {DataModel} from "@xeokit/data";
 import {SDKError} from "@xeokit/core";
-import {loadXKT} from "./load/loadXKT";
+import {loadXKT} from "./loadXKT";
 import {loadMetamodel} from "@xeokit/metamodel";
 
 /**

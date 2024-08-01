@@ -72,4 +72,3 @@
  */
 export * from "./loadDTX";
 export * from "./saveDTX";
-export * from "./DTXData";

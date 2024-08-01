@@ -1,8 +1,10 @@
 import {SDKError} from "@xeokit/core";
 import type {SceneModel} from "@xeokit/scene";
-import {inflateDTX} from "./inflateDTX";
-import {unpackDTX} from "./unpackDTX";
-import {dtxToModel} from "./dtxToModel";
+import {readDTX} from "./versions/v1/readDTX"
+
+const parsers = {
+    1: readDTX
+};
 
 /**
  * Imports [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data from an ArrayBuffer
@@ -22,13 +24,11 @@ import {dtxToModel} from "./dtxToModel";
  * @throws *{@link @xeokit/core!SDKError | SDKError}*
  * * If the SceneModel has already been destroyed.
  * * If the SceneModel has already been built.
- * * If the DataModel has already been destroyed.
- * * If the DataModel has already been built.
  */
 export function loadDTX(params: {
     fileData: ArrayBuffer;
     sceneModel: SceneModel;
- }): Promise<void> {
+}): Promise<void> {
     const {fileData, sceneModel} = params;
     if (sceneModel.destroyed) {
         return Promise.reject(new SDKError("SceneModel already destroyed"));
@@ -36,9 +36,5 @@ export function loadDTX(params: {
     if (sceneModel.built) {
         return Promise.reject(new SDKError("SceneModel already built"));
     }
-    dtxToModel({
-        dtxData: inflateDTX(unpackDTX(fileData)),
-        sceneModel
-    });
-    return Promise.resolve();
+    return readDTX(params);
 }

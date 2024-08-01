@@ -68,5 +68,5 @@
  *
  * @module @xeokit/xkt
  */
-export * from "./load/loadXKT";
+export * from "./loadXKT";
 export * from "./loadXKTManifest";

@@ -1,8 +1,6 @@
 import {SDKError} from "@xeokit/core";
 import type {SceneModel} from "@xeokit/scene";
-import {deflateDTX} from "./deflateDTX";
-import {modelToDTX} from "./modelToDTX";
-import {packDTX} from "./packDTX";
+import {writeDTX} from "./versions/v1/writeDTX"; // Always the latest
 
 /**
  * Exports a {@link @xeokit/scene!SceneModel | SceneModel} to an ArrayBuffer
@@ -17,8 +15,6 @@ import {packDTX} from "./packDTX";
  * @returns The [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data in an ArrayBuffer.
  * @returns {@link @xeokit/core!SDKError | SDKError} If the SceneModel has already been destroyed.
  * @returns {@link @xeokit/core!SDKError | SDKError} If the SceneModel has not yet been built.
- * @returns {@link @xeokit/core!SDKError | SDKError} If the DataModel has already been destroyed.
- * @returns {@link @xeokit/core!SDKError | SDKError} If the DataModel has not yet been built.
  */
 export function saveDTX(params: {
     sceneModel: SceneModel
@@ -29,11 +25,7 @@ export function saveDTX(params: {
     if (!params.sceneModel.built) {
         throw new SDKError("SceneModel not yet built");
     }
-    return packDTX(
-        deflateDTX(
-            modelToDTX({
-                sceneModel: params.sceneModel
-            }), {
-                deflateLevel: 0
-            }));
+    return writeDTX({
+        sceneModel: params.sceneModel
+    });
 }

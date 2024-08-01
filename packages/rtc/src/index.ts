@@ -38,16 +38,27 @@
  * @module @xeokit/rtc
  */
 import type {FloatArrayParam} from "@xeokit/math";
-import {createVec3, dotVec3, mulVec3Scalar, normalizeVec3, setMat4Translation, transformVec4} from "@xeokit/matrix";
+import {
+    createVec3, createVec4,
+    dotVec3,
+    mulVec3Scalar,
+    normalizeVec3,
+    setMat4Translation,
+    transformVec4,
+    translateMat4v
+} from "@xeokit/matrix";
 import {getPositions3Center} from "@xeokit/boundaries";
 
 
 const tempVec3a = createVec3();
-
-
 const tempMat = new Float32Array(16);
 const rtcCenterWorld = new Float64Array(4);
 const rtcCenterView = new Float64Array(4);
+
+/**
+ * The size of tiles within xeokit's relative-to-center (RTC) World coordinate system.
+ */
+export const RTC_CELL_SIZE = 200;
 
 /**
  * Given a view matrix and a relative-to-center (RTC) coordinate origin, returns a view matrix
@@ -62,6 +73,29 @@ export function createRTCViewMat(viewMat: FloatArrayParam, rtcCenter: FloatArray
     setMat4Translation(viewMat, rtcCenterView, rtcViewMat);
     return rtcViewMat;
 }
+
+/**
+ * Given a modeling matrix and a relative-to-center (RTC) coordinate origin, returns an RTC modeling matrix.
+ *
+ * @param matrix Full-precision absolute modeling matrix, possibly with huge translations.
+ * @param rtcCenter Returns the RTC origin.
+ * @returns A new RTC modeling matrix, with transforms relative to the RTC origin.
+ */
+export const createRTCModelMat = (() => {
+
+    const zeroVec4 = createVec4([0,0,0,1]);
+    const tempVec4a = createVec4();
+
+    return (matrix: FloatArrayParam, rtcCenter: FloatArrayParam): FloatArrayParam => {
+        const tempVec4 = transformVec4(matrix, zeroVec4, tempVec4a);
+        rtcCenter[0] = Math.round(tempVec4[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+        rtcCenter[1] = Math.round(tempVec4[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+        rtcCenter[2] = Math.round(tempVec4[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+        const rtcModelMatrix = matrix.slice();
+        translateMat4v(mulVec3Scalar(rtcCenter, -1, tempVec3a), rtcModelMatrix);
+        return rtcModelMatrix;
+    };
+})();
 
 /**
  * Converts a World-space 3D position to RTC.
@@ -102,7 +136,7 @@ export function worldToRTCPos(worldPos: FloatArrayParam, rtcCenter: FloatArrayPa
  * @param rtcCenter Double-precision relative-to-center (RTC) center pos.
  * @param [cellSize=200] The size of each coordinate cell within the RTC coordinate system.
  */
-export function worldToRTCCenter(worldCenter: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = 200) {
+export function worldToRTCCenter(worldCenter: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = RTC_CELL_SIZE) {
     rtcCenter[0] = Math.round(worldCenter[0] / cellSize) * cellSize;
     rtcCenter[1] = Math.round(worldCenter[1] / cellSize) * cellSize;
     rtcCenter[2] = Math.round(worldCenter[2] / cellSize) * cellSize;
@@ -125,7 +159,7 @@ export function worldToRTCCenter(worldCenter: FloatArrayParam, rtcCenter: FloatA
  * ````false````, we can safely ignore the data returned in ````rtcPositions```` and ````rtcCenter````,
  * since ````rtcCenter```` will equal ````[0,0,0]````, and ````rtcPositions```` will contain identical values to ````positions````.
  */
-export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = 200): boolean {
+export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = RTC_CELL_SIZE): boolean {
 
     const center = getPositions3Center(worldPositions, tempVec3a);
 

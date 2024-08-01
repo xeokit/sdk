@@ -67,11 +67,9 @@
         elementId: "myCanvas"
     });
 
-    view.edges.enabled = false;
-
-    view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
-    view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
-    view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
+    view.camera.eye = [1841982.93, 10.03, -5173286.74];
+    view.camera.look = [1842009.49, 9.68, -5173295.85];
+    view.camera.up = [0.0, 1.0, 0.0];
 
     const cameraControl = new xeokit.cameraControl.CameraControl(view, {});
 
@@ -93,14 +91,12 @@
                 xeokit.dtx.loadDTX({
                     fileData,
                     sceneModel
-                }).then(() => {
 
+                }).then(() => {
                     sceneModel.build();
 
                 }).catch(sdkError => {
-
                     sceneModel.destroy();
-
                     console.error(sdkError.message);
                 });
             });

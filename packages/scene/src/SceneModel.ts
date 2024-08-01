@@ -20,11 +20,21 @@ import {compressGeometryParams} from "./compressGeometryParams";
 import type {SceneModelParams} from "./SceneModelParams";
 import type {Scene} from "./Scene";
 import type {SceneModelStats} from "./SceneModelStats";
-import {composeMat4, eulerToQuat, identityMat4, identityQuat} from "@xeokit/matrix";
+import {
+    composeMat4, createMat4,
+    createVec3,
+    eulerToQuat,
+    identityMat4,
+    identityQuat,
+    mulVec3Scalar,
+    translateMat4v
+} from "@xeokit/matrix";
 import {SceneModelStreamParams} from "./SceneModelStreamParams";
 import {SceneQuantizationRange} from "./SceneQuantizationRange";
 import {SceneQuantizationRangeParams} from "./SceneQuantizationRangeParams";
 import {SceneTile} from "./SceneTile";
+import {createRTCModelMat} from "@xeokit/rtc";
+
 
 // DTX texture types
 
@@ -778,8 +788,6 @@ export class SceneModel extends Component {
         if (meshParams.textureSetId && !textureSet) {
             return new SDKError(`Failed to create SceneMesh in SceneModel - TextureSet not found: ${meshParams.textureSetId}`);
         }
-
-        // geometry.numInstances++;
         let matrix = meshParams.matrix;
         if (!matrix) {
             const position = meshParams.position;
@@ -792,8 +800,11 @@ export class SceneModel extends Component {
             } else {
                 matrix = identityMat4();
             }
+        } else {
+            matrix = matrix.slice();
         }
-        const origin = meshParams.origin || [0, 0, 0];
+        const origin = createVec3();
+        const rtcMatrix = createRTCModelMat(matrix, origin);
         const tile = this.scene.getTile(origin);
         if (!this.tiles[tile.id]) {
             this.tiles[tile.id] = tile;
@@ -804,6 +815,7 @@ export class SceneModel extends Component {
             geometry,
             textureSet,
             matrix,
+            rtcMatrix,
             color: meshParams.color,
             opacity: meshParams.opacity,
             tile

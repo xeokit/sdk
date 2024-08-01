@@ -136,7 +136,7 @@ export class VBOInstancingLayer implements Layer {
 
         const color = sceneMesh.color;
         const opacity = sceneMesh.opacity !== null && sceneMesh.opacity !== undefined ? sceneMesh.opacity : 255;
-        const meshMatrix = sceneMesh.matrix;
+        const meshMatrix = sceneMesh.rtcMatrix;
         const pickColor = layerMeshParams.pickColor;
 
         if (this.#built) {

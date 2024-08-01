@@ -41,6 +41,7 @@
         "@xeokit/utils": "^0.1.0",
         "@xeokit/math": "^0.1.0",
         "@xeokit/matrix": "^0.1.0",
+        "@xeokit/rtc": "^0.1.0",
         "strongly-typed-events": "3.0.7"
     },
     "devDependencies": {}

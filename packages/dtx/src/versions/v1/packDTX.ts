@@ -18,10 +18,8 @@ export function packDTX(deflatedData: DTXDataDeflated): ArrayBuffer {
         deflatedData.eachGeometryPrimitiveType,
         deflatedData.eachGeometryAABBBase,
         deflatedData.matrices,
-        deflatedData.origins,
         deflatedData.eachMeshGeometriesBase,
         deflatedData.eachMeshMatricesBase,
-        deflatedData.eachMeshOriginsBase,
         deflatedData.eachMeshMaterialAttributes,
         deflatedData.eachObjectId,
         deflatedData.eachObjectMeshesBase

@@ -67,12 +67,7 @@ export interface DTXData {
     /**
      * Combined list of all modeling transform matrices in this [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
      */
-    matrices: Float32Array;
-
-    /**
-     * Combined list of all RTC coordinate origins in this [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
-     */
-    origins: Float64Array;
+    matrices: Float64Array;
 
     /**
      * For each mesh, a pointer to its portion of geometries in ````DTXData.eachGeometry*````
@@ -83,11 +78,6 @@ export interface DTXData {
      * For each mesh, a pointer to its matrix in {@link DTXData.matrices}.
      */
     eachMeshMatricesBase: Uint32Array;
-
-    /**
-     * For each mesh, a pointer to its RTC origin in {@link DTXData.origins}.
-     */
-    eachMeshOriginsBase: Uint32Array;
 
     /**
      * For each mesh, a set of sixe material attribute values.

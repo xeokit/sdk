@@ -20,10 +20,8 @@ export function deflateDTX(dtxData: DTXData, options: { deflateLevel: 0 | 1 | -1
         eachGeometryPrimitiveType: pako.deflate(dtxData.eachGeometryPrimitiveType.buffer, pakoOptions),
         eachGeometryAABBBase: pako.deflate(dtxData.eachGeometryAABBBase.buffer, pakoOptions),
         matrices: pako.deflate(dtxData.matrices.buffer, pakoOptions),
-        origins: pako.deflate(dtxData.origins.buffer, pakoOptions),
         eachMeshGeometriesBase: pako.deflate(dtxData.eachMeshGeometriesBase.buffer, pakoOptions),
         eachMeshMatricesBase: pako.deflate(dtxData.eachMeshMatricesBase.buffer, pakoOptions),
-        eachMeshOriginsBase: pako.deflate(dtxData.eachMeshOriginsBase.buffer, pakoOptions),
         eachMeshMaterialAttributes: pako.deflate(dtxData.eachMeshMaterialAttributes.buffer, pakoOptions),
         eachObjectId: pako.deflate(JSON.stringify(dtxData.eachObjectId)
             .replace(/[\u007F-\uFFFF]/g, function (chr) { // Produce only ASCII-chars, so that the data can be inflated later

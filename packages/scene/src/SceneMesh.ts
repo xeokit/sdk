@@ -62,6 +62,7 @@ export class SceneMesh {
 
     #color: FloatArrayParam;
     #matrix: FloatArrayParam;
+    #rtcMatrix: FloatArrayParam;
     #opacity: number;
 
     readonly origin: FloatArrayParam;
@@ -74,6 +75,7 @@ export class SceneMesh {
         geometry: SceneGeometry;
         textureSet?: SceneTextureSet;
         matrix?: FloatArrayParam;
+        rtcMatrix?: FloatArrayParam;
         color?: FloatArrayParam;
         opacity?: number;
         tile: SceneTile;
@@ -81,6 +83,7 @@ export class SceneMesh {
     }) {
         this.id = meshParams.id;
         this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
+        this.#rtcMatrix = meshParams.rtcMatrix ? createMat4(meshParams.rtcMatrix) : identityMat4();
         this.geometry = meshParams.geometry;
         this.textureSet = meshParams.textureSet;
         this.rendererMesh = null;
@@ -133,6 +136,18 @@ export class SceneMesh {
      */
     get matrix(): FloatArrayParam {
         return this.#matrix;
+    }
+
+    /**
+     * Gets this SceneMesh's RTC modeling transform matrix.
+     *
+     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+     *
+     * @internal
+     * @type {FloatArrayParam}
+     */
+    get rtcMatrix(): FloatArrayParam {
+        return this.#rtcMatrix;
     }
 
     /**
@@ -193,10 +208,6 @@ export class SceneMesh {
             color: Array.from(this.#color),
             opacity: this.#opacity
         };
-        const origin = this.tile.origin;
-        if (origin[0] !== 0 || origin[1] !== 0 || origin[2] !== 0) {
-            meshParams.origin = Array.from(origin);
-        }
         if (!isIdentityMat4(this.#matrix)) {
             meshParams.matrix = Array.from(this.#matrix);
         }

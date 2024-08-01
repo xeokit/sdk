@@ -71,10 +71,8 @@ export function modelToDTX(params: {
         eachGeometryPrimitiveType: new Uint8Array(numGeometries), // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points)
         eachGeometryAABBBase: new Uint32Array(numGeometries), // Positions dequantization matrices
         matrices: null, // Modeling matrices
-        origins: null, // Origins
         eachMeshGeometriesBase: new Uint32Array(numMeshes), // For each mesh, an index into the eachGeometry* arrays
         eachMeshMatricesBase: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in dtxData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
-        eachMeshOriginsBase: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in dtxData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
         eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES), // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
         eachObjectId: [], // For each object, an ID string
         eachObjectMeshesBase: new Uint32Array(numObjects) // For each object, the index of the first element of meshes used by the object
@@ -90,7 +88,6 @@ export function modelToDTX(params: {
 
     const aabbs = [];
     const matrices = [];
-    const origins = [];
 
     for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
         const geometry = geometriesList[geometryIdx];
@@ -149,9 +146,7 @@ export function modelToDTX(params: {
 
     let eachMeshMaterialAttributesBase = 0;
     let matricesBase = 0;
-    let originsBase = 0;
     let meshesBase = 0;
-    const originIdxMap = {};
     for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
         const object = objectsList[objectIdx];
         dtxData.eachObjectId[objectIdx] = object.id;
@@ -161,7 +156,7 @@ export function modelToDTX(params: {
             dtxData.eachMeshGeometriesBase [meshesBase] = geometryIndices[mesh.geometry.id];
             if (isIdentityMat4(mesh.matrix)) {
                 if (!identityMatrixAdded) {
-                    matrices.push(...mesh.matrix, matricesBase);
+                    matrices.push(...mesh.rtcMatrix);
                     dtxData.eachMeshMatricesBase [meshesBase] = matricesBase;
                     identityMatrixBase = matricesBase;
                     matricesBase += 16;
@@ -170,20 +165,10 @@ export function modelToDTX(params: {
                     dtxData.eachMeshMatricesBase [meshesBase] = identityMatrixBase;
                 }
             } else {
-                matrices.push(...mesh.matrix, matricesBase);
+                matrices.push(...mesh.matrix);
                 dtxData.eachMeshMatricesBase [meshesBase] = matricesBase;
                 matricesBase += 16;
             }
-            const originHash = `${mesh.tile.id}`; // Hashing on ID faster than hashing on origin value
-            let originIdx = originIdxMap[originHash];
-            if (originIdx === undefined) {
-                originIdx = originsBase;
-                originIdxMap[originHash] = originIdx;
-                origins.push(...mesh.tile.origin);
-                originsBase += 3;
-
-            }
-            dtxData.eachMeshOriginsBase [meshesBase] = originIdx;
             dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.color[0] * 255); // Color RGB
             dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.color[1] * 255);
             dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.color[2] * 255);
@@ -193,8 +178,7 @@ export function modelToDTX(params: {
     }
 
     dtxData.aabbs = new Float32Array(aabbs);
-    dtxData.matrices = new Float32Array(matrices);
-    dtxData.origins = new Float64Array(origins);
+    dtxData.matrices = new Float64Array(matrices);
 
     return <DTXData>dtxData;
 }

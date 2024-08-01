@@ -14,10 +14,8 @@ export interface DTXDataDeflated {
     eachGeometryPrimitiveType: Buffer;
     eachGeometryAABBBase: Buffer;
     matrices: Buffer;
-    origins: Buffer;
     eachMeshGeometriesBase: Buffer;
     eachMeshMatricesBase: Buffer;
-    eachMeshOriginsBase: Buffer;
     eachMeshMaterialAttributes: Buffer;
     eachObjectId: Buffer;
     eachObjectMeshesBase: Buffer;

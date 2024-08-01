@@ -23,11 +23,9 @@ export function inflateDTX(dtxDataDeflated: DTXDataDeflated): DTXData {
         eachGeometryEdgeIndicesBase: new Uint32Array(inflate(dtxDataDeflated.eachGeometryEdgeIndicesBase)),
         eachGeometryPrimitiveType: new Uint8Array(inflate(dtxDataDeflated.eachGeometryPrimitiveType)),
         eachGeometryAABBBase: new Uint32Array(inflate(dtxDataDeflated.eachGeometryAABBBase)),
-        matrices: new Float32Array(inflate(dtxDataDeflated.matrices)),
-        origins: new Float64Array(inflate(dtxDataDeflated.origins)),
+        matrices: new Float64Array(inflate(dtxDataDeflated.matrices)),
         eachMeshGeometriesBase: new Uint32Array(inflate(dtxDataDeflated.eachMeshGeometriesBase)),
         eachMeshMatricesBase: new Uint32Array(inflate(dtxDataDeflated.eachMeshMatricesBase)),
-        eachMeshOriginsBase: new Uint32Array(inflate(dtxDataDeflated.eachMeshOriginsBase)),
         eachMeshMaterialAttributes: new Uint8Array(inflate(dtxDataDeflated.eachMeshMaterialAttributes)),
         eachObjectId: JSON.parse(pako.inflate(dtxDataDeflated.eachObjectId, {to: 'string'})),
         eachObjectMeshesBase: new Uint32Array(inflate(dtxDataDeflated.eachObjectMeshesBase))

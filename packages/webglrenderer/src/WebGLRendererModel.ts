@@ -362,7 +362,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         if (!layer) {
             return; // TODO
         }
-        let matrix = mesh.matrix;
+        let matrix = mesh.rtcMatrix;
         const color = (mesh.color) ? new Uint8Array([Math.floor(mesh.color[0] * 255), Math.floor(mesh.color[1] * 255), Math.floor(mesh.color[2] * 255)]) : [255, 255, 255];
         const opacity = (mesh.opacity !== undefined && mesh.opacity !== null) ? Math.floor(mesh.opacity * 255) : 255;
         const rendererMesh = new WebGLRendererMesh({

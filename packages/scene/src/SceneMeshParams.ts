@@ -26,11 +26,6 @@ export interface SceneMeshParams {
     geometryId: string;
 
     /**
-     * Optional ID of a {@link SceneTransform} previously created with {@link @xeokit/scene!SceneModel.createTransform | SceneModel.createTransform}.
-     */
-    transformId?: string;
-
-    /**
      * RGB base color of the new {@link @xeokit/scene!SceneMesh}.
      *
      * * Default is ````[1,1,1]````.
@@ -99,7 +94,7 @@ export interface SceneMeshParams {
     matrix?: FloatArrayParam;
 
     /**
-     * Optional RTC coordinate origin for the new {@link @xeokit/scene!SceneMesh}.
+     * TODO
      */
-    origin?: FloatArrayParam;
+    rtcMatrix?:FloatArrayParam;
 }

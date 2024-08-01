@@ -487,8 +487,8 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                     meshParams.textureSetId = material._textureSetId;
                     meshParams.color = material._attributes.color;
                     meshParams.opacity = material._attributes.opacity;
-                    meshParams.metallic = material._attributes.metallic;
-                    meshParams.roughness = material._attributes.roughness;
+                    // meshParams.metallic = material._attributes.metallic;
+                    // meshParams.roughness = material._attributes.roughness;
                 } else {
                     meshParams.color = [1.0, 1.0, 1.0];
                     meshParams.opacity = 1.0;

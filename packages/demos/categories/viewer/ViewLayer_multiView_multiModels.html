@@ -136,9 +136,9 @@
         });
 
         view.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
-        view.camera.eye = [-20, 0, 20];
-        view.camera.look = [0, 0, 0];
-        view.camera.up = [0, 1, 0];
+        view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
+        view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
+        view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
         view.camera.orbitPitch(20);
 
         new xeokit.cameraControl.CameraControl(view, {});
@@ -161,9 +161,12 @@
             autoLayers: false
         });
 
+        view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
+        view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
+        view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
         view.camera.projectionType = xeokit.constants.OrthoProjectionType;
-        view.camera.orthoProjection.scale = 30;
-        view.camera.orbitPitch(90);
+        view.camera.orthoProjection.scale = 40;
+       // view.camera.orbitPitch(90);
 
         new xeokit.cameraControl.CameraControl(view, {});
 
@@ -203,13 +206,16 @@
     // This SceneModel will appear in ViewLayer "viewLayer1"
     //-----------------------------------------------------------------------------------------
 
-    fetch("../../data/SceneModels/IfcOpenHouse4-SceneModel.json").then(response => {
-        response.json().then(fileData => {
+    fetch("../../data/dtx/MAP.dtx").then(response => {
+        response.arrayBuffer().then(fileData => {
             const sceneModel = scene.createModel({
                 id: "myModel",
                 layerId: "viewLayer1"
             });
-            sceneModel.fromJSON(fileData);
+            xeokit.dtx.loadDTX({
+                fileData,
+                sceneModel
+            });
             sceneModel.build();
         });
     });

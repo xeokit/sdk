@@ -73,5 +73,10 @@ export interface SceneGeometryCompressedParams {
      *
      * This is either an array of 8-bit, 16-bit or 32-bit values.
      */
-    edgeIndices?: IntArrayParam
+    edgeIndices?: IntArrayParam;
+
+    /**
+     * TODO
+     */
+    origin?: FloatArrayParam;
 }

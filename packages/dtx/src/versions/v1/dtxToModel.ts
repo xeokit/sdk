@@ -42,8 +42,6 @@ export function dtxToModel(params: {
             const opacity = dtxData.eachMeshMaterialAttributes[(meshIdx * 4) + 3] / 255.0;
             const matricesBase = dtxData.eachMeshMatricesBase[meshIdx];
             const matrix = dtxData.matrices.slice(matricesBase, matricesBase + 16);
-            const originsBase = dtxData.eachMeshOriginsBase[meshIdx];
-            const origin = dtxData.origins.slice(originsBase, originsBase + 3);
             const geometryId = `${geometryIdx}`;
             if (!geometryCreated[geometryId]) {
                 const geometryCompressedParams = <any>{
@@ -102,8 +100,7 @@ export function dtxToModel(params: {
                 geometryId,
                 matrix,
                 color,
-                opacity,
-                origin
+                opacity
             });
             meshIds.push(meshId);
         }

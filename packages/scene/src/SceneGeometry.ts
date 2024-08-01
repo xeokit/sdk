@@ -84,6 +84,11 @@ export class SceneGeometry {
     rendererGeometry: RendererGeometry | null;
 
     /**
+     * TODO
+     */
+    origin?:FloatArrayParam;
+
+    /**
      * The count of {@link @xeokit/scene!SceneMesh | SceneMeshes} that reference this SceneGeometry.
      */
     numMeshes: number;
@@ -96,6 +101,7 @@ export class SceneGeometry {
         this.colorsCompressed = params.colorsCompressed;
         this.indices = params.indices;
         this.edgeIndices = params.edgeIndices;
+        this.origin = params.origin;
         this.aabb = params.aabb ? params.aabb.slice() : createAABB3();
         this.numMeshes = 0;
     }

@@ -360,7 +360,11 @@ export function xktToModel(params: {
                             matrix: meshMatrix,
                             color: meshColor,
                             opacity: meshOpacity,
-                            origin: tileCenter
+
+                            ///////////////////////////////////
+                            // Adjust matrix?
+                            /////////////////////////////////////
+                         //   origin: tileCenter
                         });
 
                         meshIds.push(meshId);
@@ -443,7 +447,7 @@ export function xktToModel(params: {
                             id: meshId,
                             geometryId,
                             textureSetId,
-                            origin: tileCenter,
+                          //  origin: tileCenter,
                             color: meshColor,
                             metallic: meshMetallic,
                             roughness: meshRoughness,

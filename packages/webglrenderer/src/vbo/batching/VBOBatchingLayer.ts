@@ -158,9 +158,9 @@ export class VBOBatchingLayer implements Layer {
             tempVec3a[1] = positionsCompressed[k + 1];
             tempVec3a[2] = positionsCompressed[k + 2];
             decompressPoint3WithAABB3(tempVec3a, geometryAABB, tempVec4a);
-            if (sceneMesh.matrix) {
+            if (sceneMesh.rtcMatrix) {
                 tempVec4a[3] = 1.0;
-                transformPoint4(sceneMesh.matrix, tempVec4a, tempVec4b);
+                transformPoint4(sceneMesh.rtcMatrix, tempVec4a, tempVec4b);
                 buffer.positions.push(tempVec4b[0]);
                 buffer.positions.push(tempVec4b[1]);
                 buffer.positions.push(tempVec4b[2]);

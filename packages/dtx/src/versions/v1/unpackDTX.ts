@@ -33,10 +33,8 @@ export function unpackDTX(arrayBuffer: ArrayBuffer): DTXDataDeflated {
         eachGeometryPrimitiveType: elements[i++],
         eachGeometryAABBBase: elements[i++],
         matrices: elements[i++],
-        origins: elements[i++],
         eachMeshGeometriesBase: elements[i++],
         eachMeshMatricesBase: elements[i++],
-        eachMeshOriginsBase: elements[i++],
         eachMeshMaterialAttributes: elements[i++],
         eachObjectId: elements[i++],
         eachObjectMeshesBase: elements[i++]

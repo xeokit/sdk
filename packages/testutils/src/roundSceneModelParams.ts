@@ -16,17 +16,14 @@ export function roundSceneModelParams(sceneModelParams: any, options?: any): Sce
             if (geometry.positionsDecompressMatrix) {
                 geometry.positionsDecompressMatrix = roundArrayToTwoDecimalPlaces(geometry.positionsDecompressMatrix);
             }
-            for (let j = 0, lenj = geometry.geometryBuckets.length; j < lenj; j++) {
-                const geometryBucketParams = geometry.geometryBuckets[j];
-                if (geometryBucketParams.positionsCompressed) {
-                    geometryBucketParams.positionsCompressed = roundArrayToTwoDecimalPlaces(geometryBucketParams.positionsCompressed);
-                }
-                if (geometryBucketParams.uvsCompressed) {
-                    geometryBucketParams.uvsCompressed = roundArrayToTwoDecimalPlaces(geometryBucketParams.uvsCompressed);
-                }
-                if (geometryBucketParams.colorsCompressed) {
-                    geometryBucketParams.colorsCompressed = roundArrayToTwoDecimalPlaces(geometryBucketParams.colorsCompressed);
-                }
+            if (geometry.positionsCompressed) {
+                geometry.positionsCompressed = roundArrayToTwoDecimalPlaces(geometry.positionsCompressed);
+            }
+            if (geometry.uvsCompressed) {
+                geometry.uvsCompressed = roundArrayToTwoDecimalPlaces(geometry.uvsCompressed);
+            }
+            if (geometry.colorsCompressed) {
+                geometry.colorsCompressed = roundArrayToTwoDecimalPlaces(geometry.colorsCompressed);
             }
         }
     }

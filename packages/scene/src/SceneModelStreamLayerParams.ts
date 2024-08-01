@@ -9,17 +9,7 @@ export interface SceneModelStreamLayerParams {
     /**
      * Number of 32-bit geometry indices to allocate in the renderer layer.
      */
-    numIndices32Bits: number;
-
-    /**
-     * Number of 16-bit geometry indices to allocate in the renderer layer.
-     */
-    numIndices16Bits: number;
-
-    /**
-     * Number of 8-bit geometry indices to allocate in the renderer layer.
-     */
-    numIndices8Bits: number;
+    numIndices: number;
 
     /**
      * Number of geometry vertices to allocate in the renderer layer.
@@ -27,7 +17,7 @@ export interface SceneModelStreamLayerParams {
     numVertices: number;
 
     /**
-     * Number of submeshes to allocate in the renderer layer.
+     * Number of layer meshes to allocate in the renderer layer.
      */
-    numSubMeshes: number;
+    numLayerMeshes: number;
 }

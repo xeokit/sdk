@@ -17,7 +17,6 @@ import {SceneModelStreamParams} from "./SceneModelStreamParams";
  */
 export interface SceneModelParams {
 
-
     /**
      * Indicates what renderer resources will need to be allocated in a {@link @xeokit/viewer!Viewer | Viewer's}
      * {@link @xeokit/viewer!Renderer | Renderer} to support progressive loading for a {@link @xeokit/scene!SceneModel | SceneModel}.

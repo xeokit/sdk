@@ -67,12 +67,10 @@ export class VBOInstancingLayer implements Layer {
 
         this.#aabb = collapseAABB3();
 
-        this.meshCounts = [
-            new MeshCounts(),
-            new MeshCounts(),
-            new MeshCounts(),
-            new MeshCounts()
-        ];
+        this.meshCounts = [];
+        for (let i =0, len = this.renderContext.viewer.viewList.length; i < len; i++) {
+            this.meshCounts.push(new MeshCounts());
+        }
 
         const geometry = layerParams.sceneGeometry;
         const aabb = geometry.aabb;
@@ -93,7 +91,6 @@ export class VBOInstancingLayer implements Layer {
             positionsDecompressOffset,
             colorsBuf: [],
             flagsBufs: [],
-            offsetsBuf: null,
             modelMatrixBuf: null,
             modelMatrixCol0Buf: null,
             modelMatrixCol1Buf: null,
@@ -170,52 +167,20 @@ export class VBOInstancingLayer implements Layer {
         this.#buffer.modelMatrixCol2.push(meshMatrix[10]);
         this.#buffer.modelMatrixCol2.push(meshMatrix[14]);
 
-        // if (this.renderState.sceneGeometry.normals) {
-        //
-        //     // Note: order of inverse and transpose doesn't matter
-        //
-        //     let transposedMat = math.transposeMat4(meshMatrix, createMat4()); // TODO: Use cached matrix
-        //     let normalMatrix = math.inverseMat4(transposedMat);
-        //
-        //     this.#buffer.modelNormalMatrixCol0.push(normalMatrix[0]);
-        //     this.#buffer.modelNormalMatrixCol0.push(normalMatrix[4]);
-        //     this.#buffer.modelNormalMatrixCol0.push(normalMatrix[8]);
-        //     this.#buffer.modelNormalMatrixCol0.push(normalMatrix[12]);
-        //
-        //     this.#buffer.modelNormalMatrixCol1.push(normalMatrix[1]);
-        //     this.#buffer.modelNormalMatrixCol1.push(normalMatrix[5]);
-        //     this.#buffer.modelNormalMatrixCol1.push(normalMatrix[9]);
-        //     this.#buffer.modelNormalMatrixCol1.push(normalMatrix[13]);
-        //
-        //     this.#buffer.modelNormalMatrixCol2.push(normalMatrix[2]);
-        //     this.#buffer.modelNormalMatrixCol2.push(normalMatrix[6]);
-        //     this.#buffer.modelNormalMatrixCol2.push(normalMatrix[10]);
-        //     this.#buffer.modelNormalMatrixCol2.push(normalMatrix[14]);
-        // }
-
         // Per-vertex pick colors
 
-        this.#buffer.pickColors.push(pickColor[0]);
-        this.#buffer.pickColors.push(pickColor[1]);
-        this.#buffer.pickColors.push(pickColor[2]);
-        this.#buffer.pickColors.push(pickColor[3]);
+        this.#buffer.pickColors.push(...pickColor);
 
         this.renderState.numInstances++;
 
         const layerMeshIndex = this.#portions.length;
 
         const portion = {};
-
         this.#portions.push(portion);
 
         for (let viewIndex = 0, len = this.meshCounts.length; viewIndex < len; viewIndex++) {
             this.meshCounts[viewIndex].numMeshes++;
             this.rendererModel.meshCounts[viewIndex].numMeshes++;
-
-//////////////////// HACK
-//             this.meshCounts[viewIndex].numVisible++;
-//             this.rendererModel.meshCounts[viewIndex].numVisible++;
-            /////////////////////////////////////////////////
         }
 
         this.#meshes.push(sceneMesh);
@@ -250,88 +215,11 @@ export class VBOInstancingLayer implements Layer {
                 renderState.flagsBufs[viewIndex] = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, flagsArray, flagsLength, 1, gl.DYNAMIC_DRAW, notNormalized);
             }
         }
-        const numBuckets = sceneGeometry.geometryBuckets.length;
-        let positionsCompressed;
-        let indices;
-        let edgeIndices;
-        let uvsCompressed;
-        let colorsCompressed;
-        if (numBuckets === 1) {
-            const geometryBucket = sceneGeometry.geometryBuckets[0];
-            positionsCompressed = geometryBucket.positionsCompressed;
-            indices = geometryBucket.indices;
-            edgeIndices = geometryBucket.edgeIndices;
-            uvsCompressed = geometryBucket.uvsCompressed;
-            colorsCompressed = geometryBucket.colorsCompressed;
-        } else {
-            let numPositions = 0;
-            let numIndices = 0;
-            let numEdgeIndices = 0;
-            let numColorsCompressed = 0;
-            let numUVsCompressed = 0;
-            for (let bucketIndex = 0; bucketIndex < numBuckets; bucketIndex++) {
-                const geometryBucket = sceneGeometry.geometryBuckets[0];
-                if (geometryBucket.positionsCompressed) {
-                    numPositions += geometryBucket.positionsCompressed.length;
-                }
-                if (geometryBucket.indices) {
-                    numIndices += geometryBucket.indices.length;
-                }
-                if (geometryBucket.edgeIndices) {
-                    numEdgeIndices += geometryBucket.edgeIndices.length;
-                }
-                if (geometryBucket.colorsCompressed) {
-                    numColorsCompressed += geometryBucket.colorsCompressed.length;
-                }
-                if (geometryBucket.uvsCompressed) {
-                    numUVsCompressed += geometryBucket.uvsCompressed.length;
-                }
-            }
-            if (numIndices > 0) {
-                indices = new Uint32Array(numIndices);
-            }
-            if (numEdgeIndices > 0) {
-                edgeIndices = new Uint32Array(numEdgeIndices);
-            }
-            if (numColorsCompressed > 0) {
-                colorsCompressed = new Uint8Array(numColorsCompressed);
-            }
-            if (numUVsCompressed > 0) {
-                uvsCompressed = new Uint8Array(numUVsCompressed);
-            }
-            positionsCompressed = new Uint16Array(numPositions);
-            let positionsCompressedBase = 0;
-            let indicesBase = 0;
-            let edgeIndicesBase = 0;
-            let uvCompressedBase = 0;
-            let colorsCompressedBase = 0;
-            for (let bucketIndex = 0, lenBuckets = sceneGeometry.geometryBuckets.length; bucketIndex < lenBuckets; bucketIndex++) {
-                const geometryBucket = sceneGeometry.geometryBuckets[bucketIndex];
-                positionsCompressed.set(positionsCompressedBase, geometryBucket.positionsCompressed);
-                const bucketIndices = geometryBucket.indices;
-                if (bucketIndices) {
-                    for (let i = 0, len = bucketIndices.length; i < len; i++) {
-                        indices[indicesBase++] = bucketIndices[i] + positionsCompressedBase;
-                    }
-                }
-                const bucketEdgeIndices = geometryBucket.edgeIndices;
-                if (bucketEdgeIndices) {
-                    for (let i = 0, len = bucketEdgeIndices.length; i < len; i++) {
-                        edgeIndices[edgeIndicesBase++] = bucketEdgeIndices[i] + positionsCompressedBase;
-                    }
-                }
-                const bucketUVCompressed = geometryBucket.uvsCompressed;
-                if (bucketUVCompressed) {
-                    uvsCompressed.set(uvCompressedBase, bucketUVCompressed);
-                    uvCompressedBase += bucketUVCompressed.length;
-                }
-                const bucketColorsCompressed = geometryBucket.colorsCompressed;
-                if (bucketColorsCompressed) {
-                    colorsCompressed.set(colorsCompressedBase, bucketColorsCompressed);
-                    colorsCompressed += bucketColorsCompressed.length;
-                }
-            }
-        }
+        const positionsCompressed = sceneGeometry.positionsCompressed;
+        const indices = sceneGeometry.indices;
+        const edgeIndices = sceneGeometry.edgeIndices;
+        const uvsCompressed = sceneGeometry.uvsCompressed;
+        const colorsCompressed = sceneGeometry.colorsCompressed;
         if (positionsCompressed && positionsCompressed.length > 0) {
             const normalized = false;
             renderState.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, new Uint16Array(positionsCompressed), positionsCompressed.length, 3, gl.STATIC_DRAW, normalized);
@@ -389,41 +277,40 @@ export class VBOInstancingLayer implements Layer {
         this.#built = true;
     }
 
-    // The following setters are called by VBOSceneModelMesh, in turn called by VBOSceneModelNode, only after the layer is finalized.
-    // It's important that these are called after build() in order to maintain integrity of counts like meshCounts.numVisible etc.
-
     initFlags(viewIndex: number, layerMeshIndex, flags, meshTransparent) {
+        const layerMeshCounts = this.meshCounts[viewIndex];
+        const modelMeshCounts = this.rendererModel.meshCounts[viewIndex];
         if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
-            this.meshCounts[viewIndex].numVisible++;
-            this.rendererModel.meshCounts[viewIndex].numVisible++;
+            layerMeshCounts.numVisible++;
+            modelMeshCounts.numVisible++;
         }
         if (flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) {
-            this.meshCounts[viewIndex].numHighlighted++;
-            this.rendererModel.meshCounts[viewIndex].numHighlighted++;
+            layerMeshCounts.numHighlighted++;
+            modelMeshCounts.numHighlighted++;
         }
         if (flags & SCENE_OBJECT_FLAGS.XRAYED) {
-            this.meshCounts[viewIndex].numXRayed++;
-            this.rendererModel.meshCounts[viewIndex].numXRayed++;
+            layerMeshCounts.numXRayed++;
+            modelMeshCounts.numXRayed++;
         }
         if (flags & SCENE_OBJECT_FLAGS.SELECTED) {
-            this.meshCounts[viewIndex].numSelected++;
-            this.rendererModel.meshCounts[viewIndex].numSelected++;
+            layerMeshCounts.numSelected++;
+            modelMeshCounts.numSelected++;
         }
         if (flags & SCENE_OBJECT_FLAGS.CLIPPABLE) {
-            this.meshCounts[viewIndex].numClippable++;
-            this.rendererModel.meshCounts[viewIndex].numClippable++;
+            layerMeshCounts.numClippable++;
+            modelMeshCounts.numClippable++;
         }
         if (flags & SCENE_OBJECT_FLAGS.PICKABLE) {
-            this.meshCounts[viewIndex].numPickable++;
-            this.rendererModel.meshCounts[viewIndex].numPickable++;
+            layerMeshCounts.numPickable++;
+            modelMeshCounts.numPickable++;
         }
         if (flags & SCENE_OBJECT_FLAGS.CULLED) {
-            this.meshCounts[viewIndex].numCulled++;
-            this.rendererModel.meshCounts[viewIndex].numCulled++;
+            layerMeshCounts.numCulled++;
+            modelMeshCounts.numCulled++;
         }
         if (meshTransparent) {
-            this.meshCounts[viewIndex].numTransparent++;
-            this.rendererModel.meshCounts[viewIndex].numTransparent++;
+            layerMeshCounts.numTransparent++;
+            modelMeshCounts.numTransparent++;
         }
         this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, meshTransparent);
     }
@@ -557,20 +444,16 @@ export class VBOInstancingLayer implements Layer {
     }
 
     setLayerMeshFlags(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean = false): void {
-
         if (!this.#built) {
             throw "Not finalized";
         }
-
         const view = this.renderContext.viewer.viewList[viewIndex];
-
         const visible = !!(flags & SCENE_OBJECT_FLAGS.VISIBLE);
         const xrayed = !!(flags & SCENE_OBJECT_FLAGS.XRAYED);
         const highlighted = !!(flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED);
         const selected = !!(flags & SCENE_OBJECT_FLAGS.SELECTED);
         const pickable = !!(flags & SCENE_OBJECT_FLAGS.PICKABLE);
         const culled = !!(flags & SCENE_OBJECT_FLAGS.CULLED);
-
         let colorFlag;
         if (!visible || culled || xrayed
             || (highlighted && !view.highlightMaterial.glowThrough)
@@ -583,7 +466,6 @@ export class VBOInstancingLayer implements Layer {
                 colorFlag = RENDER_PASSES.COLOR_OPAQUE;
             }
         }
-
         let silhouetteFlag;
         if (!visible || culled) {
             silhouetteFlag = RENDER_PASSES.NOT_RENDERED;
@@ -596,33 +478,16 @@ export class VBOInstancingLayer implements Layer {
         } else {
             silhouetteFlag = RENDER_PASSES.NOT_RENDERED;
         }
-
         const pickFlag = (visible && !culled && pickable) ? RENDER_PASSES.PICK : RENDER_PASSES.NOT_RENDERED;
-
         const clippableFlag = !!(flags & SCENE_OBJECT_FLAGS.CLIPPABLE) ? 1 : 0;
-
         let vertFlag = 0;
         vertFlag |= colorFlag;
         vertFlag |= silhouetteFlag << 4;
         vertFlag |= pickFlag << 8;
         vertFlag |= clippableFlag << 12;
-
         tempFloat32[0] = vertFlag;
-
         if (this.renderState.flagsBufs[viewIndex]) {
             this.renderState.flagsBufs[viewIndex].setData(tempFloat32, layerMeshIndex);
-        }
-    }
-
-    setOffset(layerMeshIndex, offset) {
-        if (!this.#built) {
-            throw "Not finalized";
-        }
-        tempVec3fa[0] = offset[0];
-        tempVec3fa[1] = offset[1];
-        tempVec3fa[2] = offset[2];
-        if (this.renderState.offsetsBuf) {
-            this.renderState.offsetsBuf.setData(tempVec3fa, layerMeshIndex * 3);
         }
     }
 
@@ -630,32 +495,24 @@ export class VBOInstancingLayer implements Layer {
         if (!this.#built) {
             throw "Not finalized";
         }
-
         ////////////////////////////////////////
         // TODO: Update portion matrix
         ////////////////////////////////////////
-
-        var offset = layerMeshIndex * 4;
-
+        const offset = layerMeshIndex * 4;
         tempFloat32Vec4[0] = matrix[0];
         tempFloat32Vec4[1] = matrix[4];
         tempFloat32Vec4[2] = matrix[8];
         tempFloat32Vec4[3] = matrix[12];
-
         this.renderState.modelMatrixCol0Buf.setData(tempFloat32Vec4, offset);
-
         tempFloat32Vec4[0] = matrix[1];
         tempFloat32Vec4[1] = matrix[5];
         tempFloat32Vec4[2] = matrix[9];
         tempFloat32Vec4[3] = matrix[13];
-
         this.renderState.modelMatrixCol1Buf.setData(tempFloat32Vec4, offset);
-
         tempFloat32Vec4[0] = matrix[2];
         tempFloat32Vec4[1] = matrix[6];
         tempFloat32Vec4[2] = matrix[10];
         tempFloat32Vec4[3] = matrix[14];
-
         this.renderState.modelMatrixCol2Buf.setData(tempFloat32Vec4, offset);
     }
 
@@ -893,10 +750,6 @@ export class VBOInstancingLayer implements Layer {
                 renderState.flagsBufs[viewIndex].destroy();
                 renderState.flagsBufs[viewIndex] = null;
             }
-        }
-        if (renderState.offsetsBuf) {
-            renderState.offsetsBuf.destroy();
-            renderState.offsetsBuf = null;
         }
         if (renderState.modelMatrixCol0Buf) {
             renderState.modelMatrixCol0Buf.destroy();

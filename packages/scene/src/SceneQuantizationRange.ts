@@ -20,7 +20,7 @@ export class SceneQuantizationRange {
     id: string;
 
     /**
-     * Matrix to decompress {@link @xeokit/scene!SceneQuantizationRangeBucketParams.positionsCompressed}.
+     * Axis-aligned 3D boundary to dequantize the positions.
      */
     aabb: FloatArrayParam;
 

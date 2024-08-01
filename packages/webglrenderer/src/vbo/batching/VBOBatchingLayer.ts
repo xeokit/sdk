@@ -2,7 +2,7 @@ import {Layer} from "../../Layer";
 import {WebGLRendererModel} from "../../WebGLRendererModel";
 import {MeshCounts} from "../../MeshCounts";
 import {FloatArrayParam} from "@xeokit/math";
-import {createMat3, createMat4, createVec3, createVec4, identityMat4, transformPoint4} from "@xeokit/matrix";
+import {createMat3, createVec3, createVec4, identityMat4, transformPoint4} from "@xeokit/matrix";
 import {collapseAABB3, expandAABB3, positions3ToAABB3} from "@xeokit/boundaries";
 import {SDKError} from "@xeokit/core";
 import {LayerMeshParams} from "../../LayerMeshParams";
@@ -17,23 +17,12 @@ import {RenderContext} from "../../RenderContext";
 import {getScratchMemory, putScratchMemory} from "../ScratchMemory";
 import {VBOBatchingLayerParams} from "./VBOBatchingLayerParams";
 
-import {
-    compressUVs, decompressPoint3WithAABB3,
-
-    getUVBounds,
-    quantizePositions3
-} from "@xeokit/compression";
+import {compressUVs, decompressPoint3WithAABB3, getUVBounds, quantizePositions3} from "@xeokit/compression";
 import {VBORendererSet} from "../VBORendererSet";
-
-const tempMat4a = <Float64Array>identityMat4();
-const tempUint8Array4 = new Uint8Array(4);
 
 let numLayers = 0;
 
-const DEFAULT_MATRIX = identityMat4();
-
 const tempVec3a = createVec3();
-const tempVec3b = createVec3();
 const tempVec4a = createVec4();
 const tempVec4b = createVec4();
 
@@ -78,12 +67,11 @@ export class VBOBatchingLayer implements Layer {
         this.rendererModel = vBOBatchingLayerParams.rendererModel;
         this.layerIndex = vBOBatchingLayerParams.layerIndex;
         this.sortId = `VBOBatchingLayer-${vBOBatchingLayerParams.primitive}`;
-        this.meshCounts = [
-            new MeshCounts(),
-            new MeshCounts(),
-            new MeshCounts(),
-            new MeshCounts()
-        ];
+
+        this.meshCounts = [];
+        for (let i =0, len = this.renderContext.viewer.viewList.length; i < len; i++) {
+            this.meshCounts.push(new MeshCounts());
+        }
 
         this.#layerNumber = numLayers++;
         this.#portions = [];
@@ -127,93 +115,73 @@ export class VBOBatchingLayer implements Layer {
         if (this.#built) {
             throw new SDKError("Already built");
         }
-        let numVertices = 0;
-        let numIndices = 0;
-        sceneGeometry.geometryBuckets.forEach(bucket => {
-            numVertices += bucket.positionsCompressed.length;
-            numIndices += bucket.indices ? bucket.indices.length : 0;
-        });
+        const numVertices = sceneGeometry.positionsCompressed.length;
+        const numIndices = sceneGeometry.indices ? sceneGeometry.indices.length : 0;
         return ((this.#buffer.positions.length + numVertices) < (this.#buffer.maxVerts)
             && (this.#buffer.indices.length + numIndices) < (this.#buffer.maxIndices));
     }
 
     createLayerMesh(layerMeshParams: LayerMeshParams, sceneMesh: SceneMesh): number {
-
         if (this.#built) {
             throw new SDKError("Already built");
         }
-
         const geometry = sceneMesh.geometry;
         const color = sceneMesh.color;
         const pickColor = layerMeshParams.pickColor;
         const buffer = this.#buffer;
         const positionsIndex = buffer.positions.length;
         const vertsIndex = positionsIndex / 3;
-
+        const indices = geometry.indices;
+        const edgeIndices = geometry.edgeIndices;
+        const positionsCompressed = geometry.positionsCompressed;
+        const uvCompressed = geometry.uvsCompressed;
+        const geometryAABB = geometry.aabb;
+        const colorsCompressed = geometry.colorsCompressed;
+        const numGeometryVerts = positionsCompressed.length / 3;
         let numLayerVerts = buffer.positions.length / 3;
         let numLayerMeshVerts = 0;
-
-        for (let bucketIndex = 0, lenBuckets = geometry.geometryBuckets.length; bucketIndex < lenBuckets; bucketIndex++) {
-
-            const geometryBucket = geometry.geometryBuckets[bucketIndex];
-            const indices = geometryBucket.indices;
-            const edgeIndices = geometryBucket.edgeIndices;
-            const positionsCompressed = geometryBucket.positionsCompressed;
-            const uvCompressed = geometryBucket.uvsCompressed;
-            const geometryAABB = geometry.aabb;
-            const colorsCompressed = geometryBucket.colorsCompressed;
-            const numBucketVerts = positionsCompressed.length / 3;
-
-            if (!positionsCompressed) {
-                throw "positionsCompressed expected";
-            }
-
-            if (indices) {
-                for (let i = 0, len = indices.length; i < len; i++) {
-                    buffer.indices.push(numLayerVerts + indices[i]);
-                }
-            }
-
-            if (edgeIndices) {
-                for (let i = 0, len = edgeIndices.length; i < len; i++) {
-                    buffer.edgeIndices.push(numLayerVerts + edgeIndices[i]);
-                }
-            }
-
-            for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
-                tempVec3a[0] = positionsCompressed[k];
-                tempVec3a[1] = positionsCompressed[k + 1];
-                tempVec3a[2] = positionsCompressed[k + 2];
-                decompressPoint3WithAABB3(tempVec3a, geometryAABB, tempVec4a);
-                if (sceneMesh.matrix) {
-                    tempVec4a[3] = 1.0;
-                    transformPoint4(sceneMesh.matrix, tempVec4a, tempVec4b);
-                    buffer.positions.push(tempVec4b[0]);
-                    buffer.positions.push(tempVec4b[1]);
-                    buffer.positions.push(tempVec4b[2]);
-                } else {
-                    buffer.positions.push(tempVec4a[0]);
-                    buffer.positions.push(tempVec4a[1]);
-                    buffer.positions.push(tempVec4a[2]);
-                }
-            }
-
-            if (colorsCompressed) {
-                for (let i = 0, len = colorsCompressed.length; i < len; i++) {
-                    buffer.colors.push(colorsCompressed[i]);
-                }
-            }
-
-            if (uvCompressed && uvCompressed.length > 0) {
-                for (let i = 0, len = uvCompressed.length; i < len; i++) {
-                    buffer.uv.push(uvCompressed[i]);
-                }
-            }
-
-            numLayerVerts += numBucketVerts;
-            numLayerMeshVerts += numBucketVerts;
+        if (!positionsCompressed) {
+            throw "positionsCompressed expected";
         }
-
+        if (indices) {
+            for (let i = 0, len = indices.length; i < len; i++) {
+                buffer.indices.push(numLayerVerts + indices[i]);
+            }
+        }
+        if (edgeIndices) {
+            for (let i = 0, len = edgeIndices.length; i < len; i++) {
+                buffer.edgeIndices.push(numLayerVerts + edgeIndices[i]);
+            }
+        }
+        for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
+            tempVec3a[0] = positionsCompressed[k];
+            tempVec3a[1] = positionsCompressed[k + 1];
+            tempVec3a[2] = positionsCompressed[k + 2];
+            decompressPoint3WithAABB3(tempVec3a, geometryAABB, tempVec4a);
+            if (sceneMesh.matrix) {
+                tempVec4a[3] = 1.0;
+                transformPoint4(sceneMesh.matrix, tempVec4a, tempVec4b);
+                buffer.positions.push(tempVec4b[0]);
+                buffer.positions.push(tempVec4b[1]);
+                buffer.positions.push(tempVec4b[2]);
+            } else {
+                buffer.positions.push(tempVec4a[0]);
+                buffer.positions.push(tempVec4a[1]);
+                buffer.positions.push(tempVec4a[2]);
+            }
+        }
+        if (colorsCompressed) {
+            for (let i = 0, len = colorsCompressed.length; i < len; i++) {
+                buffer.colors.push(colorsCompressed[i]);
+            }
+        }
+        if (uvCompressed && uvCompressed.length > 0) {
+            for (let i = 0, len = uvCompressed.length; i < len; i++) {
+                buffer.uv.push(uvCompressed[i]);
+            }
+        }
+        numLayerVerts += numGeometryVerts;
+        numLayerMeshVerts += numGeometryVerts;
         if (color) {
             const r = color[0] * 255;
             const g = color[1] * 255;
@@ -226,31 +194,16 @@ export class VBOBatchingLayer implements Layer {
                 buffer.colors.push(a);
             }
         }
-
         for (let i = 0, len = numLayerMeshVerts; i < len; i += 4) {
-            buffer.pickColors.push(pickColor[0]);
-            buffer.pickColors.push(pickColor[1]);
-            buffer.pickColors.push(pickColor[2]);
-            buffer.pickColors.push(pickColor[3]);
+            buffer.pickColors.push(...pickColor);
         }
-
         const layerMeshIndex = this.#portions.length / 2;
-
         this.#portions.push(vertsIndex);
         this.#portions.push(numLayerVerts);
-
         for (let viewIndex = 0, len = this.meshCounts.length; viewIndex < len; viewIndex++) {
             this.meshCounts[viewIndex].numMeshes++;
             this.rendererModel.meshCounts[viewIndex].numMeshes++;
-
-
-
-//////////////////// HACK
-//             this.meshCounts[viewIndex].numVisible++;
-//             this.rendererModel.meshCounts[viewIndex].numVisible++;
-            /////////////////////////////////////////////////
         }
-
         return layerMeshIndex;
     }
 
@@ -259,16 +212,13 @@ export class VBOBatchingLayer implements Layer {
      * No more portions can then be created.
      */
     build() {
-
         if (this.#built) {
             throw new SDKError("Already built");
         }
-
         const renderState = this.renderState;
         const gl = this.renderContext.gl;
         const buffer = this.#buffer;
         const numViews = this.meshCounts.length;
-
         if (buffer.positions.length > 0) {
             const positions = new Float32Array(buffer.positions);
             positions3ToAABB3(positions, this.#aabb, null);
@@ -282,7 +232,6 @@ export class VBOBatchingLayer implements Layer {
                 (this.#aabb[4] - this.#aabb[1]) / 65535,
                 (this.#aabb[5] - this.#aabb[2]) / 65535]);
         }
-
         if (buffer.colors.length > 0) {
             const colors = new Uint8Array(buffer.colors);
             let normalized = false;
@@ -290,7 +239,6 @@ export class VBOBatchingLayer implements Layer {
                 renderState.colorsBuf[viewIndex] = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, colors, buffer.colors.length, 4, gl.STATIC_DRAW, normalized);
             }
         }
-
         if (buffer.positions.length > 0) { // Because we build flags arrays here, get their length from the positions array
             const flagsLength = buffer.positions.length / 3;
             const flags = new Float32Array(flagsLength);
@@ -299,23 +247,19 @@ export class VBOBatchingLayer implements Layer {
                 renderState.flagsBufs[viewIndex] = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, flags, flags.length, 1, gl.DYNAMIC_DRAW, notNormalized);
             }
         }
-
         if (buffer.pickColors.length > 0) {
             const pickColors = new Uint8Array(buffer.pickColors);
             let normalized = false;
             renderState.pickColorsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, pickColors, buffer.pickColors.length, 4, gl.STATIC_DRAW, normalized);
         }
-
         if (buffer.indices.length > 0) {
             const indices = new Uint32Array(buffer.indices);
             renderState.indicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, buffer.indices.length, 1, gl.STATIC_DRAW);
         }
-
         if (buffer.edgeIndices.length > 0) {
             const edgeIndices = new Uint32Array(buffer.edgeIndices);
             renderState.edgeIndicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, edgeIndices, buffer.edgeIndices.length, 1, gl.STATIC_DRAW);
         }
-
         if (buffer.uv.length > 0) {
             if (!renderState.uvDecodeMatrix) {
                 const bounds = getUVBounds(buffer.uv);
@@ -329,7 +273,6 @@ export class VBOBatchingLayer implements Layer {
                 renderState.uvBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, buffer.uv, buffer.uv.length, 2, gl.STATIC_DRAW, notNormalized);
             }
         }
-
         this.renderState.pbrSupported
             = !!renderState.metallicRoughnessBuf
             && !!renderState.uvBuf
@@ -337,50 +280,50 @@ export class VBOBatchingLayer implements Layer {
             && !!renderState.textureSet
             && !!renderState.textureSet.colorTexture
             && !!renderState.textureSet.metallicRoughnessTexture;
-
         this.renderState.colorTextureSupported
             = !!renderState.uvBuf
             && !!renderState.textureSet
             && !!renderState.textureSet.colorTexture;
-
         this.#buffer = null;
         this.#built = true;
     }
 
-    initFlags(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean) {
+    initFlags(viewIndex: number, layerMeshIndex: number, flags: number, meshTransparent: boolean) {
+        const layerMeshCounts = this.meshCounts[viewIndex];
+        const modelMeshCounts = this.rendererModel.meshCounts[viewIndex];
         if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
-            this.meshCounts[viewIndex].numVisible++;
-            this.rendererModel.meshCounts[viewIndex].numVisible++;
+            layerMeshCounts.numVisible++;
+            modelMeshCounts.numVisible++;
         }
         if (flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) {
-            this.meshCounts[viewIndex].numHighlighted++;
-            this.rendererModel.meshCounts[viewIndex].numHighlighted++;
+            layerMeshCounts.numHighlighted++;
+            modelMeshCounts.numHighlighted++;
         }
         if (flags & SCENE_OBJECT_FLAGS.XRAYED) {
-            this.meshCounts[viewIndex].numXRayed++;
-            this.rendererModel.meshCounts[viewIndex].numXRayed++;
+            layerMeshCounts.numXRayed++;
+            modelMeshCounts.numXRayed++;
         }
         if (flags & SCENE_OBJECT_FLAGS.SELECTED) {
-            this.meshCounts[viewIndex].numSelected++;
-            this.rendererModel.meshCounts[viewIndex].numSelected++;
+            layerMeshCounts.numSelected++;
+            modelMeshCounts.numSelected++;
         }
         if (flags & SCENE_OBJECT_FLAGS.CLIPPABLE) {
-            this.meshCounts[viewIndex].numClippable++;
-            this.rendererModel.meshCounts[viewIndex].numClippable++;
+            layerMeshCounts.numClippable++;
+            modelMeshCounts.numClippable++;
         }
         if (flags & SCENE_OBJECT_FLAGS.PICKABLE) {
-            this.meshCounts[viewIndex].numPickable++;
-            this.rendererModel.meshCounts[viewIndex].numPickable++;
+            layerMeshCounts.numPickable++;
+            modelMeshCounts.numPickable++;
         }
         if (flags & SCENE_OBJECT_FLAGS.CULLED) {
-            this.meshCounts[viewIndex].numCulled++;
-            this.rendererModel.meshCounts[viewIndex].numCulled++;
+            layerMeshCounts.numCulled++;
+            modelMeshCounts.numCulled++;
         }
-        if (transparent) {
-            this.meshCounts[viewIndex].numTransparent++;
-            this.rendererModel.meshCounts[viewIndex].numTransparent++;
+        if (meshTransparent) {
+            layerMeshCounts.numTransparent++;
+            modelMeshCounts.numTransparent++;
         }
-        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent);
+        this.setLayerMeshFlags(viewIndex, layerMeshIndex, flags, meshTransparent);
     }
 
     setLayerMeshVisible(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {

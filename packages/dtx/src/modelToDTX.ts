@@ -1,5 +1,4 @@
 import type {SceneModel} from "@xeokit/scene";
-import type {DataModel} from "@xeokit/data";
 import {
     LinesPrimitive,
     PointsPrimitive,
@@ -9,6 +8,7 @@ import {
 } from "@xeokit/constants";
 import {DTX_INFO} from "./DTX_INFO";
 import type {DTXData} from "./DTXData";
+import {isIdentityMat4} from "@xeokit/matrix";
 
 const DTX_VERSION = DTX_INFO.dtxVersion;
 const NUM_MATERIAL_ATTRIBUTES = 4;
@@ -17,8 +17,7 @@ const NUM_MATERIAL_ATTRIBUTES = 4;
  * @private
  */
 export function modelToDTX(params: {
-    sceneModel: SceneModel,
-    dataModel?: DataModel
+    sceneModel: SceneModel
 }): DTXData {
 
     const sceneModel = params.sceneModel;
@@ -31,62 +30,48 @@ export function modelToDTX(params: {
     const numMeshes = meshesList.length;
     const numObjects = objectsList.length;
 
+    let identityMatrixAdded = false;
+    let identityMatrixBase = 0;
+
     let sizePositions = 0;
     let sizeColors = 0;
     let sizeIndices = 0;
     let sizeEdgeIndices = 0;
-    let sizeMatrices = numMeshes * 16;
-    let sizeAABBs = 0;
-    let sizeOrigins = 0;
 
     const geometryIndices: { [key: string]: number } = {};
 
     for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
         const geometry = geometriesList [geometryIdx];
-        const geometryBucket = geometry.geometryBuckets[0];
-        if (geometryBucket) {
-            if (geometryBucket.positionsCompressed) {
-                sizePositions += geometryBucket.positionsCompressed.length;
-                if (geometryBucket.indices) {
-                    sizeIndices += geometryBucket.indices.length;
+        if (geometry) {
+            if (geometry.positionsCompressed) {
+                sizePositions += geometry.positionsCompressed.length;
+                if (geometry.indices) {
+                    sizeIndices += geometry.indices.length;
                 }
-                if (geometryBucket.edgeIndices) {
-                    sizeEdgeIndices += geometryBucket.edgeIndices.length;
+                if (geometry.edgeIndices) {
+                    sizeEdgeIndices += geometry.edgeIndices.length;
                 }
-                if (geometryBucket.colorsCompressed) {
-                    sizeColors += geometryBucket.colorsCompressed.length;
+                if (geometry.colorsCompressed) {
+                    sizeColors += geometry.colorsCompressed.length;
                 }
             }
         }
     }
 
-    const originExists = {};
-    for (let meshIndex = 0; meshIndex < numMeshes; meshIndex++) {
-        const mesh = meshesList [meshIndex];
-        const origin = mesh.tile.origin;
-        const originHash = `${origin[0]}-${origin[1]}-${origin[2]}`;
-        if (!originExists[originHash]) {
-            originExists[originHash] = true;
-            sizeOrigins += 3;
-        }
-    }
-
-    sizeAABBs = numGeometries * 6;
-
-    const dtxData: DTXData = {
+    const dtxData = {
         positions: new Uint16Array(sizePositions),
         colors: new Uint8Array(sizeColors),
         indices: new Uint32Array(sizeIndices),
         edgeIndices: new Uint32Array(sizeEdgeIndices),
-        aabbs: new Float32Array(sizeAABBs),
+        aabbs: null,
         eachGeometryPositionsBase: new Uint32Array(numGeometries), // For each geometry, an index to its first element in dtxData.positions. Every primitive type has positions.
         eachGeometryColorsBase: new Uint32Array(numGeometries), // For each geometry, an index to its first element in dtxData.colors. If the next geometry has the same index, then this geometry has no colors.
         eachGeometryIndicesBase: new Uint32Array(numGeometries), // For each geometry, an index to its first element in dtxData.indices. If the next geometry has the same index, then this geometry has no indices.
         eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries), // For each geometry, an index to its first element in dtxData.edgeIndices. If the next geometry has the same index, then this geometry has no edge indices.
         eachGeometryPrimitiveType: new Uint8Array(numGeometries), // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points)
         eachGeometryAABBBase: new Uint32Array(numGeometries), // Positions dequantization matrices
-        matrices: new Float32Array(sizeMatrices), // Modeling matrices
-        origins: new Float64Array(sizeOrigins), // Origins
+        matrices: null, // Modeling matrices
+        origins: null, // Origins
         eachMeshGeometriesBase: new Uint32Array(numMeshes), // For each mesh, an index into the eachGeometry* arrays
         eachMeshMatricesBase: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in dtxData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
         eachMeshOriginsBase: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in dtxData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
@@ -100,6 +85,12 @@ export function modelToDTX(params: {
     let indicesBase = 0;
     let edgeIndicesBase = 0;
     let aabbsBase = 0;
+
+    const aabbIdxMap = {};
+
+    const aabbs = [];
+    const matrices = [];
+    const origins = [];
 
     for (let geometryIdx = 0; geometryIdx < numGeometries; geometryIdx++) {
         const geometry = geometriesList[geometryIdx];
@@ -122,28 +113,34 @@ export function modelToDTX(params: {
                 break;
         }
         dtxData.eachGeometryPrimitiveType [geometryIdx] = primitiveType;
-        dtxData.eachGeometryAABBBase [geometryIdx] = aabbsBase;
-        dtxData.aabbs.set(geometry.aabb, aabbsBase); // TODO: only add decode matrix if different from what's already added
-        aabbsBase += 6;
-        const geometryBucket = geometry.geometryBuckets[0];
+        const aabb = geometry.aabb;
+        const aabbHash = `${aabb[0]}-${aabb[1]}-${aabb[2]}-${aabb[3]}-${aabb[4]}-${aabb[5]}`;
+        let aabbIdx = aabbIdxMap[aabbHash];
+        if (aabbIdx === undefined) {
+            aabbIdx = aabbsBase;
+            aabbIdxMap[aabbHash] = aabbIdx;
+            aabbs.push(...aabb);
+            aabbsBase += 6;
+        }
+        dtxData.eachGeometryAABBBase [geometryIdx] = aabbIdx;
         dtxData.eachGeometryPositionsBase [geometryIdx] = positionsBase;
         dtxData.eachGeometryColorsBase [geometryIdx] = colorsBase;
-        dtxData.positions.set(geometryBucket.positionsCompressed, positionsBase);
-        positionsBase += geometryBucket.positionsCompressed.length;
-        if (geometryBucket.indices) {
-            dtxData.indices.set(geometryBucket.indices, indicesBase);
+        dtxData.positions.set(geometry.positionsCompressed, positionsBase);
+        positionsBase += geometry.positionsCompressed.length;
+        if (geometry.indices) {
+            dtxData.indices.set(geometry.indices, indicesBase);
             dtxData.eachGeometryIndicesBase [geometryIdx] = indicesBase;
-            indicesBase += geometryBucket.indices.length;
+            indicesBase += geometry.indices.length;
         }
-        if (geometryBucket.edgeIndices) {
-            dtxData.edgeIndices.set(geometryBucket.edgeIndices, edgeIndicesBase);
+        if (geometry.edgeIndices) {
+            dtxData.edgeIndices.set(geometry.edgeIndices, edgeIndicesBase);
             dtxData.eachGeometryEdgeIndicesBase [geometryIdx] = edgeIndicesBase;
-            edgeIndicesBase += geometryBucket.edgeIndices.length;
+            edgeIndicesBase += geometry.edgeIndices.length;
         }
-        if (geometryBucket.colorsCompressed) {
-            dtxData.colors.set(geometryBucket.colorsCompressed, colorsBase);
+        if (geometry.colorsCompressed) {
+            dtxData.colors.set(geometry.colorsCompressed, colorsBase);
             dtxData.eachGeometryColorsBase [geometryIdx] = colorsBase;
-            colorsBase += geometryBucket.colorsCompressed.length;
+            colorsBase += geometry.colorsCompressed.length;
         }
         geometryIndices[geometry.id] = geometryIdx;
     }
@@ -162,18 +159,29 @@ export function modelToDTX(params: {
         for (let objectMeshIdx = 0; objectMeshIdx < object.meshes.length; objectMeshIdx++) {
             const mesh = object.meshes[objectMeshIdx];
             dtxData.eachMeshGeometriesBase [meshesBase] = geometryIndices[mesh.geometry.id];
-            dtxData.eachMeshMatricesBase [meshesBase] = matricesBase;
-            dtxData.matrices.set(mesh.matrix, matricesBase); // TODO: only add matrix if different from what's already added
-            matricesBase += 16;
-            const origin = mesh.tile.origin;
-            const originHash = `${origin[0]}-${origin[1]}-${origin[2]}`;
+            if (isIdentityMat4(mesh.matrix)) {
+                if (!identityMatrixAdded) {
+                    matrices.push(...mesh.matrix, matricesBase);
+                    dtxData.eachMeshMatricesBase [meshesBase] = matricesBase;
+                    identityMatrixBase = matricesBase;
+                    matricesBase += 16;
+                    identityMatrixAdded = true;
+                } else {
+                    dtxData.eachMeshMatricesBase [meshesBase] = identityMatrixBase;
+                }
+            } else {
+                matrices.push(...mesh.matrix, matricesBase);
+                dtxData.eachMeshMatricesBase [meshesBase] = matricesBase;
+                matricesBase += 16;
+            }
+            const originHash = `${mesh.tile.id}`; // Hashing on ID faster than hashing on origin value
             let originIdx = originIdxMap[originHash];
             if (originIdx === undefined) {
                 originIdx = originsBase;
                 originIdxMap[originHash] = originIdx;
-                dtxData.origins[originsBase++] = origin[0];
-                dtxData.origins[originsBase++] = origin[1];
-                dtxData.origins[originsBase++] = origin[2];
+                origins.push(...mesh.tile.origin);
+                originsBase += 3;
+
             }
             dtxData.eachMeshOriginsBase [meshesBase] = originIdx;
             dtxData.eachMeshMaterialAttributes[eachMeshMaterialAttributesBase++] = (mesh.color[0] * 255); // Color RGB
@@ -184,5 +192,9 @@ export function modelToDTX(params: {
         }
     }
 
-    return dtxData;
+    dtxData.aabbs = new Float32Array(aabbs);
+    dtxData.matrices = new Float32Array(matrices);
+    dtxData.origins = new Float64Array(origins);
+
+    return <DTXData>dtxData;
 }

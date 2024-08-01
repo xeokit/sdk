@@ -1,8 +1,9 @@
 import type {FloatArrayParam} from "@xeokit/math";
-import  {SceneGeometryBucket} from "./SceneGeometryBucket";
+import {Scene} from "./Scene";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import type {RendererGeometry} from "./RendererGeometry";
 import {createAABB3} from "@xeokit/boundaries";
+import {IntArrayParam} from "@xeokit/math";
 
 /**
  * A geometry in a {@link @xeokit/scene!SceneModel}.
@@ -41,18 +42,39 @@ export class SceneGeometry {
     uvsDecompressMatrix?: FloatArrayParam;
 
     /**
-     * The geometry arrays, organized into buckets for optimal memory use.
+     * 3D vertex positions, quantized as 16-bit integers.
      *
-     * The bucketing strategy aims to reduce memory consumed by indices. There are three buckets, each with an indices array that
-     * requires a different number of bits for its values. The first bucket's indices contain 8-bit values in range [0...255],
-     * the second contains 16-bit values in range ````[256..65535]````, and the third contains 32-bit values in
-     * range ````[65536...2147483647]````. With this strategy, we avoid wasting storage bits on the 8-bit and 16-bit values.
+     * Internally, the Viewer dequantizes these with {@link @xeokit/scene!SceneGeometry.positionsDecompressMatrix | SceneGeometry.positionsDecompressMatrix}.
      *
-     * The buckets also partition the geometry positions and UVs, so that the indices are indexing positions and UVs
-     * that are local to their bucket. This further optimizes memory use, by reducing the values of large indices to small
-     * locally-offset values, which can reduce the number of bits they need.
+     * Vertex positions are required for all primitive types.
      */
-    geometryBuckets: SceneGeometryBucket[];
+    positionsCompressed: IntArrayParam;
+
+    /**
+     * UV coordinates, quantized as 16-bit integers.
+     *
+     * Internally, the Viewer de-quantizes these with {@link @xeokit/scene!SceneGeometry.uvsDecompressMatrix | SceneGeometry.uvsDecompressMatrix}.
+     */
+    uvsCompressed?: IntArrayParam;
+
+    /**
+     * Vertex RGB colors, quantized as 8-bit integers.
+     */
+    colorsCompressed?: IntArrayParam;
+
+    /**
+     * primitive indices.
+     *
+     * This is either an array of 8-bit, 16-bit or 32-bit values.
+     */
+    indices?: IntArrayParam;
+
+    /**
+     * Edge indices.
+     *
+     * This is either an array of 8-bit, 16-bit or 32-bit values.
+     */
+    edgeIndices?: IntArrayParam;
 
     /**
      * Interface through which this SceneGeometry can load any user-updated geometry arrays into the renderers.
@@ -67,12 +89,13 @@ export class SceneGeometry {
     numMeshes: number;
 
     constructor(params: SceneGeometryCompressedParams) {
-        this.geometryBuckets = [];
-        for (let i = 0, len = params.geometryBuckets.length; i < len; i++) {
-            this.geometryBuckets[i] = new SceneGeometryBucket(params.geometryBuckets[i]);
-        }
         this.id = params.id;
         this.primitive = params.primitive;
+        this.positionsCompressed = params.positionsCompressed;
+        this.uvsCompressed = params.uvsCompressed;
+        this.colorsCompressed = params.colorsCompressed;
+        this.indices = params.indices;
+        this.edgeIndices = params.edgeIndices;
         this.aabb = params.aabb ? params.aabb.slice() : createAABB3();
         this.numMeshes = 0;
     }
@@ -81,32 +104,27 @@ export class SceneGeometry {
      * Gets this SceneGeometry as JSON.
      */
     getJSON(): SceneGeometryCompressedParams {
-        const geometryParams = <SceneGeometryCompressedParams>{
+        const params = <SceneGeometryCompressedParams>{
             id: this.id,
             primitive: this.primitive,
             aabb: Array.from(this.aabb),
-            geometryBuckets: []
+            positionsCompressed: Array.from(this.positionsCompressed)
         };
-        for (let i = 0, len = this.geometryBuckets.length; i < len; i++) {
-            const geometryBucket = this.geometryBuckets[i];
-            const geometryBucketJSON: any = {};
-            if (geometryBucket.positionsCompressed) {
-                geometryBucketJSON.positionsCompressed = Array.from(geometryBucket.positionsCompressed);
-            }
-            if (geometryBucket.uvsCompressed) {
-                geometryBucketJSON.uvsCompressed = Array.from(geometryBucket.uvsCompressed);
-            }
-            if (geometryBucket.colorsCompressed) {
-                geometryBucketJSON.colorsCompressed = Array.from(geometryBucket.colorsCompressed);
-            }
-            if (geometryBucket.indices) {
-                geometryBucketJSON.indices = Array.from(geometryBucket.indices);
-            }
-            if (geometryBucket.edgeIndices) {
-                geometryBucketJSON.edgeIndices = Array.from(geometryBucket.edgeIndices);
-            }
-            geometryParams.geometryBuckets.push(geometryBucketJSON);
+        if (this.positionsCompressed) {
+            params.positionsCompressed = Array.from(this.positionsCompressed);
         }
-        return geometryParams;
+        if (this.uvsCompressed) {
+            params.uvsCompressed = Array.from(this.uvsCompressed);
+        }
+        if (this.colorsCompressed) {
+            params.colorsCompressed = Array.from(this.colorsCompressed);
+        }
+        if (this.indices) {
+            params.indices = Array.from(this.indices);
+        }
+        if (this.edgeIndices) {
+            params.edgeIndices = Array.from(this.edgeIndices);
+        }
+        return params;
     }
 }

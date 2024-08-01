@@ -10,7 +10,6 @@ import {SceneTextureSet} from "./SceneTextureSet";
 import {SceneTexture} from "./SceneTexture";
 import {SceneMesh} from "./SceneMesh";
 import type {RendererModel} from "./RendererModel";
-import type {SceneTransformParams} from "./SceneTransformParams";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 import type {SceneGeometryParams} from "./SceneGeometryParams";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
@@ -80,9 +79,8 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
  * xeokit SceneGeometry and Materials Model.
  *
  * * A representation of a model's geometry and materials within a {@link @xeokit/scene!Scene | Scene}.
- * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | Meshes}, {@link @xeokit/scene!SceneGeometry | Geometries} and {@link @xeokit/scene!SceneTexture | Textures}.
+ * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | SceneMeshes}, {@link @xeokit/scene!SceneGeometry | Geometries} and {@link @xeokit/scene!SceneTexture | Textures}.
  * * Compresses textures using [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis)
- * * Compresses geometry using [bucketing](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-bucketing) and [quantization](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-quantization)
  * * Viewable in the Browser with {@link @xeokit/viewer!Viewer | Viewer}
  * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF | loadGLTF}, {@link @xeokit/dotbim!loadDotBIM | loadDotBIM}, {@link @xeokit/las!loadLAS | loadLAS}, {@link @xeokit/cityjson!loadCityJSON | loadCityJSON}, {@link @xeokit/dtx!loadDTX | loadDTX}, {@link @xeokit/xkt!loadXKT | loadXKT} (etc)
  * * Exportable to [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format using {@link @xeokit/dtx!saveDTX | saveDTX}
@@ -190,7 +188,7 @@ export class SceneModel extends Component {
     public readonly tilesList: SceneTile [];
 
     /**
-     * {@link @xeokit/scene!SceneMesh | Meshes} within this SceneModel, each mapped to {@link @xeokit/scene!SceneMesh.id | SceneMesh.id}.
+     * {@link @xeokit/scene!SceneMesh | SceneMeshes} within this SceneModel, each mapped to {@link @xeokit/scene!SceneMesh.id | SceneMesh.id}.
      *
      * * Created by {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}.
      */
@@ -356,40 +354,6 @@ export class SceneModel extends Component {
                 this.createObject(sceneModelParams.objects[i]);
             }
         }
-    }
-
-    /**
-     * Creates a new {@link SceneTransform} within this SceneModel.
-     *
-     * * Stores the new {@link SceneTransform} in {@link @xeokit/scene!SceneModel.transforms | SceneModel.transforms}.
-     *
-     * ### Usage
-     *
-     * ````javascript
-     * const spinningTransform = sceneModel.createTransform({
-     *      id: "spinningTransform",
-     *      rotation: [0, 10, 0]
-     * });
-     *
-     * const spinningTransformAgain = sceneModel.transforms["spinningTransform"];
-     * ````
-     *
-     * See {@link "@xeokit/scene" | @xeokit/scene}  for more usage info.
-     *
-     * @param transformParams Transform creation parameters.
-     * @returns *{@link SceneTransform}*
-     * * On success
-     * @returns *{@link @xeokit/core!SDKError | SDKError}*
-     * * If SceneModel has already been built or destroyed.
-     */
-    createTransform(transformParams: SceneTransformParams): void | SDKError {
-        if (this.destroyed) {
-            return new SDKError("Failed to create Transform in SceneModel - SceneModel already destroyed");
-        }
-        if (this.built) {
-            return new SDKError("Failed to create Transform in SceneModel - SceneModel already built");
-        }
-        //...
     }
 
     /**
@@ -673,25 +637,16 @@ export class SceneModel extends Component {
      * const boxGeometry = sceneModel.createGeometryCompressed({
      *      id: "boxGeometry",
      *      primitive: TrianglesPrimitive, // @xeokit/constants
-     *      positionsDecompressMatrix: [
-     *          0.00003052270125906143, 0, 0, 0,
-     *          0, 0.00003052270125906143, 0, 0,
-     *          0, 0, 0.00003052270125906143, 0,
-     *          -1, -1, -1, 1
+     *      aabb: [-1,-1,-1, 1,1,1],
+     *      positionsCompressed: [
+     *          65525, 65525, 65525, 0, 65525, 65525, 0, 0,
+     *          65525, 65525, 0, 65525, 65525, 0, 0, 65525,
+     *          65525, 0, 0, 65525, 0, 0, 0, 0
      *      ],
-     *      geometryBuckets: [
-     *          {
-     *              positionsCompressed: [
-     *                  65525, 65525, 65525, 0, 65525, 65525, 0, 0,
-     *                  65525, 65525, 0, 65525, 65525, 0, 0, 65525,
-     *                  65525, 0, 0, 65525, 0, 0, 0, 0
-     *              ],
-     *              indices: [
-     *                  0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
-     *                  0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
-     *                  4, 7, 6, 4, 6, 5
-     *              ]
-     *          }
+     *      indices: [
+     *          0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
+     *          0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
+     *          4, 7, 6, 4, 6, 5
      *      ]
      * });
      *
@@ -851,8 +806,6 @@ export class SceneModel extends Component {
             matrix,
             color: meshParams.color,
             opacity: meshParams.opacity,
-            roughness: meshParams.roughness,
-            metallic: meshParams.metallic,
             tile
         });
         geometry.numMeshes++;
@@ -930,7 +883,7 @@ export class SceneModel extends Component {
         const sceneObject = new SceneObject({
             id: objectId,
             originallSystemId: objectParams.originalSystemId,
-            layerId:  this.layerId || objectParams.layerId,
+            layerId: this.layerId || objectParams.layerId,
             model: this,
             meshes
         });
@@ -1037,14 +990,15 @@ export class SceneModel extends Component {
             geometriesCompressed: [],
             textures: [],
             textureSets: [],
+            transforms: [],
             meshes: [],
             objects: []
         };
         if (this.streamParams) {
             sceneModelParams.streamParams = this.streamParams;
         }
-        Object.entries(this.geometries).forEach(([key, value]) => {
-            sceneModelParams.geometriesCompressed.push((<SceneGeometry>value).getJSON());
+        Object.entries(this.geometries).forEach(([key, sceneGeometry]) => {
+            sceneModelParams.geometriesCompressed.push((<SceneGeometry>sceneGeometry).getJSON());
         });
         // Object.entries(this.textures).forEach(([key, value]) => {
         //     sceneModelParams.textures[key] = (<SceneTexture>value).getJSON();
@@ -1052,11 +1006,11 @@ export class SceneModel extends Component {
         // Object.entries(this.textureSets).forEach(([key, value]) => {
         //     sceneModelParams.textureSets[key] = (<SceneTextureSet>value).getJSON();
         // });
-        Object.entries(this.meshes).forEach(([key, value]) => {
-            sceneModelParams.meshes.push((<SceneMesh>value).getJSON());
+        Object.entries(this.meshes).forEach(([key, sceneMesh]) => {
+            sceneModelParams.meshes.push((<SceneMesh>sceneMesh).getJSON());
         });
-        Object.entries(this.objects).forEach(([key, value]) => {
-            sceneModelParams.objects.push((<SceneObject>value).getJSON());
+        Object.entries(this.objects).forEach(([key, sceneObject]) => {
+            sceneModelParams.objects.push((<SceneObject>sceneObject).getJSON());
         });
         return sceneModelParams;
     }

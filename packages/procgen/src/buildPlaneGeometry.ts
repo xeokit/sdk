@@ -9,30 +9,7 @@ import type {GeometryArrays} from "./GeometryArrays";
  * Creating a {@link @xeokit/scene!SceneMesh} with a plane-shaped {@link @xeokit/scene!SceneGeometry}:
  *
  * ````javascript
- * import {Viewer, SceneMesh, buildPlaneGeometry, TrianglesLayerGeometryBucket, PhongMaterial, SceneTexture} from "xeokit-viewer.es.js";
- *
- * const viewer = new Viewer({
- *      canvasId: "myView"
- * });
- *
- * viewer.camera.eye = [0, 0, 5];
- * viewer.camera.look = [0, 0, 0];
- * viewer.camera.up = [0, 1, 0];
-
- * new SceneMesh(viewer.scene, {
- *      geometry: new TrianglesLayerGeometryBucket(viewer.scene, buildPlaneGeometry({
- *          center: [0,0,0],
- *          xSize: 2,
- *          zSize: 2,
- *          xSegments: 10,
- *          zSegments: 10
- *      }),
- *      material: new PhongMaterial(viewer.scene, {
- *          diffuseMap: new SceneTexture(viewer.scene, {
- *              src: "textures/diffuse/uvGrid2.jpg"
- *          })
- *      })
- *  });
+* TODO
  * ````
  *
  * @function buildPlaneGeometry

@@ -1,18 +1,6 @@
-import { SceneModel, SceneModelStreamParams} from "@xeokit/scene";
+import {SceneModel, SceneModelStreamParams} from "@xeokit/scene";
 import {LinesPrimitive, TrianglesPrimitive} from "@xeokit/constants";
 
-
-/**
- * 12-bits allowed for object ids.
- * Limits the per-mesh texture height in the layer.
- */
-const MAX_MESHES_IN_LAYER = (1 << 16);
-
-/**
- * 4096 is max data texture height.
- * Limits the aggregated geometry texture height in the layer.
- */
-const MAX_DATA_TEXTURE_HEIGHT = 1 << 16;
 
 /**
  * Enables a {@link @xeokit/scene!SceneModel} to be progressively loaded
@@ -32,74 +20,47 @@ export function createSceneModelStreamParams(sceneModel: SceneModel) {
 
             const sceneGeometry = sceneMesh.geometry;
             const textureSetId = sceneMesh.textureSet ? sceneMesh.textureSet.id : "";
-            const origin = sceneMesh.origin || [0, 0, 0];
-            const layerId = `${textureSetId}.${sceneGeometry.primitive}.${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}`;
+            const tile = sceneMesh.tile;
+            const layerId = `${textureSetId}.${sceneGeometry.primitive}.${tile.id}`;
 
             let layer = layersBeingBuilt[layerId];
 
             let canCreate = false;
 
             while (!canCreate) {
-
                 if (!layer) {
                     layerIndex = layerList.length;
                     layer = {
                         layerIndex,
-                        hasBucket: {},
-                        numSubMeshes: 0,
+                        numMeshes: 0,
                         numVertices: 0,
-                        numIndices8Bits: 0,
-                        numIndices16Bits: 0,
-                        numIndices32Bits: 0
+                        numIndices: 0
                     };
                     layerList.push(layer);
                     layersBeingBuilt[layerId] = layer;
                 }
 
                 const indicesPerPrimitive = sceneGeometry.primitive === TrianglesPrimitive ? 3 : (LinesPrimitive ? 2 : 1); // TODO
+                const numExistingIndices = layer.numIndices;
+                const numVerticesToCreate = sceneGeometry.positionsCompressed.length / indicesPerPrimitive;
+                const numIndicesToCreate = sceneGeometry.indices.length / indicesPerPrimitive;
 
-                const numSubMeshesToCreate = sceneGeometry.geometryBuckets.length;
-
-                canCreate = (layer.numSubMeshes + numSubMeshesToCreate) <= MAX_MESHES_IN_LAYER;
-
-                const bucketIndex = 0; // TODO: Is this a bug?
-                const bucketId = `${sceneGeometry.id}#${bucketIndex}`;
-                const layerHasBucket = layer.hasBucket[bucketId];
-
-                if (!layerHasBucket) {
-
-                    const maxExistingIndicesOfAnyBits = Math.max(layer.numIndices8Bits, layer.numIndices16Bits, layer.numIndices32Bits);
-
-                    let numVerticesToCreate = 0;
-                    let numIndicesToCreate = 0;
-
-                    sceneGeometry.geometryBuckets.forEach(bucket => {
-                        numVerticesToCreate += bucket.positionsCompressed.length / indicesPerPrimitive;
-                        numIndicesToCreate += bucket.indices.length / indicesPerPrimitive;
-                    });
-
-                    canCreate &&=
-                        (layer.numVertices + numVerticesToCreate) <= MAX_DATA_TEXTURE_HEIGHT * 4096 &&
-                        (maxExistingIndicesOfAnyBits + numIndicesToCreate) <= MAX_DATA_TEXTURE_HEIGHT * 4096;
-
-                    if (canCreate) {
-
-                        layer.numSubMeshes++;
-                        layer.numVertices += numVerticesToCreate;
-
-                        // TODO
-                        // layer.numIndices8Bits
-
-                        layer.hasBucket[bucketId] = true;
-                    }
-                }
+                canCreate =
+                    (layer.numVertices + numVerticesToCreate) <= 500000 * 4096 &&
+                    (numExistingIndices + numIndicesToCreate) <= 500000;
 
                 if (canCreate) {
-                    sceneMesh.streamLayerIndex = layerIndex;
-                } else { // Layer is full
-                    delete layersBeingBuilt[layerId];
-                    layer = null;
+                    layer.numMeshes++;
+                    layer.numVertices += numVerticesToCreate;
+                    // TODO
                 }
+            }
+
+            if (canCreate) {
+                sceneMesh.streamLayerIndex = layerIndex;
+            } else { // Layer is full
+                delete layersBeingBuilt[layerId];
+                layer = null;
             }
         }
     });
@@ -111,11 +72,9 @@ export function createSceneModelStreamParams(sceneModel: SceneModel) {
     for (let i = 0, len = layerList.length; i < len; i++) {
         const layer = layerList[i];
         streamParams.streamLayers.push({
-            numSubMeshes: layer.numSubMeshes,
+            numLayerMeshes: layer.numLayerMeshes,
             numVertices: layer.numVertices,
-            numIndices8Bits: layer.numIndices8Bits,
-            numIndices16Bits: layer.numIndices16Bits,
-            numIndices32Bits: layer.numIndices32Bits
+            numIndices: layer.numIndices
         });
     }
 

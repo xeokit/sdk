@@ -61,34 +61,21 @@ function modelToDotBIM(params: { dataModel: DataModel; sceneModel: SceneModel })
     for (let i = 0, len = geometries.length; i < len; i++) {
         const geometry = geometries[i];
         const aabb = geometry.aabb;
-        const geometryBuckets = geometry.geometryBuckets;
         const coordinates = [];
-        const indices = [];
-        for (let j = 0, lenj = geometryBuckets.length; j < lenj; j++) {
-            // @ts-ignore
-            const offset = indices.length;
-            const geometryBucket = geometryBuckets[j];
-            const positionsCompressed = geometryBucket.positionsCompressed;
-            const bucketIndices = geometryBucket.indices;
-            if (bucketIndices) {
-                for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
-                    tempVec3a[0] = positionsCompressed[k];
-                    tempVec3a[1] = positionsCompressed[k + 1];
-                    tempVec3a[2] = positionsCompressed[k + 2];
-                    decompressPoint3WithAABB3(tempVec3a, aabb, tempVec3b);
-                    coordinates.push(tempVec3b[0]);
-                    coordinates.push(tempVec3b[1]);
-                    coordinates.push(tempVec3b[2]);
-                }
-                for (let k = 0, lenk = bucketIndices.length; k < lenk; k++) {
-                    indices.push(offset + bucketIndices[k]);
-                }
-            }
+        const positionsCompressed = geometry.positionsCompressed;
+        for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
+            tempVec3a[0] = positionsCompressed[k];
+            tempVec3a[1] = positionsCompressed[k + 1];
+            tempVec3a[2] = positionsCompressed[k + 2];
+            decompressPoint3WithAABB3(tempVec3a, aabb, tempVec3b);
+            coordinates.push(tempVec3b[0]);
+            coordinates.push(tempVec3b[1]);
+            coordinates.push(tempVec3b[2]);
         }
         meshLookup[geometry.id] = {
             mesh_id: geometry.id,
             coordinates,
-            indices
+            indices: geometry.indices || []
         };
     }
 

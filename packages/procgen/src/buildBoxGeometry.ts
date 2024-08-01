@@ -21,7 +21,7 @@ import {SDKError} from "@xeokit/core";
  * @param [cfg.xSize=1.0]  Half-size on the X-axis.
  * @param [cfg.ySize=1.0]  Half-size on the Y-axis.
  * @param [cfg.zSize=1.0]  Half-size on the Z-axis.
- * @returns {Object} TrianglesLayerGeometryBucket arrays.
+ * @returns {Object} GeometryArrays arrays.
  */
 export function buildBoxGeometry(cfg: {
     center?: number[],

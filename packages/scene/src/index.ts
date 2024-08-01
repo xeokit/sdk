@@ -20,9 +20,9 @@
  * To elaborate further:
  *
  * * The {@link @xeokit/scene!Scene | Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn,
- * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | Meshes}, {@link @xeokit/scene!SceneGeometry | Geometries}, {@link @xeokit/scene!SceneGeometryBucket | GeometryBuckets}, and {@link @xeokit/scene!SceneTexture | Textures}.
+ * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | Meshes}, {@link @xeokit/scene!SceneGeometry | Geometries}, and {@link @xeokit/scene!SceneTexture | Textures}.
  * * Textures undergo compression to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) via the Basis Universal codec.
- * * SceneGeometry undergoes compression through bucketing and quantization.
+ * * SceneGeometry undergoes compression through quantization.
  * * Use a {@link "@xeokit/viewer" | Viewer} to view SceneModels in the browser. A Viewer equipped with a {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder} can view a Scene that has KTX2-compressed textures.
  * * Import SceneModels from a variety of model file formats using importer functions like {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS}, {@link "@xeokit/cityjson" | loadCityJSON}, and {@link "@xeokit/dtx" | loadDTX}.
  * * Export SceneModels to the native [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format through {@link "@xeokit/dtx" | saveDTX}.
@@ -40,7 +40,6 @@
  * ### Notes
  *
  * * TextureSets are collections of textures that are shared among Meshes and are organized into texture atlasses to optimize rendering efficiency on GPUs.
- * * Geometries are arranged automatically into {@link @xeokit/scene!SceneGeometryBucket | GeometryBuckets} to reduce memory consumption. These buckets utilize geometry quantization and geometry bucketing techniques to minimize storage bit usage.
  * * Each SceneMesh can be assigned to only one SceneObject, whereas each SceneGeometry and SceneTextureSet can be allocated to an unlimited number of Meshes.
  * * The {@link getSceneObjectGeometry} function can be used to conveniently iterate the World-space geometry within each
  * {@link @xeokit/scene!SceneObject | SceneObject} - useful for building k-d trees, finding intersections etc.
@@ -278,29 +277,19 @@
  * * Generates edge indices for triangle meshes
  * * Ignores normals (our shaders auto-generate them)
  * * Quantizes positions and UVs as 16-bit unsigned integers
- * * Splits geometry into {@link @xeokit/scene!SceneGeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
  *
  * Our compressed geometry then looks like this:
  *
  * ````javascript
- * const bucket0 = boxGeometry.buckets[0];
- * const bucket0Positions = bucket0.positions;
- * const bucketindices = bucket0.indices;
- * const bucketEdgeIndices = bucket0.edgeIndices;
+ * const positions = boxGeometry.positions;
+ * const indices = boxGeometry.indices;
+ * const edgeIndices = boxGeometry.edgeIndices;
  * // ...
  * ````
- *
- * The bucketing technique was developed for xeokit by Toni Marti, with support from Tribia AG. Read [the slides](media://pdfs/GPU_RAM_Savings_Toni_Marti_Apr22.pdf) from Toni's presentation at WebGL Meetup 2022.
  *
  * In the example below, we'll now use {@link @xeokit/scene!compressGeometryParams} to compress
  * a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a
  * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
- *
- * In this example, our geometry is very simple, and our SceneGeometryCompressedParams only gets a single
- * {@link @xeokit/scene!SceneGeometryBucketParams | SceneGeometryBucketParams }. Note that if the
- * {@link @xeokit/scene!SceneGeometryParams.positions | SceneGeometryParams.positions} array was large enough to require
- * some indices to use more than 16 bits for storage, then that's when the function's bucketing mechanism would
- * kick in, to split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
  *
  * ````javascript
  * import {compressGeometryParams} from "@xeokit/compression";
@@ -328,41 +317,32 @@
  *
  * We can see that:
  *
- * * We get one bucket, because we have only a small number of indices
  * * Vertex positions are now quantized to 16-bit integers
- * * Duplicate positions are removed and indices adjusted
  * * Edge indices generated for our TrianglesPrimitive
- * * A ````positionsDecompressMatrix```` to de-quantize the positions within the Viewer
+ * * Quantization range given in axis-sligned bounding box ````aabb````, to de-quantize the positions within the Viewer
  *
  * ````javascript
  * {
  *      id: "boxGeometry",
  *      primitive: TrianglesPrimitive,
- *      positionsDecompressMatrix: [
- *          0.00003052270125906143, 0, 0, 0,
- *          0, 0.00003052270125906143, 0, 0,
- *          0, 0, 0.00003052270125906143, 0,
- *          -1, -1, -1, 1
+ *      aabb: [
+ *          -1, -,1 -,1, 1, 1, 1
  *      ],
- *      geometryBuckets: [
- *          {
- *              positionsCompressed: [
- *                  65525, 65525, 65525, 0, 65525, 65525,
- *                  0, 0, 65525, 65525, 0, 65525, 65525,
- *                  0, 0, 65525, 65525, 0, 0, 65525, 0, 0,
- *                  0, 0
- *              ],
- *              indices: [
- *                  0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
- *                  0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
- *                  4, 7, 6, 4, 6, 5
- *              ],
- *              edgeIndices: [
- *                  3, 4, 0, 4, 5, 0, 5, 6,
- *                  0, 6, 1, 1, 6, 7, 1, 7,
- *                  3, 2, 4, 7, 6, 4, 6
- *              ]
- *          }
+ *      positionsCompressed: [
+ *          65525, 65525, 65525, 0, 65525, 65525,
+ *          0, 0, 65525, 65525, 0, 65525, 65525,
+ *          0, 0, 65525, 65525, 0, 0, 65525, 0, 0,
+ *          0, 0
+ *      ],
+ *      indices: [
+ *          0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
+ *          0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
+ *          4, 7, 6, 4, 6, 5
+ *      ],
+ *      edgeIndices: [
+ *          3, 4, 0, 4, 5, 0, 5, 6,
+ *          0, 6, 1, 1, 6, 7, 1, 7,
+ *          3, 2, 4, 7, 6, 4, 6
  *      ]
  * }
  * ````
@@ -393,7 +373,6 @@ export * from "./SceneObject";
 export * from "./SceneTexture";
 export * from "./SceneTextureSet";
 export * from "./SceneGeometry";
-export * from "./SceneGeometryBucket";
 export * from "./SceneMesh";
 
 export * from "./RendererGeometry";
@@ -407,8 +386,6 @@ export * from "./SceneMeshParams";
 export * from "./SceneObjectParams";
 export * from "./SceneTextureParams";
 export * from "./SceneTextureSetParams";
-export * from "./SceneTransformParams";
-export * from "./SceneGeometryBucketParams";
 export * from "./SceneGeometryCompressedParams";
 export * from "./SceneGeometryParams";
 export * from "./SceneModelParams";
@@ -418,3 +395,5 @@ export * from "./getSceneObjectGeometry";
 
 export * from "./SceneModelStreamParams";
 export * from "./SceneModelStreamLayerParams";
+
+export * from "./buildMat4"

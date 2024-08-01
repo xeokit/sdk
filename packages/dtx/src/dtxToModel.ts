@@ -5,7 +5,7 @@ import {
     SurfacePrimitive,
     TrianglesPrimitive
 } from "@xeokit/constants";
-import type {SceneGeometryBucketParams, SceneGeometryCompressedParams, SceneModel} from "@xeokit/scene";
+import type {SceneGeometryCompressedParams, SceneModel} from "@xeokit/scene";
 import type {DTXData} from "./DTXData";
 import type {FloatArrayParam} from "@xeokit/math";
 
@@ -47,8 +47,7 @@ export function dtxToModel(params: {
             const geometryId = `${geometryIdx}`;
             if (!geometryCreated[geometryId]) {
                 const geometryCompressedParams = <any>{
-                    id: geometryId,
-                    geometryBuckets: []
+                    id: geometryId
                 };
                 const primitiveType = dtxData.eachGeometryPrimitiveType[geometryIdx];
                 switch (primitiveType) {
@@ -72,36 +71,31 @@ export function dtxToModel(params: {
                 geometryCompressedParams.aabb = dtxData.aabbs.slice(aabbsBase, aabbsBase + 6);
                 let geometryValid = false;
                 const atLastGeometry = (geometryIdx === (numGeometries - 1));
-                    const geometryBucketParams = <SceneGeometryBucketParams>{
-                        positionsCompressed: [],
-                        indices: []
-                    };
-                    switch (geometryCompressedParams.primitive) {
-                        case TrianglesPrimitive:
-                        case SurfacePrimitive:
-                        case SolidPrimitive:
-                            geometryBucketParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
-                            geometryBucketParams.indices = dtxData.indices.subarray(dtxData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? dtxData.indices.length : dtxData.eachGeometryIndicesBase [geometryIdx + 1]);
-                            geometryBucketParams.edgeIndices = dtxData.edgeIndices.subarray(dtxData.eachGeometryEdgeIndicesBase [geometryIdx], atLastGeometry ? dtxData.edgeIndices.length : dtxData.eachGeometryEdgeIndicesBase [geometryIdx + 1]);
-                            geometryValid = (geometryBucketParams.positionsCompressed.length > 0 && geometryBucketParams.indices.length > 0);
-                            break;
-                        case PointsPrimitive:
-                            geometryBucketParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
-                            geometryValid = (geometryBucketParams.positionsCompressed.length > 0);
-                            break;
-                        case LinesPrimitive:
-                            geometryBucketParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
-                            geometryBucketParams.indices = dtxData.indices.subarray(dtxData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? dtxData.indices.length : dtxData.eachGeometryIndicesBase [geometryIdx + 1]);
-                            geometryValid = (geometryBucketParams.positionsCompressed.length > 0 && geometryBucketParams.indices.length > 0);
-                            break;
-                        default:
-                            continue;
-                    }
-                    if (geometryValid) {
-                        geometryCompressedParams.geometryBuckets.push(geometryBucketParams);
-                        sceneModel.createGeometryCompressed(<SceneGeometryCompressedParams>geometryCompressedParams);
-                        geometryCreated[geometryId] = true;
-                    }
+                switch (geometryCompressedParams.primitive) {
+                    case TrianglesPrimitive:
+                    case SurfacePrimitive:
+                    case SolidPrimitive:
+                        geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
+                        geometryCompressedParams.indices = dtxData.indices.subarray(dtxData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? dtxData.indices.length : dtxData.eachGeometryIndicesBase [geometryIdx + 1]);
+                        geometryCompressedParams.edgeIndices = dtxData.edgeIndices.subarray(dtxData.eachGeometryEdgeIndicesBase [geometryIdx], atLastGeometry ? dtxData.edgeIndices.length : dtxData.eachGeometryEdgeIndicesBase [geometryIdx + 1]);
+                        geometryValid = (geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0);
+                        break;
+                    case PointsPrimitive:
+                        geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
+                        geometryValid = (geometryCompressedParams.positionsCompressed.length > 0);
+                        break;
+                    case LinesPrimitive:
+                        geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
+                        geometryCompressedParams.indices = dtxData.indices.subarray(dtxData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? dtxData.indices.length : dtxData.eachGeometryIndicesBase [geometryIdx + 1]);
+                        geometryValid = (geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0);
+                        break;
+                    default:
+                        continue;
+                }
+                if (geometryValid) {
+                    sceneModel.createGeometryCompressed(<SceneGeometryCompressedParams>geometryCompressedParams);
+                    geometryCreated[geometryId] = true;
+                }
             }
             sceneModel.createMesh({
                 id: meshId,

@@ -89,8 +89,10 @@
         sceneModel.createMesh({
             id: "boxMesh",
             geometryId: "boxGeometry",
-            position: [0, 0, 0],
-            color: [1, 0, 0]
+            matrix: xeokit.scene.buildMat4({
+                position: [0, 0, 0],
+                color: [1, 0, 0]
+            })
         });
 
         // Box lines
@@ -111,7 +113,9 @@
         sceneModel.createMesh({
             id: "boxLinesMesh",
             geometryId: "boxLinesGeometry",
-            position: [3, 0, 0],
+            matrix: xeokit.scene.buildMat4({
+                position: [3, 0, 0]
+            }),
             color: [0, 0, 1]
         });
 
@@ -135,7 +139,9 @@
         sceneModel.createMesh({
             id: "sphereMesh",
             geometryId: "sphereGeometry",
-            position: [7, 0, 0],
+            matrix: xeokit.scene.buildMat4({
+                position: [7, 0, 0]
+            }),
             color: [0, 0.5, 1]
         });
 
@@ -161,7 +167,9 @@
         sceneModel.createMesh({
             id: "torusMesh",
             geometryId: "torusGeometry",
-            position: [11, 0, 0],
+            matrix: xeokit.scene.buildMat4({
+                position: [11, 0, 0]
+            }),
             color: [0.7, 0, 1]
         });
 
@@ -188,7 +196,9 @@
         sceneModel.createMesh({
             id: "cylinderMesh",
             geometryId: "cylinderGeometry",
-            position: [16, 0, 0],
+            matrix: xeokit.scene.buildMat4({
+                position: [16, 0, 0]
+            }),
             color: [1, .6, 0]
         });
 
@@ -209,7 +219,9 @@
         sceneModel.createMesh({
             id: "gridMesh",
             geometryId: "gridGeometry",
-            position: [25, 0, 0],
+            matrix: xeokit.scene.buildMat4({
+                position: [25, 0, 0]
+            }),
             color: [0, 1, 0]
         });
 
@@ -230,7 +242,9 @@
         sceneModel.createMesh({
             id: "textMesh",
             geometryId: "textGeometry",
-            position: [0, 7.5, 0],
+            matrix: xeokit.scene.buildMat4({
+                position: [0, 7.5, 0]
+            }),
             color: [0, 1, 0]
         });
 
@@ -276,9 +290,11 @@
         sceneModel.createMesh({
             id: "pointsMesh",
             geometryId: "pointsGeometry",
-            position: [-7, 0, 0],
-            scale: [4, 4, 4],
-            rotation: [0, 0, 0]
+            matrix: xeokit.scene.buildMat4({
+                position: [-7, 0, 0],
+                scale: [4, 4, 4],
+                rotation: [0, 0, 0]
+            }),
         });
 
         // One entity contains all our meshes

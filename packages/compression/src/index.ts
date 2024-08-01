@@ -20,16 +20,12 @@
  *
  * The compression techniques used include simplifying geometry by combining duplicate positions and adjusting indices, generating edge
  * indices for triangle meshes, ignoring normals (as shaders auto-generate them), converting positions to relative-to-center (RTC)
- * coordinates, quantizing positions and UVs as 16-bit unsigned integers, and splitting geometry into buckets to enable indices to use
- * the minimum bits for storage. The bucketing technique was developed for xeokit by Toni Marti with support from Tribia AG.
+ * coordinates, and quantizing positions and UVs as 16-bit unsigned integers.
  *
  * An example usage includes compressing a SceneGeometryParams into a {@link @xeokit/scene!SceneGeometryCompressedParams} using the
- * {@link @xeokit/scene!compressGeometryParams} function. In this example, the geometry is simple, and only one bucket is
- * needed. However, if the positions array was large enough to require some indices to use more than 16 bits for storage, the
- * bucketing mechanism would split the geometry into smaller buckets, each with smaller indices that index a subset of the
- * positions.
+ * {@link @xeokit/scene!compressGeometryParams} function.
  *
- * The resulting SceneGeometryCompressedParams object shows that we have one bucket with vertex positions relative to the origin
+ * The resulting SceneGeometryCompressedParams object shows vertex positions relative to the origin
  * and quantized to 16-bit integers, duplicate positions removed, and adjusted indices. Additionally, edge indices are
  * generated for the {@link @xeokit/constants!TrianglesPrimitive}, and a positionsDecompressMatrix is included to de-quantize
  * the positions within the Viewer.
@@ -47,11 +43,6 @@
  * * Ignores normals (our shaders auto-generate them)
  * * Converts positions to relative-to-center (RTC) coordinates
  * * Quantizes positions and UVs as 16-bit unsigned integers
- * * Splits geometry into {@link @xeokit/scene!SceneGeometryBucketParams | buckets } to enable indices to use the minimum bits for storage
- *
- * ### Aknowledgements
- *
- * * The bucketing technique mentioned above was developed for xeokit by Toni Marti, with support from Tribia AG. Read [the slides](media://pdfs/GPU_RAM_Savings_Toni_Marti_Apr22.pdf) from Toni's presentation at WebGL Meetup 2022.
  *
  * ## Installation
  *
@@ -64,12 +55,6 @@
  * In the example below, we'll use {@link @xeokit/scene!compressGeometryParams} to compress
  * a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a
  * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
- *
- * In this example, our geometry is very simple, and our SceneGeometryCompressedParams only gets a single
- * {@link @xeokit/scene!SceneGeometryBucketParams | SceneGeometryBucketParams }. Note that if the
- * {@link @xeokit/scene!SceneGeometryParams.positions | SceneGeometryParams.positions} array was large enough to require
- * some of the indices to use more than 16 bits for storage, then that's when the function's bucketing mechanism would
- * kick in, to split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.
  *
  * ````javascript
  * import {compressGeometryParams} from "@xeokit/compression";
@@ -105,42 +90,32 @@
  *
  * We can see that:
  *
- * * We get one bucket, because we have only a small number of indices
  * * Vertex positions are now relative to ````origin```` and quantized to 16-bit integers
  * * Duplicate positions are removed and indices adjusted
  * * Edge indices generated for our TrianglesPrimitive
- * * A ````positionsDecompressMatrix```` to de-quantize the positions within the Viewer
+ * * A positions 3D boundary ````aabb````, to de-quantize the positions within the Viewer
  *
  * ````javascript
  * {
  *      id: "myBoxGeometry",
  *      primitive: TrianglesPrimitive,
- *      origin: [200,200,200],
- *      positionsDecompressMatrix: [
- *          0.00003052270125906143, 0, 0, 0,
- *          0, 0.00003052270125906143, 0, 0,
- *          0, 0, 0.00003052270125906143, 0,
- *          -1, -1, -1, 1
+ *      aabb: [200, 200, 200, 202, 202, 202],
+ *      positionsCompressed: [
+ *         65525, 65525, 65525, 0, 65525, 65525,
+ *         0, 0, 65525, 65525, 0, 65525, 65525,
+ *         0, 0, 65525, 65525, 0, 0, 65525, 0, 0,
+ *         0, 0
  *      ],
- *      geometryBuckets: [
- *          {
- *              positionsCompressed: [
- *                  65525, 65525, 65525, 0, 65525, 65525,
- *                  0, 0, 65525, 65525, 0, 65525, 65525,
- *                  0, 0, 65525, 65525, 0, 0, 65525, 0, 0,
- *                  0, 0
- *              ],
- *              indices: [
- *                  0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
- *                  0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
- *                  4, 7, 6, 4, 6, 5
- *              ],
- *              edgeIndices: [
- *                  3, 4, 0, 4, 5, 0, 5, 6,
- *                  0, 6, 1, 1, 6, 7, 1, 7,
- *                  3, 2, 4, 7, 6, 4, 6
- *              ]
- *          }
+ *      origin: [0,0,0],
+ *      indices: [
+ *         0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
+ *         0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
+ *         4, 7, 6, 4, 6, 5
+ *      ],
+ *      edgeIndices: [
+ *         3, 4, 0, 4, 5, 0, 5, 6,
+ *         0, 6, 1, 1, 6, 7, 1, 7,
+ *         3, 2, 4, 7, 6, 4, 6
  *      ]
  * }
  * ````

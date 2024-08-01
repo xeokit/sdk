@@ -4,13 +4,14 @@ import {decompressPositions3WithAABB3} from "@xeokit/compression";
 import {transformPositions3} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
 import type {SceneGeometry} from "./SceneGeometry";
-import type {SceneGeometryBucket} from "./SceneGeometryBucket";
 import {LinesPrimitive, TrianglesPrimitive} from "@xeokit/constants";
 
 /**
  * The {@link getSceneObjectGeometry} passes an instance of GeometryView to its callback
- * for each {@link @xeokit/scene!SceneGeometryBucket} it visits. The GeometryView provides the SceneObject, SceneMesh, SceneGeometry and
- * SceneGeometryBucket at the current state of iteration, along with accessors through which the caller can
+ * for each {@link @xeokit/scene!SceneGeometry} it visits.
+ *
+ * The GeometryView provides the SceneObject, SceneMesh and SceneGeometry at the current state
+ * of iteration, along with accessors through which the caller can
  * get various resources that the GeometryView lazy-computes on-demand, such as decompressed vertex positions, World-space
  * vertex positons, and decompressed vertex UV coordinates.
  */
@@ -37,22 +38,7 @@ export interface GeometryView {
     geometry: SceneGeometry;
 
     /**
-     * The current {@link @xeokit/scene!SceneGeometryBucket}.
-     */
-    geometryBucket: SceneGeometryBucket;
-
-    /**
-     * The current {@link @xeokit/scene!SceneGeometryBucket | SceneGeometryBucket's} position in {@link @xeokit/scene!SceneGeometry.geometryBuckets | SceneGeometry.geometryBuckets }.
-     */
-    geometryBucketIndex: number;
-
-    /**
-     * The total number of {@link @xeokit/scene!SceneGeometryBucket | GeometryBuckets} within the current {@link @xeokit/scene!SceneObject}.
-     */
-    readonly totalGeometryBuckets: number;
-
-    /**
-     * The number of primitives in the current {@link @xeokit/scene!SceneGeometryBucket}.
+     * The number of primitives in the current {@link @xeokit/scene!SceneGeometry}.
      */
     readonly numPrimitives: number;
 
@@ -78,8 +64,7 @@ class GeometryViewImpl {
     mesh: SceneMesh | null;
     meshIndex: number;
     geometry: SceneGeometry | null;
-    geometryBucket: SceneGeometryBucket | null;
-    geometryBucketIndex: number;
+
     #positionsDecompressed: Float32Array | null;
     #positionsWorld: Float64Array | null;
 
@@ -88,32 +73,20 @@ class GeometryViewImpl {
         this.mesh = null;
         this.meshIndex = 0;
         this.geometry = null;
-        this.geometryBucket = null;
-        this.geometryBucketIndex = 0;
         this.#positionsDecompressed = null;
         this.#positionsWorld = null;
-    }
-
-    get totalGeometryBuckets() {
-        let totalGeometryBuckets = 0;
-        if (this.object) {
-            for (let i = 0, len = this.object.meshes.length; i < len; i++) {
-                totalGeometryBuckets += this.object.meshes[i].geometry.geometryBuckets.length;
-            }
-        }
-        return totalGeometryBuckets;
     }
 
     get numPrimitives() {
         const primitiveType = (<SceneGeometry>this.geometry).primitive;
         const elementsPerPrimitiveType = (primitiveType === TrianglesPrimitive ? 3 : (primitiveType === LinesPrimitive ? 2 : 1));
-        return (<FloatArrayParam>(<SceneGeometryBucket>this.geometryBucket).indices).length / elementsPerPrimitiveType;
+        return this.geometry.indices.length / elementsPerPrimitiveType;
     }
 
     get positionsDecompressed(): FloatArrayParam {
         if (!this.#positionsDecompressed) {
-            this.#positionsDecompressed = new Float32Array((<SceneGeometryBucket>this.geometryBucket).positionsCompressed.length);
-            decompressPositions3WithAABB3((<SceneGeometryBucket>this.geometryBucket).positionsCompressed, (<SceneGeometry>this.geometry).aabb, this.#positionsDecompressed);
+            this.#positionsDecompressed = new Float32Array((<SceneGeometry>this.geometry).positionsCompressed.length);
+            decompressPositions3WithAABB3((<SceneGeometry>this.geometry).positionsCompressed, (<SceneGeometry>this.geometry).aabb, this.#positionsDecompressed);
         }
         return this.#positionsDecompressed;
     }
@@ -149,21 +122,21 @@ const geometryView = new GeometryViewImpl();
  * @param withEachGeometry
  */
 export function getSceneObjectGeometry(sceneObject: SceneObject, withEachGeometry: (geometryView: GeometryView) => boolean): boolean {
-    geometryView.reset();
-    geometryView.object = sceneObject;
-    for (let i = 0, len = sceneObject.meshes.length; i < len; i++) {
-        const mesh = sceneObject.meshes[i];
-        geometryView.mesh = mesh;
-        geometryView.meshIndex = i;
-        const geometry = mesh.geometry;
-        geometryView.geometry = geometry;
-        for (let j = 0, lenj = geometry.geometryBuckets.length; j < lenj; j++) {
-            geometryView.geometryBucket = geometry.geometryBuckets[j];
-            geometryView.geometryBucketIndex = j;
-            if (withEachGeometry(<GeometryView>geometryView)) {
-                return true;
-            }
-        }
-    }
+    // geometryView.reset();
+    // geometryView.object = sceneObject;
+    // for (let i = 0, len = sceneObject.meshes.length; i < len; i++) {
+    //     const mesh = sceneObject.meshes[i];
+    //     geometryView.mesh = mesh;
+    //     geometryView.meshIndex = i;
+    //     const geometry = mesh.geometry;
+    //     geometryView.geometry = geometry;
+    //     for (let j = 0, lenj = geometry.geometryBuckets.length; j < lenj; j++) {
+    //         geometryView.geometryBucket = geometry.geometryBuckets[j];
+    //         geometryView.geometryBucketIndex = j;
+    //         if (withEachGeometry(<GeometryView>geometryView)) {
+    //             return true;
+    //         }
+    //     }
+    // }
     return false;
 }

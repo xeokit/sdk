@@ -229,6 +229,21 @@ export function loadArraybuffer(url: string, ok: { (arg0: ArrayBuffer): void; (_
     }
 }
 
+/** Downloads an ArrayBuffer to a file.
+ *
+ * @param arrayBuffer
+ * @param filename
+ */
+export function saveArrayBuffer(arrayBuffer: ArrayBuffer, filename: string) {
+    const blob = new Blob([arrayBuffer], {type: "application/octet-stream"});
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = window.URL.createObjectURL(blob);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 /**
  Tests if the given object is an array
  */

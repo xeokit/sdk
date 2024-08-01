@@ -1,5 +1,4 @@
 import {SDKError} from "@xeokit/core";
-import type {DataModel} from "@xeokit/data";
 import type {SceneModel} from "@xeokit/scene";
 import {deflateDTX} from "./deflateDTX";
 import {modelToDTX} from "./modelToDTX";
@@ -30,7 +29,11 @@ export function saveDTX(params: {
     if (!params.sceneModel.built) {
         throw new SDKError("SceneModel not yet built");
     }
-    return packDTX(deflateDTX(modelToDTX({
-        sceneModel: params.sceneModel
-    })));
+    return packDTX(
+        deflateDTX(
+            modelToDTX({
+                sceneModel: params.sceneModel
+            }), {
+                deflateLevel: 0
+            }));
 }

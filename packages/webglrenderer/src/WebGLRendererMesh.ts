@@ -58,7 +58,6 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
                 transparent: (params.opacity < 255),
             });
         }
-
         this.layer = params.layer;
         this.matrix = params.matrix;
         this.opacity = params.opacity;

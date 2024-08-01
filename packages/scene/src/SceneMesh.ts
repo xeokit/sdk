@@ -12,7 +12,7 @@ import {SceneTile} from "./SceneTile";
  *
  * * Stored in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}
  * * Created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}
- * * Referenced by {@link @xeokit/scene!SceneModel.meshes | SceneObject.meshes}
+ * * Referenced by {@link @xeokit/scene!SceneObject.meshes | SceneObject.meshes}
  *
  * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
  */
@@ -62,8 +62,6 @@ export class SceneMesh {
 
     #color: FloatArrayParam;
     #matrix: FloatArrayParam;
-    #metallic: number;
-    #roughness: number;
     #opacity: number;
 
     readonly origin: FloatArrayParam;
@@ -78,8 +76,6 @@ export class SceneMesh {
         matrix?: FloatArrayParam;
         color?: FloatArrayParam;
         opacity?: number;
-        roughness?: number;
-        metallic?: number;
         tile: SceneTile;
         streamLayerIndex?: number;
     }) {
@@ -195,16 +191,14 @@ export class SceneMesh {
             id: this.id,
             geometryId: this.geometry.id,
             color: Array.from(this.#color),
-            metallic: this.#metallic,
-            roughness: this.#roughness,
-            opacity: this.#opacity,
-            origin: Array.from(this.tile.origin)
+            opacity: this.#opacity
         };
+        const origin = this.tile.origin;
+        if (origin[0] !== 0 || origin[1] !== 0 || origin[2] !== 0) {
+            meshParams.origin = Array.from(origin);
+        }
         if (!isIdentityMat4(this.#matrix)) {
             meshParams.matrix = Array.from(this.#matrix);
-        }
-        if (this.origin !== undefined && (this.origin[0] !== 0 || this.origin[1] !== 0 || this.origin[2] !== 0)) {
-            meshParams.origin = Array.from(this.origin);
         }
         if (this.textureSet !== undefined) {
             meshParams.textureSetId = this.textureSet.id;

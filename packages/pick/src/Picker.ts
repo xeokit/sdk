@@ -13,9 +13,8 @@ import type {MarqueePickResult} from "./MarqueePickResult";
 import {PickPrimsCache} from "./PickPrimsCache";
 import {decompressPositions3WithAABB3} from "@xeokit/compression";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "@xeokit/constants";
-import type {SceneGeometry, SceneGeometryBucket, SceneObject} from "@xeokit/scene";
-import {MeshHit} from "./MeshHit";
-import {GeometryBucketHit} from "./GeometryBucketHit";
+import type {SceneGeometry, SceneObject} from "@xeokit/scene";
+
 import type {Frustum3} from "@xeokit/boundaries";
 
 /**
@@ -149,7 +148,7 @@ export class Picker {
                 for (let k = 0, lenk = geometry.geometryBuckets.length; k < lenk; k++) {
                     const prims = [];
                     const geometryBucket = geometry.geometryBuckets[k];
-                    let primsKdTree3 = this.#getPrimsKdTree3(geometry, k, geometryBucket);
+                    let primsKdTree3 = this.#getPrimsKdTree3(geometry, k);
                     const items = searchKdTree3WithFrustum({
                         kdTree: primsKdTree3.primitivesKdTree,
                         frustum
@@ -201,17 +200,17 @@ export class Picker {
         return marqueePickResult;
     }
 
-    #getPrimsKdTree3(geometry: SceneGeometry, k: number, geometryBucket: SceneGeometryBucket): any {
+    #getPrimsKdTree3(geometry: SceneGeometry, k: number): any {
         const kdTreeId = `${geometry.id}-${k}`;
         // @ts-ignore
         let primsKdTree3 = this.#pickPrimsCache[kdTreeId];
         if (!primsKdTree3) {
             const positions = decompressPositions3WithAABB3(
-                geometryBucket.positionsCompressed,
+                geometry.positionsCompressed,
                 geometry.aabb,
-                new Float32Array(geometryBucket.positionsCompressed.length));
+                new Float32Array(geometry.positionsCompressed.length));
             primsKdTree3 = {
-                primsKdTree3: createPrimsKdTree3(geometry.primitive, positions, geometryBucket.indices),
+                primsKdTree3: createPrimsKdTree3(geometry.primitive, positions, geometry.indices),
                 positions
             }
             // @ts-ignore

@@ -86,10 +86,12 @@
     sceneModel.createMesh({
         id: "triangleMesh",
         geometryId: "triangleGeometry",
-        position: [0, 0, 0], // Default
-        scale: [1, 1, 1], // Default
-        rotation: [0, 0, 0], // Default
-        color: [1, 1.0, 1.0] // Default
+        matrix: [ // Default
+            1, 0, 0, 0,
+            0, 1, 0, 0,
+            0, 0, 1, 0,
+            0, 0, 0, 1
+        ]
     });
 
     sceneModel.createObject({

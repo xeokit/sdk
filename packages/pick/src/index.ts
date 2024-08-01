@@ -217,7 +217,7 @@ export * from "./MarqueePickResult";
 export * from "./RayPickResult";
 export {SceneObjectHit} from "./SceneObjectHit";
 export {MeshHit} from "./MeshHit";
-export {GeometryBucketHit} from "./GeometryBucketHit";
+export {GeometryHit} from "./GeometryHit";
 export {PrimHit} from "./PrimHit";
 
 

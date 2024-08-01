@@ -140,8 +140,6 @@ export class Viewer extends Component {
 
         this.id = params.id || createUUID();
 
-        this.log(`Creating Viewer (id = "${this.id}")`);
-
         if (params.renderer.viewer !== undefined) {
             throw new SDKError(`Failed to create Viewer - the given Renderer is currently attached to another Viewer`);
         }
@@ -306,22 +304,11 @@ export class Viewer extends Component {
         });
         // Renderer.attachSceneModel creates RendererObjects in Renderer.rendererObjects,
         // which are then expected by View.initViewObjects
-
-        ////////////////////////////////////////////////////////
-        // FIXME
-        // FIXME
-        // FIXME
-        // TODO: assumes one View
-        ////////////////////////////////////////////////////////
-
-
         for (let id in this.scene.models) {
             this.renderer.attachSceneModel(this.scene.models[id]);
         }
-
         view.initViewObjects();
         this.onViewCreated.dispatch(this, view);
-        this.log(`View created (id = "${view.viewId}")`);
         return view;
     }
 

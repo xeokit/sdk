@@ -1,6 +1,5 @@
 import type {FloatArrayParam} from "@xeokit/math";
-
-import type {SceneGeometryBucketParams} from "./SceneGeometryBucketParams";
+import {IntArrayParam} from "@xeokit/math";
 
 
 /**
@@ -9,14 +8,10 @@ import type {SceneGeometryBucketParams} from "./SceneGeometryBucketParams";
  * ## Summary
  *
  * * Created from {@link @xeokit/scene!SceneGeometryParams|SceneGeometryParams} using {@link @xeokit/scene!compressGeometryParams}
- * * Used with {@link @xeokit/scene!SceneModel.createGeometryCompressed | Model.createGeometryCompressed}
- * and {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
- * * Simplifies geometry by combining duplicate positions and adjusting indices
+ * * Used with {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * * Generates edge indices for triangle meshes
  * * Ignores normals (our shaders auto-generate them)
- * * Converts positions to relative-to-center (RTC) coordinates
  * * Quantizes positions and UVs as 16-bit unsigned integers
- * * Splits geometry into {@link @xeokit/scene!SceneGeometryBucketParams | buckets } to enable indices to use the minimum storage bits
  */
 export interface SceneGeometryCompressedParams {
 
@@ -44,21 +39,39 @@ export interface SceneGeometryCompressedParams {
     uvsDecompressMatrix?: FloatArrayParam;
 
     /**
-     * The geometry arrays, organized into buckets for optimal memory use.
+     * 3D vertex positions, quantized as 16-bit integers.
      *
-     * The bucketing strategy aims to reduce memory consumed by indices. There are three buckets, each with an indices array that
-     * requires a different number of bits for its values. The first bucket's indices contain 8-bit values in range [0...255],
-     * the second contains 16-bit values in range ````[256..65535]````, and the third contains 32-bit values in
-     * range ````[65536...2147483647]````. With this strategy, we avoid wasting storage bits on the 8-bit and 16-bit values.
+     * Internally, the Viewer decompresses thses
+     * with {@link @xeokit/scene!SceneGeometryCompressedParams.positionsDecompressMatrix | SceneGeometryCompressedParams.positionsDecompressMatrix}.
      *
-     * The buckets also partition the geometry positions and UVs, so that the indices are indexing positions and UVs
-     * that are local to their bucket. This further optimizes memory use, by reducing the values of large indices to small
-     * locally-offset values, which can reduce the number of bits they need.
+     * Vertex positions are required for all primitive types.
      */
-    geometryBuckets: SceneGeometryBucketParams[];
+    positionsCompressed: IntArrayParam,
 
     /**
-     * When the geometry positions are in RTC coordinates, this is the RTC coordinate origin.
+     * UV coordinates, quantized as 16-bit integers.
+     *
+     * Internally, the Viewer de-quantizes these
+     * with {@link @xeokit/scene!SceneGeometryCompressedParams.uvsDecompressMatrix | SceneGeometryCompressedParams.uvsDecompressMatrix}.
      */
-    origin?: FloatArrayParam;
+    uvsCompressed?: IntArrayParam,
+
+    /**
+     * vertex RGB colors, quantized as 8-bit integers.
+     */
+    colorsCompressed?: IntArrayParam;
+
+    /**
+     * primitive indices.
+     *
+     * This is either an array of 8-bit, 16-bit or 32-bit values.
+     */
+    indices?: IntArrayParam,
+
+    /**
+     * edge indices.
+     *
+     * This is either an array of 8-bit, 16-bit or 32-bit values.
+     */
+    edgeIndices?: IntArrayParam
 }

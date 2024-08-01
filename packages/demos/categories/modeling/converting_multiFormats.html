@@ -16,23 +16,7 @@
             user-drag: none;
         }
 
-        #myCanvas1 {
-            user-select: none;
-            -webkit-user-drag: none;
-            -moz-user-drag: none;
-            -ms-user-drag: none;
-            user-drag: none;
-            width: 1000px;
-            height: 800px;
-            left: 20px;
-            top: 70px;
-            position: absolute;
-            /*border: 1px solid white;*/
-            padding: 0px;
-            /*background: red;*/
-        }
-
-        #myCanvas2 {
+        .viewCanvas {
             user-select: none;
             -webkit-user-drag: none;
             -moz-user-drag: none;
@@ -40,30 +24,10 @@
             user-drag: none;
             width: 500px;
             height: 390px;
-            left: 1030px;
-            top: 70px;
-            position: absolute;
-            /*border: 1px solid white;*/
-            /*background: yellow;*/
+            border: 1px solid black;
             padding: 0px;
+            /*background: red;*/
         }
-
-        #myCanvas3 {
-            user-select: none;
-            -webkit-user-drag: none;
-            -moz-user-drag: none;
-            -ms-user-drag: none;
-            user-drag: none;
-            width: 500px;
-            height: 400px;
-            left: 1030px;
-            top: 470px;
-            position: absolute;
-            /*border: 1px solid white;*/
-            padding: 0px;
-            /*background: green;*/
-        }
-
 
     </style>
 </head>
@@ -71,11 +35,7 @@
 <input type="checkbox" id="info-button"/>
 <label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
 
-<!-- Virtual canvases -->
-
-<img id="myCanvas1">
-<img id="myCanvas2"/>
-<img id="myCanvas3"/>
+<div id="canvasContainer"></div>
 
 <div class="slideout-sidebar">
     <h1>Using multiple Views with ViewLayers</h1>
@@ -125,30 +85,25 @@
         renderer
     });
 
-    {
+    //-----------------------------------------------------------------------------------------
+    // Create N Views
+    //
+    // Each View gets a separate ViewLayer
+    //-----------------------------------------------------------------------------------------
+
+    const NUM_VIEWS = 4;
+
+    for (let i = 0; i < NUM_VIEWS; i++) {
+
+        const canvas = document.createElement('canvas');
+        canvas.id = `myCanvas${i}`;
+        canvas.className = "viewCanvas";
+
+        document.getElementById('canvasContainer').appendChild(canvas);
+
         const view = viewer.createView({
-            id: "myView1",
-            elementId: "myCanvas1",
-            autoLayers: false,
-            edges: false
-        });
-
-        view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
-        view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
-        view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
-
-        view.createLayer({
-            id: "layer1"
-        });
-
-
-        new xeokit.cameraControl.CameraControl(view, {});
-    }
-
-    {
-        const view = viewer.createView({
-            id: "myView2",
-            elementId: "myCanvas2",
+            id: `view${i}`,
+            elementId: canvas.id,
             autoLayers: false
         });
 
@@ -157,37 +112,23 @@
         view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
 
         view.createLayer({
-            id: "layer2"
+            id: `layer${i}`
         });
 
         new xeokit.cameraControl.CameraControl(view, {});
     }
 
-    {
-        const view = viewer.createView({
-            id: "myView3",
-            elementId: "myCanvas3",
-            autoLayers: false
-        });
 
-        view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
-        view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
-        view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
-
-        view.createLayer({
-            id: "layer3"
-        });
-
-        new xeokit.cameraControl.CameraControl(view, {});
-    }
+    // Load an XKT model into ViewLayer 0
 
     const sceneModel = scene.createModel({
         id: "myModel",
-        layerId: "layer1"
+        layerId: "layer0"
     });
 
     fetch("../../data/xkt/MAP.xkt").then(response => {
         response.arrayBuffer().then(fileData => {
+
             xeokit.xkt.loadXKT({
                 fileData,
                 sceneModel
@@ -195,7 +136,7 @@
 
                 sceneModel.build();
 
-                // Convert to DTX
+                // Convert the model to DTX, load that into ViewLayer 1
 
                 {
                     const dtxData = xeokit.dtx.saveDTX({
@@ -204,22 +145,21 @@
 
                     const sceneModelDTX = scene.createModel({
                         id: "myDTXModel",
-                        layerId: "layer3",
+                        layerId: "layer1",
                         globalizedIds: true
                     });
 
-                    saveArrayBuffer(dtxData, "MAP.dtx")
+                   xeokit.utils.saveArrayBuffer(dtxData, "MAP.dtx")
+
                     xeokit.dtx.loadDTX({
                         fileData: dtxData,
                         sceneModel: sceneModelDTX
                     }).then(() => {
-
                         sceneModelDTX.build()
                     });
-
                 }
 
-                // Convert to JSON
+                // Convert the model to JSON, load that into ViewLayer 2
 
                 {
                     const json = sceneModel.getJSON();
@@ -235,29 +175,6 @@
         });
     });
 
-
-    function saveArrayBuffer(arrayBuffer, filename) {
-        // Create a new Blob object using the ArrayBuffer
-        const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
-
-        // Create a link element
-        const link = document.createElement('a');
-
-        // Set the download attribute with a filename
-        link.download = filename;
-
-        // Create an object URL for the Blob and set it as the href attribute
-        link.href = window.URL.createObjectURL(blob);
-
-        // Append the link to the body (this step is necessary for some browsers)
-        document.body.appendChild(link);
-
-        // Programmatically click the link to trigger the download
-        link.click();
-
-        // Remove the link from the document
-        document.body.removeChild(link);
-    }
 </script>
 
 </html>

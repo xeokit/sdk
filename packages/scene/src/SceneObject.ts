@@ -3,7 +3,6 @@ import type {FloatArrayParam} from "@xeokit/math";
 import type {RendererObject} from "./RendererObject";
 import type {SceneModel} from "./SceneModel";
 import {collapseAABB3, createAABB3, expandAABB3Points3} from "@xeokit/boundaries";
-import {getSceneObjectGeometry} from "./getSceneObjectGeometry";
 import {SceneObjectParams} from "./SceneObjectParams";
 
 /**
@@ -82,10 +81,10 @@ export class SceneObject {
     get aabb(): FloatArrayParam {
         if (this.#aabbDirty) {
             collapseAABB3(this.#aabb);
-            getSceneObjectGeometry(this, (geometryView) => {
-                expandAABB3Points3(this.#aabb, geometryView.positionsWorld);
-                return false;
-            });
+            // getSceneObjectGeometry(this, (geometryView) => {
+            //     expandAABB3Points3(this.#aabb, geometryView.positionsWorld);
+            //     return false;
+            // });
             this.#aabbDirty = false;
         }
         return this.#aabb;

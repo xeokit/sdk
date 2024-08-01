@@ -4,11 +4,10 @@ import {collapseAABB3, expandAABB3} from "@xeokit/boundaries";
 import {composeMat4, createMat4, createVec3, createVec4, eulerToQuat, identityQuat, mulMat4} from "@xeokit/matrix";
 
 import type {FloatArrayParam} from "@xeokit/math";
-import type {Camera, View, Viewer} from "@xeokit/viewer";
+import type {Viewer} from "@xeokit/viewer";
 import {WebGLTexture} from "@xeokit/webglutils";
 import type {
     RendererGeometry,
-    RendererMesh,
     RendererModel,
     RendererTexture,
     RendererTextureSet,
@@ -363,9 +362,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         if (!layer) {
             return; // TODO
         }
-        let meshMatrix;
-        let worldMatrix = this.#worldMatrixNonIdentity ? this.#worldMatrix : null;
-        meshMatrix = mesh.matrix;
+        let matrix = mesh.matrix;
         const color = (mesh.color) ? new Uint8Array([Math.floor(mesh.color[0] * 255), Math.floor(mesh.color[1] * 255), Math.floor(mesh.color[2] * 255)]) : [255, 255, 255];
         const opacity = (mesh.opacity !== undefined && mesh.opacity !== null) ? Math.floor(mesh.opacity * 255) : 255;
         const rendererMesh = new WebGLRendererMesh({
@@ -374,7 +371,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             layer,
             color,
             opacity,
-            matrix: meshMatrix,
+            matrix,
             rendererTextureSet,
             rendererGeometry,
             meshIndex: 0

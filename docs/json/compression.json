@@ -26,7 +26,7 @@
 			},
 			{
 				"kind": "text",
-				"text": "\nto create compressed geometry directly.\n\nThe compression techniques used include simplifying geometry by combining duplicate positions and adjusting indices, generating edge\nindices for triangle meshes, ignoring normals (as shaders auto-generate them), converting positions to relative-to-center (RTC)\ncoordinates, quantizing positions and UVs as 16-bit unsigned integers, and splitting geometry into buckets to enable indices to use\nthe minimum bits for storage. The bucketing technique was developed for xeokit by Toni Marti with support from Tribia AG.\n\nAn example usage includes compressing a SceneGeometryParams into a "
+				"text": "\nto create compressed geometry directly.\n\nThe compression techniques used include simplifying geometry by combining duplicate positions and adjusting indices, generating edge\nindices for triangle meshes, ignoring normals (as shaders auto-generate them), converting positions to relative-to-center (RTC)\ncoordinates, and quantizing positions and UVs as 16-bit unsigned integers.\n\nAn example usage includes compressing a SceneGeometryParams into a "
 			},
 			{
 				"kind": "inline-tag",
@@ -44,7 +44,7 @@
 			},
 			{
 				"kind": "text",
-				"text": " function. In this example, the geometry is simple, and only one bucket is\nneeded. However, if the positions array was large enough to require some indices to use more than 16 bits for storage, the\nbucketing mechanism would split the geometry into smaller buckets, each with smaller indices that index a subset of the\npositions.\n\nThe resulting SceneGeometryCompressedParams object shows that we have one bucket with vertex positions relative to the origin\nand quantized to 16-bit integers, duplicate positions removed, and adjusted indices. Additionally, edge indices are\ngenerated for the "
+				"text": " function.\n\nThe resulting SceneGeometryCompressedParams object shows vertex positions relative to the origin\nand quantized to 16-bit integers, duplicate positions removed, and adjusted indices. Additionally, edge indices are\ngenerated for the "
 			},
 			{
 				"kind": "inline-tag",
@@ -71,16 +71,7 @@
 			},
 			{
 				"kind": "text",
-				"text": "\nto create the compressed geometry directly.\n\n### Compression Techniques Used\n\n* Simplifies geometry by combining duplicate positions and adjusting indices\n* Generates edge indices for triangle meshes\n* Ignores normals (our shaders auto-generate them)\n* Converts positions to relative-to-center (RTC) coordinates\n* Quantizes positions and UVs as 16-bit unsigned integers\n* Splits geometry into "
-			},
-			{
-				"kind": "inline-tag",
-				"tag": "@link",
-				"text": "@xeokit/scene!SceneGeometryBucketParams | buckets"
-			},
-			{
-				"kind": "text",
-				"text": " to enable indices to use the minimum bits for storage\n\n### Aknowledgements\n\n* The bucketing technique mentioned above was developed for xeokit by Toni Marti, with support from Tribia AG. Read [the slides](media://pdfs/GPU_RAM_Savings_Toni_Marti_Apr22.pdf) from Toni's presentation at WebGL Meetup 2022.\n\n## Installation\n\n"
+				"text": "\nto create the compressed geometry directly.\n\n### Compression Techniques Used\n\n* Simplifies geometry by combining duplicate positions and adjusting indices\n* Generates edge indices for triangle meshes\n* Ignores normals (our shaders auto-generate them)\n* Converts positions to relative-to-center (RTC) coordinates\n* Quantizes positions and UVs as 16-bit unsigned integers\n\n## Installation\n\n"
 			},
 			{
 				"kind": "code",
@@ -115,25 +106,7 @@
 			},
 			{
 				"kind": "text",
-				"text": ".\n\nIn this example, our geometry is very simple, and our SceneGeometryCompressedParams only gets a single\n"
-			},
-			{
-				"kind": "inline-tag",
-				"tag": "@link",
-				"text": "@xeokit/scene!SceneGeometryBucketParams | SceneGeometryBucketParams"
-			},
-			{
-				"kind": "text",
-				"text": ". Note that if the\n"
-			},
-			{
-				"kind": "inline-tag",
-				"tag": "@link",
-				"text": "@xeokit/scene!SceneGeometryParams.positions | SceneGeometryParams.positions"
-			},
-			{
-				"kind": "text",
-				"text": " array was large enough to require\nsome of the indices to use more than 16 bits for storage, then that's when the function's bucketing mechanism would\nkick in, to split the geometry into smaller buckets, each with smaller indices that index a subset of the positions.\n\n"
+				"text": ".\n\n"
 			},
 			{
 				"kind": "code",
@@ -150,7 +123,7 @@
 			},
 			{
 				"kind": "text",
-				"text": " is shown below.\n\nWe can see that:\n\n* We get one bucket, because we have only a small number of indices\n* Vertex positions are now relative to "
+				"text": " is shown below.\n\nWe can see that:\n\n* Vertex positions are now relative to "
 			},
 			{
 				"kind": "code",
@@ -158,19 +131,19 @@
 			},
 			{
 				"kind": "text",
-				"text": " and quantized to 16-bit integers\n* Duplicate positions are removed and indices adjusted\n* Edge indices generated for our TrianglesPrimitive\n* A "
+				"text": " and quantized to 16-bit integers\n* Duplicate positions are removed and indices adjusted\n* Edge indices generated for our TrianglesPrimitive\n* A positions 3D boundary "
 			},
 			{
 				"kind": "code",
-				"text": "````positionsDecompressMatrix````"
+				"text": "````aabb````"
 			},
 			{
 				"kind": "text",
-				"text": " to de-quantize the positions within the Viewer\n\n"
+				"text": ", to de-quantize the positions within the Viewer\n\n"
 			},
 			{
 				"kind": "code",
-				"text": "````javascript\n{\n     id: \"myBoxGeometry\",\n     primitive: TrianglesPrimitive,\n     origin: [200,200,200],\n     positionsDecompressMatrix: [\n         0.00003052270125906143, 0, 0, 0,\n         0, 0.00003052270125906143, 0, 0,\n         0, 0, 0.00003052270125906143, 0,\n         -1, -1, -1, 1\n     ],\n     geometryBuckets: [\n         {\n             positionsCompressed: [\n                 65525, 65525, 65525, 0, 65525, 65525,\n                 0, 0, 65525, 65525, 0, 65525, 65525,\n                 0, 0, 65525, 65525, 0, 0, 65525, 0, 0,\n                 0, 0\n             ],\n             indices: [\n                 0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,\n                 0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,\n                 4, 7, 6, 4, 6, 5\n             ],\n             edgeIndices: [\n                 3, 4, 0, 4, 5, 0, 5, 6,\n                 0, 6, 1, 1, 6, 7, 1, 7,\n                 3, 2, 4, 7, 6, 4, 6\n             ]\n         }\n     ]\n}\n````"
+				"text": "````javascript\n{\n     id: \"myBoxGeometry\",\n     primitive: TrianglesPrimitive,\n     aabb: [200, 200, 200, 202, 202, 202],\n     positionsCompressed: [\n        65525, 65525, 65525, 0, 65525, 65525,\n        0, 0, 65525, 65525, 0, 65525, 65525,\n        0, 0, 65525, 65525, 0, 0, 65525, 0, 0,\n        0, 0\n     ],\n     origin: [0,0,0],\n     indices: [\n        0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,\n        0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,\n        4, 7, 6, 4, 6, 5\n     ],\n     edgeIndices: [\n        3, 4, 0, 4, 5, 0, 5, 6,\n        0, 6, 1, 1, 6, 7, 1, 7,\n        3, 2, 4, 7, 6, 4, 6\n     ]\n}\n````"
 			},
 			{
 				"kind": "text",
@@ -228,9 +201,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 471,
+					"line": 446,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L471"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L446"
 				}
 			],
 			"signatures": [
@@ -251,9 +224,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 471,
+							"line": 446,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L471"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L446"
 						}
 					],
 					"parameters": [
@@ -295,9 +268,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 289,
+					"line": 264,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L289"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L264"
 				}
 			],
 			"signatures": [
@@ -318,9 +291,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 289,
+							"line": 264,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L289"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L264"
 						}
 					],
 					"parameters": [
@@ -395,9 +368,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 255,
+					"line": 230,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L255"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L230"
 				}
 			],
 			"signatures": [
@@ -418,9 +391,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 255,
+							"line": 230,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L255"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L230"
 						}
 					],
 					"parameters": [
@@ -491,9 +464,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 279,
+											"line": 254,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L279"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L254"
 										}
 									],
 									"type": {
@@ -516,9 +489,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 278,
+											"line": 253,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L278"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L253"
 										}
 									],
 									"type": {
@@ -545,9 +518,9 @@
 							"sources": [
 								{
 									"fileName": "index.ts",
-									"line": 277,
+									"line": 252,
 									"character": 11,
-									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L277"
+									"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L252"
 								}
 							]
 						}
@@ -564,9 +537,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 827,
+					"line": 802,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L827"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L802"
 				}
 			],
 			"signatures": [
@@ -587,9 +560,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 827,
+							"line": 802,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L827"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L802"
 						}
 					],
 					"parameters": [
@@ -631,9 +604,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 435,
+					"line": 410,
 					"character": 11,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L435"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L410"
 				}
 			],
 			"signatures": [
@@ -654,9 +627,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 438,
+							"line": 413,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L438"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L413"
 						}
 					],
 					"parameters": [
@@ -727,9 +700,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 440,
+											"line": 415,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L440"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L415"
 										}
 									],
 									"type": {
@@ -751,9 +724,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 439,
+											"line": 414,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L439"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L414"
 										}
 									],
 									"type": {
@@ -779,9 +752,9 @@
 							"sources": [
 								{
 									"fileName": "index.ts",
-									"line": 438,
+									"line": 413,
 									"character": 90,
-									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L438"
+									"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L413"
 								}
 							]
 						}
@@ -798,9 +771,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 235,
+					"line": 210,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L235"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L210"
 				}
 			],
 			"signatures": [
@@ -821,9 +794,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 235,
+							"line": 210,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L235"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L210"
 						}
 					],
 					"parameters": [
@@ -883,9 +856,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 356,
+					"line": 331,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L356"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L331"
 				}
 			],
 			"signatures": [
@@ -906,9 +879,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 356,
+							"line": 331,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L356"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L331"
 						}
 					],
 					"parameters": [
@@ -983,9 +956,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 340,
+					"line": 315,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L340"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L315"
 				}
 			],
 			"signatures": [
@@ -1006,9 +979,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 340,
+							"line": 315,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L340"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L315"
 						}
 					],
 					"parameters": [
@@ -1083,9 +1056,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 555,
+					"line": 530,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L555"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L530"
 				}
 			],
 			"signatures": [
@@ -1098,9 +1071,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 555,
+							"line": 530,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L555"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L530"
 						}
 					],
 					"parameters": [
@@ -1158,9 +1131,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 575,
+					"line": 550,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L575"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L550"
 				}
 			],
 			"signatures": [
@@ -1173,9 +1146,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 575,
+							"line": 550,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L575"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L550"
 						}
 					],
 					"parameters": [
@@ -1240,9 +1213,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 320,
+					"line": 295,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L320"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L295"
 				}
 			],
 			"signatures": [
@@ -1263,9 +1236,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 320,
+							"line": 295,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L320"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L295"
 						}
 					],
 					"parameters": [
@@ -1340,9 +1313,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 307,
+					"line": 282,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L307"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L282"
 				}
 			],
 			"signatures": [
@@ -1363,9 +1336,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 307,
+							"line": 282,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L307"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L282"
 						}
 					],
 					"parameters": [
@@ -1440,9 +1413,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 393,
+					"line": 368,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L393"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L368"
 				}
 			],
 			"signatures": [
@@ -1463,9 +1436,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 393,
+							"line": 368,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L393"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L368"
 						}
 					],
 					"parameters": [
@@ -1540,9 +1513,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 378,
+					"line": 353,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L378"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L353"
 				}
 			],
 			"signatures": [
@@ -1563,9 +1536,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 378,
+							"line": 353,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L378"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L353"
 						}
 					],
 					"parameters": [
@@ -1640,9 +1613,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 536,
+					"line": 511,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L536"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L511"
 				}
 			],
 			"signatures": [
@@ -1655,9 +1628,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 536,
+							"line": 511,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L536"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L511"
 						}
 					],
 					"parameters": [
@@ -1727,9 +1700,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 544,
+					"line": 519,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L544"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L519"
 				}
 			],
 			"signatures": [
@@ -1742,9 +1715,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 544,
+							"line": 519,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L544"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L519"
 						}
 					],
 					"parameters": [
@@ -1819,9 +1792,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 212,
+					"line": 187,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L212"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L187"
 				}
 			],
 			"signatures": [
@@ -1842,9 +1815,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 212,
+							"line": 187,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L212"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L187"
 						}
 					],
 					"parameters": [
@@ -1919,9 +1892,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 228,
+											"line": 203,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L228"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L203"
 										}
 									],
 									"type": {
@@ -1943,9 +1916,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 227,
+											"line": 202,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L227"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L202"
 										}
 									],
 									"type": {
@@ -1971,9 +1944,9 @@
 							"sources": [
 								{
 									"fileName": "index.ts",
-									"line": 226,
+									"line": 201,
 									"character": 11,
-									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L226"
+									"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L201"
 								}
 							]
 						}
@@ -1990,9 +1963,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 412,
+					"line": 387,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L412"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L387"
 				}
 			],
 			"signatures": [
@@ -2013,9 +1986,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 412,
+							"line": 387,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L412"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L387"
 						}
 					],
 					"parameters": [
@@ -2054,9 +2027,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 412,
+											"line": 387,
 											"character": 77,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L412"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L387"
 										}
 									],
 									"type": {
@@ -2078,9 +2051,9 @@
 									"sources": [
 										{
 											"fileName": "index.ts",
-											"line": 412,
+											"line": 387,
 											"character": 55,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L412"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L387"
 										}
 									],
 									"type": {
@@ -2106,9 +2079,9 @@
 							"sources": [
 								{
 									"fileName": "index.ts",
-									"line": 412,
+									"line": 387,
 									"character": 53,
-									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/compression/src/index.ts#L412"
+									"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/compression/src/index.ts#L387"
 								}
 							]
 						}

@@ -110,7 +110,7 @@
 							"fileName": "loadXKTManifest.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKTManifest.ts#L12"
 						}
 					],
 					"type": {
@@ -132,7 +132,7 @@
 							"fileName": "loadXKTManifest.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKTManifest.ts#L11"
 						}
 					],
 					"type": {
@@ -158,7 +158,7 @@
 					"fileName": "loadXKTManifest.ts",
 					"line": 10,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L10"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKTManifest.ts#L10"
 				}
 			]
 		},
@@ -170,10 +170,10 @@
 			"flags": {},
 			"sources": [
 				{
-					"fileName": "load/loadXKT.ts",
+					"fileName": "loadXKT.ts",
 					"line": 28,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/load/loadXKT.ts#L28"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKT.ts#L28"
 				}
 			],
 			"signatures": [
@@ -275,10 +275,10 @@
 					},
 					"sources": [
 						{
-							"fileName": "load/loadXKT.ts",
+							"fileName": "loadXKT.ts",
 							"line": 28,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/load/loadXKT.ts#L28"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKT.ts#L28"
 						}
 					],
 					"parameters": [
@@ -321,10 +321,10 @@
 											},
 											"sources": [
 												{
-													"fileName": "load/loadXKT.ts",
+													"fileName": "loadXKT.ts",
 													"line": 29,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/load/loadXKT.ts#L29"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKT.ts#L29"
 												}
 											],
 											"type": {
@@ -353,10 +353,10 @@
 											},
 											"sources": [
 												{
-													"fileName": "load/loadXKT.ts",
+													"fileName": "loadXKT.ts",
 													"line": 30,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/load/loadXKT.ts#L30"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKT.ts#L30"
 												}
 											],
 											"type": {
@@ -381,10 +381,10 @@
 									],
 									"sources": [
 										{
-											"fileName": "load/loadXKT.ts",
+											"fileName": "loadXKT.ts",
 											"line": 28,
 											"character": 32,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/load/loadXKT.ts#L28"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKT.ts#L28"
 										}
 									]
 								}
@@ -420,7 +420,7 @@
 					"fileName": "loadXKTManifest.ts",
 					"line": 19,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L19"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKTManifest.ts#L19"
 				}
 			],
 			"signatures": [
@@ -435,7 +435,7 @@
 							"fileName": "loadXKTManifest.ts",
 							"line": 19,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKTManifest.ts#L19"
 						}
 					],
 					"parameters": [
@@ -465,7 +465,7 @@
 													"fileName": "loadXKTManifest.ts",
 													"line": 23,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L23"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKTManifest.ts#L23"
 												}
 											],
 											"type": {
@@ -491,7 +491,7 @@
 													"fileName": "loadXKTManifest.ts",
 													"line": 21,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L21"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKTManifest.ts#L21"
 												}
 											],
 											"type": {
@@ -512,7 +512,7 @@
 													"fileName": "loadXKTManifest.ts",
 													"line": 22,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L22"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKTManifest.ts#L22"
 												}
 											],
 											"type": {
@@ -538,7 +538,7 @@
 													"fileName": "loadXKTManifest.ts",
 													"line": 20,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L20"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKTManifest.ts#L20"
 												}
 											],
 											"type": {
@@ -563,7 +563,7 @@
 											"fileName": "loadXKTManifest.ts",
 											"line": 19,
 											"character": 40,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/xkt/src/loadXKTManifest.ts#L19"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/xkt/src/loadXKTManifest.ts#L19"
 										}
 									]
 								}
@@ -618,27 +618,27 @@
 			"qualifiedName": ""
 		},
 		"1": {
-			"sourceFileName": "src/load/loadXKT.ts",
+			"sourceFileName": "src/loadXKT.ts",
 			"qualifiedName": "loadXKT"
 		},
 		"2": {
-			"sourceFileName": "src/load/loadXKT.ts",
+			"sourceFileName": "src/loadXKT.ts",
 			"qualifiedName": "loadXKT"
 		},
 		"3": {
-			"sourceFileName": "src/load/loadXKT.ts",
+			"sourceFileName": "src/loadXKT.ts",
 			"qualifiedName": "params"
 		},
 		"4": {
-			"sourceFileName": "src/load/loadXKT.ts",
+			"sourceFileName": "src/loadXKT.ts",
 			"qualifiedName": "__type"
 		},
 		"5": {
-			"sourceFileName": "src/load/loadXKT.ts",
+			"sourceFileName": "src/loadXKT.ts",
 			"qualifiedName": "__type.fileData"
 		},
 		"6": {
-			"sourceFileName": "src/load/loadXKT.ts",
+			"sourceFileName": "src/loadXKT.ts",
 			"qualifiedName": "__type.sceneModel"
 		},
 		"7": {

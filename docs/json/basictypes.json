@@ -83,7 +83,7 @@
 					"fileName": "index.ts",
 					"line": 32,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/basictypes/src/index.ts#L32"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/basictypes/src/index.ts#L32"
 				}
 			],
 			"type": {
@@ -113,7 +113,7 @@
 					"fileName": "index.ts",
 					"line": 27,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/basictypes/src/index.ts#L27"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/basictypes/src/index.ts#L27"
 				}
 			],
 			"type": {
@@ -143,7 +143,7 @@
 					"fileName": "index.ts",
 					"line": 46,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/basictypes/src/index.ts#L46"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/basictypes/src/index.ts#L46"
 				}
 			],
 			"type": {
@@ -159,7 +159,7 @@
 							"fileName": "index.ts",
 							"line": 46,
 							"character": 24,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/basictypes/src/index.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/basictypes/src/index.ts#L46"
 						}
 					],
 					"indexSignature": {
@@ -173,7 +173,7 @@
 								"fileName": "index.ts",
 								"line": 46,
 								"character": 26,
-								"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/basictypes/src/index.ts#L46"
+								"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/basictypes/src/index.ts#L46"
 							}
 						],
 						"parameters": [
@@ -219,7 +219,7 @@
 					"fileName": "index.ts",
 					"line": 38,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/basictypes/src/index.ts#L38"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/basictypes/src/index.ts#L38"
 				}
 			],
 			"type": {
@@ -235,7 +235,7 @@
 							"fileName": "index.ts",
 							"line": 38,
 							"character": 24,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/basictypes/src/index.ts#L38"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/basictypes/src/index.ts#L38"
 						}
 					],
 					"indexSignature": {
@@ -249,7 +249,7 @@
 								"fileName": "index.ts",
 								"line": 38,
 								"character": 26,
-								"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/basictypes/src/index.ts#L38"
+								"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/basictypes/src/index.ts#L38"
 							}
 						],
 						"parameters": [

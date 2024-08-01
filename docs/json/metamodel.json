@@ -83,7 +83,7 @@
 					"fileName": "loadMetamodel.ts",
 					"line": 23,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/metamodel/src/loadMetamodel.ts#L23"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/metamodel/src/loadMetamodel.ts#L23"
 				}
 			],
 			"signatures": [
@@ -179,7 +179,7 @@
 							"fileName": "loadMetamodel.ts",
 							"line": 23,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/metamodel/src/loadMetamodel.ts#L23"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/metamodel/src/loadMetamodel.ts#L23"
 						}
 					],
 					"parameters": [
@@ -225,7 +225,7 @@
 													"fileName": "loadMetamodel.ts",
 													"line": 25,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/metamodel/src/loadMetamodel.ts#L25"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/metamodel/src/loadMetamodel.ts#L25"
 												}
 											],
 											"type": {
@@ -257,7 +257,7 @@
 													"fileName": "loadMetamodel.ts",
 													"line": 24,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/metamodel/src/loadMetamodel.ts#L24"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/metamodel/src/loadMetamodel.ts#L24"
 												}
 											],
 											"type": {
@@ -280,7 +280,7 @@
 											"fileName": "loadMetamodel.ts",
 											"line": 23,
 											"character": 38,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/metamodel/src/loadMetamodel.ts#L23"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/metamodel/src/loadMetamodel.ts#L23"
 										}
 									]
 								}

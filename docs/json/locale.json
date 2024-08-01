@@ -136,7 +136,7 @@
 							"fileName": "LocaleService.ts",
 							"line": 28,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L28"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L28"
 						}
 					],
 					"signatures": [
@@ -159,7 +159,7 @@
 									"fileName": "LocaleService.ts",
 									"line": 28,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L28"
+									"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L28"
 								}
 							],
 							"parameters": [
@@ -207,7 +207,7 @@
 															"fileName": "LocaleService.ts",
 															"line": 30,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L30"
+															"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L30"
 														}
 													],
 													"type": {
@@ -236,7 +236,7 @@
 															"fileName": "LocaleService.ts",
 															"line": 29,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L29"
+															"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L29"
 														}
 													],
 													"type": {
@@ -259,7 +259,7 @@
 													"fileName": "LocaleService.ts",
 													"line": 28,
 													"character": 21,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L28"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L28"
 												}
 											]
 										}
@@ -297,7 +297,7 @@
 							"fileName": "LocaleService.ts",
 							"line": 16,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L16"
 						}
 					],
 					"type": {
@@ -333,13 +333,13 @@
 							"fileName": "LocaleService.ts",
 							"line": 100,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L100"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L100"
 						},
 						{
 							"fileName": "LocaleService.ts",
 							"line": 115,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L115"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L115"
 						}
 					],
 					"getSignature": {
@@ -372,7 +372,7 @@
 								"fileName": "LocaleService.ts",
 								"line": 100,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L100"
+								"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L100"
 							}
 						],
 						"type": {
@@ -432,7 +432,7 @@
 								"fileName": "LocaleService.ts",
 								"line": 115,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L115"
+								"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L115"
 							}
 						],
 						"parameters": [
@@ -473,7 +473,7 @@
 							"fileName": "LocaleService.ts",
 							"line": 91,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L91"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L91"
 						}
 					],
 					"getSignature": {
@@ -506,7 +506,7 @@
 								"fileName": "LocaleService.ts",
 								"line": 91,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L91"
+								"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L91"
 							}
 						],
 						"type": {
@@ -529,7 +529,7 @@
 							"fileName": "LocaleService.ts",
 							"line": 78,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L78"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L78"
 						}
 					],
 					"setSignature": {
@@ -555,7 +555,7 @@
 								"fileName": "LocaleService.ts",
 								"line": 78,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L78"
+								"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L78"
 							}
 						],
 						"parameters": [
@@ -586,7 +586,7 @@
 												"fileName": "LocaleService.ts",
 												"line": 78,
 												"character": 27,
-												"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L78"
+												"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L78"
 											}
 										],
 										"indexSignature": {
@@ -600,7 +600,7 @@
 													"fileName": "LocaleService.ts",
 													"line": 78,
 													"character": 29,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L78"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L78"
 												}
 											],
 											"parameters": [
@@ -642,7 +642,7 @@
 							"fileName": "LocaleService.ts",
 							"line": 166,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L166"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L166"
 						}
 					],
 					"signatures": [
@@ -665,7 +665,7 @@
 									"fileName": "LocaleService.ts",
 									"line": 166,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L166"
+									"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L166"
 								}
 							],
 							"type": {
@@ -686,7 +686,7 @@
 							"fileName": "LocaleService.ts",
 							"line": 150,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L150"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L150"
 						}
 					],
 					"signatures": [
@@ -713,7 +713,7 @@
 									"fileName": "LocaleService.ts",
 									"line": 150,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L150"
+									"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L150"
 								}
 							],
 							"parameters": [
@@ -744,7 +744,7 @@
 													"fileName": "LocaleService.ts",
 													"line": 150,
 													"character": 27,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L150"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L150"
 												}
 											],
 											"indexSignature": {
@@ -758,7 +758,7 @@
 														"fileName": "LocaleService.ts",
 														"line": 150,
 														"character": 29,
-														"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L150"
+														"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L150"
 													}
 												],
 												"parameters": [
@@ -802,7 +802,7 @@
 							"fileName": "LocaleService.ts",
 							"line": 179,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L179"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L179"
 						}
 					],
 					"signatures": [
@@ -836,7 +836,7 @@
 									"fileName": "LocaleService.ts",
 									"line": 179,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L179"
+									"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L179"
 								}
 							],
 							"parameters": [
@@ -899,7 +899,7 @@
 							"fileName": "LocaleService.ts",
 							"line": 204,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L204"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L204"
 						}
 					],
 					"signatures": [
@@ -933,7 +933,7 @@
 									"fileName": "LocaleService.ts",
 									"line": 204,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L204"
+									"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L204"
 								}
 							],
 							"parameters": [
@@ -1041,7 +1041,7 @@
 					"fileName": "LocaleService.ts",
 					"line": 9,
 					"character": 6,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/locale/src/LocaleService.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/locale/src/LocaleService.ts#L9"
 				}
 			]
 		}

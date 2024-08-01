@@ -128,7 +128,7 @@
 	"children": [
 		{
 			"id": 12,
-			"name": "DTXData",
+			"name": "DTXData_v1",
 			"variant": "declaration",
 			"kind": 256,
 			"flags": {},
@@ -136,7 +136,7 @@
 				"summary": [
 					{
 						"kind": "text",
-						"text": "DTX file data.\n\n The elements of a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file, unpacked into a set of arrays for parsing.\n\n This interface represents the structure of a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
+						"text": "The elements of a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) v1.0 file,\n unpacked into a set of arrays for parsing.\n\n This interface represents the structure of the DTX v1.0 file format. Although this interface is used\n internally, we include it in the API documentation so that it can also serve as a reference to the file format."
 					}
 				]
 			},
@@ -151,16 +151,55 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "Combined list of all positions dequantization matrices."
+								"text": "Flat array containing 3D axis-aligned boundary (AABB) of each geometry's vertex positions.\n\nEach AABB is the double-precision axis-aligned 3D boundary\nof its geometry's 3D vertex positions in "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "DTXData_v1.positions",
+								"target": 13,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": ".\n\nEach AABB has the layout "
+							},
+							{
+								"kind": "code",
+								"text": "`[minX, minY, minZ, maxX, maxY, maxZ]`"
+							},
+							{
+								"kind": "text",
+								"text": ".\n\nTo decompress a quantized vertex "
+							},
+							{
+								"kind": "code",
+								"text": "`pUint`"
+							},
+							{
+								"kind": "text",
+								"text": " (unsigned 16-bit integers) to get "
+							},
+							{
+								"kind": "code",
+								"text": "`pDouble`"
+							},
+							{
+								"kind": "text",
+								"text": " (64-bit floats), we do this:\n\n"
+							},
+							{
+								"kind": "code",
+								"text": "````\npDouble[0] = (pUint[0] * (maxX - minX) / 65535) + minX\npDouble[1] = (pUint[1] * (maxY - minY) / 65535) + minY\npDouble[2] = (pUint[2] * (maxZ - minZ) / 65535) + minZ\n````"
 							}
 						]
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 34,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 51,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L34"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L51"
 						}
 					],
 					"type": {
@@ -183,16 +222,24 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "Combined vertex colors array for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
+								"text": "Flat array containing all RGBA geometry vertex colors.\n\nEach element is in range "
+							},
+							{
+								"kind": "code",
+								"text": "`[0..255]`"
+							},
+							{
+								"kind": "text",
+								"text": "."
 							}
 						]
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 19,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 23,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L23"
 						}
 					],
 					"type": {
@@ -215,16 +262,40 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each geometry, a pointer to an AABB."
+								"text": "For each geometry, a pointer to the start of its portion in "
+							},
+							{
+								"kind": "code",
+								"text": "`DTXData_v1.aabbs`"
+							},
+							{
+								"kind": "text",
+								"text": ".\n\nEach portion is six elements of "
+							},
+							{
+								"kind": "code",
+								"text": "`DTXData_v1.aabbs`"
+							},
+							{
+								"kind": "text",
+								"text": ", containing "
+							},
+							{
+								"kind": "code",
+								"text": "`[minX, minY, minZ, maxX, maxY, maxZ]`"
+							},
+							{
+								"kind": "text",
+								"text": ".\n\nEach AABB is the boundary of the geometry's unquantized, double-precision vertex positions, which is used\nin the Viewer to decompress them from 16-bit integers to double-precision floats."
 							}
 						]
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 64,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 94,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L64"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L94"
 						}
 					],
 					"type": {
@@ -247,12 +318,12 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each geometry, a pointer to the base of its portion in "
+								"text": "For each geometry, a pointer to the start of its portion in "
 							},
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
-								"text": "DTXData.colors",
+								"text": "DTXData_v1.colors",
 								"target": 14,
 								"tsLinkText": ""
 							},
@@ -264,10 +335,10 @@
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 44,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 61,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L44"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L61"
 						}
 					],
 					"type": {
@@ -290,12 +361,12 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each geometry, a pointer to the base of its portion in "
+								"text": "For each geometry, a pointer to the start of its portion in "
 							},
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
-								"text": "DTXData.edgeIndices",
+								"text": "DTXData_v1.edgeIndices",
 								"target": 16,
 								"tsLinkText": ""
 							},
@@ -307,10 +378,10 @@
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 54,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 71,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L54"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L71"
 						}
 					],
 					"type": {
@@ -333,12 +404,12 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each geometry, a pointer to the base of its portion in "
+								"text": "For each geometry, a pointer to the start of its portion in "
 							},
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
-								"text": "DTXData.indices",
+								"text": "DTXData_v1.indices",
 								"target": 15,
 								"tsLinkText": ""
 							},
@@ -350,10 +421,10 @@
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 49,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 66,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L49"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L66"
 						}
 					],
 					"type": {
@@ -376,12 +447,12 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each geometry, a pointer to the base of its portion in "
+								"text": "For each geometry, a pointer to the start of its portion in "
 							},
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
-								"text": "DTXData.positions",
+								"text": "DTXData_v1.positions",
 								"target": 13,
 								"tsLinkText": ""
 							},
@@ -393,10 +464,10 @@
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 39,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 56,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L39"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L56"
 						}
 					],
 					"type": {
@@ -419,16 +490,124 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each geometry, the primitive type."
+								"text": "For each geometry, the primitive type.\n\nSupported types are:\n\n* 0: Triangle mesh (same as 2)\n* 1: Solid, closed triangle mesh\n* 2: Triangle surface (same as 0)\n* 3: Lines\n* 4: Points"
 							}
 						]
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 59,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 84,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L59"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L84"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Uint8Array"
+						},
+						"name": "Uint8Array",
+						"package": "typescript"
+					}
+				},
+				{
+					"id": 25,
+					"name": "eachMeshGeometriesBase",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "For each mesh, a pointer to the start of its portion in "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "DTXData_v1.eachGeometryPositionsBase",
+								"target": 18,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": ",\n"
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "DTXData_v1.eachGeometryColorsBase",
+								"target": 19,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": ", "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "DTXData_v1.eachGeometryIndicesBase",
+								"target": 20,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": " and\n"
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "DTXData_v1.eachGeometryEdgeIndicesBase",
+								"target": 21,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": "."
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 109,
+							"character": 4,
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L109"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
+							"qualifiedName": "Uint32Array"
+						},
+						"name": "Uint32Array",
+						"package": "typescript"
+					}
+				},
+				{
+					"id": 27,
+					"name": "eachMeshMaterialAttributes",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Flat array containing four material attributes for each mesh.\n\nThe attributes for each mesh are:\n\n* Color R [0..255]\n* Color G [0..255]\n* Color B [0..255]\n* Opacity [0..255]"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 128,
+							"character": 4,
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L128"
 						}
 					],
 					"type": {
@@ -443,74 +622,6 @@
 				},
 				{
 					"id": 26,
-					"name": "eachMeshGeometriesBase",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each mesh, a pointer to its portion of geometries in "
-							},
-							{
-								"kind": "code",
-								"text": "````DTXData.eachGeometry*````"
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 79,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L79"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint32Array"
-						},
-						"name": "Uint32Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 29,
-					"name": "eachMeshMaterialAttributes",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each mesh, a set of sixe material attribute values.\n\nThe attributes for each mesh are:\n\n* Color R [0..255]\n* Color G [0..255]\n* Color B [0..255]\n* Opacity [0..255]\n* Metallic [0..255]\n* Roughness [0..255]"
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 103,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L103"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint8Array"
-						},
-						"name": "Uint8Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 27,
 					"name": "eachMeshMatricesBase",
 					"variant": "declaration",
 					"kind": 1024,
@@ -524,22 +635,22 @@
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
-								"text": "DTXData.matrices",
+								"text": "DTXData_v1.matrices",
 								"target": 24,
 								"tsLinkText": ""
 							},
 							{
 								"kind": "text",
-								"text": "."
+								"text": ".\n\nEach portion is sixteen elements, comprising a 4x4 matrix."
 							}
 						]
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 84,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 116,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L84"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L116"
 						}
 					],
 					"type": {
@@ -554,49 +665,6 @@
 				},
 				{
 					"id": 28,
-					"name": "eachMeshOriginsBase",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "For each mesh, a pointer to its RTC origin in "
-							},
-							{
-								"kind": "inline-tag",
-								"tag": "@link",
-								"text": "DTXData.origins",
-								"target": 25,
-								"tsLinkText": ""
-							},
-							{
-								"kind": "text",
-								"text": "."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 89,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L89"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Uint32Array"
-						},
-						"name": "Uint32Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 30,
 					"name": "eachObjectId",
 					"variant": "declaration",
 					"kind": 1024,
@@ -605,16 +673,16 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each object, a unique ID."
+								"text": "For each object, a unique string ID."
 							}
 						]
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 108,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 133,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L108"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L133"
 						}
 					],
 					"type": {
@@ -626,7 +694,7 @@
 					}
 				},
 				{
-					"id": 31,
+					"id": 29,
 					"name": "eachObjectMeshesBase",
 					"variant": "declaration",
 					"kind": 1024,
@@ -635,16 +703,49 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "For each object, a pointer to its forst mesh in DTXata.eachMesh*"
+								"text": "For each object, a pointer to its first mesh in "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "DTXData_v1.eachMeshGeometriesBase",
+								"target": 25,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": ",\n"
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "DTXData_v1.eachMeshMatricesBase",
+								"target": 26,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": " and "
+							},
+							{
+								"kind": "inline-tag",
+								"tag": "@link",
+								"text": "DTXData_v1.eachMeshMaterialAttributes",
+								"target": 27,
+								"tsLinkText": ""
+							},
+							{
+								"kind": "text",
+								"text": "."
 							}
 						]
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 113,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 139,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L113"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L139"
 						}
 					],
 					"type": {
@@ -667,16 +768,16 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "Combines 32-bit edge indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
+								"text": "Flat array cotaining all 32-bit geometry edge indices."
 							}
 						]
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 29,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 33,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L29"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L33"
 						}
 					],
 					"type": {
@@ -699,16 +800,16 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "Combined 32-bit indices for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
+								"text": "Flat array containing all 32-bit geometry indices."
 							}
 						]
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 24,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 28,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L28"
 						}
 					],
 					"type": {
@@ -731,48 +832,16 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "Combined list of all modeling transform matrices in this [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
+								"text": "Flat array containing all modeling transform matrices.\n\nEach matrix has sixteen elements. These are 64-bit precision, and may contain huge full-precision translations that are\nabsolute and relative to the World-space origin."
 							}
 						]
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 69,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 102,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L69"
-						}
-					],
-					"type": {
-						"type": "reference",
-						"target": {
-							"sourceFileName": "../../node_modules/.pnpm/typescript@4.9.4/node_modules/typescript/lib/lib.es5.d.ts",
-							"qualifiedName": "Float32Array"
-						},
-						"name": "Float32Array",
-						"package": "typescript"
-					}
-				},
-				{
-					"id": 25,
-					"name": "origins",
-					"variant": "declaration",
-					"kind": 1024,
-					"flags": {},
-					"comment": {
-						"summary": [
-							{
-								"kind": "text",
-								"text": "Combined list of all RTC coordinate origins in this [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
-							}
-						]
-					},
-					"sources": [
-						{
-							"fileName": "DTXData.ts",
-							"line": 74,
-							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L74"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L102"
 						}
 					],
 					"type": {
@@ -795,16 +864,16 @@
 						"summary": [
 							{
 								"kind": "text",
-								"text": "Combined vertex positions array for entire [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file."
+								"text": "Flat array containing all quantized 3D geometry vertex positions.\n\nThese positions are quantized to 16-bit unsigned integers."
 							}
 						]
 					},
 					"sources": [
 						{
-							"fileName": "DTXData.ts",
-							"line": 14,
+							"fileName": "versions/v1/DTXData_v1.ts",
+							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L16"
 						}
 					],
 					"type": {
@@ -830,26 +899,24 @@
 						20,
 						18,
 						22,
-						26,
-						29,
+						25,
 						27,
+						26,
 						28,
-						30,
-						31,
+						29,
 						16,
 						15,
 						24,
-						25,
 						13
 					]
 				}
 			],
 			"sources": [
 				{
-					"fileName": "DTXData.ts",
+					"fileName": "versions/v1/DTXData_v1.ts",
 					"line": 9,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/DTXData.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/versions/v1/DTXData_v1.ts#L9"
 				}
 			]
 		},
@@ -864,7 +931,7 @@
 					"fileName": "loadDTX.ts",
 					"line": 28,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/loadDTX.ts#L28"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/loadDTX.ts#L28"
 				}
 			],
 			"signatures": [
@@ -927,7 +994,7 @@
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
-								"text": "@xeokit/dtx!DTXData"
+								"text": "@xeokit/dtx!DTXData_v1"
 							},
 							{
 								"kind": "text",
@@ -958,7 +1025,7 @@
 									},
 									{
 										"kind": "text",
-										"text": "*\n* If the SceneModel has already been destroyed.\n* If the SceneModel has already been built.\n* If the DataModel has already been destroyed.\n* If the DataModel has already been built."
+										"text": "*\n* If the SceneModel has already been destroyed.\n* If the SceneModel has already been built."
 									}
 								]
 							}
@@ -969,7 +1036,7 @@
 							"fileName": "loadDTX.ts",
 							"line": 28,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/loadDTX.ts#L28"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/loadDTX.ts#L28"
 						}
 					],
 					"parameters": [
@@ -1015,7 +1082,7 @@
 													"fileName": "loadDTX.ts",
 													"line": 29,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/loadDTX.ts#L29"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/loadDTX.ts#L29"
 												}
 											],
 											"type": {
@@ -1047,7 +1114,7 @@
 													"fileName": "loadDTX.ts",
 													"line": 30,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/loadDTX.ts#L30"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/loadDTX.ts#L30"
 												}
 											],
 											"type": {
@@ -1075,7 +1142,7 @@
 											"fileName": "loadDTX.ts",
 											"line": 28,
 											"character": 32,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/loadDTX.ts#L28"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/loadDTX.ts#L28"
 										}
 									]
 								}
@@ -1109,9 +1176,9 @@
 			"sources": [
 				{
 					"fileName": "saveDTX.ts",
-					"line": 24,
+					"line": 19,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/saveDTX.ts#L24"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/saveDTX.ts#L19"
 				}
 			],
 			"signatures": [
@@ -1148,7 +1215,7 @@
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
-								"text": "@xeokit/dtx!DTXData"
+								"text": "@xeokit/dtx!DTXData_v1"
 							},
 							{
 								"kind": "text",
@@ -1192,43 +1259,15 @@
 										"text": " If the SceneModel has not yet been built."
 									}
 								]
-							},
-							{
-								"tag": "@returns",
-								"content": [
-									{
-										"kind": "inline-tag",
-										"tag": "@link",
-										"text": "@xeokit/core!SDKError | SDKError"
-									},
-									{
-										"kind": "text",
-										"text": " If the DataModel has already been destroyed."
-									}
-								]
-							},
-							{
-								"tag": "@returns",
-								"content": [
-									{
-										"kind": "inline-tag",
-										"tag": "@link",
-										"text": "@xeokit/core!SDKError | SDKError"
-									},
-									{
-										"kind": "text",
-										"text": " If the DataModel has not yet been built."
-									}
-								]
 							}
 						]
 					},
 					"sources": [
 						{
 							"fileName": "saveDTX.ts",
-							"line": 24,
+							"line": 19,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/saveDTX.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/saveDTX.ts#L19"
 						}
 					],
 					"parameters": [
@@ -1264,9 +1303,9 @@
 											"sources": [
 												{
 													"fileName": "saveDTX.ts",
-													"line": 25,
+													"line": 20,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/saveDTX.ts#L25"
+													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/saveDTX.ts#L20"
 												}
 											],
 											"type": {
@@ -1291,9 +1330,9 @@
 									"sources": [
 										{
 											"fileName": "saveDTX.ts",
-											"line": 24,
+											"line": 19,
 											"character": 32,
-											"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/dtx/src/saveDTX.ts#L24"
+											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/dtx/src/saveDTX.ts#L19"
 										}
 									]
 								}
@@ -1386,84 +1425,76 @@
 			"qualifiedName": "__type.sceneModel"
 		},
 		"12": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1"
 		},
 		"13": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.positions"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.positions"
 		},
 		"14": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.colors"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.colors"
 		},
 		"15": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.indices"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.indices"
 		},
 		"16": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.edgeIndices"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.edgeIndices"
 		},
 		"17": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.aabbs"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.aabbs"
 		},
 		"18": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachGeometryPositionsBase"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.eachGeometryPositionsBase"
 		},
 		"19": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachGeometryColorsBase"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.eachGeometryColorsBase"
 		},
 		"20": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachGeometryIndicesBase"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.eachGeometryIndicesBase"
 		},
 		"21": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachGeometryEdgeIndicesBase"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.eachGeometryEdgeIndicesBase"
 		},
 		"22": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachGeometryPrimitiveType"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.eachGeometryPrimitiveType"
 		},
 		"23": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachGeometryAABBBase"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.eachGeometryAABBBase"
 		},
 		"24": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.matrices"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.matrices"
 		},
 		"25": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.origins"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.eachMeshGeometriesBase"
 		},
 		"26": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachMeshGeometriesBase"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.eachMeshMatricesBase"
 		},
 		"27": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachMeshMatricesBase"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.eachMeshMaterialAttributes"
 		},
 		"28": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachMeshOriginsBase"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.eachObjectId"
 		},
 		"29": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachMeshMaterialAttributes"
-		},
-		"30": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachObjectId"
-		},
-		"31": {
-			"sourceFileName": "src/DTXData.ts",
-			"qualifiedName": "DTXData.eachObjectMeshesBase"
+			"sourceFileName": "src/versions/v1/DTXData_v1.ts",
+			"qualifiedName": "DTXData_v1.eachObjectMeshesBase"
 		}
 	}
 }

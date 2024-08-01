@@ -35,6 +35,146 @@
 	},
 	"children": [
 		{
+			"id": 33,
+			"name": "RTC_CELL_SIZE",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "The size of tiles within xeokit's relative-to-center (RTC) World coordinate system."
+					}
+				]
+			},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 61,
+					"character": 13,
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L61"
+				}
+			],
+			"type": {
+				"type": "literal",
+				"value": 200
+			},
+			"defaultValue": "200"
+		},
+		{
+			"id": 34,
+			"name": "createRTCModelMat",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "index.ts",
+					"line": 84,
+					"character": 13,
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L84"
+				}
+			],
+			"signatures": [
+				{
+					"id": 35,
+					"name": "createRTCModelMat",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "Given a modeling matrix and a relative-to-center (RTC) coordinate origin, returns an RTC modeling matrix."
+							}
+						],
+						"blockTags": [
+							{
+								"tag": "@returns",
+								"content": [
+									{
+										"kind": "text",
+										"text": "A new RTC modeling matrix, with transforms relative to the RTC origin."
+									}
+								]
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "index.ts",
+							"line": 89,
+							"character": 11,
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L89"
+						}
+					],
+					"parameters": [
+						{
+							"id": 36,
+							"name": "matrix",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Full-precision absolute modeling matrix, possibly with huge translations."
+									}
+								]
+							},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						},
+						{
+							"id": 37,
+							"name": "rtcCenter",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Returns the RTC origin."
+									}
+								]
+							},
+							"type": {
+								"type": "reference",
+								"target": {
+									"sourceFileName": "../math/src/index.ts",
+									"qualifiedName": "FloatArrayParam"
+								},
+								"name": "FloatArrayParam",
+								"package": "@xeokit/math"
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"sourceFileName": "../math/src/index.ts",
+							"qualifiedName": "FloatArrayParam"
+						},
+						"name": "FloatArrayParam",
+						"package": "@xeokit/math"
+					}
+				}
+			]
+		},
+		{
 			"id": 1,
 			"name": "createRTCViewMat",
 			"variant": "declaration",
@@ -43,9 +183,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 56,
+					"line": 67,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L56"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L67"
 				}
 			],
 			"signatures": [
@@ -66,9 +206,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 56,
+							"line": 67,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L56"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L67"
 						}
 					],
 					"parameters": [
@@ -143,9 +283,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 175,
+					"line": 209,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L175"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L209"
 				}
 			],
 			"signatures": [
@@ -172,9 +312,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 175,
+							"line": 209,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L175"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L209"
 						}
 					],
 					"parameters": [
@@ -259,9 +399,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 158,
+					"line": 192,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L158"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L192"
 				}
 			],
 			"signatures": [
@@ -282,9 +422,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 158,
+							"line": 192,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L158"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L192"
 						}
 					],
 					"parameters": [
@@ -382,9 +522,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 105,
+					"line": 139,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L105"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L139"
 				}
 			],
 			"signatures": [
@@ -405,9 +545,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 105,
+							"line": 139,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L105"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L139"
 						}
 					],
 					"parameters": [
@@ -479,7 +619,7 @@
 								"type": "intrinsic",
 								"name": "number"
 							},
-							"defaultValue": "200"
+							"defaultValue": "RTC_CELL_SIZE"
 						}
 					],
 					"type": {
@@ -503,9 +643,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 76,
+					"line": 110,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L76"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L110"
 				}
 			],
 			"signatures": [
@@ -526,9 +666,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 76,
+							"line": 110,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L76"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L110"
 						}
 					],
 					"parameters": [
@@ -621,9 +761,9 @@
 			"sources": [
 				{
 					"fileName": "index.ts",
-					"line": 128,
+					"line": 162,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L128"
+					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L162"
 				}
 			],
 			"signatures": [
@@ -723,9 +863,9 @@
 					"sources": [
 						{
 							"fileName": "index.ts",
-							"line": 128,
+							"line": 162,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/6c48b1682ac17058aec26d3b34f89859fd7ebf0a/packages/rtc/src/index.ts#L128"
+							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/rtc/src/index.ts#L162"
 						}
 					],
 					"parameters": [
@@ -821,7 +961,7 @@
 								"type": "intrinsic",
 								"name": "number"
 							},
-							"defaultValue": "200"
+							"defaultValue": "RTC_CELL_SIZE"
 						}
 					],
 					"type": {
@@ -834,8 +974,15 @@
 	],
 	"groups": [
 		{
+			"title": "Variables",
+			"children": [
+				33
+			]
+		},
+		{
 			"title": "Functions",
 			"children": [
+				34,
 				1,
 				27,
 				22,
@@ -985,6 +1132,26 @@
 		"32": {
 			"sourceFileName": "src/index.ts",
 			"qualifiedName": "rtcPlanePos"
+		},
+		"33": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "RTC_CELL_SIZE"
+		},
+		"34": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createRTCModelMat"
+		},
+		"35": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "createRTCModelMat"
+		},
+		"36": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "matrix"
+		},
+		"37": {
+			"sourceFileName": "src/index.ts",
+			"qualifiedName": "rtcCenter"
 		}
 	}
 }

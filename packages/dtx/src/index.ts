@@ -72,3 +72,4 @@
  */
 export * from "./loadDTX";
 export * from "./saveDTX";
+export * from "./versions/v1/DTXData_v1";

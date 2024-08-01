@@ -7,7 +7,7 @@ import {
     TrianglesPrimitive
 } from "@xeokit/constants";
 import {DTX_INFO} from "./DTX_INFO";
-import type {DTXData} from "./DTXData";
+import type {DTXData_v1} from "./DTXData_v1";
 import {isIdentityMat4} from "@xeokit/matrix";
 
 const DTX_VERSION = DTX_INFO.dtxVersion;
@@ -18,7 +18,7 @@ const NUM_MATERIAL_ATTRIBUTES = 4;
  */
 export function modelToDTX(params: {
     sceneModel: SceneModel
-}): DTXData {
+}): DTXData_v1 {
 
     const sceneModel = params.sceneModel;
 
@@ -180,5 +180,5 @@ export function modelToDTX(params: {
     dtxData.aabbs = new Float32Array(aabbs);
     dtxData.matrices = new Float64Array(matrices);
 
-    return <DTXData>dtxData;
+    return <DTXData_v1>dtxData;
 }

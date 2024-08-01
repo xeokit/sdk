@@ -6,14 +6,14 @@ import {
     TrianglesPrimitive
 } from "@xeokit/constants";
 import type {SceneGeometryCompressedParams, SceneModel} from "@xeokit/scene";
-import type {DTXData} from "./DTXData";
+import type {DTXData_v1} from "./DTXData_v1";
 import type {FloatArrayParam} from "@xeokit/math";
 
 /**
  * @private
  */
 export function dtxToModel(params: {
-    dtxData: DTXData,
+    dtxData: DTXData_v1,
     sceneModel: SceneModel
 }): void {
 

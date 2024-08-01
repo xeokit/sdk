@@ -15,7 +15,7 @@ const parsers = {
  *
  * See {@link "@xeokit/dtx" | @xeokit/dtx} for usage.
  *
- * See {@link @xeokit/dtx!DTXData} for insights into the structure of a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
+ * See {@link @xeokit/dtx!DTXData_v1} for insights into the structure of a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
  *
  * @param params - Loading parameters.
  * @param params.fileData - [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data

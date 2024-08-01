@@ -1,12 +1,12 @@
 import type {DTXDataDeflated} from "./DTXDataDeflated";
-import type {DTXData} from "./DTXData";
+import type {DTXData_v1} from "./DTXData_v1";
 import * as pako from "pako";
 
 /**
  * @private
  */
-export function deflateDTX(dtxData: DTXData, options: { deflateLevel: 0 | 1 | -1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 }): DTXDataDeflated {
-    const pakoOptions: pako.DeflateFunctionOptions = {level: options.deflateLevel};
+export function deflateDTX(dtxData: DTXData_v1, options: { deflateLevel: 0 | 1 | -1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 }): DTXDataDeflated {
+    const pakoOptions: pako.DeflateFunctionOptions = {/*level: options.deflateLevel*/};
     return <DTXDataDeflated>{
         positions: pako.deflate(dtxData.positions.buffer, pakoOptions),
         colors: pako.deflate(dtxData.colors.buffer, pakoOptions),

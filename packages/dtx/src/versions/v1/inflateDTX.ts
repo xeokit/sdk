@@ -1,17 +1,17 @@
 import type {DTXDataDeflated} from "./DTXDataDeflated";
-import type {DTXData} from "./DTXData";
+import type {DTXData_v1} from "./DTXData_v1";
 import * as pako from "pako";
 
 /**
  * @private
  */
-export function inflateDTX(dtxDataDeflated: DTXDataDeflated): DTXData {
+export function inflateDTX(dtxDataDeflated: DTXDataDeflated): DTXData_v1 {
 
     function inflate(array:any, options?: any):any {
         return (array.length === 0) ? [] : (<Uint8Array><unknown>pako.inflate(array, options)).buffer;
     }
 
-    return <DTXData>{
+    return <DTXData_v1>{
         positions: new Uint16Array(inflate(dtxDataDeflated.positions)),
         colors: new Uint8Array(inflate(dtxDataDeflated.colors)),
         indices: new Uint32Array(inflate(dtxDataDeflated.indices)),

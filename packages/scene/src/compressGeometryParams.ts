@@ -19,7 +19,6 @@ const rtcCenter = createVec3();
  */
 export function compressGeometryParams(geometryParams: SceneGeometryParams): SceneGeometryCompressedParams {
     const rtcNeeded = worldToRTCPositions(geometryParams.positions, geometryParams.positions, rtcCenter);
- //const rtcNeeded = false;
     const aabb = collapseAABB3();
     expandAABB3Points3(aabb, geometryParams.positions);
     const positionsCompressed = quantizePositions3(geometryParams.positions, aabb);

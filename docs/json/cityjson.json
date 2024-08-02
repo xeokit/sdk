@@ -90,7 +90,7 @@
 					"fileName": "loadCityJSON.ts",
 					"line": 46,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/cityjson/src/loadCityJSON.ts#L46"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/cityjson/src/loadCityJSON.ts#L46"
 				}
 			],
 			"signatures": [
@@ -204,7 +204,7 @@
 							"fileName": "loadCityJSON.ts",
 							"line": 46,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/cityjson/src/loadCityJSON.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/cityjson/src/loadCityJSON.ts#L46"
 						}
 					],
 					"parameters": [
@@ -252,7 +252,7 @@
 													"fileName": "loadCityJSON.ts",
 													"line": 49,
 													"character": 33,
-													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/cityjson/src/loadCityJSON.ts#L49"
+													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/cityjson/src/loadCityJSON.ts#L49"
 												}
 											],
 											"type": {
@@ -284,7 +284,7 @@
 													"fileName": "loadCityJSON.ts",
 													"line": 47,
 													"character": 33,
-													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/cityjson/src/loadCityJSON.ts#L47"
+													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/cityjson/src/loadCityJSON.ts#L47"
 												}
 											],
 											"type": {
@@ -311,7 +311,7 @@
 													"fileName": "loadCityJSON.ts",
 													"line": 48,
 													"character": 33,
-													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/cityjson/src/loadCityJSON.ts#L48"
+													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/cityjson/src/loadCityJSON.ts#L48"
 												}
 											],
 											"type": {
@@ -340,7 +340,7 @@
 											"fileName": "loadCityJSON.ts",
 											"line": 46,
 											"character": 37,
-											"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/cityjson/src/loadCityJSON.ts#L46"
+											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/cityjson/src/loadCityJSON.ts#L46"
 										}
 									]
 								}
@@ -390,7 +390,7 @@
 													"fileName": "loadCityJSON.ts",
 													"line": 52,
 													"character": 33,
-													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/cityjson/src/loadCityJSON.ts#L52"
+													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/cityjson/src/loadCityJSON.ts#L52"
 												}
 											],
 											"type": {
@@ -412,7 +412,7 @@
 											"fileName": "loadCityJSON.ts",
 											"line": 51,
 											"character": 38,
-											"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/cityjson/src/loadCityJSON.ts#L51"
+											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/cityjson/src/loadCityJSON.ts#L51"
 										}
 									]
 								}

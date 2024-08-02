@@ -201,7 +201,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 126,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L126"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L126"
 						}
 					],
 					"signatures": [
@@ -224,7 +224,7 @@
 									"fileName": "treeview/src/TreeView.ts",
 									"line": 126,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L126"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L126"
 								}
 							],
 							"parameters": [
@@ -289,7 +289,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 58,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L58"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L58"
 						}
 					],
 					"type": {
@@ -418,7 +418,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 78,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L78"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L78"
 						}
 					],
 					"type": {
@@ -477,7 +477,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 87,
 							"character": 21,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L87"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L87"
 						}
 					],
 					"type": {
@@ -528,7 +528,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 71,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L71"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L71"
 						}
 					],
 					"type": {
@@ -592,7 +592,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 64,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L64"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L64"
 						}
 					],
 					"type": {
@@ -675,7 +675,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 31,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L31"
 						}
 					],
 					"type": {
@@ -751,7 +751,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 53,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L53"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L53"
 						}
 					],
 					"type": {
@@ -819,7 +819,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 42,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L42"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L42"
 						}
 					],
 					"type": {
@@ -839,13 +839,13 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 396,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L396"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L396"
 						},
 						{
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 411,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L411"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L411"
 						}
 					],
 					"getSignature": {
@@ -940,7 +940,7 @@
 								"fileName": "treeview/src/TreeView.ts",
 								"line": 396,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L396"
+								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L396"
 							}
 						],
 						"type": {
@@ -1041,7 +1041,7 @@
 								"fileName": "treeview/src/TreeView.ts",
 								"line": 411,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L411"
+								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L411"
 							}
 						],
 						"parameters": [
@@ -1077,13 +1077,13 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 335,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L335"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L335"
 						},
 						{
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 348,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L348"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L348"
 						}
 					],
 					"getSignature": {
@@ -1134,7 +1134,7 @@
 								"fileName": "treeview/src/TreeView.ts",
 								"line": 335,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L335"
+								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L335"
 							}
 						],
 						"type": {
@@ -1190,7 +1190,7 @@
 								"fileName": "treeview/src/TreeView.ts",
 								"line": 348,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L348"
+								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L348"
 							}
 						],
 						"parameters": [
@@ -1223,13 +1223,13 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 367,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L367"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L367"
 						},
 						{
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 377,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L377"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L377"
 						}
 					],
 					"getSignature": {
@@ -1287,7 +1287,7 @@
 								"fileName": "treeview/src/TreeView.ts",
 								"line": 367,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L367"
+								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L367"
 							}
 						],
 						"type": {
@@ -1350,7 +1350,7 @@
 								"fileName": "treeview/src/TreeView.ts",
 								"line": 377,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L377"
+								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L377"
 							}
 						],
 						"parameters": [
@@ -1491,7 +1491,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 532,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L532"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L532"
 						}
 					],
 					"signatures": [
@@ -1514,7 +1514,7 @@
 									"fileName": "treeview/src/TreeView.ts",
 									"line": 532,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L532"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L532"
 								}
 							],
 							"type": {
@@ -1535,7 +1535,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 543,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L543"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L543"
 						}
 					],
 					"signatures": [
@@ -1558,7 +1558,7 @@
 									"fileName": "treeview/src/TreeView.ts",
 									"line": 543,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L543"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L543"
 								}
 							],
 							"type": {
@@ -1674,7 +1674,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 505,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L505"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L505"
 						}
 					],
 					"signatures": [
@@ -1697,7 +1697,7 @@
 									"fileName": "treeview/src/TreeView.ts",
 									"line": 505,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L505"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L505"
 								}
 							],
 							"parameters": [
@@ -1878,7 +1878,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 437,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L437"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L437"
 						}
 					],
 					"signatures": [
@@ -1943,7 +1943,7 @@
 									"fileName": "treeview/src/TreeView.ts",
 									"line": 437,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L437"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L437"
 								}
 							],
 							"parameters": [
@@ -1994,7 +1994,7 @@
 							"fileName": "treeview/src/TreeView.ts",
 							"line": 485,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L485"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L485"
 						}
 					],
 					"signatures": [
@@ -2028,7 +2028,7 @@
 									"fileName": "treeview/src/TreeView.ts",
 									"line": 485,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L485"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L485"
 								}
 							],
 							"type": {
@@ -2182,7 +2182,7 @@
 					"fileName": "treeview/src/TreeView.ts",
 					"line": 18,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeView.ts#L18"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeView.ts#L18"
 				}
 			],
 			"extendedTypes": [
@@ -2223,7 +2223,7 @@
 							"fileName": "treeview/src/TreeViewNode.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNode.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNode.ts#L12"
 						}
 					],
 					"type": {
@@ -2242,7 +2242,7 @@
 							"fileName": "treeview/src/TreeViewNode.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNode.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNode.ts#L14"
 						}
 					],
 					"type": {
@@ -2266,7 +2266,7 @@
 							"fileName": "treeview/src/TreeViewNode.ts",
 							"line": 5,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNode.ts#L5"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNode.ts#L5"
 						}
 					],
 					"type": {
@@ -2285,7 +2285,7 @@
 							"fileName": "treeview/src/TreeViewNode.ts",
 							"line": 10,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNode.ts#L10"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNode.ts#L10"
 						}
 					],
 					"type": {
@@ -2304,7 +2304,7 @@
 							"fileName": "treeview/src/TreeViewNode.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNode.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNode.ts#L11"
 						}
 					],
 					"type": {
@@ -2323,7 +2323,7 @@
 							"fileName": "treeview/src/TreeViewNode.ts",
 							"line": 6,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNode.ts#L6"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNode.ts#L6"
 						}
 					],
 					"type": {
@@ -2342,7 +2342,7 @@
 							"fileName": "treeview/src/TreeViewNode.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNode.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNode.ts#L9"
 						}
 					],
 					"type": {
@@ -2363,7 +2363,7 @@
 							"fileName": "treeview/src/TreeViewNode.ts",
 							"line": 7,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNode.ts#L7"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNode.ts#L7"
 						}
 					],
 					"type": {
@@ -2382,7 +2382,7 @@
 							"fileName": "treeview/src/TreeViewNode.ts",
 							"line": 8,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNode.ts#L8"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNode.ts#L8"
 						}
 					],
 					"type": {
@@ -2401,7 +2401,7 @@
 							"fileName": "treeview/src/TreeViewNode.ts",
 							"line": 13,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNode.ts#L13"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNode.ts#L13"
 						}
 					],
 					"type": {
@@ -2432,7 +2432,7 @@
 					"fileName": "treeview/src/TreeViewNode.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNode.ts#L4"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNode.ts#L4"
 				}
 			]
 		},
@@ -2473,7 +2473,7 @@
 							"fileName": "treeview/src/TreeViewNodeContextMenuEvent.ts",
 							"line": 8,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNodeContextMenuEvent.ts#L8"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNodeContextMenuEvent.ts#L8"
 						}
 					],
 					"type": {
@@ -2497,7 +2497,7 @@
 							"fileName": "treeview/src/TreeViewNodeContextMenuEvent.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNodeContextMenuEvent.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNodeContextMenuEvent.ts#L9"
 						}
 					],
 					"type": {
@@ -2518,7 +2518,7 @@
 							"fileName": "treeview/src/TreeViewNodeContextMenuEvent.ts",
 							"line": 10,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNodeContextMenuEvent.ts#L10"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNodeContextMenuEvent.ts#L10"
 						}
 					],
 					"type": {
@@ -2544,7 +2544,7 @@
 					"fileName": "treeview/src/TreeViewNodeContextMenuEvent.ts",
 					"line": 7,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNodeContextMenuEvent.ts#L7"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNodeContextMenuEvent.ts#L7"
 				}
 			]
 		},
@@ -2585,7 +2585,7 @@
 							"fileName": "treeview/src/TreeViewNodeTitleClickedEvent.ts",
 							"line": 8,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNodeTitleClickedEvent.ts#L8"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNodeTitleClickedEvent.ts#L8"
 						}
 					],
 					"type": {
@@ -2609,7 +2609,7 @@
 							"fileName": "treeview/src/TreeViewNodeTitleClickedEvent.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNodeTitleClickedEvent.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNodeTitleClickedEvent.ts#L9"
 						}
 					],
 					"type": {
@@ -2630,7 +2630,7 @@
 							"fileName": "treeview/src/TreeViewNodeTitleClickedEvent.ts",
 							"line": 10,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNodeTitleClickedEvent.ts#L10"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNodeTitleClickedEvent.ts#L10"
 						}
 					],
 					"type": {
@@ -2656,7 +2656,7 @@
 					"fileName": "treeview/src/TreeViewNodeTitleClickedEvent.ts",
 					"line": 7,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewNodeTitleClickedEvent.ts#L7"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewNodeTitleClickedEvent.ts#L7"
 				}
 			]
 		},
@@ -2697,7 +2697,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 67,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L67"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L67"
 						}
 					],
 					"type": {
@@ -2716,7 +2716,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 23,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L23"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L23"
 						}
 					],
 					"type": {
@@ -2766,7 +2766,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 18,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L18"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L18"
 						}
 					],
 					"type": {
@@ -2792,7 +2792,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 33,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L33"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L33"
 						}
 					],
 					"type": {
@@ -2892,7 +2892,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 51,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L51"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L51"
 						}
 					],
 					"type": {
@@ -2953,7 +2953,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 62,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L62"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L62"
 						}
 					],
 					"type": {
@@ -2974,7 +2974,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 28,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L28"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L28"
 						}
 					],
 					"type": {
@@ -3049,7 +3049,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L41"
 						}
 					],
 					"type": {
@@ -3070,7 +3070,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 65,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L65"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L65"
 						}
 					],
 					"type": {
@@ -3091,7 +3091,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 64,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L64"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L64"
 						}
 					],
 					"type": {
@@ -3112,7 +3112,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 66,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L66"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L66"
 						}
 					],
 					"type": {
@@ -3166,7 +3166,7 @@
 							"fileName": "treeview/src/TreeViewparams.ts",
 							"line": 13,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L13"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L13"
 						}
 					],
 					"type": {
@@ -3204,7 +3204,7 @@
 					"fileName": "treeview/src/TreeViewparams.ts",
 					"line": 7,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/treeview/src/TreeViewparams.ts#L7"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/treeview/src/TreeViewparams.ts#L7"
 				}
 			]
 		}

@@ -419,7 +419,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 86,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L86"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L86"
 						}
 					],
 					"signatures": [
@@ -451,7 +451,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 86,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L86"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L86"
 								}
 							],
 							"type": {
@@ -608,7 +608,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 21,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L21"
 						}
 					],
 					"type": {
@@ -624,7 +624,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 21,
 									"character": 28,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L21"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L21"
 								}
 							],
 							"indexSignature": {
@@ -638,7 +638,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 21,
 										"character": 30,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L21"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L21"
 									}
 								],
 								"parameters": [
@@ -704,7 +704,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 31,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L31"
 						}
 					],
 					"type": {
@@ -720,7 +720,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 31,
 									"character": 29,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L31"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L31"
 								}
 							],
 							"indexSignature": {
@@ -734,7 +734,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 31,
 										"character": 31,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L31"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L31"
 									}
 								],
 								"parameters": [
@@ -818,7 +818,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 46,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L46"
 						}
 					],
 					"type": {
@@ -834,7 +834,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 46,
 									"character": 35,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L46"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L46"
 								}
 							],
 							"indexSignature": {
@@ -848,7 +848,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 46,
 										"character": 37,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L46"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L46"
 									}
 								],
 								"parameters": [
@@ -877,7 +877,7 @@
 												"fileName": "data/src/Data.ts",
 												"line": 46,
 												"character": 52,
-												"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L46"
+												"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L46"
 											}
 										],
 										"indexSignature": {
@@ -891,7 +891,7 @@
 													"fileName": "data/src/Data.ts",
 													"line": 46,
 													"character": 54,
-													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L46"
+													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L46"
 												}
 											],
 											"parameters": [
@@ -1011,7 +1011,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 58,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L58"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L58"
 						}
 					],
 					"type": {
@@ -1069,7 +1069,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 65,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L65"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L65"
 						}
 					],
 					"type": {
@@ -1127,7 +1127,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 72,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L72"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L72"
 						}
 					],
 					"type": {
@@ -1185,7 +1185,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 79,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L79"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L79"
 						}
 					],
 					"type": {
@@ -1252,7 +1252,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 26,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L26"
 						}
 					],
 					"type": {
@@ -1268,7 +1268,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 26,
 									"character": 34,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L26"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L26"
 								}
 							],
 							"indexSignature": {
@@ -1282,7 +1282,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 26,
 										"character": 36,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L26"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L26"
 									}
 								],
 								"parameters": [
@@ -1366,7 +1366,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 40,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L40"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L40"
 						}
 					],
 					"type": {
@@ -1382,7 +1382,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 40,
 									"character": 33,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L40"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L40"
 								}
 							],
 							"indexSignature": {
@@ -1396,7 +1396,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 40,
 										"character": 35,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L40"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L40"
 									}
 								],
 								"parameters": [
@@ -1453,7 +1453,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 51,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L51"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L51"
 						}
 					],
 					"type": {
@@ -1469,7 +1469,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 51,
 									"character": 32,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L51"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L51"
 								}
 							],
 							"indexSignature": {
@@ -1483,7 +1483,7 @@
 										"fileName": "data/src/Data.ts",
 										"line": 51,
 										"character": 34,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L51"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L51"
 									}
 								],
 								"parameters": [
@@ -1626,7 +1626,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 279,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L279"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L279"
 						}
 					],
 					"signatures": [
@@ -1720,7 +1720,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 279,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L279"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L279"
 								}
 							],
 							"type": {
@@ -1755,7 +1755,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 129,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L129"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L129"
 						}
 					],
 					"signatures": [
@@ -1920,7 +1920,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 129,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L129"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L129"
 								}
 							],
 							"parameters": [
@@ -2018,7 +2018,7 @@
 															"fileName": "data/src/Data.ts",
 															"line": 133,
 															"character": 12,
-															"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L133"
+															"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L133"
 														}
 													],
 													"type": {
@@ -2042,7 +2042,7 @@
 															"fileName": "data/src/Data.ts",
 															"line": 132,
 															"character": 12,
-															"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L132"
+															"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L132"
 														}
 													],
 													"type": {
@@ -2068,7 +2068,7 @@
 													"fileName": "data/src/Data.ts",
 													"line": 131,
 													"character": 18,
-													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L131"
+													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L131"
 												}
 											]
 										}
@@ -2109,7 +2109,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 302,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L302"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L302"
 						}
 					],
 					"signatures": [
@@ -2236,7 +2236,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 302,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L302"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L302"
 								}
 							],
 							"type": {
@@ -2366,7 +2366,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 167,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L167"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L167"
 						}
 					],
 					"signatures": [
@@ -2469,7 +2469,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 167,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L167"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L167"
 								}
 							],
 							"parameters": [
@@ -2613,7 +2613,7 @@
 							"fileName": "data/src/Data.ts",
 							"line": 191,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L191"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L191"
 						}
 					],
 					"signatures": [
@@ -2696,7 +2696,7 @@
 									"fileName": "data/src/Data.ts",
 									"line": 191,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L191"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L191"
 								}
 							],
 							"parameters": [
@@ -2936,7 +2936,7 @@
 					"fileName": "data/src/Data.ts",
 					"line": 15,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Data.ts#L15"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Data.ts#L15"
 				}
 			],
 			"extendedTypes": [
@@ -2997,7 +2997,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 51,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L51"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L51"
 						}
 					],
 					"type": {
@@ -3051,7 +3051,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 127,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L127"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L127"
 						}
 					],
 					"type": {
@@ -3081,7 +3081,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 56,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L56"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L56"
 						}
 					],
 					"type": {
@@ -3111,7 +3111,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 61,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L61"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L61"
 						}
 					],
 					"type": {
@@ -3141,7 +3141,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 24,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L24"
 						}
 					],
 					"type": {
@@ -3246,7 +3246,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 31,
 							"character": 28,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L31"
 						}
 					],
 					"type": {
@@ -3281,7 +3281,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 36,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L36"
 						}
 					],
 					"type": {
@@ -3337,7 +3337,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 80,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L80"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L80"
 						}
 					],
 					"type": {
@@ -3353,7 +3353,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 80,
 									"character": 20,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L80"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L80"
 								}
 							],
 							"indexSignature": {
@@ -3367,7 +3367,7 @@
 										"fileName": "data/src/DataModel.ts",
 										"line": 80,
 										"character": 22,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L80"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L80"
 									}
 								],
 								"parameters": [
@@ -3441,7 +3441,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 96,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L96"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L96"
 						}
 					],
 					"type": {
@@ -3457,7 +3457,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 96,
 									"character": 26,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L96"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L96"
 								}
 							],
 							"indexSignature": {
@@ -3471,7 +3471,7 @@
 										"fileName": "data/src/DataModel.ts",
 										"line": 96,
 										"character": 28,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L96"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L96"
 									}
 								],
 								"parameters": [
@@ -3500,7 +3500,7 @@
 												"fileName": "data/src/DataModel.ts",
 												"line": 96,
 												"character": 43,
-												"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L96"
+												"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L96"
 											}
 										],
 										"indexSignature": {
@@ -3514,7 +3514,7 @@
 													"fileName": "data/src/DataModel.ts",
 													"line": 96,
 													"character": 45,
-													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L96"
+													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L96"
 												}
 											],
 											"parameters": [
@@ -3592,7 +3592,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 119,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L119"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L119"
 						}
 					],
 					"type": {
@@ -3699,7 +3699,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 41,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L41"
 						}
 					],
 					"type": {
@@ -3765,7 +3765,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 73,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L73"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L73"
 						}
 					],
 					"type": {
@@ -3781,7 +3781,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 73,
 									"character": 34,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L73"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L73"
 								}
 							],
 							"indexSignature": {
@@ -3795,7 +3795,7 @@
 										"fileName": "data/src/DataModel.ts",
 										"line": 73,
 										"character": 36,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L73"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L73"
 									}
 								],
 								"parameters": [
@@ -3851,7 +3851,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 103,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L103"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L103"
 						}
 					],
 					"type": {
@@ -3886,7 +3886,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 46,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L46"
 						}
 					],
 					"type": {
@@ -3960,7 +3960,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 90,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L90"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L90"
 						}
 					],
 					"type": {
@@ -3976,7 +3976,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 90,
 									"character": 24,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L90"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L90"
 								}
 							],
 							"indexSignature": {
@@ -3990,7 +3990,7 @@
 										"fileName": "data/src/DataModel.ts",
 										"line": 90,
 										"character": 26,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L90"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L90"
 									}
 								],
 								"parameters": [
@@ -4038,7 +4038,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 66,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L66"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L66"
 						}
 					],
 					"type": {
@@ -4086,7 +4086,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 108,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L108"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L108"
 						}
 					],
 					"type": {
@@ -4102,7 +4102,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 108,
 									"character": 32,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L108"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L108"
 								}
 							],
 							"indexSignature": {
@@ -4116,7 +4116,7 @@
 										"fileName": "data/src/DataModel.ts",
 										"line": 108,
 										"character": 34,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L108"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L108"
 									}
 								],
 								"parameters": [
@@ -4151,7 +4151,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 502,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L502"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L502"
 						}
 					],
 					"signatures": [
@@ -4252,7 +4252,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 502,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L502"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L502"
 								}
 							],
 							"type": {
@@ -4394,7 +4394,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 330,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L330"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L330"
 						}
 					],
 					"signatures": [
@@ -4536,7 +4536,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 330,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L330"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L330"
 								}
 							],
 							"parameters": [
@@ -4596,7 +4596,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 257,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L257"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L257"
 						}
 					],
 					"signatures": [
@@ -4712,7 +4712,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 257,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L257"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L257"
 								}
 							],
 							"parameters": [
@@ -4772,7 +4772,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 442,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L442"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L442"
 						}
 					],
 					"signatures": [
@@ -4925,7 +4925,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 442,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L442"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L442"
 								}
 							],
 							"parameters": [
@@ -4985,7 +4985,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 598,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L598"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L598"
 						}
 					],
 					"signatures": [
@@ -5068,7 +5068,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 598,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L598"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L598"
 								}
 							],
 							"type": {
@@ -5198,7 +5198,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 184,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L184"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L184"
 						}
 					],
 					"signatures": [
@@ -5259,7 +5259,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 184,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L184"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L184"
 								}
 							],
 							"parameters": [
@@ -5309,7 +5309,7 @@
 							"fileName": "data/src/DataModel.ts",
 							"line": 519,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L519"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L519"
 						}
 					],
 					"signatures": [
@@ -5332,7 +5332,7 @@
 									"fileName": "data/src/DataModel.ts",
 									"line": 519,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L519"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L519"
 								}
 							],
 							"type": {
@@ -5638,7 +5638,7 @@
 					"fileName": "data/src/DataModel.ts",
 					"line": 19,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModel.ts#L19"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModel.ts#L19"
 				}
 			],
 			"extendedTypes": [
@@ -5766,7 +5766,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 19,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L19"
 						}
 					],
 					"type": {
@@ -5799,7 +5799,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 47,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L47"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L47"
 						}
 					],
 					"type": {
@@ -5865,7 +5865,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 31,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L31"
 						}
 					],
 					"type": {
@@ -5899,7 +5899,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 24,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L24"
 						}
 					],
 					"type": {
@@ -5935,7 +5935,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 42,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L42"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L42"
 						}
 					],
 					"type": {
@@ -5973,7 +5973,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 37,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L37"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L37"
 						}
 					],
 					"type": {
@@ -6009,7 +6009,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 57,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L57"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L57"
 						}
 					],
 					"type": {
@@ -6080,7 +6080,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 73,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L73"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L73"
 						}
 					],
 					"type": {
@@ -6096,7 +6096,7 @@
 									"fileName": "data/src/DataObject.ts",
 									"line": 73,
 									"character": 29,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L73"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L73"
 								}
 							],
 							"indexSignature": {
@@ -6110,7 +6110,7 @@
 										"fileName": "data/src/DataObject.ts",
 										"line": 74,
 										"character": 8,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L74"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L74"
 									}
 								],
 								"parameters": [
@@ -6197,7 +6197,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 64,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L64"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L64"
 						}
 					],
 					"type": {
@@ -6213,7 +6213,7 @@
 									"fileName": "data/src/DataObject.ts",
 									"line": 64,
 									"character": 30,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L64"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L64"
 								}
 							],
 							"indexSignature": {
@@ -6227,7 +6227,7 @@
 										"fileName": "data/src/DataObject.ts",
 										"line": 65,
 										"character": 8,
-										"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L65"
+										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L65"
 									}
 								],
 								"parameters": [
@@ -6278,7 +6278,7 @@
 							"fileName": "data/src/DataObject.ts",
 							"line": 52,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L52"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L52"
 						}
 					],
 					"type": {
@@ -6309,7 +6309,7 @@
 					"fileName": "data/src/DataObject.ts",
 					"line": 14,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObject.ts#L14"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObject.ts#L14"
 				}
 			]
 		},
@@ -6369,7 +6369,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 39,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Property.ts#L39"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Property.ts#L39"
 						}
 					],
 					"type": {
@@ -6399,7 +6399,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 19,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Property.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Property.ts#L19"
 						}
 					],
 					"type": {
@@ -6429,7 +6429,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 14,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Property.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Property.ts#L14"
 						}
 					],
 					"type": {
@@ -6462,7 +6462,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 29,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Property.ts#L29"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Property.ts#L29"
 						}
 					],
 					"type": {
@@ -6501,7 +6501,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 24,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Property.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Property.ts#L24"
 						}
 					],
 					"type": {
@@ -6532,7 +6532,7 @@
 							"fileName": "data/src/Property.ts",
 							"line": 34,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Property.ts#L34"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Property.ts#L34"
 						}
 					],
 					"type": {
@@ -6568,7 +6568,7 @@
 					"fileName": "data/src/Property.ts",
 					"line": 9,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Property.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Property.ts#L9"
 				}
 			]
 		},
@@ -6683,7 +6683,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 26,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySet.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySet.ts#L26"
 						}
 					],
 					"type": {
@@ -6713,7 +6713,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 18,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySet.ts#L18"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySet.ts#L18"
 						}
 					],
 					"type": {
@@ -6748,7 +6748,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 36,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySet.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySet.ts#L36"
 						}
 					],
 					"type": {
@@ -6779,7 +6779,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 31,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySet.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySet.ts#L31"
 						}
 					],
 					"type": {
@@ -6809,7 +6809,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 46,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySet.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySet.ts#L46"
 						}
 					],
 					"type": {
@@ -6844,7 +6844,7 @@
 							"fileName": "data/src/PropertySet.ts",
 							"line": 41,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySet.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySet.ts#L41"
 						}
 					],
 					"type": {
@@ -6871,7 +6871,7 @@
 					"fileName": "data/src/PropertySet.ts",
 					"line": 13,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySet.ts#L13"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySet.ts#L13"
 				}
 			]
 		},
@@ -6956,7 +6956,7 @@
 							"fileName": "data/src/Relationship.ts",
 							"line": 31,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Relationship.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Relationship.ts#L31"
 						}
 					],
 					"type": {
@@ -7014,7 +7014,7 @@
 							"fileName": "data/src/Relationship.ts",
 							"line": 23,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Relationship.ts#L23"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Relationship.ts#L23"
 						}
 					],
 					"type": {
@@ -7045,7 +7045,7 @@
 							"fileName": "data/src/Relationship.ts",
 							"line": 15,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Relationship.ts#L15"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Relationship.ts#L15"
 						}
 					],
 					"type": {
@@ -7069,7 +7069,7 @@
 					"fileName": "data/src/Relationship.ts",
 					"line": 8,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/Relationship.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/Relationship.ts#L8"
 				}
 			]
 		},
@@ -7136,7 +7136,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelContentParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelContentParams.ts#L21"
 						}
 					],
 					"type": {
@@ -7179,7 +7179,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelContentParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelContentParams.ts#L16"
 						}
 					],
 					"type": {
@@ -7222,7 +7222,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelContentParams.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelContentParams.ts#L26"
 						}
 					],
 					"type": {
@@ -7251,7 +7251,7 @@
 					"fileName": "data/src/DataModelContentParams.ts",
 					"line": 11,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelContentParams.ts#L11"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelContentParams.ts#L11"
 				}
 			],
 			"extendedBy": [
@@ -7325,7 +7325,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelParams.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelParams.ts#L31"
 						}
 					],
 					"type": {
@@ -7354,7 +7354,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelParams.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelParams.ts#L36"
 						}
 					],
 					"type": {
@@ -7383,7 +7383,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelParams.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelParams.ts#L41"
 						}
 					],
 					"type": {
@@ -7419,7 +7419,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelParams.ts#L16"
 						}
 					],
 					"type": {
@@ -7457,7 +7457,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelContentParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelContentParams.ts#L21"
 						}
 					],
 					"type": {
@@ -7496,7 +7496,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelParams.ts#L21"
 						}
 					],
 					"type": {
@@ -7543,7 +7543,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelContentParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelContentParams.ts#L16"
 						}
 					],
 					"type": {
@@ -7591,7 +7591,7 @@
 							"fileName": "data/src/DataModelContentParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelContentParams.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelContentParams.ts#L26"
 						}
 					],
 					"type": {
@@ -7630,7 +7630,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelParams.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelParams.ts#L26"
 						}
 					],
 					"type": {
@@ -7668,7 +7668,7 @@
 							"fileName": "data/src/DataModelParams.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelParams.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelParams.ts#L46"
 						}
 					],
 					"type": {
@@ -7699,7 +7699,7 @@
 					"fileName": "data/src/DataModelParams.ts",
 					"line": 9,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataModelParams.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataModelParams.ts#L9"
 				}
 			],
 			"extendedTypes": [
@@ -7774,7 +7774,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObjectParams.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObjectParams.ts#L36"
 						}
 					],
 					"type": {
@@ -7864,7 +7864,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 15,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObjectParams.ts#L15"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObjectParams.ts#L15"
 						}
 					],
 					"type": {
@@ -7891,7 +7891,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObjectParams.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObjectParams.ts#L31"
 						}
 					],
 					"type": {
@@ -7929,7 +7929,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObjectParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObjectParams.ts#L21"
 						}
 					],
 					"type": {
@@ -7967,7 +7967,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObjectParams.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObjectParams.ts#L41"
 						}
 					],
 					"type": {
@@ -8006,7 +8006,7 @@
 							"fileName": "data/src/DataObjectParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObjectParams.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObjectParams.ts#L26"
 						}
 					],
 					"type": {
@@ -8033,7 +8033,7 @@
 					"fileName": "data/src/DataObjectParams.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/DataObjectParams.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/DataObjectParams.ts#L6"
 				}
 			]
 		},
@@ -8111,7 +8111,7 @@
 							"fileName": "data/src/PropertyParams.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertyParams.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertyParams.ts#L31"
 						}
 					],
 					"type": {
@@ -8148,7 +8148,7 @@
 							"fileName": "data/src/PropertyParams.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertyParams.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertyParams.ts#L11"
 						}
 					],
 					"type": {
@@ -8187,7 +8187,7 @@
 							"fileName": "data/src/PropertyParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertyParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertyParams.ts#L21"
 						}
 					],
 					"type": {
@@ -8224,7 +8224,7 @@
 							"fileName": "data/src/PropertyParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertyParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertyParams.ts#L16"
 						}
 					],
 					"type": {
@@ -8263,7 +8263,7 @@
 							"fileName": "data/src/PropertyParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertyParams.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertyParams.ts#L26"
 						}
 					],
 					"type": {
@@ -8298,7 +8298,7 @@
 					"fileName": "data/src/PropertyParams.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertyParams.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertyParams.ts#L6"
 				}
 			]
 		},
@@ -8381,7 +8381,7 @@
 							"fileName": "data/src/PropertySetParams.ts",
 							"line": 15,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySetParams.ts#L15"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySetParams.ts#L15"
 						}
 					],
 					"type": {
@@ -8408,7 +8408,7 @@
 							"fileName": "data/src/PropertySetParams.ts",
 							"line": 20,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySetParams.ts#L20"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySetParams.ts#L20"
 						}
 					],
 					"type": {
@@ -8445,7 +8445,7 @@
 							"fileName": "data/src/PropertySetParams.ts",
 							"line": 30,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySetParams.ts#L30"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySetParams.ts#L30"
 						}
 					],
 					"type": {
@@ -8477,7 +8477,7 @@
 							"fileName": "data/src/PropertySetParams.ts",
 							"line": 25,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySetParams.ts#L25"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySetParams.ts#L25"
 						}
 					],
 					"type": {
@@ -8502,7 +8502,7 @@
 					"fileName": "data/src/PropertySetParams.ts",
 					"line": 8,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/PropertySetParams.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/PropertySetParams.ts#L8"
 				}
 			]
 		},
@@ -8576,7 +8576,7 @@
 							"fileName": "data/src/RelationshipParams.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/RelationshipParams.ts#L22"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/RelationshipParams.ts#L22"
 						}
 					],
 					"type": {
@@ -8612,7 +8612,7 @@
 							"fileName": "data/src/RelationshipParams.ts",
 							"line": 17,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/RelationshipParams.ts#L17"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/RelationshipParams.ts#L17"
 						}
 					],
 					"type": {
@@ -8639,7 +8639,7 @@
 							"fileName": "data/src/RelationshipParams.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/RelationshipParams.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/RelationshipParams.ts#L12"
 						}
 					],
 					"type": {
@@ -8663,7 +8663,7 @@
 					"fileName": "data/src/RelationshipParams.ts",
 					"line": 7,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/RelationshipParams.ts#L7"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/RelationshipParams.ts#L7"
 				}
 			]
 		},
@@ -8757,7 +8757,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 42,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L42"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L42"
 						}
 					],
 					"type": {
@@ -8807,7 +8807,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 62,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L62"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L62"
 						}
 					],
 					"type": {
@@ -8857,7 +8857,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 52,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L52"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L52"
 						}
 					],
 					"type": {
@@ -8898,7 +8898,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 37,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L37"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L37"
 						}
 					],
 					"type": {
@@ -8948,7 +8948,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 57,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L57"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L57"
 						}
 					],
 					"type": {
@@ -8998,7 +8998,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 47,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L47"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L47"
 						}
 					],
 					"type": {
@@ -9052,7 +9052,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 32,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L32"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L32"
 						}
 					],
 					"type": {
@@ -9112,7 +9112,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 83,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L83"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L83"
 						}
 					],
 					"type": {
@@ -9128,7 +9128,7 @@
 									"fileName": "data/src/SearchParams.ts",
 									"line": 83,
 									"character": 21,
-									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L83"
+									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L83"
 								}
 							],
 							"signatures": [
@@ -9143,7 +9143,7 @@
 											"fileName": "data/src/SearchParams.ts",
 											"line": 83,
 											"character": 21,
-											"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L83"
+											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L83"
 										}
 									],
 									"parameters": [
@@ -9222,7 +9222,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 69,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L69"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L69"
 						}
 					],
 					"type": {
@@ -9285,7 +9285,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 76,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L76"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L76"
 						}
 					],
 					"type": {
@@ -9339,7 +9339,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 25,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L25"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L25"
 						}
 					],
 					"type": {
@@ -9381,7 +9381,7 @@
 							"fileName": "data/src/SearchParams.ts",
 							"line": 18,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L18"
+							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L18"
 						}
 					],
 					"type": {
@@ -9414,7 +9414,7 @@
 					"fileName": "data/src/SearchParams.ts",
 					"line": 11,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/data/src/SearchParams.ts#L11"
+					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/data/src/SearchParams.ts#L11"
 				}
 			]
 		}

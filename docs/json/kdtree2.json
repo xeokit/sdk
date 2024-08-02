@@ -96,7 +96,7 @@
 							"fileName": "KdTree2.ts",
 							"line": 88,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L88"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L88"
 						}
 					],
 					"signatures": [
@@ -119,7 +119,7 @@
 									"fileName": "KdTree2.ts",
 									"line": 88,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L88"
+									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L88"
 								}
 							],
 							"parameters": [
@@ -169,7 +169,7 @@
 							"fileName": "KdTree2.ts",
 							"line": 81,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L81"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L81"
 						}
 					],
 					"type": {
@@ -198,7 +198,7 @@
 							"fileName": "KdTree2.ts",
 							"line": 76,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L76"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L76"
 						}
 					],
 					"type": {
@@ -219,7 +219,7 @@
 							"fileName": "KdTree2.ts",
 							"line": 103,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L103"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L103"
 						}
 					],
 					"signatures": [
@@ -242,7 +242,7 @@
 									"fileName": "KdTree2.ts",
 									"line": 103,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L103"
+									"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L103"
 								}
 							],
 							"parameters": [
@@ -308,7 +308,7 @@
 					"fileName": "KdTree2.ts",
 					"line": 71,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L71"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L71"
 				}
 			]
 		},
@@ -360,7 +360,7 @@
 							"fileName": "KdVertex2.ts",
 							"line": 10,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdVertex2.ts#L10"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdVertex2.ts#L10"
 						}
 					],
 					"type": {
@@ -384,7 +384,7 @@
 							"fileName": "KdVertex2.ts",
 							"line": 8,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdVertex2.ts#L8"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdVertex2.ts#L8"
 						}
 					],
 					"type": {
@@ -408,7 +408,7 @@
 							"fileName": "KdVertex2.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdVertex2.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdVertex2.ts#L9"
 						}
 					],
 					"type": {
@@ -443,7 +443,7 @@
 					"fileName": "KdVertex2.ts",
 					"line": 7,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdVertex2.ts#L7"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdVertex2.ts#L7"
 				}
 			]
 		},
@@ -490,7 +490,7 @@
 							"fileName": "KdTree2.ts",
 							"line": 17,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L17"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L17"
 						}
 					],
 					"type": {
@@ -512,7 +512,7 @@
 					"fileName": "KdTree2.ts",
 					"line": 12,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L12"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L12"
 				}
 			]
 		},
@@ -559,7 +559,7 @@
 							"fileName": "KdTree2.ts",
 							"line": 30,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L30"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L30"
 						}
 					],
 					"type": {
@@ -604,7 +604,7 @@
 							"fileName": "KdTree2.ts",
 							"line": 45,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L45"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L45"
 						}
 					],
 					"type": {
@@ -638,7 +638,7 @@
 							"fileName": "KdTree2.ts",
 							"line": 35,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L35"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L35"
 						}
 					],
 					"type": {
@@ -669,7 +669,7 @@
 							"fileName": "KdTree2.ts",
 							"line": 40,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L40"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L40"
 						}
 					],
 					"type": {
@@ -696,7 +696,7 @@
 					"fileName": "KdTree2.ts",
 					"line": 25,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L25"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L25"
 				}
 			]
 		},
@@ -743,7 +743,7 @@
 							"fileName": "KdTree2.ts",
 							"line": 58,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L58"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L58"
 						}
 					],
 					"type": {
@@ -777,7 +777,7 @@
 							"fileName": "KdTree2.ts",
 							"line": 63,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L63"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L63"
 						}
 					],
 					"type": {
@@ -800,7 +800,7 @@
 					"fileName": "KdTree2.ts",
 					"line": 53,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/KdTree2.ts#L53"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/KdTree2.ts#L53"
 				}
 			]
 		},
@@ -815,7 +815,7 @@
 					"fileName": "createKdTree2FromSceneObjectVerts.ts",
 					"line": 21,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L21"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L21"
 				}
 			],
 			"signatures": [
@@ -856,7 +856,7 @@
 							"fileName": "createKdTree2FromSceneObjectVerts.ts",
 							"line": 21,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L21"
 						}
 					],
 					"parameters": [
@@ -886,7 +886,7 @@
 													"fileName": "createKdTree2FromSceneObjectVerts.ts",
 													"line": 24,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L24"
+													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L24"
 												}
 											],
 											"type": {
@@ -910,7 +910,7 @@
 													"fileName": "createKdTree2FromSceneObjectVerts.ts",
 													"line": 23,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L23"
+													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L23"
 												}
 											],
 											"type": {
@@ -934,7 +934,7 @@
 													"fileName": "createKdTree2FromSceneObjectVerts.ts",
 													"line": 25,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L25"
+													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L25"
 												}
 											],
 											"type": {
@@ -961,7 +961,7 @@
 													"fileName": "createKdTree2FromSceneObjectVerts.ts",
 													"line": 22,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L22"
+													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L22"
 												}
 											],
 											"type": {
@@ -991,7 +991,7 @@
 											"fileName": "createKdTree2FromSceneObjectVerts.ts",
 											"line": 21,
 											"character": 58,
-											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L21"
+											"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/createKdTree2FromSceneObjectVerts.ts#L21"
 										}
 									]
 								}
@@ -1018,7 +1018,7 @@
 					"fileName": "searchKdTree2ForNearestNeighbor.ts",
 					"line": 8,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L8"
 				}
 			],
 			"signatures": [
@@ -1033,7 +1033,7 @@
 							"fileName": "searchKdTree2ForNearestNeighbor.ts",
 							"line": 8,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L8"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L8"
 						}
 					],
 					"parameters": [
@@ -1063,7 +1063,7 @@
 													"fileName": "searchKdTree2ForNearestNeighbor.ts",
 													"line": 10,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L10"
+													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L10"
 												}
 											],
 											"type": {
@@ -1087,7 +1087,7 @@
 													"fileName": "searchKdTree2ForNearestNeighbor.ts",
 													"line": 9,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L9"
+													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L9"
 												}
 											],
 											"type": {
@@ -1112,7 +1112,7 @@
 											"fileName": "searchKdTree2ForNearestNeighbor.ts",
 											"line": 8,
 											"character": 56,
-											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L8"
+											"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/kdtree2/src/searchKdTree2ForNearestNeighbor.ts#L8"
 										}
 									]
 								}

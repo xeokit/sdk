@@ -91,7 +91,7 @@
 					"fileName": "load3DXML.ts",
 					"line": 63,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L63"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L63"
 				}
 			],
 			"signatures": [
@@ -205,7 +205,7 @@
 							"fileName": "load3DXML.ts",
 							"line": 63,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L63"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L63"
 						}
 					],
 					"parameters": [
@@ -253,7 +253,7 @@
 													"fileName": "load3DXML.ts",
 													"line": 66,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L66"
+													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L66"
 												}
 											],
 											"type": {
@@ -287,7 +287,7 @@
 													"fileName": "load3DXML.ts",
 													"line": 68,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L68"
+													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L68"
 												}
 											],
 											"type": {
@@ -303,7 +303,7 @@
 															"fileName": "load3DXML.ts",
 															"line": 68,
 															"character": 12,
-															"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L68"
+															"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L68"
 														}
 													],
 													"signatures": [
@@ -318,7 +318,7 @@
 																	"fileName": "load3DXML.ts",
 																	"line": 68,
 																	"character": 12,
-																	"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L68"
+																	"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L68"
 																}
 															],
 															"parameters": [
@@ -362,7 +362,7 @@
 													"fileName": "load3DXML.ts",
 													"line": 64,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L64"
+													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L64"
 												}
 											],
 											"type": {
@@ -396,7 +396,7 @@
 													"fileName": "load3DXML.ts",
 													"line": 67,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L67"
+													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L67"
 												}
 											],
 											"type": {
@@ -412,7 +412,7 @@
 															"fileName": "load3DXML.ts",
 															"line": 67,
 															"character": 10,
-															"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L67"
+															"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L67"
 														}
 													],
 													"signatures": [
@@ -427,7 +427,7 @@
 																	"fileName": "load3DXML.ts",
 																	"line": 67,
 																	"character": 10,
-																	"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L67"
+																	"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L67"
 																}
 															],
 															"parameters": [
@@ -471,7 +471,7 @@
 													"fileName": "load3DXML.ts",
 													"line": 65,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L65"
+													"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L65"
 												}
 											],
 											"type": {
@@ -502,7 +502,7 @@
 											"fileName": "load3DXML.ts",
 											"line": 63,
 											"character": 34,
-											"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L63"
+											"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L63"
 										}
 									]
 								}
@@ -538,7 +538,7 @@
 					"fileName": "load3DXML.ts",
 					"line": 469,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L469"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L469"
 				}
 			],
 			"signatures": [
@@ -553,7 +553,7 @@
 							"fileName": "load3DXML.ts",
 							"line": 469,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/threedxml/src/load3DXML.ts#L469"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/threedxml/src/load3DXML.ts#L469"
 						}
 					],
 					"parameters": [

@@ -36,7 +36,7 @@
 					"fileName": "index.ts",
 					"line": 124,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L124"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L124"
 				}
 			],
 			"signatures": [
@@ -59,7 +59,7 @@
 							"fileName": "index.ts",
 							"line": 124,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L124"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L124"
 						}
 					],
 					"parameters": [
@@ -137,7 +137,7 @@
 					"fileName": "index.ts",
 					"line": 93,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L93"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L93"
 				}
 			],
 			"signatures": [
@@ -160,7 +160,7 @@
 							"fileName": "index.ts",
 							"line": 93,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L93"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L93"
 						}
 					],
 					"parameters": [
@@ -205,7 +205,7 @@
 					"fileName": "index.ts",
 					"line": 104,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L104"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L104"
 				}
 			],
 			"signatures": [
@@ -228,7 +228,7 @@
 							"fileName": "index.ts",
 							"line": 104,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L104"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L104"
 						}
 					],
 					"parameters": [
@@ -273,7 +273,7 @@
 					"fileName": "index.ts",
 					"line": 113,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L113"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L113"
 				}
 			],
 			"signatures": [
@@ -296,7 +296,7 @@
 							"fileName": "index.ts",
 							"line": 113,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L113"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L113"
 						}
 					],
 					"parameters": [
@@ -341,7 +341,7 @@
 					"fileName": "index.ts",
 					"line": 177,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L177"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L177"
 				}
 			],
 			"signatures": [
@@ -364,7 +364,7 @@
 							"fileName": "index.ts",
 							"line": 177,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L177"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L177"
 						}
 					],
 					"parameters": [
@@ -453,7 +453,7 @@
 					"fileName": "index.ts",
 					"line": 135,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L135"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L135"
 				}
 			],
 			"signatures": [
@@ -476,7 +476,7 @@
 							"fileName": "index.ts",
 							"line": 135,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L135"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L135"
 						}
 					],
 					"parameters": [
@@ -521,7 +521,7 @@
 					"fileName": "index.ts",
 					"line": 145,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L145"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L145"
 				}
 			],
 			"signatures": [
@@ -544,7 +544,7 @@
 							"fileName": "index.ts",
 							"line": 145,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L145"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L145"
 						}
 					],
 					"parameters": [
@@ -589,7 +589,7 @@
 					"fileName": "index.ts",
 					"line": 155,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L155"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L155"
 				}
 			],
 			"signatures": [
@@ -612,7 +612,7 @@
 							"fileName": "index.ts",
 							"line": 155,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L155"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L155"
 						}
 					],
 					"parameters": [
@@ -657,7 +657,7 @@
 					"fileName": "index.ts",
 					"line": 165,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L165"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L165"
 				}
 			],
 			"signatures": [
@@ -680,7 +680,7 @@
 							"fileName": "index.ts",
 							"line": 165,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L165"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L165"
 						}
 					],
 					"parameters": [
@@ -725,7 +725,7 @@
 					"fileName": "index.ts",
 					"line": 75,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L75"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L75"
 				}
 			],
 			"signatures": [
@@ -748,7 +748,7 @@
 							"fileName": "index.ts",
 							"line": 75,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L75"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L75"
 						}
 					],
 					"parameters": [
@@ -826,7 +826,7 @@
 					"fileName": "index.ts",
 					"line": 36,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L36"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L36"
 				}
 			],
 			"signatures": [
@@ -849,7 +849,7 @@
 							"fileName": "index.ts",
 							"line": 36,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L36"
 						}
 					],
 					"parameters": [
@@ -916,7 +916,7 @@
 					"fileName": "index.ts",
 					"line": 48,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L48"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L48"
 				}
 			],
 			"signatures": [
@@ -939,7 +939,7 @@
 							"fileName": "index.ts",
 							"line": 48,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L48"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L48"
 						}
 					],
 					"parameters": [
@@ -1017,7 +1017,7 @@
 					"fileName": "index.ts",
 					"line": 59,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L59"
+					"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L59"
 				}
 			],
 			"signatures": [
@@ -1040,7 +1040,7 @@
 							"fileName": "index.ts",
 							"line": 59,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/de502d1b540f3882f581829d95ccc301152bf817/packages/curves/src/index.ts#L59"
+							"url": "https://github.com/xeokit/sdk/blob/e43c2bf2c399dc9f222063947a6d7d601ce4ae9d/packages/curves/src/index.ts#L59"
 						}
 					],
 					"parameters": [

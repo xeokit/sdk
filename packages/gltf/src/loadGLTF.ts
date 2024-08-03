@@ -484,7 +484,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                 };
                 const material = primitive.material;
                 if (material) {
-                    meshParams.textureSetId = material._textureSetId;
+               //     meshParams.textureSetId = material._textureSetId;
                     meshParams.color = material._attributes.color;
                     meshParams.opacity = material._attributes.opacity;
                     // meshParams.metallic = material._attributes.metallic;

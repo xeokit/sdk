@@ -56,7 +56,8 @@
  *
  * ### Creating a DataModel from JSON
  *
- * We will start with an example where we create a {@link @xeokit/data!DataModel} using a single parameter object of type {@link @xeokit/data!DataModelParams}.
+ * We will start with an example where we create a {@link @xeokit/data!DataModel | DataModel} using a single parameter
+ * object of type {@link @xeokit/data!DataModelParams | DataModelParams}.
  * The DataModel we create will define a simple piece of furniture - a table consisting of a tabletop and four legs.
  * We will then query the data model to retrieve all the {@link @xeokit/data!DataObject | DataObjects} within it.
  *
@@ -71,7 +72,7 @@
  * a {@link @xeokit/basictypes!BasicAggregation | BasicAggregation}.
  *
  * It's worth noting that in a real-world scenario, we would likely use a more complex set of data types, such as
- * {@link @xeokit/ifctypes}. However, we cannot mix different sets of data types within our {@link @xeokit/data!Data},
+ * {@link @xeokit/ifctypes}. However, we cannot mix different sets of data types within our {@link @xeokit/data!Data | Data},
  * as traversals of the DataObjects with {@link @xeokit/data!Data.searchObjects | Data.searchObjects } must be
  * guided uniformly by the same set of types across all the DataObjects and Relationships in the graph.
  *
@@ -210,8 +211,9 @@
  *
  * ### Creating a DataModel using Builder Methods
  *
- * In our second example, we'll create our {@link @xeokit/data!DataModel} again, this time instantiating
- * each {@link @xeokit/data!PropertySet}, {@link Property}, {@link @xeokit/data!DataObject} and {@link @xeokit/data!Relationship} individually, using the
+ * In our second example, we'll create our {@link @xeokit/data!DataModel | DataModel} again, this time instantiating
+ * each {@link @xeokit/data!PropertySet | PropertySet}, {@link Property}, {@link @xeokit/data!DataObject | DataObject}
+ * and {@link @xeokit/data!Relationship | Relationship} individually, using the
  * {@link @xeokit/data!DataModel | DataModel's} builder methods.
  *
  * ````javascript
@@ -370,7 +372,7 @@
  *
  * ### Reading DataObjects
  *
- * With our {@link @xeokit/scene!SceneModel} built, we'll now use the {@link @xeokit/data!Data.searchObjects} method to
+ * With our {@link @xeokit/scene!SceneModel | SceneModel} built, we'll now use the {@link @xeokit/data!Data.searchObjects | Data.searchObjects} method to
  * traverse it to fetch the IDs of the {@link @xeokit/data!DataObject | DataObjects} we find on that path.
  *
  * One example of where we use this method is to query the aggregation hierarchy of the DataObjects for building

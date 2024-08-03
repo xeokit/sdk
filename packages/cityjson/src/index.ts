@@ -34,42 +34,102 @@
  *
  * ## Usage
  *
- * In the example below, we'll import a CityJSON file into a {@link @xeokit/scene!SceneModel | SceneModel}
- * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core!SDKError | SDKError} class
- * is used to handle errors that may occur during the process:
+ * In the example below, we will create a {@link @xeokit/viewer!Viewer | Viewer} with
+ * a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link @xeokit/scene!Scene | Scene}, which holds model geometry and materials.
+ *
+ * We'll also create a {@link @xeokit/data!Data | Data}, which will hold semantic data for our model.
+ *
+ * On our Viewer, we will create a single {@link @xeokit/viewer!View | View} to render it to a canvas element on the page. We will
+ * also attach a {@link @xeokit/cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
+ *
+ * Within the Scene, we will create a {@link @xeokit/scene!SceneModel | SceneModel} to hold model geometry and materials. Within Data, we will
+ * create a {@link @xeokit/data!DataModel | DataModel} to hold semantic IFC data, which includes IFC elements and property sets.
+ *
+ * We will then use
+ * {@link @xeokit/cityjson!loadCityJSON | loadCityJSON} to load a CityJSON file into our SceneModel and DataModel.
+ *
+ * The {@link @xeokit/core!SDKError | SDKError} class will be used to handle any errors that may occur during this process.
+ *
+ * * [Run this example]()
  *
  * ````javascript
- * import { Scene } from "@xeokit/scene";
- * import { Data } from "@xeokit/data";
- * import { loadCityJSON } from "@xeokit/cityjson";
+ * import {SDKError} from "@xeokit/core";
+ * import {Scene} from "@xeokit/scene";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {Viewer} from "@xeokit/viewer";
+ * import {CameraControl} from "@xeokit/cameracontrol";
+ * import {loadCityJSON} from "@xeokit/cityjson";
  *
  * const scene = new Scene();
  * const data = new Data();
- * const dataModel = data.createModel({ id: "myModel" });
- * const sceneModel = scene.createModel({ id: "myModel" });
  *
- * if (dataModel instanceof SDKError) {
- *      console.error(dataModel.message);
- * } else if (sceneModel instanceof SDKError) {
- *      console.error(dataModel.message);
+ * const renderer = new WebGLRenderer({});
+ *
+ * const viewer = new Viewer({
+ *     id: "myViewer",
+ *     scene,
+ *     renderer
+ * });
+ *
+ * const view = viewer.createView({
+ *     id: "myView",
+ *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
+ * });
+ *
+ * if (view instanceof SDKError) {
+ *     console.error(`Error creating View: ${view.message}`);
+ *
  * } else {
- *      fetch("myModel.json")
- *          .then(response => response.json())
- *          .then(jsonStr => {
  *
- *              const fileData = JSON.parse(jsonStr);
+ *     view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ *     view.camera.look = [1842009.49, 9.68, -5173295.85];
+ *     view.camera.up = [0.0, 1.0, 0.0];
  *
- *              loadCityJSON({
- *                  fileData,
- *                  sceneModel,
- *                  dataModel,
- *                  rotateX: true
- *              }).then(() => {
- *                  sceneModel.build();
- *                  dataModel.build();
- *              }).catch((sdkError)=>{
- *                  console.error(sdkError.message);
- *              });
+ *     new CameraControl(view, {});
+ *
+ *     const sceneModel = scene.createModel({
+ *         id: "myModel"
+ *     });
+ *
+ *     const dataModel = data.createModel({
+ *         id: "myModel"
+ *     });
+ *
+ *     if (sceneModel instanceof SDKError) {
+ *         console.error(`Error creating SceneModel: ${sceneModel.message}`);
+ *
+ *     } else if (dataModel instanceof SDKError) {
+ *         console.error(`Error creating DataModel: ${dataModel.message}`);
+ *
+ *     } else {
+ *
+ *         fetch("model.bim").then(response => {
+ *
+ *             response.json().then(fileData => {
+ *
+ *                 loadCityJSON({
+ *                     fileData,
+ *                     sceneModel,
+ *                     dataModel
+ *                 }).then(() => {
+ *
+ *                     sceneModel.build();
+ *                     dataModel.build();
+ *
+ *                 }).catch(sdkError => {
+ *                     sceneModel.destroy();
+ *                     dataModel.destroy();
+ *                     console.error(`Error loading CityJSON: ${sdkError.message}`);
+ *                 });
+ *
+ *             }).catch(message => {
+ *                 console.error(`Error creating ArrayBuffer: ${message}`);
+ *             });
+ *
+ *         }).catch(message => {
+ *             console.error(`Error fetching model: ${message}`);
+ *         });
+ *     }
  * }
  * ````
  *

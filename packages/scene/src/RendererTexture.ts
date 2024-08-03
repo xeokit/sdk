@@ -5,7 +5,7 @@ import type {SceneTexture} from "./SceneTexture";
  * into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/viewer!Renderer | Renderer}.
  *
  *  This exists at {@link @xeokit/scene!SceneTexture.rendererTexture | SceneTexture.rendererTexture} when
- *  the {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+ *  the {@link @xeokit/scene!SceneModel | SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * @internal
  */

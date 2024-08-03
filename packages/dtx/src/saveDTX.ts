@@ -8,8 +8,6 @@ import {writeDTX} from "./versions/v1/writeDTX"; // Always the latest
  *
  * See {@link "@xeokit/dtx" | @xeokit/dtx} for usage.
  *
- * See {@link @xeokit/dtx!DTXData_v1} for insights into the structure of a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
- *
  * @param params
  * @param params.sceneModel - The SceneModel to export to DTX.
  * @returns The [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data in an ArrayBuffer.

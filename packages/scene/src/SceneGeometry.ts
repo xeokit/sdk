@@ -6,7 +6,7 @@ import {createAABB3} from "@xeokit/boundaries";
 import {IntArrayParam} from "@xeokit/math";
 
 /**
- * A geometry in a {@link @xeokit/scene!SceneModel}.
+ * A geometry in a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}
  * * Created with {@link @xeokit/scene!SceneModel.createGeometry | SceneModel.createGeometry}

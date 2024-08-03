@@ -19,7 +19,7 @@
  * npm install @xeokit/basictypes
  * ````
  *
- * @module @xeokit/ifcTypes
+ * @module @xeokit/ifctypes
  */
 
 /**

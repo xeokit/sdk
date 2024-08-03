@@ -4,7 +4,7 @@ import {SceneModel} from "./SceneModel";
 import {SceneObject} from "./SceneObject";
 
 /**
- * A tile in a {@link @xeokit/scene!SceneModel}.
+ * A tile in a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  *
  * * {@link @xeokit/scene!SceneMeshParams.origin | SceneMeshParams.origin}

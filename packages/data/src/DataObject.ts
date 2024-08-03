@@ -4,7 +4,7 @@ import type {Relationship} from "./Relationship";
 import type {Data} from "./Data";
 
 /**
- * An object in a {@link @xeokit/data!DataModel}.
+ * An object in a {@link @xeokit/data!DataModel | DataModel}.
  *
  * * Created with {@link @xeokit/data!DataModel.createObject | DataModel.createObject}
  * * Stored in {@link @xeokit/data!Data.objects | Data.objects}, {@link @xeokit/data!Data.rootObjects | Data.rootObjects}, {@link @xeokit/data!Data.objectsByType | Data.objectsByType}, {@link @xeokit/data!DataModel.objects | Data.objects}, {@link @xeokit/data!DataModel.rootObjects | Data.rootObjects}
@@ -14,7 +14,7 @@ import type {Data} from "./Data";
 export class DataObject {
 
     /**
-     *  {@link @xeokit/data!Data} that contains this DataObject.
+     *  {@link @xeokit/data!Data | Data} that contains this DataObject.
      */
     public data: Data;
 

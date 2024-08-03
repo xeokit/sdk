@@ -5,7 +5,7 @@ import type {FloatArrayParam} from "@xeokit/math";
  * into a {@link @xeokit/viewer!Viewer | Viewer's} {@link @xeokit/viewer!Renderer | Renderer}.
  *
  *  This exists at each {@link @xeokit/scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh} when the
- *  containing {@link @xeokit/scene!SceneModel} has been added
+ *  containing {@link @xeokit/scene!SceneModel | SceneModel} has been added
  *  to a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * @internal

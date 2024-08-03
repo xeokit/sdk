@@ -16,7 +16,7 @@
  * a standard file format used in the field of Building Information Modeling (BIM) to exchange information between
  * different software applications used in the construction and building industries.
  *
- * To import a medium-sized IFC model into xeokit, use the {@link loadWebIFC} function, which will load the file into
+ * To import a medium-sized IFC model into xeokit, use the {@link @xeokit/webifc!loadWebIFC | loadWebIFC} function, which will load the file into
  * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}. Internally, loadWebIFC
  * uses the [web-ifc](https://github.com/IFCjs/web-ifc) API to parse geometry and data from the IFC file.
  *
@@ -34,57 +34,115 @@
  *
  * ## Usage
  *
- * In the example below, we'll import an IFC file into a {@link @xeokit/scene!SceneModel | SceneModel}
- * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core!SDKError | SDKError} class
- * is used to handle errors that may occur during the process. Note how we initialize the
- * [WebIFC](https://github.com/IFCjs/web-ifc) API externally and pass it in as a parameter for {@link loadWebIFC}.
+ * The example below shows how to use {@link @xeokit/webifc!loadWebIFC | loadWebIFC} in context.
+ *
+ * In this example, we will create a {@link @xeokit/viewer!Viewer | Viewer} with
+ * a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link @xeokit/scene!Scene | Scene}, which holds model geometry
+ * and materials. We'll also create a {@link @xeokit/data!Data | Data}, which will hold semantic data for our model.
+ *
+ * On our Viewer, we will create a single {@link @xeokit/viewer!View | View} to render it to a canvas element on the page. We will
+ * also attach a {@link @xeokit/cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
+ *
+ * Within the Scene, we will create a {@link @xeokit/scene!SceneModel | SceneModel} to hold model geometry and materials. Within Data, we will
+ * create a {@link @xeokit/data!DataModel | DataModel} to hold semantic IFC data, which includes IFC elements and property sets.
+ *
+ * We will then use
+ * {@link @xeokit/webifc!loadWebIFC | loadWebIFC} to load an IFC file into our SceneModel and DataModel. Before we do that, however,
+ * we need to successfully instantiate and initialize the WebIFC API, which we pass into loadWebIFC.
+ *
+ * The {@link @xeokit/core!SDKError | SDKError} class will be used to handle any errors that may occur during this process.
+ *
+ * * [Run this example]()
  *
  * ````javascript
+ * import {SDKError} from "@xeokit/core";
  * import {Scene} from "@xeokit/scene";
- * import {Data} from "@xeokit/data";
- * import {loadWebIFC} from "@xeokit/webifc;
- * import * as WebIFC from "web-ifc/web-ifc-api-node";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {Viewer} from "@xeokit/viewer";
+ * import {CameraControl} from "@xeokit/cameracontrol";
+ * import {loadWebIFC} from "@xeokit/webifc";
+ * import * as WebIFC from "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api.js";
  *
  * const scene = new Scene();
- *
- * const sceneModel = scene.createModel({
- *     id: "myModel"
- * });
- *
  * const data = new Data();
  *
- * const dataModel = data.createModel({
- *      id: "myModel"
+ * const renderer = new WebGLRenderer({});
+ *
+ * const viewer = new Viewer({
+ *     id: "myViewer",
+ *     scene,
+ *     renderer
  * });
  *
- * const ifcAPI = new WebIFC.IfcAPI();
+ * const view = viewer.createView({
+ *     id: "myView",
+ *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
+ * });
  *
- * ifcAPI.SetWasmPath("path/to/wasm");
+ * if (view instanceof SDKError) {
+ *     console.error(`Error creating View: ${view.message}`);
  *
- * ifcAPI.Init().then(() => {
+ * } else {
  *
- *     fs.readFile("./tests/assets/IfcOpenHouse4.ifc", (err, fileData) => {
+ *     view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ *     view.camera.look = [1842009.49, 9.68, -5173295.85];
+ *     view.camera.up = [0.0, 1.0, 0.0];
  *
- *          if (err) {
- *             console.error(err);
- *             return;
- *          }
+ *     new CameraControl(view, {});
  *
- *          loadWebIFC({
- *              data: toArrayBuffer(fileData),
- *              ifcAPI,
- *              sceneModel,
- *              dataModel
- *          }).then(() => {
+ *     const ifcAPI = new WebIFC.IfcAPI();
  *
- *              sceneModel.build();
- *              dataModel.build();
+ *     ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
  *
- *          }).catch((e) => {
- *              console.error(e);
+ *     ifcAPI.Init().then(() => {
+ *
+ *          const sceneModel = scene.createModel({
+ *              id: "myModel"
  *          });
+ *
+ *          const dataModel = data.createModel({
+ *              id: "myModel"
+ *          });
+ *
+ *          if (sceneModel instanceof SDKError) {
+ *              console.error(`Error creating SceneModel: ${sceneModel.message}`);
+ *
+ *          } else if (dataModel instanceof SDKError) {
+ *              console.error(`Error creating DataModel: ${dataModel.message}`);
+ *
+ *          } else {
+ *
+ *              fetch("model.ifc").then(response => {
+ *
+ *                  response.arrayBuffer().then(fileData => {
+ *
+ *                      loadWebIFC({
+ *                          fileData,
+ *                          sceneModel,
+ *                          dataModel
+ *                      }).then(() => {
+ *
+ *                          sceneModel.build();
+ *                          dataModel.build();
+ *
+ *                      }).catch(sdkError => {
+ *                          sceneModel.destroy();
+ *                          dataModel.destroy();
+ *                          console.error(`Error loading IFC file: ${sdkError.message}`);
+ *                      });
+ *
+ *                  }).catch(message => {
+ *                      console.error(`Error creating ArrayBuffer: ${message}`);
+ *                  });
+ *
+ *              }).catch(message => {
+ *                  console.error(`Error fetching model: ${message}`);
+ *              });
+ *          }
+ *      }).catch(message => {
+ *          console.error(`Error initializing WebIFC.IfcAPI: ${message}`);
  *      });
- * });
+ * }
  * ````
  *
  * @module @xeokit/webifc

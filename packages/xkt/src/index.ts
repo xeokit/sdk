@@ -25,7 +25,7 @@
  *
  * <br>
  *
- * [![](https://mermaid.ink/img/pako:eNqNU01rwzAM_StBpw1a2K6h9DB6W8tKs8EOvqixsro4dvDHIJT-99lx0iaMlubi6El6T0_GJyg1J8ihlGjtSuCPwZopprgwVDqhVbbexbjLZ0VJijahQ2YnprLwCZ5OvT-GepuC0hA6-uigp-eE7b2QfAg4WWd0G8NzZB_4V-iwo7_H3hjdkHFtQff0ErYjidGFPYhmmtleWR4aMQ241si_3z-3GNZkhx0sFk2MyZFZLhOExmD75quKTALsZXM9_eB0Qi8T_ZW48qq7hcg7qivwlx4Z4zFVm9juqE5sM3hhMJ8vGbwyKEYKt6tWV93e4pCZ9OTZlyWbXWzYqD3xelP7dtVIuzd66R_3_NOGGdRkahQ8PI9uNQzcgWpikIdfThV66RiEFYVS9E4XrSohd8bTDHwTdk39g4K8QmkDSlw4bTb9k4vH-Q8aQzAW?type=png)](https://mermaid.live/edit#pako:eNqNU01rwzAM_StBpw1a2K6h9DB6W8tKs8EOvqixsro4dvDHIJT-99lx0iaMlubi6El6T0_GJyg1J8ihlGjtSuCPwZopprgwVDqhVbbexbjLZ0VJijahQ2YnprLwCZ5OvT-GepuC0hA6-uigp-eE7b2QfAg4WWd0G8NzZB_4V-iwo7_H3hjdkHFtQff0ErYjidGFPYhmmtleWR4aMQ241si_3z-3GNZkhx0sFk2MyZFZLhOExmD75quKTALsZXM9_eB0Qi8T_ZW48qq7hcg7qivwlx4Z4zFVm9juqE5sM3hhMJ8vGbwyKEYKt6tWV93e4pCZ9OTZlyWbXWzYqD3xelP7dtVIuzd66R_3_NOGGdRkahQ8PI9uNQzcgWpikIdfThV66RiEFYVS9E4XrSohd8bTDHwTdk39g4K8QmkDSlw4bTb9k4vH-Q8aQzAW)
+ * [![](https://mermaid.ink/img/pako:eNqNkt9vgjAQx_8Vck9bggYYoBLjw-LbNDOyJcvSl0qPyYItaUsyZvzf14LoeJhZX9r79bnrN3eETDCEBLKSKrUs6IekB8IJZ4XETBeCO6uttdu4k2bIcW0qSudIuGNOwbpb7D5NvuqMTCLV-Ny67u47364uStYbDJWWorHmydJ7_pJq2uJv0SspKpS6SfFWv863xZLaX6h9UQ0jmyvlXyN2A64EZW9PLxtqZFK9BvN5ZW3UKBeLzkWlpM1jnecoO4e6KDfglR3vSspr3spuQW3eoCMBj8BotCDgE0h_If_OukhK-LlZHxnUJM6rQuVcPmKUBRcOKA-0YGY_2gEJ6D0ekEBingxzWpeagBnUpNJai7ThGSRa1uhCXTGj8nmjIMlpqYwXWaGFXJ93zl4uVJRDcoQvSEZ-OB0_TKPQ98JJ7EVhFLjQQOKH8TiYemEUB_4sDsPg5MK3EAbrj71g4nlBPAvMiWa2wPDe26Ad5PQDhIPxEQ?type=png)](https://mermaid.live/edit#pako:eNqNkt9vgjAQx_8Vck9bggYYoBLjw-LbNDOyJcvSl0qPyYItaUsyZvzf14LoeJhZX9r79bnrN3eETDCEBLKSKrUs6IekB8IJZ4XETBeCO6uttdu4k2bIcW0qSudIuGNOwbpb7D5NvuqMTCLV-Ny67u47364uStYbDJWWorHmydJ7_pJq2uJv0SspKpS6SfFWv863xZLaX6h9UQ0jmyvlXyN2A64EZW9PLxtqZFK9BvN5ZW3UKBeLzkWlpM1jnecoO4e6KDfglR3vSspr3spuQW3eoCMBj8BotCDgE0h_If_OukhK-LlZHxnUJM6rQuVcPmKUBRcOKA-0YGY_2gEJ6D0ekEBingxzWpeagBnUpNJai7ThGSRa1uhCXTGj8nmjIMlpqYwXWaGFXJ93zl4uVJRDcoQvSEZ-OB0_TKPQ98JJ7EVhFLjQQOKH8TiYemEUB_4sDsPg5MK3EAbrj71g4nlBPAvMiWa2wPDe26Ad5PQDhIPxEQ)
  *
  * <br>
  *
@@ -37,33 +37,88 @@
  *
  * ## Usage
  *
- * In the example below, we'll use {@link loadXKT} to import an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file into a
- * a {@link @xeokit/scene!SceneModel | SceneModel}. The {@link @xeokit/core!SDKError | SDKError} class
- * is used to handle errors that may occur during the process:
+ * In the example below, we will create a {@link @xeokit/viewer!Viewer | Viewer} with
+ * a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link @xeokit/scene!Scene | Scene}, which holds model geometry and materials.
+ *
+ * On our Viewer, we will create a single {@link @xeokit/viewer!View | View} to render it to a canvas element on the page. We will
+ * also attach a {@link @xeokit/cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
+ *
+ * Within the Scene, we will create a {@link @xeokit/scene!SceneModel | SceneModel} to hold a model. We will then use
+ * {@link @xeokit/xkt!loadXKT | loadXKT} to load
+ * any XKT file into our SceneModel.
+ *
+ * The {@link @xeokit/core!SDKError | SDKError} class will be used to handle any errors that may occur during this process.
+ *
+ * * [Run this example]()
  *
  * ````javascript
+ * import {SDKError} from "@xeokit/core";
  * import {Scene} from "@xeokit/scene";
- * import {loadXKT, saveXKT} from "@xeokit/xkt";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {Viewer} from "@xeokit/viewer";
+ * import {CameraControl} from "@xeokit/cameracontrol";
+ * import {loadXKT} from "@xeokit/xkt";
  *
  * const scene = new Scene();
  *
- * const sceneModel = scene.createModel({
- *     id: "myModel
+ * const renderer = new WebGLRenderer({});
+ *
+ * const viewer = new Viewer({
+ *     id: "myViewer",
+ *     scene,
+ *     renderer
  * });
  *
- * if (sceneModel instanceof SDKError) {
- *      console.error(dataModel.message);
+ * const view = viewer.createView({
+ *     id: "myView",
+ *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
+ * });
+ *
+ * if (view instanceof SDKError) {
+ *     console.error(`Error creating View: ${view.message}`);
+ *
  * } else {
- *      fetch("myModel.xkt").then(response => {
  *
- *         response.arrayBuffer().then(data => {
+ *     view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ *     view.camera.look = [1842009.49, 9.68, -5173295.85];
+ *     view.camera.up = [0.0, 1.0, 0.0];
  *
- *              loadXKT({ data, dataModel, sceneModel });
+ *     new CameraControl(view, {});
  *
- *              sceneModel.build();
- *          });
- *      });
- * });
+ *     const sceneModel = scene.createModel({
+ *         id: "myModel"
+ *     });
+ *
+ *     if (sceneModel instanceof SDKError) {
+ *         console.error(`Error creating SceneModel: ${sceneModel.message}`);
+ *
+ *     } else {
+ *
+ *         fetch("model.xkt").then(response => {
+ *
+ *             response.arrayBuffer().then(fileData => {
+ *
+ *                 loadXKT({
+ *                     fileData,
+ *                     sceneModel
+ *                 }).then(() => {
+ *
+ *                     sceneModel.build();
+ *
+ *                 }).catch(sdkError => {
+ *                     sceneModel.destroy();
+ *                     console.error(`Error loading XKT: ${sdkError.message}`);
+ *                 });
+ *
+ *             }).catch(message => {
+ *                 console.error(`Error creating ArrayBuffer: ${message}`);
+ *             });
+ *
+ *         }).catch(message => {
+ *             console.error(`Error fetching model: ${message}`);
+ *         });
+ *     }
+ * }
  * ````
  *
  * @module @xeokit/xkt

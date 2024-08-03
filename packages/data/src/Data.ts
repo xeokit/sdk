@@ -51,28 +51,28 @@ export class Data extends Component {
     public readonly typeCounts: { [key: string]: number };
 
     /**
-     * Emits an event each time a {@link @xeokit/data!DataModel} has been created in this Data.
+     * Emits an event each time a {@link @xeokit/data!DataModel | DataModel} has been created in this Data.
      *
      * @event
      */
     public readonly onModelCreated: EventEmitter<Data, DataModel>;
 
     /**
-     * Emits an event each time a {@link @xeokit/data!DataModel} has been destroyed within this Data.
+     * Emits an event each time a {@link @xeokit/data!DataModel | DataModel} has been destroyed within this Data.
      *
      * @event
      */
     public readonly onModelDestroyed: EventEmitter<Data, DataModel>;
 
     /**
-     * Emits an event each time a {@link @xeokit/data!DataObject} is created within this Data.
+     * Emits an event each time a {@link @xeokit/data!DataObject | DataObject} is created within this Data.
      *
      * @event
      */
     public readonly onObjectCreated: EventEmitter<Data, DataObject>;
 
     /**
-     * Emits an event each time a {@link @xeokit/data!DataObject} is destroyed within this Data.
+     * Emits an event each time a {@link @xeokit/data!DataObject | DataObject} is destroyed within this Data.
      *
      * @event
      */
@@ -101,14 +101,14 @@ export class Data extends Component {
     }
 
     /**
-     * Creates a new {@link @xeokit/data!DataModel} in this Data.
+     * Creates a new {@link @xeokit/data!DataModel | DataModel} in this Data.
      *
      * Remember to call {@link @xeokit/data!DataModel.build | DataModel.build} when you've finished building or loading the DataModel. That will
      * fire events via {@link @xeokit/data!Data.onModelCreated | Data.onModelCreated} and {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt}, to
      * indicate to any subscribers that the DataModel is built and ready for use.
      *
      * Note that while we're building/loading the SceneModel, each call that we make to {@link @xeokit/data!DataModel.createObject | DataModel.createObject}
-     * will create a new {@link @xeokit/data!DataObject}
+     * will create a new {@link @xeokit/data!DataObject | DataObject}
      * in {@link @xeokit/data!Data.objects | Data.objects} and {@link @xeokit/data!DataModel.objects | DataModel.objects}, and will also fire an event
      * via {@link @xeokit/data!Data.onObjectCreated | Data.onObjectCreated}. However,
      * only when we've received the {@link @xeokit/data!Data.onModelCreated | Data.onModelCreated} and {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt}
@@ -116,11 +116,11 @@ export class Data extends Component {
      *
      * See {@link "@xeokit/data" | @xeokit/data}  for more details on usage.
      *
-     * @param  dataModelParams Creation parameters for the new {@link @xeokit/data!DataModel}.
-     * @param [options] Options for creating the {@link @xeokit/data!DataModel}.
+     * @param  dataModelParams Creation parameters for the new {@link @xeokit/data!DataModel | DataModel}.
+     * @param [options] Options for creating the {@link @xeokit/data!DataModel | DataModel}.
      * @param [options.includeTypes] When provided, only create {@link @xeokit/data!DataObject | DataObjects} with types in this list.
      * @param  [options.excludeRelating] When provided, never create {@link @xeokit/data!DataObject | DataObjects} with types in this list.
-     * @returns {@link @xeokit/data!DataModel}
+     * @returns {@link @xeokit/data!DataModel | DataModel}
      * * On success.
      * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * This Data has already been destroyed.

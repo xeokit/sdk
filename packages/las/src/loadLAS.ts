@@ -23,11 +23,12 @@ const MAX_VERTICES = 500000; // TODO: Rough estimate
  * @param params.fileData - LAS/LAZ file data
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
- * @param params.center - Whether to center the points. Default is false.
- * @param params.transform - Optional flattened 4x4 matrix to transform the points. Applied after centering, if specified.
- * @param params.skip - Option to oad every **n** points. Default is 1.
- * @param params.fp64 - Whether to assume that LAS positions are stored in 64-bit floats instead of 32-bit. Default is true.
- * @param params.colorDepth - Whether to assume that LAS colors are encoded using 8 or 16 bits. Accepted values are 8, 16 an "auto".
+ * @param options - Loading parameters.
+ * @param options.center - Whether to center the points. Default is false.
+ * @param options.transform - Optional flattened 4x4 matrix to transform the points. Applied after centering, if specified.
+ * @param options.skip - Option to oad every **n** points. Default is 1.
+ * @param options.fp64 - Whether to assume that LAS positions are stored in 64-bit floats instead of 32-bit. Default is true.
+ * @param options.colorDepth - Whether to assume that LAS colors are encoded using 8 or 16 bits. Accepted values are 8, 16 an "auto".
  * @returns {Promise} Resolves when LAS has been loaded.
  * @throws *{@link @xeokit/core!SDKError | SDKError}*
  * * If the SceneModel has already been destroyed.
@@ -36,16 +37,18 @@ const MAX_VERTICES = 500000; // TODO: Rough estimate
  * * If the DataModel has already been built.
  */
 export function loadLAS(params: {
-    fileData: ArrayBuffer,
-    sceneModel: SceneModel,
-    dataModel?: DataModel,
-    center?: boolean;
-    transform?: FloatArrayParam;
-    skip?: number;
-    fp64?: boolean;
-    colorDepth?: string | number,
-    log?: Function
-}): Promise<any> {
+                            fileData: ArrayBuffer,
+                            sceneModel: SceneModel,
+                            dataModel?: DataModel,
+                            log?: Function
+                        },
+                        options: {
+                            center?: boolean;
+                            transform?: FloatArrayParam;
+                            skip?: number;
+                            fp64?: boolean;
+                            colorDepth?: string | number,
+                        }): Promise<any> {
 
     return new Promise<void>(function (resolve, reject) {
 
@@ -68,7 +71,7 @@ export function loadLAS(params: {
             throw new SDKError("DataModel already built");
         }
 
-        const skip = params.skip || 1;
+        const skip = options.skip || 1;
 
         const log = (msg) => {
             if (params.log) {
@@ -78,8 +81,8 @@ export function loadLAS(params: {
 
         parse(params.fileData, LASLoader, {
             las: {
-                colorDepth: params.colorDepth || "auto",
-                fp64: params.fp64 !== undefined ? params.fp64 : false
+                colorDepth: options.colorDepth || "auto",
+                fp64: options.fp64 !== undefined ? options.fp64 : false
             }
 
         }).then((parsedData) => {
@@ -202,7 +205,7 @@ export function loadLAS(params: {
         function readPositions(positionsValue) {
 
             if (positionsValue) {
-                if (params.center) {
+                if (options.center) {
                     const centerPos = createVec3();
                     const numPoints = positionsValue.length;
                     for (let i = 0, len = positionsValue.length; i < len; i += 3) {
@@ -219,8 +222,8 @@ export function loadLAS(params: {
                         positionsValue[i + 2] -= centerPos[2];
                     }
                 }
-                if (params.transform) {
-                    const mat = createMat4(params.transform);
+                if (options.transform) {
+                    const mat = createMat4(options.transform);
                     const pos = createVec3();
                     for (let i = 0, len = positionsValue.length; i < len; i += 3) {
                         pos[0] = positionsValue[i + 0];

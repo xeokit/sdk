@@ -6,7 +6,7 @@ import {collapseAABB3, createAABB3, expandAABB3Points3} from "@xeokit/boundaries
 import {SceneObjectParams} from "./SceneObjectParams";
 
 /**
- * An object in a {@link @xeokit/scene!SceneModel}.
+ * An object in a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.objects | SceneModel.objects} and {@link @xeokit/scene!Scene.objects | Scene.objects}
  * * Created with {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}
@@ -24,7 +24,7 @@ export class SceneObject {
     public readonly id: string;
 
     /**
-     * The {@link @xeokit/scene!SceneModel} that contains this SceneObject.
+     * The {@link @xeokit/scene!SceneModel | SceneModel} that contains this SceneObject.
      */
     public readonly model: SceneModel;
 
@@ -47,7 +47,7 @@ export class SceneObject {
      *  Internal interface through which a {@link @xeokit/viewer!ViewObject | ViewObject} can load property updates
      *  into a {@link @xeokit/viewer!Renderer | Renderer} for this SceneObject.
      *
-     *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined when the owner {@link @xeokit/scene!SceneModel | SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */

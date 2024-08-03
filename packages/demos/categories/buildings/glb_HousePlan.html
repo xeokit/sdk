@@ -12,9 +12,9 @@
 <label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
 <canvas id="myCanvas"></canvas>
 <div class="slideout-sidebar">
-    <h1>Drawing a triangle with a Viewer configured with a WebGLRenderer</h1>
-    <p>In tis example, we're creating a Viewer configured with a WebGLRenderer and a Scene. Then we build a SceneModel
-        with a simple triangle geometry.</p>
+    <h1>Loading a GLB model with loadGlTF</h1>
+    <p>In tis example, we're creating a Viewer configured with a WebGLRenderer and a Scene. We create a SceneModel
+        in the Scene, then load a model into the SceneModel using loadGlTF().</p>
     <h3>Major components used</h3>
     <ul>
         <li>
@@ -53,7 +53,6 @@
     import * as xeokit from "./../../js/xeokit-demo-bundle.js";
 
     const scene = new xeokit.scene.Scene();
-    const data = new xeokit.data.Data();
 
     const renderer = new xeokit.webglRenderer.WebGLRenderer({});
 
@@ -68,63 +67,26 @@
         elementId: "myCanvas"
     });
 
-    view.scene.camera.eye=[1841982.9384371885, 10.031355126263318, -5173286.744630201];
-    view.scene.camera.look=[1842009.4968455553, 9.685518291306686, -5173295.851503017];
-    view.scene.camera.up=[0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
-
+    view.camera.eye = [1400.131280957316, 15.78227614836305, -254.33623262682553];
+    view.camera.look = [1384.7661437988281, 0.5749999880791242, -239.54991912841797];
+    view.camera.up = [-0.41, 0.81, 0.40];
 
     const cameraControl = new xeokit.cameraControl.CameraControl(view, {});
 
     const sceneModel = scene.createModel({
-        id: "myModel",
-        scale: [0.2, 0.2, 0.2],
-        rotation: [90, 0, 0]
-    });
-
-    const dataModel = data.createModel({
         id: "myModel"
     });
 
-    if (sceneModel instanceof xeokit.core.SDKError) {
-        log(`Error creating SceneModel: ${sceneModel.message}`);
-
-    } else {
-
-        fetch("../../data/gltf/HousePlan.glb").then(response => {
-
-            response.arrayBuffer().then(fileData => {
-
-                xeokit.gltf.loadGLTF({
-                    fileData,
-                    dataModel,
-                    sceneModel
-                }).then(() => {
-
-                    dataModel.build();
-                    sceneModel.build();
-
-                }).catch(error => {
-
-                    dataModel.destroy();
-                    sceneModel.destroy();
-
-                    console.log(error.message);
-                });
+    fetch("../../data/datasets/HousePlan/model.glb").then(response => {
+        response.arrayBuffer().then(fileData => {
+            xeokit.gltf.loadGLTF({
+                fileData,
+                sceneModel
+            }).then(() => {
+                sceneModel.build();
             });
-
-        }).catch((e) => {
-            log(`Error building SceneModel: ${e}`);
-            throw e;
         });
-    }
-
-    viewer.onTick.subscribe(() => {
-       // view.camera.orbitYaw(0.5);
     });
-
-    window.data = data;
-    window.view = view;
-
 
 </script>
 

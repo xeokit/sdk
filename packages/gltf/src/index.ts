@@ -20,11 +20,11 @@
  * making it a popular choice for 3D content distribution and exchange.
  *
  * To import a glTF model into xeokit, use the {@link loadGLTF} function, which will load the file into
- * a {@link @xeokit/scene!SceneModel | SceneModel} and a {@link @xeokit/data!DataModel | DataModel}.
+ * a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * <br>
  *
- * [![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)
+ * [![](https://mermaid.ink/img/pako:eNpVkctOwzAQRX8lmhVIaZVHE6dRlVUFm1Ygygp548YTMErsynYkStV_x84DqDf2vTM-Mx5foFYcoYS6ZcZsBXvXrKOSSi401lYoGexevB7iwaFGiXt3ow0uVAZuCT7u6vjp8s0oao3M4tNg3d2P3rEXLZ8FR2O1Ont59fSZv1OMP-5eH56Za8PMNTabk9doUVfVaDWixS2zbFTmt62JN9LaifbHaXo5PMpjhsTbghQiCotFRSGmcPgHnUlz7PYahNCh7pjgbpBDLQr2AzukULojx4b1raXgarpU1lt1OMsaSqt7DKE_cTesafRQNqw1zkUurNL76XP8FsKJSSgv8AVlEqXLvMgzEufrjCRRFsIZylVULAuyIklKkoKQNLuG8K2Ug0bLLEoJidd55Ow0iQfY2xDzXVx_ANo5py0?type=png)](https://mermaid.live/edit#pako:eNpVkctOwzAQRX8lmhVIaZVHE6dRlVUFm1Ygygp548YTMErsynYkStV_x84DqDf2vTM-Mx5foFYcoYS6ZcZsBXvXrKOSSi401lYoGexevB7iwaFGiXt3ow0uVAZuCT7u6vjp8s0oao3M4tNg3d2P3rEXLZ8FR2O1Ont59fSZv1OMP-5eH56Za8PMNTabk9doUVfVaDWixS2zbFTmt62JN9LaifbHaXo5PMpjhsTbghQiCotFRSGmcPgHnUlz7PYahNCh7pjgbpBDLQr2AzukULojx4b1raXgarpU1lt1OMsaSqt7DKE_cTesafRQNqw1zkUurNL76XP8FsKJSSgv8AVlEqXLvMgzEufrjCRRFsIZylVULAuyIklKkoKQNLuG8K2Ug0bLLEoJidd55Ow0iQfY2xDzXVx_ANo5py0)
  *
  * <br>
  *
@@ -36,52 +36,87 @@
  *
  * ## Usage
  *
- * In the example below, we'll import a glTF file into a {@link @xeokit/scene!SceneModel | SceneModel}
- * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core!SDKError | SDKError} class
- * is used to handle errors that may occur during the process:
+ * In the example below, we will create a {@link @xeokit/viewer!Viewer | Viewer} with
+ * a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link @xeokit/scene!Scene | Scene}, which holds model geometry and materials.
+ *
+ * On our Viewer, we will create a single {@link @xeokit/viewer!View | View} to render it to a canvas element on the page. We will
+ * also attach a {@link @xeokit/cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
+ *
+ * Within the Scene, we will create a {@link @xeokit/scene!SceneModel | SceneModel} to hold a model. We will then use
+ * {@link @xeokit/gltf!loadGLTF | loadGLTF} to load
+ * a binary glTF (GLB) file into our SceneModel.
+ *
+ * The {@link @xeokit/core!SDKError | SDKError} class will be used to handle any errors that may occur during this process.
+ *
+ * * [Run this example]()
  *
  * ````javascript
- * import {Data} from "@xeokit/data";
+ * import {SDKError} from "@xeokit/core";
  * import {Scene} from "@xeokit/scene";
+ * import  {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {Viewer} from "@xeokit/viewer";
+ * import {CameraControl} from "@xeokit/cameracontrol";
  * import {loadGLTF} from "@xeokit/gltf";
  *
- * const data = new Data();
  * const scene = new Scene();
  *
- * const dataModel = data.createModel({
- *     id: "myModel
+ * const renderer = new WebGLRenderer({});
+ *
+ * const viewer = new Viewer({
+ *     id: "myViewer",
+ *     scene,
+ *     renderer
  * });
  *
- * const sceneModel = scene.createModel({
- *     id: "myModel
+ * const view = viewer.createView({
+ *     id: "myView",
+ *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
  * });
  *
- * if (dataModel instanceof SDKError) {
- *      console.error(dataModel.message);
- *
- * } else if (sceneModel instanceof SDKError) {
- *      console.error(dataModel.message);
+ * if (view instanceof SDKError) {
+ *     console.error(`Error creating View: ${view.message}`);
  *
  * } else {
  *
- *      fetch("myModel.glb").then(response => {
+ *     view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ *     view.camera.look = [1842009.49, 9.68, -5173295.85];
+ *     view.camera.up = [0.0, 1.0, 0.0];
  *
- *          response.arrayBuffer().then(fileData => {
+ *     new CameraControl(view, {});
  *
- *              loadGLTF({ fileData, dataModel, sceneModel }).then(()=>{
- *
- *                  dataModel.build();
- *                  sceneModel.build();
- *
- *              }).catch(error=>{
- *
- *                  dataModel.destroy();
- *                  sceneModel.destroy();
- *
- *                  console.log(error.message);
- *              });
- *         });
+ *     const sceneModel = scene.createModel({
+ *         id: "myModel"
  *     });
+ *
+ *     if (sceneModel instanceof SDKError) {
+ *         console.error(`Error creating SceneModel: ${sceneModel.message}`);
+ *
+ *     } else {
+ *
+ *         fetch("model.glb").then(response => {
+ *
+ *             response.arrayBuffer().then(fileData => {
+ *
+ *                 loadGLTF({
+ *                     fileData,
+ *                     sceneModel
+ *                 }).then(() => {
+ *
+ *                     sceneModel.build();
+ *
+ *                 }).catch(sdkError => {
+ *                     sceneModel.destroy();
+ *                     console.error(`Error loading glTF: ${sdkError.message}`);
+ *                 });
+ *
+ *             }).catch(message => {
+ *                 console.error(`Error creating ArrayBuffer: ${message}`);
+ *             });
+ *
+ *         }).catch(message => {
+ *             console.error(`Error fetching model: ${message}`);
+ *         });
+ *     }
  * }
  * ````
  *

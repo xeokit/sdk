@@ -2,7 +2,7 @@
 import {DataModelContentParams} from "./DataModelContentParams";
 
 /**
- * Parameters for creating a {@link @xeokit/data!DataModel} with {@link @xeokit/data!Data.createModel | Data.createModel}.
+ * Parameters for creating a {@link @xeokit/data!DataModel | DataModel} with {@link @xeokit/data!Data.createModel | Data.createModel}.
  *
  * See {@link "@xeokit/data" | @xeokit/data}  for usage.
  */

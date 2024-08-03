@@ -26,7 +26,7 @@
  *
  * <br>
  *
- * [![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)
+ * [![](https://mermaid.ink/img/pako:eNqNU01vozAQ_SvRnLYSiYA1NEFVpF3lmKpVua18cfHQuAXbso20NMp_r81H00jbaLmYeTPz3pvBHKFSHKGAqmHW7gR7MaylkkouDFZOKLnYP4V4yC_KCiXe-45mcaRy4R_Bx1M9v_p6OwaVQebwYYB-3IzYcycaPgccrTOqD-EpsM_8O-bYQH-NXRul0bi-xGt6I_aEDQtT2IPQl5nHM8t_WRwN7hXj-1_lI_NrsvMO7u50iNGh2W5HiBnD-t9dXaMZAfu5uYl-nvRf9A968HyFv9Y5iaZxVKPMDrU7TIB9E3rOofRNU-AMk7ZWpr2QbEbJs1bdyeHDB6mh7mJmCjGF5XJLIaFQfhnq-6rdedRJbM5c9nyTnZYBEbRoWia4v62DWQrugC1SKPwrx5p1jaPgTftS1jlV9rKCwpkOI-i0XzhO9xuKmjXWo8iFU-Z--gPCEYFmEooj_IVimZD16uc6I0lMbvM4I1kaQQ9FQvJVuo5JlqfJJickPUXwrpSnTVZxehvHab5J_ZNtQoPn-zMkg5HTBz5RHi8?type=png)](https://mermaid.live/edit#pako:eNqNU01vozAQ_SvRnLYSiYA1NEFVpF3lmKpVua18cfHQuAXbso20NMp_r81H00jbaLmYeTPz3pvBHKFSHKGAqmHW7gR7MaylkkouDFZOKLnYP4V4yC_KCiXe-45mcaRy4R_Bx1M9v_p6OwaVQebwYYB-3IzYcycaPgccrTOqD-EpsM_8O-bYQH-NXRul0bi-xGt6I_aEDQtT2IPQl5nHM8t_WRwN7hXj-1_lI_NrsvMO7u50iNGh2W5HiBnD-t9dXaMZAfu5uYl-nvRf9A968HyFv9Y5iaZxVKPMDrU7TIB9E3rOofRNU-AMk7ZWpr2QbEbJs1bdyeHDB6mh7mJmCjGF5XJLIaFQfhnq-6rdedRJbM5c9nyTnZYBEbRoWia4v62DWQrugC1SKPwrx5p1jaPgTftS1jlV9rKCwpkOI-i0XzhO9xuKmjXWo8iFU-Z--gPCEYFmEooj_IVimZD16uc6I0lMbvM4I1kaQQ9FQvJVuo5JlqfJJickPUXwrpSnTVZxehvHab5J_ZNtQoPn-zMkg5HTBz5RHi8)
  *
  * <br>
  *
@@ -38,53 +38,104 @@
  *
  * ## Usage
  *
- * In the example below, we'll import an LAS file into a {@link @xeokit/scene!SceneModel | SceneModel}
- * and a {@link @xeokit/data!DataModel | DataModel}. The {@link @xeokit/core!SDKError | SDKError} class
- * is used to handle errors that may occur during the process:
+ * The example below shows how to use {@link @xeokit/las!loadLAS | loadLAS} in context.
+ *
+ * In this example, we will create a {@link @xeokit/viewer!Viewer | Viewer} with
+ * a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link @xeokit/scene!Scene | Scene}, which holds model geometry
+ * and materials.
+ *
+ * On our Viewer, we will create a single {@link @xeokit/viewer!View | View} to render it to a canvas element on the page. We will
+ * also attach a {@link @xeokit/cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
+ *
+ * Within the Scene, we will create a {@link @xeokit/scene!SceneModel | SceneModel} to hold model geometry and materials.
+ *
+ * We will then use
+ * {@link @xeokit/las!loadLAS | loadLAS} to load an LAS/LAZ file into our SceneModel.
+ *
+ * The {@link @xeokit/core!SDKError | SDKError} class will be used to handle any errors that may occur during this process.
+ *
+ * * [Run this example]()
  *
  * ````javascript
- * import {Data} from "@xeokit/data";
+ * import {SDKError} from "@xeokit/core";
  * import {Scene} from "@xeokit/scene";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {Viewer} from "@xeokit/viewer";
+ * import {CameraControl} from "@xeokit/cameracontrol";
  * import {loadLAS} from "@xeokit/las";
  *
- * const data = new Data();
  * const scene = new Scene();
  *
- * const dataModel = data.createModel({
- *     id: "myModel
+ * const renderer = new WebGLRenderer({});
+ *
+ * const viewer = new Viewer({
+ *     id: "myViewer",
+ *     scene,
+ *     renderer
  * });
  *
- * const sceneModel = scene.createModel({
- *     id: "myModel
+ * const view = viewer.createView({
+ *     id: "myView",
+ *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
  * });
  *
- * fetch("myModel.las").then(response => {
+ * if (view instanceof SDKError) {
+ *     console.error(`Error creating View: ${view.message}`);
  *
- *      response.arrayBuffer().then(fileData => {
+ * } else {
  *
- *          loadLAS({
- *              fileData,           // Load LAS/LAZ from this ArrayBuffer
- *              dataModel,          // Save metadata in this DataModel (optional)
- *              sceneModel,         // Load points into this SceneModel
- *              fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
- *              colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
- *              skip: 1,            // Load every nth point (optional, default is 1)
- *              center: false,      // Whether to center the points (optional)
- *              transform: [        // Transform the points (optional)
- *                  1,0,0,0,
- *                  0,1,0,0,
- *                  0,0,1,0,
- *                  0,0,0,1
- *              ],
- *              log: (msg) => {     // Log loading progress (optional)
- *                  console.log(msg);
- *              }
- *          }).then(()=>{
- *              dataModel.build();
- *              sceneModel.build();
+ *     view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ *     view.camera.look = [1842009.49, 9.68, -5173295.85];
+ *     view.camera.up = [0.0, 1.0, 0.0];
+ *
+ *     new CameraControl(view, {});
+ *
+ *     const sceneModel = scene.createModel({
+ *         id: "myModel"
+ *     });
+ *
+ *     if (sceneModel instanceof SDKError) {
+ *         console.error(`Error creating SceneModel: ${sceneModel.message}`);
+ *
+ *     } else {
+ *         fetch("model.las").then(response => {
+ *
+ *             response.arrayBuffer().then(fileData => {
+ *
+ *                  loadLAS({
+ *                      fileData,
+ *                      sceneModel
+ *                  },
+ *                  {,
+ *                      fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
+ *                      colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
+ *                      skip: 1,            // Load every nth point (optional, default is 1)
+ *                      center: false,      // Whether to center the points (optional, default is false)
+ *                      transform: [        // Transform the points (optional)
+ *                          1,0,0,0,
+ *                          0,1,0,0,
+ *                          0,0,1,0,
+ *                          0,0,0,1
+ *                      ],
+ *                  }).then(() => {
+ *                      sceneModel.build();
+ *
+ *                  }).catch(sdkError => {
+ *                      sceneModel.destroy();
+ *                      console.error(`Error loading LAS/LAZ file: ${sdkError.message}`);
+ *                  });
+ *
+ *             }).catch(message => {
+ *                  console.error(`Error creating ArrayBuffer: ${message}`);
+ *             });
+ *
+ *          }).catch(message => {
+ *              console.error(`Error fetching model: ${message}`);
  *          });
+ *      }).catch(message => {
+ *          console.error(`Error initializing WebIFC.IfcAPI: ${message}`);
  *      });
- * });
+ * }
  * ````
  *
  * @module @xeokit/las

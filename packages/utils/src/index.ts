@@ -244,6 +244,21 @@ export function saveArrayBuffer(arrayBuffer: ArrayBuffer, filename: string) {
     document.body.removeChild(link);
 }
 
+/** Downloads JSON to a file.
+ *
+ * @param arrayBuffer
+ * @param filename
+ */
+export function saveJSON(data:any, filename: string) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = window.URL.createObjectURL(blob);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
 /**
  Tests if the given object is an array
  */

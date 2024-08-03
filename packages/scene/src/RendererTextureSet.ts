@@ -6,7 +6,7 @@ import type {RendererTexture} from "./RendererTexture";
  *
  * This loads the updated texture data into all the {@link @xeokit/viewer!View | View} belonging to the Viewer.
  *
- * This exists at {@link @xeokit/scene!SceneTextureSet.rendererTextureSet} when the {@link @xeokit/scene!SceneModel} has been added
+ * This exists at {@link @xeokit/scene!SceneTextureSet.rendererTextureSet} when the {@link @xeokit/scene!SceneModel | SceneModel} has been added
  *  to a {@link @xeokit/viewer!Viewer | Viewer}.
  *
  * @internal

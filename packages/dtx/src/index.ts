@@ -33,29 +33,88 @@
  *
  * ## Usage
  *
- * In the example below, we'll use {@link loadDTX} to import a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file into
- * a {@link @xeokit/scene!SceneModel | SceneModel}. The {@link @xeokit/core!SDKError | SDKError} class is used to handle errors that may occur during the process:
+ * In the example below, we will create a {@link @xeokit/viewer!Viewer | Viewer} with
+ * a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link @xeokit/scene!Scene | Scene}, which holds model geometry and materials.
+ *
+ * On our Viewer, we will create a single {@link @xeokit/viewer!View | View} to render it to a canvas element on the page. We will
+ * also attach a {@link @xeokit/cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
+ *
+ * Within the Scene, we will create a {@link @xeokit/scene!SceneModel | SceneModel} to hold a model. We will then use
+ * {@link @xeokit/dtx!loadDTX | loadDTX} to load
+ * a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file into our SceneModel.
+ *
+ * The {@link @xeokit/core!SDKError | SDKError} class will be used to handle any errors that may occur during this process.
+ *
+ * * [Run this example]()
  *
  * ````javascript
+ * import {SDKError} from "@xeokit/core";
  * import {Scene} from "@xeokit/scene";
+ * import  {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {Viewer} from "@xeokit/viewer";
+ * import {CameraControl} from "@xeokit/cameracontrol";
  * import {loadDTX, saveDTX} from "@xeokit/dtx";
  *
  * const scene = new Scene();
  *
- * const sceneModel = scene.createModel({
- *     id: "myModel
+ * const renderer = new WebGLRenderer({});
+ *
+ * const viewer = new Viewer({
+ *     id: "myViewer",
+ *     scene,
+ *     renderer
+ * });
+
+ * const view = viewer.createView({
+ *     id: "myView",
+ *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
  * });
  *
- * if (sceneModel instanceof SDKError) {
- *      console.error(dataModel.message);
+ * if (view instanceof SDKError) {
+ *     console.error(`Error creating View: ${view.message}`);
+ *
  * } else {
- *      fetch("myModel.dtx").then(response => {
- *         response.arrayBuffer().then(fileData => {
- *              loadDTX({ fileData, sceneModel });
- *              sceneModel.build();
- *          });
- *      });
- * });
+ *
+ *     view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ *     view.camera.look = [1842009.49, 9.68, -5173295.85];
+ *     view.camera.up = [0.0, 1.0, 0.0];
+ *
+ *     new CameraControl(view, {});
+ *
+ *     const sceneModel = scene.createModel({
+ *         id: "myModel"
+ *     });
+ *
+ *     if (sceneModel instanceof SDKError) {
+ *         console.error(`Error creating SceneModel: ${sceneModel.message}`);
+ *
+ *     } else {
+ *
+ *         fetch("model.dtx").then(response => {
+ *
+ *             response.arrayBuffer().then(fileData => {
+ *
+ *                 loadDTX({
+ *                     fileData,
+ *                     sceneModel
+ *                 }).then(() => {
+ *
+ *                     sceneModel.build();
+ *
+ *                 }).catch(sdkError => {
+ *                     sceneModel.destroy();
+ *                     console.error(`Error loading DTX: ${sdkError.message}`);
+ *                 });
+ *
+ *             }).catch(message => {
+ *                 console.error(`Error creating ArrayBuffer: ${message}`);
+ *             });
+ *
+ *         }).catch(message => {
+ *             console.error(`Error fetching model: ${message}`);
+ *         });
+ *     }
+ * }
  * ````
  *
  * Using {@link @xeokit/dtx!saveDTX | saveDTX} to export the {@link @xeokit/scene!SceneModel | SceneModel} back to
@@ -63,7 +122,6 @@
  *
  * ````javascript
  * const arrayBuffer = saveDTX({
- *     dataModel,
  *     sceneModel
  * });
  * ````

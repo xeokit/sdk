@@ -115,6 +115,10 @@
         // view.camera.look = [6.599999999999998, 8.34099990051474, -4.159999575600315];
         // view.camera.up = [-0.2820584034861215, 0.9025563895259413, -0.3253229483893775];
 
+        view.camera.eye = [14.91, 14.39, 5.43];
+        view.camera.look = [6.59, 8.34, -4.15];
+        view.camera.up = [-0.28, 0.90, -0.32];
+
         view.createLayer({
             id: `layer${i}`
         });
@@ -130,7 +134,7 @@
         layerId: "layer0"
     });
 
-    fetch("../../data/gltf/MAP.glb").then(response => {
+    fetch("../../data/datasets/Holter_Tower_10/model.glb").then(response => {
         response.arrayBuffer().then(fileData => {
 
             xeokit.gltf.loadGLTF({
@@ -152,8 +156,6 @@
                         layerId: "layer1",
                         globalizedIds: true
                     });
-
-                   xeokit.utils.saveArrayBuffer(dtxData, "MAP.dtx")
 
                     xeokit.dtx.loadDTX({
                         fileData: dtxData,

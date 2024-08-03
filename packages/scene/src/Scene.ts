@@ -31,14 +31,14 @@ export class Scene extends Component {
     public readonly tiles: { [key: string]: SceneTile };
 
     /**
-     * Emits an event each time a {@link @xeokit/scene!SceneModel} is created in this Scene.
+     * Emits an event each time a {@link @xeokit/scene!SceneModel | SceneModel} is created in this Scene.
      *
      * @event
      */
     public readonly onModelCreated: EventEmitter<Scene, SceneModel>;
 
     /**
-     * Emits an event each time a {@link @xeokit/scene!SceneModel} is destroyed in this Scene.
+     * Emits an event each time a {@link @xeokit/scene!SceneModel | SceneModel} is destroyed in this Scene.
      *
      * @event
      */
@@ -165,7 +165,7 @@ export class Scene extends Component {
     }
 
     /**
-     * Creates a new {@link @xeokit/scene!SceneModel} in this Scene.
+     * Creates a new {@link @xeokit/scene!SceneModel | SceneModel} in this Scene.
      *
      * Remember to call {@link @xeokit/scene!SceneModel.build | SceneModel.build} when you've finished building or
      * loading the SceneModel. That will
@@ -174,8 +174,8 @@ export class Scene extends Component {
      *
      * See {@link "@xeokit/scene" | @xeokit/scene}  for more details on usage.
      *
-     * @param  sceneModelParams Creation parameters for the new {@link @xeokit/scene!SceneModel}.
-     * @returns *{@link @xeokit/scene!SceneModel}*
+     * @param  sceneModelParams Creation parameters for the new {@link @xeokit/scene!SceneModel | SceneModel}.
+     * @returns *{@link @xeokit/scene!SceneModel | SceneModel}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * This Scene has already been destroyed.

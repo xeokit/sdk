@@ -21,7 +21,7 @@ import type {SceneTextureParams} from "./SceneTextureParams";
 import {createVec4} from "@xeokit/matrix";
 
 /**
- * A texture in a {@link @xeokit/scene!SceneModel}.
+ * A texture in a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textures | SceneModel.textures}
  * * Created with {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture}
@@ -36,7 +36,7 @@ export class SceneTexture {
     /**
      *  Internal interface through which this {@link @xeokit/scene!SceneTexture} can load property updates into a renderers.
      *
-     *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined when the owner {@link @xeokit/scene!SceneModel | SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */

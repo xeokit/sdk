@@ -11,7 +11,7 @@ export interface SceneMeshParams {
     streamLayerIndex?: number;
 
     /**
-     * ID for the new {@link @xeokit/scene!SceneMesh}, unique within the {@link @xeokit/scene!SceneModel}.
+     * ID for the new {@link @xeokit/scene!SceneMesh}, unique within the {@link @xeokit/scene!SceneModel | SceneModel}.
      */
     id: string;
 
@@ -35,7 +35,7 @@ export interface SceneMeshParams {
     /**
      * RGB pick color of the new {@link @xeokit/scene!SceneMesh}.
      *
-     * This is used internally within {@link @xeokit/scene!SceneModel}.
+     * This is used internally within {@link @xeokit/scene!SceneModel | SceneModel}.
      */
     pickColor?: FloatArrayParam;
 

@@ -103,12 +103,12 @@ export class DataModel extends Component {
     public relationships: Relationship[];
 
     /**
-     * The count of each type of {@link @xeokit/data!DataObject} in this DataModel, mapped to {@link @xeokit/data!DataObject.type | DataObject.type}.
+     * The count of each type of {@link @xeokit/data!DataObject | DataObject} in this DataModel, mapped to {@link @xeokit/data!DataObject.type | DataObject.type}.
      */
     public readonly typeCounts: { [key: string]: number };
 
     /**
-     * Emits an event when the {@link @xeokit/data!DataModel} has been built.
+     * Emits an event when the {@link @xeokit/data!DataModel | DataModel} has been built.
      *
      * * The DataModel is built using {@link @xeokit/data!DataModel.build | DataModel.build}.
      * * {@link @xeokit/data!DataModel.built | DataModel.built} indicates if the DataModel is currently built.
@@ -206,7 +206,7 @@ export class DataModel extends Component {
     }
 
     /**
-     * Creates a new {@link @xeokit/data!PropertySet}.
+     * Creates a new {@link @xeokit/data!PropertySet | PropertySet}.
      *
      * * Stores the new PropertySet in {@link @xeokit/data!DataModel.propertySets | DataModel.propertySets}
      * and {@link @xeokit/data!Data.propertySets | Data.propertySets}.
@@ -277,9 +277,9 @@ export class DataModel extends Component {
     }
 
     /**
-     * Creates a new {@link @xeokit/data!DataObject}.
+     * Creates a new {@link @xeokit/data!DataObject | DataObject}.
      *
-     * * Stores the new {@link @xeokit/data!DataObject} in {@link DataModel.objects | DataModel.objects} and {@link Data.objects | Data.objects}.
+     * * Stores the new {@link @xeokit/data!DataObject | DataObject} in {@link DataModel.objects | DataModel.objects} and {@link Data.objects | Data.objects}.
      * * Fires an event via {@link Data.onObjectCreated | Data.onObjectCreated}.
      * * Note that DataObject IDs are globally unique. DataObject instances are automatically reused and shared among DataModels when
      * IDs given to {@link DataModel.createObject | DataModel.createObject} match existing DataObject instances in the same
@@ -397,7 +397,7 @@ export class DataModel extends Component {
     }
 
     /**
-     * Creates a new {@link @xeokit/data!Relationship} between two existing {@link DataObject | DataObjects}.
+     * Creates a new {@link @xeokit/data!Relationship | Relationship} between two existing {@link DataObject | DataObjects}.
      *
      * * A Relationship involves a *relating* DataObject and a *related* DataObject.
      * * The *relating* and *related* DataObjects can exist within different DataModels,
@@ -432,7 +432,7 @@ export class DataModel extends Component {
      * See {@link "@xeokit/data" | @xeokit/data}  for more usage info.
      *
      * @param relationshipParams - Relationship creation parameters.
-     * @returns *{@link @xeokit/data!Relationship}*
+     * @returns *{@link @xeokit/data!Relationship | Relationship}*
      * * On success.
      * @returns *{@link @xeokit/core!SDKError | SDKError}*
      * * If this DataModel has already been built or destroyed.

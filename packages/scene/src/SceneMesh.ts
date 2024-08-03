@@ -8,7 +8,7 @@ import type {SceneMeshParams} from "./SceneMeshParams";
 import {SceneTile} from "./SceneTile";
 
 /**
- * A mesh in a {@link @xeokit/scene!SceneModel}.
+ * A mesh in a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.meshes | SceneModel.meshes}
  * * Created with {@link @xeokit/scene!SceneModel.createMesh | SceneModel.createMesh}
@@ -43,7 +43,7 @@ export class SceneMesh {
     /**
      *  Internal interface through which a {@link @xeokit/scene!SceneMesh} can load property updates into a renderers.
      *
-     *  This is defined when the owner {@link @xeokit/scene!SceneModel} has been added to
+     *  This is defined when the owner {@link @xeokit/scene!SceneModel | SceneModel} has been added to
      *  a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal

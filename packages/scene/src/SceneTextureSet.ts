@@ -3,7 +3,7 @@ import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 import type {RendererTextureSet} from "./RendererTextureSet";
 
 /**
- * A set of {@link @xeokit/scene!SceneTexture | Textures} in a {@link @xeokit/scene!SceneModel}.
+ * A set of {@link @xeokit/scene!SceneTexture | Textures} in a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.textureSets | SceneModel.textureSets}
  * * Created with {@link @xeokit/scene!SceneModel.createTextureSet | SceneModel.createTextureSet}
@@ -41,7 +41,7 @@ export class SceneTextureSet {
     /**
      *  Internal interface through which a SceneTextureSet can load property updates into a renderers.
      *
-     *  This is defined while the owner {@link @xeokit/scene!SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
+     *  This is defined while the owner {@link @xeokit/scene!SceneModel | SceneModel} has been added to a {@link @xeokit/viewer!Viewer | Viewer}.
      *
      * @internal
      */

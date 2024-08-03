@@ -9,7 +9,7 @@ const tempVec3a = createVec3();
 const tempVec3b = createVec3();
 
 /**
- * Exports a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel} to a JSON object
+ * Exports a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel | DataModel} to a JSON object
  * containing .BIM file data.
  *
  * See {@link "@xeokit/dotbim" | @xeokit/dotbim} for usage.

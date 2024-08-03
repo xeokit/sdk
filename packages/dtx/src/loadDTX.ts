@@ -15,8 +15,6 @@ const parsers = {
  *
  * See {@link "@xeokit/dtx" | @xeokit/dtx} for usage.
  *
- * See {@link @xeokit/dtx!DTXData_v1} for insights into the structure of a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file.
- *
  * @param params - Loading parameters.
  * @param params.fileData - [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data
  * @param params.sceneModel - SceneModel to load into.
@@ -38,3 +36,30 @@ export function loadDTX(params: {
     }
     return readDTX(params);
 }
+
+
+/*
+export function loadDTX(params: {
+    fileData: ArrayBuffer;
+    sceneModel: SceneModel;
+}): Promise<void> {
+    const {fileData, sceneModel} = params;
+    if (sceneModel.destroyed) {
+        return Promise.reject(new SDKError("SceneModel already destroyed"));
+    }
+    if (sceneModel.built) {
+        return Promise.reject(new SDKError("SceneModel already built"));
+    }
+    const arrayBuffer = params.fileData;
+    const dataView = new DataView(arrayBuffer);
+    const dataArray = new Uint8Array(arrayBuffer);
+    const dtxVersion = dataView.getUint32(0, true);
+    const parser = parsers[dtxVersion];
+    if (!parser) {
+        return Promise.reject(new SDKError(`Unsupported DTX file version: ${dtxVersion} - supports versions are [${Object.keys(parsers)}]`));
+    }
+    return readDTX({
+        sceneModel
+    });
+}
+ */

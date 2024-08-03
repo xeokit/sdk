@@ -4,7 +4,7 @@ import {SceneQuantizationRangeParams} from "./SceneQuantizationRangeParams";
 
 
 /**
- * A geometry in a {@link @xeokit/scene!SceneModel}.
+ * A geometry in a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * * Stored in {@link @xeokit/scene!SceneModel.quantizationRanges | SceneModel.quantizationRanges}
  * * Created with {@link @xeokit/scene!SceneModel.createQuantizationRange | SceneModel.createQuantizationRange}

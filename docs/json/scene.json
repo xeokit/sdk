@@ -545,7 +545,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 72,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L72"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L72"
 						}
 					],
 					"signatures": [
@@ -577,7 +577,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 72,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L72"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L72"
 								}
 							],
 							"type": {
@@ -734,7 +734,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 21,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L21"
 						}
 					],
 					"type": {
@@ -750,7 +750,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 21,
 									"character": 28,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L21"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L21"
 								}
 							],
 							"indexSignature": {
@@ -764,7 +764,7 @@
 										"fileName": "scene/src/Scene.ts",
 										"line": 21,
 										"character": 30,
-										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L21"
+										"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L21"
 									}
 								],
 								"parameters": [
@@ -830,7 +830,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 26,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L26"
 						}
 					],
 					"type": {
@@ -846,7 +846,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 26,
 									"character": 29,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L26"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L26"
 								}
 							],
 							"indexSignature": {
@@ -860,7 +860,7 @@
 										"fileName": "scene/src/Scene.ts",
 										"line": 26,
 										"character": 31,
-										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L26"
+										"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L26"
 									}
 								],
 								"parameters": [
@@ -977,7 +977,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 38,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L38"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L38"
 						}
 					],
 					"type": {
@@ -1035,7 +1035,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 45,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L45"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L45"
 						}
 					],
 					"type": {
@@ -1093,7 +1093,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 52,
 							"character": 21,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L52"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L52"
 						}
 					],
 					"type": {
@@ -1154,7 +1154,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 59,
 							"character": 21,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L59"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L59"
 						}
 					],
 					"type": {
@@ -1215,7 +1215,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 31,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L31"
 						}
 					],
 					"type": {
@@ -1231,7 +1231,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 31,
 									"character": 27,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L31"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L31"
 								}
 							],
 							"indexSignature": {
@@ -1245,7 +1245,7 @@
 										"fileName": "scene/src/Scene.ts",
 										"line": 31,
 										"character": 29,
-										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L31"
+										"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L31"
 									}
 								],
 								"parameters": [
@@ -1285,7 +1285,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 109,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L109"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L109"
 						}
 					],
 					"getSignature": {
@@ -1324,7 +1324,7 @@
 								"fileName": "scene/src/Scene.ts",
 								"line": 109,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L109"
+								"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L109"
 							}
 						],
 						"type": {
@@ -1349,7 +1349,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 94,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L94"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L94"
 						}
 					],
 					"getSignature": {
@@ -1380,7 +1380,7 @@
 								"fileName": "scene/src/Scene.ts",
 								"line": 94,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L94"
+								"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L94"
 							}
 						],
 						"type": {
@@ -1513,7 +1513,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 228,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L228"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L228"
 						}
 					],
 					"signatures": [
@@ -1601,7 +1601,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 228,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L228"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L228"
 								}
 							],
 							"type": {
@@ -1636,7 +1636,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 184,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L184"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L184"
 						}
 					],
 					"signatures": [
@@ -1742,7 +1742,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 184,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L184"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L184"
 								}
 							],
 							"parameters": [
@@ -1811,7 +1811,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 251,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L251"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L251"
 						}
 					],
 					"signatures": [
@@ -1926,7 +1926,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 251,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L251"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L251"
 								}
 							],
 							"type": {
@@ -2056,7 +2056,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 278,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L278"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L278"
 						}
 					],
 					"signatures": [
@@ -2071,7 +2071,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 278,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L278"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L278"
 								}
 							],
 							"parameters": [
@@ -2200,7 +2200,7 @@
 							"fileName": "scene/src/Scene.ts",
 							"line": 292,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L292"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L292"
 						}
 					],
 					"signatures": [
@@ -2215,7 +2215,7 @@
 									"fileName": "scene/src/Scene.ts",
 									"line": 292,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L292"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L292"
 								}
 							],
 							"parameters": [
@@ -2440,7 +2440,7 @@
 					"fileName": "scene/src/Scene.ts",
 					"line": 15,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/Scene.ts#L15"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/Scene.ts#L15"
 				}
 			],
 			"extendedTypes": [
@@ -2535,7 +2535,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 96,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L96"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L96"
 						}
 					],
 					"signatures": [
@@ -2550,7 +2550,7 @@
 									"fileName": "scene/src/SceneGeometry.ts",
 									"line": 96,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L96"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L96"
 								}
 							],
 							"parameters": [
@@ -2598,7 +2598,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 37,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L37"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L37"
 						}
 					],
 					"type": {
@@ -2632,7 +2632,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 63,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L63"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L63"
 						}
 					],
 					"type": {
@@ -2666,7 +2666,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 77,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L77"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L77"
 						}
 					],
 					"type": {
@@ -2698,7 +2698,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 23,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L23"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L23"
 						}
 					],
 					"type": {
@@ -2727,7 +2727,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 70,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L70"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L70"
 						}
 					],
 					"type": {
@@ -2768,7 +2768,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 94,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L94"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L94"
 						}
 					],
 					"type": {
@@ -2797,7 +2797,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 89,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L89"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L89"
 						}
 					],
 					"type": {
@@ -2838,7 +2838,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 51,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L51"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L51"
 						}
 					],
 					"type": {
@@ -2915,7 +2915,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 32,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L32"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L32"
 						}
 					],
 					"type": {
@@ -2945,7 +2945,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 84,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L84"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L84"
 						}
 					],
 					"type": {
@@ -2985,7 +2985,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 58,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L58"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L58"
 						}
 					],
 					"type": {
@@ -3019,7 +3019,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 42,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L42"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L42"
 						}
 					],
 					"type": {
@@ -3043,7 +3043,7 @@
 							"fileName": "scene/src/SceneGeometry.ts",
 							"line": 112,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L112"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L112"
 						}
 					],
 					"signatures": [
@@ -3066,7 +3066,7 @@
 									"fileName": "scene/src/SceneGeometry.ts",
 									"line": 112,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L112"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L112"
 								}
 							],
 							"type": {
@@ -3115,7 +3115,7 @@
 					"fileName": "scene/src/SceneGeometry.ts",
 					"line": 18,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometry.ts#L18"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometry.ts#L18"
 				}
 			]
 		},
@@ -3205,7 +3205,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 36,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L36"
 						}
 					],
 					"type": {
@@ -3245,7 +3245,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 26,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L26"
 						}
 					],
 					"type": {
@@ -3281,7 +3281,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 56,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L56"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L56"
 						}
 					],
 					"type": {
@@ -3304,7 +3304,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 68,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L68"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L68"
 						}
 					],
 					"type": {
@@ -3366,7 +3366,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 51,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L51"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L51"
 						}
 					],
 					"type": {
@@ -3395,7 +3395,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 61,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L61"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L61"
 						}
 					],
 					"type": {
@@ -3430,7 +3430,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 41,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L41"
 						}
 					],
 					"type": {
@@ -3466,7 +3466,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 31,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L31"
 						}
 					],
 					"type": {
@@ -3490,13 +3490,13 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 101,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L101"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L101"
 						},
 						{
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 110,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L110"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L110"
 						}
 					],
 					"getSignature": {
@@ -3526,7 +3526,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 101,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L101"
+								"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L101"
 							}
 						],
 						"type": {
@@ -3566,7 +3566,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 110,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L110"
+								"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L110"
 							}
 						],
 						"parameters": [
@@ -3604,13 +3604,13 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 137,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L137"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L137"
 						},
 						{
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 160,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L160"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L160"
 						}
 					],
 					"getSignature": {
@@ -3640,7 +3640,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 137,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L137"
+								"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L137"
 							}
 						],
 						"type": {
@@ -3680,7 +3680,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 160,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L160"
+								"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L160"
 							}
 						],
 						"parameters": [
@@ -3718,13 +3718,13 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 180,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L180"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L180"
 						},
 						{
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 189,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L189"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L189"
 						}
 					],
 					"getSignature": {
@@ -3754,7 +3754,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 180,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L180"
+								"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L180"
 							}
 						],
 						"type": {
@@ -3789,7 +3789,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 189,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L189"
+								"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L189"
 							}
 						],
 						"parameters": [
@@ -3822,7 +3822,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 149,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L149"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L149"
 						}
 					],
 					"getSignature": {
@@ -3855,7 +3855,7 @@
 								"fileName": "scene/src/SceneMesh.ts",
 								"line": 149,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L149"
+								"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L149"
 							}
 						],
 						"type": {
@@ -3880,7 +3880,7 @@
 							"fileName": "scene/src/SceneMesh.ts",
 							"line": 203,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L203"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L203"
 						}
 					],
 					"signatures": [
@@ -3903,7 +3903,7 @@
 									"fileName": "scene/src/SceneMesh.ts",
 									"line": 203,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L203"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L203"
 								}
 							],
 							"type": {
@@ -3951,7 +3951,7 @@
 					"fileName": "scene/src/SceneMesh.ts",
 					"line": 19,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMesh.ts#L19"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMesh.ts#L19"
 				}
 			]
 		},
@@ -4127,7 +4127,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 219,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L219"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L219"
 						}
 					],
 					"type": {
@@ -4196,7 +4196,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 146,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L146"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L146"
 						}
 					],
 					"type": {
@@ -4242,7 +4242,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 154,
 							"character": 21,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L154"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L154"
 						}
 					],
 					"type": {
@@ -4302,7 +4302,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 159,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L159"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L159"
 						}
 					],
 					"type": {
@@ -4355,7 +4355,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 166,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L166"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L166"
 						}
 					],
 					"type": {
@@ -4371,7 +4371,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 166,
 									"character": 32,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L166"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L166"
 								}
 							],
 							"indexSignature": {
@@ -4385,7 +4385,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 166,
 										"character": 34,
-										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L166"
+										"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L166"
 									}
 								],
 								"parameters": [
@@ -4459,7 +4459,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 123,
 							"character": 28,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L123"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L123"
 						}
 					],
 					"type": {
@@ -4498,7 +4498,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 130,
 							"character": 28,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L130"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L130"
 						}
 					],
 					"type": {
@@ -4552,7 +4552,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 136,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L136"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L136"
 						}
 					],
 					"type": {
@@ -4605,7 +4605,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 205,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L205"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L205"
 						}
 					],
 					"type": {
@@ -4621,7 +4621,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 205,
 									"character": 28,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L205"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L205"
 								}
 							],
 							"indexSignature": {
@@ -4635,7 +4635,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 205,
 										"character": 30,
-										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L205"
+										"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L205"
 									}
 								],
 								"parameters": [
@@ -4705,7 +4705,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 212,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L212"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L212"
 						}
 					],
 					"type": {
@@ -4721,7 +4721,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 212,
 									"character": 22,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L212"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L212"
 								}
 							],
 							"indexSignature": {
@@ -4735,7 +4735,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 212,
 										"character": 24,
-										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L212"
+										"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L212"
 									}
 								],
 								"parameters": [
@@ -4801,7 +4801,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 228,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L228"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L228"
 						}
 					],
 					"type": {
@@ -4866,7 +4866,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 237,
 							"character": 28,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L237"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L237"
 						}
 					],
 					"type": {
@@ -4941,7 +4941,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 173,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L173"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L173"
 						}
 					],
 					"type": {
@@ -4957,7 +4957,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 173,
 									"character": 40,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L173"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L173"
 								}
 							],
 							"indexSignature": {
@@ -4971,7 +4971,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 173,
 										"character": 42,
-										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L173"
+										"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L173"
 									}
 								],
 								"parameters": [
@@ -5024,7 +5024,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 244,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L244"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L244"
 						}
 					],
 					"type": {
@@ -5072,7 +5072,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 256,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L256"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L256"
 						}
 					],
 					"type": {
@@ -5111,7 +5111,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 114,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L114"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L114"
 						}
 					],
 					"type": {
@@ -5143,7 +5143,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 249,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L249"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L249"
 						}
 					],
 					"type": {
@@ -5211,7 +5211,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 109,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L109"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L109"
 						}
 					],
 					"type": {
@@ -5266,7 +5266,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 188,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L188"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L188"
 						}
 					],
 					"type": {
@@ -5282,7 +5282,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 188,
 									"character": 33,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L188"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L188"
 								}
 							],
 							"indexSignature": {
@@ -5296,7 +5296,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 188,
 										"character": 35,
-										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L188"
+										"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L188"
 									}
 								],
 								"parameters": [
@@ -5376,7 +5376,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 181,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L181"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L181"
 						}
 					],
 					"type": {
@@ -5392,7 +5392,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 181,
 									"character": 30,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L181"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L181"
 								}
 							],
 							"indexSignature": {
@@ -5406,7 +5406,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 181,
 										"character": 32,
-										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L181"
+										"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L181"
 									}
 								],
 								"parameters": [
@@ -5472,7 +5472,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 193,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L193"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L193"
 						}
 					],
 					"type": {
@@ -5488,7 +5488,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 193,
 									"character": 27,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L193"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L193"
 								}
 							],
 							"indexSignature": {
@@ -5502,7 +5502,7 @@
 										"fileName": "scene/src/SceneModel.ts",
 										"line": 193,
 										"character": 29,
-										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L193"
+										"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L193"
 									}
 								],
 								"parameters": [
@@ -5562,7 +5562,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 198,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L198"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L198"
 						}
 					],
 					"type": {
@@ -5589,7 +5589,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 950,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L950"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L950"
 						}
 					],
 					"signatures": [
@@ -5693,7 +5693,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 950,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L950"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L950"
 								}
 							],
 							"type": {
@@ -5835,7 +5835,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 574,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L574"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L574"
 						}
 					],
 					"signatures": [
@@ -5949,7 +5949,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 574,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L574"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L574"
 								}
 							],
 							"parameters": [
@@ -6009,7 +6009,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 687,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L687"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L687"
 						}
 					],
 					"signatures": [
@@ -6150,7 +6150,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 687,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L687"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L687"
 								}
 							],
 							"parameters": [
@@ -6210,7 +6210,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 773,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L773"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L773"
 						}
 					],
 					"signatures": [
@@ -6342,7 +6342,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 773,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L773"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L773"
 								}
 							],
 							"parameters": [
@@ -6402,7 +6402,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 867,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L867"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L867"
 						}
 					],
 					"signatures": [
@@ -6543,7 +6543,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 867,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L867"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L867"
 								}
 							],
 							"parameters": [
@@ -6603,7 +6603,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 715,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L715"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L715"
 						}
 					],
 					"signatures": [
@@ -6618,7 +6618,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 715,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L715"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L715"
 								}
 							],
 							"parameters": [
@@ -6676,7 +6676,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 406,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L406"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L406"
 						}
 					],
 					"signatures": [
@@ -6790,7 +6790,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 406,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L406"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L406"
 								}
 							],
 							"parameters": [
@@ -6850,7 +6850,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 464,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L464"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L464"
 						}
 					],
 					"signatures": [
@@ -6955,7 +6955,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 464,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L464"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L464"
 								}
 							],
 							"parameters": [
@@ -7015,7 +7015,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 1035,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L1035"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L1035"
 						}
 					],
 					"signatures": [
@@ -7057,7 +7057,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 1035,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L1035"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L1035"
 								}
 							],
 							"type": {
@@ -7173,7 +7173,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 330,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L330"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L330"
 						}
 					],
 					"signatures": [
@@ -7270,7 +7270,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 330,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L330"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L330"
 								}
 							],
 							"parameters": [
@@ -7320,7 +7320,7 @@
 							"fileName": "scene/src/SceneModel.ts",
 							"line": 999,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L999"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L999"
 						}
 					],
 					"signatures": [
@@ -7343,7 +7343,7 @@
 									"fileName": "scene/src/SceneModel.ts",
 									"line": 999,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L999"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L999"
 								}
 							],
 							"type": {
@@ -7642,7 +7642,7 @@
 					"fileName": "scene/src/SceneModel.ts",
 					"line": 101,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModel.ts#L101"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModel.ts#L101"
 				}
 			],
 			"extendedTypes": [
@@ -7757,7 +7757,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 24,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObject.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObject.ts#L24"
 						}
 					],
 					"type": {
@@ -7788,7 +7788,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 44,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObject.ts#L44"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObject.ts#L44"
 						}
 					],
 					"type": {
@@ -7827,7 +7827,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 39,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObject.ts#L39"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObject.ts#L39"
 						}
 					],
 					"type": {
@@ -7871,7 +7871,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 29,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObject.ts#L29"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObject.ts#L29"
 						}
 					],
 					"type": {
@@ -7903,7 +7903,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 34,
 							"character": 20,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObject.ts#L34"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObject.ts#L34"
 						}
 					],
 					"type": {
@@ -7969,7 +7969,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 54,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObject.ts#L54"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObject.ts#L54"
 						}
 					],
 					"type": {
@@ -7990,7 +7990,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 81,
 							"character": 8,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObject.ts#L81"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObject.ts#L81"
 						}
 					],
 					"getSignature": {
@@ -8012,7 +8012,7 @@
 								"fileName": "scene/src/SceneObject.ts",
 								"line": 81,
 								"character": 8,
-								"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObject.ts#L81"
+								"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObject.ts#L81"
 							}
 						],
 						"type": {
@@ -8037,7 +8037,7 @@
 							"fileName": "scene/src/SceneObject.ts",
 							"line": 103,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObject.ts#L103"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObject.ts#L103"
 						}
 					],
 					"signatures": [
@@ -8060,7 +8060,7 @@
 									"fileName": "scene/src/SceneObject.ts",
 									"line": 103,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObject.ts#L103"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObject.ts#L103"
 								}
 							],
 							"type": {
@@ -8103,7 +8103,7 @@
 					"fileName": "scene/src/SceneObject.ts",
 					"line": 16,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObject.ts#L16"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObject.ts#L16"
 				}
 			]
 		},
@@ -8215,7 +8215,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 63,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L63"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L63"
 						}
 					],
 					"type": {
@@ -8250,7 +8250,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 83,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L83"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L83"
 						}
 					],
 					"type": {
@@ -8295,7 +8295,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 148,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L148"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L148"
 						}
 					],
 					"type": {
@@ -8330,7 +8330,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 141,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L141"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L141"
 						}
 					],
 					"type": {
@@ -8357,7 +8357,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 73,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L73"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L73"
 						}
 					],
 					"type": {
@@ -8384,7 +8384,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 48,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L48"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L48"
 						}
 					],
 					"type": {
@@ -8413,7 +8413,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 68,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L68"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L68"
 						}
 					],
 					"type": {
@@ -8447,7 +8447,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 58,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L58"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L58"
 						}
 					],
 					"type": {
@@ -8492,7 +8492,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 99,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L99"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L99"
 						}
 					],
 					"type": {
@@ -8548,7 +8548,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 92,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L92"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L92"
 						}
 					],
 					"type": {
@@ -8620,7 +8620,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 109,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L109"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L109"
 						}
 					],
 					"type": {
@@ -8647,7 +8647,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 153,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L153"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L153"
 						}
 					],
 					"type": {
@@ -8709,7 +8709,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 43,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L43"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L43"
 						}
 					],
 					"type": {
@@ -8740,7 +8740,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 53,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L53"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L53"
 						}
 					],
 					"type": {
@@ -8767,7 +8767,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 78,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L78"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L78"
 						}
 					],
 					"type": {
@@ -8821,7 +8821,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 136,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L136"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L136"
 						}
 					],
 					"type": {
@@ -8875,7 +8875,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 118,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L118"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L118"
 						}
 					],
 					"type": {
@@ -8929,7 +8929,7 @@
 							"fileName": "scene/src/SceneTexture.ts",
 							"line": 127,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L127"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L127"
 						}
 					],
 					"type": {
@@ -8968,7 +8968,7 @@
 					"fileName": "scene/src/SceneTexture.ts",
 					"line": 34,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTexture.ts#L34"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTexture.ts#L34"
 				}
 			]
 		},
@@ -9071,7 +9071,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 24,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSet.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSet.ts#L24"
 						}
 					],
 					"type": {
@@ -9111,7 +9111,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 39,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSet.ts#L39"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSet.ts#L39"
 						}
 					],
 					"type": {
@@ -9140,7 +9140,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSet.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSet.ts#L19"
 						}
 					],
 					"type": {
@@ -9178,7 +9178,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSet.ts#L29"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSet.ts#L29"
 						}
 					],
 					"type": {
@@ -9218,7 +9218,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 34,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSet.ts#L34"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSet.ts#L34"
 						}
 					],
 					"type": {
@@ -9268,7 +9268,7 @@
 							"fileName": "scene/src/SceneTextureSet.ts",
 							"line": 48,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSet.ts#L48"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSet.ts#L48"
 						}
 					],
 					"type": {
@@ -9297,7 +9297,7 @@
 					"fileName": "scene/src/SceneTextureSet.ts",
 					"line": 14,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSet.ts#L14"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSet.ts#L14"
 				}
 			]
 		},
@@ -9364,7 +9364,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 38,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L38"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L38"
 						}
 					],
 					"type": {
@@ -9402,7 +9402,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 28,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L28"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L28"
 						}
 					],
 					"type": {
@@ -9449,7 +9449,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 33,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L33"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L33"
 						}
 					],
 					"type": {
@@ -9487,7 +9487,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 43,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L43"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L43"
 						}
 					],
 					"type": {
@@ -9523,7 +9523,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 23,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L23"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L23"
 						}
 					],
 					"type": {
@@ -9554,7 +9554,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 48,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L48"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L48"
 						}
 					],
 					"type": {
@@ -9588,7 +9588,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 53,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L53"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L53"
 						}
 					],
 					"type": {
@@ -9622,7 +9622,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 58,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L58"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L58"
 						}
 					],
 					"type": {
@@ -9656,7 +9656,7 @@
 					"fileName": "scene/src/getSceneObjectGeometry.ts",
 					"line": 18,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L18"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L18"
 				}
 			]
 		},
@@ -9691,7 +9691,7 @@
 					"fileName": "scene/src/RendererGeometry.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererGeometry.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererGeometry.ts#L6"
 				}
 			]
 		},
@@ -9778,7 +9778,7 @@
 							"fileName": "scene/src/RendererMesh.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererMesh.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererMesh.ts#L31"
 						}
 					],
 					"signatures": [
@@ -9831,7 +9831,7 @@
 									"fileName": "scene/src/RendererMesh.ts",
 									"line": 31,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererMesh.ts#L31"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererMesh.ts#L31"
 								}
 							],
 							"parameters": [
@@ -9870,7 +9870,7 @@
 							"fileName": "scene/src/RendererMesh.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererMesh.ts#L22"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererMesh.ts#L22"
 						}
 					],
 					"signatures": [
@@ -9932,7 +9932,7 @@
 									"fileName": "scene/src/RendererMesh.ts",
 									"line": 22,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererMesh.ts#L22"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererMesh.ts#L22"
 								}
 							],
 							"parameters": [
@@ -9975,7 +9975,7 @@
 					"fileName": "scene/src/RendererMesh.ts",
 					"line": 13,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererMesh.ts#L13"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererMesh.ts#L13"
 				}
 			]
 		},
@@ -10100,7 +10100,7 @@
 							"fileName": "scene/src/RendererModel.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererModel.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererModel.ts#L21"
 						}
 					],
 					"type": {
@@ -10116,7 +10116,7 @@
 									"fileName": "scene/src/RendererModel.ts",
 									"line": 21,
 									"character": 21,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererModel.ts#L21"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererModel.ts#L21"
 								}
 							],
 							"indexSignature": {
@@ -10130,7 +10130,7 @@
 										"fileName": "scene/src/RendererModel.ts",
 										"line": 21,
 										"character": 23,
-										"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererModel.ts#L21"
+										"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererModel.ts#L21"
 									}
 								],
 								"parameters": [
@@ -10170,7 +10170,7 @@
 					"fileName": "scene/src/RendererModel.ts",
 					"line": 11,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererModel.ts#L11"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererModel.ts#L11"
 				}
 			]
 		},
@@ -10333,7 +10333,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 42,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L42"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L42"
 						}
 					],
 					"type": {
@@ -10370,7 +10370,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 30,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L30"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L30"
 						}
 					],
 					"type": {
@@ -10420,7 +10420,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 48,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L48"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L48"
 						}
 					],
 					"type": {
@@ -10461,7 +10461,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 36,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L36"
 						}
 					],
 					"type": {
@@ -10482,7 +10482,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 126,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L126"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L126"
 						}
 					],
 					"signatures": [
@@ -10564,7 +10564,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 126,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L126"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L126"
 								}
 							],
 							"parameters": [
@@ -10675,7 +10675,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 139,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L139"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L139"
 						}
 					],
 					"signatures": [
@@ -10757,7 +10757,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 139,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L139"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L139"
 								}
 							],
 							"parameters": [
@@ -10868,7 +10868,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 165,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L165"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L165"
 						}
 					],
 					"signatures": [
@@ -10950,7 +10950,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 165,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L165"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L165"
 								}
 							],
 							"parameters": [
@@ -11068,7 +11068,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 113,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L113"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L113"
 						}
 					],
 					"signatures": [
@@ -11150,7 +11150,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 113,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L113"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L113"
 								}
 							],
 							"parameters": [
@@ -11261,7 +11261,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 74,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L74"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L74"
 						}
 					],
 					"signatures": [
@@ -11343,7 +11343,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 74,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L74"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L74"
 								}
 							],
 							"parameters": [
@@ -11445,7 +11445,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 191,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L191"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L191"
 						}
 					],
 					"signatures": [
@@ -11527,7 +11527,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 191,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L191"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L191"
 								}
 							],
 							"parameters": [
@@ -11643,7 +11643,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 178,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L178"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L178"
 						}
 					],
 					"signatures": [
@@ -11725,7 +11725,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 178,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L178"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L178"
 								}
 							],
 							"parameters": [
@@ -11838,7 +11838,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 152,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L152"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L152"
 						}
 					],
 					"signatures": [
@@ -11920,7 +11920,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 152,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L152"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L152"
 								}
 							],
 							"parameters": [
@@ -12031,7 +12031,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 100,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L100"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L100"
 						}
 					],
 					"signatures": [
@@ -12113,7 +12113,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 100,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L100"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L100"
 								}
 							],
 							"parameters": [
@@ -12215,7 +12215,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 61,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L61"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L61"
 						}
 					],
 					"signatures": [
@@ -12297,7 +12297,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 61,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L61"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L61"
 								}
 							],
 							"parameters": [
@@ -12399,7 +12399,7 @@
 							"fileName": "scene/src/RendererObject.ts",
 							"line": 87,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L87"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L87"
 						}
 					],
 					"signatures": [
@@ -12481,7 +12481,7 @@
 									"fileName": "scene/src/RendererObject.ts",
 									"line": 87,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L87"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L87"
 								}
 							],
 							"parameters": [
@@ -12605,7 +12605,7 @@
 					"fileName": "scene/src/RendererObject.ts",
 					"line": 24,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererObject.ts#L24"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererObject.ts#L24"
 				}
 			]
 		},
@@ -12685,7 +12685,7 @@
 					"fileName": "scene/src/RendererTexture.ts",
 					"line": 12,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererTexture.ts#L12"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererTexture.ts#L12"
 				}
 			]
 		},
@@ -12818,7 +12818,7 @@
 							"fileName": "scene/src/RendererTextureSet.ts",
 							"line": 21,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererTextureSet.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererTextureSet.ts#L21"
 						}
 					],
 					"type": {
@@ -12876,7 +12876,7 @@
 							"fileName": "scene/src/RendererTextureSet.ts",
 							"line": 33,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererTextureSet.ts#L33"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererTextureSet.ts#L33"
 						}
 					],
 					"type": {
@@ -12934,7 +12934,7 @@
 							"fileName": "scene/src/RendererTextureSet.ts",
 							"line": 27,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererTextureSet.ts#L27"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererTextureSet.ts#L27"
 						}
 					],
 					"type": {
@@ -12992,7 +12992,7 @@
 							"fileName": "scene/src/RendererTextureSet.ts",
 							"line": 39,
 							"character": 13,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererTextureSet.ts#L39"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererTextureSet.ts#L39"
 						}
 					],
 					"type": {
@@ -13019,7 +13019,7 @@
 					"fileName": "scene/src/RendererTextureSet.ts",
 					"line": 14,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/RendererTextureSet.ts#L14"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/RendererTextureSet.ts#L14"
 				}
 			]
 		},
@@ -13095,7 +13095,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 34,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryCompressedParams.ts#L34"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryCompressedParams.ts#L34"
 						}
 					],
 					"type": {
@@ -13129,7 +13129,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 62,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryCompressedParams.ts#L62"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryCompressedParams.ts#L62"
 						}
 					],
 					"type": {
@@ -13163,7 +13163,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 76,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryCompressedParams.ts#L76"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryCompressedParams.ts#L76"
 						}
 					],
 					"type": {
@@ -13195,7 +13195,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryCompressedParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryCompressedParams.ts#L21"
 						}
 					],
 					"type": {
@@ -13224,7 +13224,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 69,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryCompressedParams.ts#L69"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryCompressedParams.ts#L69"
 						}
 					],
 					"type": {
@@ -13258,7 +13258,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 81,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryCompressedParams.ts#L81"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryCompressedParams.ts#L81"
 						}
 					],
 					"type": {
@@ -13299,7 +13299,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 49,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryCompressedParams.ts#L49"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryCompressedParams.ts#L49"
 						}
 					],
 					"type": {
@@ -13376,7 +13376,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 29,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryCompressedParams.ts#L29"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryCompressedParams.ts#L29"
 						}
 					],
 					"type": {
@@ -13414,7 +13414,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 57,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryCompressedParams.ts#L57"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryCompressedParams.ts#L57"
 						}
 					],
 					"type": {
@@ -13448,7 +13448,7 @@
 							"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 							"line": 39,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryCompressedParams.ts#L39"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryCompressedParams.ts#L39"
 						}
 					],
 					"type": {
@@ -13484,7 +13484,7 @@
 					"fileName": "scene/src/SceneGeometryCompressedParams.ts",
 					"line": 16,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryCompressedParams.ts#L16"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryCompressedParams.ts#L16"
 				}
 			]
 		},
@@ -13575,7 +13575,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 49,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryParams.ts#L49"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryParams.ts#L49"
 						}
 					],
 					"type": {
@@ -13607,7 +13607,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 25,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryParams.ts#L25"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryParams.ts#L25"
 						}
 					],
 					"type": {
@@ -13645,7 +13645,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 56,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryParams.ts#L56"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryParams.ts#L56"
 						}
 					],
 					"type": {
@@ -13677,7 +13677,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 39,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryParams.ts#L39"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryParams.ts#L39"
 						}
 					],
 					"type": {
@@ -13754,7 +13754,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 34,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryParams.ts#L34"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryParams.ts#L34"
 						}
 					],
 					"type": {
@@ -13775,7 +13775,7 @@
 							"fileName": "scene/src/SceneGeometryParams.ts",
 							"line": 44,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryParams.ts#L44"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryParams.ts#L44"
 						}
 					],
 					"type": {
@@ -13807,7 +13807,7 @@
 					"fileName": "scene/src/SceneGeometryParams.ts",
 					"line": 20,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneGeometryParams.ts#L20"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneGeometryParams.ts#L20"
 				}
 			]
 		},
@@ -13878,7 +13878,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 33,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L33"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L33"
 						}
 					],
 					"type": {
@@ -13937,7 +13937,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L26"
 						}
 					],
 					"type": {
@@ -13982,7 +13982,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L16"
 						}
 					],
 					"type": {
@@ -14047,7 +14047,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 94,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L94"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L94"
 						}
 					],
 					"type": {
@@ -14098,7 +14098,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 56,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L56"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L56"
 						}
 					],
 					"type": {
@@ -14136,7 +14136,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 47,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L47"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L47"
 						}
 					],
 					"type": {
@@ -14183,7 +14183,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 40,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L40"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L40"
 						}
 					],
 					"type": {
@@ -14217,7 +14217,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 70,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L70"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L70"
 						}
 					],
 					"type": {
@@ -14251,7 +14251,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 80,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L80"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L80"
 						}
 					],
 					"type": {
@@ -14285,7 +14285,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 85,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L85"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L85"
 						}
 					],
 					"type": {
@@ -14336,7 +14336,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 65,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L65"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L65"
 						}
 					],
 					"type": {
@@ -14365,7 +14365,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 99,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L99"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L99"
 						}
 					],
 					"type": {
@@ -14399,7 +14399,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 75,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L75"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L75"
 						}
 					],
 					"type": {
@@ -14433,7 +14433,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L11"
 						}
 					],
 					"type": {
@@ -14480,7 +14480,7 @@
 							"fileName": "scene/src/SceneMeshParams.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L21"
 						}
 					],
 					"type": {
@@ -14516,7 +14516,7 @@
 					"fileName": "scene/src/SceneMeshParams.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneMeshParams.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneMeshParams.ts#L6"
 				}
 			]
 		},
@@ -14584,7 +14584,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 72,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L72"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L72"
 						}
 					],
 					"type": {
@@ -14623,7 +14623,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 77,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L77"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L77"
 						}
 					],
 					"type": {
@@ -14683,7 +14683,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 40,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L40"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L40"
 						}
 					],
 					"type": {
@@ -14715,7 +14715,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L31"
 						}
 					],
 					"type": {
@@ -14771,7 +14771,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 107,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L107"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L107"
 						}
 					],
 					"type": {
@@ -14800,7 +14800,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 45,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L45"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L45"
 						}
 					],
 					"type": {
@@ -14839,7 +14839,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 92,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L92"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L92"
 						}
 					],
 					"type": {
@@ -14878,7 +14878,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 97,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L97"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L97"
 						}
 					],
 					"type": {
@@ -14912,7 +14912,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 67,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L67"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L67"
 						}
 					],
 					"type": {
@@ -14946,7 +14946,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 57,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L57"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L57"
 						}
 					],
 					"type": {
@@ -14980,7 +14980,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 112,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L112"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L112"
 						}
 					],
 					"type": {
@@ -15009,7 +15009,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 62,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L62"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L62"
 						}
 					],
 					"type": {
@@ -15051,7 +15051,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 52,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L52"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L52"
 						}
 					],
 					"type": {
@@ -15112,7 +15112,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 24,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L24"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L24"
 						}
 					],
 					"type": {
@@ -15148,7 +15148,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 87,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L87"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L87"
 						}
 					],
 					"type": {
@@ -15187,7 +15187,7 @@
 							"fileName": "scene/src/SceneModelParams.ts",
 							"line": 82,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L82"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L82"
 						}
 					],
 					"type": {
@@ -15229,7 +15229,7 @@
 					"fileName": "scene/src/SceneModelParams.ts",
 					"line": 18,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelParams.ts#L18"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelParams.ts#L18"
 				}
 			]
 		},
@@ -15294,7 +15294,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 21,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStats.ts#L21"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStats.ts#L21"
 						}
 					],
 					"type": {
@@ -15330,7 +15330,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 41,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStats.ts#L41"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStats.ts#L41"
 						}
 					],
 					"type": {
@@ -15375,7 +15375,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStats.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStats.ts#L16"
 						}
 					],
 					"type": {
@@ -15420,7 +15420,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStats.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStats.ts#L11"
 						}
 					],
 					"type": {
@@ -15456,7 +15456,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 46,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStats.ts#L46"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStats.ts#L46"
 						}
 					],
 					"type": {
@@ -15501,7 +15501,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 31,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStats.ts#L31"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStats.ts#L31"
 						}
 					],
 					"type": {
@@ -15546,7 +15546,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 26,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStats.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStats.ts#L26"
 						}
 					],
 					"type": {
@@ -15582,7 +15582,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 36,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStats.ts#L36"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStats.ts#L36"
 						}
 					],
 					"type": {
@@ -15618,7 +15618,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 51,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStats.ts#L51"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStats.ts#L51"
 						}
 					],
 					"type": {
@@ -15654,7 +15654,7 @@
 							"fileName": "scene/src/SceneModelStats.ts",
 							"line": 56,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStats.ts#L56"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStats.ts#L56"
 						}
 					],
 					"type": {
@@ -15685,7 +15685,7 @@
 					"fileName": "scene/src/SceneModelStats.ts",
 					"line": 6,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStats.ts#L6"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStats.ts#L6"
 				}
 			]
 		},
@@ -15732,7 +15732,7 @@
 							"fileName": "scene/src/SceneModelStreamLayerParams.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStreamLayerParams.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStreamLayerParams.ts#L12"
 						}
 					],
 					"type": {
@@ -15759,7 +15759,7 @@
 							"fileName": "scene/src/SceneModelStreamLayerParams.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStreamLayerParams.ts#L22"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStreamLayerParams.ts#L22"
 						}
 					],
 					"type": {
@@ -15786,7 +15786,7 @@
 							"fileName": "scene/src/SceneModelStreamLayerParams.ts",
 							"line": 17,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStreamLayerParams.ts#L17"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStreamLayerParams.ts#L17"
 						}
 					],
 					"type": {
@@ -15810,7 +15810,7 @@
 					"fileName": "scene/src/SceneModelStreamLayerParams.ts",
 					"line": 7,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStreamLayerParams.ts#L7"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStreamLayerParams.ts#L7"
 				}
 			]
 		},
@@ -15884,7 +15884,7 @@
 							"fileName": "scene/src/SceneModelStreamParams.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStreamParams.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStreamParams.ts#L14"
 						}
 					],
 					"type": {
@@ -15911,7 +15911,7 @@
 					"fileName": "scene/src/SceneModelStreamParams.ts",
 					"line": 9,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneModelStreamParams.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneModelStreamParams.ts#L9"
 				}
 			]
 		},
@@ -15963,7 +15963,7 @@
 							"fileName": "scene/src/SceneObjectParams.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObjectParams.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObjectParams.ts#L9"
 						}
 					],
 					"type": {
@@ -16064,7 +16064,7 @@
 							"fileName": "scene/src/SceneObjectParams.ts",
 							"line": 33,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObjectParams.ts#L33"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObjectParams.ts#L33"
 						}
 					],
 					"type": {
@@ -16100,7 +16100,7 @@
 							"fileName": "scene/src/SceneObjectParams.ts",
 							"line": 20,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObjectParams.ts#L20"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObjectParams.ts#L20"
 						}
 					],
 					"type": {
@@ -16141,7 +16141,7 @@
 							"fileName": "scene/src/SceneObjectParams.ts",
 							"line": 15,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObjectParams.ts#L15"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObjectParams.ts#L15"
 						}
 					],
 					"type": {
@@ -16166,7 +16166,7 @@
 					"fileName": "scene/src/SceneObjectParams.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneObjectParams.ts#L4"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneObjectParams.ts#L4"
 				}
 			]
 		},
@@ -16220,7 +16220,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 27,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L27"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L27"
 						}
 					],
 					"type": {
@@ -16275,7 +16275,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 89,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L89"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L89"
 						}
 					],
 					"type": {
@@ -16312,7 +16312,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 82,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L82"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L82"
 						}
 					],
 					"type": {
@@ -16339,7 +16339,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L12"
 						}
 					],
 					"type": {
@@ -16368,7 +16368,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 32,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L32"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L32"
 						}
 					],
 					"type": {
@@ -16402,7 +16402,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 22,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L22"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L22"
 						}
 					],
 					"type": {
@@ -16449,7 +16449,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 44,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L44"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L44"
 						}
 					],
 					"type": {
@@ -16478,7 +16478,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 37,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L37"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L37"
 						}
 					],
 					"type": {
@@ -16552,7 +16552,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 53,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L53"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L53"
 						}
 					],
 					"type": {
@@ -16581,7 +16581,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 94,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L94"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L94"
 						}
 					],
 					"type": {
@@ -16615,7 +16615,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 17,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L17"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L17"
 						}
 					],
 					"type": {
@@ -16671,7 +16671,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 77,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L77"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L77"
 						}
 					],
 					"type": {
@@ -16727,7 +16727,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 61,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L61"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L61"
 						}
 					],
 					"type": {
@@ -16783,7 +16783,7 @@
 							"fileName": "scene/src/SceneTextureParams.ts",
 							"line": 69,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L69"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L69"
 						}
 					],
 					"type": {
@@ -16818,7 +16818,7 @@
 					"fileName": "scene/src/SceneTextureParams.ts",
 					"line": 7,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureParams.ts#L7"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureParams.ts#L7"
 				}
 			]
 		},
@@ -16881,7 +16881,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSetParams.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSetParams.ts#L16"
 						}
 					],
 					"type": {
@@ -16919,7 +16919,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 44,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSetParams.ts#L44"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSetParams.ts#L44"
 						}
 					],
 					"type": {
@@ -16946,7 +16946,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 9,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSetParams.ts#L9"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSetParams.ts#L9"
 						}
 					],
 					"type": {
@@ -16984,7 +16984,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 23,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSetParams.ts#L23"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSetParams.ts#L23"
 						}
 					],
 					"type": {
@@ -17022,7 +17022,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 37,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSetParams.ts#L37"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSetParams.ts#L37"
 						}
 					],
 					"type": {
@@ -17060,7 +17060,7 @@
 							"fileName": "scene/src/SceneTextureSetParams.ts",
 							"line": 30,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSetParams.ts#L30"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSetParams.ts#L30"
 						}
 					],
 					"type": {
@@ -17087,7 +17087,7 @@
 					"fileName": "scene/src/SceneTextureSetParams.ts",
 					"line": 4,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/SceneTextureSetParams.ts#L4"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/SceneTextureSetParams.ts#L4"
 				}
 			]
 		},
@@ -17102,7 +17102,7 @@
 					"fileName": "scene/src/buildMat4.ts",
 					"line": 11,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/buildMat4.ts#L11"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/buildMat4.ts#L11"
 				}
 			],
 			"signatures": [
@@ -17125,7 +17125,7 @@
 							"fileName": "scene/src/buildMat4.ts",
 							"line": 11,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/buildMat4.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/buildMat4.ts#L11"
 						}
 					],
 					"parameters": [
@@ -17157,7 +17157,7 @@
 													"fileName": "scene/src/buildMat4.ts",
 													"line": 15,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/buildMat4.ts#L15"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/buildMat4.ts#L15"
 												}
 											],
 											"type": {
@@ -17183,7 +17183,7 @@
 													"fileName": "scene/src/buildMat4.ts",
 													"line": 12,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/buildMat4.ts#L12"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/buildMat4.ts#L12"
 												}
 											],
 											"type": {
@@ -17209,7 +17209,7 @@
 													"fileName": "scene/src/buildMat4.ts",
 													"line": 13,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/buildMat4.ts#L13"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/buildMat4.ts#L13"
 												}
 											],
 											"type": {
@@ -17235,7 +17235,7 @@
 													"fileName": "scene/src/buildMat4.ts",
 													"line": 14,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/buildMat4.ts#L14"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/buildMat4.ts#L14"
 												}
 											],
 											"type": {
@@ -17265,7 +17265,7 @@
 											"fileName": "scene/src/buildMat4.ts",
 											"line": 11,
 											"character": 34,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/buildMat4.ts#L11"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/buildMat4.ts#L11"
 										}
 									]
 								}
@@ -17295,7 +17295,7 @@
 					"fileName": "scene/src/compressGeometryParams.ts",
 					"line": 20,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/compressGeometryParams.ts#L20"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/compressGeometryParams.ts#L20"
 				}
 			],
 			"signatures": [
@@ -17356,7 +17356,7 @@
 							"fileName": "scene/src/compressGeometryParams.ts",
 							"line": 20,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/compressGeometryParams.ts#L20"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/compressGeometryParams.ts#L20"
 						}
 					],
 					"parameters": [
@@ -17402,7 +17402,7 @@
 					"fileName": "scene/src/getSceneObjectGeometry.ts",
 					"line": 124,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L124"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L124"
 				}
 			],
 			"signatures": [
@@ -17477,7 +17477,7 @@
 							"fileName": "scene/src/getSceneObjectGeometry.ts",
 							"line": 124,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L124"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L124"
 						}
 					],
 					"parameters": [
@@ -17513,7 +17513,7 @@
 											"fileName": "scene/src/getSceneObjectGeometry.ts",
 											"line": 124,
 											"character": 83,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L124"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L124"
 										}
 									],
 									"signatures": [
@@ -17528,7 +17528,7 @@
 													"fileName": "scene/src/getSceneObjectGeometry.ts",
 													"line": 124,
 													"character": 83,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/scene/src/getSceneObjectGeometry.ts#L124"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/scene/src/getSceneObjectGeometry.ts#L124"
 												}
 											],
 											"parameters": [

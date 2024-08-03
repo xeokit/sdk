@@ -44,7 +44,61 @@
 			},
 			{
 				"kind": "text",
-				"text": "\n\n## Usage\n\nIn the example below, we'll import a .BIM file into a "
+				"text": "\n\n## Usage\n\nIn the example below, we will create a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!Viewer | Viewer"
+			},
+			{
+				"kind": "text",
+				"text": " with\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/webglrenderer!WebGLRenderer | WebGLRenderer"
+			},
+			{
+				"kind": "text",
+				"text": "  and a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!Scene | Scene"
+			},
+			{
+				"kind": "text",
+				"text": ", which holds model geometry and materials.\n\nWe'll also create a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!Data | Data"
+			},
+			{
+				"kind": "text",
+				"text": ", which will hold semantic data for our model.\n\nOn our Viewer, we will create a single "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!View | View"
+			},
+			{
+				"kind": "text",
+				"text": " to render it to a canvas element on the page. We will\nalso attach a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/cameracontrol!CameraControl | CameraControl"
+			},
+			{
+				"kind": "text",
+				"text": " to our View, allowing us to control its camera with mouse and touch input.\n\nWithin the Scene, we will create a "
 			},
 			{
 				"kind": "inline-tag",
@@ -53,7 +107,7 @@
 			},
 			{
 				"kind": "text",
-				"text": "\nand a "
+				"text": " to hold model geometry and materials. Within Data, we will\ncreate a "
 			},
 			{
 				"kind": "inline-tag",
@@ -62,7 +116,16 @@
 			},
 			{
 				"kind": "text",
-				"text": ". The "
+				"text": " to hold semantic IFC data, which includes IFC elements and property sets.\n\nWe will then use\n"
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/dotbim!loadDotBIM | loadDotBIM"
+			},
+			{
+				"kind": "text",
+				"text": " to load a .BIM file into our SceneModel and DataModel.\n\nThe "
 			},
 			{
 				"kind": "inline-tag",
@@ -71,11 +134,46 @@
 			},
 			{
 				"kind": "text",
-				"text": " class\nis used to handle errors that may occur during the process:\n\n"
+				"text": " class will be used to handle any errors that may occur during this process.\n\n* [Run this example]()\n\n"
 			},
 			{
 				"kind": "code",
-				"text": "````javascript\nimport { Scene } from \"@xeokit/scene\";\nimport { Data } from \"@xeokit/data\";\nimport { loadDotBIM } from \"@xeokit/dotbim\";\n\nconst scene = new Scene();\nconst data = new Data();\nconst dataModel = data.createModel({ id: \"myModel\" });\nconst sceneModel = scene.createModel({ id: \"myModel\" });\n\nif (dataModel instanceof SDKError) {\n     console.error(dataModel.message);\n} else if (sceneModel instanceof SDKError) {\n     console.error(dataModel.message);\n} else {\n     fetch(\"myModel.bim\")\n         .then(response => response.json())\n         .then(data => {\n\n             const fileData = JSON.parse(data);\n\n             loadDotBIM({\n                 fileData,\n                 sceneModel,\n                 dataModel\n             }).then(() => {\n                 sceneModel.build();\n                 dataModel.build();\n             });\n         })\n}\n````"
+				"text": "````javascript\nimport {SDKError} from \"@xeokit/core\";\nimport {Scene} from \"@xeokit/scene\";\nimport  {WebGLRenderer} from \"@xeokit/webglrenderer\";\nimport {Viewer} from \"@xeokit/viewer\";\nimport {CameraControl} from \"@xeokit/cameracontrol\";\nimport {loadDotBIM} from \"@xeokit/dotbim\";\n\nconst scene = new Scene();\nconst data = new Data();\n\nconst renderer = new WebGLRenderer({});\n\nconst viewer = new Viewer({\n    id: \"myViewer\",\n    scene,\n    renderer\n});\n\nconst view = viewer.createView({\n    id: \"myView\",\n    elementId: \"myCanvas\" // << Ensure that this HTMLElement exists in the page\n});\n\nif (view instanceof SDKError) {\n    console.error(`Error creating View: ${view.message}`);\n\n} else {\n\n    view.camera.eye = [1841982.93, 10.03, -5173286.74];\n    view.camera.look = [1842009.49, 9.68, -5173295.85];\n    view.camera.up = [0.0, 1.0, 0.0];\n\n    new CameraControl(view, {});\n\n    const sceneModel = scene.createModel({\n        id: \"myModel\"\n    });\n\n    const dataModel = data.createModel({\n        id: \"myModel\"\n    });\n\n    if (sceneModel instanceof SDKError) {\n        console.error(`Error creating SceneModel: ${sceneModel.message}`);\n\n    } else if (dataModel instanceof SDKError) {\n        console.error(`Error creating DataModel: ${dataModel.message}`);\n\n    } else {\n\n        fetch(\"model.bim\").then(response => {\n\n            response.json().then(fileData => {\n\n                loadDotBIM({\n                    fileData,\n                    sceneModel,\n                    dataModel\n                }).then(() => {\n\n                    sceneModel.build();\n                    dataModel.build();\n\n                }).catch(sdkError => {\n                    sceneModel.destroy();\n                    dataModel.destroy();\n                    console.error(`Error loading .BIM: ${sdkError.message}`);\n                });\n\n            }).catch(message => {\n                console.error(`Error creating ArrayBuffer: ${message}`);\n            });\n\n        }).catch(message => {\n            console.error(`Error fetching model: ${message}`);\n        });\n    }\n}\n````"
+			},
+			{
+				"kind": "text",
+				"text": "\n\nUsing "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/dotbim!saveDotBIM | saveDotBIM"
+			},
+			{
+				"kind": "text",
+				"text": " to export the "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!SceneModel | SceneModel"
+			},
+			{
+				"kind": "text",
+				"text": " and\n"
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/data!DataModel | DataModel"
+			},
+			{
+				"kind": "text",
+				"text": " back to a .BIM file:\n\n"
+			},
+			{
+				"kind": "code",
+				"text": "````javascript\nconst dotBIMJSON = saveDTX({\n    sceneModel,\n    dataModel\n});\n````"
 			}
 		]
 	},
@@ -91,7 +189,7 @@
 					"fileName": "loadDotBIM.ts",
 					"line": 30,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/loadDotBIM.ts#L30"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/loadDotBIM.ts#L30"
 				}
 			],
 			"signatures": [
@@ -205,7 +303,7 @@
 							"fileName": "loadDotBIM.ts",
 							"line": 30,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/loadDotBIM.ts#L30"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/loadDotBIM.ts#L30"
 						}
 					],
 					"parameters": [
@@ -253,7 +351,7 @@
 													"fileName": "loadDotBIM.ts",
 													"line": 33,
 													"character": 31,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/loadDotBIM.ts#L33"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/loadDotBIM.ts#L33"
 												}
 											],
 											"type": {
@@ -285,7 +383,7 @@
 													"fileName": "loadDotBIM.ts",
 													"line": 31,
 													"character": 31,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/loadDotBIM.ts#L31"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/loadDotBIM.ts#L31"
 												}
 											],
 											"type": {
@@ -312,7 +410,7 @@
 													"fileName": "loadDotBIM.ts",
 													"line": 32,
 													"character": 31,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/loadDotBIM.ts#L32"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/loadDotBIM.ts#L32"
 												}
 											],
 											"type": {
@@ -341,7 +439,7 @@
 											"fileName": "loadDotBIM.ts",
 											"line": 30,
 											"character": 35,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/loadDotBIM.ts#L30"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/loadDotBIM.ts#L30"
 										}
 									]
 								}
@@ -391,7 +489,7 @@
 													"fileName": "loadDotBIM.ts",
 													"line": 37,
 													"character": 31,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/loadDotBIM.ts#L37"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/loadDotBIM.ts#L37"
 												}
 											],
 											"type": {
@@ -407,7 +505,7 @@
 															"fileName": "loadDotBIM.ts",
 															"line": 37,
 															"character": 39,
-															"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/loadDotBIM.ts#L37"
+															"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/loadDotBIM.ts#L37"
 														}
 													],
 													"signatures": [
@@ -422,7 +520,7 @@
 																	"fileName": "loadDotBIM.ts",
 																	"line": 37,
 																	"character": 39,
-																	"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/loadDotBIM.ts#L37"
+																	"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/loadDotBIM.ts#L37"
 																}
 															],
 															"parameters": [
@@ -460,7 +558,7 @@
 													"fileName": "loadDotBIM.ts",
 													"line": 36,
 													"character": 31,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/loadDotBIM.ts#L36"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/loadDotBIM.ts#L36"
 												}
 											],
 											"type": {
@@ -488,7 +586,7 @@
 											"fileName": "loadDotBIM.ts",
 											"line": 35,
 											"character": 36,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/loadDotBIM.ts#L35"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/loadDotBIM.ts#L35"
 										}
 									]
 								}
@@ -525,7 +623,7 @@
 					"fileName": "saveDotBIM.ts",
 					"line": 26,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/saveDotBIM.ts#L26"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/saveDotBIM.ts#L26"
 				}
 			],
 			"signatures": [
@@ -553,7 +651,7 @@
 							{
 								"kind": "inline-tag",
 								"tag": "@link",
-								"text": "@xeokit/data!DataModel"
+								"text": "@xeokit/data!DataModel | DataModel"
 							},
 							{
 								"kind": "text",
@@ -642,7 +740,7 @@
 							"fileName": "saveDotBIM.ts",
 							"line": 26,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/saveDotBIM.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/saveDotBIM.ts#L26"
 						}
 					],
 					"parameters": [
@@ -682,7 +780,7 @@
 													"fileName": "saveDotBIM.ts",
 													"line": 28,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/saveDotBIM.ts#L28"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/saveDotBIM.ts#L28"
 												}
 											],
 											"type": {
@@ -706,7 +804,7 @@
 													"fileName": "saveDotBIM.ts",
 													"line": 27,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/saveDotBIM.ts#L27"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/saveDotBIM.ts#L27"
 												}
 											],
 											"type": {
@@ -734,7 +832,7 @@
 											"fileName": "saveDotBIM.ts",
 											"line": 26,
 											"character": 35,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dotbim/src/saveDotBIM.ts#L26"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dotbim/src/saveDotBIM.ts#L26"
 										}
 									]
 								}

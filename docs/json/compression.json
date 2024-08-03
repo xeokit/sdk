@@ -203,7 +203,7 @@
 					"fileName": "index.ts",
 					"line": 446,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L446"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L446"
 				}
 			],
 			"signatures": [
@@ -226,7 +226,7 @@
 							"fileName": "index.ts",
 							"line": 446,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L446"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L446"
 						}
 					],
 					"parameters": [
@@ -270,7 +270,7 @@
 					"fileName": "index.ts",
 					"line": 264,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L264"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L264"
 				}
 			],
 			"signatures": [
@@ -293,7 +293,7 @@
 							"fileName": "index.ts",
 							"line": 264,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L264"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L264"
 						}
 					],
 					"parameters": [
@@ -370,7 +370,7 @@
 					"fileName": "index.ts",
 					"line": 230,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L230"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L230"
 				}
 			],
 			"signatures": [
@@ -393,7 +393,7 @@
 							"fileName": "index.ts",
 							"line": 230,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L230"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L230"
 						}
 					],
 					"parameters": [
@@ -466,7 +466,7 @@
 											"fileName": "index.ts",
 											"line": 254,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L254"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L254"
 										}
 									],
 									"type": {
@@ -491,7 +491,7 @@
 											"fileName": "index.ts",
 											"line": 253,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L253"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L253"
 										}
 									],
 									"type": {
@@ -520,7 +520,7 @@
 									"fileName": "index.ts",
 									"line": 252,
 									"character": 11,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L252"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L252"
 								}
 							]
 						}
@@ -539,7 +539,7 @@
 					"fileName": "index.ts",
 					"line": 802,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L802"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L802"
 				}
 			],
 			"signatures": [
@@ -562,7 +562,7 @@
 							"fileName": "index.ts",
 							"line": 802,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L802"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L802"
 						}
 					],
 					"parameters": [
@@ -606,7 +606,7 @@
 					"fileName": "index.ts",
 					"line": 410,
 					"character": 11,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L410"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L410"
 				}
 			],
 			"signatures": [
@@ -629,7 +629,7 @@
 							"fileName": "index.ts",
 							"line": 413,
 							"character": 11,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L413"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L413"
 						}
 					],
 					"parameters": [
@@ -702,7 +702,7 @@
 											"fileName": "index.ts",
 											"line": 415,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L415"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L415"
 										}
 									],
 									"type": {
@@ -726,7 +726,7 @@
 											"fileName": "index.ts",
 											"line": 414,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L414"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L414"
 										}
 									],
 									"type": {
@@ -754,7 +754,7 @@
 									"fileName": "index.ts",
 									"line": 413,
 									"character": 90,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L413"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L413"
 								}
 							]
 						}
@@ -773,7 +773,7 @@
 					"fileName": "index.ts",
 					"line": 210,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L210"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L210"
 				}
 			],
 			"signatures": [
@@ -796,7 +796,7 @@
 							"fileName": "index.ts",
 							"line": 210,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L210"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L210"
 						}
 					],
 					"parameters": [
@@ -858,7 +858,7 @@
 					"fileName": "index.ts",
 					"line": 331,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L331"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L331"
 				}
 			],
 			"signatures": [
@@ -881,7 +881,7 @@
 							"fileName": "index.ts",
 							"line": 331,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L331"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L331"
 						}
 					],
 					"parameters": [
@@ -958,7 +958,7 @@
 					"fileName": "index.ts",
 					"line": 315,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L315"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L315"
 				}
 			],
 			"signatures": [
@@ -981,7 +981,7 @@
 							"fileName": "index.ts",
 							"line": 315,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L315"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L315"
 						}
 					],
 					"parameters": [
@@ -1058,7 +1058,7 @@
 					"fileName": "index.ts",
 					"line": 530,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L530"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L530"
 				}
 			],
 			"signatures": [
@@ -1073,7 +1073,7 @@
 							"fileName": "index.ts",
 							"line": 530,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L530"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L530"
 						}
 					],
 					"parameters": [
@@ -1133,7 +1133,7 @@
 					"fileName": "index.ts",
 					"line": 550,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L550"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L550"
 				}
 			],
 			"signatures": [
@@ -1148,7 +1148,7 @@
 							"fileName": "index.ts",
 							"line": 550,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L550"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L550"
 						}
 					],
 					"parameters": [
@@ -1215,7 +1215,7 @@
 					"fileName": "index.ts",
 					"line": 295,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L295"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L295"
 				}
 			],
 			"signatures": [
@@ -1238,7 +1238,7 @@
 							"fileName": "index.ts",
 							"line": 295,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L295"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L295"
 						}
 					],
 					"parameters": [
@@ -1315,7 +1315,7 @@
 					"fileName": "index.ts",
 					"line": 282,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L282"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L282"
 				}
 			],
 			"signatures": [
@@ -1338,7 +1338,7 @@
 							"fileName": "index.ts",
 							"line": 282,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L282"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L282"
 						}
 					],
 					"parameters": [
@@ -1415,7 +1415,7 @@
 					"fileName": "index.ts",
 					"line": 368,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L368"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L368"
 				}
 			],
 			"signatures": [
@@ -1438,7 +1438,7 @@
 							"fileName": "index.ts",
 							"line": 368,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L368"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L368"
 						}
 					],
 					"parameters": [
@@ -1515,7 +1515,7 @@
 					"fileName": "index.ts",
 					"line": 353,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L353"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L353"
 				}
 			],
 			"signatures": [
@@ -1538,7 +1538,7 @@
 							"fileName": "index.ts",
 							"line": 353,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L353"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L353"
 						}
 					],
 					"parameters": [
@@ -1615,7 +1615,7 @@
 					"fileName": "index.ts",
 					"line": 511,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L511"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L511"
 				}
 			],
 			"signatures": [
@@ -1630,7 +1630,7 @@
 							"fileName": "index.ts",
 							"line": 511,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L511"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L511"
 						}
 					],
 					"parameters": [
@@ -1702,7 +1702,7 @@
 					"fileName": "index.ts",
 					"line": 519,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L519"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L519"
 				}
 			],
 			"signatures": [
@@ -1717,7 +1717,7 @@
 							"fileName": "index.ts",
 							"line": 519,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L519"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L519"
 						}
 					],
 					"parameters": [
@@ -1794,7 +1794,7 @@
 					"fileName": "index.ts",
 					"line": 187,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L187"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L187"
 				}
 			],
 			"signatures": [
@@ -1817,7 +1817,7 @@
 							"fileName": "index.ts",
 							"line": 187,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L187"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L187"
 						}
 					],
 					"parameters": [
@@ -1894,7 +1894,7 @@
 											"fileName": "index.ts",
 											"line": 203,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L203"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L203"
 										}
 									],
 									"type": {
@@ -1918,7 +1918,7 @@
 											"fileName": "index.ts",
 											"line": 202,
 											"character": 8,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L202"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L202"
 										}
 									],
 									"type": {
@@ -1946,7 +1946,7 @@
 									"fileName": "index.ts",
 									"line": 201,
 									"character": 11,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L201"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L201"
 								}
 							]
 						}
@@ -1965,7 +1965,7 @@
 					"fileName": "index.ts",
 					"line": 387,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L387"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L387"
 				}
 			],
 			"signatures": [
@@ -1988,7 +1988,7 @@
 							"fileName": "index.ts",
 							"line": 387,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L387"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L387"
 						}
 					],
 					"parameters": [
@@ -2029,7 +2029,7 @@
 											"fileName": "index.ts",
 											"line": 387,
 											"character": 77,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L387"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L387"
 										}
 									],
 									"type": {
@@ -2053,7 +2053,7 @@
 											"fileName": "index.ts",
 											"line": 387,
 											"character": 55,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L387"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L387"
 										}
 									],
 									"type": {
@@ -2081,7 +2081,7 @@
 									"fileName": "index.ts",
 									"line": 387,
 									"character": 53,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/compression/src/index.ts#L387"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/compression/src/index.ts#L387"
 								}
 							]
 						}

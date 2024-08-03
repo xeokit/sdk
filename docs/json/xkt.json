@@ -45,7 +45,7 @@
 			},
 			{
 				"kind": "text",
-				"text": ".\n\n<br>\n\n[![](https://mermaid.ink/img/pako:eNqNU01rwzAM_StBpw1a2K6h9DB6W8tKs8EOvqixsro4dvDHIJT-99lx0iaMlubi6El6T0_GJyg1J8ihlGjtSuCPwZopprgwVDqhVbbexbjLZ0VJijahQ2YnprLwCZ5OvT-GepuC0hA6-uigp-eE7b2QfAg4WWd0G8NzZB_4V-iwo7_H3hjdkHFtQff0ErYjidGFPYhmmtleWR4aMQ241si_3z-3GNZkhx0sFk2MyZFZLhOExmD75quKTALsZXM9_eB0Qi8T_ZW48qq7hcg7qivwlx4Z4zFVm9juqE5sM3hhMJ8vGbwyKEYKt6tWV93e4pCZ9OTZlyWbXWzYqD3xelP7dtVIuzd66R_3_NOGGdRkahQ8PI9uNQzcgWpikIdfThV66RiEFYVS9E4XrSohd8bTDHwTdk39g4K8QmkDSlw4bTb9k4vH-Q8aQzAW?type=png)](https://mermaid.live/edit#pako:eNqNU01rwzAM_StBpw1a2K6h9DB6W8tKs8EOvqixsro4dvDHIJT-99lx0iaMlubi6El6T0_GJyg1J8ihlGjtSuCPwZopprgwVDqhVbbexbjLZ0VJijahQ2YnprLwCZ5OvT-GepuC0hA6-uigp-eE7b2QfAg4WWd0G8NzZB_4V-iwo7_H3hjdkHFtQff0ErYjidGFPYhmmtleWR4aMQ241si_3z-3GNZkhx0sFk2MyZFZLhOExmD75quKTALsZXM9_eB0Qi8T_ZW48qq7hcg7qivwlx4Z4zFVm9juqE5sM3hhMJ8vGbwyKEYKt6tWV93e4pCZ9OTZlyWbXWzYqD3xelP7dtVIuzd66R_3_NOGGdRkahQ8PI9uNQzcgWpikIdfThV66RiEFYVS9E4XrSohd8bTDHwTdk39g4K8QmkDSlw4bTb9k4vH-Q8aQzAW)\n\n<br>\n\n## Installation\n\n"
+				"text": ".\n\n<br>\n\n[![](https://mermaid.ink/img/pako:eNqNkt9vgjAQx_8Vck9bggYYoBLjw-LbNDOyJcvSl0qPyYItaUsyZvzf14LoeJhZX9r79bnrN3eETDCEBLKSKrUs6IekB8IJZ4XETBeCO6uttdu4k2bIcW0qSudIuGNOwbpb7D5NvuqMTCLV-Ny67u47364uStYbDJWWorHmydJ7_pJq2uJv0SspKpS6SfFWv863xZLaX6h9UQ0jmyvlXyN2A64EZW9PLxtqZFK9BvN5ZW3UKBeLzkWlpM1jnecoO4e6KDfglR3vSspr3spuQW3eoCMBj8BotCDgE0h_If_OukhK-LlZHxnUJM6rQuVcPmKUBRcOKA-0YGY_2gEJ6D0ekEBingxzWpeagBnUpNJai7ThGSRa1uhCXTGj8nmjIMlpqYwXWaGFXJ93zl4uVJRDcoQvSEZ-OB0_TKPQ98JJ7EVhFLjQQOKH8TiYemEUB_4sDsPg5MK3EAbrj71g4nlBPAvMiWa2wPDe26Ad5PQDhIPxEQ?type=png)](https://mermaid.live/edit#pako:eNqNkt9vgjAQx_8Vck9bggYYoBLjw-LbNDOyJcvSl0qPyYItaUsyZvzf14LoeJhZX9r79bnrN3eETDCEBLKSKrUs6IekB8IJZ4XETBeCO6uttdu4k2bIcW0qSudIuGNOwbpb7D5NvuqMTCLV-Ny67u47364uStYbDJWWorHmydJ7_pJq2uJv0SspKpS6SfFWv863xZLaX6h9UQ0jmyvlXyN2A64EZW9PLxtqZFK9BvN5ZW3UKBeLzkWlpM1jnecoO4e6KDfglR3vSspr3spuQW3eoCMBj8BotCDgE0h_If_OukhK-LlZHxnUJM6rQuVcPmKUBRcOKA-0YGY_2gEJ6D0ekEBingxzWpeagBnUpNJai7ThGSRa1uhCXTGj8nmjIMlpqYwXWaGFXJ93zl4uVJRDcoQvSEZ-OB0_TKPQ98JJ7EVhFLjQQOKH8TiYemEUB_4sDsPg5MK3EAbrj71g4nlBPAvMiWa2wPDe26Ad5PQDhIPxEQ)\n\n<br>\n\n## Installation\n\n"
 			},
 			{
 				"kind": "code",
@@ -53,17 +53,52 @@
 			},
 			{
 				"kind": "text",
-				"text": "\n\n## Usage\n\nIn the example below, we'll use "
+				"text": "\n\n## Usage\n\nIn the example below, we will create a "
 			},
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "loadXKT",
-				"target": 1
+				"text": "@xeokit/viewer!Viewer | Viewer"
 			},
 			{
 				"kind": "text",
-				"text": " to import an [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) file into a\na "
+				"text": " with\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/webglrenderer!WebGLRenderer | WebGLRenderer"
+			},
+			{
+				"kind": "text",
+				"text": "  and a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!Scene | Scene"
+			},
+			{
+				"kind": "text",
+				"text": ", which holds model geometry and materials.\n\nOn our Viewer, we will create a single "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!View | View"
+			},
+			{
+				"kind": "text",
+				"text": " to render it to a canvas element on the page. We will\nalso attach a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/cameracontrol!CameraControl | CameraControl"
+			},
+			{
+				"kind": "text",
+				"text": " to our View, allowing us to control its camera with mouse and touch input.\n\nWithin the Scene, we will create a "
 			},
 			{
 				"kind": "inline-tag",
@@ -72,7 +107,16 @@
 			},
 			{
 				"kind": "text",
-				"text": ". The "
+				"text": " to hold a model. We will then use\n"
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/xkt!loadXKT | loadXKT"
+			},
+			{
+				"kind": "text",
+				"text": " to load\nany XKT file into our SceneModel.\n\nThe "
 			},
 			{
 				"kind": "inline-tag",
@@ -81,11 +125,11 @@
 			},
 			{
 				"kind": "text",
-				"text": " class\nis used to handle errors that may occur during the process:\n\n"
+				"text": " class will be used to handle any errors that may occur during this process.\n\n* [Run this example]()\n\n"
 			},
 			{
 				"kind": "code",
-				"text": "````javascript\nimport {Scene} from \"@xeokit/scene\";\nimport {loadXKT, saveXKT} from \"@xeokit/xkt\";\n\nconst scene = new Scene();\n\nconst sceneModel = scene.createModel({\n    id: \"myModel\n});\n\nif (sceneModel instanceof SDKError) {\n     console.error(dataModel.message);\n} else {\n     fetch(\"myModel.xkt\").then(response => {\n\n        response.arrayBuffer().then(data => {\n\n             loadXKT({ data, dataModel, sceneModel });\n\n             sceneModel.build();\n         });\n     });\n});\n````"
+				"text": "````javascript\nimport {SDKError} from \"@xeokit/core\";\nimport {Scene} from \"@xeokit/scene\";\nimport {WebGLRenderer} from \"@xeokit/webglrenderer\";\nimport {Viewer} from \"@xeokit/viewer\";\nimport {CameraControl} from \"@xeokit/cameracontrol\";\nimport {loadXKT} from \"@xeokit/xkt\";\n\nconst scene = new Scene();\n\nconst renderer = new WebGLRenderer({});\n\nconst viewer = new Viewer({\n    id: \"myViewer\",\n    scene,\n    renderer\n});\n\nconst view = viewer.createView({\n    id: \"myView\",\n    elementId: \"myCanvas\" // << Ensure that this HTMLElement exists in the page\n});\n\nif (view instanceof SDKError) {\n    console.error(`Error creating View: ${view.message}`);\n\n} else {\n\n    view.camera.eye = [1841982.93, 10.03, -5173286.74];\n    view.camera.look = [1842009.49, 9.68, -5173295.85];\n    view.camera.up = [0.0, 1.0, 0.0];\n\n    new CameraControl(view, {});\n\n    const sceneModel = scene.createModel({\n        id: \"myModel\"\n    });\n\n    if (sceneModel instanceof SDKError) {\n        console.error(`Error creating SceneModel: ${sceneModel.message}`);\n\n    } else {\n\n        fetch(\"model.xkt\").then(response => {\n\n            response.arrayBuffer().then(fileData => {\n\n                loadXKT({\n                    fileData,\n                    sceneModel\n                }).then(() => {\n\n                    sceneModel.build();\n\n                }).catch(sdkError => {\n                    sceneModel.destroy();\n                    console.error(`Error loading XKT: ${sdkError.message}`);\n                });\n\n            }).catch(message => {\n                console.error(`Error creating ArrayBuffer: ${message}`);\n            });\n\n        }).catch(message => {\n            console.error(`Error fetching model: ${message}`);\n        });\n    }\n}\n````"
 			}
 		]
 	},
@@ -110,7 +154,7 @@
 							"fileName": "loadXKTManifest.ts",
 							"line": 12,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKTManifest.ts#L12"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKTManifest.ts#L12"
 						}
 					],
 					"type": {
@@ -132,7 +176,7 @@
 							"fileName": "loadXKTManifest.ts",
 							"line": 11,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKTManifest.ts#L11"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKTManifest.ts#L11"
 						}
 					],
 					"type": {
@@ -158,7 +202,7 @@
 					"fileName": "loadXKTManifest.ts",
 					"line": 10,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKTManifest.ts#L10"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKTManifest.ts#L10"
 				}
 			]
 		},
@@ -173,7 +217,7 @@
 					"fileName": "loadXKT.ts",
 					"line": 28,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKT.ts#L28"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKT.ts#L28"
 				}
 			],
 			"signatures": [
@@ -278,7 +322,7 @@
 							"fileName": "loadXKT.ts",
 							"line": 28,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKT.ts#L28"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKT.ts#L28"
 						}
 					],
 					"parameters": [
@@ -324,7 +368,7 @@
 													"fileName": "loadXKT.ts",
 													"line": 29,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKT.ts#L29"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKT.ts#L29"
 												}
 											],
 											"type": {
@@ -356,7 +400,7 @@
 													"fileName": "loadXKT.ts",
 													"line": 30,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKT.ts#L30"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKT.ts#L30"
 												}
 											],
 											"type": {
@@ -384,7 +428,7 @@
 											"fileName": "loadXKT.ts",
 											"line": 28,
 											"character": 32,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKT.ts#L28"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKT.ts#L28"
 										}
 									]
 								}
@@ -420,7 +464,7 @@
 					"fileName": "loadXKTManifest.ts",
 					"line": 19,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKTManifest.ts#L19"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKTManifest.ts#L19"
 				}
 			],
 			"signatures": [
@@ -435,7 +479,7 @@
 							"fileName": "loadXKTManifest.ts",
 							"line": 19,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKTManifest.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKTManifest.ts#L19"
 						}
 					],
 					"parameters": [
@@ -465,7 +509,7 @@
 													"fileName": "loadXKTManifest.ts",
 													"line": 23,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKTManifest.ts#L23"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKTManifest.ts#L23"
 												}
 											],
 											"type": {
@@ -491,7 +535,7 @@
 													"fileName": "loadXKTManifest.ts",
 													"line": 21,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKTManifest.ts#L21"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKTManifest.ts#L21"
 												}
 											],
 											"type": {
@@ -512,7 +556,7 @@
 													"fileName": "loadXKTManifest.ts",
 													"line": 22,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKTManifest.ts#L22"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKTManifest.ts#L22"
 												}
 											],
 											"type": {
@@ -538,7 +582,7 @@
 													"fileName": "loadXKTManifest.ts",
 													"line": 20,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKTManifest.ts#L20"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKTManifest.ts#L20"
 												}
 											],
 											"type": {
@@ -563,7 +607,7 @@
 											"fileName": "loadXKTManifest.ts",
 											"line": 19,
 											"character": 40,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/xkt/src/loadXKTManifest.ts#L19"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/xkt/src/loadXKTManifest.ts#L19"
 										}
 									]
 								}

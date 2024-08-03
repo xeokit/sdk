@@ -27,16 +27,7 @@
 			},
 			{
 				"kind": "text",
-				"text": " and a "
-			},
-			{
-				"kind": "inline-tag",
-				"tag": "@link",
-				"text": "@xeokit/data!DataModel | DataModel"
-			},
-			{
-				"kind": "text",
-				"text": ".\n\n<br>\n\n[![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)\n\n<br>\n\n## Installation\n\n"
+				"text": ".\n\n<br>\n\n[![](https://mermaid.ink/img/pako:eNpVkctOwzAQRX8lmhVIaZVHE6dRlVUFm1Ygygp548YTMErsynYkStV_x84DqDf2vTM-Mx5foFYcoYS6ZcZsBXvXrKOSSi401lYoGexevB7iwaFGiXt3ow0uVAZuCT7u6vjp8s0oao3M4tNg3d2P3rEXLZ8FR2O1Ont59fSZv1OMP-5eH56Za8PMNTabk9doUVfVaDWixS2zbFTmt62JN9LaifbHaXo5PMpjhsTbghQiCotFRSGmcPgHnUlz7PYahNCh7pjgbpBDLQr2AzukULojx4b1raXgarpU1lt1OMsaSqt7DKE_cTesafRQNqw1zkUurNL76XP8FsKJSSgv8AVlEqXLvMgzEufrjCRRFsIZylVULAuyIklKkoKQNLuG8K2Ug0bLLEoJidd55Ow0iQfY2xDzXVx_ANo5py0?type=png)](https://mermaid.live/edit#pako:eNpVkctOwzAQRX8lmhVIaZVHE6dRlVUFm1Ygygp548YTMErsynYkStV_x84DqDf2vTM-Mx5foFYcoYS6ZcZsBXvXrKOSSi401lYoGexevB7iwaFGiXt3ow0uVAZuCT7u6vjp8s0oao3M4tNg3d2P3rEXLZ8FR2O1Ont59fSZv1OMP-5eH56Za8PMNTabk9doUVfVaDWixS2zbFTmt62JN9LaifbHaXo5PMpjhsTbghQiCotFRSGmcPgHnUlz7PYahNCh7pjgbpBDLQr2AzukULojx4b1raXgarpU1lt1OMsaSqt7DKE_cTesafRQNqw1zkUurNL76XP8FsKJSSgv8AVlEqXLvMgzEufrjCRRFsIZylVULAuyIklKkoKQNLuG8K2Ug0bLLEoJidd55Ow0iQfY2xDzXVx_ANo5py0)\n\n<br>\n\n## Installation\n\n"
 			},
 			{
 				"kind": "code",
@@ -44,7 +35,52 @@
 			},
 			{
 				"kind": "text",
-				"text": "\n\n## Usage\n\nIn the example below, we'll import a glTF file into a "
+				"text": "\n\n## Usage\n\nIn the example below, we will create a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!Viewer | Viewer"
+			},
+			{
+				"kind": "text",
+				"text": " with\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/webglrenderer!WebGLRenderer | WebGLRenderer"
+			},
+			{
+				"kind": "text",
+				"text": "  and a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!Scene | Scene"
+			},
+			{
+				"kind": "text",
+				"text": ", which holds model geometry and materials.\n\nOn our Viewer, we will create a single "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!View | View"
+			},
+			{
+				"kind": "text",
+				"text": " to render it to a canvas element on the page. We will\nalso attach a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/cameracontrol!CameraControl | CameraControl"
+			},
+			{
+				"kind": "text",
+				"text": " to our View, allowing us to control its camera with mouse and touch input.\n\nWithin the Scene, we will create a "
 			},
 			{
 				"kind": "inline-tag",
@@ -53,16 +89,16 @@
 			},
 			{
 				"kind": "text",
-				"text": "\nand a "
+				"text": " to hold a model. We will then use\n"
 			},
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/data!DataModel | DataModel"
+				"text": "@xeokit/gltf!loadGLTF | loadGLTF"
 			},
 			{
 				"kind": "text",
-				"text": ". The "
+				"text": " to load\na binary glTF (GLB) file into our SceneModel.\n\nThe "
 			},
 			{
 				"kind": "inline-tag",
@@ -71,11 +107,11 @@
 			},
 			{
 				"kind": "text",
-				"text": " class\nis used to handle errors that may occur during the process:\n\n"
+				"text": " class will be used to handle any errors that may occur during this process.\n\n* [Run this example]()\n\n"
 			},
 			{
 				"kind": "code",
-				"text": "````javascript\nimport {Data} from \"@xeokit/data\";\nimport {Scene} from \"@xeokit/scene\";\nimport {loadGLTF} from \"@xeokit/gltf\";\n\nconst data = new Data();\nconst scene = new Scene();\n\nconst dataModel = data.createModel({\n    id: \"myModel\n});\n\nconst sceneModel = scene.createModel({\n    id: \"myModel\n});\n\nif (dataModel instanceof SDKError) {\n     console.error(dataModel.message);\n\n} else if (sceneModel instanceof SDKError) {\n     console.error(dataModel.message);\n\n} else {\n\n     fetch(\"myModel.glb\").then(response => {\n\n         response.arrayBuffer().then(fileData => {\n\n             loadGLTF({ fileData, dataModel, sceneModel }).then(()=>{\n\n                 dataModel.build();\n                 sceneModel.build();\n\n             }).catch(error=>{\n\n                 dataModel.destroy();\n                 sceneModel.destroy();\n\n                 console.log(error.message);\n             });\n        });\n    });\n}\n````"
+				"text": "````javascript\nimport {SDKError} from \"@xeokit/core\";\nimport {Scene} from \"@xeokit/scene\";\nimport  {WebGLRenderer} from \"@xeokit/webglrenderer\";\nimport {Viewer} from \"@xeokit/viewer\";\nimport {CameraControl} from \"@xeokit/cameracontrol\";\nimport {loadGLTF} from \"@xeokit/gltf\";\n\nconst scene = new Scene();\n\nconst renderer = new WebGLRenderer({});\n\nconst viewer = new Viewer({\n    id: \"myViewer\",\n    scene,\n    renderer\n});\n\nconst view = viewer.createView({\n    id: \"myView\",\n    elementId: \"myCanvas\" // << Ensure that this HTMLElement exists in the page\n});\n\nif (view instanceof SDKError) {\n    console.error(`Error creating View: ${view.message}`);\n\n} else {\n\n    view.camera.eye = [1841982.93, 10.03, -5173286.74];\n    view.camera.look = [1842009.49, 9.68, -5173295.85];\n    view.camera.up = [0.0, 1.0, 0.0];\n\n    new CameraControl(view, {});\n\n    const sceneModel = scene.createModel({\n        id: \"myModel\"\n    });\n\n    if (sceneModel instanceof SDKError) {\n        console.error(`Error creating SceneModel: ${sceneModel.message}`);\n\n    } else {\n\n        fetch(\"model.glb\").then(response => {\n\n            response.arrayBuffer().then(fileData => {\n\n                loadGLTF({\n                    fileData,\n                    sceneModel\n                }).then(() => {\n\n                    sceneModel.build();\n\n                }).catch(sdkError => {\n                    sceneModel.destroy();\n                    console.error(`Error loading glTF: ${sdkError.message}`);\n                });\n\n            }).catch(message => {\n                console.error(`Error creating ArrayBuffer: ${message}`);\n            });\n\n        }).catch(message => {\n            console.error(`Error fetching model: ${message}`);\n        });\n    }\n}\n````"
 			}
 		]
 	},
@@ -91,7 +127,7 @@
 					"fileName": "loadGLTF.ts",
 					"line": 57,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/gltf/src/loadGLTF.ts#L57"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/gltf/src/loadGLTF.ts#L57"
 				}
 			],
 			"signatures": [
@@ -214,7 +250,7 @@
 							"fileName": "loadGLTF.ts",
 							"line": 57,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/gltf/src/loadGLTF.ts#L57"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/gltf/src/loadGLTF.ts#L57"
 						}
 					],
 					"parameters": [
@@ -271,7 +307,7 @@
 													"fileName": "loadGLTF.ts",
 													"line": 60,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/gltf/src/loadGLTF.ts#L60"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/gltf/src/loadGLTF.ts#L60"
 												}
 											],
 											"type": {
@@ -303,7 +339,7 @@
 													"fileName": "loadGLTF.ts",
 													"line": 58,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/gltf/src/loadGLTF.ts#L58"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/gltf/src/loadGLTF.ts#L58"
 												}
 											],
 											"type": {
@@ -329,7 +365,7 @@
 													"fileName": "loadGLTF.ts",
 													"line": 61,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/gltf/src/loadGLTF.ts#L61"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/gltf/src/loadGLTF.ts#L61"
 												}
 											],
 											"type": {
@@ -361,7 +397,7 @@
 													"fileName": "loadGLTF.ts",
 													"line": 59,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/gltf/src/loadGLTF.ts#L59"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/gltf/src/loadGLTF.ts#L59"
 												}
 											],
 											"type": {
@@ -391,7 +427,7 @@
 											"fileName": "loadGLTF.ts",
 											"line": 57,
 											"character": 33,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/gltf/src/loadGLTF.ts#L57"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/gltf/src/loadGLTF.ts#L57"
 										}
 									]
 								}

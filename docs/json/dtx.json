@@ -63,17 +63,52 @@
 			},
 			{
 				"kind": "text",
-				"text": "\n\n## Usage\n\nIn the example below, we'll use "
+				"text": "\n\n## Usage\n\nIn the example below, we will create a "
 			},
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "loadDTX",
-				"target": 1
+				"text": "@xeokit/viewer!Viewer | Viewer"
 			},
 			{
 				"kind": "text",
-				"text": " to import a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file into\na "
+				"text": " with\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/webglrenderer!WebGLRenderer | WebGLRenderer"
+			},
+			{
+				"kind": "text",
+				"text": "  and a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!Scene | Scene"
+			},
+			{
+				"kind": "text",
+				"text": ", which holds model geometry and materials.\n\nOn our Viewer, we will create a single "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!View | View"
+			},
+			{
+				"kind": "text",
+				"text": " to render it to a canvas element on the page. We will\nalso attach a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/cameracontrol!CameraControl | CameraControl"
+			},
+			{
+				"kind": "text",
+				"text": " to our View, allowing us to control its camera with mouse and touch input.\n\nWithin the Scene, we will create a "
 			},
 			{
 				"kind": "inline-tag",
@@ -82,7 +117,16 @@
 			},
 			{
 				"kind": "text",
-				"text": ". The "
+				"text": " to hold a model. We will then use\n"
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/dtx!loadDTX | loadDTX"
+			},
+			{
+				"kind": "text",
+				"text": " to load\na [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file into our SceneModel.\n\nThe "
 			},
 			{
 				"kind": "inline-tag",
@@ -91,7 +135,7 @@
 			},
 			{
 				"kind": "text",
-				"text": " class is used to handle errors that may occur during the process:\n\n* [Run this example]()\n\n"
+				"text": " class will be used to handle any errors that may occur during this process.\n\n* [Run this example]()\n\n"
 			},
 			{
 				"kind": "code",
@@ -199,7 +243,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 51,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L51"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L51"
 						}
 					],
 					"type": {
@@ -239,7 +283,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 23,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L23"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L23"
 						}
 					],
 					"type": {
@@ -295,7 +339,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 94,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L94"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L94"
 						}
 					],
 					"type": {
@@ -338,7 +382,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 61,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L61"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L61"
 						}
 					],
 					"type": {
@@ -381,7 +425,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 71,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L71"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L71"
 						}
 					],
 					"type": {
@@ -424,7 +468,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 66,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L66"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L66"
 						}
 					],
 					"type": {
@@ -467,7 +511,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 56,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L56"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L56"
 						}
 					],
 					"type": {
@@ -499,7 +543,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 84,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L84"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L84"
 						}
 					],
 					"type": {
@@ -575,7 +619,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 109,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L109"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L109"
 						}
 					],
 					"type": {
@@ -607,7 +651,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 128,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L128"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L128"
 						}
 					],
 					"type": {
@@ -650,7 +694,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 116,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L116"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L116"
 						}
 					],
 					"type": {
@@ -682,7 +726,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 133,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L133"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L133"
 						}
 					],
 					"type": {
@@ -745,7 +789,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 139,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L139"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L139"
 						}
 					],
 					"type": {
@@ -777,7 +821,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 33,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L33"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L33"
 						}
 					],
 					"type": {
@@ -809,7 +853,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 28,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L28"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L28"
 						}
 					],
 					"type": {
@@ -841,7 +885,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 102,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L102"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L102"
 						}
 					],
 					"type": {
@@ -873,7 +917,7 @@
 							"fileName": "versions/v1/DTXData_v1.ts",
 							"line": 16,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L16"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L16"
 						}
 					],
 					"type": {
@@ -916,7 +960,7 @@
 					"fileName": "versions/v1/DTXData_v1.ts",
 					"line": 9,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/versions/v1/DTXData_v1.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/versions/v1/DTXData_v1.ts#L9"
 				}
 			]
 		},
@@ -931,7 +975,7 @@
 					"fileName": "loadDTX.ts",
 					"line": 26,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/loadDTX.ts#L26"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/loadDTX.ts#L26"
 				}
 			],
 			"signatures": [
@@ -1027,7 +1071,7 @@
 							"fileName": "loadDTX.ts",
 							"line": 26,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/loadDTX.ts#L26"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/loadDTX.ts#L26"
 						}
 					],
 					"parameters": [
@@ -1073,7 +1117,7 @@
 													"fileName": "loadDTX.ts",
 													"line": 27,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/loadDTX.ts#L27"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/loadDTX.ts#L27"
 												}
 											],
 											"type": {
@@ -1105,7 +1149,7 @@
 													"fileName": "loadDTX.ts",
 													"line": 28,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/loadDTX.ts#L28"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/loadDTX.ts#L28"
 												}
 											],
 											"type": {
@@ -1133,7 +1177,7 @@
 											"fileName": "loadDTX.ts",
 											"line": 26,
 											"character": 32,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/loadDTX.ts#L26"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/loadDTX.ts#L26"
 										}
 									]
 								}
@@ -1169,7 +1213,7 @@
 					"fileName": "saveDTX.ts",
 					"line": 17,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/saveDTX.ts#L17"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/saveDTX.ts#L17"
 				}
 			],
 			"signatures": [
@@ -1249,7 +1293,7 @@
 							"fileName": "saveDTX.ts",
 							"line": 17,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/saveDTX.ts#L17"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/saveDTX.ts#L17"
 						}
 					],
 					"parameters": [
@@ -1287,7 +1331,7 @@
 													"fileName": "saveDTX.ts",
 													"line": 18,
 													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/saveDTX.ts#L18"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/saveDTX.ts#L18"
 												}
 											],
 											"type": {
@@ -1314,7 +1358,7 @@
 											"fileName": "saveDTX.ts",
 											"line": 17,
 											"character": 32,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/dtx/src/saveDTX.ts#L17"
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/dtx/src/saveDTX.ts#L17"
 										}
 									]
 								}

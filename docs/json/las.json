@@ -36,7 +36,7 @@
 			},
 			{
 				"kind": "text",
-				"text": ".\n\n<br>\n\n[![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)\n\n<br>\n\n## Installation\n\n"
+				"text": ".\n\n<br>\n\n[![](https://mermaid.ink/img/pako:eNqNU01vozAQ_SvRnLYSiYA1NEFVpF3lmKpVua18cfHQuAXbso20NMp_r81H00jbaLmYeTPz3pvBHKFSHKGAqmHW7gR7MaylkkouDFZOKLnYP4V4yC_KCiXe-45mcaRy4R_Bx1M9v_p6OwaVQebwYYB-3IzYcycaPgccrTOqD-EpsM_8O-bYQH-NXRul0bi-xGt6I_aEDQtT2IPQl5nHM8t_WRwN7hXj-1_lI_NrsvMO7u50iNGh2W5HiBnD-t9dXaMZAfu5uYl-nvRf9A968HyFv9Y5iaZxVKPMDrU7TIB9E3rOofRNU-AMk7ZWpr2QbEbJs1bdyeHDB6mh7mJmCjGF5XJLIaFQfhnq-6rdedRJbM5c9nyTnZYBEbRoWia4v62DWQrugC1SKPwrx5p1jaPgTftS1jlV9rKCwpkOI-i0XzhO9xuKmjXWo8iFU-Z--gPCEYFmEooj_IVimZD16uc6I0lMbvM4I1kaQQ9FQvJVuo5JlqfJJickPUXwrpSnTVZxehvHab5J_ZNtQoPn-zMkg5HTBz5RHi8?type=png)](https://mermaid.live/edit#pako:eNqNU01vozAQ_SvRnLYSiYA1NEFVpF3lmKpVua18cfHQuAXbso20NMp_r81H00jbaLmYeTPz3pvBHKFSHKGAqmHW7gR7MaylkkouDFZOKLnYP4V4yC_KCiXe-45mcaRy4R_Bx1M9v_p6OwaVQebwYYB-3IzYcycaPgccrTOqD-EpsM_8O-bYQH-NXRul0bi-xGt6I_aEDQtT2IPQl5nHM8t_WRwN7hXj-1_lI_NrsvMO7u50iNGh2W5HiBnD-t9dXaMZAfu5uYl-nvRf9A968HyFv9Y5iaZxVKPMDrU7TIB9E3rOofRNU-AMk7ZWpr2QbEbJs1bdyeHDB6mh7mJmCjGF5XJLIaFQfhnq-6rdedRJbM5c9nyTnZYBEbRoWia4v62DWQrugC1SKPwrx5p1jaPgTftS1jlV9rKCwpkOI-i0XzhO9xuKmjXWo8iFU-Z--gPCEYFmEooj_IVimZD16uc6I0lMbvM4I1kaQQ9FQvJVuo5JlqfJJickPUXwrpSnTVZxehvHab5J_ZNtQoPn-zMkg5HTBz5RHi8)\n\n<br>\n\n## Installation\n\n"
 			},
 			{
 				"kind": "code",
@@ -44,7 +44,61 @@
 			},
 			{
 				"kind": "text",
-				"text": "\n\n## Usage\n\nIn the example below, we'll import an LAS file into a "
+				"text": "\n\n## Usage\n\nThe example below shows how to use "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/las!loadLAS | loadLAS"
+			},
+			{
+				"kind": "text",
+				"text": " in context.\n\nIn this example, we will create a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!Viewer | Viewer"
+			},
+			{
+				"kind": "text",
+				"text": " with\na "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/webglrenderer!WebGLRenderer | WebGLRenderer"
+			},
+			{
+				"kind": "text",
+				"text": "  and a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/scene!Scene | Scene"
+			},
+			{
+				"kind": "text",
+				"text": ", which holds model geometry\nand materials.\n\nOn our Viewer, we will create a single "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/viewer!View | View"
+			},
+			{
+				"kind": "text",
+				"text": " to render it to a canvas element on the page. We will\nalso attach a "
+			},
+			{
+				"kind": "inline-tag",
+				"tag": "@link",
+				"text": "@xeokit/cameracontrol!CameraControl | CameraControl"
+			},
+			{
+				"kind": "text",
+				"text": " to our View, allowing us to control its camera with mouse and touch input.\n\nWithin the Scene, we will create a "
 			},
 			{
 				"kind": "inline-tag",
@@ -53,16 +107,16 @@
 			},
 			{
 				"kind": "text",
-				"text": "\nand a "
+				"text": " to hold model geometry and materials.\n\nWe will then use\n"
 			},
 			{
 				"kind": "inline-tag",
 				"tag": "@link",
-				"text": "@xeokit/data!DataModel | DataModel"
+				"text": "@xeokit/las!loadLAS | loadLAS"
 			},
 			{
 				"kind": "text",
-				"text": ". The "
+				"text": " to load an LAS/LAZ file into our SceneModel.\n\nThe "
 			},
 			{
 				"kind": "inline-tag",
@@ -71,11 +125,11 @@
 			},
 			{
 				"kind": "text",
-				"text": " class\nis used to handle errors that may occur during the process:\n\n"
+				"text": " class will be used to handle any errors that may occur during this process.\n\n* [Run this example]()\n\n"
 			},
 			{
 				"kind": "code",
-				"text": "````javascript\nimport {Data} from \"@xeokit/data\";\nimport {Scene} from \"@xeokit/scene\";\nimport {loadLAS} from \"@xeokit/las\";\n\nconst data = new Data();\nconst scene = new Scene();\n\nconst dataModel = data.createModel({\n    id: \"myModel\n});\n\nconst sceneModel = scene.createModel({\n    id: \"myModel\n});\n\nfetch(\"myModel.las\").then(response => {\n\n     response.arrayBuffer().then(fileData => {\n\n         loadLAS({\n             fileData,           // Load LAS/LAZ from this ArrayBuffer\n             dataModel,          // Save metadata in this DataModel (optional)\n             sceneModel,         // Load points into this SceneModel\n             fp64: false,        // Expect points as 64-bit floats? (optional, default is true)\n             colorDepth: \"auto\", // 8, 16 or \"auto\" (optional, default is \"auto)\n             skip: 1,            // Load every nth point (optional, default is 1)\n             center: false,      // Whether to center the points (optional)\n             transform: [        // Transform the points (optional)\n                 1,0,0,0,\n                 0,1,0,0,\n                 0,0,1,0,\n                 0,0,0,1\n             ],\n             log: (msg) => {     // Log loading progress (optional)\n                 console.log(msg);\n             }\n         }).then(()=>{\n             dataModel.build();\n             sceneModel.build();\n         });\n     });\n});\n````"
+				"text": "````javascript\nimport {SDKError} from \"@xeokit/core\";\nimport {Scene} from \"@xeokit/scene\";\nimport {WebGLRenderer} from \"@xeokit/webglrenderer\";\nimport {Viewer} from \"@xeokit/viewer\";\nimport {CameraControl} from \"@xeokit/cameracontrol\";\nimport {loadLAS} from \"@xeokit/las\";\n\nconst scene = new Scene();\n\nconst renderer = new WebGLRenderer({});\n\nconst viewer = new Viewer({\n    id: \"myViewer\",\n    scene,\n    renderer\n});\n\nconst view = viewer.createView({\n    id: \"myView\",\n    elementId: \"myCanvas\" // << Ensure that this HTMLElement exists in the page\n});\n\nif (view instanceof SDKError) {\n    console.error(`Error creating View: ${view.message}`);\n\n} else {\n\n    view.camera.eye = [1841982.93, 10.03, -5173286.74];\n    view.camera.look = [1842009.49, 9.68, -5173295.85];\n    view.camera.up = [0.0, 1.0, 0.0];\n\n    new CameraControl(view, {});\n\n    const sceneModel = scene.createModel({\n        id: \"myModel\"\n    });\n\n    if (sceneModel instanceof SDKError) {\n        console.error(`Error creating SceneModel: ${sceneModel.message}`);\n\n    } else {\n        fetch(\"model.las\").then(response => {\n\n            response.arrayBuffer().then(fileData => {\n\n                 loadLAS({\n                     fileData,\n                     sceneModel\n                 },\n                 {,\n                     fp64: false,        // Expect points as 64-bit floats? (optional, default is true)\n                     colorDepth: \"auto\", // 8, 16 or \"auto\" (optional, default is \"auto)\n                     skip: 1,            // Load every nth point (optional, default is 1)\n                     center: false,      // Whether to center the points (optional, default is false)\n                     transform: [        // Transform the points (optional)\n                         1,0,0,0,\n                         0,1,0,0,\n                         0,0,1,0,\n                         0,0,0,1\n                     ],\n                 }).then(() => {\n                     sceneModel.build();\n\n                 }).catch(sdkError => {\n                     sceneModel.destroy();\n                     console.error(`Error loading LAS/LAZ file: ${sdkError.message}`);\n                 });\n\n            }).catch(message => {\n                 console.error(`Error creating ArrayBuffer: ${message}`);\n            });\n\n         }).catch(message => {\n             console.error(`Error fetching model: ${message}`);\n         });\n     }).catch(message => {\n         console.error(`Error initializing WebIFC.IfcAPI: ${message}`);\n     });\n}\n````"
 			}
 		]
 	},
@@ -89,9 +143,9 @@
 			"sources": [
 				{
 					"fileName": "loadLAS.ts",
-					"line": 38,
+					"line": 39,
 					"character": 16,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L38"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L39"
 				}
 			],
 			"signatures": [
@@ -203,9 +257,9 @@
 					"sources": [
 						{
 							"fileName": "loadLAS.ts",
-							"line": 38,
+							"line": 39,
 							"character": 16,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L38"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L39"
 						}
 					],
 					"parameters": [
@@ -233,73 +287,6 @@
 									"flags": {},
 									"children": [
 										{
-											"id": 8,
-											"name": "center",
-											"variant": "declaration",
-											"kind": 1024,
-											"flags": {
-												"isOptional": true
-											},
-											"comment": {
-												"summary": [
-													{
-														"kind": "text",
-														"text": "Whether to center the points. Default is false."
-													}
-												]
-											},
-											"sources": [
-												{
-													"fileName": "loadLAS.ts",
-													"line": 42,
-													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L42"
-												}
-											],
-											"type": {
-												"type": "intrinsic",
-												"name": "boolean"
-											}
-										},
-										{
-											"id": 12,
-											"name": "colorDepth",
-											"variant": "declaration",
-											"kind": 1024,
-											"flags": {
-												"isOptional": true
-											},
-											"comment": {
-												"summary": [
-													{
-														"kind": "text",
-														"text": "Whether to assume that LAS colors are encoded using 8 or 16 bits. Accepted values are 8, 16 an \"auto\"."
-													}
-												]
-											},
-											"sources": [
-												{
-													"fileName": "loadLAS.ts",
-													"line": 46,
-													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L46"
-												}
-											],
-											"type": {
-												"type": "union",
-												"types": [
-													{
-														"type": "intrinsic",
-														"name": "string"
-													},
-													{
-														"type": "intrinsic",
-														"name": "number"
-													}
-												]
-											}
-										},
-										{
 											"id": 7,
 											"name": "dataModel",
 											"variant": "declaration",
@@ -318,9 +305,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 41,
-													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L41"
+													"line": 42,
+													"character": 28,
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L42"
 												}
 											],
 											"type": {
@@ -350,9 +337,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 39,
-													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L39"
+													"line": 40,
+													"character": 28,
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L40"
 												}
 											],
 											"type": {
@@ -366,36 +353,7 @@
 											}
 										},
 										{
-											"id": 11,
-											"name": "fp64",
-											"variant": "declaration",
-											"kind": 1024,
-											"flags": {
-												"isOptional": true
-											},
-											"comment": {
-												"summary": [
-													{
-														"kind": "text",
-														"text": "Whether to assume that LAS positions are stored in 64-bit floats instead of 32-bit. Default is true."
-													}
-												]
-											},
-											"sources": [
-												{
-													"fileName": "loadLAS.ts",
-													"line": 45,
-													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L45"
-												}
-											],
-											"type": {
-												"type": "intrinsic",
-												"name": "boolean"
-											}
-										},
-										{
-											"id": 13,
+											"id": 8,
 											"name": "log",
 											"variant": "declaration",
 											"kind": 1024,
@@ -405,9 +363,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 47,
-													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L47"
+													"line": 43,
+													"character": 28,
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L43"
 												}
 											],
 											"type": {
@@ -437,9 +395,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 40,
-													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L40"
+													"line": 41,
+													"character": 28,
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L41"
 												}
 											],
 											"type": {
@@ -451,9 +409,151 @@
 												"name": "SceneModel",
 												"package": "@xeokit/scene"
 											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												7,
+												5,
+												8,
+												6
+											]
+										}
+									],
+									"sources": [
+										{
+											"fileName": "loadLAS.ts",
+											"line": 39,
+											"character": 32,
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L39"
+										}
+									]
+								}
+							}
+						},
+						{
+							"id": 9,
+							"name": "options",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"comment": {
+								"summary": [
+									{
+										"kind": "text",
+										"text": "Loading parameters."
+									}
+								]
+							},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 10,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 11,
+											"name": "center",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "Whether to center the points. Default is false."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadLAS.ts",
+													"line": 46,
+													"character": 28,
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L46"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "boolean"
+											}
 										},
 										{
-											"id": 10,
+											"id": 15,
+											"name": "colorDepth",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "Whether to assume that LAS colors are encoded using 8 or 16 bits. Accepted values are 8, 16 an \"auto\"."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadLAS.ts",
+													"line": 50,
+													"character": 28,
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L50"
+												}
+											],
+											"type": {
+												"type": "union",
+												"types": [
+													{
+														"type": "intrinsic",
+														"name": "string"
+													},
+													{
+														"type": "intrinsic",
+														"name": "number"
+													}
+												]
+											}
+										},
+										{
+											"id": 14,
+											"name": "fp64",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"comment": {
+												"summary": [
+													{
+														"kind": "text",
+														"text": "Whether to assume that LAS positions are stored in 64-bit floats instead of 32-bit. Default is true."
+													}
+												]
+											},
+											"sources": [
+												{
+													"fileName": "loadLAS.ts",
+													"line": 49,
+													"character": 28,
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L49"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "boolean"
+											}
+										},
+										{
+											"id": 13,
 											"name": "skip",
 											"variant": "declaration",
 											"kind": 1024,
@@ -471,9 +571,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 44,
-													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L44"
+													"line": 48,
+													"character": 28,
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L48"
 												}
 											],
 											"type": {
@@ -482,7 +582,7 @@
 											}
 										},
 										{
-											"id": 9,
+											"id": 12,
 											"name": "transform",
 											"variant": "declaration",
 											"kind": 1024,
@@ -500,9 +600,9 @@
 											"sources": [
 												{
 													"fileName": "loadLAS.ts",
-													"line": 43,
-													"character": 4,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L43"
+													"line": 47,
+													"character": 28,
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L47"
 												}
 											],
 											"type": {
@@ -520,24 +620,20 @@
 										{
 											"title": "Properties",
 											"children": [
-												8,
-												12,
-												7,
-												5,
 												11,
+												15,
+												14,
 												13,
-												6,
-												10,
-												9
+												12
 											]
 										}
 									],
 									"sources": [
 										{
 											"fileName": "loadLAS.ts",
-											"line": 38,
-											"character": 32,
-											"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/las/src/loadLAS.ts#L38"
+											"line": 45,
+											"character": 33,
+											"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/las/src/loadLAS.ts#L45"
 										}
 									]
 								}
@@ -614,27 +710,35 @@
 		},
 		"8": {
 			"sourceFileName": "src/loadLAS.ts",
-			"qualifiedName": "__type.center"
+			"qualifiedName": "__type.log"
 		},
 		"9": {
 			"sourceFileName": "src/loadLAS.ts",
-			"qualifiedName": "__type.transform"
+			"qualifiedName": "options"
 		},
 		"10": {
 			"sourceFileName": "src/loadLAS.ts",
-			"qualifiedName": "__type.skip"
+			"qualifiedName": "__type"
 		},
 		"11": {
 			"sourceFileName": "src/loadLAS.ts",
-			"qualifiedName": "__type.fp64"
+			"qualifiedName": "__type.center"
 		},
 		"12": {
 			"sourceFileName": "src/loadLAS.ts",
-			"qualifiedName": "__type.colorDepth"
+			"qualifiedName": "__type.transform"
 		},
 		"13": {
 			"sourceFileName": "src/loadLAS.ts",
-			"qualifiedName": "__type.log"
+			"qualifiedName": "__type.skip"
+		},
+		"14": {
+			"sourceFileName": "src/loadLAS.ts",
+			"qualifiedName": "__type.fp64"
+		},
+		"15": {
+			"sourceFileName": "src/loadLAS.ts",
+			"qualifiedName": "__type.colorDepth"
 		}
 	}
 }

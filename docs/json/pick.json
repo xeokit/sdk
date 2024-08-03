@@ -147,7 +147,7 @@
 							"fileName": "Picker.ts",
 							"line": 27,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L27"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L27"
 						}
 					],
 					"signatures": [
@@ -162,7 +162,7 @@
 									"fileName": "Picker.ts",
 									"line": 27,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L27"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L27"
 								}
 							],
 							"type": {
@@ -185,7 +185,7 @@
 							"fileName": "Picker.ts",
 							"line": 122,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L122"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L122"
 						}
 					],
 					"signatures": [
@@ -306,7 +306,7 @@
 									"fileName": "Picker.ts",
 									"line": 122,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L122"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L122"
 								}
 							],
 							"parameters": [
@@ -336,7 +336,7 @@
 															"fileName": "Picker.ts",
 															"line": 124,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L124"
+															"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L124"
 														}
 													],
 													"type": {
@@ -360,7 +360,7 @@
 															"fileName": "Picker.ts",
 															"line": 123,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L123"
+															"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L123"
 														}
 													],
 													"type": {
@@ -388,7 +388,7 @@
 													"fileName": "Picker.ts",
 													"line": 122,
 													"character": 24,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L122"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L122"
 												}
 											]
 										}
@@ -415,7 +415,7 @@
 							"fileName": "Picker.ts",
 							"line": 35,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L35"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L35"
 						}
 					],
 					"signatures": [
@@ -438,7 +438,7 @@
 									"fileName": "Picker.ts",
 									"line": 35,
 									"character": 4,
-									"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L35"
+									"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L35"
 								}
 							],
 							"parameters": [
@@ -468,7 +468,7 @@
 															"fileName": "Picker.ts",
 															"line": 38,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L38"
+															"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L38"
 														}
 													],
 													"type": {
@@ -492,7 +492,7 @@
 															"fileName": "Picker.ts",
 															"line": 37,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L37"
+															"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L37"
 														}
 													],
 													"type": {
@@ -516,7 +516,7 @@
 															"fileName": "Picker.ts",
 															"line": 36,
 															"character": 8,
-															"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L36"
+															"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L36"
 														}
 													],
 													"type": {
@@ -545,7 +545,7 @@
 													"fileName": "Picker.ts",
 													"line": 35,
 													"character": 20,
-													"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L35"
+													"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L35"
 												}
 											]
 										}
@@ -582,7 +582,7 @@
 					"fileName": "Picker.ts",
 					"line": 23,
 					"character": 13,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/Picker.ts#L23"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/Picker.ts#L23"
 				}
 			]
 		},
@@ -657,7 +657,7 @@
 							"fileName": "GeometryHit.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/GeometryHit.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/GeometryHit.ts#L14"
 						}
 					],
 					"type": {
@@ -698,7 +698,7 @@
 							"fileName": "GeometryHit.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/GeometryHit.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/GeometryHit.ts#L19"
 						}
 					],
 					"type": {
@@ -726,7 +726,7 @@
 					"fileName": "GeometryHit.ts",
 					"line": 9,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/GeometryHit.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/GeometryHit.ts#L9"
 				}
 			]
 		},
@@ -782,7 +782,7 @@
 							"fileName": "MarqueePickResult.ts",
 							"line": 13,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/MarqueePickResult.ts#L13"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/MarqueePickResult.ts#L13"
 						}
 					],
 					"type": {
@@ -812,7 +812,7 @@
 					"fileName": "MarqueePickResult.ts",
 					"line": 8,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/MarqueePickResult.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/MarqueePickResult.ts#L8"
 				}
 			]
 		},
@@ -896,7 +896,7 @@
 							"fileName": "MeshHit.ts",
 							"line": 18,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/MeshHit.ts#L18"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/MeshHit.ts#L18"
 						}
 					],
 					"type": {
@@ -937,7 +937,7 @@
 							"fileName": "MeshHit.ts",
 							"line": 13,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/MeshHit.ts#L13"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/MeshHit.ts#L13"
 						}
 					],
 					"type": {
@@ -965,7 +965,7 @@
 					"fileName": "MeshHit.ts",
 					"line": 8,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/MeshHit.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/MeshHit.ts#L8"
 				}
 			]
 		},
@@ -1022,7 +1022,7 @@
 							"fileName": "PrimHit.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/PrimHit.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/PrimHit.ts#L14"
 						}
 					],
 					"type": {
@@ -1077,7 +1077,7 @@
 							"fileName": "PrimHit.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/PrimHit.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/PrimHit.ts#L19"
 						}
 					],
 					"type": {
@@ -1105,7 +1105,7 @@
 					"fileName": "PrimHit.ts",
 					"line": 9,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/PrimHit.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/PrimHit.ts#L9"
 				}
 			]
 		},
@@ -1161,7 +1161,7 @@
 							"fileName": "RayPickResult.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/RayPickResult.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/RayPickResult.ts#L14"
 						}
 					],
 					"type": {
@@ -1188,7 +1188,7 @@
 					"fileName": "RayPickResult.ts",
 					"line": 8,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/RayPickResult.ts#L8"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/RayPickResult.ts#L8"
 				}
 			]
 		},
@@ -1272,7 +1272,7 @@
 							"fileName": "SceneObjectHit.ts",
 							"line": 19,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/SceneObjectHit.ts#L19"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/SceneObjectHit.ts#L19"
 						}
 					],
 					"type": {
@@ -1313,7 +1313,7 @@
 							"fileName": "SceneObjectHit.ts",
 							"line": 14,
 							"character": 4,
-							"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/SceneObjectHit.ts#L14"
+							"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/SceneObjectHit.ts#L14"
 						}
 					],
 					"type": {
@@ -1341,7 +1341,7 @@
 					"fileName": "SceneObjectHit.ts",
 					"line": 9,
 					"character": 17,
-					"url": "https://github.com/xeokit/sdk/blob/f8e2ce75ff190ff2f0a9f57a76bc4d7a65ee266f/packages/pick/src/SceneObjectHit.ts#L9"
+					"url": "https://github.com/xeokit/sdk/blob/948624c02d78840c0c3502134ba500274101d35c/packages/pick/src/SceneObjectHit.ts#L9"
 				}
 			]
 		}

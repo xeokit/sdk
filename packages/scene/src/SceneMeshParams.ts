@@ -47,24 +47,6 @@ export interface SceneMeshParams {
     opacity?: number;
 
     /**
-     * The metallic-ness of new {@link @xeokit/scene!SceneMesh}.
-     *
-     * * This is a continuous factor in the range ````[0,1]````, where 0 is fully non-metallic and 1 is fully metallic.
-     * * Default is 0.
-     * * See [*Physically-Based Rendering*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#physically-based-rendering)
-     */
-    metallic?: number;
-
-    /**
-     * The roughness of new {@link @xeokit/scene!SceneMesh}.
-     *
-     * * This is a continuous factor in the range ````[0,1]````, where 0 is fully rough and 1 is perfectly smooth.
-     * * Default is 1.
-     * * See [*Physically-Based Rendering*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#physically-based-rendering)
-     */
-    roughness?: number;
-
-    /**
      * Optional local 3D translation vector.
      */
     position?: FloatArrayParam;
@@ -94,7 +76,11 @@ export interface SceneMeshParams {
     matrix?: FloatArrayParam;
 
     /**
-     * TODO
+     * Relative-to-center (RTC) origin.
+     *
+     * When this is given, then {@link @xeokit/scene!SceneMeshParams.matrix | SceneMeshParams.matrix} will be relative to this origin.
+     *
+     * Overrides {@link @xeokit/scene!SceneMeshParams.rtcMatrix | SceneMeshParams.rtcMatrix}
      */
-    rtcMatrix?:FloatArrayParam;
+    origin?:FloatArrayParam;
 }

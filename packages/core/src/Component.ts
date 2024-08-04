@@ -45,7 +45,7 @@ export class Component {
     #ownedComponents: null | { [key: string]: Component };
 
     /**
-     * Emits an event when the {@link @xeokit/core!Component} has been destroyed.
+     * Emits an event when the {@link @xeokit/core!Component | Component} has been destroyed.
      *
      * @event
      */

@@ -12,8 +12,8 @@
  *
  * ---
  *
- * * Provides {@link KTX2TextureTranscoder}
- * * Configure a {@link @xeokit/viewer!Viewer | Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} that has a {@link KTX2TextureTranscoder}
+ * * Provides {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}
+ * * Configure a {@link @xeokit/viewer!Viewer | Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer} that has a {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}
  * * Then a Viewer is able to view a {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} that has KTX2-encoded compressed textures
  * * Uses the [Basis Universal GPU SceneTexture Codec](https://github.com/BinomialLLC/basis_universal) to
  * transcode [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures.
@@ -44,7 +44,7 @@
  *
  * ### Loading an DTX file containing [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures into a Viewer
  *
- * Create a {@link @xeokit/viewer!Viewer | Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
+ * Create a {@link @xeokit/viewer!Viewer | Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer} configured with a
  * {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}. Then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer, and use {@link loadDTX} to
  * load a [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file with KTX2-compressed textures into the SceneModel. For each [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture in the file, the
  * KTX2TextureTranscoder will transparently transcode the [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) data for us.
@@ -88,8 +88,8 @@
  *
  * ### Loading KTX2 texture files into a Viewer
  *
- * As in the previous example, create a {@link @xeokit/viewer!Viewer | Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
- * {@link @xeokit/ktx2!KTX2TextureTranscoder}, then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
+ * As in the previous example, create a {@link @xeokit/viewer!Viewer | Viewer} with a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer} configured with a
+ * {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}, then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
  *
  * This time, we'll build the SceneModel ourselves, using its builder methods. When we
  * call builder method {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} with a path to a KTX2-compressed texture file, the
@@ -119,27 +119,27 @@
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
  *
- * const viewerModel = myViewer.scene.createModel({
+ * const sceneModel = myViewer.scene.createModel({
  *      id: "myModel"
  *  });
  *
- * viewerModel.createTexture({
+ * sceneModel.createTexture({
  *      id: "myColorTexture",
  *      src: "sample_uastc_zstd.ktx2" // <<----- KTX2 texture asset
  * });
  *
- * viewerModel.createTexture({
+ * sceneModel.createTexture({
  *      id: "myMetallicRoughnessTexture",
  *      src: "crosshatchAlphaMap.jpg" // <<----- JPEG texture asset
  * });
  *
- * viewerModel.createTextureSet({
+ * sceneModel.createTextureSet({
  *      id: "myTextureSet",
  *      colorTextureId: "myColorTexture",
  *      metallicRoughnessTextureId: "myMetallicRoughnessTexture"
  *  });
  *
- * viewerModel.createGeometry({
+ * sceneModel.createGeometry({
  *     id: "myGeometry",
  *     primitive: TrianglesPrimitive,
  *     positions: [1, 1, 1, ...],
@@ -148,24 +148,24 @@
  *     indices: [0, 1, 2, ...],
  * });
  *
- * viewerModel.createLayerMesh({
+ * sceneModel.createLayerMesh({
  *      id: "myMesh",
  *      textureSetId: "myTextureSet",
  *      geometryId: "myGeometry"
  *  });
  *
- * viewerModel.createObject({
+ * sceneModel.createObject({
  *      id: "myObject",
  *      meshIds: ["myMesh"]
  *  });
  *
- * viewerModel.build();
+ * sceneModel.build();
  * ````
  *
  * ### Loading [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture ArrayBuffers into a Viewer
  *
- * As in the previous two examples, create a {@link @xeokit/viewer!Viewer | Viewer} that has a {@link @xeokit/webglrenderer!WebGLRenderer} configured with a
- * {@link @xeokit/ktx2!KTX2TextureTranscoder}, and then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
+ * As in the previous two examples, create a {@link @xeokit/viewer!Viewer | Viewer} that has a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer} configured with a
+ * {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}, and then create a {@link @xeokit/scene!SceneModel | SceneModel} within the Viewer.
  *
  * Once more, build the SceneModel using its builder methods. This time, call builder method
  * {@link @xeokit/scene!SceneModel.createTexture | SceneModel.createTexture} with an ArrayBuffer containing the contents of a KTX2-compressed texture
@@ -195,7 +195,7 @@
  * view1.camera.look = [4.400, 3.724, 8.899];
  * view1.camera.up = [-0.018, 0.999, 0.039];
  *
- * const viewerModel = myViewer.scene.createModel({
+ * const sceneModel = myViewer.scene.createModel({
  *      id: "myModel"
  * });
  *
@@ -203,23 +203,23 @@
  *     .then(response => {
  *          if (response.ok) {
  *
- *              viewerModel.createTexture({
+ *              sceneModel.createTexture({
  *                  id: "myColorTexture",
  *                  buffers: [arrayBuffer] // <<----- KTX2 texture asset
  *              });
  *
- *              viewerModel.createTexture({
+ *              sceneModel.createTexture({
  *                  id: "myMetallicRoughnessTexture",
  *                  src: "../assets/textures/alpha/crosshatchAlphaMap.jpg" // <<----- JPEG texture asset
  *              });
  *
- *              viewerModel.createTextureSet({
+ *              sceneModel.createTextureSet({
  *                  id: "myTextureSet",
  *                  colorTextureId: "myColorTexture",
  *                  metallicRoughnessTextureId: "myMetallicRoughnessTexture"
  *              });
  *
- *              viewerModel.createGeometry({
+ *              sceneModel.createGeometry({
  *                  id: "myGeometry",
  *                  primitive: TrianglesPrimitive,
  *                  positions: [1, 1, 1, ...],
@@ -228,18 +228,18 @@
  *                  indices: [0, 1, 2, ...],
  *              });
  *
- *              viewerModel.createLayerMesh({
+ *              sceneModel.createLayerMesh({
  *                  id: "myMesh",
  *                  textureSetId: "myTextureSet",
  *                  geometryId: "myGeometry"
  *              });
  *
- *              viewerModel.createObject({
+ *              sceneModel.createObject({
  *                  id: "myObject",
  *                  meshIds: ["myMesh"]
  *              });
  *
- *              viewerModel.build();
+ *              sceneModel.build();
  *          }
  *     });
  * ````

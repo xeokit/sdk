@@ -22,8 +22,8 @@
  * indices for triangle meshes, ignoring normals (as shaders auto-generate them), converting positions to relative-to-center (RTC)
  * coordinates, and quantizing positions and UVs as 16-bit unsigned integers.
  *
- * An example usage includes compressing a SceneGeometryParams into a {@link @xeokit/scene!SceneGeometryCompressedParams} using the
- * {@link @xeokit/scene!compressGeometryParams} function.
+ * An example usage includes compressing a SceneGeometryParams into a {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams} using the
+ * {@link @xeokit/scene!compressGeometryParams | compressGeometryParams} function.
  *
  * The resulting SceneGeometryCompressedParams object shows vertex positions relative to the origin
  * and quantized to 16-bit integers, duplicate positions removed, and adjusted indices. Additionally, edge indices are
@@ -52,7 +52,7 @@
  *
  * ## Usage
  *
- * In the example below, we'll use {@link @xeokit/scene!compressGeometryParams} to compress
+ * In the example below, we'll use {@link @xeokit/scene!compressGeometryParams | compressGeometryParams} to compress
  * a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a
  * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
  *
@@ -120,7 +120,7 @@
  * }
  * ````
  *
- * In the next example, we'll again use {@link @xeokit/scene!compressGeometryParams} to compress
+ * In the next example, we'll again use {@link @xeokit/scene!compressGeometryParams | compressGeometryParams} to compress
  * a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a
  * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}, which we'll then use to
  * create a compressed geometry within a {@link @xeokit/scene!SceneModel | SceneModel}.

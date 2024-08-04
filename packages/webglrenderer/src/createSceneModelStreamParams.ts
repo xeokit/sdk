@@ -4,7 +4,7 @@ import {LinesPrimitive, TrianglesPrimitive} from "@xeokit/constants";
 
 /**
  * Enables a {@link @xeokit/scene!SceneModel | SceneModel} to be progressively loaded
- * into {@link @xeokit/viewer!Viewer | Viewer} that's configured with a {@link @xeokit/webglrenderer!WebGLRenderer}.
+ * into {@link @xeokit/viewer!Viewer | Viewer} that's configured with a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer}.
  *
  * @param sceneModel
  */

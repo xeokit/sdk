@@ -638,7 +638,7 @@ export class SceneModel extends Component {
      * Creates a new {@link @xeokit/scene!SceneGeometry} within this SceneModel, from pre-compressed geometry parameters.
      *
      * * Stores the new {@link @xeokit/scene!SceneGeometry} in {@link @xeokit/scene!SceneModel.geometries | SceneModel.geometries}.
-     * * Use {@link @xeokit/scene!compressGeometryParams} to pre-compress {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams}
+     * * Use {@link @xeokit/scene!compressGeometryParams | compressGeometryParams} to pre-compress {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams}
      * into {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
      *
      * ### Usage
@@ -803,8 +803,15 @@ export class SceneModel extends Component {
         } else {
             matrix = matrix.slice();
         }
-        const origin = createVec3();
-        const rtcMatrix = createRTCModelMat(matrix, origin);
+        let origin;
+        let rtcMatrix = matrix;
+        if (meshParams.origin) {
+            origin = meshParams.origin;
+            rtcMatrix = matrix;
+        } else {
+            origin = createVec3();
+            rtcMatrix = createRTCModelMat(matrix, origin);
+        }
         const tile = this.scene.getTile(origin);
         if (!this.tiles[tile.id]) {
             this.tiles[tile.id] = tile;

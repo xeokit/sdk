@@ -3,7 +3,7 @@ import type {BCFViewpoint} from "./BCFViewpoint";
 import {Data} from "@xeokit/data";
 
 /**
- * Options for {@link @xeokit/bcf!loadBCFViewpoint}.
+ * Options for {@link @xeokit/bcf!loadBCFViewpoint | loadBCFViewpoint}.
  *
  * See {@link "@xeokit/bcf" | @xeokit/bcf} for usage.
  */
@@ -30,7 +30,7 @@ export interface LoadBCFViewpointParams {
      * {@link @xeokit/viewer!ViewObject | ViewObjects} within the given target View, ignoring any
      * {@link @xeokit/viewer!ViewLayer | ViewLayers} that those ViewObjects may have been partitioned into.
      *
-     * The {@link @xeokit/bcf!loadBCFViewpoint} function will silently ignore each component state that has no corresponding
+     * The {@link @xeokit/bcf!loadBCFViewpoint | loadBCFViewpoint} function will silently ignore each component state that has no corresponding
      * ViewObject in the target View.
      */
     view: View;
@@ -44,7 +44,7 @@ export interface LoadBCFViewpointParams {
      * Only load BCF viewpoint components if their corresponding {@link @xeokit/viewer!ViewObject | ViewObjects}
      * are in {@link @xeokit/viewer!ViewLayer |ViewLayers} that have the given IDs.
      *
-     * The {@link @xeokit/bcf!loadBCFViewpoint} function will silently ignore each component state that has no corresponding
+     * The {@link @xeokit/bcf!loadBCFViewpoint | loadBCFViewpoint} function will silently ignore each component state that has no corresponding
      * ViewObject in any of these ViewLayers.
      *
      * Each ViewLayer's occurrence in {@link @xeokit/bcf!LoadBCFViewpointParams.excludeLayerIds | LoadBCFViewpointParams.excludeLayerIds} will override
@@ -56,7 +56,7 @@ export interface LoadBCFViewpointParams {
      * Never load BCF viewpoint components if their corresponding {@link @xeokit/viewer!ViewObject | ViewObjects}
      * are in {@link @xeokit/viewer!ViewLayer | ViewLayers} that have the given IDs.
      *
-     * The {@link @xeokit/bcf!loadBCFViewpoint} function will silently ignore each component state that has a corresponding
+     * The {@link @xeokit/bcf!loadBCFViewpoint | loadBCFViewpoint} function will silently ignore each component state that has a corresponding
      * ViewObject in any of these ViewLayers.
      *
      * Each ViewLayer's occurrence in this list will override its occurrance

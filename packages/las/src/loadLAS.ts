@@ -48,7 +48,7 @@ export function loadLAS(params: {
                             skip?: number;
                             fp64?: boolean;
                             colorDepth?: string | number,
-                        }): Promise<any> {
+                        }={}): Promise<any> {
 
     return new Promise<void>(function (resolve, reject) {
 

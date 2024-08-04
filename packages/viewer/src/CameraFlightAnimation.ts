@@ -132,7 +132,7 @@ class CameraFlightAnimation extends Component {
      *  * When the target is a boundary, the {@link @xeokit/viewer!Camera}  will fly towards the target and stop when the target fills most of the canvas.
      *  * When the target is an explicit {@link @xeokit/viewer!Camera}  position, given as ````eye````, ````look```` and ````up````, then CameraFlightAnimation will interpolate the {@link @xeokit/viewer!Camera}  to that target and stop there.
      *
-     * @param {Object|Component} [params=Scene] Either a parameters object or a {@link @xeokit/core!Component} subtype that has
+     * @param {Object|Component} [params=Scene] Either a parameters object or a {@link @xeokit/core!Component | Component} subtype that has
      * an AABB. Defaults to the {@link @xeokit/scene!Scene | Scene}, which causes the {@link @xeokit/viewer!Camera}  to fit the Scene in view.
      * @param [params.arc=0] Factor in range ````[0..1]```` indicating how much the {@link @xeokit/viewer!Camera.eye | Camera.eye} position
      * will swing away from its {@link @xeokit/viewer!Camera.look | Camera.look} position as it flies to the target.
@@ -322,7 +322,7 @@ class CameraFlightAnimation extends Component {
      * * When the target is a boundary, this CameraFlightAnimation will position the {@link @xeokit/viewer!Camera}  at where the target fills most of the canvas.
      * * When the target is an explicit {@link @xeokit/viewer!Camera}  position, given as ````eye````, ````look```` and ````up```` vectors, then this CameraFlightAnimation will jump the {@link @xeokit/viewer!Camera}  to that target.
      *
-     * @param {*|Component} params  Either a parameters object or a {@link @xeokit/core!Component} subtype that has a World-space AABB.
+     * @param {*|Component} params  Either a parameters object or a {@link @xeokit/core!Component | Component} subtype that has a World-space AABB.
      * @param [params.arc=0]  Factor in range [0..1] indicating how much the {@link @xeokit/viewer!Camera.eye | Camera.eye} will swing away from its {@link @xeokit/viewer!Camera.look | Camera.look} as it flies to the target.
      * @param {Number|String|Component} [params.component] ID or instance of a component to fly to.
      * @param [params.aabb]  World-space axis-aligned bounding box (AABB) target to fly to.

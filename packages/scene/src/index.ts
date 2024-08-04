@@ -20,8 +20,8 @@
  * To elaborate further:
  *
  * * The {@link @xeokit/scene!Scene | Scene} acts as a container for {@link @xeokit/scene!SceneModel | SceneModels}, which, in turn,
- * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | Meshes}, {@link @xeokit/scene!SceneGeometry | Geometries}, and {@link @xeokit/scene!SceneTexture | Textures}.
- * * Textures undergo compression to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) via the Basis Universal codec.
+ * comprise {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | SceneMeshes}, {@link @xeokit/scene!SceneGeometry | SceneGeometries}, and {@link @xeokit/scene!SceneTexture | SceneTextures}.
+ * * SceneTextures undergo compression to [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) via the Basis Universal codec.
  * * SceneGeometry undergoes compression through quantization.
  * * Use a {@link "@xeokit/viewer" | Viewer} to view SceneModels in the browser. A Viewer equipped with a {@link @xeokit/ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder} can view a Scene that has KTX2-compressed textures.
  * * Import SceneModels from a variety of model file formats using importer functions like {@link "@xeokit/gltf" | loadGLTF}, {@link "@xeokit/las" | loadLAS}, {@link "@xeokit/cityjson" | loadCityJSON}, and {@link "@xeokit/dtx" | loadDTX}.
@@ -33,16 +33,14 @@
  *
  * <br>
  *
- * [![](https://mermaid.ink/img/pako:eNqNVU2PmzAQ_SvIp3aVjTaJk0AOPbQr7aVRpc2qlSoujplN3AJGttkmjfLfawwkNph0uQBvnufNh8c-IcoTQCtEUyLlIyM7QbI4T5gAqhjPg6_PcR6YxzCCDYUcTi1mcAFEwVq7ST98dAwpEOFCWcWSNsK3v7TSBTp71IxrS5Il1-_O8koC5B5sYAc8AyWYAyo4qFLABpQHtaA6uW9GxU6lSVpr9dGnWvDYt7zU_gcNOhzbti1ZmthAAlIJbjn2lasO1mmRXTFPhQJCttsBl1WKwUDxKU-5uP4KXu72OUjLta4DSV2IF4QydbQ4RDfncP1v-mUxrs0aCLIpnz9OP1c7u5lWQ-ukkjL63GbZY3BK01LqoelZIGNSsjfoGDqRtftmKK5CsIwp7caCuGTVmMpHoDwr9NaV6045y7cbxrbWn0v6Gwan8Mlh2eFd9L80ApA4yj6Y6dOFwv-0vjP44yi1yb8cC18BfnCR3hRxZXagrGHpV_4SVfs27CBGkxjd3d_r93h8FyPrgHKIBhlg15Lv8eth1lCfX41pS7xk02O5jWz5ZsQtrkVsKdbQOE6x5nY2tcfbizW_10YMtKBd-qle6ynE-xbaG6ldiUYoA5ERlugbz_Q6RmoPGcRopT8TeCVlqmIU52dNJaXim2NO0eqVpBJGqCwSfVY3l-QFhYQpLtbNNVq9RqggOVqd0AGtpouH8WSyxOFiOo9meDnDI3TU8GyMo-UixBGehOEyCqfnEfrLuXb7MA6nC4wX0wgvQzzH88j4-2mMSpRw_geACkF7?type=png)](https://mermaid.live/edit#pako:eNqNVU2PmzAQ_SvIp3aVjTaJk0AOPbQr7aVRpc2qlSoujplN3AJGttkmjfLfawwkNph0uQBvnufNh8c-IcoTQCtEUyLlIyM7QbI4T5gAqhjPg6_PcR6YxzCCDYUcTi1mcAFEwVq7ST98dAwpEOFCWcWSNsK3v7TSBTp71IxrS5Il1-_O8koC5B5sYAc8AyWYAyo4qFLABpQHtaA6uW9GxU6lSVpr9dGnWvDYt7zU_gcNOhzbti1ZmthAAlIJbjn2lasO1mmRXTFPhQJCttsBl1WKwUDxKU-5uP4KXu72OUjLta4DSV2IF4QydbQ4RDfncP1v-mUxrs0aCLIpnz9OP1c7u5lWQ-ukkjL63GbZY3BK01LqoelZIGNSsjfoGDqRtftmKK5CsIwp7caCuGTVmMpHoDwr9NaV6045y7cbxrbWn0v6Gwan8Mlh2eFd9L80ApA4yj6Y6dOFwv-0vjP44yi1yb8cC18BfnCR3hRxZXagrGHpV_4SVfs27CBGkxjd3d_r93h8FyPrgHKIBhlg15Lv8eth1lCfX41pS7xk02O5jWz5ZsQtrkVsKdbQOE6x5nY2tcfbizW_10YMtKBd-qle6ynE-xbaG6ldiUYoA5ERlugbz_Q6RmoPGcRopT8TeCVlqmIU52dNJaXim2NO0eqVpBJGqCwSfVY3l-QFhYQpLtbNNVq9RqggOVqd0AGtpouH8WSyxOFiOo9meDnDI3TU8GyMo-UixBGehOEyCqfnEfrLuXb7MA6nC4wX0wgvQzzH88j4-2mMSpRw_geACkF7)
+ * [![](https://mermaid.ink/img/pako:eNqNVEuPmzAQ_ivIp3bFog1xeF270qpSo0qbPVVcHHuauAKMbLNKGuW_17wSQwAVDoZvvnmP54KoYIASRDOi1CsnB0nytGBcAtVcFM6P97RwmqdhODsKBVx6rMElEA1bYyb78nUgyIDIIZTXLGUjYv_HeLpB1wlvjWnLJWf375F67QLUEWzgACIHLfkA1HDSlYQd6AnUgtrkfjZe7FS6pI2vR_StdXh-lHy09mcFJhxbtq94xmyAgdJSWIanytUGO2iRXbGJCjmE7PeLHTAazkwHqMiEtBpSEsr1-Q7kxNT-dP_v2mEx7r1YiqEr0XQYCwrG7GLoHc0KGDTJMk7fRXU4FqDUA0NQmlXK3I4HCeRcKf4JI8FUeP2UzAVXSp5zbWxZkFC8vpTqFajISzOoajuqbvW5ILzpf-sIwAaaUzA3u4Da0wLsAN-H4C29_mwSdFK0StHT87M5Pe8pRdZtHhAbZIbdDvP_2J1gttBcHGamh2HUQ25xe-LbaGDHwzUwj3ut0QQseviwLkD9tirIRTnInHBm1nMzJCnSR8ghRYn5ZPCbVJlOUVpcDZVUWuzOBUWJlhW4qCqZ2SvdQu9BYFwLue02fn24qCQFSi7ohBI_ePFWqxBHgb-J1zhcYxedDbz2cBwGEY7xKorCOPKvLvorhLH64kV-gHHgxziM8AZv4sber0ZYu7z-A6rh2zE?type=png)](https://mermaid.live/edit#pako:eNqNVEuPmzAQ_ivIp3bFog1xeF270qpSo0qbPVVcHHuauAKMbLNKGuW_17wSQwAVDoZvvnmP54KoYIASRDOi1CsnB0nytGBcAtVcFM6P97RwmqdhODsKBVx6rMElEA1bYyb78nUgyIDIIZTXLGUjYv_HeLpB1wlvjWnLJWf375F67QLUEWzgACIHLfkA1HDSlYQd6AnUgtrkfjZe7FS6pI2vR_StdXh-lHy09mcFJhxbtq94xmyAgdJSWIanytUGO2iRXbGJCjmE7PeLHTAazkwHqMiEtBpSEsr1-Q7kxNT-dP_v2mEx7r1YiqEr0XQYCwrG7GLoHc0KGDTJMk7fRXU4FqDUA0NQmlXK3I4HCeRcKf4JI8FUeP2UzAVXSp5zbWxZkFC8vpTqFajISzOoajuqbvW5ILzpf-sIwAaaUzA3u4Da0wLsAN-H4C29_mwSdFK0StHT87M5Pe8pRdZtHhAbZIbdDvP_2J1gttBcHGamh2HUQ25xe-LbaGDHwzUwj3ut0QQseviwLkD9tirIRTnInHBm1nMzJCnSR8ghRYn5ZPCbVJlOUVpcDZVUWuzOBUWJlhW4qCqZ2SvdQu9BYFwLue02fn24qCQFSi7ohBI_ePFWqxBHgb-J1zhcYxedDbz2cBwGEY7xKorCOPKvLvorhLH64kV-gHHgxziM8AZv4sber0ZYu7z-A6rh2zE)
  *
  * <br>
  *
  * ### Notes
  *
- * * TextureSets are collections of textures that are shared among Meshes and are organized into texture atlasses to optimize rendering efficiency on GPUs.
- * * Each SceneMesh can be assigned to only one SceneObject, whereas each SceneGeometry and SceneTextureSet can be allocated to an unlimited number of Meshes.
- * * The {@link getSceneObjectGeometry} function can be used to conveniently iterate the World-space geometry within each
- * {@link @xeokit/scene!SceneObject | SceneObject} - useful for building k-d trees, finding intersections etc.
+ * * SceneTextureSets are collections of textures that are shared among SceneMeshes and are organized into texture atlasses to optimize rendering efficiency on GPUs.
+ * * Each SceneMesh can be assigned to only one SceneObject, whereas each SceneGeometry and SceneTextureSet can be allocated to an unlimited number of SceneMeshes.
  *
  * ## Installation
  *
@@ -61,7 +59,7 @@
  *
  * In the example below, we'll create a {@link @xeokit/scene!SceneModel | SceneModel} that will model the simple table furniture model
  * shown in the image above. Our SceneModel will get five
- * {@link @xeokit/scene!SceneObject | SceneObjects}, five {@link @xeokit/scene!SceneMesh | Meshes},
+ * {@link @xeokit/scene!SceneObject | SceneObjects}, five {@link @xeokit/scene!SceneMesh | SceneMeshes},
  * a {@link @xeokit/scene!SceneGeometry | SceneGeometry} and a {@link @xeokit/scene!SceneTexture | SceneTexture}.
  *
  * When we've finished constructing our SceneModel, we'll call {@link @xeokit/scene!SceneModel.build | SceneModel.build}, which
@@ -264,14 +262,14 @@
  * ### SceneGeometry Compression
  *
  * The geometry from our query example requires a closer look. Internally, the {@link @xeokit/scene!SceneModel.createGeometry}
- * method uses the {@link @xeokit/scene!compressGeometryParams} function to compress the geometry and generate edge indices for
+ * method uses the {@link @xeokit/scene!compressGeometryParams | compressGeometryParams} function to compress the geometry and generate edge indices for
  * rendering it as a wireframe.
  *
  * We provide that function as part of the API in case users want to pre-compress the geometry themselves
  * and then use {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * to create the compressed geometry directly.
  *
- * The {@link @xeokit/scene!compressGeometryParams} function performs these steps to compress the geometry:
+ * The {@link @xeokit/scene!compressGeometryParams | compressGeometryParams} function performs these steps to compress the geometry:
  *
  * * Simplifies geometry by combining duplicate positions and adjusting indices
  * * Generates edge indices for triangle meshes
@@ -287,7 +285,7 @@
  * // ...
  * ````
  *
- * In the example below, we'll now use {@link @xeokit/scene!compressGeometryParams} to compress
+ * In the example below, we'll now use {@link @xeokit/scene!compressGeometryParams | compressGeometryParams} to compress
  * a {@link @xeokit/scene!SceneGeometryParams | SceneGeometryParams} into a
  * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
  *

@@ -1,7 +1,7 @@
 import type {View} from "@xeokit/viewer";
 
 /**
- * Options for {@link @xeokit/bcf!saveBCFViewpoint}.
+ * Options for {@link @xeokit/bcf!saveBCFViewpoint | saveBCFViewpoint}.
  *
  * See {@link "@xeokit/bcf" | @xeokit/bcf} for usage.
  */
@@ -68,7 +68,7 @@ export interface SaveBCFViewpointParams {
      * Only save BCF viewpoint components if their corresponding {@link @xeokit/viewer!ViewObject | ViewObjects}
      * are in {@link @xeokit/viewer!ViewLayer | ViewLayers} that match these IDs.
      *
-     * The {@link @xeokit/bcf!saveBCFViewpoint} function will silently ignore each component state that has no corresponding
+     * The {@link @xeokit/bcf!saveBCFViewpoint | saveBCFViewpoint} function will silently ignore each component state that has no corresponding
      * ViewObject in any of these ViewLayers.
      *
      * Each ViewLayer's occurrence in {@link @xeokit/bcf!SaveBCFViewpointParams.excludeLayerIds | SaveBCFViewpointParams.excludeLayerIds} will override
@@ -80,7 +80,7 @@ export interface SaveBCFViewpointParams {
      * Never save BCF viewpoint components if their corresponding {@link @xeokit/viewer!ViewObject | ViewObjects}
      * are in {@link @xeokit/viewer!ViewLayer |ViewLayers} that have the given IDs.
      *
-     * The {@link @xeokit/bcf!saveBCFViewpoint} function will silently ignore each component state that has a corresponding
+     * The {@link @xeokit/bcf!saveBCFViewpoint | saveBCFViewpoint} function will silently ignore each component state that has a corresponding
      * ViewObject in any of these ViewLayers.
      *
      * Each ViewLayer's occurrence in this list will override its occurrance

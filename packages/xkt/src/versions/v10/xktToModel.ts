@@ -447,10 +447,8 @@ export function xktToModel(params: {
                             id: meshId,
                             geometryId,
                             textureSetId,
-                          //  origin: tileCenter,
+                            origin: tileCenter,
                             color: meshColor,
-                            metallic: meshMetallic,
-                            roughness: meshRoughness,
                             opacity: meshOpacity
                         });
                         meshIds.push(meshId);

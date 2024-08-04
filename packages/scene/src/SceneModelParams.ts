@@ -72,7 +72,7 @@ export interface SceneModelParams {
     geometries?: SceneGeometryParams[];
 
     /**
-     * {@link @xeokit/scene!SceneGeometryCompressedParams} in the SceneModel.
+     * {@link @xeokit/scene!SceneGeometryCompressedParams | SceneGeometryCompressedParams} in the SceneModel.
      */
     geometriesCompressed?: SceneGeometryCompressedParams[];
 

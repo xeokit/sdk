@@ -33,7 +33,7 @@
  * import {loadDTX} from "@xeokit/dtx";
  * ````
  *
- * Create a {@link @xeokit/viewer!Viewer | Viewer}, configured with a {@link @xeokit/webglrenderer!WebGLRenderer}:
+ * Create a {@link @xeokit/viewer!Viewer | Viewer}, configured with a {@link @xeokit/webglrenderer!WebGLRenderer | WebGLRenderer}:
  *
  * ````javascript
  * const myViewer = new Viewer({

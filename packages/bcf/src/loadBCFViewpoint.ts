@@ -14,7 +14,7 @@ const tempVec3b = createVec3();
 const tempVec3c = createVec3();
 
 /**
- * Loads a {@link @xeokit/bcf!BCFViewpoint} into a {@link @xeokit/viewer!View | View}.
+ * Loads a {@link @xeokit/bcf!BCFViewpoint | BCFViewpoint} into a {@link @xeokit/viewer!View | View}.
  *
  * See {@link "@xeokit/bcf" | @xeokit/bcf} for usage.
  *

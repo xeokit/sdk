@@ -19,10 +19,10 @@
  * project stakeholders in BIM workflows.
  *
  * To import a JSON-encoded BCF viewpoint into a {@link @xeokit/viewer!View | View} belonging to a {@link @xeokit/viewer!Viewer | Viewer}, use the
- * {@link @xeokit/bcf!loadBCFViewpoint} function. Similarly, to export the state of a View as a JSON-encoded BCF viewpoint, use
- * the {@link @xeokit/bcf!saveBCFViewpoint} function.
+ * {@link @xeokit/bcf!loadBCFViewpoint | loadBCFViewpoint} function. Similarly, to export the state of a View as a JSON-encoded BCF viewpoint, use
+ * the {@link @xeokit/bcf!saveBCFViewpoint | saveBCFViewpoint} function.
  *
- * Refer to {@link @xeokit/bcf!BCFViewpoint} for information on the BCF viewpoint format.
+ * Refer to {@link @xeokit/bcf!BCFViewpoint | BCFViewpoint} for information on the BCF viewpoint format.
  *
  * <br>
  *
@@ -99,7 +99,7 @@
  * {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt} events.
  *
  * On the SceneModel.onBuilt event, we'll customize the View by arranging the {@link @xeokit/viewer!Camera} and applying
- * an X-ray effect tp a couple of objects, then we'll use {@link @xeokit/bcf!saveBCFViewpoint} to save the state of the View to
+ * an X-ray effect tp a couple of objects, then we'll use {@link @xeokit/bcf!saveBCFViewpoint | saveBCFViewpoint} to save the state of the View to
  * a BCF viewpoint.
  *
  * Once the SceneModel and DataModel have been built, we can no longer add anything to them.
@@ -123,8 +123,8 @@
  * });
  * ````
  *
- * Now that we've saved the {@link @xeokit/bcf!BCFViewpoint}, we could now use {@link @xeokit/bcf!loadBCFViewpoint} to load
- * the {@link @xeokit/bcf!BCFViewpoint} back into the {@link @xeokit/viewer!View | View}:
+ * Now that we've saved the {@link @xeokit/bcf!BCFViewpoint | BCFViewpoint}, we could now use {@link @xeokit/bcf!loadBCFViewpoint | loadBCFViewpoint} to load
+ * the {@link @xeokit/bcf!BCFViewpoint | BCFViewpoint} back into the {@link @xeokit/viewer!View | View}:
  *
  * ````javascript
  * loadBCFViewpoint({
@@ -188,8 +188,8 @@
  * myOtherSceneModel.build();
  * ````
  *
- * Now we can use {@link @xeokit/bcf!saveBCFViewpoint} to save the states of only the {@link @xeokit/viewer!ViewObject | ViewObjects} in the
- * {@link @xeokit/viewer!ViewLayer | ViewLayer} that contains our SceneModel to a {@link @xeokit/bcf!BCFViewpoint}, while ignoring the
+ * Now we can use {@link @xeokit/bcf!saveBCFViewpoint | saveBCFViewpoint} to save the states of only the {@link @xeokit/viewer!ViewObject | ViewObjects} in the
+ * {@link @xeokit/viewer!ViewLayer | ViewLayer} that contains our SceneModel to a {@link @xeokit/bcf!BCFViewpoint | BCFViewpoint}, while ignoring the
  * other ViewLayer:
  *
  * ````javascript
@@ -200,7 +200,7 @@
  * });
  * ````
  *
- * Use {@link @xeokit/bcf!loadBCFViewpoint} to load the {@link @xeokit/bcf!BCFViewpoint} back into the {@link @xeokit/viewer!ViewLayer | ViewLayer}:
+ * Use {@link @xeokit/bcf!loadBCFViewpoint | loadBCFViewpoint} to load the {@link @xeokit/bcf!BCFViewpoint | BCFViewpoint} back into the {@link @xeokit/viewer!ViewLayer | ViewLayer}:
  *
  * ````javascript
  * loadBCFViewpoint({

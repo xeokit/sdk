@@ -6,7 +6,7 @@
  *
  * ## xeokit SDK Core Components
  *
- * * {@link @xeokit/core!Component} base class
+ * * {@link @xeokit/core!Component | Component} base class
  * * Various interfaces that are implemented throughout the SDK.
  *
  * ## Installation

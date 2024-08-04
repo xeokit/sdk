@@ -7,7 +7,7 @@ import {IntArrayParam} from "@xeokit/math";
  *
  * ## Summary
  *
- * * Created from {@link @xeokit/scene!SceneGeometryParams|SceneGeometryParams} using {@link @xeokit/scene!compressGeometryParams}
+ * * Created from {@link @xeokit/scene!SceneGeometryParams|SceneGeometryParams} using {@link @xeokit/scene!compressGeometryParams | compressGeometryParams}
  * * Used with {@link @xeokit/scene!SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  * * Generates edge indices for triangle meshes
  * * Ignores normals (our shaders auto-generate them)

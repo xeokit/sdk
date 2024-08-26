@@ -1,5 +1,4 @@
 import type {FloatArrayParam} from "@xeokit/math";
-import {Scene} from "./Scene";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import type {RendererGeometry} from "./RendererGeometry";
 import {createAABB3} from "@xeokit/boundaries";

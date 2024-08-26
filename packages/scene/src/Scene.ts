@@ -52,7 +52,7 @@ export class Scene extends Component {
     public readonly  onTileCreated:  EventEmitter<Scene, SceneTile>;
 
     /**
-     * Emits an event each time a {@link @xeokit/scene!SceneTile} is destroyed in this Scene.
+     * Emits an event each time a {@link @xeokit/scene!SceneTile | SceneTile} is destroyed in this Scene.
      *
      * @event
      */
@@ -63,6 +63,7 @@ export class Scene extends Component {
     #center: Float64Array;
     #aabbDirty: boolean;
     #aabb: Float64Array;
+
 
     /**
      * Creates a new Scene.

@@ -1,11 +1,38 @@
 import type {FloatArrayParam} from "@xeokit/math";
-import {createMat4, identityMat4, isIdentityMat4} from "@xeokit/matrix";
+import {createMat4, createVec4, identityMat4, isIdentityMat4, transformPoint4} from "@xeokit/matrix";
 import type {RendererMesh} from "./RendererMesh";
 import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneTextureSet} from "./SceneTextureSet";
 import type {SceneObject} from "./SceneObject";
 import type {SceneMeshParams} from "./SceneMeshParams";
 import {SceneTile} from "./SceneTile";
+import {collapseAABB3, createAABB3, expandAABB3Point3} from "@xeokit/boundaries";
+
+const tempVec4a = createVec4();
+const tempVec4b = createVec4();
+
+function getPositionsWorldAABB3(
+    positions: FloatArrayParam,
+    aabb: FloatArrayParam,
+    matrix: FloatArrayParam,
+    worldAABB: FloatArrayParam = createAABB3()): FloatArrayParam {
+    collapseAABB3(worldAABB);
+    const xScale = (aabb[3] - aabb[0]) / 65535;
+    const xOffset = aabb[0];
+    const yScale = (aabb[4] - aabb[1]) / 65535;
+    const yOffset = aabb[1];
+    const zScale = (aabb[5] - aabb[2]) / 65535;
+    const zOffset = aabb[2];
+    for (let i = 0, len = positions.length; i < len; i += 3) {
+        tempVec4a[0] = positions[i + 0] * xScale + xOffset;
+        tempVec4a[1] = positions[i + 1] * yScale + yOffset;
+        tempVec4a[2] = positions[i + 2] * zScale + zOffset;
+        tempVec4a[3] = 1.0;
+        transformPoint4(matrix, tempVec4a, tempVec4b);
+        expandAABB3Point3(worldAABB, tempVec4b);
+    }
+    return worldAABB;
+}
 
 /**
  * A mesh in a {@link @xeokit/scene!SceneModel | SceneModel}.
@@ -67,6 +94,9 @@ export class SceneMesh {
 
     readonly origin: FloatArrayParam;
 
+    #aabbDirty: boolean;
+    #aabb: FloatArrayParam;
+
     /**
      * @private
      */
@@ -84,6 +114,8 @@ export class SceneMesh {
         this.id = meshParams.id;
         this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
         this.#rtcMatrix = meshParams.rtcMatrix ? createMat4(meshParams.rtcMatrix) : identityMat4();
+        this.#aabb = createAABB3();
+        this.#aabbDirty = true;
         this.geometry = meshParams.geometry;
         this.textureSet = meshParams.textureSet;
         this.rendererMesh = null;
@@ -167,6 +199,7 @@ export class SceneMesh {
         if (this.rendererMesh) {
             this.rendererMesh.setMatrix(this.#matrix);
         }
+        this.#aabbDirty = true;
         if (this.object) {
             this.object.setAABBDirty();
         }
@@ -198,6 +231,18 @@ export class SceneMesh {
     }
 
     /**
+     * Gets the World-space AABB of this SceneMesh.
+     */
+    get aabb(): FloatArrayParam {
+        if (!this.#aabbDirty) {
+            return this.#aabb;
+        }
+        getPositionsWorldAABB3(this.geometry.positionsCompressed, this.geometry.aabb, this.#matrix, this.#aabb);
+        this.#aabbDirty = false;
+        return this.#aabb;
+    }
+
+    /**
      * Gets this SceneMesh as JSON.
      */
     getJSON(): SceneMeshParams {
@@ -217,3 +262,4 @@ export class SceneMesh {
         return meshParams;
     }
 }
+

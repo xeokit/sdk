@@ -3,7 +3,7 @@
 import {EventDispatcher} from "strongly-typed-events";
 import {Component, EventEmitter, SDKError} from "@xeokit/core";
 import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
-import {createAABB3} from "@xeokit/boundaries";
+import {collapseAABB3, createAABB3, expandAABB3} from "@xeokit/boundaries";
 import {SceneGeometry} from "./SceneGeometry";
 import {SceneObject} from "./SceneObject";
 import {SceneTextureSet} from "./SceneTextureSet";
@@ -34,6 +34,7 @@ import {SceneQuantizationRange} from "./SceneQuantizationRange";
 import {SceneQuantizationRangeParams} from "./SceneQuantizationRangeParams";
 import {SceneTile} from "./SceneTile";
 import {createRTCModelMat} from "@xeokit/rtc";
+import {FloatArrayParam} from "@xeokit/math";
 
 
 // DTX texture types
@@ -212,11 +213,11 @@ export class SceneModel extends Component {
     readonly objects: { [key: string]: SceneObject };
 
     /**
-     * The axis-aligned 3D World-space boundary of this SceneModel.
+     * List of {@link @xeokit/scene!SceneObject | SceneObjects} within this SceneModel.
      *
-     * * Created by {@link @xeokit/scene!SceneModel.build | SceneModel.build}.
+     * * Created by {@link @xeokit/scene!SceneModel.createObject | SceneModel.createObject}.
      */
-    public readonly aabb: Float64Array;
+    readonly objectsList: SceneObject[];
 
     /**
      * Emits an event when this {@link @xeokit/scene!SceneModel | SceneModel} has been built.
@@ -259,6 +260,8 @@ export class SceneModel extends Component {
     #numObjects: number;
     #meshUsedByObject: { [key: string]: boolean };
 
+    #aabb: FloatArrayParam;
+    #aabbDirty: boolean;
 
     /**
      * @private
@@ -279,6 +282,9 @@ export class SceneModel extends Component {
         this.#numObjects = 0;
         this.#meshUsedByObject = {};
 
+        this.#aabb = createAABB3();
+        this.#aabbDirty = true;
+
         this.streamParams = sceneModelParams.streamParams;
         this.globalizedIds = (!!sceneModelParams.globalizedIds);
         this.id = sceneModelParams.id || "default";
@@ -291,7 +297,7 @@ export class SceneModel extends Component {
         this.textureSets = {};
         this.meshes = {};
         this.objects = {};
-        this.aabb = createAABB3();
+        this.objectsList = [];
         this.built = false;
         this.rendererModel = null;
 
@@ -912,6 +918,7 @@ export class SceneModel extends Component {
         }
         this.#numObjects++;
         this.objects[objectId] = sceneObject;
+        this.objectsList.push(sceneObject);
         this.stats.numObjects++;
         return sceneObject;
     }
@@ -1001,6 +1008,27 @@ export class SceneModel extends Component {
     }
 
     /**
+     * Gets the axis-aligned 3D World-space boundary of this SceneModel.
+     */
+    get aabb(): FloatArrayParam {
+        if (this.objectsList.length === 1) {
+            return this.objectsList[0].aabb;
+        }
+        if (this.#aabbDirty) {
+            if (!this.#aabb) {
+                this.#aabb = collapseAABB3();
+            } else {
+                collapseAABB3(this.#aabb);
+            }
+            for (let i = 0, len = this.objectsList.length; i < len; i++) {
+                expandAABB3(this.#aabb, this.objectsList[i].aabb);
+            }
+            this.#aabbDirty = false;
+        }
+        return this.#aabb;
+    }
+
+    /**
      * Gets this SceneModel as JSON.
      */
     getJSON(): SceneModelParams {
@@ -1043,6 +1071,7 @@ export class SceneModel extends Component {
         for (let i = 0, len = this.tilesList.length; i < len; i++) {
             this.scene.putTile(this.tilesList[i]);
         }
+        this.onDestroyed.dispatch(this, null);
         super.destroy();
     }
 

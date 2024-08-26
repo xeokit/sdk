@@ -48,27 +48,34 @@ export function loadLAS(params: {
                             skip?: number;
                             fp64?: boolean;
                             colorDepth?: string | number,
-                        }={}): Promise<any> {
+                        } = {}): Promise<any> {
 
     return new Promise<void>(function (resolve, reject) {
 
-        const dataModel = params.dataModel;
-        const sceneModel = params.sceneModel;
+        const {dataModel, sceneModel, fileData} = params;
+
+        if (!fileData) {
+            return Promise.reject("Parameter expected: fileData");
+        }
+
+        if (!sceneModel) {
+            return Promise.reject("Parameter expected: sceneModel");
+        }
 
         if (sceneModel?.destroyed) {
-            throw new SDKError("SceneModel already destroyed");
+            return Promise.reject("SceneModel already destroyed");
         }
 
         if (sceneModel?.built) {
-            throw new SDKError("SceneModel already built");
+            return Promise.reject("SceneModel already built");
         }
 
         if (dataModel?.destroyed) {
-            throw new SDKError("DataModel already destroyed");
+            return Promise.reject("DataModel already destroyed");
         }
 
         if (dataModel?.built) {
-            throw new SDKError("DataModel already built");
+            return Promise.reject("DataModel already built");
         }
 
         const skip = options.skip || 1;

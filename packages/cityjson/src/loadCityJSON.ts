@@ -55,10 +55,10 @@ export function loadCityJSON(params: {
                              }): Promise<any> {
     if (params.sceneModel) {
         if (params.sceneModel.destroyed) {
-            return Promise.reject(new SDKError("SceneModel already destroyed"));
+            return Promise.reject("SceneModel already destroyed");
         }
         if (params.sceneModel.built) {
-            return Promise.reject(new SDKError("SceneModel already built"));
+            return Promise.reject("SceneModel already built");
         }
     }
     if (params.dataModel) {
@@ -66,7 +66,7 @@ export function loadCityJSON(params: {
             return Promise.reject(new SDKError("DataModel already destroyed"));
         }
         if (params.dataModel.built) {
-            return Promise.reject(new SDKError("DataModel already built"));
+            return Promise.reject("DataModel already built");
         }
     }
     const fileData = params.fileData;

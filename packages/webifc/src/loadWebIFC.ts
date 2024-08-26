@@ -59,32 +59,42 @@ export function loadWebIFC(params: {
     dataModel?: DataModel
 }): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
-        if (params.sceneModel.destroyed) {
-            throw new SDKError("SceneModel already destroyed");
+        const {sceneModel, dataModel, fileData, ifcAPI} = params;
+        if (!ifcAPI) {
+            return Promise.reject("Parameter expected: ifcAPI");
         }
-        if (params.sceneModel.built) {
-            throw new SDKError("SceneModel already built");
+        if (!fileData) {
+            return Promise.reject("Parameter expected: fileData");
         }
-        if (params.dataModel) {
-            if (params.dataModel.destroyed) {
-                throw new SDKError("DataModel already destroyed");
+        if (!sceneModel) {
+            return Promise.reject("Parameter expected: sceneModel");
+        }
+        if (sceneModel.destroyed) {
+            return Promise.reject("SceneModel already destroyed");
+        }
+        if (sceneModel.built) {
+            return Promise.reject("SceneModel already built");
+        }
+        if (dataModel) {
+            if (dataModel.destroyed) {
+                return Promise.reject("DataModel already destroyed");
             }
-            if (params.dataModel.built) {
-                throw new SDKError("DataModel already built");
+            if (dataModel.built) {
+                return Promise.reject("DataModel already built");
             }
         }
-        const dataArray = new Uint8Array(params.fileData);
+        const dataArray = new Uint8Array(fileData);
         const modelId = params.ifcAPI.OpenModel(dataArray);
         const lines = params.ifcAPI.GetLineIDsWithType(modelId, WebIFC.IFCPROJECT);
         const ifcProjectId = lines.get(0);
         const ctx: ParsingContext = {
-            fileData: params.fileData,
+            fileData,
             modelId,
             lines,
             ifcProjectId,
-            ifcAPI: params.ifcAPI,
-            sceneModel: params.sceneModel,
-            dataModel: params.dataModel,
+            ifcAPI,
+            sceneModel,
+            dataModel,
             nextId: 0
         };
         parseIFC(ctx);

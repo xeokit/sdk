@@ -1,5 +1,5 @@
 
-import {CameraFlightAnimation, PickResult, View} from "@xeokit/viewer";
+import {PickResult, View} from "@xeokit/viewer";
 import {createVec2} from "@xeokit/matrix";
 import {PickController} from "./PickController";
 import {PivotController} from "./PivotController";
@@ -38,6 +38,8 @@ import {
     KEY_X,
     KEY_Z
 } from "./keycodes";
+import {CameraFlightAnimation} from "@xeokit/cameraflight";
+
 
 
 
@@ -80,7 +82,7 @@ export interface CameraControlParams {
 }
 
 /**
- * @desc Controls the {@link Camera} with user input, and fires events when the user interacts with pickable {@link Entity}s.
+ * @desc Controls the {@link Camera} with user input, and fires events when the user interacts with pickable {@link @xeokit/viewer!ViewObject | ViewObjects}.
  *
  * # Contents
  *
@@ -353,7 +355,7 @@ export interface CameraControlParams {
  *
  * # CameraControl Events
  *
- * ````CameraControl```` fires events as we interact with {@link Entity}s using mouse or touch input.
+ * ````CameraControl```` fires events as we interact with {@link @xeokit/viewer!ViewObject | ViewObjects} using mouse or touch input.
  *
  * The following examples demonstrate how to subscribe to those events.
  *

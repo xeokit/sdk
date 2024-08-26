@@ -3,7 +3,7 @@ export class Map {
     readonly items: any[];
     #lastUniqueId: number;
 
-    constructor(items: any, baseId?: any) {
+    constructor(items?: any, baseId?: any) {
         this.items = items || [];
         this.#lastUniqueId = (baseId || 0) + 1;
     }

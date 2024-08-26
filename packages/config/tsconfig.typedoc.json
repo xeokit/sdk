@@ -117,6 +117,12 @@
         },
         {
             "path": "packages/xkt"
+        },
+        {
+            "path": "packages/cameraflight"
+        },
+        {
+            "path": "packages/contextmenu"
         }
     ]
 }

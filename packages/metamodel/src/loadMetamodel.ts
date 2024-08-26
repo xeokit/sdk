@@ -25,20 +25,20 @@ export function loadMetamodel(params: {
     dataModel: DataModel;
 }): Promise<void> {
     if (!params) {
-        return Promise.reject(new SDKError("[loadXKTMetaData] Argument expected: params"));
+        return Promise.reject("Parameter expected: params");
     }
     const {fileData, dataModel} = params;
     if (!fileData) {
-        return Promise.reject(new SDKError("[loadXKTMetaData] Parameter expected: params.fileData"));
+        return Promise.reject("Parameter expected: fileData");
     }
     if (!dataModel) {
-        return Promise.reject(new SDKError("[loadXKTMetaData] Parameter expected: params.dataModel"));
+        return Promise.reject("Parameter expected: params.dataModel");
     }
     if (dataModel.destroyed) {
-        return Promise.reject(new SDKError("DataModel already destroyed"));
+        return Promise.reject("DataModel already destroyed");
     }
     if (dataModel.built) {
-        return Promise.reject(new SDKError("DataModel already built"));
+        return Promise.reject("DataModel already built");
     }
     //////////////////////////////////
     // TODO: Property set decompression

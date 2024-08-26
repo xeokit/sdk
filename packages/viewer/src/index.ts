@@ -22,7 +22,7 @@
  * * Each View has a {@link @xeokit/viewer!ViewObject} for each of the {@link @xeokit/scene!SceneObject | SceneObjects} in the Scene, which represnts and controls that
  * SceneObject's appearance in the View's canvas.
  * The View creates and destroys its ViewObjects automatically, in order to proxy the SceneObjects.
- * * Each View also has it's own {@link @xeokit/viewer!Camera}, {@link @xeokit/viewer!DirLight | Lights} and {@link @xeokit/viewer!SectionPlane | SectionPlanes}.
+ * * Each View also has it's own {@link @xeokit/viewer!Camera | Camera}, {@link @xeokit/viewer!DirLight | Lights} and {@link @xeokit/viewer!SectionPlane | SectionPlanes}.
  * * Each View can optionally organize its ViewObjects into {@link @xeokit/viewer!ViewLayer | ViewLayers}. These allow us to partition our ViewObjects into
  * different *bins* depending on what they represent in the View, and then conveniently focus our updates (toggle visibility, select, highlight, slice etc.)
  * eon certain bins, exclusively. ViewLayers also allow us to restrict which SceneObjects are renderable in the Viewer's [phycially-based](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#pbr)
@@ -100,7 +100,7 @@
  *
  * ### Creating a View
  *
- * Within our Viewer, create a {@link @xeokit/viewer!View} and arrange its {@link @xeokit/viewer!Camera}:
+ * Within our Viewer, create a {@link @xeokit/viewer!View} and arrange its {@link @xeokit/viewer!Camera | Camera}:
  *
  * ````javascript
  * const view1 = myViewer.createView({
@@ -341,7 +341,7 @@ export * from "./FrustumProjection";
 export * from "./OrthoProjection";
 export * from "./PerspectiveProjection";
 export * from "./CustomProjection";
-export * from "./CameraFlightAnimation";
+export * from "./scheduler";
 export * from "./AmbientLight";
 export * from "./DirLight";
 export * from "./PointLight";

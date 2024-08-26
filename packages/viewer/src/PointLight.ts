@@ -1,6 +1,4 @@
 import {Component} from "@xeokit/core";
-
-
 import type {View} from "./View";
 import type {FloatArrayParam} from "@xeokit/math";
 
@@ -13,7 +11,7 @@ import type {FloatArrayParam} from "@xeokit/math";
  * * Originates from a single point and spreads outward in all directions, with optional attenuation over distance.
  * * Has a position in {@link PointLight.pos}, but no direction.
  * * Defined in either *World* or *View* coordinate space. When in World-space, {@link PointLight.pos} is relative to
- * the World coordinate system, and will appear to move as the {@link @xeokit/viewer!Camera}  moves. When in View-space,
+ * the World coordinate system, and will appear to move as the {@link @xeokit/viewer!Camera | Camera}  moves. When in View-space,
  * {@link PointLight.pos} is relative to the View coordinate system, and will behave as if fixed to the viewer's head.
  * * Has {@link PointLight.constantAttenuation}, {@link PointLight.linearAttenuation} and {@link PointLight.quadraticAttenuation}
  * factors, which indicate how intensity attenuates over distance.

@@ -20,6 +20,9 @@ const tickEvent: TickEvent = {
     deltaTime: 0
 };
 
+/**
+ * @internal
+ */
 class Scheduler {
 
     public readonly viewers: { [key: string]: Viewer };

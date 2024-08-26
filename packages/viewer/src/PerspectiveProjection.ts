@@ -1,6 +1,4 @@
 import {EventDispatcher} from "strongly-typed-events";
-
-
 import type {Camera} from "./Camera";
 import {Component, EventEmitter} from "@xeokit/core";
 import {PerspectiveProjectionType} from "@xeokit/constants";
@@ -9,7 +7,7 @@ import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, tran
 import {Projection} from "./Projection";
 
 /**
- * PerspectiveProjection projection configuration for a {@link @xeokit/viewer!Camera} .
+ * PerspectiveProjection projection configuration for a {@link @xeokit/viewer!Camera | Camera} .
  *
  * ## Summary
  *

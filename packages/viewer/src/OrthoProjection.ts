@@ -9,7 +9,7 @@ import {Projection} from "./Projection";
 
 
 /**
- * Orthographic projection configuration for a {@link @xeokit/viewer!Camera} .
+ * Orthographic projection configuration for a {@link @xeokit/viewer!Camera | Camera} .
  *
  * * Located at {@link @xeokit/viewer!Camera.orthoProjection | Camera.orthoProjection}.
  * * Works like Blender's orthographic projection, where the positions of the left, right, top and bottom planes are implicitly

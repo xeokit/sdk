@@ -33,7 +33,6 @@ import {
 } from "@xeokit/constants";
 import {Frustum3, setFrustum3} from "@xeokit/boundaries";
 import {Projection} from "./Projection";
-import {SceneGeometry, SceneMesh, SceneModelParams, SceneObject} from "@xeokit/scene";
 
 
 const tempVec3 = createVec3();
@@ -62,8 +61,6 @@ const offsetEye = createVec3();
  * * Dynamically configurable World-space axis
  * * Has {@link PerspectiveProjection}, {@link OrthoProjection} and {@link FrustumProjection} and {@link CustomProjection}, which you can dynamically switch between
  * * Switchable gimbal lock
- * * Can be flown to look at targets using the View's {@link CameraFlightAnimation}
- * * Can be animated along a path using a {@link CameraPathAnimation}
  *
  * ## Getting a View's Camera
  *

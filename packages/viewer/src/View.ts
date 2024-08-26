@@ -21,7 +21,6 @@ import {Edges} from "./Edges";
 import {PointsMaterial} from "./PointsMaterial";
 import {Camera} from "./Camera";
 import type {PointLight} from "./PointLight";
-import {CameraFlightAnimation} from "./CameraFlightAnimation";
 import {AmbientLight} from "./AmbientLight";
 import {DirLight} from "./DirLight";
 import type {RendererObject} from "@xeokit/scene/src/RendererObject";
@@ -157,11 +156,6 @@ class View extends Component {
      * Configures when textures are rendered for this View.
      */
     readonly texturing: Texturing;
-
-    /**
-     * Flies or jumps the View's {@link @xeokit/viewer!Camera}  to given positions.
-     */
-    readonly cameraFlight: CameraFlightAnimation;
 
     /**
      * Manages measurement units, origin and scale for this View.
@@ -600,10 +594,6 @@ class View extends Component {
         this.sao = new SAO(this, {});
 
         this.texturing = new Texturing(this, {});
-
-        this.cameraFlight = new CameraFlightAnimation(this, {
-            duration: 0.5,
-        });
 
         this.metrics = new Metrics(this, {
             units: options.units,

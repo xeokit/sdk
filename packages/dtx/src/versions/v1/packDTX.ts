@@ -1,50 +1,96 @@
-import type {DTXDataDeflated} from "./DTXDataDeflated";
+
 import {DTX_INFO} from "./DTX_INFO";
+import {DTXData_v1} from "./DTXData_v1";
+
+const object2Array = (function() {
+    const encoder = new TextEncoder();
+    return obj => encoder.encode(JSON.stringify(obj));
+})();
+
+function toArrayBuffer(arrays: Buffer[]): ArrayBuffer {
+
+    const arraysCnt = arrays.length;
+    const dataView = new DataView(new ArrayBuffer((1 + 2 * arraysCnt) * 4));
+
+    dataView.setUint32(0, DTX_INFO.dtxVersion, true);
+
+    let byteOffset = dataView.byteLength;
+    const offsets = [ ];
+
+    // Store arrays' offsets and lengths
+    for (let i = 0; i < arraysCnt; i++) {
+        const arr = arrays[i];
+        const BPE = arr.BYTES_PER_ELEMENT;
+        // align to BPE, so the arrayBuffer can be used for a typed array
+        byteOffset = Math.ceil(byteOffset / BPE) * BPE;
+        const byteLength = arr.byteLength;
+
+        const idx = 1 + 2 * i;
+        dataView.setUint32(idx       * 4, byteOffset, true);
+        dataView.setUint32((idx + 1) * 4, byteLength, true);
+
+        offsets.push(byteOffset);
+        byteOffset += byteLength;
+    }
+
+    const dataArray = new Uint8Array(byteOffset);
+    dataArray.set(new Uint8Array(dataView.buffer), 0);
+
+    const requiresSwapToLittleEndian = (function() {
+        const buffer = new ArrayBuffer(2);
+        new Uint16Array(buffer)[0] = 1;
+        return new Uint8Array(buffer)[0] !== 1;
+    })();
+
+    // Store arrays themselves
+    for (let i = 0; i < arraysCnt; i++) {
+        const arr = arrays[i];
+        const subarray = new Uint8Array(arr.buffer, arr.byteOffset, arr.byteLength);
+
+        const BPE = arr.BYTES_PER_ELEMENT;
+        if (requiresSwapToLittleEndian && (BPE > 1)) {
+            const swaps = BPE / 2;
+            const cnt = subarray.length / BPE;
+            for (let b = 0; b < cnt; b++) {
+                const offset = b * BPE;
+                for (let j = 0; j < swaps; j++) {
+                    const i1 = offset + j;
+                    const i2 = offset - j + BPE - 1;
+                    const tmp = subarray[i1];
+                    subarray[i1] = subarray[i2];
+                    subarray[i2] = tmp;
+                }
+            }
+        }
+
+        dataArray.set(subarray, offsets[i]);
+    }
+
+    return dataArray.buffer;
+}
 
 /**
  * @private
  */
-export function packDTX(deflatedData: DTXDataDeflated): ArrayBuffer {
+export function packDTX(dtxData: DTXData_v1): ArrayBuffer {
     return toArrayBuffer(<Buffer[]>[
-        deflatedData.positions,
-        deflatedData.colors,
-        deflatedData.indices,
-        deflatedData.edgeIndices,
-        deflatedData.aabbs,
-        deflatedData.eachGeometryPositionsBase,
-        deflatedData.eachGeometryColorsBase,
-        deflatedData.eachGeometryIndicesBase,
-        deflatedData.eachGeometryEdgeIndicesBase,
-        deflatedData.eachGeometryPrimitiveType,
-        deflatedData.eachGeometryAABBBase,
-        deflatedData.matrices,
-        deflatedData.eachMeshGeometriesBase,
-        deflatedData.eachMeshMatricesBase,
-        deflatedData.eachMeshMaterialAttributes,
-        deflatedData.eachObjectId,
-        deflatedData.eachObjectMeshesBase
+        dtxData.positions,
+        dtxData.colors,
+        dtxData.indices,
+        dtxData.edgeIndices,
+        dtxData.aabbs,
+        dtxData.eachGeometryPositionsBase,
+        dtxData.eachGeometryColorsBase,
+        dtxData.eachGeometryIndicesBase,
+        dtxData.eachGeometryEdgeIndicesBase,
+        dtxData.eachGeometryPrimitiveType,
+        dtxData.eachGeometryAABBBase,
+        dtxData.matrices,
+        dtxData.eachMeshGeometriesBase,
+        dtxData.eachMeshMatricesBase,
+        dtxData.eachMeshMaterialAttributes,
+        object2Array(dtxData.eachObjectId),
+        dtxData.eachObjectMeshesBase
     ]);
 }
 
-function toArrayBuffer(elements: Buffer[]): ArrayBuffer {
-    const indexData = new Uint32Array(elements.length + 2);
-    indexData[0] = DTX_INFO.dtxVersion;
-    indexData [1] = elements.length;  // Stored Data 1.1: number of stored elements
-    let dataLen = 0;    // Stored Data 1.2: length of stored elements
-    for (let i = 0, len = elements.length; i < len; i++) {
-        const element = elements[i];
-        const elementsize = element.length;
-        indexData[i + 2] = elementsize;
-        dataLen += elementsize;
-    }
-    const indexBuf = new Uint8Array(indexData.buffer);
-    const dataArray = new Uint8Array(indexBuf.length + dataLen);
-    dataArray.set(indexBuf);
-    let offset = indexBuf.length;
-    for (let i = 0, len = elements.length; i < len; i++) {     // Stored Data 2: the elements themselves
-        const element = elements[i];
-        dataArray.set(element, offset);
-        offset += element.length;
-    }
-    return dataArray.buffer;
-}

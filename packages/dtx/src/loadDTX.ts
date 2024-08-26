@@ -29,10 +29,10 @@ export function loadDTX(params: {
 }): Promise<void> {
     const {fileData, sceneModel} = params;
     if (sceneModel.destroyed) {
-        return Promise.reject(new SDKError("SceneModel already destroyed"));
+        return Promise.reject("SceneModel already destroyed");
     }
     if (sceneModel.built) {
-        return Promise.reject(new SDKError("SceneModel already built"));
+        return Promise.reject("SceneModel already built");
     }
     return readDTX(params);
 }
@@ -45,10 +45,10 @@ export function loadDTX(params: {
 }): Promise<void> {
     const {fileData, sceneModel} = params;
     if (sceneModel.destroyed) {
-        return Promise.reject(new SDKError("SceneModel already destroyed"));
+        return Promise.reject("SceneModel already destroyed");
     }
     if (sceneModel.built) {
-        return Promise.reject(new SDKError("SceneModel already built"));
+        return Promise.reject("SceneModel already built");
     }
     const arrayBuffer = params.fileData;
     const dataView = new DataView(arrayBuffer);

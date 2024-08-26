@@ -1,7 +1,5 @@
-import {inflateDTX} from "./inflateDTX";
 import {unpackDTX} from "./unpackDTX";
 import {SceneModel} from "@xeokit/scene";
-import {SDKError} from "@xeokit/core";
 import {dtxToModel} from "./dtxToModel";
 
 /**
@@ -13,13 +11,13 @@ export function readDTX(params: {
 }): Promise<void> {
     const {fileData, sceneModel} = params;
     if (sceneModel.destroyed) {
-        return Promise.reject(new SDKError("SceneModel already destroyed"));
+        return Promise.reject("SceneModel already destroyed");
     }
     if (sceneModel.built) {
-        return Promise.reject(new SDKError("SceneModel already built"));
+        return Promise.reject("SceneModel already built");
     }
     dtxToModel({
-        dtxData: inflateDTX(unpackDTX(fileData)),
+        dtxData: unpackDTX(fileData),
         sceneModel
     });
     return Promise.resolve();

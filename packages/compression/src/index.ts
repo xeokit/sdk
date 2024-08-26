@@ -362,15 +362,15 @@ export function decompressPositions3WithMat4(positions: FloatArrayParam, decompr
 /**
  * Decompresses a flat array of positions
  * @param positions
- * @param decompressMatrix
+ * @param aabb
  * @param dest
  */
 export function decompressPositions3WithAABB3(positions: FloatArrayParam, aabb: FloatArrayParam, dest: Float32Array = new Float32Array(positions.length)): Float32Array {
-    const xScale = (aabb[3] - aabb[0]);
+    const xScale = (aabb[3] - aabb[0]) / 65535;
     const xOffset = aabb[0];
-    const yScale = (aabb[4] - aabb[1]);
+    const yScale = (aabb[4] - aabb[1]) / 65535;
     const yOffset = aabb[1];
-    const zScale = (aabb[5] - aabb[2]);
+    const zScale = (aabb[5] - aabb[2]) / 65535;
     const zOffset = aabb[2];
     for (let i = 0, len = positions.length; i < len; i += 3) {
         dest[i + 0] = positions[i + 0] * xScale + xOffset;

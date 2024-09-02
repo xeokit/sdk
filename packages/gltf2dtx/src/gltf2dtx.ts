@@ -1,78 +1,116 @@
 #!/usr/bin/env node
 
-import {Data} from "@xeokit/data";
-import {Scene} from "@xeokit/scene";
+import '@loaders.gl/polyfills';
+import {Data, DataModel} from "@xeokit/data";
+import {Scene, SceneModel} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
 import {loadGLTF} from "@xeokit/gltf";
-import {saveDTX} from "@xeokit/dtx";
+import {saveDTX, SAVED_DTX_VERSIONS, DEFAULT_SAVED_DTX_VERSION} from "@xeokit/dtx";
 
-const commander = require('commander');
-const npmPackage = require('./package.json');
-const fs = require('fs');
-
-const program = new commander.Command();
-
-program.version(npmPackage.version, '-v, --version');
-
-program
-    .option('-i, --source [file]', 'path to source glTF file')
-    .option('-o, --output [file]', 'path to target DTX file');
-
-program.on('--help', () => {
-    console.log(`\n\nDTX version: 10`);
-});
-
-program.parse(process.argv);
-
-const options = program.opts();
-
-let sourceData;
-
-try {
-    sourceData = fs.readFileSync(options.source);
-} catch (err) {
-    // reject(err);
-    // return;
-}
-
-const data = new Data();
-
-const dataModel = data.createModel({
-    id: "foo"
-});
-
-if (dataModel instanceof SDKError) {
-//..
-} else {
-
-    const scene = new Scene();
-
-    const sceneModel = scene.createModel({
-        id: "foo"
-    });
-
-    if (sceneModel instanceof SDKError) {
-        //..
-    } else {
-        loadGLTF({fileData: sourceData, dataModel, sceneModel}).then(() => {
-            sceneModel.build().then(() => {
-                dataModel.build();
-                const dtxArrayBuffer = saveDTX({ sceneModel});
-                const outputDir = getBasePath(options.output).trim();
-                if (outputDir !== "" && !fs.existsSync(outputDir)) {
-                    fs.mkdirSync(outputDir, {recursive: true});
-                }
-                fs.writeFileSync(options.output, Buffer.from(dtxArrayBuffer));
-            }).catch((reason) => {
-                //..
-            });
-        }).catch((reason) => {
-            //..
+/**
+ * @private
+ */
+function gltf2DTX(params: {
+    fileData: ArrayBuffer,
+    dtxVersion?: number,
+    createDataModel?: boolean
+}): Promise<{
+    dtxArrayBuffer: ArrayBuffer,
+    sceneModel: SceneModel,
+    dataModel?: DataModel,
+    dataModelJSON: any
+}> {
+    const {fileData, dtxVersion, createDataModel} = params;
+    return new Promise(function (resolve, reject) {
+        const scene = new Scene();
+        const sceneModel = scene.createModel({
+            id: "foo"
         });
-    }
+        if (sceneModel instanceof SDKError) {
+            return reject(sceneModel.message);
+        } else {
+            if (createDataModel) { // Create default DataModel from glTF
+                const data = new Data();
+                const dataModel = data.createModel({
+                    id: "foo"
+                });
+                if (dataModel instanceof SDKError) {
+                    return reject(dataModel.message);
+                } else {
+                    loadGLTF({
+                        fileData,
+                        dataModel,
+                        sceneModel
+                    }).then(() => {
+                        sceneModel.build().then(() => {
+                            dataModel.build().then(() => {
+                                const dtxArrayBuffer = saveDTX({
+                                    sceneModel,
+                                    dtxVersion
+                                });
+                                if (dtxArrayBuffer instanceof SDKError) {
+                                    return reject(dtxArrayBuffer.message);
+                                } else {
+                                    const dataModelJSON = dataModel.getJSON();
+                                    return resolve({
+                                        dtxArrayBuffer,
+                                        sceneModel,
+                                        dataModel,
+                                        dataModelJSON
+                                    });
+                                }
+                            }).catch(reason => {
+                                return reject(reason);
+                            });
+                        }).catch((reason) => {
+                            return reject(reason);
+                        });
+                    }).catch((reason) => {
+                        return reject(reason);
+                    });
+                }
+            } else {   // Don't create DataModel
+                loadGLTF({
+                    fileData,
+                    sceneModel
+                }).then(() => {
+                    sceneModel.build().then(() => {
+                        const dtxArrayBuffer = saveDTX({
+                            sceneModel,
+                            dtxVersion
+                        });
+                        if (dtxArrayBuffer instanceof SDKError) {
+                            return reject(dtxArrayBuffer.message);
+                        } else {
+                            return resolve({
+                                dtxArrayBuffer,
+                                sceneModel,
+                                dataModel: null,
+                                dataModelJSON: null
+                            });
+                        }
+                    }).catch(reason => {
+                        return reject(reason);
+                    });
+                }).catch((reason) => {
+                    return reject(reason);
+                });
+            }
+        }
+    });
 }
 
-function getBasePath(src: string) {
-    const i = src.lastIndexOf("/");
-    return (i !== 0) ? src.substring(0, i + 1) : "";
-}
+/**
+ * @private
+ */
+export {gltf2DTX};
+
+/**
+ * @private
+ */
+export const _SAVED_DTX_VERSIONS = SAVED_DTX_VERSIONS; // Make these private for our CLI tool's use only
+
+/**
+ * @private
+ */
+export const _DEFAULT_SAVED_DTX_VERSION = DEFAULT_SAVED_DTX_VERSION;

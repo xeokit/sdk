@@ -6,18 +6,16 @@ import {
     SurfacePrimitive,
     TrianglesPrimitive
 } from "@xeokit/constants";
-import {DTX_INFO} from "./DTX_INFO";
 import type {DTXData_v1} from "./DTXData_v1";
 import {isIdentityMat4} from "@xeokit/matrix";
 
-const DTX_VERSION = DTX_INFO.dtxVersion;
 const NUM_MATERIAL_ATTRIBUTES = 4;
 
 /**
  * @private
  */
 export function modelToDTX(params: {
-    sceneModel: SceneModel
+    sceneModel: SceneModel;
 }): DTXData_v1 {
 
     const sceneModel = params.sceneModel;

@@ -20,6 +20,13 @@ export * from "./FileLoader";
 
 /**
  *
+ * @param arg
+ */
+export function isJSONObject(arg) {
+    return typeof arg === 'object' && arg !== null && !Array.isArray(arg);
+}
+/**
+ *
  * @param ob
  */
 export function clone(ob: any) {

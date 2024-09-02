@@ -32,7 +32,7 @@ describe('saveAndLoadDTX', () => {
     let dataModelJSON;
 
     test("Save DataModel and SceneModel to DTX with saveDTX", () => {
-        fileData = saveDTX({sceneModel, dataModel});
+        fileData = saveDTX({sceneModel});
 
         sceneModelJSON = roundSceneModelParams(sceneModel.getJSON());
         sceneModel.destroy();

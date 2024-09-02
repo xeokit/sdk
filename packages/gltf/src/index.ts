@@ -123,3 +123,4 @@
  * @module @xeokit/gltf
  */
 export * from "./loadGLTF";
+export * from "./loadGLTFManifest";

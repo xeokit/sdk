@@ -8,17 +8,27 @@ import {
 import type {SceneGeometryCompressedParams, SceneModel} from "@xeokit/scene";
 import type {DTXData_v1} from "./DTXData_v1";
 import type {FloatArrayParam} from "@xeokit/math";
+import {DataModel} from "@xeokit/data";
+import {BasicAggregation, BasicEntity} from "@xeokit/basictypes";
 
 /**
  * @private
  */
 export function dtxToModel(params: {
     dtxData: DTXData_v1,
-    sceneModel: SceneModel
+    sceneModel: SceneModel,
+    dataModel?: DataModel
 }): void {
 
-    const dtxData = params.dtxData;
-    const sceneModel = params.sceneModel;
+    const {dtxData, sceneModel, dataModel} = params;
+
+    if (dataModel) {
+        dataModel.createObject({
+            id: sceneModel.id,
+            name: sceneModel.id,
+            type: BasicEntity
+        });
+    }
 
     const numGeometries = dtxData.eachGeometryPositionsBase.length;
     const numMeshes = dtxData.eachMeshGeometriesBase.length;
@@ -109,6 +119,18 @@ export function dtxToModel(params: {
                 id: objectId,
                 meshIds
             });
+            if (dataModel) {
+                dataModel.createObject({
+                    id: objectId,
+                    name: objectId,
+                    type: BasicEntity
+                });
+                dataModel.createRelationship({
+                    type: BasicAggregation,
+                    relatingObjectId: sceneModel.id,
+                    relatedObjectId: objectId
+                });
+            }
         }
     }
 }

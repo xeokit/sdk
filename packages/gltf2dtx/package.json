@@ -12,7 +12,7 @@
     "module": "dist/index.js",
     "scripts": {
         "dist": "node build.js",
-        "docs": "typedoc --json ../../docs/json/gltf2drx.json --options typedoc.json --validation.invalidLink false"
+        "docs": "typedoc --json ../../docs/json/gltf2dtx.json --options typedoc.json --validation.invalidLink false"
     },
     "repository": {
         "type": "git",

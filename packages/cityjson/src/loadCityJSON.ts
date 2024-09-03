@@ -8,14 +8,14 @@ import {
     normalizeVec3,
     subVec3
 } from "@xeokit/matrix";
-import type {SceneModel} from "@xeokit/scene";
-import type {DataModel} from "@xeokit/data";
+import {SceneModel} from "@xeokit/scene";
+import {DataModel} from "@xeokit/data";
 // @ts-ignore
 import {earcut} from './earcut';
 import {TrianglesPrimitive} from "@xeokit/constants";
 import {BasicAggregation} from "@xeokit/basictypes";
 import {typeCodes} from "@xeokit/cityjsontypes_1_1_3";
-import {SDKError} from "@xeokit/core";
+import {isJSONObject} from "@xeokit/utils";
 
 const tempVec2a = createVec2();
 const tempVec3a = createVec3();
@@ -45,7 +45,7 @@ const tempVec3c = createVec3();
  */
 export function loadCityJSON(params: {
                                  fileData: any,
-                                 sceneModel: SceneModel,
+                                 sceneModel?: SceneModel,
                                  dataModel?: DataModel
                              },
                              options: {
@@ -53,34 +53,53 @@ export function loadCityJSON(params: {
                              } = {
                                  rotateX: false
                              }): Promise<any> {
-    if (params.sceneModel) {
-        if (params.sceneModel.destroyed) {
-            return Promise.reject("SceneModel already destroyed");
+    return new Promise<void>(function (resolve, reject) {
+        if (!params) {
+            return reject("Argument expected: params");
         }
-        if (params.sceneModel.built) {
-            return Promise.reject("SceneModel already built");
+        const {fileData, sceneModel, dataModel} = params;
+        if (!fileData) {
+            return reject("Argument expected: params.fileData");
         }
-    }
-    if (params.dataModel) {
-        if (params.dataModel.destroyed) {
-            return Promise.reject(new SDKError("DataModel already destroyed"));
+        if (!isJSONObject(fileData)) {
+            return reject("Argument type mismatch: params.fileData should be a JSON object");
         }
-        if (params.dataModel.built) {
-            return Promise.reject("DataModel already built");
+        if (sceneModel) {
+            if (!(sceneModel instanceof SceneModel)) {
+                return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
+            }
+            if (sceneModel.destroyed) {
+                return reject("SceneModel already destroyed");
+            }
+            if (sceneModel.built) {
+                return reject("SceneModel already built");
+            }
         }
-    }
-    const fileData = params.fileData;
-    const ctx = {
-        fileData,
-        vertices: (fileData.transform && params.sceneModel)
-            ? transformVertices(fileData.vertices, fileData.transform, options.rotateX)
-            : fileData.vertices,
-        sceneModel: params.sceneModel,
-        dataModel: params.dataModel,
-        nextId: 0
-    };
-    parseCityJSON(ctx);
-    return Promise.resolve();
+        if (dataModel) {
+            if (!(dataModel instanceof DataModel)) {
+                return reject("Argument type mismatch: params.dataModel should be a DataModel");
+            }
+            if (dataModel.destroyed) {
+                return reject("DataModel already destroyed");
+            }
+            if (dataModel.built) {
+                return reject("DataModel already built");
+            }
+        }
+        if (sceneModel || dataModel) {
+            const ctx = {
+                fileData,
+                vertices: (fileData.transform && params.sceneModel)
+                    ? transformVertices(fileData.vertices, fileData.transform, options.rotateX)
+                    : fileData.vertices,
+                sceneModel,
+                dataModel,
+                nextId: 0
+            };
+            parseCityJSON(ctx);
+        }
+        return resolve();
+    });
 }
 
 function transformVertices(vertices: any, transform: any, rotateX?: boolean) {

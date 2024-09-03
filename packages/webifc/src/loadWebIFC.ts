@@ -2,18 +2,14 @@ import {
     createMat4,
     createVec3,
     createVec4,
-    transformPoint3,
     transformPoint4,
-    transformPositions3
 } from "@xeokit/matrix";
-import type {SceneModel} from "@xeokit/scene";
-import type {DataModel} from "@xeokit/data";
-//import * as WebIFC from "web-ifc/web-ifc-api-node";
+import {SceneModel} from "@xeokit/scene";
+import {DataModel} from "@xeokit/data";
 import * as WebIFC from "web-ifc";
 import {IfcElement, IfcRelAggregates, ifcTypeCodes} from "@xeokit/ifctypes";
 import {worldToRTCPositions} from "@xeokit/rtc";
 import {TrianglesPrimitive} from "@xeokit/constants";
-import {SDKError} from "@xeokit/core";
 
 const tempVec4a = createVec4();
 const tempVec4b = createVec4();
@@ -33,8 +29,9 @@ interface ParsingContext {
 }
 
 /**
- * Loads IFC into a {@link @xeokit/scene!SceneModel | SceneModel} and/or {@link @xeokit/data!DataModel | DataModel}.
+ * Uses WebIFc to load an IFC file into a {@link @xeokit/scene!SceneModel | SceneModel} and/or {@link @xeokit/data!DataModel | DataModel}.
  *
+ * * Experimental  - expect some glitches.
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
  * * Does not call {@link @xeokit/scene!SceneModel.build | SceneModel.build} - we call that ourselves, when we have finished building the SceneModel
  *
@@ -53,35 +50,46 @@ interface ParsingContext {
  * * If the DataModel has already been built.
  */
 export function loadWebIFC(params: {
-    fileData: ArrayBuffer,
+    fileData: any,
     ifcAPI: WebIFC.IfcAPI,
-    sceneModel: SceneModel,
+    sceneModel?: SceneModel,
     dataModel?: DataModel
 }): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
+        if (!params) {
+            return reject("[loadWebIFC] Argument expected: params");
+        }
         const {sceneModel, dataModel, fileData, ifcAPI} = params;
         if (!ifcAPI) {
-            return Promise.reject("Parameter expected: ifcAPI");
+            return reject("[loadWebIFC] Argument expected: ifcAPI");
         }
         if (!fileData) {
-            return Promise.reject("Parameter expected: fileData");
+            return reject("[loadWebIFC] Argument expected: fileData");
         }
-        if (!sceneModel) {
-            return Promise.reject("Parameter expected: sceneModel");
-        }
-        if (sceneModel.destroyed) {
-            return Promise.reject("SceneModel already destroyed");
-        }
-        if (sceneModel.built) {
-            return Promise.reject("SceneModel already built");
+        if (sceneModel) {
+            if (!(sceneModel instanceof SceneModel)) {
+                return reject("[loadWebIFC] Argument type mismatch: params.sceneModel should be a SceneModel");
+            }
+            if (sceneModel.destroyed) {
+                return reject("[loadWebIFC] SceneModel already destroyed");
+            }
+            if (sceneModel.built) {
+                return reject("[loadWebIFC] SceneModel already built");
+            }
         }
         if (dataModel) {
+            if (!(dataModel instanceof DataModel)) {
+                return reject("[loadWebIFC] Argument type mismatch: params.dataModel should be a DataModel");
+            }
             if (dataModel.destroyed) {
-                return Promise.reject("DataModel already destroyed");
+                return reject("[loadWebIFC] DataModel already destroyed");
             }
             if (dataModel.built) {
-                return Promise.reject("DataModel already built");
+                return reject("[loadWebIFC] DataModel already built");
             }
+        }
+        if (!sceneModel && !dataModel) {
+            return resolve();
         }
         const dataArray = new Uint8Array(fileData);
         const modelId = params.ifcAPI.OpenModel(dataArray);
@@ -98,7 +106,7 @@ export function loadWebIFC(params: {
             nextId: 0
         };
         parseIFC(ctx);
-        resolve();
+        return resolve();
     });
 }
 
@@ -277,7 +285,11 @@ function parseSceneModel(ctx: ParsingContext) {
                 id: meshId,
                 geometryId,
                 // TODO: matrix with translation if rtcNeeded
-                color: [placedGeometry.color.x, placedGeometry.color.y, placedGeometry.color.z],
+                color: [
+                    placedGeometry.color.x,
+                    placedGeometry.color.y,
+                    placedGeometry.color.z
+                ],
                 opacity: placedGeometry.color.w
             });
             meshIds.push(meshId);

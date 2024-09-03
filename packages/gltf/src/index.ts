@@ -73,51 +73,39 @@
  *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
  * });
  *
- * if (view instanceof SDKError) {
- *     console.error(`Error creating View: ${view.message}`);
+ * view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ * view.camera.look = [1842009.49, 9.68, -5173295.85];
+ * view.camera.up = [0.0, 1.0, 0.0];
  *
- * } else {
+ * new CameraControl(view, {});
  *
- *     view.camera.eye = [1841982.93, 10.03, -5173286.74];
- *     view.camera.look = [1842009.49, 9.68, -5173295.85];
- *     view.camera.up = [0.0, 1.0, 0.0];
+ * const sceneModel = scene.createModel({
+ *     id: "myModel"
+ * });
  *
- *     new CameraControl(view, {});
+ * fetch("model.glb").then(response => {
  *
- *     const sceneModel = scene.createModel({
- *         id: "myModel"
- *     });
+ *     response.arrayBuffer().then(fileData => {
  *
- *     if (sceneModel instanceof SDKError) {
- *         console.error(`Error creating SceneModel: ${sceneModel.message}`);
+ *        loadGLTF({
+ *            fileData,
+ *            sceneModel
+ *        }).then(() => {
  *
- *     } else {
+ *            sceneModel.build();
  *
- *         fetch("model.glb").then(response => {
+ *        }).catch(err => {
+ *            sceneModel.destroy();
+ *            console.error(`Error loading glTF data: ${err}`);
+ *        });
  *
- *             response.arrayBuffer().then(fileData => {
+ *    }).catch(err => {
+ *        console.error(`Error creating ArrayBuffer from fetch response: ${err}`);
+ *    });
  *
- *                 loadGLTF({
- *                     fileData,
- *                     sceneModel
- *                 }).then(() => {
- *
- *                     sceneModel.build();
- *
- *                 }).catch(sdkError => {
- *                     sceneModel.destroy();
- *                     console.error(`Error loading glTF: ${sdkError.message}`);
- *                 });
- *
- *             }).catch(message => {
- *                 console.error(`Error creating ArrayBuffer: ${message}`);
- *             });
- *
- *         }).catch(message => {
- *             console.error(`Error fetching model: ${message}`);
- *         });
- *     }
- * }
+ * }).catch(err => {
+ *    console.error(`Error fetching glTF file: ${err}`);
+ * });
  * ````
  *
  * @module @xeokit/gltf

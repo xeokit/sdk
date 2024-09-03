@@ -1,7 +1,6 @@
 import {SceneModel} from "@xeokit/scene";
 import {DataModel} from "@xeokit/data";
 import {readDTX as readDTX_v1} from "./versions/v1/readDTX"
-import {SDKError} from "@xeokit/core";
 
 
 const readers = {
@@ -24,55 +23,67 @@ export const LOADED_DTX_VERSIONS: number[] = Object.keys(readers).map(Number);
  *
  * @param params - Loading parameters.
  * @param params.fileData - [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) file data
- * @param params.sceneModel - SceneModel to load into.
- * @param params.dataModel - DataModel to create default semantic data in.
+ * @param params.sceneModel - SceneModel to load geometry and material colors into.
+ * @param params.dataModel - Optional DataModel to create default semantic data in.
  * @returns {Promise} Resolves when [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) has been loaded.
  * @throws *{@link @xeokit/core!SDKError | SDKError}*
  * * If the SceneModel has already been destroyed.
  * * If the SceneModel has already been built.
+ * * If the DataModel has already been destroyed.
+ * * If the DataModel has already been built.
  */
 export function loadDTX(params: {
     fileData: ArrayBuffer;
-    sceneModel: SceneModel;
-    dataModel?:DataModel;
+    sceneModel?: SceneModel;
+    dataModel?: DataModel;
 }): Promise<void> {
-    const {fileData, sceneModel, dataModel} = params;
-    if (!fileData) {
-        return Promise.reject("Argument expected: params.fileData");
-    }
-    if (!(fileData instanceof ArrayBuffer)) {
-        return Promise.reject("Argument type mismatch: params.fileData should be an ArrayBuffer");
-    }
-    if (!sceneModel) {
-        return Promise.reject("Argument expected: params.sceneModel");
-    }
-    if (!(sceneModel instanceof SceneModel)) {
-        return Promise.reject("Argument type mismatch: params.sceneModel should be a SceneModel");
-    }
-    if (sceneModel.destroyed) {
-        return Promise.reject("SceneModel already destroyed");
-    }
-    if (sceneModel.built) {
-        return Promise.reject("SceneModel already built");
-    }
-    if (dataModel) {
-        if (dataModel.destroyed) {
-            return Promise.reject(new SDKError("DataModel already destroyed"));
+    return new Promise<void>(function (resolve, reject) {
+        if (!params) {
+            return reject("Argument expected: params");
         }
-        if (dataModel.built) {
-            return Promise.reject("DataModel already built");
+        const {fileData, sceneModel, dataModel} = params;
+        if (!fileData) {
+            return reject("Argument expected: params.fileData");
         }
-    }
-    const arrayBuffer = params.fileData;
-    const dataView = new DataView(arrayBuffer);
-    const dtxVersion = dataView.getUint32(0, true);
-    const readDTX = readers[dtxVersion];
-    if (!readDTX) {
-        return Promise.reject(`Unsupported DTX file version: ${dtxVersion} - supported versions are [${LOADED_DTX_VERSIONS}]`);
-    }
-    return readDTX({
-        fileData,
-        sceneModel,
-        dataModel
+        if (!(fileData instanceof ArrayBuffer)) {
+            return reject("Argument type mismatch: params.fileData should be an ArrayBuffer");
+        }
+        if (sceneModel) {
+            if (!(sceneModel instanceof SceneModel)) {
+                return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
+            }
+            if (sceneModel.destroyed) {
+                return reject("SceneModel already destroyed");
+            }
+            if (sceneModel.built) {
+                return reject("SceneModel already built");
+            }
+        }
+        if (dataModel) {
+            if (!(dataModel instanceof DataModel)) {
+                return reject("Argument type mismatch: params.dataModel should be a DataModel");
+            }
+            if (dataModel.destroyed) {
+                return reject("DataModel already destroyed");
+            }
+            if (dataModel.built) {
+                return reject("DataModel already built");
+            }
+        }
+        const arrayBuffer = params.fileData;
+        const dataView = new DataView(arrayBuffer);
+        const dtxVersion = dataView.getUint32(0, true);
+        const readDTX = readers[dtxVersion];
+        if (!readDTX) {
+            return reject(`Unsupported DTX file version: ${dtxVersion} - supported versions are [${LOADED_DTX_VERSIONS}]`);
+        }
+        if (sceneModel || dataModel) {
+            return readDTX({
+                fileData,
+                sceneModel,
+                dataModel
+            });
+        }
+        return resolve();
     });
 }

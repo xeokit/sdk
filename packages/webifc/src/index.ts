@@ -79,70 +79,59 @@
  *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
  * });
  *
- * if (view instanceof SDKError) {
- *     console.error(`Error creating View: ${view.message}`);
+ * view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ * view.camera.look = [1842009.49, 9.68, -5173295.85];
+ * view.camera.up = [0.0, 1.0, 0.0];
  *
- * } else {
+ * new CameraControl(view, {});
  *
- *     view.camera.eye = [1841982.93, 10.03, -5173286.74];
- *     view.camera.look = [1842009.49, 9.68, -5173295.85];
- *     view.camera.up = [0.0, 1.0, 0.0];
+ * const ifcAPI = new WebIFC.IfcAPI();
  *
- *     new CameraControl(view, {});
+ * ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
  *
- *     const ifcAPI = new WebIFC.IfcAPI();
+ * ifcAPI.Init().then(() => {
  *
- *     ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
+ *     const sceneModel = scene.createModel({
+ *         id: "myModel"
+ *     });
  *
- *     ifcAPI.Init().then(() => {
+ *     const dataModel = data.createModel({
+ *         id: "myModel"
+ *     });
  *
- *          const sceneModel = scene.createModel({
- *              id: "myModel"
- *          });
+ *     fetch("model.ifc").then(response => {
  *
- *          const dataModel = data.createModel({
- *              id: "myModel"
- *          });
+ *         response.arrayBuffer().then(fileData => {
  *
- *          if (sceneModel instanceof SDKError) {
- *              console.error(`Error creating SceneModel: ${sceneModel.message}`);
+ *             loadWebIFC({
+ *                 ifcAPI,
+ *                 fileData,
+ *                 sceneModel,
+ *                 dataModel
+ *             }).then(() => {
  *
- *          } else if (dataModel instanceof SDKError) {
- *              console.error(`Error creating DataModel: ${dataModel.message}`);
+ *                 sceneModel.build();
+ *                 dataModel.build();
  *
- *          } else {
+ *             }).catch(err => {
  *
- *              fetch("model.ifc").then(response => {
+ *                 sceneModel.destroy();
+ *                 dataModel.destroy();
  *
- *                  response.arrayBuffer().then(fileData => {
+ *                 console.error(`Error loading IFC file with WebIFC: ${err}`);
+ *             });
  *
- *                      loadWebIFC({
- *                          fileData,
- *                          sceneModel,
- *                          dataModel
- *                      }).then(() => {
+ *         }).catch(err => {
+ *              console.error(`Error creating ArrayBuffer from fetch response: ${err}`);
+ *         });
  *
- *                          sceneModel.build();
- *                          dataModel.build();
- *
- *                      }).catch(sdkError => {
- *                          sceneModel.destroy();
- *                          dataModel.destroy();
- *                          console.error(`Error loading IFC file: ${sdkError.message}`);
- *                      });
- *
- *                  }).catch(message => {
- *                      console.error(`Error creating ArrayBuffer: ${message}`);
- *                  });
- *
- *              }).catch(message => {
- *                  console.error(`Error fetching model: ${message}`);
- *              });
- *          }
- *      }).catch(message => {
- *          console.error(`Error initializing WebIFC.IfcAPI: ${message}`);
+ *      }).catch(err => {
+ *          console.error(`Error fetching IFC file: ${err}`);
  *      });
- * }
+ *
+ *  }).catch(err => {
+ *      console.error(`Error initializing WebIFC.IfcAPI: ${err}`);
+ *  });
  * ````
  *
  * @module @xeokit/webifc

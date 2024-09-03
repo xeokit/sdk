@@ -1,4 +1,3 @@
-
 import {parse} from '@loaders.gl/core';
 import {GLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 
@@ -19,9 +18,8 @@ import {
 import {isString} from "@xeokit/utils";
 import {createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "@xeokit/matrix";
 import type {FloatArrayParam} from "@xeokit/math";
-import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams} from "@xeokit/scene";
-import type {DataModel} from "@xeokit/data";
-import {SDKError} from "@xeokit/core";
+import {SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams} from "@xeokit/scene";
+import {DataModel} from "@xeokit/data";
 
 interface ParsingContext {
     gltfData: any;
@@ -34,7 +32,7 @@ interface ParsingContext {
 }
 
 /**
- * Loads glTF file data from an ArrayBuffer into a {@link @xeokit/scene!SceneModel | SceneModel} and/or
+ * Loads glTF file data into a {@link @xeokit/scene!SceneModel | SceneModel} and/or
  * a {@link @xeokit/data!DataModel | DataModel}.
  *
  * * Expects {@link @xeokit/scene!SceneModel.built | SceneModel.built} and {@link @xeokit/scene!SceneModel.destroyed | SceneModel.destroyed} to be ````false````
@@ -44,8 +42,8 @@ interface ParsingContext {
  *
  * @param params - Loading parameters.
  * @param params.fileData - glTF file data
- * @param params.sceneModel - SceneModel to load into.
- * @param params.dataModel - Optional DataModel to load basic semantic data into. For glTF, this will create a basic aggregation hierarchy (see {@link "@xeokit/basictypes/basicTypes"}).
+ * @param params.sceneModel - SceneModel to load geometry and material colors into.
+ * @param params.dataModel - DataModel to load basic semantic data into. For glTF, this will create a basic aggregation hierarchy (see {@link "@xeokit/basictypes/basicTypes"}).
  * @returns {Promise} Resolves when glTF has been loaded.
  * @returns {Promise} Resolves when glTF has been loaded into the SceneModel and/or DataModel.
  * @throws *{@link @xeokit/core!SDKError | SDKError}*
@@ -55,28 +53,45 @@ interface ParsingContext {
  * * If the DataModel has already been built.
  */
 export function loadGLTF(params: {
-    fileData: ArrayBuffer,
-    sceneModel: SceneModel,
+    fileData: any,
+    sceneModel?: SceneModel,
     dataModel?: DataModel,
     log?: Function
 }): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
-        if (params.sceneModel.destroyed) {
-            throw new SDKError("SceneModel already destroyed");
+        if (!params) {
+            return reject("[loadGLTF] Argument expected: params");
         }
-        if (params.sceneModel.built) {
-            throw new SDKError("SceneModel already built");
+        const {fileData, sceneModel, dataModel} = params;
+        if (!fileData) {
+            return reject("[loadGLTF] Argument expected: fileData");
         }
-        if (params.dataModel) {
-            if (params.dataModel.destroyed) {
-                throw new SDKError("DataModel already destroyed");
+        if (sceneModel) {
+            if (!(sceneModel instanceof SceneModel)) {
+                return reject("[loadGLTF] Argument type mismatch: params.sceneModel should be a SceneModel");
             }
-            if (params.dataModel.built) {
-                throw new SDKError("DataModel already built");
+            if (sceneModel.destroyed) {
+                return reject("[loadGLTF] SceneModel already destroyed");
+            }
+            if (sceneModel.built) {
+                return reject("[loadGLTF] SceneModel already built");
             }
         }
-        parse(params.fileData, GLTFLoader, {
-        }).then((gltfData) => {
+        if (dataModel) {
+            if (!(dataModel instanceof DataModel)) {
+                return reject("[loadGLTF] Argument type mismatch: params.dataModel should be a DataModel");
+            }
+            if (dataModel.destroyed) {
+                return reject("[loadGLTF] DataModel already destroyed");
+            }
+            if (dataModel.built) {
+                return reject("[loadGLTF] DataModel already built");
+            }
+        }
+        if (!sceneModel && !dataModel) {
+            return resolve();
+        }
+        parse(fileData, GLTFLoader, {}).then((gltfData) => {
             const processedGLTF = postProcessGLTF(gltfData);
             const ctx: ParsingContext = {
                 gltfData: processedGLTF,
@@ -86,16 +101,16 @@ export function loadGLTF(params: {
                 error: function (msg) {
                     console.error(msg);
                 },
-                dataModel: params.dataModel,
-                sceneModel: params.sceneModel,
+                dataModel,
+                sceneModel,
                 objectCreated: {}
             };
             parseTextures(ctx);
             parseMaterials(ctx);
             parseDefaultScene(ctx);
-            resolve();
+            return resolve();
         }, (errMsg) => {
-            reject(new SDKError(`Error parsing glTF: ${errMsg}`));
+            return reject(`[loadGLTF] Error parsing glTF: ${errMsg}`);
         });
     });
 }
@@ -483,7 +498,7 @@ function parseNode(ctx: ParsingContext, node: any, depth: number, matrix: null |
                 };
                 const material = primitive.material;
                 if (material) {
-               //     meshParams.textureSetId = material._textureSetId;
+                    //     meshParams.textureSetId = material._textureSetId;
                     meshParams.color = material._attributes.color;
                     meshParams.opacity = material._attributes.opacity;
                     // meshParams.metallic = material._attributes.metallic;

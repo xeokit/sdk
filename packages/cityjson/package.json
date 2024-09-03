@@ -38,6 +38,7 @@
         "@xeokit/cityjsontypes_1_1_3": "^0.1.0",
         "@xeokit/data": "^0.1.0",
         "@xeokit/scene": "^0.1.0",
-        "@xeokit/core": "0.1.0"
+        "@xeokit/core": "0.1.0",
+        "@xeokit/utils": "0.1.0"
     }
 }

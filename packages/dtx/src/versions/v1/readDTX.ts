@@ -1,24 +1,21 @@
 import {unpackDTX} from "./unpackDTX";
 import {SceneModel} from "@xeokit/scene";
 import {dtxToModel} from "./dtxToModel";
+import {DataModel} from "@xeokit/data";
 
 /**
  * @private
  */
 export function readDTX(params: {
     fileData: ArrayBuffer;
-    sceneModel: SceneModel;
+    sceneModel?: SceneModel;
+    dataModel?: DataModel;
 }): Promise<void> {
-    const {fileData, sceneModel} = params;
-    if (sceneModel.destroyed) {
-        return Promise.reject("SceneModel already destroyed");
-    }
-    if (sceneModel.built) {
-        return Promise.reject("SceneModel already built");
-    }
+    const {fileData, sceneModel, dataModel} = params;
     dtxToModel({
         dtxData: unpackDTX(fileData),
-        sceneModel
+        sceneModel,
+        dataModel
     });
     return Promise.resolve();
 }

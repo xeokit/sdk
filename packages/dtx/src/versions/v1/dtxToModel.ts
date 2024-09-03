@@ -10,22 +10,24 @@ import type {DTXData_v1} from "./DTXData_v1";
 import type {FloatArrayParam} from "@xeokit/math";
 import {DataModel} from "@xeokit/data";
 import {BasicAggregation, BasicEntity} from "@xeokit/basictypes";
+import {createUUID} from "@xeokit/utils";
 
 /**
  * @private
  */
 export function dtxToModel(params: {
     dtxData: DTXData_v1,
-    sceneModel: SceneModel,
+    sceneModel?: SceneModel,
     dataModel?: DataModel
 }): void {
 
     const {dtxData, sceneModel, dataModel} = params;
+    const defaultId = sceneModel ? sceneModel.id : createUUID();
 
     if (dataModel) {
         dataModel.createObject({
-            id: sceneModel.id,
-            name: sceneModel.id,
+            id: defaultId,
+            name: defaultId,
             type: BasicEntity
         });
     }
@@ -46,79 +48,83 @@ export function dtxToModel(params: {
         const lastMeshIdx = atLastObject ? (numMeshes - 1) : (dtxData.eachObjectMeshesBase[objectIdx + 1] - 1);
         const meshIds = [];
         for (let meshIdx = firstMeshIdx; meshIdx <= lastMeshIdx; meshIdx++) {
-            const geometryIdx = dtxData.eachMeshGeometriesBase[meshIdx];
             const meshId = `${nextMeshId++}`;
-            const color = decompressColor(dtxData.eachMeshMaterialAttributes.subarray((meshIdx * 4), (meshIdx * 4) + 3));
-            const opacity = dtxData.eachMeshMaterialAttributes[(meshIdx * 4) + 3] / 255.0;
-            const matricesBase = dtxData.eachMeshMatricesBase[meshIdx];
-            const matrix = dtxData.matrices.slice(matricesBase, matricesBase + 16);
-            const geometryId = `${geometryIdx}`;
-            if (!geometryCreated[geometryId]) {
-                const geometryCompressedParams = <any>{
-                    id: geometryId
-                };
-                const primitiveType = dtxData.eachGeometryPrimitiveType[geometryIdx];
-                switch (primitiveType) {
-                    case 0:
-                        geometryCompressedParams.primitive = TrianglesPrimitive;
-                        break;
-                    case 1:
-                        geometryCompressedParams.primitive = SolidPrimitive;
-                        break;
-                    case 2:
-                        geometryCompressedParams.primitive = SurfacePrimitive;
-                        break;
-                    case 3:
-                        geometryCompressedParams.primitive = LinesPrimitive;
-                        break;
-                    case 5:
-                        geometryCompressedParams.primitive = PointsPrimitive;
-                        break;
+            if (sceneModel) {
+                const geometryIdx = dtxData.eachMeshGeometriesBase[meshIdx];
+                const color = decompressColor(dtxData.eachMeshMaterialAttributes.subarray((meshIdx * 4), (meshIdx * 4) + 3));
+                const opacity = dtxData.eachMeshMaterialAttributes[(meshIdx * 4) + 3] / 255.0;
+                const matricesBase = dtxData.eachMeshMatricesBase[meshIdx];
+                const matrix = dtxData.matrices.slice(matricesBase, matricesBase + 16);
+                const geometryId = `${geometryIdx}`;
+                if (!geometryCreated[geometryId]) {
+                    const geometryCompressedParams = <any>{
+                        id: geometryId
+                    };
+                    const primitiveType = dtxData.eachGeometryPrimitiveType[geometryIdx];
+                    switch (primitiveType) {
+                        case 0:
+                            geometryCompressedParams.primitive = TrianglesPrimitive;
+                            break;
+                        case 1:
+                            geometryCompressedParams.primitive = SolidPrimitive;
+                            break;
+                        case 2:
+                            geometryCompressedParams.primitive = SurfacePrimitive;
+                            break;
+                        case 3:
+                            geometryCompressedParams.primitive = LinesPrimitive;
+                            break;
+                        case 5:
+                            geometryCompressedParams.primitive = PointsPrimitive;
+                            break;
+                    }
+                    const aabbsBase = dtxData.eachGeometryAABBBase[geometryIdx];
+                    geometryCompressedParams.aabb = dtxData.aabbs.slice(aabbsBase, aabbsBase + 6);
+                    let geometryValid = false;
+                    const atLastGeometry = (geometryIdx === (numGeometries - 1));
+                    switch (geometryCompressedParams.primitive) {
+                        case TrianglesPrimitive:
+                        case SurfacePrimitive:
+                        case SolidPrimitive:
+                            geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
+                            geometryCompressedParams.indices = dtxData.indices.subarray(dtxData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? dtxData.indices.length : dtxData.eachGeometryIndicesBase [geometryIdx + 1]);
+                            geometryCompressedParams.edgeIndices = dtxData.edgeIndices.subarray(dtxData.eachGeometryEdgeIndicesBase [geometryIdx], atLastGeometry ? dtxData.edgeIndices.length : dtxData.eachGeometryEdgeIndicesBase [geometryIdx + 1]);
+                            geometryValid = (geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0);
+                            break;
+                        case PointsPrimitive:
+                            geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
+                            geometryValid = (geometryCompressedParams.positionsCompressed.length > 0);
+                            break;
+                        case LinesPrimitive:
+                            geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
+                            geometryCompressedParams.indices = dtxData.indices.subarray(dtxData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? dtxData.indices.length : dtxData.eachGeometryIndicesBase [geometryIdx + 1]);
+                            geometryValid = (geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0);
+                            break;
+                        default:
+                            continue;
+                    }
+                    if (geometryValid) {
+                        sceneModel.createGeometryCompressed(<SceneGeometryCompressedParams>geometryCompressedParams);
+                        geometryCreated[geometryId] = true;
+                    }
                 }
-                const aabbsBase = dtxData.eachGeometryAABBBase[geometryIdx];
-                geometryCompressedParams.aabb = dtxData.aabbs.slice(aabbsBase, aabbsBase + 6);
-                let geometryValid = false;
-                const atLastGeometry = (geometryIdx === (numGeometries - 1));
-                switch (geometryCompressedParams.primitive) {
-                    case TrianglesPrimitive:
-                    case SurfacePrimitive:
-                    case SolidPrimitive:
-                        geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
-                        geometryCompressedParams.indices = dtxData.indices.subarray(dtxData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? dtxData.indices.length : dtxData.eachGeometryIndicesBase [geometryIdx + 1]);
-                        geometryCompressedParams.edgeIndices = dtxData.edgeIndices.subarray(dtxData.eachGeometryEdgeIndicesBase [geometryIdx], atLastGeometry ? dtxData.edgeIndices.length : dtxData.eachGeometryEdgeIndicesBase [geometryIdx + 1]);
-                        geometryValid = (geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0);
-                        break;
-                    case PointsPrimitive:
-                        geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
-                        geometryValid = (geometryCompressedParams.positionsCompressed.length > 0);
-                        break;
-                    case LinesPrimitive:
-                        geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
-                        geometryCompressedParams.indices = dtxData.indices.subarray(dtxData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? dtxData.indices.length : dtxData.eachGeometryIndicesBase [geometryIdx + 1]);
-                        geometryValid = (geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0);
-                        break;
-                    default:
-                        continue;
-                }
-                if (geometryValid) {
-                    sceneModel.createGeometryCompressed(<SceneGeometryCompressedParams>geometryCompressedParams);
-                    geometryCreated[geometryId] = true;
-                }
+                sceneModel.createMesh({
+                    id: meshId,
+                    geometryId,
+                    matrix,
+                    color,
+                    opacity
+                });
             }
-            sceneModel.createMesh({
-                id: meshId,
-                geometryId,
-                matrix,
-                color,
-                opacity
-            });
             meshIds.push(meshId);
         }
         if (meshIds.length > 0) {
-            sceneModel.createObject({
-                id: objectId,
-                meshIds
-            });
+            if (sceneModel) {
+                sceneModel.createObject({
+                    id: objectId,
+                    meshIds
+                });
+            }
             if (dataModel) {
                 dataModel.createObject({
                     id: objectId,
@@ -127,7 +133,7 @@ export function dtxToModel(params: {
                 });
                 dataModel.createRelationship({
                     type: BasicAggregation,
-                    relatingObjectId: sceneModel.id,
+                    relatingObjectId: defaultId,
                     relatedObjectId: objectId
                 });
             }

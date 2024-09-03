@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const {gltf2DTX, _SAVED_DTX_VERSIONS, _DEFAULT_SAVED_DTX_VERSION} = require("./dist/gltf2dtx.cjs.js");
+const {gltf2dtx, _SAVED_DTX_VERSIONS, _DEFAULT_SAVED_DTX_VERSION} = require("./dist/gltf2dtx.cjs.js");
 
 const commander = require('commander');
 const npmPackage = require('./package.json');
@@ -11,9 +11,9 @@ const program = new commander.Command();
 program.version(npmPackage.version, '-v, --version');
 
 program
-    .description(`CLI to convert glTF files into xeokit's compact DTX format`)
-    .option('-i, --source [file]', 'path to source glTF model file (required)')
-    .option('-o, --output [file]', 'path to target DTX model file (required)')
+    .description(`CLI to convert a glTF/GLB file into into a xeokit DTX SceneModel file and/or a JSON DataModel file`)
+    .option('-i, --input [file]', 'path to input glTF model file (required)')
+    .option('-s, --scenemodel [file]', 'path to target SceneModel DTX file (optional)')
     .option('-d, --datamodel [file]', 'path to target DataModel JSON file (optional)')
     .option('-f, --format [number]', `target DTX version (optional) - ${supportedDTX()}, default is ${_DEFAULT_SAVED_DTX_VERSION}`)
     .option('-l, --log', 'enable logging (optional)');
@@ -36,29 +36,29 @@ const options = program.opts();
 
 function logInfo(msg) {
     if (options.log) {
-        console.log(`[gltf2DTX] ${msg}`);
+        console.log(`[gltf2dtx] ${msg}`);
     }
 }
 
 function logError(msg) {
-        console.error(`[gltf2DTX] ${msg}`);
+    console.error(`[gltf2dtx] ${msg}`);
 }
 
 try {
-    if (!options.source) {
+    if (!options.input) {
         logError(`Argument expected: -i`);
         process.exit(-1);
     }
-    if (!options.output) {
+    if (!options.scenemodel) {
         logError(`Argument expected: -o`);
         process.exit(-1);
     }
 
     const startTime = new Date();
 
-    const src = options.source;
-    const output = options.output;
-    const outputJSON= options.datamodel;
+    const glTFSrc = options.input;
+    const sceneModelSrc = options.scenemodel;
+    const dataModelSrc = options.datamodel;
     let dtxVersion = options.format;
 
     if (dtxVersion) {
@@ -80,14 +80,14 @@ try {
         logInfo(`Converting to DTX version: ${dtxVersion} (default)`);
     }
 
-    const basePath = getBasePath(src);
-    const fileData = fs.readFileSync(src);
+    const basePath = getBasePath(glTFSrc);
+    const fileData = fs.readFileSync(glTFSrc);
 
-    logInfo(`Reading glTF file: ${src}`);
+    logInfo(`\nReading glTF file: ${glTFSrc}`);
 
-    const createDataModel = (outputJSON !== undefined);
+    const createDataModel = (dataModelSrc !== undefined);
 
-    gltf2DTX({
+    gltf2dtx({
         fileData,
         basePath,
         dtxVersion,
@@ -95,25 +95,25 @@ try {
     }).then(result => {
 
         const {dtxArrayBuffer, dataModelJSON} = result;
-        const outputXKTDir = path.dirname(output);
+        const sceneModelDir = path.dirname(sceneModelSrc);
 
-        if (outputXKTDir !== "" && !fs.existsSync(outputXKTDir)) {
-            fs.mkdirSync(outputXKTDir, {recursive: true});
+        if (sceneModelDir !== "" && !fs.existsSync(sceneModelDir)) {
+            fs.mkdirSync(sceneModelDir, {recursive: true});
         }
 
-        logInfo(`Writing DTX file: ${output}`);
+        logInfo(`Writing DTX file: ${sceneModelSrc}`);
 
         const xktContent = Buffer.from(dtxArrayBuffer);
-        fs.writeFileSync(output, xktContent);
+        fs.writeFileSync(sceneModelSrc, xktContent);
 
         if (createDataModel && dataModelJSON) {
-            const outputJSONDir = path.dirname(outputJSON);
-            if (outputJSONDir !== "" && !fs.existsSync(outputJSONDir)) {
-                fs.mkdirSync(outputJSONDir, {recursive: true});
+            const dataModelDir = path.dirname(dataModelSrc);
+            if (dataModelDir !== "" && !fs.existsSync(dataModelDir)) {
+                fs.mkdirSync(dataModelDir, {recursive: true});
             }
-            logInfo(`Writing target DataModel JSON: ${outputJSON}`);
+            logInfo(`Writing target DataModel JSON: ${dataModelSrc}`);
             const dataModelContent = JSON.stringify(dataModelJSON);
-            fs.writeFileSync(outputJSON, dataModelContent);
+            fs.writeFileSync(dataModelSrc, dataModelContent);
         }
 
         if (options.log) {

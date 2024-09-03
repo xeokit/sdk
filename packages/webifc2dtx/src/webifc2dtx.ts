@@ -4,13 +4,14 @@ import '@loaders.gl/polyfills';
 import {Data, DataModel} from "@xeokit/data";
 import {Scene, SceneModel} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
-import {loadGLTF} from "@xeokit/gltf";
+import {loadWebIFC} from "@xeokit/webifc";
 import {saveDTX, SAVED_DTX_VERSIONS, DEFAULT_SAVED_DTX_VERSION} from "@xeokit/dtx";
 
 /**
  * @private
  */
-function gltf2DTX(params: {
+function webifc2dtx(params: {
+    ifcAPI: any,
     fileData: ArrayBuffer,
     dtxVersion?: number,
     createDataModel?: boolean
@@ -20,7 +21,7 @@ function gltf2DTX(params: {
     dataModel?: DataModel,
     dataModelJSON: any
 }> {
-    const {fileData, dtxVersion, createDataModel} = params;
+    const {ifcAPI, fileData, dtxVersion, createDataModel} = params;
     return new Promise(function (resolve, reject) {
         const scene = new Scene();
         const sceneModel = scene.createModel({
@@ -37,7 +38,8 @@ function gltf2DTX(params: {
                 if (dataModel instanceof SDKError) {
                     return reject(dataModel.message);
                 } else {
-                    loadGLTF({
+                    loadWebIFC({
+                        ifcAPI,
                         fileData,
                         dataModel,
                         sceneModel
@@ -70,7 +72,8 @@ function gltf2DTX(params: {
                     });
                 }
             } else {   // Don't create DataModel
-                loadGLTF({
+                loadWebIFC({
+                    ifcAPI,
                     fileData,
                     sceneModel
                 }).then(() => {
@@ -89,11 +92,11 @@ function gltf2DTX(params: {
                                 dataModelJSON: null
                             });
                         }
-                    }).catch(err => {
-                        return reject(err);
+                    }).catch(reason => {
+                        return reject(reason);
                     });
-                }).catch(err => {
-                    return reject(err);
+                }).catch((reason) => {
+                    return reject(reason);
                 });
             }
         }
@@ -103,7 +106,7 @@ function gltf2DTX(params: {
 /**
  * @private
  */
-export {gltf2DTX};
+export {webifc2dtx};
 
 /**
  * @private

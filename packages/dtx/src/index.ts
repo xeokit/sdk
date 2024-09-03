@@ -50,7 +50,7 @@
  * ````javascript
  * import {SDKError} from "@xeokit/core";
  * import {Scene} from "@xeokit/scene";
- * import  {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {Viewer} from "@xeokit/viewer";
  * import {CameraControl} from "@xeokit/cameracontrol";
  * import {loadDTX, saveDTX} from "@xeokit/dtx";
@@ -70,51 +70,41 @@
  *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
  * });
  *
- * if (view instanceof SDKError) {
- *     console.error(`Error creating View: ${view.message}`);
+ * view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ * view.camera.look = [1842009.49, 9.68, -5173295.85];
+ * view.camera.up = [0.0, 1.0, 0.0];
  *
- * } else {
+ * new CameraControl(view, {});
  *
- *     view.camera.eye = [1841982.93, 10.03, -5173286.74];
- *     view.camera.look = [1842009.49, 9.68, -5173295.85];
- *     view.camera.up = [0.0, 1.0, 0.0];
+ * const sceneModel = scene.createModel({
+ *     id: "myModel"
+ * });
  *
- *     new CameraControl(view, {});
+ * fetch("model.dtx").then(response => {
  *
- *     const sceneModel = scene.createModel({
- *         id: "myModel"
+ *     response.arrayBuffer().then(fileData => {
+ *
+ *         loadDTX({
+ *             fileData,
+ *             sceneModel
+ *         }).then(() => {
+ *
+ *             sceneModel.build();
+ *
+ *         }).catch(err => {
+ *
+ *             sceneModel.destroy();
+ *
+ *             console.error(`Error loading DTX: ${err}`);
+ *         });
+ *
+ *     }).catch(err => {
+ *         console.error(`Error creating ArrayBuffer from fetch response: ${err}`);
  *     });
  *
- *     if (sceneModel instanceof SDKError) {
- *         console.error(`Error creating SceneModel: ${sceneModel.message}`);
- *
- *     } else {
- *
- *         fetch("model.dtx").then(response => {
- *
- *             response.arrayBuffer().then(fileData => {
- *
- *                 loadDTX({
- *                     fileData,
- *                     sceneModel
- *                 }).then(() => {
- *
- *                     sceneModel.build();
- *
- *                 }).catch(sdkError => {
- *                     sceneModel.destroy();
- *                     console.error(`Error loading DTX: ${sdkError.message}`);
- *                 });
- *
- *             }).catch(message => {
- *                 console.error(`Error creating ArrayBuffer: ${message}`);
- *             });
- *
- *         }).catch(message => {
- *             console.error(`Error fetching model: ${message}`);
- *         });
- *     }
- * }
+ * }).catch(err => {
+ *     console.error(`Error fetching DTX file: ${err}`);
+ * });
  * ````
  *
  * Using {@link @xeokit/dtx!saveDTX | saveDTX} to export the {@link @xeokit/scene!SceneModel | SceneModel} back to

@@ -10,12 +10,11 @@ export function readDTX(params: {
     fileData: ArrayBuffer;
     sceneModel?: SceneModel;
     dataModel?: DataModel;
-}): Promise<void> {
+}): void {
     const {fileData, sceneModel, dataModel} = params;
     dtxToModel({
         dtxData: unpackDTX(fileData),
         sceneModel,
         dataModel
     });
-    return Promise.resolve();
 }

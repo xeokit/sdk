@@ -1,10 +1,10 @@
-import type {SceneModel} from "@xeokit/scene";
-import type {DataModel} from "@xeokit/data";
+import  {SceneModel} from "@xeokit/scene";
+import  {DataModel} from "@xeokit/data";
 import {SDKError} from "@xeokit/core";
 import {TrianglesPrimitive} from "@xeokit/constants";
 import {ifcTypeCodes} from "@xeokit/ifctypes";
 import {FloatArrayParam} from "@xeokit/math";
-
+import {isJSONObject} from "@xeokit/utils";
 
 /**
  * Loads .BIM into a {@link @xeokit/scene!SceneModel | SceneModel} and/or a {@link @xeokit/data!DataModel | DataModel}.
@@ -15,7 +15,7 @@ import {FloatArrayParam} from "@xeokit/math";
  * See {@link "@xeokit/dotbim" | @xeokit/dotbim} for usage.
  *
  * @param params - Loading parameters.
- * @param params.fileData - .BIM file data.
+ * @param params.fileData - JSON .BIM file data.
  * @param params.sceneModel - SceneModel to load into.
  * @param params.dataModel - DataModel to load into.
  * @param options - .BIM loading options
@@ -29,7 +29,7 @@ import {FloatArrayParam} from "@xeokit/math";
  */
 export function loadDotBIM(params: {
                                fileData: any,
-                               sceneModel: SceneModel,
+                               sceneModel?: SceneModel,
                                dataModel?: DataModel
                            },
                            options: {
@@ -37,48 +37,69 @@ export function loadDotBIM(params: {
                                error?: (errMsg: string) => void;
                            } = {}): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
-        if (params.sceneModel.destroyed) {
-            throw new SDKError("SceneModel already destroyed");
+        if (!params) {
+            return reject("Argument expected: params");
         }
-        if (params.sceneModel.built) {
-            throw new SDKError("SceneModel already built");
+        const {fileData, sceneModel, dataModel} = params;
+        if (!fileData) {
+            return reject("Argument expected: fileData");
         }
-        if (params.dataModel) {
-            if (params.dataModel.destroyed) {
-                throw new SDKError("DataModel already destroyed");
+        if (!isJSONObject(fileData)) {
+            return reject("Argument type mismatch: params.fileData should be a JSON object");
+        }
+        if (sceneModel) {
+            if (!(sceneModel instanceof SceneModel)) {
+                return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
             }
-            if (params.dataModel.built) {
-                throw new SDKError("DataModel already built");
+            if (sceneModel.destroyed) {
+                return reject("SceneModel already destroyed");
+            }
+            if (sceneModel.built) {
+                return reject("SceneModel already built");
             }
         }
-        const fileData = params.fileData;
-        const ctx = {
-            fileData,
-            sceneModel: params.sceneModel,
-            dataModel: params.dataModel,
-            nextId: 0,
-            error: options.error || function (errMsg: string) {
-            },
-            translate: options.translate
-        };
-        parseDotBIM(ctx);
-        resolve();
+        if (dataModel) {
+            if (!(dataModel instanceof DataModel)) {
+                return reject("Argument type mismatch: params.dataModel should be a DataModel");
+            }
+            if (dataModel.destroyed) {
+                return reject("DataModel already destroyed");
+            }
+            if (dataModel.built) {
+                return reject("DataModel already built");
+            }
+        }
+        if (sceneModel || dataModel) {
+            const ctx = {
+                fileData,
+                sceneModel,
+                dataModel,
+                nextId: 0,
+                error: options.error || function (errMsg: string) {
+                },
+                translate: options.translate
+            };
+            parseDotBIM(ctx);
+        }
+        return resolve();
     });
 }
 
 function parseDotBIM(ctx: any) {
     const fileData = ctx.fileData;
-    const meshes = fileData.meshes;
-    for (let i = 0, len = meshes.length; i < len; i++) {
-        const mesh = meshes[i];
-        const geometry = ctx.sceneModel.createGeometry({
-            id: mesh.mesh_id,
-            primitive: TrianglesPrimitive,
-            positions: mesh.coordinates,
-            indices: mesh.indices
-        });
-        if (geometry instanceof SDKError) {
-            ctx.error(`[SceneModel.createGeometry]: ${geometry.message}`);
+    if (ctx.sceneModel) {
+        const meshes = fileData.meshes;
+        for (let i = 0, len = meshes.length; i < len; i++) {
+            const mesh = meshes[i];
+            const geometry = ctx.sceneModel.createGeometry({
+                id: mesh.mesh_id,
+                primitive: TrianglesPrimitive,
+                positions: mesh.coordinates,
+                indices: mesh.indices
+            });
+            if (geometry instanceof SDKError) {
+                ctx.error(`[SceneModel.createGeometry]: ${geometry.message}`);
+            }
         }
     }
     const elements = fileData.elements;

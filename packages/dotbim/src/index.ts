@@ -56,7 +56,7 @@
  * ````javascript
  * import {SDKError} from "@xeokit/core";
  * import {Scene} from "@xeokit/scene";
- * import  {WebGLRenderer} from "@xeokit/webglrenderer";
+ * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {Viewer} from "@xeokit/viewer";
  * import {CameraControl} from "@xeokit/cameracontrol";
  * import {loadDotBIM} from "@xeokit/dotbim";
@@ -77,61 +77,49 @@
  *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
  * });
  *
- * if (view instanceof SDKError) {
- *     console.error(`Error creating View: ${view.message}`);
+ * view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ * view.camera.look = [1842009.49, 9.68, -5173295.85];
+ * view.camera.up = [0.0, 1.0, 0.0];
  *
- * } else {
+ * new CameraControl(view, {});
  *
- *     view.camera.eye = [1841982.93, 10.03, -5173286.74];
- *     view.camera.look = [1842009.49, 9.68, -5173295.85];
- *     view.camera.up = [0.0, 1.0, 0.0];
+ * const sceneModel = scene.createModel({
+ *     id: "myModel"
+ * });
  *
- *     new CameraControl(view, {});
+ * const dataModel = data.createModel({
+ *     id: "myModel"
+ * });
  *
- *     const sceneModel = scene.createModel({
- *         id: "myModel"
- *     });
+ * fetch("model.bim").then(response => {
  *
- *     const dataModel = data.createModel({
- *         id: "myModel"
- *     });
+ *    response.json().then(fileData => {
  *
- *     if (sceneModel instanceof SDKError) {
- *         console.error(`Error creating SceneModel: ${sceneModel.message}`);
+ *        loadDotBIM({
+ *           fileData,
+ *           sceneModel,
+ *           dataModel
+ *        }).then(() => {
  *
- *     } else if (dataModel instanceof SDKError) {
- *         console.error(`Error creating DataModel: ${dataModel.message}`);
+ *           sceneModel.build();
+ *           dataModel.build();
  *
- *     } else {
+ *        }).catch(err => {
  *
- *         fetch("model.bim").then(response => {
+ *           sceneModel.destroy();
+ *           dataModel.destroy();
  *
- *             response.json().then(fileData => {
+ *           console.error(`Error loading .BIM: ${err}`);
+ *        });
  *
- *                 loadDotBIM({
- *                     fileData,
- *                     sceneModel,
- *                     dataModel
- *                 }).then(() => {
+ *    }).catch(err => {
+ *        console.error(`Error creating JSON from fetch response: ${err}`);
+ *    });
  *
- *                     sceneModel.build();
- *                     dataModel.build();
+ * }).catch(err => {
+ *     console.error(`Error fetching .BIM file: ${err}`);
+ * });
  *
- *                 }).catch(sdkError => {
- *                     sceneModel.destroy();
- *                     dataModel.destroy();
- *                     console.error(`Error loading .BIM: ${sdkError.message}`);
- *                 });
- *
- *             }).catch(message => {
- *                 console.error(`Error creating ArrayBuffer: ${message}`);
- *             });
- *
- *         }).catch(message => {
- *             console.error(`Error fetching model: ${message}`);
- *         });
- *     }
- * }
  * ````
  *
  * Using {@link @xeokit/dotbim!saveDotBIM | saveDotBIM} to export the {@link @xeokit/scene!SceneModel | SceneModel} and

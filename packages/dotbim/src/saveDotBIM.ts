@@ -1,5 +1,5 @@
-import type {DataModel} from "@xeokit/data";
-import type {SceneModel} from "@xeokit/scene";
+import  {DataModel} from "@xeokit/data";
+import  {SceneModel} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
 import {decompressPoint3WithAABB3, decompressPoint3WithMat4} from "@xeokit/compression";
 import {createVec3, createVec4, decomposeMat4} from "@xeokit/matrix";
@@ -27,15 +27,26 @@ export function saveDotBIM(params: {
     sceneModel: SceneModel,
     dataModel?: DataModel
 }): Object {
-    const sceneModel = params.sceneModel
-    const dataModel = params.dataModel;
-    if (sceneModel?.destroyed) {
+    const {
+        sceneModel,
+        dataModel
+    } = params;
+    if (!sceneModel) {
+        throw new SDKError("Argument expected: params.sceneModel");
+    }
+    if (!(sceneModel instanceof SceneModel)) {
+        throw new SDKError("Argument type mismatch: params.sceneModel should be a SceneModel");
+    }
+    if (sceneModel.destroyed) {
         throw new SDKError("SceneModel already destroyed");
     }
-    if (!sceneModel?.built) {
+    if (!sceneModel.built) {
         throw new SDKError("SceneModel not yet built");
     }
     if (dataModel) {
+        if (!(dataModel instanceof DataModel)) {
+            throw new SDKError("Argument type mismatch: params.dataModel should be a DataModel");
+        }
         if (dataModel.destroyed) {
             throw new SDKError("DataModel already destroyed");
         }
@@ -43,18 +54,28 @@ export function saveDotBIM(params: {
             throw new SDKError("DataModel not yet built");
         }
     }
-    return modelToDotBIM({sceneModel, dataModel});
+    return modelToDotBIM({
+        sceneModel,
+        dataModel
+    });
 }
 
+function modelToDotBIM(params: {
+    sceneModel: SceneModel,
+    dataModel?: DataModel;
+}): Object {
 
-function modelToDotBIM(params: { dataModel: DataModel; sceneModel: SceneModel }): Object {
+    const {
+        sceneModel,
+        dataModel
+    } = params;
 
     const dotBim = {
         meshes: [],
         elements: []
     };
 
-    const geometries = Object.values(params.sceneModel.geometries);
+    const geometries = Object.values(sceneModel.geometries);
 
     const meshLookup = {};
 
@@ -79,7 +100,7 @@ function modelToDotBIM(params: { dataModel: DataModel; sceneModel: SceneModel })
         };
     }
 
-    const sceneObjects = Object.values(params.sceneModel.objects);
+    const sceneObjects = Object.values(sceneModel.objects);
 
     for (let i = 0, len = sceneObjects.length; i < len; i++) {
         const sceneObject = sceneObjects[i];
@@ -127,8 +148,8 @@ function modelToDotBIM(params: { dataModel: DataModel; sceneModel: SceneModel })
             Tag: "None"
         };
         let dataObject;
-        if (params.dataModel) {
-            dataObject = params.dataModel.objects[sceneObject.id];
+        if (dataModel) {
+            dataObject = dataModel.objects[sceneObject.id];
             if (dataObject) {
                 info.type = ifcTypeNames[dataObject.type];
                 info.Name = dataObject.name;

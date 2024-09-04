@@ -78,7 +78,7 @@ export function loadDTX(params: {
             return reject(`Unsupported DTX file version: ${dtxVersion} - supported versions are [${LOADED_DTX_VERSIONS}]`);
         }
         if (sceneModel || dataModel) {
-            return readDTX({
+            readDTX({
                 fileData,
                 sceneModel,
                 dataModel

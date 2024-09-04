@@ -259,20 +259,15 @@ function parseSceneModel(ctx: ParsingContext) {
             const indices = ctx.ifcAPI.GetIndexArray(geometry.GetIndexData(), geometry.GetIndexDataSize());
             // De-interleave vertex arrays
             const positions = new Float64Array(vertexData.length / 2);
-            const normals = new Float32Array(vertexData.length / 2);
             (<Float64Array>matrix).set(placedGeometry.flatTransformation);
             for (let k = 0, l = 0, lenk = vertexData.length / 6; k < lenk; k++, l += 3) {
                 tempVec4a[0] = vertexData[k * 6 + 0];
                 tempVec4a[1] = vertexData[k * 6 + 1];
                 tempVec4a[2] = vertexData[k * 6 + 2];
-                tempVec4a[3] = 1;
-                transformPoint4(matrix, tempVec4a, tempVec4b);
-                positions[l + 0] = tempVec4b[0];
-                positions[l + 1] = tempVec4b[1];
-                positions[l + 2] = tempVec4b[2];
+                positions[l + 0] = tempVec4a[0];
+                positions[l + 1] = tempVec4a[1];
+                positions[l + 2] = tempVec4a[2];
             }
-
-            const rtcNeeded = worldToRTCPositions(positions, positions, origin);
             const geometryId = "" + ctx.nextId++;
             ctx.sceneModel.createGeometry({
                 id: geometryId,
@@ -284,7 +279,7 @@ function parseSceneModel(ctx: ParsingContext) {
             ctx.sceneModel.createMesh({
                 id: meshId,
                 geometryId,
-                // TODO: matrix with translation if rtcNeeded
+                matrix,
                 color: [
                     placedGeometry.color.x,
                     placedGeometry.color.y,

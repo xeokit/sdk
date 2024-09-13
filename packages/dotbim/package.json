@@ -32,7 +32,6 @@
     "keywords": [],
     "dependencies": {
         "@xeokit/config": "^0.1.0",
-        "@xeokit/testutils": "^0.1.0",
         "@xeokit/constants": "^0.1.0",
         "@xeokit/ifctypes": "^0.1.0",
         "@xeokit/compression": "^0.1.0",
@@ -41,6 +40,10 @@
         "@xeokit/math": "^0.1.0",
         "@xeokit/matrix": "^0.1.0",
         "@xeokit/scene": "^0.1.0",
+        "@xeokit/utils": "0.1.0",
         "strongly-typed-events": "3.0.7"
+    },
+    "devDpendencies": {
+        "@xeokit/testutils": "^0.1.0"
     }
 }

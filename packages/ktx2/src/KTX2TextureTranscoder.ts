@@ -99,7 +99,7 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
 
         this.#workerConfig = null;
         this.#withCredentials = false;
-        this.#supportedFileTypes = ["dtx2"];
+        this.#supportedFileTypes = ["xgf2"];
     }
 
     /**

@@ -126,7 +126,7 @@
  * {@link @xeokit/data!DataModel | DataModel} back to a .BIM file:
  *
  * ````javascript
- * const dotBIMJSON = saveDTX({
+ * const dotBIMJSON = saveXGF({
  *     sceneModel,
  *     dataModel
  * });

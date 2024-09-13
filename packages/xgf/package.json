@@ -1,8 +1,8 @@
 {
-    "name": "@xeokit/dtx",
+    "name": "@xeokit/xgf",
     "private": false,
     "version": "0.1.0",
-    "description": "Import and export models as xeokit's native binary DTX format",
+    "description": "Import and export models as xeokit's native binary XGF format",
     "types": "dist/index.d.ts",
     "main": "dist/index.js",
     "module": "dist/index.js",
@@ -10,7 +10,7 @@
         "test": "jest --passWithNoTests",
         "dist": "tsc",
         "lint": "eslint . --fix",
-        "docs": "typedoc --json ../../docs/json/dtx.json --options typedoc.json --validation.invalidLink false",
+        "docs": "typedoc --json ../../docs/json/xgf.json --options typedoc.json --validation.invalidLink false",
         "publish": "npm publish --access public"
     },
     "repository": {
@@ -22,7 +22,7 @@
     "bugs": {
         "url": "https://github.com/xeokit/sdk/issues"
     },
-    "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_dtx.html",
+    "homepage": "https://xeokit.github.io/sdk/docs/modules/_xeokit_xgf.html",
     "files": [
         "src/",
         "dist/",

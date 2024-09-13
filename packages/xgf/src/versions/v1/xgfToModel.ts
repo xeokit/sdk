@@ -6,7 +6,7 @@ import {
     TrianglesPrimitive
 } from "@xeokit/constants";
 import type {SceneGeometryCompressedParams, SceneModel} from "@xeokit/scene";
-import type {DTXData_v1} from "./DTXData_v1";
+import type {XGFData_v1} from "./XGFData_v1";
 import type {FloatArrayParam} from "@xeokit/math";
 import {DataModel} from "@xeokit/data";
 import {BasicAggregation, BasicEntity} from "@xeokit/basictypes";
@@ -15,13 +15,13 @@ import {createUUID} from "@xeokit/utils";
 /**
  * @private
  */
-export function dtxToModel(params: {
-    dtxData: DTXData_v1,
+export function xgfToModel(params: {
+    xgfData: XGFData_v1,
     sceneModel?: SceneModel,
     dataModel?: DataModel
 }): void {
 
-    const {dtxData, sceneModel, dataModel} = params;
+    const {xgfData, sceneModel, dataModel} = params;
     const defaultId = sceneModel ? sceneModel.id : createUUID();
 
     if (dataModel) {
@@ -32,35 +32,35 @@ export function dtxToModel(params: {
         });
     }
 
-    const numGeometries = dtxData.eachGeometryPositionsBase.length;
-    const numMeshes = dtxData.eachMeshGeometriesBase.length;
-    const numObjects = dtxData.eachObjectMeshesBase.length;
+    const numGeometries = xgfData.eachGeometryPositionsBase.length;
+    const numMeshes = xgfData.eachMeshGeometriesBase.length;
+    const numObjects = xgfData.eachObjectMeshesBase.length;
 
     let nextMeshId = 0;
 
     const geometryCreated: { [key: string]: boolean } = {};
 
     for (let objectIdx = 0; objectIdx < numObjects; objectIdx++) {
-        const objectId = dtxData.eachObjectId[objectIdx];
+        const objectId = xgfData.eachObjectId[objectIdx];
         const lastObjectIdx = (numObjects - 1);
         const atLastObject = (objectIdx === lastObjectIdx);
-        const firstMeshIdx = dtxData.eachObjectMeshesBase [objectIdx];
-        const lastMeshIdx = atLastObject ? (numMeshes - 1) : (dtxData.eachObjectMeshesBase[objectIdx + 1] - 1);
+        const firstMeshIdx = xgfData.eachObjectMeshesBase [objectIdx];
+        const lastMeshIdx = atLastObject ? (numMeshes - 1) : (xgfData.eachObjectMeshesBase[objectIdx + 1] - 1);
         const meshIds = [];
         for (let meshIdx = firstMeshIdx; meshIdx <= lastMeshIdx; meshIdx++) {
             const meshId = `${nextMeshId++}`;
             if (sceneModel) {
-                const geometryIdx = dtxData.eachMeshGeometriesBase[meshIdx];
-                const color = decompressColor(dtxData.eachMeshMaterialAttributes.subarray((meshIdx * 4), (meshIdx * 4) + 3));
-                const opacity = dtxData.eachMeshMaterialAttributes[(meshIdx * 4) + 3] / 255.0;
-                const matricesBase = dtxData.eachMeshMatricesBase[meshIdx];
-                const matrix = dtxData.matrices.slice(matricesBase, matricesBase + 16);
+                const geometryIdx = xgfData.eachMeshGeometriesBase[meshIdx];
+                const color = decompressColor(xgfData.eachMeshMaterialAttributes.subarray((meshIdx * 4), (meshIdx * 4) + 3));
+                const opacity = xgfData.eachMeshMaterialAttributes[(meshIdx * 4) + 3] / 255.0;
+                const matricesBase = xgfData.eachMeshMatricesBase[meshIdx];
+                const matrix = xgfData.matrices.subarray(matricesBase, matricesBase + 16);
                 const geometryId = `${geometryIdx}`;
                 if (!geometryCreated[geometryId]) {
                     const geometryCompressedParams = <any>{
                         id: geometryId
                     };
-                    const primitiveType = dtxData.eachGeometryPrimitiveType[geometryIdx];
+                    const primitiveType = xgfData.eachGeometryPrimitiveType[geometryIdx];
                     switch (primitiveType) {
                         case 0:
                             geometryCompressedParams.primitive = TrianglesPrimitive;
@@ -78,26 +78,26 @@ export function dtxToModel(params: {
                             geometryCompressedParams.primitive = PointsPrimitive;
                             break;
                     }
-                    const aabbsBase = dtxData.eachGeometryAABBBase[geometryIdx];
-                    geometryCompressedParams.aabb = dtxData.aabbs.slice(aabbsBase, aabbsBase + 6);
+                    const aabbsBase = xgfData.eachGeometryAABBBase[geometryIdx];
+                    geometryCompressedParams.aabb = xgfData.aabbs.subarray(aabbsBase, aabbsBase + 6);
                     let geometryValid = false;
                     const atLastGeometry = (geometryIdx === (numGeometries - 1));
                     switch (geometryCompressedParams.primitive) {
                         case TrianglesPrimitive:
                         case SurfacePrimitive:
                         case SolidPrimitive:
-                            geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
-                            geometryCompressedParams.indices = dtxData.indices.subarray(dtxData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? dtxData.indices.length : dtxData.eachGeometryIndicesBase [geometryIdx + 1]);
-                            geometryCompressedParams.edgeIndices = dtxData.edgeIndices.subarray(dtxData.eachGeometryEdgeIndicesBase [geometryIdx], atLastGeometry ? dtxData.edgeIndices.length : dtxData.eachGeometryEdgeIndicesBase [geometryIdx + 1]);
+                            geometryCompressedParams.positionsCompressed = xgfData.positions.subarray(xgfData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? xgfData.positions.length : xgfData.eachGeometryPositionsBase [geometryIdx + 1]);
+                            geometryCompressedParams.indices = xgfData.indices.subarray(xgfData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? xgfData.indices.length : xgfData.eachGeometryIndicesBase [geometryIdx + 1]);
+                            geometryCompressedParams.edgeIndices = xgfData.edgeIndices.subarray(xgfData.eachGeometryEdgeIndicesBase [geometryIdx], atLastGeometry ? xgfData.edgeIndices.length : xgfData.eachGeometryEdgeIndicesBase [geometryIdx + 1]);
                             geometryValid = (geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0);
                             break;
                         case PointsPrimitive:
-                            geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
+                            geometryCompressedParams.positionsCompressed = xgfData.positions.subarray(xgfData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? xgfData.positions.length : xgfData.eachGeometryPositionsBase [geometryIdx + 1]);
                             geometryValid = (geometryCompressedParams.positionsCompressed.length > 0);
                             break;
                         case LinesPrimitive:
-                            geometryCompressedParams.positionsCompressed = dtxData.positions.subarray(dtxData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? dtxData.positions.length : dtxData.eachGeometryPositionsBase [geometryIdx + 1]);
-                            geometryCompressedParams.indices = dtxData.indices.subarray(dtxData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? dtxData.indices.length : dtxData.eachGeometryIndicesBase [geometryIdx + 1]);
+                            geometryCompressedParams.positionsCompressed = xgfData.positions.subarray(xgfData.eachGeometryPositionsBase [geometryIdx], atLastGeometry ? xgfData.positions.length : xgfData.eachGeometryPositionsBase [geometryIdx + 1]);
+                            geometryCompressedParams.indices = xgfData.indices.subarray(xgfData.eachGeometryIndicesBase [geometryIdx], atLastGeometry ? xgfData.indices.length : xgfData.eachGeometryIndicesBase [geometryIdx + 1]);
                             geometryValid = (geometryCompressedParams.positionsCompressed.length > 0 && geometryCompressedParams.indices.length > 0);
                             break;
                         default:

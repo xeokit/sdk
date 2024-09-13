@@ -107,8 +107,6 @@ try {
     const basePath = getBasePath(gltfManifestSrc);
     const gltfManifest = JSON.parse(fs.readFileSync(gltfManifestSrc));
 
-    console.log(gltfManifest);
-
     logInfo(`\nReading glTF manifest file: ${gltfManifestSrc}`);
 
     if (!gltfManifest.gltfOutFiles) {

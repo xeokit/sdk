@@ -5,23 +5,23 @@ import {Data, DataModel} from "@xeokit/data";
 import {Scene, SceneModel} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
 import {loadWebIFC} from "@xeokit/webifc";
-import {saveDTX, SAVED_DTX_VERSIONS, DEFAULT_SAVED_DTX_VERSION} from "@xeokit/dtx";
+import {saveXGF, SAVED_XGF_VERSIONS, DEFAULT_SAVED_XGF_VERSION} from "@xeokit/xgf";
 
 /**
  * @private
  */
-function webifc2dtx(params: {
+function webifc2xgf(params: {
     ifcAPI: any,
     fileData: ArrayBuffer,
-    dtxVersion?: number,
+    xgfVersion?: number,
     createDataModel?: boolean
 }): Promise<{
-    dtxArrayBuffer: ArrayBuffer,
+    xgfArrayBuffer: ArrayBuffer,
     sceneModel: SceneModel,
     dataModel?: DataModel,
     dataModelJSON: any
 }> {
-    const {ifcAPI, fileData, dtxVersion, createDataModel} = params;
+    const {ifcAPI, fileData, xgfVersion, createDataModel} = params;
     return new Promise(function (resolve, reject) {
         const scene = new Scene();
         const sceneModel = scene.createModel({
@@ -46,16 +46,16 @@ function webifc2dtx(params: {
                     }).then(() => {
                         sceneModel.build().then(() => {
                             dataModel.build().then(() => {
-                                const dtxArrayBuffer = saveDTX({
+                                const xgfArrayBuffer = saveXGF({
                                     sceneModel,
-                                    dtxVersion
+                                    xgfVersion
                                 });
-                                if (dtxArrayBuffer instanceof SDKError) {
-                                    return reject(dtxArrayBuffer.message);
+                                if (xgfArrayBuffer instanceof SDKError) {
+                                    return reject(xgfArrayBuffer.message);
                                 } else {
                                     const dataModelJSON = dataModel.getJSON();
                                     return resolve({
-                                        dtxArrayBuffer,
+                                        xgfArrayBuffer,
                                         sceneModel,
                                         dataModel,
                                         dataModelJSON
@@ -78,15 +78,15 @@ function webifc2dtx(params: {
                     sceneModel
                 }).then(() => {
                     sceneModel.build().then(() => {
-                        const dtxArrayBuffer = saveDTX({
+                        const xgfArrayBuffer = saveXGF({
                             sceneModel,
-                            dtxVersion
+                            xgfVersion
                         });
-                        if (dtxArrayBuffer instanceof SDKError) {
-                            return reject(dtxArrayBuffer.message);
+                        if (xgfArrayBuffer instanceof SDKError) {
+                            return reject(xgfArrayBuffer.message);
                         } else {
                             return resolve({
-                                dtxArrayBuffer,
+                                xgfArrayBuffer,
                                 sceneModel,
                                 dataModel: null,
                                 dataModelJSON: null
@@ -106,14 +106,14 @@ function webifc2dtx(params: {
 /**
  * @private
  */
-export {webifc2dtx};
+export {webifc2xgf};
 
 /**
  * @private
  */
-export const _SAVED_DTX_VERSIONS = SAVED_DTX_VERSIONS; // Make these private for our CLI tool's use only
+export const _SAVED_XGF_VERSIONS = SAVED_XGF_VERSIONS; // Make these private for our CLI tool's use only
 
 /**
  * @private
  */
-export const _DEFAULT_SAVED_DTX_VERSION = DEFAULT_SAVED_DTX_VERSION;
+export const _DEFAULT_SAVED_XGF_VERSION = DEFAULT_SAVED_XGF_VERSION;

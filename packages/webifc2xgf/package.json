@@ -1,18 +1,18 @@
 {
-    "name": "@xeokit/webifc2dtx",
+    "name": "@xeokit/webifc2xgf",
     "private": true,
     "version": "0.1.0",
-    "description": "NodeJS CLI tool that uses WebIFC to convert small IFC files to DTX.",
-    "source": "src/webifc2dtx.ts",
+    "description": "NodeJS CLI tool that uses WebIFC to convert small IFC files to XGF.",
+    "source": "src/webifc2xgf.ts",
     "bin": {
-        "webifc2dtx": "dist/webifc2dtx.js"
+        "webifc2xgf": "dist/webifc2xgf.js"
     },
     "types": "dist/index.d.ts",
     "main": "dist/index.js",
     "module": "dist/index.js",
     "scripts": {
         "dist": "node build.js",
-        "docs": "typedoc --json ../../docs/json/webgl2dtx.json --options typedoc.json --validation.invalidLink false"
+        "docs": "typedoc --json ../../docs/json/webgl2xgf.json --options typedoc.json --validation.invalidLink false"
     },
     "repository": {
         "type": "git",
@@ -26,15 +26,15 @@
     "homepage": "https://xeokit.io",
     "files": [
         "dist/",
-        "/webifc2dtx.js",
-        "./webifc2dtx.conf.js",
+        "/webifc2xgf.js",
+        "./webifc2xgf.conf.js",
         "README.md",
         "package.json"
     ],
     "keywords": [],
     "dependencies": {
         "@xeokit/config": "^0.1.0",
-        "@xeokit/dtx": "^0.1.0",
+        "@xeokit/xgf": "^0.1.0",
         "@xeokit/constants": "^0.1.0",
         "@xeokit/core": "^0.1.0",
         "@xeokit/data": "^0.1.0",

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const {gltf2dtx, _SAVED_DTX_VERSIONS, _DEFAULT_SAVED_DTX_VERSION} = require("./dist/gltf2dtx.cjs.js");
+const {gltf2xgf, _SAVED_XGF_VERSIONS, _DEFAULT_SAVED_XGF_VERSION} = require("./dist/gltf2xgf.cjs.js");
 
 const commander = require('commander');
 const npmPackage = require('./package.json');
@@ -11,23 +11,23 @@ const program = new commander.Command();
 program.version(npmPackage.version, '-v, --version');
 
 program
-    .description(`CLI to convert a glTF/GLB file into into a xeokit DTX SceneModel file and/or a JSON DataModel file`)
+    .description(`CLI to convert a glTF/GLB file into a xeokit XGF SceneModel file and/or a JSON DataModel file`)
     .option('-i, --input [file]', 'path to input glTF model file (required)')
-    .option('-s, --scenemodel [file]', 'path to target SceneModel DTX file (optional)')
+    .option('-s, --scenemodel [file]', 'path to target SceneModel XGF file (optional)')
     .option('-d, --datamodel [file]', 'path to target DataModel JSON file (optional)')
-    .option('-f, --format [number]', `target DTX version (optional) - ${supportedDTX()}, default is ${_DEFAULT_SAVED_DTX_VERSION}`)
+    .option('-f, --format [number]', `target XGF version (optional) - ${supportedXGF()}, default is ${_DEFAULT_SAVED_XGF_VERSION}`)
     .option('-l, --log', 'enable logging (optional)');
 
-function supportedDTX() {
-    if (_SAVED_DTX_VERSIONS.length > 1) {
-        return `supported DTX versions are [${_SAVED_DTX_VERSIONS}]`;
+function supportedXGF() {
+    if (_SAVED_XGF_VERSIONS.length > 1) {
+        return `supported XGF versions are [${_SAVED_XGF_VERSIONS}]`;
     } else {
-        return `supported DTX version is ${_DEFAULT_SAVED_DTX_VERSION}`;
+        return `supported XGF version is ${_DEFAULT_SAVED_XGF_VERSION}`;
     }
 }
 
 program.on('--help', () => {
-    //  console.log(`\n\nDTX version: 10`);
+    //  console.log(`\n\nXGF version: 10`);
 });
 
 program.parse(process.argv);
@@ -36,12 +36,12 @@ const options = program.opts();
 
 function logInfo(msg) {
     if (options.log) {
-        console.log(`[gltf2dtx] ${msg}`);
+        console.log(`[gltf2xgf] ${msg}`);
     }
 }
 
 function logError(msg) {
-    console.error(`[gltf2dtx] ${msg}`);
+    console.error(`[gltf2xgf] ${msg}`);
 }
 
 try {
@@ -49,35 +49,30 @@ try {
         logError(`Argument expected: -i`);
         process.exit(-1);
     }
-    if (!options.scenemodel) {
-        logError(`Argument expected: -o`);
-        process.exit(-1);
-    }
-
     const startTime = new Date();
 
     const glTFSrc = options.input;
     const sceneModelSrc = options.scenemodel;
     const dataModelSrc = options.datamodel;
-    let dtxVersion = options.format;
+    let xgfVersion = options.format;
 
-    if (dtxVersion) {
-        dtxVersion = Number.parseInt(dtxVersion);
-        if (_SAVED_DTX_VERSIONS.includes(dtxVersion)) {
-            logError(`Converting to DTX version: ${dtxVersion}`);
+    if (xgfVersion) {
+        xgfVersion = Number.parseInt(xgfVersion);
+        if (_SAVED_XGF_VERSIONS.includes(xgfVersion)) {
+            logError(`Converting to XGF version: ${xgfVersion}`);
         } else {
-            logError(`Target DTX version is not supported: ${dtxVersion}.`);
-            if (_SAVED_DTX_VERSIONS.length > 1) {
-                logError(`Supported DTX versions are: [${_SAVED_DTX_VERSIONS}]`);
+            logError(`Target XGF version is not supported: ${xgfVersion}.`);
+            if (_SAVED_XGF_VERSIONS.length > 1) {
+                logError(`Supported XGF versions are: [${_SAVED_XGF_VERSIONS}]`);
             } else {
-                logError(`Supported DTX version is: ${_SAVED_DTX_VERSIONS}`);
+                logError(`Supported XGF version is: ${_SAVED_XGF_VERSIONS}`);
             }
             process.exit(-1);
             return;
         }
     } else {
-        dtxVersion = _DEFAULT_SAVED_DTX_VERSION;
-        logInfo(`Converting to DTX version: ${dtxVersion} (default)`);
+        xgfVersion = _DEFAULT_SAVED_XGF_VERSION;
+        logInfo(`Converting to XGF version: ${xgfVersion} (default)`);
     }
 
     const basePath = getBasePath(glTFSrc);
@@ -87,23 +82,23 @@ try {
 
     const createDataModel = (dataModelSrc !== undefined);
 
-    gltf2dtx({
+    gltf2xgf({
         fileData,
         basePath,
-        dtxVersion,
+        xgfVersion,
         createDataModel
     }).then(result => {
 
-        const {dtxArrayBuffer, dataModelJSON} = result;
+        const {xgfArrayBuffer, dataModelJSON} = result;
         const sceneModelDir = path.dirname(sceneModelSrc);
 
         if (sceneModelDir !== "" && !fs.existsSync(sceneModelDir)) {
             fs.mkdirSync(sceneModelDir, {recursive: true});
         }
 
-        logInfo(`Writing DTX file: ${sceneModelSrc}`);
+        logInfo(`Writing XGF file: ${sceneModelSrc}`);
 
-        const xktContent = Buffer.from(dtxArrayBuffer);
+        const xktContent = Buffer.from(xgfArrayBuffer);
         fs.writeFileSync(sceneModelSrc, xktContent);
 
         if (createDataModel && dataModelJSON) {
@@ -118,13 +113,13 @@ try {
 
         if (options.log) {
             const sourceFileSizeBytes = fileData.byteLength;
-            const targetFileSizeBytes = dtxArrayBuffer.byteLength;
-            const dtxSize = (targetFileSizeBytes / 1000).toFixed(2);
+            const targetFileSizeBytes = xgfArrayBuffer.byteLength;
+            const xgfSize = (targetFileSizeBytes / 1000).toFixed(2);
             const compressionRatio = (sourceFileSizeBytes / targetFileSizeBytes).toFixed(2);
             const conversionTime = ((new Date() - startTime) / 1000.0).toFixed(2);
             logInfo("Input glTF file size: " + (sourceFileSizeBytes / 1000).toFixed(2) + " kB");
-            logInfo("Output DTX file size: " + dtxSize + " kB");
-            logInfo("glTF->DTX compression ratio: " + compressionRatio);
+            logInfo("Output XGF file size: " + xgfSize + " kB");
+            logInfo("glTF->XGF compression ratio: " + compressionRatio);
             logInfo("Conversion time: " + conversionTime + " s");
             logInfo(`Converted SceneObjects: ${Object.keys(result.sceneModel.objects).length}`);
             logInfo(`Converted SceneMeshes: ${Object.keys(result.sceneModel.meshes).length}`);

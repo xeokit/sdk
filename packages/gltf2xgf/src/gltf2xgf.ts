@@ -5,22 +5,22 @@ import {Data, DataModel} from "@xeokit/data";
 import {Scene, SceneModel} from "@xeokit/scene";
 import {SDKError} from "@xeokit/core";
 import {loadGLTF} from "@xeokit/gltf";
-import {saveDTX, SAVED_DTX_VERSIONS, DEFAULT_SAVED_DTX_VERSION} from "@xeokit/dtx";
+import {saveXGF, SAVED_XGF_VERSIONS, DEFAULT_SAVED_XGF_VERSION} from "@xeokit/xgf";
 
 /**
  * @private
  */
-function gltf2DTX(params: {
+function gltf2xgf(params: {
     fileData: ArrayBuffer,
-    dtxVersion?: number,
+    xgfVersion?: number,
     createDataModel?: boolean
 }): Promise<{
-    dtxArrayBuffer: ArrayBuffer,
+    xgfArrayBuffer: ArrayBuffer,
     sceneModel: SceneModel,
     dataModel?: DataModel,
     dataModelJSON: any
 }> {
-    const {fileData, dtxVersion, createDataModel} = params;
+    const {fileData, xgfVersion, createDataModel} = params;
     return new Promise(function (resolve, reject) {
         const scene = new Scene();
         const sceneModel = scene.createModel({
@@ -44,16 +44,16 @@ function gltf2DTX(params: {
                     }).then(() => {
                         sceneModel.build().then(() => {
                             dataModel.build().then(() => {
-                                const dtxArrayBuffer = saveDTX({
+                                const xgfArrayBuffer = saveXGF({
                                     sceneModel,
-                                    dtxVersion
+                                    xgfVersion
                                 });
-                                if (dtxArrayBuffer instanceof SDKError) {
-                                    return reject(dtxArrayBuffer.message);
+                                if (xgfArrayBuffer instanceof SDKError) {
+                                    return reject(xgfArrayBuffer.message);
                                 } else {
                                     const dataModelJSON = dataModel.getJSON();
                                     return resolve({
-                                        dtxArrayBuffer,
+                                        xgfArrayBuffer,
                                         sceneModel,
                                         dataModel,
                                         dataModelJSON
@@ -75,15 +75,15 @@ function gltf2DTX(params: {
                     sceneModel
                 }).then(() => {
                     sceneModel.build().then(() => {
-                        const dtxArrayBuffer = saveDTX({
+                        const xgfArrayBuffer = saveXGF({
                             sceneModel,
-                            dtxVersion
+                            xgfVersion
                         });
-                        if (dtxArrayBuffer instanceof SDKError) {
-                            return reject(dtxArrayBuffer.message);
+                        if (xgfArrayBuffer instanceof SDKError) {
+                            return reject(xgfArrayBuffer.message);
                         } else {
                             return resolve({
-                                dtxArrayBuffer,
+                                xgfArrayBuffer,
                                 sceneModel,
                                 dataModel: null,
                                 dataModelJSON: null
@@ -103,14 +103,14 @@ function gltf2DTX(params: {
 /**
  * @private
  */
-export {gltf2DTX};
+export {gltf2xgf};
 
 /**
  * @private
  */
-export const _SAVED_DTX_VERSIONS = SAVED_DTX_VERSIONS; // Make these private for our CLI tool's use only
+export const _SAVED_XGF_VERSIONS = SAVED_XGF_VERSIONS; // Make these private for our CLI tool's use only
 
 /**
  * @private
  */
-export const _DEFAULT_SAVED_DTX_VERSION = DEFAULT_SAVED_DTX_VERSION;
+export const _DEFAULT_SAVED_XGF_VERSION = DEFAULT_SAVED_XGF_VERSION;

@@ -1,18 +1,18 @@
 {
-    "name": "@xeokit/gltf2dtx",
+    "name": "@xeokit/gltf2xgf",
     "private": true,
     "version": "0.1.0",
-    "description": "NodeJS CLI tool to convert glTF files to DTX.",
-    "source": "src/gltf2dtx.ts",
+    "description": "NodeJS CLI tool to convert glTF files to XGF.",
+    "source": "src/gltf2xgf.ts",
     "bin": {
-        "gltf2dtx": "dist/gltf2dtx.js"
+        "gltf2xgf": "dist/gltf2xgf.js"
     },
     "types": "dist/index.d.ts",
     "main": "dist/index.js",
     "module": "dist/index.js",
     "scripts": {
         "dist": "node build.js",
-        "docs": "typedoc --json ../../docs/json/gltf2dtx.json --options typedoc.json --validation.invalidLink false"
+        "docs": "typedoc --json ../../docs/json/gltf2xgf.json --options typedoc.json --validation.invalidLink false"
     },
     "repository": {
         "type": "git",
@@ -26,20 +26,21 @@
     "homepage": "https://xeokit.io",
     "files": [
         "dist/",
-        "/gltf2dtx.js",
-        "./gltf2dtx.conf.js",
+        "/gltf2xgf.js",
+        "./gltf2xgf.conf.js",
         "README.md",
         "package.json"
     ],
     "keywords": [],
     "dependencies": {
         "@xeokit/config": "^0.1.0",
-        "@xeokit/dtx": "^0.1.0",
+        "@xeokit/xgf": "^0.1.0",
         "@xeokit/constants": "^0.1.0",
         "@xeokit/core": "^0.1.0",
         "@xeokit/data": "^0.1.0",
         "@xeokit/gltf": "^0.1.0",
         "@xeokit/scene": "^0.1.0",
+        "@xeokit/modelchunksloader": "^0.1.0",
         "@loaders.gl/polyfills": "^4.0.4",
         "strongly-typed-events": "3.0.7"
     },

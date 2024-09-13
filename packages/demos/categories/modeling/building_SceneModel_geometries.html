@@ -47,7 +47,7 @@
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
         scene,
-        renderer: new xeokit.webglRenderer.WebGLRenderer({})
+        renderer: new xeokit.webglrenderer.WebGLRenderer({})
     });
 
     const view = viewer.createView({
@@ -61,7 +61,7 @@
 
     view.camera.orbitPitch(20);
 
-    new xeokit.cameraControl.CameraControl(view);
+    new xeokit.cameracontrol.CameraControl(view);
 
     const sceneModel = scene.createModel({
         id: "myModel"
@@ -296,18 +296,19 @@
             }),
         });
 
-        // One entity contains all our meshes
+        // One Scene contains all our SceneMeshes
 
         sceneModel.createObject({
             id: "geometries",
-            meshIds: ["boxMesh", "boxLinesMesh", "sphereMesh", "torusMesh", "cylinderMesh", "gridMesh", "textMesh"] // , "pointsMesh"]
+            meshIds: ["boxMesh", "boxLinesMesh", "sphereMesh", "torusMesh", "cylinderMesh", "gridMesh", "textMesh" , "pointsMesh"]
         });
-
     }
 
     sceneModel.build();
 
+    const aabb = sceneModel.aabb;
 
+window.sceneModel = sceneModel;
 </script>
 
 </html>

@@ -125,7 +125,7 @@
 
     const scene = new xeokit.scene.Scene();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -214,9 +214,9 @@
     // its Camera with mouse and touch input
     //-----------------------------------------------------------------------------------------
 
-    const cameraControl1 = new xeokit.cameraControl.CameraControl(view1, {});
-    const cameraControl2 = new xeokit.cameraControl.CameraControl(view2, {});
-    const cameraControl3 = new xeokit.cameraControl.CameraControl(view3, {});
+    const cameraControl1 = new xeokit.cameracontrol.CameraControl(view1, {});
+    const cameraControl2 = new xeokit.cameracontrol.CameraControl(view2, {});
+    const cameraControl3 = new xeokit.cameracontrol.CameraControl(view3, {});
 
     //-----------------------------------------------------------------------------------------
     // Create a SceneModel containing a simple house model

@@ -77,7 +77,7 @@
 
     const scene = new xeokit.scene.Scene();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -123,7 +123,7 @@
             id: `layer${i}`
         });
 
-        new xeokit.cameraControl.CameraControl(view, {});
+        new xeokit.cameracontrol.CameraControl(view, {});
     }
 
 
@@ -144,24 +144,24 @@
 
                 sceneModel.build();
 
-                // Convert the model to DTX, load that into ViewLayer 1
+                // Convert the model to XGF, load that into ViewLayer 1
 
                 {
-                    const dtxData = xeokit.dtx.saveDTX({
+                    const xgfData = xeokit.xgf.saveXGF({
                         sceneModel
                     });
 
-                    const sceneModelDTX = scene.createModel({
-                        id: "myDTXModel",
+                    const sceneModelXGF = scene.createModel({
+                        id: "myXGFModel",
                         layerId: "layer1",
                         globalizedIds: true
                     });
 
-                    xeokit.dtx.loadDTX({
-                        fileData: dtxData,
-                        sceneModel: sceneModelDTX
+                    xeokit.xgf.loadXGF({
+                        fileData: xgfData,
+                        sceneModel: sceneModelXGF
                     }).then(() => {
-                        sceneModelDTX.build()
+                        sceneModelXGF.build()
                     });
                 }
 

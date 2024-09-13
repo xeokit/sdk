@@ -55,7 +55,7 @@
     const scene = new xeokit.scene.Scene();
     const data = new xeokit.data.Data();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -93,7 +93,8 @@
                 xeokit.las.loadLAS({
                     fileData,           // Load LAS/LAZ from this ArrayBuffer
                     dataModel,          // Load metadata into this DataModel (optional)
-                    sceneModel,         // Load points into this SceneModel
+                    sceneModel         // Load points into this SceneModel
+                }, {
                     fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
                     colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
                     skip: 1,            // Load every nth point (optional, default is 1)
@@ -119,7 +120,6 @@
             throw e;
         });
     }
-
 
 
 </script>

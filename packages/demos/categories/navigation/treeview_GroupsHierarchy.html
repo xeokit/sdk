@@ -171,7 +171,7 @@
     const scene = new xeokit.scene.Scene();
     const data = new xeokit.data.Data();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -200,7 +200,7 @@
         groupTypes: [xeokit.ifctypes.IfcBuilding, xeokit.ifctypes.IfcBuildingStorey]
     });
 
-    const cameraControl = new xeokit.cameraControl.CameraControl(view, {});
+    const cameraControl = new xeokit.cameracontrol.CameraControl(view, {});
 
     const ifcAPI = new WebIFC.IfcAPI();
 

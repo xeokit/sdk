@@ -55,7 +55,7 @@
     const scene = new xeokit.scene.Scene();
     const data = new xeokit.data.Data();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -72,7 +72,7 @@
     view.camera.look = [6.599999999999998, 8.34099990051474, -4.159999575600315];
     view.camera.up = [-0.2820584034861215, 0.9025563895259413, -0.3253229483893775];
 
-    const cameraControl = new xeokit.cameraControl.CameraControl(view, {});
+    const cameraControl = new xeokit.cameracontrol.CameraControl(view, {});
 
     const sceneModel = scene.createModel({
         id: "myModel",

@@ -1,0 +1,84 @@
+{
+    "models": [
+        {
+            "id": "LoD3_Railway",
+            "pipelines": [
+                "cityjson"
+            ]
+        },
+        {
+            "id": "SmallHouse",
+            "pipelines": [
+                "dotbim"
+            ]
+        },
+        {
+            "id": "TeapotXeokitLogo",
+            "pipelines": [
+                "dotbim"
+            ]
+        },
+        {
+            "id": "BlenderHouse",
+            "pipelines": [
+                "dotbim"
+            ]
+        },
+        {
+            "id": "MAP",
+            "pipelines": [
+                "ifc",
+                "ifc2gltf",
+                "ifc2gltf2xgf",
+                "webifc2xgf"
+            ]
+        },
+        {
+            "id": "Duplex",
+            "pipelines": [
+                "ifc",
+                "ifc2gltf",
+                "ifc2gltf2xgf",
+                "webifc2xgf"
+            ]
+        },
+        {
+            "id": "IfcOpenHouse4",
+            "pipelines": [
+                "ifc",
+                "ifc2gltf",
+                "ifc2gltf2xgf",
+                "webifc2xgf"
+            ]
+        },
+        {
+            "id": "IfcOpenHouse2x3",
+            "pipelines": [
+                "ifc",
+                "ifc2gltf",
+                "ifc2gltf2xgf",
+                "webifc2xgf"
+            ]
+        },
+        {
+            "id": "Nalls-Pumpkin-Hill",
+            "pipelines": [
+                "laz"
+            ]
+        },
+        {
+            "id": "KarhumakiBridge",
+            "pipelines": [
+                "ifc2gltf",
+                "ifc2gltf2xgf"
+            ]
+        },
+        {
+            "id": "Schependomlaan",
+            "pipelines": [
+                "ifc2gltf",
+                "ifc2gltf2xgf"
+            ]
+        }
+    ]
+}

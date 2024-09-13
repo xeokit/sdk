@@ -114,7 +114,7 @@
 
     const scene = new xeokit.scene.Scene();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -141,7 +141,7 @@
     view1.camera.up = [0, 1, 0];
     view1.edges.enabled = true;
 
-    new xeokit.cameraControl.CameraControl(view1, {});
+    new xeokit.cameracontrol.CameraControl(view1, {});
 
     // Configure this View's edge enhancement and ambient shadows effects
     // to apply in QualityRender mode
@@ -169,7 +169,7 @@
     view2.camera.orthoProjection.scale = 20;
     view2.camera.orbitPitch(90);
 
-    new xeokit.cameraControl.CameraControl(view2, {});
+    new xeokit.cameracontrol.CameraControl(view2, {});
 
     // Configure this View's edge enhancement and ambient shadows effects
     // to apply in QualityRender mode
@@ -198,7 +198,7 @@
     view3.camera.orbitYaw(-50);
     view3.camera.orbitPitch(20);
 
-    new xeokit.cameraControl.CameraControl(view3, {});
+    new xeokit.cameracontrol.CameraControl(view3, {});
 
     // Configure this View's edge enhancement and ambient shadows effects
     // to apply in QualityRender mode; they will not apply as long as this

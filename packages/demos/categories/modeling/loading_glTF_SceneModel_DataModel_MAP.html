@@ -55,7 +55,7 @@
     const scene = new xeokit.scene.Scene();
     const data = new xeokit.data.Data();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -72,7 +72,9 @@
     view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
     view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
 
-    const cameraControl = new xeokit.cameraControl.CameraControl(view, {});
+    view.sao.enabled = true;
+
+    const cameraControl = new xeokit.cameracontrol.CameraControl(view, {});
 
     const sceneModel = scene.createModel({
         id: "myModel",
@@ -102,10 +104,18 @@
                     dataModel.build();
                     sceneModel.build();
 
+                    const xgf = xeokit.xgf.saveXGF({
+                        sceneModel
+                    });
+
+                    xeokit.utils.saveArrayBuffer(xgf, "./map.xgf")
+
+
                 }).catch(error => {
 
                     dataModel.destroy();
                     sceneModel.destroy();
+
 
                     console.log(error.message);
                 });

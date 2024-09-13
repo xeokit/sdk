@@ -78,7 +78,7 @@
 
     const scene = new xeokit.scene.Scene();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -116,11 +116,10 @@
             id: `layer${i}`
         });
 
-        new xeokit.cameraControl.CameraControl(view, {});
+        new xeokit.cameracontrol.CameraControl(view, {});
     }
 
-
-    // Load an XKT model into ViewLayer 0
+    // Create a model in ViewLayer 0
 
     const sceneModel = scene.createModel({
         id: "myModel",
@@ -222,26 +221,26 @@
 
     sceneModel.build();
 
-    // Convert the model to DTX, load that into ViewLayer 1
+    // Convert the model to XGF, load that into ViewLayer 1
 
     {
-        const dtxData = xeokit.dtx.saveDTX({
+        const xgfData = xeokit.xgf.saveXGF({
             sceneModel
         });
 
-        const sceneModelDTX = scene.createModel({
-            id: "myDTXModel",
+        xeokit.utils.saveArrayBuffer(xgfData, "table.xgf")
+
+        const sceneModelXGF = scene.createModel({
+            id: "myXGFModel",
             layerId: "layer1",
             globalizedIds: true
         });
 
-        xeokit.utils.saveArrayBuffer(dtxData, "table.dtx")
-
-        xeokit.dtx.loadDTX({
-            fileData: dtxData,
-            sceneModel: sceneModelDTX
+        xeokit.xgf.loadXGF({
+            fileData: xgfData,
+            sceneModel: sceneModelXGF
         }).then(() => {
-            sceneModelDTX.build()
+            sceneModelXGF.build()
         });
     }
 
@@ -249,15 +248,16 @@
 
     {
         const json = sceneModel.getJSON();
+
         const sceneModelJSON = scene.createModel({
             id: "myJSONModel",
             layerId: "layer2",
             globalizedIds: true
         });
+
         sceneModelJSON.fromJSON(json);
         sceneModelJSON.build()
     }
-
 
 </script>
 

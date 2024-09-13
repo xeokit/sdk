@@ -1,0 +1,328 @@
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.14 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.12 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.07 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.08 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.17 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.05 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.07 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.21 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.09 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.08 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.08 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.07 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.10 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.07 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.11 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.17 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.15 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/datasets/Duplex/ifc/model.ifc
+INFO:  Parsing Model using IFC2X3 Schema
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+zero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero trizero triERROR: unexpected mesh type
+[webifc2xgf] Writing XGF SceneModel file: ./data/datasets/Duplex/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/datasets/Duplex/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 1297.11 kB
+[webifc2xgf] Output XGF file size: 1094.50 kB
+[webifc2xgf] IFC->XGF compression ratio: 1.19
+[webifc2xgf] Conversion time: 1.22 s
+[webifc2xgf] Converted SceneObjects: 215
+[webifc2xgf] Converted SceneMeshes: 801
+[webifc2xgf] Converted SceneGeometries: 801
+[webifc2xgf] Converted DataObjects: 246
+[webifc2xgf] Converted PropertySets: 398
+[webifc2xgf] Finished OK.

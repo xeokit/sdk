@@ -1,0 +1,406 @@
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-12 23:32:04',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546363, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.63 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 00:12:56',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546363, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.63 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 01:13:37',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546363, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.64 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 01:20:02',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.54054636, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251753, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.67 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:10:36',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546363, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.72 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:16:09',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546363, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.63 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:16:58',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546363, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.63 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:22:05',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546363, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.63 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:28:11',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546361, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 1.34 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:35:02',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546363, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.64 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:52:23',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546361, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.64 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:05:46',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546363, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.67 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:10:10',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.54054636, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251753, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.65 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/MAP/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:12:59',
+  gltfOutFiles: [ './data/datasets/MAP/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/MAP/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5562,
+  numCreatedMetaObjects: 2017,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 1842039.2044235948, 5173321.540546363, 24.589556814745077 ],
+  modelBoundsMin: [ 1842005.2833367055, 5173283.969251754, -3.6000000000000014 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [
+    'Object with GUID 3toKckUfH2jBmd$7uhJHa7 appears several times in spatial structure'
+  ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/MAP/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.93 s
+[ifc2gltf2xgf] Done.

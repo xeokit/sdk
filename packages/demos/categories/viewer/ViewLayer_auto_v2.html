@@ -44,7 +44,7 @@
 
     const scene = new xeokit.scene.Scene();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -72,7 +72,7 @@
         renderMode: xeokit.constants.FastRender
     });
 
-    new xeokit.cameraControl.CameraControl(view, {});
+    new xeokit.cameracontrol.CameraControl(view, {});
 
     fetch("../../data/gltf/structural.glb").then(response => {
         response.arrayBuffer().then(fileData => {

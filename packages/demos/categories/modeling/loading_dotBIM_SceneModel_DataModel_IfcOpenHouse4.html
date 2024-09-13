@@ -53,7 +53,7 @@
     const scene = new xeokit.scene.Scene();
     const data = new xeokit.data.Data();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -73,7 +73,7 @@
     view.camera.zoom(5);
     view.camera.orbitPitch(20);
 
-    new xeokit.cameraControl.CameraControl(view, {});
+    new xeokit.cameracontrol.CameraControl(view, {});
 
     const sceneModel = scene.createModel({
         id: "myModel",

@@ -1,0 +1,88 @@
+{
+    "pipelines": [
+        {
+            "id": "ifc",
+            "name": "WebIFC",
+            "case": "View IFC using WebIFC",
+            "desc": "{IFC} -> loadWebIFC -> Viewer"
+        },
+        {
+            "id": "xgf",
+            "name": "XGF",
+            "case": "View XGF",
+            "desc": "{XGF} -> loadXGF -> Viewer"
+        },
+        {
+            "id": "xkt",
+            "name": "XKT",
+            "case": "View XKT",
+            "desc": "{XKT} -> loadXKT -> Viewer"
+        },
+        {
+            "id": "cityjson",
+            "name": "CityJSON",
+            "case": "View CityJSON",
+            "desc": "{CityJSON} -> loadCityJSON -> Viewer"
+        },
+        {
+            "id": "las",
+            "name": "LAS",
+            "case": "View LAS",
+            "desc": "{LAS} -> loadLAS -> Viewer"
+        },
+        {
+            "id": "laz",
+            "name": "LAZ",
+            "case": "View LAZ",
+            "desc": "{LAZ} -> loadLAS -> Viewer"
+        },
+        {
+            "id": "dotbim",
+            "name": ".BIM",
+            "case": "View .BIM",
+            "desc": "{DotBIM} -> loadDotBIM -> Viewer"
+        },
+        {
+            "id": "gltf",
+            "name": "glTF",
+            "case": "View glTF",
+            "desc": "{GLB} -> loadGLTF -> Viewer"
+        },
+        {
+            "id": "gltf2xgf",
+            "case": "View XGF converted from glTF by gltf2xgf",
+            "desc": "{GLB} -> gltf2xgf -> {GLB,JSON} -> loadXGF, loadDataModel -> Viewer",
+            "cmd": "node ../gltf2xgf/gltf2xgf.js -i ./data/datasets/${modelId}/gltf/model.glb -s ./data/datasets/${modelId}/gltf2xgf/model.xgf -d ./data/datasets/${modelId}/gltf2xgf/model.json -l >> ./data/datasets/${modelId}/gltf2xgf/log.txt",
+            "dependson": [
+                "gltf"
+            ]
+        },
+        {
+            "id": "ifc2gltf",
+            "case": "View glTF converted from IFC by ifc2gltf",
+            "desc": "{IFC} -> ifc2gltf -> {GLB,JSON} -> ModelChunksLoader(loadGLTF, loadMetaModel) -> Viewer",
+            "cmd": "/home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json -i ./data/datasets/${modelId}/ifc/model.ifc -o ./data/datasets/${modelId}/ifc2gltf/model.glb -m ./data/datasets/${modelId}/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/${modelId}/ifc2gltf/log.txt",
+            "dependson": [
+                "ifc"
+            ]
+        },
+        {
+            "id": "ifc2gltf2xgf",
+            "case": "View XGF converted from IFC by ifc2gltf and ifc2gltf2xgf",
+            "desc": "{IFC} -> ifc2gltf -> {GLB,JSON} -> ifc2gltf2xgf -> {XGF,JSON} -> ModelChunksLoader(loadXGF, loadDataModel) -> Viewer",
+            "cmd": "node ../ifc2gltf2xgf/ifc2gltf2xgf.js -i ./data/datasets/${modelId}/ifc2gltf/model.manifest.json -o ./data/datasets/${modelId}/ifc2gltf2xgf/model.manifest.json -l >> ./data/datasets/${modelId}/ifc2gltf2xgf/log.txt",
+            "dependson": [
+                "ifc2gltf"
+            ]
+        },
+        {
+            "id": "webifc2xgf",
+            "case": "View XGF converted from IFC by webifc2xgf",
+            "desc": "{IFC} -> webifc2xgf -> {XGF,JSON} -> (loadXGF,loadDataModel) -> Viewer",
+            "cmd": "node ../webifc2xgf/webifc2xgf.js -i ./data/datasets/${modelId}/ifc/model.ifc -s ./data/datasets/${modelId}/webifc2xgf/model.xgf -d ./data/datasets/${modelId}/webifc2xgf/model.json -l >> ./data/datasets/${modelId}/webifc2xgf/log.txt",
+            "dependson": [
+                "ifc"
+            ]
+        }
+    ]
+}

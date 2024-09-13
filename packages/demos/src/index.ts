@@ -43,23 +43,27 @@ export * as ifctypes from "@xeokit/ifctypes";
 
 // Libs like "@xeokit/gltf" and "@xeokit/las" have dependencies (polyfills) that only work on
 // node.js, so they can't be built into a Browser-loadable library. That doesn't matter,
-// because "@xeokit/dtx" can, and serves as xeokit's Browser-friendly model format, where
-// the other formats are intended for offline conversion to DTX anyway.
+// because "@xeokit/xgf" can, and serves as xeokit's Browser-friendly model format, where
+// the other formats are intended for offline conversion to XGF anyway.
 
 export * as cityjson from "@xeokit/cityjson";
 export * as dotbim from "@xeokit/dotbim";
 export * as webifc from "@xeokit/webifc";
-export * as dtx from "@xeokit/dtx";
+export * as xgf from "@xeokit/xgf";
 export * as las from "@xeokit/las";
 export * as gltf from "@xeokit/gltf";
 export * as xkt from "@xeokit/xkt";
+export * as modelchunksloader from "@xeokit/modelchunksloader";
+export * as metamodel from "@xeokit/metamodel";
 
 // Viewer
 
 export * as viewer from "@xeokit/viewer";
-export * as webglRenderer from "@xeokit/webglrenderer";
+export * as webglrenderer from "@xeokit/webglrenderer";
 export * as ktx2 from "@xeokit/ktx2";
-export * as cameraControl from "@xeokit/cameracontrol";
+export * as cameracontrol from "@xeokit/cameracontrol";
+export * as cameraflight from "@xeokit/cameraflight";
 export * as bcf from "@xeokit/bcf";
 export * as treeview from "@xeokit/treeview";
-
+export * as contextmenu from "@xeokit/contextmenu";
+export * as ifc2gltf2xgf from "@xeokit/ifc2gltf2xgf";

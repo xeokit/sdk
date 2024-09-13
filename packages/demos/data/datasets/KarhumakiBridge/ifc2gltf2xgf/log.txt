@@ -1,0 +1,227 @@
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/KarhumakiBridge/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:36:07',
+  gltfOutFiles: [
+    './data/datasets/KarhumakiBridge/ifc2gltf/model.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb'
+  ],
+  metadataOutFiles: [
+    './data/datasets/KarhumakiBridge/ifc2gltf/model.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_1.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_2.json'
+  ],
+  numCreatedGltfMeshes: 25393,
+  numCreatedMetaObjects: 6918,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ -35.63476987483614, 127.39008627588746, 55.16499999969399 ],
+  modelBoundsMin: [ -108.51133053526891, -9.224685386454013, 36.98192604014376 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [ 'no intersection found' ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/KarhumakiBridge/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb (1 of 3)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_1.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb (2 of 3)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_2.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb (3 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model.json (1 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.json (2 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.json (3 of 3)
+[ifc2gltf2xgf] Conversion time: 7.66 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/KarhumakiBridge/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:53:27',
+  gltfOutFiles: [
+    './data/datasets/KarhumakiBridge/ifc2gltf/model.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_3.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_4.glb'
+  ],
+  metadataOutFiles: [
+    './data/datasets/KarhumakiBridge/ifc2gltf/model.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_1.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_2.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_3.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_4.json'
+  ],
+  numCreatedGltfMeshes: 25393,
+  numCreatedMetaObjects: 6918,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ -35.63476987483614, 127.39008627588746, 55.16499999969399 ],
+  modelBoundsMin: [ -108.51133053526894, -9.224685386454013, 36.98192604014376 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [ 'no intersection found' ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/KarhumakiBridge/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb (1 of 5)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_1.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb (2 of 5)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_2.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb (3 of 5)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_3.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_3.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_3.glb (4 of 5)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_4.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_4.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_4.glb (5 of 5)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model.json (1 of 5)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.json (2 of 5)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.json (3 of 5)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_3.json (4 of 5)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_4.json (5 of 5)
+[ifc2gltf2xgf] Conversion time: 15.86 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/KarhumakiBridge/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:06:47',
+  gltfOutFiles: [
+    './data/datasets/KarhumakiBridge/ifc2gltf/model.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb'
+  ],
+  metadataOutFiles: [
+    './data/datasets/KarhumakiBridge/ifc2gltf/model.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_1.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_2.json'
+  ],
+  numCreatedGltfMeshes: 25393,
+  numCreatedMetaObjects: 6918,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ -35.63476987483614, 127.39008627588746, 55.16499999969399 ],
+  modelBoundsMin: [ -108.51133053526891, -9.224685386454013, 36.98192604014376 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [ 'no intersection found' ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/KarhumakiBridge/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb (1 of 3)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_1.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb (2 of 3)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_2.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb (3 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model.json (1 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.json (2 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.json (3 of 3)
+[ifc2gltf2xgf] Conversion time: 9.24 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/KarhumakiBridge/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:11:17',
+  gltfOutFiles: [
+    './data/datasets/KarhumakiBridge/ifc2gltf/model.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb'
+  ],
+  metadataOutFiles: [
+    './data/datasets/KarhumakiBridge/ifc2gltf/model.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_1.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_2.json'
+  ],
+  numCreatedGltfMeshes: 25393,
+  numCreatedMetaObjects: 6918,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ -35.63476987483614, 127.39008627588746, 55.16499999969399 ],
+  modelBoundsMin: [ -108.51133053526891, -9.224685386454013, 36.98192604014376 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [ 'no intersection found' ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/KarhumakiBridge/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb (1 of 3)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_1.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb (2 of 3)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_2.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb (3 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model.json (1 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.json (2 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.json (3 of 3)
+[ifc2gltf2xgf] Conversion time: 7.35 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/KarhumakiBridge/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:14:06',
+  gltfOutFiles: [
+    './data/datasets/KarhumakiBridge/ifc2gltf/model.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb'
+  ],
+  metadataOutFiles: [
+    './data/datasets/KarhumakiBridge/ifc2gltf/model.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_1.json',
+    './data/datasets/KarhumakiBridge/ifc2gltf/model_2.json'
+  ],
+  numCreatedGltfMeshes: 25393,
+  numCreatedMetaObjects: 6918,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ -35.63476987483614, 127.39008627588746, 55.16499999969399 ],
+  modelBoundsMin: [ -108.51133053526891, -9.224685386454013, 36.98192604014376 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [ 'no intersection found' ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/KarhumakiBridge/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb (1 of 3)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_1.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb (2 of 3)
+convertNextGLTFFile: ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/KarhumakiBridge/ifc2gltf2xgf/model_2.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb (3 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model.json (1 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_1.json (2 of 3)
+[ifc2gltf2xgf] Converted data model ./data/datasets/KarhumakiBridge/ifc2gltf/model_2.json (3 of 3)
+[ifc2gltf2xgf] Conversion time: 6.99 s
+[ifc2gltf2xgf] Done.

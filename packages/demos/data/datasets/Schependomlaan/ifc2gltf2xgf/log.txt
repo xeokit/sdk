@@ -1,0 +1,135 @@
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Schependomlaan/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:36:29',
+  gltfOutFiles: [ './data/datasets/Schependomlaan/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Schependomlaan/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5979,
+  numCreatedMetaObjects: 3730,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 22.964239358912128, 24.049556136131287, 13.356488722056485 ],
+  modelBoundsMin: [ -1, -1, -1.7000000119209293 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [ 'degenerated triangle' ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Schependomlaan/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Schependomlaan/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Schependomlaan/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Schependomlaan/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Schependomlaan/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.72 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Schependomlaan/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:54:04',
+  gltfOutFiles: [ './data/datasets/Schependomlaan/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Schependomlaan/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5979,
+  numCreatedMetaObjects: 3730,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 22.964239358912128, 24.049556136131287, 13.356488722056485 ],
+  modelBoundsMin: [ -1, -1, -1.7000000119209293 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [ 'degenerated triangle' ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Schependomlaan/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Schependomlaan/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Schependomlaan/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Schependomlaan/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Schependomlaan/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.70 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Schependomlaan/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:07:11',
+  gltfOutFiles: [ './data/datasets/Schependomlaan/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Schependomlaan/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5979,
+  numCreatedMetaObjects: 3730,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 22.964239358912128, 24.049556136131287, 13.356488722056485 ],
+  modelBoundsMin: [ -1, -1, -1.7000000119209293 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [ 'degenerated triangle' ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Schependomlaan/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Schependomlaan/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Schependomlaan/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Schependomlaan/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Schependomlaan/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.71 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Schependomlaan/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:11:37',
+  gltfOutFiles: [ './data/datasets/Schependomlaan/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Schependomlaan/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5979,
+  numCreatedMetaObjects: 3730,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 22.964239358912128, 24.049556136131287, 13.356488722056485 ],
+  modelBoundsMin: [ -1, -1, -1.7000000119209293 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [ 'degenerated triangle' ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Schependomlaan/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Schependomlaan/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Schependomlaan/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Schependomlaan/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Schependomlaan/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.65 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Schependomlaan/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:14:25',
+  gltfOutFiles: [ './data/datasets/Schependomlaan/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Schependomlaan/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 5979,
+  numCreatedMetaObjects: 3730,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 22.964239358912128, 24.049556136131287, 13.356488722056485 ],
+  modelBoundsMin: [ -1, -1, -1.7000000119209293 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [ 'degenerated triangle' ],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Schependomlaan/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Schependomlaan/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Schependomlaan/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Schependomlaan/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Schependomlaan/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.68 s
+[ifc2gltf2xgf] Done.

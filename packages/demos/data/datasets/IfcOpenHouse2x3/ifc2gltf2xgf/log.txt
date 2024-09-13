@@ -1,0 +1,351 @@
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-12 23:33:09',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 00:13:59',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 01:14:40',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 01:20:55',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:11:42',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:18:02',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:23:06',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:29:15',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:36:06',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.15 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:53:26',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10.47787120938301, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:06:46',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:11:16',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/IfcOpenHouse2x3/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:14:05',
+  gltfOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 39,
+  numCreatedMetaObjects: 44,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 10, 10, 5.780001354217529 ],
+  modelBoundsMin: [ -10, -10, -8.130000114440918 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.

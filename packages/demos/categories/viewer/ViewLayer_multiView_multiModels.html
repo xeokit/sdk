@@ -114,7 +114,7 @@
 
     const scene = new xeokit.scene.Scene();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -141,7 +141,7 @@
         view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
         view.camera.orbitPitch(20);
 
-        new xeokit.cameraControl.CameraControl(view, {});
+        new xeokit.cameracontrol.CameraControl(view, {});
 
         view.createLayer({
             id: "viewLayer1"
@@ -168,7 +168,7 @@
         view.camera.orthoProjection.scale = 40;
        // view.camera.orbitPitch(90);
 
-        new xeokit.cameraControl.CameraControl(view, {});
+        new xeokit.cameracontrol.CameraControl(view, {});
 
         view.createLayer({
             id: "viewLayer1"
@@ -193,7 +193,7 @@
         view.camera.up = [-0.41, 0.81, 0.40];
         view.camera.zoom(-20)
 
-        new xeokit.cameraControl.CameraControl(view, {});
+        new xeokit.cameracontrol.CameraControl(view, {});
 
         view.createLayer({
             id: "viewLayer2"
@@ -206,13 +206,13 @@
     // This SceneModel will appear in ViewLayer "viewLayer1"
     //-----------------------------------------------------------------------------------------
 
-    fetch("../../data/dtx/MAP.dtx").then(response => {
+    fetch("../../data/xgf/MAP.xgf").then(response => {
         response.arrayBuffer().then(fileData => {
             const sceneModel = scene.createModel({
                 id: "myModel",
                 layerId: "viewLayer1"
             });
-            xeokit.dtx.loadDTX({
+            xeokit.xgf.loadXGF({
                 fileData,
                 sceneModel
             });

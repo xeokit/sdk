@@ -58,7 +58,7 @@
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
         scene,
-        renderer: new xeokit.webglRenderer.WebGLRenderer({})
+        renderer: new xeokit.webglrenderer.WebGLRenderer({})
     });
 
     const view = viewer.createView({
@@ -86,7 +86,7 @@
 
     view.camera.orbitPitch(20);
 
-    new xeokit.cameraControl.CameraControl(view);
+    new xeokit.cameracontrol.CameraControl(view);
 
     //-----------------------------------------------------------------------------------------
     // Build a SceneModel, with transforms that are compaitible with our +Z "up" coordinate system

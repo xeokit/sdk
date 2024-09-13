@@ -1,0 +1,351 @@
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-12 23:33:06',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 9 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.11 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 00:13:56',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 13.409500122070312 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.11 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 01:14:37',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 13.409500122070312 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.11 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 01:20:52',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 9 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.11 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:11:39',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 9 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.11 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:17:59',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 9 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.11 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:23:03',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 9 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.11 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:29:12',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 9 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.11 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:36:03',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 13.409500122070312 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.11 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 18:53:23',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 9 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.11 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:06:43',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 9 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.11 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:11:13',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 9 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.12 s
+[ifc2gltf2xgf] Done.
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+{
+  inputFile: './data/datasets/Duplex/ifc/model.ifc',
+  converterApplication: 'ifc2gltfcxconverter',
+  converterApplicationVersion: '4.14',
+  conversionDate: '2024-09-13 19:14:02',
+  gltfOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.glb' ],
+  metadataOutFiles: [ './data/datasets/Duplex/ifc2gltf/model.json' ],
+  numCreatedGltfMeshes: 871,
+  numCreatedMetaObjects: 246,
+  numExportedPropertySetsOrElementQuantities: 0,
+  modelBoundsMax: [ 9.041500091552734, 5.017477452754974, 9 ],
+  modelBoundsMin: [ -0.24150000512599945, -22.1827335357666, -1.550000011920929 ],
+  generalMessages: [ 'Detected IFC version: IFC4X3' ],
+  warnings: [],
+  errors: []
+}
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/datasets/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+convertGLTFFiles
+convertNextGLTFFile: ./data/datasets/Duplex/ifc2gltf/model.glb
+[ifc2gltf2xgf] Writing XGF+JSON files: data/datasets/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/datasets/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/datasets/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.14 s
+[ifc2gltf2xgf] Done.

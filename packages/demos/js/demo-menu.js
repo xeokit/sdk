@@ -172,7 +172,8 @@ function load(file) {
     if (selected !== null) divs[selected].className = 'link';
     divs[file].className = 'link selected';
     window.location.hash = file;
-    viewer.src = file + '.html';
+    viewer.src = file;
+   // viewer.src = file + '.html';
     viewer.focus();
     viewSourceButton.style.display = '';
     selected = file;

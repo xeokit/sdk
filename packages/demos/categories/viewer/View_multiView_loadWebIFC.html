@@ -121,7 +121,7 @@
     const scene = new xeokit.scene.Scene();
     const data = new xeokit.data.Data();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -169,9 +169,9 @@
     // Attach CameraControls to the Views, to control
     // each View independently with mouse and touch input
 
-    const cameraControl1 = new xeokit.cameraControl.CameraControl(view1, {});
-    const cameraControl2 = new xeokit.cameraControl.CameraControl(view2, {});
-    const cameraControl3 = new xeokit.cameraControl.CameraControl(view3, {});
+    const cameraControl1 = new xeokit.cameracontrol.CameraControl(view1, {});
+    const cameraControl2 = new xeokit.cameracontrol.CameraControl(view2, {});
+    const cameraControl3 = new xeokit.cameracontrol.CameraControl(view3, {});
 
     // Create SceneModel to hold geometry
 

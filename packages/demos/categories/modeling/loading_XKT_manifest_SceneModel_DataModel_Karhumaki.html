@@ -55,7 +55,7 @@
     const scene = new xeokit.scene.Scene();
     const data = new xeokit.data.Data();
 
-    const renderer = new xeokit.webglRenderer.WebGLRenderer({});
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
     const viewer = new xeokit.viewer.Viewer({
         id: "myViewer",
@@ -73,7 +73,7 @@
     view.camera.up = [-0.39, 0.84, 0.36];
     view.edges.enabled = false;
 
-    const cameraControl = new xeokit.cameraControl.CameraControl(view, {});
+    const cameraControl = new xeokit.cameracontrol.CameraControl(view, {});
 
     const sceneModel = scene.createModel({
         id: "myModel",
@@ -86,9 +86,7 @@
     });
 
     xeokit.xkt.loadXKTManifest({
-
-        src: "../../data/xktManifests/Karhumaki-Bridge/manifest.json",
-
+        src: "https://xeokit.github.io/xeokit-model-conversion-tests/convertedModels/ifc/projects/Karhumaki/models/Karhumaki-Bridge/model.xkt.manifest.json",
         dataModel,
         sceneModel
 

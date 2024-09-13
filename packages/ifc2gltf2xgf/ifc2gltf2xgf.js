@@ -137,15 +137,11 @@ try {
 
     const convertGLTFFiles = (done) => {
 
-        console.log("convertGLTFFiles")
-
         let i = 0;
 
         const convertNextGLTFFile = () => {
 
             const gltfSrc = gltfManifest.gltfOutFiles[i];
-
-            console.log("convertNextGLTFFile: " + gltfSrc)
 
             const gltfFileName = path.basename(gltfSrc);
             const gltfFullPath = path.join(basePath, gltfFileName);
@@ -226,7 +222,7 @@ try {
         fs.writeFileSync(xgfChunkManifestSrc, JSON.stringify(xgfChunkManifest));
         const conversionTime = ((new Date() - startTime) / 1000.0).toFixed(2);
         logInfo("Conversion time: " + conversionTime + " s");
-        logInfo(`Done.`);
+        logInfo(`Done.\n`);
         process.exit(0);
     }
 

@@ -21,13 +21,11 @@ import type {SceneModelParams} from "./SceneModelParams";
 import type {Scene} from "./Scene";
 import type {SceneModelStats} from "./SceneModelStats";
 import {
-    composeMat4, createMat4,
+    composeMat4,
     createVec3,
     eulerToQuat,
     identityMat4,
-    identityQuat,
-    mulVec3Scalar,
-    translateMat4v
+    identityQuat
 } from "@xeokit/matrix";
 import {SceneModelStreamParams} from "./SceneModelStreamParams";
 import {SceneQuantizationRange} from "./SceneQuantizationRange";
@@ -37,7 +35,7 @@ import {createRTCModelMat} from "@xeokit/rtc";
 import {FloatArrayParam} from "@xeokit/math";
 
 
-// DTX texture types
+// XGF texture types
 
 const COLOR_TEXTURE = 0;
 const METALLIC_ROUGHNESS_TEXTURE = 1;
@@ -93,8 +91,7 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
  * * Contains {@link @xeokit/scene!SceneObject | SceneObjects}, {@link @xeokit/scene!SceneMesh | SceneMeshes}, {@link @xeokit/scene!SceneGeometry | Geometries} and {@link @xeokit/scene!SceneTexture | Textures}.
  * * Compresses textures using [Basis](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#basis)
  * * Viewable in the Browser with {@link @xeokit/viewer!Viewer | Viewer}
- * * Importable from various model file formats, using {@link @xeokit/gltf!loadGLTF | loadGLTF}, {@link @xeokit/dotbim!loadDotBIM | loadDotBIM}, {@link @xeokit/las!loadLAS | loadLAS}, {@link @xeokit/cityjson!loadCityJSON | loadCityJSON}, {@link @xeokit/dtx!loadDTX | loadDTX}, {@link @xeokit/xkt!loadXKT | loadXKT} (etc)
- * * Exportable to [DTX](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#dtx) format using {@link @xeokit/dtx!saveDTX | saveDTX}
+ * * Import and export to/from a variety of file formats
  * * Programmatically buildable using builder methods
  *
  * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
@@ -807,7 +804,7 @@ export class SceneModel extends Component {
                 matrix = identityMat4();
             }
         } else {
-            matrix = matrix.slice();
+         //   matrix = matrix.slice();
         }
         let origin;
         let rtcMatrix = matrix;

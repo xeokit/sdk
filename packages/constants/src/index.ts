@@ -485,3 +485,13 @@ export const FirstPersonNavigationMode = 600002;
  * Plan view navigation mode.
  */
 export const PlanViewNavigationMode = 600003;
+
+/**
+ *  Indicates scene content that never changes.
+ */
+export const StaticDraw = 700000;
+
+/**
+ *  Indicates scene content that changes frequently.
+ */
+export const DynamicDraw = 700001;

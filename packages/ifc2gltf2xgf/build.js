@@ -5,7 +5,7 @@ const {peerDependencies} = require('./package.json');
 
 const sharedConfig = {
     entryPoints: [
-        "./src/webifc2dtx.ts"
+        "./src/gltf2xgf.ts"
     ],
     bundle: true,
     minify: false,
@@ -17,5 +17,5 @@ build({
     platform: 'node',
     format: 'cjs',
     target: "node10.4",
-    outfile: "dist/webifc2dtx.cjs.js",
+    outfile: "dist/gltf2xgf.cjs.js",
 });

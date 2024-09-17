@@ -1,0 +1,145 @@
+{
+    "id": "myModel",
+    "objects": [
+        {
+            "id": "table",
+            "type": 1000,
+            "name": "Table",
+            "propertySetIds": [
+                "tablePropertySet"
+            ]
+        },
+        {
+            "id": "redLeg",
+            "name": "Red table leg",
+            "type": 1000,
+            "propertySetIds": [
+                "tableLegPropertySet"
+            ]
+        },
+        {
+            "id": "greenLeg",
+            "name": "Green table leg",
+            "type": 1000,
+            "propertySetIds": [
+                "tableLegPropertySet"
+            ]
+        },
+        {
+            "id": "blueLeg",
+            "name": "Blue table leg",
+            "type": 1000,
+            "propertySetIds": [
+                "tableLegPropertySet"
+            ]
+        },
+        {
+            "id": "yellowLeg",
+            "name": "Yellow table leg",
+            "type": 1000,
+            "propertySetIds": [
+                "tableLegPropertySet"
+            ]
+        },
+        {
+            "id": "tableTop",
+            "name": "Purple table top",
+            "type": 1000,
+            "propertySetIds": [
+                "tableTopPropertySet"
+            ]
+        }
+    ],
+    "relationships": [
+        {
+            "type": 1001,
+            "relatingObjectId": "table",
+            "relatedObjectId": "tableTop"
+        },
+        {
+            "type": 1001,
+            "relatingObjectId": "tableTop",
+            "relatedObjectId": "redLeg"
+        },
+        {
+            "type": 1001,
+            "relatingObjectId": "tableTop",
+            "relatedObjectId": "greenLeg"
+        },
+        {
+            "type": 1001,
+            "relatingObjectId": "tableTop",
+            "relatedObjectId": "blueLeg"
+        },
+        {
+            "type": 1001,
+            "relatingObjectId": "tableTop",
+            "relatedObjectId": "yellowLeg"
+        }
+    ],
+    "propertySets": [
+        {
+            "id": "tablePropertySet",
+            "name": "Table properties",
+            "type": "",
+            "properties": [
+                {
+                    "name": "Weight",
+                    "value": 5,
+                    "type": "",
+                    "valueType": "",
+                    "description": "Weight of the thing"
+                },
+                {
+                    "name": "Height",
+                    "value": 12,
+                    "type": "",
+                    "valueType": "",
+                    "description": "Height of the thing"
+                }
+            ]
+        },
+        {
+            "id": "tableLegPropertySet",
+            "name": "Table leg properties",
+            "type": "",
+            "properties": [
+                {
+                    "name": "Weight",
+                    "value": 5,
+                    "type": "",
+                    "valueType": "",
+                    "description": "Weight of the thing"
+                },
+                {
+                    "name": "Height",
+                    "value": 12,
+                    "type": "",
+                    "valueType": "",
+                    "description": "Height of the thing"
+                }
+            ]
+        },
+        {
+            "id": "tableTopPropertySet",
+            "name": "Table top properties",
+            "type": "",
+            "properties": [
+                {
+                    "name": "Weight",
+                    "value": 15,
+                    "type": "",
+                    "valueType": "",
+                    "description": "Weight of the thing"
+                },
+                {
+                    "name": "Height",
+                    "value": 4,
+                    "type": "",
+                    "valueType": "",
+                    "description": "Height of the thing"
+                }
+            ]
+        }
+    ]
+}

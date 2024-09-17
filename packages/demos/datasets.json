@@ -7,38 +7,51 @@
             ]
         },
         {
+            "id": "VM05_2009",
+            "pipelines": [
+                "cityjson"
+            ]
+        },
+        {
             "id": "SmallHouse",
             "pipelines": [
-                "dotbim"
+                "dotbim",
+                "dotbim2xgf"
             ]
         },
         {
             "id": "TeapotXeokitLogo",
             "pipelines": [
-                "dotbim"
+                "dotbim",
+                "dotbim2xgf"
             ]
         },
         {
             "id": "BlenderHouse",
             "pipelines": [
-                "dotbim"
+                "dotbim",
+                "dotbim2xgf"
             ]
         },
         {
             "id": "MAP",
             "pipelines": [
-                "ifc",
+                "gltf",
                 "ifc2gltf",
                 "ifc2gltf2xgf",
+                "gltf2xgf",
                 "webifc2xgf"
             ]
         },
         {
             "id": "Duplex",
             "pipelines": [
+                "json",
                 "ifc",
+                "gltf",
                 "ifc2gltf",
                 "ifc2gltf2xgf",
+                "gltf2xgf",
                 "webifc2xgf"
             ]
         },
@@ -48,6 +61,7 @@
                 "ifc",
                 "ifc2gltf",
                 "ifc2gltf2xgf",
+                "gltf2xgf",
                 "webifc2xgf"
             ]
         },
@@ -57,13 +71,15 @@
                 "ifc",
                 "ifc2gltf",
                 "ifc2gltf2xgf",
+                "gltf2xgf",
                 "webifc2xgf"
             ]
         },
         {
             "id": "Nalls-Pumpkin-Hill",
             "pipelines": [
-                "laz"
+                "laz",
+                "las2xgf"
             ]
         },
         {
@@ -78,6 +94,40 @@
             "pipelines": [
                 "ifc2gltf",
                 "ifc2gltf2xgf"
+            ]
+        },
+        {
+            "id": "RAC",
+            "pipelines": [
+                "ifc",
+                "gltf",
+                "ifc2gltf",
+                "ifc2gltf2xgf",
+                "webifc2xgf"
+            ]
+        },
+        {
+            "id": "Box",
+            "pipelines": [
+                "json"
+            ]
+        },
+        {
+            "id": "Table",
+            "pipelines": [
+                "json"
+            ]
+        },
+        {
+            "id": "Geometries",
+            "pipelines": [
+                "json"
+            ]
+        },
+        {
+            "id": "2CylinderEngine",
+            "pipelines": [
+                "gltf"
             ]
         }
     ]

@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="../../css/pageStyle.css" rel="stylesheet"/>
+</head>
+<body>
+<input type="checkbox" id="info-button"/>
+<label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
+<canvas id="myCanvas"></canvas>
+<div class="slideout-sidebar">
+    <h1>Viewer with View containing automatically-created ViewLayers</h1>
+    <p>TODO</p>
+    <h3>Major components used</h3>
+    <ul>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.Viewer.html" target="_other">Viewer</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_webglrenderer.WebGLRenderer.html" target="_other">WebGLRenderer</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.View.html" target="_other">View</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_scene.SceneModel.html" target="_other">SceneModel</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.ViewObject.html" target="_other">ViewObject</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_core.SDKError.html" target="_other">SDKError</a>
+        </li>
+    </ul>
+</div>
+</body>
+
+<script type="module">
+
+    import * as xeokit from "./../../js/xeokit-demo-bundle.js?foo=";
+
+    //-----------------------------------------------------------------------------------------
+    // Create a Viewer with a Scene and a WebGLRenderer
+    //-----------------------------------------------------------------------------------------
+
+    const scene = new xeokit.scene.Scene();
+
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer
+    });
+
+    //-----------------------------------------------------------------------------------------
+    // Create a View
+    //
+    // Configure the View to automatically create ViewLayers on-demand, whenever they are
+    // specified by a SceneModel's "viewLayer" configuration
+    //
+    // Attach a CameraControl to the View
+    //-----------------------------------------------------------------------------------------
+
+    const view = viewer.createView({
+        id: "myView",
+        elementId: "myCanvas",
+        autoLayers: true // <<------------- Default
+    });
+
+    view.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
+    view.camera.eye = [-20,-5,20];
+    view.camera.look = [0,-5,0];
+    view.camera.up = [0,1,0];
+    view.camera.orbitPitch(20);
+
+    const cameraControl = new xeokit.cameracontrol.CameraControl(view, {});
+
+    //-----------------------------------------------------------------------------------------
+    // Load a building model
+    //
+    // The building model is loaded into a SceneMode that specifies that its objects will
+    // belong to ViewLayer "modelLayer"
+    //
+    // The "modelLayer" ViewLayer is then created on-demand in our View, because we
+    // configured the View with autoLayers: true (which is the default)
+    //-----------------------------------------------------------------------------------------
+
+    const sceneModel = scene.createModel({
+        id: "myModel",
+        layerId: "modelLayer"
+    });
+
+    fetch("../../data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb").then(response => {
+        response.arrayBuffer().then(fileData => {
+            xeokit.gltf.loadGLTF({ fileData, sceneModel }).then(()=>{
+                sceneModel.build();
+            });
+        });
+    });
+
+    //-----------------------------------------------------------------------------------------
+    // Create ground grid model
+    //
+    // The grid model is constructed in a SceneMode that specifies that its objects will
+    // belong to ViewLayer "gridLayer"
+    //
+    // The "gridLayer" ViewLayer is then created on-demand in our View, because we
+    // configured the View with autoLayers: true (which is the default)
+    //-----------------------------------------------------------------------------------------
+
+    const gridSceneModel = scene.createModel({
+        id: "myHelperSceneModel",
+        layerId: "gridLayer"
+    });
+
+    const grid = xeokit.procgen.buildGridGeometry({
+        size: 100,
+        divisions: 100
+    });
+
+    gridSceneModel.createGeometry({
+        id: "gridGeometry",
+        primitive: xeokit.constants.LinesPrimitive,
+        positions: grid.positions,
+        indices: grid.indices
+    });
+
+    gridSceneModel.createMesh({
+        id: "gridMesh",
+        geometryId: "gridGeometry",
+        position: [0, -5, 0],
+        color: [.7, .7, .7]
+    });
+
+    gridSceneModel.createObject({
+        id: "grid",
+        meshIds: ["gridMesh"]
+    });
+
+    gridSceneModel.build();
+
+    //-----------------------------------------------------------------------------------------
+    // Toggle the highlighting of objects in ViewLayer "gridLayer", causing them to blink
+    //-----------------------------------------------------------------------------------------
+
+    // let toggle = true;
+    // setInterval(() => {
+    //     const viewLayer = view.layers["gridLayer"];
+    //     if (viewLayer) {
+    //         viewLayer.setObjectsHighlighted(["grid"], toggle = !toggle);
+    //     }
+    // }, 1000);
+
+</script>
+
+</html>

@@ -2,7 +2,7 @@
     "inputFile": "./data/datasets/IfcOpenHouse2x3/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
     "converterApplicationVersion": "4.14",
-    "conversionDate": "2024-09-13 19:14:05",
+    "conversionDate": "2024-09-17 14:31:45",
     "gltfOutFiles": [
         "./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb"
     ],
@@ -15,7 +15,7 @@
     "modelBoundsMax": [
         10.0,
         10.0,
-        5.780001354217529
+        5.78000135421753
     ],
     "modelBoundsMin": [
         -10.0,

@@ -106,7 +106,7 @@ export function buildViewModelsMenu(params) {
         caseDiv.style.color = "grey";
         caseDiv.style.fontStyle = "italic";
         caseDiv.className = 'code';
-        caseDiv.textContent = pipeline.case;
+        caseDiv.innerHTML = pipeline.case;
         container.appendChild(caseDiv);
 
 
@@ -181,7 +181,7 @@ export function buildViewModelsMenu(params) {
 
     function load(file) {
 
-        pageTitle.innerText = fileDescriptions[file] || "Example not found - perhaps renamed?";
+        pageTitle.innerHTML = fileDescriptions[file] || "Example not found - perhaps renamed?";
 
         if (file.indexOf(".html", file.length - 5) !== -1) {
             window.location = "./" + file + ".html";

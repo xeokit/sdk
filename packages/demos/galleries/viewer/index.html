@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Examples</title>
+    <link href='https://fonts.googleapis.com/css?family=Exo+2:400,800,900,700,600,500|Roboto:100,300,400,500,700,900'
+          rel='stylesheet' type='text/css'>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
+    <link href='../../css/index.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+<input type="checkbox" id="index_toggle"/>
+<label for="index_toggle" class="index-button"><i class="fas fa-2x fa-bars"></i></label>
+<div class="page-title" id="page-title"></div>
+<div class="viewSourceButton" id="viewSourceButton"><i class="fas fa-2x fa-code"></i></div>
+<div class="content-overlay" id="viewer-overlay"></div>
+<iframe class="content-container" id="viewer" src="../default.html"></iframe>
+<div class="slideout-sidebar">
+    <div id="index"><h1><a href="http://xeokit.io">xeokit</a> / <a href="../">Demos</a> / Viewer Coding</h1></div>
+</div>
+</body>
+<script>
+    const files = {
+        "Viewer Basics": [
+
+            "#Minimal working examples",
+
+            ["Viewer_drawTriangle", "Drawing a triangle with a Viewer, with no error checking"],
+            ["Viewer_drawTriangle_checkErrors", "Drawing a triangle with a Viewer, with full error checking"],
+            ["Viewer_drawTriangle_getEvents", "Drawing a triangle with a Viewer, listen to various Viewer events"],
+            ["Viewer_drawTriangle_getCapabilities", "Querying the capabilities of a Viewer"]
+        ],
+
+        "Lighting": [
+
+        ],
+
+        "Views": [
+
+            "#A View binds a Viewer to a canvas",
+
+            ["View_worldAxis_SceneModel", "Configuring a View's World coordinate axis"],
+            ["View_worldAxis_loadCityJSON", "Configuring a View's World coordinate axis"],
+
+            "#Viewers with multiple Views",
+
+            ["View_multiView_loadWebIFC", "Showing the same IFC model in multiple Views"],
+            ["View_multiView_SceneModel", "Showing the same SceneModel in multiple Views"],
+            ["View_multiView_renderModes", "Viewer with multiple Views showing different models"],
+        ],
+
+        "ViewLayers": [
+
+            "#ViewLayers organize objects in Views",
+
+            ["ViewLayer_auto", "Viewer with View containing automatically-created ViewLayers"],
+            ["ViewLayer_manual", "Viewer with View containing manually-created ViewLayers"],
+
+            "#Viewers with multiple Views and ViewLayers",
+
+            ["ViewLayer_multiView", "Using ViewLayers in a Viewer with multiple Views"],
+            ["ViewLayer_multiView_multiModels", "Viewer with multiple Views showing different models"],
+            ["ViewLayer_multiView_lighting", "Viewer with multiple Views, each with different lighting"],
+
+        ],
+
+        "Render Modes": [
+
+            "#Render modes select how objects appear in a View",
+
+            ["renderModes_View_multiView", "Using render modes in a Viewer with multiple Views"]
+        ],
+
+        "Building Models in JavaScript": [
+
+            "#Building models using builder methods",
+
+            ["building_SceneModel_triangle", "Building a SceneModel using builder methods"],
+            ["building_SceneModel_triangle_checkErrors", "Building a SceneModel using builder methods, with error checking"],
+            ["building_SceneModel_box", "Building a SceneModel using builder methods"],
+            ["building_SceneModel_box_compressedGeometry", "Building a SceneModel using builder methods, with pre-compressed geometry"],
+            ["building_SceneModel_lines", "Building a SceneModel using builder methods"],
+            ["building_SceneModel_points", "Building a SceneModel using builder methods"],
+            ["building_SceneModel_geometries", "Building a SceneModel using builder methods"],
+            ["building_SceneModel_DataModel_table", "Building a SceneModel and DataModel using builder methods"]
+        ],
+
+        "Loading Models from JSON": [
+
+            "#Deserializing models from JSON",
+
+            ["fromJSON_SceneModel_triangle", "Deserializing a SceneModel from JSON"],
+            ["fromJSON_SceneModel_box", "Deserializing a SceneModel from JSON"],
+            ["fromJSON_SceneModel_box_compressedGeometry", "Deserializing a SceneModel from JSON with pre-compressed geometry"],
+            ["fromJSON_SceneModel_geometries", "Deserializing a SceneModel from JSON"],
+            ["fromJSON_SceneModel_table", "Deserializing a SceneModel and DataModel from JSON"],
+            ["fromJSON_SceneModel_DataModel_IfcOpenHouse4", "Deserializing a SceneModel and DataModel from JSON"]
+        ],
+
+        "Loading Models from various formats": [
+
+            "#Loading models from various AEC formats",
+
+            ["loadCityJSON", "Deserializing a SceneModel from JSON"],
+            ["loadWebIFC", "Deserializing a SceneModel from JSON"],
+            ["loadGLTF", "Deserializing a SceneModel from JSON"],
+            ["loadXGF", "Deserializing a SceneModel from JSON"],
+            ["loadDotBIM", "Deserializing a SceneModel from JSON"]
+        ]
+    };
+
+</script>
+<script src="../../js/demo-menu.js"></script>
+</html>

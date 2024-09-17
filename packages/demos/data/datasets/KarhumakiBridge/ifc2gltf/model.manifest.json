@@ -2,7 +2,7 @@
     "inputFile": "./data/datasets/KarhumakiBridge/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
     "converterApplicationVersion": "4.14",
-    "conversionDate": "2024-09-13 19:14:06",
+    "conversionDate": "2024-09-17 14:31:51",
     "gltfOutFiles": [
         "./data/datasets/KarhumakiBridge/ifc2gltf/model.glb",
         "./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb",

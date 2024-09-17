@@ -2,7 +2,7 @@
     "inputFile": "./data/datasets/IfcOpenHouse4/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
     "converterApplicationVersion": "4.14",
-    "conversionDate": "2024-09-13 19:14:04",
+    "conversionDate": "2024-09-17 14:31:44",
     "gltfOutFiles": [
         "./data/datasets/IfcOpenHouse4/ifc2gltf/model.glb"
     ],

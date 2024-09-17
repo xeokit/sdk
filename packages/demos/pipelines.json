@@ -1,65 +1,82 @@
 {
     "pipelines": [
         {
+            "id": "json",
+            "name": "JSON",
+            "case": "JSON -&gt; <a href=\"/docs/api/modules/_xeokit_scene.html\">loadSceneModel()</a> / <a href=\"/docs/api/modules/_xeokit_data.html\">loadDataModel()</a>",
+            "desc": "{JSON} -> loadSceneModel -> Viewer"
+        },
+        {
             "id": "ifc",
             "name": "WebIFC",
-            "case": "View IFC using WebIFC",
+            "case": "<a href=\"https://en.wikipedia.org/wiki/Industry_Foundation_Classes\">IFC</a> -&gt; <a href=\"/docs/api/modules/_xeokit_webifc.html\">loadWebIFC()</a>",
             "desc": "{IFC} -> loadWebIFC -> Viewer"
         },
         {
             "id": "xgf",
             "name": "XGF",
-            "case": "View XGF",
+            "case": "XGF -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">loadXGF()</a>",
             "desc": "{XGF} -> loadXGF -> Viewer"
         },
         {
             "id": "xkt",
             "name": "XKT",
-            "case": "View XKT",
+            "case": "XKT -&gt; <a href=\"/docs/api/modules/_xeokit_xkt.html\">loadXKT()</a>",
             "desc": "{XKT} -> loadXKT -> Viewer"
         },
         {
             "id": "cityjson",
             "name": "CityJSON",
-            "case": "View CityJSON",
+            "case": "<a href=\"https://www.cityjson.org/\">CityJSON</a> -&gt; <a href=\"/docs/api/modules/_xeokit_cityjson.html\">loadCityJSON()</a>",
             "desc": "{CityJSON} -> loadCityJSON -> Viewer"
         },
         {
             "id": "las",
             "name": "LAS",
-            "case": "View LAS",
+            "case": "<a href=\"https://en.wikipedia.org/wiki/LAS_file_format\">LAS</a> -&gt; <a href=\"/docs/api/modules/_xeokit_las.html\">loadLAS()</a>",
             "desc": "{LAS} -> loadLAS -> Viewer"
         },
         {
             "id": "laz",
             "name": "LAZ",
-            "case": "View LAZ",
+            "case": "<a href=\"https://en.wikipedia.org/wiki/LAS_file_format\">LAZ</a> -&gt; <a href=\"/docs/api/modules/_xeokit_las.html\">loadLAS()</a>",
             "desc": "{LAZ} -> loadLAS -> Viewer"
         },
         {
             "id": "dotbim",
             "name": ".BIM",
-            "case": "View .BIM",
+            "case": "<a href=\"https://dotbim.net/\">.BIM</a> -&gt; <a href=\"/docs/api/modules/_xeokit_dotbim.html\">loadDotBIM()</a>",
             "desc": "{DotBIM} -> loadDotBIM -> Viewer"
         },
         {
             "id": "gltf",
             "name": "glTF",
-            "case": "View glTF",
+            "case": "<a href=\"https://en.wikipedia.org/wiki/GlTF#:~:text=glTF%20(Graphics%20Library%20Transmission%20Format,glb%20(binary).\">glTF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_gltf.html\">loadGLTF()</a>",
             "desc": "{GLB} -> loadGLTF -> Viewer"
         },
         {
             "id": "gltf2xgf",
-            "case": "View XGF converted from glTF by gltf2xgf",
-            "desc": "{GLB} -> gltf2xgf -> {GLB,JSON} -> loadXGF, loadDataModel -> Viewer",
+            "docs": "/docs/api/modules/_xeokit_gltf2xgf.html",
+            "case": "<a href=\"https://en.wikipedia.org/wiki/GlTF#:~:text=glTF%20(Graphics%20Library%20Transmission%20Format,glb%20(binary).\">glTF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_gltf2xgf.html\">gltf2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">loadXGF()</a>",
+            "desc": "{GLB} -> gltf2xgf -> {XGF,JSON} -> loadXGF, loadDataModel -> Viewer",
             "cmd": "node ../gltf2xgf/gltf2xgf.js -i ./data/datasets/${modelId}/gltf/model.glb -s ./data/datasets/${modelId}/gltf2xgf/model.xgf -d ./data/datasets/${modelId}/gltf2xgf/model.json -l >> ./data/datasets/${modelId}/gltf2xgf/log.txt",
             "dependson": [
                 "gltf"
             ]
         },
         {
+            "id": "las2xgf",
+            "docs": "/docs/api/modules/las2xgf.html",
+            "case": "LAS -&gt; <a href=\"https://en.wikipedia.org/wiki/LAS_file_format\">gltf2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">loadXGF()</a>",
+            "desc": "{LAS/LAZ} -> las2xgf -> {XGF,JSON} -> loadXGF, loadDataModel -> Viewer",
+            "cmd": "node ../las2xgf/las2xgf.js -i ./data/datasets/${modelId}/laz/model.* -s ./data/datasets/${modelId}/las2xgf/model.xgf -d ./data/datasets/${modelId}/las2xgf/model.json -l >> ./data/datasets/${modelId}/las2xgf/log.txt",
+            "dependson": [
+                "laz"
+            ]
+        },
+        {
             "id": "ifc2gltf",
-            "case": "View glTF converted from IFC by ifc2gltf",
+            "case": "<a href=\"https://en.wikipedia.org/wiki/Industry_Foundation_Classes\">IFC</a> -&gt; <a href=\"/docs/api/modules/_xeokit_ifc2gltf.html\">ifc2gltf</a> -&gt; <a href=\"https://en.wikipedia.org/wiki/GlTF#:~:text=glTF%20(Graphics%20Library%20Transmission%20Format,glb%20(binary).\">glTF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_gltf.html\">loadGLTF()</a>",
             "desc": "{IFC} -> ifc2gltf -> {GLB,JSON} -> ModelChunksLoader(loadGLTF, loadMetaModel) -> Viewer",
             "cmd": "/home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json -i ./data/datasets/${modelId}/ifc/model.ifc -o ./data/datasets/${modelId}/ifc2gltf/model.glb -m ./data/datasets/${modelId}/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/${modelId}/ifc2gltf/log.txt",
             "dependson": [
@@ -68,7 +85,7 @@
         },
         {
             "id": "ifc2gltf2xgf",
-            "case": "View XGF converted from IFC by ifc2gltf and ifc2gltf2xgf",
+            "case": "<a href=\"https://en.wikipedia.org/wiki/Industry_Foundation_Classes\">IFC</a> -&gt; <a href=\"/docs/api/modules/_xeokit_ifc2gltf.html\">ifc2gltf</a>  -&gt; <a href=\"https://en.wikipedia.org/wiki/GlTF#:~:text=glTF%20(Graphics%20Library%20Transmission%20Format,glb%20(binary).\">glTF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_ifc2gltf2xgf.html\">ifc2gltf2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">loadXGF()</a>",
             "desc": "{IFC} -> ifc2gltf -> {GLB,JSON} -> ifc2gltf2xgf -> {XGF,JSON} -> ModelChunksLoader(loadXGF, loadDataModel) -> Viewer",
             "cmd": "node ../ifc2gltf2xgf/ifc2gltf2xgf.js -i ./data/datasets/${modelId}/ifc2gltf/model.manifest.json -o ./data/datasets/${modelId}/ifc2gltf2xgf/model.manifest.json -l >> ./data/datasets/${modelId}/ifc2gltf2xgf/log.txt",
             "dependson": [
@@ -77,11 +94,21 @@
         },
         {
             "id": "webifc2xgf",
-            "case": "View XGF converted from IFC by webifc2xgf",
+            "case": "<a href=\"https://en.wikipedia.org/wiki/Industry_Foundation_Classes\">IFC</a> -&gt; <a href=\"/docs/api/modules/_xeokit_webifc2xgf.html\">webifc2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">loadXGF()</a>",
             "desc": "{IFC} -> webifc2xgf -> {XGF,JSON} -> (loadXGF,loadDataModel) -> Viewer",
             "cmd": "node ../webifc2xgf/webifc2xgf.js -i ./data/datasets/${modelId}/ifc/model.ifc -s ./data/datasets/${modelId}/webifc2xgf/model.xgf -d ./data/datasets/${modelId}/webifc2xgf/model.json -l >> ./data/datasets/${modelId}/webifc2xgf/log.txt",
             "dependson": [
                 "ifc"
+            ]
+        },
+        {
+            "id": "dotbim2xgf",
+            "docs": "",
+            "case": "<a href=\"https://dotbim.net/\">.BIM</a> -&gt; <a href=\"/docs/api/modules/_xeokit_dotbim2xgf.html\">dotbim2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">loadXGF()</a>",
+            "desc": "{.BIM} -> dotbim2xgf -> {XGF,JSON} -> loadXGF, loadDataModel -> Viewer",
+            "cmd": "node ../dotbim2xgf/dotbim2xgf.js -i ./data/datasets/${modelId}/dotbim/model.bim -s ./data/datasets/${modelId}/dotbim2xgf/model.xgf -d ./data/datasets/${modelId}/dotbim2xgf/model.json -l >> ./data/datasets/${modelId}/dotbim2xgf/log.txt",
+            "dependson": [
+                "laz"
             ]
         }
     ]

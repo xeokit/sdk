@@ -1,0 +1,654 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="../../css/pageStyle.css" rel="stylesheet"/>
+</head>
+<body>
+<input type="checkbox" id="info-button"/>
+<label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
+<canvas id="myCanvas"></canvas>
+<div id="treeViewContainer"></div>
+<div class="slideout-sidebar">
+    <h1>Drawing a triangle with a Viewer configured with a WebGLRenderer</h1>
+    <p>In tis example, we're creating a Viewer configured with a WebGLRenderer and a Scene. Then we build a SceneModel
+        with a simple triangle geometry.</p>
+    <h3>Major components used</h3>
+    <ul>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.Viewer.html" target="_other">Viewer</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_webglrenderer.WebGLRenderer.html" target="_other">WebGLRenderer</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_viewer.View.html" target="_other">View</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_scene.SceneModel.html" target="_other">SceneModel</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_data.DataModel.html" target="_other">DataModel</a>
+        </li>
+        <li>
+            <a href="../docs/api/functions/_xeokit_gltf.loadGLTF.html" target="_other">loadGLTF</a>
+        </li>
+        <li>
+            <a href="../docs/api/classes/_xeokit_core.SDKError.html" target="_other">SDKError</a>
+        </li>
+    </ul>
+</div>
+</body>
+
+<script type="module">
+
+    import {log} from "../../js/logger.js";
+
+    //-----------------------------------------------------------------------------------------
+    // Import xeokit SDK from the JavaScript bundle that we've built for these examples
+    //-----------------------------------------------------------------------------------------
+
+    import * as xeokit from "./../../js/xeokit-demo-bundle.js";
+    import * as WebIFC from "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api.js";
+
+    const scene = new xeokit.scene.Scene();
+    const data = new xeokit.data.Data();
+
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer
+    });
+
+    log("Viewer created");
+
+    const view = viewer.createView({
+        id: "myView",
+        elementId: "myCanvas"
+    });
+
+
+    new xeokit.cameracontrol.CameraControl(view, {});
+
+    const cameraFlight = new xeokit.cameraflight.CameraFlightAnimation(view);
+
+    scene.onModelCreated.subscribe(() => {
+        cameraFlight.jumpTo({aabb: scene.aabb});
+        console.log(sceneModel.getJSON())
+    });
+
+    const treeViewPlugin = new xeokit.treeview.TreeView({
+        containerElement: document.getElementById("treeViewContainer"),
+        view,
+        data,
+        hierarchy: xeokit.treeview.TreeView.AggregationHierarchy,
+        linkType: xeokit.ifctypes.IfcRelAggregates
+    });
+
+    // const treeViewContextMenu = new xeokit.contextmenu.ContextMenu({
+    //     items: [
+    //         [
+    //             {
+    //                 title: "View Fit",
+    //                 doAction: function (context) {
+    //                     const scene = context.viewer.scene;
+    //                     const objectIds = [];
+    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+    //                         if (treeViewNode.objectId) {
+    //                             objectIds.push(treeViewNode.objectId);
+    //                         }
+    //                     });
+    //                     scene.setObjectsVisible(objectIds, true);
+    //                     scene.setObjectsHighlighted(objectIds, true);
+    //                     context.viewer.cameraFlight.flyTo({
+    //                         projection: "perspective",
+    //                         aabb: scene.getAABB(objectIds),
+    //                         duration: 0.5
+    //                     }, () => {
+    //                         setTimeout(function () {
+    //                             scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
+    //                         }, 500);
+    //                     });
+    //                 }
+    //             },
+    //             {
+    //                 title: "View Fit All",
+    //                 doAction: function (context) {
+    //                     const scene = context.viewer.scene;
+    //                     context.viewer.cameraFlight.flyTo({
+    //                         projection: "perspective",
+    //                         aabb: scene.getAABB({}),
+    //                         duration: 0.5
+    //                     });
+    //                 }
+    //             }
+    //         ],
+    //         [
+    //             {
+    //                 title: "Hide",
+    //                 doAction: function (context) {
+    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+    //                         if (treeViewNode.objectId) {
+    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+    //                             if (entity) {
+    //                                 entity.visible = false;
+    //                             }
+    //                         }
+    //                     });
+    //                 }
+    //             },
+    //             {
+    //                 title: "Hide Others",
+    //                 doAction: function (context) {
+    //                     const scene = context.viewer.scene;
+    //                     scene.setObjectsVisible(scene.visibleObjectIds, false);
+    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
+    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
+    //                     scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
+    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+    //                         if (treeViewNode.objectId) {
+    //                             const entity = scene.objects[treeViewNode.objectId];
+    //                             if (entity) {
+    //                                 entity.visible = true;
+    //                             }
+    //                         }
+    //                     });
+    //                 }
+    //             },
+    //             {
+    //                 title: "Hide All",
+    //                 getEnabled: function (context) {
+    //                     return (context.viewer.scene.visibleObjectIds.length > 0);
+    //                 },
+    //                 doAction: function (context) {
+    //                     context.viewer.scene.setObjectsVisible(context.viewer.scene.visibleObjectIds, false);
+    //                 }
+    //             }
+    //         ],
+    //         [
+    //             {
+    //                 title: "Show",
+    //                 doAction: function (context) {
+    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+    //                         if (treeViewNode.objectId) {
+    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+    //                             if (entity) {
+    //                                 entity.visible = true;
+    //                                 entity.xrayed = false;
+    //                                 entity.selected = false;
+    //                             }
+    //                         }
+    //                     });
+    //                 }
+    //             },
+    //             {
+    //                 title: "Show Others",
+    //                 doAction: function (context) {
+    //                     const scene = context.viewer.scene;
+    //                     scene.setObjectsVisible(scene.objectIds, true);
+    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
+    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
+    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+    //                         if (treeViewNode.objectId) {
+    //                             const entity = scene.objects[treeViewNode.objectId];
+    //                             if (entity) {
+    //                                 entity.visible = false;
+    //                             }
+    //                         }
+    //                     });
+    //                 }
+    //             },
+    //             {
+    //                 title: "Show All",
+    //                 getEnabled: function (context) {
+    //                     const scene = context.viewer.scene;
+    //                     return (scene.numVisibleObjects < scene.numObjects);
+    //                 },
+    //                 doAction: function (context) {
+    //                     const scene = context.viewer.scene;
+    //                     scene.setObjectsVisible(scene.objectIds, true);
+    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
+    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
+    //                 }
+    //             }
+    //         ],
+    //         [
+    //             {
+    //                 title: "X-Ray",
+    //                 doAction: function (context) {
+    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+    //                         if (treeViewNode.objectId) {
+    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+    //                             if (entity) {
+    //                                 entity.xrayed = true;
+    //                                 entity.visible = true;
+    //                             }
+    //                         }
+    //                     });
+    //                 }
+    //             },
+    //             {
+    //                 title: "Undo X-Ray",
+    //                 doAction: function (context) {
+    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+    //                         if (treeViewNode.objectId) {
+    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+    //                             if (entity) {
+    //                                 entity.xrayed = false;
+    //                             }
+    //                         }
+    //                     });
+    //                 }
+    //             },
+    //             {
+    //                 title: "X-Ray Others",
+    //                 doAction: function (context) {
+    //                     const scene = context.viewer.scene;
+    //                     scene.setObjectsVisible(scene.objectIds, true);
+    //                     scene.setObjectsXRayed(scene.objectIds, true);
+    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
+    //                     scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
+    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+    //                         if (treeViewNode.objectId) {
+    //                             const entity = scene.objects[treeViewNode.objectId];
+    //                             if (entity) {
+    //                                 entity.xrayed = false;
+    //                             }
+    //                         }
+    //                     });
+    //                 }
+    //             },
+    //             {
+    //                 title: "Reset X-Ray",
+    //                 getEnabled: function (context) {
+    //                     return (context.viewer.scene.numXRayedObjects > 0);
+    //                 },
+    //                 doAction: function (context) {
+    //                     context.viewer.scene.setObjectsXRayed(context.viewer.scene.xrayedObjectIds, false);
+    //                 }
+    //             }
+    //         ],
+    //         [
+    //             {
+    //                 title: "Select",
+    //                 doAction: function (context) {
+    //                     treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+    //                         if (treeViewNode.objectId) {
+    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+    //                             if (entity) {
+    //                                 entity.selected = true;
+    //                                 entity.visible = true;
+    //                             }
+    //                         }
+    //                     });
+    //                 }
+    //             },
+    //             {
+    //                 title: "Deselect",
+    //                 doAction: function (context) {
+    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+    //                         if (treeViewNode.objectId) {
+    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+    //                             if (entity) {
+    //                                 entity.selected = false;
+    //                             }
+    //                         }
+    //                     });
+    //                 }
+    //             },
+    //             {
+    //                 title: "Clear Selection",
+    //                 getEnabled: function (context) {
+    //                     return (context.viewer.scene.numSelectedObjects > 0);
+    //                 },
+    //                 doAction: function (context) {
+    //                     context.viewer.scene.setObjectsSelected(context.viewer.scene.selectedObjectIds, false);
+    //                 }
+    //             }
+    //         ]
+    //     ]
+    // });
+
+
+    const sceneModel = scene.createModel({
+        id: "myModel"
+    });
+
+    const dataModel = data.createModel({
+        id: "myModel"
+    });
+
+    const reqParams = getRequestParams();
+    const modelId = reqParams.modelId;
+    const pipelineId = reqParams.pipelineId;
+    const baseDir = `../../data/datasets/${modelId}/${pipelineId}`;
+
+    const onError = (err) => {
+        console.error(`[ERROR] ${err}`);
+    }
+
+    const onSuccess = () => {
+        sceneModel.build();
+        dataModel.build();
+    }
+
+    switch (pipelineId) {
+
+        case "laz":
+
+            view.camera.orbitPitch(20);
+            view.camera.orbitYaw(20);
+
+            fetch(`${baseDir}/model.laz`)
+                .then(response => {
+                    response
+                        .arrayBuffer()
+                        .then(fileData => {
+                            xeokit.las.loadLAS({
+                                    fileData,
+                                    sceneModel,
+                                    dataModel
+                                },
+                                {
+                                    fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
+                                    colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
+                                    skip: 10,            // Load every nth point (optional, default is 1)
+                                    center: false,      // Whether to center the points (optional)
+                                    transform: [        // Transform the points (optional)
+                                        1, 0, 0, 0,
+                                        0, 0, -1, 0,
+                                        0, 1, 0, 0,
+                                        0, 0, 0, 1
+                                    ]
+                                })
+                                .then(onSuccess)
+                                .catch(onError);
+                        }).catch(onError);
+                }).catch(onError);
+            break;
+
+        case "las":
+
+            view.camera.orbitPitch(20);
+            view.camera.orbitYaw(20);
+
+            fetch(`${baseDir}/model.las`)
+                .then(response => {
+                    response
+                        .arrayBuffer()
+                        .then(fileData => {
+                            xeokit.las.loadLAS({
+                                    fileData,
+                                    sceneModel,
+                                    dataModel
+                                },
+                                {
+                                    fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
+                                    colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
+                                    skip: 10,            // Load every nth point (optional, default is 1)
+                                    center: false,      // Whether to center the points (optional)
+                                    transform: [        // Transform the points (optional)
+                                        1, 0, 0, 0,
+                                        0, 0, -1, 0,
+                                        0, 1, 0, 0,
+                                        0, 0, 0, 1
+                                    ]
+                                })
+                                .then(onSuccess)
+                                .catch(onError);
+                        }).catch(onError);
+                }).catch(onError);
+            break;
+
+        case "cityjson":
+
+            view.camera.orbitPitch(-60);
+            view.camera.worldAxis = [
+                1, 0, 0, // Right
+                0, 0, 1, // Up
+                0, -1, 0  // Forward
+            ];
+
+            fetch(`${baseDir}/model.json`)
+                .then(response => {
+                    response
+                        .json()
+                        .then(fileData => {
+                            xeokit.cityjson.loadCityJSON({
+                                fileData,
+                                sceneModel,
+                                dataModel
+                            })
+                                .then(onSuccess)
+                                .catch(onError);
+                        }).catch(onError);
+                }).catch(onError);
+            break;
+
+        case "dotbim":
+
+            view.camera.worldAxis = [
+                1, 0, 0, // Right
+                0, 0, 1, // Up
+                0, -1, 0  // Forward
+            ];
+            view.camera.orbitYaw(-50);
+            view.camera.orbitPitch(-90);
+
+            fetch(`${baseDir}/model.bim`)
+                .then(response => {
+                    response
+                        .json()
+                        .then(fileData => {
+                            xeokit.dotbim.loadDotBIM({
+                                fileData,
+                                sceneModel,
+                                dataModel
+                            })
+                                .then(onSuccess)
+                                .catch(onError);
+                        }).catch(err => {
+                        log(err);
+                    });
+                }).catch(onError);
+            break;
+
+        case "gltf":
+
+            fetch(`${baseDir}/model.glb`)
+                .then(response => {
+                    response
+                        .arrayBuffer()
+                        .then(fileData => {
+                            xeokit.gltf.loadGLTF({
+                                fileData,
+                                sceneModel,
+                                dataModel
+                            })
+                                .then(onSuccess)
+                                .catch(onError);
+                        }).catch(onError);
+                }).catch(onError);
+            break;
+
+        case "ifc": {
+
+            const ifcAPI = new WebIFC.IfcAPI();
+            ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
+
+            ifcAPI.Init().then(() => {
+                fetch(`${baseDir}/model.ifc`).then(response => {
+                    response
+                        .arrayBuffer()
+                        .then(fileData => {
+                            xeokit.webifc.loadWebIFC({
+                                ifcAPI,
+                                fileData,
+                                dataModel,
+                                sceneModel
+                            })
+                                .then(onSuccess)
+                                .catch(onError);
+                        }).catch(onError);
+                }).catch(onError);
+            }).catch(onError);
+            break;
+        }
+
+        case  "ifc2gltf": {
+
+            const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
+                sceneModelLoader: xeokit.gltf.loadGLTF,
+                dataModelLoader: xeokit.metamodel.loadMetaModel
+            });
+
+            fetch(`${baseDir}/model.manifest.json`).then(response => {
+                response
+                    .json()
+                    .then(ifc2gltfManifest => {
+                        const modelChunksManifest = xeokit.ifc2gltf2xgf.convertIfc2gltfManifest(ifc2gltfManifest);
+                        modelChunksLoader.load({
+                            modelChunksManifest,
+                            baseDir,
+                            sceneModel,
+                            dataModel
+                        })
+                            .then(onSuccess)
+                            .catch(onError);
+                    }).catch(onError);
+            }).catch(onError);
+            break;
+        }
+
+        case  "ifc2gltf2xgf": {
+
+            const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
+                sceneModelLoader: xeokit.xgf.loadXGF,
+                dataModelLoader: xeokit.data.loadDataModel
+            });
+
+            fetch(`${baseDir}/model.manifest.json`).then(response => {
+                response
+                    .json()
+                    .then(modelChunksManifest => {
+                        modelChunksLoader.load({
+                            modelChunksManifest,
+                            baseDir,
+                            sceneModel,
+                            dataModel
+                        })
+                            .then(onSuccess)
+                            .catch(onError);
+                    }).catch(onError);
+            }).catch(onError);
+            break;
+        }
+
+        case "gltf2xgf":
+        case "las2xgf":
+        case "webifc2xgf":
+
+            fetch(`${baseDir}/model.json`).then(
+                response => {
+                    response
+                        .json()
+                        .then(dataModelFileData => {
+                            dataModel.fromJSON(dataModelFileData);
+                            fetch(`${baseDir}/model.xgf`)
+                                .then(response => {
+                                    response
+                                        .arrayBuffer()
+                                        .then(fileData => {
+                                            xeokit.xgf.loadXGF({
+                                                fileData,
+                                                sceneModel
+                                            })
+                                                .then(onSuccess)
+                                                .catch(onError);
+                                        }).catch(onError);
+                                }).catch(onError);
+                        }).catch(onError);
+                }).catch(onError);
+            break;
+
+        case "dotbim2xgf":
+
+            view.camera.orbitPitch(-90);
+            view.camera.worldAxis = [
+                1, 0, 0, // Right
+                0, 0, 1, // Up
+                0, -1, 0  // Forward
+            ];
+
+            fetch(`${baseDir}/model.json`).then(
+                response => {
+                    response
+                        .json()
+                        .then(dataModelFileData => {
+                            dataModel.fromJSON(dataModelFileData);
+                            fetch(`${baseDir}/model.xgf`)
+                                .then(response => {
+                                    response
+                                        .arrayBuffer()
+                                        .then(fileData => {
+                                            xeokit.xgf.loadXGF({
+                                                fileData,
+                                                sceneModel
+                                            })
+                                                .then(onSuccess)
+                                                .catch(onError);
+                                        }).catch(onError);
+                                }).catch(onError);
+                        }).catch(onError);
+                }).catch(onError);
+            break;
+
+        case "json":
+
+            fetch(`${baseDir}/datamodel.json`).then(
+                response => {
+                    response
+                        .json()
+                        .then(dataModelFileData => {
+                            const result = dataModel.fromJSON(dataModelFileData);
+                            if (result instanceof xeokit.core.SDKError) {
+                                onError(result.message);
+                            } else {
+                                fetch(`${baseDir}/scenemodel.json`)
+                                    .then(response => {
+                                        response
+                                            .json()
+                                            .then(fileData => {
+                                                const result = sceneModel.fromJSON(fileData);
+                                                if (result instanceof xeokit.core.SDKError) {
+                                                    onError(result.message);
+                                                } else {
+                                                    onSuccess();
+                                                }
+                                            }).catch(onError);
+                                    }).catch(onError);
+                            }
+                        }).catch(onError);
+                }).catch(onError);
+            break;
+
+        default:
+            break;
+    }
+
+    function getRequestParams() {
+        const vars = {};
+        window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, (m, key, value) => {
+            vars[key] = value;
+        });
+        return vars;
+    }
+
+</script>
+
+</html>

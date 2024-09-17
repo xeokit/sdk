@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xeokit SDK Examples</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .card {
+            transition: transform 0.2s; /* Add smooth transition effect */
+        }
+
+        .card:hover {
+            transform: scale(1.05); /* Slightly enlarge the card on hover */
+        }
+
+        .card {
+            display: block;
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+            text-decoration: none;
+        }
+
+        .card h4.card-title {
+            color: inherit;
+        }
+
+        .card p.card-text {
+            color: inherit;
+        }
+
+        .thumbnail {
+
+            max-width: 100%;
+            min-height: 200px;
+            max-height: 200px; /* Adjust this value for the desired height */
+            object-fit: cover; /* Maintain aspect ratio and cover thumbnail area */
+        }
+
+        a.card-link {
+            font-size: 18px;
+            color: inherit;
+            text-decoration: none;
+            display: block;
+        }
+
+
+        .card-title {
+            color: black;
+        }
+
+        .card:hover .card-title {
+            color: blue;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+
+
+</script>
+<div class="container mt-5">
+    <h2 class="mb-3"><a href="https://github.com/xeokit/sdk">@xeokit/sdk</a> Demos</h2>
+    <a href="https://badge.fury.io/js/@xeokit%2Fxeokit-sdk"><img src="https://badge.fury.io/js/@xeokit%2Fxeokit-sdk.svg"
+                                                                 alt="npm version" height="18"></a>
+    <br><br>
+    <p>These examples demonstrate the various features of xeokit SDK v3.</p>
+
+    <br>
+    <h2>Viewer Basics</h2>
+    <br>
+
+    <div class="row">
+
+        <div class="col-md-4 mb-4">
+
+            <!-- Models -->
+
+            <a href="./models" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail" src="../images/holterTower.png" alt="Thumbnail 1">
+                    <div class="card-body">
+                        <h4 class="card-title">View Models</h4>
+                        <p class="card-text">View our collection of sample model files in xeokit, imported from various formats.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <a href="./viewer" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="https://github.com/xeokit/xeokit.io/blob/master/img/docs/PerformanceModel/PerformanceModel.png?raw=true"
+                         alt="Thumbnail 2">
+                    <div class="card-body">
+                        <h4 class="card-title">Viewer Coding</h4>
+                        <p class="card-text">Core Viewer coding.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <a href="./picking" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="https://github.com/xeokit/xeokit.io/blob/master/img/docs/PerformanceModel/PerformanceModel.png?raw=true"
+                         alt="Thumbnail 2">
+                    <div class="card-body">
+                        <h4 class="card-title">Picking</h4>
+                        <p class="card-text">Picking objects in the Viewer, programmatically and interactively.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <h2>Viewing Models</h2>
+    <br>
+
+    <div class="row">
+
+        <!-- Navigating Models -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./navigation" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../images/treeview.png"
+                         alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Navigating Models</h4>
+                        <p class="card-text">Components for navigating models: TreeView, NavCube, ContextMenu,
+                            AxisGizmo, CameraControl, CameraPathAnimation etc.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+    <br><br>
+    <h2>Interacting with Objects</h2>
+    <br>
+
+    <div class="row">
+
+        <!-- Measuring Objects -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./measurement" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../images/distanceMeasurements.png"
+                         alt="Thumbnail 1">
+                    <div class="card-body">
+                        <h4 class="card-title">Measuring Objects</h4>
+                        <p class="card-text">Measuring angles and distances on models.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Slicing Objects -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./slicing" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../images/sectionPlane.png"
+                         alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Slicing Objects</h4>
+                        <p class="card-text">Slicing models with interactive section planes to reveal internal
+                            structures.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+
+        <!-- Picking Objects -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./picking" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../images/picking.png" alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Picking Objects</h4>
+                        <p class="card-text">How to pick objects in a xeokit Viewer, interactively or
+                            programmatically.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Emphasising Objects -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./emphasising" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="https://github.com/xeokit/xeokit.io/blob/master/img/docs/PerformanceModel/PerformanceModel.png?raw=true"
+                         alt="Thumbnail 2">
+                    <div class="card-body">
+                        <h4 class="card-title">Emphasising Objects</h4>
+                        <p class="card-text">Changing the appearance of selected objects: colorizing, highlighting
+                            and
+                            X-raying.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <!-- Labelling Objects -->
+
+        <div class="col-md-4 mb-4">
+            <a href="./annotations" class="card-link">
+                <div class="card">
+                    <img class="card-img-top thumbnail"
+                         src="../images/annotations.png"
+                         alt="Thumbnail 3">
+                    <div class="card-body">
+                        <h4 class="card-title">Labelling Objects</h4>
+                        <p class="card-text">Pinning fully-customizable HTML labels to the surfaces of model
+                            objects.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+
+
+</div>
+
+<!-- Include Bootstrap JS and jQuery -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

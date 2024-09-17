@@ -2,7 +2,7 @@
     "inputFile": "./data/datasets/Duplex/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
     "converterApplicationVersion": "4.14",
-    "conversionDate": "2024-09-13 19:14:02",
+    "conversionDate": "2024-09-17 14:31:42",
     "gltfOutFiles": [
         "./data/datasets/Duplex/ifc2gltf/model.glb"
     ],
@@ -15,7 +15,7 @@
     "modelBoundsMax": [
         9.041500091552734,
         5.017477452754974,
-        9.0
+        13.409500122070313
     ],
     "modelBoundsMin": [
         -0.24150000512599945,

@@ -3,6 +3,6 @@
         "@xeokit/config/typedoc.base.json"
     ],
     "entryPoints": [
-        "src/index.ts"
+        "src/index-tsdoc.ts"
     ]
 }

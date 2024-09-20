@@ -1,6 +1,6 @@
 {
     "name": "@xeokit/demos",
-    "private": false,
+    "private": true,
     "version": "0.1.0",
     "repository": {
         "type": "git",
@@ -11,7 +11,8 @@
     "main": "src/index.ts",
     "scripts": {
         "dist": "node build-xeokit-demo-bundle.js",
-        "convert-models": "node build-convert-datasets.js; sh convert-datasets.sh",
+        "convert-demo-models": "node build-convert-datasets.js; sh convert-datasets.sh",
+        "docs": "typedoc --json ../../docs/json/demos.json --options typedoc.json --validation.invalidLink false",
         "lint": "eslint . --fix"
     },
     "author": "Lindsay Kay",

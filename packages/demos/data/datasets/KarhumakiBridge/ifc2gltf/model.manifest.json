@@ -1,17 +1,19 @@
 {
     "inputFile": "./data/datasets/KarhumakiBridge/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
-    "converterApplicationVersion": "4.14",
-    "conversionDate": "2024-09-17 14:31:51",
+    "converterApplicationVersion": "4.18",
+    "conversionDate": "2024-09-20 14:45:44",
     "gltfOutFiles": [
         "./data/datasets/KarhumakiBridge/ifc2gltf/model.glb",
         "./data/datasets/KarhumakiBridge/ifc2gltf/model_1.glb",
-        "./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb"
+        "./data/datasets/KarhumakiBridge/ifc2gltf/model_2.glb",
+        "./data/datasets/KarhumakiBridge/ifc2gltf/model_3.glb"
     ],
     "metadataOutFiles": [
         "./data/datasets/KarhumakiBridge/ifc2gltf/model.json",
         "./data/datasets/KarhumakiBridge/ifc2gltf/model_1.json",
-        "./data/datasets/KarhumakiBridge/ifc2gltf/model_2.json"
+        "./data/datasets/KarhumakiBridge/ifc2gltf/model_2.json",
+        "./data/datasets/KarhumakiBridge/ifc2gltf/model_3.json"
     ],
     "numCreatedGltfMeshes": 25393,
     "numCreatedMetaObjects": 6918,
@@ -22,7 +24,7 @@
         55.16499999969399
     ],
     "modelBoundsMin": [
-        -108.51133053526891,
+        -108.51133053526894,
         -9.224685386454013,
         36.98192604014376
     ],

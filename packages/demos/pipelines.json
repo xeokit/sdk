@@ -78,7 +78,7 @@
             "id": "ifc2gltf",
             "case": "<a href=\"https://en.wikipedia.org/wiki/Industry_Foundation_Classes\">IFC</a> -&gt; <a href=\"/docs/api/modules/_xeokit_ifc2gltf.html\">ifc2gltf</a> -&gt; <a href=\"https://en.wikipedia.org/wiki/GlTF#:~:text=glTF%20(Graphics%20Library%20Transmission%20Format,glb%20(binary).\">glTF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_gltf.html\">loadGLTF()</a>",
             "desc": "{IFC} -> ifc2gltf -> {GLB,JSON} -> ModelChunksLoader(loadGLTF, loadMetaModel) -> Viewer",
-            "cmd": "/home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json -i ./data/datasets/${modelId}/ifc/model.ifc -o ./data/datasets/${modelId}/ifc2gltf/model.glb -m ./data/datasets/${modelId}/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/${modelId}/ifc2gltf/log.txt",
+            "cmd": "${ifc2gltfcxconverterDir}/ifc2gltfcxconverter -c ${ifc2gltfcxconverterDir}/ifc2gltfcxconverter.json -i ./data/datasets/${modelId}/ifc/model.ifc -o ./data/datasets/${modelId}/ifc2gltf/model.glb -m ./data/datasets/${modelId}/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/${modelId}/ifc2gltf/log.txt",
             "dependson": [
                 "ifc"
             ]

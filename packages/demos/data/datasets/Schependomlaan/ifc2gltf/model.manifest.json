@@ -1,8 +1,8 @@
 {
     "inputFile": "./data/datasets/Schependomlaan/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
-    "converterApplicationVersion": "4.14",
-    "conversionDate": "2024-09-17 14:32:24",
+    "converterApplicationVersion": "4.18",
+    "conversionDate": "2024-09-20 14:46:31",
     "gltfOutFiles": [
         "./data/datasets/Schependomlaan/ifc2gltf/model.glb"
     ],

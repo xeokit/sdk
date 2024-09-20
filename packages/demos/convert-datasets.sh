@@ -37,7 +37,7 @@ echo [convert-datasets.sh] 3 out of 27 conversions done
 echo [convert-datasets.sh] Converting MAP
 
 # ifc2gltf
-/home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json -i ./data/datasets/MAP/ifc/model.ifc -o ./data/datasets/MAP/ifc2gltf/model.glb -m ./data/datasets/MAP/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/MAP/ifc2gltf/log.txt
+/home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter.json -i ./data/datasets/MAP/ifc/model.ifc -o ./data/datasets/MAP/ifc2gltf/model.glb -m ./data/datasets/MAP/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/MAP/ifc2gltf/log.txt
 echo [convert-datasets.sh] Converted MAP via ifc2gltf
 echo [convert-datasets.sh] 4 out of 27 conversions done
 
@@ -62,7 +62,7 @@ echo [convert-datasets.sh] 7 out of 27 conversions done
 echo [convert-datasets.sh] Converting Duplex
 
 # ifc2gltf
-/home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json -i ./data/datasets/Duplex/ifc/model.ifc -o ./data/datasets/Duplex/ifc2gltf/model.glb -m ./data/datasets/Duplex/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/Duplex/ifc2gltf/log.txt
+/home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter.json -i ./data/datasets/Duplex/ifc/model.ifc -o ./data/datasets/Duplex/ifc2gltf/model.glb -m ./data/datasets/Duplex/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/Duplex/ifc2gltf/log.txt
 echo [convert-datasets.sh] Converted Duplex via ifc2gltf
 echo [convert-datasets.sh] 8 out of 27 conversions done
 
@@ -87,7 +87,7 @@ echo [convert-datasets.sh] 11 out of 27 conversions done
 echo [convert-datasets.sh] Converting IfcOpenHouse4
 
 # ifc2gltf
-/home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json -i ./data/datasets/IfcOpenHouse4/ifc/model.ifc -o ./data/datasets/IfcOpenHouse4/ifc2gltf/model.glb -m ./data/datasets/IfcOpenHouse4/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/IfcOpenHouse4/ifc2gltf/log.txt
+/home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter.json -i ./data/datasets/IfcOpenHouse4/ifc/model.ifc -o ./data/datasets/IfcOpenHouse4/ifc2gltf/model.glb -m ./data/datasets/IfcOpenHouse4/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/IfcOpenHouse4/ifc2gltf/log.txt
 echo [convert-datasets.sh] Converted IfcOpenHouse4 via ifc2gltf
 echo [convert-datasets.sh] 12 out of 27 conversions done
 
@@ -112,7 +112,7 @@ echo [convert-datasets.sh] 15 out of 27 conversions done
 echo [convert-datasets.sh] Converting IfcOpenHouse2x3
 
 # ifc2gltf
-/home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json -i ./data/datasets/IfcOpenHouse2x3/ifc/model.ifc -o ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb -m ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/IfcOpenHouse2x3/ifc2gltf/log.txt
+/home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter.json -i ./data/datasets/IfcOpenHouse2x3/ifc/model.ifc -o ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.glb -m ./data/datasets/IfcOpenHouse2x3/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/IfcOpenHouse2x3/ifc2gltf/log.txt
 echo [convert-datasets.sh] Converted IfcOpenHouse2x3 via ifc2gltf
 echo [convert-datasets.sh] 16 out of 27 conversions done
 
@@ -147,7 +147,7 @@ echo [convert-datasets.sh] 20 out of 27 conversions done
 echo [convert-datasets.sh] Converting KarhumakiBridge
 
 # ifc2gltf
-/home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json -i ./data/datasets/KarhumakiBridge/ifc/model.ifc -o ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb -m ./data/datasets/KarhumakiBridge/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/KarhumakiBridge/ifc2gltf/log.txt
+/home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter.json -i ./data/datasets/KarhumakiBridge/ifc/model.ifc -o ./data/datasets/KarhumakiBridge/ifc2gltf/model.glb -m ./data/datasets/KarhumakiBridge/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/KarhumakiBridge/ifc2gltf/log.txt
 echo [convert-datasets.sh] Converted KarhumakiBridge via ifc2gltf
 echo [convert-datasets.sh] 21 out of 27 conversions done
 
@@ -162,7 +162,7 @@ echo [convert-datasets.sh] 22 out of 27 conversions done
 echo [convert-datasets.sh] Converting Schependomlaan
 
 # ifc2gltf
-/home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json -i ./data/datasets/Schependomlaan/ifc/model.ifc -o ./data/datasets/Schependomlaan/ifc2gltf/model.glb -m ./data/datasets/Schependomlaan/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/Schependomlaan/ifc2gltf/log.txt
+/home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter.json -i ./data/datasets/Schependomlaan/ifc/model.ifc -o ./data/datasets/Schependomlaan/ifc2gltf/model.glb -m ./data/datasets/Schependomlaan/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/Schependomlaan/ifc2gltf/log.txt
 echo [convert-datasets.sh] Converted Schependomlaan via ifc2gltf
 echo [convert-datasets.sh] 23 out of 27 conversions done
 
@@ -177,7 +177,7 @@ echo [convert-datasets.sh] 24 out of 27 conversions done
 echo [convert-datasets.sh] Converting RAC
 
 # ifc2gltf
-/home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json -i ./data/datasets/RAC/ifc/model.ifc -o ./data/datasets/RAC/ifc2gltf/model.glb -m ./data/datasets/RAC/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/RAC/ifc2gltf/log.txt
+/home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter -c /home/lindsay/xeolabs/xeokit/ifc2gltf/4_18_beta/linux//ifc2gltfcxconverter.json -i ./data/datasets/RAC/ifc/model.ifc -o ./data/datasets/RAC/ifc2gltf/model.glb -m ./data/datasets/RAC/ifc2gltf/model.json -s 20 -t 1000 -e 3 >> ./data/datasets/RAC/ifc2gltf/log.txt
 echo [convert-datasets.sh] Converted RAC via ifc2gltf
 echo [convert-datasets.sh] 25 out of 27 conversions done
 

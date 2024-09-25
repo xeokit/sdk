@@ -1,11 +1,13 @@
 import {WebGLRenderer} from "../../../../WebGLRenderer";
 import {RendererSetFactory, VBORendererSet} from "../../../VBORendererSet";
-import {VBOTrianglesInstancingDrawRenderer} from "./VBOTrianglesInstancingDrawRenderer";
+import {VBOTrianglesInstancingDrawColorRenderer} from "./VBOTrianglesInstancingDrawColorRenderer";
 import {VBOTrianglesInstancingSilhouetteRenderer} from "./VBOTrianglesInstancingSilhouetteRenderer";
 import {VBORenderer} from "../../../VBORenderer";
 import {VBOTrianglesInstancingPickMeshRenderer} from "./VBOTrianglesInstancingPickMeshRenderer";
 import {VBOTrianglesInstancingEdgesDrawRenderer} from "./VBOTrianglesInstancingEdgesDrawRenderer";
 import {VBOTrianglesInstancingEdgesSilhouetteRenderer} from "./VBOTrianglesInstancingEdgesSilhouetteRenderer";
+import {VBOTrianglesInstancingDrawDepthRenderer} from "./VBOTrianglesInstancingDrawDepthRenderer";
+import {VBOTrianglesInstancingDrawColorSAORenderer} from "./VBOTrianglesInstancingDrawColorSAORenderer";
 
 
 /**
@@ -13,8 +15,16 @@ import {VBOTrianglesInstancingEdgesSilhouetteRenderer} from "./VBOTrianglesInsta
  */
 class RendererFactory extends VBORendererSet {
 
-    createDrawRenderer(): VBORenderer {
-        return new VBOTrianglesInstancingDrawRenderer(this.renderContext);
+    createDrawColorRenderer(): VBORenderer {
+        return new VBOTrianglesInstancingDrawColorRenderer(this.renderContext);
+    }
+
+    createDrawColorSAORenderer(): VBORenderer {
+        return new VBOTrianglesInstancingDrawColorSAORenderer(this.renderContext);
+    }
+
+    createDrawDepthRenderer(): VBORenderer {
+        return new VBOTrianglesInstancingDrawDepthRenderer(this.renderContext);
     }
 
     createSilhouetteRenderer(): VBORenderer {

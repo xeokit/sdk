@@ -4,10 +4,10 @@ import {VBOInstancingRenderer} from "../../VBOInstancingRenderer";
 /**
  * @private
  */
-export class VBOLinesInstancingSilhouetteRenderer extends VBOInstancingRenderer {
+export class VBOTrianglesInstancingDrawColorRenderer extends VBOInstancingRenderer {
 
     getHash(): string {
-        return this.slicingHash;
+        return `${this.lambertShadingHash}-${this.slicingHash}`;
     }
 
     buildVertexShader(src: string[]): void {
@@ -15,11 +15,11 @@ export class VBOLinesInstancingSilhouetteRenderer extends VBOInstancingRenderer 
         this.vertexCommonDefs(src);
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexSilhouetteDefs(src);
-        this.vertexSilhouetteMainOpen(src);
+        this.vertexDrawLambertDefs(src);
+        this.vertexDrawMainOpen(src);
         {
             this.vertexDrawInstancingTransformLogic(src);
-            this.vertexSilhouetteLogic(src);
+            this.vertexDrawLambertLogic(src);
             this.vertexSlicingLogic(src);
         }
         this.vertexMainClose(src);
@@ -30,11 +30,11 @@ export class VBOLinesInstancingSilhouetteRenderer extends VBOInstancingRenderer 
         this.fragmentPrecisionDefs(src);
         this.fragmentCommonDefs(src);
         this.fragmentSlicingDefs(src);
-        this.fragmentSilhouetteDefs(src);
+        this.fragmentDrawLambertDefs(src);
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
-            this.fragmentSilhouetteLogic(src);
+            this.fragmentDrawLambertLogic(src);
             this.fragmentCommonOutput(src);
         }
         src.push("}");
@@ -43,6 +43,6 @@ export class VBOLinesInstancingSilhouetteRenderer extends VBOInstancingRenderer 
     drawVBOInstancingLayerPrimitives(vboInstancingLayer: VBOInstancingLayer, renderPass: number): void {
         const gl = this.renderContext.gl;
         const renderState = vboInstancingLayer.renderState;
-        gl.drawElementsInstanced(gl.LINES, renderState.indicesBuf.numItems, renderState.indicesBuf.itemType, 0, renderState.numInstances);
+        gl.drawElementsInstanced(gl.TRIANGLES, renderState.indicesBuf.numItems, renderState.indicesBuf.itemType, 0, renderState.numInstances);
     }
 }

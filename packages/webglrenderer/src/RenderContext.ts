@@ -42,11 +42,6 @@ export class RenderContext {
     public pbrEnabled: boolean;
 
     /**
-     * Whether SAO is currently enabled during the current frame.
-     */
-    public withSAO: boolean;
-
-    /**
      * Whether backfaces are currently enabled during the current frame.
      */
     public backfaces: boolean;
@@ -125,7 +120,7 @@ export class RenderContext {
     /**
      * The occlusion rendering texture.
      */
-    public occlusionTexture: WebGLAbstractTexture | null;
+    public saoOcclusionTexture: WebGLAbstractTexture | null;
 
     public pickClipPos: FloatArrayParam;
 
@@ -145,7 +140,6 @@ export class RenderContext {
     reset() {
         this.lastProgramId = -1;
         this.pbrEnabled = false;
-        this.withSAO = false;
         this.backfaces = false;
         this.frontface = true;
         this.textureUnit = 0;
@@ -157,7 +151,7 @@ export class RenderContext {
         this.pickZFar = 5000;
         this.pickInvisible = false;
         this.lineWidth = 1;
-        this.occlusionTexture = null;
+        this.saoOcclusionTexture = null;
     }
 
     /**

@@ -4,10 +4,10 @@ import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 /**
  * @private
  */
-export class VBOTrianglesBatchingSilhouetteRenderer extends VBOBatchingRenderer {
+export class VBOTrianglesBatchingDrawDepthRenderer extends VBOBatchingRenderer {
 
     getHash(): string {
-        return this.slicingHash;
+        return `${this.slicingHash}`;
     }
 
     buildVertexShader(src: string[]): void {
@@ -15,11 +15,9 @@ export class VBOTrianglesBatchingSilhouetteRenderer extends VBOBatchingRenderer 
         this.vertexCommonDefs(src);
         this.vertexBatchingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexSilhouetteDefs(src);
-        this.vertexSilhouetteMainOpen(src);
+        this.vertexDrawMainOpen(src);
         {
             this.vertexDrawBatchingTransformLogic(src);
-            this.vertexSilhouetteLogic(src);
             this.vertexSlicingLogic(src);
         }
         this.vertexMainClose(src);
@@ -29,12 +27,12 @@ export class VBOTrianglesBatchingSilhouetteRenderer extends VBOBatchingRenderer 
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
         this.fragmentCommonDefs(src);
+        this.fragmentDrawDepthDefs(src);
         this.fragmentSlicingDefs(src);
-        this.fragmentSilhouetteDefs(src);
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
-            this.fragmentSilhouetteLogic(src);
+            this.fragmentDrawDepthLogic(src);
             this.fragmentCommonOutput(src);
         }
         src.push("}");

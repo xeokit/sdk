@@ -35,6 +35,7 @@ export interface VBOInstancingRenderState {
     modelNormalMatrixCol1Buf: WebGLArrayBuf;
     modelNormalMatrixCol2Buf: WebGLArrayBuf;
 
+    saoSupported: boolean;
     pbrSupported: boolean;
     numInstances: number;
 

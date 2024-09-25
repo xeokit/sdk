@@ -20,25 +20,27 @@ export class VBOTrianglesBatchingEdgesSilhouetteRenderer extends VBOBatchingRend
         this.vertexCommonDefs(src);
         this.vertexBatchingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexDrawEdgesSilhouetteDefs(src);
-        this.openVertexSilhouetteMain(src);
+        this.vertexSilhouetteDefs(src);
+        this.vertexSilhouetteMainOpen(src);
         {
             this.vertexDrawBatchingTransformLogic(src);
-            this.vertexDrawEdgesSilhouetteLogic(src);
+            this.vertexSilhouetteLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.vertexColorMainCloseBlock(src);
+        this.vertexMainClose(src);
     }
 
     buildFragmentShader(src: string[]): void {
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
+        this.fragmentCommonDefs(src);
         this.fragmentSlicingDefs(src);
-        this.fragmentDrawEdgesSilhouetteDefs(src);
+        this.fragmentSilhouetteDefs(src);
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
-            this.fragmentDrawEdgesSilhouetteLogic(src);
+            this.fragmentSilhouetteLogic(src);
+            this.fragmentCommonOutput(src);
         }
         src.push("}");
     }

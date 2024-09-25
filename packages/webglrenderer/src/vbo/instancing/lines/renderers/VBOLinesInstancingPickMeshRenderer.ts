@@ -15,24 +15,27 @@ export class VBOLinesInstancingPickMeshRenderer extends VBOInstancingRenderer {
         this.vertexCommonDefs(src);
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexPickMeshShadingDefs(src);
-        this.openVertexPickMain(src);
+        this.vertexPickMeshDefs(src);
+        this.vertexPickMainOpen(src);
         {
             this.vertexDrawInstancingTransformLogic(src);
-            this.vertexPickMeshShadingLogic(src);
+            this.vertexPickMeshLogic(src);
             this.vertexSlicingLogic(src);
         }
+        this.vertexMainClose(src);
     }
 
     buildFragmentShader(src: string[]):void {
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
+        this.fragmentCommonDefs(src);
         this.fragmentSlicingDefs(src);
-        this.fragmentPickMeshShadingDefs(src);
+        this.fragmentPickMeshDefs(src);
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
-            this.fragmentPickMeshShadingLogic(src);
+            this.fragmentPickMeshLogic(src);
+            this.fragmentCommonOutput(src);
         }
         src.push("}");
     }

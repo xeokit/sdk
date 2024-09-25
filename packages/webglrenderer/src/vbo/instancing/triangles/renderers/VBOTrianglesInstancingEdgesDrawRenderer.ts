@@ -20,25 +20,27 @@ export class VBOTrianglesInstancingEdgesDrawRenderer extends VBOInstancingRender
         this.vertexCommonDefs(src);
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexDrawEdgesColorDefs(src);
-        this.vertexColorMainOpenBlock(src);
+        this.vertexDrawFlatColorDefs(src);
+        this.vertexDrawMainOpen(src);
         {
             this.vertexDrawInstancingTransformLogic(src);
             this.vertexDrawEdgesColorLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.vertexColorMainCloseBlock(src);
+        this.vertexMainClose(src);
     }
 
     buildFragmentShader(src: string[]): void {
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
+        this.fragmentCommonDefs(src);
         this.fragmentSlicingDefs(src);
-        this.fragmentDrawEdgesColorDefs(src);
+        this.fragmentDrawFlatColorDefs(src);
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
-            this.fragmentDrawEdgesColorLogic(src);
+            this.fragmentDrawFlatColorLogic(src);
+            this.fragmentCommonOutput(src);
         }
         src.push("}");
     }

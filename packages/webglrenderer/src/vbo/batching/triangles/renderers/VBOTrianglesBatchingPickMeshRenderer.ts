@@ -15,25 +15,27 @@ export class VBOTrianglesBatchingPickMeshRenderer extends VBOBatchingRenderer {
         this.vertexCommonDefs(src);
         this.vertexBatchingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexPickMeshShadingDefs(src);
-        this.openVertexPickMain(src);
+        this.vertexPickMeshDefs(src);
+        this.vertexPickMainOpen(src);
         {
             this.vertexPickBatchingTransformLogic(src);
-            this.vertexPickMeshShadingLogic(src);
+            this.vertexPickMeshLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.vertexPickMainCloseBlock(src);
+        this.vertexMainClose(src);
     }
 
     buildFragmentShader(src: string[]):void {
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
+        this.fragmentCommonDefs(src);
         this.fragmentSlicingDefs(src);
-        this.fragmentPickMeshShadingDefs(src);
+        this.fragmentPickMeshDefs(src);
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
-            this.fragmentPickMeshShadingLogic(src);
+            this.fragmentPickMeshLogic(src);
+            this.fragmentCommonOutput(src);
         }
         src.push("}");
     }

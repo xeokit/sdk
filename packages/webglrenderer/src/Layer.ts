@@ -17,6 +17,7 @@ export interface Layer {
     layerIndex: number;
     sortId: string;
     meshCounts: MeshCounts[];
+    saoSupported: boolean;
 
     //---------------------------------------------------------
     // Builder methods
@@ -67,6 +68,8 @@ export interface Layer {
     //---------------------------------------------------------
 
     drawColorOpaque() : void;
+
+    drawColorSAOOpaque(): void;
 
     drawColorTranslucent(): void;
 

@@ -4,7 +4,7 @@ import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 /**
  * @private
  */
-export class VBOTrianglesBatchingDrawRenderer extends VBOBatchingRenderer {
+export class VBOTrianglesBatchingDrawColorRenderer extends VBOBatchingRenderer {
 
     getHash(): string {
         const view = this.renderContext.view;
@@ -17,24 +17,26 @@ export class VBOTrianglesBatchingDrawRenderer extends VBOBatchingRenderer {
         this.vertexBatchingTransformDefs(src);
         this.vertexSlicingDefs(src);
         this.vertexDrawLambertDefs(src);
-        this.vertexColorMainOpenBlock(src);
+        this.vertexDrawMainOpen(src);
         {
             this.vertexDrawBatchingTransformLogic(src);
             this.vertexDrawLambertLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.vertexColorMainCloseBlock(src);
+        this.vertexMainClose(src);
     }
 
     buildFragmentShader(src: string[]) :void{
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
+        this.fragmentCommonDefs(src);
         this.fragmentSlicingDefs(src);
         this.fragmentDrawLambertDefs(src);
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
             this.fragmentDrawLambertLogic(src);
+            this.fragmentCommonOutput(src);
         }
         src.push("}");
     }

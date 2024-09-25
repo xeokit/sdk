@@ -18,7 +18,7 @@ class WebGLRenderBuffer {
 
     constructor(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, options: {
         depthTexture: boolean;
-        size: any;
+        size?: number[];
     }) {
         /** @type {WebGL2RenderingContext} */
         this.#gl = gl;

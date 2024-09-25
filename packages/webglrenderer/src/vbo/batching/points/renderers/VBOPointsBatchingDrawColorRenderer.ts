@@ -4,7 +4,7 @@ import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 /**
  * @private
  */
-export class VBOPointsBatchingDrawRenderer extends VBOBatchingRenderer {
+export class VBOPointsBatchingDrawColorRenderer extends VBOBatchingRenderer {
 
     getHash(): string {
         const view = this.renderContext.view;
@@ -15,32 +15,37 @@ export class VBOPointsBatchingDrawRenderer extends VBOBatchingRenderer {
     buildVertexShader(src: string[]): void {
         this.vertexHeader(src);
         this.vertexCommonDefs(src);
+        this.vertexBatchingTransformDefs(src);
         this.vertexSlicingDefs(src);
         this.vertexPointsGeometryDefs(src);
-        this.vertexDrawPointsColorsDefs(src);
-        this.vertexColorMainOpenBlock(src);
+        this.vertexPointsDrawDefs(src);
+        this.vertexDrawMainOpen(src);
         {
             this.vertexPointsFilterLogicOpenBlock(src);
             {
-                this.vertexDrawBatchingTransformLogic(src);
+                this.vertexDrawPointsBatchingTransformLogic(src);
                 this.vertexSlicingLogic(src);
                 this.vertexDrawPointsColorsLogic(src);
                 this.vertexPointsGeometryLogic(src);
             }
             this.vertexPointsFilterLogicCloseBlock(src);
         }
-        this.vertexColorMainCloseBlock(src);
+        this.vertexMainClose(src);
     }
 
     buildFragmentShader(src: string[]): void {
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
+        this.fragmentCommonDefs(src);
         this.fragmentSlicingDefs(src);
         this.fragmentDrawFlatColorDefs(src);
         src.push("void main(void) {");
-        this.fragmentPointsGeometryLogic(src);
-        this.fragmentSlicingLogic(src);
-        this.fragmentDrawFlatColorLogic(src);
+        {
+            this.fragmentPointsGeometryLogic(src);
+            this.fragmentSlicingLogic(src);
+            this.fragmentDrawFlatColorLogic(src);
+            this.fragmentCommonOutput(src);
+        }
         src.push("}");
     }
 

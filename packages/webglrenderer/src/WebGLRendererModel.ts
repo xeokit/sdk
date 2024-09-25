@@ -396,7 +396,13 @@ export class WebGLRendererModel extends Component implements RendererModel {
         const primitive = sceneGeometry.primitive;
         const instancing = sceneGeometry.numMeshes > 1;
         const origin = mesh.tile.origin;
-        const layerId = `VBO-${instancing ? "Instancing" : "Batching"}-${textureSetId}.${primitive}.${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}`;
+
+        const layerId = `VBO-${instancing ? "Instancing" : "Batching"}
+        .${textureSetId}
+        .${primitive}
+        .${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}
+        .${instancing ? sceneGeometry.id : ""}`;
+
         let layer = this.#currentLayers[layerId];
         if (layer) {
             if (layer.canCreateLayerMesh(sceneGeometry)) {
@@ -838,7 +844,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         if (this.destroyed) {
             return;
         }
-      //  this.detachSceneModel();
+        //  this.detachSceneModel();
         //  this.#view.camera.onViewMatrix.unsubscribe(this.#onCameraViewMatrix);
         for (let layerId in this.#currentLayers) {
             if (this.#currentLayers.hasOwnProperty(layerId)) {

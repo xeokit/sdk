@@ -23,5 +23,7 @@ export interface VBOBatchingRenderState {
     origin: FloatArrayParam;
     positionsBuf: WebGLArrayBuf;
     indicesBuf: WebGLArrayBuf;
+
+    saoSupported: boolean;
     pbrSupported: boolean;
 }

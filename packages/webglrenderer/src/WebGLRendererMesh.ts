@@ -94,12 +94,6 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
         }
     }
 
-    setMetallic(metallic: number): void {
-    }
-
-    setRoughness(roughness: number): void {
-    }
-
     setColor(color: FloatArrayParam) {
         const setOpacity = false;
         this.color[0] = color[0];

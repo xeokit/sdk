@@ -8,10 +8,10 @@ export const RENDER_PASSES = {
 
     NOT_RENDERED: 0,
 
-    // Normal rendering - mutually exclusive modes
+    // Draw color, or draw depth or normals for post-effects
 
-    COLOR_OPAQUE: 1,
-    COLOR_TRANSPARENT: 2,
+    DRAW_OPAQUE: 1,
+    DRAW_TRANSPARENT: 2,
 
     // Accents silhouette rendering - mutually exclusive modes
 

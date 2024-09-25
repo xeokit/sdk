@@ -1,12 +1,13 @@
 import {WebGLRenderer} from "../../../../WebGLRenderer";
 import {RendererSetFactory, VBORendererSet} from "../../../VBORendererSet";
-import {VBOTrianglesBatchingDrawRenderer} from "./VBOTrianglesBatchingDrawRenderer";
+import {VBOTrianglesBatchingDrawColorRenderer} from "./VBOTrianglesBatchingDrawColorRenderer";
 import {VBORenderer} from "../../../VBORenderer";
 import {VBOTrianglesBatchingPickMeshRenderer} from "./VBOTrianglesBatchingPickMeshRenderer";
 import {VBOTrianglesBatchingSilhouetteRenderer} from "./VBOTrianglesBatchingSilhouetteRenderer";
 import {VBOTrianglesBatchingEdgesDrawRenderer} from "./VBOTrianglesBatchingEdgesDrawRenderer";
 import {VBOTrianglesBatchingEdgesSilhouetteRenderer} from "./VBOTrianglesBatchingEdgesSilhouetteRenderer";
-
+import {VBOTrianglesBatchingDrawDepthRenderer} from "./VBOTrianglesBatchingDrawDepthRenderer";
+import {VBOTrianglesBatchingDrawColorSAORenderer} from "./VBOTrianglesBatchingDrawColorSAORenderer";
 
 
 /**
@@ -14,8 +15,16 @@ import {VBOTrianglesBatchingEdgesSilhouetteRenderer} from "./VBOTrianglesBatchin
  */
 class RendererFactory extends VBORendererSet {
 
-    createDrawRenderer(): VBORenderer {
-        return new VBOTrianglesBatchingDrawRenderer(this.renderContext);
+    createDrawColorRenderer(): VBORenderer {
+        return new VBOTrianglesBatchingDrawColorRenderer(this.renderContext);
+    }
+
+    createDrawColorSAORenderer(): VBORenderer {
+        return new VBOTrianglesBatchingDrawColorSAORenderer(this.renderContext);
+    }
+
+    createDrawDepthRenderer(): VBORenderer {
+        return new VBOTrianglesBatchingDrawDepthRenderer(this.renderContext);
     }
 
     createPickMeshRenderer(): VBORenderer {

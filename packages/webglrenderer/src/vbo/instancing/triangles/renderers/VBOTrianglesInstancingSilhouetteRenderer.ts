@@ -15,25 +15,27 @@ export class VBOTrianglesInstancingSilhouetteRenderer extends VBOInstancingRende
         this.vertexCommonDefs(src);
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexDrawSilhouetteDefs(src);
-        this.openVertexSilhouetteMain(src);
+        this.vertexSilhouetteDefs(src);
+        this.vertexSilhouetteMainOpen(src);
         {
             this.vertexDrawInstancingTransformLogic(src);
-            this.vertexDrawSilhouetteLogic(src);
+            this.vertexSilhouetteLogic(src);
             this.vertexSlicingLogic(src);
         }
-        this.vertexColorMainCloseBlock(src);
+        this.vertexMainClose(src);
     }
 
     buildFragmentShader(src: string[]): void {
         this.fragmentHeader(src);
         this.fragmentPrecisionDefs(src);
+        this.fragmentCommonDefs(src);
         this.fragmentSlicingDefs(src);
-        this.fragmentDrawSilhouetteDefs(src);
+        this.fragmentSilhouetteDefs(src);
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
-            this.fragmentDrawSilhouetteLogic(src);
+            this.fragmentSilhouetteLogic(src);
+            this.fragmentCommonOutput(src);
         }
         src.push("}");
     }

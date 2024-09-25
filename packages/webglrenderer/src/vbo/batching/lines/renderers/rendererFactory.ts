@@ -1,6 +1,6 @@
 import {WebGLRenderer} from "../../../../WebGLRenderer";
 import {RendererSetFactory, VBORendererSet} from "../../../VBORendererSet";
-import {VBOLinesBatchingDrawRenderer} from "./VBOLinesBatchingDrawRenderer";
+import {VBOLinesBatchingDrawColorRenderer} from "./VBOLinesBatchingDrawColorRenderer";
 import {VBORenderer} from "../../../VBORenderer";
 import {VBOLinesBatchingPickMeshRenderer} from "./VBOLinesBatchingPickMeshRenderer";
 import {VBOLinesBatchingSilhouetteRenderer} from "./VBOLinesBatchingSilhouetteRenderer";
@@ -10,8 +10,8 @@ import {VBOLinesBatchingSilhouetteRenderer} from "./VBOLinesBatchingSilhouetteRe
  */
 class RendererFactory extends VBORendererSet {
 
-    createDrawRenderer(): VBORenderer {
-        return new VBOLinesBatchingDrawRenderer(this.renderContext);
+    createDrawColorRenderer(): VBORenderer {
+        return new VBOLinesBatchingDrawColorRenderer(this.renderContext);
     }
 
     createPickMeshRenderer(): VBORenderer {

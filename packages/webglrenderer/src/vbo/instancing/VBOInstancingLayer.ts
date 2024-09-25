@@ -15,6 +15,7 @@ import {SCENE_OBJECT_FLAGS} from "../../SCENE_OBJECT_FLAGS";
 import {RENDER_PASSES} from "../../RENDER_PASSES";
 import {LayerMeshParams} from "../../LayerMeshParams";
 import {VBORendererSet} from "../VBORendererSet";
+import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "@xeokit/constants";
 
 const tempUint8Vec4 = new Uint8Array(4);
 const tempFloat32 = new Float32Array(1);
@@ -41,16 +42,18 @@ export class VBOInstancingLayer implements Layer {
     #rendererSet: VBORendererSet;
 
     #aabb: FloatArrayParam;
+    #buffer: VBOInstancingBuffer;
+    #meshes: any[];
+    #portions: any[];
+    #built: boolean;
+
     layerIndex: number;
     sortId: string;
     primitive: number;
     aabbDirty: boolean;
     meshCounts: MeshCounts[];
-    #buffer: VBOInstancingBuffer;
-    #meshes: any[];
-    #portions: any[];
-    #built: boolean;
     renderContext: RenderContext;
+    saoSupported: boolean;
 
     constructor(layerParams: VBOInstancingLayerParams, rendererSet: VBORendererSet) {
 
@@ -68,7 +71,7 @@ export class VBOInstancingLayer implements Layer {
         this.#aabb = collapseAABB3();
 
         this.meshCounts = [];
-        for (let i =0, len = this.renderContext.viewer.viewList.length; i < len; i++) {
+        for (let i = 0, len = this.renderContext.viewer.viewList.length; i < len; i++) {
             this.meshCounts.push(new MeshCounts());
         }
 
@@ -136,7 +139,7 @@ export class VBOInstancingLayer implements Layer {
 
         const color = sceneMesh.color;
         const opacity = sceneMesh.opacity !== null && sceneMesh.opacity !== undefined ? sceneMesh.opacity : 255;
-        const meshMatrix = sceneMesh.rtcMatrix;
+        const rtcMatrix = sceneMesh.rtcMatrix;
         const pickColor = layerMeshParams.pickColor;
 
         if (this.#built) {
@@ -152,20 +155,20 @@ export class VBOInstancingLayer implements Layer {
         this.#buffer.colors.push(b);
         this.#buffer.colors.push(opacity);
 
-        this.#buffer.modelMatrixCol0.push(meshMatrix[0]);
-        this.#buffer.modelMatrixCol0.push(meshMatrix[4]);
-        this.#buffer.modelMatrixCol0.push(meshMatrix[8]);
-        this.#buffer.modelMatrixCol0.push(meshMatrix[12]);
+        this.#buffer.modelMatrixCol0.push(rtcMatrix[0]);
+        this.#buffer.modelMatrixCol0.push(rtcMatrix[4]);
+        this.#buffer.modelMatrixCol0.push(rtcMatrix[8]);
+        this.#buffer.modelMatrixCol0.push(rtcMatrix[12]);
 
-        this.#buffer.modelMatrixCol1.push(meshMatrix[1]);
-        this.#buffer.modelMatrixCol1.push(meshMatrix[5]);
-        this.#buffer.modelMatrixCol1.push(meshMatrix[9]);
-        this.#buffer.modelMatrixCol1.push(meshMatrix[13]);
+        this.#buffer.modelMatrixCol1.push(rtcMatrix[1]);
+        this.#buffer.modelMatrixCol1.push(rtcMatrix[5]);
+        this.#buffer.modelMatrixCol1.push(rtcMatrix[9]);
+        this.#buffer.modelMatrixCol1.push(rtcMatrix[13]);
 
-        this.#buffer.modelMatrixCol2.push(meshMatrix[2]);
-        this.#buffer.modelMatrixCol2.push(meshMatrix[6]);
-        this.#buffer.modelMatrixCol2.push(meshMatrix[10]);
-        this.#buffer.modelMatrixCol2.push(meshMatrix[14]);
+        this.#buffer.modelMatrixCol2.push(rtcMatrix[2]);
+        this.#buffer.modelMatrixCol2.push(rtcMatrix[6]);
+        this.#buffer.modelMatrixCol2.push(rtcMatrix[10]);
+        this.#buffer.modelMatrixCol2.push(rtcMatrix[14]);
 
         // Per-vertex pick colors
 
@@ -262,6 +265,7 @@ export class VBOInstancingLayer implements Layer {
             renderState.pickColorsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, new Uint8Array(this.#buffer.pickColors), this.#buffer.pickColors.length, 4, gl.STATIC_DRAW, normalized);
             this.#buffer.pickColors = []; // Release memory
         }
+
         renderState.pbrSupported
             = !!renderState.metallicRoughnessBuf
             && !!renderState.uvBuf
@@ -269,10 +273,17 @@ export class VBOInstancingLayer implements Layer {
             && !!textureSet
             && !!textureSet.colorTexture
             && !!textureSet.metallicRoughnessTexture;
+
         renderState.colorTextureSupported
             = !!renderState.uvBuf
             && !!textureSet
             && !!textureSet.colorTexture;
+
+        this.saoSupported
+            = (sceneGeometry.primitive === SolidPrimitive
+            || sceneGeometry.primitive === SurfacePrimitive
+            || sceneGeometry.primitive === TrianglesPrimitive);
+
         this.renderState.sceneGeometry = null;
         this.#built = true;
     }
@@ -461,9 +472,9 @@ export class VBOInstancingLayer implements Layer {
             colorFlag = RENDER_PASSES.NOT_RENDERED;
         } else {
             if (transparent) {
-                colorFlag = RENDER_PASSES.COLOR_TRANSPARENT;
+                colorFlag = RENDER_PASSES.DRAW_TRANSPARENT;
             } else {
-                colorFlag = RENDER_PASSES.COLOR_OPAQUE;
+                colorFlag = RENDER_PASSES.DRAW_OPAQUE;
             }
         }
         let silhouetteFlag;
@@ -525,7 +536,20 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.colorRenderer) {
-            this.#rendererSet.colorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE);
+            this.#rendererSet.colorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.DRAW_OPAQUE);
+        }
+    }
+
+    drawColorSAOOpaque(): void {
+        const viewIndex = this.renderContext.view.viewIndex;
+        if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numVisible === 0 ||
+            this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
+            this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
+            return;
+        }
+        if (this.#rendererSet.colorSAORenderer) {
+            this.#rendererSet.colorSAORenderer.renderVBOInstancingLayer(this, RENDER_PASSES.DRAW_OPAQUE);
         }
     }
 
@@ -538,7 +562,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.colorRenderer) {
-            this.#rendererSet.colorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_TRANSPARENT);
+            this.#rendererSet.colorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.DRAW_TRANSPARENT);
         }
     }
 
@@ -550,9 +574,9 @@ export class VBOInstancingLayer implements Layer {
             this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
             return;
         }
-        // if (this.#rendererSet.depthRenderer) {
-        //     this.#rendererSet.depthRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
-        // }
+        if (this.#rendererSet.drawDepthRenderer) {
+            this.#rendererSet.drawDepthRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.DRAW_OPAQUE); // Assume whatever post-effect uses depth (eg SAO) does not apply to transparent objects
+        }
     }
 
     drawNormals(): void {
@@ -564,7 +588,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         // if (this.#rendererSet.normalsRenderer) {
-        //     this.#rendererSet.normalsRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
+        //     this.#rendererSet.normalsRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.DRAW_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
         // }
     }
 
@@ -611,7 +635,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
-            this.#rendererSet.edgesColorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE);
+            this.#rendererSet.edgesColorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.DRAW_OPAQUE);
         }
     }
 
@@ -623,7 +647,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.edgesColorRenderer) {
-            this.#rendererSet.edgesColorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_TRANSPARENT);
+            this.#rendererSet.edgesColorRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.DRAW_TRANSPARENT);
         }
     }
 
@@ -670,7 +694,7 @@ export class VBOInstancingLayer implements Layer {
             return;
         }
         if (this.#rendererSet.occlusionRenderer) {
-            this.#rendererSet.occlusionRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.COLOR_OPAQUE);
+            this.#rendererSet.occlusionRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.DRAW_OPAQUE);
         }
     }
 
@@ -680,7 +704,7 @@ export class VBOInstancingLayer implements Layer {
         //     return;
         // }
         // if (this.#rendererSet.shadowRenderer) {
-        //     this.#rendererSet.shadowRenderer.render( this, RENDER_PASSES.COLOR_OPAQUE);
+        //     this.#rendererSet.shadowRenderer.render( this, RENDER_PASSES.DRAW_OPAQUE);
         // }
     }
 

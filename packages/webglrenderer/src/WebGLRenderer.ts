@@ -17,6 +17,8 @@ import {Layer} from "./Layer";
 import {WebGLRenderBufferManager} from "./WebGLRenderBufferManager";
 import {PickParams, PickResult} from "@xeokit/viewer";
 import {WebGLRendererMesh} from "./WebGLRendererMesh";
+import {SAOOcclusionRenderer} from "./SAOOcclusionRenderer";
+import {SAODepthLimitedBlurRenderer} from "./SAODepthLimitedBlurRenderer";
 
 const ua = navigator.userAgent.match(/(opera|chrome|safari|firefox|msie|mobile)\/?\s*(\.?\d+(\.\d+)*)/i);
 const isSafari = (ua && ua[1].toLowerCase() === "safari");
@@ -101,6 +103,8 @@ export class WebGLRenderer implements Renderer {
      */
     tileManager: WebGLTileManager | null;
 
+    #saoOcclusionRenderer: SAOOcclusionRenderer;
+    #saoDepthLimitedBlurRenderer: SAODepthLimitedBlurRenderer;
 
     #pickBufferManager: WebGLRenderBufferManager;
 
@@ -282,6 +286,12 @@ export class WebGLRenderer implements Renderer {
         this.#viewer = viewer;
         this.#textureTranscoder.init(this.#viewer.capabilities);
         this.renderContext = new RenderContext(this.#viewer, this.#gl, this);
+        this.#saoOcclusionRenderer = new SAOOcclusionRenderer({
+            renderContext: this.renderContext
+        });
+        this.#saoDepthLimitedBlurRenderer = new SAODepthLimitedBlurRenderer({
+            renderContext: this.renderContext
+        });
     }
 
     /**
@@ -565,7 +575,8 @@ export class WebGLRenderer implements Renderer {
 
 
     getSAOSupported(): boolean {
-        return isSafari && WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_standard_derivatives"];
+        return true;
+        //return isSafari && WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_standard_derivatives"];
     }
 
     /**
@@ -661,6 +672,7 @@ export class WebGLRenderer implements Renderer {
         }
         return (rendererView.imageDirty || this.#layerListDirty || this.#stateSortDirty);
     }
+
 
     /**
      * Renders a frame for a View.
@@ -794,8 +806,8 @@ export class WebGLRenderer implements Renderer {
             return;
         }
         this.#activateExtensions();
-        if (rendererView.saoEnabled && rendererView.view.sao.possible) {
-            this.#drawSAOBuffers(params);
+        if (rendererView.view.sao.enabled && rendererView.view.sao.possible) {
+      //      this.#drawSAOBuffers(params);
         }
         this.#drawColor(params);
     }
@@ -813,62 +825,101 @@ export class WebGLRenderer implements Renderer {
     }
 
     #drawSAOBuffers(params: {
+        viewIndex: number,
         clear: boolean;
     }) {
-        // const sao = this.#view.sao;
-        // const saoDepthRenderBuffer = this.#renderBufferManager.getRenderBuffer("saoDepth", {
-        //     depthTexture: WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"]
-        // });
-        // this.#saoDepthRenderBuffer.bind();
-        // this.#saoDepthRenderBuffer.clear();
-        // this.#drawDepth(params);
-        // this.#saoDepthRenderBuffer.unbind();
-        // // Render occlusion buffer
-        // const occlusionRenderBuffer1 = this.#renderBufferManager.getRenderBuffer("saoOcclusion");
-        // occlusionRenderBuffer1.bind();
-        // occlusionRenderBuffer1.clear();
-        // this.#saoOcclusionRenderer.render(saoDepthRenderBuffer);
-        // occlusionRenderBuffer1.unbind();
-        // if (sao.blur) {
-        //     // Horizontally blur occlusion buffer 1 into occlusion buffer 2
-        //     const occlusionRenderBuffer2 = this.#renderBufferManager.getRenderBuffer("saoOcclusion2");
-        //     occlusionRenderBuffer2.bind();
-        //     occlusionRenderBuffer2.clear();
-        //     this.#saoDepthLimitedBlurRenderer.render(saoDepthRenderBuffer, occlusionRenderBuffer1, 0);
-        //     occlusionRenderBuffer2.unbind();
-        //     // Vertically blur occlusion buffer 2 back into occlusion buffer 1
-        //     occlusionRenderBuffer1.bind();
-        //     occlusionRenderBuffer1.clear();
-        //     this.#saoDepthLimitedBlurRenderer.render(saoDepthRenderBuffer, occlusionRenderBuffer2, 1);
-        //     occlusionRenderBuffer1.unbind();
-        // }
+
+        const viewIndex = params.viewIndex;
+        const rendererView = this.#rendererViewsList[viewIndex];
+        const view = rendererView.view;
+        const sao = view.sao;
+
+        // Render depth buffer
+
+        const depthRenderBuffer = rendererView.renderBufferManager.getRenderBuffer("saoDepth", {
+            depthTexture: WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"]
+        });
+        depthRenderBuffer.bind();
+        depthRenderBuffer.clear();
+        this.#drawDepth(params);
+        depthRenderBuffer.unbind();
+
+        // Render occlusion buffer
+
+        const occlusionRenderBuffer1 = rendererView.renderBufferManager.getRenderBuffer("saoOcclusion");
+        occlusionRenderBuffer1.bind();
+        occlusionRenderBuffer1.clear();
+
+        this.#saoOcclusionRenderer.render({
+            view,
+            depthRenderBuffer
+        });
+        occlusionRenderBuffer1.unbind();
+
+        if (sao.blur) {
+
+            // Horizontally blur occlusion buffer 1 into occlusion buffer 2
+
+            const occlusionRenderBuffer2 = rendererView.renderBufferManager.getRenderBuffer("saoOcclusion2");
+            occlusionRenderBuffer2.bind();
+            occlusionRenderBuffer2.clear();
+
+            this.#saoDepthLimitedBlurRenderer.render({
+                view,
+                depthRenderBuffer,
+                occlusionRenderBuffer: occlusionRenderBuffer1,
+                direction: 0
+            });
+            occlusionRenderBuffer2.unbind();
+
+            // Vertically blur occlusion buffer 2 back into occlusion buffer 1
+
+            occlusionRenderBuffer1.bind();
+            occlusionRenderBuffer1.clear();
+
+            this.#saoDepthLimitedBlurRenderer.render({
+                view,
+                depthRenderBuffer,
+                occlusionRenderBuffer: occlusionRenderBuffer2,
+                direction: 1
+            });
+            occlusionRenderBuffer1.unbind();
+        }
     }
 
     #drawDepth(params: {
         viewIndex: number,
-        clear: boolean
+        clear: boolean;
     }) {
-        this.renderContext.reset();
-        const gl = this.renderContext.gl;
+        const viewIndex = params.viewIndex;
+        const rendererView = this.#rendererViewsList[viewIndex];
+        const view = rendererView.view;
+        const renderContext = this.renderContext;
+        const gl = renderContext.gl;
+
+        renderContext.reset();
+        renderContext.view = view;
+
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
         gl.clearColor(0, 0, 0, 0);
         gl.enable(gl.DEPTH_TEST);
         gl.frontFace(gl.CCW);
         gl.enable(gl.CULL_FACE);
         gl.depthMask(true);
+
         if (params.clear !== false) {
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         }
 
-        // for (let i = 0, len = this.#layerListPostCull.length; i < len; i++) {
-        //     const layer = this.#layerListPostCull[i];
-        //     // if (layer.culled === true || layer.visible === false || !layer.drawDepth) {
-        //     //     continue;
-        //     // }
-        //     // if (layer.drawFlags.colorOpaque) {
-        //     //     //    layer.drawDepth(this.renderContext);
-        //     // }
-        // }
+        for (let i = 0, len = this.#layerList.length; i < len; i++) {
+            const layer = this.#layerList[i];
+            const meshCounts = layer.meshCounts[viewIndex];
+            if (meshCounts.numTransparent < meshCounts.numMeshes) { // Only draw opaque objects in depth pass
+                layer.drawDepth();
+            }
+        }
+
         // const numVertexAttribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; // Fixes https://github.com/xeokit/xeokit-sdk/issues/174
         // for (let ii = 0; ii < numVertexAttribs; ii++) {
         //     gl.disableVertexAttribArray(ii);
@@ -905,7 +956,6 @@ export class WebGLRenderer implements Renderer {
 
         renderContext.reset();
         renderContext.view = view;
-        renderContext.withSAO = false;
         renderContext.pbrEnabled = rendererView.pbrEnabled && !!view.qualityRender;
 
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -924,17 +974,13 @@ export class WebGLRenderer implements Renderer {
 
         renderContext.lineWidth = 1;
 
-        const saoPossible = view.sao.possible;
+        const drawWithSAO = rendererView.saoEnabled && view.sao.possible;
 
-        if (rendererView.saoEnabled && saoPossible) {
-            // const occlusionRenderBuffer1 = this.#renderBufferManager.getRenderBuffer("saoOcclusion", {
-            //     depthTexture: false,
-            //     size: [gl.drawingBufferWidth, gl.drawingBufferHeight]
-            // });
-            // renderContext.occlusionTexture = occlusionRenderBuffer1 ? occlusionRenderBuffer1.getTexture() : null;
+        if (drawWithSAO) {
+            const saoOcclusionRenderBuffer = rendererView.renderBufferManager.getRenderBuffer("saoOcclusion");
+            renderContext.saoOcclusionTexture = saoOcclusionRenderBuffer ? saoOcclusionRenderBuffer.getTexture() : null;
         } else {
-            renderContext.occlusionTexture = null;
-
+            renderContext.saoOcclusionTexture = null;
         }
 
         if (params.clear !== false) {
@@ -953,7 +999,11 @@ export class WebGLRenderer implements Renderer {
             }
 
             if (meshCounts.numTransparent < meshCounts.numMeshes) {
-                layer.drawColorOpaque();
+                if (drawWithSAO && layer.saoSupported) {
+                    normalDrawSAOBin.push(layer);
+                } else {
+                    layer.drawColorOpaque();
+                }
             }
 
             if (rendererView.transparentEnabled) {
@@ -1022,9 +1072,8 @@ export class WebGLRenderer implements Renderer {
         // Render deferred bins
 
         if (normalDrawSAOBin.length > 0) {
-            renderContext.withSAO = true;
             for (let i = 0; i < normalDrawSAOBin.length; i++) {
-                normalDrawSAOBin[i].drawColorOpaque();
+                normalDrawSAOBin[i].drawColorSAOOpaque();
             }
         }
 
@@ -1495,6 +1544,8 @@ export class WebGLRenderer implements Renderer {
         if (this.#viewer) {
             this.detachViewer();
         }
+        this.#saoOcclusionRenderer.destroy();
+        this.#saoDepthLimitedBlurRenderer.destroy();
         this.#pickBufferManager.destroy();
         this.#destroyed = true;
         this.onDestroyed.dispatch(this, true);

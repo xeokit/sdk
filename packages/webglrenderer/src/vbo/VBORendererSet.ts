@@ -12,6 +12,8 @@ export class VBORendererSet {
     renderStats: RenderStats;
 
     #colorRenderer: VBORenderer;
+    #colorSAORenderer: VBORenderer;
+    #drawDepthRenderer: VBORenderer;
     #silhouetteRenderer: VBORenderer;
     #pickMeshRenderer: VBORenderer;
     #pickDepthRenderer: VBORenderer;
@@ -20,8 +22,6 @@ export class VBORendererSet {
     #snapRenderer: VBORenderer;
     #edgesColorRenderer: VBORenderer;
     #edgesSilhouetteRenderer: VBORenderer;
-    #depthRenderer: VBORenderer;
-    #normalsRenderer: VBORenderer;
 
     constructor(webglRenderer: WebGLRenderer) {
         this.renderContext = webglRenderer.renderContext;
@@ -32,6 +32,14 @@ export class VBORendererSet {
         if (this.#colorRenderer && (!this.#colorRenderer.getValid())) {
             this.#colorRenderer.destroy();
             this.#colorRenderer = null;
+        }
+        if (this.#colorSAORenderer && (!this.#colorSAORenderer.getValid())) {
+            this.#colorSAORenderer.destroy();
+            this.#colorSAORenderer = null;
+        }
+        if (this.#drawDepthRenderer && (!this.#drawDepthRenderer.getValid())) {
+            this.#drawDepthRenderer.destroy();
+            this.#drawDepthRenderer = null;
         }
         if (this.#silhouetteRenderer && (!this.#silhouetteRenderer.getValid())) {
             this.#silhouetteRenderer.destroy();
@@ -69,7 +77,21 @@ export class VBORendererSet {
 
     get colorRenderer(): VBORenderer {
         if (!this.#colorRenderer) {
-            this.#colorRenderer = this.createDrawRenderer();
+            this.#colorRenderer = this.createDrawColorRenderer();
+        }
+        return this.#colorRenderer;
+    }
+
+    get colorSAORenderer(): VBORenderer {
+        if (!this.#colorSAORenderer) {
+            this.#colorSAORenderer = this.createDrawColorSAORenderer();
+        }
+        return this.#colorSAORenderer;
+    }
+
+    get drawDepthRenderer(): VBORenderer {
+        if (!this.#colorRenderer) {
+            this.#colorRenderer = this.createDrawDepthRenderer();
         }
         return this.#colorRenderer;
     }
@@ -130,7 +152,15 @@ export class VBORendererSet {
         return this.#snapRenderer;
     }
 
-    protected createDrawRenderer(): VBORenderer {
+    protected createDrawColorRenderer(): VBORenderer {
+        return null;
+    }
+
+    protected createDrawColorSAORenderer(): VBORenderer {
+        return null;
+    }
+
+    protected createDrawDepthRenderer(): VBORenderer {
         return null;
     }
 
@@ -169,6 +199,12 @@ export class VBORendererSet {
     _destroy() {
         if (this.#colorRenderer) {
             this.#colorRenderer.destroy();
+        }
+        if (this.#colorSAORenderer) {
+            this.#colorSAORenderer.destroy();
+        }
+        if (this.#drawDepthRenderer) {
+            this.#drawDepthRenderer.destroy();
         }
         if (this.#silhouetteRenderer) {
             this.#silhouetteRenderer.destroy();

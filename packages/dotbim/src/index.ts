@@ -4,11 +4,11 @@
  *
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; width: 180px;" src="media://images/dotbim-logo.png"/>
  *
- * # xeokit .BIM Importer
+ * # xeokit .BIM Importer and Exporter
  *
  * ---
  *
- * ### *Import building models from the open, free and simple .BIM file format*
+ * ### *Import and export the open, free and simple .BIM model file format*
  *
  * ---
  *

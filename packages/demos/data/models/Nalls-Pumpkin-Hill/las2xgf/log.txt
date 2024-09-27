@@ -1,0 +1,315 @@
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.73 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.98 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.95 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.86 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.84 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.82 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.86 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.96 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 5.66 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 5.18 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.93 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.97 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.84 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.83 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.90 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.89 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.98 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.92 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 5.21 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.88 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.
+[las2xgf] Converting to XGF version: 1 (default)
+[las2xgf]
+Reading LAS/LAZ file: ./data/models/Nalls-Pumpkin-Hill/laz/model.laz
+[las2xgf] Writing XGF file: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
+[las2xgf] Writing target DataModel JSON: ./data/models/Nalls-Pumpkin-Hill/las2xgf/model.json
+[las2xgf] Input LAS/LAZ file size: 33014.53 kB
+[las2xgf] Output XGF file size: 18154.53 kB
+[las2xgf] LAS/LAZ->XGF compression ratio: 1.82
+[las2xgf] Conversion time: 4.91 s
+[las2xgf] Converted SceneObjects: 1
+[las2xgf] Converted SceneMeshes: 4
+[las2xgf] Converted SceneGeometries: 4
+[las2xgf] Converted DataObjects: 2
+[las2xgf] Converted PropertySets: 0
+[las2xgf] Finished OK.

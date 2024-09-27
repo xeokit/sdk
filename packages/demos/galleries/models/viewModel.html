@@ -11,7 +11,8 @@
 <input type="checkbox" id="info-button"/>
 <label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
 <canvas id="myCanvas"></canvas>
-<div id="treeViewContainer"></div>
+<!--<div id="treeViewContainer"></div>-->
+<div id="status-container" class="status-container"></div>
 <div class="slideout-sidebar">
     <h1>Drawing a triangle with a Viewer configured with a WebGLRenderer</h1>
     <p>In tis example, we're creating a Viewer configured with a WebGLRenderer and a Scene. Then we build a SceneModel
@@ -54,592 +55,713 @@
     import * as xeokit from "./../../js/xeokit-demo-bundle.js";
     import * as WebIFC from "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api.js";
 
-    const scene = new xeokit.scene.Scene();
-    const data = new xeokit.data.Data();
+    const statusContainer = document.getElementById('status-container');
+    let statusMessages = [];
 
-    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
+    function status(msg) {
+        statusMessages.push(`${statusMessages.length + 1}: ${msg}`);
+        if (statusMessages.length > 10) {
+            statusMessages.shift();
+        }
+        renderStatusMessages();
+    }
 
-    const viewer = new xeokit.viewer.Viewer({
-        id: "myViewer",
-        scene,
-        renderer
-    });
-
-    log("Viewer created");
-
-    const view = viewer.createView({
-        id: "myView",
-        elementId: "myCanvas"
-    });
-
-
-    new xeokit.cameracontrol.CameraControl(view, {});
-
-    const cameraFlight = new xeokit.cameraflight.CameraFlightAnimation(view);
-
-    scene.onModelCreated.subscribe(() => {
-        cameraFlight.jumpTo({aabb: scene.aabb});
-        console.log(sceneModel.getJSON())
-    });
-
-    const treeViewPlugin = new xeokit.treeview.TreeView({
-        containerElement: document.getElementById("treeViewContainer"),
-        view,
-        data,
-        hierarchy: xeokit.treeview.TreeView.AggregationHierarchy,
-        linkType: xeokit.ifctypes.IfcRelAggregates
-    });
-
-    // const treeViewContextMenu = new xeokit.contextmenu.ContextMenu({
-    //     items: [
-    //         [
-    //             {
-    //                 title: "View Fit",
-    //                 doAction: function (context) {
-    //                     const scene = context.viewer.scene;
-    //                     const objectIds = [];
-    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-    //                         if (treeViewNode.objectId) {
-    //                             objectIds.push(treeViewNode.objectId);
-    //                         }
-    //                     });
-    //                     scene.setObjectsVisible(objectIds, true);
-    //                     scene.setObjectsHighlighted(objectIds, true);
-    //                     context.viewer.cameraFlight.flyTo({
-    //                         projection: "perspective",
-    //                         aabb: scene.getAABB(objectIds),
-    //                         duration: 0.5
-    //                     }, () => {
-    //                         setTimeout(function () {
-    //                             scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
-    //                         }, 500);
-    //                     });
-    //                 }
-    //             },
-    //             {
-    //                 title: "View Fit All",
-    //                 doAction: function (context) {
-    //                     const scene = context.viewer.scene;
-    //                     context.viewer.cameraFlight.flyTo({
-    //                         projection: "perspective",
-    //                         aabb: scene.getAABB({}),
-    //                         duration: 0.5
-    //                     });
-    //                 }
-    //             }
-    //         ],
-    //         [
-    //             {
-    //                 title: "Hide",
-    //                 doAction: function (context) {
-    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-    //                         if (treeViewNode.objectId) {
-    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-    //                             if (entity) {
-    //                                 entity.visible = false;
-    //                             }
-    //                         }
-    //                     });
-    //                 }
-    //             },
-    //             {
-    //                 title: "Hide Others",
-    //                 doAction: function (context) {
-    //                     const scene = context.viewer.scene;
-    //                     scene.setObjectsVisible(scene.visibleObjectIds, false);
-    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
-    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
-    //                     scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
-    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-    //                         if (treeViewNode.objectId) {
-    //                             const entity = scene.objects[treeViewNode.objectId];
-    //                             if (entity) {
-    //                                 entity.visible = true;
-    //                             }
-    //                         }
-    //                     });
-    //                 }
-    //             },
-    //             {
-    //                 title: "Hide All",
-    //                 getEnabled: function (context) {
-    //                     return (context.viewer.scene.visibleObjectIds.length > 0);
-    //                 },
-    //                 doAction: function (context) {
-    //                     context.viewer.scene.setObjectsVisible(context.viewer.scene.visibleObjectIds, false);
-    //                 }
-    //             }
-    //         ],
-    //         [
-    //             {
-    //                 title: "Show",
-    //                 doAction: function (context) {
-    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-    //                         if (treeViewNode.objectId) {
-    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-    //                             if (entity) {
-    //                                 entity.visible = true;
-    //                                 entity.xrayed = false;
-    //                                 entity.selected = false;
-    //                             }
-    //                         }
-    //                     });
-    //                 }
-    //             },
-    //             {
-    //                 title: "Show Others",
-    //                 doAction: function (context) {
-    //                     const scene = context.viewer.scene;
-    //                     scene.setObjectsVisible(scene.objectIds, true);
-    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
-    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
-    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-    //                         if (treeViewNode.objectId) {
-    //                             const entity = scene.objects[treeViewNode.objectId];
-    //                             if (entity) {
-    //                                 entity.visible = false;
-    //                             }
-    //                         }
-    //                     });
-    //                 }
-    //             },
-    //             {
-    //                 title: "Show All",
-    //                 getEnabled: function (context) {
-    //                     const scene = context.viewer.scene;
-    //                     return (scene.numVisibleObjects < scene.numObjects);
-    //                 },
-    //                 doAction: function (context) {
-    //                     const scene = context.viewer.scene;
-    //                     scene.setObjectsVisible(scene.objectIds, true);
-    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
-    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
-    //                 }
-    //             }
-    //         ],
-    //         [
-    //             {
-    //                 title: "X-Ray",
-    //                 doAction: function (context) {
-    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-    //                         if (treeViewNode.objectId) {
-    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-    //                             if (entity) {
-    //                                 entity.xrayed = true;
-    //                                 entity.visible = true;
-    //                             }
-    //                         }
-    //                     });
-    //                 }
-    //             },
-    //             {
-    //                 title: "Undo X-Ray",
-    //                 doAction: function (context) {
-    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-    //                         if (treeViewNode.objectId) {
-    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-    //                             if (entity) {
-    //                                 entity.xrayed = false;
-    //                             }
-    //                         }
-    //                     });
-    //                 }
-    //             },
-    //             {
-    //                 title: "X-Ray Others",
-    //                 doAction: function (context) {
-    //                     const scene = context.viewer.scene;
-    //                     scene.setObjectsVisible(scene.objectIds, true);
-    //                     scene.setObjectsXRayed(scene.objectIds, true);
-    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
-    //                     scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
-    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-    //                         if (treeViewNode.objectId) {
-    //                             const entity = scene.objects[treeViewNode.objectId];
-    //                             if (entity) {
-    //                                 entity.xrayed = false;
-    //                             }
-    //                         }
-    //                     });
-    //                 }
-    //             },
-    //             {
-    //                 title: "Reset X-Ray",
-    //                 getEnabled: function (context) {
-    //                     return (context.viewer.scene.numXRayedObjects > 0);
-    //                 },
-    //                 doAction: function (context) {
-    //                     context.viewer.scene.setObjectsXRayed(context.viewer.scene.xrayedObjectIds, false);
-    //                 }
-    //             }
-    //         ],
-    //         [
-    //             {
-    //                 title: "Select",
-    //                 doAction: function (context) {
-    //                     treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-    //                         if (treeViewNode.objectId) {
-    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-    //                             if (entity) {
-    //                                 entity.selected = true;
-    //                                 entity.visible = true;
-    //                             }
-    //                         }
-    //                     });
-    //                 }
-    //             },
-    //             {
-    //                 title: "Deselect",
-    //                 doAction: function (context) {
-    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-    //                         if (treeViewNode.objectId) {
-    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-    //                             if (entity) {
-    //                                 entity.selected = false;
-    //                             }
-    //                         }
-    //                     });
-    //                 }
-    //             },
-    //             {
-    //                 title: "Clear Selection",
-    //                 getEnabled: function (context) {
-    //                     return (context.viewer.scene.numSelectedObjects > 0);
-    //                 },
-    //                 doAction: function (context) {
-    //                     context.viewer.scene.setObjectsSelected(context.viewer.scene.selectedObjectIds, false);
-    //                 }
-    //             }
-    //         ]
-    //     ]
-    // });
-
-
-    const sceneModel = scene.createModel({
-        id: "myModel"
-    });
-
-    const dataModel = data.createModel({
-        id: "myModel"
-    });
+    function renderStatusMessages() {
+        statusContainer.innerHTML = '';
+        statusMessages.forEach((message, index) => {
+            const statusElement = document.createElement('div');
+            statusElement.className = 'status-message';
+            statusElement.innerHTML = message;
+            if (index === 0 && statusMessages.length === 10) {
+                statusElement.style.opacity = '0.5';
+            }
+            statusContainer.appendChild(statusElement);
+        });
+    }
 
     const reqParams = getRequestParams();
     const modelId = reqParams.modelId;
     const pipelineId = reqParams.pipelineId;
-    const baseDir = `../../data/datasets/${modelId}/${pipelineId}`;
 
-    const onError = (err) => {
-        console.error(`[ERROR] ${err}`);
-    }
+    fetch("../../models.json").then(response => {
+        response.json().then(models => {
 
-    const onSuccess = () => {
-        sceneModel.build();
-        dataModel.build();
-    }
+            fetch("../../pipelines.json").then(response => {
+                response.json().then(pipelines => {
 
-    switch (pipelineId) {
+                    //const pipeline = pipelines.pipelines[pipelineId];
 
-        case "laz":
+                    status(`Initialize <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_viewer.html">Viewer</a>`);
 
-            view.camera.orbitPitch(20);
-            view.camera.orbitYaw(20);
+                    const modelBaseDir = `https://github.com/xeokit/sdk/tree/develop/packages/demos/data/models/${modelId}`;
 
-            fetch(`${baseDir}/model.laz`)
-                .then(response => {
-                    response
-                        .arrayBuffer()
-                        .then(fileData => {
-                            xeokit.las.loadLAS({
-                                    fileData,
-                                    sceneModel,
-                                    dataModel
-                                },
-                                {
-                                    fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
-                                    colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
-                                    skip: 10,            // Load every nth point (optional, default is 1)
-                                    center: false,      // Whether to center the points (optional)
-                                    transform: [        // Transform the points (optional)
-                                        1, 0, 0, 0,
-                                        0, 0, -1, 0,
-                                        0, 1, 0, 0,
-                                        0, 0, 0, 1
-                                    ]
-                                })
-                                .then(onSuccess)
-                                .catch(onError);
-                        }).catch(onError);
-                }).catch(onError);
-            break;
+                    status(`Viewing model: <a href="${modelBaseDir}" target="_parent">${modelId}</a>`);
+                    status(`Model import pipeline: <a href="" target="_parent">${pipelineId}</a>`);
 
-        case "las":
+                    const scene = new xeokit.scene.Scene();
+                    const data = new xeokit.data.Data();
 
-            view.camera.orbitPitch(20);
-            view.camera.orbitYaw(20);
+                    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
-            fetch(`${baseDir}/model.las`)
-                .then(response => {
-                    response
-                        .arrayBuffer()
-                        .then(fileData => {
-                            xeokit.las.loadLAS({
-                                    fileData,
-                                    sceneModel,
-                                    dataModel
-                                },
-                                {
-                                    fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
-                                    colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
-                                    skip: 10,            // Load every nth point (optional, default is 1)
-                                    center: false,      // Whether to center the points (optional)
-                                    transform: [        // Transform the points (optional)
-                                        1, 0, 0, 0,
-                                        0, 0, -1, 0,
-                                        0, 1, 0, 0,
-                                        0, 0, 0, 1
-                                    ]
-                                })
-                                .then(onSuccess)
-                                .catch(onError);
-                        }).catch(onError);
-                }).catch(onError);
-            break;
-
-        case "cityjson":
-
-            view.camera.orbitPitch(-60);
-            view.camera.worldAxis = [
-                1, 0, 0, // Right
-                0, 0, 1, // Up
-                0, -1, 0  // Forward
-            ];
-
-            fetch(`${baseDir}/model.json`)
-                .then(response => {
-                    response
-                        .json()
-                        .then(fileData => {
-                            xeokit.cityjson.loadCityJSON({
-                                fileData,
-                                sceneModel,
-                                dataModel
-                            })
-                                .then(onSuccess)
-                                .catch(onError);
-                        }).catch(onError);
-                }).catch(onError);
-            break;
-
-        case "dotbim":
-
-            view.camera.worldAxis = [
-                1, 0, 0, // Right
-                0, 0, 1, // Up
-                0, -1, 0  // Forward
-            ];
-            view.camera.orbitYaw(-50);
-            view.camera.orbitPitch(-90);
-
-            fetch(`${baseDir}/model.bim`)
-                .then(response => {
-                    response
-                        .json()
-                        .then(fileData => {
-                            xeokit.dotbim.loadDotBIM({
-                                fileData,
-                                sceneModel,
-                                dataModel
-                            })
-                                .then(onSuccess)
-                                .catch(onError);
-                        }).catch(err => {
-                        log(err);
+                    const viewer = new xeokit.viewer.Viewer({
+                        id: "myViewer",
+                        scene,
+                        renderer
                     });
-                }).catch(onError);
-            break;
 
-        case "gltf":
+                    const view = viewer.createView({
+                        id: "myView",
+                        elementId: "myCanvas"
+                    });
 
-            fetch(`${baseDir}/model.glb`)
-                .then(response => {
-                    response
-                        .arrayBuffer()
-                        .then(fileData => {
-                            xeokit.gltf.loadGLTF({
-                                fileData,
-                                sceneModel,
-                                dataModel
-                            })
-                                .then(onSuccess)
-                                .catch(onError);
-                        }).catch(onError);
-                }).catch(onError);
-            break;
+                    new xeokit.cameracontrol.CameraControl(view, {});
 
-        case "ifc": {
+                    const cameraFlight = new xeokit.cameraflight.CameraFlightAnimation(view);
 
-            const ifcAPI = new WebIFC.IfcAPI();
-            ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
+                    scene.onModelCreated.subscribe(() => {
+                        cameraFlight.jumpTo({aabb: scene.aabb});
+                        status(`Set Viewer camera looking at: [${view.camera.look.join(", ")}]`);
+                    });
 
-            ifcAPI.Init().then(() => {
-                fetch(`${baseDir}/model.ifc`).then(response => {
-                    response
-                        .arrayBuffer()
-                        .then(fileData => {
-                            xeokit.webifc.loadWebIFC({
-                                ifcAPI,
-                                fileData,
-                                dataModel,
-                                sceneModel
-                            })
-                                .then(onSuccess)
-                                .catch(onError);
-                        }).catch(onError);
-                }).catch(onError);
-            }).catch(onError);
-            break;
-        }
+                    // const treeViewPlugin = new xeokit.treeview.TreeView({
+                    //     containerElement: document.getElementById("treeViewContainer"),
+                    //     view,
+                    //     data,
+                    //     hierarchy: xeokit.treeview.TreeView.AggregationHierarchy,
+                    //     linkType: xeokit.ifctypes.IfcRelAggregates
+                    // });
 
-        case  "ifc2gltf": {
+                    // const treeViewContextMenu = new xeokit.contextmenu.ContextMenu({
+                    //     items: [
+                    //         [
+                    //             {
+                    //                 title: "View Fit",
+                    //                 doAction: function (context) {
+                    //                     const scene = context.viewer.scene;
+                    //                     const objectIds = [];
+                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+                    //                         if (treeViewNode.objectId) {
+                    //                             objectIds.push(treeViewNode.objectId);
+                    //                         }
+                    //                     });
+                    //                     scene.setObjectsVisible(objectIds, true);
+                    //                     scene.setObjectsHighlighted(objectIds, true);
+                    //                     context.viewer.cameraFlight.flyTo({
+                    //                         projection: "perspective",
+                    //                         aabb: scene.getAABB(objectIds),
+                    //                         duration: 0.5
+                    //                     }, () => {
+                    //                         setTimeout(function () {
+                    //                             scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
+                    //                         }, 500);
+                    //                     });
+                    //                 }
+                    //             },
+                    //             {
+                    //                 title: "View Fit All",
+                    //                 doAction: function (context) {
+                    //                     const scene = context.viewer.scene;
+                    //                     context.viewer.cameraFlight.flyTo({
+                    //                         projection: "perspective",
+                    //                         aabb: scene.getAABB({}),
+                    //                         duration: 0.5
+                    //                     });
+                    //                 }
+                    //             }
+                    //         ],
+                    //         [
+                    //             {
+                    //                 title: "Hide",
+                    //                 doAction: function (context) {
+                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+                    //                         if (treeViewNode.objectId) {
+                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+                    //                             if (entity) {
+                    //                                 entity.visible = false;
+                    //                             }
+                    //                         }
+                    //                     });
+                    //                 }
+                    //             },
+                    //             {
+                    //                 title: "Hide Others",
+                    //                 doAction: function (context) {
+                    //                     const scene = context.viewer.scene;
+                    //                     scene.setObjectsVisible(scene.visibleObjectIds, false);
+                    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
+                    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
+                    //                     scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
+                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+                    //                         if (treeViewNode.objectId) {
+                    //                             const entity = scene.objects[treeViewNode.objectId];
+                    //                             if (entity) {
+                    //                                 entity.visible = true;
+                    //                             }
+                    //                         }
+                    //                     });
+                    //                 }
+                    //             },
+                    //             {
+                    //                 title: "Hide All",
+                    //                 getEnabled: function (context) {
+                    //                     return (context.viewer.scene.visibleObjectIds.length > 0);
+                    //                 },
+                    //                 doAction: function (context) {
+                    //                     context.viewer.scene.setObjectsVisible(context.viewer.scene.visibleObjectIds, false);
+                    //                 }
+                    //             }
+                    //         ],
+                    //         [
+                    //             {
+                    //                 title: "Show",
+                    //                 doAction: function (context) {
+                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+                    //                         if (treeViewNode.objectId) {
+                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+                    //                             if (entity) {
+                    //                                 entity.visible = true;
+                    //                                 entity.xrayed = false;
+                    //                                 entity.selected = false;
+                    //                             }
+                    //                         }
+                    //                     });
+                    //                 }
+                    //             },
+                    //             {
+                    //                 title: "Show Others",
+                    //                 doAction: function (context) {
+                    //                     const scene = context.viewer.scene;
+                    //                     scene.setObjectsVisible(scene.objectIds, true);
+                    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
+                    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
+                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+                    //                         if (treeViewNode.objectId) {
+                    //                             const entity = scene.objects[treeViewNode.objectId];
+                    //                             if (entity) {
+                    //                                 entity.visible = false;
+                    //                             }
+                    //                         }
+                    //                     });
+                    //                 }
+                    //             },
+                    //             {
+                    //                 title: "Show All",
+                    //                 getEnabled: function (context) {
+                    //                     const scene = context.viewer.scene;
+                    //                     return (scene.numVisibleObjects < scene.numObjects);
+                    //                 },
+                    //                 doAction: function (context) {
+                    //                     const scene = context.viewer.scene;
+                    //                     scene.setObjectsVisible(scene.objectIds, true);
+                    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
+                    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
+                    //                 }
+                    //             }
+                    //         ],
+                    //         [
+                    //             {
+                    //                 title: "X-Ray",
+                    //                 doAction: function (context) {
+                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+                    //                         if (treeViewNode.objectId) {
+                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+                    //                             if (entity) {
+                    //                                 entity.xrayed = true;
+                    //                                 entity.visible = true;
+                    //                             }
+                    //                         }
+                    //                     });
+                    //                 }
+                    //             },
+                    //             {
+                    //                 title: "Undo X-Ray",
+                    //                 doAction: function (context) {
+                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+                    //                         if (treeViewNode.objectId) {
+                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+                    //                             if (entity) {
+                    //                                 entity.xrayed = false;
+                    //                             }
+                    //                         }
+                    //                     });
+                    //                 }
+                    //             },
+                    //             {
+                    //                 title: "X-Ray Others",
+                    //                 doAction: function (context) {
+                    //                     const scene = context.viewer.scene;
+                    //                     scene.setObjectsVisible(scene.objectIds, true);
+                    //                     scene.setObjectsXRayed(scene.objectIds, true);
+                    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
+                    //                     scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
+                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+                    //                         if (treeViewNode.objectId) {
+                    //                             const entity = scene.objects[treeViewNode.objectId];
+                    //                             if (entity) {
+                    //                                 entity.xrayed = false;
+                    //                             }
+                    //                         }
+                    //                     });
+                    //                 }
+                    //             },
+                    //             {
+                    //                 title: "Reset X-Ray",
+                    //                 getEnabled: function (context) {
+                    //                     return (context.viewer.scene.numXRayedObjects > 0);
+                    //                 },
+                    //                 doAction: function (context) {
+                    //                     context.viewer.scene.setObjectsXRayed(context.viewer.scene.xrayedObjectIds, false);
+                    //                 }
+                    //             }
+                    //         ],
+                    //         [
+                    //             {
+                    //                 title: "Select",
+                    //                 doAction: function (context) {
+                    //                     treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+                    //                         if (treeViewNode.objectId) {
+                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+                    //                             if (entity) {
+                    //                                 entity.selected = true;
+                    //                                 entity.visible = true;
+                    //                             }
+                    //                         }
+                    //                     });
+                    //                 }
+                    //             },
+                    //             {
+                    //                 title: "Deselect",
+                    //                 doAction: function (context) {
+                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
+                    //                         if (treeViewNode.objectId) {
+                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
+                    //                             if (entity) {
+                    //                                 entity.selected = false;
+                    //                             }
+                    //                         }
+                    //                     });
+                    //                 }
+                    //             },
+                    //             {
+                    //                 title: "Clear Selection",
+                    //                 getEnabled: function (context) {
+                    //                     return (context.viewer.scene.numSelectedObjects > 0);
+                    //                 },
+                    //                 doAction: function (context) {
+                    //                     context.viewer.scene.setObjectsSelected(context.viewer.scene.selectedObjectIds, false);
+                    //                 }
+                    //             }
+                    //         ]
+                    //     ]
+                    // });
 
-            const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
-                sceneModelLoader: xeokit.gltf.loadGLTF,
-                dataModelLoader: xeokit.metamodel.loadMetaModel
-            });
 
-            fetch(`${baseDir}/model.manifest.json`).then(response => {
-                response
-                    .json()
-                    .then(ifc2gltfManifest => {
-                        const modelChunksManifest = xeokit.ifc2gltf2xgf.convertIfc2gltfManifest(ifc2gltfManifest);
-                        modelChunksLoader.load({
-                            modelChunksManifest,
-                            baseDir,
-                            sceneModel,
-                            dataModel
-                        })
-                            .then(onSuccess)
-                            .catch(onError);
-                    }).catch(onError);
-            }).catch(onError);
-            break;
-        }
+                    const sceneModel = scene.createModel({
+                        id: "myModel"
+                    });
 
-        case  "ifc2gltf2xgf": {
+                    const dataModel = data.createModel({
+                        id: "myModel"
+                    });
 
-            const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
-                sceneModelLoader: xeokit.xgf.loadXGF,
-                dataModelLoader: xeokit.data.loadDataModel
-            });
+                    const baseDir = `../../data/models/${modelId}/${pipelineId}`;
 
-            fetch(`${baseDir}/model.manifest.json`).then(response => {
-                response
-                    .json()
-                    .then(modelChunksManifest => {
-                        modelChunksLoader.load({
-                            modelChunksManifest,
-                            baseDir,
-                            sceneModel,
-                            dataModel
-                        })
-                            .then(onSuccess)
-                            .catch(onError);
-                    }).catch(onError);
-            }).catch(onError);
-            break;
-        }
+                    const onError = (err) => {
+                        status(`[ERROR] ${err}`);
+                    }
 
-        case "gltf2xgf":
-        case "las2xgf":
-        case "webifc2xgf":
+                    const onSuccess = () => {
 
-            fetch(`${baseDir}/model.json`).then(
-                response => {
-                    response
-                        .json()
-                        .then(dataModelFileData => {
-                            dataModel.fromJSON(dataModelFileData);
-                            fetch(`${baseDir}/model.xgf`)
+                     //   status("Build DataModel and SceneModel");
+
+                        sceneModel.build();
+                        dataModel.build();
+                    }
+
+                    switch (pipelineId) {
+
+                        case "laz":
+
+                            view.camera.orbitPitch(20);
+                            view.camera.orbitYaw(20);
+
+                            status(`Fetch LAZ: <a target="_parent" href="${modelBaseDir}/laz/model.laz">${truncateUntilSubstring(baseDir, "models")}/model.laz</a>`);
+
+                            fetch(`${baseDir}/model.laz`)
                                 .then(response => {
                                     response
                                         .arrayBuffer()
                                         .then(fileData => {
-                                            xeokit.xgf.loadXGF({
+
+                                            status("Load LAZ with @xeokit/las!loadLAS");
+
+                                            xeokit.las.loadLAS({
+                                                    fileData,
+                                                    sceneModel,
+                                                    dataModel
+                                                },
+                                                {
+                                                    fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
+                                                    colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
+                                                    skip: 10,            // Load every nth point (optional, default is 1)
+                                                    center: false,      // Whether to center the points (optional)
+                                                    transform: [        // Transform the points (optional)
+                                                        1, 0, 0, 0,
+                                                        0, 0, -1, 0,
+                                                        0, 1, 0, 0,
+                                                        0, 0, 0, 1
+                                                    ]
+                                                })
+                                                .then(onSuccess)
+                                                .catch(onError);
+                                        }).catch(onError);
+                                }).catch(onError);
+                            break;
+
+                        case "las":
+
+                            view.camera.orbitPitch(20);
+                            view.camera.orbitYaw(20);
+
+                            status(`Fetch LAS: <a target="_parent" href="${modelBaseDir}/laz/model.laz">${truncateUntilSubstring(baseDir, "models")}/model.las</a>`);
+
+                            fetch(`${baseDir}/model.las`)
+                                .then(response => {
+                                    response
+                                        .arrayBuffer()
+                                        .then(fileData => {
+
+                                            status("Load LAS with @xeokit/las!loadLAS");
+
+                                            xeokit.las.loadLAS({
+                                                    fileData,
+                                                    sceneModel,
+                                                    dataModel
+                                                },
+                                                {
+                                                    fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
+                                                    colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
+                                                    skip: 10,            // Load every nth point (optional, default is 1)
+                                                    center: false,      // Whether to center the points (optional)
+                                                    transform: [        // Transform the points (optional)
+                                                        1, 0, 0, 0,
+                                                        0, 0, -1, 0,
+                                                        0, 1, 0, 0,
+                                                        0, 0, 0, 1
+                                                    ]
+                                                })
+                                                .then(onSuccess)
+                                                .catch(onError);
+                                        }).catch(onError);
+                                }).catch(onError);
+                            break;
+
+                        case "cityjson":
+
+                            view.camera.orbitPitch(-60);
+                            view.camera.worldAxis = [
+                                1, 0, 0, // Right
+                                0, 0, 1, // Up
+                                0, -1, 0  // Forward
+                            ];
+
+                            status(`Fetch CityJSON: <a target="_parent" href="https://github.com/xeokit/sdk/tree/develop/packages/demos/data/models/${modelId}/model.json">${truncateUntilSubstring(baseDir, "models")}/model.json</a>`);
+
+                            fetch(`${baseDir}/model.json`)
+                                .then(response => {
+                                    response
+                                        .json()
+                                        .then(fileData => {
+
+                                            status(`Load CityJSON with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_cityjson.html">@xeokit/cityjson!loadCityJSON</a>`);
+
+                                            xeokit.cityjson.loadCityJSON({
                                                 fileData,
+                                                sceneModel,
+                                                dataModel
+                                            })
+                                                .then(onSuccess)
+                                                .catch(onError);
+                                        }).catch(onError);
+                                }).catch(onError);
+                            break;
+
+                        case "dotbim":
+
+                            view.camera.worldAxis = [
+                                1, 0, 0, // Right
+                                0, 0, 1, // Up
+                                0, -1, 0  // Forward
+                            ];
+                            view.camera.orbitYaw(-50);
+                            view.camera.orbitPitch(-90);
+
+                            status(`Fetch .BIM: <a target="_parent" href="${modelBaseDir}/bim/model.bim">${truncateUntilSubstring(baseDir, "models")}/model.bim</a>`);
+
+                            fetch(`${baseDir}/model.bim`)
+                                .then(response => {
+                                    response
+                                        .json()
+                                        .then(fileData => {
+
+                                            status(`Load .BIM with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_dotbim.html">@xeokit/dotbim!loadDotBIM</a>`);
+
+                                            xeokit.dotbim.loadDotBIM({
+                                                fileData,
+                                                sceneModel,
+                                                dataModel
+                                            })
+                                                .then(onSuccess)
+                                                .catch(onError);
+                                        }).catch(err => {
+                                        log(err);
+                                    });
+                                }).catch(onError);
+                            break;
+
+                        case "gltf":
+
+                            status(`Fetch glTF: <a target="_parent" href="${modelBaseDir}/bim/model.glb">${truncateUntilSubstring(baseDir, "models")}/model.glb</a>`);
+
+                            fetch(`${baseDir}/model.glb`)
+                                .then(response => {
+                                    response
+                                        .arrayBuffer()
+                                        .then(fileData => {
+
+                                            status(`Load glTF with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_gltf.html">@xeokit/gltf!loadGLTF</a>`);
+
+                                            xeokit.gltf.loadGLTF({
+                                                fileData,
+                                                sceneModel,
+                                                dataModel
+                                            })
+                                                .then(onSuccess)
+                                                .catch(onError);
+                                        }).catch(onError);
+                                }).catch(onError);
+                            break;
+
+                        case "ifc": {
+
+                            status("Initialize WebIFC..");
+
+                            const ifcAPI = new WebIFC.IfcAPI();
+                            ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
+
+                            ifcAPI.Init().then(() => {
+
+                                status(`Fetch IFC: <a target="_parent" href="${modelBaseDir}/ifc/model.ifc">${truncateUntilSubstring(baseDir, "models")}/model.ifc</a>`);
+
+                                fetch(`${baseDir}/model.ifc`).then(response => {
+                                    response
+                                        .arrayBuffer()
+                                        .then(fileData => {
+
+                                            status(`Load IFC with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_webifc.html">@xeokit/webifc!loadWebIFC</a>`);
+
+                                            xeokit.webifc.loadWebIFC({
+                                                ifcAPI,
+                                                fileData,
+                                                dataModel,
                                                 sceneModel
                                             })
                                                 .then(onSuccess)
                                                 .catch(onError);
                                         }).catch(onError);
                                 }).catch(onError);
-                        }).catch(onError);
-                }).catch(onError);
-            break;
+                            }).catch(onError);
+                            break;
+                        }
 
-        case "dotbim2xgf":
+                        case  "ifc2gltf": {
 
-            view.camera.orbitPitch(-90);
-            view.camera.worldAxis = [
-                1, 0, 0, // Right
-                0, 0, 1, // Up
-                0, -1, 0  // Forward
-            ];
+                            const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
+                                sceneModelLoader: xeokit.gltf.loadGLTF,
+                                dataModelLoader: xeokit.metamodel.loadMetaModel
+                            });
 
-            fetch(`${baseDir}/model.json`).then(
-                response => {
-                    response
-                        .json()
-                        .then(dataModelFileData => {
-                            dataModel.fromJSON(dataModelFileData);
-                            fetch(`${baseDir}/model.xgf`)
-                                .then(response => {
-                                    response
-                                        .arrayBuffer()
-                                        .then(fileData => {
-                                            xeokit.xgf.loadXGF({
-                                                fileData,
-                                                sceneModel
-                                            })
-                                                .then(onSuccess)
-                                                .catch(onError);
-                                        }).catch(onError);
-                                }).catch(onError);
-                        }).catch(onError);
-                }).catch(onError);
-            break;
+                            status(`Fetch model manifest: <a target="_parent" href="${modelBaseDir}/ifc2gltf/model.manifest.json">${truncateUntilSubstring(baseDir, "models")}/model.manifest.json</a>`);
 
-        case "json":
+                            fetch(`${baseDir}/model.manifest.json`).then(response => {
+                                response
+                                    .json()
+                                    .then(ifc2gltfManifest => {
 
-            fetch(`${baseDir}/datamodel.json`).then(
-                response => {
-                    response
-                        .json()
-                        .then(dataModelFileData => {
-                            const result = dataModel.fromJSON(dataModelFileData);
-                            if (result instanceof xeokit.core.SDKError) {
-                                onError(result.message);
-                            } else {
-                                fetch(`${baseDir}/scenemodel.json`)
-                                    .then(response => {
-                                        response
-                                            .json()
-                                            .then(fileData => {
-                                                const result = sceneModel.fromJSON(fileData);
-                                                if (result instanceof xeokit.core.SDKError) {
-                                                    onError(result.message);
-                                                } else {
-                                                    onSuccess();
-                                                }
-                                            }).catch(onError);
+                                        status(`Load model manifest with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_modelchunksloader.html">@xeokit/modelchunksloader!ModelChunksLoader</a> and <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_gltf.html">@xeokit/gltf!loadGLTF</a>`);
+
+                                        const modelChunksManifest = xeokit.ifc2gltf2xgf.convertIfc2gltfManifest(ifc2gltfManifest);
+
+                                        modelChunksLoader.load({
+                                            modelChunksManifest,
+                                            baseDir,
+                                            sceneModel,
+                                            dataModel
+                                        })
+                                            .then(onSuccess)
+                                            .catch(onError);
                                     }).catch(onError);
-                            }
-                        }).catch(onError);
-                }).catch(onError);
-            break;
+                            }).catch(onError);
+                            break;
+                        }
 
-        default:
-            break;
-    }
+                        case  "ifc2gltf2xgf": {
+
+                            const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
+                                sceneModelLoader: xeokit.xgf.loadXGF,
+                                dataModelLoader: xeokit.data.loadDataModel
+                            });
+
+                            status(`Fetch model manifest: <a target="_parent" href="${modelBaseDir}/ifc2gltf2xgf/model.manifest.json">${truncateUntilSubstring(baseDir, "models")}/model.manifest.json</a>`);
+
+                            fetch(`${baseDir}/model.manifest.json`).then(response => {
+                                response
+                                    .json()
+                                    .then(modelChunksManifest => {
+
+                                        status(`Load model manifest with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_modelchunksloader.html">@xeokit/modelchunksloader!ModelChunksLoader</a> and <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xgf.html">@xeokit/gltf!loadXGF</a>`);
+
+                                        modelChunksLoader.load({
+                                            modelChunksManifest,
+                                            baseDir,
+                                            sceneModel,
+                                            dataModel
+                                        })
+                                            .then(onSuccess)
+                                            .catch(onError);
+                                    }).catch(onError);
+                            }).catch(onError);
+                            break;
+                        }
+
+                        case "gltf2xgf":
+                        case "las2xgf":
+                        case "webifc2xgf":
+
+                            status(`Fetch DataModel: <a target="_parent" href="${modelBaseDir}/${pipelineId}/model.json">${truncateUntilSubstring(baseDir, "models")}/model.json</a>`);
+
+                            fetch(`${baseDir}/model.json`).then(
+                                response => {
+                                    response
+                                        .json()
+                                        .then(dataModelFileData => {
+
+                                            status(`Load DataModel with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_data.html">@xeokit/data!DataModel.fromJSON</a>`);
+
+                                            dataModel.fromJSON(dataModelFileData);
+
+                                            status(`Fetch XGF: <a target="_parent" href="${modelBaseDir}/${pipelineId}/model.xgf">${truncateUntilSubstring(baseDir, "models")}/model.xgf</a>`);
+
+                                            fetch(`${baseDir}/model.xgf`)
+                                                .then(response => {
+                                                    response
+                                                        .arrayBuffer()
+                                                        .then(fileData => {
+
+                                                            status(`Load XGF with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xgf.html">@xeokit/xgf!loadXGF</a>`);
+
+                                                            xeokit.xgf.loadXGF({
+                                                                fileData,
+                                                                sceneModel
+                                                            })
+                                                                .then(onSuccess)
+                                                                .catch(onError);
+                                                        }).catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                }).catch(onError);
+                            break;
+
+                        case "dotbim2xgf":
+
+                            view.camera.orbitPitch(-90);
+                            view.camera.worldAxis = [
+                                1, 0, 0, // Right
+                                0, 0, 1, // Up
+                                0, -1, 0  // Forward
+                            ];
+
+                            status(`Fetch DataModel: <a target="_parent" href="${modelBaseDir}/${pipelineId}/model.json">${truncateUntilSubstring(baseDir, "models")}/model.json</a>`);
+
+                            fetch(`${baseDir}/model.json`).then(
+                                response => {
+                                    response
+                                        .json()
+                                        .then(dataModelFileData => {
+
+                                            status(`Load DataModel with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_data.html">@xeokit/data!DataModel.fromJSON</a>`);
+
+                                            dataModel.fromJSON(dataModelFileData);
+
+                                            status(`Fetch XGF: <a target="_parent" href="${modelBaseDir}/${pipelineId}/model.xgf">${truncateUntilSubstring(baseDir, "models")}/model.xgf</a>`);
+
+                                            fetch(`${baseDir}/model.xgf`)
+                                                .then(response => {
+                                                    response
+                                                        .arrayBuffer()
+                                                        .then(fileData => {
+
+                                                            status(`Load XGF with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xgf.html">@xeokit/xgf!loadXGF</a>`);
+
+                                                            xeokit.xgf.loadXGF({
+                                                                fileData,
+                                                                sceneModel
+                                                            })
+                                                                .then(onSuccess)
+                                                                .catch(onError);
+                                                        }).catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                }).catch(onError);
+                            break;
+
+                        case "json":
+
+                            status(`Fetch DataModel: <a target="_parent" href="${modelBaseDir}/${pipelineId}/model.json">${truncateUntilSubstring(baseDir, "models")}/datamodel.json</a>`);
+
+                            fetch(`${baseDir}/datamodel.json`).then(
+                                response => {
+                                    response
+                                        .json()
+                                        .then(dataModelFileData => {
+
+                                            status(`Load DataModel with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_data.html">@xeokit/data!DataModel.fromJSON</a>`);
+
+                                            const result = dataModel.fromJSON(dataModelFileData);
+                                            if (result instanceof xeokit.core.SDKError) {
+                                                onError(result.message);
+                                            } else {
+
+                                                status(`Fetch SceneModel: ${truncateUntilSubstring(baseDir, modelId)}/scenemodel.json`);
+
+                                                fetch(`${baseDir}/scenemodel.json`)
+                                                    .then(response => {
+                                                        response
+                                                            .json()
+                                                            .then(fileData => {
+
+                                                                status(`Load SceneModel with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_scene.html">@xeokit/scene!SceneModel.fromJSON</a>`);
+
+                                                                const result = sceneModel.fromJSON(fileData);
+                                                                if (result instanceof xeokit.core.SDKError) {
+                                                                    onError(result.message);
+                                                                } else {
+                                                                    onSuccess();
+                                                                }
+                                                            }).catch(onError);
+                                                    }).catch(onError);
+                                            }
+                                        }).catch(onError);
+                                }).catch(onError);
+                            break;
+
+                        default:
+                            break;
+                    }
+                });
+            });
+        });
+    });
 
     function getRequestParams() {
         const vars = {};
@@ -647,6 +769,14 @@
             vars[key] = value;
         });
         return vars;
+    }
+
+    function truncateUntilSubstring(str, substring) {
+        const index = str.indexOf(substring);
+        if (index !== -1) {
+            return str.slice(index);
+        }
+        return str;
     }
 
 </script>

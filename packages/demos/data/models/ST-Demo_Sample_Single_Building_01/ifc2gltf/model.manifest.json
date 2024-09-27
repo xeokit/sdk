@@ -1,0 +1,34 @@
+{
+    "inputFile": "./data/models/ST-Demo_Sample_Single_Building_01/ifc/model.ifc",
+    "converterApplication": "ifc2gltfcxconverter",
+    "converterApplicationVersion": "4.14",
+    "conversionDate": "2024-09-12 18:49:20",
+    "gltfOutFiles": [
+        "./data/models/ST-Demo_Sample_Single_Building_01/ifc2gltf/model.glb"
+    ],
+    "metadataOutFiles": [
+        "./data/models/ST-Demo_Sample_Single_Building_01/ifc2gltf/model.json"
+    ],
+    "numCreatedGltfMeshes": 1218,
+    "numCreatedMetaObjects": 1038,
+    "numExportedPropertySetsOrElementQuantities": 0,
+    "modelBoundsMax": [
+        66.27457756751727,
+        54.04910208856968,
+        11.550000005960467
+    ],
+    "modelBoundsMin": [
+        -6.574999999999875,
+        -1.760000000000204,
+        -7.300000000000001
+    ],
+    "generalMessages": [
+        "Detected IFC version: IFC4X3"
+    ],
+    "warnings": [
+        "degenerated triangle"
+    ],
+    "errors": [
+        "polygonal_halfspace_item_data->meshsets.size() != 1"
+    ]
+}

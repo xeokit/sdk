@@ -1,0 +1,561 @@
+
+__ Creoox IFC to GLTF converter __ version: 4.14 ____________
+Config file loaded: /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json
+Error in input config file /home/lindsay/xeolabs/xeokit/ifc2gltf/4_14_beta/linux/ifc2gltfcxconverter.json : 2
+Offset : 636
+Loading file "./data/models/...ng_01/ifc/model.ifc"
+Loading file "./data/models/...ng_01/ifc/model.ifc": 5.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 6.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 7.01%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 8.01%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 9.01%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 10.02%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 11.03%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 12.03%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 13.04%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 14.05%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 15.06%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 16.06%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 17.07%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 18.08%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 19.09%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 20.09%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 21.10%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 22.10%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 23.11%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 30.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 31.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 32.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 33.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 34.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 35.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 36.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 37.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 38.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 39.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 40.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 41.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 42.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 43.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 44.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 45.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 46.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 47.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 48.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 49.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 50.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 51.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 52.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 53.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 54.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 55.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 56.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 57.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 58.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 59.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 60.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 61.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 62.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 63.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 64.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 65.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 66.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 67.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 68.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 69.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 70.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 71.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 72.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 73.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 74.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 75.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 76.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 77.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 78.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 79.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 80.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 81.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 82.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 83.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 84.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 85.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 86.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 87.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 88.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 89.00%
+
+Loading file "./data/models/...ng_01/ifc/model.ifc": 100.00%
+Converting IFC geometry
+Converting IFC geometry: 0.00%
+
+Converting IFC geometry: 1.10%
+
+Converting IFC geometry: 3.00%
+
+Converting IFC geometry: 10.00%
+
+Converting IFC geometry: 10.51%
+
+Converting IFC geometry: 11.03%
+
+Converting IFC geometry: 11.55%
+
+Converting IFC geometry: 12.07%
+
+Converting IFC geometry: 12.59%
+
+Converting IFC geometry: 13.11%
+
+Converting IFC geometry: 13.63%
+
+Converting IFC geometry: 14.15%
+
+Converting IFC geometry: 14.82%
+
+Converting IFC geometry: 15.34%
+
+Converting IFC geometry: 15.94%
+
+Converting IFC geometry: 16.61%
+
+Converting IFC geometry: 17.20%
+
+Converting IFC geometry: 17.72%
+
+Converting IFC geometry: 18.31%
+
+Converting IFC geometry: 18.83%
+
+Converting IFC geometry: 19.43%
+
+Converting IFC geometry: 20.10%
+
+Converting IFC geometry: 20.62%
+
+Converting IFC geometry: 21.21%
+
+Converting IFC geometry: 21.81%
+
+Converting IFC geometry: 22.33%
+
+Converting IFC geometry: 22.92%
+
+Converting IFC geometry: 23.51%
+
+Converting IFC geometry: 24.11%
+
+Converting IFC geometry: 24.63%
+
+Converting IFC geometry: 25.15%
+
+Converting IFC geometry: 25.67%
+
+Converting IFC geometry: 26.26%
+
+Converting IFC geometry: 26.93%
+
+Converting IFC geometry: 27.45%
+
+Converting IFC geometry: 27.97%
+
+Converting IFC geometry: 28.49%
+
+Converting IFC geometry: 29.01%
+
+Converting IFC geometry: 29.75%
+
+Converting IFC geometry: 30.27%
+
+Converting IFC geometry: 31.02%
+
+Converting IFC geometry: 31.54%
+
+Converting IFC geometry: 32.06%
+
+Converting IFC geometry: 32.58%
+
+Converting IFC geometry: 33.10%
+
+Converting IFC geometry: 33.62%
+
+Converting IFC geometry: 34.14%
+
+Converting IFC geometry: 34.73%
+
+Converting IFC geometry: 35.25%
+
+Converting IFC geometry: 35.77%
+
+Converting IFC geometry: 36.29%
+
+Converting IFC geometry: 37.03%
+
+Converting IFC geometry: 37.55%
+
+Converting IFC geometry: 38.07%
+
+Converting IFC geometry: 38.59%
+
+Converting IFC geometry: 39.11%
+
+Converting IFC geometry: 39.78%
+
+Converting IFC geometry: 40.30%
+
+Converting IFC geometry: 40.82%
+
+Converting IFC geometry: 41.34%
+
+Converting IFC geometry: 41.86%
+
+Converting IFC geometry: 42.38%
+
+Converting IFC geometry: 42.90%
+
+Converting IFC geometry: 43.42%
+
+Converting IFC geometry: 43.94%
+
+Converting IFC geometry: 44.46%
+
+Converting IFC geometry: 44.98%
+
+Converting IFC geometry: 45.50%
+
+Converting IFC geometry: 46.02%
+
+Converting IFC geometry: 46.54%
+
+Converting IFC geometry: 47.06%
+
+Converting IFC geometry: 47.58%
+
+Converting IFC geometry: 48.10%
+
+Converting IFC geometry: 48.62%
+
+Converting IFC geometry: 49.14%
+
+Converting IFC geometry: 49.66%
+
+Converting IFC geometry: 50.18%
+
+Converting IFC geometry: 50.92%
+
+Converting IFC geometry: 51.44%
+
+Converting IFC geometry: 51.96%
+
+Converting IFC geometry: 52.48%
+
+Converting IFC geometry: 53.00%
+
+Converting IFC geometry: 53.52%
+
+Converting IFC geometry: 54.04%
+
+Converting IFC geometry: 54.56%
+
+Converting IFC geometry: 55.08%
+
+Converting IFC geometry: 55.60%
+
+Converting IFC geometry: 56.12%
+
+Converting IFC geometry: 56.79%
+
+Converting IFC geometry: 57.39%
+
+Converting IFC geometry: 57.98%
+
+Converting IFC geometry: 58.50%
+
+Converting IFC geometry: 59.02%
+
+Converting IFC geometry: 59.54%
+
+Converting IFC geometry: 60.06%
+
+Converting IFC geometry: 60.58%
+
+Converting IFC geometry: 61.10%
+
+Converting IFC geometry: 61.62%
+
+Converting IFC geometry: 62.14%
+
+Converting IFC geometry: 62.66%
+
+Converting IFC geometry: 63.18%
+
+Converting IFC geometry: 63.70%
+
+Converting IFC geometry: 64.22%
+
+Converting IFC geometry: 64.89%
+
+Converting IFC geometry: 65.41%
+
+Converting IFC geometry: 65.93%
+
+Converting IFC geometry: 66.60%
+
+Converting IFC geometry: 67.19%
+
+Converting IFC geometry: 67.71%
+
+Converting IFC geometry: 68.23%
+
+Converting IFC geometry: 68.75%
+
+Converting IFC geometry: 69.27%
+
+Converting IFC geometry: 69.79%
+
+Converting IFC geometry: 70.31%
+
+Converting IFC geometry: 70.83%
+
+Converting IFC geometry: 71.35%
+
+Converting IFC geometry: 71.87%
+
+Converting IFC geometry: 72.39%
+
+Converting IFC geometry: 72.91%
+
+Converting IFC geometry: 73.43%
+
+Converting IFC geometry: 73.95%
+
+Converting IFC geometry: 74.47%
+
+Converting IFC geometry: 74.99%
+
+Converting IFC geometry: 75.51%
+
+Converting IFC geometry: 76.10%
+
+Converting IFC geometry: 76.62%
+
+Converting IFC geometry: 77.14%
+
+Converting IFC geometry: 77.66%
+
+Converting IFC geometry: 78.18%
+
+Converting IFC geometry: 78.70%
+
+Converting IFC geometry: 79.22%
+
+Converting IFC geometry: 79.74%
+
+Converting IFC geometry: 80.26%
+
+Converting IFC geometry: 80.78%
+
+Converting IFC geometry: 81.30%
+
+Converting IFC geometry: 81.82%
+
+Converting IFC geometry: 82.34%
+
+Converting IFC geometry: 82.86%
+
+Converting IFC geometry: 83.38%
+
+Converting IFC geometry: 83.90%
+
+Converting IFC geometry: 84.42%
+
+Converting IFC geometry: 84.94%
+
+Converting IFC geometry: 85.46%
+
+Converting IFC geometry: 85.98%
+
+Converting IFC geometry: 86.58%
+
+Converting IFC geometry: 87.10%
+
+Converting IFC geometry: 87.77%
+
+Converting IFC geometry: 88.44%
+
+Converting IFC geometry: 89.10%
+
+Converting IFC geometry: 89.77%
+
+Converting IFC geometry: 100.00%
+Exporting to gltf
+Accessors: 1145, reused: 741, compression: 39%
+Exporting metadata
+Exporting metadata: 50.00%
+
+Exporting metadata: 51.00%
+
+Exporting metadata: 52.00%
+
+Exporting metadata: 53.00%
+
+Exporting metadata: 54.00%
+
+Exporting metadata: 55.00%
+
+Exporting metadata: 56.00%
+
+Exporting metadata: 57.00%
+
+Exporting metadata: 58.00%
+
+Exporting metadata: 59.00%
+
+Exporting metadata: 60.00%
+
+Exporting metadata: 61.00%
+
+Exporting metadata: 62.00%
+
+Exporting metadata: 63.00%
+
+Exporting metadata: 64.00%
+
+Exporting metadata: 65.00%
+
+Exporting metadata: 66.00%
+
+Exporting metadata: 67.00%
+
+Exporting metadata: 68.00%
+
+Exporting metadata: 69.00%
+
+Exporting metadata: 70.00%
+
+Exporting metadata: 71.00%
+
+Exporting metadata: 72.00%
+
+Exporting metadata: 73.00%
+
+Exporting metadata: 74.00%
+
+Exporting metadata: 75.00%
+
+Exporting metadata: 76.00%
+
+Exporting metadata: 77.00%
+
+Exporting metadata: 78.00%
+
+Exporting metadata: 79.00%
+
+Exporting metadata: 80.00%
+
+Exporting metadata: 81.00%
+
+Exporting metadata: 82.00%
+
+Exporting metadata: 83.00%
+
+Exporting metadata: 84.01%
+
+Exporting metadata: 85.01%
+
+Exporting metadata: 86.01%
+
+Exporting metadata: 87.01%
+
+Exporting metadata: 88.01%
+
+Exporting metadata: 89.01%
+
+Exporting metadata: 90.01%
+
+Exporting metadata: 91.01%
+
+Exporting metadata: 92.01%
+
+Exporting metadata: 93.01%
+
+Exporting metadata: 94.01%
+done in 3 seconds
+

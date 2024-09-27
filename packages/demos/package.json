@@ -11,7 +11,7 @@
     "main": "src/index.ts",
     "scripts": {
         "dist": "node build-xeokit-demo-bundle.js",
-        "convert-demo-models": "node build-convert-datasets.js; sh convert-datasets.sh",
+        "convert-demo-models": "node build-convert-models.js; sh convert-models.sh",
         "docs": "typedoc --json ../../docs/json/demos.json --options typedoc.json --validation.invalidLink false",
         "lint": "eslint . --fix"
     },

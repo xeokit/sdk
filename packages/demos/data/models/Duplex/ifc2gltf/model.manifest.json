@@ -1,0 +1,30 @@
+{
+    "inputFile": "./data/models/Duplex/ifc/model.ifc",
+    "converterApplication": "ifc2gltfcxconverter",
+    "converterApplicationVersion": "4.18",
+    "conversionDate": "2024-09-20 14:45:34",
+    "gltfOutFiles": [
+        "./data/models/Duplex/ifc2gltf/model.glb"
+    ],
+    "metadataOutFiles": [
+        "./data/models/Duplex/ifc2gltf/model.json"
+    ],
+    "numCreatedGltfMeshes": 871,
+    "numCreatedMetaObjects": 246,
+    "numExportedPropertySetsOrElementQuantities": 0,
+    "modelBoundsMax": [
+        9.041500091552734,
+        5.017477452754974,
+        9.0
+    ],
+    "modelBoundsMin": [
+        -0.24150000512599945,
+        -22.1827335357666,
+        -1.550000011920929
+    ],
+    "generalMessages": [
+        "Detected IFC version: IFC4X3"
+    ],
+    "warnings": [],
+    "errors": []
+}

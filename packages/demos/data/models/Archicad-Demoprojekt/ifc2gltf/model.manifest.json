@@ -1,0 +1,30 @@
+{
+    "inputFile": "./data/models/Archicad-Demoprojekt/ifc/model.ifc",
+    "converterApplication": "ifc2gltfcxconverter",
+    "converterApplicationVersion": "4.14",
+    "conversionDate": "2024-09-12 18:57:28",
+    "gltfOutFiles": [
+        "./data/models/Archicad-Demoprojekt/ifc2gltf/model.glb"
+    ],
+    "metadataOutFiles": [
+        "./data/models/Archicad-Demoprojekt/ifc2gltf/model.json"
+    ],
+    "numCreatedGltfMeshes": 7150,
+    "numCreatedMetaObjects": 5167,
+    "numExportedPropertySetsOrElementQuantities": 0,
+    "modelBoundsMax": [
+        55.40903221247212,
+        16.286449014241803,
+        13.84458623619184
+    ],
+    "modelBoundsMin": [
+        14.085422246496044,
+        -25.96510719297232,
+        -5.300000001490115
+    ],
+    "generalMessages": [
+        "Detected IFC version: IFC4X3"
+    ],
+    "warnings": [],
+    "errors": []
+}

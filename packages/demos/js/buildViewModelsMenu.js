@@ -1,6 +1,6 @@
 export function buildViewModelsMenu(params) {
 
-    const {datasets, pipelines} = params;
+    const {models, pipelines} = params;
 
     const list = document.getElementById('index');
     const viewer = document.getElementById('viewer');
@@ -48,8 +48,8 @@ export function buildViewModelsMenu(params) {
         pipelineLookup[pipeline.id] = pipeline;
     }
 
-    for (let i = 0, len = datasets.models.length; i < len; i++) {
-        const model = datasets.models[i];
+    for (let i = 0, len = models.models.length; i < len; i++) {
+        const model = models.models[i];
         const pipelineIds = model.pipelines;
         for (let j = 0, lenj = pipelineIds.length; j < lenj; j++) {
             const pipelineId = pipelineIds[j];
@@ -138,7 +138,7 @@ export function buildViewModelsMenu(params) {
             })());
             container.appendChild(fileNameDiv);
             divs[viewerPage] = fileNameDiv;
-            fileDescriptions[viewerPage] = `${pipeline.case}`;
+            fileDescriptions[viewerPage] = `Viewing model <a target="_parent" href="">${modelId}</a> via pipeline <a target="_parent" href="">${pipelineId}</a>`;
         }
     }
 

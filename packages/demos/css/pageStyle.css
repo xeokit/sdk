@@ -26,6 +26,43 @@ body {
     background: white;
 }
 
+.status-container {
+    position: absolute;
+    width: 450px;
+    height: 600px;
+    bottom: 10px;
+    right: 10px;
+    border: 0 solid #333;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    z-index: 300000;
+    pointer-events: all;
+}
+
+.status-log {
+    color: #131314;
+    background-color: #ffffff;
+    border: 1px solid #131314;
+    padding: 8px;
+    margin: 4px;
+    border-radius: 5px;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 0.75;
+}
+
+.status-message {
+    color: #131314;
+    background-color: #9dff80;
+    border: 1px solid #131314;
+    padding: 8px;
+    margin: 4px;
+    border-radius: 5px;
+    transition: opacity 0.5s ease-in-out;
+    opacity: 0.75;
+}
+
 .slideout-sidebar {
     background: white;
     position: fixed;

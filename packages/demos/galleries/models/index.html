@@ -26,12 +26,12 @@
 
     import {buildViewModelsMenu} from "../../js/buildViewModelsMenu.js";
 
-    fetch("../../datasets.json").then(response => {
-        response.json().then(datasets => {
+    fetch("../../models.json").then(response => {
+        response.json().then(models => {
             fetch("../../pipelines.json").then(response => {
                 response.json().then(pipelines => {
                     buildViewModelsMenu({
-                        datasets,
+                        models,
                         pipelines
                     });
                 });

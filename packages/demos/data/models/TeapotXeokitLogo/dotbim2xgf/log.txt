@@ -286,3 +286,18 @@ Reading .BIM file: ./data/models/TeapotXeokitLogo/dotbim/model.bim
 [dotbim2xgf] Converted DataObjects: 8552
 [dotbim2xgf] Converted PropertySets: 0
 [dotbim2xgf] Finished OK.
+[dotbim2xgf] Converting to XGF version: 1 (default)
+[dotbim2xgf] 
+Reading .BIM file: ./data/models/TeapotXeokitLogo/dotbim/model.bim
+[dotbim2xgf] Writing XGF file: ./data/models/TeapotXeokitLogo/dotbim2xgf/model.xgf
+[dotbim2xgf] Writing target DataModel JSON: ./data/models/TeapotXeokitLogo/dotbim2xgf/model.json
+[dotbim2xgf] Input .BIM file size: NaN kB
+[dotbim2xgf] Output XGF file size: 1679.31 kB
+[dotbim2xgf] .BIM->XGF compression ratio: NaN
+[dotbim2xgf] Conversion time: 0.57 s
+[dotbim2xgf] Converted SceneObjects: 8552
+[dotbim2xgf] Converted SceneMeshes: 8552
+[dotbim2xgf] Converted SceneGeometries: 1
+[dotbim2xgf] Converted DataObjects: 8552
+[dotbim2xgf] Converted PropertySets: 0
+[dotbim2xgf] Finished OK.

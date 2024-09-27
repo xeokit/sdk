@@ -1238,3 +1238,35 @@ geometry reused
 [ifc2gltf2xgf] Conversion time: 0.04 s
 [ifc2gltf2xgf] Done.
 
+[ifc2gltf2xgf] Converting to XGF version: 1 (default)
+[ifc2gltf2xgf] 
+Reading glTF manifest file: ./data/models/IfcOpenHouse2x3/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+geometry reused
+[ifc2gltf2xgf] Writing XGF+JSON files: data/models/IfcOpenHouse2x3/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./data/models/IfcOpenHouse2x3/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./data/models/IfcOpenHouse2x3/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.04 s
+[ifc2gltf2xgf] Done.
+

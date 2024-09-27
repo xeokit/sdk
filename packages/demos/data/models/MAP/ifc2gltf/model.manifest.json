@@ -2,24 +2,24 @@
     "inputFile": "./data/models/MAP/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
     "converterApplicationVersion": "4.18",
-    "conversionDate": "2024-09-20 14:44:27",
+    "conversionDate": "2024-09-27 13:20:25",
     "gltfOutFiles": [
         "./data/models/MAP/ifc2gltf/model.glb"
     ],
     "metadataOutFiles": [
         "./data/models/MAP/ifc2gltf/model.json"
     ],
-    "numCreatedGltfMeshes": 5562,
+    "numCreatedGltfMeshes": 5561,
     "numCreatedMetaObjects": 2017,
     "numExportedPropertySetsOrElementQuantities": 0,
     "modelBoundsMax": [
         1842039.2044235948,
-        5173321.540546363,
+        5173320.663783315,
         24.589556814745077
     ],
     "modelBoundsMin": [
         1842005.2833367055,
-        5173283.969251754,
+        5173283.969251753,
         -3.6000000000000014
     ],
     "generalMessages": [

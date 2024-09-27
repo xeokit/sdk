@@ -766,3 +766,19 @@ INFO:  Parsing Model using IFC4 Schema
 [webifc2xgf] Converted DataObjects: 44
 [webifc2xgf] Converted PropertySets: 0
 [webifc2xgf] Finished OK.
+[webifc2xgf] Converting to XGF version: 1 (default)
+[webifc2xgf] 
+Reading IFC file: ./data/models/IfcOpenHouse4/ifc/model.ifc
+INFO:  Parsing Model using IFC4 Schema
+[webifc2xgf] Writing XGF SceneModel file: ./data/models/IfcOpenHouse4/webifc2xgf/model.xgf
+[webifc2xgf] Writing JSON DataModel file: ./data/models/IfcOpenHouse4/webifc2xgf/model.json
+[webifc2xgf] Input IFC file size: 113.26 kB
+[webifc2xgf] Output XGF file size: 45.72 kB
+[webifc2xgf] IFC->XGF compression ratio: 2.48
+[webifc2xgf] Conversion time: 0.11 s
+[webifc2xgf] Converted SceneObjects: 35
+[webifc2xgf] Converted SceneMeshes: 38
+[webifc2xgf] Converted SceneGeometries: 38
+[webifc2xgf] Converted DataObjects: 44
+[webifc2xgf] Converted PropertySets: 0
+[webifc2xgf] Finished OK.

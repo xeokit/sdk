@@ -2,31 +2,27 @@
     "inputFile": "./data/models/KarhumakiBridge/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
     "converterApplicationVersion": "4.18",
-    "conversionDate": "2024-09-20 14:45:44",
+    "conversionDate": "2024-09-27 13:21:47",
     "gltfOutFiles": [
         "./data/models/KarhumakiBridge/ifc2gltf/model.glb",
-        "./data/models/KarhumakiBridge/ifc2gltf/model_1.glb",
-        "./data/models/KarhumakiBridge/ifc2gltf/model_2.glb",
-        "./data/models/KarhumakiBridge/ifc2gltf/model_3.glb"
+        "./data/models/KarhumakiBridge/ifc2gltf/model_1.glb"
     ],
     "metadataOutFiles": [
         "./data/models/KarhumakiBridge/ifc2gltf/model.json",
-        "./data/models/KarhumakiBridge/ifc2gltf/model_1.json",
-        "./data/models/KarhumakiBridge/ifc2gltf/model_2.json",
-        "./data/models/KarhumakiBridge/ifc2gltf/model_3.json"
+        "./data/models/KarhumakiBridge/ifc2gltf/model_1.json"
     ],
-    "numCreatedGltfMeshes": 25393,
+    "numCreatedGltfMeshes": 25320,
     "numCreatedMetaObjects": 6918,
     "numExportedPropertySetsOrElementQuantities": 0,
     "modelBoundsMax": [
         -35.63476987483614,
         127.39008627588746,
-        55.16499999969399
+        55.16499999969398
     ],
     "modelBoundsMin": [
-        -108.51133053526894,
+        -108.51133053526891,
         -9.224685386454013,
-        36.98192604014376
+        36.98192604014377
     ],
     "generalMessages": [
         "Detected IFC version: IFC4X3"

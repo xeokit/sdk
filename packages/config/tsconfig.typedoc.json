@@ -74,7 +74,10 @@
             "path": "packages/las"
         },
         {
-            "path": "packages/dtx"
+            "path": "packages/xgf"
+        },
+        {
+            "path": "packages/modelchunksloader"
         },
         {
             "path": "packages/pick"
@@ -101,13 +104,13 @@
             "path": "packages/webifc"
         },
         {
-            "path": "packages/las2dtx"
+            "path": "packages/las2xgf"
         },
         {
-            "path": "packages/gltf2dtx"
+            "path": "packages/gltf2xgf"
         },
         {
-            "path": "packages/ifc2dtx"
+            "path": "packages/webifc2xgf"
         },
         {
             "path": "packages/testutils"

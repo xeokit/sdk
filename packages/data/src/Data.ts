@@ -10,6 +10,10 @@ import type {SearchParams} from "./SearchParams";
 /**
  * An entity-relationship semantic data model.
  *
+ * A Data is a container of {@link @xeokit/data!DataModel | DataModels}, {@link @xeokit/data!DataObject | DataObjects},
+ *   {@link @xeokit/data!Relationship | Relationships}, {@link @xeokit/data!PropertySet | PropertySets}
+ *   and {@link @xeokit/data!Properties | Properties}.
+ *
  * See {@link "@xeokit/data" | @xeokit/data}  for usage.
  */
 export class Data extends Component {
@@ -107,7 +111,7 @@ export class Data extends Component {
      * fire events via {@link @xeokit/data!Data.onModelCreated | Data.onModelCreated} and {@link @xeokit/data!DataModel.onBuilt | DataModel.onBuilt}, to
      * indicate to any subscribers that the DataModel is built and ready for use.
      *
-     * Note that while we're building/loading the SceneModel, each call that we make to {@link @xeokit/data!DataModel.createObject | DataModel.createObject}
+     * Note that while we're building/loading the DataModel, each call that we make to {@link @xeokit/data!DataModel.createObject | DataModel.createObject}
      * will create a new {@link @xeokit/data!DataObject | DataObject}
      * in {@link @xeokit/data!Data.objects | Data.objects} and {@link @xeokit/data!DataModel.objects | DataModel.objects}, and will also fire an event
      * via {@link @xeokit/data!Data.onObjectCreated | Data.onObjectCreated}. However,

@@ -8,9 +8,11 @@
  *
  * ---
  *
- * ### *The SDK's buildable, queryable, importable and exportable semantic data model*
+ * ***The SDK's buildable, queryable, importable and exportable semantic data model***
  *
  * ---
+ *
+ * # Overview
  *
  * The xeokit SDK uses a generic entity-relationship data graph to manage model semantics. This graph includes entities,
  * properties, and relationships and is compatible with both the browser and NodeJS. It serves as a versatile tool for generating
@@ -41,20 +43,21 @@
  * on the Data. Additionally, DataModels automatically reuse DataObjects and PropertySets wherever they're already
  * created by other DataModels. Finally, DataObjects can have Relationships with other DataObjects in different DataModels.
  *
- * ## Installation
+ * <br>
+ *
+ * # Installation
  *
  * ````bash
  * npm install @xeokit/data
  * ````
  *
- * ## Usage
+ * <br>
  *
- * * [Creating a DataModel from JSON](#creating-a-scenemodel)
- * * [Creating a DataModel using Builder Methods](#creating-a-scenemodel)
- * * [Reading DataObjects](#reading-dataobjects)
- * * [Searching DataObjects](#searching-dataobjects)
+ * # Usage
  *
- * ### Creating a DataModel from JSON
+ * <br>
+ *
+ * ## Creating a DataModel from JSON
  *
  * We will start with an example where we create a {@link @xeokit/data!DataModel | DataModel} using a single parameter
  * object of type {@link @xeokit/data!DataModelParams | DataModelParams}.
@@ -67,12 +70,12 @@
  * DataObjects to give them attributes such as height and weight.
  *
  * To give the DataObjects and {@link @xeokit/data!Relationship | Relationships} semantic meaning, we will assign
- * them types from one of the SDK's bundled data type sets, basicTypes. This set of types classifies each DataObject
+ * them types from one of the SDK's bundled data type sets, {@link "@xeokit/basictypes" | @xeokit/basictypes}. This set of types classifies each DataObject
  * as a {@link @xeokit/basictypes!BasicEntity | BasicEntity} and each Relationship as
  * a {@link @xeokit/basictypes!BasicAggregation | BasicAggregation}.
  *
  * It's worth noting that in a real-world scenario, we would likely use a more complex set of data types, such as
- * {@link @xeokit/ifctypes}. However, we cannot mix different sets of data types within our {@link @xeokit/data!Data | Data},
+ * {@link "@xeokit/ifctypes" | @xeokit/ifctypes}. However, we cannot mix different sets of data types within our {@link @xeokit/data!Data | Data},
  * as traversals of the DataObjects with {@link @xeokit/data!Data.searchObjects | Data.searchObjects } must be
  * guided uniformly by the same set of types across all the DataObjects and Relationships in the graph.
  *
@@ -209,7 +212,9 @@
  * }
  * ````
  *
- * ### Creating a DataModel using Builder Methods
+ * <br>
+ *
+ * ## Creating a DataModel using Builder Methods
  *
  * In our second example, we'll create our {@link @xeokit/data!DataModel | DataModel} again, this time instantiating
  * each {@link @xeokit/data!PropertySet | PropertySet}, {@link Property}, {@link @xeokit/data!DataObject | DataObject}
@@ -370,7 +375,9 @@
  * }
  * ````
  *
- * ### Reading DataObjects
+ * <br>
+ *
+ * ## Reading DataObjects
  *
  * With our {@link @xeokit/scene!SceneModel | SceneModel} built, we'll now use the {@link @xeokit/data!Data.searchObjects | Data.searchObjects} method to
  * traverse it to fetch the IDs of the {@link @xeokit/data!DataObject | DataObjects} we find on that path.
@@ -391,9 +398,11 @@
  * // resultObjectIds == ["table", "tableTop", "redLeg", "greenLeg", "blueLeg", "yellowLeg"];
  * ````
  *
- * ### Searching DataObjects
+ * <br>
  *
- * In our fourth example, we'll demonstrate how to traverse the {@link @xeokit/data!DataObject | DataObjects} along their
+ * ## Searching DataObjects
+ *
+ * In our next example, we'll demonstrate how to traverse the {@link @xeokit/data!DataObject | DataObjects} along their
  * {@link @xeokit/data!Relationship | Relationships}. We'll start at the root DataObject and visit all the DataObjects
  * we encounter along the outgoing Relationships.
  *
@@ -410,6 +419,37 @@
  *      //..
  * }
  * ````
+ *
+ * <br>
+ *
+ * ## Serializing a DataModel to JSON
+ *
+ * ````javascript
+ *  const dataModelJSON = dataModel.getJSON();
+ * ````
+ *
+ * <br>
+ *
+ * ## Deserializing a DataModel from JSON
+ *
+ * ````javascript
+ * const dataModel2 = sce.createDataModel({
+ *     id: "myDataModel2"
+ * });
+ *
+ * dataModel2.fromJSON(dataModelJSON);
+ *
+ * dataModel2.build();
+ * ````
+ *
+ * <br>
+ *
+ * ## Destroying a DataModel
+ *
+ * ````javascript
+ *  dataModel2.destroy();
+ * ````
+ *
  * @module @xeokit/data
  */
 export * from "./Data";
@@ -425,3 +465,4 @@ export * from "./DataObjectParams";
 export * from "./PropertyParams";
 export * from "./PropertySetParams";
 export * from "./SearchParams";
+export * from "./loadDataModel";

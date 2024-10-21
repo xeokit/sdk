@@ -1,0 +1,15 @@
+{
+    "description": "Drawing a triangle with a Viewer configured with a WebGLRenderer, logging all events",
+    "summary": "Create a Viewer configured with a WebGLRenderer and a Scene. Then build a SceneModel with a simple triangle geometry. Log all events fired by the Viewer.",
+    "components": [
+        "Scene",
+        "WebGLRenderer",
+        "Viewer",
+        "View",
+        "CameraControl",
+        "SceneModel",
+        "SceneGeometry",
+        "SceneMesh",
+        "SceneObject"
+    ]
+}

@@ -1,0 +1,15 @@
+{
+    "description": "Build a box-shaped triangle mesh in a Viewer, in multiple Views",
+    "summary": "In this example, we create a Viewer configured with a WebGLRenderer, a Scene, and multiple Views. In the Scene, we build a SceneModel containing a simple box-shaped triangle mesh. The Viewer then draws the box in each View's canvas.",
+    "components": [
+        "Scene",
+        "WebGLRenderer",
+        "Viewer",
+        "View",
+        "CameraControl",
+        "SceneModel",
+        "SceneGeometry",
+        "SceneMesh",
+        "SceneObject"
+    ]
+}

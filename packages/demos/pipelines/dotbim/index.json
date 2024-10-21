@@ -1,0 +1,4 @@
+{
+    "id": "dotbim",
+    "description": "Use loadDotBIM to load .BIM files into a SceneModel and/or DataModel"
+}

@@ -1,0 +1,4 @@
+{
+    "id": "cityjson",
+    "description": "Use loadCityJSON to load CityJSON files into a SceneModel and/or DataModel"
+}

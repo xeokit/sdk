@@ -9,16 +9,33 @@
           rel='stylesheet' type='text/css'>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
     <link href='../../css/index.css' rel='stylesheet' type='text/css'>
+    <style>
+
+        .page-title-static {
+            position: absolute;
+            font-size: 1.6rem;
+            top: 20px;
+            left: 400px;
+            text-align: left;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            z-index: 5;
+            transition: all 300ms ease-in-out;
+            max-width: calc(100% - 550px);
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
 <input type="checkbox" id="index_toggle"/>
 <label for="index_toggle" class="index-button"><i class="fas fa-2x fa-bars"></i></label>
-<div class="page-title" id="page-title"></div>
+<div class="page-title-static" id="page-title"></div>
 <div class="viewSourceButton" id="viewSourceButton"><i class="fas fa-2x fa-code"></i></div>
-<div class="content-overlay" id="viewer-overlay"></div>
-<iframe class="content-container" id="viewer" src="../default.html"></iframe>
-<div class="slideout-sidebar">
-    <div id="index"><h1><a href="http://xeokit.io">xeokit</a> / <a href="../">Demos</a> / View Models</h1></div>
+<div class="content-overlay-static" id="viewer-overlay"></div>
+<iframe class="content-container-static" id="viewer" src="../default.html"></iframe>
+<div class="slideout-sidebar-static">
+    <div id="index"><h1><a href="http://xeokit.io">xeokit</a> / <a href="../">Demos</a> / Models</h1></div>
 </div>
 
 </body>

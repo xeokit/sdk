@@ -1,0 +1,4 @@
+{
+    "id": "ifc",
+    "description": "Use loadWebIFC to load IFC files into a SceneModel and/or DataModel"
+}

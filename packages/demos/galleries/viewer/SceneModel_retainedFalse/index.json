@@ -1,0 +1,15 @@
+{
+    "description": "Build a model in a Viewer, do not retain geometry and materials in JavaScript memory",
+    "summary": "Create a Viewer with a WebGLRenderer, a Scene and one View. In the Scene, build a SceneModel containing a table-shaped model. Configure the SceneModel with retained: false, which causes it to not retain SceneObject, SceneMesh and SceneGeometry components in memory, resulting in a smaller memory footprint. The Viewer then draws the model in the View's canvas.",
+    "components": [
+        "Scene",
+        "WebGLRenderer",
+        "Viewer",
+        "View",
+        "CameraControl",
+        "SceneModel",
+        "SceneGeometry",
+        "SceneMesh",
+        "SceneObject"
+    ]
+}

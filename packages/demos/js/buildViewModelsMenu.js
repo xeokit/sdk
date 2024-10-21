@@ -35,7 +35,7 @@ export function buildViewModelsMenu(params) {
 // Index
 
     let div = document.createElement('h2');
-    div.textContent = "Index";
+    div.textContent = "Import Pipelines";
 
     container.appendChild(div);
     container.appendChild(document.createElement('hr'));
@@ -102,12 +102,12 @@ export function buildViewModelsMenu(params) {
         sectionDiv.textContent = _index++ + ". " + pipelineName;
         container.appendChild(sectionDiv);
 
-        const caseDiv = document.createElement('div');
-        caseDiv.style.color = "grey";
-        caseDiv.style.fontStyle = "italic";
-        caseDiv.className = 'code';
-        caseDiv.innerHTML = pipeline.case;
-        container.appendChild(caseDiv);
+        // const caseDiv = document.createElement('div');
+        // caseDiv.style.color = "grey";
+        // caseDiv.style.fontStyle = "italic";
+        // caseDiv.className = 'code';
+        // caseDiv.innerHTML = pipeline.case;
+        // container.appendChild(caseDiv);
 
 
         // const descDiv = document.createElement('div');
@@ -138,7 +138,7 @@ export function buildViewModelsMenu(params) {
             })());
             container.appendChild(fileNameDiv);
             divs[viewerPage] = fileNameDiv;
-            fileDescriptions[viewerPage] = `Viewing model <a target="_parent" href="">${modelId}</a> via pipeline <a target="_parent" href="">${pipelineId}</a>`;
+            fileDescriptions[viewerPage] = `Viewing model <a target="_parent" href="">${modelId}</a>, imported via pipeline <a target="_parent" href="">${pipelineId}</a>`;
         }
     }
 

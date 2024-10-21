@@ -1,0 +1,4 @@
+{
+    "id": "ifc2gltf",
+    "description": "Use ifc2gltf to convert IFC into glTF and JSON. Use ModelChunksLoader and loadGLTF to load the glTF and JSON into a SceneModel and/or DataModel."
+}

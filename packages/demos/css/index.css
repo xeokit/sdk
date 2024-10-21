@@ -142,6 +142,43 @@ body {
     transition: all 300ms ease-in-out;
 }
 
+.content-container-static {
+    position: absolute;
+    z-index: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    opacity: 1.0;
+    pointer-events: all;
+    background: lightblue;
+    border:0;
+}
+
+.content-overlay-static {
+    position: absolute;
+    z-index: 7;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    opacity: 1.0;
+    pointer-events: none;
+}
+
+.slideout-sidebar-static {
+    position: fixed;
+    top: 0;
+    left: 0px;
+    z-index: 10;
+    width: 560px;
+    height: 100%;
+    padding: 0;
+}
+
+
 #index_toggle {
     display: none;
 }
@@ -172,7 +209,7 @@ body {
 .page-title {
     position: absolute;
     font-size: 1.6rem;
-    top: 17px;
+    top: 20px;
     left: 75px;
     text-align: left;
     -webkit-user-select: none;

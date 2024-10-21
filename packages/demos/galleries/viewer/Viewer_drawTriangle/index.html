@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="../../../css/pageStyle.css" rel="stylesheet"/>
+</head>
+<body>
+<canvas id="myCanvas"></canvas>
+</body>
+<script type="module">
+
+    import * as xeokit from "./../../../js/xeokit-demo-bundle.js";
+    import {StatusLog} from "../../../js/StatusLog.js";
+
+    const statusLog = new StatusLog();
+
+    statusLog.logCreate(["Scene", "WebGLRenderer", "Viewer", "View", "CameraControl"]);
+
+    const scene = new xeokit.scene.Scene();
+
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer
+    });
+
+    const view = viewer.createView({
+        id: "myView",
+        elementId: "myCanvas"
+    });
+
+    view.camera.eye = [0, 0, 10]; // Default
+    view.camera.look = [0, 0, 0]; // Default
+    view.camera.up = [0, 1, 0]; // Default
+
+    new xeokit.cameracontrol.CameraControl(view);
+
+    statusLog.logCreate(["SceneModel", "SceneGeometry", "SceneMesh", "SceneObject"]);
+
+    const sceneModel = scene.createModel({
+        id: "myModel"
+    });
+
+    sceneModel.createGeometry({
+        id: "triangleGeometry",
+        primitive: xeokit.constants.TrianglesPrimitive,
+        positions: [
+            0.0, 1.5, 0.0,
+            -1.5, -1.5, 0.0,
+            1.5, -1.5, 0.0,
+        ],
+        indices: [
+            0, 1, 2
+        ]
+    });
+
+    sceneModel.createMesh({
+        id: "triangleMesh",
+        geometryId: "triangleGeometry",
+        position: [0, 0, 0], // Default
+        scale: [1, 1, 1], // Default
+        rotation: [0, 0, 0], // Default
+        color: [1, 1.0, 1.0] // Default
+    });
+
+    sceneModel.createObject({
+        id: "triangleObject",
+        meshIds: ["triangleMesh"]
+    });
+
+    statusLog.logBuildSceneModel();
+
+    sceneModel.build();
+
+</script>
+
+</html>

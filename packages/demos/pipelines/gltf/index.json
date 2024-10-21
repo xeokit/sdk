@@ -1,0 +1,4 @@
+{
+    "id": "gltf",
+    "description": "Use loadGLTF to load glTF and GLB files into a SceneModel and/or DataModel"
+}

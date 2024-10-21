@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="../../../css/pageStyle.css" rel="stylesheet"/>
+</head>
+<body>
+
+<canvas id="myCanvas"></canvas>
+
+</body>
+
+<script type="module">
+
+    import {log} from "../../../js/logger.js";
+
+    import * as xeokit from "./../../../js/xeokit-demo-bundle.js";
+
+    const scene = new xeokit.scene.Scene();
+
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer
+    });
+
+    const view = viewer.createView({
+        id: "myView",
+        elementId: "myCanvas"
+    });
+
+    if (view instanceof xeokit.core.SDKError) {
+        log(`Error creating View: ${view.message}`);
+    } else {
+        log(`View created: "${view.id}"`);
+    }
+
+    view.camera.eye = [0, 0, 10]; // Default
+    view.camera.look = [0, 0, 0]; // Default
+    view.camera.up = [0, 1, 0]; // Default
+
+    view.camera.projectionType = xeokit.constants.PerspectiveProjectionType; // Default
+    view.camera.perspectiveProjection.fov = 60; // Default
+    view.camera.perspectiveProjection.near = 0.1; // Default
+    view.camera.perspectiveProjection.far = 10000; // Default
+
+    view.backfaces = true; // FIXME
+
+    new xeokit.cameracontrol.CameraControl(view);
+
+    const sceneModel = scene.createModel({
+        id: "myModel"
+    });
+
+    if (sceneModel instanceof xeokit.core.SDKError) {
+        log(`Error creating SceneModel: ${sceneModel.message}`);
+    } else {
+
+        log(`SceneModel created: "${sceneModel.id}"`);
+
+        const geometry = sceneModel.createGeometry({
+            id: "triangleGeometry",
+            primitive: xeokit.constants.TrianglesPrimitive,
+            positions: [
+                0.0, 1.5, 0.0,
+                -1.5, -1.5, 0.0,
+                1.5, -1.5, 0.0,
+            ],
+            indices: [
+                0, 1, 2
+            ]
+        });
+
+        if (geometry instanceof xeokit.core.SDKError) {
+            log(`Error creating Geometry: ${geometry.message}`);
+        } else {
+            log(`Geometry created: "${geometry.id}"`);
+        }
+
+        const triangleMesh = sceneModel.createMesh({
+            id: "triangleMesh",
+            geometryId: "triangleGeometry",
+            matrix: [ // Default
+                1, 0, 0, 0,
+                0, 1, 0, 0,
+                0, 0, 1, 0,
+                0, 0, 0, 1
+            ],
+            color: [1, 1.0, 1.0] // Default
+        });
+
+        if (triangleMesh instanceof xeokit.core.SDKError) {
+            log(`Error creating SceneMesh: ${triangleMesh.message}`);
+        } else {
+            log(`SceneMesh created: "${triangleMesh.id}"`);
+        }
+
+        const triangleSceneObject = sceneModel.createObject({
+            id: "triangleObject",
+            meshIds: ["triangleMesh"]
+        });
+
+        if (triangleSceneObject instanceof xeokit.core.SDKError) {
+            log(`Error creating SceneObject: ${triangleSceneObject.message}`);
+        } else {
+            log(`SceneObject created: "${triangleSceneObject.id}"`);
+        }
+
+        sceneModel.onBuilt.subscribe((theSceneModel) => {
+            log(`SceneModel built`);
+        });
+
+        sceneModel.onDestroyed.subscribe((theSceneModel) => {
+            log(`SceneModel destroyed`);
+        });
+
+        sceneModel.build().then(() => {
+
+            // Now the SceneModel appears in the View
+
+        }).catch((sdkError) => {
+            log(`Error building SceneModel: ${sdkError.message}`);
+            throw e;
+        });
+    }
+
+</script>
+
+</html>

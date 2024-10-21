@@ -1,0 +1,230 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="../../../css/pageStyle.css" rel="stylesheet"/>
+    <style>
+
+        body {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+        }
+
+        #myCanvas1 {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+            width: 1000px;
+            height: 800px;
+            left: 10px;
+            top: 60px;
+            position: absolute;
+            /*border: 1px solid white;*/
+            padding: 0px;
+            /*background: red;*/
+        }
+
+        #myCanvas2 {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+            width: 500px;
+            height: 390px;
+            left: 1020px;
+            top: 60px;
+            position: absolute;
+            /*border: 1px solid white;*/
+            /*background: yellow;*/
+            padding: 0px;
+        }
+
+        #myCanvas3 {
+            user-select: none;
+            -webkit-user-drag: none;
+            -moz-user-drag: none;
+            -ms-user-drag: none;
+            user-drag: none;
+            width: 500px;
+            height: 400px;
+            left: 1020px;
+            top: 460px;
+            position: absolute;
+            /*border: 1px solid white;*/
+            padding: 0px;
+            /*background: green;*/
+        }
+
+    </style>
+</head>
+<body>
+<input type="checkbox" id="info-button"/>
+<label for="info-button" class="info-button"><i class="far fa-3x fa-question-circle"></i></label>
+
+<!-- Virtual canvases -->
+
+<img id="myCanvas1">
+<img id="myCanvas2"/>
+<img id="myCanvas3"/>
+
+
+</body>
+
+<script type="module">
+
+    import {log} from "../../../js/logger.js";
+
+    import * as xeokit from "./../../../js/xeokit-demo-bundle.js";
+    import * as WebIFC from "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api.js";
+    import {StatusLog} from "../../../js/StatusLog.js";
+
+    const statusLog = new StatusLog();
+
+    statusLog.logCreate(["Scene", "Data", "WebGLRenderer", "Viewer", "View", "CameraControl, SceneModel", "DataModel"]);
+
+    const scene = new xeokit.scene.Scene();
+    const data = new xeokit.data.Data();
+
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer
+    });
+
+    // Create View 1 - perspective projection, looking at the model from the side
+
+    const view1 = viewer.createView({
+        id: "myView1",
+        elementId: "myCanvas1"
+    });
+
+    view1.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
+    view1.camera.eye = [-3.933, 2.855, 27.018];
+    view1.camera.look = [4.400, 3.724, 8.899];
+    view1.camera.up = [-0.018, 0.999, 0.039];
+    view1.camera.zoom(2);
+    view1.camera.orbitYaw(20);
+
+    // Create View 2  - orthographic, looking at the model from above
+
+    const view2 = viewer.createView({
+        id: "myView2",
+        elementId: "myCanvas2"
+    });
+
+    view2.camera.projectionType = xeokit.constants.OrthoProjectionType;
+    view2.camera.orthoProjection.scale = 20;
+    view2.camera.orbitPitch(90);
+
+    // Create View 3
+
+    const view3 = viewer.createView({
+        id: "myView3",
+        elementId: "myCanvas3"
+    });
+
+    view3.camera.projectionType = xeokit.constants.PerspectiveProjectionType;
+    view3.camera.zoom(2);
+    view3.camera.orbitYaw(-50);
+    view3.camera.orbitPitch(20);
+
+    // Attach CameraControls to the Views, to control
+    // each View independently with mouse and touch input
+
+    const cameraControl1 = new xeokit.cameracontrol.CameraControl(view1, {});
+    const cameraControl2 = new xeokit.cameracontrol.CameraControl(view2, {});
+    const cameraControl3 = new xeokit.cameracontrol.CameraControl(view3, {});
+
+    // Create SceneModel to hold geometry
+
+    const sceneModel = scene.createModel({
+        id: "myModel"
+    });
+
+    // Create DataModel to hold semantic data
+
+    const dataModel = data.createModel({
+        id: "myModel"
+    });
+
+    if (sceneModel instanceof xeokit.core.SDKError) {
+        log(`Error creating SceneModel: ${sceneModel.message}`);
+
+    } else if (dataModel instanceof xeokit.core.SDKError) {
+        log(`Error creating DataModel: ${dataModel.message}`);
+
+    } else {
+
+        // Load an IFC model into the SceneModel and DataModel
+
+        const ifcAPI = new WebIFC.IfcAPI();
+
+        ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
+
+        ifcAPI.Init().then(() => {
+
+            statusLog.logFetch(`../../../data/models/IfcOpenHouse4/ifc/model.ifc`, "IFC")
+
+            fetch("../../../data/models/IfcOpenHouse4/ifc/model.ifc").then(response => {
+
+                response.arrayBuffer().then(fileData => {
+
+                    statusLog.logLoadWebIFC();
+
+                    xeokit.webifc.loadWebIFC({
+                        ifcAPI,
+                        fileData,
+                        dataModel,
+                        sceneModel
+                    }).then(() => {
+
+                        statusLog.logBuildDataModel();
+
+                        dataModel.build();
+
+                        statusLog.logBuildSceneModel();
+
+                        sceneModel.build();
+
+                        log(`IFC model loaded OK ✌`);
+
+                    }).catch(error => {
+                        dataModel.destroy();
+                        sceneModel.destroy();
+
+                        log(`Error parsing IFC file: ${error}`);
+                        throw e;
+                    });
+                });
+
+            }).catch((e) => {
+                log(`Error fetching IFC file: ${e}`);
+                throw e;
+            });
+
+        }).catch((e) => {
+            log(`Error initializing ifcAPI: ${e}`);
+            throw e;
+        });
+    }
+
+    // viewer.onTick.subscribe(() => {
+    //     view1.camera.orbitYaw(.5);
+    //     view2.camera.orbitYaw(-1.3);
+    // });
+
+
+</script>
+
+</html>

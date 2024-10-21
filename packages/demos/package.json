@@ -69,5 +69,10 @@
         "@xeokit/ifc2gltf2xgf": "^0.1.0",
         "web-ifc": "^0.0.35",
         "earcut-typescript": "^2.2.3"
-    }
+    },
+    "devDependencies": {
+    "gulp-file-include": "^2.1.1",
+    "gulp-js-escape": "^1.0.1",
+    "gulp4-run-sequence": "^1.0.1"
+}
 }

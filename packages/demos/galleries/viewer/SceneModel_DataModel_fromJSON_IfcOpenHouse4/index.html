@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>xeokit Example</title>
+    <link href="../../../css/pageStyle.css" rel="stylesheet"/>
+</head>
+<body>
+<canvas id="myCanvas"></canvas>
+</body>
+
+<script type="module">
+
+    import {log} from "../../../js/logger.js";
+
+    import * as xeokit from "./../../js/xeokit-demo-bundle.js";
+
+    const scene = new xeokit.scene.Scene();
+    const data = new xeokit.data.Data();
+
+    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
+
+    const viewer = new xeokit.viewer.Viewer({
+        id: "myViewer",
+        scene,
+        renderer
+    });
+
+    const view = viewer.createView({
+        id: "myView",
+        elementId: "myCanvas"
+    });
+
+    view.camera.eye = [-3.933, 2.855, 27.018];
+    view.camera.look = [4.400, 3.724, 8.899];
+    view.camera.up = [-0.018, 0.999, 0.039];
+
+    view.camera.zoom(5);
+    view.camera.orbitPitch(20);
+
+    new xeokit.cameracontrol.CameraControl(view, {});
+
+    const sceneModel = scene.createModel({
+        id: "myModel"
+    });
+
+    const dataModel = data.createModel({
+        id: "myModel"
+    });
+
+    if (sceneModel instanceof xeokit.core.SDKError) {
+        log(`Error creating SceneModel: ${sceneModel.message}`);
+
+    } else {
+
+        fetch("../../../data/models/IfcOpenHouse4/json/scenemodel.json").then(response => {
+
+            response.json().then(sceneModelJSON => {
+
+                fetch("../../../data/models/IfcOpenHouse4/json/datamodel.json").then(response => {
+
+                    response.json().then(dataModelJSON => {
+
+                        dataModel.fromJSON(dataModelJSON);
+                        sceneModel.fromJSON(sceneModelJSON);
+
+                        dataModel.build();
+                        sceneModel.build();
+                    });
+                });
+            });
+        });
+    }
+
+</script>
+
+</html>

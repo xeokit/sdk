@@ -1,0 +1,15 @@
+{
+    "description": "Create assorted geometries in a Viewer, from JSON",
+    "summary": "Create a Viewer with a WebGLRenderer, a Scene and one View. In the Scene, build a SceneModel containing assorted geometries, loaded from JSON. The Viewer then draws the geometries in the View's canvas.",
+    "components": [
+        "Scene",
+        "WebGLRenderer",
+        "Viewer",
+        "View",
+        "CameraControl",
+        "SceneModel",
+        "SceneGeometry",
+        "SceneMesh",
+        "SceneObject"
+    ]
+}

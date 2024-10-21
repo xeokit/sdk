@@ -54,34 +54,15 @@
 
     import * as xeokit from "./../../js/xeokit-demo-bundle.js";
     import * as WebIFC from "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api.js";
-
-    const statusContainer = document.getElementById('status-container');
-    let statusMessages = [];
-
-    function status(msg) {
-        statusMessages.push(`${statusMessages.length + 1}: ${msg}`);
-        if (statusMessages.length > 10) {
-            statusMessages.shift();
-        }
-        renderStatusMessages();
-    }
-
-    function renderStatusMessages() {
-        statusContainer.innerHTML = '';
-        statusMessages.forEach((message, index) => {
-            const statusElement = document.createElement('div');
-            statusElement.className = 'status-message';
-            statusElement.innerHTML = message;
-            if (index === 0 && statusMessages.length === 10) {
-                statusElement.style.opacity = '0.5';
-            }
-            statusContainer.appendChild(statusElement);
-        });
-    }
+    import {StatusLog} from "../../js/StatusLog.js";
 
     const reqParams = getRequestParams();
     const modelId = reqParams.modelId;
     const pipelineId = reqParams.pipelineId;
+
+    const statusLog = new StatusLog();
+
+    statusLog.logCreate(["Scene", "WebGLRenderer", "Viewer", "View", "CameraControl, SceneModel, DataModel"]);
 
     fetch("../../models.json").then(response => {
         response.json().then(models => {
@@ -91,12 +72,9 @@
 
                     //const pipeline = pipelines.pipelines[pipelineId];
 
-                    status(`Initialize <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_viewer.html">Viewer</a>`);
+                    statusLog.logViewingModel(modelId);
 
-                    const modelBaseDir = `https://github.com/xeokit/sdk/tree/develop/packages/demos/data/models/${modelId}`;
-
-                    status(`Viewing model: <a href="${modelBaseDir}" target="_parent">${modelId}</a>`);
-                    status(`Model import pipeline: <a href="" target="_parent">${pipelineId}</a>`);
+                    statusLog.logImportPipeline(pipelineId)
 
                     const scene = new xeokit.scene.Scene();
                     const data = new xeokit.data.Data();
@@ -120,241 +98,9 @@
 
                     scene.onModelCreated.subscribe(() => {
                         cameraFlight.jumpTo({aabb: scene.aabb});
-                        status(`Set Viewer camera looking at: [${view.camera.look.join(", ")}]`);
+                        statusLog.logPointCamera(view.camera);
+
                     });
-
-                    // const treeViewPlugin = new xeokit.treeview.TreeView({
-                    //     containerElement: document.getElementById("treeViewContainer"),
-                    //     view,
-                    //     data,
-                    //     hierarchy: xeokit.treeview.TreeView.AggregationHierarchy,
-                    //     linkType: xeokit.ifctypes.IfcRelAggregates
-                    // });
-
-                    // const treeViewContextMenu = new xeokit.contextmenu.ContextMenu({
-                    //     items: [
-                    //         [
-                    //             {
-                    //                 title: "View Fit",
-                    //                 doAction: function (context) {
-                    //                     const scene = context.viewer.scene;
-                    //                     const objectIds = [];
-                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-                    //                         if (treeViewNode.objectId) {
-                    //                             objectIds.push(treeViewNode.objectId);
-                    //                         }
-                    //                     });
-                    //                     scene.setObjectsVisible(objectIds, true);
-                    //                     scene.setObjectsHighlighted(objectIds, true);
-                    //                     context.viewer.cameraFlight.flyTo({
-                    //                         projection: "perspective",
-                    //                         aabb: scene.getAABB(objectIds),
-                    //                         duration: 0.5
-                    //                     }, () => {
-                    //                         setTimeout(function () {
-                    //                             scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
-                    //                         }, 500);
-                    //                     });
-                    //                 }
-                    //             },
-                    //             {
-                    //                 title: "View Fit All",
-                    //                 doAction: function (context) {
-                    //                     const scene = context.viewer.scene;
-                    //                     context.viewer.cameraFlight.flyTo({
-                    //                         projection: "perspective",
-                    //                         aabb: scene.getAABB({}),
-                    //                         duration: 0.5
-                    //                     });
-                    //                 }
-                    //             }
-                    //         ],
-                    //         [
-                    //             {
-                    //                 title: "Hide",
-                    //                 doAction: function (context) {
-                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-                    //                         if (treeViewNode.objectId) {
-                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-                    //                             if (entity) {
-                    //                                 entity.visible = false;
-                    //                             }
-                    //                         }
-                    //                     });
-                    //                 }
-                    //             },
-                    //             {
-                    //                 title: "Hide Others",
-                    //                 doAction: function (context) {
-                    //                     const scene = context.viewer.scene;
-                    //                     scene.setObjectsVisible(scene.visibleObjectIds, false);
-                    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
-                    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
-                    //                     scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
-                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-                    //                         if (treeViewNode.objectId) {
-                    //                             const entity = scene.objects[treeViewNode.objectId];
-                    //                             if (entity) {
-                    //                                 entity.visible = true;
-                    //                             }
-                    //                         }
-                    //                     });
-                    //                 }
-                    //             },
-                    //             {
-                    //                 title: "Hide All",
-                    //                 getEnabled: function (context) {
-                    //                     return (context.viewer.scene.visibleObjectIds.length > 0);
-                    //                 },
-                    //                 doAction: function (context) {
-                    //                     context.viewer.scene.setObjectsVisible(context.viewer.scene.visibleObjectIds, false);
-                    //                 }
-                    //             }
-                    //         ],
-                    //         [
-                    //             {
-                    //                 title: "Show",
-                    //                 doAction: function (context) {
-                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-                    //                         if (treeViewNode.objectId) {
-                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-                    //                             if (entity) {
-                    //                                 entity.visible = true;
-                    //                                 entity.xrayed = false;
-                    //                                 entity.selected = false;
-                    //                             }
-                    //                         }
-                    //                     });
-                    //                 }
-                    //             },
-                    //             {
-                    //                 title: "Show Others",
-                    //                 doAction: function (context) {
-                    //                     const scene = context.viewer.scene;
-                    //                     scene.setObjectsVisible(scene.objectIds, true);
-                    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
-                    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
-                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-                    //                         if (treeViewNode.objectId) {
-                    //                             const entity = scene.objects[treeViewNode.objectId];
-                    //                             if (entity) {
-                    //                                 entity.visible = false;
-                    //                             }
-                    //                         }
-                    //                     });
-                    //                 }
-                    //             },
-                    //             {
-                    //                 title: "Show All",
-                    //                 getEnabled: function (context) {
-                    //                     const scene = context.viewer.scene;
-                    //                     return (scene.numVisibleObjects < scene.numObjects);
-                    //                 },
-                    //                 doAction: function (context) {
-                    //                     const scene = context.viewer.scene;
-                    //                     scene.setObjectsVisible(scene.objectIds, true);
-                    //                     scene.setObjectsXRayed(scene.xrayedObjectIds, false);
-                    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
-                    //                 }
-                    //             }
-                    //         ],
-                    //         [
-                    //             {
-                    //                 title: "X-Ray",
-                    //                 doAction: function (context) {
-                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-                    //                         if (treeViewNode.objectId) {
-                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-                    //                             if (entity) {
-                    //                                 entity.xrayed = true;
-                    //                                 entity.visible = true;
-                    //                             }
-                    //                         }
-                    //                     });
-                    //                 }
-                    //             },
-                    //             {
-                    //                 title: "Undo X-Ray",
-                    //                 doAction: function (context) {
-                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-                    //                         if (treeViewNode.objectId) {
-                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-                    //                             if (entity) {
-                    //                                 entity.xrayed = false;
-                    //                             }
-                    //                         }
-                    //                     });
-                    //                 }
-                    //             },
-                    //             {
-                    //                 title: "X-Ray Others",
-                    //                 doAction: function (context) {
-                    //                     const scene = context.viewer.scene;
-                    //                     scene.setObjectsVisible(scene.objectIds, true);
-                    //                     scene.setObjectsXRayed(scene.objectIds, true);
-                    //                     scene.setObjectsSelected(scene.selectedObjectIds, false);
-                    //                     scene.setObjectsHighlighted(scene.highlightedObjectIds, false);
-                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-                    //                         if (treeViewNode.objectId) {
-                    //                             const entity = scene.objects[treeViewNode.objectId];
-                    //                             if (entity) {
-                    //                                 entity.xrayed = false;
-                    //                             }
-                    //                         }
-                    //                     });
-                    //                 }
-                    //             },
-                    //             {
-                    //                 title: "Reset X-Ray",
-                    //                 getEnabled: function (context) {
-                    //                     return (context.viewer.scene.numXRayedObjects > 0);
-                    //                 },
-                    //                 doAction: function (context) {
-                    //                     context.viewer.scene.setObjectsXRayed(context.viewer.scene.xrayedObjectIds, false);
-                    //                 }
-                    //             }
-                    //         ],
-                    //         [
-                    //             {
-                    //                 title: "Select",
-                    //                 doAction: function (context) {
-                    //                     treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-                    //                         if (treeViewNode.objectId) {
-                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-                    //                             if (entity) {
-                    //                                 entity.selected = true;
-                    //                                 entity.visible = true;
-                    //                             }
-                    //                         }
-                    //                     });
-                    //                 }
-                    //             },
-                    //             {
-                    //                 title: "Deselect",
-                    //                 doAction: function (context) {
-                    //                     context.treeViewPlugin.withNodeTree(context.treeViewNode, (treeViewNode) => {
-                    //                         if (treeViewNode.objectId) {
-                    //                             const entity = context.viewer.scene.objects[treeViewNode.objectId];
-                    //                             if (entity) {
-                    //                                 entity.selected = false;
-                    //                             }
-                    //                         }
-                    //                     });
-                    //                 }
-                    //             },
-                    //             {
-                    //                 title: "Clear Selection",
-                    //                 getEnabled: function (context) {
-                    //                     return (context.viewer.scene.numSelectedObjects > 0);
-                    //                 },
-                    //                 doAction: function (context) {
-                    //                     context.viewer.scene.setObjectsSelected(context.viewer.scene.selectedObjectIds, false);
-                    //                 }
-                    //             }
-                    //         ]
-                    //     ]
-                    // });
-
 
                     const sceneModel = scene.createModel({
                         id: "myModel"
@@ -367,14 +113,17 @@
                     const baseDir = `../../data/models/${modelId}/${pipelineId}`;
 
                     const onError = (err) => {
-                        status(`[ERROR] ${err}`);
+                        statusLog.logError(err);
                     }
 
                     const onSuccess = () => {
 
-                     //   status("Build DataModel and SceneModel");
+                        statusLog.logBuildSceneModel();
 
                         sceneModel.build();
+
+                        statusLog.logBuildDataModel();
+
                         dataModel.build();
                     }
 
@@ -385,7 +134,7 @@
                             view.camera.orbitPitch(20);
                             view.camera.orbitYaw(20);
 
-                            status(`Fetch LAZ: <a target="_parent" href="${modelBaseDir}/laz/model.laz">${truncateUntilSubstring(baseDir, "models")}/model.laz</a>`);
+                            statusLog.logFetch(`${baseDir}/model.laz`, "LAZ")
 
                             fetch(`${baseDir}/model.laz`)
                                 .then(response => {
@@ -393,7 +142,7 @@
                                         .arrayBuffer()
                                         .then(fileData => {
 
-                                            status("Load LAZ with @xeokit/las!loadLAS");
+                                            statusLog.logLoadLAZ();
 
                                             xeokit.las.loadLAS({
                                                     fileData,
@@ -423,7 +172,7 @@
                             view.camera.orbitPitch(20);
                             view.camera.orbitYaw(20);
 
-                            status(`Fetch LAS: <a target="_parent" href="${modelBaseDir}/laz/model.laz">${truncateUntilSubstring(baseDir, "models")}/model.las</a>`);
+                            statusLog.logFetch(`${baseDir}/model.las`, "LAS")
 
                             fetch(`${baseDir}/model.las`)
                                 .then(response => {
@@ -431,7 +180,7 @@
                                         .arrayBuffer()
                                         .then(fileData => {
 
-                                            status("Load LAS with @xeokit/las!loadLAS");
+                                            statusLog.logLoadLAS();
 
                                             xeokit.las.loadLAS({
                                                     fileData,
@@ -441,7 +190,7 @@
                                                 {
                                                     fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
                                                     colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
-                                                    skip: 10,            // Load every nth point (optional, default is 1)
+                                                    skip: 10,           // Load every nth point (optional, default is 1)
                                                     center: false,      // Whether to center the points (optional)
                                                     transform: [        // Transform the points (optional)
                                                         1, 0, 0, 0,
@@ -465,7 +214,7 @@
                                 0, -1, 0  // Forward
                             ];
 
-                            status(`Fetch CityJSON: <a target="_parent" href="https://github.com/xeokit/sdk/tree/develop/packages/demos/data/models/${modelId}/model.json">${truncateUntilSubstring(baseDir, "models")}/model.json</a>`);
+                            statusLog.logFetch(`${baseDir}/model.json`, "CityJSON")
 
                             fetch(`${baseDir}/model.json`)
                                 .then(response => {
@@ -473,7 +222,7 @@
                                         .json()
                                         .then(fileData => {
 
-                                            status(`Load CityJSON with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_cityjson.html">@xeokit/cityjson!loadCityJSON</a>`);
+                                            statusLog.logLoadCityJSON();
 
                                             xeokit.cityjson.loadCityJSON({
                                                 fileData,
@@ -493,10 +242,11 @@
                                 0, 0, 1, // Up
                                 0, -1, 0  // Forward
                             ];
+
                             view.camera.orbitYaw(-50);
                             view.camera.orbitPitch(-90);
 
-                            status(`Fetch .BIM: <a target="_parent" href="${modelBaseDir}/bim/model.bim">${truncateUntilSubstring(baseDir, "models")}/model.bim</a>`);
+                            statusLog.logFetch(`${baseDir}/model.bim`, ".BIM")
 
                             fetch(`${baseDir}/model.bim`)
                                 .then(response => {
@@ -504,7 +254,7 @@
                                         .json()
                                         .then(fileData => {
 
-                                            status(`Load .BIM with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_dotbim.html">@xeokit/dotbim!loadDotBIM</a>`);
+                                            statusLog.logLoadDotBIM();
 
                                             xeokit.dotbim.loadDotBIM({
                                                 fileData,
@@ -521,7 +271,7 @@
 
                         case "gltf":
 
-                            status(`Fetch glTF: <a target="_parent" href="${modelBaseDir}/bim/model.glb">${truncateUntilSubstring(baseDir, "models")}/model.glb</a>`);
+                            statusLog.logFetch(`${baseDir}/model.glb`, "GLB")
 
                             fetch(`${baseDir}/model.glb`)
                                 .then(response => {
@@ -529,7 +279,7 @@
                                         .arrayBuffer()
                                         .then(fileData => {
 
-                                            status(`Load glTF with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_gltf.html">@xeokit/gltf!loadGLTF</a>`);
+                                            statusLog.logLoadGLTF();
 
                                             xeokit.gltf.loadGLTF({
                                                 fileData,
@@ -544,21 +294,22 @@
 
                         case "ifc": {
 
-                            status("Initialize WebIFC..");
+                            statusLog.initWebIFC();
 
                             const ifcAPI = new WebIFC.IfcAPI();
+
                             ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
 
                             ifcAPI.Init().then(() => {
 
-                                status(`Fetch IFC: <a target="_parent" href="${modelBaseDir}/ifc/model.ifc">${truncateUntilSubstring(baseDir, "models")}/model.ifc</a>`);
+                                statusLog.logFetch(`${baseDir}/model.ifc`, "IFC")
 
                                 fetch(`${baseDir}/model.ifc`).then(response => {
                                     response
                                         .arrayBuffer()
                                         .then(fileData => {
 
-                                            status(`Load IFC with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_webifc.html">@xeokit/webifc!loadWebIFC</a>`);
+                                            statusLog.logLoadWebIFC();
 
                                             xeokit.webifc.loadWebIFC({
                                                 ifcAPI,
@@ -581,16 +332,18 @@
                                 dataModelLoader: xeokit.metamodel.loadMetaModel
                             });
 
-                            status(`Fetch model manifest: <a target="_parent" href="${modelBaseDir}/ifc2gltf/model.manifest.json">${truncateUntilSubstring(baseDir, "models")}/model.manifest.json</a>`);
+                            statusLog.logFetch(`${baseDir}/model.manifest.json`, "model manifest")
 
                             fetch(`${baseDir}/model.manifest.json`).then(response => {
                                 response
                                     .json()
                                     .then(ifc2gltfManifest => {
 
-                                        status(`Load model manifest with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_modelchunksloader.html">@xeokit/modelchunksloader!ModelChunksLoader</a> and <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_gltf.html">@xeokit/gltf!loadGLTF</a>`);
+                                        statusLog.logConvertIfc2gltfManifest();
 
                                         const modelChunksManifest = xeokit.ifc2gltf2xgf.convertIfc2gltfManifest(ifc2gltfManifest);
+
+                                        statusLog.logLoadModelGLTFChunksManifest()
 
                                         modelChunksLoader.load({
                                             modelChunksManifest,
@@ -612,14 +365,14 @@
                                 dataModelLoader: xeokit.data.loadDataModel
                             });
 
-                            status(`Fetch model manifest: <a target="_parent" href="${modelBaseDir}/ifc2gltf2xgf/model.manifest.json">${truncateUntilSubstring(baseDir, "models")}/model.manifest.json</a>`);
+                            statusLog.logFetch(`${baseDir}/model.manifest.json`, "model manifest")
 
                             fetch(`${baseDir}/model.manifest.json`).then(response => {
                                 response
                                     .json()
                                     .then(modelChunksManifest => {
 
-                                        status(`Load model manifest with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_modelchunksloader.html">@xeokit/modelchunksloader!ModelChunksLoader</a> and <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xgf.html">@xeokit/gltf!loadXGF</a>`);
+                                        statusLog.logLoadModelXGFChunksManifest();
 
                                         modelChunksLoader.load({
                                             modelChunksManifest,
@@ -638,7 +391,7 @@
                         case "las2xgf":
                         case "webifc2xgf":
 
-                            status(`Fetch DataModel: <a target="_parent" href="${modelBaseDir}/${pipelineId}/model.json">${truncateUntilSubstring(baseDir, "models")}/model.json</a>`);
+                            statusLog.logFetch(`${baseDir}/model.json`, "DataModel JSON")
 
                             fetch(`${baseDir}/model.json`).then(
                                 response => {
@@ -646,11 +399,11 @@
                                         .json()
                                         .then(dataModelFileData => {
 
-                                            status(`Load DataModel with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_data.html">@xeokit/data!DataModel.fromJSON</a>`);
+                                            statusLog.logLoadDataModelJSON();
 
                                             dataModel.fromJSON(dataModelFileData);
 
-                                            status(`Fetch XGF: <a target="_parent" href="${modelBaseDir}/${pipelineId}/model.xgf">${truncateUntilSubstring(baseDir, "models")}/model.xgf</a>`);
+                                            statusLog.logFetch(`${baseDir}/model.xgf`, "XGF")
 
                                             fetch(`${baseDir}/model.xgf`)
                                                 .then(response => {
@@ -658,7 +411,7 @@
                                                         .arrayBuffer()
                                                         .then(fileData => {
 
-                                                            status(`Load XGF with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xgf.html">@xeokit/xgf!loadXGF</a>`);
+                                                            statusLog.logLoadXGF();
 
                                                             xeokit.xgf.loadXGF({
                                                                 fileData,
@@ -681,7 +434,7 @@
                                 0, -1, 0  // Forward
                             ];
 
-                            status(`Fetch DataModel: <a target="_parent" href="${modelBaseDir}/${pipelineId}/model.json">${truncateUntilSubstring(baseDir, "models")}/model.json</a>`);
+                            statusLog.logFetch(`${baseDir}/model.json`, "DataModel JSON")
 
                             fetch(`${baseDir}/model.json`).then(
                                 response => {
@@ -689,11 +442,11 @@
                                         .json()
                                         .then(dataModelFileData => {
 
-                                            status(`Load DataModel with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_data.html">@xeokit/data!DataModel.fromJSON</a>`);
+                                            statusLog.logLoadDataModelJSON();
 
                                             dataModel.fromJSON(dataModelFileData);
 
-                                            status(`Fetch XGF: <a target="_parent" href="${modelBaseDir}/${pipelineId}/model.xgf">${truncateUntilSubstring(baseDir, "models")}/model.xgf</a>`);
+                                            statusLog.logFetch(`${baseDir}/model.xgf`, "XGF")
 
                                             fetch(`${baseDir}/model.xgf`)
                                                 .then(response => {
@@ -701,7 +454,7 @@
                                                         .arrayBuffer()
                                                         .then(fileData => {
 
-                                                            status(`Load XGF with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_xgf.html">@xeokit/xgf!loadXGF</a>`);
+                                                            statusLog.logLoadXGF();
 
                                                             xeokit.xgf.loadXGF({
                                                                 fileData,
@@ -717,7 +470,7 @@
 
                         case "json":
 
-                            status(`Fetch DataModel: <a target="_parent" href="${modelBaseDir}/${pipelineId}/model.json">${truncateUntilSubstring(baseDir, "models")}/datamodel.json</a>`);
+                            statusLog.logFetch(`${baseDir}/datamodel.json`, "DataModel JSON")
 
                             fetch(`${baseDir}/datamodel.json`).then(
                                 response => {
@@ -725,14 +478,14 @@
                                         .json()
                                         .then(dataModelFileData => {
 
-                                            status(`Load DataModel with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_data.html">@xeokit/data!DataModel.fromJSON</a>`);
+                                            statusLog.logLoadDataModelJSON();
 
                                             const result = dataModel.fromJSON(dataModelFileData);
                                             if (result instanceof xeokit.core.SDKError) {
                                                 onError(result.message);
                                             } else {
 
-                                                status(`Fetch SceneModel: ${truncateUntilSubstring(baseDir, modelId)}/scenemodel.json`);
+                                                statusLog.logFetch(`${baseDir}/scenemodel.json`, "SceneModel JSON")
 
                                                 fetch(`${baseDir}/scenemodel.json`)
                                                     .then(response => {
@@ -740,7 +493,7 @@
                                                             .json()
                                                             .then(fileData => {
 
-                                                                status(`Load SceneModel with <a target="_parent" href="https://xeokit.github.io/sdk/docs/api/modules/_xeokit_scene.html">@xeokit/scene!SceneModel.fromJSON</a>`);
+                                                                statusLog.logLoadSceneModelJSON();
 
                                                                 const result = sceneModel.fromJSON(fileData);
                                                                 if (result instanceof xeokit.core.SDKError) {
@@ -769,14 +522,6 @@
             vars[key] = value;
         });
         return vars;
-    }
-
-    function truncateUntilSubstring(str, substring) {
-        const index = str.indexOf(substring);
-        if (index !== -1) {
-            return str.slice(index);
-        }
-        return str;
     }
 
 </script>

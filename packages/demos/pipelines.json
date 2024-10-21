@@ -5,7 +5,7 @@
 
             "name": "JSON",
             "case": "JSON -&gt; <a href=\"/docs/api/modules/_xeokit_scene.html\">loadSceneModel()</a> / <a href=\"/docs/api/modules/_xeokit_data.html\">loadDataModel()</a>",
-            "desc": "{JSON} -> loadSceneModel -> Viewer"
+            "desc": "{JSON} -> loadSceneModel / loadDataModel -> Viewer"
         },
         {
             "id": "ifc",
@@ -114,10 +114,10 @@
             "id": "dotbim2xgf",
             "docs": "",
             "case": "<a href=\"https://dotbim.net/\">.BIM</a> -&gt; <a href=\"/docs/api/modules/_xeokit_dotbim2xgf.html\">dotbim2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">loadXGF()</a>",
-            "desc": "{.BIM} -> dotbim2xgf -> {XGF,JSON} -> loadXGF, loadDataModel -> Viewer",
+            "desc": "{.BIM} -> dotbim2xgf -> {XGF,JSON} -> (loadXGF,loadDataModel) -> Viewer",
             "cmd": "node ../dotbim2xgf/dotbim2xgf.js -i ./data/models/${modelId}/dotbim/model.bim -s ./data/models/${modelId}/dotbim2xgf/model.xgf -d ./data/models/${modelId}/dotbim2xgf/model.json -l >> ./data/models/${modelId}/dotbim2xgf/log.txt",
             "dependson": [
-                "laz"
+                "dotbim"
             ]
         }
     ]

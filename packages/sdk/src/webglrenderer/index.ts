@@ -1,5 +1,5 @@
 /**
- * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:100px;" src="/docs/assets/xeokit_webgl_logo.svg"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:100px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_webgl_logo.svg"/>
  *
  * # xeokit WebGL2 Renderer
  *

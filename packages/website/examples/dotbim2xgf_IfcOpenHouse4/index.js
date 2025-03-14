@@ -74,7 +74,7 @@ demoHelper.init()
 
                         dataModel.fromParams(dataModelParams);
 
-                        // Use loadXKT to load the XKT file into the SceneModel.
+                        // Use loadXGF to load the XGF file into the SceneModel.
 
 
                         fetch(`../../models/IfcOpenHouse4/dotbim2xgf/model.xgf`)

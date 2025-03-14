@@ -1,5 +1,5 @@
 /**
- * <img style="padding:30px; padding-left:0;" src="/docs/assets/kdtree.jpeg"/>
+ * <img style="padding:30px; padding-left:0;" src="https://xeokit.github.io/sdk/docs/assets/kdtree.jpeg"/>
  *
  * # xeokit 3D Collision Utilities
  *

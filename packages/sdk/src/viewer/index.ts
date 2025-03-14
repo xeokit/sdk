@@ -1,5 +1,5 @@
 /**
- * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="/docs/assets/xeokit_viewer_logo.png"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_viewer_logo.png"/>
  *
  * # xeokit Viewer
  *
@@ -162,6 +162,8 @@
  * });
  * ````
  *
+ * <br>
+ *
  * ## Positioning the Camera
  *
  * Each {@link View} has a {@link Camera} which controls the viewpoint and projection.
@@ -313,6 +315,8 @@
  *
  * sceneModel.build();
  * ````
+ *
+ * <br>
  *
  * ### Reducing Memory Usage
  *
@@ -635,6 +639,8 @@
  * ````javascript
  * environmentViewLayer.setObjectsVisible(environmentLayer.objectIds, false);
  * ````
+ *
+ * <br>
  *
  * ## Loading SceneModels from Files
  *

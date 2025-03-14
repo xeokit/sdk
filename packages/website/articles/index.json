@@ -262,6 +262,17 @@
       ],
       "topic": "import.xkt"
     },
+    "gltf2xgf": {
+      "title": "Importing glTF using gltf2xgf",
+      "description": "How to use the gltf2xgf CLI tool to convert a glTF model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>XGF can load certain AEC models faster than glTF.",
+      "tags": [
+        "XGF",
+        "glTF",
+        "gltf2xgf"
+      ],
+      "thumbnail": "thumb.png",
+      "topic": "import.gltf"
+    },
     "ifc2gltf": {
       "title": "Importing IFC using ifc2gltf",
       "description": "How to use the ifc2gltf CLI tool to convert an IFC model to glTF format, and then display the glTF in a xeokit web viewer.",
@@ -394,6 +405,7 @@
     "XGF": [
       "dotbim2xgf",
       "example_loadXGF_MAP",
+      "gltf2xgf",
       "ifc2gltf",
       "ifc2gltf2xgf",
       "overview-pipelines",
@@ -502,6 +514,7 @@
     ],
     "glTF": [
       "example_loadGLTF_MAP",
+      "gltf2xgf",
       "ifc2gltf",
       "ifc2gltf2xgf",
       "overview-pipelines"
@@ -517,6 +530,9 @@
     ],
     "XKT": [
       "example_loadXKT_MAP"
+    ],
+    "gltf2xgf": [
+      "gltf2xgf"
     ],
     "ifc2gltf": [
       "ifc2gltf",

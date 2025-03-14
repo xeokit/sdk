@@ -1,5 +1,5 @@
 /**
- * <img style="padding: 20px 0 30px; height: 140px;" src="/docs/assets/math_icon.png"/>
+ * <img style="padding: 20px 0 30px; height: 140px;" src="https://xeokit.github.io/sdk/docs/assets/math_icon.png"/>
  *
  * # xeokit Core Math Utilities
  *

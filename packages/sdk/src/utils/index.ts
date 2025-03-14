@@ -1,6 +1,6 @@
 
 /**
- * <img style="padding:10px; width:300px" src="/docs/assets/xeokit_components_icon.png"/>
+ * <img style="padding:10px; width:300px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_components_icon.png"/>
  *
  * # xeokit SDK Core Utilities Library
  *

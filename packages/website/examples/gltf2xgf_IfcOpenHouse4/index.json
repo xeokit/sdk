@@ -1,0 +1,19 @@
+{
+  "id": "gltf2xgf_IfcOpenHouse4",
+  "title": "Viewing an DotBIM Model Converted by dotbim2xgf",
+  "description": "In this example, we'll use the xeokit SDK to view a DotBIM model in the browser, converted to XGF.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "tags": [
+    "DotBIM",
+    "XGF",
+    "dotbim2xgf",
+    "_Featured"
+  ],
+  "categories": [
+    "Importing",
+    "DotBIM"
+  ],
+  "topic": "import.dotbim",
+  "template": "basicPage"
+}

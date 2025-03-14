@@ -1,5 +1,5 @@
 /**
- * <img style="width:150px; padding-top:20px; padding-bottom: 20px;" src="/docs/assets/ifc_logo.png"/>
+ * <img style="width:150px; padding-top:20px; padding-bottom: 20px;" src="https://xeokit.github.io/sdk/docs/assets/ifc_logo.png"/>
  *
  * # xeokit IFC Importer
  *

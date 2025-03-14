@@ -1,5 +1,5 @@
 /**
- * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="/docs/assets/3D-Cart.svg"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="https://xeokit.github.io/sdk/docs/assets/3D-Cart.svg"/>
  *
  * # xeokit RTC Coordinate Utilities
  *
@@ -60,9 +60,6 @@ const rtcCenterView = new Float64Array(4);
 /**
  * The size of the coordinate cells in the Relative-To-Center (RTC) system.
  * This constant determines the scale of tiles in the RTC world coordinate system.
- *
- * @constant {number}
- * @default
  */
 export const RTC_CELL_SIZE = 200;
 

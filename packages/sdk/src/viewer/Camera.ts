@@ -437,7 +437,6 @@ class Camera extends Component {
      *
      * Default value is ````[0,0,10]````.
      *
-     * @emits "eye" event on change, with the value of this property.
      * @type {Number[]} New eye position.
      */
     set eye(eye: FloatArrayParam) {
@@ -567,7 +566,7 @@ class Camera extends Component {
     /**
      * Sets whether to lock yaw rotation to pivot about the World-space "up" axis.
      *
-     * @params {Boolean} gimbalLock Set true to lock gimbal.
+     * @param {Boolean} gimbalLock Set true to lock gimbal.
      */
     set gimbalLock(value: boolean) {
         this.#state.gimbalLock = value;

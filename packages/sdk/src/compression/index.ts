@@ -1,5 +1,5 @@
 /**
- * <img style="padding:20px" src="/docs/assets/geometry_icon.png"/>
+ * <img style="padding:20px" src="https://xeokit.github.io/sdk/docs/assets/geometry_icon.png"/>
  *
  * # xeokit Geometry Compression / Decompression Utilities
  *

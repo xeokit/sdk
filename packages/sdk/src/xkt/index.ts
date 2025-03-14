@@ -1,5 +1,5 @@
 /**
- * <img  style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="/docs/assets/xeokit_logo_mesh.png"/>
+ * <img  style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
  *
  * # xeokit [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) Importer and Exporter
  *

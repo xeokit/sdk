@@ -23,8 +23,10 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top ">
-    <span style="color: #ffffff;"><a class="navbar-home" href="http://xeolabs.com">xeolabs</a>/<a class="navbar-parent" href="https://xeokit.github.io/sdk//">@xeokit/sdk</a>/<a
-        class="navbar-brand" href="./index.html">API Docs</a> <!-- /<a class="navbar-brand" href="./index.html"><span id="moduleName"></span></a>--></span>
+    <span style="color: #ffffff;"><a class="navbar-home" href="http://xeolabs.com">xeolabs</a>/<a class="navbar-parent"
+                                                                                                  href="https://xeokit.github.io/sdk//">@xeokit/sdk</a>/<a
+        class="navbar-brand" href="./index.html">API Docs</a>
+        <!-- /<a class="navbar-brand" href="./index.html"><span id="moduleName"></span></a>--></span>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
 </button>
@@ -140,70 +142,168 @@
     const iframe = document.getElementById('autoIframe');
     const iframeWindow = iframe.contentWindow;
 
-    // const moduleNameSpan = document.getElementById("moduleName");
+    iframe.style.height = "15000px";
 
     function resizeIframe() {
-        iframe.style.height = (iframe.contentWindow.document.body.scrollHeight + 50) + 'px';
     }
 
-    document.getElementById('autoIframe').addEventListener('load', resizeIframe);
+    //setInterval(resizeIframe, 100);
 
-    function detectHashChange() {
-        iframe.addEventListener('load', () => {
-            try {
-                iframeWindow.addEventListener('hashchange', () => {
-                    console.log('Iframe hash changed to:', iframeWindow.location.hash);
-                    resizeIframe(); // Optional: Adjust height on hash change
-                    window.location.hash = iframeWindow.location.pathname + "___" + iframeWindow.location.hash.substring(1);
-                });
-            } catch (err) {
-                console.error('Error adding hashchange listener:', err);
+    function stripLeadingSlashes(str) {
+        return str.replace(/^\/+/, '');
+    }
+
+    function setIFrameToWindowHash() {
+        const windowHash = window.location.hash;
+        const i = windowHash.indexOf("___");
+        let path;
+        let hash;
+        if (i === -1) {
+            path = stripLeadingSlashes(windowHash.substring(1));
+            hash = null;
+        } else {
+            path = stripLeadingSlashes(windowHash.substring(1, i));
+            hash = windowHash.substring(i + 3);
+        }
+        console.log("path = " + path);
+        console.log("hash = " + hash);
+
+        if (hash && hash !== "") {
+            const newSrc = `https://xeokit.github.io/sdk//${path}#${hash}`;
+            if (iframe.src !== newSrc) {
+                iframe.src = newSrc;
+                console.log("set iframe src : " + newSrc);
             }
-        });
+        } else {
+            const newSrc = (path && path !== "") ? `https://xeokit.github.io/sdk//${path}` : `https://xeokit.github.io/sdk//docs/api/modules.html`;
+            if (iframe.src !== newSrc) {
+                iframe.src = newSrc;
+                console.log("set iframe src : " + newSrc);
+                iframeWindow.scrollTo(0, 0);
+                window.scrollTo(0, 0);
+            }
+        }
     }
 
-    function scrollToTopOnLoad() {
-        iframe.addEventListener('load', () => {
-            resizeIframe();
+    iframe.onload = () => {
+        resizeIframe();
+        const iframeHash = iframeWindow.location.hash.substring(1);
+        if (iframeHash === "") {
+            window.scrollTo(0, 0);
+        iframeWindow.scrollTo(0, 0);
+    }
+        const newHash = iframeWindow.location.pathname + "___" + iframeHash;
+        if (newHash !== window.location.hash.substring(1)) {
+            console.log("save hash on window: " + newHash);
+            window.location.hash = newHash;
+        }
+    };
+
+
+     setIFrameToWindowHash();
+     window.addEventListener('hashchange', setIFrameToWindowHash);
+
+    iframeWindow.addEventListener('hashchange', ()=>{
+        const iframeHash = iframeWindow.location.hash.substring(1);
+        if (iframeHash === "") {
             window.scrollTo(0, 0);
             iframeWindow.scrollTo(0, 0);
-
-        });
-    }
-
-    function synchPageHashToIframe() {
-        setInterval(() => {
-            const pathname = iframeWindow.location.pathname;
-            const iframeHash = `${pathname}___${iframeWindow.location.hash.substring(1)}`;
-            if (`#${iframeHash}` !== window.location.hash) {
-                window.location.hash = iframeHash;
-                // const moduleName = pathname.substring(pathname.lastIndexOf("/") + 1, pathname.indexOf(".html"))
-                // moduleNameSpan.innerText = moduleName;
-            }
-        }, 100);
-    }
-
-    detectHashChange();
-    scrollToTopOnLoad();
-    synchPageHashToIframe();
-
-    function decodeHash(hash) {
-        const i = hash.indexOf("___");
-        if (i === -1) {
-            return {path: hash.substring(1), hash: null};
         }
-        const path = hash.substring(1, i);
-        return {path: `.${path}`, hash: hash.substring(i + 3)};
-    }
+        const newHash = iframeWindow.location.pathname + "___" + iframeHash;
+        if (newHash !== window.location.hash.substring(1)) {
+            console.log("save hash on window: " + newHash);
+            window.location.hash = newHash;
+        }
+    });
 
-    const {path, hash} = decodeHash(window.location.hash);
-    if (hash) {
-        iframe.src = hash ? `${path}#${hash}` : path;
-    } else {
-        iframe.src = path || "./docs/api/modules.html";
-        iframeWindow.scrollTo(0, 0);
-        window.scrollTo(0, 0);
-    }
+
+    //
+    // // const moduleNameSpan = document.getElementById("moduleName");
+    //
+    //
+    // document.getElementById('autoIframe').addEventListener('load', resizeIframe);
+    //
+    // function detectHashChange() {
+    //     iframe.addEventListener('load', () => {
+    //         try {
+    //             iframeWindow.addEventListener('hashchange', () => {
+    //                 console.log('Iframe hash changed to:', iframeWindow.location.hash);
+    //                 resizeIframe(); // Optional: Adjust height on hash change
+    //                 window.location.hash = iframeWindow.location.pathname + "___" + iframeWindow.location.hash.substring(1);
+    //             });
+    //         } catch (err) {
+    //             console.error('Error adding hashchange listener:', err);
+    //         }
+    //         resizeIframe();
+    //     });
+    // }
+    //
+    // function scrollToTopOnLoad() {
+    //     iframe.addEventListener('load', () => {
+    //         resizeIframe();
+    //         window.scrollTo(0, 0);
+    //         iframeWindow.scrollTo(0, 0);
+    //
+    //     });
+    // }
+    //
+    // function setWindowToIFrameHash() {
+    //     setInterval(() => {
+    //         const pathname = iframeWindow.location.pathname;
+    //         const iframeHash = `${pathname}___${iframeWindow.location.hash.substring(1)}`;
+    //         if (iframeHash !== window.location.hash) {
+    //             window.location.hash = iframeHash;
+    //             // const moduleName = pathname.substring(pathname.lastIndexOf("/") + 1, pathname.indexOf(".html"))
+    //             // moduleNameSpan.innerText = moduleName;
+    //         }
+    //     }, 100);
+    // }
+    //
+    // detectHashChange();
+    // scrollToTopOnLoad();
+    //
+    // // setWindowToIFrameHash();
+    //
+    // function setIFrameToWindowHash() {
+    //     const windowHash = window.location.hash;
+    //     const i = windowHash.indexOf("___");
+    //     let path;
+    //     let hash;
+    //     if (i === -1) {
+    //         path = windowHash.substring(1);
+    //         hash = null;
+    //     } else {
+    //         path = windowHash.substring(1, i);
+    //         hash = windowHash.substring(i + 3);
+    //     }
+    //     console.log("path = " + path);
+    //     console.log("hash = " + hash);
+    //     if (hash && hash !== "") {
+    //         iframe.src = `https://xeokit.github.io/sdk//${path}#${hash}`;
+    //     } else {
+    //         iframe.src = (path && path !== "") ? `https://xeokit.github.io/sdk//${path}` : `https://xeokit.github.io/sdk//docs/api/modules.html`;
+    //         iframeWindow.scrollTo(0, 0);
+    //         window.scrollTo(0, 0);
+    //     }
+    //
+    // }
+    //
+    // setIFrameToWindowHash();
+    //
+    // function updateHash() {
+    //     resizeIframe();
+    //     // try {
+    //     //     const newUrl = iframe.contentWindow.location.href;
+    //     //     if (newUrl !== location.hash.substring(1)) {
+    //     //         location.hash = newUrl;
+    //     //     }
+    //     // } catch (e) {
+    //     //     console.warn('Cross-origin access blocked:', e);
+    //     // }
+    // }
+    //
+    // const observer = new MutationObserver(updateHash);
+    // observer.observe(iframe, {attributes: true, attributeFilter: ['src']});
 
 
 </script>

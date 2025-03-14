@@ -660,7 +660,7 @@ export class WebGLRenderer implements Renderer {
      * Renders a frame for a View.
      *
      * @internal
-     * @param viewIndex Handle to the View, returned earlier by {@param params Rendering params.
+     * @param viewIndex Handle to the View.
      * @param [params.force=false] True to force a render, else only render if needed.
      * @link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
      * @returns *{@link core!SDKError | SDKError}*

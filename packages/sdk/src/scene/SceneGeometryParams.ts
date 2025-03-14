@@ -9,8 +9,6 @@ import type {FloatArrayParam, IntArrayParam} from "../math";
  * for {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
  *
  * See {@link scene | @xeokit/sdk/scene} for usage.
- *
- * @typeparam
  */
 export interface SceneGeometryParams {
 

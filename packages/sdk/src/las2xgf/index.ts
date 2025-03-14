@@ -1,5 +1,5 @@
 /**
- * <img style="padding: 30px 0 10px; height: 130px;" src="/docs/assets/xeokit_logo_mesh.png"/>
+ * <img style="padding: 30px 0 10px; height: 130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
  *
  * # xeokit LAS/LAZ → XGF Converter
  *

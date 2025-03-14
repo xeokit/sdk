@@ -2,7 +2,7 @@
  * [![npm version](https://badge.fury.io/js/%40xeokit%2Fgltfviewer.svg)](https://badge.fury.io/js/%40xeokit%2Fgltfviewer)
  * [![](https://data.jsdelivr.com/v1/package/npm/@xeokit/gltfviewer/badge)](https://www.jsdelivr.com/package/npm/@xeokit/gltfviewer)
  *
- * <img style="width:150px; padding-top:20px; padding-bottom: 20px;" src="/docs/assets/ifc_logo.png"/>
+ * <img style="width:150px; padding-top:20px; padding-bottom: 20px;" src="https://xeokit.github.io/sdk/docs/assets/ifc_logo.png"/>
  *
  * <br>
  *

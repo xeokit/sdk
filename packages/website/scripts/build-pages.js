@@ -267,7 +267,7 @@ function parsedocsLookup(text) {
             docLinkMade[key] = true;
             const entry = docsLookup[key];
             const path = entry.path || "";
-            return `&nbsp;<a class="doc-link" data-template="${key}_template"  href="${path}" target="_parent">${key}</a>
+            return `&nbsp;<a class="doc-link" data-template="${key}_template"  href="${base}${path}" target="_parent">${key}</a>
             <template class="doc-link-tooltip" id="${key}_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
                 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / ${entry.namespace} / ${key} /</p>
                 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">${capitalizeFirstLetter(entry.kind)} ${key}</p>
@@ -593,7 +593,7 @@ function parseDocLinks(text, prefix = true) {
         text = text.replace(regex, (match) => {
             const entry = DOCS_LOOKUP[key];
             const path = entry.path || "";
-            return `<a class="doc-link" data-template="${key}_template"  href="${path}" target="_parent">${key}</a>
+            return `<a class="doc-link" data-template="${key}_template"  href="${base}${path}" target="_parent">${key}</a>
             <template class="doc-link-tooltip" id="${key}_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
                 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / ${entry.namespace} / ${key} /</p>
                 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">${capitalizeFirstLetter(entry.kind)} ${key}</p>

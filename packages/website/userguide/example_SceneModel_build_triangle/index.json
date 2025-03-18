@@ -1,0 +1,9 @@
+{
+  "title": "Creating a 3D Triangle",
+  "description": "Using xeokit SDK to create and view a single 3D triangle in the browser.",
+  "tags": [
+    "Tutorial",
+    "Example"
+  ],
+  "topic": "modeling.scene.geometry"
+}

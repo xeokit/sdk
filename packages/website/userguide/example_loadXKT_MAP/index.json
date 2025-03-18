@@ -1,0 +1,11 @@
+{
+  "title": "Viewing XKT using loadXKT",
+  "description": "How to load an IFC model from XKT (.xkt) format directly into a xeokit web viewer.",
+  "tags": [
+    "Tutorial",
+    "Example",
+    "XKT",
+    "_Featured"
+  ],
+  "topic": "import.xkt"
+}

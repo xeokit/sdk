@@ -1,0 +1,1 @@
+{"version":3,"file":"createPrimsKdTree3.d.ts","sourceRoot":"","sources":["../../src/kdtree3/createPrimsKdTree3.ts"],"names":[],"mappings":"AACA,OAAO,KAAK,EAAC,eAAe,EAAE,aAAa,EAAC,MAAM,SAAS,CAAC;AAM5D,OAAO,EAAC,YAAY,EAAC,MAAM,gBAAgB,CAAC;AAI5C;;;;;;;;GAQG;AACH,wBAAgB,kBAAkB,CAAC,aAAa,EAAE,MAAM,EAAE,SAAS,EAAE,eAAe,EAAE,OAAO,CAAC,EAAE,aAAa,GAAG,YAAY,CA2B3H"}

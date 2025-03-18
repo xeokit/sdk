@@ -1,0 +1,1 @@
+{"version":3,"file":"TouchPickHandler.d.ts","sourceRoot":"","sources":["../../src/cameracontrol/TouchPickHandler.ts"],"names":[],"mappings":"AAAA,OAAO,EAAa,IAAI,EAAC,MAAM,WAAW,CAAC;AA4B3C;;GAEG;AACH,qBAAa,gBAAgB;;gBAMb,IAAI,EAAE,IAAI,EAAE,WAAW,EAAE,GAAG,EAAE,OAAO,EAAE,GAAG,EAAE,MAAM,EAAE,GAAG,EAAE,OAAO,EAAE,GAAG;IA4LjF,KAAK,IAAI,IAAI;IAOb,OAAO,IAAI,IAAI;CAKlB"}

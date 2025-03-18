@@ -1,0 +1,1 @@
+{"version":3,"file":"WebGLAbstractTexture.d.ts","sourceRoot":"","sources":["../../src/webglutils/WebGLAbstractTexture.ts"],"names":[],"mappings":"AAAA;;GAEG;AACH,MAAM,MAAM,oBAAoB,GAAG;IAE/B;;;OAGG;IACH,IAAI,CAAC,IAAI,EAAE,MAAM,GAAG,OAAO,CAAC;IAE5B;;;OAGG;IACH,MAAM,CAAC,IAAI,EAAE,MAAM,GAAG,IAAI,CAAC;CAC9B,CAAA"}

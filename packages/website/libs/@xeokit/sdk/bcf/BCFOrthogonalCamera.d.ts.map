@@ -1,0 +1,1 @@
+{"version":3,"file":"BCFOrthogonalCamera.d.ts","sourceRoot":"","sources":["../../src/bcf/BCFOrthogonalCamera.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,SAAS,EAAC,MAAM,aAAa,CAAC;AAEtC;;GAEG;AACH,MAAM,WAAW,mBAAmB;IAEhC;;OAEG;IACH,iBAAiB,EAAE,SAAS,CAAC;IAE7B;;OAEG;IACH,gBAAgB,EAAE,SAAS,CAAC;IAE5B;;OAEG;IACH,gBAAgB,EAAE,SAAS,CAAC;IAE5B;;OAEG;IACH,mBAAmB,EAAE,MAAM,CAAC;CAE/B"}

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const {
-    gltf2xgf,
+    ifc2gltf2xgf,
     _convertMetaModel,
     _SAVED_XGF_VERSIONS,
     _DEFAULT_SAVED_XGF_VERSION
@@ -150,7 +150,7 @@ try {
             const fileData = fs.readFileSync(gltfFullPath);
 
 
-            gltf2xgf({
+            ifc2gltf2xgf({
                 fileData,
                 basePath,
                 xgfVersion

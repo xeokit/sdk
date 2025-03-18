@@ -71,7 +71,7 @@ demoHelper.init()
 
             // Use loadXGF to load a glTF model into our SceneModel and DataModel
 
-            fetch("../../models/MAP/xgf/model.xgf").then(response => {
+            fetch("../../models/MAP/gltf2xgf/model.xgf").then(response => {
 
                 response
                     .arrayBuffer()

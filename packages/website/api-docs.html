@@ -42,7 +42,7 @@
             <a class="nav-link" href="https://xeokit.github.io/sdk//models/index.html">Models</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="https://xeokit.github.io/sdk//articles/index.html">User Guide</a>
+            <a class="nav-link" href="https://xeokit.github.io/sdk//userguide/index.html">User Guide</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="https://xeokit.github.io/sdk//api-docs.html">API Docs</a>
@@ -86,7 +86,7 @@
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
                             href="https://xeokit.github.io/sdk//examples">Examples</a></li>
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2 "><a
-                            href="https://xeokit.github.io/sdk//articles">Tutorials</a></li>
+                            href="https://xeokit.github.io/sdk//userguide">User Guide</a></li>
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2 "><a
                             href="https://xeokit.github.io/sdk//api-docs.html">API Docs</a></li>
                         <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
@@ -165,20 +165,16 @@
             path = stripLeadingSlashes(windowHash.substring(1, i));
             hash = windowHash.substring(i + 3);
         }
-        console.log("path = " + path);
-        console.log("hash = " + hash);
 
         if (hash && hash !== "") {
             const newSrc = `https://xeokit.github.io/sdk//${path}#${hash}`;
             if (iframe.src !== newSrc) {
                 iframe.src = newSrc;
-                console.log("set iframe src : " + newSrc);
             }
         } else {
             const newSrc = (path && path !== "") ? `https://xeokit.github.io/sdk//${path}` : `https://xeokit.github.io/sdk//docs/api/modules.html`;
             if (iframe.src !== newSrc) {
                 iframe.src = newSrc;
-                console.log("set iframe src : " + newSrc);
                 iframeWindow.scrollTo(0, 0);
                 window.scrollTo(0, 0);
             }
@@ -194,7 +190,6 @@
     }
         const newHash = iframeWindow.location.pathname + "___" + iframeHash;
         if (newHash !== window.location.hash.substring(1)) {
-            console.log("save hash on window: " + newHash);
             window.location.hash = newHash;
         }
     };
@@ -211,99 +206,9 @@
         }
         const newHash = iframeWindow.location.pathname + "___" + iframeHash;
         if (newHash !== window.location.hash.substring(1)) {
-            console.log("save hash on window: " + newHash);
             window.location.hash = newHash;
         }
     });
-
-
-    //
-    // // const moduleNameSpan = document.getElementById("moduleName");
-    //
-    //
-    // document.getElementById('autoIframe').addEventListener('load', resizeIframe);
-    //
-    // function detectHashChange() {
-    //     iframe.addEventListener('load', () => {
-    //         try {
-    //             iframeWindow.addEventListener('hashchange', () => {
-    //                 console.log('Iframe hash changed to:', iframeWindow.location.hash);
-    //                 resizeIframe(); // Optional: Adjust height on hash change
-    //                 window.location.hash = iframeWindow.location.pathname + "___" + iframeWindow.location.hash.substring(1);
-    //             });
-    //         } catch (err) {
-    //             console.error('Error adding hashchange listener:', err);
-    //         }
-    //         resizeIframe();
-    //     });
-    // }
-    //
-    // function scrollToTopOnLoad() {
-    //     iframe.addEventListener('load', () => {
-    //         resizeIframe();
-    //         window.scrollTo(0, 0);
-    //         iframeWindow.scrollTo(0, 0);
-    //
-    //     });
-    // }
-    //
-    // function setWindowToIFrameHash() {
-    //     setInterval(() => {
-    //         const pathname = iframeWindow.location.pathname;
-    //         const iframeHash = `${pathname}___${iframeWindow.location.hash.substring(1)}`;
-    //         if (iframeHash !== window.location.hash) {
-    //             window.location.hash = iframeHash;
-    //             // const moduleName = pathname.substring(pathname.lastIndexOf("/") + 1, pathname.indexOf(".html"))
-    //             // moduleNameSpan.innerText = moduleName;
-    //         }
-    //     }, 100);
-    // }
-    //
-    // detectHashChange();
-    // scrollToTopOnLoad();
-    //
-    // // setWindowToIFrameHash();
-    //
-    // function setIFrameToWindowHash() {
-    //     const windowHash = window.location.hash;
-    //     const i = windowHash.indexOf("___");
-    //     let path;
-    //     let hash;
-    //     if (i === -1) {
-    //         path = windowHash.substring(1);
-    //         hash = null;
-    //     } else {
-    //         path = windowHash.substring(1, i);
-    //         hash = windowHash.substring(i + 3);
-    //     }
-    //     console.log("path = " + path);
-    //     console.log("hash = " + hash);
-    //     if (hash && hash !== "") {
-    //         iframe.src = `https://xeokit.github.io/sdk//${path}#${hash}`;
-    //     } else {
-    //         iframe.src = (path && path !== "") ? `https://xeokit.github.io/sdk//${path}` : `https://xeokit.github.io/sdk//docs/api/modules.html`;
-    //         iframeWindow.scrollTo(0, 0);
-    //         window.scrollTo(0, 0);
-    //     }
-    //
-    // }
-    //
-    // setIFrameToWindowHash();
-    //
-    // function updateHash() {
-    //     resizeIframe();
-    //     // try {
-    //     //     const newUrl = iframe.contentWindow.location.href;
-    //     //     if (newUrl !== location.hash.substring(1)) {
-    //     //         location.hash = newUrl;
-    //     //     }
-    //     // } catch (e) {
-    //     //     console.warn('Cross-origin access blocked:', e);
-    //     // }
-    // }
-    //
-    // const observer = new MutationObserver(updateHash);
-    // observer.observe(iframe, {attributes: true, attributeFilter: ['src']});
 
 
 </script>

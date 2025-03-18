@@ -1,0 +1,1 @@
+{"version":3,"file":"loadDataModel.d.ts","sourceRoot":"","sources":["../../src/data/loadDataModel.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,mBAAmB,CAAC;AACpD,OAAO,EAAE,SAAS,EAAE,MAAM,aAAa,CAAC;AAExC;;;;;;;;;;;;;;;;;GAiBG;AACH,wBAAgB,aAAa,CAAC,MAAM,EAAE;IAClC,QAAQ,EAAE,eAAe,CAAC;IAC1B,SAAS,EAAE,SAAS,CAAC;CACxB,GAAG,OAAO,CAAC,IAAI,CAAC,CAqBhB"}

@@ -1,0 +1,11 @@
+{
+  "title": "Viewing .BIM using loadDotBIM",
+  "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+  "tags": [
+    "Tutorial",
+    "Example",
+    "Importing",
+    "DotBIM"
+  ],
+  "topic": "import.dotbim"
+}

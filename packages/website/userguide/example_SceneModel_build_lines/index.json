@@ -1,0 +1,9 @@
+{
+  "title": "Creating a Wireframe Model",
+  "description": "In this example, we'll use the xeokit SDK to create and view a multi-object wireframe model with line geometries.",
+  "tags": [
+    "Tutorial",
+    "Example"
+  ],
+  "topic": "modeling.scene.geometry"
+}

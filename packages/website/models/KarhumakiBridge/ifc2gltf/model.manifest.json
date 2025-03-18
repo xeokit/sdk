@@ -2,7 +2,7 @@
     "inputFile": "./models/KarhumakiBridge/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
     "converterApplicationVersion": "4.34.4",
-    "conversionDate": "2025-03-06 00:43:04",
+    "conversionDate": "2025-03-17 15:54:27",
     "gltfOutFiles": [
         "./models/KarhumakiBridge/ifc2gltf/model.glb",
         "./models/KarhumakiBridge/ifc2gltf/model_1.glb"
@@ -15,12 +15,12 @@
     "numExportedPropertySetsOrElementQuantities": 0,
     "modelBoundsMax": [
         70.30798589504883,
-        96.155242206743,
+        96.14459837852093,
         32.1282684897125
     ],
     "modelBoundsMin": [
         -70.30798589504883,
-        -96.155242206743,
+        -96.14459837852093,
         -32.1282684897125
     ],
     "generalMessages": [

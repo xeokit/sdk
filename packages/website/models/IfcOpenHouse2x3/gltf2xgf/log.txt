@@ -45,3 +45,8 @@
 [gltf2xgf] Converting to XGF version: 1 (default)
 [gltf2xgf] Converting to XGF version: 1 (default)
 [gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] Converting to XGF version: 1 (default)

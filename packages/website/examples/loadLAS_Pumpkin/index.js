@@ -43,9 +43,7 @@ view.camera.up=[0.18608313688175518, 0.7264616310194785, 0.6615334948623277];
 
 view.camera.perspectiveProjection.far = 10000000;
 
-//------------------------------------------------------------------------------------------------------------------
-// Configure points material
-//------------------------------------------------------------------------------------------------------------------
+// Configure the View's PointsMaterial, which controls the appearance of our LAZ model
 
 view.pointsMaterial.pointSize = 2;
 view.pointsMaterial.roundPoints = false;
@@ -88,7 +86,7 @@ demoHelper.init()
 
         } else {
 
-            // Use loadlas to load a LAZ model into our SceneModel and DataModel
+            // Use loadLAS to load a LAZ model into our SceneModel and DataModel
 
             fetch("../../models/Nalls-Pumpkin-Hill/laz/model.laz").then(response => {
 
@@ -108,8 +106,6 @@ demoHelper.init()
 
                         dataModel.build();
                         sceneModel.build();
-
-                        debugger;
 
                         demoHelper.finished();
                     });

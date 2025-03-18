@@ -1,0 +1,13 @@
+{
+    "title": "Viewing IFC using ifc2gltf and loadGLTF",
+    "description": "How to use the ifc2gltf CLI tool to convert an IFC model to glTF format, and then display the glTF in a xeokit web viewer.",
+    "tags": [
+        "XGF",
+        "glTF",
+        "IFC",
+        "ifc2gltf"
+    ],
+    "_bannerImage": "banner.png",
+    "thumbnail": "thumb.png",
+    "topic": "import.ifc"
+}

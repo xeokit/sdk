@@ -415,7 +415,7 @@
   },
   "dotbim2xgf_IfcOpenHouse4": {
     "id": "dotbim2xgf_IfcOpenHouse4",
-    "title": "Viewing an DotBIM Model Converted by dotbim2xgf",
+    "title": "Viewing a DotBIM Model Converted by dotbim2xgf",
     "description": "In this example, we'll use the xeokit SDK to view a DotBIM model in the browser, converted to XGF.",
     "isTutorial": false,
     "isVisualTest": true,
@@ -432,23 +432,23 @@
     "topic": "import.dotbim",
     "template": "basicPage"
   },
-  "gltf2xgf_IfcOpenHouse4": {
-    "id": "gltf2xgf_IfcOpenHouse4",
-    "title": "Viewing an DotBIM Model Converted by dotbim2xgf",
-    "description": "In this example, we'll use the xeokit SDK to view a DotBIM model in the browser, converted to XGF.",
+  "gltf2xgf_Duplex": {
+    "id": "gltf2xgf_Duplex",
+    "title": "Viewing a glTF Model, Converted to XKF by gltf2xgf",
+    "description": "In this example, we'll use the xeokit SDK to convert a glTF model to XGF and then view it in the browser.",
     "isTutorial": false,
     "isVisualTest": true,
     "tags": [
-      "DotBIM",
+      "glTF",
       "XGF",
-      "dotbim2xgf",
+      "gltf2xgf",
       "_Featured"
     ],
     "categories": [
       "Importing",
-      "DotBIM"
+      "glTF"
     ],
-    "topic": "import.dotbim",
+    "topic": "import.gltf",
     "template": "basicPage"
   },
   "ifc2gltf2xgf_Karhumaki": {
@@ -487,6 +487,25 @@
       "IFC"
     ],
     "topic": "import.ifc",
+    "template": "basicPage"
+  },
+  "las2xgf_Pumpkin": {
+    "id": "las2xgf_Pumpkin",
+    "title": "Viewing a LAS Model Converted by las2xgf",
+    "description": "In this example, we'll use the xeokit SDK to view a DotBIM model in the browser, converted to XGF.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [
+      "LAS",
+      "XGF",
+      "las2xgf",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "LAS"
+    ],
+    "topic": "import.las",
     "template": "basicPage"
   },
   "loadCityJSON_Railway": {

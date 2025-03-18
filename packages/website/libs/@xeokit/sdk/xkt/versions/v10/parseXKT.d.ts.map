@@ -1,0 +1,1 @@
+{"version":3,"file":"parseXKT.d.ts","sourceRoot":"","sources":["../../../../src/xkt/versions/v10/parseXKT.ts"],"names":[],"mappings":"AAEA,OAAO,EAAC,UAAU,EAAC,MAAM,gBAAgB,CAAC;AAI1C,wBAAgB,WAAW,CAAC,MAAM,EAAE;IAChC,QAAQ,EAAE,WAAW,CAAC;IACtB,UAAU,EAAE,UAAU,CAAC;CAC1B,GAAG,OAAO,CAAC,IAAI,CAAC,CAahB"}

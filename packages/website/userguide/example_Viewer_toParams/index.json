@@ -1,0 +1,10 @@
+{
+  "title": "Saving a Viewer Configuration",
+  "description": "This example demonstrates how to capture a JSON snapshot of a xeokit Viewer's current runtime configuration.",
+  "tags": [
+    "Tutorial",
+    "Example",
+    "Viewer"
+  ],
+  "topic": "viewer.configuration"
+}

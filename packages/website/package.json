@@ -13,7 +13,8 @@
         "website-build-xeokit-lib": "node scripts/build-xeokit-demo-bundle.js",
         "website-convert-models": "node scripts/build-convert-models.js; sh scripts/convert-models.sh",
         "website-example-snapshots": "node scripts/create-example-snapshots.js",
-        "website-build": "mkdir -p ./libs/@xeokit/sdk; cp -Rf ../sdk/dist ./libs/@xeokit/sdk; node scripts/build-docs-lookup.js; node scripts/build-pages.js; "
+        "website-build": "mkdir -p ./libs/@xeokit/sdk; cp -Rf ../sdk/dist ./libs/@xeokit/sdk; node scripts/build-docs-lookup.js; node scripts/build-pages.js",
+        "website-build-local": "mkdir -p ./libs/@xeokit/sdk; cp -Rf ../sdk/dist ./libs/@xeokit/sdk; node scripts/build-docs-lookup.js; node scripts/build-pages.js -l;"
     },
     "author": "Lindsay Kay",
     "license": "SEE LICENSE IN LICENSE.md",
@@ -29,7 +30,8 @@
         "@xeokit/config": "^0.1.0",
         "markdown-it": "14.1.0",
         "highlight.js": "11.2.0",
-        "ejs": "3.1.10"
+        "ejs": "3.1.10",
+        "commander": "^11.0.0"
     },
     "devDependencies": {
         "gulp": "^4.0.2",

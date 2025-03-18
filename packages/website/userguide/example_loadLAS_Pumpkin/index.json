@@ -1,0 +1,11 @@
+{
+  "title": "Viewing a LAZ-encoded LiDAR scan using loadLAS",
+  "description": "How to load a LiDAR scan from LAS (.laz) format directly into a xeokit web viewer.",
+  "tags": [
+    "Tutorial",
+    "Example",
+    "LAS",
+    "_Featured"
+  ],
+  "topic": "import.las"
+}

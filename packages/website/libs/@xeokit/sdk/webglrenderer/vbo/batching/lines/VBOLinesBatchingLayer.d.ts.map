@@ -1,0 +1,1 @@
+{"version":3,"file":"VBOLinesBatchingLayer.d.ts","sourceRoot":"","sources":["../../../../../src/webglrenderer/vbo/batching/lines/VBOLinesBatchingLayer.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,gBAAgB,EAAC,MAAM,qBAAqB,CAAC;AACrD,OAAO,EAAC,sBAAsB,EAAC,MAAM,2BAA2B,CAAC;AAGjE;;GAEG;AACH,qBAAa,qBAAsB,SAAQ,gBAAgB;gBAC3C,WAAW,EAAE,sBAAsB;CAGlD"}

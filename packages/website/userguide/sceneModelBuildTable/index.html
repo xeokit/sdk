@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="description" content="xeokit - SDK for Browser-Based 3D BIM Visualization">
+<meta name="author" content="Lindsay Kay">
+<meta name="keywords" content="BIM,IFC,WebGL,JavaScript,Browser,BCF,Web,xeolabs,3D,3D Viewer,Lindsay Kay,xeokit,MedViz,ArchViz,Open Source,Browser,Viewer">
+
+<title>xeokit SDK 3 - 3D Web Programming Toolkit for BIM and Engineering Visualization</title>
+
+<link href="https://xeokit.github.io/sdk//libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://xeokit.github.io/sdk//css/business-frontpage.css" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css?family=Rubik" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<script src="https://xeokit.github.io/sdk//libs/jquery/jquery.min.js"></script>
+<script src="https://xeokit.github.io/sdk//libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/html.min.js"></script>
+
+
+
+    <title></title>
+    <style>
+        .tippy-box[data-theme~='custom'] {
+            background-color: white;
+            color: #333;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #eee;
+        }
+
+        .tippy-box[data-theme~='custom'][data-placement^='top'] > .tippy-arrow::before {
+            border-top-color: white;
+        }
+
+        .tippy-box[data-theme~='custom'] .tippy-arrow::before {
+            transform: scale(0.75);
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light-border.css"/>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top ">
+    <span style="color: #ffffff;"><a class="navbar-home" href="http://xeolabs.com">xeolabs</a>/<a class="navbar-parent"
+                                                                                                  href="https://xeokit.github.io/sdk/">@xeokit/sdk</a>/<a
+        class="navbar-brand" href="https://xeokit.github.io/sdk//userguide/index.html">User Guide</a></span>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarResponsive">
+    <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+            <a class="nav-link" href="https://xeokit.github.io/sdk//index.html?foo=0">Home</a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link" href="https://xeokit.github.io/sdk//examples/index.html">Examples</a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-link" href="https://xeokit.github.io/sdk//models/index.html">Models</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="https://xeokit.github.io/sdk//userguide/index.html">User Guide</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="https://xeokit.github.io/sdk//api-docs.html">API Docs</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="https://github.com/xeokit/sdk">GitHub</a>
+        </li>
+<!--        <li class="nav-item">-->
+<!--            <a class="nav-link" href="https://xeokit.io/index.html?foo=2#pricing">Pricing</a>-->
+<!--        </li>-->
+<!--        <li class="nav-item">-->
+<!--            <a class="nav-link" href="https://xeokit.io/download.html">Download</a>-->
+<!--        </li>-->
+    </ul>
+</div>
+
+</nav>
+<section id="intro" class="main-section">
+    <div class="container">
+        <div class="row testimonial-row">
+            <div class="col-lg-12">
+                <h5><a href="../index.html">&lt;&lt;&nbsp;User Guide</a></h5>
+            </div>
+            <div class="col-lg-12">
+                <h1>Build and View a 3D Model</h1>
+            </div>
+        </div>
+        <div class="row testimonial-row">
+            <div class="col-lg-12">
+                <p>Let's use xeokit to programmatically build and view a simple 3D model in a web page.</p>
+<p><a href="./../../examples/#SceneModel_build_table/index.html"><img src="tableSceneModel.png" alt=""></a></p>
+<ul>
+<li><em><a href="./../../examples/#SceneModel_build_table/index.html">Run this example</a></em></li>
+</ul>
+<hr>
+<p>First install the npm modules we need:</p>
+<pre class="code-section"><code class="hljs">npm install @xeokit/scene
+npm install @xeokit/viewer
+npm install @xeokit/cameracontrol
+npm install @xeokit/webglrenderer
+npm install @xeokit/core/constants
+</code></pre>
+<p>Then create an HTML page in <code>index.html</code> that contains a canvas element:</p>
+<pre class="code-section"><code class="hljs"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>xeokit Spinning Box<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;myView1&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;module&quot;</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;./index.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></pre>
+<p>Then create JavaScript in <code>index.js</code> to build and view our model.</p>
+<pre class="code-section"><code class="hljs"><span class="hljs-keyword">import</span> {<span class="hljs-title class_">Scene</span>} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@xeokit/scene&quot;</span>;
+<span class="hljs-keyword">import</span> {<span class="hljs-title class_">TrianglesPrimitive</span>} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@xeokit/constants&quot;</span>;
+<span class="hljs-keyword">import</span> {<span class="hljs-title class_">Viewer</span>} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@xeokit/viewer&quot;</span>;
+<span class="hljs-keyword">import</span> {<span class="hljs-title class_">Web</span>GLRenderer} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@xeokit/webglrenderer&quot;</span>;
+<span class="hljs-keyword">import</span> {<span class="hljs-title class_">CameraControl</span>} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@xeokit/cameracontrol&quot;</span>;
+
+<span class="hljs-keyword">const</span> scene = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Scene</span>();
+
+<span class="hljs-keyword">const</span> viewer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Viewer</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoViewer&quot;</span>,
+    scene,
+    <span class="hljs-attr">renderer</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Web</span>GLRenderer({})
+});
+
+<span class="hljs-keyword">const</span> view = viewer.<span class="hljs-title function_">createView</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoView&quot;</span>,
+    <span class="hljs-attr">elementId</span>: <span class="hljs-string">&quot;demoCanvas&quot;</span>
+});
+
+view.<span class="hljs-property">camera</span>.<span class="hljs-property">eye</span> = [<span class="hljs-number">0</span>, -<span class="hljs-number">5</span>, <span class="hljs-number">20</span>];
+view.<span class="hljs-property">camera</span>.<span class="hljs-property">look</span> = [<span class="hljs-number">0</span>, -<span class="hljs-number">5</span>, <span class="hljs-number">0</span>];
+view.<span class="hljs-property">camera</span>.<span class="hljs-property">up</span> = [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>];
+
+<span class="hljs-keyword">new</span> <span class="hljs-title class_">CameraControl</span>(view);
+
+<span class="hljs-keyword">const</span> sceneModel = scene.<span class="hljs-title function_">createModel</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>
+});
+
+sceneModel.<span class="hljs-title function_">createGeometry</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+    <span class="hljs-attr">primitive</span>: xeokit.<span class="hljs-property">constants</span>.<span class="hljs-property">TrianglesPrimitive</span>,
+    <span class="hljs-attr">positions</span>: [
+        <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>,
+        -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>,
+        -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>
+    ],
+    <span class="hljs-attr">indices</span>: [
+        <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>,            <span class="hljs-comment">// front</span>
+        <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>,            <span class="hljs-comment">// right</span>
+        <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">8</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>,         <span class="hljs-comment">// top</span>
+        <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">12</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>,      <span class="hljs-comment">// left</span>
+        <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">16</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>,      <span class="hljs-comment">// bottom</span>
+        <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">20</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>
+    ]
+});
+
+sceneModel.<span class="hljs-title function_">createMesh</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;redLegMesh&quot;</span>,
+    <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+    <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
+        <span class="hljs-attr">position</span>: [-<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, -<span class="hljs-number">4</span>],
+        <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
+    }),
+    <span class="hljs-attr">color</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">0.3</span>, <span class="hljs-number">0.3</span>]
+});
+
+sceneModel.<span class="hljs-title function_">createObject</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;redLeg&quot;</span>,
+    <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;redLegMesh&quot;</span>]
+});
+
+sceneModel.<span class="hljs-title function_">createMesh</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;greenLegMesh&quot;</span>,
+    <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+    <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
+        <span class="hljs-attr">position</span>: [<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, -<span class="hljs-number">4</span>],
+        <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
+    }),
+    <span class="hljs-attr">color</span>: [<span class="hljs-number">0.3</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.3</span>]
+});
+
+sceneModel.<span class="hljs-title function_">createObject</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;greenLeg&quot;</span>,
+    <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;greenLegMesh&quot;</span>]
+});
+
+sceneModel.<span class="hljs-title function_">createMesh</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;blueLegMesh&quot;</span>,
+    <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+    <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
+        <span class="hljs-attr">position</span>: [<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, <span class="hljs-number">4</span>],
+        <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
+    }),
+    <span class="hljs-attr">color</span>: [<span class="hljs-number">0.3</span>, <span class="hljs-number">0.3</span>, <span class="hljs-number">1.0</span>]
+});
+
+sceneModel.<span class="hljs-title function_">createObject</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;blueLeg&quot;</span>,
+    <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;blueLegMesh&quot;</span>]
+});
+
+sceneModel.<span class="hljs-title function_">createMesh</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;yellowLegMesh&quot;</span>,
+    <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+    <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
+        <span class="hljs-attr">position</span>: [-<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, <span class="hljs-number">4</span>],
+        <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
+    }),
+    <span class="hljs-attr">color</span>: [<span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>]
+});
+
+sceneModel.<span class="hljs-title function_">createObject</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;yellowLeg&quot;</span>,
+    <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;yellowLegMesh&quot;</span>]
+});
+
+sceneModel.<span class="hljs-title function_">createMesh</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;purpleTableTopMesh&quot;</span>,
+    <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+    <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
+        <span class="hljs-attr">position</span>: [<span class="hljs-number">0</span>, -<span class="hljs-number">3</span>, <span class="hljs-number">0</span>],
+        <span class="hljs-attr">scale</span>: [<span class="hljs-number">6</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">6</span>]
+    }),
+    <span class="hljs-attr">color</span>: [<span class="hljs-number">1.0</span>, <span class="hljs-number">0.3</span>, <span class="hljs-number">1.0</span>]
+});
+
+sceneModel.<span class="hljs-title function_">createObject</span>({
+    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;purpleTableTop&quot;</span>,
+    <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;purpleTableTopMesh&quot;</span>]
+});
+
+sceneModel.<span class="hljs-title function_">build</span>().<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
+
+    demoHelper.<span class="hljs-title function_">finished</span>();
+
+}).<span class="hljs-title function_">catch</span>(<span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
+    demoHelper.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Error building SceneModel: <span class="hljs-subst">${e}</span>`</span>);
+    <span class="hljs-keyword">throw</span> e;
+});
+</code></pre>
+
+            </div>
+        </div>
+    </div>
+</section>
+<footer class="py-5 bg-dark xeokit-footer">
+    <div class="container pt-5">
+        <div class="row">
+            <div class="col-md-4 col-sm-12 mb-3  text-left">
+                <h2>xeokit SDK</h2>
+                <p>Powering Engineering Graphics on the Web</p>
+                <img src="https://xeokit.github.io/sdk//images/xeokitLogoAlphaBG.png">
+            </div>
+            <div class="col-md-8 col-sm-12">
+
+                <div class="col-md-4 col-sm-6 col-6 p-0 float-left mb-3">
+                    <h5 class="mb-4 font-weight-bold text-uppercase ">Learn</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
+                            href="https://xeokit.github.io/sdk//examples">Examples</a></li>
+                        <li class="list-group-item bg-transparent border-0 p-0 mb-2 "><a
+                            href="https://xeokit.github.io/sdk//userguide">User Guide</a></li>
+                        <li class="list-group-item bg-transparent border-0 p-0 mb-2 "><a
+                            href="https://xeokit.github.io/sdk//api-docs.html">API Docs</a></li>
+                        <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
+                            href="">Pricing</a></li>
+                        <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
+                            href="">FAQ</a></li>
+
+                    </ul>
+                </div>
+
+                <div class="col-md-4 col-sm-6 col-6 p-0 mb-3 float-left">
+                    <h5 class="mb-4 font-weight-bold text-uppercase ">Develop</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
+                            href="https://github.com/xeokit/sdk/releases">Download</a></li>
+                        <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
+                            href="https://github.com/xeokit/sdk">Source Code</a></li>
+                        <li class="list-group-item bg-transparent border-0 p-0 mb-2"><a
+                            href="https://github.com/xeokit/xeokit-sdk/issues">Issues</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-4 col-sm-6 col-6 mb-3 p-0 float-left">
+                    <h5 class="mb-4 font-weight-bold text-uppercase ">Connect</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item bg-transparent border-0 p-0 mb-2">
+                            <a href="http://www.xeolabs.com"><i class="fa fa-globe mr-1"></i>
+                                xeolabs.com</a>
+                        </li>
+                        <li class="list-group-item bg-transparent border-0 p-0 mb-2">
+                            <a href="https://www.linkedin.com/company/xeolabs"><i class="fa fa-linkedin mr-1"></i>
+                                LinkedIn</a>
+                        </li>
+                        <li class="list-group-item bg-transparent border-0 p-0 mb-2">
+                            <a href="https://github.com/xeolabs" target="_code"><i class="fa fa-github mr-1"></i>
+                                Github</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="py-4 d-flex justify-content-center align-items-center">
+                    <p class="m-0 text-center">Copyright &copy; <a href="http://xeolabs.com">xeolabs</a> 2025</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+<!-- Include Popper.js (required by Tippy) -->
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<!-- Include Tippy.js -->
+<script src="https://unpkg.com/tippy.js@6"></script>
+<script>
+    // Initialize tooltips
+    tippy('.doc-link', {
+        content(reference) {
+            const id = reference.getAttribute('data-template')
+            const container = document.createElement('div')
+            const linkedTemplate = document.getElementById(id)
+            const node = document.importNode(linkedTemplate.content, true)
+            container.appendChild(node)
+            return container
+        },
+        // placement: 'top-end',
+        // arrow: true,
+        // animation: 'scale',
+        theme: 'light-border',
+        //   duration: [200, 150],
+        trigger: 'mouseenter focus',
+        hideOnClick: false,
+        // interactive: true,
+        inertia: true,
+    });
+</script>
+
+</html>

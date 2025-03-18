@@ -1,0 +1,592 @@
+{
+  "articles": {
+    "dotbim2xgf": {
+      "title": "Viewing .BIM using dotbim2xgf and loadXGF",
+      "description": "How to use dotbim2xgf to convert a .bim file to XGF, which we then display in the browser using a xeokit web viewer.",
+      "tags": [
+        "XGF",
+        "IFC",
+        "DotBIM",
+        "dotbim2xgf"
+      ],
+      "_bannerImage": "banner.png",
+      "thumbnail": "index.png",
+      "topic": "import.dotbim"
+    },
+    "example_SceneModel_DataModel_build_table": {
+      "title": "Creating a 3D Model with Semantic Data",
+      "description": "In this example, we'll use the xeokit SDK to create a 3D model with semantic data attached.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "_Featured"
+      ],
+      "topic": "modeling.data"
+    },
+    "example_SceneModel_DataModel_fromParams_IfcOpenHouse4": {
+      "title": "Using xeokit SDK to view an IFC model, loaded from JSON",
+      "description": "",
+      "tags": [
+        "Tutorial",
+        "Example"
+      ],
+      "topic": "modeling.data"
+    },
+    "example_SceneModel_build_box": {
+      "title": "Creating a Cube",
+      "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "SDK"
+      ],
+      "topic": "modeling.scene.geometry"
+    },
+    "example_SceneModel_build_box_compressedGeometry": {
+      "title": "Creating a Cube from Pre-Compressed Geometry",
+      "description": "In this example, we'll use the xeokit SDK to build and display a 3D cube in the browser, defined using compressed geometry data.",
+      "tags": [
+        "Tutorial",
+        "Example"
+      ],
+      "topic": "modeling.scene.geometry"
+    },
+    "example_SceneModel_build_geometries": {
+      "title": "Creating Various Geometries",
+      "description": "In this example, we'll use the xeokit SDK to create and view a model containing objects with various shapes, using the SDK's geometry genorator functions.",
+      "tags": [
+        "Tutorial",
+        "Example"
+      ],
+      "topic": "modeling.scene.geometry"
+    },
+    "example_SceneModel_build_lines": {
+      "title": "Creating a Wireframe Model",
+      "description": "In this example, we'll use the xeokit SDK to create and view a multi-object wireframe model with line geometries.",
+      "tags": [
+        "Tutorial",
+        "Example"
+      ],
+      "topic": "modeling.scene.geometry"
+    },
+    "example_SceneModel_build_table": {
+      "title": "Creating a 3D Model",
+      "description": "Using xeokit to create a 3D model composed of multiple objects with triangle mesh geometry.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "_Featured"
+      ],
+      "topic": "modeling.scene.object"
+    },
+    "example_SceneModel_build_triangle": {
+      "title": "Creating a 3D Triangle",
+      "description": "Using xeokit SDK to create and view a single 3D triangle in the browser.",
+      "tags": [
+        "Tutorial",
+        "Example"
+      ],
+      "topic": "modeling.scene.geometry"
+    },
+    "example_SceneModel_fromParams_table": {
+      "title": "Creating a 3D Model from JSON",
+      "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "_Featured"
+      ],
+      "topic": "modeling.scene.object"
+    },
+    "example_ViewLayer_auto": {
+      "title": "Creating a Viewer with automatic ViewLayers",
+      "description": "",
+      "tags": [
+        "Tutorial",
+        "Example"
+      ],
+      "topic": "viewer.view.viewlayer"
+    },
+    "example_ViewLayer_manual": {
+      "title": "Creating a Viewer with manual ViewLayers",
+      "description": "",
+      "tags": [
+        "Tutorial",
+        "Example"
+      ],
+      "topic": "viewer.view.viewlayer"
+    },
+    "example_ViewLayer_multiView": {
+      "title": "Creating a Viewer with multiple Views and ViewLayers",
+      "description": "",
+      "tags": [
+        "Tutorial",
+        "Example"
+      ],
+      "topic": "viewer.view.viewlayer"
+    },
+    "example_ViewLayer_multiView_lighting": {
+      "title": "Creating a Viewer with multiple Views and light sources",
+      "description": "",
+      "tags": [
+        "Tutorial",
+        "Example"
+      ],
+      "topic": "viewer.view.viewlayer"
+    },
+    "example_View_multiView_SceneModel_build_table": {
+      "title": "Creating a 3D Model and Viewing it in Multiple Canvases",
+      "description": "",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "_Featured"
+      ],
+      "topic": "general"
+    },
+    "example_View_multiView_loadWebIFC": {
+      "title": "Viewing an IFC model in multiple Views",
+      "description": "In this example, we'll use the xeokit SDK to view an IFC file within multiple canvases in the browser",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "_Featured"
+      ],
+      "topic": "general"
+    },
+    "example_Viewer_fromParams": {
+      "title": "Loading a Viewer Configuration",
+      "description": "This example demonstrates how to load a JSON snapshot of a xeokit Viewer's current runtime configuration.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Viewer"
+      ],
+      "topic": "viewer.configuration"
+    },
+    "example_Viewer_getCapabilities": {
+      "title": "Querying Viewer Capabilities",
+      "description": "",
+      "tags": [
+        "Tutorial",
+        "Example"
+      ],
+      "topic": "viewer.configuration"
+    },
+    "example_Viewer_toParams": {
+      "title": "Saving a Viewer Configuration",
+      "description": "This example demonstrates how to capture a JSON snapshot of a xeokit Viewer's current runtime configuration.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Viewer"
+      ],
+      "topic": "viewer.configuration"
+    },
+    "example_loadCityJSON_Railway": {
+      "title": "Viewing CityJSON using loadCityJSON",
+      "description": "How to load a CityJSON model directly into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "CityJSON",
+        "_Featured"
+      ],
+      "topic": "import.cityjson"
+    },
+    "example_loadDotBIM_BlenderHouse": {
+      "title": "Viewing .BIM using loadDotBIM",
+      "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "DotBIM"
+      ],
+      "topic": "import.dotbim"
+    },
+    "example_loadGLTF_MAP": {
+      "title": "Viewing glTF using loadGLTF",
+      "description": "How to load an IFC model from glTF (.glb) format directly into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "glTF",
+        "_Featured"
+      ],
+      "topic": "import.gltf"
+    },
+    "example_loadLAS_Pumpkin": {
+      "title": "Viewing a LAZ-encoded LiDAR scan using loadLAS",
+      "description": "How to load a LiDAR scan from LAS (.laz) format directly into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "LAS",
+        "_Featured"
+      ],
+      "topic": "import.las"
+    },
+    "example_loadWebIFC_IfcOpenHouse4": {
+      "title": "Viewing IFC using loadWebIFC",
+      "description": "In this example, we'll show how to load an IFC model directly into a xeokit web viewer, and then use the IFC data model to set all the window frames green within a given IfcBuildingStorey.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "IFC",
+        "WebIFC",
+        "loadWebIFC",
+        "_Featured"
+      ],
+      "topic": "import.ifc"
+    },
+    "example_loadXGF_MAP": {
+      "title": "Viewing XGF using loadXGF",
+      "description": "How to load an IFC model from XGF (.glb) format directly into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "XGF",
+        "_Featured"
+      ],
+      "topic": "import.xgf"
+    },
+    "example_loadXKT_MAP": {
+      "title": "Viewing XKT using loadXKT",
+      "description": "How to load an IFC model from XKT (.xkt) format directly into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "XKT",
+        "_Featured"
+      ],
+      "topic": "import.xkt"
+    },
+    "gltf2xgf": {
+      "title": "Viewing glTF using gltf2xgf and loadXGF",
+      "description": "How to use the gltf2xgf CLI tool to convert a glTF model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>XGF can load certain AEC models faster than glTF.",
+      "tags": [
+        "XGF",
+        "glTF",
+        "gltf2xgf"
+      ],
+      "thumbnail": "thumb.png",
+      "topic": "import.gltf"
+    },
+    "ifc2gltf": {
+      "title": "Viewing IFC using ifc2gltf and loadGLTF",
+      "description": "How to use the ifc2gltf CLI tool to convert an IFC model to glTF format, and then display the glTF in a xeokit web viewer.",
+      "tags": [
+        "XGF",
+        "glTF",
+        "IFC",
+        "ifc2gltf"
+      ],
+      "_bannerImage": "banner.png",
+      "thumbnail": "thumb.png",
+      "topic": "import.ifc"
+    },
+    "ifc2gltf2xgf": {
+      "title": "Viewing IFC using ifc2gltf, ifc2gltf2xgf and loadXGF",
+      "description": "How to chain the ifc2gltf and ifc2gltf2xgf CLI tools together to convert an IFC model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>XGF can load certain AEC models faster than glTF. This pipeline is our most performant option for larger IFC models.",
+      "tags": [
+        "XGF",
+        "glTF",
+        "IFC",
+        "ifc2gltf",
+        "ifc2gltf2xgf"
+      ],
+      "thumbnail": "thumb.png",
+      "topic": "import.ifc"
+    },
+    "las2xgf": {
+      "title": "Viewing LAZ using las2xgf and loadLAS",
+      "description": "How to use the las2xgf CLI tool to convert a LAZ model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>XGF can load certain AEC models faster than glTF.",
+      "tags": [
+        "XGF",
+        "LAS",
+        "las2xgf"
+      ],
+      "thumbnail": "thumb.png",
+      "topic": "import.las"
+    },
+    "overview-pipelines": {
+      "title": "Getting Started with Model Viewing",
+      "description": "The xeokit SDK supports viewing various AEC file formats through multiple import pipelines. \n\nThe best pipeline to use depends on the source format and file size.\n\nThe table below outlines the recommended pipeline based on format and data size. The best way to view AEC models with xeokit depends on the source format and file size. This guide will help you select the right pipeline based on format and data size.",
+      "tags": [
+        "XGF",
+        "IFC",
+        "DotBIM",
+        "glTF",
+        "CityJSON",
+        "Featured"
+      ],
+      "_bannerImage": "banner.png",
+      "_thumbnail": "index.png",
+      "topic": "import.quickstart"
+    },
+    "sceneModelBuildBox": {
+      "title": "View a Spinning 3D Box in a Web Page",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      "tags": [
+        "Beginner",
+        "SceneModel",
+        "SceneObject",
+        "Viewer",
+        "Geometry"
+      ]
+    },
+    "sceneModelBuildGeometries": {
+      "title": "Build and View 3G Geometries in a Web Page",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      "tags": [
+        "Beginner",
+        "SceneModel",
+        "SceneTransform",
+        "SceneObject",
+        "SceneGeometry",
+        "Viewer",
+        "Geometry"
+      ]
+    },
+    "sceneModelBuildTable": {
+      "title": "Build and View a 3D Model",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      "tags": [
+        "Beginner",
+        "SceneModel",
+        "SceneTransform",
+        "SceneObject",
+        "Viewer",
+        "Geometry"
+      ],
+      "thumbnail": "tableSceneModel.png"
+    },
+    "shareBCF": {
+      "title": "View a BCF Viewpoint",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      "tags": [
+        "BCF"
+      ],
+      "topic": "bcf"
+    },
+    "viewerGetJSON": {
+      "title": "Saving a Viewer's Configuration to JSON",
+      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      "tags": [
+        "Viewer",
+        "ViewerParams"
+      ]
+    },
+    "webifc2xgf": {
+      "title": "Viewing IFC using webifc2xgf and loadXGF",
+      "description": "How to use the webifc2xgf CLI tool to convert an IFC model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>We recommend this pipeline for only for small-to-medium size IFC files.",
+      "tags": [
+        "XGF",
+        "IFC",
+        "webifc2xgf"
+      ],
+      "_bannerImage": "banner.png",
+      "thumbnail": "index.png",
+      "relatedArticles": [
+        "ifc2gltf2xgf"
+      ],
+      "topic": "import.ifc"
+    },
+    "whitepaper": {
+      "title": "xeokit SDK: White Paper",
+      "description": "An overview of the modules within the xeokit SDK, including scene and data representation, web viewer, model import, export and conversion tools, and various utility libraries.",
+      "tags": [
+        "Featured"
+      ],
+      "bannerImage": "img_14.png",
+      "topic": "overview"
+    }
+  },
+  "tagsToArticlesMap": {
+    "XGF": [
+      "dotbim2xgf",
+      "example_loadXGF_MAP",
+      "gltf2xgf",
+      "ifc2gltf",
+      "ifc2gltf2xgf",
+      "las2xgf",
+      "overview-pipelines",
+      "webifc2xgf"
+    ],
+    "IFC": [
+      "dotbim2xgf",
+      "example_loadWebIFC_IfcOpenHouse4",
+      "ifc2gltf",
+      "ifc2gltf2xgf",
+      "overview-pipelines",
+      "webifc2xgf"
+    ],
+    "DotBIM": [
+      "dotbim2xgf",
+      "example_loadDotBIM_BlenderHouse",
+      "overview-pipelines"
+    ],
+    "dotbim2xgf": [
+      "dotbim2xgf"
+    ],
+    "Tutorial": [
+      "example_SceneModel_DataModel_build_table",
+      "example_SceneModel_DataModel_fromParams_IfcOpenHouse4",
+      "example_SceneModel_build_box",
+      "example_SceneModel_build_box_compressedGeometry",
+      "example_SceneModel_build_geometries",
+      "example_SceneModel_build_lines",
+      "example_SceneModel_build_table",
+      "example_SceneModel_build_triangle",
+      "example_SceneModel_fromParams_table",
+      "example_ViewLayer_auto",
+      "example_ViewLayer_manual",
+      "example_ViewLayer_multiView",
+      "example_ViewLayer_multiView_lighting",
+      "example_View_multiView_SceneModel_build_table",
+      "example_View_multiView_loadWebIFC",
+      "example_Viewer_fromParams",
+      "example_Viewer_getCapabilities",
+      "example_Viewer_toParams",
+      "example_loadCityJSON_Railway",
+      "example_loadDotBIM_BlenderHouse",
+      "example_loadGLTF_MAP",
+      "example_loadLAS_Pumpkin",
+      "example_loadWebIFC_IfcOpenHouse4",
+      "example_loadXGF_MAP",
+      "example_loadXKT_MAP"
+    ],
+    "Example": [
+      "example_SceneModel_DataModel_build_table",
+      "example_SceneModel_DataModel_fromParams_IfcOpenHouse4",
+      "example_SceneModel_build_box",
+      "example_SceneModel_build_box_compressedGeometry",
+      "example_SceneModel_build_geometries",
+      "example_SceneModel_build_lines",
+      "example_SceneModel_build_table",
+      "example_SceneModel_build_triangle",
+      "example_SceneModel_fromParams_table",
+      "example_ViewLayer_auto",
+      "example_ViewLayer_manual",
+      "example_ViewLayer_multiView",
+      "example_ViewLayer_multiView_lighting",
+      "example_View_multiView_SceneModel_build_table",
+      "example_View_multiView_loadWebIFC",
+      "example_Viewer_fromParams",
+      "example_Viewer_getCapabilities",
+      "example_Viewer_toParams",
+      "example_loadCityJSON_Railway",
+      "example_loadDotBIM_BlenderHouse",
+      "example_loadGLTF_MAP",
+      "example_loadLAS_Pumpkin",
+      "example_loadWebIFC_IfcOpenHouse4",
+      "example_loadXGF_MAP",
+      "example_loadXKT_MAP"
+    ],
+    "_Featured": [
+      "example_SceneModel_DataModel_build_table",
+      "example_SceneModel_build_table",
+      "example_SceneModel_fromParams_table",
+      "example_View_multiView_SceneModel_build_table",
+      "example_View_multiView_loadWebIFC",
+      "example_loadCityJSON_Railway",
+      "example_loadGLTF_MAP",
+      "example_loadLAS_Pumpkin",
+      "example_loadWebIFC_IfcOpenHouse4",
+      "example_loadXGF_MAP",
+      "example_loadXKT_MAP"
+    ],
+    "SDK": [
+      "example_SceneModel_build_box"
+    ],
+    "Viewer": [
+      "example_Viewer_fromParams",
+      "example_Viewer_toParams",
+      "sceneModelBuildBox",
+      "sceneModelBuildGeometries",
+      "sceneModelBuildTable",
+      "viewerGetJSON"
+    ],
+    "CityJSON": [
+      "example_loadCityJSON_Railway",
+      "overview-pipelines"
+    ],
+    "Importing": [
+      "example_loadDotBIM_BlenderHouse"
+    ],
+    "glTF": [
+      "example_loadGLTF_MAP",
+      "gltf2xgf",
+      "ifc2gltf",
+      "ifc2gltf2xgf",
+      "overview-pipelines"
+    ],
+    "LAS": [
+      "example_loadLAS_Pumpkin",
+      "las2xgf"
+    ],
+    "WebIFC": [
+      "example_loadWebIFC_IfcOpenHouse4"
+    ],
+    "loadWebIFC": [
+      "example_loadWebIFC_IfcOpenHouse4"
+    ],
+    "XKT": [
+      "example_loadXKT_MAP"
+    ],
+    "gltf2xgf": [
+      "gltf2xgf"
+    ],
+    "ifc2gltf": [
+      "ifc2gltf",
+      "ifc2gltf2xgf"
+    ],
+    "ifc2gltf2xgf": [
+      "ifc2gltf2xgf"
+    ],
+    "las2xgf": [
+      "las2xgf"
+    ],
+    "Featured": [
+      "overview-pipelines",
+      "whitepaper"
+    ],
+    "Beginner": [
+      "sceneModelBuildBox",
+      "sceneModelBuildGeometries",
+      "sceneModelBuildTable"
+    ],
+    "SceneModel": [
+      "sceneModelBuildBox",
+      "sceneModelBuildGeometries",
+      "sceneModelBuildTable"
+    ],
+    "SceneObject": [
+      "sceneModelBuildBox",
+      "sceneModelBuildGeometries",
+      "sceneModelBuildTable"
+    ],
+    "Geometry": [
+      "sceneModelBuildBox",
+      "sceneModelBuildGeometries",
+      "sceneModelBuildTable"
+    ],
+    "SceneTransform": [
+      "sceneModelBuildGeometries",
+      "sceneModelBuildTable"
+    ],
+    "SceneGeometry": [
+      "sceneModelBuildGeometries"
+    ],
+    "BCF": [
+      "shareBCF"
+    ],
+    "ViewerParams": [
+      "viewerGetJSON"
+    ],
+    "webifc2xgf": [
+      "webifc2xgf"
+    ]
+  }
+}

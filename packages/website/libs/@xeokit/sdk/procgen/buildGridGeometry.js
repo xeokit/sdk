@@ -1,0 +1,68 @@
+import * as utils from "../utils";
+/**
+ * Creates a grid-shaped {@link scene!SceneGeometry | SceneGeometry}.
+ *
+ * ## Usage
+ *
+ * Creating a {@link scene!SceneMesh} with a grid-shaped {@link scene!SceneGeometry | SceneGeometry}:
+ *
+ * ````javascript
+
+ * ````
+ *
+ * @function buildGridGeometry
+ * @param cfg Configs
+ * @param [cfg.id] Optional ID for the {@link scene!SceneGeometry | SceneGeometry}, unique among all components in the parent {@link scene!Scene | Scene}, generated automatically when omitted.
+ * @param [cfg.size=1] Dimension on the X and Z-axis.
+ * @param [cfg.divisions=1] Number of divisions on X and Z axis..
+ * @returns {Object} Configuration for a {@link scene!SceneGeometry | SceneGeometry} subtype.
+ */
+export function buildGridGeometry(cfg = {
+    size: 1,
+    divisions: 1
+}) {
+    let size = cfg.size || 1;
+    if (size < 0) {
+        console.error("negative size not allowed - will invert");
+        size *= -1;
+    }
+    let divisions = cfg.divisions || 1;
+    if (divisions < 0) {
+        console.error("negative divisions not allowed - will invert");
+        divisions *= -1;
+    }
+    if (divisions < 1) {
+        divisions = 1;
+    }
+    size = size || 10;
+    divisions = divisions || 10;
+    const step = size / divisions;
+    const halfSize = size / 2;
+    const positions = [];
+    const indices = [];
+    let l = 0;
+    for (let i = 0, j = 0, k = -halfSize; i <= divisions; i++, k += step) {
+        positions.push(-halfSize);
+        positions.push(0);
+        positions.push(k);
+        positions.push(halfSize);
+        positions.push(0);
+        positions.push(k);
+        positions.push(k);
+        positions.push(0);
+        positions.push(-halfSize);
+        positions.push(k);
+        positions.push(0);
+        positions.push(halfSize);
+        indices.push(l++);
+        indices.push(l++);
+        indices.push(l++);
+        indices.push(l++);
+    }
+    return utils.apply(cfg, {
+        primitive: "lines",
+        positions: positions,
+        indices: indices
+    });
+}
+//# sourceMappingURL=buildGridGeometry.js.map

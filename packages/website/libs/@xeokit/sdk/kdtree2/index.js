@@ -1,0 +1,30 @@
+/**
+ * <img style="padding:30px; height=200px;" src="media://images/kdtree2d.png"/>
+ *
+ * # xeokit 2D Collision Utilities
+ *
+ * ---
+ *
+ * ### *Tools for spatial searches and collision tests with 2D k-d trees and boundaries*
+ *
+ * ---
+ *
+ * ## Installation
+ *
+ * ````bash
+ * npm install @xeokit/sdk
+ * ````
+ *
+ * ## Usage
+ *
+ * ````javascript
+ *
+ * ````
+ *
+ * @module kdtree2
+ */
+export * from "./KdTree2";
+export * from "./createKdTree2FromSceneObjectVerts";
+export * from "./searchKdTree2ForNearestNeighbor";
+export { KdVertex2 } from "./KdVertex2";
+//# sourceMappingURL=index.js.map

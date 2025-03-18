@@ -7,9 +7,19 @@ const fileinclude = require('gulp-file-include');
 const rename = require("gulp-rename");
 const replace = require('gulp-replace-task');
 const imageThumbnail = require('image-thumbnail');
+const commander = require('commander');
 
-//const base = "http://localhost:8080";
-const base = "https://xeokit.github.io/sdk/";
+const program = new commander.Command();
+
+program
+    .description(`CLI to build website pages`)
+    .option('-l, --local', 'build pages to test locally (optional)');
+
+program.parse(process.argv);
+
+const options = program.opts();
+
+const base = options.local ? "http://localhost:8080" : "https://xeokit.github.io/sdk/";
 
 const docsLinks = JSON.parse(fs.readFileSync("./data/docsLinks.json", "utf8"));
 const docsLookup = JSON.parse(fs.readFileSync("./data/docsLookup.json", "utf8"));
@@ -100,17 +110,13 @@ function compileExamples() {
                             fs.cpSync(`./templates/${exampleInfo.template}.html`, `${exampleDirPath}/index.html`);
                         }
 
-                        console.log("TEST EXISTS:" + indexJSPath);
-
                         if (fs.existsSync(indexJSPath)) {
-
-                            console.log("TEST EXISTS: YES");
 
                             if (exampleInfo.isTutorial) {
 
-                                console.log("Creating tutorial for example: " + file);
+                                console.log("Creating user guide tutorial for example: " + file);
 
-                                const articleDirPath = `./articles/example_${file}`;
+                                const articleDirPath = `./userguide/example_${file}`;
                                 const exampleDirPath = `./examples/${file}`;
                                 fs.rmSync(articleDirPath, {recursive: true, force: true});
                                 fs.mkdirSync(articleDirPath, {recursive: true});
@@ -293,7 +299,7 @@ function compileArticles() {
 
     console.log("Compiling articles");
 
-    const baseDir = "./articles/";
+    const baseDir = "./userguide/";
 
     const index = {
         articles: {},
@@ -421,7 +427,7 @@ function compileArticles() {
                                         patterns: [
                                             {
                                                 match: 'bannerImage',
-                                                replacement: articleJSON.bannerImage ? `${base}/articles/${articleId}/${articleJSON.bannerImage}` : ""
+                                                replacement: articleJSON.bannerImage ? `${base}/userguide/${articleId}/${articleJSON.bannerImage}` : ""
                                             },
                                             {
                                                 match: 'base',
@@ -475,7 +481,7 @@ function compileArticles() {
             .on('end', function () {
             });
 
-        gulp.src(["./templates/articles-toc.html"])
+        gulp.src(["./templates/userguide-toc.html"])
             .pipe(
                 replace({
                     patterns: [
@@ -488,7 +494,7 @@ function compileArticles() {
             )
             .pipe(fileinclude({}))
             .pipe(rename("index.html"))
-            .pipe(gulp.dest(`./articles/`))
+            .pipe(gulp.dest(`./userguide/`))
             .on('end', function () {
             });
 
@@ -525,7 +531,7 @@ function compileArticles() {
         //     )
         //     .pipe(fileinclude({}))
         //     .pipe(rename("index.html"))
-        //     .pipe(gulp.dest(`./articles/`))
+        //     .pipe(gulp.dest(`./userguide/`))
         //     .on('end', function () {
         //     });
 
@@ -565,9 +571,9 @@ function compileArticles() {
         console.error(`Error reading directory: ${err}`);
     }
 
-    console.log("Writing ./articles/index.json");
+    console.log("Writing ./userguide/index.json");
 
-    fs.writeFileSync("./articles/index.json", JSON.stringify(index, null, 2), 'utf8');
+    fs.writeFileSync("./userguide/index.json", JSON.stringify(index, null, 2), 'utf8');
 }
 
 async function listImageFiles(directory) {
@@ -740,7 +746,11 @@ function parseExampleJavaScriptLinks(text) {
             if (!entry) {
                 return "";
             }
-            const javascript = fs.readFileSync(`./examples/${key}/index.js`, "utf8");
+            const exampleIndexPath = `./examples/${key}/index.js`;
+            if (!fs.existsSync(exampleIndexPath)) {
+                return "";
+            }
+            const javascript = fs.readFileSync(exampleIndexPath, "utf8");
             const sections = parseCodeSections(javascript, "//")
             return renderCodeSections(sections, true);
         });

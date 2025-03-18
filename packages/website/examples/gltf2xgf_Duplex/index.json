@@ -1,0 +1,19 @@
+{
+  "id": "gltf2xgf_Duplex",
+  "title": "Viewing a glTF Model, Converted to XKF by gltf2xgf",
+  "description": "In this example, we'll use the xeokit SDK to convert a glTF model to XGF and then view it in the browser.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "tags": [
+    "glTF",
+    "XGF",
+    "gltf2xgf",
+    "_Featured"
+  ],
+  "categories": [
+    "Importing",
+    "glTF"
+  ],
+  "topic": "import.gltf",
+  "template": "basicPage"
+}

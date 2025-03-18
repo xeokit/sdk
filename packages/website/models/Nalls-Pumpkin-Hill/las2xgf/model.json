@@ -1,1 +1,25 @@
-{"id":"foo","propertySets":[],"objects":[{"id":"b1510256-5c8f-4e22-b9d5-c98901d8ebab","type":1000,"name":"Model","propertySetIds":[]},{"id":"4568eb17-7e19-4b5e-ba4c-3054a007f5da","type":1000,"name":"PointCloud (LAZ)","propertySetIds":[]}],"relationships":[{"type":1001,"relatingObjectId":"b1510256-5c8f-4e22-b9d5-c98901d8ebab","relatedObjectId":"4568eb17-7e19-4b5e-ba4c-3054a007f5da"}]}
+{
+    "id": "foo",
+    "propertySets": [],
+    "objects": [
+        {
+            "id": "7dde28a3-46bc-4429-97ab-93219f682b47",
+            "type": 1000,
+            "name": "Model",
+            "propertySetIds": []
+        },
+        {
+            "id": "19a47cc5-5a0d-4a2d-baeb-b03563bfd4a9",
+            "type": 1000,
+            "name": "PointCloud (LAZ)",
+            "propertySetIds": []
+        }
+    ],
+    "relationships": [
+        {
+            "type": 1001,
+            "relatingObjectId": "7dde28a3-46bc-4429-97ab-93219f682b47",
+            "relatedObjectId": "19a47cc5-5a0d-4a2d-baeb-b03563bfd4a9"
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+  "id": "las2xgf_Pumpkin",
+  "title": "Viewing a LAS Model Converted by las2xgf",
+  "description": "In this example, we'll use the xeokit SDK to view a DotBIM model in the browser, converted to XGF.",
+  "isTutorial": false,
+  "isVisualTest": true,
+  "tags": [
+    "LAS",
+    "XGF",
+    "las2xgf",
+    "_Featured"
+  ],
+  "categories": [
+    "Importing",
+    "LAS"
+  ],
+  "topic": "import.las",
+  "template": "basicPage"
+}

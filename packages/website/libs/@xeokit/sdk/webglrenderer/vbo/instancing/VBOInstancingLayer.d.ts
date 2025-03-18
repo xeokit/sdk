@@ -1,0 +1,71 @@
+import { VBOInstancingLayerParams } from "./VBOInstancingLayerParams";
+import { WebGLRendererModel } from "../../WebGLRendererModel";
+import { SceneGeometry, SceneMesh } from "../../../scene";
+import { FloatArrayParam } from "../../../math";
+import { VBOInstancingRenderState } from "./VBOInstancingRenderState";
+import { MeshCounts } from "../../MeshCounts";
+import { RenderContext } from "../../RenderContext";
+import { Layer } from "../../Layer";
+import { LayerMeshParams } from "../../LayerMeshParams";
+import { VBORendererSet } from "../VBORendererSet";
+/**
+ * @private
+ */
+export declare class VBOInstancingLayer implements Layer {
+    #private;
+    rendererModel: WebGLRendererModel;
+    renderState: VBOInstancingRenderState;
+    layerIndex: number;
+    sortId: string;
+    primitive: number;
+    aabbDirty: boolean;
+    meshCounts: MeshCounts[];
+    renderContext: RenderContext;
+    saoSupported: boolean;
+    constructor(layerParams: VBOInstancingLayerParams, rendererSet: VBORendererSet);
+    get hash(): string;
+    get aabb(): FloatArrayParam;
+    canCreateLayerMesh(sceneGeometry: SceneGeometry): boolean;
+    createLayerMesh(layerMeshParams: LayerMeshParams, sceneMesh: SceneMesh): number;
+    build(): void;
+    initFlags(viewIndex: number, layerMeshIndex: any, flags: any, meshTransparent: any): void;
+    setLayerMeshVisible(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshHighlighted(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshXRayed(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshSelected(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshClippable(viewIndex: number, layerMeshIndex: number, flags: number): void;
+    setCollidable(viewIndex: number, layerMeshIndex: number, flags: number): void;
+    setLayerMeshPickable(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshCulled(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshColor(viewIndex: number, layerMeshIndex: number, color: FloatArrayParam): void;
+    setLayerMeshTransparent(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+    setLayerMeshFlags(viewIndex: number, layerMeshIndex: number, flags: number, transparent?: boolean): void;
+    setMatrix(viewIndex: number, layerMeshIndex: number, matrix: FloatArrayParam): void;
+    drawColorOpaque(): void;
+    drawColorSAOOpaque(): void;
+    drawColorTranslucent(): void;
+    drawDepth(): void;
+    drawNormals(): void;
+    drawSilhouetteXRayed(): void;
+    drawSilhouetteHighlighted(): void;
+    drawSilhouetteSelected(): void;
+    drawEdgesColorOpaque(): void;
+    drawEdgesColorTranslucent(): void;
+    drawEdgesHighlighted(): void;
+    drawEdgesSelected(): void;
+    drawEdgesXRayed(): void;
+    drawOcclusion(): void;
+    drawShadow(): void;
+    drawPickMesh(): void;
+    drawPickDepths(): void;
+    drawSnapInit(): void;
+    drawSnap(): void;
+    drawPickNormals(): void;
+    destroy(): void;
+    commitRendererState(viewIndex: number): void;
+    isEmpty(): boolean;
+    setLayerMeshCollidable(layerMeshIndex: any, flags: any): void;
+    setLayerMeshMatrix(layerMeshIndex: number, matrix: FloatArrayParam): void;
+    setLayerMeshOffset(viewIndex: number, layerMeshIndex: number, offset: FloatArrayParam): void;
+}
+//# sourceMappingURL=VBOInstancingLayer.d.ts.map

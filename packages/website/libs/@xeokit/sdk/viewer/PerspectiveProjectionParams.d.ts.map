@@ -1,0 +1,1 @@
+{"version":3,"file":"PerspectiveProjectionParams.d.ts","sourceRoot":"","sources":["../../src/viewer/PerspectiveProjectionParams.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,MAAM,WAAW,2BAA2B;IAExC;;;;OAIG;IACH,GAAG,CAAC,EAAE,MAAM,CAAC;IAEb;;;;OAIG;IACH,IAAI,CAAC,EAAE,MAAM,CAAC;IAEd;;;;;;OAMG;IACH,GAAG,CAAC,EAAE,MAAM,CAAC;IAEb;;;;;;;;OAQG;IACH,OAAO,CAAC,EAAE,MAAM,CAAC;CACpB"}

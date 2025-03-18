@@ -118630,7 +118630,6 @@ var Camera = class extends Component {
    *
    * Default value is ````[0,0,10]````.
    *
-   * @emits "eye" event on change, with the value of this property.
    * @type {Number[]} New eye position.
    */
   set eye(eye) {
@@ -118746,7 +118745,7 @@ var Camera = class extends Component {
   /**
    * Sets whether to lock yaw rotation to pivot about the World-space "up" axis.
    *
-   * @params {Boolean} gimbalLock Set true to lock gimbal.
+   * @param {Boolean} gimbalLock Set true to lock gimbal.
    */
   set gimbalLock(value) {
     this.#state.gimbalLock = value;
@@ -129995,7 +129994,7 @@ var WebGLRenderer = class {
    * Renders a frame for a View.
    *
    * @internal
-   * @param viewIndex Handle to the View, returned earlier by {@param params Rendering params.
+   * @param viewIndex Handle to the View.
    * @param [params.force=false] True to force a render, else only render if needed.
    * @link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
    * @returns *{@link core!SDKError | SDKError}*

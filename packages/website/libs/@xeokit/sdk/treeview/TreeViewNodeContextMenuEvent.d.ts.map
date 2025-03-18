@@ -1,0 +1,1 @@
+{"version":3,"file":"TreeViewNodeContextMenuEvent.d.ts","sourceRoot":"","sources":["../../src/treeview/TreeViewNodeContextMenuEvent.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,YAAY,EAAC,MAAM,gBAAgB,CAAC;AAC5C,OAAO,EAAC,QAAQ,EAAC,MAAM,YAAY,CAAC;AAEpC;;;;GAIG;AACH,MAAM,WAAW,4BAA4B;IACzC,KAAK,EAAE,KAAK,CAAC;IACb,QAAQ,EAAE,QAAQ,CAAC;IACnB,YAAY,EAAE,YAAY,CAAC;CAC9B"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"PanController.d.ts","sourceRoot":"","sources":["../../src/cameracontrol/PanController.ts"],"names":[],"mappings":"AAgBA;;GAEG;AACH,cAAM,aAAa;;gBAIH,IAAI,KAAA;IAIhB;;;;;;;;;;OAUG;IACH,gBAAgB,CAAC,sBAAsB,KAAA,EAAE,eAAe,KAAA,EAAE,UAAU,KAAA;IA8DpE,UAAU,CAAC,SAAS,KAAA,EAAE,QAAQ,KAAA;IAiB9B,OAAO;CAEV;AAED,OAAO,EAAC,aAAa,EAAC,CAAC"}

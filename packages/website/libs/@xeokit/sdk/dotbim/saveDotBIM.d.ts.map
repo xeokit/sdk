@@ -1,0 +1,1 @@
+{"version":3,"file":"saveDotBIM.d.ts","sourceRoot":"","sources":["../../src/dotbim/saveDotBIM.ts"],"names":[],"mappings":"AAAA,OAAQ,EAAC,SAAS,EAAC,MAAM,SAAS,CAAC;AACnC,OAAQ,EAAC,UAAU,EAAC,MAAM,UAAU,CAAC;AASrC;;;;;;;;;;;;;;;;;;;;GAoBG;AACH,wBAAgB,UAAU,CAAC,MAAM,EAAE;IAC/B,UAAU,EAAE,UAAU,CAAC;IACvB,SAAS,CAAC,EAAE,SAAS,CAAA;CACxB,GAAG,MAAM,CAgCT"}

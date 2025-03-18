@@ -51,7 +51,7 @@ try {
     }
     const startTime = new Date();
 
-    const dotBIMSrc = options.input;
+    const lasSrc = options.input;
     const sceneModelSrc = options.scenemodel;
     const dataModelSrc = options.datamodel;
     let xgfVersion = options.format;
@@ -75,10 +75,10 @@ try {
         logInfo(`Converting to XGF version: ${xgfVersion} (default)`);
     }
 
-    const basePath = getBasePath(dotBIMSrc);
-    const fileData = JSON.parse(fs.readFileSync(dotBIMSrc));
+    const basePath = getBasePath(lasSrc);
+    const fileData = fs.readFileSync(lasSrc);
 
-    logInfo(`\nReading LAS/LAZ file: ${dotBIMSrc}`);
+    logInfo(`\nReading LAS/LAZ file: ${lasSrc}`);
 
     const createDataModel = (dataModelSrc !== undefined);
 

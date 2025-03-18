@@ -1,0 +1,1 @@
+{"version":3,"file":"VBOTrianglesInstancingLayer.d.ts","sourceRoot":"","sources":["../../../../../src/webglrenderer/vbo/instancing/triangles/VBOTrianglesInstancingLayer.ts"],"names":[],"mappings":"AAAA,OAAO,EAAC,kBAAkB,EAAC,MAAM,uBAAuB,CAAC;AACzD,OAAO,EAAC,wBAAwB,EAAC,MAAM,6BAA6B,CAAC;AAGrE;;GAEG;AACH,qBAAa,2BAA4B,SAAQ,kBAAkB;gBACnD,wBAAwB,EAAE,wBAAwB;CAGjE"}

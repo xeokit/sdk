@@ -1,0 +1,10 @@
+{
+  "title": "Creating a 3D Model from JSON",
+  "description": "In this example, we'll use the xeokit SDK to build and view a table-shaped SceneModel, from JSON",
+  "tags": [
+    "Tutorial",
+    "Example",
+    "_Featured"
+  ],
+  "topic": "modeling.scene.object"
+}

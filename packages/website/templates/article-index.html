@@ -90,7 +90,7 @@ root: "@@base"
         return {tagList, tagMap};
     }
 
-    fetch("@@base/articles/index.json").then(response => {
+    fetch("@@base/userguide/index.json").then(response => {
         response.json().then(index => {
 
             const {tagList} = getTagMap(index);
@@ -231,7 +231,6 @@ root: "@@base"
                                 break;
                             }
                         }
-                        console.log("Set card " + cardId + " visible = " + visible)
                         cardState.visible = visible;
                         const card = cardState.card || (cardState.card = document.getElementById(cardId));
                         if (!visible) {

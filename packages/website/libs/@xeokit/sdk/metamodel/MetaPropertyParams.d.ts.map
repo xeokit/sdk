@@ -1,0 +1,1 @@
+{"version":3,"file":"MetaPropertyParams.d.ts","sourceRoot":"","sources":["../../src/metamodel/MetaPropertyParams.ts"],"names":[],"mappings":"AAAA;;GAEG;AACH,MAAM,WAAW,kBAAkB;IAE/B;;;;;OAKG;IACH,IAAI,EAAE,MAAM,CAAC;IAEb;;;;;OAKG;IACH,IAAI,EAAE,MAAM,CAAC;IAEb;;;;;OAKG;IACH,KAAK,EAAE,MAAM,CAAC;IAEd;;;;;OAKG;IACH,SAAS,EAAE,MAAM,CAAC;IAElB;;;;;OAKG;IACH,WAAW,EAAE,MAAM,CAAC;CACvB"}

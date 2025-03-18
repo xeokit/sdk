@@ -1,0 +1,140 @@
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] 
+Reading glTF file: ./models/HousePlan/gltf/model.glb
+[gltf2xgf] Writing XGF file: ./models/HousePlan/gltf2xgf/model.xgf
+[gltf2xgf] Input glTF file size: 28650.37 kB
+[gltf2xgf] Output XGF file size: 2473.87 kB
+[gltf2xgf] glTF->XGF compression ratio: 11.58
+[gltf2xgf] Conversion time: 3.55 s
+[gltf2xgf] Converted SceneObjects: 474
+[gltf2xgf] Converted SceneMeshes: 474
+[gltf2xgf] Converted SceneGeometries: 474
+[gltf2xgf] Converted DataObjects: 0
+[gltf2xgf] Converted PropertySets: 0
+[gltf2xgf] Finished OK.
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] 
+Reading glTF file: ./models/HousePlan/gltf/model.glb
+[gltf2xgf] Writing XGF file: ./models/HousePlan/gltf2xgf/model.xgf
+[gltf2xgf] Input glTF file size: 28650.37 kB
+[gltf2xgf] Output XGF file size: 2473.87 kB
+[gltf2xgf] glTF->XGF compression ratio: 11.58
+[gltf2xgf] Conversion time: 3.84 s
+[gltf2xgf] Converted SceneObjects: 474
+[gltf2xgf] Converted SceneMeshes: 474
+[gltf2xgf] Converted SceneGeometries: 474
+[gltf2xgf] Converted DataObjects: 0
+[gltf2xgf] Converted PropertySets: 0
+[gltf2xgf] Finished OK.
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] 
+Reading glTF file: ./models/HousePlan/gltf/model.glb
+[gltf2xgf] Writing XGF file: ./models/HousePlan/gltf2xgf/model.xgf
+[gltf2xgf] Input glTF file size: 28650.37 kB
+[gltf2xgf] Output XGF file size: 2473.87 kB
+[gltf2xgf] glTF->XGF compression ratio: 11.58
+[gltf2xgf] Conversion time: 4.11 s
+[gltf2xgf] Converted SceneObjects: 474
+[gltf2xgf] Converted SceneMeshes: 474
+[gltf2xgf] Converted SceneGeometries: 474
+[gltf2xgf] Converted DataObjects: 0
+[gltf2xgf] Converted PropertySets: 0
+[gltf2xgf] Finished OK.
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] 
+Reading glTF file: ./models/HousePlan/gltf/model.glb
+[gltf2xgf] Writing XGF file: ./models/HousePlan/gltf2xgf/model.xgf
+[gltf2xgf] Input glTF file size: 28650.37 kB
+[gltf2xgf] Output XGF file size: 2473.87 kB
+[gltf2xgf] glTF->XGF compression ratio: 11.58
+[gltf2xgf] Conversion time: 3.63 s
+[gltf2xgf] Converted SceneObjects: 474
+[gltf2xgf] Converted SceneMeshes: 474
+[gltf2xgf] Converted SceneGeometries: 474
+[gltf2xgf] Converted DataObjects: 0
+[gltf2xgf] Converted PropertySets: 0
+[gltf2xgf] Finished OK.
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] 
+Reading glTF file: ./models/HousePlan/gltf/model.glb
+[gltf2xgf] Writing XGF file: ./models/HousePlan/gltf2xgf/model.xgf
+[gltf2xgf] Input glTF file size: 28650.37 kB
+[gltf2xgf] Output XGF file size: 2473.87 kB
+[gltf2xgf] glTF->XGF compression ratio: 11.58
+[gltf2xgf] Conversion time: 3.81 s
+[gltf2xgf] Converted SceneObjects: 474
+[gltf2xgf] Converted SceneMeshes: 474
+[gltf2xgf] Converted SceneGeometries: 474
+[gltf2xgf] Converted DataObjects: 0
+[gltf2xgf] Converted PropertySets: 0
+[gltf2xgf] Finished OK.
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] 
+Reading glTF file: ./models/HousePlan/gltf/model.glb
+[gltf2xgf] Writing XGF file: ./models/HousePlan/gltf2xgf/model.xgf
+[gltf2xgf] Input glTF file size: 28650.37 kB
+[gltf2xgf] Output XGF file size: 2473.87 kB
+[gltf2xgf] glTF->XGF compression ratio: 11.58
+[gltf2xgf] Conversion time: 3.68 s
+[gltf2xgf] Converted SceneObjects: 474
+[gltf2xgf] Converted SceneMeshes: 474
+[gltf2xgf] Converted SceneGeometries: 474
+[gltf2xgf] Converted DataObjects: 0
+[gltf2xgf] Converted PropertySets: 0
+[gltf2xgf] Finished OK.
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] 
+Reading glTF file: ./models/HousePlan/gltf/model.glb
+[gltf2xgf] Writing XGF file: ./models/HousePlan/gltf2xgf/model.xgf
+[gltf2xgf] Input glTF file size: 28650.37 kB
+[gltf2xgf] Output XGF file size: 2473.87 kB
+[gltf2xgf] glTF->XGF compression ratio: 11.58
+[gltf2xgf] Conversion time: 3.66 s
+[gltf2xgf] Converted SceneObjects: 474
+[gltf2xgf] Converted SceneMeshes: 474
+[gltf2xgf] Converted SceneGeometries: 474
+[gltf2xgf] Converted DataObjects: 0
+[gltf2xgf] Converted PropertySets: 0
+[gltf2xgf] Finished OK.
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] 
+Reading glTF file: ./models/HousePlan/gltf/model.glb
+[gltf2xgf] Writing XGF file: ./models/HousePlan/gltf2xgf/model.xgf
+[gltf2xgf] Input glTF file size: 28650.37 kB
+[gltf2xgf] Output XGF file size: 2473.87 kB
+[gltf2xgf] glTF->XGF compression ratio: 11.58
+[gltf2xgf] Conversion time: 4.09 s
+[gltf2xgf] Converted SceneObjects: 474
+[gltf2xgf] Converted SceneMeshes: 474
+[gltf2xgf] Converted SceneGeometries: 474
+[gltf2xgf] Converted DataObjects: 0
+[gltf2xgf] Converted PropertySets: 0
+[gltf2xgf] Finished OK.
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] 
+Reading glTF file: ./models/HousePlan/gltf/model.glb
+[gltf2xgf] Writing XGF file: ./models/HousePlan/gltf2xgf/model.xgf
+[gltf2xgf] Input glTF file size: 28650.37 kB
+[gltf2xgf] Output XGF file size: 2473.87 kB
+[gltf2xgf] glTF->XGF compression ratio: 11.58
+[gltf2xgf] Conversion time: 3.69 s
+[gltf2xgf] Converted SceneObjects: 474
+[gltf2xgf] Converted SceneMeshes: 474
+[gltf2xgf] Converted SceneGeometries: 474
+[gltf2xgf] Converted DataObjects: 0
+[gltf2xgf] Converted PropertySets: 0
+[gltf2xgf] Finished OK.
+[gltf2xgf] Converting to XGF version: 1 (default)
+[gltf2xgf] 
+Reading glTF file: ./models/HousePlan/gltf/model.glb
+[gltf2xgf] Writing XGF file: ./models/HousePlan/gltf2xgf/model.xgf
+[gltf2xgf] Input glTF file size: 28650.37 kB
+[gltf2xgf] Output XGF file size: 2473.87 kB
+[gltf2xgf] glTF->XGF compression ratio: 11.58
+[gltf2xgf] Conversion time: 3.61 s
+[gltf2xgf] Converted SceneObjects: 474
+[gltf2xgf] Converted SceneMeshes: 474
+[gltf2xgf] Converted SceneGeometries: 474
+[gltf2xgf] Converted DataObjects: 0
+[gltf2xgf] Converted PropertySets: 0
+[gltf2xgf] Finished OK.

@@ -2,7 +2,7 @@
     "inputFile": "./models/Schependomlaan/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
     "converterApplicationVersion": "4.34.4",
-    "conversionDate": "2025-03-06 00:43:12",
+    "conversionDate": "2025-03-17 15:54:48",
     "gltfOutFiles": [
         "./models/Schependomlaan/ifc2gltf/model.glb"
     ],

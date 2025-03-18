@@ -1,0 +1,9 @@
+{
+  "title": "Creating Various Geometries",
+  "description": "In this example, we'll use the xeokit SDK to create and view a model containing objects with various shapes, using the SDK's geometry genorator functions.",
+  "tags": [
+    "Tutorial",
+    "Example"
+  ],
+  "topic": "modeling.scene.geometry"
+}

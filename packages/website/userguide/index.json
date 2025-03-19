@@ -1,5 +1,20 @@
 {
   "articles": {
+    "dev-status": {
+      "title": "xeokit SDK: Development Status",
+      "description": "The xeokit SDK supports viewing various AEC file formats through multiple import pipelines. \n\nThe best pipeline to use depends on the source format and file size.\n\nThe table below outlines the recommended pipeline based on format and data size. The best way to view AEC models with xeokit depends on the source format and file size. This guide will help you select the right pipeline based on format and data size.",
+      "tags": [
+        "XGF",
+        "IFC",
+        "DotBIM",
+        "glTF",
+        "CityJSON",
+        "Featured"
+      ],
+      "_bannerImage": "banner.png",
+      "_thumbnail": "index.png",
+      "topic": "overview"
+    },
     "dotbim2xgf": {
       "title": "Viewing .BIM using dotbim2xgf and loadXGF",
       "description": "How to use dotbim2xgf to convert a .bim file to XGF, which we then display in the browser using a xeokit web viewer.",
@@ -405,6 +420,7 @@
   },
   "tagsToArticlesMap": {
     "XGF": [
+      "dev-status",
       "dotbim2xgf",
       "example_loadXGF_MAP",
       "gltf2xgf",
@@ -415,6 +431,7 @@
       "webifc2xgf"
     ],
     "IFC": [
+      "dev-status",
       "dotbim2xgf",
       "example_loadWebIFC_IfcOpenHouse4",
       "ifc2gltf",
@@ -423,9 +440,28 @@
       "webifc2xgf"
     ],
     "DotBIM": [
+      "dev-status",
       "dotbim2xgf",
       "example_loadDotBIM_BlenderHouse",
       "overview-pipelines"
+    ],
+    "glTF": [
+      "dev-status",
+      "example_loadGLTF_MAP",
+      "gltf2xgf",
+      "ifc2gltf",
+      "ifc2gltf2xgf",
+      "overview-pipelines"
+    ],
+    "CityJSON": [
+      "dev-status",
+      "example_loadCityJSON_Railway",
+      "overview-pipelines"
+    ],
+    "Featured": [
+      "dev-status",
+      "overview-pipelines",
+      "whitepaper"
     ],
     "dotbim2xgf": [
       "dotbim2xgf"
@@ -508,19 +544,8 @@
       "sceneModelBuildTable",
       "viewerGetJSON"
     ],
-    "CityJSON": [
-      "example_loadCityJSON_Railway",
-      "overview-pipelines"
-    ],
     "Importing": [
       "example_loadDotBIM_BlenderHouse"
-    ],
-    "glTF": [
-      "example_loadGLTF_MAP",
-      "gltf2xgf",
-      "ifc2gltf",
-      "ifc2gltf2xgf",
-      "overview-pipelines"
     ],
     "LAS": [
       "example_loadLAS_Pumpkin",
@@ -547,10 +572,6 @@
     ],
     "las2xgf": [
       "las2xgf"
-    ],
-    "Featured": [
-      "overview-pipelines",
-      "whitepaper"
     ],
     "Beginner": [
       "sceneModelBuildBox",

@@ -1,9 +1,0 @@
-{
-    "title": "Modules Overview",
-    "description": "The xeokit SDK enables viewing various AEC file formats through different import pipelines. The optimal pipeline depends on the source format and file size. This guide provides recommendations for selecting the appropriate pipeline based on these factors.",
-    "tags": [
-        "Featured"
-    ],
-    "_bannerImage": "imsg.png",
-    "topic": "overview"
-}

@@ -1,0 +1,15 @@
+{
+    "title": "xeokit SDK: Development Status",
+    "description": "The xeokit SDK supports viewing various AEC file formats through multiple import pipelines. \n\nThe best pipeline to use depends on the source format and file size.\n\nThe table below outlines the recommended pipeline based on format and data size. The best way to view AEC models with xeokit depends on the source format and file size. This guide will help you select the right pipeline based on format and data size.",
+    "tags": [
+        "XGF",
+        "IFC",
+        "DotBIM",
+        "glTF",
+        "CityJSON",
+        "Featured"
+    ],
+    "_bannerImage": "banner.png",
+    "_thumbnail": "index.png",
+    "topic": "overview"
+}

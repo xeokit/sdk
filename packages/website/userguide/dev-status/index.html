@@ -91,82 +91,110 @@
                 <h5><a href="../index.html">&lt;&lt;&nbsp;User Guide</a></h5>
             </div>
             <div class="col-lg-12">
-                <h1>View a BCF Viewpoint</h1>
+                <h1>xeokit SDK: Development Status</h1>
             </div>
         </div>
         <div class="row testimonial-row">
             <div class="col-lg-12">
-                <p>Let's use xeokit to view a BCF viewpoint of a BIM model, in a web page.</p>
-<p>First import the npm modules we need from the SDK:</p>
-<pre class="code-section"><code class="hljs">npm install @xeokit/sdk
-</code></pre>
-<p>Here's the JavaScript for our XGF viewer app:</p>
-<pre class="code-section"><code class="hljs"><span class="hljs-keyword">import</span> {<span class="hljs-title class_">Scene</span>} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@xeokit/sdk/scene&quot;</span>;
-<span class="hljs-keyword">import</span> {<span class="hljs-title class_">Viewer</span>} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@xeokit/sdk/viewer&quot;</span>;
-<span class="hljs-keyword">import</span> {<span class="hljs-title class_">Web</span>GLRenderer} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@xeokit/sdk/webglrenderer&quot;</span>;
-<span class="hljs-keyword">import</span> {loadXGF} <span class="hljs-keyword">from</span> <span class="hljs-string">&quot;@xeokit/sdk/xgf&quot;</span>;
-
-<span class="hljs-keyword">const</span> scene = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Scene</span>(); <span class="hljs-comment">// Scene graph</span>
-
-<span class="hljs-keyword">const</span> renderer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Web</span>GLRenderer({}); <span class="hljs-comment">// WebGL renderers kernel</span>
-
-<span class="hljs-keyword">const</span> viewer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Viewer</span>({ <span class="hljs-comment">// Browser-based viewer</span>
-    scene,
-    renderer
-});
-
-<span class="hljs-keyword">const</span> view = myViewer.<span class="hljs-title function_">createView</span>({ <span class="hljs-comment">// Independent view </span>
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;myView&quot;</span>,
-    <span class="hljs-attr">canvasId</span>: <span class="hljs-string">&quot;myView1&quot;</span>
-});
-
-view.<span class="hljs-property">camera</span>.<span class="hljs-property">eye</span> = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">10</span>]; <span class="hljs-comment">// Looking down the -Z axis</span>
-view.<span class="hljs-property">camera</span>.<span class="hljs-property">look</span> = [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>];
-view.<span class="hljs-property">camera</span>.<span class="hljs-property">up</span> = [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>];
-
-<span class="hljs-keyword">const</span> sceneModel = scene.<span class="hljs-title function_">createModel</span>();
-
-<span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;myModel.xgf&quot;</span>)
-    .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> { <span class="hljs-comment">// Fetch the XGF</span>
-
-        response
-            .<span class="hljs-title function_">arrayBuffer</span>()
-            .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">fileData</span> =&gt;</span> {
-
-                <span class="hljs-title function_">loadXGF</span>({
-                    fileData,
-                    sceneModel
-                }).<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> { <span class="hljs-comment">// Load the XGF</span>
-
-                    sceneModel
-                        .<span class="hljs-title function_">build</span>()
-                        .<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> { 
-
-                            <span class="hljs-comment">// A model now appears on our View&#x27;s canvas.</span>
-
-                            <span class="hljs-comment">// We can now show/hide/select/highlight the model&#x27;s objects through the View:</span>
-
-                            view.<span class="hljs-property">objects</span>[<span class="hljs-string">&quot;2hExBg8jj4NRG6zzE$aSi6&quot;</span>].<span class="hljs-property">visible</span> = <span class="hljs-literal">true</span>;
-                            view.<span class="hljs-property">objects</span>[<span class="hljs-string">&quot;2hExBg8jj4NRG6zzE$aSi6&quot;</span>].<span class="hljs-property">highlighted</span> = <span class="hljs-literal">false</span>;  <span class="hljs-comment">// etc.</span>
-
-                            <span class="hljs-comment">// Start orbiting the camera:</span>
-
-                            viewer.<span class="hljs-property">onTick</span>.<span class="hljs-title function_">subscribe</span>(<span class="hljs-function">() =&gt;</span> {
-                                view.<span class="hljs-property">camera</span>.<span class="hljs-title function_">orbitYaw</span>(<span class="hljs-number">1.0</span>);
-                            });
-                        });
-                });
-            });
-    });
-</code></pre>
-<p>In this example, we are:</p>
-<ol>
-<li>Instantiating a Scene and WebGLRenderer instance, and attaching them to a Viewer.</li>
-<li>Creating a view, and setting its camera to view the scene from a certain position.</li>
-<li>Fetching a model in XGF format, and loading it into the Scene.</li>
-<li>Making a couple of objects visible and un-highlighted.</li>
-<li>Subscribing to the Viewer's onTick event, and setting the view's camera to orbit around the model.</li>
-</ol>
+                <hr>
+<p>In the Viewer, only the essential components have been implemented to facilitate the completion of scene representation, along with loaders, savers, and converters. The scene and data representation, as well as the loaders, savers, and converters, are largely finished. However, the Viewer itself remains incomplete, and several plugins need to be migrated from xeokit V2.</p>
+<h2>Now is the time to revisit and implement the outstanding functionalities of the Viewer and the necessary plugins.</h2>
+<h2>Scene</h2>
+<ul>
+<li>Complete</li>
+</ul>
+<h2>Data</h2>
+<ul>
+<li>Complete</li>
+</ul>
+<h2>Viewer</h2>
+<ul>
+<li>Incomplete</li>
+</ul>
+<h4>What's Done</h4>
+<ul>
+<li>Basic Triangle rendering</li>
+<li>Lines rendering</li>
+<li>Points rendering</li>
+</ul>
+<h4>TODO</h4>
+<ul>
+<li>Textures</li>
+<li>Section Planes</li>
+<li>Edges rendering</li>
+<li>SAO</li>
+<li>Dynamic canvas resolution scaling</li>
+<li>NavCube</li>
+<li>Picking</li>
+<li>CameraControl click-drag-pivot, distance-dependent movement rate</li>
+</ul>
+<h2>Model Loaders</h2>
+<h4>Done</h4>
+<ul>
+<li>glTF</li>
+<li>XGF</li>
+<li>.BIM</li>
+<li>XKT</li>
+<li>CityJSON</li>
+<li>IFC</li>
+<li>JSON (native serialized format)</li>
+<li>LAS/LAZ</li>
+</ul>
+<h2>Model Savers</h2>
+<h4>Done</h4>
+<ul>
+<li>XGF</li>
+<li>.BIM</li>
+<li>JSON (native serialized format)</li>
+</ul>
+<h2>File Conversion Support</h2>
+<h4>Done</h4>
+<h5>From glTF</h5>
+<ul>
+<li>glTF --&gt; XGF</li>
+<li>glTF --&gt; .BIM</li>
+<li>glTF --&gt; JSON (native serialized format)</li>
+</ul>
+<h5>From IFC</h5>
+<ul>
+<li>IFC --&gt; XGF</li>
+<li>IFC --&gt; .BIM</li>
+<li>IFC --&gt; JSON (native serialized format)</li>
+</ul>
+<h5>From CityJSON</h5>
+<ul>
+<li>CityJSON --&gt; XGF</li>
+<li>CityJSON --&gt; .BIM</li>
+<li>CityJSON --&gt; JSON (native serialized format)</li>
+</ul>
+<h5>From .BIM</h5>
+<ul>
+<li>.BIM --&gt; XGF</li>
+<li>.BIM --&gt; .BIM</li>
+<li>.BIM --&gt; JSON (native serialized format)</li>
+</ul>
+<h5>From XKT</h5>
+<ul>
+<li>.XKT --&gt; XGF</li>
+<li>.XKT --&gt; .BIM</li>
+<li>.XKT --&gt; JSON (native serialized format)</li>
+</ul>
+<h5>From XGF</h5>
+<ul>
+<li>.XGF --&gt; .BIM</li>
+<li>.XGF --&gt; JSON (native serialized format)</li>
+</ul>
+<h5>From Native JSON</h5>
+<ul>
+<li>JSON --&gt; XGF</li>
+<li>JSON --&gt; .BIM</li>
+</ul>
+<h2>Plugins</h2>
+<ul>
+<li>Incomplete</li>
+</ul>
+<h4>Done</h4>
+<h4>TODO</h4>
 
             </div>
         </div>

@@ -168,12 +168,12 @@
 
         if (hash && hash !== "") {
             const newSrc = `https://xeokit.github.io/sdk//${path}#${hash}`;
-            if (iframe.src !== newSrc) {
+            if (`https://xeokit.github.io/sdk/${iframeWindow.location.pathname}` !== newSrc) {
                 iframe.src = newSrc;
             }
         } else {
             const newSrc = (path && path !== "") ? `https://xeokit.github.io/sdk//${path}` : `https://xeokit.github.io/sdk//docs/api/modules.html`;
-            if (iframe.src !== newSrc) {
+            if (`https://xeokit.github.io/sdk/${iframeWindow.location.pathname}` !== newSrc) {
                 iframe.src = newSrc;
                 iframeWindow.scrollTo(0, 0);
                 window.scrollTo(0, 0);
@@ -183,12 +183,18 @@
 
     iframe.onload = () => {
         resizeIframe();
+
+        // When serving from GH pages, the location.pathname is: "/sdk//docs/api/modules.html"
+        // When serving locally, it is "/docs/api/modules.html"
+
         const iframeHash = iframeWindow.location.hash.substring(1);
         if (iframeHash === "") {
             window.scrollTo(0, 0);
         iframeWindow.scrollTo(0, 0);
     }
-        const newHash = iframeWindow.location.pathname + "___" + iframeHash;
+        const iFramePathName = iframeWindow.location.pathname;
+
+        const newHash = iFramePathName.startsWith("/sdk/") ? iFramePathName.substring(5) : iFramePathName + "___" + iframeHash;
         if (newHash !== window.location.hash.substring(1)) {
             window.location.hash = newHash;
         }
@@ -204,7 +210,9 @@
             window.scrollTo(0, 0);
             iframeWindow.scrollTo(0, 0);
         }
-        const newHash = iframeWindow.location.pathname + "___" + iframeHash;
+        const iFramePathName = iframeWindow.location.pathname;
+     //   const newHash = iframeWindow.location.pathname + "___" + iframeHash;
+        const newHash = iFramePathName.startsWith("/sdk/") ? iFramePathName.substring(5) : iFramePathName + "___" + iframeHash;
         if (newHash !== window.location.hash.substring(1)) {
             window.location.hash = newHash;
         }

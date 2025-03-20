@@ -112,40 +112,42 @@
         <div class="row testimonial-row">
             <div class="col-lg-12">
                 <h2>Unfinished Features</h2>
-<p>The incomplete parts are mostly the functionalities of the <a class="doc-link" data-template="WebGLRenderer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/webglrenderer.WebGLRenderer.html" target="_parent">WebGLRenderer</a>
+<p>The current version of the xeokit SDK is still in its <strong>alpha</strong> stage.</p>
+<p>Most incomplete features are within the <a class="doc-link" data-template="WebGLRenderer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/webglrenderer.WebGLRenderer.html" target="_parent">WebGLRenderer</a>
 <template class="doc-link-tooltip" id="WebGLRenderer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / webglrenderer / WebGLRenderer /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class WebGLRenderer</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">WebGL rendering strategy for a Viewer.</p>
-</template> class, which is implemented within
-the <a class="doc-link" data-template="@xeokit/sdk/webglrenderer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/webglrenderer.html" target="_parent">@xeokit/sdk/webglrenderer</a>
+</template> class, which is part of the <a class="doc-link" data-template="@xeokit/sdk/webglrenderer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/webglrenderer.html" target="_parent">@xeokit/sdk/webglrenderer</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/webglrenderer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / webglrenderer / @xeokit/sdk/webglrenderer /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/webglrenderer</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px; height:100px;&quot; src=&quot;https://xeokit.</p>
-</template> module. These incomplete functionalities include:</p>
+</template> module.</p>
+<p>The following functionalities are yet to be completed:</p>
 <ul>
 <li>Picking</li>
-<li>SAO</li>
+<li>Screen Space Ambient Occlusion (SAO)</li>
 <li>Texture rendering</li>
-<li>Edges rendering</li>
+<li>Edge rendering</li>
 <li>Snapshots</li>
 </ul>
-<p>The <a class="doc-link" data-template="CameraControl_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/cameracontrol.CameraControl.html" target="_parent">CameraControl</a>
+<p>Among these, <strong>picking</strong> is the highest priority. While the picking functionality has been implemented, it is not yet operational and requires debugging.</p>
+<p>Once picking is fully functional, the <a class="doc-link" data-template="CameraControl_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/cameracontrol.CameraControl.html" target="_parent">CameraControl</a>
 <template class="doc-link-tooltip" id="CameraControl_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / cameracontrol / CameraControl /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class CameraControl</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Mouse and touch controller for a Viewer's Camera.</p>
-</template> class, in <a class="doc-link" data-template="@xeokit/sdk/viewer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/viewer.html" target="_parent">@xeokit/sdk/viewer</a>
-<template class="doc-link-tooltip" id="@xeokit/sdk/viewer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
-<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewer / @xeokit/sdk/viewer /</p>
-<p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/viewer</p>
-<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px;&quot; src=&quot;https://xeokit.</p>
-</template>, relies on picking for certain navigation
-functions. Once these are finalized, CameraControl will be fully functional.</p>
-<h2>Finished Features</h2>
-<p>The remaining modules are more or less much complete, at least for a first beta release. The modules are
-listed below, but briefly they include this functionality:</p>
+</template> class should also work as expected, as it depends on picking for certain navigation capabilities.</p>
+<h2>Completed Features</h2>
+<p>Most other modules in the SDK are nearly complete and generally functional.</p>
+<p>Once <a class="doc-link" data-template="WebGLRenderer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/webglrenderer.WebGLRenderer.html" target="_parent">WebGLRenderer</a>
+<template class="doc-link-tooltip" id="WebGLRenderer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
+<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / webglrenderer / WebGLRenderer /</p>
+<p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class WebGLRenderer</p>
+<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">WebGL rendering strategy for a Viewer.</p>
+</template> is finalized, additional issues may surface in some of these modules as their integration tests are expanded to leverage the new functionality.</p>
+<p>Key features of the completed modules include:</p>
 <ul>
 <li>3D scene representation (<a class="doc-link" data-template="@xeokit/sdk/scene_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/scene.html" target="_parent">@xeokit/sdk/scene</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/scene_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
@@ -153,7 +155,7 @@ listed below, but briefly they include this functionality:</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/scene</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:20px&quot; src=&quot;https://xeokit.</p>
 </template>)</li>
-<li>Data model (<a class="doc-link" data-template="@xeokit/sdk/data_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/data.html" target="_parent">@xeokit/sdk/data</a>
+<li>Data modeling (<a class="doc-link" data-template="@xeokit/sdk/data_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/data.html" target="_parent">@xeokit/sdk/data</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/data_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / data / @xeokit/sdk/data /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/data</p>
@@ -162,10 +164,9 @@ listed below, but briefly they include this functionality:</p>
 <li>Converter CLI tools</li>
 <li>Loaders</li>
 <li>Savers</li>
-<li>API docs</li>
+<li>API documentation</li>
 </ul>
-<p>The completed modules are:</p>
-<hr>
+<p>The following modules are considered (mostly) complete:</p>
 <ul>
 <li><a class="doc-link" data-template="@xeokit/sdk/basictypes_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/basictypes.html" target="_parent">@xeokit/sdk/basictypes</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/basictypes_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
@@ -414,65 +415,7 @@ listed below, but briefly they include this functionality:</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img  style=&quot;padding:0px; padding-top:30px; padding-bottom:10px; height:130px;&quot; src=&quot;https://xeokit.</p>
 </template></li>
 </ul>
-<hr>
-<h4>Model Loaders</h4>
-<ul>
-<li>glTF</li>
-<li>XGF</li>
-<li>.BIM</li>
-<li>XKT</li>
-<li>CityJSON</li>
-<li>IFC</li>
-<li>JSON (native serialized format)</li>
-<li>LAS/LAZ</li>
-</ul>
-<h4>Model Savers</h4>
-<ul>
-<li>XGF</li>
-<li>.BIM</li>
-<li>JSON (native serialized format)</li>
-</ul>
-<h4>File Conversion Support</h4>
-<h5>From glTF</h5>
-<ul>
-<li>glTF --&gt; XGF</li>
-<li>glTF --&gt; .BIM</li>
-<li>glTF --&gt; JSON (native serialized format)</li>
-</ul>
-<h5>From IFC</h5>
-<ul>
-<li>IFC --&gt; XGF</li>
-<li>IFC --&gt; .BIM</li>
-<li>IFC --&gt; JSON (native serialized format)</li>
-</ul>
-<h5>From CityJSON</h5>
-<ul>
-<li>CityJSON --&gt; XGF</li>
-<li>CityJSON --&gt; .BIM</li>
-<li>CityJSON --&gt; JSON (native serialized format)</li>
-</ul>
-<h5>From .BIM</h5>
-<ul>
-<li>.BIM --&gt; XGF</li>
-<li>.BIM --&gt; .BIM</li>
-<li>.BIM --&gt; JSON (native serialized format)</li>
-</ul>
-<h5>From XKT</h5>
-<ul>
-<li>.XKT --&gt; XGF</li>
-<li>.XKT --&gt; .BIM</li>
-<li>.XKT --&gt; JSON (native serialized format)</li>
-</ul>
-<h5>From XGF</h5>
-<ul>
-<li>.XGF --&gt; .BIM</li>
-<li>.XGF --&gt; JSON (native serialized format)</li>
-</ul>
-<h5>From Native JSON</h5>
-<ul>
-<li>JSON --&gt; XGF</li>
-<li>JSON --&gt; .BIM</li>
-</ul>
+<p>As development progresses, refinements and additional testing will further improve the stability of these modules.</p>
 
             </div>
         </div>

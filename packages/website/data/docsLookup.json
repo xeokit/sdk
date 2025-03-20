@@ -1,246 +1,246 @@
 {
   "@xeokit/sdk/basictypes": {
-    "summary": "<img style=\"padding:10px; width:300px\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/basictypes.html",
     "kind": "module",
     "namespace": "basictypes"
   },
   "@xeokit/sdk/bcf": {
-    "summary": "<img style=\"padding:20px; padding-bottom:10px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/bcf.html",
     "kind": "module",
     "namespace": "bcf"
   },
   "@xeokit/sdk/boundaries": {
-    "summary": "<img src=\"http://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/boundaries.html",
     "kind": "module",
     "namespace": "boundaries"
   },
   "@xeokit/sdk/cameracontrol": {
-    "summary": "<img style=\"padding:0px; padding-top:20px; padding-bottom:30px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/cameracontrol.html",
     "kind": "module",
     "namespace": "cameracontrol"
   },
   "@xeokit/sdk/cameraflight": {
-    "summary": "<img style=\"padding:0px; padding-top:20px; padding-bottom:30px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/cameraflight.html",
     "kind": "module",
     "namespace": "cameraflight"
   },
   "@xeokit/sdk/cityjson": {
-    "summary": "<img style=\"padding:0px; padding-top:20px; padding-bottom:30px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/cityjson.html",
     "kind": "module",
     "namespace": "cityjson"
   },
   "@xeokit/sdk/cityjson2xgf": {
-    "summary": "<img style=\"padding:0px; padding-top:30px; padding-bottom:10px; height:130px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/cityjson2xgf.html",
     "kind": "module",
     "namespace": "cityjson2xgf"
   },
   "@xeokit/sdk/cityjsontypes_1_1_3": {
-    "summary": "<img style=\"padding:0px; padding-top:20px; padding-bottom:30px; height:130px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/cityjsontypes_1_1_3.html",
     "kind": "module",
     "namespace": "cityjsontypes_1_1_3"
   },
   "@xeokit/sdk/compression": {
-    "summary": "<img style=\"padding:20px\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/compression.html",
     "kind": "module",
     "namespace": "compression"
   },
   "@xeokit/sdk/constants": {
-    "summary": "<img style=\"padding:10px; width:300px\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/constants.html",
     "kind": "module",
     "namespace": "constants"
   },
   "@xeokit/sdk/contextmenu": {
-    "summary": "",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/contextmenu.html",
     "kind": "module",
     "namespace": "contextmenu"
   },
   "@xeokit/sdk/core": {
-    "summary": "<img style=\"padding:10px\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/core.html",
     "kind": "module",
     "namespace": "core"
   },
   "@xeokit/sdk/curves": {
-    "summary": "<img style=\"padding:10px\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/curves.html",
     "kind": "module",
     "namespace": "curves"
   },
   "@xeokit/sdk/data": {
-    "summary": "<img style=\"padding:50px\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/data.html",
     "kind": "module",
     "namespace": "data"
   },
   "@xeokit/sdk/dotbim": {
-    "summary": "<img style=\"padding:0px; padding-top:20px; padding-bottom:30px; width: 180px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/dotbim.html",
     "kind": "module",
     "namespace": "dotbim"
   },
   "@xeokit/sdk/dotbim2xgf": {
-    "summary": "<img style=\"padding:0px; padding-top:30px; padding-bottom:10px; height:130px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/dotbim2xgf.html",
     "kind": "module",
     "namespace": "dotbim2xgf"
   },
   "@xeokit/sdk/gltf": {
-    "summary": "<img style=\"padding:0px; padding-top:20px; padding-bottom:30px; height:130px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/gltf.html",
     "kind": "module",
     "namespace": "gltf"
   },
   "@xeokit/sdk/gltf2xgf": {
-    "summary": "<img style=\"padding:0px; padding-top:30px; padding-bottom:10px; height:130px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/gltf2xgf.html",
     "kind": "module",
     "namespace": "gltf2xgf"
   },
   "@xeokit/sdk/ifc2gltf2xgf": {
-    "summary": "<img style=\"padding:0px; padding-top:30px; padding-bottom:10px; height:130px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/ifc2gltf2xgf.html",
     "kind": "module",
     "namespace": "ifc2gltf2xgf"
   },
   "@xeokit/sdk/ifctypes": {
-    "summary": "<img style=\"padding-top:20px; padding-bottom:10px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/ifctypes.html",
     "kind": "module",
     "namespace": "ifctypes"
   },
   "@xeokit/sdk/kdtree2": {
-    "summary": "<img style=\"padding:30px; height:200px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/kdtree2.html",
     "kind": "module",
     "namespace": "kdtree2"
   },
   "@xeokit/sdk/kdtree3": {
-    "summary": "<img style=\"padding:30px; padding-left:0;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/kdtree3.html",
     "kind": "module",
     "namespace": "kdtree3"
   },
   "@xeokit/sdk/ktx2": {
-    "summary": "<img style=\"padding:0px; padding-top:20px; padding-bottom:30px; height:140px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/ktx2.html",
     "kind": "module",
     "namespace": "ktx2"
   },
   "@xeokit/sdk/las": {
-    "summary": "<img style=\"padding: 20px 0 30px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/las.html",
     "kind": "module",
     "namespace": "las"
   },
   "@xeokit/sdk/las2xgf": {
-    "summary": "",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/las2xgf.html",
     "kind": "module",
     "namespace": "las2xgf"
   },
   "@xeokit/sdk/locale": {
-    "summary": "<img style=\"padding: 20px 0; height: 150px; width: 150px;\" src=\"https://www.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/locale.html",
     "kind": "module",
     "namespace": "locale"
   },
   "@xeokit/sdk/math": {
-    "summary": "<img style=\"padding: 20px 0 30px; height: 140px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/math.html",
     "kind": "module",
     "namespace": "math"
   },
   "@xeokit/sdk/matrix": {
-    "summary": "<img style=\"padding:0px; padding-top:20px; padding-bottom:30px; height:140px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/matrix.html",
     "kind": "module",
     "namespace": "matrix"
   },
   "@xeokit/sdk/metamodel": {
-    "summary": "<img style=\"padding:0px; padding-top:30px; padding-bottom:10px; height:130px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/metamodel.html",
     "kind": "module",
     "namespace": "metamodel"
   },
   "@xeokit/sdk/modelchunksloader": {
-    "summary": "",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/modelchunksloader.html",
     "kind": "module",
     "namespace": "modelchunksloader"
   },
   "@xeokit/sdk/pick": {
-    "summary": "# xeokit Picking System\n\n---\n\n***Select objects and primitives using rays and boundaries***\n\n---\n\nThe following class diagrams depict xeokit's picking system architecture.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/pick.html",
     "kind": "module",
     "namespace": "pick"
   },
   "@xeokit/sdk/procgen": {
-    "summary": "",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/procgen.html",
     "kind": "module",
     "namespace": "procgen"
   },
   "@xeokit/sdk/rtc": {
-    "summary": "<img style=\"padding:0px; padding-top:20px; padding-bottom:20px;  height:270px\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/rtc.html",
     "kind": "module",
     "namespace": "rtc"
   },
   "@xeokit/sdk/scene": {
-    "summary": "<img style=\"padding:20px\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/scene.html",
     "kind": "module",
     "namespace": "scene"
   },
   "@xeokit/sdk/treeview": {
-    "summary": "<img style=\"padding:0px; padding-top:30px; padding-bottom:30px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/treeview.html",
     "kind": "module",
     "namespace": "treeview"
   },
   "@xeokit/sdk/utils": {
-    "summary": "<img style=\"padding:10px; width:300px\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/utils.html",
     "kind": "module",
     "namespace": "utils"
   },
   "@xeokit/sdk/viewer": {
-    "summary": "<img style=\"padding:0px; padding-top:20px; padding-bottom:30px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/viewer.html",
     "kind": "module",
     "namespace": "viewer"
   },
   "@xeokit/sdk/webglrenderer": {
-    "summary": "<img style=\"padding:0px; padding-top:20px; padding-bottom:30px; height:100px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/webglrenderer.html",
     "kind": "module",
     "namespace": "webglrenderer"
   },
   "@xeokit/sdk/webifc": {
-    "summary": "<img style=\"width:150px; padding-top:20px; padding-bottom: 20px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/webifc.html",
     "kind": "module",
     "namespace": "webifc"
   },
   "@xeokit/sdk/xgf": {
-    "summary": "<img  style=\"padding:0px; padding-top:30px; padding-bottom:10px; height:130px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/xgf.html",
     "kind": "module",
     "namespace": "xgf"
   },
   "@xeokit/sdk/xkt": {
-    "summary": "<img  style=\"padding:0px; padding-top:30px; padding-bottom:10px; height:130px;\" src=\"https://xeokit.",
+    "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/xkt.html",
     "kind": "module",
     "namespace": "xkt"
@@ -882,7 +882,7 @@
     "namespace": "boundaries"
   },
   "createKdTree2FromSceneObjectVerts": {
-    "summary": "A k-d tree to accelerate intersection and nearest-neighbour tests on the projected\n2D canvas positions of scene!SceneObject geometry vertices.",
+    "summary": "A k-d tree to accelerate intersection and nearest-neighbour tests on the projected\n2D canvas positions of scene!.",
     "path": "/api-docs#/docs/api/functions/kdtree2.createKdTree2FromSceneObjectVerts.html",
     "kind": "function",
     "namespace": "kdtree2"
@@ -990,7 +990,7 @@
     "namespace": "matrix"
   },
   "CustomProjection": {
-    "summary": "Configures a custom projection for a Camera .",
+    "summary": "Configures a custom projection for a Camera.",
     "path": "/api-docs#/docs/api/classes/viewer.CustomProjection.html",
     "kind": "class",
     "namespace": "viewer"
@@ -1362,7 +1362,7 @@
     "namespace": "boundaries"
   },
   "FrustumProjection": {
-    "summary": "FrustumProjection-based perspective projection configuration for a Camera .",
+    "summary": "FrustumProjection-based perspective projection configuration for a Camera.",
     "path": "/api-docs#/docs/api/classes/viewer.FrustumProjection.html",
     "kind": "class",
     "namespace": "viewer"
@@ -3708,7 +3708,7 @@
     "namespace": "ifctypes"
   },
   "IfcMaterialProfileWithOffsets": {
-    "summary": "IfcMaterialProfileWithOffsets is a specialization of IfcMaterialProfile with additional longitudinal offsets .",
+    "summary": "IfcMaterialProfileWithOffsets is a specialization of IfcMaterialProfile with additional longitudinal offsets.",
     "path": "/api-docs#/docs/api/variables/ifctypes.IfcMaterialProfileWithOffsets.html",
     "kind": "variable",
     "namespace": "ifctypes"
@@ -7116,7 +7116,7 @@
     "namespace": "data"
   },
   "loadDotBIM": {
-    "summary": "Loads a .",
+    "summary": "Loads a.",
     "path": "/api-docs#/docs/api/functions/dotbim.loadDotBIM.html",
     "kind": "function",
     "namespace": "dotbim"
@@ -7470,7 +7470,7 @@
     "namespace": "matrix"
   },
   "OrthoProjection": {
-    "summary": "Orthographic projection configuration for a Camera .",
+    "summary": "Orthographic projection configuration for a Camera.",
     "path": "/api-docs#/docs/api/classes/viewer.OrthoProjection.html",
     "kind": "class",
     "namespace": "viewer"
@@ -7506,7 +7506,7 @@
     "namespace": "matrix"
   },
   "PerspectiveProjection": {
-    "summary": "PerspectiveProjection projection configuration for a Camera .",
+    "summary": "PerspectiveProjection projection configuration for a Camera.",
     "path": "/api-docs#/docs/api/classes/viewer.PerspectiveProjection.html",
     "kind": "class",
     "namespace": "viewer"
@@ -8064,7 +8064,7 @@
     "namespace": "xgf"
   },
   "saveDotBIM": {
-    "summary": "Exports a SceneModel and/or a DataModel to a JSON object\ncontaining the corresponding .",
+    "summary": "Exports a SceneModel and/or a DataModel to a JSON object\ncontaining the corresponding.",
     "path": "/api-docs#/docs/api/functions/dotbim.saveDotBIM.html",
     "kind": "function",
     "namespace": "dotbim"
@@ -8268,7 +8268,7 @@
     "namespace": "kdtree3"
   },
   "searchKdTree3WithFrustum": {
-    "summary": "Queries a KdTree3 for KDItems that intersect\na 3D boundaries!Frustum3.",
+    "summary": "Queries a KdTree3 for KDItems that intersect\na 3D boundaries!.",
     "path": "/api-docs#/docs/api/functions/kdtree3.searchKdTree3WithFrustum.html",
     "kind": "function",
     "namespace": "kdtree3"
@@ -8592,7 +8592,7 @@
     "namespace": "matrix"
   },
   "TreeView": {
-    "summary": "An HTMl tree view that navigates the !DataObject | DataObjects in the given\n!Data | Data, while controlling the visibility of their corresponding\nViewObjects in the given View.",
+    "summary": "An HTMl tree view that navigates the !.",
     "path": "/api-docs#/docs/api/classes/treeview.TreeView.html",
     "kind": "class",
     "namespace": "treeview"

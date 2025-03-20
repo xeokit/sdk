@@ -13,6 +13,12 @@ function buildDocsLookup(docsDir) {
 
     const index = new Map();
 
+    function getFirstSentence(text) {
+        let match = text.match(/[^.!?]+[.!?]/);
+        const sentence = match ? match[0].trim() : text.trim();
+        return sentence;
+    }
+
     function getSummary(node) {
         if (node.signatures) {
             node = node.signatures[0];
@@ -28,7 +34,8 @@ function buildDocsLookup(docsDir) {
                 summary.push(text);
             }
         }
-        return summary.join("").split('.')[0] + "."; // Extract part before first period
+
+        return getFirstSentence(summary.join("").split('.')[0]) + "."; // Extract part before first period
     }
 
     const parseChildren = (namespace, node) => {
@@ -74,7 +81,7 @@ function buildDocsLookup(docsDir) {
                         console.log(`kind not handled: ${kind}`)
                 }
                 entry.namespace = namespace;
-                entry.summary = getSummary(child);
+                entry.summary = entry.kind === "module" ? "SDK Module" : getSummary(child);
                 const entryKey = entry.kind === "module" ? `@xeokit/sdk/${child.name}` : child.name;
                 index.set(entryKey, entry);
             }

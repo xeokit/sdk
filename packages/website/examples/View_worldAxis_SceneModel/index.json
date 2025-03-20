@@ -7,8 +7,8 @@
   "tags": [],
   "categories": [
     "Viewer",
-    "Views",
+    "Views"
   ],
-    "topic": "viewer.view",
+  "topic": "viewer.view",
   "template": "basicPage"
 }

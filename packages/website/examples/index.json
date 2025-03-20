@@ -344,6 +344,33 @@
     "topic": "general",
     "template": "basicPage"
   },
+  "View_worldAxis_SceneModel": {
+    "id": "View_worldAxis_SceneModel",
+    "title": "Viewing a SceneModel with +Z configured as up",
+    "description": "",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [],
+    "categories": [
+      "Viewer",
+      "Views"
+    ],
+    "topic": "viewer.view",
+    "template": "basicPage"
+  },
+  "View_worldAxis_loadCityJSON": {
+    "id": "View_worldAxis_loadCityJSON",
+    "title": "Viewing a CityJSON model with +Z configured as up direction",
+    "description": "",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [],
+    "categories": [
+      "Viewer",
+      "Views"
+    ],
+    "topic": "general"
+  },
   "Viewer_drawTriangle_getEvents": {
     "id": "Viewer_drawTriangle_getEvents",
     "title": "Drawing a triangle, logging all events",

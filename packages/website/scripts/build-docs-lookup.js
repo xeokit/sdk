@@ -22,7 +22,7 @@ function buildDocsLookup(docsDir) {
         }
         const summary = [];
         const nodeSummary = node.comment.summary;
-        for (let i =0, len = nodeSummary.length; i < len; i++) {
+        for (let i = 0, len = nodeSummary.length; i < len; i++) {
             const text = nodeSummary[i].text;
             if (text) {
                 summary.push(text);
@@ -37,18 +37,18 @@ function buildDocsLookup(docsDir) {
             for (let child of children) {
                 const kind = child.kind;
                 const entry = {
-                    summary:"",
+                    summary: "",
                     path: null,
                     kind: null
                 };
-             //   console.log("child.name, kind = " + child.name + " , " + child.kind)
+                //   console.log("child.name, kind = " + child.name + " , " + child.kind)
                 switch (kind) {
                     case 4:
-                        // entry.path = `/api-docs#/docs/api/modules/${child.name}.html`;
-                        // entry.kind="module";
+                        entry.path = `/api-docs#/docs/api/modules/${child.name}.html`;
+                        entry.kind = "module";
                         namespace = child.name;
                         parseChildren(namespace, child);
-                        continue;
+                        break;
                     case 128:
                         entry.path = `/api-docs#/docs/api/classes/${namespace}.${child.name}.html`;
                         entry.kind = "class";
@@ -75,7 +75,8 @@ function buildDocsLookup(docsDir) {
                 }
                 entry.namespace = namespace;
                 entry.summary = getSummary(child);
-                index.set(child.name, entry);
+                const entryKey = entry.kind === "module" ? `@xeokit/sdk/${child.name}` : child.name;
+                index.set(entryKey, entry);
             }
         }
     }

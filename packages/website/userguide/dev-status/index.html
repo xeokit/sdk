@@ -28,22 +28,18 @@
 
     <title></title>
     <style>
-        .tippy-box[data-theme~='custom'] {
-            background-color: white;
+        .tippy-box[data-theme~='light-border'] {
+            background-color: #ffff66;
             color: #333;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border: 1px solid #eee;
+            border: 1px solid #666666;
         }
 
-        .tippy-box[data-theme~='custom'][data-placement^='top'] > .tippy-arrow::before {
+        .tippy-box[data-theme~='light-border'][data-placement^='bottom'] > .tippy-arrow::before {
             border-top-color: white;
-        }
-
-        .tippy-box[data-theme~='custom'] .tippy-arrow::before {
-            transform: scale(0.75);
+            background-color: #ffff66;
         }
     </style>
-    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css"/>
     <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/light-border.css"/>
 </head>
 <body>
@@ -84,27 +80,50 @@
 </div>
 
 </nav>
+<header class="bg-black home-header bg-black" style="background-image:url(https://xeokit.github.io/sdk//userguide/dev-status/wip.jpg)">
+    <div class="container h-75">
+
+        <!--                        <div class="row h-100 align-items-center">-->
+        <!--                            <div class="col-lg-12">-->
+        <!--                                <h1 class="text-white mt-5 mb-2">xeokit SDK: Development Status</h1>-->
+        <!--                                <p class="lead mb-5 text-white"></p>-->
+        <!--                            </div>-->
+        <!--                        </div>-->
+
+
+    </div>
+</header>
 <section id="intro" class="main-section">
     <div class="container">
         <div class="row testimonial-row">
-            <div class="col-lg-12">
+            <div class="col-lg-6">
                 <h5><a href="../index.html">&lt;&lt;&nbsp;User Guide</a></h5>
             </div>
+<!--            <div class="col-lg-6">-->
+<!--                <h5><a href="../index.html">Importing a glTF Model into xeokit via LAS &gt;&gt;</a></h5>-->
+<!--                <h5><a href="../index.html">Importing a glTF Model into xeokit via LAS &gt;&gt;</a></h5>-->
+<!--            </div>-->
+        </div>
+        <div class="row testimonial-row">
             <div class="col-lg-12">
                 <h1>xeokit SDK: Development Status</h1>
             </div>
         </div>
         <div class="row testimonial-row">
             <div class="col-lg-12">
-                <h2>Current Status</h2>
-<h2>Incomplete Features</h2>
-<p>The incomplete parts are mostly the functionalities of the doc: WebGLRenderer class, which is implemented within
+                <h2>Unfinished Features</h2>
+<p>The incomplete parts are mostly the functionalities of the <a class="doc-link" data-template="WebGLRenderer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/webglrenderer.WebGLRenderer.html" target="_parent">WebGLRenderer</a>
+<template class="doc-link-tooltip" id="WebGLRenderer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
+<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / webglrenderer / WebGLRenderer /</p>
+<p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class WebGLRenderer</p>
+<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">WebGL rendering strategy for a Viewer.</p>
+</template> class, which is implemented within
 the <a class="doc-link" data-template="@xeokit/sdk/webglrenderer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/webglrenderer.html" target="_parent">@xeokit/sdk/webglrenderer</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/webglrenderer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / webglrenderer / @xeokit/sdk/webglrenderer /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/webglrenderer</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px; height:100px;&quot; src=&quot;https://xeokit.</p>
-</template> module. The functionalities include:</p>
+</template> module. These incomplete functionalities include:</p>
 <ul>
 <li>Picking</li>
 <li>SAO</li>
@@ -117,287 +136,222 @@ the <a class="doc-link" data-template="@xeokit/sdk/webglrenderer_template"  href
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / cameracontrol / CameraControl /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class CameraControl</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Mouse and touch controller for a Viewer's Camera.</p>
-</template> class, in @xeokit/sdk/viewer, relies on picking for certain navigation
+</template> class, in <a class="doc-link" data-template="@xeokit/sdk/viewer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/viewer.html" target="_parent">@xeokit/sdk/viewer</a>
+<template class="doc-link-tooltip" id="@xeokit/sdk/viewer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
+<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewer / @xeokit/sdk/viewer /</p>
+<p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/viewer</p>
+<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px;&quot; src=&quot;https://xeokit.</p>
+</template>, relies on picking for certain navigation
 functions. Once these are finalized, CameraControl will be fully functional.</p>
-<h2>Completed Features</h2>
+<h2>Finished Features</h2>
 <p>The remaining modules are more or less much complete, at least for a first beta release. The modules are
 listed below, but briefly they include this functionality:</p>
 <ul>
-<li>
-<p>3D scene representation (doc:<a class="doc-link" data-template="@xeokit/sdk/scene_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/scene.html" target="_parent">@xeokit/sdk/scene</a>
+<li>3D scene representation (<a class="doc-link" data-template="@xeokit/sdk/scene_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/scene.html" target="_parent">@xeokit/sdk/scene</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/scene_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / scene / @xeokit/sdk/scene /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/scene</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:20px&quot; src=&quot;https://xeokit.</p>
-</template>)</p>
-</li>
-<li>
-<p>Data model (doc:<a class="doc-link" data-template="@xeokit/sdk/data_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/data.html" target="_parent">@xeokit/sdk/data</a>
+</template>)</li>
+<li>Data model (<a class="doc-link" data-template="@xeokit/sdk/data_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/data.html" target="_parent">@xeokit/sdk/data</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/data_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / data / @xeokit/sdk/data /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/data</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:50px&quot; src=&quot;https://xeokit.</p>
-</template>)</p>
-</li>
-<li>
-<p>Converter CLI tools</p>
-</li>
-<li>
-<p>Loaders</p>
-</li>
-<li>
-<p>Savers</p>
-</li>
-<li>
-<p>API docs</p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/basictypes_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/basictypes.html" target="_parent">@xeokit/sdk/basictypes</a>
+</template>)</li>
+<li>Converter CLI tools</li>
+<li>Loaders</li>
+<li>Savers</li>
+<li>API docs</li>
+</ul>
+<p>The completed modules are:</p>
+<hr>
+<ul>
+<li><a class="doc-link" data-template="@xeokit/sdk/basictypes_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/basictypes.html" target="_parent">@xeokit/sdk/basictypes</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/basictypes_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / basictypes / @xeokit/sdk/basictypes /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/basictypes</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:10px; width:300px&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/bcf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/bcf.html" target="_parent">@xeokit/sdk/bcf</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/bcf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/bcf.html" target="_parent">@xeokit/sdk/bcf</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/bcf_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / bcf / @xeokit/sdk/bcf /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/bcf</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:20px; padding-bottom:10px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/boundaries_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/boundaries.html" target="_parent">@xeokit/sdk/boundaries</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/boundaries_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/boundaries.html" target="_parent">@xeokit/sdk/boundaries</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/boundaries_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / boundaries / @xeokit/sdk/boundaries /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/boundaries</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img src=&quot;http://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/cameracontrol_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/cameracontrol.html" target="_parent">@xeokit/sdk/cameracontrol</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/cameracontrol_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/cameracontrol.html" target="_parent">@xeokit/sdk/cameracontrol</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/cameracontrol_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / cameracontrol / @xeokit/sdk/cameracontrol /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/cameracontrol</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/cameraflight_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/cameraflight.html" target="_parent">@xeokit/sdk/cameraflight</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/cameraflight_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/cameraflight.html" target="_parent">@xeokit/sdk/cameraflight</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/cameraflight_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / cameraflight / @xeokit/sdk/cameraflight /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/cameraflight</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/cityjson_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/cityjson.html" target="_parent">@xeokit/sdk/cityjson</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/cityjson_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/cityjson.html" target="_parent">@xeokit/sdk/cityjson</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/cityjson_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / cityjson / @xeokit/sdk/cityjson /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/cityjson</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/cityjson2xgf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/cityjson2xgf.html" target="_parent">@xeokit/sdk/cityjson2xgf</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/cityjson2xgf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/cityjson2xgf.html" target="_parent">@xeokit/sdk/cityjson2xgf</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/cityjson2xgf_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / cityjson2xgf / @xeokit/sdk/cityjson2xgf /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/cityjson2xgf</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:30px; padding-bottom:10px; height:130px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/cityjsontypes_1_1_3_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/cityjsontypes_1_1_3.html" target="_parent">@xeokit/sdk/cityjsontypes_1_1_3</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/cityjsontypes_1_1_3_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/cityjsontypes_1_1_3.html" target="_parent">@xeokit/sdk/cityjsontypes_1_1_3</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/cityjsontypes_1_1_3_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / cityjsontypes_1_1_3 / @xeokit/sdk/cityjsontypes_1_1_3 /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/cityjsontypes_1_1_3</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px; height:130px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/compression_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/compression.html" target="_parent">@xeokit/sdk/compression</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/compression_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/compression.html" target="_parent">@xeokit/sdk/compression</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/compression_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / compression / @xeokit/sdk/compression /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/compression</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:20px&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/constants_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/constants.html" target="_parent">@xeokit/sdk/constants</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/constants_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/constants.html" target="_parent">@xeokit/sdk/constants</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/constants_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / constants / @xeokit/sdk/constants /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/constants</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:10px; width:300px&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/contextmenu_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/contextmenu.html" target="_parent">@xeokit/sdk/contextmenu</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/contextmenu_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/contextmenu.html" target="_parent">@xeokit/sdk/contextmenu</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/contextmenu_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / contextmenu / @xeokit/sdk/contextmenu /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/contextmenu</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;"></p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/core_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/core.html" target="_parent">@xeokit/sdk/core</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/core_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/core.html" target="_parent">@xeokit/sdk/core</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/core_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / core / @xeokit/sdk/core /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/core</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:10px&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/curves_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/curves.html" target="_parent">@xeokit/sdk/curves</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/curves_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/curves.html" target="_parent">@xeokit/sdk/curves</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/curves_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / curves / @xeokit/sdk/curves /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/curves</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:10px&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/data_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/data.html" target="_parent">@xeokit/sdk/data</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/data_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/data.html" target="_parent">@xeokit/sdk/data</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/data_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / data / @xeokit/sdk/data /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/data</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:50px&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/dotbim_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/dotbim.html" target="_parent">@xeokit/sdk/dotbim</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/dotbim_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/dotbim.html" target="_parent">@xeokit/sdk/dotbim</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/dotbim_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / dotbim / @xeokit/sdk/dotbim /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/dotbim</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px; width: 180px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/dotbim2xgf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/dotbim2xgf.html" target="_parent">@xeokit/sdk/dotbim2xgf</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/dotbim2xgf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/dotbim2xgf.html" target="_parent">@xeokit/sdk/dotbim2xgf</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/dotbim2xgf_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / dotbim2xgf / @xeokit/sdk/dotbim2xgf /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/dotbim2xgf</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:30px; padding-bottom:10px; height:130px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/gltf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/gltf.html" target="_parent">@xeokit/sdk/gltf</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/gltf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/gltf.html" target="_parent">@xeokit/sdk/gltf</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/gltf_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / gltf / @xeokit/sdk/gltf /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/gltf</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px; height:130px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/gltf2xgf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/gltf2xgf.html" target="_parent">@xeokit/sdk/gltf2xgf</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/gltf2xgf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/gltf2xgf.html" target="_parent">@xeokit/sdk/gltf2xgf</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/gltf2xgf_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / gltf2xgf / @xeokit/sdk/gltf2xgf /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/gltf2xgf</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:30px; padding-bottom:10px; height:130px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/ifc2gltf2xgf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/ifc2gltf2xgf.html" target="_parent">@xeokit/sdk/ifc2gltf2xgf</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/ifc2gltf2xgf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/ifc2gltf2xgf.html" target="_parent">@xeokit/sdk/ifc2gltf2xgf</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/ifc2gltf2xgf_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / ifc2gltf2xgf / @xeokit/sdk/ifc2gltf2xgf /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/ifc2gltf2xgf</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:30px; padding-bottom:10px; height:130px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/ifctypes_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/ifctypes.html" target="_parent">@xeokit/sdk/ifctypes</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/ifctypes_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/ifctypes.html" target="_parent">@xeokit/sdk/ifctypes</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/ifctypes_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / ifctypes / @xeokit/sdk/ifctypes /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/ifctypes</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding-top:20px; padding-bottom:10px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/kdtree2_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/kdtree2.html" target="_parent">@xeokit/sdk/kdtree2</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/kdtree2_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/kdtree2.html" target="_parent">@xeokit/sdk/kdtree2</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/kdtree2_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / kdtree2 / @xeokit/sdk/kdtree2 /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/kdtree2</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:30px; height:200px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/kdtree3_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/kdtree3.html" target="_parent">@xeokit/sdk/kdtree3</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/kdtree3_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/kdtree3.html" target="_parent">@xeokit/sdk/kdtree3</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/kdtree3_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / kdtree3 / @xeokit/sdk/kdtree3 /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/kdtree3</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:30px; padding-left:0;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/ktx2_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/ktx2.html" target="_parent">@xeokit/sdk/ktx2</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/ktx2_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/ktx2.html" target="_parent">@xeokit/sdk/ktx2</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/ktx2_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / ktx2 / @xeokit/sdk/ktx2 /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/ktx2</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px; height:140px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/las_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/las.html" target="_parent">@xeokit/sdk/las</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/las_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/las.html" target="_parent">@xeokit/sdk/las</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/las_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / las / @xeokit/sdk/las /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/las</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding: 20px 0 30px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/las2xgf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/las2xgf.html" target="_parent">@xeokit/sdk/las2xgf</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/las2xgf_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/las2xgf.html" target="_parent">@xeokit/sdk/las2xgf</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/las2xgf_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / las2xgf / @xeokit/sdk/las2xgf /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/las2xgf</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;"></p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/locale_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/locale.html" target="_parent">@xeokit/sdk/locale</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/locale_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/locale.html" target="_parent">@xeokit/sdk/locale</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/locale_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / locale / @xeokit/sdk/locale /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/locale</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding: 20px 0; height: 150px; width: 150px;&quot; src=&quot;https://www.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/math_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/math.html" target="_parent">@xeokit/sdk/math</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/math_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/math.html" target="_parent">@xeokit/sdk/math</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/math_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / math / @xeokit/sdk/math /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/math</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding: 20px 0 30px; height: 140px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/matrix_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/matrix.html" target="_parent">@xeokit/sdk/matrix</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/matrix_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/matrix.html" target="_parent">@xeokit/sdk/matrix</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/matrix_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / matrix / @xeokit/sdk/matrix /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/matrix</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px; height:140px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/metamodel_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/metamodel.html" target="_parent">@xeokit/sdk/metamodel</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/metamodel_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/metamodel.html" target="_parent">@xeokit/sdk/metamodel</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/metamodel_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / metamodel / @xeokit/sdk/metamodel /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/metamodel</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:30px; padding-bottom:10px; height:130px;&quot; src=&quot;https://xeokit.</p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/modelchunksloader_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/modelchunksloader.html" target="_parent">@xeokit/sdk/modelchunksloader</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/modelchunksloader_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/modelchunksloader.html" target="_parent">@xeokit/sdk/modelchunksloader</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/modelchunksloader_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / modelchunksloader / @xeokit/sdk/modelchunksloader /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/modelchunksloader</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;"></p>
-</template></p>
-</li>
-<li>
-<p>[ x ] <a class="doc-link" data-template="@xeokit/sdk/pick_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/pick.html" target="_parent">@xeokit/sdk/pick</a>
+</template></li>
+<li><a class="doc-link" data-template="@xeokit/sdk/pick_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/pick.html" target="_parent">@xeokit/sdk/pick</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/pick_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / pick / @xeokit/sdk/pick /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/pick</p>
-<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;"># xeokit Picking System</p>
-</li>
+<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;"># xeokit Picking System</li>
 </ul>
 <hr>
 <p><em><strong>Select objects and primitives using rays and boundaries</strong></em></p>
@@ -405,61 +359,62 @@ listed below, but briefly they include this functionality:</p>
 <p>The following class diagrams depict xeokit's picking system architecture.</p>
 </template></p>
 <ul>
-<li>[ x ] <a class="doc-link" data-template="@xeokit/sdk/procgen_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/procgen.html" target="_parent">@xeokit/sdk/procgen</a>
+<li><a class="doc-link" data-template="@xeokit/sdk/procgen_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/procgen.html" target="_parent">@xeokit/sdk/procgen</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/procgen_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / procgen / @xeokit/sdk/procgen /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/procgen</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;"></p>
 </template></li>
-<li>[ x ] <a class="doc-link" data-template="@xeokit/sdk/rtc_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/rtc.html" target="_parent">@xeokit/sdk/rtc</a>
+<li><a class="doc-link" data-template="@xeokit/sdk/rtc_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/rtc.html" target="_parent">@xeokit/sdk/rtc</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/rtc_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / rtc / @xeokit/sdk/rtc /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/rtc</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:20px;  height:270px&quot; src=&quot;https://xeokit.</p>
 </template></li>
-<li>[ x ] <a class="doc-link" data-template="@xeokit/sdk/scene_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/scene.html" target="_parent">@xeokit/sdk/scene</a>
+<li><a class="doc-link" data-template="@xeokit/sdk/scene_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/scene.html" target="_parent">@xeokit/sdk/scene</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/scene_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / scene / @xeokit/sdk/scene /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/scene</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:20px&quot; src=&quot;https://xeokit.</p>
 </template></li>
-<li>[ x ] <a class="doc-link" data-template="@xeokit/sdk/treeview_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/treeview.html" target="_parent">@xeokit/sdk/treeview</a>
+<li><a class="doc-link" data-template="@xeokit/sdk/treeview_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/treeview.html" target="_parent">@xeokit/sdk/treeview</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/treeview_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / treeview / @xeokit/sdk/treeview /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/treeview</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:30px; padding-bottom:30px;&quot; src=&quot;https://xeokit.</p>
 </template></li>
-<li>[ x ] <a class="doc-link" data-template="@xeokit/sdk/utils_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/utils.html" target="_parent">@xeokit/sdk/utils</a>
+<li><a class="doc-link" data-template="@xeokit/sdk/utils_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/utils.html" target="_parent">@xeokit/sdk/utils</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/utils_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / utils / @xeokit/sdk/utils /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/utils</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:10px; width:300px&quot; src=&quot;https://xeokit.</p>
 </template></li>
-<li>[ x ] <a class="doc-link" data-template="@xeokit/sdk/viewer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/viewer.html" target="_parent">@xeokit/sdk/viewer</a>
+<li><a class="doc-link" data-template="@xeokit/sdk/viewer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/viewer.html" target="_parent">@xeokit/sdk/viewer</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/viewer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewer / @xeokit/sdk/viewer /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/viewer</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;padding:0px; padding-top:20px; padding-bottom:30px;&quot; src=&quot;https://xeokit.</p>
 </template></li>
-<li>[ x ] <a class="doc-link" data-template="@xeokit/sdk/webifc_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/webifc.html" target="_parent">@xeokit/sdk/webifc</a>
+<li><a class="doc-link" data-template="@xeokit/sdk/webifc_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/webifc.html" target="_parent">@xeokit/sdk/webifc</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/webifc_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / webifc / @xeokit/sdk/webifc /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/webifc</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img style=&quot;width:150px; padding-top:20px; padding-bottom: 20px;&quot; src=&quot;https://xeokit.</p>
 </template></li>
-<li>[ x ] <a class="doc-link" data-template="@xeokit/sdk/xgf_template"  href="https://xeokit.github.io/sdk/" target="_parent">@xeokit/sdk/xgf</a>
+<li><a class="doc-link" data-template="@xeokit/sdk/xgf_template"  href="https://xeokit.github.io/sdk/" target="_parent">@xeokit/sdk/xgf</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/xgf_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / undefined / @xeokit/sdk/xgf /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Interface @xeokit/sdk/xgf</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">undefined</p>
 </template></li>
-<li>[ x ] <a class="doc-link" data-template="@xeokit/sdk/xkt_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/xkt.html" target="_parent">@xeokit/sdk/xkt</a>
+<li><a class="doc-link" data-template="@xeokit/sdk/xkt_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/modules/xkt.html" target="_parent">@xeokit/sdk/xkt</a>
 <template class="doc-link-tooltip" id="@xeokit/sdk/xkt_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / xkt / @xeokit/sdk/xkt /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Module @xeokit/sdk/xkt</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">&lt;img  style=&quot;padding:0px; padding-top:30px; padding-bottom:10px; height:130px;&quot; src=&quot;https://xeokit.</p>
 </template></li>
 </ul>
+<hr>
 <h4>Model Loaders</h4>
 <ul>
 <li>glTF</li>
@@ -605,16 +560,17 @@ listed below, but briefly they include this functionality:</p>
             container.appendChild(node)
             return container
         },
-        // placement: 'top-end',
+        placement: 'bottom',
         // arrow: true,
-        // animation: 'scale',
+         animation: 'scale',
         theme: 'light-border',
-        //   duration: [200, 150],
+           duration: [200, 150],
+        //duration 1000,
         trigger: 'mouseenter focus',
         hideOnClick: false,
-        // interactive: true,
         inertia: true,
     });
-</script>
 
+
+</script>
 </html>

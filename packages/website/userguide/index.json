@@ -11,7 +11,7 @@
         "CityJSON",
         "Featured"
       ],
-      "_bannerImage": "banner.png",
+      "bannerImage": "wip.jpg",
       "_thumbnail": "index.png",
       "topic": "overview"
     },

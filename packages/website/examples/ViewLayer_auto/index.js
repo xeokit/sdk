@@ -3,6 +3,10 @@
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 import {DemoHelper} from "../../js/DemoHelper.js";
 
+// Create a GLTFLoader to load .glb files
+
+const gltfLoader = new xeokit.gltf.GLTFLoader();
+
 // Create a Scene to hold geometry and materials for our model
 
 const scene = new xeokit.scene.Scene();
@@ -50,7 +54,7 @@ demoHelper.init()
 
         new xeokit.cameracontrol.CameraControl(view, {});
 
-        // Create a SceneModel and use loadGLTF load a building model into it.
+        // Create a SceneModel and use GLTFLoader load a building model into it.
         //
         // The SceneModel specifies that its SceneObject components will
         // belong to ViewLayer "modelLayer".
@@ -65,7 +69,7 @@ demoHelper.init()
 
         fetch("../../models/models/IfcOpenHouse2x3/ifc2gltf/model.glb").then(response => {
             response.arrayBuffer().then(fileData => {
-                xeokit.gltf.loadGLTF({fileData, sceneModel}).then(() => {
+                gltfLoader.load({fileData, sceneModel}).then(() => {
                     sceneModel.build();
                 });
             });

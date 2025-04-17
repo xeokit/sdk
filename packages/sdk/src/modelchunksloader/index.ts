@@ -57,8 +57,8 @@
  * import {Scene} from "@xeokit/sdk/scene";
  * import {Data} from "@xeokit/sdk/data";
  * import {ModelChunksLoader} from "@xeokit/sdk/modelchunksloader";
- * import {loadXGF} from "@xeokit/sdk/xgf";
- * import {loadDataModel} from "@xeokit/sdk/data";
+ * import {XGFLoader} from "@xeokit/sdk/xgf";
+ * import {DataModelParamsLoader} from "@xeokit/sdk/data";
  * import {SDKError} from "@xeokit/sdk/core";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {Viewer} from "@xeokit/sdk/viewer";
@@ -90,8 +90,8 @@
  *
  * // Initialize ModelChunksLoader
  * const modelChunksLoader = new ModelChunksLoader({
- *     sceneModelLoader: loadXGF,
- *     dataModelLoader: loadDataModel
+ *     sceneModelLoader: new XGFLoader(),
+ *     dataModelLoader: new DataModelParamsLoader()
  * });
  *
  * // Load the model chunks manifest and process the files

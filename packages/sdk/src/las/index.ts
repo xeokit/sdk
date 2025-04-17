@@ -16,7 +16,7 @@
  * It includes metadata such as headers, point attributes, and supports both compressed and uncompressed data.
  * LAS is widely used in industries like surveying, mapping, and urban planning.
  *
- * To import an LAS model into xeokit, use the {@link loadLAS} function to load the file into
+ * To import an LAS model into xeokit, use a {@link LASLoader} to load the file into
  * a {@link scene!SceneModel | SceneModel} and a {@link data!DataModel | DataModel}.
  *
  * ---
@@ -33,7 +33,7 @@
  *
  * ## Usage
  *
- * The following example demonstrates how to use {@link las!loadLAS | loadLAS}.
+ * The following example demonstrates how to use the {@link las!LASLoader | LASLoader} class.
  *
  * First, we create a {@link viewer!Viewer | Viewer} with a
  * {@link webglrenderer!WebGLRenderer | WebGLRenderer} and a {@link scene!Scene | Scene}
@@ -44,7 +44,7 @@
  * allowing interaction via mouse and touch input.
  *
  * Next, we create a {@link scene!SceneModel | SceneModel} to store the model geometry and materials.
- * Finally, we use {@link las!loadLAS | loadLAS} to load an LAS/LAZ file into the SceneModel.
+ * Finally, we use a {@link las!LASLoader | LASLoader} to load an LAS/LAZ file into the SceneModel.
  *
  * ```javascript
  * import { SDKError } from "@xeokit/sdk/core";
@@ -53,7 +53,9 @@
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { CameraControl } from "@xeokit/sdk/cameracontrol";
- * import { loadLAS } from "@xeokit/sdk/las";
+ * import { LASLoader } from "@xeokit/sdk/las";
+ *
+ * const lasLoader = new LASLoader();
  *
  * const scene = new Scene();
  * const data = new Data();
@@ -83,7 +85,7 @@
  * fetch("model.las")
  *     .then(response => response.arrayBuffer())
  *     .then(fileData => {
- *         loadLAS(
+ *         lasLoader.load(
  *             {
  *                 fileData,
  *                 sceneModel,
@@ -117,4 +119,4 @@
  *
  * @module las
  */
-export * from "./loadLAS";
+export * from "./LASLoader";

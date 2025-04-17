@@ -24,28 +24,28 @@ performance. The links on the right take you to the tutorials for the selected p
       <td rowspan="2" style="background-color:#90ee9073">0MB - 10MB</td>
       <td>Load Directly</td>
       <td>
-        <a href="@@base/userguide/example_loadWebIFC_IfcOpenHouse4/">Viewing IFC using loadWebIFC</a>
+        <a href="@@base/userguide/example_IFCLoader_IfcOpenHouse4/">Viewing IFC using IFCLoader</a>
       </td>
     </tr>
     <tr>
       <td>Preconvert</td>
       <td>
-        <a href="@@base/userguide/webifc2xgf/">Viewing IFC using webifc2xgf and loadXGF</a>
+        <a href="@@base/userguide/webifc2xgf/">Viewing IFC using webifc2xgf and XGFLoader</a>
       </td>
     </tr>
     <tr>
       <td rowspan="1" style="background-color:lightyellow">10MB - 100MB</td>
       <td>Preconvert</td>
       <td>
-        <a href="@@base/userguide/ifc2gltf/">Viewing IFC using ifc2gltf and loadGLTF</a><br>
-        <a href="">Viewing IFC using ifc2gltf and loadXGF</a>
+        <a href="@@base/userguide/ifc2gltf/">Viewing IFC using ifc2gltf and GLTFLoader</a><br>
+        <a href="">Viewing IFC using ifc2gltf and XGFLoader</a>
       </td>
     </tr>
     <tr>
       <td rowspan="1" style="background-color:#ffa50047">100MB - 2GB</td>
       <td>Preconvert</td>
       <td>
-        <a href="@@base/userguide/ifc2gltf2xgf/">Viewing IFC using ifc2gltf, ifc2gltf2xgf and loadXGF</a>
+        <a href="@@base/userguide/ifc2gltf2xgf/">Viewing IFC using ifc2gltf, ifc2gltf2xgf and XGFLoader</a>
       </td>
     </tr>
     <tr>
@@ -53,28 +53,28 @@ performance. The links on the right take you to the tutorials for the selected p
       <td rowspan="1" style="background-color:#90ee9073">Small</td>
       <td>Load Directly</td>
       <td>
-        <a href="@@base/userguide/example_loadGLTF_MAP/">Viewing glTF using loadGLTF</a>
+        <a href="@@base/userguide/example_GLTFLoader_MAP/">Viewing glTF using GLTFLoader</a>
       </td>
     </tr>
     <tr>
       <td rowspan="1" style="background-color:#ffa50047">Medium / Large</td>
       <td>Preconvert</td>
       <td>
-        <a href="@@base/userguide/gltf2xgf/">Viewing glTF using gltf2xgf and loadXGF</a>
+        <a href="@@base/userguide/gltf2xgf/">Viewing glTF using gltf2xgf and XGFLoader</a>
       </td>
     </tr>
     <tr>
       <td rowspan="2"><b style="font-size: 20px;">.BIM</b></td>
       <td style="background-color:#90ee9073">Small</td>
       <td>Load Directly</td>
-      <td><a href="@@base/userguide/example_loadDotBIM_BlenderHouse/">Viewing .BIM using loadDotBIM</a>
+      <td><a href="@@base/userguide/example_loadDotBIM_BlenderHouse/">Viewing .BIM using DotBIMLoader</a>
       </td>
     </tr>
     <tr>
       <td style="background-color:#ffa50047">Medium / Large</td>
       <td>Preconvert</td>
       <td>
-        <a href="@@base/userguide/dotbim2xgf/">Viewing .BIM using dotbim2xgf and loadXGF</a>
+        <a href="@@base/userguide/dotbim2xgf/">Viewing .BIM using dotbim2xgf and XGFLoader</a>
       </td>
     </tr>
     <tr>
@@ -82,7 +82,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td style="background-color:#90ee9073">All Sizes</td>
       <td>Load Directly</td>
       <td>
-        <a href="@@base/userguide/example_loadCityJSON_Railway/">Viewing CityJSON using loadCityJSON</a>
+        <a href="@@base/userguide/example_CityJSONLoader_Railway/">Viewing CityJSON using CityJSONLoader</a>
       </td>
     </tr>
     <tr>
@@ -90,7 +90,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td style="background-color:#90ee9073">All Sizes</td>
       <td>Load Directly</td>
       <td>
-        <a href="@@base/userguide/example_loadLAS_Pumpkin/">Viewing LAS/LAZ using loadLAS</a>
+        <a href="@@base/userguide/example_LASLoader_Pumpkin/">Viewing LAS/LAZ using LASLoader</a>
       </td>
     </tr>
     <tr>
@@ -103,7 +103,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td><b style="font-size: 20px;">XGF</b></td>
       <td style="background-color:#90ee9073">All Sizes</td>
       <td>Load Directly</td>
-      <td><a href="@@base/userguide/example_loadXGF_MAP/">Viewing XGF using loadXGF</a></td>
+      <td><a href="@@base/userguide/example_XGFLoader_MAP/">Viewing XGF using XGFLoader</a></td>
     </tr>
   </tbody>
 </table>

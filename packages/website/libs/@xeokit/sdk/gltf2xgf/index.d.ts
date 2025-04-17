@@ -46,7 +46,7 @@
  *
  * The example below converts a binary glTF file to XGF. The resulting XGF objects will contain geometry and material color
  * data parsed from the glTF file. The XGF file can then be loaded into a xeokit {@link scene!SceneModel | SceneModel}
- * using the {@link xgf!loadXGF | loadXGF()} function. For optimal performance, it is recommended to convert binary glTF files.
+ * using the {@link xgf!XGFLoader | XGFLoader()} function. For optimal performance, it is recommended to convert binary glTF files.
  *
  * ````bash
  * node gltf2xgf -i duplex.glb -s duplex.xgf

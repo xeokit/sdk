@@ -3,16 +3,18 @@
 import '@loaders.gl/polyfills';
 import {Scene, SceneModel} from "../scene";
 import {SDKError} from "../core";
-import {loadGLTF} from "../gltf";
-import {saveXGF, SAVED_XGF_VERSIONS, DEFAULT_SAVED_XGF_VERSION} from "../xgf";
+import {GLTFLoader} from "../gltf";
+import {XGFExporter} from "../xgf";
 import {convertMetaModel} from "../metamodel";
+
+const xgfExporter = new XGFExporter();
 
 /**
  * @private
  */
 function ifc2gltf2xgf(params: {
     fileData: ArrayBuffer,
-    xgfVersion?: number
+    xgfVersion?: string
 }): Promise<{
     xgfArrayBuffer: ArrayBuffer,
     sceneModel: SceneModel
@@ -26,22 +28,26 @@ function ifc2gltf2xgf(params: {
         if (sceneModel instanceof SDKError) {
             return reject(sceneModel.message);
         } else {
-            loadGLTF({fileData, sceneModel})
+            (new GLTFLoader()).load({fileData, sceneModel})
                 .then(() => {
                     sceneModel.build()
                         .then(() => {
-                            const xgfArrayBuffer = saveXGF({sceneModel, xgfVersion});
-                            if (xgfArrayBuffer instanceof SDKError) {
-                                return reject(xgfArrayBuffer.message);
-                            } else {
-                                return resolve({xgfArrayBuffer, sceneModel});
-                            }
+                            xgfExporter.write({
+                                    sceneModel,
+                                    version: xgfVersion
+                                })
+                                .then(xgfArrayBuffer => {
+                                    return resolve({
+                                        xgfArrayBuffer,
+                                        sceneModel
+                                    });
+                                });
                         }).catch(err => {
                         return reject(err);
                     });
                 }).catch(err => {
-                    return reject(err);
-                });
+                return reject(err);
+            });
         }
     });
 }
@@ -54,12 +60,12 @@ export {ifc2gltf2xgf};
 /**
  * @private
  */
-export const _SAVED_XGF_VERSIONS = SAVED_XGF_VERSIONS; // Make these private for our CLI tool's use only
+export const _SAVED_XGF_VERSIONS = xgfExporter.versions; // Make these private for our CLI tool's use only
 
 /**
  * @private
  */
-export const _DEFAULT_SAVED_XGF_VERSION = DEFAULT_SAVED_XGF_VERSION;
+export const _DEFAULT_SAVED_XGF_VERSION = xgfExporter.defaultVersion;
 
 /**
  * @private

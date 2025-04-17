@@ -4,7 +4,7 @@ import { Data } from "@xeokit/data";
 import { Scene } from "@xeokit/scene";
 import { SDKError } from "@xeokit/core";
 import { loadWebIFC } from "@xeokit/webifc";
-import { saveXGF, SAVED_XGF_VERSIONS, DEFAULT_SAVED_XGF_VERSION } from "@xeokit/xgf";
+import { XKFWriter, SAVED_XGF_VERSIONS, DEFAULT_SAVED_XGF_VERSION } from "@xeokit/xgf";
 /**
  * @private
  */
@@ -36,7 +36,7 @@ function webifc2xgf(params) {
                     }).then(() => {
                         sceneModel.build().then(() => {
                             dataModel.build().then(() => {
-                                const xgfArrayBuffer = saveXGF({
+                                const xgfArrayBuffer = XKFWriter.write({
                                     sceneModel,
                                     xgfVersion
                                 });
@@ -70,7 +70,7 @@ function webifc2xgf(params) {
                     sceneModel
                 }).then(() => {
                     sceneModel.build().then(() => {
-                        const xgfArrayBuffer = saveXGF({
+                        const xgfArrayBuffer = XKFWriter.write({
                             sceneModel,
                             xgfVersion
                         });

@@ -6,7 +6,7 @@ In this tutorial, we'll view an IFC 4.3 model in the browser using a xeokit doc:
 convert the IFC model to glTF and metadata JSON files. The import process consists of two steps:
 
 1. Use `ifc2gltf` to convert IFC into glTF and JSON metadata files.
-2. Use `loadGLTF` to load the glTF and JSON metadata files into a xeokit Viewer on a webpage.
+2. Use `GLTFLoader` to load the glTF and JSON metadata files into a xeokit Viewer on a webpage.
 
 This process also splits the model into multiple files, improving memory stability in the converter tools and
 Viewer by allowing incremental loading and deallocation.

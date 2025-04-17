@@ -28,7 +28,7 @@
  * import { Data } from "@xeokit/sdk/data";
  * import * as ifcTypes from "@xeokit/sdk/ifctypes";
  * import { TreeView } from "@xeokit/sdk/treeview";
- * import { loadXGF } from "@xeokit/sdk/xgf";
+ * import { XGFLoader } from "@xeokit/sdk/xgf";
  * ```
  *
  * ### Initialize a Viewer with a WebGL Renderer
@@ -76,7 +76,7 @@
  *
  * fetch("myModel.xgf").then(response => {
  *     response.arrayBuffer().then(data => {
- *         loadXGF({ data, sceneModel, dataModel });
+ *         XGFLoader.load({ data, sceneModel, dataModel });
  *         sceneModel.build();
  *         dataModel.build();
  *         myViewer.scene.addModel({ id: "myModel", sceneModel });

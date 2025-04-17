@@ -6,7 +6,7 @@ import { BasicAggregation, BasicEntity } from "../basictypes";
 import { createUUID } from "../utils";
 import { PointsPrimitive } from "../constants";
 import { parse } from '@loaders.gl/core';
-import { LASLoader } from '@loaders.gl/las';
+import { LASReader } from '@loaders.gl/las';
 const MAX_VERTICES = 500000; // TODO: Rough estimate
 /**
  * Loads LAS/LAZ file data from an ArrayBuffer into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
@@ -73,7 +73,7 @@ export function loadLAS(params, options = {}) {
                 params.log(msg);
             }
         };
-        parse(params.fileData, LASLoader, {
+        parse(params.fileData, LASReader, {
             las: {
                 colorDepth: options.colorDepth || "auto",
                 fp64: options.fp64 !== undefined ? options.fp64 : false

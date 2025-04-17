@@ -16,7 +16,7 @@
  * browsers. It stores geometry, materials, textures, animations, and scene hierarchy, and is open and royalty-free,
  * making it a popular choice for 3D content distribution and exchange.
  *
- * To import a glTF model into xeokit, use the {@link loadGLTF} function, which will load the file into
+ * To import a glTF model into xeokit, use the {@link GLTFLoader} function, which will load the file into
  * a {@link @xeokit/scene!SceneModel | SceneModel}.
  *
  * <br>
@@ -40,7 +40,7 @@
  * also attach a {@link @xeokit/cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
  *
  * Within the Scene, we will create a {@link @xeokit/scene!SceneModel | SceneModel} to hold a model. We will then use
- * {@link @xeokit/gltf!loadGLTF | loadGLTF} to load
+ * {@link @xeokit/gltf!GLTFLoader | GLTFLoader} to load
  * a binary glTF (GLB) file into our SceneModel.
  *
  * The {@link @xeokit/core!SDKError | SDKError} class will be used to handle any errors that may occur during this process.
@@ -54,7 +54,7 @@
  * import  {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {CameraControl} from "@xeokit/sdk/cameracontrol";
- * import {loadGLTF} from "@xeokit/sdk/gltf";
+ * import {GLTFLoader} from "@xeokit/sdk/gltf";
  *
  * const scene = new Scene();
  * const data = new Data();
@@ -90,7 +90,7 @@
  *
  *     response.arrayBuffer().then(fileData => {
  *
- *        loadGLTF({
+ *        GLTFLoader({
  *            fileData,
  *            sceneModel,
  *            dataModel
@@ -115,5 +115,5 @@
  *
  * @module gltf
  */
-export * from "./loadGLTF";
+export * from "./GLTFLoader";
 //# sourceMappingURL=index.js.map

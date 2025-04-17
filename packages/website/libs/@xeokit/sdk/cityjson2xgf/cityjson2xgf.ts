@@ -4,7 +4,7 @@ import {Data, DataModel} from "../data";
 import {Scene, SceneModel} from "../scene";
 import {SDKError} from "../core";
 import {loadCityJSON} from "../cityjson";
-import {saveXGF, SAVED_XGF_VERSIONS, DEFAULT_SAVED_XGF_VERSION} from "../xgf";
+import {XKFWriter, SAVED_XGF_VERSIONS, DEFAULT_SAVED_XGF_VERSION} from "../xgf";
 
 /**
  * @private
@@ -42,7 +42,7 @@ function cityjson2xgf(params: {
                 }).then(() => {
                     sceneModel.build().then(() => {
                         dataModel.build().then(() => {
-                            const xgfArrayBuffer = saveXGF({
+                            const xgfArrayBuffer = XKFWriter.write({
                                 sceneModel,
                                 xgfVersion
                             });

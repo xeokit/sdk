@@ -21,7 +21,7 @@ const tempVec3b = createVec3();
  * @returns {@link core!SDKError | SDKError} If the DataModel has already been destroyed.
  * @returns {@link core!SDKError | SDKError} If the DataModel has not yet been built.
  */
-export function saveDotBIM(params) {
+export function DotBIMWriter(params) {
     const { sceneModel, dataModel } = params;
     if (!sceneModel) {
         throw new SDKError("Argument expected: params.sceneModel");
@@ -168,4 +168,4 @@ function modelToDotBIM(params) {
     }
     return dotBim;
 }
-//# sourceMappingURL=saveDotBIM.js.map
+//# sourceMappingURL=DotBIMExporter.js.map

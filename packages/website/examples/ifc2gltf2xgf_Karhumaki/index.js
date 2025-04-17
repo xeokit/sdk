@@ -4,6 +4,7 @@ import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 import {DemoHelper} from "../../js/DemoHelper.js";
 
+
 // Create a Scene to hold geometry and materials
 
 const scene = new xeokit.scene.Scene();
@@ -72,16 +73,16 @@ demoHelper.init()
                     .json()
                     .then(modelChunksManifest => {
 
-                        // Create a ModelChunksLoader, equipped with loadXGF and loadDataModel.
+                        // Create a ModelChunksLoader, equipped with an XGFLoader and a DataModelParamsLoader.
 
                         const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
-                            sceneModelLoader: xeokit.xgf.loadXGF,
-                            dataModelLoader: xeokit.data.loadDataModel
+                            sceneModelLoader: new xeokit.xkt.XGFLoader(),
+                            dataModelLoader: new xeokit.data.DataModelReader()
                         });
 
                         // Use the ModelChunksLoader to load the glTF
-                        // and JSON files listed in the ModelChunksManifestParams. The ModelChunksLoader will use loadXGF to
-                        // load each XGF file into the SceneModel, and loadDataModel to load each JSON DataModelParams
+                        // and JSON files listed in the ModelChunksManifestParams. The ModelChunksLoader will use XGFLoader to
+                        // load each XGF file into the SceneModel, and DataModelParamsLoader to load each JSON DataModelParams
                         // file into the DataModel.
 
                         modelChunksLoader.load({

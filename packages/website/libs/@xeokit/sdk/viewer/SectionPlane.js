@@ -19,7 +19,7 @@ import * as matrix from '../matrix';
  * using a {@link SectionPlanesPlugin}.
  *
  * ````javascript
- * import {Viewer, GLTFLoaderPlugin, SectionPlane} from "xeokit-viewer.es.js";
+ * import {Viewer, GLTFReaderPlugin, SectionPlane} from "xeokit-viewer.es.js";
  *
  * const viewer = new Viewer({
  *      elementId: "myCanvas"

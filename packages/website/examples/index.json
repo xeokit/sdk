@@ -1,4 +1,142 @@
 {
+  "CityJSONLoader_Railway": {
+    "id": "CityJSONLoader_Railway",
+    "title": "Viewing CityJSON using CityJSONLoader",
+    "description": "How to load a CityJSON model directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "CityJSON",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "CityJSON"
+    ],
+    "topic": "import.cityjson",
+    "template": "basicPage"
+  },
+  "DotBIMLoader_BlenderHouse": {
+    "id": "DotBIMLoader_BlenderHouse",
+    "title": "Viewing .BIM using DotBIMLoader",
+    "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Importing",
+      "DotBIM"
+    ],
+    "categories": [
+      "Importing",
+      "DotBIM"
+    ],
+    "topic": "import.dotbim",
+    "template": "basicPage"
+  },
+  "GLTFLoader_MAP": {
+    "id": "GLTFLoader_MAP",
+    "title": "Viewing glTF using GLTFLoader",
+    "description": "How to load an IFC model from glTF (.glb) format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "glTF",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "glTF"
+    ],
+    "topic": "import.gltf",
+    "template": "basicPage"
+  },
+  "IFCLoader_IfcOpenHouse4": {
+    "id": "IFCLoader_IfcOpenHouse4",
+    "title": "Viewing IFC using IFCLoader",
+    "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "IFC",
+      "XGF",
+      "webifc2xgf",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "IFC"
+    ],
+    "topic": "import.ifc",
+    "template": "basicPage"
+  },
+  "LASLoader_Pumpkin": {
+    "id": "LASLoader_Pumpkin",
+    "title": "Viewing a LAZ-encoded LiDAR scan using LASLoader",
+    "description": "How to load a LiDAR scan from LAS (.laz) format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "LAS",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "LAS"
+    ],
+    "topic": "import.las",
+    "template": "basicPage"
+  },
+  "ModelConverter_CityJSON_XGF": {
+    "id": "ModelConverter_CityJSON_XGF",
+    "title": "Viewing CityJSON using ModelConverter and XKTLoader",
+    "description": "How to convert a model from CityJSON format into XKT and directly load that into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Importing",
+      "CityJSON"
+    ],
+    "categories": [
+      "Importing",
+      "CityJSON"
+    ],
+    "topic": "import.cityjson",
+    "template": "basicPage"
+  },
+  "ModelConverter_DotBIM_XGF": {
+    "id": "ModelConverter_DotBIM_XGF",
+    "title": "Viewing .BIM using ModelConverter and XKTLoader",
+    "description": "How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Importing",
+      "DotBIM"
+    ],
+    "categories": [
+      "Importing",
+      "DotBIM"
+    ],
+    "topic": "import.dotbim",
+    "template": "basicPage"
+  },
+  "ModelConverter_IFC_XGF": {
+    "id": "ModelConverter_IFC_XGF",
+    "title": "Viewing .BIM using ModelConverter and XKTLoader",
+    "description": "How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Importing",
+      "DotBIM"
+    ],
+    "categories": [
+      "Importing",
+      "DotBIM"
+    ],
+    "topic": "import.dotbim",
+    "template": "basicPage"
+  },
   "SceneModel_DataModel_build_table": {
     "id": "SceneModel_DataModel_build_table",
     "title": "Creating a 3D Model with Semantic Data",
@@ -282,6 +420,28 @@
     "topic": "viewer.view.viewlayer",
     "template": "basicPage"
   },
+  "ViewLayer_multiView": {
+    "id": "ViewLayer_multiView",
+    "title": "Creating a Viewer with multiple Views and ViewLayers",
+    "description": "",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [],
+    "categories": [],
+    "topic": "viewer.view.viewlayer",
+    "template": "threeCanvasPage"
+  },
+  "ViewLayer_multiView_lighting": {
+    "id": "ViewLayer_multiView_lighting",
+    "title": "Creating a Viewer with multiple Views and light sources",
+    "description": "",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [],
+    "categories": [],
+    "topic": "viewer.view.viewlayer",
+    "template": "threeCanvasPage"
+  },
   "ViewLayer_multiView_multiModels": {
     "id": "ViewLayer_multiView_multiModels",
     "title": "Creating a Viewer with multiple Views and ViewLayers",
@@ -291,6 +451,19 @@
     "tags": [],
     "categories": [],
     "topic": "viewer.view.viewlayer",
+    "template": "threeCanvasPage"
+  },
+  "View_multiView_IFCLoader": {
+    "id": "View_multiView_IFCLoader",
+    "title": "Viewing an IFC model in multiple Views",
+    "description": "In this example, we'll use the xeokit SDK to view an IFC file within multiple canvases in the browser",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "_Featured"
+    ],
+    "categories": [],
+    "topic": "general",
     "template": "threeCanvasPage"
   },
   "View_multiView_SceneModel_build_table": {
@@ -344,6 +517,19 @@
     "topic": "general",
     "template": "basicPage"
   },
+  "View_worldAxis_CityJSONLoader": {
+    "id": "View_worldAxis_CityJSONLoader",
+    "title": "Viewing a CityJSON model with +Z configured as up direction",
+    "description": "",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [],
+    "categories": [
+      "Viewer",
+      "Views"
+    ],
+    "topic": "general"
+  },
   "View_worldAxis_SceneModel": {
     "id": "View_worldAxis_SceneModel",
     "title": "Viewing a SceneModel with +Z configured as up",
@@ -357,19 +543,6 @@
     ],
     "topic": "viewer.view",
     "template": "basicPage"
-  },
-  "View_worldAxis_loadCityJSON": {
-    "id": "View_worldAxis_loadCityJSON",
-    "title": "Viewing a CityJSON model with +Z configured as up direction",
-    "description": "",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "tags": [],
-    "categories": [
-      "Viewer",
-      "Views"
-    ],
-    "topic": "general"
   },
   "Viewer_drawTriangle_getEvents": {
     "id": "Viewer_drawTriangle_getEvents",
@@ -426,6 +599,22 @@
     "topic": "viewer.configuration",
     "template": "basicPage"
   },
+  "Viewer_toParams": {
+    "id": "Viewer_toParams",
+    "title": "Saving a Viewer Configuration",
+    "description": "This example demonstrates how to capture a JSON snapshot of a xeokit Viewer's current runtime configuration.",
+    "isTutorial": true,
+    "isVisualTest": false,
+    "tags": [
+      "Viewer"
+    ],
+    "categories": [
+      "Viewer",
+      "Configuration"
+    ],
+    "topic": "viewer.configuration",
+    "template": "basicPage"
+  },
   "Viewer_viewDotBIM": {
     "id": "Viewer_viewDotBIM",
     "title": "Viewing a .BIM model and hiding IfcSpaces",
@@ -438,6 +627,40 @@
       "DotBIM"
     ],
     "topic": "import.dotbim",
+    "template": "basicPage"
+  },
+  "XGFLoader_MAP": {
+    "id": "XGFLoader_MAP",
+    "title": "Viewing XGF using XGFLoader",
+    "description": "How to load an IFC model from XGF (.glb) format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "XGF",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "XGF"
+    ],
+    "topic": "import.xgf",
+    "template": "basicPage"
+  },
+  "XKTLoader_MAP": {
+    "id": "XKTLoader_MAP",
+    "title": "Viewing XKT using XKTLoader",
+    "description": "How to load an IFC model from XKT (.xkt) format directly into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "XKT",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "XKT"
+    ],
+    "topic": "import.xkt",
     "template": "basicPage"
   },
   "dotbim2xgf_IfcOpenHouse4": {
@@ -476,25 +699,6 @@
       "glTF"
     ],
     "topic": "import.gltf",
-    "template": "basicPage"
-  },
-  "gltf2xgf_IfcOpenHouse4": {
-    "id": "gltf2xgf_IfcOpenHouse4",
-    "title": "Viewing an DotBIM Model Converted by dotbim2xgf",
-    "description": "In this example, we'll use the xeokit SDK to view a DotBIM model in the browser, converted to XGF.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "tags": [
-      "DotBIM",
-      "XGF",
-      "dotbim2xgf",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "DotBIM"
-    ],
-    "topic": "import.dotbim",
     "template": "basicPage"
   },
   "ifc2gltf2xgf_Karhumaki": {
@@ -552,146 +756,6 @@
       "LAS"
     ],
     "topic": "import.las",
-    "template": "basicPage"
-  },
-  "loadCityJSON_Railway": {
-    "id": "loadCityJSON_Railway",
-    "title": "Viewing CityJSON using loadCityJSON",
-    "description": "How to load a CityJSON model directly into a xeokit web viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "CityJSON",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "CityJSON"
-    ],
-    "topic": "import.cityjson",
-    "template": "basicPage"
-  },
-  "loadDotBIM_BlenderHouse": {
-    "id": "loadDotBIM_BlenderHouse",
-    "title": "Viewing .BIM using loadDotBIM",
-    "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "Importing",
-      "DotBIM"
-    ],
-    "categories": [
-      "Importing",
-      "DotBIM"
-    ],
-    "topic": "import.dotbim",
-    "template": "basicPage"
-  },
-  "loadGLTF_MAP": {
-    "id": "loadGLTF_MAP",
-    "title": "Viewing glTF using loadGLTF",
-    "description": "How to load an IFC model from glTF (.glb) format directly into a xeokit web viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "glTF",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "glTF"
-    ],
-    "topic": "import.gltf",
-    "template": "basicPage"
-  },
-  "loadLAS_Pumpkin": {
-    "id": "loadLAS_Pumpkin",
-    "title": "Viewing a LAZ-encoded LiDAR scan using loadLAS",
-    "description": "How to load a LiDAR scan from LAS (.laz) format directly into a xeokit web viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "LAS",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "LAS"
-    ],
-    "topic": "import.las",
-    "template": "basicPage"
-  },
-  "loadWebIFC_IfcOpenHouse4": {
-    "id": "loadWebIFC_IfcOpenHouse4",
-    "title": "Viewing IFC using loadWebIFC",
-    "description": "In this example, we'll show how to load an IFC model directly into a xeokit web viewer, and then use the IFC data model to set all the window frames green within a given IfcBuildingStorey.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "IFC",
-      "WebIFC",
-      "loadWebIFC",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "IFC"
-    ],
-    "topic": "import.ifc",
-    "template": "basicPage"
-  },
-  "loadXGF_MAP": {
-    "id": "loadXGF_MAP",
-    "title": "Viewing XGF using loadXGF",
-    "description": "How to load an IFC model from XGF (.glb) format directly into a xeokit web viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "XGF",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "XGF"
-    ],
-    "topic": "import.xgf",
-    "template": "basicPage"
-  },
-  "loadXKT_MAP": {
-    "id": "loadXKT_MAP",
-    "title": "Viewing XKT using loadXKT",
-    "description": "How to load an IFC model from XKT (.xkt) format directly into a xeokit web viewer.",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "XKT",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "XKT"
-    ],
-    "topic": "import.xkt",
-    "template": "basicPage"
-  },
-  "webifc2xgf_IfcOpenHouse4": {
-    "id": "webifc2xgf_IfcOpenHouse4",
-    "title": "Importing IFC Converted by webifc2xgf",
-    "description": "How to use webifc2xgf to convert an IFC model to XGF, which we then display in the browser using a xeokit web viewer.",
-    "isTutorial": false,
-    "isVisualTest": true,
-    "tags": [
-      "IFC",
-      "XGF",
-      "webifc2xgf",
-      "_Featured"
-    ],
-    "categories": [
-      "Importing",
-      "IFC"
-    ],
-    "topic": "general",
     "template": "basicPage"
   }
 }

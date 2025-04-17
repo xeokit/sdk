@@ -269,7 +269,7 @@ class HoverEvent {
  *
  * The following examples demonstrate how to subscribe to those events.
  *
- * The first example shows how to save a handle to a subscription, which we can later use to unsubscribe.
+ * The first example shows how to export a handle to a subscription, which we can later use to unsubscribe.
  *
  * ## "hover"
  *

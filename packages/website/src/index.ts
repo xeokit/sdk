@@ -39,16 +39,13 @@ export * as basictypes from "../../sdk/src/basictypes";
 export * as cityjsontypes_1_1_3 from "../../sdk/src/cityjsontypes_1_1_3";
 export * as ifctypes from "../../sdk/src/ifctypes";
 
-// Browser-Friendly Loaders
+// Loaders, Exporters
 
-// Libs like "../../sdk/src/gltf" and "../../sdk/src/las" have dependencies (polyfills) that only work on
-// node.js, so they can't be built into a Browser-loadable library. That doesn't matter,
-// because "../../sdk/src/xgf" can, and serves as xeokit's Browser-friendly model format, where
-// the other formats are intended for offline conversion to XGF anyway.
+export * as io from "../../sdk/src/io";
 
 export * as cityjson from "../../sdk/src/cityjson";
 export * as dotbim from "../../sdk/src/dotbim";
-export * as webifc from "../../sdk/src/webifc";
+export * as ifc from "../../sdk/src/ifc";
 export * as xgf from "../../sdk/src/xgf";
 export * as las from "../../sdk/src/las";
 export * as gltf from "../../sdk/src/gltf";
@@ -69,4 +66,6 @@ export * as contextmenu from "../../sdk/src/contextmenu";
 
 // Converters
 
+export * as modelconverter from "../../sdk/src/modelconverter";
 export * as ifc2gltf2xgf from "../../sdk/src/ifc2gltf2xgf";
+

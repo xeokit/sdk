@@ -1,22 +1,7 @@
 {
   "articles": {
-    "dev-status": {
-      "title": "xeokit SDK: Development Status",
-      "description": "The xeokit SDK supports viewing various AEC file formats through multiple import pipelines. \n\nThe best pipeline to use depends on the source format and file size.\n\nThe table below outlines the recommended pipeline based on format and data size. The best way to view AEC models with xeokit depends on the source format and file size. This guide will help you select the right pipeline based on format and data size.",
-      "tags": [
-        "XGF",
-        "IFC",
-        "DotBIM",
-        "glTF",
-        "CityJSON",
-        "Featured"
-      ],
-      "bannerImage": "wip.jpg",
-      "_thumbnail": "index.png",
-      "topic": "overview"
-    },
     "dotbim2xgf": {
-      "title": "Viewing .BIM using dotbim2xgf and loadXGF",
+      "title": "Viewing .BIM using dotbim2xgf and XGFLoader",
       "description": "How to use dotbim2xgf to convert a .bim file to XGF, which we then display in the browser using a xeokit web viewer.",
       "tags": [
         "XGF",
@@ -26,6 +11,96 @@
       ],
       "_bannerImage": "banner.png",
       "thumbnail": "index.png",
+      "topic": "import.dotbim"
+    },
+    "example_CityJSONLoader_Railway": {
+      "title": "Viewing CityJSON using CityJSONLoader",
+      "description": "How to load a CityJSON model directly into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "CityJSON",
+        "_Featured"
+      ],
+      "topic": "import.cityjson"
+    },
+    "example_DotBIMLoader_BlenderHouse": {
+      "title": "Viewing .BIM using DotBIMLoader",
+      "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "DotBIM"
+      ],
+      "topic": "import.dotbim"
+    },
+    "example_GLTFLoader_MAP": {
+      "title": "Viewing glTF using GLTFLoader",
+      "description": "How to load an IFC model from glTF (.glb) format directly into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "glTF",
+        "_Featured"
+      ],
+      "topic": "import.gltf"
+    },
+    "example_IFCLoader_IfcOpenHouse4": {
+      "title": "Viewing IFC using IFCLoader",
+      "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "IFC",
+        "XGF",
+        "webifc2xgf",
+        "_Featured"
+      ],
+      "topic": "import.ifc"
+    },
+    "example_LASLoader_Pumpkin": {
+      "title": "Viewing a LAZ-encoded LiDAR scan using LASLoader",
+      "description": "How to load a LiDAR scan from LAS (.laz) format directly into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "LAS",
+        "_Featured"
+      ],
+      "topic": "import.las"
+    },
+    "example_ModelConverter_CityJSON_XGF": {
+      "title": "Viewing CityJSON using ModelConverter and XKTLoader",
+      "description": "How to convert a model from CityJSON format into XKT and directly load that into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "CityJSON"
+      ],
+      "topic": "import.cityjson"
+    },
+    "example_ModelConverter_DotBIM_XGF": {
+      "title": "Viewing .BIM using ModelConverter and XKTLoader",
+      "description": "How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "DotBIM"
+      ],
+      "topic": "import.dotbim"
+    },
+    "example_ModelConverter_IFC_XGF": {
+      "title": "Viewing .BIM using ModelConverter and XKTLoader",
+      "description": "How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "DotBIM"
+      ],
       "topic": "import.dotbim"
     },
     "example_SceneModel_DataModel_build_table": {
@@ -149,9 +224,9 @@
       ],
       "topic": "viewer.view.viewlayer"
     },
-    "example_View_multiView_SceneModel_build_table": {
-      "title": "Creating a 3D Model and Viewing it in Multiple Canvases",
-      "description": "",
+    "example_View_multiView_IFCLoader": {
+      "title": "Viewing an IFC model in multiple Views",
+      "description": "In this example, we'll use the xeokit SDK to view an IFC file within multiple canvases in the browser",
       "tags": [
         "Tutorial",
         "Example",
@@ -159,9 +234,9 @@
       ],
       "topic": "general"
     },
-    "example_View_multiView_loadWebIFC": {
-      "title": "Viewing an IFC model in multiple Views",
-      "description": "In this example, we'll use the xeokit SDK to view an IFC file within multiple canvases in the browser",
+    "example_View_multiView_SceneModel_build_table": {
+      "title": "Creating a 3D Model and Viewing it in Multiple Canvases",
+      "description": "",
       "tags": [
         "Tutorial",
         "Example",
@@ -198,65 +273,8 @@
       ],
       "topic": "viewer.configuration"
     },
-    "example_loadCityJSON_Railway": {
-      "title": "Viewing CityJSON using loadCityJSON",
-      "description": "How to load a CityJSON model directly into a xeokit web viewer.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "CityJSON",
-        "_Featured"
-      ],
-      "topic": "import.cityjson"
-    },
-    "example_loadDotBIM_BlenderHouse": {
-      "title": "Viewing .BIM using loadDotBIM",
-      "description": "How to load an IFC model from dotbim (.bim) format directly into a xeokit web viewer.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "Importing",
-        "DotBIM"
-      ],
-      "topic": "import.dotbim"
-    },
-    "example_loadGLTF_MAP": {
-      "title": "Viewing glTF using loadGLTF",
-      "description": "How to load an IFC model from glTF (.glb) format directly into a xeokit web viewer.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "glTF",
-        "_Featured"
-      ],
-      "topic": "import.gltf"
-    },
-    "example_loadLAS_Pumpkin": {
-      "title": "Viewing a LAZ-encoded LiDAR scan using loadLAS",
-      "description": "How to load a LiDAR scan from LAS (.laz) format directly into a xeokit web viewer.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "LAS",
-        "_Featured"
-      ],
-      "topic": "import.las"
-    },
-    "example_loadWebIFC_IfcOpenHouse4": {
-      "title": "Viewing IFC using loadWebIFC",
-      "description": "In this example, we'll show how to load an IFC model directly into a xeokit web viewer, and then use the IFC data model to set all the window frames green within a given IfcBuildingStorey.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "IFC",
-        "WebIFC",
-        "loadWebIFC",
-        "_Featured"
-      ],
-      "topic": "import.ifc"
-    },
-    "example_loadXGF_MAP": {
-      "title": "Viewing XGF using loadXGF",
+    "example_XGFLoader_MAP": {
+      "title": "Viewing XGF using XGFLoader",
       "description": "How to load an IFC model from XGF (.glb) format directly into a xeokit web viewer.",
       "tags": [
         "Tutorial",
@@ -266,8 +284,8 @@
       ],
       "topic": "import.xgf"
     },
-    "example_loadXKT_MAP": {
-      "title": "Viewing XKT using loadXKT",
+    "example_XKTLoader_MAP": {
+      "title": "Viewing XKT using XKTLoader",
       "description": "How to load an IFC model from XKT (.xkt) format directly into a xeokit web viewer.",
       "tags": [
         "Tutorial",
@@ -278,7 +296,7 @@
       "topic": "import.xkt"
     },
     "gltf2xgf": {
-      "title": "Viewing glTF using gltf2xgf and loadXGF",
+      "title": "Viewing glTF using gltf2xgf and XGFLoader",
       "description": "How to use the gltf2xgf CLI tool to convert a glTF model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>XGF can load certain AEC models faster than glTF.",
       "tags": [
         "XGF",
@@ -289,7 +307,7 @@
       "topic": "import.gltf"
     },
     "ifc2gltf": {
-      "title": "Viewing IFC using ifc2gltf and loadGLTF",
+      "title": "Viewing IFC using ifc2gltf and GLTFLoader",
       "description": "How to use the ifc2gltf CLI tool to convert an IFC model to glTF format, and then display the glTF in a xeokit web viewer.",
       "tags": [
         "XGF",
@@ -302,7 +320,7 @@
       "topic": "import.ifc"
     },
     "ifc2gltf2xgf": {
-      "title": "Viewing IFC using ifc2gltf, ifc2gltf2xgf and loadXGF",
+      "title": "Viewing IFC using ifc2gltf, ifc2gltf2xgf and XGFLoader",
       "description": "How to chain the ifc2gltf and ifc2gltf2xgf CLI tools together to convert an IFC model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>XGF can load certain AEC models faster than glTF. This pipeline is our most performant option for larger IFC models.",
       "tags": [
         "XGF",
@@ -315,12 +333,12 @@
       "topic": "import.ifc"
     },
     "las2xgf": {
-      "title": "Viewing LAZ using las2xgf and loadLAS",
-      "description": "How to use the las2xgf CLI tool to convert a LAZ model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>XGF can load certain AEC models faster than glTF.",
+      "title": "Viewing LAZ using xeoconvert and XGFLoader",
+      "description": "How to use the xeoconvert CLI tool to convert a LAZ model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>XGF can load certain AEC models faster than glTF.",
       "tags": [
         "XGF",
         "LAS",
-        "las2xgf"
+        "xeoconvert"
       ],
       "thumbnail": "thumb.png",
       "topic": "import.las"
@@ -394,7 +412,7 @@
       ]
     },
     "webifc2xgf": {
-      "title": "Viewing IFC using webifc2xgf and loadXGF",
+      "title": "Viewing IFC using webifc2xgf and XGFLoader",
       "description": "How to use the webifc2xgf CLI tool to convert an IFC model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>We recommend this pipeline for only for small-to-medium size IFC files.",
       "tags": [
         "XGF",
@@ -420,9 +438,9 @@
   },
   "tagsToArticlesMap": {
     "XGF": [
-      "dev-status",
       "dotbim2xgf",
-      "example_loadXGF_MAP",
+      "example_IFCLoader_IfcOpenHouse4",
+      "example_XGFLoader_MAP",
       "gltf2xgf",
       "ifc2gltf",
       "ifc2gltf2xgf",
@@ -431,42 +449,32 @@
       "webifc2xgf"
     ],
     "IFC": [
-      "dev-status",
       "dotbim2xgf",
-      "example_loadWebIFC_IfcOpenHouse4",
+      "example_IFCLoader_IfcOpenHouse4",
       "ifc2gltf",
       "ifc2gltf2xgf",
       "overview-pipelines",
       "webifc2xgf"
     ],
     "DotBIM": [
-      "dev-status",
       "dotbim2xgf",
-      "example_loadDotBIM_BlenderHouse",
+      "example_DotBIMLoader_BlenderHouse",
+      "example_ModelConverter_DotBIM_XGF",
+      "example_ModelConverter_IFC_XGF",
       "overview-pipelines"
-    ],
-    "glTF": [
-      "dev-status",
-      "example_loadGLTF_MAP",
-      "gltf2xgf",
-      "ifc2gltf",
-      "ifc2gltf2xgf",
-      "overview-pipelines"
-    ],
-    "CityJSON": [
-      "dev-status",
-      "example_loadCityJSON_Railway",
-      "overview-pipelines"
-    ],
-    "Featured": [
-      "dev-status",
-      "overview-pipelines",
-      "whitepaper"
     ],
     "dotbim2xgf": [
       "dotbim2xgf"
     ],
     "Tutorial": [
+      "example_CityJSONLoader_Railway",
+      "example_DotBIMLoader_BlenderHouse",
+      "example_GLTFLoader_MAP",
+      "example_IFCLoader_IfcOpenHouse4",
+      "example_LASLoader_Pumpkin",
+      "example_ModelConverter_CityJSON_XGF",
+      "example_ModelConverter_DotBIM_XGF",
+      "example_ModelConverter_IFC_XGF",
       "example_SceneModel_DataModel_build_table",
       "example_SceneModel_DataModel_fromParams_IfcOpenHouse4",
       "example_SceneModel_build_box",
@@ -480,20 +488,23 @@
       "example_ViewLayer_manual",
       "example_ViewLayer_multiView",
       "example_ViewLayer_multiView_lighting",
+      "example_View_multiView_IFCLoader",
       "example_View_multiView_SceneModel_build_table",
-      "example_View_multiView_loadWebIFC",
       "example_Viewer_fromParams",
       "example_Viewer_getCapabilities",
       "example_Viewer_toParams",
-      "example_loadCityJSON_Railway",
-      "example_loadDotBIM_BlenderHouse",
-      "example_loadGLTF_MAP",
-      "example_loadLAS_Pumpkin",
-      "example_loadWebIFC_IfcOpenHouse4",
-      "example_loadXGF_MAP",
-      "example_loadXKT_MAP"
+      "example_XGFLoader_MAP",
+      "example_XKTLoader_MAP"
     ],
     "Example": [
+      "example_CityJSONLoader_Railway",
+      "example_DotBIMLoader_BlenderHouse",
+      "example_GLTFLoader_MAP",
+      "example_IFCLoader_IfcOpenHouse4",
+      "example_LASLoader_Pumpkin",
+      "example_ModelConverter_CityJSON_XGF",
+      "example_ModelConverter_DotBIM_XGF",
+      "example_ModelConverter_IFC_XGF",
       "example_SceneModel_DataModel_build_table",
       "example_SceneModel_DataModel_fromParams_IfcOpenHouse4",
       "example_SceneModel_build_box",
@@ -507,31 +518,52 @@
       "example_ViewLayer_manual",
       "example_ViewLayer_multiView",
       "example_ViewLayer_multiView_lighting",
+      "example_View_multiView_IFCLoader",
       "example_View_multiView_SceneModel_build_table",
-      "example_View_multiView_loadWebIFC",
       "example_Viewer_fromParams",
       "example_Viewer_getCapabilities",
       "example_Viewer_toParams",
-      "example_loadCityJSON_Railway",
-      "example_loadDotBIM_BlenderHouse",
-      "example_loadGLTF_MAP",
-      "example_loadLAS_Pumpkin",
-      "example_loadWebIFC_IfcOpenHouse4",
-      "example_loadXGF_MAP",
-      "example_loadXKT_MAP"
+      "example_XGFLoader_MAP",
+      "example_XKTLoader_MAP"
+    ],
+    "CityJSON": [
+      "example_CityJSONLoader_Railway",
+      "example_ModelConverter_CityJSON_XGF",
+      "overview-pipelines"
     ],
     "_Featured": [
+      "example_CityJSONLoader_Railway",
+      "example_GLTFLoader_MAP",
+      "example_IFCLoader_IfcOpenHouse4",
+      "example_LASLoader_Pumpkin",
       "example_SceneModel_DataModel_build_table",
       "example_SceneModel_build_table",
       "example_SceneModel_fromParams_table",
+      "example_View_multiView_IFCLoader",
       "example_View_multiView_SceneModel_build_table",
-      "example_View_multiView_loadWebIFC",
-      "example_loadCityJSON_Railway",
-      "example_loadGLTF_MAP",
-      "example_loadLAS_Pumpkin",
-      "example_loadWebIFC_IfcOpenHouse4",
-      "example_loadXGF_MAP",
-      "example_loadXKT_MAP"
+      "example_XGFLoader_MAP",
+      "example_XKTLoader_MAP"
+    ],
+    "Importing": [
+      "example_DotBIMLoader_BlenderHouse",
+      "example_ModelConverter_CityJSON_XGF",
+      "example_ModelConverter_DotBIM_XGF",
+      "example_ModelConverter_IFC_XGF"
+    ],
+    "glTF": [
+      "example_GLTFLoader_MAP",
+      "gltf2xgf",
+      "ifc2gltf",
+      "ifc2gltf2xgf",
+      "overview-pipelines"
+    ],
+    "webifc2xgf": [
+      "example_IFCLoader_IfcOpenHouse4",
+      "webifc2xgf"
+    ],
+    "LAS": [
+      "example_LASLoader_Pumpkin",
+      "las2xgf"
     ],
     "SDK": [
       "example_SceneModel_build_box"
@@ -544,21 +576,8 @@
       "sceneModelBuildTable",
       "viewerGetJSON"
     ],
-    "Importing": [
-      "example_loadDotBIM_BlenderHouse"
-    ],
-    "LAS": [
-      "example_loadLAS_Pumpkin",
-      "las2xgf"
-    ],
-    "WebIFC": [
-      "example_loadWebIFC_IfcOpenHouse4"
-    ],
-    "loadWebIFC": [
-      "example_loadWebIFC_IfcOpenHouse4"
-    ],
     "XKT": [
-      "example_loadXKT_MAP"
+      "example_XKTLoader_MAP"
     ],
     "gltf2xgf": [
       "gltf2xgf"
@@ -570,8 +589,12 @@
     "ifc2gltf2xgf": [
       "ifc2gltf2xgf"
     ],
-    "las2xgf": [
+    "xeoconvert": [
       "las2xgf"
+    ],
+    "Featured": [
+      "overview-pipelines",
+      "whitepaper"
     ],
     "Beginner": [
       "sceneModelBuildBox",
@@ -605,9 +628,6 @@
     ],
     "ViewerParams": [
       "viewerGetJSON"
-    ],
-    "webifc2xgf": [
-      "webifc2xgf"
     ]
   }
 }

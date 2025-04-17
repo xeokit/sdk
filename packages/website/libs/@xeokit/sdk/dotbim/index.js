@@ -15,7 +15,7 @@
  * .BIM is an open-source and minimalist file format for BIM that's built to be easy to read and write. Essentially, .BIM
  * is a transfer format that contains triangulated meshes with a dictionary of information attached to them.
  *
- * To import a .BIM model into xeokit, simply use the {@link loadDotBIM} function, which will load the file into both
+ * To import a .BIM model into xeokit, simply use the {@link DotBIMLoader} function, which will load the file into both
  * a {@link scene!SceneModel | SceneModel} and a {@link data!DataModel | DataModel}.
  *
  * <br>
@@ -44,14 +44,14 @@
  * create a {@link data!DataModel | DataModel} to hold semantic IFC data, which includes IFC elements and property sets.
  *
  * We will then use
- * {@link dotbim!loadDotBIM | loadDotBIM} to load a .BIM file into our SceneModel and DataModel.
+ * {@link dotbim!DotBIMLoader | DotBIMLoader} to load a .BIM file into our SceneModel and DataModel.
  *
  * The {@link core!SDKError | SDKError} class will be used to handle any errors that may occur during this process.
  *
  * * [Run this example]()
  *
  * ````javascript
- * import {SDKError, Scene, WebGLRenderer, Viewer, CameraControl, loadDotBIM} from "@xeokit/sdk/dotbim";
+ * import {SDKError, Scene, WebGLRenderer, Viewer, CameraControl, DotBIMLoader} from "@xeokit/sdk/dotbim";
  *
  * const scene = new Scene();
  * const data = new Data();
@@ -87,7 +87,7 @@
  *
  *    response.json().then(fileData => {
  *
- *        loadDotBIM({
+ *        DotBIMLoader({
  *           fileData,
  *           sceneModel,
  *           dataModel
@@ -114,11 +114,11 @@
  *
  * ````
  *
- * Using {@link dotbim!saveDotBIM | saveDotBIM} to export the {@link scene!SceneModel | SceneModel} and
+ * Using {@link dotbim!DotBIMExporter | DotBIMExporter} to export the {@link scene!SceneModel | SceneModel} and
  * {@link data!DataModel | DataModel} back to a .BIM file:
  *
  * ````javascript
- * const dotBIMJSON = saveXGF({
+ * const dotBIMJSON = XKFWriter.write({
  *     sceneModel,
  *     dataModel
  * });
@@ -126,6 +126,6 @@
  *
  * @module dotbim
  */
-export * from "./loadDotBIM";
-export * from "./saveDotBIM";
+export * from "./DotBIMLoader";
+export * from "./DotBIMExporter";
 //# sourceMappingURL=index.js.map

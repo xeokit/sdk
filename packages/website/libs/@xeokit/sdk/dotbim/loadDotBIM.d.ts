@@ -28,7 +28,7 @@ import { FloatArrayParam } from "../math";
  * - If the DataModel has already been destroyed.
  * - If the DataModel has already been built.
  */
-export declare function loadDotBIM(params: {
+export declare function DotBIMLoader(params: {
     fileData: any;
     sceneModel?: SceneModel;
     dataModel?: DataModel;
@@ -36,4 +36,4 @@ export declare function loadDotBIM(params: {
     translate?: FloatArrayParam;
     error?: (errMsg: string) => void;
 }): Promise<any>;
-//# sourceMappingURL=loadDotBIM.d.ts.map
+//# sourceMappingURL=DotBIMLoader.d.ts.map

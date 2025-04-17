@@ -45,14 +45,14 @@ export interface SaveBCFViewpointParams {
      */
     spacesVisible?: boolean;
     /**
-     * The {@link viewer!View | View} to save as a BCF viewpoint.
+     * The {@link viewer!View | View} to export as a BCF viewpoint.
      *
-     * This will save component states in the BCF (see {@link BCFComponents}) for all
+     * This will export component states in the BCF (see {@link BCFComponents}) for all
      * {@link viewer!ViewObject | ViewObjects} in this View.
      */
     view: View;
     /**
-     * Only save BCF viewpoint components if their corresponding {@link viewer!ViewObject | ViewObjects}
+     * Only export BCF viewpoint components if their corresponding {@link viewer!ViewObject | ViewObjects}
      * are in {@link viewer!ViewLayer | ViewLayers} that match these IDs.
      *
      * The {@link saveBCFViewpoint | saveBCFViewpoint} function will silently ignore each component state that has no corresponding
@@ -63,7 +63,7 @@ export interface SaveBCFViewpointParams {
      */
     includeViewLayerIds?: string[];
     /**
-     * Never save BCF viewpoint components if their corresponding {@link viewer!ViewObject | ViewObjects}
+     * Never export BCF viewpoint components if their corresponding {@link viewer!ViewObject | ViewObjects}
      * are in {@link viewer!ViewLayer |ViewLayers} that have the given IDs.
      *
      * The {@link saveBCFViewpoint | saveBCFViewpoint} function will silently ignore each component state that has a corresponding

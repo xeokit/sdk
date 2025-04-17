@@ -3,8 +3,8 @@
 import {Data, DataModel} from "../data";
 import {Scene, SceneModel} from "../scene";
 import {SDKError} from "../core";
-import {loadDotBIM} from "../dotbim";
-import {saveXGF, SAVED_XGF_VERSIONS, DEFAULT_SAVED_XGF_VERSION} from "../xgf";
+import {DotBIMLoader} from "../dotbim";
+import {XKFWriter, SAVED_XGF_VERSIONS, DEFAULT_SAVED_XGF_VERSION} from "../xgf";
 
 /**
  * @private
@@ -36,14 +36,14 @@ function dotbim2xgf(params: {
                 if (dataModel instanceof SDKError) {
                     return reject(dataModel.message);
                 } else {
-                    loadDotBIM({
+                    DotBIMLoader({
                         fileData,
                         dataModel,
                         sceneModel
                     }).then(() => {
                         sceneModel.build().then(() => {
                             dataModel.build().then(() => {
-                                const xgfArrayBuffer = saveXGF({
+                                const xgfArrayBuffer = XKFWriter.write({
                                     sceneModel,
                                     xgfVersion
                                 });
@@ -69,12 +69,12 @@ function dotbim2xgf(params: {
                     });
                 }
             } else {   // Don't create DataModel
-                loadDotBIM({
+                DotBIMLoader({
                     fileData,
                     sceneModel
                 }).then(() => {
                     sceneModel.build().then(() => {
-                        const xgfArrayBuffer = saveXGF({
+                        const xgfArrayBuffer = XKFWriter.write({
                             sceneModel,
                             xgfVersion
                         });

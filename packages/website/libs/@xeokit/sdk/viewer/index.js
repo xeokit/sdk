@@ -77,7 +77,7 @@
  * import {KTX2TextureTranscoder} from "@xeokit/sdk/ktx2";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/sdk/constants";
  * import {CameraControl} from "@xeokit/sdk/cameracontrol";
- * import {loadXGF} from "@xeokit/sdk/xgf";
+ * import {XGFLoader} from "@xeokit/sdk/xgf";
  * ````
  *
  * <br>
@@ -308,7 +308,7 @@
  *
  * ## Creating ViewLayers
  *
- * Sometimes we want to create SceneModels whose objects will never be included in any BCF viewpoints that we save, and
+ * Sometimes we want to create SceneModels whose objects will never be included in any BCF viewpoints that we export, and
  * will never be disturbed by any viewpoints that we load.
  *
  * An example of such a case is a skybox, which we'd never want included in any BCF viewpoints, or hidden
@@ -361,7 +361,7 @@
  *         response
  *             .json()
  *             .then(fileData => {
- *                 loadDotBIM({
+ *                 DotBIMLoader({
  *                     fileData,
  *                     sceneModel2
  *                 })
@@ -384,7 +384,7 @@
  * ## Saving SceneModels
  *
  * ````javascript
- * const fileData = saveDotBIM({
+ * const fileData = DotBIMExporter({
  *      sceneModel
  * });
  * ````
@@ -437,7 +437,7 @@
  *
  *
  * TODO
- * Now we can save that View as a BCF viewpoint that will never include our skybox objects:
+ * Now we can export that View as a BCF viewpoint that will never include our skybox objects:
  *
  * ````javascript
  * const bcfViewpointAgain = saveBCFViewpoint({

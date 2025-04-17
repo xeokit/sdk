@@ -1,0 +1,17 @@
+{
+  "id": "ModelConverter_CityJSON_XGF",
+  "title": "Viewing CityJSON using ModelConverter and XKTLoader",
+  "description": "How to convert a model from CityJSON format into XKT and directly load that into a xeokit web viewer.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [
+    "Importing",
+    "CityJSON"
+  ],
+  "categories": [
+    "Importing",
+    "CityJSON"
+  ],
+  "topic": "import.cityjson",
+  "template": "basicPage"
+}

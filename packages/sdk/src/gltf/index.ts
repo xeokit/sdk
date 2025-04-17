@@ -15,7 +15,7 @@
  * glTF is a compact and efficient format designed for fast loading and rendering in applications and web browsers. It stores geometry, materials,
  * textures, animations, and scene hierarchy. Open and royalty-free, it has become the go-to format for 3D content distribution and exchange.
  *
- * To import a glTF model into xeokit, use the {@link loadGLTF} function, which loads the file into
+ * To import a glTF model into xeokit, use the {@link GLTFLoader | GLTFLoader} class, which loads the file into
  * a {@link scene!SceneModel | SceneModel}. The function also provides the option to load a basic
  * data model into a {@link data!DataModel | DataModel}, to describe the hierarchy of the `nodes` in the glTF `scene`.
  *
@@ -41,7 +41,7 @@
  * The example also creates a single {@link viewer!View | View} to render the model to a canvas element on the page,
  * and attaches a {@link cameracontrol!CameraControl | CameraControl} to control the camera using mouse and touch input.
  *
- * Within the Scene, a {@link scene!SceneModel | SceneModel} is created to hold the model. Then, the {@link gltf!loadGLTF | loadGLTF} function
+ * Within the Scene, a {@link scene!SceneModel | SceneModel} is created to hold the model. Then, the {@link gltf!GLTFLoader | GLTFLoader} class
  * is used to load a binary glTF (GLB) file into the SceneModel.
  *
  * The {@link core!SDKError | SDKError} class is used to handle any errors during this process.
@@ -53,7 +53,7 @@
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {CameraControl} from "@xeokit/sdk/cameracontrol";
- * import {loadGLTF} from "@xeokit/sdk/gltf";
+ * import {GLTFLoader} from "@xeokit/sdk/gltf";
  *
  * const scene = new Scene();
  * const data = new Data();
@@ -85,11 +85,13 @@
  *     id: "myModel"
  * });
  *
+ * const glTFLoader = new GLTFLoader();
+ *
  * fetch("model.glb").then(response => {
  *
  *     response.arrayBuffer().then(fileData => {
  *
- *        loadGLTF({
+ *        glTFLoader.load({
  *            fileData,
  *            sceneModel,
  *            dataModel
@@ -114,4 +116,4 @@
  *
  * @module gltf
  */
-export * from "./loadGLTF";
+export * from "./GLTFLoader";

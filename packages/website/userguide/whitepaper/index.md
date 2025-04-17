@@ -105,7 +105,7 @@ The xeokit SDK supports a wide range of AEC industry use cases:
 <a name="4-features"></a>
 ## 4. Features
 Key features of the xeokit SDK include:
-- **Advanced AEC Graphics Toolkit:** Build, load, convert, save, view, and interact with 3D models.
+- **Advanced AEC Graphics Toolkit:** Build, load, convert, export, view, and interact with 3D models.
 - **Multi-Model Viewing:** Simultaneously display multiple federated models.
 - **Multi-Format Support:** Handles IFC, glTF, LAS/LAZ, CityJSON, XKT, XGF, .BIM, and more.
 - **Multi-Canvas Support:** Configure different view canvases independently.
@@ -146,7 +146,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td rowspan="2" style="background-color:#90ee9073">0MB - 10MB</td>
       <td>Load Directly</td>
       <td>
-        <a href="@@base/userguide/example_loadWebIFC_IfcOpenHouse4/">Viewing IFC using loadWebIFC</a>
+        <a href="@@base/userguide/example_IFCLoader_IfcOpenHouse4/">Viewing IFC using IFCLoader</a>
       </td>
     </tr>
     <tr>
@@ -175,7 +175,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td rowspan="1" style="background-color:#90ee9073">Small</td>
       <td>Load Directly</td>
       <td>
-        <a href="@@base/userguide/example_loadGLTF_MAP/">Viewing glTF using loadGLTF</a>
+        <a href="@@base/userguide/example_GLTFLoader_MAP/">Viewing glTF using GLTFLoader</a>
       </td>
     </tr>
     <tr>
@@ -189,7 +189,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td rowspan="2"><b style="font-size: 20px;">.BIM</b></td>
       <td style="background-color:#90ee9073">Small</td>
       <td>Load Directly</td>
-      <td><a href="@@base/userguide/example_loadDotBIM_BlenderHouse/">Viewing .BIM using loadDotBIM</a>
+      <td><a href="@@base/userguide/example_loadDotBIM_BlenderHouse/">Viewing .BIM using DotBIMLoader</a>
       </td>
     </tr>
     <tr>
@@ -204,7 +204,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td style="background-color:#90ee9073">All Sizes</td>
       <td>Load Directly</td>
       <td>
-        <a href="@@base/userguide/example_loadCityJSON_Railway/">Viewing CityJSON using loadCityJSON</a>
+        <a href="@@base/userguide/example_CityJSONLoader_Railway/">Viewing CityJSON using CityJSONLoader</a>
       </td>
     </tr>
     <tr>
@@ -212,7 +212,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td style="background-color:#90ee9073">All Sizes</td>
       <td>Load Directly</td>
       <td>
-        <a href="@@base/userguide/example_loadLAS_Pumpkin/">Viewing LAS/LAZ using loadLAS</a>
+        <a href="@@base/userguide/example_LASLoader_Pumpkin/">Viewing LAS/LAZ using LASLoader</a>
       </td>
     </tr>
     <tr>
@@ -225,7 +225,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td><b style="font-size: 20px;">XGF</b></td>
       <td style="background-color:#90ee9073">All Sizes</td>
       <td>Load Directly</td>
-      <td><a href="@@base/userguide/example_loadXGF_MAP/">Viewing XGF using loadXGF</a></td>
+      <td><a href="@@base/userguide/example_XGFLoader_MAP/">Viewing XGF using XGFLoader</a></td>
     </tr>
   </tbody>
 </table>
@@ -244,7 +244,7 @@ Main modules include:
 - **Scene** – Manages 3D model objects.
 - **Data** – Provides a searchable entity-relationship data model.
 - **Viewer** – Enables interactive 3D model visualization.
-- **Importers/Exporters** – Load and save various AECO formats.
+- **Importers/Exporters** – Load and export various AECO formats.
 - **Converters** – CLI tools to convert models to an optimized format.
 - **BCF Support** – Tools for BIM collaboration.
 - **Collision Detection** – Utilities for frustum culling, ray-picking, etc.
@@ -332,7 +332,7 @@ These functions allow sharing viewer state as industry-standard BCF Viewpoints f
 
 | Module | Description |
 |--------|-------------|
-| [`@xeokit/sdk/bcf`](https://xeokit.github.io/sdk/api-docs.html#https://xeokit.github.io/sdk/docs/api/modules/bcf.html) | Load and save BCF |
+| [`@xeokit/sdk/bcf`](https://xeokit.github.io/sdk/api-docs.html#https://xeokit.github.io/sdk/docs/api/modules/bcf.html) | Load and export BCF |
 
 ---
 
@@ -377,19 +377,19 @@ A collection of low-level utility libraries used throughout the SDK.
 <br>
 
 <a name="71-example-view-an-ifc-model-and-hide-all-ifcspaces"></a>
-### 7.1. Example: example-title:loadWebIFC_IfcOpenHouse4
+### 7.1. Example: example-title:IFCLoader_IfcOpenHouse4
 
-example-description:loadWebIFC_IfcOpenHouse4  
+example-description:IFCLoader_IfcOpenHouse4  
 
 <br>
 
-example-run:loadWebIFC_IfcOpenHouse4
+example-run:IFCLoader_IfcOpenHouse4
 
 #### HTML
 
 Create an HTML page in `index.html` that contains a canvas element:  
 
-example-html:loadWebIFC_IfcOpenHouse4
+example-html:IFCLoader_IfcOpenHouse4
 
 #### JavaScript
 
@@ -397,7 +397,7 @@ Then create JavaScript in `index.js` to create the doc:Viewer and view our conve
 
 The steps in the JavaScript are as follows:  
 
-example-javascript:loadWebIFC_IfcOpenHouse4
+example-javascript:IFCLoader_IfcOpenHouse4
 
 --- 
 

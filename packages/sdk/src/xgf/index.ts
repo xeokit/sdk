@@ -13,8 +13,8 @@
  * ([XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf)), xeokit's
  * compact binary-encoded runtime asset delivery format for {@link scene!SceneModel | SceneModel} data.
  *
- * To import a [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) model into xeokit, use the {@link loadXGF} function, which will load the file into
- * a {@link scene!SceneModel | SceneModel}. To export a [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) model, use the {@link saveXGF} function, which will save a
+ * To import a [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) model into xeokit, use {@link xgf!XGFLoader | XGFLoader}, which will load the file into
+ * a {@link scene!SceneModel | SceneModel}. To export a [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) model, use the {@link xgf!XGFExporter | XGFExporter}, which will export a
  * {@link scene!SceneModel | SceneModel} to [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf).
  *
  * <br>
@@ -38,17 +38,17 @@
  * also attach a {@link cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
  *
  * Within the Scene, we will create a {@link scene!SceneModel | SceneModel} to hold a model. We will then use
- * {@link xgf!loadXGF | loadXGF} to load
- * a [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) file into our SceneModel.
- *
- * * [Run this example]()
+ * {@link xgf!XGFLoader | XGFLoader} to load
+ * an [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) file into our SceneModel.
  *
  * ````javascript
  * import {Scene} from "@xeokit/sdk/scene";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {CameraControl} from "@xeokit/sdk/cameracontrol";
- * import {loadXGF, saveXGF} from "@xeokit/sdk/xgf";
+ * import {XGFLoader, XGFExporter} from "@xeokit/sdk/xgf";
+ *
+ * const xgfLoader = new XGFLoader();
  *
  * const scene = new Scene();
  *
@@ -79,17 +79,15 @@
  *
  *     response.arrayBuffer().then(fileData => {
  *
- *         loadXGF({
- *             fileData,
- *             sceneModel
- *         }).then(() => {
+ *         xgfLoader.load({
+ *              fileData,
+ *              sceneModel
  *
+ *         }).then(() => {
  *              sceneModel.build();
  *
  *         }).catch(err => {
- *
  *              sceneModel.destroy();
- *
  *              console.error(`Error loading XGF: ${err}`);
  *         });
  *
@@ -102,17 +100,23 @@
  * });
  * ````
  *
- * Using {@link xgf!saveXGF | saveXGF} to export the {@link scene!SceneModel | SceneModel} back to
+ * Using {@link xgf!XGFExporter | XGFExporter} to export the {@link scene!SceneModel | SceneModel} back to
  * [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf):
  *
  * ````javascript
- * const arrayBuffer = saveXGF({
- *     sceneModel
+ *
+ * const xgfExporter = new XGFExporter();
+ *
+ * xgfExporter.export({
+ *      sceneModel
+ * }).then((arrayBuffer)=>{
+ *      //
+ * }).catch(err => {
+ *      console.error(`Error writing XGF: ${err}`);
  * });
  * ````
  *
  * @module xgf
  */
-export * from "./loadXGF";
-export * from "./saveXGF";
-export * from "./versions/v1/XGFData_v1";
+export * from "./XGFLoader";
+export * from "./XGFExporter";

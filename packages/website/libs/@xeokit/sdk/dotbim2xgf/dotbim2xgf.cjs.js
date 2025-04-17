@@ -47,14 +47,14 @@ function dotbim2xgf(params) {
         if (dataModel instanceof import_core.SDKError) {
           return reject(dataModel.message);
         } else {
-          (0, import_dotbim.loadDotBIM)({
+          (0, import_dotbim.DotBIMLoader)({
             fileData,
             dataModel,
             sceneModel
           }).then(() => {
             sceneModel.build().then(() => {
               dataModel.build().then(() => {
-                const xgfArrayBuffer = (0, import_xgf.saveXGF)({
+                const xgfArrayBuffer = (0, import_xgf.XKFWriter)({
                   sceneModel,
                   xgfVersion
                 });
@@ -80,12 +80,12 @@ function dotbim2xgf(params) {
           });
         }
       } else {
-        (0, import_dotbim.loadDotBIM)({
+        (0, import_dotbim.DotBIMLoader)({
           fileData,
           sceneModel
         }).then(() => {
           sceneModel.build().then(() => {
-            const xgfArrayBuffer = (0, import_xgf.saveXGF)({
+            const xgfArrayBuffer = (0, import_xgf.XKFWriter)({
               sceneModel,
               xgfVersion
             });

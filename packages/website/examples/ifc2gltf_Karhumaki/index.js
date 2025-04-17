@@ -76,15 +76,15 @@ demoHelper.init()
 
                         const modelChunksManifest = xeokit.ifc2gltf2xgf.convertIfc2gltfManifest(ifc2gltfManifest);
 
-                        // Create a ModelChunksLoader, equipped with loadGLTF and loadMetaModel.
+                        // Create a ModelChunksLoader, equipped with a GLTFLoader and MetaModelLoader.
 
                         const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
-                            sceneModelLoader: xeokit.gltf.loadGLTF,
-                            dataModelLoader: xeokit.metamodel.loadMetaModel
+                            sceneModelLoader: new xeokit.gltf.GLTFLoader(),
+                            dataModelLoader: new xeokit.metamodel.MetaModelReader()
                         });
 
                         // Use the ModelChunksLoader to load the glTF
-                        // and JSON files listed in the ModelChunksManifestParams.  The ModelChunksLoader will use loadGLTF to
+                        // and JSON files listed in the ModelChunksManifestParams.  The ModelChunksLoader will use GLTFLoader to
                         // load each glTF file into the SceneModel, and loadMetaModel to load each JSON MetaModelParams
                         // file into the DataModel.
 

@@ -397,12 +397,12 @@
  *
  * We can export SceneModels to several file formats.
  *
- * For example, let's use {@link dotbim!saveDotBIM | saveDotBIM} to save our SceneModel to .BIM format:
+ * For example, let's use {@link dotbim!DotBIMExporter | DotBIMExporter} to export our SceneModel to .BIM format:
  *
  * ````javascript
- * import {loadDotBIM} from "@xeokit/sdk/dotbim";
+ * import {DotBIMLoader} from "@xeokit/sdk/dotbim";
  *
- * const fileData = saveDotBIM({ // ArrayBuffer
+ * const fileData = DotBIMExporter({ // ArrayBuffer
  *      sceneModel
  * });
  * ````
@@ -413,10 +413,10 @@
  *
  * We can also import SceneModels from several file formats.
  *
- * For example, let's use {@link dotbim!loadDotBIM | loadDotBIM} to load a .BIM file into a new SceneModel:
+ * For example, let's use {@link dotbim!DotBIMLoader | DotBIMLoader} to load a .BIM file into a new SceneModel:
  *
  * ````javascript
- * import {loadDotBIM} from "@xeokit/sdk/dotbim";
+ * import {DotBIMLoader} from "@xeokit/sdk/dotbim";
  *
  * const sceneModel2 = scene.createModel({
  *     id: "mySceneModel2"
@@ -427,7 +427,7 @@
  *         response
  *             .json()
  *             .then(fileData => {
- *                 loadDotBIM({
+ *                 DotBIMLoader({
  *                     fileData,
  *                     sceneModel2
  *                 })
@@ -510,3 +510,6 @@ export * from "./SceneModelStreamParams";
 export * from "./SceneModelStreamLayerParams";
 
 export * from "./buildMat4"
+
+export * from "./SceneModelParamsLoader";
+export * from "./SceneModelParamsExporter";

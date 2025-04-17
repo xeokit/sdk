@@ -21,8 +21,8 @@ import { SceneModel } from "../scene";
  * - If the {@link data!DataModel | DataModel} has already been destroyed.
  * - If the {@link data!DataModel | DataModel} has not yet been built.
  */
-export declare function saveDotBIM(params: {
+export declare function DotBIMWriter(params: {
     sceneModel: SceneModel;
     dataModel?: DataModel;
 }): Object;
-//# sourceMappingURL=saveDotBIM.d.ts.map
+//# sourceMappingURL=DotBIMExporter.d.ts.map

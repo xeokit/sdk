@@ -1,7 +1,7 @@
 import { SceneModel } from "../scene";
 import { DataModel } from "../data";
 /**
- * The XGF versions supported by {@link xgf!loadXGF | loadXGF}.
+ * The XGF versions supported by {@link xgf!XGFLoader | XGFLoader}.
  */
 export declare const LOADED_XGF_VERSIONS: number[];
 /**
@@ -24,9 +24,9 @@ export declare const LOADED_XGF_VERSIONS: number[];
  * * If the DataModel has already been destroyed.
  * * If the DataModel has already been built.
  */
-export declare function loadXGF(params: {
+export declare function XGFReader(params: {
     fileData: ArrayBuffer;
     sceneModel?: SceneModel;
     dataModel?: DataModel;
 }): Promise<void>;
-//# sourceMappingURL=loadXGF.d.ts.map
+//# sourceMappingURL=XGFLoader.d.ts.map

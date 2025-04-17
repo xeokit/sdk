@@ -5,7 +5,7 @@
 In this tutorial, we'll load a glTF model into a xeokit doc:Viewer. To optimize performance, we'll first 
 convert the glTF model to XGF, xeokit's native compressed format. The whole process consists of two steps:
 1. Use `gltf2xkt` to convert the glTF into XGF.
-2Use `loadXGF` to load the XGF into a xeokit Viewer on a webpage.
+2Use `XGFLoader` to load the XGF into a xeokit Viewer on a webpage.
 
 ## Example Model
 ---

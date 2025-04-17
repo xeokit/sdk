@@ -89,13 +89,13 @@
  * node ifc2gltf2xgf -i ifc2gltfManifest.json -o xgfManifest.json
  * ````
  *
- * If we wanted, we could load `ifc2gltfManifest.json` into a SceneModel and DataModel, using loadGLTF, loadMetaModel and ModelChunksLoader:
+ * If we wanted, we could load `ifc2gltfManifest.json` into a SceneModel and DataModel, using GLTFLoader, loadMetaModel and ModelChunksLoader:
  *
  * ```` javascript
  * import {Scene} from ""@xeokit/sdk/scene}";
  * import {Data} from ""@xeokit/sdk/data}";
  * import {ModelChunksLoader} from ""@xeokit/sdk/modelChunksLoader}";
- * import {loadGLTF} from ""@xeokit/sdk/gltf}";
+ * import {GLTFLoader} from ""@xeokit/sdk/gltf}";
  * import {loadMetaModel} from ""@xeokit/sdk/metamodel}";
  *
  * const scene = new Scene();
@@ -110,7 +110,7 @@
  * });
  *
  * const modelChunksLoader = new ModelChunksLoader({
- *      sceneModelLoader: loadGLTF,
+ *      sceneModelLoader: GLTFLoader,
  *      dataModelLoader: loadMetaModel
  * });
  *
@@ -154,13 +154,13 @@
  * }
  * ````
  *
- * If we wanted, we could now load `xgfManifest.json` into a SceneModel and DataModel, using loadGLTF, loadDataModel and ModelChunksLoader:
+ * If we wanted, we could now load `xgfManifest.json` into a SceneModel and DataModel, using GLTFLoader, loadDataModel and ModelChunksLoader:
  *
  * ````
  * import {Scene} from ""@xeokit/sdk/scene}";
  * import {Data} from ""@xeokit/sdk/data}";
  * import {ModelChunksLoader} from ""@xeokit/sdk/modelChunksLoader}";
- * import {loadGLTF} from ""@xeokit/sdk/gltf}";
+ * import {GLTFLoader} from ""@xeokit/sdk/gltf}";
  * import {loadDataModel} from ""@xeokit/sdk/data}";
  *
  * const scene = new Scene();
@@ -175,7 +175,7 @@
  * });
  *
  * const modelChunksLoader = new ModelChunksLoader({
- *     sceneModelLoader: loadXGF,
+ *     sceneModelLoader: XGFLoader,
  *     dataModelLoader: loadDataModel
  * });
  *

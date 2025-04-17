@@ -6,7 +6,7 @@ In this tutorial, we'll view an IFC 4.3 model in the browser using a xeokit doc:
 convert the IFC model to XGF and DataModelParams JSON files. The import process consists of two steps:
 
 1. Use `webifc2xgf` to convert IFC into XGF and JSON DataModelParams files.
-2. Use `loadXGF` to load the XGF and JSON DataModelParams files into a xeokit Viewer in a webpage.
+2. Use `XGFLoader` to load the XGF and JSON DataModelParams files into a xeokit Viewer in a webpage.
 
 ## Example IFC Model
 

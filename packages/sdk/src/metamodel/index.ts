@@ -97,7 +97,7 @@
  *
  * @module metamodel
  */
-export * from "./loadMetaModel";
+export * from "./MetaModelLoader";
 export * from "./convertMetaModel";
 export * from "./MetaModelParams";
 export * from "./MetaObjectParams";

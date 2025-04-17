@@ -25,7 +25,7 @@ import { isJSONObject } from "../utils";
  * * If the DataModel has already been destroyed.
  * * If the DataModel has already been built.
  */
-export function loadDotBIM(params, options = {}) {
+export function DotBIMLoader(params, options = {}) {
     return new Promise(function (resolve, reject) {
         if (!params) {
             return reject("Argument expected: params");
@@ -146,4 +146,4 @@ function parseDotBIM(ctx) {
         }
     }
 }
-//# sourceMappingURL=loadDotBIM.js.map
+//# sourceMappingURL=DotBIMLoader.js.map

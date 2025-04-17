@@ -3,8 +3,8 @@
 import '@loaders.gl/polyfills';
 import {Scene, SceneModel} from "../scene";
 import {SDKError} from "../core";
-import {loadGLTF} from "../gltf";
-import {saveXGF, SAVED_XGF_VERSIONS, DEFAULT_SAVED_XGF_VERSION} from "../xgf";
+import {GLTFLoader} from "../gltf";
+import {XKFWriter, SAVED_XGF_VERSIONS, DEFAULT_SAVED_XGF_VERSION} from "../xgf";
 import {convertMetaModel} from "../metamodel";
 
 /**
@@ -26,11 +26,11 @@ function ifc2gltf2xgf(params: {
         if (sceneModel instanceof SDKError) {
             return reject(sceneModel.message);
         } else {
-            loadGLTF({fileData, sceneModel})
+            GLTFLoader({fileData, sceneModel})
                 .then(() => {
                     sceneModel.build()
                         .then(() => {
-                            const xgfArrayBuffer = saveXGF({sceneModel, xgfVersion});
+                            const xgfArrayBuffer = XKFWriter.write({sceneModel, xgfVersion});
                             if (xgfArrayBuffer instanceof SDKError) {
                                 return reject(xgfArrayBuffer.message);
                             } else {

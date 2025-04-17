@@ -52,7 +52,7 @@
  * The following command converts a CityJSON file into an XGF file.
  * The XGF format retains the geometry and material colors from the CityJSON file.
  * Once converted, the XGF file can be loaded into a xeokit {@link scene!SceneModel | SceneModel}
- * using the {@link xgf!loadXGF | loadXGF()} function for optimized visualization.
+ * using the {@link xgf!XGFLoader | XGFLoader()} function for optimized visualization.
  *
  * ```bash
  * node cityjson2xgf -i duplex.json -s duplex.xgf

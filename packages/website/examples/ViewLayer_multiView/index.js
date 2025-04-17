@@ -4,6 +4,10 @@ import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 import {DemoHelper} from "../../js/DemoHelper.js";
 
+// Create a GLTFLoader to load .glb files
+
+const gltfLoader = new xeokit.gltf.GLTFLoader();
+
 // Create a Scene to hold model geometry and materials
 
 const scene = new xeokit.scene.Scene();
@@ -113,7 +117,7 @@ demoHelper.init()
         const cameraControl2 = new xeokit.cameracontrol.CameraControl(view2, {});
         const cameraControl3 = new xeokit.cameracontrol.CameraControl(view3, {});
 
-// Create a SceneModel and use loadGLTF to load a house model into it.
+// Create a SceneModel and use GLTFLoader to load a house model into it.
 // This SceneModel will appear in ViewLayer "modelLayer".
 // Since that ViewLayer is in all three Views, the SceneModel will then
 // appear in all three Views.
@@ -125,7 +129,7 @@ demoHelper.init()
 
         fetch("../../data/models/IfcOpenHouse2x3/ifc2gltf/model.glb").then(response => {
             response.arrayBuffer().then(fileData => {
-                xeokit.gltf.loadGLTF({fileData, sceneModel}).then(() => {
+                gltfLoader.load({fileData, sceneModel}).then(() => {
                     sceneModel.build();
                 });
             });

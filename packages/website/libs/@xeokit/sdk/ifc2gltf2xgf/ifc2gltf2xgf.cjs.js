@@ -41,9 +41,9 @@ function ifc2gltf2xgf(params) {
     if (sceneModel instanceof import_core.SDKError) {
       return reject(sceneModel.message);
     } else {
-      (0, import_gltf.loadGLTF)({ fileData, sceneModel }).then(() => {
+      (0, import_gltf.GLTFLoader)({ fileData, sceneModel }).then(() => {
         sceneModel.build().then(() => {
-          const xgfArrayBuffer = (0, import_xgf.saveXGF)({ sceneModel, xgfVersion });
+          const xgfArrayBuffer = (0, import_xgf.XKFWriter)({ sceneModel, xgfVersion });
           if (xgfArrayBuffer instanceof import_core.SDKError) {
             return reject(xgfArrayBuffer.message);
           } else {

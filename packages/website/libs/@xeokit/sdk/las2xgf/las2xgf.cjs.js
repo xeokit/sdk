@@ -54,7 +54,7 @@ function las2xgf(params) {
           }).then(() => {
             sceneModel.build().then(() => {
               dataModel.build().then(() => {
-                const xgfArrayBuffer = (0, import_xgf.saveXGF)({
+                const xgfArrayBuffer = (0, import_xgf.XKFWriter)({
                   sceneModel,
                   xgfVersion
                 });
@@ -85,7 +85,7 @@ function las2xgf(params) {
           sceneModel
         }).then(() => {
           sceneModel.build().then(() => {
-            const xgfArrayBuffer = (0, import_xgf.saveXGF)({
+            const xgfArrayBuffer = (0, import_xgf.XKFWriter)({
               sceneModel,
               xgfVersion
             });

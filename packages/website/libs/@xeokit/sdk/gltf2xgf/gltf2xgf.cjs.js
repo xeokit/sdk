@@ -48,14 +48,14 @@ function gltf2xgf(params) {
         if (dataModel instanceof import_core.SDKError) {
           return reject(dataModel.message);
         } else {
-          (0, import_gltf.loadGLTF)({
+          (0, import_gltf.GLTFLoader)({
             fileData,
             dataModel,
             sceneModel
           }).then(() => {
             sceneModel.build().then(() => {
               dataModel.build().then(() => {
-                const xgfArrayBuffer = (0, import_xgf.saveXGF)({
+                const xgfArrayBuffer = (0, import_xgf.XKFWriter)({
                   sceneModel,
                   xgfVersion
                 });
@@ -81,12 +81,12 @@ function gltf2xgf(params) {
           });
         }
       } else {
-        (0, import_gltf.loadGLTF)({
+        (0, import_gltf.GLTFLoader)({
           fileData,
           sceneModel
         }).then(() => {
           sceneModel.build().then(() => {
-            const xgfArrayBuffer = (0, import_xgf.saveXGF)({
+            const xgfArrayBuffer = (0, import_xgf.XKFWriter)({
               sceneModel,
               xgfVersion
             });

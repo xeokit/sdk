@@ -45,7 +45,7 @@ demoHelper.init()
         // Create a "non-retained" SceneModel.
         // Our SceneModel is configured with retained: false, so that when we build our
         // SceneModel, the SceneGeometry, SceneMesh and SceneObjects we created
-        // within it will be cleared from it to save browser memory.
+        // within it will be cleared from it to export browser memory.
         // The Viewer will then still contain ViewObjects for the SceneModel until we
         // call SceneModel.destroy().
 

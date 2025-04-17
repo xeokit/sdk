@@ -1,11 +1,11 @@
 import { SDKError } from "../core";
 import { SceneModel } from "../scene";
 /**
- * The XGF versions supported by {@link xgf!saveXGF | saveXGF}.
+ * The XGF versions supported by {@link xgf!XKFWriter | XKFWriter}.
  */
 export declare const SAVED_XGF_VERSIONS: number[];
 /**
- * The default XGF version saved by {@link xgf!saveXGF | saveXGF}. This equals the maximum
+ * The default XGF version saved by {@link xgf!XKFWriter | XKFWriter}. This equals the maximum
  * value in {@link xgf!SAVED_XGF_VERSIONS | SAVED_XGF_VERSIONS}.
  */
 export declare const DEFAULT_SAVED_XGF_VERSION: number;
@@ -23,8 +23,8 @@ export declare const DEFAULT_SAVED_XGF_VERSION: number;
  * @returns {@link core!SDKError | SDKError} If the SceneModel has not yet been built.
  * @returns {@link core!SDKError | SDKError} Unsupported XGF version (fix by upgrading @xeokit/sdk).
  */
-export declare function saveXGF(params: {
+export declare function XKFWriter(params: {
     sceneModel: SceneModel;
     xgfVersion?: number;
 }): ArrayBuffer | SDKError;
-//# sourceMappingURL=saveXGF.d.ts.map
+//# sourceMappingURL=XKFWriter.d.ts.map

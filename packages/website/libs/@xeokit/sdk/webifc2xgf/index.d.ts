@@ -43,7 +43,7 @@
  *
  * The invocation below converts an IFC file to XGF. The XGF objects will have geometries and material colors
  * parsed from the IFC. The XGF file can then be loaded into a xeokit {@link scene!SceneModel | SceneModel}
- * using {@link xgf!loadXGF | loadXGF()}.
+ * using {@link xgf!XGFLoader | XGFLoader()}.
  *
  * ````bash
  * node webifc2xgf -i duplex.ifc -o duplex.xgf

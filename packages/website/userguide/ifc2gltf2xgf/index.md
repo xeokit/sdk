@@ -6,7 +6,7 @@ In this tutorial, we'll load an IFC 4.3 model into a xeokit doc:Viewer. To optim
 convert the IFC model to XGF, xeokit's native compressed format. The whole process consists of three steps:
 1. Use `ifc2gltf` to convert the IFC into glTF and JSON metadata (*intermediate format*).
 2. Use `ifc2gltf2xkt` to convert the glTF and JSON into XGF and a JSON data model (*final format*).
-3. Use `loadXGF` to load the XGF and JSON data model into a xeokit Viewer on a webpage.
+3. Use `XGFLoader` to load the XGF and JSON data model into a xeokit Viewer on a webpage.
 
 This process splits the model into multiple files, improving memory stability in the converter tools and 
 Viewer by allowing incremental loading and deallocation.

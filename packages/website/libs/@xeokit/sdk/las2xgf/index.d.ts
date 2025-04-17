@@ -57,7 +57,7 @@
  * node las2xgf -i model.laz -s model.xgf -d model.json
  * ```
  *
- * The resulting XGF file can be loaded into a {@link scene!SceneModel | SceneModel} using {@link xgf!loadXGF | loadXGF()}.
+ * The resulting XGF file can be loaded into a {@link scene!SceneModel | SceneModel} using {@link xgf!XGFLoader | XGFLoader()}.
  * The JSON file can be loaded into a {@link data!DataModel | DataModel} using {@link data!loadDataModel | loadDataModel()}.
  *
  * ---

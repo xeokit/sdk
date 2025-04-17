@@ -1,5 +1,5 @@
 import { parse } from '@loaders.gl/core';
-import { GLTFLoader, postProcessGLTF } from '@loaders.gl/gltf';
+import { GLTFReader, postProcessGLTF } from '@loaders.gl/gltf';
 import { ClampToEdgeWrapping, LinearFilter, LinearMipMapLinearFilter, LinearMipMapNearestFilter, LinesPrimitive, MirroredRepeatWrapping, NearestFilter, NearestMipMapLinearFilter, NearestMipMapNearestFilter, PointsPrimitive, RepeatWrapping, TrianglesPrimitive } from "../constants";
 import { createUUID, isString } from "../utils";
 import { createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v } from "../matrix";
@@ -26,41 +26,41 @@ import { DataModel } from "../data";
  * * If the DataModel has already been destroyed.
  * * If the DataModel has already been built.
  */
-export function loadGLTF(params) {
+export function GLTFLoader(params) {
     return new Promise(function (resolve, reject) {
         if (!params) {
-            return reject("[loadGLTF] Argument expected: params");
+            return reject("[GLTFLoader] Argument expected: params");
         }
         const { fileData, sceneModel, dataModel } = params;
         if (!fileData) {
-            return reject("[loadGLTF] Argument expected: fileData");
+            return reject("[GLTFLoader] Argument expected: fileData");
         }
         if (sceneModel) {
             if (!(sceneModel instanceof SceneModel)) {
-                return reject("[loadGLTF] Argument type mismatch: params.sceneModel should be a SceneModel");
+                return reject("[GLTFLoader] Argument type mismatch: params.sceneModel should be a SceneModel");
             }
             if (sceneModel.destroyed) {
-                return reject("[loadGLTF] SceneModel already destroyed");
+                return reject("[GLTFLoader] SceneModel already destroyed");
             }
             if (sceneModel.built) {
-                return reject("[loadGLTF] SceneModel already built");
+                return reject("[GLTFLoader] SceneModel already built");
             }
         }
         if (dataModel) {
             if (!(dataModel instanceof DataModel)) {
-                return reject("[loadGLTF] Argument type mismatch: params.dataModel should be a DataModel");
+                return reject("[GLTFLoader] Argument type mismatch: params.dataModel should be a DataModel");
             }
             if (dataModel.destroyed) {
-                return reject("[loadGLTF] DataModel already destroyed");
+                return reject("[GLTFLoader] DataModel already destroyed");
             }
             if (dataModel.built) {
-                return reject("[loadGLTF] DataModel already built");
+                return reject("[GLTFLoader] DataModel already built");
             }
         }
         if (!sceneModel && !dataModel) {
             return resolve();
         }
-        parse(fileData, GLTFLoader, {}).then((gltfData) => {
+        parse(fileData, GLTFReader, {}).then((gltfData) => {
             const processedGLTF = postProcessGLTF(gltfData);
             const ctx = {
                 nodesHaveNames: false,
@@ -85,7 +85,7 @@ export function loadGLTF(params) {
             parseDefaultScene(ctx);
             return resolve();
         }, (errMsg) => {
-            return reject(`[loadGLTF] Error parsing glTF: ${errMsg}`);
+            return reject(`[GLTFLoader] Error parsing glTF: ${errMsg}`);
         });
     });
 }
@@ -625,4 +625,4 @@ function parseMesh(node, ctx, matrix, meshIds) {
         }
     }
 }
-//# sourceMappingURL=loadGLTF.js.map
+//# sourceMappingURL=GLTFLoader.js.map

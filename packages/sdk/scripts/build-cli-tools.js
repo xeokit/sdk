@@ -25,12 +25,8 @@ function buildCLITool(moduleId) {
 }
 
 for (let moduleId of [
-    "dotbim2xgf",
-    "gltf2xgf",
-    "cityjson2xgf",
-    "las2xgf",
     "ifc2gltf2xgf",
-    "webifc2xgf"
+    "xeoconvert"
 ]) {
     buildCLITool(moduleId);
 }

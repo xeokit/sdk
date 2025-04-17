@@ -37,14 +37,14 @@
  * contains a list of {@link metamodel!MetaModelParams | ModelModelParams} files.
  *
  * We can now load this file into a {@link scene!SceneModel | SceneModel} and
- * {@link data!DataModel | DataModel}, using {@link xgf!loadXGF | loadXGF},
+ * {@link data!DataModel | DataModel}, using {@link xgf!XGFLoader | XGFLoader},
  * {@link data!loadDataModel | loadDataModel} and {@link modelchunksloader!ModelChunksLoader | ModelChunksLoader}:
  *
  * ````
  * import {Scene} from "@xeokit/sdk/scene}";
  * import {Data} from "@xeokit/sdk/data}";
  * import {ModelChunksLoader} from "@xeokit/sdk/modelChunksLoader}";
- * import {loadXGF} from "@xeokit/sdk/xgf}";
+ * import {XGFLoader} from "@xeokit/sdk/xgf}";
  * import {loadDataModel} from "@xeokit/sdk/data}";
  * import {SDKError} from "@xeokit/sdk/core";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
@@ -82,7 +82,7 @@
  * });
  *
  * const modelChunksLoader = new ModelChunksLoader({
- *     sceneModelLoader: loadXGF,
+ *     sceneModelLoader: XGFLoader,
  *     dataModelLoader: loadDataModel
  * });
  *

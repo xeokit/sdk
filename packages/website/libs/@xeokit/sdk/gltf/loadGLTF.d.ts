@@ -29,10 +29,10 @@ import { DataModel } from "../data";
  * - If the {@link data!DataModel | DataModel} has already been destroyed.
  * - If the {@link data!DataModel | DataModel} has already been built.
  */
-export declare function loadGLTF(params: {
+export declare function GLTFLoader(params: {
     fileData: any;
     sceneModel?: SceneModel;
     dataModel?: DataModel;
     log?: Function;
 }): Promise<any>;
-//# sourceMappingURL=loadGLTF.d.ts.map
+//# sourceMappingURL=GLTFLoader.d.ts.map

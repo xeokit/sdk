@@ -203,7 +203,7 @@ import { ViewObject } from "./ViewObject";
  *
  * ````javascript
  * import {Viewer} from "@xeokit/sdk/viewer";
- * import {loadDotBIM} from "@xeokit/sdk/dotbim";
+ * import {DotBIMLoader} from "@xeokit/sdk/dotbim";
  *
  * const myViewer = new Viewer({
  *      id: "myViewer"
@@ -262,7 +262,7 @@ import { ViewObject } from "./ViewObject";
  *         response
  *             .json()
  *             .then(fileData => {
- *                 loadDotBIM({
+ *                 DotBIMLoader({
  *                     fileData,
  *                     modelSceneModel
  *                 })

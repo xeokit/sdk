@@ -53,7 +53,7 @@ function cityjson2xgf(params) {
         }).then(() => {
           sceneModel.build().then(() => {
             dataModel.build().then(() => {
-              const xgfArrayBuffer = (0, import_xgf.saveXGF)({
+              const xgfArrayBuffer = (0, import_xgf.XKFWriter)({
                 sceneModel,
                 xgfVersion
               });

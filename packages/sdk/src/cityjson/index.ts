@@ -42,7 +42,7 @@
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { CameraControl } from "@xeokit/sdk/cameracontrol";
- * import { loadCityJSON } from "@xeokit/sdk/cityjson";
+ * import { CityJSONLoader } from "@xeokit/sdk/cityjson";
  *
  * const scene = new Scene();
  * const data = new Data();
@@ -72,7 +72,7 @@
  *
  * fetch("model.json").then(response => {
  *     response.json().then(fileData => {
- *         loadCityJSON({
+ *         (new CityJSONLoader()).load({
  *             fileData,
  *             sceneModel,
  *             dataModel
@@ -94,4 +94,4 @@
  *
  * @module cityjson
  */
-export * from "./loadCityJSON";
+export * from "./CityJSONLoader";

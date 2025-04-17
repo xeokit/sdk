@@ -1,7 +1,7 @@
 import {SceneModel} from "../scene";
-import {DataModel} from "../data";
-import {loadXKT} from "./loadXKT";
-import {loadMetaModel} from "../metamodel";
+import {DataModel, DataModelParamsLoader} from "../data";
+import {XKTLoader} from "./XKTLoader";
+import {MetaModelLoader} from "../metamodel";
 
 /**
  *
@@ -37,7 +37,12 @@ export function loadXKTManifest(params: {
             return reject("Parameter expected: manifest or src");
         }
 
+        const metaModelReader = new MetaModelLoader();
+
         if (params.src) {
+
+            const xktReader = new XKTLoader();
+
             const baseDir = getBaseDirectory(params.src);
 
             fetch(params.src).then(response => {
@@ -56,7 +61,7 @@ export function loadXKTManifest(params: {
                             } else {
                                 fetch(`${baseDir}${xktFiles[i]}`).then(response => {
                                     response.arrayBuffer().then(fileData => {
-                                        loadXKT({
+                                        xktReader.load({
                                             fileData,
                                             sceneModel
                                         }).then(() => {
@@ -82,7 +87,7 @@ export function loadXKTManifest(params: {
                             } else {
                                 fetch(`${baseDir}${metaModelFiles[i]}`).then(response => {
                                     response.json().then(fileData => {
-                                        loadMetaModel({
+                                        metaModelReader.load({
                                             fileData,
                                             dataModel
                                         }).then(() => {

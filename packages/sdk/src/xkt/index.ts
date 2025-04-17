@@ -15,7 +15,7 @@
  * The [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) format compresses large double-precision model geometry to
  * a compact payload that loads quickly over the Web into a xeokit viewer running in the browser.
  *
- * To import a [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) model into xeokit, use the {@link loadXKT} function,
+ * To import a [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) model into xeokit, use the {@link XKTLoader} class,
  * which will load the file into a {@link scene!SceneModel | SceneModel}.
  *
  * Use the {@link metamodel!loadMetaModel | loadMetaModel} function to load legacy JSON metadata into a {@link data!DataModel | DataModel}.
@@ -41,7 +41,7 @@
  * also attach a {@link cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
  *
  * Within the Scene, we will create a {@link scene!SceneModel | SceneModel} to hold a model. We will then use
- * {@link xkt!loadXKT | loadXKT} to load
+ * {@link xkt!XKTLoader | XKTLoader} to load
  * any XKT file into our SceneModel.
  *
  * The {@link core!SDKError | SDKError} class will be used to handle any errors that may occur during this process.
@@ -54,7 +54,7 @@
  * import {WebGLRenderer} from "@xeokit/webglrenderer";
  * import {Viewer} from "@xeokit/viewer";
  * import {CameraControl} from "@xeokit/cameracontrol";
- * import {loadXKT} from "@xeokit/xkt";
+ * import {XKTLoader} from "@xeokit/xkt";
  *
  * const scene = new Scene();
  *
@@ -70,6 +70,8 @@
  *     id: "myView",
  *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
  * });
+ *
+ * const xktLoader = new XKTLoader();
  *
  * if (view instanceof SDKError) {
  *     console.error(`Error creating View: ${view.message}`);
@@ -95,7 +97,7 @@
  *
  *             response.arrayBuffer().then(fileData => {
  *
- *                 loadXKT({
+ *                 xktLoader.load({
  *                     fileData,
  *                     sceneModel
  *                 }).then(() => {
@@ -120,5 +122,5 @@
  *
  * @module xkt
  */
-export * from "./loadXKT";
+export * from "./XKTLoader";
 export * from "./loadXKTManifest";

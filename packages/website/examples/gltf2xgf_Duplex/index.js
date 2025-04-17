@@ -4,6 +4,10 @@ import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 import {DemoHelper} from "../../js/DemoHelper.js";
 
+// Create an XKTLoader to load .xkt files
+
+const xgfReader = new xeokit.xkt.XGFLoader();
+
 // Create a Scene to hold geometry and materials
 
 const scene = new xeokit.scene.Scene();
@@ -53,7 +57,7 @@ const demoHelper = new DemoHelper({
 demoHelper.init()
     .then(() => {
 
-        // Use loadXGF to load the XGF file into the SceneModel.
+        // Use XGFLoader to load the XGF file into the SceneModel.
 
         fetch(`../../models/Duplex/gltf2xgf/model.xgf`)
             .then(response => {
@@ -61,7 +65,7 @@ demoHelper.init()
                     .arrayBuffer()
                     .then(fileData => {
 
-                        xeokit.xgf.loadXGF({
+                        xgfReader.load({
                             fileData,
                             sceneModel
 

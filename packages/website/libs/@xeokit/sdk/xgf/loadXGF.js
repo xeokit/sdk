@@ -5,7 +5,7 @@ const readers = {
     1: readXGF_v1
 };
 /**
- * The XGF versions supported by {@link xgf!loadXGF | loadXGF}.
+ * The XGF versions supported by {@link xgf!XGFLoader | XGFLoader}.
  */
 export const LOADED_XGF_VERSIONS = Object.keys(readers).map(Number);
 /**
@@ -28,7 +28,7 @@ export const LOADED_XGF_VERSIONS = Object.keys(readers).map(Number);
  * * If the DataModel has already been destroyed.
  * * If the DataModel has already been built.
  */
-export function loadXGF(params) {
+export function XGFReader(params) {
     return new Promise(function (resolve, reject) {
         if (!params) {
             return reject("Argument expected: params");
@@ -79,4 +79,4 @@ export function loadXGF(params) {
         return resolve();
     });
 }
-//# sourceMappingURL=loadXGF.js.map
+//# sourceMappingURL=XGFLoader.js.map

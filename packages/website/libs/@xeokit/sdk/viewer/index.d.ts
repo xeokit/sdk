@@ -101,7 +101,7 @@
  * import {KTX2TextureTranscoder} from "@xeokit/sdk/ktx2";
  * import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/sdk/constants";
  * import {CameraControl} from "@xeokit/sdk/cameracontrol";
- * import {loadDotBIM} from "@xeokit/sdk/dotbim";
+ * import {DotBIMLoader} from "@xeokit/sdk/dotbim";
  * import {saveBCFViewpoint, loadBCFViewpoint} from "@xeokit/sdk/bcf";
  *
  * import {
@@ -640,7 +640,7 @@
  *
  * We can view additional models by creating SceneModels and loading files into them.
  *
- * Lets create a new SceneModel in the Scene and then use {@link dotbim!loadDotBIM} to
+ * Lets create a new SceneModel in the Scene and then use {@link dotbim!DotBIMLoader} to
  * load a house model into it from .BIM format.
  *
  * ````javascript
@@ -654,7 +654,7 @@
  *             .json()
  *             .then(fileData => {
  *
- *                  loadDotBIM({
+ *                  DotBIMLoader({
  *                     fileData,
  *                     sceneModel2
  *                 })
@@ -676,9 +676,9 @@
  *
  * ## Saving SceneModels to Files
  *
- * We can save the SceneModels in our Scene to a variety of formats.
+ * We can export the SceneModels in our Scene to a variety of formats.
  *
- * Lets use {@link dotbim!saveDotBIM} to save our house model back to a .BIM file.
+ * Lets use {@link dotbim!DotBIMExporter} to export our house model back to a .BIM file.
  *
  * ````javascript
  * const xktFileData = saveXKT({
@@ -759,7 +759,7 @@
  * Building Collaboration Format (BCF) is a file format designed to facilitate communication and collaboration in Building
  * Information Modeling (BIM) projects. It enables the exchange of issues and viewpoints between various tools and platforms.
  *
- * Using {@link bcf!saveBCFViewpoint | saveBCFViewpoint}, we can capture the current visual state of a View and save it
+ * Using {@link bcf!saveBCFViewpoint | saveBCFViewpoint}, we can capture the current visual state of a View and export it
  * as a {@link bcf!BCFViewpoint | BCFViewpoint}, which can be easily serialized to JSON.
  *
  * In this example, we’ll exclude the states of the ViewObjects in the skybox or environment ViewLayer when saving the viewpoint:

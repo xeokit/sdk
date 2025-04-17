@@ -40,9 +40,12 @@ export * as ifctypes from "./ifctypes";
 
 // Model importers and exporters
 
+export * as io from "./io";
+export * as modelconverter from "./modelconverter";
+
 export * as cityjson from "./cityjson";
 export * as dotbim from "./dotbim";
-export * as webifc from "./webifc";
+export * as ifc from "./ifc";
 export * as xgf from "./xgf";
 export * as las from "./las";
 export * as gltf from "./gltf";
@@ -61,8 +64,4 @@ export * as bcf from "./bcf";
 export * as treeview from "./treeview";
 export * as contextmenu from "./contextmenu";
 
-export * as dotbim2xgf from "./dotbim2xgf";
-export * as gltf2xgf from "./gltf2xgf";
-export * as cityjson2xgf from "./cityjson2xgf";
-export * as las2xgf from "./las2xgf";
 export * as ifc2gltf2xgf from "./ifc2gltf2xgf";

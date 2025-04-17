@@ -5,11 +5,11 @@ const writers = {
     1: writeXGF_v1
 };
 /**
- * The XGF versions supported by {@link xgf!saveXGF | saveXGF}.
+ * The XGF versions supported by {@link xgf!XKFWriter | XKFWriter}.
  */
 export const SAVED_XGF_VERSIONS = Object.keys(writers).map(Number);
 /**
- * The default XGF version saved by {@link xgf!saveXGF | saveXGF}. This equals the maximum
+ * The default XGF version saved by {@link xgf!XKFWriter | XKFWriter}. This equals the maximum
  * value in {@link xgf!SAVED_XGF_VERSIONS | SAVED_XGF_VERSIONS}.
  */
 export const DEFAULT_SAVED_XGF_VERSION = Math.max(...SAVED_XGF_VERSIONS);
@@ -29,7 +29,7 @@ export const DEFAULT_SAVED_XGF_VERSION = Math.max(...SAVED_XGF_VERSIONS);
  * @returns {@link core!SDKError | SDKError} If the SceneModel has already been destroyed.
  * @returns {@link core!SDKError | SDKError} If the SceneModel has not yet been built.
  */
-export function saveXGF(params) {
+export function XKFWriter(params) {
     if (!params) {
         return new SDKError("Argument expected: params");
     }
@@ -54,4 +54,4 @@ export function saveXGF(params) {
         sceneModel
     });
 }
-//# sourceMappingURL=saveXGF.js.map
+//# sourceMappingURL=XKFWriter.js.map

@@ -15,7 +15,7 @@
  * .BIM is an open-source, minimalist file format for BIM, created to be simple to read and write. It serves as a transfer format that contains triangulated meshes
  * with an associated dictionary of information.
  *
- * To import a .BIM model into xeokit, use the {@link loadDotBIM} function, which will load the file into both a {@link scene!SceneModel | SceneModel}
+ * To import a .BIM model into xeokit, use the {@link DotBIMLoader} function, which will load the file into both a {@link scene!SceneModel | SceneModel}
  * and a {@link data!DataModel | DataModel}.
  *
  * <br>
@@ -45,7 +45,7 @@
  * The Scene contains a {@link scene!SceneModel | SceneModel} for model geometry and materials, while the Data holds a {@link data!DataModel | DataModel}
  * for IFC elements and property sets.
  *
- * We then use {@link dotbim!loadDotBIM | loadDotBIM} to load a .BIM file into the SceneModel and DataModel.
+ * We then use {@link dotbim!DotBIMLoader | DotBIMLoader} to load a .BIM file into the SceneModel and DataModel.
  *
  * The {@link core!SDKError | SDKError} class is used to handle errors during this process.
  *
@@ -58,7 +58,7 @@
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {CameraControl} from "@xeokit/sdk/cameracontrol";
- * import {loadDotBIM} from "@xeokit/sdk/dotbim";
+ * import {DotBIMLoader} from "@xeokit/sdk/dotbim";
  *
  * const scene = new Scene();
  * const data = new Data();
@@ -94,7 +94,7 @@
  *
  *    response.json().then(fileData => {
  *
- *        loadDotBIM({
+ *        DotBIMLoader({
  *           fileData,
  *           sceneModel,
  *           dataModel
@@ -121,10 +121,10 @@
  *
  * ````
  *
- * To export the {@link scene!SceneModel | SceneModel} and {@link data!DataModel | DataModel} back to a .BIM file, use {@link dotbim!saveDotBIM | saveDotBIM}:
+ * To export the {@link scene!SceneModel | SceneModel} and {@link data!DataModel | DataModel} back to a .BIM file, use {@link dotbim!DotBIMExporter | DotBIMExporter}:
  *
  * ````javascript
- * const dotBIMJSON = saveXGF({
+ * const dotBIMJSON = XKFWriter.write({
  *     sceneModel,
  *     dataModel
  * });
@@ -132,6 +132,6 @@
  *
  * @module dotbim
  */
-export * from "./loadDotBIM";
-export * from "./saveDotBIM";
+export * from "./DotBIMLoader";
+export * from "./DotBIMExporter";
 //# sourceMappingURL=index.d.ts.map

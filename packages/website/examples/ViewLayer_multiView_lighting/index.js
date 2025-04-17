@@ -4,6 +4,10 @@ import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 import {DemoHelper} from "../../js/DemoHelper.js";
 
+// Create a GLTFLoader to load .glb files
+
+const gltfLoader = new xeokit.gltf.GLTFLoader();
+
 // Create a Scene to hold model geometry and materials
 
 const scene = new xeokit.scene.Scene();
@@ -136,7 +140,7 @@ demoHelper.init()
         });
 
 
-        // Create a SceneModel and use loadGLTF load a building model into it.
+        // Create a SceneModel and use GLTFLoader load a building model into it.
 
         const sceneModel = scene.createModel({
             id: "demoModel"
@@ -144,7 +148,7 @@ demoHelper.init()
 
         fetch("../../models/models/IfcOpenHouse2x3/ifc2gltf/model.glb").then(response => {
             response.arrayBuffer().then(fileData => {
-                xeokit.gltf.loadGLTF({fileData, sceneModel}).then(() => {
+                gltfLoader.load({fileData, sceneModel}).then(() => {
 
                     // Build the SceneModel.
                     // Each View will now contain its own ViewObject for each SceneObject in the SceneModel, illuminated

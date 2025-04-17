@@ -1,0 +1,14 @@
+{
+    "title": "Viewing IFC using xeoconvert and XGFLoader",
+    "description": "How to use the ifc2gltf CLI tool to convert an IFC model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>We recommend this pipeline for only for small-to-medium size IFC files.",
+    "tags": [
+
+    ],
+    "_bannerImage": "banner.png",
+    "thumbnail": "index.png",
+    "relatedArticles": [
+
+    ],
+
+    "topic": "import.ifc"
+}

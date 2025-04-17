@@ -4,8 +4,6 @@ import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 import {DemoHelper} from "../../js/DemoHelper.js";
 
-// Create a Viewer with a Scene and a WebGLRenderer
-
 // Create a Scene to hold geometry and materials
 
 const scene = new xeokit.scene.Scene();
@@ -60,12 +58,12 @@ demoHelper.init()
 
         const dataModel = data.createModel({id: "myModel"});
 
-        // Use loadDotBIM to load a DotBIM model into the SceneModel and DataModel
+        // Use DotBIMLoader to load a DotBIM model into the SceneModel and DataModel
 
         fetch("../../../models/BlenderHouse/dotbim/model.bim").then(response => {
             response.json().then(fileData => {
 
-                xeokit.dotbim.loadDotBIM({fileData, sceneModel, dataModel}).then(() => {
+                xeokit.dotbim.DotBIMLoader.load({fileData, sceneModel, dataModel}).then(() => {
 
                     // Build the SceneModel and DataModel
 

@@ -175,7 +175,7 @@
         for (let articleId in articles.articles) {
             const article = articles.articles[articleId];
             if (article.tags.includes("Featured")) {
-                // save article id into the article object
+                // export article id into the article object
                 article.id = articleId;
                 featuredArticles.push(article);
             }

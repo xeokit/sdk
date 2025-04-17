@@ -3,6 +3,10 @@
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 import {DemoHelper} from "../../js/DemoHelper";
 
+// Create a GLTFLoader to load .glb files
+
+const gltfLoader = new xeokit.gltf.GLTFLoader();
+
 // Create a Viewer with a Scene and a WebGLRenderer
 
 const scene = new xeokit.scene.Scene();
@@ -100,14 +104,14 @@ demoHelper.init()
             id: "viewLayer2"
         });
 
-        // Create a SceneModel and use loadXKT load a building model into it.
+        // Create a SceneModel and use XKTLoader load a building model into it.
 
         fetch("../../models/models/IfcOpenHouse2x3/ifc2gltf/model.glb").then(response => {
             response.arrayBuffer().then(fileData => {
                 const sceneModel = scene.createModel({
                     id: "demoModel1"
                 });
-                xeokit.gltf.loadGLTF({fileData, sceneModel}).then(() => {
+                xeokit.gltf.GLTFLoader({fileData, sceneModel}).then(() => {
                     sceneModel.build();
                 });
             });
@@ -121,7 +125,7 @@ demoHelper.init()
                     id: "demoModel2",
                     layerId: "viewLayer1"
                 });
-                xeokit.xgf.loadXGF({
+                xeokit.xgf.XGFLoader.load({
                     fileData,
                     sceneModel
                 }).then(() => {
@@ -138,7 +142,7 @@ demoHelper.init()
                     id: "demoModel3",
                     layerId: "viewLayer2"
                 });
-                xeokit.gltf.loadGLTF({
+                gltfLoader.load({
                     fileData,
                     sceneModel
                 }).then(() => {

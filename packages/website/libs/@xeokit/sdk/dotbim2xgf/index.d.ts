@@ -44,7 +44,7 @@
  * ````
  *
  * The example below demonstrates converting a .BIM file into an XGF file and a JSON data model file. The XGF file can
- * then be loaded into a {@link scene!SceneModel | SceneModel} using {@link xgf!loadXGF | loadXGF()}. The JSON file can
+ * then be loaded into a {@link scene!SceneModel | SceneModel} using {@link xgf!XGFLoader | XGFLoader()}. The JSON file can
  * be loaded into a {@link data!DataModel | DataModel} using {@link data!loadDataModel | loadDataModel()}.
  *
  * ````bash

@@ -13,7 +13,7 @@ Here's the JavaScript for our XGF viewer app:
 import {Scene} from "@xeokit/sdk/scene";
 import {Viewer} from "@xeokit/sdk/viewer";
 import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
-import {loadXGF} from "@xeokit/sdk/xgf";
+import {XGFLoader} from "@xeokit/sdk/xgf";
 
 const scene = new Scene(); // Scene graph
 
@@ -42,7 +42,7 @@ fetch("myModel.xgf")
             .arrayBuffer()
             .then(fileData => {
 
-                loadXGF({
+                XGFLoader.load({
                     fileData,
                     sceneModel
                 }).then(() => { // Load the XGF

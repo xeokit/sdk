@@ -42,7 +42,7 @@
  * ### Loading an XGF file containing [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures into a Viewer
  *
  * Create a {@link viewer!Viewer | Viewer} with a {@link webglrenderer!WebGLRenderer | WebGLRenderer} configured with a
- * {@link ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}. Then create a {@link scene!SceneModel | SceneModel} within the Viewer, and use {@link loadXGF} to
+ * {@link ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}. Then create a {@link scene!SceneModel | SceneModel} within the Viewer, and use {@link XGFReader} to
  * load a [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) file with KTX2-compressed textures into the SceneModel. For each [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture in the file, the
  * KTX2TextureTranscoder will transparently transcode the [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) data for us.
  *
@@ -50,7 +50,7 @@
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {KTX2TextureTranscoder} from "@xeokit/sdk/ktx2";
- * import {loadXGF} from "@xeokit/sdk/xgf";
+ * import {XGFLoader} from "@xeokit/sdk/xgf";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
@@ -77,7 +77,7 @@
  * fetch("myModelWithTextures.xgf") // <<-- [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) file with KTX2 textures
  *     .then(response => {
  *          if (response.ok) {
- *              loadXGF(response.arrayBuffer(), sceneModel);
+ *              XGFLoader(response.arrayBuffer(), sceneModel);
  *              sceneModel.build();
  *          }
  *     });
@@ -96,7 +96,7 @@
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {KTX2TextureTranscoder} from "@xeokit/sdk/ktx2";
- * import {loadXGF} from "@xeokit/sdk/xgf";
+ * import {XGFLoader} from "@xeokit/sdk/xgf";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
@@ -172,7 +172,7 @@
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {KTX2TextureTranscoder} from "@xeokit/sdk/ktx2";
- * import {loadXGF} from "@xeokit/sdk/xgf";
+ * import {XGFLoader} from "@xeokit/sdk/xgf";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",

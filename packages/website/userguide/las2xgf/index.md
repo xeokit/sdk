@@ -5,7 +5,7 @@
 In this tutorial, we'll load a LAZ model into a xeokit doc:Viewer. To optimize performance, we'll first 
 convert the LAZ model to XGF, xeokit's native compressed format. The whole process consists of two steps:
 1. Use `las2xkt` to convert the LAZ into XGF.
-2Use `loadXGF` to load the XGF into a xeokit Viewer on a webpage.
+2Use `XGFLoader` to load the XGF into a xeokit Viewer on a webpage.
 
 ## Example Model
 ---
@@ -23,16 +23,17 @@ example-run:las2xgf_Pumpkin
 
 The first step is to convert our LAZ file into an XGF file. 
 
-We'll use the [`las2xgf`]() CLI tool to do this conversion step:
+We'll use the [`xeoconvert`]() CLI tool to do this conversion step:
 
 ```bash
-node las2xgf -i model.laz -o model.xgf
+node xeoconvert --pipeline las2xgf --las model.laz --xgf model.xgf
 ```
 
 The parameters we provided the tool are:
 
-- `-i` specifies the LAS/LAZ file to convert
-- `-o` specifies the XGF file to output
+- `--pipeline` specifies the conversion pipeline, in this case LAS/LAZ -> XGF
+- `--las` specifies the LAS/LAZ file to convert
+- `--xgf` specifies the XGF file to output
 
 <br>
 

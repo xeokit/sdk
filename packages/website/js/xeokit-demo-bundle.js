@@ -58870,25 +58870,7 @@ var WebGLRenderBuffer = class {
   readImageAsCanvas() {
     const gl = this.#gl;
     const imageDataCache = this._getImageDataCache();
-    const pixelData = imageDataCache.pixelData;
     const canvas2 = imageDataCache.canvas;
-    const imageData = imageDataCache.imageData;
-    const context = imageDataCache.context;
-    gl.readPixels(0, 0, this.#buffer.width, this.#buffer.height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
-    const width = this.#buffer.width;
-    const height = this.#buffer.height;
-    const halfHeight = height / 2 | 0;
-    const bytesPerRow = width * 4;
-    const temp = new Uint8Array(width * 4);
-    for (let y = 0; y < halfHeight; ++y) {
-      const topOffset = y * bytesPerRow;
-      const bottomOffset = (height - y - 1) * bytesPerRow;
-      temp.set(pixelData.subarray(topOffset, topOffset + bytesPerRow));
-      pixelData.copyWithin(topOffset, bottomOffset, bottomOffset + bytesPerRow);
-      pixelData.set(temp, bottomOffset);
-    }
-    imageData.data.set(pixelData);
-    context.putImageData(imageData, 0, 0);
     return canvas2;
   }
   /**

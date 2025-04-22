@@ -299,7 +299,7 @@ class WebGLRenderBuffer {
         // context.drawImage(canvas, 0, -height, width, height);
         // context.restore();
         //
-        // let format = params.format || "png";
+         let format = params.format || "png";
         // if (format !== "jpeg" && format !== "png" && format !== "bmp") {
         //     console.error("Unsupported image format: '" + format + "' - supported types are 'jpeg', 'bmp' and 'png' - defaulting to 'png'");
         //     format = "png";

@@ -51,6 +51,15 @@ function parseWebIFC(ifcAPI: WebIFC.IfcAPI, params: ModelParseParams): Promise<a
     });
 }
 
+function str2ab(str) {
+    var buf = new ArrayBuffer(str.length * 2); // 2 bytes for each char
+    var bufView = new Uint16Array(buf);
+    for (var i = 0, strLen = str.length; i < strLen; i++) {
+        bufView[i] = str.charCodeAt(i);
+    }
+    return buf;
+}
+
 function parseIFC(ctx: ParsingContext) {
     if (ctx.dataModel) {
         parseDataModel(ctx);

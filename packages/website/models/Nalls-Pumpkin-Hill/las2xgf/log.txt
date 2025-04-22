@@ -1,19 +1,4 @@
 [xeoconvert] Loading input --las ./models/Nalls-Pumpkin-Hill/laz/model.laz
 [xeoconvert] Running conversion pipeline las2xgf
-process inputs
-processNextInput pipelineInputIds=las pipelineInputIds.length=1
-processNextInput cont.
-model loaded
-processNextInput pipelineInputIds=las pipelineInputIds.length=1
-processNextInput done
-buildSceneModels
-buildNextSceneModel
-buildNextSceneModel
-buildDataModels
-buildNextDataModel
-buildNextDataModel
-processOutputs
-processNextOutput
-processNextOutput
 [xeoconvert] Writing output --xgf ./models/Nalls-Pumpkin-Hill/las2xgf/model.xgf
 [xeoconvert] Done.

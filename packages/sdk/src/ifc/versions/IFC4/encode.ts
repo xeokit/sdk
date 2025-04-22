@@ -46,15 +46,15 @@ function generateIFC(sceneModel: SceneModel, dataModel: DataModel, header?: Part
     ifcContent.push('DATA;\n\n');
 
     const projectId = generateGUID();
-    ifcContent.push(`#1=${generateOwnerHistory()}\n`);
-    ifcContent.push(`#2=IFCPROJECT('${projectId}',#1,'${dataModel.projectId || sceneModel.id}',$,$,$,$,(#3),#4);\n`);
-    ifcContent.push(`#3=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.0E-5,#5,$);\n`);
-    ifcContent.push(`#4=IFCUNITASSIGNMENT((#6,#7,#8));\n`);
-    ifcContent.push(`#5=IFCAXIS2PLACEMENT3D(#9,$,$);\n`);
-    ifcContent.push(`#6=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);\n`);
-    ifcContent.push(`#7=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);\n`);
-    ifcContent.push(`#8=IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.);\n`);
-    ifcContent.push(`#9=IFCCARTESIANPOINT((0.,0.,0.));\n\n`);
+    ifcContent.push(`#1=${generateOwnerHistory()}`);
+    ifcContent.push(`#2=IFCPROJECT('${projectId}',#1,'${dataModel.projectId || sceneModel.id}',$,$,$,$,(#3),#4);`);
+    ifcContent.push(`#3=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.0E-5,#5,$);`);
+    ifcContent.push(`#4=IFCUNITASSIGNMENT((#6,#7,#8));`);
+    ifcContent.push(`#5=IFCAXIS2PLACEMENT3D(#9,$,$);`);
+    ifcContent.push(`#6=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);`);
+    ifcContent.push(`#7=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);`);
+    ifcContent.push(`#8=IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.);`);
+    ifcContent.push(`#9=IFCCARTESIANPOINT((0.,0.,0.));`);
 
     let currentId = 10;
 
@@ -93,22 +93,22 @@ function encodePropertySet(propertySet: PropertySet, ifcContent: string[], curre
         if (typeof property.value === 'string') {
             ifcValue = `'${property.value}'`;
         }
-        ifcContent.push(`#${currentId}=IFCSIMPLEPROPERTY('${property.name}',${property.type || '$'},'${property.description || '$'}',${ifcValue});\n`);
+        ifcContent.push(`#${currentId}=IFCSIMPLEPROPERTY('${property.name}',${property.type || '$'},'${property.description || '$'}',${ifcValue});`);
         currentId++;
     }
-    ifcContent.push(`${propertyIds.map(id => `#${id}`).join(',')}))\n`);
+    ifcContent.push(`${propertyIds.map(id => `#${id}`).join(',')}))`);
     return currentId;
 }
 
 function encodeSceneObject(object: SceneObject, ifcContent: string[], currentId: number): number {
     const objectId = generateGUID();
-    ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});\n`);
+    ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});`);
     currentId++;
     const matrix = object.meshes[0]?.matrix || [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
     const position = [matrix[12], matrix[13], matrix[14]];
-    ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);\n`);
+    ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);`);
     currentId++;
-    ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));\n`);
+    ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));`);
     currentId++;
     for (const mesh of object.meshes) {
         currentId = encodeSceneMesh(mesh, ifcContent, currentId, objectId);
@@ -126,17 +126,17 @@ function encodeSceneObjectAndDataObject(
     const objectId = generateGUID();
 
     // Create placement for the object
-    ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});\n`);
+    ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});`);
     currentId++;
 
     // Create axis placement
     const matrix = sceneObject.meshes[0]?.matrix || [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
     const position = [matrix[12], matrix[13], matrix[14]];
 
-    ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);\n`);
+    ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);`);
     currentId++;
 
-    ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));\n`);
+    ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));`);
     currentId++;
 
     // Process geometry
@@ -189,7 +189,7 @@ function encodeRelationship(relationship: Relationship, ifcContent: string[], cu
     const relationshipId = generateGUID();
     const ifcTypeName = ifcTypeNames[relationship.type];
     const ifcRelType =  ifcTypeName !== undefined ? ifcTypeName.toUpperCase() : 'IFCRELDEFINESBYPROPERTIES';
-    ifcContent.push(`#${currentId}=${ifcRelType}('${relationshipId}',#1,$,$,#${relationship.relatingObject.id},#${relationship.relatedObject.id});\n`);
+    ifcContent.push(`#${currentId}=${ifcRelType}('${relationshipId}',#1,$,$,#${relationship.relatingObject.id},#${relationship.relatedObject.id});`);
     currentId++;
     return currentId;
 }
@@ -223,10 +223,10 @@ function encodeSceneMesh(mesh: SceneMesh, ifcContent: string[], currentId: numbe
         }
     }
 
-    ifcContent.push(`#${currentId}=IFCSHAPEREPRESENTATION(#3,'Body','Tessellation',(#${currentId + 1}));\n`);
+    ifcContent.push(`#${currentId}=IFCSHAPEREPRESENTATION(#3,'Body','Tessellation',(#${currentId + 1}));`);
     currentId++;
 
-    ifcContent.push(`#${currentId}=IFCTRIANGULATEDFACESET(#${currentId + 1},$,#${currentId + 2},.T.);\n`);
+    ifcContent.push(`#${currentId}=IFCTRIANGULATEDFACESET(#${currentId + 1},$,#${currentId + 2},.T.);`);
     currentId++;
 
     let pointList = '';
@@ -235,7 +235,7 @@ function encodeSceneMesh(mesh: SceneMesh, ifcContent: string[], currentId: numbe
     }
     pointList = pointList.slice(0, -1);
 
-    ifcContent.push(`#${currentId}=IFCCARTESIANPOINTLIST3D((${pointList}));\n`);
+    ifcContent.push(`#${currentId}=IFCCARTESIANPOINTLIST3D((${pointList}));`);
     currentId++;
 
     let faceList = '';
@@ -244,7 +244,7 @@ function encodeSceneMesh(mesh: SceneMesh, ifcContent: string[], currentId: numbe
     }
     faceList = faceList.slice(0, -1);
 
-    ifcContent.push(`#${currentId}=IFCTRIANGULATEDINDEXLIST((${faceList}));\n`);
+    ifcContent.push(`#${currentId}=IFCTRIANGULATEDINDEXLIST((${faceList}));`);
     currentId++;
 
     return currentId;

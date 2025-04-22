@@ -1,21 +1,5 @@
 [xeoconvert] Loading input --ifc ./models/Duplex/ifc/model.ifc
 [xeoconvert] Running conversion pipeline ifc2xgf
-process inputs
-processNextInput pipelineInputIds=ifc pipelineInputIds.length=1
-processNextInput cont.
-model loaded
-processNextInput pipelineInputIds=ifc pipelineInputIds.length=1
-processNextInput done
-buildSceneModels
-buildNextSceneModel
-buildNextSceneModel
-buildDataModels
-buildNextDataModel
-buildNextDataModel
-processOutputs
-processNextOutput
-processNextOutput
-processNextOutput
 [xeoconvert] Writing output --xgf ./models/Duplex/ifc2xgf/model.xgf
 [xeoconvert] Writing output --datamodel ./models/Duplex/ifc2xgf/model.json
 [xeoconvert] Done.

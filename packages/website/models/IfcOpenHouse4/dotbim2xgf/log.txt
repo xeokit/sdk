@@ -1,19 +1,4 @@
 [xeoconvert] Loading input --dotbim ./models/IfcOpenHouse4/dotbim/model.bim
 [xeoconvert] Running conversion pipeline dotbim2xgf
-process inputs
-processNextInput pipelineInputIds=dotbim pipelineInputIds.length=1
-processNextInput cont.
-model loaded
-processNextInput pipelineInputIds=dotbim pipelineInputIds.length=1
-processNextInput done
-buildSceneModels
-buildNextSceneModel
-buildNextSceneModel
-buildDataModels
-buildNextDataModel
-buildNextDataModel
-processOutputs
-processNextOutput
-processNextOutput
 [xeoconvert] Writing output --xgf ./models/IfcOpenHouse4/dotbim2xgf/model.xgf
 [xeoconvert] Done.

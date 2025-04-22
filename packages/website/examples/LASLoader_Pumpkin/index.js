@@ -6,7 +6,7 @@ import {DemoHelper} from "../../js/DemoHelper.js";
 
 // Create a LASLoader to load .BIM files
 
-const lasLoader = new xeokit.las.LASReader();
+const lasLoader = new xeokit.las.LASLoader();
 
 // Create a Scene to hold geometry and materials
 

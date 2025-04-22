@@ -99,9 +99,9 @@ demoHelper.init()
         } else {
 
             // Fetch the IFC file containing the source model
-            fetch("../../models/BlenderHouse/ifc/model.ifc").then(response => {
+            fetch("../../models/RAC/ifc/model.ifc").then(response => {
                 response
-                    .json()
+                    .text()
                     .then(fileData => {
 
                         // Convert the IFC file into XGF (geometry) and DataModelParams (semantics) using the ModelConverter

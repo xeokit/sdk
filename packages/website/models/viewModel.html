@@ -225,10 +225,9 @@
                                 case "ifc": {
                                     fetch(`${baseDir}/model.ifc`).then(response => {
                                         response
-                                            .arrayBuffer()
+                                            .text()
                                             .then(fileData => {
                                                 (new xeokit.ifc.IFCLoader()).load({
-                                                    ifcAPI,
                                                     fileData,
                                                     dataModel,
                                                     sceneModel

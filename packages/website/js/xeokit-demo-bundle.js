@@ -68473,7 +68473,7 @@ var Component = class {
        * Logs an error for this component to the JavaScript console.
        *
        * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
-
+  
        @param message The error message to log
        @protected
        */
@@ -83289,8 +83289,8 @@ var parse4 = async (params2, options = {
           const mesh = params2.sceneModel.createMesh({
             id: meshId,
             geometryId,
-            color: color2 ? [color2.r, color2.g, color2.b] : void 0,
-            opacity: color2 ? color2.a : 1,
+            color: color2 ? [color2.r / 255, color2.g / 255, color2.b / 255] : void 0,
+            opacity: color2 ? color2.a / 255 : 1,
             quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : void 0,
             position: vector ? options.translate ? [vector.x + options.translate[0], vector.y + options.translate[1], vector.z + options.translate[2]] : [vector.x, vector.y, vector.z] : options.translate ? options.translate : void 0
           });
@@ -83360,8 +83360,8 @@ var parse5 = async (params2, options = {
           const mesh = params2.sceneModel.createMesh({
             id: meshId,
             geometryId,
-            color: color2 ? [color2.r, color2.g, color2.b] : void 0,
-            opacity: color2 ? color2.a : 1,
+            color: color2 ? [color2.r / 255, color2.g / 255, color2.b / 255] : void 0,
+            opacity: color2 ? color2.a / 255 : 1,
             quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : void 0,
             position: vector ? options.translate ? [vector.x + options.translate[0], vector.y + options.translate[1], vector.z + options.translate[2]] : [vector.x, vector.y, vector.z] : options.translate ? options.translate : void 0
           });
@@ -148747,26 +148747,26 @@ var IfcAPI2 = class {
 };
 
 // ../sdk/src/ifc/versions/IFC4/parse.ts
-function parse6(ifcAPI, params2, options) {
+function parse6(ifcAPI2, params2, options) {
   return new Promise(function(resolve2, reject) {
-    parseWebIFC(ifcAPI, params2).then(() => {
+    parseWebIFC(ifcAPI2, params2).then(() => {
       resolve2();
     });
   });
 }
-function parseWebIFC(ifcAPI, params2) {
+function parseWebIFC(ifcAPI2, params2) {
   return new Promise(function(resolve2, reject) {
     const { sceneModel, dataModel, fileData } = params2;
     const dataArray = new Uint8Array(fileData);
-    const modelId = ifcAPI.OpenModel(dataArray);
-    const lines = ifcAPI.GetLineIDsWithType(modelId, IFCPROJECT);
+    const modelId = ifcAPI2.OpenModel(dataArray);
+    const lines = ifcAPI2.GetLineIDsWithType(modelId, IFCPROJECT);
     const ifcProjectId = lines.get(0);
     const ctx = {
       fileData,
       modelId,
       lines,
       ifcProjectId,
-      ifcAPI,
+      ifcAPI: ifcAPI2,
       sceneModel,
       dataModel,
       nextId: 0
@@ -148953,51 +148953,18 @@ function parseSceneModel(ctx) {
 
 // ../sdk/src/ifc/IFCLoader.ts
 var import_web_ifc_api_node = __toESM(require_web_ifc_api_node());
+var ifcAPI = null;
 var IFCLoader = class extends ModelLoader {
-  #ifcAPI;
   /**
    * Constructs an IFCLoader.
    */
   constructor() {
-    const parse12 = (params2, options) => {
-      if (!this.#ifcAPI) {
-        return new Promise((resolve2, reject) => {
-          let api;
-          let wasmPath = "";
-          switch (detectEnvironment()) {
-            case "browser":
-              api = IfcAPI2;
-              wasmPath = "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/";
-              break;
-            case "node":
-              api = import_web_ifc_api_node.IfcAPI;
-              wasmPath = "../../node_modules/web-ifc/";
-              break;
-            default:
-              reject("[IFCLoader] Failed to determine environment");
-              return;
-          }
-          this.#ifcAPI = new api();
-          this.#ifcAPI.SetWasmPath(wasmPath);
-          this.#ifcAPI.Init().then(() => {
-            parse6(this.#ifcAPI, params2, options).then(() => {
-              resolve2();
-            }).catch((reason) => {
-              reject("[IFCLoader] Failed to parse IFC - " + reason);
-            });
-          }).catch((reason) => {
-            reject("[IFCLoader] Failed to initialize WebIFC - " + reason);
-          });
-        });
-      } else {
-        return parse6(this.#ifcAPI, params2, options);
-      }
-    };
     super({
-      fileDataType: "json",
+      fileDataType: "arraybuffer",
       parsers: {
-        "IFC4": parse12,
-        "IFC2x3": parse12
+        "IFC4": parse7,
+        // Internaly, web-ifc handles all versions
+        "IFC2x3": parse7
       },
       getVersion: (fileData) => {
         return "IFC4";
@@ -149005,6 +148972,40 @@ var IFCLoader = class extends ModelLoader {
     });
   }
 };
+function parse7(params2, options) {
+  return new Promise((resolve2, reject) => {
+    if (!ifcAPI) {
+      let api;
+      let wasmPath = "";
+      switch (detectEnvironment()) {
+        case "browser":
+          api = IfcAPI2;
+          wasmPath = "https://cdn.jsdelivr.net/npm/web-ifc@0.0.50/";
+          break;
+        case "node":
+          api = import_web_ifc_api_node.IfcAPI;
+          wasmPath = "../../node_modules/web-ifc/";
+          break;
+        default:
+          reject("[IFCLoader] Failed to determine environment");
+          return;
+      }
+      ifcAPI = new api();
+      ifcAPI.SetWasmPath(wasmPath);
+      ifcAPI.Init().then(() => {
+        parse6(ifcAPI, params2, options).then(resolve2).catch((reason) => {
+          reject("[IFCLoader] Failed to parse IFC - " + reason);
+        });
+      }).catch((reason) => {
+        reject("[IFCLoader] Failed to initialize WebIFC - " + reason);
+      });
+    } else {
+      parse6(ifcAPI, params2, options).then(resolve2).catch((reason) => {
+        reject("[IFCLoader] Failed to parse IFC - " + reason);
+      });
+    }
+  });
+}
 function detectEnvironment() {
   if (typeof process !== "undefined" && process.versions != null && process.versions.node != null) {
     return "node";
@@ -149038,25 +149039,15 @@ function generateIFC(sceneModel, dataModel, header) {
   ifcContent.push(generateIFCHeader(finalHeader));
   ifcContent.push("DATA;\n\n");
   const projectId = generateGUID();
-  ifcContent.push(`#1=${generateOwnerHistory()}
-`);
-  ifcContent.push(`#2=IFCPROJECT('${projectId}',#1,'${dataModel.projectId || sceneModel.id}',$,$,$,$,(#3),#4);
-`);
-  ifcContent.push(`#3=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.0E-5,#5,$);
-`);
-  ifcContent.push(`#4=IFCUNITASSIGNMENT((#6,#7,#8));
-`);
-  ifcContent.push(`#5=IFCAXIS2PLACEMENT3D(#9,$,$);
-`);
-  ifcContent.push(`#6=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
-`);
-  ifcContent.push(`#7=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);
-`);
-  ifcContent.push(`#8=IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.);
-`);
-  ifcContent.push(`#9=IFCCARTESIANPOINT((0.,0.,0.));
-
-`);
+  ifcContent.push(`#1=${generateOwnerHistory()}`);
+  ifcContent.push(`#2=IFCPROJECT('${projectId}',#1,'${dataModel.projectId || sceneModel.id}',$,$,$,$,(#3),#4);`);
+  ifcContent.push(`#3=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.0E-5,#5,$);`);
+  ifcContent.push(`#4=IFCUNITASSIGNMENT((#6,#7,#8));`);
+  ifcContent.push(`#5=IFCAXIS2PLACEMENT3D(#9,$,$);`);
+  ifcContent.push(`#6=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);`);
+  ifcContent.push(`#7=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);`);
+  ifcContent.push(`#8=IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.);`);
+  ifcContent.push(`#9=IFCCARTESIANPOINT((0.,0.,0.));`);
   let currentId = 10;
   const propertySetMap = /* @__PURE__ */ new Map();
   for (const propertySetId in dataModel.propertySets) {
@@ -149091,26 +149082,21 @@ function encodePropertySet(propertySet, ifcContent, currentId) {
     if (typeof property.value === "string") {
       ifcValue = `'${property.value}'`;
     }
-    ifcContent.push(`#${currentId}=IFCSIMPLEPROPERTY('${property.name}',${property.type || "$"},'${property.description || "$"}',${ifcValue});
-`);
+    ifcContent.push(`#${currentId}=IFCSIMPLEPROPERTY('${property.name}',${property.type || "$"},'${property.description || "$"}',${ifcValue});`);
     currentId++;
   }
-  ifcContent.push(`${propertyIds.map((id) => `#${id}`).join(",")}))
-`);
+  ifcContent.push(`${propertyIds.map((id) => `#${id}`).join(",")}))`);
   return currentId;
 }
 function encodeSceneObject(object, ifcContent, currentId) {
   const objectId = generateGUID();
-  ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});
-`);
+  ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});`);
   currentId++;
   const matrix = object.meshes[0]?.matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   const position = [matrix[12], matrix[13], matrix[14]];
-  ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);
-`);
+  ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);`);
   currentId++;
-  ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));
-`);
+  ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));`);
   currentId++;
   for (const mesh of object.meshes) {
     currentId = encodeSceneMesh(mesh, ifcContent, currentId, objectId);
@@ -149119,16 +149105,13 @@ function encodeSceneObject(object, ifcContent, currentId) {
 }
 function encodeSceneObjectAndDataObject(sceneObject, dataObject, propertySetMap, ifcContent, currentId) {
   const objectId = generateGUID();
-  ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});
-`);
+  ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});`);
   currentId++;
   const matrix = sceneObject.meshes[0]?.matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   const position = [matrix[12], matrix[13], matrix[14]];
-  ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);
-`);
+  ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);`);
   currentId++;
-  ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));
-`);
+  ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));`);
   currentId++;
   const geometryIds = [];
   for (const mesh of sceneObject.meshes) {
@@ -149164,8 +149147,7 @@ function encodeRelationship(relationship, ifcContent, currentId) {
   const relationshipId = generateGUID();
   const ifcTypeName = ifcTypeNames[relationship.type];
   const ifcRelType = ifcTypeName !== void 0 ? ifcTypeName.toUpperCase() : "IFCRELDEFINESBYPROPERTIES";
-  ifcContent.push(`#${currentId}=${ifcRelType}('${relationshipId}',#1,$,$,#${relationship.relatingObject.id},#${relationship.relatedObject.id});
-`);
+  ifcContent.push(`#${currentId}=${ifcRelType}('${relationshipId}',#1,$,$,#${relationship.relatingObject.id},#${relationship.relatedObject.id});`);
   currentId++;
   return currentId;
 }
@@ -149194,27 +149176,23 @@ function encodeSceneMesh(mesh, ifcContent, currentId, parentId) {
       ]);
     }
   }
-  ifcContent.push(`#${currentId}=IFCSHAPEREPRESENTATION(#3,'Body','Tessellation',(#${currentId + 1}));
-`);
+  ifcContent.push(`#${currentId}=IFCSHAPEREPRESENTATION(#3,'Body','Tessellation',(#${currentId + 1}));`);
   currentId++;
-  ifcContent.push(`#${currentId}=IFCTRIANGULATEDFACESET(#${currentId + 1},$,#${currentId + 2},.T.);
-`);
+  ifcContent.push(`#${currentId}=IFCTRIANGULATEDFACESET(#${currentId + 1},$,#${currentId + 2},.T.);`);
   currentId++;
   let pointList = "";
   for (const point of vertexPoints) {
     pointList += `(${point[0]},${point[1]},${point[2]}),`;
   }
   pointList = pointList.slice(0, -1);
-  ifcContent.push(`#${currentId}=IFCCARTESIANPOINTLIST3D((${pointList}));
-`);
+  ifcContent.push(`#${currentId}=IFCCARTESIANPOINTLIST3D((${pointList}));`);
   currentId++;
   let faceList = "";
   for (const face of faces2) {
     faceList += `(${face[0] + 1},${face[1] + 1},${face[2] + 1}),`;
   }
   faceList = faceList.slice(0, -1);
-  ifcContent.push(`#${currentId}=IFCTRIANGULATEDINDEXLIST((${faceList}));
-`);
+  ifcContent.push(`#${currentId}=IFCTRIANGULATEDINDEXLIST((${faceList}));`);
   currentId++;
   return currentId;
 }
@@ -149451,7 +149429,7 @@ var decompressColor = function() {
 }();
 
 // ../sdk/src/xgf/versions/v1/parse.ts
-function parse7(params2, options) {
+function parse8(params2, options) {
   return new Promise(function(resolve2, reject) {
     const { fileData, sceneModel, dataModel } = params2;
     xgfToModel({
@@ -149469,7 +149447,7 @@ var XGFLoader = class extends ModelLoader {
     super({
       fileDataType: "arraybuffer",
       parsers: {
-        "1": parse7
+        "1": parse8
       },
       getVersion: (fileData) => {
         return "" + new DataView(fileData).getUint32(0, true);
@@ -152062,7 +152040,7 @@ function getLoadersFromContext(loaders, context) {
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+core@4.3.3/node_modules/@loaders.gl/core/dist/lib/api/parse.js
-async function parse8(data, loaders, options, context) {
+async function parse9(data, loaders, options, context) {
   if (loaders && !Array.isArray(loaders) && !isLoaderObject(loaders)) {
     context = void 0;
     options = loaders;
@@ -152080,7 +152058,7 @@ async function parse8(data, loaders, options, context) {
   options = normalizeOptions(options, loader, candidateLoaders, url);
   context = getLoaderContext(
     // @ts-expect-error
-    { url, _parse: parse8, loaders: candidateLoaders },
+    { url, _parse: parse9, loaders: candidateLoaders },
     options,
     context || null
   );
@@ -152101,7 +152079,7 @@ async function parseWithLoader(loader, data, options, context) {
     return loaderWithParser.parseTextSync(data, options, context);
   }
   if (canParseWithWorker(loader, options)) {
-    return await parseWithWorker(loader, data, options, context, parse8);
+    return await parseWithWorker(loader, data, options, context, parse9);
   }
   if (loaderWithParser.parseText && typeof data === "string") {
     return await loaderWithParser.parseText(data, options, context);
@@ -171239,7 +171217,7 @@ function parseLAS2(params2, options = {}) {
         params2.log(msg);
       }
     };
-    parse8(params2.fileData, LASLoader3, {
+    parse9(params2.fileData, LASLoader3, {
       las: {
         colorDepth: options.colorDepth || "auto",
         fp64: options.fp64 !== void 0 ? options.fp64 : false
@@ -174937,9 +174915,9 @@ function initializeDracoDecoder(DracoDecoderModule, wasmBinary) {
 // ../../node_modules/.pnpm/@loaders.gl+draco@4.3.3_@loaders.gl+core@4.3.3/node_modules/@loaders.gl/draco/dist/index.js
 var DracoLoader2 = {
   ...DracoLoader,
-  parse: parse9
+  parse: parse10
 };
-async function parse9(arrayBuffer, options) {
+async function parse10(arrayBuffer, options) {
   const { draco } = await loadDracoDecoderModule(options);
   const dracoParser = new DracoParser(draco);
   try {
@@ -177022,7 +177000,7 @@ var GLTFLoader = {
   text: true,
   binary: true,
   tests: ["glTF"],
-  parse: parse10,
+  parse: parse11,
   options: {
     gltf: {
       normalize: true,
@@ -177039,7 +177017,7 @@ var GLTFLoader = {
     // eslint-disable-line
   }
 };
-async function parse10(arrayBuffer, options = {}, context) {
+async function parse11(arrayBuffer, options = {}, context) {
   options = { ...GLTFLoader.options, ...options };
   options.gltf = { ...GLTFLoader.options.gltf, ...options.gltf };
   const { byteOffset = 0 } = options;
@@ -177468,7 +177446,7 @@ function parseGLTF2(params2) {
     if (!sceneModel && !dataModel) {
       return resolve2();
     }
-    parse8(fileData, GLTFLoader, {}).then((gltfData) => {
+    parse9(fileData, GLTFLoader, {}).then((gltfData) => {
       const processedGLTF = postProcessGLTF(gltfData);
       const ctx = {
         nodesHaveNames: false,
@@ -182597,7 +182575,7 @@ function xktToModel(params2) {
 }
 
 // ../sdk/src/xkt/versions/v10/parse.ts
-function parse11(params2, options = {}) {
+function parse12(params2, options = {}) {
   return new Promise(function(resolve2, reject) {
     const { fileData, sceneModel } = params2;
     if (sceneModel) {
@@ -182619,7 +182597,7 @@ var XKTLoader = class extends ModelLoader {
     super({
       fileDataType: "arraybuffer",
       parsers: {
-        "10": parse11
+        "10": parse12
       },
       getVersion: (fileData) => {
         return "" + new DataView(fileData).getUint32(0, true);
@@ -187015,7 +186993,7 @@ var Camera = class extends Component {
   }
   /**
        * Rotates {@link Camera.look | Camera.look} about {@link Camera.eye | Camera.eye}, around the right axis (orthogonal to {@link Camera.up | Camera.up} and "look").
-
+  
        * @param angleInc Angle of rotation in degrees
        */
   pitch(angleInc) {

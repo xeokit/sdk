@@ -1933,7 +1933,7 @@ var Component = class {
        * Logs an error for this component to the JavaScript console.
        *
        * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
-  
+
        @param message The error message to log
        @protected
        */
@@ -5406,9 +5406,9 @@ function createRTCViewMat(viewMat, rtcCenter2, rtcViewMat = tempMat) {
 }
 var createRTCModelMat = (() => {
   const zeroVec4 = createVec4([0, 0, 0, 1]);
-  const tempVec4a9 = createVec4();
+  const tempVec4a8 = createVec4();
   return (matrix, rtcCenter2) => {
-    const tempVec4 = transformVec4(matrix, zeroVec4, tempVec4a9);
+    const tempVec4 = transformVec4(matrix, zeroVec4, tempVec4a8);
     rtcCenter2[0] = Math.round(tempVec4[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
     rtcCenter2[1] = Math.round(tempVec4[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
     rtcCenter2[2] = Math.round(tempVec4[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
@@ -8383,12 +8383,13 @@ function vsprintf(msg, args = []) {
 var data_exports = {};
 __export(data_exports, {
   Data: () => Data,
+  DataModeParamsExporter: () => DataModeParamsExporter,
   DataModel: () => DataModel,
+  DataModelParamsLoader: () => DataModelParamsLoader,
   DataObject: () => DataObject,
   Property: () => Property,
   PropertySet: () => PropertySet,
   Relationship: () => Relationship,
-  loadDataModel: () => loadDataModel,
   searchObjects: () => searchObjects
 });
 
@@ -9428,29 +9429,22 @@ function arrayToMap(array) {
   return map;
 }
 
-// ../sdk/src/data/loadDataModel.ts
-function loadDataModel(params2) {
+// ../sdk/src/data/versions/1_0/parse.ts
+function parse(params2, options) {
   return new Promise(function(resolve2, reject) {
-    if (!params2) {
-      return reject("Argument expected: params");
+    if (params2.dataModel && params2.fileData) {
+      params2.dataModel.fromParams(params2.fileData);
     }
-    const { fileData, dataModel } = params2;
-    if (!fileData) {
-      return reject("Argument expected: fileData");
-    }
-    if (!dataModel) {
-      return reject("Parameter expected: params.dataModel");
-    }
-    if (dataModel.destroyed) {
-      return reject("DataModel already destroyed");
-    }
-    if (dataModel.built) {
-      return reject("DataModel already built");
-    }
-    dataModel.fromParams(fileData);
     return resolve2();
   });
 }
+
+// ../sdk/src/io/index.ts
+var io_exports = {};
+__export(io_exports, {
+  ModelExporter: () => ModelExporter,
+  ModelLoader: () => ModelLoader
+});
 
 // ../sdk/src/scene/index.ts
 var scene_exports = {};
@@ -9459,6 +9453,8 @@ __export(scene_exports, {
   SceneGeometry: () => SceneGeometry,
   SceneMesh: () => SceneMesh,
   SceneModel: () => SceneModel,
+  SceneModelParamsExporter: () => SceneModelParamsExporter,
+  SceneModelParamsLoader: () => SceneModelParamsLoader,
   SceneObject: () => SceneObject,
   SceneTexture: () => SceneTexture,
   SceneTextureSet: () => SceneTextureSet,
@@ -11580,6 +11576,295 @@ function buildMat4(params2) {
   }
   return matrix;
 }
+
+// ../sdk/src/scene/versions/1_0/parse.ts
+function parse2(params2, options) {
+  return new Promise(function(resolve2, reject) {
+    if (params2.sceneModel && params2.fileData) {
+      params2.sceneModel.fromParams(params2.fileData);
+    }
+    return resolve2();
+  });
+}
+
+// ../sdk/src/scene/SceneModelParamsLoader.ts
+var SceneModelParamsLoader = class extends ModelLoader {
+  /**
+   * Constructs a SceneModelParamsLoader.
+   */
+  constructor() {
+    super({
+      fileDataType: "json",
+      parsers: {
+        "1.0": parse2
+      },
+      getVersion: (fileData) => {
+        return fileData.version || "1.0";
+      }
+    });
+  }
+};
+
+// ../sdk/src/scene/versions/1_0/encode.ts
+function encode(params2, options) {
+  return new Promise(function(resolve2, reject) {
+    const sceneModelParams = params2.sceneModel ? params2.sceneModel.toParams() : {};
+    sceneModelParams.version = "1.0";
+    return resolve2(sceneModelParams);
+  });
+}
+
+// ../sdk/src/io/ModelExporter.ts
+var ModelExporter = class {
+  /**
+   * An encoder function for each supported schema version.
+   */
+  encoders;
+  /**
+   * List of supported schema versions.
+   */
+  versions;
+  /**
+   * The default supported schema version.
+   */
+  defaultVersion;
+  /**
+   * Data type of the file written by this Exporter.
+   */
+  fileDataType;
+  /**
+   * @param params
+   */
+  constructor(params2) {
+    this.encoders = params2.encoders || {};
+    this.versions = Object.keys(this.encoders);
+    this.fileDataType = params2.fileDataType;
+    this.defaultVersion = params2.defaultVersion;
+  }
+  /**
+   * Exports a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel} to file data.
+   *
+   * This method expects the following conditions:
+   * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
+   * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
+   *
+   * @param params - The parameters used for writing the file data.
+    * @param params.sceneModel - The {@link scene!SceneModel | SceneModel} to write.
+   * @param params.dataModel - The {@link data!DataModel | DataModel} to write.
+   * @param options - Options for customizing the loading process. These are specific to the Exporter subclass.
+   * @returns {Promise} Resolves when the SceneModel and/or DataModel has been successfully written.
+   *
+   * @throws {@link core!SDKError | SDKError}
+   * - If the SceneModel has already been destroyed.
+   * - If the SceneModel has already been built.
+   * - If the DataModel has already been destroyed.
+   * - If the DataModel has already been built.
+   */
+  write(params2, options = {}) {
+    return new Promise((resolve2, reject) => {
+      if (!params2) {
+        return reject("Argument expected: params");
+      }
+      const { sceneModel, dataModel } = params2;
+      if (!sceneModel) {
+        return reject("Argument expected: params.sceneModel");
+      }
+      if (sceneModel.destroyed) {
+        return reject("SceneModel already destroyed");
+      }
+      if (sceneModel.built) {
+        return reject("SceneModel already built");
+      }
+      if (dataModel) {
+        if (!(dataModel instanceof DataModel)) {
+          return reject("Argument type mismatch: params.dataModel should be a DataModel");
+        }
+        if (dataModel.destroyed) {
+          return reject("DataModel already destroyed");
+        }
+        if (dataModel.built) {
+          return reject("DataModel already built");
+        }
+      }
+      const version2 = params2.version || this.defaultVersion;
+      const encoder = this.encoders[version2];
+      if (!encoder) {
+        return reject(`Unsupported target file schema version: ${version2} - supported versions are [${this.versions}]`);
+      }
+      encoder({ sceneModel, dataModel }, options).then((fileData) => {
+        resolve2(fileData);
+      }).catch((err2) => {
+        reject(`Failed to writer source file: ${err2}`);
+      });
+    });
+  }
+};
+
+// ../sdk/src/scene/SceneModelParamsExporter.ts
+var SceneModelParamsExporter = class extends ModelExporter {
+  /**
+   * Constructs a SceneModelParamsExporter.
+   */
+  constructor() {
+    super({
+      fileDataType: "json",
+      encoders: {
+        "1.0": encode
+      },
+      defaultVersion: "1.0"
+    });
+  }
+};
+
+// ../sdk/src/io/ModelLoader.ts
+var ModelLoader = class {
+  /**
+   * Filename extensions expected on loaded model files.
+   */
+  fileNameExtensions;
+  /**
+   * A parser strategy for each supported schema version.
+   */
+  parsers;
+  /**
+   * IDs of supported file schema versions.
+   */
+  versions;
+  /**
+   * Identifies the MIME type of files loaded by this parser.
+   */
+  fileDataType;
+  /**
+   * Gets the schema version of the given file data.
+   */
+  getVersion;
+  /**
+   * @protected
+   * @param params
+   */
+  constructor(params2) {
+    this.parsers = params2.parsers || {};
+    this.versions = Object.keys(this.parsers);
+    this.fileDataType = params2.fileDataType;
+    this.getVersion = params2.getVersion;
+  }
+  /**
+   * Loads file data into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+   *
+   * This method expects the following conditions:
+   * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
+   * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
+   *
+   * @param params - The parameters used for loading the file data.
+   * @param params.fileData - The file data to load.
+   * @param params.sceneModel - The {@link scene!SceneModel | SceneModel} into which the file data will be loaded.
+   * @param params.dataModel - The {@link data!DataModel | DataModel} into which the file data will be loaded.
+   * @param options - Options for customizing the loading process. These are specific to the Loader subclass.
+   * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
+   *
+   * @throws {@link core!SDKError | SDKError}
+   * - If the SceneModel has already been destroyed.
+   * - If the SceneModel has already been built.
+   * - If the DataModel has already been destroyed.
+   * - If the DataModel has already been built.
+   */
+  load(params2, options = {}) {
+    return new Promise((resolve2, reject) => {
+      if (!params2) {
+        return reject("Argument expected: params");
+      }
+      const { fileData, sceneModel, dataModel } = params2;
+      if (!fileData) {
+        return reject("Argument expected: fileData");
+      }
+      if (this.fileDataType === "json" && !isJSONObject(fileData)) {
+        return reject("Argument type mismatch: params.fileData should be a JSON object");
+      }
+      if (sceneModel) {
+        if (!(sceneModel instanceof SceneModel)) {
+          return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
+        }
+        if (sceneModel.destroyed) {
+          return reject("SceneModel already destroyed");
+        }
+        if (sceneModel.built) {
+          return reject("SceneModel already built");
+        }
+      }
+      if (dataModel) {
+        if (!(dataModel instanceof DataModel)) {
+          return reject("Argument type mismatch: params.dataModel should be a DataModel");
+        }
+        if (dataModel.destroyed) {
+          return reject("DataModel already destroyed");
+        }
+        if (dataModel.built) {
+          return reject("DataModel already built");
+        }
+      }
+      const version2 = this.getVersion(fileData);
+      if (!version2) {
+        return reject(`Failed to determine schema version of source file`);
+      }
+      const parser = this.parsers[version2];
+      if (!parser) {
+        return reject(`Unsupported source file schema version: ${version2} - supported versions are [${this.versions}]`);
+      }
+      if (sceneModel || dataModel) {
+        parser({ fileData, sceneModel, dataModel }, options).then(() => {
+          resolve2();
+        }).catch((err2) => {
+          reject(`Failed to load source file: ${err2}`);
+        });
+      } else {
+        return resolve2();
+      }
+    });
+  }
+};
+
+// ../sdk/src/data/DataModelParamsLoader.ts
+var DataModelParamsLoader = class extends ModelLoader {
+  /**
+   * Constructs a DataModelParamsLoader.
+   */
+  constructor() {
+    super({
+      fileDataType: "json",
+      parsers: {
+        "1.0": parse
+      },
+      getVersion: (fileData) => {
+        return fileData.version || "1.0";
+      }
+    });
+  }
+};
+
+// ../sdk/src/data/versions/1_0/encode.ts
+function encode2(params2, options) {
+  return new Promise(function(resolve2, reject) {
+    const dataModelParams = params2.dataModel ? params2.dataModel.toParams() : {};
+    dataModelParams.version = "1.0";
+    return resolve2(dataModelParams);
+  });
+}
+
+// ../sdk/src/data/DataModelParamsExporter.ts
+var DataModeParamsExporter = class extends ModelExporter {
+  /**
+   * Constructs a DataModelParamsExporter.
+   */
+  constructor() {
+    super({
+      fileDataType: "json",
+      encoders: {
+        "1.0": encode2
+      },
+      defaultVersion: "1.0"
+    });
+  }
+};
 
 // ../sdk/src/kdtree2/index.ts
 var kdtree2_exports = {};
@@ -15528,10 +15813,10 @@ var ifcTypeNames = {
 // ../sdk/src/cityjson/index.ts
 var cityjson_exports = {};
 __export(cityjson_exports, {
-  loadCityJSON: () => loadCityJSON
+  CityJSONLoader: () => CityJSONLoader
 });
 
-// ../sdk/src/cityjson/earcut.ts
+// ../sdk/src/cityjson/versions/v1_0/earcut.ts
 var earcut = /* @__PURE__ */ (() => {
   class Node {
     i;
@@ -16032,47 +16317,16 @@ var earcut = /* @__PURE__ */ (() => {
   return earcut2;
 })();
 
-// ../sdk/src/cityjson/loadCityJSON.ts
+// ../sdk/src/cityjson/versions/v1_0/parse.ts
 var tempVec2a = createVec2();
 var tempVec3a3 = createVec3();
 var tempVec3b3 = createVec3();
 var tempVec3c3 = createVec3();
-function loadCityJSON(params2, options = {
+function parse3(params2, options = {
   rotateX: false
 }) {
   return new Promise(function(resolve2, reject) {
-    if (!params2) {
-      return reject("Argument expected: params");
-    }
     const { fileData, sceneModel, dataModel } = params2;
-    if (!fileData) {
-      return reject("Argument expected: params.fileData");
-    }
-    if (!isJSONObject(fileData)) {
-      return reject("Argument type mismatch: params.fileData should be a JSON object");
-    }
-    if (sceneModel) {
-      if (!(sceneModel instanceof SceneModel)) {
-        return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
-      }
-      if (sceneModel.destroyed) {
-        return reject("SceneModel already destroyed");
-      }
-      if (sceneModel.built) {
-        return reject("SceneModel already built");
-      }
-    }
-    if (dataModel) {
-      if (!(dataModel instanceof DataModel)) {
-        return reject("Argument type mismatch: params.dataModel should be a DataModel");
-      }
-      if (dataModel.destroyed) {
-        return reject("DataModel already destroyed");
-      }
-      if (dataModel.built) {
-        return reject("DataModel already built");
-      }
-    }
     if (sceneModel || dataModel) {
       const ctx = {
         fileData,
@@ -16438,288 +16692,252 @@ function to2D(_p, _n, re) {
   re[1] = y;
 }
 
+// ../sdk/src/cityjson/CityJSONLoader.ts
+var CityJSONLoader = class extends ModelLoader {
+  /**
+   * Constructs a CityJSONLoader.
+   */
+  constructor() {
+    super({
+      fileDataType: "json",
+      parsers: {
+        "1.0": parse3
+      },
+      getVersion: (fileData) => {
+        return fileData.version || "1.0";
+      }
+    });
+  }
+};
+
 // ../sdk/src/dotbim/index.ts
 var dotbim_exports = {};
 __export(dotbim_exports, {
-  loadDotBIM: () => loadDotBIM,
-  saveDotBIM: () => saveDotBIM
+  DotBIMExporter: () => DotBIMExporter,
+  DotBIMLoader: () => DotBIMLoader
 });
 
-// ../sdk/src/dotbim/loadDotBIM.ts
-function loadDotBIM(params2, options = {}) {
+// ../sdk/src/dotbim/versions/1_1_0/parse.ts
+function parse4(params2, options) {
   return new Promise(function(resolve2, reject) {
-    if (!params2) {
-      return reject("Argument expected: params");
-    }
-    const { fileData, sceneModel, dataModel } = params2;
-    if (!fileData) {
-      return reject("Argument expected: fileData");
-    }
-    if (!isJSONObject(fileData)) {
-      return reject("Argument type mismatch: params.fileData should be a JSON object");
-    }
-    if (sceneModel) {
-      if (!(sceneModel instanceof SceneModel)) {
-        return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
-      }
-      if (sceneModel.destroyed) {
-        return reject("SceneModel already destroyed");
-      }
-      if (sceneModel.built) {
-        return reject("SceneModel already built");
+    const fileData = params2.fileData;
+    options = options || {};
+    if (params2.sceneModel) {
+      const meshes = fileData.meshes;
+      for (let i = 0, len = meshes.length; i < len; i++) {
+        const mesh = meshes[i];
+        const geometry = params2.sceneModel.createGeometry({
+          id: mesh.mesh_id,
+          primitive: TrianglesPrimitive,
+          positions: mesh.coordinates,
+          indices: mesh.indices
+        });
+        if (geometry instanceof SDKError) {
+        }
       }
     }
-    if (dataModel) {
-      if (!(dataModel instanceof DataModel)) {
-        return reject("Argument type mismatch: params.dataModel should be a DataModel");
+    const elements = fileData.elements;
+    for (let i = 0, len = elements.length; i < len; i++) {
+      const element = elements[i];
+      const info = element.info;
+      const objectId = element.guid !== void 0 ? `${element.guid}` : info !== void 0 && info.id !== void 0 ? info.id : i;
+      if (params2.sceneModel) {
+        const geometryId = element.mesh_id;
+        const meshId = `${objectId}-mesh`;
+        const vector = element.vector;
+        const rotation = element.rotation;
+        const color2 = element.color;
+        const mesh = params2.sceneModel.createMesh({
+          id: meshId,
+          geometryId,
+          color: color2 ? [color2.r, color2.g, color2.b] : void 0,
+          opacity: color2 ? color2.a : 1,
+          quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : void 0,
+          position: vector ? options.translate ? [vector.x + options.translate[0], vector.y + options.translate[1], vector.z + options.translate[2]] : [vector.x, vector.y, vector.z] : options.translate ? options.translate : void 0
+        });
+        if (mesh instanceof SDKError) {
+          continue;
+        }
+        const sceneObject = params2.sceneModel.createObject({
+          id: objectId,
+          meshIds: [meshId]
+        });
+        if (sceneObject instanceof SDKError) {
+          continue;
+        }
       }
-      if (dataModel.destroyed) {
-        return reject("DataModel already destroyed");
+      if (params2.dataModel) {
+        if (!params2.dataModel.objects[element.guid]) {
+          const dataObject = params2.dataModel.createObject({
+            id: objectId,
+            type: ifcTypeCodes[element.type],
+            name: info.Name,
+            description: info.Description
+          });
+          if (dataObject instanceof SDKError) {
+          }
+        }
       }
-      if (dataModel.built) {
-        return reject("DataModel already built");
-      }
-    }
-    if (sceneModel || dataModel) {
-      const ctx = {
-        fileData,
-        sceneModel,
-        dataModel,
-        nextId: 0,
-        error: options.error || function(errMsg) {
-        },
-        translate: options.translate
-      };
-      parseDotBIM(ctx);
     }
     return resolve2();
   });
 }
-function parseDotBIM(ctx) {
-  const fileData = ctx.fileData;
-  if (ctx.sceneModel) {
-    const meshes = fileData.meshes;
-    for (let i = 0, len = meshes.length; i < len; i++) {
-      const mesh = meshes[i];
-      const geometry = ctx.sceneModel.createGeometry({
-        id: mesh.mesh_id,
-        primitive: TrianglesPrimitive,
-        positions: mesh.coordinates,
-        indices: mesh.indices
-      });
-      if (geometry instanceof SDKError) {
-        ctx.error(`[SceneModel.createGeometry]: ${geometry.message}`);
-      }
-    }
-  }
-  const elements = fileData.elements;
-  for (let i = 0, len = elements.length; i < len; i++) {
-    const element = elements[i];
-    const info = element.info;
-    const objectId = element.guid !== void 0 ? `${element.guid}` : info !== void 0 && info.id !== void 0 ? info.id : i;
-    if (ctx.sceneModel) {
-      const geometryId = element.mesh_id;
-      const meshId = `${objectId}-mesh`;
-      const vector = element.vector;
-      const rotation = element.rotation;
-      const color2 = element.color;
-      const mesh = ctx.sceneModel.createMesh({
-        id: meshId,
-        geometryId,
-        color: color2 ? [color2.r, color2.g, color2.b] : void 0,
-        opacity: color2 ? color2.a : 1,
-        quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : void 0,
-        position: vector ? ctx.translate ? [vector.x + ctx.translate[0], vector.y + ctx.translate[1], vector.z + ctx.translate[2]] : [vector.x, vector.y, vector.z] : ctx.translate ? ctx.translate : void 0
-      });
-      if (mesh instanceof SDKError) {
-        ctx.error(`[SceneModel.createMesh]: ${mesh.message}`);
-        continue;
-      }
-      const sceneObject = ctx.sceneModel.createObject({
-        id: objectId,
-        meshIds: [meshId]
-      });
-      if (sceneObject instanceof SDKError) {
-        ctx.error(`[SceneModel.createObject]: ${sceneObject.message}`);
-        continue;
-      }
-    }
-    if (ctx.dataModel) {
-      if (!ctx.dataModel.objects[element.guid]) {
-        const dataObject = ctx.dataModel.createObject({
-          id: objectId,
-          type: ifcTypeCodes[element.type],
-          name: info.Name,
-          description: info.Description
-        });
-        if (dataObject instanceof SDKError) {
-          ctx.error(`[SceneModel.createObject]: ${dataObject.message}`);
-        }
-      }
-    }
-  }
-}
 
-// ../sdk/src/dotbim/saveDotBIM.ts
-var tempVec3a4 = createVec3();
-var tempVec3b4 = createVec3();
-function saveDotBIM(params2) {
-  const {
-    sceneModel,
-    dataModel
-  } = params2;
-  if (!sceneModel) {
-    throw new SDKError("Argument expected: params.sceneModel");
-  }
-  if (!(sceneModel instanceof SceneModel)) {
-    throw new SDKError("Argument type mismatch: params.sceneModel should be a SceneModel");
-  }
-  if (sceneModel.destroyed) {
-    throw new SDKError("SceneModel already destroyed");
-  }
-  if (!sceneModel.built) {
-    throw new SDKError("SceneModel not yet built");
-  }
-  if (dataModel) {
-    if (!(dataModel instanceof DataModel)) {
-      throw new SDKError("Argument type mismatch: params.dataModel should be a DataModel");
-    }
-    if (dataModel.destroyed) {
-      throw new SDKError("DataModel already destroyed");
-    }
-    if (!dataModel.built) {
-      throw new SDKError("DataModel not yet built");
-    }
-  }
-  return modelToDotBIM({
-    sceneModel,
-    dataModel
-  });
-}
-function modelToDotBIM(params2) {
-  const {
-    sceneModel,
-    dataModel
-  } = params2;
-  const dotBim = {
-    meshes: [],
-    elements: []
-  };
-  const geometries = Object.values(sceneModel.geometries);
-  const meshLookup = {};
-  for (let i = 0, len = geometries.length; i < len; i++) {
-    const geometry = geometries[i];
-    const aabb = geometry.aabb;
-    const coordinates = [];
-    const positionsCompressed = geometry.positionsCompressed;
-    for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
-      tempVec3a4[0] = positionsCompressed[k];
-      tempVec3a4[1] = positionsCompressed[k + 1];
-      tempVec3a4[2] = positionsCompressed[k + 2];
-      decompressPoint3WithAABB3(tempVec3a4, aabb, tempVec3b4);
-      coordinates.push(tempVec3b4[0]);
-      coordinates.push(tempVec3b4[1]);
-      coordinates.push(tempVec3b4[2]);
-    }
-    meshLookup[geometry.id] = {
-      mesh_id: geometry.id,
-      coordinates,
-      indices: geometry.indices || []
-    };
-  }
-  const sceneObjects = Object.values(sceneModel.objects);
-  for (let i = 0, len = sceneObjects.length; i < len; i++) {
-    const sceneObject = sceneObjects[i];
-    const meshes = sceneObject.meshes;
-    let meshId;
-    let dbMesh;
-    if (meshes.length === 1) {
-      const mesh = meshes[0];
-      const geometry = mesh.geometry;
-      dbMesh = meshLookup[geometry.id];
-      dotBim.meshes.push(dbMesh);
-      meshId = geometry.id;
-    } else {
-      dbMesh = {
-        mesh_id: sceneObject.id,
-        coordinates: [],
-        indices: []
-      };
-      let indicesOffset = 0;
-      for (let j = 0, lenj = meshes.length; j < lenj; j++) {
-        const sceneMesh = meshes[j];
-        const geometry = sceneMesh.geometry;
-        const lookupGeometry = meshLookup[geometry.id];
-        const coordinates = lookupGeometry.coordinates;
-        for (let k = 0, lenk = coordinates.length; k < lenk; k++) {
-          dbMesh.coordinates.push(coordinates[k]);
-        }
-        const indices = lookupGeometry.indices;
-        for (let k = 0, lenk = indices.length; k < lenk; k++) {
-          dbMesh.indices.push(indices[k] + indicesOffset);
-        }
-        indicesOffset += coordinates.length / 3;
+// ../sdk/src/dotbim/DotBIMLoader.ts
+var DotBIMLoader = class extends ModelLoader {
+  constructor() {
+    super({
+      fileDataType: "json",
+      parsers: {
+        "1.1.0": parse4
+      },
+      getVersion: (sourceFileData) => {
+        return sourceFileData.schema_version || "1.1.0";
       }
-      dotBim.meshes.push(dbMesh);
-      meshId = sceneObject.id;
-    }
-    const firstMesh = meshes[0];
-    const color2 = firstMesh.color;
-    const position = createVec3();
-    const quaternion = createVec4();
-    const scale3 = createVec3();
-    decomposeMat4(firstMesh.matrix, position, quaternion, scale3);
-    const info = {
-      id: sceneObject.id,
-      Tag: "None"
-    };
-    let dataObject;
-    if (dataModel) {
-      dataObject = dataModel.objects[sceneObject.id];
-      if (dataObject) {
-        info.type = ifcTypeNames[dataObject.type];
-        info.Name = dataObject.name;
-        info.Description = dataObject.description;
-      }
-    }
-    if (!dataObject) {
-      info.type = "None";
-      info.Name = "None";
-      info.Description = "None";
-    }
-    dotBim.elements.push({
-      info,
-      mesh_id: dbMesh.mesh_id,
-      type: info.type,
-      color: {
-        r: color2[0],
-        g: color2[1],
-        b: color2[2],
-        a: firstMesh.opacity
-      },
-      vector: {
-        x: position[0],
-        y: position[1],
-        z: position[2]
-      },
-      rotation: {
-        qx: quaternion[0],
-        qy: quaternion[0],
-        qz: quaternion[0],
-        qw: quaternion[0]
-      },
-      qy: quaternion[1],
-      qz: quaternion[2],
-      qw: quaternion[3]
     });
   }
-  return dotBim;
+};
+
+// ../sdk/src/dotbim/versions/1_1_0/encode.ts
+var tempVec3a4 = createVec3();
+var tempVec3b4 = createVec3();
+function encode3(params2, options) {
+  return new Promise(function(resolve2, reject) {
+    const { sceneModel, dataModel } = params2;
+    const dotBim = {
+      meshes: [],
+      elements: []
+    };
+    const geometries = Object.values(sceneModel.geometries);
+    const meshLookup = {};
+    for (let i = 0, len = geometries.length; i < len; i++) {
+      const geometry = geometries[i];
+      const aabb = geometry.aabb;
+      const coordinates = [];
+      const positionsCompressed = geometry.positionsCompressed;
+      for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
+        tempVec3a4[0] = positionsCompressed[k];
+        tempVec3a4[1] = positionsCompressed[k + 1];
+        tempVec3a4[2] = positionsCompressed[k + 2];
+        decompressPoint3WithAABB3(tempVec3a4, aabb, tempVec3b4);
+        coordinates.push(tempVec3b4[0]);
+        coordinates.push(tempVec3b4[1]);
+        coordinates.push(tempVec3b4[2]);
+      }
+      meshLookup[geometry.id] = {
+        mesh_id: geometry.id,
+        coordinates,
+        indices: geometry.indices ? Array.from(geometry.indices) : []
+      };
+    }
+    const sceneObjects = Object.values(sceneModel.objects);
+    for (let i = 0, len = sceneObjects.length; i < len; i++) {
+      const sceneObject = sceneObjects[i];
+      const meshes = sceneObject.meshes;
+      let meshId;
+      let dbMesh;
+      if (meshes.length === 1) {
+        const mesh = meshes[0];
+        const geometry = mesh.geometry;
+        dbMesh = meshLookup[geometry.id];
+        dotBim.meshes.push(dbMesh);
+        meshId = geometry.id;
+      } else {
+        dbMesh = {
+          mesh_id: sceneObject.id,
+          coordinates: [],
+          indices: []
+        };
+        let indicesOffset = 0;
+        for (let j = 0, lenj = meshes.length; j < lenj; j++) {
+          const sceneMesh = meshes[j];
+          const geometry = sceneMesh.geometry;
+          const lookupGeometry = meshLookup[geometry.id];
+          const coordinates = lookupGeometry.coordinates;
+          for (let k = 0, lenk = coordinates.length; k < lenk; k++) {
+            dbMesh.coordinates.push(coordinates[k]);
+          }
+          const indices = lookupGeometry.indices;
+          for (let k = 0, lenk = indices.length; k < lenk; k++) {
+            dbMesh.indices.push(indices[k] + indicesOffset);
+          }
+          indicesOffset += coordinates.length / 3;
+        }
+        dotBim.meshes.push(dbMesh);
+        meshId = sceneObject.id;
+      }
+      const firstMesh = meshes[0];
+      const color2 = firstMesh.color;
+      const position = createVec3();
+      const quaternion = createVec4();
+      const scale3 = createVec3();
+      decomposeMat4(firstMesh.matrix, position, quaternion, scale3);
+      const info = {
+        id: sceneObject.id,
+        Tag: "None"
+      };
+      let dataObject;
+      if (dataModel) {
+        dataObject = dataModel.objects[sceneObject.id];
+        if (dataObject) {
+          info.type = ifcTypeNames[dataObject.type];
+          info.Name = dataObject.name;
+          info.Description = dataObject.description;
+        }
+      }
+      if (!dataObject) {
+        info.type = "None";
+        info.Name = "None";
+        info.Description = "None";
+      }
+      dotBim.elements.push({
+        info,
+        mesh_id: dbMesh.mesh_id,
+        type: info.type,
+        color: {
+          r: color2[0],
+          g: color2[1],
+          b: color2[2],
+          a: firstMesh.opacity
+        },
+        vector: {
+          x: position[0],
+          y: position[1],
+          z: position[2]
+        },
+        rotation: {
+          qx: quaternion[0],
+          qy: quaternion[0],
+          qz: quaternion[0],
+          qw: quaternion[0]
+        },
+        qy: quaternion[1],
+        qz: quaternion[2],
+        qw: quaternion[3]
+      });
+    }
+    return resolve2(dotBim);
+  });
 }
 
-// ../sdk/src/webifc/index.ts
-var webifc_exports = {};
-__export(webifc_exports, {
-  loadWebIFC: () => loadWebIFC
+// ../sdk/src/dotbim/DotBIMExporter.ts
+var DotBIMExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      fileDataType: "json",
+      encoders: {
+        "1.1.0": encode3
+      },
+      defaultVersion: "1.1.0"
+    });
+  }
+};
+
+// ../sdk/src/ifc/index.ts
+var ifc_exports = {};
+__export(ifc_exports, {
+  IFCExporter: () => IFCExporter,
+  IFCLoader: () => IFCLoader
 });
 
 // ../../node_modules/.pnpm/web-ifc@0.0.50/node_modules/web-ifc/web-ifc-api.js
@@ -80926,49 +81144,20 @@ if (typeof self !== "undefined" && self.crossOriginIsolated) {
 } else
   WebIFCWasm = require_web_ifc();
 
-// ../sdk/src/webifc/loadWebIFC.ts
-var tempVec4a3 = createVec4();
-var tempVec4b3 = createVec4();
-function loadWebIFC(params2) {
+// ../sdk/src/ifc/versions/IFC4/parse.ts
+function parse5(ifcAPI, params2, options) {
   return new Promise(function(resolve2, reject) {
-    if (!params2) {
-      return reject("[loadWebIFC] Argument expected: params");
-    }
-    const { sceneModel, dataModel, fileData, ifcAPI } = params2;
-    if (!ifcAPI) {
-      return reject("[loadWebIFC] Argument expected: ifcAPI");
-    }
-    if (!fileData) {
-      return reject("[loadWebIFC] Argument expected: fileData");
-    }
-    if (sceneModel) {
-      if (!(sceneModel instanceof SceneModel)) {
-        return reject("[loadWebIFC] Argument type mismatch: params.sceneModel should be a SceneModel");
-      }
-      if (sceneModel.destroyed) {
-        return reject("[loadWebIFC] SceneModel already destroyed");
-      }
-      if (sceneModel.built) {
-        return reject("[loadWebIFC] SceneModel already built");
-      }
-    }
-    if (dataModel) {
-      if (!(dataModel instanceof DataModel)) {
-        return reject("[loadWebIFC] Argument type mismatch: params.dataModel should be a DataModel");
-      }
-      if (dataModel.destroyed) {
-        return reject("[loadWebIFC] DataModel already destroyed");
-      }
-      if (dataModel.built) {
-        return reject("[loadWebIFC] DataModel already built");
-      }
-    }
-    if (!sceneModel && !dataModel) {
-      return resolve2();
-    }
+    parseWebIFC(ifcAPI, params2).then(() => {
+      resolve2();
+    });
+  });
+}
+function parseWebIFC(ifcAPI, params2) {
+  return new Promise(function(resolve2, reject) {
+    const { sceneModel, dataModel, fileData } = params2;
     const dataArray = new Uint8Array(fileData);
-    const modelId = params2.ifcAPI.OpenModel(dataArray);
-    const lines = params2.ifcAPI.GetLineIDsWithType(modelId, IFCPROJECT);
+    const modelId = ifcAPI.OpenModel(dataArray);
+    const lines = ifcAPI.GetLineIDsWithType(modelId, IFCPROJECT);
     const ifcProjectId = lines.get(0);
     const ctx = {
       fileData,
@@ -81160,14 +81349,319 @@ function parseSceneModel(ctx) {
   });
 }
 
+// ../sdk/src/ifc/IFCLoader.ts
+var IFCLoader = class extends ModelLoader {
+  #ifcAPI;
+  /**
+   * Constructs an IFCLoader.
+   */
+  constructor() {
+    const parse11 = (params2, options) => {
+      if (!this.#ifcAPI) {
+        return new Promise((resolve2, reject) => {
+          let importPath;
+          switch (detectEnvironment()) {
+            case "browser":
+              importPath = "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api.js";
+              break;
+            case "node":
+              importPath = "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api-node.js";
+              break;
+            default:
+              reject("[IFCLoader] Failed to determine environment");
+              return;
+          }
+          import(importPath).then((module2) => {
+            const WebIFC = module2.default;
+            this.#ifcAPI = new WebIFC.IfcAPI();
+            this.#ifcAPI.Init().then(() => {
+              parse5(this.#ifcAPI, params2, options).then(() => {
+                resolve2();
+              }).catch((reason) => {
+                reject("[IFCLoader] Failed to parse IFC - " + reason);
+              });
+            }).catch((reason) => {
+              reject("[IFCLoader] Failed to initialize WebIFC - " + reason);
+            });
+          }).catch((reason) => {
+            reject("[IFCLoader] Failed to import WebIFC module - " + reason);
+          });
+        });
+      } else {
+        return parse5(this.#ifcAPI, params2, options);
+      }
+    };
+    super({
+      fileDataType: "json",
+      parsers: {
+        "IFC4": parse11,
+        "IFC2x3": parse11
+      },
+      getVersion: (fileData) => {
+        return "IFC4";
+      }
+    });
+  }
+};
+function detectEnvironment() {
+  if (typeof process !== "undefined" && process.versions != null && process.versions.node != null) {
+    return "node";
+  }
+  if (typeof window !== "undefined" && typeof window.document !== "undefined") {
+    return "browser";
+  }
+  return "unknown";
+}
+
+// ../sdk/src/ifc/versions/IFC4/encode.ts
+function encode4(params2, options) {
+  return new Promise(function(resolve2, reject) {
+    resolve2(generateIFC(params2.sceneModel, params2.dataModel));
+  });
+}
+function generateIFC(sceneModel, dataModel, header) {
+  const defaultHeader = {
+    fileSchema: "IFC4",
+    fileDescription: ["ViewDefinition [CoordinationView]"],
+    fileName: sceneModel.id,
+    timeStamp: (/* @__PURE__ */ new Date()).toISOString(),
+    author: dataModel.author ? [dataModel.author] : ["xeokit SDK"],
+    organization: ["xeokit"],
+    preprocessorVersion: "xeokit IFC Generator 1.0",
+    originatingSystem: dataModel.creatingApplication || "xeokit SDK",
+    authorization: "None"
+  };
+  const finalHeader = { ...defaultHeader, ...header };
+  const ifcContent = [];
+  ifcContent.push(generateIFCHeader(finalHeader));
+  ifcContent.push("DATA;\n\n");
+  const projectId = generateGUID();
+  ifcContent.push(`#1=${generateOwnerHistory()}
+`);
+  ifcContent.push(`#2=IFCPROJECT('${projectId}',#1,'${dataModel.projectId || sceneModel.id}',$,$,$,$,(#3),#4);
+`);
+  ifcContent.push(`#3=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.0E-5,#5,$);
+`);
+  ifcContent.push(`#4=IFCUNITASSIGNMENT((#6,#7,#8));
+`);
+  ifcContent.push(`#5=IFCAXIS2PLACEMENT3D(#9,$,$);
+`);
+  ifcContent.push(`#6=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);
+`);
+  ifcContent.push(`#7=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);
+`);
+  ifcContent.push(`#8=IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.);
+`);
+  ifcContent.push(`#9=IFCCARTESIANPOINT((0.,0.,0.));
+
+`);
+  let currentId = 10;
+  const propertySetMap = /* @__PURE__ */ new Map();
+  for (const propertySetId in dataModel.propertySets) {
+    const propertySet = dataModel.propertySets[propertySetId];
+    const ifcId = currentId;
+    propertySetMap.set(propertySetId, ifcId);
+    currentId = encodePropertySet(propertySet, ifcContent, currentId);
+  }
+  for (const objectId in sceneModel.objects) {
+    const sceneObject = sceneModel.objects[objectId];
+    const dataObject = dataModel.objects[sceneObject.id];
+    if (dataObject) {
+      currentId = encodeSceneObjectAndDataObject(sceneObject, dataObject, propertySetMap, ifcContent, currentId);
+    } else {
+      currentId = encodeSceneObject(sceneObject, ifcContent, currentId);
+    }
+  }
+  for (const relationship of dataModel.relationships) {
+    currentId = encodeRelationship(relationship, ifcContent, currentId);
+  }
+  ifcContent.push("ENDSEC;\n\nEND-ISO-10303-21;\n");
+  return ifcContent.join("\n");
+}
+function encodePropertySet(propertySet, ifcContent, currentId) {
+  const propertySetId = generateGUID();
+  ifcContent.push(`#${currentId}=IFCPROPERTYSET('${propertySetId}',#1,'${propertySet.name}',$,(`);
+  const propertyIds = [];
+  currentId++;
+  for (const property of propertySet.properties) {
+    propertyIds.push(currentId);
+    let ifcValue = property.value;
+    if (typeof property.value === "string") {
+      ifcValue = `'${property.value}'`;
+    }
+    ifcContent.push(`#${currentId}=IFCSIMPLEPROPERTY('${property.name}',${property.type || "$"},'${property.description || "$"}',${ifcValue});
+`);
+    currentId++;
+  }
+  ifcContent.push(`${propertyIds.map((id) => `#${id}`).join(",")}))
+`);
+  return currentId;
+}
+function encodeSceneObject(object, ifcContent, currentId) {
+  const objectId = generateGUID();
+  ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});
+`);
+  currentId++;
+  const matrix = object.meshes[0]?.matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+  const position = [matrix[12], matrix[13], matrix[14]];
+  ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);
+`);
+  currentId++;
+  ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));
+`);
+  currentId++;
+  for (const mesh of object.meshes) {
+    currentId = encodeSceneMesh(mesh, ifcContent, currentId, objectId);
+  }
+  return currentId;
+}
+function encodeSceneObjectAndDataObject(sceneObject, dataObject, propertySetMap, ifcContent, currentId) {
+  const objectId = generateGUID();
+  ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});
+`);
+  currentId++;
+  const matrix = sceneObject.meshes[0]?.matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+  const position = [matrix[12], matrix[13], matrix[14]];
+  ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);
+`);
+  currentId++;
+  ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));
+`);
+  currentId++;
+  const geometryIds = [];
+  for (const mesh of sceneObject.meshes) {
+    const geomStartId = currentId;
+    currentId = encodeSceneMesh(mesh, ifcContent, currentId, objectId);
+    if (currentId > geomStartId) {
+      geometryIds.push(geomStartId);
+    }
+  }
+  const ifcType = getIFCTypeFromDataObject(dataObject);
+  ifcContent.push(`#${currentId}=${ifcType}('${objectId}',#1,'${dataObject.name || ""}','${dataObject.description || ""}'`);
+  ifcContent.push(`,#${currentId - 3}`);
+  if (geometryIds.length > 0) {
+    ifcContent.push(`,(${geometryIds.map((id) => `#${id}`).join(",")})`);
+  } else {
+    ifcContent.push(`,$`);
+  }
+  if (dataObject.propertySets && dataObject.propertySets.length > 0) {
+    const psetRefs = dataObject.propertySets.map((pset) => propertySetMap.get(pset.id)).filter((id) => id !== void 0).map((id) => `#${id}`);
+    if (psetRefs.length > 0) {
+      ifcContent.push(`,(${psetRefs.join(",")})`);
+    }
+  }
+  ifcContent.push(");\n");
+  currentId++;
+  return currentId;
+}
+function getIFCTypeFromDataObject(dataObject) {
+  const ifcTypeName = ifcTypeNames[dataObject.type];
+  return ifcTypeName !== void 0 ? ifcTypeName.toUpperCase() : "IFCBUILDINGELEMENTPROXY";
+}
+function encodeRelationship(relationship, ifcContent, currentId) {
+  const relationshipId = generateGUID();
+  const ifcTypeName = ifcTypeNames[relationship.type];
+  const ifcRelType = ifcTypeName !== void 0 ? ifcTypeName.toUpperCase() : "IFCRELDEFINESBYPROPERTIES";
+  ifcContent.push(`#${currentId}=${ifcRelType}('${relationshipId}',#1,$,$,#${relationship.relatingObject.id},#${relationship.relatedObject.id});
+`);
+  currentId++;
+  return currentId;
+}
+function encodeSceneMesh(mesh, ifcContent, currentId, parentId) {
+  const geometry = mesh.geometry;
+  if (!geometry.positionsCompressed) {
+    return currentId;
+  }
+  const positions = geometry.positionsCompressed;
+  const vertexPoints = [];
+  for (let i = 0; i < positions.length; i += 3) {
+    vertexPoints.push([
+      positions[i],
+      positions[i + 1],
+      positions[i + 2]
+    ]);
+  }
+  const indices = geometry.indices;
+  const faces2 = [];
+  if (indices) {
+    for (let i = 0; i < indices.length; i += 3) {
+      faces2.push([
+        indices[i],
+        indices[i + 1],
+        indices[i + 2]
+      ]);
+    }
+  }
+  ifcContent.push(`#${currentId}=IFCSHAPEREPRESENTATION(#3,'Body','Tessellation',(#${currentId + 1}));
+`);
+  currentId++;
+  ifcContent.push(`#${currentId}=IFCTRIANGULATEDFACESET(#${currentId + 1},$,#${currentId + 2},.T.);
+`);
+  currentId++;
+  let pointList = "";
+  for (const point of vertexPoints) {
+    pointList += `(${point[0]},${point[1]},${point[2]}),`;
+  }
+  pointList = pointList.slice(0, -1);
+  ifcContent.push(`#${currentId}=IFCCARTESIANPOINTLIST3D((${pointList}));
+`);
+  currentId++;
+  let faceList = "";
+  for (const face of faces2) {
+    faceList += `(${face[0] + 1},${face[1] + 1},${face[2] + 1}),`;
+  }
+  faceList = faceList.slice(0, -1);
+  ifcContent.push(`#${currentId}=IFCTRIANGULATEDINDEXLIST((${faceList}));
+`);
+  currentId++;
+  return currentId;
+}
+function generateIFCHeader(header) {
+  return `ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION((${header.fileDescription.map((d) => `'${d}'`).join(",")}), '2;1');
+FILE_NAME(
+    '${header.fileName}',
+    '${header.timeStamp}',
+    (${header.author.map((a2) => `'${a2}'`).join(",")}),
+    (${header.organization.map((o) => `'${o}'`).join(",")}),
+    '${header.preprocessorVersion}',
+    '${header.originatingSystem}',
+    '${header.authorization}'
+);
+FILE_SCHEMA(('${header.fileSchema}'));
+ENDSEC;
+
+`;
+}
+function generateGUID() {
+  return createUUID2();
+}
+function generateOwnerHistory() {
+  const timestamp = Math.floor(Date.now() / 1e3);
+  const changeAction = "ADDED";
+  const state = "READWRITE";
+  return `IFCOWNERHISTORY(#100,#101,${timestamp},$,${changeAction},${state},$,$)`;
+}
+
+// ../sdk/src/ifc/IFCExporter.ts
+var IFCExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      fileDataType: "json",
+      encoders: {
+        "IFC4": encode4
+      },
+      defaultVersion: "IFC4"
+    });
+  }
+};
+
 // ../sdk/src/xgf/index.ts
 var xgf_exports = {};
 __export(xgf_exports, {
-  DEFAULT_SAVED_XGF_VERSION: () => DEFAULT_SAVED_XGF_VERSION,
-  LOADED_XGF_VERSIONS: () => LOADED_XGF_VERSIONS,
-  SAVED_XGF_VERSIONS: () => SAVED_XGF_VERSIONS,
-  loadXGF: () => loadXGF,
-  saveXGF: () => saveXGF
+  XGFExporter: () => XGFExporter,
+  XGFLoader: () => XGFLoader
 });
 
 // ../sdk/src/xgf/versions/v1/unpackXGF.ts
@@ -81354,72 +81848,33 @@ var decompressColor = function() {
   };
 }();
 
-// ../sdk/src/xgf/versions/v1/readXGF.ts
-function readXGF(params2) {
-  const { fileData, sceneModel, dataModel } = params2;
-  xgfToModel({
-    xgfData: unpackXGF(fileData),
-    sceneModel,
-    dataModel
+// ../sdk/src/xgf/versions/v1/parse.ts
+function parse6(params2, options) {
+  return new Promise(function(resolve2, reject) {
+    const { fileData, sceneModel, dataModel } = params2;
+    xgfToModel({
+      xgfData: unpackXGF(fileData),
+      sceneModel,
+      dataModel
+    });
+    resolve2();
   });
 }
 
-// ../sdk/src/xgf/loadXGF.ts
-var readers = {
-  1: readXGF
+// ../sdk/src/xgf/XGFLoader.ts
+var XGFLoader = class extends ModelLoader {
+  constructor() {
+    super({
+      fileDataType: "arraybuffer",
+      parsers: {
+        "1": parse6
+      },
+      getVersion: (fileData) => {
+        return "" + new DataView(fileData).getUint32(0, true);
+      }
+    });
+  }
 };
-var LOADED_XGF_VERSIONS = Object.keys(readers).map(Number);
-function loadXGF(params2) {
-  return new Promise(function(resolve2, reject) {
-    if (!params2) {
-      return reject("Argument expected: params");
-    }
-    const { fileData, sceneModel, dataModel } = params2;
-    if (!fileData) {
-      return reject("Argument expected: params.fileData");
-    }
-    if (!(fileData instanceof ArrayBuffer)) {
-      return reject("Argument type mismatch: params.fileData should be an ArrayBuffer");
-    }
-    if (sceneModel) {
-      if (!(sceneModel instanceof SceneModel)) {
-        return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
-      }
-      if (sceneModel.destroyed) {
-        return reject("SceneModel already destroyed");
-      }
-      if (sceneModel.built) {
-        return reject("SceneModel already built");
-      }
-    }
-    if (dataModel) {
-      if (!(dataModel instanceof DataModel)) {
-        return reject("Argument type mismatch: params.dataModel should be a DataModel");
-      }
-      if (dataModel.destroyed) {
-        return reject("DataModel already destroyed");
-      }
-      if (dataModel.built) {
-        return reject("DataModel already built");
-      }
-    }
-    const arrayBuffer = params2.fileData;
-    const dataView = new DataView(arrayBuffer);
-    const xgfVersion = dataView.getUint32(0, true);
-    const readXGF2 = readers[xgfVersion];
-    if (!readXGF2) {
-      return reject(`Unsupported XGF file version: ${xgfVersion} - supported versions are [${LOADED_XGF_VERSIONS}]`);
-    }
-    if (sceneModel || dataModel) {
-      readXGF2({
-        fileData,
-        sceneModel,
-        dataModel
-      });
-    }
-    return resolve2();
-  });
-}
 
 // ../sdk/src/xgf/versions/v1/modelToXGF.ts
 var NUM_MATERIAL_ATTRIBUTES = 4;
@@ -81586,7 +82041,7 @@ function modelToXGF(params2) {
 // ../sdk/src/xgf/versions/v1/XGF_INFO.ts
 var XGF_INFO = {
   /**
-   * The [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) version generated by {@link xgf!saveXGF | saveXGF}.
+   * The [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) version generated by {@link xgf!XKFWriter | XKFWriter}.
    *
    * @property xgfVersion
    * @type {number}
@@ -81667,57 +82122,30 @@ function packXGF(xgfData) {
   ]);
 }
 
-// ../sdk/src/xgf/versions/v1/writeXGF.ts
-function writeXGF(params2) {
-  if (params2.sceneModel.destroyed) {
-    throw new SDKError("SceneModel already destroyed");
-  }
-  if (!params2.sceneModel.built) {
-    throw new SDKError("SceneModel not yet built");
-  }
-  return packXGF(
-    modelToXGF({
-      sceneModel: params2.sceneModel
-    })
-  );
-}
-
-// ../sdk/src/xgf/saveXGF.ts
-var writers = {
-  1: writeXGF
-};
-var SAVED_XGF_VERSIONS = Object.keys(writers).map(Number);
-var DEFAULT_SAVED_XGF_VERSION = Math.max(...SAVED_XGF_VERSIONS);
-function saveXGF(params2) {
-  if (!params2) {
-    return new SDKError("Argument expected: params");
-  }
-  const { sceneModel, xgfVersion = DEFAULT_SAVED_XGF_VERSION } = params2;
-  if (!sceneModel) {
-    return new SDKError("Argument expected: params.sceneModel");
-  }
-  if (!(sceneModel instanceof SceneModel)) {
-    return new SDKError("Argument type mismatch: params.sceneModel should be a SceneModel");
-  }
-  if (sceneModel.destroyed) {
-    return new SDKError("SceneModel already destroyed");
-  }
-  if (!sceneModel.built) {
-    return new SDKError("SceneModel not yet built");
-  }
-  const writeXGF2 = writers[xgfVersion];
-  if (!writeXGF2) {
-    return new SDKError(`Unsupported XGF file version: ${xgfVersion} - supported versions are [${SAVED_XGF_VERSIONS}]`);
-  }
-  return writeXGF2({
-    sceneModel
+// ../sdk/src/xgf/versions/v1/encode.ts
+function encode5(params2, options) {
+  return new Promise(function(resolve2, reject) {
+    resolve2(packXGF(modelToXGF({ sceneModel: params2.sceneModel })));
   });
 }
+
+// ../sdk/src/xgf/XGFExporter.ts
+var XGFExporter = class extends ModelExporter {
+  constructor() {
+    super({
+      fileDataType: "json",
+      encoders: {
+        "1.0.0": encode5
+      },
+      defaultVersion: "1.0.0"
+    });
+  }
+};
 
 // ../sdk/src/las/index.ts
 var las_exports = {};
 __export(las_exports, {
-  loadLAS: () => loadLAS
+  LASLoader: () => LASLoader4
 });
 
 // ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.3_@loaders.gl+core@4.3.3/node_modules/@loaders.gl/loader-utils/dist/loader-types.js
@@ -81750,14 +82178,14 @@ var isBrowser = (
 var matches = typeof process !== "undefined" && process.version && /v([0-9]*)/.exec(process.version);
 var nodeVersion = matches && parseFloat(matches[1]) || 0;
 
-// ../../node_modules/.pnpm/@probe.gl+env@4.0.9/node_modules/@probe.gl/env/dist/lib/globals.js
+// ../../node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/lib/globals.js
 var window_2 = globalThis;
 var document_2 = globalThis.document || {};
 var process_ = globalThis.process || {};
 var console_ = globalThis.console;
 var navigator_ = globalThis.navigator || {};
 
-// ../../node_modules/.pnpm/@probe.gl+env@4.0.9/node_modules/@probe.gl/env/dist/lib/is-electron.js
+// ../../node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/lib/is-electron.js
 function isElectron(mockUserAgent) {
   if (typeof window !== "undefined" && window.process?.type === "renderer") {
     return true;
@@ -81770,7 +82198,7 @@ function isElectron(mockUserAgent) {
   return Boolean(userAgent && userAgent.indexOf("Electron") >= 0);
 }
 
-// ../../node_modules/.pnpm/@probe.gl+env@4.0.9/node_modules/@probe.gl/env/dist/lib/is-browser.js
+// ../../node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/lib/is-browser.js
 function isBrowser2() {
   const isNode = (
     // @ts-expect-error
@@ -81779,10 +82207,10 @@ function isBrowser2() {
   return !isNode || isElectron();
 }
 
-// ../../node_modules/.pnpm/@probe.gl+env@4.0.9/node_modules/@probe.gl/env/dist/index.js
-var VERSION = true ? "4.0.7" : "untranspiled source";
+// ../../node_modules/.pnpm/@probe.gl+env@4.1.0/node_modules/@probe.gl/env/dist/index.js
+var VERSION = true ? "4.1.0" : "untranspiled source";
 
-// ../../node_modules/.pnpm/@probe.gl+log@4.0.9/node_modules/@probe.gl/log/dist/utils/local-storage.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/local-storage.js
 function getStorage(type) {
   try {
     const storage = window[type];
@@ -81823,7 +82251,7 @@ var LocalStorage = class {
   }
 };
 
-// ../../node_modules/.pnpm/@probe.gl+log@4.0.9/node_modules/@probe.gl/log/dist/utils/formatters.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/formatters.js
 function formatTime(ms) {
   let formatted;
   if (ms < 10) {
@@ -81842,7 +82270,7 @@ function leftPad(string, length = 8) {
   return `${" ".repeat(padLength)}${string}`;
 }
 
-// ../../node_modules/.pnpm/@probe.gl+log@4.0.9/node_modules/@probe.gl/log/dist/utils/color.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/color.js
 var COLOR;
 (function(COLOR2) {
   COLOR2[COLOR2["BLACK"] = 30] = "BLACK";
@@ -81884,7 +82312,7 @@ function addColor(string, color2, background) {
   return string;
 }
 
-// ../../node_modules/.pnpm/@probe.gl+log@4.0.9/node_modules/@probe.gl/log/dist/utils/autobind.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/autobind.js
 function autobind(obj, predefined = ["constructor"]) {
   const proto = Object.getPrototypeOf(obj);
   const propNames = Object.getOwnPropertyNames(proto);
@@ -81899,14 +82327,14 @@ function autobind(obj, predefined = ["constructor"]) {
   }
 }
 
-// ../../node_modules/.pnpm/@probe.gl+log@4.0.9/node_modules/@probe.gl/log/dist/utils/assert.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/assert.js
 function assert2(condition, message) {
   if (!condition) {
     throw new Error(message || "Assertion failed");
   }
 }
 
-// ../../node_modules/.pnpm/@probe.gl+log@4.0.9/node_modules/@probe.gl/log/dist/utils/hi-res-timestamp.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/utils/hi-res-timestamp.js
 function getHiResTimestamp() {
   let timestamp;
   if (isBrowser2() && window_2.performance) {
@@ -81920,7 +82348,7 @@ function getHiResTimestamp() {
   return timestamp;
 }
 
-// ../../node_modules/.pnpm/@probe.gl+log@4.0.9/node_modules/@probe.gl/log/dist/log.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/log.js
 var originalConsole = {
   debug: isBrowser2() ? console.debug || console.log : console.log,
   log: console.log,
@@ -82175,10 +82603,10 @@ function getTableHeader(table) {
   return "empty";
 }
 
-// ../../node_modules/.pnpm/@probe.gl+log@4.0.9/node_modules/@probe.gl/log/dist/init.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/init.js
 globalThis.probe = {};
 
-// ../../node_modules/.pnpm/@probe.gl+log@4.0.9/node_modules/@probe.gl/log/dist/index.js
+// ../../node_modules/.pnpm/@probe.gl+log@4.1.0/node_modules/@probe.gl/log/dist/index.js
 var dist_default = new Log2({ id: "@probe.gl/log" });
 
 // ../../node_modules/.pnpm/@loaders.gl+loader-utils@4.3.3_@loaders.gl+core@4.3.3/node_modules/@loaders.gl/loader-utils/dist/lib/log-utils/log.js
@@ -84032,7 +84460,7 @@ function getLoadersFromContext(loaders, context) {
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+core@4.3.3/node_modules/@loaders.gl/core/dist/lib/api/parse.js
-async function parse(data, loaders, options, context) {
+async function parse7(data, loaders, options, context) {
   if (loaders && !Array.isArray(loaders) && !isLoaderObject(loaders)) {
     context = void 0;
     options = loaders;
@@ -84050,7 +84478,7 @@ async function parse(data, loaders, options, context) {
   options = normalizeOptions(options, loader, candidateLoaders, url);
   context = getLoaderContext(
     // @ts-expect-error
-    { url, _parse: parse, loaders: candidateLoaders },
+    { url, _parse: parse7, loaders: candidateLoaders },
     options,
     context || null
   );
@@ -84071,7 +84499,7 @@ async function parseWithLoader(loader, data, options, context) {
     return loaderWithParser.parseTextSync(data, options, context);
   }
   if (canParseWithWorker(loader, options)) {
-    return await parseWithWorker(loader, data, options, context, parse);
+    return await parseWithWorker(loader, data, options, context, parse7);
   }
   if (loaderWithParser.parseText && typeof data === "string") {
     return await loaderWithParser.parseText(data, options, context);
@@ -103162,36 +103590,49 @@ var LASLoader3 = {
   parseSync: (arrayBuffer, options) => parseLAS(arrayBuffer, options)
 };
 
-// ../sdk/src/las/loadLAS.ts
+// ../sdk/src/las/LASLoader.ts
 var MAX_VERTICES = 5e5;
-function loadLAS(params2, options = {}) {
+var LASLoader4 = class extends ModelLoader {
+  constructor() {
+    super({
+      fileDataType: "arraybuffer",
+      parsers: {
+        "*": parseLAS2
+      },
+      getVersion: (fileData) => {
+        return "*";
+      }
+    });
+  }
+  /**
+   * Loads LAS/LAZ file data into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+   *
+   * This function expects the following conditions:
+   * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
+   * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
+   *
+   * @param params - The parameters used for loading the file data.
+   * @param params.fileData - The file data to load.
+   * @param params.sceneModel - The {@link scene!SceneModel | SceneModel} into which the .BIM data will be loaded.
+   * @param params.dataModel - The {@link data!DataModel | DataModel} into which the .BIM data will be loaded.
+   * @param options - Options for customizing the loading process.
+   * @param options.error - A callback function that logs any non-fatal errors encountered during the loading process.
+   *
+   * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
+   *
+   * @throws {@link core!SDKError | SDKError}
+   * - If the SceneModel has already been destroyed.
+   * - If the SceneModel has already been built.
+   * - If the DataModel has already been destroyed.
+   * - If the DataModel has already been built.
+   */
+  load(params2, options = {}) {
+    return super.load(params2, options);
+  }
+};
+function parseLAS2(params2, options = {}) {
   return new Promise(function(resolve2, reject) {
     const { sceneModel, dataModel, fileData } = params2;
-    if (!fileData) {
-      return reject("Argument expected: fileData");
-    }
-    if (sceneModel) {
-      if (!(sceneModel instanceof SceneModel)) {
-        return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
-      }
-      if (sceneModel.destroyed) {
-        return reject("SceneModel already destroyed");
-      }
-      if (sceneModel.built) {
-        return reject("SceneModel already built");
-      }
-    }
-    if (dataModel) {
-      if (!(dataModel instanceof DataModel)) {
-        return reject("Argument type mismatch: params.dataModel should be a DataModel");
-      }
-      if (dataModel.destroyed) {
-        return reject("DataModel already destroyed");
-      }
-      if (dataModel.built) {
-        return reject("DataModel already built");
-      }
-    }
     if (!sceneModel && !dataModel) {
       return resolve2();
     }
@@ -103201,7 +103642,7 @@ function loadLAS(params2, options = {}) {
         params2.log(msg);
       }
     };
-    parse(params2.fileData, LASLoader3, {
+    parse7(params2.fileData, LASLoader3, {
       las: {
         colorDepth: options.colorDepth || "auto",
         fp64: options.fp64 !== void 0 ? options.fp64 : false
@@ -103404,7 +103845,7 @@ function loadLAS(params2, options = {}) {
 // ../sdk/src/gltf/index.ts
 var gltf_exports = {};
 __export(gltf_exports, {
-  loadGLTF: () => loadGLTF
+  GLTFLoader: () => GLTFLoader2
 });
 
 // ../../node_modules/.pnpm/@loaders.gl+gltf@4.3.3_@loaders.gl+core@4.3.3/node_modules/@loaders.gl/gltf/dist/lib/extensions/EXT_mesh_features.js
@@ -103412,7 +103853,7 @@ var EXT_mesh_features_exports = {};
 __export(EXT_mesh_features_exports, {
   createExtMeshFeatures: () => createExtMeshFeatures,
   decode: () => decode,
-  encode: () => encode,
+  encode: () => encode6,
   name: () => name
 });
 
@@ -104722,7 +105163,7 @@ async function decode(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   decodeExtMeshFeatures(scenegraph, options);
 }
-function encode(gltfData, options) {
+function encode6(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   encodeExtMeshFeatures(scenegraph, options);
   scenegraph.createBinaryChunk();
@@ -104841,7 +105282,7 @@ var EXT_structural_metadata_exports = {};
 __export(EXT_structural_metadata_exports, {
   createExtStructuralMetadata: () => createExtStructuralMetadata,
   decode: () => decode2,
-  encode: () => encode2,
+  encode: () => encode7,
   name: () => name2
 });
 var EXT_STRUCTURAL_METADATA_NAME = "EXT_structural_metadata";
@@ -104850,7 +105291,7 @@ async function decode2(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   decodeExtStructuralMetadata(scenegraph, options);
 }
-function encode2(gltfData, options) {
+function encode7(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   encodeExtStructuralMetadata(scenegraph, options);
   scenegraph.createBinaryChunk();
@@ -106318,7 +106759,7 @@ function preprocess2(gltfData, options) {
 var KHR_draco_mesh_compression_exports = {};
 __export(KHR_draco_mesh_compression_exports, {
   decode: () => decode6,
-  encode: () => encode3,
+  encode: () => encode8,
   name: () => name7,
   preprocess: () => preprocess3
 });
@@ -106899,9 +107340,9 @@ function initializeDracoDecoder(DracoDecoderModule, wasmBinary) {
 // ../../node_modules/.pnpm/@loaders.gl+draco@4.3.3_@loaders.gl+core@4.3.3/node_modules/@loaders.gl/draco/dist/index.js
 var DracoLoader2 = {
   ...DracoLoader,
-  parse: parse2
+  parse: parse8
 };
-async function parse2(arrayBuffer, options) {
+async function parse8(arrayBuffer, options) {
   const { draco } = await loadDracoDecoderModule(options);
   const dracoParser = new DracoParser(draco);
   try {
@@ -106994,7 +107435,7 @@ async function decode6(gltfData, options, context) {
   await Promise.all(promises);
   scenegraph.removeExtension(KHR_DRACO_MESH_COMPRESSION);
 }
-function encode3(gltfData, options = {}) {
+function encode8(gltfData, options = {}) {
   const scenegraph = new GLTFScenegraph(gltfData);
   for (const mesh of scenegraph.json.meshes || []) {
     compressMesh(mesh, options);
@@ -108438,7 +108879,7 @@ function makeTransformationMatrix(extensionData) {
 var KHR_lights_punctual_exports = {};
 __export(KHR_lights_punctual_exports, {
   decode: () => decode8,
-  encode: () => encode4,
+  encode: () => encode9,
   name: () => name9
 });
 var KHR_LIGHTS_PUNCTUAL = "KHR_lights_punctual";
@@ -108459,7 +108900,7 @@ async function decode8(gltfData) {
     gltfScenegraph.removeObjectExtension(node, KHR_LIGHTS_PUNCTUAL);
   }
 }
-async function encode4(gltfData) {
+async function encode9(gltfData) {
   const gltfScenegraph = new GLTFScenegraph(gltfData);
   const { json } = gltfScenegraph;
   if (json.lights) {
@@ -108481,7 +108922,7 @@ async function encode4(gltfData) {
 var KHR_materials_unlit_exports = {};
 __export(KHR_materials_unlit_exports, {
   decode: () => decode9,
-  encode: () => encode5,
+  encode: () => encode10,
   name: () => name10
 });
 var KHR_MATERIALS_UNLIT = "KHR_materials_unlit";
@@ -108498,7 +108939,7 @@ async function decode9(gltfData) {
   }
   gltfScenegraph.removeExtension(KHR_MATERIALS_UNLIT);
 }
-function encode5(gltfData) {
+function encode10(gltfData) {
   const gltfScenegraph = new GLTFScenegraph(gltfData);
   const { json } = gltfScenegraph;
   if (gltfScenegraph.materials) {
@@ -108516,7 +108957,7 @@ function encode5(gltfData) {
 var KHR_techniques_webgl_exports = {};
 __export(KHR_techniques_webgl_exports, {
   decode: () => decode10,
-  encode: () => encode6,
+  encode: () => encode11,
   name: () => name11
 });
 var KHR_TECHNIQUES_WEBGL = "KHR_techniques_webgl";
@@ -108543,7 +108984,7 @@ async function decode10(gltfData) {
     gltfScenegraph.removeExtension(KHR_TECHNIQUES_WEBGL);
   }
 }
-async function encode6(gltfData, options) {
+async function encode11(gltfData, options) {
 }
 function resolveTechniques(techniquesExtension, gltfScenegraph) {
   const { programs = [], shaders = [], techniques = [] } = techniquesExtension;
@@ -108984,7 +109425,7 @@ var GLTFLoader = {
   text: true,
   binary: true,
   tests: ["glTF"],
-  parse: parse3,
+  parse: parse9,
   options: {
     gltf: {
       normalize: true,
@@ -109001,7 +109442,7 @@ var GLTFLoader = {
     // eslint-disable-line
   }
 };
-async function parse3(arrayBuffer, options = {}, context) {
+async function parse9(arrayBuffer, options = {}, context) {
   options = { ...GLTFLoader.options, ...options };
   options.gltf = { ...GLTFLoader.options.gltf, ...options.gltf };
   const { byteOffset = 0 } = options;
@@ -109410,42 +109851,27 @@ function postProcessGLTF(gltf, options) {
   return new GLTFPostProcessor().postProcess(gltf, options);
 }
 
-// ../sdk/src/gltf/loadGLTF.ts
-function loadGLTF(params2) {
+// ../sdk/src/gltf/GLTFLoader.ts
+var GLTFLoader2 = class extends ModelLoader {
+  constructor() {
+    super({
+      fileDataType: "arraybuffer",
+      parsers: {
+        "*": parseGLTF2
+      },
+      getVersion: (fileData) => {
+        return "*";
+      }
+    });
+  }
+};
+function parseGLTF2(params2) {
   return new Promise(function(resolve2, reject) {
-    if (!params2) {
-      return reject("[loadGLTF] Argument expected: params");
-    }
     const { fileData, sceneModel, dataModel } = params2;
-    if (!fileData) {
-      return reject("[loadGLTF] Argument expected: fileData");
-    }
-    if (sceneModel) {
-      if (!(sceneModel instanceof SceneModel)) {
-        return reject("[loadGLTF] Argument type mismatch: params.sceneModel should be a SceneModel");
-      }
-      if (sceneModel.destroyed) {
-        return reject("[loadGLTF] SceneModel already destroyed");
-      }
-      if (sceneModel.built) {
-        return reject("[loadGLTF] SceneModel already built");
-      }
-    }
-    if (dataModel) {
-      if (!(dataModel instanceof DataModel)) {
-        return reject("[loadGLTF] Argument type mismatch: params.dataModel should be a DataModel");
-      }
-      if (dataModel.destroyed) {
-        return reject("[loadGLTF] DataModel already destroyed");
-      }
-      if (dataModel.built) {
-        return reject("[loadGLTF] DataModel already built");
-      }
-    }
     if (!sceneModel && !dataModel) {
       return resolve2();
     }
-    parse(fileData, GLTFLoader, {}).then((gltfData) => {
+    parse7(fileData, GLTFLoader, {}).then((gltfData) => {
       const processedGLTF = postProcessGLTF(gltfData);
       const ctx = {
         nodesHaveNames: false,
@@ -109456,7 +109882,7 @@ function loadGLTF(params2) {
         baseId: createUUID2(),
         gltfData: processedGLTF,
         nextId: 0,
-        log: params2.log || function(msg) {
+        log: function(msg) {
         },
         error: function(msg) {
           console.error(msg);
@@ -109471,7 +109897,7 @@ function loadGLTF(params2) {
       parseDefaultScene(ctx);
       return resolve2();
     }, (errMsg) => {
-      return reject(`[loadGLTF] Error parsing glTF: ${errMsg}`);
+      return reject(`Error parsing glTF: ${errMsg}`);
     });
   });
 }
@@ -109937,8 +110363,6 @@ function parseMesh(node, ctx, matrix, meshIds) {
         }
         ctx.sceneModel.createGeometry(geometryParams);
         ctx.geometryCreated[geometryId] = true;
-      } else {
-        console.log("geometry reused");
       }
       const meshId = `${ctx.nextId++}`;
       const meshParams = {
@@ -109964,7 +110388,7 @@ function parseMesh(node, ctx, matrix, meshIds) {
 // ../sdk/src/xkt/index.ts
 var xkt_exports = {};
 __export(xkt_exports, {
-  loadXKT: () => loadXKT,
+  XKTLoader: () => XKTLoader,
   loadXKTManifest: () => loadXKTManifest
 });
 
@@ -114217,8 +114641,8 @@ function unpackXKT(arrayBuffer) {
 }
 
 // ../sdk/src/xkt/versions/v10/xktToModel.ts
-var tempVec4a4 = createVec4();
-var tempVec4b4 = createVec4();
+var tempVec4a3 = createVec4();
+var tempVec4b3 = createVec4();
 var NUM_TEXTURE_ATTRIBUTES = 9;
 function lineStripToLines(positions, indices) {
   const linesIndices = [];
@@ -114575,65 +114999,64 @@ function xktToModel(params2) {
   }
 }
 
-// ../sdk/src/xkt/versions/v10/parseXKT.ts
-function parseXKTv10(params2) {
-  const { fileData, sceneModel } = params2;
-  if (sceneModel.destroyed) {
-    return Promise.reject("SceneModel already destroyed");
-  }
-  if (sceneModel.built) {
-    return Promise.reject("SceneModel already built");
-  }
-  xktToModel({
-    xktData: inflateXKT(unpackXKT(fileData)),
-    sceneModel
+// ../sdk/src/xkt/versions/v10/parse.ts
+function parse10(params2, options = {}) {
+  return new Promise(function(resolve2, reject) {
+    const { fileData, sceneModel } = params2;
+    if (sceneModel) {
+      xktToModel({
+        xktData: inflateXKT(unpackXKT(fileData)),
+        sceneModel
+      });
+    }
+    return resolve2();
   });
-  return Promise.resolve();
 }
 
-// ../sdk/src/xkt/loadXKT.ts
-function loadXKT(params2) {
-  const { fileData, sceneModel } = params2;
-  if (!fileData) {
-    return Promise.reject("Argument expected: fileData");
+// ../sdk/src/xkt/XKTLoader.ts
+var XKTLoader = class extends ModelLoader {
+  /**
+   * Constructs an XKTLoader.
+   */
+  constructor() {
+    super({
+      fileDataType: "arraybuffer",
+      parsers: {
+        "10": parse10
+      },
+      getVersion: (fileData) => {
+        return "" + new DataView(fileData).getUint32(0, true);
+      }
+    });
   }
-  if (!sceneModel) {
-    return Promise.reject("Parameter expected: sceneModel");
-  }
-  if (sceneModel.destroyed) {
-    return Promise.reject("SceneModel already destroyed");
-  }
-  if (sceneModel.built) {
-    return Promise.reject("SceneModel already built");
-  }
-  return parseXKTv10(params2);
-}
+};
 
 // ../sdk/src/metamodel/index.ts
 var metamodel_exports = {};
 __export(metamodel_exports, {
-  convertMetaModel: () => convertMetaModel,
-  loadMetaModel: () => loadMetaModel
+  MetaModelLoader: () => MetaModelLoader,
+  convertMetaModel: () => convertMetaModel
 });
 
-// ../sdk/src/metamodel/loadMetaModel.ts
-function loadMetaModel(params2) {
-  if (!params2) {
-    return Promise.reject("Parameter expected: params");
+// ../sdk/src/metamodel/MetaModelLoader.ts
+var MetaModelLoader = class extends ModelLoader {
+  /**
+   * Constructs a MetaModelLoader.
+   */
+  constructor() {
+    super({
+      fileDataType: "json",
+      parsers: {
+        "1.0": parseMetaModel
+      },
+      getVersion: (fileData) => {
+        return fileData.version || "1.0";
+      }
+    });
   }
+};
+function parseMetaModel(params2) {
   const { fileData, dataModel } = params2;
-  if (!fileData) {
-    return Promise.reject("Argument expected: fileData");
-  }
-  if (!dataModel) {
-    return Promise.reject("Parameter expected: params.dataModel");
-  }
-  if (dataModel.destroyed) {
-    return Promise.reject("DataModel already destroyed");
-  }
-  if (dataModel.built) {
-    return Promise.reject("DataModel already built");
-  }
   if (fileData.propertySets) {
     for (let i = 0, len = fileData.propertySets.length; i < len; i++) {
       const propertySetData = fileData.propertySets[i];
@@ -114646,9 +115069,7 @@ function loadMetaModel(params2) {
           id: propertySetData.id,
           type: propertySetData.type,
           name: propertySetData.name,
-          /////////////////////////////////////////
           // FIXME: Properties not translated right here
-          /////////////////////////////////////////
           properties: propertySetData.properties
         });
       }
@@ -114735,7 +115156,9 @@ function loadXKTManifest(params2) {
     if (!params2.manifest && !params2.src) {
       return reject("Parameter expected: manifest or src");
     }
+    const metaModelReader = new MetaModelLoader();
     if (params2.src) {
+      const xktReader = new XKTLoader();
       const baseDir = getBaseDirectory(params2.src);
       fetch(params2.src).then((response) => {
         response.json().then((manifest) => {
@@ -114751,7 +115174,7 @@ function loadXKTManifest(params2) {
               } else {
                 fetch(`${baseDir}${xktFiles[i]}`).then((response2) => {
                   response2.arrayBuffer().then((fileData) => {
-                    loadXKT({
+                    xktReader.load({
                       fileData,
                       sceneModel
                     }).then(() => {
@@ -114776,7 +115199,7 @@ function loadXKTManifest(params2) {
               } else {
                 fetch(`${baseDir}${metaModelFiles[i]}`).then((response2) => {
                   response2.json().then((fileData) => {
-                    loadMetaModel({
+                    metaModelReader.load({
                       fileData,
                       dataModel
                     }).then(() => {
@@ -114829,15 +115252,11 @@ __export(modelchunksloader_exports, {
 var ModelChunksLoader = class {
   #sceneModelLoader;
   #dataModelLoader;
-  #mimeType;
   #cancelled;
   constructor(params2) {
-    const { sceneModelLoader, dataModelLoader, mimeType } = params2;
+    const { sceneModelLoader, dataModelLoader } = params2;
     this.#sceneModelLoader = sceneModelLoader;
-    this.#dataModelLoader = dataModelLoader || ((params3) => {
-      params3.dataModel.fromParams(params3.fileData);
-    });
-    this.#mimeType = mimeType;
+    this.#dataModelLoader = dataModelLoader || new DataModelParamsLoader();
     this.#cancelled = false;
   }
   cancel() {
@@ -114849,7 +115268,7 @@ var ModelChunksLoader = class {
   /**
    * Loads the geometry and data models listed in a ModelChunksManifestParams into a SceneModel and DataModel.
    *
-   * Loading can be interrupted at any time by calling {@link modelchunksloader/ModelChunksLoader.cancel | ModelChunksLoader.cancel}.
+   * Loading can be interrupted at any time by calling {@link modelchunksloader!ModelChunksLoader.cancel | ModelChunksLoader.cancel}.
    *
    * @param params
    * @returns {Promise} Resolves when all models have been loaded.
@@ -114878,8 +115297,9 @@ var ModelChunksLoader = class {
             done();
           } else {
             fetch(`${baseDir}/${sceneModelFiles[i]}`).then((response) => {
-              response.arrayBuffer().then((fileData) => {
-                this.#sceneModelLoader({
+              const fileDataType = this.#sceneModelLoader.fileDataType;
+              (fileDataType === "json" ? response.json() : fileDataType === "arraybuffer" ? response.arrayBuffer() : response.arrayBuffer()).then((fileData) => {
+                this.#sceneModelLoader.load({
                   fileData,
                   sceneModel
                 }).then(() => {
@@ -114907,13 +115327,15 @@ var ModelChunksLoader = class {
             done();
           } else {
             fetch(`${baseDir}/${dataModelFiles[i]}`).then((response) => {
-              response.json().then((fileData) => {
-                this.#dataModelLoader({
+              const fileDataType = this.#sceneModelLoader.fileDataType;
+              (fileDataType === "json" ? response.json() : fileDataType === "arraybuffer" ? response.arrayBuffer() : response.arrayBuffer()).then((fileData) => {
+                this.#dataModelLoader.load({
                   fileData,
                   dataModel
+                }).then(() => {
+                  i++;
+                  loadNextDataModelFile();
                 });
-                i++;
-                loadNextDataModelFile();
               }).catch((error) => {
                 reject(`Error loading DataModel file: ${error}`);
               });
@@ -118996,7 +119418,7 @@ var Camera = class extends Component {
   }
   /**
        * Rotates {@link Camera.look | Camera.look} about {@link Camera.eye | Camera.eye}, around the right axis (orthogonal to {@link Camera.up | Camera.up} and "look").
-  
+
        * @param angleInc Angle of rotation in degrees
        */
   pitch(angleInc) {
@@ -124654,8 +125076,8 @@ function putScratchMemory() {
 // ../sdk/src/webglrenderer/vbo/batching/VBOBatchingLayer.ts
 var numLayers = 0;
 var tempVec3a5 = createVec3();
-var tempVec4a5 = createVec4();
-var tempVec4b5 = createVec4();
+var tempVec4a4 = createVec4();
+var tempVec4b4 = createVec4();
 var VBOBatchingLayer = class {
   primitive;
   rendererModel;
@@ -124770,17 +125192,17 @@ var VBOBatchingLayer = class {
       tempVec3a5[0] = positionsCompressed[k];
       tempVec3a5[1] = positionsCompressed[k + 1];
       tempVec3a5[2] = positionsCompressed[k + 2];
-      decompressPoint3WithAABB3(tempVec3a5, geometryAABB, tempVec4a5);
+      decompressPoint3WithAABB3(tempVec3a5, geometryAABB, tempVec4a4);
       if (sceneMesh.rtcMatrix) {
-        tempVec4a5[3] = 1;
-        transformPoint4(sceneMesh.rtcMatrix, tempVec4a5, tempVec4b5);
-        buffer.positions.push(tempVec4b5[0]);
-        buffer.positions.push(tempVec4b5[1]);
-        buffer.positions.push(tempVec4b5[2]);
+        tempVec4a4[3] = 1;
+        transformPoint4(sceneMesh.rtcMatrix, tempVec4a4, tempVec4b4);
+        buffer.positions.push(tempVec4b4[0]);
+        buffer.positions.push(tempVec4b4[1]);
+        buffer.positions.push(tempVec4b4[2]);
       } else {
-        buffer.positions.push(tempVec4a5[0]);
-        buffer.positions.push(tempVec4a5[1]);
-        buffer.positions.push(tempVec4a5[2]);
+        buffer.positions.push(tempVec4a4[0]);
+        buffer.positions.push(tempVec4a4[1]);
+        buffer.positions.push(tempVec4a4[2]);
       }
     }
     if (colorsCompressed) {
@@ -126713,7 +127135,7 @@ var VBOInstancingBuffer = class {
 // ../sdk/src/webglrenderer/vbo/instancing/VBOInstancingLayer.ts
 var tempUint8Vec4 = new Uint8Array(4);
 var tempFloat32 = new Float32Array(1);
-var tempVec4a6 = createVec4([0, 0, 0, 1]);
+var tempVec4a5 = createVec4([0, 0, 0, 1]);
 var tempVec3fa = new Float32Array(3);
 var tempVec3a6 = createVec3();
 var tempVec3b6 = createVec3();
@@ -129996,7 +130418,6 @@ var WebGLRenderer = class {
    * @internal
    * @param viewIndex Handle to the View.
    * @param [params.force=false] True to force a render, else only render if needed.
-   * @link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
    * @returns *{@link core!SDKError | SDKError}*
    * * No View is currently attached to this Renderer.
    * * Can't find a View attached to this Renderer with the given handle.
@@ -130937,8 +131358,8 @@ var PickController = class {
 var tempVec3a8 = createVec3();
 var tempVec3b8 = createVec3();
 var tempVec3c7 = createVec3();
-var tempVec4a7 = createVec4();
-var tempVec4b6 = createVec4();
+var tempVec4a6 = createVec4();
+var tempVec4b5 = createVec4();
 var tempVec4c = createVec4();
 var PivotController = class {
   #view;
@@ -131120,8 +131541,8 @@ var PivotController = class {
     const Pt4 = transposedProjectMat.subarray(12);
     const D = [0, 0, -1, 1];
     const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
-    const worldPos = tempVec4a7;
-    camera.projection.unproject(canvasPos2, screenZ, tempVec4b6, tempVec4c, worldPos);
+    const worldPos = tempVec4a6;
+    camera.projection.unproject(canvasPos2, screenZ, tempVec4b5, tempVec4c, worldPos);
     const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3a8));
     const posOnSphere = addVec3(camera.eye, mulVec3Scalar(eyeWorldPosVec, pivotShereRadius, tempVec3b8), tempVec3c7);
     this.setPivotPos(posOnSphere);
@@ -131236,8 +131657,8 @@ var viewPos = createVec4();
 var tempVec3a9 = createVec3();
 var tempVec3b9 = createVec3();
 var tempVec3c8 = createVec3();
-var tempVec4a8 = createVec4();
-var tempVec4b7 = createVec4();
+var tempVec4a7 = createVec4();
+var tempVec4b6 = createVec4();
 var tempVec4c2 = createVec4();
 var PanController = class {
   #view;
@@ -131265,7 +131686,7 @@ var PanController = class {
     }
     if (camera.projectionType === PerspectiveProjectionType) {
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
-      const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec4a8);
+      const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec4a7);
       const offset = subVec3(unprojectedWorldPos, camera.eye, tempVec4c2);
       const moveVec = mulVec3Scalar(normalizeVec3(offset), -dollyDelta, []);
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
@@ -131277,9 +131698,9 @@ var PanController = class {
         camera.look = [camera.eye[0] + eyeLookVec2[0], camera.eye[1] + eyeLookVec2[1], camera.eye[2] + eyeLookVec2[2]];
       }
     } else if (camera.projectionType === OrthoProjectionType) {
-      const worldPos1 = this._unproject(targetCanvasPos, tempVec4a8);
+      const worldPos1 = this._unproject(targetCanvasPos, tempVec4a7);
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
-      const worldPos2 = this._unproject(targetCanvasPos, tempVec4b7);
+      const worldPos2 = this._unproject(targetCanvasPos, tempVec4b6);
       const offset = subVec3(worldPos2, worldPos1, tempVec4c2);
       const eyeLookMoveVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a9)), -dollyDelta, tempVec3b9);
       const moveVec = addVec3(offset, eyeLookMoveVec, tempVec3c8);
@@ -136283,6 +136704,306 @@ var ContextMenu = class {
   }
 };
 
+// ../sdk/src/modelconverter/index.ts
+var modelconverter_exports = {};
+__export(modelconverter_exports, {
+  ModelConverter: () => ModelConverter
+});
+
+// ../sdk/src/modelconverter/ModelConverter.ts
+var ModelConverter = class {
+  /**
+   * A collection of available loaders, mapped by format identifiers.
+   * Each loader is responsible for parsing specific file formats.
+   */
+  loaders;
+  /**
+   * A collection of available exporters, mapped by format identifiers.
+   * Each exporter generates output files in a specific format.
+   */
+  exporters;
+  /**
+   * A collection of conversion pipelines, indexed by pipeline name.
+   * Each pipeline defines how input data is processed and converted into output formats.
+   */
+  pipelines;
+  /**
+   * Creates a new ModelConverter instance with the provided configuration.
+   *
+   * @param params - An object containing configured loaders, exporters, and optional pipelines.
+   */
+  constructor(params2) {
+    this.loaders = params2.loaders;
+    this.exporters = params2.exporters;
+    this.pipelines = params2.pipelines || {};
+  }
+  /**
+   * Transforms 3D model data using a specified conversion pipeline.
+   *
+   * This method loads the given input file data, constructs scene and data models, and then
+   * writes the converted output using the configured exporters.
+   *
+   * @param convertRequest - The parameters specifying the pipeline and input data.
+   * @returns A promise that resolves to a `ModelConverterResult` object containing the output files.
+   *
+   * @throws {SDKError} If required parameters are missing or if an unsupported pipeline is specified.
+   *
+   * @example
+   * ```ts
+   * converter.convert({
+   *     pipeline: "gltf2xgf",
+   *     inputs: { inputFileData: gltfArraybuffer }
+   * }).then(conversionResults => {
+   *     const xgfArraybuffer = conversionResults.outputs["xgf"].fileData;
+   *     const
+   *     console.log("conversion completed:", conversionResults);
+   * }).catch(error => {
+   *     console.error("conversion failed:", error);
+   * });
+   * ```
+   */
+  convert(convertRequest) {
+    return new Promise((resolve2, reject) => {
+      if (!convertRequest) {
+        return reject(`Argument expected: convertRequest`);
+      }
+      const pipelineId = convertRequest.pipeline;
+      if (!pipelineId) {
+        return reject(`Argument expected: pipelineId`);
+      }
+      const pipeline = this.pipelines[pipelineId];
+      if (!pipeline) {
+        return reject(`Unsupported pipeline: "${pipelineId}" - supported pipelines are [${Object.keys(this.pipelines || {})}]`);
+      }
+      const conversionParamsInputs = convertRequest.inputs;
+      if (!conversionParamsInputs) {
+        return reject(`Argument expected: convertRequest.inputs`);
+      }
+      const pipelineInputs = pipeline.inputs;
+      if (!pipelineInputs) {
+        return reject(`No inputs defined on pipeline "${pipelineId}"`);
+      }
+      const pipelineInputIds = Object.keys(pipelineInputs);
+      if (pipelineInputIds.length === 0) {
+        return reject(`No inputs defined on pipeline "${pipelineId}"`);
+      }
+      const pipelineOutputs = pipeline.outputs;
+      if (!pipelineOutputs) {
+        return reject(`No outputs defined on pipeline "${pipelineId}"`);
+      }
+      const pipelineOutputIds = Object.keys(pipelineOutputs);
+      if (pipelineOutputIds.length === 0) {
+        return reject(`No outputs defined on pipeline "${pipelineId}"`);
+      }
+      for (let inputId in pipelineInputs) {
+        const inputParams = pipelineInputs[inputId];
+        const loaderId = inputParams.loader;
+        if (!loaderId) {
+          return reject(`No loader defined on input "${inputId}" of pipeline "${pipelineId}"`);
+        }
+        const loader = this.loaders[loaderId];
+        if (!loader) {
+          return reject(`Can't resolve loader "${loaderId}", referenced by input "${inputId}" of pipeline "${pipelineId}"`);
+        }
+      }
+      for (let outputId in pipelineOutputs) {
+        const outputParams = pipelineOutputs[outputId];
+        const exporterId = outputParams.exporter;
+        if (!exporterId) {
+          return reject(`No exporter defined on output "${outputId}" of pipeline "${pipelineId}"`);
+        }
+        const exporter = this.exporters[exporterId];
+        if (!exporter) {
+          return reject(`Can't resolve exporter "${exporterId}", referenced by output "${outputId}" of pipeline "${pipelineId}"`);
+        }
+      }
+      const result = {
+        pipeline: pipelineId,
+        outputs: {}
+      };
+      const scene = new Scene();
+      const data = new Data();
+      const processInputs = (done) => {
+        const processNextInput = (index = 0) => {
+          if (index >= pipelineInputIds.length) {
+            done();
+            return;
+          }
+          const pipelineInputId = pipelineInputIds[index];
+          const pipelineInput = pipelineInputs[index];
+          const conversionParamsInput = conversionParamsInputs[pipelineInputId];
+          const loader = this.loaders[pipelineInput.loader];
+          const fileData = conversionParamsInput;
+          const sceneModelId = pipelineInput.sceneModel || "default";
+          const sceneModel = scene.models[sceneModelId] || scene.createModel({
+            id: sceneModelId
+          });
+          const dataModelId = pipelineInput.dataModel || "default";
+          const dataModel = data.models[dataModelId] || data.createModel({
+            id: dataModelId
+          });
+          if (sceneModel instanceof SDKError || dataModel instanceof SDKError) {
+            processNextInput(index + 1);
+          } else {
+            loader.load({
+              fileData,
+              sceneModel,
+              dataModel
+            }).then(() => {
+              processNextInput(index + 1);
+            });
+          }
+        };
+        processNextInput(0);
+      };
+      const buildSceneModels = (done) => {
+        const sceneModelIds = Object.keys(scene.models);
+        const buildNextSceneModel = (index = 0) => {
+          if (index >= sceneModelIds.length) {
+            done();
+            return;
+          }
+          const sceneModelId = sceneModelIds[index];
+          const sceneModel = scene.models[sceneModelId];
+          sceneModel.build().then(() => {
+            buildNextSceneModel(index + 1);
+          }).catch((errMsg) => {
+            done();
+          });
+        };
+        buildNextSceneModel(0);
+      };
+      const buildDataModels = (done) => {
+        const dataModelIds = Object.keys(data.models);
+        const buildNextDataModel = (index = 0) => {
+          if (index >= dataModelIds.length) {
+            done();
+            return;
+          }
+          const dataModelId = dataModelIds[index];
+          const dataModel = data.models[dataModelId];
+          dataModel.build().then(() => {
+            buildNextDataModel(index + 1);
+          }).catch((errMsg) => {
+            done();
+          });
+        };
+        buildNextDataModel(0);
+      };
+      const processOutputs = (done) => {
+        const processNextOutput = (index) => {
+          if (index >= pipelineOutputIds.length) {
+            done();
+            return;
+          }
+          const pipelineOutputId = pipelineOutputIds[index];
+          const pipelineOutput = pipelineOutputs[index];
+          const exporter = this.exporters[pipelineOutput.exporter];
+          const version2 = pipelineOutput.version;
+          const sceneModelId = pipelineOutput.sceneModel || "default";
+          const sceneModel = scene.models[sceneModelId] || scene.createModel({
+            id: sceneModelId
+          });
+          const dataModelId = pipelineOutput.dataModel || "default";
+          const dataModel = data.models[dataModelId] || data.createModel({
+            id: dataModelId
+          });
+          if (sceneModel instanceof SDKError || dataModel instanceof SDKError) {
+            processNextOutput(index + 1);
+          } else {
+            exporter.write({
+              sceneModel,
+              dataModel
+            }).then((fileData) => {
+              result.outputs[pipelineOutputId] = {
+                fileData,
+                fileDataType: exporter.fileDataType,
+                version: version2,
+                sceneModel,
+                dataModel
+              };
+              processNextOutput(index + 1);
+            });
+          }
+        };
+        processNextOutput(0);
+      };
+      processInputs(() => {
+        buildSceneModels(() => {
+          buildDataModels(() => {
+            processOutputs(() => {
+              return resolve2(result);
+            });
+          });
+        });
+      });
+    });
+  }
+  /**
+   * Clears all pipeline configurations within this ModelConverter instance.
+   *
+   * After calling this method, the converter will not have any conversion pipelines configured.
+   * You will need to call `setConfigs` to add new pipelines before calling `convert`.
+   */
+  clearConfigs() {
+    this.pipelines = {};
+  }
+  /**
+   * Configures conversion pipelines for this ModelConverter instance.
+   *
+   * This method allows updating or adding new conversion pipelines dynamically.
+   *
+   * @param params - An object containing new pipeline configurations.
+   * @returns An `SDKError` if configuration validation fails, otherwise `void`.
+   */
+  setConfigs(params2) {
+    for (let pipelineId in params2.pipelines) {
+      const pipeline = params2.pipelines[pipelineId];
+      const pipelineInputs = pipeline.inputs;
+      if (!pipelineInputs) {
+        return new SDKError(`No inputs defined on pipeline "${pipelineId}"`);
+      }
+      const pipelineInputIds = Object.keys(pipelineInputs);
+      if (pipelineInputIds.length === 0) {
+        return new SDKError(`No inputs defined on pipeline "${pipelineId}"`);
+      }
+      const pipelineOutputs = pipeline.outputs;
+      if (!pipelineOutputs) {
+        return new SDKError(`No outputs defined on pipeline "${pipelineId}"`);
+      }
+      const pipelineOutputIds = Object.keys(pipelineOutputs);
+      if (pipelineOutputIds.length === 0) {
+        return new SDKError(`No outputs defined on pipeline "${pipelineId}"`);
+      }
+      for (let inputId in pipelineInputs) {
+        const inputParams = pipelineInputs[inputId];
+        const loaderId = inputParams.loader;
+        if (!loaderId) {
+          return new SDKError(`No loader defined on input "${inputId}" of pipeline "${pipelineId}"`);
+        }
+        const loader = this.loaders[loaderId];
+        if (!loader) {
+          return new SDKError(`Can't resolve loader "${loaderId}" on input "${inputId}" of pipeline "${pipelineId}"`);
+        }
+      }
+      for (let outputId in pipelineOutputs) {
+        const outputParams = pipelineOutputs[outputId];
+        const exporterId = outputParams.exporter;
+        if (!exporterId) {
+          return new SDKError(`No exporter defined on output "${outputId}" of pipeline "${pipelineId}"`);
+        }
+        const exporter = this.exporters[exporterId];
+        if (!exporter) {
+          return new SDKError(`Can't resolve exporter "${exporterId}" on output "${outputId}" of pipeline "${pipelineId}"`);
+        }
+      }
+    }
+    for (let pipelineId in params2.pipelines) {
+      this.pipelines[pipelineId] = params2.pipelines[pipelineId];
+    }
+  }
+};
+
 // ../sdk/src/ifc2gltf2xgf/index.ts
 var ifc2gltf2xgf_exports = {};
 __export(ifc2gltf2xgf_exports, {
@@ -136343,8 +137064,10 @@ export {
   data_exports as data,
   dotbim_exports as dotbim,
   gltf_exports as gltf,
+  ifc_exports as ifc,
   ifc2gltf2xgf_exports as ifc2gltf2xgf,
   ifctypes_exports as ifctypes,
+  io_exports as io,
   kdtree2_exports as kdtree2,
   kdtree3_exports as kdtree3,
   ktx2_exports as ktx2,
@@ -136354,6 +137077,7 @@ export {
   matrix_exports as matrix,
   metamodel_exports as metamodel,
   modelchunksloader_exports as modelchunksloader,
+  modelconverter_exports as modelconverter,
   pick_exports as pick,
   procgen_exports as procgen,
   rtc_exports as rtc,
@@ -136362,7 +137086,6 @@ export {
   utils_exports as utils,
   viewer_exports as viewer,
   webglrenderer_exports as webglrenderer,
-  webifc_exports as webifc,
   xgf_exports as xgf,
   xkt_exports as xkt
 };

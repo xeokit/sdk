@@ -35,12 +35,6 @@
     "kind": "module",
     "namespace": "cityjson"
   },
-  "@xeokit/sdk/cityjson2xgf": {
-    "summary": "SDK Module",
-    "path": "/api-docs#/docs/api/modules/cityjson2xgf.html",
-    "kind": "module",
-    "namespace": "cityjson2xgf"
-  },
   "@xeokit/sdk/cityjsontypes_1_1_3": {
     "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/cityjsontypes_1_1_3.html",
@@ -89,23 +83,17 @@
     "kind": "module",
     "namespace": "dotbim"
   },
-  "@xeokit/sdk/dotbim2xgf": {
-    "summary": "SDK Module",
-    "path": "/api-docs#/docs/api/modules/dotbim2xgf.html",
-    "kind": "module",
-    "namespace": "dotbim2xgf"
-  },
   "@xeokit/sdk/gltf": {
     "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/gltf.html",
     "kind": "module",
     "namespace": "gltf"
   },
-  "@xeokit/sdk/gltf2xgf": {
+  "@xeokit/sdk/ifc": {
     "summary": "SDK Module",
-    "path": "/api-docs#/docs/api/modules/gltf2xgf.html",
+    "path": "/api-docs#/docs/api/modules/ifc.html",
     "kind": "module",
-    "namespace": "gltf2xgf"
+    "namespace": "ifc"
   },
   "@xeokit/sdk/ifc2gltf2xgf": {
     "summary": "SDK Module",
@@ -118,6 +106,12 @@
     "path": "/api-docs#/docs/api/modules/ifctypes.html",
     "kind": "module",
     "namespace": "ifctypes"
+  },
+  "@xeokit/sdk/io": {
+    "summary": "SDK Module",
+    "path": "/api-docs#/docs/api/modules/io.html",
+    "kind": "module",
+    "namespace": "io"
   },
   "@xeokit/sdk/kdtree2": {
     "summary": "SDK Module",
@@ -142,12 +136,6 @@
     "path": "/api-docs#/docs/api/modules/las.html",
     "kind": "module",
     "namespace": "las"
-  },
-  "@xeokit/sdk/las2xgf": {
-    "summary": "SDK Module",
-    "path": "/api-docs#/docs/api/modules/las2xgf.html",
-    "kind": "module",
-    "namespace": "las2xgf"
   },
   "@xeokit/sdk/locale": {
     "summary": "SDK Module",
@@ -178,6 +166,12 @@
     "path": "/api-docs#/docs/api/modules/modelchunksloader.html",
     "kind": "module",
     "namespace": "modelchunksloader"
+  },
+  "@xeokit/sdk/modelconverter": {
+    "summary": "SDK Module",
+    "path": "/api-docs#/docs/api/modules/modelconverter.html",
+    "kind": "module",
+    "namespace": "modelconverter"
   },
   "@xeokit/sdk/pick": {
     "summary": "SDK Module",
@@ -226,12 +220,6 @@
     "path": "/api-docs#/docs/api/modules/webglrenderer.html",
     "kind": "module",
     "namespace": "webglrenderer"
-  },
-  "@xeokit/sdk/webifc": {
-    "summary": "SDK Module",
-    "path": "/api-docs#/docs/api/modules/webifc.html",
-    "kind": "module",
-    "namespace": "webifc"
   },
   "@xeokit/sdk/xgf": {
     "summary": "SDK Module",
@@ -701,6 +689,12 @@
     "kind": "variable",
     "namespace": "cityjsontypes_1_1_3"
   },
+  "CityJSONLoader": {
+    "summary": "Loads a CityJSON file into a SceneModel and/or a DataModel.",
+    "path": "/api-docs#/docs/api/classes/cityjson.CityJSONLoader.html",
+    "kind": "class",
+    "namespace": "cityjson"
+  },
   "CityObjectGroup": {
     "summary": "This CityJSON type represents a group of other CityObjects.",
     "path": "/api-docs#/docs/api/variables/cityjsontypes_1_1_3.CityObjectGroup.html",
@@ -1031,6 +1025,18 @@
     "kind": "interface",
     "namespace": "data"
   },
+  "DataModelParamsLoader": {
+    "summary": "Reads DataModelParams into a DataModel.",
+    "path": "/api-docs#/docs/api/classes/data.DataModelParamsLoader.html",
+    "kind": "class",
+    "namespace": "data"
+  },
+  "DataModeParamsExporter": {
+    "summary": "Writes a DataModel to DataModelParams as JSON.",
+    "path": "/api-docs#/docs/api/classes/data.DataModeParamsExporter.html",
+    "kind": "class",
+    "namespace": "data"
+  },
   "DataObject": {
     "summary": "An object within a DataModel.",
     "path": "/api-docs#/docs/api/classes/data.DataObject.html",
@@ -1108,12 +1114,6 @@
     "path": "/api-docs#/docs/api/functions/compression.decompressUVs.html",
     "kind": "function",
     "namespace": "compression"
-  },
-  "DEFAULT_SAVED_XGF_VERSION": {
-    "summary": "The default XGF version saved by saveXGF.",
-    "path": "/api-docs#/docs/api/variables/xgf.DEFAULT_SAVED_XGF_VERSION.html",
-    "kind": "variable",
-    "namespace": "xgf"
   },
   "DefaultLoadingManager": {
     "summary": "",
@@ -1204,6 +1204,18 @@
     "path": "/api-docs#/docs/api/functions/matrix.divVec4Scalar.html",
     "kind": "function",
     "namespace": "matrix"
+  },
+  "DotBIMExporter": {
+    "summary": "Exports a SceneModel and a DataModel to.",
+    "path": "/api-docs#/docs/api/classes/dotbim.DotBIMExporter.html",
+    "kind": "class",
+    "namespace": "dotbim"
+  },
+  "DotBIMLoader": {
+    "summary": "Loads a.",
+    "path": "/api-docs#/docs/api/classes/dotbim.DotBIMLoader.html",
+    "kind": "class",
+    "namespace": "dotbim"
   },
   "dotVec2": {
     "summary": "Returns the dot product of two two-element vectors.",
@@ -1462,6 +1474,12 @@
     "path": "/api-docs#/docs/api/variables/constants.GIFMediaType.html",
     "kind": "variable",
     "namespace": "constants"
+  },
+  "GLTFLoader": {
+    "summary": "Loads a glTF file into a SceneModel and/or a DataModel.",
+    "path": "/api-docs#/docs/api/classes/gltf.GLTFLoader.html",
+    "kind": "class",
+    "namespace": "gltf"
   },
   "HalfFloatType": {
     "summary": "Signed 16-bit half-precision floating-point type.",
@@ -2933,6 +2951,12 @@
     "kind": "variable",
     "namespace": "ifctypes"
   },
+  "IFCExporter": {
+    "summary": "Exports a SceneModel and DataModel to an IFC file.",
+    "path": "/api-docs#/docs/api/classes/ifc.IFCExporter.html",
+    "kind": "class",
+    "namespace": "ifc"
+  },
   "IfcExtendedProperties": {
     "summary": "The IfcExtendedProperties is an abstract supertype of all extensible property collections that are applicable to certain characterized entities.",
     "path": "/api-docs#/docs/api/variables/ifctypes.IfcExtendedProperties.html",
@@ -3580,6 +3604,12 @@
     "path": "/api-docs#/docs/api/variables/ifctypes.IfcLine.html",
     "kind": "variable",
     "namespace": "ifctypes"
+  },
+  "IFCLoader": {
+    "summary": "Loads an IFC file into a SceneModel and/or a DataModel.",
+    "path": "/api-docs#/docs/api/classes/ifc.IFCLoader.html",
+    "kind": "class",
+    "namespace": "ifc"
   },
   "IfcLocalPlacement": {
     "summary": "An IfcLocalPlacement defines the relative placement of a product in relation to the placement of another product or the absolute placement of a product within the geometric representation context of the project.",
@@ -7007,6 +7037,18 @@
     "kind": "variable",
     "namespace": "cityjsontypes_1_1_3"
   },
+  "LASLoader": {
+    "summary": "Loads a LAS/LAZ file into a SceneModel and/or a DataModel.",
+    "path": "/api-docs#/docs/api/classes/las.LASLoader.html",
+    "kind": "class",
+    "namespace": "las"
+  },
+  "LASLoaderOptions": {
+    "summary": "Options for LASLoader.",
+    "path": "/api-docs#/docs/api/interfaces/las.LASLoaderOptions.html",
+    "kind": "interface",
+    "namespace": "las"
+  },
   "lenVec2": {
     "summary": "Returns the length of a two-element vector.",
     "path": "/api-docs#/docs/api/functions/matrix.lenVec2.html",
@@ -7103,41 +7145,11 @@
     "kind": "interface",
     "namespace": "bcf"
   },
-  "loadCityJSON": {
-    "summary": "Loads CityJSON into a SceneModel and/or a DataModel.",
-    "path": "/api-docs#/docs/api/functions/cityjson.loadCityJSON.html",
-    "kind": "function",
-    "namespace": "cityjson"
-  },
-  "loadDataModel": {
-    "summary": "Loads DataModelParams into a DataModel.",
-    "path": "/api-docs#/docs/api/functions/data.loadDataModel.html",
-    "kind": "function",
-    "namespace": "data"
-  },
-  "loadDotBIM": {
-    "summary": "Loads a.",
-    "path": "/api-docs#/docs/api/functions/dotbim.loadDotBIM.html",
-    "kind": "function",
-    "namespace": "dotbim"
-  },
-  "LOADED_XGF_VERSIONS": {
-    "summary": "The XGF versions supported by loadXGF.",
-    "path": "/api-docs#/docs/api/variables/xgf.LOADED_XGF_VERSIONS.html",
-    "kind": "variable",
-    "namespace": "xgf"
-  },
   "Loader": {
     "summary": "",
     "path": "/api-docs#/docs/api/classes/utils.Loader.html",
     "kind": "class",
     "namespace": "utils"
-  },
-  "loadGLTF": {
-    "summary": "Loads glTF file data into a SceneModel and/or\na DataModel.",
-    "path": "/api-docs#/docs/api/functions/gltf.loadGLTF.html",
-    "kind": "function",
-    "namespace": "gltf"
   },
   "LoadingManager": {
     "summary": "",
@@ -7150,36 +7162,6 @@
     "path": "/api-docs#/docs/api/functions/utils.loadJSON.html",
     "kind": "function",
     "namespace": "utils"
-  },
-  "loadLAS": {
-    "summary": "Loads LAS/LAZ file data from an ArrayBuffer into a SceneModel and/or a DataModel.",
-    "path": "/api-docs#/docs/api/functions/las.loadLAS.html",
-    "kind": "function",
-    "namespace": "las"
-  },
-  "loadMetaModel": {
-    "summary": "Loads a legacy xeokit metamodel JSON representation into a DataModel.",
-    "path": "/api-docs#/docs/api/functions/metamodel.loadMetaModel.html",
-    "kind": "function",
-    "namespace": "metamodel"
-  },
-  "loadWebIFC": {
-    "summary": "Uses WebIFc to load an IFC file into a SceneModel and/or DataModel.",
-    "path": "/api-docs#/docs/api/functions/webifc.loadWebIFC.html",
-    "kind": "function",
-    "namespace": "webifc"
-  },
-  "loadXGF": {
-    "summary": "Imports [XGF](https://xeokit.",
-    "path": "/api-docs#/docs/api/functions/xgf.loadXGF.html",
-    "kind": "function",
-    "namespace": "xgf"
-  },
-  "loadXKT": {
-    "summary": "Imports [XKT](https://xeokit.",
-    "path": "/api-docs#/docs/api/functions/xkt.loadXKT.html",
-    "kind": "function",
-    "namespace": "xkt"
   },
   "loadXKTManifest": {
     "summary": "",
@@ -7253,6 +7235,12 @@
     "kind": "interface",
     "namespace": "pick"
   },
+  "MetaModelLoader": {
+    "summary": "Loads MetaModelParams into a DataModel.",
+    "path": "/api-docs#/docs/api/classes/metamodel.MetaModelLoader.html",
+    "kind": "class",
+    "namespace": "metamodel"
+  },
   "MetaModelParams": {
     "summary": "Legacy metadata model parameters.",
     "path": "/api-docs#/docs/api/interfaces/metamodel.MetaModelParams.html",
@@ -7318,6 +7306,108 @@
     "path": "/api-docs#/docs/api/interfaces/core.ModelChunksManifestParams.html",
     "kind": "interface",
     "namespace": "core"
+  },
+  "ModelConverter": {
+    "summary": "Transforms 3D model data between different file formats.",
+    "path": "/api-docs#/docs/api/classes/modelconverter.ModelConverter.html",
+    "kind": "class",
+    "namespace": "modelconverter"
+  },
+  "ModelConverterConfig": {
+    "summary": "Configurations for a ModelConverter.",
+    "path": "/api-docs#/docs/api/interfaces/modelconverter.ModelConverterConfig.html",
+    "kind": "interface",
+    "namespace": "modelconverter"
+  },
+  "ModelConverterInputParams": {
+    "summary": "Defines the configuration for a single input in a conversion pipeline.",
+    "path": "/api-docs#/docs/api/interfaces/modelconverter.ModelConverterInputParams.html",
+    "kind": "interface",
+    "namespace": "modelconverter"
+  },
+  "ModelConverterOutputParams": {
+    "summary": "Defines the configuration for a single output in a conversion pipeline.",
+    "path": "/api-docs#/docs/api/interfaces/modelconverter.ModelConverterOutputParams.html",
+    "kind": "interface",
+    "namespace": "modelconverter"
+  },
+  "ModelConverterParams": {
+    "summary": "Constructor parameters for a ModelConverter.",
+    "path": "/api-docs#/docs/api/interfaces/modelconverter.ModelConverterParams.html",
+    "kind": "interface",
+    "namespace": "modelconverter"
+  },
+  "ModelConverterPipelineParams": {
+    "summary": "Defines the structure of a conversion pipeline within a ModelConverter.",
+    "path": "/api-docs#/docs/api/interfaces/modelconverter.ModelConverterPipelineParams.html",
+    "kind": "interface",
+    "namespace": "modelconverter"
+  },
+  "ModelConverterRequest": {
+    "summary": "Parameters required to perform a conversion using ModelConverter.",
+    "path": "/api-docs#/docs/api/interfaces/modelconverter.ModelConverterRequest.html",
+    "kind": "interface",
+    "namespace": "modelconverter"
+  },
+  "ModelConverterResult": {
+    "summary": "The result returned from a ModelConverter.",
+    "path": "/api-docs#/docs/api/interfaces/modelconverter.ModelConverterResult.html",
+    "kind": "interface",
+    "namespace": "modelconverter"
+  },
+  "ModelConverterResultOutput": {
+    "summary": "Represents a single output file produced by the ModelConverter.",
+    "path": "/api-docs#/docs/api/interfaces/modelconverter.ModelConverterResultOutput.html",
+    "kind": "interface",
+    "namespace": "modelconverter"
+  },
+  "ModelEncodeParams": {
+    "summary": "",
+    "path": "/api-docs#/docs/api/interfaces/io.ModelEncodeParams.html",
+    "kind": "interface",
+    "namespace": "io"
+  },
+  "ModelExporter": {
+    "summary": "Exports a SceneModel and/or a DataModel to a file.",
+    "path": "/api-docs#/docs/api/classes/io.ModelExporter.html",
+    "kind": "class",
+    "namespace": "io"
+  },
+  "ModelExporterParams": {
+    "summary": "",
+    "path": "/api-docs#/docs/api/interfaces/io.ModelExporterParams.html",
+    "kind": "interface",
+    "namespace": "io"
+  },
+  "ModelExportParams": {
+    "summary": "",
+    "path": "/api-docs#/docs/api/interfaces/io.ModelExportParams.html",
+    "kind": "interface",
+    "namespace": "io"
+  },
+  "ModelLoader": {
+    "summary": "Loads a model file into a SceneModel and/or a DataModel.",
+    "path": "/api-docs#/docs/api/classes/io.ModelLoader.html",
+    "kind": "class",
+    "namespace": "io"
+  },
+  "ModelLoaderParams": {
+    "summary": "",
+    "path": "/api-docs#/docs/api/interfaces/io.ModelLoaderParams.html",
+    "kind": "interface",
+    "namespace": "io"
+  },
+  "ModelLoadParams": {
+    "summary": "",
+    "path": "/api-docs#/docs/api/interfaces/io.ModelLoadParams.html",
+    "kind": "interface",
+    "namespace": "io"
+  },
+  "ModelParseParams": {
+    "summary": "",
+    "path": "/api-docs#/docs/api/interfaces/io.ModelParseParams.html",
+    "kind": "interface",
+    "namespace": "io"
   },
   "mulMat3": {
     "summary": "Multiplies two 3x3 matrices and stores the result in a destination matrix.",
@@ -8057,29 +8147,11 @@
     "kind": "interface",
     "namespace": "bcf"
   },
-  "SAVED_XGF_VERSIONS": {
-    "summary": "The XGF versions supported by saveXGF.",
-    "path": "/api-docs#/docs/api/variables/xgf.SAVED_XGF_VERSIONS.html",
-    "kind": "variable",
-    "namespace": "xgf"
-  },
-  "saveDotBIM": {
-    "summary": "Exports a SceneModel and/or a DataModel to a JSON object\ncontaining the corresponding.",
-    "path": "/api-docs#/docs/api/functions/dotbim.saveDotBIM.html",
-    "kind": "function",
-    "namespace": "dotbim"
-  },
   "saveJSON": {
     "summary": "Downloads JSON to a file.",
     "path": "/api-docs#/docs/api/functions/utils.saveJSON.html",
     "kind": "function",
     "namespace": "utils"
-  },
-  "saveXGF": {
-    "summary": "Exports a SceneModel to an ArrayBuffer\ncontaining [XGF](https://xeokit.",
-    "path": "/api-docs#/docs/api/functions/xgf.saveXGF.html",
-    "kind": "function",
-    "namespace": "xgf"
   },
   "scaleMat4c": {
     "summary": "Efficiently applies scaling to a 4x4 matrix using individual scale factors.",
@@ -8163,6 +8235,18 @@
     "summary": "Parameters for a SceneModel.",
     "path": "/api-docs#/docs/api/interfaces/scene.SceneModelParams.html",
     "kind": "interface",
+    "namespace": "scene"
+  },
+  "SceneModelParamsExporter": {
+    "summary": "Writes a SceneModel to SceneModelParams as JSON.",
+    "path": "/api-docs#/docs/api/classes/scene.SceneModelParamsExporter.html",
+    "kind": "class",
+    "namespace": "scene"
+  },
+  "SceneModelParamsLoader": {
+    "summary": "Reads SceneModelParams into a SceneModel.",
+    "path": "/api-docs#/docs/api/classes/scene.SceneModelParamsLoader.html",
+    "kind": "class",
     "namespace": "scene"
   },
   "SceneModelStats": {
@@ -8825,11 +8909,23 @@
     "kind": "function",
     "namespace": "rtc"
   },
-  "XGFData_v1": {
-    "summary": "The elements of a [XGF](https://xeokit.",
-    "path": "/api-docs#/docs/api/interfaces/xgf.XGFData_v1.html",
-    "kind": "interface",
+  "XGFExporter": {
+    "summary": "Exports a SceneModel to an XGF file.",
+    "path": "/api-docs#/docs/api/classes/xgf.XGFExporter.html",
+    "kind": "class",
     "namespace": "xgf"
+  },
+  "XGFLoader": {
+    "summary": "Loads an XGF file into a SceneModel and/or a DataModel.",
+    "path": "/api-docs#/docs/api/classes/xgf.XGFLoader.html",
+    "kind": "class",
+    "namespace": "xgf"
+  },
+  "XKTLoader": {
+    "summary": "Loads an XKT file into a SceneModel and/or a DataModel.",
+    "path": "/api-docs#/docs/api/classes/xkt.XKTLoader.html",
+    "kind": "class",
+    "namespace": "xkt"
   },
   "XKTManifest": {
     "summary": "",

@@ -40,43 +40,33 @@ export function getDefaultConverter(options: any): Promise<ModelConverter> {
 
 ### **Loaders and Writers**
 
-````javascript
-readers: {
-    "dotbim"
-:
-    new DotBIMLoader(),
-        "glb"
-:
-    new GLTFLoader(),
-        "cityjson"
-:
-    new CityJSONLoader(),
-        "xkt"
-:
-    new XKTLoader(),
-        "xgf"
-:
-    new XGFLoader(),
-        "las"
-:
-    new LASLoader(),
-        "datamodel"
-:
-    new SceneModelParamsLoader()
+````json
+{
+  readers: {
+    "dotbim": new
+    DotBIMLoader(),
+    "glb": new
+    GLTFLoader(),
+    "cityjson": new
+    CityJSONLoader(),
+    "xkt": new
+    XKTLoader(),
+    "xgf": new
+    XGFLoader(),
+    "las": new
+    LASLoader(),
+    "datamodel": new
+    SceneModelParamsLoader()
+  },
+  writers: {
+    "xgf": new
+    XGFExporter(),
+    "dotbim": new
+    DotBIMWriter(),
+    "datamodel": new
+    SceneModelParamsExporter()
+  }
 }
-,
-writers: {
-    "xgf"
-:
-    new XGFExporter(),
-        "dotbim"
-:
-    new DotBIMWriter(),
-        "datamodel"
-:
-    new SceneModelParamsExporter()
-}
-,
 ````
 - **Loaders**: Parse input files (`dotbim`, `glb`, `cityjson`, etc.).
 - **Writers**: Generate output files (`xgf`, `dotbim`, `datamodel`).

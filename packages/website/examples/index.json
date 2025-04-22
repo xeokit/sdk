@@ -420,28 +420,6 @@
     "topic": "viewer.view.viewlayer",
     "template": "basicPage"
   },
-  "ViewLayer_multiView": {
-    "id": "ViewLayer_multiView",
-    "title": "Creating a Viewer with multiple Views and ViewLayers",
-    "description": "",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [],
-    "categories": [],
-    "topic": "viewer.view.viewlayer",
-    "template": "threeCanvasPage"
-  },
-  "ViewLayer_multiView_lighting": {
-    "id": "ViewLayer_multiView_lighting",
-    "title": "Creating a Viewer with multiple Views and light sources",
-    "description": "",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [],
-    "categories": [],
-    "topic": "viewer.view.viewlayer",
-    "template": "threeCanvasPage"
-  },
   "ViewLayer_multiView_multiModels": {
     "id": "ViewLayer_multiView_multiModels",
     "title": "Creating a Viewer with multiple Views and ViewLayers",
@@ -451,19 +429,6 @@
     "tags": [],
     "categories": [],
     "topic": "viewer.view.viewlayer",
-    "template": "threeCanvasPage"
-  },
-  "View_multiView_IFCLoader": {
-    "id": "View_multiView_IFCLoader",
-    "title": "Viewing an IFC model in multiple Views",
-    "description": "In this example, we'll use the xeokit SDK to view an IFC file within multiple canvases in the browser",
-    "isTutorial": true,
-    "isVisualTest": true,
-    "tags": [
-      "_Featured"
-    ],
-    "categories": [],
-    "topic": "general",
     "template": "threeCanvasPage"
   },
   "View_multiView_SceneModel_build_table": {
@@ -592,22 +557,6 @@
     "isTutorial": true,
     "isVisualTest": false,
     "tags": [],
-    "categories": [
-      "Viewer",
-      "Configuration"
-    ],
-    "topic": "viewer.configuration",
-    "template": "basicPage"
-  },
-  "Viewer_toParams": {
-    "id": "Viewer_toParams",
-    "title": "Saving a Viewer Configuration",
-    "description": "This example demonstrates how to capture a JSON snapshot of a xeokit Viewer's current runtime configuration.",
-    "isTutorial": true,
-    "isVisualTest": false,
-    "tags": [
-      "Viewer"
-    ],
     "categories": [
       "Viewer",
       "Configuration"

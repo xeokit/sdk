@@ -332,6 +332,15 @@
       "thumbnail": "thumb.png",
       "topic": "import.ifc"
     },
+    "ifc2xgf": {
+      "title": "Viewing IFC using xeoconvert and XGFLoader",
+      "description": "How to use the ifc2gltf CLI tool to convert an IFC model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>We recommend this pipeline for only for small-to-medium size IFC files.",
+      "tags": [],
+      "_bannerImage": "banner.png",
+      "thumbnail": "index.png",
+      "relatedArticles": [],
+      "topic": "import.ifc"
+    },
     "las2xgf": {
       "title": "Viewing LAZ using xeoconvert and XGFLoader",
       "description": "How to use the xeoconvert CLI tool to convert a LAZ model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>XGF can load certain AEC models faster than glTF.",
@@ -411,21 +420,6 @@
         "ViewerParams"
       ]
     },
-    "webifc2xgf": {
-      "title": "Viewing IFC using webifc2xgf and XGFLoader",
-      "description": "How to use the webifc2xgf CLI tool to convert an IFC model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>We recommend this pipeline for only for small-to-medium size IFC files.",
-      "tags": [
-        "XGF",
-        "IFC",
-        "webifc2xgf"
-      ],
-      "_bannerImage": "banner.png",
-      "thumbnail": "index.png",
-      "relatedArticles": [
-        "ifc2gltf2xgf"
-      ],
-      "topic": "import.ifc"
-    },
     "whitepaper": {
       "title": "xeokit SDK: White Paper",
       "description": "An overview of the modules within the xeokit SDK, including scene and data representation, web viewer, model import, export and conversion tools, and various utility libraries.",
@@ -445,16 +439,14 @@
       "ifc2gltf",
       "ifc2gltf2xgf",
       "las2xgf",
-      "overview-pipelines",
-      "webifc2xgf"
+      "overview-pipelines"
     ],
     "IFC": [
       "dotbim2xgf",
       "example_IFCLoader_IfcOpenHouse4",
       "ifc2gltf",
       "ifc2gltf2xgf",
-      "overview-pipelines",
-      "webifc2xgf"
+      "overview-pipelines"
     ],
     "DotBIM": [
       "dotbim2xgf",
@@ -558,8 +550,7 @@
       "overview-pipelines"
     ],
     "webifc2xgf": [
-      "example_IFCLoader_IfcOpenHouse4",
-      "webifc2xgf"
+      "example_IFCLoader_IfcOpenHouse4"
     ],
     "LAS": [
       "example_LASLoader_Pumpkin",

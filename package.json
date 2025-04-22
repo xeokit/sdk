@@ -12,7 +12,7 @@
 
         "sdk-dist": "turbo run sdk-dist --concurrency 100",
         "__sdk-test": "turbo run sdk-test --concurrency 100 --continue || node scripts/test-html-report/index.mjs",
-        "__sdk-publish": "turbo run sdk-publish",
+        "sdk-publish": "turbo run sdk-publish",
 
         "website-sdk-docs": "rimraf packages/website/docs && mkdir packages/website/docs && turbo run website-sdk-docs && typedoc --entryPointStrategy merge \"./packages/website/docs/json/*.json\" --tsconfig ./packages/config/tsconfig.typedoc.json",
 

@@ -1,7 +1,7 @@
 {
     "name": "@xeokit/sdk",
     "private": false,
-    "version": "0.1.0",
+    "version": "0.1.0-alpha",
     "description": "Next generation xeokit SDK",
     "main": "dist/index.js",
     "module": "dist/index.js",
@@ -9,8 +9,7 @@
         "sdk-test": "jest --passWithNoTests",
         "sdk-dist": "rm -Rf tsconfig.tsbuildinfo;  tsc; node ./scripts/build-cli-tools.js",
         "sdk-lint": "eslint . --fix",
-        "_sdk-publish": "npm publish --access public",
-
+        "sdk-publish": "npm publish --access public",
         "website-sdk-docs": "typedoc --json ../website/docs/json/sdk.json --options typedoc.json --validation.invalidLink false && cp -Rf ./assets ../website/docs/."
     },
     "bin": {

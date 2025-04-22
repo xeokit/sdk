@@ -13,9 +13,7 @@
         "website-sdk-docs": "typedoc --json ../website/docs/json/sdk.json --options typedoc.json --validation.invalidLink false && cp -Rf ./assets ../website/docs/."
     },
     "bin": {
-        "xeoconvert": "./dist/cityjson2xgf/cityjson2xgf.js",
-        "cityjson2xgf": "./dist/cityjson2xgf/cityjson2xgf.js",
-        "gltf2xgf": "./dist/gltf2xgf/gltf2xgf.js"
+        "xeoconvert": "./dist/xeoconvert/xeoconvert.js"
     },
     "repository": {
         "type": "git",
@@ -28,7 +26,7 @@
     },
     "homepage": "https://xeokit.github.io/sdk/docs/api/index.html",
     "files": [
-        "dist/",
+        "src/",
         "README.md",
         "package.json"
     ],

@@ -12202,7 +12202,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./data/models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -12659,7 +12659,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./data/models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -13116,7 +13116,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./data/models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -13573,103 +13573,103 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -14088,7 +14088,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -14507,7 +14507,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -14926,7 +14926,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -15345,7 +15345,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -15764,7 +15764,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -16183,7 +16183,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -16602,7 +16602,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -17021,7 +17021,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -17440,7 +17440,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -17859,7 +17859,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -18275,5 +18275,35 @@ geometry reused
 [ifc2gltf2xgf] Converted scene model ./models/Duplex/ifc2gltf/model.glb (1 of 1)
 [ifc2gltf2xgf] Converted data model ./models/Duplex/ifc2gltf/model.json (1 of 1)
 [ifc2gltf2xgf] Conversion time: 0.15 s
+[ifc2gltf2xgf] Done.
+
+[ifc2gltf2xgf] Converting to XGF version: 1.0.0 (default)
+[ifc2gltf2xgf]
+Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+[ifc2gltf2xgf] Writing XGF+JSON files: models/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./models/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./models/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.15 s
+[ifc2gltf2xgf] Done.
+
+[ifc2gltf2xgf] Converting to XGF version: 1.0.0 (default)
+[ifc2gltf2xgf]
+Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+[ifc2gltf2xgf] Writing XGF+JSON files: models/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./models/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./models/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.13 s
+[ifc2gltf2xgf] Done.
+
+[ifc2gltf2xgf] Converting to XGF version: 1.0.0 (default)
+[ifc2gltf2xgf]
+Reading glTF manifest file: ./models/Duplex/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+[ifc2gltf2xgf] Writing XGF+JSON files: models/Duplex/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./models/Duplex/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./models/Duplex/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.14 s
 [ifc2gltf2xgf] Done.
 

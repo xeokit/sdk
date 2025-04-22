@@ -22,7 +22,6 @@
 <script type="module">
 
     import * as xeokit from "../js/xeokit-demo-bundle.js";
-    import * as WebIFC from "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/web-ifc-api.js";
 
     import {DemoHelper} from "../js/DemoHelper.js";
 
@@ -30,349 +29,205 @@
     const modelId = reqParams.modelId;
     const pipelineId = reqParams.pipelineId;
 
-    const info = {
-        "xgf": {
-            title: `View '${modelId}' model from XGF`,
-            summary: `Create a Viewer with a WebGLRenderer, a Scene and a View.
-            Create a Data.
-            In the Scene, create a SceneModel.
-            In the Data, create a DataModel.
-            Use loadXGF to load the XGF file into the SceneModel and DataModel.
-            Build the SceneModel and DataModel.
-            Model then appears in the View.`
-        },
-        "gltf": {
-            title: `View '${modelId}' model from glTF`,
-            summary: "Create a Viewer with a WebGLRenderer, a Scene and a View. Create a Data. In the Scene, create a SceneModel. In the Data, create a DataModel. Use loadGLTF to load the glTF file into the SceneModel and DataModel."
-        },
-        "ifc": {
-            title: `View '${modelId}' model from IFC`,
-            summary: `Create a Viewer with a WebGLRenderer, a Scene and a View.
-            Create a Data. In the Scene, create a SceneModel.
-            In the Data, create a DataModel.
-            Use loadWebIFC to load the IFC file into the SceneModel and DataModel.
-            Build the SceneModel and DataModel.
-            Model then appears in the View.`
-        },
-        "dotbim": {
-            title: `View '${modelId}' model from DotBIM`,
-            summary: "Create a Viewer with a WebGLRenderer, a Scene and a View. Create a Data. In the Scene, create a SceneModel. In the Data, create a DataModel. Use loadDotBIM to load the DotBIM file into the SceneModel and DataModel."
-        },
-        "gltf2xgf": {
-            title: `View '${modelId}' model from XGF+JSON created by gltf2xgf`,
-            summary: "Create a Viewer with a WebGLRenderer, a Scene and a View. Create a Data. In the Scene, create a SceneModel. In the Data, create a DataModel. Use loadXGF to load the XGF file into the SceneModel. Use SceneModel.fromParams to load the JSON into the DataModel."
-        },
-        "ifc2gltf": {
-            title: `View '${modelId}' model from glTF+JSON created from IFC by ifc2gltf`,
-            summary: `Create a Viewer with a WebGLRenderer, a Scene and a View.
-            Create a Data.
-            In the Scene, create a SceneModel.
-            In the Data, create a DataModel.
-            Load the Ifc2gltfManifestParams manifest that was output by ifc2gltf.
-            Convert the manifest into a ModelChunksManifestParams, using convertIfc2gltfManifest.
-            Load the glTF and JSON files in the manifest into the SceneModel and DataModel, using a ModelChunksLoader configured with loadGLTF and loadMetaModel.
-            Build the SceneModel and DataModel.
-            Model then appears in the View.`
-        },
-        "ifc2gltf2xgf": {
-            title: `View '${modelId}' model from XGF+JSON created by ifc2gltf2xgf`,
-            summary: `Create a Viewer with a WebGLRenderer, a Scene and a View.
-            Create a Data.
-            In the Scene, create a SceneModel.
-            In the Data, create a DataModel.
-            Load the ModelChunksManifestParams manifest that was output by ifc2gltf2xgf.
-            Load the XGF and JSON files in the manifest into the SceneModel and DataModel, using a ModelChunksLoader configured with loadXKT and loadDataModel.
-            Build the SceneModel and DataModel.
-            Model then appears in the View.`
-        },
-        "dotbim2xgf": {
-            title: `View '${modelId}' model from XGF+JSON created from DotBIM by dotbim2xgf`,
-            summary: `Create a Viewer with a WebGLRenderer, a Scene and a View.
-            Create a Data.
-            In the Scene, create a SceneModel.
-            In the Data, create a DataModel.
-            Load the ModelChunksManifestParams manifest that was output by ifc2gltf2xgf.
-            Load the XGF and JSON files into the SceneModel and DataModel, using loadXKT and DataModel#fromParams.
-            Build the SceneModel and DataModel.
-            Model then appears in the View.`
-        },
-        "json": {
-            title: `View '${modelId}' model from JSON`,
-            summary: `Create a Viewer with a WebGLRenderer, a Scene and a View.
-            Create a Data.
-            In the Scene, create a SceneModel.
-            In the Data, create a DataModel.
-            Load JSON files into the SceneModel and DataModel, using SceneModel#fromParams and DataModel#fromParams.
-            Build the SceneModel and DataModel.
-            Model then appears in the View.`
-        },
-        "cityjson": {
-            title: `View '${modelId}' model from CityJSON`,
-            summary: `Create a Viewer with a WebGLRenderer, a Scene and a View.
-            Create a Data.
-            In the Scene, create a SceneModel.
-            In the Data, create a DataModel.
-            Load the CityJSON files into the SceneModel and DataModel, using loadCityJSON.
-            Build the SceneModel and DataModel.
-            Model then appears in the View.`
-        },
-        "las": {
-            title: `View '${modelId}' model from LAS`,
-            summary: `Create a Viewer with a WebGLRenderer, a Scene and a View.
-            Create a Data.
-            In the Scene, create a SceneModel.
-            In the Data, create a DataModel.
-            Use loadLAS to load the LAS file into the SceneModel and DataModel.
-            Build the SceneModel and DataModel.
-            Model then appears in the View.`
-        },
-        "laz": {
-            title: `View '${modelId}' model from LAZ`,
-            summary: `Create a Viewer with a WebGLRenderer, a Scene and a View.
-            Create a Data.
-            In the Scene, create a SceneModel.
-            In the Data, create a DataModel.
-            Use loadLAS to load the LAZ file into the SceneModel and DataModel.
-            Build the SceneModel and DataModel.
-            Model then appears in the View.`
-        },
-        "las2xgf": {
-            title: `View '${modelId}' model from XGF+JSON created from LAS/LAZ by las2xgf`,
-            summary: `Create a Viewer with a WebGLRenderer, a Scene and a View.
-            Create a Data.
-            In the Scene, create a SceneModel.
-            In the Data, create a DataModel.
-            Use loadXGF to load the XGF file into the SceneModel.
-            Use SceneModel.fromParams to load the JSON into the DataModel.
-            Build the SceneModel and DataModel.
-            Model then appears in the View.`
-        },
-        "webifc2xgf": {
-            title: `View '${modelId}' model from XGF+JSON created from IFC by webifc2xgf`,
-            summary: `Create a Viewer with a WebGLRenderer, a Scene and a View.
-            Create a Data.
-            In the Scene, create a SceneModel.
-            In the Data, create a DataModel.
-            Use loadXGF to load the XGF file into the SceneModel.
-            Use SceneModel.fromParams to load the JSON into the DataModel.
-            Build the SceneModel and DataModel.
-            Model then appears in the View.`
-        }
-    }
     fetch("./index.json").then(response => {
-        response.json().then(models => {
+        response.json()
+            .then(models => {
 
-            fetch("./pipelines.json").then(response => {
-                response.json().then(pipelines => {
+                fetch("./pipelines.json").then(response => {
+                    response.json().then(pipelines => {
 
 
-                    const scene = new xeokit.scene.Scene();
-                    const data = new xeokit.data.Data();
+                        const scene = new xeokit.scene.Scene();
+                        const data = new xeokit.data.Data();
 
-                    const renderer = new xeokit.webglrenderer.WebGLRenderer({});
+                        const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
-                    const viewer = new xeokit.viewer.Viewer({
-                        id: "demoViewer",
-                        scene,
-                        renderer
-                    });
-
-                    const view = viewer.createView({
-                        id: "demoView",
-                        elementId: "demoCanvas"
-                    });
-
-                    new xeokit.cameracontrol.CameraControl(view, {});
-
-                    const cameraFlight = new xeokit.cameraflight.CameraFlightAnimation(view);
-
-                    const demoHelper = new DemoHelper({
-                        elementId: "info-container",
-                        viewer,
-                        data
-                    });
-
-                    demoHelper.init({
-                       // index: info[pipelineId]
-                    }).then(() => {
-
-                        //const pipeline = pipelines.pipelines[pipelineId];
-
-                        // demoHelper.logViewingModel(modelId, pipelineId);
-
-                        // demoHelper.logImportPipeline(pipelineId)
-
-                        scene.onModelCreated.subscribe(() => {
-                            cameraFlight.jumpTo({aabb: scene.aabb});
-
+                        const viewer = new xeokit.viewer.Viewer({
+                            id: "demoViewer",
+                            scene,
+                            renderer
                         });
 
-                        const sceneModel = scene.createModel({
-                            id: "demoModel"
+                        const view = viewer.createView({
+                            id: "demoView",
+                            elementId: "demoCanvas"
                         });
 
-                        const dataModel = data.createModel({
-                            id: "demoModel"
+                        new xeokit.cameracontrol.CameraControl(view, {});
+
+                        const cameraFlight = new xeokit.cameraflight.CameraFlightAnimation(view);
+
+                        const demoHelper = new DemoHelper({
+                            elementId: "info-container",
+                            viewer,
+                            data
                         });
 
-                        const baseDir = `../../models/${modelId}/${pipelineId}`;
+                        demoHelper.init({
+                            // index: info[pipelineId]
+                        }).then(() => {
 
-                        const onError = (err) => {
-                            // demoHelper.logError(err);
-                        }
+                            scene.onModelCreated.subscribe(() => {
+                                cameraFlight.jumpTo({aabb: scene.aabb});
 
-                        const onSuccess = () => {
-                            sceneModel.build();
-                            dataModel.build();
-                            demoHelper.finished();
-                        }
+                            });
 
-                        switch (pipelineId) {
+                            const sceneModel = scene.createModel({
+                                id: "demoModel"
+                            });
 
-                            case "laz":
-                                view.camera.orbitPitch(20);
-                                view.camera.orbitYaw(20);
-                                // demoHelper.logAsset(`${baseDir}/model.laz`, "LAZ")
-                                fetch(`${baseDir}/model.laz`)
-                                    .then(response => {
-                                        response
-                                            .arrayBuffer()
-                                            .then(fileData => {
-                                                xeokit.las.loadLAS({
+                            const dataModel = data.createModel({
+                                id: "demoModel"
+                            });
+
+                            const baseDir = `../../models/${modelId}/${pipelineId}`;
+
+                            const onError = (err) => {
+                                // demoHelper.logError(err);
+                            }
+
+                            const onSuccess = () => {
+                                sceneModel.build();
+                                dataModel.build();
+                                demoHelper.finished();
+                            }
+
+                            switch (pipelineId) {
+
+                                case "laz":
+                                    view.camera.orbitPitch(20);
+                                    view.camera.orbitYaw(20);
+                                    fetch(`${baseDir}/model.laz`)
+                                        .then(response => {
+                                            response
+                                                .arrayBuffer()
+                                                .then(fileData => {
+                                                    (new xeokit.las.LASLoader()).load({
+                                                            fileData,
+                                                            sceneModel,
+                                                            dataModel
+                                                        },
+                                                        {
+                                                            fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
+                                                            colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
+                                                            skip: 10,            // Load every nth point (optional, default is 1)
+                                                            center: false,      // Whether to center the points (optional)
+                                                            transform: [        // Transform the points (optional)
+                                                                1, 0, 0, 0,
+                                                                0, 0, -1, 0,
+                                                                0, 1, 0, 0,
+                                                                0, 0, 0, 1
+                                                            ]
+                                                        })
+                                                        .then(onSuccess)
+                                                        .catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+
+                                case "las":
+                                    view.camera.orbitPitch(20);
+                                    view.camera.orbitYaw(20);
+                                    fetch(`${baseDir}/model.las`)
+                                        .then(response => {
+                                            response
+                                                .arrayBuffer()
+                                                .then(fileData => {
+                                                    (new xeokit.las.LASLoader()).load({
+                                                            fileData,
+                                                            sceneModel,
+                                                            dataModel
+                                                        },
+                                                        {
+                                                            fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
+                                                            colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
+                                                            skip: 10,           // Load every nth point (optional, default is 1)
+                                                            center: false,      // Whether to center the points (optional)
+                                                            transform: [        // Transform the points (optional)
+                                                                1, 0, 0, 0,
+                                                                0, 0, -1, 0,
+                                                                0, 1, 0, 0,
+                                                                0, 0, 0, 1
+                                                            ]
+                                                        })
+                                                        .then(onSuccess)
+                                                        .catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+
+                                case "cityjson":
+                                    view.camera.orbitPitch(-60);
+                                    view.camera.worldAxis = [
+                                        1, 0, 0, // Right
+                                        0, 0, 1, // Up
+                                        0, -1, 0  // Forward
+                                    ];
+                                    fetch(`${baseDir}/model.json`)
+                                        .then(response => {
+                                            response
+                                                .json()
+                                                .then(fileData => {
+                                                    (new xeokit.cityjson.CityJSONLoader()).load({
                                                         fileData,
                                                         sceneModel,
                                                         dataModel
-                                                    },
-                                                    {
-                                                        fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
-                                                        colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
-                                                        skip: 10,            // Load every nth point (optional, default is 1)
-                                                        center: false,      // Whether to center the points (optional)
-                                                        transform: [        // Transform the points (optional)
-                                                            1, 0, 0, 0,
-                                                            0, 0, -1, 0,
-                                                            0, 1, 0, 0,
-                                                            0, 0, 0, 1
-                                                        ]
                                                     })
-                                                    .then(onSuccess)
-                                                    .catch(onError);
-                                            }).catch(onError);
-                                    }).catch(onError);
-                                break;
+                                                        .then(onSuccess)
+                                                        .catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
 
-                            case "las":
-                                view.camera.orbitPitch(20);
-                                view.camera.orbitYaw(20);
-                                // demoHelper.logAsset(`${baseDir}/model.las`, "LAS")
-                                fetch(`${baseDir}/model.las`)
-                                    .then(response => {
-                                        response
-                                            .arrayBuffer()
-                                            .then(fileData => {
-                                                xeokit.las.loadLAS({
+                                case "dotbim":
+                                    view.camera.worldAxis = [
+                                        1, 0, 0, // Right
+                                        0, 0, 1, // Up
+                                        0, -1, 0  // Forward
+                                    ];
+                                    view.camera.orbitYaw(-50);
+                                    view.camera.orbitPitch(-90);
+                                    fetch(`${baseDir}/model.bim`)
+                                        .then(response => {
+                                            response
+                                                .json()
+                                                .then(fileData => {
+                                                    (new xeokit.dotbim.DotBIMLoader()).load({
                                                         fileData,
                                                         sceneModel,
                                                         dataModel
-                                                    },
-                                                    {
-                                                        fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
-                                                        colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
-                                                        skip: 10,           // Load every nth point (optional, default is 1)
-                                                        center: false,      // Whether to center the points (optional)
-                                                        transform: [        // Transform the points (optional)
-                                                            1, 0, 0, 0,
-                                                            0, 0, -1, 0,
-                                                            0, 1, 0, 0,
-                                                            0, 0, 0, 1
-                                                        ]
                                                     })
-                                                    .then(onSuccess)
-                                                    .catch(onError);
-                                            }).catch(onError);
-                                    }).catch(onError);
-                                break;
+                                                        .then(onSuccess)
+                                                        .catch(onError);
+                                                }).catch(err => {
+                                                // demoHelper.logError(err);
+                                            });
+                                        }).catch(onError);
+                                    break;
 
-                            case "cityjson":
-                                view.camera.orbitPitch(-60);
-                                view.camera.worldAxis = [
-                                    1, 0, 0, // Right
-                                    0, 0, 1, // Up
-                                    0, -1, 0  // Forward
-                                ];
-                                // demoHelper.logAsset(`${baseDir}/model.json`, "CityJSON")
-                                fetch(`${baseDir}/model.json`)
-                                    .then(response => {
-                                        response
-                                            .json()
-                                            .then(fileData => {
-                                                xeokit.cityjson.loadCityJSON({
-                                                    fileData,
-                                                    sceneModel,
-                                                    dataModel
-                                                })
-                                                    .then(onSuccess)
-                                                    .catch(onError);
-                                            }).catch(onError);
-                                    }).catch(onError);
-                                break;
+                                case "gltf":
+                                    fetch(`${baseDir}/model.glb`)
+                                        .then(response => {
+                                            response
+                                                .arrayBuffer()
+                                                .then(fileData => {
+                                                    (new xeokit.gltf.GLTFLoader()).load({
+                                                        fileData,
+                                                        sceneModel,
+                                                        dataModel
+                                                    })
+                                                        .then(onSuccess)
+                                                        .catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
 
-                            case "dotbim":
-                                view.camera.worldAxis = [
-                                    1, 0, 0, // Right
-                                    0, 0, 1, // Up
-                                    0, -1, 0  // Forward
-                                ];
-                                view.camera.orbitYaw(-50);
-                                view.camera.orbitPitch(-90);
-                                // demoHelper.logAsset(`${baseDir}/model.bim`, ".BIM")
-                                fetch(`${baseDir}/model.bim`)
-                                    .then(response => {
-                                        response
-                                            .json()
-                                            .then(fileData => {
-                                                xeokit.dotbim.loadDotBIM({
-                                                    fileData,
-                                                    sceneModel,
-                                                    dataModel
-                                                })
-                                                    .then(onSuccess)
-                                                    .catch(onError);
-                                            }).catch(err => {
-                                            // demoHelper.logError(err);
-                                        });
-                                    }).catch(onError);
-                                break;
-
-                            case "gltf":
-                                // demoHelper.logAsset(`${baseDir}/model.glb`, "GLB");
-                                fetch(`${baseDir}/model.glb`)
-                                    .then(response => {
-                                        response
-                                            .arrayBuffer()
-                                            .then(fileData => {
-                                                xeokit.gltf.loadGLTF({
-                                                    fileData,
-                                                    sceneModel,
-                                                    dataModel
-                                                })
-                                                    .then(onSuccess)
-                                                    .catch(onError);
-                                            }).catch(onError);
-                                    }).catch(onError);
-                                break;
-
-                            case "ifc": {
-                                // demoHelper.initWebIFC();
-                                const ifcAPI = new WebIFC.IfcAPI();
-                                ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
-                                ifcAPI.Init().then(() => {
-                                    // demoHelper.logAsset(`${baseDir}/model.ifc`, "IFC")
+                                case "ifc": {
                                     fetch(`${baseDir}/model.ifc`).then(response => {
                                         response
                                             .arrayBuffer()
                                             .then(fileData => {
-                                                xeokit.webifc.loadWebIFC({
+                                                (new xeokit.ifc.IFCLoader()).load({
                                                     ifcAPI,
                                                     fileData,
                                                     dataModel,
@@ -382,153 +237,145 @@
                                                     .catch(onError);
                                             }).catch(onError);
                                     }).catch(onError);
-                                }).catch(onError);
-                                break;
-                            }
+                                    break;
+                                }
 
-                            case  "ifc2gltf": {
-                                const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
-                                    sceneModelLoader: xeokit.gltf.loadGLTF,
-                                    dataModelLoader: xeokit.metamodel.loadMetaModel
-                                });
-                                // demoHelper.logAsset(`${baseDir}/model.manifest.json`, "model manifest")
-                                fetch(`${baseDir}/model.manifest.json`).then(response => {
-                                    response
-                                        .json()
-                                        .then(ifc2gltfManifest => {
-                                            const modelChunksManifest = xeokit.ifc2gltf2xgf.convertIfc2gltfManifest(ifc2gltfManifest);
-                                            modelChunksLoader.load({
-                                                modelChunksManifest,
-                                                baseDir,
-                                                sceneModel,
-                                                dataModel
-                                            })
-                                                .then(onSuccess)
-                                                .catch(onError);
-                                        }).catch(onError);
-                                }).catch(onError);
-                                break;
-                            }
-
-                            case  "ifc2gltf2xgf": {
-                                const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
-                                    sceneModelLoader: xeokit.xgf.loadXGF,
-                                    dataModelLoader: xeokit.data.loadDataModel
-                                });
-                                // demoHelper.logAsset(`${baseDir}/model.manifest.json`, "model manifest")
-                                fetch(`${baseDir}/model.manifest.json`).then(response => {
-                                    response
-                                        .json()
-                                        .then(modelChunksManifest => {
-                                            modelChunksLoader.load({
-                                                modelChunksManifest,
-                                                baseDir,
-                                                sceneModel,
-                                                dataModel
-                                            })
-                                                .then(onSuccess)
-                                                .catch(onError);
-                                        }).catch(onError);
-                                }).catch(onError);
-                                break;
-                            }
-
-                            case "gltf2xgf":
-                            case "las2xgf":
-                            case "webifc2xgf":
-                                // demoHelper.logAsset(`${baseDir}/model.json`, "DataModel JSON")
-                                fetch(`${baseDir}/model.json`).then(
-                                    response => {
+                                case  "ifc2gltf": {
+                                    const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
+                                        sceneModelLoader: new xeokit.gltf.GLTFLoader(),
+                                        dataModelLoader: new xeokit.metamodel.MetaModelLoader()
+                                    });
+                                    fetch(`${baseDir}/model.manifest.json`).then(response => {
                                         response
                                             .json()
-                                            .then(dataModelFileData => {
-                                                dataModel.fromParams(dataModelFileData);
-                                                // demoHelper.logAsset(`${baseDir}/model.xgf`, "XGF")
-                                                fetch(`${baseDir}/model.xgf`)
-                                                    .then(response => {
-                                                        response
-                                                            .arrayBuffer()
-                                                            .then(fileData => {
-                                                                xeokit.xgf.loadXGF({
-                                                                    fileData,
-                                                                    sceneModel
-                                                                })
-                                                                    .then(onSuccess)
-                                                                    .catch(onError);
-                                                            }).catch(onError);
-                                                    }).catch(onError);
+                                            .then(ifc2gltfManifest => {
+                                                const modelChunksManifest = xeokit.ifc2gltf2xgf.convertIfc2gltfManifest(ifc2gltfManifest);
+                                                modelChunksLoader.load({
+                                                    modelChunksManifest,
+                                                    baseDir,
+                                                    sceneModel,
+                                                    dataModel
+                                                })
+                                                    .then(onSuccess)
+                                                    .catch(onError);
                                             }).catch(onError);
                                     }).catch(onError);
-                                break;
+                                    break;
+                                }
 
-                            case "dotbim2xgf":
-                                view.camera.orbitPitch(-90);
-                                view.camera.worldAxis = [
-                                    1, 0, 0, // Right
-                                    0, 0, 1, // Up
-                                    0, -1, 0  // Forward
-                                ];
-                                // demoHelper.logAsset(`${baseDir}/model.json`, "DataModel JSON")
-                                fetch(`${baseDir}/model.json`).then(
-                                    response => {
+                                case  "ifc2gltf2xgf": {
+                                    const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
+                                        sceneModelLoader: new xeokit.xgf.XGFLoader(),
+                                        dataModelLoader: new xeokit.data.DataModelParamsLoader()
+                                    });
+                                    fetch(`${baseDir}/model.manifest.json`).then(response => {
                                         response
                                             .json()
-                                            .then(dataModelFileData => {
-                                                dataModel.fromParams(dataModelFileData);
-                                                // demoHelper.logAsset(`${baseDir}/model.xgf`, "XGF")
-                                                fetch(`${baseDir}/model.xgf`)
-                                                    .then(response => {
-                                                        response
-                                                            .arrayBuffer()
-                                                            .then(fileData => {
-                                                                xeokit.xgf.loadXGF({
-                                                                    fileData,
-                                                                    sceneModel
-                                                                })
-                                                                    .then(onSuccess)
-                                                                    .catch(onError);
-                                                            }).catch(onError);
-                                                    }).catch(onError);
+                                            .then(modelChunksManifest => {
+                                                modelChunksLoader.load({
+                                                    modelChunksManifest,
+                                                    baseDir,
+                                                    sceneModel,
+                                                    dataModel
+                                                })
+                                                    .then(onSuccess)
+                                                    .catch(onError);
                                             }).catch(onError);
                                     }).catch(onError);
-                                break;
+                                    break;
+                                }
 
-                            case "json":
-                                // demoHelper.logAsset(`${baseDir}/datamodel.json`, "DataModel JSON")
-                                fetch(`${baseDir}/datamodel.json`).then(
-                                    response => {
-                                        response
-                                            .json()
-                                            .then(dataModelFileData => {
-                                                const result = dataModel.fromParams(dataModelFileData);
-                                                if (result instanceof xeokit.core.SDKError) {
-                                                    onError(result.message);
-                                                } else {
-                                                    // demoHelper.logAsset(`${baseDir}/scenemodel.json`, "SceneModel JSON");
-                                                    fetch(`${baseDir}/scenemodel.json`)
+                                case "gltf2xgf":
+                                case "las2xgf":
+                                case "ifc2xgf":
+                                case "webifc2xgf":
+                                    fetch(`${baseDir}/model.json`).then(
+                                        response => {
+                                            response
+                                                .json()
+                                                .then(dataModelFileData => {
+                                                    dataModel.fromParams(dataModelFileData);
+                                                    fetch(`${baseDir}/model.xgf`)
                                                         .then(response => {
                                                             response
-                                                                .json()
+                                                                .arrayBuffer()
                                                                 .then(fileData => {
-                                                                    const result = sceneModel.fromParams(fileData);
-                                                                    if (result instanceof xeokit.core.SDKError) {
-                                                                        onError(result.message);
-                                                                    } else {
-                                                                        onSuccess();
-                                                                    }
+                                                                    (new xeokit.xgf.XGFLoader()).load({
+                                                                        fileData,
+                                                                        sceneModel
+                                                                    })
+                                                                        .then(onSuccess)
+                                                                        .catch(onError);
                                                                 }).catch(onError);
                                                         }).catch(onError);
-                                                }
-                                            }).catch(onError);
-                                    }).catch(onError);
-                                break;
-                            default:
-                                break;
-                        }
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+
+                                case "dotbim2xgf":
+                                    view.camera.orbitPitch(-90);
+                                    view.camera.worldAxis = [
+                                        1, 0, 0, // Right
+                                        0, 0, 1, // Up
+                                        0, -1, 0  // Forward
+                                    ];
+                                    fetch(`${baseDir}/model.json`).then(
+                                        response => {
+                                            response
+                                                .json()
+                                                .then(dataModelFileData => {
+                                                    dataModel.fromParams(dataModelFileData);
+                                                    fetch(`${baseDir}/model.xgf`)
+                                                        .then(response => {
+                                                            response
+                                                                .arrayBuffer()
+                                                                .then(fileData => {
+                                                                    (new xeokit.xgf.XGFLoader()).load({
+                                                                        fileData,
+                                                                        sceneModel
+                                                                    })
+                                                                        .then(onSuccess)
+                                                                        .catch(onError);
+                                                                }).catch(onError);
+                                                        }).catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+
+                                case "json":
+                                    fetch(`${baseDir}/datamodel.json`).then(
+                                        response => {
+                                            response
+                                                .json()
+                                                .then(dataModelFileData => {
+                                                    const result = dataModel.fromParams(dataModelFileData);
+                                                    if (result instanceof xeokit.core.SDKError) {
+                                                        onError(result.message);
+                                                    } else {
+                                                        fetch(`${baseDir}/scenemodel.json`)
+                                                            .then(response => {
+                                                                response
+                                                                    .json()
+                                                                    .then(fileData => {
+                                                                        const result = sceneModel.fromParams(fileData);
+                                                                        if (result instanceof xeokit.core.SDKError) {
+                                                                            onError(result.message);
+                                                                        } else {
+                                                                            onSuccess();
+                                                                        }
+                                                                    }).catch(onError);
+                                                            }).catch(onError);
+                                                    }
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
                     });
                 });
             });
-        });
     });
 
     function getRequestParams() {

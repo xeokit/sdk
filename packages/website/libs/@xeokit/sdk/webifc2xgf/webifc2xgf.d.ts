@@ -28,4 +28,4 @@ export declare const _SAVED_XGF_VERSIONS: number[];
  * @private
  */
 export declare const _DEFAULT_SAVED_XGF_VERSION: number;
-//# sourceMappingURL=webifc2xgf.d.ts.map
+//# sourceMappingURL=ifc2xgf.d.ts.map

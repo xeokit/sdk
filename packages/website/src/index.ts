@@ -45,7 +45,7 @@ export * as io from "../../sdk/src/io";
 
 export * as cityjson from "../../sdk/src/cityjson";
 export * as dotbim from "../../sdk/src/dotbim";
-//export * as ifc from "../../sdk/src/ifc";
+export * as ifc from "../../sdk/src/ifc";
 export * as xgf from "../../sdk/src/xgf";
 export * as las from "../../sdk/src/las";
 export * as gltf from "../../sdk/src/gltf";

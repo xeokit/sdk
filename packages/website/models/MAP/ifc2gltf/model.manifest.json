@@ -2,7 +2,7 @@
     "inputFile": "./models/MAP/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
     "converterApplicationVersion": "4.34.4",
-    "conversionDate": "2025-03-17 15:53:15",
+    "conversionDate": "2025-04-22 16:52:38",
     "gltfOutFiles": [
         "./models/MAP/ifc2gltf/model.glb"
     ],

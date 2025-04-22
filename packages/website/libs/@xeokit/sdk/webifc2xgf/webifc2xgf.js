@@ -107,4 +107,4 @@ export const _SAVED_XGF_VERSIONS = SAVED_XGF_VERSIONS; // Make these private for
  * @private
  */
 export const _DEFAULT_SAVED_XGF_VERSION = DEFAULT_SAVED_XGF_VERSION;
-//# sourceMappingURL=webifc2xgf.js.map
+//# sourceMappingURL=ifc2xgf.js.map

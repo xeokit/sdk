@@ -66,7 +66,7 @@ try {
         for (let j = 0, lenj = pipelineIds.length; j < lenj; j++) {
             const pipelineId = pipelineIds[j];
             const pipeline = pipelineLookup[pipelineId];
-            if (pipeline.cmd) {
+            if (pipeline && pipeline.cmd) {
                 numModelPipelinesWithCommands++;
             }
         }
@@ -80,11 +80,11 @@ try {
         for (let j = 0, lenj = pipelineIds.length; j < lenj; j++) {
             const pipelineId = pipelineIds[j];
             const pipeline = pipelineLookup[pipelineId];
-            if (pipeline.cmd) {
+            if (pipeline && pipeline.cmd) {
                 script.push(`\n# ${pipelineId}`);
+                script.push(`echo [convert-models.sh] Converting ${model.id} via pipeline ${pipeline.id}`);
                 script.push(parseStringTemplate(pipeline.cmd, {modelId, ...configs}));
                 numConverted++;
-                script.push(`echo [convert-models.sh] Converted ${model.id} via ${pipeline.id}`);
                 script.push(`echo [convert-models.sh] ${numConverted} out of ${numToConvert} conversions done`);
 
             }

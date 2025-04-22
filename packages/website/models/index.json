@@ -37,7 +37,8 @@
             "id": "BlenderHouse",
             "pipelines": [
                 "dotbim",
-                "dotbim2xgf"
+                "dotbim2xgf",
+                "dotbim2ifc"
             ]
         },
         {
@@ -46,7 +47,7 @@
                 "ifc2gltf",
                 "ifc2gltf2xgf",
                 "gltf2xgf",
-                "webifc2xgf"
+                "ifc2xgf"
             ]
         },
         {
@@ -58,7 +59,7 @@
                 "ifc2gltf",
                 "ifc2gltf2xgf",
                 "gltf2xgf",
-                "webifc2xgf"
+                "ifc2xgf"
             ]
         },
         {
@@ -67,7 +68,7 @@
                 "ifc",
                 "ifc2gltf",
                 "ifc2gltf2xgf",
-                "webifc2xgf",
+                "ifc2xgf",
                 "dotbim2xgf"
             ]
         },
@@ -77,7 +78,7 @@
                 "ifc",
                 "ifc2gltf",
                 "ifc2gltf2xgf",
-                "webifc2xgf"
+                "ifc2xgf"
             ]
         },
         {
@@ -108,7 +109,7 @@
                 "gltf",
                 "ifc2gltf",
                 "ifc2gltf2xgf",
-                "webifc2xgf"
+                "ifc2xgf"
             ]
         },
         {

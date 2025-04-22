@@ -6,7 +6,7 @@
  *
  * <br>
  *
- * ## webifc2xgf
+ * ## ifc2xgf
  *
  * NodeJS CLI tool that uses WebIFC to convert small IFC files into xeokit's compact [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) geometry format.
  *
@@ -19,14 +19,14 @@
  * ## Installation
  *
  * ````bash
- * npm install @xeokit/webifc2xgf
+ * npm install @xeokit/ifc2xgf
  * ````
  *
  * ## Usage
  *
  * ````bash
- * node webifc2xgf.js -h
- * Usage: webifc2xgf [options]
+ * node ifc2xgf.js -h
+ * Usage: ifc2xgf [options]
  *
  * CLI that uses WebIFC to convert small IFC files into xeokit's compact XGF format
  *
@@ -46,7 +46,7 @@
  * using {@link xgf!XGFLoader | XGFLoader()}.
  *
  * ````bash
- * node webifc2xgf -i duplex.ifc -o duplex.xgf
+ * node ifc2xgf -i duplex.ifc -o duplex.xgf
  * ````
  *
  * ### Converting IFC geometry and semantic data
@@ -57,7 +57,7 @@
  * using {@link data!Data.createModel | Data.createModel()}.
  *
  * ````bash
- * node webifc2xgf -i duplex.ifc -s duplex.xgf -d duplex.json
+ * node ifc2xgf -i duplex.ifc -s duplex.xgf -d duplex.json
  * ````
  *
  * ### Converting IFC to a specific XGF version
@@ -66,10 +66,10 @@
  * IFC file to a specific version of XGF.
  *
  * ````bash
- * webifc2xgf -i duplex.ifc -s duplex.xgf -f 1
+ * ifc2xgf -i duplex.ifc -s duplex.xgf -f 1
  * ````
  *
- * @module @xeokit/webifc2xgf
+ * @module @xeokit/ifc2xgf
  */
 export * from "./webifc2xgf";
 //# sourceMappingURL=index.d.ts.map

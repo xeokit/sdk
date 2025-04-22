@@ -96857,7 +96857,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./data/models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -100227,7 +100227,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./data/models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -103598,7 +103598,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./data/models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -106969,7 +106969,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./data/models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -110341,111 +110341,111 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -113465,7 +113465,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -116484,7 +116484,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -119504,7 +119504,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -122523,7 +122523,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -125542,7 +125542,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -128560,7 +128560,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -131579,7 +131579,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -134600,7 +134600,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -137618,7 +137618,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -140636,7 +140636,7 @@ geometry reused
 [ifc2gltf2xgf] Done.
 
 [ifc2gltf2xgf] Converting to XGF version: 1 (default)
-[ifc2gltf2xgf] 
+[ifc2gltf2xgf]
 Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
 glTFFilesExist = true
 geometry reused
@@ -143652,5 +143652,35 @@ geometry reused
 [ifc2gltf2xgf] Converted scene model ./models/MAP/ifc2gltf/model.glb (1 of 1)
 [ifc2gltf2xgf] Converted data model ./models/MAP/ifc2gltf/model.json (1 of 1)
 [ifc2gltf2xgf] Conversion time: 0.96 s
+[ifc2gltf2xgf] Done.
+
+[ifc2gltf2xgf] Converting to XGF version: 1.0.0 (default)
+[ifc2gltf2xgf]
+Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+[ifc2gltf2xgf] Writing XGF+JSON files: models/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./models/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./models/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.71 s
+[ifc2gltf2xgf] Done.
+
+[ifc2gltf2xgf] Converting to XGF version: 1.0.0 (default)
+[ifc2gltf2xgf]
+Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+[ifc2gltf2xgf] Writing XGF+JSON files: models/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./models/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./models/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.71 s
+[ifc2gltf2xgf] Done.
+
+[ifc2gltf2xgf] Converting to XGF version: 1.0.0 (default)
+[ifc2gltf2xgf]
+Reading glTF manifest file: ./models/MAP/ifc2gltf/model.manifest.json
+glTFFilesExist = true
+[ifc2gltf2xgf] Writing XGF+JSON files: models/MAP/ifc2gltf2xgf/model.xgf
+[ifc2gltf2xgf] Converted scene model ./models/MAP/ifc2gltf/model.glb (1 of 1)
+[ifc2gltf2xgf] Converted data model ./models/MAP/ifc2gltf/model.json (1 of 1)
+[ifc2gltf2xgf] Conversion time: 0.73 s
 [ifc2gltf2xgf] Done.
 

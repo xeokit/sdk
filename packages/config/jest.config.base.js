@@ -21,7 +21,7 @@ module.exports = {
         '@xeokit/dotbim/(.*)$': path.join(__dirname, '../data/src/$1'),
         '@xeokit/gltf/(.*)$': path.join(__dirname, '../gltf/src/$1'),
         '@xeokit/gltf2xgf/(.*)$': path.join(__dirname, '../gltf2xgf/src/$1'),
-        '@xeokit/webifc2xgf/(.*)$': path.join(__dirname, '../webifc2xgf/src/$1'),
+        '@xeokit/webifc2xgf/(.*)$': path.join(__dirname, '../ifc2xgf/src/$1'),
         '@xeokit/kdtree2/(.*)$': path.join(__dirname, '../kdtree2/src/$1'),
         '@xeokit/kdtree3/(.*)$': path.join(__dirname, '../kdtree3/src/$1'),
         '@xeokit/ktx2/(.*)$': path.join(__dirname, '../ktx2/src/$1'),

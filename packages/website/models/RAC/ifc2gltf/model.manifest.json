@@ -2,7 +2,7 @@
     "inputFile": "./models/RAC/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
     "converterApplicationVersion": "4.34.4",
-    "conversionDate": "2025-03-17 15:54:54",
+    "conversionDate": "2025-04-22 16:51:06",
     "gltfOutFiles": [
         "./models/RAC/ifc2gltf/model.glb"
     ],
@@ -13,12 +13,12 @@
     "numCreatedMetaObjects": 471,
     "numExportedPropertySetsOrElementQuantities": 0,
     "modelBoundsMax": [
-        34.91363880945519,
+        34.91363880945518,
         46.17413883324238,
         12.154055536985322
     ],
     "modelBoundsMin": [
-        -34.91363880945519,
+        -34.91363880945518,
         -46.17413883324238,
         -12.154055536985322
     ],

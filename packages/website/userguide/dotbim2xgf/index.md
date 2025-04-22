@@ -30,7 +30,7 @@ the [`webifc2xgf`]()
 CLI tool to do this conversion step:
 
 ```bash
-webifc2xgf -i IfcOpenHouse4.ifc -s model.xgf -d model.json
+ifc2xgf -i IfcOpenHouse4.ifc -s model.xgf -d model.json
 ```
 
 The parameters we provided the tool are:

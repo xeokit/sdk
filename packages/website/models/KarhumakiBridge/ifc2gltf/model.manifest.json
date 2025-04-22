@@ -2,7 +2,7 @@
     "inputFile": "./models/KarhumakiBridge/ifc/model.ifc",
     "converterApplication": "ifc2gltfcxconverter",
     "converterApplicationVersion": "4.34.4",
-    "conversionDate": "2025-03-17 15:54:27",
+    "conversionDate": "2025-04-22 16:52:41",
     "gltfOutFiles": [
         "./models/KarhumakiBridge/ifc2gltf/model.glb",
         "./models/KarhumakiBridge/ifc2gltf/model_1.glb"
@@ -15,13 +15,13 @@
     "numExportedPropertySetsOrElementQuantities": 0,
     "modelBoundsMax": [
         70.30798589504883,
-        96.14459837852093,
-        32.1282684897125
+        96.155242206743,
+        32.12826848969854
     ],
     "modelBoundsMin": [
         -70.30798589504883,
-        -96.14459837852093,
-        -32.1282684897125
+        -96.155242206743,
+        -32.12826848969854
     ],
     "generalMessages": [
         "Detected IFC version: IFC2X3"

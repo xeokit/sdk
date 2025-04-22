@@ -79,7 +79,7 @@ function generateIFC(sceneModel: SceneModel, dataModel: DataModel, header?: Part
         currentId = encodeRelationship(relationship, ifcContent, currentId);
     }
     ifcContent.push('ENDSEC;\n\nEND-ISO-10303-21;\n');
-    return ifcContent.join("\n");
+    return ifcContent.join();
 }
 
 function encodePropertySet(propertySet: PropertySet, ifcContent: string[], currentId: number): number {

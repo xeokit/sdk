@@ -22,19 +22,22 @@ export class IFCLoader extends ModelLoader {
             if (!this.#ifcAPI) {
                 return new Promise<void>((resolve, reject) => {
                     let api;
+                    let wasmPath = "";
                     switch (detectEnvironment()) {
                         case "browser":
                             api = IfcAPI_browser;
+                            wasmPath = "https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/"; // FIXME: this is hard-wired to 0.0.51
                             break;
                         case "node":
                             api = IfcAPI_node;
+                            wasmPath = "../../node_modules/web-ifc/"; // Note that we can't (easily) fetch WASM over HTTP from node
                             break;
                         default:
                             reject("[IFCLoader] Failed to determine environment");
                             return;
                     }
                     this.#ifcAPI = new api();
-                    this.#ifcAPI.SetWasmPath("../../node_modules/web-ifc/");
+                    this.#ifcAPI.SetWasmPath(wasmPath);
                     this.#ifcAPI.Init()
                         .then(() => {
                             parse_IFC4(this.#ifcAPI, params, options)
@@ -57,7 +60,7 @@ export class IFCLoader extends ModelLoader {
         super({
             fileDataType: "json",
             parsers: {
-                "IFC4": parse,
+                "IFC4": parse, // Internaly, web-ifc handles all versions
                 "IFC2x3": parse,
             },
             getVersion: (fileData: any): string => {

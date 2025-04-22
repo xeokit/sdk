@@ -93,6 +93,10 @@ getModelConverter({})
                                 logInfo(`Writing output --${outputId} ${outFilePath}`);
                                 fs.writeFileSync(outFilePath, JSON.stringify(output.fileData));
                                 break;
+                            case "text":
+                                logInfo(`Writing output --${outputId} ${outFilePath}`);
+                                fs.writeFileSync(outFilePath, output.fileData);
+                                break;
                             case "arraybuffer":
                                 logInfo(`Writing output --${outputId} ${outFilePath}`);
                                 fs.writeFileSync(outFilePath, Buffer.from(output.fileData));

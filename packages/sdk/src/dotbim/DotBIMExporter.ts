@@ -1,4 +1,5 @@
 import {encode as encode_1_1_0} from "./versions/1_1_0/encode"
+import {encode as encode_1_0_0} from "./versions/1_0_0/encode"
 import {ModelExporter} from "../io";
 
 /**
@@ -11,6 +12,7 @@ export class DotBIMExporter extends ModelExporter {
         super({
             fileDataType: "json",
             encoders: {
+                "1.0.0": encode_1_0_0,
                 "1.1.0": encode_1_1_0
             },
             defaultVersion: "1.1.0"

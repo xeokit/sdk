@@ -83252,8 +83252,75 @@ __export(dotbim_exports, {
   DotBIMLoader: () => DotBIMLoader
 });
 
-// ../sdk/src/dotbim/versions/1_1_0/parse.ts
+// ../sdk/src/dotbim/versions/1_0_0/parse.ts
 var parse4 = async (params2, options = {
+  translate: void 0
+}) => {
+  return new Promise((resolve2, reject) => {
+    const fileData = params2.fileData;
+    if (params2.sceneModel) {
+      const meshes = fileData.meshes;
+      for (let i = 0, len = meshes.length; i < len; i++) {
+        const mesh = meshes[i];
+        const geometry = params2.sceneModel.createGeometry({
+          id: mesh.mesh_id,
+          primitive: TrianglesPrimitive,
+          positions: mesh.coordinates,
+          indices: mesh.indices
+        });
+        if (geometry instanceof SDKError) {
+        }
+      }
+    }
+    const elements = fileData.elements;
+    for (let i = 0, len = elements.length; i < len; i++) {
+      const element = elements[i];
+      const info = element.info;
+      const objectId = element.guid !== void 0 ? `${element.guid}` : info !== void 0 && info.id !== void 0 ? info.id : i;
+      if (params2.sceneModel) {
+        const geometryId = element.mesh_id;
+        const meshId = `${objectId}-mesh`;
+        const vector = element.vector;
+        const rotation = element.rotation;
+        const color2 = element.color;
+        const mesh = params2.sceneModel.createMesh({
+          id: meshId,
+          geometryId,
+          color: color2 ? [color2.r, color2.g, color2.b] : void 0,
+          opacity: color2 ? color2.a : 1,
+          quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : void 0,
+          position: vector ? options.translate ? [vector.x + options.translate[0], vector.y + options.translate[1], vector.z + options.translate[2]] : [vector.x, vector.y, vector.z] : options.translate ? options.translate : void 0
+        });
+        if (mesh instanceof SDKError) {
+          continue;
+        }
+        const sceneObject = params2.sceneModel.createObject({
+          id: objectId,
+          meshIds: [meshId]
+        });
+        if (sceneObject instanceof SDKError) {
+          continue;
+        }
+      }
+      if (params2.dataModel) {
+        if (!params2.dataModel.objects[element.guid]) {
+          const dataObject = params2.dataModel.createObject({
+            id: objectId,
+            type: ifcTypeCodes[element.type],
+            name: info.Name,
+            description: info.Description
+          });
+          if (dataObject instanceof SDKError) {
+          }
+        }
+      }
+    }
+    resolve2();
+  });
+};
+
+// ../sdk/src/dotbim/versions/1_1_0/parse.ts
+var parse5 = async (params2, options = {
   translate: void 0
 }) => {
   return new Promise((resolve2, reject) => {
@@ -83325,10 +83392,11 @@ var DotBIMLoader = class extends ModelLoader {
     super({
       fileDataType: "json",
       parsers: {
-        "1.1.0": parse4
+        "1.0.0": parse4,
+        "1.1.0": parse5
       },
       getVersion: (sourceFileData) => {
-        return sourceFileData.schema_version || "1.1.0";
+        return sourceFileData.schema_version || "1.0.0";
       }
     });
   }
@@ -83456,12 +83524,135 @@ function encode3(params2, options) {
   });
 }
 
+// ../sdk/src/dotbim/versions/1_0_0/encode.ts
+var tempVec3a5 = createVec3();
+var tempVec3b5 = createVec3();
+function encode4(params2, options) {
+  return new Promise(function(resolve2, reject) {
+    const { sceneModel, dataModel } = params2;
+    const dotBim = {
+      meshes: [],
+      elements: []
+    };
+    const geometries = Object.values(sceneModel.geometries);
+    const meshLookup = {};
+    for (let i = 0, len = geometries.length; i < len; i++) {
+      const geometry = geometries[i];
+      const aabb = geometry.aabb;
+      const coordinates = [];
+      const positionsCompressed = geometry.positionsCompressed;
+      for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
+        tempVec3a5[0] = positionsCompressed[k];
+        tempVec3a5[1] = positionsCompressed[k + 1];
+        tempVec3a5[2] = positionsCompressed[k + 2];
+        decompressPoint3WithAABB3(tempVec3a5, aabb, tempVec3b5);
+        coordinates.push(tempVec3b5[0]);
+        coordinates.push(tempVec3b5[1]);
+        coordinates.push(tempVec3b5[2]);
+      }
+      meshLookup[geometry.id] = {
+        mesh_id: geometry.id,
+        coordinates,
+        indices: geometry.indices ? Array.from(geometry.indices) : []
+      };
+    }
+    const sceneObjects = Object.values(sceneModel.objects);
+    for (let i = 0, len = sceneObjects.length; i < len; i++) {
+      const sceneObject = sceneObjects[i];
+      const meshes = sceneObject.meshes;
+      let meshId;
+      let dbMesh;
+      if (meshes.length === 1) {
+        const mesh = meshes[0];
+        const geometry = mesh.geometry;
+        dbMesh = meshLookup[geometry.id];
+        dotBim.meshes.push(dbMesh);
+        meshId = geometry.id;
+      } else {
+        dbMesh = {
+          mesh_id: sceneObject.id,
+          coordinates: [],
+          indices: []
+        };
+        let indicesOffset = 0;
+        for (let j = 0, lenj = meshes.length; j < lenj; j++) {
+          const sceneMesh = meshes[j];
+          const geometry = sceneMesh.geometry;
+          const lookupGeometry = meshLookup[geometry.id];
+          const coordinates = lookupGeometry.coordinates;
+          for (let k = 0, lenk = coordinates.length; k < lenk; k++) {
+            dbMesh.coordinates.push(coordinates[k]);
+          }
+          const indices = lookupGeometry.indices;
+          for (let k = 0, lenk = indices.length; k < lenk; k++) {
+            dbMesh.indices.push(indices[k] + indicesOffset);
+          }
+          indicesOffset += coordinates.length / 3;
+        }
+        dotBim.meshes.push(dbMesh);
+        meshId = sceneObject.id;
+      }
+      const firstMesh = meshes[0];
+      const color2 = firstMesh.color;
+      const position = createVec3();
+      const quaternion = createVec4();
+      const scale3 = createVec3();
+      decomposeMat4(firstMesh.matrix, position, quaternion, scale3);
+      const info = {
+        id: sceneObject.id,
+        Tag: "None"
+      };
+      let dataObject;
+      if (dataModel) {
+        dataObject = dataModel.objects[sceneObject.id];
+        if (dataObject) {
+          info.type = ifcTypeNames[dataObject.type];
+          info.Name = dataObject.name;
+          info.Description = dataObject.description;
+        }
+      }
+      if (!dataObject) {
+        info.type = "None";
+        info.Name = "None";
+        info.Description = "None";
+      }
+      dotBim.elements.push({
+        info,
+        mesh_id: dbMesh.mesh_id,
+        type: info.type,
+        color: {
+          r: color2[0],
+          g: color2[1],
+          b: color2[2],
+          a: firstMesh.opacity
+        },
+        vector: {
+          x: position[0],
+          y: position[1],
+          z: position[2]
+        },
+        rotation: {
+          qx: quaternion[0],
+          qy: quaternion[0],
+          qz: quaternion[0],
+          qw: quaternion[0]
+        },
+        qy: quaternion[1],
+        qz: quaternion[2],
+        qw: quaternion[3]
+      });
+    }
+    return resolve2(dotBim);
+  });
+}
+
 // ../sdk/src/dotbim/DotBIMExporter.ts
 var DotBIMExporter = class extends ModelExporter {
   constructor() {
     super({
       fileDataType: "json",
       encoders: {
+        "1.0.0": encode4,
         "1.1.0": encode3
       },
       defaultVersion: "1.1.0"
@@ -148548,7 +148739,7 @@ var IfcAPI2 = class {
 };
 
 // ../sdk/src/ifc/versions/IFC4/parse.ts
-function parse5(ifcAPI, params2, options) {
+function parse6(ifcAPI, params2, options) {
   return new Promise(function(resolve2, reject) {
     parseWebIFC(ifcAPI, params2).then(() => {
       resolve2();
@@ -148760,7 +148951,7 @@ var IFCLoader = class extends ModelLoader {
    * Constructs an IFCLoader.
    */
   constructor() {
-    const parse11 = (params2, options) => {
+    const parse12 = (params2, options) => {
       if (!this.#ifcAPI) {
         return new Promise((resolve2, reject) => {
           let api;
@@ -148778,7 +148969,7 @@ var IFCLoader = class extends ModelLoader {
           this.#ifcAPI = new api();
           this.#ifcAPI.SetWasmPath("../../node_modules/web-ifc/");
           this.#ifcAPI.Init().then(() => {
-            parse5(this.#ifcAPI, params2, options).then(() => {
+            parse6(this.#ifcAPI, params2, options).then(() => {
               resolve2();
             }).catch((reason) => {
               reject("[IFCLoader] Failed to parse IFC - " + reason);
@@ -148788,14 +148979,14 @@ var IFCLoader = class extends ModelLoader {
           });
         });
       } else {
-        return parse5(this.#ifcAPI, params2, options);
+        return parse6(this.#ifcAPI, params2, options);
       }
     };
     super({
       fileDataType: "json",
       parsers: {
-        "IFC4": parse11,
-        "IFC2x3": parse11
+        "IFC4": parse12,
+        "IFC2x3": parse12
       },
       getVersion: (fileData) => {
         return "IFC4";
@@ -148814,7 +149005,7 @@ function detectEnvironment() {
 }
 
 // ../sdk/src/ifc/versions/IFC4/encode.ts
-function encode4(params2, options) {
+function encode5(params2, options) {
   return new Promise(function(resolve2, reject) {
     resolve2(generateIFC(params2.sceneModel, params2.dataModel));
   });
@@ -149050,7 +149241,7 @@ var IFCExporter = class extends ModelExporter {
     super({
       fileDataType: "json",
       encoders: {
-        "IFC4": encode4
+        "IFC4": encode5
       },
       defaultVersion: "IFC4"
     });
@@ -149249,7 +149440,7 @@ var decompressColor = function() {
 }();
 
 // ../sdk/src/xgf/versions/v1/parse.ts
-function parse6(params2, options) {
+function parse7(params2, options) {
   return new Promise(function(resolve2, reject) {
     const { fileData, sceneModel, dataModel } = params2;
     xgfToModel({
@@ -149267,7 +149458,7 @@ var XGFLoader = class extends ModelLoader {
     super({
       fileDataType: "arraybuffer",
       parsers: {
-        "1": parse6
+        "1": parse7
       },
       getVersion: (fileData) => {
         return "" + new DataView(fileData).getUint32(0, true);
@@ -149523,7 +149714,7 @@ function packXGF(xgfData) {
 }
 
 // ../sdk/src/xgf/versions/v1/encode.ts
-function encode5(params2, options) {
+function encode6(params2, options) {
   return new Promise(function(resolve2, reject) {
     resolve2(packXGF(modelToXGF({ sceneModel: params2.sceneModel })));
   });
@@ -149535,7 +149726,7 @@ var XGFExporter = class extends ModelExporter {
     super({
       fileDataType: "json",
       encoders: {
-        "1.0.0": encode5
+        "1.0.0": encode6
       },
       defaultVersion: "1.0.0"
     });
@@ -151860,7 +152051,7 @@ function getLoadersFromContext(loaders, context) {
 }
 
 // ../../node_modules/.pnpm/@loaders.gl+core@4.3.3/node_modules/@loaders.gl/core/dist/lib/api/parse.js
-async function parse7(data, loaders, options, context) {
+async function parse8(data, loaders, options, context) {
   if (loaders && !Array.isArray(loaders) && !isLoaderObject(loaders)) {
     context = void 0;
     options = loaders;
@@ -151878,7 +152069,7 @@ async function parse7(data, loaders, options, context) {
   options = normalizeOptions(options, loader, candidateLoaders, url);
   context = getLoaderContext(
     // @ts-expect-error
-    { url, _parse: parse7, loaders: candidateLoaders },
+    { url, _parse: parse8, loaders: candidateLoaders },
     options,
     context || null
   );
@@ -151899,7 +152090,7 @@ async function parseWithLoader(loader, data, options, context) {
     return loaderWithParser.parseTextSync(data, options, context);
   }
   if (canParseWithWorker(loader, options)) {
-    return await parseWithWorker(loader, data, options, context, parse7);
+    return await parseWithWorker(loader, data, options, context, parse8);
   }
   if (loaderWithParser.parseText && typeof data === "string") {
     return await loaderWithParser.parseText(data, options, context);
@@ -171037,7 +171228,7 @@ function parseLAS2(params2, options = {}) {
         params2.log(msg);
       }
     };
-    parse7(params2.fileData, LASLoader3, {
+    parse8(params2.fileData, LASLoader3, {
       las: {
         colorDepth: options.colorDepth || "auto",
         fp64: options.fp64 !== void 0 ? options.fp64 : false
@@ -171248,7 +171439,7 @@ var EXT_mesh_features_exports = {};
 __export(EXT_mesh_features_exports, {
   createExtMeshFeatures: () => createExtMeshFeatures,
   decode: () => decode,
-  encode: () => encode6,
+  encode: () => encode7,
   name: () => name
 });
 
@@ -172558,7 +172749,7 @@ async function decode(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   decodeExtMeshFeatures(scenegraph, options);
 }
-function encode6(gltfData, options) {
+function encode7(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   encodeExtMeshFeatures(scenegraph, options);
   scenegraph.createBinaryChunk();
@@ -172677,7 +172868,7 @@ var EXT_structural_metadata_exports = {};
 __export(EXT_structural_metadata_exports, {
   createExtStructuralMetadata: () => createExtStructuralMetadata,
   decode: () => decode2,
-  encode: () => encode7,
+  encode: () => encode8,
   name: () => name2
 });
 var EXT_STRUCTURAL_METADATA_NAME = "EXT_structural_metadata";
@@ -172686,7 +172877,7 @@ async function decode2(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   decodeExtStructuralMetadata(scenegraph, options);
 }
-function encode7(gltfData, options) {
+function encode8(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   encodeExtStructuralMetadata(scenegraph, options);
   scenegraph.createBinaryChunk();
@@ -174154,7 +174345,7 @@ function preprocess2(gltfData, options) {
 var KHR_draco_mesh_compression_exports = {};
 __export(KHR_draco_mesh_compression_exports, {
   decode: () => decode6,
-  encode: () => encode8,
+  encode: () => encode9,
   name: () => name7,
   preprocess: () => preprocess3
 });
@@ -174735,9 +174926,9 @@ function initializeDracoDecoder(DracoDecoderModule, wasmBinary) {
 // ../../node_modules/.pnpm/@loaders.gl+draco@4.3.3_@loaders.gl+core@4.3.3/node_modules/@loaders.gl/draco/dist/index.js
 var DracoLoader2 = {
   ...DracoLoader,
-  parse: parse8
+  parse: parse9
 };
-async function parse8(arrayBuffer, options) {
+async function parse9(arrayBuffer, options) {
   const { draco } = await loadDracoDecoderModule(options);
   const dracoParser = new DracoParser(draco);
   try {
@@ -174830,7 +175021,7 @@ async function decode6(gltfData, options, context) {
   await Promise.all(promises);
   scenegraph.removeExtension(KHR_DRACO_MESH_COMPRESSION);
 }
-function encode8(gltfData, options = {}) {
+function encode9(gltfData, options = {}) {
   const scenegraph = new GLTFScenegraph(gltfData);
   for (const mesh of scenegraph.json.meshes || []) {
     compressMesh(mesh, options);
@@ -176274,7 +176465,7 @@ function makeTransformationMatrix(extensionData) {
 var KHR_lights_punctual_exports = {};
 __export(KHR_lights_punctual_exports, {
   decode: () => decode8,
-  encode: () => encode9,
+  encode: () => encode10,
   name: () => name9
 });
 var KHR_LIGHTS_PUNCTUAL = "KHR_lights_punctual";
@@ -176295,7 +176486,7 @@ async function decode8(gltfData) {
     gltfScenegraph.removeObjectExtension(node, KHR_LIGHTS_PUNCTUAL);
   }
 }
-async function encode9(gltfData) {
+async function encode10(gltfData) {
   const gltfScenegraph = new GLTFScenegraph(gltfData);
   const { json } = gltfScenegraph;
   if (json.lights) {
@@ -176317,7 +176508,7 @@ async function encode9(gltfData) {
 var KHR_materials_unlit_exports = {};
 __export(KHR_materials_unlit_exports, {
   decode: () => decode9,
-  encode: () => encode10,
+  encode: () => encode11,
   name: () => name10
 });
 var KHR_MATERIALS_UNLIT = "KHR_materials_unlit";
@@ -176334,7 +176525,7 @@ async function decode9(gltfData) {
   }
   gltfScenegraph.removeExtension(KHR_MATERIALS_UNLIT);
 }
-function encode10(gltfData) {
+function encode11(gltfData) {
   const gltfScenegraph = new GLTFScenegraph(gltfData);
   const { json } = gltfScenegraph;
   if (gltfScenegraph.materials) {
@@ -176352,7 +176543,7 @@ function encode10(gltfData) {
 var KHR_techniques_webgl_exports = {};
 __export(KHR_techniques_webgl_exports, {
   decode: () => decode10,
-  encode: () => encode11,
+  encode: () => encode12,
   name: () => name11
 });
 var KHR_TECHNIQUES_WEBGL = "KHR_techniques_webgl";
@@ -176379,7 +176570,7 @@ async function decode10(gltfData) {
     gltfScenegraph.removeExtension(KHR_TECHNIQUES_WEBGL);
   }
 }
-async function encode11(gltfData, options) {
+async function encode12(gltfData, options) {
 }
 function resolveTechniques(techniquesExtension, gltfScenegraph) {
   const { programs = [], shaders = [], techniques = [] } = techniquesExtension;
@@ -176820,7 +177011,7 @@ var GLTFLoader = {
   text: true,
   binary: true,
   tests: ["glTF"],
-  parse: parse9,
+  parse: parse10,
   options: {
     gltf: {
       normalize: true,
@@ -176837,7 +177028,7 @@ var GLTFLoader = {
     // eslint-disable-line
   }
 };
-async function parse9(arrayBuffer, options = {}, context) {
+async function parse10(arrayBuffer, options = {}, context) {
   options = { ...GLTFLoader.options, ...options };
   options.gltf = { ...GLTFLoader.options.gltf, ...options.gltf };
   const { byteOffset = 0 } = options;
@@ -177266,7 +177457,7 @@ function parseGLTF2(params2) {
     if (!sceneModel && !dataModel) {
       return resolve2();
     }
-    parse7(fileData, GLTFLoader, {}).then((gltfData) => {
+    parse8(fileData, GLTFLoader, {}).then((gltfData) => {
       const processedGLTF = postProcessGLTF(gltfData);
       const ctx = {
         nodesHaveNames: false,
@@ -182395,7 +182586,7 @@ function xktToModel(params2) {
 }
 
 // ../sdk/src/xkt/versions/v10/parse.ts
-function parse10(params2, options = {}) {
+function parse11(params2, options = {}) {
   return new Promise(function(resolve2, reject) {
     const { fileData, sceneModel } = params2;
     if (sceneModel) {
@@ -182417,7 +182608,7 @@ var XKTLoader = class extends ModelLoader {
     super({
       fileDataType: "arraybuffer",
       parsers: {
-        "10": parse10
+        "10": parse11
       },
       getVersion: (fileData) => {
         return "" + new DataView(fileData).getUint32(0, true);
@@ -186267,7 +186458,7 @@ var CustomProjection = class extends Component {
 
 // ../sdk/src/viewer/Camera.ts
 var tempVec32 = createVec3();
-var tempVec3b5 = createVec3();
+var tempVec3b6 = createVec3();
 var tempVec3c4 = createVec3();
 var tempVec3d2 = createVec3();
 var tempVec3e2 = createVec3();
@@ -186774,7 +186965,7 @@ var Camera = class extends Component {
   orbitYaw(angleInc) {
     let lookEyeVec = subVec3(this.#state.eye, this.#state.look, tempVec32);
     rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.#state.worldUp : this.#state.up, tempMat2);
-    lookEyeVec = transformPoint3(tempMat2, lookEyeVec, tempVec3b5);
+    lookEyeVec = transformPoint3(tempMat2, lookEyeVec, tempVec3b6);
     this.eye = addVec3(this.#state.look, lookEyeVec, tempVec3c4);
     this.up = transformPoint3(tempMat2, this.#state.up, tempVec3d2);
   }
@@ -186791,7 +186982,7 @@ var Camera = class extends Component {
       }
     }
     let eye2 = subVec3(this.#state.eye, this.#state.look, tempVec32);
-    const left = cross3Vec3(normalizeVec3(eye2, tempVec3b5), normalizeVec3(this.#state.up, tempVec3c4));
+    const left = cross3Vec3(normalizeVec3(eye2, tempVec3b6), normalizeVec3(this.#state.up, tempVec3c4));
     rotationMat4v(angleInc * 0.0174532925, left, tempMat2);
     eye2 = transformPoint3(tempMat2, eye2, tempVec3d2);
     this.up = transformPoint3(tempMat2, this.#state.up, tempVec3e2);
@@ -186805,7 +186996,7 @@ var Camera = class extends Component {
   yaw(angleInc) {
     let look2 = subVec3(this.#state.look, this.#state.eye, tempVec32);
     rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.#state.worldUp : this.#state.up, tempMat2);
-    look2 = transformPoint3(tempMat2, look2, tempVec3b5);
+    look2 = transformPoint3(tempMat2, look2, tempVec3b6);
     this.look = addVec3(look2, this.#state.eye, tempVec3c4);
     if (this.#state.gimbalLock) {
       this.up = transformPoint3(tempMat2, this.#state.up, tempVec3d2);
@@ -186824,7 +187015,7 @@ var Camera = class extends Component {
       }
     }
     let look2 = subVec3(this.#state.look, this.#state.eye, tempVec32);
-    const left = cross3Vec3(normalizeVec3(look2, tempVec3b5), normalizeVec3(this.#state.up, tempVec3c4));
+    const left = cross3Vec3(normalizeVec3(look2, tempVec3b6), normalizeVec3(this.#state.up, tempVec3c4));
     rotationMat4v(angleInc * 0.0174532925, left, tempMat2);
     this.up = transformPoint3(tempMat2, this.#state.up, tempVec3f);
     look2 = transformPoint3(tempMat2, look2, tempVec3d2);
@@ -186840,7 +187031,7 @@ var Camera = class extends Component {
     const vec = [0, 0, 0];
     let v;
     if (pan[0] !== 0) {
-      const left = cross3Vec3(normalizeVec3(eye2, []), normalizeVec3(this.#state.up, tempVec3b5));
+      const left = cross3Vec3(normalizeVec3(eye2, []), normalizeVec3(this.#state.up, tempVec3b6));
       v = mulVec3Scalar(left, pan[0]);
       vec[0] += v[0];
       vec[1] += v[1];
@@ -192470,7 +192661,7 @@ function putScratchMemory() {
 
 // ../sdk/src/webglrenderer/vbo/batching/VBOBatchingLayer.ts
 var numLayers = 0;
-var tempVec3a5 = createVec3();
+var tempVec3a6 = createVec3();
 var tempVec4a4 = createVec4();
 var tempVec4b4 = createVec4();
 var VBOBatchingLayer = class {
@@ -192584,10 +192775,10 @@ var VBOBatchingLayer = class {
       }
     }
     for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
-      tempVec3a5[0] = positionsCompressed[k];
-      tempVec3a5[1] = positionsCompressed[k + 1];
-      tempVec3a5[2] = positionsCompressed[k + 2];
-      decompressPoint3WithAABB3(tempVec3a5, geometryAABB, tempVec4a4);
+      tempVec3a6[0] = positionsCompressed[k];
+      tempVec3a6[1] = positionsCompressed[k + 1];
+      tempVec3a6[2] = positionsCompressed[k + 2];
+      decompressPoint3WithAABB3(tempVec3a6, geometryAABB, tempVec4a4);
       if (sceneMesh.rtcMatrix) {
         tempVec4a4[3] = 1;
         transformPoint4(sceneMesh.rtcMatrix, tempVec4a4, tempVec4b4);
@@ -194532,8 +194723,8 @@ var tempUint8Vec4 = new Uint8Array(4);
 var tempFloat32 = new Float32Array(1);
 var tempVec4a5 = createVec4([0, 0, 0, 1]);
 var tempVec3fa = new Float32Array(3);
-var tempVec3a6 = createVec3();
-var tempVec3b6 = createVec3();
+var tempVec3a7 = createVec3();
+var tempVec3b7 = createVec3();
 var tempVec3c5 = createVec3();
 var tempVec3d3 = createVec3();
 var tempVec3e3 = createVec3();
@@ -197282,8 +197473,8 @@ var WebGLRendererView = class {
     this.renderBufferManager.destroy();
   }
 };
-var tempVec3a7 = createVec3();
-var tempVec3b7 = createVec3();
+var tempVec3a8 = createVec3();
+var tempVec3b8 = createVec3();
 var tempVec3c6 = createVec3();
 var tempMat4b3 = createMat4();
 var pickTemps = {
@@ -198279,12 +198470,12 @@ var WebGLRenderer = class {
       } else {
         pickWorldRayOrigin.set(pickParams.rayOrigin || [0, 0, 0]);
         pickWorldRayDir.set(pickParams.rayDirection || [0, 0, 1]);
-        const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a7);
-        tempVec3b7[0] = Math.random();
-        tempVec3b7[1] = Math.random();
-        tempVec3b7[2] = Math.random();
-        normalizeVec3(tempVec3b7);
-        cross3Vec3(pickWorldRayDir, tempVec3b7, tempVec3c6);
+        const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a8);
+        tempVec3b8[0] = Math.random();
+        tempVec3b8[1] = Math.random();
+        tempVec3b8[2] = Math.random();
+        normalizeVec3(tempVec3b8);
+        cross3Vec3(pickWorldRayDir, tempVec3b8, tempVec3c6);
         pickViewMatrix.set(lookAtMat4v(pickWorldRayOrigin, look, tempVec3c6, tempMat4b3));
         pickProjMatrix.set(view.camera.orthoProjection.projMatrix);
         pickResult.origin = pickWorldRayOrigin;
@@ -198750,8 +198941,8 @@ var PickController = class {
 };
 
 // ../sdk/src/cameracontrol/PivotController.ts
-var tempVec3a8 = createVec3();
-var tempVec3b8 = createVec3();
+var tempVec3a9 = createVec3();
+var tempVec3b9 = createVec3();
 var tempVec3c7 = createVec3();
 var tempVec4a6 = createVec4();
 var tempVec4b5 = createVec4();
@@ -198899,8 +199090,8 @@ var PivotController = class {
   }
   #cameraLookingDownwards() {
     const camera = this.#view.camera;
-    const forwardAxis = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a8));
-    const rightAxis = cross3Vec3(forwardAxis, camera.worldUp, tempVec3b8);
+    const forwardAxis = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a9));
+    const rightAxis = cross3Vec3(forwardAxis, camera.worldUp, tempVec3b9);
     let rightAxisLen = sqLenVec3(rightAxis);
     return rightAxisLen <= 1e-4;
   }
@@ -198938,8 +199129,8 @@ var PivotController = class {
     const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
     const worldPos = tempVec4a6;
     camera.projection.unproject(canvasPos2, screenZ, tempVec4b5, tempVec4c, worldPos);
-    const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3a8));
-    const posOnSphere = addVec3(camera.eye, mulVec3Scalar(eyeWorldPosVec, pivotShereRadius, tempVec3b8), tempVec3c7);
+    const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3a9));
+    const posOnSphere = addVec3(camera.eye, mulVec3Scalar(eyeWorldPosVec, pivotShereRadius, tempVec3b9), tempVec3c7);
     this.setPivotPos(posOnSphere);
   }
   /**
@@ -199049,8 +199240,8 @@ var PivotController = class {
 // ../sdk/src/cameracontrol/PanController.ts
 var screenPos = createVec4();
 var viewPos = createVec4();
-var tempVec3a9 = createVec3();
-var tempVec3b9 = createVec3();
+var tempVec3a10 = createVec3();
+var tempVec3b10 = createVec3();
 var tempVec3c8 = createVec3();
 var tempVec4a7 = createVec4();
 var tempVec4b6 = createVec4();
@@ -199075,7 +199266,7 @@ var PanController = class {
     let dolliedThroughSurface = false;
     const camera = this.#view.camera;
     if (optionalTargetWorldPos) {
-      const eyeToWorldPosVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a9);
+      const eyeToWorldPosVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a10);
       const eyeWorldPosDist = lenVec3(eyeToWorldPosVec);
       dolliedThroughSurface = eyeWorldPosDist < dollyDelta;
     }
@@ -199087,9 +199278,9 @@ var PanController = class {
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
       camera.look = [camera.look[0] - moveVec[0], camera.look[1] - moveVec[1], camera.look[2] - moveVec[2]];
       if (optionalTargetWorldPos) {
-        const eyeTargetVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a9);
+        const eyeTargetVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a10);
         const lenEyeTargetVec = lenVec3(eyeTargetVec);
-        const eyeLookVec2 = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3b9)), lenEyeTargetVec);
+        const eyeLookVec2 = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3b10)), lenEyeTargetVec);
         camera.look = [camera.eye[0] + eyeLookVec2[0], camera.eye[1] + eyeLookVec2[1], camera.eye[2] + eyeLookVec2[2]];
       }
     } else if (camera.projectionType === OrthoProjectionType) {
@@ -199097,7 +199288,7 @@ var PanController = class {
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
       const worldPos2 = this._unproject(targetCanvasPos, tempVec4b6);
       const offset = subVec3(worldPos2, worldPos1, tempVec4c2);
-      const eyeLookMoveVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a9)), -dollyDelta, tempVec3b9);
+      const eyeLookMoveVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a10)), -dollyDelta, tempVec3b10);
       const moveVec = addVec3(offset, eyeLookMoveVec, tempVec3c8);
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
       camera.look = [camera.look[0] - moveVec[0], camera.look[1] - moveVec[1], camera.look[2] - moveVec[2]];
@@ -199735,8 +199926,8 @@ var MousePanRotateDollyHandler = class {
 
 // ../sdk/src/cameracontrol/KeyboardAxisViewHandler.ts
 var center = createVec3();
-var tempVec3a10 = createVec3();
-var tempVec3b10 = createVec3();
+var tempVec3a11 = createVec3();
+var tempVec3b11 = createVec3();
 var tempVec3c9 = createVec3();
 var tempVec3d4 = createVec3();
 var tempCameraTarget = {
@@ -201991,8 +202182,8 @@ __export(bcf_exports, {
 
 // ../sdk/src/bcf/loadBCFViewpoint.ts
 var tempVec35 = createVec3();
-var tempVec3a11 = createVec3();
-var tempVec3b11 = createVec3();
+var tempVec3a12 = createVec3();
+var tempVec3b12 = createVec3();
 var tempVec3c10 = createVec3();
 function loadBCFViewpoint(params2) {
   const includeViewLayers = params2.includeViewLayerIds ? new Set(params2.includeViewLayerIds) : null;
@@ -202008,8 +202199,8 @@ function loadBCFViewpoint(params2) {
   view.clearSectionPlanes();
   if (bcfViewpoint.clipping_planes) {
     bcfViewpoint.clipping_planes.forEach((e) => {
-      let pos = xyzObjectToArray(e.location, tempVec3a11);
-      let dir = xyzObjectToArray(e.direction, tempVec3b11);
+      let pos = xyzObjectToArray(e.location, tempVec3a12);
+      let dir = xyzObjectToArray(e.direction, tempVec3b12);
       if (reverseClippingPlanes) {
         negateVec3(dir);
       }
@@ -202046,8 +202237,8 @@ function loadBCFViewpoint(params2) {
     bcfViewpoint.bitmaps.forEach((e) => {
       const bitmap_type = e.bitmap_type || "jpg";
       const bitmap_data = e.bitmap_data;
-      let location = xyzObjectToArray(e.location, tempVec3a11);
-      let normal2 = xyzObjectToArray(e.normal, tempVec3b11);
+      let location = xyzObjectToArray(e.location, tempVec3a12);
+      let normal2 = xyzObjectToArray(e.normal, tempVec3b12);
       let up = xyzObjectToArray(e.up, tempVec3c10);
       let height = e.height || 1;
       if (!bitmap_type) {
@@ -202282,14 +202473,14 @@ function loadBCFViewpoint(params2) {
     let up;
     let projection;
     if (bcfViewpoint.perspective_camera) {
-      eye = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_view_point, tempVec3a11);
-      look = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_direction, tempVec3b11);
+      eye = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_view_point, tempVec3a12);
+      look = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_direction, tempVec3b12);
       up = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_up_vector, tempVec3c10);
       camera.perspectiveProjection.fov = bcfViewpoint.perspective_camera.field_of_view;
       projection = PerspectiveProjectionType;
     } else {
-      eye = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_view_point, tempVec3a11);
-      look = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_direction, tempVec3b11);
+      eye = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_view_point, tempVec3a12);
+      look = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_direction, tempVec3b12);
       up = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_up_vector, tempVec3c10);
       camera.orthoProjection.scale = bcfViewpoint.orthogonal_camera.view_to_world_scale;
       projection = OrthoProjectionType;

@@ -1,5 +1,20 @@
 {
   "articles": {
+    "dev-status": {
+      "title": "xeokit SDK: Development Status",
+      "description": "The xeokit SDK supports viewing various AEC file formats through multiple import pipelines. \n\nThe best pipeline to use depends on the source format and file size.\n\nThe table below outlines the recommended pipeline based on format and data size. The best way to view AEC models with xeokit depends on the source format and file size. This guide will help you select the right pipeline based on format and data size.",
+      "tags": [
+        "XGF",
+        "IFC",
+        "DotBIM",
+        "glTF",
+        "CityJSON",
+        "Featured"
+      ],
+      "bannerImage": "wip.jpg",
+      "_thumbnail": "index.png",
+      "topic": "overview"
+    },
     "dotbim2xgf": {
       "title": "Viewing .BIM using xeoconvert/dotbim2xgf and XGFLoader",
       "description": "How to use the xeoconvert CLI with --pipeline dotbim2xgf to convert a .bim file to XGF, which we then display in the browser using a xeokit web viewer.",
@@ -432,6 +447,7 @@
   },
   "tagsToArticlesMap": {
     "XGF": [
+      "dev-status",
       "dotbim2xgf",
       "example_IFCLoader_IfcOpenHouse4",
       "example_XGFLoader_MAP",
@@ -442,6 +458,7 @@
       "overview-pipelines"
     ],
     "IFC": [
+      "dev-status",
       "dotbim2xgf",
       "example_IFCLoader_IfcOpenHouse4",
       "ifc2gltf",
@@ -449,11 +466,31 @@
       "overview-pipelines"
     ],
     "DotBIM": [
+      "dev-status",
       "dotbim2xgf",
       "example_DotBIMLoader_BlenderHouse",
       "example_ModelConverter_DotBIM_XGF",
       "example_ModelConverter_IFC_XGF",
       "overview-pipelines"
+    ],
+    "glTF": [
+      "dev-status",
+      "example_GLTFLoader_MAP",
+      "gltf2xgf",
+      "ifc2gltf",
+      "ifc2gltf2xgf",
+      "overview-pipelines"
+    ],
+    "CityJSON": [
+      "dev-status",
+      "example_CityJSONLoader_Railway",
+      "example_ModelConverter_CityJSON_XGF",
+      "overview-pipelines"
+    ],
+    "Featured": [
+      "dev-status",
+      "overview-pipelines",
+      "whitepaper"
     ],
     "dotbim2xgf": [
       "dotbim2xgf"
@@ -518,11 +555,6 @@
       "example_XGFLoader_MAP",
       "example_XKTLoader_MAP"
     ],
-    "CityJSON": [
-      "example_CityJSONLoader_Railway",
-      "example_ModelConverter_CityJSON_XGF",
-      "overview-pipelines"
-    ],
     "_Featured": [
       "example_CityJSONLoader_Railway",
       "example_GLTFLoader_MAP",
@@ -541,13 +573,6 @@
       "example_ModelConverter_CityJSON_XGF",
       "example_ModelConverter_DotBIM_XGF",
       "example_ModelConverter_IFC_XGF"
-    ],
-    "glTF": [
-      "example_GLTFLoader_MAP",
-      "gltf2xgf",
-      "ifc2gltf",
-      "ifc2gltf2xgf",
-      "overview-pipelines"
     ],
     "webifc2xgf": [
       "example_IFCLoader_IfcOpenHouse4"
@@ -582,10 +607,6 @@
     ],
     "xeoconvert": [
       "las2xgf"
-    ],
-    "Featured": [
-      "overview-pipelines",
-      "whitepaper"
     ],
     "Beginner": [
       "sceneModelBuildBox",

@@ -1,10 +1,12 @@
-import {Loader} from "../io";
+import {ModelLoader} from "../io";
 import {parse as parse_10} from "./versions/v10/parse";
 
 /**
  * Loads an XKT file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+ *
+ * For detailed usage, refer to {@link xkt | @xeokit/sdk/xkt}.
  */
-export class XKTLoader extends Loader {
+export class XKTLoader extends ModelLoader {
 
     /**
      * Constructs an XKTLoader.

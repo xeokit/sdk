@@ -662,7 +662,6 @@ export class WebGLRenderer implements Renderer {
      * @internal
      * @param viewIndex Handle to the View.
      * @param [params.force=false] True to force a render, else only render if needed.
-     * @link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
      * @returns *{@link core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.

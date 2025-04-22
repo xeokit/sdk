@@ -1,7 +1,7 @@
 import {decompressPoint3WithAABB3} from "../../../compression";
 import {createVec3, createVec4, decomposeMat4} from "../../../matrix";
 import {ifcTypeNames} from "../../../ifctypes";
-import {EncodeParams} from "../../../io";
+import {ModelEncodeParams} from "../../../io";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -9,7 +9,7 @@ const tempVec3b = createVec3();
 /**
  * @private
  */
-export function encode(params: EncodeParams, options?: any): Promise<any> {
+export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
 
     return new Promise<any>(function (resolve, reject) {
 

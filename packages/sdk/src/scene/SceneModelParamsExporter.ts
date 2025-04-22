@@ -1,10 +1,10 @@
 import {encode as encode_1_0} from "./versions/1_0/encode"
-import {Exporter} from "../io";
+import {ModelExporter} from "../io/ModelExporter";
 
 /**
  * Writes a {@link scene!SceneModel | SceneModel} to {@link SceneModelParams | SceneModelParams} as JSON.
  */
-export class SceneModelParamsExporter extends Exporter {
+export class SceneModelParamsExporter extends ModelExporter {
 
     /**
      * Constructs a SceneModelParamsExporter.

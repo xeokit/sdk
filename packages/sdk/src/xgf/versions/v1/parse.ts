@@ -1,16 +1,11 @@
 import {unpackXGF} from "./unpackXGF";
-import {SceneModel} from "../../../scene";
 import {xgfToModel} from "./xgfToModel";
-import {DataModel} from "../../../data";
+import {ModelParseParams} from "../../../io";
 
 /**
  * @private
  */
-export function parse(params: {
-    fileData: any;
-    sceneModel?: SceneModel;
-    dataModel?: DataModel;
-}): Promise<void> {
+export function parse(params: ModelParseParams, options?: any): Promise<void> {
     return new Promise<void>(function (resolve, reject) {
         const {fileData, sceneModel, dataModel} = params;
         xgfToModel({

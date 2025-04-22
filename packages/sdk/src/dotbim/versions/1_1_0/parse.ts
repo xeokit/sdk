@@ -1,16 +1,17 @@
 import {TrianglesPrimitive} from "../../../constants";
 import {SDKError} from "../../../core";
-import {ParseParams} from "../../../io";
+import {ModelParser} from "../../../io";
 import {ifcTypeCodes} from "../../../ifctypes";
 
 /**
  * @private
  */
-export function parse(params: ParseParams, options?: any): Promise<void> {
-
-    return new Promise<void>(function (resolve, reject) {
+export const parse: ModelParser = async (params, options = {
+    translate: undefined
+}) => {
+    return new Promise<void>((resolve, reject) => {
         const fileData = params.fileData;
-        options = options || {};
+
         if (params.sceneModel) {
             const meshes = fileData.meshes;
             for (let i = 0, len = meshes.length; i < len; i++) {
@@ -22,10 +23,11 @@ export function parse(params: ParseParams, options?: any): Promise<void> {
                     indices: mesh.indices
                 });
                 if (geometry instanceof SDKError) {
-                   // params.error(`[SceneModel.createGeometry]: ${geometry.message}`);
+                    // params.error(`[SceneModel.createGeometry]: ${geometry.message}`);
                 }
             }
         }
+
         const elements = fileData.elements;
         for (let i = 0, len = elements.length; i < len; i++) {
             const element = elements[i];
@@ -36,6 +38,7 @@ export function parse(params: ParseParams, options?: any): Promise<void> {
                     : (info !== undefined && info.id !== undefined
                         ? info.id
                         : i);
+
             if (params.sceneModel) {
                 const geometryId = element.mesh_id;
                 const meshId = `${objectId}-mesh`;
@@ -58,6 +61,7 @@ export function parse(params: ParseParams, options?: any): Promise<void> {
                     // params.error(`[SceneModel.createMesh]: ${mesh.message}`);
                     continue;
                 }
+
                 const sceneObject = params.sceneModel.createObject({
                     id: objectId,
                     meshIds: [meshId]
@@ -67,6 +71,7 @@ export function parse(params: ParseParams, options?: any): Promise<void> {
                     continue;
                 }
             }
+
             if (params.dataModel) {
                 if (!params.dataModel.objects[element.guid]) {
                     const dataObject = params.dataModel.createObject({
@@ -76,11 +81,12 @@ export function parse(params: ParseParams, options?: any): Promise<void> {
                         description: info.Description
                     });
                     if (dataObject instanceof SDKError) {
-                      // params.error(`[SceneModel.createObject]: ${dataObject.message}`);
+                        // params.error(`[SceneModel.createObject]: ${dataObject.message}`);
                     }
                 }
             }
         }
-        return resolve();
+
+        resolve();
     });
-}
+};

@@ -1,10 +1,12 @@
 import {encode as encode_1_0_0} from "./versions/v1/encode"
-import {Exporter} from "../io";
+import {ModelExporter} from "../io";
 
 /**
  * Exports a {@link scene!SceneModel | SceneModel} to an XGF file.
+ *
+ * For detailed usage, refer to {@link xgf | @xeokit/sdk/xgf}.
  */
-export class XGFExporter extends Exporter {
+export class XGFExporter extends ModelExporter {
     constructor() {
         super({
             fileDataType: "json",

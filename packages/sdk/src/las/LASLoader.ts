@@ -1,32 +1,21 @@
-import {SceneModel} from "../scene";
-import {DataModel} from "../data";
-import {Loader, LoadParams} from "../io";
+import {ModelLoader, ModelLoadParams, ModelParseParams} from "../io";
 import {SDKError} from "../core";
 import {createMat4, createVec3, transformPoint3} from "../matrix";
 import {BasicAggregation, BasicEntity} from "../basictypes";
 import {createUUID} from "../utils";
 import {PointsPrimitive} from "../constants";
-import {FloatArrayParam} from "../math";
 import {parse} from '@loaders.gl/core';
 import {LASLoader as glLASLoader} from '@loaders.gl/las';
+import {LASLoaderOptions} from "./LASLoaderOptions";
 
 const MAX_VERTICES = 500000; // TODO: Rough estimate
 
 /**
- * Options for {@link las!LASLoader.read | LASLoader.read}.
- */
-interface LASReaderOptions {
-    center?: boolean;
-    transform?: FloatArrayParam;
-    skip?: number;
-    fp64?: boolean;
-    colorDepth?: string | number;
-}
-
-/**
  * Loads a LAS/LAZ file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+ *
+ * For detailed usage, refer to {@link las | @xeokit/sdk/las}.
  */
-export class LASLoader extends Loader {
+export class LASLoader extends ModelLoader {
     constructor() {
         super({
             fileDataType: "arraybuffer",
@@ -47,12 +36,7 @@ export class LASLoader extends Loader {
      * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
      *
      * @param params - The parameters used for loading the file data.
-     * @param params.fileData - The file data to load.
-     * @param params.sceneModel - The {@link scene!SceneModel | SceneModel} into which the .BIM data will be loaded.
-     * @param params.dataModel - The {@link data!DataModel | DataModel} into which the .BIM data will be loaded.
-     * @param options - Options for customizing the loading process.
-     * @param options.error - A callback function that logs any non-fatal errors encountered during the loading process.
-     *
+     * @param options - Options for loading the LAS/LAZ file.
      * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
      *
      * @throws {@link core!SDKError | SDKError}
@@ -61,24 +45,12 @@ export class LASLoader extends Loader {
      * - If the DataModel has already been destroyed.
      * - If the DataModel has already been built.
      */
-    load(params: LoadParams, options: LASReaderOptions = {}): Promise<any> {
+    load(params: ModelLoadParams, options: LASLoaderOptions = {}): Promise<any> {
         return super.load(params, options);
     }
 }
 
-function parseLAS(params: {
-                     fileData: any,
-                     sceneModel?: SceneModel,
-                     dataModel?: DataModel,
-                     log?: Function
-                 },
-                 options: {
-                     center?: boolean;
-                     transform?: FloatArrayParam;
-                     skip?: number;
-                     fp64?: boolean;
-                     colorDepth?: string | number,
-                 } = {}): Promise<void> {
+function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Promise<void> {
 
     return new Promise(function (resolve, reject) {
         const {sceneModel, dataModel, fileData} = params;

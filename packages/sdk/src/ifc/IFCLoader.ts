@@ -1,12 +1,15 @@
-import {Loader, ParseParams} from "../io";
+import {ModelLoader, ModelParseParams} from "../io";
 import {parse as parse_IFC4} from "./versions/IFC4/parse";
+
+import {IfcAPI as IfcAPI_node} from "node_modules/web-ifc/web-ifc-api-node.js";
+import {IfcAPI as IfcAPI_browser} from "node_modules/web-ifc/web-ifc-api.js";
 
 /**
  * Loads an IFC file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
  *
- * See {@link "ifc" | @xeokit/ifc} for usage.
+ * For detailed usage, refer to {@link ifc | @xeokit/sdk/ifc}.
  */
-export class IFCLoader extends Loader {
+export class IFCLoader extends ModelLoader {
 
     #ifcAPI: any;
 
@@ -15,46 +18,39 @@ export class IFCLoader extends Loader {
      */
     constructor() {
 
-        const parse = (args: ParseParams): Promise<any> => {
+        const parse = (params: ModelParseParams, options: any): Promise<any> => {
             if (!this.#ifcAPI) {
                 return new Promise<void>((resolve, reject) => {
-                    let importPath;
+                    let api;
                     switch (detectEnvironment()) {
                         case "browser":
-                            importPath = "web-ifc";
+                            api = IfcAPI_browser;
                             break;
                         case "node":
-                            importPath = "web-ifc/web-ifc-api-node.js";
+                            api = IfcAPI_node;
                             break;
                         default:
                             reject("[IFCLoader] Failed to determine environment");
                             return;
                     }
-                    import(importPath)
-                        .then(module => {
-                            const WebIFC = module.default;
-                            this.#ifcAPI = new WebIFC.IfcAPI();
-                        //    this.#ifcAPI.SetWasmPath("https://cdn.jsdelivr.net/npm/web-ifc@0.0.51/");
-                            this.#ifcAPI.Init()
+                    this.#ifcAPI = new api();
+                    this.#ifcAPI.SetWasmPath("../../node_modules/web-ifc/");
+                    this.#ifcAPI.Init()
+                        .then(() => {
+                            parse_IFC4(this.#ifcAPI, params, options)
                                 .then(() => {
-                                    parse_IFC4(this.#ifcAPI, args)
-                                        .then(() => {
-                                            resolve()
-                                        })
-                                        .catch(reason => {
-                                            reject("[IFCLoader] Failed to parse IFC - " + reason);
-                                        });
+                                    resolve()
                                 })
                                 .catch(reason => {
-                                    reject("[IFCLoader] Failed to initialize WebIFC - " + reason);
+                                    reject("[IFCLoader] Failed to parse IFC - " + reason);
                                 });
                         })
                         .catch(reason => {
-                            reject("[IFCLoader] Failed to import WebIFC module - " + reason);
+                            reject("[IFCLoader] Failed to initialize WebIFC - " + reason);
                         });
                 });
             } else {
-                return parse_IFC4(this.#ifcAPI, args);
+                return parse_IFC4(this.#ifcAPI, params, options);
             }
         };
 

@@ -1,6 +1,6 @@
 import {Data} from "../data";
 import {Scene} from "../scene";
-import {Loader, Exporter} from "../io";
+import {ModelLoader, ModelExporter} from "../io";
 import {SDKError} from "../core";
 import {ModelConverterParams} from "./ModelConverterParams";
 import {ModelConverterPipelineParams} from "./ModelConverterPipelineParams";
@@ -15,6 +15,8 @@ import {ModelConverterConfig} from "./ModelConverterConfig";
  * The `ModelConverter` class manages file format conversions using a set of predefined
  * **loaders** (parsers for input formats) and **exporters** (generators for output formats).
  * It uses **pipelines** to define structured conversion workflows.
+ *
+ * For detailed usage, refer to {@link modelconverter | @xeokit/sdk/modelconverter}.
  */
 export class ModelConverter {
 
@@ -22,13 +24,13 @@ export class ModelConverter {
      * A collection of available loaders, mapped by format identifiers.
      * Each loader is responsible for parsing specific file formats.
      */
-    loaders: { [key: string]: Loader };
+    loaders: { [key: string]: ModelLoader };
 
     /**
      * A collection of available exporters, mapped by format identifiers.
      * Each exporter generates output files in a specific format.
      */
-    exporters: { [key: string]: Exporter };
+    exporters: { [key: string]: ModelExporter };
 
     /**
      * A collection of conversion pipelines, indexed by pipeline name.
@@ -57,20 +59,6 @@ export class ModelConverter {
      * @returns A promise that resolves to a `ModelConverterResult` object containing the output files.
      *
      * @throws {SDKError} If required parameters are missing or if an unsupported pipeline is specified.
-     *
-     * @example
-     * ```ts
-     * converter.convert({
-     *     pipeline: "gltf2xgf",
-     *     inputs: { inputFileData: gltfArraybuffer }
-     * }).then(conversionResults => {
-     *     const xgfArraybuffer = conversionResults.outputs["xgf"].fileData;
-     *     const
-     *     console.log("conversion completed:", conversionResults);
-     * }).catch(error => {
-     *     console.error("conversion failed:", error);
-     * });
-     * ```
      */
     convert(convertRequest: ModelConverterRequest): Promise<ModelConverterResult> {
 
@@ -154,7 +142,7 @@ export class ModelConverter {
                         return;
                     }
                     const pipelineInputId = pipelineInputIds[index];
-                    const pipelineInput = pipelineInputs[index];
+                    const pipelineInput = pipelineInputs[pipelineInputId];
                     const conversionParamsInput = conversionParamsInputs[pipelineInputId];
                     const loader = this.loaders[pipelineInput.loader];
                     const fileData = conversionParamsInput;
@@ -226,7 +214,7 @@ export class ModelConverter {
                         return;
                     }
                     const pipelineOutputId = pipelineOutputIds[index];
-                    const pipelineOutput = pipelineOutputs[index];
+                    const pipelineOutput = pipelineOutputs[pipelineOutputId];
                     const exporter = this.exporters[pipelineOutput.exporter];
                     const version = pipelineOutput.version;
                     const sceneModelId = pipelineOutput.sceneModel || "default";

@@ -1,13 +1,13 @@
 import {encode as encode_1_0} from "./versions/1_0/encode"
-import {Exporter} from "../io";
+import {ModelExporter} from "../io";
 
 /**
  * Writes a {@link data!DataModel | DataModel} to {@link DataModelParams | DataModelParams} as JSON.
  */
-export class DataModeParamsExporter extends Exporter {
+export class DataModelParamsExporter extends ModelExporter {
 
     /**
-     * Constructs a DataModeParamsExporter.
+     * Constructs a DataModelParamsExporter.
      */
     constructor() {
         super({

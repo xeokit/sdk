@@ -2,7 +2,7 @@
 import {SceneModel} from "../../../scene";
 import {DataModel} from "../../../data";
 import * as WebIFC from "web-ifc";
-import {ParseParams} from "../../../io";
+import {ModelParseParams} from "../../../io";
 import {IfcElement, IfcRelAggregates, ifcTypeCodes} from "../../../ifctypes";
 import {createVec3, identityMat4} from "../../../matrix";
 import {TrianglesPrimitive} from "../../../constants";
@@ -10,7 +10,7 @@ import {TrianglesPrimitive} from "../../../constants";
 /**
  * @private
  */
-export function parse(ifcAPI: WebIFC.IfcAPI, params: ParseParams): Promise<void> {
+export function parse(ifcAPI: WebIFC.IfcAPI, params: ModelParseParams, options: any): Promise<void> {
     return new Promise<void>(function (resolve, reject) {
         parseWebIFC(ifcAPI, params).then(()=>{
             resolve();
@@ -29,7 +29,7 @@ interface ParsingContext {
     ifcProjectId: number;
 }
 
-function parseWebIFC(ifcAPI: WebIFC.IfcAPI, params: ParseParams): Promise<any> {
+function parseWebIFC(ifcAPI: WebIFC.IfcAPI, params: ModelParseParams): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
         const {sceneModel, dataModel, fileData} = params;
         const dataArray = new Uint8Array(fileData);

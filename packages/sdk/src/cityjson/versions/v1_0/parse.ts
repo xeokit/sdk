@@ -13,7 +13,7 @@ import {earcut} from './earcut';
 import {TrianglesPrimitive} from "../../../constants";
 import {BasicAggregation} from "../../../basictypes";
 import {typeCodes} from "../../../cityjsontypes_1_1_3";
-import {ParseParams} from "../../../io";
+import {ModelParser} from "../../../io";
 
 const tempVec2a = createVec2();
 const tempVec3a = createVec3();
@@ -23,18 +23,17 @@ const tempVec3c = createVec3();
 /**
  * @private
  */
-export function parse(params: ParseParams,
-                      options: {
-                                 rotateX?: boolean;
-                             } = {
-                                 rotateX: false
-                             }): Promise<any> {
-    return new Promise<void>(function (resolve, reject) {
-        const {fileData, sceneModel, dataModel} = params;
+export const parse: ModelParser = async (
+    params,
+    options = { rotateX: false }
+) => {
+    return new Promise<void>((resolve, reject) => {
+        const { fileData, sceneModel, dataModel } = params;
+
         if (sceneModel || dataModel) {
             const ctx = {
                 fileData,
-                vertices: (fileData.transform && params.sceneModel)
+                vertices: (fileData.transform && sceneModel)
                     ? transformVertices(fileData.vertices, fileData.transform, options.rotateX)
                     : fileData.vertices,
                 sceneModel,
@@ -43,9 +42,11 @@ export function parse(params: ParseParams,
             };
             parseCityJSON(ctx);
         }
-        return resolve();
+
+        resolve();
     });
-}
+};
+
 
 function transformVertices(vertices: any, transform: any, rotateX?: boolean) {
     const transformedVertices = [];

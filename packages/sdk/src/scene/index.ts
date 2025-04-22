@@ -480,6 +480,7 @@
 
 export * from "./Scene";
 export * from "./SceneModel";
+export * from "./SceneModelParams";
 export * from "./SceneModelStats";
 export * from "./SceneObject";
 export * from "./SceneTexture";

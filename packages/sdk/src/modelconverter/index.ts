@@ -1,80 +1,210 @@
 /**
- * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
+ * <img style="padding: 30px 0 10px 0; height: 130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
  *
- * # xeokit Multi-Format File ModelConverter
- *
- * ---
- *
- * ***An extensible tool for converting 3D models between various formats.***
+ * # xeokit Multi-Format Model Converter
  *
  * ---
  *
- * This module provides the `ModelConverter` class, which converts 3D model data between different formats.
+ * **An extensible tool for converting 3D models between various formats.**
+ *
+ * ---
+ *
+ * This module provides the {@link ModelConverter | ModelConverter} class for converting 3D model data between multiple file formats.
+ *
+ * <br>
  *
  * # Installation
  *
- * Install the xeokit SDK by running:
+ * Install the xeokit SDK:
  *
  * ````bash
  * npm install @xeokit/sdk
  * ````
  *
+ * <br>
+ *
  * # Usage
  *
- * ## Using the ModelConverter Class
+ * ## Using the {@link ModelConverter | ModelConverter} Class
  *
- * The `ModelConverter` class manages file format conversions using a set of predefined
- * **loaders** (parsers for input formats) and **exporters** (generators for output formats).
- * It uses **pipelines** to define structured conversion workflows. Each pipeline defines how input
- * data is processed and converted into output formats.
+ * The {@link ModelConverter | ModelConverter} manages file format conversions via a set of predefined:
  *
+ * - **{@link io!ModelLoader | ModelLoaders}**: loaders for input formats
+ * - **{@link io!ModelExporter | ModelExporters}**: generators for output formats
+ * - **Pipelines**: structured workflows describing how inputs are transformed into outputs
  *
- * ## Converting a glTF file
+ * ## Converting a DotBIM file to XGF and DataModelParams JSON formats
  *
- * Use the `convert` CLI tool to convert a single glTF file into an XGF file, along with an optional JSON file containing
- * a simple DataModel derived from the glTF `scene` and `node` hierarchy.
+ * ### 1. Import dependencies
  *
- * ````bash
- * node convert.js -h
- * Usage: convert [options]
+ * ````ts
+ * import { readFile, writeFile } from 'fs/promises';
+ * import path from 'path';
  *
- * CLI tool to convert glTF files into xeokit's compact XGF format.
- *
- * Options:
- *   -v, --version                output the version number
- *   -i, --source [file]          path to source glTF file
- *   -s, --scenemodel [file]      path to target XGF file
- *   -d, --datamodel [file]       path to target JSON data model file, derived from the glTF scene hierarchy (optional)
- *   -t, --version [string] target XGF version (default is 1; supported version is 1)
- *   -h, --help                   display help for the command
+ * import { ModelConverter } from "@xeokit/sdk/modelconverter";
+ * import { DotBIMLoader } from "@xeokit/sdk/dotbim";
+ * import { XGFExporter } from "@xeokit/sdk/xgf";
+ * import { DataModelParamsExporter } from "@xeokit/sdk/data";
  * ````
  *
- * The example below converts a binary glTF file to XGF. The resulting XGF objects will contain geometry and material color
- * data parsed from the glTF file. The XGF file can then be loaded into a xeokit {@link scene!SceneModel | SceneModel}
- * using the {@link xgf!XGFLoader | XGFLoader()} function. For optimal performance, it is recommended to convert binary glTF files.
+ * ### 2. Set up the converter
  *
- * ````bash
- * node convert -i duplex.glb -s duplex.xgf
+ * Create a {@link ModelConverter | ModelConverter} instance, configured with loaders,
+ * exporters, and a single "dotbim2xgf" pipeline definition that connects those together to perform our conversion.
+ *
+ * The loaders and exporters we'll use are:
+ *
+ * - {@link dotbim!DotBIMLoader | DotBIMLoader} to load `.bim` files
+ * - {@link xgf!XGFExporter | XGFExporter} to export geometry to `.xgf`
+ * - {@link data!DataModelParamsExporter | DataModelParamsExporter} for exporting semantic metadata
+ *
+ * ````ts
+ * const modelConverter = new ModelConverter({
+ *     loaders: {
+ *         dotbim: new DotBIMLoader()
+ *     },
+ *     exporters: {
+ *         xgf: new XGFExporter(),
+ *         datamodel: new DataModelParamsExporter()
+ *     },
+ *     pipelines: {
+ *         dotbim2xgf: {
+ *             inputs: {
+ *                 dotbim: {
+ *                     loader: "dotbim",
+ *                     options: {}
+ *                 }
+ *             },
+ *             outputs: {
+ *                 xgf: {
+ *                     exporter: "xgf",
+ *                     version: "1.0",
+ *                     options: {}
+ *                 },
+ *                 datamodel: {
+ *                     exporter: "datamodel",
+ *                     version: "1.0",
+ *                     options: {}
+ *                 }
+ *             }
+ *         }
+ *     }
+ * });
  * ````
  *
- * ## Converting a glTF file and extracting the scene hierarchy
+ * ### 3. Perform the conversion
  *
- * In the next example, we convert a binary glTF file to XGF, while also generating a JSON file that defines a simple data model
- * expressing the hierarchy of the `nodes` within the glTF `scene`. The JSON file can then be loaded into a xeokit
- * {@link data!DataModel | DataModel} using {@link data!Data.createModel | Data.createModel()}.
+ * ````ts
+ * const dotBIMFileData = JSON.parse(await readFile("model.bim", "utf-8"));
  *
- * ````bash
- * node convert -i duplex.glb -s duplex.xgf -d duplex.json
+ * modelConverter.convert({
+ *      pipeline: "dotbim2xgf",
+ *      inputs: {
+ *         dotbim: dotBIMFileData
+ *      }
+ * }).then(async result => {
+ *
+ *      const xgfOutput = result.outputs.xgf;
+ *
+ *      const xgfFileData = xgfOutput.fileData;
+ *      const xgfFileDataType = xgfOutput.fileDataType; // "arraybuffer"
+ *      const xgfVersion = xgfOutput.version; // "1.0.0"
+ *      const xgfSceneModel = xgfOutput.sceneModel;
+ *      const xgfDataModel = xgfOutput.dataModel;
+ *
+ *      const datamodelOutput = result.outputs.datamodel;
+ *
+ *      const datamodelFileData = datamodelOutput.fileData;
+ *      const datamodelFileDataType = datamodelOutput.fileDataType; // "json"
+ *      const datamodelVersion = datamodelOutput.version; // "1.1.0"
+ *      const datamodelSceneModel = datamodelOutput.sceneModel;
+ *      const datamodelDataModel = datamodelOutput.dataModel;
+ *
+ *     await writeFile("model.xgf", xgfFileData);
+ *     await writeFile("model.json", JSON.stringify(datamodelFileData, null, 2), "utf-8");
+ * });
  * ````
  *
- * ## Converting a glTF file to a specific XGF version
+ * <br>
  *
- * In the previous examples, we converted the glTF file to the latest version of XGF by default. In this example, we convert
- * the binary glTF file to a specific version of XGF. The XGF format is expected to evolve over time, and this feature ensures
- * backward compatibility.
+ * ## Converting XGF and DataModelParams JSON back to DotBIM
  *
- * ````bash
- * convert -i duplex.glb -s duplex.xgf -f 1
+ * ### 1. Import dependencies
+ *
+ * ````ts
+ * import { readFile, writeFile } from 'fs/promises';
+ * import path from 'path';
+ *
+ * import { ModelConverter } from "@xeokit/sdk/modelconverter";
+ * import { DotBIMLoader } from "@xeokit/sdk/dotbim";
+ * import { XGFExporter } from "@xeokit/sdk/xgf";
+ * import { DataModelParamsExporter } from "@xeokit/sdk/data";
+ * ````
+ *
+ * ### 2. Set up the converter
+ *
+ * Create a {@link ModelConverter | ModelConverter} instance, configured with loaders,
+ * exporters, and a single "dotbim2xgf" pipeline definition that connects those together to perform our conversion.
+ *
+ * The loaders and exporters we'll use are:
+ *
+ * - {@link dotbim!DotBIMLoader | DotBIMLoader} to load `.bim` files
+ * - {@link xgf!XGFExporter | XGFExporter} to export geometry to `.xgf`
+ * - {@link data!DataModelParamsExporter | DataModelParamsExporter} for exporting semantic metadata
+ *
+ * ````ts
+ * const modelConverter = new ModelConverter({
+ *     loaders: {
+ *         xgf: new XGFLoader(),
+ *         datamodel: new DataModelParamsLoader()
+ *     },
+ *     exporters: {
+ *         dotbim: new DotBIMExporter()
+ *     },
+ *     pipelines: {
+ *         xgf2dotbim: {
+ *             inputs: {
+ *                 xgf: {
+ *                     loader: "xgf",
+ *                     sceneModel: "mySceneModel",
+ *                     options: {}
+ *                 },
+ *                 datamodel: {
+ *                     loader: "datamodel",
+ *                     sceneModel: "myDataModel",
+ *                     options: {}
+ *                 }
+ *             },
+ *             outputs: {
+ *                 dotbim: {
+ *                     exporter: "dotbim",
+ *                     sceneModel: "mySceneModel",
+ *                     sceneModel: "myDataModel",
+ *                     version: "1.1",
+ *                     options: {}
+ *                 }
+ *             }
+ *         }
+ *     }
+ * });
+ * ````
+ *
+ * ### 3. Perform the conversion
+ *
+ * ````ts
+ * const xgfFileData = await readFile("model.xgf");
+ * const datamodelFileData = JSON.parse(await readFile("model.json", "utf-8"));
+ *
+ * modelConverter.convert({
+ *     pipeline: "xgf2dotbim",
+ *     inputs: {
+ *         xgf: xgfFileData,
+ *         datamodel: datamodelFileData
+ *     }
+ * }).then(async result => {
+ *     const dotbimFileData = result.outputs.dotbim.fileData;
+ *     await writeFile("model.bim", dotbimFileData, "utf-8");
+ * });
  * ````
  *
  * @module modelconverter
@@ -90,4 +220,3 @@ export * from "./ModelConverterConfig";
 export * from "./ModelConverterRequest";
 export * from "./ModelConverterResult";
 export * from "./ModelConverterResultOutput";
-

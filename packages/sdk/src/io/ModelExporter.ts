@@ -1,21 +1,18 @@
-/**
- * Parser.
- */
-import {DataModel} from "../data";
-import {ExportParams} from "./ExportParams";
-import {EncodeParams} from "./EncodeParams";
-import {ExporterParams} from "./ExporterParams";
+import {DataModel} from "../data/DataModel";
+import {ModelExportParams} from "./ModelExportParams";
+import {ModelExporterParams} from "./ModelExporterParams";
+import {ModelEncoder} from "./ModelEncoder";
 
 /**
  * Exports a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel} to a file.
  */
-export class Exporter {
+export class ModelExporter {
 
     /**
-     * An encoder function for each supported schema version.
+     * An encoder for each supported schema version.
      */
     encoders: {
-        [key: string]: (params: EncodeParams, options?: any) => Promise<any>
+        [key: string]: ModelEncoder
     };
 
     /**
@@ -34,10 +31,9 @@ export class Exporter {
     fileDataType: string;
 
     /**
-     * @private
      * @param params
      */
-    constructor(params: ExporterParams) {
+    constructor(params: ModelExporterParams) {
         this.encoders = params.encoders || {};
         this.versions = Object.keys(this.encoders);
         this.fileDataType = params.fileDataType;
@@ -45,7 +41,7 @@ export class Exporter {
     }
 
     /**
-     * Loads file data into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+     * Exports a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel} to file data.
      *
      * This method expects the following conditions:
      * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
@@ -59,11 +55,11 @@ export class Exporter {
      *
      * @throws {@link core!SDKError | SDKError}
      * - If the SceneModel has already been destroyed.
-     * - If the SceneModel has already been built.
+     * - If the SceneModel has not been built.
      * - If the DataModel has already been destroyed.
-     * - If the DataModel has already been built.
+     * - If the DataModel has not been built.
      */
-    write(params: ExportParams, options: any = {}): Promise<any> {
+    write(params: ModelExportParams, options: any = {}): Promise<any> {
 
         return new Promise<any>((resolve, reject) => {
             if (!params) {
@@ -76,8 +72,8 @@ export class Exporter {
             if (sceneModel.destroyed) {
                 return reject("SceneModel already destroyed");
             }
-            if (sceneModel.built) {
-                return reject("SceneModel already built");
+            if (!sceneModel.built) {
+                return reject("SceneModel not built");
             }
             if (dataModel) {
                 if (!(dataModel instanceof DataModel)) {
@@ -86,8 +82,8 @@ export class Exporter {
                 if (dataModel.destroyed) {
                     return reject("DataModel already destroyed");
                 }
-                if (dataModel.built) {
-                    return reject("DataModel already built");
+                if (!dataModel.built) {
+                    return reject("DataModel not built");
                 }
             }
             const version = params.version || this.defaultVersion;

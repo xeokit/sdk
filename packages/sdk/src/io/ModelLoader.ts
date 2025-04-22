@@ -1,14 +1,14 @@
-import {DataModel} from "../data";
-import {SceneModel} from "../scene";
+import {DataModel} from "../data/DataModel";
+import {SceneModel} from "../scene/SceneModel";
 import {isJSONObject} from "../utils";
-import {LoadParams} from "./LoadParams";
-import {ParseParams} from "./ParseParams";
-import {LoaderParams} from "./LoaderParams";
+import {ModelLoadParams} from "./ModelLoadParams";
+import {ModelLoaderParams} from "./ModelLoaderParams";
+import {ModelParser} from "./ModelParser";
 
 /**
  * Loads a model file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
  */
-export class Loader {
+export class ModelLoader {
 
     /**
      * Filename extensions expected on loaded model files.
@@ -16,10 +16,10 @@ export class Loader {
     fileNameExtensions: string[];
 
     /**
-     * A parser strategy for each supported schema version.
+     * A parser for each supported schema version.
      */
     parsers: {
-        [key: string]: (params: ParseParams, options?: any) => Promise<void>
+        [key: string]: ModelParser
     };
 
     /**
@@ -41,7 +41,7 @@ export class Loader {
      * @protected
      * @param params
      */
-     constructor(params: LoaderParams) {
+     constructor(params: ModelLoaderParams) {
         this.parsers = params.parsers || {};
         this.versions = Object.keys(this.parsers);
         this.fileDataType = params.fileDataType;
@@ -56,9 +56,6 @@ export class Loader {
      * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
      *
      * @param params - The parameters used for loading the file data.
-     * @param params.fileData - The file data to load.
-     * @param params.sceneModel - The {@link scene!SceneModel | SceneModel} into which the file data will be loaded.
-     * @param params.dataModel - The {@link data!DataModel | DataModel} into which the file data will be loaded.
      * @param options - Options for customizing the loading process. These are specific to the Loader subclass.
      * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
      *
@@ -68,7 +65,7 @@ export class Loader {
      * - If the DataModel has already been destroyed.
      * - If the DataModel has already been built.
      */
-    load(params: LoadParams, options: any = {}): Promise<any> {
+    load(params: ModelLoadParams, options: any = {}): Promise<any> {
         return new Promise<void>((resolve, reject) => {
             if (!params) {
                 return reject("Argument expected: params");

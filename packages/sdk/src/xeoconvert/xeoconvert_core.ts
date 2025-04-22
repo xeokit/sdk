@@ -2,7 +2,7 @@ import '@loaders.gl/polyfills';/**/
 import {ModelConverter} from "../modelconverter";
 import {GLTFLoader} from "../gltf";
 import {DotBIMLoader, DotBIMExporter} from "../dotbim";
-import {DataModelParamsLoader, DataModeParamsExporter} from "../data";
+import {DataModelParamsLoader, DataModelParamsExporter} from "../data";
 import {SceneModelParamsLoader, SceneModelParamsExporter} from "../scene";
 import {CityJSONLoader} from "../cityjson";
 import {XKTLoader} from "../xkt";
@@ -36,7 +36,7 @@ export function getModelConverter(options: any): Promise<ModelConverter> {
                 "ifc": new IFCExporter(),
                 "xgf": new XGFExporter(),
                 "dotbim": new DotBIMExporter(),
-                "datamodel": new DataModeParamsExporter(),
+                "datamodel": new DataModelParamsExporter(),
                 "scenemodel": new SceneModelParamsExporter()
             },
 

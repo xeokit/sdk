@@ -20,12 +20,14 @@ import {createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translation
 import type {FloatArrayParam} from "../math";
 import {SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams} from "../scene";
 import {DataModel} from "../data";
-import {Loader, LoadParams} from "../io";
+import {ModelLoader, ModelLoadParams} from "../io";
 
 /**
  * Loads a glTF file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+ *
+ * For detailed usage, refer to {@link gltf | @xeokit/sdk/gltf}.
  */
-export class GLTFLoader extends Loader {
+export class GLTFLoader extends ModelLoader {
     constructor() {
         super({
             fileDataType: "arraybuffer",
@@ -55,7 +57,7 @@ interface ParsingContext {
     objectIdStack: string[];
 }
 
- function parseGLTF(params: LoadParams): Promise<any> {
+ function parseGLTF(params: ModelLoadParams): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
         const {fileData, sceneModel, dataModel} = params;
         if (!sceneModel && !dataModel) {

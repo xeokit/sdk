@@ -2,7 +2,7 @@ import {SceneModel} from "../scene";
 import {DataModel} from "../data";
 import {ModelChunksManifestParams} from "../core";
 import {DataModelParamsLoader} from "../data/DataModelParamsLoader";
-import {Loader} from "../io";
+import {ModelLoader} from "../io";
 
 /**
  * Loads a SceneModel and/or DataModel from a set of chunk files.
@@ -13,13 +13,13 @@ import {Loader} from "../io";
  */
 export class ModelChunksLoader {
 
-    #sceneModelLoader: Loader;
-    #dataModelLoader: Loader;
+    #sceneModelLoader: ModelLoader;
+    #dataModelLoader: ModelLoader;
     #cancelled: boolean;
 
     constructor(params: {
-        sceneModelLoader: Loader,
-        dataModelLoader: Loader
+        sceneModelLoader: ModelLoader,
+        dataModelLoader: ModelLoader
     }) {
         const {sceneModelLoader, dataModelLoader} = params;
         this.#sceneModelLoader = sceneModelLoader;

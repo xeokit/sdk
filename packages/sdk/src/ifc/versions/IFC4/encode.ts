@@ -2,13 +2,11 @@ import {SceneMesh, SceneObject, SceneModel} from "../../../scene";
 import {createUUID} from "../../../utils";
 import {DataModel, DataObject, PropertySet, Relationship} from "../../../data";
 import {ifcTypeNames} from "../../../ifctypes";
+import {ModelEncodeParams} from "../../../io";
 
 /** @private
  */
-export function encode(params: {
-    sceneModel?: SceneModel,
-    dataModel?:DataModel
-}): Promise<any> {
+export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
     return new Promise<any>(function (resolve, reject) {
         resolve(generateIFC(params.sceneModel, params.dataModel));
     });

@@ -1,65 +1,110 @@
+
 /**
- * <img  style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px; width: 180px;" src="https://xeokit.github.io/sdk/docs/assets/ifc_logo.png"/>
  *
- * # IFC - Industry Foundation Classes
- *
- * ---
- *
- * ### *Import and export SceneModels and DataModels as IFC*
+ * # xeokit IFC Importer and Exporter
  *
  * ---
  *
- * This package allows us to import and export xeokit {@link scene!SceneModel | SceneModels} as
+ * **Import and export IFC STEP files**
+ *
+ * ---
+ *
+ * The xeokit SDK enables seamless import and export of 3D models
+ * as
  * IFC (Industry Foundation Classes), an open, global standard file format used for exchanging
  * Building Information Modeling (BIM) data between different software applications in the
  * Architecture, Engineering, and Construction (AEC) industry.
  *
- * To import an IFC model into xeokit, use {@link ifc!IFCLoader | IFCLoader}, which will load the file into
- * a {@link scene!SceneModel | SceneModel} and a {@link data!DataModel | DataModel}. To export an IFC model,
- * use the {@link ifc!IFCExporter | IFCExporter}, which will export a {@link scene!SceneModel | SceneModel} and
- * a {@link data!DataModel | DataModel} to IFC.
+ * ### Importing IFC Models
  *
- * <br>
+ * Use the {@link IFCLoader} class to load IFC files into:
+ * - a {@link scene!SceneModel | SceneModel} for geometry and materials
+ * - a {@link data!DataModel | DataModel} for semantic data
  *
- * [![](https://mermaid.ink/img/pako:eNqNkk1Lw0AQhv9KmJNCWvLRZNOl9FT00qIYBJG9bLMTjSTZkt2ItfS_u_mqCaKYy-ad2XnmHXZOkEiBQCHJuVKbjL9UvGAlK0VWYaIzWVrbh0a3eStOsMSdqcitEyst82WiO-X-zdxXnUgq5Brv2tDVdRfb11kuBiFQ6UoeG3lu6AN_K7l4ur2558aFGlqsVodGo8Zqve5CaZbjhmveKXVx1eM6WN7BvjFpXbYjNZTRvZi_43-ajttMAKoD_NFoMhcDh8FstmbgMohH0N7wkJoUUetRobIuplSDnTj_Fdvbu6TGRT-wYEOBVcEzYZaiHYiBfsUCGVDzKzDlda4ZmMHMVV5rGR_LBKiuarShPgjz8P0aAU15rkwURaZltesXrTlsOPAS6Ak-gHqOPw-jMCBuuAyI5wQ2HIEunGgekQXxfOJFhPjB2YZPKQ3UmQeOT4i7DB0T9j23hT23ucbF-Qsqh-4S?type=png)](https://mermaid.live/edit#pako:eNqNkk1Lw0AQhv9KmJNCWvLRZNOl9FT00qIYBJG9bLMTjSTZkt2ItfS_u_mqCaKYy-ad2XnmHXZOkEiBQCHJuVKbjL9UvGAlK0VWYaIzWVrbh0a3eStOsMSdqcitEyst82WiO-X-zdxXnUgq5Brv2tDVdRfb11kuBiFQ6UoeG3lu6AN_K7l4ur2558aFGlqsVodGo8Zqve5CaZbjhmveKXVx1eM6WN7BvjFpXbYjNZTRvZi_43-ajttMAKoD_NFoMhcDh8FstmbgMohH0N7wkJoUUetRobIuplSDnTj_Fdvbu6TGRT-wYEOBVcEzYZaiHYiBfsUCGVDzKzDlda4ZmMHMVV5rGR_LBKiuarShPgjz8P0aAU15rkwURaZltesXrTlsOPAS6Ak-gHqOPw-jMCBuuAyI5wQ2HIEunGgekQXxfOJFhPjB2YZPKQ3UmQeOT4i7DB0T9j23hT23ucbF-Qsqh-4S)
+ * ### Exporting IFC Models
  *
- * <br>
+ * Use the {@link IFCExporter} class to export:
+ * - a {@link scene!SceneModel | SceneModel}
+ * - a {@link data!DataModel | DataModel}
  *
- * # Installation
+ * into IFC file data.
  *
- * ````bash
+ * ---
+ *
+ * ### Architecture Overview
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction LR
+ *     class SceneModel {
+ *         id
+ *         objects
+ *         createObject()
+ *         build()
+ *         destroy()
+ *     }
+ *     class DataModel {
+ *         id
+ *         objects
+ *         relationships
+ *         propertySets
+ *         createObject()
+ *         createRelationship()
+ *         createPropertySet()
+ *         build()
+ *         destroy()
+ *     }
+ *     class ModelLoadParams {
+ *         <<parameter>>
+ *         fileData
+ *         sceneModel
+ *         dataModel
+ *     }
+ *     class ModelExportParams {
+ *         <<parameter>>
+ *         sceneModel
+ *         dataModel
+ *         version
+ *     }
+ *     class IFCLoader {
+ *         load()
+ *     }
+ *     class IFCExporter {
+ *         export(): Promise<any>
+ *     }
+ *     ModelLoadParams "0" --> "1" SceneModel
+ *     ModelLoadParams "0" --> "1" DataModel
+ *     IFCLoader --> ModelLoadParams
+ *     IFCExporter --> ModelExportParams
+ *     ModelExportParams "0" --> "1" SceneModel
+ *     ModelExportParams "0" --> "1" DataModel
+ * ```
+ *
+ * ---
+ *
+ * ## Installation
+ *
+ * ```bash
  * npm install @xeokit/sdk
- * ````
+ * ```
  *
- * # Usage
+ * ---
  *
- * In the example below, we will create a {@link viewer!Viewer | Viewer} with
- * a {@link webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link scene!Scene | Scene}, which holds model geometry and materials.
+ * ## Usage Example
  *
- * We'll also create a {@link data!Data | Data}, which holds model semantic data.
+ * Below is an example of loading and displaying a IFC model in a {@link viewer!Viewer | Viewer}:
  *
- * On our Viewer, we will create a single {@link viewer!View | View} to render it to a canvas element on the page. We will
- * also attach a {@link cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse
- * and touch input.
- *
- * Within the Scene, we will create a {@link scene!SceneModel | SceneModel} to hold model geometry and a {@link scene!SceneModel | SceneModel}
- * to hold semantic data. We will then use
- * {@link ifc!IFCLoader | IFCLoader} to load an `IFC` file into the SceneModel and DataModel.
- *
- * ````javascript
- * import {Scene} from "@xeokit/sdk/scene";
- * import {Data} from "@xeokit/sdk/data";
- * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
- * import {Viewer} from "@xeokit/sdk/viewer";
- * import {CameraControl} from "@xeokit/sdk/cameracontrol";
- * import {IFCLoader, IFCExporter} from "@xeokit/sdk/ifc";
- *
- * const ifcLoader = new IFCLoader();
+ * ```ts
+ * import { Scene } from "@xeokit/sdk/scene";
+ * import { Data } from "@xeokit/sdk/data";
+ * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
+ * import { Viewer } from "@xeokit/sdk/viewer";
+ * import { CameraControl } from "@xeokit/sdk/cameracontrol";
+ * import { IFCLoader, IFCExporter } from "@xeokit/sdk/ifc";
  *
  * const scene = new Scene();
- *
  * const data = new Data();
- *
  * const renderer = new WebGLRenderer({});
  *
  * const viewer = new Viewer({
@@ -67,10 +112,10 @@
  *     scene,
  *     renderer
  * });
-
+ *
  * const view = viewer.createView({
  *     id: "myView",
- *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
+ *     elementId: "myCanvas"
  * });
  *
  * view.camera.eye = [1841982.93, 10.03, -5173286.74];
@@ -79,58 +124,45 @@
  *
  * new CameraControl(view, {});
  *
- * const sceneModel = scene.createModel({
- *     id: "myModel"
- * });
+ * const sceneModel = scene.createModel({ id: "myModel" });
+ * const dataModel = data.createModel({ id: "myModel" });
  *
- * const dataModel = data.createModel({
- *     id: "myModel"
- * });
+ * const ifcLoader = new IFCLoader();
  *
- * fetch("model.ifc").then(response => {
- *
- *     response.arrayBuffer().then(fileData => {
- *
- *         ifcLoader.load({
- *              fileData,
- *              sceneModel,
- *              dataModel
- *
- *         }).then(() => {
- *              sceneModel.build();
- *              dataModel.build();
- *
- *         }).catch(err => {
- *              sceneModel.destroy();
- *              dataModel.destroy();
- *              console.error(`Error loading IFC: ${err}`);
- *         });
- *
- *     }).catch(err => {
- *         console.error(`Error creating ArrayBuffer from fetch response: ${err}`);
+ * fetch("model.bim")
+ *     .then(response => response.json())
+ *     .then(fileData => {
+ *         ifcLoader.load({ fileData, sceneModel, dataModel })
+ *             .then(() => {
+ *                 sceneModel.build();
+ *                 dataModel.build();
+ *             })
+ *             .catch(err => {
+ *                 sceneModel.destroy();
+ *                 dataModel.destroy();
+ *                 console.error(`Error loading IFC: ${err}`);
+ *             });
+ *     })
+ *     .catch(err => {
+ *         console.error(`Error fetching IFC file: ${err}`);
  *     });
+ * ```
  *
+ * ### Exporting to IFC
+ *
+ * ```ts
+ * const exporter = new IFCExporter();
+ *
+ * exporter.export({
+ *     sceneModel,
+ *     dataModel,
+ *     version: "IFC4", // Optional, defaults to latest
+ * }).then(fileData => {
+ *     // Use fileData as needed
  * }).catch(err => {
- *     console.error(`Error fetching IFC file: ${err}`);
+ *     console.error(err);
  * });
- * ````
- *
- * Using {@link ifc!IFCExporter | IFCExporter} to export the {@link scene!SceneModel | SceneModel} and
- * {@link scene!DataModel | DataModel} back to `IFC`:
- *
- * ````javascript
- *
- * const ifcExporter = new IFCExporter();
- *
- * ifcExporter.export({
- *      sceneModel,
- *      dataModel
- * }).then((arrayBuffer)=>{
- *      //
- * }).catch(err => {
- *      console.error(`Error writing IFC: ${err}`);
- * });
- * ````
+ * ```
  *
  * @module ifc
  */

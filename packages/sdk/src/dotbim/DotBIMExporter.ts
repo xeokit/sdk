@@ -1,10 +1,12 @@
 import {encode as encode_1_1_0} from "./versions/1_1_0/encode"
-import {Exporter} from "../io";
+import {ModelExporter} from "../io";
 
 /**
  * Exports a {@link scene!SceneModel | SceneModel} and a {@link data!DataModel | DataModel} to .BIM format.
+ *
+ * For detailed usage, refer to {@link dotbim | @xeokit/sdk/dotbim}.
  */
-export class DotBIMExporter extends Exporter {
+export class DotBIMExporter extends ModelExporter {
     constructor() {
         super({
             fileDataType: "json",

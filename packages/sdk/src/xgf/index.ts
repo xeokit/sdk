@@ -1,57 +1,106 @@
 /**
- * <img  style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px; width: 180px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
  *
- * # XGF - xeokit Graphics Format
- *
- * ---
- *
- * ### *Import and export SceneModels as xeokit's native binary [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) format*
+ * # xeokit XGF Importer and Exporter
  *
  * ---
  *
- * This package allows us to import and export xeokit {@link scene!SceneModel | SceneModels} as xeokit Geometry Format
- * ([XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf)), xeokit's
- * compact binary-encoded runtime asset delivery format for {@link scene!SceneModel | SceneModel} data.
+ * **Import and export SceneModels as xeokit's native binary XGF format**
  *
- * To import a [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) model into xeokit, use {@link xgf!XGFLoader | XGFLoader}, which will load the file into
- * a {@link scene!SceneModel | SceneModel}. To export a [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) model, use the {@link xgf!XGFExporter | XGFExporter}, which will export a
- * {@link scene!SceneModel | SceneModel} to [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf).
+ * ---
  *
- * <br>
+ * The xeokit SDK enables seamless import and export of 3D models using the XGF format — xeokit's native binary format designed
+ * for fast loading.
  *
- * [![](https://mermaid.ink/img/pako:eNqNkk1Lw0AQhv9KmJNCWvLRZNOl9FT00qIYBJG9bLMTjSTZkt2ItfS_u_mqCaKYy-ad2XnmHXZOkEiBQCHJuVKbjL9UvGAlK0VWYaIzWVrbh0a3eStOsMSdqcitEyst82WiO-X-zdxXnUgq5Brv2tDVdRfb11kuBiFQ6UoeG3lu6AN_K7l4ur2558aFGlqsVodGo8Zqve5CaZbjhmveKXVx1eM6WN7BvjFpXbYjNZTRvZi_43-ajttMAKoD_NFoMhcDh8FstmbgMohH0N7wkJoUUetRobIuplSDnTj_Fdvbu6TGRT-wYEOBVcEzYZaiHYiBfsUCGVDzKzDlda4ZmMHMVV5rGR_LBKiuarShPgjz8P0aAU15rkwURaZltesXrTlsOPAS6Ak-gHqOPw-jMCBuuAyI5wQ2HIEunGgekQXxfOJFhPjB2YZPKQ3UmQeOT4i7DB0T9j23hT23ucbF-Qsqh-4S?type=png)](https://mermaid.live/edit#pako:eNqNkk1Lw0AQhv9KmJNCWvLRZNOl9FT00qIYBJG9bLMTjSTZkt2ItfS_u_mqCaKYy-ad2XnmHXZOkEiBQCHJuVKbjL9UvGAlK0VWYaIzWVrbh0a3eStOsMSdqcitEyst82WiO-X-zdxXnUgq5Brv2tDVdRfb11kuBiFQ6UoeG3lu6AN_K7l4ur2558aFGlqsVodGo8Zqve5CaZbjhmveKXVx1eM6WN7BvjFpXbYjNZTRvZi_43-ajttMAKoD_NFoMhcDh8FstmbgMohH0N7wkJoUUetRobIuplSDnTj_Fdvbu6TGRT-wYEOBVcEzYZaiHYiBfsUCGVDzKzDlda4ZmMHMVV5rGR_LBKiuarShPgjz8P0aAU15rkwURaZltesXrTlsOPAS6Ak-gHqOPw-jMCBuuAyI5wQ2HIEunGgekQXxfOJFhPjB2YZPKQ3UmQeOT4i7DB0T9j23hT23ucbF-Qsqh-4S)
+ * ### Importing XGF Models
  *
- * <br>
+ * Use the {@link XGFLoader} class to load XGF files into:
+ * - a {@link scene!SceneModel | SceneModel} for geometry and materials
+ * - a {@link data!DataModel | DataModel} for semantic data
  *
- * # Installation
+ * ### Exporting XGF Models
  *
- * ````bash
+ * Use the {@link XGFExporter} class to export:
+ * - a {@link scene!SceneModel | SceneModel}
+ * - a {@link data!DataModel | DataModel}
+ *
+ * into XGF file data.
+ *
+ * ---
+ *
+ * ### Architecture Overview
+ *
+ * ```mermaid
+ * classDiagram
+ *     direction LR
+ *     class SceneModel {
+ *         id
+ *         objects
+ *         createObject()
+ *         build()
+ *         destroy()
+ *     }
+ *     class DataModel {
+ *         id
+ *         objects
+ *         relationships
+ *         propertySets
+ *         createObject()
+ *         createRelationship()
+ *         createPropertySet()
+ *         build()
+ *         destroy()
+ *     }
+ *     class ModelLoadParams {
+ *         <<parameter>>
+ *         fileData
+ *         sceneModel
+ *         dataModel
+ *     }
+ *     class ModelExportParams {
+ *         <<parameter>>
+ *         sceneModel
+ *         dataModel
+ *         version
+ *     }
+ *     class XGFLoader {
+ *         load()
+ *     }
+ *     class XGFExporter {
+ *         export(): Promise<any>
+ *     }
+ *     ModelLoadParams "0" --> "1" SceneModel
+ *     ModelLoadParams "0" --> "1" DataModel
+ *     XGFLoader --> ModelLoadParams
+ *     XGFExporter --> ModelExportParams
+ *     ModelExportParams "0" --> "1" SceneModel
+ *     ModelExportParams "0" --> "1" DataModel
+ * ```
+ *
+ * ---
+ *
+ * ## Installation
+ *
+ * ```bash
  * npm install @xeokit/sdk
- * ````
+ * ```
  *
- * # Usage
+ * ---
  *
- * In the example below, we will create a {@link viewer!Viewer | Viewer} with
- * a {@link webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link scene!Scene | Scene}, which holds model geometry and materials.
+ * ## Usage Example
  *
- * On our Viewer, we will create a single {@link viewer!View | View} to render it to a canvas element on the page. We will
- * also attach a {@link cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
+ * Below is an example of loading and displaying a XGF model in a {@link viewer!Viewer | Viewer}:
  *
- * Within the Scene, we will create a {@link scene!SceneModel | SceneModel} to hold a model. We will then use
- * {@link xgf!XGFLoader | XGFLoader} to load
- * an [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) file into our SceneModel.
- *
- * ````javascript
- * import {Scene} from "@xeokit/sdk/scene";
- * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
- * import {Viewer} from "@xeokit/sdk/viewer";
- * import {CameraControl} from "@xeokit/sdk/cameracontrol";
- * import {XGFLoader, XGFExporter} from "@xeokit/sdk/xgf";
- *
- * const xgfLoader = new XGFLoader();
+ * ```ts
+ * import { Scene } from "@xeokit/sdk/scene";
+ * import { Data } from "@xeokit/sdk/data";
+ * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
+ * import { Viewer } from "@xeokit/sdk/viewer";
+ * import { CameraControl } from "@xeokit/sdk/cameracontrol";
+ * import { XGFLoader, XGFExporter } from "@xeokit/sdk/xgf";
  *
  * const scene = new Scene();
- *
+ * const data = new Data();
  * const renderer = new WebGLRenderer({});
  *
  * const viewer = new Viewer({
@@ -59,10 +108,10 @@
  *     scene,
  *     renderer
  * });
-
+ *
  * const view = viewer.createView({
  *     id: "myView",
- *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
+ *     elementId: "myCanvas"
  * });
  *
  * view.camera.eye = [1841982.93, 10.03, -5173286.74];
@@ -71,50 +120,45 @@
  *
  * new CameraControl(view, {});
  *
- * const sceneModel = scene.createModel({
- *     id: "myModel"
- * });
+ * const sceneModel = scene.createModel({ id: "myModel" });
+ * const dataModel = data.createModel({ id: "myModel" });
  *
- * fetch("model.xgf").then(response => {
+ * const xgfLoader = new XGFLoader();
  *
- *     response.arrayBuffer().then(fileData => {
- *
- *         xgfLoader.load({
- *              fileData,
- *              sceneModel
- *
- *         }).then(() => {
- *              sceneModel.build();
- *
- *         }).catch(err => {
- *              sceneModel.destroy();
- *              console.error(`Error loading XGF: ${err}`);
- *         });
- *
- *     }).catch(err => {
- *         console.error(`Error creating ArrayBuffer from fetch response: ${err}`);
+ * fetch("model.bim")
+ *     .then(response => response.json())
+ *     .then(fileData => {
+ *         xgfLoader.load({ fileData, sceneModel, dataModel })
+ *             .then(() => {
+ *                 sceneModel.build();
+ *                 dataModel.build();
+ *             })
+ *             .catch(err => {
+ *                 sceneModel.destroy();
+ *                 dataModel.destroy();
+ *                 console.error(`Error loading XGF: ${err}`);
+ *             });
+ *     })
+ *     .catch(err => {
+ *         console.error(`Error fetching XGF file: ${err}`);
  *     });
+ * ```
  *
- * }).catch(err => {
- *     console.error(`Error fetching XGF file: ${err}`);
- * });
- * ````
+ * ### Exporting to XGF
  *
- * Using {@link xgf!XGFExporter | XGFExporter} to export the {@link scene!SceneModel | SceneModel} back to
- * [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf):
- *
- * ````javascript
- *
+ * ```ts
  * const xgfExporter = new XGFExporter();
  *
- * xgfExporter.export({
- *      sceneModel
- * }).then((arrayBuffer)=>{
- *      //
+ * xgfExporter.write({
+ *     sceneModel,
+ *     dataModel,
+ *     version: "1.0.0", // Optional, defaults to latest
+ * }).then(fileData => {
+ *     // Use fileData as needed
  * }).catch(err => {
- *      console.error(`Error writing XGF: ${err}`);
+ *     console.error(err);
  * });
- * ````
+ * ```
  *
  * @module xgf
  */

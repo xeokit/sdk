@@ -1,12 +1,12 @@
 import {parse as parse_1_0} from "./versions/1_0/parse"
-import {Loader} from "../io";
+import {ModelLoader} from "../io/ModelLoader";
 import {SceneModelParams} from "./SceneModelParams";
 import {SceneModel} from "./SceneModel";
 
 /**
  * Reads {@link SceneModelParams | SceneModelParams} into a {@link SceneModel | SceneModel}.
  */
-export class SceneModelParamsLoader extends Loader {
+export class SceneModelParamsLoader extends ModelLoader {
 
     /**
      * Constructs a SceneModelParamsLoader.

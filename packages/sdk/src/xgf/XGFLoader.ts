@@ -1,10 +1,12 @@
-import {Loader} from "../io";
+import {ModelLoader} from "../io";
 import {parse as parse_v1} from "./versions/v1/parse"
 
 /**
  * Loads an XGF file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+ *
+ * For detailed usage, refer to {@link xgf | @xeokit/sdk/xgf}.
  */
-export class XGFLoader extends Loader {
+export class XGFLoader extends ModelLoader {
     constructor() {
         super({
             fileDataType: "arraybuffer",

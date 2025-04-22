@@ -1,12 +1,12 @@
 import {parse as parse_1_0} from "./versions/1_0/parse"
-import {Loader} from "../io";
+import {ModelLoader} from "../io";
 import {DataModelParams} from "./DataModelParams";
 import {DataModel} from "./DataModel";
 
 /**
  * Reads {@link DataModelParams | DataModelParams} into a {@link DataModel | DataModel}.
  */
-export class DataModelParamsLoader extends Loader {
+export class DataModelParamsLoader extends ModelLoader {
 
     /**
      * Constructs a DataModelParamsLoader.

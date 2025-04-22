@@ -505,5 +505,5 @@ export * from "./PropertySetParams";
 export * from "./SearchParams";
 export * from "./searchObjects";
 export * from "./DataModelParamsLoader";
-export * from "./DataModeParamsExporter";
+export * from "./DataModelParamsExporter";
 

@@ -48,8 +48,8 @@ export const parse: ModelParser = async (params, options = {
                 const mesh = params.sceneModel.createMesh({
                     id: meshId,
                     geometryId,
-                    color: color ? [color.r, color.g, color.b] : undefined,
-                    opacity: color ? color.a : 1.0,
+                    color: color ? [color.r / 255.0, color.g / 255.0, color.b / 255.0] : undefined,
+                    opacity: color ? color.a / 255.0 : 1.0,
                     quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : undefined,
                     position: vector
                         ? (options.translate

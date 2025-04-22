@@ -1025,15 +1025,15 @@
     "kind": "interface",
     "namespace": "data"
   },
-  "DataModelParamsLoader": {
-    "summary": "Reads DataModelParams into a DataModel.",
-    "path": "/api-docs#/docs/api/classes/data.DataModelParamsLoader.html",
+  "DataModelParamsExporter": {
+    "summary": "Writes a DataModel to DataModelParams as JSON.",
+    "path": "/api-docs#/docs/api/classes/data.DataModelParamsExporter.html",
     "kind": "class",
     "namespace": "data"
   },
-  "DataModeParamsExporter": {
-    "summary": "Writes a DataModel to DataModelParams as JSON.",
-    "path": "/api-docs#/docs/api/classes/data.DataModeParamsExporter.html",
+  "DataModelParamsLoader": {
+    "summary": "Reads DataModelParams into a DataModel.",
+    "path": "/api-docs#/docs/api/classes/data.DataModelParamsLoader.html",
     "kind": "class",
     "namespace": "data"
   },
@@ -7362,9 +7362,15 @@
     "namespace": "modelconverter"
   },
   "ModelEncodeParams": {
-    "summary": "",
+    "summary": "Parameters for ModelEncoder.",
     "path": "/api-docs#/docs/api/interfaces/io.ModelEncodeParams.html",
     "kind": "interface",
+    "namespace": "io"
+  },
+  "ModelEncoder": {
+    "summary": "Encodes geometry and semantic data within a scene!.",
+    "path": "/api-docs#/docs/api/types/io.ModelEncoder.html",
+    "kind": "type",
     "namespace": "io"
   },
   "ModelExporter": {
@@ -7374,13 +7380,13 @@
     "namespace": "io"
   },
   "ModelExporterParams": {
-    "summary": "",
+    "summary": "Constructor paramsters for a ModelExporter.",
     "path": "/api-docs#/docs/api/interfaces/io.ModelExporterParams.html",
     "kind": "interface",
     "namespace": "io"
   },
   "ModelExportParams": {
-    "summary": "",
+    "summary": "Parameters for ModelExporter.",
     "path": "/api-docs#/docs/api/interfaces/io.ModelExportParams.html",
     "kind": "interface",
     "namespace": "io"
@@ -7392,21 +7398,27 @@
     "namespace": "io"
   },
   "ModelLoaderParams": {
-    "summary": "",
+    "summary": "Constructor paramsters for a ModelLoader.",
     "path": "/api-docs#/docs/api/interfaces/io.ModelLoaderParams.html",
     "kind": "interface",
     "namespace": "io"
   },
   "ModelLoadParams": {
-    "summary": "",
+    "summary": "Parameters for ModelLoader.",
     "path": "/api-docs#/docs/api/interfaces/io.ModelLoadParams.html",
     "kind": "interface",
     "namespace": "io"
   },
   "ModelParseParams": {
-    "summary": "",
+    "summary": "Parameters for ModelParser.",
     "path": "/api-docs#/docs/api/interfaces/io.ModelParseParams.html",
     "kind": "interface",
+    "namespace": "io"
+  },
+  "ModelParser": {
+    "summary": "Parses geometry and semantic data from a model file into a scene!.",
+    "path": "/api-docs#/docs/api/types/io.ModelParser.html",
+    "kind": "type",
     "namespace": "io"
   },
   "mulMat3": {

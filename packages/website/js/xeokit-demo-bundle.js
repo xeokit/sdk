@@ -39353,11 +39353,11 @@ function getDefaultImageType() {
 
 // ../../node_modules/.pnpm/@loaders.gl+images@4.3.3_@loaders.gl+core@4.3.3/node_modules/@loaders.gl/images/dist/lib/category-api/parsed-image-api.js
 function getImageType(image) {
-  const format = getImageTypeOrNull(image);
-  if (!format) {
+  const format2 = getImageTypeOrNull(image);
+  if (!format2) {
     throw new Error("Not an image");
   }
-  return format;
+  return format2;
 }
 function getImageData(image) {
   switch (getImageType(image)) {
@@ -41692,7 +41692,7 @@ function transcodeImage(basisFile, imageIndex, levelIndex, options) {
   const hasAlpha = basisFile.getHasAlpha(
     /* imageIndex, levelIndex */
   );
-  const { compressed, format, basisFormat } = getBasisOptions(options, hasAlpha);
+  const { compressed, format: format2, basisFormat } = getBasisOptions(options, hasAlpha);
   const decodedSize = basisFile.getImageTranscodedSizeInBytes(imageIndex, levelIndex, basisFormat);
   const decodedData = new Uint8Array(decodedSize);
   if (!basisFile.transcodeImage(decodedData, imageIndex, levelIndex, basisFormat, 0, 0)) {
@@ -41704,7 +41704,7 @@ function transcodeImage(basisFile, imageIndex, levelIndex, options) {
     height,
     data: decodedData,
     compressed,
-    format,
+    format: format2,
     // Additional fields
     // Add levelSize field.
     hasAlpha
@@ -41729,7 +41729,7 @@ function parseKTX2File(KTX2File, data, options) {
 }
 function transcodeKTX2Image(ktx2File, levelIndex, options) {
   const { alphaFlag, height, width } = ktx2File.getImageLevelInfo(levelIndex, 0, 0);
-  const { compressed, format, basisFormat } = getBasisOptions(options, alphaFlag);
+  const { compressed, format: format2, basisFormat } = getBasisOptions(options, alphaFlag);
   const decodedSize = ktx2File.getImageTranscodedSizeInBytes(levelIndex, 0, 0, basisFormat);
   const decodedData = new Uint8Array(decodedSize);
   if (!ktx2File.transcodeImage(
@@ -41754,19 +41754,19 @@ function transcodeKTX2Image(ktx2File, levelIndex, options) {
     // Additional fields
     levelSize: decodedSize,
     hasAlpha: alphaFlag,
-    format
+    format: format2
   };
 }
 function getBasisOptions(options, hasAlpha) {
-  let format = options && options.basis && options.basis.format;
-  if (format === "auto") {
-    format = selectSupportedBasisFormat();
+  let format2 = options && options.basis && options.basis.format;
+  if (format2 === "auto") {
+    format2 = selectSupportedBasisFormat();
   }
-  if (typeof format === "object") {
-    format = hasAlpha ? format.alpha : format.noAlpha;
+  if (typeof format2 === "object") {
+    format2 = hasAlpha ? format2.alpha : format2.noAlpha;
   }
-  format = format.toLowerCase();
-  return OutputFormat[format];
+  format2 = format2.toLowerCase();
+  return OutputFormat[format2];
 }
 function selectSupportedBasisFormat() {
   const supportedFormats = getSupportedGPUTextureFormats();
@@ -57892,14 +57892,14 @@ var KTX2TextureTranscoder = class {
         }, buffers);
       }).then((e) => {
         const transcodeResult = e.data;
-        const { mipmaps, width, height, format, type, error, dfdTransferFn, dfdFlags } = transcodeResult;
+        const { mipmaps, width, height, format: format2, type, error, dfdTransferFn, dfdFlags } = transcodeResult;
         if (type === "error") {
           return reject(error);
         }
         resolve2({
           mipmaps,
           props: {
-            format,
+            format: format2,
             minFilter: mipmaps.length === 1 ? LinearFilter : LinearMipmapLinearFilter,
             magFilter: mipmaps.length === 1 ? LinearFilter : LinearMipmapLinearFilter,
             encoding: dfdTransferFn === KTX2TransferSRGB ? sRGBEncoding : LinearEncoding,
@@ -57983,7 +57983,7 @@ var BasisWorker = function() {
               height,
               hasAlpha,
               mipmaps,
-              format,
+              format: format2,
               dfdTransferFn,
               dfdFlags
             } = transcode(message.buffers[0]);
@@ -57998,7 +57998,7 @@ var BasisWorker = function() {
               height,
               hasAlpha,
               mipmaps,
-              format,
+              format: format2,
               dfdTransferFn,
               dfdFlags
               // @ts-ignore
@@ -58885,19 +58885,6 @@ var WebGLRenderBuffer = class {
     const imageData = imageDataCache.imageData;
     const context = imageDataCache.context;
     const { width, height } = this.#buffer;
-    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
-    imageData.data.set(pixelData);
-    context.putImageData(imageData, 0, 0);
-    context.save();
-    context.globalCompositeOperation = "copy";
-    context.scale(1, -1);
-    context.drawImage(canvas2, 0, -height, width, height);
-    context.restore();
-    let format = params2.format || "png";
-    if (format !== "jpeg" && format !== "png" && format !== "bmp") {
-      console.error("Unsupported image format: '" + format + "' - supported types are 'jpeg', 'bmp' and 'png' - defaulting to 'png'");
-      format = "png";
-    }
     return canvas2.toDataURL(`image/${format}`);
   }
   _getImageDataCache(type = Uint8Array, multiplier = 4) {

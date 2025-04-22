@@ -288,22 +288,22 @@ class WebGLRenderBuffer {
         const imageData = imageDataCache.imageData;
         const context = imageDataCache.context;
         const {width, height} = this.#buffer;
-        gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
-        imageData.data.set(pixelData);
-        context.putImageData(imageData, 0, 0);
+        // gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
+        // imageData.data.set(pixelData);
+        // context.putImageData(imageData, 0, 0);
 
         // flip Y
-        context.save();
-        context.globalCompositeOperation = 'copy';
-        context.scale(1, -1);
-        context.drawImage(canvas, 0, -height, width, height);
-        context.restore();
-
-        let format = params.format || "png";
-        if (format !== "jpeg" && format !== "png" && format !== "bmp") {
-            console.error("Unsupported image format: '" + format + "' - supported types are 'jpeg', 'bmp' and 'png' - defaulting to 'png'");
-            format = "png";
-        }
+        // context.save();
+        // context.globalCompositeOperation = 'copy';
+        // context.scale(1, -1);
+        // context.drawImage(canvas, 0, -height, width, height);
+        // context.restore();
+        //
+        // let format = params.format || "png";
+        // if (format !== "jpeg" && format !== "png" && format !== "bmp") {
+        //     console.error("Unsupported image format: '" + format + "' - supported types are 'jpeg', 'bmp' and 'png' - defaulting to 'png'");
+        //     format = "png";
+//        }
         return canvas.toDataURL(`image/${format}`);
     }
 

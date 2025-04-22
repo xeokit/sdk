@@ -8,6 +8,9 @@
             <path value="file://$PROJECT_DIR$/assets" />
             <path value="file://$PROJECT_DIR$/packages" />
             <path value="file://$PROJECT_DIR$/docs" />
+            <path value="file://$PROJECT_DIR$/packages/sdk/assets" />
+            <path value="file://$PROJECT_DIR$/packages/website/docs" />
+            <path value="file://$PROJECT_DIR$/packages/website/libs" />
           </resourceRoots>
         </entryData>
       </entry>

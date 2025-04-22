@@ -1,6 +1,6 @@
 {
-    "title": "Viewing .BIM using dotbim2xgf and XGFLoader",
-    "description": "How to use dotbim2xgf to convert a .bim file to XGF, which we then display in the browser using a xeokit web viewer.",
+    "title": "Viewing .BIM using xeoconvert/dotbim2xgf and XGFLoader",
+    "description": "How to use the xeoconvert CLI with --pipeline dotbim2xgf to convert a .bim file to XGF, which we then display in the browser using a xeokit web viewer.",
     "tags": [
         "XGF",
         "IFC",

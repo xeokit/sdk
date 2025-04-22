@@ -1,10 +1,8 @@
 {
     "compilerOptions": {
-
         "composite": true,
         "rootDir": "./src",
         "outDir": "dist",
-
         "esModuleInterop": true,
         "moduleResolution": "node",
         "lib": [
@@ -14,7 +12,8 @@
         "types": [
             "node"
         ],
-        "skipLibCheck": true, // https://stackoverflow.com/questions/66956030/apache-arrow-does-not-compile-with-typescript
+        "skipLibCheck": true,
+        // https://stackoverflow.com/questions/66956030/apache-arrow-does-not-compile-with-typescript
         "target": "esnext",
         "module": "esnext",
         "stripInternal": false,
@@ -43,4 +42,7 @@
     "typeRoots": [
         "node_modules/@types"
     ],
+    "plugin": [
+        "typedoc-plugin-mermaid"
+    ]
 }

@@ -6,16 +6,17 @@
     "main": "dist/index.js",
     "module": "dist/index.js",
     "scripts": {
-        "test": "jest --passWithNoTests",
-        "dist": "rm -Rf tsconfig.tsbuildinfo;  tsc; node ./scripts/build-cli-tools.js",
-        "lint": "eslint . --fix",
-        "docs": "typedoc --json ../website/docs/json/sdk.json --options typedoc.json --validation.invalidLink false && cp -Rf ./assets ../website/docs/.",
-        "_publish": "npm publish --access public"
+        "sdk-test": "jest --passWithNoTests",
+        "sdk-dist": "rm -Rf tsconfig.tsbuildinfo;  tsc; node ./scripts/build-cli-tools.js",
+        "sdk-lint": "eslint . --fix",
+        "_sdk-publish": "npm publish --access public",
+
+        "website-sdk-docs": "typedoc --json ../website/docs/json/sdk.json --options typedoc.json --validation.invalidLink false && cp -Rf ./assets ../website/docs/."
     },
     "bin": {
+        "xeoconvert": "./dist/cityjson2xgf/cityjson2xgf.js",
         "cityjson2xgf": "./dist/cityjson2xgf/cityjson2xgf.js",
-        "gltf2xgf": "./dist/gltf2xgf/gltf2xgf.js",
-        "dotbim2xgf": "./dist/dotbim2xgf/dotbim2xgf.js"
+        "gltf2xgf": "./dist/gltf2xgf/gltf2xgf.js"
     },
     "repository": {
         "type": "git",
@@ -34,7 +35,6 @@
     ],
     "keywords": [],
     "dependencies": {
-        "@xeokit/config": "^0.1.0",
         "strongly-typed-events": "3.0.7",
         "@loaders.gl/core": "^4.0.4",
         "@loaders.gl/images": "^3.4.1",
@@ -45,10 +45,12 @@
         "@loaders.gl/textures": "^4.0.4",
         "web-ifc": "^0.0.50",
         "pako": "^2.0.4",
-        "commander": "^11.0.0"
+        "commander": "^11.0.0",
+        "yargs": "17.7.2"
     },
     "peerDependencies": {
-        "typedoc": "^0.27.6"
+        "typedoc": "^0.27.6",
+        "typedoc-plugin-mermaid": "1.12.0"
     },
     "devDependencies": {}
 }

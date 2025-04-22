@@ -9,14 +9,18 @@
     },
     "license": "SEE LICENSE IN LICENSE.md",
     "scripts": {
-        "dist": "turbo run dist --concurrency 100",
-        "test": "turbo run test --concurrency 100 --continue || node scripts/test-html-report/index.mjs",
-        "docs": "rimraf packages/website/docs && mkdir packages/website/docs && turbo run docs && typedoc --entryPointStrategy merge \"./packages/website/docs/json/*.json\" --tsconfig ./packages/config/tsconfig.typedoc.json",
+
+        "sdk-dist": "turbo run sdk-dist --concurrency 100",
+        "__sdk-test": "turbo run sdk-test --concurrency 100 --continue || node scripts/test-html-report/index.mjs",
+        "__sdk-publish": "turbo run sdk-publish",
+
+        "website-sdk-docs": "rimraf packages/website/docs && mkdir packages/website/docs && turbo run website-sdk-docs && typedoc --entryPointStrategy merge \"./packages/website/docs/json/*.json\" --tsconfig ./packages/config/tsconfig.typedoc.json",
+
         "website-build-xeokit-lib": "turbo run website-build-xeokit-lib",
         "website-convert-models": "turbo run website-convert-models",
         "website-example-snapshots": "turbo run website-example-snapshots",
         "website-build": "turbo run website-build",
-        "_publish-packages": "turbo run build lint test && changeset version && changeset publish"
+        "website-build-local": "turbo run website-build-local"
     },
     "devDependencies": {
         "@changesets/cli": "^2.27.1",

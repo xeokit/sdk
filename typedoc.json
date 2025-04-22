@@ -7,5 +7,6 @@
     "excludePrivate": true,
     "excludeNotDocumented": true,
     "includeVersion": true,
-    "titleLink": "https://xeokit.io"
+    "titleLink": "https://xeokit.io",
+    "plugin": ["typedoc-plugin-mermaid"]
 }

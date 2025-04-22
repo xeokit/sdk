@@ -1,24 +1,20 @@
 {
     "tasks": {
-        "test": {
+        "sdk-test": {
             "cache": false,
             "persistent": true
         },
-        "docs": {
-            "cache": false,
-            "persistent": true
-        },
-        "lint": {
-            "cache": false,
-            "persistent": true
-        },
-        "dist": {
+        "sdk-dist": {
             "cache": false
+        },
+        "website-sdk-docs": {
+            "cache": false,
+            "persistent": true
         },
         "website-build-xeokit-lib": {
             "cache": false,
             "dependsOn": [
-                "^dist"
+                "^sdk-dist"
             ]
         },
         "website-convert-models": {
@@ -37,7 +33,14 @@
             "cache": false,
             "dependsOn": [
                 "^website-example-snapshots",
-                "^docs"
+                "^website-sdk-docs"
+            ]
+        },
+        "website-build-local": {
+            "cache": false,
+            "dependsOn": [
+                "^website-example-snapshots",
+                "^website-sdk-docs"
             ]
         }
     }

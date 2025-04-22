@@ -54,23 +54,24 @@ Install the project using:
 pnpm i
 ```
 
-## Building:
+## Build SDK :
 
-To build all packages and their dependencies use:
-
-```bash
-pnpm dist
-```
-
-This will automatically start all project building processes, a ```dist``` directory will be created in each package, this is a representation of the package's built source and its dependencies.
-
-## Testing:
-
-To run all tests:
+To build the xeokit SDK:
 
 ```bash
-pnpm test
+pnpm sdk-dist
 ```
+
+This will create directory ```./packages/sdk/dist```, which will contain the built JavaScript source and dependencies.
+
+## Build TypeDocs:
+
+```bash
+pnpm website-sdk-docs
+```
+
+This will create directory ```./packages/website/docs```, which will contain the generated TypeDocs. They are generated in the `website` package 
+because we've configured that package to be the root directory for our GitHub Pages setup.
 
 # License
 

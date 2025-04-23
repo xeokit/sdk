@@ -390,7 +390,7 @@ export class Viewer extends Component {
         for (let viewIndex = 0; viewIndex < this.viewList.length; viewIndex++) {
             // console.log("this.renderer.render()");
             // console.log("...");
-            this.renderer.render(viewIndex, {force: false});
+            this.renderer.render(viewIndex, {force: false, opaqueOnly: false});
         }
     }
 

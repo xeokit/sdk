@@ -1,6 +1,6 @@
 
 ---
-##### How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer. 
+##### How to convert a BIM model from IFC format into XGF and directly load that into a xeokit web viewer. 
 ##### Click on the preview below to run the example. Scroll down to learn how it's made.
 ---
 

@@ -6,7 +6,7 @@ import {DemoHelper} from "../../js/DemoHelper.js";
 
 // Create an XKTLoader to load .xkt files
 
-const xktReader = new xeokit.xkt.XKTLoader();
+const xktLoader = new xeokit.xkt.XKTLoader();
 
 // Create a Scene to hold geometry and materials
 
@@ -81,7 +81,7 @@ demoHelper.init()
                     .arrayBuffer()
                     .then(fileData => {
 
-                        xktReader.load({
+                        xktLoader.load({
                             fileData,
                             sceneModel
                         }).then(() => {

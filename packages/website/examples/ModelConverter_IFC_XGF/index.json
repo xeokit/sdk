@@ -1,17 +1,17 @@
 {
   "id": "ModelConverter_IFC_XGF",
-  "title": "Viewing .BIM using ModelConverter and XKTLoader",
-  "description": "How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer.",
+  "title": "Viewing IFC using ModelConverter and XGFLoader",
+  "description": "How to convert a BIM model from IFC format into XGF and directly load that into a xeokit web viewer.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [
     "Importing",
-    "DotBIM"
+    "IFC"
   ],
   "categories": [
     "Importing",
-    "DotBIM"
+    "IFC"
   ],
-  "topic": "import.dotbim",
+  "topic": "import.ifc",
   "template": "basicPage"
 }

@@ -62,18 +62,11 @@ const view = viewer.createView({
     elementId: "demoCanvas"
 });
 
-// Configure the coordinate system for the View's Camera
-// Setting +Z as "up", +X as "right", and -Y as "forward"
-view.camera.worldAxis = [
-    1, 0, 0, // +X
-    0, 0, 1, // +Z (up)
-    0, -1, 0 // -Y (forward)
-];
+// Arrange the View's Camera
 
-// Position the Camera in the scene with eye, look, and up vectors
-view.camera.eye = [11.276311451067942, 16.914467176601914, 7.399026975905038];
-view.camera.look = [0, 0, 0];
-view.camera.up = [-0.18971864040782152, -0.28457796061173224, 0.9396926209223285];
+view.camera.eye = [-6.01, 4.85, 9.11];
+view.camera.look = [3.93, -2.65, -12.51];
+view.camera.up = [0.12, 0.95, -0.27];
 
 // Add interactive controls for navigating the View using mouse, keyboard, and touch
 new xeokit.cameracontrol.CameraControl(view, {});
@@ -82,6 +75,14 @@ new xeokit.cameracontrol.CameraControl(view, {});
 const sceneModel = scene.createModel({
     id: "demoModel"
 });
+
+// Create a DataModelParamsLoader to load the converted semantic data
+
+const dataModelParamsLoader = new xeokit.data.DataModelParamsLoader();
+
+// Create an XGFLoader to load the XGF into our Viewer's Scene
+
+const xgfLoader = new xeokit.xgf.XGFLoader();
 
 // Ignore the DemoHelper—used only to signal example completion
 const demoHelper = new DemoHelper({});
@@ -99,9 +100,9 @@ demoHelper.init()
         } else {
 
             // Fetch the IFC file containing the source model
-            fetch("../../models/RAC/ifc/model.ifc").then(response => {
+            fetch("../../models/IfcOpenHouse4/ifc/model.ifc").then(response => {
                 response
-                    .text()
+                    .arrayBuffer()
                     .then(fileData => {
 
                         // Convert the IFC file into XGF (geometry) and DataModelParams (semantics) using the ModelConverter
@@ -113,13 +114,13 @@ demoHelper.init()
                         }).then(result => {
 
                             // Load the XGF geometry into the SceneModel
-                            xeokit.xgf.XGFLoader.load({
+                            xgfLoader.load({
                                 fileData: result.outputs.xgf.fileData,
                                 sceneModel
                             }).then(() => {
 
                                 // Load the DataModelParams into the DataModel
-                                xeokit.data.DataModelLoader.load({
+                                dataModelParamsLoader.load({
                                     fileData: result.outputs.datamodel.fileData,
                                     dataModel
                                 }).then(() => {

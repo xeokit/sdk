@@ -351,6 +351,9 @@ export class DataModel extends Component {
             // }
             this.data.onObjectCreated.dispatch(this.data, dataObject);
         } else {
+            if (dataObject.models.length > 0 && this.schema !== dataObject.models[0].schema) {
+                return new SDKError(`Failed to create DataObject of schema '${this.schema}' - ID clashes with existing DataObject of schema '${this.schema}'`);
+            }
             this.objects[id] = dataObject;
             this.data.objects[id] = dataObject;
             if (!this.objectsByType[type]) {

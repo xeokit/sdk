@@ -16,7 +16,7 @@
       "topic": "overview"
     },
     "dotbim2xgf": {
-      "title": "Viewing .BIM using xeoconvert/dotbim2xgf and XGFLoader",
+      "title": "Viewing .BIM using xeoconvert and XGFLoader",
       "description": "How to use the xeoconvert CLI with --pipeline dotbim2xgf to convert a .bim file to XGF, which we then display in the browser using a xeokit web viewer.",
       "tags": [
         "XGF",
@@ -86,8 +86,8 @@
       "topic": "import.las"
     },
     "example_ModelConverter_CityJSON_XGF": {
-      "title": "Viewing CityJSON using ModelConverter and XKTLoader",
-      "description": "How to convert a model from CityJSON format into XKT and directly load that into a xeokit web viewer.",
+      "title": "Viewing CityJSON using ModelConverter and XGFLoader",
+      "description": "How to convert a model from CityJSON format into XGF and directly load that into a xeokit web viewer.",
       "tags": [
         "Tutorial",
         "Example",
@@ -97,7 +97,7 @@
       "topic": "import.cityjson"
     },
     "example_ModelConverter_DotBIM_XGF": {
-      "title": "Viewing .BIM using ModelConverter and XKTLoader",
+      "title": "Viewing .BIM using ModelConverter and XGFLoader",
       "description": "How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer.",
       "tags": [
         "Tutorial",
@@ -108,15 +108,15 @@
       "topic": "import.dotbim"
     },
     "example_ModelConverter_IFC_XGF": {
-      "title": "Viewing .BIM using ModelConverter and XKTLoader",
-      "description": "How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer.",
+      "title": "Viewing IFC using ModelConverter and XGFLoader",
+      "description": "How to convert a BIM model from IFC format into XGF and directly load that into a xeokit web viewer.",
       "tags": [
         "Tutorial",
         "Example",
         "Importing",
-        "DotBIM"
+        "IFC"
       ],
-      "topic": "import.dotbim"
+      "topic": "import.ifc"
     },
     "example_SceneModel_DataModel_build_table": {
       "title": "Creating a 3D Model with Semantic Data",
@@ -311,8 +311,8 @@
       "topic": "import.xkt"
     },
     "gltf2xgf": {
-      "title": "Viewing glTF using gltf2xgf and XGFLoader",
-      "description": "How to use the gltf2xgf CLI tool to convert a glTF model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>XGF can load certain AEC models faster than glTF.",
+      "title": "Viewing glTF using xeoconvert and XGFLoader",
+      "description": "How to use the xeoconvert CLI tool to convert a glTF model to XGF format, and then display the XGF in a xeokit web viewer.<br><br>XGF can load certain AEC models faster than glTF.",
       "tags": [
         "XGF",
         "glTF",
@@ -348,7 +348,7 @@
       "topic": "import.ifc"
     },
     "ifc2xgf": {
-      "title": "Viewing .BIM using xeoconvert/ifc2xgf and XGFLoader",
+      "title": "Viewing .BIM using xeoconvert and XGFLoader",
       "description": "How to use the xeoconvert CLI with --pipeline dotbim2xgf to convert an IFC file to XGF, which we then display in the browser using a xeokit web viewer.",
       "tags": [],
       "_bannerImage": "banner.png",
@@ -461,6 +461,7 @@
       "dev-status",
       "dotbim2xgf",
       "example_IFCLoader_IfcOpenHouse4",
+      "example_ModelConverter_IFC_XGF",
       "ifc2gltf",
       "ifc2gltf2xgf",
       "overview-pipelines"
@@ -470,7 +471,6 @@
       "dotbim2xgf",
       "example_DotBIMLoader_BlenderHouse",
       "example_ModelConverter_DotBIM_XGF",
-      "example_ModelConverter_IFC_XGF",
       "overview-pipelines"
     ],
     "glTF": [

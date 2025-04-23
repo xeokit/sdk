@@ -1,5 +1,5 @@
 {
-  "title": "Viewing .BIM using ModelConverter and XKTLoader",
+  "title": "Viewing .BIM using ModelConverter and XGFLoader",
   "description": "How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer.",
   "tags": [
     "Tutorial",

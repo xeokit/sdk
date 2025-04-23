@@ -83,6 +83,14 @@ const sceneModel = scene.createModel({
     id: "demoModel"
 });
 
+// Create a DataModelParamsLoader to load the converted semantic data
+
+const dataModelParamsLoader = new xeokit.data.DataModelParamsLoader();
+
+// Create an XGFLoader to load the XGF into our Viewer's Scene
+
+const xgfLoader = new xeokit.xgf.XGFLoader();
+
 // Ignore the DemoHelper—used only to signal example completion
 const demoHelper = new DemoHelper({});
 
@@ -113,13 +121,13 @@ demoHelper.init()
                         }).then(result => {
 
                             // Load the XGF geometry into the SceneModel
-                            xeokit.xgf.XGFLoader.load({
+                            xgfLoader.load({
                                 fileData: result.outputs.xgf.fileData,
                                 sceneModel
                             }).then(() => {
 
                                 // Load the DataModelParams into the DataModel
-                                xeokit.data.DataModelLoader.load({
+                                dataModelParamsLoader.load({
                                     fileData: result.outputs.datamodel.fileData,
                                     dataModel
                                 }).then(() => {

@@ -95,6 +95,14 @@ const sceneModel = scene.createModel({
     id: "demoModel"
 });
 
+// Create a DataModelParamsLoader to load the converted semantic data
+
+const dataModelParamsLoader = new xeokit.data.DataModelParamsLoader();
+
+// Create an XGFLoader to load the XGF into our Viewer's Scene
+
+const xgfLoader = new xeokit.xgf.XGFLoader();
+
 // Ignore the DemoHelper
 
 const demoHelper = new DemoHelper({});
@@ -115,7 +123,7 @@ demoHelper.init()
 
             // Fetch the CityJSON file
 
-            fetch("../../models/LoD3_Railway/CityJSON/model.json").then(response => {
+            fetch("../../models/LoD3_Railway/cityjson/model.json").then(response => {
 
                 response
                     .json()
@@ -130,16 +138,16 @@ demoHelper.init()
                             }
                         }).then(result => {
 
-                            // Use an XGFLoader to load the XGF file into the SceneModel
+                            // Use the XGFLoader to load the XGF file into the SceneModel
 
-                            xeokit.xgf.XGFLoader.load({
+                            xgfLoader.load({
                                 fileData: result.outputs.xgf.fileData,
                                 sceneModel
                             }).then(() => {
 
-                                // Use a DataModelLoader to load the DataModelParams into the DataModel
+                                // Use the DataModelParamsLoader to load the DataModelParams into the DataModel
 
-                                xeokit.data.DataModelLoader.load({
+                                dataModelParamsLoader.load({
                                     fileData: result.outputs.datamodel.fileData,
                                     dataModel
                                 }).then(() => {

@@ -30,22 +30,22 @@ performance. The links on the right take you to the tutorials for the selected p
     <tr>
       <td>Preconvert</td>
       <td>
-        <a href="@@base/userguide/webifc2xgf/">Viewing IFC using webifc2xgf and XGFLoader</a>
+        <a href="@@base/userguide/ifc2xgf/">Viewing IFC using  xeoconvert and XGFLoader</a>
       </td>
     </tr>
     <tr>
       <td rowspan="1" style="background-color:lightyellow">10MB - 100MB</td>
       <td>Preconvert</td>
       <td>
-        <a href="@@base/userguide/ifc2gltf/">Viewing IFC using ifc2gltf and GLTFLoader</a><br>
-        <a href="">Viewing IFC using ifc2gltf and XGFLoader</a>
+        <a href="@@base/userguide/ifc2gltf/">Viewing IFC using  xeoconvert and GLTFLoader</a><br>
+        <a href="">Viewing IFC using ifc2gltf2xgf</a>
       </td>
     </tr>
     <tr>
       <td rowspan="1" style="background-color:#ffa50047">100MB - 2GB</td>
       <td>Preconvert</td>
       <td>
-        <a href="@@base/userguide/ifc2gltf2xgf/">Viewing IFC using ifc2gltf, ifc2gltf2xgf and XGFLoader</a>
+        <a href="@@base/userguide/ifc2gltf2xgf/">Viewing IFC using ifc2gltf2xgf</a>
       </td>
     </tr>
     <tr>
@@ -60,7 +60,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td rowspan="1" style="background-color:#ffa50047">Medium / Large</td>
       <td>Preconvert</td>
       <td>
-        <a href="@@base/userguide/gltf2xgf/">Viewing glTF using gltf2xgf and XGFLoader</a>
+        <a href="@@base/userguide/gltf2xgf/">Viewing glTF using xeoconvert and XGFLoader</a>
       </td>
     </tr>
     <tr>
@@ -74,7 +74,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td style="background-color:#ffa50047">Medium / Large</td>
       <td>Preconvert</td>
       <td>
-        <a href="@@base/userguide/dotbim2xgf/">Viewing .BIM using dotbim2xgf and XGFLoader</a>
+        <a href="@@base/userguide/dotbim2xgf/">Viewing .BIM using xeoconvert and XGFLoader</a>
       </td>
     </tr>
     <tr>
@@ -97,7 +97,7 @@ performance. The links on the right take you to the tutorials for the selected p
       <td><b style="font-size: 20px;">XKT</b></td>
       <td style="background-color:#90ee9073">All Sizes</td>
       <td>Load Directly</td>
-      <td><a href="@@base/userguide/example_loadXKT_MAP/">Viewing XKT using loadXKT</a></td>
+      <td><a href="@@base/userguide/example_XKTLoader_MAP/">Viewing XKT using XKTLoader</a></td>
     </tr>
     <tr>
       <td><b style="font-size: 20px;">XGF</b></td>
@@ -107,3 +107,4 @@ performance. The links on the right take you to the tutorials for the selected p
     </tr>
   </tbody>
 </table>
+

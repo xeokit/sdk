@@ -240,7 +240,7 @@ export interface Renderer {
      * @returns {@link core!SDKError | SDKError} if:
      * - No View with the given index is attached.
      */
-    render(viewIndex: number, params: { force?: boolean }): void | SDKError;
+    render(viewIndex: number, params: { force?: boolean, opaqueOnly: boolean }): void | SDKError;
 
     /**
      * Performs object picking within a View.

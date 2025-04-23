@@ -661,12 +661,13 @@ export class WebGLRenderer implements Renderer {
      *
      * @internal
      * @param viewIndex Handle to the View.
+     * @param params
      * @param [params.force=false] True to force a render, else only render if needed.
      * @returns *{@link core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
      * * Can't find a View attached to this Renderer with the given handle.
      */
-    render(viewIndex: number, params?: { force: boolean; opaqueOnly: boolean }): void | SDKError {
+    render(viewIndex: number, params?: { force?: boolean; opaqueOnly?: boolean }): void | SDKError {
         if (!this.#viewer) {
             return new SDKError("Can't render with WebGLRenderer - no Viewer and View is attached");
         }

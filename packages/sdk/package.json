@@ -1,13 +1,15 @@
 {
     "name": "@xeokit/sdk",
     "private": false,
-    "version": "0.1.0-alpha",
+    "version": "0.1.5-alpha",
     "description": "Next generation xeokit SDK",
-    "main": "dist/index.js",
-    "module": "dist/index.js",
+    "module": "dist/xeokit-sdk.esm.js",
+    "types": "dist/index.d.ts",
     "scripts": {
         "sdk-test": "jest --passWithNoTests",
-        "sdk-dist": "rm -Rf tsconfig.tsbuildinfo;  tsc; node ./scripts/build-cli-tools.js",
+        "sdk-build": "rm -Rf tsconfig.tsbuildinfo;  tsc; node ./scripts/build-cli-tools.js",
+        "sdk-bundle": "node build.js",
+        "sdk-dist": "npm run sdk-build && npm run sdk-bundle",
         "sdk-lint": "eslint . --fix",
         "sdk-publish": "npm publish --access public",
         "website-sdk-docs": "typedoc --json ../website/docs/json/sdk.json --options typedoc.json --validation.invalidLink false && cp -Rf ./assets ../website/docs/."
@@ -27,27 +29,31 @@
     "homepage": "https://xeokit.github.io/sdk/docs/api/index.html",
     "files": [
         "src/",
+        "dist/",
         "README.md",
         "package.json"
     ],
     "keywords": [],
     "dependencies": {
-        "strongly-typed-events": "3.0.7",
         "@loaders.gl/core": "^4.0.4",
-        "@loaders.gl/images": "^3.4.1",
-        "@loaders.gl/math": "^4.0.4",
-        "@loaders.gl/las": "^4.0.4",
         "@loaders.gl/gltf": "^4.0.4",
+        "@loaders.gl/images": "^3.4.1",
+        "@loaders.gl/las": "^4.0.4",
+        "@loaders.gl/math": "^4.0.4",
         "@loaders.gl/polyfills": "^4.0.4",
         "@loaders.gl/textures": "^4.0.4",
-        "web-ifc": "^0.0.50",
-        "pako": "^2.0.4",
         "commander": "^11.0.0",
+        "pako": "^2.0.4",
+        "strongly-typed-events": "3.0.7",
+        "web-ifc": "^0.0.50",
         "yargs": "17.7.2"
     },
     "peerDependencies": {
         "typedoc": "^0.27.6",
         "typedoc-plugin-mermaid": "1.12.0"
     },
-    "devDependencies": {}
+    "devDependencies": {
+        "@types/node": "^22.14.1",
+        "esbuild": "^0.20.2"
+    }
 }

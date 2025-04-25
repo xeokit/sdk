@@ -42,7 +42,7 @@ function parse(params: ModelParseParams, options: any): Promise<any> {
                     reject("[IFCLoader] Failed to determine environment");
                     return;
             }
-            const ifcAPI = new IfcAPI();
+            ifcAPI = new IfcAPI();
             ifcAPI.SetWasmPath(wasmPath);
             ifcAPI.Init()
                 .then(() => {

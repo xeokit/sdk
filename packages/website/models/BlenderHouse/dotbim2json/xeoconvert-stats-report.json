@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline dotbim2json --dotbim ./models/BlenderHouse/dotbim/model.bim --scenemodel ./models/BlenderHouse/dotbim2json/sceneModel.json --datamodel ./models/BlenderHouse/dotbim2json/dataModel.json --stats-report ./models/BlenderHouse/dotbim2json/xeoconvert-stats-report.json --manifest-report ./models/BlenderHouse/dotbim2json/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:17:53.897Z",
+    "time": "2025-04-29T16:31:16.697Z",
     "pipeline": "dotbim2json",
     "inputs": {
         "dotbim": {

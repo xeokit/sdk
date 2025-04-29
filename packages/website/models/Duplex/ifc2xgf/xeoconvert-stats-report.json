@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline ifc2xgf --ifc ./models/Duplex/ifc/model.ifc --xgf ./models/Duplex/ifc2xgf/sceneModel.xgf --datamodel ./models/Duplex/ifc2xgf/dataModel.json --stats-report ./models/Duplex/ifc2xgf/xeoconvert-stats-report.json --manifest-report ./models/Duplex/ifc2xgf/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:20:00.243Z",
+    "time": "2025-04-29T16:33:19.210Z",
     "pipeline": "ifc2xgf",
     "inputs": {
         "ifc": {

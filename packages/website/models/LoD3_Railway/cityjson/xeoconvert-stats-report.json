@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline cityjson --cityjson ./models/LoD3_Railway/cityjson/model.json --stats-report ./models/LoD3_Railway/cityjson/xeoconvert-stats-report.json --manifest-report ./models/LoD3_Railway/cityjson/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:17:30.874Z",
+    "time": "2025-04-29T16:30:54.336Z",
     "pipeline": "cityjson",
     "inputs": {
         "cityjson": {

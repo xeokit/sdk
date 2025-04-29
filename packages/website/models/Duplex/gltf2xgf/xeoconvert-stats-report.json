@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline gltf2xgf --gltf ./models/Duplex/gltf/model.glb --xgf ./models/Duplex/gltf2xgf/sceneModel.xgf --datamodel ./models/Duplex/gltf2xgf/dataModel.json --stats-report ./models/Duplex/gltf2xgf/xeoconvert-stats-report.json --manifest-report ./models/Duplex/gltf2xgf/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:20:03.918Z",
+    "time": "2025-04-29T16:33:22.814Z",
     "pipeline": "gltf2xgf",
     "inputs": {
         "gltf": {

@@ -68473,7 +68473,7 @@ var Component = class {
        * Logs an error for this component to the JavaScript console.
        *
        * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
-
+  
        @param message The error message to log
        @protected
        */
@@ -187027,7 +187027,7 @@ var Camera = class extends Component {
   }
   /**
        * Rotates {@link Camera.look | Camera.look} about {@link Camera.eye | Camera.eye}, around the right axis (orthogonal to {@link Camera.up | Camera.up} and "look").
-
+  
        * @param angleInc Angle of rotation in degrees
        */
   pitch(angleInc) {
@@ -204324,7 +204324,7 @@ var ModelConverter = class {
    * writes the converted output using the configured exporters.
    *
    * @param convertRequest - The parameters specifying the pipeline and input data.
-   * @returns A promise that resolves to a `XCResult` object containing the output files.
+   * @returns A promise that resolves to a `ModelConverterResult` object containing the output files.
    *
    * @throws {SDKError} If required parameters are missing or if an unsupported pipeline is specified.
    */
@@ -204383,6 +204383,7 @@ var ModelConverter = class {
         pipeline: pipelineId,
         scene,
         data,
+        inputs: {},
         outputs: {}
       };
       const processInputs = (done) => {
@@ -204412,7 +204413,26 @@ var ModelConverter = class {
               sceneModel,
               dataModel
             }).then(() => {
+              result.inputs[pipelineInputId] = {
+                fileData,
+                fileDataType: loader.fileDataType,
+                format: loader.format,
+                sceneModel: sceneModel.id,
+                dataModel: dataModel.id
+              };
               processNextInput(index + 1);
+            }).catch((reason) => {
+              result.inputs[pipelineInputId] = {
+                fileData: null,
+                fileDataType: loader.fileDataType,
+                format: loader.format,
+                version: null,
+                sceneModel: sceneModel.id,
+                dataModel: dataModel.id,
+                errors: [
+                  `Failed to load fileData: ${reason}`
+                ]
+              };
             });
           }
         };
@@ -204490,6 +204510,19 @@ var ModelConverter = class {
                 version: version2,
                 sceneModel: sceneModel.id,
                 dataModel: dataModel.id
+              };
+              processNextOutput(index + 1);
+            }).catch((reason) => {
+              result.outputs[pipelineOutputId] = {
+                fileData: null,
+                fileDataType: exporter.fileDataType,
+                format: exporter.format,
+                version: version2,
+                sceneModel: sceneModel.id,
+                dataModel: dataModel.id,
+                errors: [
+                  `Failed to export fileData: ${reason}`
+                ]
               };
               processNextOutput(index + 1);
             });

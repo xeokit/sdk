@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline gltf --gltf ./models/2CylinderEngine/gltf/model.glb --stats-report ./models/2CylinderEngine/gltf/xeoconvert-stats-report.json --manifest-report ./models/2CylinderEngine/gltf/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:20:48.180Z",
+    "time": "2025-04-29T16:34:06.367Z",
     "pipeline": "gltf",
     "inputs": {
         "gltf": {

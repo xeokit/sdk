@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline json --scenemodel ./models/Geometries/json/sceneModel.json --datamodel ./models/Geometries/json/dataModel.json --stats-report ./models/Geometries/json/xeoconvert-stats-report.json --manifest-report ./models/Geometries/json/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:20:47.512Z",
+    "time": "2025-04-29T16:34:05.723Z",
     "pipeline": "json",
     "inputs": {
         "scenemodel": {

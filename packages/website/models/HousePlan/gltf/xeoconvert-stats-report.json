@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline gltf --gltf ./models/HousePlan/gltf/model.glb --stats-report ./models/HousePlan/gltf/xeoconvert-stats-report.json --manifest-report ./models/HousePlan/gltf/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:17:38.014Z",
+    "time": "2025-04-29T16:31:01.191Z",
     "pipeline": "gltf",
     "inputs": {
         "gltf": {

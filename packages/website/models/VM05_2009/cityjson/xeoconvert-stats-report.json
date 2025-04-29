@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline cityjson --cityjson ./models/VM05_2009/cityjson/model.json --stats-report ./models/VM05_2009/cityjson/xeoconvert-stats-report.json --manifest-report ./models/VM05_2009/cityjson/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:17:33.641Z",
+    "time": "2025-04-29T16:30:56.965Z",
     "pipeline": "cityjson",
     "inputs": {
         "cityjson": {

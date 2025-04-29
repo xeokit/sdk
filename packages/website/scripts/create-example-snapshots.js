@@ -44,6 +44,7 @@ server.listen(3000, async () => {
         }
         await browser.close();
         console.log('All snapshots captured successfully!');
+        server.close();
     } catch (error) {
         console.error('Error capturing snapshots:', error);
     }

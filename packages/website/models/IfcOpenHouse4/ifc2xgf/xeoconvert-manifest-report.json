@@ -1,0 +1,35 @@
+{
+    "files": {
+        "xgf": {
+            "filePath": "./models/IfcOpenHouse4/ifc2xgf/sceneModel.xgf",
+            "fileFormat": "XGF",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 46160,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "aabb": [
+                -10,
+                -8.13,
+                -9.996948195620663,
+                9.996948195620663,
+                5.78000146484375,
+                10
+            ]
+        },
+        "datamodel": {
+            "filePath": "./models/IfcOpenHouse4/ifc2xgf/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                -10,
+                -8.13,
+                -9.996948195620663,
+                9.996948195620663,
+                5.78000146484375,
+                10
+            ]
+        }
+    }
+}

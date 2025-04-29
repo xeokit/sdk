@@ -1,5 +1,0 @@
-[xeoconvert] Loading input --gltf ./models/MAP/gltf/model.glb
-[xeoconvert] Running conversion pipeline gltf2xgf
-[xeoconvert] Writing output --xgf ./models/MAP/gltf2xgf/model.xgf
-[xeoconvert] Writing output --datamodel ./models/MAP/gltf2xgf/model.json
-[xeoconvert] Done.

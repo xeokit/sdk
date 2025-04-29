@@ -1,0 +1,35 @@
+{
+    "files": {
+        "xgf": {
+            "filePath": "./models/RAC/ifc2xgf/sceneModel.xgf",
+            "fileFormat": "XGF",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 14366364,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "aabb": [
+                -55.26164326474634,
+                -7.101999999999999,
+                -11.175979610971037,
+                28.27533973949654,
+                17.204157674953898,
+                76.01218965020767
+            ]
+        },
+        "datamodel": {
+            "filePath": "./models/RAC/ifc2xgf/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                -55.26164326474634,
+                -7.101999999999999,
+                -11.175979610971037,
+                28.27533973949654,
+                17.204157674953898,
+                76.01218965020767
+            ]
+        }
+    }
+}

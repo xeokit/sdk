@@ -1,0 +1,24 @@
+[xeoconvert] Running pipeline 'gltf2xgf'
+[xeoconvert] Reading input --gltf ./models/Duplex/gltf/model.glb
+[xeoconvert] Writing output --xgf ./models/Duplex/gltf2xgf/sceneModel.xgf
+[xeoconvert] Writing output --datamodel ./models/Duplex/gltf2xgf/dataModel.json
+{
+  _: [],
+  pipeline: 'gltf2xgf',
+  gltf: './models/Duplex/gltf/model.glb',
+  xgf: './models/Duplex/gltf2xgf/sceneModel.xgf',
+  datamodel: './models/Duplex/gltf2xgf/dataModel.json',
+  'stats-report': './models/Duplex/gltf2xgf/xeoconvert-stats-report.json',
+  statsReport: './models/Duplex/gltf2xgf/xeoconvert-stats-report.json',
+  'manifest-report': './models/Duplex/gltf2xgf/xeoconvert-manifest-report.json',
+  manifestReport: './models/Duplex/gltf2xgf/xeoconvert-manifest-report.json',
+  log: true,
+  '$0': '../sdk/dist/xeoconvert/xeoconvert.js'
+}
+$$$$$$$$$$$$$ stats-report
+$$$$$$$$$$$$$PPP ./models/Duplex/gltf2xgf/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'stats-report' writing report to ./models/Duplex/gltf2xgf/xeoconvert-stats-report.json
+$$$$$$$$$$$$$ manifest-report
+$$$$$$$$$$$$$PPP ./models/Duplex/gltf2xgf/xeoconvert-manifest-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/Duplex/gltf2xgf/xeoconvert-manifest-report.json
+[xeoconvert] Done.

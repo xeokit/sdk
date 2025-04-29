@@ -1,4 +1,0 @@
-[xeoconvert] Loading input --dotbim ./models/BlenderHouse/dotbim/model.bim
-[xeoconvert] Running conversion pipeline dotbim2ifc
-[xeoconvert] Writing output --ifc ./models/BlenderHouse/dotbim2ifc/model.ifc
-[xeoconvert] Done.

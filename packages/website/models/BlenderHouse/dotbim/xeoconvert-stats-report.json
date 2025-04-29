@@ -1,0 +1,51 @@
+{
+    "description": "xeoconvert conversion stats",
+    "command": "node xeoconvert.js --pipeline dotbim --dotbim ./models/BlenderHouse/dotbim/model.bim --stats-report ./models/BlenderHouse/dotbim/xeoconvert-stats-report.json --manifest-report ./models/BlenderHouse/dotbim/xeoconvert-manifest-report.json --log",
+    "time": "2025-04-29T16:01:27.184Z",
+    "pipeline": "dotbim",
+    "inputs": {
+        "dotbim": {
+            "filePath": "./models/BlenderHouse/dotbim/model.bim",
+            "fileFormat": "DotBIM",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 1656378,
+            "fileDataType": "json",
+            "options": {},
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        }
+    },
+    "sceneModels": {
+        "default": {
+            "aabb": [
+                -1.5,
+                -0.010000228881835938,
+                0,
+                7.038919623114383,
+                10.199565880757188,
+                9.358618142903692
+            ],
+            "numGeometries": 73,
+            "numLines": 0,
+            "numMeshes": 73,
+            "numObjects": 73,
+            "numPoints": 0,
+            "numTextureSets": 0,
+            "numTextures": 0,
+            "numTriangles": 13088,
+            "numVertices": 7150,
+            "textureBytes": 0
+        }
+    },
+    "dataModels": {
+        "default": {
+            "numObjects": 73,
+            "numRelationships": 0,
+            "numPropertySets": 0
+        }
+    },
+    "outputs": {}
+}

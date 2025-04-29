@@ -1,0 +1,35 @@
+{
+    "files": {
+        "xgf": {
+            "filePath": "./models/SmallHouse/dotbim2xgf/sceneModel.xgf",
+            "fileFormat": "XGF",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 382496,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "aabb": [
+                -3.0082583935235343,
+                -9.776227699990073,
+                -0.29,
+                3.310931419281772,
+                1.5133890348017345,
+                5.093279926189714
+            ]
+        },
+        "datamodel": {
+            "filePath": "./models/SmallHouse/dotbim2xgf/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                -3.0082583935235343,
+                -9.776227699990073,
+                -0.29,
+                3.310931419281772,
+                1.5133890348017345,
+                5.093279926189714
+            ]
+        }
+    }
+}

@@ -1,0 +1,76 @@
+{
+    "description": "xeoconvert conversion stats",
+    "command": "node xeoconvert.js --pipeline ifc2json --ifc ./models/Duplex/ifc/model.ifc --scenemodel ./models/Duplex/ifc2json/sceneModel.json --datamodel ./models/Duplex/ifc2json/dataModel.json --stats-report ./models/Duplex/ifc2json/xeoconvert-stats-report.json --manifest-report ./models/Duplex/ifc2json/xeoconvert-manifest-report.json --log",
+    "time": "2025-04-29T16:03:34.155Z",
+    "pipeline": "ifc2json",
+    "inputs": {
+        "ifc": {
+            "filePath": "./models/Duplex/ifc/model.ifc",
+            "fileFormat": "IFC",
+            "fileFormatVersion": "IFC4",
+            "fileDataSizeBytes": 1297114,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        }
+    },
+    "sceneModels": {
+        "default": {
+            "aabb": [
+                -0.24150002555848182,
+                -1.55,
+                -4.382065148620905,
+                9.04134894760314,
+                6.634798914316023,
+                22.18273391093445
+            ],
+            "numGeometries": 801,
+            "numLines": 0,
+            "numMeshes": 801,
+            "numObjects": 215,
+            "numPoints": 0,
+            "numTextureSets": 0,
+            "numTextures": 0,
+            "numTriangles": 25706,
+            "numVertices": 77118,
+            "textureBytes": 0
+        }
+    },
+    "dataModels": {
+        "default": {
+            "numObjects": 246,
+            "numRelationships": 245,
+            "numPropertySets": 398
+        }
+    },
+    "outputs": {
+        "datamodel": {
+            "filePath": "./models/Duplex/ifc2json/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "messages": [],
+            "warnings": [],
+            "errors": [],
+            "sceneModel": "default",
+            "dataModel": "default"
+        },
+        "scenemodel": {
+            "filePath": "./models/Duplex/ifc2json/sceneModel.json",
+            "fileFormat": "SceneModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "messages": [],
+            "warnings": [],
+            "errors": [],
+            "sceneModel": "default",
+            "dataModel": "default"
+        }
+    }
+}

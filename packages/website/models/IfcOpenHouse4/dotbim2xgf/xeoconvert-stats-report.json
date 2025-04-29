@@ -1,0 +1,77 @@
+{
+    "description": "xeoconvert conversion stats",
+    "command": "node xeoconvert.js --pipeline dotbim2xgf --dotbim ./models/IfcOpenHouse4/dotbim/model.bim --xgf ./models/IfcOpenHouse4/dotbim2xgf/sceneModel.xgf --datamodel ./models/IfcOpenHouse4/dotbim2xgf/dataModel.json --stats-report ./models/IfcOpenHouse4/dotbim2xgf/xeoconvert-stats-report.json --manifest-report ./models/IfcOpenHouse4/dotbim2xgf/xeoconvert-manifest-report.json --log",
+    "time": "2025-04-29T16:03:39.076Z",
+    "pipeline": "dotbim2xgf",
+    "inputs": {
+        "dotbim": {
+            "filePath": "./models/IfcOpenHouse4/dotbim/model.bim",
+            "fileFormat": "DotBIM",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 161640,
+            "fileDataType": "json",
+            "options": {},
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        }
+    },
+    "sceneModels": {
+        "default": {
+            "aabb": [
+                -5.1000000000000005,
+                -2,
+                -5.4,
+                5.549923704890516,
+                5.779503926202647,
+                0.39955748814147496
+            ],
+            "numGeometries": 34,
+            "numLines": 0,
+            "numMeshes": 34,
+            "numObjects": 34,
+            "numPoints": 0,
+            "numTextureSets": 0,
+            "numTextures": 0,
+            "numTriangles": 528,
+            "numVertices": 336,
+            "textureBytes": 0
+        }
+    },
+    "dataModels": {
+        "default": {
+            "numObjects": 34,
+            "numRelationships": 0,
+            "numPropertySets": 0
+        }
+    },
+    "outputs": {
+        "xgf": {
+            "filePath": "./models/IfcOpenHouse4/dotbim2xgf/sceneModel.xgf",
+            "fileFormat": "XGF",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 15492,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "messages": [],
+            "warnings": [],
+            "errors": [],
+            "sceneModel": "default",
+            "dataModel": "default"
+        },
+        "datamodel": {
+            "filePath": "./models/IfcOpenHouse4/dotbim2xgf/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "messages": [],
+            "warnings": [],
+            "errors": [],
+            "sceneModel": "default",
+            "dataModel": "default"
+        }
+    }
+}

@@ -1,0 +1,22 @@
+[xeoconvert] Running pipeline 'dotbim2ifc'
+[xeoconvert] Reading input --dotbim ./models/BlenderHouse/dotbim/model.bim
+[xeoconvert] Writing output --ifc ./models/BlenderHouse/dotbim2ifc/model.ifc
+{
+  _: [],
+  pipeline: 'dotbim2ifc',
+  dotbim: './models/BlenderHouse/dotbim/model.bim',
+  ifc: './models/BlenderHouse/dotbim2ifc/model.ifc',
+  'stats-report': './models/BlenderHouse/dotbim2ifc/xeoconvert-stats-report.json',
+  statsReport: './models/BlenderHouse/dotbim2ifc/xeoconvert-stats-report.json',
+  'manifest-report': './models/BlenderHouse/dotbim2ifc/xeoconvert-manifest-report.json',
+  manifestReport: './models/BlenderHouse/dotbim2ifc/xeoconvert-manifest-report.json',
+  log: true,
+  '$0': '../sdk/dist/xeoconvert/xeoconvert'
+}
+$$$$$$$$$$$$$ stats-report
+$$$$$$$$$$$$$PPP ./models/BlenderHouse/dotbim2ifc/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'stats-report' writing report to ./models/BlenderHouse/dotbim2ifc/xeoconvert-stats-report.json
+$$$$$$$$$$$$$ manifest-report
+$$$$$$$$$$$$$PPP ./models/BlenderHouse/dotbim2ifc/xeoconvert-manifest-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/BlenderHouse/dotbim2ifc/xeoconvert-manifest-report.json
+[xeoconvert] Done.

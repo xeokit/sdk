@@ -1,0 +1,36 @@
+{
+    "files": {
+        "scenemodel": {
+            "filePath": "./models/Duplex/json/sceneModel.json",
+            "fileFormat": "SceneModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataSizeBytes": 8440002,
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                -0.241499999999999,
+                -1.55,
+                -4.382065059555339,
+                9.0413626449647,
+                6.634799030975201,
+                22.182734
+            ]
+        },
+        "datamodel": {
+            "filePath": "./models/Duplex/json/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataSizeBytes": 457848,
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                -0.241499999999999,
+                -1.55,
+                -4.382065059555339,
+                9.0413626449647,
+                6.634799030975201,
+                22.182734
+            ]
+        }
+    }
+}

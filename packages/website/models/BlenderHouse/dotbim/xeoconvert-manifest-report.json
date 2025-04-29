@@ -1,0 +1,20 @@
+{
+    "files": {
+        "dotbim": {
+            "filePath": "./models/BlenderHouse/dotbim/model.bim",
+            "fileFormat": "DotBIM",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 1656378,
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                -1.5,
+                -0.010000228881835938,
+                0,
+                7.038919623114383,
+                10.199565880757188,
+                9.358618142903692
+            ]
+        }
+    }
+}

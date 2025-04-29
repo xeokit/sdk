@@ -1,0 +1,35 @@
+{
+    "files": {
+        "xgf": {
+            "filePath": "./models/IfcOpenHouse4/dotbim2xgf/sceneModel.xgf",
+            "fileFormat": "XGF",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 15492,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "aabb": [
+                -5.1000000000000005,
+                -2,
+                -5.4,
+                5.549923704890516,
+                5.779503926202647,
+                0.39955748814147496
+            ]
+        },
+        "datamodel": {
+            "filePath": "./models/IfcOpenHouse4/dotbim2xgf/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                -5.1000000000000005,
+                -2,
+                -5.4,
+                5.549923704890516,
+                5.779503926202647,
+                0.39955748814147496
+            ]
+        }
+    }
+}

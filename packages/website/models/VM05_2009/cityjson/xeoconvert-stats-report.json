@@ -1,0 +1,51 @@
+{
+    "description": "xeoconvert conversion stats",
+    "command": "node xeoconvert.js --pipeline cityjson --cityjson ./models/VM05_2009/cityjson/model.json --stats-report ./models/VM05_2009/cityjson/xeoconvert-stats-report.json --manifest-report ./models/VM05_2009/cityjson/xeoconvert-manifest-report.json --log",
+    "time": "2025-04-29T16:01:09.315Z",
+    "pipeline": "cityjson",
+    "inputs": {
+        "cityjson": {
+            "filePath": "./models/VM05_2009/cityjson/model.json",
+            "fileFormat": "CityJSON",
+            "fileFormatVersion": "1.0",
+            "fileDataSizeBytes": 5950849,
+            "fileDataType": "json",
+            "options": {},
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        }
+    },
+    "sceneModels": {
+        "default": {
+            "aabb": [
+                300060.181,
+                5040722.785,
+                8.444,
+                301073.7005530175,
+                5042282.3423702605,
+                129.07437842374304
+            ],
+            "numGeometries": 294,
+            "numLines": 0,
+            "numMeshes": 294,
+            "numObjects": 294,
+            "numPoints": 0,
+            "numTextureSets": 0,
+            "numTextures": 0,
+            "numTriangles": 63265,
+            "numVertices": 32242,
+            "textureBytes": 0
+        }
+    },
+    "dataModels": {
+        "default": {
+            "numObjects": 294,
+            "numRelationships": 0,
+            "numPropertySets": 0
+        }
+    },
+    "outputs": {}
+}

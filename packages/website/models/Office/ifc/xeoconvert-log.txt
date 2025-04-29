@@ -1,0 +1,2 @@
+[xeoconvert] Running pipeline 'ifc'
+[xeoconvert] Reading input --ifc ./models/Office/ifc/model.ifc

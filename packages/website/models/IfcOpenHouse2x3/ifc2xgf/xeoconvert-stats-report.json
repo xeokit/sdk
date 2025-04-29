@@ -1,0 +1,77 @@
+{
+    "description": "xeoconvert conversion stats",
+    "command": "node xeoconvert.js --pipeline ifc2xgf --ifc ./models/IfcOpenHouse2x3/ifc/model.ifc --xgf ./models/IfcOpenHouse2x3/ifc2xgf/sceneModel.xgf --datamodel ./models/IfcOpenHouse2x3/ifc2xgf/dataModel.json --stats-report ./models/IfcOpenHouse2x3/ifc2xgf/xeoconvert-stats-report.json --manifest-report ./models/IfcOpenHouse2x3/ifc2xgf/xeoconvert-manifest-report.json --log",
+    "time": "2025-04-29T16:03:41.338Z",
+    "pipeline": "ifc2xgf",
+    "inputs": {
+        "ifc": {
+            "filePath": "./models/IfcOpenHouse2x3/ifc/model.ifc",
+            "fileFormat": "IFC",
+            "fileFormatVersion": "IFC4",
+            "fileDataSizeBytes": 112756,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        }
+    },
+    "sceneModels": {
+        "default": {
+            "aabb": [
+                -10,
+                -8.13,
+                -9.996948195620663,
+                9.996948195620663,
+                5.78000146484375,
+                10
+            ],
+            "numGeometries": 38,
+            "numLines": 0,
+            "numMeshes": 38,
+            "numObjects": 35,
+            "numPoints": 0,
+            "numTextureSets": 0,
+            "numTextures": 0,
+            "numTriangles": 1098,
+            "numVertices": 3294,
+            "textureBytes": 0
+        }
+    },
+    "dataModels": {
+        "default": {
+            "numObjects": 44,
+            "numRelationships": 43,
+            "numPropertySets": 0
+        }
+    },
+    "outputs": {
+        "xgf": {
+            "filePath": "./models/IfcOpenHouse2x3/ifc2xgf/sceneModel.xgf",
+            "fileFormat": "XGF",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 46160,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "messages": [],
+            "warnings": [],
+            "errors": [],
+            "sceneModel": "default",
+            "dataModel": "default"
+        },
+        "datamodel": {
+            "filePath": "./models/IfcOpenHouse2x3/ifc2xgf/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "messages": [],
+            "warnings": [],
+            "errors": [],
+            "sceneModel": "default",
+            "dataModel": "default"
+        }
+    }
+}

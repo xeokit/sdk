@@ -1,0 +1,77 @@
+{
+    "description": "xeoconvert conversion stats",
+    "command": "node xeoconvert.js --pipeline gltf2xgf --gltf ./models/MAP/gltf/model.glb --xgf ./models/MAP/gltf2xgf/sceneModel.xgf --datamodel ./models/MAP/gltf2xgf/dataModel.json --stats-report ./models/MAP/gltf2xgf/xeoconvert-stats-report.json --manifest-report ./models/MAP/gltf2xgf/xeoconvert-manifest-report.json --log",
+    "time": "2025-04-29T16:02:28.278Z",
+    "pipeline": "gltf2xgf",
+    "inputs": {
+        "gltf": {
+            "filePath": "./models/MAP/gltf/model.glb",
+            "fileFormat": "glTF",
+            "fileFormatVersion": "*",
+            "fileDataSizeBytes": 4327244,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        }
+    },
+    "sceneModels": {
+        "default": {
+            "aabb": [
+                1842005.906845052,
+                -3.6,
+                -5173320.674003139,
+                1842038.6772152472,
+                24.589436224021135,
+                -5173283.019953996
+            ],
+            "numGeometries": 2956,
+            "numLines": 346,
+            "numMeshes": 6246,
+            "numObjects": 1986,
+            "numPoints": 0,
+            "numTextureSets": 0,
+            "numTextures": 0,
+            "numTriangles": 136473,
+            "numVertices": 73483,
+            "textureBytes": 0
+        }
+    },
+    "dataModels": {
+        "default": {
+            "numObjects": 0,
+            "numRelationships": 0,
+            "numPropertySets": 0
+        }
+    },
+    "outputs": {
+        "xgf": {
+            "filePath": "./models/MAP/gltf2xgf/sceneModel.xgf",
+            "fileFormat": "XGF",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 3938700,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "messages": [],
+            "warnings": [],
+            "errors": [],
+            "sceneModel": "default",
+            "dataModel": "default"
+        },
+        "datamodel": {
+            "filePath": "./models/MAP/gltf2xgf/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "messages": [],
+            "warnings": [],
+            "errors": [],
+            "sceneModel": "default",
+            "dataModel": "default"
+        }
+    }
+}

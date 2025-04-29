@@ -1,0 +1,64 @@
+{
+    "description": "xeoconvert conversion stats",
+    "command": "node xeoconvert.js --pipeline json --scenemodel ./models/Duplex/json/sceneModel.json --datamodel ./models/Duplex/json/dataModel.json --stats-report ./models/Duplex/json/xeoconvert-stats-report.json --manifest-report ./models/Duplex/json/xeoconvert-manifest-report.json --log",
+    "time": "2025-04-29T16:03:29.145Z",
+    "pipeline": "json",
+    "inputs": {
+        "scenemodel": {
+            "filePath": "./models/Duplex/json/sceneModel.json",
+            "fileFormat": "SceneModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataSizeBytes": 8440002,
+            "fileDataType": "json",
+            "options": {},
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        },
+        "datamodel": {
+            "filePath": "./models/Duplex/json/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataSizeBytes": 457848,
+            "fileDataType": "json",
+            "options": {},
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        }
+    },
+    "sceneModels": {
+        "default": {
+            "aabb": [
+                -0.241499999999999,
+                -1.55,
+                -4.382065059555339,
+                9.0413626449647,
+                6.634799030975201,
+                22.182734
+            ],
+            "numGeometries": 801,
+            "numLines": 0,
+            "numMeshes": 801,
+            "numObjects": 215,
+            "numPoints": 0,
+            "numTextureSets": 0,
+            "numTextures": 0,
+            "numTriangles": 0,
+            "numVertices": 0,
+            "textureBytes": 0
+        }
+    },
+    "dataModels": {
+        "default": {
+            "numObjects": 246,
+            "numRelationships": 245,
+            "numPropertySets": 398
+        }
+    },
+    "outputs": {}
+}

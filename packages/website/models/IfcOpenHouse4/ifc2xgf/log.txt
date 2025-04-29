@@ -1,5 +1,0 @@
-[xeoconvert] Loading input --ifc ./models/IfcOpenHouse4/ifc/model.ifc
-[xeoconvert] Running conversion pipeline ifc2xgf
-[xeoconvert] Writing output --xgf ./models/IfcOpenHouse4/ifc2xgf/model.xgf
-[xeoconvert] Writing output --datamodel ./models/IfcOpenHouse4/ifc2xgf/model.json
-[xeoconvert] Done.

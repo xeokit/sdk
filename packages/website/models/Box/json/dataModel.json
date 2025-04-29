@@ -1,0 +1,10 @@
+{
+    "id": "myModel",
+    "objects": [
+        {
+            "id": "boxObject",
+            "type": 1000,
+            "name": "Box"
+        }
+    ]
+}

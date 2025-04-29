@@ -1,0 +1,20 @@
+{
+    "files": {
+        "ifc": {
+            "filePath": "./models/IfcOpenHouse4/ifc/model.ifc",
+            "fileFormat": "IFC",
+            "fileFormatVersion": "IFC4",
+            "fileDataSizeBytes": 113264,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "aabb": [
+                -10,
+                -8.13,
+                -9.996948195620663,
+                9.996948195620663,
+                5.78000146484375,
+                10
+            ]
+        }
+    }
+}

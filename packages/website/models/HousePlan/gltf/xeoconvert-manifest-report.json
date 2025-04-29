@@ -1,0 +1,20 @@
+{
+    "files": {
+        "gltf": {
+            "filePath": "./models/HousePlan/gltf/model.glb",
+            "fileFormat": "glTF",
+            "fileFormatVersion": "*",
+            "fileDataSizeBytes": 28650372,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "aabb": [
+                1374.8310852050781,
+                -1.3999999761580908,
+                -247.8473815545434,
+                1394.6981704070456,
+                2.5496810387627002,
+                -231.2499237060547
+            ]
+        }
+    }
+}

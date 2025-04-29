@@ -1,0 +1,24 @@
+[xeoconvert] Running pipeline 'ifc2xgf'
+[xeoconvert] Reading input --ifc ./models/Duplex/ifc/model.ifc
+[xeoconvert] Writing output --xgf ./models/Duplex/ifc2xgf/sceneModel.xgf
+[xeoconvert] Writing output --datamodel ./models/Duplex/ifc2xgf/dataModel.json
+{
+  _: [],
+  pipeline: 'ifc2xgf',
+  ifc: './models/Duplex/ifc/model.ifc',
+  xgf: './models/Duplex/ifc2xgf/sceneModel.xgf',
+  datamodel: './models/Duplex/ifc2xgf/dataModel.json',
+  'stats-report': './models/Duplex/ifc2xgf/xeoconvert-stats-report.json',
+  statsReport: './models/Duplex/ifc2xgf/xeoconvert-stats-report.json',
+  'manifest-report': './models/Duplex/ifc2xgf/xeoconvert-manifest-report.json',
+  manifestReport: './models/Duplex/ifc2xgf/xeoconvert-manifest-report.json',
+  log: true,
+  '$0': '../sdk/dist/xeoconvert/xeoconvert'
+}
+$$$$$$$$$$$$$ stats-report
+$$$$$$$$$$$$$PPP ./models/Duplex/ifc2xgf/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'stats-report' writing report to ./models/Duplex/ifc2xgf/xeoconvert-stats-report.json
+$$$$$$$$$$$$$ manifest-report
+$$$$$$$$$$$$$PPP ./models/Duplex/ifc2xgf/xeoconvert-manifest-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/Duplex/ifc2xgf/xeoconvert-manifest-report.json
+[xeoconvert] Done.

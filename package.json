@@ -9,18 +9,17 @@
     },
     "license": "SEE LICENSE IN LICENSE.md",
     "scripts": {
+        "sdk-dist": "pnpm --filter @xeokit/sdk sdk-dist",
+        "__sdk-test": "pnpm --filter @xeokit/sdk sdk-test || node scripts/test-html-report/index.mjs",
+        "sdk-publish": "pnpm --filter @xeokit/sdk sdk-publish",
 
-        "sdk-dist": "turbo run sdk-dist --concurrency 100",
-        "__sdk-test": "turbo run sdk-test --concurrency 100 --continue || node scripts/test-html-report/index.mjs",
-        "sdk-publish": "turbo run sdk-publish",
+        "website-sdk-docs": "rimraf packages/website/docs && mkdir packages/website/docs && pnpm --filter @xeokit/sdk website-sdk-docs && typedoc --entryPointStrategy merge \"./packages/website/docs/json/*.json\" --tsconfig ./packages/config/tsconfig.typedoc.json",
 
-        "website-sdk-docs": "rimraf packages/website/docs && mkdir packages/website/docs && turbo run website-sdk-docs && typedoc --entryPointStrategy merge \"./packages/website/docs/json/*.json\" --tsconfig ./packages/config/tsconfig.typedoc.json",
-
-        "website-build-xeokit-lib": "turbo run website-build-xeokit-lib",
-        "website-convert-models": "turbo run website-convert-models",
-        "website-example-snapshots": "turbo run website-example-snapshots",
-        "website-build": "turbo run website-build",
-        "website-build-local": "turbo run website-build-local"
+        "website-build-xeokit-lib": "pnpm --filter @xeokit/website website-build-xeokit-lib",
+        "website-convert-models": "pnpm website-build-xeokit-lib && pnpm --filter @xeokit/website website-convert-models",
+        "website-example-snapshots": "pnpm website-convert-models && pnpm --filter @xeokit/website website-example-snapshots",
+        "website-build": "pnpm website-example-snapshots && pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build",
+        "website-build-local": "pnpm website-example-snapshots && pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local"
     },
     "devDependencies": {
         "@changesets/cli": "^2.27.1",
@@ -54,12 +53,8 @@
         "tap-spec": "5.0.0",
         "ts-loader": "^9.4.2",
         "ts-node": "10.9.1",
-        "turbo": "^2.0.9",
         "typedoc": "^0.27.6",
-        "typescript": "^5.7.2",
-        "webpack": "^5.80.0",
-        "webpack-cli": "^5.0.1",
-        "webpack-node-externals": "^3.0.0"
+        "typescript": "^5.7.2"
     },
     "optionalDependencies": {
         "canvas": "^2.11.2"

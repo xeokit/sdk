@@ -9,6 +9,11 @@ import {ModelEncoder} from "./ModelEncoder";
 export class ModelExporter {
 
     /**
+     * The exported model file format.
+     */
+    format: string;
+
+    /**
      * An encoder for each supported schema version.
      */
     encoders: {
@@ -34,6 +39,7 @@ export class ModelExporter {
      * @param params
      */
     constructor(params: ModelExporterParams) {
+        this.format = params.format;
         this.encoders = params.encoders || {};
         this.versions = Object.keys(this.encoders);
         this.fileDataType = params.fileDataType;

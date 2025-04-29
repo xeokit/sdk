@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline ifc2xgf --ifc ./models/IfcOpenHouse2x3/ifc/model.ifc --xgf ./models/IfcOpenHouse2x3/ifc2xgf/sceneModel.xgf --datamodel ./models/IfcOpenHouse2x3/ifc2xgf/dataModel.json --stats-report ./models/IfcOpenHouse2x3/ifc2xgf/xeoconvert-stats-report.json --manifest-report ./models/IfcOpenHouse2x3/ifc2xgf/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:03:41.338Z",
+    "time": "2025-04-29T16:20:09.288Z",
     "pipeline": "ifc2xgf",
     "inputs": {
         "ifc": {

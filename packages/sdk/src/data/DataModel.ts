@@ -10,6 +10,7 @@ import type {RelationshipParams} from "./RelationshipParams";
 import {EventDispatcher} from "strongly-typed-events";
 import type {PropertyParams} from "./PropertyParams";
 import {DataModelContentParams} from "./DataModelContentParams";
+import {DataModelStats} from "./DataModelStats";
 
 /**
  * Contains a model's semantic data, as an entity-relationship graph.
@@ -135,6 +136,11 @@ export class DataModel extends Component {
      */
     built: boolean;
 
+    /**
+     * Statistics on this DataModel.
+     */
+    public readonly stats: DataModelStats;
+
     #destroyed: boolean;
 
     /**
@@ -171,6 +177,12 @@ export class DataModel extends Component {
         this.rootObjects = {};
         this.built = false;
         this.#destroyed = false;
+
+        this.stats = {
+            numObjects: 0,
+            numRelationships: 0,
+            numPropertySets: 0
+        };
 
         this.fromParams(dataModelParams);
     }
@@ -243,6 +255,7 @@ export class DataModel extends Component {
         propertySet = new PropertySet(this, propertySetCfg);
         this.propertySets[propertySetCfg.id] = propertySet;
         this.data.propertySets[propertySetCfg.id] = propertySet;
+        this.stats.numPropertySets++;
         return propertySet;
     }
 
@@ -363,6 +376,7 @@ export class DataModel extends Component {
             this.typeCounts[type] = (this.typeCounts[type] === undefined) ? 1 : this.typeCounts[type] + 1;
             dataObject.models.push(this);
         }
+        this.stats.numObjects++;
         return dataObject;
     }
 
@@ -432,6 +446,7 @@ export class DataModel extends Component {
         }
         relatingObject.related[relationshipParams.type].push(relation);
         this.relationships.push(relation);
+        this.stats.numRelationships++;
         return relation;
     }
 

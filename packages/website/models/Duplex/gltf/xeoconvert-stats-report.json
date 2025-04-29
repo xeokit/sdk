@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline gltf --gltf ./models/Duplex/gltf/model.glb --stats-report ./models/Duplex/gltf/xeoconvert-stats-report.json --manifest-report ./models/Duplex/gltf/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:03:31.606Z",
+    "time": "2025-04-29T16:19:59.470Z",
     "pipeline": "gltf",
     "inputs": {
         "gltf": {

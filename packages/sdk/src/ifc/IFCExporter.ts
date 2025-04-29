@@ -9,6 +9,7 @@ import {ModelExporter} from "../io";
 export class IFCExporter extends ModelExporter {
     constructor() {
         super({
+            format: "IFC",
             fileDataType: "text",
             encoders: {
                 "IFC4": encode_IFC4

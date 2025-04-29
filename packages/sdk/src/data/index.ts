@@ -506,4 +506,5 @@ export * from "./SearchParams";
 export * from "./searchObjects";
 export * from "./DataModelParamsLoader";
 export * from "./DataModelParamsExporter";
+export * from "./DataModelStats";
 

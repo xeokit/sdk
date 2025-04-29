@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline dotbim2xgf --dotbim ./models/SmallHouse/dotbim/model.bim --xgf ./models/SmallHouse/dotbim2xgf/sceneModel.xgf --datamodel ./models/SmallHouse/dotbim2xgf/dataModel.json --stats-report ./models/SmallHouse/dotbim2xgf/xeoconvert-stats-report.json --manifest-report ./models/SmallHouse/dotbim2xgf/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:01:11.164Z",
+    "time": "2025-04-29T16:17:35.561Z",
     "pipeline": "dotbim2xgf",
     "inputs": {
         "dotbim": {

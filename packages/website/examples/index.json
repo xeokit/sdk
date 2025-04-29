@@ -103,6 +103,23 @@
     "topic": "import.cityjson",
     "template": "basicPage"
   },
+  "ModelConverter_DotBIM_IFC": {
+    "id": "ModelConverter_DotBIM_IFC",
+    "title": "Viewing .BIM using ModelConverter and IFCLoader",
+    "description": "How to convert a BIM model from dotbim (.bim) format into IFC and directly load that into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Importing",
+      "DotBIM"
+    ],
+    "categories": [
+      "Importing",
+      "DotBIM"
+    ],
+    "topic": "import.dotbim",
+    "template": "basicPage"
+  },
   "ModelConverter_DotBIM_XGF": {
     "id": "ModelConverter_DotBIM_XGF",
     "title": "Viewing .BIM using ModelConverter and XGFLoader",
@@ -686,6 +703,23 @@
       "IFC"
     ],
     "topic": "import.ifc",
+    "template": "basicPage"
+  },
+  "ifc2xgf_IfcOpenHouse4": {
+    "id": "ifc2xgf_IfcOpenHouse4",
+    "title": "Viewing XGF using XGFLoader",
+    "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
+    "isTutorial": false,
+    "isVisualTest": true,
+    "tags": [
+      "XGF",
+      "_Featured"
+    ],
+    "categories": [
+      "Importing",
+      "XGF"
+    ],
+    "topic": "import.xgf",
     "template": "basicPage"
   },
   "las2xgf_Pumpkin": {

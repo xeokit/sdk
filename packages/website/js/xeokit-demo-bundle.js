@@ -68473,7 +68473,7 @@ var Component = class {
        * Logs an error for this component to the JavaScript console.
        *
        * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
-  
+
        @param message The error message to log
        @protected
        */
@@ -75219,6 +75219,10 @@ var DataModel = class extends Component {
    * * Subscribe to updates using {@link DataModel.onBuilt | DataModel.onBuilt} and {@link Data.onModelCreated | Data.onModelCreated}.
    */
   built;
+  /**
+   * Statistics on this DataModel.
+   */
+  stats;
   #destroyed;
   /**
    * @private
@@ -75242,6 +75246,11 @@ var DataModel = class extends Component {
     this.rootObjects = {};
     this.built = false;
     this.#destroyed = false;
+    this.stats = {
+      numObjects: 0,
+      numRelationships: 0,
+      numPropertySets: 0
+    };
     this.fromParams(dataModelParams);
   }
   /**
@@ -75312,6 +75321,7 @@ var DataModel = class extends Component {
     propertySet = new PropertySet(this, propertySetCfg);
     this.propertySets[propertySetCfg.id] = propertySet;
     this.data.propertySets[propertySetCfg.id] = propertySet;
+    this.stats.numPropertySets++;
     return propertySet;
   }
   /**
@@ -75411,6 +75421,7 @@ var DataModel = class extends Component {
       this.typeCounts[type] = this.typeCounts[type] === void 0 ? 1 : this.typeCounts[type] + 1;
       dataObject.models.push(this);
     }
+    this.stats.numObjects++;
     return dataObject;
   }
   /**
@@ -75479,6 +75490,7 @@ var DataModel = class extends Component {
     }
     relatingObject.related[relationshipParams.type].push(relation);
     this.relationships.push(relation);
+    this.stats.numRelationships++;
     return relation;
   }
   /**
@@ -77620,7 +77632,8 @@ var SceneModel = class extends Component {
       textureSets: [],
       transforms: [],
       meshes: [],
-      objects: []
+      objects: [],
+      aabb: Array.from(this.aabb)
     };
     if (this.streamParams) {
       sceneModelParams.streamParams = this.streamParams;
@@ -77726,6 +77739,10 @@ var SceneModel = class extends Component {
 // ../sdk/src/io/ModelLoader.ts
 var ModelLoader = class {
   /**
+   * The loaded model file format.
+   */
+  format;
+  /**
    * Filename extensions expected on loaded model files.
    */
   fileNameExtensions;
@@ -77750,6 +77767,7 @@ var ModelLoader = class {
    * @param params
    */
   constructor(params2) {
+    this.format = params2.format;
     this.parsers = params2.parsers || {};
     this.versions = Object.keys(this.parsers);
     this.fileDataType = params2.fileDataType;
@@ -77830,6 +77848,10 @@ var ModelLoader = class {
 // ../sdk/src/io/ModelExporter.ts
 var ModelExporter = class {
   /**
+   * The exported model file format.
+   */
+  format;
+  /**
    * An encoder for each supported schema version.
    */
   encoders;
@@ -77849,6 +77871,7 @@ var ModelExporter = class {
    * @param params
    */
   constructor(params2) {
+    this.format = params2.format;
     this.encoders = params2.encoders || {};
     this.versions = Object.keys(this.encoders);
     this.fileDataType = params2.fileDataType;
@@ -77920,6 +77943,7 @@ var DataModelParamsLoader = class extends ModelLoader {
    */
   constructor() {
     super({
+      format: "DataModelParams",
       fileDataType: "json",
       parsers: {
         "1.0": parse
@@ -77947,6 +77971,7 @@ var DataModelParamsExporter = class extends ModelExporter {
    */
   constructor() {
     super({
+      format: "DataModelParams",
       fileDataType: "json",
       encoders: {
         "1.0": encode
@@ -78370,6 +78395,7 @@ var SceneModelParamsLoader = class extends ModelLoader {
    */
   constructor() {
     super({
+      format: "SceneModelParams",
       fileDataType: "json",
       parsers: {
         "1.0": parse2
@@ -78397,6 +78423,7 @@ var SceneModelParamsExporter = class extends ModelExporter {
    */
   constructor() {
     super({
+      format: "SceneModelParams",
       fileDataType: "json",
       encoders: {
         "1.0": encode2
@@ -83237,6 +83264,7 @@ var CityJSONLoader = class extends ModelLoader {
    */
   constructor() {
     super({
+      format: "CityJSON",
       fileDataType: "json",
       parsers: {
         "1.0": parse3
@@ -83401,6 +83429,7 @@ var parse5 = async (params2, options = {
 var DotBIMLoader = class extends ModelLoader {
   constructor() {
     super({
+      format: "DotBIM",
       fileDataType: "json",
       parsers: {
         "1.0.0": parse4,
@@ -83661,6 +83690,7 @@ function encode4(params2, options) {
 var DotBIMExporter = class extends ModelExporter {
   constructor() {
     super({
+      format: "DotBIM",
       fileDataType: "json",
       encoders: {
         "1.0.0": encode4,
@@ -148963,6 +148993,7 @@ var IFCLoader = class extends ModelLoader {
    */
   constructor() {
     super({
+      format: "IFC",
       fileDataType: "arraybuffer",
       parsers: {
         "IFC4": parse7,
@@ -149033,14 +149064,14 @@ function generateIFC(sceneModel, dataModel, header) {
     timeStamp: (/* @__PURE__ */ new Date()).toISOString(),
     author: dataModel.author ? [dataModel.author] : ["xeokit SDK"],
     organization: ["xeokit"],
-    preprocessorVersion: "xeokit IFC Generator 1.0",
+    preprocessorVersion: "xeokit SDK",
     originatingSystem: dataModel.creatingApplication || "xeokit SDK",
     authorization: "None"
   };
   const finalHeader = { ...defaultHeader, ...header };
   const ifcContent = [];
-  ifcContent.push(generateIFCHeader(finalHeader));
-  ifcContent.push("DATA;\n\n");
+  generateIFCHeader(finalHeader, ifcContent);
+  ifcContent.push(`DATA;`);
   const projectId = generateGUID();
   ifcContent.push(`#1=${generateOwnerHistory()}`);
   ifcContent.push(`#2=IFCPROJECT('${projectId}',#1,'${dataModel.projectId || sceneModel.id}',$,$,$,$,(#3),#4);`);
@@ -149072,7 +149103,7 @@ function generateIFC(sceneModel, dataModel, header) {
     currentId = encodeRelationship(relationship, ifcContent, currentId);
   }
   ifcContent.push("ENDSEC;\n\nEND-ISO-10303-21;\n");
-  return ifcContent.join();
+  return ifcContent.join("\n");
 }
 function encodePropertySet(propertySet, ifcContent, currentId) {
   const propertySetId = generateGUID();
@@ -149125,20 +149156,22 @@ function encodeSceneObjectAndDataObject(sceneObject, dataObject, propertySetMap,
     }
   }
   const ifcType = getIFCTypeFromDataObject(dataObject);
-  ifcContent.push(`#${currentId}=${ifcType}('${objectId}',#1,'${dataObject.name || ""}','${dataObject.description || ""}'`);
-  ifcContent.push(`,#${currentId - 3}`);
+  const ifcContent2 = [];
+  ifcContent2.push(`#${currentId}=${ifcType}('${objectId}',#1,'${dataObject.name || ""}','${dataObject.description || ""}'`);
+  ifcContent2.push(`,#${currentId - 3}`);
   if (geometryIds.length > 0) {
-    ifcContent.push(`,(${geometryIds.map((id) => `#${id}`).join(",")})`);
+    ifcContent2.push(`,(${geometryIds.map((id) => `#${id}`).join(",")})`);
   } else {
-    ifcContent.push(`,$`);
+    ifcContent2.push(`,$`);
   }
   if (dataObject.propertySets && dataObject.propertySets.length > 0) {
     const psetRefs = dataObject.propertySets.map((pset) => propertySetMap.get(pset.id)).filter((id) => id !== void 0).map((id) => `#${id}`);
     if (psetRefs.length > 0) {
-      ifcContent.push(`,(${psetRefs.join(",")})`);
+      ifcContent2.push(`,(${psetRefs.join(",")})`);
     }
   }
-  ifcContent.push(");\n");
+  ifcContent2.push(");");
+  ifcContent.push(ifcContent2.join());
   currentId++;
   return currentId;
 }
@@ -149199,23 +149232,14 @@ function encodeSceneMesh(mesh, ifcContent, currentId, parentId) {
   currentId++;
   return currentId;
 }
-function generateIFCHeader(header) {
-  return `ISO-10303-21;
-HEADER;
-FILE_DESCRIPTION((${header.fileDescription.map((d) => `'${d}'`).join(",")}), '2;1');
-FILE_NAME(
-    '${header.fileName}',
-    '${header.timeStamp}',
-    (${header.author.map((a2) => `'${a2}'`).join(",")}),
-    (${header.organization.map((o) => `'${o}'`).join(",")}),
-    '${header.preprocessorVersion}',
-    '${header.originatingSystem}',
-    '${header.authorization}'
-);
-FILE_SCHEMA(('${header.fileSchema}'));
-ENDSEC;
-
-`;
+function generateIFCHeader(header, ifcContent) {
+  ifcContent.push("ISO-10303-21");
+  ifcContent.push("HEADER");
+  ifcContent.push(`FILE_DESCRIPTION((${header.fileDescription.map((d) => `'${d}'`).join(",")}), '2;1');`);
+  ifcContent.push(`FILE_NAME('${header.fileName}','${header.timeStamp}',(${header.author.map((a2) => `'${a2}'`).join(",")}),(${header.organization.map((o) => `'${o}'`).join(",")}),'${header.preprocessorVersion}','${header.originatingSystem}','${header.authorization}');`);
+  ifcContent.push(`FILE_SCHEMA(('${header.fileSchema}'));`);
+  ifcContent.push(`ENDSEC;`);
+  ifcContent.push(``);
 }
 function generateGUID() {
   return createUUID2();
@@ -149231,6 +149255,7 @@ function generateOwnerHistory() {
 var IFCExporter = class extends ModelExporter {
   constructor() {
     super({
+      format: "IFC",
       fileDataType: "text",
       encoders: {
         "IFC4": encode5
@@ -149448,6 +149473,7 @@ function parse8(params2, options) {
 var XGFLoader = class extends ModelLoader {
   constructor() {
     super({
+      format: "XGF",
       fileDataType: "arraybuffer",
       parsers: {
         "1": parse8
@@ -149716,6 +149742,7 @@ function encode6(params2, options) {
 var XGFExporter = class extends ModelExporter {
   constructor() {
     super({
+      format: "XGF",
       fileDataType: "arraybuffer",
       encoders: {
         "1.0.0": encode6
@@ -171178,6 +171205,7 @@ var MAX_VERTICES = 5e5;
 var LASLoader4 = class extends ModelLoader {
   constructor() {
     super({
+      format: "LAS",
       fileDataType: "arraybuffer",
       parsers: {
         "*": parseLAS2
@@ -177433,6 +177461,7 @@ function postProcessGLTF(gltf, options) {
 var GLTFLoader2 = class extends ModelLoader {
   constructor() {
     super({
+      format: "glTF",
       fileDataType: "arraybuffer",
       parsers: {
         "*": parseGLTF2
@@ -182598,6 +182627,7 @@ var XKTLoader = class extends ModelLoader {
    */
   constructor() {
     super({
+      format: "XKT",
       fileDataType: "arraybuffer",
       parsers: {
         "10": parse12
@@ -182623,6 +182653,7 @@ var MetaModelLoader = class extends ModelLoader {
    */
   constructor() {
     super({
+      format: "MetaModelParams",
       fileDataType: "json",
       parsers: {
         "1.0": parseMetaModel
@@ -186996,7 +187027,7 @@ var Camera = class extends Component {
   }
   /**
        * Rotates {@link Camera.look | Camera.look} about {@link Camera.eye | Camera.eye}, around the right axis (orthogonal to {@link Camera.up | Camera.up} and "look").
-  
+
        * @param angleInc Angle of rotation in degrees
        */
   pitch(angleInc) {
@@ -197965,6 +197996,7 @@ var WebGLRenderer = class {
    *
    * @internal
    * @param viewIndex Handle to the View.
+   * @param params
    * @param [params.force=false] True to force a render, else only render if needed.
    * @returns *{@link core!SDKError | SDKError}*
    * * No View is currently attached to this Renderer.
@@ -204281,8 +204313,8 @@ var ModelConverter = class {
    * @param params - An object containing configured loaders, exporters, and optional pipelines.
    */
   constructor(params2) {
-    this.loaders = params2.loaders;
-    this.exporters = params2.exporters;
+    this.loaders = params2.loaders || {};
+    this.exporters = params2.exporters || {};
     this.pipelines = params2.pipelines || {};
   }
   /**
@@ -204292,7 +204324,7 @@ var ModelConverter = class {
    * writes the converted output using the configured exporters.
    *
    * @param convertRequest - The parameters specifying the pipeline and input data.
-   * @returns A promise that resolves to a `ModelConverterResult` object containing the output files.
+   * @returns A promise that resolves to a `XCResult` object containing the output files.
    *
    * @throws {SDKError} If required parameters are missing or if an unsupported pipeline is specified.
    */
@@ -204321,14 +204353,6 @@ var ModelConverter = class {
       if (pipelineInputIds.length === 0) {
         return reject(`No inputs defined on pipeline "${pipelineId}"`);
       }
-      const pipelineOutputs = pipeline.outputs;
-      if (!pipelineOutputs) {
-        return reject(`No outputs defined on pipeline "${pipelineId}"`);
-      }
-      const pipelineOutputIds = Object.keys(pipelineOutputs);
-      if (pipelineOutputIds.length === 0) {
-        return reject(`No outputs defined on pipeline "${pipelineId}"`);
-      }
       for (let inputId in pipelineInputs) {
         const inputParams = pipelineInputs[inputId];
         const loaderId = inputParams.loader;
@@ -204340,6 +204364,8 @@ var ModelConverter = class {
           return reject(`Can't resolve loader "${loaderId}", referenced by input "${inputId}" of pipeline "${pipelineId}"`);
         }
       }
+      const pipelineOutputs = pipeline.outputs || {};
+      const pipelineOutputIds = Object.keys(pipelineOutputs);
       for (let outputId in pipelineOutputs) {
         const outputParams = pipelineOutputs[outputId];
         const exporterId = outputParams.exporter;
@@ -204351,12 +204377,14 @@ var ModelConverter = class {
           return reject(`Can't resolve exporter "${exporterId}", referenced by output "${outputId}" of pipeline "${pipelineId}"`);
         }
       }
-      const result = {
-        pipeline: pipelineId,
-        outputs: {}
-      };
       const scene = new Scene();
       const data = new Data();
+      const result = {
+        pipeline: pipelineId,
+        scene,
+        data,
+        outputs: {}
+      };
       const processInputs = (done) => {
         const processNextInput = (index = 0) => {
           if (index >= pipelineInputIds.length) {
@@ -204433,7 +204461,7 @@ var ModelConverter = class {
           const pipelineOutputId = pipelineOutputIds[index];
           const pipelineOutput = pipelineOutputs[pipelineOutputId];
           const exporter = this.exporters[pipelineOutput.exporter];
-          const version2 = pipelineOutput.version;
+          const version2 = pipelineOutput.version || exporter.defaultVersion;
           const sceneModelId = pipelineOutput.sceneModel || "default";
           const sceneModel = scene.models[sceneModelId] || scene.createModel({
             id: sceneModelId
@@ -204445,6 +204473,12 @@ var ModelConverter = class {
           if (sceneModel instanceof SDKError || dataModel instanceof SDKError) {
             processNextOutput(index + 1);
           } else {
+            if (dataModel && !dataModel.built) {
+              dataModel.build();
+            }
+            if (sceneModel && !sceneModel.built) {
+              sceneModel.build();
+            }
             exporter.write({
               sceneModel,
               dataModel
@@ -204452,9 +204486,10 @@ var ModelConverter = class {
               result.outputs[pipelineOutputId] = {
                 fileData,
                 fileDataType: exporter.fileDataType,
+                format: exporter.format,
                 version: version2,
-                sceneModel,
-                dataModel
+                sceneModel: sceneModel.id,
+                dataModel: dataModel.id
               };
               processNextOutput(index + 1);
             });

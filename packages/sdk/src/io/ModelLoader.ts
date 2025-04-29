@@ -11,6 +11,11 @@ import {ModelParser} from "./ModelParser";
 export class ModelLoader {
 
     /**
+     * The loaded model file format.
+     */
+    format: string;
+
+    /**
      * Filename extensions expected on loaded model files.
      */
     fileNameExtensions: string[];
@@ -42,6 +47,7 @@ export class ModelLoader {
      * @param params
      */
      constructor(params: ModelLoaderParams) {
+         this.format = params.format;
         this.parsers = params.parsers || {};
         this.versions = Object.keys(this.parsers);
         this.fileDataType = params.fileDataType;

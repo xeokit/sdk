@@ -9,6 +9,7 @@ import {parse as parse_v1} from "./versions/v1/parse"
 export class XGFLoader extends ModelLoader {
     constructor() {
         super({
+            format: "XGF",
             fileDataType: "arraybuffer",
             parsers: {
                 "1": parse_v1

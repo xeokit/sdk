@@ -16,4 +16,7 @@ export interface ModelConverterRequest {
     inputs: {
         [key: string]: any
     };
+
+
+    reports?: string[];
 }

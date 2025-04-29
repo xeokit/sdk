@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------------------
 
 const pipelines = require("../models/pipelines.json");
-const models = require("../models/index.json");
+const models = require("../models/models.json");
 const configs = require("./../configs.json");
 const fs = require('fs');
 
@@ -88,10 +88,6 @@ try {
                 script.push(`echo [convert-models.sh] ${numConverted} out of ${numToConvert} conversions done`);
 
             }
-            const modelIndex = [
-                `# ${modelId}`
-            ];
-            fs.writeFileSync(`./models/${modelId}/${pipelineId}/index.md`, modelIndex.join("\n"), 'utf8');
         }
     }
     fs.writeFileSync("./scripts/convert-models.sh", script.join("\n"));

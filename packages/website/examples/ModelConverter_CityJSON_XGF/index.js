@@ -95,6 +95,12 @@ const sceneModel = scene.createModel({
     id: "demoModel"
 });
 
+// Create a DataModel to hold semantic data for our model
+
+const dataModel = data.createModel({
+    id: "demoModel"
+});
+
 // Create a DataModelParamsLoader to load the converted semantic data
 
 const dataModelParamsLoader = new xeokit.data.DataModelParamsLoader();
@@ -109,17 +115,6 @@ const demoHelper = new DemoHelper({});
 
 demoHelper.init()
     .then(() => {
-
-        // Create a DataModel to hold semantic data for our model
-
-        const dataModel = data.createModel({
-            id: "demoModel"
-        });
-
-        if (sceneModel instanceof xeokit.core.SDKError) {
-            console.error(`Error creating SceneModel: ${sceneModel.message}`);
-
-        } else {
 
             // Fetch the CityJSON file
 
@@ -175,5 +170,4 @@ demoHelper.init()
                         });
                     });
             });
-        }
     });

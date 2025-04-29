@@ -65,3 +65,5 @@ export * as treeview from "./treeview";
 export * as contextmenu from "./contextmenu";
 
 export * as ifc2gltf2xgf from "./ifc2gltf2xgf";
+
+export * as xeoconvert from "./xeoconvert";

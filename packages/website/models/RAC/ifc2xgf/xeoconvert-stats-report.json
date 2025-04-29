@@ -1,7 +1,7 @@
 {
     "description": "xeoconvert conversion stats",
     "command": "node xeoconvert.js --pipeline ifc2xgf --ifc ./models/RAC/ifc/model.ifc --xgf ./models/RAC/ifc2xgf/sceneModel.xgf --datamodel ./models/RAC/ifc2xgf/dataModel.json --stats-report ./models/RAC/ifc2xgf/xeoconvert-stats-report.json --manifest-report ./models/RAC/ifc2xgf/xeoconvert-manifest-report.json --log",
-    "time": "2025-04-29T16:04:03.377Z",
+    "time": "2025-04-29T16:20:32.441Z",
     "pipeline": "ifc2xgf",
     "inputs": {
         "ifc": {

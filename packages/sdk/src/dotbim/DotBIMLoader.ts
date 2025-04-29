@@ -10,6 +10,7 @@ import {ModelLoader} from "../io";
 export class DotBIMLoader extends ModelLoader {
     constructor() {
         super({
+            format: "DotBIM",
             fileDataType: "json",
             parsers: {
                 "1.0.0": parse_1_0_0,

@@ -12,6 +12,7 @@ export class MetaModelLoader extends ModelLoader {
      */
     constructor() {
         super({
+            format: "MetaModelParams",
             fileDataType: "json",
             parsers: {
                 "1.0": parseMetaModel

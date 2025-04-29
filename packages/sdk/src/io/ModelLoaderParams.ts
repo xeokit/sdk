@@ -6,6 +6,11 @@ import {ModelParser} from "./ModelParser";
 export interface ModelLoaderParams {
 
     /**
+     * The loaded file format.
+     */
+    format: string;
+
+    /**
      * Parsers for exported schema versions.
      */
     parsers: {

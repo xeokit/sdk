@@ -11,6 +11,7 @@ export class SceneModelParamsExporter extends ModelExporter {
      */
     constructor() {
         super({
+            format:"SceneModelParams",
             fileDataType: "json",
             encoders: {
                 "1.0": encode_1_0

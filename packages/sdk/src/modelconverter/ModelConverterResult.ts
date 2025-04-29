@@ -1,9 +1,15 @@
 import { ModelConverterResultOutput } from "./ModelConverterResultOutput";
+import {Scene} from "../scene";
+import {Data} from "../data";
 
 /**
  * The result returned from a {@link ModelConverter.convert | ModelConverter.convert} operation.
  */
 export interface ModelConverterResult {
+
+    scene: Scene;
+
+    data: Data;
 
     /**
      * The pipeline identifier used during the conversion.

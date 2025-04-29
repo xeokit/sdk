@@ -9,6 +9,7 @@ import {ModelExporter} from "../io";
 export class XGFExporter extends ModelExporter {
     constructor() {
         super({
+            format: "XGF",
             fileDataType: "arraybuffer",
             encoders: {
                 "1.0.0": encode_1_0_0

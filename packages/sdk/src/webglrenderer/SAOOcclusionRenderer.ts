@@ -1,5 +1,5 @@
-import type { WebGLAttribute, WebGLRenderBuffer } from "../webglutils";
 import { WebGLArrayBuf, WebGLProgram } from "../webglutils";
+import type { WebGLAttribute, WebGLRenderBuffer } from "../webglutils";
 import { createVec2 } from "../matrix";
 import { PerspectiveProjectionType } from "../constants";
 import type { RenderContext } from "./RenderContext";

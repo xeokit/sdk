@@ -4,7 +4,7 @@ import type { FloatArrayParam } from "../math";
 /**
  * TODO
  */
-export interface PickParams  {
+export interface PickParams {
 
   /**
      * Whether to snap to the nearest vertex to {@link PickParams.canvasPos}.

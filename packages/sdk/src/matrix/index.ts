@@ -721,7 +721,7 @@ export function normalizeVec2(v: FloatArrayParam, dest: FloatArrayParam) {
  */
 export function angleVec3(v: FloatArrayParam, w: FloatArrayParam) {
   let theta = dotVec3(v, w) / (Math.sqrt(sqLenVec3(v) * sqLenVec3(w)));
-  theta = theta < -1 ? -1 : (theta > 1 ? 1 : theta);  // Clamp to handle numerical problems
+  theta = theta < -1 ? -1 : (theta > 1 ? 1 : theta); // Clamp to handle numerical problems
   return Math.acos(theta);
 }
 
@@ -1746,9 +1746,9 @@ export function composeMat4(
   scale: FloatArrayParam,
   mat: FloatArrayParam = createMat4()
 ): FloatArrayParam {
-  quatToRotationMat4(quaternion, mat);  // Apply rotation first
-  scaleMat4v(scale, mat);               // Apply scale
-  translateMat4v(position, mat);        // Apply translation last
+  quatToRotationMat4(quaternion, mat); // Apply rotation first
+  scaleMat4v(scale, mat); // Apply scale
+  translateMat4v(position, mat); // Apply translation last
   return mat;
 }
 
@@ -1767,9 +1767,9 @@ export function composeMat4Euler(
   scale: FloatArrayParam,
   mat: FloatArrayParam = createMat4()
 ): FloatArrayParam {
-  quatToRotationMat4(eulerToQuat(rotation, "XYZ", identityQuat()), mat);  // Convert Euler to quaternion and apply rotation
-  scaleMat4v(scale, mat);  // Apply scale
-  translateMat4v(position, mat);  // Apply translation
+  quatToRotationMat4(eulerToQuat(rotation, "XYZ", identityQuat()), mat); // Convert Euler to quaternion and apply rotation
+  scaleMat4v(scale, mat); // Apply scale
+  translateMat4v(position, mat); // Apply translation
   return mat;
 }
 
@@ -1781,8 +1781,8 @@ export function composeMat4Euler(
  * @param scale - The resulting scale vector.
  */
 export const decomposeMat4 = (() => {
-  const vec = createVec3();  // Temporary vector
-  const matrix = createMat4();  // Temporary matrix
+  const vec = createVec3(); // Temporary vector
+  const matrix = createMat4(); // Temporary matrix
   return function decompose(
     mat: FloatArrayParam,
     position: FloatArrayParam,
@@ -1793,19 +1793,19 @@ export const decomposeMat4 = (() => {
     vec[0] = mat[0];
     vec[1] = mat[1];
     vec[2] = mat[2];
-    let sx = lenVec3(vec);  // Scale factor for x-axis
+    let sx = lenVec3(vec); // Scale factor for x-axis
     vec[0] = mat[4];
     vec[1] = mat[5];
     vec[2] = mat[6];
-    const sy = lenVec3(vec);  // Scale factor for y-axis
+    const sy = lenVec3(vec); // Scale factor for y-axis
     vec[8] = mat[8];
     vec[9] = mat[9];
     vec[10] = mat[10];
-    const sz = lenVec3(vec);  // Scale factor for z-axis
+    const sz = lenVec3(vec); // Scale factor for z-axis
 
     const det = determinantMat4(mat);
     if (det < 0) {
-      sx = -sx;  // Adjust scale if determinant is negative (reflection case)
+      sx = -sx; // Adjust scale if determinant is negative (reflection case)
     }
 
     // Extract position (translation)
@@ -1829,8 +1829,8 @@ export const decomposeMat4 = (() => {
     matrix[9] *= invSZ;
     matrix[10] *= invSZ;
 
-    mat4ToQuat(matrix, quaternion);  // Extract rotation as quaternion
-    scale[0] = sx;  // Store scale factors
+    mat4ToQuat(matrix, quaternion); // Extract rotation as quaternion
+    scale[0] = sx; // Store scale factors
     scale[1] = sy;
     scale[2] = sz;
   };
@@ -1904,7 +1904,7 @@ export function setMat4Translation(m: FloatArrayParam, translation: FloatArrayPa
   dest[12] = translation[0];
   dest[13] = translation[1];
   dest[14] = translation[2];
-  dest[15] = m[15];  // Copy homogeneous coordinate (bottom-right value)
+  dest[15] = m[15]; // Copy homogeneous coordinate (bottom-right value)
   return dest;
 }
 

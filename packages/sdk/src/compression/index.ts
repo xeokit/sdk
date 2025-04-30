@@ -454,8 +454,8 @@ export function decompressPositions3WithMat4(
 
   // Decompress each position using the decompression matrix
   for (let i = 0, len = positions.length; i < len; i += 3) {
-    dest[i]     = positions[i] * m[0] + m[12];  // Apply scale and translation to x-coordinate
-    dest[i + 1] = positions[i + 1] * m[5] + m[13];  // Apply scale and translation to y-coordinate
+    dest[i] = positions[i] * m[0] + m[12]; // Apply scale and translation to x-coordinate
+    dest[i + 1] = positions[i + 1] * m[5] + m[13]; // Apply scale and translation to y-coordinate
     dest[i + 2] = positions[i + 2] * m[10] + m[14]; // Apply scale and translation to z-coordinate
   }
 
@@ -495,9 +495,9 @@ export function decompressPositions3WithAABB3(
 
   // Decompress positions by applying the scale and offset for each axis
   for (let i = 0; i < positions.length; i += 3) {
-    dest[i]     = positions[i] * xScale + xOffset;  // Decompress x-coordinate
-    dest[i + 1] = positions[i + 1] * yScale + yOffset;  // Decompress y-coordinate
-    dest[i + 2] = positions[i + 2] * zScale + zOffset;  // Decompress z-coordinate
+    dest[i] = positions[i] * xScale + xOffset; // Decompress x-coordinate
+    dest[i + 1] = positions[i + 1] * yScale + yOffset; // Decompress y-coordinate
+    dest[i + 2] = positions[i + 2] * zScale + zOffset; // Decompress z-coordinate
   }
 
   return dest;
@@ -530,10 +530,10 @@ export function getUVBounds(array: FloatArrayParam): { min: FloatArrayParam, max
 
   // Iterate over the UV coordinates and update the min and max bounds
   for (let i = 0; i < array.length; i += 2) {
-    min[0] = Math.min(min[0], array[i]);       // Update minimum u value
-    min[1] = Math.min(min[1], array[i + 1]);   // Update minimum v value
-    max[0] = Math.max(max[0], array[i]);       // Update maximum u value
-    max[1] = Math.max(max[1], array[i + 1]);   // Update maximum v value
+    min[0] = Math.min(min[0], array[i]); // Update minimum u value
+    min[1] = Math.min(min[1], array[i + 1]); // Update minimum v value
+    max[0] = Math.max(max[0], array[i]); // Update maximum u value
+    max[1] = Math.max(max[1], array[i + 1]); // Update maximum v value
   }
 
   return { min, max };

@@ -80,7 +80,7 @@ export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): Scen
     const sceneObject = sceneObjects[i];
     getSceneObjectGeometry(sceneObject, (geometryView: GeometryView) => {
       const sceneGeometry = geometryView.geometry;
-      const positionsWorld = geometryView.positionsWorld;  // <-- Can be expensive
+      const positionsWorld = geometryView.positionsWorld; // <-- Can be expensive
       const indices = sceneGeometry.indices;
       switch (sceneGeometry.primitive) {
         case PointsPrimitive:

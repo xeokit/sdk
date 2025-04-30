@@ -42,7 +42,7 @@ export class VBOBatchingLayer implements Layer {
   #built: boolean;
   #aabb: FloatArrayParam;
   aabbDirty: boolean;
-  #meshes: any[];                 // A Mesh has multiple SubMeshes
+  #meshes: any[]; // A Mesh has multiple SubMeshes
   #layerNumber: number;
 
   #deferredAttributesUpdateEnabled: boolean;

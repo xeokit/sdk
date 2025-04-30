@@ -3,7 +3,7 @@ import type { Scene, SceneModel } from "../scene";
 import { EventDispatcher } from "strongly-typed-events";
 import type { View } from "./View";
 import type { Viewer } from "./Viewer";
-import  type { ViewLayerParams } from "./ViewLayerParams";
+import type { ViewLayerParams } from "./ViewLayerParams";
 import { ViewObject } from "./ViewObject";
 import type { ViewParams } from "./ViewParams";
 

@@ -119,7 +119,7 @@ export class VBORendererSet {
 
   get pickMeshRenderer(): VBORenderer {
     if (!this.#pickMeshRenderer) {
-      this.#pickMeshRenderer  = this.createPickMeshRenderer();
+      this.#pickMeshRenderer = this.createPickMeshRenderer();
     }
     return this.#pickMeshRenderer;
   }

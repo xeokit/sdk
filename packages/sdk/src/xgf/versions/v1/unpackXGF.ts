@@ -17,7 +17,7 @@ export function unpackXGF(arrayBuffer: ArrayBuffer): XGFData_v1 {
     const dataView = new DataView(arrayBuffer);
     return function(type) {
       const idx = 1 + 2 * i++; // `1' for the version nr
-      const byteOffset = dataView.getUint32(idx       * 4, true);
+      const byteOffset = dataView.getUint32(idx * 4, true);
       const byteLength = dataView.getUint32((idx + 1) * 4, true);
 
       const BPE = type.BYTES_PER_ELEMENT;

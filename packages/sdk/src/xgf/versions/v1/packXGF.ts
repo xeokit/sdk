@@ -26,7 +26,7 @@ function toArrayBuffer(arrays: Buffer[]): ArrayBuffer {
     const byteLength = arr.byteLength;
 
     const idx = 1 + 2 * i;
-    dataView.setUint32(idx       * 4, byteOffset, true);
+    dataView.setUint32(idx * 4, byteOffset, true);
     dataView.setUint32((idx + 1) * 4, byteLength, true);
 
     offsets.push(byteOffset);

@@ -192,7 +192,7 @@ function getIFCTypeFromDataObject(dataObject: DataObject): string {
 function encodeRelationship(relationship: Relationship, ifcContent: string[], currentId: number): number {
   const relationshipId = generateGUID();
   const ifcTypeName = ifcTypeNames[relationship.type];
-  const ifcRelType =  ifcTypeName !== undefined ? ifcTypeName.toUpperCase() : 'IFCRELDEFINESBYPROPERTIES';
+  const ifcRelType = ifcTypeName !== undefined ? ifcTypeName.toUpperCase() : 'IFCRELDEFINESBYPROPERTIES';
   ifcContent.push(`#${currentId}=${ifcRelType}('${relationshipId}',#1,$,$,#${relationship.relatingObject.id},#${relationship.relatedObject.id});`);
   currentId++;
   return currentId;

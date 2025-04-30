@@ -186,7 +186,7 @@ export class WebGLProgram {
           uName = uName.substr(0, uName.length - 1);
         }
         const location = gl.getUniformLocation(this.handle, uName);
-        if ((u.type === gl.SAMPLER_2D) || (u.type === gl.SAMPLER_CUBE) ||  (u.type === 35682) || (u.type === 36306)) {
+        if ((u.type === gl.SAMPLER_2D) || (u.type === gl.SAMPLER_CUBE) || (u.type === 35682) || (u.type === 36306)) {
           // @ts-ignore
           this.samplers[uName] = new WebGLSampler(gl, location);
         } else {

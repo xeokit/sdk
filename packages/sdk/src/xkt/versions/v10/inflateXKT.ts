@@ -15,7 +15,7 @@ export function inflateXKT(xktDataDeflated: XKTDataDeflated): XKTData {
 
   return <XKTData>{
     metadata: JSON.parse(pako.inflate(xktDataDeflated.metadata, { to: 'string' })),
-    textureData: new Uint8Array(inflate(xktDataDeflated.textureData)),  // <<----------------------------- ??? ZIPPing to blame?
+    textureData: new Uint8Array(inflate(xktDataDeflated.textureData)), // <<----------------------------- ??? ZIPPing to blame?
     eachTextureDataPortion: new Uint32Array(inflate(xktDataDeflated.eachTextureDataPortion)),
     eachTextureAttributes: new Uint16Array(inflate(xktDataDeflated.eachTextureAttributes)),
     positions: new Uint16Array(inflate(xktDataDeflated.positions)),

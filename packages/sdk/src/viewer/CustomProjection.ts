@@ -15,7 +15,7 @@ import type { Projection } from "./Projection";
  * * Located at {@link Camera.customProjection}.
  * * {@link CustomProjection.onProjMatrix} will fire an event whenever {@link CustomProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-class CustomProjection  extends Component implements Projection {
+class CustomProjection extends Component implements Projection {
 
   /**
      * The Camera this CustomProjection belongs to.

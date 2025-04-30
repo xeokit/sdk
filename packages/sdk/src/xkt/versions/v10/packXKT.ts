@@ -40,8 +40,8 @@ export function packXKT(xktDataDeflated: XKTDataDeflated): ArrayBuffer {
 function toArrayBuffer(elements: Buffer[]): ArrayBuffer {
   const indexData = new Uint32Array(elements.length + 2);
   indexData[0] = XKT_INFO.xktVersion;
-  indexData [1] = elements.length;  // Stored Data 1.1: number of stored elements
-  let dataLen = 0;    // Stored Data 1.2: length of stored elements
+  indexData [1] = elements.length; // Stored Data 1.1: number of stored elements
+  let dataLen = 0; // Stored Data 1.2: length of stored elements
   for (let i = 0, len = elements.length; i < len; i++) {
     const element = elements[i];
     const elementsize = element.length;
@@ -52,7 +52,7 @@ function toArrayBuffer(elements: Buffer[]): ArrayBuffer {
   const dataArray = new Uint8Array(indexBuf.length + dataLen);
   dataArray.set(indexBuf);
   let offset = indexBuf.length;
-  for (let i = 0, len = elements.length; i < len; i++) {     // Stored Data 2: the elements themselves
+  for (let i = 0, len = elements.length; i < len; i++) { // Stored Data 2: the elements themselves
     const element = elements[i];
     dataArray.set(element, offset);
     offset += element.length;

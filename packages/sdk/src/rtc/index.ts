@@ -38,7 +38,6 @@
  *
  * @module rtc
  */
-import type { FloatArrayParam } from "../math";
 import {
   createVec3,
   createVec4,
@@ -49,6 +48,7 @@ import {
   transformVec4,
   translateMat4v
 } from "../matrix";
+import type { FloatArrayParam } from "../math";
 import { getPositions3Center } from "../boundaries";
 
 // Temporary vectors and matrices used internally

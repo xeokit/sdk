@@ -1,9 +1,9 @@
+import type { RendererModel, RendererObject } from "../scene";
 import { createAABB3 } from "../boundaries";
 import { createVec3 } from "../matrix";
 import type { FloatArrayParam } from "../math";
 import { SCENE_OBJECT_FLAGS } from './SCENE_OBJECT_FLAGS';
 import type { WebGLRendererMesh } from "./WebGLRendererMesh";
-import type { RendererModel, RendererObject } from "../scene";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 

@@ -1,25 +1,7 @@
 // import {KTX2BasisWriter} from "@loaders.gl/textures";
 // import {ImageLoader} from '@loaders.gl/images';
-import { EventDispatcher } from "strongly-typed-events";
-import { Component, EventEmitter, SDKError } from "../core";
-import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../constants";
 import { collapseAABB3, createAABB3, expandAABB3 } from "../boundaries";
-import { SceneGeometry } from "./SceneGeometry";
-import { SceneObject } from "./SceneObject";
-import { SceneTextureSet } from "./SceneTextureSet";
-import { SceneTexture } from "./SceneTexture";
-import { SceneMesh } from "./SceneMesh";
-import type { RendererModel } from "./RendererModel";
-import type { SceneTextureSetParams } from "./SceneTextureSetParams";
-import type { SceneGeometryParams } from "./SceneGeometryParams";
-import type { SceneGeometryCompressedParams } from "./SceneGeometryCompressedParams";
-import type { SceneMeshParams } from "./SceneMeshParams";
-import type { SceneObjectParams } from "./SceneObjectParams";
-import type { SceneTextureParams } from "./SceneTextureParams";
-import { compressGeometryParams } from "./compressGeometryParams";
-import type { SceneModelParams } from "./SceneModelParams";
-import type { Scene } from "./Scene";
-import type { SceneModelStats } from "./SceneModelStats";
+import { Component, EventEmitter, SDKError } from "../core";
 import {
   composeMat4, createMat4,
   createVec3,
@@ -27,11 +9,28 @@ import {
   identityMat4,
   identityQuat, mulMat4, mulVec3Scalar, translateMat4v
 } from "../matrix";
-import { SceneModelStreamParams } from "./SceneModelStreamParams";
-import { SceneTile } from "./SceneTile";
+import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../constants";
+import { compressGeometryParams } from "./compressGeometryParams";
 import { createRTCModelMat } from "../rtc";
+import { EventDispatcher } from "strongly-typed-events";
 import { FloatArrayParam } from "../math";
-
+import type { RendererModel } from "./RendererModel";
+import type { Scene } from "./Scene";
+import { SceneGeometry } from "./SceneGeometry";
+import type { SceneGeometryCompressedParams } from "./SceneGeometryCompressedParams";
+import type { SceneGeometryParams } from "./SceneGeometryParams";
+import { SceneMesh } from "./SceneMesh";
+import type { SceneMeshParams } from "./SceneMeshParams";
+import type { SceneModelParams } from "./SceneModelParams";
+import type { SceneModelStats } from "./SceneModelStats";
+import { SceneModelStreamParams } from "./SceneModelStreamParams";
+import { SceneObject } from "./SceneObject";
+import type { SceneObjectParams } from "./SceneObjectParams";
+import { SceneTexture } from "./SceneTexture";
+import type { SceneTextureParams } from "./SceneTextureParams";
+import { SceneTextureSet } from "./SceneTextureSet";
+import type { SceneTextureSetParams } from "./SceneTextureSetParams";
+import { SceneTile } from "./SceneTile";
 
 // XGF texture types
 

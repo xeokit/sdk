@@ -1,10 +1,10 @@
-import { createMat4, createVec3 } from "../matrix";
 import { collapseAABB3, expandAABB3Points3 } from "../boundaries";
-import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../constants";
 import { compressRGBColors, quantizePositions3 } from "../compression";
+import { createMat4, createVec3 } from "../matrix";
+import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../constants";
 import { buildEdgeIndices } from "./buildEdgeIndices";
-import type { SceneGeometryParams } from "./SceneGeometryParams";
 import type { SceneGeometryCompressedParams } from "./SceneGeometryCompressedParams";
+import type { SceneGeometryParams } from "./SceneGeometryParams";
 
 const rtcCenter = createVec3();
 

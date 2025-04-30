@@ -1,5 +1,5 @@
-import { TreeViewNode } from "./TreeViewNode";
 import { TreeView } from "./TreeView";
+import { TreeViewNode } from "./TreeViewNode";
 
 /**
  * Event fired by {@link TreeView.onNodeTitleClicked}.

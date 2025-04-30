@@ -1,5 +1,5 @@
-import { View } from "../viewer";
 import { createVec3, lenVec3, subVec3 } from "../matrix";
+import { View } from "../viewer";
 
 const SCALE_DOLLY_EACH_FRAME = 1; // Recalculate dolly speed for eye->target distance on each Nth frame
 const EPSILON = 0.001;

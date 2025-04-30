@@ -1,5 +1,5 @@
-import { BCFViewSetupHints } from "./BCFViewSetupHints";
 import { BCFComponent } from "./BCFComponent";
+import { BCFViewSetupHints } from "./BCFViewSetupHints";
 
 /**
  * BCF translucency components.

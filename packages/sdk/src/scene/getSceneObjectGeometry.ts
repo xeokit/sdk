@@ -1,10 +1,10 @@
-import type { SceneObject } from "./SceneObject";
-import type { SceneMesh } from "./SceneMesh";
+import { LinesPrimitive, TrianglesPrimitive } from "../constants";
 import { decompressPositions3WithAABB3 } from "../compression";
-import { transformPositions3 } from "../matrix";
 import type { FloatArrayParam } from "../math";
 import type { SceneGeometry } from "./SceneGeometry";
-import { LinesPrimitive, TrianglesPrimitive } from "../constants";
+import type { SceneMesh } from "./SceneMesh";
+import type { SceneObject } from "./SceneObject";
+import { transformPositions3 } from "../matrix";
 
 /**
  * The {@link getSceneObjectGeometry} passes an instance of GeometryView to its callback

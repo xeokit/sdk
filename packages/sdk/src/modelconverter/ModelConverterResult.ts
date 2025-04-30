@@ -1,6 +1,6 @@
+import { Data } from "../data";
 import { ModelConverterResultOutput } from "./ModelConverterResultOutput";
 import { Scene } from "../scene";
-import { Data } from "../data";
 
 /**
  * The result returned from a {@link ModelConverter.convert | ModelConverter.convert} operation.

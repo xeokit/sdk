@@ -1,6 +1,6 @@
+import { DataModel, DataObject, PropertySet, Relationship } from "../../../data";
 import { SceneMesh, SceneModel, SceneObject } from "../../../scene";
 import { createUUID } from "../../../utils";
-import { DataModel, DataObject, PropertySet, Relationship } from "../../../data";
 import { ifcTypeNames } from "../../../ifctypes";
 import { ModelEncodeParams } from "../../../io";
 

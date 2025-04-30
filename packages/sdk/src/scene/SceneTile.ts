@@ -1,5 +1,5 @@
-import { Scene } from "./Scene";
 import { FloatArrayParam } from "../math";
+import { Scene } from "./Scene";
 import { SceneModel } from "./SceneModel";
 import { SceneObject } from "./SceneObject";
 

@@ -1,7 +1,7 @@
-import { VBOInstancingLayer } from "./VBOInstancingLayer";
 import { createRTCViewMat } from "../../../rtc";
-import { VBORenderer } from "../VBORenderer";
 import { RENDER_PASSES } from "../../RENDER_PASSES";
+import { VBOInstancingLayer } from "./VBOInstancingLayer";
+import { VBORenderer } from "../VBORenderer";
 
 /**
  * @private

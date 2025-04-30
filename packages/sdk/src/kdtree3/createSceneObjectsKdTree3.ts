@@ -1,5 +1,5 @@
-import type { SceneObject } from "../scene";
 import { collapseAABB3, expandAABB3 } from "../boundaries";
+import type { SceneObject } from "../scene";
 import { SceneObjectsKdTree3 } from "./sceneObjectsKdTree3";
 
 /**

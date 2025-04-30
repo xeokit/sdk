@@ -1,10 +1,10 @@
-import { WebGLRenderer } from "../../../../WebGLRenderer";
+import { RendererSetFactory, VBORendererSet } from "../../../VBORendererSet";
 import { VBOBatchingRenderer } from "../../VBOBatchingRenderer";
 import { VBOPointsBatchingDrawColorRenderer } from "./VBOPointsBatchingDrawColorRenderer";
 import { VBOPointsBatchingPickMeshRenderer } from "./VBOPointsBatchingPickMeshRenderer";
 import { VBOPointsBatchingSilhouetteRenderer } from "./VBOPointsBatchingSilhouetteRenderer";
-import { RendererSetFactory, VBORendererSet } from "../../../VBORendererSet";
 import { VBORenderer } from "../../../VBORenderer";
+import { WebGLRenderer } from "../../../../WebGLRenderer";
 
 
 /**

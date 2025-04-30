@@ -1,13 +1,12 @@
 import type { FloatArrayParam } from "../math";
-
 import type { SceneGeometryCompressedParams } from "./SceneGeometryCompressedParams";
+import type { SceneGeometryParams } from "./SceneGeometryParams";
+import type { SceneMeshParams } from "./SceneMeshParams";
+import { SceneModelStreamParams } from "./SceneModelStreamParams";
+import type { SceneObjectParams } from "./SceneObjectParams";
 import type { SceneTextureParams } from "./SceneTextureParams";
 import type { SceneTextureSetParams } from "./SceneTextureSetParams";
 
-import type { SceneMeshParams } from "./SceneMeshParams";
-import type { SceneGeometryParams } from "./SceneGeometryParams";
-import type { SceneObjectParams } from "./SceneObjectParams";
-import { SceneModelStreamParams } from "./SceneModelStreamParams";
 
 /**
  * Parameters for a {@link SceneModel}.

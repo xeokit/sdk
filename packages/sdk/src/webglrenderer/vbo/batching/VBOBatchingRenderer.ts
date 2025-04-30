@@ -1,7 +1,7 @@
-import { VBOBatchingLayer } from "./VBOBatchingLayer";
 import { createRTCViewMat } from "../../../rtc";
-import { VBORenderer } from "../VBORenderer";
 import { RENDER_PASSES } from "../../RENDER_PASSES";
+import { VBOBatchingLayer } from "./VBOBatchingLayer";
+import { VBORenderer } from "../VBORenderer";
 
 
 /**

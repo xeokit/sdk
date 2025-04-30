@@ -1,12 +1,12 @@
-import type { FloatArrayParam } from "../math";
+import { collapseAABB3, createAABB3, expandAABB3Point3 } from "../boundaries";
 import { createMat4, createVec4, identityMat4, isIdentityMat4, transformPoint4 } from "../matrix";
+import type { FloatArrayParam } from "../math";
 import type { RendererMesh } from "./RendererMesh";
 import type { SceneGeometry } from "./SceneGeometry";
-import type { SceneTextureSet } from "./SceneTextureSet";
-import type { SceneObject } from "./SceneObject";
 import type { SceneMeshParams } from "./SceneMeshParams";
+import type { SceneObject } from "./SceneObject";
+import type { SceneTextureSet } from "./SceneTextureSet";
 import { SceneTile } from "./SceneTile";
-import { collapseAABB3, createAABB3, expandAABB3Point3 } from "../boundaries";
 
 const tempVec4a = createVec4();
 const tempVec4b = createVec4();

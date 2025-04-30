@@ -1,5 +1,5 @@
-import type { PropertySet } from "./PropertySet";
 import type { PropertyParams } from "./PropertyParams";
+import type { PropertySet } from "./PropertySet";
 
 /**
  * Represents a property in a {@link PropertySet | PropertySet}.

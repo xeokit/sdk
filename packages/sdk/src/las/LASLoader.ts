@@ -1,12 +1,12 @@
-import { ModelLoader, ModelLoadParams, ModelParseParams } from "../io";
-import { SDKError } from "../core";
-import { createMat4, createVec3, transformPoint3 } from "../matrix";
 import { BasicAggregation, BasicEntity } from "../basictypes";
+import { createMat4, createVec3, transformPoint3 } from "../matrix";
+import { ModelLoader, ModelLoadParams, ModelParseParams } from "../io";
 import { createUUID } from "../utils";
-import { PointsPrimitive } from "../constants";
-import { parse } from '@loaders.gl/core';
 import { LASLoader as glLASLoader } from '@loaders.gl/las';
 import { LASLoaderOptions } from "./LASLoaderOptions";
+import { parse } from '@loaders.gl/core';
+import { PointsPrimitive } from "../constants";
+import { SDKError } from "../core";
 
 const MAX_VERTICES = 500000; // TODO: Rough estimate
 

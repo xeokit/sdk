@@ -1,13 +1,13 @@
 
-import { EventDispatcher } from "strongly-typed-events";
 
-import type { Camera } from "./Camera";
 import { Component, EventEmitter } from "../core";
-import type { FloatArrayParam } from "../math";
-import { CustomProjectionType } from "../constants";
 import { createMat4, identityMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4 } from "../matrix";
-import { Projection } from "./Projection";
+import type { Camera } from "./Camera";
 import { CustomProjectionParams } from "./CustomProjectionParams";
+import { CustomProjectionType } from "../constants";
+import { EventDispatcher } from "strongly-typed-events";
+import type { FloatArrayParam } from "../math";
+import { Projection } from "./Projection";
 
 /**
  * Configures a custom projection for a {@link Camera | Camera} .

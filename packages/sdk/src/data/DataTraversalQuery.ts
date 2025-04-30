@@ -1,6 +1,6 @@
 import type { Data } from "./Data";
-import { SDKError } from "../core";
 import type { DataObject } from "./DataObject";
+import { SDKError } from "../core";
 
 /**
  * Traverses a {@link data!Data | Data} to collect {@link data!DataObject | DataObjects} that matching given search criteria.

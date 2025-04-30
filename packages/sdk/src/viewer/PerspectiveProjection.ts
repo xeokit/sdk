@@ -1,11 +1,11 @@
-import { EventDispatcher } from "strongly-typed-events";
-import type { Camera } from "./Camera";
 import { Component, EventEmitter } from "../core";
-import { PerspectiveProjectionType } from "../constants";
-import type { FloatArrayParam } from "../math";
 import { createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4 } from "../matrix";
-import { Projection } from "./Projection";
+import type { Camera } from "./Camera";
+import { EventDispatcher } from "strongly-typed-events";
+import type { FloatArrayParam } from "../math";
 import { PerspectiveProjectionParams } from "./PerspectiveProjectionParams";
+import { PerspectiveProjectionType } from "../constants";
+import { Projection } from "./Projection";
 
 
 /**

@@ -1,5 +1,5 @@
-import { SceneModel } from "../scene";
 import { DataModel } from "../data";
+import { SceneModel } from "../scene";
 
 /**
  * Parameters for {@link ModelLoader.load | ModelLoader.load}.

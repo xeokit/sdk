@@ -1,7 +1,7 @@
-import type { PropertySet } from "./PropertySet";
-import type { DataModel } from "./DataModel";
-import type { Relationship } from "./Relationship";
 import type { Data } from "./Data";
+import type { DataModel } from "./DataModel";
+import type { PropertySet } from "./PropertySet";
+import type { Relationship } from "./Relationship";
 
 /**
  * An object within a {@link DataModel | DataModel}.

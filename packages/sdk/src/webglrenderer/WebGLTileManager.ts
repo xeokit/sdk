@@ -1,10 +1,10 @@
 
-import { WebGLDataTexture } from "../webglutils";
-import type { FloatArrayParam } from "../math";
 import { createMat4, createVec3 } from "../matrix";
 import { createRTCViewMat, worldToRTCCenter } from "../rtc";
 import type { Camera } from "../viewer";
+import type { FloatArrayParam } from "../math";
 import type { TileManager } from "./TileManager";
+import { WebGLDataTexture } from "../webglutils";
 
 const NUM_TILES = 2000;
 

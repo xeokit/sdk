@@ -1,5 +1,5 @@
-import { View } from "../viewer";
 import { Data } from "../data";
+import { View } from "../viewer";
 
 /**
  * Parameters to create a {@link treeview!TreeView | TreeView}.

@@ -1,7 +1,7 @@
-import { SearchParams } from "./SearchParams";
-import { SDKError } from "../core";
-import { DataObject } from "./DataObject";
 import { Data } from "./Data";
+import { DataObject } from "./DataObject";
+import { SDKError } from "../core";
+import { SearchParams } from "./SearchParams";
 
 /**
  * Finds {@link DataObject | DataObjects} in a {@link Data | Data} using a customized depth-first traversal.

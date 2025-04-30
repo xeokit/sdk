@@ -1,11 +1,11 @@
-import { EventDispatcher } from "strongly-typed-events";
-import type { Camera } from "./Camera";
 import { Component, EventEmitter } from "../core";
-import type { FloatArrayParam } from "../math";
-import { OrthoProjectionType } from "../constants";
 import { createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4 } from "../matrix";
-import { Projection } from "./Projection";
+import type { Camera } from "./Camera";
+import { EventDispatcher } from "strongly-typed-events";
+import type { FloatArrayParam } from "../math";
 import { OrthoProjectionParams } from "./OrthoProjectionParams";
+import { OrthoProjectionType } from "../constants";
+import { Projection } from "./Projection";
 
 
 /**

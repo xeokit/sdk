@@ -1,5 +1,5 @@
-import type { SceneGeometry } from "../scene";
 import type { PrimHit } from "./PrimHit";
+import type { SceneGeometry } from "../scene";
 
 /**
  * Represents an intersecting {@link scene!SceneGeometry | SceneGeometry} within a {@link RayPickResult}.

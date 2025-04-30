@@ -9,11 +9,11 @@ import {
   subVec3
 } from "../../../matrix";
 // @ts-ignore
-import { earcut } from './earcut';
-import { TrianglesPrimitive } from "../../../constants";
 import { BasicAggregation } from "../../../basictypes";
-import { typeCodes } from "../../../cityjsontypes_1_1_3";
+import { earcut } from './earcut';
 import { ModelParser } from "../../../io";
+import { TrianglesPrimitive } from "../../../constants";
+import { typeCodes } from "../../../cityjsontypes_1_1_3";
 
 const tempVec2a = createVec2();
 const tempVec3a = createVec3();

@@ -1,7 +1,7 @@
-import { parse as parse_1_0 } from "./versions/1_0/parse"
-import { ModelLoader } from "../io";
-import { DataModelParams } from "./DataModelParams";
 import { DataModel } from "./DataModel";
+import { DataModelParams } from "./DataModelParams";
+import { ModelLoader } from "../io";
+import { parse as parse_1_0 } from "./versions/1_0/parse"
 
 /**
  * Reads {@link DataModelParams | DataModelParams} into a {@link DataModel | DataModel}.

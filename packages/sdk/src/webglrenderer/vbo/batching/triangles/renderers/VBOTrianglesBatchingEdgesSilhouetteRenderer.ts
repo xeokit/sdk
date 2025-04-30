@@ -1,6 +1,6 @@
+import { RenderContext } from "../../../../RenderContext";
 import { VBOBatchingLayer } from "../../VBOBatchingLayer";
 import { VBOBatchingRenderer } from "../../VBOBatchingRenderer";
-import { RenderContext } from "../../../../RenderContext";
 
 /**
  * @private

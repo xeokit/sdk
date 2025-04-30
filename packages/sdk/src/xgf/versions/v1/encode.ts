@@ -1,6 +1,6 @@
+import { ModelEncodeParams } from "../../../io";
 import { modelToXGF } from "./modelToXGF";
 import { packXGF } from "./packXGF";
-import { ModelEncodeParams } from "../../../io";
 
 /** @private
  */

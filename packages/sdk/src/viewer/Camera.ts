@@ -1,4 +1,3 @@
-import { EventDispatcher } from "strongly-typed-events";
 import {
   addVec3,
   createMat4,
@@ -17,23 +16,23 @@ import {
   transformPoint3,
   transposeMat4
 } from "../matrix";
-
-import { PerspectiveProjection } from './PerspectiveProjection';
-import { OrthoProjection } from './OrthoProjection';
-import { FrustumProjection } from './FrustumProjection';
-import { CustomProjection } from './CustomProjection';
-import type { View } from "./View";
 import { Component, EventEmitter } from "../core";
-import { DEGTORAD, type FloatArrayParam } from "../math";
 import {
   CustomProjectionType,
   FrustumProjectionType,
   OrthoProjectionType,
   PerspectiveProjectionType
 } from "../constants";
+import { DEGTORAD, type FloatArrayParam } from "../math";
 import { Frustum3, setFrustum3 } from "../boundaries";
-import { Projection } from "./Projection";
 import { CameraParams } from "./CameraParams";
+import { CustomProjection } from './CustomProjection';
+import { EventDispatcher } from "strongly-typed-events";
+import { FrustumProjection } from './FrustumProjection';
+import { OrthoProjection } from './OrthoProjection';
+import { PerspectiveProjection } from './PerspectiveProjection';
+import { Projection } from "./Projection";
+import type { View } from "./View";
 
 
 const tempVec3 = createVec3();

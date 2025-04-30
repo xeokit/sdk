@@ -1,12 +1,11 @@
-import type { RendererGeometry, RendererMesh, RendererObject, RendererTextureSet, SceneObject } from "../scene";
-import type { FloatArrayParam } from "../math";
-import { createAABB3 } from "../boundaries";
-
-import type { RenderContext } from "./RenderContext";
-import type { Pickable } from "./Pickable";
 import { createMat4, mulMat4, transformPoint3, translationMat4c } from "../matrix";
+import type { RendererGeometry, RendererMesh, RendererObject, RendererTextureSet, SceneObject } from "../scene";
 import type { Tile, WebGLTileManager } from "./WebGLTileManager";
+import { createAABB3 } from "../boundaries";
+import type { FloatArrayParam } from "../math";
 import { Layer } from "./Layer";
+import type { Pickable } from "./Pickable";
+import type { RenderContext } from "./RenderContext";
 
 const tempMat4a = createMat4();
 const tempMat4b = createMat4();

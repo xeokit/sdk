@@ -1,9 +1,9 @@
-import type { View } from "./View";
 import { CentimetersUnit, FeetUnit, InchesUnit, MetersUnit, MillimetersUnit, YardsUnit } from "../constants";
 import { Component, EventEmitter } from "../core";
-import type { FloatArrayParam } from "../math";
-import { EventDispatcher } from "strongly-typed-events";
 import { createVec3 } from "../matrix";
+import { EventDispatcher } from "strongly-typed-events";
+import type { FloatArrayParam } from "../math";
+import type { View } from "./View";
 
 
 const unitsInfo = {

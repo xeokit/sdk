@@ -1,7 +1,7 @@
-import type { View } from "./View";
 import { Component, SDKError } from "../core";
 import { CustomProjectionType, FastRender, FrustumProjectionType, QualityRender } from "../constants";
 import { SAOParams } from "./SAOParams";
+import type { View } from "./View";
 
 /**
  * Configures Scalable Ambient Obscurance (SAO) for a {@link View}.

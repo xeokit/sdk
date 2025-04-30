@@ -1,16 +1,14 @@
 import { apply, createUUID, inQuotes } from "../utils";
 import { type Capabilities, Component, EventEmitter, SDKError } from "../core";
+import { Scene, SceneModel } from "../scene";
 import { EventDispatcher } from "strongly-typed-events";
 import type { FloatArrayParam } from "../math";
-import { Scene, SceneModel } from "../scene";
-
-import { View } from "./View";
-import { scheduler } from "./scheduler";
 import type { Renderer } from "./Renderer";
-
-import type { ViewParams } from "./ViewParams";
+import { scheduler } from "./scheduler";
 import type { TickParams } from "./TickParams";
+import { View } from "./View";
 import { ViewerParams } from "./ViewerParams";
+import type { ViewParams } from "./ViewParams";
 
 /**
  * 3D model viewer.

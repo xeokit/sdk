@@ -2,10 +2,10 @@
 
 import '@loaders.gl/polyfills';
 import { Scene, SceneModel } from "../scene";
-import { SDKError } from "../core";
-import { GLTFLoader } from "../gltf";
-import { XGFExporter } from "../xgf";
 import { convertMetaModel } from "../metamodel";
+import { GLTFLoader } from "../gltf";
+import { SDKError } from "../core";
+import { XGFExporter } from "../xgf";
 
 const xgfExporter = new XGFExporter();
 

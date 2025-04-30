@@ -1,10 +1,10 @@
 
-import { SceneModel } from "../../../scene";
-import { DataModel } from "../../../data";
 import * as WebIFC from "web-ifc";
-import { ModelParseParams } from "../../../io";
-import { IfcElement, IfcRelAggregates, ifcTypeCodes } from "../../../ifctypes";
 import { createVec3, identityMat4 } from "../../../matrix";
+import { IfcElement, IfcRelAggregates, ifcTypeCodes } from "../../../ifctypes";
+import { DataModel } from "../../../data";
+import { ModelParseParams } from "../../../io";
+import { SceneModel } from "../../../scene";
 import { TrianglesPrimitive } from "../../../constants";
 
 /**

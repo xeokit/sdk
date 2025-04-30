@@ -1,7 +1,7 @@
-import * as utils from "../utils";
 import * as constants from "../constants";
-import type { GeometryArrays } from "./GeometryArrays";
+import * as utils from "../utils";
 import { FloatArrayParam } from "../math";
+import type { GeometryArrays } from "./GeometryArrays";
 
 /**
  * Creates a box-shaped wireframe geometry.

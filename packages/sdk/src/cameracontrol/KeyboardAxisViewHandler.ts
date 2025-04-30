@@ -1,6 +1,6 @@
 
-import { View } from "../viewer";
 import { createVec3 } from "../matrix";
+import { View } from "../viewer";
 
 const center = createVec3();
 const tempVec3a = createVec3();

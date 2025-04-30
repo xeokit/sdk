@@ -1,7 +1,7 @@
 
 import { createVec2, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3 } from "../matrix";
-import { View } from "../viewer";
 import { PerspectiveProjectionType } from "../constants";
+import { View } from "../viewer";
 
 const getCanvasPosFromEvent = function (event, canvasPos) {
   if (!event) {

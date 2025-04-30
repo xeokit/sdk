@@ -7,12 +7,12 @@ import {
   UnsignedByteType
 } from "../constants";
 
-import { isArray } from "../utils";
 
 import { convertWebGLConstant } from "./convertWebGLConstant";
 import { getWebGLExtension } from "./getWebGLExtension";
-import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
+import { isArray } from "../utils";
 import type { TextureCompressedParams } from "../core";
+import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
 
 const color = new Uint8Array([0, 0, 0, 1]);
 

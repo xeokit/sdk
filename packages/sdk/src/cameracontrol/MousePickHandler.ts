@@ -1,5 +1,5 @@
-import { PickResult, View } from "../viewer";
 import { canvasPosToWorldRay, createVec3, subVec3 } from "../matrix";
+import { PickResult, View } from "../viewer";
 import { getAABB3Center } from "../boundaries";
 
 /**

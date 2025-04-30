@@ -1,6 +1,6 @@
 import type { FloatArrayParam } from "../math";
-import type { SDKError } from "../core";
 import { RendererModel } from "./RendererModel";
+import type { SDKError } from "../core";
 
 /**
  * Interface through which a {@link viewer!ViewObject | ViewObject} controls the appearance of

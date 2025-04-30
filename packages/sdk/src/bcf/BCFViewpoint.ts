@@ -1,10 +1,10 @@
-import { BCFOrthogonalCamera } from "./BCFOrthogonalCamera";
-import { BCFPerspectiveCamera } from "./BCFPerspectiveCamera";
-import { BCFLine } from "./BCFLine";
 import { BCFBitmap } from "./BCFBitmap";
 import { BCFClippingPlane } from "./BCFClippingPlane";
-import { BCFSnapshot } from "./BCFSnapshot";
 import { BCFComponents } from "./BCFComponents";
+import { BCFLine } from "./BCFLine";
+import { BCFOrthogonalCamera } from "./BCFOrthogonalCamera";
+import { BCFPerspectiveCamera } from "./BCFPerspectiveCamera";
+import { BCFSnapshot } from "./BCFSnapshot";
 
 /**
  * Represents a BIM Collaboration Format (BCF) viewpoint.

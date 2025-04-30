@@ -1,9 +1,9 @@
 import { DataModel } from "../data/DataModel";
-import { SceneModel } from "../scene/SceneModel";
 import { isJSONObject } from "../utils";
-import { ModelLoadParams } from "./ModelLoadParams";
 import { ModelLoaderParams } from "./ModelLoaderParams";
+import { ModelLoadParams } from "./ModelLoadParams";
 import { ModelParser } from "./ModelParser";
+import { SceneModel } from "../scene/SceneModel";
 
 /**
  * Loads a model file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.

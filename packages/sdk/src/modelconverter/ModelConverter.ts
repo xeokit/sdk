@@ -1,12 +1,12 @@
-import { Data } from "../data";
-import { Scene } from "../scene";
 import { ModelExporter, ModelLoader } from "../io";
-import { SDKError } from "../core";
+import { Data } from "../data";
+import { ModelConverterConfig } from "./ModelConverterConfig";
 import { ModelConverterParams } from "./ModelConverterParams";
 import { ModelConverterPipelineParams } from "./ModelConverterPipelineParams";
 import { ModelConverterRequest } from "./ModelConverterRequest";
 import { ModelConverterResult } from "./ModelConverterResult";
-import { ModelConverterConfig } from "./ModelConverterConfig";
+import { Scene } from "../scene";
+import { SDKError } from "../core";
 
 
 /**

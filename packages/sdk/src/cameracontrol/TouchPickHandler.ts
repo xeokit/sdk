@@ -1,5 +1,5 @@
-import { PickResult, View } from "../viewer";
 import { distVec2, subVec3 } from "../matrix";
+import { PickResult, View } from "../viewer";
 
 
 const TAP_INTERVAL = 150;

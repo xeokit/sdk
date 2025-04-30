@@ -1,8 +1,8 @@
-import type { SceneMesh } from "./SceneMesh";
+import { collapseAABB3,  expandAABB3 } from "../boundaries";
 import type { FloatArrayParam } from "../math";
 import type { RendererObject } from "./RendererObject";
+import type { SceneMesh } from "./SceneMesh";
 import type { SceneModel } from "./SceneModel";
-import { collapseAABB3,  expandAABB3 } from "../boundaries";
 import { SceneObjectParams } from "./SceneObjectParams";
 
 /**

@@ -1,11 +1,11 @@
-import type { View, Viewer, ViewObject } from "../viewer";
 import { Component, EventEmitter } from "../core";
 import type { Data, DataModel, DataObject } from "../data";
+import type { View, Viewer, ViewObject } from "../viewer";
 import { EventDispatcher } from "strongly-typed-events";
-import { TreeViewParams } from "./TreeViewParams";
 import { TreeViewNode } from "./TreeViewNode";
 import { TreeViewNodeContextMenuEvent } from "./TreeViewNodeContextMenuEvent";
 import { TreeViewNodeTitleClickedEvent } from "./TreeViewNodeTitleClickedEvent";
+import { TreeViewParams } from "./TreeViewParams";
 
 
 /**

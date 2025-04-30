@@ -1,3 +1,4 @@
+import { createMat4, createVec4, transformPoint4 } from "../matrix";
 import { type GeometryView, getSceneObjectGeometry, SceneObject } from "../scene";
 import {
   INSIDE,
@@ -8,7 +9,6 @@ import {
   setFrustum3
 } from "../boundaries";
 import type { FloatArrayParam } from "../math";
-import { createMat4, createVec4, transformPoint4 } from "../matrix";
 import { KdTree2 } from "./KdTree2";
 import type { KdVertex2 } from "./KdVertex2";
 

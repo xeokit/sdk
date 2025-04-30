@@ -1,5 +1,5 @@
-import { Property } from "./Property";
 import type { DataModel } from "./DataModel";
+import { Property } from "./Property";
 import type { PropertySetParams } from "./PropertySetParams";
 
 /**

@@ -1,20 +1,5 @@
-import { PickResult, View } from "../viewer";
-import { createVec2 } from "../matrix";
-import { PickController } from "./PickController";
-import { PivotController } from "./PivotController";
-import { PanController } from "./PanController";
 import { Component, EventEmitter } from "../core";
-import { MouseMiscHandler } from "./MouseMiscHandler";
-import { TouchPanRotateAndDollyHandler } from "./TouchPanRotateAndDollyHandler";
-import { MousePanRotateDollyHandler } from "./MousePanRotateDollyHandler";
-import { KeyboardAxisViewHandler } from "./KeyboardAxisViewHandler";
-import { MousePickHandler } from "./MousePickHandler";
-import { TouchPickHandler } from "./TouchPickHandler";
-import { KeyboardPanRotateDollyHandler } from "./KeyboardPanRotateDollyHandler";
-import { CameraUpdater } from "./CameraUpdater";
-import { isString } from "../utils";
 import { FirstPersonNavigationMode, OrbitNavigationMode, PlanViewNavigationMode, QWERTYLayout } from "../constants";
-import { EventDispatcher } from "strongly-typed-events";
 import {
   KEY_A,
   KEY_ADD,
@@ -37,9 +22,26 @@ import {
   KEY_X,
   KEY_Z
 } from "./keycodes";
-import { CameraFlightAnimation } from "../cameraflight";
+import { PickResult, View } from "../viewer";
 import { CameraControlParams } from "./CameraControlParams";
+import { CameraFlightAnimation } from "../cameraflight";
+import { CameraUpdater } from "./CameraUpdater";
+import { createVec2 } from "../matrix";
+import { EventDispatcher } from "strongly-typed-events";
 import { FloatArrayParam } from "../math";
+import { isString } from "../utils";
+import { KeyboardAxisViewHandler } from "./KeyboardAxisViewHandler";
+import { KeyboardPanRotateDollyHandler } from "./KeyboardPanRotateDollyHandler";
+import { MouseMiscHandler } from "./MouseMiscHandler";
+import { MousePanRotateDollyHandler } from "./MousePanRotateDollyHandler";
+import { MousePickHandler } from "./MousePickHandler";
+import { PanController } from "./PanController";
+import { PickController } from "./PickController";
+import { PivotController } from "./PivotController";
+import { TouchPanRotateAndDollyHandler } from "./TouchPanRotateAndDollyHandler";
+import { TouchPickHandler } from "./TouchPickHandler";
+
+
 
 const DEFAULT_SNAP_PICK_RADIUS = 30;
 const DEFAULT_SNAP_VERTEX = true;

@@ -1,9 +1,8 @@
 import type { FloatArrayParam } from "../math";
-
-import type { ViewLayer } from "./ViewLayer";
-import type { SceneObject } from "../scene";
 import type { RendererObject } from "../scene";
+import type { SceneObject } from "../scene";
 import { SDKError } from "../core";
+import type { ViewLayer } from "./ViewLayer";
 
 /**
  * An object within a {@link View | View}.

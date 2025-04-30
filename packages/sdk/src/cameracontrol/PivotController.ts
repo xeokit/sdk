@@ -1,5 +1,4 @@
 
-import { View } from "../viewer";
 import {
   addVec3,
   compareVec3,
@@ -13,6 +12,7 @@ import {
   transformPoint3, transformPoint4, transformVec3
 } from "../matrix";
 import { clamp, FloatArrayParam } from "../math";
+import { View } from "../viewer";
 import { worldToRTCPos } from "../rtc";
 
 const tempVec3a = createVec3();

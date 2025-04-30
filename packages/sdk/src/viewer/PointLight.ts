@@ -1,8 +1,8 @@
 import { Component } from "../core";
-import type { View } from "./View";
-import type { FloatArrayParam } from "../math";
 import { DirLightParams } from "./DirLightParams";
+import type { FloatArrayParam } from "../math";
 import { PointLightParams } from "./PointLightParams";
+import type { View } from "./View";
 
 
 /**

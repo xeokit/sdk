@@ -1,7 +1,7 @@
 import { inflateXKT } from "./inflateXKT";
-import { unpackXKT } from "./unpackXKT";
 import { SceneModel } from "../../../scene";
 import { SDKError } from "../../../core";
+import { unpackXKT } from "./unpackXKT";
 import { xktToModel } from "./xktToModel";
 
 export function parseXKTv10(params: {

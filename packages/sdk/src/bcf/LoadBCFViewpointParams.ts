@@ -1,6 +1,6 @@
-import type { View } from "../viewer";
 import type { BCFViewpoint } from "./BCFViewpoint";
 import { Data } from "../data";
+import type { View } from "../viewer";
 
 /**
  * Options for {@link loadBCFViewpoint | loadBCFViewpoint}.

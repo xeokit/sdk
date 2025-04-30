@@ -1,8 +1,8 @@
 import { WebGLArrayBuf, WebGLAttribute, WebGLProgram, WebGLRenderBuffer } from "../webglutils";
 import { createVec2 } from "../matrix";
+import { PerspectiveProjectionType } from "../constants";
 import { RenderContext } from "./RenderContext";
 import { View } from "../viewer";
-import { PerspectiveProjectionType } from "../constants";
 
 const tempVec2 = createVec2();
 

@@ -1,5 +1,5 @@
-import { WebGLArrayBuf } from "../../../webglutils";
 import { FloatArrayParam } from "../../../math";
+import { WebGLArrayBuf } from "../../../webglutils";
 
 /**
  * @private

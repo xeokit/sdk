@@ -1,8 +1,7 @@
 import { Component, SDKError } from "../core";
-import type { FloatArrayParam } from "../math";
-
-import type { View } from "./View";
 import { EmphasisMaterialParams } from "./EmphasisMaterialParams";
+import type { FloatArrayParam } from "../math";
+import type { View } from "./View";
 
 
 

@@ -1,8 +1,8 @@
-import type { BCFViewpoint } from "./BCFViewpoint";
-import type { SaveBCFViewpointParams } from "./SaveBCFViewpointParams";
 import { addVec3, createVec3, negateVec3, normalizeVec3, subVec3 } from "../matrix";
+import type { BCFViewpoint } from "./BCFViewpoint";
 import { FloatArrayParam } from "../math";
 import { OrthoProjectionType } from "../constants";
+import type { SaveBCFViewpointParams } from "./SaveBCFViewpointParams";
 import { ViewObject } from "../viewer";
 
 /**

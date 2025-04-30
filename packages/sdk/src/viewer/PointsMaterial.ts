@@ -1,7 +1,7 @@
 import { Component } from "../core";
-import type { View } from "./View";
-import { PointsMaterialParams } from "./PointsMaterialParams";
 import { EmphasisMaterialParams } from "./EmphasisMaterialParams";
+import { PointsMaterialParams } from "./PointsMaterialParams";
+import type { View } from "./View";
 
 /**
  * Configures the size and shape of {@link ViewObject | ViewObjects} that represent clouds of points.

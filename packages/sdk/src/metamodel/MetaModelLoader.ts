@@ -1,6 +1,6 @@
+import { IfcRelAggregates, ifcTypeCodes } from "../ifctypes";
 import { ModelLoader, ModelLoadParams } from "../io";
 import { DataModel } from "../data";
-import { IfcRelAggregates, ifcTypeCodes } from "../ifctypes";
 
 /**
  * Loads {@link MetaModelParams | MetaModelParams} into a {@link DataModel | DataModel}.

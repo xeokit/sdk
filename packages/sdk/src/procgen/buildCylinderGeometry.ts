@@ -1,7 +1,7 @@
 import * as utils from "../utils";
+import { FloatArrayParam } from "../math";
 import type { GeometryArrays } from "./GeometryArrays";
 import { TrianglesPrimitive } from "../constants";
-import { FloatArrayParam } from "../math";
 
 /**
  * Creates a cylinder-shaped geometry.

@@ -1,12 +1,9 @@
-import { EventDispatcher } from "strongly-typed-events";
-import { Component, EventEmitter } from "../core";
-
 import * as matrix from '../matrix';
-
-
-import type { View } from "./View";
+import { Component, EventEmitter } from "../core";
+import { EventDispatcher } from "strongly-typed-events";
 import type { FloatArrayParam } from "../math";
 import { SectionPlaneParams } from "./SectionPlaneParams";
+import type { View } from "./View";
 
 
 /**

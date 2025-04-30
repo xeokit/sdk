@@ -1,13 +1,13 @@
-import { WebGLRenderer } from "../../../../WebGLRenderer";
 import { RendererSetFactory, VBORendererSet } from "../../../VBORendererSet";
-import { VBOTrianglesBatchingDrawColorRenderer } from "./VBOTrianglesBatchingDrawColorRenderer";
 import { VBORenderer } from "../../../VBORenderer";
-import { VBOTrianglesBatchingPickMeshRenderer } from "./VBOTrianglesBatchingPickMeshRenderer";
-import { VBOTrianglesBatchingSilhouetteRenderer } from "./VBOTrianglesBatchingSilhouetteRenderer";
+import { VBOTrianglesBatchingDrawColorRenderer } from "./VBOTrianglesBatchingDrawColorRenderer";
+import { VBOTrianglesBatchingDrawColorSAORenderer } from "./VBOTrianglesBatchingDrawColorSAORenderer";
+import { VBOTrianglesBatchingDrawDepthRenderer } from "./VBOTrianglesBatchingDrawDepthRenderer";
 import { VBOTrianglesBatchingEdgesDrawRenderer } from "./VBOTrianglesBatchingEdgesDrawRenderer";
 import { VBOTrianglesBatchingEdgesSilhouetteRenderer } from "./VBOTrianglesBatchingEdgesSilhouetteRenderer";
-import { VBOTrianglesBatchingDrawDepthRenderer } from "./VBOTrianglesBatchingDrawDepthRenderer";
-import { VBOTrianglesBatchingDrawColorSAORenderer } from "./VBOTrianglesBatchingDrawColorSAORenderer";
+import { VBOTrianglesBatchingPickMeshRenderer } from "./VBOTrianglesBatchingPickMeshRenderer";
+import { VBOTrianglesBatchingSilhouetteRenderer } from "./VBOTrianglesBatchingSilhouetteRenderer";
+import { WebGLRenderer } from "../../../../WebGLRenderer";
 
 
 /**

@@ -1,6 +1,6 @@
 import type { FloatArrayParam } from "../math";
-import type { SceneObject } from "../scene";
 import type { KdTree2 } from "./KdTree2";
+import type { SceneObject } from "../scene";
 
 /**
  * Performs a Nearest-Neighbour search of the given KdTree2 from the given 2D canvas coordinates.

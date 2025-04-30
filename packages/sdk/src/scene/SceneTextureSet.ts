@@ -1,6 +1,6 @@
+import type { RendererTextureSet } from "./RendererTextureSet";
 import type { SceneTexture } from "./SceneTexture";
 import type { SceneTextureSetParams } from "./SceneTextureSetParams";
-import type { RendererTextureSet } from "./RendererTextureSet";
 
 /**
  * A set of {@link SceneTexture | Textures} in a {@link SceneModel | SceneModel}.

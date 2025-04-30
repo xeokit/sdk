@@ -1,7 +1,7 @@
 import { containsAABB3, expandAABB3 } from "../boundaries";
 import type { FloatArrayParam } from "../math";
-import type { KdNode3 } from "./KdNode3";
 import type { KdItem3D } from "./KdItem3";
+import type { KdNode3 } from "./KdNode3";
 import type { KdTree3Params } from "./KdTree3Params";
 
 

@@ -1,6 +1,6 @@
-import { Map } from "../utils";
-import { EventEmitter } from "../core";
 import { EventDispatcher } from "strongly-typed-events";
+import { EventEmitter } from "../core";
+import { Map } from "../utils";
 
 
 const idMap = new Map();

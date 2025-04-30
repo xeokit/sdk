@@ -1,5 +1,5 @@
-import type { PropertySetParams } from "./PropertySetParams";
 import type { DataObjectParams } from "./DataObjectParams";
+import type { PropertySetParams } from "./PropertySetParams";
 import type { RelationshipParams } from "./RelationshipParams";
 
 /**

@@ -1,5 +1,5 @@
-import type { XKTDataDeflated } from "./XKTDataDeflated";
 import { XKT_INFO } from "./XKT_INFO";
+import type { XKTDataDeflated } from "./XKTDataDeflated";
 
 /**
  * @private

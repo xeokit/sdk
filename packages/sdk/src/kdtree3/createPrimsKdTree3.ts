@@ -1,10 +1,10 @@
 import { createAABB3Int16, expandAABB3Points3 } from "../boundaries";
 import type { FloatArrayParam, IntArrayParam } from "../math";
 import { LinesPrimitive, PointsPrimitive, TrianglesPrimitive } from "../constants";
-import type { KdTree3 } from "./KdTree3";
-import type { KdTrianglePrim } from "./KdTrianglePrim";
 import type { KdLinePrim } from "./KdLinePrim";
 import type { KdPointPrim } from "./KdPointPrim";
+import type { KdTree3 } from "./KdTree3";
+import type { KdTrianglePrim } from "./KdTrianglePrim";
 import { PrimsKdTree3 } from "./PrimsKdTree3";
 
 const tempAABBInt16 = new Int16Array(6);

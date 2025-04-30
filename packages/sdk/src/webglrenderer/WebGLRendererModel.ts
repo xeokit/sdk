@@ -1,11 +1,8 @@
-import { Component, EventEmitter, SDKError, type TextureTranscoder } from "../core";
-import { createUUID, loadArraybuffer } from "../utils";
 import { collapseAABB3, expandAABB3 } from "../boundaries";
+import { Component, EventEmitter, SDKError, type TextureTranscoder } from "../core";
 import { composeMat4, createMat4, createVec3, createVec4, eulerToQuat, identityQuat, mulMat4 } from "../matrix";
-
-import type { FloatArrayParam } from "../math";
-import type { Viewer } from "../viewer";
-import { WebGLTexture } from "../webglutils";
+import { createUUID, loadArraybuffer } from "../utils";
+import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../constants";
 import type {
   RendererGeometry,
   RendererModel,
@@ -18,26 +15,25 @@ import type {
   SceneTexture,
   SceneTextureSet
 } from "../scene";
-import type { WebGLRenderer } from "./WebGLRenderer";
-
-import type { RenderContext } from "./RenderContext";
-import { WebGLRendererGeometry } from "./WebGLRendererGeometry";
-
-import { WebGLRendererTexture } from "./WebGLRendererTexture";
-import { WebGLRendererObject } from "./WebGLRendererObject";
-import { WebGLRendererMesh } from "./WebGLRendererMesh";
-import { WebGLRendererTextureSet } from "./WebGLRendererTextureSet";
-import type { WebGLTileManager } from "./WebGLTileManager";
-import { MeshCounts } from "./MeshCounts";
-import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../constants";
-import { RenderFlags } from "./RenderFlags";
+import type { FloatArrayParam } from "../math";
 import { Layer } from "./Layer";
+import { MeshCounts } from "./MeshCounts";
+import type { RenderContext } from "./RenderContext";
+import { RenderFlags } from "./RenderFlags";
+import { VBOLinesBatchingLayer } from "./vbo/batching/lines/VBOLinesBatchingLayer";
+import { VBOLinesInstancingLayer } from "./vbo/instancing/lines/VBOLinesInstancingLayer";
 import { VBOPointsBatchingLayer } from "./vbo/batching/points/VBOPointsBatchingLayer";
 import { VBOTrianglesBatchingLayer } from "./vbo/batching/triangles/VBOTrianglesBatchingLayer";
 import { VBOTrianglesInstancingLayer } from "./vbo/instancing/triangles/VBOTrianglesInstancingLayer";
-import { VBOLinesInstancingLayer } from "./vbo/instancing/lines/VBOLinesInstancingLayer";
-import { VBOLinesBatchingLayer } from "./vbo/batching/lines/VBOLinesBatchingLayer";
-
+import type { Viewer } from "../viewer";
+import type { WebGLRenderer } from "./WebGLRenderer";
+import { WebGLRendererGeometry } from "./WebGLRendererGeometry";
+import { WebGLRendererMesh } from "./WebGLRendererMesh";
+import { WebGLRendererObject } from "./WebGLRendererObject";
+import { WebGLRendererTexture } from "./WebGLRendererTexture";
+import { WebGLRendererTextureSet } from "./WebGLRendererTextureSet";
+import { WebGLTexture } from "../webglutils";
+import type { WebGLTileManager } from "./WebGLTileManager";
 
 const defaultScale = createVec3([1, 1, 1]);
 const defaultPosition = createVec3([0, 0, 0]);

@@ -1,6 +1,6 @@
 import { Component } from "../core";
-import type { View } from "./View";
 import { QualityRender } from "../constants";
+import type { View } from "./View";
 
 
 /**

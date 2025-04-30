@@ -1,6 +1,3 @@
-import { parse } from '@loaders.gl/core';
-import { GLTFLoader as glGLTFLoader, postProcessGLTF } from '@loaders.gl/gltf';
-
 import {
   ClampToEdgeWrapping,
   LinearFilter,
@@ -15,12 +12,14 @@ import {
   RepeatWrapping,
   TrianglesPrimitive
 } from "../constants";
-import { createUUID, isString } from "../utils";
 import { createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v } from "../matrix";
-import type { FloatArrayParam } from "../math";
+import { createUUID, isString } from "../utils";
+import { GLTFLoader as glGLTFLoader, postProcessGLTF } from '@loaders.gl/gltf';
+import { ModelLoader, ModelLoadParams } from "../io";
 import { SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams } from "../scene";
 import { DataModel } from "../data";
-import { ModelLoader, ModelLoadParams } from "../io";
+import type { FloatArrayParam } from "../math";
+import { parse } from '@loaders.gl/core';
 
 /**
  * Loads a glTF file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.

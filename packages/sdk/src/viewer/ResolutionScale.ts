@@ -1,7 +1,7 @@
 import { Component } from "../core";
-import type { View } from "./View";
 import { FastRender } from "../constants";
 import { ResolutionScaleParams } from "./ResolutionScaleParams";
+import type { View } from "./View";
 
 
 //  /**

@@ -1,12 +1,12 @@
-import type { LoadBCFViewpointParams } from "./LoadBCFViewpointParams";
 import { addVec3, createVec3, negateVec3, subVec3 } from "../matrix";
 import { DataObject, searchObjects } from "../data";
-import { OrthoProjectionType, PerspectiveProjectionType } from "../constants";
-import { FloatArrayParam } from "../math";
 import { IfcOpeningElement, IfcSpace } from "../ifctypes";
+import { OrthoProjectionType, PerspectiveProjectionType } from "../constants";
 import { BasicAggregation } from "../basictypes";
-import { BCFVector } from "./BCFVector";
 import { BCFComponent } from "./BCFComponent";
+import { BCFVector } from "./BCFVector";
+import { FloatArrayParam } from "../math";
+import type { LoadBCFViewpointParams } from "./LoadBCFViewpointParams";
 import { PickResult } from "../viewer";
 
 const tempVec3 = createVec3();

@@ -1,25 +1,24 @@
-import { Layer } from "../../Layer";
-import { WebGLRendererModel } from "../../WebGLRendererModel";
-import { MeshCounts } from "../../MeshCounts";
-import { FloatArrayParam } from "../../../math";
-import { createMat3, createVec3, createVec4, identityMat4, transformPoint4 } from "../../../matrix";
 import { collapseAABB3, expandAABB3, positions3ToAABB3 } from "../../../boundaries";
-import { SDKError } from "../../../core";
-import { LayerMeshParams } from "../../LayerMeshParams";
-import { SceneGeometry, SceneMesh } from "../../../scene";
-import { VBOBatchingBuffer } from "./VBOBatchingBuffer";
-import { VBOBatchingRenderState } from "./VBOBatchingRenderState";
-
-import { SCENE_OBJECT_FLAGS } from "../../SCENE_OBJECT_FLAGS";
-import { RENDER_PASSES } from "../../RENDER_PASSES";
-import { WebGLArrayBuf } from "../../../webglutils";
-import { RenderContext } from "../../RenderContext";
-import { getScratchMemory, putScratchMemory } from "../ScratchMemory";
-import { VBOBatchingLayerParams } from "./VBOBatchingLayerParams";
-
 import { compressUVs, decompressPoint3WithAABB3, getUVBounds, quantizePositions3 } from "../../../compression";
-import { VBORendererSet } from "../VBORendererSet";
+import { createMat3, createVec3, createVec4, identityMat4, transformPoint4 } from "../../../matrix";
+import { getScratchMemory, putScratchMemory } from "../ScratchMemory";
+import { SceneGeometry, SceneMesh } from "../../../scene";
 import { SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../../../constants";
+import { FloatArrayParam } from "../../../math";
+import { Layer } from "../../Layer";
+import { LayerMeshParams } from "../../LayerMeshParams";
+import { MeshCounts } from "../../MeshCounts";
+import { RENDER_PASSES } from "../../RENDER_PASSES";
+import { RenderContext } from "../../RenderContext";
+import { SCENE_OBJECT_FLAGS } from "../../SCENE_OBJECT_FLAGS";
+import { SDKError } from "../../../core";
+import { VBOBatchingBuffer } from "./VBOBatchingBuffer";
+import { VBOBatchingLayerParams } from "./VBOBatchingLayerParams";
+import { VBOBatchingRenderState } from "./VBOBatchingRenderState";
+import { VBORendererSet } from "../VBORendererSet";
+import { WebGLArrayBuf } from "../../../webglutils";
+import { WebGLRendererModel } from "../../WebGLRendererModel";
+
 
 let numLayers = 0;
 

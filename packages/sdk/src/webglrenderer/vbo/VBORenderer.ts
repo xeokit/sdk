@@ -1,10 +1,10 @@
+import { AmbientLight, DirLight, PointLight } from "../../viewer";
 import { WEBGL_INFO, WebGLAttribute, WebGLProgram } from "../../webglutils";
 import { OrthoProjectionType } from "../../constants";
-import { AmbientLight, DirLight, PointLight } from "../../viewer";
-import { RenderContext } from "../RenderContext";
 import { RENDER_PASSES } from "../RENDER_PASSES";
-import { VBOInstancingLayer } from "./instancing/VBOInstancingLayer";
+import { RenderContext } from "../RenderContext";
 import { VBOBatchingLayer } from "./batching/VBOBatchingLayer";
+import { VBOInstancingLayer } from "./instancing/VBOInstancingLayer";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 

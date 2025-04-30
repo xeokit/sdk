@@ -1,5 +1,5 @@
-import type { ViewObject } from "./ViewObject";
 import type { FloatArrayParam } from "../math";
+import type { ViewObject } from "./ViewObject";
 
 
 /**

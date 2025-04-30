@@ -1,9 +1,9 @@
 import { Map } from "../utils";
 
-import { WebGLShader } from "./WebGLShader";
-import { WebGLSampler } from "./WebGLSampler";
-import { WebGLAttribute } from "./WebGLAttribute";
 import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
+import { WebGLAttribute } from "./WebGLAttribute";
+import { WebGLSampler } from "./WebGLSampler";
+import { WebGLShader } from "./WebGLShader";
 
 const ids = new Map({}, "");
 

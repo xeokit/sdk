@@ -1,16 +1,16 @@
 import { Component, EventEmitter, SDKError } from "../core";
 import type { Data } from "./Data";
-import { PropertySet } from "./PropertySet";
-import { DataObject } from "./DataObject";
+import { DataModelContentParams } from "./DataModelContentParams";
 import type { DataModelParams } from "./DataModelParams";
+import { DataModelStats } from "./DataModelStats";
+import { DataObject } from "./DataObject";
 import type { DataObjectParams } from "./DataObjectParams";
+import { EventDispatcher } from "strongly-typed-events";
+import type { PropertyParams } from "./PropertyParams";
+import { PropertySet } from "./PropertySet";
 import type { PropertySetParams } from "./PropertySetParams";
 import { Relationship } from "./Relationship";
 import type { RelationshipParams } from "./RelationshipParams";
-import { EventDispatcher } from "strongly-typed-events";
-import type { PropertyParams } from "./PropertyParams";
-import { DataModelContentParams } from "./DataModelContentParams";
-import { DataModelStats } from "./DataModelStats";
 
 /**
  * Contains a model's semantic data, as an entity-relationship graph.

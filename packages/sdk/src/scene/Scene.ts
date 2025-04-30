@@ -1,10 +1,10 @@
 import { Component, EventEmitter, SDKError } from "../core";
 import { type FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE } from "../math";
+import { createAABB3 } from "../boundaries";
 import { EventDispatcher } from "strongly-typed-events";
 import { SceneModel } from "./SceneModel";
-import type { SceneObject } from "./SceneObject";
 import type { SceneModelParams } from "./SceneModelParams";
-import { createAABB3 } from "../boundaries";
+import type { SceneObject } from "./SceneObject";
 import { SceneTile } from "./SceneTile";
 
 /**

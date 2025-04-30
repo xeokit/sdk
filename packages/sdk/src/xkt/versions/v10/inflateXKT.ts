@@ -1,6 +1,6 @@
-import type { XKTDataDeflated } from "./XKTDataDeflated";
-import type { XKTData } from "./XKTData";
 import * as pako from "pako";
+import type { XKTData } from "./XKTData";
+import type { XKTDataDeflated } from "./XKTDataDeflated";
 
 /**
  * @private

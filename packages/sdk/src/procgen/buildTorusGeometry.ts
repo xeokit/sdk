@@ -1,6 +1,6 @@
-import { GeometryArrays } from "./GeometryArrays";
 import { normalizeVec3, subVec3 } from "../matrix";
 import { apply } from "../utils";
+import { GeometryArrays } from "./GeometryArrays";
 import { TrianglesPrimitive } from "../constants";
 
 /**

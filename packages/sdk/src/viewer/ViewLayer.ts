@@ -1,12 +1,11 @@
-import { EventDispatcher } from "strongly-typed-events";
 import { Component, EventEmitter } from "../core";
-
-import { ViewObject } from "./ViewObject";
-import type { Viewer } from "./Viewer";
-import type { View } from "./View";
 import type { Scene, SceneModel } from "../scene";
-import { ViewParams } from "./ViewParams";
+import { EventDispatcher } from "strongly-typed-events";
+import type { View } from "./View";
+import type { Viewer } from "./Viewer";
 import { ViewLayerParams } from "./ViewLayerParams";
+import { ViewObject } from "./ViewObject";
+import { ViewParams } from "./ViewParams";
 
 
 /**

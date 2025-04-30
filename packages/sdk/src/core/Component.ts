@@ -1,5 +1,5 @@
-import { EventEmitter } from "./EventEmitter";
 import { EventDispatcher } from "strongly-typed-events";
+import { EventEmitter } from "./EventEmitter";
 
 const createUUID = ((() => {
   const lut: any[] = [];

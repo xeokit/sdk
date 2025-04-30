@@ -34,8 +34,8 @@
  * @module boundaries
  */
 
-import { FloatArrayParam, IntArrayParam, MAX_DOUBLE, MIN_DOUBLE, newFloatArray } from "../math";
 import { createMat4, createVec2, createVec3, lenVec3, mulMat4, subVec3 } from "../matrix";
+import { FloatArrayParam, IntArrayParam, MAX_DOUBLE, MIN_DOUBLE, newFloatArray } from "../math";
 import { decompressPoint3WithMat4 } from "../compression";
 
 const tempVec3a = createVec3();

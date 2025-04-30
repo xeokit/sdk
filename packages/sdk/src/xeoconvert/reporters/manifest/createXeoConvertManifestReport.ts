@@ -1,7 +1,7 @@
-import { XeoConvertReporter } from "../XeoConvertReporter";
 import { XeoConvertManifestReport } from "./XeoConvertManifestReport";
-import { XeoConvertReportParams } from "../XeoConvertReportParams";
 import { XeoConvertManifestReportFile } from "./XeoConvertManifestReportFile";
+import { XeoConvertReporter } from "../XeoConvertReporter";
+import { XeoConvertReportParams } from "../XeoConvertReportParams";
 
 /**
  * @private

@@ -1,3 +1,5 @@
+import { createAABB3, getAABB3Center } from "../../../boundaries";
+import { createVec3, createVec4 } from "../../../matrix";
 import {
   JPEGMediaType,
   LinesPrimitive,
@@ -6,11 +8,9 @@ import {
   SolidPrimitive,
   SurfacePrimitive
 } from "../../../constants";
+import type { FloatArrayParam } from "../../../math";
 import type { SceneModel } from "../../../scene";
 import type { XKTData } from "./XKTData";
-import type { FloatArrayParam } from "../../../math";
-import { createVec3, createVec4 } from "../../../matrix";
-import { createAABB3, getAABB3Center } from "../../../boundaries";
 
 const tempVec4a = createVec4();
 const tempVec4b = createVec4();

@@ -1,6 +1,6 @@
+import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
 import type { WebGLProgram } from "./WebGLProgram";
 import type { WebGLSampler } from "./WebGLSampler";
-import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
 
 /**
  * Represents a WebGL2 data texture.

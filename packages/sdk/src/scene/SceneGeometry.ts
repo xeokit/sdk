@@ -1,8 +1,8 @@
-import type { FloatArrayParam } from "../math";
-import type { SceneGeometryCompressedParams } from "./SceneGeometryCompressedParams";
-import type { RendererGeometry } from "./RendererGeometry";
 import { createAABB3 } from "../boundaries";
+import type { FloatArrayParam } from "../math";
 import { IntArrayParam } from "../math";
+import type { RendererGeometry } from "./RendererGeometry";
+import type { SceneGeometryCompressedParams } from "./SceneGeometryCompressedParams";
 
 /**
  * A geometry in a {@link SceneModel | SceneModel}.

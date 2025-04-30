@@ -15,10 +15,10 @@ import {
   RepeatWrapping,
   sRGBEncoding
 } from "../constants";
+import { createVec4 } from "../matrix";
 import type { FloatArrayParam } from "../math";
 import type { RendererTexture } from "./RendererTexture";
 import type { SceneTextureParams } from "./SceneTextureParams";
-import { createVec4 } from "../matrix";
 
 /**
  * A texture in a {@link SceneModel | SceneModel}.

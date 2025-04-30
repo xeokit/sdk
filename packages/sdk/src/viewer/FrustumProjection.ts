@@ -1,13 +1,12 @@
-import { EventDispatcher } from "strongly-typed-events";
-
-import type { Camera } from "./Camera";
 import { Component, EventEmitter } from "../core";
-import { FrustumProjectionType } from "../constants";
-import type { FloatArrayParam } from "../math";
 import { createMat4, frustumMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4 } from "../matrix";
-import { Projection } from "./Projection";
+import type { Camera } from "./Camera";
+import { EventDispatcher } from "strongly-typed-events";
+import type { FloatArrayParam } from "../math";
 import { FrustumProjectionParams } from "./FrustumProjectionParams";
+import { FrustumProjectionType } from "../constants";
 import { PerspectiveProjectionParams } from "./PerspectiveProjectionParams";
+import { Projection } from "./Projection";
 
 /**
  *  FrustumProjection-based perspective projection configuration for a {@link Camera | Camera} .

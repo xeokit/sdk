@@ -1,6 +1,6 @@
 import { RenderContext } from "../RenderContext";
-import { VBORenderer } from "./VBORenderer";
 import { RenderStats } from "../RenderStats";
+import { VBORenderer } from "./VBORenderer";
 import { WebGLRenderer } from "../WebGLRenderer";
 
 /**

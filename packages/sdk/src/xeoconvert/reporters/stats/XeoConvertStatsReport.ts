@@ -1,6 +1,6 @@
-import { XeoConvertStatsReportInput } from "./XeoConvertStatsReportInput";
-import { SceneModelStats } from "../../../scene";
 import { DataModelStats } from "../../../data";
+import { SceneModelStats } from "../../../scene";
+import { XeoConvertStatsReportInput } from "./XeoConvertStatsReportInput";
 
 export interface XeoConvertStatsReport {
   description: string,

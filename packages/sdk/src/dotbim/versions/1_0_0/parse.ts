@@ -1,7 +1,7 @@
-import { TrianglesPrimitive } from "../../../constants";
-import { SDKError } from "../../../core";
-import { ModelParser } from "../../../io";
 import { ifcTypeCodes } from "../../../ifctypes";
+import { ModelParser } from "../../../io";
+import { SDKError } from "../../../core";
+import { TrianglesPrimitive } from "../../../constants";
 
 /**
  * @private

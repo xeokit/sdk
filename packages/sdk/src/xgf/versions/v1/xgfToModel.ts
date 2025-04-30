@@ -1,3 +1,4 @@
+import { BasicAggregation, BasicEntity } from "../../../basictypes";
 import {
   LinesPrimitive,
   PointsPrimitive,
@@ -6,11 +7,10 @@ import {
   TrianglesPrimitive
 } from "../../../constants";
 import type { SceneGeometryCompressedParams, SceneModel } from "../../../scene";
-import type { XGFData_v1 } from "./XGFData_v1";
-import type { FloatArrayParam } from "../../../math";
-import { DataModel } from "../../../data";
-import { BasicAggregation, BasicEntity } from "../../../basictypes";
 import { createUUID } from "../../../utils";
+import { DataModel } from "../../../data";
+import type { FloatArrayParam } from "../../../math";
+import type { XGFData_v1 } from "./XGFData_v1";
 
 /**
  * @private

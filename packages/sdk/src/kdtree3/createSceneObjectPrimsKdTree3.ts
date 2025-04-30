@@ -1,9 +1,9 @@
-import { type GeometryView, getSceneObjectGeometry, SceneGeometry, SceneObject } from "../scene";
-import { KdTree3 } from "./KdTree3";
-import type { FloatArrayParam } from "../math";
 import { collapseAABB3, expandAABB3 } from "../boundaries";
+import { type GeometryView, getSceneObjectGeometry, SceneGeometry, SceneObject } from "../scene";
 import { LinesPrimitive, PointsPrimitive, TrianglesPrimitive } from "../constants";
+import type { FloatArrayParam } from "../math";
 import type { KdSceneObjectPrim } from "./KdSceneObjectPrim";
+import { KdTree3 } from "./KdTree3";
 
 /**
  * k-d tree built by {@link createSceneObjectPrimsKdTree3}.

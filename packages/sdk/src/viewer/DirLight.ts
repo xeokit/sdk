@@ -1,10 +1,8 @@
 import { Component } from "../core";
-
-
-import type { View } from "./View";
-import type { FloatArrayParam } from "../math";
-import { DirLightParams } from "./DirLightParams";
 import { CustomProjectionParams } from "./CustomProjectionParams";
+import { DirLightParams } from "./DirLightParams";
+import type { FloatArrayParam } from "../math";
+import type { View } from "./View";
 
 /**
  * A directional light source within a {@link View}.

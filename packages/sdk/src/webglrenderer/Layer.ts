@@ -1,10 +1,10 @@
 
-import { WebGLRendererModel } from "./WebGLRendererModel";
-import { MeshCounts } from "./MeshCounts";
 import { SceneGeometry, SceneMesh } from "../scene";
 import { FloatArrayParam } from "../math";
 import { LayerMeshParams } from "./LayerMeshParams";
+import { MeshCounts } from "./MeshCounts";
 import { RenderContext } from "./RenderContext";
+import { WebGLRendererModel } from "./WebGLRendererModel";
 
 /**
  * @private

@@ -1,15 +1,15 @@
-import type { FloatArrayParam } from "../math";
-import { SAOParams } from "./SAOParams";
-import { ViewLayerParams } from "./ViewLayerParams";
+import { AmbientLightParams } from "./AmbientLightParams";
 import { CameraParams } from "./CameraParams";
+import { DirLightParams } from "./DirLightParams";
 import { EdgesParams } from "./EdgesParams";
 import { EmphasisMaterialParams } from "./EmphasisMaterialParams";
+import type { FloatArrayParam } from "../math";
 import { PointLightParams } from "./PointLightParams";
-import { AmbientLightParams } from "./AmbientLightParams";
-import { DirLightParams } from "./DirLightParams";
-import { SectionPlaneParams } from "./SectionPlaneParams";
 import { PointsMaterialParams } from "./PointsMaterialParams";
 import { ResolutionScaleParams } from "./ResolutionScaleParams";
+import { SAOParams } from "./SAOParams";
+import { SectionPlaneParams } from "./SectionPlaneParams";
+import { ViewLayerParams } from "./ViewLayerParams";
 
 /**
  * Parameters for a {@link View}.

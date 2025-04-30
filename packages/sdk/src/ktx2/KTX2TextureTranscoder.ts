@@ -1,3 +1,5 @@
+import type { Capabilities, TextureCompressedParams, TextureTranscoder } from "../core";
+import { FileLoader, WorkerPool } from "../utils";
 import {
   LinearEncoding,
   LinearFilter,
@@ -14,8 +16,6 @@ import {
   RGBAFormat,
   sRGBEncoding
 } from "../constants";
-import { FileLoader, WorkerPool } from "../utils";
-import type { Capabilities, TextureCompressedParams, TextureTranscoder } from "../core";
 
 const KTX2TransferSRGB = 2;
 const KTX2_ALPHA_PREMULTIPLIED = 1;
@@ -220,11 +220,11 @@ const BasisWorker = function () {
   let BasisModule: any;
 
   // @ts-ignore
-  const EngineFormat = _EngineFormat;  
+  const EngineFormat = _EngineFormat;
   // @ts-ignore
-  const TranscoderFormat = _TranscoderFormat;  
+  const TranscoderFormat = _TranscoderFormat;
   // @ts-ignore
-  const BasisFormat = _BasisFormat;  
+  const BasisFormat = _BasisFormat;
 
   self.addEventListener('message', function (e) {
     const message = e.data;
@@ -278,7 +278,7 @@ const BasisWorker = function () {
         onRuntimeInitialized: resolve
       };
       // @ts-ignore
-      BASIS(BasisModule);  
+      BASIS(BasisModule);
     }).then(() => {
       BasisModule.initializeBasis();
       if (BasisModule.KTX2File === undefined) {

@@ -1,5 +1,5 @@
-import { decompressPoint3WithAABB3 } from "../../../compression";
 import { createVec3, createVec4, decomposeMat4 } from "../../../matrix";
+import { decompressPoint3WithAABB3 } from "../../../compression";
 import { ifcTypeNames } from "../../../ifctypes";
 import { ModelEncodeParams } from "../../../io";
 

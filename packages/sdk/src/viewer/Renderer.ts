@@ -1,11 +1,11 @@
-import type { View } from "./View";
-import type { Viewer } from "./Viewer";
 import type { Capabilities } from "../core";
-import type { SDKError } from "../core";
-import type { RendererObject } from "../scene";
-import type { SceneModel } from "../scene";
 import { PickParams } from "./PickParams";
 import { PickResult } from "./PickResult";
+import type { RendererObject } from "../scene";
+import type { SceneModel } from "../scene";
+import type { SDKError } from "../core";
+import type { View } from "./View";
+import type { Viewer } from "./Viewer";
 
 /**
  * Interface defining the rendering strategy used internally by a {@link Viewer | Viewer}.

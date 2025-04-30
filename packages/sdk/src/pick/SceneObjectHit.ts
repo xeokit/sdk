@@ -1,5 +1,5 @@
-import type { SceneObject } from "../scene";
 import type { MeshHit } from "./MeshHit";
+import type { SceneObject } from "../scene";
 
 /**
  * Represents a picked {@link scene!SceneObject | SceneObject} within a {@link RayPickResult}.

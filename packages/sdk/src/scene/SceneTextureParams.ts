@@ -1,5 +1,5 @@
-import type { LinearEncoding } from "../constants";
 import type { FloatArrayParam } from "../math";
+import type { LinearEncoding } from "../constants";
 
 /**
  * {@link SceneTexture} creation parameters for {@link SceneModel.createTexture | SceneModel.createTexture}.

@@ -1,6 +1,6 @@
+import { rendererFactory } from "./renderers/rendererFactory";
 import { VBOInstancingLayer } from "../VBOInstancingLayer";
 import { VBOInstancingLayerParams } from "../VBOInstancingLayerParams";
-import { rendererFactory } from "./renderers/rendererFactory";
 
 /**
  * @private

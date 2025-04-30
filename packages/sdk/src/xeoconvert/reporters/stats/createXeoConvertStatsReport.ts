@@ -1,6 +1,6 @@
 import { XeoConvertReporter } from "../XeoConvertReporter";
-import { XeoConvertStatsReport } from "./XeoConvertStatsReport";
 import { XeoConvertReportParams } from "../XeoConvertReportParams";
+import { XeoConvertStatsReport } from "./XeoConvertStatsReport";
 
 /**
  * @private

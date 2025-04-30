@@ -1,10 +1,9 @@
 import { Component, EventEmitter, SDKError } from "../core";
-
 import { DataModel } from "./DataModel";
-import { DataObject } from "./DataObject";
-import type { PropertySet } from "./PropertySet";
 import type { DataModelParams } from "./DataModelParams";
+import { DataObject } from "./DataObject";
 import { EventDispatcher } from "strongly-typed-events";
+import type { PropertySet } from "./PropertySet";
 
 /**
  * Container of model semantic data.

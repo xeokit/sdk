@@ -1,7 +1,7 @@
-import type { WebGLRendererModel } from "../../WebGLRendererModel";
-import type { RendererTextureSet } from "../../../scene";
 import { FloatArrayParam } from "../../../math";
 import { RenderContext } from "../../RenderContext";
+import type { RendererTextureSet } from "../../../scene";
+import type { WebGLRendererModel } from "../../WebGLRendererModel";
 
 /**
  * @private

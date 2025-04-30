@@ -1,16 +1,16 @@
-import {apply, createUUID, inQuotes} from "../utils";
-import {type Capabilities, Component, EventEmitter, SDKError} from "../core";
-import {EventDispatcher} from "strongly-typed-events";
-import type {FloatArrayParam} from "../math";
-import {Scene, SceneModel} from "../scene";
+import { apply, createUUID, inQuotes } from "../utils";
+import { type Capabilities, Component, EventEmitter, SDKError } from "../core";
+import { EventDispatcher } from "strongly-typed-events";
+import type { FloatArrayParam } from "../math";
+import { Scene, SceneModel } from "../scene";
 
-import {View} from "./View";
-import {scheduler} from "./scheduler";
-import type {Renderer} from "./Renderer";
+import { View } from "./View";
+import { scheduler } from "./scheduler";
+import type { Renderer } from "./Renderer";
 
-import type {ViewParams} from "./ViewParams";
-import type {TickParams} from "./TickParams";
-import {ViewerParams} from "./ViewerParams";
+import type { ViewParams } from "./ViewParams";
+import type { TickParams } from "./TickParams";
+import { ViewerParams } from "./ViewerParams";
 
 /**
  * 3D model viewer.
@@ -19,61 +19,61 @@ import {ViewerParams} from "./ViewerParams";
  */
 export class Viewer extends Component {
 
-    /**
+  /**
      * ID of this Viewer.
      */
-    declare readonly id: string;
+  declare readonly id: string;
 
-    /**
+  /**
      * True once this Viewer has been destroyed.
      *
      * Don't use this Viewer if this is ````false````.
      */
-    declare readonly destroyed: boolean;
+  declare readonly destroyed: boolean;
 
-    /**
+  /**
      * Indicates the capabilities of this Viewer.
      */
-    readonly capabilities: Capabilities;
+  readonly capabilities: Capabilities;
 
-    /**
+  /**
      * Emits an event each time a message is logged.
      *
      * @event
      */
-    readonly onLog: EventEmitter<Viewer, string>;
+  readonly onLog: EventEmitter<Viewer, string>;
 
-    /**
+  /**
      * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
      *
      * @event
      */
-    readonly onTick: EventEmitter<Viewer, TickParams>;
+  readonly onTick: EventEmitter<Viewer, TickParams>;
 
-    /**
+  /**
      * Emits an event each time a {@link View} is created.
      *
      * @event
      */
-    readonly onViewCreated: EventEmitter<Viewer, View>;
+  readonly onViewCreated: EventEmitter<Viewer, View>;
 
-    /**
+  /**
      * Emits an event each time a {@link View} is destroyed.
      *
      * @event
      */
-    readonly onViewDestroyed: EventEmitter<Viewer, View>;
+  readonly onViewDestroyed: EventEmitter<Viewer, View>;
 
-    /**
+  /**
      * The Viewer's scene representation.
      *
      * The {@link scene!SceneModel | SceneModels} is the container of {@link scene!SceneModel | SceneModels}
      * and {@link scene!SceneObject | SceneObjects}, which contain the geometry and materials for models currently
      * loaded in the Viewer.
      */
-    readonly scene: Scene;
+  readonly scene: Scene;
 
-    /**
+  /**
      * Map of all the Views in this Viewer.
      *
      * Each {@link View} is mapped here against {@link View.id | View.id}.
@@ -81,41 +81,41 @@ export class Viewer extends Component {
      * Each {@link View} is an independently configurable view of the Viewer's models, with its own
      * canvas, camera position, section planes, lights, and object visual states.
      */
-    readonly views: { [key: string]: View };
+  readonly views: { [key: string]: View };
 
-    /**
+  /**
      * List of all the Views in this Viewer.
      *
      * Each {@link View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
      *
      * @internal
      */
-    readonly viewList: View[];
+  readonly viewList: View[];
 
-    /**
+  /**
      *  The number of {@link View | Views} belonging to this Viewer.
      *
      *  The maxiumum number of Views that a Viewer can have is determined by the {@link Renderer} implementation it was
      *  configured with, which is provided in {@link Capabilities.maxViews}.
      */
-    numViews: number;
+  numViews: number;
 
-    /**
+  /**
      * The time that this Viewer was created.
      * This is the number of milliseconds since the epoch, which is defined as the midnight at the beginning of January 1, 1970, UTC.
      */
-    readonly startTime: number = (new Date()).getTime();
+  readonly startTime: number = (new Date()).getTime();
 
-    /**
+  /**
      * The Renderer that this Viewer was configured with via the Viewer's constructor.
      * Th Renderer is only used by the Viewer, and is not intended to for users to use directly. It's provided via this property
      * in order to verify which Render implementation the Viewer is configured with.
      */
-    readonly renderer: Renderer;
+  readonly renderer: Renderer;
 
-    #tickifiedFunctions: {};
+  #tickifiedFunctions: {};
 
-    /**
+  /**
      * Creates a Viewer.
      *
      * @param params - Viewer configuration.
@@ -129,66 +129,66 @@ export class Viewer extends Component {
      * @throws SDKError
      *   The given Renderer is already attached to some other Viewer.
      */
-    constructor(params: {
-        scene?: Scene,
-        renderer: Renderer,
-        id?: string,
-        units?: string,
-        scale?: number,
-        origin?: FloatArrayParam,
-    }) {
-        super(null, {});
+  constructor(params: {
+    scene?: Scene,
+    renderer: Renderer,
+    id?: string,
+    units?: string,
+    scale?: number,
+    origin?: FloatArrayParam,
+  }) {
+    super(null, {});
 
-        // TODO: Exception if Scene already attached to another Viewer
-        // TODO: Don't destroy externally-created Scenes
+    // TODO: Exception if Scene already attached to another Viewer
+    // TODO: Don't destroy externally-created Scenes
 
-        this.id = params.id || createUUID();
+    this.id = params.id || createUUID();
 
-        if (params.renderer.viewer !== undefined) {
-            throw new SDKError(`Failed to create Viewer - the given Renderer is currently attached to another Viewer`);
-        }
-
-        this.onLog = new EventEmitter(new EventDispatcher<Viewer, string>());
-        this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
-        this.onViewCreated = new EventEmitter(new EventDispatcher<Viewer, View>());
-        this.onViewDestroyed = new EventEmitter(new EventDispatcher<Viewer, View>());
-
-        this.viewList = [];
-        this.numViews = 0;
-        this.views = {};
-        this.destroyed = false;
-
-        this.capabilities = {
-            maxViews: 1,
-            headless: false,
-            astcSupported: false,
-            etc1Supported: false,
-            etc2Supported: false,
-            dxtSupported: false,
-            bptcSupported: false,
-            pvrtcSupported: false
-        };
-
-        this.scene = params.scene || new Scene();
-
-        params.renderer.attachViewer(this);
-        params.renderer.getCapabilities(this.capabilities);
-
-        this.renderer = params.renderer;
-
-        this.#tickifiedFunctions = {};
-
-        this.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
-            this.renderer.attachSceneModel(sceneModel);
-        });
-        this.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
-            this.renderer.detachSceneModel(sceneModel);
-        });
-
-        scheduler.registerViewer(this);
+    if (params.renderer.viewer !== undefined) {
+      throw new SDKError(`Failed to create Viewer - the given Renderer is currently attached to another Viewer`);
     }
 
-    /**
+    this.onLog = new EventEmitter(new EventDispatcher<Viewer, string>());
+    this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
+    this.onViewCreated = new EventEmitter(new EventDispatcher<Viewer, View>());
+    this.onViewDestroyed = new EventEmitter(new EventDispatcher<Viewer, View>());
+
+    this.viewList = [];
+    this.numViews = 0;
+    this.views = {};
+    this.destroyed = false;
+
+    this.capabilities = {
+      maxViews: 1,
+      headless: false,
+      astcSupported: false,
+      etc1Supported: false,
+      etc2Supported: false,
+      dxtSupported: false,
+      bptcSupported: false,
+      pvrtcSupported: false
+    };
+
+    this.scene = params.scene || new Scene();
+
+    params.renderer.attachViewer(this);
+    params.renderer.getCapabilities(this.capabilities);
+
+    this.renderer = params.renderer;
+
+    this.#tickifiedFunctions = {};
+
+    this.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
+      this.renderer.attachSceneModel(sceneModel);
+    });
+    this.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
+      this.renderer.detachSceneModel(sceneModel);
+    });
+
+    scheduler.registerViewer(this);
+  }
+
+  /**
      * This method will "tickify" the provided `cb` function.
      *
      * This means, the function will be wrapped so:
@@ -199,53 +199,53 @@ export class Viewer extends Component {
      * @param {Function} cb The function to tickify
      * @returns {Function}
      */
-    tickify(cb: any): any {
-        let cbString = cb.toString();
+  tickify(cb: any): any {
+    const cbString = cb.toString();
 
-        /**
+    /**
          * Check if the function is already tickified, and if so return the cached one.
          */
-        if (cbString in this.#tickifiedFunctions) {
-            return this.#tickifiedFunctions[cbString].wrapperFunc;
-        }
+    if (cbString in this.#tickifiedFunctions) {
+      return this.#tickifiedFunctions[cbString].wrapperFunc;
+    }
 
-        let alreadyRun = 0;
-        let needToRun = 0;
+    let alreadyRun = 0;
+    let needToRun = 0;
 
-        let lastArgs;
+    let lastArgs;
 
-        /**
+    /**
          * The provided `cb` function is replaced with a "set-dirty" function
          *
          * @type {Function}
          */
-        const wrapperFunc = function (...args) {
-            lastArgs = args;
-            needToRun++;
-        };
+    const wrapperFunc = function (...args) {
+      lastArgs = args;
+      needToRun++;
+    };
 
-        /**
+    /**
          * An each scene tick, if the "dirty-flag" is set, run the `cb` function.
          *
          * This will make it run time-aligned to the scene tick.
          */
-        const tickSubId = this.onTick.sub(() => {
-            const tmp = needToRun;
-            if (tmp > alreadyRun) {
-                alreadyRun = tmp;
-                cb(...lastArgs);
-            }
-        });
-
-        /**
-         * And, store the list of subscribers.
-         */
-        this.#tickifiedFunctions[cbString] = {tickSubId, wrapperFunc};
-
-        return wrapperFunc;
-    }
+    const tickSubId = this.onTick.sub(() => {
+      const tmp = needToRun;
+      if (tmp > alreadyRun) {
+        alreadyRun = tmp;
+        cb(...lastArgs);
+      }
+    });
 
     /**
+         * And, store the list of subscribers.
+         */
+    this.#tickifiedFunctions[cbString] = { tickSubId, wrapperFunc };
+
+    return wrapperFunc;
+  }
+
+  /**
      * Creates a new {@link View} within this Viewer.
      *
      * * The maximum number of views you're allowed to create is provided in {@link Capabilities.maxViews}. This
@@ -279,61 +279,61 @@ export class Viewer extends Component {
      * * If View already exists with the given ID.
      * * Attempted to create too many Views - see {@link Capabilities.maxViews | Capabilities.maxViews}.
      */
-    createView(viewParams: ViewParams): View | SDKError {
-        if (this.viewList.length >= this.capabilities.maxViews) {
-            return new SDKError(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
-        }
-        let viewId = viewParams.id || createUUID();
-        if (this.views[viewId]) {
-            return new SDKError(`View with ID "${viewId}" already exists in this Viewer`);
-        }
-        // @ts-ignore
-        if (viewParams.elementId) {
-            const htmlElement = document.getElementById(viewParams.elementId);
-            if (!(htmlElement instanceof HTMLElement)) {
-                return new SDKError("viewParams.htmlElement is not an HTMLElement");
-            }
-        }
-        if (viewParams.htmlElement) {
-            if (!(viewParams.htmlElement instanceof HTMLElement)) {
-                return new SDKError("viewParams.elementId does not reference an HTMLElement");
-            }
-        }
-        const view = new View(this, apply({id: viewId}, viewParams));
-        const result: void | SDKError = this.renderer.attachView(view);
-        if (result instanceof SDKError) {
-            this.error(`Failed to create View (id = "${view.viewId}"): ${result.message}`);
-            return result;
-        }
-
-        this.#registerView(view);
-        view.onDestroyed.one(() => {
-            this.#deregisterView(view);
-            this.renderer.detachView(view);
-            this.onViewDestroyed.dispatch(this, view);
-        });
-        // Renderer.attachSceneModel creates RendererObjects in Renderer.rendererObjects,
-        // which are then expected by View.initViewObjects
-        for (let id in this.scene.models) {
-            this.renderer.attachSceneModel(this.scene.models[id]);
-        }
-        view.initViewObjects();
-        this.onViewCreated.dispatch(this, view);
-        return view;
+  createView(viewParams: ViewParams): View | SDKError {
+    if (this.viewList.length >= this.capabilities.maxViews) {
+      return new SDKError(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
+    }
+    const viewId = viewParams.id || createUUID();
+    if (this.views[viewId]) {
+      return new SDKError(`View with ID "${viewId}" already exists in this Viewer`);
+    }
+    // @ts-ignore
+    if (viewParams.elementId) {
+      const htmlElement = document.getElementById(viewParams.elementId);
+      if (!(htmlElement instanceof HTMLElement)) {
+        return new SDKError("viewParams.htmlElement is not an HTMLElement");
+      }
+    }
+    if (viewParams.htmlElement) {
+      if (!(viewParams.htmlElement instanceof HTMLElement)) {
+        return new SDKError("viewParams.elementId does not reference an HTMLElement");
+      }
+    }
+    const view = new View(this, apply({ id: viewId }, viewParams));
+    const result: void | SDKError = this.renderer.attachView(view);
+    if (result instanceof SDKError) {
+      this.error(`Failed to create View (id = "${view.viewId}"): ${result.message}`);
+      return result;
     }
 
-    /**
+    this.#registerView(view);
+    view.onDestroyed.one(() => {
+      this.#deregisterView(view);
+      this.renderer.detachView(view);
+      this.onViewDestroyed.dispatch(this, view);
+    });
+    // Renderer.attachSceneModel creates RendererObjects in Renderer.rendererObjects,
+    // which are then expected by View.initViewObjects
+    for (const id in this.scene.models) {
+      this.renderer.attachSceneModel(this.scene.models[id]);
+    }
+    view.initViewObjects();
+    this.onViewCreated.dispatch(this, view);
+    return view;
+  }
+
+  /**
      * Trigger redraw of all {@link View | Views} belonging to this Viewer.
      *
      * @private
      */
-    redraw(): void {
-        for (let viewId in this.views) {
-            this.views[viewId].redraw();
-        }
+  redraw(): void {
+    for (const viewId in this.views) {
+      this.views[viewId].redraw();
     }
+  }
 
-    /**
+  /**
      * Logs a console debugging message for this Viewer.
      *
      * The console message will have this format: *````[LOG] [<component type> <component id>: <message>````*
@@ -341,11 +341,11 @@ export class Viewer extends Component {
      * @private
      * @param message - The message to log
      */
-    log(message: string): void {
-        window.console.log(`[LOG] ${this.#prefixMessageWithID(message)}`);
-    }
+  log(message: string): void {
+    window.console.log(`[LOG] ${this.#prefixMessageWithID(message)}`);
+  }
 
-    /**
+  /**
      * Logs a warning for this Viewer to the JavaScript console.
      *
      * The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
@@ -353,11 +353,11 @@ export class Viewer extends Component {
      * @private
      * @param message - The warning message to log
      */
-    warn(message: string): void {
-        window.console.warn(`[WARN] ${this.#prefixMessageWithID(message)}`);
-    }
+  warn(message: string): void {
+    window.console.warn(`[WARN] ${this.#prefixMessageWithID(message)}`);
+  }
 
-    /**
+  /**
      * Logs an error for this Viewer to the JavaScript console.
      *
      * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
@@ -365,110 +365,110 @@ export class Viewer extends Component {
      * @private
      * @param message The error message to log
      */
-    error(message: string): void {
-        window.console.error(`[ERROR] ${this.#prefixMessageWithID(message)}`);
-    }
+  error(message: string): void {
+    window.console.error(`[ERROR] ${this.#prefixMessageWithID(message)}`);
+  }
 
-    /**
+  /**
      * Clears this Viewer.
      *
      * Destroys all existing {@link View | Views} and resets all properties to their default values.
      */
-    clear() {
-        for (let viewId in this.views) {
-            const view = this.views[viewId];
-            view.destroy();
-        }
-        // TODO: set other defaults?
+  clear() {
+    for (const viewId in this.views) {
+      const view = this.views[viewId];
+      view.destroy();
     }
+    // TODO: set other defaults?
+  }
 
-    /**
+  /**
      * @private
      * @param params
      */
-    render(params: any) {
-        for (let viewIndex = 0; viewIndex < this.viewList.length; viewIndex++) {
-            // console.log("this.renderer.render()");
-            // console.log("...");
-            this.renderer.render(viewIndex, {force: false});
-        }
+  render(params: any) {
+    for (let viewIndex = 0; viewIndex < this.viewList.length; viewIndex++) {
+      // console.log("this.renderer.render()");
+      // console.log("...");
+      this.renderer.render(viewIndex, { force: false });
     }
+  }
 
-    #prefixMessageWithID(message: string): string {
-        return `[${this.constructor.name} "${inQuotes(this.id)}"]: ${message}`;
+  #prefixMessageWithID(message: string): string {
+    return `[${this.constructor.name} "${inQuotes(this.id)}"]: ${message}`;
+  }
+
+  #registerView(view: View): void {
+    if (this.views[view.id]) {
+      return;
     }
-
-    #registerView(view: View): void {
-        if (this.views[view.id]) {
-            return;
-        }
-        this.views[view.id] = view;
-        for (let viewIndex = 0; ; viewIndex++) {
-            if (!this.viewList[viewIndex]) {
-                this.viewList[viewIndex] = view;
-                this.numViews++;
-                view.viewIndex = viewIndex;
-                return;
-            }
-        }
+    this.views[view.id] = view;
+    for (let viewIndex = 0; ; viewIndex++) {
+      if (!this.viewList[viewIndex]) {
+        this.viewList[viewIndex] = view;
+        this.numViews++;
+        view.viewIndex = viewIndex;
+        return;
+      }
     }
+  }
 
-    #deregisterView(view: View): void {
-        if (!this.views[view.id]) {
-            return;
-        }
-        delete this.views[view.id];
-        delete this.viewList[view.viewIndex];
-        this.numViews--;
+  #deregisterView(view: View): void {
+    if (!this.views[view.id]) {
+      return;
     }
+    delete this.views[view.id];
+    delete this.viewList[view.viewIndex];
+    this.numViews--;
+  }
 
-    /**
+  /**
      * Configures this Viewer.
      *
      * @param viewerParams
      */
-    fromParams(viewerParams: ViewerParams) {
-        if (viewerParams.views) {
-            for (let viewParams of viewerParams.views) {
-                if (viewParams.id !== undefined) {
-                    const existingView = this.views[viewParams.id];
-                    if (existingView) {
-                        existingView.fromParams(viewParams); // Update existing View
-                    } else {
-                        this.createView(viewParams);
-                    }
-                } else {
-                    this.createView(viewParams);
-                }
-            }
+  fromParams(viewerParams: ViewerParams) {
+    if (viewerParams.views) {
+      for (const viewParams of viewerParams.views) {
+        if (viewParams.id !== undefined) {
+          const existingView = this.views[viewParams.id];
+          if (existingView) {
+            existingView.fromParams(viewParams); // Update existing View
+          } else {
+            this.createView(viewParams);
+          }
+        } else {
+          this.createView(viewParams);
         }
+      }
     }
+  }
 
-    /**
+  /**
      * Gets the current configuration of this Viewer.
      */
-    toParams(): ViewerParams {
-        return {
-            views: this.viewList.map(el => el.toParams())
-        };
-    }
+  toParams(): ViewerParams {
+    return {
+      views: this.viewList.map(el => el.toParams())
+    };
+  }
 
-    /**
+  /**
      * Destroys this Viewer.
      */
-    destroy(): void {
-        if (this.destroyed) {
-            return;
-        }
-        this.renderer.detachViewer();
-        scheduler.deregisterViewer(this);
-        for (let id in this.views) {
-            this.views[id].destroy();
-        }
-        this.onLog.clear();
-        this.onTick.clear();
-        this.onViewCreated.clear();
-        this.onViewDestroyed.clear();
-        super.destroy();
+  destroy(): void {
+    if (this.destroyed) {
+      return;
     }
+    this.renderer.detachViewer();
+    scheduler.deregisterViewer(this);
+    for (const id in this.views) {
+      this.views[id].destroy();
+    }
+    this.onLog.clear();
+    this.onTick.clear();
+    this.onViewCreated.clear();
+    this.onViewDestroyed.clear();
+    super.destroy();
+  }
 }

@@ -1,7 +1,7 @@
 import * as utils from "../utils";
 import * as constants from "../constants";
 import type { GeometryArrays } from "./GeometryArrays";
-import {FloatArrayParam} from "../math";
+import { FloatArrayParam } from "../math";
 
 /**
  * Creates a box-shaped wireframe geometry.
@@ -32,77 +32,77 @@ import {FloatArrayParam} from "../math";
  * @throws {SDKError} If any of the sizes (`xSize`, `ySize`, or `zSize`) are negative, the function automatically inverts the sizes and logs a warning.
  */
 export function buildBoxLinesGeometry(cfg: {
-    center?: FloatArrayParam,
-    ySize?: number,
-    xSize?: number,
-    zSize?: number
+  center?: FloatArrayParam,
+  ySize?: number,
+  xSize?: number,
+  zSize?: number
 } = {
-    center: [0, 0, 0],
-    xSize: 1,
-    ySize: 1,
-    zSize: 1
+  center: [0, 0, 0],
+  xSize: 1,
+  ySize: 1,
+  zSize: 1
 }): GeometryArrays {
 
-    let xSize = cfg.xSize || 1;
-    if (xSize < 0) {
-        console.error("negative xSize not allowed - will invert");
-        xSize *= -1;
-    }
+  let xSize = cfg.xSize || 1;
+  if (xSize < 0) {
+    console.error("negative xSize not allowed - will invert");
+    xSize *= -1;
+  }
 
-    let ySize = cfg.ySize || 1;
-    if (ySize < 0) {
-        console.error("negative ySize not allowed - will invert");
-        ySize *= -1;
-    }
+  let ySize = cfg.ySize || 1;
+  if (ySize < 0) {
+    console.error("negative ySize not allowed - will invert");
+    ySize *= -1;
+  }
 
-    let zSize = cfg.zSize || 1;
-    if (zSize < 0) {
-        console.error("negative zSize not allowed - will invert");
-        zSize *= -1;
-    }
+  let zSize = cfg.zSize || 1;
+  if (zSize < 0) {
+    console.error("negative zSize not allowed - will invert");
+    zSize *= -1;
+  }
 
-    const center = cfg.center;
-    const centerX = center ? center[0] : 0;
-    const centerY = center ? center[1] : 0;
-    const centerZ = center ? center[2] : 0;
+  const center = cfg.center;
+  const centerX = center ? center[0] : 0;
+  const centerY = center ? center[1] : 0;
+  const centerZ = center ? center[2] : 0;
 
-    const xmin = -xSize + centerX;
-    const ymin = -ySize + centerY;
-    const zmin = -zSize + centerZ;
-    const xmax = xSize + centerX;
-    const ymax = ySize + centerY;
-    const zmax = zSize + centerZ;
+  const xmin = -xSize + centerX;
+  const ymin = -ySize + centerY;
+  const zmin = -zSize + centerZ;
+  const xmax = xSize + centerX;
+  const ymax = ySize + centerY;
+  const zmax = zSize + centerZ;
 
-    return utils.apply(cfg, {
-        primitive: constants.LinesPrimitive,
+  return utils.apply(cfg, {
+    primitive: constants.LinesPrimitive,
 
-        // The positions represent the vertices of the box.
-        // These are the 8 corner points of the box in 3D space.
-        positions: [
-            xmin, ymin, zmin,
-            xmin, ymin, zmax,
-            xmin, ymax, zmin,
-            xmin, ymax, zmax,
-            xmax, ymin, zmin,
-            xmax, ymin, zmax,
-            xmax, ymax, zmin,
-            xmax, ymax, zmax
-        ],
+    // The positions represent the vertices of the box.
+    // These are the 8 corner points of the box in 3D space.
+    positions: [
+      xmin, ymin, zmin,
+      xmin, ymin, zmax,
+      xmin, ymax, zmin,
+      xmin, ymax, zmax,
+      xmax, ymin, zmin,
+      xmax, ymin, zmax,
+      xmax, ymax, zmin,
+      xmax, ymax, zmax
+    ],
 
-        // Indices define the lines that connect the vertices to form the wireframe.
-        indices: [
-            0, 1, // line from v0 to v1
-            1, 3, // line from v1 to v3
-            3, 2, // line from v3 to v2
-            2, 0, // line from v2 to v0
-            4, 5, // line from v4 to v5
-            5, 7, // line from v5 to v7
-            7, 6, // line from v7 to v6
-            6, 4, // line from v6 to v4
-            0, 4, // line from v0 to v4
-            1, 5, // line from v1 to v5
-            2, 6, // line from v2 to v6
-            3, 7  // line from v3 to v7
-        ]
-    });
+    // Indices define the lines that connect the vertices to form the wireframe.
+    indices: [
+      0, 1, // line from v0 to v1
+      1, 3, // line from v1 to v3
+      3, 2, // line from v3 to v2
+      2, 0, // line from v2 to v0
+      4, 5, // line from v4 to v5
+      5, 7, // line from v5 to v7
+      7, 6, // line from v7 to v6
+      6, 4, // line from v6 to v4
+      0, 4, // line from v0 to v4
+      1, 5, // line from v1 to v5
+      2, 6, // line from v2 to v6
+      3, 7  // line from v3 to v7
+    ]
+  });
 }

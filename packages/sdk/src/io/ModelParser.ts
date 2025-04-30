@@ -1,4 +1,4 @@
-import {ModelParseParams} from "./ModelParseParams";
+import { ModelParseParams } from "./ModelParseParams";
 
 /**
  * Parses geometry and semantic data from a model file into a {@link scene!SceneModel | scene!SceneModel}

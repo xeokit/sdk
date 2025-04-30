@@ -1,4 +1,4 @@
-import {FloatArrayParam} from "../math";
+import { FloatArrayParam } from "../math";
 
 /**
  * Parameters for a View's selected, highlighted and x-ray effects.
@@ -9,67 +9,67 @@ import {FloatArrayParam} from "../math";
  */
 export interface EmphasisMaterialParams {
 
-    /**
+  /**
      * The RGB color of {@link EmphasisMaterial | EmphasisMaterial} edges.
      *
      * Default is ```` [0.2, 0.2, 0.2]````.
      */
-    edgeColor?: FloatArrayParam;
+  edgeColor?: FloatArrayParam;
 
-    /**
+  /**
      * Pixel width of {@link EmphasisMaterial | EmphasisMaterial} edges.
      *
      * Default is ````1````.
      */
-    edgeWidth?: number;
+  edgeWidth?: number;
 
-    /**
+  /**
      * Opacity of {@link EmphasisMaterial | EmphasisMaterial} edges.
      *
      * Value is in range ````[0..1]````.
      *
      * Default is ````1````.
      */
-    edgeAlpha?: number;
+  edgeAlpha?: number;
 
-    /**
+  /**
      * Whether {@link EmphasisMaterial | EmphasisMaterial} edges are visible.
      *
      * Default is ````true````.
      */
-    edges?: boolean;
+  edges?: boolean;
 
-    /**
+  /**
      * The RGB color of {@link EmphasisMaterial | EmphasisMaterial} surfaces.
      *
      * Default is ```` [1.0, 1.0, 1.0]````.
      */
-    fillColor?: FloatArrayParam;
+  fillColor?: FloatArrayParam;
 
-    /**
+  /**
      * Whether {@link EmphasisMaterial | EmphasisMaterial} backfaces are visible.
      *
      * Default is ````false````.
      */
-    backfaces?: boolean;
+  backfaces?: boolean;
 
-    /**
+  /**
      * Opacity of {@link EmphasisMaterial | EmphasisMaterial} surfaces.
      *
      * Value is in range ````[0..1]````.
      *
      * Default is ````1````.
      */
-    fillAlpha?: number;
+  fillAlpha?: number;
 
-    /**
+  /**
      * Whether {@link EmphasisMaterial | EmphasisMaterial} surfaces are filled.
      *
      * Default is ````true````.
      */
-    fill?: boolean;
+  fill?: boolean;
 
-    /**
+  /**
      * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
      *
      * Default is ````true````.
@@ -78,5 +78,5 @@ export interface EmphasisMaterialParams {
      *
      * @type {Boolean}
      */
-    glowThrough?: boolean;
+  glowThrough?: boolean;
 }

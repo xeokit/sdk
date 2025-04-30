@@ -1,4 +1,4 @@
-import {FloatArrayParam} from "../math";
+import { FloatArrayParam } from "../math";
 
 /**
  * Parameters for a {@link PointLight}.
@@ -9,51 +9,51 @@ import {FloatArrayParam} from "../math";
  */
 export interface PointLightParams {
 
-    /** Optional ID, generated automatically when omitted.
+  /** Optional ID, generated automatically when omitted.
      */
-    id?: string;
+  id?: string;
 
-    /**
+  /**
      * Intensity of the {@link PointLight}.
      *
      * Value is in range `[0..1]`.
      *
      * Default value is `1.0`.
      */
-    intensity?: number;
+  intensity?: number;
 
-    /**
+  /**
      * RGB color of the {@link PointLight}.
      *
      * Range is `[0..1, 0..1, 0..1]`.
      *
      * Default value is `[1.0, 1.0, 1.0]`.
      */
-    color?: FloatArrayParam;
+  color?: FloatArrayParam;
 
-    /**
+  /**
      * 3D position of the {@link PointLight}.
      */
-    pos?: FloatArrayParam;
+  pos?: FloatArrayParam;
 
-    /**
+  /**
      * 3D coordinate space in which the {@link PointLight} is positioned.
      *
      * Accepted value is "world" or "view".
      *
      * Default is "world".
      */
-    space?: string;
+  space?: string;
 
-    /** Quadratic attenuation factor of the {@link PointLight}.
+  /** Quadratic attenuation factor of the {@link PointLight}.
      */
-    quadraticAttenuation?: number;
+  quadraticAttenuation?: number;
 
-    /** Constant attenuation factor of the {@link PointLight}.
+  /** Constant attenuation factor of the {@link PointLight}.
      */
-    constantAttenuation?: number;
+  constantAttenuation?: number;
 
-    /** Linear attenuation factor of the {@link PointLight}.
+  /** Linear attenuation factor of the {@link PointLight}.
      */
-    linearAttenuation?: number;
+  linearAttenuation?: number;
 }

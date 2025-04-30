@@ -1,4 +1,4 @@
-import {FloatArrayParam} from "../math";
+import { FloatArrayParam } from "../math";
 
 /**
  * Parameters for a {@link CustomProjection}.
@@ -9,10 +9,10 @@ import {FloatArrayParam} from "../math";
  */
 export interface CustomProjectionParams {
 
-    /**
+  /**
      * The {@link CustomProjection | CustomProjection's} projection transform matrix.
      *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      */
-    projMatrix?: FloatArrayParam;
+  projMatrix?: FloatArrayParam;
 }

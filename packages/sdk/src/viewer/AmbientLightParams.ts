@@ -1,4 +1,4 @@
-import {FloatArrayParam} from "../math";
+import { FloatArrayParam } from "../math";
 
 /**
  * Parameters for an {@link AmbientLight}.
@@ -9,23 +9,23 @@ import {FloatArrayParam} from "../math";
  */
 export interface AmbientLightParams {
 
-    /** Optional ID, generated automatically when omitted.
+  /** Optional ID, generated automatically when omitted.
      */
-    id?: string;
+  id?: string;
 
-    /**
+  /**
      * RGB color of the {@link AmbientLight}.
      *
      * Range is `[0..1, 0..1, 0..1]`.
      *
      * Default value is `[1.0, 1.0, 1.0]`.
      */
-    color?: FloatArrayParam;
+  color?: FloatArrayParam;
 
-    /**
+  /**
      * Intensity of the {@link AmbientLight}.
      *
      * Default value is `0.5`.
      */
-    intensity?: number;
+  intensity?: number;
 }

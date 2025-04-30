@@ -1,8 +1,8 @@
-import {WebGLArrayBuf, WebGLAttribute, WebGLProgram, WebGLRenderBuffer} from "../webglutils";
-import { createVec2} from "../matrix";
-import {RenderContext} from "./RenderContext";
-import {View} from "../viewer";
-import {PerspectiveProjectionType} from "../constants";
+import { WebGLArrayBuf, WebGLAttribute, WebGLProgram, WebGLRenderBuffer } from "../webglutils";
+import { createVec2 } from "../matrix";
+import { RenderContext } from "./RenderContext";
+import { View } from "../viewer";
+import { PerspectiveProjectionType } from "../constants";
 
 const tempVec2 = createVec2();
 
@@ -11,161 +11,161 @@ const tempVec2 = createVec2();
  */
 export class SAOOcclusionRenderer {
 
-    #numSamples: number;
-    #program: WebGLProgram;
-    #programError: boolean;
-    #aPosition: WebGLAttribute;
-    #aUV: WebGLAttribute;
-    #uDepthTexture: string;
-    #uCameraNear: WebGLUniformLocation;
-    #uCameraFar: WebGLUniformLocation;
-    #uCameraProjectionMatrix: WebGLUniformLocation;
-    #uCameraInverseProjectionMatrix: WebGLUniformLocation;
-    #uScale: WebGLUniformLocation;
-    #uIntensity: WebGLUniformLocation;
-    #uBias: WebGLUniformLocation;
-    #uKernelRadius: WebGLUniformLocation;
-    #uMinResolution: WebGLUniformLocation;
-    #uRandomSeed: WebGLUniformLocation;
-    #uvBuf: WebGLArrayBuf;
-    #positionsBuf: WebGLArrayBuf;
-    #indicesBuf: WebGLArrayBuf;
-    #uPerspective: WebGLUniformLocation;
-    #uViewport: WebGLUniformLocation;
-    #dirty: boolean;
-    #renderContext: RenderContext;
+  #numSamples: number;
+  #program: WebGLProgram;
+  #programError: boolean;
+  #aPosition: WebGLAttribute;
+  #aUV: WebGLAttribute;
+  #uDepthTexture: string;
+  #uCameraNear: WebGLUniformLocation;
+  #uCameraFar: WebGLUniformLocation;
+  #uCameraProjectionMatrix: WebGLUniformLocation;
+  #uCameraInverseProjectionMatrix: WebGLUniformLocation;
+  #uScale: WebGLUniformLocation;
+  #uIntensity: WebGLUniformLocation;
+  #uBias: WebGLUniformLocation;
+  #uKernelRadius: WebGLUniformLocation;
+  #uMinResolution: WebGLUniformLocation;
+  #uRandomSeed: WebGLUniformLocation;
+  #uvBuf: WebGLArrayBuf;
+  #positionsBuf: WebGLArrayBuf;
+  #indicesBuf: WebGLArrayBuf;
+  #uPerspective: WebGLUniformLocation;
+  #uViewport: WebGLUniformLocation;
+  #dirty: boolean;
+  #renderContext: RenderContext;
 
-    constructor(params: {
-        renderContext: RenderContext
-    }) {
+  constructor(params: {
+    renderContext: RenderContext
+  }) {
 
-        this.#renderContext = params.renderContext;
+    this.#renderContext = params.renderContext;
 
-        this.#numSamples = null;
+    this.#numSamples = null;
 
-        // The program
+    // The program
 
-        this.#program = null;
-        this.#programError = false;
+    this.#program = null;
+    this.#programError = false;
 
-        // Variable locations
+    // Variable locations
 
-        this.#aPosition = null;
-        this.#aUV = null;
+    this.#aPosition = null;
+    this.#aUV = null;
 
-        this.#uDepthTexture = "uDepthTexture";
+    this.#uDepthTexture = "uDepthTexture";
 
-        this.#uCameraNear = null;
-        this.#uCameraFar = null;
-        this.#uCameraProjectionMatrix = null;
-        this.#uCameraInverseProjectionMatrix = null;
+    this.#uCameraNear = null;
+    this.#uCameraFar = null;
+    this.#uCameraProjectionMatrix = null;
+    this.#uCameraInverseProjectionMatrix = null;
 
-        this.#uScale = null;
-        this.#uIntensity = null;
-        this.#uBias = null;
-        this.#uKernelRadius = null;
-        this.#uMinResolution = null;
-        this.#uRandomSeed = null;
+    this.#uScale = null;
+    this.#uIntensity = null;
+    this.#uBias = null;
+    this.#uKernelRadius = null;
+    this.#uMinResolution = null;
+    this.#uRandomSeed = null;
 
-        // VBOs
+    // VBOs
 
-        this.#uvBuf = null;
-        this.#positionsBuf = null;
-        this.#indicesBuf = null;
+    this.#uvBuf = null;
+    this.#positionsBuf = null;
+    this.#indicesBuf = null;
+  }
+
+  render(params: {
+    depthRenderBuffer: WebGLRenderBuffer
+    view: View
+  }) {
+
+    this.#build();
+
+    if (this.#programError) {
+      return;
     }
 
-    render(params: {
-        depthRenderBuffer: WebGLRenderBuffer
-        view: View
-    }) {
+    const { depthRenderBuffer, view } = params;
 
-        this.#build();
+    const gl = this.#renderContext.gl;
 
-        if (this.#programError) {
-            return;
-        }
+    const program = this.#program;
+    const sao = view.sao;
+    const viewportWidth = gl.drawingBufferWidth;
+    const viewportHeight = gl.drawingBufferHeight;
+    const projection = view.camera.projectionType === PerspectiveProjectionType
+      ? view.camera.perspectiveProjection
+      : view.camera.orthoProjection;
+    const near = projection.near;
+    const far = projection.far;
+    const projectionMatrix = projection.projMatrix;
+    const inverseProjectionMatrix = projection.inverseProjMatrix;
+    const randomSeed = Math.random();
+    const perspective = (view.camera.projectionType === PerspectiveProjectionType);
 
-        const {depthRenderBuffer, view} = params;
+    tempVec2[0] = viewportWidth;
+    tempVec2[1] = viewportHeight;
 
-        const gl = this.#renderContext.gl;
+    gl.viewport(0, 0, viewportWidth, viewportHeight);
+    gl.clearColor(0, 0, 0, 1);
+    gl.disable(gl.DEPTH_TEST);
+    gl.disable(gl.BLEND);
+    gl.frontFace(gl.CCW);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
-        const program = this.#program;
-        const sao = view.sao;
-        const viewportWidth = gl.drawingBufferWidth;
-        const viewportHeight = gl.drawingBufferHeight;
-        const projection = view.camera.projectionType === PerspectiveProjectionType
-            ? view.camera.perspectiveProjection
-            : view.camera.orthoProjection;
-        const near = projection.near;
-        const far = projection.far;
-        const projectionMatrix = projection.projMatrix;
-        const inverseProjectionMatrix = projection.inverseProjMatrix;
-        const randomSeed = Math.random();
-        const perspective = (view.camera.projectionType === PerspectiveProjectionType);
+    program.bind();
 
-        tempVec2[0] = viewportWidth;
-        tempVec2[1] = viewportHeight;
+    gl.uniform1f(this.#uCameraNear, near);
+    gl.uniform1f(this.#uCameraFar, far);
 
-        gl.viewport(0, 0, viewportWidth, viewportHeight);
-        gl.clearColor(0, 0, 0, 1);
-        gl.disable(gl.DEPTH_TEST);
-        gl.disable(gl.BLEND);
-        gl.frontFace(gl.CCW);
-        gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniformMatrix4fv(this.#uCameraProjectionMatrix, false, <Float32Array | GLfloat[]>projectionMatrix);
+    gl.uniformMatrix4fv(this.#uCameraInverseProjectionMatrix, false, <Float32Array | GLfloat[]>inverseProjectionMatrix);
 
-        program.bind();
+    gl.uniform1i(this.#uPerspective, perspective ? 1 : 0);
 
-        gl.uniform1f(this.#uCameraNear, near);
-        gl.uniform1f(this.#uCameraFar, far);
+    gl.uniform1f(this.#uScale, sao.scale * (far / 5));
+    gl.uniform1f(this.#uIntensity, sao.intensity);
+    gl.uniform1f(this.#uBias, sao.bias);
+    gl.uniform1f(this.#uKernelRadius, sao.kernelRadius);
+    gl.uniform1f(this.#uMinResolution, sao.minResolution);
+    gl.uniform2fv(this.#uViewport, <Float32Array | GLfloat[]>tempVec2);
+    gl.uniform1f(this.#uRandomSeed, randomSeed);
 
-        gl.uniformMatrix4fv(this.#uCameraProjectionMatrix, false, <Float32Array | GLfloat[]>projectionMatrix);
-        gl.uniformMatrix4fv(this.#uCameraInverseProjectionMatrix, false, <Float32Array | GLfloat[]>inverseProjectionMatrix);
+    const depthTexture = depthRenderBuffer.getDepthTexture();
 
-        gl.uniform1i(this.#uPerspective, perspective ? 1 : 0);
+    program.bindTexture(this.#uDepthTexture, depthTexture, 0);
 
-        gl.uniform1f(this.#uScale, sao.scale * (far / 5));
-        gl.uniform1f(this.#uIntensity, sao.intensity);
-        gl.uniform1f(this.#uBias, sao.bias);
-        gl.uniform1f(this.#uKernelRadius, sao.kernelRadius);
-        gl.uniform1f(this.#uMinResolution, sao.minResolution);
-        gl.uniform2fv(this.#uViewport, <Float32Array | GLfloat[]>tempVec2);
-        gl.uniform1f(this.#uRandomSeed, randomSeed);
+    this.#aUV.bindArrayBuffer(this.#uvBuf);
+    this.#aPosition.bindArrayBuffer(this.#positionsBuf);
+    this.#indicesBuf.bind();
 
-        const depthTexture = depthRenderBuffer.getDepthTexture();
+    gl.drawElements(gl.TRIANGLES, this.#indicesBuf.numItems, this.#indicesBuf.itemType, 0);
+  }
 
-        program.bindTexture(this.#uDepthTexture, depthTexture, 0);
+  #build() {
 
-        this.#aUV.bindArrayBuffer(this.#uvBuf);
-        this.#aPosition.bindArrayBuffer(this.#positionsBuf);
-        this.#indicesBuf.bind();
+    let dirty = false;
 
-        gl.drawElements(gl.TRIANGLES, this.#indicesBuf.numItems, this.#indicesBuf.itemType, 0);
+    const sao = this.#renderContext.view.sao;
+
+    if (sao.numSamples !== this.#numSamples) {
+      this.#numSamples = Math.floor(sao.numSamples);
+      dirty = true;
     }
 
-    #build() {
+    if (!dirty) {
+      return;
+    }
 
-        let dirty = false;
+    const gl = this.#renderContext.gl;
 
-        const sao = this.#renderContext.view.sao;
+    if (this.#program) {
+      this.#program.destroy();
+      this.#program = null;
+    }
 
-        if (sao.numSamples !== this.#numSamples) {
-            this.#numSamples = Math.floor(sao.numSamples);
-            dirty = true;
-        }
-
-        if (!dirty) {
-            return;
-        }
-
-        const gl = this.#renderContext.gl;
-
-        if (this.#program) {
-            this.#program.destroy();
-            this.#program = null;
-        }
-
-        this.#program = new WebGLProgram(gl, {
-            vertex: `#version 300 es
+    this.#program = new WebGLProgram(gl, {
+      vertex: `#version 300 es
                     precision highp float;
                     precision highp int;
 
@@ -179,7 +179,7 @@ export class SAOOcclusionRenderer {
                         vUV = aUV;
                     }`,
 
-            fragment: `#version 300 es
+      fragment: `#version 300 es
                 precision highp float;
                 precision highp int;
 
@@ -338,53 +338,53 @@ export class SAOOcclusionRenderer {
 
                 	outColor = packFloatToRGBA(  1.0- ambientOcclusion );
                 }`
-        });
+    });
 
-        if (this.#program.errors) {
-            console.error(this.#program.errors.join("\n"));
-            this.#programError = true;
-            return;
-        }
-
-        const uv = new Float32Array([1, 1, 0, 1, 0, 0, 1, 0]);
-        const positions = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
-
-        // Mitigation: if Uint8Array is used, the geometry is corrupted on OSX when using Chrome with data-textures
-        const indices = new Uint32Array([0, 1, 2, 0, 2, 3]);
-
-        this.#positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
-        this.#uvBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
-        this.#indicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
-
-        this.#program.bind();
-
-        this.#uCameraNear = this.#program.getLocation("uCameraNear");
-        this.#uCameraFar = this.#program.getLocation("uCameraFar");
-
-        this.#uCameraProjectionMatrix = this.#program.getLocation("uProjectMatrix");
-        this.#uCameraInverseProjectionMatrix = this.#program.getLocation("uInverseProjectMatrix");
-
-        this.#uPerspective = this.#program.getLocation("uPerspective");
-
-        this.#uScale = this.#program.getLocation("uScale");
-        this.#uIntensity = this.#program.getLocation("uIntensity");
-        this.#uBias = this.#program.getLocation("uBias");
-        this.#uKernelRadius = this.#program.getLocation("uKernelRadius");
-        this.#uMinResolution = this.#program.getLocation("uMinResolution");
-        this.#uViewport = this.#program.getLocation("uViewport");
-        this.#uRandomSeed = this.#program.getLocation("uRandomSeed");
-
-        this.#aPosition = this.#program.getAttribute("aPosition");
-        this.#aUV = this.#program.getAttribute("aUV");
-
-        this.#dirty = false;
+    if (this.#program.errors) {
+      console.error(this.#program.errors.join("\n"));
+      this.#programError = true;
+      return;
     }
 
-    destroy() {
-        if (this.#program) {
-            this.#program.destroy();
-            this.#program = null;
-        }
+    const uv = new Float32Array([1, 1, 0, 1, 0, 0, 1, 0]);
+    const positions = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
+
+    // Mitigation: if Uint8Array is used, the geometry is corrupted on OSX when using Chrome with data-textures
+    const indices = new Uint32Array([0, 1, 2, 0, 2, 3]);
+
+    this.#positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
+    this.#uvBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
+    this.#indicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
+
+    this.#program.bind();
+
+    this.#uCameraNear = this.#program.getLocation("uCameraNear");
+    this.#uCameraFar = this.#program.getLocation("uCameraFar");
+
+    this.#uCameraProjectionMatrix = this.#program.getLocation("uProjectMatrix");
+    this.#uCameraInverseProjectionMatrix = this.#program.getLocation("uInverseProjectMatrix");
+
+    this.#uPerspective = this.#program.getLocation("uPerspective");
+
+    this.#uScale = this.#program.getLocation("uScale");
+    this.#uIntensity = this.#program.getLocation("uIntensity");
+    this.#uBias = this.#program.getLocation("uBias");
+    this.#uKernelRadius = this.#program.getLocation("uKernelRadius");
+    this.#uMinResolution = this.#program.getLocation("uMinResolution");
+    this.#uViewport = this.#program.getLocation("uViewport");
+    this.#uRandomSeed = this.#program.getLocation("uRandomSeed");
+
+    this.#aPosition = this.#program.getAttribute("aPosition");
+    this.#aUV = this.#program.getAttribute("aUV");
+
+    this.#dirty = false;
+  }
+
+  destroy() {
+    if (this.#program) {
+      this.#program.destroy();
+      this.#program = null;
     }
+  }
 }
 

@@ -8,31 +8,31 @@
  */
 export interface XGFData_v1 {
 
-    /**
+  /**
      * Flat array containing all quantized 3D geometry vertex positions.
      *
      * These positions are quantized to 16-bit unsigned integers.
      */
-    positions: Uint16Array;
+  positions: Uint16Array;
 
-    /**
+  /**
      * Flat array containing all RGBA geometry vertex colors.
      *
      * Each element is in range `[0..255]`.
      */
-    colors: Uint8Array;
+  colors: Uint8Array;
 
-    /**
+  /**
      * Flat array containing all 32-bit geometry indices.
      */
-    indices: Uint32Array;
+  indices: Uint32Array;
 
-    /**
+  /**
      * Flat array cotaining all 32-bit geometry edge indices.
      */
-    edgeIndices: Uint32Array;
+  edgeIndices: Uint32Array;
 
-    /**
+  /**
      * Flat array containing 3D axis-aligned boundary (AABB) of each geometry's vertex positions.
      *
      * Each AABB is the double-precision axis-aligned 3D boundary
@@ -48,29 +48,29 @@ export interface XGFData_v1 {
      * pDouble[2] = (pUint[2] * (maxZ - minZ) / 65535) + minZ
      * ````
      */
-    aabbs: Float32Array;
+  aabbs: Float32Array;
 
-    /**
+  /**
      * For each geometry, a pointer to the start of its portion in {@link XGFData_v1.positions}.
      */
-    eachGeometryPositionsBase: Uint32Array;
+  eachGeometryPositionsBase: Uint32Array;
 
-    /**
+  /**
      * For each geometry, a pointer to the start of its portion in {@link XGFData_v1.colors}.
      */
-    eachGeometryColorsBase: Uint32Array;
+  eachGeometryColorsBase: Uint32Array;
 
-    /**
+  /**
      * For each geometry, a pointer to the start of its portion in {@link XGFData_v1.indices}.
      */
-    eachGeometryIndicesBase: Uint32Array;
+  eachGeometryIndicesBase: Uint32Array;
 
-    /**
+  /**
      * For each geometry, a pointer to the start of its portion in {@link XGFData_v1.edgeIndices}.
      */
-    eachGeometryEdgeIndicesBase: Uint32Array;
+  eachGeometryEdgeIndicesBase: Uint32Array;
 
-    /**
+  /**
      * For each geometry, the primitive type.
      *
      * Supported types are:
@@ -81,9 +81,9 @@ export interface XGFData_v1 {
      * * 3: Lines
      * * 4: Points
      */
-    eachGeometryPrimitiveType: Uint8Array;
+  eachGeometryPrimitiveType: Uint8Array;
 
-    /**
+  /**
      * For each geometry, a pointer to the start of its portion in `XGFData_v1.aabbs`.
      *
      * Each portion is six elements of `XGFData_v1.aabbs`, containing `[minX, minY, minZ, maxX, maxY, maxZ]`.
@@ -91,31 +91,31 @@ export interface XGFData_v1 {
      * Each AABB is the boundary of the geometry's unquantized, double-precision vertex positions, which is used
      * in the Viewer to decompress them from 16-bit integers to double-precision floats.
      */
-    eachGeometryAABBBase: Uint32Array;
+  eachGeometryAABBBase: Uint32Array;
 
-    /**
+  /**
      * Flat array containing all modeling transform matrices.
      *
      * Each matrix has sixteen elements. These are 64-bit precision, and may contain huge full-precision translations that are
      * absolute and relative to the World-space origin.
      */
-    matrices: Float64Array;
+  matrices: Float64Array;
 
-    /**
+  /**
      * For each mesh, a pointer to the start of its portion in {@link XGFData_v1.eachGeometryPositionsBase},
      * {@link XGFData_v1.eachGeometryColorsBase}, {@link XGFData_v1.eachGeometryIndicesBase} and
      * {@link XGFData_v1.eachGeometryEdgeIndicesBase}.
      */
-    eachMeshGeometriesBase: Uint32Array;
+  eachMeshGeometriesBase: Uint32Array;
 
-    /**
+  /**
      * For each mesh, a pointer to its matrix in {@link XGFData_v1.matrices}.
      *
      * Each portion is sixteen elements, comprising a 4x4 matrix.
      */
-    eachMeshMatricesBase: Uint32Array;
+  eachMeshMatricesBase: Uint32Array;
 
-    /**
+  /**
      * Flat array containing four material attributes for each mesh.
      *
      * The attributes for each mesh are:
@@ -125,16 +125,16 @@ export interface XGFData_v1 {
      * * Color B [0..255]
      * * Opacity [0..255]
      */
-    eachMeshMaterialAttributes: Uint8Array;
+  eachMeshMaterialAttributes: Uint8Array;
 
-    /**
+  /**
      * For each object, a unique string ID.
      */
-    eachObjectId: string[];
+  eachObjectId: string[];
 
-    /**
+  /**
      * For each object, a pointer to its first mesh in {@link XGFData_v1.eachMeshGeometriesBase},
      * {@link XGFData_v1.eachMeshMatricesBase} and {@link XGFData_v1.eachMeshMaterialAttributes}.
      */
-    eachObjectMeshesBase: Uint32Array;
+  eachObjectMeshesBase: Uint32Array;
 }

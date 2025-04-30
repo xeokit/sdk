@@ -40,14 +40,14 @@
  */
 import type { FloatArrayParam } from "../math";
 import {
-    createVec3,
-    createVec4,
-    dotVec3,
-    mulVec3Scalar,
-    normalizeVec3,
-    setMat4Translation,
-    transformVec4,
-    translateMat4v
+  createVec3,
+  createVec4,
+  dotVec3,
+  mulVec3Scalar,
+  normalizeVec3,
+  setMat4Translation,
+  transformVec4,
+  translateMat4v
 } from "../matrix";
 import { getPositions3Center } from "../boundaries";
 
@@ -74,13 +74,13 @@ export const RTC_CELL_SIZE = 200;
  * @returns {FloatArrayParam} The transformed RTC view matrix.
  */
 export function createRTCViewMat(viewMat: FloatArrayParam, rtcCenter: FloatArrayParam, rtcViewMat: FloatArrayParam = tempMat): FloatArrayParam {
-    rtcCenterWorld[0] = rtcCenter[0];
-    rtcCenterWorld[1] = rtcCenter[1];
-    rtcCenterWorld[2] = rtcCenter[2];
-    rtcCenterWorld[3] = 1;
-    transformVec4(viewMat, rtcCenterWorld, rtcCenterView);
-    setMat4Translation(viewMat, rtcCenterView, rtcViewMat);
-    return rtcViewMat;
+  rtcCenterWorld[0] = rtcCenter[0];
+  rtcCenterWorld[1] = rtcCenter[1];
+  rtcCenterWorld[2] = rtcCenter[2];
+  rtcCenterWorld[3] = 1;
+  transformVec4(viewMat, rtcCenterWorld, rtcCenterView);
+  setMat4Translation(viewMat, rtcCenterView, rtcViewMat);
+  return rtcViewMat;
 }
 
 /**
@@ -95,20 +95,20 @@ export function createRTCViewMat(viewMat: FloatArrayParam, rtcCenter: FloatArray
  */
 export const createRTCModelMat = (() => {
 
-    const zeroVec4 = createVec4([0, 0, 0, 1]);
-    const tempVec4a = createVec4();
+  const zeroVec4 = createVec4([0, 0, 0, 1]);
+  const tempVec4a = createVec4();
 
-    return (matrix: FloatArrayParam, rtcCenter: FloatArrayParam): FloatArrayParam => {
-        const tempVec4 = transformVec4(matrix, zeroVec4, tempVec4a);
-        rtcCenter[0] = Math.round(tempVec4[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-        rtcCenter[1] = Math.round(tempVec4[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-        rtcCenter[2] = Math.round(tempVec4[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+  return (matrix: FloatArrayParam, rtcCenter: FloatArrayParam): FloatArrayParam => {
+    const tempVec4 = transformVec4(matrix, zeroVec4, tempVec4a);
+    rtcCenter[0] = Math.round(tempVec4[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+    rtcCenter[1] = Math.round(tempVec4[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+    rtcCenter[2] = Math.round(tempVec4[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
 
-        const rtcModelMatrix = matrix.slice();
-        translateMat4v(mulVec3Scalar(rtcCenter, -1, tempVec3a), rtcModelMatrix);
+    const rtcModelMatrix = matrix.slice();
+    translateMat4v(mulVec3Scalar(rtcCenter, -1, tempVec3a), rtcModelMatrix);
 
-        return rtcModelMatrix;
-    };
+    return rtcModelMatrix;
+  };
 })();
 
 /**
@@ -123,22 +123,22 @@ export const createRTCModelMat = (() => {
  */
 export function worldToRTCPos(worldPos: FloatArrayParam, rtcCenter: FloatArrayParam, rtcPos: FloatArrayParam) {
 
-    const xHigh = Float32Array.from([worldPos[0]])[0];
-    const xLow = worldPos[0] - xHigh;
+  const xHigh = Float32Array.from([worldPos[0]])[0];
+  const xLow = worldPos[0] - xHigh;
 
-    const yHigh = Float32Array.from([worldPos[1]])[0];
-    const yLow = worldPos[1] - yHigh;
+  const yHigh = Float32Array.from([worldPos[1]])[0];
+  const yLow = worldPos[1] - yHigh;
 
-    const zHigh = Float32Array.from([worldPos[2]])[0];
-    const zLow = worldPos[2] - zHigh;
+  const zHigh = Float32Array.from([worldPos[2]])[0];
+  const zLow = worldPos[2] - zHigh;
 
-    rtcCenter[0] = xHigh;
-    rtcCenter[1] = yHigh;
-    rtcCenter[2] = zHigh;
+  rtcCenter[0] = xHigh;
+  rtcCenter[1] = yHigh;
+  rtcCenter[2] = zHigh;
 
-    rtcPos[0] = xLow;
-    rtcPos[1] = yLow;
-    rtcPos[2] = zLow;
+  rtcPos[0] = xLow;
+  rtcPos[1] = yLow;
+  rtcPos[2] = zLow;
 }
 
 /**
@@ -152,10 +152,10 @@ export function worldToRTCPos(worldPos: FloatArrayParam, rtcCenter: FloatArrayPa
  * @returns {FloatArrayParam} The RTC center position.
  */
 export function worldToRTCCenter(worldCenter: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = RTC_CELL_SIZE) {
-    rtcCenter[0] = Math.round(worldCenter[0] / cellSize) * cellSize;
-    rtcCenter[1] = Math.round(worldCenter[1] / cellSize) * cellSize;
-    rtcCenter[2] = Math.round(worldCenter[2] / cellSize) * cellSize;
-    return rtcCenter;
+  rtcCenter[0] = Math.round(worldCenter[0] / cellSize) * cellSize;
+  rtcCenter[1] = Math.round(worldCenter[1] / cellSize) * cellSize;
+  rtcCenter[2] = Math.round(worldCenter[2] / cellSize) * cellSize;
+  return rtcCenter;
 }
 
 /**
@@ -172,23 +172,23 @@ export function worldToRTCCenter(worldCenter: FloatArrayParam, rtcCenter: FloatA
  */
 export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = RTC_CELL_SIZE): boolean {
 
-    const center = getPositions3Center(worldPositions, tempVec3a);
+  const center = getPositions3Center(worldPositions, tempVec3a);
 
-    const rtcCenterX = Math.round(center[0] / cellSize) * cellSize;
-    const rtcCenterY = Math.round(center[1] / cellSize) * cellSize;
-    const rtcCenterZ = Math.round(center[2] / cellSize) * cellSize;
+  const rtcCenterX = Math.round(center[0] / cellSize) * cellSize;
+  const rtcCenterY = Math.round(center[1] / cellSize) * cellSize;
+  const rtcCenterZ = Math.round(center[2] / cellSize) * cellSize;
 
-    for (let i = 0, len = worldPositions.length; i < len; i += 3) {
-        rtcPositions[i + 0] = worldPositions[i + 0] - rtcCenterX;
-        rtcPositions[i + 1] = worldPositions[i + 1] - rtcCenterY;
-        rtcPositions[i + 2] = worldPositions[i + 2] - rtcCenterZ;
-    }
+  for (let i = 0, len = worldPositions.length; i < len; i += 3) {
+    rtcPositions[i + 0] = worldPositions[i + 0] - rtcCenterX;
+    rtcPositions[i + 1] = worldPositions[i + 1] - rtcCenterY;
+    rtcPositions[i + 2] = worldPositions[i + 2] - rtcCenterZ;
+  }
 
-    rtcCenter[0] = rtcCenterX;
-    rtcCenter[1] = rtcCenterY;
-    rtcCenter[2] = rtcCenterZ;
+  rtcCenter[0] = rtcCenterX;
+  rtcCenter[1] = rtcCenterY;
+  rtcCenter[2] = rtcCenterZ;
 
-    return rtcCenter[0] !== 0 || rtcCenter[1] !== 0 || rtcCenter[2] !== 0;
+  return rtcCenter[0] !== 0 || rtcCenter[1] !== 0 || rtcCenter[2] !== 0;
 }
 
 /**
@@ -202,10 +202,10 @@ export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPosition
  * @returns {FloatArrayParam} The World-space position.
  */
 export function rtcToWorldPos(rtcCenter: FloatArrayParam, rtcPos: FloatArrayParam, worldPos: FloatArrayParam): FloatArrayParam {
-    worldPos[0] = rtcCenter[0] + rtcPos[0];
-    worldPos[1] = rtcCenter[1] + rtcPos[1];
-    worldPos[2] = rtcCenter[2] + rtcPos[2];
-    return worldPos;
+  worldPos[0] = rtcCenter[0] + rtcPos[0];
+  worldPos[1] = rtcCenter[1] + rtcPos[1];
+  worldPos[2] = rtcCenter[2] + rtcPos[2];
+  return worldPos;
 }
 
 /**
@@ -221,8 +221,8 @@ export function rtcToWorldPos(rtcCenter: FloatArrayParam, rtcPos: FloatArrayPara
  * @returns {FloatArrayParam} The position of the plane relative to the RTC center.
  */
 export function getPlaneRTCPos(dist: number, dir: FloatArrayParam, rtcCenter: FloatArrayParam, rtcPlanePos: FloatArrayParam): FloatArrayParam {
-    const rtcCenterToPlaneDist = dotVec3(dir, rtcCenter) + dist;
-    const dirNormalized = normalizeVec3(dir, tempVec3a);
-    mulVec3Scalar(dirNormalized, -rtcCenterToPlaneDist, rtcPlanePos);
-    return rtcPlanePos;
+  const rtcCenterToPlaneDist = dotVec3(dir, rtcCenter) + dist;
+  const dirNormalized = normalizeVec3(dir, tempVec3a);
+  mulVec3Scalar(dirNormalized, -rtcCenterToPlaneDist, rtcPlanePos);
+  return rtcPlanePos;
 }

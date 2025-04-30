@@ -1,15 +1,15 @@
-import type {FloatArrayParam} from "../math";
-import {SAOParams} from "./SAOParams";
-import {ViewLayerParams} from "./ViewLayerParams";
-import {CameraParams} from "./CameraParams";
-import {EdgesParams} from "./EdgesParams";
-import {EmphasisMaterialParams} from "./EmphasisMaterialParams";
-import {PointLightParams} from "./PointLightParams";
-import {AmbientLightParams} from "./AmbientLightParams";
-import {DirLightParams} from "./DirLightParams";
-import {SectionPlaneParams} from "./SectionPlaneParams";
-import {PointsMaterialParams} from "./PointsMaterialParams";
-import {ResolutionScaleParams} from "./ResolutionScaleParams";
+import type { FloatArrayParam } from "../math";
+import { SAOParams } from "./SAOParams";
+import { ViewLayerParams } from "./ViewLayerParams";
+import { CameraParams } from "./CameraParams";
+import { EdgesParams } from "./EdgesParams";
+import { EmphasisMaterialParams } from "./EmphasisMaterialParams";
+import { PointLightParams } from "./PointLightParams";
+import { AmbientLightParams } from "./AmbientLightParams";
+import { DirLightParams } from "./DirLightParams";
+import { SectionPlaneParams } from "./SectionPlaneParams";
+import { PointsMaterialParams } from "./PointsMaterialParams";
+import { ResolutionScaleParams } from "./ResolutionScaleParams";
 
 /**
  * Parameters for a {@link View}.
@@ -20,55 +20,55 @@ import {ResolutionScaleParams} from "./ResolutionScaleParams";
  */
 export interface ViewParams {
 
-    /**
+  /**
      * Optional ID, genarated automatically by {@link Viewer.createView} if omitted.
      */
-    id?: string;
+  id?: string;
 
-    /**
+  /**
      * The Real-space 3D origin, in Real-space units, at which the {@link View}'s World-space
      * coordinate origin ````[0,0,0]```` sits.
      */
-    origin?: FloatArrayParam;
+  origin?: FloatArrayParam;
 
-    /**
+  /**
      * The number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
      *
      * For example, if {@link ViewParams.units} is {@link constants!MetersUnit | MetersUnit}, and there are ten meters per World-space coordinate
      * system unit, then this property would have a value of ````10.0````.
      */
-    scale?: number;
+  scale?: number;
 
-    /**
+  /**
      * The unit of measurement for the {@link View}. Accepted values are {@link constants!MetersUnit},
      * {@link constants!CentimetersUnit}, {@link constants!MillimetersUnit}, {@link constants!YardsUnit},
      * {@link constants!FeetUnit}
      * and {@link constants!InchesUnit}.
      */
-    units?: number;
+  units?: number;
 
-    /**
+  /**
      * ID of an HTMLCanvasElement in the DOM.
      */
-    elementId?: string;
+  elementId?: string;
 
-    /**
+  /**
      * An HTMLElement in the DOM.
      *
      * Overrides {@link ViewParams.elementId | ViewParams.elementId}
      */
-    htmlElement?: HTMLCanvasElement;
+  htmlElement?: HTMLCanvasElement;
 
-    /**
+  /**
      * RGB clear color for the {@link View | View's} canvas.
      *
      * Only works when canvas is not transparent.
      *
      * Default value is `[1,1,1]`.
      */
-    backgroundColor?: FloatArrayParam;
+  backgroundColor?: FloatArrayParam;
 
-    /**
+  /**
      * Set true to attempt to derive the {@link View | View's} canvas RGB clear color from
      * any {@link AmbientLight | AmbientLights} defined in the {@link View} .
      *
@@ -78,24 +78,24 @@ export interface ViewParams {
      *
      * Default value is `[1,1,1]`.
      */
-    backgroundColorFromAmbientLight?: boolean;
+  backgroundColorFromAmbientLight?: boolean;
 
-    /**
+  /**
      * Whether the {@link View | View} performs alpha composition with premultiplied alpha. Highlighting and selection works best when
      * this is ````false````.
      *
      * Default value is `false`.
      */
-    premultipliedAlpha?: boolean;
+  premultipliedAlpha?: boolean;
 
-    /**
+  /**
      * Configures whether the {@link View | View's} canvas is transparent.
      *
      * Default value is `false`.
      */
-    transparent?: boolean;
+  transparent?: boolean;
 
-    /**
+  /**
      * Whether the {@link View} will automatically create {@link ViewLayer | ViewLayers} on-demand
      * as {@link ViewObject | ViewObjects} are created.
      *
@@ -115,68 +115,68 @@ export interface ViewParams {
      *
      * Default value is `true`.
      */
-    autoLayers?: boolean;
+  autoLayers?: boolean;
 
-    /**
+  /**
      * Parameters for the View's scalable ambient obscurance effect, {@link SAO}, which enhances 3D model visualization by darkening
      * areas with limited ambient light exposure.
      */
-    sao?: SAOParams;
+  sao?: SAOParams;
 
-    /**
+  /**
      * Parameters for the View's edge enhancement effect, {@link Edges}.
      */
-    edges?: EdgesParams;
+  edges?: EdgesParams;
 
-    /**
+  /**
      * Parameters for the appearance of {@link ViewObject | ViewObjects} in the View when they are selected.
      */
-    selectedMaterial?: EmphasisMaterialParams;
+  selectedMaterial?: EmphasisMaterialParams;
 
-    /**
+  /**
      * Parameters for the appearance of {@link ViewObject | ViewObjects} in the View when they are highlighted.
      */
-    highlightMaterial?: EmphasisMaterialParams;
+  highlightMaterial?: EmphasisMaterialParams;
 
-    /**
+  /**
      * Parameters for the appearance of {@link ViewObject | ViewObjects} in the View when they are X-rayed.
      */
-    xrayMaterial?: EmphasisMaterialParams;
+  xrayMaterial?: EmphasisMaterialParams;
 
-    /**
+  /**
      * Parameters for the {@link View | View's} {@link PointsMaterial}.
      */
-    pointsMaterial?: PointsMaterialParams;
+  pointsMaterial?: PointsMaterialParams;
 
-    /**
+  /**
      * Parameters for the View's {@link ViewLayer | ViewLayers}.
      */
-    layers?: ViewLayerParams[];
+  layers?: ViewLayerParams[];
 
-    /**
+  /**
      * Parameters for the View's {@link Camera}.
      */
-    camera?: CameraParams;
+  camera?: CameraParams;
 
-    /**
+  /**
      * Parameters for the View's light sources.
      */
-    lights?: (AmbientLightParams | PointLightParams | DirLightParams)[];
+  lights?: (AmbientLightParams | PointLightParams | DirLightParams)[];
 
-    /**
+  /**
      * Paramaters for the View's {@link SectionPlane | SectionPlanes}.
      */
-    sectionPlanes?: SectionPlaneParams[];
+  sectionPlanes?: SectionPlaneParams[];
 
-    /**
+  /**
      * Paramaters the View's {@link ResolutionScale}.
      */
-    resolutionScale?: ResolutionScaleParams;
+  resolutionScale?: ResolutionScaleParams;
 
-    /**
+  /**
      * Configures which rendering mode the View is in.
      *
      * Default is {@link constants!QualityRender | QualityRender}.
      */
-    renderMode?: number;
+  renderMode?: number;
 }

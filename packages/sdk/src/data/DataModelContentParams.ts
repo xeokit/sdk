@@ -12,27 +12,27 @@ import type { RelationshipParams } from "./RelationshipParams";
  */
 export interface DataModelContentParams {
 
-    /**
+  /**
      * Parameters for {@link PropertySet | PropertySets} in the {@link DataModel | DataModel}.
      *
      * This array contains the configuration for the {@link PropertySet | PropertySets} that will be
      * added to the DataModel.
      */
-    propertySets?: PropertySetParams[];
+  propertySets?: PropertySetParams[];
 
-    /**
+  /**
      * Parameters for {@link DataObject | DataObjects} in the {@link DataModel | DataModel}.
      *
      * This array contains the configuration for the {@link DataObject | DataObjects} to be added
      * to the DataModel.
      */
-    objects?: DataObjectParams[];
+  objects?: DataObjectParams[];
 
-    /**
+  /**
      * Parameters for {@link Relationship | Relationships} in the {@link DataModel | DataModel}.
      *
      * This array contains the configuration for the {@link Relationship | Relationships} that will
      * be established between the {@link DataObject | DataObjects} within the DataModel.
      */
-    relationships?: RelationshipParams[];
+  relationships?: RelationshipParams[];
 }

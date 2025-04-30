@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "../math";
+import type { FloatArrayParam } from "../math";
 
 /**
  * Internal interface through which a {@link SceneMesh | SceneMesh} loads attribute updates
@@ -12,25 +12,25 @@ import type {FloatArrayParam} from "../math";
  */
 export interface RendererMesh {
 
-    /**
+  /**
      * Loads the {@link SceneMesh | SceneMesh's} modeling matrix into the {@link viewer!Renderer}.
      *
      * {@link SceneMesh} calls this when we update {@link SceneMesh | SceneMesh.matrix}.
      *
      * @internal
      */
-    setMatrix(matrix: FloatArrayParam): void;
+  setMatrix(matrix: FloatArrayParam): void;
 
-    /**
+  /**
      * Loads a material color value into the {@link viewer!Renderer}.
      *
      * {@link SceneMesh} calls this when we update {@link SceneMesh | SceneMesh.color}.
      *
      * @internal
      */
-    setColor(color: FloatArrayParam): void;
+  setColor(color: FloatArrayParam): void;
 
-    /**
+  /**
      * Sends an opacity factor update to the renderers.
      */
   //  setOpacity(opacity: number): void;

@@ -1,95 +1,95 @@
 import type { LinearEncoding } from "../constants";
-import type {FloatArrayParam} from "../math";
+import type { FloatArrayParam } from "../math";
 
 /**
  * {@link SceneTexture} creation parameters for {@link SceneModel.createTexture | SceneModel.createTexture}.
  */
 export interface SceneTextureParams {
 
-    /**
+  /**
      * ID for the texture.
      */
-    id: string;
+  id: string;
 
-    /**
+  /**
      * Path to an image file.
      */
-    src?: string;
+  src?: string;
 
-    /**
+  /**
      * Image file data.
      */
-    imageData?: any;
+  imageData?: any;
 
-    /**
+  /**
      * Transcoded texture data.
      */
-    buffers?: ArrayBuffer[];
+  buffers?: ArrayBuffer[];
 
-    /**
+  /**
      * HTMLImage containing the texture image.
      */
-    image?: HTMLImageElement;
+  image?: HTMLImageElement;
 
-    /**
+  /**
      * Media type.
      */
-    mediaType?: any;
+  mediaType?: any;
 
-    /**
+  /**
      * How the texture is sampled when a texel covers more than one pixel.
      *
      * Supported values are {@link constants!LinearFilter} and {@link constants!NearestFilter}.
      */
-    magFilter?: number;
+  magFilter?: number;
 
-    /**
+  /**
      * How the texture is sampled when a texel covers less than one pixel.
      *
      * Supported values are {@link constants!LinearMipmapLinearFilter}, {@link constants!LinearMipMapNearestFilter},
      * {@link constants!NearestMipMapNearestFilter}, {@link constants!NearestMipMapLinearFilter}
      * and {@link constants!LinearMipMapLinearFilter}.
      */
-    minFilter?: number;
+  minFilter?: number;
 
-    /**
+  /**
      * Wrap parameter for texture coordinate *S*.
      *
      * Supported values are {@link constants!ClampToEdgeWrapping},
      * {@link constants!MirroredRepeatWrapping} and {@link constants!RepeatWrapping}.
      */
-    wrapS?: number;
+  wrapS?: number;
 
-    /**
+  /**
      * Wrap parameter for texture coordinate *T*.
      *
      * Supported values are {@link constants!ClampToEdgeWrapping},
      * {@link constants!MirroredRepeatWrapping} and {@link constants!RepeatWrapping}.
      */
-    wrapT?: number;
+  wrapT?: number;
 
-    /**
+  /**
      * Wrap parameter for texture coordinate *R*.
      *
      * Supported values are {@link constants!ClampToEdgeWrapping},
      * {@link constants!MirroredRepeatWrapping} and {@link constants!RepeatWrapping}.
      */
-    wrapR?: number;
+  wrapR?: number;
 
-    /**
+  /**
      * Flips this SceneTexture's source data along its vertical axis when ````true````.
      */
-    flipY?: boolean;
+  flipY?: boolean;
 
-    /**
+  /**
      * SceneTexture encoding format.
      *
      * Supported values are {@link constants!LinearEncoding} and {@link constants!sRGBEncoding}.
      */
-    encoding?: number;
+  encoding?: number;
 
-    /**
+  /**
      * RGBA color to preload the texture with.
      */
-    preloadColor?: FloatArrayParam;
+  preloadColor?: FloatArrayParam;
 }

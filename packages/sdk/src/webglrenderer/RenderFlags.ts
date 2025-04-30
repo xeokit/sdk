@@ -11,7 +11,7 @@
  */
 class RenderFlags {
 
-    /**
+  /**
      * Set by {@link Drawable#rebuildRenderFlags} to indicate which layers are visible within the {@link Drawable}.
      *
      * This is a list of IDs of visible layers within the {@link Drawable}. The IDs will be whatever the
@@ -20,9 +20,9 @@ class RenderFlags {
      * @property visibleLayers
      * @type {Number[]}
      */
-    visibleLayers: any[];
+  visibleLayers: any[];
 
-    /**
+  /**
      * Set by {@link Drawable#rebuildRenderFlags} to indicate which {@link SectionPlane}s are active within each layer of the {@link Drawable}.
      *
      * Layout is as follows:
@@ -36,62 +36,62 @@ class RenderFlags {
      * @property sectionPlanesActivePerLayer
      * @type {Boolean[]}
      */
-    sectionPlanesActivePerLayer: any[];
-    culled: boolean;
-    sectioned: boolean;
-    numLayers: number;
-    numVisibleLayers: number;
-    colorOpaque: boolean;
-    colorTransparent: boolean;
-    edgesOpaque: boolean;
-    edgesTransparent: boolean;
-    xrayedSilhouetteOpaque: boolean;
-    xrayedEdgesOpaque: boolean;
-    xrayedSilhouetteTransparent: boolean;
-    xrayedEdgesTransparent: boolean;
-    highlightedSilhouetteOpaque: boolean;
-    highlightedEdgesOpaque: boolean;
-    highlightedSilhouetteTransparent: boolean;
-    highlightedEdgesTransparent: boolean;
-    selectedSilhouetteOpaque: boolean;
-    selectedEdgesOpaque: boolean;
-    selectedSilhouetteTransparent: boolean;
-    selectedEdgesTransparent: boolean;
+  sectionPlanesActivePerLayer: any[];
+  culled: boolean;
+  sectioned: boolean;
+  numLayers: number;
+  numVisibleLayers: number;
+  colorOpaque: boolean;
+  colorTransparent: boolean;
+  edgesOpaque: boolean;
+  edgesTransparent: boolean;
+  xrayedSilhouetteOpaque: boolean;
+  xrayedEdgesOpaque: boolean;
+  xrayedSilhouetteTransparent: boolean;
+  xrayedEdgesTransparent: boolean;
+  highlightedSilhouetteOpaque: boolean;
+  highlightedEdgesOpaque: boolean;
+  highlightedSilhouetteTransparent: boolean;
+  highlightedEdgesTransparent: boolean;
+  selectedSilhouetteOpaque: boolean;
+  selectedEdgesOpaque: boolean;
+  selectedSilhouetteTransparent: boolean;
+  selectedEdgesTransparent: boolean;
 
-    /**
+  /**
      * @private
      */
-    constructor() {
-        this.visibleLayers = [];
-        this.sectionPlanesActivePerLayer = [];
-        this.reset();
-    }
+  constructor() {
+    this.visibleLayers = [];
+    this.sectionPlanesActivePerLayer = [];
+    this.reset();
+  }
 
-    /**
+  /**
      * @private
      */
-    reset() {
-        this.culled = false;
-        this.sectioned = false;
-        this.numLayers = 0;
-        this.numVisibleLayers = 0;
-        this.colorOpaque = false;
-        this.colorTransparent = false;
-        this.edgesOpaque = false;
-        this.edgesTransparent = false;
-        this.xrayedSilhouetteOpaque = false;
-        this.xrayedEdgesOpaque = false;
-        this.xrayedSilhouetteTransparent = false;
-        this.xrayedEdgesTransparent = false;
-        this.highlightedSilhouetteOpaque = false;
-        this.highlightedEdgesOpaque = false;
-        this.highlightedSilhouetteTransparent = false;
-        this.highlightedEdgesTransparent = false;
-        this.selectedSilhouetteOpaque = false;
-        this.selectedEdgesOpaque = false;
-        this.selectedSilhouetteTransparent = false;
-        this.selectedEdgesTransparent = false;
-    }
+  reset() {
+    this.culled = false;
+    this.sectioned = false;
+    this.numLayers = 0;
+    this.numVisibleLayers = 0;
+    this.colorOpaque = false;
+    this.colorTransparent = false;
+    this.edgesOpaque = false;
+    this.edgesTransparent = false;
+    this.xrayedSilhouetteOpaque = false;
+    this.xrayedEdgesOpaque = false;
+    this.xrayedSilhouetteTransparent = false;
+    this.xrayedEdgesTransparent = false;
+    this.highlightedSilhouetteOpaque = false;
+    this.highlightedEdgesOpaque = false;
+    this.highlightedSilhouetteTransparent = false;
+    this.highlightedEdgesTransparent = false;
+    this.selectedSilhouetteOpaque = false;
+    this.selectedEdgesOpaque = false;
+    this.selectedSilhouetteTransparent = false;
+    this.selectedEdgesTransparent = false;
+  }
 }
 
-export {RenderFlags};
+export { RenderFlags };

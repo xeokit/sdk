@@ -1,7 +1,7 @@
-import {GeometryArrays} from "./GeometryArrays";
-import {normalizeVec3, subVec3} from "../matrix";
-import {apply} from "../utils";
-import {TrianglesPrimitive} from "../constants";
+import { GeometryArrays } from "./GeometryArrays";
+import { normalizeVec3, subVec3 } from "../matrix";
+import { apply } from "../utils";
+import { TrianglesPrimitive } from "../constants";
 
 /**
  * Creates a torus-shaped {@link scene!SceneGeometry | SceneGeometry}.
@@ -59,142 +59,142 @@ import {TrianglesPrimitive} from "../constants";
  */
 
 export function buildTorusGeometry(cfg: {
-    tube?: number;
-    arc?: number;
-    center?: number[];
-    radialSegments?: number;
-    radius?: number;
-    tubeSegments?: number;
+  tube?: number;
+  arc?: number;
+  center?: number[];
+  radialSegments?: number;
+  radius?: number;
+  tubeSegments?: number;
 } = {
-    radius: 0,
-    tube: 0,
-    radialSegments: 0,
-    tubeSegments: 0,
-    arc: 0,
-    center: [0, 0, 0]
+  radius: 0,
+  tube: 0,
+  radialSegments: 0,
+  tubeSegments: 0,
+  arc: 0,
+  center: [0, 0, 0]
 }): GeometryArrays {
 
-    let radius = cfg.radius || 1;
-    if (radius < 0) {
-        console.error("negative radius not allowed - will invert");
-        radius *= -1;
+  let radius = cfg.radius || 1;
+  if (radius < 0) {
+    console.error("negative radius not allowed - will invert");
+    radius *= -1;
+  }
+  radius *= 0.5;
+
+  let tube = cfg.tube || 0.3;
+  if (tube < 0) {
+    console.error("negative tube not allowed - will invert");
+    tube *= -1;
+  }
+
+  let radialSegments = cfg.radialSegments || 32;
+  if (radialSegments < 0) {
+    console.error("negative radialSegments not allowed - will invert");
+    radialSegments *= -1;
+  }
+  if (radialSegments < 4) {
+    radialSegments = 4;
+  }
+
+  let tubeSegments = cfg.tubeSegments || 24;
+  if (tubeSegments < 0) {
+    console.error("negative tubeSegments not allowed - will invert");
+    tubeSegments *= -1;
+  }
+  if (tubeSegments < 4) {
+    tubeSegments = 4;
+  }
+
+  let arc = cfg.arc || Math.PI * 2;
+  if (arc < 0) {
+    console.warn("negative arc not allowed - will invert");
+    arc *= -1;
+  }
+  if (arc > 360) {
+    arc = 360;
+  }
+
+  const center = cfg.center;
+  let centerX = center ? center[0] : 0;
+  let centerY = center ? center[1] : 0;
+  const centerZ = center ? center[2] : 0;
+
+  const positions: number[] = [];
+  const normals: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+
+  let u;
+  let v;
+  let x;
+  let y;
+  let z;
+  let vec;
+
+  let i;
+  let j;
+
+  // Iterate over tube segments and radial segments to calculate positions
+  for (j = 0; j <= tubeSegments; j++) {
+    for (i = 0; i <= radialSegments; i++) {
+
+      u = i / radialSegments * arc; // Radial angle
+      v = 0.785398 + (j / tubeSegments * Math.PI * 2); // Tube angle
+
+      // Calculate center position of the torus
+      centerX = radius * Math.cos(u);
+      centerY = radius * Math.sin(u);
+
+      // Calculate position of the vertex on the tube
+      x = (radius + tube * Math.cos(v)) * Math.cos(u);
+      y = (radius + tube * Math.cos(v)) * Math.sin(u);
+      z = tube * Math.sin(v);
+
+      positions.push(x + centerX);
+      positions.push(y + centerY);
+      positions.push(z + centerZ);
+
+      uvs.push(1 - (i / radialSegments));
+      uvs.push((j / tubeSegments));
+
+      // Calculate normal vector
+      vec = normalizeVec3(subVec3([x, y, z], [centerX, centerY, centerZ], []), []);
+
+      normals.push(vec[0]);
+      normals.push(vec[1]);
+      normals.push(vec[2]);
     }
-    radius *= 0.5;
+  }
 
-    let tube = cfg.tube || 0.3;
-    if (tube < 0) {
-        console.error("negative tube not allowed - will invert");
-        tube *= -1;
+  let a;
+  let b;
+  let c;
+  let d;
+
+  // Generate indices for the triangles of the torus
+  for (j = 1; j <= tubeSegments; j++) {
+    for (i = 1; i <= radialSegments; i++) {
+
+      a = (radialSegments + 1) * j + i - 1;
+      b = (radialSegments + 1) * (j - 1) + i - 1;
+      c = (radialSegments + 1) * (j - 1) + i;
+      d = (radialSegments + 1) * j + i;
+
+      indices.push(a);
+      indices.push(b);
+      indices.push(c);
+
+      indices.push(c);
+      indices.push(d);
+      indices.push(a);
     }
+  }
 
-    let radialSegments = cfg.radialSegments || 32;
-    if (radialSegments < 0) {
-        console.error("negative radialSegments not allowed - will invert");
-        radialSegments *= -1;
-    }
-    if (radialSegments < 4) {
-        radialSegments = 4;
-    }
-
-    let tubeSegments = cfg.tubeSegments || 24;
-    if (tubeSegments < 0) {
-        console.error("negative tubeSegments not allowed - will invert");
-        tubeSegments *= -1;
-    }
-    if (tubeSegments < 4) {
-        tubeSegments = 4;
-    }
-
-    let arc = cfg.arc || Math.PI * 2;
-    if (arc < 0) {
-        console.warn("negative arc not allowed - will invert");
-        arc *= -1;
-    }
-    if (arc > 360) {
-        arc = 360;
-    }
-
-    const center = cfg.center;
-    let centerX = center ? center[0] : 0;
-    let centerY = center ? center[1] : 0;
-    const centerZ = center ? center[2] : 0;
-
-    const positions: number[] = [];
-    const normals: number[] = [];
-    const uvs: number[] = [];
-    const indices: number[] = [];
-
-    let u;
-    let v;
-    let x;
-    let y;
-    let z;
-    let vec;
-
-    let i;
-    let j;
-
-    // Iterate over tube segments and radial segments to calculate positions
-    for (j = 0; j <= tubeSegments; j++) {
-        for (i = 0; i <= radialSegments; i++) {
-
-            u = i / radialSegments * arc; // Radial angle
-            v = 0.785398 + (j / tubeSegments * Math.PI * 2); // Tube angle
-
-            // Calculate center position of the torus
-            centerX = radius * Math.cos(u);
-            centerY = radius * Math.sin(u);
-
-            // Calculate position of the vertex on the tube
-            x = (radius + tube * Math.cos(v)) * Math.cos(u);
-            y = (radius + tube * Math.cos(v)) * Math.sin(u);
-            z = tube * Math.sin(v);
-
-            positions.push(x + centerX);
-            positions.push(y + centerY);
-            positions.push(z + centerZ);
-
-            uvs.push(1 - (i / radialSegments));
-            uvs.push((j / tubeSegments));
-
-            // Calculate normal vector
-            vec = normalizeVec3(subVec3([x, y, z], [centerX, centerY, centerZ], []), []);
-
-            normals.push(vec[0]);
-            normals.push(vec[1]);
-            normals.push(vec[2]);
-        }
-    }
-
-    let a;
-    let b;
-    let c;
-    let d;
-
-    // Generate indices for the triangles of the torus
-    for (j = 1; j <= tubeSegments; j++) {
-        for (i = 1; i <= radialSegments; i++) {
-
-            a = (radialSegments + 1) * j + i - 1;
-            b = (radialSegments + 1) * (j - 1) + i - 1;
-            c = (radialSegments + 1) * (j - 1) + i;
-            d = (radialSegments + 1) * j + i;
-
-            indices.push(a);
-            indices.push(b);
-            indices.push(c);
-
-            indices.push(c);
-            indices.push(d);
-            indices.push(a);
-        }
-    }
-
-    return apply(cfg, {
-        primitive: TrianglesPrimitive, // The geometry is constructed as triangles
-        positions: positions,
-        normals: normals,
-        uv: uvs,
-        indices: indices
-    });
+  return apply(cfg, {
+    primitive: TrianglesPrimitive, // The geometry is constructed as triangles
+    positions: positions,
+    normals: normals,
+    uv: uvs,
+    indices: indices
+  });
 }

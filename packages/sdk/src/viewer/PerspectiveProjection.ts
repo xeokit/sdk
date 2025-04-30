@@ -1,11 +1,11 @@
-import {EventDispatcher} from "strongly-typed-events";
-import type {Camera} from "./Camera";
-import {Component, EventEmitter} from "../core";
-import {PerspectiveProjectionType} from "../constants";
-import type {FloatArrayParam} from "../math";
-import {inverseMat4, createMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "../matrix";
-import {Projection} from "./Projection";
-import {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
+import { EventDispatcher } from "strongly-typed-events";
+import type { Camera } from "./Camera";
+import { Component, EventEmitter } from "../core";
+import { PerspectiveProjectionType } from "../constants";
+import type { FloatArrayParam } from "../math";
+import { createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4 } from "../matrix";
+import { Projection } from "./Projection";
+import { PerspectiveProjectionParams } from "./PerspectiveProjectionParams";
 
 
 /**
@@ -20,99 +20,99 @@ import {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
  */
 export class PerspectiveProjection extends Component implements Projection {
 
-    /**
+  /**
      * The Camera this PerspectiveProjection belongs to.
      */
-    public readonly camera: Camera;
+  public readonly camera: Camera;
 
-    /**
+  /**
      * Emits an event each time {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates.
      *
      * @event
      */
-    readonly onProjMatrix: EventEmitter<PerspectiveProjection, FloatArrayParam>;
+  readonly onProjMatrix: EventEmitter<PerspectiveProjection, FloatArrayParam>;
 
-    /**
+  /**
      * The type of this projection.
      */
-    static readonly type: number = PerspectiveProjectionType;
+  static readonly type: number = PerspectiveProjectionType;
 
-    #state: {
-        far: number;
-        near: number;
-        fov: number;
-        fovAxis: string;
-        projMatrix: FloatArrayParam;
-        inverseProjMatrix: FloatArrayParam;
-        transposedProjMatrix: FloatArrayParam;
-    };
+  #state: {
+    far: number;
+    near: number;
+    fov: number;
+    fovAxis: string;
+    projMatrix: FloatArrayParam;
+    inverseProjMatrix: FloatArrayParam;
+    transposedProjMatrix: FloatArrayParam;
+  };
 
-    #inverseMatrixDirty: boolean;
-    #transposedProjMatrixDirty: boolean;
-    #onViewBoundary: any;
+  #inverseMatrixDirty: boolean;
+  #transposedProjMatrixDirty: boolean;
+  #onViewBoundary: any;
 
 
-    /**
+  /**
      * @private
      */
-    constructor(camera: Camera, cfg: {
-        fov?: number,
-        fovAxis?: string,
-        near?: number,
-        far?: number
-    } = {}) {
+  constructor(camera: Camera, cfg: {
+    fov?: number,
+    fovAxis?: string,
+    near?: number,
+    far?: number
+  } = {}) {
 
-        super(camera, cfg);
+    super(camera, cfg);
 
-        this.camera = camera;
+    this.camera = camera;
 
-        this.#state = {
-            near: cfg.near || 0.1,
-            far: cfg.far || 10000.0,
-            fov: cfg.fov || 60.0,
-            fovAxis: cfg.fovAxis || "min",
-            projMatrix: createMat4(),
-            inverseProjMatrix: createMat4(),
-            transposedProjMatrix: createMat4()
-        };
+    this.#state = {
+      near: cfg.near || 0.1,
+      far: cfg.far || 10000.0,
+      fov: cfg.fov || 60.0,
+      fovAxis: cfg.fovAxis || "min",
+      projMatrix: createMat4(),
+      inverseProjMatrix: createMat4(),
+      transposedProjMatrix: createMat4()
+    };
 
-        this.#inverseMatrixDirty = true;
-        this.#transposedProjMatrixDirty = true;
+    this.#inverseMatrixDirty = true;
+    this.#transposedProjMatrixDirty = true;
 
-        this.#onViewBoundary = this.camera.view.onBoundary.subscribe(() => {
-            this.setDirty();
-        });
+    this.#onViewBoundary = this.camera.view.onBoundary.subscribe(() => {
+      this.setDirty();
+    });
 
-        this.onProjMatrix = new EventEmitter(new EventDispatcher<PerspectiveProjection, FloatArrayParam>());
-    }
+    this.onProjMatrix = new EventEmitter(new EventDispatcher<PerspectiveProjection, FloatArrayParam>());
+  }
 
-    /**
+  /**
      * Gets the PerspectiveProjection's field-of-view angle (FOV).
      *
      * Default value is ````60.0````.
      *
      * @returns {Number} Current field-of-view.
      */
-    get fov(): number {
-        return this.#state.fov;
-    }
+  get fov(): number {
+    return this.#state.fov;
+  }
 
-    /**
+  /**
      * Sets the PerspectiveProjection's field-of-view angle (FOV).
      *
      * Default value is ````60.0````.
      *
      * @param value New field-of-view.
      */
-    set fov(value: number) {
-        if (value === this.#state.fov) {
-            return;
-        }
-        this.#state.fov = value;
-        this.setDirty();
+  set fov(value: number) {
+    if (value === this.#state.fov) {
+      return;
     }
+    this.#state.fov = value;
+    this.setDirty();
+  }
 
-    /**
+  /**
      * Gets the PerspectiveProjection's FOV axis.
      *
      * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
@@ -121,11 +121,11 @@ export class PerspectiveProjection extends Component implements Projection {
      *
      * @returns {String} The current FOV axis value.
      */
-    get fovAxis(): string {
-        return this.#state.fovAxis;
-    }
+  get fovAxis(): string {
+    return this.#state.fovAxis;
+  }
 
-    /**
+  /**
      * Sets the PerspectiveProjection's FOV axis.
      *
      * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
@@ -134,135 +134,135 @@ export class PerspectiveProjection extends Component implements Projection {
      *
      * @param value New FOV axis value.
      */
-    set fovAxis(value: string) {
-        value = value || "min";
-        if (this.#state.fovAxis === value) {
-            return;
-        }
-        if (value !== "x" && value !== "y" && value !== "min") {
-            this.error("Unsupported value for 'fovAxis': " + value + " - defaulting to 'min'");
-            value = "min";
-        }
-        this.#state.fovAxis = value;
-        this.setDirty();
+  set fovAxis(value: string) {
+    value = value || "min";
+    if (this.#state.fovAxis === value) {
+      return;
     }
+    if (value !== "x" && value !== "y" && value !== "min") {
+      this.error("Unsupported value for 'fovAxis': " + value + " - defaulting to 'min'");
+      value = "min";
+    }
+    this.#state.fovAxis = value;
+    this.setDirty();
+  }
 
-    /**
+  /**
      * Gets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
      *
      * Default value is ````0.1````.
      *
      * @returns The PerspectiveProjection's near plane position.
      */
-    get near(): number {
-        return this.#state.near;
-    }
+  get near(): number {
+    return this.#state.near;
+  }
 
-    /**
+  /**
      * Sets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
      *
      * Default value is ````0.1````.
      *
      * @param value New PerspectiveProjection near plane position.
      */
-    set near(value: number) {
-        if (this.#state.near === value) {
-            return;
-        }
-        this.#state.near = value;
-        this.setDirty();
+  set near(value: number) {
+    if (this.#state.near === value) {
+      return;
     }
+    this.#state.near = value;
+    this.setDirty();
+  }
 
-    /**
+  /**
      * Gets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
      *
      * @return {Number} The PerspectiveProjection's far plane position.
      */
-    get far(): number {
-        return this.#state.far;
-    }
+  get far(): number {
+    return this.#state.far;
+  }
 
-    /**
+  /**
      * Sets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
      *
      * @param value New PerspectiveProjection far plane position.
      */
-    set far(value: number) {
-        if (this.#state.far === value) {
-            return;
-        }
-        this.#state.far = value;
-        this.setDirty();
+  set far(value: number) {
+    if (this.#state.far === value) {
+      return;
     }
+    this.#state.far = value;
+    this.setDirty();
+  }
 
-    /**
+  /**
      * Gets the PerspectiveProjection's projection transform matrix.
      *
      * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
      *
      * @returns  The PerspectiveProjection's projection matrix.
      */
-    get projMatrix(): FloatArrayParam {
-        if (this.dirty) {
-            this.cleanIfDirty();
-        }
-        return this.#state.projMatrix;
+  get projMatrix(): FloatArrayParam {
+    if (this.dirty) {
+      this.cleanIfDirty();
     }
+    return this.#state.projMatrix;
+  }
 
-    /**
+  /**
      * Gets the inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      *
      * @returns  The inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      */
-    get inverseProjMatrix(): FloatArrayParam {
-        if (this.dirty) {
-            this.cleanIfDirty();
-        }
-        if (this.#inverseMatrixDirty) {
-            inverseMat4(this.#state.projMatrix, this.#state.inverseProjMatrix);
-            this.#inverseMatrixDirty = false;
-        }
-        return this.#state.inverseProjMatrix;
+  get inverseProjMatrix(): FloatArrayParam {
+    if (this.dirty) {
+      this.cleanIfDirty();
     }
+    if (this.#inverseMatrixDirty) {
+      inverseMat4(this.#state.projMatrix, this.#state.inverseProjMatrix);
+      this.#inverseMatrixDirty = false;
+    }
+    return this.#state.inverseProjMatrix;
+  }
 
-    /**
+  /**
      * Gets the transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      *
      * @returns  The transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
      */
-    get transposedProjMatrix(): FloatArrayParam {
-        if (this.dirty) {
-            this.cleanIfDirty();
-        }
-        if (this.#transposedProjMatrixDirty) {
-            transposeMat4(this.#state.projMatrix, this.#state.transposedProjMatrix);
-            this.#transposedProjMatrixDirty = false;
-        }
-        return this.#state.transposedProjMatrix;
+  get transposedProjMatrix(): FloatArrayParam {
+    if (this.dirty) {
+      this.cleanIfDirty();
     }
+    if (this.#transposedProjMatrixDirty) {
+      transposeMat4(this.#state.projMatrix, this.#state.transposedProjMatrix);
+      this.#transposedProjMatrixDirty = false;
+    }
+    return this.#state.transposedProjMatrix;
+  }
 
-    /**
+  /**
      * @private
      */
-    clean() {
-        const WIDTH_INDEX = 2;
-        const HEIGHT_INDEX = 3;
-        const boundary = this.camera.view.boundary;
-        const aspect = boundary[WIDTH_INDEX] / boundary[HEIGHT_INDEX];
-        const fovAxis = this.#state.fovAxis;
-        let fov = this.#state.fov;
-        if (fovAxis === "x" || (fovAxis === "min" && aspect < 1) || (fovAxis === "max" && aspect > 1)) {
-            fov = fov / aspect;
-        }
-        fov = Math.min(fov, 120);
-        perspectiveMat4(fov * (Math.PI / 180.0), aspect, this.#state.near, this.#state.far, this.#state.projMatrix);
-        this.#inverseMatrixDirty = true;
-        this.#transposedProjMatrixDirty = true;
-        this.camera.view.redraw();
-        this.onProjMatrix.dispatch(this, this.#state.projMatrix);
+  clean() {
+    const WIDTH_INDEX = 2;
+    const HEIGHT_INDEX = 3;
+    const boundary = this.camera.view.boundary;
+    const aspect = boundary[WIDTH_INDEX] / boundary[HEIGHT_INDEX];
+    const fovAxis = this.#state.fovAxis;
+    let fov = this.#state.fov;
+    if (fovAxis === "x" || (fovAxis === "min" && aspect < 1) || (fovAxis === "max" && aspect > 1)) {
+      fov = fov / aspect;
     }
+    fov = Math.min(fov, 120);
+    perspectiveMat4(fov * (Math.PI / 180.0), aspect, this.#state.near, this.#state.far, this.#state.projMatrix);
+    this.#inverseMatrixDirty = true;
+    this.#transposedProjMatrixDirty = true;
+    this.camera.view.redraw();
+    this.onProjMatrix.dispatch(this, this.#state.projMatrix);
+  }
 
-    /**
+  /**
      * Un-projects the given View-space coordinates and Screen-space depth, using this PerspectiveProjection projection.
      *
      * @param canvasPos Inputs 2D View-space coordinates.
@@ -271,65 +271,65 @@ export class PerspectiveProjection extends Component implements Projection {
      * @param viewPos Outputs un-projected 3D View-space coordinates.
      * @param worldPos Outputs un-projected 3D World-space coordinates.
      */
-    unproject(canvasPos: FloatArrayParam, screenZ: number, screenPos: FloatArrayParam, viewPos: FloatArrayParam, worldPos: FloatArrayParam): FloatArrayParam {
+  unproject(canvasPos: FloatArrayParam, screenZ: number, screenPos: FloatArrayParam, viewPos: FloatArrayParam, worldPos: FloatArrayParam): FloatArrayParam {
 
-        const htmlElement = this.camera.view.htmlElement;
-        const halfViewWidth = htmlElement.offsetWidth / 2.0;
-        const halfViewHeight = htmlElement.offsetHeight / 2.0;
+    const htmlElement = this.camera.view.htmlElement;
+    const halfViewWidth = htmlElement.offsetWidth / 2.0;
+    const halfViewHeight = htmlElement.offsetHeight / 2.0;
 
-        screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
-        screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
-        screenPos[2] = screenZ;
-        screenPos[3] = 1.0;
+    screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
+    screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
+    screenPos[2] = screenZ;
+    screenPos[3] = 1.0;
 
-        mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
-        mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
+    mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
+    mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
 
-        viewPos[3] = 1.0;
-        viewPos[1] *= -1;
+    viewPos[3] = 1.0;
+    viewPos[1] *= -1;
 
-        mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
+    mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
 
-        return worldPos;
-    }
+    return worldPos;
+  }
 
-    /**
+  /**
      * Sets the state of this PerspectiveParams from the given parameters.
      * @param perspectiveProjectionParams
      */
-    fromParams(perspectiveProjectionParams: PerspectiveProjectionParams) {
-        if (perspectiveProjectionParams.far !== undefined) {
-            this.far = perspectiveProjectionParams.far;
-        }
-        if (perspectiveProjectionParams.near !== undefined) {
-            this.near = perspectiveProjectionParams.near;
-        }
-        if (perspectiveProjectionParams.fov !== undefined) {
-            this.fov = perspectiveProjectionParams.fov;
-        }
-        if (perspectiveProjectionParams.fovAxis !== undefined) {
-            this.fovAxis = perspectiveProjectionParams.fovAxis;
-        }
+  fromParams(perspectiveProjectionParams: PerspectiveProjectionParams) {
+    if (perspectiveProjectionParams.far !== undefined) {
+      this.far = perspectiveProjectionParams.far;
     }
+    if (perspectiveProjectionParams.near !== undefined) {
+      this.near = perspectiveProjectionParams.near;
+    }
+    if (perspectiveProjectionParams.fov !== undefined) {
+      this.fov = perspectiveProjectionParams.fov;
+    }
+    if (perspectiveProjectionParams.fovAxis !== undefined) {
+      this.fovAxis = perspectiveProjectionParams.fovAxis;
+    }
+  }
 
-    /**
+  /**
      * Gets this PerspectiveProjection as JSON.
      */
-    toParams(): PerspectiveProjectionParams {
-        return {
-            far: this.far,
-            near: this.near,
-            fov: this.fov,
-            fovAxis: this.fovAxis
-        };
-    }
+  toParams(): PerspectiveProjectionParams {
+    return {
+      far: this.far,
+      near: this.near,
+      fov: this.fov,
+      fovAxis: this.fovAxis
+    };
+  }
 
-    /** @private
+  /** @private
      *
      */
-    destroy() {
-        super.destroy();
-        this.camera.view.onBoundary.unsubscribe(this.#onViewBoundary);
-        this.onProjMatrix.clear();
-    }
+  destroy() {
+    super.destroy();
+    this.camera.view.onBoundary.unsubscribe(this.#onViewBoundary);
+    this.onProjMatrix.clear();
+  }
 }

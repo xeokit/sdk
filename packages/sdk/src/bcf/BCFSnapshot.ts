@@ -3,13 +3,13 @@
  */
 export interface BCFSnapshot {
 
-    /**
+  /**
      * Format of the snapshot.
      */
-    snapshot_type: "png" | "jpeg",
+  snapshot_type: "png" | "jpeg",
 
-    /**
+  /**
      * Snapshot image data.
      */
-    snapshot_data: string
+  snapshot_data: string
 }

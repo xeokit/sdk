@@ -24,27 +24,27 @@ import { RendererModel } from "./RendererModel";
  */
 export interface RendererObject {
 
-    /**
+  /**
      * Unique identifier for this RendererObject.
      */
-    readonly id: string;
+  readonly id: string;
 
-    /**
+  /**
      * The {@link RendererModel | RendererModel} containing this RendererObject.
      */
-    readonly rendererModel: RendererModel;
+  readonly rendererModel: RendererModel;
 
-    /**
+  /**
      * The axis-aligned world-space 3D boundary of this RendererObject.
      */
-    readonly aabb: FloatArrayParam;
+  readonly aabb: FloatArrayParam;
 
-    /**
+  /**
      * The ID of a {@link viewer!ViewLayer | ViewLayer} in which the {@link viewer!ViewObject} exclusively appears.
      */
-    readonly layerId: string | null;
+  readonly layerId: string | null;
 
-    /**
+  /**
      * Controls the visibility of the {@link viewer!ViewObject} in a specific {@link viewer!View | View}.
      *
      * @param viewIndex - Index of the View. Matches {@link viewer!View.viewIndex | View.viewIndex} for an attached View.
@@ -52,9 +52,9 @@ export interface RendererObject {
      * @returns *void* - Success.
      * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
      */
-    setVisible(viewIndex: number, visible: boolean): void | SDKError;
+  setVisible(viewIndex: number, visible: boolean): void | SDKError;
 
-    /**
+  /**
      * Toggles the highlighted state of the {@link viewer!ViewObject} in a specified {@link viewer!View | View}.
      *
      * @param viewIndex - Index of the View.
@@ -62,9 +62,9 @@ export interface RendererObject {
      * @returns *void* - Success.
      * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
      */
-    setHighlighted(viewIndex: number, highlighted: boolean): void | SDKError;
+  setHighlighted(viewIndex: number, highlighted: boolean): void | SDKError;
 
-    /**
+  /**
      * Sets whether the {@link viewer!ViewObject} should appear X-rayed in a given {@link viewer!View | View}.
      *
      * @param viewIndex - Index of the View.
@@ -72,9 +72,9 @@ export interface RendererObject {
      * @returns *void* - Success.
      * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
      */
-    setXRayed(viewIndex: number, xrayed: boolean): void | SDKError;
+  setXRayed(viewIndex: number, xrayed: boolean): void | SDKError;
 
-    /**
+  /**
      * Marks the {@link viewer!ViewObject} as selected within a given {@link viewer!View | View}.
      *
      * @param viewIndex - Index of the View.
@@ -82,9 +82,9 @@ export interface RendererObject {
      * @returns *void* - Success.
      * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
      */
-    setSelected(viewIndex: number, selected: boolean): void | SDKError;
+  setSelected(viewIndex: number, selected: boolean): void | SDKError;
 
-    /**
+  /**
      * Controls whether the {@link viewer!ViewObject} should be culled (hidden) from a specific {@link viewer!View | View}.
      *
      * @param viewIndex - Index of the View.
@@ -92,9 +92,9 @@ export interface RendererObject {
      * @returns *void* - Success.
      * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
      */
-    setCulled(viewIndex: number, culled: boolean): void | SDKError;
+  setCulled(viewIndex: number, culled: boolean): void | SDKError;
 
-    /**
+  /**
      * Sets whether section plane clipping is applied to the {@link viewer!ViewObject} in a given {@link viewer!View | View}.
      *
      * @param viewIndex - Index of the View.
@@ -102,9 +102,9 @@ export interface RendererObject {
      * @returns *void* - Success.
      * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
      */
-    setClippable(viewIndex: number, clippable: boolean): void | SDKError;
+  setClippable(viewIndex: number, clippable: boolean): void | SDKError;
 
-    /**
+  /**
      * Determines whether the {@link viewer!ViewObject} participates in boundary calculations and collisions.
      *
      * @param viewIndex - Index of the View.
@@ -112,9 +112,9 @@ export interface RendererObject {
      * @returns *void* - Success.
      * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
      */
-    setCollidable(viewIndex: number, collidable: boolean): void | SDKError;
+  setCollidable(viewIndex: number, collidable: boolean): void | SDKError;
 
-    /**
+  /**
      * Determines whether the {@link viewer!ViewObject} can be picked within a given {@link viewer!View | View}.
      *
      * @param viewIndex - Index of the View.
@@ -122,9 +122,9 @@ export interface RendererObject {
      * @returns *void* - Success.
      * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
      */
-    setPickable(viewIndex: number, pickable: boolean): void | SDKError;
+  setPickable(viewIndex: number, pickable: boolean): void | SDKError;
 
-    /**
+  /**
      * Applies a color to the {@link viewer!ViewObject} in a given {@link viewer!View | View}.
      *
      * @param viewIndex - Index of the View.
@@ -132,9 +132,9 @@ export interface RendererObject {
      * @returns *void* - Success.
      * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
      */
-    setColorize(viewIndex: number, color?: FloatArrayParam): void | SDKError;
+  setColorize(viewIndex: number, color?: FloatArrayParam): void | SDKError;
 
-    /**
+  /**
      * Adjusts the opacity of the {@link viewer!ViewObject} in a given {@link viewer!View | View}.
      *
      * @param viewIndex - Index of the View.
@@ -142,5 +142,5 @@ export interface RendererObject {
      * @returns *void* - Success.
      * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
      */
-    setOpacity(viewIndex: number, opacity?: number): void | SDKError;
+  setOpacity(viewIndex: number, opacity?: number): void | SDKError;
 }

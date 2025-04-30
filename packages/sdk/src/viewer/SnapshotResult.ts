@@ -6,19 +6,19 @@
 class SnapshotResult {
 
 
-    constructor() {
+  constructor() {
 
-        this.reset();
-    }
+    this.reset();
+  }
 
 
 
-    /**
+  /**
      * @private
      */
-    reset() {
+  reset() {
 
-    }
+  }
 }
 
-export {SnapshotResult};
+export { SnapshotResult };

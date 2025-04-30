@@ -1,5 +1,5 @@
 
-import type {FloatArrayParam, IntArrayParam} from "../math";
+import type { FloatArrayParam, IntArrayParam } from "../math";
 
 /**
  * Non-compressed geometry parameters for {@link SceneModel.createGeometry | SceneModel.createGeometry}.
@@ -12,44 +12,44 @@ import type {FloatArrayParam, IntArrayParam} from "../math";
  */
 export interface SceneGeometryParams {
 
-    /**
+  /**
      * ID for the geometry.
      */
-    id: string;
+  id: string;
 
-    /**
+  /**
      * Primitive type.
      *
      * Accepted values are {@link constants!SolidPrimitive | SolidPrimitive}, {@link constants!SurfacePrimitive | SurfacePrimitive},
      * {@link constants!LinesPrimitive | LinesPrimitive}, {@link constants!PointsPrimitive | PointsPrimitive}
      * and {@link constants!TrianglesPrimitive | TrianglesPrimitive}.
      */
-    primitive: number;
+  primitive: number;
 
-    /**
+  /**
      * Flat array of uncompressed floating point 3D vertex positions.
      */
-    positions: FloatArrayParam;
+  positions: FloatArrayParam;
 
-    /*
+  /*
     * Flat array of uncompressed floating-point vertex UV coordinates.
     */
-    uvs?: FloatArrayParam;
+  uvs?: FloatArrayParam;
 
-    /**
+  /**
      * Flat array of uncompressed floating-point vertex colors.
      */
-    colors?: FloatArrayParam;
+  colors?: FloatArrayParam;
 
-    /**
+  /**
      * Flat array of compressed intger vertex colors. This overrides the `colors` parameter.
      */
-    colorsCompressed?: IntArrayParam;
+  colorsCompressed?: IntArrayParam;
 
-    /**
+  /**
      * Flat array of primitive connectivity indices.
      *
      * Ignored for primitive type {@link constants!PointsPrimitive}, which does not need indices.
      */
-    indices?: IntArrayParam;
+  indices?: IntArrayParam;
 }

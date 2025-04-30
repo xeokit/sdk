@@ -20,6 +20,7 @@
         "typeRoots": [
             "../../node_modules/@types"
         ],
+        "strict": true,
         "alwaysStrict": true,
         "strictFunctionTypes": true,
         "strictBindCallApply": true,

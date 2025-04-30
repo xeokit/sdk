@@ -1,5 +1,4 @@
 import { collapseAABB3, expandAABB3 } from "../boundaries";
-import type { EventEmitter } from "../core";
 import { Component, SDKError, type TextureTranscoder } from "../core";
 import { composeMat4, createMat4, createVec3, createVec4, eulerToQuat, identityQuat, mulMat4 } from "../matrix";
 import { createUUID, loadArraybuffer } from "../utils";
@@ -16,6 +15,7 @@ import type {
   SceneTexture,
   SceneTextureSet
 } from "../scene";
+import type { EventEmitter } from "../core";
 import type { FloatArrayParam } from "../math";
 import type { Layer } from "./Layer";
 import { MeshCounts } from "./MeshCounts";

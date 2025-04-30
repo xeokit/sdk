@@ -1,10 +1,10 @@
 import { apply, createUUID, inQuotes } from "../utils";
 import { type Capabilities, Component, EventEmitter, SDKError } from "../core";
-import type { SceneModel } from "../scene";
-import { Scene } from "../scene";
 import { EventDispatcher } from "strongly-typed-events";
 import type { FloatArrayParam } from "../math";
 import type { Renderer } from "./Renderer";
+import { Scene } from "../scene";
+import type { SceneModel } from "../scene";
 import { scheduler } from "./scheduler";
 import type { TickParams } from "./TickParams";
 import { View } from "./View";

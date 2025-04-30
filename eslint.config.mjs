@@ -15,6 +15,20 @@ export default tseslint.config(
     plugins: {
       '@stylistic/ts': stylisticTs,
     },
+    rules: {
+      'sort-imports': [
+        'error',
+        {
+          ignoreCase: true,
+          ignoreDeclarationSort: false,
+          ignoreMemberSort: false,
+          memberSyntaxSortOrder: ['none', 'all', 'multiple', 'single'],
+          allowSeparatedGroups: false
+        },
+      ],
+      '@stylistic/ts/object-curly-spacing': ['error', 'always'],
+      '@stylistic/ts/indent': ['error', 2],
+    }
   },
   {
     ignores: [

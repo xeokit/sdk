@@ -1,5 +1,6 @@
 import { addVec3, createVec3, lenVec3, lerpMat4, lerpVec3, mulVec3Scalar, normalizeVec3, subVec3 } from "../matrix";
-import { Camera, scheduler, View } from "../viewer";
+import type { Camera } from "../viewer";
+import { scheduler, View } from "../viewer";
 import { Component, EventEmitter } from "../core";
 import { CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType } from "../constants";
 import { DEGTORAD, type FloatArrayParam } from "../math";

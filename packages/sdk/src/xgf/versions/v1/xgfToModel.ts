@@ -8,7 +8,7 @@ import {
 } from "../../../constants";
 import type { SceneGeometryCompressedParams, SceneModel } from "../../../scene";
 import { createUUID } from "../../../utils";
-import { DataModel } from "../../../data";
+import type { DataModel } from "../../../data";
 import type { FloatArrayParam } from "../../../math";
 import type { XGFData_v1 } from "./XGFData_v1";
 

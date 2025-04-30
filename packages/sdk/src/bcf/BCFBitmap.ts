@@ -1,4 +1,4 @@
-import { BCFVector } from "./BCFVector";
+import type { BCFVector } from "./BCFVector";
 
 /**
  * BCF bitmap.

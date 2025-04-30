@@ -1,6 +1,6 @@
-import { ModelConverterPipelineParams } from "./ModelConverterPipelineParams";
-import { ModelExporter } from "../io";
-import { ModelLoader } from "../io";
+import type { ModelConverterPipelineParams } from "./ModelConverterPipelineParams";
+import type { ModelExporter } from "../io";
+import type { ModelLoader } from "../io";
 
 /**
  * Constructor parameters for a {@link ModelConverter | ModelConverter}.

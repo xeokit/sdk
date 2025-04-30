@@ -1,5 +1,5 @@
 import type { FloatArrayParam } from "../math";
-import { RendererModel } from "./RendererModel";
+import type { RendererModel } from "./RendererModel";
 import type { SDKError } from "../core";
 
 /**

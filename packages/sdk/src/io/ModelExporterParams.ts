@@ -1,4 +1,4 @@
-import { ModelEncoder } from "./ModelEncoder";
+import type { ModelEncoder } from "./ModelEncoder";
 
 /**
  * Constructor paramsters for a {@link ModelExporter}.

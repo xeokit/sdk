@@ -1,4 +1,4 @@
-import { VBOBatchingLayer } from "../../VBOBatchingLayer";
+import type { VBOBatchingLayer } from "../../VBOBatchingLayer";
 import { VBOBatchingRenderer } from "../../VBOBatchingRenderer";
 
 /**

@@ -1,4 +1,4 @@
-import { XeoConvertManifestReportFile } from "./XeoConvertManifestReportFile";
+import { type XeoConvertManifestReportFile } from "./XeoConvertManifestReportFile";
 
 /**
  * Defines a manifest report created by `xeoconvert --manifest-report` `.

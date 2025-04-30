@@ -1,6 +1,6 @@
 
 import { XGF_INFO } from "./XGF_INFO";
-import { XGFData_v1 } from "./XGFData_v1";
+import type { XGFData_v1 } from "./XGFData_v1";
 
 const object2Array = (function() {
   const encoder = new TextEncoder();

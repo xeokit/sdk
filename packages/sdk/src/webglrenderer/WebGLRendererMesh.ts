@@ -3,7 +3,7 @@ import type { RendererGeometry, RendererMesh, RendererObject, RendererTextureSet
 import type { Tile, WebGLTileManager } from "./WebGLTileManager";
 import { createAABB3 } from "../boundaries";
 import type { FloatArrayParam } from "../math";
-import { Layer } from "./Layer";
+import type { Layer } from "./Layer";
 import type { Pickable } from "./Pickable";
 import type { RenderContext } from "./RenderContext";
 

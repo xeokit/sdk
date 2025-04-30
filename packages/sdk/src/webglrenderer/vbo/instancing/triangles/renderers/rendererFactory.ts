@@ -1,5 +1,5 @@
 import { RendererSetFactory, VBORendererSet } from "../../../VBORendererSet";
-import { VBORenderer } from "../../../VBORenderer";
+import type { VBORenderer } from "../../../VBORenderer";
 import { VBOTrianglesInstancingDrawColorRenderer } from "./VBOTrianglesInstancingDrawColorRenderer";
 import { VBOTrianglesInstancingDrawColorSAORenderer } from "./VBOTrianglesInstancingDrawColorSAORenderer";
 import { VBOTrianglesInstancingDrawDepthRenderer } from "./VBOTrianglesInstancingDrawDepthRenderer";
@@ -7,7 +7,7 @@ import { VBOTrianglesInstancingEdgesDrawRenderer } from "./VBOTrianglesInstancin
 import { VBOTrianglesInstancingEdgesSilhouetteRenderer } from "./VBOTrianglesInstancingEdgesSilhouetteRenderer";
 import { VBOTrianglesInstancingPickMeshRenderer } from "./VBOTrianglesInstancingPickMeshRenderer";
 import { VBOTrianglesInstancingSilhouetteRenderer } from "./VBOTrianglesInstancingSilhouetteRenderer";
-import { WebGLRenderer } from "../../../../WebGLRenderer";
+import type { WebGLRenderer } from "../../../../WebGLRenderer";
 
 /**
  * @private

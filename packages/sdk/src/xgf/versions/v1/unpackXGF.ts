@@ -1,5 +1,5 @@
 
-import { XGFData_v1 } from "./XGFData_v1";
+import type { XGFData_v1 } from "./XGFData_v1";
 
 /**
  * @private

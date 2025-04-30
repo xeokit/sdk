@@ -1,8 +1,8 @@
-import { DataModel, DataObject, PropertySet, Relationship } from "../../../data";
-import { SceneMesh, SceneModel, SceneObject } from "../../../scene";
+import type { DataModel, DataObject, PropertySet, Relationship } from "../../../data";
+import type { SceneMesh, SceneModel, SceneObject } from "../../../scene";
 import { createUUID } from "../../../utils";
 import { ifcTypeNames } from "../../../ifctypes";
-import { ModelEncodeParams } from "../../../io";
+import type { ModelEncodeParams } from "../../../io";
 
 /** @private
  */

@@ -1,6 +1,6 @@
 import { Component, SDKError } from "../core";
 import { CustomProjectionType, FastRender, FrustumProjectionType, QualityRender } from "../constants";
-import { SAOParams } from "./SAOParams";
+import { type SAOParams } from "./SAOParams";
 import type { View } from "./View";
 
 /**

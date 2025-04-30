@@ -13,7 +13,7 @@ import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, Tria
 import { compressGeometryParams } from "./compressGeometryParams";
 import { createRTCModelMat } from "../rtc";
 import { EventDispatcher } from "strongly-typed-events";
-import { FloatArrayParam } from "../math";
+import type { FloatArrayParam } from "../math";
 import type { RendererModel } from "./RendererModel";
 import type { Scene } from "./Scene";
 import { SceneGeometry } from "./SceneGeometry";
@@ -23,14 +23,14 @@ import { SceneMesh } from "./SceneMesh";
 import type { SceneMeshParams } from "./SceneMeshParams";
 import type { SceneModelParams } from "./SceneModelParams";
 import type { SceneModelStats } from "./SceneModelStats";
-import { SceneModelStreamParams } from "./SceneModelStreamParams";
+import type { SceneModelStreamParams } from "./SceneModelStreamParams";
 import { SceneObject } from "./SceneObject";
 import type { SceneObjectParams } from "./SceneObjectParams";
 import { SceneTexture } from "./SceneTexture";
 import type { SceneTextureParams } from "./SceneTextureParams";
 import { SceneTextureSet } from "./SceneTextureSet";
 import type { SceneTextureSetParams } from "./SceneTextureSetParams";
-import { SceneTile } from "./SceneTile";
+import type { SceneTile } from "./SceneTile";
 
 // XGF texture types
 

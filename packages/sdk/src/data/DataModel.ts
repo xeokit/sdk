@@ -1,8 +1,8 @@
 import { Component, EventEmitter, SDKError } from "../core";
 import type { Data } from "./Data";
-import { DataModelContentParams } from "./DataModelContentParams";
+import type { DataModelContentParams } from "./DataModelContentParams";
 import type { DataModelParams } from "./DataModelParams";
-import { DataModelStats } from "./DataModelStats";
+import type { DataModelStats } from "./DataModelStats";
 import { DataObject } from "./DataObject";
 import type { DataObjectParams } from "./DataObjectParams";
 import { EventDispatcher } from "strongly-typed-events";

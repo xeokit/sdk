@@ -1,5 +1,5 @@
-import { MetaObjectParams } from "./MetaObjectParams";
-import { MetaPropertySetParams } from "./MetaPropertySetParams";
+import type { MetaObjectParams } from "./MetaObjectParams";
+import type { MetaPropertySetParams } from "./MetaPropertySetParams";
 
 /**
  * Legacy metadata model parameters.

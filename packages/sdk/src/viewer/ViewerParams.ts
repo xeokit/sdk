@@ -1,4 +1,4 @@
-import { ViewParams } from "./ViewParams";
+import type { ViewParams } from "./ViewParams";
 
 /**
  * Parameters for a {@link Viewer}.

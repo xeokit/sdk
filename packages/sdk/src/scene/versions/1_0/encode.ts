@@ -1,4 +1,4 @@
-import { ModelEncodeParams } from "../../../io";
+import type { ModelEncodeParams } from "../../../io";
 
 /**
  * @private

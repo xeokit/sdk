@@ -1,11 +1,12 @@
 import { addVec3, createVec3, negateVec3, subVec3 } from "../matrix";
-import { DataObject, searchObjects } from "../data";
+import type { DataObject } from "../data";
+import { searchObjects } from "../data";
 import { IfcOpeningElement, IfcSpace } from "../ifctypes";
 import { OrthoProjectionType, PerspectiveProjectionType } from "../constants";
 import { BasicAggregation } from "../basictypes";
-import { BCFComponent } from "./BCFComponent";
-import { BCFVector } from "./BCFVector";
-import { FloatArrayParam } from "../math";
+import type { BCFComponent } from "./BCFComponent";
+import type { BCFVector } from "./BCFVector";
+import type { FloatArrayParam } from "../math";
 import type { LoadBCFViewpointParams } from "./LoadBCFViewpointParams";
 import { PickResult } from "../viewer";
 

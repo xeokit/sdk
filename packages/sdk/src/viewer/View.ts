@@ -1,4 +1,4 @@
-import { Component, EventEmitter, SDKError } from "../core";
+import { Component, EventEmitter } from "../core";
 import { FastRender, QualityRender } from "../constants";
 import type { FloatArrayParam, IntArrayParam } from "../math";
 import type { Scene, SceneModel } from "../scene";
@@ -19,16 +19,17 @@ import { PointsMaterial } from "./PointsMaterial";
 import type { RendererObject } from "../scene";
 import { ResolutionScale } from "./ResolutionScale";
 import { SAO } from "./SAO";
+import type { SDKError } from "../core";
 import { SectionPlane } from "./SectionPlane";
 import type { SectionPlaneParams } from "./SectionPlaneParams";
-import type { SnapshotParams } from "./SnapshotParams";
+import { type SnapshotParams } from "./SnapshotParams";
 import { SnapshotResult } from "./SnapshotResult";
 import { Texturing } from "./Texturing";
 import type { Viewer } from "./Viewer";
 import { ViewLayer } from "./ViewLayer";
 import type { ViewLayerParams } from "./ViewLayerParams";
 import { ViewObject } from "./ViewObject";
-import { ViewParams } from "./ViewParams";
+import type { ViewParams } from "./ViewParams";
 
 /**
  * Event that signifies the beginning of a canvas snapshot captured with

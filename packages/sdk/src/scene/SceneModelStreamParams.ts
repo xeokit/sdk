@@ -1,4 +1,4 @@
-import { SceneModelStreamLayerParams } from "./SceneModelStreamLayerParams";
+import type { SceneModelStreamLayerParams } from "./SceneModelStreamLayerParams";
 
 /**
  * Indicates what renderer resources will need to be allocated in a {@link viewer!Viewer | Viewer's}

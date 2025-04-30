@@ -3,9 +3,9 @@ import { createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transpos
 import type { Camera } from "./Camera";
 import { EventDispatcher } from "strongly-typed-events";
 import type { FloatArrayParam } from "../math";
-import { OrthoProjectionParams } from "./OrthoProjectionParams";
+import type { OrthoProjectionParams } from "./OrthoProjectionParams";
 import { OrthoProjectionType } from "../constants";
-import { Projection } from "./Projection";
+import type { Projection } from "./Projection";
 
 
 /**

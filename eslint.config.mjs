@@ -32,9 +32,17 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['warn'],
       // '@typescript-eslint/ban-ts-comment': 'off',
       // '@typescript-eslint/no-unused-expressions': 'off',
-      // 'no-unused-private-class-members': 'off',
+      'no-unused-private-class-members': ['warn'],
       // '@typescript-eslint/no-unsafe-function-types': 'off',
       // 'no-prototype-builtins': 'off',
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          "fixStyle": "separate-type-imports",
+          "prefer": "type-imports"
+        }
+
+      ]
     }
   },
   {

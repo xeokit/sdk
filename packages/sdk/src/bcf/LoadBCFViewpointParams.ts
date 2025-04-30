@@ -1,5 +1,5 @@
 import type { BCFViewpoint } from "./BCFViewpoint";
-import { Data } from "../data";
+import type { Data } from "../data";
 import type { View } from "../viewer";
 
 /**

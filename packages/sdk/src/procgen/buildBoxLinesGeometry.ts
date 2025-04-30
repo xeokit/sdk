@@ -1,6 +1,6 @@
 import * as constants from "../constants";
 import * as utils from "../utils";
-import { FloatArrayParam } from "../math";
+import type { FloatArrayParam } from "../math";
 import type { GeometryArrays } from "./GeometryArrays";
 
 /**

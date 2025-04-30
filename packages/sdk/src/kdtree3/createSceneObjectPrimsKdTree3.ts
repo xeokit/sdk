@@ -1,5 +1,6 @@
 import { collapseAABB3, expandAABB3 } from "../boundaries";
-import { type GeometryView, getSceneObjectGeometry, SceneGeometry, SceneObject } from "../scene";
+import type { SceneGeometry, SceneObject } from "../scene";
+import { type GeometryView, getSceneObjectGeometry } from "../scene";
 import { LinesPrimitive, PointsPrimitive, TrianglesPrimitive } from "../constants";
 import type { FloatArrayParam } from "../math";
 import type { KdSceneObjectPrim } from "./KdSceneObjectPrim";

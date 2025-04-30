@@ -1,4 +1,5 @@
-import { DefaultLoadingManager, LoadingManager } from './LoadingManager';
+import type { LoadingManager } from './LoadingManager';
+import { DefaultLoadingManager } from './LoadingManager';
 
 class Loader {
   manager: LoadingManager;

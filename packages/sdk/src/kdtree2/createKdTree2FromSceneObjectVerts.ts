@@ -1,5 +1,6 @@
 import { createMat4, createVec4, transformPoint4 } from "../matrix";
-import { type GeometryView, getSceneObjectGeometry, SceneObject } from "../scene";
+import type { SceneObject } from "../scene";
+import { type GeometryView, getSceneObjectGeometry } from "../scene";
 import {
   INSIDE,
   INTERSECT,

@@ -1,4 +1,4 @@
-import { ModelParseParams } from "../../../io";
+import type { ModelParseParams } from "../../../io";
 import { unpackXGF } from "./unpackXGF";
 import { xgfToModel } from "./xgfToModel";
 

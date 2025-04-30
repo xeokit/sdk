@@ -3,7 +3,7 @@ import type { FloatArrayParam } from "../math";
 import type { RendererObject } from "./RendererObject";
 import type { SceneMesh } from "./SceneMesh";
 import type { SceneModel } from "./SceneModel";
-import { SceneObjectParams } from "./SceneObjectParams";
+import type { SceneObjectParams } from "./SceneObjectParams";
 
 /**
  * An object within a {@link SceneModel | SceneModel}.

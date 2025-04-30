@@ -35,7 +35,8 @@
  *
  * @module matrix
  */
-import { clamp, DEGTORAD, FloatArrayParam, newFloatArray } from "../math";
+import type { FloatArrayParam } from "../math";
+import { clamp, DEGTORAD, newFloatArray } from "../math";
 
 // Temporary vector variables used for internal computations
 const tempVec4a: FloatArrayParam = createVec4();

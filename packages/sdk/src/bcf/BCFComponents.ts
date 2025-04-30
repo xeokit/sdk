@@ -1,6 +1,6 @@
-import { BCFColoringComponent } from "./BCFColoringComponent";
-import { BCFComponent } from "./BCFComponent";
-import { BCFVisibilityComponent } from "./BCFVisibilityComponent";
+import type { BCFColoringComponent } from "./BCFColoringComponent";
+import type { BCFComponent } from "./BCFComponent";
+import type { BCFVisibilityComponent } from "./BCFVisibilityComponent";
 
 /**
  * Visual states of BCF components.

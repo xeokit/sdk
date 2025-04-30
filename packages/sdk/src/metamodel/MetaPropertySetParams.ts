@@ -1,5 +1,5 @@
 
-import { MetaPropertyParams } from "./MetaPropertyParams";
+import type { MetaPropertyParams } from "./MetaPropertyParams";
 
 /**
  * Legacy metadata property set parameters.

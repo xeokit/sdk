@@ -25,13 +25,13 @@ import {
 } from "../constants";
 import { DEGTORAD, type FloatArrayParam } from "../math";
 import { Frustum3, setFrustum3 } from "../boundaries";
-import { CameraParams } from "./CameraParams";
+import type { CameraParams } from "./CameraParams";
 import { CustomProjection } from './CustomProjection';
 import { EventDispatcher } from "strongly-typed-events";
 import { FrustumProjection } from './FrustumProjection';
 import { OrthoProjection } from './OrthoProjection';
 import { PerspectiveProjection } from './PerspectiveProjection';
-import { Projection } from "./Projection";
+import type { Projection } from "./Projection";
 import type { View } from "./View";
 
 

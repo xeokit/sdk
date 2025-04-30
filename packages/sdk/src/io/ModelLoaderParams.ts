@@ -1,4 +1,4 @@
-import { ModelParser } from "./ModelParser";
+import type { ModelParser } from "./ModelParser";
 
 /**
  * Constructor paramsters for a {@link ModelLoader}.

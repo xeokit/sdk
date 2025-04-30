@@ -280,7 +280,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         case "jpeg":
         case "jpg":
         case "png":
-        case "gif":
+        case "gif": {
           const image = new Image();
           image.onload = () => {
             glTexture.setImage(image, {
@@ -295,6 +295,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
           };
           image.src = texture.src; // URL or Base64 string
           break;
+        }
         default: // Assume other file types need transcoding
           if (!this.#textureTranscoder) {
             this.error(`Can't create texture from 'src' - rendererModel needs to be configured with a TextureTranscoder for this file type ('${ext}')`);

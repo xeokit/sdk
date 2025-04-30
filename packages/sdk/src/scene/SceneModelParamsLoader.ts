@@ -13,6 +13,7 @@ export class SceneModelParamsLoader extends ModelLoader {
      */
     constructor() {
         super({
+            format:"SceneModelParams",
             fileDataType: "json",
             parsers: {
                 "1.0": parse_1_0

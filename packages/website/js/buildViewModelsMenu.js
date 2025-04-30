@@ -54,7 +54,11 @@ export function buildViewModelsMenu(params) {
         for (let j = 0, lenj = pipelineIds.length; j < lenj; j++) {
             const pipelineId = pipelineIds[j];
             const pipeline = pipelineLookup[pipelineId];
-            pipeline.models.push(model)
+            if (pipeline) {
+                pipeline.models.push(model);
+            } else {
+                console.error(`Pipeline not defined: ${pipelineId}`);
+            }
         }
     }
 

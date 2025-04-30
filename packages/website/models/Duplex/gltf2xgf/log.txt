@@ -1,5 +1,0 @@
-[xeoconvert] Loading input --gltf ./models/Duplex/gltf/model.glb
-[xeoconvert] Running conversion pipeline gltf2xgf
-[xeoconvert] Writing output --xgf ./models/Duplex/gltf2xgf/model.xgf
-[xeoconvert] Writing output --datamodel ./models/Duplex/gltf2xgf/model.json
-[xeoconvert] Done.

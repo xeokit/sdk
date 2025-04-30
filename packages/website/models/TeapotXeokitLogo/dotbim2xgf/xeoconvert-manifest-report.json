@@ -1,0 +1,35 @@
+{
+    "files": {
+        "xgf": {
+            "filePath": "./models/TeapotXeokitLogo/dotbim2xgf/sceneModel.xgf",
+            "fileFormat": "XGF",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 1679308,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "aabb": [
+                228.09935157339712,
+                368.9943315769582,
+                0,
+                1781.9612844230944,
+                1698.9994159033358,
+                3.1495194361631333
+            ]
+        },
+        "datamodel": {
+            "filePath": "./models/TeapotXeokitLogo/dotbim2xgf/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                228.09935157339712,
+                368.9943315769582,
+                0,
+                1781.9612844230944,
+                1698.9994159033358,
+                3.1495194361631333
+            ]
+        }
+    }
+}

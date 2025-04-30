@@ -1,0 +1,51 @@
+{
+    "description": "xeoconvert conversion stats",
+    "command": "node xeoconvert.js --pipeline gltf --gltf ./models/HousePlan/gltf/model.glb --stats-report ./models/HousePlan/gltf/xeoconvert-stats-report.json --manifest-report ./models/HousePlan/gltf/xeoconvert-manifest-report.json --log",
+    "time": "2025-04-29T16:31:01.191Z",
+    "pipeline": "gltf",
+    "inputs": {
+        "gltf": {
+            "filePath": "./models/HousePlan/gltf/model.glb",
+            "fileFormat": "glTF",
+            "fileFormatVersion": "*",
+            "fileDataSizeBytes": 28650372,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        }
+    },
+    "sceneModels": {
+        "default": {
+            "aabb": [
+                1374.8310852050781,
+                -1.3999999761580908,
+                -247.8473815545434,
+                1394.6981704070456,
+                2.5496810387627002,
+                -231.2499237060547
+            ],
+            "numGeometries": 474,
+            "numLines": 0,
+            "numMeshes": 474,
+            "numObjects": 474,
+            "numPoints": 0,
+            "numTextureSets": 11,
+            "numTextures": 14,
+            "numTriangles": 92814,
+            "numVertices": 113824,
+            "textureBytes": 70502320
+        }
+    },
+    "dataModels": {
+        "default": {
+            "numObjects": 0,
+            "numRelationships": 0,
+            "numPropertySets": 0
+        }
+    },
+    "outputs": {}
+}

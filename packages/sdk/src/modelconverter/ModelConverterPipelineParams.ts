@@ -22,7 +22,8 @@ export interface ModelConverterPipelineParams {
      *
      * Each output specifies how the processed data is exported from the pipeline.
      */
-    outputs: {
+    outputs?: {
         [key: string]: ModelConverterOutputParams;
     };
+
 }

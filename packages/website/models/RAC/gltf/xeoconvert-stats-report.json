@@ -1,0 +1,51 @@
+{
+    "description": "xeoconvert conversion stats",
+    "command": "node xeoconvert.js --pipeline gltf --gltf ./models/RAC/gltf/model.glb --stats-report ./models/RAC/gltf/xeoconvert-stats-report.json --manifest-report ./models/RAC/gltf/xeoconvert-manifest-report.json --log",
+    "time": "2025-04-29T16:33:49.001Z",
+    "pipeline": "gltf",
+    "inputs": {
+        "gltf": {
+            "filePath": "./models/RAC/gltf/model.glb",
+            "fileFormat": "glTF",
+            "fileFormatVersion": "*",
+            "fileDataSizeBytes": 4111592,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        }
+    },
+    "sceneModels": {
+        "default": {
+            "aabb": [
+                -55.26164326474634,
+                -7.101999999999999,
+                -11.175979610971037,
+                28.27533973949654,
+                17.204157674953898,
+                76.01218965020767
+            ],
+            "numGeometries": 2203,
+            "numLines": 376.5,
+            "numMeshes": 2203,
+            "numObjects": 446,
+            "numPoints": 0,
+            "numTextureSets": 0,
+            "numTextures": 0,
+            "numTriangles": 118626,
+            "numVertices": 84353,
+            "textureBytes": 0
+        }
+    },
+    "dataModels": {
+        "default": {
+            "numObjects": 0,
+            "numRelationships": 0,
+            "numPropertySets": 0
+        }
+    },
+    "outputs": {}
+}

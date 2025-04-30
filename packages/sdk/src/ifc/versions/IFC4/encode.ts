@@ -33,7 +33,7 @@ function generateIFC(sceneModel: SceneModel, dataModel: DataModel, header?: Part
         timeStamp: new Date().toISOString(),
         author: dataModel.author ? [dataModel.author] : ['xeokit SDK'],
         organization: ['xeokit'],
-        preprocessorVersion: 'xeokit IFC Generator 1.0',
+        preprocessorVersion: 'xeokit SDK',
         originatingSystem: dataModel.creatingApplication || 'xeokit SDK',
         authorization: 'None'
     };
@@ -41,9 +41,9 @@ function generateIFC(sceneModel: SceneModel, dataModel: DataModel, header?: Part
     const finalHeader = { ...defaultHeader, ...header };
     const ifcContent = [];
 
-    ifcContent.push(generateIFCHeader(finalHeader));
+    generateIFCHeader(finalHeader, ifcContent);
 
-    ifcContent.push('DATA;\n\n');
+    ifcContent.push(`DATA;`);
 
     const projectId = generateGUID();
     ifcContent.push(`#1=${generateOwnerHistory()}`);
@@ -79,7 +79,7 @@ function generateIFC(sceneModel: SceneModel, dataModel: DataModel, header?: Part
         currentId = encodeRelationship(relationship, ifcContent, currentId);
     }
     ifcContent.push('ENDSEC;\n\nEND-ISO-10303-21;\n');
-    return ifcContent.join();
+    return ifcContent.join("\n");
 }
 
 function encodePropertySet(propertySet: PropertySet, ifcContent: string[], currentId: number): number {
@@ -151,16 +151,19 @@ function encodeSceneObjectAndDataObject(
 
     // Create IFC object with type from DataObject
     const ifcType = getIFCTypeFromDataObject(dataObject);
-    ifcContent.push(`#${currentId}=${ifcType}('${objectId}',#1,'${dataObject.name || ''}','${dataObject.description || ''}'`);
+    const ifcContent2 = [];
+    ifcContent2.push(`#${currentId}=${ifcType}('${objectId}',#1,'${dataObject.name || ''}','${dataObject.description || ''}'`);
+
+
 
     // Add object placement
-    ifcContent.push(`,#${currentId - 3}`); // Reference to IFCLOCALPLACEMENT
+    ifcContent2.push(`,#${currentId - 3}`); // Reference to IFCLOCALPLACEMENT
 
     // Add geometric representation
     if (geometryIds.length > 0) {
-        ifcContent.push(`,(${geometryIds.map(id => `#${id}`).join(',')})`);
+        ifcContent2.push(`,(${geometryIds.map(id => `#${id}`).join(',')})`);
     } else {
-        ifcContent.push(`,$`);
+        ifcContent2.push(`,$`);
     }
 
     // Add property sets
@@ -170,11 +173,12 @@ function encodeSceneObjectAndDataObject(
             .filter(id => id !== undefined)
             .map(id => `#${id}`);
         if (psetRefs.length > 0) {
-            ifcContent.push(`,(${psetRefs.join(',')})`);
+            ifcContent2.push(`,(${psetRefs.join(',')})`);
         }
     }
 
-    ifcContent.push(');\n');
+    ifcContent2.push(');');
+    ifcContent.push(ifcContent2.join());
     currentId++;
 
     return currentId;
@@ -250,23 +254,15 @@ function encodeSceneMesh(mesh: SceneMesh, ifcContent: string[], currentId: numbe
     return currentId;
 }
 
-function generateIFCHeader(header: IFCHeader): string {
-    return `ISO-10303-21;
-HEADER;
-FILE_DESCRIPTION((${header.fileDescription.map(d => `'${d}'`).join(',')}), '2;1');
-FILE_NAME(
-    '${header.fileName}',
-    '${header.timeStamp}',
-    (${header.author.map(a => `'${a}'`).join(',')}),
-    (${header.organization.map(o => `'${o}'`).join(',')}),
-    '${header.preprocessorVersion}',
-    '${header.originatingSystem}',
-    '${header.authorization}'
-);
-FILE_SCHEMA(('${header.fileSchema}'));
-ENDSEC;
 
-`;
+function generateIFCHeader(header: IFCHeader, ifcContent: string[]) {
+    ifcContent.push("ISO-10303-21");
+    ifcContent.push("HEADER");
+    ifcContent.push(`FILE_DESCRIPTION((${header.fileDescription.map(d => `'${d}'`).join(',')}), '2;1');`);
+    ifcContent.push(`FILE_NAME('${header.fileName}','${header.timeStamp}',(${header.author.map(a => `'${a}'`).join(',')}),(${header.organization.map(o => `'${o}'`).join(',')}),'${header.preprocessorVersion}','${header.originatingSystem}','${header.authorization}');`);
+    ifcContent.push(`FILE_SCHEMA(('${header.fileSchema}'));`);
+    ifcContent.push(`ENDSEC;`);
+ifcContent.push(``);
 }
 
 function generateGUID(): string {

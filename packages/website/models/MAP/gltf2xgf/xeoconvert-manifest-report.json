@@ -1,0 +1,35 @@
+{
+    "files": {
+        "xgf": {
+            "filePath": "./models/MAP/gltf2xgf/sceneModel.xgf",
+            "fileFormat": "XGF",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 3938700,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "aabb": [
+                1842005.906845052,
+                -3.6,
+                -5173320.674003139,
+                1842038.6772152472,
+                24.589436224021135,
+                -5173283.019953996
+            ]
+        },
+        "datamodel": {
+            "filePath": "./models/MAP/gltf2xgf/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                1842005.906845052,
+                -3.6,
+                -5173320.674003139,
+                1842038.6772152472,
+                24.589436224021135,
+                -5173283.019953996
+            ]
+        }
+    }
+}

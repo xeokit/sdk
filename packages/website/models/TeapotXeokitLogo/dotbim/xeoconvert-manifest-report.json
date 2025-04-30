@@ -1,0 +1,20 @@
+{
+    "files": {
+        "dotbim": {
+            "filePath": "./models/TeapotXeokitLogo/dotbim/model.bim",
+            "fileFormat": "DotBIM",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 2862201,
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                228.09935157339712,
+                368.9943315769582,
+                0,
+                1781.9612844230944,
+                1698.9994159033358,
+                3.1495194361631333
+            ]
+        }
+    }
+}

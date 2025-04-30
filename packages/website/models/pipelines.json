@@ -2,129 +2,94 @@
     "pipelines": [
         {
             "id": "json",
-            "name": "JSON",
-            "case": "JSON -&gt; <a href=\"/docs/api/modules/_xeokit_scene.html\">SceneModelParamsLoader</a> / <a href=\"/docs/api/modules/_xeokit_data.html\">DataModelParamsLoader</a>",
-            "desc": "{JSON} -> SceneModelParamsLoader / DataModelParamsLoader -> Viewer"
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline json --scenemodel ./models/${modelId}/json/sceneModel.json --datamodel ./models/${modelId}/json/dataModel.json --stats-report  ./models/${modelId}/json/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/json/xeoconvert-manifest-report.json --log > ./models/${modelId}/json/xeoconvert-log.txt"
         },
         {
             "id": "ifc",
-            "name": "IFC",
-            "docs": "/docs/api/modules/_xeokit_ifc.html",
-            "case": "<a href=\"https://en.wikipedia.org/wiki/Industry_Foundation_Classes\">IFC</a> -&gt; <a href=\"/docs/api/modules/_xeokit_ifc.html\">IFCLoader</a>",
-            "desc": "{IFC} -> IFCLoader -> Viewer"
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline ifc --ifc ./models/${modelId}/ifc/model.ifc --stats-report   ./models/${modelId}/ifc/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/ifc/xeoconvert-manifest-report.json  --log > ./models/${modelId}/ifc/xeoconvert-log.txt"
         },
         {
-            "id": "xgf",
-            "name": "XGF",
-            "docs": "/docs/api/modules/_xeokit_xgf.html",
-            "case": "XGF -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGFLoader</a>",
-            "desc": "{XGF} -> XGFLoader -> Viewer"
-        },
-        {
-            "id": "xkt",
-            "name": "XKT",
-            "docs": "/docs/api/modules/_xeokit_xkt.html",
-            "case": "XKT -&gt; <a href=\"/docs/api/modules/_xeokit_xkt.html\">XKTLoader</a>",
-            "desc": "{XKT} -> XKTTLoader -> Viewer"
+            "id": "xkt"
         },
         {
             "id": "cityjson",
-            "docs": "/docs/api/modules/_xeokit_cityjson.html",
-            "name": "CityJSON",
-            "case": "<a href=\"https://www.cityjson.org/\">CityJSON</a> -&gt; <a href=\"/docs/api/modules/_xeokit_cityjson.html\">CityJSONLoader</a>",
-            "desc": "{CityJSON} -> CityJSONLoader -> Viewer"
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline cityjson --cityjson ./models/${modelId}/cityjson/model.json --stats-report  ./models/${modelId}/cityjson/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/cityjson/xeoconvert-manifest-report.json  --log > ./models/${modelId}/cityjson/xeoconvert-log.txt"
         },
         {
             "id": "las",
-            "docs": "/docs/api/modules/_xeokit_las.html",
-            "name": "LAS",
-            "case": "<a href=\"https://en.wikipedia.org/wiki/LAS_file_format\">LAS</a> -&gt; <a href=\"/docs/api/modules/_xeokit_las.html\">LASLoader</a>",
-            "desc": "{LAS} -> LASLoader -> Viewer"
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline las --cityjson ./models/${modelId}/las/model.las --stats-report  ./models/${modelId}/las/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/las/xeoconvert-manifest-report.json --log > ./models/${modelId}/las/xeoconvert-log.txt"
         },
         {
             "id": "laz",
-            "docs": "/docs/api/modules/_xeokit_las.html",
-            "name": "LAZ",
-            "case": "<a href=\"https://en.wikipedia.org/wiki/LAS_file_format\">LAZ</a> -&gt; <a href=\"/docs/api/modules/_xeokit_las.html\">LASLoader</a>",
-            "desc": "{LAZ} -> LASLoader -> Viewer"
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline las --cityjson ./models/${modelId}/las/model.laz --stats-report  ./models/${modelId}/las/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/las/xeoconvert-manifest-report.json --log > ./models/${modelId}/las/xeoconvert-log.txt"
         },
         {
             "id": "dotbim",
-            "docs": "/docs/api/modules/_xeokit_dotbim.html",
-            "name": ".BIM",
-            "case": "<a href=\"https://dotbim.net/\">.BIM</a> -&gt; <a href=\"/docs/api/modules/_xeokit_dotbim.html\">DotBIMLoader</a>",
-            "desc": "{DotBIM} -> DotBIMLoader -> Viewer"
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline dotbim --dotbim ./models/${modelId}/dotbim/model.bim --stats-report  ./models/${modelId}/dotbim/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/dotbim/xeoconvert-manifest-report.json --log > ./models/${modelId}/dotbim/xeoconvert-log.txt"
         },
         {
             "id": "gltf",
-            "docs": "/docs/api/modules/_xeokit_gltf.html",
-            "name": "glTF",
-            "case": "<a href=\"https://en.wikipedia.org/wiki/GlTF#:~:text=glTF%20(Graphics%20Library%20Transmission%20Format,glb%20(binary).\">glTF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_gltf.html\">GLTFLoader</a>",
-            "desc": "{GLB} -> GLTFLoader -> Viewer"
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline gltf --gltf ./models/${modelId}/gltf/model.glb --stats-report  ./models/${modelId}/gltf/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/gltf/xeoconvert-manifest-report.json  --log > ./models/${modelId}/gltf/xeoconvert-log.txt"
         },
         {
             "id": "gltf2xgf",
-            "docs": "/docs/api/modules/_xeokit_gltf2xgf.html",
-            "case": "<a href=\"https://en.wikipedia.org/wiki/GlTF#:~:text=glTF%20(Graphics%20Library%20Transmission%20Format,glb%20(binary).\">glTF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_gltf2xgf.html\">gltf2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGFLoader()</a>",
-            "desc": "{GLB} -> xeoconvert/gltf2xgf -> {XGF,JSON} -> XGFLoader, DataModelParamsLoader -> Viewer",
-            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert.js --pipeline gltf2xgf --gltf ./models/${modelId}/gltf/model.glb --xgf ./models/${modelId}/gltf2xgf/model.xgf --datamodel ./models/${modelId}/gltf2xgf/model.json --log > ./models/${modelId}/gltf2xgf/log.txt",
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert.js --pipeline gltf2xgf --gltf ./models/${modelId}/gltf/model.glb --xgf ./models/${modelId}/gltf2xgf/sceneModel.xgf --datamodel ./models/${modelId}/gltf2xgf/dataModel.json --stats-report   ./models/${modelId}/gltf2xgf/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/gltf2xgf/xeoconvert-manifest-report.json --log > ./models/${modelId}/gltf2xgf/xeoconvert-log.txt",
             "dependson": [
                 "gltf"
             ]
         },
         {
             "id": "las2xgf",
-            "docs": "/docs/api/modules/_xeokit_las2xgf.html",
-            "case": "LAS -&gt; <a href=\"https://en.wikipedia.org/wiki/LAS_file_format\">gltf2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGFLoader</a>",
-            "desc": "{LAS/LAZ} -> xeoconvert/las2xgf -> {XGF,JSON} -> XGFLoader, DataModelParamsLoader -> Viewer",
-            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline las2xgf --las ./models/${modelId}/laz/model.* --xgf ./models/${modelId}/las2xgf/model.xgf --datamodel ./models/${modelId}/las2xgf/model.json --log > ./models/${modelId}/las2xgf/log.txt",
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline las2xgf --las ./models/${modelId}/laz/model.* --xgf ./models/${modelId}/las2xgf/sceneModel.xgf --datamodel ./models/${modelId}/las2xgf/dataModel.json --stats-report   ./models/${modelId}/las2xgf/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/las2xgf/xeoconvert-manifest-report.json --log > ./models/${modelId}/las2xgf/xeoconvert-log.txt",
             "dependson": [
                 "laz"
             ]
         },
         {
             "id": "ifc2gltf",
-            "case": "<a href=\"https://en.wikipedia.org/wiki/Industry_Foundation_Classes\">IFC</a> -&gt; <a href=\"/docs/api/modules/_xeokit_ifc2gltf.html\">ifc2gltf</a> -&gt; <a href=\"https://en.wikipedia.org/wiki/GlTF#:~:text=glTF%20(Graphics%20Library%20Transmission%20Format,glb%20(binary).\">glTF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_gltf.html\">GLTFLoader()</a>",
-            "desc": "{IFC} -> xeoconvert/ifc2xgf -> {XGF,JSON} -> (XGFLoader,DataModelParamsLoader) -> Viewer",
-            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline dotbim2xgf --dotbim ./models/${modelId}/dotbim/model.bim --xgf  ./models/${modelId}/dotbim2xgf/model.xgf --datamodel ./models/${modelId}/dotbim2xgf/model.json --log > ./models/${modelId}/dotbim2xgf/log.txt",
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline dotbim2xgf --dotbim ./models/${modelId}/dotbim/model.bim --xgf  ./models/${modelId}/dotbim2xgf/sceneModel.xgf --datamodel ./models/${modelId}/dotbim2xgf/dataModel.json --stats-report   ./models/${modelId}/dotbim2xgf/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/dotbim2xgf/xeoconvert-manifest-report.json --log > ./models/${modelId}/dotbim2xgf/xeoconvert-log.txt",
             "dependson": [
                 "ifc"
             ]
         },
         {
             "id": "ifc2gltf2xgf",
-            "case": "<a href=\"https://en.wikipedia.org/wiki/Industry_Foundation_Classes\">IFC</a> -&gt; <a href=\"/docs/api/modules/_xeokit_ifc2gltf.html\">ifc2gltf</a>  -&gt; <a href=\"https://en.wikipedia.org/wiki/GlTF#:~:text=glTF%20(Graphics%20Library%20Transmission%20Format,glb%20(binary).\">glTF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_ifc2gltf2xgf.html\">ifc2gltf2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGF</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGFLoader()</a>",
-            "desc": "{IFC} -> ifc2gltf -> {GLB,JSON} -> ifc2gltf2xgf -> {XGF,JSON} -> ModelChunksLoader(XGFLoader, DataModelParamsLoader) -> Viewer",
-            "__cmd": "node ../sdk/dist/ifc2gltf2xgf/ifc2gltf2xgf.js -i ./models/${modelId}/ifc2gltf/model.manifest.json -o ./models/${modelId}/ifc2gltf2xgf/model.manifest.json -l > ./models/${modelId}/ifc2gltf2xgf/log.txt",
+            "__cmd": "node ../sdk/dist/ifc2gltf2xgf/ifc2gltf2xgf.js -i ./models/${modelId}/ifc2gltf/model.manifest.json -o ./models/${modelId}/ifc2gltf2xgf/model.manifest.json --stats-report  ./models/${modelId}/ifc2gltf2xgf/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/ifc2gltf2xgf/xeoconvert-manifest-report.json --log > ./models/${modelId}/ifc2gltf2xgf/xeoconvert-log.txt",
             "dependson": [
                 "ifc2gltf"
             ]
         },
         {
             "id": "ifc2xgf",
-            "case": "<a href=\"https://en.wikipedia.org/wiki/Industry_Foundation_Classes\">IFC</a> -&gt; <a href=\"/docs/api/modules/_xeokit_ifc2xgf.html\">ifc2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGFLoader()</a>",
-            "desc": "{IFC} -> xeoconvert/ifc2xgf -> {XGF,JSON} -> (XGFLoader,DataModelParamsLoader) -> Viewer",
-            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline ifc2xgf --ifc ./models/${modelId}/ifc/model.ifc --xgf ./models/${modelId}/ifc2xgf/model.xgf --datamodel ./models/${modelId}/ifc2xgf/model.json --log > ./models/${modelId}/ifc2xgf/log.txt",
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline ifc2xgf --ifc ./models/${modelId}/ifc/model.ifc --xgf ./models/${modelId}/ifc2xgf/sceneModel.xgf --datamodel ./models/${modelId}/ifc2xgf/dataModel.json --stats-report ./models/${modelId}/ifc2xgf/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/ifc2xgf/xeoconvert-manifest-report.json --log > ./models/${modelId}/ifc2xgf/xeoconvert-log.txt",
+            "dependson": [
+                "ifc"
+            ]
+        },
+        {
+            "id": "ifc2json",
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline ifc2json --ifc ./models/${modelId}/ifc/model.ifc --scenemodel ./models/${modelId}/ifc2json/sceneModel.json --datamodel ./models/${modelId}/ifc2json/dataModel.json --stats-report ./models/${modelId}/ifc2json/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/ifc2json/xeoconvert-manifest-report.json --log > ./models/${modelId}/ifc2json/xeoconvert-log.txt",
             "dependson": [
                 "ifc"
             ]
         },
         {
             "id": "dotbim2xgf",
-            "docs": "",
-            "case": "<a href=\"https://dotbim.net/\">.BIM</a> -&gt; <a href=\"/docs/api/modules/_xeokit_dotbim2xgf.html\">dotbim2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGFLoader()</a>",
-            "desc": "{.BIM} -> xeoconvert/dotbim2xgf -> {XGF,JSON} -> (XGFLoader,DataModelParamsLoader) -> Viewer",
-            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline dotbim2xgf --dotbim ./models/${modelId}/dotbim/model.bim --xgf  ./models/${modelId}/dotbim2xgf/model.xgf --datamodel ./models/${modelId}/dotbim2xgf/model.json --log > ./models/${modelId}/dotbim2xgf/log.txt",
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline dotbim2xgf --dotbim ./models/${modelId}/dotbim/model.bim --xgf  ./models/${modelId}/dotbim2xgf/sceneModel.xgf --datamodel ./models/${modelId}/dotbim2xgf/dataModel.json --stats-report   ./models/${modelId}/dotbim2xgf/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/dotbim2xgf/xeoconvert-manifest-report.json --log > ./models/${modelId}/dotbim2xgf/xeoconvert-log.txt",
             "dependson": [
                 "dotbim"
             ]
         },
         {
             "id": "dotbim2ifc",
-            "docs": "",
-            "case": "<a href=\"https://dotbim.net/\">.BIM</a> -&gt; <a href=\"/docs/api/modules/_xeokit_dotbim2xgf.html\">dotbim2xgf</a> -&gt; <a href=\"/docs/api/modules/_xeokit_xgf.html\">XGFLoader()</a>",
-            "desc": "{.BIM} -> xeoconvert/dotbim2ifc -> {IFC} -> (IFCLoader) -> Viewer",
-            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline dotbim2ifc --dotbim ./models/${modelId}/dotbim/model.bim --ifc  ./models/${modelId}/dotbim2ifc/model.ifc --log > ./models/${modelId}/dotbim2ifc/log.txt",
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline dotbim2ifc --dotbim ./models/${modelId}/dotbim/model.bim --ifc  ./models/${modelId}/dotbim2ifc/model.ifc --stats-report   ./models/${modelId}/dotbim2ifc/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/dotbim2ifc/xeoconvert-manifest-report.json --log > ./models/${modelId}/dotbim2ifc/xeoconvert-log.txt",
+            "dependson": [
+                "dotbim"
+            ]
+        },
+        {
+            "id": "dotbim2json",
+            "cmd": "node ../sdk/dist/xeoconvert/xeoconvert --pipeline dotbim2json --dotbim ./models/${modelId}/dotbim/model.bim --scenemodel ./models/${modelId}/dotbim2json/sceneModel.json --datamodel ./models/${modelId}/dotbim2json/dataModel.json --stats-report ./models/${modelId}/dotbim2json/xeoconvert-stats-report.json --manifest-report ./models/${modelId}/dotbim2json/xeoconvert-manifest-report.json --log > ./models/${modelId}/dotbim2json/xeoconvert-log.txt",
             "dependson": [
                 "dotbim"
             ]

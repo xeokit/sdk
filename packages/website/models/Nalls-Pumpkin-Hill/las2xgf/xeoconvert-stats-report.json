@@ -1,0 +1,88 @@
+{
+    "description": "xeoconvert conversion stats",
+    "command": "node xeoconvert.js --pipeline las2xgf --las ./models/Nalls-Pumpkin-Hill/laz/model.laz --xgf ./models/Nalls-Pumpkin-Hill/las2xgf/sceneModel.xgf --datamodel ./models/Nalls-Pumpkin-Hill/las2xgf/dataModel.json --stats-report ./models/Nalls-Pumpkin-Hill/las2xgf/xeoconvert-stats-report.json --manifest-report ./models/Nalls-Pumpkin-Hill/las2xgf/xeoconvert-manifest-report.json --log",
+    "time": "2025-04-29T16:33:29.722Z",
+    "pipeline": "las2xgf",
+    "inputs": {
+        "las": {
+            "filePath": "./models/Nalls-Pumpkin-Hill/laz/model.laz",
+            "fileFormat": "LAS",
+            "fileFormatVersion": "*",
+            "fileDataSizeBytes": 33014526,
+            "fileDataType": "arraybuffer",
+            "options": {
+                "center": false,
+                "transform": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1
+                ],
+                "skip": 1,
+                "fp64": false,
+                "colorDepth": "auto"
+            },
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        }
+    },
+    "sceneModels": {
+        "default": {
+            "aabb": [
+                -14.109100341796875,
+                5.703499794006348,
+                -0.4851999878883362,
+                19.019478387324043,
+                35.98059483954005,
+                3.9062299054038423
+            ],
+            "numGeometries": 4,
+            "numLines": 0,
+            "numMeshes": 4,
+            "numObjects": 1,
+            "numPoints": 1692332,
+            "numTextureSets": 0,
+            "numTextures": 0,
+            "numTriangles": 0,
+            "numVertices": 1692332,
+            "textureBytes": 0
+        }
+    },
+    "dataModels": {
+        "default": {
+            "numObjects": 2,
+            "numRelationships": 1,
+            "numPropertySets": 0
+        }
+    },
+    "outputs": {
+        "xgf": {
+            "filePath": "./models/Nalls-Pumpkin-Hill/las2xgf/sceneModel.xgf",
+            "fileFormat": "XGF",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 18154532,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "messages": [],
+            "warnings": [],
+            "errors": [],
+            "sceneModel": "default",
+            "dataModel": "default"
+        }
+    }
+}

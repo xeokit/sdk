@@ -1,0 +1,20 @@
+[xeoconvert] Running pipeline 'ifc'
+[xeoconvert] Reading input --ifc ./models/IfcOpenHouse2x3/ifc/model.ifc
+{
+  _: [],
+  pipeline: 'ifc',
+  ifc: './models/IfcOpenHouse2x3/ifc/model.ifc',
+  'stats-report': './models/IfcOpenHouse2x3/ifc/xeoconvert-stats-report.json',
+  statsReport: './models/IfcOpenHouse2x3/ifc/xeoconvert-stats-report.json',
+  'manifest-report': './models/IfcOpenHouse2x3/ifc/xeoconvert-manifest-report.json',
+  manifestReport: './models/IfcOpenHouse2x3/ifc/xeoconvert-manifest-report.json',
+  log: true,
+  '$0': '../sdk/dist/xeoconvert/xeoconvert'
+}
+$$$$$$$$$$$$$ stats-report
+$$$$$$$$$$$$$PPP ./models/IfcOpenHouse2x3/ifc/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'stats-report' writing report to ./models/IfcOpenHouse2x3/ifc/xeoconvert-stats-report.json
+$$$$$$$$$$$$$ manifest-report
+$$$$$$$$$$$$$PPP ./models/IfcOpenHouse2x3/ifc/xeoconvert-manifest-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/IfcOpenHouse2x3/ifc/xeoconvert-manifest-report.json
+[xeoconvert] Done.

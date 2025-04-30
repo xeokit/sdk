@@ -1,1 +1,0 @@
-# IfcOpenHouse4

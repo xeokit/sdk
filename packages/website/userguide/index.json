@@ -96,6 +96,17 @@
       ],
       "topic": "import.cityjson"
     },
+    "example_ModelConverter_DotBIM_IFC": {
+      "title": "Viewing .BIM using ModelConverter and IFCLoader",
+      "description": "How to convert a BIM model from dotbim (.bim) format into IFC and directly load that into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "DotBIM"
+      ],
+      "topic": "import.dotbim"
+    },
     "example_ModelConverter_DotBIM_XGF": {
       "title": "Viewing .BIM using ModelConverter and XGFLoader",
       "description": "How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer.",
@@ -348,7 +359,7 @@
       "topic": "import.ifc"
     },
     "ifc2xgf": {
-      "title": "Viewing .BIM using xeoconvert and XGFLoader",
+      "title": "Viewing IFC using xeoconvert and XGFLoader",
       "description": "How to use the xeoconvert CLI with --pipeline dotbim2xgf to convert an IFC file to XGF, which we then display in the browser using a xeokit web viewer.",
       "tags": [],
       "_bannerImage": "banner.png",
@@ -470,6 +481,7 @@
       "dev-status",
       "dotbim2xgf",
       "example_DotBIMLoader_BlenderHouse",
+      "example_ModelConverter_DotBIM_IFC",
       "example_ModelConverter_DotBIM_XGF",
       "overview-pipelines"
     ],
@@ -502,6 +514,7 @@
       "example_IFCLoader_IfcOpenHouse4",
       "example_LASLoader_Pumpkin",
       "example_ModelConverter_CityJSON_XGF",
+      "example_ModelConverter_DotBIM_IFC",
       "example_ModelConverter_DotBIM_XGF",
       "example_ModelConverter_IFC_XGF",
       "example_SceneModel_DataModel_build_table",
@@ -532,6 +545,7 @@
       "example_IFCLoader_IfcOpenHouse4",
       "example_LASLoader_Pumpkin",
       "example_ModelConverter_CityJSON_XGF",
+      "example_ModelConverter_DotBIM_IFC",
       "example_ModelConverter_DotBIM_XGF",
       "example_ModelConverter_IFC_XGF",
       "example_SceneModel_DataModel_build_table",
@@ -571,6 +585,7 @@
     "Importing": [
       "example_DotBIMLoader_BlenderHouse",
       "example_ModelConverter_CityJSON_XGF",
+      "example_ModelConverter_DotBIM_IFC",
       "example_ModelConverter_DotBIM_XGF",
       "example_ModelConverter_IFC_XGF"
     ],

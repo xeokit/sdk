@@ -115,4 +115,13 @@ export interface SceneModelParams {
      * Default value is `true`.
      */
     retained?: boolean;
+
+    /**
+     * The axis-aligned 3D World-space boundary of the {@link SceneModel | SceneModel}.
+     *
+     * This is created by {@link SceneModel.toParams | SceneModel.toParams} to provide the SceneModel's
+     * boundary, and is ignored by {@link SceneModel.fromParams | SceneModel.fromParams} and the SceneModel
+     * constructor.
+     */
+    aabb?: number[]
 }

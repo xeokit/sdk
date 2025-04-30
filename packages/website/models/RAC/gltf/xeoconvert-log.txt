@@ -1,0 +1,20 @@
+[xeoconvert] Running pipeline 'gltf'
+[xeoconvert] Reading input --gltf ./models/RAC/gltf/model.glb
+{
+  _: [],
+  pipeline: 'gltf',
+  gltf: './models/RAC/gltf/model.glb',
+  'stats-report': './models/RAC/gltf/xeoconvert-stats-report.json',
+  statsReport: './models/RAC/gltf/xeoconvert-stats-report.json',
+  'manifest-report': './models/RAC/gltf/xeoconvert-manifest-report.json',
+  manifestReport: './models/RAC/gltf/xeoconvert-manifest-report.json',
+  log: true,
+  '$0': '../sdk/dist/xeoconvert/xeoconvert'
+}
+$$$$$$$$$$$$$ stats-report
+$$$$$$$$$$$$$PPP ./models/RAC/gltf/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'stats-report' writing report to ./models/RAC/gltf/xeoconvert-stats-report.json
+$$$$$$$$$$$$$ manifest-report
+$$$$$$$$$$$$$PPP ./models/RAC/gltf/xeoconvert-manifest-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/RAC/gltf/xeoconvert-manifest-report.json
+[xeoconvert] Done.

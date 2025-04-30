@@ -1,0 +1,391 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <title>xeokit Example</title>
+    <link href="../css/pageStyle.css" rel="stylesheet"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
+</head>
+<body style="background-color: white">
+<input checked id="info-button" type="checkbox"/>
+<label class="info-button" for="info-button"><i class="far fa-3x fa-question-circle"></i></label>
+<canvas id="demoCanvas"></canvas>
+<!--<div id="treeViewContainer"></div>-->
+
+<div class="slideout-sidebar">
+    <div class="info-container" id="info-container"></div>
+</div>
+</body>
+
+<script type="module">
+
+    import * as xeokit from "../js/xeokit-demo-bundle.js";
+
+    import {DemoHelper} from "../js/DemoHelper.js";
+
+    const reqParams = getRequestParams();
+    const modelId = reqParams.modelId;
+    const pipelineId = reqParams.pipelineId;
+
+    fetch("./index.json").then(response => {
+        response.json()
+            .then(models => {
+
+                fetch("./pipelines.json").then(response => {
+                    response.json().then(pipelines => {
+
+
+                        const scene = new xeokit.scene.Scene();
+                        const data = new xeokit.data.Data();
+
+                        const renderer = new xeokit.webglrenderer.WebGLRenderer({});
+
+                        const viewer = new xeokit.viewer.Viewer({
+                            id: "demoViewer",
+                            scene,
+                            renderer
+                        });
+
+                        const view = viewer.createView({
+                            id: "demoView",
+                            elementId: "demoCanvas"
+                        });
+
+                        new xeokit.cameracontrol.CameraControl(view, {});
+
+                        const cameraFlight = new xeokit.cameraflight.CameraFlightAnimation(view);
+
+                        const demoHelper = new DemoHelper({
+                            elementId: "info-container",
+                            viewer,
+                            data
+                        });
+
+                        demoHelper.init({
+                            // index: info[pipelineId]
+                        }).then(() => {
+
+                            scene.onModelCreated.subscribe(() => {
+                                cameraFlight.jumpTo({aabb: scene.aabb});
+
+                            });
+
+                            const sceneModel = scene.createModel({
+                                id: "demoModel"
+                            });
+
+                            const dataModel = data.createModel({
+                                id: "demoModel"
+                            });
+
+                            const baseDir = `../../models/${modelId}/${pipelineId}`;
+
+                            const onError = (err) => {
+                                // demoHelper.logError(err);
+                            }
+
+                            const onSuccess = () => {
+                                sceneModel.build();
+                                dataModel.build();
+                                demoHelper.finished();
+                            }
+
+                            switch (pipelineId) {
+
+                                case "laz":
+                                    view.camera.orbitPitch(20);
+                                    view.camera.orbitYaw(20);
+                                    fetch(`${baseDir}/model.laz`)
+                                        .then(response => {
+                                            response
+                                                .arrayBuffer()
+                                                .then(fileData => {
+                                                    (new xeokit.las.LASLoader()).load({
+                                                            fileData,
+                                                            sceneModel,
+                                                            dataModel
+                                                        },
+                                                        {
+                                                            fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
+                                                            colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
+                                                            skip: 10,            // Load every nth point (optional, default is 1)
+                                                            center: false,      // Whether to center the points (optional)
+                                                            transform: [        // Transform the points (optional)
+                                                                1, 0, 0, 0,
+                                                                0, 0, -1, 0,
+                                                                0, 1, 0, 0,
+                                                                0, 0, 0, 1
+                                                            ]
+                                                        })
+                                                        .then(onSuccess)
+                                                        .catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+
+                                case "las":
+                                    view.camera.orbitPitch(20);
+                                    view.camera.orbitYaw(20);
+                                    fetch(`${baseDir}/model.las`)
+                                        .then(response => {
+                                            response
+                                                .arrayBuffer()
+                                                .then(fileData => {
+                                                    (new xeokit.las.LASLoader()).load({
+                                                            fileData,
+                                                            sceneModel,
+                                                            dataModel
+                                                        },
+                                                        {
+                                                            fp64: false,        // Expect points as 64-bit floats? (optional, default is true)
+                                                            colorDepth: "auto", // 8, 16 or "auto" (optional, default is "auto)
+                                                            skip: 10,           // Load every nth point (optional, default is 1)
+                                                            center: false,      // Whether to center the points (optional)
+                                                            transform: [        // Transform the points (optional)
+                                                                1, 0, 0, 0,
+                                                                0, 0, -1, 0,
+                                                                0, 1, 0, 0,
+                                                                0, 0, 0, 1
+                                                            ]
+                                                        })
+                                                        .then(onSuccess)
+                                                        .catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+
+                                case "cityjson":
+                                    view.camera.orbitPitch(-60);
+                                    view.camera.worldAxis = [
+                                        1, 0, 0, // Right
+                                        0, 0, 1, // Up
+                                        0, -1, 0  // Forward
+                                    ];
+                                    fetch(`${baseDir}/model.json`)
+                                        .then(response => {
+                                            response
+                                                .json()
+                                                .then(fileData => {
+                                                    (new xeokit.cityjson.CityJSONLoader()).load({
+                                                        fileData,
+                                                        sceneModel,
+                                                        dataModel
+                                                    })
+                                                        .then(onSuccess)
+                                                        .catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+
+                                case "dotbim":
+                                    view.camera.worldAxis = [
+                                        1, 0, 0, // Right
+                                        0, 0, 1, // Up
+                                        0, -1, 0  // Forward
+                                    ];
+                                    view.camera.orbitYaw(-50);
+                                    view.camera.orbitPitch(-90);
+                                    fetch(`${baseDir}/model.bim`)
+                                        .then(response => {
+                                            response
+                                                .json()
+                                                .then(fileData => {
+                                                    (new xeokit.dotbim.DotBIMLoader()).load({
+                                                        fileData,
+                                                        sceneModel,
+                                                        dataModel
+                                                    })
+                                                        .then(onSuccess)
+                                                        .catch(onError);
+                                                }).catch(err => {
+                                                // demoHelper.logError(err);
+                                            });
+                                        }).catch(onError);
+                                    break;
+
+                                case "gltf":
+                                    fetch(`${baseDir}/model.glb`)
+                                        .then(response => {
+                                            response
+                                                .arrayBuffer()
+                                                .then(fileData => {
+                                                    (new xeokit.gltf.GLTFLoader()).load({
+                                                        fileData,
+                                                        sceneModel,
+                                                        dataModel
+                                                    })
+                                                        .then(onSuccess)
+                                                        .catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+
+                                case "ifc":
+                                case "dotbim2ifc":
+                                    fetch(`${baseDir}/model.ifc`).then(response => {
+                                        response
+                                            .arrayBuffer()
+                                            .then(fileData => {
+                                                (new xeokit.ifc.IFCLoader()).load({
+                                                    fileData,
+                                                    dataModel,
+                                                    sceneModel
+                                                })
+                                                    .then(onSuccess)
+                                                    .catch(onError);
+                                            }).catch(onError);
+                                    }).catch(onError);
+                                    break;
+
+                                case "ifc2gltf": {
+                                    const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
+                                        sceneModelLoader: new xeokit.gltf.GLTFLoader(),
+                                        dataModelLoader: new xeokit.metamodel.MetaModelLoader()
+                                    });
+                                    fetch(`${baseDir}/model.manifest.json`).then(response => {
+                                        response
+                                            .json()
+                                            .then(ifc2gltfManifest => {
+                                                const modelChunksManifest = xeokit.ifc2gltf2xgf.convertIfc2gltfManifest(ifc2gltfManifest);
+                                                modelChunksLoader.load({
+                                                    modelChunksManifest,
+                                                    baseDir,
+                                                    sceneModel,
+                                                    dataModel
+                                                })
+                                                    .then(onSuccess)
+                                                    .catch(onError);
+                                            }).catch(onError);
+                                    }).catch(onError);
+                                    break;
+                                }
+
+                                case  "ifc2gltf2xgf": {
+                                    const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
+                                        sceneModelLoader: new xeokit.xgf.XGFLoader(),
+                                        dataModelLoader: new xeokit.data.DataModelParamsLoader()
+                                    });
+                                    fetch(`${baseDir}/model.manifest.json`).then(response => {
+                                        response
+                                            .json()
+                                            .then(modelChunksManifest => {
+                                                modelChunksLoader.load({
+                                                    modelChunksManifest,
+                                                    baseDir,
+                                                    sceneModel,
+                                                    dataModel
+                                                })
+                                                    .then(onSuccess)
+                                                    .catch(onError);
+                                            }).catch(onError);
+                                    }).catch(onError);
+                                    break;
+                                }
+
+                                case "gltf2xgf":
+                                case "las2xgf":
+                                case "ifc2xgf":
+                                case "webifc2xgf":
+                                    fetch(`${baseDir}/model.json`).then(
+                                        response => {
+                                            response
+                                                .json()
+                                                .then(dataModelFileData => {
+                                                    dataModel.fromParams(dataModelFileData);
+                                                    fetch(`${baseDir}/model.xgf`)
+                                                        .then(response => {
+                                                            response
+                                                                .arrayBuffer()
+                                                                .then(fileData => {
+                                                                    (new xeokit.xgf.XGFLoader()).load({
+                                                                        fileData,
+                                                                        sceneModel
+                                                                    })
+                                                                        .then(onSuccess)
+                                                                        .catch(onError);
+                                                                }).catch(onError);
+                                                        }).catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+
+
+                                case "dotbim2xgf":
+                                    view.camera.orbitPitch(-90);
+                                    view.camera.worldAxis = [
+                                        1, 0, 0, // Right
+                                        0, 0, 1, // Up
+                                        0, -1, 0  // Forward
+                                    ];
+                                    fetch(`${baseDir}/model.json`).then(
+                                        response => {
+                                            response
+                                                .json()
+                                                .then(dataModelFileData => {
+                                                    dataModel.fromParams(dataModelFileData);
+                                                    fetch(`${baseDir}/model.xgf`)
+                                                        .then(response => {
+                                                            response
+                                                                .arrayBuffer()
+                                                                .then(fileData => {
+                                                                    (new xeokit.xgf.XGFLoader()).load({
+                                                                        fileData,
+                                                                        sceneModel
+                                                                    })
+                                                                        .then(onSuccess)
+                                                                        .catch(onError);
+                                                                }).catch(onError);
+                                                        }).catch(onError);
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+
+                                case "json":
+                                    fetch(`${baseDir}/datamodel.json`).then(
+                                        response => {
+                                            response
+                                                .json()
+                                                .then(dataModelFileData => {
+                                                    const result = dataModel.fromParams(dataModelFileData);
+                                                    if (result instanceof xeokit.core.SDKError) {
+                                                        onError(result.message);
+                                                    } else {
+                                                        fetch(`${baseDir}/scenemodel.json`)
+                                                            .then(response => {
+                                                                response
+                                                                    .json()
+                                                                    .then(fileData => {
+                                                                        const result = sceneModel.fromParams(fileData);
+                                                                        if (result instanceof xeokit.core.SDKError) {
+                                                                            onError(result.message);
+                                                                        } else {
+                                                                            onSuccess();
+                                                                        }
+                                                                    }).catch(onError);
+                                                            }).catch(onError);
+                                                    }
+                                                }).catch(onError);
+                                        }).catch(onError);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+                    });
+                });
+            });
+    });
+
+    function getRequestParams() {
+        const vars = {};
+        window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, (m, key, value) => {
+            vars[key] = value;
+        });
+        return vars;
+    }
+
+</script>
+
+</html>

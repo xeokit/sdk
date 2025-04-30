@@ -11,6 +11,7 @@ export class DataModelParamsExporter extends ModelExporter {
      */
     constructor() {
         super({
+            format: "DataModelParams",
             fileDataType: "json",
             encoders: {
                 "1.0": encode_1_0

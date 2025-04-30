@@ -13,6 +13,7 @@ export class XKTLoader extends ModelLoader {
      */
     constructor() {
         super({
+            format: "XKT",
             fileDataType: "arraybuffer",
             parsers: {
                 "10": parse_10

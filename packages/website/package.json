@@ -13,6 +13,7 @@
         "website-build-xeokit-lib": "node scripts/build-xeokit-demo-bundle.js",
         "website-convert-models": "node scripts/build-convert-models.js; sh scripts/convert-models.sh",
         "website-example-snapshots": "node scripts/create-example-snapshots.js",
+        "website-model-snapshots": "node scripts/create-model-snapshots.js",
         "website-build": "mkdir -p ./libs/@xeokit/sdk; cp -Rf ../sdk/dist ./libs/@xeokit/sdk; node scripts/build-docs-lookup.js; node scripts/build-pages.js",
         "website-build-local": "mkdir -p ./libs/@xeokit/sdk; cp -Rf ../sdk/dist ./libs/@xeokit/sdk; node scripts/build-docs-lookup.js; node scripts/build-pages.js -l;"
     },

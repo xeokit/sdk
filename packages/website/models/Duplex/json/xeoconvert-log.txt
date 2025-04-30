@@ -1,0 +1,22 @@
+[xeoconvert] Running pipeline 'json'
+[xeoconvert] Reading input --scenemodel ./models/Duplex/json/sceneModel.json
+[xeoconvert] Reading input --datamodel ./models/Duplex/json/dataModel.json
+{
+  _: [],
+  pipeline: 'json',
+  scenemodel: './models/Duplex/json/sceneModel.json',
+  datamodel: './models/Duplex/json/dataModel.json',
+  'stats-report': './models/Duplex/json/xeoconvert-stats-report.json',
+  statsReport: './models/Duplex/json/xeoconvert-stats-report.json',
+  'manifest-report': './models/Duplex/json/xeoconvert-manifest-report.json',
+  manifestReport: './models/Duplex/json/xeoconvert-manifest-report.json',
+  log: true,
+  '$0': '../sdk/dist/xeoconvert/xeoconvert'
+}
+$$$$$$$$$$$$$ stats-report
+$$$$$$$$$$$$$PPP ./models/Duplex/json/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'stats-report' writing report to ./models/Duplex/json/xeoconvert-stats-report.json
+$$$$$$$$$$$$$ manifest-report
+$$$$$$$$$$$$$PPP ./models/Duplex/json/xeoconvert-manifest-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/Duplex/json/xeoconvert-manifest-report.json
+[xeoconvert] Done.

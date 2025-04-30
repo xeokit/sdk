@@ -1,0 +1,77 @@
+{
+    "description": "xeoconvert conversion stats",
+    "command": "node xeoconvert.js --pipeline dotbim2xgf --dotbim ./models/TeapotXeokitLogo/dotbim/model.bim --xgf ./models/TeapotXeokitLogo/dotbim2xgf/sceneModel.xgf --datamodel ./models/TeapotXeokitLogo/dotbim2xgf/dataModel.json --stats-report ./models/TeapotXeokitLogo/dotbim2xgf/xeoconvert-stats-report.json --manifest-report ./models/TeapotXeokitLogo/dotbim2xgf/xeoconvert-manifest-report.json --log",
+    "time": "2025-04-29T16:31:12.172Z",
+    "pipeline": "dotbim2xgf",
+    "inputs": {
+        "dotbim": {
+            "filePath": "./models/TeapotXeokitLogo/dotbim/model.bim",
+            "fileFormat": "DotBIM",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 2862201,
+            "fileDataType": "json",
+            "options": {},
+            "sceneModel": "default",
+            "dataModel": "default",
+            "messages": [],
+            "warnings": [],
+            "errors": []
+        }
+    },
+    "sceneModels": {
+        "default": {
+            "aabb": [
+                228.09935157339712,
+                368.9943315769582,
+                0,
+                1781.9612844230944,
+                1698.9994159033358,
+                3.1495194361631333
+            ],
+            "numGeometries": 1,
+            "numLines": 0,
+            "numMeshes": 8552,
+            "numObjects": 8552,
+            "numPoints": 0,
+            "numTextureSets": 0,
+            "numTextures": 0,
+            "numTriangles": 6320,
+            "numVertices": 3644,
+            "textureBytes": 0
+        }
+    },
+    "dataModels": {
+        "default": {
+            "numObjects": 8552,
+            "numRelationships": 0,
+            "numPropertySets": 0
+        }
+    },
+    "outputs": {
+        "xgf": {
+            "filePath": "./models/TeapotXeokitLogo/dotbim2xgf/sceneModel.xgf",
+            "fileFormat": "XGF",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 1679308,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "messages": [],
+            "warnings": [],
+            "errors": [],
+            "sceneModel": "default",
+            "dataModel": "default"
+        },
+        "datamodel": {
+            "filePath": "./models/TeapotXeokitLogo/dotbim2xgf/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataType": "json",
+            "options": {},
+            "messages": [],
+            "warnings": [],
+            "errors": [],
+            "sceneModel": "default",
+            "dataModel": "default"
+        }
+    }
+}

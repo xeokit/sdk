@@ -6,6 +6,11 @@ import {ModelEncoder} from "./ModelEncoder";
 export interface ModelExporterParams {
 
     /**
+     * The exported file format.
+     */
+    format: string;
+
+    /**
      * Encoders for exported schema versions.
      */
     encoders: {

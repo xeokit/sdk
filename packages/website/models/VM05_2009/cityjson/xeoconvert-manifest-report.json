@@ -1,0 +1,20 @@
+{
+    "files": {
+        "cityjson": {
+            "filePath": "./models/VM05_2009/cityjson/model.json",
+            "fileFormat": "CityJSON",
+            "fileFormatVersion": "1.0",
+            "fileDataSizeBytes": 5950849,
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                300060.181,
+                5040722.785,
+                8.444,
+                301073.7005530175,
+                5042282.3423702605,
+                129.07437842374304
+            ]
+        }
+    }
+}

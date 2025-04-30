@@ -1,0 +1,22 @@
+[xeoconvert] Running pipeline 'json'
+[xeoconvert] Reading input --scenemodel ./models/Box/json/sceneModel.json
+[xeoconvert] Reading input --datamodel ./models/Box/json/dataModel.json
+{
+  _: [],
+  pipeline: 'json',
+  scenemodel: './models/Box/json/sceneModel.json',
+  datamodel: './models/Box/json/dataModel.json',
+  'stats-report': './models/Box/json/xeoconvert-stats-report.json',
+  statsReport: './models/Box/json/xeoconvert-stats-report.json',
+  'manifest-report': './models/Box/json/xeoconvert-manifest-report.json',
+  manifestReport: './models/Box/json/xeoconvert-manifest-report.json',
+  log: true,
+  '$0': '../sdk/dist/xeoconvert/xeoconvert'
+}
+$$$$$$$$$$$$$ stats-report
+$$$$$$$$$$$$$PPP ./models/Box/json/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'stats-report' writing report to ./models/Box/json/xeoconvert-stats-report.json
+$$$$$$$$$$$$$ manifest-report
+$$$$$$$$$$$$$PPP ./models/Box/json/xeoconvert-manifest-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/Box/json/xeoconvert-manifest-report.json
+[xeoconvert] Done.

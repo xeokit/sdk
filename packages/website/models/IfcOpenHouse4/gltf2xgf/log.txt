@@ -1,1 +1,0 @@
-[gltf2xgf] Converting to XGF version: 1 (default)

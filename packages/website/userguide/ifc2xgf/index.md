@@ -2,11 +2,11 @@
 
 ---
 
-In this tutorial, we'll view an IFC 4.3 model in the browser using a xeokit doc:Viewer. To optimize performance, we'll first
-convert the IFC model to XGF and DataModelParams JSON files. The import process consists of two steps:
+In this tutorial, we'll view an IFC4 model in the browser using a xeokit doc:Viewer. To optimize performance, we'll first
+convert the IFC model to an XGF file and a doc:DataModelParams JSON file. The import process consists of two steps:
 
-1. Use `xeoconvert` with option `--pipeline ifc2xgf` to convert IFC into XGF and JSON DataModelParams files.
-2. Use `XGFLoader` and `DataModelParamsLoader` to load the XGF and JSON DataModelParams files into a xeokit Viewer in a webpage.
+1. Use `xeoconvert` with option **`--pipeline ifc2xgf`** to convert IFC into XGF and JSON DataModelParams files.
+2. Use doc:XGFLoader and doc:DataModelParamsLoader to load the XGF and JSON doc:DataModelParams files into a xeokit Viewer in a webpage.
 
 ## Example IFC Model
 
@@ -26,19 +26,18 @@ example-run:ifc2xgf_IfcOpenHouse4
 ---
 
 The first step is to convert our IFC file into a set of intermediate XGF geometry and JSON DataModelParams files. We'll use
-the [`ifc2xgf`]()
-CLI tool to do this conversion step:
+the xeoconvert CLI tool to do this conversion step:
 
 ```bash
-xeoconvert --pipeline ifc2xgf --ifc IfcOpenHouse4.ifc --xgf model.xgf --datamodel model.json
+npm xeoconvert --pipeline ifc2xgf --ifc IfcOpenHouse4.ifc --xgf model.xgf --datamodel model.json
 ```
 
 The parameters we provided the tool are:
 
-- `--pipeline` selects the conversion pipeline
+- `--pipeline` selects the conversion pipeline, `ifc2xgf`
 - `--ifc` path to source IFC file 
 - `--xkt` path to target XKT file 
-- `--datamodel` path to target DataModelParams file (optional)
+- `--datamodel` path to target doc:DataModelParams file (optional)
 
 <br>
 

@@ -44,8 +44,8 @@ export class ModelConverter {
      * @param params - An object containing configured loaders, exporters, and optional pipelines.
      */
     constructor(params: ModelConverterParams) {
-        this.loaders = params.loaders;
-        this.exporters = params.exporters;
+        this.loaders = params.loaders || {};
+        this.exporters = params.exporters || {};
         this.pipelines = params.pipelines || {};
     }
 
@@ -93,16 +93,6 @@ export class ModelConverter {
                 return reject(`No inputs defined on pipeline "${pipelineId}"`);
             }
 
-            const pipelineOutputs = pipeline.outputs;
-            if (!pipelineOutputs) {
-                return reject(`No outputs defined on pipeline "${pipelineId}"`);
-            }
-
-            const pipelineOutputIds = Object.keys(pipelineOutputs);
-            if (pipelineOutputIds.length === 0) {
-                return reject(`No outputs defined on pipeline "${pipelineId}"`);
-            }
-
             for (let inputId in pipelineInputs) {
                 const inputParams = pipelineInputs[inputId];
                 const loaderId = inputParams.loader;
@@ -114,6 +104,9 @@ export class ModelConverter {
                     return reject(`Can't resolve loader "${loaderId}", referenced by input "${inputId}" of pipeline "${pipelineId}"`);
                 }
             }
+
+            const pipelineOutputs = pipeline.outputs || {};
+            const pipelineOutputIds = Object.keys(pipelineOutputs);
 
             for (let outputId in pipelineOutputs) {
                 const outputParams = pipelineOutputs[outputId];
@@ -127,13 +120,16 @@ export class ModelConverter {
                 }
             }
 
-            const result = {
-                pipeline: pipelineId,
-                outputs: {}
-            };
-
             const scene = new Scene();
             const data = new Data();
+
+            const result = {
+                pipeline: pipelineId,
+                scene,
+                data,
+                inputs: {},
+                outputs: {}
+            };
 
             const processInputs = (done) => {
                 const processNextInput = (index = 0) => {
@@ -162,7 +158,26 @@ export class ModelConverter {
                             sceneModel,
                             dataModel
                         }).then(() => {
+                            result.inputs[pipelineInputId] = {
+                                fileData,
+                                fileDataType: loader.fileDataType,
+                                format: loader.format,
+                                sceneModel: sceneModel.id,
+                                dataModel: dataModel.id
+                            };
                             processNextInput(index + 1);
+                        }).catch(reason => {
+                            result.inputs[pipelineInputId] = {
+                                fileData: null,
+                                fileDataType: loader.fileDataType,
+                                format: loader.format,
+                                version: null,
+                                sceneModel: sceneModel.id,
+                                dataModel: dataModel.id,
+                                errors: [
+                                    `Failed to load fileData: ${reason}`
+                                ]
+                            };
                         });
                     }
                 }
@@ -216,7 +231,7 @@ export class ModelConverter {
                     const pipelineOutputId = pipelineOutputIds[index];
                     const pipelineOutput = pipelineOutputs[pipelineOutputId];
                     const exporter = this.exporters[pipelineOutput.exporter];
-                    const version = pipelineOutput.version;
+                    const version = pipelineOutput.version || exporter.defaultVersion;
                     const sceneModelId = pipelineOutput.sceneModel || "default";
                     const sceneModel = scene.models[sceneModelId] || scene.createModel({
                         id: sceneModelId
@@ -228,19 +243,41 @@ export class ModelConverter {
                     if (sceneModel instanceof SDKError || dataModel instanceof SDKError) {
                         processNextOutput(index + 1);
                     } else {
+                        if (dataModel && !dataModel.built) {
+                            dataModel.build();
+                        }
+                        if (sceneModel && !sceneModel.built) {
+                            sceneModel.build();
+                        }
                         exporter.write({
                             sceneModel,
                             dataModel
-                        }).then(fileData => {
-                            result.outputs[pipelineOutputId] = {
-                                fileData,
-                                fileDataType: exporter.fileDataType,
-                                version,
-                                sceneModel,
-                                dataModel
-                            };
-                            processNextOutput(index + 1);
-                        });
+                        })
+                            .then(fileData => {
+                                result.outputs[pipelineOutputId] = {
+                                    fileData,
+                                    fileDataType: exporter.fileDataType,
+                                    format: exporter.format,
+                                    version,
+                                    sceneModel: sceneModel.id,
+                                    dataModel: dataModel.id
+                                };
+                                processNextOutput(index + 1);
+                            })
+                            .catch(reason => {
+                                result.outputs[pipelineOutputId] = {
+                                    fileData: null,
+                                    fileDataType: exporter.fileDataType,
+                                    format: exporter.format,
+                                    version,
+                                    sceneModel: sceneModel.id,
+                                    dataModel: dataModel.id,
+                                    errors: [
+                                        `Failed to export fileData: ${reason}`
+                                    ]
+                                };
+                                processNextOutput(index + 1);
+                            });
                     }
                 }
                 processNextOutput(0);

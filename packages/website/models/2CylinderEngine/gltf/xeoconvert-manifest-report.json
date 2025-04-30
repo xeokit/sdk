@@ -1,0 +1,20 @@
+{
+    "files": {
+        "gltf": {
+            "filePath": "./models/2CylinderEngine/gltf/model.glb",
+            "fileFormat": "glTF",
+            "fileFormatVersion": "*",
+            "fileDataSizeBytes": 1838084,
+            "fileDataType": "arraybuffer",
+            "options": {},
+            "aabb": [
+                -371.692263935198,
+                -180.9715576171875,
+                -139.99999294862144,
+                371.6810770732678,
+                92.0134723832737,
+                127.9999961881083
+            ]
+        }
+    }
+}

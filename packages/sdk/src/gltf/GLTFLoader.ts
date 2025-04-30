@@ -30,6 +30,7 @@ import {ModelLoader, ModelLoadParams} from "../io";
 export class GLTFLoader extends ModelLoader {
     constructor() {
         super({
+            format: "glTF",
             fileDataType: "arraybuffer",
             parsers: {
                 "*": parseGLTF
@@ -57,7 +58,7 @@ interface ParsingContext {
     objectIdStack: string[];
 }
 
- function parseGLTF(params: ModelLoadParams): Promise<any> {
+function parseGLTF(params: ModelLoadParams): Promise<any> {
     return new Promise<void>(function (resolve, reject) {
         const {fileData, sceneModel, dataModel} = params;
         if (!sceneModel && !dataModel) {
@@ -566,9 +567,9 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: FloatArrayParam, mesh
             // FIXME: Too many clashes happening on createPrimitiveHash?
             // FIXME: geometryIds are not globally unique across multiple glTF chunks
 
-           let geometryId = createPrimitiveHash(ctx, primitive);
+            let geometryId = createPrimitiveHash(ctx, primitive);
 
-          //  geometryId = createUUID();
+            //  geometryId = createUUID();
             if (!ctx.geometryCreated[geometryId]) {
                 const POSITION = primitive.attributes.POSITION;
                 if (!POSITION) {

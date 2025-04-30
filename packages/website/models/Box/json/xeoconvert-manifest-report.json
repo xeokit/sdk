@@ -1,0 +1,36 @@
+{
+    "files": {
+        "scenemodel": {
+            "filePath": "./models/Box/json/sceneModel.json",
+            "fileFormat": "SceneModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataSizeBytes": 1275,
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                -1,
+                -1,
+                -1,
+                0.9996948195620661,
+                0.9996948195620661,
+                0.9996948195620661
+            ]
+        },
+        "datamodel": {
+            "filePath": "./models/Box/json/dataModel.json",
+            "fileFormat": "DataModelParams",
+            "fileFormatVersion": "1.0",
+            "fileDataSizeBytes": 151,
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                -1,
+                -1,
+                -1,
+                0.9996948195620661,
+                0.9996948195620661,
+                0.9996948195620661
+            ]
+        }
+    }
+}

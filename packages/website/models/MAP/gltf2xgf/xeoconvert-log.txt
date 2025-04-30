@@ -1,0 +1,24 @@
+[xeoconvert] Running pipeline 'gltf2xgf'
+[xeoconvert] Reading input --gltf ./models/MAP/gltf/model.glb
+[xeoconvert] Writing output --xgf ./models/MAP/gltf2xgf/sceneModel.xgf
+[xeoconvert] Writing output --datamodel ./models/MAP/gltf2xgf/dataModel.json
+{
+  _: [],
+  pipeline: 'gltf2xgf',
+  gltf: './models/MAP/gltf/model.glb',
+  xgf: './models/MAP/gltf2xgf/sceneModel.xgf',
+  datamodel: './models/MAP/gltf2xgf/dataModel.json',
+  'stats-report': './models/MAP/gltf2xgf/xeoconvert-stats-report.json',
+  statsReport: './models/MAP/gltf2xgf/xeoconvert-stats-report.json',
+  'manifest-report': './models/MAP/gltf2xgf/xeoconvert-manifest-report.json',
+  manifestReport: './models/MAP/gltf2xgf/xeoconvert-manifest-report.json',
+  log: true,
+  '$0': '../sdk/dist/xeoconvert/xeoconvert.js'
+}
+$$$$$$$$$$$$$ stats-report
+$$$$$$$$$$$$$PPP ./models/MAP/gltf2xgf/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'stats-report' writing report to ./models/MAP/gltf2xgf/xeoconvert-stats-report.json
+$$$$$$$$$$$$$ manifest-report
+$$$$$$$$$$$$$PPP ./models/MAP/gltf2xgf/xeoconvert-manifest-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/MAP/gltf2xgf/xeoconvert-manifest-report.json
+[xeoconvert] Done.

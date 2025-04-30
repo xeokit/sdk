@@ -17,6 +17,7 @@ export class IFCLoader extends ModelLoader {
      */
     constructor() {
         super({
+            format: "IFC",
             fileDataType: "arraybuffer",
             parsers: {
                 "IFC4": parse, // Internaly, web-ifc handles all versions

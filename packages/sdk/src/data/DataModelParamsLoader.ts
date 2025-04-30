@@ -13,6 +13,7 @@ export class DataModelParamsLoader extends ModelLoader {
      */
     constructor() {
         super({
+            format: "DataModelParams",
             fileDataType: "json",
             parsers: {
                 "1.0": parse_1_0

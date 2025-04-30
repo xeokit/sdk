@@ -10,6 +10,7 @@ import {ModelExporter} from "../io";
 export class DotBIMExporter extends ModelExporter {
     constructor() {
         super({
+            format: "DotBIM",
             fileDataType: "json",
             encoders: {
                 "1.0.0": encode_1_0_0,

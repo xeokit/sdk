@@ -1,0 +1,24 @@
+[xeoconvert] Running pipeline 'dotbim2xgf'
+[xeoconvert] Reading input --dotbim ./models/TeapotXeokitLogo/dotbim/model.bim
+[xeoconvert] Writing output --xgf ./models/TeapotXeokitLogo/dotbim2xgf/sceneModel.xgf
+[xeoconvert] Writing output --datamodel ./models/TeapotXeokitLogo/dotbim2xgf/dataModel.json
+{
+  _: [],
+  pipeline: 'dotbim2xgf',
+  dotbim: './models/TeapotXeokitLogo/dotbim/model.bim',
+  xgf: './models/TeapotXeokitLogo/dotbim2xgf/sceneModel.xgf',
+  datamodel: './models/TeapotXeokitLogo/dotbim2xgf/dataModel.json',
+  'stats-report': './models/TeapotXeokitLogo/dotbim2xgf/xeoconvert-stats-report.json',
+  statsReport: './models/TeapotXeokitLogo/dotbim2xgf/xeoconvert-stats-report.json',
+  'manifest-report': './models/TeapotXeokitLogo/dotbim2xgf/xeoconvert-manifest-report.json',
+  manifestReport: './models/TeapotXeokitLogo/dotbim2xgf/xeoconvert-manifest-report.json',
+  log: true,
+  '$0': '../sdk/dist/xeoconvert/xeoconvert'
+}
+$$$$$$$$$$$$$ stats-report
+$$$$$$$$$$$$$PPP ./models/TeapotXeokitLogo/dotbim2xgf/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'stats-report' writing report to ./models/TeapotXeokitLogo/dotbim2xgf/xeoconvert-stats-report.json
+$$$$$$$$$$$$$ manifest-report
+$$$$$$$$$$$$$PPP ./models/TeapotXeokitLogo/dotbim2xgf/xeoconvert-manifest-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/TeapotXeokitLogo/dotbim2xgf/xeoconvert-manifest-report.json
+[xeoconvert] Done.

@@ -1,0 +1,24 @@
+[xeoconvert] Running pipeline 'ifc2json'
+[xeoconvert] Reading input --ifc ./models/IfcOpenHouse4/ifc/model.ifc
+[xeoconvert] Writing output --datamodel ./models/IfcOpenHouse4/ifc2json/dataModel.json
+[xeoconvert] Writing output --scenemodel ./models/IfcOpenHouse4/ifc2json/sceneModel.json
+{
+  _: [],
+  pipeline: 'ifc2json',
+  ifc: './models/IfcOpenHouse4/ifc/model.ifc',
+  scenemodel: './models/IfcOpenHouse4/ifc2json/sceneModel.json',
+  datamodel: './models/IfcOpenHouse4/ifc2json/dataModel.json',
+  'stats-report': './models/IfcOpenHouse4/ifc2json/xeoconvert-stats-report.json',
+  statsReport: './models/IfcOpenHouse4/ifc2json/xeoconvert-stats-report.json',
+  'manifest-report': './models/IfcOpenHouse4/ifc2json/xeoconvert-manifest-report.json',
+  manifestReport: './models/IfcOpenHouse4/ifc2json/xeoconvert-manifest-report.json',
+  log: true,
+  '$0': '../sdk/dist/xeoconvert/xeoconvert'
+}
+$$$$$$$$$$$$$ stats-report
+$$$$$$$$$$$$$PPP ./models/IfcOpenHouse4/ifc2json/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'stats-report' writing report to ./models/IfcOpenHouse4/ifc2json/xeoconvert-stats-report.json
+$$$$$$$$$$$$$ manifest-report
+$$$$$$$$$$$$$PPP ./models/IfcOpenHouse4/ifc2json/xeoconvert-manifest-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/IfcOpenHouse4/ifc2json/xeoconvert-manifest-report.json
+[xeoconvert] Done.

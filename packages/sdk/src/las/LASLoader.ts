@@ -18,6 +18,7 @@ const MAX_VERTICES = 500000; // TODO: Rough estimate
 export class LASLoader extends ModelLoader {
     constructor() {
         super({
+            format: "LAS",
             fileDataType: "arraybuffer",
             parsers: {
                 "*": parseLAS

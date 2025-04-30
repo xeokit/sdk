@@ -10,220 +10,288 @@ import {XGFLoader, XGFExporter} from "../xgf";
 import {LASLoader} from "../las";
 import {IFCExporter, IFCLoader} from "../ifc";
 
+import {createXeoConvertStatsReport} from "./reporters/stats/createXeoConvertStatsReport";
+import {createXeoConvertManifestReport} from "./reporters/manifest/createXeoConvertManifestReport";
+
 /**
- *
- * @param options
+ * Available Reporters
  */
-export function getModelConverter(options: any): Promise<ModelConverter> {
+export const reporters = {
+    "stats-report": createXeoConvertStatsReport,
+    "manifest-report": createXeoConvertManifestReport
+};
 
-    return new Promise<ModelConverter>((resolve, reject) => {
+/**
+ * A ModelConverter configured to support various
+ * conversion pipelines. Add more pipelines as neccessary.
+ */
+export const modelConverter = new ModelConverter({
 
-        const modelTransformer = new ModelConverter({
+    loaders: {
+        "ifc": new IFCLoader(),
+        "dotbim": new DotBIMLoader(),
+        "glb": new GLTFLoader(),
+        "cityjson": new CityJSONLoader(),
+        "xkt": new XKTLoader(),
+        "xgf": new XGFLoader(),
+        "las": new LASLoader(),
+        "datamodel": new DataModelParamsLoader(),
+        "scenemodel": new SceneModelParamsLoader()
+    },
 
-            loaders: {
-                "ifc": new IFCLoader(),
-                "dotbim": new DotBIMLoader(),
-                "glb": new GLTFLoader(),
-                "cityjson": new CityJSONLoader(),
-                "xkt": new XKTLoader(),
-                "xgf": new XGFLoader(),
-                "las": new LASLoader(),
-                "datamodel": new DataModelParamsLoader(),
-                "scenemodel": new SceneModelParamsLoader()
+    exporters: {
+        "ifc": new IFCExporter(),
+        "xgf": new XGFExporter(),
+        "dotbim": new DotBIMExporter(),
+        "datamodel": new DataModelParamsExporter(),
+        "scenemodel": new SceneModelParamsExporter()
+    },
+
+    pipelines: {
+
+        "json": {
+            inputs: {
+                "scenemodel": {
+                    loader: "scenemodel"
+                },
+                "datamodel": {
+                    loader: "datamodel"
+                }
+            }
+        },
+
+        "gltf": {
+            inputs: {
+                "gltf": {
+                    loader: "glb"
+                }
+            }
+        },
+
+        "gltf2xgf": {
+            inputs: {
+                "gltf": {
+                    loader: "glb"
+                }
             },
+            outputs: {
+                "xgf": {
+                    exporter: "xgf"
+                },
+                "datamodel": {
+                    exporter: "datamodel"
+                }
+            }
+        },
 
-            exporters: {
-                "ifc": new IFCExporter(),
-                "xgf": new XGFExporter(),
-                "dotbim": new DotBIMExporter(),
-                "datamodel": new DataModelParamsExporter(),
-                "scenemodel": new SceneModelParamsExporter()
+        "gltf2dotbim": {
+            inputs: {
+                "gltf": {
+                    loader: "gltf"
+                },
+                "datamodel": {
+                    loader: "datamodel"
+                }
             },
+            outputs: {
+                "dotbim": {
+                    exporter: "dotbim"
+                }
+            }
+        },
 
-            pipelines: {
+        "cityjson": {
+            inputs: {
+                "cityjson": {
+                    loader: "cityjson"
+                }
+            }
+        },
 
-                // node xeoconvert.js --pipeline gltf2xgf --gltf model.glb --xgf model.xgf --datamodel dataModel.json
-
-                "gltf2xgf": {
-                    inputs: {
-                        "gltf": {
-                            loader: "glb",
-                            options: {}
-                        }
-                    },
-                    outputs: {
-                        "xgf": {
-                            exporter: "xgf",
-                            version: "1.0",
-                            options: {}
-                        },
-                        "datamodel": {
-                            exporter: "datamodel",
-                            version: "1.0",
-                            options: {}
-                        }
-                    }
+        "cityjson2xgf": {
+            inputs: {
+                "cityjson": {
+                    loader: "cityjson"
+                }
+            },
+            outputs: {
+                "xgf": {
+                    exporter: "xgf"
                 },
+                "datamodel": {
+                    exporter: "datamodel"
+                }
 
-                // node xeoconvert.js --pipeline gltf2dotbim --gltf model.glb --datamodel dataModel.json --dotbim model.bim
+            }
+        },
 
-                "gltf2dotbim": {
-                    inputs: {
-                        "gltf": {
-                            loader: "gltf",
-                            sceneModel: "mySceneModel",
-                            options: {}
-                        },
-                        "datamodel": {
-                            loader: "datamodel",
-                            dataModel: "myDataModel",
-                            options: {}
-                        }
-                    },
-                    outputs: {
-                        "dotbim": {
-                            exporter: "dotbim",
-                            version: "1.0",
-                            sceneModel: "mySceneModel", //
-                            dataModel: "myDataModel",
-                            options: {}
-                        }
-                    }
+        "cityjson2json": {
+            inputs: {
+                "cityjson": {
+                    loader: "cityjson"
+                }
+            },
+            outputs: {
+                "scenemodel": {
+                    exporter: "scenemodel"
                 },
+                "datamodel": {
+                    exporter: "datamodel"
+                }
 
-                // node xeoconvert.js --pipeline cityjson2xgf --cityjson model.json --datamodel dataModel.json --xgf model.xgf
+            }
+        },
 
-                "cityjson2xgf": {
-                    inputs: {
-                        "cityjson": {
-                            loader: "cityjson",
-                            options: {}
-                        }
-                    },
-                    outputs: {
-                        "xgf": {
-                            exporter: "xgf",
-                            version: "1.0",
-                            options: {}
-                        },
-                        "datamodel": {
-                            exporter: "datamodel",
-                            version: "1.0",
-                            options: {}
-                        }
+        "ifc": {
+            inputs: {
+                "ifc": {
+                    loader: "ifc"
+                }
+            }
+        },
 
-                    }
+        "ifc2json": {
+            inputs: {
+                "ifc": {
+                    loader: "ifc"
+                }
+            },
+            outputs: {
+                "datamodel": {
+                    exporter: "datamodel"
                 },
+                "scenemodel": {
+                    exporter: "scenemodel"
+                }
+            }
+        },
 
-                // node xeoconvert.js --pipeline ifc2xgf --ifc model.ifc --datamodel model.json --xgf model.xgf
-
-                "ifc2xgf": {
-                    inputs: {
-                        "ifc": {
-                            loader: "ifc",
-                            options: {}
-                        }
-                    },
-                    outputs: {
-                        "xgf": {
-                            exporter: "xgf",
-                            version: "1.0",
-                            options: {}
-                        },
-                        "datamodel": {
-                            exporter: "datamodel",
-                            version: "1.0",
-                            options: {}
-                        }
-
-                    }
+        "ifc2xgf": {
+            inputs: {
+                "ifc": {
+                    loader: "ifc"
+                }
+            },
+            outputs: {
+                "xgf": {
+                    exporter: "xgf"
                 },
+                "datamodel": {
+                    exporter: "datamodel"
+                }
+            }
+        },
 
-                // node xeoconvert.js --pipeline ifc2dotbim --ifc model.ifc --dotbim model.bim
+        "ifc2dotbim": {
+            inputs: {
+                "ifc": {
+                    loader: "ifc"
+                }
+            },
+            outputs: {
+                "dotbim": {
+                    exporter: "dotbim"
+                }
+            }
+        },
 
-                "ifc2dotbim": {
-                    inputs: {
-                        "ifc": {
-                            loader: "ifc",
-                            options: {}
-                        }
-                    },
-                    outputs: {
-                        "dotbim": {
-                            exporter: "dotbim",
-                            version: "1.1",
-                            options: {}
-                        }
-                    }
+        "dotbim": {
+            inputs: {
+                "dotbim": {
+                    loader: "dotbim"
+                }
+            }
+        },
+
+        "dotbim2json": {
+            inputs: {
+                "dotbim": {
+                    loader: "dotbim"
+                }
+            },
+            outputs: {
+                "datamodel": {
+                    exporter: "datamodel"
                 },
+                "scenemodel": {
+                    exporter: "scenemodel"
+                }
+            }
+        },
 
-                // node xeoconvert.js --pipeline dotbim2xgf --dotbim model.bim --xgf model.xgf
-
-                "dotbim2xgf": {
-                    inputs: {
-                        "dotbim": {
-                            loader: "dotbim",
-                            options: {}
-                        }
-                    },
-                    outputs: {
-                        "xgf": {
-                            exporter: "xgf",
-                            version: "1.0",
-                            options: {}
-                        }
-                    }
+        "dotbim2xgf": {
+            inputs: {
+                "dotbim": {
+                    loader: "dotbim"
+                }
+            },
+            outputs: {
+                "xgf": {
+                    exporter: "xgf"
                 },
+                "datamodel": {
+                    exporter: "datamodel"
+                }
+            }
+        },
 
-                // node xeoconvert.js --pipeline dotbim2ifc --dotbim model.bim --ifc model.ifc
+        "dotbim2ifc": {
+            inputs: {
+                "dotbim": {
+                    loader: "dotbim"
+                }
+            },
+            outputs: {
+                "ifc": {
+                    exporter: "ifc"
+                }
+            }
+        },
 
-                "dotbim2ifc": {
-                    inputs: {
-                        "dotbim": {
-                            loader: "dotbim",
-                            options: {}
-                        }
-                    },
-                    outputs: {
-                        "ifc": {
-                            exporter: "ifc",
-                            version: "IFC4",
-                            options: {}
-                        }
-                    }
-                },
-
-                // node xeoconvert.js --pipeline las2xgf --las model.las --xgf model.xgf
-
-                "las2xgf": {
-                    inputs: {
-                        "las": {
-                            loader: "las",
-                            options: {
-                                center: false,
-                                transform: [
-                                    1, 0, 0, 0,
-                                    0, 1, 0, 0,
-                                    0, 0, 1, 0,
-                                    0, 0, 0, 1
-                                ],
-                                skip: 1,
-                                fp64: false,
-                                colorDepth: "auto"
-                            }
-                        }
-                    },
-                    outputs: {
-                        "xgf": {
-                            exporter: "xgf",
-                            version: "1.0",
-                            options: {}
-                        }
+        "las": {
+            inputs: {
+                "las": {
+                    loader: "las",
+                    options: {
+                        center: false,
+                        transform: [
+                            1, 0, 0, 0,
+                            0, 1, 0, 0,
+                            0, 0, 1, 0,
+                            0, 0, 0, 1
+                        ],
+                        skip: 1,
+                        fp64: false,
+                        colorDepth: "auto"
                     }
                 }
             }
-        });
+        },
 
-        resolve(modelTransformer);
-    });
-}
+        "las2xgf": {
+            inputs: {
+                "las": {
+                    loader: "las",
+                    options: {
+                        center: false,
+                        transform: [
+                            1, 0, 0, 0,
+                            0, 1, 0, 0,
+                            0, 0, 1, 0,
+                            0, 0, 0, 1
+                        ],
+                        skip: 1,
+                        fp64: false,
+                        colorDepth: "auto"
+                    }
+                }
+            },
+            outputs: {
+                "xgf": {
+                    exporter: "xgf"
+                }
+            }
+        }
+    }
+});
+

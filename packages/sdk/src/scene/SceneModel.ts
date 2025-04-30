@@ -1005,7 +1005,8 @@ export class SceneModel extends Component {
             textureSets: [],
             transforms: [],
             meshes: [],
-            objects: []
+            objects: [],
+            aabb: Array.from(this.aabb)
         };
         if (this.streamParams) {
             sceneModelParams.streamParams = this.streamParams;

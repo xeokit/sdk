@@ -1,6 +1,6 @@
 // Import the xeokit SDK bundle built specifically for the example environment
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
-import { DemoHelper } from "../../js/DemoHelper.js";
+import {DemoHelper} from "../../js/DemoHelper.js";
 
 // Create a ModelConverter instance configured to convert .BIM files into XGF and DataModelParams formats.
 // We configure the ModelConverter with:
@@ -83,6 +83,11 @@ const sceneModel = scene.createModel({
     id: "demoModel"
 });
 
+// Create a DataModel to hold the semantic metadata for the model
+const dataModel = data.createModel({
+    id: "demoModel"
+});
+
 // Create a DataModelParamsLoader to load the converted semantic data
 
 const dataModelParamsLoader = new xeokit.data.DataModelParamsLoader();
@@ -97,63 +102,53 @@ const demoHelper = new DemoHelper({});
 demoHelper.init()
     .then(() => {
 
-        // Create a DataModel to hold the semantic metadata for the model
-        const dataModel = data.createModel({
-            id: "demoModel"
-        });
+        // Fetch the .BIM file containing the source model
+        fetch("../../models/BlenderHouse/dotbim/model.bim").then(response => {
+            response
+                .json()
+                .then(fileData => {
 
-        if (sceneModel instanceof xeokit.core.SDKError) {
-            console.error(`Error creating SceneModel: ${sceneModel.message}`);
-        } else {
+                    // Convert the .BIM file into XGF (geometry) and DataModelParams (semantics) using the ModelConverter
+                    modelConverter.convert({
+                        pipeline: "dotbim2xgf",
+                        inputs: {
+                            dotbim: fileData
+                        }
+                    }).then(result => {
 
-            // Fetch the .BIM file containing the source model
-            fetch("../../models/BlenderHouse/dotbim/model.bim").then(response => {
-                response
-                    .json()
-                    .then(fileData => {
+                        // Load the XGF geometry into the SceneModel
+                        xgfLoader.load({
+                            fileData: result.outputs.xgf.fileData,
+                            sceneModel
+                        }).then(() => {
 
-                        // Convert the .BIM file into XGF (geometry) and DataModelParams (semantics) using the ModelConverter
-                        modelConverter.convert({
-                            pipeline: "dotbim2xgf",
-                            inputs: {
-                                dotbim: fileData
-                            }
-                        }).then(result => {
-
-                            // Load the XGF geometry into the SceneModel
-                            xgfLoader.load({
-                                fileData: result.outputs.xgf.fileData,
-                                sceneModel
+                            // Load the DataModelParams into the DataModel
+                            dataModelParamsLoader.load({
+                                fileData: result.outputs.datamodel.fileData,
+                                dataModel
                             }).then(() => {
 
-                                // Load the DataModelParams into the DataModel
-                                dataModelParamsLoader.load({
-                                    fileData: result.outputs.datamodel.fileData,
-                                    dataModel
-                                }).then(() => {
+                                // Build the SceneModel and DataModel, to finalize the model structure.
+                                // The Scene and SceneModel will then contain a SceneObject for each displayable object in our model.
+                                // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
+                                // will have a corresponding DataObject with the same ID, to attach semantic meaning.
+                                // The View will contain a ViewObject corresponding to each SceneObject, through which the
+                                // appearance of the object can be controlled in the View.
 
-                                    // Build the SceneModel and DataModel, to finalize the model structure.
-                                    // The Scene and SceneModel will then contain a SceneObject for each displayable object in our model.
-                                    // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
-                                    // will have a corresponding DataObject with the same ID, to attach semantic meaning.
-                                    // The View will contain a ViewObject corresponding to each SceneObject, through which the
-                                    // appearance of the object can be controlled in the View.
+                                dataModel.build();
+                                sceneModel.build();
 
-                                    dataModel.build();
-                                    sceneModel.build();
+                                demoHelper.finished();
 
-                                    demoHelper.finished();
-
-                                }).catch(message => {
-                                    console.error(`Error loading DataModel: ${message}`);
-                                });
                             }).catch(message => {
-                                console.error(`Error loading XGF: ${message}`);
+                                console.error(`Error loading DataModel: ${message}`);
                             });
                         }).catch(message => {
-                            console.error(`Error converting .BIM to XGF+DataModel: ${message}`);
+                            console.error(`Error loading XGF: ${message}`);
                         });
+                    }).catch(message => {
+                        console.error(`Error converting .BIM to XGF+DataModel: ${message}`);
                     });
-            });
-        }
+                });
+        });
     });

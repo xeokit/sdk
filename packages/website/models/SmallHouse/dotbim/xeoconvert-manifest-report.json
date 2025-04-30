@@ -1,0 +1,20 @@
+{
+    "files": {
+        "dotbim": {
+            "filePath": "./models/SmallHouse/dotbim/model.bim",
+            "fileFormat": "DotBIM",
+            "fileFormatVersion": "1.0.0",
+            "fileDataSizeBytes": 6815465,
+            "fileDataType": "json",
+            "options": {},
+            "aabb": [
+                -3.0082583935235343,
+                -9.776227699990073,
+                -0.29,
+                3.310931419281772,
+                1.5133890348017345,
+                5.093279926189714
+            ]
+        }
+    }
+}

@@ -8,7 +8,6 @@
     "scripts": {
         "sdk-test": "jest --passWithNoTests",
         "sdk-dist": "rm -Rf tsconfig.tsbuildinfo;  tsc; node ./scripts/build-cli-tools.js",
-        "sdk-lint": "eslint . --fix",
         "sdk-publish": "npm publish --access public",
         "website-sdk-docs": "typedoc --json ../website/docs/json/sdk.json --options typedoc.json --validation.invalidLink false && cp -Rf ./assets ../website/docs/."
     },

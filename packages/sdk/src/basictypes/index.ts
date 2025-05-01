@@ -40,14 +40,14 @@ export const BasicAggregation = 1001;
  * Maps numeric type codes to their corresponding entity type names.
  */
 export const typeNames: { [key: number]: string } = {
-    [BasicEntity]: "BasicEntity",
-    [BasicAggregation]: "BasicAggregation"
+  [BasicEntity]: "BasicEntity",
+  [BasicAggregation]: "BasicAggregation"
 };
 
 /**
  * Maps entity type names to their corresponding numeric type codes.
  */
 export const typeCodes: { [key: string]: number } = {
-    "BasicEntity": BasicEntity,
-    "BasicAggregation": BasicAggregation
+  "BasicEntity": BasicEntity,
+  "BasicAggregation": BasicAggregation
 };

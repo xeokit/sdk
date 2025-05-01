@@ -1,8 +1,8 @@
-import {FloatArrayParam} from "../math";
+import { FloatArrayParam } from "../math";
 
 /**
  * @private
  */
 export class LayerMeshParams {
-    pickColor: FloatArrayParam
+  pickColor: FloatArrayParam
 }

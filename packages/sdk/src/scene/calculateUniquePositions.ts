@@ -46,100 +46,100 @@ let comparePositions: any = null;
  */
 export function uniquifyPositions(mesh: any): [Uint16Array, Uint32Array, Uint32Array | undefined] {
 
-    let positionsCompressed = mesh.positionsCompressed;
-    let indices = mesh.indices;
-    let edgeIndices = mesh.edgeIndices;
+  const positionsCompressed = mesh.positionsCompressed;
+  const indices = mesh.indices;
+  const edgeIndices = mesh.edgeIndices;
 
-    setMaxNumberOfPositions(positionsCompressed.length / 3);
+  setMaxNumberOfPositions(positionsCompressed.length / 3);
 
-    let seq = seqInit.slice(0, positionsCompressed.length / 3);
-    let remappings = seqInit.slice(0, positionsCompressed.length / 3);
+  const seq = seqInit.slice(0, positionsCompressed.length / 3);
+  const remappings = seqInit.slice(0, positionsCompressed.length / 3);
 
-    comparePositions = positionsCompressed;
+  comparePositions = positionsCompressed;
 
-    seq.sort(compareVertex);
+  seq.sort(compareVertex);
 
-    let uniqueIdx = 0
+  let uniqueIdx = 0
 
-    remappings[seq[0]] = 0;
+  remappings[seq[0]] = 0;
 
-    for (let i = 1, len = seq.length; i < len; i++) {
-        if (0 != compareVertex(seq[i], seq[i - 1])) {
-            uniqueIdx++;
-        }
-
-        remappings[seq[i]] = uniqueIdx;
+  for (let i = 1, len = seq.length; i < len; i++) {
+    if (0 != compareVertex(seq[i], seq[i - 1])) {
+      uniqueIdx++;
     }
 
-    const numUniquePositions = uniqueIdx + 1;
+    remappings[seq[i]] = uniqueIdx;
+  }
 
-    const uniquePositionsCompressed = new Uint16Array(numUniquePositions * 3);
+  const numUniquePositions = uniqueIdx + 1;
 
-    uniqueIdx = 0
+  const uniquePositionsCompressed = new Uint16Array(numUniquePositions * 3);
 
-    uniquePositionsCompressed [uniqueIdx * 3 + 0] = positionsCompressed [seq[0] * 3 + 0];
-    uniquePositionsCompressed [uniqueIdx * 3 + 1] = positionsCompressed [seq[0] * 3 + 1];
-    uniquePositionsCompressed [uniqueIdx * 3 + 2] = positionsCompressed [seq[0] * 3 + 2];
+  uniqueIdx = 0
 
-    for (let i = 1, len = seq.length; i < len; i++) {
-        if (0 !== compareVertex(seq[i], seq[i - 1])) {
-            uniqueIdx++;
+  uniquePositionsCompressed [uniqueIdx * 3 + 0] = positionsCompressed [seq[0] * 3 + 0];
+  uniquePositionsCompressed [uniqueIdx * 3 + 1] = positionsCompressed [seq[0] * 3 + 1];
+  uniquePositionsCompressed [uniqueIdx * 3 + 2] = positionsCompressed [seq[0] * 3 + 2];
 
-            uniquePositionsCompressed [uniqueIdx * 3 + 0] = positionsCompressed [seq[i] * 3 + 0];
-            uniquePositionsCompressed [uniqueIdx * 3 + 1] = positionsCompressed [seq[i] * 3 + 1];
-            uniquePositionsCompressed [uniqueIdx * 3 + 2] = positionsCompressed [seq[i] * 3 + 2];
-        }
+  for (let i = 1, len = seq.length; i < len; i++) {
+    if (0 !== compareVertex(seq[i], seq[i - 1])) {
+      uniqueIdx++;
 
-        remappings[seq[i]] = uniqueIdx;
+      uniquePositionsCompressed [uniqueIdx * 3 + 0] = positionsCompressed [seq[i] * 3 + 0];
+      uniquePositionsCompressed [uniqueIdx * 3 + 1] = positionsCompressed [seq[i] * 3 + 1];
+      uniquePositionsCompressed [uniqueIdx * 3 + 2] = positionsCompressed [seq[i] * 3 + 2];
     }
 
-    comparePositions = null;
+    remappings[seq[i]] = uniqueIdx;
+  }
 
-    let uniqueIndices = new Uint32Array(indices.length);
+  comparePositions = null;
 
-    for (let i = 0, len = indices.length; i < len; i++) {
-        uniqueIndices[i] = remappings [indices[i]];
+  const uniqueIndices = new Uint32Array(indices.length);
+
+  for (let i = 0, len = indices.length; i < len; i++) {
+    uniqueIndices[i] = remappings [indices[i]];
+  }
+
+  let uniqueEdgeIndices;
+
+  if (edgeIndices) {
+    uniqueEdgeIndices = new Uint32Array(edgeIndices.length);
+    for (let i = 0, len = edgeIndices.length; i < len; i++) {
+      uniqueEdgeIndices[i] = remappings [edgeIndices[i]];
     }
-
-    let uniqueEdgeIndices;
-
-    if (edgeIndices) {
-        uniqueEdgeIndices = new Uint32Array(edgeIndices.length);
-        for (let i = 0, len = edgeIndices.length; i < len; i++) {
-            uniqueEdgeIndices[i] = remappings [edgeIndices[i]];
-        }
-    }
-    return [
-        uniquePositionsCompressed,
-        uniqueIndices,
-        uniqueEdgeIndices
-    ];
+  }
+  return [
+    uniquePositionsCompressed,
+    uniqueIndices,
+    uniqueEdgeIndices
+  ];
 }
 
 
 function compareVertex(a: any, b: any) {
-    let res;
+  let res;
 
-    for (let i = 0; i < 3; i++) {
-        if (0 != (res = comparePositions[a * 3 + i] - comparePositions[b * 3 + i])) {
-            return res;
-        }
+  for (let i = 0; i < 3; i++) {
+    if (0 != (res = comparePositions[a * 3 + i] - comparePositions[b * 3 + i])) {
+      return res;
     }
+  }
 
-    return 0;
+  return 0;
 }
 
 let seqInit: any = null;
 
 function setMaxNumberOfPositions(maxPositions: any) {
-    if (seqInit !== null && seqInit.length >= maxPositions) {
-        return;
-    }
+  if (seqInit !== null && seqInit.length >= maxPositions) {
+    return;
+  }
 
-    seqInit = new Uint32Array(maxPositions);
+  seqInit = new Uint32Array(maxPositions);
 
-    for (let i = 0; i < maxPositions; i++) {
-        seqInit[i] = i;
-    }
+  for (let i = 0; i < maxPositions; i++) {
+    seqInit[i] = i;
+  }
 }
 

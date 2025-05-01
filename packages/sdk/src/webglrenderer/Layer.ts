@@ -1,113 +1,113 @@
 
-import {WebGLRendererModel} from "./WebGLRendererModel";
-import {MeshCounts} from "./MeshCounts";
-import {SceneGeometry, SceneMesh} from "../scene";
-import {FloatArrayParam} from "../math";
-import {LayerMeshParams} from "./LayerMeshParams";
-import {RenderContext} from "./RenderContext";
+import { SceneGeometry, SceneMesh } from "../scene";
+import { FloatArrayParam } from "../math";
+import { LayerMeshParams } from "./LayerMeshParams";
+import { MeshCounts } from "./MeshCounts";
+import { RenderContext } from "./RenderContext";
+import { WebGLRendererModel } from "./WebGLRendererModel";
 
 /**
  * @private
  */
 export interface Layer {
 
-    renderContext: RenderContext;
-    primitive: number;
-    rendererModel: WebGLRendererModel;
-    layerIndex: number;
-    sortId: string;
-    meshCounts: MeshCounts[];
-    saoSupported: boolean;
+  renderContext: RenderContext;
+  primitive: number;
+  rendererModel: WebGLRendererModel;
+  layerIndex: number;
+  sortId: string;
+  meshCounts: MeshCounts[];
+  saoSupported: boolean;
 
-    //---------------------------------------------------------
-    // Builder methods
-    //---------------------------------------------------------
+  //---------------------------------------------------------
+  // Builder methods
+  //---------------------------------------------------------
 
-    canCreateLayerMesh(sceneGeometry: SceneGeometry): boolean;
+  canCreateLayerMesh(sceneGeometry: SceneGeometry): boolean;
 
-    createLayerMesh(layerMeshParams: LayerMeshParams, sceneMesh: SceneMesh): number; // Returns layerMeshIndex
+  createLayerMesh(layerMeshParams: LayerMeshParams, sceneMesh: SceneMesh): number; // Returns layerMeshIndex
 
-    build(): void;
+  build(): void;
 
-    isEmpty(): boolean;
+  isEmpty(): boolean;
 
-    //---------------------------------------------------------
-    // State update methods
-    //---------------------------------------------------------
+  //---------------------------------------------------------
+  // State update methods
+  //---------------------------------------------------------
 
-    setLayerMeshFlags(viewIndex: number, layerMeshIndex: number, flags: number, meshTransparent: boolean): void;
+  setLayerMeshFlags(viewIndex: number, layerMeshIndex: number, flags: number, meshTransparent: boolean): void;
 
-    setLayerMeshVisible(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+  setLayerMeshVisible(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshHighlighted(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+  setLayerMeshHighlighted(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshXRayed(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+  setLayerMeshXRayed(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshSelected(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+  setLayerMeshSelected(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshClippable(viewIndex: number, layerMeshIndex: number, flags: number): void;
+  setLayerMeshClippable(viewIndex: number, layerMeshIndex: number, flags: number): void;
 
-    setLayerMeshCulled(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+  setLayerMeshCulled(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshCollidable(viewIndex: number, layerMeshIndex, flags): void;
+  setLayerMeshCollidable(viewIndex: number, layerMeshIndex, flags): void;
 
-    setLayerMeshPickable(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+  setLayerMeshPickable(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshColor(viewIndex: number, layerMeshIndex: number, color: FloatArrayParam, setOpacity: boolean): void;
+  setLayerMeshColor(viewIndex: number, layerMeshIndex: number, color: FloatArrayParam, setOpacity: boolean): void;
 
-    setLayerMeshTransparent(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
+  setLayerMeshTransparent(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void;
 
-    setLayerMeshOffset(viewIndex: number, layerMeshIndex: number, offset: FloatArrayParam): void;
+  setLayerMeshOffset(viewIndex: number, layerMeshIndex: number, offset: FloatArrayParam): void;
 
-    setLayerMeshMatrix( layerMeshIndex: number, matrix: FloatArrayParam): void;
+  setLayerMeshMatrix( layerMeshIndex: number, matrix: FloatArrayParam): void;
 
-    commitRendererState(viewIndex: number): void;
+  commitRendererState(viewIndex: number): void;
 
-    //---------------------------------------------------------
-    // Drawing methods
-    //---------------------------------------------------------
+  //---------------------------------------------------------
+  // Drawing methods
+  //---------------------------------------------------------
 
-    drawColorOpaque() : void;
+  drawColorOpaque() : void;
 
-    drawColorSAOOpaque(): void;
+  drawColorSAOOpaque(): void;
 
-    drawColorTranslucent(): void;
+  drawColorTranslucent(): void;
 
-    drawDepth(): void;
+  drawDepth(): void;
 
-    drawNormals(): void;
+  drawNormals(): void;
 
-    drawSilhouetteXRayed(): void;
+  drawSilhouetteXRayed(): void;
 
-    drawSilhouetteHighlighted(): void;
+  drawSilhouetteHighlighted(): void;
 
-    drawSilhouetteSelected(): void;
+  drawSilhouetteSelected(): void;
 
-    drawEdgesColorOpaque(): void;
+  drawEdgesColorOpaque(): void;
 
-    drawEdgesColorTranslucent(): void;
+  drawEdgesColorTranslucent(): void;
 
-    drawEdgesHighlighted(): void;
+  drawEdgesHighlighted(): void;
 
-    drawEdgesSelected(): void;
+  drawEdgesSelected(): void;
 
-    drawEdgesXRayed(): void;
+  drawEdgesXRayed(): void;
 
-    drawOcclusion(): void;
+  drawOcclusion(): void;
 
-    drawShadow(): void;
+  drawShadow(): void;
 
-    drawPickMesh(): void;
+  drawPickMesh(): void;
 
-    drawPickDepths(): void;
+  drawPickDepths(): void;
 
-    drawSnapInit(): void;
+  drawSnapInit(): void;
 
-    drawSnap(): void;
+  drawSnap(): void;
 
-    drawPickNormals(): void;
+  drawPickNormals(): void;
 
-    destroy(): void;
+  destroy(): void;
 
-    initFlags(viewIndex: number, meshIndex: number, flags: number, transparent): void;
+  initFlags(viewIndex: number, meshIndex: number, flags: number, transparent): void;
 }

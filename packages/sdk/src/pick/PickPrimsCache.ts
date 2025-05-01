@@ -1,5 +1,5 @@
-import type {KdTree3, PrimsKdTree3} from "../kdtree3";
-import type {FloatArrayParam} from "../math";
+import type { KdTree3, PrimsKdTree3 } from "../kdtree3";
+import type { FloatArrayParam } from "../math";
 
 /**
  * Caches reusable resources for {@link rayPick} and {@link marqueePick}.
@@ -13,27 +13,27 @@ import type {FloatArrayParam} from "../math";
  */
 export class PickPrimsCache {
 
-    /**
+  /**
      * TODO
      */
-    primitivesKdTrees: {
-        [key: string]: {
-            primitivesKdTree: PrimsKdTree3,
-            positions: FloatArrayParam
-        }
-    };
-
-    /**
-     * TODO
-     */
-    constructor() {
-        this.primitivesKdTrees = {};
+  primitivesKdTrees: {
+    [key: string]: {
+      primitivesKdTree: PrimsKdTree3,
+      positions: FloatArrayParam
     }
+  };
 
-    /**
+  /**
      * TODO
      */
-    clear() {
-        this.primitivesKdTrees = {};
-    }
+  constructor() {
+    this.primitivesKdTrees = {};
+  }
+
+  /**
+     * TODO
+     */
+  clear() {
+    this.primitivesKdTrees = {};
+  }
 }

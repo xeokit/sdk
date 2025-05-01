@@ -3,38 +3,38 @@
  */
 export interface MetaObjectParams {
 
-    /**
+  /**
      * IDs of propery sets linked to the metadata object.
      */
-    propertySetIds: string[];
+  propertySetIds: string[];
 
-    /**
+  /**
      * Property sets belonging to the metadata object.
      */
-    propertySets?: string[];
+  propertySets?: string[];
 
-    /**
+  /**
      * The original system ID of the metadata object.
      */
-    originalSystemId?: string;
+  originalSystemId?: string;
 
-    /**
+  /**
      * The ID of the metadata object.
      */
-    id:string,
+  id:string,
 
-    /**
+  /**
      * The name of the metadata object.
      */
-    name: string,
+  name: string,
 
-    /**
+  /**
      * The type of the metadata object.
      */
-    type: string,
+  type: string,
 
-    /**
+  /**
      * ID of the parent metadata object.
      */
-    parent: string
+  parent: string
 }

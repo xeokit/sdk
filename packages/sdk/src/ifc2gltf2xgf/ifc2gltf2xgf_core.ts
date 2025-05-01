@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import '@loaders.gl/polyfills';
-import {Scene, SceneModel} from "../scene";
-import {SDKError} from "../core";
-import {GLTFLoader} from "../gltf";
-import {XGFExporter} from "../xgf";
-import {convertMetaModel} from "../metamodel";
+import { Scene, SceneModel } from "../scene";
+import { convertMetaModel } from "../metamodel";
+import { GLTFLoader } from "../gltf";
+import { SDKError } from "../core";
+import { XGFExporter } from "../xgf";
 
 const xgfExporter = new XGFExporter();
 
@@ -13,49 +13,49 @@ const xgfExporter = new XGFExporter();
  * @private
  */
 function ifc2gltf2xgf(params: {
-    fileData: ArrayBuffer,
-    xgfVersion?: string
+  fileData: ArrayBuffer,
+  xgfVersion?: string
 }): Promise<{
     xgfArrayBuffer: ArrayBuffer,
     sceneModel: SceneModel
-}> {
-    const {fileData, xgfVersion} = params;
-    return new Promise(function (resolve, reject) {
-        const scene = new Scene();
-        const sceneModel = scene.createModel({
-            id: "foo"
-        });
-        if (sceneModel instanceof SDKError) {
-            return reject(sceneModel.message);
-        } else {
-            (new GLTFLoader()).load({fileData, sceneModel})
-                .then(() => {
-                    sceneModel.build()
-                        .then(() => {
-                            xgfExporter.write({
-                                    sceneModel,
-                                    version: xgfVersion
-                                })
-                                .then(xgfArrayBuffer => {
-                                    return resolve({
-                                        xgfArrayBuffer,
-                                        sceneModel
-                                    });
-                                });
-                        }).catch(err => {
-                        return reject(err);
-                    });
-                }).catch(err => {
-                return reject(err);
-            });
-        }
+  }> {
+  const { fileData, xgfVersion } = params;
+  return new Promise(function (resolve, reject) {
+    const scene = new Scene();
+    const sceneModel = scene.createModel({
+      id: "foo"
     });
+    if (sceneModel instanceof SDKError) {
+      return reject(sceneModel.message);
+    } else {
+      (new GLTFLoader()).load({ fileData, sceneModel })
+        .then(() => {
+          sceneModel.build()
+            .then(() => {
+              xgfExporter.write({
+                sceneModel,
+                version: xgfVersion
+              })
+                .then(xgfArrayBuffer => {
+                  return resolve({
+                    xgfArrayBuffer,
+                    sceneModel
+                  });
+                });
+            }).catch(err => {
+              return reject(err);
+            });
+        }).catch(err => {
+          return reject(err);
+        });
+    }
+  });
 }
 
 /**
  * @private
  */
-export {ifc2gltf2xgf};
+export { ifc2gltf2xgf };
 
 /**
  * @private

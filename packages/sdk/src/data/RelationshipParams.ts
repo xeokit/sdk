@@ -8,18 +8,18 @@
  */
 export interface RelationshipParams {
 
-    /**
+  /**
      * The relationship type.
      */
-    type: number,
+  type: number,
 
-    /**
+  /**
      * The relating {@link DataObject | DataObject}.
      */
-    relatingObjectId: string,
+  relatingObjectId: string,
 
-    /**
+  /**
      * The related {@link DataObject | DataObject}.
      */
-    relatedObjectId: string
+  relatedObjectId: string
 }

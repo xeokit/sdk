@@ -2,7 +2,7 @@
  * See {@link kdtree3 | @xeokit/sdk/kdtree3} for usage.
  */
 export interface KdTrianglePrim {
-    a: number;
-    b: number;
-    c: number;
+  a: number;
+  b: number;
+  c: number;
 }

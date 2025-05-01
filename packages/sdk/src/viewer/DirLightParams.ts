@@ -1,4 +1,4 @@
-import {FloatArrayParam} from "../math";
+import { FloatArrayParam } from "../math";
 
 /**
  * Parameters for a {@link DirLight}.
@@ -9,43 +9,43 @@ import {FloatArrayParam} from "../math";
  */
 export interface DirLightParams {
 
-    /** Optional ID, generated automatically when omitted.
+  /** Optional ID, generated automatically when omitted.
      */
-    id?: string;
+  id?: string;
 
-    /**
+  /**
      * 3D direction of the {@link DirLight}.
      *
      * Range is `[-1..1, -1..1, -1..1]`.
      *
      * Default value is `[1.0, 1.0, 1.0]`.
      */
-    dir?: FloatArrayParam;
+  dir?: FloatArrayParam;
 
-    /**
+  /**
      * RGB color of the {@link DirLight}.
      *
      * Range is `[0..1, 0..1, 0..1]`.
      *
      * Default value is `[1.0, 1.0, 1.0]`.
      */
-    color?: FloatArrayParam;
+  color?: FloatArrayParam;
 
-    /**
+  /**
      * Intensity of the {@link DirLight}.
      *
      * Value is in range `[0..1]`.
      *
      * Default value is `1.0`.
      */
-    intensity?: number;
+  intensity?: number;
 
-    /**
+  /**
      * 3D coordinate space in which the {@link DirLight} is oriented.
      *
      * Accepted value is "world" or "view".
      *
      * Default is "world".
      */
-    space?: string;
+  space?: string;
 }

@@ -98,22 +98,22 @@
 
 
 import {
-    createMat3,
-    createMat4,
-    createVec3,
-    identityMat3,
-    identityMat4,
-    mulMat3,
-    mulMat4,
-    normalizeVec3,
-    scalingMat3v,
-    scalingMat4v,
-    transformVec3,
-    translationMat3v,
-    translationMat4v
+  createMat3,
+  createMat4,
+  createVec3,
+  identityMat3,
+  identityMat4,
+  mulMat3,
+  mulMat4,
+  normalizeVec3,
+  scalingMat3v,
+  scalingMat4v,
+  transformVec3,
+  translationMat3v,
+  translationMat4v
 } from "../matrix";
 
-import type {FloatArrayParam} from "../math";
+import type { FloatArrayParam } from "../math";
 
 const translate = createMat4();
 const scale = createMat4();
@@ -138,29 +138,29 @@ const scale = createMat4();
  * console.log(max); // [4, 5, 6]
  */
 export function getPositions3MinMax(
-    array: FloatArrayParam,
-    min: FloatArrayParam = new Float64Array(3),
-    max: FloatArrayParam = new Float64Array(3)
+  array: FloatArrayParam,
+  min: FloatArrayParam = new Float64Array(3),
+  max: FloatArrayParam = new Float64Array(3)
 ) {
-    // Initialize min and max values with extreme values
-    for (let i = 0; i < 3; i++) {
-        min[i] = Number.MAX_VALUE;
-        max[i] = -Number.MAX_VALUE;
-    }
+  // Initialize min and max values with extreme values
+  for (let i = 0; i < 3; i++) {
+    min[i] = Number.MAX_VALUE;
+    max[i] = -Number.MAX_VALUE;
+  }
 
-    // Iterate through each 3D position in the array
-    for (let i = 0; i < array.length; i += 3) {
-        // Update min and max for each axis (x, y, z)
-        for (let j = 0; j < 3; j++) {
-            min[j] = Math.min(min[j], array[i + j]);
-            max[j] = Math.max(max[j], array[i + j]);
-        }
+  // Iterate through each 3D position in the array
+  for (let i = 0; i < array.length; i += 3) {
+    // Update min and max for each axis (x, y, z)
+    for (let j = 0; j < 3; j++) {
+      min[j] = Math.min(min[j], array[i + j]);
+      max[j] = Math.max(max[j], array[i + j]);
     }
+  }
 
-    return {
-        min,
-        max
-    };
+  return {
+    min,
+    max
+  };
 }
 
 
@@ -177,31 +177,31 @@ export function getPositions3MinMax(
  * const decompressionMatrix = createPositions3DecompressMat4(aabb);
  */
 export function createPositions3DecompressMat4(
-    aabb: FloatArrayParam,
-    positionsDecompressMatrix: FloatArrayParam = createMat4()
+  aabb: FloatArrayParam,
+  positionsDecompressMatrix: FloatArrayParam = createMat4()
 ): FloatArrayParam {
-    // Extract AABB min and max values
-    const [xmin, ymin, zmin, xmax, ymax, zmax] = aabb;
+  // Extract AABB min and max values
+  const [xmin, ymin, zmin, xmax, ymax, zmax] = aabb;
 
-    // Calculate the width of the AABB along each axis
-    const xwid = xmax - xmin;
-    const ywid = ymax - ymin;
-    const zwid = zmax - zmin;
+  // Calculate the width of the AABB along each axis
+  const xwid = xmax - xmin;
+  const ywid = ymax - ymin;
+  const zwid = zmax - zmin;
 
-    // The maximum integer value for decompression
-    const maxInt = 65535;
+  // The maximum integer value for decompression
+  const maxInt = 65535;
 
-    // Initialize translation and scaling matrices
-    identityMat4(translate); // Reset the translation matrix
-    translationMat4v(aabb, translate); // Apply the translation from the AABB
+  // Initialize translation and scaling matrices
+  identityMat4(translate); // Reset the translation matrix
+  translationMat4v(aabb, translate); // Apply the translation from the AABB
 
-    identityMat4(scale); // Reset the scale matrix
-    scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale); // Apply scaling based on AABB width and maxInt
+  identityMat4(scale); // Reset the scale matrix
+  scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale); // Apply scaling based on AABB width and maxInt
 
-    // Multiply the translation and scale matrices to get the final decompression matrix
-    mulMat4(translate, scale, positionsDecompressMatrix);
+  // Multiply the translation and scale matrices to get the final decompression matrix
+  mulMat4(translate, scale, positionsDecompressMatrix);
 
-    return positionsDecompressMatrix; // Return the decompression matrix
+  return positionsDecompressMatrix; // Return the decompression matrix
 }
 
 
@@ -221,41 +221,41 @@ export function createPositions3DecompressMat4(
  * const { quantized, decompressMatrix } = compressPositions3(positions, min, max);
  */
 export function compressPositions3(array: FloatArrayParam, min: FloatArrayParam, max: FloatArrayParam) {
-    // Initialize a quantized array to store the compressed positions
-    const quantized = new Uint16Array(array.length);
+  // Initialize a quantized array to store the compressed positions
+  const quantized = new Uint16Array(array.length);
 
-    // Calculate the scaling multipliers based on the difference between min and max values
-    const multiplier = new Float32Array([
-        max[0] !== min[0] ? 65535 / (max[0] - min[0]) : 0,
-        max[1] !== min[1] ? 65535 / (max[1] - min[1]) : 0,
-        max[2] !== min[2] ? 65535 / (max[2] - min[2]) : 0
-    ]);
+  // Calculate the scaling multipliers based on the difference between min and max values
+  const multiplier = new Float32Array([
+    max[0] !== min[0] ? 65535 / (max[0] - min[0]) : 0,
+    max[1] !== min[1] ? 65535 / (max[1] - min[1]) : 0,
+    max[2] !== min[2] ? 65535 / (max[2] - min[2]) : 0
+  ]);
 
-    // Compress the positions by quantizing each component
-    for (let i = 0; i < array.length; i += 3) {
-        quantized[i + 0] = Math.floor((array[i + 0] - min[0]) * multiplier[0]);
-        quantized[i + 1] = Math.floor((array[i + 1] - min[1]) * multiplier[1]);
-        quantized[i + 2] = Math.floor((array[i + 2] - min[2]) * multiplier[2]);
-    }
+  // Compress the positions by quantizing each component
+  for (let i = 0; i < array.length; i += 3) {
+    quantized[i + 0] = Math.floor((array[i + 0] - min[0]) * multiplier[0]);
+    quantized[i + 1] = Math.floor((array[i + 1] - min[1]) * multiplier[1]);
+    quantized[i + 2] = Math.floor((array[i + 2] - min[2]) * multiplier[2]);
+  }
 
-    // Create the decompression matrix for transforming compressed positions back to their original space
-    const translate = createMat4();
-    translationMat4v(min, translate); // Apply translation based on the minimum bounds
+  // Create the decompression matrix for transforming compressed positions back to their original space
+  const translate = createMat4();
+  translationMat4v(min, translate); // Apply translation based on the minimum bounds
 
-    const scale = createMat4();
-    scalingMat4v([
-        (max[0] - min[0]) / 65535,
-        (max[1] - min[1]) / 65535,
-        (max[2] - min[2]) / 65535
-    ], scale); // Apply scaling based on the difference between max and min
+  const scale = createMat4();
+  scalingMat4v([
+    (max[0] - min[0]) / 65535,
+    (max[1] - min[1]) / 65535,
+    (max[2] - min[2]) / 65535
+  ], scale); // Apply scaling based on the difference between max and min
 
-    const decompressMatrix = mulMat4(translate, scale, identityMat4()); // Combine translation and scaling into the decompression matrix
+  const decompressMatrix = mulMat4(translate, scale, identityMat4()); // Combine translation and scaling into the decompression matrix
 
-    // Return the quantized positions and the decompression matrix
-    return {
-        quantized,
-        decompressMatrix
-    };
+  // Return the quantized positions and the decompression matrix
+  return {
+    quantized,
+    decompressMatrix
+  };
 }
 
 
@@ -274,19 +274,19 @@ export function compressPositions3(array: FloatArrayParam, min: FloatArrayParam,
  * const compressedPoint = compressPoint3WithAABB3(point, aabb);
  */
 export function compressPoint3WithAABB3(p: FloatArrayParam, aabb: FloatArrayParam, dest: FloatArrayParam = p): FloatArrayParam {
-    // Compute the scale factors based on the AABB dimensions
-    const multiplier = new Float32Array([
-        aabb[3] !== aabb[0] ? 65535 / (aabb[3] - aabb[0]) : 0,
-        aabb[4] !== aabb[1] ? 65535 / (aabb[4] - aabb[1]) : 0,
-        aabb[5] !== aabb[2] ? 65535 / (aabb[5] - aabb[2]) : 0
-    ]);
+  // Compute the scale factors based on the AABB dimensions
+  const multiplier = new Float32Array([
+    aabb[3] !== aabb[0] ? 65535 / (aabb[3] - aabb[0]) : 0,
+    aabb[4] !== aabb[1] ? 65535 / (aabb[4] - aabb[1]) : 0,
+    aabb[5] !== aabb[2] ? 65535 / (aabb[5] - aabb[2]) : 0
+  ]);
 
-    // Quantize each component of the point and clamp to the range [0, 65535]
-    dest[0] = Math.max(0, Math.min(65535, Math.floor((p[0] - aabb[0]) * multiplier[0])));
-    dest[1] = Math.max(0, Math.min(65535, Math.floor((p[1] - aabb[1]) * multiplier[1])));
-    dest[2] = Math.max(0, Math.min(65535, Math.floor((p[2] - aabb[2]) * multiplier[2])));
+  // Quantize each component of the point and clamp to the range [0, 65535]
+  dest[0] = Math.max(0, Math.min(65535, Math.floor((p[0] - aabb[0]) * multiplier[0])));
+  dest[1] = Math.max(0, Math.min(65535, Math.floor((p[1] - aabb[1]) * multiplier[1])));
+  dest[2] = Math.max(0, Math.min(65535, Math.floor((p[2] - aabb[2]) * multiplier[2])));
 
-    return dest;
+  return dest;
 }
 
 /**
@@ -304,16 +304,16 @@ export function compressPoint3WithAABB3(p: FloatArrayParam, aabb: FloatArrayPara
  * const decompressedPoint = decompressPoint3WithMat4(compressedPosition, matrix);
  */
 export function decompressPoint3WithMat4(
-    position: FloatArrayParam,
-    decompressMatrix: FloatArrayParam,
-    dest: FloatArrayParam = position
+  position: FloatArrayParam,
+  decompressMatrix: FloatArrayParam,
+  dest: FloatArrayParam = position
 ): FloatArrayParam {
-    // Apply matrix transformation to each component of the position
-    dest[0] = position[0] * decompressMatrix[0] + decompressMatrix[12];
-    dest[1] = position[1] * decompressMatrix[5] + decompressMatrix[13];
-    dest[2] = position[2] * decompressMatrix[10] + decompressMatrix[14];
+  // Apply matrix transformation to each component of the position
+  dest[0] = position[0] * decompressMatrix[0] + decompressMatrix[12];
+  dest[1] = position[1] * decompressMatrix[5] + decompressMatrix[13];
+  dest[2] = position[2] * decompressMatrix[10] + decompressMatrix[14];
 
-    return dest;
+  return dest;
 }
 
 
@@ -332,24 +332,24 @@ export function decompressPoint3WithMat4(
  * const decompressedPoint = decompressPoint3WithAABB3(compressedPosition, aabb);
  */
 export function decompressPoint3WithAABB3(
-    position: FloatArrayParam,
-    aabb: FloatArrayParam,
-    dest: FloatArrayParam = position
+  position: FloatArrayParam,
+  aabb: FloatArrayParam,
+  dest: FloatArrayParam = position
 ): FloatArrayParam {
-    // Calculate scaling and offsets based on the AABB values
-    const xScale = (aabb[3] - aabb[0]) / 65535;
-    const xOffset = aabb[0];
-    const yScale = (aabb[4] - aabb[1]) / 65535;
-    const yOffset = aabb[1];
-    const zScale = (aabb[5] - aabb[2]) / 65535;
-    const zOffset = aabb[2];
+  // Calculate scaling and offsets based on the AABB values
+  const xScale = (aabb[3] - aabb[0]) / 65535;
+  const xOffset = aabb[0];
+  const yScale = (aabb[4] - aabb[1]) / 65535;
+  const yOffset = aabb[1];
+  const zScale = (aabb[5] - aabb[2]) / 65535;
+  const zOffset = aabb[2];
 
-    // Decompress the position values using the scale and offset
-    dest[0] = position[0] * xScale + xOffset;
-    dest[1] = position[1] * yScale + yOffset;
-    dest[2] = position[2] * zScale + zOffset;
+  // Decompress the position values using the scale and offset
+  dest[0] = position[0] * xScale + xOffset;
+  dest[1] = position[1] * yScale + yOffset;
+  dest[2] = position[2] * zScale + zOffset;
 
-    return dest;
+  return dest;
 }
 
 
@@ -368,19 +368,19 @@ export function decompressPoint3WithAABB3(
  * const decompressedAABB = decompressAABB3WithMat4(aabb, matrix);
  */
 export function decompressAABB3WithMat4(
-    aabb: FloatArrayParam,
-    decompressMatrix: FloatArrayParam,
-    dest: FloatArrayParam = aabb
+  aabb: FloatArrayParam,
+  decompressMatrix: FloatArrayParam,
+  dest: FloatArrayParam = aabb
 ): FloatArrayParam {
-    // Decompress each corner of the AABB using the matrix
-    dest[0] = aabb[0] * decompressMatrix[0] + decompressMatrix[12]; // minX
-    dest[1] = aabb[1] * decompressMatrix[5] + decompressMatrix[13]; // minY
-    dest[2] = aabb[2] * decompressMatrix[10] + decompressMatrix[14]; // minZ
-    dest[3] = aabb[3] * decompressMatrix[0] + decompressMatrix[12]; // maxX
-    dest[4] = aabb[4] * decompressMatrix[5] + decompressMatrix[13]; // maxY
-    dest[5] = aabb[5] * decompressMatrix[10] + decompressMatrix[14]; // maxZ
+  // Decompress each corner of the AABB using the matrix
+  dest[0] = aabb[0] * decompressMatrix[0] + decompressMatrix[12]; // minX
+  dest[1] = aabb[1] * decompressMatrix[5] + decompressMatrix[13]; // minY
+  dest[2] = aabb[2] * decompressMatrix[10] + decompressMatrix[14]; // minZ
+  dest[3] = aabb[3] * decompressMatrix[0] + decompressMatrix[12]; // maxX
+  dest[4] = aabb[4] * decompressMatrix[5] + decompressMatrix[13]; // maxY
+  dest[5] = aabb[5] * decompressMatrix[10] + decompressMatrix[14]; // maxZ
 
-    return dest;
+  return dest;
 }
 
 
@@ -399,27 +399,27 @@ export function decompressAABB3WithMat4(
  * const decompressedAABB = decompressAABB3WithAABB3(aabb, aabb2);
  */
 export function decompressAABB3WithAABB3(
-    aabb: FloatArrayParam,
-    aabb2: FloatArrayParam,
-    dest: FloatArrayParam = aabb
+  aabb: FloatArrayParam,
+  aabb2: FloatArrayParam,
+  dest: FloatArrayParam = aabb
 ): FloatArrayParam {
-    // Calculate scaling and offsets based on aabb2
-    const xScale = (aabb2[3] - aabb2[0]) / 65535;
-    const xOffset = aabb2[0];
-    const yScale = (aabb2[4] - aabb2[1]) / 65535;
-    const yOffset = aabb2[1];
-    const zScale = (aabb2[5] - aabb2[2]) / 65535;
-    const zOffset = aabb2[2];
+  // Calculate scaling and offsets based on aabb2
+  const xScale = (aabb2[3] - aabb2[0]) / 65535;
+  const xOffset = aabb2[0];
+  const yScale = (aabb2[4] - aabb2[1]) / 65535;
+  const yOffset = aabb2[1];
+  const zScale = (aabb2[5] - aabb2[2]) / 65535;
+  const zOffset = aabb2[2];
 
-    // Decompress each corner of the AABB using the calculated scale and offset
-    dest[0] = aabb[0] * xScale + xOffset; // minX
-    dest[1] = aabb[1] * yScale + yOffset; // minY
-    dest[2] = aabb[2] * zScale + zOffset; // minZ
-    dest[3] = aabb[3] * xScale + xOffset; // maxX
-    dest[4] = aabb[4] * yScale + yOffset; // maxY
-    dest[5] = aabb[5] * zScale + zOffset; // maxZ
+  // Decompress each corner of the AABB using the calculated scale and offset
+  dest[0] = aabb[0] * xScale + xOffset; // minX
+  dest[1] = aabb[1] * yScale + yOffset; // minY
+  dest[2] = aabb[2] * zScale + zOffset; // minZ
+  dest[3] = aabb[3] * xScale + xOffset; // maxX
+  dest[4] = aabb[4] * yScale + yOffset; // maxY
+  dest[5] = aabb[5] * zScale + zOffset; // maxZ
 
-    return dest;
+  return dest;
 }
 
 
@@ -446,20 +446,20 @@ export function decompressAABB3WithAABB3(
  * console.log(decompressed); // [scaledX, scaledY, scaledZ, ...]
  */
 export function decompressPositions3WithMat4(
-    positions: FloatArrayParam,
-    decompressMatrix: FloatArrayParam,
-    dest: Float32Array<any> = new Float32Array(positions.length)
+  positions: FloatArrayParam,
+  decompressMatrix: FloatArrayParam,
+  dest: Float32Array<any> = new Float32Array(positions.length)
 ): Float32Array<any> {
-    const m = decompressMatrix;
+  const m = decompressMatrix;
 
-    // Decompress each position using the decompression matrix
-    for (let i = 0, len = positions.length; i < len; i += 3) {
-        dest[i]     = positions[i] * m[0] + m[12];  // Apply scale and translation to x-coordinate
-        dest[i + 1] = positions[i + 1] * m[5] + m[13];  // Apply scale and translation to y-coordinate
-        dest[i + 2] = positions[i + 2] * m[10] + m[14]; // Apply scale and translation to z-coordinate
-    }
+  // Decompress each position using the decompression matrix
+  for (let i = 0, len = positions.length; i < len; i += 3) {
+    dest[i]     = positions[i] * m[0] + m[12];  // Apply scale and translation to x-coordinate
+    dest[i + 1] = positions[i + 1] * m[5] + m[13];  // Apply scale and translation to y-coordinate
+    dest[i + 2] = positions[i + 2] * m[10] + m[14]; // Apply scale and translation to z-coordinate
+  }
 
-    return dest;
+  return dest;
 }
 
 
@@ -481,26 +481,26 @@ export function decompressPositions3WithMat4(
  * console.log(decompressed); // [0.015, 0.03, 0.045, 0.06, 0.075, 0.09]
  */
 export function decompressPositions3WithAABB3(
-    positions: FloatArrayParam,
-    aabb: FloatArrayParam,
-    dest: FloatArrayParam = new Float32Array(positions.length)
+  positions: FloatArrayParam,
+  aabb: FloatArrayParam,
+  dest: FloatArrayParam = new Float32Array(positions.length)
 ): FloatArrayParam {
-    // Calculate the scale and offset for each axis
-    const xScale = (aabb[3] - aabb[0]) / 65535;
-    const xOffset = aabb[0];
-    const yScale = (aabb[4] - aabb[1]) / 65535;
-    const yOffset = aabb[1];
-    const zScale = (aabb[5] - aabb[2]) / 65535;
-    const zOffset = aabb[2];
+  // Calculate the scale and offset for each axis
+  const xScale = (aabb[3] - aabb[0]) / 65535;
+  const xOffset = aabb[0];
+  const yScale = (aabb[4] - aabb[1]) / 65535;
+  const yOffset = aabb[1];
+  const zScale = (aabb[5] - aabb[2]) / 65535;
+  const zOffset = aabb[2];
 
-    // Decompress positions by applying the scale and offset for each axis
-    for (let i = 0; i < positions.length; i += 3) {
-        dest[i]     = positions[i] * xScale + xOffset;  // Decompress x-coordinate
-        dest[i + 1] = positions[i + 1] * yScale + yOffset;  // Decompress y-coordinate
-        dest[i + 2] = positions[i + 2] * zScale + zOffset;  // Decompress z-coordinate
-    }
+  // Decompress positions by applying the scale and offset for each axis
+  for (let i = 0; i < positions.length; i += 3) {
+    dest[i]     = positions[i] * xScale + xOffset;  // Decompress x-coordinate
+    dest[i + 1] = positions[i + 1] * yScale + yOffset;  // Decompress y-coordinate
+    dest[i + 2] = positions[i + 2] * zScale + zOffset;  // Decompress z-coordinate
+  }
 
-    return dest;
+  return dest;
 }
 
 
@@ -524,19 +524,19 @@ export function decompressPositions3WithAABB3(
  * console.log(max); // [0.5, 0.6]
  */
 export function getUVBounds(array: FloatArrayParam): { min: FloatArrayParam, max: FloatArrayParam } {
-    // Initialize min and max values to extreme bounds
-    const min = new Float32Array(2).fill(Number.MAX_VALUE);
-    const max = new Float32Array(2).fill(-Number.MAX_VALUE);
+  // Initialize min and max values to extreme bounds
+  const min = new Float32Array(2).fill(Number.MAX_VALUE);
+  const max = new Float32Array(2).fill(-Number.MAX_VALUE);
 
-    // Iterate over the UV coordinates and update the min and max bounds
-    for (let i = 0; i < array.length; i += 2) {
-        min[0] = Math.min(min[0], array[i]);       // Update minimum u value
-        min[1] = Math.min(min[1], array[i + 1]);   // Update minimum v value
-        max[0] = Math.max(max[0], array[i]);       // Update maximum u value
-        max[1] = Math.max(max[1], array[i + 1]);   // Update maximum v value
-    }
+  // Iterate over the UV coordinates and update the min and max bounds
+  for (let i = 0; i < array.length; i += 2) {
+    min[0] = Math.min(min[0], array[i]);       // Update minimum u value
+    min[1] = Math.min(min[1], array[i + 1]);   // Update minimum v value
+    max[0] = Math.max(max[0], array[i]);       // Update maximum u value
+    max[1] = Math.max(max[1], array[i + 1]);   // Update maximum v value
+  }
 
-    return {min, max};
+  return { min, max };
 }
 
 
@@ -565,39 +565,39 @@ export function getUVBounds(array: FloatArrayParam): { min: FloatArrayParam, max
  * const { quantized, decompressMatrix } = compressUVs(uvs, min, max);
  */
 export function compressUVs(array: FloatArrayParam, min: FloatArrayParam, max: FloatArrayParam): {
-    quantized: Uint16Array<any>,
-    decompressMatrix: FloatArrayParam
+  quantized: Uint16Array<any>,
+  decompressMatrix: FloatArrayParam
 } {
-    const quantized = new Uint16Array(array.length);
+  const quantized = new Uint16Array(array.length);
 
-    // Compute multipliers for each component (u, v) to map them to the [0, 65535] range
-    const multipliers = new Float32Array([
-        65535 / (max[0] - min[0]),
-        65535 / (max[1] - min[1])
-    ]);
+  // Compute multipliers for each component (u, v) to map them to the [0, 65535] range
+  const multipliers = new Float32Array([
+    65535 / (max[0] - min[0]),
+    65535 / (max[1] - min[1])
+  ]);
 
-    // Quantize the UV coordinates
-    for (let i = 0; i < array.length; i += 2) {
-        quantized[i] = Math.floor((array[i] - min[0]) * multipliers[0]);
-        quantized[i + 1] = Math.floor((array[i + 1] - min[1]) * multipliers[1]);
-    }
+  // Quantize the UV coordinates
+  for (let i = 0; i < array.length; i += 2) {
+    quantized[i] = Math.floor((array[i] - min[0]) * multipliers[0]);
+    quantized[i + 1] = Math.floor((array[i + 1] - min[1]) * multipliers[1]);
+  }
 
-    // Create transformation matrices for decompressing
-    identityMat3(translate);
-    translationMat3v(min, translate);
+  // Create transformation matrices for decompressing
+  identityMat3(translate);
+  translationMat3v(min, translate);
 
-    identityMat3(scale);
-    scalingMat3v([
-        (max[0] - min[0]) / 65535,
-        (max[1] - min[1]) / 65535
-    ], scale);
+  identityMat3(scale);
+  scalingMat3v([
+    (max[0] - min[0]) / 65535,
+    (max[1] - min[1]) / 65535
+  ], scale);
 
-    const decompressMatrix = mulMat3(translate, scale, identityMat3());
+  const decompressMatrix = mulMat3(translate, scale, identityMat3());
 
-    return {
-        quantized,
-        decompressMatrix
-    };
+  return {
+    quantized,
+    decompressMatrix
+  };
 }
 
 
@@ -625,42 +625,42 @@ export function compressUVs(array: FloatArrayParam, min: FloatArrayParam, max: F
  * console.log(compressed); // Compressed oct-encoded normals
  */
 export function compressNormals(array: FloatArrayParam): Int8Array<any> {
-    // Initialize the encoded result array (same length as input but compressed)
-    const encoded = new Int8Array(array.length);
+  // Initialize the encoded result array (same length as input but compressed)
+  const encoded = new Int8Array(array.length);
 
-    let oct: Int8Array<any>, dec: FloatArrayParam, best: Int8Array<any>, currentCos: number, bestCos: number;
+  let oct: Int8Array<any>, dec: FloatArrayParam, best: Int8Array<any>, currentCos: number, bestCos: number;
 
-    // Iterate through each normal in the array (processed in triplets)
-    for (let i = 0; i < array.length; i += 3) {
-        // Initialize the best encoding using the first encoding strategy (floor, floor)
-        best = oct = octEncodeNormalFromArray(array, i, "floor", "floor");
-        dec = octDecodeVec2(oct);
-        bestCos = currentCos = dot(array, i, dec);
+  // Iterate through each normal in the array (processed in triplets)
+  for (let i = 0; i < array.length; i += 3) {
+    // Initialize the best encoding using the first encoding strategy (floor, floor)
+    best = oct = octEncodeNormalFromArray(array, i, "floor", "floor");
+    dec = octDecodeVec2(oct);
+    bestCos = currentCos = dot(array, i, dec);
 
-        // Test ceil/floor, floor/ceil, and ceil/ceil strategies to minimize rounding errors
-        const strategies: [string, string][] = [
-            ["ceil", "floor"],
-            ["floor", "ceil"],
-            ["ceil", "ceil"]
-        ];
+    // Test ceil/floor, floor/ceil, and ceil/ceil strategies to minimize rounding errors
+    const strategies: [string, string][] = [
+      ["ceil", "floor"],
+      ["floor", "ceil"],
+      ["ceil", "ceil"]
+    ];
 
-        // Loop over the strategies and pick the one with the best cosine similarity
-        strategies.forEach(([xFunc, yFunc]) => {
-            oct = octEncodeNormalFromArray(array, i, xFunc, yFunc);
-            dec = octDecodeVec2(oct);
-            currentCos = dot(array, i, dec);
-            if (currentCos > bestCos) {
-                best = oct;
-                bestCos = currentCos;
-            }
-        });
+    // Loop over the strategies and pick the one with the best cosine similarity
+    strategies.forEach(([xFunc, yFunc]) => {
+      oct = octEncodeNormalFromArray(array, i, xFunc, yFunc);
+      dec = octDecodeVec2(oct);
+      currentCos = dot(array, i, dec);
+      if (currentCos > bestCos) {
+        best = oct;
+        bestCos = currentCos;
+      }
+    });
 
-        // Store the best compressed values for the current normal
-        encoded[i] = best[0];
-        encoded[i + 1] = best[1];
-    }
+    // Store the best compressed values for the current normal
+    encoded[i] = best[0];
+    encoded[i + 1] = best[1];
+  }
 
-    return encoded;
+  return encoded;
 }
 
 
@@ -677,16 +677,16 @@ export function compressNormals(array: FloatArrayParam): Int8Array<any> {
  * @returns {Int8Array} A 2-element `Int8Array` containing the encoded normal.
  */
 function octEncodeNormalFromArray(array: FloatArrayParam, i: number, xfunc: any, yfunc: any): Int8Array { // Oct-encode single normal vector in 2 bytes
-    let x = array[i] / (Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]));
-    let y = array[i + 1] / (Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]));
-    if (array[i + 2] < 0) {
-        let tempx = (1 - Math.abs(y)) * (x >= 0 ? 1 : -1);
-        let tempy = (1 - Math.abs(x)) * (y >= 0 ? 1 : -1);
-        x = tempx;
-        y = tempy;
-    }
-    // @ts-ignore
-    return new Int8Array([Math[xfunc](x * 127.5 + (x < 0 ? -1 : 0)), Math[yfunc](y * 127.5 + (y < 0 ? -1 : 0))]);
+  let x = array[i] / (Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]));
+  let y = array[i + 1] / (Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]));
+  if (array[i + 2] < 0) {
+    const tempx = (1 - Math.abs(y)) * (x >= 0 ? 1 : -1);
+    const tempy = (1 - Math.abs(x)) * (y >= 0 ? 1 : -1);
+    x = tempx;
+    y = tempy;
+  }
+  // @ts-ignore
+  return new Int8Array([Math[xfunc](x * 127.5 + (x < 0 ? -1 : 0)), Math[yfunc](y * 127.5 + (y < 0 ? -1 : 0))]);
 }
 
 
@@ -699,7 +699,7 @@ function octEncodeNormalFromArray(array: FloatArrayParam, i: number, xfunc: any,
  * @returns {number} The dot product of the two vectors.
  */
 function dot(array: FloatArrayParam, i: number, createVec3: FloatArrayParam): number {
-    return array[i] * createVec3[0] + array[i + 1] * createVec3[1] + array[i + 2] * createVec3[2];
+  return array[i] * createVec3[0] + array[i + 1] * createVec3[1] + array[i + 2] * createVec3[2];
 }
 
 /**
@@ -714,21 +714,21 @@ function dot(array: FloatArrayParam, i: number, createVec3: FloatArrayParam): nu
  * @returns {FloatArrayParam} The decompressed UV coordinates.
  */
 export function decompressUV(
-    uv: FloatArrayParam,
-    decompressMatrix: FloatArrayParam,
-    dest: FloatArrayParam = new Float32Array(2)
+  uv: FloatArrayParam,
+  decompressMatrix: FloatArrayParam,
+  dest: FloatArrayParam = new Float32Array(2)
 ): FloatArrayParam {
-    if (uv.length < 2 || decompressMatrix.length < 8) {
-        throw new Error("Invalid input arrays: UV must have at least 2 elements, and decompressMatrix must have at least 8 elements.");
-    }
+  if (uv.length < 2 || decompressMatrix.length < 8) {
+    throw new Error("Invalid input arrays: UV must have at least 2 elements, and decompressMatrix must have at least 8 elements.");
+  }
 
-    const u = uv[0];
-    const v = uv[1];
+  const u = uv[0];
+  const v = uv[1];
 
-    dest[0] = u * decompressMatrix[0] + decompressMatrix[6];
-    dest[1] = v * decompressMatrix[4] + decompressMatrix[7];
+  dest[0] = u * decompressMatrix[0] + decompressMatrix[6];
+  dest[1] = v * decompressMatrix[4] + decompressMatrix[7];
 
-    return dest;
+  return dest;
 }
 
 
@@ -744,20 +744,20 @@ export function decompressUV(
  * @returns {FloatArrayParam} The decompressed UV coordinates.
  */
 export function decompressUVs(
-    uvs: FloatArrayParam,
-    decompressMatrix: FloatArrayParam,
-    dest: FloatArrayParam = new Float32Array(uvs.length)
+  uvs: FloatArrayParam,
+  decompressMatrix: FloatArrayParam,
+  dest: FloatArrayParam = new Float32Array(uvs.length)
 ): FloatArrayParam {
-    if (uvs.length % 2 !== 0 || decompressMatrix.length < 8) {
-        throw new Error("Invalid input: UVs must be a multiple of 2, and decompressMatrix must have at least 8 elements.");
-    }
+  if (uvs.length % 2 !== 0 || decompressMatrix.length < 8) {
+    throw new Error("Invalid input: UVs must be a multiple of 2, and decompressMatrix must have at least 8 elements.");
+  }
 
-    for (let i = 0, len = uvs.length; i < len; i += 2) {
-        dest[i] = uvs[i] * decompressMatrix[0] + decompressMatrix[6];
-        dest[i + 1] = uvs[i + 1] * decompressMatrix[4] + decompressMatrix[7];
-    }
+  for (let i = 0, len = uvs.length; i < len; i += 2) {
+    dest[i] = uvs[i] * decompressMatrix[0] + decompressMatrix[6];
+    dest[i + 1] = uvs[i + 1] * decompressMatrix[4] + decompressMatrix[7];
+  }
 
-    return dest;
+  return dest;
 }
 
 
@@ -769,30 +769,30 @@ export function decompressUVs(
  * @returns {FloatArrayParam} The decompressed 3D normal vector.
  */
 export function decompressNormal(
-    oct: FloatArrayParam,
-    result: FloatArrayParam
+  oct: FloatArrayParam,
+  result: FloatArrayParam
 ): FloatArrayParam {
-    if (oct.length < 2 || result.length < 3) {
-        throw new Error("Invalid input: oct must have at least 2 elements, and result must have at least 3 elements.");
-    }
+  if (oct.length < 2 || result.length < 3) {
+    throw new Error("Invalid input: oct must have at least 2 elements, and result must have at least 3 elements.");
+  }
 
-    let x = (2 * oct[0] + 1) / 255;
-    let y = (2 * oct[1] + 1) / 255;
-    let z = 1 - Math.abs(x) - Math.abs(y);
+  let x = (2 * oct[0] + 1) / 255;
+  let y = (2 * oct[1] + 1) / 255;
+  const z = 1 - Math.abs(x) - Math.abs(y);
 
-    if (z < 0) {
-        const tempx = (1 - Math.abs(y)) * Math.sign(x);
-        const tempy = (1 - Math.abs(x)) * Math.sign(y);
-        x = tempx;
-        y = tempy;
-    }
+  if (z < 0) {
+    const tempx = (1 - Math.abs(y)) * Math.sign(x);
+    const tempy = (1 - Math.abs(x)) * Math.sign(y);
+    x = tempx;
+    y = tempy;
+  }
 
-    const length = Math.sqrt(x * x + y * y + z * z);
-    result[0] = x / length;
-    result[1] = y / length;
-    result[2] = z / length;
+  const length = Math.sqrt(x * x + y * y + z * z);
+  result[0] = x / length;
+  result[1] = y / length;
+  result[2] = z / length;
 
-    return result;
+  return result;
 }
 
 
@@ -804,35 +804,35 @@ export function decompressNormal(
  * @returns {FloatArrayParam} The decompressed 3D normal vectors.
  */
 export function decompressNormals(
-    octs: FloatArrayParam,
-    result: FloatArrayParam
+  octs: FloatArrayParam,
+  result: FloatArrayParam
 ): FloatArrayParam {
-    if (octs.length % 2 !== 0) {
-        throw new Error("Invalid input: octs must contain an even number of elements.");
-    }
-    if (result.length < (octs.length / 2) * 3) {
-        throw new Error("Invalid output array: result must be large enough to store all decompressed normals.");
-    }
+  if (octs.length % 2 !== 0) {
+    throw new Error("Invalid input: octs must contain an even number of elements.");
+  }
+  if (result.length < (octs.length / 2) * 3) {
+    throw new Error("Invalid output array: result must be large enough to store all decompressed normals.");
+  }
 
-    for (let i = 0, j = 0, len = octs.length; i < len; i += 2, j += 3) {
-        let x = (2 * octs[i] + 1) / 255;
-        let y = (2 * octs[i + 1] + 1) / 255;
-        let z = 1 - Math.abs(x) - Math.abs(y);
+  for (let i = 0, j = 0, len = octs.length; i < len; i += 2, j += 3) {
+    let x = (2 * octs[i] + 1) / 255;
+    let y = (2 * octs[i + 1] + 1) / 255;
+    const z = 1 - Math.abs(x) - Math.abs(y);
 
-        if (z < 0) {
-            const tempx = (1 - Math.abs(y)) * Math.sign(x);
-            const tempy = (1 - Math.abs(x)) * Math.sign(y);
-            x = tempx;
-            y = tempy;
-        }
-
-        const length = Math.sqrt(x * x + y * y + z * z);
-        result[j] = x / length;
-        result[j + 1] = y / length;
-        result[j + 2] = z / length;
+    if (z < 0) {
+      const tempx = (1 - Math.abs(y)) * Math.sign(x);
+      const tempy = (1 - Math.abs(x)) * Math.sign(y);
+      x = tempx;
+      y = tempy;
     }
 
-    return result;
+    const length = Math.sqrt(x * x + y * y + z * z);
+    result[j] = x / length;
+    result[j + 1] = y / length;
+    result[j + 2] = z / length;
+  }
+
+  return result;
 }
 
 
@@ -860,29 +860,29 @@ export function decompressNormals(
  * console.log(result); // Decoded 3D unit vector
  */
 function octDecodeVec2(oct: Int8Array<any>, result: FloatArrayParam = createVec3()): FloatArrayParam {
-    let x = oct[0];
-    let y = oct[1];
+  let x = oct[0];
+  let y = oct[1];
 
-    // Scale and offset the oct values to the range [-1, 1]
-    x = (2 * x + 1) / 255;
-    y = (2 * y + 1) / 255;
+  // Scale and offset the oct values to the range [-1, 1]
+  x = (2 * x + 1) / 255;
+  y = (2 * y + 1) / 255;
 
-    // Calculate the z component to ensure the normal lies on the unit sphere
-    let z = 1 - Math.abs(x) - Math.abs(y);
+  // Calculate the z component to ensure the normal lies on the unit sphere
+  const z = 1 - Math.abs(x) - Math.abs(y);
 
-    // If z is negative, adjust x and y to ensure correct direction
-    if (z < 0) {
-        x = (1 - Math.abs(y)) * (x >= 0 ? 1 : -1);
-        y = (1 - Math.abs(x)) * (y >= 0 ? 1 : -1);
-    }
+  // If z is negative, adjust x and y to ensure correct direction
+  if (z < 0) {
+    x = (1 - Math.abs(y)) * (x >= 0 ? 1 : -1);
+    y = (1 - Math.abs(x)) * (y >= 0 ? 1 : -1);
+  }
 
-    // Normalize the vector (x, y, z) to have unit length
-    const length = Math.sqrt(x * x + y * y + z * z);
-    result[0] = x / length;
-    result[1] = y / length;
-    result[2] = z / length;
+  // Normalize the vector (x, y, z) to have unit length
+  const length = Math.sqrt(x * x + y * y + z * z);
+  result[0] = x / length;
+  result[1] = y / length;
+  result[2] = z / length;
 
-    return result;
+  return result;
 }
 
 
@@ -909,37 +909,37 @@ function octDecodeVec2(oct: Int8Array<any>, result: FloatArrayParam = createVec3
  * console.log(result); // Decoded 3D normals
  */
 function octDecodeVec2s(octs: Int8Array<any>, result: FloatArrayParam): FloatArrayParam {
-    const len = octs.length;
-    let j = 0;
+  const len = octs.length;
+  let j = 0;
 
-    // Iterate over the input array two bytes (x, y) at a time
-    for (let i = 0; i < len; i += 2) {
-        let x = octs[i];
-        let y = octs[i + 1];
+  // Iterate over the input array two bytes (x, y) at a time
+  for (let i = 0; i < len; i += 2) {
+    let x = octs[i];
+    let y = octs[i + 1];
 
-        // Scale the oct values to the range [-1, 1]
-        x = (2 * x + 1) / 255;
-        y = (2 * y + 1) / 255;
+    // Scale the oct values to the range [-1, 1]
+    x = (2 * x + 1) / 255;
+    y = (2 * y + 1) / 255;
 
-        // Compute the z component to ensure the normal lies on the unit sphere
-        let z = 1 - Math.abs(x) - Math.abs(y);
+    // Compute the z component to ensure the normal lies on the unit sphere
+    const z = 1 - Math.abs(x) - Math.abs(y);
 
-        // If z is negative, adjust x and y to ensure the normal points in the correct direction
-        if (z < 0) {
-            x = (1 - Math.abs(y)) * (x >= 0 ? 1 : -1);
-            y = (1 - Math.abs(x)) * (y >= 0 ? 1 : -1);
-        }
-
-        // Normalize the vector (x, y, z) to have unit length
-        const length = Math.sqrt(x * x + y * y + z * z);
-        result[j] = x / length;
-        result[j + 1] = y / length;
-        result[j + 2] = z / length;
-
-        j += 3;
+    // If z is negative, adjust x and y to ensure the normal points in the correct direction
+    if (z < 0) {
+      x = (1 - Math.abs(y)) * (x >= 0 ? 1 : -1);
+      y = (1 - Math.abs(x)) * (y >= 0 ? 1 : -1);
     }
 
-    return result;
+    // Normalize the vector (x, y, z) to have unit length
+    const length = Math.sqrt(x * x + y * y + z * z);
+    result[j] = x / length;
+    result[j + 1] = y / length;
+    result[j + 2] = z / length;
+
+    j += 3;
+  }
+
+  return result;
 }
 
 
@@ -967,53 +967,53 @@ function octDecodeVec2s(octs: Int8Array<any>, result: FloatArrayParam): FloatArr
  * console.log(positionsDecompressMatrix); // The transformation matrix for decompression
  */
 export function quantizePositions3AndCreateMat4(
-    positions: FloatArrayParam,
-    aabb: FloatArrayParam,
-    positionsDecompressMatrix: FloatArrayParam
+  positions: FloatArrayParam,
+  aabb: FloatArrayParam,
+  positionsDecompressMatrix: FloatArrayParam
 ): Uint16Array<any> {
 
-    const lenPositions = positions.length;
-    const positionsCompressed = new Uint16Array(lenPositions);
+  const lenPositions = positions.length;
+  const positionsCompressed = new Uint16Array(lenPositions);
 
-    // Extract AABB coordinates for min and max boundaries
-    const [xmin, ymin, zmin, xmax, ymax, zmax] = aabb;
+  // Extract AABB coordinates for min and max boundaries
+  const [xmin, ymin, zmin, xmax, ymax, zmax] = aabb;
 
-    // Calculate the AABB dimensions for scaling
-    const xwid = xmax - xmin;
-    const ywid = ymax - ymin;
-    const zwid = zmax - zmin;
+  // Calculate the AABB dimensions for scaling
+  const xwid = xmax - xmin;
+  const ywid = ymax - ymin;
+  const zwid = zmax - zmin;
 
-    // Max range for 16-bit unsigned integers
-    const maxInt = 65525;
+  // Max range for 16-bit unsigned integers
+  const maxInt = 65525;
 
-    // Precompute multipliers to map positions into the 16-bit integer range
-    const xMultiplier = maxInt / xwid;
-    const yMultiplier = maxInt / ywid;
-    const zMultiplier = maxInt / zwid;
+  // Precompute multipliers to map positions into the 16-bit integer range
+  const xMultiplier = maxInt / xwid;
+  const yMultiplier = maxInt / ywid;
+  const zMultiplier = maxInt / zwid;
 
-    // Helper function to ensure no negative values during quantization
-    const verify = (num: number): number => Math.max(0, num);
+  // Helper function to ensure no negative values during quantization
+  const verify = (num: number): number => Math.max(0, num);
 
-    // Quantize the positions (x, y, z)
-    for (let i = 0; i < lenPositions; i += 3) {
-        positionsCompressed[i] = Math.floor(verify(positions[i] - xmin) * xMultiplier);
-        positionsCompressed[i + 1] = Math.floor(verify(positions[i + 1] - ymin) * yMultiplier);
-        positionsCompressed[i + 2] = Math.floor(verify(positions[i + 2] - zmin) * zMultiplier);
-    }
+  // Quantize the positions (x, y, z)
+  for (let i = 0; i < lenPositions; i += 3) {
+    positionsCompressed[i] = Math.floor(verify(positions[i] - xmin) * xMultiplier);
+    positionsCompressed[i + 1] = Math.floor(verify(positions[i + 1] - ymin) * yMultiplier);
+    positionsCompressed[i + 2] = Math.floor(verify(positions[i + 2] - zmin) * zMultiplier);
+  }
 
-    // Create the decomposition matrix: translation + scaling
-    const translate = new Float32Array(16);
-    identityMat4(translate);
-    translationMat4v(aabb, translate);
+  // Create the decomposition matrix: translation + scaling
+  const translate = new Float32Array(16);
+  identityMat4(translate);
+  translationMat4v(aabb, translate);
 
-    const scale = new Float32Array(16);
-    identityMat4(scale);
-    scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale);
+  const scale = new Float32Array(16);
+  identityMat4(scale);
+  scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale);
 
-    // Combine the translation and scaling into the decompress matrix
-    mulMat4(translate, scale, positionsDecompressMatrix);
+  // Combine the translation and scaling into the decompress matrix
+  mulMat4(translate, scale, positionsDecompressMatrix);
 
-    return positionsCompressed;
+  return positionsCompressed;
 }
 
 
@@ -1036,37 +1036,37 @@ export function quantizePositions3AndCreateMat4(
  * console.log(quantizedPositions);
  */
 export function quantizePositions3(positions: FloatArrayParam, aabb: FloatArrayParam): Uint16Array<any> {
-    const lenPositions = positions.length;
-    const positionsCompressed = new Uint16Array(lenPositions);
+  const lenPositions = positions.length;
+  const positionsCompressed = new Uint16Array(lenPositions);
 
-    // Extract AABB coordinates for min and max boundaries
-    const [xmin, ymin, zmin, xmax, ymax, zmax] = aabb;
+  // Extract AABB coordinates for min and max boundaries
+  const [xmin, ymin, zmin, xmax, ymax, zmax] = aabb;
 
-    // Calculate dimensions of the AABB for scaling
-    const xwid = xmax - xmin;
-    const ywid = ymax - ymin;
-    const zwid = zmax - zmin;
+  // Calculate dimensions of the AABB for scaling
+  const xwid = xmax - xmin;
+  const ywid = ymax - ymin;
+  const zwid = zmax - zmin;
 
-    // Max range of 16-bit unsigned integers
-    const maxInt = 65525;
+  // Max range of 16-bit unsigned integers
+  const maxInt = 65525;
 
-    // Precompute multipliers to map positions into 16-bit range
-    const xMultiplier = maxInt / xwid;
-    const yMultiplier = maxInt / ywid;
-    const zMultiplier = maxInt / zwid;
+  // Precompute multipliers to map positions into 16-bit range
+  const xMultiplier = maxInt / xwid;
+  const yMultiplier = maxInt / ywid;
+  const zMultiplier = maxInt / zwid;
 
-    // Helper function to ensure no negative values in quantization process
-    const verify = (num: number): number => Math.max(0, num);
+  // Helper function to ensure no negative values in quantization process
+  const verify = (num: number): number => Math.max(0, num);
 
-    // Quantize each position (x, y, z)
-    for (let i = 0; i < lenPositions; i += 3) {
-        // Quantize each component (x, y, z)
-        positionsCompressed[i] = Math.floor(verify(positions[i] - xmin) * xMultiplier);
-        positionsCompressed[i + 1] = Math.floor(verify(positions[i + 1] - ymin) * yMultiplier);
-        positionsCompressed[i + 2] = Math.floor(verify(positions[i + 2] - zmin) * zMultiplier);
-    }
+  // Quantize each position (x, y, z)
+  for (let i = 0; i < lenPositions; i += 3) {
+    // Quantize each component (x, y, z)
+    positionsCompressed[i] = Math.floor(verify(positions[i] - xmin) * xMultiplier);
+    positionsCompressed[i + 1] = Math.floor(verify(positions[i + 1] - ymin) * yMultiplier);
+    positionsCompressed[i + 2] = Math.floor(verify(positions[i + 2] - zmin) * zMultiplier);
+  }
 
-    return positionsCompressed;
+  return positionsCompressed;
 }
 
 
@@ -1092,61 +1092,61 @@ export function quantizePositions3(positions: FloatArrayParam, aabb: FloatArrayP
  * console.log(newLen, compressedNormals);
  */
 export function transformAndOctEncodeNormals(
-    worldNormalMatrix: FloatArrayParam,
-    normals: FloatArrayParam,
-    lenNormals: number,
-    compressedNormals: FloatArrayParam,
-    lenCompressedNormals: number
+  worldNormalMatrix: FloatArrayParam,
+  normals: FloatArrayParam,
+  lenNormals: number,
+  compressedNormals: FloatArrayParam,
+  lenCompressedNormals: number
 ): number {
-    // Helper function for computing the dot product of two vectors
-    const dot = (p: FloatArrayParam, createVec3: FloatArrayParam): number => {
-        return p[0] * createVec3[0] + p[1] * createVec3[1] + p[2] * createVec3[2];
-    };
+  // Helper function for computing the dot product of two vectors
+  const dot = (p: FloatArrayParam, createVec3: FloatArrayParam): number => {
+    return p[0] * createVec3[0] + p[1] * createVec3[1] + p[2] * createVec3[2];
+  };
 
-    // Local and world normal buffers for transformation
-    let localNormal = new Float32Array(3); // Local normal vector (x, y, z)
-    let worldNormal = new Float32Array(3); // Transformed world normal vector (x, y, z)
-    let best: Int8Array<any>, currentCos: number, bestCos: number, dec: FloatArrayParam;
+  // Local and world normal buffers for transformation
+  const localNormal = new Float32Array(3); // Local normal vector (x, y, z)
+  const worldNormal = new Float32Array(3); // Transformed world normal vector (x, y, z)
+  let best: Int8Array<any>, currentCos: number, bestCos: number, dec: FloatArrayParam;
 
-    for (let i = 0; i < lenNormals; i += 3) {
-        // Load normal from input array
-        localNormal[0] = normals[i];
-        localNormal[1] = normals[i + 1];
-        localNormal[2] = normals[i + 2];
+  for (let i = 0; i < lenNormals; i += 3) {
+    // Load normal from input array
+    localNormal[0] = normals[i];
+    localNormal[1] = normals[i + 1];
+    localNormal[2] = normals[i + 2];
 
-        // Transform normal into world space
-        transformVec3(worldNormalMatrix, localNormal, worldNormal);
-        normalizeVec3(worldNormal, worldNormal); // Normalize the transformed normal
+    // Transform normal into world space
+    transformVec3(worldNormalMatrix, localNormal, worldNormal);
+    normalizeVec3(worldNormal, worldNormal); // Normalize the transformed normal
 
-        bestCos = -Infinity; // Start with a very low best cosine similarity
+    bestCos = -Infinity; // Start with a very low best cosine similarity
 
-        // Test different combinations of ceil and floor for oct-encoding
-        for (const xfunc of ['floor', 'ceil']) {
-            for (const yfunc of ['floor', 'ceil']) {
-                // Encode normal using oct-encoding
-                const oct = octEncodeVec3(worldNormal, xfunc, yfunc);
-                dec = octDecodeVec2(oct);
+    // Test different combinations of ceil and floor for oct-encoding
+    for (const xfunc of ['floor', 'ceil']) {
+      for (const yfunc of ['floor', 'ceil']) {
+        // Encode normal using oct-encoding
+        const oct = octEncodeVec3(worldNormal, xfunc, yfunc);
+        dec = octDecodeVec2(oct);
 
-                // Calculate cosine similarity
-                currentCos = dot(worldNormal, dec);
+        // Calculate cosine similarity
+        currentCos = dot(worldNormal, dec);
 
-                // Keep the best encoding with the highest cosine similarity
-                if (currentCos > bestCos) {
-                    best = oct;
-                    bestCos = currentCos;
-                }
-            }
+        // Keep the best encoding with the highest cosine similarity
+        if (currentCos > bestCos) {
+          best = oct;
+          bestCos = currentCos;
         }
-
-        // Store the best compressed normal (x, y), with z unused
-        compressedNormals[lenCompressedNormals + i] = best[0];
-        compressedNormals[lenCompressedNormals + i + 1] = best[1];
-        compressedNormals[lenCompressedNormals + i + 2] = 0.0; // z is unused
+      }
     }
 
-    // Update and return the new length of the compressed normals array
-    lenCompressedNormals += lenNormals;
-    return lenCompressedNormals;
+    // Store the best compressed normal (x, y), with z unused
+    compressedNormals[lenCompressedNormals + i] = best[0];
+    compressedNormals[lenCompressedNormals + i + 1] = best[1];
+    compressedNormals[lenCompressedNormals + i + 2] = 0.0; // z is unused
+  }
+
+  // Update and return the new length of the compressed normals array
+  lenCompressedNormals += lenNormals;
+  return lenCompressedNormals;
 }
 
 
@@ -1169,29 +1169,29 @@ export function transformAndOctEncodeNormals(
  * console.log(encoded); // Int8Array with encoded vector values
  */
 export function octEncodeVec3(
-    p: FloatArrayParam,
-    xfunc: string,
-    yfunc: string
+  p: FloatArrayParam,
+  xfunc: string,
+  yfunc: string
 ): Int8Array<any> {
-    if (typeof Math[xfunc] !== 'function' || typeof Math[yfunc] !== 'function') {
-        throw new Error(`Invalid math function names: ${xfunc} or ${yfunc} are not valid functions.`);
-    }
+  if (typeof Math[xfunc] !== 'function' || typeof Math[yfunc] !== 'function') {
+    throw new Error(`Invalid math function names: ${xfunc} or ${yfunc} are not valid functions.`);
+  }
 
-    const total = Math.abs(p[0]) + Math.abs(p[1]) + Math.abs(p[2]);
-    let x = p[0] / total;
-    let y = p[1] / total;
+  const total = Math.abs(p[0]) + Math.abs(p[1]) + Math.abs(p[2]);
+  let x = p[0] / total;
+  let y = p[1] / total;
 
-    if (p[2] < 0) {
-        // Adjust coordinates based on z sign
-        x = (1 - Math.abs(y)) * Math.sign(x);
-        y = (1 - Math.abs(x)) * Math.sign(y);
-    }
+  if (p[2] < 0) {
+    // Adjust coordinates based on z sign
+    x = (1 - Math.abs(y)) * Math.sign(x);
+    y = (1 - Math.abs(x)) * Math.sign(y);
+  }
 
-    // Apply the math function (e.g., 'floor', 'ceil') and scale to 127.5
-    const encodedX = Math[xfunc](x * 127.5 + (x < 0 ? -1 : 0));
-    const encodedY = Math[yfunc](y * 127.5 + (y < 0 ? -1 : 0));
+  // Apply the math function (e.g., 'floor', 'ceil') and scale to 127.5
+  const encodedX = Math[xfunc](x * 127.5 + (x < 0 ? -1 : 0));
+  const encodedY = Math[yfunc](y * 127.5 + (y < 0 ? -1 : 0));
 
-    return new Int8Array([encodedX, encodedY]);
+  return new Int8Array([encodedX, encodedY]);
 }
 
 
@@ -1215,32 +1215,32 @@ export function octEncodeVec3(
  * console.log(encoded); // Int8Array with encoded normal values
  */
 export function octEncodeNormal(
-    array: FloatArrayParam,
-    i: number,
-    xfunc: string,
-    yfunc: string
+  array: FloatArrayParam,
+  i: number,
+  xfunc: string,
+  yfunc: string
 ): Int8Array<any> {
-    if (typeof Math[xfunc] !== 'function' || typeof Math[yfunc] !== 'function') {
-        throw new Error(`Invalid math function names: ${xfunc} or ${yfunc} are not valid functions.`);
-    }
+  if (typeof Math[xfunc] !== 'function' || typeof Math[yfunc] !== 'function') {
+    throw new Error(`Invalid math function names: ${xfunc} or ${yfunc} are not valid functions.`);
+  }
 
-    const total = Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]);
-    let x = array[i] / total;
-    let y = array[i + 1] / total;
+  const total = Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]);
+  let x = array[i] / total;
+  let y = array[i + 1] / total;
 
-    if (array[i + 2] < 0) {
-        // Adjust coordinates based on z sign
-        const tempx = (1 - Math.abs(y)) * Math.sign(x);
-        const tempy = (1 - Math.abs(x)) * Math.sign(y);
-        x = tempx;
-        y = tempy;
-    }
+  if (array[i + 2] < 0) {
+    // Adjust coordinates based on z sign
+    const tempx = (1 - Math.abs(y)) * Math.sign(x);
+    const tempy = (1 - Math.abs(x)) * Math.sign(y);
+    x = tempx;
+    y = tempy;
+  }
 
-    // Apply the math function (e.g., 'floor', 'ceil') and scale to 127.5
-    const encodedX = Math[xfunc](x * 127.5 + (x < 0 ? -1 : 0));
-    const encodedY = Math[yfunc](y * 127.5 + (y < 0 ? -1 : 0));
+  // Apply the math function (e.g., 'floor', 'ceil') and scale to 127.5
+  const encodedX = Math[xfunc](x * 127.5 + (x < 0 ? -1 : 0));
+  const encodedY = Math[yfunc](y * 127.5 + (y < 0 ? -1 : 0));
 
-    return new Int8Array([encodedX, encodedY]);
+  return new Int8Array([encodedX, encodedY]);
 }
 
 
@@ -1262,17 +1262,17 @@ export function octEncodeNormal(
  * console.log(compressed); // Uint16Array([127, 51, 204, 255, 76, 153, 25, 255])
  */
 export function compressRGBColors(colors: FloatArrayParam): Uint16Array<any> {
-    const len = colors.length;
-    const compressed = new Uint16Array(len);
+  const len = colors.length;
+  const compressed = new Uint16Array(len);
 
-    for (let i = 0; i < len; i++) {
-        if (colors[i] < 0 || colors[i] > 1) {
-            throw new Error(`Color value at index ${i} (${colors[i]}) is out of range [0, 1].`);
-        }
-        compressed[i] = Math.round(colors[i] * 255);
+  for (let i = 0; i < len; i++) {
+    if (colors[i] < 0 || colors[i] > 1) {
+      throw new Error(`Color value at index ${i} (${colors[i]}) is out of range [0, 1].`);
     }
+    compressed[i] = Math.round(colors[i] * 255);
+  }
 
-    return compressed;
+  return compressed;
 }
 
 

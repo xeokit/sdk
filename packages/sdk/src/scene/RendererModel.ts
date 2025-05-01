@@ -1,4 +1,4 @@
-import type {RendererObject} from "./RendererObject";
+import type { RendererObject } from "./RendererObject";
 
 /**
  *  Internal interface through which a {@link SceneModel | SceneModel} can load content updates
@@ -12,9 +12,9 @@ import type {RendererObject} from "./RendererObject";
  */
 export interface RendererModel {
 
-    /**
+  /**
      * Interfaces through which {@link viewer!ViewObject | ViewObjects} control the appearance of
      * their {@link SceneObject | SceneObjects} in a {@link viewer!Viewer | Viewer}.
      */
-    rendererObjects: { [key:string]: RendererObject};
+  rendererObjects: { [key:string]: RendererObject };
 }

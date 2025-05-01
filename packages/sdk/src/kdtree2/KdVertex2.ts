@@ -1,5 +1,5 @@
-import type {SceneObject} from "../scene";
-import type {FloatArrayParam, IntArrayParam} from "../math";
+import type { FloatArrayParam, IntArrayParam } from "../math";
+import type { SceneObject } from "../scene";
 
 /**
  * A vertex in a KdTree2.
@@ -7,7 +7,7 @@ import type {FloatArrayParam, IntArrayParam} from "../math";
  * See {@link kdtree2 | @xeokit/sdk/kdtree2} for usage.
  */
 export class KdVertex2 {
-    sceneObject: SceneObject;
-    worldPos: FloatArrayParam;
-    canvasPos: IntArrayParam;
+  sceneObject: SceneObject;
+  worldPos: FloatArrayParam;
+  canvasPos: IntArrayParam;
 }

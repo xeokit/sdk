@@ -1,296 +1,296 @@
 
-import {createVec2, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../matrix";
-import {View} from "../viewer";
-import {PerspectiveProjectionType} from "../constants";
+import { createVec2, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3 } from "../matrix";
+import { PerspectiveProjectionType } from "../constants";
+import { View } from "../viewer";
 
 const getCanvasPosFromEvent = function (event, canvasPos) {
-    if (!event) {
-        event = window.event;
-        canvasPos[0] = event.x;
-        canvasPos[1] = event.y;
-    } else {
-        let element = event.target;
-        let totalOffsetLeft = 0;
-        let totalOffsetTop = 0;
-        while (element.offsetParent) {
-            totalOffsetLeft += element.offsetLeft;
-            totalOffsetTop += element.offsetTop;
-            element = element.offsetParent;
-        }
-        canvasPos[0] = event.pageX - totalOffsetLeft;
-        canvasPos[1] = event.pageY - totalOffsetTop;
+  if (!event) {
+    event = window.event;
+    canvasPos[0] = event.x;
+    canvasPos[1] = event.y;
+  } else {
+    let element = event.target;
+    let totalOffsetLeft = 0;
+    let totalOffsetTop = 0;
+    while (element.offsetParent) {
+      totalOffsetLeft += element.offsetLeft;
+      totalOffsetTop += element.offsetTop;
+      element = element.offsetParent;
     }
-    return canvasPos;
+    canvasPos[0] = event.pageX - totalOffsetLeft;
+    canvasPos[1] = event.pageY - totalOffsetTop;
+  }
+  return canvasPos;
 };
 
 /**
  * @private
  */
 class TouchPanRotateAndDollyHandler {
-    #canvasTouchMoveHandler: any;
-    #canvasTouchStartHandler: any;
-    #view: View;
-    #canvasTouchEndHandler: any;
-    #tickSub: () => void;
+  #canvasTouchMoveHandler: any;
+  #canvasTouchStartHandler: any;
+  #view: View;
+  #canvasTouchEndHandler: any;
+  #tickSub: () => void;
 
-    constructor(view:View, controllers:any, configs:any, states:any, updates:any) {
+  constructor(view:View, controllers:any, configs:any, states:any, updates:any) {
 
-        this.#view = view;
+    this.#view = view;
 
-        const pickController = controllers.pickController;
-        const pivotController = controllers.pivotController;
+    const pickController = controllers.pickController;
+    const pivotController = controllers.pivotController;
 
-        const tapStartCanvasPos = createVec2();
-        const tapCanvasPos0 = createVec2();
-        const tapCanvasPos1 = createVec2();
-        const touch0Vec = createVec2();
+    const tapStartCanvasPos = createVec2();
+    const tapCanvasPos0 = createVec2();
+    const tapCanvasPos1 = createVec2();
+    const touch0Vec = createVec2();
 
-        const lastCanvasTouchPosList = [];
-        const canvas = this.#view.htmlElement;
+    const lastCanvasTouchPosList = [];
+    const canvas = this.#view.htmlElement;
 
-        let numTouches = 0;
-        let tapStartTime = -1;
-        let waitForTick = false;
+    let numTouches = 0;
+    let tapStartTime = -1;
+    let waitForTick = false;
 
-        this.#tickSub = view.viewer.onTick.sub(() => {
-            waitForTick = false;
-        });
+    this.#tickSub = view.viewer.onTick.sub(() => {
+      waitForTick = false;
+    });
 
-        let firstDragDeltaX = 0;
-        let firstDragDeltaY = 1;
-        let absorbTinyFirstDrag = false;
+    let firstDragDeltaX = 0;
+    let firstDragDeltaY = 1;
+    let absorbTinyFirstDrag = false;
 
-        canvas.addEventListener("touchstart", this.#canvasTouchStartHandler = (event) => {
+    canvas.addEventListener("touchstart", this.#canvasTouchStartHandler = (event) => {
 
-            if (!(configs.active && configs.pointerEnabled)) {
-                return;
-            }
+      if (!(configs.active && configs.pointerEnabled)) {
+        return;
+      }
 
-            event.preventDefault();
+      event.preventDefault();
 
-            const touches = event.touches;
-            const changedTouches = event.changedTouches;
+      const touches = event.touches;
+      const changedTouches = event.changedTouches;
 
-            states.touchStartTime = Date.now();
+      states.touchStartTime = Date.now();
 
-            if (touches.length === 1 && changedTouches.length === 1) {
+      if (touches.length === 1 && changedTouches.length === 1) {
 
-                tapStartTime = states.touchStartTime;
+        tapStartTime = states.touchStartTime;
 
-                getCanvasPosFromEvent(touches[0], tapStartCanvasPos);
+        getCanvasPosFromEvent(touches[0], tapStartCanvasPos);
 
-                if (configs.followPointer) {
+        if (configs.followPointer) {
 
-                    pickController.pickCursorPos = tapStartCanvasPos;
-                    pickController.schedulePickSurface = true;
-                    pickController.update();
+          pickController.pickCursorPos = tapStartCanvasPos;
+          pickController.schedulePickSurface = true;
+          pickController.update();
 
-                    if (!configs.planView) {
+          if (!configs.planView) {
 
-                        if (pickController.picked && pickController.pickedSurface && pickController.pickResult && pickController.pickResult.worldPos) {
+            if (pickController.picked && pickController.pickedSurface && pickController.pickResult && pickController.pickResult.worldPos) {
 
-                            pivotController.setPivotPos(pickController.pickResult.worldPos);
+              pivotController.setPivotPos(pickController.pickResult.worldPos);
 
-                            if (!configs.firstPerson && pivotController.startPivot()) {
-                                pivotController.showPivot();
-                            }
-
-                        } else {
-
-                            if (configs.smartPivot) {
-                                pivotController.setCanvasPivotPos(states.pointerCanvasPos);
-                            } else {
-                                pivotController.setPivotPos(view.camera.look);
-                            }
-
-                            if (!configs.firstPerson && pivotController.startPivot()) {
-                                pivotController.showPivot();
-                            }
-                        }
-                    }
-                }
+              if (!configs.firstPerson && pivotController.startPivot()) {
+                pivotController.showPivot();
+              }
 
             } else {
-                tapStartTime = -1;
+
+              if (configs.smartPivot) {
+                pivotController.setCanvasPivotPos(states.pointerCanvasPos);
+              } else {
+                pivotController.setPivotPos(view.camera.look);
+              }
+
+              if (!configs.firstPerson && pivotController.startPivot()) {
+                pivotController.showPivot();
+              }
             }
+          }
+        }
 
-            while (lastCanvasTouchPosList.length < touches.length) {
-                lastCanvasTouchPosList.push(createVec2());
-            }
+      } else {
+        tapStartTime = -1;
+      }
 
-            for (let i = 0, len = touches.length; i < len; ++i) {
-                getCanvasPosFromEvent(touches[i], lastCanvasTouchPosList[i]);
-            }
+      while (lastCanvasTouchPosList.length < touches.length) {
+        lastCanvasTouchPosList.push(createVec2());
+      }
 
-            numTouches = touches.length;
-        });
+      for (let i = 0, len = touches.length; i < len; ++i) {
+        getCanvasPosFromEvent(touches[i], lastCanvasTouchPosList[i]);
+      }
 
-        canvas.addEventListener("touchend", this.#canvasTouchEndHandler = () => {
-            if (pivotController.getPivoting()) {
-                pivotController.endPivot()
-            }
-            firstDragDeltaX = 0;
-            firstDragDeltaY = 0;
-            absorbTinyFirstDrag = true;
-        })
+      numTouches = touches.length;
+    });
 
-        canvas.addEventListener("touchmove", this.#canvasTouchMoveHandler = (event) => {
+    canvas.addEventListener("touchend", this.#canvasTouchEndHandler = () => {
+      if (pivotController.getPivoting()) {
+        pivotController.endPivot()
+      }
+      firstDragDeltaX = 0;
+      firstDragDeltaY = 0;
+      absorbTinyFirstDrag = true;
+    })
 
-            if (!(configs.active && configs.pointerEnabled)) {
-                return;
-            }
+    canvas.addEventListener("touchmove", this.#canvasTouchMoveHandler = (event) => {
 
-            event.stopPropagation();
-            event.preventDefault();
+      if (!(configs.active && configs.pointerEnabled)) {
+        return;
+      }
 
-            if (waitForTick) {
-                // Limit changes detection to one per frame
-                return;
-            }
+      event.stopPropagation();
+      event.preventDefault();
 
-            waitForTick = true;
+      if (waitForTick) {
+        // Limit changes detection to one per frame
+        return;
+      }
 
-            // Scaling drag-rotate to canvas boundary
+      waitForTick = true;
 
-            const canvasBoundary = view.boundary;
-            const canvasWidth = canvasBoundary[2];
-            const canvasHeight = canvasBoundary[3];
+      // Scaling drag-rotate to canvas boundary
 
-            const touches = event.touches;
+      const canvasBoundary = view.boundary;
+      const canvasWidth = canvasBoundary[2];
+      const canvasHeight = canvasBoundary[3];
 
-            if (event.touches.length !== numTouches) {
-                // Two fingers were pressed, then one of them is removed
-                // We don't want to rotate in this case (weird behavior)
-                return;
-            }
+      const touches = event.touches;
 
-            if (numTouches === 1) {
+      if (event.touches.length !== numTouches) {
+        // Two fingers were pressed, then one of them is removed
+        // We don't want to rotate in this case (weird behavior)
+        return;
+      }
 
-                getCanvasPosFromEvent(touches[0], tapCanvasPos0);
+      if (numTouches === 1) {
 
-                //-----------------------------------------------------------------------------------------------
-                // Drag rotation
-                //-----------------------------------------------------------------------------------------------
+        getCanvasPosFromEvent(touches[0], tapCanvasPos0);
 
-                subVec2(tapCanvasPos0, lastCanvasTouchPosList[0], touch0Vec);
+        //-----------------------------------------------------------------------------------------------
+        // Drag rotation
+        //-----------------------------------------------------------------------------------------------
 
-                const xPanDelta = touch0Vec[0];
-                const yPanDelta = touch0Vec[1];
+        subVec2(tapCanvasPos0, lastCanvasTouchPosList[0], touch0Vec);
 
-                if (states.longTouchTimeout !== null && (Math.abs(xPanDelta) > configs.longTapRadius || Math.abs(yPanDelta) > configs.longTapRadius)) {
-                    clearTimeout(states.longTouchTimeout);
-                    states.longTouchTimeout = null;
-                }
+        const xPanDelta = touch0Vec[0];
+        const yPanDelta = touch0Vec[1];
 
-                if (configs.planView) { // No rotating in plan-view mode
+        if (states.longTouchTimeout !== null && (Math.abs(xPanDelta) > configs.longTapRadius || Math.abs(yPanDelta) > configs.longTapRadius)) {
+          clearTimeout(states.longTouchTimeout);
+          states.longTouchTimeout = null;
+        }
 
-                    const camera = view.camera;
+        if (configs.planView) { // No rotating in plan-view mode
 
-                    // We use only canvasHeight here so that aspect ratio does not distort speed
+          const camera = view.camera;
 
-                    if (camera.projectionType === PerspectiveProjectionType) {
+          // We use only canvasHeight here so that aspect ratio does not distort speed
 
-                        const touchPicked = false;
-                        const pickedWorldPos = [0, 0, 0];
+          if (camera.projectionType === PerspectiveProjectionType) {
 
-                        const depth = Math.abs(touchPicked ? lenVec3(subVec3(pickedWorldPos, view.camera.eye, [])) : view.camera.eyeLookDist);
-                        const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
+            const touchPicked = false;
+            const pickedWorldPos = [0, 0, 0];
 
-                        updates.panDeltaX += (xPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
-                        updates.panDeltaY += (yPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
+            const depth = Math.abs(touchPicked ? lenVec3(subVec3(pickedWorldPos, view.camera.eye, [])) : view.camera.eyeLookDist);
+            const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
 
-                    } else {
+            updates.panDeltaX += (xPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
+            updates.panDeltaY += (yPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
 
-                        updates.panDeltaX += 0.5 * camera.orthoProjection.scale * (xPanDelta / canvasHeight) * configs.touchPanRate;
-                        updates.panDeltaY += 0.5 * camera.orthoProjection.scale * (yPanDelta / canvasHeight) * configs.touchPanRate;
-                    }
+          } else {
 
-                } else {
-                  //  if (!absorbTinyFirstDrag) {
-                        updates.rotateDeltaY -= (xPanDelta / canvasWidth) * (configs.dragRotationRate * 1.0); // Full horizontal rotation
-                        updates.rotateDeltaX += (yPanDelta / canvasHeight) * (configs.dragRotationRate * 1.5); // Half vertical rotation
-                    // } else {
-                    //     firstDragDeltaY -= (xPanDelta / canvasWidth) * (configs.dragRotationRate * 1.0); // Full horizontal rotation
-                    //     firstDragDeltaX += (yPanDelta / canvasHeight) * (configs.dragRotationRate * 1.5); // Half vertical rotation
-                    //     if (Math.abs(firstDragDeltaX) > 5 || Math.abs(firstDragDeltaY) > 5) {
-                    //         updates.rotateDeltaX += firstDragDeltaX;
-                    //         updates.rotateDeltaY += firstDragDeltaY;
-                    //         firstDragDeltaX = 0;
-                    //         firstDragDeltaY = 0;
-                    //         absorbTinyFirstDrag = false;
-                    //     }
-                    // }
-                }
+            updates.panDeltaX += 0.5 * camera.orthoProjection.scale * (xPanDelta / canvasHeight) * configs.touchPanRate;
+            updates.panDeltaY += 0.5 * camera.orthoProjection.scale * (yPanDelta / canvasHeight) * configs.touchPanRate;
+          }
 
-            } else if (numTouches === 2) {
+        } else {
+          //  if (!absorbTinyFirstDrag) {
+          updates.rotateDeltaY -= (xPanDelta / canvasWidth) * (configs.dragRotationRate * 1.0); // Full horizontal rotation
+          updates.rotateDeltaX += (yPanDelta / canvasHeight) * (configs.dragRotationRate * 1.5); // Half vertical rotation
+          // } else {
+          //     firstDragDeltaY -= (xPanDelta / canvasWidth) * (configs.dragRotationRate * 1.0); // Full horizontal rotation
+          //     firstDragDeltaX += (yPanDelta / canvasHeight) * (configs.dragRotationRate * 1.5); // Half vertical rotation
+          //     if (Math.abs(firstDragDeltaX) > 5 || Math.abs(firstDragDeltaY) > 5) {
+          //         updates.rotateDeltaX += firstDragDeltaX;
+          //         updates.rotateDeltaY += firstDragDeltaY;
+          //         firstDragDeltaX = 0;
+          //         firstDragDeltaY = 0;
+          //         absorbTinyFirstDrag = false;
+          //     }
+          // }
+        }
 
-                const touch0 = touches[0];
-                const touch1 = touches[1];
+      } else if (numTouches === 2) {
 
-                getCanvasPosFromEvent(touch0, tapCanvasPos0);
-                getCanvasPosFromEvent(touch1, tapCanvasPos1);
+        const touch0 = touches[0];
+        const touch1 = touches[1];
 
-                const lastMiddleTouch = geometricMeanVec2(lastCanvasTouchPosList[0], lastCanvasTouchPosList[1]);
-                const currentMiddleTouch = geometricMeanVec2(tapCanvasPos0, tapCanvasPos1);
+        getCanvasPosFromEvent(touch0, tapCanvasPos0);
+        getCanvasPosFromEvent(touch1, tapCanvasPos1);
 
-                const touchDelta = createVec2();
+        const lastMiddleTouch = geometricMeanVec2(lastCanvasTouchPosList[0], lastCanvasTouchPosList[1]);
+        const currentMiddleTouch = geometricMeanVec2(tapCanvasPos0, tapCanvasPos1);
 
-                subVec2(lastMiddleTouch, currentMiddleTouch, touchDelta);
+        const touchDelta = createVec2();
 
-                const xPanDelta = touchDelta[0];
-                const yPanDelta = touchDelta[1];
+        subVec2(lastMiddleTouch, currentMiddleTouch, touchDelta);
 
-                const camera = view.camera;
+        const xPanDelta = touchDelta[0];
+        const yPanDelta = touchDelta[1];
 
-                // Dollying
+        const camera = view.camera;
 
-                const d1 = distVec2([touch0.pageX, touch0.pageY], [touch1.pageX, touch1.pageY]);
-                const d2 = distVec2(lastCanvasTouchPosList[0], lastCanvasTouchPosList[1]);
+        // Dollying
 
-                const dollyDelta = (d2 - d1) * configs.touchDollyRate;
+        const d1 = distVec2([touch0.pageX, touch0.pageY], [touch1.pageX, touch1.pageY]);
+        const d2 = distVec2(lastCanvasTouchPosList[0], lastCanvasTouchPosList[1]);
 
-                updates.dollyDelta = dollyDelta;
+        const dollyDelta = (d2 - d1) * configs.touchDollyRate;
 
-                if (Math.abs(dollyDelta) < 1.0) {
+        updates.dollyDelta = dollyDelta;
 
-                    // We use only canvasHeight here so that aspect ratio does not distort speed
+        if (Math.abs(dollyDelta) < 1.0) {
 
-                    if (camera.projectionType === PerspectiveProjectionType) {
-                        const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : view.viewer.scene.center;
+          // We use only canvasHeight here so that aspect ratio does not distort speed
 
-                        const depth = Math.abs(lenVec3(subVec3(pickedWorldPos, view.camera.eye, [])));
-                        const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
+          if (camera.projectionType === PerspectiveProjectionType) {
+            const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : view.viewer.scene.center;
 
-                        updates.panDeltaX -= (xPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
-                        updates.panDeltaY -= (yPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
+            const depth = Math.abs(lenVec3(subVec3(pickedWorldPos, view.camera.eye, [])));
+            const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
 
-                    } else {
+            updates.panDeltaX -= (xPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
+            updates.panDeltaY -= (yPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
 
-                        updates.panDeltaX -= 0.5 * camera.orthoProjection.scale * (xPanDelta / canvasHeight) * configs.touchPanRate;
-                        updates.panDeltaY -= 0.5 * camera.orthoProjection.scale * (yPanDelta / canvasHeight) * configs.touchPanRate;
-                    }
-                }
+          } else {
+
+            updates.panDeltaX -= 0.5 * camera.orthoProjection.scale * (xPanDelta / canvasHeight) * configs.touchPanRate;
+            updates.panDeltaY -= 0.5 * camera.orthoProjection.scale * (yPanDelta / canvasHeight) * configs.touchPanRate;
+          }
+        }
 
 
-                states.pointerCanvasPos = currentMiddleTouch;
-            }
+        states.pointerCanvasPos = currentMiddleTouch;
+      }
 
-            for (let i = 0; i < numTouches; ++i) {
-                getCanvasPosFromEvent(touches[i], lastCanvasTouchPosList[i]);
-            }
-        });
-    }
+      for (let i = 0; i < numTouches; ++i) {
+        getCanvasPosFromEvent(touches[i], lastCanvasTouchPosList[i]);
+      }
+    });
+  }
 
-    reset() {
-    }
+  reset() {
+  }
 
-    destroy() {
-        const canvas = this.#view.htmlElement;
-        canvas.removeEventListener("touchstart", this.#canvasTouchStartHandler);
-        canvas.removeEventListener("touchend", this.#canvasTouchEndHandler);
-        canvas.removeEventListener("touchmove", this.#canvasTouchMoveHandler);
-        this.#view.viewer.onTick.unsub(this.#tickSub);
-    }
+  destroy() {
+    const canvas = this.#view.htmlElement;
+    canvas.removeEventListener("touchstart", this.#canvasTouchStartHandler);
+    canvas.removeEventListener("touchend", this.#canvasTouchEndHandler);
+    canvas.removeEventListener("touchmove", this.#canvasTouchMoveHandler);
+    this.#view.viewer.onTick.unsub(this.#tickSub);
+  }
 }
 
-export {TouchPanRotateAndDollyHandler};
+export { TouchPanRotateAndDollyHandler };

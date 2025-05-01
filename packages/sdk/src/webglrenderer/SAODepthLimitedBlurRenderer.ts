@@ -1,7 +1,7 @@
-import {RenderContext} from "./RenderContext";
-import {WebGLArrayBuf, WebGLAttribute, WebGLProgram, WebGLRenderBuffer} from "../webglutils";
-import {PerspectiveProjectionType} from "../constants";
-import {View} from "../viewer";
+import { WebGLArrayBuf, WebGLAttribute, WebGLProgram, WebGLRenderBuffer } from "../webglutils";
+import { PerspectiveProjectionType } from "../constants";
+import { RenderContext } from "./RenderContext";
+import { View } from "../viewer";
 
 const blurStdDev = 4;
 const blurDepthCutoff = 0.01;
@@ -19,66 +19,66 @@ const tempVec2a = new Float32Array(2);
  */
 export class SAODepthLimitedBlurRenderer {
 
-    #renderContext: RenderContext;
-    #program: WebGLProgram;
-    #programError: boolean;
-    #aPosition: WebGLAttribute;
-    #aUV: WebGLAttribute;
-    #uDepthTexture: string;
-    #uOcclusionTexture: string;
-    #uViewport: WebGLUniformLocation;
-    #uCameraNear: WebGLUniformLocation;
-    #uCameraFar: WebGLUniformLocation;
-    #uCameraProjectionMatrix: WebGLUniformLocation;
-    #uCameraInverseProjectionMatrix: WebGLUniformLocation;
-    #uvBuf: WebGLArrayBuf;
-    #positionsBuf: WebGLArrayBuf;
-    #indicesBuf: WebGLArrayBuf;
-    #uDepthCutoff: WebGLUniformLocation;
-    #uSampleOffsets: WebGLUniformLocation;
-    #uSampleWeights: WebGLUniformLocation;
+  #renderContext: RenderContext;
+  #program: WebGLProgram;
+  #programError: boolean;
+  #aPosition: WebGLAttribute;
+  #aUV: WebGLAttribute;
+  #uDepthTexture: string;
+  #uOcclusionTexture: string;
+  #uViewport: WebGLUniformLocation;
+  #uCameraNear: WebGLUniformLocation;
+  #uCameraFar: WebGLUniformLocation;
+  #uCameraProjectionMatrix: WebGLUniformLocation;
+  #uCameraInverseProjectionMatrix: WebGLUniformLocation;
+  #uvBuf: WebGLArrayBuf;
+  #positionsBuf: WebGLArrayBuf;
+  #indicesBuf: WebGLArrayBuf;
+  #uDepthCutoff: WebGLUniformLocation;
+  #uSampleOffsets: WebGLUniformLocation;
+  #uSampleWeights: WebGLUniformLocation;
 
-    constructor(params: {
-        renderContext: RenderContext
-    }) {
+  constructor(params: {
+    renderContext: RenderContext
+  }) {
 
-        this.#renderContext = params.renderContext;
+    this.#renderContext = params.renderContext;
 
-        // The program
+    // The program
 
-        this.#program = null;
-        this.#programError = false;
+    this.#program = null;
+    this.#programError = false;
 
-        // Variable locations
+    // Variable locations
 
-        this.#aPosition = null;
-        this.#aUV = null;
+    this.#aPosition = null;
+    this.#aUV = null;
 
-        this.#uDepthTexture = "uDepthTexture";
-        this.#uOcclusionTexture = "uOcclusionTexture";
+    this.#uDepthTexture = "uDepthTexture";
+    this.#uOcclusionTexture = "uOcclusionTexture";
 
-        this.#uViewport = null;
-        this.#uCameraNear = null;
-        this.#uCameraFar = null;
-        this.#uCameraProjectionMatrix = null;
-        this.#uCameraInverseProjectionMatrix = null;
+    this.#uViewport = null;
+    this.#uCameraNear = null;
+    this.#uCameraFar = null;
+    this.#uCameraProjectionMatrix = null;
+    this.#uCameraInverseProjectionMatrix = null;
 
-        // VBOs
+    // VBOs
 
-        this.#uvBuf = null;
-        this.#positionsBuf = null;
-        this.#indicesBuf = null;
+    this.#uvBuf = null;
+    this.#positionsBuf = null;
+    this.#indicesBuf = null;
 
-        this.init();
-    }
+    this.init();
+  }
 
-    init() {
+  init() {
 
-        const gl = this.#renderContext.gl;
+    const gl = this.#renderContext.gl;
 
-        this.#program = new WebGLProgram(gl, {
+    this.#program = new WebGLProgram(gl, {
 
-            vertex: `#version 300 es
+      vertex: `#version 300 es
                 precision highp float;
                 precision highp int;
 
@@ -93,7 +93,7 @@ export class SAODepthLimitedBlurRenderer {
                     gl_Position = vec4(aPosition, 1.0);
                 }`,
 
-            fragment:
+      fragment:
                 `#version 300 es
                 precision highp float;
                 precision highp int;
@@ -208,125 +208,125 @@ export class SAODepthLimitedBlurRenderer {
 
                     outColor = packFloatToRGBA(occlusionSum / weightSum);
                 }`
-        });
+    });
 
-        if (this.#program.errors) {
-            console.error(this.#program.errors.join("\n"));
-            this.#programError = true;
-            return;
-        }
-
-        const uv = new Float32Array([1, 1, 0, 1, 0, 0, 1, 0]);
-        const positions = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
-
-        // Mitigation: if Uint8Array is used, the geometry is corrupted on OSX when using Chrome with data-textures
-        const indices = new Uint32Array([0, 1, 2, 0, 2, 3]);
-
-        this.#positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
-        this.#uvBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
-        this.#indicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
-
-        this.#program.bind();
-
-        this.#uViewport = this.#program.getLocation("uViewport");
-
-        this.#uCameraNear = this.#program.getLocation("uCameraNear");
-        this.#uCameraFar = this.#program.getLocation("uCameraFar");
-
-        this.#uDepthCutoff = this.#program.getLocation("uDepthCutoff");
-
-        this.#uSampleOffsets = gl.getUniformLocation(this.#program.handle, "uSampleOffsets");
-        this.#uSampleWeights = gl.getUniformLocation(this.#program.handle, "uSampleWeights");
-
-        this.#aPosition = this.#program.getAttribute("aPosition");
-        this.#aUV = this.#program.getAttribute("aUV");
+    if (this.#program.errors) {
+      console.error(this.#program.errors.join("\n"));
+      this.#programError = true;
+      return;
     }
 
-    render(params : {
-        view: View,
-        depthRenderBuffer: WebGLRenderBuffer,
-        occlusionRenderBuffer: WebGLRenderBuffer,
-        direction: number
-    }) {
+    const uv = new Float32Array([1, 1, 0, 1, 0, 0, 1, 0]);
+    const positions = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
 
-        if (this.#programError) {
-            return;
-        }
+    // Mitigation: if Uint8Array is used, the geometry is corrupted on OSX when using Chrome with data-textures
+    const indices = new Uint32Array([0, 1, 2, 0, 2, 3]);
 
-        const {view, depthRenderBuffer, occlusionRenderBuffer, direction} = params;
-        const gl = this.#renderContext.gl;
-        const program = this.#program;
-        const viewportWidth = gl.drawingBufferWidth;
-        const viewportHeight = gl.drawingBufferHeight;
-        const projection = view.camera.projectionType === PerspectiveProjectionType
-            ? view.camera.perspectiveProjection
-            : view.camera.orthoProjection;
-        const near = projection.near;
-        const far = projection.far;
+    this.#positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, positions, positions.length, 3, gl.STATIC_DRAW);
+    this.#uvBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, uv, uv.length, 2, gl.STATIC_DRAW);
+    this.#indicesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, indices, indices.length, 1, gl.STATIC_DRAW);
 
-        gl.viewport(0, 0, viewportWidth, viewportHeight);
-        gl.clearColor(0, 0, 0, 1);
-        gl.enable(gl.DEPTH_TEST);
-        gl.disable(gl.BLEND);
-        gl.frontFace(gl.CCW);
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    this.#program.bind();
 
-        program.bind();
+    this.#uViewport = this.#program.getLocation("uViewport");
 
-        tempVec2a[0] = viewportWidth;
-        tempVec2a[1] = viewportHeight;
+    this.#uCameraNear = this.#program.getLocation("uCameraNear");
+    this.#uCameraFar = this.#program.getLocation("uCameraFar");
 
-        gl.uniform2fv(this.#uViewport, tempVec2a);
-        gl.uniform1f(this.#uCameraNear, near);
-        gl.uniform1f(this.#uCameraFar, far);
+    this.#uDepthCutoff = this.#program.getLocation("uDepthCutoff");
 
-        gl.uniform1f(this.#uDepthCutoff, blurDepthCutoff);
+    this.#uSampleOffsets = gl.getUniformLocation(this.#program.handle, "uSampleOffsets");
+    this.#uSampleWeights = gl.getUniformLocation(this.#program.handle, "uSampleWeights");
 
-        if (direction === 0) {// Horizontal
-            gl.uniform2fv(this.#uSampleOffsets, sampleOffsetsHor);
-        } else { // Vertical
-            gl.uniform2fv(this.#uSampleOffsets, sampleOffsetsVert);
-        }
+    this.#aPosition = this.#program.getAttribute("aPosition");
+    this.#aUV = this.#program.getAttribute("aUV");
+  }
 
-        gl.uniform1fv(this.#uSampleWeights, sampleWeights);
+  render(params : {
+    view: View,
+    depthRenderBuffer: WebGLRenderBuffer,
+    occlusionRenderBuffer: WebGLRenderBuffer,
+    direction: number
+  }) {
 
-        const depthTexture = depthRenderBuffer.getDepthTexture();
-        const saoOcclusionTexture = occlusionRenderBuffer.getTexture();
-
-        program.bindTexture(this.#uDepthTexture, depthTexture, 0); // TODO: use FrameCtx.textureUnit
-        program.bindTexture(this.#uOcclusionTexture, saoOcclusionTexture, 1);
-
-        this.#aUV.bindArrayBuffer(this.#uvBuf);
-        this.#aPosition.bindArrayBuffer(this.#positionsBuf);
-        this.#indicesBuf.bind();
-
-        gl.drawElements(gl.TRIANGLES, this.#indicesBuf.numItems, this.#indicesBuf.itemType, 0);
+    if (this.#programError) {
+      return;
     }
 
-    destroy() {
-        this.#program.destroy();
+    const { view, depthRenderBuffer, occlusionRenderBuffer, direction } = params;
+    const gl = this.#renderContext.gl;
+    const program = this.#program;
+    const viewportWidth = gl.drawingBufferWidth;
+    const viewportHeight = gl.drawingBufferHeight;
+    const projection = view.camera.projectionType === PerspectiveProjectionType
+      ? view.camera.perspectiveProjection
+      : view.camera.orthoProjection;
+    const near = projection.near;
+    const far = projection.far;
+
+    gl.viewport(0, 0, viewportWidth, viewportHeight);
+    gl.clearColor(0, 0, 0, 1);
+    gl.enable(gl.DEPTH_TEST);
+    gl.disable(gl.BLEND);
+    gl.frontFace(gl.CCW);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    program.bind();
+
+    tempVec2a[0] = viewportWidth;
+    tempVec2a[1] = viewportHeight;
+
+    gl.uniform2fv(this.#uViewport, tempVec2a);
+    gl.uniform1f(this.#uCameraNear, near);
+    gl.uniform1f(this.#uCameraFar, far);
+
+    gl.uniform1f(this.#uDepthCutoff, blurDepthCutoff);
+
+    if (direction === 0) {// Horizontal
+      gl.uniform2fv(this.#uSampleOffsets, sampleOffsetsHor);
+    } else { // Vertical
+      gl.uniform2fv(this.#uSampleOffsets, sampleOffsetsVert);
     }
+
+    gl.uniform1fv(this.#uSampleWeights, sampleWeights);
+
+    const depthTexture = depthRenderBuffer.getDepthTexture();
+    const saoOcclusionTexture = occlusionRenderBuffer.getTexture();
+
+    program.bindTexture(this.#uDepthTexture, depthTexture, 0); // TODO: use FrameCtx.textureUnit
+    program.bindTexture(this.#uOcclusionTexture, saoOcclusionTexture, 1);
+
+    this.#aUV.bindArrayBuffer(this.#uvBuf);
+    this.#aPosition.bindArrayBuffer(this.#positionsBuf);
+    this.#indicesBuf.bind();
+
+    gl.drawElements(gl.TRIANGLES, this.#indicesBuf.numItems, this.#indicesBuf.itemType, 0);
+  }
+
+  destroy() {
+    this.#program.destroy();
+  }
 }
 
 function createSampleWeights(kernelRadius: number, stdDev: number) {
-    const weights = [];
-    for (let i = 0; i <= kernelRadius; i++) {
-        weights.push(gaussian(i, stdDev));
-    }
-    return weights; // TODO: Optimize
+  const weights = [];
+  for (let i = 0; i <= kernelRadius; i++) {
+    weights.push(gaussian(i, stdDev));
+  }
+  return weights; // TODO: Optimize
 }
 
 function gaussian(x, stdDev) {
-    return Math.exp(-(x * x) / (2.0 * (stdDev * stdDev))) / (Math.sqrt(2.0 * Math.PI) * stdDev);
+  return Math.exp(-(x * x) / (2.0 * (stdDev * stdDev))) / (Math.sqrt(2.0 * Math.PI) * stdDev);
 }
 
 function createSampleOffsets(kernelRadius: number, uvIncrement: number[]) {
-    const offsets = [];
-    for (let i = 0; i <= kernelRadius; i++) {
-        offsets.push(uvIncrement[0] * i);
-        offsets.push(uvIncrement[1] * i);
-    }
-    return offsets;
+  const offsets = [];
+  for (let i = 0; i <= kernelRadius; i++) {
+    offsets.push(uvIncrement[0] * i);
+    offsets.push(uvIncrement[1] * i);
+  }
+  return offsets;
 }
 
 

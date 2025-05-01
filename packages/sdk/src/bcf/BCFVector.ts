@@ -3,18 +3,18 @@
  */
 export interface BCFVector {
 
-    /**
+  /**
      * BCF vector X component.
      */
-    x: number,
+  x: number,
 
-    /**
+  /**
      * BCF vector Y component.
      */
-    y: number,
+  y: number,
 
-    /**
+  /**
      * BCF vector Z component.
      */
-    z: number
+  z: number
 }

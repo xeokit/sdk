@@ -57,9 +57,9 @@ import { FloatArrayParam, IntArrayParam } from "../math";
  * @property {IntArrayParam} [indices] The optional array of indices used to define the connectivity of the vertices for the geometry's faces.
  */
 export type GeometryArrays = {
-    primitive: number,           // The primitive type for the geometry (e.g., LinesPrimitive, TrianglesPrimitive)
-    positions: FloatArrayParam,  // The 3D positions of the vertices
-    normals?: FloatArrayParam,   // Optional normals for lighting calculations
-    uv?: FloatArrayParam,       // Optional UVs for texture mapping
-    indices?: IntArrayParam     // Optional indices to define the geometry faces
+  primitive: number,           // The primitive type for the geometry (e.g., LinesPrimitive, TrianglesPrimitive)
+  positions: FloatArrayParam,  // The 3D positions of the vertices
+  normals?: FloatArrayParam,   // Optional normals for lighting calculations
+  uv?: FloatArrayParam,       // Optional UVs for texture mapping
+  indices?: IntArrayParam     // Optional indices to define the geometry faces
 };

@@ -3,38 +3,38 @@
  */
 export interface XeoConvertManifestReportFile {
 
-    /**
+  /**
      *
      */
-    filePath: string;
+  filePath: string;
 
-    /**
+  /**
      *
      */
-    fileFormat: string;
+  fileFormat: string;
 
-    /**
+  /**
      *
      */
-    fileFormatVersion: string,
+  fileFormatVersion: string,
 
-    /**
+  /**
      *
      */
-    fileDataSizeBytes: number;
+  fileDataSizeBytes: number;
 
-    /**
+  /**
      *
      */
-    fileDataType: string;
+  fileDataType: string;
 
-    /**
+  /**
      *
      */
-    options: { [key: string]: any };
+  options: { [key: string]: any };
 
-    /**
+  /**
      *
      */
-    aabb: number[];
+  aabb: number[];
 }

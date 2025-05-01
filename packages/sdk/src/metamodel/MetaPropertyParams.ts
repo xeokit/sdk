@@ -3,43 +3,43 @@
  */
 export interface MetaPropertyParams {
 
-    /**
+  /**
      * The name of the property.
      *
      * @property name
      * @type {String}
      */
-    name: string;
+  name: string;
 
-    /**
+  /**
      * The type of the property.
      *
      * @property type
      * @type {Number|String}
      */
-    type: string;
+  type: string;
 
-    /**
+  /**
      * The value of the property.
      *
      * @property value
      * @type {*}
      */
-    value: string;
+  value: string;
 
-    /**
+  /**
      * The type of the property's value.
      *
      * @property valueType
      * @type {Number|String}
      */
-    valueType: string;
+  valueType: string;
 
-    /**
+  /**
      * Informative text to explain the property.
      *
      * @property name
      * @type {String}
      */
-    description: string;
+  description: string;
 }

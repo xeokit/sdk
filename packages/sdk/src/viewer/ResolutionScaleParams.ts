@@ -7,17 +7,17 @@
  */
 export interface ResolutionScaleParams {
 
-    /**
+  /**
      * Which rendering modes in which to apply the {@link ResolutionScale}.
      *
      * Default value is [{@link constants!FastRender | FastRender}].
      */
-    renderModes?: number[];
+  renderModes?: number[];
 
-    /**
+  /**
      *The scale when {@link ResolutionScale} is applied.
      *
      * Default is ````1.0```` for no scaling.
      */
-    resolutionScale?: number;
+  resolutionScale?: number;
 }

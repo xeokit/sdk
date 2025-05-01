@@ -7,32 +7,32 @@
  */
 export interface PropertyParams {
 
-    /**
+  /**
      * The name of the {@link Property | Property}.
      */
-    name: string;
+  name: string;
 
-    /**
+  /**
      * The value of the {@link Property | Property}.
      * This can be any type of data depending on the property.
      */
-    value: any;
+  value: any;
 
-    /**
+  /**
      * The type of the {@link Property | Property}.
      * This could specify the general data type, such as `string`, `number`, etc.
      */
-    type?: string;
+  type?: string;
 
-    /**
+  /**
      * The type of the {@link Property | Property}'s value.
      * This specifies the value's data type, which can be different from the property's type.
      */
-    valueType?: string | number;
+  valueType?: string | number;
 
-    /**
+  /**
      * A description of the {@link Property | Property}.
      * This is typically used for providing additional context or clarification about the property.
      */
-    description?: string;
+  description?: string;
 }

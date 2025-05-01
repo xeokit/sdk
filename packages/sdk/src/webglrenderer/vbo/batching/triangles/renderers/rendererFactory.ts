@@ -1,13 +1,13 @@
-import {WebGLRenderer} from "../../../../WebGLRenderer";
-import {RendererSetFactory, VBORendererSet} from "../../../VBORendererSet";
-import {VBOTrianglesBatchingDrawColorRenderer} from "./VBOTrianglesBatchingDrawColorRenderer";
-import {VBORenderer} from "../../../VBORenderer";
-import {VBOTrianglesBatchingPickMeshRenderer} from "./VBOTrianglesBatchingPickMeshRenderer";
-import {VBOTrianglesBatchingSilhouetteRenderer} from "./VBOTrianglesBatchingSilhouetteRenderer";
-import {VBOTrianglesBatchingEdgesDrawRenderer} from "./VBOTrianglesBatchingEdgesDrawRenderer";
-import {VBOTrianglesBatchingEdgesSilhouetteRenderer} from "./VBOTrianglesBatchingEdgesSilhouetteRenderer";
-import {VBOTrianglesBatchingDrawDepthRenderer} from "./VBOTrianglesBatchingDrawDepthRenderer";
-import {VBOTrianglesBatchingDrawColorSAORenderer} from "./VBOTrianglesBatchingDrawColorSAORenderer";
+import { RendererSetFactory, VBORendererSet } from "../../../VBORendererSet";
+import { VBORenderer } from "../../../VBORenderer";
+import { VBOTrianglesBatchingDrawColorRenderer } from "./VBOTrianglesBatchingDrawColorRenderer";
+import { VBOTrianglesBatchingDrawColorSAORenderer } from "./VBOTrianglesBatchingDrawColorSAORenderer";
+import { VBOTrianglesBatchingDrawDepthRenderer } from "./VBOTrianglesBatchingDrawDepthRenderer";
+import { VBOTrianglesBatchingEdgesDrawRenderer } from "./VBOTrianglesBatchingEdgesDrawRenderer";
+import { VBOTrianglesBatchingEdgesSilhouetteRenderer } from "./VBOTrianglesBatchingEdgesSilhouetteRenderer";
+import { VBOTrianglesBatchingPickMeshRenderer } from "./VBOTrianglesBatchingPickMeshRenderer";
+import { VBOTrianglesBatchingSilhouetteRenderer } from "./VBOTrianglesBatchingSilhouetteRenderer";
+import { WebGLRenderer } from "../../../../WebGLRenderer";
 
 
 /**
@@ -15,38 +15,38 @@ import {VBOTrianglesBatchingDrawColorSAORenderer} from "./VBOTrianglesBatchingDr
  */
 class RendererFactory extends VBORendererSet {
 
-    createDrawColorRenderer(): VBORenderer {
-        return new VBOTrianglesBatchingDrawColorRenderer(this.renderContext);
-    }
+  createDrawColorRenderer(): VBORenderer {
+    return new VBOTrianglesBatchingDrawColorRenderer(this.renderContext);
+  }
 
-    createDrawColorSAORenderer(): VBORenderer {
-        return new VBOTrianglesBatchingDrawColorSAORenderer(this.renderContext);
-    }
+  createDrawColorSAORenderer(): VBORenderer {
+    return new VBOTrianglesBatchingDrawColorSAORenderer(this.renderContext);
+  }
 
-    createDrawDepthRenderer(): VBORenderer {
-        return new VBOTrianglesBatchingDrawDepthRenderer(this.renderContext);
-    }
+  createDrawDepthRenderer(): VBORenderer {
+    return new VBOTrianglesBatchingDrawDepthRenderer(this.renderContext);
+  }
 
-    createPickMeshRenderer(): VBORenderer {
-        return new VBOTrianglesBatchingPickMeshRenderer(this.renderContext);
-    }
+  createPickMeshRenderer(): VBORenderer {
+    return new VBOTrianglesBatchingPickMeshRenderer(this.renderContext);
+  }
 
-    createSilhouetteRenderer(): VBORenderer {
-        return new VBOTrianglesBatchingSilhouetteRenderer(this.renderContext);
-    }
+  createSilhouetteRenderer(): VBORenderer {
+    return new VBOTrianglesBatchingSilhouetteRenderer(this.renderContext);
+  }
 
-    createEdgesColorRenderer(): VBORenderer {
-        return new VBOTrianglesBatchingEdgesDrawRenderer(this.renderContext);
-    }
+  createEdgesColorRenderer(): VBORenderer {
+    return new VBOTrianglesBatchingEdgesDrawRenderer(this.renderContext);
+  }
 
-    createEdgesSilhouetteRenderer(): VBORenderer {
-        return new VBOTrianglesBatchingEdgesSilhouetteRenderer(this.renderContext);
-    }
+  createEdgesSilhouetteRenderer(): VBORenderer {
+    return new VBOTrianglesBatchingEdgesSilhouetteRenderer(this.renderContext);
+  }
 }
 
 /**
  * @private
  */
 export const rendererFactory = new RendererSetFactory(((webglRenderer: WebGLRenderer): VBORendererSet => {
-    return new RendererFactory(webglRenderer);
+  return new RendererFactory(webglRenderer);
 }));

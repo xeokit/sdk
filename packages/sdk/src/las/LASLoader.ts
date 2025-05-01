@@ -1,9 +1,10 @@
 import { BasicAggregation, BasicEntity } from "../basictypes";
 import { createMat4, createVec3, transformPoint3 } from "../matrix";
-import { ModelLoader, ModelLoadParams, ModelParseParams } from "../io";
+import type { ModelLoadParams, ModelParseParams } from "../io";
+import { ModelLoader } from "../io";
 import { createUUID } from "../utils";
 import { LASLoader as glLASLoader } from '@loaders.gl/las';
-import { LASLoaderOptions } from "./LASLoaderOptions";
+import type { LASLoaderOptions } from "./LASLoaderOptions";
 import { parse } from '@loaders.gl/core';
 import { PointsPrimitive } from "../constants";
 import { SDKError } from "../core";

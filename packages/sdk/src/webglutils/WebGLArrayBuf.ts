@@ -113,12 +113,12 @@ export class WebGLArrayBuf {
         this.itemByteSize = 1;
         break;
 
-      case  Uint16Array:
+      case Uint16Array:
         this.itemType = gl.UNSIGNED_SHORT;
         this.itemByteSize = 2;
         break;
 
-      case  Int16Array:
+      case Int16Array:
         this.itemType = gl.SHORT;
         this.itemByteSize = 2;
         break;
@@ -176,10 +176,10 @@ export class WebGLArrayBuf {
     if (!this.allocated) {
       return;
     }
-    if (data.length + (offset || 0) > this.length) {            // Needs reallocation
+    if (data.length + (offset || 0) > this.length) { // Needs reallocation
       this.destroy();
       this._allocate(data);
-    } else {            // No reallocation needed
+    } else { // No reallocation needed
       this.gl.bindBuffer(this.type, this.handle);
       if (offset || offset === 0) {
         this.gl.bufferSubData(this.type, offset * this.itemByteSize, data);

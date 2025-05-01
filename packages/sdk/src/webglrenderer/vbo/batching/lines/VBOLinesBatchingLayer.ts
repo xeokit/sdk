@@ -1,6 +1,6 @@
 import { rendererFactory } from "./renderers/rendererFactory";
 import { VBOBatchingLayer } from "../VBOBatchingLayer";
-import { VBOBatchingLayerParams } from "../VBOBatchingLayerParams";
+import type { VBOBatchingLayerParams } from "../VBOBatchingLayerParams";
 
 /**
  * @private

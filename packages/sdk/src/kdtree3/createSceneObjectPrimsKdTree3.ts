@@ -1,5 +1,6 @@
 import { collapseAABB3, expandAABB3 } from "../boundaries";
-import { type GeometryView, getSceneObjectGeometry, SceneGeometry, SceneObject } from "../scene";
+import type { SceneGeometry, SceneObject } from "../scene";
+import { type GeometryView, getSceneObjectGeometry } from "../scene";
 import { LinesPrimitive, PointsPrimitive, TrianglesPrimitive } from "../constants";
 import type { FloatArrayParam } from "../math";
 import type { KdSceneObjectPrim } from "./KdSceneObjectPrim";
@@ -79,7 +80,7 @@ export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): Scen
     const sceneObject = sceneObjects[i];
     getSceneObjectGeometry(sceneObject, (geometryView: GeometryView) => {
       const sceneGeometry = geometryView.geometry;
-      const positionsWorld = geometryView.positionsWorld;  // <-- Can be expensive
+      const positionsWorld = geometryView.positionsWorld; // <-- Can be expensive
       const indices = sceneGeometry.indices;
       switch (sceneGeometry.primitive) {
         case PointsPrimitive:

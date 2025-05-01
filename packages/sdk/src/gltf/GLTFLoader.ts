@@ -15,9 +15,10 @@ import {
 import { createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v } from "../matrix";
 import { createUUID, isString } from "../utils";
 import { GLTFLoader as glGLTFLoader, postProcessGLTF } from '@loaders.gl/gltf';
-import { ModelLoader, ModelLoadParams } from "../io";
-import { SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams } from "../scene";
-import { DataModel } from "../data";
+import type { ModelLoadParams } from "../io";
+import { ModelLoader } from "../io";
+import type { SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams } from "../scene";
+import type { DataModel } from "../data";
 import type { FloatArrayParam } from "../math";
 import { parse } from '@loaders.gl/core';
 

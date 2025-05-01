@@ -1,4 +1,4 @@
-import { ModelConverterPipelineParams } from "./ModelConverterPipelineParams";
+import type { ModelConverterPipelineParams } from "./ModelConverterPipelineParams";
 
 /**
  * Configurations for a {@link ModelConverter | ModelConverter}.

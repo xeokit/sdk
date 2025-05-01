@@ -1,5 +1,5 @@
 import { composeMat4, eulerToQuat, identityMat4, identityQuat } from "../matrix";
-import { FloatArrayParam } from "../math";
+import type { FloatArrayParam } from "../math";
 
 const identityQuaternion = identityQuat();
 

@@ -1,4 +1,4 @@
-import { FloatArrayParam } from "../math";
+import type { FloatArrayParam } from "../math";
 
 /**
  * Parameters for a View's selected, highlighted and x-ray effects.

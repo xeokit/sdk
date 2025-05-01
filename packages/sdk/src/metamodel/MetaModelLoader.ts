@@ -1,5 +1,6 @@
 import { IfcRelAggregates, ifcTypeCodes } from "../ifctypes";
-import { ModelLoader, ModelLoadParams } from "../io";
+import type { ModelLoadParams } from "../io";
+import { ModelLoader } from "../io";
 import { DataModel } from "../data";
 
 /**

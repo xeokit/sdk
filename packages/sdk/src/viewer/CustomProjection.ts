@@ -3,11 +3,11 @@
 import { Component, EventEmitter } from "../core";
 import { createMat4, identityMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4 } from "../matrix";
 import type { Camera } from "./Camera";
-import { CustomProjectionParams } from "./CustomProjectionParams";
+import type { CustomProjectionParams } from "./CustomProjectionParams";
 import { CustomProjectionType } from "../constants";
 import { EventDispatcher } from "strongly-typed-events";
 import type { FloatArrayParam } from "../math";
-import { Projection } from "./Projection";
+import type { Projection } from "./Projection";
 
 /**
  * Configures a custom projection for a {@link Camera | Camera} .
@@ -15,7 +15,7 @@ import { Projection } from "./Projection";
  * * Located at {@link Camera.customProjection}.
  * * {@link CustomProjection.onProjMatrix} will fire an event whenever {@link CustomProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-class CustomProjection  extends Component implements Projection {
+class CustomProjection extends Component implements Projection {
 
   /**
      * The Camera this CustomProjection belongs to.

@@ -1,4 +1,5 @@
-import { ModelLoader, ModelParseParams } from "../io";
+import type { ModelParseParams } from "../io";
+import { ModelLoader } from "../io";
 import { IfcAPI as IfcAPI_browser } from "node_modules/web-ifc/web-ifc-api.js";
 import { IfcAPI as IfcAPI_node } from "node_modules/web-ifc/web-ifc-api-node.js";
 import { parse as parse_IFC4 } from "./versions/IFC4/parse";

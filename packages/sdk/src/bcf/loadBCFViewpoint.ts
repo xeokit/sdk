@@ -1,13 +1,14 @@
 import { addVec3, createVec3, negateVec3, subVec3 } from "../matrix";
-import { DataObject, searchObjects } from "../data";
 import { IfcOpeningElement, IfcSpace } from "../ifctypes";
 import { OrthoProjectionType, PerspectiveProjectionType } from "../constants";
 import { BasicAggregation } from "../basictypes";
-import { BCFComponent } from "./BCFComponent";
-import { BCFVector } from "./BCFVector";
-import { FloatArrayParam } from "../math";
+import type { BCFComponent } from "./BCFComponent";
+import type { BCFVector } from "./BCFVector";
+import type { DataObject } from "../data";
+import type { FloatArrayParam } from "../math";
 import type { LoadBCFViewpointParams } from "./LoadBCFViewpointParams";
 import { PickResult } from "../viewer";
+import { searchObjects } from "../data";
 
 const tempVec3 = createVec3();
 const tempVec3a = createVec3();
@@ -356,7 +357,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
     }
     if (rayCast) {
       const hit = view.pick({
-        pickSurface: true,  // <<------ This causes picking to find the intersection point on the viewObject
+        pickSurface: true, // <<------ This causes picking to find the intersection point on the viewObject
         rayOrigin: eye,
         rayDirection: look
       });

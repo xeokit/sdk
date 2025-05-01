@@ -1,4 +1,4 @@
-import { BCFComponent } from "./BCFComponent";
+import type { BCFComponent } from "./BCFComponent";
 
 /**
  * BCF selection component.

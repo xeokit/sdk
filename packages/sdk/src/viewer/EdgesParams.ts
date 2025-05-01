@@ -1,4 +1,4 @@
-import { FloatArrayParam } from "../math";
+import type { FloatArrayParam } from "../math";
 
 /**
  * Parameters for a View's edge enhancement effect, {@link Edges}.

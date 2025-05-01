@@ -1,4 +1,4 @@
-import { WebGLAbstractTexture } from "./WebGLAbstractTexture";
+import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
 
 /**
  *  Represents a WebGL render buffer.

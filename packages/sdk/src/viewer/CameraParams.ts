@@ -1,8 +1,8 @@
-import { CustomProjectionParams } from "./CustomProjectionParams";
-import { FloatArrayParam } from "../math";
-import { FrustumProjectionParams } from "./FrustumProjectionParams";
-import { OrthoProjectionParams } from "./OrthoProjectionParams";
-import { PerspectiveProjectionParams } from "./PerspectiveProjectionParams";
+import type { CustomProjectionParams } from "./CustomProjectionParams";
+import type { FloatArrayParam } from "../math";
+import type { FrustumProjectionParams } from "./FrustumProjectionParams";
+import type { OrthoProjectionParams } from "./OrthoProjectionParams";
+import type { PerspectiveProjectionParams } from "./PerspectiveProjectionParams";
 
 /**
  * Parameters for a {@link Camera}.

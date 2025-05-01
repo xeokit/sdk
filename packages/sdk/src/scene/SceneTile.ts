@@ -1,7 +1,7 @@
-import { FloatArrayParam } from "../math";
-import { Scene } from "./Scene";
-import { SceneModel } from "./SceneModel";
-import { SceneObject } from "./SceneObject";
+import type { FloatArrayParam } from "../math";
+import type { Scene } from "./Scene";
+import type { SceneModel } from "./SceneModel";
+import type { SceneObject } from "./SceneObject";
 
 /**
  * A tile in a {@link SceneModel | SceneModel}.

@@ -1,6 +1,6 @@
 
 import { XGF_INFO } from "./XGF_INFO";
-import { XGFData_v1 } from "./XGFData_v1";
+import type { XGFData_v1 } from "./XGFData_v1";
 
 const object2Array = (function() {
   const encoder = new TextEncoder();
@@ -26,7 +26,7 @@ function toArrayBuffer(arrays: Buffer[]): ArrayBuffer {
     const byteLength = arr.byteLength;
 
     const idx = 1 + 2 * i;
-    dataView.setUint32(idx       * 4, byteOffset, true);
+    dataView.setUint32(idx * 4, byteOffset, true);
     dataView.setUint32((idx + 1) * 4, byteLength, true);
 
     offsets.push(byteOffset);

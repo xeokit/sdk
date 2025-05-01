@@ -1,7 +1,7 @@
 
 import { addVec3, createVec3, createVec4, dotVec4, lenVec3, mulVec3Scalar, normalizeVec3, subVec3 } from "../matrix";
 import { OrthoProjectionType, PerspectiveProjectionType } from "../constants";
-import { View } from "../viewer";
+import type { View } from "../viewer";
 
 const screenPos = createVec4();
 const viewPos = createVec4();

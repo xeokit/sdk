@@ -1,4 +1,4 @@
-import { View } from "../viewer";
+import type { View } from "../viewer";
 
 /**
  * @private

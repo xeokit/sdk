@@ -1,8 +1,8 @@
 import { DataModel } from "../data/DataModel";
 import { isJSONObject } from "../utils";
-import { ModelLoaderParams } from "./ModelLoaderParams";
-import { ModelLoadParams } from "./ModelLoadParams";
-import { ModelParser } from "./ModelParser";
+import type { ModelLoaderParams } from "./ModelLoaderParams";
+import type { ModelLoadParams } from "./ModelLoadParams";
+import type { ModelParser } from "./ModelParser";
 import { SceneModel } from "../scene/SceneModel";
 
 /**

@@ -1,5 +1,5 @@
-import { Ifc2gltfManifestParams } from "./Ifc2gltfManifestParams";
-import { ModelChunksManifestParams } from "../core";
+import type { Ifc2gltfManifestParams } from "./Ifc2gltfManifestParams";
+import type { ModelChunksManifestParams } from "../core";
 
 /**
  * Converts a file manifest from {@link ifc2gltf2xgf!Ifc2gltfManifestParams | Ifc2gltfManifestParams} to

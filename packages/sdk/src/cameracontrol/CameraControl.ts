@@ -22,13 +22,13 @@ import {
   KEY_X,
   KEY_Z
 } from "./keycodes";
-import { PickResult, View } from "../viewer";
-import { CameraControlParams } from "./CameraControlParams";
+import type { PickResult, View } from "../viewer";
+import type { CameraControlParams } from "./CameraControlParams";
 import { CameraFlightAnimation } from "../cameraflight";
 import { CameraUpdater } from "./CameraUpdater";
 import { createVec2 } from "../matrix";
 import { EventDispatcher } from "strongly-typed-events";
-import { FloatArrayParam } from "../math";
+import type { FloatArrayParam } from "../math";
 import { isString } from "../utils";
 import { KeyboardAxisViewHandler } from "./KeyboardAxisViewHandler";
 import { KeyboardPanRotateDollyHandler } from "./KeyboardPanRotateDollyHandler";

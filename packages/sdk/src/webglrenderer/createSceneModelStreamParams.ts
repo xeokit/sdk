@@ -1,5 +1,5 @@
 import { LinesPrimitive, TrianglesPrimitive } from "../constants";
-import { SceneModel, SceneModelStreamParams } from "../scene";
+import type { SceneModel, SceneModelStreamParams } from "../scene";
 
 
 /**

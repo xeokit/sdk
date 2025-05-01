@@ -1,5 +1,5 @@
 import { ifcTypeCodes } from "../../../ifctypes";
-import { ModelParser } from "../../../io";
+import type { ModelParser } from "../../../io";
 import { SDKError } from "../../../core";
 import { TrianglesPrimitive } from "../../../constants";
 

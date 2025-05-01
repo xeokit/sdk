@@ -1,7 +1,7 @@
 import { createVec3, createVec4, decomposeMat4 } from "../../../matrix";
 import { decompressPoint3WithAABB3 } from "../../../compression";
 import { ifcTypeNames } from "../../../ifctypes";
-import { ModelEncodeParams } from "../../../io";
+import type { ModelEncodeParams } from "../../../io";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();

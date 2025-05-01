@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 import '@loaders.gl/polyfills';
-import { Scene, SceneModel } from "../scene";
+import type { SceneModel } from "../scene";
+import { Scene } from "../scene";
 import { convertMetaModel } from "../metamodel";
 import { GLTFLoader } from "../gltf";
 import { SDKError } from "../core";

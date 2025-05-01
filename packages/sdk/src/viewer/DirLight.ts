@@ -1,6 +1,6 @@
 import { Component } from "../core";
-import { CustomProjectionParams } from "./CustomProjectionParams";
-import { DirLightParams } from "./DirLightParams";
+import type { CustomProjectionParams } from "./CustomProjectionParams";
+import type { DirLightParams } from "./DirLightParams";
 import type { FloatArrayParam } from "../math";
 import type { View } from "./View";
 

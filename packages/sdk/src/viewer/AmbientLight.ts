@@ -1,6 +1,6 @@
-import { AmbientLightParams } from "./AmbientLightParams";
+import type { AmbientLightParams } from "./AmbientLightParams";
 import { Component } from "../core";
-import { DirLightParams } from "./DirLightParams";
+import type { DirLightParams } from "./DirLightParams";
 import type { FloatArrayParam } from "../math";
 import type { View } from "./View";
 

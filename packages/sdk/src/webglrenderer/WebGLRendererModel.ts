@@ -1,5 +1,5 @@
 import { collapseAABB3, expandAABB3 } from "../boundaries";
-import { Component, EventEmitter, SDKError, type TextureTranscoder } from "../core";
+import { Component, SDKError, type TextureTranscoder } from "../core";
 import { composeMat4, createMat4, createVec3, createVec4, eulerToQuat, identityQuat, mulMat4 } from "../matrix";
 import { createUUID, loadArraybuffer } from "../utils";
 import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../constants";
@@ -15,8 +15,9 @@ import type {
   SceneTexture,
   SceneTextureSet
 } from "../scene";
+import type { EventEmitter } from "../core";
 import type { FloatArrayParam } from "../math";
-import { Layer } from "./Layer";
+import type { Layer } from "./Layer";
 import { MeshCounts } from "./MeshCounts";
 import type { RenderContext } from "./RenderContext";
 import { RenderFlags } from "./RenderFlags";
@@ -279,7 +280,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
         case "jpeg":
         case "jpg":
         case "png":
-        case "gif":
+        case "gif": {
           const image = new Image();
           image.onload = () => {
             glTexture.setImage(image, {
@@ -294,6 +295,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
           };
           image.src = texture.src; // URL or Base64 string
           break;
+        }
         default: // Assume other file types need transcoding
           if (!this.#textureTranscoder) {
             this.error(`Can't create texture from 'src' - rendererModel needs to be configured with a TextureTranscoder for this file type ('${ext}')`);

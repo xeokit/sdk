@@ -1,5 +1,6 @@
-import { ModelConverter, ModelConverterResult } from "../../modelconverter";
-import { XeoConvertStatsReport } from "./stats";
+import type { ModelConverter } from "../../modelconverter";
+import { type ModelConverterResult } from "../../modelconverter";
+import type { XeoConvertStatsReport } from "./stats";
 
 /**
  *

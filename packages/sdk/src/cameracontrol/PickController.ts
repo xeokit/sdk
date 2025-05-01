@@ -1,5 +1,6 @@
-import { PickResult, View } from "../viewer";
-import { CameraControl } from "./CameraControl";
+import type { View } from "../viewer";
+import { PickResult } from "../viewer";
+import type { CameraControl } from "./CameraControl";
 import { createVec2 } from "../matrix";
 
 const DEFAULT_SNAP_PICK_RADIUS = 45;

@@ -2,9 +2,9 @@
 import * as WebIFC from "web-ifc";
 import { createVec3, identityMat4 } from "../../../matrix";
 import { IfcElement, IfcRelAggregates, ifcTypeCodes } from "../../../ifctypes";
-import { DataModel } from "../../../data";
-import { ModelParseParams } from "../../../io";
-import { SceneModel } from "../../../scene";
+import type { DataModel } from "../../../data";
+import type { ModelParseParams } from "../../../io";
+import type { SceneModel } from "../../../scene";
 import { TrianglesPrimitive } from "../../../constants";
 
 /**

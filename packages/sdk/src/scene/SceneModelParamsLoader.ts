@@ -1,7 +1,7 @@
 import { ModelLoader } from "../io/ModelLoader";
 import { parse as parse_1_0 } from "./versions/1_0/parse"
 import { SceneModel } from "./SceneModel";
-import { SceneModelParams } from "./SceneModelParams";
+import type { SceneModelParams } from "./SceneModelParams";
 
 /**
  * Reads {@link SceneModelParams | SceneModelParams} into a {@link SceneModel | SceneModel}.

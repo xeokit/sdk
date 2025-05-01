@@ -1,7 +1,7 @@
-import { RenderContext } from "../RenderContext";
-import { RenderStats } from "../RenderStats";
-import { VBORenderer } from "./VBORenderer";
-import { WebGLRenderer } from "../WebGLRenderer";
+import type { RenderContext } from "../RenderContext";
+import type { RenderStats } from "../RenderStats";
+import type { VBORenderer } from "./VBORenderer";
+import type { WebGLRenderer } from "../WebGLRenderer";
 
 /**
  * @private
@@ -119,7 +119,7 @@ export class VBORendererSet {
 
   get pickMeshRenderer(): VBORenderer {
     if (!this.#pickMeshRenderer) {
-      this.#pickMeshRenderer  = this.createPickMeshRenderer();
+      this.#pickMeshRenderer = this.createPickMeshRenderer();
     }
     return this.#pickMeshRenderer;
   }

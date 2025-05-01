@@ -1,5 +1,5 @@
 import { Component, SDKError } from "../core";
-import { EdgesParams } from "./EdgesParams";
+import type { EdgesParams } from "./EdgesParams";
 import type { FloatArrayParam } from "../math";
 import { QualityRender } from "../constants";
 import type { View } from "./View";

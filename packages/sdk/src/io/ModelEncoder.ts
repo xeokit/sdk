@@ -1,4 +1,4 @@
-import { ModelEncodeParams } from "./ModelEncodeParams";
+import type { ModelEncodeParams } from "./ModelEncodeParams";
 
 /**
  * Encodes geometry and semantic data within a {@link scene!SceneModel | scene!SceneModel}

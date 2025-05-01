@@ -1,7 +1,8 @@
 import type { View, Viewer } from "../viewer";
-import { WEBGL_INFO, type WebGLAbstractTexture, WebGLDataTexture } from "../webglutils";
-import { FloatArrayParam } from "../math";
-import { WebGLRenderer } from "./WebGLRenderer";
+import { WEBGL_INFO, type WebGLAbstractTexture } from "../webglutils";
+import type { FloatArrayParam } from "../math";
+import type { WebGLDataTexture } from "../webglutils";
+import type { WebGLRenderer } from "./WebGLRenderer";
 
 /**
  * @private

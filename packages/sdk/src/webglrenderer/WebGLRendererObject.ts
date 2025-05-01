@@ -50,7 +50,7 @@ export class WebGLRendererObject implements RendererObject {
     this.#colorizeUpdated = false;
     this.#opacityUpdated = false;
 
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {  // TODO: tidier way? Refactor?
+    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) { // TODO: tidier way? Refactor?
       this.rendererMeshes[i].setRendererObject(this);
     }
   }

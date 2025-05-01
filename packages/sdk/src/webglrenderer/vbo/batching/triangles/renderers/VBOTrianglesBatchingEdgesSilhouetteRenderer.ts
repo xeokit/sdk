@@ -1,5 +1,5 @@
-import { RenderContext } from "../../../../RenderContext";
-import { VBOBatchingLayer } from "../../VBOBatchingLayer";
+import type { RenderContext } from "../../../../RenderContext";
+import type { VBOBatchingLayer } from "../../VBOBatchingLayer";
 import { VBOBatchingRenderer } from "../../VBOBatchingRenderer";
 
 /**

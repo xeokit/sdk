@@ -11,7 +11,7 @@ import {
 // @ts-ignore
 import { BasicAggregation } from "../../../basictypes";
 import { earcut } from './earcut';
-import { ModelParser } from "../../../io";
+import type { ModelParser } from "../../../io";
 import { TrianglesPrimitive } from "../../../constants";
 import { typeCodes } from "../../../cityjsontypes_1_1_3";
 

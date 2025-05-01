@@ -1,5 +1,5 @@
 import { inflateXKT } from "./inflateXKT";
-import { ModelParseParams } from "../../../io";
+import type { ModelParseParams } from "../../../io";
 import { unpackXKT } from "./unpackXKT";
 import { xktToModel } from "./xktToModel";
 

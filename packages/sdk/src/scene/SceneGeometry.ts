@@ -1,6 +1,6 @@
 import { createAABB3 } from "../boundaries";
 import type { FloatArrayParam } from "../math";
-import { IntArrayParam } from "../math";
+import type { IntArrayParam } from "../math";
 import type { RendererGeometry } from "./RendererGeometry";
 import type { SceneGeometryCompressedParams } from "./SceneGeometryCompressedParams";
 

@@ -3,10 +3,10 @@ import { createMat4, frustumMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transpo
 import type { Camera } from "./Camera";
 import { EventDispatcher } from "strongly-typed-events";
 import type { FloatArrayParam } from "../math";
-import { FrustumProjectionParams } from "./FrustumProjectionParams";
+import type { FrustumProjectionParams } from "./FrustumProjectionParams";
 import { FrustumProjectionType } from "../constants";
-import { PerspectiveProjectionParams } from "./PerspectiveProjectionParams";
-import { Projection } from "./Projection";
+import type { PerspectiveProjectionParams } from "./PerspectiveProjectionParams";
+import type { Projection } from "./Projection";
 
 /**
  *  FrustumProjection-based perspective projection configuration for a {@link Camera | Camera} .

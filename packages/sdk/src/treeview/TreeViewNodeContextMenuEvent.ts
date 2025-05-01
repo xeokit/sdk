@@ -1,5 +1,5 @@
-import { TreeView } from "./TreeView";
-import { TreeViewNode } from "./TreeViewNode";
+import type { TreeView } from "./TreeView";
+import type { TreeViewNode } from "./TreeViewNode";
 
 /**
  * Event fired by {@link TreeView.onContextMenu}.

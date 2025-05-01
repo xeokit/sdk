@@ -6,7 +6,7 @@ import type { SceneGeometry } from "./SceneGeometry";
 import type { SceneMeshParams } from "./SceneMeshParams";
 import type { SceneObject } from "./SceneObject";
 import type { SceneTextureSet } from "./SceneTextureSet";
-import { SceneTile } from "./SceneTile";
+import type { SceneTile } from "./SceneTile";
 
 const tempVec4a = createVec4();
 const tempVec4b = createVec4();

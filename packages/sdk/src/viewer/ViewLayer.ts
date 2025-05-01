@@ -3,9 +3,9 @@ import type { Scene, SceneModel } from "../scene";
 import { EventDispatcher } from "strongly-typed-events";
 import type { View } from "./View";
 import type { Viewer } from "./Viewer";
-import { ViewLayerParams } from "./ViewLayerParams";
+import type { ViewLayerParams } from "./ViewLayerParams";
 import { ViewObject } from "./ViewObject";
-import { ViewParams } from "./ViewParams";
+import type { ViewParams } from "./ViewParams";
 
 
 /**

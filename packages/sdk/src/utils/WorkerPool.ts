@@ -5,23 +5,23 @@
  * @author Deepkolos / https://github.com/deepkolos
  */
 export class WorkerPool {
-  private pool: number;                  // The maximum number of workers in the pool.
-  private queue: any[];                  // The task queue, holds tasks when no idle workers are available.
-  private workers: any[];                // The list of workers currently in the pool.
-  private workersResolve: any[];         // The list of resolve functions, one for each worker.
-  private workerStatus: number;          // A bitmask representing the status of each worker (idle or busy).
-  private workerCreator: any;            // A function to create new workers.
+  private pool: number; // The maximum number of workers in the pool.
+  private queue: any[]; // The task queue, holds tasks when no idle workers are available.
+  private workers: any[]; // The list of workers currently in the pool.
+  private workersResolve: any[]; // The list of resolve functions, one for each worker.
+  private workerStatus: number; // A bitmask representing the status of each worker (idle or busy).
+  private workerCreator: any; // A function to create new workers.
 
   /**
      * Constructs the WorkerPool instance with a given pool size.
      * @param pool The number of workers in the pool (default is 4).
      */
   constructor(pool = 4) {
-    this.pool = pool;                   // Set the pool size.
-    this.queue = [];                     // Initialize the queue to empty.
-    this.workers = [];                   // Initialize the workers array to empty.
-    this.workersResolve = [];            // Initialize the workers resolve array to empty.
-    this.workerStatus = 0;               // Initialize the worker status to 0 (all workers are idle).
+    this.pool = pool; // Set the pool size.
+    this.queue = []; // Initialize the queue to empty.
+    this.workers = []; // Initialize the workers array to empty.
+    this.workersResolve = []; // Initialize the workers resolve array to empty.
+    this.workerStatus = 0; // Initialize the worker status to 0 (all workers are idle).
   }
 
   /**
@@ -31,9 +31,9 @@ export class WorkerPool {
   _initWorker(workerId: number) {
     // If the worker doesn't already exist, create a new worker.
     if (!this.workers[workerId]) {
-      const worker = this.workerCreator();  // Create a new worker using the workerCreator function.
+      const worker = this.workerCreator(); // Create a new worker using the workerCreator function.
       worker.addEventListener('message', this._onMessage.bind(this, workerId)); // Set up message handler.
-      this.workers[workerId] = worker;     // Add the worker to the pool.
+      this.workers[workerId] = worker; // Add the worker to the pool.
     }
   }
 
@@ -54,16 +54,16 @@ export class WorkerPool {
      * @param msg The message received from the worker.
      */
   _onMessage(workerId: number, msg: string) {
-    const resolve = this.workersResolve[workerId];  // Get the resolve function for this worker.
-    resolve && resolve(msg);                        // Resolve the promise with the message received from the worker.
+    const resolve = this.workersResolve[workerId]; // Get the resolve function for this worker.
+    resolve && resolve(msg); // Resolve the promise with the message received from the worker.
 
     // If there are tasks in the queue, send the next one to this worker.
     if (this.queue.length) {
       const { resolve, msg, transfer } = this.queue.shift(); // Get the next task from the queue.
-      this.workersResolve[workerId] = resolve;             // Assign the resolve function.
-      this.workers[workerId].postMessage(msg, transfer);   // Send the task to the worker.
+      this.workersResolve[workerId] = resolve; // Assign the resolve function.
+      this.workers[workerId].postMessage(msg, transfer); // Send the task to the worker.
     } else {
-      this.workerStatus ^= 1 << workerId;  // Mark the worker as idle by updating the worker status.
+      this.workerStatus ^= 1 << workerId; // Mark the worker as idle by updating the worker status.
     }
   }
 
@@ -72,7 +72,7 @@ export class WorkerPool {
      * @param workerCreator The function that creates a new worker.
      */
   setWorkerCreator(workerCreator: any) {
-    this.workerCreator = workerCreator;  // Set the workerCreator function.
+    this.workerCreator = workerCreator; // Set the workerCreator function.
   }
 
   /**
@@ -80,7 +80,7 @@ export class WorkerPool {
      * @param pool The new pool size.
      */
   setWorkerLimit(pool: number) {
-    this.pool = pool;  // Set the new pool size.
+    this.pool = pool; // Set the new pool size.
   }
 
   /**
@@ -91,15 +91,15 @@ export class WorkerPool {
      */
   postMessage(msg: any, transfer: any) {
     return new Promise((resolve) => {
-      const workerId = this._getIdleWorker();  // Find an idle worker.
+      const workerId = this._getIdleWorker(); // Find an idle worker.
 
-      if (workerId !== -1) {  // If there's an idle worker, send the message.
-        this._initWorker(workerId);               // Initialize the worker if not already initialized.
-        this.workerStatus |= 1 << workerId;        // Mark the worker as busy.
-        this.workersResolve[workerId] = resolve;  // Store the resolve function for this worker.
-        this.workers[workerId].postMessage(msg, transfer);  // Send the message to the worker.
+      if (workerId !== -1) { // If there's an idle worker, send the message.
+        this._initWorker(workerId); // Initialize the worker if not already initialized.
+        this.workerStatus |= 1 << workerId; // Mark the worker as busy.
+        this.workersResolve[workerId] = resolve; // Store the resolve function for this worker.
+        this.workers[workerId].postMessage(msg, transfer); // Send the message to the worker.
       } else {
-        this.queue.push({ resolve, msg, transfer });  // If no idle worker, queue the task.
+        this.queue.push({ resolve, msg, transfer }); // If no idle worker, queue the task.
       }
     });
   }
@@ -111,9 +111,9 @@ export class WorkerPool {
   destroy() {
     // Terminate each worker in the pool.
     this.workers.forEach((worker) => worker.terminate());
-    this.workersResolve.length = 0;  // Clear the resolve functions.
-    this.workers.length = 0;         // Clear the workers array.
-    this.queue.length = 0;           // Clear the task queue.
-    this.workerStatus = 0;           // Reset the worker status to 0 (all idle).
+    this.workersResolve.length = 0; // Clear the resolve functions.
+    this.workers.length = 0; // Clear the workers array.
+    this.queue.length = 0; // Clear the task queue.
+    this.workerStatus = 0; // Reset the worker status to 0 (all idle).
   }
 }

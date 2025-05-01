@@ -127,14 +127,14 @@ export class ContextMenu {
 
     this.#id = idMap.addItem();
     this.#context = null;
-    this.#enabled = false;  // True when the ContextMenu is enabled
-    this.#itemsCfg = [];    // Items as given as configs
-    this.#rootMenu = null;  // The root Menu in the tree
-    this.#menuList = [];    // List of Menus
-    this.#menuMap = {};     // Menus mapped to their IDs
-    this.#itemList = [];    // List of Items
-    this.#itemMap = {};     // Items mapped to their IDs
-    this.#shown = false;    // True when the ContextMenu is visible
+    this.#enabled = false; // True when the ContextMenu is enabled
+    this.#itemsCfg = []; // Items as given as configs
+    this.#rootMenu = null; // The root Menu in the tree
+    this.#menuList = []; // List of Menus
+    this.#menuMap = {}; // Menus mapped to their IDs
+    this.#itemList = []; // List of Items
+    this.#itemMap = {}; // Items mapped to their IDs
+    this.#shown = false; // True when the ContextMenu is visible
     this.#nextId = 0;
 
     this.onShown = new EventEmitter(new EventDispatcher<ContextMenu, null>());

@@ -1,7 +1,7 @@
-import { FloatArrayParam } from "../../../math";
-import { RenderContext } from "../../RenderContext";
+import type { FloatArrayParam } from "../../../math";
+import type { RenderContext } from "../../RenderContext";
 import type { RendererTextureSet } from "../../../scene";
-import { SceneGeometry } from "../../../scene";
+import type { SceneGeometry } from "../../../scene";
 import type { WebGLRendererModel } from "../../WebGLRendererModel";
 
 /**

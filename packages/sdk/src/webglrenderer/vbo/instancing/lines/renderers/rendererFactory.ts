@@ -2,8 +2,8 @@ import { RendererSetFactory, VBORendererSet } from "../../../VBORendererSet";
 import { VBOLinesInstancingDrawColorRenderer } from "./VBOLinesInstancingDrawColorRenderer";
 import { VBOLinesInstancingPickMeshRenderer } from "./VBOLinesInstancingPickMeshRenderer";
 import { VBOLinesInstancingSilhouetteRenderer } from "./VBOLinesInstancingSilhouetteRenderer";
-import { VBORenderer } from "../../../VBORenderer";
-import { WebGLRenderer } from "../../../../WebGLRenderer";
+import type { VBORenderer } from "../../../VBORenderer";
+import type { WebGLRenderer } from "../../../../WebGLRenderer";
 
 /**
  * @private

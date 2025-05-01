@@ -1,5 +1,5 @@
-import { RenderContext } from "../../../../RenderContext";
-import { VBOInstancingLayer } from "../../VBOInstancingLayer";
+import type { RenderContext } from "../../../../RenderContext";
+import type { VBOInstancingLayer } from "../../VBOInstancingLayer";
 import { VBOInstancingRenderer } from "../../VBOInstancingRenderer";
 
 /**

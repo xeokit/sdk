@@ -1,4 +1,4 @@
-import { FloatArrayParam } from "../math";
+import type { FloatArrayParam } from "../math";
 
 /**
  * Options for {@link las!LASLoader.load | LASLoader.load}.

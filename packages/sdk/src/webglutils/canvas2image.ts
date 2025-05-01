@@ -118,8 +118,8 @@ export const Canvas2Image = (function () {
         strPixelRow += sc(
           aImgData[iOffsetY + iOffsetX + 2], // B
           aImgData[iOffsetY + iOffsetX + 1], // G
-          aImgData[iOffsetY + iOffsetX],     // R
-          aImgData[iOffsetY + iOffsetX + 3]  // A
+          aImgData[iOffsetY + iOffsetX], // R
+          aImgData[iOffsetY + iOffsetX + 3] // A
         );
       }
       strPixelData += strPixelRow;

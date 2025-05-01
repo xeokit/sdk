@@ -1,5 +1,5 @@
 import type { FloatArrayParam } from "../math";
-import { IntArrayParam } from "../math";
+import type { IntArrayParam } from "../math";
 
 
 /**

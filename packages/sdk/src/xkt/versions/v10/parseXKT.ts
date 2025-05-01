@@ -1,5 +1,5 @@
 import { inflateXKT } from "./inflateXKT";
-import { SceneModel } from "../../../scene";
+import type { SceneModel } from "../../../scene";
 import { SDKError } from "../../../core";
 import { unpackXKT } from "./unpackXKT";
 import { xktToModel } from "./xktToModel";

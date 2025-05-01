@@ -11,8 +11,9 @@ import {
   inverseMat4, lenVec3, lookAtMat4v, mulVec3Scalar, normalizeVec3, sqLenVec3, subVec3,
   transformPoint3, transformPoint4, transformVec3
 } from "../matrix";
-import { clamp, FloatArrayParam } from "../math";
-import { View } from "../viewer";
+import type { FloatArrayParam } from "../math";
+import { clamp } from "../math";
+import type { View } from "../viewer";
 import { worldToRTCPos } from "../rtc";
 
 const tempVec3a = createVec3();

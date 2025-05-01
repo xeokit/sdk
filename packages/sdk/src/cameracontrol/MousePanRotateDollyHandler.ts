@@ -4,7 +4,7 @@
 import { createVec2, createVec3, lenVec3, subVec3 } from "../matrix";
 import { KEY_SHIFT } from "./keycodes";
 import { PerspectiveProjectionType } from "../constants";
-import { View } from "../viewer";
+import type { View } from "../viewer";
 
 
 const canvasPos = createVec2();

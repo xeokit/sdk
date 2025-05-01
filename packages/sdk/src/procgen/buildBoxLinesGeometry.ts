@@ -1,6 +1,6 @@
 import * as constants from "../constants";
 import * as utils from "../utils";
-import { FloatArrayParam } from "../math";
+import type { FloatArrayParam } from "../math";
 import type { GeometryArrays } from "./GeometryArrays";
 
 /**
@@ -102,7 +102,7 @@ export function buildBoxLinesGeometry(cfg: {
       0, 4, // line from v0 to v4
       1, 5, // line from v1 to v5
       2, 6, // line from v2 to v6
-      3, 7  // line from v3 to v7
+      3, 7 // line from v3 to v7
     ]
   });
 }

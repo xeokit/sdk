@@ -1725,7 +1725,7 @@ export function buildVectorTextGeometry(cfg: {
       x += c.width * mag * size;
     }
 
-    y -= 35 * mag * size;  // Vertical spacing for each line of text
+    y -= 35 * mag * size; // Vertical spacing for each line of text
   }
 
   return utils.apply(cfg, {

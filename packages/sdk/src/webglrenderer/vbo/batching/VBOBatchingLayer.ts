@@ -2,22 +2,22 @@ import { collapseAABB3, expandAABB3, positions3ToAABB3 } from "../../../boundari
 import { compressUVs, decompressPoint3WithAABB3, getUVBounds, quantizePositions3 } from "../../../compression";
 import { createMat3, createVec3, createVec4, identityMat4, transformPoint4 } from "../../../matrix";
 import { getScratchMemory, putScratchMemory } from "../ScratchMemory";
-import { SceneGeometry, SceneMesh } from "../../../scene";
+import type { SceneGeometry, SceneMesh } from "../../../scene";
 import { SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../../../constants";
-import { FloatArrayParam } from "../../../math";
-import { Layer } from "../../Layer";
-import { LayerMeshParams } from "../../LayerMeshParams";
+import type { FloatArrayParam } from "../../../math";
+import type { Layer } from "../../Layer";
+import type { LayerMeshParams } from "../../LayerMeshParams";
 import { MeshCounts } from "../../MeshCounts";
 import { RENDER_PASSES } from "../../RENDER_PASSES";
-import { RenderContext } from "../../RenderContext";
+import type { RenderContext } from "../../RenderContext";
 import { SCENE_OBJECT_FLAGS } from "../../SCENE_OBJECT_FLAGS";
 import { SDKError } from "../../../core";
 import { VBOBatchingBuffer } from "./VBOBatchingBuffer";
-import { VBOBatchingLayerParams } from "./VBOBatchingLayerParams";
-import { VBOBatchingRenderState } from "./VBOBatchingRenderState";
-import { VBORendererSet } from "../VBORendererSet";
+import type { VBOBatchingLayerParams } from "./VBOBatchingLayerParams";
+import type { VBOBatchingRenderState } from "./VBOBatchingRenderState";
+import type { VBORendererSet } from "../VBORendererSet";
 import { WebGLArrayBuf } from "../../../webglutils";
-import { WebGLRendererModel } from "../../WebGLRendererModel";
+import type { WebGLRendererModel } from "../../WebGLRendererModel";
 
 
 let numLayers = 0;
@@ -42,7 +42,7 @@ export class VBOBatchingLayer implements Layer {
   #built: boolean;
   #aabb: FloatArrayParam;
   aabbDirty: boolean;
-  #meshes: any[];                 // A Mesh has multiple SubMeshes
+  #meshes: any[]; // A Mesh has multiple SubMeshes
   #layerNumber: number;
 
   #deferredAttributesUpdateEnabled: boolean;

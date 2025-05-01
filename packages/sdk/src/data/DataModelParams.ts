@@ -1,4 +1,4 @@
-import { DataModelContentParams } from "./DataModelContentParams";
+import type { DataModelContentParams } from "./DataModelContentParams";
 
 /**
  * Parameters used to define a {@link DataModel}.

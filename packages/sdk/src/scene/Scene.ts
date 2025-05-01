@@ -53,14 +53,14 @@ export class Scene extends Component {
      *
      * @event
      */
-  public readonly  onTileCreated:  EventEmitter<Scene, SceneTile>;
+  public readonly onTileCreated: EventEmitter<Scene, SceneTile>;
 
   /**
      * Emits an event each time a {@link SceneTile} is destroyed in this Scene.
      *
      * @event
      */
-  public readonly  onTileDestroyed:  EventEmitter<Scene, SceneTile>;
+  public readonly onTileDestroyed: EventEmitter<Scene, SceneTile>;
 
   #onModelBuilts: { [key: string]: any };
   #onModelDestroys: { [key: string]: any };

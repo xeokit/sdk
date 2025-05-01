@@ -1,4 +1,4 @@
-export { XeoConvertStatsReportInput } from "./XeoConvertStatsReportInput";
-export { XeoConvertStatsReportOutput } from "./XeoConvertStatsReportOutput";
-export { XeoConvertStatsReport } from "./XeoConvertStatsReport";
+export type { XeoConvertStatsReportInput } from "./XeoConvertStatsReportInput";
+export type { XeoConvertStatsReportOutput } from "./XeoConvertStatsReportOutput";
+export type { XeoConvertStatsReport } from "./XeoConvertStatsReport";
 export * from "./createXeoConvertStatsReport";

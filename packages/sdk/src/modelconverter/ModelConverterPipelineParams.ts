@@ -1,5 +1,5 @@
-import { ModelConverterInputParams } from "./ModelConverterInputParams";
-import { ModelConverterOutputParams } from "./ModelConverterOutputParams";
+import type { ModelConverterInputParams } from "./ModelConverterInputParams";
+import type { ModelConverterOutputParams } from "./ModelConverterOutputParams";
 
 /**
  * Defines the structure of a conversion pipeline within a {@link ModelConverter | ModelConverter}.

@@ -1,6 +1,6 @@
 import { Component } from "../core";
-import { EmphasisMaterialParams } from "./EmphasisMaterialParams";
-import { PointsMaterialParams } from "./PointsMaterialParams";
+import type { EmphasisMaterialParams } from "./EmphasisMaterialParams";
+import type { PointsMaterialParams } from "./PointsMaterialParams";
 import type { View } from "./View";
 
 /**

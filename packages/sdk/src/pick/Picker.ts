@@ -1,9 +1,10 @@
-import {
-  createPrimsKdTree3,
+import type {
   KdLinePrim,
   KdPointPrim,
   KdTrianglePrim,
-  SceneObjectsKdTree3,
+  SceneObjectsKdTree3 } from "../kdtree3";
+import {
+  createPrimsKdTree3,
   searchKdTree3WithFrustum,
   searchKdTree3WithRay
 } from "../kdtree3";

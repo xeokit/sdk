@@ -1,4 +1,4 @@
-import type {SceneTexture} from "./SceneTexture";
+import type { SceneTexture } from "./SceneTexture";
 
 /**
  * Interface through which a {@link SceneTexture | SceneTexture} loads content updates (ie. the texture itself)

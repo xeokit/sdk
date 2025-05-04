@@ -1,5 +1,5 @@
-import type {Capabilities} from "./Capabilities";
-import type {TextureCompressedParams} from "./TextureCompressedParams";
+import type { Capabilities } from "./Capabilities";
+import type { TextureCompressedParams } from "./TextureCompressedParams";
 
 
 /**
@@ -7,14 +7,14 @@ import type {TextureCompressedParams} from "./TextureCompressedParams";
  */
 export interface TextureTranscoder {
 
-    /**
+  /**
      * Initializes this transcoder.
      *
      * @param capabilities A set of flags indicating the capabilities of this TextureTranscoder.
      */
-    init(capabilities: Capabilities): void;
+  init(capabilities: Capabilities): void;
 
-    /**
+  /**
      * Transcodes texture data from transcoded buffers.
      *
      * @param {ArrayBuffer[]} buffers Transcoded input texture data. Given as an array of buffers so that we can
@@ -22,10 +22,10 @@ export interface TextureTranscoder {
      * @param {*} config Transcoding options.
      * @returns {Promise<TextureCompressedParams>} Transcoded output texture data.
      */
-    transcode(buffers: ArrayBuffer[], config?: {}): Promise<TextureCompressedParams>;
+  transcode(buffers: ArrayBuffer[], config?: {}): Promise<TextureCompressedParams>;
 
-    /**
+  /**
      * Destroys this transcoder.
      */
-    destroy(): void;
+  destroy(): void;
 }

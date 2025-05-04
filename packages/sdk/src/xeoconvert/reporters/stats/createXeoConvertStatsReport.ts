@@ -1,10 +1,10 @@
-import {XeoConvertReporter} from "../XeoConvertReporter";
-import {XeoConvertStatsReport} from "./XeoConvertStatsReport";
-import {XeoConvertReportParams} from "../XeoConvertReportParams";
+import type { XeoConvertReporter } from "../XeoConvertReporter";
+import type { XeoConvertReportParams } from "../XeoConvertReportParams";
+import type { XeoConvertStatsReport } from "./XeoConvertStatsReport";
 
 /**
  * @private
  */
 export const createXeoConvertStatsReport: XeoConvertReporter = (params: XeoConvertReportParams): XeoConvertStatsReport => {
-    return params.xeoConvertStatsReport;
+  return params.xeoConvertStatsReport;
 }

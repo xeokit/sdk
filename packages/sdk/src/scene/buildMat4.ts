@@ -1,5 +1,5 @@
-import {composeMat4, eulerToQuat, identityMat4, identityQuat} from "../matrix";
-import {FloatArrayParam} from "../math";
+import { composeMat4, eulerToQuat, identityMat4, identityQuat } from "../matrix";
+import type { FloatArrayParam } from "../math";
 
 const identityQuaternion = identityQuat();
 
@@ -9,25 +9,25 @@ const identityQuaternion = identityQuat();
  * @param params
  */
 export function buildMat4(params: {
-    quaternion?: FloatArrayParam;
-    rotation?: FloatArrayParam;
-    scale?: FloatArrayParam;
-    position?: FloatArrayParam;
+  quaternion?: FloatArrayParam;
+  rotation?: FloatArrayParam;
+  scale?: FloatArrayParam;
+  position?: FloatArrayParam;
 
 }) {
-    const matrix = identityMat4();
-    const position = params.position;
-    const scale = params.scale;
-    const rotation = params.rotation;
-    const quaternion = params.quaternion;
-    if (position || scale || rotation || quaternion) {
-        composeMat4(
-            position || [0, 0, 0],
-            quaternion || (rotation
-                ? eulerToQuat(rotation, "XYZ", identityQuat())
-                : identityQuaternion),
-            scale || [1, 1, 1],
-            matrix);
-    }
-    return matrix;
+  const matrix = identityMat4();
+  const position = params.position;
+  const scale = params.scale;
+  const rotation = params.rotation;
+  const quaternion = params.quaternion;
+  if (position || scale || rotation || quaternion) {
+    composeMat4(
+      position || [0, 0, 0],
+      quaternion || (rotation
+        ? eulerToQuat(rotation, "XYZ", identityQuat())
+        : identityQuaternion),
+      scale || [1, 1, 1],
+      matrix);
+  }
+  return matrix;
 }

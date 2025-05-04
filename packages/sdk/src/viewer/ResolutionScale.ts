@@ -1,7 +1,7 @@
-import {Component} from "../core";
-import type {View} from "./View";
-import {FastRender} from "../constants";
-import {ResolutionScaleParams} from "./ResolutionScaleParams";
+import { Component } from "../core";
+import { FastRender } from "../constants";
+import type { ResolutionScaleParams } from "./ResolutionScaleParams";
+import type { View } from "./View";
 
 
 //  /**
@@ -55,118 +55,118 @@ import {ResolutionScaleParams} from "./ResolutionScaleParams";
  */
 export class ResolutionScale extends Component {
 
-    /**
+  /**
      * The View to which this ResolutionScale belongs.
      */
-    public readonly view: View;
+  public readonly view: View;
 
-    /**
+  /**
      * @private
      */
-    #state: {
-        resolutionScale: number;
-        renderModes: number[];
+  #state: {
+    resolutionScale: number;
+    renderModes: number[];
+  };
+
+  /**
+     * @private
+     */
+  constructor(view: View, options: ResolutionScaleParams = {}) {
+
+    super(view, options);
+
+    this.view = view;
+
+    this.#state = {
+      renderModes: options.renderModes || [FastRender],
+      resolutionScale: options.resolutionScale || 1
     };
+  }
 
-    /**
-     * @private
-     */
-    constructor(view: View, options: ResolutionScaleParams = {}) {
-
-        super(view, options);
-
-        this.view = view;
-
-        this.#state = {
-            renderModes: options.renderModes || [FastRender],
-            resolutionScale: options.resolutionScale || 1
-        };
-    }
-
-    /**
+  /**
      * Sets which rendering modes in which to apply ResolutionScale.
      *
      * Default value is [{@link constants!FastRender | FastRender}].
      */
-    set renderModes(value: number[]) {
-        this.#state.renderModes = value;
-        this.view.redraw();
-    }
+  set renderModes(value: number[]) {
+    this.#state.renderModes = value;
+    this.view.redraw();
+  }
 
-    /**
+  /**
      * Gets which rendering modes in which to apply ResolutionScale.
      *
      * Default value is [{@link constants!FastRender | FastRender}].
      */
-    get renderModes(): number[] {
-        return this.#state.renderModes;
-    }
+  get renderModes(): number[] {
+    return this.#state.renderModes;
+  }
 
-    /**
+  /**
      * Sets the scale when ResolutionScale is applied.
      *
      * Default is ````1.0````.
      */
-    set resolutionScale(value: number) {
-        if (this.#state.resolutionScale === value) {
-            return;
-        }
-        this.#state.resolutionScale = value;
-        this.view.redraw();
+  set resolutionScale(value: number) {
+    if (this.#state.resolutionScale === value) {
+      return;
     }
+    this.#state.resolutionScale = value;
+    this.view.redraw();
+  }
 
-    /**
+  /**
      * Gets the scale when ResolutionScale is applied.
      *
      * Default is ````1.0````.
      */
-    get resolutionScale(): number {
-        return this.#state.resolutionScale;
-    }
+  get resolutionScale(): number {
+    return this.#state.resolutionScale;
+  }
 
-    /**
+  /**
      * Gets if resolution scaling is currently applied.
      *
      * This is `true` when {@link View.renderMode | View.renderMode} is
      * in {@link ResolutionScale.renderModes | ResolutionScale.renderModes}.
      */
-    get applied(): boolean {
-        for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
-            if (this.view.renderMode === this.#state.renderModes[i]) {
-                return true;
-            }
-        }
-        return false;
+  get applied(): boolean {
+    for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
+      if (this.view.renderMode === this.#state.renderModes[i]) {
+        return true;
+      }
     }
+    return false;
+  }
 
-    /**
+  /**
      * Configures this ResolutionScale.
      *
      * @param resolutionScaleParams
      */
-    fromParams(resolutionScaleParams: ResolutionScaleParams) {
-        if (resolutionScaleParams.renderModes !== undefined) {
-            this.renderModes = resolutionScaleParams.renderModes;
-        }
-        if (resolutionScaleParams.resolutionScale !== undefined) {
-            this.resolutionScale = resolutionScaleParams.resolutionScale;
-        }
+  fromParams(resolutionScaleParams: ResolutionScaleParams) {
+    if (resolutionScaleParams.renderModes !== undefined) {
+      this.renderModes = resolutionScaleParams.renderModes;
     }
+    if (resolutionScaleParams.resolutionScale !== undefined) {
+      this.resolutionScale = resolutionScaleParams.resolutionScale;
+    }
+  }
 
-    /**
+  /**
      * Gets the current configuration of this ResolutionScale.
      */
-    toParams(): ResolutionScaleParams {
-        return {
-            renderModes: this.renderModes,
-            resolutionScale: this.resolutionScale
-        };
-    }
+  toParams(): ResolutionScaleParams {
+    return {
+      renderModes: this.renderModes,
+      resolutionScale: this.resolutionScale
+    };
+  }
 
-    /**
+  /**
      * @private
      */
-    destroy() {
-        super.destroy();
-    }
+  destroy() {
+    super.destroy();
+  }
 }

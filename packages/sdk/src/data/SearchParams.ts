@@ -8,81 +8,81 @@ import type { DataObject } from "./DataObject";
  */
 export interface SearchParams {
 
-    /**
+  /**
      * The ID of the {@link DataObject | DataObject} to start the traversal from.
      *
      * This is overridden by {@link SearchParams.startObject}.
      */
-    startObjectId?: string;
+  startObjectId?: string;
 
-    /**
+  /**
      * The {@link DataObject | DataObject} to start the traversal from.
      *
      * This overrides {@link SearchParams.startObjectId}.
      */
-    startObject?: DataObject;
+  startObject?: DataObject;
 
-    /**
+  /**
      * Indicates whether to include the starting {@link SearchParams.startObjectId} or {@link SearchParams.startObject}
      * in the search results.
      *
      * The default is `true`.
      */
-    includeStart?: boolean;
+  includeStart?: boolean;
 
-    /**
+  /**
      * The types of {@link DataObject | DataObjects} to exclusively include in the search results.
      */
-    includeObjects?: number[];
+  includeObjects?: number[];
 
-    /**
+  /**
      * The types of {@link DataObject | DataObjects} to exclude from the search results.
      */
-    excludeObjects?: number[];
+  excludeObjects?: number[];
 
-    /**
+  /**
      * The types of {@link Relationship | Relationships} to exclusively follow in each
      * {@link DataObject.relating | DataObject.relating} during the search.
      */
-    includeRelating?: number[];
+  includeRelating?: number[];
 
-    /**
+  /**
      * The types of {@link Relationship | Relationships} to exclude from being followed in each
      * {@link DataObject.related | DataObject.related} during the search.
      */
-    excludeRelating?: number[];
+  excludeRelating?: number[];
 
-    /**
+  /**
      * The types of {@link Relationship | Relationships} to exclusively follow in each
      * {@link DataObject.related | DataObject.related} during the search.
      */
-    includeRelated?: number[];
+  includeRelated?: number[];
 
-    /**
+  /**
      * The types of {@link Relationship | Relationships} to exclude from being followed in each
      * {@link DataObject.relating | DataObject.relating} during the search.
      */
-    excludeRelated?: number[];
+  excludeRelated?: number[];
 
-    /**
+  /**
      * Collects the search results as a list of {@link DataObject | DataObject} IDs.
      *
      * This option is mutually exclusive with {@link SearchParams.resultObjects} and {@link SearchParams.resultCallback}.
      */
-    resultObjectIds?: string[];
+  resultObjectIds?: string[];
 
-    /**
+  /**
      * Collects the search results as a list of {@link DataObject | DataObjects}.
      *
      * This option is mutually exclusive with {@link SearchParams.resultObjectIds} and {@link SearchParams.resultCallback}.
      */
-    resultObjects?: DataObject[];
+  resultObjects?: DataObject[];
 
-    /**
+  /**
      * Collects the search results via a callback function that is executed for each matching
      * {@link DataObject | DataObject}.
      *
      * This option is mutually exclusive with {@link SearchParams.resultObjects} and {@link SearchParams.resultObjectIds}.
      */
-    resultCallback?: (dataObject: DataObject) => boolean;
+  resultCallback?: (dataObject: DataObject) => boolean;
 }

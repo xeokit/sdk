@@ -1,5 +1,5 @@
-import {TreeViewNode} from "./TreeViewNode";
-import {TreeView} from "./TreeView";
+import type { TreeView } from "./TreeView";
+import type { TreeViewNode } from "./TreeViewNode";
 
 /**
  * Event fired by {@link TreeView.onContextMenu}.
@@ -7,7 +7,7 @@ import {TreeView} from "./TreeView";
  * See {@link treeview | @xeokit/sdk/treeview} for usage.
  */
 export interface TreeViewNodeContextMenuEvent {
-    event: Event;
-    treeView: TreeView;
-    treeViewNode: TreeViewNode;
+  event: Event;
+  treeView: TreeView;
+  treeViewNode: TreeViewNode;
 }

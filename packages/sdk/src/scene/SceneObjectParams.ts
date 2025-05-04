@@ -8,23 +8,23 @@
  */
 export interface SceneObjectParams {
 
-    /**
+  /**
      * Unique ID for the SceneObject.
      */
-    id: string;
+  id: string;
 
-    /**
+  /**
      * ID of this SceneObject within the originating system, is any. Defaults to the value of
      * {@link SceneObjectParams.id | SceneObjectParams.id}.
      */
-    originalSystemId?: string;
+  originalSystemId?: string;
 
-    /**
+  /**
      * IDs of meshes previously created with {@link SceneModel.createMesh | SceneModel.createMesh}.
      */
-    meshIds: string[];
+  meshIds: string[];
 
-    /**
+  /**
      * Causes each {@link viewer!View} to put the corresponding {@link viewer!ViewObject} into
      * a {@link viewer!ViewLayer} with this ID.
      *
@@ -35,5 +35,5 @@ export interface SceneObjectParams {
      *
      * Overridden by {@link SceneObjectParams.layerId | SceneObjectParams.layerId}.
      */
-    layerId?: string;
+  layerId?: string;
 }

@@ -1,52 +1,52 @@
-import {DataModel} from "../data/DataModel";
-import {ModelExportParams} from "./ModelExportParams";
-import {ModelExporterParams} from "./ModelExporterParams";
-import {ModelEncoder} from "./ModelEncoder";
+import { DataModel } from "../data/DataModel";
+import type { ModelEncoder } from "./ModelEncoder";
+import type { ModelExporterParams } from "./ModelExporterParams";
+import type { ModelExportParams } from "./ModelExportParams";
 
 /**
  * Exports a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel} to a file.
  */
 export class ModelExporter {
 
-    /**
+  /**
      * The exported model file format.
      */
-    format: string;
+  format: string;
 
-    /**
+  /**
      * An encoder for each supported schema version.
      */
-    encoders: {
-        [key: string]: ModelEncoder
-    };
+  encoders: {
+    [key: string]: ModelEncoder
+  };
 
-    /**
+  /**
      * List of supported schema versions.
      */
-    versions: string[];
+  versions: string[];
 
-    /**
+  /**
      * The default supported schema version.
      */
-    defaultVersion: string;
+  defaultVersion: string;
 
-    /**
+  /**
      * Data type of the file written by this Exporter.
      */
-    fileDataType: string;
+  fileDataType: string;
 
-    /**
+  /**
      * @param params
      */
-    constructor(params: ModelExporterParams) {
-        this.format = params.format;
-        this.encoders = params.encoders || {};
-        this.versions = Object.keys(this.encoders);
-        this.fileDataType = params.fileDataType;
-        this.defaultVersion = params.defaultVersion;
-    }
+  constructor(params: ModelExporterParams) {
+    this.format = params.format;
+    this.encoders = params.encoders || {};
+    this.versions = Object.keys(this.encoders);
+    this.fileDataType = params.fileDataType;
+    this.defaultVersion = params.defaultVersion;
+  }
 
-    /**
+  /**
      * Exports a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel} to file data.
      *
      * This method expects the following conditions:
@@ -65,46 +65,46 @@ export class ModelExporter {
      * - If the DataModel has already been destroyed.
      * - If the DataModel has not been built.
      */
-    write(params: ModelExportParams, options: any = {}): Promise<any> {
+  write(params: ModelExportParams, options: any = {}): Promise<any> {
 
-        return new Promise<any>((resolve, reject) => {
-            if (!params) {
-                return reject("Argument expected: params");
-            }
-            const {sceneModel, dataModel} = params;
-            if (!sceneModel) {
-                return reject("Argument expected: params.sceneModel");
-            }
-            if (sceneModel.destroyed) {
-                return reject("SceneModel already destroyed");
-            }
-            if (!sceneModel.built) {
-                return reject("SceneModel not built");
-            }
-            if (dataModel) {
-                if (!(dataModel instanceof DataModel)) {
-                    return reject("Argument type mismatch: params.dataModel should be a DataModel");
-                }
-                if (dataModel.destroyed) {
-                    return reject("DataModel already destroyed");
-                }
-                if (!dataModel.built) {
-                    return reject("DataModel not built");
-                }
-            }
-            const version = params.version || this.defaultVersion;
-            const encoder = this.encoders[version];
-            if (!encoder) {
-                return reject(`Unsupported target file schema version: ${version} - supported versions are [${this.versions}]`);
-            }
-            encoder({sceneModel, dataModel}, options)
-                .then((fileData: any) => {
-                    resolve(fileData);
-                })
-                .catch(err => {
-                    reject(`Failed to writer source file: ${err}`);
-                });
+    return new Promise<any>((resolve, reject) => {
+      if (!params) {
+        return reject("Argument expected: params");
+      }
+      const { sceneModel, dataModel } = params;
+      if (!sceneModel) {
+        return reject("Argument expected: params.sceneModel");
+      }
+      if (sceneModel.destroyed) {
+        return reject("SceneModel already destroyed");
+      }
+      if (!sceneModel.built) {
+        return reject("SceneModel not built");
+      }
+      if (dataModel) {
+        if (!(dataModel instanceof DataModel)) {
+          return reject("Argument type mismatch: params.dataModel should be a DataModel");
+        }
+        if (dataModel.destroyed) {
+          return reject("DataModel already destroyed");
+        }
+        if (!dataModel.built) {
+          return reject("DataModel not built");
+        }
+      }
+      const version = params.version || this.defaultVersion;
+      const encoder = this.encoders[version];
+      if (!encoder) {
+        return reject(`Unsupported target file schema version: ${version} - supported versions are [${this.versions}]`);
+      }
+      encoder({ sceneModel, dataModel }, options)
+        .then((fileData: any) => {
+          resolve(fileData);
+        })
+        .catch(err => {
+          reject(`Failed to writer source file: ${err}`);
         });
-    }
+    });
+  }
 }
 

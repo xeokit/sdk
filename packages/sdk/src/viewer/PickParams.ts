@@ -1,68 +1,68 @@
 
-import type {FloatArrayParam} from "../math";
+import type { FloatArrayParam } from "../math";
 
 /**
  * TODO
  */
-export interface PickParams  {
+export interface PickParams {
 
-    /**
+  /**
      * Whether to snap to the nearest vertex to {@link PickParams.canvasPos}.
      */
-    snapToVertex?:boolean;
+  snapToVertex?:boolean;
 
-    /**
+  /**
      * Whether to snap to the nearest edge to {@link PickParams.canvasPos}.
      */
-    snapToEdge?:boolean;
+  snapToEdge?:boolean;
 
-    /**
+  /**
      * The snap radius around {@link PickParams.canvasPos}, in canvas pixels.
      */
-    snapRadius?:number;
+  snapRadius?:number;
 
-    /**
+  /**
      * Set this ````true```` to perform a ray-pick; leave ````false```` to pick at canvas coordinates.
      */
-    rayPick?: boolean;
+  rayPick?: boolean;
 
-    /**
+  /**
      * Set this ````true```` to pick a {@link ViewObject | ViewObjects}.
      */
-    pickViewObject?: boolean;
+  pickViewObject?: boolean;
 
-    /**
+  /**
      * Set this ````true```` to pick a 3D position on a surface.
      */
-    pickSurface?: boolean;
+  pickSurface?: boolean;
 
-    /**
+  /**
      * Set this ````false```` to not pick invisible {@link ViewObject | ViewObjects}. Default is ````true````.
      */
-    pickInvisible?: boolean;
+  pickInvisible?: boolean;
 
-    /**
+  /**
      * Set this ````true```` when ray-picking to pick the normal vector on the surface of the picked object.
      */
-    pickSurfaceNormal?: boolean;
+  pickSurfaceNormal?: boolean;
 
-    /**
+  /**
      * Canvas coordinates, used when {@link PickParams.rayPick} is ````false````.
      */
-    canvasPos?: FloatArrayParam;
+  canvasPos?: FloatArrayParam;
 
-    /**
+  /**
      * Ray-picking origin, used when {@link PickParams.rayPick} is ````true````.
      */
-    rayOrigin?: FloatArrayParam;
+  rayOrigin?: FloatArrayParam;
 
-    /**
+  /**
      * Ray-picking direction, used when {@link PickParams.rayPick} is ````true````.
      */
-    rayDirection?: FloatArrayParam;
+  rayDirection?: FloatArrayParam;
 
-    /**
+  /**
      * Ray-picking direction matrix, used when {@link PickParams.rayPick} is ````true````.
      */
-    rayMatrix?: FloatArrayParam;
+  rayMatrix?: FloatArrayParam;
 }

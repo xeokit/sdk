@@ -1,4 +1,4 @@
-import type {RendererTexture} from "./RendererTexture";
+import type { RendererTexture } from "./RendererTexture";
 
 /**
  * Interface through which a {@link SceneTextureSet | SceneTextureSet} loads updated texture data
@@ -14,27 +14,27 @@ import type {RendererTexture} from "./RendererTexture";
 export interface RendererTextureSet {
 
 
-    /**
+  /**
      * Interface through which the color {@link SceneTexture | SceneTexture} in this set loads content updates
      * into a {@link viewer!Viewer | Viewer's} {@link viewer!Renderer | Renderer}.
      */
-    readonly colorRendererTexture: RendererTexture;
+  readonly colorRendererTexture: RendererTexture;
 
-    /**
+  /**
      * Interface through which the metallic-roughness {@link SceneTexture | SceneTexture} in this set loads content updates
      * into a {@link viewer!Viewer | Viewer's} {@link viewer!Renderer | Renderer}.
      */
-    readonly metallicRoughnessRendererTexture: RendererTexture;
+  readonly metallicRoughnessRendererTexture: RendererTexture;
 
-    /**
+  /**
      * Interface through which the emissive {@link SceneTexture | SceneTexture} in this set loads content updates
      * into a {@link viewer!Viewer | Viewer's} {@link viewer!Renderer | Renderer}.
      */
-    readonly emissiveRendererTexture: RendererTexture;
+  readonly emissiveRendererTexture: RendererTexture;
 
-    /**
+  /**
      * Interface through which the ambient occlusion {@link SceneTexture | SceneTexture} in this set loads content updates
      * into a {@link viewer!Viewer | Viewer's} {@link viewer!Renderer | Renderer}.
      */
-    readonly occlusionRendererTexture: RendererTexture;
+  readonly occlusionRendererTexture: RendererTexture;
 }

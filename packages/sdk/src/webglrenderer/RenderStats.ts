@@ -3,34 +3,34 @@
  */
 export class RenderStats {
 
-    /**
+  /**
      * Number of WebGL programs that were bound in the rendered frame.
      */
-    numProgramBinds: number;
+  numProgramBinds: number;
 
-    /**
+  /**
      * Number of WebGL drawArrays calls performed during the rendered frame.
      */
-    numDrawArrays: number;
+  numDrawArrays: number;
 
-    /**
+  /**
      * Number of WebGL textures that were bound in the rendered frame.
      */
-    numTextureBinds: number;
+  numTextureBinds: number;
 
-    /**
+  /**
      * Creates a new RenderStats.
      */
-    constructor() {
-        this.reset();
-    }
+  constructor() {
+    this.reset();
+  }
 
-    /**
+  /**
      * Called by the renderers before each frame.
      */
-    reset() {
-        this.numProgramBinds = 0;
-        this.numDrawArrays = 0;
-        this.numTextureBinds = 0;
-    }
+  reset() {
+    this.numProgramBinds = 0;
+    this.numDrawArrays = 0;
+    this.numTextureBinds = 0;
+  }
 }

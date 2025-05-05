@@ -1,9 +1,9 @@
-import {DataModel} from "../data/DataModel";
-import {SceneModel} from "../scene/SceneModel";
+import {DataModel} from "../data";
+import {SceneModel} from "../scene";
 import {isJSONObject} from "../utils";
-import {ModelLoadParams} from "./ModelLoadParams";
-import {ModelLoaderParams} from "./ModelLoaderParams";
-import {ModelParser} from "./ModelParser";
+import  {type ModelLoadParams} from "./ModelLoadParams";
+import {type ModelLoaderParams} from "./ModelLoaderParams";
+import {type ModelParser} from "./ModelParser";
 
 import {createFileIO} from './FileIOFactory';
 

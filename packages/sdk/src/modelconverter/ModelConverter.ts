@@ -2,15 +2,13 @@ import {Data} from "../data";
 import {Scene} from "../scene";
 import {ModelLoader, ModelExporter} from "../io";
 import {SDKError} from "../core";
-import {ModelConverterParams} from "./ModelConverterParams";
-import {ModelConverterPipelineParams} from "./ModelConverterPipelineParams";
-import {ModelConverterRequest} from "./ModelConverterRequest";
-import {ModelConverterResult} from "./ModelConverterResult";
-import {ModelConverterConfig} from "./ModelConverterConfig";
-import {ModelConverterReporter} from "./reporters/ModelConverterReporter";
+import {type ModelConverterParams} from "./ModelConverterParams";
+import {type ModelConverterPipelineParams} from "./ModelConverterPipelineParams";
+import {type ModelConverterRequest} from "./ModelConverterRequest";
+import {type ModelConverterResult} from "./ModelConverterResult";
+import {type ModelConverterConfig} from "./ModelConverterConfig";
 
 import {createFileIO} from "./../io/FileIOFactory";
-import fs from "fs";
 
 const fileIO = createFileIO();
 
@@ -44,11 +42,6 @@ export class ModelConverter {
     pipelines: { [key: string]: ModelConverterPipelineParams };
 
     /**
-     * A collection of available reporters, mapped by IDs.
-     */
-    reporters: { [key: string]: ModelConverterReporter };
-
-    /**
      * Creates a new ModelConverter instance with the provided configuration.
      *
      * @param params - An object containing configured loaders, exporters, and optional pipelines.
@@ -57,7 +50,6 @@ export class ModelConverter {
         this.loaders = params.loaders || {};
         this.exporters = params.exporters || {};
         this.pipelines = params.pipelines || {};
-        this.reporters = params.reporters || {};
     }
 
     /**
@@ -140,8 +132,7 @@ export class ModelConverter {
                 scene,
                 data,
                 inputs: {},
-                outputs: {},
-                reports: {}
+                outputs: {}
             };
 
             const processInputs = async () => {
@@ -167,7 +158,7 @@ export class ModelConverter {
                                 fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
                                 break;
                             default:
-                                fileData = fs.readFileSync(filePath);
+                                fileData = fileIO.load(filePath);
                                 fileDataSizeBytes = fileData.buffer.byteLength;
                                 break;
                         }
@@ -336,7 +327,6 @@ let fileDataSizeBytes;
                 await buildSceneModels();
                 await buildDataModels();
                 await processOutputs();
-               // await buildReports();
                 return modelConverterResult;
             };
 

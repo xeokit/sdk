@@ -1,6 +1,6 @@
-import type {SceneTexture} from "./SceneTexture";
-import type {SceneTextureSetParams} from "./SceneTextureSetParams";
-import type {RendererTextureSet} from "./RendererTextureSet";
+import type { RendererTextureSet } from "./RendererTextureSet";
+import type { SceneTexture } from "./SceneTexture";
+import type { SceneTextureSetParams } from "./SceneTextureSetParams";
 
 /**
  * A set of {@link SceneTexture | Textures} in a {@link SceneModel | SceneModel}.
@@ -13,56 +13,56 @@ import type {RendererTextureSet} from "./RendererTextureSet";
  */
 export class SceneTextureSet {
 
-    /**
+  /**
      * The ID of this SceneTextureSet.
      */
-    id: string;
+  id: string;
 
-    /**
+  /**
      * The color {@link SceneTexture} in this set.
      */
-    colorTexture?: SceneTexture;
+  colorTexture?: SceneTexture;
 
-    /**
+  /**
      * The metallic-roughness {@link SceneTexture} in this set.
      */
-    metallicRoughnessTexture?: SceneTexture;
+  metallicRoughnessTexture?: SceneTexture;
 
-    /**
+  /**
      * The occlusion {@link SceneTexture} in this set.
      */
-    occlusionTexture?: SceneTexture;
+  occlusionTexture?: SceneTexture;
 
-    /**
+  /**
      * The emissive {@link SceneTexture} in this set.
      */
-    emissiveTexture?: SceneTexture;
+  emissiveTexture?: SceneTexture;
 
-    /**
+  /**
      *  Internal interface through which a SceneTextureSet can load property updates into a renderers.
      *
      *  This is defined while the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
      *
      * @internal
      */
-    rendererTextureSet: RendererTextureSet | null;
+  rendererTextureSet: RendererTextureSet | null;
 
-    /**
+  /**
      * @private
      */
-    constructor(textureSetParams: SceneTextureSetParams,
-                textures: {
-                    emissiveTexture?: SceneTexture;
-                    occlusionTexture?: SceneTexture;
-                    metallicRoughnessTexture?: SceneTexture;
-                    colorTexture?: SceneTexture;
-                }) {
+  constructor(textureSetParams: SceneTextureSetParams,
+    textures: {
+      emissiveTexture?: SceneTexture;
+      occlusionTexture?: SceneTexture;
+      metallicRoughnessTexture?: SceneTexture;
+      colorTexture?: SceneTexture;
+    }) {
 
-        this.id = textureSetParams.id;
-        this.colorTexture = textures.colorTexture;
-        this.metallicRoughnessTexture = textures.metallicRoughnessTexture;
-        this.occlusionTexture = textures.occlusionTexture;
-        this.emissiveTexture = textures.emissiveTexture;
-        this.rendererTextureSet = null;
-    }
+    this.id = textureSetParams.id;
+    this.colorTexture = textures.colorTexture;
+    this.metallicRoughnessTexture = textures.metallicRoughnessTexture;
+    this.occlusionTexture = textures.occlusionTexture;
+    this.emissiveTexture = textures.emissiveTexture;
+    this.rendererTextureSet = null;
+  }
 }

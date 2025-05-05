@@ -1,4 +1,4 @@
-import type {SceneObject} from "../scene";
+import type { SceneObject } from "../scene";
 
 /**
  * Marquee picking results returned by {@link marqueePick}.
@@ -7,8 +7,8 @@ import type {SceneObject} from "../scene";
  */
 export interface MarqueePickResult {
 
-    /**
+  /**
      * Contains the SceneObjects that were marquee-picked.
      */
-    sceneObjects: SceneObject[];
+  sceneObjects: SceneObject[];
 }

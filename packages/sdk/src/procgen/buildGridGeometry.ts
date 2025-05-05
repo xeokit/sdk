@@ -26,66 +26,66 @@ import type { GeometryArrays } from "./GeometryArrays";
  * @throws {SDKError} If any of the size or division parameters are negative, the function automatically inverts the values and logs a warning.
  */
 export function buildGridGeometry(cfg = {
-    size: 1,
-    divisions: 1
+  size: 1,
+  divisions: 1
 }): GeometryArrays {
 
-    let size = cfg.size || 1;
-    if (size < 0) {
-        console.error("negative size not allowed - will invert");
-        size *= -1;
-    }
+  let size = cfg.size || 1;
+  if (size < 0) {
+    console.error("negative size not allowed - will invert");
+    size *= -1;
+  }
 
-    let divisions = cfg.divisions || 1;
-    if (divisions < 0) {
-        console.error("negative divisions not allowed - will invert");
-        divisions *= -1;
-    }
-    if (divisions < 1) {
-        divisions = 1;
-    }
+  let divisions = cfg.divisions || 1;
+  if (divisions < 0) {
+    console.error("negative divisions not allowed - will invert");
+    divisions *= -1;
+  }
+  if (divisions < 1) {
+    divisions = 1;
+  }
 
-    size = size || 10;
-    divisions = divisions || 10;
+  size = size || 10;
+  divisions = divisions || 10;
 
-    const step = size / divisions;
-    const halfSize = size / 2;
+  const step = size / divisions;
+  const halfSize = size / 2;
 
-    const positions = [];
-    const indices = [];
-    let l = 0;
+  const positions = [];
+  const indices = [];
+  let l = 0;
 
-    // Create the grid lines (X and Z axis)
-    for (let i = 0, j = 0, k = -halfSize; i <= divisions; i++, k += step) {
+  // Create the grid lines (X and Z axis)
+  for (let i = 0, j = 0, k = -halfSize; i <= divisions; i++, k += step) {
 
-        // X-axis lines
-        positions.push(-halfSize);
-        positions.push(0);
-        positions.push(k);
+    // X-axis lines
+    positions.push(-halfSize);
+    positions.push(0);
+    positions.push(k);
 
-        positions.push(halfSize);
-        positions.push(0);
-        positions.push(k);
+    positions.push(halfSize);
+    positions.push(0);
+    positions.push(k);
 
-        // Z-axis lines
-        positions.push(k);
-        positions.push(0);
-        positions.push(-halfSize);
+    // Z-axis lines
+    positions.push(k);
+    positions.push(0);
+    positions.push(-halfSize);
 
-        positions.push(k);
-        positions.push(0);
-        positions.push(halfSize);
+    positions.push(k);
+    positions.push(0);
+    positions.push(halfSize);
 
-        // Add indices for the lines
-        indices.push(l++);
-        indices.push(l++);
-        indices.push(l++);
-        indices.push(l++);
-    }
+    // Add indices for the lines
+    indices.push(l++);
+    indices.push(l++);
+    indices.push(l++);
+    indices.push(l++);
+  }
 
-    return utils.apply(cfg, {
-        primitive: "lines",
-        positions: positions,
-        indices: indices
-    });
+  return utils.apply(cfg, {
+    primitive: "lines",
+    positions: positions,
+    indices: indices
+  });
 }

@@ -90,7 +90,7 @@
  * @returns The tangent vector at the given parameter t.
  */
 export function tangentQuadraticBezier(t: number, p0: number, p1: number, p2: number): number {
-    return 2 * (1 - t) * (p1 - p0) + 2 * t * (p2 - p1);
+  return 2 * (1 - t) * (p1 - p0) + 2 * t * (p2 - p1);
 }
 
 /**
@@ -104,7 +104,7 @@ export function tangentQuadraticBezier(t: number, p0: number, p1: number, p2: nu
  * @returns The tangent vector at the given parameter t.
  */
 export function tangentQuadraticBezier3(t: number, p0: number, p1: number, p2: number, p3: number): number {
-    return -3 * p0 * (1 - t) ** 2 +
+  return -3 * p0 * (1 - t) ** 2 +
         3 * p1 * (1 - t) ** 2 -
         6 * t * p1 * (1 - t) +
         6 * t * p2 * (1 - t) -
@@ -119,11 +119,11 @@ export function tangentQuadraticBezier3(t: number, p0: number, p1: number, p2: n
  * @returns The tangent vector at the given parameter t.
  */
 export function tangentSpline(t: number) {
-    const h00 = 6 * t ** 2 - 6 * t;
-    const h10 = 3 * t ** 2 - 4 * t + 1;
-    const h01 = -6 * t ** 2 + 6 * t;
-    const h11 = 3 * t ** 2 - 2 * t;
-    return h00 + h10 + h01 + h11;
+  const h00 = 6 * t ** 2 - 6 * t;
+  const h10 = 3 * t ** 2 - 4 * t + 1;
+  const h01 = -6 * t ** 2 + 6 * t;
+  const h11 = 3 * t ** 2 - 2 * t;
+  return h00 + h10 + h01 + h11;
 }
 
 /**
@@ -137,11 +137,11 @@ export function tangentSpline(t: number) {
  * @returns The interpolated value at the given parameter t.
  */
 export function catmullRomInterpolate(p0: number, p1: number, p2: number, p3: number, t: number): number {
-    const v0 = (p2 - p0) * 0.5;
-    const v1 = (p3 - p1) * 0.5;
-    const t2 = t ** 2;
-    const t3 = t * t2;
-    return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
+  const v0 = (p2 - p0) * 0.5;
+  const v1 = (p3 - p1) * 0.5;
+  const t2 = t ** 2;
+  const t3 = t * t2;
+  return (2 * p1 - 2 * p2 + v0 + v1) * t3 + (-3 * p1 + 3 * p2 - 2 * v0 - v1) * t2 + v0 * t + p1;
 }
 
 // Bézier Curve Formulas from http://en.wikipedia.org/wiki/B%C3%A9zier_curve
@@ -156,8 +156,8 @@ export function catmullRomInterpolate(p0: number, p1: number, p2: number, p3: nu
  * @returns The result of the quadratic Bézier function b2p0.
  */
 export function b2p0(t: number, p: number): number {
-    const k = 1 - t;
-    return k * k * p;
+  const k = 1 - t;
+  return k * k * p;
 }
 
 /**
@@ -168,7 +168,7 @@ export function b2p0(t: number, p: number): number {
  * @returns The result of the quadratic Bézier function b2p1.
  */
 export function b2p1(t: number, p: number): number {
-    return 2 * (1 - t) * t * p;
+  return 2 * (1 - t) * t * p;
 }
 
 /**
@@ -179,7 +179,7 @@ export function b2p1(t: number, p: number): number {
  * @returns The result of the quadratic Bézier function b2p2.
  */
 export function b2p2(t: number, p: number): number {
-    return t * t * p;
+  return t * t * p;
 }
 
 /**
@@ -192,7 +192,7 @@ export function b2p2(t: number, p: number): number {
  * @returns The value of the quadratic Bézier curve at the given parameter t.
  */
 export function b2(t: number, p0: number, p1: number, p2: number): number {
-    return b2p0(t, p0) + b2p1(t, p1) + b2p2(t, p2);
+  return b2p0(t, p0) + b2p1(t, p1) + b2p2(t, p2);
 }
 
 // Cubic Bézier Functions
@@ -205,8 +205,8 @@ export function b2(t: number, p0: number, p1: number, p2: number): number {
  * @returns The result of the cubic Bézier function b3p0.
  */
 export function b3p0(t: number, p: number): number {
-    const k = 1 - t;
-    return k * k * k * p;
+  const k = 1 - t;
+  return k * k * k * p;
 }
 
 /**
@@ -217,8 +217,8 @@ export function b3p0(t: number, p: number): number {
  * @returns The result of the cubic Bézier function b3p1.
  */
 export function b3p1(t: number, p: number): number {
-    const k = 1 - t;
-    return 3 * k * k * t * p;
+  const k = 1 - t;
+  return 3 * k * k * t * p;
 }
 
 /**
@@ -229,8 +229,8 @@ export function b3p1(t: number, p: number): number {
  * @returns The result of the cubic Bézier function b3p2.
  */
 export function b3p2(t: number, p: number): number {
-    const k = 1 - t;
-    return 3 * k * t * t * p;
+  const k = 1 - t;
+  return 3 * k * t * t * p;
 }
 
 /**
@@ -241,7 +241,7 @@ export function b3p2(t: number, p: number): number {
  * @returns The result of the cubic Bézier function b3p3.
  */
 export function b3p3(t: number, p: number): number {
-    return t * t * t * p;
+  return t * t * t * p;
 }
 
 /**
@@ -255,5 +255,5 @@ export function b3p3(t: number, p: number): number {
  * @returns The value of the cubic Bézier curve at the given parameter t.
  */
 export function b3(t: number, p0: number, p1: number, p2: number, p3: number) {
-    return b3p0(t, p0) + b3p1(t, p1) + b3p2(t, p2) + b3p3(t, p3);
+  return b3p0(t, p0) + b3p1(t, p1) + b3p2(t, p2) + b3p3(t, p3);
 }

@@ -8,7 +8,6 @@
     "scripts": {
         "sdk-test": "jest --passWithNoTests",
         "sdk-dist": "rm -Rf tsconfig.tsbuildinfo;  tsc; node ./scripts/build-cli-tools.js",
-        "sdk-lint": "eslint . --fix",
         "sdk-publish": "npm publish --access public",
         "website-sdk-docs": "typedoc --json ../website/docs/json/sdk.json --options typedoc.json --validation.invalidLink false && cp -Rf ./assets ../website/docs/."
     },
@@ -43,8 +42,7 @@
         "web-ifc": "^0.0.50",
         "pako": "^2.0.4",
         "commander": "^11.0.0",
-        "yargs": "17.7.2",
-        "node-fetch": "^3.3.2"
+        "yargs": "17.7.2"
     },
     "peerDependencies": {
         "typedoc": "^0.27.6",

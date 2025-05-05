@@ -4,9 +4,9 @@
  * * Returned by {@link View.pick | View.pick}
  */
 export interface SnapshotParams {
-    includeGizmos?: boolean;
-    height?: number;
-    width?: number;
-    format?: any;
+  includeGizmos?: boolean;
+  height?: number;
+  width?: number;
+  format?: any;
 
 }

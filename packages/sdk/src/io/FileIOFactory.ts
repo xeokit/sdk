@@ -1,4 +1,4 @@
-import { FileIO } from './FileIO';
+import { type FileIO } from './FileIO';
 import { NodeFileIO } from './NodeFileIO';
 import { BrowserFileIO } from './BrowserFileIO';
 

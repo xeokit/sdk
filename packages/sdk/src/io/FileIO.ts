@@ -1,4 +1,4 @@
-import { CrossPlatformBlob } from './CrossPlatformBlob';
+import { type CrossPlatformBlob } from './CrossPlatformBlob';
 
 /**
  * An interface for file input/output operations that can be implemented

@@ -1,5 +1,5 @@
-import { FileIO } from './FileIO';
-import { CrossPlatformBlob } from './CrossPlatformBlob';
+import { type FileIO } from './FileIO';
+import { type CrossPlatformBlob } from './CrossPlatformBlob';
 
 /**
  * A browser-specific implementation of the FileIO interface.

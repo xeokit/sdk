@@ -1,4 +1,4 @@
-import {ViewParams} from "./ViewParams";
+import type { ViewParams } from "./ViewParams";
 
 /**
  * Parameters for a {@link Viewer}.
@@ -8,12 +8,12 @@ import {ViewParams} from "./ViewParams";
  */
 export interface ViewerParams {
 
-    /**
+  /**
      * Optional ID for the Viewer, generated automatically by the {@link Viewer} constructor if omitted.
      */
-    id?: string;
+  id?: string;
 
-    /**
+  /**
      * Paramaters to create or configure {@link View | Views} within the target {@link Viewer}.
      *
      * When the ViewerParsms is passed to {@link Viewer.fromParams}, for each {@link ViewParams | ViewParams}
@@ -22,5 +22,5 @@ export interface ViewerParams {
      * For each ViewParams whose ID matches no existiong View, a new View is created, giving it the ID and
      * whatever configurations are provided on the ViewParams.
      */
-    views?: ViewParams[];
+  views?: ViewParams[];
 }

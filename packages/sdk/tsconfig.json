@@ -20,12 +20,15 @@
         "typeRoots": [
             "../../node_modules/@types"
         ],
+        "strict": false,
         "alwaysStrict": true,
         "strictFunctionTypes": true,
         "strictBindCallApply": true,
         "strictPropertyInitialization": false,
         "noImplicitThis": true,
+      "noImplicitAny": false,
         "declaration": true,
+        "verbatimModuleSyntax": true,
         "sourceMap": true,
         "baseUrl": ".",
         "declarationMap": true,

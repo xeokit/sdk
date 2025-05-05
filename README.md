@@ -39,7 +39,6 @@ To start developing this project, you should first install it, preferably global
 
 ```bash
 npm i pnpm -g
-pnpm install turbo --global
 ```
 
 Then clone the repository:

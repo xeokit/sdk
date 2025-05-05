@@ -1,8 +1,6 @@
-
-import { ModelConverterManifestReport } from "./ModelConverterManifestReport";
-import { ModelConverterReportParams } from "../ModelConverterReportParams";
-import { ModelConverterManifestReportFile } from "./ModelConverterManifestReportFile";
-import {ModelConverterResult} from "../../ModelConverterResult";
+import {type ModelConverterManifestReport} from "./ModelConverterManifestReport";
+import {type ModelConverterManifestReportFile} from "./ModelConverterManifestReportFile";
+import {type ModelConverterResult} from "../../ModelConverterResult";
 
 /**
  * Generates a model converter manifest report. The report contains metadata
@@ -14,10 +12,10 @@ import {ModelConverterResult} from "../../ModelConverterResult";
  * @param modelConverterResult - The model converter result.
  * @returns A populated {@link ModelConverterManifestReport | ModelConverterManifestReport} object.
  */
-export const createModelConverterManifestReport: (modelConverterResult: ModelConverterResult) => ModelConverterManifestReport = (modelConverterResult:ModelConverterResult): ModelConverterManifestReport => {
-    return {
-        files: getEntries(modelConverterResult)
-    }
+export const createModelConverterManifestReport: (modelConverterResult: ModelConverterResult) => ModelConverterManifestReport = (modelConverterResult: ModelConverterResult): ModelConverterManifestReport => {
+  return {
+    files: getEntries(modelConverterResult)
+  }
 }
 
 /**
@@ -30,28 +28,28 @@ export const createModelConverterManifestReport: (modelConverterResult: ModelCon
  * @returns An object mapping file identifiers to their respective metadata {@link ModelConverterManifestReportFile | ModelConverterManifestReportFile}.
  */
 function getEntries(modelConverterResult: ModelConverterResult): { [key: string]: ModelConverterManifestReportFile } {
-    const entries = {};
+  const entries = {};
 
-    // Determine which files to catalog: outputs if they exist, otherwise inputs
-    const inputEntries = (Object.keys(modelConverterResult.outputs).length === 0)
-        ? modelConverterResult.inputs // Case 1: Cataloging files without converting anything
-        : modelConverterResult.outputs;
+  // Determine which files to catalog: outputs if they exist, otherwise inputs
+  const inputEntries = (Object.keys(modelConverterResult.outputs).length === 0)
+    ? modelConverterResult.inputs // Case 1: Cataloging files without converting anything
+    : modelConverterResult.outputs;
 
-    // Iterate through the selected entries (inputs or outputs)
-    for (let id in inputEntries) {
-        const inputEntry = inputEntries[id];
+  // Iterate through the selected entries (inputs or outputs)
+  for (let id in inputEntries) {
+    const inputEntry = inputEntries[id];
 
-        // Populate the report with file details, including AABB if available
-        entries[id] = {
-            filePath: inputEntry.filePath,
-            fileFormat: inputEntry.fileFormat,
-            fileFormatVersion: inputEntry.fileFormatVersion,
-            fileDataSizeBytes: inputEntry.fileDataSizeBytes,
-            fileDataType: inputEntry.fileDataType,
-            options: inputEntry.options,
-            aabb: Array.from(Array.from(modelConverterResult.scene.models[inputEntry.sceneModel].aabb || [0, 0, 0, 0, 0, 0]))
-        };
-    }
+    // Populate the report with file details, including AABB if available
+    entries[id] = {
+      filePath: inputEntry.filePath,
+      fileFormat: inputEntry.fileFormat,
+      fileFormatVersion: inputEntry.fileFormatVersion,
+      fileDataSizeBytes: inputEntry.fileDataSizeBytes,
+      fileDataType: inputEntry.fileDataType,
+      options: inputEntry.options,
+      aabb: Array.from(Array.from(modelConverterResult.scene.models[inputEntry.sceneModel].aabb || [0, 0, 0, 0, 0, 0]))
+    };
+  }
 
-    return entries;
+  return entries;
 }

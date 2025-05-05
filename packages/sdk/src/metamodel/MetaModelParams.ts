@@ -1,43 +1,43 @@
-import {MetaObjectParams} from "./MetaObjectParams";
-import {MetaPropertySetParams} from "./MetaPropertySetParams";
+import type { MetaObjectParams } from "./MetaObjectParams";
+import type { MetaPropertySetParams } from "./MetaPropertySetParams";
 
 /**
  * Legacy metadata model parameters.
  */
 export interface MetaModelParams {
 
-    /**
+  /**
      * ID of the project the model belongs to.
      */
-    projectId: string,
+  projectId: string,
 
-    /**
+  /**
      * Author of the model.
      */
-    author: string,
+  author: string,
 
-    /**
+  /**
      * Date the model was created.
      */
-    createdAt: string,
+  createdAt: string,
 
-    /**
+  /**
      * Identifies the model schema.
      */
-    schema: string,
+  schema: string,
 
-    /**
+  /**
      * Identifies the application that created the metadata model.
      */
-    creatingApplication: string,
+  creatingApplication: string,
 
-    /**
+  /**
      * Metaobject parameters.
      */
-   metaObjects: MetaObjectParams[],
+  metaObjects: MetaObjectParams[],
 
-    /**
+  /**
      * Property set parameters.
      */
-   propertySets: MetaPropertySetParams[]
+  propertySets: MetaPropertySetParams[]
 }

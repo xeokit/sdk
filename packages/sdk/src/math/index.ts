@@ -69,7 +69,7 @@ export const RADTODEG: number = 57.295779513;
  * @returns The clamped value.
  */
 export function clamp(value: number, min: number, max: number): number {
-    return Math.max(min, Math.min(max, value));
+  return Math.max(min, Math.min(max, value));
 }
 
 /**
@@ -79,8 +79,8 @@ export function clamp(value: number, min: number, max: number): number {
  * @returns A new `Float64Array` containing the provided values.
  */
 export function newFloatArray(values?: number | FloatArrayParam): FloatArrayParam {
-    // @ts-ignore
-    return new Float64Array(values);
+  // @ts-ignore
+  return new Float64Array(values);
 }
 
 /**
@@ -95,6 +95,6 @@ export const MAX_INT = 10_000_000;
  * @returns `1/x` if `x` is nonzero, otherwise returns `1`.
  */
 export function safeInv(x: number): number {
-    const result = 1 / x;
-    return isFinite(result) ? result : 1;
+  const result = 1 / x;
+  return isFinite(result) ? result : 1;
 }

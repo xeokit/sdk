@@ -42,5 +42,5 @@
  *
  * @module xeoconvert
  */
-export * from "./reporters";
+export * from "../modelconverter/reporters";
 

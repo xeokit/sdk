@@ -14,9 +14,27 @@ export interface ModelConverterRequest {
      * Each key should correspond to a defined pipeline input.
      */
     inputs: {
-        [key: string]: any
+        [key: string]: FileRef
     };
 
+    /**
+     * Output data for the selected pipeline, keyed by output name.
+     * Each key should correspond to a defined pipeline ouput.
+     */
+    outputs: {
+        [key: string]: FileRef
+    };
 
-    reports?: string[];
+    /**
+     * Select reporters to report on results.
+     * Each key should correspond to a supported report type.
+     */
+    reports: {
+        [key: string]: FileRef
+    };
+}
+
+export interface FileRef {
+    filePath?: string;
+    fileData?: any;
 }

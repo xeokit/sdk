@@ -5,6 +5,10 @@ import {ModelLoadParams} from "./ModelLoadParams";
 import {ModelLoaderParams} from "./ModelLoaderParams";
 import {ModelParser} from "./ModelParser";
 
+import {createFileIO} from './FileIOFactory';
+
+const fileIO = createFileIO();
+
 /**
  * Loads a model file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
  */
@@ -46,8 +50,8 @@ export class ModelLoader {
      * @protected
      * @param params
      */
-     constructor(params: ModelLoaderParams) {
-         this.format = params.format;
+    constructor(params: ModelLoaderParams) {
+        this.format = params.format;
         this.parsers = params.parsers || {};
         this.versions = Object.keys(this.parsers);
         this.fileDataType = params.fileDataType;
@@ -76,16 +80,7 @@ export class ModelLoader {
             if (!params) {
                 return reject("Argument expected: params");
             }
-            const {fileData, sceneModel, dataModel} = params;
-            if (!fileData) {
-                return reject("Argument expected: fileData");
-            }
-            if (this.fileDataType === "json" && !isJSONObject(fileData)) {
-                return reject("Argument type mismatch: params.fileData should be a JSON object");
-            }
-            // if (parser.fileDataType === "arraybuffer" && !isArraybuffer(fileData)) {
-            //     return reject("Argument type mismatch: params.fileData should be an ArrayBuffer");
-            // }
+            const {filePath, fileData, sceneModel, dataModel} = params;
             if (sceneModel) {
                 if (!(sceneModel instanceof SceneModel)) {
                     return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
@@ -108,24 +103,44 @@ export class ModelLoader {
                     return reject("DataModel already built");
                 }
             }
-            const version = this.getVersion(fileData);
-            if (!version) {
-                return reject(`Failed to determine schema version of source file`);
+            if (!filePath && !fileData) {
+                return reject("Argument expected: filePath or fileData");
             }
-            const parser = this.parsers[version];
-            if (!parser) {
-                return reject(`Unsupported source file schema version: ${version} - supported versions are [${this.versions}]`);
+            const loadFileData = (fileData) => {
+                if (this.fileDataType === "json" && !isJSONObject(fileData)) {
+                    return reject("Argument type mismatch: params.fileData should be a JSON object");
+                }
+                // if (parser.fileDataType === "arraybuffer" && !isArraybuffer(fileData)) {
+                //     return reject("Argument type mismatch: params.fileData should be an ArrayBuffer");
+                // }
+                const version = this.getVersion(fileData);
+                if (!version) {
+                    return reject(`Failed to determine schema version of source file`);
+                }
+                const parser = this.parsers[version];
+                if (!parser) {
+                    return reject(`Unsupported source file schema version: ${version} - supported versions are [${this.versions}]`);
+                }
+                if (sceneModel || dataModel) {
+                    parser({fileData, sceneModel, dataModel}, options)
+                        .then(() => {
+                            resolve();
+                        })
+                        .catch(err => {
+                            reject(`Failed to load source file: ${err}`);
+                        });
+                } else {
+                    return resolve();
+                }
             }
-            if (sceneModel || dataModel) {
-                parser({fileData, sceneModel, dataModel}, options)
-                    .then(() => {
-                        resolve();
-                    })
-                    .catch(err => {
-                        reject(`Failed to load source file: ${err}`);
-                    });
+            if (filePath) {
+                fileIO.load(filePath).then((fileData) => {
+                    loadFileData(fileData);
+                }).catch(err => {
+                    reject(`Failed to load source file: ${err}`);
+                });
             } else {
-                return resolve();
+                loadFileData(fileData);
             }
         });
     }

@@ -78,7 +78,7 @@ Example:
         inputs: {}
     };
 
-    const xeoConvertStatsReport = {
+    const statsReport = {
         description: "xeoconvert conversion stats",
         command: `node xeoconvert.js ${process.argv.slice(2).join(' ')}`,
         time: (new Date()).toISOString(), // "2025-04-23T18:30:00.000Z"
@@ -118,7 +118,7 @@ Example:
 
         conversionParams.inputs[inputId] = fileData;
 
-        xeoConvertStatsReport.inputs[inputId] = {
+        statsReport.inputs[inputId] = {
             filePath: inputFilePath,
             fileFormat: modelLoader.format,
             fileFormatVersion: modelLoader.getVersion(fileData), // Inefficient?
@@ -143,12 +143,12 @@ Example:
                 const sceneModelId = pipelineInput.sceneModel || "default";
                 const dataModelId = pipelineInput.dataModel || "default";
 
-                if (!xeoConvertStatsReport.sceneModels[sceneModelId]) {
+                if (!statsReport.sceneModels[sceneModelId]) {
                     const sceneModel = modelConverterResult.scene.models[sceneModelId];
-                    xeoConvertStatsReport.sceneModels[sceneModelId] = {aabb: Array.from(sceneModel.aabb), ...sceneModel.stats};
+                    statsReport.sceneModels[sceneModelId] = {aabb: Array.from(sceneModel.aabb), ...sceneModel.stats};
                 }
-                if (!xeoConvertStatsReport.dataModels[dataModelId]) {
-                    xeoConvertStatsReport.dataModels[dataModelId] = modelConverterResult.data.models[dataModelId].stats;
+                if (!statsReport.dataModels[dataModelId]) {
+                    statsReport.dataModels[dataModelId] = modelConverterResult.data.models[dataModelId].stats;
                 }
             }
 
@@ -180,7 +180,7 @@ Example:
                         break;
                 }
 
-                const outputStats = {
+                const statsReportOutput = {
                     filePath: outputFilePath,
                     fileFormat: outputValue.format,
                     fileFormatVersion: outputValue.version,
@@ -193,40 +193,34 @@ Example:
                 };
 
                 const sceneModelId = outputValue.sceneModel || "default";
-                if (!xeoConvertStatsReport.sceneModels[sceneModelId]) {
+                if (!statsReport.sceneModels[sceneModelId]) {
                     const sceneModel = modelConverterResult.scene.models[sceneModelId];
                     if (sceneModel) {
                         const sceneModel = modelConverterResult.scene.models[sceneModelId];
-                        xeoConvertStatsReport.sceneModels[sceneModelId] = {aabb: Array.from(sceneModel.aabb), ...sceneModel.stats};
+                        statsReport.sceneModels[sceneModelId] = {aabb: Array.from(sceneModel.aabb), ...sceneModel.stats};
                     }
                 }
-                outputStats.sceneModel = sceneModelId;
+                statsReportOutput.sceneModel = sceneModelId;
                 const dataModelId = outputValue.dataModel || "default";
-                if (!xeoConvertStatsReport.dataModels[dataModelId]) {
+                if (!statsReport.dataModels[dataModelId]) {
                     const dataModel = modelConverterResult.data.models[dataModelId];
                     if (dataModel) {
-                        xeoConvertStatsReport.dataModels[dataModelId] = dataModel.stats;
+                        statsReport.dataModels[dataModelId] = dataModel.stats;
                     }
                 }
-                outputStats.dataModel = dataModelId;
-                xeoConvertStatsReport.outputs[outputId] = outputStats;
+                statsReportOutput.dataModel = dataModelId;
+                statsReport.outputs[outputId] = statsReportOutput;
             }
 
-            console.log(argv);
-
             for (let reporterId in reporters) {
-                console.log("$$$$$$$$$$$$$ " + reporterId)
                 const reportPath = argv[reporterId];
                 if (reportPath) {
-                    console.log("$$$$$$$$$$$$$PPP " + reportPath)
                     const reporter = reporters[reporterId];
                     if (!reporter) {
                         logError(`Error: Unknown report type '${reporterId}'. Available options: ${Object.keys(reporters).join(", ")}`);
                         process.exit(-1);
                     } else {
                         const report = reporter({
-                            modelConverter,
-                            xeoConvertStatsReport,
                             modelConverterResult
                         });
                         if (!report) {
@@ -246,9 +240,7 @@ Example:
                     process.exit(-1);
                 }
             }
-
             logInfo(`Done.`);
-
             process.exit(1);
         });
 } catch (err) {

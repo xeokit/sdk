@@ -12,9 +12,7 @@
         "sdk-dist": "pnpm --filter @xeokit/sdk sdk-dist",
         "__sdk-test": "pnpm --filter @xeokit/sdk sdk-test || node scripts/test-html-report/index.mjs",
         "sdk-publish": "pnpm --filter @xeokit/sdk sdk-publish",
-
         "website-sdk-docs": "rimraf packages/website/docs && mkdir packages/website/docs && pnpm --filter @xeokit/sdk website-sdk-docs && typedoc --entryPointStrategy merge \"./packages/website/docs/json/*.json\" --tsconfig ./packages/config/tsconfig.typedoc.json",
-
         "website-build-xeokit-lib": "pnpm --filter @xeokit/website website-build-xeokit-lib",
         "website-convert-models": "pnpm website-build-xeokit-lib && pnpm --filter @xeokit/website website-convert-models",
         "website-example-snapshots": "pnpm website-convert-models && pnpm --filter @xeokit/website website-example-snapshots",
@@ -61,6 +59,7 @@
     },
     "packageManager": "pnpm@8.7.6",
     "dependencies": {
+
         "sharp": "^0.33.5"
     }
 }

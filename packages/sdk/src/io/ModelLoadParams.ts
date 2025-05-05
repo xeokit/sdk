@@ -7,9 +7,14 @@ import {DataModel} from "../data";
 export interface ModelLoadParams {
 
     /**
+     * Path to load file data from.
+     */
+    filePath?: string,
+
+    /**
      * The file data to load.
      */
-    fileData: any,
+    fileData?: any,
 
     /**
      * The SceneModel to load geometry into.

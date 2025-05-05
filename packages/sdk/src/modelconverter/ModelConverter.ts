@@ -7,7 +7,12 @@ import {ModelConverterPipelineParams} from "./ModelConverterPipelineParams";
 import {ModelConverterRequest} from "./ModelConverterRequest";
 import {ModelConverterResult} from "./ModelConverterResult";
 import {ModelConverterConfig} from "./ModelConverterConfig";
+import {ModelConverterReporter} from "./reporters/ModelConverterReporter";
 
+import {createFileIO} from "./../io/FileIOFactory";
+import fs from "fs";
+
+const fileIO = createFileIO();
 
 /**
  * Transforms 3D model data between different file formats.
@@ -39,6 +44,11 @@ export class ModelConverter {
     pipelines: { [key: string]: ModelConverterPipelineParams };
 
     /**
+     * A collection of available reporters, mapped by IDs.
+     */
+    reporters: { [key: string]: ModelConverterReporter };
+
+    /**
      * Creates a new ModelConverter instance with the provided configuration.
      *
      * @param params - An object containing configured loaders, exporters, and optional pipelines.
@@ -47,6 +57,7 @@ export class ModelConverter {
         this.loaders = params.loaders || {};
         this.exporters = params.exporters || {};
         this.pipelines = params.pipelines || {};
+        this.reporters = params.reporters || {};
     }
 
     /**
@@ -55,22 +66,22 @@ export class ModelConverter {
      * This method loads the given input file data, constructs scene and data models, and then
      * writes the converted output using the configured exporters.
      *
-     * @param convertRequest - The parameters specifying the pipeline and input data.
+     * @param modelConverterRequest - The parameters specifying the pipeline and input data.
      * @returns A promise that resolves to a `ModelConverterResult` object containing the output files.
      *
      * @throws {SDKError} If required parameters are missing or if an unsupported pipeline is specified.
      */
-    convert(convertRequest: ModelConverterRequest): Promise<ModelConverterResult> {
+    convert(modelConverterRequest: ModelConverterRequest): Promise<ModelConverterResult> {
 
         return new Promise((resolve, reject) => {
 
-            if (!convertRequest) {
-                return reject(`Argument expected: convertRequest`);
+            if (!modelConverterRequest) {
+                return reject(`Arguments expected`);
             }
 
-            const pipelineId = convertRequest.pipeline;
+            const pipelineId = modelConverterRequest.pipeline;
             if (!pipelineId) {
-                return reject(`Argument expected: pipelineId`);
+                return reject(`Argument expected: pipeline`);
             }
 
             const pipeline = this.pipelines[pipelineId];
@@ -78,9 +89,9 @@ export class ModelConverter {
                 return reject(`Unsupported pipeline: "${pipelineId}" - supported pipelines are [${Object.keys(this.pipelines || {})}]`);
             }
 
-            const conversionParamsInputs = convertRequest.inputs;
+            const conversionParamsInputs = modelConverterRequest.inputs;
             if (!conversionParamsInputs) {
-                return reject(`Argument expected: convertRequest.inputs`);
+                return reject(`Argument expected: inputs`);
             }
 
             const pipelineInputs = pipeline.inputs;
@@ -123,72 +134,86 @@ export class ModelConverter {
             const scene = new Scene();
             const data = new Data();
 
-            const result = {
+            const modelConverterResult: ModelConverterResult = {
+                modelConverter: this,
                 pipeline: pipelineId,
                 scene,
                 data,
                 inputs: {},
-                outputs: {}
+                outputs: {},
+                reports: {}
             };
 
-            const processInputs = (done) => {
-                const processNextInput = (index = 0) => {
-                    if (index >= pipelineInputIds.length) {
-                        done();
-                        return;
-                    }
-                    const pipelineInputId = pipelineInputIds[index];
+            const processInputs = async () => {
+                for (const pipelineInputId of pipelineInputIds) {
                     const pipelineInput = pipelineInputs[pipelineInputId];
-                    const conversionParamsInput = conversionParamsInputs[pipelineInputId];
+                    const {filePath, fileData} = conversionParamsInputs[pipelineInputId];
+                    let fileDataSizeBytes;
                     const loader = this.loaders[pipelineInput.loader];
-                    const fileData = conversionParamsInput;
                     const sceneModelId = pipelineInput.sceneModel || "default";
-                    const sceneModel = scene.models[sceneModelId] || scene.createModel({
-                        id: sceneModelId
-                    });
+                    const sceneModel = scene.models[sceneModelId] || scene.createModel({id: sceneModelId});
                     const dataModelId = pipelineInput.dataModel || "default";
-                    const dataModel = data.models[dataModelId] || data.createModel({
-                        id: dataModelId
-                    });
+                    const dataModel = data.models[dataModelId] || data.createModel({id: dataModelId});
                     if (sceneModel instanceof SDKError || dataModel instanceof SDKError) {
-                        processNextInput(index + 1);
-                    } else {
-                        loader.load({
-                            fileData,
-                            sceneModel,
-                            dataModel
-                        }).then(() => {
-                            result.inputs[pipelineInputId] = {
+                        continue;
+                    }
+                    const loadFileData = async (fileData)=>{
+
+                        switch (loader.fileDataType) {
+                            case "text":
+                                fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
+                                break;
+                            case "json":
+                                fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
+                                break;
+                            default:
+                                fileData = fs.readFileSync(filePath);
+                                fileDataSizeBytes = fileData.buffer.byteLength;
+                                break;
+                        }
+
+                        try {
+                            await loader.load({filePath, fileData, sceneModel, dataModel});
+                            modelConverterResult.inputs[pipelineInputId] = {
+                                filePath,
                                 fileData,
                                 fileDataType: loader.fileDataType,
+                                fileDataSizeBytes,
                                 format: loader.format,
                                 sceneModel: sceneModel.id,
                                 dataModel: dataModel.id
                             };
-                            processNextInput(index + 1);
-                        }).catch(reason => {
-                            result.inputs[pipelineInputId] = {
+                        } catch (err) {
+                            modelConverterResult.inputs[pipelineInputId] = {
                                 fileData: null,
                                 fileDataType: loader.fileDataType,
+                                fileDataSizeBytes,
                                 format: loader.format,
                                 version: null,
                                 sceneModel: sceneModel.id,
                                 dataModel: dataModel.id,
-                                errors: [
-                                    `Failed to load fileData: ${reason}`
-                                ]
+                                errors: [`Failed to load fileData: ${err}`]
                             };
+                        }
+                    };
+
+                    if (filePath) {
+                        fileIO.load(filePath).then((fileData) => {
+                            loadFileData(fileData);
+                        }).catch(err => {
+                            reject(`Failed to load source file: ${err}`);
                         });
+
+                    } else {
+                      await  loadFileData(fileData);
                     }
                 }
-                processNextInput(0);
-            }
+            };
 
-            const buildSceneModels = (done) => {
+            const buildSceneModels = () => {
                 const sceneModelIds = Object.keys(scene.models);
                 const buildNextSceneModel = (index = 0) => {
                     if (index >= sceneModelIds.length) {
-                        done();
                         return;
                     }
                     const sceneModelId = sceneModelIds[index];
@@ -197,101 +222,125 @@ export class ModelConverter {
                         buildNextSceneModel(index + 1);
                     }).catch(errMsg => {
                         // reject(`Failed to build SceneModel "${sceneModelId}": ${errMsg}`);
-                        done();
+                        return;
                     });
                 }
                 buildNextSceneModel(0);
             }
 
-            const buildDataModels = (done) => {
+            const buildDataModels = async () => {
                 const dataModelIds = Object.keys(data.models);
-                const buildNextDataModel = (index = 0) => {
-                    if (index >= dataModelIds.length) {
-                        done();
-                        return;
+                try {
+                    for (const dataModelId of dataModelIds) {
+                        const dataModel = data.models[dataModelId];
+                        await dataModel.build();
                     }
-                    const dataModelId = dataModelIds[index];
-                    const dataModel = data.models[dataModelId];
-                    dataModel.build().then(() => {
-                        buildNextDataModel(index + 1);
-                    }).catch(errMsg => {
-                        //   return reject(`Failed to build DataModel "${dataModelId}": ${errMsg}`);
-                        done();
-                    });
+                } catch (err) {
+                    // console.error(`❌ Failed to build a DataModel:`, err);
                 }
-                buildNextDataModel(0);
-            }
+            };
 
-            const processOutputs = (done) => {
-                const processNextOutput = (index) => {
-                    if (index >= pipelineOutputIds.length) {
-                        done();
-                        return;
-                    }
-                    const pipelineOutputId = pipelineOutputIds[index];
+            const processOutputs = async () => {
+                for (const pipelineOutputId of pipelineOutputIds) {
                     const pipelineOutput = pipelineOutputs[pipelineOutputId];
                     const exporter = this.exporters[pipelineOutput.exporter];
-                    const version = pipelineOutput.version || exporter.defaultVersion;
+                    const fileFormatVersion = pipelineOutput.version || exporter.defaultVersion;
                     const sceneModelId = pipelineOutput.sceneModel || "default";
-                    const sceneModel = scene.models[sceneModelId] || scene.createModel({
-                        id: sceneModelId
-                    });
+                    const sceneModel = scene.models[sceneModelId] || scene.createModel({id: sceneModelId});
                     const dataModelId = pipelineOutput.dataModel || "default";
-                    const dataModel = data.models[dataModelId] || data.createModel({
-                        id: dataModelId
-                    });
+                    const dataModel = data.models[dataModelId] || data.createModel({id: dataModelId});
                     if (sceneModel instanceof SDKError || dataModel instanceof SDKError) {
-                        processNextOutput(index + 1);
-                    } else {
-                        if (dataModel && !dataModel.built) {
-                            dataModel.build();
+                        continue;
+                    }
+                    if (dataModel && !dataModel.built) {
+                        await dataModel.build();
+                    }
+                    if (sceneModel && !sceneModel.built) {
+                        await sceneModel.build();
+                    }
+                    try {
+                        const fileData = await exporter.write({sceneModel, dataModel});
+let fileDataSizeBytes;
+                        switch (exporter.fileDataType) {
+                            case "text":
+                                fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
+                                break;
+                            case "json":
+                                fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
+                                break;
+                            default:
+                                fileDataSizeBytes = fileData.buffer.byteLength;
+                                break;
                         }
-                        if (sceneModel && !sceneModel.built) {
-                            sceneModel.build();
-                        }
-                        exporter.write({
-                            sceneModel,
-                            dataModel
-                        })
-                            .then(fileData => {
-                                result.outputs[pipelineOutputId] = {
-                                    fileData,
-                                    fileDataType: exporter.fileDataType,
-                                    format: exporter.format,
-                                    version,
-                                    sceneModel: sceneModel.id,
-                                    dataModel: dataModel.id
-                                };
-                                processNextOutput(index + 1);
-                            })
-                            .catch(reason => {
-                                result.outputs[pipelineOutputId] = {
-                                    fileData: null,
-                                    fileDataType: exporter.fileDataType,
-                                    format: exporter.format,
-                                    version,
-                                    sceneModel: sceneModel.id,
-                                    dataModel: dataModel.id,
-                                    errors: [
-                                        `Failed to export fileData: ${reason}`
-                                    ]
-                                };
-                                processNextOutput(index + 1);
-                            });
+                        modelConverterResult.outputs[pipelineOutputId] = {
+                            fileData,
+                            fileDataType: exporter.fileDataType,
+                            fileFormat: exporter.format,
+                            fileFormatVersion,
+                            fileDataSizeBytes,
+                            sceneModel: sceneModel.id,
+                            dataModel: dataModel.id,
+                            messages: [],
+                            warnings: [],
+                            errors: []
+                        };
+                    } catch (err) {
+                        modelConverterResult.outputs[pipelineOutputId] = {
+                            fileData: null,
+                            fileDataType: exporter.fileDataType,
+                            fileFormat: exporter.format,
+                            fileFormatVersion,
+                            fileDataSizeBytes: 0,
+                            sceneModel: sceneModel.id,
+                            dataModel: dataModel.id,
+                            messages: [],
+                            warnings: [],
+                            errors: [`Failed to export fileData: ${err}`]
+                        };
                     }
                 }
-                processNextOutput(0);
-            }
+            };
 
-            processInputs(() => {
-                buildSceneModels(() => {
-                    buildDataModels(() => {
-                        processOutputs(() => {
-                            return resolve(result);
-                        });
-                    });
-                });
-            });
+            // const buildReports = () => {
+            //     const reporterIds = modelConverterRequest.reports || [];
+            //     for (const reporterId of reporterIds) {
+            //         const reporter = this.reporters[reporterId];
+            //         if (!reporter) {
+            //             continue;
+            //         }
+            //         const report = reporter({
+            //             modelConverterResult
+            //         });
+            //         modelConverterResult.reports[reporterId] = {
+            //             //report,
+            //             //filePath
+            //         };
+            //         if (!report) {
+            //             // logError(`Reporter '${reporterId}' failed to generate report.`);
+            //             continue;
+            //         }
+            //         modelConverterResult.reports[reporterId] = {
+            //             // Add any metadata if needed
+            //         };
+            //         const dirName = path.dirname(reportPath);
+            //         if (dirName && !fs.existsSync(dirName)) {
+            //             fs.mkdirSync(dirName, {recursive: true});
+            //         }
+            //         // logInfo(`Reporter '${reporterId}' writing report to ${reportPath}`);
+            //         fs.writeFileSync(reportPath, JSON.stringify(report, null, 4));
+            //     }
+            // };
+
+            const runPipeline = async (): Promise<ModelConverterResult> => {
+                await processInputs();
+                await buildSceneModels();
+                await buildDataModels();
+                await processOutputs();
+               // await buildReports();
+                return modelConverterResult;
+            };
+
+            runPipeline().then(resolve).catch(reject);
         });
     }
 

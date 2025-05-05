@@ -10,15 +10,15 @@ import {XGFLoader, XGFExporter} from "../xgf";
 import {LASLoader} from "../las";
 import {IFCExporter, IFCLoader} from "../ifc";
 
-import {createXeoConvertStatsReport} from "./reporters/stats/createXeoConvertStatsReport";
-import {createXeoConvertManifestReport} from "./reporters/manifest/createXeoConvertManifestReport";
+import {createModelConverterStatsReport} from "../modelconverter/reporters/stats/createModelConverterStatsReport";
+import {createModelConverterManifestReport} from "../modelconverter/reporters/manifest/createModelConverterManifestReport";
 
 /**
  * Available Reporters
  */
 export const reporters = {
-    "stats-report": createXeoConvertStatsReport,
-    "manifest-report": createXeoConvertManifestReport
+    "stats-report": createModelConverterStatsReport,
+    "manifest-report": createModelConverterManifestReport
 };
 
 /**

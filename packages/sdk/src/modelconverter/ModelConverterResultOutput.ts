@@ -4,6 +4,11 @@
 export interface ModelConverterResultOutput {
 
     /**
+     * Path the file data was written to, if applicable.
+     */
+    filePath?:string;
+
+    /**
      * The converted file data.
      */
     fileData: any;
@@ -20,12 +25,17 @@ export interface ModelConverterResultOutput {
     /**
      *
      */
-    format: string;
+    fileDataSizeBytes: number;
+
+    /**
+     *
+     */
+    fileFormat: string;
 
     /**
      * The schema version applied when generating this output.
      */
-    version: string;
+    fileFormatVersion: string;
 
     /**
      * The {@link scene!SceneModel | SceneModel} used during export.

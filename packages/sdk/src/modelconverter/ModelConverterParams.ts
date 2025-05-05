@@ -1,11 +1,13 @@
 import {ModelLoader} from "../io";
 import {ModelExporter} from "../io";
 import {ModelConverterPipelineParams} from "./ModelConverterPipelineParams";
+import {ModelConverterReporter} from "./reporters/ModelConverterReporter";
 
 /**
  * Constructor parameters for a {@link ModelConverter | ModelConverter}.
  */
 export interface ModelConverterParams {
+
 
     /**
      * A map of {@link core!Loader | Loaders} for supported input formats.
@@ -23,4 +25,9 @@ export interface ModelConverterParams {
     pipelines: {
         [key: string]: ModelConverterPipelineParams
     };
+
+    /**
+     * The available reporters within the ModelConverter.
+     */
+    reporters?: { [p: string]: ModelConverterReporter };
 }

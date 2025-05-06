@@ -20,7 +20,7 @@
  * * The {@link Scene | Scene} acts as a container for {@link SceneModel | SceneModels}, which, in turn,
  * comprise {@link SceneObject | SceneObjects}, {@link SceneMesh | SceneMeshes}, {@link SceneGeometry | SceneGeometries}, and {@link SceneTexture | SceneTextures}.
  * * Optionally attach the Scene to a {@link viewer!Viewer | Viewer} to view it in the browser.
- * * Import and export various formats, including {@link gltf}, {@link las}, {@link cityjson}, {@link xgf}, {@link dotbim} and {@link webifc}.
+ * * Import and export various formats, including {@link gltf}, {@link las}, {@link cityjson}, {@link xgf}, {@link dotbim} and {@link ifc}.
  * * Create Scene content programmatically using builder methods.
  *
  * <br>

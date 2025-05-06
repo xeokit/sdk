@@ -2,8 +2,8 @@ import {addVec3, createMat4, createVec2, createVec3, cross3Vec3, lookAtMat4v, no
 import type {Capabilities, TextureTranscoder} from "../core";
 import {EventEmitter, SDKError} from "../core";
 import {getWebGLExtension, WEBGL_INFO} from "../webglutils";
-import {type PickParams, PickResult} from "../viewer";
 import type {Renderer, View, Viewer} from "../viewer";
+import {type PickParams, PickResult} from "../viewer";
 import type {RendererObject, SceneModel} from "../scene";
 import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "../math";
@@ -19,46 +19,8 @@ import {WebGLRenderBufferManager} from "./WebGLRenderBufferManager";
 import type {WebGLRendererMesh} from "./WebGLRendererMesh";
 import {WebGLRendererModel} from "./WebGLRendererModel";
 import type {WebGLTileManager} from "./WebGLTileManager";
+import {WebGLRendererView} from "./WebGLRendererView";
 
-
-/** @private */
-class WebGLRendererView {
-
-  view: View;
-  transparencyEnabled: boolean;
-  imageDirty: boolean;
-  viewMatrixDirty: boolean;
-  canvasTransparent: boolean;
-  saoEnabled: boolean;
-  edgesEnabled: boolean;
-  transparentEnabled: boolean;
-  pbrEnabled: boolean;
-  saveCanvasBoundary: DOMRect;
-  gl: WebGL2RenderingContext;
-  renderBufferManager: WebGLRenderBufferManager;
-
-  pickIDs: Map;
-
-  constructor(gl: WebGL2RenderingContext, webglCanvasElement: HTMLCanvasElement, view: View) {
-    this.gl = gl;
-    this.view = view;
-    this.transparencyEnabled = true;
-    this.imageDirty = true;
-    this.viewMatrixDirty = true;
-    this.canvasTransparent = false;
-    this.pbrEnabled = false;
-    this.saoEnabled = false;
-    this.edgesEnabled = true;
-    this.transparentEnabled = true;
-    this.saveCanvasBoundary = view.htmlElement.getBoundingClientRect();
-    this.renderBufferManager = new WebGLRenderBufferManager(gl, webglCanvasElement);
-    this.pickIDs = new Map({});
-  }
-
-  destroy() {
-    this.renderBufferManager.destroy();
-  }
-}
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -109,6 +71,10 @@ export class WebGLRenderer implements Renderer {
   #activeRendererView: WebGLRendererView;
 
   #viewer: Viewer;
+
+  /**
+   * @internal
+   */
   renderContext: RenderContext;
 
   #shadersDirty: boolean;

@@ -8,7 +8,7 @@ import {WebGLDataTexture} from "../webglutils";
 const NUM_TILES = 2000;
 
 /**
- * @private
+ * @internal
  */
 export interface Tile {
   id: string;
@@ -19,7 +19,7 @@ export interface Tile {
 }
 
 /**
- * @private
+ * @internal
  */
 export class WebGLTileManager implements TileManager {
 

@@ -59,7 +59,7 @@ export class ViewObject {
     xrayed: boolean;
     selected: boolean;
     highlighted: boolean;
-    colorize: Float32Array;
+    colorize: FloatArrayParam;
     colorized: boolean;
     opacityUpdated: boolean;
   };
@@ -341,7 +341,7 @@ export class ViewObject {
    * * Each element of the color is in range ````[0..1]````.
    * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
    */
-  get colorize(): Float32Array {
+  get colorize(): FloatArrayParam {
     return this.#state.colorize;
   }
 

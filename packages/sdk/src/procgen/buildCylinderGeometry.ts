@@ -24,7 +24,6 @@ import {TrianglesPrimitive} from "../constants";
  * ````
  *
  * @param cfg Configuration for the cylinder geometry.
- * @param [cfg.id] Optional ID for the {@link scene!SceneGeometry | SceneGeometry}, unique among all components in the parent {@link scene!Scene | Scene}, generated automatically when omitted.
  * @param [cfg.center=[0,0,0]] The center position of the cylinder in 3D space, default is `[0, 0, 0]`.
  * @param [cfg.radiusTop=1] The radius of the top of the cylinder. Default is `1`.
  * @param [cfg.radiusBottom=1] The radius of the bottom of the cylinder. Default is `1`.

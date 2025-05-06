@@ -44,7 +44,7 @@
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {CameraControl, KEY_A, KEY_D, KEY_W, KEY_S} from "@xeokit/sdk/cameracontrol";
- * import {loadCityJSON} from "@xeokit/sdk/cityjson";
+ * import {CityJSONLoader} from "@xeokit/sdk/cityjson";
  *
  * // Create a Scene to manage geometry and materials
  * const scene = new Scene();
@@ -76,7 +76,7 @@
  * // Load a CityJSON model into the Scene
  * const sceneModel = scene.createModel({ id: "myModel" });
  * fetch("model.json").then(response => response.json()).then(fileData => {
- *     loadCityJSON({ fileData, sceneModel }).then(() => {
+ *     CityJSONLoader({ fileData, sceneModel }).then(() => {
  *         sceneModel.build();
  *     });
  * });

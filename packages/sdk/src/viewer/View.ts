@@ -66,7 +66,7 @@ class View extends Component {
 
   /**
    * The index of this View in {@link Viewer.viewList}.
-   * @private
+   * @internal
    */
   viewIndex: number;
 

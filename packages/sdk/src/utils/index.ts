@@ -266,7 +266,7 @@ export function saveArrayBuffer(arrayBuffer: ArrayBuffer, filename: string) {
 
 /** Downloads JSON to a file.
  *
- * @param arrayBuffer
+ * @param data
  * @param filename
  */
 export function saveJSON(data: any, filename: string) {

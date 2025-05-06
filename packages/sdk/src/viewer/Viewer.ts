@@ -124,7 +124,6 @@ export class Viewer extends Component {
    * @param params.units - The measurement unit type. Accepted values are ````"meters"````, ````"metres"````, , ````"centimeters"````, ````"centimetres"````, ````"millimeters"````,  ````"millimetres"````, ````"yards"````, ````"feet"```` and ````"inches"````.
    * @param params.scale - The number of Real-space units in each World-space coordinate system unit.
    * @param params.origin - The Real-space 3D origin, in current measurement units, at which the World-space coordinate origin ````[0,0,0]```` sits.
-   * @param params.localeService - Locale-based translation service.
    * @throws SDKError
    *   The given Renderer is already attached to some other Viewer.
    */

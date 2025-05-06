@@ -1599,9 +1599,7 @@ const letters = {
  *
  * ## Parameters:
  * @param cfg Configuration object for generating the text geometry.
- * @param [cfg.id] Optional ID, unique among all components in the parent {@link scene!Scene | Scene}. If omitted, an ID is generated automatically.
- * @param [cfg.center] A 3D point (array of 3 numbers) indicating the center position of the geometry. If omitted, the default is [0, 0, 0].
- * @param [cfg.origin] A 3D point (array of 3 numbers) indicating the top-left corner of the text in the 3D space. This sets the initial position for the first character of the text.
+  * @param [cfg.origin] A 3D point (array of 3 numbers) indicating the top-left corner of the text in the 3D space. This sets the initial position for the first character of the text.
  * @param [cfg.size=1] The size of each character in the text. Default is 1.
  * @param [cfg.text=""] The text string to display. It can include multiple lines (using `\n`).
  *

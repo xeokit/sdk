@@ -4,7 +4,7 @@ import {SDKError} from "../core";
 import {TrianglesPrimitive} from "../constants";
 
 /**
- * Creates box-shaped geometry arrays.
+ * Creates box-shaped geometry.
  *
  * This function generates the geometry arrays required for a box mesh with configurable sizes along each axis.
  * It provides vertex positions, UV coordinates, and indices to define the box's geometry. You can adjust the box's
@@ -22,7 +22,6 @@ import {TrianglesPrimitive} from "../constants";
  * ````
  *
  * @param cfg Configurations for the box geometry.
- * @param [cfg.id] Optional ID, unique among all components in the parent {@link scene!Scene | Scene}, generated automatically when omitted.
  * @param [cfg.center=[0,0,0]] The center of the box in 3D space, default is the origin `[0, 0, 0]`.
  * @param [cfg.xSize=1.0] Half-size of the box along the X-axis. The default value is `1.0`.
  * @param [cfg.ySize=1.0] Half-size of the box along the Y-axis. The default value is `1.0`.

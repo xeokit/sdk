@@ -2,7 +2,7 @@ import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 
 /**
- * Creates a grid-shaped {@link scene!SceneGeometry | SceneGeometry}.
+ * Creates a grid-shaped geometry.
  *
  * This function generates the geometry arrays for a grid, which consists of lines along the X and Z axes, creating a grid pattern.
  * The grid can be configured in terms of its size and number of divisions.
@@ -18,7 +18,6 @@ import type {GeometryArrays} from "./GeometryArrays";
  * ````
  *
  * @param cfg Configuration for the grid geometry.
- * @param [cfg.id] Optional ID for the {@link scene!SceneGeometry | SceneGeometry}, unique among all components in the parent {@link scene!Scene | Scene}, generated automatically when omitted.
  * @param [cfg.size=1] The size of the grid along both the X and Z axes. Default is `1`.
  * @param [cfg.divisions=1] The number of divisions (lines) on the X and Z axes. Default is `1`.
  * @returns {GeometryArrays} The geometry arrays for the grid, including positions and indices for the lines.

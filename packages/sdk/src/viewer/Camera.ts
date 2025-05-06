@@ -565,7 +565,7 @@ class Camera extends Component {
   /**
    * Sets whether to lock yaw rotation to pivot about the World-space "up" axis.
    *
-   * @param {Boolean} gimbalLock Set true to lock gimbal.
+   * @param {Boolean} value Set true to lock gimbal.
    */
   set gimbalLock(value: boolean) {
     this.#state.gimbalLock = value;

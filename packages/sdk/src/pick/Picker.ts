@@ -117,7 +117,7 @@ export class Picker {
   /**
    * Picks a {@link kdtree3!SceneObjectsKdTree3} using a 2D marquee to obtain a {@link MarqueePickResult}
    * containing picked {@link scene!SceneObject | SceneObjects}, {@link scene!SceneMesh | SceneMesh}, {@link scene!SceneGeometry | SceneGeometry},
-   * {@link scene!SceneGeometryBucket | GeometryBuckets}, {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
+   * {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
    * @param params
    */
   marqueePick(params: {

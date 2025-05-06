@@ -119,22 +119,13 @@ export class Data extends Component {
    * See {@link data | @xeokit/sdk/data}   for more details on usage.
    *
    * @param  dataModelParams Creation parameters for the new {@link DataModel | DataModel}.
-   * @param [options] Options for creating the {@link DataModel | DataModel}.
-   * @param [options.includeTypes] When provided, only create {@link DataObject | DataObjects} with types in this list.
-   * @param  [options.excludeRelating] When provided, never create {@link DataObject | DataObjects} with types in this list.
    * @returns {@link DataModel | DataModel}
    * * On success.
    * @returns *{@link core!SDKError | SDKError}*
    * * This Data has already been destroyed.
    * * A DataModel with the given ID already exists in this Data.
    */
-  createModel(
-    dataModelParams: DataModelParams,
-    options?: {
-      includeRelating?: string[],
-      excludeRelating?: string[],
-    }
-  ): DataModel | SDKError {
+  createModel(dataModelParams: DataModelParams): DataModel | SDKError {
     if (this.destroyed) {
       return new SDKError("Data already destroyed");
     }
@@ -143,7 +134,7 @@ export class Data extends Component {
       return new SDKError(`DataModel already created in this Data: ${id}`);
     }
     // @ts-ignore
-    const dataModel = new DataModel(this, id, dataModelParams, options);
+    const dataModel = new DataModel(this, id, dataModelParams);
     this.models[dataModel.id] = dataModel;
     dataModel.onDestroyed.one(() => { // DataModel#destroy() called
       delete this.models[dataModel.id];

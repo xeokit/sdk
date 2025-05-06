@@ -2,7 +2,7 @@ import type {DataModel} from "../data";
 import type {SceneModel} from "../scene";
 
 /**
- * Parameters for {@link ModelEncoder.encode | ModelEncoder.encode}.
+ * Parameters for {@link ModelEncoder | ModelEncoder}.
  */
 export interface ModelEncodeParams {
 

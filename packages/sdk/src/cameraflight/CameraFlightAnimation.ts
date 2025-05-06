@@ -7,7 +7,6 @@ import {DEGTORAD, type FloatArrayParam} from "../math";
 import {getAABB3Center, getAABB3Diag, getAABB3DiagPoint} from "../boundaries";
 import {EventDispatcher} from "strongly-typed-events";
 
-
 const tempVec3 = createVec3();
 const newLook = createVec3();
 const newEye = createVec3();
@@ -15,11 +14,70 @@ const newUp = createVec3();
 const newLookEyeVec = createVec3();
 
 /**
- * Animates a {@link viewer!View | View's} {@link viewer!Camera | Camera} to look at specified objects, boundaries or locations.
- *
- * See {@link cameraflight | @xeokit/sdk/cameraflight} for usage.
+ * Parameters for {@link CameraFlightAnimation.flyTo} and {@link CameraFlightAnimation.jumpTo}.
  */
-class CameraFlightAnimation extends Component {
+export interface FlyToParams {
+
+  /**
+   * Specifies the projection type to transition to.
+   * Use either `PerspectiveProjectionType` or `OrthoProjectionType`.
+   */
+  projection?: number;
+
+  /**
+   * Target orthographic scale, used when transitioning to an orthographic projection.
+   */
+  orthoScale?: number;
+
+  /**
+   * Target axis-aligned bounding box (AABB) in world coordinates for the camera to focus on.
+   */
+  aabb?: FloatArrayParam;
+
+  /**
+   * Target distance between the camera and its point-of-interest.
+   */
+  length?: number;
+
+  /**
+   * Target position for the camera eye.
+   */
+  eye?: FloatArrayParam;
+
+  /**
+   * Target position for the camera to look at.
+   */
+  look?: FloatArrayParam;
+
+  /**
+   * Target "up" vector for the camera orientation.
+   */
+  up?: FloatArrayParam;
+
+  /**
+   * Optional point-of-interest in world coordinates for the camera to focus on.
+   */
+  poi?: FloatArrayParam;
+
+  /**
+   * In perspective projection mode, defines how much of the field-of-view
+   * the bounding volume should occupy upon arrival. Expressed in degrees.
+   */
+  fitFOV?: number;
+
+  /**
+   * Duration of the animation in seconds.
+   */
+  duration?: number;
+}
+
+/**
+ * Animates a {@link viewer!View | View}'s {@link viewer!Camera | Camera}
+ * to smoothly transition to a specified target, such as a component, bounding box, or viewpoint.
+ *
+ * Use {@link cameraflight | @xeokit/sdk/cameraflight} to create cinematic camera motions.
+ */
+export class CameraFlightAnimation extends Component {
 
   /**
    * The View that owns this CameraFlightAnimation.
@@ -58,25 +116,26 @@ class CameraFlightAnimation extends Component {
   #projMatrix2: FloatArrayParam;
 
   /**
-   * Emits an event each time the animation starts.
+   * Fires when the camera animation starts.
    */
   readonly onStarted: EventEmitter<CameraFlightAnimation, null>;
 
   /**
-   * Emits an event each time the animation stops.
+   * Fires when the camera animation completes.
    */
   readonly onStopped: EventEmitter<CameraFlightAnimation, null>;
 
   /**
-   * Emits an event each time the animation stops.
+   * Fires when the camera animation is cancelled.
    */
   readonly onCancelled: EventEmitter<CameraFlightAnimation, null>;
 
   /**
-   * Creates a new CameraFlightAnimation
+   * Creates a new CameraFlightAnimation instance.
    *
-   * @param cfg.view The {@link viewer!View | View} whose {@link viewer!Camera | Camera} we'll animate.
-   * @param cfg.duration Animation duration in seconds when using {@link cameraflight!CameraFlightAnimation.flyTo | CameraFlightAnimation.flyTo}.
+   * @param view The {@link viewer!View | View} whose {@link viewer!Camera | Camera} will be animated.
+   * @param cfg Optional configuration.
+   * @param cfg.duration Default animation duration in seconds for {@link CameraFlightAnimation.flyTo}.
    */
   constructor(view: View, cfg?: {
     duration: number
@@ -119,40 +178,16 @@ class CameraFlightAnimation extends Component {
   }
 
   /**
-   * Flies the {@link viewer!Camera | Camera}  to a target.
+   * Animates the camera to a target viewpoint or bounding volume.
    *
-   *  * When the target is a boundary, the {@link viewer!Camera | Camera}  will fly towards the target and stop when the target fills most of the canvas.
-   *  * When the target is an explicit {@link viewer!Camera | Camera}  position, given as ````eye````, ````look```` and ````up````, then CameraFlightAnimation will interpolate the {@link viewer!Camera | Camera}  to that target and stop there.
+   * - If a bounding box is provided, the camera will fly to frame the box within the view.
+   * - If `eye`, `look`, and `up` are provided, the camera will interpolate to that exact pose.
    *
-   * @param {Object|Component} [params=Scene] Either a parameters object or a {@link core!Component | Component} subtype that has
-   * an AABB. Defaults to the {@link scene!Scene | Scene}, which causes the {@link viewer!Camera | Camera}  to fit the Scene in view.
-   * @param [params.arc=0] Factor in range ````[0..1]```` indicating how much the {@link viewer!Camera.eye | Camera.eye} position
-   * will swing away from its {@link viewer!Camera.look | Camera.look} position as it flies to the target.
-   * @param {Number|String|Component} [params.component] ID or instance of a component to fly to. Defaults to the entire {@link scene!Scene | Scene}.
-   * @param [params.aabb] World-space axis-aligned bounding box (AABB) target to fly to.
-   * @param [params.eye] Position to fly the eye position to.
-   * @param [params.look] Position to fly the look position to.
-   * @param [params.up] Position to fly the up vector to.
-   * @param [params.projection] Projection type to transition into as we fly. Can be any of the values of {@link viewer!Camera.projectionType | Camera.projectionType | Camera.projectionType}.
-   * @param [params.fit=true] Whether to fit the target to the view volume. Overrides {@link CameraFlightAnimation.fit | CameraFlightAnimation.fit}.
-   * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link viewer!ViewObject | ViewObject} or its AABB should
-   * fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV | CameraFlightAnimation.fitFOV}.
-   * @param [params.duration] Flight duration in seconds.  Overrides {@link CameraFlightAnimation.duration | CameraFlightAnimation.duration}.
-   * @param [params.orthoScale] Animate the Camera's orthographic scale to this target value. See {@link viewer!OrthoProjection.scale | OrthoProjection.scale}.
-   * @param {Function} [callback] Callback fired on arrival.
+   * @param params Parameters defining the flight target and behavior.
+   * @param callback Optional callback invoked after the flight completes.
    */
-  flyTo(params: {
-          projection?: number;
-          orthoScale?: number;
-          aabb?: FloatArrayParam;
-          length?: number;
-          eye?: FloatArrayParam;
-          look?: FloatArrayParam;
-          up?: FloatArrayParam;
-          poi?: FloatArrayParam;
-          fitFOV?: number;
-          duration?: number;
-        } = {},
+
+  flyTo(params: FlyToParams = {},
         callback?: (arg0: any) => void) {
 
     if (this.#flying) {
@@ -307,21 +342,12 @@ class CameraFlightAnimation extends Component {
   }
 
   /**
-   * Jumps the {@link viewer!Camera | Camera}  to the given target.
+   * Instantly moves the camera to a specified viewpoint or bounding volume, without animation.
    *
-   * * When the target is a boundary, this CameraFlightAnimation will position the {@link viewer!Camera | Camera}  at where the target fills most of the canvas.
-   * * When the target is an explicit {@link viewer!Camera | Camera}  position, given as ````eye````, ````look```` and ````up```` vectors, then this CameraFlightAnimation will jump the {@link viewer!Camera | Camera}  to that target.
+   * - If a bounding box is provided, the camera will immediately frame it in the view.
+   * - If `eye`, `look`, and `up` are provided, the camera will immediately assume that pose.
    *
-   * @param {*|Component} params  Either a parameters object or a {@link core!Component | Component} subtype that has a World-space AABB.
-   * @param [params.arc=0]  Factor in range [0..1] indicating how much the {@link viewer!Camera.eye | Camera.eye} will swing away from its {@link viewer!Camera.look | Camera.look} as it flies to the target.
-   * @param {Number|String|Component} [params.component] ID or instance of a component to fly to.
-   * @param [params.aabb]  World-space axis-aligned bounding box (AABB) target to fly to.
-   * @param [params.eye] Position to fly the eye position to.
-   * @param [params.look]  Position to fly the look position to.
-   * @param [params.up] Position to fly the up vector to.
-   * @param [params.projection] Projection type to transition into. Can be any of the values of {@link viewer!Camera.projectionType | Camera.projectionType}.
-   * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link viewer!Viewer | Viewer} or its AABB should fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV}.
-   * @param [params.fit] Whether to fit the target to the view volume. Overrides {@link cameraFlightAnimation.fit | CameraFlightAnimation.fit}.
+   * @param params Target camera state or bounding box.
    */
   jumpTo(params: any) {
     this.#jumpTo(params);
@@ -601,5 +627,3 @@ class CameraFlightAnimation extends Component {
     this.onCancelled.clear();
   }
 }
-
-export {CameraFlightAnimation};

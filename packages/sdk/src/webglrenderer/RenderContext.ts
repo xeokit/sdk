@@ -1,11 +1,10 @@
 import type {View, Viewer} from "../viewer";
 import {WEBGL_INFO, type WebGLAbstractTexture} from "../webglutils";
 import type {FloatArrayParam} from "../math";
-import type {WebGLDataTexture} from "../webglutils";
 import type {WebGLRenderer} from "./WebGLRenderer";
 
 /**
- * @private
+ * @internal
  */
 export class RenderContext {
 
@@ -14,10 +13,6 @@ export class RenderContext {
    */
   public viewer: Viewer;
 
-  /**
-   * @private
-   */
-  public rendererSets: {};
 
   /**
    * The View we are rendering.
@@ -28,8 +23,6 @@ export class RenderContext {
    * The WebGL rendering context.
    */
   public gl: WebGL2RenderingContext;
-
-  public viewMatrixDataTexture: WebGLDataTexture;
 
   /**
    * Whether to render a quality representation for triangle surfaces.

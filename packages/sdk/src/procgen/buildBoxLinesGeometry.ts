@@ -22,7 +22,6 @@ import type {GeometryArrays} from "./GeometryArrays";
  * ````
  *
  * @param cfg Configurations for the box wireframe geometry.
- * @param [cfg.id] Optional ID, unique among all components in the parent {@link scene!Scene | Scene}, generated automatically when omitted.
  * @param [cfg.center=[0,0,0]] The center of the box in 3D space, default is the origin `[0, 0, 0]`.
  * @param [cfg.xSize=1.0] Half-size of the box along the X-axis. The default value is `1.0`.
  * @param [cfg.ySize=1.0] Half-size of the box along the Y-axis. The default value is `1.0`.

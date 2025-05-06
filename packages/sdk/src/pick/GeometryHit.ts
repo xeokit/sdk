@@ -9,7 +9,7 @@ import type {SceneGeometry} from "../scene";
 export interface GeometryHit {
 
   /**
-   * The {@link scene!SceneGeometryBucket | SceneGeometryBucket} that was picked.
+   * The {@link scene!SceneGeometry | SceneGeometry} that was picked.
    */
   geometry: SceneGeometry;
 

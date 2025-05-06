@@ -13,8 +13,7 @@ import type {SDKError} from "../core";
  * within their respective {@link viewer!View | Views}.
  *
  * Internally, the Viewer's {@link viewer!Renderer} attaches these
- * to {@link SceneObject.rendererObject | SceneObject.rendererObject} and
- * {@link viewer!ViewObject.rendererObject | ViewObject.rendererObject}. When we update properties
+ * to {@link SceneObject.rendererObject | SceneObject.rendererObject}. When we update properties
  * like {@link viewer!ViewObject.visible | ViewObject.visible}, the ViewObject will upload those
  * updates through this interface into the {@link viewer!Renderer}.
  *
@@ -40,32 +39,32 @@ export interface RendererObject {
   readonly aabb: FloatArrayParam;
 
   /**
-   * The ID of a {@link viewer!ViewLayer | ViewLayer} in which the {@link viewer!ViewObject} exclusively appears.
+   * The ID of a {@link viewer!ViewLayer | ViewLayer} in which the {@link viewer!ViewObject | ViewObject} exclusively appears.
    */
   readonly layerId: string | null;
 
   /**
-   * Controls the visibility of the {@link viewer!ViewObject} in a specific {@link viewer!View | View}.
+   * Controls the visibility of the {@link viewer!ViewObject | ViewObject} in a specific {@link viewer!View | View}.
    *
    * @param viewIndex - Index of the View. Matches {@link viewer!View.viewIndex | View.viewIndex} for an attached View.
-   * @param visible - Whether the {@link viewer!ViewObject} should be visible.
+   * @param visible - Whether the {@link viewer!ViewObject | ViewObject} should be visible.
    * @returns *void* - Success.
    * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
    */
   setVisible(viewIndex: number, visible: boolean): void | SDKError;
 
   /**
-   * Toggles the highlighted state of the {@link viewer!ViewObject} in a specified {@link viewer!View | View}.
+   * Toggles the highlighted state of the {@link viewer!ViewObject | ViewObject} in a specified {@link viewer!View | View}.
    *
    * @param viewIndex - Index of the View.
-   * @param highlighted - Whether to highlight the {@link viewer!ViewObject}.
+   * @param highlighted - Whether to highlight the {@link viewer!ViewObject | ViewObject}.
    * @returns *void* - Success.
    * @returns *{@link core!SDKError | SDKError}* - If no corresponding {@link viewer!View | View} is found.
    */
   setHighlighted(viewIndex: number, highlighted: boolean): void | SDKError;
 
   /**
-   * Sets whether the {@link viewer!ViewObject} should appear X-rayed in a given {@link viewer!View | View}.
+   * Sets whether the {@link viewer!ViewObject | ViewObject} should appear X-rayed in a given {@link viewer!View | View}.
    *
    * @param viewIndex - Index of the View.
    * @param xrayed - Whether to apply the X-ray effect.
@@ -75,7 +74,7 @@ export interface RendererObject {
   setXRayed(viewIndex: number, xrayed: boolean): void | SDKError;
 
   /**
-   * Marks the {@link viewer!ViewObject} as selected within a given {@link viewer!View | View}.
+   * Marks the {@link viewer!ViewObject | ViewObject} as selected within a given {@link viewer!View | View}.
    *
    * @param viewIndex - Index of the View.
    * @param selected - Whether the object should be selected.
@@ -85,7 +84,7 @@ export interface RendererObject {
   setSelected(viewIndex: number, selected: boolean): void | SDKError;
 
   /**
-   * Controls whether the {@link viewer!ViewObject} should be culled (hidden) from a specific {@link viewer!View | View}.
+   * Controls whether the {@link viewer!ViewObject | ViewObject} should be culled (hidden) from a specific {@link viewer!View | View}.
    *
    * @param viewIndex - Index of the View.
    * @param culled - Whether to cull the object.
@@ -95,7 +94,7 @@ export interface RendererObject {
   setCulled(viewIndex: number, culled: boolean): void | SDKError;
 
   /**
-   * Sets whether section plane clipping is applied to the {@link viewer!ViewObject} in a given {@link viewer!View | View}.
+   * Sets whether section plane clipping is applied to the {@link viewer!ViewObject | ViewObject} in a given {@link viewer!View | View}.
    *
    * @param viewIndex - Index of the View.
    * @param clippable - Whether clipping should be applied.
@@ -105,7 +104,7 @@ export interface RendererObject {
   setClippable(viewIndex: number, clippable: boolean): void | SDKError;
 
   /**
-   * Determines whether the {@link viewer!ViewObject} participates in boundary calculations and collisions.
+   * Determines whether the {@link viewer!ViewObject | ViewObject} participates in boundary calculations and collisions.
    *
    * @param viewIndex - Index of the View.
    * @param collidable - Whether the object should be collidable.
@@ -115,7 +114,7 @@ export interface RendererObject {
   setCollidable(viewIndex: number, collidable: boolean): void | SDKError;
 
   /**
-   * Determines whether the {@link viewer!ViewObject} can be picked within a given {@link viewer!View | View}.
+   * Determines whether the {@link viewer!ViewObject | ViewObject} can be picked within a given {@link viewer!View | View}.
    *
    * @param viewIndex - Index of the View.
    * @param pickable - Whether the object should be pickable.
@@ -125,7 +124,7 @@ export interface RendererObject {
   setPickable(viewIndex: number, pickable: boolean): void | SDKError;
 
   /**
-   * Applies a color to the {@link viewer!ViewObject} in a given {@link viewer!View | View}.
+   * Applies a color to the {@link viewer!ViewObject | ViewObject} in a given {@link viewer!View | View}.
    *
    * @param viewIndex - Index of the View.
    * @param color - The color to apply.
@@ -135,7 +134,7 @@ export interface RendererObject {
   setColorize(viewIndex: number, color?: FloatArrayParam): void | SDKError;
 
   /**
-   * Adjusts the opacity of the {@link viewer!ViewObject} in a given {@link viewer!View | View}.
+   * Adjusts the opacity of the {@link viewer!ViewObject | ViewObject} in a given {@link viewer!View | View}.
    *
    * @param viewIndex - Index of the View.
    * @param opacity - The opacity level to set.

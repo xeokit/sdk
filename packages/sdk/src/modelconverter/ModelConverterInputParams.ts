@@ -4,7 +4,7 @@
 export interface ModelConverterInputParams {
 
   /**
-   * Specifies the key of a {@link core!Loader | Loader} defined in
+   * Specifies the key of a {@link io!ModelLoader | ModelLoader} defined in
    * {@link ModelConverterParams.loaders | ModelConverterParams.loaders}, which will be used
    * by the pipeline to read the source file.
    */

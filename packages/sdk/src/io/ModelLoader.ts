@@ -1,5 +1,5 @@
-import {DataModel} from "../data/DataModel";
-import {SceneModel} from "../scene/SceneModel";
+// import {type DataModel} from "../data/DataModel";
+// import {type SceneModel} from "../scene/SceneModel";
 import {isJSONObject} from "../utils";
 import {type ModelLoadParams} from "./ModelLoadParams";
 import {type ModelLoaderParams} from "./ModelLoaderParams";
@@ -82,9 +82,9 @@ export  class ModelLoader {
       }
       const {filePath, fileData, sceneModel, dataModel} = params;
       if (sceneModel) {
-        if (!(sceneModel instanceof SceneModel)) {
-          return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
-        }
+        // if (!(sceneModel instanceof SceneModel)) {
+        //   return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
+        // }
         if (sceneModel.destroyed) {
           return reject("SceneModel already destroyed");
         }
@@ -93,9 +93,9 @@ export  class ModelLoader {
         }
       }
       if (dataModel) {
-        if (!(dataModel instanceof DataModel)) {
-          return reject("Argument type mismatch: params.dataModel should be a DataModel");
-        }
+        // if (!(dataModel instanceof DataModel)) {
+        //   return reject("Argument type mismatch: params.dataModel should be a DataModel");
+        // }
         if (dataModel.destroyed) {
           return reject("DataModel already destroyed");
         }

@@ -1,7 +1,7 @@
 import type {SceneObjectHit} from "./SceneObjectHit";
 
 /**
- * Ray picking results returned by {@link rayPick}.
+ * Ray picking results returned by {@link Picker.rayPick | Picker.rayPick}.
  *
  * See {@link pick | @xeokit/sdk/pick} for usage.
  */

@@ -27,7 +27,6 @@ import {TrianglesPrimitive} from "../constants";
  *
  * ## Parameters:
  * @param cfg Configuration object for generating the torus geometry.
- * @param [cfg.id] Optional ID, unique among all components in the parent {@link scene!Scene | Scene}. If omitted, an ID is generated automatically.
  * @param [cfg.center] A 3D point (array of 3 numbers) indicating the center position of the torus. Defaults to `[0, 0, 0]`.
  * @param [cfg.radius=1] The overall radius of the torus. This controls the distance from the center to the tube's center. Default is 1.
  * @param [cfg.tube=0.3] The radius of the tube that makes up the torus. Default is 0.3.

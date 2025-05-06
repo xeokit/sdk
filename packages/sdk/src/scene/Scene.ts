@@ -64,9 +64,9 @@ export class Scene extends Component {
 
   #onModelBuilts: { [key: string]: any };
   #onModelDestroys: { [key: string]: any };
-  #center: Float64Array;
+  #center: FloatArrayParam;
   #aabbDirty: boolean;
-  #aabb: Float64Array;
+  #aabb: FloatArrayParam;
 
 
   /**
@@ -94,7 +94,7 @@ export class Scene extends Component {
   /**
    * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
    */
-  get center(): Float64Array {
+  get center(): FloatArrayParam {
     if (this.#aabbDirty) {
       const aabb = this.aabb; // Lazy-build
       this.#center[0] = (aabb[0] + aabb[3]) / 2;

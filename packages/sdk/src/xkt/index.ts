@@ -18,7 +18,7 @@
  * To import a [XKT](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xkt) model into xeokit, use the {@link XKTLoader} class,
  * which will load the file into a {@link scene!SceneModel | SceneModel}.
  *
- * Use the {@link metamodel!loadMetaModel | loadMetaModel} function to load legacy JSON metadata into a {@link data!DataModel | DataModel}.
+ * Use the {@link metamodel!MetaModelLoader | MetaModelLoader} function to load legacy JSON metadata into a {@link data!DataModel | DataModel}.
  *
  * <br>
  *

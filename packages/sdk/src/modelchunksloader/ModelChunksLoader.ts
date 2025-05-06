@@ -7,7 +7,7 @@ import type {SceneModel} from "../scene";
 /**
  * Loads a SceneModel and/or DataModel from a set of chunk files.
  *
- * See {@link @xeokit/sdk/modelchunksloader | @xeokit/sdk/modelchunksloader} for usage.
+ * See {@link modelchunksloader | @xeokit/sdk/modelchunksloader} for usage.
  *
  * @param params
  */

@@ -13,7 +13,7 @@
  * {@link scene!SceneObject | SceneObjects} for
  * efficient collision testing with boundaries, rays, and frustums, is positioned in the center of the
  * first diagram. To construct a SceneObjectsKdTree3, use
- * the {@link collision!createSceneObjectsKdTree3 | createSceneObjectsKdTree3} function.
+ * the {@link kdtree3!createSceneObjectsKdTree3 | createSceneObjectsKdTree3} function.
  *
  * To find SceneObjects in the SceneObjectsKdTree3 that intersect a 3D world-space ray,
  * use {@link Picker.rayPick | Picker.rayPick()}, which will generate a {@link RayPickResult}. To find SceneObjects
@@ -41,13 +41,12 @@
  * <br>
  *
  * RayPickResult represents the hierarchical arrangement of Scene components selected by Picker.rayPick(). This
- * structure enables the iteration of the chosen SceneObjects, and the iteration of the selected Meshes, Geometries, and
- * GeometryBuckets within each SceneObject. The structure goes all the way down to the chosen primitives, which can be
+ * structure enables the iteration of the chosen SceneObjects, and the iteration of the selected SceneMeshes and SceneGeometries within each SceneObject. The structure goes all the way down to the chosen primitives, which can be
  * KdLine3D, KdPoint3D, or KdTriangle3D.
  *
  * A primitive has one or more vertex indices, and the number of indices is determined by the primitive type. These
  * indices are used to access the compressed vertex coordinates of the primitive within
- * SceneGeometryBucket.positionsCompressed. These coordinates can be decompressed using SceneGeometry.positionsDecompressMatrix and
+ * SceneGeometry.positionsCompressed. These coordinates can be decompressed using SceneGeometry.positionsDecompressMatrix and
  * then transformed into the World-space coordinate system using SceneMesh.matrix to obtain the final coordinates of the primitive.
  *
  * To keep a low memory footprint, while being flexible and extensible, both the RayPickResult and xeokit's
@@ -89,27 +88,27 @@
  *         indices: [21, 0, 1, 1, 22, 21, 22, 1, 2, 2, 23, 22, 23, ..]
  *     });
  *
- *     sceneModel.createLayerMesh({
+ *     sceneModel.createMesh({
  *         id: "redLegMesh", geometryId: "theGeometry",
  *         position: [-4, -6, -4], scale: [1, 3, 1], rotation: [0, 0, 0], color: [1, 0.3, 0.3]
  *     });
  *
- *     sceneModel.createLayerMesh({
+ *     sceneModel.createMesh({
  *         id: "greenLegMesh", geometryId: "theGeometry", position: [4, -6, -4], scale: [1, 3, 1],
  *         rotation: [0, 0, 0], color: [0.3, 1.0, 0.3]
  *     });
  *
- *     sceneModel.createLayerMesh({
+ *     sceneModel.createMesh({
  *         id: "blueLegMesh", geometryId: "theGeometry", position: [4, -6, 4],  scale: [1, 3, 1],
  *         rotation: [0, 0, 0], color: [0.3, 0.3, 1.0]
  *     });
  *
- *     sceneModel.createLayerMesh({
+ *     sceneModel.createMesh({
  *         id: "yellowLegMesh",  geometryId: "theGeometry", position: [-4, -6, 4], scale: [1, 3, 1],
  *         rotation: [0, 0, 0], color: [1.0, 1.0, 0.0]
  *     });
  *
- *     sceneModel.createLayerMesh({
+ *     sceneModel.createMesh({
  *         id: "tableTopMesh", geometryId: "theGeometry", position: [0, -3, 0], scale: [6, 0.5, 6],
  *         rotation: [0, 0, 0], color: [1.0, 0.3, 1.0]
  *     });
@@ -159,20 +158,15 @@
  *                 const geometryHit = meshHit.geometryHit;
  *                 const geometry = geometryHit.geometry;
  *
- *                 // Within the GeometryHit, we get a GeometryBucketHit for each hit
- *
- *                 const geometryBucketHit = geometryHit.geometryBucketHit;
- *                 const geometryBucket = geometryBucketHit.geometryBucket;
- *
- *                 // And finally within the GeometryBucketHit, a PrimHit
- *                 // for each primitive that was hit within the SceneGeometryBucket.
+ *                 // And finally within the SceneGeometryHit, a PrimHit
+ *                 // for each primitive that was hit within the SceneGeometry.
  *
  *                 // Each PrimtHit wraps a single a single KdPointPrim, KdLinePrim or KdTrianglePrim,
  *                 // which represents a point, line or triangle primitive, respectively.
  *
- *                 for (let j = 0, lenj = geometryBucketHit.primHits.length; j < lenj; j++) {
+ *                 for (let j = 0, lenj = geometryHit.primHits.length; j < lenj; j++) {
  *
- *                     const primHit = geometryBucketHit.primHits[j];
+ *                     const primHit = geometryHit.primHits[j];
  *                     const primitive = primHit.primitive;
  *
  *                     // We know the primitive type from the SceneGeometry

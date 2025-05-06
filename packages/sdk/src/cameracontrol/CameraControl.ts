@@ -49,7 +49,7 @@ const DEFAULT_SNAP_EDGE = true;
 /**
  *
  */
-class HoverEvent {
+export class HoverEvent {
 }
 
 /**
@@ -166,14 +166,14 @@ export class CameraControl extends Component {
   readonly onRightClick: EventEmitter<CameraControl, any>;
 
   /**
-   * Event fired when the pointer moves while over a {@link viewer!ViewObject}.
+   * Event fired when the pointer moves while over a {@link viewer!ViewObject | ViewObject}.
    *
    * @event
    */
   readonly onHover: EventEmitter<CameraControl, HoverEvent>;
 
   /**
-   * Event fired when the pointer moves while over a {@link viewer!ViewObject}.
+   * Event fired when the pointer moves while over a {@link viewer!ViewObject | ViewObject}.
    *
    * @event
    */
@@ -187,21 +187,21 @@ export class CameraControl extends Component {
   readonly onHoverOff: EventEmitter<CameraControl, HoverEvent>;
 
   /**
-   * Event fired when the pointer moves onto a {@link viewer!ViewObject}.
+   * Event fired when the pointer moves onto a {@link viewer!ViewObject | ViewObject}.
    *
    * @event
    */
   readonly onHoverEnter: EventEmitter<CameraControl, HoverEvent>;
 
   /**
-   * Event fired when the pointer moves off a {@link viewer!ViewObject}.
+   * Event fired when the pointer moves off a {@link viewer!ViewObject | ViewObject}.
    *
    * @event
    */
   readonly onHoverOut: EventEmitter<CameraControl, HoverEvent>;
 
   /**
-   * Event fired when a {@link viewer!ViewObject} is picked.
+   * Event fired when a {@link viewer!ViewObject | ViewObject} is picked.
    *
    * @event
    */
@@ -1234,8 +1234,6 @@ export class CameraControl extends Component {
    * Sets a sphere as the representation of the pivot position.
    *
    * @param [cfg] Sphere configuration.
-   * @param [cfg.size=1] Optional size factor of the sphere. Defaults to 1.
-   * @param [cfg.material=PhongMaterial] Optional size factor of the sphere. Defaults to a red opaque material.
    */
   enablePivotSphere(cfg = {}) {
     this.#controllers.pivotController.enablePivotSphere(cfg);

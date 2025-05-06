@@ -3,7 +3,7 @@ import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";
 
 /**
- * Creates a sphere-shaped {@link scene!SceneGeometry | SceneGeometry}.
+ * Creates a sphere-shaped geometry.
  *
  * This function generates a sphere geometry by calculating the positions of vertices based on the specified parameters. The sphere is defined by its radius and the number of latitudinal and longitudinal segments. The resulting geometry includes the positions, normals, UVs, and indices necessary to render the sphere.
  *
@@ -24,7 +24,6 @@ import {TrianglesPrimitive} from "../constants";
  *
  * ## Parameters:
  * @param cfg Configuration object for generating the sphere geometry.
- * @param [cfg.id] Optional ID, unique among all components in the parent {@link scene!Scene | Scene}. If omitted, an ID is generated automatically.
  * @param [cfg.center] A 3D point (array of 3 numbers) indicating the center position of the sphere. Defaults to `[0, 0, 0]`.
  * @param [cfg.radius=1] The radius of the sphere. Default is 1.
  * @param [cfg.heightSegments=24] The number of latitudinal segments (bands from top to bottom). Default is 24.

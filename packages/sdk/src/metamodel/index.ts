@@ -25,7 +25,7 @@
  * Key functions:
  *
  * * {@link metamodel!convertMetaModel | convertMetaModel}: Converts a `MetaModelParams` object into a `DataModelParams` object.
- * * {@link metamodel!loadMetaModel | loadMetaModel}: Loads a `MetaModelParams` object directly into a `DataModel` instance.
+ * * {@link metamodel!MetaModelLoader | MetaModelLoader}: Loads a `MetaModelParams` object directly into a `DataModel` instance.
  * * {@link data!DataModel | DataModel}: The newer, semantic data model in xeokit based on entity-relationship graphs and property sets.
  * * {@link data!DataModelParams | DataModelParams}: The JSON data format that can be loaded into a `DataModel`.
  * * {@link metamodel!MetaModelParams | MetaModelParams}: The older JSON data format representing a simple entity hierarchy with property sets.
@@ -46,21 +46,23 @@
  *
  * ## Loading MetaModel data into a DataModel
  *
- * The following example shows how to use {@link loadMetaModel} to load a `MetaModelParams` file directly into a `DataModel` instance:
+ * The following example shows how to use {@link MetaModelLoader} to load a `MetaModelParams` file directly into a `DataModel` instance:
  *
  * ````javascript
  * import {Data} from "@xeokit/sdk/data";
- * import {loadMetaModel} from "@xeokit/sdk/metamodel";
+ * import {MetaModelLoader} from "@xeokit/sdk/metamodel";
  *
  * const data = new Data();
  * const dataModel = data.createModel({
  *     id: "myModel"
  * });
  *
+ * const metaModelLoader = new MetaModelLoader();
+ *
  * fetch("myMetaModel.json").then(response => {
  *     response.json().then(metaModelParams => {
  *         // Load MetaModelParams directly into DataModel
- *         loadMetaModel({
+ *         metaModelLoader.load({
  *             fileData: metaModelParams,
  *             dataModel
  *         });

@@ -25,11 +25,11 @@ export interface SceneObjectParams {
   meshIds: string[];
 
   /**
-   * Causes each {@link viewer!View} to put the corresponding {@link viewer!ViewObject} into
+   * Causes each {@link viewer!View} to put the corresponding {@link viewer!ViewObject | ViewObject} into
    * a {@link viewer!ViewLayer} with this ID.
    *
    * When you create an object in a model, each {@link viewer!View} will automatically create
-   * a {@link viewer!ViewObject} to
+   * a {@link viewer!ViewObject | ViewObject} to
    * represent it. When the object has a {@link SceneObjectParams.layerId} property, then each View will first
    * ensure that it has a {@link viewer!ViewLayer} with this ID, and will register the ViewObject in that ViewLayer.
    *

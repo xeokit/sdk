@@ -42,7 +42,7 @@
  * ## Loading a glTF file containing [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) textures into a Viewer
  *
  * Create a {@link viewer!Viewer | Viewer} with a {@link webglrenderer!WebGLRenderer | WebGLRenderer} configured with a
- * {@link ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}. Then create a {@link scene!SceneModel | SceneModel} within the Viewer, and use {@link GLTFLoader} to
+ * {@link ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}. Then create a {@link scene!SceneModel | SceneModel} within the Viewer, and use {@link gltf!GLTFLoader | GLTFLoader} to
  * load a glTF file with KTX2-compressed textures into the SceneModel. For each [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture in the file, the
  * KTX2TextureTranscoder will transparently transcode the [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) data for us.
  *

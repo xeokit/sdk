@@ -149,12 +149,7 @@ export class DataModel extends Component {
   constructor(
     data: Data,
     id: string,
-    dataModelParams: DataModelParams,
-    options?: {
-      includeTypes?: string[],
-      excludeTypes?: string[],
-      globalizeObjectIds?: boolean
-    }) {
+    dataModelParams: DataModelParams) {
 
     super(data);
 

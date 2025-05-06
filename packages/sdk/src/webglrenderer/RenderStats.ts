@@ -1,5 +1,7 @@
 /**
  * Collects statistics during each rendered frame.
+ *
+ * @internal
  */
 export class RenderStats {
 

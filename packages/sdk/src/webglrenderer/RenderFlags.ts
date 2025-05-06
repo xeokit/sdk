@@ -12,30 +12,30 @@
 class RenderFlags {
 
   /**
-     * Set by {@link Drawable#rebuildRenderFlags} to indicate which layers are visible within the {@link Drawable}.
-     *
-     * This is a list of IDs of visible layers within the {@link Drawable}. The IDs will be whatever the
-     * {@link Drawable} uses to identify its layers, usually integers.
-     *
-     * @property visibleLayers
-     * @type {Number[]}
-     */
+   * Set by {@link Drawable#rebuildRenderFlags} to indicate which layers are visible within the {@link Drawable}.
+   *
+   * This is a list of IDs of visible layers within the {@link Drawable}. The IDs will be whatever the
+   * {@link Drawable} uses to identify its layers, usually integers.
+   *
+   * @property visibleLayers
+   * @type {Number[]}
+   */
   visibleLayers: any[];
 
   /**
-     * Set by {@link Drawable#rebuildRenderFlags} to indicate which {@link SectionPlane}s are active within each layer of the {@link Drawable}.
-     *
-     * Layout is as follows:
-     *
-     * ````[
-     *      false, false, true, // Layer 0, SectionPlanes 0, 1, 2
-     *      false, true, true,  // Layer 1, SectionPlanes 0, 1, 2
-     *      true, false, true   // Layer 2, SectionPlanes 0, 1, 2
-     * ]````
-     *
-     * @property sectionPlanesActivePerLayer
-     * @type {Boolean[]}
-     */
+   * Set by {@link Drawable#rebuildRenderFlags} to indicate which {@link SectionPlane}s are active within each layer of the {@link Drawable}.
+   *
+   * Layout is as follows:
+   *
+   * ````[
+   *      false, false, true, // Layer 0, SectionPlanes 0, 1, 2
+   *      false, true, true,  // Layer 1, SectionPlanes 0, 1, 2
+   *      true, false, true   // Layer 2, SectionPlanes 0, 1, 2
+   * ]````
+   *
+   * @property sectionPlanesActivePerLayer
+   * @type {Boolean[]}
+   */
   sectionPlanesActivePerLayer: any[];
   culled: boolean;
   sectioned: boolean;
@@ -59,8 +59,8 @@ class RenderFlags {
   selectedEdgesTransparent: boolean;
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor() {
     this.visibleLayers = [];
     this.sectionPlanesActivePerLayer = [];
@@ -68,8 +68,8 @@ class RenderFlags {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   reset() {
     this.culled = false;
     this.sectioned = false;
@@ -94,4 +94,4 @@ class RenderFlags {
   }
 }
 
-export { RenderFlags };
+export {RenderFlags};

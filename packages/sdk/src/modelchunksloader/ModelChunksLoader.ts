@@ -1,8 +1,8 @@
-import type { DataModel } from "../data";
-import { DataModelParamsLoader } from "../data/DataModelParamsLoader";
-import type { ModelChunksManifestParams } from "../core";
-import type { ModelLoader } from "../io";
-import type { SceneModel } from "../scene";
+import type {DataModel} from "../data";
+import {DataModelParamsLoader} from "../data/DataModelParamsLoader";
+import type {ModelChunksManifestParams} from "../core";
+import type {ModelLoader} from "../io";
+import type {SceneModel} from "../scene";
 
 /**
  * Loads a SceneModel and/or DataModel from a set of chunk files.
@@ -21,7 +21,7 @@ export class ModelChunksLoader {
     sceneModelLoader: ModelLoader,
     dataModelLoader: ModelLoader
   }) {
-    const { sceneModelLoader, dataModelLoader } = params;
+    const {sceneModelLoader, dataModelLoader} = params;
     this.#sceneModelLoader = sceneModelLoader;
     this.#dataModelLoader = dataModelLoader || new DataModelParamsLoader();
     this.#cancelled = false;
@@ -36,13 +36,13 @@ export class ModelChunksLoader {
   }
 
   /**
-     * Loads the geometry and data models listed in a ModelChunksManifestParams into a SceneModel and DataModel.
-     *
-     * Loading can be interrupted at any time by calling {@link modelchunksloader!ModelChunksLoader.cancel | ModelChunksLoader.cancel}.
-     *
-     * @param params
-     * @returns {Promise} Resolves when all models have been loaded.
-     */
+   * Loads the geometry and data models listed in a ModelChunksManifestParams into a SceneModel and DataModel.
+   *
+   * Loading can be interrupted at any time by calling {@link modelchunksloader!ModelChunksLoader.cancel | ModelChunksLoader.cancel}.
+   *
+   * @param params
+   * @returns {Promise} Resolves when all models have been loaded.
+   */
   load(params: {
     modelChunksManifest: ModelChunksManifestParams,
     baseDir: string,
@@ -58,7 +58,7 @@ export class ModelChunksLoader {
         return reject("Argument expected: params");
       }
 
-      const { modelChunksManifest, baseDir, sceneModel, dataModel } = params;
+      const {modelChunksManifest, baseDir, sceneModel, dataModel} = params;
 
       if (!modelChunksManifest) {
         return reject("Parameter expected: modelChunksManifest");
@@ -97,8 +97,8 @@ export class ModelChunksLoader {
                     reject(`Error loading SceneModel file: ${error}`);
                   });
                 }).catch((error) => {
-                  reject(`Error loading SceneModel file: ${error}`);
-                });
+                reject(`Error loading SceneModel file: ${error}`);
+              });
             }).catch((error) => {
               reject(`Error loading SceneModel file: ${error}`);
             });
@@ -131,8 +131,8 @@ export class ModelChunksLoader {
                     loadNextDataModelFile();
                   });
                 }).catch((error) => {
-                  reject(`Error loading DataModel file: ${error}`);
-                });
+                reject(`Error loading DataModel file: ${error}`);
+              });
             }).catch((error) => {
               reject(`Error loading DataModel file: ${error}`);
             });
@@ -142,7 +142,7 @@ export class ModelChunksLoader {
       }
 
       if (sceneModelFiles && sceneModel &&
-                dataModelFiles && dataModel) {
+        dataModelFiles && dataModel) {
         loadSceneModelFiles(() => {
           loadDataModelFiles(() => {
             resolve();

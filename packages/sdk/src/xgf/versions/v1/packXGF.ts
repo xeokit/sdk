@@ -1,8 +1,7 @@
+import {XGF_INFO} from "./XGF_INFO";
+import type {XGFData_v1} from "./XGFData_v1";
 
-import { XGF_INFO } from "./XGF_INFO";
-import type { XGFData_v1 } from "./XGFData_v1";
-
-const object2Array = (function() {
+const object2Array = (function () {
   const encoder = new TextEncoder();
   return obj => encoder.encode(JSON.stringify(obj));
 })();
@@ -15,7 +14,7 @@ function toArrayBuffer(arrays: Buffer[]): ArrayBuffer {
   dataView.setUint32(0, XGF_INFO.xgfVersion, true);
 
   let byteOffset = dataView.byteLength;
-  const offsets = [ ];
+  const offsets = [];
 
   // Store arrays' offsets and lengths
   for (let i = 0; i < arraysCnt; i++) {
@@ -36,7 +35,7 @@ function toArrayBuffer(arrays: Buffer[]): ArrayBuffer {
   const dataArray = new Uint8Array(byteOffset);
   dataArray.set(new Uint8Array(dataView.buffer), 0);
 
-  const requiresSwapToLittleEndian = (function() {
+  const requiresSwapToLittleEndian = (function () {
     const buffer = new ArrayBuffer(2);
     new Uint16Array(buffer)[0] = 1;
     return new Uint8Array(buffer)[0] !== 1;

@@ -13,7 +13,7 @@ const canvas = document.createElement("canvas");
 if (canvas) {
 
   // @ts-ignore
-  const gl: WebGL2RenderingContext = canvas.getContext("webgl2", { antialias: true });
+  const gl: WebGL2RenderingContext = canvas.getContext("webgl2", {antialias: true});
 
   WEBGL_INFO.WEBGL = !!gl;
 
@@ -52,4 +52,4 @@ if (canvas) {
   }
 }
 
-export { WEBGL_INFO };
+export {WEBGL_INFO};

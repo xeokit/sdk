@@ -1,8 +1,8 @@
-import { collapseAABB3, expandAABB3 } from "../boundaries";
-import { Component, SDKError, type TextureTranscoder } from "../core";
-import { composeMat4, createMat4, createVec3, createVec4, eulerToQuat, identityQuat, mulMat4 } from "../matrix";
-import { createUUID, loadArraybuffer } from "../utils";
-import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../constants";
+import {collapseAABB3, expandAABB3} from "../boundaries";
+import {Component, SDKError, type TextureTranscoder} from "../core";
+import {composeMat4, createMat4, createVec3, createVec4, eulerToQuat, identityQuat, mulMat4} from "../matrix";
+import {createUUID, loadArraybuffer} from "../utils";
+import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";
 import type {
   RendererGeometry,
   RendererModel,
@@ -15,26 +15,26 @@ import type {
   SceneTexture,
   SceneTextureSet
 } from "../scene";
-import type { EventEmitter } from "../core";
-import type { FloatArrayParam } from "../math";
-import type { Layer } from "./Layer";
-import { MeshCounts } from "./MeshCounts";
-import type { RenderContext } from "./RenderContext";
-import { RenderFlags } from "./RenderFlags";
-import { VBOLinesBatchingLayer } from "./vbo/batching/lines/VBOLinesBatchingLayer";
-import { VBOLinesInstancingLayer } from "./vbo/instancing/lines/VBOLinesInstancingLayer";
-import { VBOPointsBatchingLayer } from "./vbo/batching/points/VBOPointsBatchingLayer";
-import { VBOTrianglesBatchingLayer } from "./vbo/batching/triangles/VBOTrianglesBatchingLayer";
-import { VBOTrianglesInstancingLayer } from "./vbo/instancing/triangles/VBOTrianglesInstancingLayer";
-import type { Viewer } from "../viewer";
-import type { WebGLRenderer } from "./WebGLRenderer";
-import { WebGLRendererGeometry } from "./WebGLRendererGeometry";
-import { WebGLRendererMesh } from "./WebGLRendererMesh";
-import { WebGLRendererObject } from "./WebGLRendererObject";
-import { WebGLRendererTexture } from "./WebGLRendererTexture";
-import { WebGLRendererTextureSet } from "./WebGLRendererTextureSet";
-import { WebGLTexture } from "../webglutils";
-import type { WebGLTileManager } from "./WebGLTileManager";
+import type {EventEmitter} from "../core";
+import type {FloatArrayParam} from "../math";
+import type {Layer} from "./Layer";
+import {MeshCounts} from "./MeshCounts";
+import type {RenderContext} from "./RenderContext";
+import {RenderFlags} from "./RenderFlags";
+import {VBOLinesBatchingLayer} from "./vbo/batching/lines/VBOLinesBatchingLayer";
+import {VBOLinesInstancingLayer} from "./vbo/instancing/lines/VBOLinesInstancingLayer";
+import {VBOPointsBatchingLayer} from "./vbo/batching/points/VBOPointsBatchingLayer";
+import {VBOTrianglesBatchingLayer} from "./vbo/batching/triangles/VBOTrianglesBatchingLayer";
+import {VBOTrianglesInstancingLayer} from "./vbo/instancing/triangles/VBOTrianglesInstancingLayer";
+import type {Viewer} from "../viewer";
+import type {WebGLRenderer} from "./WebGLRenderer";
+import {WebGLRendererGeometry} from "./WebGLRendererGeometry";
+import {WebGLRendererMesh} from "./WebGLRendererMesh";
+import {WebGLRendererObject} from "./WebGLRendererObject";
+import {WebGLRendererTexture} from "./WebGLRendererTexture";
+import {WebGLRendererTextureSet} from "./WebGLRendererTextureSet";
+import {WebGLTexture} from "../webglutils";
+import type {WebGLTileManager} from "./WebGLTileManager";
 
 const defaultScale = createVec3([1, 1, 1]);
 const defaultPosition = createVec3([0, 0, 0]);
@@ -258,7 +258,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
     if (this.rendererTextures[textureId]) {
       throw new SDKError(`WebGLRendererTexture with ID ${textureId} already created in WebGLRendererModel`);
     }
-    const glTexture = new WebGLTexture({ gl: this.#renderContext.gl });
+    const glTexture = new WebGLTexture({gl: this.#renderContext.gl});
     if (texture.preloadColor) {
       glTexture.setPreloadColor(texture.preloadColor);
     }
@@ -301,18 +301,18 @@ export class WebGLRendererModel extends Component implements RendererModel {
             this.error(`Can't create texture from 'src' - rendererModel needs to be configured with a TextureTranscoder for this file type ('${ext}')`);
           } else {
             loadArraybuffer(texture.src, (arrayBuffer: ArrayBuffer) => {
-              if (!arrayBuffer.byteLength) {
-                this.error(`Can't create texture from 'src': file data is zero length`);
-                return;
-              }
-              this.#textureTranscoder.transcode([arrayBuffer]).then((compressedTextureData) => {
-                glTexture.setCompressedData(compressedTextureData);
-                this.webglRenderer.setImageDirty();
+                if (!arrayBuffer.byteLength) {
+                  this.error(`Can't create texture from 'src': file data is zero length`);
+                  return;
+                }
+                this.#textureTranscoder.transcode([arrayBuffer]).then((compressedTextureData) => {
+                  glTexture.setCompressedData(compressedTextureData);
+                  this.webglRenderer.setImageDirty();
+                });
+              },
+              (errMsg: string) => {
+                this.error(`Can't create texture from 'src': ${errMsg}`);
               });
-            },
-            (errMsg: string) => {
-              this.error(`Can't create texture from 'src': ${errMsg}`);
-            });
           }
           break;
       }
@@ -379,7 +379,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
     const r = rendererMesh.pickId & 0xFF;
     const pickColor = new Uint8Array([r, g, b, a]);
     //    collapseAABB3(rendererMesh.aabb);
-    const meshIndex = layer.createLayerMesh({ pickColor }, mesh);
+    const meshIndex = layer.createLayerMesh({pickColor}, mesh);
     //  expandAABB3(this.#aabb, rendererMesh.aabb);
     rendererMesh.layer = layer;
     rendererMesh.meshIndex = meshIndex;
@@ -669,8 +669,8 @@ export class WebGLRendererModel extends Component implements RendererModel {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   #updateRenderFlagsVisibleLayers(viewIndex: number) {
     const renderFlags = this.renderFlags[viewIndex];
     renderFlags.numLayers = this.layerList.length;

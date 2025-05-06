@@ -1,4 +1,4 @@
-import type { FloatArrayParam, IntArrayParam } from "../math";
+import type {FloatArrayParam, IntArrayParam} from "../math";
 
 /**
  * Geometry data arrays.

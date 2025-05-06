@@ -1,4 +1,3 @@
-
 /**
  *  A customizable HTML context menu.
  *

@@ -1,11 +1,11 @@
-import { AmbientLight, DirLight, PointLight } from "../../viewer";
-import type { WebGLAttribute } from "../../webglutils";
-import { WEBGL_INFO, WebGLProgram } from "../../webglutils";
-import { OrthoProjectionType } from "../../constants";
-import { RENDER_PASSES } from "../RENDER_PASSES";
-import type { RenderContext } from "../RenderContext";
-import type { VBOBatchingLayer } from "./batching/VBOBatchingLayer";
-import type { VBOInstancingLayer } from "./instancing/VBOInstancingLayer";
+import {AmbientLight, DirLight, PointLight} from "../../viewer";
+import type {WebGLAttribute} from "../../webglutils";
+import {WEBGL_INFO, WebGLProgram} from "../../webglutils";
+import {OrthoProjectionType} from "../../constants";
+import {RENDER_PASSES} from "../RENDER_PASSES";
+import type {RenderContext} from "../RenderContext";
+import type {VBOBatchingLayer} from "./batching/VBOBatchingLayer";
+import type {VBOInstancingLayer} from "./instancing/VBOInstancingLayer";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 
@@ -85,7 +85,7 @@ export abstract class VBORenderer {
     saoOcclusionTexture: "saoOcclusionTexture";
   };
 
-  constructor(renderContext: RenderContext, cfg: { edges: boolean } = { edges: false }) {
+  constructor(renderContext: RenderContext, cfg: { edges: boolean } = {edges: false}) {
     this.renderContext = renderContext;
     this.#needRebuild = true;
     this.edges = cfg.edges;
@@ -637,10 +637,10 @@ export abstract class VBORenderer {
     gl.uniform1i(uniforms.renderPass, renderPass);
     if (uniforms.projMatrix) {
       gl.uniformMatrix4fv(uniforms.projMatrix, false,
-                <Float32Array | GLfloat[]>
-                    (renderPass === RENDER_PASSES.PICK
-                      ? renderContext.pickProjMatrix
-                      : view.camera.projMatrix));
+        <Float32Array | GLfloat[]>
+          (renderPass === RENDER_PASSES.PICK
+            ? renderContext.pickProjMatrix
+            : view.camera.projMatrix));
     }
     if (uniforms.pointSize) {
       gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);

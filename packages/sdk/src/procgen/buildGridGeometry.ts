@@ -1,5 +1,5 @@
 import * as utils from "../utils";
-import type { GeometryArrays } from "./GeometryArrays";
+import type {GeometryArrays} from "./GeometryArrays";
 
 /**
  * Creates a grid-shaped {@link scene!SceneGeometry | SceneGeometry}.

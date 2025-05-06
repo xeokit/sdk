@@ -1,7 +1,9 @@
+import {type ModelConverterResultInput} from "./ModelConverterResultInput";
 import {type ModelConverterResultOutput} from "./ModelConverterResultOutput";
 import {type Scene} from "../scene";
 import {type Data} from "../data";
 import {type ModelConverter} from "./ModelConverter";
+
 
 /**
  * The result returned from a {@link ModelConverter.convert | ModelConverter.convert} operation.
@@ -27,7 +29,7 @@ export interface ModelConverterResult {
    * The inputs given to the conversion, keyed by input name as defined in the pipeline.
    */
   inputs: {
-    [key: string]: any;
+    [key: string]: ModelConverterResultInput;
   };
 
   /**

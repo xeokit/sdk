@@ -1,5 +1,5 @@
-import { createAABB3, getAABB3Center } from "../../../boundaries";
-import { createVec3, createVec4 } from "../../../matrix";
+import {createAABB3, getAABB3Center} from "../../../boundaries";
+import {createVec3, createVec4} from "../../../matrix";
 import {
   JPEGMediaType,
   LinesPrimitive,
@@ -8,9 +8,9 @@ import {
   SolidPrimitive,
   SurfacePrimitive
 } from "../../../constants";
-import type { FloatArrayParam } from "../../../math";
-import type { SceneModel } from "../../../scene";
-import type { XKTData } from "./XKTData";
+import type {FloatArrayParam} from "../../../math";
+import type {SceneModel} from "../../../scene";
+import type {XKTData} from "./XKTData";
 
 const tempVec4a = createVec4();
 const tempVec4b = createVec4();
@@ -149,7 +149,7 @@ export function xktToModel(params: {
       } else {
 
         const mimeType = mediaType === JPEGMediaType ? "image/jpeg" : (mediaType === PNGMediaType ? "image/png" : "image/gif");
-        const blob = new Blob([arrayBuffer], { type: mimeType });
+        const blob = new Blob([arrayBuffer], {type: mimeType});
         const urlCreator = window.URL || window.webkitURL;
         const imageUrl = urlCreator.createObjectURL(blob);
         const img = document.createElement('img');
@@ -365,7 +365,7 @@ export function xktToModel(params: {
               ///////////////////////////////////
               // Adjust matrix?
               /////////////////////////////////////
-              origin: [tileCenter[0], tileCenter[1]+i++ *10, tileCenter[2]]
+              origin: [tileCenter[0], tileCenter[1] + i++ * 10, tileCenter[2]]
             });
 
             meshIds.push(meshId);
@@ -449,7 +449,7 @@ export function xktToModel(params: {
               geometryId,
               textureSetId,
               //   origin: tileCenter,
-              origin: [tileCenter[0], tileCenter[1]+i++ *10, tileCenter[2]],
+              origin: [tileCenter[0], tileCenter[1] + i++ * 10, tileCenter[2]],
               color: meshColor,
               opacity: meshOpacity
             });

@@ -49,4 +49,4 @@
  *
  * @module webglrenderer
  */
-export { WebGLRenderer } from "./WebGLRenderer";
+export {WebGLRenderer} from "./WebGLRenderer";

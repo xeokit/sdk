@@ -29,7 +29,15 @@
 /**
  * Represents an array of floating-point numbers.
  */
-export type FloatArrayParam = Uint8Array | Int8Array | Uint16Array | Uint32Array | Int16Array | Float32Array | Float64Array | number[];
+export type FloatArrayParam =
+  Uint8Array
+  | Int8Array
+  | Uint16Array
+  | Uint32Array
+  | Int16Array
+  | Float32Array
+  | Float64Array
+  | number[];
 
 /**
  * Represents an array of integer numbers.

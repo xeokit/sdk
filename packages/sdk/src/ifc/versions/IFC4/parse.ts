@@ -1,18 +1,17 @@
-
 import * as WebIFC from "web-ifc";
-import { createVec3, identityMat4 } from "../../../matrix";
-import { IfcElement, IfcRelAggregates, ifcTypeCodes } from "../../../ifctypes";
-import type { DataModel } from "../../../data";
-import type { ModelParseParams } from "../../../io";
-import type { SceneModel } from "../../../scene";
-import { TrianglesPrimitive } from "../../../constants";
+import {createVec3, identityMat4} from "../../../matrix";
+import {IfcElement, IfcRelAggregates, ifcTypeCodes} from "../../../ifctypes";
+import type {DataModel} from "../../../data";
+import type {ModelParseParams} from "../../../io";
+import type {SceneModel} from "../../../scene";
+import {TrianglesPrimitive} from "../../../constants";
 
 /**
  * @private
  */
 export function parse(ifcAPI: WebIFC.IfcAPI, params: ModelParseParams, options: any): Promise<void> {
   return new Promise<void>(function (resolve, reject) {
-    parseWebIFC(ifcAPI, params).then(()=>{
+    parseWebIFC(ifcAPI, params).then(() => {
       resolve();
     });
   });
@@ -31,7 +30,7 @@ interface ParsingContext {
 
 function parseWebIFC(ifcAPI: WebIFC.IfcAPI, params: ModelParseParams): Promise<any> {
   return new Promise<void>(function (resolve, reject) {
-    const { sceneModel, dataModel, fileData } = params;
+    const {sceneModel, dataModel, fileData} = params;
     const dataArray = new Uint8Array(fileData);
     const modelId = ifcAPI.OpenModel(dataArray);
     const lines = ifcAPI.GetLineIDsWithType(modelId, WebIFC.IFCPROJECT);

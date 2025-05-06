@@ -12,15 +12,15 @@ import {
   RepeatWrapping,
   TrianglesPrimitive
 } from "../constants";
-import { createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v } from "../matrix";
-import { createUUID, isString } from "../utils";
-import { GLTFLoader as glGLTFLoader, postProcessGLTF } from '@loaders.gl/gltf';
-import type { ModelLoadParams } from "../io";
-import { ModelLoader } from "../io";
-import type { SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams } from "../scene";
-import type { DataModel } from "../data";
-import type { FloatArrayParam } from "../math";
-import { parse } from '@loaders.gl/core';
+import {createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "../matrix";
+import {createUUID, isString} from "../utils";
+import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
+import type {ModelLoadParams} from "../io";
+import {ModelLoader} from "../io";
+import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams} from "../scene";
+import type {DataModel} from "../data";
+import type {FloatArrayParam} from "../math";
+import {parse} from '@loaders.gl/core';
 
 /**
  * Loads a glTF file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
@@ -60,7 +60,7 @@ interface ParsingContext {
 
 function parseGLTF(params: ModelLoadParams): Promise<any> {
   return new Promise<void>(function (resolve, reject) {
-    const { fileData, sceneModel, dataModel } = params;
+    const {fileData, sceneModel, dataModel} = params;
     if (!sceneModel && !dataModel) {
       return resolve();
     }
@@ -275,9 +275,9 @@ function parseTextureSet(ctx: ParsingContext, material: any): null | string {
     }
   }
   if (textureSetCfg.occlusionTextureId !== undefined ||
-        textureSetCfg.emissiveTextureId !== undefined ||
-        textureSetCfg.colorTextureId !== undefined ||
-        textureSetCfg.metallicRoughnessTextureId !== undefined) {
+    textureSetCfg.emissiveTextureId !== undefined ||
+    textureSetCfg.colorTextureId !== undefined ||
+    textureSetCfg.metallicRoughnessTextureId !== undefined) {
     textureSetCfg.id = `textureSet-${ctx.nextId++};`
     // @ts-ignore
     ctx.sceneModel.createTextureSet(textureSetCfg);

@@ -1,4 +1,4 @@
-import type { PropertyParams } from "./PropertyParams";
+import type {PropertyParams} from "./PropertyParams";
 
 /**
  * Parameters used to define a {@link PropertySet | PropertySet}.
@@ -12,24 +12,24 @@ import type { PropertyParams } from "./PropertyParams";
 export interface PropertySetParams {
 
   /**
-     * The unique identifier for the PropertySet.
-     *
-     * PropertySets are stored by this ID in {@link Data.propertySets | Data.propertySets} and {@link DataModel.propertySets | DataModel.propertySets}.
-     */
+   * The unique identifier for the PropertySet.
+   *
+   * PropertySets are stored by this ID in {@link Data.propertySets | Data.propertySets} and {@link DataModel.propertySets | DataModel.propertySets}.
+   */
   id: string;
 
   /**
-     * The human-readable name of the PropertySet.
-     */
+   * The human-readable name of the PropertySet.
+   */
   name: string;
 
   /**
-     * The type of this PropertySet.
-     */
+   * The type of this PropertySet.
+   */
   type: string;
 
   /**
-     * The collection of {@link Property | Properties} within the PropertySet.
-     */
+   * The collection of {@link Property | Properties} within the PropertySet.
+   */
   properties: PropertyParams[];
 }

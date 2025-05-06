@@ -1,8 +1,8 @@
-import type { DataModel, DataObject, PropertySet, Relationship } from "../../../data";
-import type { SceneMesh, SceneModel, SceneObject } from "../../../scene";
-import { createUUID } from "../../../utils";
-import { ifcTypeNames } from "../../../ifctypes";
-import type { ModelEncodeParams } from "../../../io";
+import type {DataModel, DataObject, PropertySet, Relationship} from "../../../data";
+import type {SceneMesh, SceneModel, SceneObject} from "../../../scene";
+import {createUUID} from "../../../utils";
+import {ifcTypeNames} from "../../../ifctypes";
+import type {ModelEncodeParams} from "../../../io";
 
 /** @private
  */
@@ -38,7 +38,7 @@ function generateIFC(sceneModel: SceneModel, dataModel: DataModel, header?: Part
     authorization: 'None'
   };
 
-  const finalHeader = { ...defaultHeader, ...header };
+  const finalHeader = {...defaultHeader, ...header};
   const ifcContent = [];
 
   generateIFCHeader(finalHeader, ifcContent);
@@ -104,7 +104,7 @@ function encodeSceneObject(object: SceneObject, ifcContent: string[], currentId:
   const objectId = generateGUID();
   ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});`);
   currentId++;
-  const matrix = object.meshes[0]?.matrix || [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+  const matrix = object.meshes[0]?.matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   const position = [matrix[12], matrix[13], matrix[14]];
   ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);`);
   currentId++;
@@ -130,7 +130,7 @@ function encodeSceneObjectAndDataObject(
   currentId++;
 
   // Create axis placement
-  const matrix = sceneObject.meshes[0]?.matrix || [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+  const matrix = sceneObject.meshes[0]?.matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
   const position = [matrix[12], matrix[13], matrix[14]];
 
   ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);`);
@@ -153,7 +153,6 @@ function encodeSceneObjectAndDataObject(
   const ifcType = getIFCTypeFromDataObject(dataObject);
   const ifcContent2 = [];
   ifcContent2.push(`#${currentId}=${ifcType}('${objectId}',#1,'${dataObject.name || ''}','${dataObject.description || ''}'`);
-
 
 
   // Add object placement

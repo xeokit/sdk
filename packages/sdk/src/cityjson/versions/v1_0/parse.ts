@@ -9,11 +9,11 @@ import {
   subVec3
 } from "../../../matrix";
 // @ts-ignore
-import { BasicAggregation } from "../../../basictypes";
-import { earcut } from './earcut';
-import type { ModelParser } from "../../../io";
-import { TrianglesPrimitive } from "../../../constants";
-import { typeCodes } from "../../../cityjsontypes_1_1_3";
+import {BasicAggregation} from "../../../basictypes";
+import {earcut} from './earcut';
+import type {ModelParser} from "../../../io";
+import {TrianglesPrimitive} from "../../../constants";
+import {typeCodes} from "../../../cityjsontypes_1_1_3";
 
 const tempVec2a = createVec2();
 const tempVec3a = createVec3();
@@ -25,10 +25,10 @@ const tempVec3c = createVec3();
  */
 export const parse: ModelParser = async (
   params,
-  options = { rotateX: false }
+  options = {rotateX: false}
 ) => {
   return new Promise<void>((resolve, reject) => {
-    const { fileData, sceneModel, dataModel } = params;
+    const {fileData, sceneModel, dataModel} = params;
 
     if (sceneModel || dataModel) {
       const ctx = {
@@ -187,7 +187,7 @@ function parseSurfacesWithOwnMaterials(ctx: any, surfaceMaterials: any, surfaces
   const sceneModel = ctx.sceneModel;
   for (let i = 0; i < surfaces.length; i++) {
     const surface = surfaces[i];
-    const surfaceMaterial = surfaceMaterials[i] || { diffuseColor: [0.8, 0.8, 0.8], transparency: 1.0 };
+    const surfaceMaterial = surfaceMaterials[i] || {diffuseColor: [0.8, 0.8, 0.8], transparency: 1.0};
     const face = [];
     const holes = [];
     const sharedIndices: any[] = [];

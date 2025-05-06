@@ -12,19 +12,19 @@ const argv = yargs(hideBin(process.argv)).argv;
 const logEnabled = argv.log;
 
 function logInfo(msg) {
-    if (logEnabled) {
-        console.log(`[xeoconvert] ${msg}`);
-    }
+  if (logEnabled) {
+    console.log(`[xeoconvert] ${msg}`);
+  }
 }
 
 function logError(msg) {
-    console.error(`[xeoconvert] ${msg}`);
+  console.error(`[xeoconvert] ${msg}`);
 }
 
 try {
 
-    if (argv.help) {
-        console.log(`xeoconvert - Model Conversion CLI Tool
+  if (argv.help) {
+    console.log(`xeoconvert - Model Conversion CLI Tool
 
 Usage:
   node xeoconvert.js --pipeline <pipelineName> --<inputId> <inputFile> --<outputId> <outputFile> [options]
@@ -42,209 +42,209 @@ Options:
 Example:
   node xeoconvert.js --pipeline ifc2xgf --ifc model.ifc --xgf sceneModel.xgf --datamodel dataModel.json --stats-report manifest.json --log
 `);
-        process.exit(0);
+    process.exit(0);
+  }
+
+  if (!argv.pipeline) {
+    console.error("Error: Missing required argument --pipeline");
+    process.exit(-1);
+  }
+
+  const pipeline = modelConverter.pipelines[argv.pipeline];
+  if (!pipeline) {
+    logError(`Error: Unknown pipeline '${argv.pipeline}'. Available options: ${Object.keys(modelConverter.pipelines).join(", ")}`);
+    process.exit(-1);
+    return;
+  }
+
+  for (let inputId in pipeline.inputs) {
+    if (!argv[inputId]) {
+      logError(`Error: Missing input argument --${inputId}, required for --pipeline ${argv.pipeline}`);
+      process.exit(-1);
+    }
+  }
+
+  for (let outputId in pipeline.outputs) {
+    if (!argv[outputId]) {
+      logError(`Error: Missing output argument --${outputId}, required for --pipeline ${argv.pipeline}`);
+      process.exit(-1);
+    }
+  }
+
+  logInfo(`Running pipeline '${argv.pipeline}'`);
+
+  const conversionParams = {
+    pipeline: argv.pipeline,
+    inputs: {}
+  };
+
+  const statsReport = {
+    description: "xeoconvert conversion stats",
+    command: `node xeoconvert.js ${process.argv.slice(2).join(' ')}`,
+    time: (new Date()).toISOString(), // "2025-04-23T18:30:00.000Z"
+    pipeline: argv.pipeline,
+    inputs: {},
+    sceneModels: {},
+    dataModels: {},
+    outputs: {}
+  };
+
+  for (let inputId in pipeline.inputs) {
+
+    const pipelineInput = pipeline.inputs[inputId];
+    const modelLoader = modelConverter.loaders[pipelineInput.loader];
+    const inputFilePath = argv[inputId];
+
+    let fileData;
+    let fileDataSizeBytes;
+
+    logInfo(`Reading input --${inputId} ${inputFilePath}`);
+
+    switch (modelLoader.fileDataType) {
+      case "text":
+        fileData = fs.readFileSync(inputFilePath, "utf-8");
+        fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
+        break;
+      case "json":
+        const text = fs.readFileSync(inputFilePath, "utf-8");
+        fileData = JSON.parse(text);
+        fileDataSizeBytes = (new TextEncoder()).encode(text).length;
+        break;
+      default:
+        fileData = fs.readFileSync(inputFilePath);
+        fileDataSizeBytes = fileData.buffer.byteLength;
+        break;
     }
 
-    if (!argv.pipeline) {
-        console.error("Error: Missing required argument --pipeline");
-        process.exit(-1);
-    }
+    conversionParams.inputs[inputId] = fileData;
 
-    const pipeline = modelConverter.pipelines[argv.pipeline];
-    if (!pipeline) {
-        logError(`Error: Unknown pipeline '${argv.pipeline}'. Available options: ${Object.keys(modelConverter.pipelines).join(", ")}`);
-        process.exit(-1);
-        return;
-    }
-
-    for (let inputId in pipeline.inputs) {
-        if (!argv[inputId]) {
-            logError(`Error: Missing input argument --${inputId}, required for --pipeline ${argv.pipeline}`);
-            process.exit(-1);
-        }
-    }
-
-    for (let outputId in pipeline.outputs) {
-        if (!argv[outputId]) {
-            logError(`Error: Missing output argument --${outputId}, required for --pipeline ${argv.pipeline}`);
-            process.exit(-1);
-        }
-    }
-
-    logInfo(`Running pipeline '${argv.pipeline}'`);
-
-    const conversionParams = {
-        pipeline: argv.pipeline,
-        inputs: {}
+    statsReport.inputs[inputId] = {
+      filePath: inputFilePath,
+      fileFormat: modelLoader.format,
+      fileFormatVersion: modelLoader.getVersion(fileData), // Inefficient?
+      fileDataSizeBytes,
+      fileDataType: modelLoader.fileDataType,
+      options: pipeline.inputs[inputId].options || {},
+      sceneModel: pipelineInput.sceneModel || "default",
+      dataModel: pipelineInput.dataModel || "default",
+      messages: [],
+      warnings: [],
+      errors: []
     };
+  }
 
-    const statsReport = {
-        description: "xeoconvert conversion stats",
-        command: `node xeoconvert.js ${process.argv.slice(2).join(' ')}`,
-        time: (new Date()).toISOString(), // "2025-04-23T18:30:00.000Z"
-        pipeline: argv.pipeline,
-        inputs: {},
-        sceneModels: {},
-        dataModels: {},
-        outputs: {}
-    };
+  modelConverter
+    .convert(conversionParams)
+    .then(modelConverterResult => {
 
-    for (let inputId in pipeline.inputs) {
+      for (let inputId in pipeline.inputs) {
 
         const pipelineInput = pipeline.inputs[inputId];
-        const modelLoader = modelConverter.loaders[pipelineInput.loader];
-        const inputFilePath = argv[inputId];
+        const sceneModelId = pipelineInput.sceneModel || "default";
+        const dataModelId = pipelineInput.dataModel || "default";
 
-        let fileData;
-        let fileDataSizeBytes;
+        if (!statsReport.sceneModels[sceneModelId]) {
+          const sceneModel = modelConverterResult.scene.models[sceneModelId];
+          statsReport.sceneModels[sceneModelId] = {aabb: Array.from(sceneModel.aabb), ...sceneModel.stats};
+        }
+        if (!statsReport.dataModels[dataModelId]) {
+          statsReport.dataModels[dataModelId] = modelConverterResult.data.models[dataModelId].stats;
+        }
+      }
 
-        logInfo(`Reading input --${inputId} ${inputFilePath}`);
+      for (let outputId in modelConverterResult.outputs) {
 
-        switch (modelLoader.fileDataType) {
-            case "text":
-                fileData = fs.readFileSync(inputFilePath, "utf-8");
-                fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
-                break;
-            case "json":
-                const text = fs.readFileSync(inputFilePath, "utf-8");
-                fileData = JSON.parse(text);
-                fileDataSizeBytes = (new TextEncoder()).encode(text).length;
-                break;
-            default:
-                fileData = fs.readFileSync(inputFilePath);
-                fileDataSizeBytes = fileData.buffer.byteLength;
-                break;
+        const outputFilePath = argv[outputId];
+        if (!outputFilePath) {
+          continue;
         }
 
-        conversionParams.inputs[inputId] = fileData;
+        const dirName = path.dirname(outputFilePath);
+        if (dirName !== "" && !fs.existsSync(dirName)) {
+          fs.mkdirSync(dirName, {recursive: true});
+        }
 
-        statsReport.inputs[inputId] = {
-            filePath: inputFilePath,
-            fileFormat: modelLoader.format,
-            fileFormatVersion: modelLoader.getVersion(fileData), // Inefficient?
-            fileDataSizeBytes,
-            fileDataType: modelLoader.fileDataType,
-            options: pipeline.inputs[inputId].options || {},
-            sceneModel: pipelineInput.sceneModel || "default",
-            dataModel: pipelineInput.dataModel || "default",
-            messages: [],
-            warnings: [],
-            errors: []
+        logInfo(`Writing output --${outputId} ${outputFilePath}`);
+
+        const outputValue = modelConverterResult.outputs[outputId];
+
+        switch (outputValue.fileDataType) {
+          case "json":
+            fs.writeFileSync(outputFilePath, JSON.stringify(outputValue.fileData));
+            break;
+          case "text":
+            fs.writeFileSync(outputFilePath, outputValue.fileData);
+            break;
+          default:
+            fs.writeFileSync(outputFilePath, Buffer.from(outputValue.fileData));
+            break;
+        }
+
+        const statsReportOutput = {
+          filePath: outputFilePath,
+          fileFormat: outputValue.format,
+          fileFormatVersion: outputValue.version,
+          fileDataSizeBytes: outputValue.fileData.byteLength,
+          fileDataType: outputValue.fileDataType,
+          options: pipeline.outputs[outputId].options || {},
+          messages: [],
+          warnings: [],
+          errors: []
         };
-    }
 
-    modelConverter
-        .convert(conversionParams)
-        .then(modelConverterResult => {
+        const sceneModelId = outputValue.sceneModel || "default";
+        if (!statsReport.sceneModels[sceneModelId]) {
+          const sceneModel = modelConverterResult.scene.models[sceneModelId];
+          if (sceneModel) {
+            const sceneModel = modelConverterResult.scene.models[sceneModelId];
+            statsReport.sceneModels[sceneModelId] = {aabb: Array.from(sceneModel.aabb), ...sceneModel.stats};
+          }
+        }
+        statsReportOutput.sceneModel = sceneModelId;
+        const dataModelId = outputValue.dataModel || "default";
+        if (!statsReport.dataModels[dataModelId]) {
+          const dataModel = modelConverterResult.data.models[dataModelId];
+          if (dataModel) {
+            statsReport.dataModels[dataModelId] = dataModel.stats;
+          }
+        }
+        statsReportOutput.dataModel = dataModelId;
+        statsReport.outputs[outputId] = statsReportOutput;
+      }
 
-            for (let inputId in pipeline.inputs) {
-
-                const pipelineInput = pipeline.inputs[inputId];
-                const sceneModelId = pipelineInput.sceneModel || "default";
-                const dataModelId = pipelineInput.dataModel || "default";
-
-                if (!statsReport.sceneModels[sceneModelId]) {
-                    const sceneModel = modelConverterResult.scene.models[sceneModelId];
-                    statsReport.sceneModels[sceneModelId] = {aabb: Array.from(sceneModel.aabb), ...sceneModel.stats};
-                }
-                if (!statsReport.dataModels[dataModelId]) {
-                    statsReport.dataModels[dataModelId] = modelConverterResult.data.models[dataModelId].stats;
-                }
+      for (let reporterId in reporters) {
+        const reportPath = argv[reporterId];
+        if (reportPath) {
+          const reporter = reporters[reporterId];
+          if (!reporter) {
+            logError(`Error: Unknown report type '${reporterId}'. Available options: ${Object.keys(reporters).join(", ")}`);
+            process.exit(-1);
+          } else {
+            const report = reporter({
+              modelConverterResult
+            });
+            if (!report) {
+              logError(`Error: Reporter '${reporterId}' failed to generate report.`);
+              process.exit(-1);
+            } else {
+              const dirName = path.dirname(reportPath);
+              if (dirName !== "" && !fs.existsSync(dirName)) {
+                fs.mkdirSync(dirName, {recursive: true});
+              }
+              logInfo(`Reporter '${reporterId}' writing report to ${reportPath}`);
+              fs.writeFileSync(reportPath, JSON.stringify(report, null, 4));
             }
-
-            for (let outputId in modelConverterResult.outputs) {
-
-                const outputFilePath = argv[outputId];
-                if (!outputFilePath) {
-                    continue;
-                }
-
-                const dirName = path.dirname(outputFilePath);
-                if (dirName !== "" && !fs.existsSync(dirName)) {
-                    fs.mkdirSync(dirName, {recursive: true});
-                }
-
-                logInfo(`Writing output --${outputId} ${outputFilePath}`);
-
-                const outputValue = modelConverterResult.outputs[outputId];
-
-                switch (outputValue.fileDataType) {
-                    case "json":
-                        fs.writeFileSync(outputFilePath, JSON.stringify(outputValue.fileData));
-                        break;
-                    case "text":
-                        fs.writeFileSync(outputFilePath, outputValue.fileData);
-                        break;
-                    default:
-                        fs.writeFileSync(outputFilePath, Buffer.from(outputValue.fileData));
-                        break;
-                }
-
-                const statsReportOutput = {
-                    filePath: outputFilePath,
-                    fileFormat: outputValue.format,
-                    fileFormatVersion: outputValue.version,
-                    fileDataSizeBytes: outputValue.fileData.byteLength,
-                    fileDataType: outputValue.fileDataType,
-                    options: pipeline.outputs[outputId].options || {},
-                    messages: [],
-                    warnings: [],
-                    errors: []
-                };
-
-                const sceneModelId = outputValue.sceneModel || "default";
-                if (!statsReport.sceneModels[sceneModelId]) {
-                    const sceneModel = modelConverterResult.scene.models[sceneModelId];
-                    if (sceneModel) {
-                        const sceneModel = modelConverterResult.scene.models[sceneModelId];
-                        statsReport.sceneModels[sceneModelId] = {aabb: Array.from(sceneModel.aabb), ...sceneModel.stats};
-                    }
-                }
-                statsReportOutput.sceneModel = sceneModelId;
-                const dataModelId = outputValue.dataModel || "default";
-                if (!statsReport.dataModels[dataModelId]) {
-                    const dataModel = modelConverterResult.data.models[dataModelId];
-                    if (dataModel) {
-                        statsReport.dataModels[dataModelId] = dataModel.stats;
-                    }
-                }
-                statsReportOutput.dataModel = dataModelId;
-                statsReport.outputs[outputId] = statsReportOutput;
-            }
-
-            for (let reporterId in reporters) {
-                const reportPath = argv[reporterId];
-                if (reportPath) {
-                    const reporter = reporters[reporterId];
-                    if (!reporter) {
-                        logError(`Error: Unknown report type '${reporterId}'. Available options: ${Object.keys(reporters).join(", ")}`);
-                        process.exit(-1);
-                    } else {
-                        const report = reporter({
-                            modelConverterResult
-                        });
-                        if (!report) {
-                            logError(`Error: Reporter '${reporterId}' failed to generate report.`);
-                            process.exit(-1);
-                        } else {
-                            const dirName = path.dirname(reportPath);
-                            if (dirName !== "" && !fs.existsSync(dirName)) {
-                                fs.mkdirSync(dirName, {recursive: true});
-                            }
-                            logInfo(`Reporter '${reporterId}' writing report to ${reportPath}`);
-                            fs.writeFileSync(reportPath, JSON.stringify(report, null, 4));
-                        }
-                    }
-                } else {
-                    logError(`Error: Invalid value for argument '${reporterId}'.`);
-                    process.exit(-1);
-                }
-            }
-            logInfo(`Done.`);
-            process.exit(1);
-        });
+          }
+        } else {
+          logError(`Error: Invalid value for argument '${reporterId}'.`);
+          process.exit(-1);
+        }
+      }
+      logInfo(`Done.`);
+      process.exit(1);
+    });
 } catch (err) {
-    logError(err);
-    process.exit(-1);
+  logError(err);
+  process.exit(-1);
 }
 

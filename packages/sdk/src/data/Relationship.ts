@@ -1,4 +1,4 @@
-import type { DataObject } from "./DataObject";
+import type {DataObject} from "./DataObject";
 
 /**
  * Represents a relationship between two {@link DataObject | DataObjects}.
@@ -12,36 +12,36 @@ import type { DataObject } from "./DataObject";
 export class Relationship {
 
   /**
-     * The type of this Relationship.
-     *
-     * This value uniquely identifies the relationship type within your DataModel.
-     */
+   * The type of this Relationship.
+   *
+   * This value uniquely identifies the relationship type within your DataModel.
+   */
   readonly type: number;
 
   /**
-     * The {@link DataObject | DataObject} that is the source of this Relationship.
-     *
-     * This Relationship will be stored in the {@link DataObject.related | DataObject.related} attribute
-     * of the relating DataObject.
-     */
+   * The {@link DataObject | DataObject} that is the source of this Relationship.
+   *
+   * This Relationship will be stored in the {@link DataObject.related | DataObject.related} attribute
+   * of the relating DataObject.
+   */
   readonly relatingObject: DataObject;
 
   /**
-     * The {@link DataObject | DataObject} that is the target of this Relationship.
-     *
-     * This Relationship will be stored in the {@link DataObject.relating | DataObject.relating} attribute
-     * of the related DataObject.
-     */
+   * The {@link DataObject | DataObject} that is the target of this Relationship.
+   *
+   * This Relationship will be stored in the {@link DataObject.relating | DataObject.relating} attribute
+   * of the related DataObject.
+   */
   readonly relatedObject: DataObject;
 
   /**
-     * Constructs a new Relationship between two {@link DataObject | DataObjects}.
-     *
-     * @private
-     * @param type - The type of relationship.
-     * @param relatingObject - The source DataObject in the relationship.
-     * @param relatedObject - The target DataObject in the relationship.
-     */
+   * Constructs a new Relationship between two {@link DataObject | DataObjects}.
+   *
+   * @private
+   * @param type - The type of relationship.
+   * @param relatingObject - The source DataObject in the relationship.
+   * @param relatedObject - The target DataObject in the relationship.
+   */
   constructor(type: number, relatingObject: DataObject, relatedObject: DataObject) {
     this.type = type;
     this.relatingObject = relatingObject;

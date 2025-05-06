@@ -1,10 +1,9 @@
-
-import { createMat4, createVec3 } from "../matrix";
-import { createRTCViewMat, worldToRTCCenter } from "../rtc";
-import type { Camera } from "../viewer";
-import type { FloatArrayParam } from "../math";
-import type { TileManager } from "./TileManager";
-import { WebGLDataTexture } from "../webglutils";
+import {createMat4, createVec3} from "../matrix";
+import {createRTCViewMat, worldToRTCCenter} from "../rtc";
+import type {Camera} from "../viewer";
+import type {FloatArrayParam} from "../math";
+import type {TileManager} from "./TileManager";
+import {WebGLDataTexture} from "../webglutils";
 
 const NUM_TILES = 2000;
 
@@ -152,6 +151,6 @@ export class WebGLTileManager implements TileManager {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.bindTexture(gl.TEXTURE_2D, null);
-    return new WebGLDataTexture({ gl, texture, textureWidth, textureHeight, textureData });
+    return new WebGLDataTexture({gl, texture, textureWidth, textureHeight, textureData});
   }
 }

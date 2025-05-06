@@ -1,5 +1,5 @@
-import type { DataModel } from "../data";
-import type { SceneModel } from "../scene";
+import type {DataModel} from "../data";
+import type {SceneModel} from "../scene";
 
 /**
  * Parameters for {@link ModelParser}.
@@ -7,22 +7,22 @@ import type { SceneModel } from "../scene";
 export interface ModelParseParams {
 
   /**
-     * File data to parse.
-     */
+   * File data to parse.
+   */
   fileData: any,
 
   /**
-     * SceneModel to parse geometry into.
-     */
+   * SceneModel to parse geometry into.
+   */
   sceneModel?: SceneModel,
 
   /**
-     * DataModel to parse semantic data into.
-     */
+   * DataModel to parse semantic data into.
+   */
   dataModel?: DataModel,
 
   /**
-     * Callback to receive logging messages from the parser.
-     */
-  log?:any
+   * Callback to receive logging messages from the parser.
+   */
+  log?: any
 }

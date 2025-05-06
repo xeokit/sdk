@@ -1,6 +1,6 @@
-import { EventDispatcher } from "strongly-typed-events";
-import { EventEmitter } from "../core";
-import { Map } from "../utils";
+import {EventDispatcher} from "strongly-typed-events";
+import {EventEmitter} from "../core";
+import {Map} from "../utils";
 
 
 const idMap = new Map();
@@ -92,31 +92,31 @@ export class ContextMenu {
   #canvasTouchStartHander: (event) => void;
 
   /**
-     * Emits an event each time this ContextMenu is shown.
-     *
-     * @event
-     */
+   * Emits an event each time this ContextMenu is shown.
+   *
+   * @event
+   */
   public readonly onShown: EventEmitter<ContextMenu, null>;
 
   /**
-     * Emits an event each time this ContextMenu is hidden.
-     *
-     * @event
-     */
+   * Emits an event each time this ContextMenu is hidden.
+   *
+   * @event
+   */
   public readonly onHidden: EventEmitter<ContextMenu, null>;
 
   /**
-     * Creates a ````ContextMenu````.
-     *
-     * The ````ContextMenu```` will be initially hidden.
-     *
-     * @param {Object} [cfg] ````ContextMenu```` configuration.
-     * @param {Object} [cfg.items] The context menu items. These can also be dynamically set on {@link ContextMenu#items}. See the class documentation for an example.
-     * @param {Object} [cfg.context] The context, which is passed into the item callbacks. This can also be dynamically set on {@link ContextMenu#context}. This must be set before calling {@link ContextMenu#show}.
-     * @param {Boolean} [cfg.enabled=true] Whether this ````ContextMenu```` is initially enabled. {@link ContextMenu#show} does nothing while this is ````false````.
-     * @param {Boolean} [cfg.hideOnMouseDown=true] Whether this ````ContextMenu```` automatically hides whenever we mouse-down or tap anywhere in the page.
-     * @param {Boolean} [cfg.hideOnAction=true] Whether this ````ContextMenu```` automatically hides after we select a menu item. Se false if we want the menu to remain shown and show any updates to its item titles, after we've selected an item.
-     */
+   * Creates a ````ContextMenu````.
+   *
+   * The ````ContextMenu```` will be initially hidden.
+   *
+   * @param {Object} [cfg] ````ContextMenu```` configuration.
+   * @param {Object} [cfg.items] The context menu items. These can also be dynamically set on {@link ContextMenu#items}. See the class documentation for an example.
+   * @param {Object} [cfg.context] The context, which is passed into the item callbacks. This can also be dynamically set on {@link ContextMenu#context}. This must be set before calling {@link ContextMenu#show}.
+   * @param {Boolean} [cfg.enabled=true] Whether this ````ContextMenu```` is initially enabled. {@link ContextMenu#show} does nothing while this is ````false````.
+   * @param {Boolean} [cfg.hideOnMouseDown=true] Whether this ````ContextMenu```` automatically hides whenever we mouse-down or tap anywhere in the page.
+   * @param {Boolean} [cfg.hideOnAction=true] Whether this ````ContextMenu```` automatically hides after we select a menu item. Se false if we want the menu to remain shown and show any updates to its item titles, after we've selected an item.
+   */
   constructor(cfg: {
     enabled?: boolean;
     context: any;
@@ -165,14 +165,14 @@ export class ContextMenu {
   }
 
   /**
-     * Sets the ````ContextMenu```` items.
-     *
-     * These can be updated dynamically at any time.
-     *
-     * See class documentation for an example.
-     *
-     * @type {Object[]}
-     */
+   * Sets the ````ContextMenu```` items.
+   *
+   * These can be updated dynamically at any time.
+   *
+   * See class documentation for an example.
+   *
+   * @type {Object[]}
+   */
   set items(itemsCfg) {
     this.#clear();
     this.#itemsCfg = itemsCfg || [];
@@ -181,21 +181,21 @@ export class ContextMenu {
   }
 
   /**
-     * Gets the ````ContextMenu```` items.
-     *
-     * @type {Object[]}
-     */
+   * Gets the ````ContextMenu```` items.
+   *
+   * @type {Object[]}
+   */
   get items() {
     return this.#itemsCfg;
   }
 
   /**
-     * Sets whether this ````ContextMenu```` is enabled.
-     *
-     * Hides the menu when disabling.
-     *
-     * @type {Boolean}
-     */
+   * Sets whether this ````ContextMenu```` is enabled.
+   *
+   * Hides the menu when disabling.
+   *
+   * @type {Boolean}
+   */
   set enabled(enabled: boolean) {
     enabled = (!!enabled);
     if (enabled === this.#enabled) {
@@ -208,50 +208,50 @@ export class ContextMenu {
   }
 
   /**
-     * Gets whether this ````ContextMenu```` is enabled.
-     *
-     * {@link ContextMenu#show} does nothing while this is ````false````.
-     *
-     * @type {Boolean}
-     */
+   * Gets whether this ````ContextMenu```` is enabled.
+   *
+   * {@link ContextMenu#show} does nothing while this is ````false````.
+   *
+   * @type {Boolean}
+   */
   get enabled(): boolean {
     return this.#enabled;
   }
 
   /**
-     * Sets the ````ContextMenu```` context.
-     *
-     * The context can be any object that you need to be provides to the callbacks configured on {@link ContextMenu#items}.
-     *
-     * This must be set before calling {@link ContextMenu#show}.
-     *
-     * @type {Object}
-     */
+   * Sets the ````ContextMenu```` context.
+   *
+   * The context can be any object that you need to be provides to the callbacks configured on {@link ContextMenu#items}.
+   *
+   * This must be set before calling {@link ContextMenu#show}.
+   *
+   * @type {Object}
+   */
   set context(context: any) {
     this.#context = context;
   }
 
   /**
-     * Gets the ````ContextMenu```` context.
-     *
-     * @type {Object}
-     */
+   * Gets the ````ContextMenu```` context.
+   *
+   * @type {Object}
+   */
   get context(): any {
     return this.#context;
   }
 
   /**
-     * Shows this ````ContextMenu```` at the given page coordinates.
-     *
-     * Does nothing when {@link ContextMenu#enabled} is ````false````.
-     *
-     * Logs error to console and does nothing if {@link ContextMenu#context} has not been set.
-     *
-     * Fires a "shown" event when shown.
-     *
-     * @param {Number} pageX Page X-coordinate.
-     * @param {Number} pageY Page Y-coordinate.
-     */
+   * Shows this ````ContextMenu```` at the given page coordinates.
+   *
+   * Does nothing when {@link ContextMenu#enabled} is ````false````.
+   *
+   * Logs error to console and does nothing if {@link ContextMenu#context} has not been set.
+   *
+   * Fires a "shown" event when shown.
+   *
+   * @param {Number} pageX Page X-coordinate.
+   * @param {Number} pageY Page Y-coordinate.
+   */
   show(pageX: number, pageY: number) {
     if (!this.#context) {
       console.error("[ContextMenu] ContextMenu cannot be shown without a context - set context first");
@@ -272,19 +272,19 @@ export class ContextMenu {
   }
 
   /**
-     * Gets whether this ````ContextMenu```` is currently shown or not.
-     *
-     * @returns {Boolean} Whether this ````ContextMenu```` is shown.
-     */
+   * Gets whether this ````ContextMenu```` is currently shown or not.
+   *
+   * @returns {Boolean} Whether this ````ContextMenu```` is shown.
+   */
   get shown(): boolean {
     return this.#shown;
   }
 
   /**
-     * Hides this ````ContextMenu````.
-     *
-     * Fires a "hidden" event when hidden.
-     */
+   * Hides this ````ContextMenu````.
+   *
+   * Fires a "hidden" event when hidden.
+   */
   hide() {
     if (!this.#enabled) {
       return;
@@ -298,8 +298,8 @@ export class ContextMenu {
   }
 
   /**
-     * Destroys this ````ContextMenu````.
-     */
+   * Destroys this ````ContextMenu````.
+   */
   destroy() {
     this.#context = null;
     this.#clear();
@@ -441,10 +441,10 @@ export class ContextMenu {
             } else {
               html.push(
                 '<li id="' + item.id + '" class="xeokit-context-menu-item" style="' +
-                                ((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black') +
-                                '">' +
-                                actionTitle +
-                                '</li>');
+                ((groupIdx === groupLen - 1) || ((j < lenj - 1)) ? 'border-bottom: 0' : 'border-bottom: 1px solid black') +
+                '">' +
+                actionTitle +
+                '</li>');
             }
           }
         }

@@ -1,4 +1,4 @@
-import type { BCFVector } from "./BCFVector";
+import type {BCFVector} from "./BCFVector";
 
 /**
  * BCF perspective camera.
@@ -6,22 +6,22 @@ import type { BCFVector } from "./BCFVector";
 export interface BCFPerspectiveCamera {
 
   /**
-     * BCF perspective camera viewpoint.
-     */
+   * BCF perspective camera viewpoint.
+   */
   camera_view_point: BCFVector,
 
   /**
-     * BCF perspective camera direction.
-     */
+   * BCF perspective camera direction.
+   */
   camera_direction: BCFVector,
 
   /**
-     * BCF perspective camera "up".
-     */
+   * BCF perspective camera "up".
+   */
   camera_up_vector: BCFVector,
 
   /**
-     * BCF perspective camera field-of-view.
-     */
+   * BCF perspective camera field-of-view.
+   */
   field_of_view: number
 }

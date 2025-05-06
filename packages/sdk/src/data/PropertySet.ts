@@ -1,6 +1,6 @@
-import type { DataModel } from "./DataModel";
-import { Property } from "./Property";
-import type { PropertySetParams } from "./PropertySetParams";
+import type {DataModel} from "./DataModel";
+import {Property} from "./Property";
+import type {PropertySetParams} from "./PropertySetParams";
 
 /**
  * Represents a set of {@link Property | Properties} within a {@link DataModel | DataModel}.
@@ -14,44 +14,44 @@ import type { PropertySetParams } from "./PropertySetParams";
 export class PropertySet {
 
   /**
-     * The {@link DataModel | DataModels} that this PropertySet belongs to.
-     */
+   * The {@link DataModel | DataModels} that this PropertySet belongs to.
+   */
   public readonly models: DataModel[];
 
   /**
-     * The unique identifier for this PropertySet.
-     *
-     * PropertySet instances are registered by this ID in {@link Data.propertySets | Data.propertySets}
-     * and {@link DataModel.propertySets | DataModel.propertySets}.
-     */
+   * The unique identifier for this PropertySet.
+   *
+   * PropertySet instances are registered by this ID in {@link Data.propertySets | Data.propertySets}
+   * and {@link DataModel.propertySets | DataModel.propertySets}.
+   */
   public readonly id: string;
 
   /**
-     * The ID of the corresponding object in the originating system, if applicable.
-     */
+   * The ID of the corresponding object in the originating system, if applicable.
+   */
   public readonly originalSystemId?: string;
 
   /**
-     * The human-readable name of this PropertySet.
-     */
+   * The human-readable name of this PropertySet.
+   */
   public readonly name: string;
 
   /**
-     * The type of this PropertySet.
-     */
+   * The type of this PropertySet.
+   */
   public readonly type: string;
 
   /**
-     * The collection of {@link Property | Properties} within this PropertySet.
-     */
+   * The collection of {@link Property | Properties} within this PropertySet.
+   */
   public readonly properties: Property[];
 
   /**
-     * Constructs a new PropertySet.
-     *
-     * @param dataModel - The DataModel to which this PropertySet belongs.
-     * @param propertySetCfg - Configuration parameters to initialize the PropertySet.
-     */
+   * Constructs a new PropertySet.
+   *
+   * @param dataModel - The DataModel to which this PropertySet belongs.
+   * @param propertySetCfg - Configuration parameters to initialize the PropertySet.
+   */
   constructor(
     dataModel: DataModel,
     propertySetCfg: PropertySetParams) {

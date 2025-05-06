@@ -1,4 +1,4 @@
-import type { BCFVector } from "./BCFVector";
+import type {BCFVector} from "./BCFVector";
 
 /**
  * BCF orthogonal camera.
@@ -6,23 +6,23 @@ import type { BCFVector } from "./BCFVector";
 export interface BCFOrthogonalCamera {
 
   /**
-     * BCF orthogonal camera viewpoint.
-     */
+   * BCF orthogonal camera viewpoint.
+   */
   camera_view_point: BCFVector;
 
   /**
-     * BCF orthogonal camera direction.
-     */
+   * BCF orthogonal camera direction.
+   */
   camera_direction: BCFVector;
 
   /**
-     * BCF orthogonal camera "up".
-     */
+   * BCF orthogonal camera "up".
+   */
   camera_up_vector: BCFVector;
 
   /**
-     * BCF orthogonal camera view-to-world scale.
-     */
+   * BCF orthogonal camera view-to-world scale.
+   */
   view_to_world_scale: number;
 
 }

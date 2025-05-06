@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 import '@loaders.gl/polyfills';
-import type { SceneModel } from "../scene";
-import { Scene } from "../scene";
-import { convertMetaModel } from "../metamodel";
-import { GLTFLoader } from "../gltf";
-import { SDKError } from "../core";
-import { XGFExporter } from "../xgf";
+import type {SceneModel} from "../scene";
+import {Scene} from "../scene";
+import {convertMetaModel} from "../metamodel";
+import {GLTFLoader} from "../gltf";
+import {SDKError} from "../core";
+import {XGFExporter} from "../xgf";
 
 const xgfExporter = new XGFExporter();
 
@@ -17,10 +17,10 @@ function ifc2gltf2xgf(params: {
   fileData: ArrayBuffer,
   xgfVersion?: string
 }): Promise<{
-    xgfArrayBuffer: ArrayBuffer,
-    sceneModel: SceneModel
-  }> {
-  const { fileData, xgfVersion } = params;
+  xgfArrayBuffer: ArrayBuffer,
+  sceneModel: SceneModel
+}> {
+  const {fileData, xgfVersion} = params;
   return new Promise(function (resolve, reject) {
     const scene = new Scene();
     const sceneModel = scene.createModel({
@@ -29,7 +29,7 @@ function ifc2gltf2xgf(params: {
     if (sceneModel instanceof SDKError) {
       return reject(sceneModel.message);
     } else {
-      (new GLTFLoader()).load({ fileData, sceneModel })
+      (new GLTFLoader()).load({fileData, sceneModel})
         .then(() => {
           sceneModel.build()
             .then(() => {
@@ -44,11 +44,11 @@ function ifc2gltf2xgf(params: {
                   });
                 });
             }).catch(err => {
-              return reject(err);
-            });
+            return reject(err);
+          });
         }).catch(err => {
-          return reject(err);
-        });
+        return reject(err);
+      });
     }
   });
 }
@@ -56,7 +56,7 @@ function ifc2gltf2xgf(params: {
 /**
  * @private
  */
-export { ifc2gltf2xgf };
+export {ifc2gltf2xgf};
 
 /**
  * @private

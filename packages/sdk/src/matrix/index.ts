@@ -35,8 +35,8 @@
  *
  * @module matrix
  */
-import type { FloatArrayParam } from "../math";
-import { clamp, DEGTORAD, newFloatArray } from "../math";
+import type {FloatArrayParam} from "../math";
+import {clamp, DEGTORAD, newFloatArray} from "../math";
 
 // Temporary vector variables used for internal computations
 const tempVec4a: FloatArrayParam = createVec4();
@@ -867,21 +867,21 @@ export function createMat4(values?: FloatArrayParam): Float64Array<any> {
  */
 export function compareMat4(m1: FloatArrayParam, m2: FloatArrayParam): boolean {
   return m1[0] === m2[0] &&
-        m1[1] === m2[1] &&
-        m1[2] === m2[2] &&
-        m1[3] === m2[3] &&
-        m1[4] === m2[4] &&
-        m1[5] === m2[5] &&
-        m1[6] === m2[6] &&
-        m1[7] === m2[7] &&
-        m1[8] === m2[8] &&
-        m1[9] === m2[9] &&
-        m1[10] === m2[10] &&
-        m1[11] === m2[11] &&
-        m1[12] === m2[12] &&
-        m1[13] === m2[13] &&
-        m1[14] === m2[14] &&
-        m1[15] === m2[15];
+    m1[1] === m2[1] &&
+    m1[2] === m2[2] &&
+    m1[3] === m2[3] &&
+    m1[4] === m2[4] &&
+    m1[5] === m2[5] &&
+    m1[6] === m2[6] &&
+    m1[7] === m2[7] &&
+    m1[8] === m2[8] &&
+    m1[9] === m2[9] &&
+    m1[10] === m2[10] &&
+    m1[11] === m2[11] &&
+    m1[12] === m2[12] &&
+    m1[13] === m2[13] &&
+    m1[14] === m2[14] &&
+    m1[15] === m2[15];
 }
 
 
@@ -1138,9 +1138,9 @@ export function identityMat3(dest?: FloatArrayParam): FloatArrayParam {
  */
 export function isIdentityMat4(m: FloatArrayParam): boolean {
   if (m[0] !== 1.0 || m[1] !== 0.0 || m[2] !== 0.0 || m[3] !== 0.0 ||
-        m[4] !== 0.0 || m[5] !== 1.0 || m[6] !== 0.0 || m[7] !== 0.0 ||
-        m[8] !== 0.0 || m[9] !== 0.0 || m[10] !== 1.0 || m[11] !== 0.0 ||
-        m[12] !== 0.0 || m[13] !== 0.0 || m[14] !== 0.0 || m[15] !== 1.0) {
+    m[4] !== 0.0 || m[5] !== 1.0 || m[6] !== 0.0 || m[7] !== 0.0 ||
+    m[8] !== 0.0 || m[9] !== 0.0 || m[10] !== 1.0 || m[11] !== 0.0 ||
+    m[12] !== 0.0 || m[13] !== 0.0 || m[14] !== 0.0 || m[15] !== 1.0) {
     return false;
   }
   return true;
@@ -1350,7 +1350,7 @@ export function inverseMat4(mat: FloatArrayParam, dest?: FloatArrayParam): Float
 
   const invDet = 1 / (
     b00 * b11 - b01 * b10 + b02 * b09 +
-        b03 * b08 - b04 * b07 + b05 * b06
+    b03 * b08 - b04 * b07 + b05 * b06
   );
 
   dest[0] = (a11 * b11 - a12 * b10 + a13 * b09) * invDet;
@@ -1972,11 +1972,11 @@ export function translationMat4s(s: number, dest: FloatArrayParam) {
 export function determinantMat4(mat: FloatArrayParam): number {
   const [a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33] = mat;
   return a30 * a21 * a12 * a03 - a20 * a31 * a12 * a03 - a30 * a11 * a22 * a03 + a10 * a31 * a22 * a03 +
-        a20 * a11 * a32 * a03 - a10 * a21 * a32 * a03 - a30 * a21 * a02 * a13 + a20 * a31 * a02 * a13 +
-        a30 * a01 * a22 * a13 - a00 * a31 * a22 * a13 - a20 * a01 * a32 * a13 + a00 * a21 * a32 * a13 +
-        a30 * a11 * a02 * a23 - a10 * a31 * a02 * a23 - a30 * a01 * a12 * a23 + a00 * a31 * a12 * a23 +
-        a10 * a01 * a32 * a23 - a00 * a11 * a32 * a23 - a20 * a11 * a02 * a33 + a10 * a21 * a02 * a33 +
-        a20 * a01 * a12 * a33 - a00 * a21 * a12 * a33 - a10 * a01 * a22 * a33 + a00 * a11 * a22 * a33;
+    a20 * a11 * a32 * a03 - a10 * a21 * a32 * a03 - a30 * a21 * a02 * a13 + a20 * a31 * a02 * a13 +
+    a30 * a01 * a22 * a13 - a00 * a31 * a22 * a13 - a20 * a01 * a32 * a13 + a00 * a21 * a32 * a13 +
+    a30 * a11 * a02 * a23 - a10 * a31 * a02 * a23 - a30 * a01 * a12 * a23 + a00 * a31 * a12 * a23 +
+    a10 * a01 * a32 * a23 - a00 * a11 * a32 * a23 - a20 * a11 * a02 * a33 + a10 * a21 * a02 * a33 +
+    a20 * a01 * a12 * a33 - a00 * a21 * a12 * a33 - a10 * a01 * a22 * a33 + a00 * a11 * a22 * a33;
 }
 
 /**
@@ -2608,14 +2608,14 @@ export const canvasPosToWorldRay = (() => {
   const vec4Far = new Float64Array(4);
 
   /**
-     * Converts clip-space coordinates to world-space coordinates.
-     *
-     * @param clipX The X coordinate in clip space.
-     * @param clipY The Y coordinate in clip space.
-     * @param clipZ The Z coordinate in clip space.
-     * @param isOrtho Whether the projection is orthographic.
-     * @param outVec4 The output world-space coordinates.
-     */
+   * Converts clip-space coordinates to world-space coordinates.
+   *
+   * @param clipX The X coordinate in clip space.
+   * @param clipY The Y coordinate in clip space.
+   * @param clipZ The Z coordinate in clip space.
+   * @param isOrtho Whether the projection is orthographic.
+   * @param outVec4 The output world-space coordinates.
+   */
   const clipToWorld = (clipX, clipY, clipZ, isOrtho, outVec4) => {
     outVec4[0] = clipX;
     outVec4[1] = clipY;

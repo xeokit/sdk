@@ -1,6 +1,6 @@
-import { createVec3, cross3Vec3, dotVec3, normalizeVec3, subVec3 } from "../matrix";
-import { decompressPoint3WithAABB3, decompressPoint3WithMat4 } from "../compression";
-import { DEGTORAD, type FloatArrayParam, type IntArrayParam } from "../math";
+import {createVec3, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "../matrix";
+import {decompressPoint3WithAABB3, decompressPoint3WithMat4} from "../compression";
+import {DEGTORAD, type FloatArrayParam, type IntArrayParam} from "../math";
 
 const uniquePositions: number[] = [];
 const indicesLookup: number[] = [];
@@ -91,7 +91,7 @@ function buildFaces(numIndices: number, aabb: FloatArrayParam) {
     cross3Vec3(cb, ab, cross);
     normalizeVec3(cross, normal);
     // @ts-ignore
-    const face = faces[numFaces] || (faces[numFaces] = { normal: createVec3() });
+    const face = faces[numFaces] || (faces[numFaces] = {normal: createVec3()});
     face.normal[0] = normal[0];
     face.normal[1] = normal[1];
     face.normal[2] = normal[2];

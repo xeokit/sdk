@@ -2,20 +2,21 @@ import type {
   KdLinePrim,
   KdPointPrim,
   KdTrianglePrim,
-  SceneObjectsKdTree3 } from "../kdtree3";
+  SceneObjectsKdTree3
+} from "../kdtree3";
 import {
   createPrimsKdTree3,
   searchKdTree3WithFrustum,
   searchKdTree3WithRay
 } from "../kdtree3";
-import { LinesPrimitive, PointsPrimitive, TrianglesPrimitive } from "../constants";
-import type { SceneGeometry, SceneObject } from "../scene";
-import { decompressPositions3WithAABB3 } from "../compression";
-import type { FloatArrayParam } from "../math";
-import type { Frustum3 } from "../boundaries";
-import type { MarqueePickResult } from "./MarqueePickResult";
-import { PickPrimsCache } from "./PickPrimsCache";
-import type { RayPickResult } from "./RayPickResult";
+import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../constants";
+import type {SceneGeometry, SceneObject} from "../scene";
+import {decompressPositions3WithAABB3} from "../compression";
+import type {FloatArrayParam} from "../math";
+import type {Frustum3} from "../boundaries";
+import type {MarqueePickResult} from "./MarqueePickResult";
+import {PickPrimsCache} from "./PickPrimsCache";
+import type {RayPickResult} from "./RayPickResult";
 
 /**
  * See {@link pick | @xeokit/sdk/pick} for usage.
@@ -29,9 +30,9 @@ export class Picker {
   }
 
   /**
-     * TODO
-     * @param params
-     */
+   * TODO
+   * @param params
+   */
   rayPick(params: {
     sceneObjectsKdTree3: SceneObjectsKdTree3,
     origin: FloatArrayParam,
@@ -114,11 +115,11 @@ export class Picker {
   }
 
   /**
-     * Picks a {@link kdtree3!SceneObjectsKdTree3} using a 2D marquee to obtain a {@link MarqueePickResult}
-     * containing picked {@link scene!SceneObject | SceneObjects}, {@link scene!SceneMesh | SceneMesh}, {@link scene!SceneGeometry | SceneGeometry},
-     * {@link scene!SceneGeometryBucket | GeometryBuckets}, {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
-     * @param params
-     */
+   * Picks a {@link kdtree3!SceneObjectsKdTree3} using a 2D marquee to obtain a {@link MarqueePickResult}
+   * containing picked {@link scene!SceneObject | SceneObjects}, {@link scene!SceneMesh | SceneMesh}, {@link scene!SceneGeometry | SceneGeometry},
+   * {@link scene!SceneGeometryBucket | GeometryBuckets}, {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
+   * @param params
+   */
   marqueePick(params: {
     sceneObjectsKdTree3: SceneObjectsKdTree3,
     marquee: FloatArrayParam

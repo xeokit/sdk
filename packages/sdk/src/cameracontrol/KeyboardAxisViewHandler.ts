@@ -1,6 +1,5 @@
-
-import { createVec3 } from "../matrix";
-import type { View } from "../viewer";
+import {createVec3} from "../matrix";
+import type {View} from "../viewer";
 
 const center = createVec3();
 const tempVec3a = createVec3();
@@ -20,7 +19,7 @@ const tempCameraTarget = {
 export class KeyboardAxisViewHandler {
   #view: View;
 
-  constructor(view: View, controllers:any, configs:any, states:any, updates: any) {
+  constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 
     this.#view = view;
     // const cameraControl = controllers.cameraControl;

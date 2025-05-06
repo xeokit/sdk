@@ -1,7 +1,7 @@
-import type { View } from "../viewer";
-import { PickResult } from "../viewer";
-import type { CameraControl } from "./CameraControl";
-import { createVec2 } from "../matrix";
+import type {View} from "../viewer";
+import {PickResult} from "../viewer";
+import type {CameraControl} from "./CameraControl";
+import {createVec2} from "../matrix";
 
 const DEFAULT_SNAP_PICK_RADIUS = 45;
 const DEFAULT_SNAP_MODE = "vertex";
@@ -41,45 +41,45 @@ class PickController {
     this.#configs = configs;
 
     /**
-         * Set true to schedule picking of an Entity.
-         * @type {boolean}
-         */
+     * Set true to schedule picking of an Entity.
+     * @type {boolean}
+     */
     this.schedulePickEntity = false;
 
     /**
-         * Set true to schedule picking of a position on teh surface of an Entity.
-         * @type {boolean}
-         */
+     * Set true to schedule picking of a position on teh surface of an Entity.
+     * @type {boolean}
+     */
     this.schedulePickSurface = false;
 
     /**
-         * Set true to schedule snap-picking with surface picking as a fallback - used for measurement.
-         * @type {boolean}
-         */
+     * Set true to schedule snap-picking with surface picking as a fallback - used for measurement.
+     * @type {boolean}
+     */
     this.scheduleSnapOrPick = false;
 
     /**
-         * The canvas position at which to do the next scheduled pick.
-         * @type {Number[]}
-         */
+     * The canvas position at which to do the next scheduled pick.
+     * @type {Number[]}
+     */
     this.pickCursorPos = createVec2();
 
     /**
-         * Will be true after picking to indicate that something was picked.
-         * @type {boolean}
-         */
+     * Will be true after picking to indicate that something was picked.
+     * @type {boolean}
+     */
     this.picked = false;
 
     /**
-         * Will be true after picking to indicate that a position on the surface of an Entity was picked.
-         * @type {boolean}
-         */
+     * Will be true after picking to indicate that a position on the surface of an Entity was picked.
+     * @type {boolean}
+     */
     this.pickedSurface = false;
 
     /**
-         * Will hold the PickResult after picking.
-         * @type {PickResult}
-         */
+     * Will hold the PickResult after picking.
+     * @type {PickResult}
+     */
     this.pickResult = null;
 
     this.#lastPickedEntityId = null;
@@ -90,8 +90,8 @@ class PickController {
   }
 
   /**
-     * Immediately attempts a pick, if scheduled.
-     */
+   * Immediately attempts a pick, if scheduled.
+   */
   update() {
 
     if (!this.#configs.pointerEnabled) {
@@ -278,4 +278,4 @@ class PickController {
   }
 }
 
-export { PickController };
+export {PickController};

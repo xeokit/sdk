@@ -1,5 +1,5 @@
-import { Component } from "../core";
-import type { View } from "./View";
+import {Component} from "../core";
+import type {View} from "./View";
 
 
 /**
@@ -10,8 +10,8 @@ import type { View } from "./View";
 class LinesMaterial extends Component {
 
   /**
-     * The View to which this LinesMaterial belongs.
-     */
+   * The View to which this LinesMaterial belongs.
+   */
   public readonly view: View;
 
   #state: {
@@ -19,9 +19,9 @@ class LinesMaterial extends Component {
   };
 
   /**
-     * @private
-     */
-  constructor(view: View, options: { lineWidth: number } = { lineWidth: 1 }) {
+   * @private
+   */
+  constructor(view: View, options: { lineWidth: number } = {lineWidth: 1}) {
 
     super(view, options);
 
@@ -33,23 +33,23 @@ class LinesMaterial extends Component {
   }
 
   /**
-     * Sets line width.
-     *
-     * Default value is ````1```` pixels.
-     */
+   * Sets line width.
+   *
+   * Default value is ````1```` pixels.
+   */
   set lineWidth(value: number) {
     this.#state.lineWidth = value || 1;
     this.view.redraw();
   }
 
   /**
-     * Gets the line width.
-     *
-     * Default value is ````1```` pixels.
-     */
+   * Gets the line width.
+   *
+   * Default value is ````1```` pixels.
+   */
   get lineWidth(): number {
     return this.#state.lineWidth;
   }
 }
 
-export { LinesMaterial };
+export {LinesMaterial};

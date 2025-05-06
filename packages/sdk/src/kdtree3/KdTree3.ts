@@ -1,8 +1,8 @@
-import { containsAABB3, expandAABB3 } from "../boundaries";
-import type { FloatArrayParam } from "../math";
-import type { KdItem3D } from "./KdItem3";
-import type { KdNode3 } from "./KdNode3";
-import type { KdTree3Params } from "./KdTree3Params";
+import {containsAABB3, expandAABB3} from "../boundaries";
+import type {FloatArrayParam} from "../math";
+import type {KdItem3D} from "./KdItem3";
+import type {KdNode3} from "./KdNode3";
+import type {KdTree3Params} from "./KdTree3Params";
 
 
 const MAX_KD_TREE_DEPTH = 10; // Increase if greater precision needed
@@ -22,10 +22,10 @@ export class KdTree3 {
   #numObjects: number;
 
   /**
-     * Creates a new KdTree3.
-     *
-     * @param params
-     */
+   * Creates a new KdTree3.
+   *
+   * @param params
+   */
   constructor(params: KdTree3Params) {
     this.#maxDepth = params?.maxDepth || MAX_KD_TREE_DEPTH;
     this.#root = {
@@ -40,7 +40,7 @@ export class KdTree3 {
   }
 
   insertItem(item: any, aabb: FloatArrayParam) {
-    this.#insertItem(this.#root, <KdItem3D>{ index: this.#numObjects++, item }, aabb, 1)
+    this.#insertItem(this.#root, <KdItem3D>{index: this.#numObjects++, item}, aabb, 1)
   }
 
   #insertItem(node: KdNode3, item: KdItem3D, aabb: FloatArrayParam, depth: number) {

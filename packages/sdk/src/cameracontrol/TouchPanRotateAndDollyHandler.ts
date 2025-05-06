@@ -1,7 +1,6 @@
-
-import { createVec2, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3 } from "../matrix";
-import { PerspectiveProjectionType } from "../constants";
-import type { View } from "../viewer";
+import {createVec2, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../matrix";
+import {PerspectiveProjectionType} from "../constants";
+import type {View} from "../viewer";
 
 const getCanvasPosFromEvent = function (event, canvasPos) {
   if (!event) {
@@ -33,7 +32,7 @@ class TouchPanRotateAndDollyHandler {
   #canvasTouchEndHandler: any;
   #tickSub: () => void;
 
-  constructor(view:View, controllers:any, configs:any, states:any, updates:any) {
+  constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 
     this.#view = view;
 
@@ -293,4 +292,4 @@ class TouchPanRotateAndDollyHandler {
   }
 }
 
-export { TouchPanRotateAndDollyHandler };
+export {TouchPanRotateAndDollyHandler};

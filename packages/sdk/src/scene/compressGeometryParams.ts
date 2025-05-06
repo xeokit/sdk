@@ -1,10 +1,10 @@
-import { collapseAABB3, expandAABB3Points3 } from "../boundaries";
-import { compressRGBColors, quantizePositions3 } from "../compression";
-import { createMat4, createVec3 } from "../matrix";
-import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../constants";
-import { buildEdgeIndices } from "./buildEdgeIndices";
-import type { SceneGeometryCompressedParams } from "./SceneGeometryCompressedParams";
-import type { SceneGeometryParams } from "./SceneGeometryParams";
+import {collapseAABB3, expandAABB3Points3} from "../boundaries";
+import {compressRGBColors, quantizePositions3} from "../compression";
+import {createMat4, createVec3} from "../matrix";
+import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";
+import {buildEdgeIndices} from "./buildEdgeIndices";
+import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
+import type {SceneGeometryParams} from "./SceneGeometryParams";
 
 const rtcCenter = createVec3();
 
@@ -49,8 +49,8 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
     };
   } else {
     const edgeIndices = (geometryParams.primitive === SolidPrimitive
-            || geometryParams.primitive === SurfacePrimitive
-            || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices
+      || geometryParams.primitive === SurfacePrimitive
+      || geometryParams.primitive === TrianglesPrimitive) && geometryParams.indices
       ? buildEdgeIndices(positionsCompressed, geometryParams.indices, aabb, 10)
       : null;
     return { // Assume that closed triangle mesh is decomposed into open surfaces

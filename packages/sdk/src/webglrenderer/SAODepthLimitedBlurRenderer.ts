@@ -1,8 +1,8 @@
-import type { WebGLAttribute, WebGLRenderBuffer } from "../webglutils";
-import { WebGLArrayBuf, WebGLProgram } from "../webglutils";
-import { PerspectiveProjectionType } from "../constants";
-import type { RenderContext } from "./RenderContext";
-import type { View } from "../viewer";
+import type {WebGLAttribute, WebGLRenderBuffer} from "../webglutils";
+import {WebGLArrayBuf, WebGLProgram} from "../webglutils";
+import {PerspectiveProjectionType} from "../constants";
+import type {RenderContext} from "./RenderContext";
+import type {View} from "../viewer";
 
 const blurStdDev = 4;
 const blurDepthCutoff = 0.01;
@@ -95,7 +95,7 @@ export class SAODepthLimitedBlurRenderer {
                 }`,
 
       fragment:
-                `#version 300 es
+        `#version 300 es
                 precision highp float;
                 precision highp int;
 
@@ -243,7 +243,7 @@ export class SAODepthLimitedBlurRenderer {
     this.#aUV = this.#program.getAttribute("aUV");
   }
 
-  render(params : {
+  render(params: {
     view: View,
     depthRenderBuffer: WebGLRenderBuffer,
     occlusionRenderBuffer: WebGLRenderBuffer,
@@ -254,7 +254,7 @@ export class SAODepthLimitedBlurRenderer {
       return;
     }
 
-    const { view, depthRenderBuffer, occlusionRenderBuffer, direction } = params;
+    const {view, depthRenderBuffer, occlusionRenderBuffer, direction} = params;
     const gl = this.#renderContext.gl;
     const program = this.#program;
     const viewportWidth = gl.drawingBufferWidth;

@@ -1,5 +1,5 @@
-import type { FloatArrayParam } from "../math";
-import type { ViewObject } from "./ViewObject";
+import type {FloatArrayParam} from "../math";
+import type {ViewObject} from "./ViewObject";
 
 
 /**
@@ -60,29 +60,29 @@ class PickResult {
   }
 
   /**
-     * The picked {@link ViewObject}.
-     */
+   * The picked {@link ViewObject}.
+   */
   get viewObject(): ViewObject | null | undefined {
     return this.#viewObject;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set viewObject(value: ViewObject | null | undefined) {
     this.#viewObject = value;
   }
 
   /**
-     * Canvas coordinates when picking with a 2D pointer.
-     */
+   * Canvas coordinates when picking with a 2D pointer.
+   */
   get canvasPos(): Int16Array | undefined {
     return this.#gotCanvasPos ? this.#canvasPos : undefined;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set canvasPos(value: FloatArrayParam | Int16Array | undefined) {
     if (value) {
       this.#canvasPos[0] = value[0];
@@ -94,15 +94,15 @@ class PickResult {
   }
 
   /**
-     * World-space 3D ray origin when raypicked.
-     */
+   * World-space 3D ray origin when raypicked.
+   */
   get origin(): FloatArrayParam | null {
     return this.#gotOrigin ? this.#origin : null;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set origin(value: any) {
     if (value) {
       this.#origin[0] = value[0];
@@ -115,15 +115,15 @@ class PickResult {
   }
 
   /**
-     * World-space 3D ray direction when raypicked.
-     */
+   * World-space 3D ray direction when raypicked.
+   */
   get direction(): FloatArrayParam | null {
     return this.#gotDirection ? this.#direction : null;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set direction(value: any) {
     if (value) {
       this.#direction[0] = value[0];
@@ -136,16 +136,16 @@ class PickResult {
   }
 
   /**
-     * Picked triangle's vertex indices.
-     * Only defined when an object and triangle was picked.
-     */
+   * Picked triangle's vertex indices.
+   * Only defined when an object and triangle was picked.
+   */
   get indices(): Int32Array | null {
     return this.#viewObject !== null && this.#gotIndices ? this.#indices : null;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set indices(value: any) {
     if (value) {
       this.#indices[0] = value[0];
@@ -158,16 +158,16 @@ class PickResult {
   }
 
   /**
-     * Picked Local-space point on surface.
-     * Only defined when an object and a point on its surface was picked.
-     */
+   * Picked Local-space point on surface.
+   * Only defined when an object and a point on its surface was picked.
+   */
   get localPos(): FloatArrayParam | null {
-    return this.#viewObject!== null && this.#gotLocalPos ? this.#localPos : null;
+    return this.#viewObject !== null && this.#gotLocalPos ? this.#localPos : null;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set localPos(value: any) {
     if (value) {
       this.#localPos[0] = value[0];
@@ -180,16 +180,16 @@ class PickResult {
   }
 
   /**
-     * Picked World-space point on surface.
-     * Only defined when an object and a point on its surface was picked.
-     */
+   * Picked World-space point on surface.
+   * Only defined when an object and a point on its surface was picked.
+   */
   get worldPos(): FloatArrayParam | null {
     return this.#viewObject && this.#gotWorldPos ? this.#worldPos : null;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set worldPos(value: any) {
     if (value) {
       this.#worldPos[0] = value[0];
@@ -202,16 +202,16 @@ class PickResult {
   }
 
   /**
-     * Picked View-space point on surface.
-     * Only defined when an object and a point on its surface was picked.
-     */
+   * Picked View-space point on surface.
+   * Only defined when an object and a point on its surface was picked.
+   */
   get viewPos(): FloatArrayParam | null {
     return this.#viewObject && this.#gotViewPos ? this.#viewPos : null;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set viewPos(value: any) {
     if (value) {
       this.#viewPos[0] = value[0];
@@ -224,16 +224,16 @@ class PickResult {
   }
 
   /**
-     * Normal vector at picked position on surface.
-     * Only defined when an object and a point on its surface was picked.
-     */
+   * Normal vector at picked position on surface.
+   * Only defined when an object and a point on its surface was picked.
+   */
   get worldNormal(): FloatArrayParam | null {
-    return this.#viewObject !== null&& this.#gotWorldNormal ? this.#worldNormal : null;
+    return this.#viewObject !== null && this.#gotWorldNormal ? this.#worldNormal : null;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set worldNormal(value: any) {
     if (value) {
       this.#worldNormal[0] = value[0];
@@ -246,16 +246,16 @@ class PickResult {
   }
 
   /**
-     * UV coordinates at picked position on surface.
-     * Only defined when an object and a point on its surface was picked.
-     */
+   * UV coordinates at picked position on surface.
+   * Only defined when an object and a point on its surface was picked.
+   */
   get uv(): FloatArrayParam | null {
-    return this.#viewObject !== null&& this.#gotUV ? this.#uv : null;
+    return this.#viewObject !== null && this.#gotUV ? this.#uv : null;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set uv(value: any) {
     if (value) {
       this.#uv[0] = value[0];
@@ -267,26 +267,26 @@ class PickResult {
   }
 
   /**
-     * Returns `true` if picking has snapped to the canvas coordinates of the nearest vertex.
-     * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest vertex.
-     */
+   * Returns `true` if picking has snapped to the canvas coordinates of the nearest vertex.
+   * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest vertex.
+   */
   get snappedToVertex(): boolean {
-    return this.#viewObject !== null&& this.#snappedToVertex;
+    return this.#viewObject !== null && this.#snappedToVertex;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set snappedToVertex(value: boolean) {
     this.#snappedToVertex = value;
   }
 
   /**
-     * Returns `true` if picking has snapped to the canvas coordinates of the nearest edge.
-     * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest edge.
-     */
+   * Returns `true` if picking has snapped to the canvas coordinates of the nearest edge.
+   * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest edge.
+   */
   get snappedToEdge(): boolean {
-    return this.#viewObject !== null&& this.#snappedToEdge;
+    return this.#viewObject !== null && this.#snappedToEdge;
   }
 
   set snappedToEdge(value: boolean) {
@@ -294,16 +294,16 @@ class PickResult {
   }
 
   /**
-     * Snapped canvas coordinates when picking with a 2D pointer.
-     * This has a value when {@link PickResult.snappedToEdge} or {@link PickResult.snappedToVertex} is `true`, otherwise will be `null`.
-     */
+   * Snapped canvas coordinates when picking with a 2D pointer.
+   * This has a value when {@link PickResult.snappedToEdge} or {@link PickResult.snappedToVertex} is `true`, otherwise will be `null`.
+   */
   get snappedCanvasPos(): Int16Array | undefined {
     return this.#gotSnappedCanvasPos ? this.#snappedCanvasPos : undefined;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   set snappedCanvasPos(value: FloatArrayParam | Int16Array | undefined) {
     if (value) {
       this.#snappedCanvasPos[0] = value[0];
@@ -315,8 +315,8 @@ class PickResult {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   reset() {
     this.#viewObject = null;
     this.#gotCanvasPos = false;
@@ -334,4 +334,4 @@ class PickResult {
   }
 }
 
-export { PickResult };
+export {PickResult};

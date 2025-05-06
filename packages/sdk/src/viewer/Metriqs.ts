@@ -1,9 +1,9 @@
-import { CentimetersUnit, FeetUnit, InchesUnit, MetersUnit, MillimetersUnit, YardsUnit } from "../constants";
-import { Component, EventEmitter } from "../core";
-import { createVec3 } from "../matrix";
-import { EventDispatcher } from "strongly-typed-events";
-import type { FloatArrayParam } from "../math";
-import type { View } from "./View";
+import {CentimetersUnit, FeetUnit, InchesUnit, MetersUnit, MillimetersUnit, YardsUnit} from "../constants";
+import {Component, EventEmitter} from "../core";
+import {createVec3} from "../matrix";
+import {EventDispatcher} from "strongly-typed-events";
+import type {FloatArrayParam} from "../math";
+import type {View} from "./View";
 
 
 const unitsInfo = {
@@ -64,30 +64,30 @@ class Metrics extends Component {
   #origin: FloatArrayParam;
 
   /**
-     * Emits an event each time {@link Metrics.units} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link Metrics.units} changes.
+   *
+   * @event
+   */
   readonly onUnits: EventEmitter<Metrics, number>;
 
   /**
-     * Emits an event each time {@link Metrics.scale} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link Metrics.scale} changes.
+   *
+   * @event
+   */
   readonly onScale: EventEmitter<Metrics, number>;
 
   /**
-     * Emits an event each time {@link Metrics.origin} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link Metrics.origin} changes.
+   *
+   * @event
+   */
   readonly onOrigin: EventEmitter<Metrics, FloatArrayParam>;
 
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view: View, cfg: {
     origin?: FloatArrayParam;
     scale?: number;
@@ -114,51 +114,51 @@ class Metrics extends Component {
   }
 
   /**
-     * Gets info about the supported Real-space unit types.
-     *
-     * With {@link constants} indicating each unit type, the info will be:
-     *
-     * ````javascript
-     * {
-     *     [MetersUnit]: {
-     *         abbrev: "m"
-     *     },
-     *     [CentimetersUnit]: {
-     *         abbrev: "cm"
-     *     },
-     *     [MillimetersUnit]: {
-     *         abbrev: "mm"
-     *     },
-     *     [YardsUnit]: {
-     *         abbrev: "yd"
-     *     },
-     *     [FeetUnit]: {
-     *         abbrev: "ft"
-     *     },
-     *     [InchesUnit]: {
-     *         abbrev: "in"
-     *     }
-     * }
-     * ````
-     *
-     * @type {*}
-     */
+   * Gets info about the supported Real-space unit types.
+   *
+   * With {@link constants} indicating each unit type, the info will be:
+   *
+   * ````javascript
+   * {
+   *     [MetersUnit]: {
+   *         abbrev: "m"
+   *     },
+   *     [CentimetersUnit]: {
+   *         abbrev: "cm"
+   *     },
+   *     [MillimetersUnit]: {
+   *         abbrev: "mm"
+   *     },
+   *     [YardsUnit]: {
+   *         abbrev: "yd"
+   *     },
+   *     [FeetUnit]: {
+   *         abbrev: "ft"
+   *     },
+   *     [InchesUnit]: {
+   *         abbrev: "in"
+   *     }
+   * }
+   * ````
+   *
+   * @type {*}
+   */
   get unitsInfo(): {} {
     return unitsInfo;
   }
 
   /**
-     * Gets the {@link View}'s Real-space unit type.
-     */
+   * Gets the {@link View}'s Real-space unit type.
+   */
   get units(): number {
     return this.#units;
   }
 
   /**
-     * Sets the {@link View}'s Real-space unit type.
-     *
-     * Accepted values are {@link constants!MetersUnit}, {@link constants!CentimetersUnit}, {@link constants!MillimetersUnit}, {@link constants!YardsUnit}, {@link constants!FeetUnit} and {@link constants!InchesUnit}.
-     */
+   * Sets the {@link View}'s Real-space unit type.
+   *
+   * Accepted values are {@link constants!MetersUnit}, {@link constants!CentimetersUnit}, {@link constants!MillimetersUnit}, {@link constants!YardsUnit}, {@link constants!FeetUnit} and {@link constants!InchesUnit}.
+   */
   set units(value: number | undefined) {
     if (!value) {
       value = MetersUnit;
@@ -174,17 +174,17 @@ class Metrics extends Component {
   }
 
   /**
-     * Gets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
-     */
+   * Gets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
+   */
   get scale(): number {
     return this.#scale;
   }
 
   /**
-     * Sets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
-     *
-     * For example, if {@link Metrics.units} is {@link constants!MetersUnit}, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
-     */
+   * Sets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
+   *
+   * For example, if {@link Metrics.units} is {@link constants!MetersUnit}, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
+   */
   set scale(value: number | undefined) {
     value = value || 1;
     if (value <= 0) {
@@ -196,15 +196,15 @@ class Metrics extends Component {
   }
 
   /**
-     * Gets the 3D Real-space origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
-     */
+   * Gets the 3D Real-space origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
+   */
   get origin(): FloatArrayParam {
     return this.#origin;
   }
 
   /**
-     * Sets the Real-space 3D origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
-     */
+   * Sets the Real-space 3D origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
+   */
   set origin(value: FloatArrayParam | undefined) {
     if (!value) {
       this.#origin[0] = 0;
@@ -219,14 +219,14 @@ class Metrics extends Component {
   }
 
   /**
-     * Converts a 3D position from World-space to Real-space.
-     *
-     * This is equivalent to ````realPos = #origin + (worldPos * #scale)````.
-     *
-     * @param worldPos World-space 3D position, in World coordinate system units.
-     * @param [realPos] Destination for Real-space 3D position.
-     * @returns  Real-space 3D position, in units indicated by {@link Metrics#units}.
-     */
+   * Converts a 3D position from World-space to Real-space.
+   *
+   * This is equivalent to ````realPos = #origin + (worldPos * #scale)````.
+   *
+   * @param worldPos World-space 3D position, in World coordinate system units.
+   * @param [realPos] Destination for Real-space 3D position.
+   * @returns  Real-space 3D position, in units indicated by {@link Metrics#units}.
+   */
   worldToRealPos(worldPos: FloatArrayParam, realPos: FloatArrayParam = createVec3()): FloatArrayParam {
     realPos[0] = this.#origin[0] + (this.#scale * worldPos[0]);
     realPos[1] = this.#origin[1] + (this.#scale * worldPos[1]);
@@ -235,14 +235,14 @@ class Metrics extends Component {
   }
 
   /**
-     * Converts a 3D position from Real-space to World-space.
-     *
-     * This is equivalent to ````worldPos = (worldPos - #origin) / #scale````.
-     *
-     * @param realPos Real-space 3D position.
-     * @param [worldPos] Destination for World-space 3D position.
-     * @returns  World-space 3D position.
-     */
+   * Converts a 3D position from Real-space to World-space.
+   *
+   * This is equivalent to ````worldPos = (worldPos - #origin) / #scale````.
+   *
+   * @param realPos Real-space 3D position.
+   * @param [worldPos] Destination for World-space 3D position.
+   * @returns  World-space 3D position.
+   */
   realToWorldPos(realPos: FloatArrayParam, worldPos: FloatArrayParam = createVec3()): FloatArrayParam {
     worldPos[0] = (realPos[0] - this.#origin[0]) / this.#scale;
     worldPos[1] = (realPos[1] - this.#origin[1]) / this.#scale;
@@ -251,8 +251,8 @@ class Metrics extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
     this.onUnits.clear();
@@ -261,4 +261,4 @@ class Metrics extends Component {
   }
 }
 
-export { Metrics };
+export {Metrics};

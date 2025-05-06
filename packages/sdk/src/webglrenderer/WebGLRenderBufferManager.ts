@@ -1,5 +1,5 @@
-import type { View } from "../viewer";
-import { WebGLRenderBuffer } from "../webglutils";
+import type {View} from "../viewer";
+import {WebGLRenderBuffer} from "../webglutils";
 
 /**
  * @private

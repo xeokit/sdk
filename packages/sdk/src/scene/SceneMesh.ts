@@ -1,12 +1,12 @@
-import { collapseAABB3, createAABB3, expandAABB3Point3 } from "../boundaries";
-import { createMat4, createVec4, identityMat4, isIdentityMat4, transformPoint4 } from "../matrix";
-import type { FloatArrayParam } from "../math";
-import type { RendererMesh } from "./RendererMesh";
-import type { SceneGeometry } from "./SceneGeometry";
-import type { SceneMeshParams } from "./SceneMeshParams";
-import type { SceneObject } from "./SceneObject";
-import type { SceneTextureSet } from "./SceneTextureSet";
-import type { SceneTile } from "./SceneTile";
+import {collapseAABB3, createAABB3, expandAABB3Point3} from "../boundaries";
+import {createMat4, createVec4, identityMat4, isIdentityMat4, transformPoint4} from "../matrix";
+import type {FloatArrayParam} from "../math";
+import type {RendererMesh} from "./RendererMesh";
+import type {SceneGeometry} from "./SceneGeometry";
+import type {SceneMeshParams} from "./SceneMeshParams";
+import type {SceneObject} from "./SceneObject";
+import type {SceneTextureSet} from "./SceneTextureSet";
+import type {SceneTile} from "./SceneTile";
 
 const tempVec4a = createVec4();
 const tempVec4b = createVec4();
@@ -46,45 +46,45 @@ function getPositionsWorldAABB3(
 export class SceneMesh {
 
   /**
-     * Unique ID of this SceneMesh.
-     *
-     * SceneMesh is stored by this ID in {@link SceneModel.meshes}.
-     */
+   * Unique ID of this SceneMesh.
+   *
+   * SceneMesh is stored by this ID in {@link SceneModel.meshes}.
+   */
   readonly id: string;
 
   /**
-     * {@link SceneTile} this SceneMesh belongs to.
-     */
+   * {@link SceneTile} this SceneMesh belongs to.
+   */
   readonly tile: SceneTile;
 
   /**
-     * {@link SceneGeometry} used by this SceneMesh.
-     */
+   * {@link SceneGeometry} used by this SceneMesh.
+   */
   readonly geometry: SceneGeometry;
 
   /**
-     * {@link SceneTextureSet} used by this SceneMesh.
-     */
+   * {@link SceneTextureSet} used by this SceneMesh.
+   */
   readonly textureSet?: SceneTextureSet;
 
   /**
-     *  Internal interface through which a {@link SceneMesh} can load property updates into a renderers.
-     *
-     *  This is defined when the owner {@link SceneModel | SceneModel} has been added to
-     *  a {@link viewer!Viewer | Viewer}.
-     *
-     * @internal
-     */
+   *  Internal interface through which a {@link SceneMesh} can load property updates into a renderers.
+   *
+   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to
+   *  a {@link viewer!Viewer | Viewer}.
+   *
+   * @internal
+   */
   rendererMesh: RendererMesh | null;
 
   /**
-     * The {@link SceneObject} that uses this SceneMesh.
-     */
+   * The {@link SceneObject} that uses this SceneMesh.
+   */
   object: SceneObject | null;
 
   /**
-     * TODO
-     */
+   * TODO
+   */
   streamLayerIndex: number;
 
   #color: FloatArrayParam;
@@ -98,8 +98,8 @@ export class SceneMesh {
   #aabb: FloatArrayParam;
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(meshParams: {
     id: string;
     geometry: SceneGeometry;
@@ -126,19 +126,19 @@ export class SceneMesh {
   }
 
   /**
-     * Gets the RGB color for this SceneMesh.
-     *
-     * Each element of the color is in range ````[0..1]````.
-     */
+   * Gets the RGB color for this SceneMesh.
+   *
+   * Each element of the color is in range ````[0..1]````.
+   */
   get color(): FloatArrayParam {
     return this.#color;
   }
 
   /**
-     * Sets the RGB color for this SceneMesh.
-     *
-     * Each element of the color is in range ````[0..1]````.
-     */
+   * Sets the RGB color for this SceneMesh.
+   *
+   * Each element of the color is in range ````[0..1]````.
+   */
   set color(value: FloatArrayParam) {
     let color = this.#color;
     if (!color) {
@@ -160,35 +160,35 @@ export class SceneMesh {
   }
 
   /**
-     * Gets this SceneMesh's local modeling transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @type {FloatArrayParam}
-     */
+   * Gets this SceneMesh's local modeling transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @type {FloatArrayParam}
+   */
   get matrix(): FloatArrayParam {
     return this.#matrix;
   }
 
   /**
-     * Gets this SceneMesh's RTC modeling transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @internal
-     * @type {FloatArrayParam}
-     */
+   * Gets this SceneMesh's RTC modeling transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @internal
+   * @type {FloatArrayParam}
+   */
   get rtcMatrix(): FloatArrayParam {
     return this.#rtcMatrix;
   }
 
   /**
-     * Updates this SceneMesh's local modeling transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @type {FloatArrayParam}
-     */
+   * Updates this SceneMesh's local modeling transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @type {FloatArrayParam}
+   */
   set matrix(matrix: FloatArrayParam) {
     if (matrix) {
       // @ts-ignore
@@ -206,19 +206,19 @@ export class SceneMesh {
   }
 
   /**
-     * Gets the opacity factor for this SceneMesh.
-     *
-     * This is a factor in range ````[0..1]````.
-     */
+   * Gets the opacity factor for this SceneMesh.
+   *
+   * This is a factor in range ````[0..1]````.
+   */
   get opacity(): number {
     return this.#opacity;
   }
 
   /**
-     * Sets the opacity factor for this SceneMesh.
-     *
-     * This is a factor in range ````[0..1]````.
-     */
+   * Sets the opacity factor for this SceneMesh.
+   *
+   * This is a factor in range ````[0..1]````.
+   */
   set opacity(opacity: number) {
     opacity = (opacity !== undefined && opacity !== null) ? opacity : 1.0;
     if (this.#opacity === opacity) {
@@ -231,8 +231,8 @@ export class SceneMesh {
   }
 
   /**
-     * Gets the World-space AABB of this SceneMesh.
-     */
+   * Gets the World-space AABB of this SceneMesh.
+   */
   get aabb(): FloatArrayParam {
     if (!this.#aabbDirty) {
       return this.#aabb;
@@ -243,8 +243,8 @@ export class SceneMesh {
   }
 
   /**
-     * Gets this SceneMesh as SceneMeshParams.
-     */
+   * Gets this SceneMesh as SceneMeshParams.
+   */
   toParams(): SceneMeshParams {
     const meshParams = <SceneMeshParams>{
       streamLayerIndex: this.streamLayerIndex || 0,

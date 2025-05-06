@@ -5,10 +5,10 @@ import {type ModelConverterManifestReportFile} from "./ModelConverterManifestRep
  */
 export interface ModelConverterManifestReport {
 
-    /**
-     * Information on each file in the manifest report.
-     */
-    files: {
-        [key: string]: ModelConverterManifestReportFile;
-    }
+  /**
+   * Information on each file in the manifest report.
+   */
+  files: {
+    [key: string]: ModelConverterManifestReportFile;
+  }
 }

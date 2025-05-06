@@ -1,7 +1,7 @@
-import { ifcTypeCodes } from "../../../ifctypes";
-import type { ModelParser } from "../../../io";
-import { SDKError } from "../../../core";
-import { TrianglesPrimitive } from "../../../constants";
+import {ifcTypeCodes} from "../../../ifctypes";
+import type {ModelParser} from "../../../io";
+import {SDKError} from "../../../core";
+import {TrianglesPrimitive} from "../../../constants";
 
 /**
  * @private
@@ -36,11 +36,11 @@ export const parse: ModelParser = async (params, options = {
         const element = elements[i];
         const info = element.info;
         const objectId =
-                    element.guid !== undefined
-                      ? `${element.guid}`
-                      : (info !== undefined && info.id !== undefined
-                        ? info.id
-                        : i);
+          element.guid !== undefined
+            ? `${element.guid}`
+            : (info !== undefined && info.id !== undefined
+              ? info.id
+              : i);
 
         if (params.sceneModel) {
           const geometryId = element.mesh_id;

@@ -1,5 +1,5 @@
-import { encode as encode_1_0_0 } from "./versions/v1/encode"
-import { ModelExporter } from "../io";
+import {encode as encode_1_0_0} from "./versions/v1/encode"
+import {ModelExporter} from "../io";
 
 /**
  * Exports a {@link scene!SceneModel | SceneModel} to an XGF file.

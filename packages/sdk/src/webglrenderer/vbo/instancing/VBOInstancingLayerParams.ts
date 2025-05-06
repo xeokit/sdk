@@ -1,8 +1,8 @@
-import type { FloatArrayParam } from "../../../math";
-import type { RenderContext } from "../../RenderContext";
-import type { RendererTextureSet } from "../../../scene";
-import type { SceneGeometry } from "../../../scene";
-import type { WebGLRendererModel } from "../../WebGLRendererModel";
+import type {FloatArrayParam} from "../../../math";
+import type {RenderContext} from "../../RenderContext";
+import type {RendererTextureSet} from "../../../scene";
+import type {SceneGeometry} from "../../../scene";
+import type {WebGLRendererModel} from "../../WebGLRendererModel";
 
 /**
  * @private
@@ -13,5 +13,5 @@ export interface VBOInstancingLayerParams {
   sceneGeometry: SceneGeometry;
   layerIndex: number;
   textureSet?: RendererTextureSet;
-  origin:FloatArrayParam;
+  origin: FloatArrayParam;
 }

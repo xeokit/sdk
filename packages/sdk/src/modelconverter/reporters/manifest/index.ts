@@ -1,3 +1,3 @@
 export * from "./ModelConverterManifestReport";
 export * from "./ModelConverterManifestReportFile";
-export * from "./createModelConverterManifestReport";
+export * from "./createManifestReport";

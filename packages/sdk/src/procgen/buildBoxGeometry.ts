@@ -1,7 +1,7 @@
 import * as utils from "../utils";
-import type { GeometryArrays } from "./GeometryArrays";
-import { SDKError } from "../core";
-import { TrianglesPrimitive } from "../constants";
+import type {GeometryArrays} from "./GeometryArrays";
+import {SDKError} from "../core";
+import {TrianglesPrimitive} from "../constants";
 
 /**
  * Creates box-shaped geometry arrays.

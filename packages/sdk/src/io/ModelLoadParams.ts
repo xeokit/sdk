@@ -6,23 +6,23 @@ import {DataModel} from "../data";
  */
 export interface ModelLoadParams {
 
-    /**
-     * Path to load file data from.
-     */
-    filePath?: string,
+  /**
+   * Path to load file data from.
+   */
+  filePath?: string,
 
-    /**
-     * The file data to load.
-     */
-    fileData?: any,
+  /**
+   * The file data to load.
+   */
+  fileData?: any,
 
-    /**
-     * The SceneModel to load geometry into.
-     */
-    sceneModel?: SceneModel,
+  /**
+   * The SceneModel to load geometry into.
+   */
+  sceneModel?: SceneModel,
 
-    /**
-     * The DataModel to load semantic data into.
-     */
-    dataModel?: DataModel
+  /**
+   * The DataModel to load semantic data into.
+   */
+  dataModel?: DataModel
 }

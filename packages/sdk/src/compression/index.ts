@@ -96,7 +96,6 @@
  */
 
 
-
 import {
   createMat3,
   createMat4,
@@ -113,7 +112,7 @@ import {
   translationMat4v
 } from "../matrix";
 
-import type { FloatArrayParam } from "../math";
+import type {FloatArrayParam} from "../math";
 
 const translate = createMat4();
 const scale = createMat4();
@@ -504,7 +503,6 @@ export function decompressPositions3WithAABB3(
 }
 
 
-
 /**
  * Computes the minimum and maximum bounds for a flat array of UV coordinates.
  *
@@ -536,7 +534,7 @@ export function getUVBounds(array: FloatArrayParam): { min: FloatArrayParam, max
     max[1] = Math.max(max[1], array[i + 1]); // Update maximum v value
   }
 
-  return { min, max };
+  return {min, max};
 }
 
 

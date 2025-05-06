@@ -1,6 +1,6 @@
-import type { Data } from "./Data";
-import type { DataObject } from "./DataObject";
-import { SDKError } from "../core";
+import type {Data} from "./Data";
+import type {DataObject} from "./DataObject";
+import {SDKError} from "../core";
 
 /**
  * Traverses a {@link data!Data | Data} to collect {@link data!DataObject | DataObjects} that matching given search criteria.
@@ -23,8 +23,8 @@ export class DataTraversalQuery {
   }
 
   /**
-     * TODO
-     */
+   * TODO
+   */
   query(): void | SDKError {
     if (!this.data) {
       return new SDKError("Data already destroyed");
@@ -34,7 +34,7 @@ export class DataTraversalQuery {
     // const includeRelating = (this.includeRelating && this.includeRelating.length > 0) ? arrayToMap(this.includeRelating) : null;
     // const excludeRelating = (this.excludeRelating && this.excludeRelating.length > 0) ? arrayToMap(this.excludeRelating) : null;
 
-    const visit = (dataObject: DataObject, depth: number) =>{
+    const visit = (dataObject: DataObject, depth: number) => {
       if (!dataObject) {
         return;
       }

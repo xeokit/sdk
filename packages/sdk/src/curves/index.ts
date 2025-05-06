@@ -48,8 +48,8 @@
  * console.log("Cubic Bézier curve tangent:", tangentCubic);
  * ```
  *
-* ### Spline curve tangent at a given parameter
-*
+ * ### Spline curve tangent at a given parameter
+ *
  * ````javascript
  * const tangentSplineValue = tangentSpline(t);
  * console.log("Spline curve tangent:", tangentSplineValue);
@@ -105,11 +105,11 @@ export function tangentQuadraticBezier(t: number, p0: number, p1: number, p2: nu
  */
 export function tangentQuadraticBezier3(t: number, p0: number, p1: number, p2: number, p3: number): number {
   return -3 * p0 * (1 - t) ** 2 +
-        3 * p1 * (1 - t) ** 2 -
-        6 * t * p1 * (1 - t) +
-        6 * t * p2 * (1 - t) -
-        3 * t ** 2 * p2 +
-        3 * t ** 2 * p3;
+    3 * p1 * (1 - t) ** 2 -
+    6 * t * p1 * (1 - t) +
+    6 * t * p2 * (1 - t) -
+    3 * t ** 2 * p2 +
+    3 * t ** 2 * p3;
 }
 
 /**

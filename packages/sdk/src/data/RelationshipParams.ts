@@ -9,17 +9,17 @@
 export interface RelationshipParams {
 
   /**
-     * The relationship type.
-     */
+   * The relationship type.
+   */
   type: number,
 
   /**
-     * The relating {@link DataObject | DataObject}.
-     */
+   * The relating {@link DataObject | DataObject}.
+   */
   relatingObjectId: string,
 
   /**
-     * The related {@link DataObject | DataObject}.
-     */
+   * The related {@link DataObject | DataObject}.
+   */
   relatedObjectId: string
 }

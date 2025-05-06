@@ -9,11 +9,11 @@ export class Map {
   }
 
   /**
-     * Usage:
-     *
-     * id = myMap.addItem("foo") // ID internally generated
-     * id = myMap.addItem("foo", "bar") // ID is "foo"
-     */
+   * Usage:
+   *
+   * id = myMap.addItem("foo") // ID internally generated
+   * id = myMap.addItem("foo", "bar") // ID is "foo"
+   */
   addItem() {
     let item;
     if (arguments.length === 2) {

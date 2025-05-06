@@ -1,4 +1,4 @@
-import type { ModelParser } from "./ModelParser";
+import type {ModelParser} from "./ModelParser";
 
 /**
  * Constructor paramsters for a {@link ModelLoader}.
@@ -6,24 +6,24 @@ import type { ModelParser } from "./ModelParser";
 export interface ModelLoaderParams {
 
   /**
-     * The loaded file format.
-     */
+   * The loaded file format.
+   */
   format: string;
 
   /**
-     * Parsers for exported schema versions.
-     */
+   * Parsers for exported schema versions.
+   */
   parsers: {
     [key: string]: ModelParser;
   };
 
   /**
-     * Data type of the imported file data.
-     */
+   * Data type of the imported file data.
+   */
   fileDataType: string;
 
   /**
-     * Callback which attempts to get the schema version of the given file data.
-     */
+   * Callback which attempts to get the schema version of the given file data.
+   */
   getVersion: (fileData: any) => string;
 }

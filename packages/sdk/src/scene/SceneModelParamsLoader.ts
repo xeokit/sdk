@@ -1,19 +1,18 @@
-import { ModelLoader } from "../io/ModelLoader";
-import { parse as parse_1_0 } from "./versions/1_0/parse"
-import { SceneModel } from "./SceneModel";
-import type { SceneModelParams } from "./SceneModelParams";
+import {ModelLoader} from "./../io/ModelLoader";
+import {parse as parse_1_0} from "./versions/1_0/parse"
+import {SceneModel} from "./SceneModel";
 
 /**
  * Reads {@link SceneModelParams | SceneModelParams} into a {@link SceneModel | SceneModel}.
  */
-export class SceneModelParamsLoader extends ModelLoader {
+ export class SceneModelParamsLoader extends ModelLoader {
 
   /**
-     * Constructs a SceneModelParamsLoader.
-     */
+   * Constructs a SceneModelParamsLoader.
+   */
   constructor() {
     super({
-      format:"SceneModelParams",
+      format: "SceneModelParams",
       fileDataType: "json",
       parsers: {
         "1.0": parse_1_0
@@ -24,3 +23,4 @@ export class SceneModelParamsLoader extends ModelLoader {
     });
   }
 }
+

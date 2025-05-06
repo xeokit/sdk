@@ -1,8 +1,8 @@
-import type { ModelParseParams } from "../io";
-import { ModelLoader } from "../io";
-import { IfcAPI as IfcAPI_browser } from "node_modules/web-ifc/web-ifc-api.js";
-import { IfcAPI as IfcAPI_node } from "node_modules/web-ifc/web-ifc-api-node.js";
-import { parse as parse_IFC4 } from "./versions/IFC4/parse";
+import type {ModelParseParams} from "../io";
+import {ModelLoader} from "../io";
+import {IfcAPI as IfcAPI_browser} from "node_modules/web-ifc/web-ifc-api.js";
+import {IfcAPI as IfcAPI_node} from "node_modules/web-ifc/web-ifc-api-node.js";
+import {parse as parse_IFC4} from "./versions/IFC4/parse";
 
 let ifcAPI: any = null;
 
@@ -14,8 +14,8 @@ let ifcAPI: any = null;
 export class IFCLoader extends ModelLoader {
 
   /**
-     * Constructs an IFCLoader.
-     */
+   * Constructs an IFCLoader.
+   */
   constructor() {
     super({
       format: "IFC",
@@ -74,12 +74,12 @@ function parse(params: ModelParseParams, options: any): Promise<any> {
 
 function detectEnvironment(): 'node' | 'browser' | 'unknown' {
   if (typeof process !== 'undefined' &&
-        process.versions != null &&
-        process.versions.node != null) {
+    process.versions != null &&
+    process.versions.node != null) {
     return 'node';
   }
   if (typeof window !== 'undefined' &&
-        typeof window.document !== 'undefined') {
+    typeof window.document !== 'undefined') {
     return 'browser';
   }
   return 'unknown';

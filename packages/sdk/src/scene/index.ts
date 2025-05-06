@@ -512,5 +512,5 @@ export * from "./SceneModelStreamLayerParams";
 
 export * from "./buildMat4"
 
-export * from "./SceneModelParamsLoader";
+export {SceneModelParamsLoader} from "./SceneModelParamsLoader";
 export * from "./SceneModelParamsExporter";

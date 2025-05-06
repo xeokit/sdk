@@ -48,8 +48,8 @@ import {
   transformVec4,
   translateMat4v
 } from "../matrix";
-import type { FloatArrayParam } from "../math";
-import { getPositions3Center } from "../boundaries";
+import type {FloatArrayParam} from "../math";
+import {getPositions3Center} from "../boundaries";
 
 // Temporary vectors and matrices used internally
 const tempVec3a = createVec3();

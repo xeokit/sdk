@@ -142,23 +142,23 @@
  *
  * @module bcf
  */
-export type { BCFOrthogonalCamera } from "./BCFOrthogonalCamera";
-export type { BCFPerspectiveCamera } from "./BCFPerspectiveCamera";
-export type { BCFVector } from "./BCFVector";
-export type { BCFLine } from "./BCFLine";
-export type { BCFBitmap } from "./BCFBitmap";
-export type { BCFClippingPlane } from "./BCFClippingPlane";
-export type { BCFSnapshot } from "./BCFSnapshot";
-export type { BCFComponents } from "./BCFComponents";
-export type { BCFViewSetupHints } from "./BCFViewSetupHints";
-export type { BCFColoringComponent } from "./BCFColoringComponent";
-export type { BCFVisibilityComponent } from "./BCFVisibilityComponent";
-export type { BCFTranslucencyComponent } from "./BCFTranslucencyComponent";
-export type { BCFComponent } from "./BCFComponent";
-export type { BCFSelectionComponent } from "./BCFSelectionComponent";
-export type { BCFViewpoint } from "./BCFViewpoint";
-export { loadBCFViewpoint } from "./loadBCFViewpoint";
-export { saveBCFViewpoint } from "./saveBCFViewpoint";
-export type { SaveBCFViewpointParams } from "./SaveBCFViewpointParams";
-export type { LoadBCFViewpointParams } from "./LoadBCFViewpointParams";
+export type {BCFOrthogonalCamera} from "./BCFOrthogonalCamera";
+export type {BCFPerspectiveCamera} from "./BCFPerspectiveCamera";
+export type {BCFVector} from "./BCFVector";
+export type {BCFLine} from "./BCFLine";
+export type {BCFBitmap} from "./BCFBitmap";
+export type {BCFClippingPlane} from "./BCFClippingPlane";
+export type {BCFSnapshot} from "./BCFSnapshot";
+export type {BCFComponents} from "./BCFComponents";
+export type {BCFViewSetupHints} from "./BCFViewSetupHints";
+export type {BCFColoringComponent} from "./BCFColoringComponent";
+export type {BCFVisibilityComponent} from "./BCFVisibilityComponent";
+export type {BCFTranslucencyComponent} from "./BCFTranslucencyComponent";
+export type {BCFComponent} from "./BCFComponent";
+export type {BCFSelectionComponent} from "./BCFSelectionComponent";
+export type {BCFViewpoint} from "./BCFViewpoint";
+export {loadBCFViewpoint} from "./loadBCFViewpoint";
+export {saveBCFViewpoint} from "./saveBCFViewpoint";
+export type {SaveBCFViewpointParams} from "./SaveBCFViewpointParams";
+export type {LoadBCFViewpointParams} from "./LoadBCFViewpointParams";
 

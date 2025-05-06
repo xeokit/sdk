@@ -1,4 +1,4 @@
-import type { View } from "../viewer";
+import type {View} from "../viewer";
 
 /**
  * @private
@@ -6,7 +6,7 @@ import type { View } from "../viewer";
 export class KeyboardPanRotateDollyHandler {
   #view: View;
 
-  constructor(view:View, controllers, configs, states, updates) {
+  constructor(view: View, controllers, configs, states, updates) {
 
     this.#view = view;
     //   const input = view.input;

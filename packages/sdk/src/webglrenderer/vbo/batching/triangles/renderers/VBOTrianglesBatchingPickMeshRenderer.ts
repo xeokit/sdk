@@ -1,5 +1,5 @@
-import type { VBOBatchingLayer } from "../../VBOBatchingLayer";
-import { VBOBatchingRenderer } from "../../VBOBatchingRenderer";
+import type {VBOBatchingLayer} from "../../VBOBatchingLayer";
+import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 
 /**
  * @private
@@ -10,7 +10,7 @@ export class VBOTrianglesBatchingPickMeshRenderer extends VBOBatchingRenderer {
     return this.slicingHash;
   }
 
-  buildVertexShader(src: string[]) :void {
+  buildVertexShader(src: string[]): void {
     this.vertexHeader(src);
     this.vertexCommonDefs(src);
     this.vertexBatchingTransformDefs(src);
@@ -25,7 +25,7 @@ export class VBOTrianglesBatchingPickMeshRenderer extends VBOBatchingRenderer {
     this.vertexMainClose(src);
   }
 
-  buildFragmentShader(src: string[]):void {
+  buildFragmentShader(src: string[]): void {
     this.fragmentHeader(src);
     this.fragmentPrecisionDefs(src);
     this.fragmentCommonDefs(src);

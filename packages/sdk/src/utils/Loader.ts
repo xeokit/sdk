@@ -1,5 +1,5 @@
-import type { LoadingManager } from './LoadingManager';
-import { DefaultLoadingManager } from './LoadingManager';
+import type {LoadingManager} from './LoadingManager';
+import {DefaultLoadingManager} from './LoadingManager';
 
 class Loader {
   manager: LoadingManager;
@@ -60,4 +60,4 @@ class Loader {
   }
 }
 
-export { Loader };
+export {Loader};

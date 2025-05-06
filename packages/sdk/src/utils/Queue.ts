@@ -33,8 +33,7 @@ export class Queue {
     const value = this._head[this._index];
     if (this._index < 0) {
       delete this._head[this._index++];
-    }
-    else {
+    } else {
       this._head[this._index++] = undefined;
     }
     this._length--;

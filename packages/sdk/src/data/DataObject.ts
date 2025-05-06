@@ -1,7 +1,7 @@
-import type { Data } from "./Data";
-import type { DataModel } from "./DataModel";
-import type { PropertySet } from "./PropertySet";
-import type { Relationship } from "./Relationship";
+import type {Data} from "./Data";
+import type {DataModel} from "./DataModel";
+import type {PropertySet} from "./PropertySet";
+import type {Relationship} from "./Relationship";
 
 /**
  * An object within a {@link DataModel | DataModel}.
@@ -16,74 +16,74 @@ import type { Relationship } from "./Relationship";
 export class DataObject {
 
   /**
-     * The {@link Data | Data} instance that contains this DataObject.
-     */
+   * The {@link Data | Data} instance that contains this DataObject.
+   */
   public data: Data;
 
   /**
-     * The {@link DataModel | DataModels} that share this DataObject.
-     */
+   * The {@link DataModel | DataModels} that share this DataObject.
+   */
   public models: DataModel[];
 
   /**
-     * A globally unique identifier for this DataObject.
-     *
-     * This ID is used to store the DataObject in {@link Data.objects | Data.objects},
-     * {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType},
-     * and {@link DataModel.rootObjects | DataModel.rootObjects}.
-     */
+   * A globally unique identifier for this DataObject.
+   *
+   * This ID is used to store the DataObject in {@link Data.objects | Data.objects},
+   * {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType},
+   * and {@link DataModel.rootObjects | DataModel.rootObjects}.
+   */
   public readonly id: string;
 
   /**
-     * The ID of this DataObject in the originating system, if available.
-     *
-     * Defaults to the value of {@link DataObject.id | DataObject.id} if not provided.
-     */
+   * The ID of this DataObject in the originating system, if available.
+   *
+   * Defaults to the value of {@link DataObject.id | DataObject.id} if not provided.
+   */
   originalSystemId?: string;
 
   /**
-     * A human-readable name for this DataObject.
-     */
+   * A human-readable name for this DataObject.
+   */
   public readonly name?: string;
 
   /**
-     * A human-readable description of this DataObject.
-     */
+   * A human-readable description of this DataObject.
+   */
   public readonly description?: string;
 
   /**
-     * The type of this DataObject.
-     */
+   * The type of this DataObject.
+   */
   public readonly type: number;
 
   /**
-     * A list of {@link PropertySet | PropertySets} referenced by this DataObject.
-     */
+   * A list of {@link PropertySet | PropertySets} referenced by this DataObject.
+   */
   public readonly propertySets?: PropertySet[];
 
   /**
-     * A map of {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.relatingObject | relatingObject}.
-     *
-     * Relationships are categorized by {@link Relationship.type | Relationship.type} and further indexed by
-     * {@link Relationship.relatingObject | relatingObject}.
-     */
+   * A map of {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.relatingObject | relatingObject}.
+   *
+   * Relationships are categorized by {@link Relationship.type | Relationship.type} and further indexed by
+   * {@link Relationship.relatingObject | relatingObject}.
+   */
   public readonly relating: {
     [key: number]: Relationship[];
   };
 
   /**
-     * A map of {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.relatedObject | relatedObject}.
-     *
-     * Relationships are categorized by {@link Relationship.type | Relationship.type} and further indexed by
-     * {@link Relationship.relatedObject | relatedObject}.
-     */
+   * A map of {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.relatedObject | relatedObject}.
+   *
+   * Relationships are categorized by {@link Relationship.type | Relationship.type} and further indexed by
+   * {@link Relationship.relatedObject | relatedObject}.
+   */
   public readonly related: {
     [key: number]: Relationship[];
   };
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(
     data: Data,
     model: DataModel,

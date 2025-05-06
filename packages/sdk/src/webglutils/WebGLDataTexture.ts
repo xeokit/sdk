@@ -1,6 +1,6 @@
-import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
-import type { WebGLProgram } from "./WebGLProgram";
-import type { WebGLSampler } from "./WebGLSampler";
+import type {WebGLAbstractTexture} from "./WebGLAbstractTexture";
+import type {WebGLProgram} from "./WebGLProgram";
+import type {WebGLSampler} from "./WebGLSampler";
 
 /**
  * Represents a WebGL2 data texture.
@@ -15,9 +15,9 @@ export class WebGLDataTexture implements WebGLAbstractTexture {
   #onDestroyed?: Function;
 
   /**
-     * Constructs a new WebGLDataTexture.
-     * @param params
-     */
+   * Constructs a new WebGLDataTexture.
+   * @param params
+   */
   constructor(params: {
     gl?: WebGL2RenderingContext,
     texture?: WebGLTexture,
@@ -35,11 +35,11 @@ export class WebGLDataTexture implements WebGLAbstractTexture {
   }
 
   /**
-     * Binds this WebGLDataTexture to the given {@link WebGLSampler}.
-     * @param glProgram
-     * @param sampler
-     * @param unit
-     */
+   * Binds this WebGLDataTexture to the given {@link WebGLSampler}.
+   * @param glProgram
+   * @param sampler
+   * @param unit
+   */
   bindTexture(glProgram: WebGLProgram, sampler: WebGLSampler, unit: number) {
     if (!this.gl) {
       return;
@@ -48,9 +48,9 @@ export class WebGLDataTexture implements WebGLAbstractTexture {
   }
 
   /**
-     * Unbinds this WebGLDataTexture from whichever {@link WebGLSampler} it's currently bound to, if any.
-     * @param unit
-     */
+   * Unbinds this WebGLDataTexture from whichever {@link WebGLSampler} it's currently bound to, if any.
+   * @param unit
+   */
   bind(unit: number): boolean {
     if (!this.gl || !this.texture) {
       return false;

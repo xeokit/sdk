@@ -29,4 +29,4 @@ const Cache = {
   }
 };
 
-export { Cache };
+export {Cache};

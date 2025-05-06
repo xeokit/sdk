@@ -1,4 +1,4 @@
-import type { RendererGeometry } from "../scene";
+import type {RendererGeometry} from "../scene";
 
 /**
  * @private

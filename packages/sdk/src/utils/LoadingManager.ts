@@ -4,7 +4,7 @@ class LoadingManager {
   private itemsTotal: number;
   private urlModifier: undefined;
   private handlers: any[];
-  private onStart: Function|undefined;
+  private onStart: Function | undefined;
   private onLoad: Function;
   private onProgress: Function;
   private onError: Function;
@@ -94,4 +94,4 @@ class LoadingManager {
 // @ts-ignore
 const DefaultLoadingManager = new LoadingManager();
 
-export { DefaultLoadingManager, LoadingManager };
+export {DefaultLoadingManager, LoadingManager};

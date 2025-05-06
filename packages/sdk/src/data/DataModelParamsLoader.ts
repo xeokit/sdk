@@ -1,7 +1,6 @@
-import { DataModel } from "./DataModel";
-import type { DataModelParams } from "./DataModelParams";
-import { ModelLoader } from "../io";
-import { parse as parse_1_0 } from "./versions/1_0/parse"
+import {DataModel} from "./DataModel";
+import {ModelLoader} from "../io";
+import {parse as parse_1_0} from "./versions/1_0/parse"
 
 /**
  * Reads {@link DataModelParams | DataModelParams} into a {@link DataModel | DataModel}.
@@ -9,8 +8,8 @@ import { parse as parse_1_0 } from "./versions/1_0/parse"
 export class DataModelParamsLoader extends ModelLoader {
 
   /**
-     * Constructs a DataModelParamsLoader.
-     */
+   * Constructs a DataModelParamsLoader.
+   */
   constructor() {
     super({
       format: "DataModelParams",

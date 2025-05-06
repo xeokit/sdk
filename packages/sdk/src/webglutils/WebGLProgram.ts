@@ -1,9 +1,9 @@
-import { Map } from "../utils";
+import {Map} from "../utils";
 
-import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
-import { WebGLAttribute } from "./WebGLAttribute";
-import { WebGLSampler } from "./WebGLSampler";
-import { WebGLShader } from "./WebGLShader";
+import type {WebGLAbstractTexture} from "./WebGLAbstractTexture";
+import {WebGLAttribute} from "./WebGLAttribute";
+import {WebGLSampler} from "./WebGLSampler";
+import {WebGLShader} from "./WebGLShader";
 
 const ids = new Map({}, "");
 
@@ -13,85 +13,85 @@ const ids = new Map({}, "");
 export class WebGLProgram {
 
   /**
-     * Unique ID of this program.
-     */
+   * Unique ID of this program.
+   */
   id: number;
 
   /**
-     * The vertex shader.
-     */
+   * The vertex shader.
+   */
   vertexShader: WebGLShader;
 
   /**
-     * The fragment shader.
-     */
+   * The fragment shader.
+   */
   fragmentShader: WebGLShader;
 
   /**
-     * Map of all attributes in this program.
-     */
+   * Map of all attributes in this program.
+   */
   attributes: { [key: string]: WebGLAttribute };
 
   /**
-     * Map of all samplers in this program.
-     */
+   * Map of all samplers in this program.
+   */
   samplers: { [key: string]: WebGLSampler };
 
   /**
-     * Map of all uniforms in this program.
-     */
+   * Map of all uniforms in this program.
+   */
   uniforms: { [key: string]: WebGLUniformLocation };
 
   /**
-     * List of compilation errors for this program, if any.
-     */
+   * List of compilation errors for this program, if any.
+   */
   errors: string[];
 
   /**
-     * Flag set true when program has been validated.
-     */
+   * Flag set true when program has been validated.
+   */
   validated: boolean;
 
   /**
-     * Flag set true when this program has been successfully linked.
-     */
+   * Flag set true when this program has been successfully linked.
+   */
   linked: boolean;
 
   /**
-     * Flag set true when this program has been successfully conpiled.
-     */
+   * Flag set true when this program has been successfully conpiled.
+   */
   compiled: boolean;
 
   /**
-     * Flag set true when this program has been successfully allocated.
-     */
+   * Flag set true when this program has been successfully allocated.
+   */
   allocated: boolean;
 
   /**
-     * The WebGL2 rendering context.
-     */
+   * The WebGL2 rendering context.
+   */
   gl: WebGL2RenderingContext;
 
   /**
-     * The source code from which the shaders are built.
-     */
+   * The source code from which the shaders are built.
+   */
   source: any;
 
   /**
-     * Handle to the WebGL program itself, which resides on the GPU.
-     */
+   * Handle to the WebGL program itself, which resides on the GPU.
+   */
   handle: WebGLProgram;
 
   /**
-     * Creates a new program.
-     * @param gl
-     * @param shaderSource
-     */
+   * Creates a new program.
+   * @param gl
+   * @param shaderSource
+   */
   constructor(gl: WebGL2RenderingContext,
-    shaderSource: {
-      vertex: string,
-      fragment: string
-    }) {
+              shaderSource: {
+                vertex: string,
+                fragment: string
+              }) {
 
     // console.log("WebGLProgram constructor")
     // console.log("-----------------------------------------------------")
@@ -209,8 +209,8 @@ export class WebGLProgram {
   }
 
   /**
-     * Binds this program.
-     */
+   * Binds this program.
+   */
   bind() {
     if (!this.allocated) {
       return;
@@ -219,35 +219,35 @@ export class WebGLProgram {
   }
 
   /**
-     * Gets the location of the given uniform within this program.
-     * @param name
-     */
+   * Gets the location of the given uniform within this program.
+   * @param name
+   */
   getLocation(name: string): WebGLUniformLocation {
     return this.uniforms[name];
   }
 
   /**
-     * Gets an attribute within this program.
-     * @param name
-     */
+   * Gets an attribute within this program.
+   * @param name
+   */
   getAttribute(name: string): WebGLAttribute {
     return this.attributes[name];
   }
 
   /**
-     * Gets a sampler within this program.
-     * @param name
-     */
+   * Gets a sampler within this program.
+   * @param name
+   */
   getSampler(name: string): WebGLSampler {
     return this.samplers[name];
   }
 
   /**
-     * Binds a texture to this program.
-     * @param name
-     * @param texture
-     * @param unit
-     */
+   * Binds a texture to this program.
+   * @param name
+   * @param texture
+   * @param unit
+   */
   bindTexture(name: string, texture: WebGLAbstractTexture, unit: number): boolean {
     if (!this.allocated) {
       return false;
@@ -261,8 +261,8 @@ export class WebGLProgram {
   }
 
   /**
-     * Destroys this program.
-     */
+   * Destroys this program.
+   */
   destroy() {
     if (!this.allocated) {
       return;

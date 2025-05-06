@@ -1,5 +1,5 @@
-import { encode as encode_1_0 } from "./versions/1_0/encode"
-import { ModelExporter } from "../io";
+import {encode as encode_1_0} from "./versions/1_0/encode"
+import {ModelExporter} from "../io";
 
 /**
  * Writes a {@link data!DataModel | DataModel} to {@link DataModelParams | DataModelParams} as JSON.
@@ -7,8 +7,8 @@ import { ModelExporter } from "../io";
 export class DataModelParamsExporter extends ModelExporter {
 
   /**
-     * Constructs a DataModelParamsExporter.
-     */
+   * Constructs a DataModelParamsExporter.
+   */
   constructor() {
     super({
       format: "DataModelParams",

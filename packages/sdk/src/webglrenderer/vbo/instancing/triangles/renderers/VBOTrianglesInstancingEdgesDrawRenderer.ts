@@ -1,6 +1,6 @@
-import type { RenderContext } from "../../../../RenderContext";
-import type { VBOInstancingLayer } from "../../VBOInstancingLayer";
-import { VBOInstancingRenderer } from "../../VBOInstancingRenderer";
+import type {RenderContext} from "../../../../RenderContext";
+import type {VBOInstancingLayer} from "../../VBOInstancingLayer";
+import {VBOInstancingRenderer} from "../../VBOInstancingRenderer";
 
 /**
  * @private
@@ -8,7 +8,7 @@ import { VBOInstancingRenderer } from "../../VBOInstancingRenderer";
 export class VBOTrianglesInstancingEdgesDrawRenderer extends VBOInstancingRenderer {
 
   constructor(renderContext: RenderContext) {
-    super(renderContext, { edges: true });
+    super(renderContext, {edges: true});
   }
 
   getHash(): string {

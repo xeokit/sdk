@@ -1,5 +1,5 @@
-import { Component, EventEmitter } from "../core";
-import { EventDispatcher } from "strongly-typed-events";
+import {Component, EventEmitter} from "../core";
+import {EventDispatcher} from "strongly-typed-events";
 
 
 const defaultCSS = ".sk-fading-circle {\
@@ -169,29 +169,29 @@ class Spinner extends Component {
   private _processes: number;
 
   /**
-     * Emits an event each time the number of active processes updates.
-     *
-     * @event
-     */
+   * Emits an event each time the number of active processes updates.
+   *
+   * @event
+   */
   readonly onProcesses: EventEmitter<Spinner, number>;
 
   /**
-     * Emits an event when there are zero processes running.
-     *
-     * @event
-     */
+   * Emits an event when there are zero processes running.
+   *
+   * @event
+   */
   readonly onZeroProcesses: EventEmitter<Spinner, number>;
 
   /**
-     @private
-     */
+   @private
+   */
   get type() {
     return "Spinner";
   }
 
   /**
-     @private
-     */
+   @private
+   */
   constructor(owner: Component, cfg: {
     element: HTMLElement,
     elementId: false,
@@ -246,8 +246,8 @@ class Spinner extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   _injectDefaultCSS() {
     const elementId = "xeokit-spinner-css";
     if (document.getElementById(elementId)) {
@@ -260,8 +260,8 @@ class Spinner extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   _adjustPosition() { // (Re)positions spinner DIV over the center of the canvas - called by View
     if (this._isCustom) {
       return;
@@ -274,20 +274,20 @@ class Spinner extends Component {
   }
 
   /**
-     * Sets the number of processes this Spinner represents.
-     *
-     * The Spinner is visible while this property is greater than zero.
-     *
-     * Increment this property whenever you commence some process during which you want the Spinner to be visible, then decrement it again when the process is complete.
-     *
-     * Clamps to zero if you attempt to set to to a negative value.
-     *
-     * Fires a {@link Spinner#processes:event} event on change.
+   * Sets the number of processes this Spinner represents.
+   *
+   * The Spinner is visible while this property is greater than zero.
+   *
+   * Increment this property whenever you commence some process during which you want the Spinner to be visible, then decrement it again when the process is complete.
+   *
+   * Clamps to zero if you attempt to set to to a negative value.
+   *
+   * Fires a {@link Spinner#processes:event} event on change.
 
-     * Default value is ````0````.
-     *
-     * @param value New processes count.
-     */
+   * Default value is ````0````.
+   *
+   * @param value New processes count.
+   */
   set processes(value: number) {
     value = value || 0;
     if (this._processes === value) {
@@ -309,12 +309,12 @@ class Spinner extends Component {
   }
 
   /**
-     * Gets the number of processes this Spinner represents.
-     *
-     * The Spinner is visible while this property is greater than zero.
-     *
-     * @returns {Number} Current processes count.
-     */
+   * Gets the number of processes this Spinner represents.
+   *
+   * The Spinner is visible while this property is greater than zero.
+   *
+   * @returns {Number} Current processes count.
+   */
   get processes() {
     return this._processes;
   }
@@ -334,4 +334,4 @@ class Spinner extends Component {
   }
 }
 
-export { Spinner };
+export {Spinner};

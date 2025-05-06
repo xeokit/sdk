@@ -1,5 +1,5 @@
-import type { DataModel } from "../data";
-import type { SceneModel } from "../scene";
+import type {DataModel} from "../data";
+import type {SceneModel} from "../scene";
 
 /**
  * Parameters for {@link ModelExporter.write | ModelExporter.write}.
@@ -7,17 +7,17 @@ import type { SceneModel } from "../scene";
 export interface ModelExportParams {
 
   /**
-     * The SceneModel to export.
-     */
+   * The SceneModel to export.
+   */
   sceneModel?: SceneModel;
 
   /**
-     * The DataModel to export.
-     */
+   * The DataModel to export.
+   */
   dataModel?: DataModel;
 
   /**
-     * The schema version to export.
-     */
+   * The schema version to export.
+   */
   version?: string;
 }

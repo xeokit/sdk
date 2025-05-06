@@ -1,5 +1,5 @@
-import { encode as encode_1_0 } from "./versions/1_0/encode"
-import { ModelExporter } from "../io/ModelExporter";
+import {encode as encode_1_0} from "./versions/1_0/encode"
+import {ModelExporter} from "../io/ModelExporter";
 
 /**
  * Writes a {@link scene!SceneModel | SceneModel} to {@link SceneModelParams | SceneModelParams} as JSON.
@@ -7,11 +7,11 @@ import { ModelExporter } from "../io/ModelExporter";
 export class SceneModelParamsExporter extends ModelExporter {
 
   /**
-     * Constructs a SceneModelParamsExporter.
-     */
+   * Constructs a SceneModelParamsExporter.
+   */
   constructor() {
     super({
-      format:"SceneModelParams",
+      format: "SceneModelParams",
       fileDataType: "json",
       encoders: {
         "1.0": encode_1_0

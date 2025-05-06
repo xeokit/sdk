@@ -1,11 +1,11 @@
 import * as utils from "../utils";
-import type { GeometryArrays } from "./GeometryArrays";
-import { LinesPrimitive } from "../constants";
+import type {GeometryArrays} from "./GeometryArrays";
+import {LinesPrimitive} from "../constants";
 
 
 const letters = {
   // @ts-ignore
-  ' ': { width: 16, points: [] },
+  ' ': {width: 16, points: []},
   '!': {
     width: 10, points: [
       [5, 21],

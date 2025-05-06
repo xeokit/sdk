@@ -1,4 +1,4 @@
-import type { FloatArrayParam } from "../math";
+import type {FloatArrayParam} from "../math";
 
 /**
  * Parameters for a {@link SceneMesh}.
@@ -11,79 +11,79 @@ import type { FloatArrayParam } from "../math";
 export interface SceneMeshParams {
 
   /**
-     * TODO
-     */
+   * TODO
+   */
   streamLayerIndex?: number;
 
   /**
-     * ID for the new {@link SceneMesh}, unique within the {@link SceneModel | SceneModel}.
-     */
+   * ID for the new {@link SceneMesh}, unique within the {@link SceneModel | SceneModel}.
+   */
   id: string;
 
   /**
-     * ID of a {@link SceneTextureSet} that was created previously with {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
-     */
+   * ID of a {@link SceneTextureSet} that was created previously with {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
+   */
   textureSetId?: string;
 
   /**
-     * ID of a {@link SceneGeometry} that was created previously with {@link SceneModel.createGeometry | SceneModel.createGeometry} or {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
-     */
+   * ID of a {@link SceneGeometry} that was created previously with {@link SceneModel.createGeometry | SceneModel.createGeometry} or {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}.
+   */
   geometryId: string;
 
   /**
-     * RGB base color of the new {@link SceneMesh}.
-     *
-     * * Default is ````[1,1,1]````.
-     */
+   * RGB base color of the new {@link SceneMesh}.
+   *
+   * * Default is ````[1,1,1]````.
+   */
   color?: FloatArrayParam;
 
   /**
-     * RGB pick color of the new {@link SceneMesh}.
-     *
-     * This is used internally within {@link SceneModel | SceneModel}.
-     */
+   * RGB pick color of the new {@link SceneMesh}.
+   *
+   * This is used internally within {@link SceneModel | SceneModel}.
+   */
   pickColor?: FloatArrayParam;
 
   /**
-     * Opacity of the new {@link SceneMesh}.
-     *
-     * Default is 1.
-     */
+   * Opacity of the new {@link SceneMesh}.
+   *
+   * Default is 1.
+   */
   opacity?: number;
 
   /**
-     * Optional local 3D translation vector.
-     */
+   * Optional local 3D translation vector.
+   */
   position?: FloatArrayParam;
 
   /**
-     * Optional local 3D scale vector.
-     */
+   * Optional local 3D scale vector.
+   */
   scale?: FloatArrayParam;
 
   /**
-     * Optional local 3D rotation quaternion.
-     */
+   * Optional local 3D rotation quaternion.
+   */
   quaternion?: FloatArrayParam;
 
   /**
-     * Optional local 3D rotation as Euler angles given in degrees, for each of the X, Y and Z axis.
-     */
+   * Optional local 3D rotation as Euler angles given in degrees, for each of the X, Y and Z axis.
+   */
   rotation?: FloatArrayParam;
 
   /**
-     * Optional local 3D transform matrix.
-     *
-     * Overrides {@link SceneMeshParams.position}, {@link SceneMeshParams.scale | SceneMeshParams.scale},
-     * {@link SceneMeshParams.quaternion | SceneMeshParams.quaternion}
-     * and {@link SceneMeshParams.rotation | SceneMeshParams.rotation}.
-     */
+   * Optional local 3D transform matrix.
+   *
+   * Overrides {@link SceneMeshParams.position}, {@link SceneMeshParams.scale | SceneMeshParams.scale},
+   * {@link SceneMeshParams.quaternion | SceneMeshParams.quaternion}
+   * and {@link SceneMeshParams.rotation | SceneMeshParams.rotation}.
+   */
   matrix?: FloatArrayParam;
 
   /**
-     * Relative-to-center (RTC) origin.
-     *
-     * When this is given, then {@link SceneMeshParams.matrix | SceneMeshParams.matrix} will be relative to this origin.
-     */
-  origin?:FloatArrayParam;
+   * Relative-to-center (RTC) origin.
+   *
+   * When this is given, then {@link SceneMeshParams.matrix | SceneMeshParams.matrix} will be relative to this origin.
+   */
+  origin?: FloatArrayParam;
 }

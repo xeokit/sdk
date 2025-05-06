@@ -1,5 +1,5 @@
-import type { VBOBatchingLayer } from "../../VBOBatchingLayer";
-import { VBOBatchingRenderer } from "../../VBOBatchingRenderer";
+import type {VBOBatchingLayer} from "../../VBOBatchingLayer";
+import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 
 /**
  * @private
@@ -11,7 +11,7 @@ export class VBOTrianglesBatchingDrawColorRenderer extends VBOBatchingRenderer {
     return `${view.getLightsHash()}-${view.getSectionPlanesHash()}`;
   }
 
-  buildVertexShader(src: string[]):void {
+  buildVertexShader(src: string[]): void {
     this.vertexHeader(src);
     this.vertexCommonDefs(src);
     this.vertexBatchingTransformDefs(src);
@@ -26,7 +26,7 @@ export class VBOTrianglesBatchingDrawColorRenderer extends VBOBatchingRenderer {
     this.vertexMainClose(src);
   }
 
-  buildFragmentShader(src: string[]) :void{
+  buildFragmentShader(src: string[]): void {
     this.fragmentHeader(src);
     this.fragmentPrecisionDefs(src);
     this.fragmentCommonDefs(src);

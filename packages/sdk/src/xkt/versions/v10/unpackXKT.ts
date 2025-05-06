@@ -1,4 +1,4 @@
-import type { XKTDataDeflated } from "./XKTDataDeflated";
+import type {XKTDataDeflated} from "./XKTDataDeflated";
 
 /**
  * @private

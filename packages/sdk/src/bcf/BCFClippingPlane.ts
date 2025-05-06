@@ -1,4 +1,4 @@
-import type { BCFVector } from "./BCFVector";
+import type {BCFVector} from "./BCFVector";
 
 /**
  * BCF clipping plane.
@@ -6,32 +6,32 @@ import type { BCFVector } from "./BCFVector";
 export interface BCFClippingPlane {
 
   /**
-     * BCF clipping plane bitmap MIME type.
-     */
+   * BCF clipping plane bitmap MIME type.
+   */
   bitmap_type?: string,
 
   /**
-     * BCF clipping plane bitmap data.
-     */
+   * BCF clipping plane bitmap data.
+   */
   bitmap_data?: string,
 
   /**
-     * BCF clipping plane location.
-     */
+   * BCF clipping plane location.
+   */
   location: BCFVector,
 
   /**
-     * BCF clipping plane direction.
-     */
+   * BCF clipping plane direction.
+   */
   direction: BCFVector,
 
   /**
-     * BCF clipping plane up direction.
-     */
+   * BCF clipping plane up direction.
+   */
   up: BCFVector,
 
   /**
-     * BCF clipping plane height.
-     */
+   * BCF clipping plane height.
+   */
   height: number
 }

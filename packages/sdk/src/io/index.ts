@@ -11,7 +11,7 @@
  *
  * @module io
  */
-export * from "./ModelLoader";
+export {ModelLoader} from "./ModelLoader";
 export * from "./ModelExporter";
 export * from "./ModelLoaderParams";
 export * from "./ModelLoadParams";

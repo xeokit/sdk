@@ -1,5 +1,5 @@
-import { distVec2, subVec3 } from "../matrix";
-import type { PickResult, View } from "../viewer";
+import {distVec2, subVec3} from "../matrix";
+import type {PickResult, View} from "../viewer";
 
 
 const TAP_INTERVAL = 150;
@@ -121,7 +121,7 @@ export class TouchPickHandler {
 
       activeTouches.length = touches.length;
 
-    }, { passive: true });
+    }, {passive: true});
 
 
     htmlElement.addEventListener("touchend", this.#canvasTouchEndHandler = (e) => {
@@ -219,7 +219,7 @@ export class TouchPickHandler {
 
       //  e.stopPropagation();
 
-    }, { passive: true });
+    }, {passive: true});
 
   }
 

@@ -1,15 +1,15 @@
 /**
- * Represents a single output file produced by the {@link ModelConverter.convert | ModelConverter.convert} method.
+ * Represents a single input file read by the {@link ModelConverter.convert | ModelConverter.convert} method.
  */
-export interface ModelConverterResultOutput {
+export interface ModelConverterResultInput {
 
   /**
-   * Path the file data was written to, if applicable.
+   * Path the file data was read from, if applicable.
    */
   filePath?: string;
 
   /**
-   * The converted file data.
+   * The file data.
    */
   fileData: any;
 
@@ -33,12 +33,12 @@ export interface ModelConverterResultOutput {
   fileFormat: string;
 
   /**
-   * The schema version applied when generating this output.
+   * The schema version applied when generating this input.
    */
-  fileFormatVersion: string;
+  fileFormatVersion?: string;
 
   /**
-   * Format-specific writing options.
+   * Format-specific parsing options.
    */
   options: { [key: string]: any };
 

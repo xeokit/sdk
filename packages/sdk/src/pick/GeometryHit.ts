@@ -1,5 +1,5 @@
-import type { PrimHit } from "./PrimHit";
-import type { SceneGeometry } from "../scene";
+import type {PrimHit} from "./PrimHit";
+import type {SceneGeometry} from "../scene";
 
 /**
  * Represents an intersecting {@link scene!SceneGeometry | SceneGeometry} within a {@link RayPickResult}.
@@ -9,12 +9,12 @@ import type { SceneGeometry } from "../scene";
 export interface GeometryHit {
 
   /**
-     * The {@link scene!SceneGeometryBucket | SceneGeometryBucket} that was picked.
-     */
+   * The {@link scene!SceneGeometryBucket | SceneGeometryBucket} that was picked.
+   */
   geometry: SceneGeometry;
 
   /**
-     * Represents the primitives (triangles, lines, or points) within the picked {@link scene!SceneObject | SceneObject} that intersect the picking ray.
-     */
+   * Represents the primitives (triangles, lines, or points) within the picked {@link scene!SceneObject | SceneObject} that intersect the picking ray.
+   */
   primHits: PrimHit[];
 }

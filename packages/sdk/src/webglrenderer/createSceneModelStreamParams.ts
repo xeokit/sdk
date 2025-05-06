@@ -1,5 +1,5 @@
-import { LinesPrimitive, TrianglesPrimitive } from "../constants";
-import type { SceneModel, SceneModelStreamParams } from "../scene";
+import {LinesPrimitive, TrianglesPrimitive} from "../constants";
+import type {SceneModel, SceneModelStreamParams} from "../scene";
 
 
 /**
@@ -47,8 +47,8 @@ export function createSceneModelStreamParams(sceneModel: SceneModel) {
         const numIndicesToCreate = sceneGeometry.indices.length / indicesPerPrimitive;
 
         canCreate =
-                    (layer.numVertices + numVerticesToCreate) <= 500000 * 4096 &&
-                    (numExistingIndices + numIndicesToCreate) <= 500000;
+          (layer.numVertices + numVerticesToCreate) <= 500000 * 4096 &&
+          (numExistingIndices + numIndicesToCreate) <= 500000;
 
         if (canCreate) {
           layer.numMeshes++;

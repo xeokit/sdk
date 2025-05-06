@@ -38,4 +38,4 @@ const stats = {
   }
 };
 
-export { stats };
+export {stats};

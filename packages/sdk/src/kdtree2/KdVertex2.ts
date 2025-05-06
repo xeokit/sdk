@@ -1,5 +1,5 @@
-import type { FloatArrayParam, IntArrayParam } from "../math";
-import type { SceneObject } from "../scene";
+import type {FloatArrayParam, IntArrayParam} from "../math";
+import type {SceneObject} from "../scene";
 
 /**
  * A vertex in a KdTree2.

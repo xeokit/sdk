@@ -1,10 +1,10 @@
-import type { BCFBitmap } from "./BCFBitmap";
-import type { BCFClippingPlane } from "./BCFClippingPlane";
-import type { BCFComponents } from "./BCFComponents";
-import type { BCFLine } from "./BCFLine";
-import type { BCFOrthogonalCamera } from "./BCFOrthogonalCamera";
-import type { BCFPerspectiveCamera } from "./BCFPerspectiveCamera";
-import type { BCFSnapshot } from "./BCFSnapshot";
+import type {BCFBitmap} from "./BCFBitmap";
+import type {BCFClippingPlane} from "./BCFClippingPlane";
+import type {BCFComponents} from "./BCFComponents";
+import type {BCFLine} from "./BCFLine";
+import type {BCFOrthogonalCamera} from "./BCFOrthogonalCamera";
+import type {BCFPerspectiveCamera} from "./BCFPerspectiveCamera";
+import type {BCFSnapshot} from "./BCFSnapshot";
 
 /**
  * Represents a BIM Collaboration Format (BCF) viewpoint.
@@ -25,38 +25,38 @@ import type { BCFSnapshot } from "./BCFSnapshot";
 export interface BCFViewpoint {
 
   /**
-     * BCF orthogonal camera.
-     */
+   * BCF orthogonal camera.
+   */
   orthogonal_camera?: BCFOrthogonalCamera;
 
   /**
-     * BCF perspective camera.
-     */
+   * BCF perspective camera.
+   */
   perspective_camera?: BCFPerspectiveCamera;
 
   /**
-     * BCF line segments.
-     */
+   * BCF line segments.
+   */
   lines?: BCFLine[];
 
   /**
-     * BCF bitmaps.
-     */
+   * BCF bitmaps.
+   */
   bitmaps?: BCFBitmap[];
 
   /**
-     * BCF clipping planes.
-     */
+   * BCF clipping planes.
+   */
   clipping_planes?: BCFClippingPlane[];
 
   /**
-     * BCF snapshot.
-     */
+   * BCF snapshot.
+   */
   snapshot?: BCFSnapshot;
 
   /**
-     * BCF components.
-     */
+   * BCF components.
+   */
   components?: BCFComponents;
 }
 

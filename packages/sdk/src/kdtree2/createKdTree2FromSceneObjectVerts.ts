@@ -1,6 +1,6 @@
-import { createMat4, createVec4, transformPoint4 } from "../matrix";
-import type { SceneObject } from "../scene";
-import { type GeometryView, getSceneObjectGeometry } from "../scene";
+import {createMat4, createVec4, transformPoint4} from "../matrix";
+import type {SceneObject} from "../scene";
+import {type GeometryView, getSceneObjectGeometry} from "../scene";
 import {
   INSIDE,
   INTERSECT,
@@ -9,9 +9,9 @@ import {
   OUTSIDE,
   setFrustum3
 } from "../boundaries";
-import type { FloatArrayParam } from "../math";
-import { KdTree2 } from "./KdTree2";
-import type { KdVertex2 } from "./KdVertex2";
+import type {FloatArrayParam} from "../math";
+import {KdTree2} from "./KdTree2";
+import type {KdVertex2} from "./KdVertex2";
 
 /**
  * A k-d tree to accelerate intersection and nearest-neighbour tests on the projected
@@ -74,7 +74,11 @@ export function createKdTree2FromSceneObjectVerts(params: {
     transformPoint4(projMatrix, viewPos, projPos);
     canvasPos[0] = Math.floor((1 + projPos[0] / projPos[3]) * canvasBoundary[2] / 2);
     canvasPos[1] = Math.floor((1 - projPos[1] / projPos[3]) * canvasBoundary[3] / 2);
-    kdTree2D.insertItem(<KdVertex2>{ sceneObject, worldPos, canvasPos }, [canvasPos[0], canvasPos[1], canvasPos[0], canvasPos[1]]);
+    kdTree2D.insertItem(<KdVertex2>{
+      sceneObject,
+      worldPos,
+      canvasPos
+    }, [canvasPos[0], canvasPos[1], canvasPos[0], canvasPos[1]]);
   }
 
   return kdTree2D;

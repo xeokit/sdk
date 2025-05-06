@@ -12,7 +12,7 @@ import {type ModelConverterResult} from "../../ModelConverterResult";
  * @param modelConverterResult - The model converter result.
  * @returns A populated {@link ModelConverterManifestReport | ModelConverterManifestReport} object.
  */
-export const createModelConverterManifestReport: (modelConverterResult: ModelConverterResult) => ModelConverterManifestReport = (modelConverterResult: ModelConverterResult): ModelConverterManifestReport => {
+export const createManifestReport: (modelConverterResult: ModelConverterResult) => ModelConverterManifestReport = (modelConverterResult: ModelConverterResult): ModelConverterManifestReport => {
   return {
     files: getEntries(modelConverterResult)
   }

@@ -1,5 +1,5 @@
-import type { FloatArrayParam } from "../math";
-import type { Tile } from "./WebGLTileManager";
+import type {FloatArrayParam} from "../math";
+import type {Tile} from "./WebGLTileManager";
 
 /**
  * @private

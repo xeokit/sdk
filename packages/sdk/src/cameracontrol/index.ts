@@ -237,5 +237,5 @@
  * @module cameracontrol
  */
 export * from "./CameraControl";
-export type { CameraControlParams } from "./CameraControlParams";
+export type {CameraControlParams} from "./CameraControlParams";
 export * from "./keycodes";

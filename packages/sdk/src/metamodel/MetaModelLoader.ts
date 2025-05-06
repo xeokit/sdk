@@ -1,7 +1,7 @@
-import { IfcRelAggregates, ifcTypeCodes } from "../ifctypes";
-import type { ModelLoadParams } from "../io";
-import { ModelLoader } from "../io";
-import { DataModel } from "../data";
+import {IfcRelAggregates, ifcTypeCodes} from "../ifctypes";
+import type {ModelLoadParams} from "../io";
+import {ModelLoader} from "../io";
+import {DataModel} from "../data";
 
 /**
  * Loads {@link MetaModelParams | MetaModelParams} into a {@link DataModel | DataModel}.
@@ -9,8 +9,8 @@ import { DataModel } from "../data";
 export class MetaModelLoader extends ModelLoader {
 
   /**
-     * Constructs a MetaModelLoader.
-     */
+   * Constructs a MetaModelLoader.
+   */
   constructor() {
     super({
       format: "MetaModelParams",
@@ -26,7 +26,7 @@ export class MetaModelLoader extends ModelLoader {
 }
 
 function parseMetaModel(params: ModelLoadParams): Promise<void> {
-  const { fileData, dataModel } = params;
+  const {fileData, dataModel} = params;
 
   // TODO: Property set decompression
 

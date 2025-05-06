@@ -1,9 +1,9 @@
 import * as matrix from '../matrix';
-import { Component, EventEmitter } from "../core";
-import { EventDispatcher } from "strongly-typed-events";
-import type { FloatArrayParam } from "../math";
-import { type SectionPlaneParams } from "./SectionPlaneParams";
-import type { View } from "./View";
+import {Component, EventEmitter} from "../core";
+import {EventDispatcher} from "strongly-typed-events";
+import type {FloatArrayParam} from "../math";
+import {type SectionPlaneParams} from "./SectionPlaneParams";
+import type {View} from "./View";
 
 
 /**
@@ -21,38 +21,38 @@ import type { View } from "./View";
 class SectionPlane extends Component {
 
   /**
-     ID of this SectionPlane, unique within the {@link View}.
-     */
+   ID of this SectionPlane, unique within the {@link View}.
+   */
   declare public id: string;
 
   /**
-     * The View to which this SectionPlane belongs.
-     *
-     * @property view
-     * @type {View}
-     *
-     */
+   * The View to which this SectionPlane belongs.
+   *
+   * @property view
+   * @type {View}
+   *
+   */
   public readonly view: View;
 
   /**
-     * Emits an event each time {@link SectionPlane.pos} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link SectionPlane.pos} changes.
+   *
+   * @event
+   */
   readonly onPos: EventEmitter<SectionPlane, FloatArrayParam>;
 
   /**
-     * Emits an event each time {@link SectionPlane.dir} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link SectionPlane.dir} changes.
+   *
+   * @event
+   */
   readonly onDir: EventEmitter<SectionPlane, FloatArrayParam>;
 
   /**
-     * Emits an event each time {@link SectionPlane.active} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link SectionPlane.active} changes.
+   *
+   * @event
+   */
   readonly onActive: EventEmitter<SectionPlane, boolean>;
 
   #state: {
@@ -63,9 +63,9 @@ class SectionPlane extends Component {
   };
 
   /**
-     * @private
-     *
-     */
+   * @private
+   *
+   */
   constructor(view: View, sectionPlaneParams: SectionPlaneParams = {}) {
 
     super(view, sectionPlaneParams);
@@ -85,23 +85,23 @@ class SectionPlane extends Component {
   }
 
   /**
-     * Gets if this SectionPlane is active or not.
-     *
-     * Default value is ````true````.
-     *
-     * @returns Returns ````true```` if active.
-     */
+   * Gets if this SectionPlane is active or not.
+   *
+   * Default value is ````true````.
+   *
+   * @returns Returns ````true```` if active.
+   */
   get active(): boolean {
     return this.#state.active;
   }
 
   /**
-     * Sets if this SectionPlane is active or not.
-     *
-     * Default value is ````true````.
-     *
-     * @param value Set ````true```` to activate else ````false```` to deactivate.
-     */
+   * Sets if this SectionPlane is active or not.
+   *
+   * Default value is ````true````.
+   *
+   * @param value Set ````true```` to activate else ````false```` to deactivate.
+   */
   set active(value: boolean) {
     if (this.#state.active === value) {
       return;
@@ -112,23 +112,23 @@ class SectionPlane extends Component {
   }
 
   /**
-     * Gets the World-space position of this SectionPlane's plane.
-     *
-     * Default value is ````[0, 0, 0]````.
-     *
-     * @returns  Current position.
-     */
+   * Gets the World-space position of this SectionPlane's plane.
+   *
+   * Default value is ````[0, 0, 0]````.
+   *
+   * @returns  Current position.
+   */
   get pos(): FloatArrayParam {
     return this.#state.pos;
   }
 
   /**
-     * Sets the World-space position of this SectionPlane's plane.
-     *
-     * Default value is ````[0, 0, 0]````.
-     *
-     * @param value New position.
-     */
+   * Sets the World-space position of this SectionPlane's plane.
+   *
+   * Default value is ````[0, 0, 0]````.
+   *
+   * @param value New position.
+   */
   set pos(value: FloatArrayParam) {
     this.#state.pos.set(value);
     this.#state.dist = (-matrix.dotVec3(this.#state.pos, this.#state.dir));
@@ -136,23 +136,23 @@ class SectionPlane extends Component {
   }
 
   /**
-     * Gets the direction of this SectionPlane's plane.
-     *
-     * Default value is ````[0, 0, -1]````.
-     *
-     * @returns value Current direction.
-     */
+   * Gets the direction of this SectionPlane's plane.
+   *
+   * Default value is ````[0, 0, -1]````.
+   *
+   * @returns value Current direction.
+   */
   get dir(): FloatArrayParam {
     return this.#state.dir;
   }
 
   /**
-     * Sets the direction of this SectionPlane's plane.
-     *
-     * Default value is ````[0, 0, -1]````.
-     *
-     * @param value New direction.
-     */
+   * Sets the direction of this SectionPlane's plane.
+   *
+   * Default value is ````[0, 0, -1]````.
+   *
+   * @param value New direction.
+   */
   set dir(value: FloatArrayParam) {
     this.#state.dir.set(value);
     this.#state.dist = (-matrix.dotVec3(this.#state.pos, this.#state.dir));
@@ -161,20 +161,20 @@ class SectionPlane extends Component {
   }
 
   /**
-     * Gets this SectionPlane's distance to the origin of the World-space coordinate system.
-     *
-     * This is the dot product of {@link SectionPlane.pos} and {@link SectionPlane.dir} and is automatically re-calculated
-     * each time either of two properties are updated.
-     *
-     * @returns Distance to the origin of the World-space coordinate system.
-     */
+   * Gets this SectionPlane's distance to the origin of the World-space coordinate system.
+   *
+   * This is the dot product of {@link SectionPlane.pos} and {@link SectionPlane.dir} and is automatically re-calculated
+   * each time either of two properties are updated.
+   *
+   * @returns Distance to the origin of the World-space coordinate system.
+   */
   get dist(): number {
     return this.#state.dist;
   }
 
   /**
-     * Inverts the direction of {@link SectionPlane.dir}.
-     */
+   * Inverts the direction of {@link SectionPlane.dir}.
+   */
   flipDir() {
     const dir = this.#state.dir;
     dir[0] *= -1.0;
@@ -186,10 +186,10 @@ class SectionPlane extends Component {
   }
 
   /**
-     * COnfigures this SectionPlane.
-     *
-     * @param sectionPlaneParams
-     */
+   * COnfigures this SectionPlane.
+   *
+   * @param sectionPlaneParams
+   */
   fromParams(sectionPlaneParams: SectionPlaneParams) {
     if (sectionPlaneParams.dir) {
       this.dir = sectionPlaneParams.dir;
@@ -203,8 +203,8 @@ class SectionPlane extends Component {
   }
 
   /**
-     * Gets the current configuration of this SectionPlane.
-     */
+   * Gets the current configuration of this SectionPlane.
+   */
   toParams(): SectionPlaneParams {
     return {
       id: this.id,
@@ -215,8 +215,8 @@ class SectionPlane extends Component {
   }
 
   /**
-     * Destroys this SectionPlane.
-     */
+   * Destroys this SectionPlane.
+   */
   destroy() {
     this.onPos.clear();
     this.onActive.clear;
@@ -225,4 +225,4 @@ class SectionPlane extends Component {
   }
 }
 
-export { SectionPlane };
+export {SectionPlane};

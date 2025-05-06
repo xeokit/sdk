@@ -1,6 +1,6 @@
 import * as utils from "../utils";
-import type { GeometryArrays } from "./GeometryArrays";
-import { TrianglesPrimitive } from "../constants";
+import type {GeometryArrays} from "./GeometryArrays";
+import {TrianglesPrimitive} from "../constants";
 
 /**
  * Creates a sphere-shaped {@link scene!SceneGeometry | SceneGeometry}.

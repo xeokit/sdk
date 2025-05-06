@@ -1,4 +1,3 @@
-
 /**
  * <img style="padding:10px; width:300px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_components_icon.png"/>
  *
@@ -37,6 +36,7 @@ export * from "./FileLoader";
 export function isJSONObject(arg) {
   return typeof arg === 'object' && arg !== null && !Array.isArray(arg);
 }
+
 /**
  *
  * @param ob
@@ -46,7 +46,7 @@ export function clone(ob: any) {
 }
 
 const guidChars = [["0", 10], ["A", 26], ["a", 26], ["_", 1], ["$", 1]].map(function (a) {
-  const li :any[]= [];
+  const li: any[] = [];
   // @ts-ignore
   const st = a[0].charCodeAt(0);
   const en = st + a[1];
@@ -64,8 +64,8 @@ const guidChars = [["0", 10], ["A", 26], ["a", 26], ["_", 1], ["$", 1]].map(func
 export function b64(v: number, len: number) {
   const r = (!len || len === 4) ? [0, 6, 12, 18] : [0, 6];
   return r.map(function (i) {
-    return guidChars.substr(parseInt(String(v / (1 << i))) % 64, 1)
-  }
+      return guidChars.substr(parseInt(String(v / (1 << i))) % 64, 1)
+    }
   ).reverse().join("");
 }
 
@@ -124,6 +124,7 @@ export function httpRequest(args: { method: string; url: string; }) {
     xhr.send(null);
   });
 }
+
 //
 // export const queryString = function () {
 //     // This function is anonymous, is executed immediately and
@@ -154,14 +155,14 @@ export function httpRequest(args: { method: string; url: string; }) {
 // }();
 
 export function loadJSON(url: string,
-  ok: {
-    (arg0: any): void;
-    (_value: any): any;
-  },
-  err: {
-    (arg0: string | ProgressEvent<XMLHttpRequestEventTarget>): void;
-    (_value: any): any;
-  }) {
+                         ok: {
+                           (arg0: any): void;
+                           (_value: any): any;
+                         },
+                         err: {
+                           (arg0: string | ProgressEvent<XMLHttpRequestEventTarget>): void;
+                           (_value: any): any;
+                         }) {
   // Avoid checking ok and err on each use.
   // @ts-ignore
   const defaultCallback = (_value) => undefined;
@@ -254,7 +255,7 @@ export function loadArraybuffer(url: string, ok: { (arg0: ArrayBuffer): void; (_
  * @param filename
  */
 export function saveArrayBuffer(arrayBuffer: ArrayBuffer, filename: string) {
-  const blob = new Blob([arrayBuffer], { type: "application/octet-stream" });
+  const blob = new Blob([arrayBuffer], {type: "application/octet-stream"});
   const link = document.createElement('a');
   link.download = filename;
   link.href = window.URL.createObjectURL(blob);
@@ -268,8 +269,8 @@ export function saveArrayBuffer(arrayBuffer: ArrayBuffer, filename: string) {
  * @param arrayBuffer
  * @param filename
  */
-export function saveJSON(data:any, filename: string) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+export function saveJSON(data: any, filename: string) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
   const link = document.createElement('a');
   link.download = filename;
   link.href = window.URL.createObjectURL(blob);

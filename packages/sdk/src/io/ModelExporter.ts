@@ -1,4 +1,4 @@
-import { DataModel} from "../data";
+import {DataModel} from "../data";
 import type {ModelEncoder} from "./ModelEncoder";
 import type {ModelExporterParams} from "./ModelExporterParams";
 import type {ModelExportParams} from "./ModelExportParams";

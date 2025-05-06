@@ -1,11 +1,11 @@
-import { createAABB3Int16, expandAABB3Points3 } from "../boundaries";
-import type { FloatArrayParam, IntArrayParam } from "../math";
-import { LinesPrimitive, PointsPrimitive, TrianglesPrimitive } from "../constants";
-import type { KdLinePrim } from "./KdLinePrim";
-import type { KdPointPrim } from "./KdPointPrim";
-import type { KdTree3 } from "./KdTree3";
-import type { KdTrianglePrim } from "./KdTrianglePrim";
-import { PrimsKdTree3 } from "./PrimsKdTree3";
+import {createAABB3Int16, expandAABB3Points3} from "../boundaries";
+import type {FloatArrayParam, IntArrayParam} from "../math";
+import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../constants";
+import type {KdLinePrim} from "./KdLinePrim";
+import type {KdPointPrim} from "./KdPointPrim";
+import type {KdTree3} from "./KdTree3";
+import type {KdTrianglePrim} from "./KdTrianglePrim";
+import {PrimsKdTree3} from "./PrimsKdTree3";
 
 const tempAABBInt16 = new Int16Array(6);
 
@@ -55,7 +55,7 @@ function insertPoint(positions: FloatArrayParam, a: number, kdTree: KdTree3) {
   aabb[0] = aabb[3] = ax;
   aabb[1] = aabb[4] = ay;
   aabb[2] = aabb[5] = az;
-  kdTree.insertItem(<KdPointPrim>{ a }, aabb);
+  kdTree.insertItem(<KdPointPrim>{a}, aabb);
 }
 
 function insertLine(positions: FloatArrayParam, a: number, b: number, kdTree: KdTree3) {
@@ -72,7 +72,7 @@ function insertLine(positions: FloatArrayParam, a: number, b: number, kdTree: Kd
   aabb[3] = Math.max(ax, bx);
   aabb[4] = Math.max(ay, by);
   aabb[5] = Math.max(az, bz);
-  kdTree.insertItem(<KdLinePrim>{ a, b }, aabb);
+  kdTree.insertItem(<KdLinePrim>{a, b}, aabb);
 }
 
 function insertTriangle(positions: FloatArrayParam, a: number, b: number, c: number, kdTree: KdTree3) {
@@ -92,5 +92,5 @@ function insertTriangle(positions: FloatArrayParam, a: number, b: number, c: num
   aabb[3] = Math.max(ax, bx, cx);
   aabb[4] = Math.max(ay, by, cy);
   aabb[5] = Math.max(az, bz, cz);
-  kdTree.insertItem(<KdTrianglePrim>{ a, b, c }, aabb);
+  kdTree.insertItem(<KdTrianglePrim>{a, b, c}, aabb);
 }

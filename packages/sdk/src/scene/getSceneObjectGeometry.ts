@@ -1,10 +1,10 @@
-import { LinesPrimitive, TrianglesPrimitive } from "../constants";
-import { decompressPositions3WithAABB3 } from "../compression";
-import type { FloatArrayParam } from "../math";
-import type { SceneGeometry } from "./SceneGeometry";
-import type { SceneMesh } from "./SceneMesh";
-import type { SceneObject } from "./SceneObject";
-import { transformPositions3 } from "../matrix";
+import {LinesPrimitive, TrianglesPrimitive} from "../constants";
+import {decompressPositions3WithAABB3} from "../compression";
+import type {FloatArrayParam} from "../math";
+import type {SceneGeometry} from "./SceneGeometry";
+import type {SceneMesh} from "./SceneMesh";
+import type {SceneObject} from "./SceneObject";
+import {transformPositions3} from "../matrix";
 
 /**
  * The {@link getSceneObjectGeometry} passes an instance of GeometryView to its callback
@@ -18,43 +18,43 @@ import { transformPositions3 } from "../matrix";
 export interface GeometryView {
 
   /**
-     * The current {@link SceneObject}.
-     */
+   * The current {@link SceneObject}.
+   */
   object: SceneObject;
 
   /**
-     * The current {@link SceneMesh}.
-     */
+   * The current {@link SceneMesh}.
+   */
   mesh: SceneMesh;
 
   /**
-     * The current {@link SceneMesh | SceneMesh's} position in {@link SceneModel.meshes | SceneObject.meshes}.
-     */
+   * The current {@link SceneMesh | SceneMesh's} position in {@link SceneModel.meshes | SceneObject.meshes}.
+   */
   meshIndex: number;
 
   /**
-     * The current {@link SceneGeometry}.
-     */
+   * The current {@link SceneGeometry}.
+   */
   geometry: SceneGeometry;
 
   /**
-     * The number of primitives in the current {@link SceneGeometry}.
-     */
+   * The number of primitives in the current {@link SceneGeometry}.
+   */
   readonly numPrimitives: number;
 
   /**
-     * The current 3D vertex positions, dequantized, as 32-bit floats.
-     */
+   * The current 3D vertex positions, dequantized, as 32-bit floats.
+   */
   readonly positionsDecompressed: FloatArrayParam;
 
   /**
-     * The current 3D World-space vertex positions, dequantized and world-transformed, as 64-bit floats.
-     */
+   * The current 3D World-space vertex positions, dequantized and world-transformed, as 64-bit floats.
+   */
   readonly positionsWorld: FloatArrayParam;
 
   /**
-     * The current vertex UV coordinates, if any, dequantized to 32-bit floats.
-     */
+   * The current vertex UV coordinates, if any, dequantized to 32-bit floats.
+   */
   readonly uvsDecompressed: FloatArrayParam;
 }
 
@@ -100,7 +100,7 @@ class GeometryViewImpl {
     return this.#positionsWorld;
   }
 
-  get uvsDecompressed(): FloatArrayParam | null{
+  get uvsDecompressed(): FloatArrayParam | null {
     return null;
   }
 

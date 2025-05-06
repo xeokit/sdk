@@ -1,7 +1,7 @@
-import type { SceneGeometry, SceneObject } from "../scene";
-import type { KdLinePrim } from "./KdLinePrim";
-import type { KdPointPrim } from "./KdPointPrim";
-import type { KdTrianglePrim } from "./KdTrianglePrim";
+import type {SceneGeometry, SceneObject} from "../scene";
+import type {KdLinePrim} from "./KdLinePrim";
+import type {KdPointPrim} from "./KdPointPrim";
+import type {KdTrianglePrim} from "./KdTrianglePrim";
 
 /**
  *

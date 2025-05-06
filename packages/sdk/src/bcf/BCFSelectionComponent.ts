@@ -1,4 +1,4 @@
-import type { BCFComponent } from "./BCFComponent";
+import type {BCFComponent} from "./BCFComponent";
 
 /**
  * BCF selection component.
@@ -6,12 +6,12 @@ import type { BCFComponent } from "./BCFComponent";
 export interface BCFSelectionComponent {
 
   /**
-     * If true: Selects all components, and unselects the exceptions. If false: Unselect all components and select exceptions.
-     */
+   * If true: Selects all components, and unselects the exceptions. If false: Unselect all components and select exceptions.
+   */
   default_selection: boolean,
 
   /**
-     * Components to select/unselect determined by default_selection.
-     */
+   * Components to select/unselect determined by default_selection.
+   */
   exceptions: BCFComponent[]
 }

@@ -1,4 +1,4 @@
-import type { View } from "../viewer";
+import type {View} from "../viewer";
 
 
 /**
@@ -14,7 +14,7 @@ class MouseMiscHandler {
   #mouseDownHandler: (e) => void;
   #mouseUpHandler: (e) => void;
 
-  constructor(view:View, controllers, configs, states, updates) {
+  constructor(view: View, controllers, configs, states, updates) {
 
     this.#view = view;
 
@@ -69,11 +69,11 @@ function getCanvasPosFromEvent(event, htmlElement, canvasPos) {
     canvasPos[0] = event.x;
     canvasPos[1] = event.y;
   } else {
-    const { left, top } = htmlElement.getBoundingClientRect();
+    const {left, top} = htmlElement.getBoundingClientRect();
     canvasPos[0] = event.clientX - left;
     canvasPos[1] = event.clientY - top;
   }
   return canvasPos;
 }
 
-export { MouseMiscHandler };
+export {MouseMiscHandler};

@@ -1,6 +1,6 @@
-import { canvasPosToWorldRay, createVec3, subVec3 } from "../matrix";
-import type { PickResult, View } from "../viewer";
-import { getAABB3Center } from "../boundaries";
+import {canvasPosToWorldRay, createVec3, subVec3} from "../matrix";
+import type {PickResult, View} from "../viewer";
+import {getAABB3Center} from "../boundaries";
 
 /**
  * @private
@@ -237,9 +237,9 @@ class MousePickHandler {
       const doublePickedNothingSubs = cameraControl.onDoublePickedNothing.count > 0;
 
       if ((!configs.doublePickFlyTo) &&
-                (!doublePickedSubs) &&
-                (!doublePickedSurfaceSubs) &&
-                (!doublePickedNothingSubs)) {
+        (!doublePickedSubs) &&
+        (!doublePickedSurfaceSubs) &&
+        (!doublePickedNothingSubs)) {
 
         //  Avoid the single/double click differentiation timeout
 
@@ -397,4 +397,4 @@ class MousePickHandler {
 }
 
 
-export { MousePickHandler };
+export {MousePickHandler};

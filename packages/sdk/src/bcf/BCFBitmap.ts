@@ -1,4 +1,4 @@
-import type { BCFVector } from "./BCFVector";
+import type {BCFVector} from "./BCFVector";
 
 /**
  * BCF bitmap.
@@ -6,32 +6,32 @@ import type { BCFVector } from "./BCFVector";
 export interface BCFBitmap {
 
   /**
-     * BCF bitmap type.
-     */
+   * BCF bitmap type.
+   */
   bitmap_type: string,
 
   /**
-     * BCF bitmap data.
-     */
+   * BCF bitmap data.
+   */
   bitmap_data: string,
 
   /**
-     * BCF bitmap location.
-     */
+   * BCF bitmap location.
+   */
   location: BCFVector,
 
   /**
-     * BCF bitmap normal direction.
-     */
+   * BCF bitmap normal direction.
+   */
   normal: { x: 0, y: 0, z: -1 },
 
   /**
-     * BCF bitmap up direction.
-     */
+   * BCF bitmap up direction.
+   */
   up: { x: 0, y: -1, z: 0 },
 
   /**
-     * BCF bitmap height.
-     */
+   * BCF bitmap height.
+   */
   height: 24
 }

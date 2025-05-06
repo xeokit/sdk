@@ -1,8 +1,8 @@
-import type { Frustum3 } from "../boundaries";
-import { INTERSECT, intersectFrustum3AABB3, OUTSIDE } from "../boundaries";
-import type { KdItem3D } from "./KdItem3";
-import type { KdNode3 } from "./KdNode3";
-import type { KdTree3 } from "./KdTree3";
+import type {Frustum3} from "../boundaries";
+import {INTERSECT, intersectFrustum3AABB3, OUTSIDE} from "../boundaries";
+import type {KdItem3D} from "./KdItem3";
+import type {KdNode3} from "./KdNode3";
+import type {KdTree3} from "./KdTree3";
 
 /**
  * Queries a {@link KdTree3} for {@link KdItem3D | KDItems} that intersect

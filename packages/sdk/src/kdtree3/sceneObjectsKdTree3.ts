@@ -1,4 +1,4 @@
-import { KdTree3 } from "./KdTree3";
+import {KdTree3} from "./KdTree3";
 
 /**
  * k-d tree built by {@link createSceneObjectsKdTree3} that contains {@link scene!SceneObject | SceneObject} item types.

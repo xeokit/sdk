@@ -1,14 +1,14 @@
-import { addVec3, createVec3, negateVec3, subVec3 } from "../matrix";
-import { IfcOpeningElement, IfcSpace } from "../ifctypes";
-import { OrthoProjectionType, PerspectiveProjectionType } from "../constants";
-import { BasicAggregation } from "../basictypes";
-import type { BCFComponent } from "./BCFComponent";
-import type { BCFVector } from "./BCFVector";
-import type { DataObject } from "../data";
-import type { FloatArrayParam } from "../math";
-import type { LoadBCFViewpointParams } from "./LoadBCFViewpointParams";
+import {addVec3, createVec3, negateVec3, subVec3} from "../matrix";
+import {IfcOpeningElement, IfcSpace} from "../ifctypes";
+import {OrthoProjectionType, PerspectiveProjectionType} from "../constants";
+import {BasicAggregation} from "../basictypes";
+import type {BCFComponent} from "./BCFComponent";
+import type {BCFVector} from "./BCFVector";
+import type {DataObject} from "../data";
+import type {FloatArrayParam} from "../math";
+import type {LoadBCFViewpointParams} from "./LoadBCFViewpointParams";
 import {PickResult, ViewObject} from "../viewer";
-import { searchObjects } from "../data";
+import {searchObjects} from "../data";
 
 const tempVec3 = createVec3();
 const tempVec3a = createVec3();
@@ -51,15 +51,15 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
         pos = ZToY(pos);
         dir = ZToY(dir);
       }
-      view.createSectionPlane({ pos, dir });
+      view.createSectionPlane({pos, dir});
     });
   }
 
   // scene.clearLines();
 
-  if (bcfViewpoint.lines ) {
-    const positions:any[] = [];
-    const indices:any[] = [];
+  if (bcfViewpoint.lines) {
+    const positions: any[] = [];
+    const indices: any[] = [];
     let i = 0;
     bcfViewpoint.lines.forEach((e) => {
       if (!e.start_point) {
@@ -88,7 +88,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
   // scene.clearBitmaps();
 
   if (bcfViewpoint.bitmaps) {
-    bcfViewpoint.bitmaps.forEach(e =>{
+    bcfViewpoint.bitmaps.forEach(e => {
       const bitmap_type = e.bitmap_type || "jpg"; // "jpg" | "png"
       const bitmap_data = e.bitmap_data; // base64
       let location = xyzObjectToArray(e.location, tempVec3a);
@@ -128,13 +128,13 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
     });
   }
 
-  function filterViewObject(viewObject:ViewObject) {
+  function filterViewObject(viewObject: ViewObject) {
     return !viewObject.layer ||
-            ((!includeViewLayers || includeViewLayers.has(viewObject.layer.id)) &&
-                (!excludeViewLayers || !excludeViewLayers.has(viewObject.layer.id)));
+      ((!includeViewLayers || includeViewLayers.has(viewObject.layer.id)) &&
+        (!excludeViewLayers || !excludeViewLayers.has(viewObject.layer.id)));
   }
 
-  function withFilteredViewLayers(callback:any) {
+  function withFilteredViewLayers(callback: any) {
     for (const layerId in view.layers) {
       if (excludeViewLayers && excludeViewLayers.has(layerId)) {
         continue;
@@ -146,7 +146,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
     }
   }
 
-  function withViewObjectsOfType(type:any, callback:any) {
+  function withViewObjectsOfType(type: any, callback: any) {
     const dataObjects = data.objectsByType[type];
     for (const dataObjectId in dataObjects) {
       const viewObject = view.objects[dataObjectId];
@@ -156,7 +156,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
     }
   }
 
-  function withBCFComponent(component: BCFComponent, callback:any) {
+  function withBCFComponent(component: BCFComponent, callback: any) {
 
     if (component.authoring_tool_id && component.originating_system === params.originatingSystem) {
       const id = component.authoring_tool_id;

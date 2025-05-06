@@ -8,11 +8,11 @@ import {
 } from "../constants";
 
 
-import { convertWebGLConstant } from "./convertWebGLConstant";
-import { getWebGLExtension } from "./getWebGLExtension";
-import { isArray } from "../utils";
-import type { TextureCompressedParams } from "../core";
-import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
+import {convertWebGLConstant} from "./convertWebGLConstant";
+import {getWebGLExtension} from "./getWebGLExtension";
+import {isArray} from "../utils";
+import type {TextureCompressedParams} from "../core";
+import type {WebGLAbstractTexture} from "./WebGLAbstractTexture";
 
 const color = new Uint8Array([0, 0, 0, 1]);
 
@@ -123,7 +123,7 @@ export class WebGLTexture implements WebGLAbstractTexture {
     wrapS?: number,
     wrapT?: number,
     wrapR?: number
-  }={}) {
+  } = {}) {
 
     const gl = this.gl;
 
@@ -176,9 +176,9 @@ export class WebGLTexture implements WebGLAbstractTexture {
     gl.texParameteri(this.target, gl.TEXTURE_MIN_FILTER, minFilter);
 
     if (minFilter === gl.NEAREST_MIPMAP_NEAREST
-            || minFilter === gl.LINEAR_MIPMAP_NEAREST
-            || minFilter === gl.NEAREST_MIPMAP_LINEAR
-            || minFilter === gl.LINEAR_MIPMAP_LINEAR) {
+      || minFilter === gl.LINEAR_MIPMAP_NEAREST
+      || minFilter === gl.NEAREST_MIPMAP_LINEAR
+      || minFilter === gl.LINEAR_MIPMAP_LINEAR) {
       generateMipMap = true;
     }
 
@@ -416,7 +416,7 @@ export class WebGLTexture implements WebGLAbstractTexture {
     }
   }
 
-  bind(unit: number) :boolean{
+  bind(unit: number): boolean {
     if (!this.allocated) {
       return false;
     }
@@ -488,8 +488,8 @@ function getInternalFormat(
     if (glType === gl.UNSIGNED_SHORT_5_5_5_1) internalFormat = gl.RGB5_A1;
   }
   if (internalFormat === gl.R16F || internalFormat === gl.R32F ||
-        internalFormat === gl.RG16F || internalFormat === gl.RG32F ||
-        internalFormat === gl.RGBA16F || internalFormat === gl.RGBA32F) {
+    internalFormat === gl.RG16F || internalFormat === gl.RG32F ||
+    internalFormat === gl.RGBA16F || internalFormat === gl.RGBA32F) {
     getWebGLExtension(gl, 'EXT_color_buffer_float');
   }
   return internalFormat;

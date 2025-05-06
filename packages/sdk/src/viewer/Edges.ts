@@ -1,8 +1,8 @@
-import { Component, SDKError } from "../core";
-import type { EdgesParams } from "./EdgesParams";
-import type { FloatArrayParam } from "../math";
-import { QualityRender } from "../constants";
-import type { View } from "./View";
+import {Component, SDKError} from "../core";
+import type {EdgesParams} from "./EdgesParams";
+import type {FloatArrayParam} from "../math";
+import {QualityRender} from "../constants";
+import type {View} from "./View";
 
 
 /**
@@ -17,13 +17,13 @@ import type { View } from "./View";
 class Edges extends Component {
 
   /**
-     * The View to which this Edges belongs.
-     */
+   * The View to which this Edges belongs.
+   */
   public readonly view: View;
 
   /**
-     * @private
-     */
+   * @private
+   */
   #state: {
     edgeColor: FloatArrayParam;
     edgeWidth: number;
@@ -32,8 +32,8 @@ class Edges extends Component {
   };
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view: View, options: EdgesParams = {}) {
 
     super(view, options);
@@ -49,33 +49,33 @@ class Edges extends Component {
   }
 
   /**
-     * Sets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
-     *
-     * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
-     *
-     * Default value is [{@link constants!QualityRender | QualityRender}].
-     */
+   * Sets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
+   *
+   * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
+   *
+   * Default value is [{@link constants!QualityRender | QualityRender}].
+   */
   set renderModes(value: number[]) {
     this.#state.renderModes = value;
     this.view.redraw();
   }
 
   /**
-     * Gets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
-     *
-     * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
-     *
-     * Default value is [{@link constants!QualityRender | QualityRender}].
-     */
+   * Gets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
+   *
+   * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
+   *
+   * Default value is [{@link constants!QualityRender | QualityRender}].
+   */
   get renderModes(): number[] {
     return this.#state.renderModes;
   }
 
   /**
-     * Sets RGB edge color for {@link ViewObject | ViewObjects}.
-     *
-     * Default value is ````[0.2, 0.2, 0.2]````.
-     */
+   * Sets RGB edge color for {@link ViewObject | ViewObjects}.
+   *
+   * Default value is ````[0.2, 0.2, 0.2]````.
+   */
   set edgeColor(value: FloatArrayParam) {
     const edgeColor = this.#state.edgeColor;
     if (value && edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
@@ -88,21 +88,21 @@ class Edges extends Component {
   }
 
   /**
-     * Gets RGB edge color for {@link ViewObject | ViewObjects}.
-     *
-     * Default value is ````[0.2, 0.2, 0.2]````.
-     */
+   * Gets RGB edge color for {@link ViewObject | ViewObjects}.
+   *
+   * Default value is ````[0.2, 0.2, 0.2]````.
+   */
   get edgeColor(): FloatArrayParam {
     return this.#state.edgeColor;
   }
 
   /**
-     * Sets edge transparency for {@link ViewObject | ViewObjects}.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default value is ````1.0````.
-     */
+   * Sets edge transparency for {@link ViewObject | ViewObjects}.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default value is ````1.0````.
+   */
   set edgeAlpha(value: number) {
     if (this.#state.edgeAlpha === value) {
       return;
@@ -112,21 +112,21 @@ class Edges extends Component {
   }
 
   /**
-     * Gets edge transparency for {@link ViewObject | ViewObjects}.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default value is ````1.0````.
-     */
+   * Gets edge transparency for {@link ViewObject | ViewObjects}.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default value is ````1.0````.
+   */
   get edgeAlpha(): number {
     return this.#state.edgeAlpha;
   }
 
   /**
-     * Sets edge width for {@link ViewObject | ViewObjects}.
-     *
-     * Default value is ````1.0```` pixels.
-     */
+   * Sets edge width for {@link ViewObject | ViewObjects}.
+   *
+   * Default value is ````1.0```` pixels.
+   */
   set edgeWidth(value: number) {
     if (this.#state.edgeWidth === value) {
       return;
@@ -136,22 +136,22 @@ class Edges extends Component {
   }
 
   /**
-     * Gets edge width for {@link ViewObject | ViewObjects}.
-     *
-     * This is not supported by WebGL implementations based on DirectX [2019].
-     *
-     * Default value is ````1.0```` pixels.
-     */
+   * Gets edge width for {@link ViewObject | ViewObjects}.
+   *
+   * This is not supported by WebGL implementations based on DirectX [2019].
+   *
+   * Default value is ````1.0```` pixels.
+   */
   get edgeWidth(): number {
     return this.#state.edgeWidth;
   }
 
   /**
-     * Gets if edges are currently applied.
-     *
-     * This is `true` when {@link View.renderMode | View.renderMode} is
-     * in {@link Edges.renderModes | Edges.renderModes}.
-     */
+   * Gets if edges are currently applied.
+   *
+   * This is `true` when {@link View.renderMode | View.renderMode} is
+   * in {@link Edges.renderModes | Edges.renderModes}.
+   */
   get applied(): boolean {
     for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
       if (this.view.renderMode === this.#state.renderModes[i]) {
@@ -162,8 +162,8 @@ class Edges extends Component {
   }
 
   /**
-     * Gets the current configuration of this Edges effect.
-     */
+   * Gets the current configuration of this Edges effect.
+   */
   toParams(): EdgesParams {
     return {
       renderModes: this.renderModes,
@@ -174,10 +174,10 @@ class Edges extends Component {
   }
 
   /**
-     * Configures this Edges effect.
-     *
-     * @param edgesParams
-     */
+   * Configures this Edges effect.
+   *
+   * @param edgesParams
+   */
   fromParams(edgesParams: EdgesParams) {
     this.renderModes = edgesParams.renderModes;
     this.edgeColor = Array.from(edgesParams.edgeColor);
@@ -186,11 +186,11 @@ class Edges extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
   }
 }
 
-export { Edges };
+export {Edges};

@@ -1,15 +1,16 @@
-import { collapseAABB3, expandAABB3 } from "../boundaries";
-import type { SceneGeometry, SceneObject } from "../scene";
-import { type GeometryView, getSceneObjectGeometry } from "../scene";
-import { LinesPrimitive, PointsPrimitive, TrianglesPrimitive } from "../constants";
-import type { FloatArrayParam } from "../math";
-import type { KdSceneObjectPrim } from "./KdSceneObjectPrim";
-import { KdTree3 } from "./KdTree3";
+import {collapseAABB3, expandAABB3} from "../boundaries";
+import type {SceneGeometry, SceneObject} from "../scene";
+import {type GeometryView, getSceneObjectGeometry} from "../scene";
+import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../constants";
+import type {FloatArrayParam} from "../math";
+import type {KdSceneObjectPrim} from "./KdSceneObjectPrim";
+import {KdTree3} from "./KdTree3";
 
 /**
  * k-d tree built by {@link createSceneObjectPrimsKdTree3}.
  */
-export class SceneObjectsPrimsKdTree3 extends KdTree3 {}
+export class SceneObjectsPrimsKdTree3 extends KdTree3 {
+}
 
 /**
  * Creates a KdTree3 that indexes the primitives belonging to the given SceneObjects in 3D World-space.
@@ -28,7 +29,7 @@ export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): Scen
     aabb[0] = aabb[3] = ax;
     aabb[1] = aabb[4] = ay;
     aabb[2] = aabb[5] = az;
-    kdTree.insertItem(<KdSceneObjectPrim>{ sceneObject, sceneGeometry, prim: { a } }, aabb);
+    kdTree.insertItem(<KdSceneObjectPrim>{sceneObject, sceneGeometry, prim: {a}}, aabb);
   }
 
   function insertLine(sceneObject: SceneObject, sceneGeometry: SceneGeometry, positions: FloatArrayParam, a: number, b: number, kdTree: KdTree3) {
@@ -45,7 +46,7 @@ export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): Scen
     aabb[3] = Math.max(ax, bx);
     aabb[4] = Math.max(ay, by);
     aabb[5] = Math.max(az, bz);
-    kdTree.insertItem(<KdSceneObjectPrim>{ sceneObject, sceneGeometry, prim: { a, b } }, aabb);
+    kdTree.insertItem(<KdSceneObjectPrim>{sceneObject, sceneGeometry, prim: {a, b}}, aabb);
   }
 
   function insertTriangle(sceneObject: SceneObject, sceneGeometry: SceneGeometry, positions: FloatArrayParam, a: number, b: number, c: number, kdTree: KdTree3) {
@@ -65,7 +66,7 @@ export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): Scen
     aabb[3] = Math.max(ax, bx, cx);
     aabb[4] = Math.max(ay, by, cy);
     aabb[5] = Math.max(az, bz, cz);
-    kdTree.insertItem(<KdSceneObjectPrim>{ sceneObject, sceneGeometry, prim: { a, b, c } }, aabb);
+    kdTree.insertItem(<KdSceneObjectPrim>{sceneObject, sceneGeometry, prim: {a, b, c}}, aabb);
   }
 
   const aabb = collapseAABB3();

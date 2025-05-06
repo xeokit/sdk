@@ -1,35 +1,35 @@
-import { Component, EventEmitter } from "../core";
-import { FastRender, QualityRender } from "../constants";
-import type { FloatArrayParam, IntArrayParam } from "../math";
-import type { Scene, SceneModel } from "../scene";
-import { AmbientLight } from "./AmbientLight";
-import { Camera } from "./Camera";
-import { createUUID } from "../utils";
-import { createVec3 } from "../matrix";
-import { DirLight } from "./DirLight";
-import { Edges } from "./Edges";
-import { EmphasisMaterial } from "./EmphasisMaterial";
-import { EventDispatcher } from "strongly-typed-events";
-import { LinesMaterial } from "./LinesMaterial";
-import { Metrics } from "./Metriqs";
-import type { PickParams } from "./PickParams";
-import type { PickResult } from "./PickResult";
-import type { PointLight } from "./PointLight";
-import { PointsMaterial } from "./PointsMaterial";
-import type { RendererObject } from "../scene";
-import { ResolutionScale } from "./ResolutionScale";
-import { SAO } from "./SAO";
-import type { SDKError } from "../core";
-import { SectionPlane } from "./SectionPlane";
-import type { SectionPlaneParams } from "./SectionPlaneParams";
-import { type SnapshotParams } from "./SnapshotParams";
-import { SnapshotResult } from "./SnapshotResult";
-import { Texturing } from "./Texturing";
-import type { Viewer } from "./Viewer";
-import { ViewLayer } from "./ViewLayer";
-import type { ViewLayerParams } from "./ViewLayerParams";
-import { ViewObject } from "./ViewObject";
-import type { ViewParams } from "./ViewParams";
+import {Component, EventEmitter} from "../core";
+import {FastRender, QualityRender} from "../constants";
+import type {FloatArrayParam, IntArrayParam} from "../math";
+import type {Scene, SceneModel} from "../scene";
+import {AmbientLight} from "./AmbientLight";
+import {Camera} from "./Camera";
+import {createUUID} from "../utils";
+import {createVec3} from "../matrix";
+import {DirLight} from "./DirLight";
+import {Edges} from "./Edges";
+import {EmphasisMaterial} from "./EmphasisMaterial";
+import {EventDispatcher} from "strongly-typed-events";
+import {LinesMaterial} from "./LinesMaterial";
+import {Metrics} from "./Metriqs";
+import type {PickParams} from "./PickParams";
+import type {PickResult} from "./PickResult";
+import type {PointLight} from "./PointLight";
+import {PointsMaterial} from "./PointsMaterial";
+import type {RendererObject} from "../scene";
+import {ResolutionScale} from "./ResolutionScale";
+import {SAO} from "./SAO";
+import type {SDKError} from "../core";
+import {SectionPlane} from "./SectionPlane";
+import type {SectionPlaneParams} from "./SectionPlaneParams";
+import {type SnapshotParams} from "./SnapshotParams";
+import {SnapshotResult} from "./SnapshotResult";
+import {Texturing} from "./Texturing";
+import type {Viewer} from "./Viewer";
+import {ViewLayer} from "./ViewLayer";
+import type {ViewLayerParams} from "./ViewLayerParams";
+import {ViewObject} from "./ViewObject";
+import type {ViewParams} from "./ViewParams";
 
 /**
  * Event that signifies the beginning of a canvas snapshot captured with
@@ -55,266 +55,266 @@ export interface SnapshotFinishedEvent {
 class View extends Component {
 
   /**
-     ID of this View, unique within the {@link Viewer | Viewer}.
-     */
+   ID of this View, unique within the {@link Viewer | Viewer}.
+   */
   declare viewId: string;
 
   /**
-     * The Viewer to which this View belongs.
-     */
+   * The Viewer to which this View belongs.
+   */
   declare readonly viewer: Viewer;
 
   /**
-     * The index of this View in {@link Viewer.viewList}.
-     * @private
-     */
+   * The index of this View in {@link Viewer.viewList}.
+   * @private
+   */
   viewIndex: number;
 
   /**
-     * Manages the Camera for this View.
-     */
+   * Manages the Camera for this View.
+   */
   readonly camera: Camera;
 
   /**
-     * The HTML canvas.
-     */
+   * The HTML canvas.
+   */
   public htmlElement: HTMLElement;
 
   /**
-     * Indicates if this View is transparent.
-     */
+   * Indicates if this View is transparent.
+   */
   public readonly transparent: boolean;
 
   /**
-     * Boundary of the canvas in absolute browser window coordinates.
-     * Format is ````[xmin, ymin, xwidth, ywidth]````.
-     */
+   * Boundary of the canvas in absolute browser window coordinates.
+   * Format is ````[xmin, ymin, xwidth, ywidth]````.
+   */
   public readonly boundary: number[];
 
   /**
-     * Configures Scalable Ambient Obscurance (SAO) for this View.
-     */
+   * Configures Scalable Ambient Obscurance (SAO) for this View.
+   */
   readonly sao: SAO;
 
   /**
-     * Configures when textures are rendered for this View.
-     */
+   * Configures when textures are rendered for this View.
+   */
   readonly texturing: Texturing;
 
   /**
-     * Configures the appearance of edges belonging to {@link ViewObject} in this View.
-     */
+   * Configures the appearance of edges belonging to {@link ViewObject} in this View.
+   */
   readonly edges: Edges;
 
   /**
-     * Manages measurement units, origin and scale for this View.
-     */
+   * Manages measurement units, origin and scale for this View.
+   */
   readonly metrics: Metrics;
 
   /**
-     * Configures the X-rayed appearance of {@link ViewObject | ViewObjects} in this View.
-     */
+   * Configures the X-rayed appearance of {@link ViewObject | ViewObjects} in this View.
+   */
   readonly xrayMaterial: EmphasisMaterial;
 
   /**
-     * Configures the highlighted appearance of {@link ViewObject | ViewObjects} in this View.
-     */
+   * Configures the highlighted appearance of {@link ViewObject | ViewObjects} in this View.
+   */
   readonly highlightMaterial: EmphasisMaterial;
 
   /**
-     * Configures the appearance of {@link ViewObject | ViewObjects} in this View.
-     */
+   * Configures the appearance of {@link ViewObject | ViewObjects} in this View.
+   */
   readonly selectedMaterial: EmphasisMaterial;
 
   /**
-     * Configures resolution scaling for this View.
-     */
+   * Configures resolution scaling for this View.
+   */
   readonly resolutionScale: ResolutionScale;
 
   /**
-     * Configures the appearance of point primitives belonging to {@link ViewObject | ViewObjects} in this View .
-     */
+   * Configures the appearance of point primitives belonging to {@link ViewObject | ViewObjects} in this View .
+   */
   readonly pointsMaterial: PointsMaterial;
 
   /**
-     * Configures the appearance of lines belonging to {@link ViewObject | ViewObjects} in this View.
-     */
+   * Configures the appearance of lines belonging to {@link ViewObject | ViewObjects} in this View.
+   */
   readonly linesMaterial: LinesMaterial;
 
   /**
-     * Map of the all {@link ViewObject | ViewObjects} in this View.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     *
-     * The View automatically ensures that there is a {@link ViewObject} here for
-     * each {@link RendererObject} in the {@link Viewer | Viewer}
-     */
+   * Map of the all {@link ViewObject | ViewObjects} in this View.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   *
+   * The View automatically ensures that there is a {@link ViewObject} here for
+   * each {@link RendererObject} in the {@link Viewer | Viewer}
+   */
   readonly objects: { [key: string]: ViewObject };
 
   /**
-     * Map of the currently visible {@link ViewObject | ViewObjects} in this View.
-     *
-     * A ViewObject is visible when {@link ViewObject.visible} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of the currently visible {@link ViewObject | ViewObjects} in this View.
+   *
+   * A ViewObject is visible when {@link ViewObject.visible} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   readonly visibleObjects: { [key: string]: ViewObject };
 
   /**
-     * Map of currently x-rayed {@link ViewObject | ViewObjects} in this View.
-     *
-     * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently x-rayed {@link ViewObject | ViewObjects} in this View.
+   *
+   * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   readonly xrayedObjects: { [key: string]: ViewObject };
 
   /**
-     * Map of currently highlighted {@link ViewObject | ViewObjects} in this View.
-     *
-     * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently highlighted {@link ViewObject | ViewObjects} in this View.
+   *
+   * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   readonly highlightedObjects: { [key: string]: ViewObject };
 
   /**
-     * Map of currently selected {@link ViewObject | ViewObjects} in this View.
-     *
-     * A ViewObject is selected when {@link ViewObject.selected} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently selected {@link ViewObject | ViewObjects} in this View.
+   *
+   * A ViewObject is selected when {@link ViewObject.selected} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   readonly selectedObjects: { [key: string]: ViewObject };
 
   /**
-     * Map of currently colorized {@link ViewObject | ViewObjects} in this View.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently colorized {@link ViewObject | ViewObjects} in this View.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   readonly colorizedObjects: { [key: string]: ViewObject };
 
   /**
-     * Map of {@link ViewObject | ViewObjects} in this View whose opacity has been updated.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of {@link ViewObject | ViewObjects} in this View whose opacity has been updated.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   readonly opacityObjects: { [key: string]: ViewObject };
 
   /**
-     * Map of {@link SectionPlane}s in this View.
-     *
-     * Each {@link SectionPlane} is mapped here by {@link SectionPlane.id}.
-     */
+   * Map of {@link SectionPlane}s in this View.
+   *
+   * Each {@link SectionPlane} is mapped here by {@link SectionPlane.id}.
+   */
   readonly sectionPlanes: { [key: string]: SectionPlane };
 
   /**
-     * List of {@link SectionPlane}s in this View.
-     */
+   * List of {@link SectionPlane}s in this View.
+   */
   readonly sectionPlanesList: SectionPlane[] = [];
 
   /**
-     * Map of light sources in this View.
-     */
+   * Map of light sources in this View.
+   */
   readonly lights: { [key: string]: AmbientLight | PointLight | DirLight };
 
   /**
-     * List of light sources in this View.
-     */
+   * List of light sources in this View.
+   */
   readonly lightsList: (AmbientLight | PointLight | DirLight)[] = [];
 
   gammaOutput: boolean;
 
   /**
-     * Map of the all {@link ViewLayer}s in this View.
-     *
-     * Each {@link ViewLayer} is mapped here by {@link ViewLayer.id}.
-     */
+   * Map of the all {@link ViewLayer}s in this View.
+   *
+   * Each {@link ViewLayer} is mapped here by {@link ViewLayer.id}.
+   */
   readonly layers: { [key: string]: ViewLayer };
 
   /**
-     * Emits an event each time the canvas boundary changes.
-     *
-     * @event
-     */
+   * Emits an event each time the canvas boundary changes.
+   *
+   * @event
+   */
   readonly onBoundary: EventEmitter<View, IntArrayParam>;
 
   /**
-     * Emits an event each time a {@link ViewObject} is created in this View.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link ViewObject} is created in this View.
+   *
+   * @event
+   */
   readonly onObjectCreated: EventEmitter<View, ViewObject>;
 
   /**
-     * Emits an event each time a {@link ViewObject} is destroyed in this View.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link ViewObject} is destroyed in this View.
+   *
+   * @event
+   */
   readonly onObjectDestroyed: EventEmitter<View, ViewObject>;
 
   /**
-     * Emits an event each time the visibility of a {@link ViewObject} changes in this View.
-     *
-     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
-     *
-     * @event
-     */
+   * Emits an event each time the visibility of a {@link ViewObject} changes in this View.
+   *
+   * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
+   *
+   * @event
+   */
   readonly onObjectVisibility: EventEmitter<View, ViewObject>;
 
   /**
-     * Emits an event each time the X-ray state of a {@link ViewObject} changes in this View.
-     *
-     * ViewObjects are X-rayed with {@link View.setObjectsXRayed}, {@link ViewLayer.setObjectsXRayed} or {@link ViewObject.xrayed}.
-     *
-     * @event
-     */
+   * Emits an event each time the X-ray state of a {@link ViewObject} changes in this View.
+   *
+   * ViewObjects are X-rayed with {@link View.setObjectsXRayed}, {@link ViewLayer.setObjectsXRayed} or {@link ViewObject.xrayed}.
+   *
+   * @event
+   */
   readonly onObjectXRayed: EventEmitter<View, ViewObject>;
 
   /**
-     * Emits an event each time a {@link ViewLayer} is created in this View.
-     *
-     * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link scene!SceneModel.createObject | SceneModel.createObject} and {@link scene!SceneObjectParams.layerId | SceneObjectParams.layerId}.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link ViewLayer} is created in this View.
+   *
+   * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link scene!SceneModel.createObject | SceneModel.createObject} and {@link scene!SceneObjectParams.layerId | SceneObjectParams.layerId}.
+   *
+   * @event
+   */
   readonly onLayerCreated: EventEmitter<View, ViewLayer>;
 
   /**
-     * Emits an event each time a {@link ViewLayer} in this View is destroyed.
-     *
-     * ViewLayers are destroyed explicitly with {@link ViewLayer.destroy}, or implicitly when they become empty and {@link View.autoLayers} is false.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link ViewLayer} in this View is destroyed.
+   *
+   * ViewLayers are destroyed explicitly with {@link ViewLayer.destroy}, or implicitly when they become empty and {@link View.autoLayers} is false.
+   *
+   * @event
+   */
   readonly onLayerDestroyed: EventEmitter<View, ViewLayer>;
 
   /**
-     * Emits an event each time a {@link SectionPlane} is created in this View.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SectionPlane} is created in this View.
+   *
+   * @event
+   */
   readonly onSectionPlaneCreated: EventEmitter<View, SectionPlane>;
 
   /**
-     * Emits an event each time a {@link SectionPlane} in this View is destroyed.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SectionPlane} in this View is destroyed.
+   *
+   * @event
+   */
   readonly onSectionPlaneDestroyed: EventEmitter<View, SectionPlane>;
 
   /**
-     * Emits an event each time a snapshot is initiated with {@link View.getSnapshot}.
-     *
-     * @event
-     */
+   * Emits an event each time a snapshot is initiated with {@link View.getSnapshot}.
+   *
+   * @event
+   */
   readonly onSnapshotStarted: EventEmitter<View, SnapshotStartedEvent>;
 
   /**
-     * Emits an event each time a snapshot is completed with {@link View.getSnapshot}.
-     *
-     * @event
-     */
+   * Emits an event each time a snapshot is completed with {@link View.getSnapshot}.
+   *
+   * @event
+   */
   readonly onSnapshotFinished: EventEmitter<View, SnapshotFinishedEvent>;
 
   #onTick: () => void;
@@ -344,10 +344,10 @@ class View extends Component {
   #autoCanvas: boolean;
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(viewer: Viewer,
-    viewParams: ViewParams) {
+              viewParams: ViewParams) {
 
     super(null, viewParams);
 
@@ -357,7 +357,7 @@ class View extends Component {
 
     if (viewParams.htmlElement || viewParams.elementId) {
       canvas = // Canvas is actually a generic HTMLElement, but we think of it as a canvas
-                viewParams.htmlElement || document.getElementById(<string>viewParams.elementId);
+        viewParams.htmlElement || document.getElementById(<string>viewParams.elementId);
       if (!(canvas instanceof HTMLElement)) {
         console.error("Mandatory View config expected: valid HTMLElement");
       }
@@ -434,7 +434,7 @@ class View extends Component {
       viewParams.backgroundColor ? viewParams.backgroundColor[2] : 1,
     ]);
     this.#backgroundColorFromAmbientLight =
-            !!viewParams.backgroundColorFromAmbientLight;
+      !!viewParams.backgroundColorFromAmbientLight;
     this.transparent = !!viewParams.transparent;
     // this.htmlElement.width = this.htmlElement.clientWidth;
     // this.htmlElement.height = this.htmlElement.clientHeight;
@@ -461,23 +461,23 @@ class View extends Component {
       const htmlElement = this.htmlElement;
       const newResolutionScale = this.resolutionScale.resolutionScale !== lastResolutionScale;
       const newWindowSize =
-                window.innerWidth !== lastWindowWidth ||
-                window.innerHeight !== lastWindowHeight;
+        window.innerWidth !== lastWindowWidth ||
+        window.innerHeight !== lastWindowHeight;
       const newViewSize =
-                htmlElement.clientWidth !== lastViewWidth ||
-                htmlElement.clientHeight !== lastViewHeight;
+        htmlElement.clientWidth !== lastViewWidth ||
+        htmlElement.clientHeight !== lastViewHeight;
       const newViewPos =
-                htmlElement.offsetLeft !== lastViewOffsetLeft ||
-                htmlElement.offsetTop !== lastViewOffsetTop;
+        htmlElement.offsetLeft !== lastViewOffsetLeft ||
+        htmlElement.offsetTop !== lastViewOffsetTop;
       const parent = htmlElement.parentElement;
       const newParent = parent !== lastParent;
 
       if (
         newResolutionScale ||
-                newWindowSize ||
-                newViewSize ||
-                newViewPos ||
-                newParent
+        newWindowSize ||
+        newViewSize ||
+        newViewPos ||
+        newParent
       ) {
         //   this._spinner._adjustPosition();
         if (newResolutionScale || newViewSize || newViewPos) {
@@ -663,17 +663,17 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   initViewObjects() {
     this.#createViewObjectsForScene();
     this.viewer.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
-      this.#createViewObjectsForSceneModel(sceneModel);
-    }
+        this.#createViewObjectsForSceneModel(sceneModel);
+      }
     );
     this.viewer.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
-      this.#destroyViewObjectsForSceneModel(sceneModel);
-    }
+        this.#destroyViewObjectsForSceneModel(sceneModel);
+      }
     );
   }
 
@@ -720,25 +720,25 @@ class View extends Component {
   }
 
   /**
-     * Sets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
-     * as {@link RendererObject | ViewerObjects} are created.
-     *
-     * When ````true```` (default), the View will automatically create {@link ViewLayer | ViewLayers} as needed for each new
-     * {@link RendererObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
-     * layerId. This "default" ViewLayer ensures that a ViewObject is created in the View for every SceneObject that is created.
-     *
-     * If you set this ````false````, however, then the View will only create {@link ViewObject | ViewObjects} for
-     * {@link scene!SceneObject | SceneObjects} that have a {@link scene!SceneObject.layerId} that matches the ID of a
-     * {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
-     *
-     * Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only
-     * ViewerObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for ViewerObjects
-     * that it never needs to show.
-     *
-     * Default value is `true``.
-     *
-     * @param autoLayers The new value for atuoLayers
-     */
+   * Sets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
+   * as {@link RendererObject | ViewerObjects} are created.
+   *
+   * When ````true```` (default), the View will automatically create {@link ViewLayer | ViewLayers} as needed for each new
+   * {@link RendererObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
+   * layerId. This "default" ViewLayer ensures that a ViewObject is created in the View for every SceneObject that is created.
+   *
+   * If you set this ````false````, however, then the View will only create {@link ViewObject | ViewObjects} for
+   * {@link scene!SceneObject | SceneObjects} that have a {@link scene!SceneObject.layerId} that matches the ID of a
+   * {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
+   *
+   * Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only
+   * ViewerObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for ViewerObjects
+   * that it never needs to show.
+   *
+   * Default value is `true``.
+   *
+   * @param autoLayers The new value for atuoLayers
+   */
   set autoLayers(autoLayers: boolean) {
     if (this.#autoLayers === autoLayers) {
       return;
@@ -750,56 +750,56 @@ class View extends Component {
   }
 
   /**
-     * Gets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
-     * as {@link RendererObject | ViewerObjects} are created.
-     */
+   * Gets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
+   * as {@link RendererObject | ViewerObjects} are created.
+   */
   get autoLayers(): boolean {
     return this.#autoLayers;
   }
 
   /**
-     * Sets which rendering mode this View is in.
-     *
-     * Default value is {@link constants!QualityRender | QualityRender}.
-     *
-     * Setting a View's rendering mode will activate whatever effects (eg. SAO, edges, canas scaling) are configured to
-     * be active in that mode, while deactivating all other effects.
-     */
+   * Sets which rendering mode this View is in.
+   *
+   * Default value is {@link constants!QualityRender | QualityRender}.
+   *
+   * Setting a View's rendering mode will activate whatever effects (eg. SAO, edges, canas scaling) are configured to
+   * be active in that mode, while deactivating all other effects.
+   */
   set renderMode(renderMode: number) {
     this.#renderMode = renderMode;
     this.redraw();
   }
 
   /**
-     * Gets which rendering mode this View is in.
-     *
-     * Default value is {@link constants!QualityRender | QualityRender}.
-     */
+   * Gets which rendering mode this View is in.
+   *
+   * Default value is {@link constants!QualityRender | QualityRender}.
+   */
   get renderMode(): number {
     return this.#renderMode;
   }
 
   /**
-     *
-     */
+   *
+   */
   get aabb(): FloatArrayParam {
     return this.viewer.scene.aabb;
   }
 
   /**
-     * Gets the canvas clear color.
-     *
-     * Default value is ````[1, 1, 1]````.
-     */
+   * Gets the canvas clear color.
+   *
+   * Default value is ````[1, 1, 1]````.
+   */
   get backgroundColor(): FloatArrayParam {
     return this.#backgroundColor;
   }
 
   /**
-     * Sets the canvas clear color.
-     *
-     * Default value is ````[1, 1, 1]````.
-     */
+   * Sets the canvas clear color.
+   *
+   * Default value is ````[1, 1, 1]````.
+   */
   set backgroundColor(value: FloatArrayParam) {
     if (value) {
       this.#backgroundColor[0] = value[0];
@@ -814,54 +814,54 @@ class View extends Component {
   }
 
   /**
-     * Gets whether the canvas clear color will be derived from {@link AmbientLight} or {@link View#backgroundColor}
-     * when {@link View#transparent} is ```true```.
-     *
-     * When {@link View#transparent} is ```true``` and this is ````true````, then the canvas clear color will
-     * be taken from the ambient light color.
-     *
-     * When {@link View#transparent} is ```true``` and this is ````false````, then the canvas clear color will
-     * be taken from {@link View#backgroundColor}.
-     *
-     * Default value is ````true````.
-     */
+   * Gets whether the canvas clear color will be derived from {@link AmbientLight} or {@link View#backgroundColor}
+   * when {@link View#transparent} is ```true```.
+   *
+   * When {@link View#transparent} is ```true``` and this is ````true````, then the canvas clear color will
+   * be taken from the ambient light color.
+   *
+   * When {@link View#transparent} is ```true``` and this is ````false````, then the canvas clear color will
+   * be taken from {@link View#backgroundColor}.
+   *
+   * Default value is ````true````.
+   */
   get backgroundColorFromAmbientLight(): boolean {
     return this.#backgroundColorFromAmbientLight;
   }
 
   /**
-     * Sets if the canvas background color is derived from an {@link AmbientLight}.
-     *
-     * This only has effect when the canvas is not transparent. When not enabled, the background color
-     * will be the canvas element's HTML/CSS background color.
-     *
-     * Default value is ````true````.
-     */
+   * Sets if the canvas background color is derived from an {@link AmbientLight}.
+   *
+   * This only has effect when the canvas is not transparent. When not enabled, the background color
+   * will be the canvas element's HTML/CSS background color.
+   *
+   * Default value is ````true````.
+   */
   set backgroundColorFromAmbientLight(
     backgroundColorFromAmbientLight: boolean
   ) {
     this.#backgroundColorFromAmbientLight =
-            backgroundColorFromAmbientLight !== false;
+      backgroundColorFromAmbientLight !== false;
   }
 
   /**
-     * Gets the gamma factor.
-     */
+   * Gets the gamma factor.
+   */
   get gammaFactor() {
     // TODO
     return 1.0;
   }
 
   /**
-     * Gets the number of {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of {@link ViewObject | ViewObjects} in this View.
+   */
   get numObjects(): number {
     return this.#numObjects;
   }
 
   /**
-     * Gets the IDs of the {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the {@link ViewObject | ViewObjects} in this View.
+   */
   get objectIds(): string[] {
     if (!this.#objectIds) {
       this.#objectIds = Object.keys(this.objects);
@@ -870,15 +870,15 @@ class View extends Component {
   }
 
   /**
-     * Gets the number of visible {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of visible {@link ViewObject | ViewObjects} in this View.
+   */
   get numVisibleObjects(): number {
     return this.#numVisibleObjects;
   }
 
   /**
-     * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this View.
+   */
   get visibleObjectIds(): string[] {
     if (!this.#visibleObjectIds) {
       this.#visibleObjectIds = Object.keys(this.visibleObjects);
@@ -887,15 +887,15 @@ class View extends Component {
   }
 
   /**
-     * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this View.
+   */
   get numXRayedObjects(): number {
     return this.#numXRayedObjects;
   }
 
   /**
-     * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this View.
+   */
   get xrayedObjectIds(): string[] {
     if (!this.#xrayedObjectIds) {
       this.#xrayedObjectIds = Object.keys(this.xrayedObjects);
@@ -904,15 +904,15 @@ class View extends Component {
   }
 
   /**
-     * Gets the number of highlighted {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of highlighted {@link ViewObject | ViewObjects} in this View.
+   */
   get numHighlightedObjects(): number {
     return this.#numHighlightedObjects;
   }
 
   /**
-     * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this View.
+   */
   get highlightedObjectIds(): string[] {
     if (!this.#highlightedObjectIds) {
       this.#highlightedObjectIds = Object.keys(this.highlightedObjects);
@@ -921,15 +921,15 @@ class View extends Component {
   }
 
   /**
-     * Gets the number of selected {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of selected {@link ViewObject | ViewObjects} in this View.
+   */
   get numSelectedObjects(): number {
     return this.#numSelectedObjects;
   }
 
   /**
-     * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this View.
+   */
   get selectedObjectIds(): string[] {
     if (!this.#selectedObjectIds) {
       this.#selectedObjectIds = Object.keys(this.selectedObjects);
@@ -938,15 +938,15 @@ class View extends Component {
   }
 
   /**
-     * Gets the number of colorized {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of colorized {@link ViewObject | ViewObjects} in this View.
+   */
   get numColorizedObjects(): number {
     return this.#numColorizedObjects;
   }
 
   /**
-     * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this View.
+   */
   get colorizedObjectIds(): string[] {
     if (!this.#colorizedObjectIds) {
       this.#colorizedObjectIds = Object.keys(this.colorizedObjects);
@@ -955,8 +955,8 @@ class View extends Component {
   }
 
   /**
-     * Gets the IDs of the {@link ViewObject | ViewObjects} in this View that have updated opacities.
-     */
+   * Gets the IDs of the {@link ViewObject | ViewObjects} in this View that have updated opacities.
+   */
   get opacityObjectIds(): string[] {
     if (!this.#opacityObjectIds) {
       this.#opacityObjectIds = Object.keys(this.opacityObjects);
@@ -965,15 +965,15 @@ class View extends Component {
   }
 
   /**
-     * Gets the number of {@link ViewObject | ViewObjects} in this View that have updated opacities.
-     */
+   * Gets the number of {@link ViewObject | ViewObjects} in this View that have updated opacities.
+   */
   get numOpacityObjects(): number {
     return this.#numOpacityObjects;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   registerViewObject(viewObject: ViewObject) {
     this.objects[viewObject.id] = viewObject;
     this.#numObjects++;
@@ -981,8 +981,8 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   deregisterViewObject(viewObject: ViewObject) {
     delete this.objects[viewObject.id];
     delete this.visibleObjects[viewObject.id];
@@ -996,8 +996,8 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   objectVisibilityUpdated(
     viewObject: ViewObject,
     visible: boolean,
@@ -1017,8 +1017,8 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   objectXRayedUpdated(
     viewObject: ViewObject,
     xrayed: boolean,
@@ -1038,8 +1038,8 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   objectHighlightedUpdated(viewObject: ViewObject, highlighted: boolean) {
     if (highlighted) {
       this.highlightedObjects[viewObject.id] = viewObject;
@@ -1052,8 +1052,8 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   objectSelectedUpdated(viewObject: ViewObject, selected: boolean) {
     if (selected) {
       this.selectedObjects[viewObject.id] = viewObject;
@@ -1066,8 +1066,8 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   objectColorizeUpdated(viewObject: ViewObject, colorized: boolean) {
     if (colorized) {
       this.colorizedObjects[viewObject.id] = viewObject;
@@ -1080,8 +1080,8 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   objectOpacityUpdated(viewObject: ViewObject, opacityUpdated: boolean) {
     if (opacityUpdated) {
       this.opacityObjects[viewObject.id] = viewObject;
@@ -1094,10 +1094,10 @@ class View extends Component {
   }
 
   /**
-     * Creates a {@link SectionPlane} in this View.
-     *
-     * @param sectionPlaneParams
-     */
+   * Creates a {@link SectionPlane} in this View.
+   *
+   * @param sectionPlaneParams
+   */
   createSectionPlane(sectionPlaneParams: SectionPlaneParams): SectionPlane {
     let id = sectionPlaneParams.id || createUUID();
     if (this.sectionPlanes[id]) {
@@ -1115,8 +1115,8 @@ class View extends Component {
   }
 
   /**
-     * Destroys the {@link SectionPlane | SectionPlanes} in this View.
-     */
+   * Destroys the {@link SectionPlane | SectionPlanes} in this View.
+   */
   clearSectionPlanes(): void {
     const objectIds = Object.keys(this.sectionPlanes);
     for (let i = 0, len = objectIds.length; i < len; i++) {
@@ -1127,8 +1127,8 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   getSectionPlanesHash() {
     if (this.#sectionPlanesHash) {
       return this.#sectionPlanesHash;
@@ -1148,8 +1148,8 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   registerLight(light: PointLight | DirLight | AmbientLight) {
     this.lightsList.push(light);
     this.lights[light.id] = light;
@@ -1158,8 +1158,8 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   deregisterLight(light: PointLight | DirLight | AmbientLight) {
     for (let i = 0, len = this.lightsList.length; i < len; i++) {
       if (this.lightsList[i].id === light.id) {
@@ -1173,8 +1173,8 @@ class View extends Component {
   }
 
   /**
-     * Destroys the {@link DirLight | DirLights}, {@link PointLight | PointLights} and {@link AmbientLight | AmbientLights} in this View.
-     */
+   * Destroys the {@link DirLight | DirLights}, {@link PointLight | PointLights} and {@link AmbientLight | AmbientLights} in this View.
+   */
   clearLights(): void {
     const lightIds = Object.keys(this.lights);
     for (let i = 0, len = lightIds.length; i < len; i++) {
@@ -1183,8 +1183,8 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   getLightsHash() {
     if (this.#lightsHash) {
       return this.#lightsHash;
@@ -1215,36 +1215,36 @@ class View extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   rebuild() {
     this.viewer.renderer.setNeedsRebuild(this.viewIndex);
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   redraw() {
     this.viewer.renderer.setImageDirty(this.viewIndex);
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   getAmbientColorAndIntensity(): FloatArrayParam {
     return [0.5, 0.5, 0.5, 1];
   }
 
   /**
-     * Updates the visibility of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
-     * - Updates {@link View.visibleObjects} and {@link View.numVisibleObjects}.
-     *
-     * @param {string[]} objectIds Array of {@link ViewObject.id} values.
-     * @param visible Whether or not to cull.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Updates the visibility of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
+   * - Updates {@link View.visibleObjects} and {@link View.numVisibleObjects}.
+   *
+   * @param {string[]} objectIds Array of {@link ViewObject.id} values.
+   * @param visible Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsVisible(objectIds: string[], visible: boolean): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.visible !== visible;
@@ -1254,14 +1254,14 @@ class View extends Component {
   }
 
   /**
-     * Updates the collidability of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
-     *
-     * @param {string[]} objectIds Array of {@link ViewObject.id} values.
-     * @param collidable Whether or not to cull.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Updates the collidability of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
+   *
+   * @param {string[]} objectIds Array of {@link ViewObject.id} values.
+   * @param collidable Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsCollidable(objectIds: string[], collidable: boolean): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.collidable !== collidable;
@@ -1271,14 +1271,14 @@ class View extends Component {
   }
 
   /**
-     * Updates the culled status of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * Updates {@link ViewObject.culled} on the Objects with the given IDs.
-     *
-     * @param {string[]} objectIds Array of {@link ViewObject.id} values.
-     * @param culled Whether or not to cull.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Updates the culled status of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * Updates {@link ViewObject.culled} on the Objects with the given IDs.
+   *
+   * @param {string[]} objectIds Array of {@link ViewObject.id} values.
+   * @param culled Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsCulled(objectIds: string[], culled: boolean): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.culled !== culled;
@@ -1288,15 +1288,15 @@ class View extends Component {
   }
 
   /**
-     * Selects or deselects the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
-     * - Updates {@link View.selectedObjects} and {@link View.numSelectedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param selected Whether or not to select.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Selects or deselects the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
+   * - Updates {@link View.selectedObjects} and {@link View.numSelectedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param selected Whether or not to select.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsSelected(objectIds: string[], selected: boolean): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.selected !== selected;
@@ -1306,15 +1306,15 @@ class View extends Component {
   }
 
   /**
-     * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
-     * - Updates {@link View.highlightedObjects} and {@link View.numHighlightedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param highlighted Whether or not to highlight.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
+   * - Updates {@link View.highlightedObjects} and {@link View.numHighlightedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param highlighted Whether or not to highlight.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsHighlighted(objectIds: string[], highlighted: boolean): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.highlighted !== highlighted;
@@ -1324,15 +1324,15 @@ class View extends Component {
   }
 
   /**
-     * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
-     * - Updates {@link View.xrayedObjects} and {@link View.numXRayedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param xrayed Whether or not to xray.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
+   * - Updates {@link View.xrayedObjects} and {@link View.numXRayedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param xrayed Whether or not to xray.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsXRayed(objectIds: string[], xrayed: boolean): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.xrayed !== xrayed;
@@ -1344,15 +1344,15 @@ class View extends Component {
   }
 
   /**
-     * Colorizes the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
-     * - Updates {@link View.colorizedObjects} and {@link View.numColorizedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
-     * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
-     */
+   * Colorizes the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
+   * - Updates {@link View.colorizedObjects} and {@link View.numColorizedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
+   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   */
   setObjectsColorized(objectIds: string[], colorize: number[]) {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       viewObject.colorize = colorize;
@@ -1360,15 +1360,15 @@ class View extends Component {
   }
 
   /**
-     * Sets the opacity of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
-     * - Updates {@link View.opacityObjects} and {@link View.numOpacityObjects}.
-     *
-     * @param  objectIds - One or more {@link ViewObject.id} values.
-     * @param opacity - Opacity factor in range ````[0..1]````.
-     * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
-     */
+   * Sets the opacity of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
+   * - Updates {@link View.opacityObjects} and {@link View.numOpacityObjects}.
+   *
+   * @param  objectIds - One or more {@link ViewObject.id} values.
+   * @param opacity - Opacity factor in range ````[0..1]````.
+   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   */
   setObjectsOpacity(objectIds: string[], opacity: number): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.opacity !== opacity;
@@ -1380,15 +1380,15 @@ class View extends Component {
   }
 
   /**
-     * Sets the pickability of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
-     * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
-     *
-     * @param {string[]} objectIds Array of {@link ViewObject.id} values.
-     * @param pickable Whether or not to set pickable.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Sets the pickability of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
+   * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
+   *
+   * @param {string[]} objectIds Array of {@link ViewObject.id} values.
+   * @param pickable Whether or not to set pickable.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsPickable(objectIds: string[], pickable: boolean): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.pickable !== pickable;
@@ -1400,15 +1400,15 @@ class View extends Component {
   }
 
   /**
-     * Sets the clippability of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
-     * - Enables or disables the ability to clip the given Objects with {@link SectionPlane}.
-     *
-     * @param objectIds Array of {@link ViewObject.id} values.
-     * @param clippable Whether or not to set clippable.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Sets the clippability of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
+   * - Enables or disables the ability to clip the given Objects with {@link SectionPlane}.
+   *
+   * @param objectIds Array of {@link ViewObject.id} values.
+   * @param clippable Whether or not to set clippable.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsClippable(objectIds: string[], clippable: boolean): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.clippable !== clippable;
@@ -1420,12 +1420,12 @@ class View extends Component {
   }
 
   /**
-     * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * @param objectIds One or more {@link ViewObject.id} values.
-     * @param callback Callback to execute on each {@link ViewObject}.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * @param objectIds One or more {@link ViewObject.id} values.
+   * @param callback Callback to execute on each {@link ViewObject}.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   withObjects(objectIds: string[], callback: Function): boolean {
     let changed = false;
     for (let i = 0, len = objectIds.length; i < len; i++) {
@@ -1439,17 +1439,17 @@ class View extends Component {
   }
 
   /**
-     * Creates a {@link ViewLayer} in this View.
-     *
-     * The ViewLayer is then registered in {@link View.layers}.
-     *
-     * Since the ViewLayer is created explicitly by this method, the ViewLayer will persist until {@link ViewLayer.destroy}
-     * is called, or the {@link View} itself is destroyed. If a ViewLayer with the given ID already exists, then the method
-     * returns that existing ViewLayer. The method will also ensure that the existing ViewLayer likewise persists.
-     *
-     * @param viewLayerParams
-     * @returns The new ViewLayer
-     */
+   * Creates a {@link ViewLayer} in this View.
+   *
+   * The ViewLayer is then registered in {@link View.layers}.
+   *
+   * Since the ViewLayer is created explicitly by this method, the ViewLayer will persist until {@link ViewLayer.destroy}
+   * is called, or the {@link View} itself is destroyed. If a ViewLayer with the given ID already exists, then the method
+   * returns that existing ViewLayer. The method will also ensure that the existing ViewLayer likewise persists.
+   *
+   * @param viewLayerParams
+   * @returns The new ViewLayer
+   */
   createLayer(viewLayerParams: ViewLayerParams): ViewLayer {
     let viewLayer = this.layers[viewLayerParams.id];
     if (!viewLayer) {
@@ -1471,28 +1471,28 @@ class View extends Component {
   }
 
   /**
-     * Attempts to pick a ViewObject in this View.
-     *
-     * @param pickParams Picking parameters.
-     * @param pickResult Picking results, when caller wants to manage them externally.
-     * @throws {@link core!SDKError | SDKError}
-     * * No View is currently attached to this Renderer.
-     * * Can't find a View attached to this Renderer with the given handle.
-     * * Illegal picking parameters given.
-     * @returns {@link PickResult}
-     * * Picking attempt completed.
-     */
+   * Attempts to pick a ViewObject in this View.
+   *
+   * @param pickParams Picking parameters.
+   * @param pickResult Picking results, when caller wants to manage them externally.
+   * @throws {@link core!SDKError | SDKError}
+   * * No View is currently attached to this Renderer.
+   * * Can't find a View attached to this Renderer with the given handle.
+   * * Illegal picking parameters given.
+   * @returns {@link PickResult}
+   * * Picking attempt completed.
+   */
   pick(pickParams: PickParams, pickResult?: PickResult): PickResult | null | SDKError {
     return this.viewer.renderer.pick(this.viewIndex, pickParams, pickResult);
   }
 
   /**
-     * Enter snapshot mode.
-     *
-     * Switches rendering to a hidden snapshot canvas.
-     *
-     * Exit snapshot mode using {@link Viewer#endSnapshot}.
-     */
+   * Enter snapshot mode.
+   *
+   * Switches rendering to a hidden snapshot canvas.
+   *
+   * Exit snapshot mode using {@link Viewer#endSnapshot}.
+   */
   beginSnapshot() {
     if (this.#snapshotBegun) {
       return;
@@ -1502,11 +1502,11 @@ class View extends Component {
   }
 
   /**
-     * Captures a snapshot image of this View.
-     *
-     * @param snapshotParams
-     * @param snapshotResult
-     */
+   * Captures a snapshot image of this View.
+   *
+   * @param snapshotParams
+   * @param snapshotResult
+   */
   getSnapshot(snapshotParams: SnapshotParams, snapshotResult?: SnapshotResult): SnapshotResult {
     // const needFinishSnapshot = (!this.#snapshotBegun);
     // const resize = (snapshotParams.width !== undefined && snapshotParams.height !== undefined);
@@ -1597,9 +1597,9 @@ class View extends Component {
   }
 
   /**
-     * Sets the state of this View.
-     * @param viewParams
-     */
+   * Sets the state of this View.
+   * @param viewParams
+   */
   fromParams(viewParams: ViewParams) {
     if (viewParams.camera) {
       this.camera.fromParams(viewParams.camera);
@@ -1645,8 +1645,8 @@ class View extends Component {
   }
 
   /**
-     * Gets this View as JSON.
-     */
+   * Gets this View as JSON.
+   */
   toParams(): ViewParams {
     return {
       id: this.id,
@@ -1667,10 +1667,10 @@ class View extends Component {
   }
 
   /**
-     * Destroys this View.
-     *
-     * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
-     */
+   * Destroys this View.
+   *
+   * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
+   */
   destroy() {
     this.viewer.onTick.unsubscribe(this.#onTick);
     this.#destroyViewLayers();
@@ -1732,4 +1732,4 @@ class View extends Component {
   }
 }
 
-export { View };
+export {View};

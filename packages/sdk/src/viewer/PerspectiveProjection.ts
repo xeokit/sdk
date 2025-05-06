@@ -1,11 +1,11 @@
-import { Component, EventEmitter } from "../core";
-import { createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4 } from "../matrix";
-import type { Camera } from "./Camera";
-import { EventDispatcher } from "strongly-typed-events";
-import type { FloatArrayParam } from "../math";
-import type { PerspectiveProjectionParams } from "./PerspectiveProjectionParams";
-import { PerspectiveProjectionType } from "../constants";
-import type { Projection } from "./Projection";
+import {Component, EventEmitter} from "../core";
+import {createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "../matrix";
+import type {Camera} from "./Camera";
+import {EventDispatcher} from "strongly-typed-events";
+import type {FloatArrayParam} from "../math";
+import type {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
+import {PerspectiveProjectionType} from "../constants";
+import type {Projection} from "./Projection";
 
 
 /**
@@ -21,20 +21,20 @@ import type { Projection } from "./Projection";
 export class PerspectiveProjection extends Component implements Projection {
 
   /**
-     * The Camera this PerspectiveProjection belongs to.
-     */
+   * The Camera this PerspectiveProjection belongs to.
+   */
   public readonly camera: Camera;
 
   /**
-     * Emits an event each time {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates.
-     *
-     * @event
-     */
+   * Emits an event each time {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates.
+   *
+   * @event
+   */
   readonly onProjMatrix: EventEmitter<PerspectiveProjection, FloatArrayParam>;
 
   /**
-     * The type of this projection.
-     */
+   * The type of this projection.
+   */
   static readonly type: number = PerspectiveProjectionType;
 
   #state: {
@@ -53,8 +53,8 @@ export class PerspectiveProjection extends Component implements Projection {
 
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(camera: Camera, cfg: {
     fov?: number,
     fovAxis?: string,
@@ -87,23 +87,23 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the PerspectiveProjection's field-of-view angle (FOV).
-     *
-     * Default value is ````60.0````.
-     *
-     * @returns {Number} Current field-of-view.
-     */
+   * Gets the PerspectiveProjection's field-of-view angle (FOV).
+   *
+   * Default value is ````60.0````.
+   *
+   * @returns {Number} Current field-of-view.
+   */
   get fov(): number {
     return this.#state.fov;
   }
 
   /**
-     * Sets the PerspectiveProjection's field-of-view angle (FOV).
-     *
-     * Default value is ````60.0````.
-     *
-     * @param value New field-of-view.
-     */
+   * Sets the PerspectiveProjection's field-of-view angle (FOV).
+   *
+   * Default value is ````60.0````.
+   *
+   * @param value New field-of-view.
+   */
   set fov(value: number) {
     if (value === this.#state.fov) {
       return;
@@ -113,27 +113,27 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the PerspectiveProjection's FOV axis.
-     *
-     * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
-     *
-     * Default value is ````"min"````.
-     *
-     * @returns {String} The current FOV axis value.
-     */
+   * Gets the PerspectiveProjection's FOV axis.
+   *
+   * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
+   *
+   * Default value is ````"min"````.
+   *
+   * @returns {String} The current FOV axis value.
+   */
   get fovAxis(): string {
     return this.#state.fovAxis;
   }
 
   /**
-     * Sets the PerspectiveProjection's FOV axis.
-     *
-     * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
-     *
-     * Default value ````"min"````.
-     *
-     * @param value New FOV axis value.
-     */
+   * Sets the PerspectiveProjection's FOV axis.
+   *
+   * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
+   *
+   * Default value ````"min"````.
+   *
+   * @param value New FOV axis value.
+   */
   set fovAxis(value: string) {
     value = value || "min";
     if (this.#state.fovAxis === value) {
@@ -148,23 +148,23 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * @returns The PerspectiveProjection's near plane position.
-     */
+   * Gets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * @returns The PerspectiveProjection's near plane position.
+   */
   get near(): number {
     return this.#state.near;
   }
 
   /**
-     * Sets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * @param value New PerspectiveProjection near plane position.
-     */
+   * Sets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * @param value New PerspectiveProjection near plane position.
+   */
   set near(value: number) {
     if (this.#state.near === value) {
       return;
@@ -174,19 +174,19 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
-     *
-     * @return {Number} The PerspectiveProjection's far plane position.
-     */
+   * Gets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
+   *
+   * @return {Number} The PerspectiveProjection's far plane position.
+   */
   get far(): number {
     return this.#state.far;
   }
 
   /**
-     * Sets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
-     *
-     * @param value New PerspectiveProjection far plane position.
-     */
+   * Sets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
+   *
+   * @param value New PerspectiveProjection far plane position.
+   */
   set far(value: number) {
     if (this.#state.far === value) {
       return;
@@ -196,12 +196,12 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the PerspectiveProjection's projection transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @returns  The PerspectiveProjection's projection matrix.
-     */
+   * Gets the PerspectiveProjection's projection transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @returns  The PerspectiveProjection's projection matrix.
+   */
   get projMatrix(): FloatArrayParam {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -210,10 +210,10 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
-     *
-     * @returns  The inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
-     */
+   * Gets the inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
+   *
+   * @returns  The inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
+   */
   get inverseProjMatrix(): FloatArrayParam {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -226,10 +226,10 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
-     *
-     * @returns  The transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
-     */
+   * Gets the transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
+   *
+   * @returns  The transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
+   */
   get transposedProjMatrix(): FloatArrayParam {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -242,8 +242,8 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   clean() {
     const WIDTH_INDEX = 2;
     const HEIGHT_INDEX = 3;
@@ -263,14 +263,14 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /**
-     * Un-projects the given View-space coordinates and Screen-space depth, using this PerspectiveProjection projection.
-     *
-     * @param canvasPos Inputs 2D View-space coordinates.
-     * @param screenZ Inputs Screen-space Z coordinate.
-     * @param screenPos Outputs 3D Screen/Clip-space coordinates.
-     * @param viewPos Outputs un-projected 3D View-space coordinates.
-     * @param worldPos Outputs un-projected 3D World-space coordinates.
-     */
+   * Un-projects the given View-space coordinates and Screen-space depth, using this PerspectiveProjection projection.
+   *
+   * @param canvasPos Inputs 2D View-space coordinates.
+   * @param screenZ Inputs Screen-space Z coordinate.
+   * @param screenPos Outputs 3D Screen/Clip-space coordinates.
+   * @param viewPos Outputs un-projected 3D View-space coordinates.
+   * @param worldPos Outputs un-projected 3D World-space coordinates.
+   */
   unproject(canvasPos: FloatArrayParam, screenZ: number, screenPos: FloatArrayParam, viewPos: FloatArrayParam, worldPos: FloatArrayParam): FloatArrayParam {
 
     const htmlElement = this.camera.view.htmlElement;
@@ -294,9 +294,9 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /**
-     * Sets the state of this PerspectiveParams from the given parameters.
-     * @param perspectiveProjectionParams
-     */
+   * Sets the state of this PerspectiveParams from the given parameters.
+   * @param perspectiveProjectionParams
+   */
   fromParams(perspectiveProjectionParams: PerspectiveProjectionParams) {
     if (perspectiveProjectionParams.far !== undefined) {
       this.far = perspectiveProjectionParams.far;
@@ -313,8 +313,8 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /**
-     * Gets this PerspectiveProjection as JSON.
-     */
+   * Gets this PerspectiveProjection as JSON.
+   */
   toParams(): PerspectiveProjectionParams {
     return {
       far: this.far,
@@ -325,8 +325,8 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /** @private
-     *
-     */
+   *
+   */
   destroy() {
     super.destroy();
     this.camera.view.onBoundary.unsubscribe(this.#onViewBoundary);

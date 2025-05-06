@@ -1,4 +1,4 @@
-import type { ModelParseParams } from "../../../io";
+import type {ModelParseParams} from "../../../io";
 
 /**
  * @private

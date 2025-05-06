@@ -1,4 +1,4 @@
-import type { BCFVector } from "./BCFVector";
+import type {BCFVector} from "./BCFVector";
 
 /**
  * BCF line segment.
@@ -6,12 +6,12 @@ import type { BCFVector } from "./BCFVector";
 export interface BCFLine {
 
   /**
-     * BCF line segment start point.
-     */
+   * BCF line segment start point.
+   */
   "start_point": BCFVector,
 
   /**
-     * BCF line segment end point.
-     */
+   * BCF line segment end point.
+   */
   "end_point": BCFVector
 }

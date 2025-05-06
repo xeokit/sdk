@@ -1,4 +1,4 @@
-import { BasicAggregation, BasicEntity } from "../../../basictypes";
+import {BasicAggregation, BasicEntity} from "../../../basictypes";
 import {
   LinesPrimitive,
   PointsPrimitive,
@@ -6,11 +6,11 @@ import {
   SurfacePrimitive,
   TrianglesPrimitive
 } from "../../../constants";
-import type { SceneGeometryCompressedParams, SceneModel } from "../../../scene";
-import { createUUID } from "../../../utils";
-import type { DataModel } from "../../../data";
-import type { FloatArrayParam } from "../../../math";
-import type { XGFData_v1 } from "./XGFData_v1";
+import type {SceneGeometryCompressedParams, SceneModel} from "../../../scene";
+import {createUUID} from "../../../utils";
+import type {DataModel} from "../../../data";
+import type {FloatArrayParam} from "../../../math";
+import type {XGFData_v1} from "./XGFData_v1";
 
 /**
  * @private
@@ -21,7 +21,7 @@ export function xgfToModel(params: {
   dataModel?: DataModel
 }): void {
 
-  const { xgfData, sceneModel, dataModel } = params;
+  const {xgfData, sceneModel, dataModel} = params;
   const defaultId = sceneModel ? sceneModel.id : createUUID();
 
   if (dataModel) {

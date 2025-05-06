@@ -110,17 +110,17 @@ function kt(t: any[]) {
   return m(null,
     {
       next:
-                {
-                  value: function () {
-                    return at(r)
-                  }
-                },
+        {
+          value: function () {
+            return at(r)
+          }
+        },
       [g]:
-                {
-                  value: function () {
-                    return this
-                  }
-                }
+        {
+          value: function () {
+            return this
+          }
+        }
     })
 }
 
@@ -128,54 +128,54 @@ const Wt = new Et,
   Vt = m(pt,
     {
       next:
-                {
-                  value: function () {
-                    const t = Ot(Wt, this);
-                    return yt(t)
-                  },
-                  writable: !0,
-                  configurable: !0
-                },
+        {
+          value: function () {
+            const t = Ot(Wt, this);
+            return yt(t)
+          },
+          writable: !0,
+          configurable: !0
+        },
       [v]:
-                {
-                  value: "Array Iterator",
-                  configurable: !0
-                }
+        {
+          value: "Array Iterator",
+          configurable: !0
+        }
     });
 
-function Yt(t:any) {
+function Yt(t: any) {
   const r = m(Vt);
   return It(Wt, r, t), r
 }
 
-function zt(t:any) {
+function zt(t: any) {
   return null !== t && "object" == typeof t || "function" == typeof t
 }
 
-function Gt(t:any) {
+function Gt(t: any) {
   return null !== t && "object" == typeof t
 }
 
-function Kt(t:any) {
+function Kt(t: any) {
   return void 0 !== st(t)
 }
 
-function Xt(t:any) {
+function Xt(t: any) {
   const r = st(t);
   return "BigInt64Array" === r || "BigUint64Array" === r
 }
 
-function qt(t:any) {
+function qt(t: any) {
   if (null === W) return !1;
   try {
     // @ts-ignore
     return V(t), !0
-  } catch (t:any) {
+  } catch (t: any) {
     return !1
   }
 }
 
-function Ht(t:any) {
+function Ht(t: any) {
   if (!P(t)) return !1;
   // @ts-ignore
   if (t[g] === R) return !0;
@@ -183,7 +183,7 @@ function Ht(t:any) {
   return "Array Iterator" === t[g]()[v]
 }
 
-function Jt(t:any) {
+function Jt(t: any) {
   if ("string" != typeof t) return !1;
   const r = y(t);
   return t === r + "" && (!!p(r) && r === N(r))
@@ -191,13 +191,13 @@ function Jt(t:any) {
 
 const Qt = y.MAX_SAFE_INTEGER;
 
-function Zt(t:any) {
+function Zt(t: any) {
   if ("bigint" == typeof t) throw vt("Cannot convert a BigInt value to a number");
   const r = y(t);
   return w(r) || 0 === r ? 0 : N(r)
 }
 
-function $t(t:any) {
+function $t(t: any) {
   const r = Zt(t);
   return r < 0 ? 0 : r < Qt ? r : Qt
 }
@@ -211,11 +211,11 @@ function tr(t: { constructor: any; }, r: ArrayBufferConstructor) {
   return null == e ? r : e
 }
 
-function rr(t:any) {
+function rr(t: any) {
   if (qt(t)) return !1;
   try {
     return D(t, 0, 0), !1
-  } catch (t:any) {
+  } catch (t: any) {
   }
   return !0
 }
@@ -242,8 +242,8 @@ function nr(t: unknown, r: unknown) {
 const er = b("__Float16Array__"),
   or = new Et;
 
-function ir(t:any) {
-  return jt(or, t) || !M(t) && function (t:any) {
+function ir(t: any) {
+  return jt(or, t) || !M(t) && function (t: any) {
     if (!Gt(t)) return !1;
     const r = c(t);
     if (!Gt(r)) return !1;
@@ -255,7 +255,7 @@ function ir(t:any) {
   }(t)
 }
 
-function sr(t:any) {
+function sr(t: any) {
   if (!ir(t)) throw vt("This is not a Float16Array object")
 }
 
@@ -274,7 +274,7 @@ function cr(t: any, r: number) {
   if (Xt(t)) throw vt("Cannot mix BigInt and other types, use explicit conversions")
 }
 
-function ur(t:any) {
+function ur(t: any) {
   const r = Ot(or, t);
   if (void 0 !== r) {
     if (rr(et(r))) throw vt("Attempting to access detached ArrayBuffer");
@@ -286,7 +286,7 @@ function ur(t:any) {
   return Ot(or, o)
 }
 
-function fr(t:any) {
+function fr(t: any) {
   const r = it(t),
     n = [];
   for (let e = 0; e < r; ++e) n[e] = Mt(t[e]);
@@ -318,7 +318,7 @@ class ar {
   constructor(t: string | number | any[], r: undefined, n: undefined) {
     let o;
     if (ir(t)) o = e(ct, [ur(t)], new.target);
-    else if (zt(t) && !function (t:any) {
+    else if (zt(t) && !function (t: any) {
       try {
         return k(t), !0
       } catch (t) {
@@ -382,7 +382,7 @@ class ar {
     // @ts-ignore
     const f = new e(i);
     if (0 === r.length)
-    // @ts-ignore
+      // @ts-ignore
       for (let t = 0; t < i; ++t) f[t] = o[t];
     else {
       const t = r[0],
@@ -393,7 +393,7 @@ class ar {
     return f
   }
 
-  static of(...t:any) {
+  static of(...t: any) {
     const r = this;
     if (!u(r, er)) throw vt("This constructor is not a subclass of Float16Array");
     const n = t.length;
@@ -433,7 +433,7 @@ class ar {
     }())
   }
 
-  at(t:any) {
+  at(t: any) {
     sr(this);
     const r = ur(this),
       n = it(r),
@@ -618,7 +618,7 @@ class ar {
     return $(e, t, r, ...kt(n)), this
   }
 
-  sort(...t:any) {
+  sort(...t: any) {
     sr(this);
     const r = ur(this),
       n = void 0 !== t[0] ? t[0] : nr;
@@ -626,7 +626,7 @@ class ar {
     return tt(r, ((t, r) => n(Mt(t), Mt(r)))), this
   }
 
-  slice(...t:any) {
+  slice(...t: any) {
     sr(this);
     const r = ur(this),
       // @ts-ignore
@@ -650,7 +650,7 @@ class ar {
     return f
   }
 
-  subarray(...t:any) {
+  subarray(...t: any) {
     sr(this);
     const r = ur(this),
       // @ts-ignore
@@ -702,13 +702,13 @@ class ar {
     return !1
   }
 
-  join(...t:any) {
+  join(...t: any) {
     sr(this);
     const r = fr(ur(this));
     return _(r, ...kt(t))
   }
 
-  toLocaleString(...t:any) {
+  toLocaleString(...t: any) {
     sr(this);
     const r = fr(ur(this));
     return L(r, ...kt(t))

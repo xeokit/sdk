@@ -1,5 +1,5 @@
-import type { VBOBatchingLayer } from "../../VBOBatchingLayer";
-import { VBOBatchingRenderer } from "../../VBOBatchingRenderer";
+import type {VBOBatchingLayer} from "../../VBOBatchingLayer";
+import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 
 /**
  * @private

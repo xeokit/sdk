@@ -1,10 +1,10 @@
 /**
  * @private
  */
-import { createVec2, createVec3, lenVec3, subVec3 } from "../matrix";
-import { KEY_SHIFT } from "./keycodes";
-import { PerspectiveProjectionType } from "../constants";
-import type { View } from "../viewer";
+import {createVec2, createVec3, lenVec3, subVec3} from "../matrix";
+import {KEY_SHIFT} from "./keycodes";
+import {PerspectiveProjectionType} from "../constants";
+import type {View} from "../viewer";
 
 
 const canvasPos = createVec2();
@@ -48,7 +48,7 @@ export class MousePanRotateDollyHandler {
   #mouseUpHandler: (e) => void;
   #mouseWheelHandler: (e) => void;
 
-  constructor(view:View, controllers:any, configs:any, states:any, updates:any) {
+  constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 
     this.#view = view;
 
@@ -89,7 +89,7 @@ export class MousePanRotateDollyHandler {
       // if (!(configs.active && configs.pointerEnabled) || (!view.input.keyboardEnabled)) {
       //     return;
       // }
-      if (!(configs.active && configs.pointerEnabled) ) {
+      if (!(configs.active && configs.pointerEnabled)) {
         return;
       }
       const keyCode = e.keyCode;
@@ -340,7 +340,7 @@ export class MousePanRotateDollyHandler {
         mouseMovedOnCanvasSinceLastWheel = false;
       }
 
-    }, { passive: true });
+    }, {passive: true});
   }
 
   reset() {

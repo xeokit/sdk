@@ -28,4 +28,4 @@
 export * from "./KdTree2";
 export * from "./createKdTree2FromSceneObjectVerts";
 export * from "./searchKdTree2ForNearestNeighbor";
-export { KdVertex2 } from "./KdVertex2";
+export {KdVertex2} from "./KdVertex2";

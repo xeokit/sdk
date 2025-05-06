@@ -1,4 +1,4 @@
-import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
+import type {WebGLAbstractTexture} from "./WebGLAbstractTexture";
 
 /**
  *  Represents a WebGL render buffer.
@@ -31,9 +31,9 @@ class WebGLRenderBuffer {
   }
 
   /**
-     * Sets the size of this render buffer.
-     * @param size
-     */
+   * Sets the size of this render buffer.
+   * @param size
+   */
   setSize(size: any) {
     this.size = size;
   }
@@ -46,8 +46,8 @@ class WebGLRenderBuffer {
   }
 
   /**
-     * Binds this render buffer.
-     */
+   * Binds this render buffer.
+   */
   bind(...internalformats: any) {
     this.touch(...internalformats);
     if (this.bound) {
@@ -60,14 +60,14 @@ class WebGLRenderBuffer {
   }
 
   /**
-     * Create and specify a WebGL texture image.
-     *
-     * @param { number } width
-     * @param { number } height
-     * @param { GLenum } [internalformat=null]
-     *
-     * @returns { WebGLTexture }
-     */
+   * Create and specify a WebGL texture image.
+   *
+   * @param { number } width
+   * @param { number } height
+   * @param { GLenum } [internalformat=null]
+   *
+   * @returns { WebGLTexture }
+   */
   createTexture(width: number, height: number, internalformat = null) {
     const gl = this.#gl;
 
@@ -88,10 +88,10 @@ class WebGLRenderBuffer {
   }
 
   /**
-     *
-     * @param {number[]} [internalformats=[]]
-     * @returns
-     */
+   *
+   * @param {number[]} [internalformats=[]]
+   * @returns
+   */
   touch(...internalformats: any) {
 
     let width;
@@ -206,8 +206,8 @@ class WebGLRenderBuffer {
   }
 
   /**
-     * Clears this render buffer.
-     */
+   * Clears this render buffer.
+   */
   clear() {
     if (!this.bound) {
       throw "Render buffer not bound";
@@ -217,10 +217,10 @@ class WebGLRenderBuffer {
   }
 
   /**
-     * Reads a pixel from this render buffer.
-     * @param pickX
-     * @param pickY
-     */
+   * Reads a pixel from this render buffer.
+   * @param pickX
+   * @param pickY
+   */
   read(pickX: number, pickY: number, glFormat = null, glType = null, arrayType = Uint8Array, arrayMultiplier: number = 4, colorBufferIndex = 0) {
     const x = pickX;
     const y = this.#buffer.height ? (this.#buffer.height - pickY - 1) : (this.#gl.drawingBufferHeight - pickY);
@@ -240,13 +240,13 @@ class WebGLRenderBuffer {
   }
 
   /**
-     * Returns an HTMLCanvas containing the contents of the RenderBuffer as an image.
-     *
-     * - The HTMLCanvas has a CanvasRenderingContext2D.
-     * - Expects the caller to draw more things on the HTMLCanvas (annotations etc).
-     *
-     * @returns {HTMLCanvasElement}
-     */
+   * Returns an HTMLCanvas containing the contents of the RenderBuffer as an image.
+   *
+   * - The HTMLCanvas has a CanvasRenderingContext2D.
+   * - Expects the caller to draw more things on the HTMLCanvas (annotations etc).
+   *
+   * @returns {HTMLCanvasElement}
+   */
   readImageAsCanvas() {
     const gl = this.#gl;
     const imageDataCache = this._getImageDataCache();
@@ -273,9 +273,9 @@ class WebGLRenderBuffer {
   }
 
   /**
-     * Redas an image from this render buffer.
-     * @param params
-     */
+   * Redas an image from this render buffer.
+   * @param params
+   */
   readImage(params: {
     height?: number;
     width?: number;
@@ -287,7 +287,7 @@ class WebGLRenderBuffer {
     const canvas = imageDataCache.canvas;
     const imageData = imageDataCache.imageData;
     const context = imageDataCache.context;
-    const { width, height } = this.#buffer;
+    const {width, height} = this.#buffer;
     // gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
     // imageData.data.set(pixelData);
     // context.putImageData(imageData, 0, 0);
@@ -373,8 +373,8 @@ class WebGLRenderBuffer {
   }
 
   /**
-     * Gets the depth texture component of this render buffer, if any.
-     */
+   * Gets the depth texture component of this render buffer, if any.
+   */
   getDepthTexture(): WebGLAbstractTexture | null {
     if (!this.#hasDepthTexture) {
       return null;
@@ -416,4 +416,4 @@ class WebGLRenderBuffer {
   }
 }
 
-export { WebGLRenderBuffer };
+export {WebGLRenderBuffer};

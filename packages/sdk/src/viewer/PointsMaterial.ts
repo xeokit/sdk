@@ -1,7 +1,7 @@
-import { Component } from "../core";
-import type { EmphasisMaterialParams } from "./EmphasisMaterialParams";
-import type { PointsMaterialParams } from "./PointsMaterialParams";
-import type { View } from "./View";
+import {Component} from "../core";
+import type {EmphasisMaterialParams} from "./EmphasisMaterialParams";
+import type {PointsMaterialParams} from "./PointsMaterialParams";
+import type {View} from "./View";
 
 /**
  * Configures the size and shape of {@link ViewObject | ViewObjects} that represent clouds of points.
@@ -15,8 +15,8 @@ import type { View } from "./View";
 class PointsMaterial extends Component {
 
   /**
-     * The View to which this PointsMaterial belongs.
-     */
+   * The View to which this PointsMaterial belongs.
+   */
   public readonly view: View;
 
   #state: {
@@ -31,8 +31,8 @@ class PointsMaterial extends Component {
   };
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view: View, options: {
     pointSize?: number,
     roundPoints?: boolean,
@@ -61,30 +61,30 @@ class PointsMaterial extends Component {
   }
 
   /**
-     * Sets point size.
-     *
-     * Default value is ````2.0```` pixels.
-     */
+   * Sets point size.
+   *
+   * Default value is ````2.0```` pixels.
+   */
   set pointSize(value: number) {
     this.#state.pointSize = value;
     this.view.redraw();
   }
 
   /**
-     * Gets point size.
-     *
-     * Default value is ````2.0```` pixels.
-     */
+   * Gets point size.
+   *
+   * Default value is ````2.0```` pixels.
+   */
   get pointSize(): number {
     return this.#state.pointSize;
   }
 
 
   /**
-     * Sets if points are round or square.
-     *
-     * Default is ````true```` to set points round.
-     */
+   * Sets if points are round or square.
+   *
+   * Default is ````true```` to set points round.
+   */
   set roundPoints(value: boolean) {
     if (this.#state.roundPoints === value) {
       return;
@@ -94,19 +94,19 @@ class PointsMaterial extends Component {
   }
 
   /**
-     * Gets if points are round or square.
-     *
-     * Default is ````true```` to set points round.
-     */
+   * Gets if points are round or square.
+   *
+   * Default is ````true```` to set points round.
+   */
   get roundPoints(): boolean {
     return this.#state.roundPoints;
   }
 
   /**
-     * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````PerspectiveProjectionType````.
-     *
-     * Default is ````true````.
-     */
+   * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````PerspectiveProjectionType````.
+   *
+   * Default is ````true````.
+   */
   set perspectivePoints(value: boolean) {
     if (this.#state.perspectivePoints === value) {
       return;
@@ -116,19 +116,19 @@ class PointsMaterial extends Component {
   }
 
   /**
-     * Gets if rendered point size reduces with distance when {@link Camera.projection} is set to PerspectiveProjectionType.
-     *
-     * Default is ````false````.
-     */
+   * Gets if rendered point size reduces with distance when {@link Camera.projection} is set to PerspectiveProjectionType.
+   *
+   * Default is ````false````.
+   */
   get perspectivePoints(): boolean {
     return this.#state.perspectivePoints;
   }
 
   /**
-     * Sets the minimum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
-     *
-     * Default value is ````1.0```` pixels.
-     */
+   * Sets the minimum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
+   *
+   * Default value is ````1.0```` pixels.
+   */
   set minPerspectivePointSize(value: number) {
     if (this.#state.minPerspectivePointSize === value) {
       return;
@@ -138,21 +138,21 @@ class PointsMaterial extends Component {
   }
 
   /**
-     * Gets the minimum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
-     *
-     * Default value is ````1.0```` pixels.
-     *
-     * @type {Number}
-     */
+   * Gets the minimum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
+   *
+   * Default value is ````1.0```` pixels.
+   *
+   * @type {Number}
+   */
   get minPerspectivePointSize(): number {
     return this.#state.minPerspectivePointSize;
   }
 
   /**
-     * Sets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
-     *
-     * Default value is ````6```` pixels.
-     */
+   * Sets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
+   *
+   * Default value is ````6```` pixels.
+   */
   set maxPerspectivePointSize(value: number) {
     if (this.#state.maxPerspectivePointSize === value) {
       return;
@@ -162,20 +162,20 @@ class PointsMaterial extends Component {
   }
 
   /**
-     * Gets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
-     *
-     * Default value is ````6```` pixels.
-     */
+   * Gets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
+   *
+   * Default value is ````6```` pixels.
+   */
   get maxPerspectivePointSize(): number {
     return this.#state.maxPerspectivePointSize;
   }
 
   /**
-     * Sets whether points are made invisible when their intensity lies outside {@link PointsMaterial.minIntensity}
-     * and {@link PointsMaterial.maxIntensity}.
-     *
-     * Default is ````false````.
-     */
+   * Sets whether points are made invisible when their intensity lies outside {@link PointsMaterial.minIntensity}
+   * and {@link PointsMaterial.maxIntensity}.
+   *
+   * Default is ````false````.
+   */
   set filterIntensity(value: boolean) {
     if (this.#state.filterIntensity === value) {
       return;
@@ -185,20 +185,20 @@ class PointsMaterial extends Component {
   }
 
   /**
-     * Gets whether points are made invisible when their intensity lies outside {@link PointsMaterial.minIntensity}
-     * and {@link PointsMaterial.maxIntensity}.
-     *
-     * Default is ````false````.
-     */
+   * Gets whether points are made invisible when their intensity lies outside {@link PointsMaterial.minIntensity}
+   * and {@link PointsMaterial.maxIntensity}.
+   *
+   * Default is ````false````.
+   */
   get filterIntensity(): boolean {
     return this.#state.filterIntensity;
   }
 
   /**
-     * Sets the minimum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
-     *
-     * Default value is ````0````.
-     */
+   * Sets the minimum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
+   *
+   * Default value is ````0````.
+   */
   set minIntensity(value: number) {
     if (this.#state.minIntensity === value) {
       return;
@@ -208,19 +208,19 @@ class PointsMaterial extends Component {
   }
 
   /**
-     * Gets the minimum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
-     *
-     * Default value is ````0````.
-     */
+   * Gets the minimum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
+   *
+   * Default value is ````0````.
+   */
   get minIntensity(): number {
     return this.#state.minIntensity;
   }
 
   /**
-     * Sets the maximum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
-     *
-     * Default value is ````1````.
-     */
+   * Sets the maximum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
+   *
+   * Default value is ````1````.
+   */
   set maxIntensity(value: number) {
     if (this.#state.maxIntensity === value) {
       return;
@@ -230,17 +230,17 @@ class PointsMaterial extends Component {
   }
 
   /**
-     * Gets the maximum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
-     *
-     * Default value is ````1````.
-     */
+   * Gets the maximum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
+   *
+   * Default value is ````1````.
+   */
   get maxIntensity(): number {
     return this.#state.maxIntensity;
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   get hash(): string {
     const state = this.#state;
     return `${state.pointSize};
@@ -252,10 +252,10 @@ class PointsMaterial extends Component {
   }
 
   /**
-     * Configures this PointsMaterial.
-     *
-     * @param pointsMaterialParams
-     */
+   * Configures this PointsMaterial.
+   *
+   * @param pointsMaterialParams
+   */
   fromParams(pointsMaterialParams: PointsMaterialParams) {
     if (pointsMaterialParams.pointSize !== undefined) {
       this.pointSize = pointsMaterialParams.pointSize;
@@ -278,14 +278,14 @@ class PointsMaterial extends Component {
   }
 
   /**
-     * Gets the current configuration of this PointsMaterial.
-     */
+   * Gets the current configuration of this PointsMaterial.
+   */
   toParams(): PointsMaterialParams {
     return {
       pointSize: this.pointSize,
-      roundPoints:this.roundPoints,
+      roundPoints: this.roundPoints,
       perspectivePoints: this.perspectivePoints,
-      minPerspectivePointSize:this.minPerspectivePointSize,
+      minPerspectivePointSize: this.minPerspectivePointSize,
       maxPerspectivePointSize: this.maxPerspectivePointSize,
       filterIntensity: this.filterIntensity,
       minIntensity: this.minIntensity,
@@ -294,11 +294,11 @@ class PointsMaterial extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
   }
 }
 
-export { PointsMaterial };
+export {PointsMaterial};

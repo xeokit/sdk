@@ -1,10 +1,9 @@
-
-import type { SceneGeometry, SceneMesh } from "../scene";
-import type { FloatArrayParam } from "../math";
-import type { LayerMeshParams } from "./LayerMeshParams";
-import type { MeshCounts } from "./MeshCounts";
-import type { RenderContext } from "./RenderContext";
-import type { WebGLRendererModel } from "./WebGLRendererModel";
+import type {SceneGeometry, SceneMesh} from "../scene";
+import type {FloatArrayParam} from "../math";
+import type {LayerMeshParams} from "./LayerMeshParams";
+import type {MeshCounts} from "./MeshCounts";
+import type {RenderContext} from "./RenderContext";
+import type {WebGLRendererModel} from "./WebGLRendererModel";
 
 /**
  * @private
@@ -59,7 +58,7 @@ export interface Layer {
 
   setLayerMeshOffset(viewIndex: number, layerMeshIndex: number, offset: FloatArrayParam): void;
 
-  setLayerMeshMatrix( layerMeshIndex: number, matrix: FloatArrayParam): void;
+  setLayerMeshMatrix(layerMeshIndex: number, matrix: FloatArrayParam): void;
 
   commitRendererState(viewIndex: number): void;
 
@@ -67,7 +66,7 @@ export interface Layer {
   // Drawing methods
   //---------------------------------------------------------
 
-  drawColorOpaque() : void;
+  drawColorOpaque(): void;
 
   drawColorSAOOpaque(): void;
 

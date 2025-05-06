@@ -1,5 +1,5 @@
-import type { VBOInstancingLayer } from "../../VBOInstancingLayer";
-import { VBOInstancingRenderer } from "../../VBOInstancingRenderer";
+import type {VBOInstancingLayer} from "../../VBOInstancingLayer";
+import {VBOInstancingRenderer} from "../../VBOInstancingRenderer";
 
 /**
  * @private

@@ -1,4 +1,3 @@
-
 import {
   addVec3,
   compareVec3,
@@ -11,10 +10,10 @@ import {
   inverseMat4, lenVec3, lookAtMat4v, mulVec3Scalar, normalizeVec3, sqLenVec3, subVec3,
   transformPoint3, transformPoint4, transformVec3
 } from "../matrix";
-import type { FloatArrayParam } from "../math";
-import { clamp } from "../math";
-import type { View } from "../viewer";
-import { worldToRTCPos } from "../rtc";
+import type {FloatArrayParam} from "../math";
+import {clamp} from "../math";
+import type {View} from "../viewer";
+import {worldToRTCPos} from "../rtc";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -54,8 +53,8 @@ class PivotController {
   #pivotElement: any;
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view: View, configs) {
 
     // Pivot math by: http://www.derschmale.com/
@@ -169,31 +168,32 @@ class PivotController {
   updatePivotSphere() {
     if (this.#pivoting && this.#pivotSphere) {
       worldToRTCPos(this.getPivotPos(), this.#rtcCenter, this.#rtcPos);
-      if(!compareVec3(this.#rtcPos, this.#pivotSphere.position)) {
+      if (!compareVec3(this.#rtcPos, this.#pivotSphere.position)) {
         this.destroyPivotSphere();
         this.createPivotSphere();
       }
     }
   }
+
   /**
-     * Sets the HTML DOM element that will represent the pivot position.
-     *
-     * @param pivotElement
-     */
+   * Sets the HTML DOM element that will represent the pivot position.
+   *
+   * @param pivotElement
+   */
   setPivotElement(pivotElement) {
     this.#pivotElement = pivotElement;
   }
 
   /**
-     * Sets a sphere as the representation of the pivot position.
-     *
-     * @param {Object} [cfg] Sphere configuration.
-     * @param {String} [cfg.size=1] Optional size factor of the sphere. Defaults to 1.
-     * @param {String} [cfg.color=Array] Optional maretial color. Defaults to a red.
-     */
+   * Sets a sphere as the representation of the pivot position.
+   *
+   * @param {Object} [cfg] Sphere configuration.
+   * @param {String} [cfg.size=1] Optional size factor of the sphere. Defaults to 1.
+   * @param {String} [cfg.color=Array] Optional maretial color. Defaults to a red.
+   */
   enablePivotSphere(cfg = {
     size: 0,
-    color: [1,1,1]
+    color: [1, 1, 1]
   }) {
     // this.destroyPivotSphere();
     // this.#pivotSphereEnabled = true;
@@ -210,17 +210,17 @@ class PivotController {
   }
 
   /**
-     * Remove the sphere as the representation of the pivot position.
-     *
-     */
+   * Remove the sphere as the representation of the pivot position.
+   *
+   */
   disablePivotSphere() {
     this.destroyPivotSphere();
     this.#pivotSphereEnabled = false;
   }
 
   /**
-     * Begins pivoting.
-     */
+   * Begins pivoting.
+   */
   startPivot() {
 
     if (this.#cameraLookingDownwards()) {
@@ -265,31 +265,31 @@ class PivotController {
   }
 
   /**
-     * Returns true if we are currently pivoting.
-     *
-     * @returns {Boolean}
-     */
+   * Returns true if we are currently pivoting.
+   *
+   * @returns {Boolean}
+   */
   getPivoting() {
     return this.#pivoting;
   }
 
   /**
-     * Sets a 3D World-space position to pivot about.
-     *
-     * @param {Number[]} worldPos The new World-space pivot position.
-     */
+   * Sets a 3D World-space position to pivot about.
+   *
+   * @param {Number[]} worldPos The new World-space pivot position.
+   */
   setPivotPos(worldPos) {
     this.#pivotWorldPos.set(worldPos);
     this.#pivotPosSet = true;
   }
 
   /**
-     * Sets the pivot position to the 3D projection of the given 2D canvas coordinates on a sphere centered
-     * at the viewpoint. The radius of the sphere is configured via {@link CameraControl#smartPivot}.
-     *
-     *
-     * @param canvasPos
-     */
+   * Sets the pivot position to the 3D projection of the given 2D canvas coordinates on a sphere centered
+   * at the viewpoint. The radius of the sphere is configured via {@link CameraControl#smartPivot}.
+   *
+   *
+   * @param canvasPos
+   */
   setCanvasPivotPos(canvasPos) {
     const camera = this.#view.camera;
     const pivotShereRadius = Math.abs(distVec3(this.#view.viewer.scene.center, camera.eye));
@@ -308,19 +308,19 @@ class PivotController {
   }
 
   /**
-     * Gets the current position we're pivoting about.
-     * @returns {Number[]} The current World-space pivot position.
-     */
-  getPivotPos():FloatArrayParam {
+   * Gets the current position we're pivoting about.
+   * @returns {Number[]} The current World-space pivot position.
+   */
+  getPivotPos(): FloatArrayParam {
     return (this.#pivotPosSet) ? this.#pivotWorldPos : this.#view.camera.look; // Avoid pivoting about [0,0,0] by default
   }
 
   /**
-     * Continues to pivot.
-     *
-     * @param {Number} yawInc Yaw rotation increment.
-     * @param {Number} pitchInc Pitch rotation increment.
-     */
+   * Continues to pivot.
+   *
+   * @param {Number} yawInc Yaw rotation increment.
+   * @param {Number} pitchInc Pitch rotation increment.
+   */
   continuePivot(yawInc, pitchInc) {
     if (!this.#pivoting) {
       return;
@@ -365,10 +365,10 @@ class PivotController {
   }
 
   /**
-     * Shows the pivot position.
-     *
-     * Only works if we set an  HTML DOM element to represent the pivot position.
-     */
+   * Shows the pivot position.
+   *
+   * Only works if we set an  HTML DOM element to represent the pivot position.
+   */
   showPivot() {
     if (this.#shown) {
       return;
@@ -385,10 +385,10 @@ class PivotController {
   }
 
   /**
-     * Hides the pivot position.
-     *
-     * Only works if we set an  HTML DOM element to represent the pivot position.
-     */
+   * Hides the pivot position.
+   *
+   * Only works if we set an  HTML DOM element to represent the pivot position.
+   */
   hidePivot() {
     if (!this.#shown) {
       return;
@@ -403,8 +403,8 @@ class PivotController {
   }
 
   /**
-     * Finishes pivoting.
-     */
+   * Finishes pivoting.
+   */
   endPivot() {
     this.#pivoting = false;
   }
@@ -418,4 +418,4 @@ class PivotController {
 }
 
 
-export { PivotController };
+export {PivotController};

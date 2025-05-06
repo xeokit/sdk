@@ -34,10 +34,10 @@
  * @module boundaries
  */
 
-import { createMat4, createVec2, createVec3, lenVec3, mulMat4, subVec3 } from "../matrix";
-import type { FloatArrayParam, IntArrayParam } from "../math";
-import { MAX_DOUBLE, MIN_DOUBLE, newFloatArray } from "../math";
-import { decompressPoint3WithMat4 } from "../compression";
+import {createMat4, createVec2, createVec3, lenVec3, mulMat4, subVec3} from "../matrix";
+import type {FloatArrayParam, IntArrayParam} from "../math";
+import {MAX_DOUBLE, MIN_DOUBLE, newFloatArray} from "../math";
+import {decompressPoint3WithMat4} from "../compression";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -150,7 +150,7 @@ export function containsAABB2(
   aabb2: FloatArrayParam
 ): boolean {
   return aabb1[0] <= aabb2[0] && aabb2[3] <= aabb1[3] &&
-        aabb1[1] <= aabb2[1] && aabb2[2] <= aabb1[2];
+    aabb1[1] <= aabb2[1] && aabb2[2] <= aabb1[2];
 }
 
 /**
@@ -165,8 +165,8 @@ export function containsAABB3(
   aabb2: FloatArrayParam
 ): boolean {
   return aabb1[0] <= aabb2[0] && aabb2[3] <= aabb1[3] &&
-        aabb1[1] <= aabb2[1] && aabb2[4] <= aabb1[4] &&
-        aabb1[2] <= aabb2[2] && aabb2[5] <= aabb1[5];
+    aabb1[1] <= aabb2[1] && aabb2[4] <= aabb1[4] &&
+    aabb1[2] <= aabb2[2] && aabb2[5] <= aabb1[5];
 }
 
 /**
@@ -511,23 +511,23 @@ export function getPositions3Center(
  */
 export class FrustumPlane3 {
   /**
-     * A vertex used to test intersections with this plane.
-     */
+   * A vertex used to test intersections with this plane.
+   */
   public testVertex: FloatArrayParam;
 
   /**
-     * The distance of the plane from the origin along its normal.
-     */
+   * The distance of the plane from the origin along its normal.
+   */
   public offset: number;
 
   /**
-     * The normal vector of the plane.
-     */
+   * The normal vector of the plane.
+   */
   public normal: FloatArrayParam;
 
   /**
-     * Creates a new frustum plane.
-     */
+   * Creates a new frustum plane.
+   */
   constructor() {
     this.normal = createVec3();
     this.offset = 0;
@@ -535,13 +535,13 @@ export class FrustumPlane3 {
   }
 
   /**
-     * Sets the position and direction of the frustum plane.
-     *
-     * @param nx - X component of the normal vector.
-     * @param ny - Y component of the normal vector.
-     * @param nz - Z component of the normal vector.
-     * @param offset - Distance of the plane from the origin.
-     */
+   * Sets the position and direction of the frustum plane.
+   *
+   * @param nx - X component of the normal vector.
+   * @param ny - Y component of the normal vector.
+   * @param nz - Z component of the normal vector.
+   * @param offset - Distance of the plane from the origin.
+   */
   set(nx: number, ny: number, nz: number, offset: number) {
     const s = 1.0 / Math.sqrt(nx * nx + ny * ny + nz * nz);
     this.normal[0] = nx * s;
@@ -574,13 +574,13 @@ export const OUTSIDE: number = 3;
  */
 export class Frustum3 {
   /**
-     * The six planes that define the frustum boundary.
-     */
+   * The six planes that define the frustum boundary.
+   */
   public planes: FrustumPlane3[];
 
   /**
-     * Creates a new 3D frustum.
-     */
+   * Creates a new 3D frustum.
+   */
   constructor() {
     this.planes = [
       new FrustumPlane3(), new FrustumPlane3(), new FrustumPlane3(),
@@ -642,17 +642,17 @@ export function intersectFrustum3AABB3(frustum: Frustum3, aabb: FloatArrayParam)
 
     // Check if the bounding box is outside this plane
     if (((plane.normal[0] * bminmax[plane.testVertex[0]][0]) +
-            (plane.normal[1] * bminmax[plane.testVertex[1]][1]) +
-            (plane.normal[2] * bminmax[plane.testVertex[2]][2]) +
-            (plane.offset)) < 0.0) {
+      (plane.normal[1] * bminmax[plane.testVertex[1]][1]) +
+      (plane.normal[2] * bminmax[plane.testVertex[2]][2]) +
+      (plane.offset)) < 0.0) {
       return OUTSIDE;
     }
 
     // Check if the bounding box intersects this plane
     if (((plane.normal[0] * bminmax[1 - plane.testVertex[0]][0]) +
-            (plane.normal[1] * bminmax[1 - plane.testVertex[1]][1]) +
-            (plane.normal[2] * bminmax[1 - plane.testVertex[2]][2]) +
-            (plane.offset)) < 0.0) {
+      (plane.normal[1] * bminmax[1 - plane.testVertex[1]][1]) +
+      (plane.normal[2] * bminmax[1 - plane.testVertex[2]][2]) +
+      (plane.offset)) < 0.0) {
       ret = INTERSECT;
     }
   }
@@ -776,8 +776,8 @@ export function intersectAABB3Positions3(aabb: FloatArrayParam, positions: Float
 export function containsAABB3Point3(aabb: FloatArrayParam, p: FloatArrayParam): boolean {
   return (
     aabb[0] <= p[0] && p[0] <= aabb[3] &&
-        aabb[1] <= p[1] && p[1] <= aabb[4] &&
-        aabb[2] <= p[2] && p[2] <= aabb[5]
+    aabb[1] <= p[1] && p[1] <= aabb[4] &&
+    aabb[2] <= p[2] && p[2] <= aabb[5]
   );
 }
 
@@ -791,6 +791,6 @@ export function containsAABB3Point3(aabb: FloatArrayParam, p: FloatArrayParam): 
 export function containsAABB2Point2(aabb: FloatArrayParam, p: FloatArrayParam): boolean {
   return (
     aabb[0] <= p[0] && p[0] <= aabb[3] &&
-        aabb[1] <= p[1] && p[1] <= aabb[4]
+    aabb[1] <= p[1] && p[1] <= aabb[4]
   );
 }

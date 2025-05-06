@@ -1,6 +1,6 @@
-import { ModelLoader } from "../io";
-import { parse as parse_1_0_0 } from "./versions/1_0_0/parse"
-import { parse as parse_1_1_0 } from "./versions/1_1_0/parse"
+import {ModelLoader} from "../io";
+import {parse as parse_1_0_0} from "./versions/1_0_0/parse"
+import {parse as parse_1_1_0} from "./versions/1_1_0/parse"
 
 /**
  * Loads a .BIM file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.

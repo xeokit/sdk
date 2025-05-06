@@ -1,7 +1,7 @@
-import { Component } from "../core";
-import { FastRender } from "../constants";
-import type { ResolutionScaleParams } from "./ResolutionScaleParams";
-import type { View } from "./View";
+import {Component} from "../core";
+import {FastRender} from "../constants";
+import type {ResolutionScaleParams} from "./ResolutionScaleParams";
+import type {View} from "./View";
 
 
 //  /**
@@ -56,21 +56,21 @@ import type { View } from "./View";
 export class ResolutionScale extends Component {
 
   /**
-     * The View to which this ResolutionScale belongs.
-     */
+   * The View to which this ResolutionScale belongs.
+   */
   public readonly view: View;
 
   /**
-     * @private
-     */
+   * @private
+   */
   #state: {
     resolutionScale: number;
     renderModes: number[];
   };
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view: View, options: ResolutionScaleParams = {}) {
 
     super(view, options);
@@ -84,29 +84,29 @@ export class ResolutionScale extends Component {
   }
 
   /**
-     * Sets which rendering modes in which to apply ResolutionScale.
-     *
-     * Default value is [{@link constants!FastRender | FastRender}].
-     */
+   * Sets which rendering modes in which to apply ResolutionScale.
+   *
+   * Default value is [{@link constants!FastRender | FastRender}].
+   */
   set renderModes(value: number[]) {
     this.#state.renderModes = value;
     this.view.redraw();
   }
 
   /**
-     * Gets which rendering modes in which to apply ResolutionScale.
-     *
-     * Default value is [{@link constants!FastRender | FastRender}].
-     */
+   * Gets which rendering modes in which to apply ResolutionScale.
+   *
+   * Default value is [{@link constants!FastRender | FastRender}].
+   */
   get renderModes(): number[] {
     return this.#state.renderModes;
   }
 
   /**
-     * Sets the scale when ResolutionScale is applied.
-     *
-     * Default is ````1.0````.
-     */
+   * Sets the scale when ResolutionScale is applied.
+   *
+   * Default is ````1.0````.
+   */
   set resolutionScale(value: number) {
     if (this.#state.resolutionScale === value) {
       return;
@@ -116,20 +116,20 @@ export class ResolutionScale extends Component {
   }
 
   /**
-     * Gets the scale when ResolutionScale is applied.
-     *
-     * Default is ````1.0````.
-     */
+   * Gets the scale when ResolutionScale is applied.
+   *
+   * Default is ````1.0````.
+   */
   get resolutionScale(): number {
     return this.#state.resolutionScale;
   }
 
   /**
-     * Gets if resolution scaling is currently applied.
-     *
-     * This is `true` when {@link View.renderMode | View.renderMode} is
-     * in {@link ResolutionScale.renderModes | ResolutionScale.renderModes}.
-     */
+   * Gets if resolution scaling is currently applied.
+   *
+   * This is `true` when {@link View.renderMode | View.renderMode} is
+   * in {@link ResolutionScale.renderModes | ResolutionScale.renderModes}.
+   */
   get applied(): boolean {
     for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
       if (this.view.renderMode === this.#state.renderModes[i]) {
@@ -140,10 +140,10 @@ export class ResolutionScale extends Component {
   }
 
   /**
-     * Configures this ResolutionScale.
-     *
-     * @param resolutionScaleParams
-     */
+   * Configures this ResolutionScale.
+   *
+   * @param resolutionScaleParams
+   */
   fromParams(resolutionScaleParams: ResolutionScaleParams) {
     if (resolutionScaleParams.renderModes !== undefined) {
       this.renderModes = resolutionScaleParams.renderModes;
@@ -154,8 +154,8 @@ export class ResolutionScale extends Component {
   }
 
   /**
-     * Gets the current configuration of this ResolutionScale.
-     */
+   * Gets the current configuration of this ResolutionScale.
+   */
   toParams(): ResolutionScaleParams {
     return {
       renderModes: this.renderModes,
@@ -164,8 +164,8 @@ export class ResolutionScale extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
   }

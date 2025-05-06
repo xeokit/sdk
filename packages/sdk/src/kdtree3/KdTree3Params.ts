@@ -1,4 +1,4 @@
-import type { FloatArrayParam } from "../math";
+import type {FloatArrayParam} from "../math";
 
 /**
  * Parameters for creating a {@link KdTree3}.
@@ -8,12 +8,12 @@ import type { FloatArrayParam } from "../math";
 export interface KdTree3Params {
 
   /**
-     * The boundary of all the {@link KdNode3 | KDNodes} we'll add to this KdTree3.
-     */
+   * The boundary of all the {@link KdNode3 | KDNodes} we'll add to this KdTree3.
+   */
   aabb: FloatArrayParam;
 
   /**
-     * Maximum depth of the kd-tree. This is `10` by default.
-     */
+   * Maximum depth of the kd-tree. This is `10` by default.
+   */
   maxDepth?: number;
 }

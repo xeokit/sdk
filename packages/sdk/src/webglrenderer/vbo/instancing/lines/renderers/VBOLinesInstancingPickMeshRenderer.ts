@@ -1,5 +1,5 @@
-import type { VBOInstancingLayer } from "../../VBOInstancingLayer";
-import { VBOInstancingRenderer } from "../../VBOInstancingRenderer";
+import type {VBOInstancingLayer} from "../../VBOInstancingLayer";
+import {VBOInstancingRenderer} from "../../VBOInstancingRenderer";
 
 /**
  * @private
@@ -10,7 +10,7 @@ export class VBOLinesInstancingPickMeshRenderer extends VBOInstancingRenderer {
     return this.slicingHash;
   }
 
-  buildVertexShader(src: string[]) :void{
+  buildVertexShader(src: string[]): void {
     this.vertexHeader(src);
     this.vertexCommonDefs(src);
     this.vertexInstancingTransformDefs(src);
@@ -25,7 +25,7 @@ export class VBOLinesInstancingPickMeshRenderer extends VBOInstancingRenderer {
     this.vertexMainClose(src);
   }
 
-  buildFragmentShader(src: string[]):void {
+  buildFragmentShader(src: string[]): void {
     this.fragmentHeader(src);
     this.fragmentPrecisionDefs(src);
     this.fragmentCommonDefs(src);

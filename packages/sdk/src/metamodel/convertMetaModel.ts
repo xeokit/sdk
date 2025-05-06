@@ -1,6 +1,6 @@
-import type { DataModelParams, RelationshipParams } from "../data";
-import { IfcRelAggregates } from "../ifctypes";
-import type { MetaModelParams } from "./MetaModelParams";
+import type {DataModelParams, RelationshipParams} from "../data";
+import {IfcRelAggregates} from "../ifctypes";
+import type {MetaModelParams} from "./MetaModelParams";
 
 /***
  * Converts a {@link metamodel!MetaModelParams | MetaModelParams} to a {@link data!DataModelParams | DataModelParams}.

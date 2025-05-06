@@ -1,7 +1,7 @@
-import { inQuotes, Map, Queue } from "../utils";
+import {inQuotes, Map, Queue} from "../utils";
 
-import { stats } from './stats';
-import type { Viewer } from "./Viewer";
+import {stats} from './stats';
+import type {Viewer} from "./Viewer";
 
 
 export interface TickEvent {
@@ -37,8 +37,8 @@ class Scheduler {
   #elapsedTime: number = 0;
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor() {
 
     this.viewers = {};
@@ -153,7 +153,7 @@ class Scheduler {
     stats.components.viewers++;
   }
 
-  deregisterViewer(viewer:Viewer) {
+  deregisterViewer(viewer: Viewer) {
     if (!this.viewers[viewer.id]) {
       return;
     }
@@ -175,4 +175,4 @@ class Scheduler {
 
 const scheduler = new Scheduler();
 
-export { scheduler };
+export {scheduler};

@@ -1,7 +1,7 @@
-import type { RenderContext } from "../RenderContext";
-import type { RenderStats } from "../RenderStats";
-import type { VBORenderer } from "./VBORenderer";
-import type { WebGLRenderer } from "../WebGLRenderer";
+import type {RenderContext} from "../RenderContext";
+import type {RenderStats} from "../RenderStats";
+import type {VBORenderer} from "./VBORenderer";
+import type {WebGLRenderer} from "../WebGLRenderer";
 
 /**
  * @private
@@ -242,7 +242,7 @@ export class RendererSetFactory {
 
   #createRendererSet: (webglRenderer: WebGLRenderer) => VBORendererSet;
 
-  constructor(createRendererSet:(webglRenderer)=> VBORendererSet) {
+  constructor(createRendererSet: (webglRenderer) => VBORendererSet) {
     this.#rendererSets = {};
     this.#createRendererSet = createRendererSet;
   }

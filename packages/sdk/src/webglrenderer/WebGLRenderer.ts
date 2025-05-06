@@ -1,24 +1,24 @@
-import { addVec3, createMat4, createVec2, createVec3, cross3Vec3, lookAtMat4v, normalizeVec3 } from "../matrix";
-import type { Capabilities, TextureTranscoder } from "../core";
-import { EventEmitter, SDKError } from "../core";
-import { getWebGLExtension, WEBGL_INFO } from "../webglutils";
-import { type PickParams, PickResult } from "../viewer";
-import type { Renderer, View, Viewer } from "../viewer";
-import type { RendererObject, SceneModel } from "../scene";
-import { EventDispatcher } from "strongly-typed-events";
-import type { FloatArrayParam } from "../math";
-import { KTX2TextureTranscoder } from "../ktx2";
-import type { Layer } from "./Layer";
-import { Map } from "../utils";
-import type { Pickable } from "./Pickable";
-import { RenderContext } from "./RenderContext";
-import { RenderStats } from "./RenderStats";
-import { SAODepthLimitedBlurRenderer } from "./SAODepthLimitedBlurRenderer";
-import { SAOOcclusionRenderer } from "./SAOOcclusionRenderer";
-import { WebGLRenderBufferManager } from "./WebGLRenderBufferManager";
-import type { WebGLRendererMesh } from "./WebGLRendererMesh";
-import { WebGLRendererModel } from "./WebGLRendererModel";
-import type { WebGLTileManager } from "./WebGLTileManager";
+import {addVec3, createMat4, createVec2, createVec3, cross3Vec3, lookAtMat4v, normalizeVec3} from "../matrix";
+import type {Capabilities, TextureTranscoder} from "../core";
+import {EventEmitter, SDKError} from "../core";
+import {getWebGLExtension, WEBGL_INFO} from "../webglutils";
+import {type PickParams, PickResult} from "../viewer";
+import type {Renderer, View, Viewer} from "../viewer";
+import type {RendererObject, SceneModel} from "../scene";
+import {EventDispatcher} from "strongly-typed-events";
+import type {FloatArrayParam} from "../math";
+import {KTX2TextureTranscoder} from "../ktx2";
+import type {Layer} from "./Layer";
+import {Map} from "../utils";
+import type {Pickable} from "./Pickable";
+import {RenderContext} from "./RenderContext";
+import {RenderStats} from "./RenderStats";
+import {SAODepthLimitedBlurRenderer} from "./SAODepthLimitedBlurRenderer";
+import {SAOOcclusionRenderer} from "./SAOOcclusionRenderer";
+import {WebGLRenderBufferManager} from "./WebGLRenderBufferManager";
+import type {WebGLRendererMesh} from "./WebGLRendererMesh";
+import {WebGLRendererModel} from "./WebGLRendererModel";
+import type {WebGLTileManager} from "./WebGLTileManager";
 
 
 /** @private */
@@ -81,22 +81,22 @@ const pickTemps = {
 export class WebGLRenderer implements Renderer {
 
   /**
-     * Interfaces through which each {@link viewer!ViewObject | ViewObject} shows/hides/highlights/selects/xrays/colorizes
-     * its {@link scene!SceneObject | SceneObject} within the WebGLRenderer that's
-     * configured on its {@link viewer!Viewer | Viewer}.
-     *
-     * @internal
-     */
+   * Interfaces through which each {@link viewer!ViewObject | ViewObject} shows/hides/highlights/selects/xrays/colorizes
+   * its {@link scene!SceneObject | SceneObject} within the WebGLRenderer that's
+   * configured on its {@link viewer!Viewer | Viewer}.
+   *
+   * @internal
+   */
   rendererObjects: { [key: string]: RendererObject };
 
   /**
-     * @internal
-     */
+   * @internal
+   */
   renderStats: RenderStats;
 
   /**
-     * @internal
-     */
+   * @internal
+   */
   tileManager: WebGLTileManager | null;
 
   #saoOcclusionRenderer: SAOOcclusionRenderer;
@@ -132,15 +132,15 @@ export class WebGLRenderer implements Renderer {
   #onViewCameraMatrix: () => void | null;
 
   /**
-     * @internal
-     * @event
-     */
+   * @internal
+   * @event
+   */
   readonly onCompiled: EventEmitter<WebGLRenderer, boolean>;
 
   /**
-     * @internal
-     * @event
-     */
+   * @internal
+   * @event
+   */
   readonly onDestroyed: EventEmitter<WebGLRenderer, boolean>;
 
   #webglCanvasElement: HTMLCanvasElement;
@@ -149,14 +149,14 @@ export class WebGLRenderer implements Renderer {
   #pickResult: PickResult;
 
   /**
-     * Creates a WebGLRenderer.
-     *
-     * @param params Configs
-     * @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererModel.createTexture}
-     * to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
-     * to {@link rendererModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererModel````
-     * will then be in a format supported by this transcoder.
-     */
+   * Creates a WebGLRenderer.
+   *
+   * @param params Configs
+   * @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererModel.createTexture}
+   * to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
+   * to {@link rendererModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererModel````
+   * will then be in a format supported by this transcoder.
+   */
   constructor(params: {
     textureTranscoder?: TextureTranscoder
   }) {
@@ -221,27 +221,27 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * The Viewer this WebGLRenderer is currently attached to, if any.
-     */
+   * The Viewer this WebGLRenderer is currently attached to, if any.
+   */
   get viewer(): Viewer {
     return this.#viewer;
   }
 
   /**
-     * Gets the TextureTranscoder this WebGLRenderer was configured with, if any.
-     *
-     * @internal
-     */
+   * Gets the TextureTranscoder this WebGLRenderer was configured with, if any.
+   *
+   * @internal
+   */
   get textureTranscoder(): void | TextureTranscoder {
     return this.#textureTranscoder;
   }
 
   /**
-     * Gets the capabilities of this WebGLRenderer.
-     *
-     * @param capabilities Returns the capabilities of this WebGLRenderer.
-     * @internal
-     */
+   * Gets the capabilities of this WebGLRenderer.
+   *
+   * @param capabilities Returns the capabilities of this WebGLRenderer.
+   * @internal
+   */
   getCapabilities(capabilities: Capabilities): void {
     capabilities.maxViews = 4;
     const htmlElement = document.createElement('canvas');
@@ -262,16 +262,16 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * Initializes this WebGLRenderer by attaching a {@link viewer!Viewer | Viewer}.
-     *
-     * @internal
-     * @param viewer Viewer to attach.
-     * @returns *void*
-     * * Viewer successfully attached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * A Viewer is already attached to this Renderer.
-     * * The given Viewer is already attached to another Renderer.
-     */
+   * Initializes this WebGLRenderer by attaching a {@link viewer!Viewer | Viewer}.
+   *
+   * @internal
+   * @param viewer Viewer to attach.
+   * @returns *void*
+   * * Viewer successfully attached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * A Viewer is already attached to this Renderer.
+   * * The given Viewer is already attached to another Renderer.
+   */
   attachViewer(viewer: Viewer): void {
     if (this.#viewer) {
       throw new SDKError("Can't attach Viewer to WebGLRenderer - a Viewer is already attached");
@@ -291,14 +291,14 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * Detaches the {@link viewer!Viewer | Viewer} that is currently attached, if any.
-     *
-     * @internal
-     * @returns *void*
-     * * Viewer successfully detached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No Viewer is currently attached to this WebGLRenderer.
-     */
+   * Detaches the {@link viewer!Viewer | Viewer} that is currently attached, if any.
+   *
+   * @internal
+   * @returns *void*
+   * * Viewer successfully detached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No Viewer is currently attached to this WebGLRenderer.
+   */
   detachViewer(): SDKError | void {
     if (this.#viewer) {
       return new SDKError("Can't detach Viewer from WebGLRenderer - no Viewer is currently attached");
@@ -320,23 +320,23 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * Attaches a {@link viewer!View} to this WebGLRenderer.
-     *
-     * The WebGLRenderer will then begin rendering each {@link scene!SceneModel | SceneModel} previously or subsequently
-     * created with {@link scene!Scene.createModel | Scene.createModel}, for the new View.
-     *
-     * You can only attach as many Views as indicated in {@link  core!Capabilities.maxViews | Capabilities.maxViews}, as returned by
-     * {@link WebGLRenderer.getCapabilities | WebGLRenderer.getCapabilities}.
-     *
-     * @internal
-     * @param view The View to attach.
-     * @returns *void*
-     * * View successfully attached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No Viewer is attached to this WebGLRenderer.
-     * * Caller attempted to attach too many Views.
-     * * The WebGLRenderer failed to get a WebGL2 context on the View's canvas.
-     */
+   * Attaches a {@link viewer!View} to this WebGLRenderer.
+   *
+   * The WebGLRenderer will then begin rendering each {@link scene!SceneModel | SceneModel} previously or subsequently
+   * created with {@link scene!Scene.createModel | Scene.createModel}, for the new View.
+   *
+   * You can only attach as many Views as indicated in {@link  core!Capabilities.maxViews | Capabilities.maxViews}, as returned by
+   * {@link WebGLRenderer.getCapabilities | WebGLRenderer.getCapabilities}.
+   *
+   * @internal
+   * @param view The View to attach.
+   * @returns *void*
+   * * View successfully attached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No Viewer is attached to this WebGLRenderer.
+   * * Caller attempted to attach too many Views.
+   * * The WebGLRenderer failed to get a WebGL2 context on the View's canvas.
+   */
   attachView(view: View): void | SDKError {
     if (!this.#viewer) {
       throw new SDKError("Can't attach View to WebGLRenderer - no Viewer is attached");
@@ -364,18 +364,18 @@ export class WebGLRenderer implements Renderer {
   // }
 
   /**
-     * Detaches the given {@link viewer!View} from this Renderer.
-     *
-     * The Renderer will then cease rendering for that View.
-     *
-     * @internal
-     * @param view The View to detach.
-     * @returns *void*
-     * * View successfully detached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No Viewer is attached to this WebGLRenderer.
-     * * View is not currently attached to this WebGLRenderer.
-     */
+   * Detaches the given {@link viewer!View} from this Renderer.
+   *
+   * The Renderer will then cease rendering for that View.
+   *
+   * @internal
+   * @param view The View to detach.
+   * @returns *void*
+   * * View successfully detached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No Viewer is attached to this WebGLRenderer.
+   * * View is not currently attached to this WebGLRenderer.
+   */
   detachView(view: View): SDKError | void {
     if (!this.#viewer) {
       throw new SDKError("Can't detach View from WebGLRenderer - no Viewer is attached");
@@ -405,29 +405,29 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * Attaches a {@link scene!SceneModel | SceneModel} to this WebGLRenderer.
-     *
-     * This method attaches various hooks to the elements within the SceneModel, through which they can
-     * upload state updates to the Renderer.
-     *
-     * * Sets a {@link scene!RendererModel} on {@link scene!SceneModel.rendererModel | SceneModel.rendererModel}
-     * * Sets a {@link scene!RendererObject} on each {@link scene!SceneObject.rendererObject | SceneObject.rendererObject}
-     * * Sets a {@link scene!RendererMesh} on each {@link scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh}
-     * * Sets a {@link scene!RendererTextureSet} on each {@link scene!SceneTextureSet.rendererTextureSet | SceneTextureSet.rendererTextureSet}
-     * * Sets a {@link scene!RendererTexture} on each {@link scene!SceneTexture.rendererTexture | SceneTexture.rendererTexture}
-     *
-     * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
-     *
-     * You must first attach a View with {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView} before you can attach a SceneModel.
-     *
-     * @param sceneModel
-     * @internal
-     * @returns *void*
-     * * SceneModel successfully attached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this WebGLRenderer.
-     * * SceneModel already attached to this WebGLRenderer, or to another Renderer.
-     */
+   * Attaches a {@link scene!SceneModel | SceneModel} to this WebGLRenderer.
+   *
+   * This method attaches various hooks to the elements within the SceneModel, through which they can
+   * upload state updates to the Renderer.
+   *
+   * * Sets a {@link scene!RendererModel} on {@link scene!SceneModel.rendererModel | SceneModel.rendererModel}
+   * * Sets a {@link scene!RendererObject} on each {@link scene!SceneObject.rendererObject | SceneObject.rendererObject}
+   * * Sets a {@link scene!RendererMesh} on each {@link scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh}
+   * * Sets a {@link scene!RendererTextureSet} on each {@link scene!SceneTextureSet.rendererTextureSet | SceneTextureSet.rendererTextureSet}
+   * * Sets a {@link scene!RendererTexture} on each {@link scene!SceneTexture.rendererTexture | SceneTexture.rendererTexture}
+   *
+   * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
+   *
+   * You must first attach a View with {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView} before you can attach a SceneModel.
+   *
+   * @param sceneModel
+   * @internal
+   * @returns *void*
+   * * SceneModel successfully attached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this WebGLRenderer.
+   * * SceneModel already attached to this WebGLRenderer, or to another Renderer.
+   */
   attachSceneModel(sceneModel: SceneModel): SDKError | void {
     if (!this.#viewer) {
       return new SDKError("Can't attach SceneModel to WebGLRenderer - no Viewer is attached");
@@ -457,19 +457,19 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * Detaches a {@link scene!SceneModel | SceneModel} from this WebGLRenderer.
-     *
-     * Detaches and destroys the {@link scene!RendererModel}, {@link scene!RendererObject} and
-     * {@link scene!RendererMesh},
-     * {@link scene!RendererTexture} instances that were attached in {@link webglrenderer!WebGLRenderer.attachSceneModel}.
-     *
-     * @internal
-     * @returns *void*
-     * * SceneModel successfully detached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this WebGLRenderer.
-     * * SceneModel is not attached to this WebGLRenderer.
-     */
+   * Detaches a {@link scene!SceneModel | SceneModel} from this WebGLRenderer.
+   *
+   * Detaches and destroys the {@link scene!RendererModel}, {@link scene!RendererObject} and
+   * {@link scene!RendererMesh},
+   * {@link scene!RendererTexture} instances that were attached in {@link webglrenderer!WebGLRenderer.attachSceneModel}.
+   *
+   * @internal
+   * @returns *void*
+   * * SceneModel successfully detached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this WebGLRenderer.
+   * * SceneModel is not attached to this WebGLRenderer.
+   */
   detachSceneModel(sceneModel: SceneModel): SDKError | void {
     if (!this.#viewer) {
       throw new SDKError("Can't detach SceneModel from WebGLRenderer - no Viewer is attached");
@@ -504,23 +504,23 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   attachPickable(pickable: Pickable): number { // @ts-ignore
     return this.#pickIDs.addItem(pickable);
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   detachPickable(pickId: number) {
     this.#pickIDs.removeItem(pickId);
   }
 
   /**
-     * Indicates that the WebGLRenderer needs to draw a new frame.
-     * @internal
-     */
+   * Indicates that the WebGLRenderer needs to draw a new frame.
+   * @internal
+   */
   setImageDirty(viewIndex?: number): void {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (rendererView) {
@@ -530,10 +530,10 @@ export class WebGLRenderer implements Renderer {
 
 
   /**
-     * Sets whether the WebGLRenderer draws edges.
-     * Triggers a new frame render.
-     * @internal
-     */
+   * Sets whether the WebGLRenderer draws edges.
+   * Triggers a new frame render.
+   * @internal
+   */
   setEdgesEnabled(viewIndex: number, enabled: boolean): void {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (rendererView) {
@@ -543,10 +543,10 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * Sets whether the WebGLRenderer draws with physically-based rendering.
-     * Triggers a new frame render.
-     * @internal
-     */
+   * Sets whether the WebGLRenderer draws with physically-based rendering.
+   * Triggers a new frame render.
+   * @internal
+   */
   setPBREnabled(viewIndex: number, enabled: boolean): void {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (rendererView) {
@@ -562,10 +562,10 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * Sets whether the WebGLRenderer draws with SAO.
-     * Triggers a new frame render.
-     * @internal
-     */
+   * Sets whether the WebGLRenderer draws with SAO.
+   * Triggers a new frame render.
+   * @internal
+   */
   setSAOEnabled(viewIndex: number, enabled: boolean): void {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (rendererView) {
@@ -575,17 +575,17 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * Enable/disable rendering of transparent objects for the given View.
-     *
-     * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
-     * @param enabled Whether to enable or disable transparent objects for the View.
-     * @internal
-     * @returns *void*
-     * * Success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this Renderer.
-     * * Can't find a View attached to this Renderer with the given handle.
-     */
+   * Enable/disable rendering of transparent objects for the given View.
+   *
+   * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+   * @param enabled Whether to enable or disable transparent objects for the View.
+   * @internal
+   * @returns *void*
+   * * Success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this Renderer.
+   * * Can't find a View attached to this Renderer with the given handle.
+   */
   setTransparentEnabled(viewIndex: number, enabled: boolean): void {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (rendererView) {
@@ -595,16 +595,16 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * Clears this WebGLRenderer for the given view.
-     *
-     * @internal
-     * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
-     * @returns *void*
-     * * Success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this WebGLRenderer.
-     * * Can't find a View attached to this WebGLRenderer with the given handle.
-     */
+   * Clears this WebGLRenderer for the given view.
+   *
+   * @internal
+   * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+   * @returns *void*
+   * * Success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this WebGLRenderer.
+   * * Can't find a View attached to this WebGLRenderer with the given handle.
+   */
   clear(viewIndex: number): void | SDKError {
     if (!this.#viewer) {
       return new SDKError("Can't clear canvas with WebGLRenderer - no Viewer and View is attached");
@@ -616,7 +616,7 @@ export class WebGLRenderer implements Renderer {
     const gl = this.renderContext.gl;
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     if (rendererView.canvasTransparent) {
-      gl.clearColor(0,0,0,0);
+      gl.clearColor(0, 0, 0, 0);
     } else {
       gl.clearColor(rendererView.view.backgroundColor[0], rendererView.view.backgroundColor[1], rendererView.view.backgroundColor[2], 1.0);
     }
@@ -624,29 +624,29 @@ export class WebGLRenderer implements Renderer {
   };
 
   /**
-     * Triggers a rebuild of the shaders within this WebGLRenderer for the given View.
-     * @internal
-     * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
-     * @returns *void*
-     * * Success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this WebGLRenderer.
-     * * Can't find a View attached to this WebGLRenderer with the given handle.
-     */
+   * Triggers a rebuild of the shaders within this WebGLRenderer for the given View.
+   * @internal
+   * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+   * @returns *void*
+   * * Success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this WebGLRenderer.
+   * * Can't find a View attached to this WebGLRenderer with the given handle.
+   */
   setNeedsRebuild(viewIndex?: number): void {
     this.#shadersDirty = true;
   }
 
   /**
-     * Gets if a new frame needs to be rendered for the given View.
-     * @internal
-     * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
-     * @returns *boolean*
-     * * True if a new frame needs to be rendered for the View.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this WebGLRenderer.
-     * * Can't find a View attached to this WebGLRenderer with the given handle.
-     */
+   * Gets if a new frame needs to be rendered for the given View.
+   * @internal
+   * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+   * @returns *boolean*
+   * * True if a new frame needs to be rendered for the View.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this WebGLRenderer.
+   * * Can't find a View attached to this WebGLRenderer with the given handle.
+   */
   getNeedsRender(viewIndex?: number): boolean {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (!rendererView) {
@@ -657,16 +657,16 @@ export class WebGLRenderer implements Renderer {
 
 
   /**
-     * Renders a frame for a View.
-     *
-     * @internal
-     * @param viewIndex Handle to the View.
-     * @param params
-     * @param [params.force=false] True to force a render, else only render if needed.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this Renderer.
-     * * Can't find a View attached to this Renderer with the given handle.
-     */
+   * Renders a frame for a View.
+   *
+   * @internal
+   * @param viewIndex Handle to the View.
+   * @param params
+   * @param [params.force=false] True to force a render, else only render if needed.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this Renderer.
+   * * Can't find a View attached to this Renderer with the given handle.
+   */
   render(viewIndex: number, params?: { force?: boolean; opaqueOnly?: boolean }): void | SDKError {
     if (!this.#viewer) {
       return new SDKError("Can't render with WebGLRenderer - no Viewer and View is attached");
@@ -938,7 +938,7 @@ export class WebGLRenderer implements Renderer {
 
     renderContext.reset();
     renderContext.view = view;
-    renderContext.pbrEnabled = rendererView.pbrEnabled ;
+    renderContext.pbrEnabled = rendererView.pbrEnabled;
 
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
@@ -1072,9 +1072,9 @@ export class WebGLRenderer implements Renderer {
     }
 
     if (xrayedSilhouetteTransparentBin.length > 0 ||
-            xrayEdgesTransparentBin.length > 0 ||
-            normalFillTransparentBin.length > 0 ||
-            edgesColorTransparentBin.length > 0) {
+      xrayEdgesTransparentBin.length > 0 ||
+      normalFillTransparentBin.length > 0 ||
+      edgesColorTransparentBin.length > 0) {
       gl.enable(gl.CULL_FACE);
       gl.enable(gl.BLEND);
       if (rendererView.canvasTransparent) {
@@ -1121,8 +1121,8 @@ export class WebGLRenderer implements Renderer {
     }
 
     if (highlightedSilhouetteTransparentBin.length > 0 ||
-            highlightedEdgesTransparentBin.length > 0 ||
-            highlightedSilhouetteOpaqueBin.length > 0) {
+      highlightedEdgesTransparentBin.length > 0 ||
+      highlightedSilhouetteOpaqueBin.length > 0) {
       renderContext.lastProgramId = -1;
       gl.clear(gl.DEPTH_BUFFER_BIT);
       gl.enable(gl.CULL_FACE);
@@ -1187,12 +1187,12 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * TODO
-     * @internal
-     */
+   * TODO
+   * @internal
+   */
   pick(viewIndex: number,
-    pickParams: PickParams,
-    pickResult = this.#pickResult): PickResult | null {
+       pickParams: PickParams,
+       pickResult = this.#pickResult): PickResult | null {
 
     if (!this.#viewer) {
       throw new SDKError("Can't pick object with WebGLRenderer - no Viewer and View is attached");
@@ -1298,13 +1298,13 @@ export class WebGLRenderer implements Renderer {
   };
 
   #pickMesh(viewIndex: number,
-    targetRendererView: WebGLRendererView,
-    params: {
-      pickCanvasPos: FloatArrayParam,
-      pickViewMatrix: FloatArrayParam,
-      pickProjMatrix: FloatArrayParam,
-      pickInvisible: boolean
-    }): WebGLRendererMesh {
+            targetRendererView: WebGLRendererView,
+            params: {
+              pickCanvasPos: FloatArrayParam,
+              pickViewMatrix: FloatArrayParam,
+              pickProjMatrix: FloatArrayParam,
+              pickInvisible: boolean
+            }): WebGLRendererMesh {
 
     const gl = this.#gl
     const view = targetRendererView.view;
@@ -1339,8 +1339,8 @@ export class WebGLRenderer implements Renderer {
       const layer = this.#layerList[i];
       const meshCounts = layer.meshCounts[viewIndex];
       if (meshCounts.numPickable < meshCounts.numMeshes ||
-                meshCounts.numCulled === meshCounts.numMeshes ||
-                meshCounts.numVisible === 0) {
+        meshCounts.numCulled === meshCounts.numMeshes ||
+        meshCounts.numVisible === 0) {
         continue;
       }
       layer.drawPickMesh();
@@ -1412,8 +1412,8 @@ export class WebGLRenderer implements Renderer {
         const layer = this.#layerList[i];
         const meshCounts = layer.meshCounts[viewIndex];
         if (meshCounts.numPickable < meshCounts.numMeshes ||
-                    meshCounts.numCulled === meshCounts.numMeshes ||
-                    meshCounts.numVisible === 0) {
+          meshCounts.numCulled === meshCounts.numMeshes ||
+          meshCounts.numVisible === 0) {
           continue;
         }
         layer.drawPickDepths();
@@ -1502,10 +1502,10 @@ export class WebGLRenderer implements Renderer {
   }
 
   /**
-     * Exits snapshot mode.
-     *
-     * Switches rendering back to the main canvas.
-     */
+   * Exits snapshot mode.
+   *
+   * Switches rendering back to the main canvas.
+   */
   endSnapshot() {
     // const rendererView = this.#rendererViewsList[viewIndex];
     // if (!rendererView) {

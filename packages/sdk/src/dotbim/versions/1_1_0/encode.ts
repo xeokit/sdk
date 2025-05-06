@@ -1,7 +1,7 @@
-import { createVec3, createVec4, decomposeMat4 } from "../../../matrix";
-import { decompressPoint3WithAABB3 } from "../../../compression";
-import { ifcTypeNames } from "../../../ifctypes";
-import type { ModelEncodeParams } from "../../../io";
+import {createVec3, createVec4, decomposeMat4} from "../../../matrix";
+import {decompressPoint3WithAABB3} from "../../../compression";
+import {ifcTypeNames} from "../../../ifctypes";
+import type {ModelEncodeParams} from "../../../io";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -13,7 +13,7 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
 
   return new Promise<any>(function (resolve, reject) {
 
-    const { sceneModel, dataModel } = params;
+    const {sceneModel, dataModel} = params;
 
     const dotBim = {
       meshes: [],

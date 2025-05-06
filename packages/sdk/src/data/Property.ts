@@ -1,5 +1,5 @@
-import type { PropertyParams } from "./PropertyParams";
-import type { PropertySet } from "./PropertySet";
+import type {PropertyParams} from "./PropertyParams";
+import type {PropertySet} from "./PropertySet";
 
 /**
  * Represents a property in a {@link PropertySet | PropertySet}.
@@ -9,39 +9,39 @@ import type { PropertySet } from "./PropertySet";
 export class Property {
 
   /**
-     * The {@link PropertySet | PropertySet} to which this Property belongs.
-     */
+   * The {@link PropertySet | PropertySet} to which this Property belongs.
+   */
   public readonly propertySet: PropertySet;
 
   /**
-     * The name of this property.
-     */
+   * The name of this property.
+   */
   public readonly name: string;
 
   /**
-     * The value of this property.
-     */
+   * The value of this property.
+   */
   public readonly value: any;
 
   /**
-     * The type of this property (e.g., string, number, etc.).
-     */
+   * The type of this property (e.g., string, number, etc.).
+   */
   public readonly type?: string | number;
 
   /**
-     * The type of this property's value (e.g., string, integer, etc.).
-     */
+   * The type of this property's value (e.g., string, integer, etc.).
+   */
   public readonly valueType?: string | number;
 
   /**
-     * An informative description to explain the purpose or details of the property.
-     */
+   * An informative description to explain the purpose or details of the property.
+   */
   public readonly description?: string;
 
   /**
-     * @private
-     * @ignore
-     */
+   * @private
+   * @ignore
+   */
   constructor(
     propertySet: PropertySet,
     propertyCfg: PropertyParams) {

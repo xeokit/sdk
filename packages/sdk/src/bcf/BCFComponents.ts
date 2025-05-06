@@ -1,6 +1,6 @@
-import type { BCFColoringComponent } from "./BCFColoringComponent";
-import type { BCFComponent } from "./BCFComponent";
-import type { BCFVisibilityComponent } from "./BCFVisibilityComponent";
+import type {BCFColoringComponent} from "./BCFColoringComponent";
+import type {BCFComponent} from "./BCFComponent";
+import type {BCFVisibilityComponent} from "./BCFVisibilityComponent";
 
 /**
  * Visual states of BCF components.
@@ -8,22 +8,22 @@ import type { BCFVisibilityComponent } from "./BCFVisibilityComponent";
 export interface BCFComponents {
 
   /**
-     * Colored BCF components.
-     */
+   * Colored BCF components.
+   */
   coloring: BCFColoringComponent[];
 
   /**
-     * Visibility BCF components.
-     */
+   * Visibility BCF components.
+   */
   visibility?: BCFVisibilityComponent;
 
   /**
-     * Selected BCF components.
-     */
+   * Selected BCF components.
+   */
   selection?: BCFComponent[];
 
   /**
-     * X-rayed BCF components.
-     */
+   * X-rayed BCF components.
+   */
   translucency: BCFComponent[];
 }

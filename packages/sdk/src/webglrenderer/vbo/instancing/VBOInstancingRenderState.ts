@@ -1,6 +1,6 @@
-import type { FloatArrayParam } from "../../../math";
-import type { SceneGeometry } from "../../../scene";
-import type { WebGLArrayBuf } from "../../../webglutils";
+import type {FloatArrayParam} from "../../../math";
+import type {SceneGeometry} from "../../../scene";
+import type {WebGLArrayBuf} from "../../../webglutils";
 
 /**
  * @private

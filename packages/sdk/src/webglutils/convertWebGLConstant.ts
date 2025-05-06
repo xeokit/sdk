@@ -59,7 +59,7 @@ import {
   UnsignedShortType
 } from "../constants";
 
-import { getWebGLExtension } from "./getWebGLExtension";
+import {getWebGLExtension} from "./getWebGLExtension";
 
 /**
  * Converts a xeokit SDK constant to its eauivalent WebGL2 constant/enumeration value.
@@ -173,10 +173,10 @@ export function convertWebGLConstant(gl: WebGL2RenderingContext, constantVal: nu
   // ASTC
 
   if (p === RGBA_ASTC_4x4_Format || p === RGBA_ASTC_5x4_Format || p === RGBA_ASTC_5x5_Format ||
-        p === RGBA_ASTC_6x5_Format || p === RGBA_ASTC_6x6_Format || p === RGBA_ASTC_8x5_Format ||
-        p === RGBA_ASTC_8x6_Format || p === RGBA_ASTC_8x8_Format || p === RGBA_ASTC_10x5_Format ||
-        p === RGBA_ASTC_10x6_Format || p === RGBA_ASTC_10x8_Format || p === RGBA_ASTC_10x10_Format ||
-        p === RGBA_ASTC_12x10_Format || p === RGBA_ASTC_12x12_Format) {
+    p === RGBA_ASTC_6x5_Format || p === RGBA_ASTC_6x6_Format || p === RGBA_ASTC_8x5_Format ||
+    p === RGBA_ASTC_8x6_Format || p === RGBA_ASTC_8x8_Format || p === RGBA_ASTC_10x5_Format ||
+    p === RGBA_ASTC_10x6_Format || p === RGBA_ASTC_10x8_Format || p === RGBA_ASTC_10x10_Format ||
+    p === RGBA_ASTC_12x10_Format || p === RGBA_ASTC_12x12_Format) {
     const extension = getWebGLExtension(gl, 'WEBGL_compressed_texture_astc');
     if (extension !== null) {
       if (p === RGBA_ASTC_4x4_Format) return (encoding === sRGBEncoding) ? extension.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR : extension.COMPRESSED_RGBA_ASTC_4x4_KHR;

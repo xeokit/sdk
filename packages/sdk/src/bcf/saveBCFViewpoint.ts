@@ -1,9 +1,9 @@
-import { addVec3, createVec3, negateVec3, normalizeVec3, subVec3 } from "../matrix";
-import type { BCFViewpoint } from "./BCFViewpoint";
-import type { FloatArrayParam } from "../math";
-import { OrthoProjectionType } from "../constants";
-import type { SaveBCFViewpointParams } from "./SaveBCFViewpointParams";
-import type { ViewObject } from "../viewer";
+import {addVec3, createVec3, negateVec3, normalizeVec3, subVec3} from "../matrix";
+import type {BCFViewpoint} from "./BCFViewpoint";
+import type {FloatArrayParam} from "../math";
+import {OrthoProjectionType} from "../constants";
+import type {SaveBCFViewpointParams} from "./SaveBCFViewpointParams";
+import type {ViewObject} from "../viewer";
 
 /**
  * Saves a {@link viewer!View | View} to a {@link BCFViewpoint | BCFViewpoint}.
@@ -38,11 +38,11 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
 
   function filterViewObject(viewObject) {
     return !viewObject.layer ||
-            ((!includeViewLayers || includeViewLayers.has(viewObject.layer.id)) &&
-                (!excludeViewLayers || !excludeViewLayers.has(viewObject.layer.id)));
+      ((!includeViewLayers || includeViewLayers.has(viewObject.layer.id)) &&
+        (!excludeViewLayers || !excludeViewLayers.has(viewObject.layer.id)));
   }
 
-  function createBCFComponents( objectIds) {
+  function createBCFComponents(objectIds) {
     const view = params.view;
     const components = [];
     for (let i = 0, len = objectIds.length; i < len; i++) {
@@ -108,7 +108,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
       if (!bcfViewpoint.clipping_planes) {
         bcfViewpoint.clipping_planes = [];
       }
-      bcfViewpoint.clipping_planes.push({ location, direction });
+      bcfViewpoint.clipping_planes.push({location, direction});
     }
   }
 
@@ -196,7 +196,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
 
     .filter(viewObject =>
       !viewObject.layer || ((!includeViewLayers || includeViewLayers.has(viewObject.layer.id)) && (!excludeViewLayers || !excludeViewLayers.has(viewObject.layer.id)))
-            && (opacityObjectIds.has(viewObject.id) || colorizedObjectIds.has(viewObject.id) || xrayedObjectIds.has(viewObject.id)))
+      && (opacityObjectIds.has(viewObject.id) || colorizedObjectIds.has(viewObject.id) || xrayedObjectIds.has(viewObject.id)))
 
     .reduce((coloringMap, viewObject: ViewObject) => {
 
@@ -238,7 +238,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
     }, {});
 
   const coloringArray = Object.entries(coloringMap).map(([color, components]) => {
-    return { color, components };
+    return {color, components};
   });
 
   bcfViewpoint.components.coloring = coloringArray;
@@ -250,21 +250,21 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
   const selectedObjectIds = view.selectedObjectIds;
 
   if (params.defaultInvisible || visibleObjectIds.length < invisibleObjectIds.length) {
-    bcfViewpoint.components.visibility.exceptions = createBCFComponents( visibleObjectIds);
+    bcfViewpoint.components.visibility.exceptions = createBCFComponents(visibleObjectIds);
     bcfViewpoint.components.visibility.default_visibility = false;
   } else {
-    bcfViewpoint.components.visibility.exceptions = createBCFComponents( invisibleObjectIds);
+    bcfViewpoint.components.visibility.exceptions = createBCFComponents(invisibleObjectIds);
     bcfViewpoint.components.visibility.default_visibility = true;
   }
 
-  bcfViewpoint.components.selection = createBCFComponents( selectedObjectIds);
+  bcfViewpoint.components.selection = createBCFComponents(selectedObjectIds);
 
   bcfViewpoint.components.translucency = createBCFComponents(view.xrayedObjectIds);
 
   if (params.snapshot !== false) {
     bcfViewpoint.snapshot = {
       snapshot_type: "png",
-      snapshot_data: view.getSnapshot({ format: "png" })
+      snapshot_data: view.getSnapshot({format: "png"})
     };
   }
 
@@ -272,7 +272,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
 }
 
 function xyzArrayToObject(arr: FloatArrayParam): any {
-  return { "x": arr[0], "y": arr[1], "z": arr[2] };
+  return {"x": arr[0], "y": arr[1], "z": arr[2]};
 }
 
 function YToZ(vec: FloatArrayParam): FloatArrayParam {

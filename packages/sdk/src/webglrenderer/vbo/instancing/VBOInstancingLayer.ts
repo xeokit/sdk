@@ -1,21 +1,21 @@
-import { collapseAABB3, createOBB3, expandAABB3 } from "../../../boundaries";
-import { createMat4, createVec3, createVec4 } from "../../../matrix";
-import type { SceneGeometry, SceneMesh } from "../../../scene";
-import { SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../../../constants";
-import type { FloatArrayParam } from "../../../math";
-import type { Layer } from "../../Layer";
-import type { LayerMeshParams } from "../../LayerMeshParams";
-import { MeshCounts } from "../../MeshCounts";
-import { RENDER_PASSES } from "../../RENDER_PASSES";
-import type { RenderContext } from "../../RenderContext";
-import { SCENE_OBJECT_FLAGS } from "../../SCENE_OBJECT_FLAGS";
-import { SDKError } from "../../../core";
-import { VBOInstancingBuffer } from "./VBOInstancingBuffer";
-import type { VBOInstancingLayerParams } from "./VBOInstancingLayerParams";
-import type { VBOInstancingRenderState } from "./VBOInstancingRenderState";
-import type { VBORendererSet } from "../VBORendererSet";
-import { WebGLArrayBuf } from "../../../webglutils";
-import type { WebGLRendererModel } from "../../WebGLRendererModel";
+import {collapseAABB3, createOBB3, expandAABB3} from "../../../boundaries";
+import {createMat4, createVec3, createVec4} from "../../../matrix";
+import type {SceneGeometry, SceneMesh} from "../../../scene";
+import {SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../../../constants";
+import type {FloatArrayParam} from "../../../math";
+import type {Layer} from "../../Layer";
+import type {LayerMeshParams} from "../../LayerMeshParams";
+import {MeshCounts} from "../../MeshCounts";
+import {RENDER_PASSES} from "../../RENDER_PASSES";
+import type {RenderContext} from "../../RenderContext";
+import {SCENE_OBJECT_FLAGS} from "../../SCENE_OBJECT_FLAGS";
+import {SDKError} from "../../../core";
+import {VBOInstancingBuffer} from "./VBOInstancingBuffer";
+import type {VBOInstancingLayerParams} from "./VBOInstancingLayerParams";
+import type {VBOInstancingRenderState} from "./VBOInstancingRenderState";
+import type {VBORendererSet} from "../VBORendererSet";
+import {WebGLArrayBuf} from "../../../webglutils";
+import type {WebGLRendererModel} from "../../WebGLRendererModel";
 
 const tempUint8Vec4 = new Uint8Array(4);
 const tempFloat32 = new Float32Array(1);
@@ -267,22 +267,22 @@ export class VBOInstancingLayer implements Layer {
     }
 
     renderState.pbrSupported
-            = !!renderState.metallicRoughnessBuf
-            && !!renderState.uvBuf
-            && !!renderState.normalsBuf
-            && !!textureSet
-            && !!textureSet.colorTexture
-            && !!textureSet.metallicRoughnessTexture;
+      = !!renderState.metallicRoughnessBuf
+      && !!renderState.uvBuf
+      && !!renderState.normalsBuf
+      && !!textureSet
+      && !!textureSet.colorTexture
+      && !!textureSet.metallicRoughnessTexture;
 
     renderState.colorTextureSupported
-            = !!renderState.uvBuf
-            && !!textureSet
-            && !!textureSet.colorTexture;
+      = !!renderState.uvBuf
+      && !!textureSet
+      && !!textureSet.colorTexture;
 
     this.saoSupported
-            = (sceneGeometry.primitive === SolidPrimitive
-            || sceneGeometry.primitive === SurfacePrimitive
-            || sceneGeometry.primitive === TrianglesPrimitive);
+      = (sceneGeometry.primitive === SolidPrimitive
+      || sceneGeometry.primitive === SurfacePrimitive
+      || sceneGeometry.primitive === TrianglesPrimitive);
 
     this.renderState.sceneGeometry = null;
     this.#built = true;
@@ -467,8 +467,8 @@ export class VBOInstancingLayer implements Layer {
     const culled = !!(flags & SCENE_OBJECT_FLAGS.CULLED);
     let colorFlag;
     if (!visible || culled || xrayed
-            || (highlighted && !view.highlightMaterial.glowThrough)
-            || (selected && !view.selectedMaterial.glowThrough)) {
+      || (highlighted && !view.highlightMaterial.glowThrough)
+      || (selected && !view.selectedMaterial.glowThrough)) {
       colorFlag = RENDER_PASSES.NOT_RENDERED;
     } else {
       if (transparent) {
@@ -530,9 +530,9 @@ export class VBOInstancingLayer implements Layer {
   drawColorOpaque(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
+      this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
       return;
     }
     if (this.#rendererSet.colorRenderer) {
@@ -543,9 +543,9 @@ export class VBOInstancingLayer implements Layer {
   drawColorSAOOpaque(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
+      this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
       return;
     }
     if (this.#rendererSet.colorSAORenderer) {
@@ -556,9 +556,9 @@ export class VBOInstancingLayer implements Layer {
   drawColorTranslucent(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numTransparent === 0 ||
-            this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numTransparent === 0 ||
+      this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
       return;
     }
     if (this.#rendererSet.colorRenderer) {
@@ -569,9 +569,9 @@ export class VBOInstancingLayer implements Layer {
   drawDepth(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
+      this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
       return;
     }
     if (this.#rendererSet.drawDepthRenderer) {
@@ -582,9 +582,9 @@ export class VBOInstancingLayer implements Layer {
   drawNormals(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numTransparent === this.meshCounts[viewIndex].numMeshes ||
+      this.meshCounts[viewIndex].numXRayed === this.meshCounts[viewIndex].numMeshes) {
       return;
     }
     // if (this.#rendererSet.normalsRenderer) {
@@ -595,8 +595,8 @@ export class VBOInstancingLayer implements Layer {
   drawSilhouetteXRayed(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numXRayed === 0) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numXRayed === 0) {
       return;
     }
     if (this.#rendererSet.silhouetteRenderer) {
@@ -607,8 +607,8 @@ export class VBOInstancingLayer implements Layer {
   drawSilhouetteHighlighted(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numHighlighted === 0) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numHighlighted === 0) {
       return;
     }
     if (this.#rendererSet.silhouetteRenderer) {
@@ -619,8 +619,8 @@ export class VBOInstancingLayer implements Layer {
   drawSilhouetteSelected(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numSelected === 0) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numSelected === 0) {
       return;
     }
     if (this.#rendererSet.silhouetteRenderer) {
@@ -631,7 +631,7 @@ export class VBOInstancingLayer implements Layer {
   drawEdgesColorOpaque(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0) {
+      this.meshCounts[viewIndex].numVisible === 0) {
       return;
     }
     if (this.#rendererSet.edgesColorRenderer) {
@@ -642,8 +642,8 @@ export class VBOInstancingLayer implements Layer {
   drawEdgesColorTranslucent(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numTransparent === 0) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numTransparent === 0) {
       return;
     }
     if (this.#rendererSet.edgesColorRenderer) {
@@ -654,8 +654,8 @@ export class VBOInstancingLayer implements Layer {
   drawEdgesHighlighted(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numHighlighted === 0) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numHighlighted === 0) {
       return;
     }
     if (this.#rendererSet.edgesSilhouetteRenderer) {
@@ -666,8 +666,8 @@ export class VBOInstancingLayer implements Layer {
   drawEdgesSelected(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numSelected === 0) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numSelected === 0) {
       return;
     }
     if (this.#rendererSet.edgesSilhouetteRenderer) {
@@ -678,8 +678,8 @@ export class VBOInstancingLayer implements Layer {
   drawEdgesXRayed(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0 ||
-            this.meshCounts[viewIndex].numXRayed === 0) {
+      this.meshCounts[viewIndex].numVisible === 0 ||
+      this.meshCounts[viewIndex].numXRayed === 0) {
       return;
     }
     if (this.#rendererSet.edgesSilhouetteRenderer) {
@@ -690,7 +690,7 @@ export class VBOInstancingLayer implements Layer {
   drawOcclusion(): void {
     const viewIndex = this.renderContext.view.viewIndex;
     if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-            this.meshCounts[viewIndex].numVisible === 0) {
+      this.meshCounts[viewIndex].numVisible === 0) {
       return;
     }
     if (this.#rendererSet.occlusionRenderer) {

@@ -219,6 +219,7 @@ export * from "./ModelConverterConfig";
 
 export * from "./ModelConverterRequest";
 export * from "./ModelConverterResult";
+export * from "./ModelConverterResultInput";
 export * from "./ModelConverterResultOutput";
 
 export * from "./reporters"

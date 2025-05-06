@@ -1,4 +1,4 @@
-import type { WebGLArrayBuf } from "./WebGLArrayBuf";
+import type {WebGLArrayBuf} from "./WebGLArrayBuf";
 
 /**
  * Represents a WebGL vertex attribute.
@@ -8,19 +8,19 @@ export class WebGLAttribute {
   location: number;
 
   /**
-     * Creates a new vertex attribute.
-     * @param gl
-     * @param location
-     */
+   * Creates a new vertex attribute.
+   * @param gl
+   * @param location
+   */
   constructor(gl: WebGL2RenderingContext, location: number) {
     this.gl = gl;
     this.location = location;
   }
 
   /**
-     * Binds an array buffer to this vertex attribute.
-     * @param arrayBuf
-     */
+   * Binds an array buffer to this vertex attribute.
+   * @param arrayBuf
+   */
   bindArrayBuffer(arrayBuf: WebGLArrayBuf) {
     if (!arrayBuf) {
       return;

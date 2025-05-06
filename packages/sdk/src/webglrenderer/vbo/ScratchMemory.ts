@@ -62,4 +62,4 @@ function putScratchMemory(): void {
   }
 }
 
-export { getScratchMemory, putScratchMemory };
+export {getScratchMemory, putScratchMemory};

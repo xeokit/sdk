@@ -1,5 +1,5 @@
-import type { Ifc2gltfManifestParams } from "./Ifc2gltfManifestParams";
-import type { ModelChunksManifestParams } from "../core";
+import type {Ifc2gltfManifestParams} from "./Ifc2gltfManifestParams";
+import type {ModelChunksManifestParams} from "../core";
 
 /**
  * Converts a file manifest from {@link ifc2gltf2xgf!Ifc2gltfManifestParams | Ifc2gltfManifestParams} to
@@ -11,7 +11,7 @@ function convertIfc2gltfManifest(ifc2gltfManifestParams: Ifc2gltfManifestParams)
     sceneModelFiles: [],
     dataModelFiles: []
   };
-  const { gltfOutFiles, metadataOutFiles } = ifc2gltfManifestParams;
+  const {gltfOutFiles, metadataOutFiles} = ifc2gltfManifestParams;
   if (gltfOutFiles) {
     for (let i = 0, len = gltfOutFiles.length; i < len; i++) {
       chunksManifest.sceneModelFiles[i] = stripPathFromFilename(gltfOutFiles[i]);
@@ -29,4 +29,4 @@ function stripPathFromFilename(fullPath) {
   return fullPath.split(/[/\\]/).pop();
 }
 
-export { convertIfc2gltfManifest };
+export {convertIfc2gltfManifest};

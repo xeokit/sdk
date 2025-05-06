@@ -1,9 +1,9 @@
-import { WebGLArrayBuf, WebGLProgram } from "../webglutils";
-import type { WebGLAttribute, WebGLRenderBuffer } from "../webglutils";
-import { createVec2 } from "../matrix";
-import { PerspectiveProjectionType } from "../constants";
-import type { RenderContext } from "./RenderContext";
-import type { View } from "../viewer";
+import {WebGLArrayBuf, WebGLProgram} from "../webglutils";
+import type {WebGLAttribute, WebGLRenderBuffer} from "../webglutils";
+import {createVec2} from "../matrix";
+import {PerspectiveProjectionType} from "../constants";
+import type {RenderContext} from "./RenderContext";
+import type {View} from "../viewer";
 
 const tempVec2 = createVec2();
 
@@ -86,7 +86,7 @@ export class SAOOcclusionRenderer {
       return;
     }
 
-    const { depthRenderBuffer, view } = params;
+    const {depthRenderBuffer, view} = params;
 
     const gl = this.#renderContext.gl;
 

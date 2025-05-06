@@ -1,5 +1,5 @@
-import type { RendererTextureSet } from "../scene";
-import type { WebGLRendererTexture } from "./WebGLRendererTexture";
+import type {RendererTextureSet} from "../scene";
+import type {WebGLRendererTexture} from "./WebGLRendererTexture";
 
 /**
  * @private

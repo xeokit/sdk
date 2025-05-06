@@ -1,5 +1,5 @@
-import type { Capabilities, TextureCompressedParams, TextureTranscoder } from "../core";
-import { FileLoader, WorkerPool } from "../utils";
+import type {Capabilities, TextureCompressedParams, TextureTranscoder} from "../core";
+import {FileLoader, WorkerPool} from "../utils";
 import {
   LinearEncoding,
   LinearFilter,
@@ -77,14 +77,14 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
   #withCredentials: boolean;
 
   /**
-     * Creates a new KTX2TextureTranscoder.
-     *
-     * @param {String} [params.transcoderPath="https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/"] Path to the Basis
-     * transcoder module that internally does the heavy lifting for our KTX2TextureTranscoder. If we omit this configuration,
-     * then our KTX2TextureTranscoder will load it from ````https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/```` by
-     * default. Therefore, make sure your application is connected to the internet if you wish to use the default transcoder path.
-     * @param {Number} [params.workerLimit] The maximum number of Workers to use for transcoding.
-     */
+   * Creates a new KTX2TextureTranscoder.
+   *
+   * @param {String} [params.transcoderPath="https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/"] Path to the Basis
+   * transcoder module that internally does the heavy lifting for our KTX2TextureTranscoder. If we omit this configuration,
+   * then our KTX2TextureTranscoder will load it from ````https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/```` by
+   * default. Therefore, make sure your application is connected to the internet if you wish to use the default transcoder path.
+   * @param {Number} [params.workerLimit] The maximum number of Workers to use for transcoding.
+   */
   constructor(params: { transcoderPath?: string, workerLimit?: number }) {
 
     this.#transcoderPath = params.transcoderPath || "https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/";
@@ -103,10 +103,10 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
   }
 
   /**
-     * Initializes this transcoder.
-     *
-     * @param capabilities A set of flags indicating the capabilities of this TextureTranscoder.
-     */
+   * Initializes this transcoder.
+   *
+   * @param capabilities A set of flags indicating the capabilities of this TextureTranscoder.
+   */
   init(capabilities: Capabilities) {
     this.#workerConfig = {
       astcSupported: capabilities.astcSupported,
@@ -119,12 +119,12 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
   }
 
   /**
-     * Transcodes texture data from transcoded buffers.
-     *
-     * @param {ArrayBuffer[]} buffers Transcoded input texture data. Given as an array of buffers so that we can support multi-image textures, such as cube maps.
-     * @param {*} config Transcoding options.
-     * @returns {Promise<TextureCompressedParams>} Transcoded output texture data.
-     */
+   * Transcodes texture data from transcoded buffers.
+   *
+   * @param {ArrayBuffer[]} buffers Transcoded input texture data. Given as an array of buffers so that we can support multi-image textures, such as cube maps.
+   * @param {*} config Transcoding options.
+   * @returns {Promise<TextureCompressedParams>} Transcoded output texture data.
+   */
   transcode(buffers: ArrayBuffer[], config = {}): Promise<TextureCompressedParams> {
     return new Promise<TextureCompressedParams>((resolve, reject) => {
       const taskConfig = config;
@@ -137,7 +137,7 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
       }).then((e) => {
         // @ts-ignore
         const transcodeResult = e.data;
-        const { mipmaps, width, height, format, type, error, dfdTransferFn, dfdFlags } = transcodeResult;
+        const {mipmaps, width, height, format, type, error, dfdTransferFn, dfdFlags} = transcodeResult;
         if (type === 'error') {
           return reject(error);
         }
@@ -156,8 +156,8 @@ export class KTX2TextureTranscoder implements TextureTranscoder {
   }
 
   /**
-     * Destroys this KTX2TextureTranscoder
-     */
+   * Destroys this KTX2TextureTranscoder
+   */
   destroy() {
     URL.revokeObjectURL(this.#workerSourceURL);
     this.#workerPool.destroy();
@@ -264,7 +264,7 @@ const BasisWorker = function () {
           } catch (error) {
             console.error(`[BasisWorker]: ${error}`);
             // @ts-ignore
-            self.postMessage({ type: 'error', id: message.id, error: error.message });
+            self.postMessage({type: 'error', id: message.id, error: error.message});
           }
         });
         break;
@@ -306,7 +306,7 @@ const BasisWorker = function () {
     const hasAlpha = ktx2File.getHasAlpha();
     const dfdTransferFn = ktx2File.getDFDTransferFunc();
     const dfdFlags = ktx2File.getDFDFlags();
-    const { transcoderFormat, engineFormat } = getTranscoderFormat(basisFormat, width, height, hasAlpha);
+    const {transcoderFormat, engineFormat} = getTranscoderFormat(basisFormat, width, height, hasAlpha);
     if (!width || !height || !levels) {
       cleanup();
       throw new Error('KTX2TextureTranscoder: Invalid texture');
@@ -326,10 +326,10 @@ const BasisWorker = function () {
         cleanup();
         throw new Error('KTX2TextureTranscoder: .transcodeImage failed.');
       }
-      mipmaps.push({ data: dst, width: mipWidth, height: mipHeight });
+      mipmaps.push({data: dst, width: mipWidth, height: mipHeight});
     }
     cleanup();
-    return { width, height, hasAlpha, mipmaps, format: engineFormat, dfdTransferFn, dfdFlags };
+    return {width, height, hasAlpha, mipmaps, format: engineFormat, dfdTransferFn, dfdFlags};
   }
 
   // Optimal choice of a transcoder target format depends on the Basis format (ETC1S or UASTC),

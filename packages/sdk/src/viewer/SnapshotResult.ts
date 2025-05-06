@@ -1,5 +1,3 @@
-
-
 /**
  * Results of a snapshot attempted with {@link View.getSnapshot}.
  */
@@ -12,13 +10,12 @@ class SnapshotResult {
   }
 
 
-
   /**
-     * @private
-     */
+   * @private
+   */
   reset() {
 
   }
 }
 
-export { SnapshotResult };
+export {SnapshotResult};

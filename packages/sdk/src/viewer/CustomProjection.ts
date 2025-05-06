@@ -1,13 +1,11 @@
-
-
-import { Component, EventEmitter } from "../core";
-import { createMat4, identityMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4 } from "../matrix";
-import type { Camera } from "./Camera";
-import type { CustomProjectionParams } from "./CustomProjectionParams";
-import { CustomProjectionType } from "../constants";
-import { EventDispatcher } from "strongly-typed-events";
-import type { FloatArrayParam } from "../math";
-import type { Projection } from "./Projection";
+import {Component, EventEmitter} from "../core";
+import {createMat4, identityMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "../matrix";
+import type {Camera} from "./Camera";
+import type {CustomProjectionParams} from "./CustomProjectionParams";
+import {CustomProjectionType} from "../constants";
+import {EventDispatcher} from "strongly-typed-events";
+import type {FloatArrayParam} from "../math";
+import type {Projection} from "./Projection";
 
 /**
  * Configures a custom projection for a {@link Camera | Camera} .
@@ -18,20 +16,20 @@ import type { Projection } from "./Projection";
 class CustomProjection extends Component implements Projection {
 
   /**
-     * The Camera this CustomProjection belongs to.
-     */
+   * The Camera this CustomProjection belongs to.
+   */
   public readonly camera: Camera;
 
   /**
-     * Emits an event each time {@link CustomProjection.projMatrix} updates.
-     *
-     * @event
-     */
+   * Emits an event each time {@link CustomProjection.projMatrix} updates.
+   *
+   * @event
+   */
   readonly onProjMatrix: EventEmitter<CustomProjection, FloatArrayParam>;
 
   /**
-     * The type of this projection.
-     */
+   * The type of this projection.
+   */
   static readonly type: number = CustomProjectionType;
 
   #state: {
@@ -44,8 +42,8 @@ class CustomProjection extends Component implements Projection {
   #transposedProjMatrixDirty: boolean;
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(camera: Camera, cfg: CustomProjectionParams = {}) {
 
     super(camera, cfg);
@@ -65,23 +63,23 @@ class CustomProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the CustomProjection's projection transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @return  New value for the CustomProjection's matrix.
-     */
+   * Gets the CustomProjection's projection transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @return  New value for the CustomProjection's matrix.
+   */
   get projMatrix(): FloatArrayParam {
     return this.#state.projMatrix;
   }
 
   /**
-     * Sets the CustomProjection's projection transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @param projMatrix New value for the CustomProjection's matrix.
-     */
+   * Sets the CustomProjection's projection transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @param projMatrix New value for the CustomProjection's matrix.
+   */
   set projMatrix(projMatrix: FloatArrayParam) {
     // @ts-ignore
     this.#state.projMatrix.set(projMatrix);
@@ -93,10 +91,10 @@ class CustomProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the inverse of {@link CustomProjection.projMatrix}.
-     *
-     * @returns The inverse of {@link CustomProjection.projMatrix}.
-     */
+   * Gets the inverse of {@link CustomProjection.projMatrix}.
+   *
+   * @returns The inverse of {@link CustomProjection.projMatrix}.
+   */
   get inverseProjMatrix(): FloatArrayParam {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -109,10 +107,10 @@ class CustomProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the transpose of {@link CustomProjection.projMatrix}.
-     *
-     * @returns The transpose of {@link CustomProjection.projMatrix}.
-     */
+   * Gets the transpose of {@link CustomProjection.projMatrix}.
+   *
+   * @returns The transpose of {@link CustomProjection.projMatrix}.
+   */
   get transposedProjMatrix(): FloatArrayParam {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -125,14 +123,14 @@ class CustomProjection extends Component implements Projection {
   }
 
   /**
-     * Un-projects the given View-space coordinates, using this CustomProjection.
-     *
-     * @param canvasPos Inputs 2D View-space coordinates.
-     * @param screenZ Inputs Screen-space Z coordinate.
-     * @param screenPos Outputs 3D Screen/Clip-space coordinates.
-     * @param viewPos Outputs un-projected 3D View-space coordinates.
-     * @param worldPos Outputs un-projected 3D World-space coordinates.
-     */
+   * Un-projects the given View-space coordinates, using this CustomProjection.
+   *
+   * @param canvasPos Inputs 2D View-space coordinates.
+   * @param screenZ Inputs Screen-space Z coordinate.
+   * @param screenPos Outputs 3D Screen/Clip-space coordinates.
+   * @param viewPos Outputs un-projected 3D View-space coordinates.
+   * @param worldPos Outputs un-projected 3D World-space coordinates.
+   */
   unproject(
     canvasPos: FloatArrayParam,
     screenZ: number,
@@ -155,9 +153,9 @@ class CustomProjection extends Component implements Projection {
   }
 
   /**
-     * Configures this CustomProjection.
-     * @param customProjectionParams
-     */
+   * Configures this CustomProjection.
+   * @param customProjectionParams
+   */
   fromParams(customProjectionParams: CustomProjectionParams) {
     if (customProjectionParams.projMatrix) {
       this.projMatrix = customProjectionParams.projMatrix;
@@ -165,8 +163,8 @@ class CustomProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the current configuration of this CustomProjection.
-     */
+   * Gets the current configuration of this CustomProjection.
+   */
   toParams(): CustomProjectionParams {
     return {
       projMatrix: Array.from(this.projMatrix)
@@ -174,12 +172,12 @@ class CustomProjection extends Component implements Projection {
   }
 
   /** @private
-     *
-     */
+   *
+   */
   destroy() {
     super.destroy();
     this.onProjMatrix.clear();
   }
 }
 
-export { CustomProjection };
+export {CustomProjection};

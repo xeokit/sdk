@@ -5,9 +5,9 @@ import {
   SurfacePrimitive,
   TrianglesPrimitive
 } from "../../../constants";
-import { isIdentityMat4 } from "../../../matrix";
-import type { SceneModel } from "../../../scene";
-import type { XGFData_v1 } from "./XGFData_v1";
+import {isIdentityMat4} from "../../../matrix";
+import type {SceneModel} from "../../../scene";
+import type {XGFData_v1} from "./XGFData_v1";
 
 const NUM_MATERIAL_ATTRIBUTES = 4;
 

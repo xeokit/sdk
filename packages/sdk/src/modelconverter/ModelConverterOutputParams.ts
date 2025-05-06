@@ -4,33 +4,33 @@
 export interface ModelConverterOutputParams {
 
   /**
-     * The key of an {@link core!Exporter | Exporter} declared in
-     * {@link ModelConverterParams.exporters | ModelConverterParams.exporters}, which the
-     * pipeline will use to write the output file.
-     */
+   * The key of an {@link core!Exporter | Exporter} declared in
+   * {@link ModelConverterParams.exporters | ModelConverterParams.exporters}, which the
+   * pipeline will use to write the output file.
+   */
   exporter: string;
 
   /**
-     * Optional schema version to be used by the {@link core!Exporter | Exporter}
-     * when generating the output file.
-     */
+   * Optional schema version to be used by the {@link core!Exporter | Exporter}
+   * when generating the output file.
+   */
   version?: string;
 
   /**
-     * Optional ID of the {@link scene!SceneModel | SceneModel} that provides the
-     * scene data for export. Must reference a SceneModel defined in a pipeline input.
-     */
+   * Optional ID of the {@link scene!SceneModel | SceneModel} that provides the
+   * scene data for export. Must reference a SceneModel defined in a pipeline input.
+   */
   sceneModel?: string;
 
   /**
-     * Optional ID of the {@link data!DataModel | DataModel} that provides the
-     * structured data for export. Must reference a DataModel defined in a pipeline input.
-     */
+   * Optional ID of the {@link data!DataModel | DataModel} that provides the
+   * structured data for export. Must reference a DataModel defined in a pipeline input.
+   */
   dataModel?: string;
 
   /**
-     * Optional exporter-specific configuration as key-value pairs.
-     */
+   * Optional exporter-specific configuration as key-value pairs.
+   */
   options?: {
     [key: string]: any;
   };

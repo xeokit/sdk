@@ -1,9 +1,9 @@
-import { collapseAABB3, expandAABB3 } from "../boundaries";
-import type { FloatArrayParam } from "../math";
-import type { RendererObject } from "./RendererObject";
-import type { SceneMesh } from "./SceneMesh";
-import type { SceneModel } from "./SceneModel";
-import type { SceneObjectParams } from "./SceneObjectParams";
+import {collapseAABB3, expandAABB3} from "../boundaries";
+import type {FloatArrayParam} from "../math";
+import type {RendererObject} from "./RendererObject";
+import type {SceneMesh} from "./SceneMesh";
+import type {SceneModel} from "./SceneModel";
+import type {SceneObjectParams} from "./SceneObjectParams";
 
 /**
  * An object within a {@link SceneModel | SceneModel}.
@@ -16,53 +16,53 @@ import type { SceneObjectParams } from "./SceneObjectParams";
 export class SceneObject {
 
   /**
-     * Unique ID of this SceneObject.
-     *
-     * SceneObjects are stored by ID in {@link Scene.objects | Scene.objects}
-     * and {@link SceneModel.objects | SceneModel.objects}.
-     */
+   * Unique ID of this SceneObject.
+   *
+   * SceneObjects are stored by ID in {@link Scene.objects | Scene.objects}
+   * and {@link SceneModel.objects | SceneModel.objects}.
+   */
   public readonly id: string;
 
   /**
-     * ID of this SceneObject within the originating system.
-     */
+   * ID of this SceneObject within the originating system.
+   */
   public readonly originalSystemId: string;
 
   /**
-     * Optional layer ID for this SceneObject.
-     *
-     * When the {@link Scene} is attached to a {@link view!Viewer | View}, this will identify an optional {@link view!ViewLayer | ViewLayer}
-     * to assign the object to. ViewLayers allow users to group and segregate object based on their roles or aspects in a scene,
-     * simplifying interaction and focusing operations on specific object groups.
-     */
+   * Optional layer ID for this SceneObject.
+   *
+   * When the {@link Scene} is attached to a {@link view!Viewer | View}, this will identify an optional {@link view!ViewLayer | ViewLayer}
+   * to assign the object to. ViewLayers allow users to group and segregate object based on their roles or aspects in a scene,
+   * simplifying interaction and focusing operations on specific object groups.
+   */
   public readonly layerId?: string;
 
   /**
-     * The {@link SceneModel | SceneModel} that contains this SceneObject.
-     */
+   * The {@link SceneModel | SceneModel} that contains this SceneObject.
+   */
   public readonly model: SceneModel;
 
   /**
-     * The {@link SceneMesh | Meshes} belonging to this SceneObject.
-     */
+   * The {@link SceneMesh | Meshes} belonging to this SceneObject.
+   */
   public readonly meshes: SceneMesh[];
 
   /**
-     *  Internal interface through which a {@link viewer!ViewObject | ViewObject} can load property updates
-     *  into a {@link viewer!Renderer | Renderer} for this SceneObject.
-     *
-     *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
-     *
-     * @internal
-     */
+   *  Internal interface through which a {@link viewer!ViewObject | ViewObject} can load property updates
+   *  into a {@link viewer!Renderer | Renderer} for this SceneObject.
+   *
+   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
+   *
+   * @internal
+   */
   rendererObject: RendererObject | null;
 
   #aabb: FloatArrayParam;
   #aabbDirty: boolean;
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(cfg: {
     model: SceneModel;
     meshes: SceneMesh[];
@@ -80,15 +80,15 @@ export class SceneObject {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   setAABBDirty() {
     this.#aabbDirty = true;
   }
 
   /**
-     * Gets the axis-aligned 3D World-space boundary of this SceneObject.
-     */
+   * Gets the axis-aligned 3D World-space boundary of this SceneObject.
+   */
   get aabb(): FloatArrayParam {
     if (this.meshes.length === 1) {
       return this.meshes[0].aabb;
@@ -108,8 +108,8 @@ export class SceneObject {
   }
 
   /**
-     * Gets this SceneObject as SceneObjectParams.
-     */
+   * Gets this SceneObject as SceneObjectParams.
+   */
   toParams(): SceneObjectParams {
     const sceneObjectParams = <SceneObjectParams>{
       id: this.id,

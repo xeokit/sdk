@@ -1,11 +1,11 @@
-import { Component, EventEmitter, SDKError } from "../core";
-import { type FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE } from "../math";
-import { createAABB3 } from "../boundaries";
-import { EventDispatcher } from "strongly-typed-events";
-import { SceneModel } from "./SceneModel";
-import type { SceneModelParams } from "./SceneModelParams";
-import type { SceneObject } from "./SceneObject";
-import { SceneTile } from "./SceneTile";
+import {Component, EventEmitter, SDKError} from "../core";
+import {type FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "../math";
+import {createAABB3} from "../boundaries";
+import {EventDispatcher} from "strongly-typed-events";
+import {SceneModel} from "./SceneModel";
+import type {SceneModelParams} from "./SceneModelParams";
+import type {SceneObject} from "./SceneObject";
+import {SceneTile} from "./SceneTile";
 
 /**
  * Container of model geometry and materials.
@@ -19,47 +19,47 @@ import { SceneTile } from "./SceneTile";
 export class Scene extends Component {
 
   /**
-     * The {@link SceneModel | SceneModels} belonging to this Scene, each keyed to
-     * its {@link SceneModel.id | SceneModel.id}.
-     */
+   * The {@link SceneModel | SceneModels} belonging to this Scene, each keyed to
+   * its {@link SceneModel.id | SceneModel.id}.
+   */
   public readonly models: { [key: string]: SceneModel };
 
   /**
-     * The {@link SceneObject | SceneObjects} in this Scene, mapped to {@link SceneObject.id | SceneObject.id}.
-     */
+   * The {@link SceneObject | SceneObjects} in this Scene, mapped to {@link SceneObject.id | SceneObject.id}.
+   */
   public readonly objects: { [key: string]: SceneObject };
 
   /**
-     * The {@link SceneTile | SceneTiles} in this Scene.
-     */
+   * The {@link SceneTile | SceneTiles} in this Scene.
+   */
   public readonly tiles: { [key: string]: SceneTile };
 
   /**
-     * Emits an event each time a {@link SceneModel | SceneModel} is created in this Scene.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SceneModel | SceneModel} is created in this Scene.
+   *
+   * @event
+   */
   public readonly onModelCreated: EventEmitter<Scene, SceneModel>;
 
   /**
-     * Emits an event each time a {@link SceneModel | SceneModel} is destroyed in this Scene.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SceneModel | SceneModel} is destroyed in this Scene.
+   *
+   * @event
+   */
   public readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
 
   /**
-     * Emits an event each time a {@link SceneTile} is created in this Scene.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SceneTile} is created in this Scene.
+   *
+   * @event
+   */
   public readonly onTileCreated: EventEmitter<Scene, SceneTile>;
 
   /**
-     * Emits an event each time a {@link SceneTile} is destroyed in this Scene.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SceneTile} is destroyed in this Scene.
+   *
+   * @event
+   */
   public readonly onTileDestroyed: EventEmitter<Scene, SceneTile>;
 
   #onModelBuilts: { [key: string]: any };
@@ -70,8 +70,8 @@ export class Scene extends Component {
 
 
   /**
-     * Creates a new Scene.
-     */
+   * Creates a new Scene.
+   */
   constructor() {
 
     super(null, {});
@@ -92,8 +92,8 @@ export class Scene extends Component {
   }
 
   /**
-     * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
-     */
+   * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
+   */
   get center(): Float64Array {
     if (this.#aabbDirty) {
       const aabb = this.aabb; // Lazy-build
@@ -105,10 +105,10 @@ export class Scene extends Component {
   }
 
   /**
-     * Gets the collective World-space 3D [axis-aligned boundary](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#aabb) of all the {@link SceneModel | SceneModels} in this Scene.
-     *
-     * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
-     */
+   * Gets the collective World-space 3D [axis-aligned boundary](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#aabb) of all the {@link SceneModel | SceneModels} in this Scene.
+   *
+   * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
+   */
   get aabb(): FloatArrayParam {
     if (this.#aabbDirty) {
       let xmin = MAX_DOUBLE;
@@ -168,22 +168,22 @@ export class Scene extends Component {
   }
 
   /**
-     * Creates a new {@link SceneModel | SceneModel} in this Scene.
-     *
-     * Remember to call {@link SceneModel.build | SceneModel.build} when you've finished building or
-     * loading the SceneModel. That will
-     * fire events via {@link Scene.onModelCreated | Scene.onModelCreated} and {@link SceneModel.onBuilt | SceneModel.onBuilt}, to
-     * indicate to any subscribers that the SceneModel is built and ready for use.
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for more details on usage.
-     *
-     * @param  sceneModelParams Creation parameters for the new {@link SceneModel | SceneModel}.
-     * @returns *{@link SceneModel | SceneModel}*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * This Scene has already been destroyed.
-     * * A SceneModel with the given ID already exists in this Scene.
-     */
+   * Creates a new {@link SceneModel | SceneModel} in this Scene.
+   *
+   * Remember to call {@link SceneModel.build | SceneModel.build} when you've finished building or
+   * loading the SceneModel. That will
+   * fire events via {@link Scene.onModelCreated | Scene.onModelCreated} and {@link SceneModel.onBuilt | SceneModel.onBuilt}, to
+   * indicate to any subscribers that the SceneModel is built and ready for use.
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for more details on usage.
+   *
+   * @param  sceneModelParams Creation parameters for the new {@link SceneModel | SceneModel}.
+   * @returns *{@link SceneModel | SceneModel}*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Scene has already been destroyed.
+   * * A SceneModel with the given ID already exists in this Scene.
+   */
   createModel(sceneModelParams: SceneModelParams): SceneModel | SDKError {
     if (this.destroyed) {
       return new SDKError("Scene already destroyed");
@@ -207,8 +207,8 @@ export class Scene extends Component {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   setAABBDirty() {
     if (!this.#aabbDirty) {
       this.#aabbDirty = true;
@@ -217,17 +217,17 @@ export class Scene extends Component {
   }
 
   /**
-     * Destroys all contained {@link SceneModel | SceneModels}.
-     *
-     * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and
-     * {@link SceneModel.onDestroyed | SceneModel.onDestroyed} for each existing SceneModel in this Scene.
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for usage.
-     * @returns *void*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * This Scene has already been destroyed.
-     */
+   * Destroys all contained {@link SceneModel | SceneModels}.
+   *
+   * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and
+   * {@link SceneModel.onDestroyed | SceneModel.onDestroyed} for each existing SceneModel in this Scene.
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for usage.
+   * @returns *void*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Scene has already been destroyed.
+   */
   clear(): void | SDKError {
     if (this.destroyed) {
       return new SDKError("Scene already destroyed");
@@ -238,19 +238,19 @@ export class Scene extends Component {
   }
 
   /**
-     * Destroys this Scene and all contained {@link SceneModel | SceneModels}.
-     *
-     * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
-     * for each existing SceneModels in this Data.
-     * * Unsubscribes all subscribers to {@link Scene.onModelCreated | Scene.onModelCreated}, {@link Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for usage.
-     *
-     * @returns *void*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * This Scene has already been destroyed.
-     */
+   * Destroys this Scene and all contained {@link SceneModel | SceneModels}.
+   *
+   * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   * for each existing SceneModels in this Data.
+   * * Unsubscribes all subscribers to {@link Scene.onModelCreated | Scene.onModelCreated}, {@link Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for usage.
+   *
+   * @returns *void*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Scene has already been destroyed.
+   */
   destroy(): void {
     this.clear();
     this.onModelCreated.clear();
@@ -278,7 +278,7 @@ export class Scene extends Component {
     this.#aabbDirty = true;
   }
 
-  getTile(origin: FloatArrayParam):SceneTile {
+  getTile(origin: FloatArrayParam): SceneTile {
     const tileId = `${origin[0]}-${origin[1]}-${origin[2]}`;
     let tile = this.tiles[tileId];
     if (tile) {

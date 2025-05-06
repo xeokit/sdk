@@ -1,8 +1,8 @@
-import { Cache } from './Cache';
-import { Loader } from './Loader';
-import type { LoadingManager } from "./LoadingManager";
+import {Cache} from './Cache';
+import {Loader} from './Loader';
+import type {LoadingManager} from "./LoadingManager";
 
-const loading : { [key:string]:any } = {};
+const loading: { [key: string]: any } = {};
 
 class FileLoader extends Loader {
 
@@ -13,7 +13,7 @@ class FileLoader extends Loader {
     super(manager);
   }
 
-  load(url:string, onLoad:Function, onProgress:Function, onError:Function) {
+  load(url: string, onLoad: Function, onProgress: Function, onError: Function) {
     if (url === undefined) {
       url = '';
     }
@@ -33,11 +33,11 @@ class FileLoader extends Loader {
       return cached;
     }
     if (loading[url] !== undefined) {
-      loading[url].push({ onLoad, onProgress, onError });
+      loading[url].push({onLoad, onProgress, onError});
       return;
     }
     loading[url] = [];
-    loading[url].push({ onLoad, onProgress, onError });
+    loading[url].push({onLoad, onProgress, onError});
     const req = new Request(url, {
       headers: new Headers(this.requestHeader),
       credentials: this.withCredentials ? 'include' : 'same-origin'
@@ -67,13 +67,13 @@ class FileLoader extends Loader {
             readData();
 
             function readData() {
-              reader.read().then(({ done, value }) => {
+              reader.read().then(({done, value}) => {
                 if (done) {
                   controller.close();
                 } else {
                   // @ts-ignore
                   loaded += value.byteLength;
-                  const event = new ProgressEvent('progress', { lengthComputable, loaded, total });
+                  const event = new ProgressEvent('progress', {lengthComputable, loaded, total});
                   for (let i = 0, il = callbacks.length; i < il; i++) {
                     const callback = callbacks[i];
                     if (callback.onProgress) {
@@ -165,4 +165,4 @@ class FileLoader extends Loader {
 }
 
 
-export { FileLoader };
+export {FileLoader};

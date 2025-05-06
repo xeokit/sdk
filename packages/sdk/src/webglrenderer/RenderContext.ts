@@ -1,8 +1,8 @@
-import type { View, Viewer } from "../viewer";
-import { WEBGL_INFO, type WebGLAbstractTexture } from "../webglutils";
-import type { FloatArrayParam } from "../math";
-import type { WebGLDataTexture } from "../webglutils";
-import type { WebGLRenderer } from "./WebGLRenderer";
+import type {View, Viewer} from "../viewer";
+import {WEBGL_INFO, type WebGLAbstractTexture} from "../webglutils";
+import type {FloatArrayParam} from "../math";
+import type {WebGLDataTexture} from "../webglutils";
+import type {WebGLRenderer} from "./WebGLRenderer";
 
 /**
  * @private
@@ -10,117 +10,117 @@ import type { WebGLRenderer } from "./WebGLRenderer";
 export class RenderContext {
 
   /**
-     * The Viewer.
-     */
+   * The Viewer.
+   */
   public viewer: Viewer;
 
   /**
-     * @private
-     */
+   * @private
+   */
   public rendererSets: {};
 
   /**
-     * The View we are rendering.
-     */
+   * The View we are rendering.
+   */
   public view: View;
 
   /**
-     * The WebGL rendering context.
-     */
+   * The WebGL rendering context.
+   */
   public gl: WebGL2RenderingContext;
 
   public viewMatrixDataTexture: WebGLDataTexture;
 
   /**
-     * Whether to render a quality representation for triangle surfaces.
-     *
-     * When ````false````, we'll render them with a fast vertex-shaded Gouraud-shaded representation, which
-     * is great for zillions of objects.
-     *
-     * When ````true````, we'll render them at a better visual quality, using smooth, per-fragment shading
-     * and a more realistic lighting model.
-     */
+   * Whether to render a quality representation for triangle surfaces.
+   *
+   * When ````false````, we'll render them with a fast vertex-shaded Gouraud-shaded representation, which
+   * is great for zillions of objects.
+   *
+   * When ````true````, we'll render them at a better visual quality, using smooth, per-fragment shading
+   * and a more realistic lighting model.
+   */
   public pbrEnabled: boolean;
 
   /**
-     * Whether backfaces are currently enabled during the current frame.
-     */
+   * Whether backfaces are currently enabled during the current frame.
+   */
   public backfaces: boolean;
 
   /**
-     * The vertex winding order for what we currently consider to be a backface during current
-     * frame: true == "cw", false == "ccw".
-     */
+   * The vertex winding order for what we currently consider to be a backface during current
+   * frame: true == "cw", false == "ccw".
+   */
   public frontface: boolean;
 
   /**
-     * The next available texture unit to bind a {@link WebGLAbstractTexture} to.
-     */
+   * The next available texture unit to bind a {@link WebGLAbstractTexture} to.
+   */
   public textureUnit: number;
 
   /**
-     * Statistic that counts how many times ````gl.bindTexture()```` has been called so far within the current frame.
-     */
+   * Statistic that counts how many times ````gl.bindTexture()```` has been called so far within the current frame.
+   */
   public bindTexture: number;
 
   /**
-     * Indicates which pass the renderers is currently rendering.
-     */
+   * Indicates which pass the renderers is currently rendering.
+   */
   public renderPass: number;
 
   /**
-     * The 4x4 viewing transform matrix the renderers is currently using when rendering castsShadows.
-     *
-     * This sets the viewpoint to look from the point of view of each {@link DirLight}
-     * or {@link PointLight} that casts a shadow.
-     */
+   * The 4x4 viewing transform matrix the renderers is currently using when rendering castsShadows.
+   *
+   * This sets the viewpoint to look from the point of view of each {@link DirLight}
+   * or {@link PointLight} that casts a shadow.
+   */
   public shadowViewMatrix: any;
 
   /**
-     * The 4x4 viewing projection matrix the renderers is currently using when rendering shadows.
-     */
+   * The 4x4 viewing projection matrix the renderers is currently using when rendering shadows.
+   */
   public shadowProjMatrix: any;
 
   /**
-     * The 4x4 viewing transform matrix the renderers is currently using when rendering a ray-pick.
-     *
-     * This sets the viewpoint to look along the ray given to {@link scene!Scene/pick:method"}}Scene#pick(){{/crossLink}}
-     * when picking with a ray.
-     */
+   * The 4x4 viewing transform matrix the renderers is currently using when rendering a ray-pick.
+   *
+   * This sets the viewpoint to look along the ray given to {@link scene!Scene/pick:method"}}Scene#pick(){{/crossLink}}
+   * when picking with a ray.
+   */
   public pickViewMatrix: any;
 
   /**
-     * The 4x4 orthographic projection transform matrix the renderers is currently using when rendering a ray-pick.
-     */
+   * The 4x4 orthographic projection transform matrix the renderers is currently using when rendering a ray-pick.
+   */
   public pickProjMatrix: any;
 
   /**
-     * Distance to the near clipping plane when rendering depth fragments for GPU-accelerated 3D picking.
-     */
+   * Distance to the near clipping plane when rendering depth fragments for GPU-accelerated 3D picking.
+   */
   public pickZNear: number;
 
   /**
-     * Distance to the far clipping plane when rendering depth fragments for GPU-accelerated 3D picking.
-     */
+   * Distance to the far clipping plane when rendering depth fragments for GPU-accelerated 3D picking.
+   */
   public pickZFar: number;
 
   /**
-     * Whether or not the renderers is currently picking invisible objects.
-     */
+   * Whether or not the renderers is currently picking invisible objects.
+   */
   public pickInvisible: boolean;
 
   /** The current line width.
-     */
+   */
   public lineWidth: number;
 
   /**
-     * ID of the last {@link WebGLProgram} that was bound during the current frame.
-     */
+   * ID of the last {@link WebGLProgram} that was bound during the current frame.
+   */
   public lastProgramId: number;
 
   /**
-     * The occlusion rendering texture.
-     */
+   * The occlusion rendering texture.
+   */
   public saoOcclusionTexture: WebGLAbstractTexture | null;
 
   public pickClipPos: FloatArrayParam;
@@ -136,8 +136,8 @@ export class RenderContext {
   }
 
   /**
-     * Called by the renderers before each frame.
-     */
+   * Called by the renderers before each frame.
+   */
   reset() {
     this.lastProgramId = -1;
     this.pbrEnabled = false;
@@ -156,8 +156,8 @@ export class RenderContext {
   }
 
   /**
-     * Gets the next available texture unit for this render
-     */
+   * Gets the next available texture unit for this render
+   */
   get nextTextureUnit() {
     const textureUnit = this.textureUnit;
     this.textureUnit = (this.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;

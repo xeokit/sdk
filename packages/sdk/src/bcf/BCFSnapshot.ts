@@ -4,12 +4,12 @@
 export interface BCFSnapshot {
 
   /**
-     * Format of the snapshot.
-     */
+   * Format of the snapshot.
+   */
   snapshot_type: "png" | "jpeg",
 
   /**
-     * Snapshot image data.
-     */
+   * Snapshot image data.
+   */
   snapshot_data: string
 }

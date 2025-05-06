@@ -1,5 +1,5 @@
-import { EventDispatcher } from "strongly-typed-events";
-import { EventEmitter } from "./EventEmitter";
+import {EventDispatcher} from "strongly-typed-events";
+import {EventEmitter} from "./EventEmitter";
 
 const createUUID = ((() => {
   const lut: any[] = [];
@@ -21,15 +21,15 @@ const createUUID = ((() => {
 export class Component {
 
   /**
-     * Unique ID of this Component.
-     */
+   * Unique ID of this Component.
+   */
   public id: string;
 
   /**
-     * True once this Component has been destroyed.
-     *
-     * Don't use this Component if this is ````true````.
-     */
+   * True once this Component has been destroyed.
+   *
+   * Don't use this Component if this is ````true````.
+   */
   public destroyed: boolean;
 
   protected dirty: boolean;
@@ -39,15 +39,15 @@ export class Component {
   #ownedComponents: null | { [key: string]: Component };
 
   /**
-     * Emits an event when the {@link core!Component | Component} has been destroyed.
-     *
-     * @event
-     */
+   * Emits an event when the {@link core!Component | Component} has been destroyed.
+   *
+   * @event
+   */
   onDestroyed: EventEmitter<Component, null>;
 
   /**
-     * Creates a new component.
-     */
+   * Creates a new component.
+   */
   constructor(owner: null | Component, cfg: { id?: string, [key: string]: any } = {}) {
     this.#owner = owner;
     this.id = cfg.id || createUUID();
@@ -61,51 +61,51 @@ export class Component {
   }
 
   /**
-     * Logs a message for this component.
-     *
-     * The message will have this format: *````[LOG] [<component type> <component id>: <message>````*
-     *
-     * @param message - The message to log
-     * @protected
-     */
+   * Logs a message for this component.
+   *
+   * The message will have this format: *````[LOG] [<component type> <component id>: <message>````*
+   *
+   * @param message - The message to log
+   * @protected
+   */
   log(message: string): void {
     console.log(`[LOG] ${this.#prefixMessageWithID(message)}`);
   }
 
   /**
-     * Logs a warning for this component to the JavaScript console.
-     *
-     * The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
-     *
-     * @param message - The warning message to log
-     * @protected
-     */
+   * Logs a warning for this component to the JavaScript console.
+   *
+   * The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
+   *
+   * @param message - The warning message to log
+   * @protected
+   */
   warn(message: string): void {
     console.warn(`[WARN] ${this.#prefixMessageWithID(message)}`);
   }
 
   /**
-     * Logs an error for this component to the JavaScript console.
-     *
-     * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
+   * Logs an error for this component to the JavaScript console.
+   *
+   * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
 
-     @param message The error message to log
-     @protected
-     */
+   @param message The error message to log
+   @protected
+   */
   error(message: string): void {
     console.error(`[ERROR] ${this.#prefixMessageWithID(message)}`);
   }
 
   /**
-     * Flags this component as having a defered state updates it needs to perform.
-     */
+   * Flags this component as having a defered state updates it needs to perform.
+   */
   protected setDirty(): void {
     this.dirty = true;
   }
 
   /**
-     * Gives this component an opportunity to action any defered state updates.
-     */
+   * Gives this component an opportunity to action any defered state updates.
+   */
   protected cleanIfDirty(): void {
     if (this.dirty) {
       this.dirty = false;
@@ -114,20 +114,20 @@ export class Component {
   }
 
   /**
-     * Forces this component to action any deferred state updates.
-     */
+   * Forces this component to action any deferred state updates.
+   */
   protected clean(): void {
   }
 
   /**
-     * Destroys this component.
-     *
-     * Also destroys any components owned by this one.
-     *
-     * Sets {@link Component.destroyed} ````true````.
-     *
-     * Cancels any deferred state updates.
-     */
+   * Destroys this component.
+   *
+   * Also destroys any components owned by this one.
+   *
+   * Sets {@link Component.destroyed} ````true````.
+   *
+   * Cancels any deferred state updates.
+   */
   destroy(): void {
     if (this.destroyed) {
       return;

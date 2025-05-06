@@ -1,6 +1,6 @@
-import type { RenderContext } from "../../../../RenderContext";
-import type { VBOBatchingLayer } from "../../VBOBatchingLayer";
-import { VBOBatchingRenderer } from "../../VBOBatchingRenderer";
+import type {RenderContext} from "../../../../RenderContext";
+import type {VBOBatchingLayer} from "../../VBOBatchingLayer";
+import {VBOBatchingRenderer} from "../../VBOBatchingRenderer";
 
 /**
  * @private
@@ -8,7 +8,7 @@ import { VBOBatchingRenderer } from "../../VBOBatchingRenderer";
 export class VBOTrianglesBatchingEdgesSilhouetteRenderer extends VBOBatchingRenderer {
 
   constructor(renderContext: RenderContext) {
-    super(renderContext, { edges: true });
+    super(renderContext, {edges: true});
   }
 
   getHash(): string {

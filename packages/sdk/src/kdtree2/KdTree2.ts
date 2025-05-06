@@ -1,5 +1,5 @@
-import type { FloatArrayParam, IntArrayParam } from "../math";
-import { containsAABB2 } from "../boundaries";
+import type {FloatArrayParam, IntArrayParam} from "../math";
+import {containsAABB2} from "../boundaries";
 
 const MAX_KD_TREE_DEPTH = 10; // Increase if greater precision needed
 const kdTreeDimLength = new Float32Array(2);
@@ -12,8 +12,8 @@ const kdTreeDimLength = new Float32Array(2);
 export interface KdItem2D {
 
   /**
-     * The item stored in this KdItem2D.
-     */
+   * The item stored in this KdItem2D.
+   */
   item: any;
 }
 
@@ -25,23 +25,23 @@ export interface KdItem2D {
 export interface KdNode2D {
 
   /**
-     * The axis-aligned 2D boundary of this kd-tree node.
-     */
+   * The axis-aligned 2D boundary of this kd-tree node.
+   */
   aabb: FloatArrayParam;
 
   /**
-     * The left KD2Node.
-     */
+   * The left KD2Node.
+   */
   left?: KdNode2D;
 
   /**
-     * The right KD2Node.
-     */
+   * The right KD2Node.
+   */
   right?: KdNode2D;
 
   /**
-     * The {@link KdItem2D | KdItem2Ds} stored in this KD2Node.
-     */
+   * The {@link KdItem2D | KdItem2Ds} stored in this KD2Node.
+   */
   items?: KdItem2D[];
 }
 
@@ -53,13 +53,13 @@ export interface KdNode2D {
 export interface KdTree2DParams {
 
   /**
-     * The 2D boundary of all the nodes we'll add to this k-d tree.
-     */
+   * The 2D boundary of all the nodes we'll add to this k-d tree.
+   */
   aabb: FloatArrayParam;
 
   /**
-     * Maximum depth of the 2D kd-tree.
-     */
+   * Maximum depth of the 2D kd-tree.
+   */
   maxDepth?: number;
 }
 
@@ -71,20 +71,20 @@ export interface KdTree2DParams {
 export class KdTree2 {
 
   /**
-     * The root node in this k-d tree.
-     */
+   * The root node in this k-d tree.
+   */
   readonly root: KdNode2D;
 
   /**
-     * The maximum allowed depth of this 2D k-d tree.
-     */
+   * The maximum allowed depth of this 2D k-d tree.
+   */
   readonly maxDepth: number;
 
   /**
-     * Creates a new 2D k-d tree.
-     *
-     * @param params
-     */
+   * Creates a new 2D k-d tree.
+   *
+   * @param params
+   */
   constructor(params?: KdTree2DParams) {
     this.maxDepth = params?.maxDepth || MAX_KD_TREE_DEPTH;
 
@@ -95,13 +95,13 @@ export class KdTree2 {
   }
 
   /**
-     * Inserts a bounded item into this 2D k-d tree.
-     *
-     * @param item
-     * @param aabb
-     */
+   * Inserts a bounded item into this 2D k-d tree.
+   *
+   * @param item
+   * @param aabb
+   */
   insertItem(item: any, aabb: IntArrayParam) {
-    this.#insertItem(this.root, <KdItem2D>{ item }, aabb, 1)
+    this.#insertItem(this.root, <KdItem2D>{item}, aabb, 1)
   }
 
   #insertItem(node: KdNode2D, item: KdItem2D, aabb: IntArrayParam, depth: number) {

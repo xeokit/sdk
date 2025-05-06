@@ -1,4 +1,4 @@
-import type { BCFComponent } from "./BCFComponent";
+import type {BCFComponent} from "./BCFComponent";
 
 /**
  * A BCF coloring component.
@@ -6,13 +6,13 @@ import type { BCFComponent } from "./BCFComponent";
 export interface BCFColoringComponent {
 
   /**
-     * The BCF components to colorize.
-     */
+   * The BCF components to colorize.
+   */
   components: BCFComponent[];
 
   /**
-     * RGBA color to apply, encoded as a string.
-     */
+   * RGBA color to apply, encoded as a string.
+   */
   color: string;
 
 }

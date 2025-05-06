@@ -1,5 +1,5 @@
-import { encode as encode_IFC4 } from "./versions/IFC4/encode"
-import { ModelExporter } from "../io";
+import {encode as encode_IFC4} from "./versions/IFC4/encode"
+import {ModelExporter} from "../io";
 
 /**
  * Exports a {@link scene!SceneModel | SceneModel} and {@link data!DataModel | DataModel} to an IFC file.

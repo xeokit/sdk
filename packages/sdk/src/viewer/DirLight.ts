@@ -1,8 +1,8 @@
-import { Component } from "../core";
-import type { CustomProjectionParams } from "./CustomProjectionParams";
-import type { DirLightParams } from "./DirLightParams";
-import type { FloatArrayParam } from "../math";
-import type { View } from "./View";
+import {Component} from "../core";
+import type {CustomProjectionParams} from "./CustomProjectionParams";
+import type {DirLightParams} from "./DirLightParams";
+import type {FloatArrayParam} from "../math";
+import type {View} from "./View";
 
 /**
  * A directional light source within a {@link View}.
@@ -17,13 +17,13 @@ import type { View } from "./View";
 class DirLight extends Component {
 
   /**
-     ID of this DirLight, unique within the {@link View}.
-     */
+   ID of this DirLight, unique within the {@link View}.
+   */
   declare public id: string;
 
   /**
-     * The View to which this DirLight belongs.
-     */
+   * The View to which this DirLight belongs.
+   */
   public readonly view: View;
 
   #state: {
@@ -35,14 +35,14 @@ class DirLight extends Component {
   };
 
   /**
-     * @param view View that owns this DirLight. When destroyed, the View will destroy this DirLight as well.
-     * @param options The DirLight configuration
-     * @param [options.id] Optional ID, unique among all components in the parent {@link scene!Scene | Scene}, generated automatically when omitted.
-     * @param [options.dir=[1.0, 1.0, 1.0]]  A unit vector indicating the direction that the light is shining,  given in either World or View space, depending on the value of the ````space```` parameter.
-     * @param [options.color=[0.7, 0.7, 0.8 ]] The color of this DirLight.
-     * @param [options.intensity=1.0] The intensity of this DirLight, as a factor in range ````[0..1]````.
-     * @param [options.space="view"] The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
-     */
+   * @param view View that owns this DirLight. When destroyed, the View will destroy this DirLight as well.
+   * @param options The DirLight configuration
+   * @param [options.id] Optional ID, unique among all components in the parent {@link scene!Scene | Scene}, generated automatically when omitted.
+   * @param [options.dir=[1.0, 1.0, 1.0]]  A unit vector indicating the direction that the light is shining,  given in either World or View space, depending on the value of the ````space```` parameter.
+   * @param [options.color=[0.7, 0.7, 0.8 ]] The color of this DirLight.
+   * @param [options.intensity=1.0] The intensity of this DirLight, as a factor in range ````[0..1]````.
+   * @param [options.space="view"] The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
+   */
   constructor(view: View, options: DirLightParams = {}) {
     super(view, options);
     this.view = view;
@@ -57,89 +57,89 @@ class DirLight extends Component {
   }
 
   /**
-     * Gets the direction in which the DirLight is shining.
-     *
-     * Default value is ````[1.0, 1.0, 1.0]````.
-     *
-     * @returns {Number[]} The direction vector.
-     */
+   * Gets the direction in which the DirLight is shining.
+   *
+   * Default value is ````[1.0, 1.0, 1.0]````.
+   *
+   * @returns {Number[]} The direction vector.
+   */
   get dir(): FloatArrayParam {
     return this.#state.dir;
   }
 
   /**
-     * The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
-     */
+   * The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
+   */
   get space(): string {
     return this.#state.space;
   }
 
   /**
-     * Sets the direction in which the DirLight is shining.
-     *
-     * Default value is ````[1.0, 1.0, 1.0]````.
-     *
-     * @param value The direction vector.
-     */
+   * Sets the direction in which the DirLight is shining.
+   *
+   * Default value is ````[1.0, 1.0, 1.0]````.
+   *
+   * @param value The direction vector.
+   */
   set dir(value: FloatArrayParam) {
     this.#state.dir.set(value);
     this.view.redraw();
   }
 
   /**
-     * Gets the RGB color of this DirLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.8]````.
-     *
-     * @returns {Number[]} The DirLight's RGB color.
-     */
+   * Gets the RGB color of this DirLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.8]````.
+   *
+   * @returns {Number[]} The DirLight's RGB color.
+   */
   get color(): FloatArrayParam {
     return this.#state.color;
   }
 
   /**
-     * Sets the RGB color of this DirLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.8]````.
-     *
-     * @param color The DirLight's RGB color.
-     */
+   * Sets the RGB color of this DirLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.8]````.
+   *
+   * @param color The DirLight's RGB color.
+   */
   set color(color: FloatArrayParam) {
     this.#state.color.set(color);
     this.view.redraw();
   }
 
   /**
-     * Gets the intensity of this DirLight.
-     *
-     * Default value is ````1.0```` for maximum intensity.
-     *
-     * @returns {Number} The DirLight's intensity.
-     */
+   * Gets the intensity of this DirLight.
+   *
+   * Default value is ````1.0```` for maximum intensity.
+   *
+   * @returns {Number} The DirLight's intensity.
+   */
   get intensity(): number {
     return this.#state.intensity;
   }
 
   /**
-     * Sets the intensity of this DirLight.
-     *
-     * Default intensity is ````1.0```` for maximum intensity.
-     *
-     * @param intensity The DirLight's intensity
-     */
+   * Sets the intensity of this DirLight.
+   *
+   * Default intensity is ````1.0```` for maximum intensity.
+   *
+   * @param intensity The DirLight's intensity
+   */
   set intensity(intensity: number) {
     this.#state.intensity = intensity;
     this.view.redraw();
   }
 
   /**
-     * Configures this DirLight.
-     *
-     * Ignores {@link DirLightParams.space | DirLightParams.space}, because
-     * {@link DirLight.space | DirLight.space} is not dynamically updatable.
-     *
-     * @param dirLightParams
-     */
+   * Configures this DirLight.
+   *
+   * Ignores {@link DirLightParams.space | DirLightParams.space}, because
+   * {@link DirLight.space | DirLight.space} is not dynamically updatable.
+   *
+   * @param dirLightParams
+   */
   fromParams(dirLightParams: DirLightParams) {
     if (dirLightParams.dir) {
       this.dir = dirLightParams.dir;
@@ -154,8 +154,8 @@ class DirLight extends Component {
   }
 
   /**
-     * Gets this DirLight's current configuration.
-     */
+   * Gets this DirLight's current configuration.
+   */
   toParams(): DirLightParams {
     return {
       id: this.id,
@@ -167,8 +167,8 @@ class DirLight extends Component {
   }
 
   /**
-     * Destroys this DirLight.
-     */
+   * Destroys this DirLight.
+   */
   destroy() {
     super.destroy();
     this.view.deregisterLight(this);
@@ -176,4 +176,4 @@ class DirLight extends Component {
   }
 }
 
-export { DirLight };
+export {DirLight};

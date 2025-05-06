@@ -1,5 +1,5 @@
-import { ModelLoader } from "../io";
-import { parse as parse_10 } from "./versions/v10/parse";
+import {ModelLoader} from "../io";
+import {parse as parse_10} from "./versions/v10/parse";
 
 /**
  * Loads an XKT file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
@@ -9,8 +9,8 @@ import { parse as parse_10 } from "./versions/v10/parse";
 export class XKTLoader extends ModelLoader {
 
   /**
-     * Constructs an XKTLoader.
-     */
+   * Constructs an XKTLoader.
+   */
   constructor() {
     super({
       format: "XKT",

@@ -1,6 +1,6 @@
-import type { DataObjectParams } from "./DataObjectParams";
-import type { PropertySetParams } from "./PropertySetParams";
-import type { RelationshipParams } from "./RelationshipParams";
+import type {DataObjectParams} from "./DataObjectParams";
+import type {PropertySetParams} from "./PropertySetParams";
+import type {RelationshipParams} from "./RelationshipParams";
 
 /**
  * Parameters for populating a {@link DataModel | DataModel} using {@link data!DataModel.fromParams | DataModel.fromParams}.
@@ -13,26 +13,26 @@ import type { RelationshipParams } from "./RelationshipParams";
 export interface DataModelContentParams {
 
   /**
-     * Parameters for {@link PropertySet | PropertySets} in the {@link DataModel | DataModel}.
-     *
-     * This array contains the configuration for the {@link PropertySet | PropertySets} that will be
-     * added to the DataModel.
-     */
+   * Parameters for {@link PropertySet | PropertySets} in the {@link DataModel | DataModel}.
+   *
+   * This array contains the configuration for the {@link PropertySet | PropertySets} that will be
+   * added to the DataModel.
+   */
   propertySets?: PropertySetParams[];
 
   /**
-     * Parameters for {@link DataObject | DataObjects} in the {@link DataModel | DataModel}.
-     *
-     * This array contains the configuration for the {@link DataObject | DataObjects} to be added
-     * to the DataModel.
-     */
+   * Parameters for {@link DataObject | DataObjects} in the {@link DataModel | DataModel}.
+   *
+   * This array contains the configuration for the {@link DataObject | DataObjects} to be added
+   * to the DataModel.
+   */
   objects?: DataObjectParams[];
 
   /**
-     * Parameters for {@link Relationship | Relationships} in the {@link DataModel | DataModel}.
-     *
-     * This array contains the configuration for the {@link Relationship | Relationships} that will
-     * be established between the {@link DataObject | DataObjects} within the DataModel.
-     */
+   * Parameters for {@link Relationship | Relationships} in the {@link DataModel | DataModel}.
+   *
+   * This array contains the configuration for the {@link Relationship | Relationships} that will
+   * be established between the {@link DataObject | DataObjects} within the DataModel.
+   */
   relationships?: RelationshipParams[];
 }

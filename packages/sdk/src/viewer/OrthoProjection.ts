@@ -1,11 +1,11 @@
-import { Component, EventEmitter } from "../core";
-import { createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4 } from "../matrix";
-import type { Camera } from "./Camera";
-import { EventDispatcher } from "strongly-typed-events";
-import type { FloatArrayParam } from "../math";
-import type { OrthoProjectionParams } from "./OrthoProjectionParams";
-import { OrthoProjectionType } from "../constants";
-import type { Projection } from "./Projection";
+import {Component, EventEmitter} from "../core";
+import {createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4} from "../matrix";
+import type {Camera} from "./Camera";
+import {EventDispatcher} from "strongly-typed-events";
+import type {FloatArrayParam} from "../math";
+import type {OrthoProjectionParams} from "./OrthoProjectionParams";
+import {OrthoProjectionType} from "../constants";
+import type {Projection} from "./Projection";
 
 
 /**
@@ -21,20 +21,20 @@ import type { Projection } from "./Projection";
 export class OrthoProjection extends Component implements Projection {
 
   /**
-     * The Camera this OrthoProjection belongs to.
-     */
+   * The Camera this OrthoProjection belongs to.
+   */
   public readonly camera: Camera;
 
   /**
-     * Emits an event each time {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix} updates.
-     *
-     * @event
-     */
+   * Emits an event each time {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix} updates.
+   *
+   * @event
+   */
   readonly onProjMatrix: EventEmitter<OrthoProjection, FloatArrayParam>;
 
   /**
-     * The type of this projection.
-     */
+   * The type of this projection.
+   */
   static readonly type: number = OrthoProjectionType;
 
   #state: {
@@ -51,8 +51,8 @@ export class OrthoProjection extends Component implements Projection {
   #onViewBoundary: any;
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(camera: Camera, cfg: OrthoProjectionParams = {}) {
 
     super(camera, cfg);
@@ -79,26 +79,26 @@ export class OrthoProjection extends Component implements Projection {
   }
 
   /**
-     * Gets scale factor for this OrthoProjection's extents on X and Y axis.
-     *
-     * Clamps to minimum value of ````0.01```.
-     *
-     * Default value is ````1.0````
-     *
-     * returns New OrthoProjection scale value.
-     */
+   * Gets scale factor for this OrthoProjection's extents on X and Y axis.
+   *
+   * Clamps to minimum value of ````0.01```.
+   *
+   * Default value is ````1.0````
+   *
+   * returns New OrthoProjection scale value.
+   */
   get scale(): number {
     return this.#state.scale;
   }
 
   /**
-     * Sets scale factor for this OrthoProjection's extents on X and Y axis.
-     *
-     * Clamps to minimum value of ````0.01```.
-     *
-     * Default value is ````1.0````
-     * @param value New scale value.
-     */
+   * Sets scale factor for this OrthoProjection's extents on X and Y axis.
+   *
+   * Clamps to minimum value of ````0.01```.
+   *
+   * Default value is ````1.0````
+   * @param value New scale value.
+   */
   set scale(value: number) {
     if (value <= 0) {
       value = 0.01;
@@ -108,23 +108,23 @@ export class OrthoProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the position of the OrthoProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * returns New OrthoProjection near plane position.
-     */
+   * Gets the position of the OrthoProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * returns New OrthoProjection near plane position.
+   */
   get near(): number {
     return this.#state.near;
   }
 
   /**
-     * Sets the position of the OrthoProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * @param value New OrthoProjection near plane position.
-     */
+   * Sets the position of the OrthoProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * @param value New OrthoProjection near plane position.
+   */
   set near(value: number) {
     if (this.#state.near === value) {
       return;
@@ -134,23 +134,23 @@ export class OrthoProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the position of the OrthoProjection's far plane on the positive View-space Z-axis.
-     *
-     * Default value is ````10000.0````.
-     *
-     * returns New far ortho plane position.
-     */
+   * Gets the position of the OrthoProjection's far plane on the positive View-space Z-axis.
+   *
+   * Default value is ````10000.0````.
+   *
+   * returns New far ortho plane position.
+   */
   get far(): number {
     return this.#state.far;
   }
 
   /**
-     * Sets the position of the OrthoProjection's far plane on the positive View-space Z-axis.
-     *
-     * Default value is ````2000.0````.
-     *
-     * @param value New far ortho plane position.
-     */
+   * Sets the position of the OrthoProjection's far plane on the positive View-space Z-axis.
+   *
+   * Default value is ````2000.0````.
+   *
+   * @param value New far ortho plane position.
+   */
   set far(value: number) {
     if (this.#state.far === value) {
       return;
@@ -160,12 +160,12 @@ export class OrthoProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the OrthoProjection's projection transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @returns  The OrthoProjection's projection matrix.
-     */
+   * Gets the OrthoProjection's projection transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @returns  The OrthoProjection's projection matrix.
+   */
   get projMatrix(): FloatArrayParam {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -174,10 +174,10 @@ export class OrthoProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the inverse of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
-     *
-     * @returns  The inverse of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
-     */
+   * Gets the inverse of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
+   *
+   * @returns  The inverse of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
+   */
   get inverseProjMatrix(): FloatArrayParam {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -190,10 +190,10 @@ export class OrthoProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the transpose of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
-     *
-     * @returns  The transpose of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
-     */
+   * Gets the transpose of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
+   *
+   * @returns  The transpose of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
+   */
   get transposedProjMatrix(): FloatArrayParam {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -206,8 +206,8 @@ export class OrthoProjection extends Component implements Projection {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   clean() {
 
     const WIDTH_INDEX = 2;
@@ -251,14 +251,14 @@ export class OrthoProjection extends Component implements Projection {
   }
 
   /**
-     * Un-projects the given View-space coordinates, using this OrthoProjection projection.
-     *
-     * @param canvasPos Inputs 2D View-space coordinates.
-     * @param screenZ Inputs Screen-space Z coordinate.
-     * @param screenPos Outputs 3D Screen/Clip-space coordinates.
-     * @param viewPos Outputs un-projected 3D View-space coordinates.
-     * @param worldPos Outputs un-projected 3D World-space coordinates.
-     */
+   * Un-projects the given View-space coordinates, using this OrthoProjection projection.
+   *
+   * @param canvasPos Inputs 2D View-space coordinates.
+   * @param screenZ Inputs Screen-space Z coordinate.
+   * @param screenPos Outputs 3D Screen/Clip-space coordinates.
+   * @param viewPos Outputs un-projected 3D View-space coordinates.
+   * @param worldPos Outputs un-projected 3D World-space coordinates.
+   */
   unproject(
     canvasPos: FloatArrayParam,
     screenZ: number,
@@ -288,10 +288,10 @@ export class OrthoProjection extends Component implements Projection {
   }
 
   /**
-     * Configures this OrthoProjection.
-     *
-     * @param orthoProjectionParams
-     */
+   * Configures this OrthoProjection.
+   *
+   * @param orthoProjectionParams
+   */
   fromParams(orthoProjectionParams: OrthoProjectionParams) {
     if (orthoProjectionParams.far !== undefined) {
       this.far = orthoProjectionParams.far;
@@ -305,8 +305,8 @@ export class OrthoProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the current configuration of this OrthoProjection.
-     */
+   * Gets the current configuration of this OrthoProjection.
+   */
   toParams(): OrthoProjectionParams {
     return {
       far: this.far,
@@ -316,8 +316,8 @@ export class OrthoProjection extends Component implements Projection {
   }
 
   /** @private
-     *
-     */
+   *
+   */
   destroy() {
     super.destroy();
     this.camera.view.onBoundary.unsubscribe(this.#onViewBoundary);

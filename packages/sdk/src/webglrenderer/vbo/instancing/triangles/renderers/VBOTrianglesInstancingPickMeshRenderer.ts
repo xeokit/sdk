@@ -1,5 +1,5 @@
-import type { VBOInstancingLayer } from "../../VBOInstancingLayer";
-import { VBOInstancingRenderer } from "../../VBOInstancingRenderer";
+import type {VBOInstancingLayer} from "../../VBOInstancingLayer";
+import {VBOInstancingRenderer} from "../../VBOInstancingRenderer";
 
 /**
  * @private
@@ -25,7 +25,7 @@ export class VBOTrianglesInstancingPickMeshRenderer extends VBOInstancingRendere
     this.vertexMainClose(src);
   }
 
-  buildFragmentShader(src: string[]) : void{
+  buildFragmentShader(src: string[]): void {
     this.fragmentHeader(src);
     this.fragmentPrecisionDefs(src);
     this.fragmentCommonDefs(src);

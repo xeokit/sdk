@@ -1,21 +1,20 @@
-
-import type { XGFData_v1 } from "./XGFData_v1";
+import type {XGFData_v1} from "./XGFData_v1";
 
 /**
  * @private
  */
 export function unpackXGF(arrayBuffer: ArrayBuffer): XGFData_v1 {
 
-  const requiresSwapFromLittleEndian = (function() {
+  const requiresSwapFromLittleEndian = (function () {
     const buffer = new ArrayBuffer(2);
     new Uint16Array(buffer)[0] = 1;
     return new Uint8Array(buffer)[0] !== 1;
   })();
 
-  const nextArray = (function() {
+  const nextArray = (function () {
     let i = 0;
     const dataView = new DataView(arrayBuffer);
-    return function(type) {
+    return function (type) {
       const idx = 1 + 2 * i++; // `1' for the version nr
       const byteOffset = dataView.getUint32(idx * 4, true);
       const byteLength = dataView.getUint32((idx + 1) * 4, true);
@@ -41,7 +40,7 @@ export function unpackXGF(arrayBuffer: ArrayBuffer): XGFData_v1 {
     };
   })();
 
-  const nextObject = (function() {
+  const nextObject = (function () {
     const decoder = new TextDecoder();
     return () => JSON.parse(decoder.decode(nextArray(Uint8Array)));
   })();

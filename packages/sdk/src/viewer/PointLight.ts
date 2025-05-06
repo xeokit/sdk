@@ -1,8 +1,8 @@
-import { Component } from "../core";
-import type { DirLightParams } from "./DirLightParams";
-import type { FloatArrayParam } from "../math";
-import type { PointLightParams } from "./PointLightParams";
-import type { View } from "./View";
+import {Component} from "../core";
+import type {DirLightParams} from "./DirLightParams";
+import type {FloatArrayParam} from "../math";
+import type {PointLightParams} from "./PointLightParams";
+import type {View} from "./View";
 
 
 /**
@@ -22,13 +22,13 @@ import type { View } from "./View";
 class PointLight extends Component {
 
   /**
-     ID of this PointLight, unique within the {@link View}.
-     */
+   ID of this PointLight, unique within the {@link View}.
+   */
   declare public id: string;
 
   /**
-     * The View to which this PointLight belongs.
-     */
+   * The View to which this PointLight belongs.
+   */
   public readonly view: View;
 
   #state: {
@@ -41,9 +41,9 @@ class PointLight extends Component {
   };
 
   /**
-     * @param view View that owns this PointLight. When destroyed, the View will destroy this PointLight as well.
-     * @param cfg The PointLight configuration
-     */
+   * @param view View that owns this PointLight. When destroyed, the View will destroy this PointLight as well.
+   * @param cfg The PointLight configuration
+   */
   constructor(view: View, cfg: PointLightParams = {}) {
 
     super(view, cfg);
@@ -65,80 +65,80 @@ class PointLight extends Component {
   }
 
   /**
-     * The coordinate system the PointLight is defined in - ````"view"```` or ````"space"````.
-     */
+   * The coordinate system the PointLight is defined in - ````"view"```` or ````"space"````.
+   */
   get space(): string {
     return this.#state.space;
   }
 
   /**
-     * Gets the position of this PointLight.
-     *
-     * This will be either World- or View-space, depending on the value of {@link PointLight.space}.
-     *
-     * Default value is ````[1.0, 1.0, 1.0]````.
-     *
-     * @returns {Number[]} The position.
-     */
+   * Gets the position of this PointLight.
+   *
+   * This will be either World- or View-space, depending on the value of {@link PointLight.space}.
+   *
+   * Default value is ````[1.0, 1.0, 1.0]````.
+   *
+   * @returns {Number[]} The position.
+   */
   get pos(): FloatArrayParam {
     return this.#state.pos;
   }
 
   /**
-     * Sets the position of this PointLight.
-     *
-     * This will be either World- or View-space, depending on the value of {@link PointLight.space}.
-     *
-     * Default value is ````[1.0, 1.0, 1.0]````.
-     *
-     * @param pos The position.
-     */
+   * Sets the position of this PointLight.
+   *
+   * This will be either World- or View-space, depending on the value of {@link PointLight.space}.
+   *
+   * Default value is ````[1.0, 1.0, 1.0]````.
+   *
+   * @param pos The position.
+   */
   set pos(pos: FloatArrayParam) {
     this.#state.pos.set(pos || [1.0, 1.0, 1.0]);
     this.view.redraw();
   }
 
   /**
-     * Gets the RGB color of this PointLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.8]````.
-     *
-     * @returns {Number[]} The PointLight's RGB color.
-     */
+   * Gets the RGB color of this PointLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.8]````.
+   *
+   * @returns {Number[]} The PointLight's RGB color.
+   */
   get color(): FloatArrayParam {
     return this.#state.color;
   }
 
   /**
-     * Sets the RGB color of this PointLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.8]````.
-     *
-     * @param color The PointLight's RGB color.
-     */
+   * Sets the RGB color of this PointLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.8]````.
+   *
+   * @param color The PointLight's RGB color.
+   */
   set color(color: FloatArrayParam) {
     this.#state.color.set(color || [0.7, 0.7, 0.8]);
     this.view.redraw();
   }
 
   /**
-     * Gets the intensity of this PointLight.
-     *
-     * Default value is ````1.0```` for maximum intensity.
-     *
-     * @returns {Number} The PointLight's intensity.
-     */
+   * Gets the intensity of this PointLight.
+   *
+   * Default value is ````1.0```` for maximum intensity.
+   *
+   * @returns {Number} The PointLight's intensity.
+   */
   get intensity(): number {
     return this.#state.intensity;
   }
 
   /**
-     * Sets the intensity of this PointLight.
-     *
-     * Default intensity is ````1.0```` for maximum intensity.
-     *
-     * @param intensity The PointLight's intensity
-     */
+   * Sets the intensity of this PointLight.
+   *
+   * Default intensity is ````1.0```` for maximum intensity.
+   *
+   * @param intensity The PointLight's intensity
+   */
   set intensity(intensity: number) {
     if (intensity === this.#state.intensity) {
       return;
@@ -148,82 +148,82 @@ class PointLight extends Component {
   }
 
   /**
-     * Gets the constant attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @returns {Number} The constant attenuation factor.
-     */
+   * Gets the constant attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @returns {Number} The constant attenuation factor.
+   */
   get constantAttenuation(): number {
     return this.#state.attenuation[0];
   }
 
   /**
-     * Sets the constant attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @param value The constant attenuation factor.
-     */
+   * Sets the constant attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @param value The constant attenuation factor.
+   */
   set constantAttenuation(value: number) {
     this.#state.attenuation[0] = value;
     this.view.redraw();
   }
 
   /**
-     * Gets the linear attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @returns {Number} The linear attenuation factor.
-     */
+   * Gets the linear attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @returns {Number} The linear attenuation factor.
+   */
   get linearAttenuation(): number {
     return this.#state.attenuation[1];
   }
 
   /**
-     * Sets the linear attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @param value The linear attenuation factor.
-     */
+   * Sets the linear attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @param value The linear attenuation factor.
+   */
   set linearAttenuation(value: number) {
     this.#state.attenuation[1] = value;
     this.view.redraw();
   }
 
   /**
-     * Gets the quadratic attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @returns {Number} The quadratic attenuation factor.
-     */
+   * Gets the quadratic attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @returns {Number} The quadratic attenuation factor.
+   */
   get quadraticAttenuation(): number {
     return this.#state.attenuation[2];
   }
 
   /**
-     * Sets the quadratic attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @param value The quadratic attenuation factor.
-     */
+   * Sets the quadratic attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @param value The quadratic attenuation factor.
+   */
   set quadraticAttenuation(value: number) {
     this.#state.attenuation[2] = value;
     this.view.redraw();
   }
 
   /**
-     * Configures this PointLight.
-     *
-     * Ignores {@link PointLightParams.space | PointLightParams.space}, because
-     * {@link PointLight.space | PointLight.space} is not dynamically updatable.
-     *
-     * @param pointLightParams
-     */
+   * Configures this PointLight.
+   *
+   * Ignores {@link PointLightParams.space | PointLightParams.space}, because
+   * {@link PointLight.space | PointLight.space} is not dynamically updatable.
+   *
+   * @param pointLightParams
+   */
   fromParams(pointLightParams: PointLightParams) {
     if (pointLightParams.pos) {
       this.pos = pointLightParams.pos;
@@ -238,8 +238,8 @@ class PointLight extends Component {
   }
 
   /**
-     * Gets the current configuration of this PointLight.
-     */
+   * Gets the current configuration of this PointLight.
+   */
   toParams(): PointLightParams {
     return {
       id: this.id,
@@ -254,8 +254,8 @@ class PointLight extends Component {
   }
 
   /**
-     * Destroys this PointLight.
-     */
+   * Destroys this PointLight.
+   */
   destroy() {
     super.destroy();
     this.view.deregisterLight(this);
@@ -263,4 +263,4 @@ class PointLight extends Component {
   }
 }
 
-export { PointLight };
+export {PointLight};

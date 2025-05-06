@@ -1,15 +1,15 @@
-import { apply, createUUID, inQuotes } from "../utils";
-import { type Capabilities, Component, EventEmitter, SDKError } from "../core";
-import { EventDispatcher } from "strongly-typed-events";
-import type { FloatArrayParam } from "../math";
-import type { Renderer } from "./Renderer";
-import { Scene } from "../scene";
-import type { SceneModel } from "../scene";
-import { scheduler } from "./scheduler";
-import type { TickParams } from "./TickParams";
-import { View } from "./View";
-import type { ViewerParams } from "./ViewerParams";
-import type { ViewParams } from "./ViewParams";
+import {apply, createUUID, inQuotes} from "../utils";
+import {type Capabilities, Component, EventEmitter, SDKError} from "../core";
+import {EventDispatcher} from "strongly-typed-events";
+import type {FloatArrayParam} from "../math";
+import type {Renderer} from "./Renderer";
+import {Scene} from "../scene";
+import type {SceneModel} from "../scene";
+import {scheduler} from "./scheduler";
+import type {TickParams} from "./TickParams";
+import {View} from "./View";
+import type {ViewerParams} from "./ViewerParams";
+import type {ViewParams} from "./ViewParams";
 
 /**
  * 3D model viewer.
@@ -19,115 +19,115 @@ import type { ViewParams } from "./ViewParams";
 export class Viewer extends Component {
 
   /**
-     * ID of this Viewer.
-     */
+   * ID of this Viewer.
+   */
   declare readonly id: string;
 
   /**
-     * True once this Viewer has been destroyed.
-     *
-     * Don't use this Viewer if this is ````false````.
-     */
+   * True once this Viewer has been destroyed.
+   *
+   * Don't use this Viewer if this is ````false````.
+   */
   declare readonly destroyed: boolean;
 
   /**
-     * Indicates the capabilities of this Viewer.
-     */
+   * Indicates the capabilities of this Viewer.
+   */
   readonly capabilities: Capabilities;
 
   /**
-     * Emits an event each time a message is logged.
-     *
-     * @event
-     */
+   * Emits an event each time a message is logged.
+   *
+   * @event
+   */
   readonly onLog: EventEmitter<Viewer, string>;
 
   /**
-     * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
-     *
-     * @event
-     */
+   * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
+   *
+   * @event
+   */
   readonly onTick: EventEmitter<Viewer, TickParams>;
 
   /**
-     * Emits an event each time a {@link View} is created.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link View} is created.
+   *
+   * @event
+   */
   readonly onViewCreated: EventEmitter<Viewer, View>;
 
   /**
-     * Emits an event each time a {@link View} is destroyed.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link View} is destroyed.
+   *
+   * @event
+   */
   readonly onViewDestroyed: EventEmitter<Viewer, View>;
 
   /**
-     * The Viewer's scene representation.
-     *
-     * The {@link scene!SceneModel | SceneModels} is the container of {@link scene!SceneModel | SceneModels}
-     * and {@link scene!SceneObject | SceneObjects}, which contain the geometry and materials for models currently
-     * loaded in the Viewer.
-     */
+   * The Viewer's scene representation.
+   *
+   * The {@link scene!SceneModel | SceneModels} is the container of {@link scene!SceneModel | SceneModels}
+   * and {@link scene!SceneObject | SceneObjects}, which contain the geometry and materials for models currently
+   * loaded in the Viewer.
+   */
   readonly scene: Scene;
 
   /**
-     * Map of all the Views in this Viewer.
-     *
-     * Each {@link View} is mapped here against {@link View.id | View.id}.
-     *
-     * Each {@link View} is an independently configurable view of the Viewer's models, with its own
-     * canvas, camera position, section planes, lights, and object visual states.
-     */
+   * Map of all the Views in this Viewer.
+   *
+   * Each {@link View} is mapped here against {@link View.id | View.id}.
+   *
+   * Each {@link View} is an independently configurable view of the Viewer's models, with its own
+   * canvas, camera position, section planes, lights, and object visual states.
+   */
   readonly views: { [key: string]: View };
 
   /**
-     * List of all the Views in this Viewer.
-     *
-     * Each {@link View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
-     *
-     * @internal
-     */
+   * List of all the Views in this Viewer.
+   *
+   * Each {@link View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
+   *
+   * @internal
+   */
   readonly viewList: View[];
 
   /**
-     *  The number of {@link View | Views} belonging to this Viewer.
-     *
-     *  The maxiumum number of Views that a Viewer can have is determined by the {@link Renderer} implementation it was
-     *  configured with, which is provided in {@link Capabilities.maxViews}.
-     */
+   *  The number of {@link View | Views} belonging to this Viewer.
+   *
+   *  The maxiumum number of Views that a Viewer can have is determined by the {@link Renderer} implementation it was
+   *  configured with, which is provided in {@link Capabilities.maxViews}.
+   */
   numViews: number;
 
   /**
-     * The time that this Viewer was created.
-     * This is the number of milliseconds since the epoch, which is defined as the midnight at the beginning of January 1, 1970, UTC.
-     */
+   * The time that this Viewer was created.
+   * This is the number of milliseconds since the epoch, which is defined as the midnight at the beginning of January 1, 1970, UTC.
+   */
   readonly startTime: number = (new Date()).getTime();
 
   /**
-     * The Renderer that this Viewer was configured with via the Viewer's constructor.
-     * Th Renderer is only used by the Viewer, and is not intended to for users to use directly. It's provided via this property
-     * in order to verify which Render implementation the Viewer is configured with.
-     */
+   * The Renderer that this Viewer was configured with via the Viewer's constructor.
+   * Th Renderer is only used by the Viewer, and is not intended to for users to use directly. It's provided via this property
+   * in order to verify which Render implementation the Viewer is configured with.
+   */
   readonly renderer: Renderer;
 
   #tickifiedFunctions: {};
 
   /**
-     * Creates a Viewer.
-     *
-     * @param params - Viewer configuration.
-     * @param params.scene - Contains model representations. A Scene can be attached to a maximum of one Viewer - don't share a Scene between multiple Viewers.
-     * @param params.renderer - Manages rendering of models.
-     * @param params.id - ID for this Viewer, automatically generated by default.
-     * @param params.units - The measurement unit type. Accepted values are ````"meters"````, ````"metres"````, , ````"centimeters"````, ````"centimetres"````, ````"millimeters"````,  ````"millimetres"````, ````"yards"````, ````"feet"```` and ````"inches"````.
-     * @param params.scale - The number of Real-space units in each World-space coordinate system unit.
-     * @param params.origin - The Real-space 3D origin, in current measurement units, at which the World-space coordinate origin ````[0,0,0]```` sits.
-     * @param params.localeService - Locale-based translation service.
-     * @throws SDKError
-     *   The given Renderer is already attached to some other Viewer.
-     */
+   * Creates a Viewer.
+   *
+   * @param params - Viewer configuration.
+   * @param params.scene - Contains model representations. A Scene can be attached to a maximum of one Viewer - don't share a Scene between multiple Viewers.
+   * @param params.renderer - Manages rendering of models.
+   * @param params.id - ID for this Viewer, automatically generated by default.
+   * @param params.units - The measurement unit type. Accepted values are ````"meters"````, ````"metres"````, , ````"centimeters"````, ````"centimetres"````, ````"millimeters"````,  ````"millimetres"````, ````"yards"````, ````"feet"```` and ````"inches"````.
+   * @param params.scale - The number of Real-space units in each World-space coordinate system unit.
+   * @param params.origin - The Real-space 3D origin, in current measurement units, at which the World-space coordinate origin ````[0,0,0]```` sits.
+   * @param params.localeService - Locale-based translation service.
+   * @throws SDKError
+   *   The given Renderer is already attached to some other Viewer.
+   */
   constructor(params: {
     scene?: Scene,
     renderer: Renderer,
@@ -188,22 +188,22 @@ export class Viewer extends Component {
   }
 
   /**
-     * This method will "tickify" the provided `cb` function.
-     *
-     * This means, the function will be wrapped so:
-     *
-     * - it runs time-aligned to scene ticks
-     * - it runs maximum once per scene-tick
-     *
-     * @param {Function} cb The function to tickify
-     * @returns {Function}
-     */
+   * This method will "tickify" the provided `cb` function.
+   *
+   * This means, the function will be wrapped so:
+   *
+   * - it runs time-aligned to scene ticks
+   * - it runs maximum once per scene-tick
+   *
+   * @param {Function} cb The function to tickify
+   * @returns {Function}
+   */
   tickify(cb: any): any {
     const cbString = cb.toString();
 
     /**
-         * Check if the function is already tickified, and if so return the cached one.
-         */
+     * Check if the function is already tickified, and if so return the cached one.
+     */
     if (cbString in this.#tickifiedFunctions) {
       return this.#tickifiedFunctions[cbString].wrapperFunc;
     }
@@ -214,20 +214,20 @@ export class Viewer extends Component {
     let lastArgs;
 
     /**
-         * The provided `cb` function is replaced with a "set-dirty" function
-         *
-         * @type {Function}
-         */
+     * The provided `cb` function is replaced with a "set-dirty" function
+     *
+     * @type {Function}
+     */
     const wrapperFunc = function (...args) {
       lastArgs = args;
       needToRun++;
     };
 
     /**
-         * An each scene tick, if the "dirty-flag" is set, run the `cb` function.
-         *
-         * This will make it run time-aligned to the scene tick.
-         */
+     * An each scene tick, if the "dirty-flag" is set, run the `cb` function.
+     *
+     * This will make it run time-aligned to the scene tick.
+     */
     const tickSubId = this.onTick.sub(() => {
       const tmp = needToRun;
       if (tmp > alreadyRun) {
@@ -237,47 +237,47 @@ export class Viewer extends Component {
     });
 
     /**
-         * And, store the list of subscribers.
-         */
-    this.#tickifiedFunctions[cbString] = { tickSubId, wrapperFunc };
+     * And, store the list of subscribers.
+     */
+    this.#tickifiedFunctions[cbString] = {tickSubId, wrapperFunc};
 
     return wrapperFunc;
   }
 
   /**
-     * Creates a new {@link View} within this Viewer.
-     *
-     * * The maximum number of views you're allowed to create is provided in {@link Capabilities.maxViews}. This
-     * will be determined by the {@link Renderer} implementation the Viewer is configured with.
-     * * To destroy the View after use, call {@link View.destroy}.
-     * * You must add a View to the Viewer before you can create or load content into the Viewer's Viewer.
-     *
-     * ### Usage
-     *
-     * ````javascript
-     * const view1 = myViewer.createView({
-     *      id: "myView",
-     *      elementId: "myView1"
-     *  });
-     *
-     * if (view1 instanceof SDKError) {
-     *      console.log(view1.message);
-     * } else {
-     *      view1.camera.eye = [-3.933, 2.855, 27.018];
-     *      view1.camera.look = [4.400, 3.724, 8.899];
-     *      view1.camera.up = [-0.018, 0.999, 0.039];
-     *
-     *      //...
-     * }
-     * ````
-     *
-     * @param viewParams View configuration.
-     * @returns *{@link View | View}*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * If View already exists with the given ID.
-     * * Attempted to create too many Views - see {@link Capabilities.maxViews | Capabilities.maxViews}.
-     */
+   * Creates a new {@link View} within this Viewer.
+   *
+   * * The maximum number of views you're allowed to create is provided in {@link Capabilities.maxViews}. This
+   * will be determined by the {@link Renderer} implementation the Viewer is configured with.
+   * * To destroy the View after use, call {@link View.destroy}.
+   * * You must add a View to the Viewer before you can create or load content into the Viewer's Viewer.
+   *
+   * ### Usage
+   *
+   * ````javascript
+   * const view1 = myViewer.createView({
+   *      id: "myView",
+   *      elementId: "myView1"
+   *  });
+   *
+   * if (view1 instanceof SDKError) {
+   *      console.log(view1.message);
+   * } else {
+   *      view1.camera.eye = [-3.933, 2.855, 27.018];
+   *      view1.camera.look = [4.400, 3.724, 8.899];
+   *      view1.camera.up = [-0.018, 0.999, 0.039];
+   *
+   *      //...
+   * }
+   * ````
+   *
+   * @param viewParams View configuration.
+   * @returns *{@link View | View}*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * If View already exists with the given ID.
+   * * Attempted to create too many Views - see {@link Capabilities.maxViews | Capabilities.maxViews}.
+   */
   createView(viewParams: ViewParams): View | SDKError {
     if (this.viewList.length >= this.capabilities.maxViews) {
       return new SDKError(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
@@ -298,7 +298,7 @@ export class Viewer extends Component {
         return new SDKError("viewParams.elementId does not reference an HTMLElement");
       }
     }
-    const view = new View(this, apply({ id: viewId }, viewParams));
+    const view = new View(this, apply({id: viewId}, viewParams));
     const result: void | SDKError = this.renderer.attachView(view);
     if (result instanceof SDKError) {
       this.error(`Failed to create View (id = "${view.viewId}"): ${result.message}`);
@@ -322,10 +322,10 @@ export class Viewer extends Component {
   }
 
   /**
-     * Trigger redraw of all {@link View | Views} belonging to this Viewer.
-     *
-     * @private
-     */
+   * Trigger redraw of all {@link View | Views} belonging to this Viewer.
+   *
+   * @private
+   */
   redraw(): void {
     for (const viewId in this.views) {
       this.views[viewId].redraw();
@@ -333,46 +333,46 @@ export class Viewer extends Component {
   }
 
   /**
-     * Logs a console debugging message for this Viewer.
-     *
-     * The console message will have this format: *````[LOG] [<component type> <component id>: <message>````*
-     *
-     * @private
-     * @param message - The message to log
-     */
+   * Logs a console debugging message for this Viewer.
+   *
+   * The console message will have this format: *````[LOG] [<component type> <component id>: <message>````*
+   *
+   * @private
+   * @param message - The message to log
+   */
   log(message: string): void {
     window.console.log(`[LOG] ${this.#prefixMessageWithID(message)}`);
   }
 
   /**
-     * Logs a warning for this Viewer to the JavaScript console.
-     *
-     * The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
-     *
-     * @private
-     * @param message - The warning message to log
-     */
+   * Logs a warning for this Viewer to the JavaScript console.
+   *
+   * The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
+   *
+   * @private
+   * @param message - The warning message to log
+   */
   warn(message: string): void {
     window.console.warn(`[WARN] ${this.#prefixMessageWithID(message)}`);
   }
 
   /**
-     * Logs an error for this Viewer to the JavaScript console.
-     *
-     * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
-     *
-     * @private
-     * @param message The error message to log
-     */
+   * Logs an error for this Viewer to the JavaScript console.
+   *
+   * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
+   *
+   * @private
+   * @param message The error message to log
+   */
   error(message: string): void {
     window.console.error(`[ERROR] ${this.#prefixMessageWithID(message)}`);
   }
 
   /**
-     * Clears this Viewer.
-     *
-     * Destroys all existing {@link View | Views} and resets all properties to their default values.
-     */
+   * Clears this Viewer.
+   *
+   * Destroys all existing {@link View | Views} and resets all properties to their default values.
+   */
   clear() {
     for (const viewId in this.views) {
       const view = this.views[viewId];
@@ -382,14 +382,14 @@ export class Viewer extends Component {
   }
 
   /**
-     * @private
-     * @param params
-     */
+   * @private
+   * @param params
+   */
   render(params: any) {
     for (let viewIndex = 0; viewIndex < this.viewList.length; viewIndex++) {
       // console.log("this.renderer.render()");
       // console.log("...");
-      this.renderer.render(viewIndex, { force: false });
+      this.renderer.render(viewIndex, {force: false});
     }
   }
 
@@ -422,10 +422,10 @@ export class Viewer extends Component {
   }
 
   /**
-     * Configures this Viewer.
-     *
-     * @param viewerParams
-     */
+   * Configures this Viewer.
+   *
+   * @param viewerParams
+   */
   fromParams(viewerParams: ViewerParams) {
     if (viewerParams.views) {
       for (const viewParams of viewerParams.views) {
@@ -444,8 +444,8 @@ export class Viewer extends Component {
   }
 
   /**
-     * Gets the current configuration of this Viewer.
-     */
+   * Gets the current configuration of this Viewer.
+   */
   toParams(): ViewerParams {
     return {
       views: this.viewList.map(el => el.toParams())
@@ -453,8 +453,8 @@ export class Viewer extends Component {
   }
 
   /**
-     * Destroys this Viewer.
-     */
+   * Destroys this Viewer.
+   */
   destroy(): void {
     if (this.destroyed) {
       return;

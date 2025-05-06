@@ -1,12 +1,12 @@
-import { Component, EventEmitter } from "../core";
-import { createMat4, frustumMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4 } from "../matrix";
-import type { Camera } from "./Camera";
-import { EventDispatcher } from "strongly-typed-events";
-import type { FloatArrayParam } from "../math";
-import type { FrustumProjectionParams } from "./FrustumProjectionParams";
-import { FrustumProjectionType } from "../constants";
-import type { PerspectiveProjectionParams } from "./PerspectiveProjectionParams";
-import type { Projection } from "./Projection";
+import {Component, EventEmitter} from "../core";
+import {createMat4, frustumMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "../matrix";
+import type {Camera} from "./Camera";
+import {EventDispatcher} from "strongly-typed-events";
+import type {FloatArrayParam} from "../math";
+import type {FrustumProjectionParams} from "./FrustumProjectionParams";
+import {FrustumProjectionType} from "../constants";
+import type {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
+import type {Projection} from "./Projection";
 
 /**
  *  FrustumProjection-based perspective projection configuration for a {@link Camera | Camera} .
@@ -19,18 +19,18 @@ import type { Projection } from "./Projection";
 export class FrustumProjection extends Component implements Projection {
 
   /**
-     * The type of this projection.
-     */
+   * The type of this projection.
+   */
   static readonly type: number = FrustumProjectionType;
   /**
-     * The Camera this FrustumProjection belongs to.
-     */
+   * The Camera this FrustumProjection belongs to.
+   */
   public readonly camera: Camera;
   /**
-     * Emits an event each time {@link FrustumProjection.projMatrix} updates.
-     *
-     * @event
-     */
+   * Emits an event each time {@link FrustumProjection.projMatrix} updates.
+   *
+   * @event
+   */
   readonly onProjMatrix: EventEmitter<FrustumProjection, FloatArrayParam>;
   #state: {
     far: number;
@@ -48,8 +48,8 @@ export class FrustumProjection extends Component implements Projection {
   #transposedProjMatrixDirty: boolean;
 
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(camera: Camera, cfg: FrustumProjectionParams = {}) {
 
     super(camera, cfg);
@@ -75,134 +75,134 @@ export class FrustumProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the position of the FrustumProjection's left plane on the View-space X-axis.
-     *
-     * @return {Number} Left frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's left plane on the View-space X-axis.
+   *
+   * @return {Number} Left frustum plane position.
+   */
   get left(): number {
     return this.#state.left;
   }
 
   /**
-     * Sets the position of the FrustumProjection's left plane on the View-space X-axis.
-     *
-     * @param value New left frustum plane position.
-     */
+   * Sets the position of the FrustumProjection's left plane on the View-space X-axis.
+   *
+   * @param value New left frustum plane position.
+   */
   set left(value: number) {
     this.#state.left = value;
     this.setDirty();
   }
 
   /**
-     * Gets the position of the FrustumProjection's right plane on the View-space X-axis.
-     *
-     * @return {Number} Right frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's right plane on the View-space X-axis.
+   *
+   * @return {Number} Right frustum plane position.
+   */
   get right(): number {
     return this.#state.right;
   }
 
   /**
-     * Sets the position of the FrustumProjection's right plane on the View-space X-axis.
-     *
-     * @param value New right frustum plane position.
-     */
+   * Sets the position of the FrustumProjection's right plane on the View-space X-axis.
+   *
+   * @param value New right frustum plane position.
+   */
   set right(value: number) {
     this.#state.right = value
     this.setDirty();
   }
 
   /**
-     * Gets the position of the FrustumProjection's top plane on the View-space Y-axis.
-     *
-     * @return {Number} Top frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's top plane on the View-space Y-axis.
+   *
+   * @return {Number} Top frustum plane position.
+   */
   get top(): number {
     return this.#state.top;
   }
 
   /**
-     * Sets the position of the FrustumProjection's top plane on the View-space Y-axis.
-     *
-     * @param value New top frustum plane position.
-     */
+   * Sets the position of the FrustumProjection's top plane on the View-space Y-axis.
+   *
+   * @param value New top frustum plane position.
+   */
   set top(value: number) {
     this.#state.top = value
     this.setDirty();
   }
 
   /**
-     * Gets the position of the FrustumProjection's bottom plane on the View-space Y-axis.
-     *
-     * @return {Number} Bottom frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's bottom plane on the View-space Y-axis.
+   *
+   * @return {Number} Bottom frustum plane position.
+   */
   get bottom(): number {
     return this.#state.bottom;
   }
 
   /**
-     * Sets the position of the FrustumProjection's bottom plane on the View-space Y-axis.
-     *
-     * @param value New bottom frustum plane position.
-     */
+   * Sets the position of the FrustumProjection's bottom plane on the View-space Y-axis.
+   *
+   * @param value New bottom frustum plane position.
+   */
   set bottom(value: number) {
     this.#state.bottom = value
     this.setDirty();
   }
 
   /**
-     * Gets the position of the FrustumProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * @return {Number} Near frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * @return {Number} Near frustum plane position.
+   */
   get near(): number {
     return this.#state.near;
   }
 
   /**
-     * Sets the position of the FrustumProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * @param value New FrustumProjection near plane position.
-     */
+   * Sets the position of the FrustumProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * @param value New FrustumProjection near plane position.
+   */
   set near(value: number) {
     this.#state.near = value
     this.setDirty();
   }
 
   /**
-     * Gets the position of the FrustumProjection's far plane on the positive View-space Z-axis.
-     *
-     * Default value is ````10000.0````.
-     *
-     * @return {Number} Far frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's far plane on the positive View-space Z-axis.
+   *
+   * Default value is ````10000.0````.
+   *
+   * @return {Number} Far frustum plane position.
+   */
   get far(): number {
     return this.#state.far;
   }
 
   /**
-     * Sets the position of the FrustumProjection's far plane on the positive View-space Z-axis.
-     *
-     * Default value is ````10000.0````.
-     *
-     * @param value New far frustum plane position.
-     */
+   * Sets the position of the FrustumProjection's far plane on the positive View-space Z-axis.
+   *
+   * Default value is ````10000.0````.
+   *
+   * @param value New far frustum plane position.
+   */
   set far(value: number) {
     this.#state.far = value
     this.setDirty();
   }
 
   /**
-     * Gets the FrustumProjection's projection transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @returns The FrustumProjection's projection matrix
-     */
+   * Gets the FrustumProjection's projection transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @returns The FrustumProjection's projection matrix
+   */
   get projMatrix(): FloatArrayParam {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -211,10 +211,10 @@ export class FrustumProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the inverse of {@link FrustumProjection.projMatrix}.
-     *
-     * @returns  The inverse orthographic projection projMatrix.
-     */
+   * Gets the inverse of {@link FrustumProjection.projMatrix}.
+   *
+   * @returns  The inverse orthographic projection projMatrix.
+   */
   get inverseProjMatrix(): FloatArrayParam {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -227,10 +227,10 @@ export class FrustumProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the transpose of {@link FrustumProjection.projMatrix}.
-     *
-     * @returns The transpose of {@link FrustumProjection.projMatrix}.
-     */
+   * Gets the transpose of {@link FrustumProjection.projMatrix}.
+   *
+   * @returns The transpose of {@link FrustumProjection.projMatrix}.
+   */
   get transposedProjMatrix(): FloatArrayParam {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -243,8 +243,8 @@ export class FrustumProjection extends Component implements Projection {
   }
 
   /**
-     * @private
-     */
+   * @private
+   */
   clean() {
     frustumMat4(this.#state.left, this.#state.right, this.#state.bottom, this.#state.top, this.#state.near, this.#state.far, this.#state.projMatrix);
     this.#inverseMatrixDirty = true;
@@ -254,14 +254,14 @@ export class FrustumProjection extends Component implements Projection {
   }
 
   /**
-     * Un-projects the given View-space coordinates, using this FrustumProjection projection.
-     *
-     * @param canvasPos Inputs 2D View-space coordinates.
-     * @param screenZ Inputs Screen-space Z coordinate.
-     * @param screenPos Outputs 3D Screen/Clip-space coordinates.
-     * @param viewPos Outputs un-projected 3D View-space coordinates.
-     * @param worldPos Outputs un-projected 3D World-space coordinates.
-     */
+   * Un-projects the given View-space coordinates, using this FrustumProjection projection.
+   *
+   * @param canvasPos Inputs 2D View-space coordinates.
+   * @param screenZ Inputs Screen-space Z coordinate.
+   * @param screenPos Outputs 3D Screen/Clip-space coordinates.
+   * @param viewPos Outputs un-projected 3D View-space coordinates.
+   * @param worldPos Outputs un-projected 3D World-space coordinates.
+   */
   unproject(
     canvasPos: FloatArrayParam,
     screenZ: number,
@@ -291,10 +291,10 @@ export class FrustumProjection extends Component implements Projection {
   }
 
   /**
-     * Configures this FrustumProjection.
-     *
-     * @param frustumProjectionParams
-     */
+   * Configures this FrustumProjection.
+   *
+   * @param frustumProjectionParams
+   */
   fromParams(frustumProjectionParams: FrustumProjectionParams) {
     if (frustumProjectionParams.far !== undefined) {
       this.far = frustumProjectionParams.far;
@@ -317,8 +317,8 @@ export class FrustumProjection extends Component implements Projection {
   }
 
   /**
-     * Gets the current configuration of this FrustumProjection.
-     */
+   * Gets the current configuration of this FrustumProjection.
+   */
   toParams(): FrustumProjectionParams {
     return {
       far: this.far,
@@ -331,8 +331,8 @@ export class FrustumProjection extends Component implements Projection {
   }
 
   /** @private
-     *
-     */
+   *
+   */
   destroy() {
     super.destroy();
     this.onProjMatrix.clear();

@@ -118,9 +118,9 @@ export class WebGLRenderer implements Renderer {
    * Creates a WebGLRenderer.
    *
    * @param params Configs
-   * @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererModel.createTexture}
-   * to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
-   * to {@link rendererModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererModel````
+   * @param params.textureTranscoder Injects an optional transcoder that will be used internally
+   * to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded texture
+   * data. We assume that all transcoded texture data added to a  ````rendererModel````
    * will then be in a format supported by this transcoder.
    */
   constructor(params: {

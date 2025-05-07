@@ -113,8 +113,7 @@ class GeometryViewImpl {
 const geometryView = new GeometryViewImpl();
 
 /**
- * Gets the uncompressed, World-space geometry of each {@link SceneGeometryBucket} in each
- * {@link SceneGeometry} in each {@link SceneMesh} in a {@link SceneObject}.
+ * Gets the uncompressed, World-space geometry of each {@link SceneGeometry} in each {@link SceneMesh} in a {@link SceneObject}.
  *
  * If the callback returns ````true````, then this method immediately stops iterating and also returns ````true````.
  *

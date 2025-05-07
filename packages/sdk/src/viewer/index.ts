@@ -320,7 +320,7 @@
  *
  * ### Reducing Memory Usage
  *
- * When building a SceneModel, the Viewer loads all geometry data into the {@link scene!Renderer | Renderer} (e.g., a {@link webglrenderer!WebGLRenderer | WebGLRenderer}).
+ * When building a SceneModel, the Viewer loads all geometry data into the {@link viewer!Renderer | Renderer} (e.g., a {@link webglrenderer!WebGLRenderer | WebGLRenderer}).
  *
  * By default, the SceneModel retains this geometry data in {@link scene!SceneGeometry | SceneGeometry} components for tasks like runtime querying and file saving. If this data isn't needed, you can configure the SceneModel to discard it, reducing memory usage.
  *

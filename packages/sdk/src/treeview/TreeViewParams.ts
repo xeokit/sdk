@@ -9,7 +9,7 @@ import type {View} from "../viewer";
 export interface TreeViewParams {
 
   /**
-   * The {@link viewer!View | View} that contains the {@link viewer!ViewObjects | ViewObjects}
+   * The {@link viewer!View | View} that contains the {@link viewer!ViewObject | ViewObjects}
    * navigated by the {@link treeview!TreeView | TreeView}.
    */
   view: View;

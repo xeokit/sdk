@@ -1491,7 +1491,7 @@ class View extends Component {
    *
    * Switches rendering to a hidden snapshot canvas.
    *
-   * Exit snapshot mode using {@link Viewer#endSnapshot}.
+   * Exit snapshot mode using {@link viewer!Viewer.endSnapshot | Viewer.endSnapshot}.
    */
   beginSnapshot() {
     if (this.#snapshotBegun) {

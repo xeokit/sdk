@@ -47,7 +47,7 @@ export class RenderContext {
   public frontface: boolean;
 
   /**
-   * The next available texture unit to bind a {@link WebGLAbstractTexture} to.
+   * The next available texture unit to bind a texture to.
    */
   public textureUnit: number;
 
@@ -64,8 +64,8 @@ export class RenderContext {
   /**
    * The 4x4 viewing transform matrix the renderers is currently using when rendering castsShadows.
    *
-   * This sets the viewpoint to look from the point of view of each {@link DirLight}
-   * or {@link PointLight} that casts a shadow.
+   * This sets the viewpoint to look from the point of view of each {@link view!DirLight | DirLight}
+   * or {@link view!PointLight|PointLight} that casts a shadow.
    */
   public shadowViewMatrix: any;
 
@@ -77,8 +77,7 @@ export class RenderContext {
   /**
    * The 4x4 viewing transform matrix the renderers is currently using when rendering a ray-pick.
    *
-   * This sets the viewpoint to look along the ray given to {@link scene!Scene/pick:method"}}Scene#pick(){{/crossLink}}
-   * when picking with a ray.
+   * This sets the viewpoint to look along the ray, when picking with a ray.
    */
   public pickViewMatrix: any;
 
@@ -107,7 +106,7 @@ export class RenderContext {
   public lineWidth: number;
 
   /**
-   * ID of the last {@link WebGLProgram} that was bound during the current frame.
+   * ID of the last WebGLProgram that was bound during the current frame.
    */
   public lastProgramId: number;
 

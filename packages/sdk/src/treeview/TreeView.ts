@@ -417,7 +417,7 @@ export class TreeView extends Component {
   }
 
   /**
-   * Highlights the tree view node that represents the given object {@link viewObject}.
+   * Highlights the tree view node that represents the given object {@link view!ViewObject | ViewObject}.
    *
    * This causes the tree view to collapse, then expand to reveal the node, then highlight the node.
    *
@@ -430,7 +430,7 @@ export class TreeView extends Component {
    * the element to make it appear highlighted, removing that class when de-highlighting it again. See the CSS rules
    * in the TreeView ifcviewer for an example of that class.
    *
-   * @param {String} objectId ID of the {@link viewObject}.
+   * @param {String} objectId ID of the {@link viewer!ViewObject | ViewObject}.
    */
   showNode(objectId: string): void {
     if (this.#showListItemElementId) {

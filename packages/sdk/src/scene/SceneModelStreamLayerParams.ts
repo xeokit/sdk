@@ -1,7 +1,7 @@
 /**
  * Indicates storage to allocate in a renderer layer.
  *
- * Stored in {@link @scene/SceneModelStreamParams.layers | SceneModelStreamParams.layers}.
+ * Stored in {@link scene!SceneModelStreamParams.streamLayers | SceneModelStreamParams.streamLayers}.
  */
 export interface SceneModelStreamLayerParams {
 

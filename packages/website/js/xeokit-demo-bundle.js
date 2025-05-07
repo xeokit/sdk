@@ -68334,68 +68334,68 @@ var EventEmitter = class {
     this.#ievent = ievent;
   }
   /**
-     * Returns the number of subscriptions.
-     */
+   * Returns the number of subscriptions.
+   */
   get count() {
     return this.#ievent.count;
   }
   /**
-     * Subscribe to the event.
-     *
-     * @param func The event handler that is called when the event is dispatched.
-     * @returns Function that unsubscribes the event handler from the event.
-     */
+   * Subscribe to the event.
+   *
+   * @param func The event handler that is called when the event is dispatched.
+   * @returns Function that unsubscribes the event handler from the event.
+   */
   subscribe(func) {
     return this.#ievent.asEvent().subscribe(func);
   }
   /**
-     * @private
-     * @param sender
-     * @param args
-     */
+   * @private
+   * @param sender
+   * @param args
+   */
   dispatch(sender, args) {
     this.#ievent.dispatch(sender, args);
   }
   /**
-     * Subscribe to the event.
-     * @param func The event handler that is called when the event is dispatched.
-     * @returns A function that unsubscribes the event handler from the event.
-     */
+   * Subscribe to the event.
+   * @param func The event handler that is called when the event is dispatched.
+   * @returns A function that unsubscribes the event handler from the event.
+   */
   sub(func) {
     return this.#ievent.asEvent().sub(func);
   }
   /**
-     * Unsubscribe from the event.
-     * @param func The event handler that will be unsubsribed from the event.
-     */
+   * Unsubscribe from the event.
+   * @param func The event handler that will be unsubsribed from the event.
+   */
   unsubscribe(func) {
     this.#ievent.asEvent().unsubscribe(func);
   }
   /**
-     * Unsubscribe from the event.
-     * @param func The event handler that will be unsubsribed from the event.
-     */
+   * Unsubscribe from the event.
+   * @param func The event handler that will be unsubsribed from the event.
+   */
   unsub(func) {
     this.#ievent.asEvent().unsub(func);
   }
   /**
-     * Subscribes to the event only once.
-     * @param func The event handler that is called when the event is dispatched.
-     * @returns A function that unsubscribes the event handler from the event.
-     */
+   * Subscribes to the event only once.
+   * @param func The event handler that is called when the event is dispatched.
+   * @returns A function that unsubscribes the event handler from the event.
+   */
   one(func) {
     return this.#ievent.asEvent().one(func);
   }
   /**
-     * Checks if the event has a subscription for the specified handler.
-     * @param func The event handler.
-     */
+   * Checks if the event has a subscription for the specified handler.
+   * @param func The event handler.
+   */
   has(func) {
     return this.#ievent.asEvent().has(func);
   }
   /**
-     * Clears all the subscriptions.
-     */
+   * Clears all the subscriptions.
+   */
   clear() {
     this.#ievent.asEvent().clear();
   }
@@ -68417,27 +68417,27 @@ var createUUID = (() => {
 })();
 var Component = class {
   /**
-     * Unique ID of this Component.
-     */
+   * Unique ID of this Component.
+   */
   id;
   /**
-     * True once this Component has been destroyed.
-     *
-     * Don't use this Component if this is ````true````.
-     */
+   * True once this Component has been destroyed.
+   *
+   * Don't use this Component if this is ````true````.
+   */
   destroyed;
   dirty;
   #owner;
   #ownedComponents;
   /**
-     * Emits an event when the {@link core!Component | Component} has been destroyed.
-     *
-     * @event
-     */
+   * Emits an event when the {@link core!Component | Component} has been destroyed.
+   *
+   * @event
+   */
   onDestroyed;
   /**
-     * Creates a new component.
-     */
+   * Creates a new component.
+   */
   constructor(owner, cfg = {}) {
     this.#owner = owner;
     this.id = cfg.id || createUUID();
@@ -68450,47 +68450,47 @@ var Component = class {
     }
   }
   /**
-     * Logs a message for this component.
-     *
-     * The message will have this format: *````[LOG] [<component type> <component id>: <message>````*
-     *
-     * @param message - The message to log
-     * @protected
-     */
+   * Logs a message for this component.
+   *
+   * The message will have this format: *````[LOG] [<component type> <component id>: <message>````*
+   *
+   * @param message - The message to log
+   * @protected
+   */
   log(message) {
     console.log(`[LOG] ${this.#prefixMessageWithID(message)}`);
   }
   /**
-     * Logs a warning for this component to the JavaScript console.
-     *
-     * The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
-     *
-     * @param message - The warning message to log
-     * @protected
-     */
+   * Logs a warning for this component to the JavaScript console.
+   *
+   * The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
+   *
+   * @param message - The warning message to log
+   * @protected
+   */
   warn(message) {
     console.warn(`[WARN] ${this.#prefixMessageWithID(message)}`);
   }
   /**
-       * Logs an error for this component to the JavaScript console.
-       *
-       * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
+     * Logs an error for this component to the JavaScript console.
+     *
+     * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
   
-       @param message The error message to log
-       @protected
-       */
+     @param message The error message to log
+     @protected
+     */
   error(message) {
     console.error(`[ERROR] ${this.#prefixMessageWithID(message)}`);
   }
   /**
-     * Flags this component as having a defered state updates it needs to perform.
-     */
+   * Flags this component as having a defered state updates it needs to perform.
+   */
   setDirty() {
     this.dirty = true;
   }
   /**
-     * Gives this component an opportunity to action any defered state updates.
-     */
+   * Gives this component an opportunity to action any defered state updates.
+   */
   cleanIfDirty() {
     if (this.dirty) {
       this.dirty = false;
@@ -68498,19 +68498,19 @@ var Component = class {
     }
   }
   /**
-     * Forces this component to action any deferred state updates.
-     */
+   * Forces this component to action any deferred state updates.
+   */
   clean() {
   }
   /**
-     * Destroys this component.
-     *
-     * Also destroys any components owned by this one.
-     *
-     * Sets {@link Component.destroyed} ````true````.
-     *
-     * Cancels any deferred state updates.
-     */
+   * Destroys this component.
+   *
+   * Also destroys any components owned by this one.
+   *
+   * Sets {@link Component.destroyed} ````true````.
+   *
+   * Cancels any deferred state updates.
+   */
   destroy() {
     if (this.destroyed) {
       return;
@@ -70344,11 +70344,11 @@ var Map2 = class {
     this.#lastUniqueId = (baseId || 0) + 1;
   }
   /**
-     * Usage:
-     *
-     * id = myMap.addItem("foo") // ID internally generated
-     * id = myMap.addItem("foo", "bar") // ID is "foo"
-     */
+   * Usage:
+   *
+   * id = myMap.addItem("foo") // ID internally generated
+   * id = myMap.addItem("foo", "bar") // ID is "foo"
+   */
   addItem() {
     let item;
     if (arguments.length === 2) {
@@ -70581,9 +70581,9 @@ var WorkerPool = class {
   workerCreator;
   // A function to create new workers.
   /**
-     * Constructs the WorkerPool instance with a given pool size.
-     * @param pool The number of workers in the pool (default is 4).
-     */
+   * Constructs the WorkerPool instance with a given pool size.
+   * @param pool The number of workers in the pool (default is 4).
+   */
   constructor(pool = 4) {
     this.pool = pool;
     this.queue = [];
@@ -70592,9 +70592,9 @@ var WorkerPool = class {
     this.workerStatus = 0;
   }
   /**
-     * Initializes a worker by creating it and adding an event listener for messages.
-     * @param workerId The ID of the worker to initialize.
-     */
+   * Initializes a worker by creating it and adding an event listener for messages.
+   * @param workerId The ID of the worker to initialize.
+   */
   _initWorker(workerId) {
     if (!this.workers[workerId]) {
       const worker = this.workerCreator();
@@ -70603,9 +70603,9 @@ var WorkerPool = class {
     }
   }
   /**
-     * Finds and returns an idle worker by checking the worker status.
-     * @returns The index of an idle worker, or -1 if no idle workers are available.
-     */
+   * Finds and returns an idle worker by checking the worker status.
+   * @returns The index of an idle worker, or -1 if no idle workers are available.
+   */
   _getIdleWorker() {
     for (let i = 0; i < this.pool; i++)
       if (!(this.workerStatus & 1 << i))
@@ -70613,10 +70613,10 @@ var WorkerPool = class {
     return -1;
   }
   /**
-     * Handles messages received from workers.
-     * @param workerId The ID of the worker sending the message.
-     * @param msg The message received from the worker.
-     */
+   * Handles messages received from workers.
+   * @param workerId The ID of the worker sending the message.
+   * @param msg The message received from the worker.
+   */
   _onMessage(workerId, msg) {
     const resolve2 = this.workersResolve[workerId];
     resolve2 && resolve2(msg);
@@ -70629,25 +70629,25 @@ var WorkerPool = class {
     }
   }
   /**
-     * Sets the worker creator function, which is used to create new workers.
-     * @param workerCreator The function that creates a new worker.
-     */
+   * Sets the worker creator function, which is used to create new workers.
+   * @param workerCreator The function that creates a new worker.
+   */
   setWorkerCreator(workerCreator) {
     this.workerCreator = workerCreator;
   }
   /**
-     * Sets the limit for the number of workers in the pool.
-     * @param pool The new pool size.
-     */
+   * Sets the limit for the number of workers in the pool.
+   * @param pool The new pool size.
+   */
   setWorkerLimit(pool) {
     this.pool = pool;
   }
   /**
-     * Posts a message to an available worker. If no worker is available, the task is queued.
-     * @param msg The message to send to the worker.
-     * @param transfer Any transferable objects to send with the message.
-     * @returns A promise that resolves when the worker finishes processing the message.
-     */
+   * Posts a message to an available worker. If no worker is available, the task is queued.
+   * @param msg The message to send to the worker.
+   * @param transfer Any transferable objects to send with the message.
+   * @returns A promise that resolves when the worker finishes processing the message.
+   */
   postMessage(msg, transfer) {
     return new Promise((resolve2) => {
       const workerId = this._getIdleWorker();
@@ -70662,9 +70662,9 @@ var WorkerPool = class {
     });
   }
   /**
-     * Terminates all workers, clears the resolve functions, and resets the pool status.
-     * This will effectively destroy the WorkerPool and free up any resources used.
-     */
+   * Terminates all workers, clears the resolve functions, and resets the pool status.
+   * This will effectively destroy the WorkerPool and free up any resources used.
+   */
   destroy() {
     this.workers.forEach((worker) => worker.terminate());
     this.workersResolve.length = 0;
@@ -71800,33 +71800,33 @@ function getPositions3Center(positions, center2 = createVec3()) {
 }
 var FrustumPlane3 = class {
   /**
-     * A vertex used to test intersections with this plane.
-     */
+   * A vertex used to test intersections with this plane.
+   */
   testVertex;
   /**
-     * The distance of the plane from the origin along its normal.
-     */
+   * The distance of the plane from the origin along its normal.
+   */
   offset;
   /**
-     * The normal vector of the plane.
-     */
+   * The normal vector of the plane.
+   */
   normal;
   /**
-     * Creates a new frustum plane.
-     */
+   * Creates a new frustum plane.
+   */
   constructor() {
     this.normal = createVec3();
     this.offset = 0;
     this.testVertex = createVec3();
   }
   /**
-     * Sets the position and direction of the frustum plane.
-     *
-     * @param nx - X component of the normal vector.
-     * @param ny - Y component of the normal vector.
-     * @param nz - Z component of the normal vector.
-     * @param offset - Distance of the plane from the origin.
-     */
+   * Sets the position and direction of the frustum plane.
+   *
+   * @param nx - X component of the normal vector.
+   * @param ny - Y component of the normal vector.
+   * @param nz - Z component of the normal vector.
+   * @param offset - Distance of the plane from the origin.
+   */
   set(nx, ny, nz, offset) {
     const s = 1 / Math.sqrt(nx * nx + ny * ny + nz * nz);
     this.normal[0] = nx * s;
@@ -71843,12 +71843,12 @@ var INTERSECT = 2;
 var OUTSIDE = 3;
 var Frustum3 = class {
   /**
-     * The six planes that define the frustum boundary.
-     */
+   * The six planes that define the frustum boundary.
+   */
   planes;
   /**
-     * Creates a new 3D frustum.
-     */
+   * Creates a new 3D frustum.
+   */
   constructor() {
     this.planes = [
       new FrustumPlane3(),
@@ -74695,21 +74695,21 @@ __export(locale_exports, {
 var import_strongly_typed_events2 = __toESM(require_dist8());
 var LocaleService = class {
   /**
-     * Emits an event each time the locale translations have updated.
-     *
-     * @event
-     */
+   * Emits an event each time the locale translations have updated.
+   *
+   * @event
+   */
   onUpdated;
   #messages;
   #locales;
   #locale = "en";
   /**
-     * Constructs a LocaleService.
-     *
-     * @param cfg LocaleService configuration
-     * @param cfg.messages Set of locale translations
-     * @param cfg.locale Initial locale
-     */
+   * Constructs a LocaleService.
+   *
+   * @param cfg LocaleService configuration
+   * @param cfg.messages Set of locale translations
+   * @param cfg.locale Initial locale
+   */
   constructor(cfg = {
     messages: {},
     locale: ""
@@ -74719,77 +74719,77 @@ var LocaleService = class {
     this.locale = cfg.locale;
   }
   /**
-     * Replaces the current set of locale translations.
-     *
-     * * Fires an "updated" event when done.
-     * * Automatically refreshes any plugins that depend on the translations.
-     * * Does not change the current locale.
-     *
-     * ## Usage
-     *
-     * ````javascript
-     * viewer.localeService.setMessages({
-     *     messages: {
-     *         "en": { // English
-     *             "NavCube": {
-     *                 "front": "Front",
-     *                 "back": "Back",
-     *                 "top": "Top",
-     *                 "bottom": "Bottom",
-     *                 "left": "Left",
-     *                 "right": "Right"
-     *             }
-     *         },
-     *         "mi": { // Māori
-     *             "NavCube": {
-     *                 "front": "Mua",
-     *                 "back": "Tuarā",
-     *                 "top": "Runga",
-     *                 "bottom": "Raro",
-     *                 "left": "Mauī",
-     *                 "right": "Tika"
-     *             }
-     *         }
-     *    }
-     * });
-     * ````
-     *
-     * @param messages The new translations.
-     */
+   * Replaces the current set of locale translations.
+   *
+   * * Fires an "updated" event when done.
+   * * Automatically refreshes any plugins that depend on the translations.
+   * * Does not change the current locale.
+   *
+   * ## Usage
+   *
+   * ````javascript
+   * viewer.localeService.setMessages({
+   *     messages: {
+   *         "en": { // English
+   *             "NavCube": {
+   *                 "front": "Front",
+   *                 "back": "Back",
+   *                 "top": "Top",
+   *                 "bottom": "Bottom",
+   *                 "left": "Left",
+   *                 "right": "Right"
+   *             }
+   *         },
+   *         "mi": { // Māori
+   *             "NavCube": {
+   *                 "front": "Mua",
+   *                 "back": "Tuarā",
+   *                 "top": "Runga",
+   *                 "bottom": "Raro",
+   *                 "left": "Mauī",
+   *                 "right": "Tika"
+   *             }
+   *         }
+   *    }
+   * });
+   * ````
+   *
+   * @param messages The new translations.
+   */
   set messages(messages2) {
     this.#messages = messages2 || {};
     this.#locales = Object.keys(this.#messages);
     this.onUpdated.dispatch(this, this.#locale);
   }
   /**
-     * Gets the list of available locales.
-     *
-     * These are derived from the currently configured set of translations.
-     *
-     * @returns The list of available locales.
-     */
+   * Gets the list of available locales.
+   *
+   * These are derived from the currently configured set of translations.
+   *
+   * @returns The list of available locales.
+   */
   get locales() {
     return this.#locales;
   }
   /**
-     * Gets the current locale.
-     *
-     * @returns {String} The current locale.
-     */
+   * Gets the current locale.
+   *
+   * @returns {String} The current locale.
+   */
   get locale() {
     return this.#locale;
   }
   /**
-     * Sets the current locale.
-     *
-     * * Fires an "updated" event when done.
-     * * The given locale does not need to be in the list of available locales returned by {@link LocaleService.locales}, since
-     * this method assumes that you may want to load the locales at a later point.
-     * * Automatically refreshes any plugins that depend on the translations.
-     * * We can then get translations for the locale, if translations have been loaded for it, via {@link LocaleService.translate} and {@link LocaleService.translatePlurals}.
-     *
-     * @param locale The new current locale.
-     */
+   * Sets the current locale.
+   *
+   * * Fires an "updated" event when done.
+   * * The given locale does not need to be in the list of available locales returned by {@link LocaleService.locales}, since
+   * this method assumes that you may want to load the locales at a later point.
+   * * Automatically refreshes any plugins that depend on the translations.
+   * * We can then get translations for the locale, if translations have been loaded for it, via {@link LocaleService.translate} and {@link LocaleService.translatePlurals}.
+   *
+   * @param locale The new current locale.
+   */
   set locale(locale) {
     locale = locale || "de";
     if (this.#locale === locale) {
@@ -74799,31 +74799,31 @@ var LocaleService = class {
     this.onUpdated.dispatch(this, this.#locale);
   }
   /**
-     * Loads a new set of locale translations, adding them to the existing translations.
-     *
-     * * Fires an "updated" event when done.
-     * * Automatically refreshes any plugins that depend on the translations.
-     * * Does not change the current locale.
-     *
-     * ## Usage
-     *
-     * ````javascript
-     * viewer.localeService.loadMessages({
-     *     "jp": { // Japanese
-     *         "NavCube": {
-     *             "front": "前部",
-     *             "back": "裏",
-     *             "top": "上",
-     *             "bottom": "底",
-     *             "left": "左",
-     *             "right": "右"
-     *         }
-     *     }
-     * });
-     * ````
-     *
-     * @param messages The new translations.
-     */
+   * Loads a new set of locale translations, adding them to the existing translations.
+   *
+   * * Fires an "updated" event when done.
+   * * Automatically refreshes any plugins that depend on the translations.
+   * * Does not change the current locale.
+   *
+   * ## Usage
+   *
+   * ````javascript
+   * viewer.localeService.loadMessages({
+   *     "jp": { // Japanese
+   *         "NavCube": {
+   *             "front": "前部",
+   *             "back": "裏",
+   *             "top": "上",
+   *             "bottom": "底",
+   *             "left": "左",
+   *             "right": "右"
+   *         }
+   *     }
+   * });
+   * ````
+   *
+   * @param messages The new translations.
+   */
   loadMessages(messages2 = {}) {
     for (const locale in messages2) {
       this.#messages[locale] = messages2[locale];
@@ -74831,26 +74831,26 @@ var LocaleService = class {
     this.messages = this.#messages;
   }
   /**
-     * Clears all locale translations.
-     *
-     * * Fires an "updated" event when done.
-     * * Does not change the current locale.
-     * * Automatically refreshes any plugins that depend on the translations, which will cause those
-     * plugins to fall back on their internal hard-coded text values, since this method removes all
-     * our translations.
-     */
+   * Clears all locale translations.
+   *
+   * * Fires an "updated" event when done.
+   * * Does not change the current locale.
+   * * Automatically refreshes any plugins that depend on the translations, which will cause those
+   * plugins to fall back on their internal hard-coded text values, since this method removes all
+   * our translations.
+   */
   clearMessages() {
     this.messages = {};
   }
   /**
-     * Translates the given string according to the current locale.
-     *
-     * Returns null if no translation can be found.
-     *
-     * @param msg String to translate.
-     * @param args Extra parameters.
-     * @returns  Translated string if found, else null.
-     */
+   * Translates the given string according to the current locale.
+   *
+   * Returns null if no translation can be found.
+   *
+   * @param msg String to translate.
+   * @param args Extra parameters.
+   * @returns  Translated string if found, else null.
+   */
   translate(msg, args) {
     const localeMessages = this.#messages[this.#locale];
     if (!localeMessages) {
@@ -74866,15 +74866,15 @@ var LocaleService = class {
     return null;
   }
   /**
-     * Translates the given phrase according to the current locale.
-     *
-     * Returns null if no translation can be found.
-     *
-     * @param msg Phrase to translate.
-     * @param count The plural number.
-     * @param [args] Extra parameters.
-     * @returns String|null Translated string if found, else null.
-     */
+   * Translates the given phrase according to the current locale.
+   *
+   * Returns null if no translation can be found.
+   *
+   * @param msg Phrase to translate.
+   * @param count The plural number.
+   * @param [args] Extra parameters.
+   * @returns String|null Translated string if found, else null.
+   */
   translatePlurals(msg, count, args) {
     const localeMessages = this.#messages[this.#locale];
     if (!localeMessages) {
@@ -74925,7 +74925,7 @@ function vsprintf(msg, args = []) {
 var data_exports = {};
 __export(data_exports, {
   Data: () => Data,
-  DataModel: () => DataModel,
+  DataModel: () => DataModel2,
   DataModelParamsExporter: () => DataModelParamsExporter,
   DataModelParamsLoader: () => DataModelParamsLoader,
   DataObject: () => DataObject,
@@ -74938,60 +74938,60 @@ __export(data_exports, {
 // ../sdk/src/data/DataObject.ts
 var DataObject = class {
   /**
-     * The {@link Data | Data} instance that contains this DataObject.
-     */
+   * The {@link Data | Data} instance that contains this DataObject.
+   */
   data;
   /**
-     * The {@link DataModel | DataModels} that share this DataObject.
-     */
+   * The {@link DataModel | DataModels} that share this DataObject.
+   */
   models;
   /**
-     * A globally unique identifier for this DataObject.
-     *
-     * This ID is used to store the DataObject in {@link Data.objects | Data.objects},
-     * {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType},
-     * and {@link DataModel.rootObjects | DataModel.rootObjects}.
-     */
+   * A globally unique identifier for this DataObject.
+   *
+   * This ID is used to store the DataObject in {@link Data.objects | Data.objects},
+   * {@link Data.rootObjects | Data.rootObjects}, {@link Data.objectsByType | Data.objectsByType},
+   * and {@link DataModel.rootObjects | DataModel.rootObjects}.
+   */
   id;
   /**
-     * The ID of this DataObject in the originating system, if available.
-     *
-     * Defaults to the value of {@link DataObject.id | DataObject.id} if not provided.
-     */
+   * The ID of this DataObject in the originating system, if available.
+   *
+   * Defaults to the value of {@link DataObject.id | DataObject.id} if not provided.
+   */
   originalSystemId;
   /**
-     * A human-readable name for this DataObject.
-     */
+   * A human-readable name for this DataObject.
+   */
   name;
   /**
-     * A human-readable description of this DataObject.
-     */
+   * A human-readable description of this DataObject.
+   */
   description;
   /**
-     * The type of this DataObject.
-     */
+   * The type of this DataObject.
+   */
   type;
   /**
-     * A list of {@link PropertySet | PropertySets} referenced by this DataObject.
-     */
+   * A list of {@link PropertySet | PropertySets} referenced by this DataObject.
+   */
   propertySets;
   /**
-     * A map of {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.relatingObject | relatingObject}.
-     *
-     * Relationships are categorized by {@link Relationship.type | Relationship.type} and further indexed by
-     * {@link Relationship.relatingObject | relatingObject}.
-     */
+   * A map of {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.relatingObject | relatingObject}.
+   *
+   * Relationships are categorized by {@link Relationship.type | Relationship.type} and further indexed by
+   * {@link Relationship.relatingObject | relatingObject}.
+   */
   relating;
   /**
-     * A map of {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.relatedObject | relatedObject}.
-     *
-     * Relationships are categorized by {@link Relationship.type | Relationship.type} and further indexed by
-     * {@link Relationship.relatedObject | relatedObject}.
-     */
+   * A map of {@link Relationship | Relationships} in which this DataObject is the {@link Relationship.relatedObject | relatedObject}.
+   *
+   * Relationships are categorized by {@link Relationship.type | Relationship.type} and further indexed by
+   * {@link Relationship.relatedObject | relatedObject}.
+   */
   related;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(data, model, id, originalSystemId, name12, description, type, propertySets) {
     this.data = data;
     this.models = [model];
@@ -75012,33 +75012,33 @@ var import_strongly_typed_events3 = __toESM(require_dist8());
 // ../sdk/src/data/Property.ts
 var Property = class {
   /**
-     * The {@link PropertySet | PropertySet} to which this Property belongs.
-     */
+   * The {@link PropertySet | PropertySet} to which this Property belongs.
+   */
   propertySet;
   /**
-     * The name of this property.
-     */
+   * The name of this property.
+   */
   name;
   /**
-     * The value of this property.
-     */
+   * The value of this property.
+   */
   value;
   /**
-     * The type of this property (e.g., string, number, etc.).
-     */
+   * The type of this property (e.g., string, number, etc.).
+   */
   type;
   /**
-     * The type of this property's value (e.g., string, integer, etc.).
-     */
+   * The type of this property's value (e.g., string, integer, etc.).
+   */
   valueType;
   /**
-     * An informative description to explain the purpose or details of the property.
-     */
+   * An informative description to explain the purpose or details of the property.
+   */
   description;
   /**
-     * @private
-     * @ignore
-     */
+   * @private
+   * @ignore
+   */
   constructor(propertySet, propertyCfg) {
     this.propertySet = propertySet;
     this.name = propertyCfg.name;
@@ -75052,38 +75052,38 @@ var Property = class {
 // ../sdk/src/data/PropertySet.ts
 var PropertySet = class {
   /**
-     * The {@link DataModel | DataModels} that this PropertySet belongs to.
-     */
+   * The {@link DataModel | DataModels} that this PropertySet belongs to.
+   */
   models;
   /**
-     * The unique identifier for this PropertySet.
-     *
-     * PropertySet instances are registered by this ID in {@link Data.propertySets | Data.propertySets}
-     * and {@link DataModel.propertySets | DataModel.propertySets}.
-     */
+   * The unique identifier for this PropertySet.
+   *
+   * PropertySet instances are registered by this ID in {@link Data.propertySets | Data.propertySets}
+   * and {@link DataModel.propertySets | DataModel.propertySets}.
+   */
   id;
   /**
-     * The ID of the corresponding object in the originating system, if applicable.
-     */
+   * The ID of the corresponding object in the originating system, if applicable.
+   */
   originalSystemId;
   /**
-     * The human-readable name of this PropertySet.
-     */
+   * The human-readable name of this PropertySet.
+   */
   name;
   /**
-     * The type of this PropertySet.
-     */
+   * The type of this PropertySet.
+   */
   type;
   /**
-     * The collection of {@link Property | Properties} within this PropertySet.
-     */
+   * The collection of {@link Property | Properties} within this PropertySet.
+   */
   properties;
   /**
-     * Constructs a new PropertySet.
-     *
-     * @param dataModel - The DataModel to which this PropertySet belongs.
-     * @param propertySetCfg - Configuration parameters to initialize the PropertySet.
-     */
+   * Constructs a new PropertySet.
+   *
+   * @param dataModel - The DataModel to which this PropertySet belongs.
+   * @param propertySetCfg - Configuration parameters to initialize the PropertySet.
+   */
   constructor(dataModel, propertySetCfg) {
     this.models = [dataModel];
     this.id = propertySetCfg.id;
@@ -75102,33 +75102,33 @@ var PropertySet = class {
 // ../sdk/src/data/Relationship.ts
 var Relationship = class {
   /**
-     * The type of this Relationship.
-     *
-     * This value uniquely identifies the relationship type within your DataModel.
-     */
+   * The type of this Relationship.
+   *
+   * This value uniquely identifies the relationship type within your DataModel.
+   */
   type;
   /**
-     * The {@link DataObject | DataObject} that is the source of this Relationship.
-     *
-     * This Relationship will be stored in the {@link DataObject.related | DataObject.related} attribute
-     * of the relating DataObject.
-     */
+   * The {@link DataObject | DataObject} that is the source of this Relationship.
+   *
+   * This Relationship will be stored in the {@link DataObject.related | DataObject.related} attribute
+   * of the relating DataObject.
+   */
   relatingObject;
   /**
-     * The {@link DataObject | DataObject} that is the target of this Relationship.
-     *
-     * This Relationship will be stored in the {@link DataObject.relating | DataObject.relating} attribute
-     * of the related DataObject.
-     */
+   * The {@link DataObject | DataObject} that is the target of this Relationship.
+   *
+   * This Relationship will be stored in the {@link DataObject.relating | DataObject.relating} attribute
+   * of the related DataObject.
+   */
   relatedObject;
   /**
-     * Constructs a new Relationship between two {@link DataObject | DataObjects}.
-     *
-     * @private
-     * @param type - The type of relationship.
-     * @param relatingObject - The source DataObject in the relationship.
-     * @param relatedObject - The target DataObject in the relationship.
-     */
+   * Constructs a new Relationship between two {@link DataObject | DataObjects}.
+   *
+   * @private
+   * @param type - The type of relationship.
+   * @param relatingObject - The source DataObject in the relationship.
+   * @param relatedObject - The target DataObject in the relationship.
+   */
   constructor(type, relatingObject, relatedObject) {
     this.type = type;
     this.relatingObject = relatingObject;
@@ -75137,100 +75137,100 @@ var Relationship = class {
 };
 
 // ../sdk/src/data/DataModel.ts
-var DataModel = class extends Component {
+var DataModel2 = class extends Component {
   /**
-     * The Data that contains this DataModel.
-     */
+   * The Data that contains this DataModel.
+   */
   data;
   /**
-     * The model name, if available.
-     */
+   * The model name, if available.
+   */
   name;
   /**
-     * The project ID, if available.
-     */
+   * The project ID, if available.
+   */
   projectId;
   /**
-     * The revision ID, if available.
-     */
+   * The revision ID, if available.
+   */
   revisionId;
   /**
-     * The model author, if available.
-     */
+   * The model author, if available.
+   */
   author;
   /**
-     * The date the model was created, if available.
-     */
+   * The date the model was created, if available.
+   */
   createdAt;
   /**
-     * The application that created the model, if available.
-     */
+   * The application that created the model, if available.
+   */
   creatingApplication;
   /**
-     * The model schema version, if available.
-     */
+   * The model schema version, if available.
+   */
   schema;
   /**
-     * The{@link PropertySet | PropertySets} in this DataModel, mapped to{@link PropertySet.id | PropertySet.id}.
-     *
-     * PropertySets have globally-unique IDs and will also be stored in {@link Data.propertySets | Data.propertySets}.
-     */
+   * The{@link PropertySet | PropertySets} in this DataModel, mapped to{@link PropertySet.id | PropertySet.id}.
+   *
+   * PropertySets have globally-unique IDs and will also be stored in {@link Data.propertySets | Data.propertySets}.
+   */
   propertySets;
   /**
-     * The {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id | DataObject.id}.
-     *
-     * DataObjects have globally-unique IDs and will also be stored in {@link Data.objects | Data.objects}.
-     */
+   * The {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.id | DataObject.id}.
+   *
+   * DataObjects have globally-unique IDs and will also be stored in {@link Data.objects | Data.objects}.
+   */
   objects;
   /**
-     * The root {@link DataObject | DataObjects} in this DataModel, mapped
-     * to {@link DataObject.id | DataObject.id}.
-     *
-     * * This is the set of DataObjects in this DataModel that are not the *related* participant in
-     * any {@link Relationship | Relationships}, where they have no incoming Relationships and
-     * their {@link DataObject.relating} property is empty.
-     */
+   * The root {@link DataObject | DataObjects} in this DataModel, mapped
+   * to {@link DataObject.id | DataObject.id}.
+   *
+   * * This is the set of DataObjects in this DataModel that are not the *related* participant in
+   * any {@link Relationship | Relationships}, where they have no incoming Relationships and
+   * their {@link DataObject.relating} property is empty.
+   */
   rootObjects;
   /**
-     * The {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.type | DataObject.type},
-     * sub-mapped to {@link DataObject.id | DataObject.id}.
-     */
+   * The {@link DataObject | DataObjects} in this DataModel, mapped to {@link DataObject.type | DataObject.type},
+   * sub-mapped to {@link DataObject.id | DataObject.id}.
+   */
   objectsByType;
   /**
-     * The {@link Relationship | Relationships} in this DataModel.
-     *
-     * * The Relationships can be between DataObjects in different DataModels, but always within the same Data.
-     */
+   * The {@link Relationship | Relationships} in this DataModel.
+   *
+   * * The Relationships can be between DataObjects in different DataModels, but always within the same Data.
+   */
   relationships;
   /**
-     * The count of each type of {@link DataObject | DataObject} in this DataModel, mapped to {@link DataObject.type | DataObject.type}.
-     */
+   * The count of each type of {@link DataObject | DataObject} in this DataModel, mapped to {@link DataObject.type | DataObject.type}.
+   */
   typeCounts;
   /**
-     * Emits an event when the {@link DataModel | DataModel} has been built.
-     *
-     * * The DataModel is built using {@link DataModel.build | DataModel.build}.
-     * * {@link DataModel.built | DataModel.built} indicates if the DataModel is currently built.
-     * * Don't create anything more in this DataModel once it's built.
-     *
-     * @event
-     */
+   * Emits an event when the {@link DataModel | DataModel} has been built.
+   *
+   * * The DataModel is built using {@link DataModel.build | DataModel.build}.
+   * * {@link DataModel.built | DataModel.built} indicates if the DataModel is currently built.
+   * * Don't create anything more in this DataModel once it's built.
+   *
+   * @event
+   */
   onBuilt;
   /**
-     * Indicates if this DataModel has been built.
-     *
-     * * Set true by {@link DataModel.build | DataModel.build}.
-     * * Subscribe to updates using {@link DataModel.onBuilt | DataModel.onBuilt} and {@link Data.onModelCreated | Data.onModelCreated}.
-     */
+   * Indicates if this DataModel has been built.
+   *
+   * * Set true by {@link DataModel.build | DataModel.build}.
+   * * Subscribe to updates using {@link DataModel.onBuilt | DataModel.onBuilt} and {@link Data.onModelCreated | Data.onModelCreated}.
+   */
   built;
   /**
-     * Statistics on this DataModel.
-     */
+   * Statistics on this DataModel.
+   */
   stats;
   #destroyed;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(data, id, dataModelParams, options) {
     super(data);
     this.onBuilt = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
@@ -75258,54 +75258,54 @@ var DataModel = class extends Component {
     this.fromParams(dataModelParams);
   }
   /**
-     * Creates a new {@link PropertySet | PropertySet} and registers it within the DataModel and Data.
-     *
-     * - The new PropertySet is stored in {@link DataModel.propertySets | DataModel.propertySets} and
-     *   {@link Data.propertySets | Data.propertySets}.
-     * - PropertySet IDs are globally unique. If a PropertySet with the given ID already exists in the same Data,
-     *   it will be reused and shared across DataModels instead of creating a duplicate.
-     * - A PropertySet ID **must be unique within a single DataModel** but can be shared between multiple DataModels.
-     *
-     * ### Usage Example
-     *
-     * ```javascript
-     * const propertySet = dataModel.createPropertySet({
-     *     id: "myPropertySet",
-     *     name: "My properties",
-     *     properties: [
-     *         {
-     *             name: "Weight",
-     *             value: 5,
-     *             type: "",
-     *             valueType: "",
-     *             description: "Weight of a thing"
-     *         },
-     *         {
-     *             name: "Height",
-     *             value: 12,
-     *             type: "",
-     *             valueType: "",
-     *             description: "Height of a thing"
-     *         }
-     *     ]
-     * });
-     *
-     * if (propertySet instanceof SDKError) {
-     *     console.error(propertySet.message);
-     * } else {
-     *     // PropertySet successfully created
-     * }
-     * ```
-     *
-     * See {@link data | @xeokit/sdk/data} for more details.
-     *
-     * @param propertySetCfg - Configuration parameters for the new PropertySet.
-     * @returns {@link PropertySet} on success.
-     * @returns {@link core!SDKError | SDKError} if:
-     * - The DataModel has already been built.
-     * - The DataModel has been destroyed.
-     * - A PropertySet with the same ID already exists within this DataModel.
-     */
+   * Creates a new {@link PropertySet | PropertySet} and registers it within the DataModel and Data.
+   *
+   * - The new PropertySet is stored in {@link DataModel.propertySets | DataModel.propertySets} and
+   *   {@link Data.propertySets | Data.propertySets}.
+   * - PropertySet IDs are globally unique. If a PropertySet with the given ID already exists in the same Data,
+   *   it will be reused and shared across DataModels instead of creating a duplicate.
+   * - A PropertySet ID **must be unique within a single DataModel** but can be shared between multiple DataModels.
+   *
+   * ### Usage Example
+   *
+   * ```javascript
+   * const propertySet = dataModel.createPropertySet({
+   *     id: "myPropertySet",
+   *     name: "My properties",
+   *     properties: [
+   *         {
+   *             name: "Weight",
+   *             value: 5,
+   *             type: "",
+   *             valueType: "",
+   *             description: "Weight of a thing"
+   *         },
+   *         {
+   *             name: "Height",
+   *             value: 12,
+   *             type: "",
+   *             valueType: "",
+   *             description: "Height of a thing"
+   *         }
+   *     ]
+   * });
+   *
+   * if (propertySet instanceof SDKError) {
+   *     console.error(propertySet.message);
+   * } else {
+   *     // PropertySet successfully created
+   * }
+   * ```
+   *
+   * See {@link data | @xeokit/sdk/data} for more details.
+   *
+   * @param propertySetCfg - Configuration parameters for the new PropertySet.
+   * @returns {@link PropertySet} on success.
+   * @returns {@link core!SDKError | SDKError} if:
+   * - The DataModel has already been built.
+   * - The DataModel has been destroyed.
+   * - A PropertySet with the same ID already exists within this DataModel.
+   */
   createPropertySet(propertySetCfg) {
     if (this.destroyed) {
       return new SDKError("Failed to create PropertySet - DataModel already destroyed");
@@ -75329,53 +75329,53 @@ var DataModel = class extends Component {
     return propertySet;
   }
   /**
-     * Creates a new {@link DataObject | DataObject} and registers it within the DataModel and Data.
-     *
-     * - The new DataObject is stored in {@link DataModel.objects | DataModel.objects} and
-     *   {@link Data.objects | Data.objects}.
-     * - Triggers an event via {@link Data.onObjectCreated | Data.onObjectCreated}.
-     * - DataObject IDs are **globally unique**. If a DataObject with the given ID already exists in the same Data,
-     *   it will be reused and shared across DataModels rather than creating a duplicate.
-     * - This behavior enables xeokit to support [*federated data models*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#federated-models).
-     *
-     * ### Usage Example
-     *
-     * ```javascript
-     * const myDataObject = dataModel.createObject({
-     *     id: "myDataObject",
-     *     type: BasicEntity, // @xeokit/basictypes!basicTypes
-     *     name: "My Object",
-     *     propertySetIds: ["myPropertySet"]
-     * });
-     *
-     * const myDataObject2 = dataModel.createObject({
-     *     id: "myDataObject2",
-     *     name: "My Other Object",
-     *     type: BasicEntity,
-     *     propertySetIds: ["myPropertySet"]
-     * });
-     *
-     * if (myDataObject instanceof SDKError) {
-     *     console.error(myDataObject.message);
-     * } else if (myDataObject2 instanceof SDKError) {
-     *     console.error(myDataObject2.message);
-     * } else {
-     *     // Success
-     *     const gotMyDataObject = dataModel.objects["myDataObject"];
-     *     const gotMyDataObjectAgain = data.objects["myDataObject"];
-     * }
-     * ```
-     *
-     * See {@link data | @xeokit/sdk/data} for more details.
-     *
-     * @param dataObjectParams - Configuration parameters for the new DataObject.
-     * @returns {@link DataObject} on success.
-     * @returns {@link core!SDKError | SDKError} if:
-     * - The DataModel has already been built.
-     * - The DataModel has been destroyed.
-     * - A DataObject with the same ID already exists within this DataModel.
-     * - A specified PropertySet could not be found.
-     */
+   * Creates a new {@link DataObject | DataObject} and registers it within the DataModel and Data.
+   *
+   * - The new DataObject is stored in {@link DataModel.objects | DataModel.objects} and
+   *   {@link Data.objects | Data.objects}.
+   * - Triggers an event via {@link Data.onObjectCreated | Data.onObjectCreated}.
+   * - DataObject IDs are **globally unique**. If a DataObject with the given ID already exists in the same Data,
+   *   it will be reused and shared across DataModels rather than creating a duplicate.
+   * - This behavior enables xeokit to support [*federated data models*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#federated-models).
+   *
+   * ### Usage Example
+   *
+   * ```javascript
+   * const myDataObject = dataModel.createObject({
+   *     id: "myDataObject",
+   *     type: BasicEntity, // @xeokit/basictypes!basicTypes
+   *     name: "My Object",
+   *     propertySetIds: ["myPropertySet"]
+   * });
+   *
+   * const myDataObject2 = dataModel.createObject({
+   *     id: "myDataObject2",
+   *     name: "My Other Object",
+   *     type: BasicEntity,
+   *     propertySetIds: ["myPropertySet"]
+   * });
+   *
+   * if (myDataObject instanceof SDKError) {
+   *     console.error(myDataObject.message);
+   * } else if (myDataObject2 instanceof SDKError) {
+   *     console.error(myDataObject2.message);
+   * } else {
+   *     // Success
+   *     const gotMyDataObject = dataModel.objects["myDataObject"];
+   *     const gotMyDataObjectAgain = data.objects["myDataObject"];
+   * }
+   * ```
+   *
+   * See {@link data | @xeokit/sdk/data} for more details.
+   *
+   * @param dataObjectParams - Configuration parameters for the new DataObject.
+   * @returns {@link DataObject} on success.
+   * @returns {@link core!SDKError | SDKError} if:
+   * - The DataModel has already been built.
+   * - The DataModel has been destroyed.
+   * - A DataObject with the same ID already exists within this DataModel.
+   * - A specified PropertySet could not be found.
+   */
   createObject(dataObjectParams) {
     if (this.destroyed) {
       return new SDKError("Failed to create DataObject - DataModel already destroyed");
@@ -75429,46 +75429,46 @@ var DataModel = class extends Component {
     return dataObject;
   }
   /**
-     * Creates a new {@link Relationship | Relationship} between two existing {@link DataObject | DataObjects}.
-     *
-     * - A Relationship consists of a *relating* DataObject and a *related* DataObject.
-     * - The *relating* and *related* DataObjects can belong to different DataModels, provided both DataModels exist
-     *   within the same {@link Data}. This enables xeokit to support [*federated models*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#federated-models).
-     * - The created Relationship is stored in:
-     *   - {@link DataModel.relationships | DataModel.relationships},
-     *   - {@link DataObject.related | DataObject.related} on the *relating* DataObject, and
-     *   - {@link DataObject.relating | DataObject.relating} on the *related* DataObject.
-     *
-     * ### Usage Example
-     *
-     * ```javascript
-     * const myRelationship = dataModel.createRelationship({
-     *     type: BasicAggregation,  // @xeokit/basictypes!basicTypes
-     *     relatingObjectId: "myDataObject",
-     *     relatedObjectId: "myDataObject2"
-     * });
-     *
-     * if (myRelationship instanceof SDKError) {
-     *     console.error(myRelationship.message);
-     * } else {
-     *     // Success
-     *     const myDataObject = dataModel.objects["myDataObject"];
-     *     const myDataObject2 = dataModel.objects["myDataObject2"];
-     *
-     *     const gotMyRelationship = myDataObject.related[BasicAggregation][0];
-     *     const gotMyRelationshipAgain = myDataObject2.relating[BasicAggregation][0];
-     * }
-     * ```
-     *
-     * See {@link data | @xeokit/sdk/data} for more details.
-     *
-     * @param relationshipParams - Configuration parameters for the new Relationship.
-     * @returns {@link Relationship} on success.
-     * @returns {@link core!SDKError | SDKError} if:
-     * - The DataModel has already been built or destroyed.
-     * - The *relating* DataObject does not exist in the {@link Data} containing this DataModel.
-     * - The *related* DataObject does not exist in the {@link Data} containing this DataModel.
-     */
+   * Creates a new {@link Relationship | Relationship} between two existing {@link DataObject | DataObjects}.
+   *
+   * - A Relationship consists of a *relating* DataObject and a *related* DataObject.
+   * - The *relating* and *related* DataObjects can belong to different DataModels, provided both DataModels exist
+   *   within the same {@link Data}. This enables xeokit to support [*federated models*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#federated-models).
+   * - The created Relationship is stored in:
+   *   - {@link DataModel.relationships | DataModel.relationships},
+   *   - {@link DataObject.related | DataObject.related} on the *relating* DataObject, and
+   *   - {@link DataObject.relating | DataObject.relating} on the *related* DataObject.
+   *
+   * ### Usage Example
+   *
+   * ```javascript
+   * const myRelationship = dataModel.createRelationship({
+   *     type: BasicAggregation,  // @xeokit/basictypes!basicTypes
+   *     relatingObjectId: "myDataObject",
+   *     relatedObjectId: "myDataObject2"
+   * });
+   *
+   * if (myRelationship instanceof SDKError) {
+   *     console.error(myRelationship.message);
+   * } else {
+   *     // Success
+   *     const myDataObject = dataModel.objects["myDataObject"];
+   *     const myDataObject2 = dataModel.objects["myDataObject2"];
+   *
+   *     const gotMyRelationship = myDataObject.related[BasicAggregation][0];
+   *     const gotMyRelationshipAgain = myDataObject2.relating[BasicAggregation][0];
+   * }
+   * ```
+   *
+   * See {@link data | @xeokit/sdk/data} for more details.
+   *
+   * @param relationshipParams - Configuration parameters for the new Relationship.
+   * @returns {@link Relationship} on success.
+   * @returns {@link core!SDKError | SDKError} if:
+   * - The DataModel has already been built or destroyed.
+   * - The *relating* DataObject does not exist in the {@link Data} containing this DataModel.
+   * - The *related* DataObject does not exist in the {@link Data} containing this DataModel.
+   */
   createRelationship(relationshipParams) {
     if (this.destroyed) {
       return new SDKError("Failed to create Relationship - DataModel already destroyed");
@@ -75498,41 +75498,41 @@ var DataModel = class extends Component {
     return relation;
   }
   /**
-     * Finalizes this DataModel, making it ready for use.
-     *
-     * - Triggers the following events to notify subscribers:
-     *   - {@link DataModel.onBuilt | DataModel.onBuilt}
-     *   - {@link Data.onModelCreated | Data.onModelCreated}
-     * - Sets {@link DataModel.built | DataModel.built} to `true`.
-     * - Can only be called once per DataModel.
-     * - Once built, no additional components can be created within this DataModel.
-     *
-     * ### Usage Example
-     *
-     * ```javascript
-     * dataModel.onBuilt.subscribe(() => {
-     *     // The DataModel is built and ready for use
-     * });
-     *
-     * data.onModelCreated.subscribe((dataModel) => {
-     *     // Another way to listen for DataModel readiness
-     * });
-     *
-     * const result = dataModel.build();
-     *
-     * if (result instanceof SDKError) {
-     *     console.error(result.message);
-     * } else {
-     *     // Success
-     * }
-     * ```
-     *
-     * See {@link data | @xeokit/sdk/data} for more details.
-     *
-     * @throws {@link core!SDKError | SDKError} if:
-     * - The DataModel has already been built.
-     * - The DataModel has been destroyed.
-     */
+   * Finalizes this DataModel, making it ready for use.
+   *
+   * - Triggers the following events to notify subscribers:
+   *   - {@link DataModel.onBuilt | DataModel.onBuilt}
+   *   - {@link Data.onModelCreated | Data.onModelCreated}
+   * - Sets {@link DataModel.built | DataModel.built} to `true`.
+   * - Can only be called once per DataModel.
+   * - Once built, no additional components can be created within this DataModel.
+   *
+   * ### Usage Example
+   *
+   * ```javascript
+   * dataModel.onBuilt.subscribe(() => {
+   *     // The DataModel is built and ready for use
+   * });
+   *
+   * data.onModelCreated.subscribe((dataModel) => {
+   *     // Another way to listen for DataModel readiness
+   * });
+   *
+   * const result = dataModel.build();
+   *
+   * if (result instanceof SDKError) {
+   *     console.error(result.message);
+   * } else {
+   *     // Success
+   * }
+   * ```
+   *
+   * See {@link data | @xeokit/sdk/data} for more details.
+   *
+   * @throws {@link core!SDKError | SDKError} if:
+   * - The DataModel has already been built.
+   * - The DataModel has been destroyed.
+   */
   build() {
     return new Promise((resolve2) => {
       if (this.destroyed) {
@@ -75547,22 +75547,22 @@ var DataModel = class extends Component {
     });
   }
   /**
-     * Adds components from the specified `DataModelParams` to the data model.
-     *
-     * For detailed usage, refer to {@link data | @xeokit/sdk/data}.
-     *
-     * @param dataModelParams - The parameters to configure and populate the data model.
-     *
-     * @returns `void`
-     * * If the operation is successful.
-     *
-     * @returns {@link core!SDKError | SDKError}
-     * * If the data model has already been built.
-     * * If the data model has already been destroyed.
-     * * If a duplicate `PropertySet` was already created for the data model.
-     * * If a duplicate `DataObject` already exists in the data model.
-     * * If the necessary `DataObjects` were not found for a relationship.
-     */
+   * Adds components from the specified `DataModelParams` to the data model.
+   *
+   * For detailed usage, refer to {@link data | @xeokit/sdk/data}.
+   *
+   * @param dataModelParams - The parameters to configure and populate the data model.
+   *
+   * @returns `void`
+   * * If the operation is successful.
+   *
+   * @returns {@link core!SDKError | SDKError}
+   * * If the data model has already been built.
+   * * If the data model has already been destroyed.
+   * * If a duplicate `PropertySet` was already created for the data model.
+   * * If a duplicate `DataObject` already exists in the data model.
+   * * If the necessary `DataObjects` were not found for a relationship.
+   */
   fromParams(dataModelParams) {
     if (this.destroyed) {
       return new SDKError("Failed to add components to DataModel - DataModel already destroyed");
@@ -75587,8 +75587,8 @@ var DataModel = class extends Component {
     }
   }
   /**
-     * Gets this DataModel as a DataModelParams.
-     */
+   * Gets this DataModel as a DataModelParams.
+   */
   toParams() {
     if (this.destroyed) {
       return new SDKError("DataModel already destroyed");
@@ -75653,23 +75653,23 @@ var DataModel = class extends Component {
     return dataModelParams;
   }
   /**
-     * Destroys this DataModel.
-     *
-     * This method performs the following actions:
-     * * Fires an event via {@link DataModel.onDestroyed | DataModel.onDestroyed} and
-     * {@link Data.onModelDestroyed | Data.onModelDestroyed}.
-     * * Can only be called once on a DataModel.
-     * * After destruction, no more components can be created in the DataModel.
-     * * It is safe to call this method even if the DataModel has not yet been built.
-     *
-     * For detailed usage, refer to {@link data | @xeokit/sdk/data}.
-     *
-     * @returns `void`
-     * * If the operation is successful.
-     *
-     * @returns {@link core!SDKError | SDKError}
-     * * If the DataModel has already been destroyed.
-     */
+   * Destroys this DataModel.
+   *
+   * This method performs the following actions:
+   * * Fires an event via {@link DataModel.onDestroyed | DataModel.onDestroyed} and
+   * {@link Data.onModelDestroyed | Data.onModelDestroyed}.
+   * * Can only be called once on a DataModel.
+   * * After destruction, no more components can be created in the DataModel.
+   * * It is safe to call this method even if the DataModel has not yet been built.
+   *
+   * For detailed usage, refer to {@link data | @xeokit/sdk/data}.
+   *
+   * @returns `void`
+   * * If the operation is successful.
+   *
+   * @returns {@link core!SDKError | SDKError}
+   * * If the DataModel has already been destroyed.
+   */
   destroy() {
     if (this.destroyed) {
       return new SDKError("Failed to destroy DataModel - DataModel already destroyed");
@@ -75727,64 +75727,64 @@ var DataModel = class extends Component {
 var import_strongly_typed_events4 = __toESM(require_dist8());
 var Data = class extends Component {
   /**
-     * The {@link DataModel | DataModels} belonging to this Data, each keyed to
-     * its {@link DataModel.id | DataModel.id}.
-     */
+   * The {@link DataModel | DataModels} belonging to this Data, each keyed to
+   * its {@link DataModel.id | DataModel.id}.
+   */
   models;
   /**
-     * The{@link PropertySet | PropertySets} belonging to this Data, mapped to{@link PropertySet.id | PropertySet.id}.
-     */
+   * The{@link PropertySet | PropertySets} belonging to this Data, mapped to{@link PropertySet.id | PropertySet.id}.
+   */
   propertySets;
   /**
-     * The {@link DataObject | DataObjects} in this Data, mapped to {@link DataObject.id | DataObject.id}.
-     */
+   * The {@link DataObject | DataObjects} in this Data, mapped to {@link DataObject.id | DataObject.id}.
+   */
   objects;
   /**
-     * The root {@link DataObject | DataObjects} belonging to this Data, each keyed to its {@link DataObject.id | DataObject.id}.
-     *
-     * * This is the set of DataObjects in the DataModels within this Data that are not the *related* participant in
-     * any {@link Relationship | Relationships}, where they have no incoming Relationships and
-     * their {@link DataObject.relating} property is empty.
-     */
+   * The root {@link DataObject | DataObjects} belonging to this Data, each keyed to its {@link DataObject.id | DataObject.id}.
+   *
+   * * This is the set of DataObjects in the DataModels within this Data that are not the *related* participant in
+   * any {@link Relationship | Relationships}, where they have no incoming Relationships and
+   * their {@link DataObject.relating} property is empty.
+   */
   rootObjects;
   /**
-     * The {@link DataObject | DataObjects} belonging to this Data, each map keyed to {@link DataObject.type | DataObject.type},
-     * containing {@link DataObject | DataObjects} keyed to {@link DataObject.id | DataObject.id}.
-     */
+   * The {@link DataObject | DataObjects} belonging to this Data, each map keyed to {@link DataObject.type | DataObject.type},
+   * containing {@link DataObject | DataObjects} keyed to {@link DataObject.id | DataObject.id}.
+   */
   objectsByType;
   /**
-     * Tracks number of {@link DataObject | DataObjects} of each type in this Data.
-     */
+   * Tracks number of {@link DataObject | DataObjects} of each type in this Data.
+   */
   typeCounts;
   /**
-     * Emits an event each time a {@link DataModel | DataModel} has been created in this Data.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link DataModel | DataModel} has been created in this Data.
+   *
+   * @event
+   */
   onModelCreated;
   /**
-     * Emits an event each time a {@link DataModel | DataModel} has been destroyed within this Data.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link DataModel | DataModel} has been destroyed within this Data.
+   *
+   * @event
+   */
   onModelDestroyed;
   /**
-     * Emits an event each time a {@link DataObject | DataObject} is created within this Data.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link DataObject | DataObject} is created within this Data.
+   *
+   * @event
+   */
   onObjectCreated;
   /**
-     * Emits an event each time a {@link DataObject | DataObject} is destroyed within this Data.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link DataObject | DataObject} is destroyed within this Data.
+   *
+   * @event
+   */
   onObjectDestroyed;
   /**
-     * Creates a new Data.
-     *
-     * See {@link data | @xeokit/sdk/data}   for usage.
-     */
+   * Creates a new Data.
+   *
+   * See {@link data | @xeokit/sdk/data}   for usage.
+   */
   constructor() {
     super(null, {});
     this.models = {};
@@ -75799,31 +75799,31 @@ var Data = class extends Component {
     this.onObjectDestroyed = new EventEmitter(new import_strongly_typed_events4.EventDispatcher());
   }
   /**
-     * Creates a new {@link DataModel | DataModel} in this Data.
-     *
-     * Remember to call {@link DataModel.build | DataModel.build} when you've finished building or loading the DataModel. That will
-     * fire events via {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}, to
-     * indicate to any subscribers that the DataModel is built and ready for use.
-     *
-     * Note that while we're building/loading the DataModel, each call that we make to {@link DataModel.createObject | DataModel.createObject}
-     * will create a new {@link DataObject | DataObject}
-     * in {@link Data.objects | Data.objects} and {@link DataModel.objects | DataModel.objects}, and will also fire an event
-     * via {@link Data.onObjectCreated | Data.onObjectCreated}. However,
-     * only when we've received the {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}
-     * events can we actually consider the DataModel to be fully constructed.
-     *
-     * See {@link data | @xeokit/sdk/data}   for more details on usage.
-     *
-     * @param  dataModelParams Creation parameters for the new {@link DataModel | DataModel}.
-     * @param [options] Options for creating the {@link DataModel | DataModel}.
-     * @param [options.includeTypes] When provided, only create {@link DataObject | DataObjects} with types in this list.
-     * @param  [options.excludeRelating] When provided, never create {@link DataObject | DataObjects} with types in this list.
-     * @returns {@link DataModel | DataModel}
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * This Data has already been destroyed.
-     * * A DataModel with the given ID already exists in this Data.
-     */
+   * Creates a new {@link DataModel | DataModel} in this Data.
+   *
+   * Remember to call {@link DataModel.build | DataModel.build} when you've finished building or loading the DataModel. That will
+   * fire events via {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}, to
+   * indicate to any subscribers that the DataModel is built and ready for use.
+   *
+   * Note that while we're building/loading the DataModel, each call that we make to {@link DataModel.createObject | DataModel.createObject}
+   * will create a new {@link DataObject | DataObject}
+   * in {@link Data.objects | Data.objects} and {@link DataModel.objects | DataModel.objects}, and will also fire an event
+   * via {@link Data.onObjectCreated | Data.onObjectCreated}. However,
+   * only when we've received the {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}
+   * events can we actually consider the DataModel to be fully constructed.
+   *
+   * See {@link data | @xeokit/sdk/data}   for more details on usage.
+   *
+   * @param  dataModelParams Creation parameters for the new {@link DataModel | DataModel}.
+   * @param [options] Options for creating the {@link DataModel | DataModel}.
+   * @param [options.includeTypes] When provided, only create {@link DataObject | DataObjects} with types in this list.
+   * @param  [options.excludeRelating] When provided, never create {@link DataObject | DataObjects} with types in this list.
+   * @returns {@link DataModel | DataModel}
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Data has already been destroyed.
+   * * A DataModel with the given ID already exists in this Data.
+   */
   createModel(dataModelParams, options) {
     if (this.destroyed) {
       return new SDKError("Data already destroyed");
@@ -75832,7 +75832,7 @@ var Data = class extends Component {
     if (this.models[id]) {
       return new SDKError(`DataModel already created in this Data: ${id}`);
     }
-    const dataModel = new DataModel(this, id, dataModelParams, options);
+    const dataModel = new DataModel2(this, id, dataModelParams, options);
     this.models[dataModel.id] = dataModel;
     dataModel.onDestroyed.one(() => {
       delete this.models[dataModel.id];
@@ -75844,16 +75844,16 @@ var Data = class extends Component {
     return dataModel;
   }
   /**
-     * Gets the {@link DataObject.id}s of the {@link DataObject | DataObjects} that have the given {@link DataObject.type}.
-     *
-     * See {@link data | @xeokit/sdk/data} for usage.
-     *
-     * @param type The type.
-     * @returns {string[]}
-     * * Array of {@link DataObject.id}s on success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * This Data has already been destroyed.
-     */
+   * Gets the {@link DataObject.id}s of the {@link DataObject | DataObjects} that have the given {@link DataObject.type}.
+   *
+   * See {@link data | @xeokit/sdk/data} for usage.
+   *
+   * @param type The type.
+   * @returns {string[]}
+   * * Array of {@link DataObject.id}s on success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Data has already been destroyed.
+   */
   getObjectIdsByType(type) {
     if (this.destroyed) {
       return new SDKError("Data already destroyed");
@@ -75862,18 +75862,18 @@ var Data = class extends Component {
     return objects ? Object.keys(objects) : [];
   }
   /**
-     * Destroys all contained {@link DataModel | DataModels}.
-     *
-     * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
-     * for each existing DataModel in this Data.
-     *
-     * See {@link data | @xeokit/sdk/data}   for usage.
-     *
-     * @returns *void*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * This Data has already been destroyed.
-     */
+   * Destroys all contained {@link DataModel | DataModels}.
+   *
+   * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
+   * for each existing DataModel in this Data.
+   *
+   * See {@link data | @xeokit/sdk/data}   for usage.
+   *
+   * @returns *void*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Data has already been destroyed.
+   */
   clear() {
     if (this.destroyed) {
       return new SDKError("Data already destroyed");
@@ -75883,19 +75883,19 @@ var Data = class extends Component {
     }
   }
   /**
-     * Destroys this Data and all contained {@link DataModel | DataModels}.
-     *
-     * * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
-     * for each existing DataModels in this Data.
-     * * Unsubscribes all subscribers to {@link Data.onModelCreated | Data.onModelCreated}, {@link Data.onModelDestroyed | Data.onModelDestroyed}, {@link DataModel.onDestroyed | DataModel.onDestroyed}
-     *
-     * See {@link data | @xeokit/sdk/data}   for usage.
-     *
-     * @returns *void*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * This Data has already been destroyed.
-     */
+   * Destroys this Data and all contained {@link DataModel | DataModels}.
+   *
+   * * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
+   * for each existing DataModels in this Data.
+   * * Unsubscribes all subscribers to {@link Data.onModelCreated | Data.onModelCreated}, {@link Data.onModelDestroyed | Data.onModelDestroyed}, {@link DataModel.onDestroyed | DataModel.onDestroyed}
+   *
+   * See {@link data | @xeokit/sdk/data}   for usage.
+   *
+   * @returns *void*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Data has already been destroyed.
+   */
   destroy() {
     if (this.destroyed) {
       return new SDKError("Data already destroyed");
@@ -75994,27 +75994,6 @@ __export(io_exports, {
   ModelExporter: () => ModelExporter,
   ModelLoader: () => ModelLoader
 });
-
-// ../sdk/src/scene/index.ts
-var scene_exports = {};
-__export(scene_exports, {
-  Scene: () => Scene,
-  SceneGeometry: () => SceneGeometry,
-  SceneMesh: () => SceneMesh,
-  SceneModel: () => SceneModel,
-  SceneModelParamsExporter: () => SceneModelParamsExporter,
-  SceneModelParamsLoader: () => SceneModelParamsLoader,
-  SceneObject: () => SceneObject,
-  SceneTexture: () => SceneTexture,
-  SceneTextureSet: () => SceneTextureSet,
-  SceneTile: () => SceneTile,
-  buildMat4: () => buildMat4,
-  compressGeometryParams: () => compressGeometryParams,
-  getSceneObjectGeometry: () => getSceneObjectGeometry
-});
-
-// ../sdk/src/scene/Scene.ts
-var import_strongly_typed_events6 = __toESM(require_dist8());
 
 // ../sdk/src/scene/buildEdgeIndices.ts
 var uniquePositions = [];
@@ -76210,68 +76189,68 @@ var import_strongly_typed_events5 = __toESM(require_dist8());
 // ../sdk/src/scene/SceneGeometry.ts
 var SceneGeometry = class {
   /**
-     * ID for the geometry.
-     */
+   * ID for the geometry.
+   */
   id;
   /**
-     * Primitive type.
-     *
-     * Possible values are {@link constants!SolidPrimitive}, {@link constants!SurfacePrimitive},
-     * {@link constants!LinesPrimitive}, {@link constants!PointsPrimitive}
-     * and {@link constants!TrianglesPrimitive}.
-     */
+   * Primitive type.
+   *
+   * Possible values are {@link constants!SolidPrimitive}, {@link constants!SurfacePrimitive},
+   * {@link constants!LinesPrimitive}, {@link constants!PointsPrimitive}
+   * and {@link constants!TrianglesPrimitive}.
+   */
   primitive;
   /**
-     * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
-     */
+   * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
+   */
   aabb;
   /**
-     * 4x4 matrix to de-quantize the geometry's UV coordinates, when UVs are provided.
-     */
+   * 4x4 matrix to de-quantize the geometry's UV coordinates, when UVs are provided.
+   */
   uvsDecompressMatrix;
   /**
-     * 3D vertex positions, quantized as 16-bit integers.
-     *
-     * Internally, the Viewer dequantizes these using {@link SceneGeometry.aabb | SceneGeometry.aabb}, which provides their unquantized 3D boundary.
-     *
-     * Vertex positions are required for all primitive types.
-     */
+   * 3D vertex positions, quantized as 16-bit integers.
+   *
+   * Internally, the Viewer dequantizes these using {@link SceneGeometry.aabb | SceneGeometry.aabb}, which provides their unquantized 3D boundary.
+   *
+   * Vertex positions are required for all primitive types.
+   */
   positionsCompressed;
   /**
-     * UV coordinates, quantized as 16-bit integers.
-     *
-     * Internally, the Viewer de-quantizes these with {@link SceneGeometry.uvsDecompressMatrix | SceneGeometry.uvsDecompressMatrix}.
-     */
+   * UV coordinates, quantized as 16-bit integers.
+   *
+   * Internally, the Viewer de-quantizes these with {@link SceneGeometry.uvsDecompressMatrix | SceneGeometry.uvsDecompressMatrix}.
+   */
   uvsCompressed;
   /**
-     * Vertex RGB colors, quantized as 8-bit integers.
-     */
+   * Vertex RGB colors, quantized as 8-bit integers.
+   */
   colorsCompressed;
   /**
-     * primitive indices.
-     *
-     * This is either an array of 8-bit, 16-bit or 32-bit values.
-     */
+   * primitive indices.
+   *
+   * This is either an array of 8-bit, 16-bit or 32-bit values.
+   */
   indices;
   /**
-     * Edge indices.
-     *
-     * This is either an array of 8-bit, 16-bit or 32-bit values.
-     */
+   * Edge indices.
+   *
+   * This is either an array of 8-bit, 16-bit or 32-bit values.
+   */
   edgeIndices;
   /**
-     * Interface through which this SceneGeometry can load any user-updated geometry arrays into the renderers.
-     *
-     * @internal
-     */
+   * Interface through which this SceneGeometry can load any user-updated geometry arrays into the renderers.
+   *
+   * @internal
+   */
   rendererGeometry;
   /**
-     * TODO
-     */
+   * TODO
+   */
   origin;
   /**
-     * The count of {@link SceneMesh | SceneMeshes} that reference this SceneGeometry.
-     */
+   * The count of {@link SceneMesh | SceneMeshes} that reference this SceneGeometry.
+   */
   numMeshes;
   constructor(params2) {
     this.id = params2.id;
@@ -76286,8 +76265,8 @@ var SceneGeometry = class {
     this.numMeshes = 0;
   }
   /**
-     * Gets this SceneGeometry as SceneGeometryCompressedParams.
-     */
+   * Gets this SceneGeometry as SceneGeometryCompressedParams.
+   */
   toParams() {
     const params2 = {
       id: this.id,
@@ -76337,39 +76316,39 @@ function getPositionsWorldAABB3(positions, aabb, matrix, worldAABB = createAABB3
 }
 var SceneMesh = class {
   /**
-     * Unique ID of this SceneMesh.
-     *
-     * SceneMesh is stored by this ID in {@link SceneModel.meshes}.
-     */
+   * Unique ID of this SceneMesh.
+   *
+   * SceneMesh is stored by this ID in {@link SceneModel.meshes}.
+   */
   id;
   /**
-     * {@link SceneTile} this SceneMesh belongs to.
-     */
+   * {@link SceneTile} this SceneMesh belongs to.
+   */
   tile;
   /**
-     * {@link SceneGeometry} used by this SceneMesh.
-     */
+   * {@link SceneGeometry} used by this SceneMesh.
+   */
   geometry;
   /**
-     * {@link SceneTextureSet} used by this SceneMesh.
-     */
+   * {@link SceneTextureSet} used by this SceneMesh.
+   */
   textureSet;
   /**
-     *  Internal interface through which a {@link SceneMesh} can load property updates into a renderers.
-     *
-     *  This is defined when the owner {@link SceneModel | SceneModel} has been added to
-     *  a {@link viewer!Viewer | Viewer}.
-     *
-     * @internal
-     */
+   *  Internal interface through which a {@link SceneMesh} can load property updates into a renderers.
+   *
+   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to
+   *  a {@link viewer!Viewer | Viewer}.
+   *
+   * @internal
+   */
   rendererMesh;
   /**
-     * The {@link SceneObject} that uses this SceneMesh.
-     */
+   * The {@link SceneObject} that uses this SceneMesh.
+   */
   object;
   /**
-     * TODO
-     */
+   * TODO
+   */
   streamLayerIndex;
   #color;
   #matrix;
@@ -76379,8 +76358,8 @@ var SceneMesh = class {
   #aabbDirty;
   #aabb;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(meshParams) {
     this.id = meshParams.id;
     this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
@@ -76396,18 +76375,18 @@ var SceneMesh = class {
     this.streamLayerIndex = meshParams.streamLayerIndex !== void 0 ? meshParams.streamLayerIndex : 0;
   }
   /**
-     * Gets the RGB color for this SceneMesh.
-     *
-     * Each element of the color is in range ````[0..1]````.
-     */
+   * Gets the RGB color for this SceneMesh.
+   *
+   * Each element of the color is in range ````[0..1]````.
+   */
   get color() {
     return this.#color;
   }
   /**
-     * Sets the RGB color for this SceneMesh.
-     *
-     * Each element of the color is in range ````[0..1]````.
-     */
+   * Sets the RGB color for this SceneMesh.
+   *
+   * Each element of the color is in range ````[0..1]````.
+   */
   set color(value) {
     let color2 = this.#color;
     if (!color2) {
@@ -76428,33 +76407,33 @@ var SceneMesh = class {
     }
   }
   /**
-     * Gets this SceneMesh's local modeling transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @type {FloatArrayParam}
-     */
+   * Gets this SceneMesh's local modeling transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @type {FloatArrayParam}
+   */
   get matrix() {
     return this.#matrix;
   }
   /**
-     * Gets this SceneMesh's RTC modeling transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @internal
-     * @type {FloatArrayParam}
-     */
+   * Gets this SceneMesh's RTC modeling transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @internal
+   * @type {FloatArrayParam}
+   */
   get rtcMatrix() {
     return this.#rtcMatrix;
   }
   /**
-     * Updates this SceneMesh's local modeling transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @type {FloatArrayParam}
-     */
+   * Updates this SceneMesh's local modeling transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @type {FloatArrayParam}
+   */
   set matrix(matrix) {
     if (matrix) {
       this.#matrix.set(matrix);
@@ -76470,18 +76449,18 @@ var SceneMesh = class {
     }
   }
   /**
-     * Gets the opacity factor for this SceneMesh.
-     *
-     * This is a factor in range ````[0..1]````.
-     */
+   * Gets the opacity factor for this SceneMesh.
+   *
+   * This is a factor in range ````[0..1]````.
+   */
   get opacity() {
     return this.#opacity;
   }
   /**
-     * Sets the opacity factor for this SceneMesh.
-     *
-     * This is a factor in range ````[0..1]````.
-     */
+   * Sets the opacity factor for this SceneMesh.
+   *
+   * This is a factor in range ````[0..1]````.
+   */
   set opacity(opacity) {
     opacity = opacity !== void 0 && opacity !== null ? opacity : 1;
     if (this.#opacity === opacity) {
@@ -76492,8 +76471,8 @@ var SceneMesh = class {
     }
   }
   /**
-     * Gets the World-space AABB of this SceneMesh.
-     */
+   * Gets the World-space AABB of this SceneMesh.
+   */
   get aabb() {
     if (!this.#aabbDirty) {
       return this.#aabb;
@@ -76503,8 +76482,8 @@ var SceneMesh = class {
     return this.#aabb;
   }
   /**
-     * Gets this SceneMesh as SceneMeshParams.
-     */
+   * Gets this SceneMesh as SceneMeshParams.
+   */
   toParams() {
     const meshParams = {
       streamLayerIndex: this.streamLayerIndex || 0,
@@ -76526,46 +76505,46 @@ var SceneMesh = class {
 // ../sdk/src/scene/SceneObject.ts
 var SceneObject = class {
   /**
-     * Unique ID of this SceneObject.
-     *
-     * SceneObjects are stored by ID in {@link Scene.objects | Scene.objects}
-     * and {@link SceneModel.objects | SceneModel.objects}.
-     */
+   * Unique ID of this SceneObject.
+   *
+   * SceneObjects are stored by ID in {@link Scene.objects | Scene.objects}
+   * and {@link SceneModel.objects | SceneModel.objects}.
+   */
   id;
   /**
-     * ID of this SceneObject within the originating system.
-     */
+   * ID of this SceneObject within the originating system.
+   */
   originalSystemId;
   /**
-     * Optional layer ID for this SceneObject.
-     *
-     * When the {@link Scene} is attached to a {@link view!Viewer | View}, this will identify an optional {@link view!ViewLayer | ViewLayer}
-     * to assign the object to. ViewLayers allow users to group and segregate object based on their roles or aspects in a scene,
-     * simplifying interaction and focusing operations on specific object groups.
-     */
+   * Optional layer ID for this SceneObject.
+   *
+   * When the {@link Scene} is attached to a {@link view!Viewer | View}, this will identify an optional {@link view!ViewLayer | ViewLayer}
+   * to assign the object to. ViewLayers allow users to group and segregate object based on their roles or aspects in a scene,
+   * simplifying interaction and focusing operations on specific object groups.
+   */
   layerId;
   /**
-     * The {@link SceneModel | SceneModel} that contains this SceneObject.
-     */
+   * The {@link SceneModel | SceneModel} that contains this SceneObject.
+   */
   model;
   /**
-     * The {@link SceneMesh | Meshes} belonging to this SceneObject.
-     */
+   * The {@link SceneMesh | Meshes} belonging to this SceneObject.
+   */
   meshes;
   /**
-     *  Internal interface through which a {@link viewer!ViewObject | ViewObject} can load property updates
-     *  into a {@link viewer!Renderer | Renderer} for this SceneObject.
-     *
-     *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
-     *
-     * @internal
-     */
+   *  Internal interface through which a {@link viewer!ViewObject | ViewObject} can load property updates
+   *  into a {@link viewer!Renderer | Renderer} for this SceneObject.
+   *
+   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
+   *
+   * @internal
+   */
   rendererObject;
   #aabb;
   #aabbDirty;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(cfg) {
     this.id = cfg.id;
     this.originalSystemId = cfg.originallSystemId || this.id;
@@ -76576,14 +76555,14 @@ var SceneObject = class {
     this.rendererObject = null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   setAABBDirty() {
     this.#aabbDirty = true;
   }
   /**
-     * Gets the axis-aligned 3D World-space boundary of this SceneObject.
-     */
+   * Gets the axis-aligned 3D World-space boundary of this SceneObject.
+   */
   get aabb() {
     if (this.meshes.length === 1) {
       return this.meshes[0].aabb;
@@ -76602,8 +76581,8 @@ var SceneObject = class {
     return this.#aabb;
   }
   /**
-     * Gets this SceneObject as SceneObjectParams.
-     */
+   * Gets this SceneObject as SceneObjectParams.
+   */
   toParams() {
     const sceneObjectParams = {
       id: this.id,
@@ -76624,113 +76603,113 @@ var SceneObject = class {
 // ../sdk/src/scene/SceneTexture.ts
 var SceneTexture = class {
   /**
-     *  Internal interface through which this {@link SceneTexture} can load property updates into a renderers.
-     *
-     *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
-     *
-     * @internal
-     */
+   *  Internal interface through which this {@link SceneTexture} can load property updates into a renderers.
+   *
+   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
+   *
+   * @internal
+   */
   rendererTexture;
   /**
-     * ID for the texture.
-     */
+   * ID for the texture.
+   */
   id;
   /**
-     * Path to an image file.
-     */
+   * Path to an image file.
+   */
   src;
   /**
-     * Image file data.
-     */
+   * Image file data.
+   */
   imageData;
   /**
-     * Transcoded texture data.
-     */
+   * Transcoded texture data.
+   */
   buffers;
   /**
-     * HTMLImage containing the texture image.
-     */
+   * HTMLImage containing the texture image.
+   */
   image;
   /**
-     * Pixel height of the texture.
-     */
+   * Pixel height of the texture.
+   */
   height;
   /**
-     * Pixel width of the texture.
-     */
+   * Pixel width of the texture.
+   */
   width;
   /**
-     * True if the texture is compressed.
-     */
+   * True if the texture is compressed.
+   */
   compressed;
   /**
-     * Media type of this SceneTexture.
-     *
-     * Supported values are {@link constants!GIFMediaType}, {@link constants!PNGMediaType} and {@link constants!JPEGMediaType}.
-     *
-     * Ignored for compressed textures.
-     */
+   * Media type of this SceneTexture.
+   *
+   * Supported values are {@link constants!GIFMediaType}, {@link constants!PNGMediaType} and {@link constants!JPEGMediaType}.
+   *
+   * Ignored for compressed textures.
+   */
   mediaType;
   /**
-     * How the texture is sampled when a texel covers more than one pixel.
-     *
-     * Supported values are {@link constants!LinearFilter} and {@link constants!NearestFilter}.
-     */
+   * How the texture is sampled when a texel covers more than one pixel.
+   *
+   * Supported values are {@link constants!LinearFilter} and {@link constants!NearestFilter}.
+   */
   magFilter;
   /**
-     * How the texture is sampled when a texel covers less than one pixel. Supported values
-     * are {@link constants!LinearMipmapLinearFilter}, {@link constants!LinearMipMapNearestFilter},
-     * {@link constants!NearestMipMapNearestFilter}, {@link constants!NearestMipMapLinearFilter}
-     * and {@link constants!LinearMipMapLinearFilter}.
-     *
-     * Ignored for compressed textures.
-     */
+   * How the texture is sampled when a texel covers less than one pixel. Supported values
+   * are {@link constants!LinearMipmapLinearFilter}, {@link constants!LinearMipMapNearestFilter},
+   * {@link constants!NearestMipMapNearestFilter}, {@link constants!NearestMipMapLinearFilter}
+   * and {@link constants!LinearMipMapLinearFilter}.
+   *
+   * Ignored for compressed textures.
+   */
   minFilter;
   /**
-     * S wrapping mode.
-     *
-     * Supported values are {@link constants!ClampToEdgeWrapping}, {@link constants!MirroredRepeatWrapping} and {@link constants!RepeatWrapping}.
-     *
-     * Ignored for compressed textures.
-     */
+   * S wrapping mode.
+   *
+   * Supported values are {@link constants!ClampToEdgeWrapping}, {@link constants!MirroredRepeatWrapping} and {@link constants!RepeatWrapping}.
+   *
+   * Ignored for compressed textures.
+   */
   wrapS;
   /**
-     * T wrapping mode.
-     *
-     * Supported values are {@link constants!ClampToEdgeWrapping}, {@link constants!MirroredRepeatWrapping} and {@link constants!RepeatWrapping}.
-     *
-     * Ignored for compressed textures.
-     */
+   * T wrapping mode.
+   *
+   * Supported values are {@link constants!ClampToEdgeWrapping}, {@link constants!MirroredRepeatWrapping} and {@link constants!RepeatWrapping}.
+   *
+   * Ignored for compressed textures.
+   */
   wrapT;
   /**
-     * R wrapping mode.
-     *
-     * Supported values are {@link constants!ClampToEdgeWrapping}, {@link constants!MirroredRepeatWrapping} and {@link constants!RepeatWrapping}.
-     *
-     * Ignored for compressed textures.
-     */
+   * R wrapping mode.
+   *
+   * Supported values are {@link constants!ClampToEdgeWrapping}, {@link constants!MirroredRepeatWrapping} and {@link constants!RepeatWrapping}.
+   *
+   * Ignored for compressed textures.
+   */
   wrapR;
   /**
-     * Flips this SceneTexture's source data along its vertical axis when ````true````.
-     */
+   * Flips this SceneTexture's source data along its vertical axis when ````true````.
+   */
   flipY;
   /**
-     * SceneTexture encoding format.
-     *
-     * Supported values are {@link constants!LinearEncoding} and {@link constants!sRGBEncoding}.
-     */
+   * SceneTexture encoding format.
+   *
+   * Supported values are {@link constants!LinearEncoding} and {@link constants!sRGBEncoding}.
+   */
   encoding;
   /**
-     * RGBA color to preload the texture with.
-     */
+   * RGBA color to preload the texture with.
+   */
   preloadColor;
   /**
-     * @private
-     */
+   * @private
+   */
   channel;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(params2) {
     this.id = params2.id;
     this.imageData = params2.imageData;
@@ -76751,36 +76730,36 @@ var SceneTexture = class {
 // ../sdk/src/scene/SceneTextureSet.ts
 var SceneTextureSet = class {
   /**
-     * The ID of this SceneTextureSet.
-     */
+   * The ID of this SceneTextureSet.
+   */
   id;
   /**
-     * The color {@link SceneTexture} in this set.
-     */
+   * The color {@link SceneTexture} in this set.
+   */
   colorTexture;
   /**
-     * The metallic-roughness {@link SceneTexture} in this set.
-     */
+   * The metallic-roughness {@link SceneTexture} in this set.
+   */
   metallicRoughnessTexture;
   /**
-     * The occlusion {@link SceneTexture} in this set.
-     */
+   * The occlusion {@link SceneTexture} in this set.
+   */
   occlusionTexture;
   /**
-     * The emissive {@link SceneTexture} in this set.
-     */
+   * The emissive {@link SceneTexture} in this set.
+   */
   emissiveTexture;
   /**
-     *  Internal interface through which a SceneTextureSet can load property updates into a renderers.
-     *
-     *  This is defined while the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
-     *
-     * @internal
-     */
+   *  Internal interface through which a SceneTextureSet can load property updates into a renderers.
+   *
+   *  This is defined while the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
+   *
+   * @internal
+   */
   rendererTextureSet;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(textureSetParams, textures) {
     this.id = textureSetParams.id;
     this.colorTexture = textures.colorTexture;
@@ -76829,105 +76808,105 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
   qualityLevel: 10,
   mipmaps: false
 };
-var SceneModel = class extends Component {
+var SceneModel2 = class extends Component {
   /**
-     * Indicates what renderer resources will need to be allocated in a {@link viewer!Viewer | Viewer's}
-     * {@link viewer!Renderer | Renderer} to support progressive loading for the {@link SceneModel | SceneModel}.
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for usage.
-     */
+   * Indicates what renderer resources will need to be allocated in a {@link viewer!Viewer | Viewer's}
+   * {@link viewer!Renderer | Renderer} to support progressive loading for the {@link SceneModel | SceneModel}.
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for usage.
+   */
   streamParams;
   /**
-     * The {@link Scene | Scene} that contains this SceneModel.
-     */
+   * The {@link Scene | Scene} that contains this SceneModel.
+   */
   scene;
   /**
-     * If we want to view this SceneModel with a {@link viewer!Viewer | Viewer}, an
-     * optional ID of a {@link viewer!ViewLayer | ViewLayer} to view it in.
-     */
+   * If we want to view this SceneModel with a {@link viewer!Viewer | Viewer}, an
+   * optional ID of a {@link viewer!ViewLayer | ViewLayer} to view it in.
+   */
   layerId;
   /**
-     * Indicates if this SceneModel has already been built.
-     *
-     * * Set ````true```` by {@link SceneModel.build | SceneModel.build}.
-     * * Subscribe to updates using {@link SceneModel.onBuilt | SceneModel.onBuilt}
-     * and {@link Scene.onModelCreated | Scene.onModelCreated}.
-     * * Don't create anything more in this SceneModel once it's built.
-     */
+   * Indicates if this SceneModel has already been built.
+   *
+   * * Set ````true```` by {@link SceneModel.build | SceneModel.build}.
+   * * Subscribe to updates using {@link SceneModel.onBuilt | SceneModel.onBuilt}
+   * and {@link Scene.onModelCreated | Scene.onModelCreated}.
+   * * Don't create anything more in this SceneModel once it's built.
+   */
   built;
   /**
-     * The edge threshold for automatic [edge primitive generation](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-edge-generation).
-     */
+   * The edge threshold for automatic [edge primitive generation](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#geometry-edge-generation).
+   */
   edgeThreshold;
   /**
-     * {@link SceneGeometry | Geometries} within this SceneModel, each mapped to {@link SceneGeometry.id | SceneGeometry.id}.
-     *
-     * * Created by {@link SceneModel.createGeometry | SceneModel.createGeometry}.
-     */
+   * {@link SceneGeometry | Geometries} within this SceneModel, each mapped to {@link SceneGeometry.id | SceneGeometry.id}.
+   *
+   * * Created by {@link SceneModel.createGeometry | SceneModel.createGeometry}.
+   */
   geometries;
   /**
-     * {@link SceneTexture | Textures} within this SceneModel, each mapped to {@link SceneTexture.id | SceneTexture.id}.
-     *
-     * * Created by {@link SceneModel.createTexture | SceneModel.createTexture}.
-     * * Compressed asynchronously in {@link SceneModel.build | SceneModel.build}.
-     */
+   * {@link SceneTexture | Textures} within this SceneModel, each mapped to {@link SceneTexture.id | SceneTexture.id}.
+   *
+   * * Created by {@link SceneModel.createTexture | SceneModel.createTexture}.
+   * * Compressed asynchronously in {@link SceneModel.build | SceneModel.build}.
+   */
   textures;
   /**
-     * {@link SceneTextureSet | TextureSets} within this SceneModel, each mapped to {@link SceneTextureSet.id | SceneTextureSet.id}.
-     *
-     * * Created by {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
-     */
+   * {@link SceneTextureSet | TextureSets} within this SceneModel, each mapped to {@link SceneTextureSet.id | SceneTextureSet.id}.
+   *
+   * * Created by {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
+   */
   textureSets;
   /**
-     * The {@link SceneTile | Tiles} used by this SceneModel, each mapped to {@link SceneTile.id | SceneTile.id}.
-     */
+   * The {@link SceneTile | Tiles} used by this SceneModel, each mapped to {@link SceneTile.id | SceneTile.id}.
+   */
   tiles;
   /**
-     * The {@link SceneTile | Tiles} used by this SceneModel.
-     */
+   * The {@link SceneTile | Tiles} used by this SceneModel.
+   */
   tilesList;
   /**
-     * {@link SceneMesh | SceneMeshes} within this SceneModel, each mapped to {@link SceneMesh.id | SceneMesh.id}.
-     *
-     * * Created by {@link SceneModel.createMesh | SceneModel.createMesh}.
-     */
+   * {@link SceneMesh | SceneMeshes} within this SceneModel, each mapped to {@link SceneMesh.id | SceneMesh.id}.
+   *
+   * * Created by {@link SceneModel.createMesh | SceneModel.createMesh}.
+   */
   meshes;
   /**
-     * {@link SceneObject | SceneObjects} within this SceneModel, each mapped to {@link SceneObject.id | SceneObject.id}.
-     *
-     * * Created by {@link SceneModel.createObject | SceneModel.createObject}.
-     */
+   * {@link SceneObject | SceneObjects} within this SceneModel, each mapped to {@link SceneObject.id | SceneObject.id}.
+   *
+   * * Created by {@link SceneModel.createObject | SceneModel.createObject}.
+   */
   objects;
   /**
-     * List of {@link SceneObject | SceneObjects} within this SceneModel.
-     *
-     * * Created by {@link SceneModel.createObject | SceneModel.createObject}.
-     */
+   * List of {@link SceneObject | SceneObjects} within this SceneModel.
+   *
+   * * Created by {@link SceneModel.createObject | SceneModel.createObject}.
+   */
   objectsList;
   /**
-     * Emits an event when this {@link SceneModel | SceneModel} has been built.
-     *
-     * * Triggered by {@link SceneModel.build | SceneModel.build}.
-     *
-     * @event onBuilt
-     */
+   * Emits an event when this {@link SceneModel | SceneModel} has been built.
+   *
+   * * Triggered by {@link SceneModel.build | SceneModel.build}.
+   *
+   * @event onBuilt
+   */
   onBuilt;
   /**
-     *  Internal interface through which a SceneModel can load updated content into a renderers.
-     *
-     * @internal
-     */
+   *  Internal interface through which a SceneModel can load updated content into a renderers.
+   *
+   * @internal
+   */
   rendererModel;
   /**
-     * Statistics on this SceneModel.
-     */
+   * Statistics on this SceneModel.
+   */
   stats;
   /**
-     * Whether this SceneModel retains {@link SceneObject | SceneObjects}, {@link SceneMesh | SceneMeshes},
-     * {@link SceneGeometry | SceneGeometries} etc after we call {@link SceneModel.build | SceneModel.build}.
-     *
-     * Default value is `true`.
-     */
+   * Whether this SceneModel retains {@link SceneObject | SceneObjects}, {@link SceneMesh | SceneMeshes},
+   * {@link SceneGeometry | SceneGeometries} etc after we call {@link SceneModel.build | SceneModel.build}.
+   *
+   * Default value is `true`.
+   */
   retained;
   #texturesList;
   #numObjects;
@@ -76935,8 +76914,8 @@ var SceneModel = class extends Component {
   #aabb;
   #aabbDirty;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(scene, sceneModelParams) {
     super(scene, {
       id: sceneModelParams.id
@@ -76980,42 +76959,42 @@ var SceneModel = class extends Component {
     this.retained = sceneModelParams.retained !== false;
   }
   /**
-     * Creates a new {@link SceneTexture} within this SceneModel.
-     *
-     * * Stores the new {@link SceneTexture} in {@link SceneModel.textures | SceneModel.textures}.
-     * * Textures are compressed asynchronously by {@link SceneModel.build | SceneModel.build}.
-     *
-     * ### Usage
-     *
-     * ````javascript
-     * const texture = sceneModel.createTexture({
-     *      id: "myColorTexture",
-     *      src: // Path to JPEG, PNG, KTX2,
-     *      image: // HTMLImageElement,
-     *      buffers: // ArrayBuffer[] containing KTX2 MIP levels
-     *      preloadColor: [1,0,0,1],
-     *      flipY: false,
-     *      encoding: LinearEncoding, // @xeokit/constants
-     *      magFilter: LinearFilter,
-     *      minFilter: LinearFilter,
-     *      wrapR: ClampToEdgeWrapping,
-     *      wrapS: ClampToEdgeWrapping,
-     *      wrapT: ClampToEdgeWrapping,
-     * });
-     *
-     * const textureAgain = sceneModel.textures["myColorTexture"];
-     * ````
-     *
-     * See {@link scene | @xeokit/sdk/scene} for more usage info.
-     *
-     * @param textureParams - SceneTexture creation parameters.
-     * @returns *{@link SceneTexture}*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * If SceneModel has already been built or destroyed.
-     * * Invalid SceneTextureParams were given.
-     * * SceneTexture with given ID already exists in this Scene.
-     */
+   * Creates a new {@link SceneTexture} within this SceneModel.
+   *
+   * * Stores the new {@link SceneTexture} in {@link SceneModel.textures | SceneModel.textures}.
+   * * Textures are compressed asynchronously by {@link SceneModel.build | SceneModel.build}.
+   *
+   * ### Usage
+   *
+   * ````javascript
+   * const texture = sceneModel.createTexture({
+   *      id: "myColorTexture",
+   *      src: // Path to JPEG, PNG, KTX2,
+   *      image: // HTMLImageElement,
+   *      buffers: // ArrayBuffer[] containing KTX2 MIP levels
+   *      preloadColor: [1,0,0,1],
+   *      flipY: false,
+   *      encoding: LinearEncoding, // @xeokit/constants
+   *      magFilter: LinearFilter,
+   *      minFilter: LinearFilter,
+   *      wrapR: ClampToEdgeWrapping,
+   *      wrapS: ClampToEdgeWrapping,
+   *      wrapT: ClampToEdgeWrapping,
+   * });
+   *
+   * const textureAgain = sceneModel.textures["myColorTexture"];
+   * ````
+   *
+   * See {@link scene | @xeokit/sdk/scene} for more usage info.
+   *
+   * @param textureParams - SceneTexture creation parameters.
+   * @returns *{@link SceneTexture}*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * If SceneModel has already been built or destroyed.
+   * * Invalid SceneTextureParams were given.
+   * * SceneTexture with given ID already exists in this Scene.
+   */
   createTexture(textureParams) {
     if (this.destroyed) {
       return new SDKError("Failed to create SceneTexture in SceneModel - SceneModel already destroyed");
@@ -77042,33 +77021,33 @@ var SceneModel = class extends Component {
     return texture;
   }
   /**
-     * Creates a new {@link SceneTextureSet} within this SceneModel.
-     *
-     * * Stores the new {@link SceneTextureSet} in {@link SceneModel.textureSets | SceneModel.textureSets}.
-     *
-     * ### Usage
-     *
-     * ````javascript
-     * const textureSet = sceneModel.createTextureSet({
-     *      id: "myTextureSet",
-     *      colorTextureId: "myColorTexture"
-     * });
-     *
-     * const textureSetAgain = sceneModel.textureSets["myTextureSet"];
-     * ````
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for more usage info.
-     *
-     * @param textureSetParams SceneTextureSet creation parameters.
-     *
-     * @returns *{@link SceneTextureSet}*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * If SceneModel has already been built or destroyed.
-     * * Invalid SceneTextureSetParams were given.
-     * * SceneTextureSet with given ID already exists in this SceneModel.
-     * * One or more of the given Textures could not be found in this SceneModel.
-     */
+   * Creates a new {@link SceneTextureSet} within this SceneModel.
+   *
+   * * Stores the new {@link SceneTextureSet} in {@link SceneModel.textureSets | SceneModel.textureSets}.
+   *
+   * ### Usage
+   *
+   * ````javascript
+   * const textureSet = sceneModel.createTextureSet({
+   *      id: "myTextureSet",
+   *      colorTextureId: "myColorTexture"
+   * });
+   *
+   * const textureSetAgain = sceneModel.textureSets["myTextureSet"];
+   * ````
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for more usage info.
+   *
+   * @param textureSetParams SceneTextureSet creation parameters.
+   *
+   * @returns *{@link SceneTextureSet}*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * If SceneModel has already been built or destroyed.
+   * * Invalid SceneTextureSetParams were given.
+   * * SceneTextureSet with given ID already exists in this SceneModel.
+   * * One or more of the given Textures could not be found in this SceneModel.
+   */
   createTextureSet(textureSetParams) {
     if (this.destroyed) {
       return new SDKError("Failed to create SceneTextureSet in SceneModel - SceneModel already destroyed");
@@ -77130,54 +77109,54 @@ var SceneModel = class extends Component {
     return textureSet;
   }
   /**
-     * Creates a new {@link SceneGeometry} within this SceneModel, from non-compressed geometry parameters.
-     *
-     * * Stores the new {@link SceneGeometry} in {@link SceneModel.geometries | SceneModel.geometries}.
-     *
-     * ### Usage
-     *
-     * ````javascript
-     * const boxGeometry = sceneModel.createGeometry({
-     *      id: "boxGeometry",
-     *      primitive: TrianglesPrimitive, // @xeokit/constants
-     *      positions: [
-     *          1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, // v0-v1-v2-v3 front
-     *          1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, // v0-v3-v4-v1 right
-     *          1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, // v0-v1-v6-v1 top
-     *          -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, // v1-v6-v7-v2 left
-     *          -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1,// v7-v4-v3-v2 bottom
-     *          1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1 // v4-v7-v6-v1 back
-     *      ],
-     *      indices: [
-     *          0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15,
-     *          16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
-     *      ]
-     *  });
-     *
-     * if (boxGeometry instanceof SDKError) {
-     *     console.log(boxGeometry.message);
-     * } else {
-     *      const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
-     * }
-     * ````
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for more usage info.
-     *
-     * @param geometryParams Non-compressed geometry parameters.
-     * @returns *{@link SceneGeometry}*
-     *  * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * If this SceneModel has already been destroyed.
-     * * If this SceneModel has already been built.
-     * * Invalid SceneGeometryParams were given.
-     * * SceneGeometry of given ID already exists in this SceneModel.
-     * * Unsupported primitive type given.
-     * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
-     * * Mandatory indices were not given for primitive type that is not {@link constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
-     * * Indices out of range of vertex positions.
-     * * Indices out of range of vertex UVs.
-     * * Mismatch between given quantities of vertex positions and UVs.
-     */
+   * Creates a new {@link SceneGeometry} within this SceneModel, from non-compressed geometry parameters.
+   *
+   * * Stores the new {@link SceneGeometry} in {@link SceneModel.geometries | SceneModel.geometries}.
+   *
+   * ### Usage
+   *
+   * ````javascript
+   * const boxGeometry = sceneModel.createGeometry({
+   *      id: "boxGeometry",
+   *      primitive: TrianglesPrimitive, // @xeokit/constants
+   *      positions: [
+   *          1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, // v0-v1-v2-v3 front
+   *          1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, // v0-v3-v4-v1 right
+   *          1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, // v0-v1-v6-v1 top
+   *          -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, // v1-v6-v7-v2 left
+   *          -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1,// v7-v4-v3-v2 bottom
+   *          1, -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1 // v4-v7-v6-v1 back
+   *      ],
+   *      indices: [
+   *          0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13, 14, 12, 14, 15,
+   *          16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
+   *      ]
+   *  });
+   *
+   * if (boxGeometry instanceof SDKError) {
+   *     console.log(boxGeometry.message);
+   * } else {
+   *      const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
+   * }
+   * ````
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for more usage info.
+   *
+   * @param geometryParams Non-compressed geometry parameters.
+   * @returns *{@link SceneGeometry}*
+   *  * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * If this SceneModel has already been destroyed.
+   * * If this SceneModel has already been built.
+   * * Invalid SceneGeometryParams were given.
+   * * SceneGeometry of given ID already exists in this SceneModel.
+   * * Unsupported primitive type given.
+   * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
+   * * Mandatory indices were not given for primitive type that is not {@link constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+   * * Indices out of range of vertex positions.
+   * * Indices out of range of vertex UVs.
+   * * Mismatch between given quantities of vertex positions and UVs.
+   */
   createGeometry(geometryParams) {
     if (this.destroyed) {
       return new SDKError("Failed to create SceneGeometry in SceneModel - SceneModel already destroyed");
@@ -77241,55 +77220,55 @@ var SceneModel = class extends Component {
     return geometry;
   }
   /**
-     * Creates a new {@link SceneGeometry} within this SceneModel, from pre-compressed geometry parameters.
-     *
-     * * Stores the new {@link SceneGeometry} in {@link SceneModel.geometries | SceneModel.geometries}.
-     * * Use {@link compressGeometryParams | compressGeometryParams} to pre-compress {@link SceneGeometryParams | SceneGeometryParams}
-     * into {@link SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
-     *
-     * ### Usage
-     *
-     * ````javascript
-     * const boxGeometry = sceneModel.createGeometryCompressed({
-     *      id: "boxGeometry",
-     *      primitive: TrianglesPrimitive, // @xeokit/constants
-     *      aabb: [-1,-1,-1, 1,1,1],
-     *      positionsCompressed: [
-     *          65525, 65525, 65525, 0, 65525, 65525, 0, 0,
-     *          65525, 65525, 0, 65525, 65525, 0, 0, 65525,
-     *          65525, 0, 0, 65525, 0, 0, 0, 0
-     *      ],
-     *      indices: [
-     *          0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
-     *          0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
-     *          4, 7, 6, 4, 6, 5
-     *      ]
-     * });
-     *
-     * if (boxGeometry instanceof SDKError) {
-     *     console.log(boxGeometry.message);
-     * } else {
-     *      const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
-     * }
-     * ````
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for more usage info.
-     *
-     * @param geometryCompressedParams Pre-compressed geometry parameters.
-     * @returns *{@link SceneGeometry}*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * If this SceneModel has already been destroyed.
-     * * If this SceneModel has already been built.
-     * * Invalid SceneGeometryParams were given.
-     * * SceneGeometry of given ID already exists in this SceneModel.
-     * * Unsupported primitive type given.
-     * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
-     * * Mandatory indices were not given for primitive type that is not {@link constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
-     * * Indices out of range of vertex positions.
-     * * Indices out of range of vertex UVs.
-     * * Mismatch between given quantities of vertex positions and UVs.
-     */
+   * Creates a new {@link SceneGeometry} within this SceneModel, from pre-compressed geometry parameters.
+   *
+   * * Stores the new {@link SceneGeometry} in {@link SceneModel.geometries | SceneModel.geometries}.
+   * * Use {@link compressGeometryParams | compressGeometryParams} to pre-compress {@link SceneGeometryParams | SceneGeometryParams}
+   * into {@link SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
+   *
+   * ### Usage
+   *
+   * ````javascript
+   * const boxGeometry = sceneModel.createGeometryCompressed({
+   *      id: "boxGeometry",
+   *      primitive: TrianglesPrimitive, // @xeokit/constants
+   *      aabb: [-1,-1,-1, 1,1,1],
+   *      positionsCompressed: [
+   *          65525, 65525, 65525, 0, 65525, 65525, 0, 0,
+   *          65525, 65525, 0, 65525, 65525, 0, 0, 65525,
+   *          65525, 0, 0, 65525, 0, 0, 0, 0
+   *      ],
+   *      indices: [
+   *          0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
+   *          0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
+   *          4, 7, 6, 4, 6, 5
+   *      ]
+   * });
+   *
+   * if (boxGeometry instanceof SDKError) {
+   *     console.log(boxGeometry.message);
+   * } else {
+   *      const boxGeometryAgain = sceneModel.geometries["boxGeometry"];
+   * }
+   * ````
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for more usage info.
+   *
+   * @param geometryCompressedParams Pre-compressed geometry parameters.
+   * @returns *{@link SceneGeometry}*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * If this SceneModel has already been destroyed.
+   * * If this SceneModel has already been built.
+   * * Invalid SceneGeometryParams were given.
+   * * SceneGeometry of given ID already exists in this SceneModel.
+   * * Unsupported primitive type given.
+   * * Mandatory vertex positions were not given. Vertex positions are mandatory for all primitive types.
+   * * Mandatory indices were not given for primitive type that is not {@link constants!PointsPrimitive}. Indices are mandatory for all primitive types except PointsPrimitive.
+   * * Indices out of range of vertex positions.
+   * * Indices out of range of vertex UVs.
+   * * Mismatch between given quantities of vertex positions and UVs.
+   */
   createGeometryCompressed(geometryCompressedParams) {
     if (this.destroyed) {
       return new SDKError("Failed to add compressed SceneGeometry to SceneModel - SceneModel already destroyed");
@@ -77314,44 +77293,44 @@ var SceneModel = class extends Component {
     return geometry;
   }
   /**
-     * Creates a new {@link SceneMesh} within this SceneModel.
-     *
-     * * Stores the new {@link SceneMesh} in {@link SceneModel.meshes | SceneModel.meshes}.
-     * * A {@link SceneMesh} can be owned by one {@link SceneObject}, which can own multiple {@link SceneMesh}es.
-     *
-     * ### Usage
-     *
-     * ````javascript
-     * const redBoxMesh = sceneModel.createLayerMesh({
-     *      id: "redBoxMesh",
-     *      geometryId: "boxGeometry",
-     *      textureSetId: "myTextureSet",
-     *      position: [-4, -6, -4],
-     *      scale: [1, 3, 1],
-     *      rotation: [0, 0, 0],
-     *      color: [1, 0.3, 0.3]
-     * });
-     *
-     * if (redBoxMesh instanceof SDKError) {
-     *      console.log(redBoxMesh.message);
-     * } else {
-     *      const redBoxMeshAgain = sceneModel.meshes["redBoxMesh"];
-     * }
-     * ````
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for more usage info.
-     *
-     * @param meshParams Pre-compressed mesh parameters.
-     * @returns *{@link SceneMesh}*
-     *  * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * If this SceneModel has already been destroyed.
-     * * If this SceneModel has already been built.
-     * * Invalid SceneMeshParams were given.
-     * * SceneMesh of given ID already exists in this SceneModel.
-     * * Specified SceneGeometry could not be found in this SceneModel.
-     * * Specified SceneTextureSet could not be found in this SceneModel.
-     */
+   * Creates a new {@link SceneMesh} within this SceneModel.
+   *
+   * * Stores the new {@link SceneMesh} in {@link SceneModel.meshes | SceneModel.meshes}.
+   * * A {@link SceneMesh} can be owned by one {@link SceneObject}, which can own multiple {@link SceneMesh}es.
+   *
+   * ### Usage
+   *
+   * ````javascript
+   * const redBoxMesh = sceneModel.createLayerMesh({
+   *      id: "redBoxMesh",
+   *      geometryId: "boxGeometry",
+   *      textureSetId: "myTextureSet",
+   *      position: [-4, -6, -4],
+   *      scale: [1, 3, 1],
+   *      rotation: [0, 0, 0],
+   *      color: [1, 0.3, 0.3]
+   * });
+   *
+   * if (redBoxMesh instanceof SDKError) {
+   *      console.log(redBoxMesh.message);
+   * } else {
+   *      const redBoxMeshAgain = sceneModel.meshes["redBoxMesh"];
+   * }
+   * ````
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for more usage info.
+   *
+   * @param meshParams Pre-compressed mesh parameters.
+   * @returns *{@link SceneMesh}*
+   *  * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * If this SceneModel has already been destroyed.
+   * * If this SceneModel has already been built.
+   * * Invalid SceneMeshParams were given.
+   * * SceneMesh of given ID already exists in this SceneModel.
+   * * Specified SceneGeometry could not be found in this SceneModel.
+   * * Specified SceneTextureSet could not be found in this SceneModel.
+   */
   createMesh(meshParams) {
     if (this.destroyed) {
       return new SDKError("Failed to create SceneMesh in SceneModel - SceneModel already destroyed");
@@ -77415,42 +77394,42 @@ var SceneModel = class extends Component {
     return mesh;
   }
   /**
-     * Creates a new {@link SceneObject}.
-     *
-     * * Stores the new {@link SceneObject} in {@link SceneModel.objects | SceneModel.objects} and {@link Scene.objects | Scene.objects}.
-     * * Each {@link SceneMesh} is allowed to belong to one SceneObject.
-     * * SceneObject IDs must be unique within the SceneModel's {@link Scene | Scene}.
-     *
-     * ### Usage
-     *
-     * ````javascript
-     * const redBoxObject = sceneModel.createObject({
-     *     id: "redBoxObject",
-     *     meshIds: ["redBoxMesh"]
-     * });
-     *
-     * if (redBoxObject instanceof SDKError) {
-     *      console.log(redBoxObject.message);
-     * } else {
-     *      const redBoxObjectAgain = sceneModel.objects["redBoxObject"];
-     *      const redBoxObjectOnceMore = scene.objects["redBoxObject"];
-     * }
-     * ````
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for more usage info.
-     *
-     * @param objectParams SceneObject parameters.
-     * @returns *{@link SceneObject}*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * If this SceneModel has already been destroyed.
-     * * If this SceneModel has already been built.
-     * * Invalid ObjectParams were given.
-     * * SceneObject of given ID already exists in this SceneModel's Scene. Note that SceneObject IDs must be unique within the Scene.
-     * * No Meshes were specified.
-     * * One or more of the specified Meshes already belong to another SceneObject in this SceneModel.
-     * * Specified Meshes could not be found in this SceneModel.
-     */
+   * Creates a new {@link SceneObject}.
+   *
+   * * Stores the new {@link SceneObject} in {@link SceneModel.objects | SceneModel.objects} and {@link Scene.objects | Scene.objects}.
+   * * Each {@link SceneMesh} is allowed to belong to one SceneObject.
+   * * SceneObject IDs must be unique within the SceneModel's {@link Scene | Scene}.
+   *
+   * ### Usage
+   *
+   * ````javascript
+   * const redBoxObject = sceneModel.createObject({
+   *     id: "redBoxObject",
+   *     meshIds: ["redBoxMesh"]
+   * });
+   *
+   * if (redBoxObject instanceof SDKError) {
+   *      console.log(redBoxObject.message);
+   * } else {
+   *      const redBoxObjectAgain = sceneModel.objects["redBoxObject"];
+   *      const redBoxObjectOnceMore = scene.objects["redBoxObject"];
+   * }
+   * ````
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for more usage info.
+   *
+   * @param objectParams SceneObject parameters.
+   * @returns *{@link SceneObject}*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * If this SceneModel has already been destroyed.
+   * * If this SceneModel has already been built.
+   * * Invalid ObjectParams were given.
+   * * SceneObject of given ID already exists in this SceneModel's Scene. Note that SceneObject IDs must be unique within the Scene.
+   * * No Meshes were specified.
+   * * One or more of the specified Meshes already belong to another SceneObject in this SceneModel.
+   * * Specified Meshes could not be found in this SceneModel.
+   */
   createObject(objectParams) {
     if (this.destroyed) {
       return new SDKError("Failed to create SceneObject - SceneModel already destroyed");
@@ -77497,43 +77476,43 @@ var SceneModel = class extends Component {
     return sceneObject;
   }
   /**
-     * Finalizes this SceneModel, readying it for use.
-     *
-     * * Fires an event via {@link SceneModel.onBuilt | SceneModel.onBuilt} and {@link Scene.onModelCreated | SceneModel.onCreated}, to indicate to subscribers that
-     * the SceneModel is complete and ready to use.
-     * * Sets {@link SceneModel.built | SceneModel.built} ````true````.
-     * * You can only call this method once on a SceneModel.
-     * * The SceneModel must have at least one {@link SceneObject}.
-     * * Once built, no more components can be created in a SceneModel.
-     *
-     * ### Usage
-     *
-     * ````javascript
-     * sceneMode.onBuilt.subscribe(()=>{
-     *     // Our SceneModel is built and ready to use
-     * });
-     *
-     * myScene.onModelCreated.subscribe((sceneModel)=>{
-     *     // Another way to subscribe to SceneModel readiness
-     * });
-     *
-     * mySceneModel.build().then((result) => { // Asynchronous (texture compression etc).
-     *      if (result instanceof SDKError) {
-     *          console.log(result.message);
-     *      }  else {
-     *          // Now we can do things with our SceneModel
-     *      }
-     * }).catch(sdkError) {// SDKError
-     *     console.log(sdkError.message);
-     * };
-     * ````
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for more usage info.
-     *
-     * @throws *{@link core!SDKError | SDKError}*
-     * * If SceneModel has already been built or destroyed.
-     * * If no SceneObjects were created in this SceneModel.
-     */
+   * Finalizes this SceneModel, readying it for use.
+   *
+   * * Fires an event via {@link SceneModel.onBuilt | SceneModel.onBuilt} and {@link Scene.onModelCreated | SceneModel.onCreated}, to indicate to subscribers that
+   * the SceneModel is complete and ready to use.
+   * * Sets {@link SceneModel.built | SceneModel.built} ````true````.
+   * * You can only call this method once on a SceneModel.
+   * * The SceneModel must have at least one {@link SceneObject}.
+   * * Once built, no more components can be created in a SceneModel.
+   *
+   * ### Usage
+   *
+   * ````javascript
+   * sceneMode.onBuilt.subscribe(()=>{
+   *     // Our SceneModel is built and ready to use
+   * });
+   *
+   * myScene.onModelCreated.subscribe((sceneModel)=>{
+   *     // Another way to subscribe to SceneModel readiness
+   * });
+   *
+   * mySceneModel.build().then((result) => { // Asynchronous (texture compression etc).
+   *      if (result instanceof SDKError) {
+   *          console.log(result.message);
+   *      }  else {
+   *          // Now we can do things with our SceneModel
+   *      }
+   * }).catch(sdkError) {// SDKError
+   *     console.log(sdkError.message);
+   * };
+   * ````
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for more usage info.
+   *
+   * @throws *{@link core!SDKError | SDKError}*
+   * * If SceneModel has already been built or destroyed.
+   * * If no SceneObjects were created in this SceneModel.
+   */
   build() {
     return new Promise((resolve2) => {
       if (this.destroyed) {
@@ -77563,8 +77542,8 @@ var SceneModel = class extends Component {
     }
   }
   /**
-     * Gets the axis-aligned 3D World-space boundary of this SceneModel.
-     */
+   * Gets the axis-aligned 3D World-space boundary of this SceneModel.
+   */
   get aabb() {
     if (this.objectsList.length === 1) {
       return this.objectsList[0].aabb;
@@ -77583,19 +77562,19 @@ var SceneModel = class extends Component {
     return this.#aabb;
   }
   /**
-     * Creates components in this SceneModel from SceneModelParams.
-     *
-     * See {@link scene | @xeokit/sdk/scene} for usage.
-     *
-     * @param sceneModelParams
-     * @returns *void*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * If this SceneModel has already been built.
-     * * If this SceneModel has already been destroyed.
-     * * A duplicate component ({@link SceneObject}, {@link SceneMesh},
-     * {@link SceneGeometry}, {@link SceneTexture} etc.) was already created within this SceneModel.
-     */
+   * Creates components in this SceneModel from SceneModelParams.
+   *
+   * See {@link scene | @xeokit/sdk/scene} for usage.
+   *
+   * @param sceneModelParams
+   * @returns *void*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * If this SceneModel has already been built.
+   * * If this SceneModel has already been destroyed.
+   * * A duplicate component ({@link SceneObject}, {@link SceneMesh},
+   * {@link SceneGeometry}, {@link SceneTexture} etc.) was already created within this SceneModel.
+   */
   fromParams(sceneModelParams) {
     if (this.destroyed) {
       return new SDKError("Failed to add components to SceneModel - SceneModel already destroyed");
@@ -77635,10 +77614,10 @@ var SceneModel = class extends Component {
     }
   }
   /**
-     * Gets this SceneModel as SceneModelParams.
-     *
-     * See {@link scene | @xeokit/sdk/scene} for usage.
-     */
+   * Gets this SceneModel as SceneModelParams.
+   *
+   * See {@link scene | @xeokit/sdk/scene} for usage.
+   */
   toParams() {
     const sceneModelParams = {
       id: this.id,
@@ -77665,10 +77644,10 @@ var SceneModel = class extends Component {
     return sceneModelParams;
   }
   /**
-     * Destroys this SceneModel.
-     *
-     * Sets {@link Component.destroyed} ````true````.
-     */
+   * Destroys this SceneModel.
+   *
+   * Sets {@link Component.destroyed} ````true````.
+   */
   destroy() {
     for (let i = 0, len = this.tilesList.length; i < len; i++) {
       this.scene.putTile(this.tilesList[i]);
@@ -77751,44 +77730,65 @@ var SceneModel = class extends Component {
   // }
 };
 
+// ../sdk/src/scene/index.ts
+var scene_exports = {};
+__export(scene_exports, {
+  Scene: () => Scene,
+  SceneGeometry: () => SceneGeometry,
+  SceneMesh: () => SceneMesh,
+  SceneModel: () => SceneModel2,
+  SceneModelParamsExporter: () => SceneModelParamsExporter,
+  SceneModelParamsLoader: () => SceneModelParamsLoader,
+  SceneObject: () => SceneObject,
+  SceneTexture: () => SceneTexture,
+  SceneTextureSet: () => SceneTextureSet,
+  SceneTile: () => SceneTile,
+  buildMat4: () => buildMat4,
+  compressGeometryParams: () => compressGeometryParams,
+  getSceneObjectGeometry: () => getSceneObjectGeometry
+});
+
+// ../sdk/src/scene/Scene.ts
+var import_strongly_typed_events6 = __toESM(require_dist8());
+
 // ../sdk/src/scene/SceneTile.ts
 var SceneTile = class {
   /**
-     * Unique ID of this SceneTile.
-     */
+   * Unique ID of this SceneTile.
+   */
   id;
   /**
-     * The Scene that owns this SceneTile.
-     */
+   * The Scene that owns this SceneTile.
+   */
   scene;
   /**
-     * The 3D World-space origin of this SceneTile.
-     */
+   * The 3D World-space origin of this SceneTile.
+   */
   origin;
   /**
-     * The number of {@link SceneMesh | SceneMeshes} associated with this SceneTile.
-     */
+   * The number of {@link SceneMesh | SceneMeshes} associated with this SceneTile.
+   */
   numObjects;
   /**
-     * The {@link SceneModel | SceneModels} belonging to this SceneTile, each keyed to
-     * its {@link SceneModel.id | SceneModel.id}.
-     *
-     * A SceneModel can belong to more than one SceneTile.
-     */
+   * The {@link SceneModel | SceneModels} belonging to this SceneTile, each keyed to
+   * its {@link SceneModel.id | SceneModel.id}.
+   *
+   * A SceneModel can belong to more than one SceneTile.
+   */
   models;
   /**
-     * The {@link SceneObject | SceneObjects} in this SceneTile,
-     * mapped to {@link SceneObject.id | SceneObject.id}.
-     *
-     * A SceneObject can belong to more than one SceneTile.
-     */
+   * The {@link SceneObject | SceneObjects} in this SceneTile,
+   * mapped to {@link SceneObject.id | SceneObject.id}.
+   *
+   * A SceneObject can belong to more than one SceneTile.
+   */
   objects;
   /**
-     * @private
-     * @param scene
-     * @param id
-     * @param origin
-     */
+   * @private
+   * @param scene
+   * @param id
+   * @param origin
+   */
   constructor(scene, id, origin2) {
     this.scene = scene;
     this.id = id;
@@ -77802,41 +77802,41 @@ var SceneTile = class {
 // ../sdk/src/scene/Scene.ts
 var Scene = class extends Component {
   /**
-     * The {@link SceneModel | SceneModels} belonging to this Scene, each keyed to
-     * its {@link SceneModel.id | SceneModel.id}.
-     */
+   * The {@link SceneModel | SceneModels} belonging to this Scene, each keyed to
+   * its {@link SceneModel.id | SceneModel.id}.
+   */
   models;
   /**
-     * The {@link SceneObject | SceneObjects} in this Scene, mapped to {@link SceneObject.id | SceneObject.id}.
-     */
+   * The {@link SceneObject | SceneObjects} in this Scene, mapped to {@link SceneObject.id | SceneObject.id}.
+   */
   objects;
   /**
-     * The {@link SceneTile | SceneTiles} in this Scene.
-     */
+   * The {@link SceneTile | SceneTiles} in this Scene.
+   */
   tiles;
   /**
-     * Emits an event each time a {@link SceneModel | SceneModel} is created in this Scene.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SceneModel | SceneModel} is created in this Scene.
+   *
+   * @event
+   */
   onModelCreated;
   /**
-     * Emits an event each time a {@link SceneModel | SceneModel} is destroyed in this Scene.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SceneModel | SceneModel} is destroyed in this Scene.
+   *
+   * @event
+   */
   onModelDestroyed;
   /**
-     * Emits an event each time a {@link SceneTile} is created in this Scene.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SceneTile} is created in this Scene.
+   *
+   * @event
+   */
   onTileCreated;
   /**
-     * Emits an event each time a {@link SceneTile} is destroyed in this Scene.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SceneTile} is destroyed in this Scene.
+   *
+   * @event
+   */
   onTileDestroyed;
   #onModelBuilts;
   #onModelDestroys;
@@ -77844,8 +77844,8 @@ var Scene = class extends Component {
   #aabbDirty;
   #aabb;
   /**
-     * Creates a new Scene.
-     */
+   * Creates a new Scene.
+   */
   constructor() {
     super(null, {});
     this.#aabb = createAABB3();
@@ -77861,8 +77861,8 @@ var Scene = class extends Component {
     this.onTileDestroyed = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
   }
   /**
-     * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
-     */
+   * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
+   */
   get center() {
     if (this.#aabbDirty) {
       const aabb = this.aabb;
@@ -77873,10 +77873,10 @@ var Scene = class extends Component {
     return this.#center;
   }
   /**
-     * Gets the collective World-space 3D [axis-aligned boundary](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#aabb) of all the {@link SceneModel | SceneModels} in this Scene.
-     *
-     * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
-     */
+   * Gets the collective World-space 3D [axis-aligned boundary](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#aabb) of all the {@link SceneModel | SceneModels} in this Scene.
+   *
+   * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
+   */
   get aabb() {
     if (this.#aabbDirty) {
       let xmin = MAX_DOUBLE;
@@ -77932,22 +77932,22 @@ var Scene = class extends Component {
     return this.#aabb;
   }
   /**
-     * Creates a new {@link SceneModel | SceneModel} in this Scene.
-     *
-     * Remember to call {@link SceneModel.build | SceneModel.build} when you've finished building or
-     * loading the SceneModel. That will
-     * fire events via {@link Scene.onModelCreated | Scene.onModelCreated} and {@link SceneModel.onBuilt | SceneModel.onBuilt}, to
-     * indicate to any subscribers that the SceneModel is built and ready for use.
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for more details on usage.
-     *
-     * @param  sceneModelParams Creation parameters for the new {@link SceneModel | SceneModel}.
-     * @returns *{@link SceneModel | SceneModel}*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * This Scene has already been destroyed.
-     * * A SceneModel with the given ID already exists in this Scene.
-     */
+   * Creates a new {@link SceneModel | SceneModel} in this Scene.
+   *
+   * Remember to call {@link SceneModel.build | SceneModel.build} when you've finished building or
+   * loading the SceneModel. That will
+   * fire events via {@link Scene.onModelCreated | Scene.onModelCreated} and {@link SceneModel.onBuilt | SceneModel.onBuilt}, to
+   * indicate to any subscribers that the SceneModel is built and ready for use.
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for more details on usage.
+   *
+   * @param  sceneModelParams Creation parameters for the new {@link SceneModel | SceneModel}.
+   * @returns *{@link SceneModel | SceneModel}*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Scene has already been destroyed.
+   * * A SceneModel with the given ID already exists in this Scene.
+   */
   createModel(sceneModelParams) {
     if (this.destroyed) {
       return new SDKError("Scene already destroyed");
@@ -77956,7 +77956,7 @@ var Scene = class extends Component {
     if (this.models[id]) {
       return new SDKError(`SceneModel already created in this Scene: ${id}`);
     }
-    const sceneModel = new SceneModel(this, sceneModelParams);
+    const sceneModel = new SceneModel2(this, sceneModelParams);
     this.models[id] = sceneModel;
     sceneModel.onDestroyed.one(() => {
       delete this.models[sceneModel.id];
@@ -77970,25 +77970,25 @@ var Scene = class extends Component {
     return sceneModel;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   setAABBDirty() {
     if (!this.#aabbDirty) {
       this.#aabbDirty = true;
     }
   }
   /**
-     * Destroys all contained {@link SceneModel | SceneModels}.
-     *
-     * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and
-     * {@link SceneModel.onDestroyed | SceneModel.onDestroyed} for each existing SceneModel in this Scene.
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for usage.
-     * @returns *void*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * This Scene has already been destroyed.
-     */
+   * Destroys all contained {@link SceneModel | SceneModels}.
+   *
+   * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and
+   * {@link SceneModel.onDestroyed | SceneModel.onDestroyed} for each existing SceneModel in this Scene.
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for usage.
+   * @returns *void*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Scene has already been destroyed.
+   */
   clear() {
     if (this.destroyed) {
       return new SDKError("Scene already destroyed");
@@ -77998,19 +77998,19 @@ var Scene = class extends Component {
     }
   }
   /**
-     * Destroys this Scene and all contained {@link SceneModel | SceneModels}.
-     *
-     * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
-     * for each existing SceneModels in this Data.
-     * * Unsubscribes all subscribers to {@link Scene.onModelCreated | Scene.onModelCreated}, {@link Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
-     *
-     * See {@link scene | @xeokit/sdk/scene}   for usage.
-     *
-     * @returns *void*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * This Scene has already been destroyed.
-     */
+   * Destroys this Scene and all contained {@link SceneModel | SceneModels}.
+   *
+   * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   * for each existing SceneModels in this Data.
+   * * Unsubscribes all subscribers to {@link Scene.onModelCreated | Scene.onModelCreated}, {@link Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for usage.
+   *
+   * @returns *void*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Scene has already been destroyed.
+   */
   destroy() {
     this.clear();
     this.onModelCreated.clear();
@@ -78140,8 +78140,8 @@ function parse(params2, options) {
 // ../sdk/src/scene/SceneModelParamsLoader.ts
 var SceneModelParamsLoader = class extends ModelLoader {
   /**
-     * Constructs a SceneModelParamsLoader.
-     */
+   * Constructs a SceneModelParamsLoader.
+   */
   constructor() {
     super({
       format: "SceneModelParams",
@@ -78232,7 +78232,7 @@ var ModelExporter = class {
         return reject("SceneModel not built");
       }
       if (dataModel) {
-        if (!(dataModel instanceof DataModel)) {
+        if (!(dataModel instanceof DataModel2)) {
           return reject("Argument type mismatch: params.dataModel should be a DataModel");
         }
         if (dataModel.destroyed) {
@@ -78259,8 +78259,8 @@ var ModelExporter = class {
 // ../sdk/src/scene/SceneModelParamsExporter.ts
 var SceneModelParamsExporter = class extends ModelExporter {
   /**
-     * Constructs a SceneModelParamsExporter.
-     */
+   * Constructs a SceneModelParamsExporter.
+   */
   constructor() {
     super({
       format: "SceneModelParams",
@@ -78475,8 +78475,8 @@ function parse2(params2, options) {
 // ../sdk/src/data/DataModelParamsLoader.ts
 var DataModelParamsLoader = class extends ModelLoader {
   /**
-     * Constructs a DataModelParamsLoader.
-     */
+   * Constructs a DataModelParamsLoader.
+   */
   constructor() {
     super({
       format: "DataModelParams",
@@ -78503,8 +78503,8 @@ function encode2(params2, options) {
 // ../sdk/src/data/DataModelParamsExporter.ts
 var DataModelParamsExporter = class extends ModelExporter {
   /**
-     * Constructs a DataModelParamsExporter.
-     */
+   * Constructs a DataModelParamsExporter.
+   */
   constructor() {
     super({
       format: "DataModelParams",
@@ -78531,18 +78531,18 @@ var MAX_KD_TREE_DEPTH = 10;
 var kdTreeDimLength = new Float32Array(2);
 var KdTree2 = class {
   /**
-     * The root node in this k-d tree.
-     */
+   * The root node in this k-d tree.
+   */
   root;
   /**
-     * The maximum allowed depth of this 2D k-d tree.
-     */
+   * The maximum allowed depth of this 2D k-d tree.
+   */
   maxDepth;
   /**
-     * Creates a new 2D k-d tree.
-     *
-     * @param params
-     */
+   * Creates a new 2D k-d tree.
+   *
+   * @param params
+   */
   constructor(params2) {
     this.maxDepth = params2?.maxDepth || MAX_KD_TREE_DEPTH;
     this.root = {
@@ -78551,11 +78551,11 @@ var KdTree2 = class {
     };
   }
   /**
-     * Inserts a bounded item into this 2D k-d tree.
-     *
-     * @param item
-     * @param aabb
-     */
+   * Inserts a bounded item into this 2D k-d tree.
+   *
+   * @param item
+   * @param aabb
+   */
   insertItem(item, aabb) {
     this.#insertItem(this.root, { item }, aabb, 1);
   }
@@ -78656,7 +78656,11 @@ function createKdTree2FromSceneObjectVerts(params2) {
     transformPoint4(projMatrix, viewPos2, projPos);
     canvasPos2[0] = Math.floor((1 + projPos[0] / projPos[3]) * canvasBoundary[2] / 2);
     canvasPos2[1] = Math.floor((1 - projPos[1] / projPos[3]) * canvasBoundary[3] / 2);
-    kdTree2D.insertItem({ sceneObject, worldPos, canvasPos: canvasPos2 }, [canvasPos2[0], canvasPos2[1], canvasPos2[0], canvasPos2[1]]);
+    kdTree2D.insertItem({
+      sceneObject,
+      worldPos,
+      canvasPos: canvasPos2
+    }, [canvasPos2[0], canvasPos2[1], canvasPos2[0], canvasPos2[1]]);
   }
   return kdTree2D;
 }
@@ -78700,10 +78704,10 @@ var KdTree3 = class {
   #numNodes;
   #numObjects;
   /**
-     * Creates a new KdTree3.
-     *
-     * @param params
-     */
+   * Creates a new KdTree3.
+   *
+   * @param params
+   */
   constructor(params2) {
     this.#maxDepth = params2?.maxDepth || MAX_KD_TREE_DEPTH2;
     this.#root = {
@@ -79069,18 +79073,18 @@ __export(pick_exports, {
 // ../sdk/src/pick/PickPrimsCache.ts
 var PickPrimsCache = class {
   /**
-     * TODO
-     */
+   * TODO
+   */
   primitivesKdTrees;
   /**
-     * TODO
-     */
+   * TODO
+   */
   constructor() {
     this.primitivesKdTrees = {};
   }
   /**
-     * TODO
-     */
+   * TODO
+   */
   clear() {
     this.primitivesKdTrees = {};
   }
@@ -79093,9 +79097,9 @@ var Picker = class {
     this.#pickPrimsCache = new PickPrimsCache();
   }
   /**
-     * TODO
-     * @param params
-     */
+   * TODO
+   * @param params
+   */
   rayPick(params2) {
     const sceneObjectsKdTree3 = params2.sceneObjectsKdTree3;
     const origin2 = params2.origin;
@@ -79106,11 +79110,11 @@ var Picker = class {
     return rayPickResult;
   }
   /**
-     * Picks a {@link kdtree3!SceneObjectsKdTree3} using a 2D marquee to obtain a {@link MarqueePickResult}
-     * containing picked {@link scene!SceneObject | SceneObjects}, {@link scene!SceneMesh | SceneMesh}, {@link scene!SceneGeometry | SceneGeometry},
-     * {@link scene!SceneGeometryBucket | GeometryBuckets}, {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
-     * @param params
-     */
+   * Picks a {@link kdtree3!SceneObjectsKdTree3} using a 2D marquee to obtain a {@link MarqueePickResult}
+   * containing picked {@link scene!SceneObject | SceneObjects}, {@link scene!SceneMesh | SceneMesh}, {@link scene!SceneGeometry | SceneGeometry},
+   * {@link scene!SceneGeometryBucket | GeometryBuckets}, {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
+   * @param params
+   */
   marqueePick(params2) {
     const sceneObjectsKdTree3 = params2.sceneObjectsKdTree3;
     const pickPrimsCache = this.#pickPrimsCache;
@@ -82491,7 +82495,6 @@ var earcut = /* @__PURE__ */ (() => {
       this.steiner = false;
     }
   }
-  ;
   const earcut2 = (data, holeIndices, dim = 2) => {
     dim = dim || 2;
     const hasHoles = holeIndices && holeIndices.length > 0;
@@ -83344,8 +83347,8 @@ function to2D(_p, _n, re) {
 // ../sdk/src/cityjson/CityJSONLoader.ts
 var CityJSONLoader = class extends ModelLoader {
   /**
-     * Constructs a CityJSONLoader.
-     */
+   * Constructs a CityJSONLoader.
+   */
   constructor() {
     super({
       format: "CityJSON",
@@ -149075,8 +149078,8 @@ function parseSceneModel(ctx) {
 var ifcAPI = null;
 var IFCLoader = class extends ModelLoader {
   /**
-     * Constructs an IFCLoader.
-     */
+   * Constructs an IFCLoader.
+   */
   constructor() {
     super({
       format: "IFC",
@@ -149736,11 +149739,11 @@ function modelToXGF(params2) {
 // ../sdk/src/xgf/versions/v1/XGF_INFO.ts
 var XGF_INFO = {
   /**
-     * The [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) version generated by {@link xgf!XKFWriter | XKFWriter}.
-     *
-     * @property xgfVersion
-     * @type {number}
-     */
+   * The [XGF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#xgf) version generated by {@link xgf!XKFWriter | XKFWriter}.
+   *
+   * @property xgfVersion
+   * @type {number}
+   */
   xgfVersion: 1
 };
 
@@ -171302,22 +171305,22 @@ var LASLoader4 = class extends ModelLoader {
     });
   }
   /**
-     * Loads LAS/LAZ file data into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
-     *
-     * This function expects the following conditions:
-     * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
-     * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
-     *
-     * @param params - The parameters used for loading the file data.
-     * @param options - Options for loading the LAS/LAZ file.
-     * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
-     *
-     * @throws {@link core!SDKError | SDKError}
-     * - If the SceneModel has already been destroyed.
-     * - If the SceneModel has already been built.
-     * - If the DataModel has already been destroyed.
-     * - If the DataModel has already been built.
-     */
+   * Loads LAS/LAZ file data into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+   *
+   * This function expects the following conditions:
+   * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
+   * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
+   *
+   * @param params - The parameters used for loading the file data.
+   * @param options - Options for loading the LAS/LAZ file.
+   * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
+   *
+   * @throws {@link core!SDKError | SDKError}
+   * - If the SceneModel has already been destroyed.
+   * - If the SceneModel has already been built.
+   * - If the DataModel has already been destroyed.
+   * - If the DataModel has already been built.
+   */
   load(params2, options = {}) {
     return super.load(params2, options);
   }
@@ -182709,8 +182712,8 @@ function parse12(params2, options = {}) {
 // ../sdk/src/xkt/XKTLoader.ts
 var XKTLoader = class extends ModelLoader {
   /**
-     * Constructs an XKTLoader.
-     */
+   * Constructs an XKTLoader.
+   */
   constructor() {
     super({
       format: "XKT",
@@ -182735,8 +182738,8 @@ __export(metamodel_exports, {
 // ../sdk/src/metamodel/MetaModelLoader.ts
 var MetaModelLoader = class extends ModelLoader {
   /**
-     * Constructs a MetaModelLoader.
-     */
+   * Constructs a MetaModelLoader.
+   */
   constructor() {
     super({
       format: "MetaModelParams",
@@ -182961,13 +182964,13 @@ var ModelChunksLoader = class {
     return this.#cancelled;
   }
   /**
-     * Loads the geometry and data models listed in a ModelChunksManifestParams into a SceneModel and DataModel.
-     *
-     * Loading can be interrupted at any time by calling {@link modelchunksloader!ModelChunksLoader.cancel | ModelChunksLoader.cancel}.
-     *
-     * @param params
-     * @returns {Promise} Resolves when all models have been loaded.
-     */
+   * Loads the geometry and data models listed in a ModelChunksManifestParams into a SceneModel and DataModel.
+   *
+   * Loading can be interrupted at any time by calling {@link modelchunksloader!ModelChunksLoader.cancel | ModelChunksLoader.cancel}.
+   *
+   * @param params
+   * @returns {Promise} Resolves when all models have been loaded.
+   */
   load(params2) {
     this.#cancelled = false;
     return new Promise((resolve2, reject) => {
@@ -183152,8 +183155,8 @@ var Scheduler = class {
   #lastTime = 0;
   #elapsedTime = 0;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor() {
     this.viewers = {};
     const frame = () => {
@@ -183256,14 +183259,14 @@ var scheduler = new Scheduler();
 // ../sdk/src/viewer/AmbientLight.ts
 var AmbientLight = class extends Component {
   /**
-     * The View to which this AmbientLight belongs.
-     */
+   * The View to which this AmbientLight belongs.
+   */
   view;
   #state;
   /**
-     * @param view Owner component. When destroyed, the owner will destroy this AmbientLight as well.
-     * @param cfg AmbientLight configuration
-     */
+   * @param view Owner component. When destroyed, the owner will destroy this AmbientLight as well.
+   * @param cfg AmbientLight configuration
+   */
   constructor(view, cfg = {}) {
     super(view, cfg);
     this.view = view;
@@ -183275,49 +183278,49 @@ var AmbientLight = class extends Component {
     this.view.registerLight(this);
   }
   /**
-     * Sets the RGB color of this AmbientLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.7]````.
-     *
-     * @param color The AmbientLight's RGB color.
-     */
+   * Sets the RGB color of this AmbientLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.7]````.
+   *
+   * @param color The AmbientLight's RGB color.
+   */
   set color(color2) {
     this.#state.color.set(color2);
     this.view.redraw();
   }
   /**
-     * Gets the RGB color of this AmbientLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.7]````.
-     */
+   * Gets the RGB color of this AmbientLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.7]````.
+   */
   get color() {
     return this.#state.color;
   }
   /**
-     * Sets the intensity of this AmbientLight.
-     *
-     * Default value is ````1.0```` for maximum intensity.
-     *
-     * @param intensity The AmbientLight's intensity.
-     */
+   * Sets the intensity of this AmbientLight.
+   *
+   * Default value is ````1.0```` for maximum intensity.
+   *
+   * @param intensity The AmbientLight's intensity.
+   */
   set intensity(intensity) {
     this.#state.intensity = intensity !== void 0 ? intensity : 1;
     this.view.redraw();
   }
   /**
-     * Gets the intensity of this AmbientLight.
-     *
-     * Default value is ````1.0```` for maximum intensity.
-     *
-     * @returns {Number} The AmbientLight's intensity.
-     */
+   * Gets the intensity of this AmbientLight.
+   *
+   * Default value is ````1.0```` for maximum intensity.
+   *
+   * @returns {Number} The AmbientLight's intensity.
+   */
   get intensity() {
     return this.#state.intensity;
   }
   /**
-     * Configures this AmbientLight.
-     * @param ambientLightParams
-     */
+   * Configures this AmbientLight.
+   * @param ambientLightParams
+   */
   fromParams(ambientLightParams) {
     if (ambientLightParams.color) {
       this.color = ambientLightParams.color;
@@ -183327,8 +183330,8 @@ var AmbientLight = class extends Component {
     }
   }
   /**
-     * Gets the current configuration of this AmbientLight.
-     */
+   * Gets the current configuration of this AmbientLight.
+   */
   toParams() {
     return {
       id: this.id,
@@ -183337,8 +183340,8 @@ var AmbientLight = class extends Component {
     };
   }
   /**
-     * Destroys this AmbientLight.
-     */
+   * Destroys this AmbientLight.
+   */
   destroy() {
     super.destroy();
     this.view.deregisterLight(this);
@@ -183349,25 +183352,25 @@ var AmbientLight = class extends Component {
 var import_strongly_typed_events7 = __toESM(require_dist8());
 var CustomProjection = class extends Component {
   /**
-     * The Camera this CustomProjection belongs to.
-     */
+   * The Camera this CustomProjection belongs to.
+   */
   camera;
   /**
-     * Emits an event each time {@link CustomProjection.projMatrix} updates.
-     *
-     * @event
-     */
+   * Emits an event each time {@link CustomProjection.projMatrix} updates.
+   *
+   * @event
+   */
   onProjMatrix;
   /**
-     * The type of this projection.
-     */
+   * The type of this projection.
+   */
   static type = CustomProjectionType;
   #state;
   #inverseProjMatrixDirty;
   #transposedProjMatrixDirty;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(camera, cfg = {}) {
     super(camera, cfg);
     this.camera = camera;
@@ -183381,22 +183384,22 @@ var CustomProjection = class extends Component {
     this.#transposedProjMatrixDirty = false;
   }
   /**
-     * Gets the CustomProjection's projection transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @return  New value for the CustomProjection's matrix.
-     */
+   * Gets the CustomProjection's projection transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @return  New value for the CustomProjection's matrix.
+   */
   get projMatrix() {
     return this.#state.projMatrix;
   }
   /**
-     * Sets the CustomProjection's projection transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @param projMatrix New value for the CustomProjection's matrix.
-     */
+   * Sets the CustomProjection's projection transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @param projMatrix New value for the CustomProjection's matrix.
+   */
   set projMatrix(projMatrix) {
     this.#state.projMatrix.set(projMatrix);
     this.#inverseProjMatrixDirty = true;
@@ -183406,10 +183409,10 @@ var CustomProjection = class extends Component {
     this.onProjMatrix.dispatch(this, this.#state.projMatrix);
   }
   /**
-     * Gets the inverse of {@link CustomProjection.projMatrix}.
-     *
-     * @returns The inverse of {@link CustomProjection.projMatrix}.
-     */
+   * Gets the inverse of {@link CustomProjection.projMatrix}.
+   *
+   * @returns The inverse of {@link CustomProjection.projMatrix}.
+   */
   get inverseProjMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -183421,10 +183424,10 @@ var CustomProjection = class extends Component {
     return this.#state.inverseProjMatrix;
   }
   /**
-     * Gets the transpose of {@link CustomProjection.projMatrix}.
-     *
-     * @returns The transpose of {@link CustomProjection.projMatrix}.
-     */
+   * Gets the transpose of {@link CustomProjection.projMatrix}.
+   *
+   * @returns The transpose of {@link CustomProjection.projMatrix}.
+   */
   get transposedProjMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -183436,14 +183439,14 @@ var CustomProjection = class extends Component {
     return this.#state.transposedProjMatrix;
   }
   /**
-     * Un-projects the given View-space coordinates, using this CustomProjection.
-     *
-     * @param canvasPos Inputs 2D View-space coordinates.
-     * @param screenZ Inputs Screen-space Z coordinate.
-     * @param screenPos Outputs 3D Screen/Clip-space coordinates.
-     * @param viewPos Outputs un-projected 3D View-space coordinates.
-     * @param worldPos Outputs un-projected 3D World-space coordinates.
-     */
+   * Un-projects the given View-space coordinates, using this CustomProjection.
+   *
+   * @param canvasPos Inputs 2D View-space coordinates.
+   * @param screenZ Inputs Screen-space Z coordinate.
+   * @param screenPos Outputs 3D Screen/Clip-space coordinates.
+   * @param viewPos Outputs un-projected 3D View-space coordinates.
+   * @param worldPos Outputs un-projected 3D World-space coordinates.
+   */
   unproject(canvasPos2, screenZ, screenPos2, viewPos2, worldPos) {
     const htmlElement = this.camera.view.htmlElement;
     const halfViewWidth = htmlElement.offsetWidth / 2;
@@ -183460,25 +183463,25 @@ var CustomProjection = class extends Component {
     return worldPos;
   }
   /**
-     * Configures this CustomProjection.
-     * @param customProjectionParams
-     */
+   * Configures this CustomProjection.
+   * @param customProjectionParams
+   */
   fromParams(customProjectionParams) {
     if (customProjectionParams.projMatrix) {
       this.projMatrix = customProjectionParams.projMatrix;
     }
   }
   /**
-     * Gets the current configuration of this CustomProjection.
-     */
+   * Gets the current configuration of this CustomProjection.
+   */
   toParams() {
     return {
       projMatrix: Array.from(this.projMatrix)
     };
   }
   /** @private
-     *
-     */
+   *
+   */
   destroy() {
     super.destroy();
     this.onProjMatrix.clear();
@@ -183492,25 +183495,25 @@ var import_strongly_typed_events11 = __toESM(require_dist8());
 var import_strongly_typed_events8 = __toESM(require_dist8());
 var FrustumProjection = class extends Component {
   /**
-     * The type of this projection.
-     */
+   * The type of this projection.
+   */
   static type = FrustumProjectionType;
   /**
-     * The Camera this FrustumProjection belongs to.
-     */
+   * The Camera this FrustumProjection belongs to.
+   */
   camera;
   /**
-     * Emits an event each time {@link FrustumProjection.projMatrix} updates.
-     *
-     * @event
-     */
+   * Emits an event each time {@link FrustumProjection.projMatrix} updates.
+   *
+   * @event
+   */
   onProjMatrix;
   #state;
   #inverseMatrixDirty;
   #transposedProjMatrixDirty;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(camera, cfg = {}) {
     super(camera, cfg);
     this.camera = camera;
@@ -183530,122 +183533,122 @@ var FrustumProjection = class extends Component {
     this.#transposedProjMatrixDirty = true;
   }
   /**
-     * Gets the position of the FrustumProjection's left plane on the View-space X-axis.
-     *
-     * @return {Number} Left frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's left plane on the View-space X-axis.
+   *
+   * @return {Number} Left frustum plane position.
+   */
   get left() {
     return this.#state.left;
   }
   /**
-     * Sets the position of the FrustumProjection's left plane on the View-space X-axis.
-     *
-     * @param value New left frustum plane position.
-     */
+   * Sets the position of the FrustumProjection's left plane on the View-space X-axis.
+   *
+   * @param value New left frustum plane position.
+   */
   set left(value) {
     this.#state.left = value;
     this.setDirty();
   }
   /**
-     * Gets the position of the FrustumProjection's right plane on the View-space X-axis.
-     *
-     * @return {Number} Right frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's right plane on the View-space X-axis.
+   *
+   * @return {Number} Right frustum plane position.
+   */
   get right() {
     return this.#state.right;
   }
   /**
-     * Sets the position of the FrustumProjection's right plane on the View-space X-axis.
-     *
-     * @param value New right frustum plane position.
-     */
+   * Sets the position of the FrustumProjection's right plane on the View-space X-axis.
+   *
+   * @param value New right frustum plane position.
+   */
   set right(value) {
     this.#state.right = value;
     this.setDirty();
   }
   /**
-     * Gets the position of the FrustumProjection's top plane on the View-space Y-axis.
-     *
-     * @return {Number} Top frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's top plane on the View-space Y-axis.
+   *
+   * @return {Number} Top frustum plane position.
+   */
   get top() {
     return this.#state.top;
   }
   /**
-     * Sets the position of the FrustumProjection's top plane on the View-space Y-axis.
-     *
-     * @param value New top frustum plane position.
-     */
+   * Sets the position of the FrustumProjection's top plane on the View-space Y-axis.
+   *
+   * @param value New top frustum plane position.
+   */
   set top(value) {
     this.#state.top = value;
     this.setDirty();
   }
   /**
-     * Gets the position of the FrustumProjection's bottom plane on the View-space Y-axis.
-     *
-     * @return {Number} Bottom frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's bottom plane on the View-space Y-axis.
+   *
+   * @return {Number} Bottom frustum plane position.
+   */
   get bottom() {
     return this.#state.bottom;
   }
   /**
-     * Sets the position of the FrustumProjection's bottom plane on the View-space Y-axis.
-     *
-     * @param value New bottom frustum plane position.
-     */
+   * Sets the position of the FrustumProjection's bottom plane on the View-space Y-axis.
+   *
+   * @param value New bottom frustum plane position.
+   */
   set bottom(value) {
     this.#state.bottom = value;
     this.setDirty();
   }
   /**
-     * Gets the position of the FrustumProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * @return {Number} Near frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * @return {Number} Near frustum plane position.
+   */
   get near() {
     return this.#state.near;
   }
   /**
-     * Sets the position of the FrustumProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * @param value New FrustumProjection near plane position.
-     */
+   * Sets the position of the FrustumProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * @param value New FrustumProjection near plane position.
+   */
   set near(value) {
     this.#state.near = value;
     this.setDirty();
   }
   /**
-     * Gets the position of the FrustumProjection's far plane on the positive View-space Z-axis.
-     *
-     * Default value is ````10000.0````.
-     *
-     * @return {Number} Far frustum plane position.
-     */
+   * Gets the position of the FrustumProjection's far plane on the positive View-space Z-axis.
+   *
+   * Default value is ````10000.0````.
+   *
+   * @return {Number} Far frustum plane position.
+   */
   get far() {
     return this.#state.far;
   }
   /**
-     * Sets the position of the FrustumProjection's far plane on the positive View-space Z-axis.
-     *
-     * Default value is ````10000.0````.
-     *
-     * @param value New far frustum plane position.
-     */
+   * Sets the position of the FrustumProjection's far plane on the positive View-space Z-axis.
+   *
+   * Default value is ````10000.0````.
+   *
+   * @param value New far frustum plane position.
+   */
   set far(value) {
     this.#state.far = value;
     this.setDirty();
   }
   /**
-     * Gets the FrustumProjection's projection transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @returns The FrustumProjection's projection matrix
-     */
+   * Gets the FrustumProjection's projection transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @returns The FrustumProjection's projection matrix
+   */
   get projMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -183653,10 +183656,10 @@ var FrustumProjection = class extends Component {
     return this.#state.projMatrix;
   }
   /**
-     * Gets the inverse of {@link FrustumProjection.projMatrix}.
-     *
-     * @returns  The inverse orthographic projection projMatrix.
-     */
+   * Gets the inverse of {@link FrustumProjection.projMatrix}.
+   *
+   * @returns  The inverse orthographic projection projMatrix.
+   */
   get inverseProjMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -183668,10 +183671,10 @@ var FrustumProjection = class extends Component {
     return this.#state.inverseProjMatrix;
   }
   /**
-     * Gets the transpose of {@link FrustumProjection.projMatrix}.
-     *
-     * @returns The transpose of {@link FrustumProjection.projMatrix}.
-     */
+   * Gets the transpose of {@link FrustumProjection.projMatrix}.
+   *
+   * @returns The transpose of {@link FrustumProjection.projMatrix}.
+   */
   get transposedProjMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -183683,8 +183686,8 @@ var FrustumProjection = class extends Component {
     return this.#state.transposedProjMatrix;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   clean() {
     frustumMat4(this.#state.left, this.#state.right, this.#state.bottom, this.#state.top, this.#state.near, this.#state.far, this.#state.projMatrix);
     this.#inverseMatrixDirty = true;
@@ -183693,14 +183696,14 @@ var FrustumProjection = class extends Component {
     this.onProjMatrix.dispatch(this, this.#state.projMatrix);
   }
   /**
-     * Un-projects the given View-space coordinates, using this FrustumProjection projection.
-     *
-     * @param canvasPos Inputs 2D View-space coordinates.
-     * @param screenZ Inputs Screen-space Z coordinate.
-     * @param screenPos Outputs 3D Screen/Clip-space coordinates.
-     * @param viewPos Outputs un-projected 3D View-space coordinates.
-     * @param worldPos Outputs un-projected 3D World-space coordinates.
-     */
+   * Un-projects the given View-space coordinates, using this FrustumProjection projection.
+   *
+   * @param canvasPos Inputs 2D View-space coordinates.
+   * @param screenZ Inputs Screen-space Z coordinate.
+   * @param screenPos Outputs 3D Screen/Clip-space coordinates.
+   * @param viewPos Outputs un-projected 3D View-space coordinates.
+   * @param worldPos Outputs un-projected 3D World-space coordinates.
+   */
   unproject(canvasPos2, screenZ, screenPos2, viewPos2, worldPos) {
     const htmlElement = this.camera.view.htmlElement;
     const halfViewWidth = htmlElement.offsetWidth / 2;
@@ -183717,10 +183720,10 @@ var FrustumProjection = class extends Component {
     return worldPos;
   }
   /**
-     * Configures this FrustumProjection.
-     *
-     * @param frustumProjectionParams
-     */
+   * Configures this FrustumProjection.
+   *
+   * @param frustumProjectionParams
+   */
   fromParams(frustumProjectionParams) {
     if (frustumProjectionParams.far !== void 0) {
       this.far = frustumProjectionParams.far;
@@ -183742,8 +183745,8 @@ var FrustumProjection = class extends Component {
     }
   }
   /**
-     * Gets the current configuration of this FrustumProjection.
-     */
+   * Gets the current configuration of this FrustumProjection.
+   */
   toParams() {
     return {
       far: this.far,
@@ -183755,8 +183758,8 @@ var FrustumProjection = class extends Component {
     };
   }
   /** @private
-     *
-     */
+   *
+   */
   destroy() {
     super.destroy();
     this.onProjMatrix.clear();
@@ -183767,26 +183770,26 @@ var FrustumProjection = class extends Component {
 var import_strongly_typed_events9 = __toESM(require_dist8());
 var OrthoProjection = class extends Component {
   /**
-     * The Camera this OrthoProjection belongs to.
-     */
+   * The Camera this OrthoProjection belongs to.
+   */
   camera;
   /**
-     * Emits an event each time {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix} updates.
-     *
-     * @event
-     */
+   * Emits an event each time {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix} updates.
+   *
+   * @event
+   */
   onProjMatrix;
   /**
-     * The type of this projection.
-     */
+   * The type of this projection.
+   */
   static type = OrthoProjectionType;
   #state;
   #inverseMatrixDirty;
   #transposedProjMatrixDirty;
   #onViewBoundary;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(camera, cfg = {}) {
     super(camera, cfg);
     this.camera = camera;
@@ -183806,25 +183809,25 @@ var OrthoProjection = class extends Component {
     });
   }
   /**
-     * Gets scale factor for this OrthoProjection's extents on X and Y axis.
-     *
-     * Clamps to minimum value of ````0.01```.
-     *
-     * Default value is ````1.0````
-     *
-     * returns New OrthoProjection scale value.
-     */
+   * Gets scale factor for this OrthoProjection's extents on X and Y axis.
+   *
+   * Clamps to minimum value of ````0.01```.
+   *
+   * Default value is ````1.0````
+   *
+   * returns New OrthoProjection scale value.
+   */
   get scale() {
     return this.#state.scale;
   }
   /**
-     * Sets scale factor for this OrthoProjection's extents on X and Y axis.
-     *
-     * Clamps to minimum value of ````0.01```.
-     *
-     * Default value is ````1.0````
-     * @param value New scale value.
-     */
+   * Sets scale factor for this OrthoProjection's extents on X and Y axis.
+   *
+   * Clamps to minimum value of ````0.01```.
+   *
+   * Default value is ````1.0````
+   * @param value New scale value.
+   */
   set scale(value) {
     if (value <= 0) {
       value = 0.01;
@@ -183833,22 +183836,22 @@ var OrthoProjection = class extends Component {
     this.setDirty();
   }
   /**
-     * Gets the position of the OrthoProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * returns New OrthoProjection near plane position.
-     */
+   * Gets the position of the OrthoProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * returns New OrthoProjection near plane position.
+   */
   get near() {
     return this.#state.near;
   }
   /**
-     * Sets the position of the OrthoProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * @param value New OrthoProjection near plane position.
-     */
+   * Sets the position of the OrthoProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * @param value New OrthoProjection near plane position.
+   */
   set near(value) {
     if (this.#state.near === value) {
       return;
@@ -183857,22 +183860,22 @@ var OrthoProjection = class extends Component {
     this.setDirty();
   }
   /**
-     * Gets the position of the OrthoProjection's far plane on the positive View-space Z-axis.
-     *
-     * Default value is ````10000.0````.
-     *
-     * returns New far ortho plane position.
-     */
+   * Gets the position of the OrthoProjection's far plane on the positive View-space Z-axis.
+   *
+   * Default value is ````10000.0````.
+   *
+   * returns New far ortho plane position.
+   */
   get far() {
     return this.#state.far;
   }
   /**
-     * Sets the position of the OrthoProjection's far plane on the positive View-space Z-axis.
-     *
-     * Default value is ````2000.0````.
-     *
-     * @param value New far ortho plane position.
-     */
+   * Sets the position of the OrthoProjection's far plane on the positive View-space Z-axis.
+   *
+   * Default value is ````2000.0````.
+   *
+   * @param value New far ortho plane position.
+   */
   set far(value) {
     if (this.#state.far === value) {
       return;
@@ -183881,12 +183884,12 @@ var OrthoProjection = class extends Component {
     this.setDirty();
   }
   /**
-     * Gets the OrthoProjection's projection transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @returns  The OrthoProjection's projection matrix.
-     */
+   * Gets the OrthoProjection's projection transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @returns  The OrthoProjection's projection matrix.
+   */
   get projMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -183894,10 +183897,10 @@ var OrthoProjection = class extends Component {
     return this.#state.projMatrix;
   }
   /**
-     * Gets the inverse of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
-     *
-     * @returns  The inverse of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
-     */
+   * Gets the inverse of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
+   *
+   * @returns  The inverse of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
+   */
   get inverseProjMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -183909,10 +183912,10 @@ var OrthoProjection = class extends Component {
     return this.#state.inverseProjMatrix;
   }
   /**
-     * Gets the transpose of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
-     *
-     * @returns  The transpose of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
-     */
+   * Gets the transpose of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
+   *
+   * @returns  The transpose of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
+   */
   get transposedProjMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -183924,8 +183927,8 @@ var OrthoProjection = class extends Component {
     return this.#state.transposedProjMatrix;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   clean() {
     const WIDTH_INDEX = 2;
     const HEIGHT_INDEX = 3;
@@ -183958,14 +183961,14 @@ var OrthoProjection = class extends Component {
     this.onProjMatrix.dispatch(this, this.#state.projMatrix);
   }
   /**
-     * Un-projects the given View-space coordinates, using this OrthoProjection projection.
-     *
-     * @param canvasPos Inputs 2D View-space coordinates.
-     * @param screenZ Inputs Screen-space Z coordinate.
-     * @param screenPos Outputs 3D Screen/Clip-space coordinates.
-     * @param viewPos Outputs un-projected 3D View-space coordinates.
-     * @param worldPos Outputs un-projected 3D World-space coordinates.
-     */
+   * Un-projects the given View-space coordinates, using this OrthoProjection projection.
+   *
+   * @param canvasPos Inputs 2D View-space coordinates.
+   * @param screenZ Inputs Screen-space Z coordinate.
+   * @param screenPos Outputs 3D Screen/Clip-space coordinates.
+   * @param viewPos Outputs un-projected 3D View-space coordinates.
+   * @param worldPos Outputs un-projected 3D World-space coordinates.
+   */
   unproject(canvasPos2, screenZ, screenPos2, viewPos2, worldPos) {
     const canvas2 = this.camera.view.htmlElement;
     const halfViewWidth = canvas2.offsetWidth / 2;
@@ -183982,10 +183985,10 @@ var OrthoProjection = class extends Component {
     return worldPos;
   }
   /**
-     * Configures this OrthoProjection.
-     *
-     * @param orthoProjectionParams
-     */
+   * Configures this OrthoProjection.
+   *
+   * @param orthoProjectionParams
+   */
   fromParams(orthoProjectionParams) {
     if (orthoProjectionParams.far !== void 0) {
       this.far = orthoProjectionParams.far;
@@ -183998,8 +184001,8 @@ var OrthoProjection = class extends Component {
     }
   }
   /**
-     * Gets the current configuration of this OrthoProjection.
-     */
+   * Gets the current configuration of this OrthoProjection.
+   */
   toParams() {
     return {
       far: this.far,
@@ -184008,8 +184011,8 @@ var OrthoProjection = class extends Component {
     };
   }
   /** @private
-     *
-     */
+   *
+   */
   destroy() {
     super.destroy();
     this.camera.view.onBoundary.unsubscribe(this.#onViewBoundary);
@@ -184021,26 +184024,26 @@ var OrthoProjection = class extends Component {
 var import_strongly_typed_events10 = __toESM(require_dist8());
 var PerspectiveProjection = class extends Component {
   /**
-     * The Camera this PerspectiveProjection belongs to.
-     */
+   * The Camera this PerspectiveProjection belongs to.
+   */
   camera;
   /**
-     * Emits an event each time {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates.
-     *
-     * @event
-     */
+   * Emits an event each time {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates.
+   *
+   * @event
+   */
   onProjMatrix;
   /**
-     * The type of this projection.
-     */
+   * The type of this projection.
+   */
   static type = PerspectiveProjectionType;
   #state;
   #inverseMatrixDirty;
   #transposedProjMatrixDirty;
   #onViewBoundary;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(camera, cfg = {}) {
     super(camera, cfg);
     this.camera = camera;
@@ -184061,22 +184064,22 @@ var PerspectiveProjection = class extends Component {
     this.onProjMatrix = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
   }
   /**
-     * Gets the PerspectiveProjection's field-of-view angle (FOV).
-     *
-     * Default value is ````60.0````.
-     *
-     * @returns {Number} Current field-of-view.
-     */
+   * Gets the PerspectiveProjection's field-of-view angle (FOV).
+   *
+   * Default value is ````60.0````.
+   *
+   * @returns {Number} Current field-of-view.
+   */
   get fov() {
     return this.#state.fov;
   }
   /**
-     * Sets the PerspectiveProjection's field-of-view angle (FOV).
-     *
-     * Default value is ````60.0````.
-     *
-     * @param value New field-of-view.
-     */
+   * Sets the PerspectiveProjection's field-of-view angle (FOV).
+   *
+   * Default value is ````60.0````.
+   *
+   * @param value New field-of-view.
+   */
   set fov(value) {
     if (value === this.#state.fov) {
       return;
@@ -184085,26 +184088,26 @@ var PerspectiveProjection = class extends Component {
     this.setDirty();
   }
   /**
-     * Gets the PerspectiveProjection's FOV axis.
-     *
-     * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
-     *
-     * Default value is ````"min"````.
-     *
-     * @returns {String} The current FOV axis value.
-     */
+   * Gets the PerspectiveProjection's FOV axis.
+   *
+   * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
+   *
+   * Default value is ````"min"````.
+   *
+   * @returns {String} The current FOV axis value.
+   */
   get fovAxis() {
     return this.#state.fovAxis;
   }
   /**
-     * Sets the PerspectiveProjection's FOV axis.
-     *
-     * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
-     *
-     * Default value ````"min"````.
-     *
-     * @param value New FOV axis value.
-     */
+   * Sets the PerspectiveProjection's FOV axis.
+   *
+   * Options are ````"x"````, ````"y"```` or ````"min"````, to use the minimum axis.
+   *
+   * Default value ````"min"````.
+   *
+   * @param value New FOV axis value.
+   */
   set fovAxis(value) {
     value = value || "min";
     if (this.#state.fovAxis === value) {
@@ -184118,22 +184121,22 @@ var PerspectiveProjection = class extends Component {
     this.setDirty();
   }
   /**
-     * Gets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * @returns The PerspectiveProjection's near plane position.
-     */
+   * Gets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * @returns The PerspectiveProjection's near plane position.
+   */
   get near() {
     return this.#state.near;
   }
   /**
-     * Sets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
-     *
-     * Default value is ````0.1````.
-     *
-     * @param value New PerspectiveProjection near plane position.
-     */
+   * Sets the position of the PerspectiveProjection's near plane on the positive View-space Z-axis.
+   *
+   * Default value is ````0.1````.
+   *
+   * @param value New PerspectiveProjection near plane position.
+   */
   set near(value) {
     if (this.#state.near === value) {
       return;
@@ -184142,18 +184145,18 @@ var PerspectiveProjection = class extends Component {
     this.setDirty();
   }
   /**
-     * Gets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
-     *
-     * @return {Number} The PerspectiveProjection's far plane position.
-     */
+   * Gets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
+   *
+   * @return {Number} The PerspectiveProjection's far plane position.
+   */
   get far() {
     return this.#state.far;
   }
   /**
-     * Sets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
-     *
-     * @param value New PerspectiveProjection far plane position.
-     */
+   * Sets the position of this PerspectiveProjection's far plane on the positive View-space Z-axis.
+   *
+   * @param value New PerspectiveProjection far plane position.
+   */
   set far(value) {
     if (this.#state.far === value) {
       return;
@@ -184162,12 +184165,12 @@ var PerspectiveProjection = class extends Component {
     this.setDirty();
   }
   /**
-     * Gets the PerspectiveProjection's projection transform matrix.
-     *
-     * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-     *
-     * @returns  The PerspectiveProjection's projection matrix.
-     */
+   * Gets the PerspectiveProjection's projection transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @returns  The PerspectiveProjection's projection matrix.
+   */
   get projMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -184175,10 +184178,10 @@ var PerspectiveProjection = class extends Component {
     return this.#state.projMatrix;
   }
   /**
-     * Gets the inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
-     *
-     * @returns  The inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
-     */
+   * Gets the inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
+   *
+   * @returns  The inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
+   */
   get inverseProjMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -184190,10 +184193,10 @@ var PerspectiveProjection = class extends Component {
     return this.#state.inverseProjMatrix;
   }
   /**
-     * Gets the transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
-     *
-     * @returns  The transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
-     */
+   * Gets the transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
+   *
+   * @returns  The transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
+   */
   get transposedProjMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -184205,8 +184208,8 @@ var PerspectiveProjection = class extends Component {
     return this.#state.transposedProjMatrix;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   clean() {
     const WIDTH_INDEX = 2;
     const HEIGHT_INDEX = 3;
@@ -184225,14 +184228,14 @@ var PerspectiveProjection = class extends Component {
     this.onProjMatrix.dispatch(this, this.#state.projMatrix);
   }
   /**
-     * Un-projects the given View-space coordinates and Screen-space depth, using this PerspectiveProjection projection.
-     *
-     * @param canvasPos Inputs 2D View-space coordinates.
-     * @param screenZ Inputs Screen-space Z coordinate.
-     * @param screenPos Outputs 3D Screen/Clip-space coordinates.
-     * @param viewPos Outputs un-projected 3D View-space coordinates.
-     * @param worldPos Outputs un-projected 3D World-space coordinates.
-     */
+   * Un-projects the given View-space coordinates and Screen-space depth, using this PerspectiveProjection projection.
+   *
+   * @param canvasPos Inputs 2D View-space coordinates.
+   * @param screenZ Inputs Screen-space Z coordinate.
+   * @param screenPos Outputs 3D Screen/Clip-space coordinates.
+   * @param viewPos Outputs un-projected 3D View-space coordinates.
+   * @param worldPos Outputs un-projected 3D World-space coordinates.
+   */
   unproject(canvasPos2, screenZ, screenPos2, viewPos2, worldPos) {
     const htmlElement = this.camera.view.htmlElement;
     const halfViewWidth = htmlElement.offsetWidth / 2;
@@ -184249,9 +184252,9 @@ var PerspectiveProjection = class extends Component {
     return worldPos;
   }
   /**
-     * Sets the state of this PerspectiveParams from the given parameters.
-     * @param perspectiveProjectionParams
-     */
+   * Sets the state of this PerspectiveParams from the given parameters.
+   * @param perspectiveProjectionParams
+   */
   fromParams(perspectiveProjectionParams) {
     if (perspectiveProjectionParams.far !== void 0) {
       this.far = perspectiveProjectionParams.far;
@@ -184267,8 +184270,8 @@ var PerspectiveProjection = class extends Component {
     }
   }
   /**
-     * Gets this PerspectiveProjection as JSON.
-     */
+   * Gets this PerspectiveProjection as JSON.
+   */
   toParams() {
     return {
       far: this.far,
@@ -184278,8 +184281,8 @@ var PerspectiveProjection = class extends Component {
     };
   }
   /** @private
-     *
-     */
+   *
+   */
   destroy() {
     super.destroy();
     this.camera.view.onBoundary.unsubscribe(this.#onViewBoundary);
@@ -184302,96 +184305,96 @@ var eyeLookOffset = createVec3();
 var offsetEye = createVec3();
 var Camera = class extends Component {
   /**
-     * The View to which this Camera belongs.
-     *
-     * @property view
-     * @type {View}
-     *
-     */
+   * The View to which this Camera belongs.
+   *
+   * @property view
+   * @type {View}
+   *
+   */
   view;
   /**
-     * The perspective projection.
-     *
-     * The Camera uses this while {@link Camera.projectionType} equals {@link PerspectiveProjectionType}.
-     */
+   * The perspective projection.
+   *
+   * The Camera uses this while {@link Camera.projectionType} equals {@link PerspectiveProjectionType}.
+   */
   perspectiveProjection;
   /**
-     * The orthographic projection.
-     *
-     * The Camera uses this while {@link Camera.projectionType} equals {@link constants!OrthoProjectionType}.
-     */
+   * The orthographic projection.
+   *
+   * The Camera uses this while {@link Camera.projectionType} equals {@link constants!OrthoProjectionType}.
+   */
   orthoProjection;
   /**
-     * The frustum projection.
-     *
-     * The Camera uses this while {@link Camera.projectionType} equals {@link constants!FrustumProjectionType}.
-     */
+   * The frustum projection.
+   *
+   * The Camera uses this while {@link Camera.projectionType} equals {@link constants!FrustumProjectionType}.
+   */
   frustumProjection;
   /**
-     * The custom projection.
-     *
-     * The Camera uses this while {@link Camera.projectionType} equals {@link constants!CustomProjectionType}.
-     */
+   * The custom projection.
+   *
+   * The Camera uses this while {@link Camera.projectionType} equals {@link constants!CustomProjectionType}.
+   */
   customProjection;
   /**
-     * Emits an event each time {@link Camera.projectionType} updates.
-     *
-     * ````javascript
-     * myView.camera.onProjectionType.subscribe((camera, projType) => { ... });
-     * ````
-     *
-     * @event
-     */
+   * Emits an event each time {@link Camera.projectionType} updates.
+   *
+   * ````javascript
+   * myView.camera.onProjectionType.subscribe((camera, projType) => { ... });
+   * ````
+   *
+   * @event
+   */
   onProjectionType;
   /**
-     * Emits an event each time {@link Camera.viewMatrix} updates.
-     *
-     * ````javascript
-     * myView.camera.onViewMatrix.subscribe((camera, viewMatrix) => { ... });
-     * ````
-     *
-     * @event
-     */
+   * Emits an event each time {@link Camera.viewMatrix} updates.
+   *
+   * ````javascript
+   * myView.camera.onViewMatrix.subscribe((camera, viewMatrix) => { ... });
+   * ````
+   *
+   * @event
+   */
   onViewMatrix;
   /**
-     * Emits an event each time {@link Camera.projMatrix} updates.
-     *
-     * ````javascript
-     * myView.camera.onProjMatrix.subscribe((camera, projMatrix) => { ... });
-     * ````
-     *
-     * @event
-     */
+   * Emits an event each time {@link Camera.projMatrix} updates.
+   *
+   * ````javascript
+   * myView.camera.onProjMatrix.subscribe((camera, projMatrix) => { ... });
+   * ````
+   *
+   * @event
+   */
   onProjMatrix;
   /**
-     * Emits an event each time {@link Camera.worldAxis} updates.
-     *
-     * ````javascript
-     * myView.camera.onWorldAxis.subscribe((camera, worldAxis) => { ... });
-     * ````
-     *
-     * @event
-     */
+   * Emits an event each time {@link Camera.worldAxis} updates.
+   *
+   * ````javascript
+   * myView.camera.onWorldAxis.subscribe((camera, worldAxis) => { ... });
+   * ````
+   *
+   * @event
+   */
   onWorldAxis;
   /**
-     * Emits an event each time {@link Camera.frustum} updates.
-     *
-     * ````javascript
-     * myView.camera.onFrustum.subscribe((camera, frustum) => { ... });
-     * ````
-     *
-     * @event
-     */
+   * Emits an event each time {@link Camera.frustum} updates.
+   *
+   * ````javascript
+   * myView.camera.onFrustum.subscribe((camera, frustum) => { ... });
+   * ````
+   *
+   * @event
+   */
   onFrustum;
   #state;
   /**
-     * The viewing frustum.
-     */
+   * The viewing frustum.
+   */
   #frustum;
   #activeProjection;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view, cfg = {}) {
     super(view, cfg);
     this.onProjectionType = new EventEmitter(new import_strongly_typed_events11.EventDispatcher());
@@ -184445,171 +184448,171 @@ var Camera = class extends Component {
     });
   }
   /**
-     * Gets the currently active projection for this Camera.
-     *
-     * The currently active project is selected with {@link Camera.projectionType}.
-     *
-     * @returns {PerspectiveProjection|OrthoProjection|FrustumProjection|CustomProjection} The currently active projection is active.
-     */
+   * Gets the currently active projection for this Camera.
+   *
+   * The currently active project is selected with {@link Camera.projectionType}.
+   *
+   * @returns {PerspectiveProjection|OrthoProjection|FrustumProjection|CustomProjection} The currently active projection is active.
+   */
   get projection() {
     return this.#activeProjection;
   }
   /**
-     * Gets the position of the Camera's eye.
-     *
-     * Default vale is ````[0,0,10]````.
-     *
-     * @type {Number[]} New eye position.
-     */
+   * Gets the position of the Camera's eye.
+   *
+   * Default vale is ````[0,0,10]````.
+   *
+   * @type {Number[]} New eye position.
+   */
   get eye() {
     return this.#state.eye;
   }
   /**
-     * Sets the position of the Camera's eye.
-     *
-     * Default value is ````[0,0,10]````.
-     *
-     * @type {Number[]} New eye position.
-     */
+   * Sets the position of the Camera's eye.
+   *
+   * Default value is ````[0,0,10]````.
+   *
+   * @type {Number[]} New eye position.
+   */
   set eye(eye) {
     this.#state.eye.set(eye);
     this.setDirty();
   }
   /**
-     * Gets the position of this Camera's point-of-interest.
-     *
-     * Default value is ````[0,0,0]````.
-     *
-     * @returns {Number[]} Camera look position.
-     */
+   * Gets the position of this Camera's point-of-interest.
+   *
+   * Default value is ````[0,0,0]````.
+   *
+   * @returns {Number[]} Camera look position.
+   */
   get look() {
     return this.#state.look;
   }
   /**
-     * Sets the position of this Camera's point-of-interest.
-     *
-     * Default value is ````[0,0,0]````.
-     *
-     * @param look Camera look position.
-     */
+   * Sets the position of this Camera's point-of-interest.
+   *
+   * Default value is ````[0,0,0]````.
+   *
+   * @param look Camera look position.
+   */
   set look(look) {
     this.#state.look.set(look);
     this.setDirty();
   }
   /**
-     * Gets the direction of this Camera's {@link Camera.up | Camera.up} vector.
-     *
-     * @returns {Number[]} Direction of "up".
-     */
+   * Gets the direction of this Camera's {@link Camera.up | Camera.up} vector.
+   *
+   * @returns {Number[]} Direction of "up".
+   */
   get up() {
     return this.#state.up;
   }
   /**
-     * Sets the direction of this Camera's {@link Camera.up | Camera.up} vector.
-     *
-     * @param up Direction of "up".
-     */
+   * Sets the direction of this Camera's {@link Camera.up | Camera.up} vector.
+   *
+   * @param up Direction of "up".
+   */
   set up(up) {
     this.#state.up.set(up);
     this.setDirty();
   }
   /**
-     * Gets the direction of World-space "up".
-     *
-     * This is set by {@link Camera.worldAxis}.
-     *
-     * Default value is ````[0,1,0]````.
-     *
-     * @returns {Number[]} The "up" vector.
-     */
+   * Gets the direction of World-space "up".
+   *
+   * This is set by {@link Camera.worldAxis}.
+   *
+   * Default value is ````[0,1,0]````.
+   *
+   * @returns {Number[]} The "up" vector.
+   */
   get worldUp() {
     return this.#state.worldUp;
   }
   /**
-     * Gets the direction of World-space "right".
-     *
-     * This is set by {@link Camera.worldAxis}.
-     *
-     * Default value is ````[1,0,0]````.
-     *
-     * @returns {Number[]} The "up" vector.
-     */
+   * Gets the direction of World-space "right".
+   *
+   * This is set by {@link Camera.worldAxis}.
+   *
+   * Default value is ````[1,0,0]````.
+   *
+   * @returns {Number[]} The "up" vector.
+   */
   get worldRight() {
     return this.#state.worldRight;
   }
   /**
-     * Gets the direction of World-space "forwards".
-     *
-     * This is set by {@link Camera.worldAxis}.
-     *
-     * Default value is ````[0,0,1]````.
-     *
-     * @returns {Number[]} The "up" vector.
-     */
+   * Gets the direction of World-space "forwards".
+   *
+   * This is set by {@link Camera.worldAxis}.
+   *
+   * Default value is ````[0,0,1]````.
+   *
+   * @returns {Number[]} The "up" vector.
+   */
   get worldForward() {
     return this.#state.worldForward;
   }
   /**
-     * Gets whether to prevent camera from being pitched upside down.
-     *
-     * The camera is upside down when the angle between {@link Camera.up | Camera.up} and {@link Camera.worldUp} is less than one degree.
-     *
-     * Default value is ````false````.
-     *
-     * @returns {Boolean} ````true```` if pitch rotation is currently constrained.
-     */
+   * Gets whether to prevent camera from being pitched upside down.
+   *
+   * The camera is upside down when the angle between {@link Camera.up | Camera.up} and {@link Camera.worldUp} is less than one degree.
+   *
+   * Default value is ````false````.
+   *
+   * @returns {Boolean} ````true```` if pitch rotation is currently constrained.
+   */
   get constrainPitch() {
     return this.#state.constrainPitch;
   }
   /**
-     * Sets whether to prevent camera from being pitched upside down.
-     *
-     * The camera is upside down when the angle between {@link Camera.up | Camera.up} and {@link Camera.worldUp} is less than one degree.
-     *
-     * Default value is ````false````.
-     *
-     * @param value Set ````true```` to contrain pitch rotation.
-     */
+   * Sets whether to prevent camera from being pitched upside down.
+   *
+   * The camera is upside down when the angle between {@link Camera.up | Camera.up} and {@link Camera.worldUp} is less than one degree.
+   *
+   * Default value is ````false````.
+   *
+   * @param value Set ````true```` to contrain pitch rotation.
+   */
   set constrainPitch(value) {
     this.#state.constrainPitch = value;
   }
   /**
-     * Gets whether to lock yaw rotation to pivot about the World-space "up" axis.
-     *
-     * @returns {Boolean} Returns ````true```` if gimbal is locked.
-     */
+   * Gets whether to lock yaw rotation to pivot about the World-space "up" axis.
+   *
+   * @returns {Boolean} Returns ````true```` if gimbal is locked.
+   */
   get gimbalLock() {
     return this.#state.gimbalLock;
   }
   /**
-     * Sets whether to lock yaw rotation to pivot about the World-space "up" axis.
-     *
-     * @param {Boolean} gimbalLock Set true to lock gimbal.
-     */
+   * Sets whether to lock yaw rotation to pivot about the World-space "up" axis.
+   *
+   * @param {Boolean} gimbalLock Set true to lock gimbal.
+   */
   set gimbalLock(value) {
     this.#state.gimbalLock = value;
   }
   /**
-     * Gets the up, right and forward axis of the World coordinate system.
-     *
-     * Has format: ````[rightX, rightY, rightZ, upX, upY, upZ, forwardX, forwardY, forwardZ]````
-     *
-     * Default axis is ````[1, 0, 0, 0, 1, 0, 0, 0, 1]````
-     *
-     * @returns {Number[]} The current World coordinate axis.
-     */
+   * Gets the up, right and forward axis of the World coordinate system.
+   *
+   * Has format: ````[rightX, rightY, rightZ, upX, upY, upZ, forwardX, forwardY, forwardZ]````
+   *
+   * Default axis is ````[1, 0, 0, 0, 1, 0, 0, 0, 1]````
+   *
+   * @returns {Number[]} The current World coordinate axis.
+   */
   get worldAxis() {
     return this.#state.worldAxis;
   }
   /**
-     * Sets the up, right and forward axis of the World coordinate system.
-     *
-     * Has format: ````[rightX, rightY, rightZ, upX, upY, upZ, forwardX, forwardY, forwardZ]````
-     *
-     * Default axis is ````[1, 0, 0, 0, 1, 0, 0, 0, 1]````
-     *
-     * @param axis The new Wworld coordinate axis.
-     */
+   * Sets the up, right and forward axis of the World coordinate system.
+   *
+   * Has format: ````[rightX, rightY, rightZ, upX, upY, upZ, forwardX, forwardY, forwardZ]````
+   *
+   * Default axis is ````[1, 0, 0, 0, 1, 0, 0, 0, 1]````
+   *
+   * @param axis The new Wworld coordinate axis.
+   */
   set worldAxis(axis) {
     const state = this.#state;
     state.worldAxis.set(axis);
@@ -184625,59 +184628,59 @@ var Camera = class extends Component {
     this.onWorldAxis.dispatch(this, state.worldAxis);
   }
   /**
-     * Gets an optional matrix to premultiply into {@link Camera.projMatrix} matrix.
-     *
-     * @returns {Number[]} The matrix.
-     */
+   * Gets an optional matrix to premultiply into {@link Camera.projMatrix} matrix.
+   *
+   * @returns {Number[]} The matrix.
+   */
   get deviceMatrix() {
     return this.#state.deviceMatrix;
   }
   /**
-     * Sets an optional matrix to premultiply into {@link Camera.projMatrix} matrix.
-     *
-     * This is intended to be used for stereo rendering with WebVR etc.
-     *
-     * @param matrix The matrix.
-     */
+   * Sets an optional matrix to premultiply into {@link Camera.projMatrix} matrix.
+   *
+   * This is intended to be used for stereo rendering with WebVR etc.
+   *
+   * @param matrix The matrix.
+   */
   set deviceMatrix(matrix) {
     this.#state.deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.#state.hasDeviceMatrix = !!matrix;
     this.setDirty();
   }
   /**
-     * Gets if the World-space X-axis is "up".
-     * @returns {boolean}
-     */
+   * Gets if the World-space X-axis is "up".
+   * @returns {boolean}
+   */
   get xUp() {
     return this.#state.worldUp[0] > this.#state.worldUp[1] && this.#state.worldUp[0] > this.#state.worldUp[2];
   }
   /**
-     * Gets if the World-space Y-axis is "up".
-     * @returns {boolean}
-     */
+   * Gets if the World-space Y-axis is "up".
+   * @returns {boolean}
+   */
   get yUp() {
     return this.#state.worldUp[1] > this.#state.worldUp[0] && this.#state.worldUp[1] > this.#state.worldUp[2];
   }
   /**
-     * Gets if the World-space Z-axis is "up".
-     * @returns {boolean}
-     */
+   * Gets if the World-space Z-axis is "up".
+   * @returns {boolean}
+   */
   get zUp() {
     return this.#state.worldUp[2] > this.#state.worldUp[0] && this.#state.worldUp[2] > this.#state.worldUp[1];
   }
   /**
-     * Gets distance from {@link Camera.look | Camera.look} to {@link Camera.eye | Camera.eye}.
-     *
-     * @returns {Number} The distance.
-     */
+   * Gets distance from {@link Camera.look | Camera.look} to {@link Camera.eye | Camera.eye}.
+   *
+   * @returns {Number} The distance.
+   */
   get eyeLookDist() {
     return lenVec3(subVec3(this.#state.look, this.#state.eye, tempVec32));
   }
   /**
-     * Gets the Camera's viewing transformation matrix.
-     *
-     * @returns {Number[]} The viewing transform matrix.
-     */
+   * Gets the Camera's viewing transformation matrix.
+   *
+   * @returns {Number[]} The viewing transform matrix.
+   */
   get viewMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -184685,10 +184688,10 @@ var Camera = class extends Component {
     return this.#state.viewMatrix;
   }
   /**
-     * Gets the inverse of the Camera's viewing transform matrix.
-     *
-     * @returns {Number[]} The inverse viewing transform matrix.
-     */
+   * Gets the inverse of the Camera's viewing transform matrix.
+   *
+   * @returns {Number[]} The inverse viewing transform matrix.
+   */
   get inverseViewMatrix() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -184696,18 +184699,18 @@ var Camera = class extends Component {
     return this.#state.inverseViewMatrix;
   }
   /**
-     * Gets the Camera's projection transformation projMatrix.
-     *
-     * @returns {Number[]} The projection matrix.
-     */
+   * Gets the Camera's projection transformation projMatrix.
+   *
+   * @returns {Number[]} The projection matrix.
+   */
   get projMatrix() {
     return this.#activeProjection.projMatrix;
   }
   /**
-     * Gets the Camera's 3D World-space viewing frustum.
-     *
-     * @returns {Frustum3} The frustum.
-     */
+   * Gets the Camera's 3D World-space viewing frustum.
+   *
+   * @returns {Frustum3} The frustum.
+   */
   get frustum() {
     if (this.dirty) {
       this.cleanIfDirty();
@@ -184715,26 +184718,26 @@ var Camera = class extends Component {
     return this.#frustum;
   }
   /**
-     * Gets the active projection type.
-     *
-     * Possible values are ````PerspectiveProjectionType````, ````OrthoProjectionType````, ````"frustum"```` and ````"customProjection"````.
-     *
-     * Default value is ````PerspectiveProjectionType````.
-     *
-     * @returns {number} Identifies the active projection type.
-     */
+   * Gets the active projection type.
+   *
+   * Possible values are ````PerspectiveProjectionType````, ````OrthoProjectionType````, ````"frustum"```` and ````"customProjection"````.
+   *
+   * Default value is ````PerspectiveProjectionType````.
+   *
+   * @returns {number} Identifies the active projection type.
+   */
   get projectionType() {
     return this.#state.projectionType;
   }
   /**
-     * Sets the active projection type.
-     *
-     * Accepted values are ````PerspectiveProjectionType````, ````OrthoProjectionType````, ````"frustum"```` and ````"customProjection"````.
-     *
-     * Default value is ````PerspectiveProjectionType````.
-     *
-     * @param value Identifies the active projection type.
-     */
+   * Sets the active projection type.
+   *
+   * Accepted values are ````PerspectiveProjectionType````, ````OrthoProjectionType````, ````"frustum"```` and ````"customProjection"````.
+   *
+   * Default value is ````PerspectiveProjectionType````.
+   *
+   * @param value Identifies the active projection type.
+   */
   set projectionType(value) {
     value = value || PerspectiveProjectionType;
     if (this.#state.projectionType === value) {
@@ -184789,10 +184792,10 @@ var Camera = class extends Component {
     this.onFrustum.dispatch(this, this.#frustum);
   }
   /**
-     * Rotates {@link Camera.eye | Camera.eye} about {@link Camera.look | Camera.look}, around the {@link Camera.up | Camera.up} vector
-     *
-     * @param angleInc Angle of rotation in degrees
-     */
+   * Rotates {@link Camera.eye | Camera.eye} about {@link Camera.look | Camera.look}, around the {@link Camera.up | Camera.up} vector
+   *
+   * @param angleInc Angle of rotation in degrees
+   */
   orbitYaw(angleInc) {
     let lookEyeVec = subVec3(this.#state.eye, this.#state.look, tempVec32);
     rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.#state.worldUp : this.#state.up, tempMat2);
@@ -184801,10 +184804,10 @@ var Camera = class extends Component {
     this.up = transformPoint3(tempMat2, this.#state.up, tempVec3d2);
   }
   /**
-     * Rotates {@link Camera.eye | Camera.eye} about {@link Camera.look | Camera.look} around the right axis (orthogonal to {@link Camera.up | Camera.up} and "look").
-     *
-     * @param angleInc Angle of rotation in degrees
-     */
+   * Rotates {@link Camera.eye | Camera.eye} about {@link Camera.look | Camera.look} around the right axis (orthogonal to {@link Camera.up | Camera.up} and "look").
+   *
+   * @param angleInc Angle of rotation in degrees
+   */
   orbitPitch(angleInc) {
     if (this.#state.constrainPitch) {
       angleInc = dotVec3(this.#state.up, this.#state.worldUp) / DEGTORAD;
@@ -184820,10 +184823,10 @@ var Camera = class extends Component {
     this.eye = addVec3(eye2, this.#state.look, tempVec3f);
   }
   /**
-     * Rotates {@link Camera.look | Camera.look} about {@link Camera.eye | Camera.eye}, around the {@link Camera.up | Camera.up} vector.
-     *
-     * @param angleInc Angle of rotation in degrees
-     */
+   * Rotates {@link Camera.look | Camera.look} about {@link Camera.eye | Camera.eye}, around the {@link Camera.up | Camera.up} vector.
+   *
+   * @param angleInc Angle of rotation in degrees
+   */
   yaw(angleInc) {
     let look2 = subVec3(this.#state.look, this.#state.eye, tempVec32);
     rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.#state.worldUp : this.#state.up, tempMat2);
@@ -184834,10 +184837,10 @@ var Camera = class extends Component {
     }
   }
   /**
-       * Rotates {@link Camera.look | Camera.look} about {@link Camera.eye | Camera.eye}, around the right axis (orthogonal to {@link Camera.up | Camera.up} and "look").
+     * Rotates {@link Camera.look | Camera.look} about {@link Camera.eye | Camera.eye}, around the right axis (orthogonal to {@link Camera.up | Camera.up} and "look").
   
-       * @param angleInc Angle of rotation in degrees
-       */
+     * @param angleInc Angle of rotation in degrees
+     */
   pitch(angleInc) {
     if (this.#state.constrainPitch) {
       angleInc = dotVec3(this.#state.up, this.#state.worldUp) / DEGTORAD;
@@ -184853,10 +184856,10 @@ var Camera = class extends Component {
     this.look = addVec3(look2, this.#state.eye, tempVec3e2);
   }
   /**
-     * Pans the Camera along its local X, Y and Z axis.
-     *
-     * @param pan The pan vector
-     */
+   * Pans the Camera along its local X, Y and Z axis.
+   *
+   * @param pan The pan vector
+   */
   pan(pan) {
     const eye2 = subVec3(this.#state.eye, this.#state.look, tempVec32);
     const vec = [0, 0, 0];
@@ -184884,10 +184887,10 @@ var Camera = class extends Component {
     this.look = addVec3(this.#state.look, vec, tempVec3f);
   }
   /**
-     * Increments/decrements the Camera's zoom factor, which is the distance between {@link Camera.eye | Camera.eye} and {@link Camera.look | Camera.look}.
-     *
-     * @param delta Zoom factor increment.
-     */
+   * Increments/decrements the Camera's zoom factor, which is the distance between {@link Camera.eye | Camera.eye} and {@link Camera.look | Camera.look}.
+   *
+   * @param delta Zoom factor increment.
+   */
   zoom(delta) {
     const vec = subVec3(this.#state.eye, this.#state.look, tempVec32);
     const lenLook = Math.abs(lenVec3(vec));
@@ -184899,8 +184902,8 @@ var Camera = class extends Component {
     this.eye = addVec3(this.#state.look, mulVec3Scalar(dir, newLenLook), tempVec3d2);
   }
   /**
-     * Gets the configuration of this Camera.
-     */
+   * Gets the configuration of this Camera.
+   */
   toParams() {
     return {
       eye: Array.from(this.#state.eye),
@@ -184917,9 +184920,9 @@ var Camera = class extends Component {
     };
   }
   /**
-     * Configures this Camera.
-     * @param cameraParams
-     */
+   * Configures this Camera.
+   * @param cameraParams
+   */
   fromParams(cameraParams) {
     if (cameraParams.eye) {
       this.eye = cameraParams.eye;
@@ -184953,8 +184956,8 @@ var Camera = class extends Component {
     }
   }
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
     this.onProjectionType.clear();
@@ -184967,19 +184970,19 @@ var Camera = class extends Component {
 // ../sdk/src/viewer/DirLight.ts
 var DirLight = class extends Component {
   /**
-     * The View to which this DirLight belongs.
-     */
+   * The View to which this DirLight belongs.
+   */
   view;
   #state;
   /**
-     * @param view View that owns this DirLight. When destroyed, the View will destroy this DirLight as well.
-     * @param options The DirLight configuration
-     * @param [options.id] Optional ID, unique among all components in the parent {@link scene!Scene | Scene}, generated automatically when omitted.
-     * @param [options.dir=[1.0, 1.0, 1.0]]  A unit vector indicating the direction that the light is shining,  given in either World or View space, depending on the value of the ````space```` parameter.
-     * @param [options.color=[0.7, 0.7, 0.8 ]] The color of this DirLight.
-     * @param [options.intensity=1.0] The intensity of this DirLight, as a factor in range ````[0..1]````.
-     * @param [options.space="view"] The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
-     */
+   * @param view View that owns this DirLight. When destroyed, the View will destroy this DirLight as well.
+   * @param options The DirLight configuration
+   * @param [options.id] Optional ID, unique among all components in the parent {@link scene!Scene | Scene}, generated automatically when omitted.
+   * @param [options.dir=[1.0, 1.0, 1.0]]  A unit vector indicating the direction that the light is shining,  given in either World or View space, depending on the value of the ````space```` parameter.
+   * @param [options.color=[0.7, 0.7, 0.8 ]] The color of this DirLight.
+   * @param [options.intensity=1.0] The intensity of this DirLight, as a factor in range ````[0..1]````.
+   * @param [options.space="view"] The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
+   */
   constructor(view, options = {}) {
     super(view, options);
     this.view = view;
@@ -184993,82 +184996,82 @@ var DirLight = class extends Component {
     this.view.registerLight(this);
   }
   /**
-     * Gets the direction in which the DirLight is shining.
-     *
-     * Default value is ````[1.0, 1.0, 1.0]````.
-     *
-     * @returns {Number[]} The direction vector.
-     */
+   * Gets the direction in which the DirLight is shining.
+   *
+   * Default value is ````[1.0, 1.0, 1.0]````.
+   *
+   * @returns {Number[]} The direction vector.
+   */
   get dir() {
     return this.#state.dir;
   }
   /**
-     * The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
-     */
+   * The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
+   */
   get space() {
     return this.#state.space;
   }
   /**
-     * Sets the direction in which the DirLight is shining.
-     *
-     * Default value is ````[1.0, 1.0, 1.0]````.
-     *
-     * @param value The direction vector.
-     */
+   * Sets the direction in which the DirLight is shining.
+   *
+   * Default value is ````[1.0, 1.0, 1.0]````.
+   *
+   * @param value The direction vector.
+   */
   set dir(value) {
     this.#state.dir.set(value);
     this.view.redraw();
   }
   /**
-     * Gets the RGB color of this DirLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.8]````.
-     *
-     * @returns {Number[]} The DirLight's RGB color.
-     */
+   * Gets the RGB color of this DirLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.8]````.
+   *
+   * @returns {Number[]} The DirLight's RGB color.
+   */
   get color() {
     return this.#state.color;
   }
   /**
-     * Sets the RGB color of this DirLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.8]````.
-     *
-     * @param color The DirLight's RGB color.
-     */
+   * Sets the RGB color of this DirLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.8]````.
+   *
+   * @param color The DirLight's RGB color.
+   */
   set color(color2) {
     this.#state.color.set(color2);
     this.view.redraw();
   }
   /**
-     * Gets the intensity of this DirLight.
-     *
-     * Default value is ````1.0```` for maximum intensity.
-     *
-     * @returns {Number} The DirLight's intensity.
-     */
+   * Gets the intensity of this DirLight.
+   *
+   * Default value is ````1.0```` for maximum intensity.
+   *
+   * @returns {Number} The DirLight's intensity.
+   */
   get intensity() {
     return this.#state.intensity;
   }
   /**
-     * Sets the intensity of this DirLight.
-     *
-     * Default intensity is ````1.0```` for maximum intensity.
-     *
-     * @param intensity The DirLight's intensity
-     */
+   * Sets the intensity of this DirLight.
+   *
+   * Default intensity is ````1.0```` for maximum intensity.
+   *
+   * @param intensity The DirLight's intensity
+   */
   set intensity(intensity) {
     this.#state.intensity = intensity;
     this.view.redraw();
   }
   /**
-     * Configures this DirLight.
-     *
-     * Ignores {@link DirLightParams.space | DirLightParams.space}, because
-     * {@link DirLight.space | DirLight.space} is not dynamically updatable.
-     *
-     * @param dirLightParams
-     */
+   * Configures this DirLight.
+   *
+   * Ignores {@link DirLightParams.space | DirLightParams.space}, because
+   * {@link DirLight.space | DirLight.space} is not dynamically updatable.
+   *
+   * @param dirLightParams
+   */
   fromParams(dirLightParams) {
     if (dirLightParams.dir) {
       this.dir = dirLightParams.dir;
@@ -185081,8 +185084,8 @@ var DirLight = class extends Component {
     }
   }
   /**
-     * Gets this DirLight's current configuration.
-     */
+   * Gets this DirLight's current configuration.
+   */
   toParams() {
     return {
       id: this.id,
@@ -185093,8 +185096,8 @@ var DirLight = class extends Component {
     };
   }
   /**
-     * Destroys this DirLight.
-     */
+   * Destroys this DirLight.
+   */
   destroy() {
     super.destroy();
     this.view.deregisterLight(this);
@@ -185105,16 +185108,16 @@ var DirLight = class extends Component {
 // ../sdk/src/viewer/Edges.ts
 var Edges = class extends Component {
   /**
-     * The View to which this Edges belongs.
-     */
+   * The View to which this Edges belongs.
+   */
   view;
   /**
-     * @private
-     */
+   * @private
+   */
   #state;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view, options = {}) {
     super(view, options);
     this.view = view;
@@ -185126,31 +185129,31 @@ var Edges = class extends Component {
     };
   }
   /**
-     * Sets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
-     *
-     * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
-     *
-     * Default value is [{@link constants!QualityRender | QualityRender}].
-     */
+   * Sets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
+   *
+   * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
+   *
+   * Default value is [{@link constants!QualityRender | QualityRender}].
+   */
   set renderModes(value) {
     this.#state.renderModes = value;
     this.view.redraw();
   }
   /**
-     * Gets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
-     *
-     * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
-     *
-     * Default value is [{@link constants!QualityRender | QualityRender}].
-     */
+   * Gets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
+   *
+   * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
+   *
+   * Default value is [{@link constants!QualityRender | QualityRender}].
+   */
   get renderModes() {
     return this.#state.renderModes;
   }
   /**
-     * Sets RGB edge color for {@link ViewObject | ViewObjects}.
-     *
-     * Default value is ````[0.2, 0.2, 0.2]````.
-     */
+   * Sets RGB edge color for {@link ViewObject | ViewObjects}.
+   *
+   * Default value is ````[0.2, 0.2, 0.2]````.
+   */
   set edgeColor(value) {
     const edgeColor = this.#state.edgeColor;
     if (value && edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
@@ -185162,20 +185165,20 @@ var Edges = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets RGB edge color for {@link ViewObject | ViewObjects}.
-     *
-     * Default value is ````[0.2, 0.2, 0.2]````.
-     */
+   * Gets RGB edge color for {@link ViewObject | ViewObjects}.
+   *
+   * Default value is ````[0.2, 0.2, 0.2]````.
+   */
   get edgeColor() {
     return this.#state.edgeColor;
   }
   /**
-     * Sets edge transparency for {@link ViewObject | ViewObjects}.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default value is ````1.0````.
-     */
+   * Sets edge transparency for {@link ViewObject | ViewObjects}.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default value is ````1.0````.
+   */
   set edgeAlpha(value) {
     if (this.#state.edgeAlpha === value) {
       return;
@@ -185184,20 +185187,20 @@ var Edges = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets edge transparency for {@link ViewObject | ViewObjects}.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default value is ````1.0````.
-     */
+   * Gets edge transparency for {@link ViewObject | ViewObjects}.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default value is ````1.0````.
+   */
   get edgeAlpha() {
     return this.#state.edgeAlpha;
   }
   /**
-     * Sets edge width for {@link ViewObject | ViewObjects}.
-     *
-     * Default value is ````1.0```` pixels.
-     */
+   * Sets edge width for {@link ViewObject | ViewObjects}.
+   *
+   * Default value is ````1.0```` pixels.
+   */
   set edgeWidth(value) {
     if (this.#state.edgeWidth === value) {
       return;
@@ -185206,21 +185209,21 @@ var Edges = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets edge width for {@link ViewObject | ViewObjects}.
-     *
-     * This is not supported by WebGL implementations based on DirectX [2019].
-     *
-     * Default value is ````1.0```` pixels.
-     */
+   * Gets edge width for {@link ViewObject | ViewObjects}.
+   *
+   * This is not supported by WebGL implementations based on DirectX [2019].
+   *
+   * Default value is ````1.0```` pixels.
+   */
   get edgeWidth() {
     return this.#state.edgeWidth;
   }
   /**
-     * Gets if edges are currently applied.
-     *
-     * This is `true` when {@link View.renderMode | View.renderMode} is
-     * in {@link Edges.renderModes | Edges.renderModes}.
-     */
+   * Gets if edges are currently applied.
+   *
+   * This is `true` when {@link View.renderMode | View.renderMode} is
+   * in {@link Edges.renderModes | Edges.renderModes}.
+   */
   get applied() {
     for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
       if (this.view.renderMode === this.#state.renderModes[i]) {
@@ -185230,8 +185233,8 @@ var Edges = class extends Component {
     return false;
   }
   /**
-     * Gets the current configuration of this Edges effect.
-     */
+   * Gets the current configuration of this Edges effect.
+   */
   toParams() {
     return {
       renderModes: this.renderModes,
@@ -185241,10 +185244,10 @@ var Edges = class extends Component {
     };
   }
   /**
-     * Configures this Edges effect.
-     *
-     * @param edgesParams
-     */
+   * Configures this Edges effect.
+   *
+   * @param edgesParams
+   */
   fromParams(edgesParams) {
     this.renderModes = edgesParams.renderModes;
     this.edgeColor = Array.from(edgesParams.edgeColor);
@@ -185252,8 +185255,8 @@ var Edges = class extends Component {
     this.edgeAlpha = edgesParams.edgeAlpha;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
   }
@@ -185262,13 +185265,13 @@ var Edges = class extends Component {
 // ../sdk/src/viewer/EmphasisMaterial.ts
 var EmphasisMaterial = class extends Component {
   /**
-     * The View to which this EmphasisMaterial belongs.
-     */
+   * The View to which this EmphasisMaterial belongs.
+   */
   view;
   #state;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view, options = {}) {
     super(view, options);
     this.view = view;
@@ -185285,10 +185288,10 @@ var EmphasisMaterial = class extends Component {
     };
   }
   /**
-     * Sets if the surfaces of emphasized {@link ViewObject | ViewObjects} are filled with color.
-     *
-     * Default is ````true````.
-     */
+   * Sets if the surfaces of emphasized {@link ViewObject | ViewObjects} are filled with color.
+   *
+   * Default is ````true````.
+   */
   set fill(value) {
     if (this.#state.fill === value) {
       return;
@@ -185297,18 +185300,18 @@ var EmphasisMaterial = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets if the surfaces of emphasized {@link ViewObject | ViewObjects} are filled with color.
-     *
-     * Default is ````true````.
-     */
+   * Gets if the surfaces of emphasized {@link ViewObject | ViewObjects} are filled with color.
+   *
+   * Default is ````true````.
+   */
   get fill() {
     return this.#state.fill;
   }
   /**
-     * Sets the RGB surface fill color for the surfaces of emphasized {@link ViewObject | ViewObjects}.
-     *
-     * Default is ````[0.4, 0.4, 0.4]````.
-     */
+   * Sets the RGB surface fill color for the surfaces of emphasized {@link ViewObject | ViewObjects}.
+   *
+   * Default is ````[0.4, 0.4, 0.4]````.
+   */
   set fillColor(value) {
     const fillColor = this.#state.fillColor;
     if (fillColor[0] === value[0] && fillColor[1] === value[1] && fillColor[2] === value[2]) {
@@ -185320,20 +185323,20 @@ var EmphasisMaterial = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the RGB surface fill color for the surfaces of emphasized {@link ViewObject | ViewObjects}.
-     *
-     * Default is ````[0.4, 0.4, 0.4]````.
-     */
+   * Gets the RGB surface fill color for the surfaces of emphasized {@link ViewObject | ViewObjects}.
+   *
+   * Default is ````[0.4, 0.4, 0.4]````.
+   */
   get fillColor() {
     return this.#state.fillColor;
   }
   /**
-     * Sets the transparency of the surfaces of emphasized {@link ViewObject | ViewObjects}.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default is ````0.2````.
-     */
+   * Sets the transparency of the surfaces of emphasized {@link ViewObject | ViewObjects}.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   */
   set fillAlpha(value) {
     if (this.#state.fillAlpha === value) {
       return;
@@ -185342,20 +185345,20 @@ var EmphasisMaterial = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the transparency of the surfaces of emphasized {@link ViewObject | ViewObjects}.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default is ````0.2````.
-     */
+   * Gets the transparency of the surfaces of emphasized {@link ViewObject | ViewObjects}.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   */
   get fillAlpha() {
     return this.#state.fillAlpha;
   }
   /**
-     * Sets if the edges on emphasized {@link ViewObject | ViewObjects} are visible.
-     *
-     * Default is ````true````.
-     */
+   * Sets if the edges on emphasized {@link ViewObject | ViewObjects} are visible.
+   *
+   * Default is ````true````.
+   */
   set edges(value) {
     if (this.#state.edges === value) {
       return;
@@ -185364,18 +185367,18 @@ var EmphasisMaterial = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets if the edges on emphasized {@link ViewObject | ViewObjects} are visible.
-     *
-     * Default is ````true````.
-     */
+   * Gets if the edges on emphasized {@link ViewObject | ViewObjects} are visible.
+   *
+   * Default is ````true````.
+   */
   get edges() {
     return this.#state.edges;
   }
   /**
-     * Sets the RGB color of the edges of emphasized {@link ViewObject | ViewObjects}.
-     *
-     * Default is ```` [0.2, 0.2, 0.2]````.
-     */
+   * Sets the RGB color of the edges of emphasized {@link ViewObject | ViewObjects}.
+   *
+   * Default is ```` [0.2, 0.2, 0.2]````.
+   */
   set edgeColor(value) {
     const edgeColor = this.#state.edgeColor;
     if (edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
@@ -185387,20 +185390,20 @@ var EmphasisMaterial = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the RGB color of the edges of emphasized {@link ViewObject | ViewObjects}.
-     *
-     * Default is ```` [0.2, 0.2, 0.2]````.
-     */
+   * Gets the RGB color of the edges of emphasized {@link ViewObject | ViewObjects}.
+   *
+   * Default is ```` [0.2, 0.2, 0.2]````.
+   */
   get edgeColor() {
     return this.#state.edgeColor;
   }
   /**
-     * Sets the transparency of the edges of emphasized {@link ViewObject | ViewObjects}.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default is ````0.2````.
-     */
+   * Sets the transparency of the edges of emphasized {@link ViewObject | ViewObjects}.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   */
   set edgeAlpha(value) {
     if (this.#state.edgeAlpha === value) {
       return;
@@ -185409,39 +185412,39 @@ var EmphasisMaterial = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the transparency of the edges of emphasized {@link ViewObject | ViewObjects}.
-     *
-     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-     *
-     * Default is ````0.2````.
-     */
+   * Gets the transparency of the edges of emphasized {@link ViewObject | ViewObjects}.
+   *
+   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+   *
+   * Default is ````0.2````.
+   */
   get edgeAlpha() {
     return this.#state.edgeAlpha;
   }
   /**
-     * Sets the width of the edges of emphasized {@link ViewObject | ViewObjects}.
-     *
-     * Default value is ````1.0```` pixels.
-     */
+   * Sets the width of the edges of emphasized {@link ViewObject | ViewObjects}.
+   *
+   * Default value is ````1.0```` pixels.
+   */
   set edgeWidth(value) {
     this.#state.edgeWidth = value;
     this.view.redraw();
   }
   /**
-     * Gets the width of the edges of emphasized {@link ViewObject | ViewObjects}.
-     *
-     * This is not supported by WebGL implementations based on DirectX [2019].
-     *
-     * Default value is ````1.0```` pixels.
-     */
+   * Gets the width of the edges of emphasized {@link ViewObject | ViewObjects}.
+   *
+   * This is not supported by WebGL implementations based on DirectX [2019].
+   *
+   * Default value is ````1.0```` pixels.
+   */
   get edgeWidth() {
     return this.#state.edgeWidth;
   }
   /**
-     * Sets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
-     *
-     * Default is ````false````.
-     */
+   * Sets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
+   *
+   * Default is ````false````.
+   */
   set backfaces(value) {
     if (this.#state.backfaces === value) {
       return;
@@ -185450,22 +185453,22 @@ var EmphasisMaterial = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
-     *
-     * Default is ````false````.
-     */
+   * Gets whether to render backfaces of emphasized {@link ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
+   *
+   * Default is ````false````.
+   */
   get backfaces() {
     return this.#state.backfaces;
   }
   /**
-     * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
-     *
-     * Default is ````true````.
-     *
-     * Note: updating this property will not affect the appearance of objects that are already emphasized.
-     *
-     * @type {Boolean}
-     */
+   * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+   *
+   * Default is ````true````.
+   *
+   * Note: updating this property will not affect the appearance of objects that are already emphasized.
+   *
+   * @type {Boolean}
+   */
   set glowThrough(value) {
     value = value !== false;
     if (this.#state.glowThrough === value) {
@@ -185475,25 +185478,25 @@ var EmphasisMaterial = class extends Component {
     this.view.redraw();
   }
   /**
-     * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
-     *
-     * Default is ````true````.
-     *
-     * @type {Boolean}
-     */
+   * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+   *
+   * Default is ````true````.
+   *
+   * @type {Boolean}
+   */
   get glowThrough() {
     return this.#state.glowThrough;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   get hash() {
     return "";
   }
   /**
-     * Configures this EmphasisMaterial.
-     * @param emphasisMaterialParams
-     */
+   * Configures this EmphasisMaterial.
+   * @param emphasisMaterialParams
+   */
   fromParams(emphasisMaterialParams) {
     if (emphasisMaterialParams.fillColor !== void 0) {
       this.fillColor = emphasisMaterialParams.fillColor;
@@ -185524,8 +185527,8 @@ var EmphasisMaterial = class extends Component {
     }
   }
   /**
-     * Gets the current configuration of this EmphasisMaterial.
-     */
+   * Gets the current configuration of this EmphasisMaterial.
+   */
   toParams() {
     return {
       fillColor: Array.from(this.#state.fillColor),
@@ -185540,8 +185543,8 @@ var EmphasisMaterial = class extends Component {
     };
   }
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
   }
@@ -185553,13 +185556,13 @@ var import_strongly_typed_events15 = __toESM(require_dist8());
 // ../sdk/src/viewer/LinesMaterial.ts
 var LinesMaterial = class extends Component {
   /**
-     * The View to which this LinesMaterial belongs.
-     */
+   * The View to which this LinesMaterial belongs.
+   */
   view;
   #state;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view, options = { lineWidth: 1 }) {
     super(view, options);
     this.view = view;
@@ -185568,19 +185571,19 @@ var LinesMaterial = class extends Component {
     };
   }
   /**
-     * Sets line width.
-     *
-     * Default value is ````1```` pixels.
-     */
+   * Sets line width.
+   *
+   * Default value is ````1```` pixels.
+   */
   set lineWidth(value) {
     this.#state.lineWidth = value || 1;
     this.view.redraw();
   }
   /**
-     * Gets the line width.
-     *
-     * Default value is ````1```` pixels.
-     */
+   * Gets the line width.
+   *
+   * Default value is ````1```` pixels.
+   */
   get lineWidth() {
     return this.#state.lineWidth;
   }
@@ -185613,26 +185616,26 @@ var Metrics = class extends Component {
   #scale;
   #origin;
   /**
-     * Emits an event each time {@link Metrics.units} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link Metrics.units} changes.
+   *
+   * @event
+   */
   onUnits;
   /**
-     * Emits an event each time {@link Metrics.scale} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link Metrics.scale} changes.
+   *
+   * @event
+   */
   onScale;
   /**
-     * Emits an event each time {@link Metrics.origin} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link Metrics.origin} changes.
+   *
+   * @event
+   */
   onOrigin;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view, cfg = {
     units: MetersUnit,
     scale: 1,
@@ -185650,49 +185653,49 @@ var Metrics = class extends Component {
     this.origin = cfg.origin;
   }
   /**
-     * Gets info about the supported Real-space unit types.
-     *
-     * With {@link constants} indicating each unit type, the info will be:
-     *
-     * ````javascript
-     * {
-     *     [MetersUnit]: {
-     *         abbrev: "m"
-     *     },
-     *     [CentimetersUnit]: {
-     *         abbrev: "cm"
-     *     },
-     *     [MillimetersUnit]: {
-     *         abbrev: "mm"
-     *     },
-     *     [YardsUnit]: {
-     *         abbrev: "yd"
-     *     },
-     *     [FeetUnit]: {
-     *         abbrev: "ft"
-     *     },
-     *     [InchesUnit]: {
-     *         abbrev: "in"
-     *     }
-     * }
-     * ````
-     *
-     * @type {*}
-     */
+   * Gets info about the supported Real-space unit types.
+   *
+   * With {@link constants} indicating each unit type, the info will be:
+   *
+   * ````javascript
+   * {
+   *     [MetersUnit]: {
+   *         abbrev: "m"
+   *     },
+   *     [CentimetersUnit]: {
+   *         abbrev: "cm"
+   *     },
+   *     [MillimetersUnit]: {
+   *         abbrev: "mm"
+   *     },
+   *     [YardsUnit]: {
+   *         abbrev: "yd"
+   *     },
+   *     [FeetUnit]: {
+   *         abbrev: "ft"
+   *     },
+   *     [InchesUnit]: {
+   *         abbrev: "in"
+   *     }
+   * }
+   * ````
+   *
+   * @type {*}
+   */
   get unitsInfo() {
     return unitsInfo;
   }
   /**
-     * Gets the {@link View}'s Real-space unit type.
-     */
+   * Gets the {@link View}'s Real-space unit type.
+   */
   get units() {
     return this.#units;
   }
   /**
-     * Sets the {@link View}'s Real-space unit type.
-     *
-     * Accepted values are {@link constants!MetersUnit}, {@link constants!CentimetersUnit}, {@link constants!MillimetersUnit}, {@link constants!YardsUnit}, {@link constants!FeetUnit} and {@link constants!InchesUnit}.
-     */
+   * Sets the {@link View}'s Real-space unit type.
+   *
+   * Accepted values are {@link constants!MetersUnit}, {@link constants!CentimetersUnit}, {@link constants!MillimetersUnit}, {@link constants!YardsUnit}, {@link constants!FeetUnit} and {@link constants!InchesUnit}.
+   */
   set units(value) {
     if (!value) {
       value = MetersUnit;
@@ -185706,16 +185709,16 @@ var Metrics = class extends Component {
     this.onUnits.dispatch(this, this.#units);
   }
   /**
-     * Gets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
-     */
+   * Gets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
+   */
   get scale() {
     return this.#scale;
   }
   /**
-     * Sets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
-     *
-     * For example, if {@link Metrics.units} is {@link constants!MetersUnit}, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
-     */
+   * Sets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
+   *
+   * For example, if {@link Metrics.units} is {@link constants!MetersUnit}, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
+   */
   set scale(value) {
     value = value || 1;
     if (value <= 0) {
@@ -185726,14 +185729,14 @@ var Metrics = class extends Component {
     this.onScale.dispatch(this, this.#scale);
   }
   /**
-     * Gets the 3D Real-space origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
-     */
+   * Gets the 3D Real-space origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
+   */
   get origin() {
     return this.#origin;
   }
   /**
-     * Sets the Real-space 3D origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
-     */
+   * Sets the Real-space 3D origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
+   */
   set origin(value) {
     if (!value) {
       this.#origin[0] = 0;
@@ -185747,14 +185750,14 @@ var Metrics = class extends Component {
     this.onOrigin.dispatch(this, this.#origin);
   }
   /**
-     * Converts a 3D position from World-space to Real-space.
-     *
-     * This is equivalent to ````realPos = #origin + (worldPos * #scale)````.
-     *
-     * @param worldPos World-space 3D position, in World coordinate system units.
-     * @param [realPos] Destination for Real-space 3D position.
-     * @returns  Real-space 3D position, in units indicated by {@link Metrics#units}.
-     */
+   * Converts a 3D position from World-space to Real-space.
+   *
+   * This is equivalent to ````realPos = #origin + (worldPos * #scale)````.
+   *
+   * @param worldPos World-space 3D position, in World coordinate system units.
+   * @param [realPos] Destination for Real-space 3D position.
+   * @returns  Real-space 3D position, in units indicated by {@link Metrics#units}.
+   */
   worldToRealPos(worldPos, realPos = createVec3()) {
     realPos[0] = this.#origin[0] + this.#scale * worldPos[0];
     realPos[1] = this.#origin[1] + this.#scale * worldPos[1];
@@ -185762,14 +185765,14 @@ var Metrics = class extends Component {
     return realPos;
   }
   /**
-     * Converts a 3D position from Real-space to World-space.
-     *
-     * This is equivalent to ````worldPos = (worldPos - #origin) / #scale````.
-     *
-     * @param realPos Real-space 3D position.
-     * @param [worldPos] Destination for World-space 3D position.
-     * @returns  World-space 3D position.
-     */
+   * Converts a 3D position from Real-space to World-space.
+   *
+   * This is equivalent to ````worldPos = (worldPos - #origin) / #scale````.
+   *
+   * @param realPos Real-space 3D position.
+   * @param [worldPos] Destination for World-space 3D position.
+   * @returns  World-space 3D position.
+   */
   realToWorldPos(realPos, worldPos = createVec3()) {
     worldPos[0] = (realPos[0] - this.#origin[0]) / this.#scale;
     worldPos[1] = (realPos[1] - this.#origin[1]) / this.#scale;
@@ -185777,8 +185780,8 @@ var Metrics = class extends Component {
     return worldPos;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
     this.onUnits.clear();
@@ -185790,13 +185793,13 @@ var Metrics = class extends Component {
 // ../sdk/src/viewer/PointsMaterial.ts
 var PointsMaterial = class extends Component {
   /**
-     * The View to which this PointsMaterial belongs.
-     */
+   * The View to which this PointsMaterial belongs.
+   */
   view;
   #state;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view, options = {}) {
     super(view, options);
     this.view = view;
@@ -185812,27 +185815,27 @@ var PointsMaterial = class extends Component {
     };
   }
   /**
-     * Sets point size.
-     *
-     * Default value is ````2.0```` pixels.
-     */
+   * Sets point size.
+   *
+   * Default value is ````2.0```` pixels.
+   */
   set pointSize(value) {
     this.#state.pointSize = value;
     this.view.redraw();
   }
   /**
-     * Gets point size.
-     *
-     * Default value is ````2.0```` pixels.
-     */
+   * Gets point size.
+   *
+   * Default value is ````2.0```` pixels.
+   */
   get pointSize() {
     return this.#state.pointSize;
   }
   /**
-     * Sets if points are round or square.
-     *
-     * Default is ````true```` to set points round.
-     */
+   * Sets if points are round or square.
+   *
+   * Default is ````true```` to set points round.
+   */
   set roundPoints(value) {
     if (this.#state.roundPoints === value) {
       return;
@@ -185841,18 +185844,18 @@ var PointsMaterial = class extends Component {
     this.view.rebuild();
   }
   /**
-     * Gets if points are round or square.
-     *
-     * Default is ````true```` to set points round.
-     */
+   * Gets if points are round or square.
+   *
+   * Default is ````true```` to set points round.
+   */
   get roundPoints() {
     return this.#state.roundPoints;
   }
   /**
-     * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````PerspectiveProjectionType````.
-     *
-     * Default is ````true````.
-     */
+   * Sets if rendered point size reduces with distance when {@link Camera.projection} is set to ````PerspectiveProjectionType````.
+   *
+   * Default is ````true````.
+   */
   set perspectivePoints(value) {
     if (this.#state.perspectivePoints === value) {
       return;
@@ -185861,18 +185864,18 @@ var PointsMaterial = class extends Component {
     this.view.rebuild();
   }
   /**
-     * Gets if rendered point size reduces with distance when {@link Camera.projection} is set to PerspectiveProjectionType.
-     *
-     * Default is ````false````.
-     */
+   * Gets if rendered point size reduces with distance when {@link Camera.projection} is set to PerspectiveProjectionType.
+   *
+   * Default is ````false````.
+   */
   get perspectivePoints() {
     return this.#state.perspectivePoints;
   }
   /**
-     * Sets the minimum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
-     *
-     * Default value is ````1.0```` pixels.
-     */
+   * Sets the minimum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
+   *
+   * Default value is ````1.0```` pixels.
+   */
   set minPerspectivePointSize(value) {
     if (this.#state.minPerspectivePointSize === value) {
       return;
@@ -185881,20 +185884,20 @@ var PointsMaterial = class extends Component {
     this.view.rebuild();
   }
   /**
-     * Gets the minimum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
-     *
-     * Default value is ````1.0```` pixels.
-     *
-     * @type {Number}
-     */
+   * Gets the minimum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
+   *
+   * Default value is ````1.0```` pixels.
+   *
+   * @type {Number}
+   */
   get minPerspectivePointSize() {
     return this.#state.minPerspectivePointSize;
   }
   /**
-     * Sets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
-     *
-     * Default value is ````6```` pixels.
-     */
+   * Sets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
+   *
+   * Default value is ````6```` pixels.
+   */
   set maxPerspectivePointSize(value) {
     if (this.#state.maxPerspectivePointSize === value) {
       return;
@@ -185903,19 +185906,19 @@ var PointsMaterial = class extends Component {
     this.view.rebuild();
   }
   /**
-     * Gets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
-     *
-     * Default value is ````6```` pixels.
-     */
+   * Gets the maximum rendered size of points when {@link PointsMaterial.perspectivePoints} is ````true````.
+   *
+   * Default value is ````6```` pixels.
+   */
   get maxPerspectivePointSize() {
     return this.#state.maxPerspectivePointSize;
   }
   /**
-     * Sets whether points are made invisible when their intensity lies outside {@link PointsMaterial.minIntensity}
-     * and {@link PointsMaterial.maxIntensity}.
-     *
-     * Default is ````false````.
-     */
+   * Sets whether points are made invisible when their intensity lies outside {@link PointsMaterial.minIntensity}
+   * and {@link PointsMaterial.maxIntensity}.
+   *
+   * Default is ````false````.
+   */
   set filterIntensity(value) {
     if (this.#state.filterIntensity === value) {
       return;
@@ -185924,19 +185927,19 @@ var PointsMaterial = class extends Component {
     this.view.rebuild();
   }
   /**
-     * Gets whether points are made invisible when their intensity lies outside {@link PointsMaterial.minIntensity}
-     * and {@link PointsMaterial.maxIntensity}.
-     *
-     * Default is ````false````.
-     */
+   * Gets whether points are made invisible when their intensity lies outside {@link PointsMaterial.minIntensity}
+   * and {@link PointsMaterial.maxIntensity}.
+   *
+   * Default is ````false````.
+   */
   get filterIntensity() {
     return this.#state.filterIntensity;
   }
   /**
-     * Sets the minimum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
-     *
-     * Default value is ````0````.
-     */
+   * Sets the minimum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
+   *
+   * Default value is ````0````.
+   */
   set minIntensity(value) {
     if (this.#state.minIntensity === value) {
       return;
@@ -185945,18 +185948,18 @@ var PointsMaterial = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the minimum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
-     *
-     * Default value is ````0````.
-     */
+   * Gets the minimum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
+   *
+   * Default value is ````0````.
+   */
   get minIntensity() {
     return this.#state.minIntensity;
   }
   /**
-     * Sets the maximum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
-     *
-     * Default value is ````1````.
-     */
+   * Sets the maximum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
+   *
+   * Default value is ````1````.
+   */
   set maxIntensity(value) {
     if (this.#state.maxIntensity === value) {
       return;
@@ -185965,16 +185968,16 @@ var PointsMaterial = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the maximum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
-     *
-     * Default value is ````1````.
-     */
+   * Gets the maximum intensity of rendered points when {@link PointsMaterial.filterIntensity} is ````true````.
+   *
+   * Default value is ````1````.
+   */
   get maxIntensity() {
     return this.#state.maxIntensity;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   get hash() {
     const state = this.#state;
     return `${state.pointSize};
@@ -185985,10 +185988,10 @@ var PointsMaterial = class extends Component {
         ${state.filterIntensity}`;
   }
   /**
-     * Configures this PointsMaterial.
-     *
-     * @param pointsMaterialParams
-     */
+   * Configures this PointsMaterial.
+   *
+   * @param pointsMaterialParams
+   */
   fromParams(pointsMaterialParams) {
     if (pointsMaterialParams.pointSize !== void 0) {
       this.pointSize = pointsMaterialParams.pointSize;
@@ -186010,8 +186013,8 @@ var PointsMaterial = class extends Component {
     }
   }
   /**
-     * Gets the current configuration of this PointsMaterial.
-     */
+   * Gets the current configuration of this PointsMaterial.
+   */
   toParams() {
     return {
       pointSize: this.pointSize,
@@ -186025,8 +186028,8 @@ var PointsMaterial = class extends Component {
     };
   }
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
   }
@@ -186035,16 +186038,16 @@ var PointsMaterial = class extends Component {
 // ../sdk/src/viewer/ResolutionScale.ts
 var ResolutionScale = class extends Component {
   /**
-     * The View to which this ResolutionScale belongs.
-     */
+   * The View to which this ResolutionScale belongs.
+   */
   view;
   /**
-     * @private
-     */
+   * @private
+   */
   #state;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view, options = {}) {
     super(view, options);
     this.view = view;
@@ -186054,27 +186057,27 @@ var ResolutionScale = class extends Component {
     };
   }
   /**
-     * Sets which rendering modes in which to apply ResolutionScale.
-     *
-     * Default value is [{@link constants!FastRender | FastRender}].
-     */
+   * Sets which rendering modes in which to apply ResolutionScale.
+   *
+   * Default value is [{@link constants!FastRender | FastRender}].
+   */
   set renderModes(value) {
     this.#state.renderModes = value;
     this.view.redraw();
   }
   /**
-     * Gets which rendering modes in which to apply ResolutionScale.
-     *
-     * Default value is [{@link constants!FastRender | FastRender}].
-     */
+   * Gets which rendering modes in which to apply ResolutionScale.
+   *
+   * Default value is [{@link constants!FastRender | FastRender}].
+   */
   get renderModes() {
     return this.#state.renderModes;
   }
   /**
-     * Sets the scale when ResolutionScale is applied.
-     *
-     * Default is ````1.0````.
-     */
+   * Sets the scale when ResolutionScale is applied.
+   *
+   * Default is ````1.0````.
+   */
   set resolutionScale(value) {
     if (this.#state.resolutionScale === value) {
       return;
@@ -186083,19 +186086,19 @@ var ResolutionScale = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the scale when ResolutionScale is applied.
-     *
-     * Default is ````1.0````.
-     */
+   * Gets the scale when ResolutionScale is applied.
+   *
+   * Default is ````1.0````.
+   */
   get resolutionScale() {
     return this.#state.resolutionScale;
   }
   /**
-     * Gets if resolution scaling is currently applied.
-     *
-     * This is `true` when {@link View.renderMode | View.renderMode} is
-     * in {@link ResolutionScale.renderModes | ResolutionScale.renderModes}.
-     */
+   * Gets if resolution scaling is currently applied.
+   *
+   * This is `true` when {@link View.renderMode | View.renderMode} is
+   * in {@link ResolutionScale.renderModes | ResolutionScale.renderModes}.
+   */
   get applied() {
     for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
       if (this.view.renderMode === this.#state.renderModes[i]) {
@@ -186105,10 +186108,10 @@ var ResolutionScale = class extends Component {
     return false;
   }
   /**
-     * Configures this ResolutionScale.
-     *
-     * @param resolutionScaleParams
-     */
+   * Configures this ResolutionScale.
+   *
+   * @param resolutionScaleParams
+   */
   fromParams(resolutionScaleParams) {
     if (resolutionScaleParams.renderModes !== void 0) {
       this.renderModes = resolutionScaleParams.renderModes;
@@ -186118,8 +186121,8 @@ var ResolutionScale = class extends Component {
     }
   }
   /**
-     * Gets the current configuration of this ResolutionScale.
-     */
+   * Gets the current configuration of this ResolutionScale.
+   */
   toParams() {
     return {
       renderModes: this.renderModes,
@@ -186127,8 +186130,8 @@ var ResolutionScale = class extends Component {
     };
   }
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
   }
@@ -186137,8 +186140,8 @@ var ResolutionScale = class extends Component {
 // ../sdk/src/viewer/SAO.ts
 var SAO = class extends Component {
   /**
-     * The View to which this SAO belongs.
-     */
+   * The View to which this SAO belongs.
+   */
   view;
   #state;
   /** @private */
@@ -186159,39 +186162,39 @@ var SAO = class extends Component {
     };
   }
   /**
-     * Sets which rendering modes in which to apply SAO.
-     *
-     * The {@link View} will apply SAO whenever {@link View.renderMode} has been set one of these values.
-     *
-     * Default value is [{@link constants!QualityRender | QualityRender}].
-     */
+   * Sets which rendering modes in which to apply SAO.
+   *
+   * The {@link View} will apply SAO whenever {@link View.renderMode} has been set one of these values.
+   *
+   * Default value is [{@link constants!QualityRender | QualityRender}].
+   */
   set renderModes(value) {
     this.#state.renderModes = value;
     this.view.redraw();
   }
   /**
-     * Gets which rendering modes in which to apply SAO.
-     *
-     * The {@link View} will apply SAO whenever {@link View.renderMode} has been set one of these values.
-     *
-     * Default value is [{@link constants!QualityRender | QualityRender}].
-     */
+   * Gets which rendering modes in which to apply SAO.
+   *
+   * The {@link View} will apply SAO whenever {@link View.renderMode} has been set one of these values.
+   *
+   * Default value is [{@link constants!QualityRender | QualityRender}].
+   */
   get renderModes() {
     return this.#state.renderModes;
   }
   /**
-     * Gets whether SAO is supported by this browser and GPU.
-     *
-     * Even when enabled, SAO will only work if supported.
-     */
+   * Gets whether SAO is supported by this browser and GPU.
+   *
+   * Even when enabled, SAO will only work if supported.
+   */
   get supported() {
     return this.view.viewer.renderer.getSAOSupported();
   }
   /**
-     * Returns true if SAO is currently possible, where it is supported, enabled, and the current view state is compatible.
-     * Called internally by renderers logic.
-     * @private
-     */
+   * Returns true if SAO is currently possible, where it is supported, enabled, and the current view state is compatible.
+   * Called internally by renderers logic.
+   * @private
+   */
   get possible() {
     if (!this.supported) {
       return false;
@@ -186206,18 +186209,18 @@ var SAO = class extends Component {
     return true;
   }
   /**
-     * Gets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
-     *
-     * Default value is ````100.0````.
-     */
+   * Gets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
+   *
+   * Default value is ````100.0````.
+   */
   get kernelRadius() {
     return this.#state.kernelRadius;
   }
   /**
-     * Sets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
-     *
-     * Default value is ````100.0````.
-     */
+   * Sets the maximum area that SAO takes into account when checking for possible occlusion for each fragment.
+   *
+   * Default value is ````100.0````.
+   */
   set kernelRadius(value) {
     if (value === void 0 || value === null) {
       value = 100;
@@ -186229,18 +186232,18 @@ var SAO = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the degree of darkening (ambient obscurance) produced by the SAO effect.
-     *
-     * Default value is ````0.15````.
-     */
+   * Gets the degree of darkening (ambient obscurance) produced by the SAO effect.
+   *
+   * Default value is ````0.15````.
+   */
   get intensity() {
     return this.#state.intensity;
   }
   /**
-     * Sets the degree of darkening (ambient obscurance) produced by the SAO effect.
-     *
-     * Default value is ````0.15````.
-     */
+   * Sets the degree of darkening (ambient obscurance) produced by the SAO effect.
+   *
+   * Default value is ````0.15````.
+   */
   set intensity(value) {
     if (value === void 0 || value === null) {
       value = 0.15;
@@ -186252,18 +186255,18 @@ var SAO = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the SAO bias.
-     *
-     * Default value is ````0.5````.
-     */
+   * Gets the SAO bias.
+   *
+   * Default value is ````0.5````.
+   */
   get bias() {
     return this.#state.bias;
   }
   /**
-     * Sets the SAO bias.
-     *
-     * Default value is ````0.5````.
-     */
+   * Sets the SAO bias.
+   *
+   * Default value is ````0.5````.
+   */
   set bias(value) {
     if (value === void 0 || value === null) {
       value = 0.5;
@@ -186275,18 +186278,18 @@ var SAO = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the SAO occlusion scale.
-     *
-     * Default value is ````1.0````.
-     */
+   * Gets the SAO occlusion scale.
+   *
+   * Default value is ````1.0````.
+   */
   get scale() {
     return this.#state.scale;
   }
   /**
-     * Sets the SAO occlusion scale.
-     *
-     * Default value is ````1.0````.
-     */
+   * Sets the SAO occlusion scale.
+   *
+   * Default value is ````1.0````.
+   */
   set scale(value) {
     if (value === void 0 || value === null) {
       value = 1;
@@ -186298,18 +186301,18 @@ var SAO = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the SAO minimum resolution.
-     *
-     * Default value is ````0.0````.
-     */
+   * Gets the SAO minimum resolution.
+   *
+   * Default value is ````0.0````.
+   */
   get minResolution() {
     return this.#state.minResolution;
   }
   /**
-     * Sets the SAO minimum resolution.
-     *
-     * Default value is ````0.0````.
-     */
+   * Sets the SAO minimum resolution.
+   *
+   * Default value is ````0.0````.
+   */
   set minResolution(value) {
     if (value === void 0 || value === null) {
       value = 0;
@@ -186321,20 +186324,20 @@ var SAO = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the number of SAO samples.
-     *
-     * Default value is ````10````.
-     */
+   * Gets the number of SAO samples.
+   *
+   * Default value is ````10````.
+   */
   get numSamples() {
     return this.#state.numSamples;
   }
   /**
-     * Sets the number of SAO samples.
-     *
-     * Default value is ````10````.
-     *
-     * Update this sparingly, since it causes a shader recompile.
-     */
+   * Sets the number of SAO samples.
+   *
+   * Default value is ````10````.
+   *
+   * Update this sparingly, since it causes a shader recompile.
+   */
   set numSamples(value) {
     if (value === void 0 || value === null) {
       value = 10;
@@ -186346,18 +186349,18 @@ var SAO = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets whether Guassian blur is enabled.
-     *
-     * Default value is ````true````.
-     */
+   * Gets whether Guassian blur is enabled.
+   *
+   * Default value is ````true````.
+   */
   get blur() {
     return this.#state.blur;
   }
   /**
-     * Sets whether Guassian blur is enabled.
-     *
-     * Default value is ````true````.
-     */
+   * Sets whether Guassian blur is enabled.
+   *
+   * Default value is ````true````.
+   */
   set blur(value) {
     value = value !== false;
     if (this.#state.blur === value) {
@@ -186367,22 +186370,22 @@ var SAO = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the SAO blend cutoff.
-     *
-     * Default value is ````0.3````.
-     *
-     * Normally you don't need to alter this.
-     */
+   * Gets the SAO blend cutoff.
+   *
+   * Default value is ````0.3````.
+   *
+   * Normally you don't need to alter this.
+   */
   get blendCutoff() {
     return this.#state.blendCutoff;
   }
   /**
-     * Sets the SAO blend cutoff.
-     *
-     * Default value is ````0.3````.
-     *
-     * Normally you don't need to alter this.
-     */
+   * Sets the SAO blend cutoff.
+   *
+   * Default value is ````0.3````.
+   *
+   * Normally you don't need to alter this.
+   */
   set blendCutoff(value) {
     if (value === void 0 || value === null) {
       value = 0.3;
@@ -186394,22 +186397,22 @@ var SAO = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the SAO blend scale.
-     *
-     * Default value is ````1.0````.
-     *
-     * Normally you don't need to alter this.
-     */
+   * Gets the SAO blend scale.
+   *
+   * Default value is ````1.0````.
+   *
+   * Normally you don't need to alter this.
+   */
   get blendFactor() {
     return this.#state.blendFactor;
   }
   /**
-     * Sets the SAO blend factor.
-     *
-     * Default value is ````1.0````.
-     *
-     * Normally you don't need to alter this.
-     */
+   * Sets the SAO blend factor.
+   *
+   * Default value is ````1.0````.
+   *
+   * Normally you don't need to alter this.
+   */
   set blendFactor(value) {
     if (value === void 0 || value === null) {
       value = 1;
@@ -186421,11 +186424,11 @@ var SAO = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets if SAO is currently applied.
-     *
-     * This is `true` when {@link View.renderMode | View.renderMode} is
-     * in {@link SAO.renderModes | SAO.renderModes}.
-     */
+   * Gets if SAO is currently applied.
+   *
+   * This is `true` when {@link View.renderMode | View.renderMode} is
+   * in {@link SAO.renderModes | SAO.renderModes}.
+   */
   get applied() {
     for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
       if (this.view.renderMode === this.#state.renderModes[i]) {
@@ -186435,8 +186438,8 @@ var SAO = class extends Component {
     return false;
   }
   /**
-     * Gets the current configuration of this SAO.
-     */
+   * Gets the current configuration of this SAO.
+   */
   toParams() {
     return {
       renderModes: this.renderModes,
@@ -186452,10 +186455,10 @@ var SAO = class extends Component {
     };
   }
   /**
-     * Configures this SAO.
-     *
-     * @param saoParams
-     */
+   * Configures this SAO.
+   *
+   * @param saoParams
+   */
   fromParams(saoParams) {
     this.renderModes = saoParams.renderModes;
     this.intensity = saoParams.intensity;
@@ -186469,8 +186472,8 @@ var SAO = class extends Component {
     this.kernelRadius = saoParams.kernelRadius;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
   }
@@ -186480,36 +186483,36 @@ var SAO = class extends Component {
 var import_strongly_typed_events13 = __toESM(require_dist8());
 var SectionPlane = class extends Component {
   /**
-     * The View to which this SectionPlane belongs.
-     *
-     * @property view
-     * @type {View}
-     *
-     */
+   * The View to which this SectionPlane belongs.
+   *
+   * @property view
+   * @type {View}
+   *
+   */
   view;
   /**
-     * Emits an event each time {@link SectionPlane.pos} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link SectionPlane.pos} changes.
+   *
+   * @event
+   */
   onPos;
   /**
-     * Emits an event each time {@link SectionPlane.dir} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link SectionPlane.dir} changes.
+   *
+   * @event
+   */
   onDir;
   /**
-     * Emits an event each time {@link SectionPlane.active} changes.
-     *
-     * @event
-     */
+   * Emits an event each time {@link SectionPlane.active} changes.
+   *
+   * @event
+   */
   onActive;
   #state;
   /**
-     * @private
-     *
-     */
+   * @private
+   *
+   */
   constructor(view, sectionPlaneParams = {}) {
     super(view, sectionPlaneParams);
     this.view = view;
@@ -186524,22 +186527,22 @@ var SectionPlane = class extends Component {
     this.onActive = new EventEmitter(new import_strongly_typed_events13.EventDispatcher());
   }
   /**
-     * Gets if this SectionPlane is active or not.
-     *
-     * Default value is ````true````.
-     *
-     * @returns Returns ````true```` if active.
-     */
+   * Gets if this SectionPlane is active or not.
+   *
+   * Default value is ````true````.
+   *
+   * @returns Returns ````true```` if active.
+   */
   get active() {
     return this.#state.active;
   }
   /**
-     * Sets if this SectionPlane is active or not.
-     *
-     * Default value is ````true````.
-     *
-     * @param value Set ````true```` to activate else ````false```` to deactivate.
-     */
+   * Sets if this SectionPlane is active or not.
+   *
+   * Default value is ````true````.
+   *
+   * @param value Set ````true```` to activate else ````false```` to deactivate.
+   */
   set active(value) {
     if (this.#state.active === value) {
       return;
@@ -186549,44 +186552,44 @@ var SectionPlane = class extends Component {
     this.onActive.dispatch(this, this.#state.active);
   }
   /**
-     * Gets the World-space position of this SectionPlane's plane.
-     *
-     * Default value is ````[0, 0, 0]````.
-     *
-     * @returns  Current position.
-     */
+   * Gets the World-space position of this SectionPlane's plane.
+   *
+   * Default value is ````[0, 0, 0]````.
+   *
+   * @returns  Current position.
+   */
   get pos() {
     return this.#state.pos;
   }
   /**
-     * Sets the World-space position of this SectionPlane's plane.
-     *
-     * Default value is ````[0, 0, 0]````.
-     *
-     * @param value New position.
-     */
+   * Sets the World-space position of this SectionPlane's plane.
+   *
+   * Default value is ````[0, 0, 0]````.
+   *
+   * @param value New position.
+   */
   set pos(value) {
     this.#state.pos.set(value);
     this.#state.dist = -dotVec3(this.#state.pos, this.#state.dir);
     this.onPos.dispatch(this, this.#state.pos);
   }
   /**
-     * Gets the direction of this SectionPlane's plane.
-     *
-     * Default value is ````[0, 0, -1]````.
-     *
-     * @returns value Current direction.
-     */
+   * Gets the direction of this SectionPlane's plane.
+   *
+   * Default value is ````[0, 0, -1]````.
+   *
+   * @returns value Current direction.
+   */
   get dir() {
     return this.#state.dir;
   }
   /**
-     * Sets the direction of this SectionPlane's plane.
-     *
-     * Default value is ````[0, 0, -1]````.
-     *
-     * @param value New direction.
-     */
+   * Sets the direction of this SectionPlane's plane.
+   *
+   * Default value is ````[0, 0, -1]````.
+   *
+   * @param value New direction.
+   */
   set dir(value) {
     this.#state.dir.set(value);
     this.#state.dist = -dotVec3(this.#state.pos, this.#state.dir);
@@ -186594,19 +186597,19 @@ var SectionPlane = class extends Component {
     this.onDir.dispatch(this, this.#state.dir);
   }
   /**
-     * Gets this SectionPlane's distance to the origin of the World-space coordinate system.
-     *
-     * This is the dot product of {@link SectionPlane.pos} and {@link SectionPlane.dir} and is automatically re-calculated
-     * each time either of two properties are updated.
-     *
-     * @returns Distance to the origin of the World-space coordinate system.
-     */
+   * Gets this SectionPlane's distance to the origin of the World-space coordinate system.
+   *
+   * This is the dot product of {@link SectionPlane.pos} and {@link SectionPlane.dir} and is automatically re-calculated
+   * each time either of two properties are updated.
+   *
+   * @returns Distance to the origin of the World-space coordinate system.
+   */
   get dist() {
     return this.#state.dist;
   }
   /**
-     * Inverts the direction of {@link SectionPlane.dir}.
-     */
+   * Inverts the direction of {@link SectionPlane.dir}.
+   */
   flipDir() {
     const dir = this.#state.dir;
     dir[0] *= -1;
@@ -186617,10 +186620,10 @@ var SectionPlane = class extends Component {
     this.view.redraw();
   }
   /**
-     * COnfigures this SectionPlane.
-     *
-     * @param sectionPlaneParams
-     */
+   * COnfigures this SectionPlane.
+   *
+   * @param sectionPlaneParams
+   */
   fromParams(sectionPlaneParams) {
     if (sectionPlaneParams.dir) {
       this.dir = sectionPlaneParams.dir;
@@ -186633,8 +186636,8 @@ var SectionPlane = class extends Component {
     }
   }
   /**
-     * Gets the current configuration of this SectionPlane.
-     */
+   * Gets the current configuration of this SectionPlane.
+   */
   toParams() {
     return {
       id: this.id,
@@ -186644,8 +186647,8 @@ var SectionPlane = class extends Component {
     };
   }
   /**
-     * Destroys this SectionPlane.
-     */
+   * Destroys this SectionPlane.
+   */
   destroy() {
     this.onPos.clear();
     this.onActive.clear;
@@ -186660,8 +186663,8 @@ var SnapshotResult = class {
     this.reset();
   }
   /**
-     * @private
-     */
+   * @private
+   */
   reset() {
   }
 };
@@ -186669,16 +186672,16 @@ var SnapshotResult = class {
 // ../sdk/src/viewer/Texturing.ts
 var Texturing = class extends Component {
   /**
-     * The View to which this Texturing belongs.
-     */
+   * The View to which this Texturing belongs.
+   */
   view;
   /**
-     * @private
-     */
+   * @private
+   */
   #state;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view, options = {}) {
     super(view, options);
     this.view = view;
@@ -186688,31 +186691,31 @@ var Texturing = class extends Component {
     };
   }
   /**
-     * Sets which rendering modes in which to render textures.
-     *
-     * Accepted modes are {@link constants!QualityRender} and {@link constants!FastRender}.
-     *
-     * Default value is [{@link constants!QualityRender}].
-     */
+   * Sets which rendering modes in which to render textures.
+   *
+   * Accepted modes are {@link constants!QualityRender} and {@link constants!FastRender}.
+   *
+   * Default value is [{@link constants!QualityRender}].
+   */
   set renderModes(value) {
     this.#state.renderModes = value;
     this.view.redraw();
   }
   /**
-     * Gets which rendering modes in which to render textures.
-     *
-     * Accepted modes are {@link constants!QualityRender} and {@link constants!FastRender}.
-     *
-     * Default value is [{@link constants!QualityRender}].
-     */
+   * Gets which rendering modes in which to render textures.
+   *
+   * Accepted modes are {@link constants!QualityRender} and {@link constants!FastRender}.
+   *
+   * Default value is [{@link constants!QualityRender}].
+   */
   get renderModes() {
     return this.#state.renderModes;
   }
   /**
-     * Sets if textures on {@link ViewObject | ViewObjects} are visible.
-     *
-     * Default is ````true````.
-     */
+   * Sets if textures on {@link ViewObject | ViewObjects} are visible.
+   *
+   * Default is ````true````.
+   */
   set enabled(value) {
     if (this.#state.enabled === value) {
       return;
@@ -186721,20 +186724,20 @@ var Texturing = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets if textures on {@link ViewObject | ViewObjects} are visible.
-     *
-     * Default is ````true````.
-     */
+   * Gets if textures on {@link ViewObject | ViewObjects} are visible.
+   *
+   * Default is ````true````.
+   */
   get enabled() {
     return this.#state.enabled;
   }
   /**
-     * Gets if textures are currently applied.
-     *
-     * This is `true` when {@link Texturing.enabled | Texturing.enabled} is `true`
-     * and {@link View.renderMode | View.renderMode} is
-     * in {@link Texturing.renderModes | Texturing.renderModes}.
-     */
+   * Gets if textures are currently applied.
+   *
+   * This is `true` when {@link Texturing.enabled | Texturing.enabled} is `true`
+   * and {@link View.renderMode | View.renderMode} is
+   * in {@link Texturing.renderModes | Texturing.renderModes}.
+   */
   get applied() {
     if (!this.#state.enabled) {
       return false;
@@ -186747,8 +186750,8 @@ var Texturing = class extends Component {
     return false;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     super.destroy();
   }
@@ -186760,30 +186763,30 @@ var import_strongly_typed_events14 = __toESM(require_dist8());
 // ../sdk/src/viewer/ViewObject.ts
 var ViewObject = class {
   /**
-     * Unique ID of this ViewObject within {@link ViewLayer.objects}.
-     */
+   * Unique ID of this ViewObject within {@link ViewLayer.objects}.
+   */
   id;
   /**
-     * ID of this ViewObject within the originating system.
-     */
+   * ID of this ViewObject within the originating system.
+   */
   originalSystemId;
   /**
-     * The ViewLayer to which this ViewObject belongs.
-     */
+   * The ViewLayer to which this ViewObject belongs.
+   */
   layer;
   /**
-     * The corresponding {@link scene!SceneObject}.
-     */
+   * The corresponding {@link scene!SceneObject}.
+   */
   sceneObject;
   /**
-     * The corresponding {@link RendererObject}.
-     * @internal
-     */
+   * The corresponding {@link RendererObject}.
+   * @internal
+   */
   #rendererObject;
   #state;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(layer, sceneObject, rendererObject) {
     this.id = sceneObject.id;
     this.originalSystemId = sceneObject.originalSystemId;
@@ -186808,29 +186811,29 @@ var ViewObject = class {
     this.#rendererObject.setPickable(this.layer.view.viewIndex, this.#state.pickable);
   }
   /**
-     * Gets the World-space axis-aligned 3D boundary of this ViewObject.
-     */
+   * Gets the World-space axis-aligned 3D boundary of this ViewObject.
+   */
   get aabb() {
     return this.sceneObject.aabb;
   }
   /**
-     * Gets if this ViewObject is visible.
-     *
-     * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
-     * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
-     */
+   * Gets if this ViewObject is visible.
+   *
+   * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
+   * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
+   * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
+   */
   get visible() {
     return this.#state.visible;
   }
   /**
-     * Sets if this ViewObject is visible.
-     *
-     * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
-     * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Fires an "objectVisibility" event on associated {@link ViewLayer}s.
-     * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
-     */
+   * Sets if this ViewObject is visible.
+   *
+   * * When {@link ViewObject.visible} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.visibleObjects}.
+   * * Each ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
+   * * Fires an "objectVisibility" event on associated {@link ViewLayer}s.
+   * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
+   */
   set visible(visible) {
     if (visible === this.#state.visible) {
       return;
@@ -186844,20 +186847,20 @@ var ViewObject = class {
     this.layer.redraw();
   }
   /**
-     * Gets if this ViewObject is X-rayed.
-     *
-     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
-     * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
-     */
+   * Gets if this ViewObject is X-rayed.
+   *
+   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
+   * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+   */
   get xrayed() {
     return this.#state.xrayed;
   }
   /**
-     * Sets if this ViewObject is X-rayed.
-     *
-     * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
-     * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
-     */
+   * Sets if this ViewObject is X-rayed.
+   *
+   * * When {@link ViewObject.xrayed} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.xrayedObjects | ViewLayer.xrayedObjects}.
+   * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
+   */
   set xrayed(xrayed) {
     if (this.#state.xrayed === xrayed) {
       return;
@@ -186871,20 +186874,20 @@ var ViewObject = class {
     this.layer.redraw();
   }
   /**
-     * Gets if this ViewObject is highlighted.
-     *
-     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
-     * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
-     */
+   * Gets if this ViewObject is highlighted.
+   *
+   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
+   * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
+   */
   get highlighted() {
     return this.#state.highlighted;
   }
   /**
-     * Sets if this ViewObject is highlighted.
-     *
-     * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
-     * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
-     */
+   * Sets if this ViewObject is highlighted.
+   *
+   * * When {@link ViewObject.highlighted} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.highlightedObjects | ViewLayer.highlightedObjects}.
+   * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
+   */
   set highlighted(highlighted) {
     if (highlighted === this.#state.highlighted) {
       return;
@@ -186898,20 +186901,20 @@ var ViewObject = class {
     this.layer.redraw();
   }
   /**
-     * Gets if this ViewObject is selected.
-     *
-     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
-     * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
-     */
+   * Gets if this ViewObject is selected.
+   *
+   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
+   * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
+   */
   get selected() {
     return this.#state.selected;
   }
   /**
-     * Sets if this ViewObject is selected.
-     *
-     * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
-     * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
-     */
+   * Sets if this ViewObject is selected.
+   *
+   * * When {@link ViewObject.selected} is ````true```` the ViewObject will be registered by {@link ViewObject.id} in {@link ViewLayer.selectedObjects | ViewLayer.selectedObjects}.
+   * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
+   */
   set selected(selected) {
     if (selected === this.#state.selected) {
       return;
@@ -186925,20 +186928,20 @@ var ViewObject = class {
     this.layer.redraw();
   }
   /**
-     * Gets if this ViewObject is culled.
-     *
-     * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
-     */
+   * Gets if this ViewObject is culled.
+   *
+   * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
+   * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
+   */
   get culled() {
     return this.#state.culled;
   }
   /**
-     * Sets if this ViewObject is culled.
-     *
-     * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
-     * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
-     */
+   * Sets if this ViewObject is culled.
+   *
+   * * The ViewObject is only rendered when {@link ViewObject.visible} is ````true```` and {@link ViewObject.culled} is ````false````.
+   * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
+   */
   set culled(culled) {
     if (culled === this.#state.culled) {
       return;
@@ -186951,20 +186954,20 @@ var ViewObject = class {
     this.layer.redraw();
   }
   /**
-     * Gets if this ViewObject is clippable.
-     *
-     * * Clipping is done by the {@link SectionPlane | SectionPlanes} in {@link View.sectionPlanes | View.sectionPlanes}.
-     * * Use {@link View.setObjectsClippable | View.setObjectsClippable} or {@link ViewLayer.setObjectsClippable | ViewLayer.setObjectsClippable} to batch-update the clippable state of multiple ViewObjects.
-     */
+   * Gets if this ViewObject is clippable.
+   *
+   * * Clipping is done by the {@link SectionPlane | SectionPlanes} in {@link View.sectionPlanes | View.sectionPlanes}.
+   * * Use {@link View.setObjectsClippable | View.setObjectsClippable} or {@link ViewLayer.setObjectsClippable | ViewLayer.setObjectsClippable} to batch-update the clippable state of multiple ViewObjects.
+   */
   get clippable() {
     return this.#state.clippable;
   }
   /**
-     * Sets if this ViewObject is clippable.
-     *
-     * * Clipping is done by the {@link SectionPlane | SectionPlanes} in {@link View.sectionPlanes | View.sectionPlanes}.
-     * * Use {@link View.setObjectsClippable | View.setObjectsClippable} or {@link ViewLayer.setObjectsClippable | ViewLayer.setObjectsClippable} to batch-update the clippable state of multiple ViewObjects.
-     */
+   * Sets if this ViewObject is clippable.
+   *
+   * * Clipping is done by the {@link SectionPlane | SectionPlanes} in {@link View.sectionPlanes | View.sectionPlanes}.
+   * * Use {@link View.setObjectsClippable | View.setObjectsClippable} or {@link ViewLayer.setObjectsClippable | ViewLayer.setObjectsClippable} to batch-update the clippable state of multiple ViewObjects.
+   */
   set clippable(clippable) {
     if (clippable === this.#state.clippable) {
       return;
@@ -186977,14 +186980,14 @@ var ViewObject = class {
     this.layer.redraw();
   }
   /**
-     * Gets if this ViewObject is included in boundary calculations.
-     */
+   * Gets if this ViewObject is included in boundary calculations.
+   */
   get collidable() {
     return this.#state.collidable;
   }
   /**
-     * Sets if this ViewObject included in boundary calculations.
-     */
+   * Sets if this ViewObject included in boundary calculations.
+   */
   set collidable(collidable) {
     if (collidable === this.#state.collidable) {
       return;
@@ -186992,20 +186995,20 @@ var ViewObject = class {
     this.#state.collidable = collidable;
   }
   /**
-     * Gets if this ViewObject is pickable.
-     *
-     * * Picking is done with {@link View.pick}.
-     * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
-     */
+   * Gets if this ViewObject is pickable.
+   *
+   * * Picking is done with {@link View.pick}.
+   * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
+   */
   get pickable() {
     return this.#state.pickable;
   }
   /**
-     * Sets if this ViewObject is pickable.
-     *
-     * * Picking is done with {@link View.pick}.
-     * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
-     */
+   * Sets if this ViewObject is pickable.
+   *
+   * * Picking is done with {@link View.pick}.
+   * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
+   */
   set pickable(pickable) {
     if (this.#state.pickable === pickable) {
       return;
@@ -187017,23 +187020,23 @@ var ViewObject = class {
     this.#state.pickable = pickable;
   }
   /**
-     * Gets the RGB colorize color for this ViewObject.
-     *
-     * * Multiplies by rendered fragment colors.
-     * * Each element of the color is in range ````[0..1]````.
-     * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
-     */
+   * Gets the RGB colorize color for this ViewObject.
+   *
+   * * Multiplies by rendered fragment colors.
+   * * Each element of the color is in range ````[0..1]````.
+   * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
+   */
   get colorize() {
     return this.#state.colorize;
   }
   /**
-     * Sets the RGB colorize color for this ViewObject.
-     *
-     * * Multiplies by rendered fragment colors.
-     * * Each element of the color is in range ````[0..1]````.
-     * * Set to ````null```` or ````undefined```` to reset the colorize color to its default value of ````[1,1,1]````.
-     * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
-     */
+   * Sets the RGB colorize color for this ViewObject.
+   *
+   * * Multiplies by rendered fragment colors.
+   * * Each element of the color is in range ````[0..1]````.
+   * * Set to ````null```` or ````undefined```` to reset the colorize color to its default value of ````[1,1,1]````.
+   * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
+   */
   set colorize(value) {
     const colorize = this.#state.colorize;
     if (value) {
@@ -187054,21 +187057,21 @@ var ViewObject = class {
     this.layer.redraw();
   }
   /**
-     * Gets the opacity factor for this ViewObject.
-     *
-     * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
-     * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
-     */
+   * Gets the opacity factor for this ViewObject.
+   *
+   * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
+   * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
+   */
   get opacity() {
     return this.#state.colorize[3];
   }
   /**
-     * Sets the opacity factor for this ViewObject.
-     *
-     * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
-     * * Set to ````null```` or ````undefined```` to reset the opacity to its default value of ````1````.
-     * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
-     */
+   * Sets the opacity factor for this ViewObject.
+   *
+   * * This is a factor in range ````[0..1]```` which multiplies by the rendered fragment alphas.
+   * * Set to ````null```` or ````undefined```` to reset the opacity to its default value of ````1````.
+   * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
+   */
   set opacity(opacity) {
     const colorize = this.#state.colorize;
     this.#state.opacityUpdated = opacity !== null && opacity !== void 0;
@@ -187077,8 +187080,8 @@ var ViewObject = class {
     this.layer.redraw();
   }
   /**
-     * @private
-     */
+   * @private
+   */
   _destroy() {
     if (this.#state.visible) {
       this.layer.objectVisibilityUpdated(this, false, false);
@@ -187105,85 +187108,85 @@ var ViewObject = class {
 // ../sdk/src/viewer/ViewLayer.ts
 var ViewLayer = class extends Component {
   /**
-     * Map of the all {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * These are the ViewObjects for which {@link scene!SceneObject.layerId | SceneObject.layerId} has the same value as the {@link ViewLayer.id | ViewLayer.id}.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     *
-     * The ViewLayer automatically ensures that there is a {@link ViewObject} here for
-     * each {@link scene!RendererObject} in the {@link Viewer | Viewer}
-     */
+   * Map of the all {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * These are the ViewObjects for which {@link scene!SceneObject.layerId | SceneObject.layerId} has the same value as the {@link ViewLayer.id | ViewLayer.id}.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   *
+   * The ViewLayer automatically ensures that there is a {@link ViewObject} here for
+   * each {@link scene!RendererObject} in the {@link Viewer | Viewer}
+   */
   objects;
   /**
-     * Map of the currently visible {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * A ViewObject is visible when {@link ViewObject.visible} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of the currently visible {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is visible when {@link ViewObject.visible} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   visibleObjects;
   /**
-     * Map of currently x-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently x-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   xrayedObjects;
   /**
-     * Map of currently highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   highlightedObjects;
   /**
-     * Map of currently selected {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * A ViewObject is selected when {@link ViewObject.selected} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently selected {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * A ViewObject is selected when {@link ViewObject.selected} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   selectedObjects;
   /**
-     * Map of currently colorized {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   colorizedObjects;
   /**
-     * Map of {@link ViewObject | ViewObjects} in this ViewLayer whose opacity has been updated.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of {@link ViewObject | ViewObjects} in this ViewLayer whose opacity has been updated.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   opacityObjects;
   /**
-     * When true, View destroys this ViewLayer as soon as there are no ViewObjects
-     * that need it. When false, View retains it.
-     * @private
-     */
+   * When true, View destroys this ViewLayer as soon as there are no ViewObjects
+   * that need it. When false, View retains it.
+   * @private
+   */
   autoDestroy;
   /**
-     * Emits an event each time a {@link ViewObject} is created in this ViewLayer.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link ViewObject} is created in this ViewLayer.
+   *
+   * @event
+   */
   onObjectCreated;
   /**
-     * Emits an event each time a {@link ViewObject} is destroyed in this ViewLayer.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link ViewObject} is destroyed in this ViewLayer.
+   *
+   * @event
+   */
   onObjectDestroyed;
   /**
-     * Emits an event each time the visibility of a {@link ViewObject} changes.
-     *
-     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
-     *
-     * @event
-     */
+   * Emits an event each time the visibility of a {@link ViewObject} changes.
+   *
+   * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
+   *
+   * @event
+   */
   onObjectVisibility;
   #renderModes;
   #numObjects;
@@ -187228,37 +187231,37 @@ var ViewLayer = class extends Component {
     this.#initViewObjects();
   }
   /**
-     * Gets the gamma factor.
-     */
+   * Gets the gamma factor.
+   */
   get gammaFactor() {
     return 1;
   }
   /**
-     * Sets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * Default value is [].
-     */
+   * Sets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Default value is [].
+   */
   set renderModes(value) {
     this.#renderModes = value;
     this.view.redraw();
   }
   /**
-     * Gets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * Default value is [].
-     */
+   * Gets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Default value is [].
+   */
   get renderModes() {
     return this.#renderModes;
   }
   /**
-     * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get numObjects() {
     return this.#numObjects;
   }
   /**
-     * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get objectIds() {
     if (!this.#objectIds) {
       this.#objectIds = Object.keys(this.objects);
@@ -187266,14 +187269,14 @@ var ViewLayer = class extends Component {
     return this.#objectIds;
   }
   /**
-     * Gets the number of visible {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the number of visible {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get numVisibleObjects() {
     return this.#numVisibleObjects;
   }
   /**
-     * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get visibleObjectIds() {
     if (!this.#visibleObjectIds) {
       this.#visibleObjectIds = Object.keys(this.visibleObjects);
@@ -187281,14 +187284,14 @@ var ViewLayer = class extends Component {
     return this.#visibleObjectIds;
   }
   /**
-     * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get numXRayedObjects() {
     return this.#numXRayedObjects;
   }
   /**
-     * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get xrayedObjectIds() {
     if (!this.#xrayedObjectIds) {
       this.#xrayedObjectIds = Object.keys(this.xrayedObjects);
@@ -187296,14 +187299,14 @@ var ViewLayer = class extends Component {
     return this.#xrayedObjectIds;
   }
   /**
-     * Gets the number of highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the number of highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get numHighlightedObjects() {
     return this.#numHighlightedObjects;
   }
   /**
-     * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get highlightedObjectIds() {
     if (!this.#highlightedObjectIds) {
       this.#highlightedObjectIds = Object.keys(this.highlightedObjects);
@@ -187311,14 +187314,14 @@ var ViewLayer = class extends Component {
     return this.#highlightedObjectIds;
   }
   /**
-     * Gets the number of selected {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the number of selected {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get numSelectedObjects() {
     return this.#numSelectedObjects;
   }
   /**
-     * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get selectedObjectIds() {
     if (!this.#selectedObjectIds) {
       this.#selectedObjectIds = Object.keys(this.selectedObjects);
@@ -187326,14 +187329,14 @@ var ViewLayer = class extends Component {
     return this.#selectedObjectIds;
   }
   /**
-     * Gets the number of colorized {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the number of colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get numColorizedObjects() {
     return this.#numColorizedObjects;
   }
   /**
-     * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this ViewLayer.
-     */
+   * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this ViewLayer.
+   */
   get colorizedObjectIds() {
     if (!this.#colorizedObjectIds) {
       this.#colorizedObjectIds = Object.keys(this.colorizedObjects);
@@ -187341,8 +187344,8 @@ var ViewLayer = class extends Component {
     return this.#colorizedObjectIds;
   }
   /**
-     * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
-     */
+   * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
+   */
   get opacityObjectIds() {
     if (!this.#opacityObjectIds) {
       this.#opacityObjectIds = Object.keys(this.opacityObjects);
@@ -187350,14 +187353,14 @@ var ViewLayer = class extends Component {
     return this.#opacityObjectIds;
   }
   /**
-     * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
-     */
+   * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
+   */
   get numOpacityObjects() {
     return this.#numOpacityObjects;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   registerViewObject(viewObject) {
     this.objects[viewObject.id] = viewObject;
     this.#numObjects++;
@@ -187365,8 +187368,8 @@ var ViewLayer = class extends Component {
     this.onObjectCreated.dispatch(this, viewObject);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   deregisterViewObject(viewObject) {
     delete this.objects[viewObject.id];
     delete this.visibleObjects[viewObject.id];
@@ -187380,14 +187383,14 @@ var ViewLayer = class extends Component {
     this.onObjectDestroyed.dispatch(this, viewObject);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   redraw() {
     this.viewer.renderer.setImageDirty(this.view.viewIndex);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectVisibilityUpdated(viewObject, visible, notify = true) {
     if (visible) {
       this.visibleObjects[viewObject.id] = viewObject;
@@ -187403,8 +187406,8 @@ var ViewLayer = class extends Component {
     this.view.objectVisibilityUpdated(viewObject, visible, notify);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectXRayedUpdated(viewObject, xrayed) {
     if (xrayed) {
       this.xrayedObjects[viewObject.id] = viewObject;
@@ -187417,8 +187420,8 @@ var ViewLayer = class extends Component {
     this.view.objectXRayedUpdated(viewObject, xrayed);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectHighlightedUpdated(viewObject, highlighted) {
     if (highlighted) {
       this.highlightedObjects[viewObject.id] = viewObject;
@@ -187431,8 +187434,8 @@ var ViewLayer = class extends Component {
     this.view.objectHighlightedUpdated(viewObject, highlighted);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectSelectedUpdated(viewObject, selected) {
     if (selected) {
       this.selectedObjects[viewObject.id] = viewObject;
@@ -187445,8 +187448,8 @@ var ViewLayer = class extends Component {
     this.view.objectSelectedUpdated(viewObject, selected);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectColorizeUpdated(viewObject, colorized) {
     if (colorized) {
       this.colorizedObjects[viewObject.id] = viewObject;
@@ -187459,8 +187462,8 @@ var ViewLayer = class extends Component {
     this.view.objectColorizeUpdated(viewObject, colorized);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectOpacityUpdated(viewObject, opacityUpdated) {
     if (opacityUpdated) {
       this.opacityObjects[viewObject.id] = viewObject;
@@ -187473,15 +187476,15 @@ var ViewLayer = class extends Component {
     this.view.objectOpacityUpdated(viewObject, opacityUpdated);
   }
   /**
-     * Updates the visibility of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
-     * - Updates {@link ViewLayer.visibleObjects} and {@link ViewLayer.numVisibleObjects}.
-     *
-     * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-     * @param visible Whether or not to cull.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Updates the visibility of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.visibleObjects} and {@link ViewLayer.numVisibleObjects}.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param visible Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsVisible(objectIds, visible) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.visible !== visible;
@@ -187493,14 +187496,14 @@ var ViewLayer = class extends Component {
     });
   }
   /**
-     * Updates the collidability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
-     *
-     * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-     * @param collidable Whether or not to cull.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Updates the collidability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param collidable Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsCollidable(objectIds, collidable) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.collidable !== collidable;
@@ -187509,14 +187512,14 @@ var ViewLayer = class extends Component {
     });
   }
   /**
-     * Updates the culled status of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * Updates {@link ViewObject.culled} on the Objects with the given IDs.
-     *
-     * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-     * @param culled Whether or not to cull.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Updates the culled status of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * Updates {@link ViewObject.culled} on the Objects with the given IDs.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param culled Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsCulled(objectIds, culled) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.culled !== culled;
@@ -187525,15 +187528,15 @@ var ViewLayer = class extends Component {
     });
   }
   /**
-     * Selects or deselects the given {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
-     * - Updates {@link ViewLayer.selectedObjects} and {@link ViewLayer.numSelectedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param selected Whether or not to select.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Selects or deselects the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.selectedObjects} and {@link ViewLayer.numSelectedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param selected Whether or not to select.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsSelected(objectIds, selected) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.selected !== selected;
@@ -187542,15 +187545,15 @@ var ViewLayer = class extends Component {
     });
   }
   /**
-     * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
-     * - Updates {@link ViewLayer.highlightedObjects} and {@link ViewLayer.numHighlightedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param highlighted Whether or not to highlight.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.highlightedObjects} and {@link ViewLayer.numHighlightedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param highlighted Whether or not to highlight.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsHighlighted(objectIds, highlighted) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.highlighted !== highlighted;
@@ -187559,15 +187562,15 @@ var ViewLayer = class extends Component {
     });
   }
   /**
-     * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
-     * - Updates {@link ViewLayer.xrayedObjects} and {@link ViewLayer.numXRayedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param xrayed Whether or not to xray.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.xrayedObjects} and {@link ViewLayer.numXRayedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param xrayed Whether or not to xray.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsXRayed(objectIds, xrayed) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.xrayed !== xrayed;
@@ -187578,30 +187581,30 @@ var ViewLayer = class extends Component {
     });
   }
   /**
-     * Colorizes the given {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
-     * - Updates {@link ViewLayer.colorizedObjects} and {@link ViewLayer.numColorizedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
-     * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
-     */
+   * Colorizes the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.colorizedObjects} and {@link ViewLayer.numColorizedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
+   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   */
   setObjectsColorized(objectIds, colorize) {
     return this.withObjects(objectIds, (viewObject) => {
       viewObject.colorize = colorize;
     });
   }
   /**
-     * Sets the opacity of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
-     * - Updates {@link ViewLayer.opacityObjects} and {@link ViewLayer.numOpacityObjects}.
-     *
-     * @param  objectIds - One or more {@link ViewObject.id} values.
-     * @param opacity - Opacity factor in range ````[0..1]````.
-     * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
-     */
+   * Sets the opacity of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
+   * - Updates {@link ViewLayer.opacityObjects} and {@link ViewLayer.numOpacityObjects}.
+   *
+   * @param  objectIds - One or more {@link ViewObject.id} values.
+   * @param opacity - Opacity factor in range ````[0..1]````.
+   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   */
   setObjectsOpacity(objectIds, opacity) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.opacity !== opacity;
@@ -187612,15 +187615,15 @@ var ViewLayer = class extends Component {
     });
   }
   /**
-     * Sets the pickability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
-     * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
-     *
-     * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-     * @param pickable Whether or not to set pickable.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Sets the pickability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
+   * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param pickable Whether or not to set pickable.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsPickable(objectIds, pickable) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.pickable !== pickable;
@@ -187631,15 +187634,15 @@ var ViewLayer = class extends Component {
     });
   }
   /**
-     * Sets the clippability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
-     * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
-     *
-     * @param {String[]} objectIds Array of {@link ViewObject.id} values.
-     * @param clippable Whether or not to set clippable.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Sets the clippability of the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
+   * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
+   *
+   * @param {String[]} objectIds Array of {@link ViewObject.id} values.
+   * @param clippable Whether or not to set clippable.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsClippable(objectIds, clippable) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.clippable !== clippable;
@@ -187650,12 +187653,12 @@ var ViewLayer = class extends Component {
     });
   }
   /**
-     * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this ViewLayer.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param callback Callback to execute on each {@link ViewObject}.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this ViewLayer.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param callback Callback to execute on each {@link ViewObject}.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   withObjects(objectIds, callback) {
     let changed = false;
     for (let i = 0, len = objectIds.length; i < len; i++) {
@@ -187707,18 +187710,18 @@ var ViewLayer = class extends Component {
     }
   }
   /**
-     * Configures this ViewLayer.
-     *
-     * @param viewLayerParams
-     */
+   * Configures this ViewLayer.
+   *
+   * @param viewLayerParams
+   */
   fromParams(viewLayerParams) {
     if (viewLayerParams.autoDestroy) {
       this.autoDestroy = viewLayerParams.autoDestroy;
     }
   }
   /**
-     * Gets the current configuration of this ViewLayer.
-     */
+   * Gets the current configuration of this ViewLayer.
+   */
   toParams() {
     return {
       id: this.id,
@@ -187726,10 +187729,10 @@ var ViewLayer = class extends Component {
     };
   }
   /**
-     * Destroys this ViewLayer.
-     *
-     * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
-     */
+   * Destroys this ViewLayer.
+   *
+   * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
+   */
   destroy() {
     this.#destroyViewObjects();
     this.onObjectCreated.clear();
@@ -187750,218 +187753,218 @@ var ViewLayer = class extends Component {
 // ../sdk/src/viewer/View.ts
 var View = class extends Component {
   /**
-     * The index of this View in {@link Viewer.viewList}.
-     * @private
-     */
+   * The index of this View in {@link Viewer.viewList}.
+   * @private
+   */
   viewIndex;
   /**
-     * Manages the Camera for this View.
-     */
+   * Manages the Camera for this View.
+   */
   camera;
   /**
-     * The HTML canvas.
-     */
+   * The HTML canvas.
+   */
   htmlElement;
   /**
-     * Indicates if this View is transparent.
-     */
+   * Indicates if this View is transparent.
+   */
   transparent;
   /**
-     * Boundary of the canvas in absolute browser window coordinates.
-     * Format is ````[xmin, ymin, xwidth, ywidth]````.
-     */
+   * Boundary of the canvas in absolute browser window coordinates.
+   * Format is ````[xmin, ymin, xwidth, ywidth]````.
+   */
   boundary;
   /**
-     * Configures Scalable Ambient Obscurance (SAO) for this View.
-     */
+   * Configures Scalable Ambient Obscurance (SAO) for this View.
+   */
   sao;
   /**
-     * Configures when textures are rendered for this View.
-     */
+   * Configures when textures are rendered for this View.
+   */
   texturing;
   /**
-     * Configures the appearance of edges belonging to {@link ViewObject} in this View.
-     */
+   * Configures the appearance of edges belonging to {@link ViewObject} in this View.
+   */
   edges;
   /**
-     * Manages measurement units, origin and scale for this View.
-     */
+   * Manages measurement units, origin and scale for this View.
+   */
   metrics;
   /**
-     * Configures the X-rayed appearance of {@link ViewObject | ViewObjects} in this View.
-     */
+   * Configures the X-rayed appearance of {@link ViewObject | ViewObjects} in this View.
+   */
   xrayMaterial;
   /**
-     * Configures the highlighted appearance of {@link ViewObject | ViewObjects} in this View.
-     */
+   * Configures the highlighted appearance of {@link ViewObject | ViewObjects} in this View.
+   */
   highlightMaterial;
   /**
-     * Configures the appearance of {@link ViewObject | ViewObjects} in this View.
-     */
+   * Configures the appearance of {@link ViewObject | ViewObjects} in this View.
+   */
   selectedMaterial;
   /**
-     * Configures resolution scaling for this View.
-     */
+   * Configures resolution scaling for this View.
+   */
   resolutionScale;
   /**
-     * Configures the appearance of point primitives belonging to {@link ViewObject | ViewObjects} in this View .
-     */
+   * Configures the appearance of point primitives belonging to {@link ViewObject | ViewObjects} in this View .
+   */
   pointsMaterial;
   /**
-     * Configures the appearance of lines belonging to {@link ViewObject | ViewObjects} in this View.
-     */
+   * Configures the appearance of lines belonging to {@link ViewObject | ViewObjects} in this View.
+   */
   linesMaterial;
   /**
-     * Map of the all {@link ViewObject | ViewObjects} in this View.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     *
-     * The View automatically ensures that there is a {@link ViewObject} here for
-     * each {@link RendererObject} in the {@link Viewer | Viewer}
-     */
+   * Map of the all {@link ViewObject | ViewObjects} in this View.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   *
+   * The View automatically ensures that there is a {@link ViewObject} here for
+   * each {@link RendererObject} in the {@link Viewer | Viewer}
+   */
   objects;
   /**
-     * Map of the currently visible {@link ViewObject | ViewObjects} in this View.
-     *
-     * A ViewObject is visible when {@link ViewObject.visible} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of the currently visible {@link ViewObject | ViewObjects} in this View.
+   *
+   * A ViewObject is visible when {@link ViewObject.visible} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   visibleObjects;
   /**
-     * Map of currently x-rayed {@link ViewObject | ViewObjects} in this View.
-     *
-     * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently x-rayed {@link ViewObject | ViewObjects} in this View.
+   *
+   * A ViewObject is x-rayed when {@link ViewObject.xrayed} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   xrayedObjects;
   /**
-     * Map of currently highlighted {@link ViewObject | ViewObjects} in this View.
-     *
-     * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently highlighted {@link ViewObject | ViewObjects} in this View.
+   *
+   * A ViewObject is highlighted when {@link ViewObject.highlighted} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   highlightedObjects;
   /**
-     * Map of currently selected {@link ViewObject | ViewObjects} in this View.
-     *
-     * A ViewObject is selected when {@link ViewObject.selected} is true.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently selected {@link ViewObject | ViewObjects} in this View.
+   *
+   * A ViewObject is selected when {@link ViewObject.selected} is true.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   selectedObjects;
   /**
-     * Map of currently colorized {@link ViewObject | ViewObjects} in this View.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of currently colorized {@link ViewObject | ViewObjects} in this View.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   colorizedObjects;
   /**
-     * Map of {@link ViewObject | ViewObjects} in this View whose opacity has been updated.
-     *
-     * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
-     */
+   * Map of {@link ViewObject | ViewObjects} in this View whose opacity has been updated.
+   *
+   * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
+   */
   opacityObjects;
   /**
-     * Map of {@link SectionPlane}s in this View.
-     *
-     * Each {@link SectionPlane} is mapped here by {@link SectionPlane.id}.
-     */
+   * Map of {@link SectionPlane}s in this View.
+   *
+   * Each {@link SectionPlane} is mapped here by {@link SectionPlane.id}.
+   */
   sectionPlanes;
   /**
-     * List of {@link SectionPlane}s in this View.
-     */
+   * List of {@link SectionPlane}s in this View.
+   */
   sectionPlanesList = [];
   /**
-     * Map of light sources in this View.
-     */
+   * Map of light sources in this View.
+   */
   lights;
   /**
-     * List of light sources in this View.
-     */
+   * List of light sources in this View.
+   */
   lightsList = [];
   gammaOutput;
   /**
-     * Map of the all {@link ViewLayer}s in this View.
-     *
-     * Each {@link ViewLayer} is mapped here by {@link ViewLayer.id}.
-     */
+   * Map of the all {@link ViewLayer}s in this View.
+   *
+   * Each {@link ViewLayer} is mapped here by {@link ViewLayer.id}.
+   */
   layers;
   /**
-     * Emits an event each time the canvas boundary changes.
-     *
-     * @event
-     */
+   * Emits an event each time the canvas boundary changes.
+   *
+   * @event
+   */
   onBoundary;
   /**
-     * Emits an event each time a {@link ViewObject} is created in this View.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link ViewObject} is created in this View.
+   *
+   * @event
+   */
   onObjectCreated;
   /**
-     * Emits an event each time a {@link ViewObject} is destroyed in this View.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link ViewObject} is destroyed in this View.
+   *
+   * @event
+   */
   onObjectDestroyed;
   /**
-     * Emits an event each time the visibility of a {@link ViewObject} changes in this View.
-     *
-     * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
-     *
-     * @event
-     */
+   * Emits an event each time the visibility of a {@link ViewObject} changes in this View.
+   *
+   * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
+   *
+   * @event
+   */
   onObjectVisibility;
   /**
-     * Emits an event each time the X-ray state of a {@link ViewObject} changes in this View.
-     *
-     * ViewObjects are X-rayed with {@link View.setObjectsXRayed}, {@link ViewLayer.setObjectsXRayed} or {@link ViewObject.xrayed}.
-     *
-     * @event
-     */
+   * Emits an event each time the X-ray state of a {@link ViewObject} changes in this View.
+   *
+   * ViewObjects are X-rayed with {@link View.setObjectsXRayed}, {@link ViewLayer.setObjectsXRayed} or {@link ViewObject.xrayed}.
+   *
+   * @event
+   */
   onObjectXRayed;
   /**
-     * Emits an event each time a {@link ViewLayer} is created in this View.
-     *
-     * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link scene!SceneModel.createObject | SceneModel.createObject} and {@link scene!SceneObjectParams.layerId | SceneObjectParams.layerId}.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link ViewLayer} is created in this View.
+   *
+   * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link scene!SceneModel.createObject | SceneModel.createObject} and {@link scene!SceneObjectParams.layerId | SceneObjectParams.layerId}.
+   *
+   * @event
+   */
   onLayerCreated;
   /**
-     * Emits an event each time a {@link ViewLayer} in this View is destroyed.
-     *
-     * ViewLayers are destroyed explicitly with {@link ViewLayer.destroy}, or implicitly when they become empty and {@link View.autoLayers} is false.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link ViewLayer} in this View is destroyed.
+   *
+   * ViewLayers are destroyed explicitly with {@link ViewLayer.destroy}, or implicitly when they become empty and {@link View.autoLayers} is false.
+   *
+   * @event
+   */
   onLayerDestroyed;
   /**
-     * Emits an event each time a {@link SectionPlane} is created in this View.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SectionPlane} is created in this View.
+   *
+   * @event
+   */
   onSectionPlaneCreated;
   /**
-     * Emits an event each time a {@link SectionPlane} in this View is destroyed.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link SectionPlane} in this View is destroyed.
+   *
+   * @event
+   */
   onSectionPlaneDestroyed;
   /**
-     * Emits an event each time a snapshot is initiated with {@link View.getSnapshot}.
-     *
-     * @event
-     */
+   * Emits an event each time a snapshot is initiated with {@link View.getSnapshot}.
+   *
+   * @event
+   */
   onSnapshotStarted;
   /**
-     * Emits an event each time a snapshot is completed with {@link View.getSnapshot}.
-     *
-     * @event
-     */
+   * Emits an event each time a snapshot is completed with {@link View.getSnapshot}.
+   *
+   * @event
+   */
   onSnapshotFinished;
   #onTick;
   #renderMode = QualityRender;
@@ -187987,8 +187990,8 @@ var View = class extends Component {
   #snapshotBegun;
   #autoCanvas;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(viewer, viewParams) {
     super(null, viewParams);
     this.viewer = viewer;
@@ -188221,8 +188224,8 @@ var View = class extends Component {
     });
   }
   /**
-     * @private
-     */
+   * @private
+   */
   initViewObjects() {
     this.#createViewObjectsForScene();
     this.viewer.scene.onModelCreated.subscribe(
@@ -188274,25 +188277,25 @@ var View = class extends Component {
     }
   }
   /**
-     * Sets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
-     * as {@link RendererObject | ViewerObjects} are created.
-     *
-     * When ````true```` (default), the View will automatically create {@link ViewLayer | ViewLayers} as needed for each new
-     * {@link RendererObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
-     * layerId. This "default" ViewLayer ensures that a ViewObject is created in the View for every SceneObject that is created.
-     *
-     * If you set this ````false````, however, then the View will only create {@link ViewObject | ViewObjects} for
-     * {@link scene!SceneObject | SceneObjects} that have a {@link scene!SceneObject.layerId} that matches the ID of a
-     * {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
-     *
-     * Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only
-     * ViewerObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for ViewerObjects
-     * that it never needs to show.
-     *
-     * Default value is `true``.
-     *
-     * @param autoLayers The new value for atuoLayers
-     */
+   * Sets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
+   * as {@link RendererObject | ViewerObjects} are created.
+   *
+   * When ````true```` (default), the View will automatically create {@link ViewLayer | ViewLayers} as needed for each new
+   * {@link RendererObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
+   * layerId. This "default" ViewLayer ensures that a ViewObject is created in the View for every SceneObject that is created.
+   *
+   * If you set this ````false````, however, then the View will only create {@link ViewObject | ViewObjects} for
+   * {@link scene!SceneObject | SceneObjects} that have a {@link scene!SceneObject.layerId} that matches the ID of a
+   * {@link ViewLayer} that you have explicitly created previously with {@link View.createLayer}.
+   *
+   * Setting this parameter false enables Views to contain only the ViewObjects that they actually need to show, i.e. to represent only
+   * ViewerObjects that they need to view. This enables a View to avoid wastefully creating and maintaining ViewObjects for ViewerObjects
+   * that it never needs to show.
+   *
+   * Default value is `true``.
+   *
+   * @param autoLayers The new value for atuoLayers
+   */
   set autoLayers(autoLayers) {
     if (this.#autoLayers === autoLayers) {
       return;
@@ -188303,51 +188306,51 @@ var View = class extends Component {
     }
   }
   /**
-     * Gets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
-     * as {@link RendererObject | ViewerObjects} are created.
-     */
+   * Gets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
+   * as {@link RendererObject | ViewerObjects} are created.
+   */
   get autoLayers() {
     return this.#autoLayers;
   }
   /**
-     * Sets which rendering mode this View is in.
-     *
-     * Default value is {@link constants!QualityRender | QualityRender}.
-     *
-     * Setting a View's rendering mode will activate whatever effects (eg. SAO, edges, canas scaling) are configured to
-     * be active in that mode, while deactivating all other effects.
-     */
+   * Sets which rendering mode this View is in.
+   *
+   * Default value is {@link constants!QualityRender | QualityRender}.
+   *
+   * Setting a View's rendering mode will activate whatever effects (eg. SAO, edges, canas scaling) are configured to
+   * be active in that mode, while deactivating all other effects.
+   */
   set renderMode(renderMode) {
     this.#renderMode = renderMode;
     this.redraw();
   }
   /**
-     * Gets which rendering mode this View is in.
-     *
-     * Default value is {@link constants!QualityRender | QualityRender}.
-     */
+   * Gets which rendering mode this View is in.
+   *
+   * Default value is {@link constants!QualityRender | QualityRender}.
+   */
   get renderMode() {
     return this.#renderMode;
   }
   /**
-     *
-     */
+   *
+   */
   get aabb() {
     return this.viewer.scene.aabb;
   }
   /**
-     * Gets the canvas clear color.
-     *
-     * Default value is ````[1, 1, 1]````.
-     */
+   * Gets the canvas clear color.
+   *
+   * Default value is ````[1, 1, 1]````.
+   */
   get backgroundColor() {
     return this.#backgroundColor;
   }
   /**
-     * Sets the canvas clear color.
-     *
-     * Default value is ````[1, 1, 1]````.
-     */
+   * Sets the canvas clear color.
+   *
+   * Default value is ````[1, 1, 1]````.
+   */
   set backgroundColor(value) {
     if (value) {
       this.#backgroundColor[0] = value[0];
@@ -188361,46 +188364,46 @@ var View = class extends Component {
     this.redraw();
   }
   /**
-     * Gets whether the canvas clear color will be derived from {@link AmbientLight} or {@link View#backgroundColor}
-     * when {@link View#transparent} is ```true```.
-     *
-     * When {@link View#transparent} is ```true``` and this is ````true````, then the canvas clear color will
-     * be taken from the ambient light color.
-     *
-     * When {@link View#transparent} is ```true``` and this is ````false````, then the canvas clear color will
-     * be taken from {@link View#backgroundColor}.
-     *
-     * Default value is ````true````.
-     */
+   * Gets whether the canvas clear color will be derived from {@link AmbientLight} or {@link View#backgroundColor}
+   * when {@link View#transparent} is ```true```.
+   *
+   * When {@link View#transparent} is ```true``` and this is ````true````, then the canvas clear color will
+   * be taken from the ambient light color.
+   *
+   * When {@link View#transparent} is ```true``` and this is ````false````, then the canvas clear color will
+   * be taken from {@link View#backgroundColor}.
+   *
+   * Default value is ````true````.
+   */
   get backgroundColorFromAmbientLight() {
     return this.#backgroundColorFromAmbientLight;
   }
   /**
-     * Sets if the canvas background color is derived from an {@link AmbientLight}.
-     *
-     * This only has effect when the canvas is not transparent. When not enabled, the background color
-     * will be the canvas element's HTML/CSS background color.
-     *
-     * Default value is ````true````.
-     */
+   * Sets if the canvas background color is derived from an {@link AmbientLight}.
+   *
+   * This only has effect when the canvas is not transparent. When not enabled, the background color
+   * will be the canvas element's HTML/CSS background color.
+   *
+   * Default value is ````true````.
+   */
   set backgroundColorFromAmbientLight(backgroundColorFromAmbientLight) {
     this.#backgroundColorFromAmbientLight = backgroundColorFromAmbientLight !== false;
   }
   /**
-     * Gets the gamma factor.
-     */
+   * Gets the gamma factor.
+   */
   get gammaFactor() {
     return 1;
   }
   /**
-     * Gets the number of {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of {@link ViewObject | ViewObjects} in this View.
+   */
   get numObjects() {
     return this.#numObjects;
   }
   /**
-     * Gets the IDs of the {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the {@link ViewObject | ViewObjects} in this View.
+   */
   get objectIds() {
     if (!this.#objectIds) {
       this.#objectIds = Object.keys(this.objects);
@@ -188408,14 +188411,14 @@ var View = class extends Component {
     return this.#objectIds;
   }
   /**
-     * Gets the number of visible {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of visible {@link ViewObject | ViewObjects} in this View.
+   */
   get numVisibleObjects() {
     return this.#numVisibleObjects;
   }
   /**
-     * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this View.
+   */
   get visibleObjectIds() {
     if (!this.#visibleObjectIds) {
       this.#visibleObjectIds = Object.keys(this.visibleObjects);
@@ -188423,14 +188426,14 @@ var View = class extends Component {
     return this.#visibleObjectIds;
   }
   /**
-     * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this View.
+   */
   get numXRayedObjects() {
     return this.#numXRayedObjects;
   }
   /**
-     * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this View.
+   */
   get xrayedObjectIds() {
     if (!this.#xrayedObjectIds) {
       this.#xrayedObjectIds = Object.keys(this.xrayedObjects);
@@ -188438,14 +188441,14 @@ var View = class extends Component {
     return this.#xrayedObjectIds;
   }
   /**
-     * Gets the number of highlighted {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of highlighted {@link ViewObject | ViewObjects} in this View.
+   */
   get numHighlightedObjects() {
     return this.#numHighlightedObjects;
   }
   /**
-     * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this View.
+   */
   get highlightedObjectIds() {
     if (!this.#highlightedObjectIds) {
       this.#highlightedObjectIds = Object.keys(this.highlightedObjects);
@@ -188453,14 +188456,14 @@ var View = class extends Component {
     return this.#highlightedObjectIds;
   }
   /**
-     * Gets the number of selected {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of selected {@link ViewObject | ViewObjects} in this View.
+   */
   get numSelectedObjects() {
     return this.#numSelectedObjects;
   }
   /**
-     * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this View.
+   */
   get selectedObjectIds() {
     if (!this.#selectedObjectIds) {
       this.#selectedObjectIds = Object.keys(this.selectedObjects);
@@ -188468,14 +188471,14 @@ var View = class extends Component {
     return this.#selectedObjectIds;
   }
   /**
-     * Gets the number of colorized {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the number of colorized {@link ViewObject | ViewObjects} in this View.
+   */
   get numColorizedObjects() {
     return this.#numColorizedObjects;
   }
   /**
-     * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this View.
-     */
+   * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this View.
+   */
   get colorizedObjectIds() {
     if (!this.#colorizedObjectIds) {
       this.#colorizedObjectIds = Object.keys(this.colorizedObjects);
@@ -188483,8 +188486,8 @@ var View = class extends Component {
     return this.#colorizedObjectIds;
   }
   /**
-     * Gets the IDs of the {@link ViewObject | ViewObjects} in this View that have updated opacities.
-     */
+   * Gets the IDs of the {@link ViewObject | ViewObjects} in this View that have updated opacities.
+   */
   get opacityObjectIds() {
     if (!this.#opacityObjectIds) {
       this.#opacityObjectIds = Object.keys(this.opacityObjects);
@@ -188492,22 +188495,22 @@ var View = class extends Component {
     return this.#opacityObjectIds;
   }
   /**
-     * Gets the number of {@link ViewObject | ViewObjects} in this View that have updated opacities.
-     */
+   * Gets the number of {@link ViewObject | ViewObjects} in this View that have updated opacities.
+   */
   get numOpacityObjects() {
     return this.#numOpacityObjects;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   registerViewObject(viewObject) {
     this.objects[viewObject.id] = viewObject;
     this.#numObjects++;
     this.#objectIds = null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   deregisterViewObject(viewObject) {
     delete this.objects[viewObject.id];
     delete this.visibleObjects[viewObject.id];
@@ -188520,8 +188523,8 @@ var View = class extends Component {
     this.#objectIds = null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectVisibilityUpdated(viewObject, visible, notify = true) {
     if (visible) {
       this.visibleObjects[viewObject.id] = viewObject;
@@ -188536,8 +188539,8 @@ var View = class extends Component {
     }
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectXRayedUpdated(viewObject, xrayed, notify = true) {
     if (xrayed) {
       this.xrayedObjects[viewObject.id] = viewObject;
@@ -188552,8 +188555,8 @@ var View = class extends Component {
     }
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectHighlightedUpdated(viewObject, highlighted) {
     if (highlighted) {
       this.highlightedObjects[viewObject.id] = viewObject;
@@ -188565,8 +188568,8 @@ var View = class extends Component {
     this.#highlightedObjectIds = null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectSelectedUpdated(viewObject, selected) {
     if (selected) {
       this.selectedObjects[viewObject.id] = viewObject;
@@ -188578,8 +188581,8 @@ var View = class extends Component {
     this.#selectedObjectIds = null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectColorizeUpdated(viewObject, colorized) {
     if (colorized) {
       this.colorizedObjects[viewObject.id] = viewObject;
@@ -188591,8 +188594,8 @@ var View = class extends Component {
     this.#colorizedObjectIds = null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   objectOpacityUpdated(viewObject, opacityUpdated) {
     if (opacityUpdated) {
       this.opacityObjects[viewObject.id] = viewObject;
@@ -188604,10 +188607,10 @@ var View = class extends Component {
     this.#opacityObjectIds = null;
   }
   /**
-     * Creates a {@link SectionPlane} in this View.
-     *
-     * @param sectionPlaneParams
-     */
+   * Creates a {@link SectionPlane} in this View.
+   *
+   * @param sectionPlaneParams
+   */
   createSectionPlane(sectionPlaneParams) {
     let id = sectionPlaneParams.id || createUUID2();
     if (this.sectionPlanes[id]) {
@@ -188624,8 +188627,8 @@ var View = class extends Component {
     return sectionPlane;
   }
   /**
-     * Destroys the {@link SectionPlane | SectionPlanes} in this View.
-     */
+   * Destroys the {@link SectionPlane | SectionPlanes} in this View.
+   */
   clearSectionPlanes() {
     const objectIds = Object.keys(this.sectionPlanes);
     for (let i = 0, len = objectIds.length; i < len; i++) {
@@ -188635,8 +188638,8 @@ var View = class extends Component {
     this.#sectionPlanesHash = null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   getSectionPlanesHash() {
     if (this.#sectionPlanesHash) {
       return this.#sectionPlanesHash;
@@ -188655,8 +188658,8 @@ var View = class extends Component {
     return this.#sectionPlanesHash;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   registerLight(light) {
     this.lightsList.push(light);
     this.lights[light.id] = light;
@@ -188664,8 +188667,8 @@ var View = class extends Component {
     this.rebuild();
   }
   /**
-     * @private
-     */
+   * @private
+   */
   deregisterLight(light) {
     for (let i = 0, len = this.lightsList.length; i < len; i++) {
       if (this.lightsList[i].id === light.id) {
@@ -188678,8 +188681,8 @@ var View = class extends Component {
     }
   }
   /**
-     * Destroys the {@link DirLight | DirLights}, {@link PointLight | PointLights} and {@link AmbientLight | AmbientLights} in this View.
-     */
+   * Destroys the {@link DirLight | DirLights}, {@link PointLight | PointLights} and {@link AmbientLight | AmbientLights} in this View.
+   */
   clearLights() {
     const lightIds = Object.keys(this.lights);
     for (let i = 0, len = lightIds.length; i < len; i++) {
@@ -188687,8 +188690,8 @@ var View = class extends Component {
     }
   }
   /**
-     * @private
-     */
+   * @private
+   */
   getLightsHash() {
     if (this.#lightsHash) {
       return this.#lightsHash;
@@ -188712,33 +188715,33 @@ var View = class extends Component {
     return this.#lightsHash;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   rebuild() {
     this.viewer.renderer.setNeedsRebuild(this.viewIndex);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   redraw() {
     this.viewer.renderer.setImageDirty(this.viewIndex);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   getAmbientColorAndIntensity() {
     return [0.5, 0.5, 0.5, 1];
   }
   /**
-     * Updates the visibility of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
-     * - Updates {@link View.visibleObjects} and {@link View.numVisibleObjects}.
-     *
-     * @param {string[]} objectIds Array of {@link ViewObject.id} values.
-     * @param visible Whether or not to cull.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Updates the visibility of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.visible} on the Objects with the given IDs.
+   * - Updates {@link View.visibleObjects} and {@link View.numVisibleObjects}.
+   *
+   * @param {string[]} objectIds Array of {@link ViewObject.id} values.
+   * @param visible Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsVisible(objectIds, visible) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.visible !== visible;
@@ -188747,14 +188750,14 @@ var View = class extends Component {
     });
   }
   /**
-     * Updates the collidability of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
-     *
-     * @param {string[]} objectIds Array of {@link ViewObject.id} values.
-     * @param collidable Whether or not to cull.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Updates the collidability of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * Updates {@link ViewObject.collidable} on the Objects with the given IDs.
+   *
+   * @param {string[]} objectIds Array of {@link ViewObject.id} values.
+   * @param collidable Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsCollidable(objectIds, collidable) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.collidable !== collidable;
@@ -188763,14 +188766,14 @@ var View = class extends Component {
     });
   }
   /**
-     * Updates the culled status of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * Updates {@link ViewObject.culled} on the Objects with the given IDs.
-     *
-     * @param {string[]} objectIds Array of {@link ViewObject.id} values.
-     * @param culled Whether or not to cull.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Updates the culled status of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * Updates {@link ViewObject.culled} on the Objects with the given IDs.
+   *
+   * @param {string[]} objectIds Array of {@link ViewObject.id} values.
+   * @param culled Whether or not to cull.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsCulled(objectIds, culled) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.culled !== culled;
@@ -188779,15 +188782,15 @@ var View = class extends Component {
     });
   }
   /**
-     * Selects or deselects the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
-     * - Updates {@link View.selectedObjects} and {@link View.numSelectedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param selected Whether or not to select.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Selects or deselects the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.selected} on the Objects with the given IDs.
+   * - Updates {@link View.selectedObjects} and {@link View.numSelectedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param selected Whether or not to select.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsSelected(objectIds, selected) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.selected !== selected;
@@ -188796,15 +188799,15 @@ var View = class extends Component {
     });
   }
   /**
-     * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
-     * - Updates {@link View.highlightedObjects} and {@link View.numHighlightedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param highlighted Whether or not to highlight.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Highlights or un-highlights the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.highlighted} on the Objects with the given IDs.
+   * - Updates {@link View.highlightedObjects} and {@link View.numHighlightedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param highlighted Whether or not to highlight.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsHighlighted(objectIds, highlighted) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.highlighted !== highlighted;
@@ -188813,15 +188816,15 @@ var View = class extends Component {
     });
   }
   /**
-     * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
-     * - Updates {@link View.xrayedObjects} and {@link View.numXRayedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param xrayed Whether or not to xray.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Applies or removes X-ray rendering for the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.xrayed} on the Objects with the given IDs.
+   * - Updates {@link View.xrayedObjects} and {@link View.numXRayedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param xrayed Whether or not to xray.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsXRayed(objectIds, xrayed) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.xrayed !== xrayed;
@@ -188832,30 +188835,30 @@ var View = class extends Component {
     });
   }
   /**
-     * Colorizes the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
-     * - Updates {@link View.colorizedObjects} and {@link View.numColorizedObjects}.
-     *
-     * @param  objectIds One or more {@link ViewObject.id} values.
-     * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
-     * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
-     */
+   * Colorizes the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.colorize} on the Objects with the given IDs.
+   * - Updates {@link View.colorizedObjects} and {@link View.numColorizedObjects}.
+   *
+   * @param  objectIds One or more {@link ViewObject.id} values.
+   * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
+   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   */
   setObjectsColorized(objectIds, colorize) {
     return this.withObjects(objectIds, (viewObject) => {
       viewObject.colorize = colorize;
     });
   }
   /**
-     * Sets the opacity of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
-     * - Updates {@link View.opacityObjects} and {@link View.numOpacityObjects}.
-     *
-     * @param  objectIds - One or more {@link ViewObject.id} values.
-     * @param opacity - Opacity factor in range ````[0..1]````.
-     * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
-     */
+   * Sets the opacity of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.opacity} on the Objects with the given IDs.
+   * - Updates {@link View.opacityObjects} and {@link View.numOpacityObjects}.
+   *
+   * @param  objectIds - One or more {@link ViewObject.id} values.
+   * @param opacity - Opacity factor in range ````[0..1]````.
+   * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
+   */
   setObjectsOpacity(objectIds, opacity) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.opacity !== opacity;
@@ -188866,15 +188869,15 @@ var View = class extends Component {
     });
   }
   /**
-     * Sets the pickability of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
-     * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
-     *
-     * @param {string[]} objectIds Array of {@link ViewObject.id} values.
-     * @param pickable Whether or not to set pickable.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Sets the pickability of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.pickable} on the Objects with the given IDs.
+   * - Enables or disables the ability to pick the given Objects with {@link View.pick}.
+   *
+   * @param {string[]} objectIds Array of {@link ViewObject.id} values.
+   * @param pickable Whether or not to set pickable.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsPickable(objectIds, pickable) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.pickable !== pickable;
@@ -188885,15 +188888,15 @@ var View = class extends Component {
     });
   }
   /**
-     * Sets the clippability of the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
-     * - Enables or disables the ability to clip the given Objects with {@link SectionPlane}.
-     *
-     * @param objectIds Array of {@link ViewObject.id} values.
-     * @param clippable Whether or not to set clippable.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Sets the clippability of the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * - Updates {@link ViewObject.clippable} on the Objects with the given IDs.
+   * - Enables or disables the ability to clip the given Objects with {@link SectionPlane}.
+   *
+   * @param objectIds Array of {@link ViewObject.id} values.
+   * @param clippable Whether or not to set clippable.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   setObjectsClippable(objectIds, clippable) {
     return this.withObjects(objectIds, (viewObject) => {
       const changed = viewObject.clippable !== clippable;
@@ -188904,12 +188907,12 @@ var View = class extends Component {
     });
   }
   /**
-     * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this View.
-     *
-     * @param objectIds One or more {@link ViewObject.id} values.
-     * @param callback Callback to execute on each {@link ViewObject}.
-     * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
-     */
+   * Iterates with a callback over the given {@link ViewObject | ViewObjects} in this View.
+   *
+   * @param objectIds One or more {@link ViewObject.id} values.
+   * @param callback Callback to execute on each {@link ViewObject}.
+   * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
+   */
   withObjects(objectIds, callback) {
     let changed = false;
     for (let i = 0, len = objectIds.length; i < len; i++) {
@@ -188922,17 +188925,17 @@ var View = class extends Component {
     return changed;
   }
   /**
-     * Creates a {@link ViewLayer} in this View.
-     *
-     * The ViewLayer is then registered in {@link View.layers}.
-     *
-     * Since the ViewLayer is created explicitly by this method, the ViewLayer will persist until {@link ViewLayer.destroy}
-     * is called, or the {@link View} itself is destroyed. If a ViewLayer with the given ID already exists, then the method
-     * returns that existing ViewLayer. The method will also ensure that the existing ViewLayer likewise persists.
-     *
-     * @param viewLayerParams
-     * @returns The new ViewLayer
-     */
+   * Creates a {@link ViewLayer} in this View.
+   *
+   * The ViewLayer is then registered in {@link View.layers}.
+   *
+   * Since the ViewLayer is created explicitly by this method, the ViewLayer will persist until {@link ViewLayer.destroy}
+   * is called, or the {@link View} itself is destroyed. If a ViewLayer with the given ID already exists, then the method
+   * returns that existing ViewLayer. The method will also ensure that the existing ViewLayer likewise persists.
+   *
+   * @param viewLayerParams
+   * @returns The new ViewLayer
+   */
   createLayer(viewLayerParams) {
     let viewLayer = this.layers[viewLayerParams.id];
     if (!viewLayer) {
@@ -188953,27 +188956,27 @@ var View = class extends Component {
     return viewLayer;
   }
   /**
-     * Attempts to pick a ViewObject in this View.
-     *
-     * @param pickParams Picking parameters.
-     * @param pickResult Picking results, when caller wants to manage them externally.
-     * @throws {@link core!SDKError | SDKError}
-     * * No View is currently attached to this Renderer.
-     * * Can't find a View attached to this Renderer with the given handle.
-     * * Illegal picking parameters given.
-     * @returns {@link PickResult}
-     * * Picking attempt completed.
-     */
+   * Attempts to pick a ViewObject in this View.
+   *
+   * @param pickParams Picking parameters.
+   * @param pickResult Picking results, when caller wants to manage them externally.
+   * @throws {@link core!SDKError | SDKError}
+   * * No View is currently attached to this Renderer.
+   * * Can't find a View attached to this Renderer with the given handle.
+   * * Illegal picking parameters given.
+   * @returns {@link PickResult}
+   * * Picking attempt completed.
+   */
   pick(pickParams, pickResult) {
     return this.viewer.renderer.pick(this.viewIndex, pickParams, pickResult);
   }
   /**
-     * Enter snapshot mode.
-     *
-     * Switches rendering to a hidden snapshot canvas.
-     *
-     * Exit snapshot mode using {@link Viewer#endSnapshot}.
-     */
+   * Enter snapshot mode.
+   *
+   * Switches rendering to a hidden snapshot canvas.
+   *
+   * Exit snapshot mode using {@link Viewer#endSnapshot}.
+   */
   beginSnapshot() {
     if (this.#snapshotBegun) {
       return;
@@ -188982,11 +188985,11 @@ var View = class extends Component {
     this.#snapshotBegun = true;
   }
   /**
-     * Captures a snapshot image of this View.
-     *
-     * @param snapshotParams
-     * @param snapshotResult
-     */
+   * Captures a snapshot image of this View.
+   *
+   * @param snapshotParams
+   * @param snapshotResult
+   */
   getSnapshot(snapshotParams, snapshotResult) {
     return new SnapshotResult();
   }
@@ -189013,9 +189016,9 @@ var View = class extends Component {
     return this.sectionPlanesList.length;
   }
   /**
-     * Sets the state of this View.
-     * @param viewParams
-     */
+   * Sets the state of this View.
+   * @param viewParams
+   */
   fromParams(viewParams) {
     if (viewParams.camera) {
       this.camera.fromParams(viewParams.camera);
@@ -189059,8 +189062,8 @@ var View = class extends Component {
     }
   }
   /**
-     * Gets this View as JSON.
-     */
+   * Gets this View as JSON.
+   */
   toParams() {
     return {
       id: this.id,
@@ -189080,10 +189083,10 @@ var View = class extends Component {
     };
   }
   /**
-     * Destroys this View.
-     *
-     * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
-     */
+   * Destroys this View.
+   *
+   * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
+   */
   destroy() {
     this.viewer.onTick.unsubscribe(this.#onTick);
     this.#destroyViewLayers();
@@ -189145,91 +189148,91 @@ var View = class extends Component {
 // ../sdk/src/viewer/Viewer.ts
 var Viewer = class extends Component {
   /**
-     * Indicates the capabilities of this Viewer.
-     */
+   * Indicates the capabilities of this Viewer.
+   */
   capabilities;
   /**
-     * Emits an event each time a message is logged.
-     *
-     * @event
-     */
+   * Emits an event each time a message is logged.
+   *
+   * @event
+   */
   onLog;
   /**
-     * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
-     *
-     * @event
-     */
+   * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
+   *
+   * @event
+   */
   onTick;
   /**
-     * Emits an event each time a {@link View} is created.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link View} is created.
+   *
+   * @event
+   */
   onViewCreated;
   /**
-     * Emits an event each time a {@link View} is destroyed.
-     *
-     * @event
-     */
+   * Emits an event each time a {@link View} is destroyed.
+   *
+   * @event
+   */
   onViewDestroyed;
   /**
-     * The Viewer's scene representation.
-     *
-     * The {@link scene!SceneModel | SceneModels} is the container of {@link scene!SceneModel | SceneModels}
-     * and {@link scene!SceneObject | SceneObjects}, which contain the geometry and materials for models currently
-     * loaded in the Viewer.
-     */
+   * The Viewer's scene representation.
+   *
+   * The {@link scene!SceneModel | SceneModels} is the container of {@link scene!SceneModel | SceneModels}
+   * and {@link scene!SceneObject | SceneObjects}, which contain the geometry and materials for models currently
+   * loaded in the Viewer.
+   */
   scene;
   /**
-     * Map of all the Views in this Viewer.
-     *
-     * Each {@link View} is mapped here against {@link View.id | View.id}.
-     *
-     * Each {@link View} is an independently configurable view of the Viewer's models, with its own
-     * canvas, camera position, section planes, lights, and object visual states.
-     */
+   * Map of all the Views in this Viewer.
+   *
+   * Each {@link View} is mapped here against {@link View.id | View.id}.
+   *
+   * Each {@link View} is an independently configurable view of the Viewer's models, with its own
+   * canvas, camera position, section planes, lights, and object visual states.
+   */
   views;
   /**
-     * List of all the Views in this Viewer.
-     *
-     * Each {@link View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
-     *
-     * @internal
-     */
+   * List of all the Views in this Viewer.
+   *
+   * Each {@link View} is an independently configurable view of the Viewer's models, with its own canvas, camera position, section planes, lights, and object visual states.
+   *
+   * @internal
+   */
   viewList;
   /**
-     *  The number of {@link View | Views} belonging to this Viewer.
-     *
-     *  The maxiumum number of Views that a Viewer can have is determined by the {@link Renderer} implementation it was
-     *  configured with, which is provided in {@link Capabilities.maxViews}.
-     */
+   *  The number of {@link View | Views} belonging to this Viewer.
+   *
+   *  The maxiumum number of Views that a Viewer can have is determined by the {@link Renderer} implementation it was
+   *  configured with, which is provided in {@link Capabilities.maxViews}.
+   */
   numViews;
   /**
-     * The time that this Viewer was created.
-     * This is the number of milliseconds since the epoch, which is defined as the midnight at the beginning of January 1, 1970, UTC.
-     */
+   * The time that this Viewer was created.
+   * This is the number of milliseconds since the epoch, which is defined as the midnight at the beginning of January 1, 1970, UTC.
+   */
   startTime = (/* @__PURE__ */ new Date()).getTime();
   /**
-     * The Renderer that this Viewer was configured with via the Viewer's constructor.
-     * Th Renderer is only used by the Viewer, and is not intended to for users to use directly. It's provided via this property
-     * in order to verify which Render implementation the Viewer is configured with.
-     */
+   * The Renderer that this Viewer was configured with via the Viewer's constructor.
+   * Th Renderer is only used by the Viewer, and is not intended to for users to use directly. It's provided via this property
+   * in order to verify which Render implementation the Viewer is configured with.
+   */
   renderer;
   #tickifiedFunctions;
   /**
-     * Creates a Viewer.
-     *
-     * @param params - Viewer configuration.
-     * @param params.scene - Contains model representations. A Scene can be attached to a maximum of one Viewer - don't share a Scene between multiple Viewers.
-     * @param params.renderer - Manages rendering of models.
-     * @param params.id - ID for this Viewer, automatically generated by default.
-     * @param params.units - The measurement unit type. Accepted values are ````"meters"````, ````"metres"````, , ````"centimeters"````, ````"centimetres"````, ````"millimeters"````,  ````"millimetres"````, ````"yards"````, ````"feet"```` and ````"inches"````.
-     * @param params.scale - The number of Real-space units in each World-space coordinate system unit.
-     * @param params.origin - The Real-space 3D origin, in current measurement units, at which the World-space coordinate origin ````[0,0,0]```` sits.
-     * @param params.localeService - Locale-based translation service.
-     * @throws SDKError
-     *   The given Renderer is already attached to some other Viewer.
-     */
+   * Creates a Viewer.
+   *
+   * @param params - Viewer configuration.
+   * @param params.scene - Contains model representations. A Scene can be attached to a maximum of one Viewer - don't share a Scene between multiple Viewers.
+   * @param params.renderer - Manages rendering of models.
+   * @param params.id - ID for this Viewer, automatically generated by default.
+   * @param params.units - The measurement unit type. Accepted values are ````"meters"````, ````"metres"````, , ````"centimeters"````, ````"centimetres"````, ````"millimeters"````,  ````"millimetres"````, ````"yards"````, ````"feet"```` and ````"inches"````.
+   * @param params.scale - The number of Real-space units in each World-space coordinate system unit.
+   * @param params.origin - The Real-space 3D origin, in current measurement units, at which the World-space coordinate origin ````[0,0,0]```` sits.
+   * @param params.localeService - Locale-based translation service.
+   * @throws SDKError
+   *   The given Renderer is already attached to some other Viewer.
+   */
   constructor(params2) {
     super(null, {});
     this.id = params2.id || createUUID2();
@@ -189268,16 +189271,16 @@ var Viewer = class extends Component {
     scheduler.registerViewer(this);
   }
   /**
-     * This method will "tickify" the provided `cb` function.
-     *
-     * This means, the function will be wrapped so:
-     *
-     * - it runs time-aligned to scene ticks
-     * - it runs maximum once per scene-tick
-     *
-     * @param {Function} cb The function to tickify
-     * @returns {Function}
-     */
+   * This method will "tickify" the provided `cb` function.
+   *
+   * This means, the function will be wrapped so:
+   *
+   * - it runs time-aligned to scene ticks
+   * - it runs maximum once per scene-tick
+   *
+   * @param {Function} cb The function to tickify
+   * @returns {Function}
+   */
   tickify(cb2) {
     const cbString = cb2.toString();
     if (cbString in this.#tickifiedFunctions) {
@@ -189301,39 +189304,39 @@ var Viewer = class extends Component {
     return wrapperFunc;
   }
   /**
-     * Creates a new {@link View} within this Viewer.
-     *
-     * * The maximum number of views you're allowed to create is provided in {@link Capabilities.maxViews}. This
-     * will be determined by the {@link Renderer} implementation the Viewer is configured with.
-     * * To destroy the View after use, call {@link View.destroy}.
-     * * You must add a View to the Viewer before you can create or load content into the Viewer's Viewer.
-     *
-     * ### Usage
-     *
-     * ````javascript
-     * const view1 = myViewer.createView({
-     *      id: "myView",
-     *      elementId: "myView1"
-     *  });
-     *
-     * if (view1 instanceof SDKError) {
-     *      console.log(view1.message);
-     * } else {
-     *      view1.camera.eye = [-3.933, 2.855, 27.018];
-     *      view1.camera.look = [4.400, 3.724, 8.899];
-     *      view1.camera.up = [-0.018, 0.999, 0.039];
-     *
-     *      //...
-     * }
-     * ````
-     *
-     * @param viewParams View configuration.
-     * @returns *{@link View | View}*
-     * * On success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * If View already exists with the given ID.
-     * * Attempted to create too many Views - see {@link Capabilities.maxViews | Capabilities.maxViews}.
-     */
+   * Creates a new {@link View} within this Viewer.
+   *
+   * * The maximum number of views you're allowed to create is provided in {@link Capabilities.maxViews}. This
+   * will be determined by the {@link Renderer} implementation the Viewer is configured with.
+   * * To destroy the View after use, call {@link View.destroy}.
+   * * You must add a View to the Viewer before you can create or load content into the Viewer's Viewer.
+   *
+   * ### Usage
+   *
+   * ````javascript
+   * const view1 = myViewer.createView({
+   *      id: "myView",
+   *      elementId: "myView1"
+   *  });
+   *
+   * if (view1 instanceof SDKError) {
+   *      console.log(view1.message);
+   * } else {
+   *      view1.camera.eye = [-3.933, 2.855, 27.018];
+   *      view1.camera.look = [4.400, 3.724, 8.899];
+   *      view1.camera.up = [-0.018, 0.999, 0.039];
+   *
+   *      //...
+   * }
+   * ````
+   *
+   * @param viewParams View configuration.
+   * @returns *{@link View | View}*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * If View already exists with the given ID.
+   * * Attempted to create too many Views - see {@link Capabilities.maxViews | Capabilities.maxViews}.
+   */
   createView(viewParams) {
     if (this.viewList.length >= this.capabilities.maxViews) {
       return new SDKError(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
@@ -189373,53 +189376,53 @@ var Viewer = class extends Component {
     return view;
   }
   /**
-     * Trigger redraw of all {@link View | Views} belonging to this Viewer.
-     *
-     * @private
-     */
+   * Trigger redraw of all {@link View | Views} belonging to this Viewer.
+   *
+   * @private
+   */
   redraw() {
     for (const viewId in this.views) {
       this.views[viewId].redraw();
     }
   }
   /**
-     * Logs a console debugging message for this Viewer.
-     *
-     * The console message will have this format: *````[LOG] [<component type> <component id>: <message>````*
-     *
-     * @private
-     * @param message - The message to log
-     */
+   * Logs a console debugging message for this Viewer.
+   *
+   * The console message will have this format: *````[LOG] [<component type> <component id>: <message>````*
+   *
+   * @private
+   * @param message - The message to log
+   */
   log(message) {
     window.console.log(`[LOG] ${this.#prefixMessageWithID(message)}`);
   }
   /**
-     * Logs a warning for this Viewer to the JavaScript console.
-     *
-     * The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
-     *
-     * @private
-     * @param message - The warning message to log
-     */
+   * Logs a warning for this Viewer to the JavaScript console.
+   *
+   * The console message will have this format: *````[WARN] [<component type> =<component id>: <message>````*
+   *
+   * @private
+   * @param message - The warning message to log
+   */
   warn(message) {
     window.console.warn(`[WARN] ${this.#prefixMessageWithID(message)}`);
   }
   /**
-     * Logs an error for this Viewer to the JavaScript console.
-     *
-     * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
-     *
-     * @private
-     * @param message The error message to log
-     */
+   * Logs an error for this Viewer to the JavaScript console.
+   *
+   * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
+   *
+   * @private
+   * @param message The error message to log
+   */
   error(message) {
     window.console.error(`[ERROR] ${this.#prefixMessageWithID(message)}`);
   }
   /**
-     * Clears this Viewer.
-     *
-     * Destroys all existing {@link View | Views} and resets all properties to their default values.
-     */
+   * Clears this Viewer.
+   *
+   * Destroys all existing {@link View | Views} and resets all properties to their default values.
+   */
   clear() {
     for (const viewId in this.views) {
       const view = this.views[viewId];
@@ -189427,9 +189430,9 @@ var Viewer = class extends Component {
     }
   }
   /**
-     * @private
-     * @param params
-     */
+   * @private
+   * @param params
+   */
   render(params2) {
     for (let viewIndex = 0; viewIndex < this.viewList.length; viewIndex++) {
       this.renderer.render(viewIndex, { force: false });
@@ -189461,10 +189464,10 @@ var Viewer = class extends Component {
     this.numViews--;
   }
   /**
-     * Configures this Viewer.
-     *
-     * @param viewerParams
-     */
+   * Configures this Viewer.
+   *
+   * @param viewerParams
+   */
   fromParams(viewerParams) {
     if (viewerParams.views) {
       for (const viewParams of viewerParams.views) {
@@ -189482,16 +189485,16 @@ var Viewer = class extends Component {
     }
   }
   /**
-     * Gets the current configuration of this Viewer.
-     */
+   * Gets the current configuration of this Viewer.
+   */
   toParams() {
     return {
       views: this.viewList.map((el) => el.toParams())
     };
   }
   /**
-     * Destroys this Viewer.
-     */
+   * Destroys this Viewer.
+   */
   destroy() {
     if (this.destroyed) {
       return;
@@ -189512,14 +189515,14 @@ var Viewer = class extends Component {
 // ../sdk/src/viewer/PointLight.ts
 var PointLight = class extends Component {
   /**
-     * The View to which this PointLight belongs.
-     */
+   * The View to which this PointLight belongs.
+   */
   view;
   #state;
   /**
-     * @param view View that owns this PointLight. When destroyed, the View will destroy this PointLight as well.
-     * @param cfg The PointLight configuration
-     */
+   * @param view View that owns this PointLight. When destroyed, the View will destroy this PointLight as well.
+   * @param cfg The PointLight configuration
+   */
   constructor(view, cfg = {}) {
     super(view, cfg);
     this.view = view;
@@ -189535,74 +189538,74 @@ var PointLight = class extends Component {
     this.view.registerLight(this);
   }
   /**
-     * The coordinate system the PointLight is defined in - ````"view"```` or ````"space"````.
-     */
+   * The coordinate system the PointLight is defined in - ````"view"```` or ````"space"````.
+   */
   get space() {
     return this.#state.space;
   }
   /**
-     * Gets the position of this PointLight.
-     *
-     * This will be either World- or View-space, depending on the value of {@link PointLight.space}.
-     *
-     * Default value is ````[1.0, 1.0, 1.0]````.
-     *
-     * @returns {Number[]} The position.
-     */
+   * Gets the position of this PointLight.
+   *
+   * This will be either World- or View-space, depending on the value of {@link PointLight.space}.
+   *
+   * Default value is ````[1.0, 1.0, 1.0]````.
+   *
+   * @returns {Number[]} The position.
+   */
   get pos() {
     return this.#state.pos;
   }
   /**
-     * Sets the position of this PointLight.
-     *
-     * This will be either World- or View-space, depending on the value of {@link PointLight.space}.
-     *
-     * Default value is ````[1.0, 1.0, 1.0]````.
-     *
-     * @param pos The position.
-     */
+   * Sets the position of this PointLight.
+   *
+   * This will be either World- or View-space, depending on the value of {@link PointLight.space}.
+   *
+   * Default value is ````[1.0, 1.0, 1.0]````.
+   *
+   * @param pos The position.
+   */
   set pos(pos) {
     this.#state.pos.set(pos || [1, 1, 1]);
     this.view.redraw();
   }
   /**
-     * Gets the RGB color of this PointLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.8]````.
-     *
-     * @returns {Number[]} The PointLight's RGB color.
-     */
+   * Gets the RGB color of this PointLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.8]````.
+   *
+   * @returns {Number[]} The PointLight's RGB color.
+   */
   get color() {
     return this.#state.color;
   }
   /**
-     * Sets the RGB color of this PointLight.
-     *
-     * Default value is ````[0.7, 0.7, 0.8]````.
-     *
-     * @param color The PointLight's RGB color.
-     */
+   * Sets the RGB color of this PointLight.
+   *
+   * Default value is ````[0.7, 0.7, 0.8]````.
+   *
+   * @param color The PointLight's RGB color.
+   */
   set color(color2) {
     this.#state.color.set(color2 || [0.7, 0.7, 0.8]);
     this.view.redraw();
   }
   /**
-     * Gets the intensity of this PointLight.
-     *
-     * Default value is ````1.0```` for maximum intensity.
-     *
-     * @returns {Number} The PointLight's intensity.
-     */
+   * Gets the intensity of this PointLight.
+   *
+   * Default value is ````1.0```` for maximum intensity.
+   *
+   * @returns {Number} The PointLight's intensity.
+   */
   get intensity() {
     return this.#state.intensity;
   }
   /**
-     * Sets the intensity of this PointLight.
-     *
-     * Default intensity is ````1.0```` for maximum intensity.
-     *
-     * @param intensity The PointLight's intensity
-     */
+   * Sets the intensity of this PointLight.
+   *
+   * Default intensity is ````1.0```` for maximum intensity.
+   *
+   * @param intensity The PointLight's intensity
+   */
   set intensity(intensity) {
     if (intensity === this.#state.intensity) {
       return;
@@ -189611,76 +189614,76 @@ var PointLight = class extends Component {
     this.view.redraw();
   }
   /**
-     * Gets the constant attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @returns {Number} The constant attenuation factor.
-     */
+   * Gets the constant attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @returns {Number} The constant attenuation factor.
+   */
   get constantAttenuation() {
     return this.#state.attenuation[0];
   }
   /**
-     * Sets the constant attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @param value The constant attenuation factor.
-     */
+   * Sets the constant attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @param value The constant attenuation factor.
+   */
   set constantAttenuation(value) {
     this.#state.attenuation[0] = value;
     this.view.redraw();
   }
   /**
-     * Gets the linear attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @returns {Number} The linear attenuation factor.
-     */
+   * Gets the linear attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @returns {Number} The linear attenuation factor.
+   */
   get linearAttenuation() {
     return this.#state.attenuation[1];
   }
   /**
-     * Sets the linear attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @param value The linear attenuation factor.
-     */
+   * Sets the linear attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @param value The linear attenuation factor.
+   */
   set linearAttenuation(value) {
     this.#state.attenuation[1] = value;
     this.view.redraw();
   }
   /**
-     * Gets the quadratic attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @returns {Number} The quadratic attenuation factor.
-     */
+   * Gets the quadratic attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @returns {Number} The quadratic attenuation factor.
+   */
   get quadraticAttenuation() {
     return this.#state.attenuation[2];
   }
   /**
-     * Sets the quadratic attenuation factor for this PointLight.
-     *
-     * Default value is ````0````.
-     *
-     * @param value The quadratic attenuation factor.
-     */
+   * Sets the quadratic attenuation factor for this PointLight.
+   *
+   * Default value is ````0````.
+   *
+   * @param value The quadratic attenuation factor.
+   */
   set quadraticAttenuation(value) {
     this.#state.attenuation[2] = value;
     this.view.redraw();
   }
   /**
-     * Configures this PointLight.
-     *
-     * Ignores {@link PointLightParams.space | PointLightParams.space}, because
-     * {@link PointLight.space | PointLight.space} is not dynamically updatable.
-     *
-     * @param pointLightParams
-     */
+   * Configures this PointLight.
+   *
+   * Ignores {@link PointLightParams.space | PointLightParams.space}, because
+   * {@link PointLight.space | PointLight.space} is not dynamically updatable.
+   *
+   * @param pointLightParams
+   */
   fromParams(pointLightParams) {
     if (pointLightParams.pos) {
       this.pos = pointLightParams.pos;
@@ -189693,8 +189696,8 @@ var PointLight = class extends Component {
     }
   }
   /**
-     * Gets the current configuration of this PointLight.
-     */
+   * Gets the current configuration of this PointLight.
+   */
   toParams() {
     return {
       id: this.id,
@@ -189708,8 +189711,8 @@ var PointLight = class extends Component {
     };
   }
   /**
-     * Destroys this PointLight.
-     */
+   * Destroys this PointLight.
+   */
   destroy() {
     super.destroy();
     this.view.deregisterLight(this);
@@ -189768,26 +189771,26 @@ var PickResult = class {
     this.reset();
   }
   /**
-     * The picked {@link ViewObject}.
-     */
+   * The picked {@link ViewObject}.
+   */
   get viewObject() {
     return this.#viewObject;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set viewObject(value) {
     this.#viewObject = value;
   }
   /**
-     * Canvas coordinates when picking with a 2D pointer.
-     */
+   * Canvas coordinates when picking with a 2D pointer.
+   */
   get canvasPos() {
     return this.#gotCanvasPos ? this.#canvasPos : void 0;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set canvasPos(value) {
     if (value) {
       this.#canvasPos[0] = value[0];
@@ -189798,14 +189801,14 @@ var PickResult = class {
     }
   }
   /**
-     * World-space 3D ray origin when raypicked.
-     */
+   * World-space 3D ray origin when raypicked.
+   */
   get origin() {
     return this.#gotOrigin ? this.#origin : null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set origin(value) {
     if (value) {
       this.#origin[0] = value[0];
@@ -189817,14 +189820,14 @@ var PickResult = class {
     }
   }
   /**
-     * World-space 3D ray direction when raypicked.
-     */
+   * World-space 3D ray direction when raypicked.
+   */
   get direction() {
     return this.#gotDirection ? this.#direction : null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set direction(value) {
     if (value) {
       this.#direction[0] = value[0];
@@ -189836,15 +189839,15 @@ var PickResult = class {
     }
   }
   /**
-     * Picked triangle's vertex indices.
-     * Only defined when an object and triangle was picked.
-     */
+   * Picked triangle's vertex indices.
+   * Only defined when an object and triangle was picked.
+   */
   get indices() {
     return this.#viewObject !== null && this.#gotIndices ? this.#indices : null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set indices(value) {
     if (value) {
       this.#indices[0] = value[0];
@@ -189856,15 +189859,15 @@ var PickResult = class {
     }
   }
   /**
-     * Picked Local-space point on surface.
-     * Only defined when an object and a point on its surface was picked.
-     */
+   * Picked Local-space point on surface.
+   * Only defined when an object and a point on its surface was picked.
+   */
   get localPos() {
     return this.#viewObject !== null && this.#gotLocalPos ? this.#localPos : null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set localPos(value) {
     if (value) {
       this.#localPos[0] = value[0];
@@ -189876,15 +189879,15 @@ var PickResult = class {
     }
   }
   /**
-     * Picked World-space point on surface.
-     * Only defined when an object and a point on its surface was picked.
-     */
+   * Picked World-space point on surface.
+   * Only defined when an object and a point on its surface was picked.
+   */
   get worldPos() {
     return this.#viewObject && this.#gotWorldPos ? this.#worldPos : null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set worldPos(value) {
     if (value) {
       this.#worldPos[0] = value[0];
@@ -189896,15 +189899,15 @@ var PickResult = class {
     }
   }
   /**
-     * Picked View-space point on surface.
-     * Only defined when an object and a point on its surface was picked.
-     */
+   * Picked View-space point on surface.
+   * Only defined when an object and a point on its surface was picked.
+   */
   get viewPos() {
     return this.#viewObject && this.#gotViewPos ? this.#viewPos : null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set viewPos(value) {
     if (value) {
       this.#viewPos[0] = value[0];
@@ -189916,15 +189919,15 @@ var PickResult = class {
     }
   }
   /**
-     * Normal vector at picked position on surface.
-     * Only defined when an object and a point on its surface was picked.
-     */
+   * Normal vector at picked position on surface.
+   * Only defined when an object and a point on its surface was picked.
+   */
   get worldNormal() {
     return this.#viewObject !== null && this.#gotWorldNormal ? this.#worldNormal : null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set worldNormal(value) {
     if (value) {
       this.#worldNormal[0] = value[0];
@@ -189936,15 +189939,15 @@ var PickResult = class {
     }
   }
   /**
-     * UV coordinates at picked position on surface.
-     * Only defined when an object and a point on its surface was picked.
-     */
+   * UV coordinates at picked position on surface.
+   * Only defined when an object and a point on its surface was picked.
+   */
   get uv() {
     return this.#viewObject !== null && this.#gotUV ? this.#uv : null;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set uv(value) {
     if (value) {
       this.#uv[0] = value[0];
@@ -189955,22 +189958,22 @@ var PickResult = class {
     }
   }
   /**
-     * Returns `true` if picking has snapped to the canvas coordinates of the nearest vertex.
-     * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest vertex.
-     */
+   * Returns `true` if picking has snapped to the canvas coordinates of the nearest vertex.
+   * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest vertex.
+   */
   get snappedToVertex() {
     return this.#viewObject !== null && this.#snappedToVertex;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set snappedToVertex(value) {
     this.#snappedToVertex = value;
   }
   /**
-     * Returns `true` if picking has snapped to the canvas coordinates of the nearest edge.
-     * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest edge.
-     */
+   * Returns `true` if picking has snapped to the canvas coordinates of the nearest edge.
+   * When this is `true`, then {@link PickResult.snappedCanvasPos} will contain the canvas coordinates of the nearest position on teh nearest edge.
+   */
   get snappedToEdge() {
     return this.#viewObject !== null && this.#snappedToEdge;
   }
@@ -189978,15 +189981,15 @@ var PickResult = class {
     this.#snappedToEdge = value;
   }
   /**
-     * Snapped canvas coordinates when picking with a 2D pointer.
-     * This has a value when {@link PickResult.snappedToEdge} or {@link PickResult.snappedToVertex} is `true`, otherwise will be `null`.
-     */
+   * Snapped canvas coordinates when picking with a 2D pointer.
+   * This has a value when {@link PickResult.snappedToEdge} or {@link PickResult.snappedToVertex} is `true`, otherwise will be `null`.
+   */
   get snappedCanvasPos() {
     return this.#gotSnappedCanvasPos ? this.#snappedCanvasPos : void 0;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   set snappedCanvasPos(value) {
     if (value) {
       this.#snappedCanvasPos[0] = value[0];
@@ -189997,8 +190000,8 @@ var PickResult = class {
     }
   }
   /**
-     * @private
-     */
+   * @private
+   */
   reset() {
     this.#viewObject = null;
     this.#gotCanvasPos = false;
@@ -190025,74 +190028,74 @@ __export(webglrenderer_exports, {
 // ../sdk/src/webglutils/WebGLArrayBuf.ts
 var WebGLArrayBuf = class {
   /**
-     * WebGL2 rendering context.
-     */
+   * WebGL2 rendering context.
+   */
   gl;
   /**
-     * The ArrayBuffer's item type.
-     */
+   * The ArrayBuffer's item type.
+   */
   itemType;
   /**
-     * Byte size of each item.
-     */
+   * Byte size of each item.
+   */
   itemByteSize;
   /**
-     * The ArrayBuffer type.
-     */
+   * The ArrayBuffer type.
+   */
   type;
   /**
-     * Allocated yet?
-     */
+   * Allocated yet?
+   */
   allocated;
   /**
-     * A GLenum specifying the intended usage pattern of the data store for optimization purposes. Possible values:
-     *
-     * * gl.STATIC_DRAW : The contents are intended to be specified once by the application, and used many times as the source for WebGL drawing and image specification commands.
-     * * gl.DYNAMIC_DRAW : The contents are intended to be respecified repeatedly by the application, and used many times as the source for WebGL drawing and image specification commands.
-     * * gl.STREAM_DRAW : The contents are intended to be specified once by the application, and used at most a few times as the source for WebGL drawing and image specification commands.
-     * * gl.STATIC_READ : The contents are intended to be specified once by reading data from WebGL, and queried many times by the application.
-     * * gl.DYNAMIC_READ : The contents are intended to be respecified repeatedly by reading data from WebGL, and queried many times by the application.
-     * * gl.STREAM_READ : The contents are intended to be specified once by reading data from WebGL, and queried at most a few times by the application
-     * * gl.STATIC_COPY : The contents are intended to be specified once by reading data from WebGL, and used many times as the source for WebGL drawing and image specification commands.
-     * * gl.DYNAMIC_COPY : The contents are intended to be respecified repeatedly by reading data from WebGL, and used many times as the source for WebGL drawing and image specification commands.
-     * * gl.STREAM_COPY : The contents are intended to be specified once by reading data from WebGL, and used at most a few times as the source for WebGL drawing and image specification commands.
-     */
+   * A GLenum specifying the intended usage pattern of the data store for optimization purposes. Possible values:
+   *
+   * * gl.STATIC_DRAW : The contents are intended to be specified once by the application, and used many times as the source for WebGL drawing and image specification commands.
+   * * gl.DYNAMIC_DRAW : The contents are intended to be respecified repeatedly by the application, and used many times as the source for WebGL drawing and image specification commands.
+   * * gl.STREAM_DRAW : The contents are intended to be specified once by the application, and used at most a few times as the source for WebGL drawing and image specification commands.
+   * * gl.STATIC_READ : The contents are intended to be specified once by reading data from WebGL, and queried many times by the application.
+   * * gl.DYNAMIC_READ : The contents are intended to be respecified repeatedly by reading data from WebGL, and queried many times by the application.
+   * * gl.STREAM_READ : The contents are intended to be specified once by reading data from WebGL, and queried at most a few times by the application
+   * * gl.STATIC_COPY : The contents are intended to be specified once by reading data from WebGL, and used many times as the source for WebGL drawing and image specification commands.
+   * * gl.DYNAMIC_COPY : The contents are intended to be respecified repeatedly by reading data from WebGL, and used many times as the source for WebGL drawing and image specification commands.
+   * * gl.STREAM_COPY : The contents are intended to be specified once by reading data from WebGL, and used at most a few times as the source for WebGL drawing and image specification commands.
+   */
   usage;
   /**
-     * The ArrayBuffer type.
-     */
+   * The ArrayBuffer type.
+   */
   length;
   /**
-     *
-     */
+   *
+   */
   dataLength;
   /**
-     * Number of items in the ArrayBuffer.
-     */
+   * Number of items in the ArrayBuffer.
+   */
   numItems;
   /**
-     * Size of each item.
-     */
+   * Size of each item.
+   */
   itemSize;
   /**
-     * True when ArrayBuffer values are normalized.
-     */
+   * True when ArrayBuffer values are normalized.
+   */
   normalized;
   /**
-     * The ArrayBuffer stride.
-     */
+   * The ArrayBuffer stride.
+   */
   stride;
   /**
-     *
-     */
+   *
+   */
   offset;
   /**
-     * Hand to a WebGLBuffer.
-     */
+   * Hand to a WebGLBuffer.
+   */
   handle;
   /**
-     * Creates a WebGL ArrayBuffer.
-     */
+   * Creates a WebGL ArrayBuffer.
+   */
   constructor(gl, type, data, numItems, itemSize, usage, normalized, stride, offset) {
     this.gl = gl;
     this.type = type;
@@ -190152,10 +190155,10 @@ var WebGLArrayBuf = class {
     }
   }
   /**
-     * Updates the contents of this ArrayBuffer.
-     * @param data
-     * @param offset
-     */
+   * Updates the contents of this ArrayBuffer.
+   * @param data
+   * @param offset
+   */
   setData(data, offset) {
     if (!this.allocated) {
       return;
@@ -190174,8 +190177,8 @@ var WebGLArrayBuf = class {
     }
   }
   /**
-     * Binds this ArrayBuffer to the WebGL rendering context.
-     */
+   * Binds this ArrayBuffer to the WebGL rendering context.
+   */
   bind() {
     if (!this.allocated) {
       return;
@@ -190183,8 +190186,8 @@ var WebGLArrayBuf = class {
     this.gl.bindBuffer(this.type, this.handle);
   }
   /**
-     * Unbinds this ArrayBuffer from the WebGL rendering context.
-     */
+   * Unbinds this ArrayBuffer from the WebGL rendering context.
+   */
   unbind() {
     if (!this.allocated) {
       return;
@@ -190192,8 +190195,8 @@ var WebGLArrayBuf = class {
     this.gl.bindBuffer(this.type, null);
   }
   /**
-     * Destroys this ArrayBuffer.
-     */
+   * Destroys this ArrayBuffer.
+   */
   destroy() {
     if (!this.allocated) {
       return;
@@ -190208,18 +190211,18 @@ var WebGLAttribute = class {
   gl;
   location;
   /**
-     * Creates a new vertex attribute.
-     * @param gl
-     * @param location
-     */
+   * Creates a new vertex attribute.
+   * @param gl
+   * @param location
+   */
   constructor(gl, location) {
     this.gl = gl;
     this.location = location;
   }
   /**
-     * Binds an array buffer to this vertex attribute.
-     * @param arrayBuf
-     */
+   * Binds an array buffer to this vertex attribute.
+   * @param arrayBuf
+   */
   bindArrayBuffer(arrayBuf) {
     if (!arrayBuf) {
       return;
@@ -190235,19 +190238,19 @@ var WebGLSampler = class {
   location;
   gl;
   /**
-     * Creates a new sampler.
-     * @param gl
-     * @param location
-     */
+   * Creates a new sampler.
+   * @param gl
+   * @param location
+   */
   constructor(gl, location) {
     this.gl = gl;
     this.location = location;
   }
   /**
-     * Binds a texture to this sampler.
-     * @param texture
-     * @param unit
-     */
+   * Binds a texture to this sampler.
+   * @param texture
+   * @param unit
+   */
   bindTexture(texture, unit) {
     if (texture.bind(unit)) {
       this.gl.uniform1i(this.location, unit);
@@ -190260,27 +190263,27 @@ var WebGLSampler = class {
 // ../sdk/src/webglutils/WebGLShader.ts
 var WebGLShader = class {
   /**
-     * Compilation errors, if any.
-     */
+   * Compilation errors, if any.
+   */
   errors;
   /**
-     * True when this shader was successfully allocated.
-     */
+   * True when this shader was successfully allocated.
+   */
   allocated;
   /**
-     * True when this shader was successfully compiled.
-     */
+   * True when this shader was successfully compiled.
+   */
   compiled;
   /**
-     * Handle to GPU-resident WebGL2 shader.
-     */
+   * Handle to GPU-resident WebGL2 shader.
+   */
   handle;
   /**
-     * Creates a new shader.
-     * @param gl
-     * @param type
-     * @param source
-     */
+   * Creates a new shader.
+   * @param gl
+   * @param type
+   * @param source
+   */
   constructor(gl, type, source) {
     this.allocated = false;
     this.compiled = false;
@@ -190310,8 +190313,8 @@ var WebGLShader = class {
     }
   }
   /**
-     * Destroys this shader.
-     */
+   * Destroys this shader.
+   */
   destroy() {
   }
 };
@@ -190320,66 +190323,66 @@ var WebGLShader = class {
 var ids = new Map2({}, "");
 var WebGLProgram = class {
   /**
-     * Unique ID of this program.
-     */
+   * Unique ID of this program.
+   */
   id;
   /**
-     * The vertex shader.
-     */
+   * The vertex shader.
+   */
   vertexShader;
   /**
-     * The fragment shader.
-     */
+   * The fragment shader.
+   */
   fragmentShader;
   /**
-     * Map of all attributes in this program.
-     */
+   * Map of all attributes in this program.
+   */
   attributes;
   /**
-     * Map of all samplers in this program.
-     */
+   * Map of all samplers in this program.
+   */
   samplers;
   /**
-     * Map of all uniforms in this program.
-     */
+   * Map of all uniforms in this program.
+   */
   uniforms;
   /**
-     * List of compilation errors for this program, if any.
-     */
+   * List of compilation errors for this program, if any.
+   */
   errors;
   /**
-     * Flag set true when program has been validated.
-     */
+   * Flag set true when program has been validated.
+   */
   validated;
   /**
-     * Flag set true when this program has been successfully linked.
-     */
+   * Flag set true when this program has been successfully linked.
+   */
   linked;
   /**
-     * Flag set true when this program has been successfully conpiled.
-     */
+   * Flag set true when this program has been successfully conpiled.
+   */
   compiled;
   /**
-     * Flag set true when this program has been successfully allocated.
-     */
+   * Flag set true when this program has been successfully allocated.
+   */
   allocated;
   /**
-     * The WebGL2 rendering context.
-     */
+   * The WebGL2 rendering context.
+   */
   gl;
   /**
-     * The source code from which the shaders are built.
-     */
+   * The source code from which the shaders are built.
+   */
   source;
   /**
-     * Handle to the WebGL program itself, which resides on the GPU.
-     */
+   * Handle to the WebGL program itself, which resides on the GPU.
+   */
   handle;
   /**
-     * Creates a new program.
-     * @param gl
-     * @param shaderSource
-     */
+   * Creates a new program.
+   * @param gl
+   * @param shaderSource
+   */
   constructor(gl, shaderSource) {
     this.id = ids.addItem({});
     this.source = shaderSource;
@@ -190464,8 +190467,8 @@ var WebGLProgram = class {
     this.allocated = true;
   }
   /**
-     * Binds this program.
-     */
+   * Binds this program.
+   */
   bind() {
     if (!this.allocated) {
       return;
@@ -190473,32 +190476,32 @@ var WebGLProgram = class {
     this.gl.useProgram(this.handle);
   }
   /**
-     * Gets the location of the given uniform within this program.
-     * @param name
-     */
+   * Gets the location of the given uniform within this program.
+   * @param name
+   */
   getLocation(name12) {
     return this.uniforms[name12];
   }
   /**
-     * Gets an attribute within this program.
-     * @param name
-     */
+   * Gets an attribute within this program.
+   * @param name
+   */
   getAttribute(name12) {
     return this.attributes[name12];
   }
   /**
-     * Gets a sampler within this program.
-     * @param name
-     */
+   * Gets a sampler within this program.
+   * @param name
+   */
   getSampler(name12) {
     return this.samplers[name12];
   }
   /**
-     * Binds a texture to this program.
-     * @param name
-     * @param texture
-     * @param unit
-     */
+   * Binds a texture to this program.
+   * @param name
+   * @param texture
+   * @param unit
+   */
   bindTexture(name12, texture, unit) {
     if (!this.allocated) {
       return false;
@@ -190511,8 +190514,8 @@ var WebGLProgram = class {
     }
   }
   /**
-     * Destroys this program.
-     */
+   * Destroys this program.
+   */
   destroy() {
     if (!this.allocated) {
       return;
@@ -190553,9 +190556,9 @@ var WebGLRenderBuffer = class {
     this.#hasDepthTexture = !!options.depthTexture;
   }
   /**
-     * Sets the size of this render buffer.
-     * @param size
-     */
+   * Sets the size of this render buffer.
+   * @param size
+   */
   setSize(size) {
     this.size = size;
   }
@@ -190566,8 +190569,8 @@ var WebGLRenderBuffer = class {
     this.bound = false;
   }
   /**
-     * Binds this render buffer.
-     */
+   * Binds this render buffer.
+   */
   bind(...internalformats) {
     this.touch(...internalformats);
     if (this.bound) {
@@ -190578,14 +190581,14 @@ var WebGLRenderBuffer = class {
     this.bound = true;
   }
   /**
-     * Create and specify a WebGL texture image.
-     *
-     * @param { number } width
-     * @param { number } height
-     * @param { GLenum } [internalformat=null]
-     *
-     * @returns { WebGLTexture }
-     */
+   * Create and specify a WebGL texture image.
+   *
+   * @param { number } width
+   * @param { number } height
+   * @param { GLenum } [internalformat=null]
+   *
+   * @returns { WebGLTexture }
+   */
   createTexture(width, height, internalformat = null) {
     const gl = this.#gl;
     const colorTexture = gl.createTexture();
@@ -190602,10 +190605,10 @@ var WebGLRenderBuffer = class {
     return colorTexture;
   }
   /**
-     *
-     * @param {number[]} [internalformats=[]]
-     * @returns
-     */
+   *
+   * @param {number[]} [internalformats=[]]
+   * @returns
+   */
   touch(...internalformats) {
     let width;
     let height;
@@ -190693,8 +190696,8 @@ var WebGLRenderBuffer = class {
     this.bound = false;
   }
   /**
-     * Clears this render buffer.
-     */
+   * Clears this render buffer.
+   */
   clear() {
     if (!this.bound) {
       throw "Render buffer not bound";
@@ -190703,10 +190706,10 @@ var WebGLRenderBuffer = class {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
   /**
-     * Reads a pixel from this render buffer.
-     * @param pickX
-     * @param pickY
-     */
+   * Reads a pixel from this render buffer.
+   * @param pickX
+   * @param pickY
+   */
   read(pickX, pickY, glFormat = null, glType = null, arrayType = Uint8Array, arrayMultiplier = 4, colorBufferIndex = 0) {
     const x = pickX;
     const y = this.#buffer.height ? this.#buffer.height - pickY - 1 : this.#gl.drawingBufferHeight - pickY;
@@ -190724,13 +190727,13 @@ var WebGLRenderBuffer = class {
     return pix;
   }
   /**
-     * Returns an HTMLCanvas containing the contents of the RenderBuffer as an image.
-     *
-     * - The HTMLCanvas has a CanvasRenderingContext2D.
-     * - Expects the caller to draw more things on the HTMLCanvas (annotations etc).
-     *
-     * @returns {HTMLCanvasElement}
-     */
+   * Returns an HTMLCanvas containing the contents of the RenderBuffer as an image.
+   *
+   * - The HTMLCanvas has a CanvasRenderingContext2D.
+   * - Expects the caller to draw more things on the HTMLCanvas (annotations etc).
+   *
+   * @returns {HTMLCanvasElement}
+   */
   readImageAsCanvas() {
     const gl = this.#gl;
     const imageDataCache = this._getImageDataCache();
@@ -190738,9 +190741,9 @@ var WebGLRenderBuffer = class {
     return canvas2;
   }
   /**
-     * Redas an image from this render buffer.
-     * @param params
-     */
+   * Redas an image from this render buffer.
+   * @param params
+   */
   readImage(params2) {
     const gl = this.#gl;
     const imageDataCache = this._getImageDataCache();
@@ -190807,8 +190810,8 @@ var WebGLRenderBuffer = class {
     return this.#hasDepthTexture;
   }
   /**
-     * Gets the depth texture component of this render buffer, if any.
-     */
+   * Gets the depth texture component of this render buffer, if any.
+   */
   getDepthTexture() {
     if (!this.#hasDepthTexture) {
       return null;
@@ -191720,14 +191723,14 @@ var KTX2TextureTranscoder = class {
   #supportedFileTypes;
   #withCredentials;
   /**
-     * Creates a new KTX2TextureTranscoder.
-     *
-     * @param {String} [params.transcoderPath="https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/"] Path to the Basis
-     * transcoder module that internally does the heavy lifting for our KTX2TextureTranscoder. If we omit this configuration,
-     * then our KTX2TextureTranscoder will load it from ````https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/```` by
-     * default. Therefore, make sure your application is connected to the internet if you wish to use the default transcoder path.
-     * @param {Number} [params.workerLimit] The maximum number of Workers to use for transcoding.
-     */
+   * Creates a new KTX2TextureTranscoder.
+   *
+   * @param {String} [params.transcoderPath="https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/"] Path to the Basis
+   * transcoder module that internally does the heavy lifting for our KTX2TextureTranscoder. If we omit this configuration,
+   * then our KTX2TextureTranscoder will load it from ````https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/```` by
+   * default. Therefore, make sure your application is connected to the internet if you wish to use the default transcoder path.
+   * @param {Number} [params.workerLimit] The maximum number of Workers to use for transcoding.
+   */
   constructor(params2) {
     this.#transcoderPath = params2.transcoderPath || "https://cdn.jsdelivr.net/npm/@xeokit/sdk/dist/basis/";
     this.#transcoderBinary = null;
@@ -191742,10 +191745,10 @@ var KTX2TextureTranscoder = class {
     this.#supportedFileTypes = ["xgf2"];
   }
   /**
-     * Initializes this transcoder.
-     *
-     * @param capabilities A set of flags indicating the capabilities of this TextureTranscoder.
-     */
+   * Initializes this transcoder.
+   *
+   * @param capabilities A set of flags indicating the capabilities of this TextureTranscoder.
+   */
   init(capabilities) {
     this.#workerConfig = {
       astcSupported: capabilities.astcSupported,
@@ -191757,12 +191760,12 @@ var KTX2TextureTranscoder = class {
     };
   }
   /**
-     * Transcodes texture data from transcoded buffers.
-     *
-     * @param {ArrayBuffer[]} buffers Transcoded input texture data. Given as an array of buffers so that we can support multi-image textures, such as cube maps.
-     * @param {*} config Transcoding options.
-     * @returns {Promise<TextureCompressedParams>} Transcoded output texture data.
-     */
+   * Transcodes texture data from transcoded buffers.
+   *
+   * @param {ArrayBuffer[]} buffers Transcoded input texture data. Given as an array of buffers so that we can support multi-image textures, such as cube maps.
+   * @param {*} config Transcoding options.
+   * @returns {Promise<TextureCompressedParams>} Transcoded output texture data.
+   */
   transcode(buffers, config2 = {}) {
     return new Promise((resolve2, reject) => {
       const taskConfig = config2;
@@ -191792,8 +191795,8 @@ var KTX2TextureTranscoder = class {
     });
   }
   /**
-     * Destroys this KTX2TextureTranscoder
-     */
+   * Destroys this KTX2TextureTranscoder
+   */
   destroy() {
     URL.revokeObjectURL(this.#workerSourceURL);
     this.#workerPool.destroy();
@@ -192043,97 +192046,97 @@ var BasisWorker = function() {
 // ../sdk/src/webglrenderer/RenderContext.ts
 var RenderContext = class {
   /**
-     * The Viewer.
-     */
+   * The Viewer.
+   */
   viewer;
   /**
-     * @private
-     */
+   * @private
+   */
   rendererSets;
   /**
-     * The View we are rendering.
-     */
+   * The View we are rendering.
+   */
   view;
   /**
-     * The WebGL rendering context.
-     */
+   * The WebGL rendering context.
+   */
   gl;
   viewMatrixDataTexture;
   /**
-     * Whether to render a quality representation for triangle surfaces.
-     *
-     * When ````false````, we'll render them with a fast vertex-shaded Gouraud-shaded representation, which
-     * is great for zillions of objects.
-     *
-     * When ````true````, we'll render them at a better visual quality, using smooth, per-fragment shading
-     * and a more realistic lighting model.
-     */
+   * Whether to render a quality representation for triangle surfaces.
+   *
+   * When ````false````, we'll render them with a fast vertex-shaded Gouraud-shaded representation, which
+   * is great for zillions of objects.
+   *
+   * When ````true````, we'll render them at a better visual quality, using smooth, per-fragment shading
+   * and a more realistic lighting model.
+   */
   pbrEnabled;
   /**
-     * Whether backfaces are currently enabled during the current frame.
-     */
+   * Whether backfaces are currently enabled during the current frame.
+   */
   backfaces;
   /**
-     * The vertex winding order for what we currently consider to be a backface during current
-     * frame: true == "cw", false == "ccw".
-     */
+   * The vertex winding order for what we currently consider to be a backface during current
+   * frame: true == "cw", false == "ccw".
+   */
   frontface;
   /**
-     * The next available texture unit to bind a {@link WebGLAbstractTexture} to.
-     */
+   * The next available texture unit to bind a {@link WebGLAbstractTexture} to.
+   */
   textureUnit;
   /**
-     * Statistic that counts how many times ````gl.bindTexture()```` has been called so far within the current frame.
-     */
+   * Statistic that counts how many times ````gl.bindTexture()```` has been called so far within the current frame.
+   */
   bindTexture;
   /**
-     * Indicates which pass the renderers is currently rendering.
-     */
+   * Indicates which pass the renderers is currently rendering.
+   */
   renderPass;
   /**
-     * The 4x4 viewing transform matrix the renderers is currently using when rendering castsShadows.
-     *
-     * This sets the viewpoint to look from the point of view of each {@link DirLight}
-     * or {@link PointLight} that casts a shadow.
-     */
+   * The 4x4 viewing transform matrix the renderers is currently using when rendering castsShadows.
+   *
+   * This sets the viewpoint to look from the point of view of each {@link DirLight}
+   * or {@link PointLight} that casts a shadow.
+   */
   shadowViewMatrix;
   /**
-     * The 4x4 viewing projection matrix the renderers is currently using when rendering shadows.
-     */
+   * The 4x4 viewing projection matrix the renderers is currently using when rendering shadows.
+   */
   shadowProjMatrix;
   /**
-     * The 4x4 viewing transform matrix the renderers is currently using when rendering a ray-pick.
-     *
-     * This sets the viewpoint to look along the ray given to {@link scene!Scene/pick:method"}}Scene#pick(){{/crossLink}}
-     * when picking with a ray.
-     */
+   * The 4x4 viewing transform matrix the renderers is currently using when rendering a ray-pick.
+   *
+   * This sets the viewpoint to look along the ray given to {@link scene!Scene/pick:method"}}Scene#pick(){{/crossLink}}
+   * when picking with a ray.
+   */
   pickViewMatrix;
   /**
-     * The 4x4 orthographic projection transform matrix the renderers is currently using when rendering a ray-pick.
-     */
+   * The 4x4 orthographic projection transform matrix the renderers is currently using when rendering a ray-pick.
+   */
   pickProjMatrix;
   /**
-     * Distance to the near clipping plane when rendering depth fragments for GPU-accelerated 3D picking.
-     */
+   * Distance to the near clipping plane when rendering depth fragments for GPU-accelerated 3D picking.
+   */
   pickZNear;
   /**
-     * Distance to the far clipping plane when rendering depth fragments for GPU-accelerated 3D picking.
-     */
+   * Distance to the far clipping plane when rendering depth fragments for GPU-accelerated 3D picking.
+   */
   pickZFar;
   /**
-     * Whether or not the renderers is currently picking invisible objects.
-     */
+   * Whether or not the renderers is currently picking invisible objects.
+   */
   pickInvisible;
   /** The current line width.
-     */
+   */
   lineWidth;
   /**
-     * ID of the last {@link WebGLProgram} that was bound during the current frame.
-     */
+   * ID of the last {@link WebGLProgram} that was bound during the current frame.
+   */
   lastProgramId;
   /**
-     * The occlusion rendering texture.
-     */
+   * The occlusion rendering texture.
+   */
   saoOcclusionTexture;
   pickClipPos;
   webglRenderer;
@@ -192145,8 +192148,8 @@ var RenderContext = class {
     this.reset();
   }
   /**
-     * Called by the renderers before each frame.
-     */
+   * Called by the renderers before each frame.
+   */
   reset() {
     this.lastProgramId = -1;
     this.pbrEnabled = false;
@@ -192164,8 +192167,8 @@ var RenderContext = class {
     this.saoOcclusionTexture = null;
   }
   /**
-     * Gets the next available texture unit for this render
-     */
+   * Gets the next available texture unit for this render
+   */
   get nextTextureUnit() {
     const textureUnit = this.textureUnit;
     this.textureUnit = (this.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
@@ -192176,26 +192179,26 @@ var RenderContext = class {
 // ../sdk/src/webglrenderer/RenderStats.ts
 var RenderStats = class {
   /**
-     * Number of WebGL programs that were bound in the rendered frame.
-     */
+   * Number of WebGL programs that were bound in the rendered frame.
+   */
   numProgramBinds;
   /**
-     * Number of WebGL drawArrays calls performed during the rendered frame.
-     */
+   * Number of WebGL drawArrays calls performed during the rendered frame.
+   */
   numDrawArrays;
   /**
-     * Number of WebGL textures that were bound in the rendered frame.
-     */
+   * Number of WebGL textures that were bound in the rendered frame.
+   */
   numTextureBinds;
   /**
-     * Creates a new RenderStats.
-     */
+   * Creates a new RenderStats.
+   */
   constructor() {
     this.reset();
   }
   /**
-     * Called by the renderers before each frame.
-     */
+   * Called by the renderers before each frame.
+   */
   reset() {
     this.numProgramBinds = 0;
     this.numDrawArrays = 0;
@@ -192849,29 +192852,29 @@ var MeshCounts = class {
 // ../sdk/src/webglrenderer/RenderFlags.ts
 var RenderFlags = class {
   /**
-     * Set by {@link Drawable#rebuildRenderFlags} to indicate which layers are visible within the {@link Drawable}.
-     *
-     * This is a list of IDs of visible layers within the {@link Drawable}. The IDs will be whatever the
-     * {@link Drawable} uses to identify its layers, usually integers.
-     *
-     * @property visibleLayers
-     * @type {Number[]}
-     */
+   * Set by {@link Drawable#rebuildRenderFlags} to indicate which layers are visible within the {@link Drawable}.
+   *
+   * This is a list of IDs of visible layers within the {@link Drawable}. The IDs will be whatever the
+   * {@link Drawable} uses to identify its layers, usually integers.
+   *
+   * @property visibleLayers
+   * @type {Number[]}
+   */
   visibleLayers;
   /**
-     * Set by {@link Drawable#rebuildRenderFlags} to indicate which {@link SectionPlane}s are active within each layer of the {@link Drawable}.
-     *
-     * Layout is as follows:
-     *
-     * ````[
-     *      false, false, true, // Layer 0, SectionPlanes 0, 1, 2
-     *      false, true, true,  // Layer 1, SectionPlanes 0, 1, 2
-     *      true, false, true   // Layer 2, SectionPlanes 0, 1, 2
-     * ]````
-     *
-     * @property sectionPlanesActivePerLayer
-     * @type {Boolean[]}
-     */
+   * Set by {@link Drawable#rebuildRenderFlags} to indicate which {@link SectionPlane}s are active within each layer of the {@link Drawable}.
+   *
+   * Layout is as follows:
+   *
+   * ````[
+   *      false, false, true, // Layer 0, SectionPlanes 0, 1, 2
+   *      false, true, true,  // Layer 1, SectionPlanes 0, 1, 2
+   *      true, false, true   // Layer 2, SectionPlanes 0, 1, 2
+   * ]````
+   *
+   * @property sectionPlanesActivePerLayer
+   * @type {Boolean[]}
+   */
   sectionPlanesActivePerLayer;
   culled;
   sectioned;
@@ -192894,16 +192897,16 @@ var RenderFlags = class {
   selectedSilhouetteTransparent;
   selectedEdgesTransparent;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor() {
     this.visibleLayers = [];
     this.sectionPlanesActivePerLayer = [];
     this.reset();
   }
   /**
-     * @private
-     */
+   * @private
+   */
   reset() {
     this.culled = false;
     this.sectioned = false;
@@ -194194,9 +194197,9 @@ var VBOBatchingLayer = class {
     return layerMeshIndex;
   }
   /**
-     * Builds batch VBOs from appended geometries.
-     * No more portions can then be created.
-     */
+   * Builds batch VBOs from appended geometries.
+   * No more portions can then be created.
+   */
   build() {
     if (this.#built) {
       throw new SDKError("Already built");
@@ -196598,9 +196601,9 @@ var WebGLRendererObject = class {
   #colorizeUpdated;
   #opacityUpdated;
   /**
-     * @private
-     * @param params
-     */
+   * @private
+   * @param params
+   */
   constructor(params2) {
     this.id = params2.id;
     this.rendererModel = params2.rendererModel;
@@ -197315,8 +197318,8 @@ var WebGLRendererModel = class extends Component {
     this.#updateRenderFlags(viewIndex);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   #updateRenderFlagsVisibleLayers(viewIndex) {
     const renderFlags = this.renderFlags[viewIndex];
     renderFlags.numLayers = this.layerList.length;
@@ -197568,20 +197571,20 @@ var pickTemps = {
 };
 var WebGLRenderer = class {
   /**
-     * Interfaces through which each {@link viewer!ViewObject | ViewObject} shows/hides/highlights/selects/xrays/colorizes
-     * its {@link scene!SceneObject | SceneObject} within the WebGLRenderer that's
-     * configured on its {@link viewer!Viewer | Viewer}.
-     *
-     * @internal
-     */
+   * Interfaces through which each {@link viewer!ViewObject | ViewObject} shows/hides/highlights/selects/xrays/colorizes
+   * its {@link scene!SceneObject | SceneObject} within the WebGLRenderer that's
+   * configured on its {@link viewer!Viewer | Viewer}.
+   *
+   * @internal
+   */
   rendererObjects;
   /**
-     * @internal
-     */
+   * @internal
+   */
   renderStats;
   /**
-     * @internal
-     */
+   * @internal
+   */
   tileManager;
   #saoOcclusionRenderer;
   #saoDepthLimitedBlurRenderer;
@@ -197609,27 +197612,27 @@ var WebGLRenderer = class {
   #destroyed;
   #onViewCameraMatrix;
   /**
-     * @internal
-     * @event
-     */
+   * @internal
+   * @event
+   */
   onCompiled;
   /**
-     * @internal
-     * @event
-     */
+   * @internal
+   * @event
+   */
   onDestroyed;
   #webglCanvasElement;
   #gl;
   #pickResult;
   /**
-     * Creates a WebGLRenderer.
-     *
-     * @param params Configs
-     * @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererModel.createTexture}
-     * to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
-     * to {@link rendererModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererModel````
-     * will then be in a format supported by this transcoder.
-     */
+   * Creates a WebGLRenderer.
+   *
+   * @param params Configs
+   * @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererModel.createTexture}
+   * to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
+   * to {@link rendererModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererModel````
+   * will then be in a format supported by this transcoder.
+   */
   constructor(params2) {
     this.renderStats = new RenderStats();
     this.rendererObjects = {};
@@ -197681,25 +197684,25 @@ var WebGLRenderer = class {
     this.#pickBufferManager = new WebGLRenderBufferManager(this.#gl, webglCanvasElement);
   }
   /**
-     * The Viewer this WebGLRenderer is currently attached to, if any.
-     */
+   * The Viewer this WebGLRenderer is currently attached to, if any.
+   */
   get viewer() {
     return this.#viewer;
   }
   /**
-     * Gets the TextureTranscoder this WebGLRenderer was configured with, if any.
-     *
-     * @internal
-     */
+   * Gets the TextureTranscoder this WebGLRenderer was configured with, if any.
+   *
+   * @internal
+   */
   get textureTranscoder() {
     return this.#textureTranscoder;
   }
   /**
-     * Gets the capabilities of this WebGLRenderer.
-     *
-     * @param capabilities Returns the capabilities of this WebGLRenderer.
-     * @internal
-     */
+   * Gets the capabilities of this WebGLRenderer.
+   *
+   * @param capabilities Returns the capabilities of this WebGLRenderer.
+   * @internal
+   */
   getCapabilities(capabilities) {
     capabilities.maxViews = 4;
     const htmlElement = document.createElement("canvas");
@@ -197719,16 +197722,16 @@ var WebGLRenderer = class {
     }
   }
   /**
-     * Initializes this WebGLRenderer by attaching a {@link viewer!Viewer | Viewer}.
-     *
-     * @internal
-     * @param viewer Viewer to attach.
-     * @returns *void*
-     * * Viewer successfully attached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * A Viewer is already attached to this Renderer.
-     * * The given Viewer is already attached to another Renderer.
-     */
+   * Initializes this WebGLRenderer by attaching a {@link viewer!Viewer | Viewer}.
+   *
+   * @internal
+   * @param viewer Viewer to attach.
+   * @returns *void*
+   * * Viewer successfully attached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * A Viewer is already attached to this Renderer.
+   * * The given Viewer is already attached to another Renderer.
+   */
   attachViewer(viewer) {
     if (this.#viewer) {
       throw new SDKError("Can't attach Viewer to WebGLRenderer - a Viewer is already attached");
@@ -197747,14 +197750,14 @@ var WebGLRenderer = class {
     });
   }
   /**
-     * Detaches the {@link viewer!Viewer | Viewer} that is currently attached, if any.
-     *
-     * @internal
-     * @returns *void*
-     * * Viewer successfully detached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No Viewer is currently attached to this WebGLRenderer.
-     */
+   * Detaches the {@link viewer!Viewer | Viewer} that is currently attached, if any.
+   *
+   * @internal
+   * @returns *void*
+   * * Viewer successfully detached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No Viewer is currently attached to this WebGLRenderer.
+   */
   detachViewer() {
     if (this.#viewer) {
       return new SDKError("Can't detach Viewer from WebGLRenderer - no Viewer is currently attached");
@@ -197773,23 +197776,23 @@ var WebGLRenderer = class {
     this.tileManager = null;
   }
   /**
-     * Attaches a {@link viewer!View} to this WebGLRenderer.
-     *
-     * The WebGLRenderer will then begin rendering each {@link scene!SceneModel | SceneModel} previously or subsequently
-     * created with {@link scene!Scene.createModel | Scene.createModel}, for the new View.
-     *
-     * You can only attach as many Views as indicated in {@link  core!Capabilities.maxViews | Capabilities.maxViews}, as returned by
-     * {@link WebGLRenderer.getCapabilities | WebGLRenderer.getCapabilities}.
-     *
-     * @internal
-     * @param view The View to attach.
-     * @returns *void*
-     * * View successfully attached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No Viewer is attached to this WebGLRenderer.
-     * * Caller attempted to attach too many Views.
-     * * The WebGLRenderer failed to get a WebGL2 context on the View's canvas.
-     */
+   * Attaches a {@link viewer!View} to this WebGLRenderer.
+   *
+   * The WebGLRenderer will then begin rendering each {@link scene!SceneModel | SceneModel} previously or subsequently
+   * created with {@link scene!Scene.createModel | Scene.createModel}, for the new View.
+   *
+   * You can only attach as many Views as indicated in {@link  core!Capabilities.maxViews | Capabilities.maxViews}, as returned by
+   * {@link WebGLRenderer.getCapabilities | WebGLRenderer.getCapabilities}.
+   *
+   * @internal
+   * @param view The View to attach.
+   * @returns *void*
+   * * View successfully attached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No Viewer is attached to this WebGLRenderer.
+   * * Caller attempted to attach too many Views.
+   * * The WebGLRenderer failed to get a WebGL2 context on the View's canvas.
+   */
   attachView(view) {
     if (!this.#viewer) {
       throw new SDKError("Can't attach View to WebGLRenderer - no Viewer is attached");
@@ -197814,18 +197817,18 @@ var WebGLRenderer = class {
   //     }
   // }
   /**
-     * Detaches the given {@link viewer!View} from this Renderer.
-     *
-     * The Renderer will then cease rendering for that View.
-     *
-     * @internal
-     * @param view The View to detach.
-     * @returns *void*
-     * * View successfully detached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No Viewer is attached to this WebGLRenderer.
-     * * View is not currently attached to this WebGLRenderer.
-     */
+   * Detaches the given {@link viewer!View} from this Renderer.
+   *
+   * The Renderer will then cease rendering for that View.
+   *
+   * @internal
+   * @param view The View to detach.
+   * @returns *void*
+   * * View successfully detached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No Viewer is attached to this WebGLRenderer.
+   * * View is not currently attached to this WebGLRenderer.
+   */
   detachView(view) {
     if (!this.#viewer) {
       throw new SDKError("Can't detach View from WebGLRenderer - no Viewer is attached");
@@ -197851,29 +197854,29 @@ var WebGLRenderer = class {
     this.tileManager = null;
   }
   /**
-     * Attaches a {@link scene!SceneModel | SceneModel} to this WebGLRenderer.
-     *
-     * This method attaches various hooks to the elements within the SceneModel, through which they can
-     * upload state updates to the Renderer.
-     *
-     * * Sets a {@link scene!RendererModel} on {@link scene!SceneModel.rendererModel | SceneModel.rendererModel}
-     * * Sets a {@link scene!RendererObject} on each {@link scene!SceneObject.rendererObject | SceneObject.rendererObject}
-     * * Sets a {@link scene!RendererMesh} on each {@link scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh}
-     * * Sets a {@link scene!RendererTextureSet} on each {@link scene!SceneTextureSet.rendererTextureSet | SceneTextureSet.rendererTextureSet}
-     * * Sets a {@link scene!RendererTexture} on each {@link scene!SceneTexture.rendererTexture | SceneTexture.rendererTexture}
-     *
-     * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
-     *
-     * You must first attach a View with {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView} before you can attach a SceneModel.
-     *
-     * @param sceneModel
-     * @internal
-     * @returns *void*
-     * * SceneModel successfully attached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this WebGLRenderer.
-     * * SceneModel already attached to this WebGLRenderer, or to another Renderer.
-     */
+   * Attaches a {@link scene!SceneModel | SceneModel} to this WebGLRenderer.
+   *
+   * This method attaches various hooks to the elements within the SceneModel, through which they can
+   * upload state updates to the Renderer.
+   *
+   * * Sets a {@link scene!RendererModel} on {@link scene!SceneModel.rendererModel | SceneModel.rendererModel}
+   * * Sets a {@link scene!RendererObject} on each {@link scene!SceneObject.rendererObject | SceneObject.rendererObject}
+   * * Sets a {@link scene!RendererMesh} on each {@link scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh}
+   * * Sets a {@link scene!RendererTextureSet} on each {@link scene!SceneTextureSet.rendererTextureSet | SceneTextureSet.rendererTextureSet}
+   * * Sets a {@link scene!RendererTexture} on each {@link scene!SceneTexture.rendererTexture | SceneTexture.rendererTexture}
+   *
+   * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
+   *
+   * You must first attach a View with {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView} before you can attach a SceneModel.
+   *
+   * @param sceneModel
+   * @internal
+   * @returns *void*
+   * * SceneModel successfully attached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this WebGLRenderer.
+   * * SceneModel already attached to this WebGLRenderer, or to another Renderer.
+   */
   attachSceneModel(sceneModel) {
     if (!this.#viewer) {
       return new SDKError("Can't attach SceneModel to WebGLRenderer - no Viewer is attached");
@@ -197901,19 +197904,19 @@ var WebGLRenderer = class {
     }
   }
   /**
-     * Detaches a {@link scene!SceneModel | SceneModel} from this WebGLRenderer.
-     *
-     * Detaches and destroys the {@link scene!RendererModel}, {@link scene!RendererObject} and
-     * {@link scene!RendererMesh},
-     * {@link scene!RendererTexture} instances that were attached in {@link webglrenderer!WebGLRenderer.attachSceneModel}.
-     *
-     * @internal
-     * @returns *void*
-     * * SceneModel successfully detached.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this WebGLRenderer.
-     * * SceneModel is not attached to this WebGLRenderer.
-     */
+   * Detaches a {@link scene!SceneModel | SceneModel} from this WebGLRenderer.
+   *
+   * Detaches and destroys the {@link scene!RendererModel}, {@link scene!RendererObject} and
+   * {@link scene!RendererMesh},
+   * {@link scene!RendererTexture} instances that were attached in {@link webglrenderer!WebGLRenderer.attachSceneModel}.
+   *
+   * @internal
+   * @returns *void*
+   * * SceneModel successfully detached.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this WebGLRenderer.
+   * * SceneModel is not attached to this WebGLRenderer.
+   */
   detachSceneModel(sceneModel) {
     if (!this.#viewer) {
       throw new SDKError("Can't detach SceneModel from WebGLRenderer - no Viewer is attached");
@@ -197943,21 +197946,21 @@ var WebGLRenderer = class {
     }
   }
   /**
-     * @private
-     */
+   * @private
+   */
   attachPickable(pickable) {
     return this.#pickIDs.addItem(pickable);
   }
   /**
-     * @private
-     */
+   * @private
+   */
   detachPickable(pickId) {
     this.#pickIDs.removeItem(pickId);
   }
   /**
-     * Indicates that the WebGLRenderer needs to draw a new frame.
-     * @internal
-     */
+   * Indicates that the WebGLRenderer needs to draw a new frame.
+   * @internal
+   */
   setImageDirty(viewIndex) {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (rendererView) {
@@ -197965,10 +197968,10 @@ var WebGLRenderer = class {
     }
   }
   /**
-     * Sets whether the WebGLRenderer draws edges.
-     * Triggers a new frame render.
-     * @internal
-     */
+   * Sets whether the WebGLRenderer draws edges.
+   * Triggers a new frame render.
+   * @internal
+   */
   setEdgesEnabled(viewIndex, enabled2) {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (rendererView) {
@@ -197977,10 +197980,10 @@ var WebGLRenderer = class {
     }
   }
   /**
-     * Sets whether the WebGLRenderer draws with physically-based rendering.
-     * Triggers a new frame render.
-     * @internal
-     */
+   * Sets whether the WebGLRenderer draws with physically-based rendering.
+   * Triggers a new frame render.
+   * @internal
+   */
   setPBREnabled(viewIndex, enabled2) {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (rendererView) {
@@ -197992,10 +197995,10 @@ var WebGLRenderer = class {
     return true;
   }
   /**
-     * Sets whether the WebGLRenderer draws with SAO.
-     * Triggers a new frame render.
-     * @internal
-     */
+   * Sets whether the WebGLRenderer draws with SAO.
+   * Triggers a new frame render.
+   * @internal
+   */
   setSAOEnabled(viewIndex, enabled2) {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (rendererView) {
@@ -198004,17 +198007,17 @@ var WebGLRenderer = class {
     }
   }
   /**
-     * Enable/disable rendering of transparent objects for the given View.
-     *
-     * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
-     * @param enabled Whether to enable or disable transparent objects for the View.
-     * @internal
-     * @returns *void*
-     * * Success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this Renderer.
-     * * Can't find a View attached to this Renderer with the given handle.
-     */
+   * Enable/disable rendering of transparent objects for the given View.
+   *
+   * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+   * @param enabled Whether to enable or disable transparent objects for the View.
+   * @internal
+   * @returns *void*
+   * * Success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this Renderer.
+   * * Can't find a View attached to this Renderer with the given handle.
+   */
   setTransparentEnabled(viewIndex, enabled2) {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (rendererView) {
@@ -198023,16 +198026,16 @@ var WebGLRenderer = class {
     }
   }
   /**
-     * Clears this WebGLRenderer for the given view.
-     *
-     * @internal
-     * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
-     * @returns *void*
-     * * Success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this WebGLRenderer.
-     * * Can't find a View attached to this WebGLRenderer with the given handle.
-     */
+   * Clears this WebGLRenderer for the given view.
+   *
+   * @internal
+   * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+   * @returns *void*
+   * * Success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this WebGLRenderer.
+   * * Can't find a View attached to this WebGLRenderer with the given handle.
+   */
   clear(viewIndex) {
     if (!this.#viewer) {
       return new SDKError("Can't clear canvas with WebGLRenderer - no Viewer and View is attached");
@@ -198051,28 +198054,28 @@ var WebGLRenderer = class {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
   /**
-     * Triggers a rebuild of the shaders within this WebGLRenderer for the given View.
-     * @internal
-     * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
-     * @returns *void*
-     * * Success.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this WebGLRenderer.
-     * * Can't find a View attached to this WebGLRenderer with the given handle.
-     */
+   * Triggers a rebuild of the shaders within this WebGLRenderer for the given View.
+   * @internal
+   * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+   * @returns *void*
+   * * Success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this WebGLRenderer.
+   * * Can't find a View attached to this WebGLRenderer with the given handle.
+   */
   setNeedsRebuild(viewIndex) {
     this.#shadersDirty = true;
   }
   /**
-     * Gets if a new frame needs to be rendered for the given View.
-     * @internal
-     * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
-     * @returns *boolean*
-     * * True if a new frame needs to be rendered for the View.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this WebGLRenderer.
-     * * Can't find a View attached to this WebGLRenderer with the given handle.
-     */
+   * Gets if a new frame needs to be rendered for the given View.
+   * @internal
+   * @param viewIndex Handle to the View, returned earlier by {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
+   * @returns *boolean*
+   * * True if a new frame needs to be rendered for the View.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this WebGLRenderer.
+   * * Can't find a View attached to this WebGLRenderer with the given handle.
+   */
   getNeedsRender(viewIndex) {
     const rendererView = this.#rendererViewsList[viewIndex];
     if (!rendererView) {
@@ -198081,16 +198084,16 @@ var WebGLRenderer = class {
     return rendererView.imageDirty || this.#layerListDirty || this.#stateSortDirty;
   }
   /**
-     * Renders a frame for a View.
-     *
-     * @internal
-     * @param viewIndex Handle to the View.
-     * @param params
-     * @param [params.force=false] True to force a render, else only render if needed.
-     * @returns *{@link core!SDKError | SDKError}*
-     * * No View is currently attached to this Renderer.
-     * * Can't find a View attached to this Renderer with the given handle.
-     */
+   * Renders a frame for a View.
+   *
+   * @internal
+   * @param viewIndex Handle to the View.
+   * @param params
+   * @param [params.force=false] True to force a render, else only render if needed.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * No View is currently attached to this Renderer.
+   * * Can't find a View attached to this Renderer with the given handle.
+   */
   render(viewIndex, params2) {
     if (!this.#viewer) {
       return new SDKError("Can't render with WebGLRenderer - no Viewer and View is attached");
@@ -198516,9 +198519,9 @@ var WebGLRenderer = class {
     }
   }
   /**
-     * TODO
-     * @internal
-     */
+   * TODO
+   * @internal
+   */
   pick(viewIndex, pickParams, pickResult = this.#pickResult) {
     if (!this.#viewer) {
       throw new SDKError("Can't pick object with WebGLRenderer - no Viewer and View is attached");
@@ -198700,10 +198703,10 @@ var WebGLRenderer = class {
     return null;
   }
   /**
-     * Exits snapshot mode.
-     *
-     * Switches rendering back to the main canvas.
-     */
+   * Exits snapshot mode.
+   *
+   * Switches rendering back to the main canvas.
+   */
   endSnapshot() {
     this.#snapshotBound = false;
   }
@@ -198943,12 +198946,12 @@ var newUp = createVec3();
 var newLookEyeVec = createVec3();
 var CameraFlightAnimation = class _CameraFlightAnimation extends Component {
   /**
-     * The View that owns this CameraFlightAnimation.
-     */
+   * The View that owns this CameraFlightAnimation.
+   */
   view;
   /**
-     * The Camera controlled by this CameraFlightAnimation.
-     */
+   * The Camera controlled by this CameraFlightAnimation.
+   */
   camera;
   #duration;
   #look1;
@@ -198976,23 +198979,23 @@ var CameraFlightAnimation = class _CameraFlightAnimation extends Component {
   #projMatrix1;
   #projMatrix2;
   /**
-     * Emits an event each time the animation starts.
-     */
+   * Emits an event each time the animation starts.
+   */
   onStarted;
   /**
-     * Emits an event each time the animation stops.
-     */
+   * Emits an event each time the animation stops.
+   */
   onStopped;
   /**
-     * Emits an event each time the animation stops.
-     */
+   * Emits an event each time the animation stops.
+   */
   onCancelled;
   /**
-     * Creates a new CameraFlightAnimation
-     *
-     * @param cfg.view The {@link viewer!View | View} whose {@link viewer!Camera | Camera} we'll animate.
-     * @param cfg.duration Animation duration in seconds when using {@link cameraflight!CameraFlightAnimation.flyTo | CameraFlightAnimation.flyTo}.
-     */
+   * Creates a new CameraFlightAnimation
+   *
+   * @param cfg.view The {@link viewer!View | View} whose {@link viewer!Camera | Camera} we'll animate.
+   * @param cfg.duration Animation duration in seconds when using {@link cameraflight!CameraFlightAnimation.flyTo | CameraFlightAnimation.flyTo}.
+   */
   constructor(view, cfg) {
     super(view, cfg);
     if (!(view instanceof View)) {
@@ -199026,28 +199029,28 @@ var CameraFlightAnimation = class _CameraFlightAnimation extends Component {
     this.onCancelled = new EventEmitter(new import_strongly_typed_events18.EventDispatcher());
   }
   /**
-     * Flies the {@link viewer!Camera | Camera}  to a target.
-     *
-     *  * When the target is a boundary, the {@link viewer!Camera | Camera}  will fly towards the target and stop when the target fills most of the canvas.
-     *  * When the target is an explicit {@link viewer!Camera | Camera}  position, given as ````eye````, ````look```` and ````up````, then CameraFlightAnimation will interpolate the {@link viewer!Camera | Camera}  to that target and stop there.
-     *
-     * @param {Object|Component} [params=Scene] Either a parameters object or a {@link core!Component | Component} subtype that has
-     * an AABB. Defaults to the {@link scene!Scene | Scene}, which causes the {@link viewer!Camera | Camera}  to fit the Scene in view.
-     * @param [params.arc=0] Factor in range ````[0..1]```` indicating how much the {@link viewer!Camera.eye | Camera.eye} position
-     * will swing away from its {@link viewer!Camera.look | Camera.look} position as it flies to the target.
-     * @param {Number|String|Component} [params.component] ID or instance of a component to fly to. Defaults to the entire {@link scene!Scene | Scene}.
-     * @param [params.aabb] World-space axis-aligned bounding box (AABB) target to fly to.
-     * @param [params.eye] Position to fly the eye position to.
-     * @param [params.look] Position to fly the look position to.
-     * @param [params.up] Position to fly the up vector to.
-     * @param [params.projection] Projection type to transition into as we fly. Can be any of the values of {@link viewer!Camera.projectionType | Camera.projectionType | Camera.projectionType}.
-     * @param [params.fit=true] Whether to fit the target to the view volume. Overrides {@link CameraFlightAnimation.fit | CameraFlightAnimation.fit}.
-     * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link viewer!ViewObject | ViewObject} or its AABB should
-     * fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV | CameraFlightAnimation.fitFOV}.
-     * @param [params.duration] Flight duration in seconds.  Overrides {@link CameraFlightAnimation.duration | CameraFlightAnimation.duration}.
-     * @param [params.orthoScale] Animate the Camera's orthographic scale to this target value. See {@link viewer!OrthoProjection.scale | OrthoProjection.scale}.
-     * @param {Function} [callback] Callback fired on arrival.
-     */
+   * Flies the {@link viewer!Camera | Camera}  to a target.
+   *
+   *  * When the target is a boundary, the {@link viewer!Camera | Camera}  will fly towards the target and stop when the target fills most of the canvas.
+   *  * When the target is an explicit {@link viewer!Camera | Camera}  position, given as ````eye````, ````look```` and ````up````, then CameraFlightAnimation will interpolate the {@link viewer!Camera | Camera}  to that target and stop there.
+   *
+   * @param {Object|Component} [params=Scene] Either a parameters object or a {@link core!Component | Component} subtype that has
+   * an AABB. Defaults to the {@link scene!Scene | Scene}, which causes the {@link viewer!Camera | Camera}  to fit the Scene in view.
+   * @param [params.arc=0] Factor in range ````[0..1]```` indicating how much the {@link viewer!Camera.eye | Camera.eye} position
+   * will swing away from its {@link viewer!Camera.look | Camera.look} position as it flies to the target.
+   * @param {Number|String|Component} [params.component] ID or instance of a component to fly to. Defaults to the entire {@link scene!Scene | Scene}.
+   * @param [params.aabb] World-space axis-aligned bounding box (AABB) target to fly to.
+   * @param [params.eye] Position to fly the eye position to.
+   * @param [params.look] Position to fly the look position to.
+   * @param [params.up] Position to fly the up vector to.
+   * @param [params.projection] Projection type to transition into as we fly. Can be any of the values of {@link viewer!Camera.projectionType | Camera.projectionType | Camera.projectionType}.
+   * @param [params.fit=true] Whether to fit the target to the view volume. Overrides {@link CameraFlightAnimation.fit | CameraFlightAnimation.fit}.
+   * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link viewer!ViewObject | ViewObject} or its AABB should
+   * fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV | CameraFlightAnimation.fitFOV}.
+   * @param [params.duration] Flight duration in seconds.  Overrides {@link CameraFlightAnimation.duration | CameraFlightAnimation.duration}.
+   * @param [params.orthoScale] Animate the Camera's orthographic scale to this target value. See {@link viewer!OrthoProjection.scale | OrthoProjection.scale}.
+   * @param {Function} [callback] Callback fired on arrival.
+   */
   flyTo(params2 = {}, callback) {
     if (this.#flying) {
       this.stop();
@@ -199157,22 +199160,22 @@ var CameraFlightAnimation = class _CameraFlightAnimation extends Component {
     scheduler.scheduleTask(this.#update, this);
   }
   /**
-     * Jumps the {@link viewer!Camera | Camera}  to the given target.
-     *
-     * * When the target is a boundary, this CameraFlightAnimation will position the {@link viewer!Camera | Camera}  at where the target fills most of the canvas.
-     * * When the target is an explicit {@link viewer!Camera | Camera}  position, given as ````eye````, ````look```` and ````up```` vectors, then this CameraFlightAnimation will jump the {@link viewer!Camera | Camera}  to that target.
-     *
-     * @param {*|Component} params  Either a parameters object or a {@link core!Component | Component} subtype that has a World-space AABB.
-     * @param [params.arc=0]  Factor in range [0..1] indicating how much the {@link viewer!Camera.eye | Camera.eye} will swing away from its {@link viewer!Camera.look | Camera.look} as it flies to the target.
-     * @param {Number|String|Component} [params.component] ID or instance of a component to fly to.
-     * @param [params.aabb]  World-space axis-aligned bounding box (AABB) target to fly to.
-     * @param [params.eye] Position to fly the eye position to.
-     * @param [params.look]  Position to fly the look position to.
-     * @param [params.up] Position to fly the up vector to.
-     * @param [params.projection] Projection type to transition into. Can be any of the values of {@link viewer!Camera.projectionType | Camera.projectionType}.
-     * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link viewer!Viewer | Viewer} or its AABB should fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV}.
-     * @param [params.fit] Whether to fit the target to the view volume. Overrides {@link cameraFlightAnimation.fit | CameraFlightAnimation.fit}.
-     */
+   * Jumps the {@link viewer!Camera | Camera}  to the given target.
+   *
+   * * When the target is a boundary, this CameraFlightAnimation will position the {@link viewer!Camera | Camera}  at where the target fills most of the canvas.
+   * * When the target is an explicit {@link viewer!Camera | Camera}  position, given as ````eye````, ````look```` and ````up```` vectors, then this CameraFlightAnimation will jump the {@link viewer!Camera | Camera}  to that target.
+   *
+   * @param {*|Component} params  Either a parameters object or a {@link core!Component | Component} subtype that has a World-space AABB.
+   * @param [params.arc=0]  Factor in range [0..1] indicating how much the {@link viewer!Camera.eye | Camera.eye} will swing away from its {@link viewer!Camera.look | Camera.look} as it flies to the target.
+   * @param {Number|String|Component} [params.component] ID or instance of a component to fly to.
+   * @param [params.aabb]  World-space axis-aligned bounding box (AABB) target to fly to.
+   * @param [params.eye] Position to fly the eye position to.
+   * @param [params.look]  Position to fly the look position to.
+   * @param [params.up] Position to fly the up vector to.
+   * @param [params.projection] Projection type to transition into. Can be any of the values of {@link viewer!Camera.projectionType | Camera.projectionType}.
+   * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link viewer!Viewer | Viewer} or its AABB should fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV}.
+   * @param [params.fit] Whether to fit the target to the view volume. Overrides {@link cameraFlightAnimation.fit | CameraFlightAnimation.fit}.
+   */
   jumpTo(params2) {
     this.#jumpTo(params2);
   }
@@ -199284,8 +199287,8 @@ var CameraFlightAnimation = class _CameraFlightAnimation extends Component {
     return c2 * (-Math.pow(2, -10 * t / d) + 1) + b4;
   }
   /**
-     * Stops an earlier {@link CameraFlightAnimation.flyTo | CameraFlightAnimation.flyTo}, fires arrival callback, then "stopped" event.
-     */
+   * Stops an earlier {@link CameraFlightAnimation.flyTo | CameraFlightAnimation.flyTo}, fires arrival callback, then "stopped" event.
+   */
   stop() {
     if (!this.#flying) {
       return;
@@ -199304,8 +199307,8 @@ var CameraFlightAnimation = class _CameraFlightAnimation extends Component {
     this.onStopped.dispatch(this, null);
   }
   /**
-     * Cancels a flight in progress, without calling the arrival callback.
-     */
+   * Cancels a flight in progress, without calling the arrival callback.
+   */
   cancel() {
     if (!this.#flying) {
       return;
@@ -199319,85 +199322,85 @@ var CameraFlightAnimation = class _CameraFlightAnimation extends Component {
     this.onCancelled.dispatch(this, null);
   }
   /**
-     * Sets the flight duration in seconds.
-     *
-     * Stops any flight currently in progress.
-     *
-     * Default value is ````0.5````.
-     */
+   * Sets the flight duration in seconds.
+   *
+   * Stops any flight currently in progress.
+   *
+   * Default value is ````0.5````.
+   */
   set duration(value) {
     this.#duration = value ? value * 1e3 : 500;
     this.stop();
   }
   /**
-     * Gets the flight duration in seconds.
-     *
-     * Default value is ````0.5````.
-     */
+   * Gets the flight duration in seconds.
+   *
+   * Default value is ````0.5````.
+   */
   get duration() {
     return this.#duration / 1e3;
   }
   /**
-     * When flying to a {@link scene!SceneModel | SceneModel}, {@link viewer!ViewObject | ViewObject} or boundary, indicates if the CameraFlightAnimation always adjusts
-     * the distance of {@link viewer!Camera.eye | Camera.eye} from {@link viewer!Camera.look | Camera.look} to ensure that the target always fits in view.
-     *
-     * When false, the eye will remain fixed at its current distance from the look position.
-     *
-     * Default value is ````true````.
-     */
+   * When flying to a {@link scene!SceneModel | SceneModel}, {@link viewer!ViewObject | ViewObject} or boundary, indicates if the CameraFlightAnimation always adjusts
+   * the distance of {@link viewer!Camera.eye | Camera.eye} from {@link viewer!Camera.look | Camera.look} to ensure that the target always fits in view.
+   *
+   * When false, the eye will remain fixed at its current distance from the look position.
+   *
+   * Default value is ````true````.
+   */
   set fit(value) {
     this.#fit = value;
   }
   /**
-     * When flying to a {@link scene!SceneModel | SceneModel}, {@link viewer!ViewObject | ViewObject} or boundary, indicates if the CameraFlightAnimation always adjusts
-     * the distance of {@link viewer!Camera.eye | Camera.eye} from {@link viewer!Camera.look | Camera.look} to ensure that the target always fits in view.
-     *
-     * When false, the eye will remain fixed at its current distance from the look position.
-     *
-     * Default value is ````true````.
-     */
+   * When flying to a {@link scene!SceneModel | SceneModel}, {@link viewer!ViewObject | ViewObject} or boundary, indicates if the CameraFlightAnimation always adjusts
+   * the distance of {@link viewer!Camera.eye | Camera.eye} from {@link viewer!Camera.look | Camera.look} to ensure that the target always fits in view.
+   *
+   * When false, the eye will remain fixed at its current distance from the look position.
+   *
+   * Default value is ````true````.
+   */
   get fit() {
     return this.#fit;
   }
   /**
-     * Sets how much of the perspective field-of-view, in degrees, that a target {@link viewer!ViewObject | ViewObject} should
-     * fill the canvas when calling {@link CameraFlightAnimation.flyTo | CameraFlightAnimation.flyTo} or {@link CameraFlightAnimation.jumpTo | CameraFlightAnimation.jumpTo}.
-     *
-     * Default value is ````45````.
-     */
+   * Sets how much of the perspective field-of-view, in degrees, that a target {@link viewer!ViewObject | ViewObject} should
+   * fill the canvas when calling {@link CameraFlightAnimation.flyTo | CameraFlightAnimation.flyTo} or {@link CameraFlightAnimation.jumpTo | CameraFlightAnimation.jumpTo}.
+   *
+   * Default value is ````45````.
+   */
   set fitFOV(value) {
     this.#fitFOV = value;
   }
   /**
-     * Gets how much of the perspective field-of-view, in degrees, that a target {@link viewer!ViewObject | ViewObject} should
-     * fill the canvas when calling {@link CameraFlightAnimation.flyTo | CameraFlightAnimation.flyTo} or {@link CameraFlightAnimation.jumpTo | CameraFlightAnimation.jumpTo}.
-     *
-     * Default value is ````45````.
-     */
+   * Gets how much of the perspective field-of-view, in degrees, that a target {@link viewer!ViewObject | ViewObject} should
+   * fill the canvas when calling {@link CameraFlightAnimation.flyTo | CameraFlightAnimation.flyTo} or {@link CameraFlightAnimation.jumpTo | CameraFlightAnimation.jumpTo}.
+   *
+   * Default value is ````45````.
+   */
   get fitFOV() {
     return this.#fitFOV;
   }
   /**
-     * Indicates if this CameraFlightAnimation will orient the {@link viewer!Camera | Camera}
-     * in the direction that it is flying.
-     *
-     * Default value is ````false````.
-     */
+   * Indicates if this CameraFlightAnimation will orient the {@link viewer!Camera | Camera}
+   * in the direction that it is flying.
+   *
+   * Default value is ````false````.
+   */
   set trail(value) {
     this.#trail = value;
   }
   /**
-     * Indicates if this CameraFlightAnimation will orient the {@link viewer!Camera | Camera}
-     * in the direction that it is flying.
-     *
-     * Default value is ````false````.
-     */
+   * Indicates if this CameraFlightAnimation will orient the {@link viewer!Camera | Camera}
+   * in the direction that it is flying.
+   *
+   * Default value is ````false````.
+   */
   get trail() {
     return this.#trail;
   }
   /**
-     * @private
-     */
+   * @private
+   */
   destroy() {
     this.stop();
     super.destroy();
@@ -200295,16 +200298,16 @@ var PanController = class {
     this.#view = view;
   }
   /**
-     * Dollys the Camera towards the given target 2D canvas position.
-     *
-     * When the target's corresponding World-space position is also provided, then this function will also test if we've
-     * dollied past the target, and will return ````true```` if that's the case.
-     *
-     * @param [optionalTargetWorldPos] Optional world position of the target
-     * @param targetCanvasPos Canvas position of the target
-     * @param dollyDelta Amount to dolly
-     * @return True if optionalTargetWorldPos was given, and we've dollied past that position.
-     */
+   * Dollys the Camera towards the given target 2D canvas position.
+   *
+   * When the target's corresponding World-space position is also provided, then this function will also test if we've
+   * dollied past the target, and will return ````true```` if that's the case.
+   *
+   * @param [optionalTargetWorldPos] Optional world position of the target
+   * @param targetCanvasPos Canvas position of the target
+   * @param dollyDelta Amount to dolly
+   * @return True if optionalTargetWorldPos was given, and we've dollied past that position.
+   */
   dollyToCanvasPos(optionalTargetWorldPos, targetCanvasPos, dollyDelta) {
     let dolliedThroughSurface = false;
     const camera = this.#view.camera;
@@ -200389,8 +200392,8 @@ var PickController = class {
     this.#needFireEvents = 0;
   }
   /**
-     * Immediately attempts a pick, if scheduled.
-     */
+   * Immediately attempts a pick, if scheduled.
+   */
   update() {
     if (!this.#configs.pointerEnabled) {
       return;
@@ -200582,8 +200585,8 @@ var PivotController = class {
   #onTick;
   #pivotElement;
   /**
-     * @private
-     */
+   * @private
+   */
   constructor(view, configs) {
     this.#view = view;
     this.#configs = configs;
@@ -200641,36 +200644,36 @@ var PivotController = class {
     }
   }
   /**
-     * Sets the HTML DOM element that will represent the pivot position.
-     *
-     * @param pivotElement
-     */
+   * Sets the HTML DOM element that will represent the pivot position.
+   *
+   * @param pivotElement
+   */
   setPivotElement(pivotElement) {
     this.#pivotElement = pivotElement;
   }
   /**
-     * Sets a sphere as the representation of the pivot position.
-     *
-     * @param {Object} [cfg] Sphere configuration.
-     * @param {String} [cfg.size=1] Optional size factor of the sphere. Defaults to 1.
-     * @param {String} [cfg.color=Array] Optional maretial color. Defaults to a red.
-     */
+   * Sets a sphere as the representation of the pivot position.
+   *
+   * @param {Object} [cfg] Sphere configuration.
+   * @param {String} [cfg.size=1] Optional size factor of the sphere. Defaults to 1.
+   * @param {String} [cfg.color=Array] Optional maretial color. Defaults to a red.
+   */
   enablePivotSphere(cfg = {
     size: 0,
     color: [1, 1, 1]
   }) {
   }
   /**
-     * Remove the sphere as the representation of the pivot position.
-     *
-     */
+   * Remove the sphere as the representation of the pivot position.
+   *
+   */
   disablePivotSphere() {
     this.destroyPivotSphere();
     this.#pivotSphereEnabled = false;
   }
   /**
-     * Begins pivoting.
-     */
+   * Begins pivoting.
+   */
   startPivot() {
     if (this.#cameraLookingDownwards()) {
       this.#pivoting = false;
@@ -200704,29 +200707,29 @@ var PivotController = class {
     return rightAxisLen <= 1e-4;
   }
   /**
-     * Returns true if we are currently pivoting.
-     *
-     * @returns {Boolean}
-     */
+   * Returns true if we are currently pivoting.
+   *
+   * @returns {Boolean}
+   */
   getPivoting() {
     return this.#pivoting;
   }
   /**
-     * Sets a 3D World-space position to pivot about.
-     *
-     * @param {Number[]} worldPos The new World-space pivot position.
-     */
+   * Sets a 3D World-space position to pivot about.
+   *
+   * @param {Number[]} worldPos The new World-space pivot position.
+   */
   setPivotPos(worldPos) {
     this.#pivotWorldPos.set(worldPos);
     this.#pivotPosSet = true;
   }
   /**
-     * Sets the pivot position to the 3D projection of the given 2D canvas coordinates on a sphere centered
-     * at the viewpoint. The radius of the sphere is configured via {@link CameraControl#smartPivot}.
-     *
-     *
-     * @param canvasPos
-     */
+   * Sets the pivot position to the 3D projection of the given 2D canvas coordinates on a sphere centered
+   * at the viewpoint. The radius of the sphere is configured via {@link CameraControl#smartPivot}.
+   *
+   *
+   * @param canvasPos
+   */
   setCanvasPivotPos(canvasPos2) {
     const camera = this.#view.camera;
     const pivotShereRadius = Math.abs(distVec3(this.#view.viewer.scene.center, camera.eye));
@@ -200742,18 +200745,18 @@ var PivotController = class {
     this.setPivotPos(posOnSphere);
   }
   /**
-     * Gets the current position we're pivoting about.
-     * @returns {Number[]} The current World-space pivot position.
-     */
+   * Gets the current position we're pivoting about.
+   * @returns {Number[]} The current World-space pivot position.
+   */
   getPivotPos() {
     return this.#pivotPosSet ? this.#pivotWorldPos : this.#view.camera.look;
   }
   /**
-     * Continues to pivot.
-     *
-     * @param {Number} yawInc Yaw rotation increment.
-     * @param {Number} pitchInc Pitch rotation increment.
-     */
+   * Continues to pivot.
+   *
+   * @param {Number} yawInc Yaw rotation increment.
+   * @param {Number} pitchInc Pitch rotation increment.
+   */
   continuePivot(yawInc, pitchInc) {
     if (!this.#pivoting) {
       return;
@@ -200796,10 +200799,10 @@ var PivotController = class {
     this.showPivot();
   }
   /**
-     * Shows the pivot position.
-     *
-     * Only works if we set an  HTML DOM element to represent the pivot position.
-     */
+   * Shows the pivot position.
+   *
+   * Only works if we set an  HTML DOM element to represent the pivot position.
+   */
   showPivot() {
     if (this.#shown) {
       return;
@@ -200815,10 +200818,10 @@ var PivotController = class {
     this.#shown = true;
   }
   /**
-     * Hides the pivot position.
-     *
-     * Only works if we set an  HTML DOM element to represent the pivot position.
-     */
+   * Hides the pivot position.
+   *
+   * Only works if we set an  HTML DOM element to represent the pivot position.
+   */
   hidePivot() {
     if (!this.#shown) {
       return;
@@ -200832,8 +200835,8 @@ var PivotController = class {
     this.#shown = false;
   }
   /**
-     * Finishes pivoting.
-     */
+   * Finishes pivoting.
+   */
   endPivot() {
     this.#pivoting = false;
   }
@@ -201200,173 +201203,173 @@ var DEFAULT_SNAP_VERTEX = true;
 var DEFAULT_SNAP_EDGE = true;
 var CameraControl = class _CameraControl extends Component {
   /**
-     * Represents a leftward panning action.
-     */
+   * Represents a leftward panning action.
+   */
   static PAN_LEFT = 0;
   /**
-     * Represents a rightward panning action.
-     */
+   * Represents a rightward panning action.
+   */
   static PAN_RIGHT = 1;
   /**
-     * Represents an upward panning action.
-     */
+   * Represents an upward panning action.
+   */
   static PAN_UP = 2;
   /**
-     * Represents a downward panning action.
-     */
+   * Represents a downward panning action.
+   */
   static PAN_DOWN = 3;
   /**
-     * Represents a forward panning action.
-     */
+   * Represents a forward panning action.
+   */
   static PAN_FORWARDS = 4;
   /**
-     * Represents a backward panning action.
-     */
+   * Represents a backward panning action.
+   */
   static PAN_BACKWARDS = 5;
   /**
-     * Rotates the view clockwise around the X-axis.
-     */
+   * Rotates the view clockwise around the X-axis.
+   */
   static ROTATE_X_POS = 6;
   /**
-     * Rotates the view counterclockwise around the X-axis.
-     */
+   * Rotates the view counterclockwise around the X-axis.
+   */
   static ROTATE_X_NEG = 7;
   /**
-     * Rotates the view clockwise around the Y-axis.
-     */
+   * Rotates the view clockwise around the Y-axis.
+   */
   static ROTATE_Y_POS = 8;
   /**
-     * Rotates the view counterclockwise around the Y-axis.
-     */
+   * Rotates the view counterclockwise around the Y-axis.
+   */
   static ROTATE_Y_NEG = 9;
   /**
-     * Moves the camera forward (dolly in).
-     */
+   * Moves the camera forward (dolly in).
+   */
   static DOLLY_FORWARDS = 10;
   /**
-     * Moves the camera backward (dolly out).
-     */
+   * Moves the camera backward (dolly out).
+   */
   static DOLLY_BACKWARDS = 11;
   /**
-     * Positions the {@link viewer!Camera | Camera} to view the right side
-     * of the entire extents of the {@link viewer!View | View}.
-     */
+   * Positions the {@link viewer!Camera | Camera} to view the right side
+   * of the entire extents of the {@link viewer!View | View}.
+   */
   static AXIS_VIEW_RIGHT = 12;
   /**
-     * Positions the {@link viewer!Camera | Camera} to view the back side
-     * of the entire extents of the {@link viewer!View | View}.
-     */
+   * Positions the {@link viewer!Camera | Camera} to view the back side
+   * of the entire extents of the {@link viewer!View | View}.
+   */
   static AXIS_VIEW_BACK = 13;
   /**
-     * Positions the {@link viewer!Camera | Camera} to view the left side
-     * of the entire extents of the {@link viewer!View | View}.
-     */
+   * Positions the {@link viewer!Camera | Camera} to view the left side
+   * of the entire extents of the {@link viewer!View | View}.
+   */
   static AXIS_VIEW_LEFT = 14;
   /**
-     * Positions the {@link viewer!Camera | Camera} to view the front side
-     * of the entire extents of the {@link viewer!View | View}.
-     */
+   * Positions the {@link viewer!Camera | Camera} to view the front side
+   * of the entire extents of the {@link viewer!View | View}.
+   */
   static AXIS_VIEW_FRONT = 15;
   /**
-     * Positions the {@link viewer!Camera | Camera} to look downward
-     * at the entire extents of the {@link viewer!View | View}.
-     */
+   * Positions the {@link viewer!Camera | Camera} to look downward
+   * at the entire extents of the {@link viewer!View | View}.
+   */
   static AXIS_VIEW_TOP = 16;
   /**
-     * Positions the {@link viewer!Camera | Camera} to look upward from below
-     * at the entire extents of the {@link viewer!View | View}.
-     */
+   * Positions the {@link viewer!Camera | Camera} to look upward from below
+   * at the entire extents of the {@link viewer!View | View}.
+   */
   static AXIS_VIEW_BOTTOM = 17;
   view;
   /**
-     * Event fired when we right-click.
-     *
-     * @event
-     */
+   * Event fired when we right-click.
+   *
+   * @event
+   */
   onRightClick;
   /**
-     * Event fired when the pointer moves while over a {@link viewer!ViewObject}.
-     *
-     * @event
-     */
+   * Event fired when the pointer moves while over a {@link viewer!ViewObject}.
+   *
+   * @event
+   */
   onHover;
   /**
-     * Event fired when the pointer moves while over a {@link viewer!ViewObject}.
-     *
-     * @event
-     */
+   * Event fired when the pointer moves while over a {@link viewer!ViewObject}.
+   *
+   * @event
+   */
   onHoverSurface;
   /**
-     * Event fired when the pointer moves while over empty space.
-     *
-     * @event
-     */
+   * Event fired when the pointer moves while over empty space.
+   *
+   * @event
+   */
   onHoverOff;
   /**
-     * Event fired when the pointer moves onto a {@link viewer!ViewObject}.
-     *
-     * @event
-     */
+   * Event fired when the pointer moves onto a {@link viewer!ViewObject}.
+   *
+   * @event
+   */
   onHoverEnter;
   /**
-     * Event fired when the pointer moves off a {@link viewer!ViewObject}.
-     *
-     * @event
-     */
+   * Event fired when the pointer moves off a {@link viewer!ViewObject}.
+   *
+   * @event
+   */
   onHoverOut;
   /**
-     * Event fired when a {@link viewer!ViewObject} is picked.
-     *
-     * @event
-     */
+   * Event fired when a {@link viewer!ViewObject} is picked.
+   *
+   * @event
+   */
   onPicked;
   /**
-     * Event fired when empty space is picked.
-     *
-     * @event
-     */
+   * Event fired when empty space is picked.
+   *
+   * @event
+   */
   onPickedSurface;
   /**
-     * Event fired when empty space is picked.
-     *
-     * @event
-     */
+   * Event fired when empty space is picked.
+   *
+   * @event
+   */
   onPickedNothing;
   /**
-     * Event fired when a ViewObject is double-picked.
-     *
-     * @event
-     */
+   * Event fired when a ViewObject is double-picked.
+   *
+   * @event
+   */
   onDoublePicked;
   /**
-     * Event fired when a surface is double-picked.
-     *
-     * @event
-     */
+   * Event fired when a surface is double-picked.
+   *
+   * @event
+   */
   onDoublePickedSurface;
   /**
-     * Event fired when empty space is double-picked.
-     *
-     * @event
-     */
+   * Event fired when empty space is double-picked.
+   *
+   * @event
+   */
   onDoublePickedNothing;
   /**
-     * Event fired when snapping off a surface, vertex, or edge.
-     *
-     * @event
-     */
+   * Event fired when snapping off a surface, vertex, or edge.
+   *
+   * @event
+   */
   onHoverSnapOrSurfaceOff;
   /**
-     * Event fired when snapping onto a surface, vertex, or edge.
-     *
-     * @event
-     */
+   * Event fired when snapping onto a surface, vertex, or edge.
+   *
+   * @event
+   */
   onHoverSnapOrSurface;
   /**
-     * Event fired when ray moves.
-     *
-     * @event
-     */
+   * Event fired when ray moves.
+   *
+   * @event
+   */
   onRayMove;
   #configs;
   #states;
@@ -201376,9 +201379,9 @@ var CameraControl = class _CameraControl extends Component {
   #cameraUpdater;
   #keyMap;
   /**
-     * @private
-     *
-     */
+   * @private
+   *
+   */
   constructor(view, cfg = {}) {
     super(view, cfg);
     this.#keyMap = {};
@@ -201504,13 +201507,13 @@ var CameraControl = class _CameraControl extends Component {
     this.mouseWheelDollyRate = cfg.mouseWheelDollyRate;
   }
   /**
-     * Sets custom mappings of keys to ````CameraControl```` actions.
-     *
-     * See class docs for usage.
-     *
-     * @param {{Number:Number}|String} value Either a set of new key mappings, or a string to select a keyboard layout,
-     * which causes ````CameraControl```` to use the default key mappings for that layout.
-     */
+   * Sets custom mappings of keys to ````CameraControl```` actions.
+   *
+   * See class docs for usage.
+   *
+   * @param {{Number:Number}|String} value Either a set of new key mappings, or a string to select a keyboard layout,
+   * which causes ````CameraControl```` to use the default key mappings for that layout.
+   */
   set keyMap(value) {
     value = value || QWERTYLayout;
     if (isString(value)) {
@@ -201566,35 +201569,35 @@ var CameraControl = class _CameraControl extends Component {
     }
   }
   /**
-     * Gets custom mappings of keys to {@link CameraControl} actions.
-     */
+   * Gets custom mappings of keys to {@link CameraControl} actions.
+   */
   get keyMap() {
     return this.#keyMap;
   }
   /**
-     * Returns true if any keys configured for the given action are down.
-     * @param action
-     * @param keyDownMap
-     * @private
-     */
+   * Returns true if any keys configured for the given action are down.
+   * @param action
+   * @param keyDownMap
+   * @private
+   */
   _isKeyDownForAction(action, keyDownMap) {
     return false;
   }
   /**
-     * Sets the HTMl element to represent the pivot point when {@link CameraControl#followPointer} is true.
-     *
-     * See class comments for an example.
-     */
+   * Sets the HTMl element to represent the pivot point when {@link CameraControl#followPointer} is true.
+   *
+   * See class comments for an example.
+   */
   set pivotElement(element) {
     this.#controllers.pivotController.setPivotElement(element);
   }
   /**
-     *  Sets if this ````CameraControl```` is active or not.
-     *
-     * When inactive, the ````CameraControl```` will not react to input.
-     *
-     * Default is ````true````.
-     */
+   *  Sets if this ````CameraControl```` is active or not.
+   *
+   * When inactive, the ````CameraControl```` will not react to input.
+   *
+   * Default is ````true````.
+   */
   set active(value) {
     value = value !== false;
     this.#configs.active = value;
@@ -201602,96 +201605,96 @@ var CameraControl = class _CameraControl extends Component {
     this.#handlers[5]._active = value;
   }
   /**
-     * Gets if this ````CameraControl```` is active or not.
-     *
-     * When inactive, the ````CameraControl```` will not react to input.
-     *
-     * Default is ````true````.
-     *
-     * @returns Returns ````true```` if this ````CameraControl```` is active.
-     */
+   * Gets if this ````CameraControl```` is active or not.
+   *
+   * When inactive, the ````CameraControl```` will not react to input.
+   *
+   * Default is ````true````.
+   *
+   * @returns Returns ````true```` if this ````CameraControl```` is active.
+   */
   get active() {
     return this.#configs.active;
   }
   /**
-     * Sets whether the pointer snap to vertex.
-     */
+   * Sets whether the pointer snap to vertex.
+   */
   set snapToVertex(snapToVertex) {
     this.#configs.snapToVertex = !!snapToVertex;
   }
   /**
-     * Gets whether the pointer snap to vertex.
-     */
+   * Gets whether the pointer snap to vertex.
+   */
   get snapToVertex() {
     return this.#configs.snapToVertex;
   }
   /**
-     * Sets whether the pointer snap to edge.
-     */
+   * Sets whether the pointer snap to edge.
+   */
   set snapToEdge(snapToEdge) {
     this.#configs.snapToEdge = !!snapToEdge;
   }
   /**
-     * Gets whether the pointer snap to edge.
-     */
+   * Gets whether the pointer snap to edge.
+   */
   get snapToEdge() {
     return this.#configs.snapToEdge;
   }
   /**
-     * Sets the current snap radius for "hoverSnapOrSurface" events, to specify whether the radius
-     * within which the pointer snaps to the nearest vertex or the nearest edge.
-     *
-     * Default value is 30 pixels.
-     */
+   * Sets the current snap radius for "hoverSnapOrSurface" events, to specify whether the radius
+   * within which the pointer snaps to the nearest vertex or the nearest edge.
+   *
+   * Default value is 30 pixels.
+   */
   set snapRadius(snapRadius) {
     snapRadius = snapRadius || DEFAULT_SNAP_PICK_RADIUS;
     this.#configs.snapRadius = snapRadius;
   }
   /**
-     * Gets the current snap radius.
-     */
+   * Gets the current snap radius.
+   */
   get snapRadius() {
     return this.#configs.snapRadius;
   }
   /**
-     * If `true`, the keyboard shortcuts are enabled ONLY if the mouse is over the canvas.
-     */
+   * If `true`, the keyboard shortcuts are enabled ONLY if the mouse is over the canvas.
+   */
   set keyboardEnabledOnlyIfMouseover(value) {
     this.#configs.keyboardEnabledOnlyIfMouseover = !!value;
   }
   /**
-     * Gets whether the keyboard shortcuts are enabled ONLY if the mouse is over the canvas or ALWAYS.
-     */
+   * Gets whether the keyboard shortcuts are enabled ONLY if the mouse is over the canvas or ALWAYS.
+   */
   get keyboardEnabledOnlyIfMouseover() {
     return this.#configs.keyboardEnabledOnlyIfMouseover;
   }
   /**
-     * Gets the current navigation mode.
-     *
-     * Returned values are:
-     *
-     * * {@link constants!OrbitNavigationMode} - rotation orbits about the current target or pivot point,
-     * * {@link constants!FirstPersonNavigationMode} - rotation is about the current eye position,
-     * * {@link constants!PlanViewNavigationMode} - rotation is disabled.
-     *
-     * @returns The navigation mode: OrbitNavigationMode, FirstPersonNavigationMode or PlanViewNavigationMode.
-     */
+   * Gets the current navigation mode.
+   *
+   * Returned values are:
+   *
+   * * {@link constants!OrbitNavigationMode} - rotation orbits about the current target or pivot point,
+   * * {@link constants!FirstPersonNavigationMode} - rotation is about the current eye position,
+   * * {@link constants!PlanViewNavigationMode} - rotation is disabled.
+   *
+   * @returns The navigation mode: OrbitNavigationMode, FirstPersonNavigationMode or PlanViewNavigationMode.
+   */
   get navMode() {
     return this.#configs.navMode;
   }
   /**
-     * Sets the current navigation mode.
-     *
-     * Accepted values are:
-     *
-     * * {@link constants!OrbitNavigationMode} - rotation orbits about the current target or pivot point,
-     * * {@link constants!FirstPersonNavigationMode} - rotation is about the current eye position,
-     * * {@link constants!PlanViewNavigationMode} - rotation is disabled.
-     *
-     * See class comments for more info.
-     *
-     * @param navMode The navigation mode: OrbitNavigationMode, FirstPersonNavigationMode or PlanViewNavigationMode.
-     */
+   * Sets the current navigation mode.
+   *
+   * Accepted values are:
+   *
+   * * {@link constants!OrbitNavigationMode} - rotation orbits about the current target or pivot point,
+   * * {@link constants!FirstPersonNavigationMode} - rotation is about the current eye position,
+   * * {@link constants!PlanViewNavigationMode} - rotation is disabled.
+   *
+   * See class comments for more info.
+   *
+   * @param navMode The navigation mode: OrbitNavigationMode, FirstPersonNavigationMode or PlanViewNavigationMode.
+   */
   set navMode(navMode) {
     navMode = navMode || OrbitNavigationMode;
     if (navMode !== FirstPersonNavigationMode && navMode !== OrbitNavigationMode && navMode !== PlanViewNavigationMode) {
@@ -201707,15 +201710,15 @@ var CameraControl = class _CameraControl extends Component {
     this.#configs.navMode = navMode;
   }
   /**
-     * Sets whether mouse and touch input is enabled.
-     *
-     * Default is ````true````.
-     *
-     * Disabling mouse and touch input on ````CameraControl```` is useful when we want to temporarily use mouse or
-     * touch input to interact with some other 3D control, without disturbing the {@link viewer!Camera}.
-     *
-     * @param value Set ````true```` to enable mouse and touch input.
-     */
+   * Sets whether mouse and touch input is enabled.
+   *
+   * Default is ````true````.
+   *
+   * Disabling mouse and touch input on ````CameraControl```` is useful when we want to temporarily use mouse or
+   * touch input to interact with some other 3D control, without disturbing the {@link viewer!Camera}.
+   *
+   * @param value Set ````true```` to enable mouse and touch input.
+   */
   set pointerEnabled(value) {
     this._reset();
     this.#configs.pointerEnabled = !!value;
@@ -201734,504 +201737,504 @@ var CameraControl = class _CameraControl extends Component {
     this.#updates.dollyDelta = 0;
   }
   /**
-     * Gets whether mouse and touch input is enabled.
-     *
-     * Default is ````true````.
-     *
-     * Disabling mouse and touch input on ````CameraControl```` is desirable when we want to temporarily use mouse or
-     * touch input to interact with some other 3D control, without interfering with the {@link viewer!Camera}.
-     *
-     * @returns Returns ````true```` if mouse and touch input is enabled.
-     */
+   * Gets whether mouse and touch input is enabled.
+   *
+   * Default is ````true````.
+   *
+   * Disabling mouse and touch input on ````CameraControl```` is desirable when we want to temporarily use mouse or
+   * touch input to interact with some other 3D control, without interfering with the {@link viewer!Camera}.
+   *
+   * @returns Returns ````true```` if mouse and touch input is enabled.
+   */
   get pointerEnabled() {
     return this.#configs.pointerEnabled;
   }
   /**
-     * Sets whether the {@link viewer!Camera} follows the mouse/touch pointer.
-     *
-     * In orbiting mode, the Camera will orbit about the pointer, and will dolly to and from the pointer.
-     *
-     * In fly-to mode, the Camera will dolly to and from the pointer, however the World will always rotate about the Camera position.
-     *
-     * In plan-view mode, the Camera will dolly to and from the pointer, however the Camera will not rotate.
-     *
-     * Default is ````true````.
-     *
-     * See class comments for more info.
-     *
-     * @param value Set ````true```` to enable the Camera to follow the pointer.
-     */
+   * Sets whether the {@link viewer!Camera} follows the mouse/touch pointer.
+   *
+   * In orbiting mode, the Camera will orbit about the pointer, and will dolly to and from the pointer.
+   *
+   * In fly-to mode, the Camera will dolly to and from the pointer, however the World will always rotate about the Camera position.
+   *
+   * In plan-view mode, the Camera will dolly to and from the pointer, however the Camera will not rotate.
+   *
+   * Default is ````true````.
+   *
+   * See class comments for more info.
+   *
+   * @param value Set ````true```` to enable the Camera to follow the pointer.
+   */
   set followPointer(value) {
     this.#configs.followPointer = value !== false;
   }
   /**
-     * Sets whether the {@link viewer!Camera} follows the mouse/touch pointer.
-     *
-     * In orbiting mode, the Camera will orbit about the pointer, and will dolly to and from the pointer.
-     *
-     * In fly-to mode, the Camera will dolly to and from the pointer, however the World will always rotate about the Camera position.
-     *
-     * In plan-view mode, the Camera will dolly to and from the pointer, however the Camera will not rotate.
-     *
-     * Default is ````true````.
-     *
-     * See class comments for more info.
-     *
-     * @returns Returns ````true```` if the Camera follows the pointer.
-     */
+   * Sets whether the {@link viewer!Camera} follows the mouse/touch pointer.
+   *
+   * In orbiting mode, the Camera will orbit about the pointer, and will dolly to and from the pointer.
+   *
+   * In fly-to mode, the Camera will dolly to and from the pointer, however the World will always rotate about the Camera position.
+   *
+   * In plan-view mode, the Camera will dolly to and from the pointer, however the Camera will not rotate.
+   *
+   * Default is ````true````.
+   *
+   * See class comments for more info.
+   *
+   * @returns Returns ````true```` if the Camera follows the pointer.
+   */
   get followPointer() {
     return this.#configs.followPointer;
   }
   /**
-     * Sets the current World-space 3D target position.
-     *
-     * Only applies when {@link CameraControl#followPointer} is ````true````.
-     *
-     * @param worldPos The new World-space 3D target position.
-     */
+   * Sets the current World-space 3D target position.
+   *
+   * Only applies when {@link CameraControl#followPointer} is ````true````.
+   *
+   * @param worldPos The new World-space 3D target position.
+   */
   set pivotPos(worldPos) {
     this.#controllers.pivotController.setPivotPos(worldPos);
   }
   /**
-     * Gets the current World-space 3D pivot position.
-     *
-     * Only applies when {@link CameraControl#followPointer} is ````true````.
-     *
-     * @return  worldPos The current World-space 3D pivot position.
-     */
+   * Gets the current World-space 3D pivot position.
+   *
+   * Only applies when {@link CameraControl#followPointer} is ````true````.
+   *
+   * @return  worldPos The current World-space 3D pivot position.
+   */
   get pivotPos() {
     return this.#controllers.pivotController.getPivotPos();
   }
   /**
-     * Sets whether to vertically constrain the {@link viewer!Camera} position for first-person navigation.
-     *
-     * When set ````true````, this constrains {@link viewer!Camera#eye} to its current vertical position.
-     *
-     * Only applies when {@link CameraControl#navMode} is ````"firstPerson"````.
-     *
-     * Default is ````false````.
-     *
-     * @param value Set ````true```` to vertically constrain the Camera.
-     */
+   * Sets whether to vertically constrain the {@link viewer!Camera} position for first-person navigation.
+   *
+   * When set ````true````, this constrains {@link viewer!Camera#eye} to its current vertical position.
+   *
+   * Only applies when {@link CameraControl#navMode} is ````"firstPerson"````.
+   *
+   * Default is ````false````.
+   *
+   * @param value Set ````true```` to vertically constrain the Camera.
+   */
   set constrainVertical(value) {
     this.#configs.constrainVertical = !!value;
   }
   /**
-     * Gets whether to vertically constrain the {@link viewer!Camera} position for first-person navigation.
-     *
-     * When set ````true````, this constrains {@link viewer!Camera#eye} to its current vertical position.
-     *
-     * Only applies when {@link CameraControl#navMode} is ````"firstPerson"````.
-     *
-     * Default is ````false````.
-     *
-     * @returns ````true```` when Camera is vertically constrained.
-     */
+   * Gets whether to vertically constrain the {@link viewer!Camera} position for first-person navigation.
+   *
+   * When set ````true````, this constrains {@link viewer!Camera#eye} to its current vertical position.
+   *
+   * Only applies when {@link CameraControl#navMode} is ````"firstPerson"````.
+   *
+   * Default is ````false````.
+   *
+   * @returns ````true```` when Camera is vertically constrained.
+   */
   get constrainVertical() {
     return this.#configs.constrainVertical;
   }
   /**
-     * Sets whether double-picking an object causes the {@link viewer!Camera} to fly to its boundary.
-     *
-     * Default is ````false````.
-     *
-     * @param value Set ````true```` to enable double-pick-fly-to mode.
-     */
+   * Sets whether double-picking an object causes the {@link viewer!Camera} to fly to its boundary.
+   *
+   * Default is ````false````.
+   *
+   * @param value Set ````true```` to enable double-pick-fly-to mode.
+   */
   set doublePickFlyTo(value) {
     this.#configs.doublePickFlyTo = value !== false;
   }
   /**
-     * Gets whether double-picking an object causes the {@link viewer!Camera} to fly to its boundary.
-     *
-     * Default is ````false````.
-     *
-     * @returns Returns ````true```` when double-pick-fly-to mode is enabled.
-     */
+   * Gets whether double-picking an object causes the {@link viewer!Camera} to fly to its boundary.
+   *
+   * Default is ````false````.
+   *
+   * @returns Returns ````true```` when double-pick-fly-to mode is enabled.
+   */
   get doublePickFlyTo() {
     return this.#configs.doublePickFlyTo;
   }
   /**
-     * Sets whether either right-clicking (true) or middle-clicking (false) pans the {@link viewer!Camera}.
-     *
-     * Default is ````true````.
-     *
-     * @param value Set ````false```` to disable pan on right-click.
-     */
+   * Sets whether either right-clicking (true) or middle-clicking (false) pans the {@link viewer!Camera}.
+   *
+   * Default is ````true````.
+   *
+   * @param value Set ````false```` to disable pan on right-click.
+   */
   set panRightClick(value) {
     this.#configs.panRightClick = value !== false;
   }
   /**
-     * Gets whether right-clicking pans the {@link viewer!Camera}.
-     *
-     * Default is ````true````.
-     *
-     * @returns Returns ````false```` when pan on right-click is disabled.
-     */
+   * Gets whether right-clicking pans the {@link viewer!Camera}.
+   *
+   * Default is ````true````.
+   *
+   * @returns Returns ````false```` when pan on right-click is disabled.
+   */
   get panRightClick() {
     return this.#configs.panRightClick;
   }
   /**
-     * Sets a factor in range ````[0..1]```` indicating how much the {@link viewer!Camera} keeps moving after you finish rotating it.
-     *
-     * A value of ````0.0```` causes it to immediately stop, ````0.5```` causes its movement to decay 50% on each tick,
-     * while ````1.0```` causes no decay, allowing it continue moving, by the current rate of rotation.
-     *
-     * You may choose an inertia of zero when you want be able to precisely rotate the Camera,
-     * without interference from inertia. Zero inertia can also mean that less frames are rendered while
-     * you are rotating the Camera.
-     *
-     * Default is ````0.0````.
-     *
-     * Does not apply when {@link CameraControl#navMode} is ````"planView"````, which disallows rotation.
-     *
-     * @param rotationInertia New inertial factor.
-     */
+   * Sets a factor in range ````[0..1]```` indicating how much the {@link viewer!Camera} keeps moving after you finish rotating it.
+   *
+   * A value of ````0.0```` causes it to immediately stop, ````0.5```` causes its movement to decay 50% on each tick,
+   * while ````1.0```` causes no decay, allowing it continue moving, by the current rate of rotation.
+   *
+   * You may choose an inertia of zero when you want be able to precisely rotate the Camera,
+   * without interference from inertia. Zero inertia can also mean that less frames are rendered while
+   * you are rotating the Camera.
+   *
+   * Default is ````0.0````.
+   *
+   * Does not apply when {@link CameraControl#navMode} is ````"planView"````, which disallows rotation.
+   *
+   * @param rotationInertia New inertial factor.
+   */
   set rotationInertia(rotationInertia) {
     this.#configs.rotationInertia = rotationInertia !== void 0 && rotationInertia !== null ? rotationInertia : 0;
   }
   /**
-     * Gets the rotation inertia factor.
-     *
-     * Default is ````0.0````.
-     *
-     * Does not apply when {@link CameraControl#navMode} is ````"planView"````, which disallows rotation.
-     *
-     * @returns The inertia factor.
-     */
+   * Gets the rotation inertia factor.
+   *
+   * Default is ````0.0````.
+   *
+   * Does not apply when {@link CameraControl#navMode} is ````"planView"````, which disallows rotation.
+   *
+   * @returns The inertia factor.
+   */
   get rotationInertia() {
     return this.#configs.rotationInertia;
   }
   /**
-     * Sets how much the {@link viewer!Camera} pans each second with keyboard input.
-     *
-     * Default is ````5.0````, to pan the Camera ````5.0```` World-space units every second that
-     * a panning key is depressed. See the ````CameraControl```` class documentation for which keys control
-     * panning.
-     *
-     * Panning direction is aligned to our Camera's orientation. When we pan horizontally, we pan
-     * to our left and right, when we pan vertically, we pan upwards and downwards, and when we pan forwards
-     * and backwards, we pan along the direction the Camera is pointing.
-     *
-     * Unlike dollying when {@link followPointer} is ````true````, panning does not follow the pointer.
-     *
-     * @param keyboardPanRate The new keyboard pan rate.
-     */
+   * Sets how much the {@link viewer!Camera} pans each second with keyboard input.
+   *
+   * Default is ````5.0````, to pan the Camera ````5.0```` World-space units every second that
+   * a panning key is depressed. See the ````CameraControl```` class documentation for which keys control
+   * panning.
+   *
+   * Panning direction is aligned to our Camera's orientation. When we pan horizontally, we pan
+   * to our left and right, when we pan vertically, we pan upwards and downwards, and when we pan forwards
+   * and backwards, we pan along the direction the Camera is pointing.
+   *
+   * Unlike dollying when {@link followPointer} is ````true````, panning does not follow the pointer.
+   *
+   * @param keyboardPanRate The new keyboard pan rate.
+   */
   set keyboardPanRate(keyboardPanRate) {
     this.#configs.keyboardPanRate = keyboardPanRate !== null && keyboardPanRate !== void 0 ? keyboardPanRate : 5;
   }
   /**
-     * Sets how fast the camera pans on touch panning
-     *
-     * @param touchPanRate The new touch pan rate.
-     */
+   * Sets how fast the camera pans on touch panning
+   *
+   * @param touchPanRate The new touch pan rate.
+   */
   set touchPanRate(touchPanRate) {
     this.#configs.touchPanRate = touchPanRate !== null && touchPanRate !== void 0 ? touchPanRate : 1;
   }
   /**
-     * Gets how fast the {@link viewer!Camera} pans on touch panning
-     *
-     * Default is ````1.0````.
-     *
-     * @returns The current touch pan rate.
-     */
+   * Gets how fast the {@link viewer!Camera} pans on touch panning
+   *
+   * Default is ````1.0````.
+   *
+   * @returns The current touch pan rate.
+   */
   get touchPanRate() {
     return this.#configs.touchPanRate;
   }
   /**
-     * Gets how much the {@link viewer!Camera} pans each second with keyboard input.
-     *
-     * Default is ````5.0````.
-     *
-     * @returns The current keyboard pan rate.
-     */
+   * Gets how much the {@link viewer!Camera} pans each second with keyboard input.
+   *
+   * Default is ````5.0````.
+   *
+   * @returns The current keyboard pan rate.
+   */
   get keyboardPanRate() {
     return this.#configs.keyboardPanRate;
   }
   /**
-     * Sets how many degrees per second the {@link viewer!Camera} rotates/orbits with keyboard input.
-     *
-     * Default is ````90.0````, to rotate/orbit the Camera ````90.0```` degrees every second that
-     * a rotation key is depressed. See the ````CameraControl```` class documentation for which keys control
-     * rotation/orbit.
-     *
-     * @param keyboardRotationRate The new keyboard rotation rate.
-     */
+   * Sets how many degrees per second the {@link viewer!Camera} rotates/orbits with keyboard input.
+   *
+   * Default is ````90.0````, to rotate/orbit the Camera ````90.0```` degrees every second that
+   * a rotation key is depressed. See the ````CameraControl```` class documentation for which keys control
+   * rotation/orbit.
+   *
+   * @param keyboardRotationRate The new keyboard rotation rate.
+   */
   set keyboardRotationRate(keyboardRotationRate) {
     this.#configs.keyboardRotationRate = keyboardRotationRate !== null && keyboardRotationRate !== void 0 ? keyboardRotationRate : 90;
   }
   /**
-     * Sets how many degrees per second the {@link viewer!Camera} rotates/orbits with keyboard input.
-     *
-     * Default is ````90.0````.
-     *
-     * @returns The current keyboard rotation rate.
-     */
+   * Sets how many degrees per second the {@link viewer!Camera} rotates/orbits with keyboard input.
+   *
+   * Default is ````90.0````.
+   *
+   * @returns The current keyboard rotation rate.
+   */
   get keyboardRotationRate() {
     return this.#configs.keyboardRotationRate;
   }
   /**
-     * Sets the current drag rotation rate.
-     *
-     * This configures how many degrees the {@link viewer!Camera} rotates/orbits for a full sweep of the canvas by mouse or touch dragging.
-     *
-     * For example, a value of ````360.0```` indicates that the ````Camera```` rotates/orbits ````360.0```` degrees horizontally
-     * when we sweep the entire width of the canvas.
-     *
-     * ````CameraControl```` makes vertical rotation half as sensitive as horizontal rotation, so that we don't tend to
-     * flip upside-down. Therefore, a value of ````360.0```` rotates/orbits the ````Camera```` through ````180.0```` degrees
-     * vertically when we sweep the entire height of the canvas.
-     *
-     * Default is ````360.0````.
-     *
-     * @param dragRotationRate The new drag rotation rate.
-     */
+   * Sets the current drag rotation rate.
+   *
+   * This configures how many degrees the {@link viewer!Camera} rotates/orbits for a full sweep of the canvas by mouse or touch dragging.
+   *
+   * For example, a value of ````360.0```` indicates that the ````Camera```` rotates/orbits ````360.0```` degrees horizontally
+   * when we sweep the entire width of the canvas.
+   *
+   * ````CameraControl```` makes vertical rotation half as sensitive as horizontal rotation, so that we don't tend to
+   * flip upside-down. Therefore, a value of ````360.0```` rotates/orbits the ````Camera```` through ````180.0```` degrees
+   * vertically when we sweep the entire height of the canvas.
+   *
+   * Default is ````360.0````.
+   *
+   * @param dragRotationRate The new drag rotation rate.
+   */
   set dragRotationRate(dragRotationRate) {
     this.#configs.dragRotationRate = dragRotationRate !== null && dragRotationRate !== void 0 ? dragRotationRate : 360;
   }
   /**
-     * Gets the current drag rotation rate.
-     *
-     * Default is ````360.0````.
-     *
-     * @returns The current drag rotation rate.
-     */
+   * Gets the current drag rotation rate.
+   *
+   * Default is ````360.0````.
+   *
+   * @returns The current drag rotation rate.
+   */
   get dragRotationRate() {
     return this.#configs.dragRotationRate;
   }
   /**
-     * Sets how much the {@link viewer!Camera} dollys each second with keyboard input.
-     *
-     * Default is ````15.0````, to dolly the {@link viewer!Camera} ````15.0```` World-space units per second while we hold down
-     * the ````+```` and ````-```` keys.
-     *
-     * @param keyboardDollyRate The new keyboard dolly rate.
-     */
+   * Sets how much the {@link viewer!Camera} dollys each second with keyboard input.
+   *
+   * Default is ````15.0````, to dolly the {@link viewer!Camera} ````15.0```` World-space units per second while we hold down
+   * the ````+```` and ````-```` keys.
+   *
+   * @param keyboardDollyRate The new keyboard dolly rate.
+   */
   set keyboardDollyRate(keyboardDollyRate) {
     this.#configs.keyboardDollyRate = keyboardDollyRate !== null && keyboardDollyRate !== void 0 ? keyboardDollyRate : 15;
   }
   /**
-     * Gets how much the {@link viewer!Camera} dollys each second with keyboard input.
-     *
-     * Default is ````15.0````.
-     *
-     * @returns The current keyboard dolly rate.
-     */
+   * Gets how much the {@link viewer!Camera} dollys each second with keyboard input.
+   *
+   * Default is ````15.0````.
+   *
+   * @returns The current keyboard dolly rate.
+   */
   get keyboardDollyRate() {
     return this.#configs.keyboardDollyRate;
   }
   /**
-     * Sets how much the {@link viewer!Camera} dollys with touch input.
-     *
-     * Default is ````0.2````
-     *
-     * @param touchDollyRate The new touch dolly rate.
-     */
+   * Sets how much the {@link viewer!Camera} dollys with touch input.
+   *
+   * Default is ````0.2````
+   *
+   * @param touchDollyRate The new touch dolly rate.
+   */
   set touchDollyRate(touchDollyRate) {
     this.#configs.touchDollyRate = touchDollyRate !== null && touchDollyRate !== void 0 ? touchDollyRate : 0.2;
   }
   /**
-     * Gets how much the {@link viewer!Camera} dollys each second with touch input.
-     *
-     * Default is ````0.2````.
-     *
-     * @returns The current touch dolly rate.
-     */
+   * Gets how much the {@link viewer!Camera} dollys each second with touch input.
+   *
+   * Default is ````0.2````.
+   *
+   * @returns The current touch dolly rate.
+   */
   get touchDollyRate() {
     return this.#configs.touchDollyRate;
   }
   /**
-     * Sets how much the {@link viewer!Camera} dollys each second while the mouse wheel is spinning.
-     *
-     * Default is ````100.0````, to dolly the {@link viewer!Camera} ````10.0```` World-space units per second as we spin
-     * the mouse wheel.
-     *
-     * @param mouseWheelDollyRate The new mouse wheel dolly rate.
-     */
+   * Sets how much the {@link viewer!Camera} dollys each second while the mouse wheel is spinning.
+   *
+   * Default is ````100.0````, to dolly the {@link viewer!Camera} ````10.0```` World-space units per second as we spin
+   * the mouse wheel.
+   *
+   * @param mouseWheelDollyRate The new mouse wheel dolly rate.
+   */
   set mouseWheelDollyRate(mouseWheelDollyRate) {
     this.#configs.mouseWheelDollyRate = mouseWheelDollyRate !== null && mouseWheelDollyRate !== void 0 ? mouseWheelDollyRate : 100;
   }
   /**
-     * Gets how much the {@link viewer!Camera} dollys each second while the mouse wheel is spinning.
-     *
-     * Default is ````100.0````.
-     *
-     * @returns The current mouseWheel dolly rate.
-     */
+   * Gets how much the {@link viewer!Camera} dollys each second while the mouse wheel is spinning.
+   *
+   * Default is ````100.0````.
+   *
+   * @returns The current mouseWheel dolly rate.
+   */
   get mouseWheelDollyRate() {
     return this.#configs.mouseWheelDollyRate;
   }
   /**
-     * Sets the dolly inertia factor.
-     *
-     * This factor configures how much the {@link viewer!Camera} keeps moving after you finish dollying it.
-     *
-     * This factor is a value in range ````[0..1]````. A value of ````0.0```` causes dollying to immediately stop,
-     * ````0.5```` causes dollying to decay 50% on each animation frame, while ````1.0```` causes no decay, which allows dollying
-     * to continue until further input stops it.
-     *
-     * You might set ````dollyInertia```` to zero when you want be able to precisely position or rotate the Camera,
-     * without interference from inertia. This also means that xeokit renders less frames while dollying the Camera,
-     * which can improve rendering performance.
-     *
-     * Default is ````0````.
-     *
-     * @param dollyInertia New dolly inertia factor.
-     */
+   * Sets the dolly inertia factor.
+   *
+   * This factor configures how much the {@link viewer!Camera} keeps moving after you finish dollying it.
+   *
+   * This factor is a value in range ````[0..1]````. A value of ````0.0```` causes dollying to immediately stop,
+   * ````0.5```` causes dollying to decay 50% on each animation frame, while ````1.0```` causes no decay, which allows dollying
+   * to continue until further input stops it.
+   *
+   * You might set ````dollyInertia```` to zero when you want be able to precisely position or rotate the Camera,
+   * without interference from inertia. This also means that xeokit renders less frames while dollying the Camera,
+   * which can improve rendering performance.
+   *
+   * Default is ````0````.
+   *
+   * @param dollyInertia New dolly inertia factor.
+   */
   set dollyInertia(dollyInertia) {
     this.#configs.dollyInertia = dollyInertia !== void 0 && dollyInertia !== null ? dollyInertia : 0;
   }
   /**
-     * Gets the dolly inertia factor.
-     *
-     * Default is ````0````.
-     *
-     * @returns The current dolly inertia factor.
-     */
+   * Gets the dolly inertia factor.
+   *
+   * Default is ````0````.
+   *
+   * @returns The current dolly inertia factor.
+   */
   get dollyInertia() {
     return this.#configs.dollyInertia;
   }
   /**
-     * Sets the proximity to the closest object below which dolly speed decreases, and above which dolly speed increases.
-     *
-     * Default is ````35.0````.
-     *
-     * @param dollyProximityThreshold New dolly proximity threshold.
-     */
+   * Sets the proximity to the closest object below which dolly speed decreases, and above which dolly speed increases.
+   *
+   * Default is ````35.0````.
+   *
+   * @param dollyProximityThreshold New dolly proximity threshold.
+   */
   set dollyProximityThreshold(dollyProximityThreshold) {
     this.#configs.dollyProximityThreshold = dollyProximityThreshold !== void 0 && dollyProximityThreshold !== null ? dollyProximityThreshold : 35;
   }
   /**
-     * Gets the proximity to the closest object below which dolly speed decreases, and above which dolly speed increases.
-     *
-     * Default is ````35.0````.
-     *
-     * @returns The current dolly proximity threshold.
-     */
+   * Gets the proximity to the closest object below which dolly speed decreases, and above which dolly speed increases.
+   *
+   * Default is ````35.0````.
+   *
+   * @returns The current dolly proximity threshold.
+   */
   get dollyProximityThreshold() {
     return this.#configs.dollyProximityThreshold;
   }
   /**
-     * Sets the minimum dolly speed.
-     *
-     * Default is ````0.04````.
-     *
-     * @param dollyMinSpeed New dolly minimum speed.
-     */
+   * Sets the minimum dolly speed.
+   *
+   * Default is ````0.04````.
+   *
+   * @param dollyMinSpeed New dolly minimum speed.
+   */
   set dollyMinSpeed(dollyMinSpeed) {
     this.#configs.dollyMinSpeed = dollyMinSpeed !== void 0 && dollyMinSpeed !== null ? dollyMinSpeed : 0.04;
   }
   /**
-     * Gets the minimum dolly speed.
-     *
-     * Default is ````0.04````.
-     *
-     * @returns The current minimum dolly speed.
-     */
+   * Gets the minimum dolly speed.
+   *
+   * Default is ````0.04````.
+   *
+   * @returns The current minimum dolly speed.
+   */
   get dollyMinSpeed() {
     return this.#configs.dollyMinSpeed;
   }
   /**
-     * Sets the pan inertia factor.
-     *
-     * This factor configures how much the {@link viewer!Camera} keeps moving after you finish panning it.
-     *
-     * This factor is a value in range ````[0..1]````. A value of ````0.0```` causes panning to immediately stop,
-     * ````0.5```` causes panning to decay 50% on each animation frame, while ````1.0```` causes no decay, which allows panning
-     * to continue until further input stops it.
-     *
-     * You might set ````panInertia```` to zero when you want be able to precisely position or rotate the Camera,
-     * without interference from inertia. This also means that xeokit renders less frames while panning the Camera,
-     * wich can improve rendering performance.
-     *
-     * Default is ````0.5````.
-     *
-     * @param panInertia New pan inertia factor.
-     */
+   * Sets the pan inertia factor.
+   *
+   * This factor configures how much the {@link viewer!Camera} keeps moving after you finish panning it.
+   *
+   * This factor is a value in range ````[0..1]````. A value of ````0.0```` causes panning to immediately stop,
+   * ````0.5```` causes panning to decay 50% on each animation frame, while ````1.0```` causes no decay, which allows panning
+   * to continue until further input stops it.
+   *
+   * You might set ````panInertia```` to zero when you want be able to precisely position or rotate the Camera,
+   * without interference from inertia. This also means that xeokit renders less frames while panning the Camera,
+   * wich can improve rendering performance.
+   *
+   * Default is ````0.5````.
+   *
+   * @param panInertia New pan inertia factor.
+   */
   set panInertia(panInertia) {
     this.#configs.panInertia = panInertia !== void 0 && panInertia !== null ? panInertia : 0.5;
   }
   /**
-     * Gets the pan inertia factor.
-     *
-     * Default is ````0.5````.
-     *
-     * @returns The current pan inertia factor.
-     */
+   * Gets the pan inertia factor.
+   *
+   * Default is ````0.5````.
+   *
+   * @returns The current pan inertia factor.
+   */
   get panInertia() {
     return this.#configs.panInertia;
   }
   /**
-     * Sets a sphere as the representation of the pivot position.
-     *
-     * @param [cfg] Sphere configuration.
-     * @param [cfg.size=1] Optional size factor of the sphere. Defaults to 1.
-     * @param [cfg.material=PhongMaterial] Optional size factor of the sphere. Defaults to a red opaque material.
-     */
+   * Sets a sphere as the representation of the pivot position.
+   *
+   * @param [cfg] Sphere configuration.
+   * @param [cfg.size=1] Optional size factor of the sphere. Defaults to 1.
+   * @param [cfg.material=PhongMaterial] Optional size factor of the sphere. Defaults to a red opaque material.
+   */
   enablePivotSphere(cfg = {}) {
     this.#controllers.pivotController.enablePivotSphere(cfg);
   }
   /**
-     * Remove the sphere as the representation of the pivot position.
-     */
+   * Remove the sphere as the representation of the pivot position.
+   */
   disablePivotSphere() {
     this.#controllers.pivotController.disablePivotSphere();
   }
   /**
-     * Sets whether smart default pivoting is enabled.
-     *
-     * When ````true````, we'll pivot by default about the 3D position of the mouse/touch pointer on an
-     * imaginary sphere that's centered at {@link viewer!Camera#eye} and sized to the {@link scene!Scene} boundary.
-     *
-     * When ````false````, we'll pivot by default about {@link viewer!Camera#look}.
-     *
-     * Default is ````false````.
-     *
-     * @param enabled Set ````true```` to pivot by default about the selected point on the virtual sphere, or ````false```` to pivot by default about {@link viewer!Camera#look}.
-     */
+   * Sets whether smart default pivoting is enabled.
+   *
+   * When ````true````, we'll pivot by default about the 3D position of the mouse/touch pointer on an
+   * imaginary sphere that's centered at {@link viewer!Camera#eye} and sized to the {@link scene!Scene} boundary.
+   *
+   * When ````false````, we'll pivot by default about {@link viewer!Camera#look}.
+   *
+   * Default is ````false````.
+   *
+   * @param enabled Set ````true```` to pivot by default about the selected point on the virtual sphere, or ````false```` to pivot by default about {@link viewer!Camera#look}.
+   */
   set smartPivot(enabled2) {
     this.#configs.smartPivot = enabled2 !== false;
   }
   /**
-     * Gets whether smart default pivoting is enabled.
-     *
-     * When ````true````, we'll pivot by default about the 3D position of the mouse/touch pointer on an
-     * imaginary sphere that's centered at {@link viewer!Camera#eye} and sized to the {@link scene!Scene} boundary.
-     *
-     * When ````false````, we'll pivot by default about {@link viewer!Camera#look}.
-     *
-     * Default is ````false````.
-     *
-     * @returns Returns ````true```` when pivoting by default about the selected point on the virtual sphere, or ````false```` when pivoting by default about {@link viewer!Camera#look}.
-     */
+   * Gets whether smart default pivoting is enabled.
+   *
+   * When ````true````, we'll pivot by default about the 3D position of the mouse/touch pointer on an
+   * imaginary sphere that's centered at {@link viewer!Camera#eye} and sized to the {@link scene!Scene} boundary.
+   *
+   * When ````false````, we'll pivot by default about {@link viewer!Camera#look}.
+   *
+   * Default is ````false````.
+   *
+   * @returns Returns ````true```` when pivoting by default about the selected point on the virtual sphere, or ````false```` when pivoting by default about {@link viewer!Camera#look}.
+   */
   get smartPivot() {
     return this.#configs.smartPivot;
   }
   /**
-     * Sets the double click time frame length in milliseconds.
-     *
-     * If two mouse click events occur within this time frame, it is considered a double click.
-     *
-     * Default is ````250````
-     *
-     * @param value New double click time frame.
-     */
+   * Sets the double click time frame length in milliseconds.
+   *
+   * If two mouse click events occur within this time frame, it is considered a double click.
+   *
+   * Default is ````250````
+   *
+   * @param value New double click time frame.
+   */
   set doubleClickTimeFrame(value) {
     this.#configs.doubleClickTimeFrame = value !== void 0 && value !== null ? value : 250;
   }
   /**
-     * Gets the double click time frame length in milliseconds.
-     *
-     * Default is ````250````
-     *
-     * @returns Current double click time frame.
-     */
+   * Gets the double click time frame length in milliseconds.
+   *
+   * Default is ````250````
+   *
+   * @returns Current double click time frame.
+   */
   get doubleClickTimeFrame() {
     return this.#configs.doubleClickTimeFrame;
   }
   /**
-     * Destroys this ````CameraControl````.
-     * @private
-     */
+   * Destroys this ````CameraControl````.
+   * @private
+   */
   destroy() {
     this._destroyHandlers();
     this._destroyControllers();
@@ -202780,57 +202783,57 @@ __export(treeview_exports, {
 var import_strongly_typed_events20 = __toESM(require_dist8());
 var TreeView = class _TreeView extends Component {
   /**
-     * Hierarchy mode that arranges the {@link TreeViewNode | TreeViewNodes} as an aggregation hierarchy.
-     *
-     * The mode creates a TreeViewNode hierarchy that mirrors that of the
-     * {@link data!DataObject | DataObjects} and
-     * aggregation {@link data!Relationship | Relationships} in the {@link data!Data | Data}.
-     *
-     * In this hierarchy, each TreeViewNode corresponds to a DataObject in the Data. The TreeViewNodes are connected
-     * into a hierarchy that reflects a depth-first traversal from the root DataObjects that follows each DataObject's
-     * outgoing Relationships of the type given in {@link TreeView.linkType | TreeView.linkType}.
-     */
+   * Hierarchy mode that arranges the {@link TreeViewNode | TreeViewNodes} as an aggregation hierarchy.
+   *
+   * The mode creates a TreeViewNode hierarchy that mirrors that of the
+   * {@link data!DataObject | DataObjects} and
+   * aggregation {@link data!Relationship | Relationships} in the {@link data!Data | Data}.
+   *
+   * In this hierarchy, each TreeViewNode corresponds to a DataObject in the Data. The TreeViewNodes are connected
+   * into a hierarchy that reflects a depth-first traversal from the root DataObjects that follows each DataObject's
+   * outgoing Relationships of the type given in {@link TreeView.linkType | TreeView.linkType}.
+   */
   static AggregationHierarchy = 0;
   /**
-     * Hierarchy mode that groups the {@link TreeViewNode | TreeViewNodes} by type.
-     *
-     * This mode creates a two-level hierarchy. At the root level, we get TreeViewNodes that represent each of the
-     * distinct types in our {@link data!Data | Data}. Each of those gets one or more child TreeViewNodes
-     * that represent {@link data!DataObject | DataObjects} of that type. When those DataObjects have
-     * {@link viewer!ViewObject | ViewObjects} of the same ID, then the TreeViewNodes will have checkboxes
-     * that we can use to show, hide, and X-ray their ViewObjects.
-     */
+   * Hierarchy mode that groups the {@link TreeViewNode | TreeViewNodes} by type.
+   *
+   * This mode creates a two-level hierarchy. At the root level, we get TreeViewNodes that represent each of the
+   * distinct types in our {@link data!Data | Data}. Each of those gets one or more child TreeViewNodes
+   * that represent {@link data!DataObject | DataObjects} of that type. When those DataObjects have
+   * {@link viewer!ViewObject | ViewObjects} of the same ID, then the TreeViewNodes will have checkboxes
+   * that we can use to show, hide, and X-ray their ViewObjects.
+   */
   static TypesHierarchy = 1;
   /**
-     * Hierarchy mode that arranges the {@link TreeViewNode | TreeViewNodes} into an n-level grouped hierarchy.
-     *
-     * This mode creates a multi-level grouped hierarchy, following the order given
-     * in {@link TreeViewParams.groupTypes | TreeViewParams.groupTypes}. The TreeViewNodes at level 0 are all the same
-     * type as ````TreeViewParams.groupTypes[0]````, TreeViewNodes at level 1 are all the same type
-     * as ````TreeViewParams.groupTypes[2]````, and so on. Once descended beyond the length of ````TreeViewParams.groupTypes````,
-     * the TreeViewNodes are just grouped by type.
-     */
+   * Hierarchy mode that arranges the {@link TreeViewNode | TreeViewNodes} into an n-level grouped hierarchy.
+   *
+   * This mode creates a multi-level grouped hierarchy, following the order given
+   * in {@link TreeViewParams.groupTypes | TreeViewParams.groupTypes}. The TreeViewNodes at level 0 are all the same
+   * type as ````TreeViewParams.groupTypes[0]````, TreeViewNodes at level 1 are all the same type
+   * as ````TreeViewParams.groupTypes[2]````, and so on. Once descended beyond the length of ````TreeViewParams.groupTypes````,
+   * the TreeViewNodes are just grouped by type.
+   */
   static GroupsHierarchy = 2;
   /**
-     * The semantic {@link data!Data | Data} model that determines the structure of this TreeView.
-     */
+   * The semantic {@link data!Data | Data} model that determines the structure of this TreeView.
+   */
   data;
   /**
-     * The {@link viewer!View | View} that contains the {@link viewer!ViewObject | ViewObjects}
-     * navigated by this TreeView.
-     */
+   * The {@link viewer!View | View} that contains the {@link viewer!ViewObject | ViewObjects}
+   * navigated by this TreeView.
+   */
   view;
   /**
-     * Emits an event each time the title of a node is clicked in the tree view.
-     *
-     * @event
-     */
+   * Emits an event each time the title of a node is clicked in the tree view.
+   *
+   * @event
+   */
   onNodeTitleClicked;
   /**
-     * Emits an event each time we right-click on a tree node.
-     *
-     * @event
-     */
+   * Emits an event each time we right-click on a tree node.
+   *
+   * @event
+   */
   onContextMenu;
   #linkType;
   #groupTypes;
@@ -202858,9 +202861,9 @@ var TreeView = class _TreeView extends Component {
   #onViewObjectXRayed;
   #dataObjectSceneObjectCounts;
   /**
-     *
-     * @param params
-     */
+   *
+   * @param params
+   */
   constructor(params2) {
     super(null);
     if (!params2.containerElement) {
@@ -203042,26 +203045,26 @@ var TreeView = class _TreeView extends Component {
     });
   }
   /**
-     * Gets how the nodes are organized within this tree view.
-     *
-     * Accepted values are:
-     *
-     * * {@link TreeView.AggregationHierarchy} (default)
-     * * {@link TreeView.TypesHierarchy}
-     * * {@link TreeView.GroupsHierarchy}
-     */
+   * Gets how the nodes are organized within this tree view.
+   *
+   * Accepted values are:
+   *
+   * * {@link TreeView.AggregationHierarchy} (default)
+   * * {@link TreeView.TypesHierarchy}
+   * * {@link TreeView.GroupsHierarchy}
+   */
   get hierarchy() {
     return this.#hierarchy;
   }
   /**
-     * Sets how the nodes are organized within this tree view.
-     *
-     * Accepted values are:
-     *
-     * * {@link TreeView.AggregationHierarchy} (default)
-     * * {@link TreeView.TypesHierarchy}
-     * * {@link TreeView.GroupsHierarchy}
-     */
+   * Sets how the nodes are organized within this tree view.
+   *
+   * Accepted values are:
+   *
+   * * {@link TreeView.AggregationHierarchy} (default)
+   * * {@link TreeView.TypesHierarchy}
+   * * {@link TreeView.GroupsHierarchy}
+   */
   set hierarchy(hierarchy) {
     hierarchy = hierarchy !== null && hierarchy !== void 0 ? hierarchy : _TreeView.AggregationHierarchy;
     if (hierarchy !== _TreeView.AggregationHierarchy && hierarchy !== _TreeView.GroupsHierarchy && hierarchy !== _TreeView.TypesHierarchy) {
@@ -203075,20 +203078,20 @@ var TreeView = class _TreeView extends Component {
     this.#rebuildNodes();
   }
   /**
-     * When traversing the {@link data!Data | Data} to build the tree UI nodes, at each
-     * {@link data!DataObject | DataObjects}, the TreeView will traverse only the outgoing
-     * {@link data!Relationship | Relationships} of this type in
-     * {@link data!DataObject.relating | DataObject.relating}.
-     */
+   * When traversing the {@link data!Data | Data} to build the tree UI nodes, at each
+   * {@link data!DataObject | DataObjects}, the TreeView will traverse only the outgoing
+   * {@link data!Relationship | Relationships} of this type in
+   * {@link data!DataObject.relating | DataObject.relating}.
+   */
   get linkType() {
     return this.#linkType;
   }
   /**
-     * When traversing the {@link data!Data | Data} to build the tree UI nodes, at each
-     * {@link data!DataObject | DataObjects}, the TreeView will traverse only the outgoing
-     * {@link data!Relationship | Relationships} of this type in
-     * {@link data!DataObject.relating | DataObject.relating}.
-     */
+   * When traversing the {@link data!Data | Data} to build the tree UI nodes, at each
+   * {@link data!DataObject | DataObjects}, the TreeView will traverse only the outgoing
+   * {@link data!Relationship | Relationships} of this type in
+   * {@link data!DataObject.relating | DataObject.relating}.
+   */
   set linkType(linkType) {
     if (this.#linkType === linkType) {
       return;
@@ -203097,30 +203100,30 @@ var TreeView = class _TreeView extends Component {
     this.#rebuildNodes();
   }
   /**
-     * When traversing the {@link data!Data | Data} to build the tree UI nodes for
-     * a {@link TreeView.GroupsHierarchy}, these are the values
-     * of {@link data!DataObject.type | DataObject.type} that the
-     * TreeView groups and subgroups the {@link data!DataObject | DataObjects} on.
-     *
-     * The grouping for {@link TreeView.GroupsHierarchy} has two levels. The major grouping type is given
-     * in ````groupTypes[0]```` and the minor grouping type is given in ````storeyGroups[1]````.
-     *
-     * Example: ````[IfcBuilding, IfcBuildingStorey]````.
-     */
+   * When traversing the {@link data!Data | Data} to build the tree UI nodes for
+   * a {@link TreeView.GroupsHierarchy}, these are the values
+   * of {@link data!DataObject.type | DataObject.type} that the
+   * TreeView groups and subgroups the {@link data!DataObject | DataObjects} on.
+   *
+   * The grouping for {@link TreeView.GroupsHierarchy} has two levels. The major grouping type is given
+   * in ````groupTypes[0]```` and the minor grouping type is given in ````storeyGroups[1]````.
+   *
+   * Example: ````[IfcBuilding, IfcBuildingStorey]````.
+   */
   get groupTypes() {
     return this.#groupTypes;
   }
   /**
-     * When traversing the {@link data!Data | Data} to build the tree UI nodes for
-     * a {@link TreeView.GroupsHierarchy}, these are the values
-     * of {@link data!DataObject.type | DataObject.type} that the
-     * TreeView groups and subgroups the {@link data!DataObject | DataObjects} on.
-     *
-     * The grouping for the {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy has two levels. The major grouping type is given
-     * in ````groupTypes[0]```` and the minor grouping type is given in ````storeyGroups[1]````.
-     *
-     * Example: ````[IfcBuilding, IfcBuildingStorey]````.
-     */
+   * When traversing the {@link data!Data | Data} to build the tree UI nodes for
+   * a {@link TreeView.GroupsHierarchy}, these are the values
+   * of {@link data!DataObject.type | DataObject.type} that the
+   * TreeView groups and subgroups the {@link data!DataObject | DataObjects} on.
+   *
+   * The grouping for the {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy has two levels. The major grouping type is given
+   * in ````groupTypes[0]```` and the minor grouping type is given in ````storeyGroups[1]````.
+   *
+   * Example: ````[IfcBuilding, IfcBuildingStorey]````.
+   */
   set groupTypes(groupTypes) {
     if (this.#groupTypes === groupTypes) {
       return;
@@ -203131,21 +203134,21 @@ var TreeView = class _TreeView extends Component {
     }
   }
   /**
-     * Highlights the tree view node that represents the given object {@link viewObject}.
-     *
-     * This causes the tree view to collapse, then expand to reveal the node, then highlight the node.
-     *
-     * If a node is previously highlighted, de-highlights that node and collapses the tree first.
-     *
-     * Note that if the TreeView was configured with ````pruneEmptyNodes: true```` (default configuration), then the
-     * node won't exist in the tree if it has no viewObjects in the {@link scene!Scene | Scene}. in that case, nothing will happen.
-     *
-     * Within the DOM, the node is represented by an ````<li>```` element. This method will add a ````.highlighted-node```` class to
-     * the element to make it appear highlighted, removing that class when de-highlighting it again. See the CSS rules
-     * in the TreeView ifcviewer for an example of that class.
-     *
-     * @param {String} objectId ID of the {@link viewObject}.
-     */
+   * Highlights the tree view node that represents the given object {@link viewObject}.
+   *
+   * This causes the tree view to collapse, then expand to reveal the node, then highlight the node.
+   *
+   * If a node is previously highlighted, de-highlights that node and collapses the tree first.
+   *
+   * Note that if the TreeView was configured with ````pruneEmptyNodes: true```` (default configuration), then the
+   * node won't exist in the tree if it has no viewObjects in the {@link scene!Scene | Scene}. in that case, nothing will happen.
+   *
+   * Within the DOM, the node is represented by an ````<li>```` element. This method will add a ````.highlighted-node```` class to
+   * the element to make it appear highlighted, removing that class when de-highlighting it again. See the CSS rules
+   * in the TreeView ifcviewer for an example of that class.
+   *
+   * @param {String} objectId ID of the {@link viewObject}.
+   */
   showNode(objectId) {
     if (this.#showListItemElementId) {
       this.unShowNode();
@@ -203185,12 +203188,12 @@ var TreeView = class _TreeView extends Component {
     this.#showListItemElementId = listItemElementId;
   }
   /**
-     * De-highlights the node previously shown with {@link TreeView#showNode}.
-     *
-     * Does nothing if no node is currently shown.
-     *
-     * If the node is currently scrolled into view, keeps the node in view.
-     */
+   * De-highlights the node previously shown with {@link TreeView#showNode}.
+   *
+   * Does nothing if no node is currently shown.
+   *
+   * If the node is currently scrolled into view, keeps the node in view.
+   */
   unShowNode() {
     if (!this.#showListItemElementId) {
       return;
@@ -203204,12 +203207,12 @@ var TreeView = class _TreeView extends Component {
     this.#showListItemElementId = null;
   }
   /**
-     * Expands the tree to the given depth.
-     *
-     * Collapses the tree first.
-     *
-     * @param depth Depth to expand to.
-     */
+   * Expands the tree to the given depth.
+   *
+   * Collapses the tree first.
+   *
+   * @param depth Depth to expand to.
+   */
   expandToDepth(depth) {
     this.collapse();
     const expand = (node, countDepth) => {
@@ -203234,8 +203237,8 @@ var TreeView = class _TreeView extends Component {
     }
   }
   /**
-     * Closes all the nodes in the tree.
-     */
+   * Closes all the nodes in the tree.
+   */
   collapse() {
     for (let i = 0, len = this.#rootNodes.length; i < len; i++) {
       const rootNode = this.#rootNodes[i];
@@ -203244,8 +203247,8 @@ var TreeView = class _TreeView extends Component {
     }
   }
   /**
-     * Destroys this TreeView.
-     */
+   * Destroys this TreeView.
+   */
   destroy() {
     if (!this.#containerElement) {
       return;
@@ -203260,15 +203263,15 @@ var TreeView = class _TreeView extends Component {
     super.destroy();
   }
   /**
-     * Adds a model to this tree view.
-     *
-     * @private
-     * @param {String} modelId ID of a model {@link viewObject} in {@link scene!Scene#models}.
-     * @param {Object} [options] Options for model in the tree view.
-     * @param {String} [options.rootName] Optional display name for the root node. Ordinary, for "containment"
-     * and {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy types, the tree would derive the root node name from the model's "IfcProject" element
-     * name. This option allows to override that name when it is not suitable as a display name.
-     */
+   * Adds a model to this tree view.
+   *
+   * @private
+   * @param {String} modelId ID of a model {@link viewObject} in {@link scene!Scene#models}.
+   * @param {Object} [options] Options for model in the tree view.
+   * @param {String} [options.rootName] Optional display name for the root node. Ordinary, for "containment"
+   * and {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy types, the tree would derive the root node name from the model's "IfcProject" element
+   * name. This option allows to override that name when it is not suitable as a display name.
+   */
   #addModel(modelId, options = {}) {
     if (!this.#containerElement) {
       return;
@@ -203294,11 +203297,11 @@ var TreeView = class _TreeView extends Component {
     this.#rebuildNodes();
   }
   /**
-     * Removes a model from this tree view.
-     *
-     * @private
-     * @param {String} modelId ID of a model {@link viewObject} in {@link scene!Scene#models}.
-     */
+   * Removes a model from this tree view.
+   *
+   * @private
+   * @param {String} modelId ID of a model {@link viewObject} in {@link scene!Scene#models}.
+   */
   #removeModel(modelId) {
     if (!this.#containerElement) {
       return;
@@ -203845,29 +203848,29 @@ var ContextMenu = class {
   #hideOnAction;
   #canvasTouchStartHander;
   /**
-     * Emits an event each time this ContextMenu is shown.
-     *
-     * @event
-     */
+   * Emits an event each time this ContextMenu is shown.
+   *
+   * @event
+   */
   onShown;
   /**
-     * Emits an event each time this ContextMenu is hidden.
-     *
-     * @event
-     */
+   * Emits an event each time this ContextMenu is hidden.
+   *
+   * @event
+   */
   onHidden;
   /**
-     * Creates a ````ContextMenu````.
-     *
-     * The ````ContextMenu```` will be initially hidden.
-     *
-     * @param {Object} [cfg] ````ContextMenu```` configuration.
-     * @param {Object} [cfg.items] The context menu items. These can also be dynamically set on {@link ContextMenu#items}. See the class documentation for an example.
-     * @param {Object} [cfg.context] The context, which is passed into the item callbacks. This can also be dynamically set on {@link ContextMenu#context}. This must be set before calling {@link ContextMenu#show}.
-     * @param {Boolean} [cfg.enabled=true] Whether this ````ContextMenu```` is initially enabled. {@link ContextMenu#show} does nothing while this is ````false````.
-     * @param {Boolean} [cfg.hideOnMouseDown=true] Whether this ````ContextMenu```` automatically hides whenever we mouse-down or tap anywhere in the page.
-     * @param {Boolean} [cfg.hideOnAction=true] Whether this ````ContextMenu```` automatically hides after we select a menu item. Se false if we want the menu to remain shown and show any updates to its item titles, after we've selected an item.
-     */
+   * Creates a ````ContextMenu````.
+   *
+   * The ````ContextMenu```` will be initially hidden.
+   *
+   * @param {Object} [cfg] ````ContextMenu```` configuration.
+   * @param {Object} [cfg.items] The context menu items. These can also be dynamically set on {@link ContextMenu#items}. See the class documentation for an example.
+   * @param {Object} [cfg.context] The context, which is passed into the item callbacks. This can also be dynamically set on {@link ContextMenu#context}. This must be set before calling {@link ContextMenu#show}.
+   * @param {Boolean} [cfg.enabled=true] Whether this ````ContextMenu```` is initially enabled. {@link ContextMenu#show} does nothing while this is ````false````.
+   * @param {Boolean} [cfg.hideOnMouseDown=true] Whether this ````ContextMenu```` automatically hides whenever we mouse-down or tap anywhere in the page.
+   * @param {Boolean} [cfg.hideOnAction=true] Whether this ````ContextMenu```` automatically hides after we select a menu item. Se false if we want the menu to remain shown and show any updates to its item titles, after we've selected an item.
+   */
   constructor(cfg) {
     this.#id = idMap.addItem();
     this.#context = null;
@@ -203903,14 +203906,14 @@ var ContextMenu = class {
     this.hide();
   }
   /**
-     * Sets the ````ContextMenu```` items.
-     *
-     * These can be updated dynamically at any time.
-     *
-     * See class documentation for an example.
-     *
-     * @type {Object[]}
-     */
+   * Sets the ````ContextMenu```` items.
+   *
+   * These can be updated dynamically at any time.
+   *
+   * See class documentation for an example.
+   *
+   * @type {Object[]}
+   */
   set items(itemsCfg) {
     this.#clear();
     this.#itemsCfg = itemsCfg || [];
@@ -203918,20 +203921,20 @@ var ContextMenu = class {
     this.#createUI();
   }
   /**
-     * Gets the ````ContextMenu```` items.
-     *
-     * @type {Object[]}
-     */
+   * Gets the ````ContextMenu```` items.
+   *
+   * @type {Object[]}
+   */
   get items() {
     return this.#itemsCfg;
   }
   /**
-     * Sets whether this ````ContextMenu```` is enabled.
-     *
-     * Hides the menu when disabling.
-     *
-     * @type {Boolean}
-     */
+   * Sets whether this ````ContextMenu```` is enabled.
+   *
+   * Hides the menu when disabling.
+   *
+   * @type {Boolean}
+   */
   set enabled(enabled2) {
     enabled2 = !!enabled2;
     if (enabled2 === this.#enabled) {
@@ -203943,47 +203946,47 @@ var ContextMenu = class {
     }
   }
   /**
-     * Gets whether this ````ContextMenu```` is enabled.
-     *
-     * {@link ContextMenu#show} does nothing while this is ````false````.
-     *
-     * @type {Boolean}
-     */
+   * Gets whether this ````ContextMenu```` is enabled.
+   *
+   * {@link ContextMenu#show} does nothing while this is ````false````.
+   *
+   * @type {Boolean}
+   */
   get enabled() {
     return this.#enabled;
   }
   /**
-     * Sets the ````ContextMenu```` context.
-     *
-     * The context can be any object that you need to be provides to the callbacks configured on {@link ContextMenu#items}.
-     *
-     * This must be set before calling {@link ContextMenu#show}.
-     *
-     * @type {Object}
-     */
+   * Sets the ````ContextMenu```` context.
+   *
+   * The context can be any object that you need to be provides to the callbacks configured on {@link ContextMenu#items}.
+   *
+   * This must be set before calling {@link ContextMenu#show}.
+   *
+   * @type {Object}
+   */
   set context(context) {
     this.#context = context;
   }
   /**
-     * Gets the ````ContextMenu```` context.
-     *
-     * @type {Object}
-     */
+   * Gets the ````ContextMenu```` context.
+   *
+   * @type {Object}
+   */
   get context() {
     return this.#context;
   }
   /**
-     * Shows this ````ContextMenu```` at the given page coordinates.
-     *
-     * Does nothing when {@link ContextMenu#enabled} is ````false````.
-     *
-     * Logs error to console and does nothing if {@link ContextMenu#context} has not been set.
-     *
-     * Fires a "shown" event when shown.
-     *
-     * @param {Number} pageX Page X-coordinate.
-     * @param {Number} pageY Page Y-coordinate.
-     */
+   * Shows this ````ContextMenu```` at the given page coordinates.
+   *
+   * Does nothing when {@link ContextMenu#enabled} is ````false````.
+   *
+   * Logs error to console and does nothing if {@link ContextMenu#context} has not been set.
+   *
+   * Fires a "shown" event when shown.
+   *
+   * @param {Number} pageX Page X-coordinate.
+   * @param {Number} pageY Page Y-coordinate.
+   */
   show(pageX, pageY) {
     if (!this.#context) {
       console.error("[ContextMenu] ContextMenu cannot be shown without a context - set context first");
@@ -204003,18 +204006,18 @@ var ContextMenu = class {
     this.onShown.dispatch(this, null);
   }
   /**
-     * Gets whether this ````ContextMenu```` is currently shown or not.
-     *
-     * @returns {Boolean} Whether this ````ContextMenu```` is shown.
-     */
+   * Gets whether this ````ContextMenu```` is currently shown or not.
+   *
+   * @returns {Boolean} Whether this ````ContextMenu```` is shown.
+   */
   get shown() {
     return this.#shown;
   }
   /**
-     * Hides this ````ContextMenu````.
-     *
-     * Fires a "hidden" event when hidden.
-     */
+   * Hides this ````ContextMenu````.
+   *
+   * Fires a "hidden" event when hidden.
+   */
   hide() {
     if (!this.#enabled) {
       return;
@@ -204027,8 +204030,8 @@ var ContextMenu = class {
     this.onHidden.dispatch(this, null);
   }
   /**
-     * Destroys this ````ContextMenu````.
-     */
+   * Destroys this ````ContextMenu````.
+   */
   destroy() {
     this.#context = null;
     this.#clear();
@@ -204377,8 +204380,8 @@ var ContextMenu = class {
 var modelconverter_exports = {};
 __export(modelconverter_exports, {
   ModelConverter: () => ModelConverter,
-  createModelConverterManifestReport: () => createModelConverterManifestReport,
-  createModelConverterStatsReport: () => createModelConverterStatsReport
+  createManifestReport: () => createManifestReport,
+  createStatsReport: () => createStatsReport
 });
 
 // ../sdk/src/modelconverter/ModelConverter.ts
@@ -204512,19 +204515,26 @@ var ModelConverter = class {
                 fileData: fileData2,
                 fileDataType: loader.fileDataType,
                 fileDataSizeBytes,
-                format: loader.format,
-                sceneModel: sceneModel.id,
-                dataModel: dataModel.id
+                fileFormat: loader.format,
+                options: pipelineInput.options || {},
+                sceneModel: sceneModelId,
+                dataModel: dataModelId,
+                messages: [],
+                warnings: [],
+                errors: []
               };
             } catch (err2) {
               modelConverterResult.inputs[pipelineInputId] = {
                 fileData: null,
                 fileDataType: loader.fileDataType,
                 fileDataSizeBytes,
-                format: loader.format,
-                version: null,
-                sceneModel: sceneModel.id,
-                dataModel: dataModel.id,
+                fileFormat: loader.format,
+                fileFormatVersion: null,
+                options: pipelineInput.options || {},
+                sceneModel: sceneModelId,
+                dataModel: dataModelId,
+                messages: [],
+                warnings: [],
                 errors: [`Failed to load fileData: ${err2}`]
               };
             }
@@ -204604,6 +204614,7 @@ var ModelConverter = class {
               fileFormat: exporter.format,
               fileFormatVersion,
               fileDataSizeBytes,
+              options: pipelineOutput.options || {},
               sceneModel: sceneModel.id,
               dataModel: dataModel.id,
               messages: [],
@@ -204617,6 +204628,7 @@ var ModelConverter = class {
               fileFormat: exporter.format,
               fileFormatVersion,
               fileDataSizeBytes: 0,
+              options: pipelineOutput.options || {},
               sceneModel: sceneModel.id,
               dataModel: dataModel.id,
               messages: [],
@@ -204701,8 +204713,8 @@ var ModelConverter = class {
   }
 };
 
-// ../sdk/src/modelconverter/reporters/manifest/createModelConverterManifestReport.ts
-var createModelConverterManifestReport = (modelConverterResult) => {
+// ../sdk/src/modelconverter/reporters/manifest/createManifestReport.ts
+var createManifestReport = (modelConverterResult) => {
   return {
     files: getEntries(modelConverterResult)
   };
@@ -204725,14 +204737,12 @@ function getEntries(modelConverterResult) {
   return entries;
 }
 
-// ../sdk/src/modelconverter/reporters/stats/createModelConverterStatsReport.ts
-var createModelConverterStatsReport = (modelConverterResult) => {
-  const modelConverter = modelConverterResult.modelConverter;
-  const pipelineId = modelConverterResult.pipeline;
-  const pipeline = modelConverter.pipelines[pipelineId];
+// ../sdk/src/modelconverter/reporters/stats/createStatsReport.ts
+var createStatsReport = (modelConverterResult) => {
   const modelConverterStatsReport = {
     description: "xeoconvert conversion stats",
-    command: `node xeoconvert.js ${process.argv.slice(2).join(" ")}`,
+    command: "",
+    //`node xeoconvert.js ${process.argv.slice(2).join(' ')}`, // TODO
     time: (/* @__PURE__ */ new Date()).toISOString(),
     // "2025-04-23T18:30:00.000Z"
     pipeline: modelConverterResult.pipeline,
@@ -204749,16 +204759,15 @@ var createModelConverterStatsReport = (modelConverterResult) => {
       fileFormatVersion: input.fileFormatVersion,
       fileDataSizeBytes: input.fileDataSizeBytes,
       fileDataType: input.fileDataType,
-      options: input.options || {},
-      sceneModel: input.sceneModel || "default",
-      dataModel: input.dataModel || "default",
-      messages: [],
-      warnings: [],
-      errors: []
+      options: input.options,
+      sceneModel: input.sceneModel,
+      dataModel: input.dataModel,
+      messages: input.messages,
+      warnings: input.warnings,
+      errors: input.errors
     };
   }
   for (const outputId in modelConverterResult.outputs) {
-    const outputConfig = pipeline.outputs[outputId];
     const output = modelConverterResult.outputs[outputId];
     modelConverterStatsReport.outputs[outputId] = {
       filePath: output.filePath,
@@ -204766,12 +204775,12 @@ var createModelConverterStatsReport = (modelConverterResult) => {
       fileFormatVersion: output.fileFormatVersion,
       fileDataSizeBytes: output.fileDataSizeBytes,
       fileDataType: output.fileDataType,
-      options: outputConfig.options || {},
-      sceneModel: output.sceneModel || "default",
-      dataModel: output.dataModel || "default",
-      messages: [],
-      warnings: [],
-      errors: []
+      options: output.options,
+      sceneModel: output.sceneModel,
+      dataModel: output.dataModel,
+      messages: output.messages,
+      warnings: output.warnings,
+      errors: output.errors
     };
   }
   return modelConverterStatsReport;
@@ -204787,14 +204796,14 @@ __export(ifc2gltf2xgf_exports, {
 // ../sdk/src/ifc2gltf2xgf/Ifc2gltfManifestParams.ts
 var Ifc2gltfManifestParams = class {
   /**
-     * Paths to glTF files created by if2gltf.
-     */
+   * Paths to glTF files created by if2gltf.
+   */
   gltfOutFiles;
   /**
-     * Paths to JSON metadata files created by if2gltf.
-     *
-     * Metadata file format is described by {@link metamodel!MetaModelParams | MetaModelParams}.
-     */
+   * Paths to JSON metadata files created by if2gltf.
+   *
+   * Metadata file format is described by {@link metamodel!MetaModelParams | MetaModelParams}.
+   */
   metadataOutFiles;
 };
 

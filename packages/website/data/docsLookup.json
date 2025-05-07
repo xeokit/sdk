@@ -221,6 +221,12 @@
     "kind": "module",
     "namespace": "webglrenderer"
   },
+  "@xeokit/sdk/xeoconvert": {
+    "summary": "SDK Module",
+    "path": "/api-docs#/docs/api/modules/xeoconvert.html",
+    "kind": "module",
+    "namespace": "xeoconvert"
+  },
   "@xeokit/sdk/xgf": {
     "summary": "SDK Module",
     "path": "/api-docs#/docs/api/modules/xgf.html",
@@ -516,7 +522,7 @@
     "namespace": "cityjsontypes_1_1_3"
   },
   "buildBoxGeometry": {
-    "summary": "Creates box-shaped geometry arrays.",
+    "summary": "Creates box-shaped geometry.",
     "path": "/api-docs#/docs/api/functions/procgen.buildBoxGeometry.html",
     "kind": "function",
     "namespace": "procgen"
@@ -534,7 +540,7 @@
     "namespace": "procgen"
   },
   "buildGridGeometry": {
-    "summary": "Creates a grid-shaped SceneGeometry.",
+    "summary": "Creates a grid-shaped geometry.",
     "path": "/api-docs#/docs/api/functions/procgen.buildGridGeometry.html",
     "kind": "function",
     "namespace": "procgen"
@@ -594,13 +600,13 @@
     "namespace": "scene"
   },
   "buildPlaneGeometry": {
-    "summary": "Creates a plane-shaped SceneGeometry.",
+    "summary": "Creates a plane-shaped geometry.",
     "path": "/api-docs#/docs/api/functions/procgen.buildPlaneGeometry.html",
     "kind": "function",
     "namespace": "procgen"
   },
   "buildSphereGeometry": {
-    "summary": "Creates a sphere-shaped SceneGeometry.",
+    "summary": "Creates a sphere-shaped geometry.",
     "path": "/api-docs#/docs/api/functions/procgen.buildSphereGeometry.html",
     "kind": "function",
     "namespace": "procgen"
@@ -648,7 +654,7 @@
     "namespace": "cameracontrol"
   },
   "CameraFlightAnimation": {
-    "summary": "Animates a View's Camera to look at specified objects, boundaries or locations.",
+    "summary": "Animates a View's Camera\nto smoothly transition to a specified target, such as a component, bounding box, or viewpoint.",
     "path": "/api-docs#/docs/api/classes/cameraflight.CameraFlightAnimation.html",
     "kind": "class",
     "namespace": "cameraflight"
@@ -881,6 +887,12 @@
     "kind": "function",
     "namespace": "kdtree2"
   },
+  "createManifestReport": {
+    "summary": "",
+    "path": null,
+    "kind": null,
+    "namespace": "xeoconvert"
+  },
   "createMat3": {
     "summary": "Returns a new, uninitialized 3x3 matrix.",
     "path": "/api-docs#/docs/api/functions/matrix.createMat3.html",
@@ -946,6 +958,12 @@
     "path": "/api-docs#/docs/api/functions/boundaries.createSphere3.html",
     "kind": "function",
     "namespace": "boundaries"
+  },
+  "createStatsReport": {
+    "summary": "",
+    "path": null,
+    "kind": null,
+    "namespace": "xeoconvert"
   },
   "createUUID": {
     "summary": "",
@@ -1035,6 +1053,12 @@
     "summary": "Reads DataModelParams into a DataModel.",
     "path": "/api-docs#/docs/api/classes/data.DataModelParamsLoader.html",
     "kind": "class",
+    "namespace": "data"
+  },
+  "DataModelStats": {
+    "summary": "Statistics for a DataModel.",
+    "path": "/api-docs#/docs/api/interfaces/data.DataModelStats.html",
+    "kind": "interface",
     "namespace": "data"
   },
   "DataObject": {
@@ -1325,6 +1349,12 @@
     "kind": "class",
     "namespace": "utils"
   },
+  "FileRef": {
+    "summary": "",
+    "path": "/api-docs#/docs/api/interfaces/modelconverter.FileRef.html",
+    "kind": "interface",
+    "namespace": "modelconverter"
+  },
   "findNodeOfType": {
     "summary": "",
     "path": "/api-docs#/docs/api/functions/utils.findNodeOfType.html",
@@ -1348,6 +1378,12 @@
     "path": "/api-docs#/docs/api/variables/constants.FloatType.html",
     "kind": "variable",
     "namespace": "constants"
+  },
+  "FlyToParams": {
+    "summary": "Parameters for CameraFlightAnimation.",
+    "path": "/api-docs#/docs/api/interfaces/cameraflight.FlyToParams.html",
+    "kind": "interface",
+    "namespace": "cameraflight"
   },
   "Frustum3": {
     "summary": "A 3D frustum defined by six planes.",
@@ -1458,7 +1494,7 @@
     "namespace": "compression"
   },
   "getSceneObjectGeometry": {
-    "summary": "Gets the uncompressed, World-space geometry of each SceneGeometryBucket in each\nSceneGeometry in each SceneMesh in a SceneObject.",
+    "summary": "Gets the uncompressed, World-space geometry of each SceneGeometry in each SceneMesh in a SceneObject.",
     "path": "/api-docs#/docs/api/functions/scene.getSceneObjectGeometry.html",
     "kind": "function",
     "namespace": "scene"
@@ -1486,6 +1522,12 @@
     "path": "/api-docs#/docs/api/variables/constants.HalfFloatType.html",
     "kind": "variable",
     "namespace": "constants"
+  },
+  "HoverEvent": {
+    "summary": "",
+    "path": "/api-docs#/docs/api/classes/cameracontrol.HoverEvent.html",
+    "kind": "class",
+    "namespace": "cameracontrol"
   },
   "httpRequest": {
     "summary": "",
@@ -7194,7 +7236,7 @@
     "namespace": "constants"
   },
   "MarqueePickResult": {
-    "summary": "Marquee picking results returned by marqueePick.",
+    "summary": "Marquee picking results returned by Picker.",
     "path": "/api-docs#/docs/api/interfaces/pick.MarqueePickResult.html",
     "kind": "interface",
     "namespace": "pick"
@@ -7325,6 +7367,18 @@
     "kind": "interface",
     "namespace": "modelconverter"
   },
+  "ModelConverterManifestReport": {
+    "summary": "",
+    "path": null,
+    "kind": null,
+    "namespace": "xeoconvert"
+  },
+  "ModelConverterManifestReportFile": {
+    "summary": "",
+    "path": null,
+    "kind": null,
+    "namespace": "xeoconvert"
+  },
   "ModelConverterOutputParams": {
     "summary": "Defines the configuration for a single output in a conversion pipeline.",
     "path": "/api-docs#/docs/api/interfaces/modelconverter.ModelConverterOutputParams.html",
@@ -7355,11 +7409,35 @@
     "kind": "interface",
     "namespace": "modelconverter"
   },
+  "ModelConverterResultInput": {
+    "summary": "Represents a single input file read by the ModelConverter.",
+    "path": "/api-docs#/docs/api/interfaces/modelconverter.ModelConverterResultInput.html",
+    "kind": "interface",
+    "namespace": "modelconverter"
+  },
   "ModelConverterResultOutput": {
     "summary": "Represents a single output file produced by the ModelConverter.",
     "path": "/api-docs#/docs/api/interfaces/modelconverter.ModelConverterResultOutput.html",
     "kind": "interface",
     "namespace": "modelconverter"
+  },
+  "ModelConverterStatsReport": {
+    "summary": "",
+    "path": null,
+    "kind": null,
+    "namespace": "xeoconvert"
+  },
+  "ModelConverterStatsReportInput": {
+    "summary": "",
+    "path": null,
+    "kind": null,
+    "namespace": "xeoconvert"
+  },
+  "ModelConverterStatsReportOutput": {
+    "summary": "",
+    "path": null,
+    "kind": null,
+    "namespace": "xeoconvert"
   },
   "ModelEncodeParams": {
     "summary": "Parameters for ModelEncoder.",
@@ -7710,7 +7788,7 @@
     "namespace": "pick"
   },
   "PrimsKdTree3": {
-    "summary": "k-d tree built by createPrimsKdTree3 that contains KdTriangle3, KdLine3 and KdPoint3 item types.",
+    "summary": "k-d tree built by createPrimsKdTree3 that contains KdTrianglePrim, KdLinePrim and KdPointPrim item types.",
     "path": "/api-docs#/docs/api/classes/kdtree3.PrimsKdTree3.html",
     "kind": "class",
     "namespace": "kdtree3"
@@ -7812,7 +7890,7 @@
     "namespace": "cityjsontypes_1_1_3"
   },
   "RayPickResult": {
-    "summary": "Ray picking results returned by rayPick.",
+    "summary": "Ray picking results returned by Picker.",
     "path": "/api-docs#/docs/api/interfaces/pick.RayPickResult.html",
     "kind": "interface",
     "namespace": "pick"
@@ -7852,6 +7930,12 @@
     "path": "/api-docs#/docs/api/interfaces/data.RelationshipParams.html",
     "kind": "interface",
     "namespace": "data"
+  },
+  "RenderContext": {
+    "summary": "",
+    "path": "/api-docs#/docs/api/classes/webglrenderer.RenderContext.html",
+    "kind": "class",
+    "namespace": "webglrenderer"
   },
   "Renderer": {
     "summary": "Interface defining the rendering strategy used internally by a Viewer.",
@@ -7894,6 +7978,12 @@
     "path": "/api-docs#/docs/api/interfaces/scene.RendererTextureSet.html",
     "kind": "interface",
     "namespace": "scene"
+  },
+  "RenderStats": {
+    "summary": "Collects statistics during each rendered frame.",
+    "path": "/api-docs#/docs/api/classes/webglrenderer.RenderStats.html",
+    "kind": "class",
+    "namespace": "webglrenderer"
   },
   "RepeatWrapping": {
     "summary": "Texture wrapping mode in which the texture repeats to infinity.",
@@ -8340,9 +8430,15 @@
     "namespace": "scene"
   },
   "scheduler": {
-    "summary": "",
+    "summary": "Singleton Scheduler instance that manages all rendering and task execution.",
     "path": "/api-docs#/docs/api/variables/viewer.scheduler.html",
     "kind": "variable",
+    "namespace": "viewer"
+  },
+  "Scheduler": {
+    "summary": "Manages animation frames, per-frame task execution, and rendering of registered Viewers.",
+    "path": "/api-docs#/docs/api/classes/viewer.Scheduler.html",
+    "kind": "class",
     "namespace": "viewer"
   },
   "SDKError": {
@@ -8556,7 +8652,7 @@
     "namespace": "viewer"
   },
   "TickEvent": {
-    "summary": "",
+    "summary": "Event object dispatched on each animation frame.",
     "path": "/api-docs#/docs/api/interfaces/viewer.TickEvent.html",
     "kind": "interface",
     "namespace": "viewer"
@@ -8566,6 +8662,12 @@
     "path": "/api-docs#/docs/api/interfaces/viewer.TickParams.html",
     "kind": "interface",
     "namespace": "viewer"
+  },
+  "Tile": {
+    "summary": "",
+    "path": "/api-docs#/docs/api/interfaces/webglrenderer.Tile.html",
+    "kind": "interface",
+    "namespace": "webglrenderer"
   },
   "timeout": {
     "summary": "",
@@ -8894,6 +8996,12 @@
   "WebGLRenderer": {
     "summary": "WebGL rendering strategy for a Viewer.",
     "path": "/api-docs#/docs/api/classes/webglrenderer.WebGLRenderer.html",
+    "kind": "class",
+    "namespace": "webglrenderer"
+  },
+  "WebGLTileManager": {
+    "summary": "",
+    "path": "/api-docs#/docs/api/classes/webglrenderer.WebGLTileManager.html",
     "kind": "class",
     "namespace": "webglrenderer"
   },

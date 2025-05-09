@@ -1,20 +1,10 @@
 {
-    "files": {
-        "ifc": {
-            "filePath": "./models/RAC/ifc/model.ifc",
+    "files": [
+        {
+            "filePath": "model.ifc",
             "fileFormat": "IFC",
-            "fileFormatVersion": "IFC4",
-            "fileDataSizeBytes": 10530722,
             "fileDataType": "arraybuffer",
-            "options": {},
-            "aabb": [
-                -55.26164326474634,
-                -7.101999999999999,
-                -11.175979610971037,
-                28.27533973949654,
-                17.204157674953898,
-                76.01218965020767
-            ]
+            "options": {}
         }
-    }
+    ]
 }

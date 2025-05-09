@@ -1,19 +1,11 @@
 {
-    "files": {
-        "ifc": {
-            "filePath": "./models/SmallHouse/dotbim2ifc/model.ifc",
+    "files": [
+        {
+            "filePath": "model.ifc",
             "fileFormat": "IFC",
             "fileFormatVersion": "IFC4",
             "fileDataType": "text",
-            "options": {},
-            "aabb": [
-                -3.0082583935235343,
-                -9.776227699990073,
-                -0.29,
-                3.310931419281772,
-                1.5133890348017345,
-                5.093279926189714
-            ]
+            "options": {}
         }
-    }
+    ]
 }

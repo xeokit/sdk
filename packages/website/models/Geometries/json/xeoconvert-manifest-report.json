@@ -1,36 +1,16 @@
 {
-    "files": {
-        "scenemodel": {
-            "filePath": "./models/Geometries/json/sceneModel.json",
+    "files": [
+        {
+            "filePath": "sceneModel.json",
             "fileFormat": "SceneModelParams",
-            "fileFormatVersion": "1.0",
-            "fileDataSizeBytes": 1362662,
             "fileDataType": "json",
-            "options": {},
-            "aabb": [
-                -6.999608272433867,
-                -1.9999999999999933,
-                -5,
-                29.99847409781033,
-                8.339107042038606,
-                4.99847409781033
-            ]
+            "options": {}
         },
-        "datamodel": {
-            "filePath": "./models/Geometries/json/dataModel.json",
+        {
+            "filePath": "dataModel.json",
             "fileFormat": "DataModelParams",
-            "fileFormatVersion": "1.0",
-            "fileDataSizeBytes": 3852,
             "fileDataType": "json",
-            "options": {},
-            "aabb": [
-                -6.999608272433867,
-                -1.9999999999999933,
-                -5,
-                29.99847409781033,
-                8.339107042038606,
-                4.99847409781033
-            ]
+            "options": {}
         }
-    }
+    ]
 }

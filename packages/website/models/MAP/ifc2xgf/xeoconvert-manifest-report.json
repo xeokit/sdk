@@ -1,35 +1,18 @@
 {
-    "files": {
-        "xgf": {
-            "filePath": "./models/MAP/ifc2xgf/sceneModel.xgf",
+    "files": [
+        {
+            "filePath": "sceneModel.xgf",
             "fileFormat": "XGF",
             "fileFormatVersion": "1.0.0",
-            "fileDataSizeBytes": 9821780,
             "fileDataType": "arraybuffer",
-            "options": {},
-            "aabb": [
-                1842005.899457126,
-                -3.6,
-                -5173320.67400396,
-                1842038.6772152472,
-                24.589436224021135,
-                -5173283.019955795
-            ]
+            "options": {}
         },
-        "datamodel": {
-            "filePath": "./models/MAP/ifc2xgf/dataModel.json",
+        {
+            "filePath": "dataModel.json",
             "fileFormat": "DataModelParams",
             "fileFormatVersion": "1.0",
             "fileDataType": "json",
-            "options": {},
-            "aabb": [
-                1842005.899457126,
-                -3.6,
-                -5173320.67400396,
-                1842038.6772152472,
-                24.589436224021135,
-                -5173283.019955795
-            ]
+            "options": {}
         }
-    }
+    ]
 }

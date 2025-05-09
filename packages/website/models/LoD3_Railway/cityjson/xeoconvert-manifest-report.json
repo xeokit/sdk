@@ -1,20 +1,10 @@
 {
-    "files": {
-        "cityjson": {
-            "filePath": "./models/LoD3_Railway/cityjson/model.json",
+    "files": [
+        {
+            "filePath": "model.json",
             "fileFormat": "CityJSON",
-            "fileFormatVersion": "1.0",
-            "fileDataSizeBytes": 4521412,
             "fileDataType": "json",
-            "options": {},
-            "aabb": [
-                0.56,
-                0.64,
-                7.579,
-                12.63815671015488,
-                7.678925764858472,
-                9.102998931868466
-            ]
+            "options": {}
         }
-    }
+    ]
 }

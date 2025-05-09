@@ -1,35 +1,18 @@
 {
-    "files": {
-        "xgf": {
-            "filePath": "./models/BlenderHouse/dotbim2xgf/sceneModel.xgf",
+    "files": [
+        {
+            "filePath": "sceneModel.xgf",
             "fileFormat": "XGF",
             "fileFormatVersion": "1.0.0",
-            "fileDataSizeBytes": 310440,
             "fileDataType": "arraybuffer",
-            "options": {},
-            "aabb": [
-                -1.5,
-                -0.010000228881835938,
-                0,
-                7.038919623114383,
-                10.199565880757188,
-                9.358618142903692
-            ]
+            "options": {}
         },
-        "datamodel": {
-            "filePath": "./models/BlenderHouse/dotbim2xgf/dataModel.json",
+        {
+            "filePath": "dataModel.json",
             "fileFormat": "DataModelParams",
             "fileFormatVersion": "1.0",
             "fileDataType": "json",
-            "options": {},
-            "aabb": [
-                -1.5,
-                -0.010000228881835938,
-                0,
-                7.038919623114383,
-                10.199565880757188,
-                9.358618142903692
-            ]
+            "options": {}
         }
-    }
+    ]
 }

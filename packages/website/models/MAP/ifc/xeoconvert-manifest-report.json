@@ -1,20 +1,10 @@
 {
-    "files": {
-        "ifc": {
-            "filePath": "./models/MAP/ifc/model.ifc",
+    "files": [
+        {
+            "filePath": "model.ifc",
             "fileFormat": "IFC",
-            "fileFormatVersion": "IFC4",
-            "fileDataSizeBytes": 28779417,
             "fileDataType": "arraybuffer",
-            "options": {},
-            "aabb": [
-                1842005.899457126,
-                -3.6,
-                -5173320.67400396,
-                1842038.6772152472,
-                24.589436224021135,
-                -5173283.019955795
-            ]
+            "options": {}
         }
-    }
+    ]
 }

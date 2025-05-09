@@ -1,0 +1,9 @@
+[xeoconvert] Running conversion pipeline 'gltf'
+[xeoconvert] Reading inputs
+[xeoconvert] Reading input --gltf ./models/MAP/gltf/model.glb
+[xeoconvert] Converting
+[xeoconvert] Conversion complete
+[xeoconvert] Writing outputs
+[xeoconvert] Reporter 'stats-report' writing report to ./models/MAP/gltf/xeoconvert-stats-report.json
+[xeoconvert] Reporter 'manifest-report' writing report to ./models/MAP/gltf/xeoconvert-manifest-report.json
+[xeoconvert] Done.

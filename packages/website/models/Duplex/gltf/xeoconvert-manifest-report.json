@@ -1,20 +1,10 @@
 {
-    "files": {
-        "gltf": {
-            "filePath": "./models/Duplex/gltf/model.glb",
+    "files": [
+        {
+            "filePath": "model.glb",
             "fileFormat": "glTF",
-            "fileFormatVersion": "*",
-            "fileDataSizeBytes": 484916,
             "fileDataType": "arraybuffer",
-            "options": {},
-            "aabb": [
-                -8.882734298706055,
-                -1.5500001907348633,
-                -5.017380597085349,
-                17.67867990521278,
-                8.999542229343099,
-                22.1827335357666
-            ]
+            "options": {}
         }
-    }
+    ]
 }

@@ -1,34 +1,18 @@
 {
-    "files": {
-        "datamodel": {
-            "filePath": "./models/IfcOpenHouse4/ifc2json/dataModel.json",
+    "files": [
+        {
+            "filePath": "dataModel.json",
             "fileFormat": "DataModelParams",
             "fileFormatVersion": "1.0",
             "fileDataType": "json",
-            "options": {},
-            "aabb": [
-                -10,
-                -8.13,
-                -9.996948195620663,
-                9.996948195620663,
-                5.78000146484375,
-                10
-            ]
+            "options": {}
         },
-        "scenemodel": {
-            "filePath": "./models/IfcOpenHouse4/ifc2json/sceneModel.json",
+        {
+            "filePath": "sceneModel.json",
             "fileFormat": "SceneModelParams",
             "fileFormatVersion": "1.0",
             "fileDataType": "json",
-            "options": {},
-            "aabb": [
-                -10,
-                -8.13,
-                -9.996948195620663,
-                9.996948195620663,
-                5.78000146484375,
-                10
-            ]
+            "options": {}
         }
-    }
+    ]
 }

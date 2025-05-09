@@ -1,35 +1,18 @@
 {
-    "files": {
-        "xgf": {
-            "filePath": "./models/Duplex/ifc2xgf/sceneModel.xgf",
+    "files": [
+        {
+            "filePath": "sceneModel.xgf",
             "fileFormat": "XGF",
             "fileFormatVersion": "1.0.0",
-            "fileDataSizeBytes": 1094480,
             "fileDataType": "arraybuffer",
-            "options": {},
-            "aabb": [
-                -0.24150002555848182,
-                -1.55,
-                -4.382065148620905,
-                9.04134894760314,
-                6.634798914316023,
-                22.18273391093445
-            ]
+            "options": {}
         },
-        "datamodel": {
-            "filePath": "./models/Duplex/ifc2xgf/dataModel.json",
+        {
+            "filePath": "dataModel.json",
             "fileFormat": "DataModelParams",
             "fileFormatVersion": "1.0",
             "fileDataType": "json",
-            "options": {},
-            "aabb": [
-                -0.24150002555848182,
-                -1.55,
-                -4.382065148620905,
-                9.04134894760314,
-                6.634798914316023,
-                22.18273391093445
-            ]
+            "options": {}
         }
-    }
+    ]
 }

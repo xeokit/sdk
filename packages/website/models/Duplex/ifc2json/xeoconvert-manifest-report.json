@@ -1,34 +1,18 @@
 {
-    "files": {
-        "datamodel": {
-            "filePath": "./models/Duplex/ifc2json/dataModel.json",
+    "files": [
+        {
+            "filePath": "dataModel.json",
             "fileFormat": "DataModelParams",
             "fileFormatVersion": "1.0",
             "fileDataType": "json",
-            "options": {},
-            "aabb": [
-                -0.24150002555848182,
-                -1.55,
-                -4.382065148620905,
-                9.04134894760314,
-                6.634798914316023,
-                22.18273391093445
-            ]
+            "options": {}
         },
-        "scenemodel": {
-            "filePath": "./models/Duplex/ifc2json/sceneModel.json",
+        {
+            "filePath": "sceneModel.json",
             "fileFormat": "SceneModelParams",
             "fileFormatVersion": "1.0",
             "fileDataType": "json",
-            "options": {},
-            "aabb": [
-                -0.24150002555848182,
-                -1.55,
-                -4.382065148620905,
-                9.04134894760314,
-                6.634798914316023,
-                22.18273391093445
-            ]
+            "options": {}
         }
-    }
+    ]
 }

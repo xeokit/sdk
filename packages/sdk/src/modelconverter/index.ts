@@ -100,7 +100,9 @@
  * modelConverter.convert({
  *      pipeline: "dotbim2xgf",
  *      inputs: {
- *         dotbim: dotBIMFileData
+ *         dotbim: {
+ *           fileData: dotBIMFileData
+ *         }
  *      }
  * }).then(async result => {
  *
@@ -198,8 +200,12 @@
  * modelConverter.convert({
  *     pipeline: "xgf2dotbim",
  *     inputs: {
- *         xgf: xgfFileData,
- *         datamodel: datamodelFileData
+ *         xgf: {
+ *            fileData: xgfFileData
+ *         },
+ *         datamodel: {
+ *            fileData: datamodelFileData
+ *         }
  *     }
  * }).then(async result => {
  *     const dotbimFileData = result.outputs.dotbim.fileData;

@@ -19,7 +19,7 @@ export class IFCLoader extends ModelLoader {
   constructor() {
     super({
       format: "IFC",
-      fileDataType: "arraybuffer",
+      fileDataType: "text",
       parsers: {
         "IFC4": parse, // Internaly, web-ifc handles all versions
         "IFC2x3": parse,
@@ -84,3 +84,4 @@ function detectEnvironment(): 'node' | 'browser' | 'unknown' {
   }
   return 'unknown';
 }
+

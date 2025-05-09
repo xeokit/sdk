@@ -207,29 +207,29 @@
             </template> and DataModel to an IFC file.</p>
             </template> to export IFC.</p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> modelConverter = <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">modelconverter</span>.<span class="hljs-title class_">ModelConverter</span>({
-    <span class="hljs-attr">loaders</span>: {
-        <span class="hljs-string">&quot;dotbim&quot;</span>: <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">dotbim</span>.<span class="hljs-title class_">Dot</span>BIMLoader()
-    },
-    <span class="hljs-attr">exporters</span>: {
-        <span class="hljs-string">&quot;ifc&quot;</span>: <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">ifc</span>.<span class="hljs-title function_">IFCExporter</span>()
-    },
-    <span class="hljs-attr">pipelines</span>: {
-        <span class="hljs-string">&quot;dotbim2ifc&quot;</span>: {
-            <span class="hljs-attr">inputs</span>: {
-                <span class="hljs-string">&quot;dotbim&quot;</span>: {
-                    <span class="hljs-attr">loader</span>: <span class="hljs-string">&quot;dotbim&quot;</span>,
-                    <span class="hljs-attr">options</span>: {}
-                }
-            },
-            <span class="hljs-attr">outputs</span>: {
-                <span class="hljs-string">&quot;ifc&quot;</span>: {
-                    <span class="hljs-attr">exporter</span>: <span class="hljs-string">&quot;ifc&quot;</span>,
-                    <span class="hljs-attr">version</span>: <span class="hljs-string">&quot;1.0&quot;</span>,
-                    <span class="hljs-attr">options</span>: {}
-                }
-            }
+  <span class="hljs-attr">loaders</span>: {
+    <span class="hljs-string">&quot;dotbim&quot;</span>: <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">dotbim</span>.<span class="hljs-title class_">Dot</span>BIMLoader()
+  },
+  <span class="hljs-attr">exporters</span>: {
+    <span class="hljs-string">&quot;ifc&quot;</span>: <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">ifc</span>.<span class="hljs-title function_">IFCExporter</span>()
+  },
+  <span class="hljs-attr">pipelines</span>: {
+    <span class="hljs-string">&quot;dotbim2ifc&quot;</span>: {
+      <span class="hljs-attr">inputs</span>: {
+        <span class="hljs-string">&quot;dotbim&quot;</span>: {
+          <span class="hljs-attr">loader</span>: <span class="hljs-string">&quot;dotbim&quot;</span>,
+          <span class="hljs-attr">options</span>: {}
         }
+      },
+      <span class="hljs-attr">outputs</span>: {
+        <span class="hljs-string">&quot;ifc&quot;</span>: {
+          <span class="hljs-attr">exporter</span>: <span class="hljs-string">&quot;ifc&quot;</span>,
+          <span class="hljs-attr">version</span>: <span class="hljs-string">&quot;1.0&quot;</span>,
+          <span class="hljs-attr">options</span>: {}
+        }
+      }
     }
+  }
 });
 </code></pre>
 <p class="comment-block">
@@ -267,9 +267,9 @@
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">3D model viewer.</p>
             </template> to visualize the&nbsp;<span class="doc-link">Scene</span> using the&nbsp;<span class="doc-link">WebGLRenderer</span></p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> viewer = <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">viewer</span>.<span class="hljs-title class_">Viewer</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoViewer&quot;</span>,
-    scene,
-    renderer
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoViewer&quot;</span>,
+  scene,
+  renderer
 });
 </code></pre>
 <p class="comment-block">
@@ -280,8 +280,8 @@
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">An independent view within a&nbsp;<span class="doc-link">Viewer</span>, with its own canvas, Camera and object visual states.</p>
             </template> within the&nbsp;<span class="doc-link">Viewer</span>, linked to an HTML canvas</p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> view = viewer.<span class="hljs-title function_">createView</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoView&quot;</span>,
-    <span class="hljs-attr">elementId</span>: <span class="hljs-string">&quot;demoCanvas&quot;</span>
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoView&quot;</span>,
+  <span class="hljs-attr">elementId</span>: <span class="hljs-string">&quot;demoCanvas&quot;</span>
 });
 </code></pre>
 <p class="comment-block">
@@ -292,9 +292,9 @@
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Controls the viewpoint and projection for a&nbsp;<span class="doc-link">View</span>.</p>
             </template> Setting +Z as "up", +X as "right", and -Y as "forward"</p>
 <pre class="code-section"><code class="hljs">view.<span class="hljs-property">camera</span>.<span class="hljs-property">worldAxis</span> = [
-    <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-comment">// +X</span>
-    <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-comment">// +Z (up)</span>
-    <span class="hljs-number">0</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">0</span> <span class="hljs-comment">// -Y (forward)</span>
+  <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-comment">// +X</span>
+  <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-comment">// +Z (up)</span>
+  <span class="hljs-number">0</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">0</span> <span class="hljs-comment">// -Y (forward)</span>
 ];
 </code></pre>
 <p class="comment-block">
@@ -310,7 +310,7 @@ view.<span class="hljs-property">camera</span>.<span class="hljs-property">up</s
 <p class="comment-block">
 <span style="font-weight: bold">11.</span> Create a&nbsp;<span class="doc-link">SceneModel</span> to store the geometry and material data for the model</p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> sceneModel = scene.<span class="hljs-title function_">createModel</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>
 });
 </code></pre>
 <p class="comment-block">
@@ -321,7 +321,7 @@ view.<span class="hljs-property">camera</span>.<span class="hljs-property">up</s
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Contains a model's semantic data, as an entity-relationship graph.</p>
             </template> to hold the semantic metadata for the model</p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> dataModel = data.<span class="hljs-title function_">createModel</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>
 });
 </code></pre>
 <p class="comment-block">
@@ -337,35 +337,37 @@ view.<span class="hljs-property">camera</span>.<span class="hljs-property">up</s
 <span style="font-weight: bold">14.</span> Ignore the DemoHelper—used only to signal example completion</p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> demoHelper = <span class="hljs-keyword">new</span> <span class="hljs-title class_">DemoHelper</span>({});
 demoHelper.<span class="hljs-title function_">init</span>()
-    .<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
+  .<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
 </code></pre>
 <p class="comment-block">
 <span style="font-weight: bold">15.</span> Fetch the .BIM file containing the source model</p>
-<pre class="code-section"><code class="hljs">        <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;../../models/BlenderHouse/dotbim/model.bim&quot;</span>).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
-            response
-                .<span class="hljs-title function_">json</span>()
-                .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">fileData</span> =&gt;</span> {
+<pre class="code-section"><code class="hljs">    <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;../../models/BlenderHouse/dotbim/model.bim&quot;</span>).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
+      response
+        .<span class="hljs-title function_">json</span>()
+        .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">fileData</span> =&gt;</span> {
 </code></pre>
 <p class="comment-block">
 <span style="font-weight: bold">16.</span> Convert the .BIM file into IFC (geometry) and&nbsp;<span class="doc-link">DataModelParams</span> (semantics) using the&nbsp;<span class="doc-link">ModelConverter</span></p>
-<pre class="code-section"><code class="hljs">                    modelConverter.<span class="hljs-title function_">convert</span>({
-                        <span class="hljs-attr">pipeline</span>: <span class="hljs-string">&quot;dotbim2ifc&quot;</span>,
-                        <span class="hljs-attr">inputs</span>: {
-                            <span class="hljs-attr">dotbim</span>: fileData
-                        }
-                    }).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">result</span> =&gt;</span> {
-                        <span class="hljs-keyword">function</span> <span class="hljs-title function_">stringToArrayBuffer</span>(<span class="hljs-params">str</span>) {
-                            <span class="hljs-keyword">const</span> encoder = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextEncoder</span>();
-                            <span class="hljs-keyword">return</span> encoder.<span class="hljs-title function_">encode</span>(str).<span class="hljs-property">buffer</span>;
-                        }
+<pre class="code-section"><code class="hljs">          modelConverter.<span class="hljs-title function_">convert</span>({
+            <span class="hljs-attr">pipeline</span>: <span class="hljs-string">&quot;dotbim2ifc&quot;</span>,
+            <span class="hljs-attr">inputs</span>: {
+              <span class="hljs-attr">dotbim</span>: {
+                fileData
+              }
+            }
+          }).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">result</span> =&gt;</span> {
+            <span class="hljs-keyword">function</span> <span class="hljs-title function_">stringToArrayBuffer</span>(<span class="hljs-params">str</span>) {
+              <span class="hljs-keyword">const</span> encoder = <span class="hljs-keyword">new</span> <span class="hljs-title class_">TextEncoder</span>();
+              <span class="hljs-keyword">return</span> encoder.<span class="hljs-title function_">encode</span>(str).<span class="hljs-property">buffer</span>;
+            }
 </code></pre>
 <p class="comment-block">
 <span style="font-weight: bold">17.</span> Load the IFC geometry into the&nbsp;<span class="doc-link">SceneModel</span></p>
-<pre class="code-section"><code class="hljs">                        ifcLoader.<span class="hljs-title function_">load</span>({
-                            <span class="hljs-attr">fileData</span>: result.<span class="hljs-property">outputs</span>.<span class="hljs-property">ifc</span>.<span class="hljs-property">fileData</span>,
-                            sceneModel,
-                            dataModel
-                        }).<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
+<pre class="code-section"><code class="hljs">            ifcLoader.<span class="hljs-title function_">load</span>({
+              <span class="hljs-attr">fileData</span>: result.<span class="hljs-property">outputs</span>.<span class="hljs-property">ifc</span>.<span class="hljs-property">fileData</span>,
+              sceneModel,
+              dataModel
+            }).<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
 </code></pre>
 <p class="comment-block">
 <span style="font-weight: bold">18.</span> Build the&nbsp;<span class="doc-link">SceneModel</span> and&nbsp;<span class="doc-link">DataModel</span>, to finalize the model structure. The&nbsp;<span class="doc-link">Scene</span> and&nbsp;<span class="doc-link">SceneModel</span> will then contain a&nbsp;<a class="doc-link" data-template="SceneObject_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/scene.SceneObject.html" target="_parent">SceneObject</a>
@@ -384,18 +386,18 @@ demoHelper.<span class="hljs-title function_">init</span>()
                 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class ViewObject</p>
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">An object within a View.</p>
             </template> corresponding to each&nbsp;<span class="doc-link">SceneObject</span>, through which the appearance of the object can be controlled in the&nbsp;<span class="doc-link">View</span>.</p>
-<pre class="code-section"><code class="hljs">                            dataModel.<span class="hljs-title function_">build</span>();
-                            sceneModel.<span class="hljs-title function_">build</span>();
-                            demoHelper.<span class="hljs-title function_">finished</span>();
-                        }).<span class="hljs-title function_">catch</span>(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
-                            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`Error loading IFC: <span class="hljs-subst">${message}</span>`</span>);
-                        });
-                    }).<span class="hljs-title function_">catch</span>(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
-                        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`Error converting .BIM to IFC: <span class="hljs-subst">${message}</span>`</span>);
-                    });
-                });
+<pre class="code-section"><code class="hljs">              dataModel.<span class="hljs-title function_">build</span>();
+              sceneModel.<span class="hljs-title function_">build</span>();
+              demoHelper.<span class="hljs-title function_">finished</span>();
+            }).<span class="hljs-title function_">catch</span>(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
+              <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`Error loading IFC: <span class="hljs-subst">${message}</span>`</span>);
+            });
+          }).<span class="hljs-title function_">catch</span>(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
+            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`Error converting .BIM to IFC: <span class="hljs-subst">${message}</span>`</span>);
+          });
         });
     });
+  });
 </code></pre>
 
             </div>

@@ -1,6 +1,6 @@
 // Import the xeokit SDK bundle built specifically for the example environment
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
-import { DemoHelper } from "../../js/DemoHelper.js";
+import {DemoHelper} from "../../js/DemoHelper.js";
 
 // Create a ModelConverter instance configured to convert IFC files into XGF and DataModelParams formats.
 // We configure the ModelConverter with:
@@ -9,35 +9,35 @@ import { DemoHelper } from "../../js/DemoHelper.js";
 // - and a DataModelParamsExporter to export semantic data.
 
 const modelConverter = new xeokit.modelconverter.ModelConverter({
-    loaders: {
-        "ifc": new xeokit.ifc.IFCLoader()
-    },
-    exporters: {
-        "xgf": new xeokit.xgf.XGFExporter(),
-        "datamodel": new xeokit.data.DataModelParamsExporter()
-    },
-    pipelines: {
-        "ifc2xgf": {
-            inputs: {
-                "ifc": {
-                    loader: "ifc",
-                    options: {}
-                }
-            },
-            outputs: {
-                "xgf": {
-                    exporter: "xgf",
-                    version: "1.0",
-                    options: {}
-                },
-                "datamodel": {
-                    exporter: "datamodel",
-                    version: "1.0",
-                    options: {}
-                }
-            }
+  loaders: {
+    "ifc": new xeokit.ifc.IFCLoader()
+  },
+  exporters: {
+    "xgf": new xeokit.xgf.XGFExporter(),
+    "datamodel": new xeokit.data.DataModelParamsExporter()
+  },
+  pipelines: {
+    "ifc2xgf": {
+      inputs: {
+        "ifc": {
+          loader: "ifc",
+          options: {}
         }
+      },
+      outputs: {
+        "xgf": {
+          exporter: "xgf",
+          version: "1.0",
+          options: {}
+        },
+        "datamodel": {
+          exporter: "datamodel",
+          version: "1.0",
+          options: {}
+        }
+      }
     }
+  }
 });
 
 // Create a Scene to manage geometry, materials, and scene structure
@@ -51,15 +51,15 @@ const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
 // Create a Viewer to visualize the Scene using the WebGLRenderer
 const viewer = new xeokit.viewer.Viewer({
-    id: "demoViewer",
-    scene,
-    renderer
+  id: "demoViewer",
+  scene,
+  renderer
 });
 
 // Create a single View within the Viewer, linked to an HTML canvas
 const view = viewer.createView({
-    id: "demoView",
-    elementId: "demoCanvas"
+  id: "demoView",
+  elementId: "demoCanvas"
 });
 
 // Arrange the View's Camera
@@ -73,12 +73,12 @@ new xeokit.cameracontrol.CameraControl(view, {});
 
 // Create a SceneModel to store the geometry and material data for the model
 const sceneModel = scene.createModel({
-    id: "demoModel"
+  id: "demoModel"
 });
 
 // Create a DataModel to hold the semantic metadata for the model
 const dataModel = data.createModel({
-    id: "demoModel"
+  id: "demoModel"
 });
 
 // Create a DataModelParamsLoader to load the converted semantic data
@@ -93,55 +93,57 @@ const xgfLoader = new xeokit.xgf.XGFLoader();
 const demoHelper = new DemoHelper({});
 
 demoHelper.init()
-    .then(() => {
+  .then(() => {
 
-            // Fetch the IFC file containing the source model
-            fetch("../../models/IfcOpenHouse4/ifc/model.ifc").then(response => {
-                response
-                    .arrayBuffer()
-                    .then(fileData => {
+    // Fetch the IFC file containing the source model
+    fetch("../../models/IfcOpenHouse4/ifc/model.ifc").then(response => {
+      response
+        .arrayBuffer()
+        .then(fileData => {
 
-                        // Convert the IFC file into XGF (geometry) and DataModelParams (semantics) using the ModelConverter
-                        modelConverter.convert({
-                            pipeline: "ifc2xgf",
-                            inputs: {
-                                ifc: fileData
-                            }
-                        }).then(result => {
+          // Convert the IFC file into XGF (geometry) and DataModelParams (semantics) using the ModelConverter
+          modelConverter.convert({
+            pipeline: "ifc2xgf",
+            inputs: {
+              ifc: {
+                fileData
+              }
+            }
+          }).then(result => {
 
-                            // Load the XGF geometry into the SceneModel
-                            xgfLoader.load({
-                                fileData: result.outputs.xgf.fileData,
-                                sceneModel
-                            }).then(() => {
+            // Load the XGF geometry into the SceneModel
+            xgfLoader.load({
+              fileData: result.outputs.xgf.fileData,
+              sceneModel
+            }).then(() => {
 
-                                // Load the DataModelParams into the DataModel
-                                dataModelParamsLoader.load({
-                                    fileData: result.outputs.datamodel.fileData,
-                                    dataModel
-                                }).then(() => {
+              // Load the DataModelParams into the DataModel
+              dataModelParamsLoader.load({
+                fileData: result.outputs.datamodel.fileData,
+                dataModel
+              }).then(() => {
 
-                                    // Build the SceneModel and DataModel, to finalize the model structure.
-                                    // The Scene and SceneModel will then contain a SceneObject for each displayable object in our model.
-                                    // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
-                                    // will have a corresponding DataObject with the same ID, to attach semantic meaning.
-                                    // The View will contain a ViewObject corresponding to each SceneObject, through which the
-                                    // appearance of the object can be controlled in the View.
+                // Build the SceneModel and DataModel, to finalize the model structure.
+                // The Scene and SceneModel will then contain a SceneObject for each displayable object in our model.
+                // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
+                // will have a corresponding DataObject with the same ID, to attach semantic meaning.
+                // The View will contain a ViewObject corresponding to each SceneObject, through which the
+                // appearance of the object can be controlled in the View.
 
-                                    dataModel.build();
-                                    sceneModel.build();
+                dataModel.build();
+                sceneModel.build();
 
-                                    demoHelper.finished();
+                demoHelper.finished();
 
-                                }).catch(message => {
-                                    console.error(`Error loading DataModel: ${message}`);
-                                });
-                            }).catch(message => {
-                                console.error(`Error loading XGF: ${message}`);
-                            });
-                        }).catch(message => {
-                            console.error(`Error converting IFC to XGF+DataModel: ${message}`);
-                        });
-                    });
+              }).catch(message => {
+                console.error(`Error loading DataModel: ${message}`);
+              });
+            }).catch(message => {
+              console.error(`Error loading XGF: ${message}`);
             });
+          }).catch(message => {
+            console.error(`Error converting IFC to XGF+DataModel: ${message}`);
+          });
+        });
     });
+  });

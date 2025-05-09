@@ -192,35 +192,35 @@
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Parameters used to define a DataModel.</p>
             </template> formats. The&nbsp;<span class="doc-link">ModelConverter</span> uses: - CityJSONLoader to load CityJSON files - XGFExporter to export geometry and materials to XGF format - DataModelParamsExporter to export semantic data</p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> modelConverter = <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">modelconverter</span>.<span class="hljs-title class_">ModelConverter</span>({
-    <span class="hljs-attr">loaders</span>: {
-        <span class="hljs-string">&quot;cityjson&quot;</span>: <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">cityjson</span>.<span class="hljs-title class_">City</span>JSONLoader()
-    },
-    <span class="hljs-attr">exporters</span>: {
-        <span class="hljs-string">&quot;xgf&quot;</span>: <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">xgf</span>.<span class="hljs-title function_">XGFExporter</span>(),
-        <span class="hljs-string">&quot;datamodel&quot;</span>: <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">data</span>.<span class="hljs-title class_">DataModelParamsExporter</span>()
-    },
-    <span class="hljs-attr">pipelines</span>: {
-        <span class="hljs-string">&quot;cityjson2xgf&quot;</span>: {
-            <span class="hljs-attr">inputs</span>: {
-                <span class="hljs-string">&quot;cityjson&quot;</span>: {
-                    <span class="hljs-attr">loader</span>: <span class="hljs-string">&quot;cityjson&quot;</span>,
-                    <span class="hljs-attr">options</span>: {}
-                }
-            },
-            <span class="hljs-attr">outputs</span>: {
-                <span class="hljs-string">&quot;xgf&quot;</span>: {
-                    <span class="hljs-attr">exporter</span>: <span class="hljs-string">&quot;xgf&quot;</span>,
-                    <span class="hljs-attr">version</span>: <span class="hljs-string">&quot;1.0&quot;</span>,
-                    <span class="hljs-attr">options</span>: {}
-                },
-                <span class="hljs-string">&quot;datamodel&quot;</span>: {
-                    <span class="hljs-attr">exporter</span>: <span class="hljs-string">&quot;datamodel&quot;</span>,
-                    <span class="hljs-attr">version</span>: <span class="hljs-string">&quot;1.0&quot;</span>,
-                    <span class="hljs-attr">options</span>: {}
-                }
-            }
+  <span class="hljs-attr">loaders</span>: {
+    <span class="hljs-string">&quot;cityjson&quot;</span>: <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">cityjson</span>.<span class="hljs-title class_">City</span>JSONLoader()
+  },
+  <span class="hljs-attr">exporters</span>: {
+    <span class="hljs-string">&quot;xgf&quot;</span>: <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">xgf</span>.<span class="hljs-title function_">XGFExporter</span>(),
+    <span class="hljs-string">&quot;datamodel&quot;</span>: <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">data</span>.<span class="hljs-title class_">DataModelParamsExporter</span>()
+  },
+  <span class="hljs-attr">pipelines</span>: {
+    <span class="hljs-string">&quot;cityjson2xgf&quot;</span>: {
+      <span class="hljs-attr">inputs</span>: {
+        <span class="hljs-string">&quot;cityjson&quot;</span>: {
+          <span class="hljs-attr">loader</span>: <span class="hljs-string">&quot;cityjson&quot;</span>,
+          <span class="hljs-attr">options</span>: {}
         }
+      },
+      <span class="hljs-attr">outputs</span>: {
+        <span class="hljs-string">&quot;xgf&quot;</span>: {
+          <span class="hljs-attr">exporter</span>: <span class="hljs-string">&quot;xgf&quot;</span>,
+          <span class="hljs-attr">version</span>: <span class="hljs-string">&quot;1.0&quot;</span>,
+          <span class="hljs-attr">options</span>: {}
+        },
+        <span class="hljs-string">&quot;datamodel&quot;</span>: {
+          <span class="hljs-attr">exporter</span>: <span class="hljs-string">&quot;datamodel&quot;</span>,
+          <span class="hljs-attr">version</span>: <span class="hljs-string">&quot;1.0&quot;</span>,
+          <span class="hljs-attr">options</span>: {}
+        }
+      }
     }
+  }
 });
 </code></pre>
 <p class="comment-block">
@@ -258,9 +258,9 @@
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">3D model viewer.</p>
             </template> that will use the&nbsp;<span class="doc-link">WebGLRenderer</span> to draw the&nbsp;<span class="doc-link">Scene</span></p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> viewer = <span class="hljs-keyword">new</span> xeokit.<span class="hljs-property">viewer</span>.<span class="hljs-title class_">Viewer</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoViewer&quot;</span>,
-    scene,
-    renderer
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoViewer&quot;</span>,
+  scene,
+  renderer
 });
 </code></pre>
 <p class="comment-block">
@@ -271,16 +271,16 @@
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">An independent view within a&nbsp;<span class="doc-link">Viewer</span>, with its own canvas, Camera and object visual states.</p>
             </template> to render the&nbsp;<span class="doc-link">Scene</span> in our HTML canvas element</p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> view = viewer.<span class="hljs-title function_">createView</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoView&quot;</span>,
-    <span class="hljs-attr">elementId</span>: <span class="hljs-string">&quot;demoCanvas&quot;</span>
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoView&quot;</span>,
+  <span class="hljs-attr">elementId</span>: <span class="hljs-string">&quot;demoCanvas&quot;</span>
 });
 </code></pre>
 <p class="comment-block">
 <span style="font-weight: bold">8.</span> Configure the&nbsp;<span class="doc-link">View</span>'s World-space coordinate axis to make the +Z axis "up"</p>
 <pre class="code-section"><code class="hljs">view.<span class="hljs-property">camera</span>.<span class="hljs-property">worldAxis</span> = [
-    <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-comment">// Right +X</span>
-    <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-comment">// Up +Z</span>
-    <span class="hljs-number">0</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">0</span>  <span class="hljs-comment">// Forward -Y</span>
+  <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-comment">// Right +X</span>
+  <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-comment">// Up +Z</span>
+  <span class="hljs-number">0</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">0</span>  <span class="hljs-comment">// Forward -Y</span>
 ];
 </code></pre>
 <p class="comment-block">
@@ -312,7 +312,7 @@ view.<span class="hljs-property">camera</span>.<span class="hljs-title function_
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Contains a model's geometry and materials.</p>
             </template> to hold our model's geometry and materials</p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> sceneModel = scene.<span class="hljs-title function_">createModel</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>
 });
 </code></pre>
 <p class="comment-block">
@@ -323,7 +323,7 @@ view.<span class="hljs-property">camera</span>.<span class="hljs-title function_
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Contains a model's semantic data, as an entity-relationship graph.</p>
             </template> to hold semantic data for our model</p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> dataModel = data.<span class="hljs-title function_">createModel</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>
 });
 </code></pre>
 <p class="comment-block">
@@ -348,37 +348,39 @@ view.<span class="hljs-property">camera</span>.<span class="hljs-title function_
 <span style="font-weight: bold">15.</span> Ignore the DemoHelper</p>
 <pre class="code-section"><code class="hljs"><span class="hljs-keyword">const</span> demoHelper = <span class="hljs-keyword">new</span> <span class="hljs-title class_">DemoHelper</span>({});
 demoHelper.<span class="hljs-title function_">init</span>()
-    .<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
+  .<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
 </code></pre>
 <p class="comment-block">
 <span style="font-weight: bold">16.</span> Fetch the CityJSON file</p>
-<pre class="code-section"><code class="hljs">            <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;../../models/LoD3_Railway/cityjson/model.json&quot;</span>).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
-                response
-                    .<span class="hljs-title function_">json</span>()
-                    .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">fileData</span> =&gt;</span> {
+<pre class="code-section"><code class="hljs">    <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;../../models/LoD3_Railway/cityjson/model.json&quot;</span>).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
+      response
+        .<span class="hljs-title function_">json</span>()
+        .<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">fileData</span> =&gt;</span> {
 </code></pre>
 <p class="comment-block">
 <span style="font-weight: bold">17.</span> Use the&nbsp;<span class="doc-link">ModelConverter</span> to convert the CityJSON file into an XGF file and a&nbsp;<span class="doc-link">DataModel</span></p>
-<pre class="code-section"><code class="hljs">                        modelConverter.<span class="hljs-title function_">convert</span>({
-                            <span class="hljs-attr">pipeline</span>: <span class="hljs-string">&quot;cityjson2xgf&quot;</span>,
-                            <span class="hljs-attr">inputs</span>: {
-                                <span class="hljs-attr">cityjson</span>: fileData
-                            }
-                        }).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">result</span> =&gt;</span> {
+<pre class="code-section"><code class="hljs">          modelConverter.<span class="hljs-title function_">convert</span>({
+            <span class="hljs-attr">pipeline</span>: <span class="hljs-string">&quot;cityjson2xgf&quot;</span>,
+            <span class="hljs-attr">inputs</span>: {
+              <span class="hljs-attr">cityjson</span>: {
+                fileData
+              }
+            }
+          }).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">result</span> =&gt;</span> {
 </code></pre>
 <p class="comment-block">
 <span style="font-weight: bold">18.</span> Use the&nbsp;<span class="doc-link">XGFLoader</span> to load the XGF file into the&nbsp;<span class="doc-link">SceneModel</span></p>
-<pre class="code-section"><code class="hljs">                            xgfLoader.<span class="hljs-title function_">load</span>({
-                                <span class="hljs-attr">fileData</span>: result.<span class="hljs-property">outputs</span>.<span class="hljs-property">xgf</span>.<span class="hljs-property">fileData</span>,
-                                sceneModel
-                            }).<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
+<pre class="code-section"><code class="hljs">            xgfLoader.<span class="hljs-title function_">load</span>({
+              <span class="hljs-attr">fileData</span>: result.<span class="hljs-property">outputs</span>.<span class="hljs-property">xgf</span>.<span class="hljs-property">fileData</span>,
+              sceneModel
+            }).<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
 </code></pre>
 <p class="comment-block">
 <span style="font-weight: bold">19.</span> Use the&nbsp;<span class="doc-link">DataModelParamsLoader</span> to load the&nbsp;<span class="doc-link">DataModelParams</span> into the&nbsp;<span class="doc-link">DataModel</span></p>
-<pre class="code-section"><code class="hljs">                                dataModelParamsLoader.<span class="hljs-title function_">load</span>({
-                                    <span class="hljs-attr">fileData</span>: result.<span class="hljs-property">outputs</span>.<span class="hljs-property">datamodel</span>.<span class="hljs-property">fileData</span>,
-                                    dataModel
-                                }).<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
+<pre class="code-section"><code class="hljs">              dataModelParamsLoader.<span class="hljs-title function_">load</span>({
+                <span class="hljs-attr">fileData</span>: result.<span class="hljs-property">outputs</span>.<span class="hljs-property">datamodel</span>.<span class="hljs-property">fileData</span>,
+                dataModel
+              }).<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
 </code></pre>
 <p class="comment-block">
 <span style="font-weight: bold">20.</span> Build the&nbsp;<span class="doc-link">SceneModel</span> and&nbsp;<span class="doc-link">DataModel</span>. The&nbsp;<span class="doc-link">Scene</span> and&nbsp;<span class="doc-link">SceneModel</span> will now contain a&nbsp;<a class="doc-link" data-template="SceneObject_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/scene.SceneObject.html" target="_parent">SceneObject</a>
@@ -397,21 +399,21 @@ demoHelper.<span class="hljs-title function_">init</span>()
                 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class ViewObject</p>
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">An object within a View.</p>
             </template> corresponding to each&nbsp;<span class="doc-link">SceneObject</span>, through which the appearance of the object can be controlled in the&nbsp;<span class="doc-link">View</span>.</p>
-<pre class="code-section"><code class="hljs">                                    dataModel.<span class="hljs-title function_">build</span>();
-                                    sceneModel.<span class="hljs-title function_">build</span>();
-                                    demoHelper.<span class="hljs-title function_">finished</span>();
-                                }).<span class="hljs-title function_">catch</span>(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
-                                    <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`Error loading DataModel: <span class="hljs-subst">${message}</span>`</span>);
-                                });
-                            }).<span class="hljs-title function_">catch</span>(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
-                                <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`Error loading XGF: <span class="hljs-subst">${message}</span>`</span>);
-                            });
-                        }).<span class="hljs-title function_">catch</span>(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
-                            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`Error converting CityJSON to XGF+DataModel: <span class="hljs-subst">${message}</span>`</span>);
-                        });
-                    });
+<pre class="code-section"><code class="hljs">                dataModel.<span class="hljs-title function_">build</span>();
+                sceneModel.<span class="hljs-title function_">build</span>();
+                demoHelper.<span class="hljs-title function_">finished</span>();
+              }).<span class="hljs-title function_">catch</span>(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
+                <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`Error loading DataModel: <span class="hljs-subst">${message}</span>`</span>);
+              });
+            }).<span class="hljs-title function_">catch</span>(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
+              <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`Error loading XGF: <span class="hljs-subst">${message}</span>`</span>);
             });
+          }).<span class="hljs-title function_">catch</span>(<span class="hljs-function"><span class="hljs-params">message</span> =&gt;</span> {
+            <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">error</span>(<span class="hljs-string">`Error converting CityJSON to XGF+DataModel: <span class="hljs-subst">${message}</span>`</span>);
+          });
+        });
     });
+  });
 </code></pre>
 
             </div>

@@ -149074,7 +149074,7 @@ var IFCLoader = class extends ModelLoader {
   constructor() {
     super({
       format: "IFC",
-      fileDataType: "arraybuffer",
+      fileDataType: "text",
       parsers: {
         "IFC4": parse7,
         // Internaly, web-ifc handles all versions

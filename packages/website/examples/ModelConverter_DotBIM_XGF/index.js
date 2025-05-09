@@ -112,7 +112,9 @@ demoHelper.init()
                     modelConverter.convert({
                         pipeline: "dotbim2xgf",
                         inputs: {
-                            dotbim: fileData
+                            dotbim: {
+                              fileData
+                            }
                         }
                     }).then(result => {
 

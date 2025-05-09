@@ -371,7 +371,9 @@ demoHelper.<span class="hljs-title function_">init</span>()
 <pre class="code-section"><code class="hljs">                    modelConverter.<span class="hljs-title function_">convert</span>({
                         <span class="hljs-attr">pipeline</span>: <span class="hljs-string">&quot;dotbim2xgf&quot;</span>,
                         <span class="hljs-attr">inputs</span>: {
-                            <span class="hljs-attr">dotbim</span>: fileData
+                            <span class="hljs-attr">dotbim</span>: {
+                              fileData
+                            }
                         }
                     }).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">result</span> =&gt;</span> {
 </code></pre>

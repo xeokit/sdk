@@ -54,7 +54,7 @@
 <script type="module">
     import {buildViewModelsMenu} from "@@base/js/buildViewModelsTable.js";
 
-    fetch("./index.json").then(response => {
+    fetch("./models.json").then(response => {
         response.json().then(models => {
             fetch("./pipelines.json").then(response => {
                 response.json().then(pipelines => {

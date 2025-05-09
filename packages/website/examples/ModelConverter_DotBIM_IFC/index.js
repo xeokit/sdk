@@ -6,29 +6,29 @@ import {DemoHelper} from "../../js/DemoHelper.js";
 // We configure the ModelConverter with a DotBIMLoader to load .BIM and an IFCExporter to export IFC.
 
 const modelConverter = new xeokit.modelconverter.ModelConverter({
-    loaders: {
-        "dotbim": new xeokit.dotbim.DotBIMLoader()
-    },
-    exporters: {
-        "ifc": new xeokit.ifc.IFCExporter()
-    },
-    pipelines: {
-        "dotbim2ifc": {
-            inputs: {
-                "dotbim": {
-                    loader: "dotbim",
-                    options: {}
-                }
-            },
-            outputs: {
-                "ifc": {
-                    exporter: "ifc",
-                    version: "1.0",
-                    options: {}
-                }
-            }
+  loaders: {
+    "dotbim": new xeokit.dotbim.DotBIMLoader()
+  },
+  exporters: {
+    "ifc": new xeokit.ifc.IFCExporter()
+  },
+  pipelines: {
+    "dotbim2ifc": {
+      inputs: {
+        "dotbim": {
+          loader: "dotbim",
+          options: {}
         }
+      },
+      outputs: {
+        "ifc": {
+          exporter: "ifc",
+          version: "1.0",
+          options: {}
+        }
+      }
     }
+  }
 });
 
 // Create a Scene to manage geometry, materials, and scene structure
@@ -42,23 +42,23 @@ const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
 // Create a Viewer to visualize the Scene using the WebGLRenderer
 const viewer = new xeokit.viewer.Viewer({
-    id: "demoViewer",
-    scene,
-    renderer
+  id: "demoViewer",
+  scene,
+  renderer
 });
 
 // Create a single View within the Viewer, linked to an HTML canvas
 const view = viewer.createView({
-    id: "demoView",
-    elementId: "demoCanvas"
+  id: "demoView",
+  elementId: "demoCanvas"
 });
 
 // Configure the coordinate system for the View's Camera
 // Setting +Z as "up", +X as "right", and -Y as "forward"
 view.camera.worldAxis = [
-    1, 0, 0, // +X
-    0, 0, 1, // +Z (up)
-    0, -1, 0 // -Y (forward)
+  1, 0, 0, // +X
+  0, 0, 1, // +Z (up)
+  0, -1, 0 // -Y (forward)
 ];
 
 // Position the Camera in the scene with eye, look, and up vectors
@@ -71,12 +71,12 @@ new xeokit.cameracontrol.CameraControl(view, {});
 
 // Create a SceneModel to store the geometry and material data for the model
 const sceneModel = scene.createModel({
-    id: "demoModel"
+  id: "demoModel"
 });
 
 // Create a DataModel to hold the semantic metadata for the model
 const dataModel = data.createModel({
-    id: "demoModel"
+  id: "demoModel"
 });
 
 // Create an IFCLoader to load the IFC into our Viewer's Scene
@@ -87,52 +87,54 @@ const ifcLoader = new xeokit.ifc.IFCLoader();
 const demoHelper = new DemoHelper({});
 
 demoHelper.init()
-    .then(() => {
+  .then(() => {
 
-        // Fetch the .BIM file containing the source model
-        fetch("../../models/BlenderHouse/dotbim/model.bim").then(response => {
-            response
-                .json()
-                .then(fileData => {
+    // Fetch the .BIM file containing the source model
+    fetch("../../models/BlenderHouse/dotbim/model.bim").then(response => {
+      response
+        .json()
+        .then(fileData => {
 
-                    // Convert the .BIM file into IFC (geometry) and DataModelParams (semantics) using the ModelConverter
-                    modelConverter.convert({
-                        pipeline: "dotbim2ifc",
-                        inputs: {
-                            dotbim: fileData
-                        }
-                    }).then(result => {
+          // Convert the .BIM file into IFC (geometry) and DataModelParams (semantics) using the ModelConverter
+          modelConverter.convert({
+            pipeline: "dotbim2ifc",
+            inputs: {
+              dotbim: {
+                fileData
+              }
+            }
+          }).then(result => {
 
-                        function stringToArrayBuffer(str) {
-                            const encoder = new TextEncoder();
-                            return encoder.encode(str).buffer;
-                        }
+            function stringToArrayBuffer(str) {
+              const encoder = new TextEncoder();
+              return encoder.encode(str).buffer;
+            }
 
-                        // Load the IFC geometry into the SceneModel
-                        ifcLoader.load({
-                            fileData: result.outputs.ifc.fileData,
-                            sceneModel,
-                            dataModel
-                        }).then(() => {
+            // Load the IFC geometry into the SceneModel
+            ifcLoader.load({
+              fileData: result.outputs.ifc.fileData,
+              sceneModel,
+              dataModel
+            }).then(() => {
 
-                            // Build the SceneModel and DataModel, to finalize the model structure.
-                            // The Scene and SceneModel will then contain a SceneObject for each displayable object in our model.
-                            // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
-                            // will have a corresponding DataObject with the same ID, to attach semantic meaning.
-                            // The View will contain a ViewObject corresponding to each SceneObject, through which the
-                            // appearance of the object can be controlled in the View.
+              // Build the SceneModel and DataModel, to finalize the model structure.
+              // The Scene and SceneModel will then contain a SceneObject for each displayable object in our model.
+              // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
+              // will have a corresponding DataObject with the same ID, to attach semantic meaning.
+              // The View will contain a ViewObject corresponding to each SceneObject, through which the
+              // appearance of the object can be controlled in the View.
 
-                            dataModel.build();
-                            sceneModel.build();
+              dataModel.build();
+              sceneModel.build();
 
-                            demoHelper.finished();
+              demoHelper.finished();
 
-                        }).catch(message => {
-                            console.error(`Error loading IFC: ${message}`);
-                        });
-                    }).catch(message => {
-                        console.error(`Error converting .BIM to IFC: ${message}`);
-                    });
-                });
+            }).catch(message => {
+              console.error(`Error loading IFC: ${message}`);
+            });
+          }).catch(message => {
+            console.error(`Error converting .BIM to IFC: ${message}`);
+          });
         });
     });
+  });

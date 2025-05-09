@@ -70,7 +70,7 @@
 
                             const baseURL = "../../";
 
-                            const fetchEntries = Object.entries(xeoconvertManifestReport.files).map(([key, fileInfo]) => {
+                            const fetchEntries = xeoconvertManifestReport.files.map((fileInfo) => {
 
                                 const entryId = key;
                                 const url = baseURL + fileInfo.filePath;

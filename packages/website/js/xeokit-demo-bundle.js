@@ -74925,7 +74925,7 @@ function vsprintf(msg, args = []) {
 var data_exports = {};
 __export(data_exports, {
   Data: () => Data,
-  DataModel: () => DataModel2,
+  DataModel: () => DataModel,
   DataModelParamsExporter: () => DataModelParamsExporter,
   DataModelParamsLoader: () => DataModelParamsLoader,
   DataObject: () => DataObject,
@@ -75137,7 +75137,7 @@ var Relationship = class {
 };
 
 // ../sdk/src/data/DataModel.ts
-var DataModel2 = class extends Component {
+var DataModel = class extends Component {
   /**
    * The Data that contains this DataModel.
    */
@@ -75231,7 +75231,7 @@ var DataModel2 = class extends Component {
   /**
    * @private
    */
-  constructor(data, id, dataModelParams, options) {
+  constructor(data, id, dataModelParams) {
     super(data);
     this.onBuilt = new EventEmitter(new import_strongly_typed_events3.EventDispatcher());
     this.data = data;
@@ -75815,16 +75815,13 @@ var Data = class extends Component {
    * See {@link data | @xeokit/sdk/data}   for more details on usage.
    *
    * @param  dataModelParams Creation parameters for the new {@link DataModel | DataModel}.
-   * @param [options] Options for creating the {@link DataModel | DataModel}.
-   * @param [options.includeTypes] When provided, only create {@link DataObject | DataObjects} with types in this list.
-   * @param  [options.excludeRelating] When provided, never create {@link DataObject | DataObjects} with types in this list.
    * @returns {@link DataModel | DataModel}
    * * On success.
    * @returns *{@link core!SDKError | SDKError}*
    * * This Data has already been destroyed.
    * * A DataModel with the given ID already exists in this Data.
    */
-  createModel(dataModelParams, options) {
+  createModel(dataModelParams) {
     if (this.destroyed) {
       return new SDKError("Data already destroyed");
     }
@@ -75832,7 +75829,7 @@ var Data = class extends Component {
     if (this.models[id]) {
       return new SDKError(`DataModel already created in this Data: ${id}`);
     }
-    const dataModel = new DataModel2(this, id, dataModelParams, options);
+    const dataModel = new DataModel(this, id, dataModelParams);
     this.models[dataModel.id] = dataModel;
     dataModel.onDestroyed.one(() => {
       delete this.models[dataModel.id];
@@ -76518,7 +76515,7 @@ var SceneObject = class {
   /**
    * Optional layer ID for this SceneObject.
    *
-   * When the {@link Scene} is attached to a {@link view!Viewer | View}, this will identify an optional {@link view!ViewLayer | ViewLayer}
+   * When the {@link Scene} is attached to a {@link viewer!View | View}, this will identify an optional {@link viewer!ViewLayer | ViewLayer}
    * to assign the object to. ViewLayers allow users to group and segregate object based on their roles or aspects in a scene,
    * simplifying interaction and focusing operations on specific object groups.
    */
@@ -76808,7 +76805,7 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
   qualityLevel: 10,
   mipmaps: false
 };
-var SceneModel2 = class extends Component {
+var SceneModel = class extends Component {
   /**
    * Indicates what renderer resources will need to be allocated in a {@link viewer!Viewer | Viewer's}
    * {@link viewer!Renderer | Renderer} to support progressive loading for the {@link SceneModel | SceneModel}.
@@ -77730,13 +77727,342 @@ var SceneModel2 = class extends Component {
   // }
 };
 
+// ../sdk/src/io/NodeFileIO.ts
+var NodeFileIO = class {
+  /**
+   * Loads data from a given URL or local file path.
+   *
+   * - If the input starts with "http://" or "https://", it fetches the resource over the network.
+   * - Otherwise, it reads the file from the local filesystem.
+   *
+   * @param url - The HTTP(S) URL or local file path to load.
+   * @returns A promise that resolves to a Buffer containing the loaded data.
+   * @throws An error if the fetch or file read fails.
+   */
+  async load(url) {
+    return new Promise((resolve2, reject) => {
+      resolve2(null);
+    });
+  }
+  /**
+   * Saves data to the specified target path on the local filesystem.
+   *
+   * - Supports saving both Node.js Buffers and Blobs.
+   * - Automatically creates directories if they do not exist.
+   *
+   * @param data - The data to save, as a Buffer or CrossPlatformBlob.
+   * @param targetPath - The absolute or relative file path where data should be written.
+   * @returns A promise that resolves when the file is successfully written.
+   * @throws An error if the data type is unsupported or the write fails.
+   */
+  async save(data, targetPath) {
+    return new Promise((resolve2, reject) => {
+      resolve2();
+    });
+  }
+};
+
+// ../sdk/src/io/BrowserFileIO.ts
+var BrowserFileIO = class {
+  /**
+   * Loads a file from the given URL and returns it as a CrossPlatformBlob.
+   *
+   * @param url - The URL of the file to load.
+   * @returns A promise that resolves to a CrossPlatformBlob containing the file data.
+   * @throws An error if the fetch request fails or returns a non-OK status.
+   */
+  async load(url) {
+    const res = await fetch(url);
+    if (!res.ok)
+      throw new Error(`Failed to load: ${res.statusText}`);
+    return await res.blob();
+  }
+  /**
+   * Not supported in the browser. Logs a warning when called.
+   *
+   * @param _data - The data to be saved (ignored).
+   * @param _target - The target path or identifier for saving (ignored).
+   * @returns A promise that resolves immediately.
+   */
+  async save(_data, _target) {
+    console.warn("Save is not supported in the browser.");
+  }
+};
+
+// ../sdk/src/io/FileIOFactory.ts
+function createFileIO() {
+  const isNode = typeof process !== "undefined" && !!process.versions?.node;
+  return isNode ? new NodeFileIO() : new BrowserFileIO();
+}
+
+// ../sdk/src/io/ModelLoader.ts
+var fileIO = createFileIO();
+var ModelLoader = class {
+  /**
+   * The loaded model file format.
+   */
+  format;
+  /**
+   * Filename extensions expected on loaded model files.
+   */
+  fileNameExtensions;
+  /**
+   * A parser for each supported schema version.
+   */
+  parsers;
+  /**
+   * IDs of supported file schema versions.
+   */
+  versions;
+  /**
+   * Identifies the MIME type of files loaded by this parser.
+   */
+  fileDataType;
+  /**
+   * Gets the schema version of the given file data.
+   */
+  getVersion;
+  /**
+   * @protected
+   * @param params
+   */
+  constructor(params2) {
+    this.format = params2.format;
+    this.parsers = params2.parsers || {};
+    this.versions = Object.keys(this.parsers);
+    this.fileDataType = params2.fileDataType;
+    this.getVersion = params2.getVersion;
+  }
+  /**
+   * Loads file data into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
+   *
+   * This method expects the following conditions:
+   * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
+   * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
+   *
+   * @param params - The parameters used for loading the file data.
+   * @param options - Options for customizing the loading process. These are specific to the Loader subclass.
+   * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
+   *
+   * @throws {@link core!SDKError | SDKError}
+   * - If the SceneModel has already been destroyed.
+   * - If the SceneModel has already been built.
+   * - If the DataModel has already been destroyed.
+   * - If the DataModel has already been built.
+   */
+  load(params2, options = {}) {
+    return new Promise((resolve2, reject) => {
+      if (!params2) {
+        return reject("Argument expected: params");
+      }
+      const { filePath, fileData, sceneModel, dataModel } = params2;
+      if (sceneModel) {
+        if (sceneModel.destroyed) {
+          return reject("SceneModel already destroyed");
+        }
+        if (sceneModel.built) {
+          return reject("SceneModel already built");
+        }
+      }
+      if (dataModel) {
+        if (dataModel.destroyed) {
+          return reject("DataModel already destroyed");
+        }
+        if (dataModel.built) {
+          return reject("DataModel already built");
+        }
+      }
+      if (!filePath && !fileData) {
+        return reject("Argument expected: filePath or fileData");
+      }
+      const loadFileData = (fileData2) => {
+        if (this.fileDataType === "json" && !isJSONObject(fileData2)) {
+          return reject("Argument type mismatch: params.fileData should be a JSON object");
+        }
+        const version2 = this.getVersion(fileData2);
+        if (!version2) {
+          return reject(`Failed to determine schema version of source file`);
+        }
+        const parser = this.parsers[version2];
+        if (!parser) {
+          return reject(`Unsupported source file schema version: ${version2} - supported versions are [${this.versions}]`);
+        }
+        if (sceneModel || dataModel) {
+          parser({ fileData: fileData2, sceneModel, dataModel }, options).then(() => {
+            resolve2();
+          }).catch((err2) => {
+            reject(`Failed to load source file: ${err2}`);
+          });
+        } else {
+          return resolve2();
+        }
+      };
+      if (filePath) {
+        fileIO.load(filePath).then((fileData2) => {
+          loadFileData(fileData2);
+        }).catch((err2) => {
+          reject(`Failed to load source file: ${err2}`);
+        });
+      } else {
+        loadFileData(fileData);
+      }
+    });
+  }
+};
+
+// ../sdk/src/io/ModelExporter.ts
+var ModelExporter = class {
+  /**
+   * The exported model file format.
+   */
+  format;
+  /**
+   * An encoder for each supported schema version.
+   */
+  encoders;
+  /**
+   * List of supported schema versions.
+   */
+  versions;
+  /**
+   * The default supported schema version.
+   */
+  defaultVersion;
+  /**
+   * Data type of the file written by this Exporter.
+   */
+  fileDataType;
+  /**
+   * @param params
+   */
+  constructor(params2) {
+    this.format = params2.format;
+    this.encoders = params2.encoders || {};
+    this.versions = Object.keys(this.encoders);
+    this.fileDataType = params2.fileDataType;
+    this.defaultVersion = params2.defaultVersion;
+  }
+  /**
+   * Exports a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel} to file data.
+   *
+   * This method expects the following conditions:
+   * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
+   * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
+   *
+   * @param params - The parameters used for writing the file data.
+   * @param params.sceneModel - The {@link scene!SceneModel | SceneModel} to write.
+   * @param params.dataModel - The {@link data!DataModel | DataModel} to write.
+   * @param options - Options for customizing the loading process. These are specific to the Exporter subclass.
+   * @returns {Promise} Resolves when the SceneModel and/or DataModel has been successfully written.
+   *
+   * @throws {@link core!SDKError | SDKError}
+   * - If the SceneModel has already been destroyed.
+   * - If the SceneModel has not been built.
+   * - If the DataModel has already been destroyed.
+   * - If the DataModel has not been built.
+   */
+  write(params2, options = {}) {
+    return new Promise((resolve2, reject) => {
+      if (!params2) {
+        return reject("Argument expected: params");
+      }
+      const { sceneModel, dataModel } = params2;
+      if (!sceneModel) {
+        return reject("Argument expected: params.sceneModel");
+      }
+      if (sceneModel.destroyed) {
+        return reject("SceneModel already destroyed");
+      }
+      if (!sceneModel.built) {
+        return reject("SceneModel not built");
+      }
+      if (dataModel) {
+        if (!(dataModel instanceof DataModel)) {
+          return reject("Argument type mismatch: params.dataModel should be a DataModel");
+        }
+        if (dataModel.destroyed) {
+          return reject("DataModel already destroyed");
+        }
+        if (!dataModel.built) {
+          return reject("DataModel not built");
+        }
+      }
+      const version2 = params2.version || this.defaultVersion;
+      const encoder = this.encoders[version2];
+      if (!encoder) {
+        return reject(`Unsupported target file schema version: ${version2} - supported versions are [${this.versions}]`);
+      }
+      encoder({ sceneModel, dataModel }, options).then((fileData) => {
+        resolve2(fileData);
+      }).catch((err2) => {
+        reject(`Failed to writer source file: ${err2}`);
+      });
+    });
+  }
+};
+
+// ../sdk/src/data/versions/1_0/parse.ts
+function parse(params2, options) {
+  return new Promise(function(resolve2, reject) {
+    if (params2.dataModel && params2.fileData) {
+      params2.dataModel.fromParams(params2.fileData);
+    }
+    return resolve2();
+  });
+}
+
+// ../sdk/src/data/DataModelParamsLoader.ts
+var DataModelParamsLoader = class extends ModelLoader {
+  /**
+   * Constructs a DataModelParamsLoader.
+   */
+  constructor() {
+    super({
+      format: "DataModelParams",
+      fileDataType: "json",
+      parsers: {
+        "1.0": parse
+      },
+      getVersion: (fileData) => {
+        return fileData.version || "1.0";
+      }
+    });
+  }
+};
+
+// ../sdk/src/data/versions/1_0/encode.ts
+function encode(params2, options) {
+  return new Promise(function(resolve2, reject) {
+    const dataModelParams = params2.dataModel ? params2.dataModel.toParams() : {};
+    dataModelParams.version = "1.0";
+    return resolve2(dataModelParams);
+  });
+}
+
+// ../sdk/src/data/DataModelParamsExporter.ts
+var DataModelParamsExporter = class extends ModelExporter {
+  /**
+   * Constructs a DataModelParamsExporter.
+   */
+  constructor() {
+    super({
+      format: "DataModelParams",
+      fileDataType: "json",
+      encoders: {
+        "1.0": encode
+      },
+      defaultVersion: "1.0"
+    });
+  }
+};
+
 // ../sdk/src/scene/index.ts
 var scene_exports = {};
 __export(scene_exports, {
   Scene: () => Scene,
   SceneGeometry: () => SceneGeometry,
   SceneMesh: () => SceneMesh,
-  SceneModel: () => SceneModel2,
+  SceneModel: () => SceneModel,
   SceneModelParamsExporter: () => SceneModelParamsExporter,
   SceneModelParamsLoader: () => SceneModelParamsLoader,
   SceneObject: () => SceneObject,
@@ -77956,7 +78282,7 @@ var Scene = class extends Component {
     if (this.models[id]) {
       return new SDKError(`SceneModel already created in this Scene: ${id}`);
     }
-    const sceneModel = new SceneModel2(this, sceneModelParams);
+    const sceneModel = new SceneModel(this, sceneModelParams);
     this.models[id] = sceneModel;
     sceneModel.onDestroyed.one(() => {
       delete this.models[sceneModel.id];
@@ -78128,7 +78454,7 @@ function buildMat4(params2) {
 }
 
 // ../sdk/src/scene/versions/1_0/parse.ts
-function parse(params2, options) {
+function parse2(params2, options) {
   return new Promise(function(resolve2, reject) {
     if (params2.sceneModel && params2.fileData) {
       params2.sceneModel.fromParams(params2.fileData);
@@ -78147,341 +78473,6 @@ var SceneModelParamsLoader = class extends ModelLoader {
       format: "SceneModelParams",
       fileDataType: "json",
       parsers: {
-        "1.0": parse
-      },
-      getVersion: (fileData) => {
-        return fileData.version || "1.0";
-      }
-    });
-  }
-};
-
-// ../sdk/src/scene/versions/1_0/encode.ts
-function encode(params2, options) {
-  return new Promise(function(resolve2, reject) {
-    const sceneModelParams = params2.sceneModel ? params2.sceneModel.toParams() : {};
-    sceneModelParams.version = "1.0";
-    return resolve2(sceneModelParams);
-  });
-}
-
-// ../sdk/src/io/ModelExporter.ts
-var ModelExporter = class {
-  /**
-   * The exported model file format.
-   */
-  format;
-  /**
-   * An encoder for each supported schema version.
-   */
-  encoders;
-  /**
-   * List of supported schema versions.
-   */
-  versions;
-  /**
-   * The default supported schema version.
-   */
-  defaultVersion;
-  /**
-   * Data type of the file written by this Exporter.
-   */
-  fileDataType;
-  /**
-   * @param params
-   */
-  constructor(params2) {
-    this.format = params2.format;
-    this.encoders = params2.encoders || {};
-    this.versions = Object.keys(this.encoders);
-    this.fileDataType = params2.fileDataType;
-    this.defaultVersion = params2.defaultVersion;
-  }
-  /**
-   * Exports a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel} to file data.
-   *
-   * This method expects the following conditions:
-   * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
-   * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
-   *
-   * @param params - The parameters used for writing the file data.
-   * @param params.sceneModel - The {@link scene!SceneModel | SceneModel} to write.
-   * @param params.dataModel - The {@link data!DataModel | DataModel} to write.
-   * @param options - Options for customizing the loading process. These are specific to the Exporter subclass.
-   * @returns {Promise} Resolves when the SceneModel and/or DataModel has been successfully written.
-   *
-   * @throws {@link core!SDKError | SDKError}
-   * - If the SceneModel has already been destroyed.
-   * - If the SceneModel has not been built.
-   * - If the DataModel has already been destroyed.
-   * - If the DataModel has not been built.
-   */
-  write(params2, options = {}) {
-    return new Promise((resolve2, reject) => {
-      if (!params2) {
-        return reject("Argument expected: params");
-      }
-      const { sceneModel, dataModel } = params2;
-      if (!sceneModel) {
-        return reject("Argument expected: params.sceneModel");
-      }
-      if (sceneModel.destroyed) {
-        return reject("SceneModel already destroyed");
-      }
-      if (!sceneModel.built) {
-        return reject("SceneModel not built");
-      }
-      if (dataModel) {
-        if (!(dataModel instanceof DataModel2)) {
-          return reject("Argument type mismatch: params.dataModel should be a DataModel");
-        }
-        if (dataModel.destroyed) {
-          return reject("DataModel already destroyed");
-        }
-        if (!dataModel.built) {
-          return reject("DataModel not built");
-        }
-      }
-      const version2 = params2.version || this.defaultVersion;
-      const encoder = this.encoders[version2];
-      if (!encoder) {
-        return reject(`Unsupported target file schema version: ${version2} - supported versions are [${this.versions}]`);
-      }
-      encoder({ sceneModel, dataModel }, options).then((fileData) => {
-        resolve2(fileData);
-      }).catch((err2) => {
-        reject(`Failed to writer source file: ${err2}`);
-      });
-    });
-  }
-};
-
-// ../sdk/src/scene/SceneModelParamsExporter.ts
-var SceneModelParamsExporter = class extends ModelExporter {
-  /**
-   * Constructs a SceneModelParamsExporter.
-   */
-  constructor() {
-    super({
-      format: "SceneModelParams",
-      fileDataType: "json",
-      encoders: {
-        "1.0": encode
-      },
-      defaultVersion: "1.0"
-    });
-  }
-};
-
-// ../sdk/src/io/NodeFileIO.ts
-var NodeFileIO = class {
-  /**
-   * Loads data from a given URL or local file path.
-   *
-   * - If the input starts with "http://" or "https://", it fetches the resource over the network.
-   * - Otherwise, it reads the file from the local filesystem.
-   *
-   * @param url - The HTTP(S) URL or local file path to load.
-   * @returns A promise that resolves to a Buffer containing the loaded data.
-   * @throws An error if the fetch or file read fails.
-   */
-  async load(url) {
-    return new Promise((resolve2, reject) => {
-      resolve2(null);
-    });
-  }
-  /**
-   * Saves data to the specified target path on the local filesystem.
-   *
-   * - Supports saving both Node.js Buffers and Blobs.
-   * - Automatically creates directories if they do not exist.
-   *
-   * @param data - The data to save, as a Buffer or CrossPlatformBlob.
-   * @param targetPath - The absolute or relative file path where data should be written.
-   * @returns A promise that resolves when the file is successfully written.
-   * @throws An error if the data type is unsupported or the write fails.
-   */
-  async save(data, targetPath) {
-    return new Promise((resolve2, reject) => {
-      resolve2();
-    });
-  }
-};
-
-// ../sdk/src/io/BrowserFileIO.ts
-var BrowserFileIO = class {
-  /**
-   * Loads a file from the given URL and returns it as a CrossPlatformBlob.
-   *
-   * @param url - The URL of the file to load.
-   * @returns A promise that resolves to a CrossPlatformBlob containing the file data.
-   * @throws An error if the fetch request fails or returns a non-OK status.
-   */
-  async load(url) {
-    const res = await fetch(url);
-    if (!res.ok)
-      throw new Error(`Failed to load: ${res.statusText}`);
-    return await res.blob();
-  }
-  /**
-   * Not supported in the browser. Logs a warning when called.
-   *
-   * @param _data - The data to be saved (ignored).
-   * @param _target - The target path or identifier for saving (ignored).
-   * @returns A promise that resolves immediately.
-   */
-  async save(_data, _target) {
-    console.warn("Save is not supported in the browser.");
-  }
-};
-
-// ../sdk/src/io/FileIOFactory.ts
-function createFileIO() {
-  const isNode = typeof process !== "undefined" && !!process.versions?.node;
-  return isNode ? new NodeFileIO() : new BrowserFileIO();
-}
-
-// ../sdk/src/io/ModelLoader.ts
-var fileIO = createFileIO();
-var ModelLoader = class {
-  /**
-   * The loaded model file format.
-   */
-  format;
-  /**
-   * Filename extensions expected on loaded model files.
-   */
-  fileNameExtensions;
-  /**
-   * A parser for each supported schema version.
-   */
-  parsers;
-  /**
-   * IDs of supported file schema versions.
-   */
-  versions;
-  /**
-   * Identifies the MIME type of files loaded by this parser.
-   */
-  fileDataType;
-  /**
-   * Gets the schema version of the given file data.
-   */
-  getVersion;
-  /**
-   * @protected
-   * @param params
-   */
-  constructor(params2) {
-    this.format = params2.format;
-    this.parsers = params2.parsers || {};
-    this.versions = Object.keys(this.parsers);
-    this.fileDataType = params2.fileDataType;
-    this.getVersion = params2.getVersion;
-  }
-  /**
-   * Loads file data into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
-   *
-   * This method expects the following conditions:
-   * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
-   * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
-   *
-   * @param params - The parameters used for loading the file data.
-   * @param options - Options for customizing the loading process. These are specific to the Loader subclass.
-   * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
-   *
-   * @throws {@link core!SDKError | SDKError}
-   * - If the SceneModel has already been destroyed.
-   * - If the SceneModel has already been built.
-   * - If the DataModel has already been destroyed.
-   * - If the DataModel has already been built.
-   */
-  load(params2, options = {}) {
-    return new Promise((resolve2, reject) => {
-      if (!params2) {
-        return reject("Argument expected: params");
-      }
-      const { filePath, fileData, sceneModel, dataModel } = params2;
-      if (sceneModel) {
-        if (!(sceneModel instanceof SceneModel)) {
-          return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
-        }
-        if (sceneModel.destroyed) {
-          return reject("SceneModel already destroyed");
-        }
-        if (sceneModel.built) {
-          return reject("SceneModel already built");
-        }
-      }
-      if (dataModel) {
-        if (!(dataModel instanceof DataModel)) {
-          return reject("Argument type mismatch: params.dataModel should be a DataModel");
-        }
-        if (dataModel.destroyed) {
-          return reject("DataModel already destroyed");
-        }
-        if (dataModel.built) {
-          return reject("DataModel already built");
-        }
-      }
-      if (!filePath && !fileData) {
-        return reject("Argument expected: filePath or fileData");
-      }
-      const loadFileData = (fileData2) => {
-        if (this.fileDataType === "json" && !isJSONObject(fileData2)) {
-          return reject("Argument type mismatch: params.fileData should be a JSON object");
-        }
-        const version2 = this.getVersion(fileData2);
-        if (!version2) {
-          return reject(`Failed to determine schema version of source file`);
-        }
-        const parser = this.parsers[version2];
-        if (!parser) {
-          return reject(`Unsupported source file schema version: ${version2} - supported versions are [${this.versions}]`);
-        }
-        if (sceneModel || dataModel) {
-          parser({ fileData: fileData2, sceneModel, dataModel }, options).then(() => {
-            resolve2();
-          }).catch((err2) => {
-            reject(`Failed to load source file: ${err2}`);
-          });
-        } else {
-          return resolve2();
-        }
-      };
-      if (filePath) {
-        fileIO.load(filePath).then((fileData2) => {
-          loadFileData(fileData2);
-        }).catch((err2) => {
-          reject(`Failed to load source file: ${err2}`);
-        });
-      } else {
-        loadFileData(fileData);
-      }
-    });
-  }
-};
-
-// ../sdk/src/data/versions/1_0/parse.ts
-function parse2(params2, options) {
-  return new Promise(function(resolve2, reject) {
-    if (params2.dataModel && params2.fileData) {
-      params2.dataModel.fromParams(params2.fileData);
-    }
-    return resolve2();
-  });
-}
-
-// ../sdk/src/data/DataModelParamsLoader.ts
-var DataModelParamsLoader = class extends ModelLoader {
-  /**
-   * Constructs a DataModelParamsLoader.
-   */
-  constructor() {
-    super({
-      format: "DataModelParams",
-      fileDataType: "json",
-      parsers: {
         "1.0": parse2
       },
       getVersion: (fileData) => {
@@ -78491,23 +78482,23 @@ var DataModelParamsLoader = class extends ModelLoader {
   }
 };
 
-// ../sdk/src/data/versions/1_0/encode.ts
+// ../sdk/src/scene/versions/1_0/encode.ts
 function encode2(params2, options) {
   return new Promise(function(resolve2, reject) {
-    const dataModelParams = params2.dataModel ? params2.dataModel.toParams() : {};
-    dataModelParams.version = "1.0";
-    return resolve2(dataModelParams);
+    const sceneModelParams = params2.sceneModel ? params2.sceneModel.toParams() : {};
+    sceneModelParams.version = "1.0";
+    return resolve2(sceneModelParams);
   });
 }
 
-// ../sdk/src/data/DataModelParamsExporter.ts
-var DataModelParamsExporter = class extends ModelExporter {
+// ../sdk/src/scene/SceneModelParamsExporter.ts
+var SceneModelParamsExporter = class extends ModelExporter {
   /**
-   * Constructs a DataModelParamsExporter.
+   * Constructs a SceneModelParamsExporter.
    */
   constructor() {
     super({
-      format: "DataModelParams",
+      format: "SceneModelParams",
       fileDataType: "json",
       encoders: {
         "1.0": encode2
@@ -79112,7 +79103,7 @@ var Picker = class {
   /**
    * Picks a {@link kdtree3!SceneObjectsKdTree3} using a 2D marquee to obtain a {@link MarqueePickResult}
    * containing picked {@link scene!SceneObject | SceneObjects}, {@link scene!SceneMesh | SceneMesh}, {@link scene!SceneGeometry | SceneGeometry},
-   * {@link scene!SceneGeometryBucket | GeometryBuckets}, {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
+   * {@link KdTrianglePrim}, {@link KdLinePrim} and {@link KdPointPrim}.
    * @param params
    */
   marqueePick(params2) {
@@ -183084,6 +183075,7 @@ __export(viewer_exports, {
   PointsMaterial: () => PointsMaterial,
   ResolutionScale: () => ResolutionScale,
   SAO: () => SAO,
+  Scheduler: () => Scheduler,
   SectionPlane: () => SectionPlane,
   SnapshotResult: () => SnapshotResult,
   Texturing: () => Texturing,
@@ -183143,18 +183135,22 @@ var tickEvent = {
   deltaTime: 0
 };
 var Scheduler = class {
+  /**
+   * Registered Viewer instances, keyed by their IDs.
+   */
   viewers;
   #viewersRenderInfo = {};
-  // @ts-ignore
   #viewerIDMap = new Map2();
   // Ensures unique viewer IDs
   #taskQueue = new Queue();
-  // Task queue, which is pumped on each frame; tasks are pushed to it with calls to xeokit.schedule
+  // Queue of scheduled tasks
   #taskBudget = 10;
-  // Millisecs we're allowed to spend on tasks in each frame
+  // Max time in ms to spend on tasks per frame
   #lastTime = 0;
   #elapsedTime = 0;
   /**
+   * Creates a new Scheduler that begins executing tasks and rendering Viewers on animation frames.
+   *
    * @private
    */
   constructor() {
@@ -183172,6 +183168,11 @@ var Scheduler = class {
     };
     requestAnimationFrame(frame);
   }
+  /**
+   * Executes queued tasks within the allowed task budget.
+   *
+   * @param time Current frame time in ms.
+   */
   #runTasks(time) {
     const tasksRun = this.#runTasksUntil(time + this.#taskBudget);
     const tasksScheduled = this.getNumTasks();
@@ -183179,6 +183180,12 @@ var Scheduler = class {
     stats.frame.tasksScheduled = tasksScheduled;
     stats.frame.tasksBudget = this.#taskBudget;
   }
+  /**
+   * Executes tasks from the queue until a given deadline or until the queue is empty.
+   *
+   * @param until Timestamp (ms) to stop executing tasks.
+   * @returns Number of tasks executed.
+   */
   #runTasksUntil(until = -1) {
     let time = (/* @__PURE__ */ new Date()).getTime();
     let tasksRun = 0;
@@ -183195,6 +183202,11 @@ var Scheduler = class {
     }
     return tasksRun;
   }
+  /**
+   * Dispatches tick events to all registered Viewers.
+   *
+   * @param time Current time in ms.
+   */
   #fireTickEvents(time) {
     tickEvent.time = time;
     for (const id in scheduler.viewers) {
@@ -183208,6 +183220,9 @@ var Scheduler = class {
     }
     tickEvent.prevTime = time;
   }
+  /**
+   * Renders all registered Viewers.
+   */
   #renderViewers() {
     for (const id in this.viewers) {
       if (this.viewers.hasOwnProperty(id)) {
@@ -183220,6 +183235,11 @@ var Scheduler = class {
       }
     }
   }
+  /**
+   * Registers a Viewer with the Scheduler for tick and render updates.
+   *
+   * @param viewer Viewer to register.
+   */
   registerViewer(viewer) {
     if (viewer.id) {
       if (this.viewers[viewer.id]) {
@@ -183230,13 +183250,15 @@ var Scheduler = class {
       viewer.id = this.#viewerIDMap.addItem({});
     }
     this.viewers[viewer.id] = viewer;
-    this.#viewersRenderInfo[viewer.id] = {
-      // ticksPerOcclusionTest: ticksPerOcclusionTest,
-      // ticksPerRender: ticksPerRender,
-      // renderCountdown: ticksPerRender
-    };
+    this.#viewersRenderInfo[viewer.id] = {};
     stats.components.viewers++;
   }
+  /**
+   * Deregisters a Viewer, stopping tick and render updates.
+   *
+   * @internal
+   * @param viewer Viewer to deregister.
+   */
   deregisterViewer(viewer) {
     if (!this.viewers[viewer.id]) {
       return;
@@ -183246,10 +183268,21 @@ var Scheduler = class {
     delete this.#viewersRenderInfo[viewer.id];
     stats.components.viewers--;
   }
+  /**
+   * Schedules a task to be executed on an upcoming animation frame.
+   *
+   * @param callback Function to execute.
+   * @param scope Optional scope to call the function in.
+   */
   scheduleTask(callback, scope) {
     this.#taskQueue.push(callback);
     this.#taskQueue.push(scope);
   }
+  /**
+   * Gets the number of tasks currently scheduled.
+   *
+   * @returns Number of queued tasks.
+   */
   getNumTasks() {
     return this.#taskQueue.length;
   }
@@ -184587,7 +184620,7 @@ var Camera = class extends Component {
   /**
    * Sets whether to lock yaw rotation to pivot about the World-space "up" axis.
    *
-   * @param {Boolean} gimbalLock Set true to lock gimbal.
+   * @param {Boolean} value Set true to lock gimbal.
    */
   set gimbalLock(value) {
     this.#state.gimbalLock = value;
@@ -187754,7 +187787,7 @@ var ViewLayer = class extends Component {
 var View = class extends Component {
   /**
    * The index of this View in {@link Viewer.viewList}.
-   * @private
+   * @internal
    */
   viewIndex;
   /**
@@ -188975,7 +189008,7 @@ var View = class extends Component {
    *
    * Switches rendering to a hidden snapshot canvas.
    *
-   * Exit snapshot mode using {@link Viewer#endSnapshot}.
+   * Exit snapshot mode using {@link viewer!Viewer.endSnapshot | Viewer.endSnapshot}.
    */
   beginSnapshot() {
     if (this.#snapshotBegun) {
@@ -189229,7 +189262,6 @@ var Viewer = class extends Component {
    * @param params.units - The measurement unit type. Accepted values are ````"meters"````, ````"metres"````, , ````"centimeters"````, ````"centimetres"````, ````"millimeters"````,  ````"millimetres"````, ````"yards"````, ````"feet"```` and ````"inches"````.
    * @param params.scale - The number of Real-space units in each World-space coordinate system unit.
    * @param params.origin - The Real-space 3D origin, in current measurement units, at which the World-space coordinate origin ````[0,0,0]```` sits.
-   * @param params.localeService - Locale-based translation service.
    * @throws SDKError
    *   The given Renderer is already attached to some other Viewer.
    */
@@ -190022,7 +190054,10 @@ var PickResult = class {
 // ../sdk/src/webglrenderer/index.ts
 var webglrenderer_exports = {};
 __export(webglrenderer_exports, {
-  WebGLRenderer: () => WebGLRenderer
+  RenderContext: () => RenderContext,
+  RenderStats: () => RenderStats,
+  WebGLRenderer: () => WebGLRenderer,
+  WebGLTileManager: () => WebGLTileManager
 });
 
 // ../sdk/src/webglutils/WebGLArrayBuf.ts
@@ -190230,6 +190265,76 @@ var WebGLAttribute = class {
     arrayBuf.bind();
     this.gl.enableVertexAttribArray(this.location);
     this.gl.vertexAttribPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.normalized, arrayBuf.stride, arrayBuf.offset);
+  }
+};
+
+// ../sdk/src/webglutils/WebGLDataTexture.ts
+var WebGLDataTexture = class {
+  gl;
+  texture;
+  textureWidth;
+  textureHeight;
+  textureData;
+  #onDestroyed;
+  /**
+   * Constructs a new WebGLDataTexture.
+   * @param params
+   */
+  constructor(params2 = {}) {
+    this.gl = params2.gl;
+    this.texture = params2.texture;
+    this.textureWidth = params2.textureWidth;
+    this.textureHeight = params2.textureHeight;
+    this.textureData = params2.textureData;
+    this.#onDestroyed = params2.onDestroyed;
+  }
+  /**
+   * Binds this WebGLDataTexture to the given {@link WebGLSampler}.
+   * @param glProgram
+   * @param sampler
+   * @param unit
+   */
+  bindTexture(glProgram, sampler, unit) {
+    if (!this.gl) {
+      return;
+    }
+    sampler.bindTexture(this, unit);
+  }
+  /**
+   * Unbinds this WebGLDataTexture from whichever {@link WebGLSampler} it's currently bound to, if any.
+   * @param unit
+   */
+  bind(unit) {
+    if (!this.gl || !this.texture) {
+      return false;
+    }
+    this.gl.activeTexture(this.gl["TEXTURE" + unit]);
+    this.gl.bindTexture(this.gl.TEXTURE_2D, this.texture);
+    return true;
+  }
+  disableFiltering() {
+    if (!this.gl) {
+      return;
+    }
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+  }
+  unbind(unit) {
+    if (!this.gl) {
+      return;
+    }
+  }
+  destroy() {
+    if (!this.gl || !this.texture) {
+      return;
+    }
+    this.gl.deleteTexture(this.texture);
+    this.texture = null;
+    if (this.#onDestroyed) {
+      this.#onDestroyed();
+    }
   }
 };
 
@@ -192050,10 +192155,6 @@ var RenderContext = class {
    */
   viewer;
   /**
-   * @private
-   */
-  rendererSets;
-  /**
    * The View we are rendering.
    */
   view;
@@ -192061,7 +192162,6 @@ var RenderContext = class {
    * The WebGL rendering context.
    */
   gl;
-  viewMatrixDataTexture;
   /**
    * Whether to render a quality representation for triangle surfaces.
    *
@@ -192082,7 +192182,7 @@ var RenderContext = class {
    */
   frontface;
   /**
-   * The next available texture unit to bind a {@link WebGLAbstractTexture} to.
+   * The next available texture unit to bind a texture to.
    */
   textureUnit;
   /**
@@ -192096,8 +192196,8 @@ var RenderContext = class {
   /**
    * The 4x4 viewing transform matrix the renderers is currently using when rendering castsShadows.
    *
-   * This sets the viewpoint to look from the point of view of each {@link DirLight}
-   * or {@link PointLight} that casts a shadow.
+   * This sets the viewpoint to look from the point of view of each {@link view!DirLight | DirLight}
+   * or {@link view!PointLight|PointLight} that casts a shadow.
    */
   shadowViewMatrix;
   /**
@@ -192107,8 +192207,7 @@ var RenderContext = class {
   /**
    * The 4x4 viewing transform matrix the renderers is currently using when rendering a ray-pick.
    *
-   * This sets the viewpoint to look along the ray given to {@link scene!Scene/pick:method"}}Scene#pick(){{/crossLink}}
-   * when picking with a ray.
+   * This sets the viewpoint to look along the ray, when picking with a ray.
    */
   pickViewMatrix;
   /**
@@ -192131,7 +192230,7 @@ var RenderContext = class {
    */
   lineWidth;
   /**
-   * ID of the last {@link WebGLProgram} that was bound during the current frame.
+   * ID of the last WebGLProgram that was bound during the current frame.
    */
   lastProgramId;
   /**
@@ -197524,7 +197623,7 @@ var WebGLRendererModel = class extends Component {
   // }
 };
 
-// ../sdk/src/webglrenderer/WebGLRenderer.ts
+// ../sdk/src/webglrenderer/WebGLRendererView.ts
 var WebGLRendererView = class {
   view;
   transparencyEnabled;
@@ -197558,6 +197657,8 @@ var WebGLRendererView = class {
     this.renderBufferManager.destroy();
   }
 };
+
+// ../sdk/src/webglrenderer/WebGLRenderer.ts
 var tempVec3a8 = createVec3();
 var tempVec3b8 = createVec3();
 var tempVec3c6 = createVec3();
@@ -197593,6 +197694,9 @@ var WebGLRenderer = class {
   #rendererViewsList;
   #activeRendererView;
   #viewer;
+  /**
+   * @internal
+   */
   renderContext;
   #shadersDirty;
   #rendererModels;
@@ -197628,9 +197732,9 @@ var WebGLRenderer = class {
    * Creates a WebGLRenderer.
    *
    * @param params Configs
-   * @param params.textureTranscoder Injects an optional transcoder that will be used internally by {@link rendererModel.createTexture}
-   * to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded data
-   * to {@link rendererModel.createTexture}. We assume that all transcoded texture data added to a  ````rendererModel````
+   * @param params.textureTranscoder Injects an optional transcoder that will be used internally
+   * to convert transcoded texture data. The transcoder is only required when we'll be providing transcoded texture
+   * data. We assume that all transcoded texture data added to a  ````rendererModel````
    * will then be in a format supported by this transcoder.
    */
   constructor(params2) {
@@ -198725,10 +198829,133 @@ var WebGLRenderer = class {
   }
 };
 
+// ../sdk/src/webglrenderer/WebGLTileManager.ts
+var NUM_TILES = 2e3;
+var WebGLTileManager = class {
+  #gl;
+  #indexesUsed;
+  #tiles;
+  #dataTexture;
+  #camera;
+  #lastFreeIndex;
+  #numTiles;
+  constructor(params2) {
+    this.#camera = params2.camera;
+    this.#gl = params2.gl;
+    this.#indexesUsed = [];
+    this.#lastFreeIndex = 0;
+    this.#tiles = {};
+    this.#dataTexture = this.#createMatricesDataTexture(NUM_TILES);
+    this.#numTiles = 0;
+  }
+  getTile(center2) {
+    const rtcCenter2 = worldToRTCCenter(center2, createVec3());
+    const id = `${rtcCenter2[0]}-${rtcCenter2[1]}-${rtcCenter2[2]}`;
+    let tile = this.#tiles[id];
+    if (!tile) {
+      tile = {
+        id,
+        index: this.#findFreeTile(),
+        useCount: 0,
+        center: createVec3(),
+        rtcViewMatrix: createMat4()
+      };
+      this.#tiles[tile.id] = tile;
+      this.#numTiles++;
+    }
+    tile.useCount++;
+    return tile;
+  }
+  putTile(tile) {
+    if (--tile.useCount === 0) {
+      delete this.#tiles[tile.id];
+      this.#putFreeTile(tile.index);
+      this.#numTiles--;
+    }
+  }
+  updateTileCenter(tile, newCenter) {
+    const newRTCCenter = worldToRTCCenter(newCenter, createVec3());
+    const newId = `${newRTCCenter[0]}-${newRTCCenter[1]}-${newRTCCenter[2]}`;
+    if (newId === tile.id) {
+      return tile;
+    }
+    this.putTile(tile);
+    let newTile = this.#tiles[newId];
+    if (!newTile) {
+      newTile = {
+        id: newId,
+        index: this.#findFreeTile(),
+        useCount: 0,
+        center: createVec3(),
+        rtcViewMatrix: createMat4()
+      };
+      this.#tiles[newTile.id] = newTile;
+    }
+    newTile.useCount++;
+    return newTile;
+  }
+  refreshMatrices() {
+    if (!this.#dataTexture.texture) {
+      return;
+    }
+    const tileIds = Object.keys(this.#tiles);
+    const numTiles = tileIds.length;
+    if (numTiles > 0) {
+      const gl = this.#gl;
+      const viewMatrix = this.#camera.viewMatrix;
+      const data = new Float32Array(16 * numTiles);
+      for (let i = 0; i < numTiles; i++) {
+        const tileId = tileIds[i];
+        const tile = this.#tiles[tileId];
+        createRTCViewMat(viewMatrix, tile.center, tile.rtcViewMatrix);
+        data.set(tile.rtcViewMatrix, tile.index * 16);
+      }
+      gl.bindTexture(gl.TEXTURE_2D, this.#dataTexture.texture);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl.RGBA, gl.FLOAT, data);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+  }
+  #putFreeTile(index) {
+    if (this.#indexesUsed[index]) {
+      delete this.#indexesUsed[index];
+      this.#lastFreeIndex = index;
+      this.#numTiles--;
+    }
+  }
+  #findFreeTile() {
+    for (let index = this.#lastFreeIndex; ; index = (index + 1) % NUM_TILES) {
+      if (!this.#indexesUsed[index]) {
+        this.#indexesUsed[index] = true;
+        return index;
+      }
+    }
+  }
+  #createMatricesDataTexture(numMatrices) {
+    if (numMatrices === 0) {
+      throw "num instance matrices===0";
+    }
+    const textureWidth = 512 * 4;
+    const textureHeight = Math.ceil(numMatrices / (textureWidth / 4));
+    const textureData = new Float32Array(4 * textureWidth * textureHeight);
+    const gl = this.#gl;
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, textureData, 0);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    return new WebGLDataTexture({ gl, texture, textureWidth, textureHeight, textureData });
+  }
+};
+
 // ../sdk/src/cameracontrol/index.ts
 var cameracontrol_exports = {};
 __export(cameracontrol_exports, {
   CameraControl: () => CameraControl,
+  HoverEvent: () => HoverEvent,
   KEY_A: () => KEY_A,
   KEY_ADD: () => KEY_ADD,
   KEY_ALT: () => KEY_ALT,
@@ -198979,22 +199206,23 @@ var CameraFlightAnimation = class _CameraFlightAnimation extends Component {
   #projMatrix1;
   #projMatrix2;
   /**
-   * Emits an event each time the animation starts.
+   * Fires when the camera animation starts.
    */
   onStarted;
   /**
-   * Emits an event each time the animation stops.
+   * Fires when the camera animation completes.
    */
   onStopped;
   /**
-   * Emits an event each time the animation stops.
+   * Fires when the camera animation is cancelled.
    */
   onCancelled;
   /**
-   * Creates a new CameraFlightAnimation
+   * Creates a new CameraFlightAnimation instance.
    *
-   * @param cfg.view The {@link viewer!View | View} whose {@link viewer!Camera | Camera} we'll animate.
-   * @param cfg.duration Animation duration in seconds when using {@link cameraflight!CameraFlightAnimation.flyTo | CameraFlightAnimation.flyTo}.
+   * @param view The {@link viewer!View | View} whose {@link viewer!Camera | Camera} will be animated.
+   * @param cfg Optional configuration.
+   * @param cfg.duration Default animation duration in seconds for {@link CameraFlightAnimation.flyTo}.
    */
   constructor(view, cfg) {
     super(view, cfg);
@@ -199029,27 +199257,13 @@ var CameraFlightAnimation = class _CameraFlightAnimation extends Component {
     this.onCancelled = new EventEmitter(new import_strongly_typed_events18.EventDispatcher());
   }
   /**
-   * Flies the {@link viewer!Camera | Camera}  to a target.
+   * Animates the camera to a target viewpoint or bounding volume.
    *
-   *  * When the target is a boundary, the {@link viewer!Camera | Camera}  will fly towards the target and stop when the target fills most of the canvas.
-   *  * When the target is an explicit {@link viewer!Camera | Camera}  position, given as ````eye````, ````look```` and ````up````, then CameraFlightAnimation will interpolate the {@link viewer!Camera | Camera}  to that target and stop there.
+   * - If a bounding box is provided, the camera will fly to frame the box within the view.
+   * - If `eye`, `look`, and `up` are provided, the camera will interpolate to that exact pose.
    *
-   * @param {Object|Component} [params=Scene] Either a parameters object or a {@link core!Component | Component} subtype that has
-   * an AABB. Defaults to the {@link scene!Scene | Scene}, which causes the {@link viewer!Camera | Camera}  to fit the Scene in view.
-   * @param [params.arc=0] Factor in range ````[0..1]```` indicating how much the {@link viewer!Camera.eye | Camera.eye} position
-   * will swing away from its {@link viewer!Camera.look | Camera.look} position as it flies to the target.
-   * @param {Number|String|Component} [params.component] ID or instance of a component to fly to. Defaults to the entire {@link scene!Scene | Scene}.
-   * @param [params.aabb] World-space axis-aligned bounding box (AABB) target to fly to.
-   * @param [params.eye] Position to fly the eye position to.
-   * @param [params.look] Position to fly the look position to.
-   * @param [params.up] Position to fly the up vector to.
-   * @param [params.projection] Projection type to transition into as we fly. Can be any of the values of {@link viewer!Camera.projectionType | Camera.projectionType | Camera.projectionType}.
-   * @param [params.fit=true] Whether to fit the target to the view volume. Overrides {@link CameraFlightAnimation.fit | CameraFlightAnimation.fit}.
-   * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link viewer!ViewObject | ViewObject} or its AABB should
-   * fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV | CameraFlightAnimation.fitFOV}.
-   * @param [params.duration] Flight duration in seconds.  Overrides {@link CameraFlightAnimation.duration | CameraFlightAnimation.duration}.
-   * @param [params.orthoScale] Animate the Camera's orthographic scale to this target value. See {@link viewer!OrthoProjection.scale | OrthoProjection.scale}.
-   * @param {Function} [callback] Callback fired on arrival.
+   * @param params Parameters defining the flight target and behavior.
+   * @param callback Optional callback invoked after the flight completes.
    */
   flyTo(params2 = {}, callback) {
     if (this.#flying) {
@@ -199160,21 +199374,12 @@ var CameraFlightAnimation = class _CameraFlightAnimation extends Component {
     scheduler.scheduleTask(this.#update, this);
   }
   /**
-   * Jumps the {@link viewer!Camera | Camera}  to the given target.
+   * Instantly moves the camera to a specified viewpoint or bounding volume, without animation.
    *
-   * * When the target is a boundary, this CameraFlightAnimation will position the {@link viewer!Camera | Camera}  at where the target fills most of the canvas.
-   * * When the target is an explicit {@link viewer!Camera | Camera}  position, given as ````eye````, ````look```` and ````up```` vectors, then this CameraFlightAnimation will jump the {@link viewer!Camera | Camera}  to that target.
+   * - If a bounding box is provided, the camera will immediately frame it in the view.
+   * - If `eye`, `look`, and `up` are provided, the camera will immediately assume that pose.
    *
-   * @param {*|Component} params  Either a parameters object or a {@link core!Component | Component} subtype that has a World-space AABB.
-   * @param [params.arc=0]  Factor in range [0..1] indicating how much the {@link viewer!Camera.eye | Camera.eye} will swing away from its {@link viewer!Camera.look | Camera.look} as it flies to the target.
-   * @param {Number|String|Component} [params.component] ID or instance of a component to fly to.
-   * @param [params.aabb]  World-space axis-aligned bounding box (AABB) target to fly to.
-   * @param [params.eye] Position to fly the eye position to.
-   * @param [params.look]  Position to fly the look position to.
-   * @param [params.up] Position to fly the up vector to.
-   * @param [params.projection] Projection type to transition into. Can be any of the values of {@link viewer!Camera.projectionType | Camera.projectionType}.
-   * @param [params.fitFOV] How much of field-of-view, in degrees, that a target {@link viewer!Viewer | Viewer} or its AABB should fill the canvas on arrival. Overrides {@link CameraFlightAnimation.fitFOV}.
-   * @param [params.fit] Whether to fit the target to the view volume. Overrides {@link cameraFlightAnimation.fit | CameraFlightAnimation.fit}.
+   * @param params Target camera state or bounding box.
    */
   jumpTo(params2) {
     this.#jumpTo(params2);
@@ -201201,6 +201406,8 @@ var TouchPickHandler = class {
 var DEFAULT_SNAP_PICK_RADIUS = 30;
 var DEFAULT_SNAP_VERTEX = true;
 var DEFAULT_SNAP_EDGE = true;
+var HoverEvent = class {
+};
 var CameraControl = class _CameraControl extends Component {
   /**
    * Represents a leftward panning action.
@@ -201288,13 +201495,13 @@ var CameraControl = class _CameraControl extends Component {
    */
   onRightClick;
   /**
-   * Event fired when the pointer moves while over a {@link viewer!ViewObject}.
+   * Event fired when the pointer moves while over a {@link viewer!ViewObject | ViewObject}.
    *
    * @event
    */
   onHover;
   /**
-   * Event fired when the pointer moves while over a {@link viewer!ViewObject}.
+   * Event fired when the pointer moves while over a {@link viewer!ViewObject | ViewObject}.
    *
    * @event
    */
@@ -201306,19 +201513,19 @@ var CameraControl = class _CameraControl extends Component {
    */
   onHoverOff;
   /**
-   * Event fired when the pointer moves onto a {@link viewer!ViewObject}.
+   * Event fired when the pointer moves onto a {@link viewer!ViewObject | ViewObject}.
    *
    * @event
    */
   onHoverEnter;
   /**
-   * Event fired when the pointer moves off a {@link viewer!ViewObject}.
+   * Event fired when the pointer moves off a {@link viewer!ViewObject | ViewObject}.
    *
    * @event
    */
   onHoverOut;
   /**
-   * Event fired when a {@link viewer!ViewObject} is picked.
+   * Event fired when a {@link viewer!ViewObject | ViewObject} is picked.
    *
    * @event
    */
@@ -202167,8 +202374,6 @@ var CameraControl = class _CameraControl extends Component {
    * Sets a sphere as the representation of the pivot position.
    *
    * @param [cfg] Sphere configuration.
-   * @param [cfg.size=1] Optional size factor of the sphere. Defaults to 1.
-   * @param [cfg.material=PhongMaterial] Optional size factor of the sphere. Defaults to a red opaque material.
    */
   enablePivotSphere(cfg = {}) {
     this.#controllers.pivotController.enablePivotSphere(cfg);
@@ -203134,7 +203339,7 @@ var TreeView = class _TreeView extends Component {
     }
   }
   /**
-   * Highlights the tree view node that represents the given object {@link viewObject}.
+   * Highlights the tree view node that represents the given object {@link view!ViewObject | ViewObject}.
    *
    * This causes the tree view to collapse, then expand to reveal the node, then highlight the node.
    *
@@ -203147,7 +203352,7 @@ var TreeView = class _TreeView extends Component {
    * the element to make it appear highlighted, removing that class when de-highlighting it again. See the CSS rules
    * in the TreeView ifcviewer for an example of that class.
    *
-   * @param {String} objectId ID of the {@link viewObject}.
+   * @param {String} objectId ID of the {@link viewer!ViewObject | ViewObject}.
    */
   showNode(objectId) {
     if (this.#showListItemElementId) {
@@ -204458,6 +204663,9 @@ var ModelConverter = class {
         if (!loader) {
           return reject(`Can't resolve loader "${loaderId}", referenced by input "${inputId}" of pipeline "${pipelineId}"`);
         }
+        if (!conversionParamsInputs[inputId]) {
+          return reject(`Argument expected for pipeline "${pipelineId}": "${inputId}"`);
+        }
       }
       const pipelineOutputs = pipeline.outputs || {};
       const pipelineOutputIds = Object.keys(pipelineOutputs);
@@ -204501,11 +204709,10 @@ var ModelConverter = class {
                 fileDataSizeBytes = new TextEncoder().encode(fileData2).length;
                 break;
               case "json":
-                fileDataSizeBytes = new TextEncoder().encode(fileData2).length;
+                fileDataSizeBytes = new TextEncoder().encode(JSON.stringify(fileData2)).length;
                 break;
               default:
-                fileData2 = fileIO2.load(filePath);
-                fileDataSizeBytes = fileData2.buffer.byteLength;
+                fileDataSizeBytes = fileData2.buffer ? fileData2.buffer.byteLength : 0;
                 break;
             }
             try {
@@ -204602,10 +204809,10 @@ var ModelConverter = class {
                 fileDataSizeBytes = new TextEncoder().encode(fileData).length;
                 break;
               case "json":
-                fileDataSizeBytes = new TextEncoder().encode(fileData).length;
+                fileDataSizeBytes = new TextEncoder().encode(JSON.stringify(fileData)).length;
                 break;
               default:
-                fileDataSizeBytes = fileData.buffer.byteLength;
+                fileDataSizeBytes = fileData.byteLength;
                 break;
             }
             modelConverterResult.outputs[pipelineOutputId] = {
@@ -204720,19 +204927,20 @@ var createManifestReport = (modelConverterResult) => {
   };
 };
 function getEntries(modelConverterResult) {
-  const entries = {};
-  const inputEntries = Object.keys(modelConverterResult.outputs).length === 0 ? modelConverterResult.inputs : modelConverterResult.outputs;
+  const entries = [];
+  const inputEntries = !modelConverterResult.outputs || Object.keys(modelConverterResult.outputs).length === 0 ? modelConverterResult.inputs : modelConverterResult.outputs;
   for (let id in inputEntries) {
     const inputEntry = inputEntries[id];
-    entries[id] = {
-      filePath: inputEntry.filePath,
+    entries.push({
+      filePath: (inputEntry.filePath || "").split("/").pop(),
       fileFormat: inputEntry.fileFormat,
       fileFormatVersion: inputEntry.fileFormatVersion,
-      fileDataSizeBytes: inputEntry.fileDataSizeBytes,
+      //  fileDataSizeBytes: inputEntry.fileDataSizeBytes,
       fileDataType: inputEntry.fileDataType,
-      options: inputEntry.options,
-      aabb: Array.from(Array.from(modelConverterResult.scene.models[inputEntry.sceneModel].aabb || [0, 0, 0, 0, 0, 0]))
-    };
+      options: inputEntry.options
+      //,
+      //aabb: Array.from(Array.from(modelConverterResult.scene.models[inputEntry.sceneModel].aabb || [0, 0, 0, 0, 0, 0]))
+    });
   }
   return entries;
 }
@@ -204740,7 +204948,7 @@ function getEntries(modelConverterResult) {
 // ../sdk/src/modelconverter/reporters/stats/createStatsReport.ts
 var createStatsReport = (modelConverterResult) => {
   const modelConverterStatsReport = {
-    description: "xeoconvert conversion stats",
+    description: "Generated by @xeokit/sdk/modelconverter/createStatsReport",
     command: "",
     //`node xeoconvert.js ${process.argv.slice(2).join(' ')}`, // TODO
     time: (/* @__PURE__ */ new Date()).toISOString(),
@@ -204766,6 +204974,14 @@ var createStatsReport = (modelConverterResult) => {
       warnings: input.warnings,
       errors: input.errors
     };
+  }
+  for (const sceneModelId in modelConverterResult.scene.models) {
+    const sceneModel = modelConverterResult.scene.models[sceneModelId];
+    modelConverterStatsReport.sceneModels[sceneModelId] = sceneModel.stats;
+  }
+  for (const dataModelId in modelConverterResult.data.models) {
+    const dataModel = modelConverterResult.data.models[dataModelId];
+    modelConverterStatsReport.dataModels[dataModelId] = dataModel.stats;
   }
   for (const outputId in modelConverterResult.outputs) {
     const output = modelConverterResult.outputs[outputId];

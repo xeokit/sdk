@@ -2,7 +2,7 @@ import type {Capabilities} from "../core";
 import type {PickParams} from "./PickParams";
 import type {PickResult} from "./PickResult";
 import type {RendererObject} from "../scene";
-import type {SceneModel} from "../scene";
+import type {SceneModel} from "../scene/SceneModel";
 import type {SDKError} from "../core";
 import type {View} from "./View";
 import type {Viewer} from "./Viewer";

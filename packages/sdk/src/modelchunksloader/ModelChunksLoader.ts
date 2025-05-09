@@ -1,8 +1,8 @@
-import type {DataModel} from "../data";
+import type {DataModel} from "../data/DataModel";
 import {DataModelParamsLoader} from "../data/DataModelParamsLoader";
 import type {ModelChunksManifestParams} from "../core";
 import type {ModelLoader} from "../io";
-import type {SceneModel} from "../scene";
+import type {SceneModel} from "../scene/SceneModel";
 
 /**
  * Loads a SceneModel and/or DataModel from a set of chunk files.

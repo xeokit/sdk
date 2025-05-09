@@ -71,23 +71,14 @@ Example:
     }
   }
 
-  logInfo(`Running pipeline '${argv.pipeline}'`);
+  logInfo(`Running conversion pipeline '${argv.pipeline}'`);
 
   const conversionParams = {
     pipeline: argv.pipeline,
     inputs: {}
   };
 
-  const statsReport = {
-    description: "xeoconvert conversion stats",
-    command: `node xeoconvert.js ${process.argv.slice(2).join(' ')}`,
-    time: (new Date()).toISOString(), // "2025-04-23T18:30:00.000Z"
-    pipeline: argv.pipeline,
-    inputs: {},
-    sceneModels: {},
-    dataModels: {},
-    outputs: {}
-  };
+  logInfo(`Reading inputs`);
 
   for (let inputId in pipeline.inputs) {
 
@@ -116,39 +107,23 @@ Example:
         break;
     }
 
-    conversionParams.inputs[inputId] = fileData;
-
-    statsReport.inputs[inputId] = {
-      filePath: inputFilePath,
-      fileFormat: modelLoader.format,
-      fileFormatVersion: modelLoader.getVersion(fileData), // Inefficient?
-      fileDataSizeBytes,
-      fileDataType: modelLoader.fileDataType,
-      options: pipeline.inputs[inputId].options || {},
-      sceneModel: pipelineInput.sceneModel || "default",
-      dataModel: pipelineInput.dataModel || "default",
-      messages: [],
-      warnings: [],
-      errors: []
-    };
+    conversionParams.inputs[inputId] = {fileData};
   }
+
+  logInfo(`Converting`);
 
   modelConverter
     .convert(conversionParams)
     .then(modelConverterResult => {
 
+      logInfo(`Conversion complete`);
+      logInfo(`Writing outputs`);
+
       for (let inputId in pipeline.inputs) {
-
-        const pipelineInput = pipeline.inputs[inputId];
-        const sceneModelId = pipelineInput.sceneModel || "default";
-        const dataModelId = pipelineInput.dataModel || "default";
-
-        if (!statsReport.sceneModels[sceneModelId]) {
-          const sceneModel = modelConverterResult.scene.models[sceneModelId];
-          statsReport.sceneModels[sceneModelId] = {aabb: Array.from(sceneModel.aabb), ...sceneModel.stats};
-        }
-        if (!statsReport.dataModels[dataModelId]) {
-          statsReport.dataModels[dataModelId] = modelConverterResult.data.models[dataModelId].stats;
+        const inputValue = modelConverterResult.inputs[inputId];
+        if (inputValue) {
+          const inputFilePath = argv[inputId];
+          inputValue.filePath = inputFilePath;
         }
       }
 
@@ -180,36 +155,7 @@ Example:
             break;
         }
 
-        const statsReportOutput = {
-          filePath: outputFilePath,
-          fileFormat: outputValue.format,
-          fileFormatVersion: outputValue.version,
-          fileDataSizeBytes: outputValue.fileData.byteLength,
-          fileDataType: outputValue.fileDataType,
-          options: pipeline.outputs[outputId].options || {},
-          messages: [],
-          warnings: [],
-          errors: []
-        };
-
-        const sceneModelId = outputValue.sceneModel || "default";
-        if (!statsReport.sceneModels[sceneModelId]) {
-          const sceneModel = modelConverterResult.scene.models[sceneModelId];
-          if (sceneModel) {
-            const sceneModel = modelConverterResult.scene.models[sceneModelId];
-            statsReport.sceneModels[sceneModelId] = {aabb: Array.from(sceneModel.aabb), ...sceneModel.stats};
-          }
-        }
-        statsReportOutput.sceneModel = sceneModelId;
-        const dataModelId = outputValue.dataModel || "default";
-        if (!statsReport.dataModels[dataModelId]) {
-          const dataModel = modelConverterResult.data.models[dataModelId];
-          if (dataModel) {
-            statsReport.dataModels[dataModelId] = dataModel.stats;
-          }
-        }
-        statsReportOutput.dataModel = dataModelId;
-        statsReport.outputs[outputId] = statsReportOutput;
+        outputValue.filePath = outputFilePath;
       }
 
       for (let reporterId in reporters) {
@@ -220,9 +166,7 @@ Example:
             logError(`Error: Unknown report type '${reporterId}'. Available options: ${Object.keys(reporters).join(", ")}`);
             process.exit(-1);
           } else {
-            const report = reporter({
-              modelConverterResult
-            });
+            const report = reporter(modelConverterResult);
             if (!report) {
               logError(`Error: Reporter '${reporterId}' failed to generate report.`);
               process.exit(-1);

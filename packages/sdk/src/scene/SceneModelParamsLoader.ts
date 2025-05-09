@@ -1,4 +1,4 @@
-import {ModelLoader} from "./../io/ModelLoader";
+import {ModelLoader } from "./../io/ModelLoader";
 import {parse as parse_1_0} from "./versions/1_0/parse"
 import {SceneModel} from "./SceneModel";
 

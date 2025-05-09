@@ -18,7 +18,7 @@ import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 import type {ModelLoadParams} from "../io";
 import {ModelLoader} from "../io";
 import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams} from "../scene";
-import type {DataModel} from "../data";
+import type {DataModel} from "../data/DataModel";
 import type {FloatArrayParam} from "../math";
 import {parse} from '@loaders.gl/core';
 

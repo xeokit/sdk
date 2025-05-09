@@ -106,6 +106,9 @@ export class ModelConverter {
         if (!loader) {
           return reject(`Can't resolve loader "${loaderId}", referenced by input "${inputId}" of pipeline "${pipelineId}"`);
         }
+        if (!conversionParamsInputs[inputId]) {
+          return reject(`Argument expected for pipeline "${pipelineId}": "${inputId}"`);
+        }
       }
 
       const pipelineOutputs = pipeline.outputs || {};
@@ -136,6 +139,7 @@ export class ModelConverter {
       };
 
       const processInputs = async () => {
+
         for (const pipelineInputId of pipelineInputIds) {
           const pipelineInput = pipelineInputs[pipelineInputId];
           const {filePath, fileData} = conversionParamsInputs[pipelineInputId];
@@ -155,11 +159,11 @@ export class ModelConverter {
                 fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
                 break;
               case "json":
-                fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
+                fileDataSizeBytes = (new TextEncoder()).encode(JSON.stringify(fileData)).length;
                 break;
               default:
-                fileData = fileIO.load(filePath);
-                fileDataSizeBytes = fileData.buffer.byteLength;
+             //   fileData = await fileIO.load(filePath);
+                fileDataSizeBytes = fileData.buffer ? fileData.buffer.byteLength : 0;
                 break;
             }
 
@@ -201,7 +205,6 @@ export class ModelConverter {
             }).catch(err => {
               reject(`Failed to load source file: ${err}`);
             });
-
           } else {
             await loadFileData(fileData);
           }
@@ -264,10 +267,10 @@ export class ModelConverter {
                 fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
                 break;
               case "json":
-                fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
+                fileDataSizeBytes = (new TextEncoder()).encode(JSON.stringify(fileData)).length;
                 break;
               default:
-                fileDataSizeBytes = fileData.buffer.byteLength;
+                fileDataSizeBytes = fileData.byteLength;
                 break;
             }
             modelConverterResult.outputs[pipelineOutputId] = {
@@ -300,36 +303,6 @@ export class ModelConverter {
           }
         }
       };
-
-      // const buildReports = () => {
-      //     const reporterIds = modelConverterRequest.reports || [];
-      //     for (const reporterId of reporterIds) {
-      //         const reporter = this.reporters[reporterId];
-      //         if (!reporter) {
-      //             continue;
-      //         }
-      //         const report = reporter({
-      //             modelConverterResult
-      //         });
-      //         modelConverterResult.reports[reporterId] = {
-      //             //report,
-      //             //filePath
-      //         };
-      //         if (!report) {
-      //             // logError(`Reporter '${reporterId}' failed to generate report.`);
-      //             continue;
-      //         }
-      //         modelConverterResult.reports[reporterId] = {
-      //             // Add any metadata if needed
-      //         };
-      //         const dirName = path.dirname(reportPath);
-      //         if (dirName && !fs.existsSync(dirName)) {
-      //             fs.mkdirSync(dirName, {recursive: true});
-      //         }
-      //         // logInfo(`Reporter '${reporterId}' writing report to ${reportPath}`);
-      //         fs.writeFileSync(reportPath, JSON.stringify(report, null, 4));
-      //     }
-      // };
 
       const runPipeline = async (): Promise<ModelConverterResult> => {
         await processInputs();

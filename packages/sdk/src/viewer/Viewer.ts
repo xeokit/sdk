@@ -4,7 +4,7 @@ import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "../math";
 import type {Renderer} from "./Renderer";
 import {Scene} from "../scene";
-import type {SceneModel} from "../scene";
+import type {SceneModel} from "../scene/SceneModel";
 import {scheduler} from "./scheduler";
 import type {TickParams} from "./TickParams";
 import {View} from "./View";

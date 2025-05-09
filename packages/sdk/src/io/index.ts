@@ -14,7 +14,7 @@
 export {ModelLoader} from "./ModelLoader";
 export * from "./ModelExporter";
 export * from "./ModelLoaderParams";
-export * from "./ModelLoadParams";
+export {type ModelLoadParams} from "./ModelLoadParams";
 export * from "./ModelExportParams";
 export * from "./ModelEncoder";
 export * from "./ModelEncodeParams";

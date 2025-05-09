@@ -8,7 +8,5 @@ export interface ModelConverterManifestReport {
   /**
    * Information on each file in the manifest report.
    */
-  files: {
-    [key: string]: ModelConverterManifestReportFile;
-  }
+  files: ModelConverterManifestReportFile[];
 }

@@ -12,7 +12,7 @@ const fileIO = createFileIO();
 /**
  * Loads a model file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
  */
-export  class ModelLoader {
+export class ModelLoader {
 
   /**
    * The loaded model file format.

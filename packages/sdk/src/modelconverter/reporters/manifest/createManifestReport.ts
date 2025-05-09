@@ -27,29 +27,24 @@ export const createManifestReport: (modelConverterResult: ModelConverterResult) 
  * @param modelConverterResult - The parameters that include the model converter result and scene data.
  * @returns An object mapping file identifiers to their respective metadata {@link ModelConverterManifestReportFile | ModelConverterManifestReportFile}.
  */
-function getEntries(modelConverterResult: ModelConverterResult): { [key: string]: ModelConverterManifestReportFile } {
-  const entries = {};
-
+function getEntries(modelConverterResult: ModelConverterResult):  ModelConverterManifestReportFile[]  {
+  const entries = [];
   // Determine which files to catalog: outputs if they exist, otherwise inputs
-  const inputEntries = (Object.keys(modelConverterResult.outputs).length === 0)
+  const inputEntries = (!modelConverterResult.outputs || Object.keys(modelConverterResult.outputs).length === 0)
     ? modelConverterResult.inputs // Case 1: Cataloging files without converting anything
     : modelConverterResult.outputs;
-
-  // Iterate through the selected entries (inputs or outputs)
   for (let id in inputEntries) {
     const inputEntry = inputEntries[id];
-
-    // Populate the report with file details, including AABB if available
-    entries[id] = {
-      filePath: inputEntry.filePath,
+    entries.push({
+      filePath: (inputEntry.filePath || "").split('/').pop(),
       fileFormat: inputEntry.fileFormat,
       fileFormatVersion: inputEntry.fileFormatVersion,
-      fileDataSizeBytes: inputEntry.fileDataSizeBytes,
+    //  fileDataSizeBytes: inputEntry.fileDataSizeBytes,
       fileDataType: inputEntry.fileDataType,
-      options: inputEntry.options,
-      aabb: Array.from(Array.from(modelConverterResult.scene.models[inputEntry.sceneModel].aabb || [0, 0, 0, 0, 0, 0]))
-    };
+      options: inputEntry.options
+      //,
+      //aabb: Array.from(Array.from(modelConverterResult.scene.models[inputEntry.sceneModel].aabb || [0, 0, 0, 0, 0, 0]))
+    });
   }
-
   return entries;
 }

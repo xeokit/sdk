@@ -56,6 +56,7 @@
  *     }
  *     class ModelLoadParams {
  *         <<parameter>>
+ *         filePath
  *         fileData
  *         sceneModel
  *         dataModel
@@ -128,23 +129,18 @@
  *
  * const ifcLoader = new IFCLoader();
  *
- * fetch("model.bim")
- *     .then(response => response.json())
- *     .then(fileData => {
- *         ifcLoader.load({ fileData, sceneModel, dataModel })
- *             .then(() => {
- *                 sceneModel.build();
- *                 dataModel.build();
- *             })
- *             .catch(err => {
- *                 sceneModel.destroy();
- *                 dataModel.destroy();
- *                 console.error(`Error loading IFC: ${err}`);
- *             });
- *     })
- *     .catch(err => {
- *         console.error(`Error fetching IFC file: ${err}`);
- *     });
+ * ifcLoader.load({
+ *       filePath:"model.ifc",
+ *       sceneModel,
+ *       dataModel
+ *    }).then(() => {
+ *        sceneModel.build();
+ *        dataModel.build();
+ *    }).catch(err => {
+ *        sceneModel.destroy();
+ *        dataModel.destroy();
+ *        console.error(`Error loading IFC: ${err}`);
+ *    });
  * ```
  *
  * ### Exporting to IFC

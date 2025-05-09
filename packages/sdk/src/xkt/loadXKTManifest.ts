@@ -1,7 +1,7 @@
-import type {DataModel} from "../data";
+import type {DataModel} from "../data/DataModel";
 import {DataModelParamsLoader} from "../data";
 import {MetaModelLoader} from "../metamodel";
-import type {SceneModel} from "../scene";
+import type {SceneModel} from "../scene/SceneModel";
 import {XKTLoader} from "./XKTLoader";
 
 /**

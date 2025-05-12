@@ -2,8 +2,9 @@
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 import {DemoHelper} from "../../js/DemoHelper.js";
 
-// Create a ModelConverter instance configured to convert .BIM files into IFC and DataModelParams formats.
-// We configure the ModelConverter with a DotBIMLoader to load .BIM and an IFCExporter to export IFC.
+// Create a ModelConverter instance configured to convert our .BIM file into IFC.
+// We configure the ModelConverter with a DotBIMLoader to load BIM files and an IFCExporter to export IFC format. We'll also
+// configure the ModelConveter with a single pipeline, "dotbim2ifc", which connects our loader and exporters together into a pipeline.
 
 const modelConverter = new xeokit.modelconverter.ModelConverter({
   loaders: {

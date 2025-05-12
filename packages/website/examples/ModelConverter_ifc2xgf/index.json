@@ -1,7 +1,7 @@
 {
-  "id": "ModelConverter_IFC_XGF",
+  "id": "ModelConverter_ifc2xgf",
   "title": "Viewing IFC using ModelConverter and XGFLoader",
-  "description": "How to convert a BIM model from IFC format into XGF and directly load that into a xeokit web viewer.",
+  "description": "Use ModelConverter to convert a model from IFC format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [

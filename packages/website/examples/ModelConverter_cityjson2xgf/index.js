@@ -4,11 +4,11 @@ import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
 import {DemoHelper} from "../../js/DemoHelper.js";
 
-// Create a ModelConverter configured to convert CityJSON files into XGF and DataModelParams formats.
-// The ModelConverter uses:
-// - CityJSONLoader to load CityJSON files
-// - XGFExporter to export geometry and materials to XGF format
-// - DataModelParamsExporter to export semantic data
+// Create a ModelConverter instance configured to convert CityJSON files into XGF and DataModelParams formats.
+// We configure the ModelConverter with a CityJSONLoader to load CityJSON files, an XGFExporter to export the geometry to XGF format,
+// and a DataModelParamsExporter to export semantic data. We'll also configure the ModelConveter with a single pipeline, "cityjson2xgf",
+// which connects our loader and exporters together into a pipeline.
+
 const modelConverter = new xeokit.modelconverter.ModelConverter({
   loaders: {
     "cityjson": new xeokit.cityjson.CityJSONLoader()

@@ -173,7 +173,7 @@
  *                 },
  *                 datamodel: {
  *                     loader: "datamodel",
- *                     sceneModel: "myDataModel",
+ *                     dataModel: "myDataModel",
  *                     options: {}
  *                 }
  *             },
@@ -181,7 +181,7 @@
  *                 dotbim: {
  *                     exporter: "dotbim",
  *                     sceneModel: "mySceneModel",
- *                     sceneModel: "myDataModel",
+ *                     dataModel: "myDataModel",
  *                     version: "1.1",
  *                     options: {}
  *                 }

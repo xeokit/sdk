@@ -1,7 +1,7 @@
 {
-  "id": "ModelConverter_DotBIM_IFC",
+  "id": "ModelConverter_dotbim2ifc",
   "title": "Viewing .BIM using ModelConverter and IFCLoader",
-  "description": "How to convert a BIM model from dotbim (.bim) format into IFC and directly load that into a xeokit web viewer.",
+  "description": "Use ModelConverter to convert a model from dotbim (.bim) format to IFC, then use IFCLoader to view the IFC in a xeokit web viewer.",
   "isTutorial": true,
   "isVisualTest": true,
   "tags": [

@@ -87,7 +87,7 @@
     },
     "example_ModelConverter_CityJSON_XGF": {
       "title": "Viewing CityJSON using ModelConverter and XGFLoader",
-      "description": "How to convert a model from CityJSON format into XGF and directly load that into a xeokit web viewer.",
+      "description": "Use ModelConverter to convert a model from CityJSON format to XGF, then use XGFLoader to view the XGF in a xeokit web viewer.",
       "tags": [
         "Tutorial",
         "Example",
@@ -98,7 +98,7 @@
     },
     "example_ModelConverter_DotBIM_IFC": {
       "title": "Viewing .BIM using ModelConverter and IFCLoader",
-      "description": "How to convert a BIM model from dotbim (.bim) format into IFC and directly load that into a xeokit web viewer.",
+      "description": "Use ModelConverter to convert a model from dotbim (.bim) format to IFC, then use IFCLoader to view the IFC in a xeokit web viewer.",
       "tags": [
         "Tutorial",
         "Example",
@@ -109,7 +109,7 @@
     },
     "example_ModelConverter_DotBIM_XGF": {
       "title": "Viewing .BIM using ModelConverter and XGFLoader",
-      "description": "How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer.",
+      "description": "Use ModelConverter to convert an IFC model from dotbim (.bim) format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer.",
       "tags": [
         "Tutorial",
         "Example",
@@ -120,7 +120,62 @@
     },
     "example_ModelConverter_IFC_XGF": {
       "title": "Viewing IFC using ModelConverter and XGFLoader",
-      "description": "How to convert a BIM model from IFC format into XGF and directly load that into a xeokit web viewer.",
+      "description": "Use ModelConverter to convert a model from IFC format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "IFC"
+      ],
+      "topic": "import.ifc"
+    },
+    "example_ModelConverter_cityjson2xgf": {
+      "title": "Viewing CityJSON using ModelConverter and XGFLoader",
+      "description": "Use ModelConverter to convert a model from CityJSON format to XGF, then use XGFLoader to view the XGF in a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "CityJSON"
+      ],
+      "topic": "import.cityjson"
+    },
+    "example_ModelConverter_dotbim2ifc": {
+      "title": "Viewing .BIM using ModelConverter and IFCLoader",
+      "description": "Use ModelConverter to convert a model from dotbim (.bim) format to IFC, then use IFCLoader to view the IFC in a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "DotBIM"
+      ],
+      "topic": "import.dotbim"
+    },
+    "example_ModelConverter_dotbim2json": {
+      "title": "Viewing .BIM using ModelConverter and IFCLoader",
+      "description": "Use ModelConverter to convert a model from dotbim (.bim) format to JSON SceneModelParams and DataModelParams, then use SceneModelParamsLoader and DataModelParamsLoader to view the model in a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "DotBIM"
+      ],
+      "topic": "import.dotbim"
+    },
+    "example_ModelConverter_dotbim2xgf": {
+      "title": "Viewing .BIM using ModelConverter and XGFLoader",
+      "description": "Use ModelConverter to convert an IFC model from dotbim (.bim) format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "DotBIM"
+      ],
+      "topic": "import.dotbim"
+    },
+    "example_ModelConverter_ifc2xgf": {
+      "title": "Viewing IFC using ModelConverter and XGFLoader",
+      "description": "Use ModelConverter to convert a model from IFC format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer.",
       "tags": [
         "Tutorial",
         "Example",
@@ -473,6 +528,7 @@
       "dotbim2xgf",
       "example_IFCLoader_IfcOpenHouse4",
       "example_ModelConverter_IFC_XGF",
+      "example_ModelConverter_ifc2xgf",
       "ifc2gltf",
       "ifc2gltf2xgf",
       "overview-pipelines"
@@ -483,6 +539,9 @@
       "example_DotBIMLoader_BlenderHouse",
       "example_ModelConverter_DotBIM_IFC",
       "example_ModelConverter_DotBIM_XGF",
+      "example_ModelConverter_dotbim2ifc",
+      "example_ModelConverter_dotbim2json",
+      "example_ModelConverter_dotbim2xgf",
       "overview-pipelines"
     ],
     "glTF": [
@@ -497,6 +556,7 @@
       "dev-status",
       "example_CityJSONLoader_Railway",
       "example_ModelConverter_CityJSON_XGF",
+      "example_ModelConverter_cityjson2xgf",
       "overview-pipelines"
     ],
     "Featured": [
@@ -517,6 +577,11 @@
       "example_ModelConverter_DotBIM_IFC",
       "example_ModelConverter_DotBIM_XGF",
       "example_ModelConverter_IFC_XGF",
+      "example_ModelConverter_cityjson2xgf",
+      "example_ModelConverter_dotbim2ifc",
+      "example_ModelConverter_dotbim2json",
+      "example_ModelConverter_dotbim2xgf",
+      "example_ModelConverter_ifc2xgf",
       "example_SceneModel_DataModel_build_table",
       "example_SceneModel_DataModel_fromParams_IfcOpenHouse4",
       "example_SceneModel_build_box",
@@ -548,6 +613,11 @@
       "example_ModelConverter_DotBIM_IFC",
       "example_ModelConverter_DotBIM_XGF",
       "example_ModelConverter_IFC_XGF",
+      "example_ModelConverter_cityjson2xgf",
+      "example_ModelConverter_dotbim2ifc",
+      "example_ModelConverter_dotbim2json",
+      "example_ModelConverter_dotbim2xgf",
+      "example_ModelConverter_ifc2xgf",
       "example_SceneModel_DataModel_build_table",
       "example_SceneModel_DataModel_fromParams_IfcOpenHouse4",
       "example_SceneModel_build_box",
@@ -587,7 +657,12 @@
       "example_ModelConverter_CityJSON_XGF",
       "example_ModelConverter_DotBIM_IFC",
       "example_ModelConverter_DotBIM_XGF",
-      "example_ModelConverter_IFC_XGF"
+      "example_ModelConverter_IFC_XGF",
+      "example_ModelConverter_cityjson2xgf",
+      "example_ModelConverter_dotbim2ifc",
+      "example_ModelConverter_dotbim2json",
+      "example_ModelConverter_dotbim2xgf",
+      "example_ModelConverter_ifc2xgf"
     ],
     "webifc2xgf": [
       "example_IFCLoader_IfcOpenHouse4"

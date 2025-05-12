@@ -1,6 +1,6 @@
 
 ---
-##### How to convert a model from CityJSON format into XGF and directly load that into a xeokit web viewer. 
+##### Use ModelConverter to convert a model from CityJSON format to XGF, then use XGFLoader to view the XGF in a xeokit web viewer. 
 ##### Click on the preview below to run the example. Scroll down to learn how it's made.
 ---
 

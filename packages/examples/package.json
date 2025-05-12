@@ -1,0 +1,20 @@
+{
+  "name": "@xeokit/examples",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@xeokit/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "typescript": "~5.7.2",
+    "vite": "^6.3.1",
+    "vite-plugin-singlefile": "^2.2.0"
+  }
+}

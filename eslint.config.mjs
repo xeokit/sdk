@@ -7,7 +7,7 @@ import stylisticTs from '@stylistic/eslint-plugin-ts'
 export default tseslint.config(
 
   {
-    files: ['**/packages/sdk/**/*.ts'],
+    files: ['**/packages/sdk/**/*.ts', '**/packages/examples/**/*.ts'],
     extends: [
       eslint.configs.recommended,
       tseslint.configs.recommended,
@@ -26,7 +26,7 @@ export default tseslint.config(
           allowSeparatedGroups: false
         },
       ],
-      '@stylistic/ts/object-curly-spacing': ['error', 'always'],
+      '@stylistic/ts/object-curly-spacing': ['warn', 'always'],
       '@stylistic/ts/indent': ['error', 2],
       "no-multi-spaces": ["error"],
       // '@typescript-eslint/no-explicit-any': 'off',

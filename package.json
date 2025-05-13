@@ -21,8 +21,8 @@
         "website-build-xeokit-lib": "pnpm --filter @xeokit/website website-build-xeokit-lib",
         "website-convert-models": "pnpm website-build-xeokit-lib && pnpm --filter @xeokit/website website-convert-models",
         "website-example-snapshots": "pnpm website-convert-models && pnpm --filter @xeokit/website website-example-snapshots",
-        "website-build": "pnpm website-example-snapshots && pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build",
-        "website-build-local": "pnpm website-example-snapshots && pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local"
+        "website-build": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build && pnpm website-example-snapshots",
+        "website-build-local": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local && pnpm website-example-snapshots"
     },
     "devDependencies": {
         "@changesets/cli": "^2.27.1",

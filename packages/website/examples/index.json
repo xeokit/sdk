@@ -86,10 +86,10 @@
     "topic": "import.las",
     "template": "basicPage"
   },
-  "ModelConverter_CityJSON_XGF": {
-    "id": "ModelConverter_CityJSON_XGF",
+  "ModelConverter_cityjson2xgf": {
+    "id": "ModelConverter_cityjson2xgf",
     "title": "Viewing CityJSON using ModelConverter and XGFLoader",
-    "description": "How to convert a model from CityJSON format into XGF and directly load that into a xeokit web viewer.",
+    "description": "Use ModelConverter to convert a model from CityJSON format to XGF, then use XGFLoader to view the XGF in a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
@@ -103,10 +103,10 @@
     "topic": "import.cityjson",
     "template": "basicPage"
   },
-  "ModelConverter_DotBIM_IFC": {
-    "id": "ModelConverter_DotBIM_IFC",
+  "ModelConverter_dotbim2ifc": {
+    "id": "ModelConverter_dotbim2ifc",
     "title": "Viewing .BIM using ModelConverter and IFCLoader",
-    "description": "How to convert a BIM model from dotbim (.bim) format into IFC and directly load that into a xeokit web viewer.",
+    "description": "Use ModelConverter to convert a model from dotbim (.bim) format to IFC, then use IFCLoader to view the IFC in a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
@@ -120,10 +120,27 @@
     "topic": "import.dotbim",
     "template": "basicPage"
   },
-  "ModelConverter_DotBIM_XGF": {
-    "id": "ModelConverter_DotBIM_XGF",
+  "ModelConverter_dotbim2json": {
+    "id": "ModelConverter_dotbim2json",
+    "title": "Viewing .BIM using ModelConverter and IFCLoader",
+    "description": "Use ModelConverter to convert a model from dotbim (.bim) format to JSON SceneModelParams and DataModelParams, then use SceneModelParamsLoader and DataModelParamsLoader to view the model in a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Importing",
+      "DotBIM"
+    ],
+    "categories": [
+      "Importing",
+      "DotBIM"
+    ],
+    "topic": "import.dotbim",
+    "template": "basicPage"
+  },
+  "ModelConverter_dotbim2xgf": {
+    "id": "ModelConverter_dotbim2xgf",
     "title": "Viewing .BIM using ModelConverter and XGFLoader",
-    "description": "How to convert a BIM model from dotbim (.bim) format into XGF and directly load that into a xeokit web viewer.",
+    "description": "Use ModelConverter to convert an IFC model from dotbim (.bim) format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
@@ -137,10 +154,10 @@
     "topic": "import.dotbim",
     "template": "basicPage"
   },
-  "ModelConverter_IFC_XGF": {
-    "id": "ModelConverter_IFC_XGF",
+  "ModelConverter_ifc2xgf": {
+    "id": "ModelConverter_ifc2xgf",
     "title": "Viewing IFC using ModelConverter and XGFLoader",
-    "description": "How to convert a BIM model from IFC format into XGF and directly load that into a xeokit web viewer.",
+    "description": "Use ModelConverter to convert a model from IFC format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [

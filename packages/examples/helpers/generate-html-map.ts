@@ -1,6 +1,11 @@
 // This script generates a JSON file that maps directories to their index.html files.
 // It is used to create a list of examples for the SDK documentation.
 // This script is run by Vite during the build process and when the server starts.
+// {
+//   'src/IFCLoader_IfcOpenHouse4': 'src/IFCLoader_IfcOpenHouse4/index.html',
+//   'src/DotBIMLoader_BlenderHouse': 'src/DotBIMLoader_BlenderHouse/index.html',
+//   'src/aaa/DotBIMLoader_BlenderHouse': 'src/aaa/DotBIMLoader_BlenderHouse/index.html'
+// }
 
 import fs from 'fs';
 import { glob } from 'glob';
@@ -28,14 +33,6 @@ export async function generateHtmlMap() {
       }
       map[dirName] = path.join(dirName, "index.html");
     });
-    console.log("masdasd")
-    console.log(map)
-
-    // {
-    //   'src/IFCLoader_IfcOpenHouse4': 'src/IFCLoader_IfcOpenHouse4/index.html',
-    //   'src/DotBIMLoader_BlenderHouse': 'src/DotBIMLoader_BlenderHouse/index.html',
-    //   'src/aaa/DotBIMLoader_BlenderHouse': 'src/aaa/DotBIMLoader_BlenderHouse/index.html'
-    // }
 
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(map, null, 2));
     console.log(`✅ HTML map generated at ${OUTPUT_FILE}`);

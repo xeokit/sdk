@@ -1,27 +1,12 @@
 import { defineConfig } from 'vite'
-import fs from 'fs'
+
+import { generateHtmlMap } from './helpers/generate-html-map'
+import { getPageEntries } from './helpers/generate-page-entries'
 import path from 'path';
-import { resolve } from 'path'
+
 import { viteSingleFile } from "vite-plugin-singlefile"
 
-// Function to find all HTML files in src directory
-function getPageEntries() {
-  const pagesDir = resolve(__dirname, 'src')
-  const entries = {}
 
-  // Find all HTML files in src and its subdirectories
-  fs.readdirSync(pagesDir).forEach(dir => {
-    const dirPath = resolve(pagesDir, dir)
-    if (fs.statSync(dirPath).isDirectory()) {
-      const htmlPath = resolve(dirPath, 'index.html')
-      if (fs.existsSync(htmlPath)) {
-        entries[dir] = htmlPath
-      }
-    }
-  })
-
-  return entries
-}
 
 export default defineConfig({
 
@@ -34,7 +19,27 @@ export default defineConfig({
   plugins: [
     viteSingleFile(
       { useRecommendedBuildConfig: false }
-    )
+    ),
+    {
+      name: 'html-map-generator',
+      configureServer(server) {
+        // Run script when dev server starts
+        generateHtmlMap().catch(console.error);
+
+        // Watch for HTML file changes in development
+        // server.watcher.add('src/**/*');
+        server.watcher.on('all', (path) => {
+          // console.log(`File changed: ${path}`);
+
+          generateHtmlMap().catch(console.error);
+        });
+
+      },
+      buildStart() {
+        // Run script at build start
+        generateHtmlMap().catch(console.error);
+      }
+    }
   ],
 
   // Configure esbuild options for JS/TS
@@ -52,7 +57,7 @@ export default defineConfig({
     cssMinify: false,
 
     rollupOptions: {
-      input: getPageEntries(),
+      input: getPageEntries(__dirname),
       output: {
         entryFileNames: 'assets/[name].[hash].js',
         chunkFileNames: 'assets/[name].[hash].js',

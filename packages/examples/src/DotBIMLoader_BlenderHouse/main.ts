@@ -1,7 +1,9 @@
 
 import * as xeokit from "@xeokit/sdk"
 
-const model = "https://sos-ch-gva-2.exo.io/creoox-public/xeokit-sdk/model.bim"
+// const model = "https://sos-ch-gva-2.exo.io/creoox-public/xeokit-sdk/model.bim"
+const model = "https://raw.githubusercontent.com/xeokit/sdk/refs/heads/develop/packages/website/models/BlenderHouse/dotbim/model.bim"
+
 
 // Create a DotBIMLoader to load .BIM files
 const dotBIMLoader = new xeokit.dotbim.DotBIMLoader();
@@ -19,13 +21,14 @@ const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 const viewer = new xeokit.viewer.Viewer({
   id: "demoViewer",
   scene,
+
   renderer
 });
 
 // Give the Viewer a single View to render the Scene in our HTML canvas element
 const view = viewer.createView({
   id: "demoView",
-  elementId: "demoCanvas"
+  elementId: "demoCanvas" 
 });
 
 if (view instanceof xeokit.core.SDKError) {

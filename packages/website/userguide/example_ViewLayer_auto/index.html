@@ -281,7 +281,7 @@ demoHelper.<span class="hljs-title function_">init</span>()
             <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>,
             <span class="hljs-attr">layerId</span>: <span class="hljs-string">&quot;modelLayer&quot;</span>
         });
-        <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;../../models/models/IfcOpenHouse2x3/ifc2gltf/model.glb&quot;</span>).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
+        <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;../../models/IfcOpenHouse2x3/ifc2gltf/model.glb&quot;</span>).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
             response.<span class="hljs-title function_">arrayBuffer</span>().<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">fileData</span> =&gt;</span> {
                 gltfLoader.<span class="hljs-title function_">load</span>({fileData, sceneModel}).<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
                     sceneModel.<span class="hljs-title function_">build</span>();

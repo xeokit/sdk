@@ -1,6 +1,8 @@
 
 import * as xeokit from "@xeokit/sdk"
 
+import {Viewer} from "@xeokit/sdk/viewer"
+
 const model = "https://sos-ch-gva-2.exo.io/creoox-public/xeokit-sdk/models/BlenderHouse/dotbim/model.bim"
 
 

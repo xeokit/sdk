@@ -293,7 +293,7 @@ demoHelper.<span class="hljs-title function_">init</span>()
                 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Interface SceneModelParams</p>
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Parameters for a SceneModel.</p>
             </template>.</p>
-<pre class="code-section"><code class="hljs">            <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;../../models/Duplex/json/scenemodel.json&quot;</span>).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
+<pre class="code-section"><code class="hljs">            <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;../../models/Duplex/json/sceneModel.json&quot;</span>).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
                 response.<span class="hljs-title function_">json</span>().<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">sceneModelParams</span> =&gt;</span> {
 </code></pre>
 <p class="comment-block">
@@ -303,7 +303,7 @@ demoHelper.<span class="hljs-title function_">init</span>()
                 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Interface DataModelParams</p>
                 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Parameters used to define a DataModel.</p>
             </template>.</p>
-<pre class="code-section"><code class="hljs">                    <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;../../models/Duplex/json/datamodel.json&quot;</span>).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
+<pre class="code-section"><code class="hljs">                    <span class="hljs-title function_">fetch</span>(<span class="hljs-string">&quot;../../models/Duplex/json/dataModel.json&quot;</span>).<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">response</span> =&gt;</span> {
                         response.<span class="hljs-title function_">json</span>().<span class="hljs-title function_">then</span>(<span class="hljs-function"><span class="hljs-params">dataModelParams</span> =&gt;</span> {
                             dataModel.<span class="hljs-title function_">fromParams</span>(dataModelParams);
                             sceneModel.<span class="hljs-title function_">fromParams</span>(sceneModelParams);

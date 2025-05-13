@@ -30,6 +30,8 @@ const demoHelper = new DemoHelper({
     viewer
 });
 
+const dotBIMLoader = new xeokit.dotbim.DotBIMLoader();
+
 demoHelper.init()
     .then(() => {
 
@@ -63,7 +65,7 @@ demoHelper.init()
         fetch("../../../models/BlenderHouse/dotbim/model.bim").then(response => {
             response.json().then(fileData => {
 
-                xeokit.dotbim.DotBIMLoader.load({fileData, sceneModel, dataModel}).then(() => {
+                dotBIMLoader.load({fileData, sceneModel, dataModel}).then(() => {
 
                     // Build the SceneModel and DataModel
 

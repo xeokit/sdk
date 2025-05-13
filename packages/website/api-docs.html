@@ -1,33 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="xeokit - SDK for Browser-Based 3D BIM Visualization">
-    <meta name="author" content="Lindsay Kay">
-    <meta name="keywords"
-          content="BIM,IFC,WebGL,JavaScript,Browser,BCF,Web,xeolabs,3D,3D Viewer,Lindsay Kay,xeokit,MedViz,ArchViz,Open Source,Browser,Viewer">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="xeokit - SDK for Browser-Based 3D BIM Visualization">
+  <meta name="author" content="Lindsay Kay">
+  <meta name="keywords"
+        content="BIM,IFC,WebGL,JavaScript,Browser,BCF,Web,xeolabs,3D,3D Viewer,Lindsay Kay,xeokit,MedViz,ArchViz,Open Source,Browser,Viewer">
 
-    <title>xeokit - 3D Web Programming Toolkit for BIM and Engineering Visualization</title>
+  <title>xeokit - 3D Web Programming Toolkit for BIM and Engineering Visualization</title>
 
-    <link href="https://xeokit.github.io/sdk//libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://xeokit.github.io/sdk//css/business-frontpage.css" rel="stylesheet">
+  <link href="https://xeokit.github.io/sdk//libs/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://xeokit.github.io/sdk//css/business-frontpage.css" rel="stylesheet">
 
-    <link href="https://fonts.googleapis.com/css?family=Rubik" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Rubik" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
-    <script src="https://xeokit.github.io/sdk//libs/jquery/jquery.min.js"></script>
-    <script src="https://xeokit.github.io/sdk//libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="https://xeokit.github.io/sdk//libs/jquery/jquery.min.js"></script>
+  <script src="https://xeokit.github.io/sdk//libs/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-    <title></title>
+  <title></title>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top ">
     <span style="color: #ffffff;"><a class="navbar-home" href="http://xeolabs.com">xeolabs</a>/<a class="navbar-parent"
                                                                                                   href="https://xeokit.github.io/sdk//">@xeokit/sdk</a>/<a
-        class="navbar-brand" href="./index.html">API Docs</a>
-        <!-- /<a class="navbar-brand" href="./index.html"><span id="moduleName"></span></a>--></span>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+      class="navbar-brand" href="./index.html">API Docs</a>
+      <!-- /<a class="navbar-brand" href="./index.html"><span id="moduleName"></span></a>--></span>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
 </button>
 <div class="collapse navbar-collapse" id="navbarResponsive">
@@ -62,13 +62,13 @@
 </nav>
 
 <section id="intro" class=" alabaster">
-    <div class="container-fluid">
-        <div class="row iframe-container">
-            <div class="col-12 p-0">
-                <iframe id="autoIframe" src="https://xeokit.github.io/sdk//docs/api" title="Content frame"></iframe>
-            </div>
-        </div>
+  <div class="container-fluid">
+    <div class="row iframe-container">
+      <div class="col-12 p-0">
+        <iframe id="autoIframe" src="https://xeokit.github.io/sdk//docs/api" title="Content frame"></iframe>
+      </div>
     </div>
+  </div>
 </section>
 <footer class="py-5 bg-dark xeokit-footer">
     <div class="container pt-5">
@@ -139,77 +139,33 @@
 </body>
 <script>
 
-    const iframe = document.getElementById('autoIframe');
-    const iframeWindow = iframe.contentWindow;
+  const iframe = document.getElementById('autoIframe');
+  const iframeWindow = iframe.contentWindow;
 
-    iframe.style.height = "15000px";
+  iframe.style.height = "15000px";
 
-    function resizeIframe() {
+  function setIFrameToWindowHash() {
+    const newSrc = window.location.hash.substring(1);
+    if (newSrc !== "" && newSrc !== iframeWindow.location.pathname) {
+      iframe.src = newSrc;
     }
+  }
 
-    //setInterval(resizeIframe, 100);
-
-    function stripLeadingSlashes(str) {
-        return str.replace(/^\/+/, '');
+  iframe.onload = () => {
+    const iframeHash = iframeWindow.location.hash.substring(1);
+    if (iframeHash === "") {
+      window.scrollTo(0, 0);
+      iframeWindow.scrollTo(0, 0);
     }
-
-    function setIFrameToWindowHash() {
-        const windowHash = window.location.hash;
-        const i = windowHash.indexOf("___");
-        let path;
-        let hash;
-        if (i === -1) {
-            path = stripLeadingSlashes(windowHash.substring(1));
-            hash = null;
-        } else {
-            path = stripLeadingSlashes(windowHash.substring(1, i));
-            hash = windowHash.substring(i + 3);
-        }
-
-        if (hash && hash !== "") {
-            const newSrc = `https://xeokit.github.io/sdk//${path}#${hash}`;
-            if (iframe.src !== newSrc) {
-                iframe.src = newSrc;
-            }
-        } else {
-            const newSrc = (path && path !== "") ? `https://xeokit.github.io/sdk//${path}` : `https://xeokit.github.io/sdk//docs/api/modules.html`;
-            if (iframe.src !== newSrc) {
-                iframe.src = newSrc;
-                iframeWindow.scrollTo(0, 0);
-                window.scrollTo(0, 0);
-            }
-        }
+    const newHash = iframeWindow.location.pathname;
+    if (newHash !== window.location.hash.substring(1)) {
+      window.location.hash = newHash;
     }
+  };
 
-    iframe.onload = () => {
-        resizeIframe();
-        const iframeHash = iframeWindow.location.hash.substring(1);
-        if (iframeHash === "") {
-            window.scrollTo(0, 0);
-        iframeWindow.scrollTo(0, 0);
-    }
-        const newHash = iframeWindow.location.pathname + "___" + iframeHash;
-        if (newHash !== window.location.hash.substring(1)) {
-            window.location.hash = newHash;
-        }
-    };
+  setIFrameToWindowHash();
 
-
-     setIFrameToWindowHash();
-     window.addEventListener('hashchange', setIFrameToWindowHash);
-
-    iframeWindow.addEventListener('hashchange', ()=>{
-        const iframeHash = iframeWindow.location.hash.substring(1);
-        if (iframeHash === "") {
-            window.scrollTo(0, 0);
-            iframeWindow.scrollTo(0, 0);
-        }
-        const newHash = iframeWindow.location.pathname + "___" + iframeHash;
-        if (newHash !== window.location.hash.substring(1)) {
-            window.location.hash = newHash;
-        }
-    });
-
+  window.addEventListener('hashchange', setIFrameToWindowHash);
 
 </script>
 </html>

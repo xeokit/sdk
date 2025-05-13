@@ -74,13 +74,13 @@ demoHelper.init()
 
             // Load JSON parameters into our SceneModel. The parameters follow the schema defined by SceneModelParams.
 
-            fetch("../../models/Duplex/json/scenemodel.json").then(response => {
+            fetch("../../models/Duplex/json/sceneModel.json").then(response => {
 
                 response.json().then(sceneModelParams => {
 
                     // Load JSON parameters into our DataModel. The parameters follow the schema defined by DataModelParams.
 
-                    fetch("../../models/Duplex/json/datamodel.json").then(response => {
+                    fetch("../../models/Duplex/json/dataModel.json").then(response => {
 
                         response.json().then(dataModelParams => {
 

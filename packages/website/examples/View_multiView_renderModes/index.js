@@ -121,7 +121,7 @@ demoHelper.init()
 
         // Load a model from JSON-encoded format, which has the schema defined by SceneModelParams
 
-        fetch("../../models/models/Duplex/json/scenemodel.json").then(response => {
+        fetch("../../models/Duplex/json/scenemodel.json").then(response => {
             response.json().then(fileData => {
                 sceneModel.fromParams(fileData);
 

@@ -76,7 +76,7 @@ demoHelper.init()
                         // Create a ModelChunksLoader, equipped with an XGFLoader and a DataModelParamsLoader.
 
                         const modelChunksLoader = new xeokit.modelchunksloader.ModelChunksLoader({
-                            sceneModelLoader: new xeokit.xkt.XGFLoader(),
+                            sceneModelLoader: new xeokit.xgf.XGFLoader(),
                             dataModelLoader: new xeokit.data.DataModelReader()
                         });
 

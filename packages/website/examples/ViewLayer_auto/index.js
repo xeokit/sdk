@@ -67,7 +67,7 @@ demoHelper.init()
             layerId: "modelLayer"
         });
 
-        fetch("../../models/models/IfcOpenHouse2x3/ifc2gltf/model.glb").then(response => {
+        fetch("../../models/IfcOpenHouse2x3/ifc2gltf/model.glb").then(response => {
             response.arrayBuffer().then(fileData => {
                 gltfLoader.load({fileData, sceneModel}).then(() => {
                     sceneModel.build();

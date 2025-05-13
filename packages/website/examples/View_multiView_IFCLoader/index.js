@@ -112,7 +112,7 @@ demoHelper.init()
 
             // Use IFCLoader to load an IFC 4x3 model into our SceneModel and DataModel
 
-            fetch("../../models/models/IfcOpenHouse4/ifc/model.ifc").then(response => {
+            fetch("../../models/IfcOpenHouse4/ifc/model.ifc").then(response => {
 
                 response.arrayBuffer().then(fileData => {
 

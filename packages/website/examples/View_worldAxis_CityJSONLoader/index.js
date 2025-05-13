@@ -90,7 +90,7 @@ demoHelper.init()
 
         // Use CityJSONLoader to load a CityJSON into our SceneModel and DataModel
 
-        fetch("../../models/models/LoD3_Railway/cityjson/model.json")
+        fetch("../../models/LoD3_Railway/cityjson/model.json")
             .then(response => {
                 response
                     .json()

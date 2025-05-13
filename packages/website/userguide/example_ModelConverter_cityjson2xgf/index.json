@@ -1,6 +1,6 @@
 {
   "title": "Viewing CityJSON using ModelConverter and XGFLoader",
-  "description": "Use ModelConverter to convert a model from CityJSON format to XGF, then use XGFLoader to view the XGF in a xeokit web viewer.",
+  "description": "Use the ModelConverter class to convert a model from CityJSON format to XGF, then use XGFLoader to view the XGF in a xeokit web viewer.",
   "tags": [
     "Tutorial",
     "Example",

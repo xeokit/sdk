@@ -25,13 +25,15 @@
  *
  * # Usage
  *
- * ## Using the {@link ModelConverter | ModelConverter} Class
+ * ## Using the ModelConverter Class
  *
  * The {@link ModelConverter | ModelConverter} manages file format conversions via a set of predefined:
  *
  * - **{@link io!ModelLoader | ModelLoaders}**: loaders for input formats
  * - **{@link io!ModelExporter | ModelExporters}**: generators for output formats
  * - **Pipelines**: structured workflows describing how inputs are transformed into outputs
+ *
+ * <br>
  *
  * ## Converting a DotBIM file to XGF and DataModelParams JSON formats
  *

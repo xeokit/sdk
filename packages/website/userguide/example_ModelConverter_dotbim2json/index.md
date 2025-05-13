@@ -1,6 +1,6 @@
 
 ---
-##### Use ModelConverter to convert a model from dotbim (.bim) format to JSON SceneModelParams and DataModelParams, then use SceneModelParamsLoader and DataModelParamsLoader to view the model in a xeokit web viewer. 
+##### Use the ModelConverter class to convert a model from dotbim (.bim) format to JSON SceneModelParams and DataModelParams, then use SceneModelParamsLoader and DataModelParamsLoader to view the model in a xeokit web viewer. 
 ##### Click on the preview below to run the example. Scroll down to learn how it's made.
 ---
 

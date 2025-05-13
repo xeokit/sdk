@@ -1,6 +1,6 @@
 
 ---
-##### Use ModelConverter to convert an IFC model from dotbim (.bim) format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer. 
+##### Use the ModelConverter class to convert an IFC model from dotbim (.bim) format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer. 
 ##### Click on the preview below to run the example. Scroll down to learn how it's made.
 ---
 

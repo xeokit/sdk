@@ -18,7 +18,7 @@
   const reqParams = getRequestParams();
   const modelId = reqParams.modelId;
   const pipelineId = reqParams.pipelineId;
-  const baseDir = `../../models/${modelId}/${pipelineId}`;
+  const baseDir = `./${modelId}/${pipelineId}`;
 
   const formatLoaderClasses = {
     "XKT": xeokit.xkt.XKTLoader,

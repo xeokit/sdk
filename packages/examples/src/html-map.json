@@ -1,0 +1,5 @@
+{
+  "src/IFCLoader_IfcOpenHouse4": "src/IFCLoader_IfcOpenHouse4/index.html",
+  "src/DotBIMLoader_BlenderHouse": "src/DotBIMLoader_BlenderHouse/index.html",
+  "src/nested/DotBIMLoader_BlenderHouse": "src/nested/DotBIMLoader_BlenderHouse/index.html"
+}

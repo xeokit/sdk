@@ -9,6 +9,9 @@
     },
     "license": "SEE LICENSE IN LICENSE.md",
     "scripts": {
+        "examples:dev": "pnpm --filter @xeokit/examples dev",
+        "examples:build": "pnpm --filter @xeokit/examples build",
+        "examples:preview": "pnpm --filter @xeokit/examples preview",
         "lint": "eslint --cache .",
         "lint:fix": "eslint --fix .",
         "sdk-dist": "pnpm --filter @xeokit/sdk sdk-dist",

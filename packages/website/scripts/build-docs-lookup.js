@@ -51,30 +51,30 @@ function buildDocsLookup(docsDir) {
                 //   console.log("child.name, kind = " + child.name + " , " + child.kind)
                 switch (kind) {
                     case 4:
-                        entry.path = `/api-docs#/docs/api/modules/${child.name}.html`;
+                        entry.path = `/api-docs#./docs/api/modules/${child.name}.html`;
                         entry.kind = "module";
                         namespace = child.name;
                         parseChildren(namespace, child);
                         break;
                     case 128:
-                        entry.path = `/api-docs#/docs/api/classes/${namespace}.${child.name}.html`;
+                        entry.path = `/api-docs#./docs/api/classes/${namespace}.${child.name}.html`;
                         entry.kind = "class";
                         break;
                     case 32:
-                        entry.path = `/api-docs#/docs/api/variables/${namespace}.${child.name}.html`;
+                        entry.path = `/api-docs#./docs/api/variables/${namespace}.${child.name}.html`;
                         entry.kind = "variable";
                         break;
                     case 64:
-                        entry.path = `/api-docs#/docs/api/functions/${namespace}.${child.name}.html`;
+                        entry.path = `/api-docs#./docs/api/functions/${namespace}.${child.name}.html`;
                         entry.kind = "function";
                         break;
                     case 87:
                     case 256:
-                        entry.path = `/api-docs#/docs/api/interfaces/${namespace}.${child.name}.html`;
+                        entry.path = `/api-docs#./docs/api/interfaces/${namespace}.${child.name}.html`;
                         entry.kind = "interface";
                         break;
                     case 2097152:
-                        entry.path = `/api-docs#/docs/api/types/${namespace}.${child.name}.html`;
+                        entry.path = `/api-docs#./docs/api/types/${namespace}.${child.name}.html`;
                         entry.kind = "type";
                         break;
                     default:

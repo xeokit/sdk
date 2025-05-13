@@ -98,13 +98,13 @@
             <div class="col-lg-12">
                 <h2>Introduction</h2>
 <hr>
-<p>In this tutorial, we'll view a glTF model in the browser using a xeokit <a class="doc-link" data-template="Viewer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/viewer.Viewer.html" target="_parent">Viewer</a>
+<p>In this tutorial, we'll view a glTF model in the browser using a xeokit <a class="doc-link" data-template="Viewer_template"  href="https://xeokit.github.io/sdk//api-docs#./docs/api/classes/viewer.Viewer.html" target="_parent">Viewer</a>
 <template class="doc-link-tooltip" id="Viewer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewer / Viewer /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class Viewer</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">3D model viewer.</p>
 </template>. To optimize performance, we'll first
-convert the glTF file to an XGF file and a <a class="doc-link" data-template="DataModelParams_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/interfaces/data.DataModelParams.html" target="_parent">DataModelParams</a>
+convert the glTF file to an XGF file and a <a class="doc-link" data-template="DataModelParams_template"  href="https://xeokit.github.io/sdk//api-docs#./docs/api/interfaces/data.DataModelParams.html" target="_parent">DataModelParams</a>
 <template class="doc-link-tooltip" id="DataModelParams_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / data / DataModelParams /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Interface DataModelParams</p>
@@ -112,17 +112,17 @@ convert the glTF file to an XGF file and a <a class="doc-link" data-template="Da
 </template> JSON file. The import process consists of two steps:</p>
 <ol>
 <li>Use <code>xeoconvert</code> with option <strong><code>--pipeline ifc2xgf</code></strong> to convert glTF into XGF and JSON DataModelParams files.</li>
-<li>Use <a class="doc-link" data-template="XGFLoader_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/xgf.XGFLoader.html" target="_parent">XGFLoader</a>
+<li>Use <a class="doc-link" data-template="XGFLoader_template"  href="https://xeokit.github.io/sdk//api-docs#./docs/api/classes/xgf.XGFLoader.html" target="_parent">XGFLoader</a>
 <template class="doc-link-tooltip" id="XGFLoader_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / xgf / XGFLoader /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class XGFLoader</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Loads an XGF file into a SceneModel and/or a DataModel.</p>
-</template> and <a class="doc-link" data-template="DataModelParamsLoader_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/data.DataModelParamsLoader.html" target="_parent">DataModelParamsLoader</a>
+</template> and <a class="doc-link" data-template="DataModelParamsLoader_template"  href="https://xeokit.github.io/sdk//api-docs#./docs/api/classes/data.DataModelParamsLoader.html" target="_parent">DataModelParamsLoader</a>
 <template class="doc-link-tooltip" id="DataModelParamsLoader_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / data / DataModelParamsLoader /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class DataModelParamsLoader</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Reads DataModelParams into a DataModel.</p>
-</template> to load the XGF and JSON <a class="doc-link" data-template="DataModelParams_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/interfaces/data.DataModelParams.html" target="_parent">DataModelParams</a>
+</template> to load the XGF and JSON <a class="doc-link" data-template="DataModelParams_template"  href="https://xeokit.github.io/sdk//api-docs#./docs/api/interfaces/data.DataModelParams.html" target="_parent">DataModelParams</a>
 <template class="doc-link-tooltip" id="DataModelParams_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / data / DataModelParams /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Interface DataModelParams</p>
@@ -180,7 +180,7 @@ the xeoconvert CLI tool to do this conversion step:</p>
 <li><code>--pipeline</code> selects the conversion pipeline, <code>gltf2xgf</code></li>
 <li><code>--gltf</code> path to source glTF file</li>
 <li><code>--xkt</code> path to target XKT file</li>
-<li><code>--datamodel</code> path to target <a class="doc-link" data-template="DataModelParams_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/interfaces/data.DataModelParams.html" target="_parent">DataModelParams</a>
+<li><code>--datamodel</code> path to target <a class="doc-link" data-template="DataModelParams_template"  href="https://xeokit.github.io/sdk//api-docs#./docs/api/interfaces/data.DataModelParams.html" target="_parent">DataModelParams</a>
 <template class="doc-link-tooltip" id="DataModelParams_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / data / DataModelParams /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Interface DataModelParams</p>
@@ -190,7 +190,7 @@ the xeoconvert CLI tool to do this conversion step:</p>
 <br>
 <h2>Step 2. View the XGF and DataModelParams Files</h2>
 <hr>
-<p>Now we'll create a Web page containing a xeokit <a class="doc-link" data-template="Viewer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/viewer.Viewer.html" target="_parent">Viewer</a>
+<p>Now we'll create a Web page containing a xeokit <a class="doc-link" data-template="Viewer_template"  href="https://xeokit.github.io/sdk//api-docs#./docs/api/classes/viewer.Viewer.html" target="_parent">Viewer</a>
 <template class="doc-link-tooltip" id="Viewer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewer / Viewer /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class Viewer</p>
@@ -200,7 +200,7 @@ the xeoconvert CLI tool to do this conversion step:</p>
 <p>Create an HTML page in <code>index.html</code> that contains a canvas element:</p>
 <p>example-html:ifc2xgf_Duplex</p>
 <h4>JavaScript</h4>
-<p>Then create JavaScript in <code>index.js</code> to create the <a class="doc-link" data-template="Viewer_template"  href="https://xeokit.github.io/sdk//api-docs#/docs/api/classes/viewer.Viewer.html" target="_parent">Viewer</a>
+<p>Then create JavaScript in <code>index.js</code> to create the <a class="doc-link" data-template="Viewer_template"  href="https://xeokit.github.io/sdk//api-docs#./docs/api/classes/viewer.Viewer.html" target="_parent">Viewer</a>
 <template class="doc-link-tooltip" id="Viewer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewer / Viewer /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class Viewer</p>

@@ -28,8 +28,15 @@ export async function generateHtmlMap() {
       }
       map[dirName] = path.join(dirName, "index.html");
     });
+    console.log("masdasd")
+    console.log(map)
 
-    // Write the map to JSON file
+    // {
+    //   'src/IFCLoader_IfcOpenHouse4': 'src/IFCLoader_IfcOpenHouse4/index.html',
+    //   'src/DotBIMLoader_BlenderHouse': 'src/DotBIMLoader_BlenderHouse/index.html',
+    //   'src/aaa/DotBIMLoader_BlenderHouse': 'src/aaa/DotBIMLoader_BlenderHouse/index.html'
+    // }
+
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(map, null, 2));
     console.log(`✅ HTML map generated at ${OUTPUT_FILE}`);
   } catch (err) {

@@ -1,21 +1,36 @@
 
-import fs from 'fs'
-import { resolve } from 'path'
+// This script generates a JSON file that maps directories to their index.html files
+// It is used for building application
+// It return list of entries for rollup
+
+import { glob } from 'glob';
+import path from 'path'
+
+const SRC_DIR = './src';
 
 // Function to find all HTML files in src directory
-export function getPageEntries(dirname: string) {
-  const pagesDir = resolve(dirname, 'src')
+export async function getPageEntries() {
+  const htmlFiles = await glob(`${SRC_DIR}/**/index.html`);
   const entries = {}
-  // Find all HTML files in src and its subdirectories
-  fs.readdirSync(pagesDir).forEach(dir => {
-    const dirPath = resolve(pagesDir, dir)
-    if (fs.statSync(dirPath).isDirectory()) {
-      const htmlPath = resolve(dirPath, 'index.html')
-      if (fs.existsSync(htmlPath)) {
-        entries[dir] = htmlPath
-      }
+  htmlFiles.forEach(filePath => {
+    const dirName = path.dirname(filePath)
+
+    if (!dirName) {
+      throw new Error(`Invalid directory name for file: ${filePath}`);
     }
-  })
+
+    if (dirName === 'src') {
+      return;
+    }
+
+    entries[dirName] = filePath;
+  });
+
   console.log(entries)
   return entries
+  // {
+  //   'src/IFCLoader_IfcOpenHouse4': 'src/IFCLoader_IfcOpenHouse4/index.html',
+  //   'src/DotBIMLoader_BlenderHouse': 'src/DotBIMLoader_BlenderHouse/index.html',
+  //   'src/aaa/DotBIMLoader_BlenderHouse': 'src/aaa/DotBIMLoader_BlenderHouse/index.html'
+  // }
 }

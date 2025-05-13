@@ -4,6 +4,7 @@ import { generateHtmlMap } from './helpers/generate-html-map'
 import { getPageEntries } from './helpers/generate-page-entries'
 import { resolve }from 'path';
 
+
 export default defineConfig({
 
   resolve: {
@@ -37,7 +38,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        ...getPageEntries(__dirname)
+        ...await getPageEntries()
       }
     }
   }

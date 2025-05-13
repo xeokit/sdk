@@ -3,7 +3,7 @@ import fs from 'fs'
 import { resolve } from 'path'
 
 // Function to find all HTML files in src directory
-export function getPageEntries(dirname) {
+export function getPageEntries(dirname: string) {
   const pagesDir = resolve(dirname, 'src')
   const entries = {}
   // Find all HTML files in src and its subdirectories
@@ -16,5 +16,6 @@ export function getPageEntries(dirname) {
       }
     }
   })
+  console.log(entries)
   return entries
 }

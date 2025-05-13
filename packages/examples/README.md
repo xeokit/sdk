@@ -24,3 +24,12 @@ Configuration of project.
   - models in examples are references to external sources not relative reference `const model = "https://raw.githubusercontent.com/xeokit/sdk/refs/heads/develop/packages/website/models/BlenderHouse/dotbim/model.bim"`
   
   It should allow in some cases to open index.html in web browser.
+
+
+
+
+```
+  pnpm examples:dev
+  pnpm examples:build
+  pnpm examples:preview
+```

@@ -1,33 +1,32 @@
+// This script generates a JSON file that maps directories to their index.html files.
+// It is used to create a list of examples for the SDK documentation.
+// This script is run by Vite during the build process and when the server starts.
+
 import fs from 'fs';
 import { glob } from 'glob';
 import path from 'path';
 
-// const chokidar = require('chokidar');
-
 const SRC_DIR = './src';
-const OUTPUT_FILE = './html-map.json';
+const OUTPUT_FILE = './src/html-map.json';
 
 export async function generateHtmlMap() {
   try {
-    // Find all index.html files recursively in src directory
+    // Find all index.html files recursively in src directory but not in src itself
     const htmlFiles = await glob(`${SRC_DIR}/**/index.html`);
 
     const map = {};
 
     htmlFiles.forEach(filePath => {
-      const dirName = path.dirname(filePath).split(path.sep).pop();
-      const relativePath = path.relative(SRC_DIR, filePath);
+      const dirName = path.dirname(filePath)
 
-      // Use folder name as key, relative path as value
       if (!dirName) {
         throw new Error(`Invalid directory name for file: ${filePath}`);
       }
-      map[dirName] = relativePath;
 
-      // If folder name is 'src' (root index.html), give it a special key
       if (dirName === 'src') {
-        map['root'] = relativePath;
+        return;
       }
+      map[dirName] = path.join(dirName, "index.html");
     });
 
     // Write the map to JSON file

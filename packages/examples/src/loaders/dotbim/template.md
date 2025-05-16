@@ -33,13 +33,9 @@ This example demonstrates XeoKit's component-based architecture and the separati
 
 ## Interactive Demo
 
-
-{% include "components/codepen.md" %}
-
 {% include "components/interactive_example.md" %}
 
 {% include "components/src_content.md" %}
-
 
 ## Other
 

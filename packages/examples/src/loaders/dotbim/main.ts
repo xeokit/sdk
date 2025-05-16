@@ -3,7 +3,6 @@ import * as xeokit from "@xeokit/sdk"
 
 const model = "https://sos-ch-gva-2.exo.io/creoox-public/xeokit-sdk/models/BlenderHouse/dotbim/model.bim"
 
-
 // Create a DotBIMLoader to load .BIM files
 const dotBIMLoader = new xeokit.dotbim.DotBIMLoader();
 

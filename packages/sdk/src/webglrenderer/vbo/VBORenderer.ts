@@ -37,7 +37,7 @@ export abstract class VBORenderer {
   errors: string[];
   edges: boolean;
 
-  #needRebuild: boolean;
+  needRender: boolean;
 
   uniforms: {
     pointCloudIntensityRange: WebGLUniformLocation;
@@ -87,7 +87,7 @@ export abstract class VBORenderer {
 
   constructor(renderContext: RenderContext, cfg: { edges: boolean } = {edges: false}) {
     this.renderContext = renderContext;
-    this.#needRebuild = true;
+    this.needRender = true;
     this.edges = cfg.edges;
     this.build();
   }
@@ -108,14 +108,14 @@ export abstract class VBORenderer {
   }
 
   needRebuild() {
-    this.#needRebuild = true;
+    this.needRender = true;
   }
 
   getValid() {
-    if (!this.#needRebuild) {
+    if (!this.needRender) {
       return true;
     }
-    this.#needRebuild = false;
+    this.needRender = false;
     return this.hash === this.getHash();
   };
 
@@ -215,7 +215,7 @@ export abstract class VBORenderer {
 
     this.hash = this.getHash();
 
-    this.#needRebuild = false;
+    this.needRender = false;
   }
 
   abstract buildVertexShader(src: string[]);
@@ -656,10 +656,10 @@ export abstract class VBORenderer {
       gl.uniform2f(uniforms.drawingBufferSize, gl.drawingBufferWidth, gl.drawingBufferHeight);
     }
     if (uniforms.pickClipPos) {
-      gl.uniform2fv(uniforms.pickClipPos, <Float32Array>renderContext.pickClipPos);
+      gl.uniform2fv(uniforms.pickClipPos, <Float32Array<any>>renderContext.pickClipPos);
     }
     if (uniforms.lightAmbient) {
-      gl.uniform4fv(uniforms.lightAmbient, <Float32Array>view.getAmbientColorAndIntensity());
+      gl.uniform4fv(uniforms.lightAmbient, <Float32Array<any>>view.getAmbientColorAndIntensity());
     }
     for (let i = 0, len = view.lightsList.length; i < len; i++) {
       const light = view.lightsList[i];
@@ -668,11 +668,11 @@ export abstract class VBORenderer {
       }
       if (this.uniforms.lightPos[i]) {
         const pointLight = <PointLight>light;
-        gl.uniform3fv(this.uniforms.lightPos[i], <Float32Array>pointLight.pos);
+        gl.uniform3fv(this.uniforms.lightPos[i], <Float32Array<any>>pointLight.pos);
       }
       if (this.uniforms.lightDir[i]) {
         const dirLight = <DirLight>light;
-        gl.uniform3fv(this.uniforms.lightDir[i], <Float32Array>dirLight.dir);
+        gl.uniform3fv(this.uniforms.lightDir[i], <Float32Array<any>>dirLight.dir);
       }
     }
     if (this.uniforms.silhouetteColor) {

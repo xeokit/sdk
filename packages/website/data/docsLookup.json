@@ -1289,6 +1289,12 @@
     "kind": "interface",
     "namespace": "viewer"
   },
+  "encode2": {
+    "summary": "",
+    "path": "/api-docs#./docs/api/functions/gltf.encode2.html",
+    "kind": "function",
+    "namespace": "gltf"
+  },
   "eulerToQuat": {
     "summary": "Initializes a quaternion from Euler angles.",
     "path": "/api-docs#./docs/api/functions/matrix.eulerToQuat.html",
@@ -1510,6 +1516,12 @@
     "path": "/api-docs#./docs/api/variables/constants.GIFMediaType.html",
     "kind": "variable",
     "namespace": "constants"
+  },
+  "GLTFExporter": {
+    "summary": "Exports a SceneModel to glTF (2) format.",
+    "path": "/api-docs#./docs/api/classes/gltf.GLTFExporter.html",
+    "kind": "class",
+    "namespace": "gltf"
   },
   "GLTFLoader": {
     "summary": "Loads a glTF file into a SceneModel and/or a DataModel.",

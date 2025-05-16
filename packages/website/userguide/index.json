@@ -96,6 +96,17 @@
       ],
       "topic": "import.cityjson"
     },
+    "example_ModelConverter_dotbim2gltf": {
+      "title": "Viewing .BIM using ModelConverter and GLTFLoader",
+      "description": "Use the ModelConverter class to convert an IFC model from dotbim (.bim) format into glTF, then use GLTFLoader to load the glTF into a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "DotBIM"
+      ],
+      "topic": "import.dotbim"
+    },
     "example_ModelConverter_dotbim2ifc": {
       "title": "Viewing .BIM using ModelConverter and IFCLoader",
       "description": "Use the ModelConverter class to convert a model from dotbim (.bim) format to IFC, then use IFCLoader to view the IFC in a xeokit web viewer.",
@@ -312,7 +323,7 @@
     },
     "example_XGFLoader_MAP": {
       "title": "Viewing XGF using XGFLoader",
-      "description": "How to load an IFC model from XGF (.glb) format directly into a xeokit web viewer.",
+      "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
       "tags": [
         "Tutorial",
         "Example",
@@ -323,7 +334,7 @@
     },
     "example_XKTLoader_MAP": {
       "title": "Viewing XKT using XKTLoader",
-      "description": "How to load an IFC model from XKT (.xkt) format directly into a xeokit web viewer.",
+      "description": "How to load an IFC model from XKT format directly into a xeokit web viewer.",
       "tags": [
         "Tutorial",
         "Example",
@@ -492,6 +503,7 @@
       "dev-status",
       "dotbim2xgf",
       "example_DotBIMLoader_BlenderHouse",
+      "example_ModelConverter_dotbim2gltf",
       "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
       "example_ModelConverter_dotbim2xgf",
@@ -526,6 +538,7 @@
       "example_IFCLoader_IfcOpenHouse4",
       "example_LASLoader_Pumpkin",
       "example_ModelConverter_cityjson2xgf",
+      "example_ModelConverter_dotbim2gltf",
       "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
       "example_ModelConverter_dotbim2xgf",
@@ -558,6 +571,7 @@
       "example_IFCLoader_IfcOpenHouse4",
       "example_LASLoader_Pumpkin",
       "example_ModelConverter_cityjson2xgf",
+      "example_ModelConverter_dotbim2gltf",
       "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
       "example_ModelConverter_dotbim2xgf",
@@ -599,6 +613,7 @@
     "Importing": [
       "example_DotBIMLoader_BlenderHouse",
       "example_ModelConverter_cityjson2xgf",
+      "example_ModelConverter_dotbim2gltf",
       "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
       "example_ModelConverter_dotbim2xgf",

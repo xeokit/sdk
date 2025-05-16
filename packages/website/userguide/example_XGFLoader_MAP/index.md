@@ -1,6 +1,6 @@
 
 ---
-##### How to load an IFC model from XGF (.glb) format directly into a xeokit web viewer. 
+##### How to load an IFC model from XGF format directly into a xeokit web viewer. 
 ##### Click on the preview below to run the example. Scroll down to learn how it's made.
 ---
 

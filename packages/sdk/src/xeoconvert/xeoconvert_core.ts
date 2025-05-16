@@ -1,6 +1,6 @@
 import '@loaders.gl/polyfills';/**/
 import {ModelConverter} from "../modelconverter";
-import {GLTFLoader} from "../gltf";
+import {GLTFLoader, GLTFExporter} from "../gltf";
 import {DotBIMLoader, DotBIMExporter} from "../dotbim";
 import {DataModelParamsLoader, DataModelParamsExporter} from "../data";
 import {SceneModelParamsLoader, SceneModelParamsExporter} from "../scene";
@@ -43,6 +43,7 @@ export const modelConverter = new ModelConverter({
     "ifc": new IFCExporter(),
     "xgf": new XGFExporter(),
     "dotbim": new DotBIMExporter(),
+    "glb": new GLTFExporter(),
     "datamodel": new DataModelParamsExporter(),
     "scenemodel": new SceneModelParamsExporter()
   },
@@ -191,6 +192,19 @@ export const modelConverter = new ModelConverter({
       outputs: {
         "dotbim": {
           exporter: "dotbim"
+        }
+      }
+    },
+
+    "dotbim2gltf": {
+      inputs: {
+        "dotbim": {
+          loader: "dotbim"
+        }
+      },
+      outputs: {
+        "gltf": {
+          exporter: "glb"
         }
       }
     },

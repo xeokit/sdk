@@ -1,6 +1,6 @@
 {
   "title": "Viewing XGF using XGFLoader",
-  "description": "How to load an IFC model from XGF (.glb) format directly into a xeokit web viewer.",
+  "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
   "tags": [
     "Tutorial",
     "Example",

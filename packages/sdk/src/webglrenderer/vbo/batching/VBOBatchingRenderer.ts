@@ -35,11 +35,11 @@ export abstract class VBOBatchingRenderer extends VBORenderer {
       attributes.uv.bindArrayBuffer(renderState.uvBuf);
     }
     gl.uniform1i(this.uniforms.renderPass, renderPass);
-    gl.uniform3fv(this.uniforms.positionsDecompressOffset, <Float32Array | GLfloat[]>renderState.positionsDecompressOffset);
-    gl.uniform3fv(this.uniforms.positionsDecompressScale, <Float32Array | GLfloat[]>renderState.positionsDecompressScale);
-    gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array | GLfloat[]>vboBatchingLayer.rendererModel.worldMatrix);
+    gl.uniform3fv(this.uniforms.positionsDecompressOffset, <Float32Array<any> | GLfloat[]>renderState.positionsDecompressOffset);
+    gl.uniform3fv(this.uniforms.positionsDecompressScale, <Float32Array<any> | GLfloat[]>renderState.positionsDecompressScale);
+    gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array<any> | GLfloat[]>vboBatchingLayer.rendererModel.worldMatrix);
     gl.uniformMatrix4fv(this.uniforms.viewMatrix, false,
-      <Float32Array | GLfloat[]>createRTCViewMat(
+      <Float32Array<any> | GLfloat[]>createRTCViewMat(
         renderPass === RENDER_PASSES.PICK
           ? this.renderContext.pickViewMatrix
           : this.renderContext.view.camera.viewMatrix,

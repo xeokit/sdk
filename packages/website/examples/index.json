@@ -103,6 +103,23 @@
     "topic": "import.cityjson",
     "template": "basicPage"
   },
+  "ModelConverter_dotbim2gltf": {
+    "id": "ModelConverter_dotbim2gltf",
+    "title": "Viewing .BIM using ModelConverter and GLTFLoader",
+    "description": "Use the ModelConverter class to convert an IFC model from dotbim (.bim) format into glTF, then use GLTFLoader to load the glTF into a xeokit web viewer.",
+    "isTutorial": true,
+    "isVisualTest": true,
+    "tags": [
+      "Importing",
+      "DotBIM"
+    ],
+    "categories": [
+      "Importing",
+      "DotBIM"
+    ],
+    "topic": "import.dotbim",
+    "template": "basicPage"
+  },
   "ModelConverter_dotbim2ifc": {
     "id": "ModelConverter_dotbim2ifc",
     "title": "Viewing .BIM using ModelConverter and IFCLoader",
@@ -615,7 +632,7 @@
   "XGFLoader_MAP": {
     "id": "XGFLoader_MAP",
     "title": "Viewing XGF using XGFLoader",
-    "description": "How to load an IFC model from XGF (.glb) format directly into a xeokit web viewer.",
+    "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [
@@ -632,7 +649,7 @@
   "XKTLoader_MAP": {
     "id": "XKTLoader_MAP",
     "title": "Viewing XKT using XKTLoader",
-    "description": "How to load an IFC model from XKT (.xkt) format directly into a xeokit web viewer.",
+    "description": "How to load an IFC model from XKT format directly into a xeokit web viewer.",
     "isTutorial": true,
     "isVisualTest": true,
     "tags": [

@@ -1,157 +1,165 @@
 {
-    "models": [
-        {
-            "id": "LoD3_Railway",
-            "pipelines": [
-                "cityjson"
-            ]
-        },
-        {
-            "id": "VM05_2009",
-            "pipelines": [
-                "cityjson"
-            ]
-        },
-        {
-            "id": "SmallHouse",
-            "pipelines": [
-                "dotbim",
-                "dotbim2xgf",
-                "dotbim2ifc",
-                "dotbim2json"
-            ]
-        },
-        {
-            "id": "HousePlan",
-            "pipelines": [
-                "gltf",
-                "gltf2xgf"
-            ]
-        },
-        {
-            "id": "TeapotXeokitLogo",
-            "pipelines": [
-                "dotbim",
-                "dotbim2xgf"
-            ]
-        },
-        {
-            "id": "BlenderHouse",
-            "pipelines": [
-                "dotbim",
-                "dotbim2xgf",
-                "dotbim2ifc",
-                "dotbim2json"
-            ]
-        },
-        {
-            "id": "MAP",
-            "pipelines": [
-                "ifc",
-                "gltf",
-                "ifc2gltf",
-                "ifc2gltf2xgf",
-                "gltf2xgf",
-                "ifc2xgf"
-            ]
-        },
-        {
-            "id": "Duplex",
-            "pipelines": [
-                "json",
-                "ifc",
-                "gltf",
-                "ifc2gltf",
-                "ifc2gltf2xgf",
-                "ifc2xgf",
-                "ifc2json",
-                "gltf2xgf",
-                "ifc2dotbim"
-            ]
-        },
-        {
-            "id": "IfcOpenHouse4",
-            "pipelines": [
-                "ifc",
-                "ifc2gltf",
-                "ifc2gltf2xgf",
-                "ifc2xgf",
-                "dotbim2xgf",
-                "ifc2json",
-                "ifc2dotbim"
-            ]
-        },
-        {
-            "id": "IfcOpenHouse2x3",
-            "pipelines": [
-                "ifc",
-                "ifc2gltf",
-                "ifc2gltf2xgf",
-                "ifc2xgf",
-                "ifc2json",
-                "ifc2dotbim"
-            ]
-        },
-        {
-            "id": "Nalls-Pumpkin-Hill",
-            "pipelines": [
-                "laz",
-                "las2xgf"
-            ]
-        },
-        {
-            "id": "KarhumakiBridge",
-            "pipelines": [
-                "ifc2gltf",
-                "ifc2gltf2xgf"
-            ]
-        },
-        {
-            "id": "Schependomlaan",
-            "pipelines": [
-                "ifc2gltf",
-                "ifc2gltf2xgf"
-            ]
-        },
-        {
-            "id": "RAC",
-            "pipelines": [
-                "ifc",
-                "gltf",
-                "ifc2gltf",
-                "ifc2gltf2xgf",
-                "ifc2xgf"
-            ]
-        },
-        {
-            "id": "Box",
-            "pipelines": [
-                "json"
-            ]
-        },
-        {
-            "id": "Table",
-            "pipelines": [
-                "json"
-            ]
-        },
-        {
-            "id": "Geometries",
-            "pipelines": [
-                "json"
-            ]
-        },
-        {
-            "id": "2CylinderEngine",
-            "pipelines": [
-                "gltf"
-            ]
-        },
-        {
-            "id": "Office",
-            "pipelines": [
-                "ifc"
-            ]
-        }
-    ]
+  "models": [
+    {
+      "id": "LoD3_Railway",
+      "pipelines": [
+        "cityjson"
+      ]
+    },
+    {
+      "id": "VM05_2009",
+      "pipelines": [
+        "cityjson"
+      ]
+    },
+    {
+      "id": "SmallHouse",
+      "pipelines": [
+        "dotbim",
+        "dotbim2xgf",
+        "dotbim2ifc",
+        "dotbim2json"
+      ]
+    },
+    {
+      "id": "HousePlan",
+      "pipelines": [
+        "gltf",
+        "gltf2xgf"
+      ]
+    },
+    {
+      "id": "TeapotXeokitLogo",
+      "pipelines": [
+        "dotbim",
+        "dotbim2xgf",
+        "dotbim2gltf"
+      ]
+    },
+    {
+      "id": "BlenderHouse",
+      "pipelines": [
+        "dotbim",
+        "dotbim2xgf",
+        "dotbim2ifc",
+        "dotbim2json",
+        "dotbim2gltf"
+      ]
+    },
+    {
+      "id": "MAP",
+      "pipelines": [
+        "ifc",
+        "gltf",
+        "ifc2gltf",
+        "ifc2gltf2xgf",
+        "gltf2xgf",
+        "ifc2xgf"
+      ]
+    },
+    {
+      "id": "Duplex",
+      "pipelines": [
+        "json",
+        "ifc",
+        "gltf",
+        "ifc2gltf",
+        "ifc2gltf2xgf",
+        "ifc2xgf",
+        "ifc2json",
+        "gltf2xgf",
+        "ifc2dotbim"
+      ]
+    },
+    {
+      "id": "IfcOpenHouse4",
+      "pipelines": [
+        "ifc",
+        "ifc2gltf",
+        "ifc2gltf2xgf",
+        "ifc2xgf",
+        "dotbim2xgf",
+        "ifc2json",
+        "ifc2dotbim"
+      ]
+    },
+    {
+      "id": "IfcOpenHouse2x3",
+      "pipelines": [
+        "ifc",
+        "ifc2gltf",
+        "ifc2gltf2xgf",
+        "ifc2xgf",
+        "ifc2json",
+        "ifc2dotbim"
+      ]
+    },
+    {
+      "id": "Minimal_IFC4",
+      "pipelines": [
+        "ifc"
+      ]
+    },
+    {
+      "id": "Nalls-Pumpkin-Hill",
+      "pipelines": [
+        "laz",
+        "las2xgf"
+      ]
+    },
+    {
+      "id": "KarhumakiBridge",
+      "pipelines": [
+        "ifc2gltf",
+        "ifc2gltf2xgf"
+      ]
+    },
+    {
+      "id": "Schependomlaan",
+      "pipelines": [
+        "ifc2gltf",
+        "ifc2gltf2xgf"
+      ]
+    },
+    {
+      "id": "RAC",
+      "pipelines": [
+        "ifc",
+        "gltf",
+        "ifc2gltf",
+        "ifc2gltf2xgf",
+        "ifc2xgf"
+      ]
+    },
+    {
+      "id": "Box",
+      "pipelines": [
+        "json"
+      ]
+    },
+    {
+      "id": "Table",
+      "pipelines": [
+        "json"
+      ]
+    },
+    {
+      "id": "Geometries",
+      "pipelines": [
+        "json"
+      ]
+    },
+    {
+      "id": "2CylinderEngine",
+      "pipelines": [
+        "gltf"
+      ]
+    },
+    {
+      "id": "Office",
+      "pipelines": [
+        "ifc"
+      ]
+    }
+  ]
 }

@@ -1,6 +1,6 @@
 
 ---
-##### How to load an IFC model from XKT (.xkt) format directly into a xeokit web viewer. 
+##### How to load an IFC model from XKT format directly into a xeokit web viewer. 
 ##### Click on the preview below to run the example. Scroll down to learn how it's made.
 ---
 

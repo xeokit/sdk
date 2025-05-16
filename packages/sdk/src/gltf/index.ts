@@ -117,3 +117,4 @@
  * @module gltf
  */
 export * from "./GLTFLoader";
+export * from "./GLTFExporter";

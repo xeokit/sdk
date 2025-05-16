@@ -1,3 +1,4 @@
 [xeoconvert] Running conversion pipeline 'ifc'
 [xeoconvert] Reading inputs
 [xeoconvert] Reading input --ifc ./models/Office/ifc/model.ifc
+[xeoconvert] Converting

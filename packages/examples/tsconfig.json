@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2020",
+    "paths": {
+      "@xeokit/sdk":  ["../sdk/src"],
+    },
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],

@@ -22,6 +22,8 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
+
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["../sdk/src"]
 }

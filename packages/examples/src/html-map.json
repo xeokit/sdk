@@ -1,0 +1,6 @@
+{
+  "src/DotBIMLoader_BlenderHouse": "src/DotBIMLoader_BlenderHouse/index.html",
+  "src/IFCLoader_IfcOpenHouse4": "src/IFCLoader_IfcOpenHouse4/index.html",
+  "src/loaders/dotbim": "src/loaders/dotbim/index.html",
+  "src/loaders/ifc": "src/loaders/ifc/index.html"
+}

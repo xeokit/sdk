@@ -7,6 +7,12 @@
 //   'src/aaa/DotBIMLoader_BlenderHouse': 'src/aaa/DotBIMLoader_BlenderHouse/index.html'
 // }
 
+function sortObjectKeys<T extends object>(obj: T): T {
+  return Object.fromEntries(
+    Object.entries(obj).sort(([a], [b]) => a.localeCompare(b))
+  ) as T;
+}
+
 import fs from 'fs';
 import { glob } from 'glob';
 import path from 'path';
@@ -34,7 +40,7 @@ export async function generateHtmlMap() {
       map[dirName] = path.join(dirName, "index.html");
     });
 
-    fs.writeFileSync(OUTPUT_FILE, JSON.stringify(map, null, 2));
+    fs.writeFileSync(OUTPUT_FILE, JSON.stringify(sortObjectKeys(map), null, 2));
     console.log(`✅ HTML map generated at ${OUTPUT_FILE}`);
   } catch (err) {
     console.error('❌ Error generating HTML map:', err);

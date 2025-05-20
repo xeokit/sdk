@@ -62,7 +62,9 @@
     "optionalDependencies": {
         "canvas": "^2.11.2"
     },
-    "packageManager": "pnpm@8.7.6",
+    "engines": {
+      "pnpm": ">=10"
+    },
     "dependencies": {
         "sharp": "^0.33.5"
     }

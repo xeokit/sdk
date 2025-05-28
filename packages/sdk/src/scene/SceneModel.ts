@@ -31,6 +31,10 @@ import type {SceneTextureParams} from "./SceneTextureParams";
 import {SceneTextureSet} from "./SceneTextureSet";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 import type {SceneTile} from "./SceneTile";
+import {CoordinateSystem} from "./CoordinateSystem";
+import {createCoordinateSystemTransform} from "./createCoordinateSystemTransform";
+
+const tempMat4 = createMat4();
 
 // XGF texture types
 
@@ -102,6 +106,22 @@ export class SceneModel extends Component {
    * See {@link scene | @xeokit/sdk/scene}   for usage.
    */
   public streamParams?: SceneModelStreamParams;
+
+  /**
+   * Configures the SceneModel's local coordinate system.
+   *
+   * Internally, a matrix is created to transform coordinates between SceneModel and
+   * Scene CoordinateSystems. The matrix of each {@link SceneMesh} is premultiplied by that
+   * matrix, effectively transforming the SceneModel into the global coordinate system.
+   */
+  public readonly coordinateSystem: CoordinateSystem;
+
+  /**
+   * Caches a matrix used to transform posititions between SceneModel and Scene CoordinateSystems.
+   * Each SceneMesh's matrix is pre-multiplied by this matrix to effectively move the vertex
+   * positions from the SceneModel CoordinateSystem to the Scene CoordinateSystem within.
+   */
+  #coordinateSystemMatrix: FloatArrayParam;
 
   /**
    * The {@link Scene | Scene} that contains this SceneModel.
@@ -260,6 +280,17 @@ export class SceneModel extends Component {
     });
 
     this.scene = scene;
+
+    this.coordinateSystem = new CoordinateSystem(this, sceneModelParams?.coordinateSystem || {
+      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      origin: [0, 0, 0],
+      units: "meters",
+      scaleToMeters: 1
+    });
+
+    this.#coordinateSystemMatrix = createMat4();
+
+    createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, this.#coordinateSystemMatrix);
 
     this.tiles = {};
     this.tilesList = [];
@@ -722,12 +753,13 @@ export class SceneModel extends Component {
     }
     let origin;
     let rtcMatrix;
+    const coordSystemAndModelingMatrix = mulMat4(this.#coordinateSystemMatrix, matrix, tempMat4);
     if (meshParams.origin) {
       origin = meshParams.origin;
-      rtcMatrix = matrix;
+      rtcMatrix = coordSystemAndModelingMatrix;
     } else {
       origin = createVec3();
-      rtcMatrix = createRTCModelMat(matrix, origin);
+      rtcMatrix = createRTCModelMat(coordSystemAndModelingMatrix, origin);
     }
     const tile = this.scene.getTile(origin);
     if (!this.tiles[tile.id]) {
@@ -738,7 +770,7 @@ export class SceneModel extends Component {
       id: meshParams.id,
       geometry,
       textureSet,
-      matrix,
+      matrix: coordSystemAndModelingMatrix,
       rtcMatrix,
       color: meshParams.color,
       opacity: meshParams.opacity,

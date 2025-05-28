@@ -6,6 +6,8 @@ import {SceneModel} from "./SceneModel";
 import type {SceneModelParams} from "./SceneModelParams";
 import type {SceneObject} from "./SceneObject";
 import {SceneTile} from "./SceneTile";
+import {CoordinateSystem} from "./CoordinateSystem";
+import {type SceneParams} from "./SceneParams";
 
 /**
  * Container of model geometry and materials.
@@ -17,6 +19,11 @@ import {SceneTile} from "./SceneTile";
  * See {@link scene | @xeokit/sdk/scene} for usage.
  */
 export class Scene extends Component {
+
+  /**
+   * Configures the Scene's coordinate system.
+   */
+  public readonly coordinateSystem: CoordinateSystem;
 
   /**
    * The {@link SceneModel | SceneModels} belonging to this Scene, each keyed to
@@ -68,16 +75,22 @@ export class Scene extends Component {
   #aabbDirty: boolean;
   #aabb: FloatArrayParam;
 
-
   /**
    * Creates a new Scene.
    */
-  constructor() {
+  constructor(params?: SceneParams) {
 
     super(null, {});
 
     this.#aabb = createAABB3();
     this.#aabbDirty = true;
+
+    this.coordinateSystem = new CoordinateSystem(this, params?.coordinateSystem || {
+      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1], // X+, Y+, Z+
+      origin: [0, 0, 0],
+      units: "meters",
+      scaleToMeters: 1
+    });
 
     this.models = {};
     this.objects = {};

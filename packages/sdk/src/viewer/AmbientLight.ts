@@ -1,6 +1,5 @@
 import type {AmbientLightParams} from "./AmbientLightParams";
 import {Component} from "../core";
-import type {DirLightParams} from "./DirLightParams";
 import type {FloatArrayParam} from "../math";
 import type {View} from "./View";
 
@@ -25,7 +24,7 @@ class AmbientLight extends Component {
 
   #state: {
     intensity: number;
-    color: Float32Array;
+    color: Float32Array<any>;
     type: string
   };
 

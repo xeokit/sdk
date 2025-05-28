@@ -20,7 +20,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
 
   const view = params.view;
   const camera = view.camera;
-  // const realWorldOffset = view.realWorldOffset;
+  const coordinateSystem = view.viewer.scene.coordinateSystem;
   const realWorldOffset = createVec3();
   const reverseClippingPlanes = (params.reverseClippingPlanes === true);
   const bcfViewpoint: any = {};
@@ -29,7 +29,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
   let eye = camera.eye;
   let up = camera.up;
 
-  if (camera.yUp) {
+  if (coordinateSystem.yUp) {
     // BCF is Z up
     lookDirection = YToZ(lookDirection);
     eye = YToZ(eye);
@@ -98,7 +98,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
       } else {
         direction = sectionPlane.dir;
       }
-      if (camera.yUp) { // BCF is Z up
+      if (coordinateSystem.yUp) { // BCF is Z up
         location = YToZ(location);
         direction = YToZ(direction);
       }

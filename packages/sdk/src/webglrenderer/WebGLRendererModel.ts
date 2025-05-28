@@ -54,6 +54,7 @@ const defaultTextureSetId = "defaultTextureSet";
 export class WebGLRendererModel extends Component implements RendererModel {
 
   declare readonly id: string;
+  sceneModel: SceneModel;
   readonly viewer: Viewer;
   readonly qualityRender: boolean;
   declare readonly destroyed: boolean;
@@ -121,6 +122,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
     super(params.viewer);
 
     this.id = params.id;
+    this.sceneModel = params.sceneModel;
     this.viewer = params.viewer;
 
     this.meshCounts = [
@@ -839,8 +841,9 @@ export class WebGLRendererModel extends Component implements RendererModel {
     if (this.destroyed) {
       return;
     }
-    //  this.detachSceneModel();
+    this.#detachSceneModel();
     //  this.#view.camera.onViewMatrix.unsubscribe(this.#onCameraViewMatrix);
+
     for (const layerId in this.#currentLayers) {
       if (this.#currentLayers.hasOwnProperty(layerId)) {
         this.#currentLayers[layerId].destroy();
@@ -868,49 +871,51 @@ export class WebGLRendererModel extends Component implements RendererModel {
     super.destroy();
   }
 
-  // detachSceneModel(): void {
-  //     const sceneModel = this.sceneModel;
-  //     if (!sceneModel) {
-  //         return;
-  //     }
-  //     const textures = sceneModel.textures;
-  //     const geometries = sceneModel.geometries;
-  //     const meshes = sceneModel.meshes;
-  //     const objects = sceneModel.objects;
-  //     if (textures) {
-  //         for (let textureId in textures) {
-  //             const texture = textures[textureId];
-  //             if (texture.rendererTexture) {
-  //                 texture.rendererTexture = null;
-  //             }
-  //         }
-  //     }
-  //     if (geometries) {
-  //         for (let geometryId in geometries) {
-  //             const geometry = geometries[geometryId];
-  //             if (geometry.rendererGeometry) {
-  //                 geometry.rendererGeometry = null;
-  //             }
-  //         }
-  //     }
-  //     if (meshes) {
-  //         for (let meshId in meshes) {
-  //             const mesh = meshes[meshId];
-  //             if (mesh.rendererMesh) {
-  //                 mesh.rendererMesh = null;
-  //             }
-  //         }
-  //     }
-  //     if (objects) {
-  //         for (let objectId in objects) {
-  //             const object = objects[objectId];
-  //             if (object.rendererObject) {
-  //                 object.rendererObject = null;
-  //             }
-  //         }
-  //     }
-  //     this.sceneModel = null;
-  // }
+  #detachSceneModel(): void {
+    const sceneModel = this.sceneModel;
+    if (!sceneModel) {
+      return;
+    }
+    //     const textures = sceneModel.textures;
+    //     const geometries = sceneModel.geometries;
+    //     const meshes = sceneModel.meshes;
+    //     const objects = sceneModel.objects;
+    //     if (textures) {
+    //         for (let textureId in textures) {
+    //             const texture = textures[textureId];
+    //             if (texture.rendererTexture) {
+    //                 texture.rendererTexture = null;
+    //             }
+    //         }
+    //     }
+    //     if (geometries) {
+    //         for (let geometryId in geometries) {
+    //             const geometry = geometries[geometryId];
+    //             if (geometry.rendererGeometry) {
+    //                 geometry.rendererGeometry = null;
+    //             }
+    //         }
+    //     }
+    //     if (meshes) {
+    //         for (let meshId in meshes) {
+    //             const mesh = meshes[meshId];
+    //             if (mesh.rendererMesh) {
+    //                 mesh.rendererMesh = null;
+    //             }
+    //         }
+    //     }
+    //     if (objects) {
+    //         for (let objectId in objects) {
+    //             const object = objects[objectId];
+    //             if (object.rendererObject) {
+    //                 object.rendererObject = null;
+    //             }
+    //         }
+    //     }
+
+    // @ts-ignore
+    this.sceneModel = null;
+  }
 }
 
 

@@ -26,28 +26,6 @@ export interface ViewParams {
   id?: string;
 
   /**
-   * The Real-space 3D origin, in Real-space units, at which the {@link View}'s World-space
-   * coordinate origin ````[0,0,0]```` sits.
-   */
-  origin?: FloatArrayParam;
-
-  /**
-   * The number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
-   *
-   * For example, if {@link ViewParams.units} is {@link constants!MetersUnit | MetersUnit}, and there are ten meters per World-space coordinate
-   * system unit, then this property would have a value of ````10.0````.
-   */
-  scale?: number;
-
-  /**
-   * The unit of measurement for the {@link View}. Accepted values are {@link constants!MetersUnit},
-   * {@link constants!CentimetersUnit}, {@link constants!MillimetersUnit}, {@link constants!YardsUnit},
-   * {@link constants!FeetUnit}
-   * and {@link constants!InchesUnit}.
-   */
-  units?: number;
-
-  /**
    * ID of an HTMLCanvasElement in the DOM.
    */
   elementId?: string;

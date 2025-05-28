@@ -1,10 +1,14 @@
-import {createVec3, createVec4, decomposeMat4} from "../../../matrix";
+import {createMat4, createVec3, createVec4, decomposeMat4, mulMat4} from "../../../matrix";
 import {decompressPoint3WithAABB3} from "../../../compression";
 import {ifcTypeNames} from "../../../ifctypes";
 import type {ModelEncodeParams} from "../../../io";
+import {createCoordinateSystemTransform} from "../../../scene";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
+
+const tempMat4a = createMat4();
+
 
 /**
  * @private
@@ -14,6 +18,10 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
   return new Promise<any>(function (resolve, reject) {
 
     const {sceneModel, dataModel} = params;
+
+    const coordinateSystemMatrix = options.coordinateSystem
+      ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4())
+      : null;
 
     const dotBim = {
       meshes: [],
@@ -87,7 +95,10 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
       const position = createVec3();
       const quaternion = createVec4();
       const scale = createVec3();
-      decomposeMat4(firstMesh.matrix, position, quaternion, scale);
+      const matrix = coordinateSystemMatrix
+        ? mulMat4(firstMesh.matrix, coordinateSystemMatrix, tempMat4a)
+        : firstMesh.matrix;
+      decomposeMat4(matrix, position, quaternion, scale);
       const info: any = {
         id: sceneObject.id,
         Tag: "None"

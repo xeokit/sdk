@@ -21,6 +21,7 @@ import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetPa
 import type {DataModel} from "../data/DataModel";
 import type {FloatArrayParam} from "../math";
 import {parse} from '@loaders.gl/core';
+import type {ModelLoadOptions} from "../io/ModelLoadOptions";
 
 /**
  * Loads a glTF file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.

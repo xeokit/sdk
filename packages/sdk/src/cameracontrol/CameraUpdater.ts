@@ -18,6 +18,7 @@ export class CameraUpdater {
 
     this.#view = view;
     const camera = view.camera;
+    const coordinateSystem = view.viewer.scene.coordinateSystem;
     const pickController = controllers.pickController;
     const pivotController = controllers.pivotController;
     const panController = controllers.panController;
@@ -177,13 +178,13 @@ export class CameraUpdater {
 
         if (configs.constrainVertical) {
 
-          if (camera.xUp) {
+          if (coordinateSystem.xUp) {
             verticalEye = camera.eye[0];
             verticalLook = camera.look[0];
-          } else if (camera.yUp) {
+          } else if (coordinateSystem.yUp) {
             verticalEye = camera.eye[1];
             verticalLook = camera.look[1];
-          } else if (camera.zUp) {
+          } else if (coordinateSystem.zUp) {
             verticalEye = camera.eye[2];
             verticalLook = camera.look[2];
           }
@@ -193,13 +194,13 @@ export class CameraUpdater {
           const eye = camera.eye;
           const look = camera.look;
 
-          if (camera.xUp) {
+          if (coordinateSystem.xUp) {
             eye[0] = verticalEye;
             look[0] = verticalLook;
-          } else if (camera.yUp) {
+          } else if (coordinateSystem.yUp) {
             eye[1] = verticalEye;
             look[1] = verticalLook;
-          } else if (camera.zUp) {
+          } else if (coordinateSystem.zUp) {
             eye[2] = verticalEye;
             look[2] = verticalLook;
           }
@@ -236,13 +237,13 @@ export class CameraUpdater {
           let verticalLook;
 
           if (configs.constrainVertical) {
-            if (camera.xUp) {
+            if (coordinateSystem.xUp) {
               verticalEye = camera.eye[0];
               verticalLook = camera.look[0];
-            } else if (camera.yUp) {
+            } else if (coordinateSystem.yUp) {
               verticalEye = camera.eye[1];
               verticalLook = camera.look[1];
-            } else if (camera.zUp) {
+            } else if (coordinateSystem.zUp) {
               verticalEye = camera.eye[2];
               verticalLook = camera.look[2];
             }
@@ -261,13 +262,13 @@ export class CameraUpdater {
           if (configs.constrainVertical) {
             const eye = camera.eye;
             const look = camera.look;
-            if (camera.xUp) {
+            if (coordinateSystem.xUp) {
               eye[0] = verticalEye;
               look[0] = verticalLook;
-            } else if (camera.yUp) {
+            } else if (coordinateSystem.yUp) {
               eye[1] = verticalEye;
               look[1] = verticalLook;
-            } else if (camera.zUp) {
+            } else if (coordinateSystem.zUp) {
               eye[2] = verticalEye;
               look[2] = verticalLook;
             }

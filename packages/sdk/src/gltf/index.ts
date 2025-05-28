@@ -1,15 +1,15 @@
 /**
  * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_gltf_logo.svg"/>
  *
- * # xeokit glTF Importer
+ * # xeokit glTF Importer and Exporter
  *
  * ---
  *
- * ***Import models from the industry-standard glTF model file format.***
+ * ***Import and export models in the industry-standard glTF model file format.***
  *
  * ---
  *
- * The xeokit SDK enables the import of 3D models from [glTF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#gltf) (GL Transmission Format),
+ * The xeokit SDK enables the import and export of 3D models as [glTF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#gltf) (GL Transmission Format),
  * a widely used format for runtime asset delivery of 3D scenes and models.
  *
  * glTF is a compact and efficient format designed for fast loading and rendering in applications and web browsers. It stores geometry, materials,

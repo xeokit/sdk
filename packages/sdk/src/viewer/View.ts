@@ -11,7 +11,6 @@ import {Edges} from "./Edges";
 import {EmphasisMaterial} from "./EmphasisMaterial";
 import {EventDispatcher} from "strongly-typed-events";
 import {LinesMaterial} from "./LinesMaterial";
-import {Metrics} from "./Metriqs";
 import type {PickParams} from "./PickParams";
 import type {PickResult} from "./PickResult";
 import type {PointLight} from "./PointLight";
@@ -105,11 +104,6 @@ class View extends Component {
    * Configures the appearance of edges belonging to {@link ViewObject} in this View.
    */
   readonly edges: Edges;
-
-  /**
-   * Manages measurement units, origin and scale for this View.
-   */
-  readonly metrics: Metrics;
 
   /**
    * Configures the X-rayed appearance of {@link ViewObject | ViewObjects} in this View.
@@ -526,12 +520,6 @@ class View extends Component {
     this.sao = new SAO(this, viewParams.sao || {});
 
     this.texturing = new Texturing(this, {});
-
-    this.metrics = new Metrics(this, {
-      units: viewParams.units,
-      scale: viewParams.scale,
-      origin: viewParams.origin,
-    });
 
     this.xrayMaterial = new EmphasisMaterial(this, viewParams.xrayMaterial || {
       fill: true,

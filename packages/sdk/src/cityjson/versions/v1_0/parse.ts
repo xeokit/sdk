@@ -25,7 +25,7 @@ const tempVec3c = createVec3();
  */
 export const parse: ModelParser = async (
   params,
-  options = {rotateX: false}
+  options
 ) => {
   return new Promise<void>((resolve, reject) => {
     const {fileData, sceneModel, dataModel} = params;
@@ -34,11 +34,12 @@ export const parse: ModelParser = async (
       const ctx = {
         fileData,
         vertices: (fileData.transform && sceneModel)
-          ? transformVertices(fileData.vertices, fileData.transform, options.rotateX)
+          ? transformVertices(fileData.vertices, fileData.transform)
           : fileData.vertices,
         sceneModel,
         dataModel,
-        nextId: 0
+        nextId: 0,
+        options: options || {}
       };
       parseCityJSON(ctx);
     }
@@ -48,7 +49,7 @@ export const parse: ModelParser = async (
 };
 
 
-function transformVertices(vertices: any, transform: any, rotateX?: boolean) {
+function transformVertices(vertices: any, transform: any) {
   const transformedVertices = [];
   const scale = transform.scale || createVec3([1, 1, 1]);
   const translate = transform.translate || createVec3([0, 0, 0]);
@@ -56,11 +57,7 @@ function transformVertices(vertices: any, transform: any, rotateX?: boolean) {
     const x = (vertices[i][0] * scale[0]) + translate[0];
     const y = (vertices[i][1] * scale[1]) + translate[1];
     const z = (vertices[i][2] * scale[2]) + translate[2];
-    if (rotateX) {
-      transformedVertices.push([x, z, y]);
-    } else {
-      transformedVertices.push([x, y, z]);
-    }
+    transformedVertices.push([x, y, z]);
   }
   return transformedVertices;
 }

@@ -478,6 +478,7 @@
  * @module scene
  */
 
+export * from "./SceneParams";
 export * from "./Scene";
 export * from "./SceneModel";
 export * from "./SceneModelParams";
@@ -496,6 +497,10 @@ export * from "./RendererModel";
 export * from "./RendererTexture";
 export * from "./RendererTextureSet";
 
+export * from "./CoordinateSystem";
+export * from "./CoordinateSystemParams";
+export * from "./createCoordinateSystemTransform";
+
 export * from "./SceneMeshParams";
 export * from "./SceneObjectParams";
 export * from "./SceneTextureParams";
@@ -512,5 +517,5 @@ export * from "./SceneModelStreamLayerParams";
 
 export * from "./buildMat4"
 
-export {SceneModelParamsLoader} from "./SceneModelParamsLoader";
+export * from "./SceneModelParamsLoader";
 export * from "./SceneModelParamsExporter";

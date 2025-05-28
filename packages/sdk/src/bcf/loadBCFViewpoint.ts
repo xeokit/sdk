@@ -30,6 +30,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
   const view = params.view;
   const data = params.data;
   const camera = view.camera;
+  const coordinateSystem = view.viewer.scene.coordinateSystem;
   const rayCast = (!!params.rayCast);
   const reset = (params.reset !== false);
   //const realWorldOffset = scene.realWorldOffset;
@@ -47,7 +48,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
         negateVec3(dir);
       }
       subVec3(pos, realWorldOffset);
-      if (camera.yUp) {
+      if (coordinateSystem.yUp) {
         pos = ZToY(pos);
         dir = ZToY(dir);
       }
@@ -110,7 +111,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
       if (!up) {
         return;
       }
-      if (camera.yUp) {
+      if (coordinateSystem.yUp) {
         location = ZToY(location);
         normal = ZToY(normal);
         up = ZToY(up);
@@ -350,7 +351,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
       projection = OrthoProjectionType;
     }
     subVec3(eye, realWorldOffset);
-    if (camera.yUp) {
+    if (coordinateSystem.yUp) {
       eye = ZToY(eye);
       look = ZToY(look);
       up = ZToY(up);

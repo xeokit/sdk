@@ -9,6 +9,7 @@ import {type ModelConverterResult} from "./ModelConverterResult";
 import {type ModelConverterConfig} from "./ModelConverterConfig";
 
 import {createFileIO} from "./../io/FileIOFactory";
+import {type ModelLoadOptions} from "../io/ModelLoadOptions";
 
 const fileIO = createFileIO();
 
@@ -145,8 +146,12 @@ export class ModelConverter {
           const {filePath, fileData} = conversionParamsInputs[pipelineInputId];
           let fileDataSizeBytes;
           const loader = this.loaders[pipelineInput.loader];
+          const options = <ModelLoadOptions>pipelineInput.options || {};
           const sceneModelId = pipelineInput.sceneModel || "default";
-          const sceneModel = scene.models[sceneModelId] || scene.createModel({id: sceneModelId});
+          const sceneModel = scene.models[sceneModelId] || scene.createModel({
+            id: sceneModelId,
+            coordinateSystem: options.coordinateSystem
+          });
           const dataModelId = pipelineInput.dataModel || "default";
           const dataModel = data.models[dataModelId] || data.createModel({id: dataModelId});
           if (sceneModel instanceof SDKError || dataModel instanceof SDKError) {
@@ -162,20 +167,20 @@ export class ModelConverter {
                 fileDataSizeBytes = (new TextEncoder()).encode(JSON.stringify(fileData)).length;
                 break;
               default:
-             //   fileData = await fileIO.load(filePath);
+                //   fileData = await fileIO.load(filePath);
                 fileDataSizeBytes = fileData.buffer ? fileData.buffer.byteLength : 0;
                 break;
             }
 
             try {
-              await loader.load({filePath, fileData, sceneModel, dataModel});
+              await loader.load({filePath, fileData, sceneModel, dataModel}, options);
               modelConverterResult.inputs[pipelineInputId] = {
                 filePath,
                 fileData,
                 fileDataType: loader.fileDataType,
                 fileDataSizeBytes,
                 fileFormat: loader.format,
-                options: pipelineInput.options || {},
+                options,
                 sceneModel: sceneModelId,
                 dataModel: dataModelId,
                 messages: [],
@@ -189,7 +194,7 @@ export class ModelConverter {
                 fileDataSizeBytes,
                 fileFormat: loader.format,
                 fileFormatVersion: null,
-                options: pipelineInput.options || {},
+                options,
                 sceneModel: sceneModelId,
                 dataModel: dataModelId,
                 messages: [],
@@ -259,8 +264,9 @@ export class ModelConverter {
           if (sceneModel && !sceneModel.built) {
             await sceneModel.build();
           }
+          const options = <ModelLoadOptions>pipelineOutput.options || {};
           try {
-            const fileData = await exporter.write({sceneModel, dataModel});
+            const fileData = await exporter.write({sceneModel, dataModel}, options);
             let fileDataSizeBytes;
             switch (exporter.fileDataType) {
               case "text":
@@ -279,7 +285,7 @@ export class ModelConverter {
               fileFormat: exporter.format,
               fileFormatVersion,
               fileDataSizeBytes,
-              options: pipelineOutput.options || {},
+              options,
               sceneModel: sceneModel.id,
               dataModel: dataModel.id,
               messages: [],
@@ -293,7 +299,7 @@ export class ModelConverter {
               fileFormat: exporter.format,
               fileFormatVersion,
               fileDataSizeBytes: 0,
-              options: pipelineOutput.options || {},
+              options,
               sceneModel: sceneModel.id,
               dataModel: dataModel.id,
               messages: [],

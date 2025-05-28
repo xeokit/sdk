@@ -21,6 +21,27 @@ export const reporters = {
   "manifest-report": createManifestReport
 };
 
+export const CoordinateSystems = {
+
+  // AEC convention - Revit, FreeCAD, OpenCascade, Blender etc
+
+  ZUp_RightHanded_Meters: {
+    basis: [1, 0, 0, 0, 1, 0, 0, 0, 1], // X+, Y+, Z+
+    origin: [0, 0, 0],
+    units: 'meters',
+    scaleToMeters: 1
+  },
+
+  // OpenGL, glTF etc
+
+  YUp_RightHanded_Meters: {
+    basis: [1, 0, 0, 0, 0, -1, 0, 1, 0], // X+, Z-, Y+
+    origin: [0, 0, 0],
+    units: 'meters',
+    scaleToMeters: 1
+  }
+};
+
 /**
  * A ModelConverter configured to support various
  * conversion pipelines. Add more pipelines as neccessary.
@@ -48,12 +69,30 @@ export const modelConverter = new ModelConverter({
     "scenemodel": new SceneModelParamsExporter()
   },
 
+  // coordinateSystems: {
+  //   "ZUp_RightHanded_Meters": {
+  //     basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+  //     origin: [0, 0, 0],
+  //     units: 'meters',
+  //     scaleToMeters: 1
+  //   },
+  //   "YUp_RightHanded_Meters": {
+  //     basis: [1, 0, 0, 0, 0, -1, 0, 1, 0],
+  //     origin: [0, 0, 0],
+  //     units: 'meters',
+  //     scaleToMeters: 1
+  //   }
+  // },
+
   pipelines: {
 
     "json": {
       inputs: {
         "scenemodel": {
-          loader: "scenemodel"
+          loader: "scenemodel",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         },
         "datamodel": {
           loader: "datamodel"
@@ -64,7 +103,10 @@ export const modelConverter = new ModelConverter({
     "gltf": {
       inputs: {
         "gltf": {
-          loader: "glb"
+          loader: "glb",
+          options: {
+            coordinateSystem: CoordinateSystems.YUp_RightHanded_Meters
+          }
         }
       }
     },
@@ -72,12 +114,20 @@ export const modelConverter = new ModelConverter({
     "gltf2xgf": {
       inputs: {
         "gltf": {
-          loader: "glb"
+          loader: "glb",
+          options: {
+            coordinateSystem: CoordinateSystems.YUp_RightHanded_Meters
+          },
+          sceneModel: "geometry"
         }
       },
       outputs: {
         "xgf": {
-          exporter: "xgf"
+          exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          },
+          sceneModel: "geometry"
         },
         "datamodel": {
           exporter: "datamodel"
@@ -88,7 +138,10 @@ export const modelConverter = new ModelConverter({
     "gltf2dotbim": {
       inputs: {
         "gltf": {
-          loader: "gltf"
+          loader: "gltf",
+          options: {
+            coordinateSystem: CoordinateSystems.YUp_RightHanded_Meters
+          }
         },
         "datamodel": {
           loader: "datamodel"
@@ -96,7 +149,10 @@ export const modelConverter = new ModelConverter({
       },
       outputs: {
         "dotbim": {
-          exporter: "dotbim"
+          exporter: "dotbim",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       }
     },
@@ -104,7 +160,10 @@ export const modelConverter = new ModelConverter({
     "cityjson": {
       inputs: {
         "cityjson": {
-          loader: "cityjson"
+          loader: "cityjson",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       }
     },
@@ -112,29 +171,40 @@ export const modelConverter = new ModelConverter({
     "cityjson2xgf": {
       inputs: {
         "cityjson": {
-          loader: "cityjson"
+          loader: "cityjson",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       },
       outputs: {
         "xgf": {
-          exporter: "xgf"
+          exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         },
         "datamodel": {
           exporter: "datamodel"
         }
-
       }
     },
 
     "cityjson2json": {
       inputs: {
         "cityjson": {
-          loader: "cityjson"
+          loader: "cityjson",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       },
       outputs: {
         "scenemodel": {
-          exporter: "scenemodel"
+          exporter: "scenemodel",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         },
         "datamodel": {
           exporter: "datamodel"
@@ -146,7 +216,10 @@ export const modelConverter = new ModelConverter({
     "ifc": {
       inputs: {
         "ifc": {
-          loader: "ifc"
+          loader: "ifc",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       }
     },
@@ -154,7 +227,10 @@ export const modelConverter = new ModelConverter({
     "ifc2json": {
       inputs: {
         "ifc": {
-          loader: "ifc"
+          loader: "ifc",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       },
       outputs: {
@@ -162,7 +238,10 @@ export const modelConverter = new ModelConverter({
           exporter: "datamodel"
         },
         "scenemodel": {
-          exporter: "scenemodel"
+          exporter: "scenemodel",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       }
     },
@@ -170,12 +249,18 @@ export const modelConverter = new ModelConverter({
     "ifc2xgf": {
       inputs: {
         "ifc": {
-          loader: "ifc"
+          loader: "ifc",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       },
       outputs: {
         "xgf": {
-          exporter: "xgf"
+          exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         },
         "datamodel": {
           exporter: "datamodel"
@@ -186,12 +271,18 @@ export const modelConverter = new ModelConverter({
     "ifc2dotbim": {
       inputs: {
         "ifc": {
-          loader: "ifc"
+          loader: "ifc",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       },
       outputs: {
         "dotbim": {
-          exporter: "dotbim"
+          exporter: "dotbim",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       }
     },
@@ -199,12 +290,18 @@ export const modelConverter = new ModelConverter({
     "dotbim2gltf": {
       inputs: {
         "dotbim": {
-          loader: "dotbim"
+          loader: "dotbim",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       },
       outputs: {
         "gltf": {
-          exporter: "glb"
+          exporter: "glb",
+          options: {
+            coordinateSystem: CoordinateSystems.YUp_RightHanded_Meters
+          }
         }
       }
     },
@@ -212,7 +309,10 @@ export const modelConverter = new ModelConverter({
     "dotbim": {
       inputs: {
         "dotbim": {
-          loader: "dotbim"
+          loader: "dotbim",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       }
     },
@@ -220,7 +320,10 @@ export const modelConverter = new ModelConverter({
     "dotbim2json": {
       inputs: {
         "dotbim": {
-          loader: "dotbim"
+          loader: "dotbim",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       },
       outputs: {
@@ -228,7 +331,10 @@ export const modelConverter = new ModelConverter({
           exporter: "datamodel"
         },
         "scenemodel": {
-          exporter: "scenemodel"
+          exporter: "scenemodel",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       }
     },
@@ -236,12 +342,18 @@ export const modelConverter = new ModelConverter({
     "dotbim2xgf": {
       inputs: {
         "dotbim": {
-          loader: "dotbim"
+          loader: "dotbim",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       },
       outputs: {
         "xgf": {
-          exporter: "xgf"
+          exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         },
         "datamodel": {
           exporter: "datamodel"
@@ -252,12 +364,18 @@ export const modelConverter = new ModelConverter({
     "dotbim2ifc": {
       inputs: {
         "dotbim": {
-          loader: "dotbim"
+          loader: "dotbim",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       },
       outputs: {
         "ifc": {
-          exporter: "ifc"
+          exporter: "ifc",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       }
     },
@@ -268,15 +386,10 @@ export const modelConverter = new ModelConverter({
           loader: "las",
           options: {
             center: false,
-            transform: [
-              1, 0, 0, 0,
-              0, 1, 0, 0,
-              0, 0, 1, 0,
-              0, 0, 0, 1
-            ],
             skip: 1,
             fp64: false,
-            colorDepth: "auto"
+            colorDepth: "auto",
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
           }
         }
       }
@@ -288,21 +401,19 @@ export const modelConverter = new ModelConverter({
           loader: "las",
           options: {
             center: false,
-            transform: [
-              1, 0, 0, 0,
-              0, 1, 0, 0,
-              0, 0, 1, 0,
-              0, 0, 0, 1
-            ],
             skip: 1,
             fp64: false,
-            colorDepth: "auto"
+            colorDepth: "auto",
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
           }
         }
       },
       outputs: {
         "xgf": {
-          exporter: "xgf"
+          exporter: "xgf",
+          options: {
+            coordinateSystem: CoordinateSystems.ZUp_RightHanded_Meters
+          }
         }
       }
     }

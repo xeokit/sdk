@@ -1,14 +1,13 @@
 import {
   addVec3,
   compareVec3,
-  createMat4,
   createVec2,
   createVec3,
   createVec4,
   cross3Vec3,
-  decomposeMat4, distVec3, dotVec4,
+  distVec3, dotVec4,
   inverseMat4, lenVec3, lookAtMat4v, mulVec3Scalar, normalizeVec3, sqLenVec3, subVec3,
-  transformPoint3, transformPoint4, transformVec3
+  transformPoint3, transformVec3
 } from "../matrix";
 import type {FloatArrayParam} from "../math";
 import {clamp} from "../math";
@@ -229,8 +228,9 @@ class PivotController {
     }
 
     const camera = this.#view.camera;
+    const coordinateSystem = camera.view.viewer.scene.coordinateSystem;
 
-    let lookat = lookAtMat4v(camera.eye, camera.look, camera.worldUp);
+    let lookat = lookAtMat4v(camera.eye, camera.look, coordinateSystem.worldUp);
     transformPoint3(lookat, this.getPivotPos(), this.#cameraOffset);
 
     const pivotPos = this.getPivotPos();
@@ -244,7 +244,7 @@ class PivotController {
     subVec3(camera.eye, pivotPos, diff);
     addVec3(diff, offset);
 
-    if (camera.zUp) {
+    if (coordinateSystem.zUp) {
       const t = diff[1];
       diff[1] = diff[2];
       diff[2] = t;
@@ -259,7 +259,7 @@ class PivotController {
   #cameraLookingDownwards() { // Returns true if angle between camera viewing direction and World-space "up" axis is too small
     const camera = this.#view.camera;
     const forwardAxis = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a));
-    const rightAxis = cross3Vec3(forwardAxis, camera.worldUp, tempVec3b);
+    const rightAxis = cross3Vec3(forwardAxis, camera.view.viewer.scene.coordinateSystem.worldUp, tempVec3b);
     const rightAxisLen = sqLenVec3(rightAxis);
     return (rightAxisLen <= 0.0001);
   }
@@ -331,7 +331,8 @@ class PivotController {
     const camera = this.#view.camera;
     let dx = -yawInc;
     const dy = -pitchInc;
-    if (camera.worldUp[2] === 1) {
+    const worldUp = this.#view.viewer.scene.coordinateSystem.worldUp;
+    if (worldUp[2] === 1) {
       dx = -dx;
     }
     this.#azimuth += -dx * .01;
@@ -342,7 +343,7 @@ class PivotController {
       this.#radius * Math.cos(this.#polar),
       this.#radius * Math.sin(this.#polar) * Math.cos(this.#azimuth)
     ];
-    if (camera.worldUp[2] === 1) {
+    if (worldUp[2] === 1) {
       const t = pos[1];
       pos[1] = pos[2];
       pos[2] = t;
@@ -351,7 +352,7 @@ class PivotController {
     const eyeLookLen = lenVec3(subVec3(camera.look, camera.eye, createVec3()));
     const pivotPos = this.getPivotPos();
     addVec3(pos, pivotPos);
-    let lookat = lookAtMat4v(pos, pivotPos, camera.worldUp);
+    let lookat = lookAtMat4v(pos, pivotPos, worldUp);
     lookat = inverseMat4(lookat);
     const offset = transformVec3(lookat, this.#cameraOffset);
     lookat[12] -= offset[0];

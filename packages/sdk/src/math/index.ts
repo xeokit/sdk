@@ -30,19 +30,25 @@
  * Represents an array of floating-point numbers.
  */
 export type FloatArrayParam =
-  Uint8Array
-  | Int8Array
-  | Uint16Array
-  | Uint32Array
-  | Int16Array
-  | Float32Array
-  | Float64Array
+  Uint8Array<any>
+  | Int8Array<any>
+  | Uint16Array<any>
+  | Uint32Array<any>
+  | Int16Array<any>
+  | Float32Array<any>
+  | Float64Array<any>
   | number[];
 
 /**
  * Represents an array of integer numbers.
  */
-export type IntArrayParam = Uint32Array | Uint8Array | Int8Array | Uint16Array | Int16Array | number[];
+export type IntArrayParam =
+  Uint32Array<any>
+  | Uint8Array<any>
+  | Int8Array<any>
+  | Uint16Array<any>
+  | Int16Array<any>
+  | number[];
 
 /**
  * Minimum safe double-precision value.

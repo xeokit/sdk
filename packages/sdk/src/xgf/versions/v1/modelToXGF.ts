@@ -5,9 +5,10 @@ import {
   SurfacePrimitive,
   TrianglesPrimitive
 } from "../../../constants";
-import {isIdentityMat4} from "../../../matrix";
+import {createMat4, isIdentityMat4, mulMat4} from "../../../matrix";
 import type {SceneModel} from "../../../scene";
 import type {XGFData_v1} from "./XGFData_v1";
+import {createCoordinateSystemTransform} from "../../../scene";
 
 const NUM_MATERIAL_ATTRIBUTES = 4;
 
@@ -16,9 +17,15 @@ const NUM_MATERIAL_ATTRIBUTES = 4;
  */
 export function modelToXGF(params: {
   sceneModel: SceneModel;
+  options: any;
 }): XGFData_v1 {
 
   const sceneModel = params.sceneModel;
+  const options = params.options;
+
+  const coordinateSystemMatrix = options.coordinateSystem
+    ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4())
+    : null;
 
   const geometriesList = Object.values(sceneModel.geometries);
   const meshesList = Object.values(sceneModel.meshes);
@@ -152,9 +159,12 @@ export function modelToXGF(params: {
     for (let objectMeshIdx = 0; objectMeshIdx < object.meshes.length; objectMeshIdx++) {
       const mesh = object.meshes[objectMeshIdx];
       xgfData.eachMeshGeometriesBase [meshesBase] = geometryIndices[mesh.geometry.id];
-      if (isIdentityMat4(mesh.matrix)) {
+      const matrix = coordinateSystemMatrix
+        ? mulMat4(mesh.matrix, coordinateSystemMatrix, createMat4())
+        : mesh.matrix;
+      if (isIdentityMat4(matrix)) {
         if (!identityMatrixAdded) {
-          matrices.push(...mesh.matrix);
+          matrices.push(...matrix);
           xgfData.eachMeshMatricesBase [meshesBase] = matricesBase;
           identityMatrixBase = matricesBase;
           matricesBase += 16;
@@ -163,7 +173,7 @@ export function modelToXGF(params: {
           xgfData.eachMeshMatricesBase [meshesBase] = identityMatrixBase;
         }
       } else {
-        matrices.push(...mesh.matrix);
+        matrices.push(...matrix);
         xgfData.eachMeshMatricesBase [meshesBase] = matricesBase;
         matricesBase += 16;
       }

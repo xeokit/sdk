@@ -6,6 +6,7 @@ import type {SceneModelStreamParams} from "./SceneModelStreamParams";
 import type {SceneObjectParams} from "./SceneObjectParams";
 import type {SceneTextureParams} from "./SceneTextureParams";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
+import type {CoordinateSystemParams} from "./CoordinateSystemParams";
 
 
 /**
@@ -19,17 +20,22 @@ import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 export interface SceneModelParams {
 
   /**
-   * Indicates what renderer resources will need to be allocated in a {@link viewer!Viewer | Viewer's}
-   * {@link viewer!Renderer | Renderer} to support progressive loading for a {@link SceneModel | SceneModel}.
-   */
-  streamParams?: SceneModelStreamParams;
-
-  /**
    * Unique ID for the SceneModel.
    *
    * The SceneModel is stored with this ID in {@link Scene.models | Scene.models}
    */
   id: string;
+
+  /**
+   * Configures the SceneModel's local coordinate system.
+   */
+  coordinateSystem?: CoordinateSystemParams;
+
+  /**
+   * Indicates what renderer resources will need to be allocated in a {@link viewer!Viewer | Viewer's}
+   * {@link viewer!Renderer | Renderer} to support progressive loading for a {@link SceneModel | SceneModel}.
+   */
+  streamParams?: SceneModelStreamParams;
 
   /**
    * Whether IDs of the {@link SceneObject | SceneObjects} are globalized.

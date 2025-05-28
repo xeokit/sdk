@@ -1,7 +1,8 @@
 import {type ModelEncodeParams, ModelExporter} from "../io";
 import {Document, type mat4, WebIO,} from '@gltf-transform/core';
 import {decompressPoint3WithAABB3} from "../compression";
-import {createVec3} from "../matrix";
+import {createMat4, createVec3, mulMat4} from "../matrix";
+import {createCoordinateSystemTransform} from "../scene";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -28,6 +29,10 @@ export function encode2(params: ModelEncodeParams, options?: any): Promise<any> 
   return new Promise<any>(function (resolve, reject) {
 
     const {sceneModel} = params;
+
+    const coordinateSystemMatrix = options.coordinateSystem
+      ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4())
+      : null;
 
     const io = new WebIO({credentials: 'include'});
     const document = new Document();
@@ -122,9 +127,13 @@ export function encode2(params: ModelEncodeParams, options?: any): Promise<any> 
         const mesh = document.createMesh()
           .addPrimitive(primitive);
 
+        const matrix = coordinateSystemMatrix
+          ? mulMat4(sceneMesh.matrix, coordinateSystemMatrix, createMat4())
+          : sceneMesh.matrix;
+
         const node = document.createNode(sceneMesh.id)
           .setMesh(mesh)
-          .setMatrix(<mat4>sceneMesh.matrix);
+          .setMatrix(<mat4>matrix);
 
         gltfObjectNode.addChild(node);
       }

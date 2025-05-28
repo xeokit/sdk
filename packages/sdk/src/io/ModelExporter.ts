@@ -102,7 +102,7 @@ export class ModelExporter {
           resolve(fileData);
         })
         .catch(err => {
-          reject(`Failed to writer source file: ${err}`);
+          reject(`Failed to export target file: ${err}`);
         });
     });
   }

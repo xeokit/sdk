@@ -6,9 +6,7 @@ import {TrianglesPrimitive} from "../../../constants";
 /**
  * @private
  */
-export const parse: ModelParser = async (params, options = {
-  translate: undefined
-}) => {
+export const parse: ModelParser = async (params, options) => {
   return new Promise<void>((resolve, reject) => {
     const fileData = params.fileData;
 
@@ -54,11 +52,7 @@ export const parse: ModelParser = async (params, options = {
             color: color ? [color.r / 255.0, color.g / 255.0, color.b / 255.0] : undefined,
             opacity: color ? color.a / 255.0 : 1.0,
             quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : undefined,
-            position: vector
-              ? (options.translate
-                ? [vector.x + options.translate[0], vector.y + options.translate[1], vector.z + options.translate[2]]
-                : [vector.x, vector.y, vector.z])
-              : (options.translate ? options.translate : undefined)
+            position: [vector.x, vector.y, vector.z]
           });
           if (mesh instanceof SDKError) {
             // params.error(`[SceneModel.createMesh]: ${mesh.message}`);

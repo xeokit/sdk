@@ -6,6 +6,7 @@ import {type ModelLoaderParams} from "./ModelLoaderParams";
 import {type ModelParser} from "./ModelParser";
 
 import {createFileIO} from './FileIOFactory';
+import {type ModelLoadOptions} from "./ModelLoadOptions";
 
 const fileIO = createFileIO();
 
@@ -75,7 +76,7 @@ export class ModelLoader {
    * - If the DataModel has already been destroyed.
    * - If the DataModel has already been built.
    */
-  load(params: ModelLoadParams, options: any = {}): Promise<any> {
+  load(params: ModelLoadParams, options: ModelLoadOptions = {}): Promise<any> {
     return new Promise<void>((resolve, reject) => {
       if (!params) {
         return reject("Argument expected: params");

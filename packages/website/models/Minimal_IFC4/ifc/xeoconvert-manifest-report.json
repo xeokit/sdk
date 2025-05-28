@@ -1,0 +1,32 @@
+{
+    "files": [
+        {
+            "filePath": "model.ifc",
+            "fileFormat": "IFC",
+            "fileFormatVersion": null,
+            "fileDataType": "arraybuffer",
+            "options": {
+                "coordinateSystem": {
+                    "basis": [
+                        1,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        1
+                    ],
+                    "origin": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "units": "meters",
+                    "scaleToMeters": 1
+                }
+            }
+        }
+    ]
+}

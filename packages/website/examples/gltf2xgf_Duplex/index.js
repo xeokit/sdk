@@ -31,6 +31,14 @@ const view = viewer.createView({
     elementId: "demoCanvas"
 });
 
+// Configure the View's World-space coordinate axis to make the +Y axis "up"
+
+view.camera.worldAxis = [
+  1, 0, 0, // Right +X
+  0, 1, 0, // Up +Z
+  0, 0, 1  // Forward +Z
+];
+
 // Arrange the View's Camera
 
 view.camera.eye = [14.915582703146043, 14.396781491179095, 5.431098754133695];

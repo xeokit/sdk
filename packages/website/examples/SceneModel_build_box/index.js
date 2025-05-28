@@ -38,9 +38,9 @@ demoHelper.init().then(() => {
 
     // Position the View's Camera to look at the origin of the coordinate system
 
-    view.camera.eye = [2, 2, 3]; // Default is [0,0,10]
-    view.camera.look = [0, 0, 0]; // Default
-    view.camera.up = [0, 1, 0]; // Default
+    view.camera.eye = [2, 3, 2];
+    view.camera.look = [0, 0, 0];
+    view.camera.up = [0, 0, 1];
 
     // Add a CameraControl to the View to control its Camera with mouse and touchpad input
 

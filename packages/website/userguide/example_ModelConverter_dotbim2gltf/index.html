@@ -224,14 +224,28 @@
       <span class="hljs-attr">inputs</span>: {
         <span class="hljs-string">&quot;dotbim&quot;</span>: {
           <span class="hljs-attr">loader</span>: <span class="hljs-string">&quot;dotbim&quot;</span>,
-          <span class="hljs-attr">options</span>: {}
+          <span class="hljs-attr">options</span>: {
+            <span class="hljs-attr">coordinateSystem</span>: {
+              <span class="hljs-attr">basis</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>],
+              <span class="hljs-attr">origin</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],
+              <span class="hljs-attr">units</span>: <span class="hljs-string">&#x27;meters&#x27;</span>,
+              <span class="hljs-attr">scaleToMeters</span>: <span class="hljs-number">1</span>
+            }
+          }
         }
       },
       <span class="hljs-attr">outputs</span>: {
         <span class="hljs-string">&quot;gltf&quot;</span>: {
           <span class="hljs-attr">exporter</span>: <span class="hljs-string">&quot;gltf&quot;</span>,
           <span class="hljs-attr">version</span>: <span class="hljs-string">&quot;1.0&quot;</span>,
-          <span class="hljs-attr">options</span>: {}
+          <span class="hljs-attr">options</span>: {
+            <span class="hljs-attr">coordinateSystem</span>: {
+              <span class="hljs-attr">basis</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, -<span class="hljs-number">1</span>],
+              <span class="hljs-attr">origin</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],
+              <span class="hljs-attr">units</span>: <span class="hljs-string">&#x27;meters&#x27;</span>,
+              <span class="hljs-attr">scaleToMeters</span>: <span class="hljs-number">1</span>
+            }
+          }
         },
         <span class="hljs-string">&quot;datamodel&quot;</span>: {
           <span class="hljs-attr">exporter</span>: <span class="hljs-string">&quot;datamodel&quot;</span>,

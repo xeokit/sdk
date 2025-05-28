@@ -4,7 +4,28 @@
             "filePath": "model.json",
             "fileFormat": "CityJSON",
             "fileDataType": "json",
-            "options": {}
+            "options": {
+                "coordinateSystem": {
+                    "basis": [
+                        1,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        1
+                    ],
+                    "origin": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "units": "meters",
+                    "scaleToMeters": 1
+                }
+            }
         }
     ]
 }

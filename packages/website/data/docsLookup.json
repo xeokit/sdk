@@ -857,6 +857,18 @@
     "kind": "function",
     "namespace": "metamodel"
   },
+  "CoordinateSystem": {
+    "summary": "Represents a 3D coordinate system.",
+    "path": "/api-docs#./docs/api/classes/scene.CoordinateSystem.html",
+    "kind": "class",
+    "namespace": "scene"
+  },
+  "CoordinateSystemParams": {
+    "summary": "Describes the coordinate system, origin, and unit system in which a 3D model was authored.",
+    "path": "/api-docs#./docs/api/interfaces/scene.CoordinateSystemParams.html",
+    "kind": "interface",
+    "namespace": "scene"
+  },
   "copy": {
     "summary": "Returns a shallow copy.",
     "path": "/api-docs#./docs/api/functions/utils.copy.html",
@@ -880,6 +892,12 @@
     "path": "/api-docs#./docs/api/functions/boundaries.createAABB3Int16.html",
     "kind": "function",
     "namespace": "boundaries"
+  },
+  "createCoordinateSystemTransform": {
+    "summary": "Computes a 4x4 transformation matrix to convert coordinates from one CoordinateSystemParams to another.",
+    "path": "/api-docs#./docs/api/functions/scene.createCoordinateSystemTransform.html",
+    "kind": "function",
+    "namespace": "scene"
   },
   "createKdTree2FromSceneObjectVerts": {
     "summary": "A k-d tree to accelerate intersection and nearest-neighbour tests on the projected\n2D canvas positions of scene!.",
@@ -8410,6 +8428,12 @@
     "path": "/api-docs#./docs/api/classes/kdtree3.SceneObjectsPrimsKdTree3.html",
     "kind": "class",
     "namespace": "kdtree3"
+  },
+  "SceneParams": {
+    "summary": "Parameters for creating a Scene.",
+    "path": "/api-docs#./docs/api/interfaces/scene.SceneParams.html",
+    "kind": "interface",
+    "namespace": "scene"
   },
   "SceneTexture": {
     "summary": "A texture in a SceneModel.",

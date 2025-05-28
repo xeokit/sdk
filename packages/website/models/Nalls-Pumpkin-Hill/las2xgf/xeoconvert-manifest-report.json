@@ -5,7 +5,28 @@
             "fileFormat": "XGF",
             "fileFormatVersion": "1.0.0",
             "fileDataType": "arraybuffer",
-            "options": {}
+            "options": {
+                "coordinateSystem": {
+                    "basis": [
+                        1,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        1
+                    ],
+                    "origin": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "units": "meters",
+                    "scaleToMeters": 1
+                }
+            }
         }
     ]
 }

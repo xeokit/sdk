@@ -20,14 +20,28 @@ const modelConverter = new xeokit.modelconverter.ModelConverter({
       inputs: {
         "dotbim": {
           loader: "dotbim",
-          options: {}
+          options: {
+            coordinateSystem: {
+              basis: [1, 0, 0, 0, 0, -1, 0, 1, 0],
+              origin: [0, 0, 0],
+              units: 'meters',
+              scaleToMeters: 1
+            }
+          }
         }
       },
       outputs: {
         "gltf": {
           exporter: "gltf",
           version: "1.0",
-          options: {}
+          options: {
+            coordinateSystem: {
+              basis: [1, 0, 0, 0, 1, 0, 0, 0, -1],
+              origin: [0, 0, 0],
+              units: 'meters',
+              scaleToMeters: 1
+            }
+          }
         },
         "datamodel": {
           exporter: "datamodel",

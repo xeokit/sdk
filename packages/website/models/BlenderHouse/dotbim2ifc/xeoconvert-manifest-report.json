@@ -5,7 +5,28 @@
             "fileFormat": "IFC",
             "fileFormatVersion": "IFC4",
             "fileDataType": "text",
-            "options": {}
+            "options": {
+                "coordinateSystem": {
+                    "basis": [
+                        1,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        1
+                    ],
+                    "origin": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "units": "meters",
+                    "scaleToMeters": 1
+                }
+            }
         }
     ]
 }

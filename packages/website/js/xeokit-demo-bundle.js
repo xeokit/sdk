@@ -778,7 +778,7 @@ var require_EventDispatcher = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.EventDispatcher = void 0;
     var ste_core_1 = require_dist();
-    var EventDispatcher23 = class extends ste_core_1.DispatcherBase {
+    var EventDispatcher24 = class extends ste_core_1.DispatcherBase {
       /**
        * Creates an instance of EventDispatcher.
        *
@@ -826,7 +826,7 @@ var require_EventDispatcher = __commonJS({
         return super.asEvent();
       }
     };
-    exports.EventDispatcher = EventDispatcher23;
+    exports.EventDispatcher = EventDispatcher24;
   }
 });
 
@@ -4835,8 +4835,8 @@ function octEncodeNormalFromArray(array, i, xfunc, yfunc) {
   }
   return new Int8Array([Math[xfunc](x * 127.5 + (x < 0 ? -1 : 0)), Math[yfunc](y * 127.5 + (y < 0 ? -1 : 0))]);
 }
-function dot(array, i, createVec32) {
-  return array[i] * createVec32[0] + array[i + 1] * createVec32[1] + array[i + 2] * createVec32[2];
+function dot(array, i, createVec33) {
+  return array[i] * createVec33[0] + array[i + 1] * createVec33[1] + array[i + 2] * createVec33[2];
 }
 function decompressUV(uv, decompressMatrix, dest = new Float32Array(2)) {
   if (uv.length < 2 || decompressMatrix.length < 8) {
@@ -4963,8 +4963,8 @@ function quantizePositions3(positions, aabb) {
   return positionsCompressed;
 }
 function transformAndOctEncodeNormals(worldNormalMatrix, normals, lenNormals, compressedNormals, lenCompressedNormals) {
-  const dot3 = (p, createVec32) => {
-    return p[0] * createVec32[0] + p[1] * createVec32[1] + p[2] * createVec32[2];
+  const dot3 = (p, createVec33) => {
+    return p[0] * createVec33[0] + p[1] * createVec33[1] + p[2] * createVec33[2];
   };
   const localNormal = new Float32Array(3);
   const worldNormal = new Float32Array(3);
@@ -9641,7 +9641,7 @@ function compressGeometryParams(geometryParams) {
 }
 
 // ../sdk/src/scene/SceneModel.ts
-var import_strongly_typed_events5 = __toESM(require_dist8());
+var import_strongly_typed_events7 = __toESM(require_dist8());
 
 // ../sdk/src/scene/SceneGeometry.ts
 var SceneGeometry = class {
@@ -10227,7 +10227,593 @@ var SceneTextureSet = class {
   }
 };
 
+// ../sdk/src/scene/CoordinateSystem.ts
+var import_strongly_typed_events6 = __toESM(require_dist8());
+
+// ../sdk/src/scene/Scene.ts
+var import_strongly_typed_events5 = __toESM(require_dist8());
+
+// ../sdk/src/scene/SceneTile.ts
+var SceneTile = class {
+  /**
+   * Unique ID of this SceneTile.
+   */
+  id;
+  /**
+   * The Scene that owns this SceneTile.
+   */
+  scene;
+  /**
+   * The 3D World-space origin of this SceneTile.
+   */
+  origin;
+  /**
+   * The number of {@link SceneMesh | SceneMeshes} associated with this SceneTile.
+   */
+  numObjects;
+  /**
+   * The {@link SceneModel | SceneModels} belonging to this SceneTile, each keyed to
+   * its {@link SceneModel.id | SceneModel.id}.
+   *
+   * A SceneModel can belong to more than one SceneTile.
+   */
+  models;
+  /**
+   * The {@link SceneObject | SceneObjects} in this SceneTile,
+   * mapped to {@link SceneObject.id | SceneObject.id}.
+   *
+   * A SceneObject can belong to more than one SceneTile.
+   */
+  objects;
+  /**
+   * @private
+   * @param scene
+   * @param id
+   * @param origin
+   */
+  constructor(scene, id, origin2) {
+    this.scene = scene;
+    this.id = id;
+    this.origin = origin2;
+    this.numObjects = 0;
+    this.models = {};
+    this.objects = {};
+  }
+};
+
+// ../sdk/src/scene/Scene.ts
+var Scene = class extends Component {
+  /**
+   * Configures the Scene's coordinate system.
+   */
+  coordinateSystem;
+  /**
+   * The {@link SceneModel | SceneModels} belonging to this Scene, each keyed to
+   * its {@link SceneModel.id | SceneModel.id}.
+   */
+  models;
+  /**
+   * The {@link SceneObject | SceneObjects} in this Scene, mapped to {@link SceneObject.id | SceneObject.id}.
+   */
+  objects;
+  /**
+   * The {@link SceneTile | SceneTiles} in this Scene.
+   */
+  tiles;
+  /**
+   * Emits an event each time a {@link SceneModel | SceneModel} is created in this Scene.
+   *
+   * @event
+   */
+  onModelCreated;
+  /**
+   * Emits an event each time a {@link SceneModel | SceneModel} is destroyed in this Scene.
+   *
+   * @event
+   */
+  onModelDestroyed;
+  /**
+   * Emits an event each time a {@link SceneTile} is created in this Scene.
+   *
+   * @event
+   */
+  onTileCreated;
+  /**
+   * Emits an event each time a {@link SceneTile} is destroyed in this Scene.
+   *
+   * @event
+   */
+  onTileDestroyed;
+  #onModelBuilts;
+  #onModelDestroys;
+  #center;
+  #aabbDirty;
+  #aabb;
+  /**
+   * Creates a new Scene.
+   */
+  constructor(params2) {
+    super(null, {});
+    this.#aabb = createAABB3();
+    this.#aabbDirty = true;
+    this.coordinateSystem = new CoordinateSystem(this, params2?.coordinateSystem || {
+      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      // X+, Y+, Z+
+      origin: [0, 0, 0],
+      units: "meters",
+      scaleToMeters: 1
+    });
+    this.models = {};
+    this.objects = {};
+    this.tiles = {};
+    this.#onModelBuilts = {};
+    this.#onModelDestroys = {};
+    this.onModelCreated = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
+    this.onModelDestroyed = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
+    this.onTileCreated = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
+    this.onTileDestroyed = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
+  }
+  /**
+   * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
+   */
+  get center() {
+    if (this.#aabbDirty) {
+      const aabb = this.aabb;
+      this.#center[0] = (aabb[0] + aabb[3]) / 2;
+      this.#center[1] = (aabb[1] + aabb[4]) / 2;
+      this.#center[2] = (aabb[2] + aabb[5]) / 2;
+    }
+    return this.#center;
+  }
+  /**
+   * Gets the collective World-space 3D [axis-aligned boundary](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#aabb) of all the {@link SceneModel | SceneModels} in this Scene.
+   *
+   * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
+   */
+  get aabb() {
+    if (this.#aabbDirty) {
+      let xmin = MAX_DOUBLE;
+      let ymin = MAX_DOUBLE;
+      let zmin = MAX_DOUBLE;
+      let xmax = MIN_DOUBLE;
+      let ymax = MIN_DOUBLE;
+      let zmax = MIN_DOUBLE;
+      let aabb;
+      const objects = this.objects;
+      let valid = false;
+      for (const objectId in objects) {
+        if (objects.hasOwnProperty(objectId)) {
+          const object = objects[objectId];
+          aabb = object.aabb;
+          if (aabb[0] < xmin) {
+            xmin = aabb[0];
+          }
+          if (aabb[1] < ymin) {
+            ymin = aabb[1];
+          }
+          if (aabb[2] < zmin) {
+            zmin = aabb[2];
+          }
+          if (aabb[3] > xmax) {
+            xmax = aabb[3];
+          }
+          if (aabb[4] > ymax) {
+            ymax = aabb[4];
+          }
+          if (aabb[5] > zmax) {
+            zmax = aabb[5];
+          }
+          valid = true;
+        }
+      }
+      if (!valid) {
+        xmin = -100;
+        ymin = -100;
+        zmin = -100;
+        xmax = 100;
+        ymax = 100;
+        zmax = 100;
+      }
+      this.#aabb[0] = xmin;
+      this.#aabb[1] = ymin;
+      this.#aabb[2] = zmin;
+      this.#aabb[3] = xmax;
+      this.#aabb[4] = ymax;
+      this.#aabb[5] = zmax;
+      this.#aabbDirty = false;
+    }
+    return this.#aabb;
+  }
+  /**
+   * Creates a new {@link SceneModel | SceneModel} in this Scene.
+   *
+   * Remember to call {@link SceneModel.build | SceneModel.build} when you've finished building or
+   * loading the SceneModel. That will
+   * fire events via {@link Scene.onModelCreated | Scene.onModelCreated} and {@link SceneModel.onBuilt | SceneModel.onBuilt}, to
+   * indicate to any subscribers that the SceneModel is built and ready for use.
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for more details on usage.
+   *
+   * @param  sceneModelParams Creation parameters for the new {@link SceneModel | SceneModel}.
+   * @returns *{@link SceneModel | SceneModel}*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Scene has already been destroyed.
+   * * A SceneModel with the given ID already exists in this Scene.
+   */
+  createModel(sceneModelParams) {
+    if (this.destroyed) {
+      return new SDKError("Scene already destroyed");
+    }
+    const id = sceneModelParams.id;
+    if (this.models[id]) {
+      return new SDKError(`SceneModel already created in this Scene: ${id}`);
+    }
+    const sceneModel = new SceneModel(this, sceneModelParams);
+    this.models[id] = sceneModel;
+    sceneModel.onDestroyed.one(() => {
+      delete this.models[sceneModel.id];
+      this.#deregisterObjects(sceneModel);
+      this.onModelDestroyed.dispatch(this, sceneModel);
+    });
+    sceneModel.onBuilt.one(() => {
+      this.#registerObjects(sceneModel);
+      this.onModelCreated.dispatch(this, sceneModel);
+    });
+    return sceneModel;
+  }
+  /**
+   * @private
+   */
+  setAABBDirty() {
+    if (!this.#aabbDirty) {
+      this.#aabbDirty = true;
+    }
+  }
+  /**
+   * Destroys all contained {@link SceneModel | SceneModels}.
+   *
+   * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and
+   * {@link SceneModel.onDestroyed | SceneModel.onDestroyed} for each existing SceneModel in this Scene.
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for usage.
+   * @returns *void*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Scene has already been destroyed.
+   */
+  clear() {
+    if (this.destroyed) {
+      return new SDKError("Scene already destroyed");
+    }
+    for (const id in this.models) {
+      this.models[id].destroy();
+    }
+  }
+  /**
+   * Destroys this Scene and all contained {@link SceneModel | SceneModels}.
+   *
+   * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   * for each existing SceneModels in this Data.
+   * * Unsubscribes all subscribers to {@link Scene.onModelCreated | Scene.onModelCreated}, {@link Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   *
+   * See {@link scene | @xeokit/sdk/scene}   for usage.
+   *
+   * @returns *void*
+   * * On success.
+   * @returns *{@link core!SDKError | SDKError}*
+   * * This Scene has already been destroyed.
+   */
+  destroy() {
+    this.clear();
+    this.onModelCreated.clear();
+    this.onModelDestroyed.clear();
+    this.onTileCreated.clear();
+    this.onTileDestroyed.clear();
+    super.destroy();
+  }
+  #registerObjects(model) {
+    const objects = model.objects;
+    for (const id in objects) {
+      const object = objects[id];
+      this.objects[object.id] = object;
+    }
+    this.#aabbDirty = true;
+  }
+  #deregisterObjects(model) {
+    const objects = model.objects;
+    for (const id in objects) {
+      const object = objects[id];
+      delete this.objects[object.id];
+    }
+    this.#aabbDirty = true;
+  }
+  getTile(origin2) {
+    const tileId = `${origin2[0]}-${origin2[1]}-${origin2[2]}`;
+    let tile = this.tiles[tileId];
+    if (tile) {
+      tile.numObjects++;
+    } else {
+      tile = new SceneTile(this, tileId, origin2);
+      tile.numObjects = 1;
+      this.tiles[tileId] = tile;
+      this.onTileCreated.dispatch(this, tile);
+    }
+    return tile;
+  }
+  putTile(tile) {
+    if (this.tiles[tile.id] === void 0) {
+      return;
+    }
+    if (--tile.numObjects <= 0) {
+      delete this.tiles[tile.id];
+      this.onTileDestroyed.dispatch(this, tile);
+    }
+  }
+};
+
+// ../sdk/src/scene/CoordinateSystem.ts
+var CoordinateSystem = class extends Component {
+  #notifyUpdatedScheduled;
+  _basis;
+  _origin;
+  _units;
+  _scaleToMeters;
+  _worldUp;
+  _worldRight;
+  _worldForward;
+  /**
+   * Emits an event each time {@link CoordinateSystem.basis | CoordinateSystem.basis } updates.
+   * @event
+   */
+  onBasis;
+  /**
+   * Emits an event each time {@link CoordinateSystem.origin | CoordinateSystem.origin} updates.
+   * @event
+   */
+  onOrigin;
+  /**
+   * Emits an event each time {@link CoordinateSystem.units | CoordinateSystem.units} updates.
+   * @event
+   */
+  onUnits;
+  /**
+   * Emits an event each time {@link CoordinateSystem.scaleToMeters | CoordinateSystem.scaleToMeters} updates.
+   * @event
+   */
+  onScaleToMeters;
+  /**
+   * Emits an event each time any property updates.
+   * @event
+   */
+  onUpdated;
+  /**
+   * @private
+   */
+  constructor(parent, params2) {
+    super(parent);
+    this.onBasis = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
+    this.onOrigin = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
+    this.onUnits = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
+    this.onScaleToMeters = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
+    this.onUpdated = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
+    this._basis = new Float32Array(params2.basis || [1, 0, 0, 0, 1, 0, 0, 0, 1]);
+    this._origin = new Float64Array(params2.origin || [0, 0, 0]);
+    this._units = params2.units || "meters";
+    this._scaleToMeters = params2.scaleToMeters || 1;
+    this._worldUp = createVec3();
+    this._worldRight = createVec3();
+    this._worldForward = createVec3();
+  }
+  #notifyUpdated() {
+    if (!this.#notifyUpdatedScheduled) {
+      this.#notifyUpdatedScheduled = true;
+      setTimeout(() => {
+        this.#notifyUpdatedScheduled = false;
+        this.onUpdated.dispatch(this, this);
+      }, 100);
+    }
+  }
+  /** Gets the flat 9-element coordinate system basis (column-major). */
+  get basis() {
+    return this._basis;
+  }
+  /** Sets the flat 9-element coordinate system basis (column-major). */
+  set basis(value) {
+    this._basis = new Float32Array(value);
+    this._worldRight[0] = this._basis[0];
+    this._worldRight[1] = this._basis[1];
+    this._worldRight[2] = this._basis[2];
+    this._worldUp[0] = this._basis[3];
+    this._worldUp[1] = this._basis[4];
+    this._worldUp[2] = this._basis[5];
+    this._worldForward[0] = this._basis[6];
+    this._worldForward[1] = this._basis[7];
+    this._worldForward[2] = this._basis[8];
+    this.onBasis.dispatch(this, this._basis);
+    this.#notifyUpdated();
+  }
+  /** Gets the origin of the coordinate system in global space. */
+  get origin() {
+    return this._origin;
+  }
+  /** Sets the origin of the coordinate system in global space. */
+  set origin(value) {
+    this._origin = new Float32Array(value);
+    this.onOrigin.dispatch(this, this._origin);
+    this.#notifyUpdated();
+  }
+  /** Gets the unit system used. */
+  get units() {
+    return this._units;
+  }
+  /** Sets the unit system used. */
+  set units(value) {
+    this._units = value;
+    this.onUnits.dispatch(this, this._units);
+    this.#notifyUpdated();
+  }
+  /** Gets the optional scale-to-meters multiplier. */
+  get scaleToMeters() {
+    return this._scaleToMeters;
+  }
+  /** Sets the optional scale-to-meters multiplier. */
+  set scaleToMeters(value) {
+    this._scaleToMeters = value;
+    this.onScaleToMeters.dispatch(this, this._scaleToMeters);
+    this.#notifyUpdated();
+  }
+  /**
+   * Gets the direction of World-space "up".
+   *
+   * This is set by {@link CoordinateSystem.basis}.
+   *
+   * Default value is ````[0,0,1]````.
+   *
+   * @returns {Number[]} The "up" vector.
+   */
+  get worldUp() {
+    return this._worldUp;
+  }
+  /**
+   * Gets the direction of World-space "right".
+   *
+   * This is set by {@link CoordinateSystem.basis}.
+   *
+   * Default value is ````[1,0,0]````.
+   *
+   * @returns {Number[]} The "right" vector.
+   */
+  get worldRight() {
+    return this._worldRight;
+  }
+  /**
+   * Gets the direction of World-space "forwards".
+   *
+   * This is set by {@link CoordinateSystem.basis}.
+   *
+   * Default value is ````[0,0,-1]````.
+   *
+   * @returns {Number[]} The "forwards" vector.
+   */
+  get worldForward() {
+    return this._worldForward;
+  }
+  /**
+   * Gets if the World-space X-axis is "up".
+   * @returns {boolean}
+   */
+  get xUp() {
+    return this._worldUp[0] > this._worldUp[1] && this._worldUp[0] > this._worldUp[2];
+  }
+  /**
+   * Gets if the World-space Y-axis is "up".
+   * @returns {boolean}
+   */
+  get yUp() {
+    return this._worldUp[1] > this._worldUp[0] && this._worldUp[1] > this._worldUp[2];
+  }
+  /**
+   * Gets if the World-space Z-axis is "up".
+   * @returns {boolean}
+   */
+  get zUp() {
+    return this._worldUp[2] > this._worldUp[0] && this._worldUp[2] > this._worldUp[1];
+  }
+  /**
+   * Returns a copy of the current state as a CoordinateSystemParams object.
+   */
+  toParams() {
+    return {
+      basis: Array.from(this._basis),
+      origin: Array.from(this._origin),
+      units: this._units,
+      scaleToMeters: this._scaleToMeters
+    };
+  }
+  /**
+   * Updates this instance's state from a CoordinateSystemParams object.
+   */
+  fromParams(params2) {
+    this._basis = new Float32Array(params2.basis);
+    this._origin = new Float64Array(params2.origin);
+    this._units = params2.units;
+    this._scaleToMeters = params2.scaleToMeters;
+    this.#notifyUpdated();
+  }
+};
+
+// ../sdk/src/scene/createCoordinateSystemTransform.ts
+var tempMat3a = createMat4();
+var tempMat3b = createMat4();
+var tempVec3a3 = createVec3();
+var tempVec3b3 = createVec3();
+function createCoordinateSystemTransform(model, viewer, outMat4) {
+  const modelBasis = model.basis;
+  const viewerBasis = viewer.basis;
+  transpose3(viewerBasis, tempMat3a);
+  multiply3x3(tempMat3a, modelBasis, tempMat3b);
+  const scale3 = (model.scaleToMeters ?? unitScale(model.units)) / (viewer.scaleToMeters ?? unitScale(viewer.units));
+  tempVec3a3[0] = (model.origin[0] - viewer.origin[0]) * scale3;
+  tempVec3a3[1] = (model.origin[1] - viewer.origin[1]) * scale3;
+  tempVec3a3[2] = (model.origin[2] - viewer.origin[2]) * scale3;
+  apply3x3(tempMat3a, tempVec3a3, tempVec3b3);
+  outMat4[0] = tempMat3b[0] * scale3;
+  outMat4[1] = tempMat3b[1] * scale3;
+  outMat4[2] = tempMat3b[2] * scale3;
+  outMat4[3] = 0;
+  outMat4[4] = tempMat3b[3] * scale3;
+  outMat4[5] = tempMat3b[4] * scale3;
+  outMat4[6] = tempMat3b[5] * scale3;
+  outMat4[7] = 0;
+  outMat4[8] = tempMat3b[6] * scale3;
+  outMat4[9] = tempMat3b[7] * scale3;
+  outMat4[10] = tempMat3b[8] * scale3;
+  outMat4[11] = 0;
+  outMat4[12] = tempVec3b3[0];
+  outMat4[13] = tempVec3b3[1];
+  outMat4[14] = tempVec3b3[2];
+  outMat4[15] = 1;
+  return outMat4;
+}
+function transpose3(m, out) {
+  out[0] = m[0];
+  out[1] = m[3];
+  out[2] = m[6];
+  out[3] = m[1];
+  out[4] = m[4];
+  out[5] = m[7];
+  out[6] = m[2];
+  out[7] = m[5];
+  out[8] = m[8];
+}
+function multiply3x3(a2, b4, out) {
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      out[col * 3 + row] = a2[0 * 3 + row] * b4[col * 3 + 0] + a2[1 * 3 + row] * b4[col * 3 + 1] + a2[2 * 3 + row] * b4[col * 3 + 2];
+    }
+  }
+}
+function apply3x3(m, v, out) {
+  out[0] = m[0] * v[0] + m[3] * v[1] + m[6] * v[2];
+  out[1] = m[1] * v[0] + m[4] * v[1] + m[7] * v[2];
+  out[2] = m[2] * v[0] + m[5] * v[1] + m[8] * v[2];
+}
+function unitScale(unit) {
+  switch (unit) {
+    case "meters":
+      return 1;
+    case "millimeters":
+      return 1e-3;
+    case "inches":
+      return 0.0254;
+    case "feet":
+      return 0.3048;
+  }
+}
+
 // ../sdk/src/scene/SceneModel.ts
+var tempMat4 = createMat4();
 var COLOR_TEXTURE = 0;
 var METALLIC_ROUGHNESS_TEXTURE = 1;
 var NORMALS_TEXTURE = 2;
@@ -10273,6 +10859,20 @@ var SceneModel = class extends Component {
    * See {@link scene | @xeokit/sdk/scene}   for usage.
    */
   streamParams;
+  /**
+   * Configures the SceneModel's local coordinate system.
+   *
+   * Internally, a matrix is created to transform coordinates between SceneModel and
+   * Scene CoordinateSystems. The matrix of each {@link SceneMesh} is premultiplied by that
+   * matrix, effectively transforming the SceneModel into the global coordinate system.
+   */
+  coordinateSystem;
+  /**
+   * Caches a matrix used to transform posititions between SceneModel and Scene CoordinateSystems.
+   * Each SceneMesh's matrix is pre-multiplied by this matrix to effectively move the vertex
+   * positions from the SceneModel CoordinateSystem to the Scene CoordinateSystem within.
+   */
+  #coordinateSystemMatrix;
   /**
    * The {@link Scene | Scene} that contains this SceneModel.
    */
@@ -10378,10 +10978,18 @@ var SceneModel = class extends Component {
       id: sceneModelParams.id
     });
     this.scene = scene;
+    this.coordinateSystem = new CoordinateSystem(this, sceneModelParams?.coordinateSystem || {
+      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
+      origin: [0, 0, 0],
+      units: "meters",
+      scaleToMeters: 1
+    });
+    this.#coordinateSystemMatrix = createMat4();
+    createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, this.#coordinateSystemMatrix);
     this.tiles = {};
     this.tilesList = [];
-    this.onBuilt = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
-    this.onDestroyed = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
+    this.onBuilt = new EventEmitter(new import_strongly_typed_events7.EventDispatcher());
+    this.onDestroyed = new EventEmitter(new import_strongly_typed_events7.EventDispatcher());
     this.#numObjects = 0;
     this.#meshUsedByObject = {};
     this.#aabb = createAABB3();
@@ -10823,12 +11431,13 @@ var SceneModel = class extends Component {
     }
     let origin2;
     let rtcMatrix;
+    const coordSystemAndModelingMatrix = mulMat4(this.#coordinateSystemMatrix, matrix, tempMat4);
     if (meshParams.origin) {
       origin2 = meshParams.origin;
-      rtcMatrix = matrix;
+      rtcMatrix = coordSystemAndModelingMatrix;
     } else {
       origin2 = createVec3();
-      rtcMatrix = createRTCModelMat(matrix, origin2);
+      rtcMatrix = createRTCModelMat(coordSystemAndModelingMatrix, origin2);
     }
     const tile = this.scene.getTile(origin2);
     if (!this.tiles[tile.id]) {
@@ -10839,7 +11448,7 @@ var SceneModel = class extends Component {
       id: meshParams.id,
       geometry,
       textureSet,
-      matrix,
+      matrix: coordSystemAndModelingMatrix,
       rtcMatrix,
       color: meshParams.color,
       opacity: meshParams.opacity,
@@ -11455,7 +12064,7 @@ var ModelExporter = class {
       encoder({ sceneModel, dataModel }, options).then((fileData) => {
         resolve2(fileData);
       }).catch((err2) => {
-        reject(`Failed to writer source file: ${err2}`);
+        reject(`Failed to export target file: ${err2}`);
       });
     });
   }
@@ -11519,6 +12128,7 @@ var DataModelParamsExporter = class extends ModelExporter {
 // ../sdk/src/scene/index.ts
 var scene_exports = {};
 __export(scene_exports, {
+  CoordinateSystem: () => CoordinateSystem,
   Scene: () => Scene,
   SceneGeometry: () => SceneGeometry,
   SceneMesh: () => SceneMesh,
@@ -11531,319 +12141,9 @@ __export(scene_exports, {
   SceneTile: () => SceneTile,
   buildMat4: () => buildMat4,
   compressGeometryParams: () => compressGeometryParams,
+  createCoordinateSystemTransform: () => createCoordinateSystemTransform,
   getSceneObjectGeometry: () => getSceneObjectGeometry
 });
-
-// ../sdk/src/scene/Scene.ts
-var import_strongly_typed_events6 = __toESM(require_dist8());
-
-// ../sdk/src/scene/SceneTile.ts
-var SceneTile = class {
-  /**
-   * Unique ID of this SceneTile.
-   */
-  id;
-  /**
-   * The Scene that owns this SceneTile.
-   */
-  scene;
-  /**
-   * The 3D World-space origin of this SceneTile.
-   */
-  origin;
-  /**
-   * The number of {@link SceneMesh | SceneMeshes} associated with this SceneTile.
-   */
-  numObjects;
-  /**
-   * The {@link SceneModel | SceneModels} belonging to this SceneTile, each keyed to
-   * its {@link SceneModel.id | SceneModel.id}.
-   *
-   * A SceneModel can belong to more than one SceneTile.
-   */
-  models;
-  /**
-   * The {@link SceneObject | SceneObjects} in this SceneTile,
-   * mapped to {@link SceneObject.id | SceneObject.id}.
-   *
-   * A SceneObject can belong to more than one SceneTile.
-   */
-  objects;
-  /**
-   * @private
-   * @param scene
-   * @param id
-   * @param origin
-   */
-  constructor(scene, id, origin2) {
-    this.scene = scene;
-    this.id = id;
-    this.origin = origin2;
-    this.numObjects = 0;
-    this.models = {};
-    this.objects = {};
-  }
-};
-
-// ../sdk/src/scene/Scene.ts
-var Scene = class extends Component {
-  /**
-   * The {@link SceneModel | SceneModels} belonging to this Scene, each keyed to
-   * its {@link SceneModel.id | SceneModel.id}.
-   */
-  models;
-  /**
-   * The {@link SceneObject | SceneObjects} in this Scene, mapped to {@link SceneObject.id | SceneObject.id}.
-   */
-  objects;
-  /**
-   * The {@link SceneTile | SceneTiles} in this Scene.
-   */
-  tiles;
-  /**
-   * Emits an event each time a {@link SceneModel | SceneModel} is created in this Scene.
-   *
-   * @event
-   */
-  onModelCreated;
-  /**
-   * Emits an event each time a {@link SceneModel | SceneModel} is destroyed in this Scene.
-   *
-   * @event
-   */
-  onModelDestroyed;
-  /**
-   * Emits an event each time a {@link SceneTile} is created in this Scene.
-   *
-   * @event
-   */
-  onTileCreated;
-  /**
-   * Emits an event each time a {@link SceneTile} is destroyed in this Scene.
-   *
-   * @event
-   */
-  onTileDestroyed;
-  #onModelBuilts;
-  #onModelDestroys;
-  #center;
-  #aabbDirty;
-  #aabb;
-  /**
-   * Creates a new Scene.
-   */
-  constructor() {
-    super(null, {});
-    this.#aabb = createAABB3();
-    this.#aabbDirty = true;
-    this.models = {};
-    this.objects = {};
-    this.tiles = {};
-    this.#onModelBuilts = {};
-    this.#onModelDestroys = {};
-    this.onModelCreated = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
-    this.onModelDestroyed = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
-    this.onTileCreated = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
-    this.onTileDestroyed = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
-  }
-  /**
-   * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
-   */
-  get center() {
-    if (this.#aabbDirty) {
-      const aabb = this.aabb;
-      this.#center[0] = (aabb[0] + aabb[3]) / 2;
-      this.#center[1] = (aabb[1] + aabb[4]) / 2;
-      this.#center[2] = (aabb[2] + aabb[5]) / 2;
-    }
-    return this.#center;
-  }
-  /**
-   * Gets the collective World-space 3D [axis-aligned boundary](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#aabb) of all the {@link SceneModel | SceneModels} in this Scene.
-   *
-   * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
-   */
-  get aabb() {
-    if (this.#aabbDirty) {
-      let xmin = MAX_DOUBLE;
-      let ymin = MAX_DOUBLE;
-      let zmin = MAX_DOUBLE;
-      let xmax = MIN_DOUBLE;
-      let ymax = MIN_DOUBLE;
-      let zmax = MIN_DOUBLE;
-      let aabb;
-      const objects = this.objects;
-      let valid = false;
-      for (const objectId in objects) {
-        if (objects.hasOwnProperty(objectId)) {
-          const object = objects[objectId];
-          aabb = object.aabb;
-          if (aabb[0] < xmin) {
-            xmin = aabb[0];
-          }
-          if (aabb[1] < ymin) {
-            ymin = aabb[1];
-          }
-          if (aabb[2] < zmin) {
-            zmin = aabb[2];
-          }
-          if (aabb[3] > xmax) {
-            xmax = aabb[3];
-          }
-          if (aabb[4] > ymax) {
-            ymax = aabb[4];
-          }
-          if (aabb[5] > zmax) {
-            zmax = aabb[5];
-          }
-          valid = true;
-        }
-      }
-      if (!valid) {
-        xmin = -100;
-        ymin = -100;
-        zmin = -100;
-        xmax = 100;
-        ymax = 100;
-        zmax = 100;
-      }
-      this.#aabb[0] = xmin;
-      this.#aabb[1] = ymin;
-      this.#aabb[2] = zmin;
-      this.#aabb[3] = xmax;
-      this.#aabb[4] = ymax;
-      this.#aabb[5] = zmax;
-      this.#aabbDirty = false;
-    }
-    return this.#aabb;
-  }
-  /**
-   * Creates a new {@link SceneModel | SceneModel} in this Scene.
-   *
-   * Remember to call {@link SceneModel.build | SceneModel.build} when you've finished building or
-   * loading the SceneModel. That will
-   * fire events via {@link Scene.onModelCreated | Scene.onModelCreated} and {@link SceneModel.onBuilt | SceneModel.onBuilt}, to
-   * indicate to any subscribers that the SceneModel is built and ready for use.
-   *
-   * See {@link scene | @xeokit/sdk/scene}   for more details on usage.
-   *
-   * @param  sceneModelParams Creation parameters for the new {@link SceneModel | SceneModel}.
-   * @returns *{@link SceneModel | SceneModel}*
-   * * On success.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * This Scene has already been destroyed.
-   * * A SceneModel with the given ID already exists in this Scene.
-   */
-  createModel(sceneModelParams) {
-    if (this.destroyed) {
-      return new SDKError("Scene already destroyed");
-    }
-    const id = sceneModelParams.id;
-    if (this.models[id]) {
-      return new SDKError(`SceneModel already created in this Scene: ${id}`);
-    }
-    const sceneModel = new SceneModel(this, sceneModelParams);
-    this.models[id] = sceneModel;
-    sceneModel.onDestroyed.one(() => {
-      delete this.models[sceneModel.id];
-      this.#deregisterObjects(sceneModel);
-      this.onModelDestroyed.dispatch(this, sceneModel);
-    });
-    sceneModel.onBuilt.one(() => {
-      this.#registerObjects(sceneModel);
-      this.onModelCreated.dispatch(this, sceneModel);
-    });
-    return sceneModel;
-  }
-  /**
-   * @private
-   */
-  setAABBDirty() {
-    if (!this.#aabbDirty) {
-      this.#aabbDirty = true;
-    }
-  }
-  /**
-   * Destroys all contained {@link SceneModel | SceneModels}.
-   *
-   * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and
-   * {@link SceneModel.onDestroyed | SceneModel.onDestroyed} for each existing SceneModel in this Scene.
-   *
-   * See {@link scene | @xeokit/sdk/scene}   for usage.
-   * @returns *void*
-   * * On success.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * This Scene has already been destroyed.
-   */
-  clear() {
-    if (this.destroyed) {
-      return new SDKError("Scene already destroyed");
-    }
-    for (const id in this.models) {
-      this.models[id].destroy();
-    }
-  }
-  /**
-   * Destroys this Scene and all contained {@link SceneModel | SceneModels}.
-   *
-   * * Fires {@link Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
-   * for each existing SceneModels in this Data.
-   * * Unsubscribes all subscribers to {@link Scene.onModelCreated | Scene.onModelCreated}, {@link Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
-   *
-   * See {@link scene | @xeokit/sdk/scene}   for usage.
-   *
-   * @returns *void*
-   * * On success.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * This Scene has already been destroyed.
-   */
-  destroy() {
-    this.clear();
-    this.onModelCreated.clear();
-    this.onModelDestroyed.clear();
-    this.onTileCreated.clear();
-    this.onTileDestroyed.clear();
-    super.destroy();
-  }
-  #registerObjects(model) {
-    const objects = model.objects;
-    for (const id in objects) {
-      const object = objects[id];
-      this.objects[object.id] = object;
-    }
-    this.#aabbDirty = true;
-  }
-  #deregisterObjects(model) {
-    const objects = model.objects;
-    for (const id in objects) {
-      const object = objects[id];
-      delete this.objects[object.id];
-    }
-    this.#aabbDirty = true;
-  }
-  getTile(origin2) {
-    const tileId = `${origin2[0]}-${origin2[1]}-${origin2[2]}`;
-    let tile = this.tiles[tileId];
-    if (tile) {
-      tile.numObjects++;
-    } else {
-      tile = new SceneTile(this, tileId, origin2);
-      tile.numObjects = 1;
-      this.tiles[tileId] = tile;
-      this.onTileCreated.dispatch(this, tile);
-    }
-    return tile;
-  }
-  putTile(tile) {
-    if (this.tiles[tile.id] === void 0) {
-      return;
-    }
-    if (--tile.numObjects <= 0) {
-      delete this.tiles[tile.id];
-      this.onTileDestroyed.dispatch(this, tile);
-    }
-  }
-};
 
 // ../sdk/src/scene/getSceneObjectGeometry.ts
 var GeometryViewImpl = class {
@@ -16424,26 +16724,27 @@ var earcut = /* @__PURE__ */ (() => {
 
 // ../sdk/src/cityjson/versions/v1_0/parse.ts
 var tempVec2a = createVec2();
-var tempVec3a3 = createVec3();
-var tempVec3b3 = createVec3();
+var tempVec3a4 = createVec3();
+var tempVec3b4 = createVec3();
 var tempVec3c3 = createVec3();
-var parse3 = async (params2, options = { rotateX: false }) => {
+var parse3 = async (params2, options) => {
   return new Promise((resolve2, reject) => {
     const { fileData, sceneModel, dataModel } = params2;
     if (sceneModel || dataModel) {
       const ctx = {
         fileData,
-        vertices: fileData.transform && sceneModel ? transformVertices(fileData.vertices, fileData.transform, options.rotateX) : fileData.vertices,
+        vertices: fileData.transform && sceneModel ? transformVertices(fileData.vertices, fileData.transform) : fileData.vertices,
         sceneModel,
         dataModel,
-        nextId: 0
+        nextId: 0,
+        options: options || {}
       };
       parseCityJSON(ctx);
     }
     resolve2();
   });
 };
-function transformVertices(vertices, transform, rotateX2) {
+function transformVertices(vertices, transform) {
   const transformedVertices = [];
   const scale3 = transform.scale || createVec3([1, 1, 1]);
   const translate3 = transform.translate || createVec3([0, 0, 0]);
@@ -16451,11 +16752,7 @@ function transformVertices(vertices, transform, rotateX2) {
     const x = vertices[i][0] * scale3[0] + translate3[0];
     const y = vertices[i][1] * scale3[1] + translate3[1];
     const z = vertices[i][2] * scale3[2] + translate3[2];
-    if (rotateX2) {
-      transformedVertices.push([x, z, y]);
-    } else {
-      transformedVertices.push([x, y, z]);
-    }
+    transformedVertices.push([x, y, z]);
   }
   return transformedVertices;
 }
@@ -16764,8 +17061,8 @@ function getNormalOfPositions(positions, normal2) {
   return normalizeVec3(normal2);
 }
 function to2D(_p, _n, re) {
-  const p = tempVec3a3;
-  const n = tempVec3b3;
+  const p = tempVec3a4;
+  const n = tempVec3b4;
   const x3 = tempVec3c3;
   p[0] = _p.x;
   p[1] = _p.y;
@@ -16822,9 +17119,7 @@ __export(dotbim_exports, {
 });
 
 // ../sdk/src/dotbim/versions/1_0_0/parse.ts
-var parse4 = async (params2, options = {
-  translate: void 0
-}) => {
+var parse4 = async (params2, options) => {
   return new Promise((resolve2, reject) => {
     const fileData = params2.fileData;
     if (params2.sceneModel) {
@@ -16861,7 +17156,7 @@ var parse4 = async (params2, options = {
             color: color2 ? [color2.r / 255, color2.g / 255, color2.b / 255] : void 0,
             opacity: color2 ? color2.a / 255 : 1,
             quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : void 0,
-            position: vector ? options.translate ? [vector.x + options.translate[0], vector.y + options.translate[1], vector.z + options.translate[2]] : [vector.x, vector.y, vector.z] : options.translate ? options.translate : void 0
+            position: [vector.x, vector.y, vector.z]
           });
           if (mesh instanceof SDKError) {
             continue;
@@ -16893,9 +17188,7 @@ var parse4 = async (params2, options = {
 };
 
 // ../sdk/src/dotbim/versions/1_1_0/parse.ts
-var parse5 = async (params2, options = {
-  translate: void 0
-}) => {
+var parse5 = async (params2, options) => {
   return new Promise((resolve2, reject) => {
     const fileData = params2.fileData;
     if (params2.sceneModel) {
@@ -16932,7 +17225,7 @@ var parse5 = async (params2, options = {
             color: color2 ? [color2.r / 255, color2.g / 255, color2.b / 255] : void 0,
             opacity: color2 ? color2.a / 255 : 1,
             quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : void 0,
-            position: vector ? options.translate ? [vector.x + options.translate[0], vector.y + options.translate[1], vector.z + options.translate[2]] : [vector.x, vector.y, vector.z] : options.translate ? options.translate : void 0
+            position: [vector.x, vector.y, vector.z]
           });
           if (mesh instanceof SDKError) {
             continue;
@@ -16981,133 +17274,13 @@ var DotBIMLoader = class extends ModelLoader {
 };
 
 // ../sdk/src/dotbim/versions/1_0_0/encode.ts
-var tempVec3a4 = createVec3();
-var tempVec3b4 = createVec3();
+var tempVec3a5 = createVec3();
+var tempVec3b5 = createVec3();
+var tempMat4a3 = createMat4();
 function encode3(params2, options) {
   return new Promise(function(resolve2, reject) {
     const { sceneModel, dataModel } = params2;
-    const dotBim = {
-      meshes: [],
-      elements: []
-    };
-    const geometries = Object.values(sceneModel.geometries);
-    const meshLookup = {};
-    for (let i = 0, len = geometries.length; i < len; i++) {
-      const geometry = geometries[i];
-      const aabb = geometry.aabb;
-      const coordinates = [];
-      const positionsCompressed = geometry.positionsCompressed;
-      for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
-        tempVec3a4[0] = positionsCompressed[k];
-        tempVec3a4[1] = positionsCompressed[k + 1];
-        tempVec3a4[2] = positionsCompressed[k + 2];
-        decompressPoint3WithAABB3(tempVec3a4, aabb, tempVec3b4);
-        coordinates.push(tempVec3b4[0]);
-        coordinates.push(tempVec3b4[1]);
-        coordinates.push(tempVec3b4[2]);
-      }
-      meshLookup[geometry.id] = {
-        mesh_id: geometry.id,
-        coordinates,
-        indices: geometry.indices ? Array.from(geometry.indices) : []
-      };
-    }
-    const sceneObjects = Object.values(sceneModel.objects);
-    for (let i = 0, len = sceneObjects.length; i < len; i++) {
-      const sceneObject = sceneObjects[i];
-      const meshes = sceneObject.meshes;
-      let meshId;
-      let dbMesh;
-      if (meshes.length === 1) {
-        const mesh = meshes[0];
-        const geometry = mesh.geometry;
-        dbMesh = meshLookup[geometry.id];
-        dotBim.meshes.push(dbMesh);
-        meshId = geometry.id;
-      } else {
-        dbMesh = {
-          mesh_id: sceneObject.id,
-          coordinates: [],
-          indices: []
-        };
-        let indicesOffset = 0;
-        for (let j = 0, lenj = meshes.length; j < lenj; j++) {
-          const sceneMesh = meshes[j];
-          const geometry = sceneMesh.geometry;
-          const lookupGeometry = meshLookup[geometry.id];
-          const coordinates = lookupGeometry.coordinates;
-          for (let k = 0, lenk = coordinates.length; k < lenk; k++) {
-            dbMesh.coordinates.push(coordinates[k]);
-          }
-          const indices = lookupGeometry.indices;
-          for (let k = 0, lenk = indices.length; k < lenk; k++) {
-            dbMesh.indices.push(indices[k] + indicesOffset);
-          }
-          indicesOffset += coordinates.length / 3;
-        }
-        dotBim.meshes.push(dbMesh);
-        meshId = sceneObject.id;
-      }
-      const firstMesh = meshes[0];
-      const color2 = firstMesh.color;
-      const position = createVec3();
-      const quaternion = createVec4();
-      const scale3 = createVec3();
-      decomposeMat4(firstMesh.matrix, position, quaternion, scale3);
-      const info = {
-        id: sceneObject.id,
-        Tag: "None"
-      };
-      let dataObject;
-      if (dataModel) {
-        dataObject = dataModel.objects[sceneObject.id];
-        if (dataObject) {
-          info.type = ifcTypeNames[dataObject.type];
-          info.Name = dataObject.name;
-          info.Description = dataObject.description;
-        }
-      }
-      if (!dataObject) {
-        info.type = "None";
-        info.Name = "None";
-        info.Description = "None";
-      }
-      dotBim.elements.push({
-        info,
-        mesh_id: dbMesh.mesh_id,
-        type: info.type,
-        color: {
-          r: color2[0],
-          g: color2[1],
-          b: color2[2],
-          a: firstMesh.opacity
-        },
-        vector: {
-          x: position[0],
-          y: position[1],
-          z: position[2]
-        },
-        rotation: {
-          qx: quaternion[0],
-          qy: quaternion[0],
-          qz: quaternion[0],
-          qw: quaternion[0]
-        },
-        qy: quaternion[1],
-        qz: quaternion[2],
-        qw: quaternion[3]
-      });
-    }
-    return resolve2(dotBim);
-  });
-}
-
-// ../sdk/src/dotbim/versions/1_1_0/encode.ts
-var tempVec3a5 = createVec3();
-var tempVec3b5 = createVec3();
-function encode4(params2, options) {
-  return new Promise(function(resolve2, reject) {
-    const { sceneModel, dataModel } = params2;
+    const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4()) : null;
     const dotBim = {
       meshes: [],
       elements: []
@@ -17175,7 +17348,133 @@ function encode4(params2, options) {
       const position = createVec3();
       const quaternion = createVec4();
       const scale3 = createVec3();
-      decomposeMat4(firstMesh.matrix, position, quaternion, scale3);
+      const matrix = coordinateSystemMatrix ? mulMat4(firstMesh.matrix, coordinateSystemMatrix, tempMat4a3) : firstMesh.matrix;
+      decomposeMat4(matrix, position, quaternion, scale3);
+      const info = {
+        id: sceneObject.id,
+        Tag: "None"
+      };
+      let dataObject;
+      if (dataModel) {
+        dataObject = dataModel.objects[sceneObject.id];
+        if (dataObject) {
+          info.type = ifcTypeNames[dataObject.type];
+          info.Name = dataObject.name;
+          info.Description = dataObject.description;
+        }
+      }
+      if (!dataObject) {
+        info.type = "None";
+        info.Name = "None";
+        info.Description = "None";
+      }
+      dotBim.elements.push({
+        info,
+        mesh_id: dbMesh.mesh_id,
+        type: info.type,
+        color: {
+          r: color2[0],
+          g: color2[1],
+          b: color2[2],
+          a: firstMesh.opacity
+        },
+        vector: {
+          x: position[0],
+          y: position[1],
+          z: position[2]
+        },
+        rotation: {
+          qx: quaternion[0],
+          qy: quaternion[0],
+          qz: quaternion[0],
+          qw: quaternion[0]
+        },
+        qy: quaternion[1],
+        qz: quaternion[2],
+        qw: quaternion[3]
+      });
+    }
+    return resolve2(dotBim);
+  });
+}
+
+// ../sdk/src/dotbim/versions/1_1_0/encode.ts
+var tempVec3a6 = createVec3();
+var tempVec3b6 = createVec3();
+var tempMat4a4 = createMat4();
+function encode4(params2, options) {
+  return new Promise(function(resolve2, reject) {
+    const { sceneModel, dataModel } = params2;
+    const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4()) : null;
+    const dotBim = {
+      meshes: [],
+      elements: []
+    };
+    const geometries = Object.values(sceneModel.geometries);
+    const meshLookup = {};
+    for (let i = 0, len = geometries.length; i < len; i++) {
+      const geometry = geometries[i];
+      const aabb = geometry.aabb;
+      const coordinates = [];
+      const positionsCompressed = geometry.positionsCompressed;
+      for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
+        tempVec3a6[0] = positionsCompressed[k];
+        tempVec3a6[1] = positionsCompressed[k + 1];
+        tempVec3a6[2] = positionsCompressed[k + 2];
+        decompressPoint3WithAABB3(tempVec3a6, aabb, tempVec3b6);
+        coordinates.push(tempVec3b6[0]);
+        coordinates.push(tempVec3b6[1]);
+        coordinates.push(tempVec3b6[2]);
+      }
+      meshLookup[geometry.id] = {
+        mesh_id: geometry.id,
+        coordinates,
+        indices: geometry.indices ? Array.from(geometry.indices) : []
+      };
+    }
+    const sceneObjects = Object.values(sceneModel.objects);
+    for (let i = 0, len = sceneObjects.length; i < len; i++) {
+      const sceneObject = sceneObjects[i];
+      const meshes = sceneObject.meshes;
+      let meshId;
+      let dbMesh;
+      if (meshes.length === 1) {
+        const mesh = meshes[0];
+        const geometry = mesh.geometry;
+        dbMesh = meshLookup[geometry.id];
+        dotBim.meshes.push(dbMesh);
+        meshId = geometry.id;
+      } else {
+        dbMesh = {
+          mesh_id: sceneObject.id,
+          coordinates: [],
+          indices: []
+        };
+        let indicesOffset = 0;
+        for (let j = 0, lenj = meshes.length; j < lenj; j++) {
+          const sceneMesh = meshes[j];
+          const geometry = sceneMesh.geometry;
+          const lookupGeometry = meshLookup[geometry.id];
+          const coordinates = lookupGeometry.coordinates;
+          for (let k = 0, lenk = coordinates.length; k < lenk; k++) {
+            dbMesh.coordinates.push(coordinates[k]);
+          }
+          const indices = lookupGeometry.indices;
+          for (let k = 0, lenk = indices.length; k < lenk; k++) {
+            dbMesh.indices.push(indices[k] + indicesOffset);
+          }
+          indicesOffset += coordinates.length / 3;
+        }
+        dotBim.meshes.push(dbMesh);
+        meshId = sceneObject.id;
+      }
+      const firstMesh = meshes[0];
+      const color2 = firstMesh.color;
+      const position = createVec3();
+      const quaternion = createVec4();
+      const scale3 = createVec3();
+      const matrix = coordinateSystemMatrix ? mulMat4(firstMesh.matrix, coordinateSystemMatrix, tempMat4a4) : firstMesh.matrix;
+      decomposeMat4(matrix, position, quaternion, scale3);
       const info = {
         id: sceneObject.id,
         Tag: "None"
@@ -38819,7 +39118,7 @@ var IFC2X3;
     }
   }
   IFC2X32.IfcBoundedCurve = IfcBoundedCurve2;
-  class IfcBuilding2 extends IfcSpatialStructureElement2 {
+  class IfcBuilding3 extends IfcSpatialStructureElement2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType, ElevationOfRefHeight, ElevationOfTerrain, BuildingAddress) {
       super(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType);
       this.GlobalId = GlobalId;
@@ -38837,7 +39136,7 @@ var IFC2X3;
       this.type = 4031249490;
     }
   }
-  IFC2X32.IfcBuilding = IfcBuilding2;
+  IFC2X32.IfcBuilding = IfcBuilding3;
   class IfcBuildingElementType extends IfcElementType2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType) {
       super(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType);
@@ -38854,7 +39153,7 @@ var IFC2X3;
     }
   }
   IFC2X32.IfcBuildingElementType = IfcBuildingElementType;
-  class IfcBuildingStorey2 extends IfcSpatialStructureElement2 {
+  class IfcBuildingStorey3 extends IfcSpatialStructureElement2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType, Elevation) {
       super(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType);
       this.GlobalId = GlobalId;
@@ -38870,7 +39169,7 @@ var IFC2X3;
       this.type = 3124254112;
     }
   }
-  IFC2X32.IfcBuildingStorey = IfcBuildingStorey2;
+  IFC2X32.IfcBuildingStorey = IfcBuildingStorey3;
   class IfcCircleHollowProfileDef2 extends IfcCircleProfileDef2 {
     constructor(ProfileType, ProfileName, Position, Radius, WallThickness) {
       super(ProfileType, ProfileName, Position, Radius);
@@ -40135,7 +40434,7 @@ var IFC2X3;
     }
   }
   IFC2X32.IfcServiceLife = IfcServiceLife;
-  class IfcSite2 extends IfcSpatialStructureElement2 {
+  class IfcSite3 extends IfcSpatialStructureElement2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType, RefLatitude, RefLongitude, RefElevation, LandTitleNumber, SiteAddress) {
       super(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType);
       this.GlobalId = GlobalId;
@@ -40155,7 +40454,7 @@ var IFC2X3;
       this.type = 4097777520;
     }
   }
-  IFC2X32.IfcSite = IfcSite2;
+  IFC2X32.IfcSite = IfcSite3;
   class IfcSlabType2 extends IfcBuildingElementType {
     constructor(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType, PredefinedType) {
       super(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType);
@@ -55192,7 +55491,7 @@ var IFC4;
     }
   }
   IFC42.IfcBoundedCurve = IfcBoundedCurve2;
-  class IfcBuilding2 extends IfcSpatialStructureElement2 {
+  class IfcBuilding3 extends IfcSpatialStructureElement2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType, ElevationOfRefHeight, ElevationOfTerrain, BuildingAddress) {
       super(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType);
       this.GlobalId = GlobalId;
@@ -55210,7 +55509,7 @@ var IFC4;
       this.type = 4031249490;
     }
   }
-  IFC42.IfcBuilding = IfcBuilding2;
+  IFC42.IfcBuilding = IfcBuilding3;
   class IfcBuildingElementType extends IfcElementType2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType) {
       super(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType);
@@ -55227,7 +55526,7 @@ var IFC4;
     }
   }
   IFC42.IfcBuildingElementType = IfcBuildingElementType;
-  class IfcBuildingStorey2 extends IfcSpatialStructureElement2 {
+  class IfcBuildingStorey3 extends IfcSpatialStructureElement2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType, Elevation) {
       super(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType);
       this.GlobalId = GlobalId;
@@ -55243,7 +55542,7 @@ var IFC4;
       this.type = 3124254112;
     }
   }
-  IFC42.IfcBuildingStorey = IfcBuildingStorey2;
+  IFC42.IfcBuildingStorey = IfcBuildingStorey3;
   class IfcChimneyType2 extends IfcBuildingElementType {
     constructor(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType, PredefinedType) {
       super(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType);
@@ -56910,7 +57209,7 @@ var IFC4;
     }
   }
   IFC42.IfcShadingDeviceType = IfcShadingDeviceType2;
-  class IfcSite2 extends IfcSpatialStructureElement2 {
+  class IfcSite3 extends IfcSpatialStructureElement2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType, RefLatitude, RefLongitude, RefElevation, LandTitleNumber, SiteAddress) {
       super(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType);
       this.GlobalId = GlobalId;
@@ -56930,7 +57229,7 @@ var IFC4;
       this.type = 4097777520;
     }
   }
-  IFC42.IfcSite = IfcSite2;
+  IFC42.IfcSite = IfcSite3;
   class IfcSlabType2 extends IfcBuildingElementType {
     constructor(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType, PredefinedType) {
       super(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType);
@@ -74842,7 +75141,7 @@ var IFC4X3;
     }
   }
   IFC4X32.IfcBoundedCurve = IfcBoundedCurve2;
-  class IfcBuildingStorey2 extends IfcSpatialStructureElement2 {
+  class IfcBuildingStorey3 extends IfcSpatialStructureElement2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType, Elevation) {
       super(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType);
       this.GlobalId = GlobalId;
@@ -74858,7 +75157,7 @@ var IFC4X3;
       this.type = 3124254112;
     }
   }
-  IFC4X32.IfcBuildingStorey = IfcBuildingStorey2;
+  IFC4X32.IfcBuildingStorey = IfcBuildingStorey3;
   class IfcBuiltElementType extends IfcElementType2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType) {
       super(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType);
@@ -77077,7 +77376,7 @@ var IFC4X3;
     }
   }
   IFC4X32.IfcSineSpiral = IfcSineSpiral;
-  class IfcSite2 extends IfcSpatialStructureElement2 {
+  class IfcSite3 extends IfcSpatialStructureElement2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType, RefLatitude, RefLongitude, RefElevation, LandTitleNumber, SiteAddress) {
       super(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType);
       this.GlobalId = GlobalId;
@@ -77097,7 +77396,7 @@ var IFC4X3;
       this.type = 4097777520;
     }
   }
-  IFC4X32.IfcSite = IfcSite2;
+  IFC4X32.IfcSite = IfcSite3;
   class IfcSlabType2 extends IfcBuiltElementType {
     constructor(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType, PredefinedType) {
       super(GlobalId, OwnerHistory, Name, Description, ApplicableOccurrence, HasPropertySets, RepresentationMaps, Tag, ElementType);
@@ -78367,7 +78666,7 @@ var IFC4X3;
     }
   }
   IFC4X32.IfcBridgePart = IfcBridgePart;
-  class IfcBuilding2 extends IfcFacility {
+  class IfcBuilding3 extends IfcFacility {
     constructor(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType, ElevationOfRefHeight, ElevationOfTerrain, BuildingAddress) {
       super(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, LongName, CompositionType);
       this.GlobalId = GlobalId;
@@ -78385,7 +78684,7 @@ var IFC4X3;
       this.type = 4031249490;
     }
   }
-  IFC4X32.IfcBuilding = IfcBuilding2;
+  IFC4X32.IfcBuilding = IfcBuilding3;
   class IfcBuildingElementPart2 extends IfcElementComponent2 {
     constructor(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, Tag, PredefinedType) {
       super(GlobalId, OwnerHistory, Name, Description, ObjectType, ObjectPlacement, Representation, Tag);
@@ -82318,41 +82617,30 @@ var IfcAPI2 = class {
 };
 
 // ../sdk/src/ifc/versions/IFC4/parse.ts
-function parse6(ifcAPI2, params2, options) {
-  return new Promise(function(resolve2, reject) {
-    parseWebIFC(ifcAPI2, params2).then(() => {
-      resolve2();
-    });
-  });
+async function parse6(ifcAPI, params2, options) {
+  await parseWebIFC(ifcAPI, params2);
 }
-function parseWebIFC(ifcAPI2, params2) {
-  return new Promise(function(resolve2, reject) {
-    const { sceneModel, dataModel, fileData } = params2;
-    const dataArray = new Uint8Array(fileData);
-    const modelId = ifcAPI2.OpenModel(dataArray);
-    const lines = ifcAPI2.GetLineIDsWithType(modelId, IFCPROJECT);
-    const ifcProjectId = lines.get(0);
-    const ctx = {
-      fileData,
-      modelId,
-      lines,
-      ifcProjectId,
-      ifcAPI: ifcAPI2,
-      sceneModel,
-      dataModel,
-      nextId: 0
-    };
-    parseIFC(ctx);
-    return resolve2();
-  });
+async function parseWebIFC(ifcAPI, params2) {
+  const { sceneModel, dataModel, fileData } = params2;
+  const dataArray = new Uint8Array(fileData);
+  const modelId = ifcAPI.OpenModel(dataArray);
+  const lines = ifcAPI.GetLineIDsWithType(modelId, IFCPROJECT);
+  const ifcProjectId = lines.get(0);
+  const ctx = {
+    fileData,
+    modelId,
+    lines,
+    ifcProjectId,
+    ifcAPI,
+    sceneModel,
+    dataModel,
+    nextId: 0
+  };
+  parseIFC(ctx);
 }
 function parseIFC(ctx) {
-  if (ctx.dataModel) {
-    parseDataModel(ctx);
-  }
-  if (ctx.sceneModel) {
-    parseSceneModel(ctx);
-  }
+  ctx.dataModel && parseDataModel(ctx);
+  ctx.sceneModel && parseSceneModel(ctx);
 }
 function parseDataModel(ctx) {
   const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, IFCPROJECT);
@@ -82366,140 +82654,86 @@ function parsePropertySets(ctx) {
   for (let i = 0; i < lines.size(); i++) {
     const relID = lines.get(i);
     const rel = ctx.ifcAPI.GetLine(ctx.modelId, relID, true);
-    if (rel) {
-      const relatingPropertyDefinition = rel.RelatingPropertyDefinition;
-      if (!relatingPropertyDefinition) {
-        continue;
-      }
-      const propertySetId = relatingPropertyDefinition.GlobalId.value;
-      const props = relatingPropertyDefinition.HasProperties;
-      if (props && props.length > 0) {
-        const propertySetType = "Default";
-        const propertySetName = relatingPropertyDefinition.Name.value;
-        const properties = [];
-        for (let i2 = 0, len = props.length; i2 < len; i2++) {
-          const prop = props[i2];
-          const name12 = prop.Name;
-          const nominalValue = prop.NominalValue;
-          if (name12 && nominalValue) {
-            properties.push({
-              name: name12.value,
-              type: nominalValue.type,
-              value: nominalValue.value,
-              valueType: nominalValue.valueType,
-              description: prop.Description ? prop.Description.value : nominalValue.description ? nominalValue.description : ""
-            });
-          }
-        }
-        ctx.dataModel.createPropertySet({
-          id: propertySetId,
-          type: propertySetType,
-          name: propertySetName,
-          properties
-        });
-        const relatedObjects = rel.RelatedObjects;
-        if (!relatedObjects || relatedObjects.length === 0) {
-          return;
-        }
-        for (let i2 = 0, len = relatedObjects.length; i2 < len; i2++) {
-          const relatedObject = relatedObjects[i2];
-          const dataObjectId = relatedObject.GlobalId.value;
-          const dataObject = ctx.dataModel.objects[dataObjectId];
-          if (dataObject) {
-            if (!dataObject.propertySetIds) {
-              dataObject.propertySetIds = [];
-            }
-            dataObject.propertySetIds.push(propertySetId);
-          }
-        }
-      }
-    }
+    if (!rel || !rel.RelatingPropertyDefinition)
+      continue;
+    const def = rel.RelatingPropertyDefinition;
+    const propertySetId = def.GlobalId.value;
+    const properties = (def.HasProperties || []).map((prop) => ({
+      name: prop.Name?.value,
+      type: prop.NominalValue?.type,
+      value: prop.NominalValue?.value,
+      valueType: prop.NominalValue?.valueType,
+      description: prop.Description?.value || prop.NominalValue?.description || ""
+    }));
+    ctx.dataModel.createPropertySet({
+      id: propertySetId,
+      type: "Default",
+      name: def.Name?.value,
+      properties
+    });
   }
 }
-function parseDataObjectAggregation(ctx, ifcElement, parentDataObjectId) {
-  const type = ifcElement.__proto__.constructor.name;
-  createDataObject(ctx, ifcElement, parentDataObjectId);
-  const dataObjectId = ifcElement.GlobalId.value;
-  parseRelatedItemsOfType(ctx, ifcElement.expressID, "RelatingObject", "RelatedObjects", IFCRELAGGREGATES, dataObjectId);
-  parseRelatedItemsOfType(ctx, ifcElement.expressID, "RelatingStructure", "RelatedElements", IFCRELCONTAINEDINSPATIALSTRUCTURE, dataObjectId);
+function parseDataObjectAggregation(ctx, element, parentId) {
+  createDataObject(ctx, element, parentId);
+  const elementId = element.GlobalId.value;
+  parseRelatedItemsOfType(ctx, element.expressID, "RelatingObject", "RelatedObjects", IFCRELAGGREGATES, elementId);
+  parseRelatedItemsOfType(ctx, element.expressID, "RelatingStructure", "RelatedElements", IFCRELCONTAINEDINSPATIALSTRUCTURE, elementId);
 }
-function createDataObject(ctx, ifcElement, parentDataObjectId) {
-  const id = ifcElement.GlobalId.value;
-  const type = ifcElement.__proto__.constructor.name;
-  const name12 = ifcElement.Name && ifcElement.Name.value !== "" ? ifcElement.Name.value : type;
-  let typeCode = ifcTypeCodes[type];
-  if (typeCode == void 0) {
-    typeCode = IfcElement;
-  }
-  ctx.dataModel.createObject({
-    id,
-    name: name12,
-    type: typeCode
-  });
-  if (parentDataObjectId) {
+function createDataObject(ctx, element, parentId) {
+  const id = element.GlobalId.value;
+  const typeName = element.__proto__.constructor.name;
+  const name12 = element.Name?.value || typeName;
+  const typeCode = ifcTypeCodes[typeName] ?? IfcElement;
+  ctx.dataModel.createObject({ id, name: name12, type: typeCode });
+  if (parentId) {
     ctx.dataModel.createRelationship({
       type: IfcRelAggregates,
-      relatingObjectId: parentDataObjectId,
+      relatingObjectId: parentId,
       relatedObjectId: id
     });
   }
 }
-function parseRelatedItemsOfType(ctx, id, relation, related, type, parentDataObjectId) {
+function parseRelatedItemsOfType(ctx, id, relationKey, relatedKey, type, parentId) {
   const lines = ctx.ifcAPI.GetLineIDsWithType(ctx.modelId, type);
   for (let i = 0; i < lines.size(); i++) {
-    const relID = lines.get(i);
-    const rel = ctx.ifcAPI.GetLine(ctx.modelId, relID);
-    const relatedItems = rel[relation];
-    let foundElement = false;
-    if (Array.isArray(relatedItems)) {
-      const values = relatedItems.map((item) => item.value);
-      foundElement = values.includes(id);
-    } else {
-      foundElement = relatedItems.value === id;
-    }
-    if (foundElement) {
-      const element = rel[related];
-      if (!Array.isArray(element)) {
-        const ifcElement = ctx.ifcAPI.GetLine(ctx.modelId, element.value);
-        parseDataObjectAggregation(ctx, ifcElement, parentDataObjectId);
-      } else {
-        element.forEach((element2) => {
-          const ifcElement = ctx.ifcAPI.GetLine(ctx.modelId, element2.value);
-          parseDataObjectAggregation(ctx, ifcElement, parentDataObjectId);
-        });
-      }
+    const rel = ctx.ifcAPI.GetLine(ctx.modelId, lines.get(i));
+    const relatedItems = rel[relationKey];
+    const isMatch = Array.isArray(relatedItems) ? relatedItems.some((item) => item.value === id) : relatedItems?.value === id;
+    if (!isMatch)
+      continue;
+    const targets = rel[relatedKey];
+    const relatedElements = Array.isArray(targets) ? targets : [targets];
+    for (const target of relatedElements) {
+      const element = ctx.ifcAPI.GetLine(ctx.modelId, target.value);
+      parseDataObjectAggregation(ctx, element, parentId);
     }
   }
 }
 function parseSceneModel(ctx) {
   ctx.ifcAPI.StreamAllMeshes(ctx.modelId, (flatMesh) => {
-    const flatMeshExpressID = flatMesh.expressID;
-    const placedGeometries = flatMesh.geometries;
+    const objectId = ctx.ifcAPI.GetLine(ctx.modelId, flatMesh.expressID).GlobalId.value;
     const meshIds = [];
-    const properties = ctx.ifcAPI.GetLine(ctx.modelId, flatMeshExpressID);
-    const objectId = properties.GlobalId.value;
-    const origin2 = createVec3();
-    for (let j = 0, lenj = placedGeometries.size(); j < lenj; j++) {
-      const placedGeometry = placedGeometries.get(j);
+    for (let j = 0; j < flatMesh.geometries.size(); j++) {
+      const placedGeometry = flatMesh.geometries.get(j);
       const geometry = ctx.ifcAPI.GetGeometry(ctx.modelId, placedGeometry.geometryExpressID);
       const vertexData = ctx.ifcAPI.GetVertexArray(geometry.GetVertexData(), geometry.GetVertexDataSize());
       const indices = ctx.ifcAPI.GetIndexArray(geometry.GetIndexData(), geometry.GetIndexDataSize());
       const positions = new Float64Array(vertexData.length / 2);
-      const matrix = identityMat4();
-      matrix.set(placedGeometry.flatTransformation);
-      for (let k = 0, l = 0, lenk = vertexData.length / 6; k < lenk; k++, l += 3) {
-        positions[l + 0] = vertexData[k * 6 + 0];
+      for (let k = 0, l = 0; k < vertexData.length / 6; k++, l += 3) {
+        positions[l] = vertexData[k * 6];
         positions[l + 1] = vertexData[k * 6 + 1];
         positions[l + 2] = vertexData[k * 6 + 2];
       }
-      const geometryId = "" + ctx.nextId++;
+      const matrix = identityMat4();
+      matrix.set(placedGeometry.flatTransformation);
+      const geometryId = `${ctx.nextId++}`;
+      const meshId = `${ctx.nextId++}`;
       ctx.sceneModel.createGeometry({
         id: geometryId,
         primitive: TrianglesPrimitive,
         positions,
         indices
       });
-      const meshId = "" + ctx.nextId++;
       ctx.sceneModel.createMesh({
         id: meshId,
         geometryId,
@@ -82522,60 +82756,35 @@ function parseSceneModel(ctx) {
   });
 }
 
-// ../sdk/src/ifc/IFCLoader.ts
-var ifcAPI = null;
-var IFCLoader = class extends ModelLoader {
-  /**
-   * Constructs an IFCLoader.
-   */
-  constructor() {
-    super({
-      format: "IFC",
-      fileDataType: "text",
-      parsers: {
-        "IFC4": parse7,
-        // Internaly, web-ifc handles all versions
-        "IFC2x3": parse7
-      },
-      getVersion: (fileData) => {
-        return "IFC4";
-      }
-    });
+// ../sdk/src/ifc/getInitializedIFCAPI.ts
+var ifcAPIInstance = null;
+async function getInitializedIFCAPI() {
+  if (ifcAPIInstance) {
+    return ifcAPIInstance;
   }
-};
-function parse7(params2, options) {
-  return new Promise((resolve2, reject) => {
-    if (!ifcAPI) {
-      let wasmPath = "";
-      switch (detectEnvironment()) {
-        case "browser":
-          wasmPath = "https://cdn.jsdelivr.net/npm/web-ifc@0.0.50/";
-          break;
-        case "node":
-          wasmPath = "../../node_modules/web-ifc/";
-          break;
-        default:
-          reject("[IFCLoader] Failed to determine environment");
-          return;
-      }
-      ifcAPI = new IfcAPI2();
-      ifcAPI.SetWasmPath(wasmPath);
-      ifcAPI.Init().then(() => {
-        parse6(ifcAPI, params2, options).then(resolve2).catch((reason) => {
-          reject("[IFCLoader] Failed to parse IFC - " + reason);
-        });
-      }).catch((reason) => {
-        reject("[IFCLoader] Failed to initialize WebIFC - " + reason);
-      });
-    } else {
-      parse6(ifcAPI, params2, options).then(resolve2).catch((reason) => {
-        reject("[IFCLoader] Failed to parse IFC - " + reason);
-      });
-    }
-  });
+  const wasmPath = getWasmPath();
+  if (!wasmPath) {
+    throw new Error("[IFCLoader] Failed to determine environment");
+  }
+  const api = new IfcAPI2();
+  api.SetWasmPath(wasmPath);
+  await api.Init();
+  ifcAPIInstance = api;
+  return ifcAPIInstance;
+}
+function getWasmPath() {
+  const env = detectEnvironment();
+  switch (env) {
+    case "browser":
+      return "https://cdn.jsdelivr.net/npm/web-ifc@0.0.50/";
+    case "node":
+      return "../../node_modules/web-ifc/";
+    default:
+      return null;
+  }
 }
 function detectEnvironment() {
-  if (typeof process !== "undefined" && process.versions != null && process.versions.node != null) {
+  if (typeof process !== "undefined" && process.versions?.node) {
     return "node";
   }
   if (typeof window !== "undefined" && typeof window.document !== "undefined") {
@@ -82584,205 +82793,154 @@ function detectEnvironment() {
   return "unknown";
 }
 
+// ../sdk/src/ifc/IFCLoader.ts
+var IFCLoader = class extends ModelLoader {
+  constructor() {
+    super({
+      format: "IFC",
+      fileDataType: "arraybuffer",
+      parsers: {
+        "IFC4": parse7,
+        "IFC2x3": parse7
+      },
+      getVersion: (fileData) => {
+        return "IFC4";
+      }
+    });
+  }
+};
+async function parse7(params2, options) {
+  try {
+    const ifcAPI = await getInitializedIFCAPI();
+    return await parse6(ifcAPI, params2, options);
+  } catch (err2) {
+    return Promise.reject("[IFCLoader] " + err2);
+  }
+}
+
 // ../sdk/src/ifc/versions/IFC4/encode.ts
-function encode5(params2, options) {
+function encode5(ifcAPI, params2, options) {
   return new Promise(function(resolve2, reject) {
-    resolve2(generateIFC(params2.sceneModel, params2.dataModel));
+    const { sceneModel, dataModel } = params2;
+    const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4()) : null;
+    const modelId = ifcAPI.CreateModel({
+      schema: Schemas.IFC4,
+      name: "Model",
+      description: ["Demo"],
+      authors: ["xeokit-sdk"],
+      organizations: []
+    });
+    const org = new IFC4.IfcOrganization(null, new IFC4.IfcLabel("xeokit"), null, null, null);
+    ifcAPI.WriteLine(modelId, org);
+    const app = new IFC4.IfcApplication(
+      org,
+      new IFC4.IfcLabel("0.0.1"),
+      new IFC4.IfcIdentifier("my app"),
+      new IFC4.IfcIdentifier("app")
+    );
+    ifcAPI.WriteLine(modelId, app);
+    const unit_1 = new IFC4.IfcSIUnit(
+      IFC4.IfcUnitEnum.VOLUMEUNIT,
+      IFC4.IfcSIPrefix.MILLI,
+      IFC4.IfcSIUnitName.CUBIC_METRE
+    );
+    const unitAssign = new IFC4.IfcUnitAssignment([unit_1]);
+    ifcAPI.WriteLine(modelId, unitAssign);
+    const origin2 = [
+      new IFC4.IfcLengthMeasure(0),
+      new IFC4.IfcLengthMeasure(0),
+      new IFC4.IfcLengthMeasure(0)
+    ];
+    const cartPoint = new IFC4.IfcCartesianPoint(origin2);
+    ifcAPI.WriteLine(modelId, cartPoint);
+    origin2[2].value = 1;
+    const dir = new IFC4.IfcDirection(origin2);
+    ifcAPI.WriteLine(modelId, dir);
+    const axis = new IFC4.IfcAxis2Placement2D(cartPoint, dir);
+    ifcAPI.WriteLine(modelId, axis);
+    const geomContext = new IFC4.IfcGeometricRepresentationContext(
+      new IFC4.IfcLabel("30 context"),
+      new IFC4.IfcLabel("model"),
+      new IFC4.IfcDimensionCount("30 context"),
+      null,
+      axis,
+      dir
+    );
+    ifcAPI.WriteLine(modelId, geomContext);
+    const projectDataObjects = dataModel.objectsByType[IfcProject];
+    const projectDataObject = projectDataObjects ? Object.values(projectDataObjects)[0] : null;
+    const projectId = projectDataObject ? projectDataObject.id : createUUID2();
+    const proj = new IFC4.IfcProject(
+      projectId,
+      null,
+      new IFC4.IfcLabel("project"),
+      new IFC4.IfcText("project desc"),
+      null,
+      null,
+      null,
+      [geomContext],
+      unitAssign
+    );
+    ifcAPI.WriteLine(modelId, proj);
+    const ifcElementMap = {};
+    for (let objectId in dataModel.objects) {
+      const dataObject = dataModel.objects[objectId];
+      const dataObjectType = dataObject.type !== void 0 && dataObject.type !== null ? dataObject.type : IfcBuildingElementProxy;
+      const dataObjectTypeName = ifcTypeNames[dataObjectType] || "IfcBuildingElementProxy";
+      const ifcElementClass = IFC4[dataObjectTypeName];
+      if (ifcElementClass) {
+        const ifcElement = new ifcElementClass(
+          dataObject.id,
+          null,
+          new IFC4.IfcLabel(dataObjectTypeName),
+          new IFC4.IfcText(dataObjectTypeName + " description"),
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        );
+        ifcAPI.WriteLine(modelId, ifcElement);
+        ifcElementMap[objectId] = ifcElement;
+      }
+      const sceneObject = sceneModel.objects[objectId];
+      if (sceneObject) {
+        const triFaceSet = new IFC4.IfcTriangulatedFaceSet(void 0, void 0, void 0, [], void 0);
+      }
+    }
+    for (let relationshipId in dataModel.relationships) {
+      const relationship = dataModel.relationships[relationshipId];
+      const relatingDataObject = relationship.relatingObject;
+      const relatedDataObject = relationship.relatedObject;
+      const relatingIfcElement = ifcElementMap[relatingDataObject.id];
+      const relatedIfcElement = ifcElementMap[relatedDataObject.id];
+      if (!relatingIfcElement || !relatedIfcElement) {
+        continue;
+      }
+      const relationshipType = relationship.type !== void 0 && relationship.type !== null ? relationship.type : IfcRelAggregates;
+      const relatonshipTypeName = ifcTypeNames[relationshipType] || "IfcRelAggregates";
+      const ifcRelationshipClass = IFC4[relatonshipTypeName];
+      if (ifcRelationshipClass) {
+        const ifcRelationship = new ifcRelationshipClass(
+          relationshipId,
+          null,
+          new IFC4.IfcLabel(relatonshipTypeName),
+          new IFC4.IfcText(relatonshipTypeName + " description"),
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        );
+        ifcAPI.WriteLine(modelId, ifcRelationship);
+      }
+    }
+    resolve2(ifcAPI.SaveModel(modelId));
   });
-}
-function generateIFC(sceneModel, dataModel, header) {
-  const defaultHeader = {
-    fileSchema: "IFC4",
-    fileDescription: ["ViewDefinition [CoordinationView]"],
-    fileName: sceneModel.id,
-    timeStamp: (/* @__PURE__ */ new Date()).toISOString(),
-    author: dataModel.author ? [dataModel.author] : ["xeokit SDK"],
-    organization: ["xeokit"],
-    preprocessorVersion: "xeokit SDK",
-    originatingSystem: dataModel.creatingApplication || "xeokit SDK",
-    authorization: "None"
-  };
-  const finalHeader = { ...defaultHeader, ...header };
-  const ifcContent = [];
-  generateIFCHeader(finalHeader, ifcContent);
-  ifcContent.push(`DATA;`);
-  const projectId = generateGUID();
-  ifcContent.push(`#1=${generateOwnerHistory()}`);
-  ifcContent.push(`#2=IFCPROJECT('${projectId}',#1,'${dataModel.projectId || sceneModel.id}',$,$,$,$,(#3),#4);`);
-  ifcContent.push(`#3=IFCGEOMETRICREPRESENTATIONCONTEXT($,'Model',3,1.0E-5,#5,$);`);
-  ifcContent.push(`#4=IFCUNITASSIGNMENT((#6,#7,#8));`);
-  ifcContent.push(`#5=IFCAXIS2PLACEMENT3D(#9,$,$);`);
-  ifcContent.push(`#6=IFCSIUNIT(*,.LENGTHUNIT.,.MILLI.,.METRE.);`);
-  ifcContent.push(`#7=IFCSIUNIT(*,.AREAUNIT.,$,.SQUARE_METRE.);`);
-  ifcContent.push(`#8=IFCSIUNIT(*,.VOLUMEUNIT.,$,.CUBIC_METRE.);`);
-  ifcContent.push(`#9=IFCCARTESIANPOINT((0.,0.,0.));`);
-  let currentId = 10;
-  const propertySetMap = /* @__PURE__ */ new Map();
-  for (const propertySetId in dataModel.propertySets) {
-    const propertySet = dataModel.propertySets[propertySetId];
-    const ifcId = currentId;
-    propertySetMap.set(propertySetId, ifcId);
-    currentId = encodePropertySet(propertySet, ifcContent, currentId);
-  }
-  for (const objectId in sceneModel.objects) {
-    const sceneObject = sceneModel.objects[objectId];
-    const dataObject = dataModel.objects[sceneObject.id];
-    if (dataObject) {
-      currentId = encodeSceneObjectAndDataObject(sceneObject, dataObject, propertySetMap, ifcContent, currentId);
-    } else {
-      currentId = encodeSceneObject(sceneObject, ifcContent, currentId);
-    }
-  }
-  for (const relationship of dataModel.relationships) {
-    currentId = encodeRelationship(relationship, ifcContent, currentId);
-  }
-  ifcContent.push("ENDSEC;\n\nEND-ISO-10303-21;\n");
-  return ifcContent.join("\n");
-}
-function encodePropertySet(propertySet, ifcContent, currentId) {
-  const propertySetId = generateGUID();
-  ifcContent.push(`#${currentId}=IFCPROPERTYSET('${propertySetId}',#1,'${propertySet.name}',$,(`);
-  const propertyIds = [];
-  currentId++;
-  for (const property of propertySet.properties) {
-    propertyIds.push(currentId);
-    let ifcValue = property.value;
-    if (typeof property.value === "string") {
-      ifcValue = `'${property.value}'`;
-    }
-    ifcContent.push(`#${currentId}=IFCSIMPLEPROPERTY('${property.name}',${property.type || "$"},'${property.description || "$"}',${ifcValue});`);
-    currentId++;
-  }
-  ifcContent.push(`${propertyIds.map((id) => `#${id}`).join(",")}))`);
-  return currentId;
-}
-function encodeSceneObject(object, ifcContent, currentId) {
-  const objectId = generateGUID();
-  ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});`);
-  currentId++;
-  const matrix = object.meshes[0]?.matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-  const position = [matrix[12], matrix[13], matrix[14]];
-  ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);`);
-  currentId++;
-  ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));`);
-  currentId++;
-  for (const mesh of object.meshes) {
-    currentId = encodeSceneMesh(mesh, ifcContent, currentId, objectId);
-  }
-  return currentId;
-}
-function encodeSceneObjectAndDataObject(sceneObject, dataObject, propertySetMap, ifcContent, currentId) {
-  const objectId = generateGUID();
-  ifcContent.push(`#${currentId}=IFCLOCALPLACEMENT(#5,#${currentId + 1});`);
-  currentId++;
-  const matrix = sceneObject.meshes[0]?.matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-  const position = [matrix[12], matrix[13], matrix[14]];
-  ifcContent.push(`#${currentId}=IFCAXIS2PLACEMENT3D(#${currentId + 1},$,$);`);
-  currentId++;
-  ifcContent.push(`#${currentId}=IFCCARTESIANPOINT((${position[0]},${position[1]},${position[2]}));`);
-  currentId++;
-  const geometryIds = [];
-  for (const mesh of sceneObject.meshes) {
-    const geomStartId = currentId;
-    currentId = encodeSceneMesh(mesh, ifcContent, currentId, objectId);
-    if (currentId > geomStartId) {
-      geometryIds.push(geomStartId);
-    }
-  }
-  const ifcType = getIFCTypeFromDataObject(dataObject);
-  const ifcContent2 = [];
-  ifcContent2.push(`#${currentId}=${ifcType}('${objectId}',#1,'${dataObject.name || ""}','${dataObject.description || ""}'`);
-  ifcContent2.push(`,#${currentId - 3}`);
-  if (geometryIds.length > 0) {
-    ifcContent2.push(`,(${geometryIds.map((id) => `#${id}`).join(",")})`);
-  } else {
-    ifcContent2.push(`,$`);
-  }
-  if (dataObject.propertySets && dataObject.propertySets.length > 0) {
-    const psetRefs = dataObject.propertySets.map((pset) => propertySetMap.get(pset.id)).filter((id) => id !== void 0).map((id) => `#${id}`);
-    if (psetRefs.length > 0) {
-      ifcContent2.push(`,(${psetRefs.join(",")})`);
-    }
-  }
-  ifcContent2.push(");");
-  ifcContent.push(ifcContent2.join());
-  currentId++;
-  return currentId;
-}
-function getIFCTypeFromDataObject(dataObject) {
-  const ifcTypeName = ifcTypeNames[dataObject.type];
-  return ifcTypeName !== void 0 ? ifcTypeName.toUpperCase() : "IFCBUILDINGELEMENTPROXY";
-}
-function encodeRelationship(relationship, ifcContent, currentId) {
-  const relationshipId = generateGUID();
-  const ifcTypeName = ifcTypeNames[relationship.type];
-  const ifcRelType = ifcTypeName !== void 0 ? ifcTypeName.toUpperCase() : "IFCRELDEFINESBYPROPERTIES";
-  ifcContent.push(`#${currentId}=${ifcRelType}('${relationshipId}',#1,$,$,#${relationship.relatingObject.id},#${relationship.relatedObject.id});`);
-  currentId++;
-  return currentId;
-}
-function encodeSceneMesh(mesh, ifcContent, currentId, parentId) {
-  const geometry = mesh.geometry;
-  if (!geometry.positionsCompressed) {
-    return currentId;
-  }
-  const positions = geometry.positionsCompressed;
-  const vertexPoints = [];
-  for (let i = 0; i < positions.length; i += 3) {
-    vertexPoints.push([
-      positions[i],
-      positions[i + 1],
-      positions[i + 2]
-    ]);
-  }
-  const indices = geometry.indices;
-  const faces2 = [];
-  if (indices) {
-    for (let i = 0; i < indices.length; i += 3) {
-      faces2.push([
-        indices[i],
-        indices[i + 1],
-        indices[i + 2]
-      ]);
-    }
-  }
-  ifcContent.push(`#${currentId}=IFCSHAPEREPRESENTATION(#3,'Body','Tessellation',(#${currentId + 1}));`);
-  currentId++;
-  ifcContent.push(`#${currentId}=IFCTRIANGULATEDFACESET(#${currentId + 1},$,#${currentId + 2},.T.);`);
-  currentId++;
-  let pointList = "";
-  for (const point of vertexPoints) {
-    pointList += `(${point[0]},${point[1]},${point[2]}),`;
-  }
-  pointList = pointList.slice(0, -1);
-  ifcContent.push(`#${currentId}=IFCCARTESIANPOINTLIST3D((${pointList}));`);
-  currentId++;
-  let faceList = "";
-  for (const face of faces2) {
-    faceList += `(${face[0] + 1},${face[1] + 1},${face[2] + 1}),`;
-  }
-  faceList = faceList.slice(0, -1);
-  ifcContent.push(`#${currentId}=IFCTRIANGULATEDINDEXLIST((${faceList}));`);
-  currentId++;
-  return currentId;
-}
-function generateIFCHeader(header, ifcContent) {
-  ifcContent.push("ISO-10303-21");
-  ifcContent.push("HEADER");
-  ifcContent.push(`FILE_DESCRIPTION((${header.fileDescription.map((d) => `'${d}'`).join(",")}), '2;1');`);
-  ifcContent.push(`FILE_NAME('${header.fileName}','${header.timeStamp}',(${header.author.map((a2) => `'${a2}'`).join(",")}),(${header.organization.map((o) => `'${o}'`).join(",")}),'${header.preprocessorVersion}','${header.originatingSystem}','${header.authorization}');`);
-  ifcContent.push(`FILE_SCHEMA(('${header.fileSchema}'));`);
-  ifcContent.push(`ENDSEC;`);
-  ifcContent.push(``);
-}
-function generateGUID() {
-  return createUUID2();
-}
-function generateOwnerHistory() {
-  const timestamp = Math.floor(Date.now() / 1e3);
-  const changeAction = "ADDED";
-  const state = "READWRITE";
-  return `IFCOWNERHISTORY(#100,#101,${timestamp},$,${changeAction},${state},$,$)`;
 }
 
 // ../sdk/src/ifc/IFCExporter.ts
@@ -82792,12 +82950,20 @@ var IFCExporter = class extends ModelExporter {
       format: "IFC",
       fileDataType: "text",
       encoders: {
-        "IFC4": encode5
+        "IFC4": encode6
       },
       defaultVersion: "IFC4"
     });
   }
 };
+async function encode6(params2, options) {
+  try {
+    const ifcAPI = await getInitializedIFCAPI();
+    return await encode5(ifcAPI, params2, options);
+  } catch (err2) {
+    return Promise.reject("[IFCExporter] " + err2);
+  }
+}
 
 // ../sdk/src/xgf/index.ts
 var xgf_exports = {};
@@ -83023,6 +83189,8 @@ var XGFLoader = class extends ModelLoader {
 var NUM_MATERIAL_ATTRIBUTES = 4;
 function modelToXGF(params2) {
   const sceneModel = params2.sceneModel;
+  const options = params2.options;
+  const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4()) : null;
   const geometriesList = Object.values(sceneModel.geometries);
   const meshesList = Object.values(sceneModel.meshes);
   const objectsList = Object.values(sceneModel.objects);
@@ -83154,9 +83322,10 @@ function modelToXGF(params2) {
     for (let objectMeshIdx = 0; objectMeshIdx < object.meshes.length; objectMeshIdx++) {
       const mesh = object.meshes[objectMeshIdx];
       xgfData.eachMeshGeometriesBase[meshesBase] = geometryIndices[mesh.geometry.id];
-      if (isIdentityMat4(mesh.matrix)) {
+      const matrix = coordinateSystemMatrix ? mulMat4(mesh.matrix, coordinateSystemMatrix, createMat4()) : mesh.matrix;
+      if (isIdentityMat4(matrix)) {
         if (!identityMatrixAdded) {
-          matrices.push(...mesh.matrix);
+          matrices.push(...matrix);
           xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
           identityMatrixBase = matricesBase;
           matricesBase += 16;
@@ -83165,7 +83334,7 @@ function modelToXGF(params2) {
           xgfData.eachMeshMatricesBase[meshesBase] = identityMatrixBase;
         }
       } else {
-        matrices.push(...mesh.matrix);
+        matrices.push(...matrix);
         xgfData.eachMeshMatricesBase[meshesBase] = matricesBase;
         matricesBase += 16;
       }
@@ -83266,9 +83435,9 @@ function packXGF(xgfData) {
 }
 
 // ../sdk/src/xgf/versions/v1/encode.ts
-function encode6(params2, options) {
+function encode7(params2, options) {
   return new Promise(function(resolve2, reject) {
-    resolve2(packXGF(modelToXGF({ sceneModel: params2.sceneModel })));
+    resolve2(packXGF(modelToXGF({ sceneModel: params2.sceneModel, options })));
   });
 }
 
@@ -83279,7 +83448,7 @@ var XGFExporter = class extends ModelExporter {
       format: "XGF",
       fileDataType: "arraybuffer",
       encoders: {
-        "1.0.0": encode6
+        "1.0.0": encode7
       },
       defaultVersion: "1.0.0"
     });
@@ -104995,7 +105164,7 @@ var EXT_mesh_features_exports = {};
 __export(EXT_mesh_features_exports, {
   createExtMeshFeatures: () => createExtMeshFeatures,
   decode: () => decode,
-  encode: () => encode7,
+  encode: () => encode8,
   name: () => name
 });
 
@@ -106305,7 +106474,7 @@ async function decode(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   decodeExtMeshFeatures(scenegraph, options);
 }
-function encode7(gltfData, options) {
+function encode8(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   encodeExtMeshFeatures(scenegraph, options);
   scenegraph.createBinaryChunk();
@@ -106424,7 +106593,7 @@ var EXT_structural_metadata_exports = {};
 __export(EXT_structural_metadata_exports, {
   createExtStructuralMetadata: () => createExtStructuralMetadata,
   decode: () => decode2,
-  encode: () => encode8,
+  encode: () => encode9,
   name: () => name2
 });
 var EXT_STRUCTURAL_METADATA_NAME = "EXT_structural_metadata";
@@ -106433,7 +106602,7 @@ async function decode2(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   decodeExtStructuralMetadata(scenegraph, options);
 }
-function encode8(gltfData, options) {
+function encode9(gltfData, options) {
   const scenegraph = new GLTFScenegraph(gltfData);
   encodeExtStructuralMetadata(scenegraph, options);
   scenegraph.createBinaryChunk();
@@ -107901,7 +108070,7 @@ function preprocess2(gltfData, options) {
 var KHR_draco_mesh_compression_exports = {};
 __export(KHR_draco_mesh_compression_exports, {
   decode: () => decode6,
-  encode: () => encode9,
+  encode: () => encode10,
   name: () => name7,
   preprocess: () => preprocess3
 });
@@ -108577,7 +108746,7 @@ async function decode6(gltfData, options, context) {
   await Promise.all(promises);
   scenegraph.removeExtension(KHR_DRACO_MESH_COMPRESSION);
 }
-function encode9(gltfData, options = {}) {
+function encode10(gltfData, options = {}) {
   const scenegraph = new GLTFScenegraph(gltfData);
   for (const mesh of scenegraph.json.meshes || []) {
     compressMesh(mesh, options);
@@ -110021,7 +110190,7 @@ function makeTransformationMatrix(extensionData) {
 var KHR_lights_punctual_exports = {};
 __export(KHR_lights_punctual_exports, {
   decode: () => decode8,
-  encode: () => encode10,
+  encode: () => encode11,
   name: () => name9
 });
 var KHR_LIGHTS_PUNCTUAL = "KHR_lights_punctual";
@@ -110042,7 +110211,7 @@ async function decode8(gltfData) {
     gltfScenegraph.removeObjectExtension(node, KHR_LIGHTS_PUNCTUAL);
   }
 }
-async function encode10(gltfData) {
+async function encode11(gltfData) {
   const gltfScenegraph = new GLTFScenegraph(gltfData);
   const { json } = gltfScenegraph;
   if (json.lights) {
@@ -110064,7 +110233,7 @@ async function encode10(gltfData) {
 var KHR_materials_unlit_exports = {};
 __export(KHR_materials_unlit_exports, {
   decode: () => decode9,
-  encode: () => encode11,
+  encode: () => encode12,
   name: () => name10
 });
 var KHR_MATERIALS_UNLIT = "KHR_materials_unlit";
@@ -110081,7 +110250,7 @@ async function decode9(gltfData) {
   }
   gltfScenegraph.removeExtension(KHR_MATERIALS_UNLIT);
 }
-function encode11(gltfData) {
+function encode12(gltfData) {
   const gltfScenegraph = new GLTFScenegraph(gltfData);
   const { json } = gltfScenegraph;
   if (gltfScenegraph.materials) {
@@ -110099,7 +110268,7 @@ function encode11(gltfData) {
 var KHR_techniques_webgl_exports = {};
 __export(KHR_techniques_webgl_exports, {
   decode: () => decode10,
-  encode: () => encode12,
+  encode: () => encode13,
   name: () => name11
 });
 var KHR_TECHNIQUES_WEBGL = "KHR_techniques_webgl";
@@ -110126,7 +110295,7 @@ async function decode10(gltfData) {
     gltfScenegraph.removeExtension(KHR_TECHNIQUES_WEBGL);
   }
 }
-async function encode12(gltfData, options) {
+async function encode13(gltfData, options) {
 }
 function resolveTechniques(techniquesExtension, gltfScenegraph) {
   const { programs = [], shaders = [], techniques = [] } = techniquesExtension;
@@ -111529,7 +111698,7 @@ function parseMesh(node, ctx, matrix, meshIds) {
 }
 
 // ../../node_modules/.pnpm/property-graph@3.0.0/node_modules/property-graph/dist/property-graph.modern.js
-var EventDispatcher7 = class {
+var EventDispatcher8 = class {
   constructor() {
     this._listeners = {};
   }
@@ -111624,7 +111793,7 @@ var GraphEdge = class {
     return this._disposed;
   }
 };
-var Graph = class extends EventDispatcher7 {
+var Graph = class extends EventDispatcher8 {
   constructor(...args) {
     super(...args);
     this._emptySet = /* @__PURE__ */ new Set();
@@ -111820,7 +111989,7 @@ var RefMap = class {
 };
 var $attributes = Symbol("attributes");
 var $immutableKeys = Symbol("immutableKeys");
-var GraphNode = class _GraphNode extends EventDispatcher7 {
+var GraphNode = class _GraphNode extends EventDispatcher8 {
   /**
    * Internal graph used to search and maintain references.
    * @hidden
@@ -114773,7 +114942,7 @@ function _extends2() {
     return n;
   }, _extends2.apply(null, arguments);
 }
-var Scene2 = class extends ExtensibleProperty {
+var Scene3 = class extends ExtensibleProperty {
   init() {
     this.propertyType = PropertyType.SCENE;
   }
@@ -114991,7 +115160,7 @@ var Root = class extends ExtensibleProperty {
     return this;
   }
   _addChildOfRoot(child) {
-    if (child instanceof Scene2) {
+    if (child instanceof Scene3) {
       this.addRef("scenes", child);
     } else if (child instanceof Node) {
       this.addRef("nodes", child);
@@ -115202,7 +115371,7 @@ var Document = class _Document {
    */
   /** Creates a new {@link Scene} attached to this document's {@link Root}. */
   createScene(name12 = "") {
-    return new Scene2(this._graph, name12);
+    return new Scene3(this._graph, name12);
   }
   /** Creates a new {@link Node} attached to this document's {@link Root}. */
   createNode(name12 = "") {
@@ -116959,8 +117128,8 @@ var WebIO = class extends PlatformIO {
 };
 
 // ../sdk/src/gltf/GLTFExporter.ts
-var tempVec3a6 = createVec3();
-var tempVec3b6 = createVec3();
+var tempVec3a7 = createVec3();
+var tempVec3b7 = createVec3();
 var GLTFExporter = class extends ModelExporter {
   constructor() {
     super({
@@ -116976,6 +117145,7 @@ var GLTFExporter = class extends ModelExporter {
 function encode22(params2, options) {
   return new Promise(function(resolve2, reject) {
     const { sceneModel } = params2;
+    const coordinateSystemMatrix = options.coordinateSystem ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4()) : null;
     const io = new WebIO({ credentials: "include" });
     const document2 = new Document();
     const gltfScene = document2.createScene();
@@ -117002,11 +117172,11 @@ function encode22(params2, options) {
           const colorsCompressed = sceneGeometry.colorsCompressed;
           const hasVertexColors = !!colorsCompressed;
           for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
-            tempVec3a6[0] = positionsCompressed[k];
-            tempVec3a6[1] = positionsCompressed[k + 1];
-            tempVec3a6[2] = positionsCompressed[k + 2];
-            decompressPoint3WithAABB3(tempVec3a6, aabb, tempVec3b6);
-            coordinates.push(tempVec3b6[0], tempVec3b6[1], tempVec3b6[2]);
+            tempVec3a7[0] = positionsCompressed[k];
+            tempVec3a7[1] = positionsCompressed[k + 1];
+            tempVec3a7[2] = positionsCompressed[k + 2];
+            decompressPoint3WithAABB3(tempVec3a7, aabb, tempVec3b7);
+            coordinates.push(tempVec3b7[0], tempVec3b7[1], tempVec3b7[2]);
             if (hasVertexColors) {
               const r = colorsCompressed[k] / 255;
               const g = colorsCompressed[k + 1] / 255;
@@ -117034,7 +117204,8 @@ function encode22(params2, options) {
           primitivesCreated[sceneGeometry.id] = primitive;
         }
         const mesh = document2.createMesh().addPrimitive(primitive);
-        const node = document2.createNode(sceneMesh.id).setMesh(mesh).setMatrix(sceneMesh.matrix);
+        const matrix = coordinateSystemMatrix ? mulMat4(sceneMesh.matrix, coordinateSystemMatrix, createMat4()) : sceneMesh.matrix;
+        const node = document2.createNode(sceneMesh.id).setMesh(mesh).setMatrix(matrix);
         gltfObjectNode.addChild(node);
       }
     }
@@ -122352,7 +122523,7 @@ var AmbientLight = class extends Component {
 };
 
 // ../sdk/src/viewer/CustomProjection.ts
-var import_strongly_typed_events7 = __toESM(require_dist8());
+var import_strongly_typed_events8 = __toESM(require_dist8());
 var CustomProjection = class extends Component {
   /**
    * The Camera this CustomProjection belongs to.
@@ -122382,7 +122553,7 @@ var CustomProjection = class extends Component {
       inverseProjMatrix: createMat4(),
       transposedProjMatrix: createMat4()
     };
-    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events7.EventDispatcher());
+    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events8.EventDispatcher());
     this.#inverseProjMatrixDirty = true;
     this.#transposedProjMatrixDirty = false;
   }
@@ -122492,10 +122663,10 @@ var CustomProjection = class extends Component {
 };
 
 // ../sdk/src/viewer/Camera.ts
-var import_strongly_typed_events11 = __toESM(require_dist8());
+var import_strongly_typed_events12 = __toESM(require_dist8());
 
 // ../sdk/src/viewer/FrustumProjection.ts
-var import_strongly_typed_events8 = __toESM(require_dist8());
+var import_strongly_typed_events9 = __toESM(require_dist8());
 var FrustumProjection = class extends Component {
   /**
    * The type of this projection.
@@ -122531,7 +122702,7 @@ var FrustumProjection = class extends Component {
       bottom: cfg.bottom !== void 0 && cfg.bottom !== null ? cfg.bottom : -1,
       top: cfg.top !== void 0 && cfg.top !== null ? cfg.top : 1
     };
-    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events8.EventDispatcher());
+    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
     this.#inverseMatrixDirty = true;
     this.#transposedProjMatrixDirty = true;
   }
@@ -122770,7 +122941,7 @@ var FrustumProjection = class extends Component {
 };
 
 // ../sdk/src/viewer/OrthoProjection.ts
-var import_strongly_typed_events9 = __toESM(require_dist8());
+var import_strongly_typed_events10 = __toESM(require_dist8());
 var OrthoProjection = class extends Component {
   /**
    * The Camera this OrthoProjection belongs to.
@@ -122804,7 +122975,7 @@ var OrthoProjection = class extends Component {
       inverseProjMatrix: createMat4(),
       transposedProjMatrix: createMat4()
     };
-    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events9.EventDispatcher());
+    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
     this.#inverseMatrixDirty = true;
     this.#transposedProjMatrixDirty = true;
     this.#onViewBoundary = this.camera.view.onBoundary.subscribe(() => {
@@ -123024,7 +123195,7 @@ var OrthoProjection = class extends Component {
 };
 
 // ../sdk/src/viewer/PerspectiveProjection.ts
-var import_strongly_typed_events10 = __toESM(require_dist8());
+var import_strongly_typed_events11 = __toESM(require_dist8());
 var PerspectiveProjection = class extends Component {
   /**
    * The Camera this PerspectiveProjection belongs to.
@@ -123064,7 +123235,7 @@ var PerspectiveProjection = class extends Component {
     this.#onViewBoundary = this.camera.view.onBoundary.subscribe(() => {
       this.setDirty();
     });
-    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events10.EventDispatcher());
+    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events11.EventDispatcher());
   }
   /**
    * Gets the PerspectiveProjection's field-of-view angle (FOV).
@@ -123295,7 +123466,7 @@ var PerspectiveProjection = class extends Component {
 
 // ../sdk/src/viewer/Camera.ts
 var tempVec32 = createVec3();
-var tempVec3b7 = createVec3();
+var tempVec3b8 = createVec3();
 var tempVec3c4 = createVec3();
 var tempVec3d2 = createVec3();
 var tempVec3e2 = createVec3();
@@ -123370,16 +123541,6 @@ var Camera2 = class extends Component {
    */
   onProjMatrix;
   /**
-   * Emits an event each time {@link Camera.worldAxis} updates.
-   *
-   * ````javascript
-   * myView.camera.onWorldAxis.subscribe((camera, worldAxis) => { ... });
-   * ````
-   *
-   * @event
-   */
-  onWorldAxis;
-  /**
    * Emits an event each time {@link Camera.frustum} updates.
    *
    * ````javascript
@@ -123400,20 +123561,15 @@ var Camera2 = class extends Component {
    */
   constructor(view, cfg = {}) {
     super(view, cfg);
-    this.onProjectionType = new EventEmitter(new import_strongly_typed_events11.EventDispatcher());
-    this.onViewMatrix = new EventEmitter(new import_strongly_typed_events11.EventDispatcher());
-    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events11.EventDispatcher());
-    this.onWorldAxis = new EventEmitter(new import_strongly_typed_events11.EventDispatcher());
-    this.onFrustum = new EventEmitter(new import_strongly_typed_events11.EventDispatcher());
+    this.onProjectionType = new EventEmitter(new import_strongly_typed_events12.EventDispatcher());
+    this.onViewMatrix = new EventEmitter(new import_strongly_typed_events12.EventDispatcher());
+    this.onProjMatrix = new EventEmitter(new import_strongly_typed_events12.EventDispatcher());
+    this.onFrustum = new EventEmitter(new import_strongly_typed_events12.EventDispatcher());
     this.view = view;
     this.#state = {
-      eye: createVec3(cfg.eye || [0, 0, 10]),
+      eye: createVec3(cfg.eye || [0, -10, 0]),
       look: createVec3(cfg.look || [0, 0, 0]),
-      up: createVec3(cfg.up || [0, 1, 0]),
-      worldUp: createVec3([0, 1, 0]),
-      worldRight: createVec3([1, 0, 0]),
-      worldForward: createVec3([0, 0, -1]),
-      worldAxis: new Float32Array(cfg.worldAxis || [1, 0, 0, 0, 1, 0, 0, 0, 1]),
+      up: createVec3(cfg.up || [0, 0, 1]),
       gimbalLock: cfg.gimbalLock !== false,
       constrainPitch: cfg.constrainPitch === true,
       projectionType: cfg.projectionType || PerspectiveProjectionType,
@@ -123463,7 +123619,7 @@ var Camera2 = class extends Component {
   /**
    * Gets the position of the Camera's eye.
    *
-   * Default vale is ````[0,0,10]````.
+   * Default vale is ````[0,-10,0]````.
    *
    * @type {Number[]} New eye position.
    */
@@ -123473,7 +123629,7 @@ var Camera2 = class extends Component {
   /**
    * Sets the position of the Camera's eye.
    *
-   * Default value is ````[0,0,10]````.
+   * Default value is ````[0,-10,0]````.
    *
    * @type {Number[]} New eye position.
    */
@@ -123520,42 +123676,6 @@ var Camera2 = class extends Component {
     this.setDirty();
   }
   /**
-   * Gets the direction of World-space "up".
-   *
-   * This is set by {@link Camera.worldAxis}.
-   *
-   * Default value is ````[0,1,0]````.
-   *
-   * @returns {Number[]} The "up" vector.
-   */
-  get worldUp() {
-    return this.#state.worldUp;
-  }
-  /**
-   * Gets the direction of World-space "right".
-   *
-   * This is set by {@link Camera.worldAxis}.
-   *
-   * Default value is ````[1,0,0]````.
-   *
-   * @returns {Number[]} The "up" vector.
-   */
-  get worldRight() {
-    return this.#state.worldRight;
-  }
-  /**
-   * Gets the direction of World-space "forwards".
-   *
-   * This is set by {@link Camera.worldAxis}.
-   *
-   * Default value is ````[0,0,1]````.
-   *
-   * @returns {Number[]} The "up" vector.
-   */
-  get worldForward() {
-    return this.#state.worldForward;
-  }
-  /**
    * Gets whether to prevent camera from being pitched upside down.
    *
    * The camera is upside down when the angle between {@link Camera.up | Camera.up} and {@link Camera.worldUp} is less than one degree.
@@ -123596,41 +123716,6 @@ var Camera2 = class extends Component {
     this.#state.gimbalLock = value;
   }
   /**
-   * Gets the up, right and forward axis of the World coordinate system.
-   *
-   * Has format: ````[rightX, rightY, rightZ, upX, upY, upZ, forwardX, forwardY, forwardZ]````
-   *
-   * Default axis is ````[1, 0, 0, 0, 1, 0, 0, 0, 1]````
-   *
-   * @returns {Number[]} The current World coordinate axis.
-   */
-  get worldAxis() {
-    return this.#state.worldAxis;
-  }
-  /**
-   * Sets the up, right and forward axis of the World coordinate system.
-   *
-   * Has format: ````[rightX, rightY, rightZ, upX, upY, upZ, forwardX, forwardY, forwardZ]````
-   *
-   * Default axis is ````[1, 0, 0, 0, 1, 0, 0, 0, 1]````
-   *
-   * @param axis The new Wworld coordinate axis.
-   */
-  set worldAxis(axis) {
-    const state = this.#state;
-    state.worldAxis.set(axis);
-    state.worldRight[0] = state.worldAxis[0];
-    state.worldRight[1] = state.worldAxis[1];
-    state.worldRight[2] = state.worldAxis[2];
-    state.worldUp[0] = state.worldAxis[3];
-    state.worldUp[1] = state.worldAxis[4];
-    state.worldUp[2] = state.worldAxis[5];
-    state.worldForward[0] = state.worldAxis[6];
-    state.worldForward[1] = state.worldAxis[7];
-    state.worldForward[2] = state.worldAxis[8];
-    this.onWorldAxis.dispatch(this, state.worldAxis);
-  }
-  /**
    * Gets an optional matrix to premultiply into {@link Camera.projMatrix} matrix.
    *
    * @returns {Number[]} The matrix.
@@ -123649,27 +123734,6 @@ var Camera2 = class extends Component {
     this.#state.deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.#state.hasDeviceMatrix = !!matrix;
     this.setDirty();
-  }
-  /**
-   * Gets if the World-space X-axis is "up".
-   * @returns {boolean}
-   */
-  get xUp() {
-    return this.#state.worldUp[0] > this.#state.worldUp[1] && this.#state.worldUp[0] > this.#state.worldUp[2];
-  }
-  /**
-   * Gets if the World-space Y-axis is "up".
-   * @returns {boolean}
-   */
-  get yUp() {
-    return this.#state.worldUp[1] > this.#state.worldUp[0] && this.#state.worldUp[1] > this.#state.worldUp[2];
-  }
-  /**
-   * Gets if the World-space Z-axis is "up".
-   * @returns {boolean}
-   */
-  get zUp() {
-    return this.#state.worldUp[2] > this.#state.worldUp[0] && this.#state.worldUp[2] > this.#state.worldUp[1];
   }
   /**
    * Gets distance from {@link Camera.look | Camera.look} to {@link Camera.eye | Camera.eye}.
@@ -123801,8 +123865,8 @@ var Camera2 = class extends Component {
    */
   orbitYaw(angleInc) {
     let lookEyeVec = subVec3(this.#state.eye, this.#state.look, tempVec32);
-    rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.#state.worldUp : this.#state.up, tempMat2);
-    lookEyeVec = transformPoint3(tempMat2, lookEyeVec, tempVec3b7);
+    rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.view.viewer.scene.coordinateSystem.worldUp : this.#state.up, tempMat2);
+    lookEyeVec = transformPoint3(tempMat2, lookEyeVec, tempVec3b8);
     this.eye = addVec3(this.#state.look, lookEyeVec, tempVec3c4);
     this.up = transformPoint3(tempMat2, this.#state.up, tempVec3d2);
   }
@@ -123813,13 +123877,13 @@ var Camera2 = class extends Component {
    */
   orbitPitch(angleInc) {
     if (this.#state.constrainPitch) {
-      angleInc = dotVec3(this.#state.up, this.#state.worldUp) / DEGTORAD;
+      angleInc = dotVec3(this.#state.up, this.view.viewer.scene.coordinateSystem.worldUp) / DEGTORAD;
       if (angleInc < 1) {
         return;
       }
     }
     let eye2 = subVec3(this.#state.eye, this.#state.look, tempVec32);
-    const left = cross3Vec3(normalizeVec3(eye2, tempVec3b7), normalizeVec3(this.#state.up, tempVec3c4));
+    const left = cross3Vec3(normalizeVec3(eye2, tempVec3b8), normalizeVec3(this.#state.up, tempVec3c4));
     rotationMat4v(angleInc * 0.0174532925, left, tempMat2);
     eye2 = transformPoint3(tempMat2, eye2, tempVec3d2);
     this.up = transformPoint3(tempMat2, this.#state.up, tempVec3e2);
@@ -123832,8 +123896,8 @@ var Camera2 = class extends Component {
    */
   yaw(angleInc) {
     let look2 = subVec3(this.#state.look, this.#state.eye, tempVec32);
-    rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.#state.worldUp : this.#state.up, tempMat2);
-    look2 = transformPoint3(tempMat2, look2, tempVec3b7);
+    rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.view.viewer.scene.coordinateSystem.worldUp : this.#state.up, tempMat2);
+    look2 = transformPoint3(tempMat2, look2, tempVec3b8);
     this.look = addVec3(look2, this.#state.eye, tempVec3c4);
     if (this.#state.gimbalLock) {
       this.up = transformPoint3(tempMat2, this.#state.up, tempVec3d2);
@@ -123846,13 +123910,13 @@ var Camera2 = class extends Component {
      */
   pitch(angleInc) {
     if (this.#state.constrainPitch) {
-      angleInc = dotVec3(this.#state.up, this.#state.worldUp) / DEGTORAD;
+      angleInc = dotVec3(this.#state.up, this.view.viewer.scene.coordinateSystem.worldUp) / DEGTORAD;
       if (angleInc < 1) {
         return;
       }
     }
     let look2 = subVec3(this.#state.look, this.#state.eye, tempVec32);
-    const left = cross3Vec3(normalizeVec3(look2, tempVec3b7), normalizeVec3(this.#state.up, tempVec3c4));
+    const left = cross3Vec3(normalizeVec3(look2, tempVec3b8), normalizeVec3(this.#state.up, tempVec3c4));
     rotationMat4v(angleInc * 0.0174532925, left, tempMat2);
     this.up = transformPoint3(tempMat2, this.#state.up, tempVec3f);
     look2 = transformPoint3(tempMat2, look2, tempVec3d2);
@@ -123868,7 +123932,7 @@ var Camera2 = class extends Component {
     const vec = [0, 0, 0];
     let v;
     if (pan[0] !== 0) {
-      const left = cross3Vec3(normalizeVec3(eye2, []), normalizeVec3(this.#state.up, tempVec3b7));
+      const left = cross3Vec3(normalizeVec3(eye2, []), normalizeVec3(this.#state.up, tempVec3b8));
       v = mulVec3Scalar(left, pan[0]);
       vec[0] += v[0];
       vec[1] += v[1];
@@ -123912,7 +123976,6 @@ var Camera2 = class extends Component {
       eye: Array.from(this.#state.eye),
       look: Array.from(this.#state.look),
       up: Array.from(this.#state.up),
-      worldAxis: Array.from(this.#state.worldAxis),
       gimbalLock: this.gimbalLock,
       constrainPitch: this.constrainPitch,
       projectionType: this.projectionType,
@@ -123954,9 +124017,6 @@ var Camera2 = class extends Component {
     if (cameraParams.projectionType !== void 0) {
       this.projectionType = cameraParams.projectionType;
     }
-    if (cameraParams.worldAxis) {
-      this.worldAxis = cameraParams.worldAxis;
-    }
   }
   /**
    * @private
@@ -123966,7 +124026,6 @@ var Camera2 = class extends Component {
     this.onProjectionType.clear();
     this.onViewMatrix.clear();
     this.onProjMatrix.clear();
-    this.onWorldAxis.clear();
   }
 };
 
@@ -124589,207 +124648,6 @@ var LinesMaterial = class extends Component {
    */
   get lineWidth() {
     return this.#state.lineWidth;
-  }
-};
-
-// ../sdk/src/viewer/Metriqs.ts
-var import_strongly_typed_events12 = __toESM(require_dist8());
-var unitsInfo = {
-  [MetersUnit]: {
-    abbrev: "m"
-  },
-  [CentimetersUnit]: {
-    abbrev: "cm"
-  },
-  [MillimetersUnit]: {
-    abbrev: "mm"
-  },
-  [YardsUnit]: {
-    abbrev: "yd"
-  },
-  [FeetUnit]: {
-    abbrev: "ft"
-  },
-  [InchesUnit]: {
-    abbrev: "in"
-  }
-};
-var Metrics = class extends Component {
-  #units;
-  #scale;
-  #origin;
-  /**
-   * Emits an event each time {@link Metrics.units} changes.
-   *
-   * @event
-   */
-  onUnits;
-  /**
-   * Emits an event each time {@link Metrics.scale} changes.
-   *
-   * @event
-   */
-  onScale;
-  /**
-   * Emits an event each time {@link Metrics.origin} changes.
-   *
-   * @event
-   */
-  onOrigin;
-  /**
-   * @private
-   */
-  constructor(view, cfg = {
-    units: MetersUnit,
-    scale: 1,
-    origin: [1, 1, 1]
-  }) {
-    super(view, cfg);
-    this.onUnits = new EventEmitter(new import_strongly_typed_events12.EventDispatcher());
-    this.onScale = new EventEmitter(new import_strongly_typed_events12.EventDispatcher());
-    this.onOrigin = new EventEmitter(new import_strongly_typed_events12.EventDispatcher());
-    this.#units = MetersUnit;
-    this.#scale = 1;
-    this.#origin = createVec3([0, 0, 0]);
-    this.units = cfg.units;
-    this.scale = cfg.scale;
-    this.origin = cfg.origin;
-  }
-  /**
-   * Gets info about the supported Real-space unit types.
-   *
-   * With {@link constants} indicating each unit type, the info will be:
-   *
-   * ````javascript
-   * {
-   *     [MetersUnit]: {
-   *         abbrev: "m"
-   *     },
-   *     [CentimetersUnit]: {
-   *         abbrev: "cm"
-   *     },
-   *     [MillimetersUnit]: {
-   *         abbrev: "mm"
-   *     },
-   *     [YardsUnit]: {
-   *         abbrev: "yd"
-   *     },
-   *     [FeetUnit]: {
-   *         abbrev: "ft"
-   *     },
-   *     [InchesUnit]: {
-   *         abbrev: "in"
-   *     }
-   * }
-   * ````
-   *
-   * @type {*}
-   */
-  get unitsInfo() {
-    return unitsInfo;
-  }
-  /**
-   * Gets the {@link View}'s Real-space unit type.
-   */
-  get units() {
-    return this.#units;
-  }
-  /**
-   * Sets the {@link View}'s Real-space unit type.
-   *
-   * Accepted values are {@link constants!MetersUnit}, {@link constants!CentimetersUnit}, {@link constants!MillimetersUnit}, {@link constants!YardsUnit}, {@link constants!FeetUnit} and {@link constants!InchesUnit}.
-   */
-  set units(value) {
-    if (!value) {
-      value = MetersUnit;
-    }
-    const info = unitsInfo[value];
-    if (!info) {
-      this.error("Unsupported value for 'units': " + value + " defaulting to MetersUnit");
-      value = MetersUnit;
-    }
-    this.#units = value;
-    this.onUnits.dispatch(this, this.#units);
-  }
-  /**
-   * Gets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
-   */
-  get scale() {
-    return this.#scale;
-  }
-  /**
-   * Sets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
-   *
-   * For example, if {@link Metrics.units} is {@link constants!MetersUnit}, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
-   */
-  set scale(value) {
-    value = value || 1;
-    if (value <= 0) {
-      this.error("scale value should be larger than zero");
-      return;
-    }
-    this.#scale = value;
-    this.onScale.dispatch(this, this.#scale);
-  }
-  /**
-   * Gets the 3D Real-space origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
-   */
-  get origin() {
-    return this.#origin;
-  }
-  /**
-   * Sets the Real-space 3D origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
-   */
-  set origin(value) {
-    if (!value) {
-      this.#origin[0] = 0;
-      this.#origin[1] = 0;
-      this.#origin[2] = 0;
-      return;
-    }
-    this.#origin[0] = value[0];
-    this.#origin[1] = value[1];
-    this.#origin[2] = value[2];
-    this.onOrigin.dispatch(this, this.#origin);
-  }
-  /**
-   * Converts a 3D position from World-space to Real-space.
-   *
-   * This is equivalent to ````realPos = #origin + (worldPos * #scale)````.
-   *
-   * @param worldPos World-space 3D position, in World coordinate system units.
-   * @param [realPos] Destination for Real-space 3D position.
-   * @returns  Real-space 3D position, in units indicated by {@link Metrics#units}.
-   */
-  worldToRealPos(worldPos, realPos = createVec3()) {
-    realPos[0] = this.#origin[0] + this.#scale * worldPos[0];
-    realPos[1] = this.#origin[1] + this.#scale * worldPos[1];
-    realPos[2] = this.#origin[2] + this.#scale * worldPos[2];
-    return realPos;
-  }
-  /**
-   * Converts a 3D position from Real-space to World-space.
-   *
-   * This is equivalent to ````worldPos = (worldPos - #origin) / #scale````.
-   *
-   * @param realPos Real-space 3D position.
-   * @param [worldPos] Destination for World-space 3D position.
-   * @returns  World-space 3D position.
-   */
-  realToWorldPos(realPos, worldPos = createVec3()) {
-    worldPos[0] = (realPos[0] - this.#origin[0]) / this.#scale;
-    worldPos[1] = (realPos[1] - this.#origin[1]) / this.#scale;
-    worldPos[2] = (realPos[2] - this.#origin[2]) / this.#scale;
-    return worldPos;
-  }
-  /**
-   * @private
-   */
-  destroy() {
-    super.destroy();
-    this.onUnits.clear();
-    this.onScale.clear();
-    this.onOrigin.clear();
   }
 };
 
@@ -126790,10 +126648,6 @@ var View = class extends Component {
    */
   edges;
   /**
-   * Manages measurement units, origin and scale for this View.
-   */
-  metrics;
-  /**
    * Configures the X-rayed appearance of {@link ViewObject | ViewObjects} in this View.
    */
   xrayMaterial;
@@ -127116,11 +126970,6 @@ var View = class extends Component {
     this.camera = new Camera2(this);
     this.sao = new SAO(this, viewParams.sao || {});
     this.texturing = new Texturing(this, {});
-    this.metrics = new Metrics(this, {
-      units: viewParams.units,
-      scale: viewParams.scale,
-      origin: viewParams.origin
-    });
     this.xrayMaterial = new EmphasisMaterial(this, viewParams.xrayMaterial || {
       fill: true,
       fillColor: [0.9, 0.7, 0.6],
@@ -128719,6 +128568,207 @@ var PointLight = class extends Component {
     super.destroy();
     this.view.deregisterLight(this);
     this.view.redraw();
+  }
+};
+
+// ../sdk/src/viewer/Metriqs.ts
+var import_strongly_typed_events17 = __toESM(require_dist8());
+var unitsInfo = {
+  [MetersUnit]: {
+    abbrev: "m"
+  },
+  [CentimetersUnit]: {
+    abbrev: "cm"
+  },
+  [MillimetersUnit]: {
+    abbrev: "mm"
+  },
+  [YardsUnit]: {
+    abbrev: "yd"
+  },
+  [FeetUnit]: {
+    abbrev: "ft"
+  },
+  [InchesUnit]: {
+    abbrev: "in"
+  }
+};
+var Metrics = class extends Component {
+  #units;
+  #scale;
+  #origin;
+  /**
+   * Emits an event each time {@link Metrics.units} changes.
+   *
+   * @event
+   */
+  onUnits;
+  /**
+   * Emits an event each time {@link Metrics.scale} changes.
+   *
+   * @event
+   */
+  onScale;
+  /**
+   * Emits an event each time {@link Metrics.origin} changes.
+   *
+   * @event
+   */
+  onOrigin;
+  /**
+   * @private
+   */
+  constructor(view, cfg = {
+    units: MetersUnit,
+    scale: 1,
+    origin: [1, 1, 1]
+  }) {
+    super(view, cfg);
+    this.onUnits = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
+    this.onScale = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
+    this.onOrigin = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
+    this.#units = MetersUnit;
+    this.#scale = 1;
+    this.#origin = createVec3([0, 0, 0]);
+    this.units = cfg.units;
+    this.scale = cfg.scale;
+    this.origin = cfg.origin;
+  }
+  /**
+   * Gets info about the supported Real-space unit types.
+   *
+   * With {@link constants} indicating each unit type, the info will be:
+   *
+   * ````javascript
+   * {
+   *     [MetersUnit]: {
+   *         abbrev: "m"
+   *     },
+   *     [CentimetersUnit]: {
+   *         abbrev: "cm"
+   *     },
+   *     [MillimetersUnit]: {
+   *         abbrev: "mm"
+   *     },
+   *     [YardsUnit]: {
+   *         abbrev: "yd"
+   *     },
+   *     [FeetUnit]: {
+   *         abbrev: "ft"
+   *     },
+   *     [InchesUnit]: {
+   *         abbrev: "in"
+   *     }
+   * }
+   * ````
+   *
+   * @type {*}
+   */
+  get unitsInfo() {
+    return unitsInfo;
+  }
+  /**
+   * Gets the {@link View}'s Real-space unit type.
+   */
+  get units() {
+    return this.#units;
+  }
+  /**
+   * Sets the {@link View}'s Real-space unit type.
+   *
+   * Accepted values are {@link constants!MetersUnit}, {@link constants!CentimetersUnit}, {@link constants!MillimetersUnit}, {@link constants!YardsUnit}, {@link constants!FeetUnit} and {@link constants!InchesUnit}.
+   */
+  set units(value) {
+    if (!value) {
+      value = MetersUnit;
+    }
+    const info = unitsInfo[value];
+    if (!info) {
+      this.error("Unsupported value for 'units': " + value + " defaulting to MetersUnit");
+      value = MetersUnit;
+    }
+    this.#units = value;
+    this.onUnits.dispatch(this, this.#units);
+  }
+  /**
+   * Gets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
+   */
+  get scale() {
+    return this.#scale;
+  }
+  /**
+   * Sets the number of Real-space units represented by each unit of the {@link View}'s World-space coordinate system.
+   *
+   * For example, if {@link Metrics.units} is {@link constants!MetersUnit}, and there are ten meters per World-space coordinate system unit, then ````scale```` would have a value of ````10.0````.
+   */
+  set scale(value) {
+    value = value || 1;
+    if (value <= 0) {
+      this.error("scale value should be larger than zero");
+      return;
+    }
+    this.#scale = value;
+    this.onScale.dispatch(this, this.#scale);
+  }
+  /**
+   * Gets the 3D Real-space origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
+   */
+  get origin() {
+    return this.#origin;
+  }
+  /**
+   * Sets the Real-space 3D origin, in Real-space units, at which this {@link View}'s World-space coordinate origin ````[0,0,0]```` sits.
+   */
+  set origin(value) {
+    if (!value) {
+      this.#origin[0] = 0;
+      this.#origin[1] = 0;
+      this.#origin[2] = 0;
+      return;
+    }
+    this.#origin[0] = value[0];
+    this.#origin[1] = value[1];
+    this.#origin[2] = value[2];
+    this.onOrigin.dispatch(this, this.#origin);
+  }
+  /**
+   * Converts a 3D position from World-space to Real-space.
+   *
+   * This is equivalent to ````realPos = #origin + (worldPos * #scale)````.
+   *
+   * @param worldPos World-space 3D position, in World coordinate system units.
+   * @param [realPos] Destination for Real-space 3D position.
+   * @returns  Real-space 3D position, in units indicated by {@link Metrics#units}.
+   */
+  worldToRealPos(worldPos, realPos = createVec3()) {
+    realPos[0] = this.#origin[0] + this.#scale * worldPos[0];
+    realPos[1] = this.#origin[1] + this.#scale * worldPos[1];
+    realPos[2] = this.#origin[2] + this.#scale * worldPos[2];
+    return realPos;
+  }
+  /**
+   * Converts a 3D position from Real-space to World-space.
+   *
+   * This is equivalent to ````worldPos = (worldPos - #origin) / #scale````.
+   *
+   * @param realPos Real-space 3D position.
+   * @param [worldPos] Destination for World-space 3D position.
+   * @returns  World-space 3D position.
+   */
+  realToWorldPos(realPos, worldPos = createVec3()) {
+    worldPos[0] = (realPos[0] - this.#origin[0]) / this.#scale;
+    worldPos[1] = (realPos[1] - this.#origin[1]) / this.#scale;
+    worldPos[2] = (realPos[2] - this.#origin[2]) / this.#scale;
+    return worldPos;
+  }
+  /**
+   * @private
+   */
+  destroy() {
+    super.destroy();
+    this.onUnits.clear();
+    this.onScale.clear();
+    this.onOrigin.clear();
   }
 };
 
@@ -130741,7 +130791,7 @@ if (canvas) {
 }
 
 // ../sdk/src/webglrenderer/WebGLRenderer.ts
-var import_strongly_typed_events17 = __toESM(require_dist8());
+var import_strongly_typed_events18 = __toESM(require_dist8());
 
 // ../sdk/src/ktx2/index.ts
 var ktx2_exports = {};
@@ -133099,7 +133149,7 @@ var VBOBatchingBuffer = class {
 
 // ../sdk/src/webglrenderer/vbo/batching/VBOBatchingLayer.ts
 var numLayers = 0;
-var tempVec3a7 = createVec3();
+var tempVec3a8 = createVec3();
 var tempVec4a4 = createVec4();
 var tempVec4b4 = createVec4();
 var VBOBatchingLayer = class {
@@ -133213,10 +133263,10 @@ var VBOBatchingLayer = class {
       }
     }
     for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
-      tempVec3a7[0] = positionsCompressed[k];
-      tempVec3a7[1] = positionsCompressed[k + 1];
-      tempVec3a7[2] = positionsCompressed[k + 2];
-      decompressPoint3WithAABB3(tempVec3a7, geometryAABB, tempVec4a4);
+      tempVec3a8[0] = positionsCompressed[k];
+      tempVec3a8[1] = positionsCompressed[k + 1];
+      tempVec3a8[2] = positionsCompressed[k + 2];
+      decompressPoint3WithAABB3(tempVec3a8, geometryAABB, tempVec4a4);
       if (sceneMesh.rtcMatrix) {
         tempVec4a4[3] = 1;
         transformPoint4(sceneMesh.rtcMatrix, tempVec4a4, tempVec4b4);
@@ -134013,8 +134063,8 @@ var tempUint8Vec4 = new Uint8Array(4);
 var tempFloat32 = new Float32Array(1);
 var tempVec4a5 = createVec4([0, 0, 0, 1]);
 var tempVec3fa = new Float32Array(3);
-var tempVec3a8 = createVec3();
-var tempVec3b8 = createVec3();
+var tempVec3a9 = createVec3();
+var tempVec3b9 = createVec3();
 var tempVec3c5 = createVec3();
 var tempVec3d3 = createVec3();
 var tempVec3e3 = createVec3();
@@ -135503,7 +135553,7 @@ var WebGLRendererGeometry = class {
 };
 
 // ../sdk/src/webglrenderer/WebGLRendererMesh.ts
-var tempMat4a3 = createMat4();
+var tempMat4a5 = createMat4();
 var tempMat4b2 = createMat4();
 var WebGLRendererMesh = class {
   id;
@@ -135562,7 +135612,7 @@ var WebGLRendererMesh = class {
     const tileChanged = !oldTile || oldTile.id !== this.tile.id;
     const tileCenter = this.tile.center;
     const needRTC = tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0;
-    this.layer.setLayerMeshMatrix(this.meshIndex, needRTC ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a3), tempMat4b2) : matrix);
+    this.layer.setLayerMeshMatrix(this.meshIndex, needRTC ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a5), tempMat4b2) : matrix);
     if (tileChanged) {
     }
   }
@@ -135864,6 +135914,7 @@ var defaultEmissiveTextureId = "defaultEmissiveTexture";
 var defaultOcclusionTextureId = "defaultOcclusionTexture";
 var defaultTextureSetId = "defaultTextureSet";
 var WebGLRendererModel = class extends Component {
+  sceneModel;
   viewer;
   qualityRender;
   rendererGeometries;
@@ -135906,6 +135957,7 @@ var WebGLRendererModel = class extends Component {
   constructor(params2) {
     super(params2.viewer);
     this.id = params2.id;
+    this.sceneModel = params2.sceneModel;
     this.viewer = params2.viewer;
     this.meshCounts = [
       new MeshCounts(),
@@ -136524,6 +136576,7 @@ var WebGLRendererModel = class extends Component {
     if (this.destroyed) {
       return;
     }
+    this.#detachSceneModel();
     for (const layerId in this.#currentLayers) {
       if (this.#currentLayers.hasOwnProperty(layerId)) {
         this.#currentLayers[layerId].destroy();
@@ -136548,49 +136601,13 @@ var WebGLRendererModel = class extends Component {
     this.rendererObjects = {};
     super.destroy();
   }
-  // detachSceneModel(): void {
-  //     const sceneModel = this.sceneModel;
-  //     if (!sceneModel) {
-  //         return;
-  //     }
-  //     const textures = sceneModel.textures;
-  //     const geometries = sceneModel.geometries;
-  //     const meshes = sceneModel.meshes;
-  //     const objects = sceneModel.objects;
-  //     if (textures) {
-  //         for (let textureId in textures) {
-  //             const texture = textures[textureId];
-  //             if (texture.rendererTexture) {
-  //                 texture.rendererTexture = null;
-  //             }
-  //         }
-  //     }
-  //     if (geometries) {
-  //         for (let geometryId in geometries) {
-  //             const geometry = geometries[geometryId];
-  //             if (geometry.rendererGeometry) {
-  //                 geometry.rendererGeometry = null;
-  //             }
-  //         }
-  //     }
-  //     if (meshes) {
-  //         for (let meshId in meshes) {
-  //             const mesh = meshes[meshId];
-  //             if (mesh.rendererMesh) {
-  //                 mesh.rendererMesh = null;
-  //             }
-  //         }
-  //     }
-  //     if (objects) {
-  //         for (let objectId in objects) {
-  //             const object = objects[objectId];
-  //             if (object.rendererObject) {
-  //                 object.rendererObject = null;
-  //             }
-  //         }
-  //     }
-  //     this.sceneModel = null;
-  // }
+  #detachSceneModel() {
+    const sceneModel = this.sceneModel;
+    if (!sceneModel) {
+      return;
+    }
+    this.sceneModel = null;
+  }
 };
 
 // ../sdk/src/webglrenderer/WebGLRendererView.ts
@@ -136629,8 +136646,8 @@ var WebGLRendererView = class {
 };
 
 // ../sdk/src/webglrenderer/WebGLRenderer.ts
-var tempVec3a9 = createVec3();
-var tempVec3b9 = createVec3();
+var tempVec3a10 = createVec3();
+var tempVec3b10 = createVec3();
 var tempVec3c6 = createVec3();
 var tempMat4b3 = createMat4();
 var pickTemps = {
@@ -136730,8 +136747,8 @@ var WebGLRenderer = class {
     this.#rendererViewsList = [];
     this.#activeRendererView = null;
     this.#pickResult = new PickResult();
-    this.onCompiled = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
-    this.onDestroyed = new EventEmitter(new import_strongly_typed_events17.EventDispatcher());
+    this.onCompiled = new EventEmitter(new import_strongly_typed_events18.EventDispatcher());
+    this.onDestroyed = new EventEmitter(new import_strongly_typed_events18.EventDispatcher());
     this.#webglCanvasElement = document.createElement("canvas");
     const webglCanvasElement = this.#webglCanvasElement;
     webglCanvasElement.width = 400;
@@ -137630,12 +137647,12 @@ var WebGLRenderer = class {
       } else {
         pickWorldRayOrigin.set(pickParams.rayOrigin || [0, 0, 0]);
         pickWorldRayDir.set(pickParams.rayDirection || [0, 0, 1]);
-        const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a9);
-        tempVec3b9[0] = Math.random();
-        tempVec3b9[1] = Math.random();
-        tempVec3b9[2] = Math.random();
-        normalizeVec3(tempVec3b9);
-        cross3Vec3(pickWorldRayDir, tempVec3b9, tempVec3c6);
+        const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a10);
+        tempVec3b10[0] = Math.random();
+        tempVec3b10[1] = Math.random();
+        tempVec3b10[2] = Math.random();
+        normalizeVec3(tempVec3b10);
+        cross3Vec3(pickWorldRayDir, tempVec3b10, tempVec3c6);
         pickViewMatrix.set(lookAtMat4v(pickWorldRayOrigin, look, tempVec3c6, tempMat4b3));
         pickProjMatrix.set(view.camera.orthoProjection.projMatrix);
         pickResult.origin = pickWorldRayOrigin;
@@ -138135,7 +138152,7 @@ __export(cameraflight_exports, {
 });
 
 // ../sdk/src/cameraflight/CameraFlightAnimation.ts
-var import_strongly_typed_events18 = __toESM(require_dist8());
+var import_strongly_typed_events19 = __toESM(require_dist8());
 var tempVec33 = createVec3();
 var newLook = createVec3();
 var newEye = createVec3();
@@ -138222,9 +138239,9 @@ var CameraFlightAnimation = class _CameraFlightAnimation extends Component {
     this.#fit = true;
     this.#duration = 500;
     this.#fitFOV = 60;
-    this.onStarted = new EventEmitter(new import_strongly_typed_events18.EventDispatcher());
-    this.onStopped = new EventEmitter(new import_strongly_typed_events18.EventDispatcher());
-    this.onCancelled = new EventEmitter(new import_strongly_typed_events18.EventDispatcher());
+    this.onStarted = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
+    this.onStopped = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
+    this.onCancelled = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
   }
   /**
    * Animates the camera to a target viewpoint or bounding volume.
@@ -138595,6 +138612,7 @@ var CameraUpdater = class {
   constructor(view, controllers, configs, states, updates) {
     this.#view = view;
     const camera = view.camera;
+    const coordinateSystem = view.viewer.scene.coordinateSystem;
     const pickController = controllers.pickController;
     const pivotController = controllers.pivotController;
     const panController = controllers.panController;
@@ -138691,26 +138709,26 @@ var CameraUpdater = class {
         let verticalEye;
         let verticalLook;
         if (configs.constrainVertical) {
-          if (camera.xUp) {
+          if (coordinateSystem.xUp) {
             verticalEye = camera.eye[0];
             verticalLook = camera.look[0];
-          } else if (camera.yUp) {
+          } else if (coordinateSystem.yUp) {
             verticalEye = camera.eye[1];
             verticalLook = camera.look[1];
-          } else if (camera.zUp) {
+          } else if (coordinateSystem.zUp) {
             verticalEye = camera.eye[2];
             verticalLook = camera.look[2];
           }
           camera.pan(vec);
           const eye = camera.eye;
           const look = camera.look;
-          if (camera.xUp) {
+          if (coordinateSystem.xUp) {
             eye[0] = verticalEye;
             look[0] = verticalLook;
-          } else if (camera.yUp) {
+          } else if (coordinateSystem.yUp) {
             eye[1] = verticalEye;
             look[1] = verticalLook;
-          } else if (camera.zUp) {
+          } else if (coordinateSystem.zUp) {
             eye[2] = verticalEye;
             look[2] = verticalLook;
           }
@@ -138734,13 +138752,13 @@ var CameraUpdater = class {
           let verticalEye;
           let verticalLook;
           if (configs.constrainVertical) {
-            if (camera.xUp) {
+            if (coordinateSystem.xUp) {
               verticalEye = camera.eye[0];
               verticalLook = camera.look[0];
-            } else if (camera.yUp) {
+            } else if (coordinateSystem.yUp) {
               verticalEye = camera.eye[1];
               verticalLook = camera.look[1];
-            } else if (camera.zUp) {
+            } else if (coordinateSystem.zUp) {
               verticalEye = camera.eye[2];
               verticalLook = camera.look[2];
             }
@@ -138757,13 +138775,13 @@ var CameraUpdater = class {
           if (configs.constrainVertical) {
             const eye = camera.eye;
             const look = camera.look;
-            if (camera.xUp) {
+            if (coordinateSystem.xUp) {
               eye[0] = verticalEye;
               look[0] = verticalLook;
-            } else if (camera.yUp) {
+            } else if (coordinateSystem.yUp) {
               eye[1] = verticalEye;
               look[1] = verticalLook;
-            } else if (camera.zUp) {
+            } else if (coordinateSystem.zUp) {
               eye[2] = verticalEye;
               look[2] = verticalLook;
             }
@@ -138803,12 +138821,12 @@ var CameraUpdater = class {
 };
 
 // ../sdk/src/cameracontrol/CameraControl.ts
-var import_strongly_typed_events19 = __toESM(require_dist8());
+var import_strongly_typed_events20 = __toESM(require_dist8());
 
 // ../sdk/src/cameracontrol/KeyboardAxisViewHandler.ts
 var center = createVec3();
-var tempVec3a10 = createVec3();
-var tempVec3b10 = createVec3();
+var tempVec3a11 = createVec3();
+var tempVec3b11 = createVec3();
 var tempVec3c7 = createVec3();
 var tempVec3d4 = createVec3();
 var tempCameraTarget = {
@@ -139461,8 +139479,8 @@ var MousePickHandler = class {
 // ../sdk/src/cameracontrol/PanController.ts
 var screenPos = createVec4();
 var viewPos = createVec4();
-var tempVec3a11 = createVec3();
-var tempVec3b11 = createVec3();
+var tempVec3a12 = createVec3();
+var tempVec3b12 = createVec3();
 var tempVec3c8 = createVec3();
 var tempVec4a6 = createVec4();
 var tempVec4b5 = createVec4();
@@ -139487,7 +139505,7 @@ var PanController = class {
     let dolliedThroughSurface = false;
     const camera = this.#view.camera;
     if (optionalTargetWorldPos) {
-      const eyeToWorldPosVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a11);
+      const eyeToWorldPosVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a12);
       const eyeWorldPosDist = lenVec3(eyeToWorldPosVec);
       dolliedThroughSurface = eyeWorldPosDist < dollyDelta;
     }
@@ -139499,9 +139517,9 @@ var PanController = class {
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
       camera.look = [camera.look[0] - moveVec[0], camera.look[1] - moveVec[1], camera.look[2] - moveVec[2]];
       if (optionalTargetWorldPos) {
-        const eyeTargetVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a11);
+        const eyeTargetVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a12);
         const lenEyeTargetVec = lenVec3(eyeTargetVec);
-        const eyeLookVec2 = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3b11)), lenEyeTargetVec);
+        const eyeLookVec2 = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3b12)), lenEyeTargetVec);
         camera.look = [camera.eye[0] + eyeLookVec2[0], camera.eye[1] + eyeLookVec2[1], camera.eye[2] + eyeLookVec2[2]];
       }
     } else if (camera.projectionType === OrthoProjectionType) {
@@ -139509,7 +139527,7 @@ var PanController = class {
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
       const worldPos2 = this._unproject(targetCanvasPos, tempVec4b5);
       const offset = subVec3(worldPos2, worldPos1, tempVec4c);
-      const eyeLookMoveVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a11)), -dollyDelta, tempVec3b11);
+      const eyeLookMoveVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a12)), -dollyDelta, tempVec3b12);
       const moveVec = addVec3(offset, eyeLookMoveVec, tempVec3c8);
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
       camera.look = [camera.look[0] - moveVec[0], camera.look[1] - moveVec[1], camera.look[2] - moveVec[2]];
@@ -139727,8 +139745,8 @@ var PickController = class {
 };
 
 // ../sdk/src/cameracontrol/PivotController.ts
-var tempVec3a12 = createVec3();
-var tempVec3b12 = createVec3();
+var tempVec3a13 = createVec3();
+var tempVec3b13 = createVec3();
 var tempVec3c9 = createVec3();
 var tempVec4a7 = createVec4();
 var tempVec4b6 = createVec4();
@@ -139855,7 +139873,8 @@ var PivotController = class {
       return false;
     }
     const camera = this.#view.camera;
-    let lookat = lookAtMat4v(camera.eye, camera.look, camera.worldUp);
+    const coordinateSystem = camera.view.viewer.scene.coordinateSystem;
+    let lookat = lookAtMat4v(camera.eye, camera.look, coordinateSystem.worldUp);
     transformPoint3(lookat, this.getPivotPos(), this.#cameraOffset);
     const pivotPos = this.getPivotPos();
     this.#cameraOffset[2] += distVec3(camera.eye, pivotPos);
@@ -139864,7 +139883,7 @@ var PivotController = class {
     const diff = createVec3();
     subVec3(camera.eye, pivotPos, diff);
     addVec3(diff, offset);
-    if (camera.zUp) {
+    if (coordinateSystem.zUp) {
       const t = diff[1];
       diff[1] = diff[2];
       diff[2] = t;
@@ -139876,8 +139895,8 @@ var PivotController = class {
   }
   #cameraLookingDownwards() {
     const camera = this.#view.camera;
-    const forwardAxis = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a12));
-    const rightAxis = cross3Vec3(forwardAxis, camera.worldUp, tempVec3b12);
+    const forwardAxis = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a13));
+    const rightAxis = cross3Vec3(forwardAxis, camera.view.viewer.scene.coordinateSystem.worldUp, tempVec3b13);
     const rightAxisLen = sqLenVec3(rightAxis);
     return rightAxisLen <= 1e-4;
   }
@@ -139915,8 +139934,8 @@ var PivotController = class {
     const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
     const worldPos = tempVec4a7;
     camera.projection.unproject(canvasPos2, screenZ, tempVec4b6, tempVec4c2, worldPos);
-    const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3a12));
-    const posOnSphere = addVec3(camera.eye, mulVec3Scalar(eyeWorldPosVec, pivotShereRadius, tempVec3b12), tempVec3c9);
+    const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3a13));
+    const posOnSphere = addVec3(camera.eye, mulVec3Scalar(eyeWorldPosVec, pivotShereRadius, tempVec3b13), tempVec3c9);
     this.setPivotPos(posOnSphere);
   }
   /**
@@ -139942,7 +139961,8 @@ var PivotController = class {
     const camera = this.#view.camera;
     let dx = -yawInc;
     const dy = -pitchInc;
-    if (camera.worldUp[2] === 1) {
+    const worldUp = this.#view.viewer.scene.coordinateSystem.worldUp;
+    if (worldUp[2] === 1) {
       dx = -dx;
     }
     this.#azimuth += -dx * 0.01;
@@ -139953,7 +139973,7 @@ var PivotController = class {
       this.#radius * Math.cos(this.#polar),
       this.#radius * Math.sin(this.#polar) * Math.cos(this.#azimuth)
     ];
-    if (camera.worldUp[2] === 1) {
+    if (worldUp[2] === 1) {
       const t = pos[1];
       pos[1] = pos[2];
       pos[2] = t;
@@ -139961,7 +139981,7 @@ var PivotController = class {
     const eyeLookLen = lenVec3(subVec3(camera.look, camera.eye, createVec3()));
     const pivotPos = this.getPivotPos();
     addVec3(pos, pivotPos);
-    let lookat = lookAtMat4v(pos, pivotPos, camera.worldUp);
+    let lookat = lookAtMat4v(pos, pivotPos, worldUp);
     lookat = inverseMat4(lookat);
     const offset = transformVec3(lookat, this.#cameraOffset);
     lookat[12] -= offset[0];
@@ -140647,21 +140667,21 @@ var CameraControl = class _CameraControl extends Component {
       new KeyboardPanRotateDollyHandler(this.view, this.#controllers, this.#configs, this.#states, this.#updates)
     ];
     this.#cameraUpdater = new CameraUpdater(this.view, this.#controllers, this.#configs, this.#states, this.#updates);
-    this.onHover = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onHoverOff = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onHoverEnter = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onHoverOut = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onRightClick = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onHoverSurface = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onPicked = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onPickedSurface = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onPickedNothing = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onDoublePicked = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onDoublePickedSurface = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onDoublePickedNothing = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onHoverSnapOrSurfaceOff = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onHoverSnapOrSurface = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
-    this.onRayMove = new EventEmitter(new import_strongly_typed_events19.EventDispatcher());
+    this.onHover = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onHoverOff = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onHoverEnter = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onHoverOut = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onRightClick = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onHoverSurface = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onPicked = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onPickedSurface = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onPickedNothing = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onDoublePicked = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onDoublePickedSurface = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onDoublePickedNothing = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onHoverSnapOrSurfaceOff = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onHoverSnapOrSurface = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onRayMove = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
     this.navMode = cfg.navMode;
     this.constrainVertical = cfg.constrainVertical;
     this.keyMap = cfg.keyMap;
@@ -141443,8 +141463,8 @@ __export(bcf_exports, {
 
 // ../sdk/src/bcf/loadBCFViewpoint.ts
 var tempVec35 = createVec3();
-var tempVec3a13 = createVec3();
-var tempVec3b13 = createVec3();
+var tempVec3a14 = createVec3();
+var tempVec3b14 = createVec3();
 var tempVec3c10 = createVec3();
 function loadBCFViewpoint(params2) {
   const includeViewLayers = params2.includeViewLayerIds ? new Set(params2.includeViewLayerIds) : null;
@@ -141452,6 +141472,7 @@ function loadBCFViewpoint(params2) {
   const view = params2.view;
   const data = params2.data;
   const camera = view.camera;
+  const coordinateSystem = view.viewer.scene.coordinateSystem;
   const rayCast = !!params2.rayCast;
   const reset = params2.reset !== false;
   const realWorldOffset = createVec3();
@@ -141460,13 +141481,13 @@ function loadBCFViewpoint(params2) {
   view.clearSectionPlanes();
   if (bcfViewpoint.clipping_planes) {
     bcfViewpoint.clipping_planes.forEach((e) => {
-      let pos = xyzObjectToArray(e.location, tempVec3a13);
-      let dir = xyzObjectToArray(e.direction, tempVec3b13);
+      let pos = xyzObjectToArray(e.location, tempVec3a14);
+      let dir = xyzObjectToArray(e.direction, tempVec3b14);
       if (reverseClippingPlanes) {
         negateVec3(dir);
       }
       subVec3(pos, realWorldOffset);
-      if (camera.yUp) {
+      if (coordinateSystem.yUp) {
         pos = ZToY(pos);
         dir = ZToY(dir);
       }
@@ -141498,8 +141519,8 @@ function loadBCFViewpoint(params2) {
     bcfViewpoint.bitmaps.forEach((e) => {
       const bitmap_type = e.bitmap_type || "jpg";
       const bitmap_data = e.bitmap_data;
-      let location = xyzObjectToArray(e.location, tempVec3a13);
-      let normal2 = xyzObjectToArray(e.normal, tempVec3b13);
+      let location = xyzObjectToArray(e.location, tempVec3a14);
+      let normal2 = xyzObjectToArray(e.normal, tempVec3b14);
       let up = xyzObjectToArray(e.up, tempVec3c10);
       const height = e.height || 1;
       if (!bitmap_type) {
@@ -141517,7 +141538,7 @@ function loadBCFViewpoint(params2) {
       if (!up) {
         return;
       }
-      if (camera.yUp) {
+      if (coordinateSystem.yUp) {
         location = ZToY(location);
         normal2 = ZToY(normal2);
         up = ZToY(up);
@@ -141734,20 +141755,20 @@ function loadBCFViewpoint(params2) {
     let up;
     let projection;
     if (bcfViewpoint.perspective_camera) {
-      eye = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_view_point, tempVec3a13);
-      look = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_direction, tempVec3b13);
+      eye = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_view_point, tempVec3a14);
+      look = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_direction, tempVec3b14);
       up = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_up_vector, tempVec3c10);
       camera.perspectiveProjection.fov = bcfViewpoint.perspective_camera.field_of_view;
       projection = PerspectiveProjectionType;
     } else {
-      eye = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_view_point, tempVec3a13);
-      look = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_direction, tempVec3b13);
+      eye = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_view_point, tempVec3a14);
+      look = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_direction, tempVec3b14);
       up = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_up_vector, tempVec3c10);
       camera.orthoProjection.scale = bcfViewpoint.orthogonal_camera.view_to_world_scale;
       projection = OrthoProjectionType;
     }
     subVec3(eye, realWorldOffset);
-    if (camera.yUp) {
+    if (coordinateSystem.yUp) {
       eye = ZToY(eye);
       look = ZToY(look);
       up = ZToY(up);
@@ -141785,13 +141806,14 @@ function saveBCFViewpoint(params2) {
   const excludeViewLayers = params2.excludeViewLayerIds ? new Set(params2.excludeViewLayerIds) : null;
   const view = params2.view;
   const camera = view.camera;
+  const coordinateSystem = view.viewer.scene.coordinateSystem;
   const realWorldOffset = createVec3();
   const reverseClippingPlanes = params2.reverseClippingPlanes === true;
   const bcfViewpoint = {};
   let lookDirection = normalizeVec3(subVec3(camera.look, camera.eye, createVec3()));
   let eye = camera.eye;
   let up = camera.up;
-  if (camera.yUp) {
+  if (coordinateSystem.yUp) {
     lookDirection = YToZ(lookDirection);
     eye = YToZ(eye);
     up = YToZ(up);
@@ -141850,7 +141872,7 @@ function saveBCFViewpoint(params2) {
       } else {
         direction = sectionPlane.dir;
       }
-      if (camera.yUp) {
+      if (coordinateSystem.yUp) {
         location = YToZ(location);
         direction = YToZ(direction);
       }
@@ -141955,7 +141977,7 @@ __export(treeview_exports, {
 });
 
 // ../sdk/src/treeview/TreeView.ts
-var import_strongly_typed_events20 = __toESM(require_dist8());
+var import_strongly_typed_events21 = __toESM(require_dist8());
 var TreeView = class _TreeView extends Component {
   /**
    * Hierarchy mode that arranges the {@link TreeViewNode | TreeViewNodes} as an aggregation hierarchy.
@@ -142071,9 +142093,9 @@ var TreeView = class _TreeView extends Component {
     this.#pruneEmptyNodes = params2.pruneEmptyNodes;
     this.#showListItemElementId = null;
     this.#destroyed = false;
-    this.onNodeTitleClicked = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
-    this.onContextMenu = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
-    this.onDestroyed = new EventEmitter(new import_strongly_typed_events20.EventDispatcher());
+    this.onNodeTitleClicked = new EventEmitter(new import_strongly_typed_events21.EventDispatcher());
+    this.onContextMenu = new EventEmitter(new import_strongly_typed_events21.EventDispatcher());
+    this.onDestroyed = new EventEmitter(new import_strongly_typed_events21.EventDispatcher());
     this.#containerElement.oncontextmenu = (e) => {
       e.preventDefault();
     };
@@ -142962,7 +142984,7 @@ __export(contextmenu_exports, {
 });
 
 // ../sdk/src/contextmenu/ContextMenu.ts
-var import_strongly_typed_events21 = __toESM(require_dist8());
+var import_strongly_typed_events22 = __toESM(require_dist8());
 var idMap = new Map2();
 var Menu = class {
   id;
@@ -143058,8 +143080,8 @@ var ContextMenu = class {
     this.#itemMap = {};
     this.#shown = false;
     this.#nextId = 0;
-    this.onShown = new EventEmitter(new import_strongly_typed_events21.EventDispatcher());
-    this.onHidden = new EventEmitter(new import_strongly_typed_events21.EventDispatcher());
+    this.onShown = new EventEmitter(new import_strongly_typed_events22.EventDispatcher());
+    this.onHidden = new EventEmitter(new import_strongly_typed_events22.EventDispatcher());
     if (cfg.hideOnMouseDown !== false) {
       document.addEventListener("mousedown", (event) => {
         if (!event.target.classList.contains("xeokit-context-menu-item")) {
@@ -143666,8 +143688,12 @@ var ModelConverter = class {
           const { filePath, fileData } = conversionParamsInputs[pipelineInputId];
           let fileDataSizeBytes;
           const loader = this.loaders[pipelineInput.loader];
+          const options = pipelineInput.options || {};
           const sceneModelId = pipelineInput.sceneModel || "default";
-          const sceneModel = scene.models[sceneModelId] || scene.createModel({ id: sceneModelId });
+          const sceneModel = scene.models[sceneModelId] || scene.createModel({
+            id: sceneModelId,
+            coordinateSystem: options.coordinateSystem
+          });
           const dataModelId = pipelineInput.dataModel || "default";
           const dataModel = data.models[dataModelId] || data.createModel({ id: dataModelId });
           if (sceneModel instanceof SDKError || dataModel instanceof SDKError) {
@@ -143686,14 +143712,14 @@ var ModelConverter = class {
                 break;
             }
             try {
-              await loader.load({ filePath, fileData: fileData2, sceneModel, dataModel });
+              await loader.load({ filePath, fileData: fileData2, sceneModel, dataModel }, options);
               modelConverterResult.inputs[pipelineInputId] = {
                 filePath,
                 fileData: fileData2,
                 fileDataType: loader.fileDataType,
                 fileDataSizeBytes,
                 fileFormat: loader.format,
-                options: pipelineInput.options || {},
+                options,
                 sceneModel: sceneModelId,
                 dataModel: dataModelId,
                 messages: [],
@@ -143707,7 +143733,7 @@ var ModelConverter = class {
                 fileDataSizeBytes,
                 fileFormat: loader.format,
                 fileFormatVersion: null,
-                options: pipelineInput.options || {},
+                options,
                 sceneModel: sceneModelId,
                 dataModel: dataModelId,
                 messages: [],
@@ -143771,8 +143797,9 @@ var ModelConverter = class {
           if (sceneModel && !sceneModel.built) {
             await sceneModel.build();
           }
+          const options = pipelineOutput.options || {};
           try {
-            const fileData = await exporter.write({ sceneModel, dataModel });
+            const fileData = await exporter.write({ sceneModel, dataModel }, options);
             let fileDataSizeBytes;
             switch (exporter.fileDataType) {
               case "text":
@@ -143791,7 +143818,7 @@ var ModelConverter = class {
               fileFormat: exporter.format,
               fileFormatVersion,
               fileDataSizeBytes,
-              options: pipelineOutput.options || {},
+              options,
               sceneModel: sceneModel.id,
               dataModel: dataModel.id,
               messages: [],
@@ -143805,7 +143832,7 @@ var ModelConverter = class {
               fileFormat: exporter.format,
               fileFormatVersion,
               fileDataSizeBytes: 0,
-              options: pipelineOutput.options || {},
+              options,
               sceneModel: sceneModel.id,
               dataModel: dataModel.id,
               messages: [],

@@ -52,8 +52,10 @@
     elementId: "demoCanvas"
   });
 
-  view.camera.orbitPitch(20);
-  view.camera.orbitYaw(-40);
+  window.view = view;
+  //
+  // view.camera.orbitPitch(20);
+  // view.camera.orbitYaw(-40);
 
   new xeokit.cameracontrol.CameraControl(view, {});
 
@@ -79,7 +81,10 @@
                 const sceneModelId = fileInfo.sceneModel || "default";
                 const dataModelId = fileInfo.dataModel || "defaut";
 
-                const sceneModel = scene.models[sceneModelId] || scene.createModel({id: sceneModelId});
+                const sceneModel = scene.models[sceneModelId] || scene.createModel({
+                  id: sceneModelId,
+                  coordinateSystem: options.coordinateSystem
+                });
                 const dataModel = data.models[dataModelId] || data.createModel({id: dataModelId});
 
                 return fetch(url)
@@ -87,15 +92,19 @@
                     if (!response.ok) {
                       throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
                     }
-                    switch (type) {
-                      case 'arraybuffer':
-                        return response.arrayBuffer();
-                      case 'json':
-                        return response.json();
-                      case 'text':
-                        return response.text();
-                      default:
-                        throw new Error(`Unsupported fileDataType: ${type}`);
+                    if (format === "IFC") { // HACK
+                      return response.arrayBuffer();
+                    } else {
+                      switch (type) {
+                        case 'arraybuffer':
+                          return response.arrayBuffer();
+                        case 'json':
+                          return response.json();
+                        case 'text':
+                          return response.text();
+                        default:
+                          throw new Error(`Unsupported fileDataType: ${type}`);
+                      }
                     }
                   })
                   .then(fileData => {

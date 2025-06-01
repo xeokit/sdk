@@ -71,7 +71,7 @@ demoHelper
 
         // Load our IFC data into the SceneModel and DataModel
 
-        fetch(`../../models/Minimal_IFC4/ifc/model.ifc`)
+        fetch(`../../models/IfcOpenHouse4/ifc/model.ifc`)
             .then(response => {
                 response
                     .arrayBuffer()

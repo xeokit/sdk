@@ -557,7 +557,6 @@ export abstract class VBORenderer {
 
   fragmentPickMeshDefs(src: string[]) {
     src.push("in vec4 vPickColor;");
-    src.push("out vec4 outColor;");
   }
 
   fragmentPickMeshLogic(src: string[]) {

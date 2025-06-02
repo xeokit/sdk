@@ -30,39 +30,40 @@ const view = viewer.createView({
 
 // Position the View's Camera
 
-view.camera.eye = [0, -5, 20];
-view.camera.look = [0, -5, 0];
-view.camera.up = [0, 1, 0];
+view.camera.eye = [10,20,15];
+view.camera.look = [0, 0, 0];
+view.camera.up = [0, 0, 1];
+
 
 // Add a CameraControl to interactively control the View's Camera with keyboard,
 // mouse and touch input
 
 const cameraControl = new xeokit.cameracontrol.CameraControl(view, {});
 
-// Create a SceneModel to hold geometry and materials
+// Within the Scene, create a SceneModel to hold geometry and materials for our model
 
 const sceneModel = scene.createModel({
-    id: "demoModel"
+  id: "demoModel"
 });
 
 // Create a box-shaped SceneGeometry, which we'll reuse for the tabletop and legs.
 
 sceneModel.createGeometry({
-    id: "demoBoxGeometry",
-    primitive: xeokit.constants.TrianglesPrimitive,
-    positions: [
-        1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1,
-        -1, -1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1,
-        -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1
-    ],
-    indices: [
-        0, 1, 2, 0, 2, 3,            // front
-        4, 5, 6, 4, 6, 7,            // right
-        8, 9, 10, 8, 10, 11,         // top
-        12, 13, 14, 12, 14, 15,      // left
-        16, 17, 18, 16, 18, 19,      // bottom
-        20, 21, 22, 20, 22, 23
-    ]
+  id: "demoBoxGeometry",
+  primitive: xeokit.constants.TrianglesPrimitive,
+  positions: [
+    1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1,
+    -1, -1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1,
+    -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1
+  ],
+  indices: [
+    0, 1, 2, 0, 2, 3,            // front
+    4, 5, 6, 4, 6, 7,            // right
+    8, 9, 10, 8, 10, 11,         // top
+    12, 13, 14, 12, 14, 15,      // left
+    16, 17, 18, 16, 18, 19,      // bottom
+    20, 21, 22, 20, 22, 23
+  ]
 });
 
 // Create SceneObjects to represent the tabletop and legs. Each SceneObject
@@ -71,78 +72,78 @@ sceneModel.createGeometry({
 // vertex positons.
 
 sceneModel.createMesh({
-    id: "redLegMesh",
-    geometryId: "demoBoxGeometry",
-    matrix: xeokit.scene.buildMat4({
-        position: [-4, -6, -4],
-        scale: [1, 3, 1]
-    }),
-    color: [1, 0.3, 0.3]
+  id: "redLegMesh",
+  geometryId: "demoBoxGeometry",
+  matrix: xeokit.scene.buildMat4({
+    position: [-4, -4, 6],
+    scale: [1, 1, 3]
+  }),
+  color: [1, 0.3, 0.3]
 });
 
 sceneModel.createObject({
-    id: "redLeg",
-    meshIds: ["redLegMesh"]
+  id: "redLeg",
+  meshIds: ["redLegMesh"]
 });
 
 sceneModel.createMesh({
-    id: "greenLegMesh",
-    geometryId: "demoBoxGeometry",
-    matrix: xeokit.scene.buildMat4({
-        position: [4, -6, -4],
-        scale: [1, 3, 1]
-    }),
-    color: [0.3, 1.0, 0.3]
+  id: "greenLegMesh",
+  geometryId: "demoBoxGeometry",
+  matrix: xeokit.scene.buildMat4({
+    position: [4, -4, 6],
+    scale: [1, 1, 3]
+  }),
+  color: [0.3, 1.0, 0.3]
 });
 
 sceneModel.createObject({
-    id: "greenLeg",
-    meshIds: ["greenLegMesh"]
+  id: "greenLeg",
+  meshIds: ["greenLegMesh"]
 });
 
 sceneModel.createMesh({
-    id: "blueLegMesh",
-    geometryId: "demoBoxGeometry",
-    matrix: xeokit.scene.buildMat4({
-        position: [4, -6, 4],
-        scale: [1, 3, 1]
-    }),
-    color: [0.3, 0.3, 1.0]
+  id: "blueLegMesh",
+  geometryId: "demoBoxGeometry",
+  matrix: xeokit.scene.buildMat4({
+    position: [4, 4, 6],
+    scale: [1, 1, 3]
+  }),
+  color: [0.3, 0.3, 1.0]
 });
 
 sceneModel.createObject({
-    id: "blueLeg",
-    meshIds: ["blueLegMesh"]
+  id: "blueLeg",
+  meshIds: ["blueLegMesh"]
 });
 
 sceneModel.createMesh({
-    id: "yellowLegMesh",
-    geometryId: "demoBoxGeometry",
-    matrix: xeokit.scene.buildMat4({
-        position: [-4, -6, 4],
-        scale: [1, 3, 1]
-    }),
-    color: [1.0, 1.0, 0.0]
+  id: "yellowLegMesh",
+  geometryId: "demoBoxGeometry",
+  matrix: xeokit.scene.buildMat4({
+    position: [-4, 4, 6],
+    scale: [1, 1, 3]
+  }),
+  color: [1.0, 1.0, 0.0]
 });
 
 sceneModel.createObject({
-    id: "yellowLeg",
-    meshIds: ["yellowLegMesh"]
+  id: "yellowLeg",
+  meshIds: ["yellowLegMesh"]
 });
 
 sceneModel.createMesh({
-    id: "purpleTableTopMesh",
-    geometryId: "demoBoxGeometry",
-    matrix: xeokit.scene.buildMat4({
-        position: [0, -3, 0],
-        scale: [6, 0.5, 6]
-    }),
-    color: [1.0, 0.3, 1.0]
+  id: "purpleTableTopMesh",
+  geometryId: "demoBoxGeometry",
+  matrix: xeokit.scene.buildMat4({
+    position: [0, 0, 9],
+    scale: [6, 6, 0.5]
+  }),
+  color: [1.0, 0.3, 1.0]
 });
 
 sceneModel.createObject({
-    id: "purpleTableTop",
-    meshIds: ["purpleTableTopMesh"]
+  id: "purpleTableTop",
+  meshIds: ["purpleTableTopMesh"]
 });
 
 // Build the SceneModel. The View will now contain a ViewObject for each

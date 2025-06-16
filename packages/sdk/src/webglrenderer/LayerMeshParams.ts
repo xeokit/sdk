@@ -1,8 +1,11 @@
 import type {FloatArrayParam} from "../math";
+import type {Tile} from "./WebGLTileManager";
 
 /**
  * @private
  */
 export class LayerMeshParams {
-  pickColor: FloatArrayParam
+  tile: Tile;
+  pickColor: FloatArrayParam;
+  rtcMatrix: FloatArrayParam;
 }

@@ -12,6 +12,7 @@ export interface VBOInstancingRenderState {
   sceneGeometry: SceneGeometry;
   uvDecodeMatrix: FloatArrayParam;
   colorTextureSupported: boolean;
+  tilesBuf: WebGLArrayBuf;
   uvBuf: WebGLArrayBuf;
   metallicRoughnessBuf: WebGLArrayBuf;
   textureSet: any;
@@ -24,7 +25,6 @@ export interface VBOInstancingRenderState {
   offsetsBuf: WebGLArrayBuf;
   colorsBuf: WebGLArrayBuf[];
   flagsBufs: WebGLArrayBuf[];
-  origin: FloatArrayParam;
   positionsBuf: WebGLArrayBuf;
   indicesBuf: WebGLArrayBuf;
   modelMatrixBuf: WebGLArrayBuf;

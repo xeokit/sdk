@@ -57,7 +57,7 @@ export class WebGLRendererMesh {
     setMatrix(matrix) {
         const center = transformPoint3(matrix, [0, 0, 0]);
         const oldTile = this.tile;
-        this.tile = oldTile ? this.tileManager.updateTileCenter(oldTile, center) : this.tileManager.getTile(center);
+        this.tile = oldTile ? this.tileManager.moveTile(oldTile, center) : this.tileManager.getTile(center);
         const tileChanged = !oldTile || oldTile.id !== this.tile.id;
         const tileCenter = this.tile.center;
         const needRTC = (tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0);

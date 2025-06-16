@@ -12,5 +12,4 @@ export interface VBOBatchingLayerParams {
   primitive: number;
   layerIndex: number;
   textureSet?: RendererTextureSet;
-  origin: FloatArrayParam;
 }

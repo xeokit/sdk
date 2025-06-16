@@ -1,4 +1,14 @@
-import {addVec3, createMat4, createVec2, createVec3, cross3Vec3, lookAtMat4v, normalizeVec3} from "../matrix";
+import {
+  addVec3,
+  createMat4,
+  createVec2,
+  createVec3, createVec4,
+  cross3Vec3,
+  dotVec4, inverseMat4,
+  lookAtMat4v,
+  mulMat4, mulVec4Scalar,
+  normalizeVec3, subVec3, transformVec4
+} from "../matrix";
 import type {Capabilities, TextureTranscoder} from "../core";
 import {EventEmitter, SDKError} from "../core";
 import {getWebGLExtension, WEBGL_INFO} from "../webglutils";
@@ -18,14 +28,24 @@ import {SAOOcclusionRenderer} from "./SAOOcclusionRenderer";
 import {WebGLRenderBufferManager} from "./WebGLRenderBufferManager";
 import type {WebGLRendererMesh} from "./WebGLRendererMesh";
 import {WebGLRendererModel} from "./WebGLRendererModel";
-import type {WebGLTileManager} from "./WebGLTileManager";
+import {WebGLTileManager} from "./WebGLTileManager";
 import {WebGLRendererView} from "./WebGLRendererView";
+import {createRTCViewMat} from "../rtc";
 
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
 const tempVec3c = createVec3();
+
+const tempVec4a = createVec4();
+const tempVec4b = createVec4();
+const tempVec4c = createVec4();
+const tempVec4d = createVec4();
+const tempVec4e = createVec4();
+
+const tempMat4a = createMat4();
 const tempMat4b = createMat4();
+const tempMat4c = createMat4();
 
 const pickTemps = {
   pickCanvasPos: createVec2(),
@@ -43,6 +63,11 @@ const pickTemps = {
 export class WebGLRenderer implements Renderer {
 
   /**
+   * @internal
+   */
+  gl: WebGL2RenderingContext;
+
+  /**
    * Interfaces through which each {@link viewer!ViewObject | ViewObject} shows/hides/highlights/selects/xrays/colorizes
    * its {@link scene!SceneObject | SceneObject} within the WebGLRenderer that's
    * configured on its {@link viewer!Viewer | Viewer}.
@@ -55,11 +80,6 @@ export class WebGLRenderer implements Renderer {
    * @internal
    */
   renderStats: RenderStats;
-
-  /**
-   * @internal
-   */
-  tileManager: WebGLTileManager | null;
 
   #saoOcclusionRenderer: SAOOcclusionRenderer;
   #saoDepthLimitedBlurRenderer: SAODepthLimitedBlurRenderer;
@@ -76,6 +96,11 @@ export class WebGLRenderer implements Renderer {
    * @internal
    */
   renderContext: RenderContext;
+
+  /**
+   * @internal
+   */
+  tileManager: WebGLTileManager;
 
   #shadersDirty: boolean;
 
@@ -110,7 +135,7 @@ export class WebGLRenderer implements Renderer {
   readonly onDestroyed: EventEmitter<WebGLRenderer, boolean>;
 
   #webglCanvasElement: HTMLCanvasElement;
-  #gl: WebGL2RenderingContext;
+
 
   #pickResult: PickResult;
 
@@ -128,7 +153,6 @@ export class WebGLRenderer implements Renderer {
   }) {
     this.renderStats = new RenderStats();
     this.rendererObjects = {};
-    this.tileManager = null;
     this.renderContext = null;
     this.#textureTranscoder = params.textureTranscoder || new KTX2TextureTranscoder({});
     this.#alphaDepthMask = false;
@@ -175,15 +199,13 @@ export class WebGLRenderer implements Renderer {
       premultipliedAlpha: false,
       antialias: true
     };
-    this.#gl = <WebGL2RenderingContext>webglCanvasElement.getContext("webgl2", contextAttr);
-    if (!this.#gl) {
+    this.gl = <WebGL2RenderingContext>webglCanvasElement.getContext("webgl2", contextAttr);
+    if (!this.gl) {
       throw new SDKError(`Failed to get a WebGL2 context`);
     }
-    this.#gl.hint(this.#gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this.#gl.NICEST);
+    this.gl.hint(this.gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this.gl.NICEST);
 
-    this.#pickBufferManager = new WebGLRenderBufferManager(this.#gl, webglCanvasElement);
-
-    // this.tileManager = new WebGLTileManager({camera: view.camera, gl});
+    this.#pickBufferManager = new WebGLRenderBufferManager(this.gl, webglCanvasElement);
   }
 
   /**
@@ -246,8 +268,9 @@ export class WebGLRenderer implements Renderer {
       throw new SDKError("Can't attach Viewer to WebGLRenderer - given Viewer is already attached to another Renderer");
     }
     this.#viewer = viewer;
+    this.tileManager = new WebGLTileManager(viewer, this);
     this.#textureTranscoder.init(this.#viewer.capabilities);
-    this.renderContext = new RenderContext(this.#viewer, this.#gl, this);
+    this.renderContext = new RenderContext(this.#viewer, this.gl, this, this.tileManager);
     this.#saoOcclusionRenderer = new SAOOcclusionRenderer({
       renderContext: this.renderContext
     });
@@ -282,7 +305,6 @@ export class WebGLRenderer implements Renderer {
     this.renderContext = null;
     this.#layerList = [];
     this.rendererObjects = {};
-    this.tileManager = null;
   }
 
   /**
@@ -366,7 +388,6 @@ export class WebGLRenderer implements Renderer {
     this.renderContext = null;
     this.#layerList = [];
     this.rendererObjects = {};
-    this.tileManager = null;
     // TODO: Remove rendererView etc
   }
 
@@ -663,8 +684,8 @@ export class WebGLRenderer implements Renderer {
   }
 
   #activateView(viewIndex: number) {
-    const targetRendererView = this.#rendererViewsList[viewIndex];
-    if (!targetRendererView) {
+    const rendererView = this.#rendererViewsList[viewIndex];
+    if (!rendererView) {
       throw new SDKError(`Can't activate View - no such target View attached: ${viewIndex}`);
     }
     const activeRendererView = this.#activeRendererView;
@@ -691,19 +712,19 @@ export class WebGLRenderer implements Renderer {
 
     const webglCanvasElement = this.#webglCanvasElement;
 
-    const targetView = targetRendererView.view;
-    const targetCanvasElement = targetView.htmlElement;
-    const targetCanvasBoundingRect = targetCanvasElement.getBoundingClientRect();
+    const view = rendererView.view;
+    const htmlElement = view.htmlElement;
+    const boundingRect = htmlElement.getBoundingClientRect();
 
-    webglCanvasElement.style["left"] = `${targetCanvasBoundingRect.left}px`;
-    webglCanvasElement.style["top"] = `${targetCanvasBoundingRect.top}px`;
-    webglCanvasElement.style["width"] = `${targetCanvasBoundingRect.width}px`;
-    webglCanvasElement.style["height"] = `${targetCanvasBoundingRect.height}px`;
-    webglCanvasElement.width = targetCanvasBoundingRect.width;
-    webglCanvasElement.height = targetCanvasBoundingRect.height;
+    webglCanvasElement.style["left"] = `${boundingRect.left}px`;
+    webglCanvasElement.style["top"] = `${boundingRect.top}px`;
+    webglCanvasElement.style["width"] = `${boundingRect.width}px`;
+    webglCanvasElement.style["height"] = `${boundingRect.height}px`;
+    webglCanvasElement.width = boundingRect.width;
+    webglCanvasElement.height = boundingRect.height;
     webglCanvasElement.style["z-index"] = 100000;
 
-    this.#activeRendererView = targetRendererView;
+    this.#activeRendererView = rendererView;
   }
 
   #updateLayerList(): void {
@@ -1164,12 +1185,13 @@ export class WebGLRenderer implements Renderer {
       throw new SDKError("Can't pick object with WebGLRenderer - no Viewer and View is attached");
     }
 
-    const targetRendererView = this.#rendererViewsList[viewIndex];
-    if (!targetRendererView) {
-      throw new SDKError(`Can't pick object with WebGLRenderer - no View attached at given viewInded: ${viewIndex}`);
+    const rendererView = this.#rendererViewsList[viewIndex];
+    if (!rendererView) {
+      throw new SDKError(`Can't pick object with WebGLRenderer - no View attached at given viewIndex: ${viewIndex}`);
     }
 
-    const view = targetRendererView.view;
+    const view = rendererView.view;
+    const camera = view.camera;
 
     if (this.#shadersDirty) {
       this.onCompiled.dispatch(this, true);
@@ -1193,14 +1215,19 @@ export class WebGLRenderer implements Renderer {
       // @ts-ignore
       pickCanvasPos.set(pickParams.canvasPos);
       // @ts-ignore
-      pickViewMatrix.set(view.camera.viewMatrix);
+      pickViewMatrix.set(camera.viewMatrix);
       // @ts-ignore
-      pickProjMatrix.set(view.camera.projMatrix);
+      pickProjMatrix.set(camera.projMatrix);
+
       pickResult.canvasPos = pickParams.canvasPos;
+
     } else {
 
       // Picking with arbitrary World-space ray
       // Align camera along ray and fire ray through center of canvas
+
+      pickCanvasPos[0] = view.htmlElement.clientWidth * 0.5;
+      pickCanvasPos[1] = view.htmlElement.clientHeight * 0.5;
 
       if (pickParams.rayMatrix) {
 
@@ -1209,13 +1236,16 @@ export class WebGLRenderer implements Renderer {
         // @ts-ignore
         pickViewMatrix.set(params.rayMatrix);
         // @ts-ignore
-        pickProjMatrix.set(view.camera.projMatrix);
+        pickProjMatrix.set(camera.projMatrix);
+
       } else {
 
         // Ray defined as origin and direction
 
+        // @ts-ignore
         pickWorldRayOrigin.set(pickParams.rayOrigin || [0, 0, 0]);
-        pickWorldRayDir.set(pickParams.rayDirection || [0, 0, 1]);
+        // @ts-ignore
+        pickWorldRayDir.set(pickParams.rayDirection || [0, 1, 0]);
         const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a);
         tempVec3b[0] = Math.random();
         tempVec3b[1] = Math.random();
@@ -1225,58 +1255,69 @@ export class WebGLRenderer implements Renderer {
         // @ts-ignore
         pickViewMatrix.set(lookAtMat4v(pickWorldRayOrigin, look, tempVec3c, tempMat4b));
         // @ts-ignore
-        pickProjMatrix.set(view.camera.orthoProjection.projMatrix);
+        pickProjMatrix.set(camera.orthoProjection.projMatrix);
+
         pickResult.origin = pickWorldRayOrigin;
         pickResult.direction = pickWorldRayDir;
       }
-      pickCanvasPos[0] = targetRendererView.view.htmlElement.clientWidth * 0.5;
-      pickCanvasPos[1] = targetRendererView.view.htmlElement.clientHeight * 0.5;
     }
 
-    if (pickParams.pickViewObject) {
-      const rendererMesh = this.#pickMesh(viewIndex, targetRendererView, {
+    if (pickParams.pickViewObject || pickParams.pickSurface) {
+
+      // Pick a ViewObject
+
+      const rendererMesh = this.#pickMesh({
+        rendererView,
         pickCanvasPos,
         pickViewMatrix,
         pickProjMatrix,
         pickInvisible: !!pickParams.pickInvisible
       });
+
       if (rendererMesh) {
+
         const rendererObject = rendererMesh.rendererObject;
-        const view = targetRendererView.view;
-        const viewObject = view.objects[rendererObject.id];
-        pickResult.viewObject = viewObject;
+        const view = rendererView.view;
+
+        pickResult.viewObject = view.objects[rendererObject.id];
+
+        if (pickParams.pickSurface) {
+
+          // Pick 3D position on surface of ViewObject
+
+          const worldPos = this.#pickWorldPos({
+            rendererView,
+            rendererMesh,
+            pickCanvasPos,
+            pickViewMatrix,
+            pickProjMatrix,
+            pickInvisible: pickParams.pickInvisible
+          });
+
+          if (worldPos) {
+            pickResult.worldPos = worldPos;
+          }
+        }
       }
     }
-
-    // if (params.pickSurface) {
-    //     const worldPos = this.#pickSurface(viewIndex, targetRendererView, {
-    //         pickCanvasPos,
-    //         pickViewMatrix,
-    //         pickProjMatrix,
-    //         pickInvisible: params.pickInvisible
-    //     });
-    //     if (worldPos) {
-    //         pickResult.worldPos = worldPos;
-    //     }
-    // }
 
     return pickResult;
   };
 
-  #pickMesh(viewIndex: number,
-            targetRendererView: WebGLRendererView,
-            params: {
-              pickCanvasPos: FloatArrayParam,
-              pickViewMatrix: FloatArrayParam,
-              pickProjMatrix: FloatArrayParam,
-              pickInvisible: boolean
-            }): WebGLRendererMesh {
+  #pickMesh(
+    params: {
+      rendererView: WebGLRendererView,
+      pickCanvasPos: FloatArrayParam,
+      pickViewMatrix: FloatArrayParam,
+      pickProjMatrix: FloatArrayParam,
+      pickInvisible: boolean
+    }): WebGLRendererMesh {
 
-    const gl = this.#gl
-    const view = targetRendererView.view;
-    const targetCanvasBoundingRect = targetRendererView.view.htmlElement.getBoundingClientRect();
-    const pickProjMatrix = params.pickProjMatrix;
-    const pickViewMatrix = params.pickViewMatrix;
+    const {rendererView, pickCanvasPos, pickProjMatrix, pickViewMatrix, pickInvisible} = params;
+    const gl = this.gl
+    const view = rendererView.view;
+    const viewIndex = view.viewIndex;
+    const boundingRect = rendererView.view.htmlElement.getBoundingClientRect();
     const resolutionScale = view.resolutionScale;
     const renderContext = this.renderContext;
     const pickBuffer = this.#pickBufferManager.getRenderBuffer("pickMesh", {
@@ -1290,10 +1331,10 @@ export class WebGLRenderer implements Renderer {
     renderContext.frontface = true; // "ccw"
     renderContext.pickViewMatrix = pickViewMatrix;
     renderContext.pickProjMatrix = pickProjMatrix;
-    renderContext.pickInvisible = !!params.pickInvisible;
+    renderContext.pickInvisible = !!pickInvisible;
     renderContext.pickClipPos = [
-      this.#getClipPosX(params.pickCanvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
-      this.#getClipPosY(params.pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
+      this.#getClipPosX(pickCanvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
+      this.#getClipPosY(pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
     ];
     gl.viewport(0, 0, 1, 1);
     gl.depthMask(true);
@@ -1313,56 +1354,47 @@ export class WebGLRenderer implements Renderer {
     }
     const pix = pickBuffer.read(0, 0);
     const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
-
-    console.log("pickID = " + pickID);
     pickBuffer.unbind();
-
     if (pickID < 0) {
       return null;
     }
-
     return <WebGLRendererMesh>this.#pickIDs.items[pickID];
   }
 
   #pickWorldPos(
-    viewIndex: number,
     params: {
-      canvasPos: FloatArrayParam,
+      rendererView: WebGLRendererView,
+      pickCanvasPos: FloatArrayParam,
       pickViewMatrix: FloatArrayParam,
       pickProjMatrix: FloatArrayParam,
       pickInvisible: boolean,
-      layer?: Layer
-    }): WebGLRendererMesh | null {
+      rendererMesh: WebGLRendererMesh
+    }): FloatArrayParam | null {
 
-    const targetRendererView = this.#rendererViewsList[viewIndex];
-    if (!targetRendererView) {
-      throw new SDKError(`Can't activate View - no such target View attached: ${viewIndex}`);
-    }
-
-    const gl = this.#gl
-    const view = targetRendererView.view;
-    const pickProjMatrix = params.pickProjMatrix;
-    const pickViewMatrix = params.pickViewMatrix;
+    const {rendererView, rendererMesh, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
+    const view = rendererView.view;
     const resolutionScale = view.resolutionScale;
+    const layer = rendererMesh.layer;
     const renderContext = this.renderContext;
-
-    const targetCanvasBoundingRect = targetRendererView.view.htmlElement.getBoundingClientRect();
-    const pickBuffer = targetRendererView.renderBufferManager.getRenderBuffer("pickDepth", {
+    const gl = this.gl
+    const canvas = rendererView.view.htmlElement;
+    const boundingRect = canvas.getBoundingClientRect();
+    const pickBuffer = rendererView.renderBufferManager.getRenderBuffer("pickDepth", {
       depthTexture: true,
-      size: [targetCanvasBoundingRect.width, targetCanvasBoundingRect.height]
+      size: [1, 1]
     });
-    pickBuffer.setSize([targetCanvasBoundingRect.width, targetCanvasBoundingRect.height]);
     pickBuffer.bind();
     pickBuffer.clear();
-
     renderContext.reset();
     renderContext.backfaces = true;
     renderContext.frontface = true; // "ccw"
     renderContext.pickViewMatrix = pickViewMatrix;
     renderContext.pickProjMatrix = pickProjMatrix;
     renderContext.pickInvisible = !!params.pickInvisible;
-    renderContext.pickClipPos[0] = this.#getClipPosX(params.canvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth);
-    renderContext.pickClipPos[0] = this.#getClipPosY(params.canvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight);
+    renderContext.pickClipPos = [
+      this.#getClipPosX(params.pickCanvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
+      this.#getClipPosY(params.pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
+    ];
 
     gl.viewport(0, 0, 1, 1);
     gl.depthMask(true);
@@ -1371,33 +1403,60 @@ export class WebGLRenderer implements Renderer {
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    if (params.layer) {
-      params.layer.drawPickDepths();
-    } else {
-      for (let i = 0, len = this.#layerList.length; i < len; i++) {
-        const layer = this.#layerList[i];
-        const meshCounts = layer.meshCounts[viewIndex];
-        if (meshCounts.numPickable < meshCounts.numMeshes ||
-          meshCounts.numCulled === meshCounts.numMeshes ||
-          meshCounts.numVisible === 0) {
-          continue;
-        }
-        layer.drawPickDepths();
-      }
-    }
+    layer.drawPickDepths();
 
     const pix = pickBuffer.read(0, 0);
 
     pickBuffer.unbind();
 
-    const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
-    if (pickID < 0) {
-      return null;
-    }
+    const screenZ = this.#unpackDepth(pix); // Get screen-space Z at the given canvas coords
 
-    return <WebGLRendererMesh>this.#pickIDs.items[pickID];
+    // Calculate clip space coordinates, which will be in range of x=[-1..1] and y=[-1..1], with y=(+1) at top
+
+    const x = (pickCanvasPos[0] - canvas.clientWidth / 2) / (canvas.clientWidth / 2);
+    const y = -(pickCanvasPos[1] - canvas.clientHeight / 2) / (canvas.clientHeight / 2);
+
+    // Ensure that unprojection matrix is in RTC space if needed
+
+    const origin = rendererMesh.tile.center;
+    const gotOrigin = (origin[0] !== 0 && origin[1] !== 0 && origin[2] !== 0);
+    let pvMat = gotOrigin
+      ? mulMat4(pickProjMatrix, createRTCViewMat(pickViewMatrix, origin, tempMat4a), tempMat4b)
+      : mulMat4(pickProjMatrix, pickViewMatrix, tempMat4b);
+
+    const pvMatInverse = inverseMat4(pvMat, tempMat4c);
+
+    tempVec4a[0] = x;
+    tempVec4a[1] = y;
+    tempVec4a[2] = -1;
+    tempVec4a[3] = 1;
+
+    let world1 = transformVec4(pvMatInverse, tempVec4a);
+    world1 = mulVec4Scalar(world1, 1 / world1[3]);
+
+    tempVec4b[0] = x;
+    tempVec4b[1] = y;
+    tempVec4b[2] = 1;
+    tempVec4b[3] = 1;
+
+    let world2 = transformVec4(pvMatInverse, tempVec4b);
+    world2 = mulVec4Scalar(world2, 1 / world2[3]);
+
+    const dir = subVec3(world2, world1, tempVec4c);
+    const worldPos = addVec3(world1, mulVec4Scalar(dir, screenZ, tempVec4d), tempVec4e);
+
+    if (gotOrigin) {
+      addVec3(worldPos, origin);
+    }
+    console.log(worldPos);
+    return worldPos;
   }
 
+  #unpackDepth(depthZ) {
+    const vec = [depthZ[0] / 256.0, depthZ[1] / 256.0, depthZ[2] / 256.0, depthZ[3] / 256.0];
+    const bitShift = [1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0];
+    return 1.0 - dotVec4(vec, bitShift);
+  }
 
   #getClipPosX(pos: number, size: number) {
     return 2 * (pos / size) - 1;
@@ -1492,6 +1551,7 @@ export class WebGLRenderer implements Renderer {
     if (this.#viewer) {
       this.detachViewer();
     }
+    this.tileManager.destroy();
     this.#saoOcclusionRenderer.destroy();
     this.#saoDepthLimitedBlurRenderer.destroy();
     this.#pickBufferManager.destroy();

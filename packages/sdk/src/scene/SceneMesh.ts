@@ -1,15 +1,17 @@
 import {collapseAABB3, createAABB3, expandAABB3Point3} from "../boundaries";
-import {createMat4, createVec4, identityMat4, isIdentityMat4, transformPoint4} from "../matrix";
+import {createMat4, createVec3, createVec4, identityMat4, isIdentityMat4, mulMat4, transformPoint4} from "../matrix";
 import type {FloatArrayParam} from "../math";
 import type {RendererMesh} from "./RendererMesh";
 import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneMeshParams} from "./SceneMeshParams";
 import type {SceneObject} from "./SceneObject";
 import type {SceneTextureSet} from "./SceneTextureSet";
-import type {SceneTile} from "./SceneTile";
+import {SceneModel} from "./SceneModel";
+import {createRTCModelMat} from "../rtc";
 
 const tempVec4a = createVec4();
 const tempVec4b = createVec4();
+const tempMat4 = createMat4();
 
 function getPositionsWorldAABB3(
   positions: FloatArrayParam,
@@ -53,9 +55,9 @@ export class SceneMesh {
   readonly id: string;
 
   /**
-   * {@link SceneTile} this SceneMesh belongs to.
+   * The SceneModel that contains this SceneMesh.
    */
-  readonly tile: SceneTile;
+  model: SceneModel;
 
   /**
    * {@link SceneGeometry} used by this SceneMesh.
@@ -89,7 +91,6 @@ export class SceneMesh {
 
   #color: FloatArrayParam;
   #matrix: FloatArrayParam;
-  #rtcMatrix: FloatArrayParam;
   #opacity: number;
 
   readonly origin: FloatArrayParam;
@@ -102,18 +103,17 @@ export class SceneMesh {
    */
   constructor(meshParams: {
     id: string;
+    model: SceneModel;
     geometry: SceneGeometry;
     textureSet?: SceneTextureSet;
     matrix?: FloatArrayParam;
-    rtcMatrix?: FloatArrayParam;
     color?: FloatArrayParam;
     opacity?: number;
-    tile: SceneTile;
     streamLayerIndex?: number;
   }) {
     this.id = meshParams.id;
+    this.model = meshParams.model;
     this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
-    this.#rtcMatrix = meshParams.rtcMatrix ? createMat4(meshParams.rtcMatrix) : this.#matrix.slice();
     this.#aabb = createAABB3();
     this.#aabbDirty = true;
     this.geometry = meshParams.geometry;
@@ -121,7 +121,6 @@ export class SceneMesh {
     this.rendererMesh = null;
     this.color = meshParams.color || new Float32Array([1, 1, 1]);
     this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
-    this.tile = meshParams.tile;
     this.streamLayerIndex = meshParams.streamLayerIndex !== undefined ? meshParams.streamLayerIndex : 0;
   }
 
@@ -160,29 +159,6 @@ export class SceneMesh {
   }
 
   /**
-   * Gets this SceneMesh's local modeling transform matrix.
-   *
-   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-   *
-   * @type {FloatArrayParam}
-   */
-  get matrix(): FloatArrayParam {
-    return this.#matrix;
-  }
-
-  /**
-   * Gets this SceneMesh's RTC modeling transform matrix.
-   *
-   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-   *
-   * @internal
-   * @type {FloatArrayParam}
-   */
-  get rtcMatrix(): FloatArrayParam {
-    return this.#rtcMatrix;
-  }
-
-  /**
    * Updates this SceneMesh's local modeling transform matrix.
    *
    * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
@@ -197,12 +173,28 @@ export class SceneMesh {
       identityMat4(this.#matrix);
     }
     if (this.rendererMesh) {
-      this.rendererMesh.setMatrix(this.#matrix);
+
+      // TODO: recompute AABBs using coordinateSystemMatrix
+
+
+      const coordSystemAndModelingMatrix = mulMat4(this.model.coordinateSystemMatrix, this.#matrix, tempMat4);
+      this.rendererMesh.setMatrix(coordSystemAndModelingMatrix);
     }
     this.#aabbDirty = true;
     if (this.object) {
       this.object.setAABBDirty();
     }
+  }
+
+  /**
+   * Gets this SceneMesh's local modeling transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @type {FloatArrayParam}
+   */
+  get matrix(): FloatArrayParam {
+    return this.#matrix;
   }
 
   /**
@@ -263,3 +255,10 @@ export class SceneMesh {
   }
 }
 
+function compareRoundedArraysSafe(a: FloatArrayParam, b: FloatArrayParam): boolean {
+  return (
+    Math.round(a[0]) === Math.round(b[0]) &&
+    Math.round(a[1]) === Math.round(b[1]) &&
+    Math.round(a[2]) === Math.round(b[2])
+  );
+}

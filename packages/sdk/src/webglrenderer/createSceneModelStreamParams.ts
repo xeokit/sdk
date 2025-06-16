@@ -21,8 +21,7 @@ export function createSceneModelStreamParams(sceneModel: SceneModel) {
 
       const sceneGeometry = sceneMesh.geometry;
       const textureSetId = sceneMesh.textureSet ? sceneMesh.textureSet.id : "";
-      const tile = sceneMesh.tile;
-      const layerId = `${textureSetId}.${sceneGeometry.primitive}.${tile.id}`;
+      const layerId = `${textureSetId}.${sceneGeometry.primitive}`;
 
       let layer = layersBeingBuilt[layerId];
 

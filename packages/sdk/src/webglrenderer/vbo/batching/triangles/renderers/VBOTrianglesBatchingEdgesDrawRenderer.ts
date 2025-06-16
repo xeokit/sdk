@@ -22,11 +22,9 @@ export class VBOTrianglesBatchingEdgesDrawRenderer extends VBOBatchingRenderer {
     this.vertexSlicingDefs(src);
     this.vertexDrawFlatColorDefs(src);
     this.vertexDrawMainOpen(src);
-    {
-      this.vertexDrawBatchingTransformLogic(src);
-      this.vertexDrawEdgesColorLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexDrawBatchingTransformLogic(src);
+    this.vertexDrawEdgesColorLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
 
@@ -37,11 +35,9 @@ export class VBOTrianglesBatchingEdgesDrawRenderer extends VBOBatchingRenderer {
     this.fragmentSlicingDefs(src);
     this.fragmentDrawFlatColorDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentDrawFlatColorLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentDrawFlatColorLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
 

@@ -86,12 +86,12 @@ export class VBOInstancingLayer implements Layer {
       numEdgeIndices: 0,
       numInstances: 0,
       obb: createOBB3(),
-      origin: createVec3(layerParams.origin),
       sceneGeometry: layerParams.sceneGeometry,
       textureSet: layerParams.textureSet,
       pbrSupported: false,
       positionsDecompressScale,
       positionsDecompressOffset,
+      tilesBuf: null,
       colorsBuf: [],
       flagsBufs: [],
       modelMatrixBuf: null,
@@ -137,14 +137,17 @@ export class VBOInstancingLayer implements Layer {
 
   createLayerMesh(layerMeshParams: LayerMeshParams, sceneMesh: SceneMesh) {
 
+    const tile = layerMeshParams.tile;
     const color = sceneMesh.color;
     const opacity = sceneMesh.opacity !== null && sceneMesh.opacity !== undefined ? sceneMesh.opacity : 255;
-    const rtcMatrix = sceneMesh.rtcMatrix;
+    const rtcMatrix = layerMeshParams.rtcMatrix;
     const pickColor = layerMeshParams.pickColor;
 
     if (this.#built) {
-      throw "Already finalized";
+      throw "Already built";
     }
+
+    this.#buffer.tiles.push(tile.index);
 
     const r = color[0] * 255;
     const g = color[1] * 255;
@@ -223,6 +226,10 @@ export class VBOInstancingLayer implements Layer {
     const edgeIndices = sceneGeometry.edgeIndices;
     const uvsCompressed = sceneGeometry.uvsCompressed;
     const colorsCompressed = sceneGeometry.colorsCompressed;
+    const tiles = this.#buffer.tiles;
+    if (tiles && tiles.length > 0) {
+      renderState.tilesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, new Int32Array(tiles), tiles.length, 1, gl.DYNAMIC_DRAW);
+    }
     if (positionsCompressed && positionsCompressed.length > 0) {
       const normalized = false;
       renderState.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, new Uint16Array(positionsCompressed), positionsCompressed.length, 3, gl.STATIC_DRAW, normalized);
@@ -328,7 +335,7 @@ export class VBOInstancingLayer implements Layer {
 
   setLayerMeshVisible(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
       this.meshCounts[viewIndex].numVisible++;
@@ -342,7 +349,7 @@ export class VBOInstancingLayer implements Layer {
 
   setLayerMeshHighlighted(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) {
       this.meshCounts[viewIndex].numHighlighted++;
@@ -356,7 +363,7 @@ export class VBOInstancingLayer implements Layer {
 
   setLayerMeshXRayed(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.XRAYED) {
       this.meshCounts[viewIndex].numXRayed++;
@@ -370,7 +377,7 @@ export class VBOInstancingLayer implements Layer {
 
   setLayerMeshSelected(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.SELECTED) {
       this.meshCounts[viewIndex].numSelected++;
@@ -384,7 +391,7 @@ export class VBOInstancingLayer implements Layer {
 
   setLayerMeshClippable(viewIndex: number, layerMeshIndex: number, flags: number): void {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.CLIPPABLE) {
       this.meshCounts[viewIndex].numClippable++;
@@ -398,13 +405,13 @@ export class VBOInstancingLayer implements Layer {
 
   setCollidable(viewIndex: number, layerMeshIndex: number, flags: number) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
   }
 
   setLayerMeshPickable(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.PICKABLE) {
       this.meshCounts[viewIndex].numPickable++;
@@ -418,7 +425,7 @@ export class VBOInstancingLayer implements Layer {
 
   setLayerMeshCulled(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean): void {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.CULLED) {
       this.meshCounts[viewIndex].numCulled++;
@@ -432,7 +439,7 @@ export class VBOInstancingLayer implements Layer {
 
   setLayerMeshColor(viewIndex: number, layerMeshIndex: number, color: FloatArrayParam): void {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     tempUint8Vec4[0] = color[0];
     tempUint8Vec4[1] = color[1];
@@ -456,7 +463,7 @@ export class VBOInstancingLayer implements Layer {
 
   setLayerMeshFlags(viewIndex: number, layerMeshIndex: number, flags: number, transparent: boolean = false): void {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     const view = this.renderContext.viewer.viewList[viewIndex];
     const visible = !!(flags & SCENE_OBJECT_FLAGS.VISIBLE);
@@ -502,29 +509,33 @@ export class VBOInstancingLayer implements Layer {
     }
   }
 
-  setMatrix(viewIndex: number, layerMeshIndex: number, matrix: FloatArrayParam) {
+  setLayerMeshMatrix(layerMeshIndex: number, rtcMatrix: FloatArrayParam) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
-    ////////////////////////////////////////
-    // TODO: Update portion matrix
-    ////////////////////////////////////////
     const offset = layerMeshIndex * 4;
-    tempFloat32Vec4[0] = matrix[0];
-    tempFloat32Vec4[1] = matrix[4];
-    tempFloat32Vec4[2] = matrix[8];
-    tempFloat32Vec4[3] = matrix[12];
+    tempFloat32Vec4[0] = rtcMatrix[0];
+    tempFloat32Vec4[1] = rtcMatrix[4];
+    tempFloat32Vec4[2] = rtcMatrix[8];
+    tempFloat32Vec4[3] = rtcMatrix[12];
     this.renderState.modelMatrixCol0Buf.setData(tempFloat32Vec4, offset);
-    tempFloat32Vec4[0] = matrix[1];
-    tempFloat32Vec4[1] = matrix[5];
-    tempFloat32Vec4[2] = matrix[9];
-    tempFloat32Vec4[3] = matrix[13];
+    tempFloat32Vec4[0] = rtcMatrix[1];
+    tempFloat32Vec4[1] = rtcMatrix[5];
+    tempFloat32Vec4[2] = rtcMatrix[9];
+    tempFloat32Vec4[3] = rtcMatrix[13];
     this.renderState.modelMatrixCol1Buf.setData(tempFloat32Vec4, offset);
-    tempFloat32Vec4[0] = matrix[2];
-    tempFloat32Vec4[1] = matrix[6];
-    tempFloat32Vec4[2] = matrix[10];
-    tempFloat32Vec4[3] = matrix[14];
+    tempFloat32Vec4[0] = rtcMatrix[2];
+    tempFloat32Vec4[1] = rtcMatrix[6];
+    tempFloat32Vec4[2] = rtcMatrix[10];
+    tempFloat32Vec4[3] = rtcMatrix[14];
     this.renderState.modelMatrixCol2Buf.setData(tempFloat32Vec4, offset);
+  }
+
+  setLayerMeshTile(layerMeshIndex: number, tileIndex: number) {
+    if (!this.#built) {
+      throw "Not built";
+    }
+    this.renderState.tilesBuf.setData(new Int32Array([tileIndex]), layerMeshIndex);
   }
 
   drawColorOpaque(): void {
@@ -811,6 +822,10 @@ export class VBOInstancingLayer implements Layer {
       renderState.edgeIndicesBuf.destroy();
       renderState.indicesBuf = null;
     }
+    if (renderState.tilesBuf) {
+      renderState.tilesBuf.destroy();
+      renderState.tilesBuf = null;
+    }
     this.renderState = null;
   }
 
@@ -822,12 +837,6 @@ export class VBOInstancingLayer implements Layer {
   }
 
   setLayerMeshCollidable(layerMeshIndex, flags): void {
-    if (!this.#built) {
-      throw new SDKError("Not built");
-    }
-  }
-
-  setLayerMeshMatrix(layerMeshIndex: number, matrix: FloatArrayParam): void {
     if (!this.#built) {
       throw new SDKError("Not built");
     }

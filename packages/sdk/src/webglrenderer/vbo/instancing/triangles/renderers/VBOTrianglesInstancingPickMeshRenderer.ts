@@ -17,11 +17,9 @@ export class VBOTrianglesInstancingPickMeshRenderer extends VBOInstancingRendere
     this.vertexSlicingDefs(src);
     this.vertexPickMeshDefs(src);
     this.vertexPickMainOpen(src);
-    {
-      this.vertexPickInstancingTransformLogic(src);
-      this.vertexPickMeshLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexPickInstancingTransformLogic(src);
+    this.vertexPickMeshLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
 
@@ -32,11 +30,9 @@ export class VBOTrianglesInstancingPickMeshRenderer extends VBOInstancingRendere
     this.fragmentSlicingDefs(src);
     this.fragmentPickMeshDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentPickMeshLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentPickMeshLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
 

@@ -13,5 +13,4 @@ export interface VBOInstancingLayerParams {
   sceneGeometry: SceneGeometry;
   layerIndex: number;
   textureSet?: RendererTextureSet;
-  origin: FloatArrayParam;
 }

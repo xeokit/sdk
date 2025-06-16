@@ -18,6 +18,9 @@ export abstract class VBOBatchingRenderer extends VBORenderer {
     const view = this.renderContext.view;
     const viewIndex = view.viewIndex;
     const gl = this.renderContext.gl;
+    if (attributes.tile) {
+      attributes.tile.bindArrayBuffer(renderState.tilesBuf);
+    }
     attributes.position.bindArrayBuffer(renderState.positionsBuf);
     if (attributes.flags) {
       attributes.flags.bindArrayBuffer(renderState.flagsBufs[viewIndex]);
@@ -35,15 +38,14 @@ export abstract class VBOBatchingRenderer extends VBORenderer {
       attributes.uv.bindArrayBuffer(renderState.uvBuf);
     }
     gl.uniform1i(this.uniforms.renderPass, renderPass);
-    gl.uniform3fv(this.uniforms.positionsDecompressOffset, <Float32Array<any> | GLfloat[]>renderState.positionsDecompressOffset);
-    gl.uniform3fv(this.uniforms.positionsDecompressScale, <Float32Array<any> | GLfloat[]>renderState.positionsDecompressScale);
-    gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array<any> | GLfloat[]>vboBatchingLayer.rendererModel.worldMatrix);
-    gl.uniformMatrix4fv(this.uniforms.viewMatrix, false,
-      <Float32Array<any> | GLfloat[]>createRTCViewMat(
-        renderPass === RENDER_PASSES.PICK
-          ? this.renderContext.pickViewMatrix
-          : this.renderContext.view.camera.viewMatrix,
-        renderState.origin));
+    gl.uniform3fv(this.uniforms.positionsDecompressOffset, <any>renderState.positionsDecompressOffset);
+    gl.uniform3fv(this.uniforms.positionsDecompressScale, <any>renderState.positionsDecompressScale);
+    // gl.uniformMatrix4fv(this.uniforms.viewMatrix, false,
+    //   <Float32Array | GLfloat[]>createRTCViewMat(
+    //     renderPass === RENDER_PASSES.PICK
+    //       ? this.renderContext.pickViewMatrix
+    //       : this.renderContext.view.camera.viewMatrix,
+    //     renderState.origin));
     if (renderState.indicesBuf) {
       renderState.indicesBuf.bind();
     }

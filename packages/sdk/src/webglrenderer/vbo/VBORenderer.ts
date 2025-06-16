@@ -52,7 +52,6 @@ export abstract class VBORenderer {
     pickZFar: WebGLUniformLocation;
     pickClipPos: WebGLUniformLocation;
     drawingBufferSize: WebGLUniformLocation;
-    worldMatrix: WebGLUniformLocation;
     positionsDecompressOffset: WebGLUniformLocation;
     positionsDecompressScale: WebGLUniformLocation;
     sectionPlanes: any[];
@@ -68,6 +67,7 @@ export abstract class VBORenderer {
   };
 
   attributes: {
+    tile: WebGLAttribute;
     color: WebGLAttribute;
     normal: WebGLAttribute;
     intensity: WebGLAttribute;
@@ -83,6 +83,7 @@ export abstract class VBORenderer {
 
   samplers: {
     saoOcclusionTexture: "saoOcclusionTexture";
+    perTileRTCViewMatrixTexture: "perTileRTCViewMatrixTexture"
   };
 
   constructor(renderContext: RenderContext, cfg: { edges: boolean } = {edges: false}) {
@@ -148,7 +149,6 @@ export abstract class VBORenderer {
       sceneModelMatrix: program.getLocation("sceneModelMatrix"),
       viewMatrix: program.getLocation("viewMatrix"),
       projMatrix: program.getLocation("projMatrix"),
-      worldMatrix: program.getLocation("worldMatrix"),
       positionsDecompressOffset: program.getLocation("positionsDecompressOffset"),
       positionsDecompressScale: program.getLocation("positionsDecompressScale"),
       snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
@@ -197,6 +197,7 @@ export abstract class VBORenderer {
     }
 
     this.attributes = {
+      tile: program.getAttribute("tile"),
       position: program.getAttribute("position"),
       normal: program.getAttribute("normal"),
       color: program.getAttribute("color"),
@@ -211,7 +212,12 @@ export abstract class VBORenderer {
       modelMatrixCol0: program.getAttribute("modelMatrixCol0"),
       modelMatrixCol1: program.getAttribute("modelMatrixCol1"),
       modelMatrixCol2: program.getAttribute("modelMatrixCol2")
-    }
+    };
+
+    this.samplers = {
+      saoOcclusionTexture: "saoOcclusionTexture",
+      perTileRTCViewMatrixTexture: "perTileRTCViewMatrixTexture"
+    };
 
     this.hash = this.getHash();
 
@@ -229,22 +235,20 @@ export abstract class VBORenderer {
 
   vertexCommonDefs(src: string[]) {
     src.push("in float flags;");
+    src.push("in int   tile;");
     src.push("uniform int renderPass;");
+    src.push("uniform highp sampler2D perTileRTCViewMatrixTexture;");
   }
 
   vertexBatchingTransformDefs(src: string[]) {
     src.push("in vec3 position;");
-    src.push("uniform mat4 viewMatrix;");
     src.push("uniform mat4 projMatrix;");
-    src.push("uniform mat4 worldMatrix;");
     src.push("uniform vec3 positionsDecompressOffset;");
     src.push("uniform vec3 positionsDecompressScale;");
   }
 
   vertexInstancingTransformDefs(src: string[]) {
-    src.push("uniform mat4 viewMatrix;");
     src.push("uniform mat4 projMatrix;");
-    src.push("uniform mat4 worldMatrix;");
     src.push("uniform vec3 positionsDecompressOffset;");
     src.push("uniform vec3 positionsDecompressScale;");
     src.push("in vec3 position;");
@@ -254,8 +258,8 @@ export abstract class VBORenderer {
   }
 
   vertexPickMeshDefs(src: string[]) {
-    src.push("in vec4 pickColor;");
-    src.push("out vec4 vPickColor;");
+    src.push("in      vec4 pickColor;");
+    src.push("out     vec4 vPickColor;");
     src.push("uniform vec2 drawingBufferSize;");
     src.push("uniform vec2 pickClipPos;");
     src.push("vec4 remapPickClipPos(vec4 clipPos) {");
@@ -314,12 +318,14 @@ export abstract class VBORenderer {
   }
 
   vertexDrawBatchingTransformLogic(src: string[]) {
+    this._vertexTransformCommonLogic(src);
     src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
     src.push("          vec4 viewPosition  = viewMatrix * worldPosition; ");
     src.push("          gl_Position = projMatrix * viewPosition;");
   }
 
   vertexDrawPointsBatchingTransformLogic(src: string[]) {
+    this._vertexTransformCommonLogic(src);
     src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
     src.push("          vec4 viewPosition  = viewMatrix * worldPosition; ");
     src.push("          vec4 clipPos = projMatrix * viewPosition;");
@@ -328,21 +334,36 @@ export abstract class VBORenderer {
   }
 
   vertexPickBatchingTransformLogic(src: string[]) {
+    this._vertexTransformCommonLogic(src);
     src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
     src.push("          vec4 viewPosition  = viewMatrix * worldPosition; ");
     src.push("          gl_Position = remapPickClipPos(projMatrix * viewPosition);");
   }
 
   vertexDrawInstancingTransformLogic(src: string[]) {
+    this._vertexTransformCommonLogic(src);
     src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
-    src.push("          vec4 viewPosition  = viewMatrix * vec4(dot(worldPosition, modelMatrixCol0), dot(worldPosition, modelMatrixCol1), dot(worldPosition, modelMatrixCol2), 1.0); ");
+    src.push("          vec4 viewPosition  = viewMatrix * vec4(" +
+      "dot(worldPosition, modelMatrixCol0), " +
+      "dot(worldPosition, modelMatrixCol1), " +
+      "dot(worldPosition, modelMatrixCol2), 1.0); ");
     src.push("          gl_Position = projMatrix * viewPosition;");
   }
 
   vertexPickInstancingTransformLogic(src: string[]) {
+    this._vertexTransformCommonLogic(src);
     src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
     src.push("          vec4 viewPosition  = viewMatrix * vec4(dot(worldPosition, modelMatrixCol0), dot(worldPosition, modelMatrixCol1), dot(worldPosition, modelMatrixCol2), 1.0); ");
     src.push("          gl_Position = remapPickClipPos(projMatrix * viewPosition);");
+  }
+
+  private _vertexTransformCommonLogic(src: string[]) {
+    src.push("ivec2 tileSampleCoords = ivec2(tile % 512, tile / 512);"); // TODO: Is this valid?
+    src.push("mat4 viewMatrix = mat4 (" +
+      "texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 0, tileSampleCoords.y), 0), " +
+      "texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 1, tileSampleCoords.y), 0), " +
+      "texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 2, tileSampleCoords.y), 0), " +
+      "texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 3, tileSampleCoords.y), 0));")
   }
 
   vertexDrawLambertDefs(src: string[]) {
@@ -439,10 +460,17 @@ export abstract class VBORenderer {
     src.push("#ifdef GL_FRAGMENT_PRECISION_HIGH");
     src.push("precision highp float;");
     src.push("precision highp int;");
+    src.push("precision highp usampler2D;");
+    src.push("precision highp isampler2D;");
+    src.push("precision highp sampler2D;");
     src.push("#else");
     src.push("precision mediump float;");
     src.push("precision mediump int;");
+    src.push("precision mediump usampler2D;");
+    src.push("precision mediump isampler2D;");
+    src.push("precision mediump sampler2D;");
     src.push("#endif");
+
   }
 
   fragmentCommonDefs(src: string[]) {
@@ -593,7 +621,6 @@ export abstract class VBORenderer {
     src.push("  }");
   }
 
-
   fragmentPointsGeometryLogic(src: string[]): void {
     if (this.renderContext.view.pointsMaterial.roundPoints) {
       src.push("  vec2 cxy = 2.0 * gl_PointCoord - 1.0;");
@@ -634,12 +661,18 @@ export abstract class VBORenderer {
     this.program.bind();
     renderContext.lastProgramId = this.program.id;
     gl.uniform1i(uniforms.renderPass, renderPass);
+    const perTileRTCViewMatrixTexture = renderContext.tileManager.dataTextures[view.viewIndex];
+    if (perTileRTCViewMatrixTexture) {
+      this.program.bindTexture(
+        this.samplers.perTileRTCViewMatrixTexture,
+        perTileRTCViewMatrixTexture,
+        renderContext.textureUnit);
+      renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+    }
     if (uniforms.projMatrix) {
-      gl.uniformMatrix4fv(uniforms.projMatrix, false,
-        <Float32Array | GLfloat[]>
-          (renderPass === RENDER_PASSES.PICK
-            ? renderContext.pickProjMatrix
-            : view.camera.projMatrix));
+      gl.uniformMatrix4fv(uniforms.projMatrix, false, <any>(renderPass === RENDER_PASSES.PICK
+        ? renderContext.pickProjMatrix
+        : view.camera.projMatrix));
     }
     if (uniforms.pointSize) {
       gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);
@@ -655,10 +688,10 @@ export abstract class VBORenderer {
       gl.uniform2f(uniforms.drawingBufferSize, gl.drawingBufferWidth, gl.drawingBufferHeight);
     }
     if (uniforms.pickClipPos) {
-      gl.uniform2fv(uniforms.pickClipPos, <Float32Array<any>>renderContext.pickClipPos);
+      gl.uniform2fv(uniforms.pickClipPos, <Float32Array>renderContext.pickClipPos);
     }
     if (uniforms.lightAmbient) {
-      gl.uniform4fv(uniforms.lightAmbient, <Float32Array<any>>view.getAmbientColorAndIntensity());
+      gl.uniform4fv(uniforms.lightAmbient, <Float32Array>view.getAmbientColorAndIntensity());
     }
     for (let i = 0, len = view.lightsList.length; i < len; i++) {
       const light = view.lightsList[i];
@@ -667,11 +700,11 @@ export abstract class VBORenderer {
       }
       if (this.uniforms.lightPos[i]) {
         const pointLight = <PointLight>light;
-        gl.uniform3fv(this.uniforms.lightPos[i], <Float32Array<any>>pointLight.pos);
+        gl.uniform3fv(this.uniforms.lightPos[i], <Float32Array>pointLight.pos);
       }
       if (this.uniforms.lightDir[i]) {
         const dirLight = <DirLight>light;
-        gl.uniform3fv(this.uniforms.lightDir[i], <Float32Array<any>>dirLight.dir);
+        gl.uniform3fv(this.uniforms.lightDir[i], <Float32Array>dirLight.dir);
       }
     }
     if (this.uniforms.silhouetteColor) {

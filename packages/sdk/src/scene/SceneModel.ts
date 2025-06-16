@@ -7,7 +7,7 @@ import {
   createVec3,
   eulerToQuat,
   identityMat4,
-  identityQuat, mulMat4, mulVec3Scalar, translateMat4v
+  identityQuat, mulMat4
 } from "../matrix";
 import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";
 import {compressGeometryParams} from "./compressGeometryParams";
@@ -30,7 +30,6 @@ import {SceneTexture} from "./SceneTexture";
 import type {SceneTextureParams} from "./SceneTextureParams";
 import {SceneTextureSet} from "./SceneTextureSet";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
-import type {SceneTile} from "./SceneTile";
 import {CoordinateSystem} from "./CoordinateSystem";
 import {createCoordinateSystemTransform} from "./createCoordinateSystemTransform";
 
@@ -121,7 +120,7 @@ export class SceneModel extends Component {
    * Each SceneMesh's matrix is pre-multiplied by this matrix to effectively move the vertex
    * positions from the SceneModel CoordinateSystem to the Scene CoordinateSystem within.
    */
-  #coordinateSystemMatrix: FloatArrayParam;
+  coordinateSystemMatrix: FloatArrayParam;
 
   /**
    * The {@link Scene | Scene} that contains this SceneModel.
@@ -194,16 +193,6 @@ export class SceneModel extends Component {
    * * Created by {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
    */
   public readonly textureSets: { [key: string]: SceneTextureSet };
-
-  /**
-   * The {@link SceneTile | Tiles} used by this SceneModel, each mapped to {@link SceneTile.id | SceneTile.id}.
-   */
-  public readonly tiles: { [key: string]: SceneTile };
-
-  /**
-   * The {@link SceneTile | Tiles} used by this SceneModel.
-   */
-  public readonly tilesList: SceneTile [];
 
   /**
    * {@link SceneMesh | SceneMeshes} within this SceneModel, each mapped to {@link SceneMesh.id | SceneMesh.id}.
@@ -281,19 +270,11 @@ export class SceneModel extends Component {
 
     this.scene = scene;
 
-    this.coordinateSystem = new CoordinateSystem(this, sceneModelParams?.coordinateSystem || {
-      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-      origin: [0, 0, 0],
-      units: "meters",
-      scaleToMeters: 1
-    });
+    this.coordinateSystem = new CoordinateSystem(this, sceneModelParams?.coordinateSystem);
 
-    this.#coordinateSystemMatrix = createMat4();
+    this.coordinateSystemMatrix = createMat4();
 
-    createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, this.#coordinateSystemMatrix);
-
-    this.tiles = {};
-    this.tilesList = [];
+    createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, this.coordinateSystemMatrix);
 
     this.onBuilt = new EventEmitter(new EventDispatcher<SceneModel, null>());
     this.onDestroyed = new EventEmitter(new EventDispatcher<SceneModel, null>());
@@ -751,30 +732,14 @@ export class SceneModel extends Component {
     } else {
       matrix = matrix.slice();
     }
-    let origin;
-    let rtcMatrix;
-    const coordSystemAndModelingMatrix = mulMat4(this.#coordinateSystemMatrix, matrix, tempMat4);
-    if (meshParams.origin) {
-      origin = meshParams.origin;
-      rtcMatrix = coordSystemAndModelingMatrix;
-    } else {
-      origin = createVec3();
-      rtcMatrix = createRTCModelMat(coordSystemAndModelingMatrix, origin);
-    }
-    const tile = this.scene.getTile(origin);
-    if (!this.tiles[tile.id]) {
-      this.tiles[tile.id] = tile;
-      this.tilesList.push(tile);
-    }
     const mesh = new SceneMesh({
       id: meshParams.id,
+      model:this,
       geometry,
       textureSet,
-      matrix: coordSystemAndModelingMatrix,
-      rtcMatrix,
+      matrix,
       color: meshParams.color,
-      opacity: meshParams.opacity,
-      tile
+      opacity: meshParams.opacity
     });
     geometry.numMeshes++;
     this.meshes[meshParams.id] = mesh;
@@ -1066,9 +1031,6 @@ export class SceneModel extends Component {
    * Sets {@link Component.destroyed} ````true````.
    */
   destroy() {
-    for (let i = 0, len = this.tilesList.length; i < len; i++) {
-      this.scene.putTile(this.tilesList[i]);
-    }
     this.onDestroyed.dispatch(this, null);
     super.destroy();
   }

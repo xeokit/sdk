@@ -332,7 +332,7 @@ class MousePickHandler {
 
             flyCameraTo(pickController.pickResult);
 
-            if ((!configs.firstPerson) && configs.followPointer) {
+            if (pickController.pickResult.viewObject && (!configs.firstPerson) && configs.followPointer) {
 
               const pickedEntityAABB = pickController.pickResult.viewObject.aabb;
               const pickedEntityCenterPos = getAABB3Center(pickedEntityAABB);

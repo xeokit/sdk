@@ -16,21 +16,21 @@ const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 // Scene and WebGLRenderer can only be attached to one Viewer at a time.
 
 const viewer = new xeokit.viewer.Viewer({
-    id: "demoViewer",
-    scene,
-    renderer
+  id: "demoViewer",
+  scene,
+  renderer
 });
 
 // Give the Viewer a single View to render the Scene in our HTML canvas element
 
 const view = viewer.createView({
-    id: "demoView",
-    elementId: "demoCanvas"
+  id: "demoView",
+  elementId: "demoCanvas"
 });
 
 // Position the View's Camera
 
-view.camera.eye = [10,20,15];
+view.camera.eye = [10, 20, 15];
 view.camera.look = [0, 0, 0];
 view.camera.up = [0, 0, 1];
 
@@ -151,16 +151,16 @@ sceneModel.createObject({
 
 sceneModel.build().then(() => {
 
-    // At this point, the View will contain five ViewObjects that have the same
-    // IDs as our SceneObjects. Through these ViewObjects, we can update the
-    // appearance of our model elements in that View.
+  // At this point, the View will contain five ViewObjects that have the same
+  // IDs as our SceneObjects. Through these ViewObjects, we can update the
+  // appearance of our model elements in that View.
 
-    view.setObjectsSelected(["purpleTableTop"], true)
-    view.objects["purpleTableTop"].edges = true;
+  view.setObjectsSelected(["purpleTableTop"], true)
+  view.objects["purpleTableTop"].edges = true;
 
 }).catch((e) => {
-    log(`Error building SceneModel: ${e}`);
-    throw e;
+  log(`Error building SceneModel: ${e}`);
+  throw e;
 });
 
 // Finally, we'll bind a "mousemove" listener to the View's canvas. Whenever
@@ -172,47 +172,47 @@ let lastViewObject = null;
 
 view.htmlElement.addEventListener("mousemove", (e) => {
 
-    const canvasPos = getCanvasPosFromEvent(e, view.htmlElement, []);
+  const canvasPos = getCanvasPosFromEvent(e, view.htmlElement, []);
 
-    const pickResult = view.pick({
-        pickViewObject: true,
-        canvasPos
-    });
+  const pickResult = view.pick({
+    pickViewObject: true,
+    canvasPos
+  });
 
-    if (pickResult && pickResult.viewObject) {
+  if (pickResult && pickResult.viewObject) {
 
-        // If we succeed in picking a ViewObject, then get the ViewObject
-        // from the PickResult and highlight it.
+    // If we succeed in picking a ViewObject, then get the ViewObject
+    // from the PickResult and highlight it.
 
-        if (!lastViewObject || pickResult.viewObject.id !== lastViewObject.id) {
+    if (!lastViewObject || pickResult.viewObject.id !== lastViewObject.id) {
 
-            if (lastViewObject) {
-                lastViewObject.highlighted = false;
-            }
+      if (lastViewObject) {
+        lastViewObject.highlighted = false;
+      }
 
-            lastViewObject = pickResult.viewObject;
+      lastViewObject = pickResult.viewObject;
 
-            pickResult.viewObject.highlighted = true;
-        }
-
-    } else {
-
-        if (lastViewObject) {
-            lastViewObject.highlighted = false;
-            lastViewObject = null;
-        }
+      pickResult.viewObject.highlighted = true;
     }
+
+  } else {
+
+    if (lastViewObject) {
+      lastViewObject.highlighted = false;
+      lastViewObject = null;
+    }
+  }
 });
 
 function getCanvasPosFromEvent(event, htmlElement, canvasPos) {
-    // if (!event) {
-    //     event = window.event;
+  if (!event) {
+    event = window.event;
     canvasPos[0] = event.x;
     canvasPos[1] = event.y;
-    // } else {
-    //     const { left, top } = htmlElement.getBoundingClientRect();
-    //     canvasPos[0] = event.clientX - left;
-    //     canvasPos[1] = event.clientY - top;
-    // }
-    return canvasPos;
+  } else {
+    const {left, top} = htmlElement.getBoundingClientRect();
+    canvasPos[0] = event.clientX - left;
+    canvasPos[1] = event.clientY - top;
+  }
+  return canvasPos;
 }

@@ -4835,8 +4835,8 @@ function octEncodeNormalFromArray(array, i, xfunc, yfunc) {
   }
   return new Int8Array([Math[xfunc](x * 127.5 + (x < 0 ? -1 : 0)), Math[yfunc](y * 127.5 + (y < 0 ? -1 : 0))]);
 }
-function dot(array, i, createVec33) {
-  return array[i] * createVec33[0] + array[i + 1] * createVec33[1] + array[i + 2] * createVec33[2];
+function dot(array, i, createVec35) {
+  return array[i] * createVec35[0] + array[i + 1] * createVec35[1] + array[i + 2] * createVec35[2];
 }
 function decompressUV(uv, decompressMatrix, dest = new Float32Array(2)) {
   if (uv.length < 2 || decompressMatrix.length < 8) {
@@ -4963,8 +4963,8 @@ function quantizePositions3(positions, aabb) {
   return positionsCompressed;
 }
 function transformAndOctEncodeNormals(worldNormalMatrix, normals, lenNormals, compressedNormals, lenCompressedNormals) {
-  const dot3 = (p, createVec33) => {
-    return p[0] * createVec33[0] + p[1] * createVec33[1] + p[2] * createVec33[2];
+  const dot3 = (p, createVec35) => {
+    return p[0] * createVec35[0] + p[1] * createVec35[1] + p[2] * createVec35[2];
   };
   const localNormal = new Float32Array(3);
   const worldNormal = new Float32Array(3);
@@ -5408,13 +5408,13 @@ function createRTCViewMat(viewMat, rtcCenter2, rtcViewMat = tempMat) {
 }
 var createRTCModelMat = (() => {
   const zeroVec4 = createVec4([0, 0, 0, 1]);
-  const tempVec4a8 = createVec4();
-  return (matrix, rtcCenter2) => {
-    const tempVec4 = transformVec4(matrix, zeroVec4, tempVec4a8);
+  const tempVec4a11 = createVec4();
+  return (matrix, rtcCenter2, rtcModelMatrix) => {
+    const tempVec4 = transformVec4(matrix, zeroVec4, tempVec4a11);
     rtcCenter2[0] = Math.round(tempVec4[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
     rtcCenter2[1] = Math.round(tempVec4[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
     rtcCenter2[2] = Math.round(tempVec4[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-    const rtcModelMatrix = matrix.slice();
+    rtcModelMatrix = rtcModelMatrix || matrix.slice();
     translateMat4v(mulVec3Scalar(rtcCenter2, -1, tempVec3a2), rtcModelMatrix);
     return rtcModelMatrix;
   };
@@ -9753,6 +9753,7 @@ var SceneGeometry = class {
 // ../sdk/src/scene/SceneMesh.ts
 var tempVec4a2 = createVec4();
 var tempVec4b2 = createVec4();
+var tempMat4 = createMat4();
 function getPositionsWorldAABB3(positions, aabb, matrix, worldAABB = createAABB3()) {
   collapseAABB3(worldAABB);
   const xScale = (aabb[3] - aabb[0]) / 65535;
@@ -9779,9 +9780,9 @@ var SceneMesh = class {
    */
   id;
   /**
-   * {@link SceneTile} this SceneMesh belongs to.
+   * The SceneModel that contains this SceneMesh.
    */
-  tile;
+  model;
   /**
    * {@link SceneGeometry} used by this SceneMesh.
    */
@@ -9809,7 +9810,6 @@ var SceneMesh = class {
   streamLayerIndex;
   #color;
   #matrix;
-  #rtcMatrix;
   #opacity;
   origin;
   #aabbDirty;
@@ -9819,8 +9819,8 @@ var SceneMesh = class {
    */
   constructor(meshParams) {
     this.id = meshParams.id;
+    this.model = meshParams.model;
     this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
-    this.#rtcMatrix = meshParams.rtcMatrix ? createMat4(meshParams.rtcMatrix) : this.#matrix.slice();
     this.#aabb = createAABB3();
     this.#aabbDirty = true;
     this.geometry = meshParams.geometry;
@@ -9828,7 +9828,6 @@ var SceneMesh = class {
     this.rendererMesh = null;
     this.color = meshParams.color || new Float32Array([1, 1, 1]);
     this.opacity = meshParams.opacity !== void 0 && meshParams.opacity !== null ? meshParams.opacity : 1;
-    this.tile = meshParams.tile;
     this.streamLayerIndex = meshParams.streamLayerIndex !== void 0 ? meshParams.streamLayerIndex : 0;
   }
   /**
@@ -9864,27 +9863,6 @@ var SceneMesh = class {
     }
   }
   /**
-   * Gets this SceneMesh's local modeling transform matrix.
-   *
-   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-   *
-   * @type {FloatArrayParam}
-   */
-  get matrix() {
-    return this.#matrix;
-  }
-  /**
-   * Gets this SceneMesh's RTC modeling transform matrix.
-   *
-   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-   *
-   * @internal
-   * @type {FloatArrayParam}
-   */
-  get rtcMatrix() {
-    return this.#rtcMatrix;
-  }
-  /**
    * Updates this SceneMesh's local modeling transform matrix.
    *
    * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
@@ -9898,12 +9876,23 @@ var SceneMesh = class {
       identityMat4(this.#matrix);
     }
     if (this.rendererMesh) {
-      this.rendererMesh.setMatrix(this.#matrix);
+      const coordSystemAndModelingMatrix = mulMat4(this.model.coordinateSystemMatrix, this.#matrix, tempMat4);
+      this.rendererMesh.setMatrix(coordSystemAndModelingMatrix);
     }
     this.#aabbDirty = true;
     if (this.object) {
       this.object.setAABBDirty();
     }
+  }
+  /**
+   * Gets this SceneMesh's local modeling transform matrix.
+   *
+   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   *
+   * @type {FloatArrayParam}
+   */
+  get matrix() {
+    return this.#matrix;
   }
   /**
    * Gets the opacity factor for this SceneMesh.
@@ -10232,56 +10221,6 @@ var import_strongly_typed_events6 = __toESM(require_dist8());
 
 // ../sdk/src/scene/Scene.ts
 var import_strongly_typed_events5 = __toESM(require_dist8());
-
-// ../sdk/src/scene/SceneTile.ts
-var SceneTile = class {
-  /**
-   * Unique ID of this SceneTile.
-   */
-  id;
-  /**
-   * The Scene that owns this SceneTile.
-   */
-  scene;
-  /**
-   * The 3D World-space origin of this SceneTile.
-   */
-  origin;
-  /**
-   * The number of {@link SceneMesh | SceneMeshes} associated with this SceneTile.
-   */
-  numObjects;
-  /**
-   * The {@link SceneModel | SceneModels} belonging to this SceneTile, each keyed to
-   * its {@link SceneModel.id | SceneModel.id}.
-   *
-   * A SceneModel can belong to more than one SceneTile.
-   */
-  models;
-  /**
-   * The {@link SceneObject | SceneObjects} in this SceneTile,
-   * mapped to {@link SceneObject.id | SceneObject.id}.
-   *
-   * A SceneObject can belong to more than one SceneTile.
-   */
-  objects;
-  /**
-   * @private
-   * @param scene
-   * @param id
-   * @param origin
-   */
-  constructor(scene, id, origin2) {
-    this.scene = scene;
-    this.id = id;
-    this.origin = origin2;
-    this.numObjects = 0;
-    this.models = {};
-    this.objects = {};
-  }
-};
-
-// ../sdk/src/scene/Scene.ts
 var Scene = class extends Component {
   /**
    * Configures the Scene's coordinate system.
@@ -10297,10 +10236,6 @@ var Scene = class extends Component {
    */
   objects;
   /**
-   * The {@link SceneTile | SceneTiles} in this Scene.
-   */
-  tiles;
-  /**
    * Emits an event each time a {@link SceneModel | SceneModel} is created in this Scene.
    *
    * @event
@@ -10312,18 +10247,6 @@ var Scene = class extends Component {
    * @event
    */
   onModelDestroyed;
-  /**
-   * Emits an event each time a {@link SceneTile} is created in this Scene.
-   *
-   * @event
-   */
-  onTileCreated;
-  /**
-   * Emits an event each time a {@link SceneTile} is destroyed in this Scene.
-   *
-   * @event
-   */
-  onTileDestroyed;
   #onModelBuilts;
   #onModelDestroys;
   #center;
@@ -10336,22 +10259,13 @@ var Scene = class extends Component {
     super(null, {});
     this.#aabb = createAABB3();
     this.#aabbDirty = true;
-    this.coordinateSystem = new CoordinateSystem(this, params2?.coordinateSystem || {
-      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-      // X+, Y+, Z+
-      origin: [0, 0, 0],
-      units: "meters",
-      scaleToMeters: 1
-    });
+    this.coordinateSystem = new CoordinateSystem(this, params2?.coordinateSystem);
     this.models = {};
     this.objects = {};
-    this.tiles = {};
     this.#onModelBuilts = {};
     this.#onModelDestroys = {};
     this.onModelCreated = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
     this.onModelDestroyed = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
-    this.onTileCreated = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
-    this.onTileDestroyed = new EventEmitter(new import_strongly_typed_events5.EventDispatcher());
   }
   /**
    * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
@@ -10449,7 +10363,7 @@ var Scene = class extends Component {
     if (this.models[id]) {
       return new SDKError(`SceneModel already created in this Scene: ${id}`);
     }
-    const sceneModel = new SceneModel(this, sceneModelParams);
+    const sceneModel = new SceneModel2(this, sceneModelParams);
     this.models[id] = sceneModel;
     sceneModel.onDestroyed.one(() => {
       delete this.models[sceneModel.id];
@@ -10508,8 +10422,6 @@ var Scene = class extends Component {
     this.clear();
     this.onModelCreated.clear();
     this.onModelDestroyed.clear();
-    this.onTileCreated.clear();
-    this.onTileDestroyed.clear();
     super.destroy();
   }
   #registerObjects(model) {
@@ -10527,28 +10439,6 @@ var Scene = class extends Component {
       delete this.objects[object.id];
     }
     this.#aabbDirty = true;
-  }
-  getTile(origin2) {
-    const tileId = `${origin2[0]}-${origin2[1]}-${origin2[2]}`;
-    let tile = this.tiles[tileId];
-    if (tile) {
-      tile.numObjects++;
-    } else {
-      tile = new SceneTile(this, tileId, origin2);
-      tile.numObjects = 1;
-      this.tiles[tileId] = tile;
-      this.onTileCreated.dispatch(this, tile);
-    }
-    return tile;
-  }
-  putTile(tile) {
-    if (this.tiles[tile.id] === void 0) {
-      return;
-    }
-    if (--tile.numObjects <= 0) {
-      delete this.tiles[tile.id];
-      this.onTileDestroyed.dispatch(this, tile);
-    }
   }
 };
 
@@ -10597,13 +10487,13 @@ var CoordinateSystem = class extends Component {
     this.onUnits = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
     this.onScaleToMeters = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
     this.onUpdated = new EventEmitter(new import_strongly_typed_events6.EventDispatcher());
-    this._basis = new Float32Array(params2.basis || [1, 0, 0, 0, 1, 0, 0, 0, 1]);
-    this._origin = new Float64Array(params2.origin || [0, 0, 0]);
-    this._units = params2.units || "meters";
-    this._scaleToMeters = params2.scaleToMeters || 1;
+    this._origin = new Float64Array(params2?.origin || [0, 0, 0]);
+    this._units = params2?.units || "meters";
+    this._scaleToMeters = params2?.scaleToMeters || 1;
     this._worldUp = createVec3();
     this._worldRight = createVec3();
     this._worldForward = createVec3();
+    this.basis = params2?.basis;
   }
   #notifyUpdated() {
     if (!this.#notifyUpdatedScheduled) {
@@ -10620,7 +10510,20 @@ var CoordinateSystem = class extends Component {
   }
   /** Sets the flat 9-element coordinate system basis (column-major). */
   set basis(value) {
-    this._basis = new Float32Array(value);
+    this._basis = new Float32Array(value || [
+      1,
+      0,
+      0,
+      // Right
+      0,
+      0,
+      1,
+      // Up
+      0,
+      1,
+      0
+      // Forward
+    ]);
     this._worldRight[0] = this._basis[0];
     this._worldRight[1] = this._basis[1];
     this._worldRight[2] = this._basis[2];
@@ -10813,7 +10716,7 @@ function unitScale(unit) {
 }
 
 // ../sdk/src/scene/SceneModel.ts
-var tempMat4 = createMat4();
+var tempMat42 = createMat4();
 var COLOR_TEXTURE = 0;
 var METALLIC_ROUGHNESS_TEXTURE = 1;
 var NORMALS_TEXTURE = 2;
@@ -10851,7 +10754,7 @@ TEXTURE_ENCODING_OPTIONS[OCCLUSION_TEXTURE] = {
   qualityLevel: 10,
   mipmaps: false
 };
-var SceneModel = class extends Component {
+var SceneModel2 = class extends Component {
   /**
    * Indicates what renderer resources will need to be allocated in a {@link viewer!Viewer | Viewer's}
    * {@link viewer!Renderer | Renderer} to support progressive loading for the {@link SceneModel | SceneModel}.
@@ -10872,7 +10775,7 @@ var SceneModel = class extends Component {
    * Each SceneMesh's matrix is pre-multiplied by this matrix to effectively move the vertex
    * positions from the SceneModel CoordinateSystem to the Scene CoordinateSystem within.
    */
-  #coordinateSystemMatrix;
+  coordinateSystemMatrix;
   /**
    * The {@link Scene | Scene} that contains this SceneModel.
    */
@@ -10914,14 +10817,6 @@ var SceneModel = class extends Component {
    * * Created by {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
    */
   textureSets;
-  /**
-   * The {@link SceneTile | Tiles} used by this SceneModel, each mapped to {@link SceneTile.id | SceneTile.id}.
-   */
-  tiles;
-  /**
-   * The {@link SceneTile | Tiles} used by this SceneModel.
-   */
-  tilesList;
   /**
    * {@link SceneMesh | SceneMeshes} within this SceneModel, each mapped to {@link SceneMesh.id | SceneMesh.id}.
    *
@@ -10978,16 +10873,9 @@ var SceneModel = class extends Component {
       id: sceneModelParams.id
     });
     this.scene = scene;
-    this.coordinateSystem = new CoordinateSystem(this, sceneModelParams?.coordinateSystem || {
-      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-      origin: [0, 0, 0],
-      units: "meters",
-      scaleToMeters: 1
-    });
-    this.#coordinateSystemMatrix = createMat4();
-    createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, this.#coordinateSystemMatrix);
-    this.tiles = {};
-    this.tilesList = [];
+    this.coordinateSystem = new CoordinateSystem(this, sceneModelParams?.coordinateSystem);
+    this.coordinateSystemMatrix = createMat4();
+    createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, this.coordinateSystemMatrix);
     this.onBuilt = new EventEmitter(new import_strongly_typed_events7.EventDispatcher());
     this.onDestroyed = new EventEmitter(new import_strongly_typed_events7.EventDispatcher());
     this.#numObjects = 0;
@@ -11429,30 +11317,14 @@ var SceneModel = class extends Component {
     } else {
       matrix = matrix.slice();
     }
-    let origin2;
-    let rtcMatrix;
-    const coordSystemAndModelingMatrix = mulMat4(this.#coordinateSystemMatrix, matrix, tempMat4);
-    if (meshParams.origin) {
-      origin2 = meshParams.origin;
-      rtcMatrix = coordSystemAndModelingMatrix;
-    } else {
-      origin2 = createVec3();
-      rtcMatrix = createRTCModelMat(coordSystemAndModelingMatrix, origin2);
-    }
-    const tile = this.scene.getTile(origin2);
-    if (!this.tiles[tile.id]) {
-      this.tiles[tile.id] = tile;
-      this.tilesList.push(tile);
-    }
     const mesh = new SceneMesh({
       id: meshParams.id,
+      model: this,
       geometry,
       textureSet,
-      matrix: coordSystemAndModelingMatrix,
-      rtcMatrix,
+      matrix,
       color: meshParams.color,
-      opacity: meshParams.opacity,
-      tile
+      opacity: meshParams.opacity
     });
     geometry.numMeshes++;
     this.meshes[meshParams.id] = mesh;
@@ -11715,9 +11587,6 @@ var SceneModel = class extends Component {
    * Sets {@link Component.destroyed} ````true````.
    */
   destroy() {
-    for (let i = 0, len = this.tilesList.length; i < len; i++) {
-      this.scene.putTile(this.tilesList[i]);
-    }
     this.onDestroyed.dispatch(this, null);
     super.destroy();
   }
@@ -12132,13 +12001,12 @@ __export(scene_exports, {
   Scene: () => Scene,
   SceneGeometry: () => SceneGeometry,
   SceneMesh: () => SceneMesh,
-  SceneModel: () => SceneModel,
+  SceneModel: () => SceneModel2,
   SceneModelParamsExporter: () => SceneModelParamsExporter,
   SceneModelParamsLoader: () => SceneModelParamsLoader,
   SceneObject: () => SceneObject,
   SceneTexture: () => SceneTexture,
   SceneTextureSet: () => SceneTextureSet,
-  SceneTile: () => SceneTile,
   buildMat4: () => buildMat4,
   compressGeometryParams: () => compressGeometryParams,
   createCoordinateSystemTransform: () => createCoordinateSystemTransform,
@@ -129076,7 +128944,7 @@ var webglrenderer_exports = {};
 __export(webglrenderer_exports, {
   RenderContext: () => RenderContext,
   RenderStats: () => RenderStats,
-  WebGLRenderer: () => WebGLRenderer,
+  WebGLRenderer: () => WebGLRenderer2,
   WebGLTileManager: () => WebGLTileManager
 });
 
@@ -131168,6 +131036,199 @@ var BasisWorker = function() {
   }
 };
 
+// ../sdk/src/webglrenderer/WebGLTileManager.ts
+var NUM_VIEWS = 4;
+var NUM_TILES = 2e3;
+var tempVec3a8 = createVec3();
+var WebGLTileManager = class {
+  #viewer;
+  #tileIndexesUsed;
+  #tiles;
+  #lastFreeTileIndex;
+  #numTiles;
+  #webglRenderer;
+  #onViewCreated;
+  #onViewDestroyed;
+  #onCameraViewMatrix;
+  /**
+   * A data texture for each View, containing an RTC view matrix for each Tile.
+   * Each data texture gets updated with new matrices for each tile each time its View's Camera moves.
+   * This is indexed with View.viewIndex.
+   */
+  dataTextures;
+  /**
+   * Creates a tile manager for a Viewer and WebGLRenderer.
+   * @param viewer
+   * @param webGLRenderer
+   */
+  constructor(viewer, webGLRenderer) {
+    this.#webglRenderer = webGLRenderer;
+    this.#viewer = viewer;
+    this.#tileIndexesUsed = [];
+    this.#lastFreeTileIndex = 0;
+    this.#tiles = {};
+    this.#numTiles = 0;
+    this.dataTextures = [];
+    this.#initDataTextures();
+    this.#onCameraViewMatrix = [];
+    for (let viewId in viewer.views) {
+      const view = viewer.views[viewId];
+      this.#attachView(view);
+    }
+    this.#onViewCreated = this.#viewer.onViewCreated.sub((viewer2, view) => {
+      this.#attachView(view);
+    });
+    this.#onViewDestroyed = this.#viewer.onViewDestroyed.sub((viewer2, view) => {
+      this.#detachView(view);
+    });
+  }
+  #attachView(view) {
+    this.#updateDataTextures(view);
+    this.#onCameraViewMatrix[view.viewIndex] = view.camera.onViewMatrix.sub(() => {
+      this.#updateDataTextures(view);
+    });
+  }
+  #detachView(view) {
+    const viewIndex = view.viewIndex;
+    const dataTexture = this.dataTextures[viewIndex];
+    if (dataTexture) {
+      delete this.dataTextures[viewIndex];
+      dataTexture.destroy();
+    }
+    view.camera.onViewMatrix.unsub(this.#onCameraViewMatrix[viewIndex]);
+    delete this.#onCameraViewMatrix[viewIndex];
+  }
+  #initDataTextures() {
+    const gl = this.#webglRenderer.gl;
+    const textureWidth = 512 * 4;
+    const textureHeight = Math.ceil(NUM_TILES / (textureWidth / 4));
+    for (let i = 0; i < NUM_VIEWS; i++) {
+      const textureData = new Float32Array(4 * textureWidth * textureHeight);
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, textureData, 0);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      this.dataTextures.push(new WebGLDataTexture({ gl, texture, textureWidth, textureHeight, textureData }));
+    }
+  }
+  #updateDataTextures(view) {
+    const viewMatrix = view.camera.viewMatrix;
+    const viewIndex = view.viewIndex;
+    const tileIds = Object.keys(this.#tiles);
+    const numTiles = tileIds.length;
+    if (numTiles > 0) {
+      const gl = this.#webglRenderer.gl;
+      const data = new Float32Array(16 * numTiles);
+      for (let i = 0; i < numTiles; i++) {
+        const tileId = tileIds[i];
+        const tile = this.#tiles[tileId];
+        createRTCViewMat(viewMatrix, tile.center, tile.rtcViewMatrix[viewIndex]);
+        data.set(tile.rtcViewMatrix[viewIndex], tile.index * 16);
+      }
+      gl.bindTexture(gl.TEXTURE_2D, this.dataTextures[viewIndex].texture);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl.RGBA, gl.FLOAT, data);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+  }
+  /**
+   * Get a Tile that contains the given 3D World-space position.
+   * @param worldPos
+   */
+  getTile(worldPos) {
+    const rtcCenter2 = worldToRTCCenter(worldPos, tempVec3a8);
+    const id = `${rtcCenter2[0]}-${rtcCenter2[1]}-${rtcCenter2[2]}`;
+    let tile = this.#tiles[id];
+    if (!tile) {
+      tile = {
+        id,
+        index: this.#getFreeTileIndex(),
+        useCount: 0,
+        center: createVec3(rtcCenter2),
+        rtcViewMatrix: [
+          createMat4(),
+          createMat4(),
+          createMat4(),
+          createMat4()
+        ]
+      };
+      this.#tiles[tile.id] = tile;
+      this.#numTiles++;
+    }
+    tile.useCount++;
+    return tile;
+  }
+  /**
+   * Releases a Tile back to the tile manager.
+   * The Tile is destroyed as soon as it is released as many times as it was got.
+   * @param tile
+   */
+  putTile(tile) {
+    if (--tile.useCount === 0) {
+      delete this.#tiles[tile.id];
+      this.#putFreeTileIndex(tile.index);
+      this.#numTiles--;
+    }
+  }
+  /**
+   * Move a Tile, if neccessary, so that it contains the given World-space 3D position.
+   * @param tile
+   * @param worldPos
+   */
+  moveTile(tile, worldPos) {
+    const newRTCCenter = worldToRTCCenter(worldPos, createVec3());
+    const newId = `${newRTCCenter[0]}-${newRTCCenter[1]}-${newRTCCenter[2]}`;
+    if (newId === tile.id) {
+      return tile;
+    }
+    this.putTile(tile);
+    let newTile = this.#tiles[newId];
+    if (!newTile) {
+      newTile = {
+        id: newId,
+        index: this.#getFreeTileIndex(),
+        useCount: 0,
+        center: createVec3(),
+        rtcViewMatrix: [
+          createMat4(),
+          createMat4(),
+          createMat4(),
+          createMat4()
+        ]
+      };
+      this.#tiles[newTile.id] = newTile;
+    }
+    newTile.useCount++;
+    return newTile;
+  }
+  #getFreeTileIndex() {
+    for (let tileIndex = this.#lastFreeTileIndex; ; tileIndex = (tileIndex + 1) % NUM_TILES) {
+      if (!this.#tileIndexesUsed[tileIndex]) {
+        this.#tileIndexesUsed[tileIndex] = true;
+        return tileIndex;
+      }
+    }
+  }
+  #putFreeTileIndex(tileIndex) {
+    if (this.#tileIndexesUsed[tileIndex]) {
+      delete this.#tileIndexesUsed[tileIndex];
+      this.#lastFreeTileIndex = tileIndex;
+      this.#numTiles--;
+    }
+  }
+  /**
+   * Destroys this tile manager.
+   */
+  destroy() {
+    this.#viewer.onViewCreated.unsub(this.#onViewCreated);
+    this.#viewer.onViewCreated.unsub(this.#onViewDestroyed);
+  }
+};
+
 // ../sdk/src/webglrenderer/RenderContext.ts
 var RenderContext = class {
   /**
@@ -131259,11 +131320,13 @@ var RenderContext = class {
   saoOcclusionTexture;
   pickClipPos;
   webglRenderer;
-  constructor(viewer, gl, webglRenderer) {
+  tileManager;
+  constructor(viewer, gl, webglRenderer, tileManager) {
     this.viewer = viewer;
     this.view = null;
     this.gl = gl;
     this.webglRenderer = webglRenderer;
+    this.tileManager = tileManager;
     this.reset();
   }
   /**
@@ -132367,7 +132430,6 @@ var VBORenderer = class {
       sceneModelMatrix: program.getLocation("sceneModelMatrix"),
       viewMatrix: program.getLocation("viewMatrix"),
       projMatrix: program.getLocation("projMatrix"),
-      worldMatrix: program.getLocation("worldMatrix"),
       positionsDecompressOffset: program.getLocation("positionsDecompressOffset"),
       positionsDecompressScale: program.getLocation("positionsDecompressScale"),
       snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
@@ -132412,6 +132474,7 @@ var VBORenderer = class {
       });
     }
     this.attributes = {
+      tile: program.getAttribute("tile"),
       position: program.getAttribute("position"),
       normal: program.getAttribute("normal"),
       color: program.getAttribute("color"),
@@ -132425,6 +132488,10 @@ var VBORenderer = class {
       modelMatrixCol1: program.getAttribute("modelMatrixCol1"),
       modelMatrixCol2: program.getAttribute("modelMatrixCol2")
     };
+    this.samplers = {
+      saoOcclusionTexture: "saoOcclusionTexture",
+      perTileRTCViewMatrixTexture: "perTileRTCViewMatrixTexture"
+    };
     this.hash = this.getHash();
     this.needRender = false;
   }
@@ -132434,20 +132501,18 @@ var VBORenderer = class {
   }
   vertexCommonDefs(src) {
     src.push("in float flags;");
+    src.push("in int tile;");
     src.push("uniform int renderPass;");
+    src.push("uniform highp sampler2D perTileRTCViewMatrixTexture;");
   }
   vertexBatchingTransformDefs(src) {
     src.push("in vec3 position;");
-    src.push("uniform mat4 viewMatrix;");
     src.push("uniform mat4 projMatrix;");
-    src.push("uniform mat4 worldMatrix;");
     src.push("uniform vec3 positionsDecompressOffset;");
     src.push("uniform vec3 positionsDecompressScale;");
   }
   vertexInstancingTransformDefs(src) {
-    src.push("uniform mat4 viewMatrix;");
     src.push("uniform mat4 projMatrix;");
-    src.push("uniform mat4 worldMatrix;");
     src.push("uniform vec3 positionsDecompressOffset;");
     src.push("uniform vec3 positionsDecompressScale;");
     src.push("in vec3 position;");
@@ -132505,11 +132570,13 @@ var VBORenderer = class {
     }
   }
   vertexDrawBatchingTransformLogic(src) {
+    this._vertexTransformCommonLogic(src);
     src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
     src.push("          vec4 viewPosition  = viewMatrix * worldPosition; ");
     src.push("          gl_Position = projMatrix * viewPosition;");
   }
   vertexDrawPointsBatchingTransformLogic(src) {
+    this._vertexTransformCommonLogic(src);
     src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
     src.push("          vec4 viewPosition  = viewMatrix * worldPosition; ");
     src.push("          vec4 clipPos = projMatrix * viewPosition;");
@@ -132517,19 +132584,26 @@ var VBORenderer = class {
     src.push("          clipPos.xy *= clipPos.w;");
   }
   vertexPickBatchingTransformLogic(src) {
+    this._vertexTransformCommonLogic(src);
     src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
     src.push("          vec4 viewPosition  = viewMatrix * worldPosition; ");
     src.push("          gl_Position = remapPickClipPos(projMatrix * viewPosition);");
   }
   vertexDrawInstancingTransformLogic(src) {
+    this._vertexTransformCommonLogic(src);
     src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
     src.push("          vec4 viewPosition  = viewMatrix * vec4(dot(worldPosition, modelMatrixCol0), dot(worldPosition, modelMatrixCol1), dot(worldPosition, modelMatrixCol2), 1.0); ");
     src.push("          gl_Position = projMatrix * viewPosition;");
   }
   vertexPickInstancingTransformLogic(src) {
+    this._vertexTransformCommonLogic(src);
     src.push("          vec4 worldPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ");
     src.push("          vec4 viewPosition  = viewMatrix * vec4(dot(worldPosition, modelMatrixCol0), dot(worldPosition, modelMatrixCol1), dot(worldPosition, modelMatrixCol2), 1.0); ");
     src.push("          gl_Position = remapPickClipPos(projMatrix * viewPosition);");
+  }
+  _vertexTransformCommonLogic(src) {
+    src.push("ivec2 tileSampleCoords = ivec2(tile % 512, tile / 512);");
+    src.push("mat4 viewMatrix = mat4 (texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 0, tileSampleCoords.y), 0), texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 1, tileSampleCoords.y), 0), texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 2, tileSampleCoords.y), 0), texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 3, tileSampleCoords.y), 0));");
   }
   vertexDrawLambertDefs(src) {
     src.push("          in  vec4 color;");
@@ -132604,9 +132678,15 @@ var VBORenderer = class {
     src.push("#ifdef GL_FRAGMENT_PRECISION_HIGH");
     src.push("precision highp float;");
     src.push("precision highp int;");
+    src.push("precision highp usampler2D;");
+    src.push("precision highp isampler2D;");
+    src.push("precision highp sampler2D;");
     src.push("#else");
     src.push("precision mediump float;");
     src.push("precision mediump int;");
+    src.push("precision mediump usampler2D;");
+    src.push("precision mediump isampler2D;");
+    src.push("precision mediump sampler2D;");
     src.push("#endif");
   }
   fragmentCommonDefs(src) {
@@ -132708,7 +132788,6 @@ var VBORenderer = class {
   }
   fragmentPickMeshDefs(src) {
     src.push("in vec4 vPickColor;");
-    src.push("out vec4 outColor;");
   }
   fragmentPickMeshLogic(src) {
     src.push("color = vPickColor;");
@@ -132779,6 +132858,15 @@ var VBORenderer = class {
     this.program.bind();
     renderContext.lastProgramId = this.program.id;
     gl.uniform1i(uniforms.renderPass, renderPass);
+    const perTileRTCViewMatrixTexture = renderContext.tileManager.dataTextures[view.viewIndex];
+    if (perTileRTCViewMatrixTexture) {
+      this.program.bindTexture(
+        this.samplers.perTileRTCViewMatrixTexture,
+        perTileRTCViewMatrixTexture,
+        renderContext.textureUnit
+      );
+      renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+    }
     if (uniforms.projMatrix) {
       gl.uniformMatrix4fv(
         uniforms.projMatrix,
@@ -132892,6 +132980,9 @@ var VBOBatchingRenderer = class extends VBORenderer {
     const view = this.renderContext.view;
     const viewIndex = view.viewIndex;
     const gl = this.renderContext.gl;
+    if (attributes.tile) {
+      attributes.tile.bindArrayBuffer(renderState.tilesBuf);
+    }
     attributes.position.bindArrayBuffer(renderState.positionsBuf);
     if (attributes.flags) {
       attributes.flags.bindArrayBuffer(renderState.flagsBufs[viewIndex]);
@@ -132910,15 +133001,6 @@ var VBOBatchingRenderer = class extends VBORenderer {
     gl.uniform1i(this.uniforms.renderPass, renderPass);
     gl.uniform3fv(this.uniforms.positionsDecompressOffset, renderState.positionsDecompressOffset);
     gl.uniform3fv(this.uniforms.positionsDecompressScale, renderState.positionsDecompressScale);
-    gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, vboBatchingLayer.rendererModel.worldMatrix);
-    gl.uniformMatrix4fv(
-      this.uniforms.viewMatrix,
-      false,
-      createRTCViewMat(
-        renderPass === RENDER_PASSES.PICK ? this.renderContext.pickViewMatrix : this.renderContext.view.camera.viewMatrix,
-        renderState.origin
-      )
-    );
     if (renderState.indicesBuf) {
       renderState.indicesBuf.bind();
     }
@@ -133122,6 +133204,7 @@ var SCENE_OBJECT_FLAGS = {
 var VBOBatchingBuffer = class {
   maxVerts;
   maxIndices;
+  tiles;
   positions;
   colors;
   uv;
@@ -133136,6 +133219,7 @@ var VBOBatchingBuffer = class {
     }
     this.maxVerts = maxGeometryBatchSize;
     this.maxIndices = maxGeometryBatchSize;
+    this.tiles = [];
     this.positions = [];
     this.colors = [];
     this.uv = [];
@@ -133149,7 +133233,7 @@ var VBOBatchingBuffer = class {
 
 // ../sdk/src/webglrenderer/vbo/batching/VBOBatchingLayer.ts
 var numLayers = 0;
-var tempVec3a8 = createVec3();
+var tempVec3a9 = createVec3();
 var tempVec4a4 = createVec4();
 var tempVec4b4 = createVec4();
 var VBOBatchingLayer = class {
@@ -133198,6 +133282,7 @@ var VBOBatchingLayer = class {
     this.aabbDirty = true;
     this.renderState = {
       numVertices: 0,
+      tilesBuf: null,
       positionsBuf: null,
       indicesBuf: null,
       offsetsBuf: null,
@@ -133205,7 +133290,6 @@ var VBOBatchingLayer = class {
       flagsBufs: [],
       positionsDecompressScale: createVec3(),
       positionsDecompressOffset: createVec3(),
-      origin: createVec3(vBOBatchingLayerParams.origin),
       pbrSupported: false
     };
   }
@@ -133234,6 +133318,8 @@ var VBOBatchingLayer = class {
     if (this.#built) {
       throw new SDKError("Already built");
     }
+    const tile = 0;
+    const rtcMatrix = layerMeshParams.rtcMatrix;
     const geometry = sceneMesh.geometry;
     const color2 = sceneMesh.color;
     const pickColor = layerMeshParams.pickColor;
@@ -133252,6 +133338,11 @@ var VBOBatchingLayer = class {
     if (!positionsCompressed) {
       throw "positionsCompressed expected";
     }
+    if (tile !== null && tile !== void 0) {
+      for (let i = 0, len = numLayerMeshVerts; i < len; i++) {
+        buffer.tiles.push(tile);
+      }
+    }
     if (indices) {
       for (let i = 0, len = indices.length; i < len; i++) {
         buffer.indices.push(numLayerVerts + indices[i]);
@@ -133263,13 +133354,13 @@ var VBOBatchingLayer = class {
       }
     }
     for (let k = 0, lenk = positionsCompressed.length; k < lenk; k += 3) {
-      tempVec3a8[0] = positionsCompressed[k];
-      tempVec3a8[1] = positionsCompressed[k + 1];
-      tempVec3a8[2] = positionsCompressed[k + 2];
-      decompressPoint3WithAABB3(tempVec3a8, geometryAABB, tempVec4a4);
-      if (sceneMesh.rtcMatrix) {
+      tempVec3a9[0] = positionsCompressed[k];
+      tempVec3a9[1] = positionsCompressed[k + 1];
+      tempVec3a9[2] = positionsCompressed[k + 2];
+      decompressPoint3WithAABB3(tempVec3a9, geometryAABB, tempVec4a4);
+      if (rtcMatrix) {
         tempVec4a4[3] = 1;
-        transformPoint4(sceneMesh.rtcMatrix, tempVec4a4, tempVec4b4);
+        transformPoint4(rtcMatrix, tempVec4a4, tempVec4b4);
         buffer.positions.push(tempVec4b4[0]);
         buffer.positions.push(tempVec4b4[1]);
         buffer.positions.push(tempVec4b4[2]);
@@ -133327,6 +133418,10 @@ var VBOBatchingLayer = class {
     const gl = this.renderContext.gl;
     const buffer = this.#buffer;
     const numViews = this.meshCounts.length;
+    const tiles = this.#buffer.tiles;
+    if (tiles && tiles.length > 0) {
+      renderState.tilesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, new Int32Array(tiles), tiles.length, 1, gl.DYNAMIC_DRAW);
+    }
     if (buffer.positions.length > 0) {
       const positions = new Float32Array(buffer.positions);
       positions3ToAABB3(positions, this.#aabb, null);
@@ -133600,9 +133695,14 @@ var VBOBatchingLayer = class {
     }
     this.renderState.flagsBufs[viewIndex].setData(tempArray, firstFlag);
   }
-  setLayerMeshMatrix(layerMeshIndex, matrix) {
+  setLayerMeshMatrix(layerMeshIndex, rtcMatrix) {
     if (!this.#built) {
-      throw new SDKError("Not built");
+      throw "Not finalized";
+    }
+  }
+  setLayerMeshTile(layerMeshIndex, tileIndex) {
+    if (!this.#built) {
+      throw "Not finalized";
     }
   }
   setLayerMeshOffset(viewIndex, layerMeshIndex, offset) {
@@ -133776,6 +133876,10 @@ var VBOBatchingLayer = class {
   }
   destroy() {
     const renderState = this.renderState;
+    if (renderState.tilesBuf) {
+      renderState.tilesBuf.destroy();
+      renderState.tilesBuf = null;
+    }
     if (renderState.positionsBuf) {
       renderState.positionsBuf.destroy();
       renderState.positionsBuf = null;
@@ -133840,6 +133944,10 @@ var VBOInstancingRenderer = class extends VBORenderer {
     const viewIndex = view.viewIndex;
     const gl = this.renderContext.gl;
     gl.uniform1i(this.uniforms.renderPass, renderPass);
+    if (attributes.tile) {
+      attributes.tile.bindArrayBuffer(renderState.tilesBuf);
+      gl.vertexAttribDivisor(attributes.tile.location, 1);
+    }
     attributes.position.bindArrayBuffer(renderState.positionsBuf);
     if (attributes.uv) {
       attributes.uv.bindArrayBuffer(renderState.uvBuf);
@@ -133872,15 +133980,6 @@ var VBOInstancingRenderer = class extends VBORenderer {
     }
     gl.uniform3fv(this.uniforms.positionsDecompressOffset, renderState.positionsDecompressOffset);
     gl.uniform3fv(this.uniforms.positionsDecompressScale, renderState.positionsDecompressScale);
-    gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, vboInstancingLayer.rendererModel.worldMatrix);
-    gl.uniformMatrix4fv(
-      this.uniforms.viewMatrix,
-      false,
-      createRTCViewMat(
-        renderPass === RENDER_PASSES.PICK ? this.renderContext.pickViewMatrix : this.renderContext.view.camera.viewMatrix,
-        renderState.origin
-      )
-    );
     if (renderState.indicesBuf) {
       renderState.indicesBuf.bind();
     }
@@ -134028,6 +134127,7 @@ var rendererFactory2 = new RendererSetFactory((webglRenderer) => {
 var VBOInstancingBuffer = class {
   maxVerts;
   maxIndices;
+  tiles;
   positions;
   colors;
   uv;
@@ -134044,6 +134144,7 @@ var VBOInstancingBuffer = class {
   modelMatrixCol2;
   modelMatrix;
   constructor() {
+    this.tiles = [];
     this.positions = [];
     this.colors = [];
     this.uv = [];
@@ -134063,7 +134164,7 @@ var tempUint8Vec4 = new Uint8Array(4);
 var tempFloat32 = new Float32Array(1);
 var tempVec4a5 = createVec4([0, 0, 0, 1]);
 var tempVec3fa = new Float32Array(3);
-var tempVec3a9 = createVec3();
+var tempVec3a10 = createVec3();
 var tempVec3b9 = createVec3();
 var tempVec3c5 = createVec3();
 var tempVec3d3 = createVec3();
@@ -134110,12 +134211,12 @@ var VBOInstancingLayer = class {
       numEdgeIndices: 0,
       numInstances: 0,
       obb: createOBB3(),
-      origin: createVec3(layerParams.origin),
       sceneGeometry: layerParams.sceneGeometry,
       textureSet: layerParams.textureSet,
       pbrSupported: false,
       positionsDecompressScale,
       positionsDecompressOffset,
+      tilesBuf: null,
       colorsBuf: [],
       flagsBufs: [],
       modelMatrixBuf: null,
@@ -134153,13 +134254,15 @@ var VBOInstancingLayer = class {
     return true;
   }
   createLayerMesh(layerMeshParams, sceneMesh) {
+    const tile = layerMeshParams.tile;
     const color2 = sceneMesh.color;
     const opacity = sceneMesh.opacity !== null && sceneMesh.opacity !== void 0 ? sceneMesh.opacity : 255;
-    const rtcMatrix = sceneMesh.rtcMatrix;
+    const rtcMatrix = layerMeshParams.rtcMatrix;
     const pickColor = layerMeshParams.pickColor;
     if (this.#built) {
-      throw "Already finalized";
+      throw "Already built";
     }
+    this.#buffer.tiles.push(tile.index);
     const r = color2[0] * 255;
     const g = color2[1] * 255;
     const b4 = color2[2] * 255;
@@ -134222,6 +134325,10 @@ var VBOInstancingLayer = class {
     const edgeIndices = sceneGeometry.edgeIndices;
     const uvsCompressed = sceneGeometry.uvsCompressed;
     const colorsCompressed = sceneGeometry.colorsCompressed;
+    const tiles = this.#buffer.tiles;
+    if (tiles && tiles.length > 0) {
+      renderState.tilesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, new Int32Array(tiles), tiles.length, 1, gl.DYNAMIC_DRAW);
+    }
     if (positionsCompressed && positionsCompressed.length > 0) {
       const normalized = false;
       renderState.positionsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, new Uint16Array(positionsCompressed), positionsCompressed.length, 3, gl.STATIC_DRAW, normalized);
@@ -134305,7 +134412,7 @@ var VBOInstancingLayer = class {
   }
   setLayerMeshVisible(viewIndex, layerMeshIndex, flags, transparent) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.VISIBLE) {
       this.meshCounts[viewIndex].numVisible++;
@@ -134318,7 +134425,7 @@ var VBOInstancingLayer = class {
   }
   setLayerMeshHighlighted(viewIndex, layerMeshIndex, flags, transparent) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.HIGHLIGHTED) {
       this.meshCounts[viewIndex].numHighlighted++;
@@ -134331,7 +134438,7 @@ var VBOInstancingLayer = class {
   }
   setLayerMeshXRayed(viewIndex, layerMeshIndex, flags, transparent) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.XRAYED) {
       this.meshCounts[viewIndex].numXRayed++;
@@ -134344,7 +134451,7 @@ var VBOInstancingLayer = class {
   }
   setLayerMeshSelected(viewIndex, layerMeshIndex, flags, transparent) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.SELECTED) {
       this.meshCounts[viewIndex].numSelected++;
@@ -134357,7 +134464,7 @@ var VBOInstancingLayer = class {
   }
   setLayerMeshClippable(viewIndex, layerMeshIndex, flags) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.CLIPPABLE) {
       this.meshCounts[viewIndex].numClippable++;
@@ -134370,12 +134477,12 @@ var VBOInstancingLayer = class {
   }
   setCollidable(viewIndex, layerMeshIndex, flags) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
   }
   setLayerMeshPickable(viewIndex, layerMeshIndex, flags, transparent) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.PICKABLE) {
       this.meshCounts[viewIndex].numPickable++;
@@ -134388,7 +134495,7 @@ var VBOInstancingLayer = class {
   }
   setLayerMeshCulled(viewIndex, layerMeshIndex, flags, transparent) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     if (flags & SCENE_OBJECT_FLAGS.CULLED) {
       this.meshCounts[viewIndex].numCulled++;
@@ -134401,7 +134508,7 @@ var VBOInstancingLayer = class {
   }
   setLayerMeshColor(viewIndex, layerMeshIndex, color2) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     tempUint8Vec4[0] = color2[0];
     tempUint8Vec4[1] = color2[1];
@@ -134423,7 +134530,7 @@ var VBOInstancingLayer = class {
   }
   setLayerMeshFlags(viewIndex, layerMeshIndex, flags, transparent = false) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     const view = this.renderContext.viewer.viewList[viewIndex];
     const visible = !!(flags & SCENE_OBJECT_FLAGS.VISIBLE);
@@ -134466,26 +134573,32 @@ var VBOInstancingLayer = class {
       this.renderState.flagsBufs[viewIndex].setData(tempFloat32, layerMeshIndex);
     }
   }
-  setMatrix(viewIndex, layerMeshIndex, matrix) {
+  setLayerMeshMatrix(layerMeshIndex, rtcMatrix) {
     if (!this.#built) {
-      throw "Not finalized";
+      throw "Not built";
     }
     const offset = layerMeshIndex * 4;
-    tempFloat32Vec4[0] = matrix[0];
-    tempFloat32Vec4[1] = matrix[4];
-    tempFloat32Vec4[2] = matrix[8];
-    tempFloat32Vec4[3] = matrix[12];
+    tempFloat32Vec4[0] = rtcMatrix[0];
+    tempFloat32Vec4[1] = rtcMatrix[4];
+    tempFloat32Vec4[2] = rtcMatrix[8];
+    tempFloat32Vec4[3] = rtcMatrix[12];
     this.renderState.modelMatrixCol0Buf.setData(tempFloat32Vec4, offset);
-    tempFloat32Vec4[0] = matrix[1];
-    tempFloat32Vec4[1] = matrix[5];
-    tempFloat32Vec4[2] = matrix[9];
-    tempFloat32Vec4[3] = matrix[13];
+    tempFloat32Vec4[0] = rtcMatrix[1];
+    tempFloat32Vec4[1] = rtcMatrix[5];
+    tempFloat32Vec4[2] = rtcMatrix[9];
+    tempFloat32Vec4[3] = rtcMatrix[13];
     this.renderState.modelMatrixCol1Buf.setData(tempFloat32Vec4, offset);
-    tempFloat32Vec4[0] = matrix[2];
-    tempFloat32Vec4[1] = matrix[6];
-    tempFloat32Vec4[2] = matrix[10];
-    tempFloat32Vec4[3] = matrix[14];
+    tempFloat32Vec4[0] = rtcMatrix[2];
+    tempFloat32Vec4[1] = rtcMatrix[6];
+    tempFloat32Vec4[2] = rtcMatrix[10];
+    tempFloat32Vec4[3] = rtcMatrix[14];
     this.renderState.modelMatrixCol2Buf.setData(tempFloat32Vec4, offset);
+  }
+  setLayerMeshTile(layerMeshIndex, tileIndex) {
+    if (!this.#built) {
+      throw "Not built";
+    }
+    this.renderState.tilesBuf.setData(new Int32Array([tileIndex]), layerMeshIndex);
   }
   drawColorOpaque() {
     const viewIndex = this.renderContext.view.viewIndex;
@@ -134704,6 +134817,10 @@ var VBOInstancingLayer = class {
       renderState.edgeIndicesBuf.destroy();
       renderState.indicesBuf = null;
     }
+    if (renderState.tilesBuf) {
+      renderState.tilesBuf.destroy();
+      renderState.tilesBuf = null;
+    }
     this.renderState = null;
   }
   commitRendererState(viewIndex) {
@@ -134712,11 +134829,6 @@ var VBOInstancingLayer = class {
     return false;
   }
   setLayerMeshCollidable(layerMeshIndex, flags) {
-    if (!this.#built) {
-      throw new SDKError("Not built");
-    }
-  }
-  setLayerMeshMatrix(layerMeshIndex, matrix) {
     if (!this.#built) {
       throw new SDKError("Not built");
     }
@@ -134915,11 +135027,9 @@ var VBOTrianglesBatchingDrawColorRenderer = class extends VBOBatchingRenderer {
     this.vertexSlicingDefs(src);
     this.vertexDrawLambertDefs(src);
     this.vertexDrawMainOpen(src);
-    {
-      this.vertexDrawBatchingTransformLogic(src);
-      this.vertexDrawLambertLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexDrawBatchingTransformLogic(src);
+    this.vertexDrawLambertLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
   buildFragmentShader(src) {
@@ -134929,11 +135039,9 @@ var VBOTrianglesBatchingDrawColorRenderer = class extends VBOBatchingRenderer {
     this.fragmentSlicingDefs(src);
     this.fragmentDrawLambertDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentDrawLambertLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentDrawLambertLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
   drawVBOBatchingLayerPrimitives(vboBatchingLayer, renderPass) {
@@ -134956,11 +135064,9 @@ var VBOTrianglesBatchingDrawColorSAORenderer = class extends VBOBatchingRenderer
     this.vertexSlicingDefs(src);
     this.vertexDrawLambertDefs(src);
     this.vertexDrawMainOpen(src);
-    {
-      this.vertexDrawBatchingTransformLogic(src);
-      this.vertexDrawLambertLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexDrawBatchingTransformLogic(src);
+    this.vertexDrawLambertLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
   buildFragmentShader(src) {
@@ -134971,12 +135077,10 @@ var VBOTrianglesBatchingDrawColorSAORenderer = class extends VBOBatchingRenderer
     this.fragmentDrawLambertDefs(src);
     this.fragmentDrawSAODefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentDrawLambertLogic(src);
-      this.fragmentDrawSAOLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentDrawLambertLogic(src);
+    this.fragmentDrawSAOLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
   drawVBOBatchingLayerPrimitives(vboBatchingLayer, renderPass) {
@@ -134997,10 +135101,8 @@ var VBOTrianglesBatchingDrawDepthRenderer = class extends VBOBatchingRenderer {
     this.vertexBatchingTransformDefs(src);
     this.vertexSlicingDefs(src);
     this.vertexDrawMainOpen(src);
-    {
-      this.vertexDrawBatchingTransformLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexDrawBatchingTransformLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
   buildFragmentShader(src) {
@@ -135010,11 +135112,9 @@ var VBOTrianglesBatchingDrawDepthRenderer = class extends VBOBatchingRenderer {
     this.fragmentDrawDepthDefs(src);
     this.fragmentSlicingDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentDrawDepthLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentDrawDepthLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
   drawVBOBatchingLayerPrimitives(vboBatchingLayer, renderPass) {
@@ -135039,11 +135139,9 @@ var VBOTrianglesBatchingEdgesDrawRenderer = class extends VBOBatchingRenderer {
     this.vertexSlicingDefs(src);
     this.vertexDrawFlatColorDefs(src);
     this.vertexDrawMainOpen(src);
-    {
-      this.vertexDrawBatchingTransformLogic(src);
-      this.vertexDrawEdgesColorLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexDrawBatchingTransformLogic(src);
+    this.vertexDrawEdgesColorLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
   buildFragmentShader(src) {
@@ -135053,11 +135151,9 @@ var VBOTrianglesBatchingEdgesDrawRenderer = class extends VBOBatchingRenderer {
     this.fragmentSlicingDefs(src);
     this.fragmentDrawFlatColorDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentDrawFlatColorLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentDrawFlatColorLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
   drawVBOBatchingLayerPrimitives(vboBatchingLayer, renderPass) {
@@ -135082,11 +135178,9 @@ var VBOTrianglesBatchingEdgesSilhouetteRenderer = class extends VBOBatchingRende
     this.vertexSlicingDefs(src);
     this.vertexSilhouetteDefs(src);
     this.vertexSilhouetteMainOpen(src);
-    {
-      this.vertexDrawBatchingTransformLogic(src);
-      this.vertexSilhouetteLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexDrawBatchingTransformLogic(src);
+    this.vertexSilhouetteLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
   buildFragmentShader(src) {
@@ -135096,11 +135190,9 @@ var VBOTrianglesBatchingEdgesSilhouetteRenderer = class extends VBOBatchingRende
     this.fragmentSlicingDefs(src);
     this.fragmentSilhouetteDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentSilhouetteLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentSilhouetteLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
   drawVBOBatchingLayerPrimitives(vboBatchingLayer, renderPass) {
@@ -135122,11 +135214,9 @@ var VBOTrianglesBatchingPickMeshRenderer = class extends VBOBatchingRenderer {
     this.vertexSlicingDefs(src);
     this.vertexPickMeshDefs(src);
     this.vertexPickMainOpen(src);
-    {
-      this.vertexPickBatchingTransformLogic(src);
-      this.vertexPickMeshLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexPickBatchingTransformLogic(src);
+    this.vertexPickMeshLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
   buildFragmentShader(src) {
@@ -135136,11 +135226,9 @@ var VBOTrianglesBatchingPickMeshRenderer = class extends VBOBatchingRenderer {
     this.fragmentSlicingDefs(src);
     this.fragmentPickMeshDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentPickMeshLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentPickMeshLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
   drawVBOBatchingLayerPrimitives(vboBatchingLayer, renderPass) {
@@ -135162,11 +135250,9 @@ var VBOTrianglesBatchingSilhouetteRenderer = class extends VBOBatchingRenderer {
     this.vertexSlicingDefs(src);
     this.vertexSilhouetteDefs(src);
     this.vertexSilhouetteMainOpen(src);
-    {
-      this.vertexDrawBatchingTransformLogic(src);
-      this.vertexSilhouetteLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexDrawBatchingTransformLogic(src);
+    this.vertexSilhouetteLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
   buildFragmentShader(src) {
@@ -135176,11 +135262,9 @@ var VBOTrianglesBatchingSilhouetteRenderer = class extends VBOBatchingRenderer {
     this.fragmentSlicingDefs(src);
     this.fragmentSilhouetteDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentSilhouetteLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentSilhouetteLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
   drawVBOBatchingLayerPrimitives(vboBatchingLayer, renderPass) {
@@ -135318,10 +135402,8 @@ var VBOTrianglesInstancingDrawDepthRenderer = class extends VBOInstancingRendere
     this.vertexInstancingTransformDefs(src);
     this.vertexSlicingDefs(src);
     this.vertexDrawMainOpen(src);
-    {
-      this.vertexDrawInstancingTransformLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexDrawInstancingTransformLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
   buildFragmentShader(src) {
@@ -135331,11 +135413,9 @@ var VBOTrianglesInstancingDrawDepthRenderer = class extends VBOInstancingRendere
     this.fragmentDrawDepthDefs(src);
     this.fragmentSlicingDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentDrawDepthLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentDrawDepthLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
   drawVBOInstancingLayerPrimitives(vboInstancingLayer, renderPass) {
@@ -135443,11 +135523,9 @@ var VBOTrianglesInstancingPickMeshRenderer = class extends VBOInstancingRenderer
     this.vertexSlicingDefs(src);
     this.vertexPickMeshDefs(src);
     this.vertexPickMainOpen(src);
-    {
-      this.vertexPickInstancingTransformLogic(src);
-      this.vertexPickMeshLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexPickInstancingTransformLogic(src);
+    this.vertexPickMeshLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
   buildFragmentShader(src) {
@@ -135457,11 +135535,9 @@ var VBOTrianglesInstancingPickMeshRenderer = class extends VBOInstancingRenderer
     this.fragmentSlicingDefs(src);
     this.fragmentPickMeshDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentPickMeshLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentPickMeshLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
   drawVBOInstancingLayerPrimitives(vboInstancingLayer, renderPass) {
@@ -135553,30 +135629,38 @@ var WebGLRendererGeometry = class {
 };
 
 // ../sdk/src/webglrenderer/WebGLRendererMesh.ts
+var identityMat43 = createMat4();
+var identityVec4 = createVec4([0, 0, 0, 1]);
+var tempVec4a6 = createVec4();
+var tempVec4b5 = createVec4();
+var tempVec4c = createVec4();
 var tempMat4a5 = createMat4();
 var tempMat4b2 = createMat4();
 var WebGLRendererMesh = class {
   id;
-  color;
+  renderContext;
+  rendererModel;
+  rendererObject;
   rendererGeometry;
   rendererTextureSet;
-  matrix;
-  opacity;
-  pickId;
-  tileManager;
-  tile;
-  rendererObject;
-  aabb;
   layer;
   meshIndex;
+  pickId;
+  tile;
+  color;
+  opacity;
   colorize;
   colorizing;
   transparent;
   attribs;
+  aabb;
   constructor(params2) {
+    this.renderContext = params2.renderContext;
     this.rendererObject = null;
-    this.tileManager = params2.tileManager;
+    this.rendererTextureSet = params2.rendererTextureSet;
+    this.rendererGeometry = params2.rendererGeometry;
     this.id = params2.id;
+    this.tile = params2.tile;
     this.pickId = 0;
     this.attribs = [];
     this.color = [params2.color[0], params2.color[1], params2.color[2], params2.opacity];
@@ -135589,11 +135673,8 @@ var WebGLRendererMesh = class {
       });
     }
     this.layer = params2.layer;
-    this.matrix = params2.matrix;
     this.opacity = params2.opacity;
     this.aabb = createAABB3();
-    this.rendererTextureSet = params2.rendererTextureSet;
-    this.rendererGeometry = params2.rendererGeometry;
     this.meshIndex = params2.meshIndex;
   }
   delegatePickedEntity() {
@@ -135605,15 +135686,18 @@ var WebGLRendererMesh = class {
   setVisible(viewIndex, flags) {
     this.layer.setLayerMeshVisible(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
   }
-  setMatrix(matrix) {
-    const center2 = transformPoint3(matrix, [0, 0, 0]);
+  setMatrix(globalMatrix) {
+    globalMatrix = globalMatrix || identityMat43;
+    const center2 = transformPoint4(globalMatrix, identityVec4, tempVec4a6);
     const oldTile = this.tile;
-    this.tile = oldTile ? this.tileManager.updateTileCenter(oldTile, center2) : this.tileManager.getTile(center2);
+    this.tile = oldTile ? this.renderContext.tileManager.moveTile(oldTile, center2) : this.renderContext.tileManager.getTile(center2);
     const tileChanged = !oldTile || oldTile.id !== this.tile.id;
     const tileCenter = this.tile.center;
     const needRTC = tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0;
-    this.layer.setLayerMeshMatrix(this.meshIndex, needRTC ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a5), tempMat4b2) : matrix);
+    const rtcMatrix = needRTC ? mulMat4(globalMatrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a5), tempMat4b2) : globalMatrix;
+    this.layer.setLayerMeshMatrix(this.meshIndex, rtcMatrix);
     if (tileChanged) {
+      this.layer.setLayerMeshTile(this.meshIndex, this.tile.index);
     }
   }
   setColor(color2) {
@@ -135700,9 +135784,6 @@ var WebGLRendererMesh = class {
     this.layer.commitRendererState(viewIndex);
   }
   destroy() {
-    if (this.tile && this.tileManager) {
-      this.tileManager.putTile(this.tile);
-    }
   }
 };
 
@@ -135913,7 +135994,13 @@ var defaultNormalsTextureId = "defaultNormalsTexture";
 var defaultEmissiveTextureId = "defaultEmissiveTexture";
 var defaultOcclusionTextureId = "defaultOcclusionTexture";
 var defaultTextureSetId = "defaultTextureSet";
-var WebGLRendererModel = class extends Component {
+var identityVec42 = createVec4([0, 0, 0, 1]);
+var tempVec4a7 = createVec4();
+var tempVec4b6 = createVec4();
+var tempVec4c2 = createVec4();
+var tempMat4a6 = createMat4();
+var tempMat4b3 = createMat4();
+var WebGLRendererModel2 = class extends Component {
   sceneModel;
   viewer;
   qualityRender;
@@ -136153,16 +136240,18 @@ var WebGLRendererModel = class extends Component {
     if (!layer) {
       return;
     }
-    const matrix = mesh.rtcMatrix;
+    const matrix = mesh.matrix;
     const color2 = mesh.color ? new Uint8Array([Math.floor(mesh.color[0] * 255), Math.floor(mesh.color[1] * 255), Math.floor(mesh.color[2] * 255)]) : [255, 255, 255];
     const opacity = mesh.opacity !== void 0 && mesh.opacity !== null ? Math.floor(mesh.opacity * 255) : 255;
+    const center2 = transformPoint4(matrix, identityVec42, tempVec4a7);
+    const tile = this.#renderContext.tileManager.getTile(center2);
     const rendererMesh = new WebGLRendererMesh({
-      tileManager: this.webglRenderer.tileManager,
+      renderContext: this.#renderContext,
       id: mesh.id,
+      tile,
       layer,
       color: color2,
       opacity,
-      matrix,
       rendererTextureSet,
       rendererGeometry,
       meshIndex: 0
@@ -136173,9 +136262,14 @@ var WebGLRendererModel = class extends Component {
     const g = rendererMesh.pickId >> 8 & 255;
     const r = rendererMesh.pickId & 255;
     const pickColor = new Uint8Array([r, g, b4, a2]);
-    const meshIndex = layer.createLayerMesh({ pickColor }, mesh);
-    rendererMesh.layer = layer;
-    rendererMesh.meshIndex = meshIndex;
+    const tileCenter = tile.center;
+    const needRTC = tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0;
+    const rtcMatrix = needRTC ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a6), tempMat4b3) : matrix;
+    rendererMesh.meshIndex = layer.createLayerMesh({
+      pickColor,
+      tile,
+      rtcMatrix
+    }, mesh);
     this.rendererMeshes[mesh.id] = rendererMesh;
     this.#numMeshes++;
   }
@@ -136183,11 +136277,9 @@ var WebGLRendererModel = class extends Component {
     const sceneGeometry = mesh.geometry;
     const primitive = sceneGeometry.primitive;
     const instancing = sceneGeometry.numMeshes > 1;
-    const origin2 = mesh.tile.origin;
     const layerId = `VBO-${instancing ? "Instancing" : "Batching"}
         .${textureSetId}
         .${primitive}
-        .${Math.round(origin2[0])}.${Math.round(origin2[1])}.${Math.round(origin2[2])}
         .${instancing ? sceneGeometry.id : ""}`;
     let layer = this.#currentLayers[layerId];
     if (layer) {
@@ -136215,8 +136307,7 @@ var WebGLRendererModel = class extends Component {
             rendererModel: this,
             sceneGeometry,
             textureSet,
-            layerIndex: 0,
-            origin: origin2
+            layerIndex: 0
           });
           this.log(`Creating new VBOTrianglesInstancingLayer`);
           break;
@@ -136226,8 +136317,7 @@ var WebGLRendererModel = class extends Component {
             rendererModel: this,
             sceneGeometry,
             textureSet,
-            layerIndex: 0,
-            origin: origin2
+            layerIndex: 0
           });
           this.log(`Creating new VBOLinesInstancingLayer`);
           break;
@@ -136248,8 +136338,7 @@ var WebGLRendererModel = class extends Component {
             rendererModel: this,
             primitive,
             textureSet,
-            layerIndex: 0,
-            origin: origin2
+            layerIndex: 0
           });
           this.log(`Creating new VBOTrianglesBatchingLayer`);
           break;
@@ -136259,8 +136348,7 @@ var WebGLRendererModel = class extends Component {
             renderContext: this.#renderContext,
             rendererModel: this,
             textureSet,
-            layerIndex: 0,
-            origin: origin2
+            layerIndex: 0
           });
           this.log(`Creating new VBOLinesBatchingLayer`);
           break;
@@ -136270,8 +136358,7 @@ var WebGLRendererModel = class extends Component {
             rendererModel: this,
             primitive,
             textureSet,
-            layerIndex: 0,
-            origin: origin2
+            layerIndex: 0
           });
           this.log(`Creating new VBOPointsBatchingLayer`);
           break;
@@ -136646,10 +136733,17 @@ var WebGLRendererView = class {
 };
 
 // ../sdk/src/webglrenderer/WebGLRenderer.ts
-var tempVec3a10 = createVec3();
+var tempVec3a11 = createVec3();
 var tempVec3b10 = createVec3();
 var tempVec3c6 = createVec3();
-var tempMat4b3 = createMat4();
+var tempVec4a8 = createVec4();
+var tempVec4b7 = createVec4();
+var tempVec4c3 = createVec4();
+var tempVec4d = createVec4();
+var tempVec4e = createVec4();
+var tempMat4a7 = createMat4();
+var tempMat4b4 = createMat4();
+var tempMat4c = createMat4();
 var pickTemps = {
   pickCanvasPos: createVec2(),
   pickWorldRayDir: createVec3(),
@@ -136657,7 +136751,11 @@ var pickTemps = {
   pickViewMatrix: createMat4(),
   pickProjMatrix: createMat4()
 };
-var WebGLRenderer = class {
+var WebGLRenderer2 = class {
+  /**
+   * @internal
+   */
+  gl;
   /**
    * Interfaces through which each {@link viewer!ViewObject | ViewObject} shows/hides/highlights/selects/xrays/colorizes
    * its {@link scene!SceneObject | SceneObject} within the WebGLRenderer that's
@@ -136670,10 +136768,6 @@ var WebGLRenderer = class {
    * @internal
    */
   renderStats;
-  /**
-   * @internal
-   */
-  tileManager;
   #saoOcclusionRenderer;
   #saoDepthLimitedBlurRenderer;
   #pickBufferManager;
@@ -136685,6 +136779,10 @@ var WebGLRenderer = class {
    * @internal
    */
   renderContext;
+  /**
+   * @internal
+   */
+  tileManager;
   #shadersDirty;
   #rendererModels;
   #layerList;
@@ -136713,7 +136811,6 @@ var WebGLRenderer = class {
    */
   onDestroyed;
   #webglCanvasElement;
-  #gl;
   #pickResult;
   /**
    * Creates a WebGLRenderer.
@@ -136727,7 +136824,6 @@ var WebGLRenderer = class {
   constructor(params2) {
     this.renderStats = new RenderStats();
     this.rendererObjects = {};
-    this.tileManager = null;
     this.renderContext = null;
     this.#textureTranscoder = params2.textureTranscoder || new KTX2TextureTranscoder({});
     this.#alphaDepthMask = false;
@@ -136767,12 +136863,12 @@ var WebGLRenderer = class {
       premultipliedAlpha: false,
       antialias: true
     };
-    this.#gl = webglCanvasElement.getContext("webgl2", contextAttr);
-    if (!this.#gl) {
+    this.gl = webglCanvasElement.getContext("webgl2", contextAttr);
+    if (!this.gl) {
       throw new SDKError(`Failed to get a WebGL2 context`);
     }
-    this.#gl.hint(this.#gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this.#gl.NICEST);
-    this.#pickBufferManager = new WebGLRenderBufferManager(this.#gl, webglCanvasElement);
+    this.gl.hint(this.gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this.gl.NICEST);
+    this.#pickBufferManager = new WebGLRenderBufferManager(this.gl, webglCanvasElement);
   }
   /**
    * The Viewer this WebGLRenderer is currently attached to, if any.
@@ -136831,8 +136927,9 @@ var WebGLRenderer = class {
       throw new SDKError("Can't attach Viewer to WebGLRenderer - given Viewer is already attached to another Renderer");
     }
     this.#viewer = viewer;
+    this.tileManager = new WebGLTileManager(viewer, this);
     this.#textureTranscoder.init(this.#viewer.capabilities);
-    this.renderContext = new RenderContext(this.#viewer, this.#gl, this);
+    this.renderContext = new RenderContext(this.#viewer, this.gl, this, this.tileManager);
     this.#saoOcclusionRenderer = new SAOOcclusionRenderer({
       renderContext: this.renderContext
     });
@@ -136864,7 +136961,6 @@ var WebGLRenderer = class {
     this.renderContext = null;
     this.#layerList = [];
     this.rendererObjects = {};
-    this.tileManager = null;
   }
   /**
    * Attaches a {@link viewer!View} to this WebGLRenderer.
@@ -136942,7 +137038,6 @@ var WebGLRenderer = class {
     this.renderContext = null;
     this.#layerList = [];
     this.rendererObjects = {};
-    this.tileManager = null;
   }
   /**
    * Attaches a {@link scene!SceneModel | SceneModel} to this WebGLRenderer.
@@ -136975,7 +137070,7 @@ var WebGLRenderer = class {
     if (this.#rendererViewsList.length === 0) {
       return new SDKError("Can't attach SceneModel to WebGLRenderer - no View is attached");
     }
-    const rendererModel = new WebGLRendererModel({
+    const rendererModel = new WebGLRendererModel2({
       id: sceneModel.id,
       sceneModel,
       viewer: this.viewer,
@@ -137212,8 +137307,8 @@ var WebGLRenderer = class {
     }
   }
   #activateView(viewIndex) {
-    const targetRendererView = this.#rendererViewsList[viewIndex];
-    if (!targetRendererView) {
+    const rendererView = this.#rendererViewsList[viewIndex];
+    if (!rendererView) {
       throw new SDKError(`Can't activate View - no such target View attached: ${viewIndex}`);
     }
     const activeRendererView = this.#activeRendererView;
@@ -137238,17 +137333,17 @@ var WebGLRenderer = class {
       activeRendererView.view.htmlElement.src = image;
     }
     const webglCanvasElement = this.#webglCanvasElement;
-    const targetView = targetRendererView.view;
-    const targetCanvasElement = targetView.htmlElement;
-    const targetCanvasBoundingRect = targetCanvasElement.getBoundingClientRect();
-    webglCanvasElement.style["left"] = `${targetCanvasBoundingRect.left}px`;
-    webglCanvasElement.style["top"] = `${targetCanvasBoundingRect.top}px`;
-    webglCanvasElement.style["width"] = `${targetCanvasBoundingRect.width}px`;
-    webglCanvasElement.style["height"] = `${targetCanvasBoundingRect.height}px`;
-    webglCanvasElement.width = targetCanvasBoundingRect.width;
-    webglCanvasElement.height = targetCanvasBoundingRect.height;
+    const view = rendererView.view;
+    const htmlElement = view.htmlElement;
+    const boundingRect = htmlElement.getBoundingClientRect();
+    webglCanvasElement.style["left"] = `${boundingRect.left}px`;
+    webglCanvasElement.style["top"] = `${boundingRect.top}px`;
+    webglCanvasElement.style["width"] = `${boundingRect.width}px`;
+    webglCanvasElement.style["height"] = `${boundingRect.height}px`;
+    webglCanvasElement.width = boundingRect.width;
+    webglCanvasElement.height = boundingRect.height;
     webglCanvasElement.style["z-index"] = 1e5;
-    this.#activeRendererView = targetRendererView;
+    this.#activeRendererView = rendererView;
   }
   #updateLayerList() {
     if (this.#layerListDirty) {
@@ -137617,11 +137712,12 @@ var WebGLRenderer = class {
     if (!this.#viewer) {
       throw new SDKError("Can't pick object with WebGLRenderer - no Viewer and View is attached");
     }
-    const targetRendererView = this.#rendererViewsList[viewIndex];
-    if (!targetRendererView) {
-      throw new SDKError(`Can't pick object with WebGLRenderer - no View attached at given viewInded: ${viewIndex}`);
+    const rendererView = this.#rendererViewsList[viewIndex];
+    if (!rendererView) {
+      throw new SDKError(`Can't pick object with WebGLRenderer - no View attached at given viewIndex: ${viewIndex}`);
     }
-    const view = targetRendererView.view;
+    const view = rendererView.view;
+    const camera = view.camera;
     if (this.#shadersDirty) {
       this.onCompiled.dispatch(this, true);
       this.#shadersDirty = false;
@@ -137637,32 +137733,33 @@ var WebGLRenderer = class {
     } = pickTemps;
     if (pickParams.canvasPos) {
       pickCanvasPos.set(pickParams.canvasPos);
-      pickViewMatrix.set(view.camera.viewMatrix);
-      pickProjMatrix.set(view.camera.projMatrix);
+      pickViewMatrix.set(camera.viewMatrix);
+      pickProjMatrix.set(camera.projMatrix);
       pickResult.canvasPos = pickParams.canvasPos;
     } else {
+      pickCanvasPos[0] = view.htmlElement.clientWidth * 0.5;
+      pickCanvasPos[1] = view.htmlElement.clientHeight * 0.5;
       if (pickParams.rayMatrix) {
         pickViewMatrix.set(params.rayMatrix);
-        pickProjMatrix.set(view.camera.projMatrix);
+        pickProjMatrix.set(camera.projMatrix);
       } else {
         pickWorldRayOrigin.set(pickParams.rayOrigin || [0, 0, 0]);
-        pickWorldRayDir.set(pickParams.rayDirection || [0, 0, 1]);
-        const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a10);
+        pickWorldRayDir.set(pickParams.rayDirection || [0, 1, 0]);
+        const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a11);
         tempVec3b10[0] = Math.random();
         tempVec3b10[1] = Math.random();
         tempVec3b10[2] = Math.random();
         normalizeVec3(tempVec3b10);
         cross3Vec3(pickWorldRayDir, tempVec3b10, tempVec3c6);
-        pickViewMatrix.set(lookAtMat4v(pickWorldRayOrigin, look, tempVec3c6, tempMat4b3));
-        pickProjMatrix.set(view.camera.orthoProjection.projMatrix);
+        pickViewMatrix.set(lookAtMat4v(pickWorldRayOrigin, look, tempVec3c6, tempMat4b4));
+        pickProjMatrix.set(camera.orthoProjection.projMatrix);
         pickResult.origin = pickWorldRayOrigin;
         pickResult.direction = pickWorldRayDir;
       }
-      pickCanvasPos[0] = targetRendererView.view.htmlElement.clientWidth * 0.5;
-      pickCanvasPos[1] = targetRendererView.view.htmlElement.clientHeight * 0.5;
     }
-    if (pickParams.pickViewObject) {
-      const rendererMesh = this.#pickMesh(viewIndex, targetRendererView, {
+    if (pickParams.pickViewObject || pickParams.pickSurface) {
+      const rendererMesh = this.#pickMesh({
+        rendererView,
         pickCanvasPos,
         pickViewMatrix,
         pickProjMatrix,
@@ -137670,23 +137767,82 @@ var WebGLRenderer = class {
       });
       if (rendererMesh) {
         const rendererObject = rendererMesh.rendererObject;
-        const view2 = targetRendererView.view;
-        const viewObject = view2.objects[rendererObject.id];
-        pickResult.viewObject = viewObject;
+        const view2 = rendererView.view;
+        pickResult.viewObject = view2.objects[rendererObject.id];
+        if (pickParams.pickSurface) {
+          const worldPos = this.#pickWorldPos({
+            rendererView,
+            rendererMesh,
+            pickCanvasPos,
+            pickViewMatrix,
+            pickProjMatrix,
+            pickInvisible: pickParams.pickInvisible
+          });
+          if (worldPos) {
+            pickResult.worldPos = worldPos;
+          }
+        }
       }
     }
     return pickResult;
   }
-  #pickMesh(viewIndex, targetRendererView, params2) {
-    const gl = this.#gl;
-    const view = targetRendererView.view;
-    const targetCanvasBoundingRect = targetRendererView.view.htmlElement.getBoundingClientRect();
-    const pickProjMatrix = params2.pickProjMatrix;
-    const pickViewMatrix = params2.pickViewMatrix;
+  #pickMesh(params2) {
+    const { rendererView, pickCanvasPos, pickProjMatrix, pickViewMatrix, pickInvisible } = params2;
+    const gl = this.gl;
+    const view = rendererView.view;
+    const viewIndex = view.viewIndex;
+    const boundingRect = rendererView.view.htmlElement.getBoundingClientRect();
     const resolutionScale = view.resolutionScale;
     const renderContext = this.renderContext;
     const pickBuffer = this.#pickBufferManager.getRenderBuffer("pickMesh", {
       depthTexture: false,
+      size: [1, 1]
+    });
+    pickBuffer.bind();
+    pickBuffer.clear();
+    renderContext.reset();
+    renderContext.backfaces = true;
+    renderContext.frontface = true;
+    renderContext.pickViewMatrix = pickViewMatrix;
+    renderContext.pickProjMatrix = pickProjMatrix;
+    renderContext.pickInvisible = !!pickInvisible;
+    renderContext.pickClipPos = [
+      this.#getClipPosX(pickCanvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
+      this.#getClipPosY(pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
+    ];
+    gl.viewport(0, 0, 1, 1);
+    gl.depthMask(true);
+    gl.enable(gl.DEPTH_TEST);
+    gl.disable(gl.CULL_FACE);
+    gl.disable(gl.BLEND);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    for (let i = 0, len = this.#layerList.length; i < len; i++) {
+      const layer = this.#layerList[i];
+      const meshCounts = layer.meshCounts[viewIndex];
+      if (meshCounts.numPickable < meshCounts.numMeshes || meshCounts.numCulled === meshCounts.numMeshes || meshCounts.numVisible === 0) {
+        continue;
+      }
+      layer.drawPickMesh();
+    }
+    const pix = pickBuffer.read(0, 0);
+    const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
+    pickBuffer.unbind();
+    if (pickID < 0) {
+      return null;
+    }
+    return this.#pickIDs.items[pickID];
+  }
+  #pickWorldPos(params2) {
+    const { rendererView, rendererMesh, pickCanvasPos, pickProjMatrix, pickViewMatrix } = params2;
+    const view = rendererView.view;
+    const resolutionScale = view.resolutionScale;
+    const layer = rendererMesh.layer;
+    const renderContext = this.renderContext;
+    const gl = this.gl;
+    const canvas2 = rendererView.view.htmlElement;
+    const boundingRect = canvas2.getBoundingClientRect();
+    const pickBuffer = rendererView.renderBufferManager.getRenderBuffer("pickDepth", {
+      depthTexture: true,
       size: [1, 1]
     });
     pickBuffer.bind();
@@ -137707,75 +137863,40 @@ var WebGLRenderer = class {
     gl.disable(gl.CULL_FACE);
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    for (let i = 0, len = this.#layerList.length; i < len; i++) {
-      const layer = this.#layerList[i];
-      const meshCounts = layer.meshCounts[viewIndex];
-      if (meshCounts.numPickable < meshCounts.numMeshes || meshCounts.numCulled === meshCounts.numMeshes || meshCounts.numVisible === 0) {
-        continue;
-      }
-      layer.drawPickMesh();
-    }
+    layer.drawPickDepths();
     const pix = pickBuffer.read(0, 0);
-    const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
-    console.log("pickID = " + pickID);
     pickBuffer.unbind();
-    if (pickID < 0) {
-      return null;
+    const screenZ = this.#unpackDepth(pix);
+    const x = (pickCanvasPos[0] - canvas2.clientWidth / 2) / (canvas2.clientWidth / 2);
+    const y = -(pickCanvasPos[1] - canvas2.clientHeight / 2) / (canvas2.clientHeight / 2);
+    const origin2 = rendererMesh.tile.center;
+    const gotOrigin = origin2[0] !== 0 && origin2[1] !== 0 && origin2[2] !== 0;
+    let pvMat = gotOrigin ? mulMat4(pickProjMatrix, createRTCViewMat(pickViewMatrix, origin2, tempMat4a7), tempMat4b4) : mulMat4(pickProjMatrix, pickViewMatrix, tempMat4b4);
+    const pvMatInverse = inverseMat4(pvMat, tempMat4c);
+    tempVec4a8[0] = x;
+    tempVec4a8[1] = y;
+    tempVec4a8[2] = -1;
+    tempVec4a8[3] = 1;
+    let world1 = transformVec4(pvMatInverse, tempVec4a8);
+    world1 = mulVec4Scalar(world1, 1 / world1[3]);
+    tempVec4b7[0] = x;
+    tempVec4b7[1] = y;
+    tempVec4b7[2] = 1;
+    tempVec4b7[3] = 1;
+    let world2 = transformVec4(pvMatInverse, tempVec4b7);
+    world2 = mulVec4Scalar(world2, 1 / world2[3]);
+    const dir = subVec3(world2, world1, tempVec4c3);
+    const worldPos = addVec3(world1, mulVec4Scalar(dir, screenZ, tempVec4d), tempVec4e);
+    if (gotOrigin) {
+      addVec3(worldPos, origin2);
     }
-    return this.#pickIDs.items[pickID];
+    console.log(worldPos);
+    return worldPos;
   }
-  #pickWorldPos(viewIndex, params2) {
-    const targetRendererView = this.#rendererViewsList[viewIndex];
-    if (!targetRendererView) {
-      throw new SDKError(`Can't activate View - no such target View attached: ${viewIndex}`);
-    }
-    const gl = this.#gl;
-    const view = targetRendererView.view;
-    const pickProjMatrix = params2.pickProjMatrix;
-    const pickViewMatrix = params2.pickViewMatrix;
-    const resolutionScale = view.resolutionScale;
-    const renderContext = this.renderContext;
-    const targetCanvasBoundingRect = targetRendererView.view.htmlElement.getBoundingClientRect();
-    const pickBuffer = targetRendererView.renderBufferManager.getRenderBuffer("pickDepth", {
-      depthTexture: true,
-      size: [targetCanvasBoundingRect.width, targetCanvasBoundingRect.height]
-    });
-    pickBuffer.setSize([targetCanvasBoundingRect.width, targetCanvasBoundingRect.height]);
-    pickBuffer.bind();
-    pickBuffer.clear();
-    renderContext.reset();
-    renderContext.backfaces = true;
-    renderContext.frontface = true;
-    renderContext.pickViewMatrix = pickViewMatrix;
-    renderContext.pickProjMatrix = pickProjMatrix;
-    renderContext.pickInvisible = !!params2.pickInvisible;
-    renderContext.pickClipPos[0] = this.#getClipPosX(params2.canvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth);
-    renderContext.pickClipPos[0] = this.#getClipPosY(params2.canvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight);
-    gl.viewport(0, 0, 1, 1);
-    gl.depthMask(true);
-    gl.enable(gl.DEPTH_TEST);
-    gl.disable(gl.CULL_FACE);
-    gl.disable(gl.BLEND);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    if (params2.layer) {
-      params2.layer.drawPickDepths();
-    } else {
-      for (let i = 0, len = this.#layerList.length; i < len; i++) {
-        const layer = this.#layerList[i];
-        const meshCounts = layer.meshCounts[viewIndex];
-        if (meshCounts.numPickable < meshCounts.numMeshes || meshCounts.numCulled === meshCounts.numMeshes || meshCounts.numVisible === 0) {
-          continue;
-        }
-        layer.drawPickDepths();
-      }
-    }
-    const pix = pickBuffer.read(0, 0);
-    pickBuffer.unbind();
-    const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
-    if (pickID < 0) {
-      return null;
-    }
-    return this.#pickIDs.items[pickID];
+  #unpackDepth(depthZ) {
+    const vec = [depthZ[0] / 256, depthZ[1] / 256, depthZ[2] / 256, depthZ[3] / 256];
+    const bitShift = [1 / (256 * 256 * 256), 1 / (256 * 256), 1 / 256, 1];
+    return 1 - dotVec4(vec, bitShift);
   }
   #getClipPosX(pos, size) {
     return 2 * (pos / size) - 1;
@@ -137808,133 +137929,12 @@ var WebGLRenderer = class {
     if (this.#viewer) {
       this.detachViewer();
     }
+    this.tileManager.destroy();
     this.#saoOcclusionRenderer.destroy();
     this.#saoDepthLimitedBlurRenderer.destroy();
     this.#pickBufferManager.destroy();
     this.#destroyed = true;
     this.onDestroyed.dispatch(this, true);
-  }
-};
-
-// ../sdk/src/webglrenderer/WebGLTileManager.ts
-var NUM_TILES = 2e3;
-var WebGLTileManager = class {
-  #gl;
-  #indexesUsed;
-  #tiles;
-  #dataTexture;
-  #camera;
-  #lastFreeIndex;
-  #numTiles;
-  constructor(params2) {
-    this.#camera = params2.camera;
-    this.#gl = params2.gl;
-    this.#indexesUsed = [];
-    this.#lastFreeIndex = 0;
-    this.#tiles = {};
-    this.#dataTexture = this.#createMatricesDataTexture(NUM_TILES);
-    this.#numTiles = 0;
-  }
-  getTile(center2) {
-    const rtcCenter2 = worldToRTCCenter(center2, createVec3());
-    const id = `${rtcCenter2[0]}-${rtcCenter2[1]}-${rtcCenter2[2]}`;
-    let tile = this.#tiles[id];
-    if (!tile) {
-      tile = {
-        id,
-        index: this.#findFreeTile(),
-        useCount: 0,
-        center: createVec3(),
-        rtcViewMatrix: createMat4()
-      };
-      this.#tiles[tile.id] = tile;
-      this.#numTiles++;
-    }
-    tile.useCount++;
-    return tile;
-  }
-  putTile(tile) {
-    if (--tile.useCount === 0) {
-      delete this.#tiles[tile.id];
-      this.#putFreeTile(tile.index);
-      this.#numTiles--;
-    }
-  }
-  updateTileCenter(tile, newCenter) {
-    const newRTCCenter = worldToRTCCenter(newCenter, createVec3());
-    const newId = `${newRTCCenter[0]}-${newRTCCenter[1]}-${newRTCCenter[2]}`;
-    if (newId === tile.id) {
-      return tile;
-    }
-    this.putTile(tile);
-    let newTile = this.#tiles[newId];
-    if (!newTile) {
-      newTile = {
-        id: newId,
-        index: this.#findFreeTile(),
-        useCount: 0,
-        center: createVec3(),
-        rtcViewMatrix: createMat4()
-      };
-      this.#tiles[newTile.id] = newTile;
-    }
-    newTile.useCount++;
-    return newTile;
-  }
-  refreshMatrices() {
-    if (!this.#dataTexture.texture) {
-      return;
-    }
-    const tileIds = Object.keys(this.#tiles);
-    const numTiles = tileIds.length;
-    if (numTiles > 0) {
-      const gl = this.#gl;
-      const viewMatrix = this.#camera.viewMatrix;
-      const data = new Float32Array(16 * numTiles);
-      for (let i = 0; i < numTiles; i++) {
-        const tileId = tileIds[i];
-        const tile = this.#tiles[tileId];
-        createRTCViewMat(viewMatrix, tile.center, tile.rtcViewMatrix);
-        data.set(tile.rtcViewMatrix, tile.index * 16);
-      }
-      gl.bindTexture(gl.TEXTURE_2D, this.#dataTexture.texture);
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl.RGBA, gl.FLOAT, data);
-      gl.bindTexture(gl.TEXTURE_2D, null);
-    }
-  }
-  #putFreeTile(index) {
-    if (this.#indexesUsed[index]) {
-      delete this.#indexesUsed[index];
-      this.#lastFreeIndex = index;
-      this.#numTiles--;
-    }
-  }
-  #findFreeTile() {
-    for (let index = this.#lastFreeIndex; ; index = (index + 1) % NUM_TILES) {
-      if (!this.#indexesUsed[index]) {
-        this.#indexesUsed[index] = true;
-        return index;
-      }
-    }
-  }
-  #createMatricesDataTexture(numMatrices) {
-    if (numMatrices === 0) {
-      throw "num instance matrices===0";
-    }
-    const textureWidth = 512 * 4;
-    const textureHeight = Math.ceil(numMatrices / (textureWidth / 4));
-    const textureData = new Float32Array(4 * textureWidth * textureHeight);
-    const gl = this.#gl;
-    const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, textureData, 0);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    return new WebGLDataTexture({ gl, texture, textureWidth, textureHeight, textureData });
   }
 };
 
@@ -138825,7 +138825,7 @@ var import_strongly_typed_events20 = __toESM(require_dist8());
 
 // ../sdk/src/cameracontrol/KeyboardAxisViewHandler.ts
 var center = createVec3();
-var tempVec3a11 = createVec3();
+var tempVec3a12 = createVec3();
 var tempVec3b11 = createVec3();
 var tempVec3c7 = createVec3();
 var tempVec3d4 = createVec3();
@@ -139426,7 +139426,7 @@ var MousePickHandler = class {
           }
           if (configs.doublePickFlyTo) {
             flyCameraTo(pickController.pickResult);
-            if (!configs.firstPerson && configs.followPointer) {
+            if (pickController.pickResult.viewObject && !configs.firstPerson && configs.followPointer) {
               const pickedEntityAABB = pickController.pickResult.viewObject.aabb;
               const pickedEntityCenterPos = getAABB3Center(pickedEntityAABB);
               controllers.pivotController.setPivotPos(pickedEntityCenterPos);
@@ -139479,12 +139479,12 @@ var MousePickHandler = class {
 // ../sdk/src/cameracontrol/PanController.ts
 var screenPos = createVec4();
 var viewPos = createVec4();
-var tempVec3a12 = createVec3();
+var tempVec3a13 = createVec3();
 var tempVec3b12 = createVec3();
 var tempVec3c8 = createVec3();
-var tempVec4a6 = createVec4();
-var tempVec4b5 = createVec4();
-var tempVec4c = createVec4();
+var tempVec4a9 = createVec4();
+var tempVec4b8 = createVec4();
+var tempVec4c4 = createVec4();
 var PanController = class {
   #view;
   constructor(view) {
@@ -139505,29 +139505,29 @@ var PanController = class {
     let dolliedThroughSurface = false;
     const camera = this.#view.camera;
     if (optionalTargetWorldPos) {
-      const eyeToWorldPosVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a12);
+      const eyeToWorldPosVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a13);
       const eyeWorldPosDist = lenVec3(eyeToWorldPosVec);
       dolliedThroughSurface = eyeWorldPosDist < dollyDelta;
     }
     if (camera.projectionType === PerspectiveProjectionType) {
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
-      const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec4a6);
-      const offset = subVec3(unprojectedWorldPos, camera.eye, tempVec4c);
+      const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec4a9);
+      const offset = subVec3(unprojectedWorldPos, camera.eye, tempVec4c4);
       const moveVec = mulVec3Scalar(normalizeVec3(offset), -dollyDelta, []);
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
       camera.look = [camera.look[0] - moveVec[0], camera.look[1] - moveVec[1], camera.look[2] - moveVec[2]];
       if (optionalTargetWorldPos) {
-        const eyeTargetVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a12);
+        const eyeTargetVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a13);
         const lenEyeTargetVec = lenVec3(eyeTargetVec);
         const eyeLookVec2 = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3b12)), lenEyeTargetVec);
         camera.look = [camera.eye[0] + eyeLookVec2[0], camera.eye[1] + eyeLookVec2[1], camera.eye[2] + eyeLookVec2[2]];
       }
     } else if (camera.projectionType === OrthoProjectionType) {
-      const worldPos1 = this._unproject(targetCanvasPos, tempVec4a6);
+      const worldPos1 = this._unproject(targetCanvasPos, tempVec4a9);
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
-      const worldPos2 = this._unproject(targetCanvasPos, tempVec4b5);
-      const offset = subVec3(worldPos2, worldPos1, tempVec4c);
-      const eyeLookMoveVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a12)), -dollyDelta, tempVec3b12);
+      const worldPos2 = this._unproject(targetCanvasPos, tempVec4b8);
+      const offset = subVec3(worldPos2, worldPos1, tempVec4c4);
+      const eyeLookMoveVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a13)), -dollyDelta, tempVec3b12);
       const moveVec = addVec3(offset, eyeLookMoveVec, tempVec3c8);
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
       camera.look = [camera.look[0] - moveVec[0], camera.look[1] - moveVec[1], camera.look[2] - moveVec[2]];
@@ -139745,12 +139745,12 @@ var PickController = class {
 };
 
 // ../sdk/src/cameracontrol/PivotController.ts
-var tempVec3a13 = createVec3();
+var tempVec3a14 = createVec3();
 var tempVec3b13 = createVec3();
 var tempVec3c9 = createVec3();
-var tempVec4a7 = createVec4();
-var tempVec4b6 = createVec4();
-var tempVec4c2 = createVec4();
+var tempVec4a10 = createVec4();
+var tempVec4b9 = createVec4();
+var tempVec4c5 = createVec4();
 var PivotController = class {
   #view;
   #configs;
@@ -139895,7 +139895,7 @@ var PivotController = class {
   }
   #cameraLookingDownwards() {
     const camera = this.#view.camera;
-    const forwardAxis = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a13));
+    const forwardAxis = normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a14));
     const rightAxis = cross3Vec3(forwardAxis, camera.view.viewer.scene.coordinateSystem.worldUp, tempVec3b13);
     const rightAxisLen = sqLenVec3(rightAxis);
     return rightAxisLen <= 1e-4;
@@ -139932,9 +139932,9 @@ var PivotController = class {
     const Pt4 = transposedProjectMat.subarray(12);
     const D = [0, 0, -1, 1];
     const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
-    const worldPos = tempVec4a7;
-    camera.projection.unproject(canvasPos2, screenZ, tempVec4b6, tempVec4c2, worldPos);
-    const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3a13));
+    const worldPos = tempVec4a10;
+    camera.projection.unproject(canvasPos2, screenZ, tempVec4b9, tempVec4c5, worldPos);
+    const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3a14));
     const posOnSphere = addVec3(camera.eye, mulVec3Scalar(eyeWorldPosVec, pivotShereRadius, tempVec3b13), tempVec3c9);
     this.setPivotPos(posOnSphere);
   }
@@ -141463,7 +141463,7 @@ __export(bcf_exports, {
 
 // ../sdk/src/bcf/loadBCFViewpoint.ts
 var tempVec35 = createVec3();
-var tempVec3a14 = createVec3();
+var tempVec3a15 = createVec3();
 var tempVec3b14 = createVec3();
 var tempVec3c10 = createVec3();
 function loadBCFViewpoint(params2) {
@@ -141481,7 +141481,7 @@ function loadBCFViewpoint(params2) {
   view.clearSectionPlanes();
   if (bcfViewpoint.clipping_planes) {
     bcfViewpoint.clipping_planes.forEach((e) => {
-      let pos = xyzObjectToArray(e.location, tempVec3a14);
+      let pos = xyzObjectToArray(e.location, tempVec3a15);
       let dir = xyzObjectToArray(e.direction, tempVec3b14);
       if (reverseClippingPlanes) {
         negateVec3(dir);
@@ -141519,7 +141519,7 @@ function loadBCFViewpoint(params2) {
     bcfViewpoint.bitmaps.forEach((e) => {
       const bitmap_type = e.bitmap_type || "jpg";
       const bitmap_data = e.bitmap_data;
-      let location = xyzObjectToArray(e.location, tempVec3a14);
+      let location = xyzObjectToArray(e.location, tempVec3a15);
       let normal2 = xyzObjectToArray(e.normal, tempVec3b14);
       let up = xyzObjectToArray(e.up, tempVec3c10);
       const height = e.height || 1;
@@ -141755,13 +141755,13 @@ function loadBCFViewpoint(params2) {
     let up;
     let projection;
     if (bcfViewpoint.perspective_camera) {
-      eye = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_view_point, tempVec3a14);
+      eye = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_view_point, tempVec3a15);
       look = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_direction, tempVec3b14);
       up = xyzObjectToArray(bcfViewpoint.perspective_camera.camera_up_vector, tempVec3c10);
       camera.perspectiveProjection.fov = bcfViewpoint.perspective_camera.field_of_view;
       projection = PerspectiveProjectionType;
     } else {
-      eye = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_view_point, tempVec3a14);
+      eye = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_view_point, tempVec3a15);
       look = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_direction, tempVec3b14);
       up = xyzObjectToArray(bcfViewpoint.orthogonal_camera.camera_up_vector, tempVec3c10);
       camera.orthoProjection.scale = bcfViewpoint.orthogonal_camera.view_to_world_scale;

@@ -8,7 +8,7 @@ HEADER;
 * Issues: https://github.com/IFCjs/web-ifc/issues
 ******************************************************/
 FILE_DESCRIPTION(('Demo'),'2;1');
-FILE_NAME('Model','2025-05-28T10:31:25',('xeokit-sdk'),(),'ifcjs/web-ifc-api','ifcjs/web-ifc-api',$);
+FILE_NAME('Model','2025-06-02T16:10:29',('xeokit-sdk'),(),'ifcjs/web-ifc-api','ifcjs/web-ifc-api',$);
 FILE_SCHEMA(('IFC4'));
 ENDSEC;
 DATA;
@@ -20,7 +20,7 @@ DATA;
 #6=IFCDIRECTION((0.,0.,1.));
 #7=IFCAXIS2PLACEMENT2D(#5,#6);
 #8=IFCGEOMETRICREPRESENTATIONCONTEXT('30 context','model',30,$,#7,#6);
-#9=IFCPROJECT('de759180-1866-4ae2-9353-35e8244ec018',$,'project','project desc',$,$,$,(#8),#4);
+#9=IFCPROJECT('f08715e3-e6e8-4e37-83a7-2f76165df3ca',$,'project','project desc',$,$,$,(#8),#4);
 #10=IFCFLOWTREATMENTDEVICE('7e5c1c11-fb6e-444a-b1f6-f8066b3f1549',$,'IfcFlowTreatmentDevice','IfcFlowTreatmentDevice description',$,$,$,$);
 #11=IFCFLOWTREATMENTDEVICE('d4e5f4c8-f680-4302-a825-e66fab503f99',$,'IfcFlowTreatmentDevice','IfcFlowTreatmentDevice description',$,$,$,$);
 #12=IFCWINDOW('07404420-dcf9-43b4-8fd2-87d41baab175',$,'IfcWindow','IfcWindow description',$,$,$,$,$,$,$,$,$);

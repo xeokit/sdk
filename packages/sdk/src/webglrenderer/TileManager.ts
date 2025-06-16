@@ -10,7 +10,7 @@ export interface TileManager {
 
   putTile(tile: Tile): void;
 
-  updateTileCenter(tile: Tile, newCenter: FloatArrayParam): Tile;
+  moveTile(tile: Tile, newCenter: FloatArrayParam): Tile;
 
   refreshMatrices(): void;
 }

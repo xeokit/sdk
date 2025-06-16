@@ -76,17 +76,17 @@ const view = viewer.createView({
 });
 
 // Configure the coordinate system for the View's Camera
-// Setting +Z as "up", +X as "right", and -Y as "forward"
+// Setting +Y as "up", +X as "right", and -Z as "forward"
 view.camera.worldAxis = [
   1, 0, 0, // +X
-  0, 0, 1, // +Z (up)
-  0, -1, 0 // -Y (forward)
+  0, 1, 0, // +Y (up)
+  0, 0, -1 // -Z (forward)
 ];
 
 // Position the Camera in the scene with eye, look, and up vectors
-view.camera.eye = [11.276311451067942, 16.914467176601914, 7.399026975905038];
-view.camera.look = [0, 0, 0];
-view.camera.up = [-0.18971864040782152, -0.28457796061173224, 0.9396926209223285];
+view.camera.eye = [5,0,-20];
+view.camera.look = [5, 0, 0];
+view.camera.up = [0,1,0];
 
 // Add interactive controls for navigating the View using mouse, keyboard, and touch
 new xeokit.cameracontrol.CameraControl(view, {});

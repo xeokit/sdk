@@ -5,6 +5,7 @@ export class VBOInstancingBuffer {
 
   maxVerts: number;
   maxIndices: number;
+  tiles: number[];
   positions: number[];
   colors: number[];
   uv: number[];
@@ -22,6 +23,7 @@ export class VBOInstancingBuffer {
   modelMatrix: number[];
 
   constructor() {
+    this.tiles = [];
     this.positions = [];
     this.colors = [];
     this.uv = [];

@@ -60,6 +60,8 @@ export interface Layer {
 
   setLayerMeshMatrix(layerMeshIndex: number, matrix: FloatArrayParam): void;
 
+  setLayerMeshTile(layerMeshIndex: number, tileIndex: number): void;
+
   commitRendererState(viewIndex: number): void;
 
   //---------------------------------------------------------

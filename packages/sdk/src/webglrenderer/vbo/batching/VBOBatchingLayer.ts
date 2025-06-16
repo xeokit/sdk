@@ -85,6 +85,7 @@ export class VBOBatchingLayer implements Layer {
 
     this.renderState = <VBOBatchingRenderState>{
       numVertices: 0,
+      tilesBuf: null,
       positionsBuf: null,
       indicesBuf: null,
       offsetsBuf: null,
@@ -92,7 +93,6 @@ export class VBOBatchingLayer implements Layer {
       flagsBufs: [],
       positionsDecompressScale: createVec3(),
       positionsDecompressOffset: createVec3(),
-      origin: createVec3(vBOBatchingLayerParams.origin),
       pbrSupported: false
     };
   }
@@ -126,6 +126,8 @@ export class VBOBatchingLayer implements Layer {
     if (this.#built) {
       throw new SDKError("Already built");
     }
+    const tile = 0; // sceneMesh.tile;
+    const rtcMatrix = layerMeshParams.rtcMatrix;
     const geometry = sceneMesh.geometry;
     const color = sceneMesh.color;
     const pickColor = layerMeshParams.pickColor;
@@ -144,6 +146,11 @@ export class VBOBatchingLayer implements Layer {
     if (!positionsCompressed) {
       throw "positionsCompressed expected";
     }
+    if (tile !== null && tile !== undefined) {
+      for (let i = 0, len = numLayerMeshVerts; i < len; i++) {
+        buffer.tiles.push(tile);
+      }
+    }
     if (indices) {
       for (let i = 0, len = indices.length; i < len; i++) {
         buffer.indices.push(numLayerVerts + indices[i]);
@@ -159,9 +166,9 @@ export class VBOBatchingLayer implements Layer {
       tempVec3a[1] = positionsCompressed[k + 1];
       tempVec3a[2] = positionsCompressed[k + 2];
       decompressPoint3WithAABB3(tempVec3a, geometryAABB, tempVec4a);
-      if (sceneMesh.rtcMatrix) {
+      if (rtcMatrix) {
         tempVec4a[3] = 1.0;
-        transformPoint4(sceneMesh.rtcMatrix, tempVec4a, tempVec4b);
+        transformPoint4(rtcMatrix, tempVec4a, tempVec4b);
         buffer.positions.push(tempVec4b[0]);
         buffer.positions.push(tempVec4b[1]);
         buffer.positions.push(tempVec4b[2]);
@@ -220,6 +227,10 @@ export class VBOBatchingLayer implements Layer {
     const gl = this.renderContext.gl;
     const buffer = this.#buffer;
     const numViews = this.meshCounts.length;
+    const tiles = this.#buffer.tiles;
+    if (tiles && tiles.length > 0) {
+      renderState.tilesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, new Int32Array(tiles), tiles.length, 1, gl.DYNAMIC_DRAW);
+    }
     if (buffer.positions.length > 0) {
       const positions = new Float32Array(buffer.positions);
       positions3ToAABB3(positions, this.#aabb, null);
@@ -535,10 +546,18 @@ export class VBOBatchingLayer implements Layer {
     this.renderState.flagsBufs[viewIndex].setData(tempArray, firstFlag);
   }
 
-  setLayerMeshMatrix(layerMeshIndex: number, matrix: FloatArrayParam): void {
+  setLayerMeshMatrix(layerMeshIndex: number, rtcMatrix: FloatArrayParam) {
     if (!this.#built) {
-      throw new SDKError("Not built");
+      throw "Not finalized";
     }
+    // TODO
+  }
+
+  setLayerMeshTile(layerMeshIndex: number, tileIndex: number) {
+    if (!this.#built) {
+      throw "Not finalized";
+    }
+    // TODO this.renderState.tilesBuf.setData([tileIndex], layerMeshIndex);
   }
 
   setLayerMeshOffset(viewIndex: number, layerMeshIndex: number, offset: FloatArrayParam): void {
@@ -780,6 +799,10 @@ export class VBOBatchingLayer implements Layer {
 
   destroy() {
     const renderState = this.renderState;
+    if (renderState.tilesBuf) {
+      renderState.tilesBuf.destroy();
+      renderState.tilesBuf = null;
+    }
     if (renderState.positionsBuf) {
       renderState.positionsBuf.destroy();
       renderState.positionsBuf = null;

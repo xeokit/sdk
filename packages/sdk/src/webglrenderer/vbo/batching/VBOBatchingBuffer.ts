@@ -5,6 +5,7 @@ export class VBOBatchingBuffer {
 
   maxVerts: number;
   maxIndices: number;
+  tiles: number[];
   positions: number[];
   colors: number[];
   uv: number[];
@@ -20,6 +21,7 @@ export class VBOBatchingBuffer {
     }
     this.maxVerts = maxGeometryBatchSize;
     this.maxIndices = maxGeometryBatchSize
+    this.tiles = [];
     this.positions = [];
     this.colors = [];
     this.uv = [];

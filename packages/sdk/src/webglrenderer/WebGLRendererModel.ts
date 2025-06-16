@@ -1,6 +1,13 @@
 import {collapseAABB3, expandAABB3} from "../boundaries";
 import {Component, SDKError, type TextureTranscoder} from "../core";
-import {composeMat4, createMat4, createVec3, createVec4, eulerToQuat, identityQuat, mulMat4} from "../matrix";
+import {
+  composeMat4,
+  createMat4,
+  createVec3,
+  createVec4,
+  eulerToQuat,
+  identityQuat, mulMat4, transformPoint4, translationMat4c
+} from "../matrix";
 import {createUUID, loadArraybuffer} from "../utils";
 import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";
 import type {
@@ -34,7 +41,6 @@ import {WebGLRendererObject} from "./WebGLRendererObject";
 import {WebGLRendererTexture} from "./WebGLRendererTexture";
 import {WebGLRendererTextureSet} from "./WebGLRendererTextureSet";
 import {WebGLTexture} from "../webglutils";
-import type {WebGLTileManager} from "./WebGLTileManager";
 
 const defaultScale = createVec3([1, 1, 1]);
 const defaultPosition = createVec3([0, 0, 0]);
@@ -47,6 +53,13 @@ const defaultNormalsTextureId = "defaultNormalsTexture";
 const defaultEmissiveTextureId = "defaultEmissiveTexture";
 const defaultOcclusionTextureId = "defaultOcclusionTexture";
 const defaultTextureSetId = "defaultTextureSet";
+
+const identityVec4 = createVec4([0, 0, 0, 1]);
+const tempVec4a = createVec4();
+const tempVec4b = createVec4();
+const tempVec4c = createVec4();
+const tempMat4a = createMat4();
+const tempMat4b = createMat4();
 
 /**
  * @private
@@ -360,31 +373,46 @@ export class WebGLRendererModel extends Component implements RendererModel {
     if (!layer) {
       return; // TODO
     }
-    const matrix = mesh.rtcMatrix;
+    const matrix = mesh.matrix;
     const color = (mesh.color) ? new Uint8Array([Math.floor(mesh.color[0] * 255), Math.floor(mesh.color[1] * 255), Math.floor(mesh.color[2] * 255)]) : [255, 255, 255];
     const opacity = (mesh.opacity !== undefined && mesh.opacity !== null) ? Math.floor(mesh.opacity * 255) : 255;
+
+    const center = transformPoint4(matrix, identityVec4, tempVec4a);
+    const tile = this.#renderContext.tileManager.getTile(center);
+
     const rendererMesh = new WebGLRendererMesh({
-      tileManager: <WebGLTileManager>this.webglRenderer.tileManager,
+      renderContext: this.#renderContext,
       id: mesh.id,
+      tile,
       layer,
       color,
       opacity,
-      matrix,
       rendererTextureSet,
       rendererGeometry,
       meshIndex: 0
     });
+
     rendererMesh.pickId = this.webglRenderer.attachPickable(rendererMesh);
+
     const a = rendererMesh.pickId >> 24 & 0xFF;
     const b = rendererMesh.pickId >> 16 & 0xFF;
     const g = rendererMesh.pickId >> 8 & 0xFF;
     const r = rendererMesh.pickId & 0xFF;
     const pickColor = new Uint8Array([r, g, b, a]);
     //    collapseAABB3(rendererMesh.aabb);
-    const meshIndex = layer.createLayerMesh({pickColor}, mesh);
+
+    const tileCenter = tile.center;
+    const needRTC = (tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0);
+    const rtcMatrix = needRTC ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a), tempMat4b) : matrix;
+
+    rendererMesh.meshIndex = layer.createLayerMesh({
+      pickColor,
+      tile,
+      rtcMatrix
+    }, mesh);
+
     //  expandAABB3(this.#aabb, rendererMesh.aabb);
-    rendererMesh.layer = layer;
-    rendererMesh.meshIndex = meshIndex;
+
     this.rendererMeshes[mesh.id] = rendererMesh;
     this.#numMeshes++;
   }
@@ -393,12 +421,10 @@ export class WebGLRendererModel extends Component implements RendererModel {
     const sceneGeometry = mesh.geometry;
     const primitive = sceneGeometry.primitive;
     const instancing = sceneGeometry.numMeshes > 1;
-    const origin = mesh.tile.origin;
 
     const layerId = `VBO-${instancing ? "Instancing" : "Batching"}
         .${textureSetId}
         .${primitive}
-        .${Math.round(origin[0])}.${Math.round(origin[1])}.${Math.round(origin[2])}
         .${instancing ? sceneGeometry.id : ""}`;
 
     let layer = this.#currentLayers[layerId];
@@ -415,7 +441,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
       textureSet = this.rendererTextureSets[textureSetId];
       if (!textureSet) {
         this.error(`TextureSet with ID "${textureSetId}" not found in WebGLRendererModel - ensure that you create it first with createTextureSet()`);
-        // Create layer without texture set
+        // TODO: Create layer without texture set
       }
     }
     if (instancing) {
@@ -428,8 +454,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             rendererModel: this,
             sceneGeometry,
             textureSet,
-            layerIndex: 0,
-            origin
+            layerIndex: 0
           });
           this.log(`Creating new VBOTrianglesInstancingLayer`);
           break;
@@ -439,8 +464,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             rendererModel: this,
             sceneGeometry,
             textureSet,
-            layerIndex: 0,
-            origin
+            layerIndex: 0
           });
           this.log(`Creating new VBOLinesInstancingLayer`);
           break;
@@ -450,8 +474,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
           //     rendererModel: this,
           //     sceneGeometry,
           //     textureSet,
-          //     layerIndex: 0,
-          //     origin
+          //     layerIndex: 0
           // });
           this.log(`Creating new VBOPointsInstancingLayer`);
           break;
@@ -469,8 +492,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             rendererModel: this,
             primitive,
             textureSet,
-            layerIndex: 0,
-            origin
+            layerIndex: 0
           });
           this.log(`Creating new VBOTrianglesBatchingLayer`);
           break;
@@ -480,8 +502,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             renderContext: this.#renderContext,
             rendererModel: this,
             textureSet,
-            layerIndex: 0,
-            origin
+            layerIndex: 0
           });
           this.log(`Creating new VBOLinesBatchingLayer`);
           break;
@@ -491,8 +512,7 @@ export class WebGLRendererModel extends Component implements RendererModel {
             rendererModel: this,
             primitive,
             textureSet,
-            layerIndex: 0,
-            origin
+            layerIndex: 0
           });
           this.log(`Creating new VBOPointsBatchingLayer`);
           break;

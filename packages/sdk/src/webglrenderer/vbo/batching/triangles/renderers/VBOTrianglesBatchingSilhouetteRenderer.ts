@@ -17,11 +17,9 @@ export class VBOTrianglesBatchingSilhouetteRenderer extends VBOBatchingRenderer 
     this.vertexSlicingDefs(src);
     this.vertexSilhouetteDefs(src);
     this.vertexSilhouetteMainOpen(src);
-    {
-      this.vertexDrawBatchingTransformLogic(src);
-      this.vertexSilhouetteLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexDrawBatchingTransformLogic(src);
+    this.vertexSilhouetteLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
 
@@ -32,11 +30,9 @@ export class VBOTrianglesBatchingSilhouetteRenderer extends VBOBatchingRenderer 
     this.fragmentSlicingDefs(src);
     this.fragmentSilhouetteDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentSilhouetteLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentSilhouetteLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
 

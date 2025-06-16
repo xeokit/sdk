@@ -5,7 +5,6 @@ import {EventDispatcher} from "strongly-typed-events";
 import {SceneModel} from "./SceneModel";
 import type {SceneModelParams} from "./SceneModelParams";
 import type {SceneObject} from "./SceneObject";
-import {SceneTile} from "./SceneTile";
 import {CoordinateSystem} from "./CoordinateSystem";
 import {type SceneParams} from "./SceneParams";
 
@@ -37,11 +36,6 @@ export class Scene extends Component {
   public readonly objects: { [key: string]: SceneObject };
 
   /**
-   * The {@link SceneTile | SceneTiles} in this Scene.
-   */
-  public readonly tiles: { [key: string]: SceneTile };
-
-  /**
    * Emits an event each time a {@link SceneModel | SceneModel} is created in this Scene.
    *
    * @event
@@ -54,20 +48,6 @@ export class Scene extends Component {
    * @event
    */
   public readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
-
-  /**
-   * Emits an event each time a {@link SceneTile} is created in this Scene.
-   *
-   * @event
-   */
-  public readonly onTileCreated: EventEmitter<Scene, SceneTile>;
-
-  /**
-   * Emits an event each time a {@link SceneTile} is destroyed in this Scene.
-   *
-   * @event
-   */
-  public readonly onTileDestroyed: EventEmitter<Scene, SceneTile>;
 
   #onModelBuilts: { [key: string]: any };
   #onModelDestroys: { [key: string]: any };
@@ -85,23 +65,15 @@ export class Scene extends Component {
     this.#aabb = createAABB3();
     this.#aabbDirty = true;
 
-    this.coordinateSystem = new CoordinateSystem(this, params?.coordinateSystem || {
-      basis: [1, 0, 0, 0, 1, 0, 0, 0, 1], // X+, Y+, Z+
-      origin: [0, 0, 0],
-      units: "meters",
-      scaleToMeters: 1
-    });
+    this.coordinateSystem = new CoordinateSystem(this, params?.coordinateSystem);
 
     this.models = {};
     this.objects = {};
-    this.tiles = {};
 
     this.#onModelBuilts = {};
     this.#onModelDestroys = {};
     this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
-    this.onTileCreated = new EventEmitter(new EventDispatcher<Scene, SceneTile>());
-    this.onTileDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneTile>());
   }
 
   /**
@@ -268,8 +240,6 @@ export class Scene extends Component {
     this.clear();
     this.onModelCreated.clear();
     this.onModelDestroyed.clear();
-    this.onTileCreated.clear();
-    this.onTileDestroyed.clear();
     super.destroy();
   }
 
@@ -290,30 +260,5 @@ export class Scene extends Component {
     }
     this.#aabbDirty = true;
   }
-
-  getTile(origin: FloatArrayParam): SceneTile {
-    const tileId = `${origin[0]}-${origin[1]}-${origin[2]}`;
-    let tile = this.tiles[tileId];
-    if (tile) {
-      tile.numObjects++;
-    } else {
-      tile = new SceneTile(this, tileId, origin);
-      tile.numObjects = 1;
-      this.tiles[tileId] = tile;
-      this.onTileCreated.dispatch(this, tile);
-    }
-    return tile;
-  }
-
-  putTile(tile: SceneTile): void {
-    if (this.tiles[tile.id] === undefined) {
-      return;
-    }
-    if (--tile.numObjects <= 0) {
-      delete this.tiles[tile.id];
-      this.onTileDestroyed.dispatch(this, tile);
-    }
-  }
-
 
 }

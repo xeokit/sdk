@@ -1,4 +1,4 @@
-import {createMat4, mulMat4, transformPoint3, translationMat4c} from "../matrix";
+import {createMat4, createVec4, mulMat4, transformPoint3, transformPoint4, translationMat4c} from "../matrix";
 import type {RendererGeometry, RendererMesh, RendererObject, RendererTextureSet, SceneObject} from "../scene";
 import type {Tile, WebGLTileManager} from "./WebGLTileManager";
 import {createAABB3} from "../boundaries";
@@ -6,7 +6,14 @@ import type {FloatArrayParam} from "../math";
 import type {Layer} from "./Layer";
 import type {Pickable} from "./Pickable";
 import type {RenderContext} from "./RenderContext";
+import {WebGLRendererModel} from "./WebGLRendererModel";
 
+
+const identityMat4 = createMat4();
+const identityVec4 = createVec4([0, 0, 0, 1]);
+const tempVec4a = createVec4();
+const tempVec4b = createVec4();
+const tempVec4c = createVec4();
 const tempMat4a = createMat4();
 const tempMat4b = createMat4();
 
@@ -16,41 +23,48 @@ const tempMat4b = createMat4();
 export class WebGLRendererMesh implements RendererMesh, Pickable {
 
   id: string;
-  color: FloatArrayParam;
+
+  renderContext: RenderContext;
+  rendererModel: WebGLRendererModel;
+  rendererObject: RendererObject | null;
   rendererGeometry: RendererGeometry;
   rendererTextureSet: RendererTextureSet;
-  matrix: FloatArrayParam;
-  opacity: number;
-  pickId: number;
-  tileManager: WebGLTileManager;
-  tile: Tile;
-  rendererObject: RendererObject | null;
-  aabb: FloatArrayParam;
+
   layer: Layer;
   meshIndex: number;
+  pickId: number;
+  tile: Tile;
+
+  color: FloatArrayParam;
+  opacity: number;
   colorize: FloatArrayParam[];
   colorizing: boolean[];
   transparent: boolean[];
   attribs: any;
 
+  aabb: FloatArrayParam;
+
   constructor(params: {
-    tileManager: WebGLTileManager,
+    renderContext: RenderContext;
     layer: Layer,
+    tile: Tile,
     id: string,
-    matrix: FloatArrayParam;
     color: FloatArrayParam,
     opacity: number,
     rendererTextureSet: RendererTextureSet
     rendererGeometry: RendererGeometry,
     meshIndex: number
   }) {
+    this.renderContext = params.renderContext;
     this.rendererObject = null;
-    this.tileManager = params.tileManager;
+    this.rendererTextureSet = params.rendererTextureSet;
+    this.rendererGeometry = params.rendererGeometry;
     this.id = params.id;
+    this.tile = params.tile;
     this.pickId = 0;
     this.attribs = [];
     this.color = [params.color[0], params.color[1], params.color[2], params.opacity]; // [0..255]
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 4; i++) { // TODO: Use MAX_VIEWS
       this.attribs.push({
         colorize: [params.color[0], params.color[1], params.color[2], params.opacity], // [0..255]
         colorizing: false,
@@ -58,11 +72,8 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
       });
     }
     this.layer = params.layer;
-    this.matrix = params.matrix;
     this.opacity = params.opacity;
     this.aabb = createAABB3();
-    this.rendererTextureSet = params.rendererTextureSet;
-    this.rendererGeometry = params.rendererGeometry;
     this.meshIndex = params.meshIndex;
   }
 
@@ -78,18 +89,22 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
     this.layer.setLayerMeshVisible(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
   }
 
-  setMatrix(matrix: FloatArrayParam): void {
-    const center = transformPoint3(matrix, [0, 0, 0]);
+  setMatrix(globalMatrix: FloatArrayParam): void {
+    globalMatrix = globalMatrix || identityMat4;
+    const center = transformPoint4(globalMatrix, identityVec4, tempVec4a);
     const oldTile = this.tile;
-    this.tile = oldTile ? this.tileManager.updateTileCenter(oldTile, center) : this.tileManager.getTile(center);
+    this.tile = oldTile
+      ? this.renderContext.tileManager.moveTile(oldTile, center)
+      : this.renderContext.tileManager.getTile(center);
     const tileChanged = !oldTile || oldTile.id !== this.tile.id;
     const tileCenter = this.tile.center;
     const needRTC = (tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0);
-    this.layer.setLayerMeshMatrix(this.meshIndex, needRTC
-      ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a), tempMat4b)
-      : matrix);
+    const rtcMatrix = needRTC
+      ? mulMat4(globalMatrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a), tempMat4b)
+      : globalMatrix;
+    this.layer.setLayerMeshMatrix(this.meshIndex, rtcMatrix);
     if (tileChanged) {
-      //   this.layer.setLayerMeshViewMatrixIndex(this.meshIndex, this.tile.index);
+      this.layer.setLayerMeshTile(this.meshIndex, this.tile.index);
     }
   }
 
@@ -197,8 +212,8 @@ export class WebGLRendererMesh implements RendererMesh, Pickable {
   }
 
   destroy() {
-    if (this.tile && this.tileManager) {
-      this.tileManager.putTile(this.tile);
-    }
+    // if (this.tile && this.tileManager) {
+    //   this.tileManager.putTile(this.tile);
+    // }
   }
 }

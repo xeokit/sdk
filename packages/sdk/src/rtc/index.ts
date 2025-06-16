@@ -91,6 +91,7 @@ export function createRTCViewMat(viewMat: FloatArrayParam, rtcCenter: FloatArray
  *
  * @param {FloatArrayParam} matrix - The absolute modeling matrix, which may contain large translations.
  * @param {FloatArrayParam} rtcCenter - The RTC center coordinates, used to compute the RTC-relative transformation.
+ * @param {FloatArrayParam} rtcModelMatrix - Returns the RTC model matrix.
  * @returns {FloatArrayParam} The RTC model matrix.
  */
 export const createRTCModelMat = (() => {
@@ -98,13 +99,13 @@ export const createRTCModelMat = (() => {
   const zeroVec4 = createVec4([0, 0, 0, 1]);
   const tempVec4a = createVec4();
 
-  return (matrix: FloatArrayParam, rtcCenter: FloatArrayParam): FloatArrayParam => {
+  return (matrix: FloatArrayParam, rtcCenter: FloatArrayParam, rtcModelMatrix?: FloatArrayParam): FloatArrayParam => {
     const tempVec4 = transformVec4(matrix, zeroVec4, tempVec4a);
     rtcCenter[0] = Math.round(tempVec4[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
     rtcCenter[1] = Math.round(tempVec4[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
     rtcCenter[2] = Math.round(tempVec4[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
 
-    const rtcModelMatrix = matrix.slice();
+    rtcModelMatrix = rtcModelMatrix || matrix.slice();
     translateMat4v(mulVec3Scalar(rtcCenter, -1, tempVec3a), rtcModelMatrix);
 
     return rtcModelMatrix;

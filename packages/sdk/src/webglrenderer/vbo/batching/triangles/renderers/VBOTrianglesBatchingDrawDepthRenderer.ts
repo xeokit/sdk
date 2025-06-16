@@ -16,10 +16,8 @@ export class VBOTrianglesBatchingDrawDepthRenderer extends VBOBatchingRenderer {
     this.vertexBatchingTransformDefs(src);
     this.vertexSlicingDefs(src);
     this.vertexDrawMainOpen(src);
-    {
-      this.vertexDrawBatchingTransformLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexDrawBatchingTransformLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
 
@@ -30,11 +28,9 @@ export class VBOTrianglesBatchingDrawDepthRenderer extends VBOBatchingRenderer {
     this.fragmentDrawDepthDefs(src);
     this.fragmentSlicingDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentDrawDepthLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentDrawDepthLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
 

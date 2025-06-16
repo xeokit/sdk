@@ -17,11 +17,9 @@ export class VBOTrianglesBatchingPickMeshRenderer extends VBOBatchingRenderer {
     this.vertexSlicingDefs(src);
     this.vertexPickMeshDefs(src);
     this.vertexPickMainOpen(src);
-    {
-      this.vertexPickBatchingTransformLogic(src);
-      this.vertexPickMeshLogic(src);
-      this.vertexSlicingLogic(src);
-    }
+    this.vertexPickBatchingTransformLogic(src);
+    this.vertexPickMeshLogic(src);
+    this.vertexSlicingLogic(src);
     this.vertexMainClose(src);
   }
 
@@ -32,11 +30,9 @@ export class VBOTrianglesBatchingPickMeshRenderer extends VBOBatchingRenderer {
     this.fragmentSlicingDefs(src);
     this.fragmentPickMeshDefs(src);
     src.push("void main(void) {");
-    {
-      this.fragmentSlicingLogic(src);
-      this.fragmentPickMeshLogic(src);
-      this.fragmentCommonOutput(src);
-    }
+    this.fragmentSlicingLogic(src);
+    this.fragmentPickMeshLogic(src);
+    this.fragmentCommonOutput(src);
     src.push("}");
   }
 

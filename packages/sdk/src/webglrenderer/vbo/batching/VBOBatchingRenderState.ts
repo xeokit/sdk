@@ -19,10 +19,9 @@ export interface VBOBatchingRenderState {
   offsetsBuf: WebGLArrayBuf;
   colorsBuf: WebGLArrayBuf[];
   flagsBufs: WebGLArrayBuf[];
-  origin: FloatArrayParam;
   positionsBuf: WebGLArrayBuf;
   indicesBuf: WebGLArrayBuf;
-
+  tilesBuf: WebGLArrayBuf;
   saoSupported: boolean;
   pbrSupported: boolean;
 }

@@ -2,6 +2,7 @@ import type {View, Viewer} from "../viewer";
 import {WEBGL_INFO, type WebGLAbstractTexture} from "../webglutils";
 import type {FloatArrayParam} from "../math";
 import type {WebGLRenderer} from "./WebGLRenderer";
+import {WebGLTileManager} from "./WebGLTileManager";
 
 /**
  * @internal
@@ -67,24 +68,24 @@ export class RenderContext {
    * This sets the viewpoint to look from the point of view of each {@link view!DirLight | DirLight}
    * or {@link view!PointLight|PointLight} that casts a shadow.
    */
-  public shadowViewMatrix: any;
+  public shadowViewMatrix: FloatArrayParam;
 
   /**
    * The 4x4 viewing projection matrix the renderers is currently using when rendering shadows.
    */
-  public shadowProjMatrix: any;
+  public shadowProjMatrix: FloatArrayParam;
 
   /**
    * The 4x4 viewing transform matrix the renderers is currently using when rendering a ray-pick.
    *
    * This sets the viewpoint to look along the ray, when picking with a ray.
    */
-  public pickViewMatrix: any;
+  public pickViewMatrix: FloatArrayParam;
 
   /**
    * The 4x4 orthographic projection transform matrix the renderers is currently using when rendering a ray-pick.
    */
-  public pickProjMatrix: any;
+  public pickProjMatrix: FloatArrayParam;
 
   /**
    * Distance to the near clipping plane when rendering depth fragments for GPU-accelerated 3D picking.
@@ -119,11 +120,14 @@ export class RenderContext {
 
   public webglRenderer: WebGLRenderer;
 
-  constructor(viewer: Viewer, gl: WebGL2RenderingContext, webglRenderer: WebGLRenderer) {
+  public tileManager: WebGLTileManager;
+
+  constructor(viewer: Viewer, gl: WebGL2RenderingContext, webglRenderer: WebGLRenderer, tileManager: WebGLTileManager) {
     this.viewer = viewer;
     this.view = null;
     this.gl = gl;
     this.webglRenderer = webglRenderer;
+    this.tileManager = tileManager;
     this.reset();
   }
 

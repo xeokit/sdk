@@ -63,7 +63,7 @@ export class CoordinateSystem extends Component {
   /**
    * @private
    */
-  constructor(parent: Scene | SceneModel, params: CoordinateSystemParams) {
+  constructor(parent: Scene | SceneModel, params?: CoordinateSystemParams) {
     super(parent);
 
     this.onBasis = new EventEmitter(new EventDispatcher<CoordinateSystem, FloatArrayParam>());
@@ -72,13 +72,14 @@ export class CoordinateSystem extends Component {
     this.onScaleToMeters = new EventEmitter(new EventDispatcher<CoordinateSystem, number>());
     this.onUpdated = new EventEmitter(new EventDispatcher<CoordinateSystem, CoordinateSystem>());
 
-    this._basis = new Float32Array(params.basis || [1, 0, 0, 0, 1, 0, 0, 0, 1]);
-    this._origin = new Float64Array(params.origin || [0, 0, 0]);
-    this._units = params.units || "meters";
-    this._scaleToMeters = params.scaleToMeters || 1;
+    this._origin = new Float64Array(<any>params?.origin || [0, 0, 0]);
+    this._units = params?.units || "meters";
+    this._scaleToMeters = params?.scaleToMeters || 1;
     this._worldUp = createVec3();
     this._worldRight = createVec3();
     this._worldForward = createVec3();
+
+    this.basis = params?.basis;
   }
 
   #notifyUpdated() {
@@ -98,7 +99,11 @@ export class CoordinateSystem extends Component {
 
   /** Sets the flat 9-element coordinate system basis (column-major). */
   set basis(value: FloatArrayParam) {
-    this._basis = new Float32Array(value);
+    this._basis = new Float32Array(<any>value || [
+      1, 0, 0, // Right
+      0, 0, 1, // Up
+      0, 1, 0 // Forward
+    ]);
     this._worldRight[0] = this._basis[0];
     this._worldRight[1] = this._basis[1];
     this._worldRight[2] = this._basis[2];
@@ -119,7 +124,7 @@ export class CoordinateSystem extends Component {
 
   /** Sets the origin of the coordinate system in global space. */
   set origin(value: FloatArrayParam) {
-    this._origin = new Float32Array(value);
+    this._origin = new Float32Array(<any>value);
     this.onOrigin.dispatch(this, this._origin);
     this.#notifyUpdated();
   }

@@ -18,6 +18,10 @@ export abstract class VBOInstancingRenderer extends VBORenderer {
     const viewIndex = view.viewIndex;
     const gl = this.renderContext.gl;
     gl.uniform1i(this.uniforms.renderPass, renderPass);
+    if (attributes.tile) {
+      attributes.tile.bindArrayBuffer(renderState.tilesBuf);
+      gl.vertexAttribDivisor(attributes.tile.location, 1);
+    }
     attributes.position.bindArrayBuffer(renderState.positionsBuf);
     if (attributes.uv) {
       attributes.uv.bindArrayBuffer(renderState.uvBuf);
@@ -49,15 +53,15 @@ export abstract class VBOInstancingRenderer extends VBORenderer {
       attributes.modelMatrixCol2.bindArrayBuffer(renderState.modelMatrixCol2Buf);
       gl.vertexAttribDivisor(attributes.modelMatrixCol2.location, 1);
     }
-    gl.uniform3fv(this.uniforms.positionsDecompressOffset, <Float32Array<any> | GLfloat[]>renderState.positionsDecompressOffset);
-    gl.uniform3fv(this.uniforms.positionsDecompressScale, <Float32Array<any> | GLfloat[]>renderState.positionsDecompressScale);
-    gl.uniformMatrix4fv(this.uniforms.worldMatrix, false, <Float32Array<any> | GLfloat[]>vboInstancingLayer.rendererModel.worldMatrix);
-    gl.uniformMatrix4fv(this.uniforms.viewMatrix, false,
-      <Float32Array<any> | GLfloat[]>createRTCViewMat(
-        renderPass === RENDER_PASSES.PICK
-          ? this.renderContext.pickViewMatrix
-          : this.renderContext.view.camera.viewMatrix,
-        renderState.origin));
+    gl.uniform3fv(this.uniforms.positionsDecompressOffset, <any>renderState.positionsDecompressOffset);
+    gl.uniform3fv(this.uniforms.positionsDecompressScale, <any>renderState.positionsDecompressScale);
+
+    // gl.uniformMatrix4fv(this.uniforms.viewMatrix, false,
+    //   <Float32Array | GLfloat[]>createRTCViewMat(
+    //     renderPass === RENDER_PASSES.PICK
+    //       ? this.renderContext.pickViewMatrix
+    //       : this.renderContext.view.camera.viewMatrix,
+    //     renderState.origin));
     if (renderState.indicesBuf) {
       renderState.indicesBuf.bind();
     }

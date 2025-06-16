@@ -1,6 +1,7 @@
 import {View} from "../viewer";
 import {WebGLRenderBufferManager} from "./WebGLRenderBufferManager";
 import {Map} from "../utils";
+import {WebGLTileManager} from "./WebGLTileManager";
 
 /** @private */
 export class WebGLRendererView {
@@ -17,7 +18,6 @@ export class WebGLRendererView {
   saveCanvasBoundary: DOMRect;
   gl: WebGL2RenderingContext;
   renderBufferManager: WebGLRenderBufferManager;
-
   pickIDs: Map;
 
   constructor(gl: WebGL2RenderingContext, webglCanvasElement: HTMLCanvasElement, view: View) {

@@ -105,18 +105,7 @@ export class Data extends Component {
   /**
    * Creates a new {@link DataModel | DataModel} in this Data.
    *
-   * Remember to call {@link DataModel.build | DataModel.build} when you've finished building or loading the DataModel. That will
-   * fire events via {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}, to
-   * indicate to any subscribers that the DataModel is built and ready for use.
-   *
-   * Note that while we're building/loading the DataModel, each call that we make to {@link DataModel.createObject | DataModel.createObject}
-   * will create a new {@link DataObject | DataObject}
-   * in {@link Data.objects | Data.objects} and {@link DataModel.objects | DataModel.objects}, and will also fire an event
-   * via {@link Data.onObjectCreated | Data.onObjectCreated}. However,
-   * only when we've received the {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}
-   * events can we actually consider the DataModel to be fully constructed.
-   *
-   * See {@link data | @xeokit/sdk/data}   for more details on usage.
+   * See {@link data | @xeokit/sdk/data} for more details on usage.
    *
    * @param  dataModelParams Creation parameters for the new {@link DataModel | DataModel}.
    * @returns {@link DataModel | DataModel}
@@ -140,9 +129,7 @@ export class Data extends Component {
       delete this.models[dataModel.id];
       this.onModelDestroyed.dispatch(this, dataModel);
     });
-    dataModel.onBuilt.one(() => { // DataModel#build() called
-      this.onModelCreated.dispatch(this, dataModel);
-    });
+    this.onModelCreated.dispatch(this, dataModel);
     return dataModel;
   }
 

@@ -154,33 +154,23 @@ demoHelper
       meshIds: ["purpleTableTopMesh"]
     });
 
-    // Build the SceneModel. The View will now contain a ViewObject for each
-    // SceneObject in the SceneModel.
+    // At this point, the View will contain five ViewObjects that have the same
+    // IDs as our SceneObjects. Through these ViewObjects, we can update the
+    // appearance of our model elements in that View. We'll make the yellow leg
+    // translucent, highlight the red leg and make the tabletop green.
 
-    sceneModel.build().then(() => {
+    view.objects["yellowLeg"].opacity = 0.5;
+    view.objects["redLeg"].highlighted = true;
+    view.objects["purpleTableTop"].colorize = [0, 1, 0];
 
-      // At this point, the View will contain five ViewObjects that have the same
-      // IDs as our SceneObjects. Through these ViewObjects, we can update the
-      // appearance of our model elements in that View. We'll make the yellow leg
-      // translucent, highlight the red leg and make the tabletop green.
+    // We can also apply these sorts of updates in batches, to multiple
+    // ViewObjects at a time. The View remembers the IDs of whetever
+    // ViewObjects we update, so we can use such batch updates to restore the
+    // ViewObjects to their original states.
 
-      view.objects["yellowLeg"].opacity = 0.5;
-      view.objects["redLeg"].highlighted = true;
-      view.objects["purpleTableTop"].colorize = [0, 1, 0];
+    view.setObjectsOpacity(view.opacityObjectIds, 1.0);
+    view.setObjectsHighlighted(view.highlightedObjectIds, false);
+    view.setObjectsSelected(view.selectedObjectIds, false);
 
-      // We can also apply these sorts of updates in batches, to multiple
-      // ViewObjects at a time. The View remembers the IDs of whetever
-      // ViewObjects we update, so we can use such batch updates to restore the
-      // ViewObjects to their original states.
-
-      view.setObjectsOpacity(view.opacityObjectIds, 1.0);
-      view.setObjectsHighlighted(view.highlightedObjectIds, false);
-      view.setObjectsSelected(view.selectedObjectIds, false);
-
-      demoHelper.finished();
-
-    }).catch((e) => {
-      demoHelper.log(`Error building SceneModel: ${e}`);
-      throw e;
-    });
+    demoHelper.finished();
   });

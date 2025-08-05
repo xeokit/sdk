@@ -200,8 +200,6 @@
  *
  * if (myDataModel instanceof SDKError) {
  *   console.log(myDataModel.message);
- * } else {
- *   myDataModel.build();
  * }
  * ````
  *
@@ -357,14 +355,6 @@
  *          relatingObjectId: "tableTop",
  *          relatedObjectId: "yellowLeg"
  *      });
- *
- *      dataModel.build()
- *          .then(()=>{
- *              // Ready for action
- *          })
- *          .catch((sdkError) => {
- *              console.error(sdkError.message);
- *          });
  * }
  * ````
  *
@@ -431,8 +421,6 @@
  * });
  *
  * dataModel2.fromParams(dataModelParams);
- *
- * dataModel2.build();
  * ````
  *
  * <br>
@@ -468,8 +456,7 @@
  *             dataModel3
  *         }).then(() => {
  *
- *             sceneModel3.build();
- *             dataModel3.build();
+ *             // Loaded
  *
  *         }).catch(err => {
  *

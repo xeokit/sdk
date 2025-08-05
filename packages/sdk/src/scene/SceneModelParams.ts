@@ -2,7 +2,6 @@ import type {FloatArrayParam} from "../math";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import type {SceneGeometryParams} from "./SceneGeometryParams";
 import type {SceneMeshParams} from "./SceneMeshParams";
-import type {SceneModelStreamParams} from "./SceneModelStreamParams";
 import type {SceneObjectParams} from "./SceneObjectParams";
 import type {SceneTextureParams} from "./SceneTextureParams";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
@@ -30,12 +29,6 @@ export interface SceneModelParams {
    * Configures the SceneModel's local coordinate system.
    */
   coordinateSystem?: CoordinateSystemParams;
-
-  /**
-   * Indicates what renderer resources will need to be allocated in a {@link viewer!Viewer | Viewer's}
-   * {@link viewer!Renderer | Renderer} to support progressive loading for a {@link SceneModel | SceneModel}.
-   */
-  streamParams?: SceneModelStreamParams;
 
   /**
    * Whether IDs of the {@link SceneObject | SceneObjects} are globalized.
@@ -112,21 +105,4 @@ export interface SceneModelParams {
    * Overrides {@link SceneObjectParams.layerId | SceneObjectParams.layerId}.
    */
   layerId?: string;
-
-  /**
-   * Whether this SceneModel retains its {@link SceneObject | SceneObjects}, {@link SceneMesh | SceneMeshes},
-   * {@link SceneGeometry | SceneGeometries} etc. after we call {@link SceneModel.build | SceneModel.build}.
-   *
-   * Default value is `true`.
-   */
-  retained?: boolean;
-
-  /**
-   * The axis-aligned 3D World-space boundary of the {@link SceneModel | SceneModel}.
-   *
-   * This is created by {@link SceneModel.toParams | SceneModel.toParams} to provide the SceneModel's
-   * boundary, and is ignored by {@link SceneModel.fromParams | SceneModel.fromParams} and the SceneModel
-   * constructor.
-   */
-  aabb?: number[]
 }

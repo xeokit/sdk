@@ -51,5 +51,3 @@
  */
 export {WebGLRenderer} from "./WebGLRenderer";
 export {RenderStats} from "./RenderStats";
-export {RenderContext} from "./RenderContext";
-export {WebGLTileManager, type Tile} from "./WebGLTileManager";

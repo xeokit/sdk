@@ -89,22 +89,15 @@ export class ViewObject {
       opacityUpdated: false,
     };
 
-    this.#rendererObject.setVisible(this.layer.view.viewIndex, this.#state.visible);
+    const viewIndex = this.layer.view.viewIndex;
+    const state = this.#state;
 
-    // this.#rendererObject.initFlags(this.layer.view.viewIndex, this.#state);
+    rendererObject.setVisible(viewIndex, state.visible);
+    rendererObject.setClippable(viewIndex, state.clippable);
+    rendererObject.setCollidable(viewIndex, state.collidable);
+    rendererObject.setPickable(viewIndex, state.pickable);
 
-    this.layer.objectVisibilityUpdated(this, this.#state.visible, true);
-
-    //this.#rendererObject.setClippable(this.layer.view.viewIndex, this.#state.clippable);
-
-    this.#rendererObject.setPickable(this.layer.view.viewIndex, this.#state.pickable);
-  }
-
-  /**
-   * Gets the World-space axis-aligned 3D boundary of this ViewObject.
-   */
-  get aabb(): FloatArrayParam {
-    return this.sceneObject.aabb;
+    this.layer.objectVisibilityUpdated(this, state.visible, true);
   }
 
   /**

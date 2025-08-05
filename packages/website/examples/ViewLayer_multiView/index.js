@@ -130,7 +130,7 @@ demoHelper.init()
         fetch("../../data/models/IfcOpenHouse2x3/ifc2gltf/model.glb").then(response => {
             response.arrayBuffer().then(fileData => {
                 gltfLoader.load({fileData, sceneModel}).then(() => {
-                    sceneModel.build();
+
                 });
             });
         });
@@ -172,8 +172,6 @@ demoHelper.init()
             id: "grid",
             meshIds: ["gridMesh"]
         });
-
-        gridSceneModel.build();
 
 // Highlight the ViewObjects in ViewLayer "gridLayer"
 

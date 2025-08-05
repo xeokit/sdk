@@ -77,8 +77,6 @@
  * fetch("myModel.xgf").then(response => {
  *     response.arrayBuffer().then(data => {
  *         XGFLoader.load({ data, sceneModel, dataModel });
- *         sceneModel.build();
- *         dataModel.build();
  *         myViewer.scene.addModel({ id: "myModel", sceneModel });
  *     });
  * });

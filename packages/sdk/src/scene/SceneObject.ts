@@ -1,5 +1,3 @@
-import {collapseAABB3, expandAABB3} from "../boundaries";
-import type {FloatArrayParam} from "../math";
 import type {RendererObject} from "./RendererObject";
 import type {SceneMesh} from "./SceneMesh";
 import type {SceneModel} from "./SceneModel";
@@ -57,9 +55,6 @@ export class SceneObject {
    */
   rendererObject: RendererObject | null;
 
-  #aabb: FloatArrayParam;
-  #aabbDirty: boolean;
-
   /**
    * @private
    */
@@ -74,37 +69,7 @@ export class SceneObject {
     this.originalSystemId = cfg.originallSystemId || this.id;
     this.layerId = cfg.layerId;
     this.meshes = cfg.meshes;
-    this.#aabb = null;
-    this.#aabbDirty = true;
     this.rendererObject = null;
-  }
-
-  /**
-   * @private
-   */
-  setAABBDirty() {
-    this.#aabbDirty = true;
-  }
-
-  /**
-   * Gets the axis-aligned 3D World-space boundary of this SceneObject.
-   */
-  get aabb(): FloatArrayParam {
-    if (this.meshes.length === 1) {
-      return this.meshes[0].aabb;
-    }
-    if (this.#aabbDirty) {
-      if (!this.#aabb) {
-        this.#aabb = collapseAABB3();
-      } else {
-        collapseAABB3(this.#aabb);
-      }
-      for (let i = 0, len = this.meshes.length; i < len; i++) {
-        expandAABB3(this.#aabb, this.meshes[i].aabb);
-      }
-      this.#aabbDirty = false;
-    }
-    return this.#aabb;
   }
 
   /**
@@ -124,5 +89,12 @@ export class SceneObject {
       }
     }
     return sceneObjectParams;
+  }
+
+  /**
+   * Destroys this SceneObject.
+   */
+  destroy() {
+    this.model._destroyObject(this);
   }
 }

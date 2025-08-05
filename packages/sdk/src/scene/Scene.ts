@@ -1,12 +1,12 @@
 import {Component, EventEmitter, SDKError} from "../core";
-import {type FloatArrayParam, MAX_DOUBLE, MIN_DOUBLE} from "../math";
-import {createAABB3} from "../boundaries";
 import {EventDispatcher} from "strongly-typed-events";
 import {SceneModel} from "./SceneModel";
 import type {SceneModelParams} from "./SceneModelParams";
 import type {SceneObject} from "./SceneObject";
 import {CoordinateSystem} from "./CoordinateSystem";
 import {type SceneParams} from "./SceneParams";
+import {SceneMesh} from "./SceneMesh";
+import {SceneGeometry} from "./SceneGeometry";
 
 /**
  * Container of model geometry and materials.
@@ -38,9 +38,37 @@ export class Scene extends Component {
   /**
    * Emits an event each time a {@link SceneModel | SceneModel} is created in this Scene.
    *
-   * @event
+   * @event onModelCreated
    */
   public readonly onModelCreated: EventEmitter<Scene, SceneModel>;
+
+  /**
+   * Emits an event each time a {@link SceneObject | SceneObject} is created in this Scene.
+   *
+   * @event
+   */
+  public readonly onObjectCreated: EventEmitter<Scene, SceneObject>;
+
+  /**
+   * Emits an event each time a {@link SceneMesh | SceneMesh} is moved (rotated, translated etc).
+   *
+   * @event
+   */
+  public readonly onMeshMoved: EventEmitter<Scene, SceneMesh>;
+
+  /**
+   * Emits an event each time a {@link SceneGeometry | SceneGeometry} is updated (any updates to positions, indices, primitive type etc).
+   *
+   * @event
+   */
+  public readonly onGeometryUpdated: EventEmitter<Scene, SceneGeometry>;
+
+  /**
+   * Emits an event each time a {@link SceneObject | SceneObject} is destroyed in this Scene.
+   *
+   * @event
+   */
+  public readonly onObjectDestroyed: EventEmitter<Scene, SceneObject>;
 
   /**
    * Emits an event each time a {@link SceneModel | SceneModel} is destroyed in this Scene.
@@ -49,12 +77,6 @@ export class Scene extends Component {
    */
   public readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
 
-  #onModelBuilts: { [key: string]: any };
-  #onModelDestroys: { [key: string]: any };
-  #center: FloatArrayParam;
-  #aabbDirty: boolean;
-  #aabb: FloatArrayParam;
-
   /**
    * Creates a new Scene.
    */
@@ -62,103 +84,21 @@ export class Scene extends Component {
 
     super(null, {});
 
-    this.#aabb = createAABB3();
-    this.#aabbDirty = true;
-
     this.coordinateSystem = new CoordinateSystem(this, params?.coordinateSystem);
 
     this.models = {};
     this.objects = {};
 
-    this.#onModelBuilts = {};
-    this.#onModelDestroys = {};
     this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+    this.onObjectCreated = new EventEmitter(new EventDispatcher<Scene, SceneObject>());
+    this.onMeshMoved = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
+    this.onGeometryUpdated = new EventEmitter(new EventDispatcher<Scene, SceneGeometry>());
+    this.onObjectDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneObject>());
     this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
   }
 
   /**
-   * Gets the collective World-space 3D center of all the {@link SceneModel | SceneModels} in this Scene.
-   */
-  get center(): FloatArrayParam {
-    if (this.#aabbDirty) {
-      const aabb = this.aabb; // Lazy-build
-      this.#center[0] = (aabb[0] + aabb[3]) / 2;
-      this.#center[1] = (aabb[1] + aabb[4]) / 2;
-      this.#center[2] = (aabb[2] + aabb[5]) / 2;
-    }
-    return this.#center;
-  }
-
-  /**
-   * Gets the collective World-space 3D [axis-aligned boundary](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#aabb) of all the {@link SceneModel | SceneModels} in this Scene.
-   *
-   * The boundary will be of the form ````[xMin, yMin, zMin, xMax, yMax, zMax]````.
-   */
-  get aabb(): FloatArrayParam {
-    if (this.#aabbDirty) {
-      let xmin = MAX_DOUBLE;
-      let ymin = MAX_DOUBLE;
-      let zmin = MAX_DOUBLE;
-      let xmax = MIN_DOUBLE;
-      let ymax = MIN_DOUBLE;
-      let zmax = MIN_DOUBLE;
-      let aabb;
-      const objects = this.objects;
-      let valid = false;
-      for (const objectId in objects) {
-        if (objects.hasOwnProperty(objectId)) {
-          const object = objects[objectId];
-          // if (object.collidable === false) {
-          //     continue;
-          // }
-          aabb = object.aabb;
-          if (aabb[0] < xmin) {
-            xmin = aabb[0];
-          }
-          if (aabb[1] < ymin) {
-            ymin = aabb[1];
-          }
-          if (aabb[2] < zmin) {
-            zmin = aabb[2];
-          }
-          if (aabb[3] > xmax) {
-            xmax = aabb[3];
-          }
-          if (aabb[4] > ymax) {
-            ymax = aabb[4];
-          }
-          if (aabb[5] > zmax) {
-            zmax = aabb[5];
-          }
-          valid = true;
-        }
-      }
-      if (!valid) {
-        xmin = -100;
-        ymin = -100;
-        zmin = -100;
-        xmax = 100;
-        ymax = 100;
-        zmax = 100;
-      }
-      this.#aabb[0] = xmin;
-      this.#aabb[1] = ymin;
-      this.#aabb[2] = zmin;
-      this.#aabb[3] = xmax;
-      this.#aabb[4] = ymax;
-      this.#aabb[5] = zmax;
-      this.#aabbDirty = false;
-    }
-    return this.#aabb;
-  }
-
-  /**
    * Creates a new {@link SceneModel | SceneModel} in this Scene.
-   *
-   * Remember to call {@link SceneModel.build | SceneModel.build} when you've finished building or
-   * loading the SceneModel. That will
-   * fire events via {@link Scene.onModelCreated | Scene.onModelCreated} and {@link SceneModel.onBuilt | SceneModel.onBuilt}, to
-   * indicate to any subscribers that the SceneModel is built and ready for use.
    *
    * See {@link scene | @xeokit/sdk/scene}   for more details on usage.
    *
@@ -184,21 +124,30 @@ export class Scene extends Component {
       this.#deregisterObjects(sceneModel);
       this.onModelDestroyed.dispatch(this, sceneModel);
     });
-    sceneModel.onBuilt.one(() => { // SceneModel#build() called
-      this.#registerObjects(sceneModel);
-      this.onModelCreated.dispatch(this, sceneModel);
-    });
+    this.onModelCreated.dispatch(this, sceneModel);
     return sceneModel;
+  }
+
+  #deregisterObjects(model: SceneModel) {
+    for (const id in model.objects) {
+      this._deregisterObject(model.objects[id]);
+    }
   }
 
   /**
    * @private
    */
-  setAABBDirty() {
-    if (!this.#aabbDirty) {
-      this.#aabbDirty = true;
-      //this.events.fire("aabb", true);
-    }
+  _deregisterObject(sceneObject: SceneObject) {
+    delete this.objects[sceneObject.id];
+    this.onObjectDestroyed.dispatch(this, sceneObject);
+  }
+
+  /**
+   * @private
+   */
+  _registerObject(sceneObject: SceneObject) {
+    this.objects[sceneObject.id] = sceneObject;
+    this.onObjectCreated.dispatch(this, sceneObject);
   }
 
   /**
@@ -240,25 +189,12 @@ export class Scene extends Component {
     this.clear();
     this.onModelCreated.clear();
     this.onModelDestroyed.clear();
+    this.onObjectCreated.clear();
+    this.onMeshMoved.clear();
+    this.onGeometryUpdated.clear();
+    this.onObjectDestroyed.clear();
     super.destroy();
   }
 
-  #registerObjects(model: SceneModel) {
-    const objects = model.objects;
-    for (const id in objects) {
-      const object = objects[id];
-      this.objects[object.id] = <SceneObject>object;
-    }
-    this.#aabbDirty = true;
-  }
-
-  #deregisterObjects(model: SceneModel) {
-    const objects = model.objects;
-    for (const id in objects) {
-      const object = objects[id];
-      delete this.objects[object.id];
-    }
-    this.#aabbDirty = true;
-  }
 
 }

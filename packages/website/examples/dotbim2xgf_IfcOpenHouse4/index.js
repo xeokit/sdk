@@ -93,11 +93,8 @@ demoHelper.init()
 
                                         }).then(() => { // XGF and JSON files loaded
 
-                                            // Build the SceneModel and DataModel.
                                             // The IFC model now appears in our Viewer.
 
-                                            sceneModel.build();
-                                            dataModel.build();
 
                                             // Using the searchObjects function, query the Data for all the
                                             // IfcMember elements within a given IfcBuildingStorey.

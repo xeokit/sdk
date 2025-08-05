@@ -40,6 +40,7 @@ import {PickController} from "./PickController";
 import {PivotController} from "./PivotController";
 import {TouchPanRotateAndDollyHandler} from "./TouchPanRotateAndDollyHandler";
 import {TouchPickHandler} from "./TouchPickHandler";
+import {getSceneAABBIndex, SceneAABBIndex} from "../aabb/SceneAABBIndex";
 
 
 const DEFAULT_SNAP_PICK_RADIUS = 30;
@@ -333,6 +334,7 @@ export class CameraControl extends Component {
   #cameraUpdater: any;
 
   #keyMap: any;
+  #aabbIndex: SceneAABBIndex;
 
 
   /**
@@ -343,6 +345,8 @@ export class CameraControl extends Component {
 
     super(view, cfg);
 
+    this.#aabbIndex = getSceneAABBIndex(view.viewer.scene);
+    
     this.#keyMap = {}; // Maps key codes to the above actions
 
     this.view = view;

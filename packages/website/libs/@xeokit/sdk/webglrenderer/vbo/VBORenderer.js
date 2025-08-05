@@ -612,4 +612,4 @@ export class VBORenderer {
         this.program = null;
     }
 }
-//# sourceMappingURL=VBORenderer.js.map
+//# sourceMappingURL=LayerRenderer.js.map

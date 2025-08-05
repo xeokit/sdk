@@ -24,7 +24,7 @@ function getPositionsWorldAABB3(positions, aabb, matrix, worldAABB = createAABB3
  * A mesh in a {@link scene!SceneModel | SceneModel}.
  *
  * * Stored in {@link scene!SceneModel.meshes | SceneModel.meshes}
- * * Created with {@link scene!SceneModel.createMesh | SceneModel.createMesh}
+ * * Created with {@link scene!SceneModel.addMesh | SceneModel.addMesh}
  * * Referenced by {@link scene!SceneObject.meshes | SceneObject.meshes}
  *
  * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.

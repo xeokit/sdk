@@ -11,8 +11,12 @@ export class WebGLDataTexture implements WebGLAbstractTexture {
   texture?: WebGLTexture | null;
   textureWidth?: number;
   textureHeight?: number;
+  format?: GLenum;
+  type?: GLenum;
   textureData?: any;
   #onDestroyed?: Function;
+
+
 
   /**
    * Constructs a new WebGLDataTexture.
@@ -24,6 +28,8 @@ export class WebGLDataTexture implements WebGLAbstractTexture {
     textureWidth?: number,
     textureHeight?: number,
     textureData?: any,
+    format?: GLenum,
+    type?: GLenum,
     onDestroyed?: Function
   } = {}) {
     this.gl = params.gl;
@@ -31,6 +37,8 @@ export class WebGLDataTexture implements WebGLAbstractTexture {
     this.textureWidth = params.textureWidth;
     this.textureHeight = params.textureHeight;
     this.textureData = params.textureData;
+    this.format = params.format;
+    this.type = params.type;
     this.#onDestroyed = params.onDestroyed;
   }
 

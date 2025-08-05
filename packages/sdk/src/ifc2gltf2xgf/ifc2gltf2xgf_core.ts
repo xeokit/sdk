@@ -31,21 +31,16 @@ function ifc2gltf2xgf(params: {
     } else {
       (new GLTFLoader()).load({fileData, sceneModel})
         .then(() => {
-          sceneModel.build()
-            .then(() => {
-              xgfExporter.write({
-                sceneModel,
-                version: xgfVersion
-              })
-                .then(xgfArrayBuffer => {
-                  return resolve({
-                    xgfArrayBuffer,
-                    sceneModel
-                  });
-                });
-            }).catch(err => {
-            return reject(err);
-          });
+          xgfExporter.write({
+            sceneModel,
+            version: xgfVersion
+          })
+            .then(xgfArrayBuffer => {
+              return resolve({
+                xgfArrayBuffer,
+                sceneModel
+              });
+            });
         }).catch(err => {
         return reject(err);
       });

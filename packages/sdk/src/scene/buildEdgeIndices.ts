@@ -1,5 +1,5 @@
 import {createVec3, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "../matrix";
-import {decompressPoint3WithAABB3, decompressPoint3WithMat4} from "../compression";
+import {decompressPoint3WithAABB3} from "../compression";
 import {DEGTORAD, type FloatArrayParam, type IntArrayParam} from "../math";
 
 const uniquePositions: number[] = [];

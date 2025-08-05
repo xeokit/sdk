@@ -150,12 +150,9 @@ demoHelper.init()
             response.arrayBuffer().then(fileData => {
                 gltfLoader.load({fileData, sceneModel}).then(() => {
 
-                    // Build the SceneModel.
                     // Each View will now contain its own ViewObject for each SceneObject in the SceneModel, illuminated
                     // by its own custom light sources. Via those ViewObjects, we can then control the appearance of
                     // each of our model objects independently in each View.
-
-                    sceneModel.build();
                 });
             });
         });

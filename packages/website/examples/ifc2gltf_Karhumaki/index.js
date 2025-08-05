@@ -96,11 +96,8 @@ demoHelper.init()
 
                         }).then(() => { // glTF and JSON files loaded
 
-                            // Build the SceneModel and DataModel.
-                            // The Karhumaki Bridge model now appears in our Viewer.
 
-                            sceneModel.build();
-                            dataModel.build();
+                            // The Karhumaki Bridge model now appears in our Viewer.
 
                             demoHelper.finished();
 

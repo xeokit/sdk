@@ -5,7 +5,6 @@ import type {DataModelParams} from "./DataModelParams";
 import type {DataModelStats} from "./DataModelStats";
 import {DataObject} from "./DataObject";
 import type {DataObjectParams} from "./DataObjectParams";
-import {EventDispatcher} from "strongly-typed-events";
 import type {PropertyParams} from "./PropertyParams";
 import {PropertySet} from "./PropertySet";
 import type {PropertySetParams} from "./PropertySetParams";
@@ -118,25 +117,6 @@ export class DataModel extends Component {
   public readonly typeCounts: { [key: string]: number };
 
   /**
-   * Emits an event when the {@link DataModel | DataModel} has been built.
-   *
-   * * The DataModel is built using {@link DataModel.build | DataModel.build}.
-   * * {@link DataModel.built | DataModel.built} indicates if the DataModel is currently built.
-   * * Don't create anything more in this DataModel once it's built.
-   *
-   * @event
-   */
-  public readonly onBuilt: EventEmitter<DataModel, null>;
-
-  /**
-   * Indicates if this DataModel has been built.
-   *
-   * * Set true by {@link DataModel.build | DataModel.build}.
-   * * Subscribe to updates using {@link DataModel.onBuilt | DataModel.onBuilt} and {@link Data.onModelCreated | Data.onModelCreated}.
-   */
-  built: boolean;
-
-  /**
    * Statistics on this DataModel.
    */
   public readonly stats: DataModelStats;
@@ -153,8 +133,6 @@ export class DataModel extends Component {
 
     super(data);
 
-    this.onBuilt = new EventEmitter(new EventDispatcher<DataModel, null>());
-
     this.data = data;
 
     this.id = id;
@@ -170,7 +148,6 @@ export class DataModel extends Component {
     this.relationships = [];
     this.typeCounts = {};
     this.rootObjects = {};
-    this.built = false;
     this.#destroyed = false;
 
     this.stats = {
@@ -227,16 +204,12 @@ export class DataModel extends Component {
    * @param propertySetCfg - Configuration parameters for the new PropertySet.
    * @returns {@link PropertySet} on success.
    * @returns {@link core!SDKError | SDKError} if:
-   * - The DataModel has already been built.
    * - The DataModel has been destroyed.
    * - A PropertySet with the same ID already exists within this DataModel.
    */
   createPropertySet(propertySetCfg: PropertySetParams): PropertySet | SDKError {
     if (this.destroyed) {
       return new SDKError("Failed to create PropertySet - DataModel already destroyed");
-    }
-    if (this.built) {
-      return new SDKError("DataModel already built");
     }
     if (this.propertySets[propertySetCfg.id]) {
       return new SDKError("Failed to create PropertySet - PropertySet with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel.")
@@ -297,7 +270,6 @@ export class DataModel extends Component {
    * @param dataObjectParams - Configuration parameters for the new DataObject.
    * @returns {@link DataObject} on success.
    * @returns {@link core!SDKError | SDKError} if:
-   * - The DataModel has already been built.
    * - The DataModel has been destroyed.
    * - A DataObject with the same ID already exists within this DataModel.
    * - A specified PropertySet could not be found.
@@ -305,9 +277,6 @@ export class DataModel extends Component {
   createObject(dataObjectParams: DataObjectParams): DataObject | SDKError {
     if (this.destroyed) {
       return new SDKError("Failed to create DataObject - DataModel already destroyed");
-    }
-    if (this.built) {
-      return new SDKError("Failed to create DataObject - DataModel already built");
     }
     const id = dataObjectParams.id;
     if (this.objects[id]) {
@@ -412,16 +381,12 @@ export class DataModel extends Component {
    * @param relationshipParams - Configuration parameters for the new Relationship.
    * @returns {@link Relationship} on success.
    * @returns {@link core!SDKError | SDKError} if:
-   * - The DataModel has already been built or destroyed.
    * - The *relating* DataObject does not exist in the {@link Data} containing this DataModel.
    * - The *related* DataObject does not exist in the {@link Data} containing this DataModel.
    */
   createRelationship(relationshipParams: RelationshipParams): Relationship | SDKError {
     if (this.destroyed) {
       return new SDKError("Failed to create Relationship - DataModel already destroyed");
-    }
-    if (this.built) {
-      return new SDKError("Failed to create Relationship - DataModel already built");
     }
     const relatingObject = this.data.objects[relationshipParams.relatingObjectId];
     if (!relatingObject) {
@@ -446,56 +411,6 @@ export class DataModel extends Component {
   }
 
   /**
-   * Finalizes this DataModel, making it ready for use.
-   *
-   * - Triggers the following events to notify subscribers:
-   *   - {@link DataModel.onBuilt | DataModel.onBuilt}
-   *   - {@link Data.onModelCreated | Data.onModelCreated}
-   * - Sets {@link DataModel.built | DataModel.built} to `true`.
-   * - Can only be called once per DataModel.
-   * - Once built, no additional components can be created within this DataModel.
-   *
-   * ### Usage Example
-   *
-   * ```javascript
-   * dataModel.onBuilt.subscribe(() => {
-   *     // The DataModel is built and ready for use
-   * });
-   *
-   * data.onModelCreated.subscribe((dataModel) => {
-   *     // Another way to listen for DataModel readiness
-   * });
-   *
-   * const result = dataModel.build();
-   *
-   * if (result instanceof SDKError) {
-   *     console.error(result.message);
-   * } else {
-   *     // Success
-   * }
-   * ```
-   *
-   * See {@link data | @xeokit/sdk/data} for more details.
-   *
-   * @throws {@link core!SDKError | SDKError} if:
-   * - The DataModel has already been built.
-   * - The DataModel has been destroyed.
-   */
-  build(): Promise<DataModel> {
-    return new Promise<DataModel>((resolve) => {
-      if (this.destroyed) {
-        throw new SDKError("Failed to build DataModel - DataModel already destroyed");
-      }
-      if (this.built) {
-        throw new SDKError("Failed to build DataModel - DataModel already built");
-      }
-      this.built = true;
-      this.onBuilt.dispatch(this, null);
-      resolve(this);
-    });
-  }
-
-  /**
    * Adds components from the specified `DataModelParams` to the data model.
    *
    * For detailed usage, refer to {@link data | @xeokit/sdk/data}.
@@ -506,7 +421,6 @@ export class DataModel extends Component {
    * * If the operation is successful.
    *
    * @returns {@link core!SDKError | SDKError}
-   * * If the data model has already been built.
    * * If the data model has already been destroyed.
    * * If a duplicate `PropertySet` was already created for the data model.
    * * If a duplicate `DataObject` already exists in the data model.
@@ -515,9 +429,6 @@ export class DataModel extends Component {
   fromParams(dataModelParams: DataModelContentParams): void | SDKError {
     if (this.destroyed) {
       return new SDKError("Failed to add components to DataModel - DataModel already destroyed");
-    }
-    if (this.built) {
-      throw new SDKError("Failed to add components to DataModel - DataModel already built");
     }
     if (dataModelParams.propertySets) {
       for (let i = 0, len = dataModelParams.propertySets.length; i < len; i++) {
@@ -611,7 +522,6 @@ export class DataModel extends Component {
    * {@link Data.onModelDestroyed | Data.onModelDestroyed}.
    * * Can only be called once on a DataModel.
    * * After destruction, no more components can be created in the DataModel.
-   * * It is safe to call this method even if the DataModel has not yet been built.
    *
    * For detailed usage, refer to {@link data | @xeokit/sdk/data}.
    *
@@ -665,7 +575,6 @@ export class DataModel extends Component {
       // }
     }
     this.#destroyed = true;
-    this.onBuilt.clear();
     super.destroy();
   }
 

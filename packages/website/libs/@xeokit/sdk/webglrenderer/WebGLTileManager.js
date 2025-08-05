@@ -126,4 +126,4 @@ export class WebGLTileManager {
         return new WebGLDataTexture({ gl, texture, textureWidth, textureHeight, textureData });
     }
 }
-//# sourceMappingURL=WebGLTileManager.js.map
+//# sourceMappingURL=DTXTiles.js.map

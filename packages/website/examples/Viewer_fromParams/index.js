@@ -208,9 +208,7 @@ demoHelper.init()
             ]
         });
 
-        // Build the SceneModel, causing the model to appear in the View's canvas.
+      // The model now appears in the View's canvas.
 
-        sceneModel.build().then(()=>{
-            demoHelper.finished();
-        });
+      demoHelper.finished();
     });

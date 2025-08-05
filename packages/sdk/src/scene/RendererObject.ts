@@ -34,11 +34,6 @@ export interface RendererObject {
   readonly rendererModel: RendererModel;
 
   /**
-   * The axis-aligned world-space 3D boundary of this RendererObject.
-   */
-  readonly aabb: FloatArrayParam;
-
-  /**
    * The ID of a {@link viewer!ViewLayer | ViewLayer} in which the {@link viewer!ViewObject | ViewObject} exclusively appears.
    */
   readonly layerId: string | null;

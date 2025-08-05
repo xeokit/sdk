@@ -75,12 +75,10 @@
  *
  * fetch("myModel.xkt").then(response => response.arrayBuffer().then(fileData => {
  *     loadXKT({ data, sceneModel, dataModel });
- *     sceneModel.build();
- *     dataModel.build();
  * }));
  * ```
  *
- * Once the model is loaded and built, we can capture a viewpoint:
+ * Once the model is loaded, we can capture a viewpoint:
  *
  * ```javascript
  * sceneModel.onBuilt.one(() => {
@@ -122,7 +120,7 @@
  *     layerId: "foreground"
  * });
  *
- * sceneModel.build();
+ * //...
  *
  * const bcfViewpoint = saveBCFViewpoint({
  *     view,

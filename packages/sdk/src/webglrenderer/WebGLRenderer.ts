@@ -14,23 +14,34 @@ import {EventEmitter, SDKError} from "../core";
 import {getWebGLExtension, WEBGL_INFO} from "../webglutils";
 import type {Renderer, View, Viewer} from "../viewer";
 import {type PickParams, PickResult} from "../viewer";
-import type {RendererObject, SceneModel} from "../scene";
+import type {RendererMesh, RendererObject, SceneModel} from "../scene";
 import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "../math";
 import {KTX2TextureTranscoder} from "../ktx2";
-import type {Layer} from "./Layer";
+import {Layer} from "./layer/Layer";
 import {Map} from "../utils";
 import type {Pickable} from "./Pickable";
 import {RenderContext} from "./RenderContext";
 import {RenderStats} from "./RenderStats";
-import {SAODepthLimitedBlurRenderer} from "./SAODepthLimitedBlurRenderer";
-import {SAOOcclusionRenderer} from "./SAOOcclusionRenderer";
+import {SAODepthLimitedBlurRenderer} from "./sao/SAODepthLimitedBlurRenderer";
+import {SAOOcclusionRenderer} from "./sao/SAOOcclusionRenderer";
 import {WebGLRenderBufferManager} from "./WebGLRenderBufferManager";
-import type {WebGLRendererMesh} from "./WebGLRendererMesh";
-import {WebGLRendererModel} from "./WebGLRendererModel";
-import {WebGLTileManager} from "./WebGLTileManager";
+import {WebGLRendererMesh} from "./proxies/WebGLRendererMesh";
+
 import {WebGLRendererView} from "./WebGLRendererView";
 import {createRTCViewMat} from "../rtc";
+
+import {DTXMemory} from "./dtx/DTXMemory";
+import type {
+  RendererGeometry,
+  RendererTexture,
+  RendererTextureSet,
+  SceneGeometry,
+  SceneMesh,
+  SceneObject
+} from "../scene";
+import {WebGLRendererObject} from "./proxies/WebGLRendererObject";
+import {WebGLRendererGeometry} from "./proxies/WebGLRendererGeometry";
 
 
 const tempVec3a = createVec3();
@@ -63,48 +74,34 @@ const pickTemps = {
 export class WebGLRenderer implements Renderer {
 
   /**
-   * @internal
+   * The RenderObjects in this Renderer.
    */
-  gl: WebGL2RenderingContext;
-
-  /**
-   * Interfaces through which each {@link viewer!ViewObject | ViewObject} shows/hides/highlights/selects/xrays/colorizes
-   * its {@link scene!SceneObject | SceneObject} within the WebGLRenderer that's
-   * configured on its {@link viewer!Viewer | Viewer}.
-   *
-   * @internal
-   */
-  rendererObjects: { [key: string]: RendererObject };
+  public rendererObjects: { [key: string]: RendererObject };
 
   /**
    * @internal
    */
-  renderStats: RenderStats;
+  readonly renderStats: RenderStats;
 
+  #gl: WebGL2RenderingContext;
+  #renderContext: RenderContext;
+  #webglCanvasElement: HTMLCanvasElement;
   #saoOcclusionRenderer: SAOOcclusionRenderer;
   #saoDepthLimitedBlurRenderer: SAODepthLimitedBlurRenderer;
-
   #pickBufferManager: WebGLRenderBufferManager;
-
   #rendererViews: { [key: string]: WebGLRendererView };
   #rendererViewsList: WebGLRendererView[];
   #activeRendererView: WebGLRendererView;
-
-  #viewer: Viewer;
-
-  /**
-   * @internal
-   */
-  renderContext: RenderContext;
-
-  /**
-   * @internal
-   */
-  tileManager: WebGLTileManager;
-
-  #shadersDirty: boolean;
-
-  #rendererModels: { [key: string]: WebGLRendererModel };
+  #needsRebuild: boolean;
+  #rendererModels: {
+    [key: string]: {
+      rendererGeometries: { [key: string]: RendererGeometry };
+      rendererTextures: { [key: string]: RendererTexture };
+      rendererTextureSets: { [key: string]: RendererTextureSet; };
+      rendererMeshes: { [key: string]: RendererMesh };
+    }
+  };
+  #layers: { [key: string]: Layer };
   #layerList: Layer[];
   #layerListDirty: boolean;
   #stateSortDirty: boolean;
@@ -113,14 +110,11 @@ export class WebGLRenderer implements Renderer {
   #logarithmicDepthBufferEnabled: boolean;
   #alphaDepthMask: boolean;
   #occlusionTester: any;
-  // #saoOcclusionRenderer: null | SAOOcclusionRenderer;
-  // #saoDepthLimitedBlurRenderer: SAODepthLimitedBlurRenderer;
   #textureTranscoder: TextureTranscoder;
   #viewMatrixDirty: boolean;
+  #pickResult: PickResult;
   #snapshotBound: boolean;
   #destroyed: boolean;
-
-  #onViewCameraMatrix: () => void | null;
 
   /**
    * @internal
@@ -134,10 +128,13 @@ export class WebGLRenderer implements Renderer {
    */
   readonly onDestroyed: EventEmitter<WebGLRenderer, boolean>;
 
-  #webglCanvasElement: HTMLCanvasElement;
-
-
-  #pickResult: PickResult;
+  #onViewCreated: () => void;
+  #onViewDestroyed: () => void;
+  #onViewerDestroyed: () => void;
+  #onObjectCreated: () => void;
+  #onObjectDestroyed: () => void;
+  #onModelCreated: () => void;
+  #onModelDestroyed: () => void;
 
   /**
    * Creates a WebGLRenderer.
@@ -151,9 +148,9 @@ export class WebGLRenderer implements Renderer {
   constructor(params: {
     textureTranscoder?: TextureTranscoder
   }) {
+
     this.renderStats = new RenderStats();
-    this.rendererObjects = {};
-    this.renderContext = null;
+    this.#renderContext = null;
     this.#textureTranscoder = params.textureTranscoder || new KTX2TextureTranscoder({});
     this.#alphaDepthMask = false;
     this.#extensionHandles = {};
@@ -161,21 +158,17 @@ export class WebGLRenderer implements Renderer {
     this.#layerList = [];
     this.#layerListDirty = true;
     this.#stateSortDirty = true;
-    this.#shadersDirty = true;
+    this.#needsRebuild = true;
     this.#occlusionTester = null; // Lazy-created in #addMarker()
-
-    // this.#saoDepthRenderBuffer = null;
-    // this.#renderBufferManager = null;
     this.#logarithmicDepthBufferEnabled = false;
     this.#rendererModels = {};
+    this.rendererObjects = {};
     this.#viewMatrixDirty = true;
     this.#snapshotBound = false;
     this.#destroyed = false;
-
     this.#rendererViews = {};
     this.#rendererViewsList = [];
     this.#activeRendererView = null;
-
     this.#pickResult = new PickResult();
 
     this.onCompiled = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
@@ -199,20 +192,20 @@ export class WebGLRenderer implements Renderer {
       premultipliedAlpha: false,
       antialias: true
     };
-    this.gl = <WebGL2RenderingContext>webglCanvasElement.getContext("webgl2", contextAttr);
-    if (!this.gl) {
+    this.#gl = <WebGL2RenderingContext>webglCanvasElement.getContext("webgl2", contextAttr);
+    if (!this.#gl) {
       throw new SDKError(`Failed to get a WebGL2 context`);
     }
-    this.gl.hint(this.gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this.gl.NICEST);
+    this.#gl.hint(this.#gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this.#gl.NICEST);
 
-    this.#pickBufferManager = new WebGLRenderBufferManager(this.gl, webglCanvasElement);
+    this.#pickBufferManager = new WebGLRenderBufferManager(this.#gl, webglCanvasElement);
   }
 
   /**
    * The Viewer this WebGLRenderer is currently attached to, if any.
    */
   get viewer(): Viewer {
-    return this.#viewer;
+    return this.#renderContext.viewer;
   }
 
   /**
@@ -261,21 +254,52 @@ export class WebGLRenderer implements Renderer {
    * * The given Viewer is already attached to another Renderer.
    */
   attachViewer(viewer: Viewer): void {
-    if (this.#viewer) {
+    if (this.#renderContext) {
       throw new SDKError("Can't attach Viewer to WebGLRenderer - a Viewer is already attached");
     }
     if (viewer.renderer) {
       throw new SDKError("Can't attach Viewer to WebGLRenderer - given Viewer is already attached to another Renderer");
     }
-    this.#viewer = viewer;
-    this.tileManager = new WebGLTileManager(viewer, this);
-    this.#textureTranscoder.init(this.#viewer.capabilities);
-    this.renderContext = new RenderContext(this.#viewer, this.gl, this, this.tileManager);
+    // Attach existing Views and Scene components
+    for (let viewIndex = 0; viewIndex < viewer.numViews; viewIndex++) {
+      this.#attachView(viewer.viewList[viewIndex]);
+    }
+    const scene = viewer.scene;
+    for (let modelId in scene.models) {
+      this.#attachModel(scene.models[modelId]);
+    }
+    for (let objectId in scene.objects) {
+      this.#attachObject(scene.objects[objectId]);
+    }
+    // Synch with Viewer and Scene content updates
+    this.#onViewCreated = viewer.onViewCreated.subscribe((_, view) => {
+      this.#attachView(view);
+    });
+    this.#onViewDestroyed = viewer.onViewDestroyed.subscribe((_, view) => {
+      this.#detachView(view);
+    });
+    this.#onViewerDestroyed = viewer.onDestroyed.subscribe((viewer, _) => {
+      this.detachViewer();
+    });
+    this.#onModelCreated = scene.onModelCreated.subscribe((viewer, sceneModel) => {
+      this.#attachModel(sceneModel);
+    });
+    this.#onObjectCreated = scene.onObjectCreated.subscribe((viewer, object) => {
+      this.#attachObject(object);
+    });
+    this.#onObjectDestroyed = scene.onObjectDestroyed.subscribe((viewer, object) => {
+      this.#detachObject(object);
+    });
+    this.#onModelDestroyed = scene.onModelDestroyed.subscribe((viewer, sceneModel) => {
+      this.#detachModel(sceneModel);
+    });
+    this.#textureTranscoder.init(viewer.capabilities);
+    this.#renderContext = new RenderContext(viewer, this.#gl, this, new DTXMemory({gl: this.#gl, viewer}));
     this.#saoOcclusionRenderer = new SAOOcclusionRenderer({
-      renderContext: this.renderContext
+      renderContext: this.#renderContext
     });
     this.#saoDepthLimitedBlurRenderer = new SAODepthLimitedBlurRenderer({
-      renderContext: this.renderContext
+      renderContext: this.#renderContext
     });
   }
 
@@ -283,211 +307,224 @@ export class WebGLRenderer implements Renderer {
    * Detaches the {@link viewer!Viewer | Viewer} that is currently attached, if any.
    *
    * @internal
-   * @returns *void*
-   * * Viewer successfully detached.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * No Viewer is currently attached to this WebGLRenderer.
    */
-  detachViewer(): SDKError | void {
-    if (this.#viewer) {
-      return new SDKError("Can't detach Viewer from WebGLRenderer - no Viewer is currently attached");
+  detachViewer(): void {
+    if (!this.#renderContext) {
+      return;
     }
-    for (const id in this.#rendererModels) {
-      const rendererModel = this.#rendererModels[id];
-      this.#detachRendererObjects(rendererModel);
-      // Detaches WebGLRendererObjects, WebGLRendererMeshes,  WebGLRendererTexturesSets,
-      // WebGLRendererTextures etc. and destroys Layers
-      rendererModel.destroy();
-      delete this.#rendererModels[id];
+    const viewer = this.#renderContext.viewer;
+    const scene = viewer.scene;
+    const sceneObjects = scene.objects;
+    const sceneModels = scene.models;
+    for (let objectId in sceneObjects) {
+      this.#detachObject(sceneObjects[objectId]);
     }
-    this.#viewer = null;
+    for (let modelId in sceneModels) {
+      this.#detachModel(sceneModels[modelId]);
+    }
+    for (let viewIndex = 0; viewIndex < viewer.numViews; viewIndex++) {
+      this.#detachView(viewer.viewList[viewIndex]);
+    }
+
+    this.#onViewerDestroyed();
+    this.#onViewCreated();
+    this.#onViewDestroyed();
+    this.#onModelCreated();
+    this.#onModelDestroyed();
+    this.#onObjectCreated();
+    this.#onObjectDestroyed();
+
+    this.#saoOcclusionRenderer.destroy();
+    this.#saoDepthLimitedBlurRenderer.destroy();
+
+    // TODO: Delete DTXMemory
+
+    this.#renderContext = null;
+    this.#saoOcclusionRenderer = null;
+    this.#saoDepthLimitedBlurRenderer = null;
     this.#rendererViews = {};
-    this.renderContext = null;
     this.#layerList = [];
     this.rendererObjects = {};
+    this.#rendererModels = {};
   }
 
-  /**
-   * Attaches a {@link viewer!View} to this WebGLRenderer.
-   *
-   * The WebGLRenderer will then begin rendering each {@link scene!SceneModel | SceneModel} previously or subsequently
-   * created with {@link scene!Scene.createModel | Scene.createModel}, for the new View.
-   *
-   * You can only attach as many Views as indicated in {@link  core!Capabilities.maxViews | Capabilities.maxViews}, as returned by
-   * {@link WebGLRenderer.getCapabilities | WebGLRenderer.getCapabilities}.
-   *
-   * @internal
-   * @param view The View to attach.
-   * @returns *void*
-   * * View successfully attached.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * No Viewer is attached to this WebGLRenderer.
-   * * Caller attempted to attach too many Views.
-   * * The WebGLRenderer failed to get a WebGL2 context on the View's canvas.
-   */
-  attachView(view: View): void | SDKError {
-    if (!this.#viewer) {
-      throw new SDKError("Can't attach View to WebGLRenderer - no Viewer is attached");
-    }
+  #attachView(view: View): WebGLRendererView {
     if (this.#rendererViews[view.id]) {
-      return new SDKError("Can't attach additional View to WebGLRenderer - View already attached (see WebViewerCapabilities.maxViews)");
+      throw "[WebGLRenderer] Can't attach additional View to WebGLRenderer - View already attached (see WebViewerCapabilities.maxViews)";
     }
-
-    view.camera.onViewMatrix.subscribe(this.#onViewCameraMatrix = () => {
-      this.#viewMatrixDirty = true;
-    });
-    const rendererView = new WebGLRendererView(this.renderContext.gl, this.#webglCanvasElement, view);
+    const rendererView = new WebGLRendererView(this.#renderContext.gl, this.#webglCanvasElement, view);
     this.#rendererViews[view.id] = rendererView;
     view.viewIndex = this.#rendererViewsList.length;
     this.#rendererViewsList.push(rendererView);
+    return rendererView;
   }
 
-  // #updateViewIndices() {
-  //     this.#rendererViewsList = [];
-  //     for (let viewIndex = 0, len = this.#viewer.viewList.length; viewIndex < len; viewIndex++) {
-  //         const view = this.#viewer.viewList[viewIndex];
-  //         view.viewIndex = viewIndex;
-  //         this.#rendererViewsList[viewIndex] = this.#rendererViews[view.id];
-  //     }
-  // }
-
-  /**
-   * Detaches the given {@link viewer!View} from this Renderer.
-   *
-   * The Renderer will then cease rendering for that View.
-   *
-   * @internal
-   * @param view The View to detach.
-   * @returns *void*
-   * * View successfully detached.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * No Viewer is attached to this WebGLRenderer.
-   * * View is not currently attached to this WebGLRenderer.
-   */
-  detachView(view: View): SDKError | void {
-    if (!this.#viewer) {
-      throw new SDKError("Can't detach View from WebGLRenderer - no Viewer is attached");
-    }
+  #detachView(view: View): void {
     const rendererView = this.#rendererViews[view.id];
     if (!rendererView) {
-      return new SDKError("Can't detach View to WebGLRenderer - given View is not attached");
+      throw "[WebGLRenderer] View is not attached";
     }
     rendererView.destroy();
     delete this.#rendererViews[view.id];
-    view.camera.onViewMatrix.unsubscribe(this.#onViewCameraMatrix);
-    view.viewIndex = 0;
-    this.#onViewCameraMatrix = null;
-    for (const id in this.#rendererModels) {
-      const rendererModel = this.#rendererModels[id];
-      this.#detachRendererObjects(rendererModel);
-      // Detaches WebGLRendererObjects, WebGLRendererMeshes,  WebGLRendererTexturesSets,
-      // WebGLRendererTextures etc. and destroys Layers
-      rendererModel.destroy();
-      delete this.#rendererModels[id];
-    }
-    this.renderContext = null;
-    this.#layerList = [];
-    this.rendererObjects = {};
-    // TODO: Remove rendererView etc
   }
 
-  /**
-   * Attaches a {@link scene!SceneModel | SceneModel} to this WebGLRenderer.
-   *
-   * This method attaches various hooks to the elements within the SceneModel, through which they can
-   * upload state updates to the Renderer.
-   *
-   * * Sets a {@link scene!RendererModel} on {@link scene!SceneModel.rendererModel | SceneModel.rendererModel}
-   * * Sets a {@link scene!RendererObject} on each {@link scene!SceneObject.rendererObject | SceneObject.rendererObject}
-   * * Sets a {@link scene!RendererMesh} on each {@link scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh}
-   * * Sets a {@link scene!RendererTextureSet} on each {@link scene!SceneTextureSet.rendererTextureSet | SceneTextureSet.rendererTextureSet}
-   * * Sets a {@link scene!RendererTexture} on each {@link scene!SceneTexture.rendererTexture | SceneTexture.rendererTexture}
-   *
-   * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
-   *
-   * You must first attach a View with {@link webglrenderer!WebGLRenderer.attachView | Renderer.attachView} before you can attach a SceneModel.
-   *
-   * @param sceneModel
-   * @internal
-   * @returns *void*
-   * * SceneModel successfully attached.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * No View is currently attached to this WebGLRenderer.
-   * * SceneModel already attached to this WebGLRenderer, or to another Renderer.
-   */
-  attachSceneModel(sceneModel: SceneModel): SDKError | void {
-    if (!this.#viewer) {
-      return new SDKError("Can't attach SceneModel to WebGLRenderer - no Viewer is attached");
+  #attachModel(sceneModel: SceneModel): void {
+    const modelId = sceneModel.id;
+    let rendererModel = this.#rendererModels[modelId];
+    if (!rendererModel) {
+      rendererModel = {
+        rendererGeometries: {},
+        rendererTextures: {},
+        rendererTextureSets: {},
+        rendererMeshes: {}
+      };
+      this.#rendererModels[modelId] = rendererModel;
     }
-    if (this.#rendererViewsList.length === 0) {
-      return new SDKError("Can't attach SceneModel to WebGLRenderer - no View is attached");
+  }
+
+  #detachModel(sceneModel: SceneModel): void {
+    delete this.#rendererModels[sceneModel.id];
+  }
+
+  #attachObject(sceneObject: SceneObject): void {
+    let objectId = sceneObject.id;
+    if (this.rendererObjects[objectId]) {
+      throw "[WebGLRenderer] Already has a SceneObject attached with this ID: " + objectId;
     }
-    const rendererModel = new WebGLRendererModel({
-      id: sceneModel.id,
-      sceneModel,
-      viewer: this.viewer,
-      textureTranscoder: this.#textureTranscoder,
-      webglRenderer: this,
-      renderContext: this.renderContext
+    const sceneModel = sceneObject.model;
+    const modelId = sceneModel.id;
+    const rendererModel = this.#rendererModels[modelId];
+    if (!rendererModel) {
+      throw "[WebGLRenderer] SceneModel not found with this ID: " + modelId;
+    }
+    const meshes = sceneObject.meshes;
+    if (meshes === undefined) {
+      throw "[WebGLRenderer] SceneObject property expected: meshes";
+    }
+    const rendererMeshes = [];
+    for (let i = 0, len = meshes.length; i < len; i++) {
+      const sceneMesh = meshes[i];
+      try {
+        const rendererMesh = this.#attachMesh(rendererModel, sceneMesh);
+        if (rendererMesh instanceof SDKError) {
+          console.log("[WebGLRenderer] " + rendererMesh);
+        } else {
+          rendererMeshes.push(rendererMesh);
+        }
+      } catch (sdkError) {
+        console.log("[WebGLRenderer] " + sdkError);
+      }
+    }
+    if (rendererMeshes.length === 0) {
+      // TODO: Handle this case gracefully?
+      return;
+    }
+    const rendererObject = new WebGLRendererObject({
+      renderContext: this.#renderContext,
+      id: objectId,
+      rendererModel: this,
+      rendererMeshes
     });
-    this.#rendererModels[rendererModel.id] = rendererModel;
-    this.#attachRendererObjects(rendererModel);
+    this.rendererObjects[objectId] = rendererObject;
+    sceneObject.rendererObject = rendererObject;
     this.#layerListDirty = true;
-    sceneModel.rendererModel = rendererModel;
   }
 
-  #attachRendererObjects(rendererModel: WebGLRendererModel) {
-    const rendererObjects = rendererModel.rendererObjects;
-    for (const id in rendererObjects) {
-      this.rendererObjects[id] = rendererObjects[id];
+  #attachMesh(rendererModel: any, sceneMesh: SceneMesh): SDKError | WebGLRendererMesh {
+    const meshId = sceneMesh.id;
+    if (rendererModel.rendererMeshes[meshId]) {
+      throw "[WebGLRenderer] SceneMesh already attached with this ID: " + meshId;
     }
+    const rendererGeometry = this.#attachGeometry(rendererModel, sceneMesh.geometry);
+    const layer = this.#getLayer(sceneMesh);
+    if (!layer) {
+      return new SDKError("Failed to allocate memory for SceneMesh with this ID: " + meshId);
+    }
+    const rendererMesh = new WebGLRendererMesh({ // Calls ayer.addMesh
+      renderContext: this.#renderContext,
+      id: sceneMesh.id,
+      sceneMesh,
+      layer,
+      meshIndex: layer.addMesh(sceneMesh),
+      rendererGeometry
+    });
+    rendererModel.rendererMeshes[sceneMesh.id] = rendererMesh;
+    sceneMesh.rendererMesh = rendererMesh;
+    return rendererMesh;
   }
 
-  /**
-   * Detaches a {@link scene!SceneModel | SceneModel} from this WebGLRenderer.
-   *
-   * Detaches and destroys the {@link scene!RendererModel}, {@link scene!RendererObject} and
-   * {@link scene!RendererMesh},
-   * {@link scene!RendererTexture} instances that were attached in {@link webglrenderer!WebGLRenderer.attachSceneModel}.
-   *
-   * @internal
-   * @returns *void*
-   * * SceneModel successfully detached.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * No View is currently attached to this WebGLRenderer.
-   * * SceneModel is not attached to this WebGLRenderer.
-   */
-  detachSceneModel(sceneModel: SceneModel): SDKError | void {
-    if (!this.#viewer) {
-      throw new SDKError("Can't detach SceneModel from WebGLRenderer - no Viewer is attached");
+  #attachGeometry(rendererModel: any, geometry: SceneGeometry): WebGLRendererGeometry {
+    const geometryId = geometry.id;
+    let rendererGeometry = rendererModel.rendererGeometries[geometryId];
+    if (!rendererGeometry) {
+      rendererGeometry = new WebGLRendererGeometry();
+      rendererModel.rendererGeometries[geometryId] = rendererGeometry;
+      geometry.rendererGeometry = rendererGeometry;
     }
-    if (this.#rendererViewsList.length === 0) {
-      throw new SDKError("Can't detach SceneModel to WebGLRenderer - no View is attached");
-    }
-    if (this.#rendererModels[sceneModel.id] == undefined) {
-      return new SDKError(`Can't detach SceneModel from WebGLRenderer - no SceneModel with this ID ("${sceneModel.id}") has been attached to this WebGLRenderer`);
-    }
-    this.#detachSceneModel(sceneModel);
+    rendererGeometry.useCount++;
+    return rendererGeometry;
   }
 
-  #detachSceneModel(sceneModel: SceneModel) {
-    if (this.#rendererModels[sceneModel.id]) {
-      const rendererModel = this.#rendererModels[sceneModel.id];
-      this.#detachRendererObjects(rendererModel);
-      // Detaches WebGLRendererObjects, WebGLRendererMeshes,  WebGLRendererTexturesSets,
-      // WebGLRendererTextures etc. and destroys Layers
-      rendererModel.destroy();
-      delete this.#rendererModels[sceneModel.id];
+  #getLayer(sceneMesh: SceneMesh): Layer | undefined {
+    const sceneGeometry = sceneMesh.geometry;
+    const primitive = sceneGeometry.primitive;
+    const layerId = `layer-${primitive}`;
+    let layer = this.#layers[layerId];
+    if (layer) {
+      // if (layer.canAddMesh(sceneMesh)) {
+      return layer;
+      // } else {
+      //   delete this.#currentLayers[layerId];
+      // }
+    }
+    layer = new Layer({primitive, renderContext: this.#renderContext});
+    this.#layers[layerId] = layer;
+    return layer;
+  }
+
+  #detachObject(sceneObject: SceneObject) {
+    const rendererModel = this.#rendererModels[sceneObject.model.id];
+    if (rendererModel) {
+      const meshes = sceneObject.meshes;
+      if (meshes) {
+        for (let i = 0, len = meshes.length; i < len; i++) {
+          const sceneMesh = meshes[i];
+          this.#detachMesh(rendererModel, sceneMesh);
+        }
+      }
+      delete this.rendererObjects[sceneObject.id];
+      sceneObject.rendererObject = null;
       this.#layerListDirty = true;
-      sceneModel.rendererModel = null;
     }
   }
 
-  #detachRendererObjects(rendererModel: WebGLRendererModel) {
-    const rendererObjects = rendererModel.rendererObjects;
-    for (const id in rendererObjects) {
-      delete this.rendererObjects[id];
+  #detachMesh(rendererModel: any, sceneMesh: SceneMesh): void {
+    const rendererMesh = <WebGLRendererMesh>sceneMesh.rendererMesh;
+    if (rendererMesh) {
+      const sceneGeometry = sceneMesh.geometry;
+      if (sceneGeometry) {
+        this.#detachGeometry(rendererModel, sceneGeometry);
+      }
+      const rendererObject = rendererMesh.rendererObject;
+      rendererMesh.layer.removeMesh(sceneMesh, rendererObject.flags);
+      this.#putLayer(rendererMesh.layer);
+      delete rendererModel.rendererMeshes[sceneMesh.id];
+      sceneMesh.rendererMesh = null;
     }
+  }
+
+  #detachGeometry(rendererModel: any, sceneGeometry: SceneGeometry): void {
+    let rendererGeometry = <WebGLRendererGeometry>sceneGeometry.rendererGeometry;
+    if (rendererGeometry) {
+      if (--rendererGeometry.useCount <= 0) {
+        delete rendererModel.rendererGeometries[sceneGeometry.id];
+        sceneGeometry.rendererGeometry = null;
+      }
+    }
+  }
+
+  #putLayer(layer: Layer) {
+    // TODO: Keep Layers or cleanup?
   }
 
   /**
@@ -593,14 +630,14 @@ export class WebGLRenderer implements Renderer {
    * * Can't find a View attached to this WebGLRenderer with the given handle.
    */
   clear(viewIndex: number): void | SDKError {
-    if (!this.#viewer) {
+    if (!this.#renderContext) {
       return new SDKError("Can't clear canvas with WebGLRenderer - no Viewer and View is attached");
     }
     const rendererView = this.#rendererViewsList[viewIndex];
     if (!rendererView) {
       return new SDKError(`Can't clear canvas with WebGLRenderer - no View attached at given viewIndex: ${viewIndex}`);
     }
-    const gl = this.renderContext.gl;
+    const gl = this.#renderContext.gl;
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     if (rendererView.canvasTransparent) {
       gl.clearColor(0, 0, 0, 0);
@@ -621,7 +658,7 @@ export class WebGLRenderer implements Renderer {
    * * Can't find a View attached to this WebGLRenderer with the given handle.
    */
   setNeedsRebuild(viewIndex?: number): void {
-    this.#shadersDirty = true;
+    this.#needsRebuild = true;
   }
 
   /**
@@ -654,18 +691,22 @@ export class WebGLRenderer implements Renderer {
    * * No View is currently attached to this Renderer.
    * * Can't find a View attached to this Renderer with the given handle.
    */
-  render(viewIndex: number, params?: { force?: boolean; opaqueOnly?: boolean }): void | SDKError {
-    if (!this.#viewer) {
-      return new SDKError("Can't render with WebGLRenderer - no Viewer and View is attached");
+  render(viewIndex: number,
+         params?: {
+           force?: boolean;
+           opaqueOnly?: boolean
+         }): void | SDKError {
+    if (!this.#renderContext) {
+      return new SDKError("Can't render with WebGLRenderer - no Viewer attached");
     }
     const rendererView = this.#rendererViewsList[viewIndex];
     if (!rendererView) {
       return new SDKError(`Can't render with WebGLRenderer - no View attached at given viewIndex: ${viewIndex}`);
     }
     this.renderStats.reset();
-    if (this.#shadersDirty) {
+    if (this.#needsRebuild) {
       this.onCompiled.dispatch(this, true);
-      this.#shadersDirty = false;
+      this.#needsRebuild = false;
     }
     // params = params || {};
     if (params.force) {
@@ -678,7 +719,6 @@ export class WebGLRenderer implements Renderer {
         viewIndex,
         clear: true
       });
-
       rendererView.imageDirty = false;
     }
   }
@@ -730,7 +770,6 @@ export class WebGLRenderer implements Renderer {
   #updateLayerList(): void {
     if (this.#layerListDirty) {
       this.#buildLayerList();
-      this.#layerListDirty = false;
       this.#stateSortDirty = true;
     }
     if (this.#stateSortDirty) {
@@ -744,14 +783,7 @@ export class WebGLRenderer implements Renderer {
   }
 
   #buildLayerList(): void {
-    let lenLayerList = 0;
-    for (const id in this.#rendererModels) {
-      const rendererModel = this.#rendererModels[id];
-      for (let i = 0, len = rendererModel.layerList.length; i < len; i++) {
-        this.#layerList[lenLayerList++] = rendererModel.layerList[i];
-      }
-    }
-    this.#layerList.length = lenLayerList;
+    this.#layerList = Object.values(this.#layers);
   }
 
   #sortLayerList(): void {
@@ -783,13 +815,13 @@ export class WebGLRenderer implements Renderer {
 
   #activateExtensions() {
     if (WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_element_index_uint"]) {
-      this.#extensionHandles.OES_element_index_uint = this.renderContext.gl.getExtension("OES_element_index_uint");
+      this.#extensionHandles.OES_element_index_uint = this.#renderContext.gl.getExtension("OES_element_index_uint");
     }
     if (this.#logarithmicDepthBufferEnabled && WEBGL_INFO.SUPPORTED_EXTENSIONS["EXT_frag_depth"]) {
-      this.#extensionHandles.EXT_frag_depth = this.renderContext.gl.getExtension('EXT_frag_depth');
+      this.#extensionHandles.EXT_frag_depth = this.#renderContext.gl.getExtension('EXT_frag_depth');
     }
     if (WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"]) {
-      this.#extensionHandles.WEBGL_depth_texture = this.renderContext.gl.getExtension('WEBGL_depth_texture');
+      this.#extensionHandles.WEBGL_depth_texture = this.#renderContext.gl.getExtension('WEBGL_depth_texture');
     }
   }
 
@@ -863,7 +895,7 @@ export class WebGLRenderer implements Renderer {
     const viewIndex = params.viewIndex;
     const rendererView = this.#rendererViewsList[viewIndex];
     const view = rendererView.view;
-    const renderContext = this.renderContext;
+    const renderContext = this.#renderContext;
     const gl = renderContext.gl;
 
     renderContext.reset();
@@ -895,223 +927,108 @@ export class WebGLRenderer implements Renderer {
     // }
   }
 
-  #drawColor(params: {
-    viewIndex: number,
-    clear: boolean;
-  }) {
-
-    const viewIndex = params.viewIndex;
+  /**
+   * Renders color passes for the current frame view.
+   * Batches opaque, translucent, x-ray, highlighted, and selected drawing into discrete bins
+   * to minimize state changes and maintain performance.
+   */
+  #drawColor(params: { viewIndex: number; clear: boolean }): void {
+    const {viewIndex, clear} = params;
     const rendererView = this.#rendererViewsList[viewIndex];
     const view = rendererView.view;
-    const renderContext = this.renderContext;
-    const gl = renderContext.gl;
+    const gl = this.#renderContext.gl;
+    const ctx = this.#renderContext;
 
-    const normalDrawSAOBin: Layer[] = [];
-    const edgesColorOpaqueBin: Layer[] = [];
-    const normalFillTransparentBin: Layer[] = [];
-    const edgesColorTransparentBin: Layer[] = [];
-    const xrayedSilhouetteOpaqueBin: Layer[] = [];
-    const xrayEdgesOpaqueBin: Layer[] = [];
-    const xrayedSilhouetteTransparentBin: Layer[] = [];
-    const xrayEdgesTransparentBin: Layer[] = [];
-    const highlightedSilhouetteOpaqueBin: Layer[] = [];
-    const highlightedEdgesOpaqueBin: Layer[] = [];
-    const highlightedSilhouetteTransparentBin: Layer[] = [];
-    const highlightedEdgesTransparentBin: Layer[] = [];
-    const selectedSilhouetteOpaqueBin: Layer[] = [];
-    const selectedEdgesOpaqueBin: Layer[] = [];
-    const selectedSilhouetteTransparentBin: Layer[] = [];
-    const selectedEdgesTransparentBin: Layer[] = [];
+    const bins = {
+      normalDrawSAO: [] as Layer[],
+      edgesColorOpaque: [] as Layer[],
+      normalFillTransparent: [] as Layer[],
+      edgesColorTransparent: [] as Layer[],
+      xrayedSilhouetteOpaque: [] as Layer[],
+      xrayEdgesOpaque: [] as Layer[],
+      xrayedSilhouetteTransparent: [] as Layer[],
+      xrayEdgesTransparent: [] as Layer[],
+      highlightedSilhouetteOpaque: [] as Layer[],
+      highlightedEdgesOpaque: [] as Layer[],
+      highlightedSilhouetteTransparent: [] as Layer[],
+      highlightedEdgesTransparent: [] as Layer[],
+      selectedSilhouetteOpaque: [] as Layer[],
+      selectedEdgesOpaque: [] as Layer[],
+      selectedSilhouetteTransparent: [] as Layer[],
+      selectedEdgesTransparent: [] as Layer[]
+    };
 
-    renderContext.reset();
-    renderContext.view = view;
-    renderContext.pbrEnabled = rendererView.pbrEnabled;
+    ctx.reset();
+    ctx.view = view;
+    ctx.pbrEnabled = rendererView.pbrEnabled;
 
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-
-    if (rendererView.canvasTransparent) {
-      gl.clearColor(0, 0, 0, 0);
-    } else {
-      gl.clearColor(rendererView.view.backgroundColor[0], rendererView.view.backgroundColor[1], rendererView.view.backgroundColor[2], 1.0);
-    }
-
+    const bg = rendererView.canvasTransparent ? [0, 0, 0, 0] : [...view.backgroundColor, 1];
+    gl.clearColor(bg[0], bg[1], bg[2], bg[3]);
     gl.enable(gl.DEPTH_TEST);
     gl.frontFace(gl.CCW);
     gl.enable(gl.CULL_FACE);
     gl.depthMask(true);
     gl.lineWidth(1);
-
-    renderContext.lineWidth = 1;
+    ctx.lineWidth = 1;
 
     const drawWithSAO = rendererView.saoEnabled && view.sao.possible;
+    ctx.saoOcclusionTexture = drawWithSAO
+      ? rendererView.renderBufferManager.getRenderBuffer("saoOcclusion")?.getTexture() ?? null
+      : null;
 
-    if (drawWithSAO) {
-      const saoOcclusionRenderBuffer = rendererView.renderBufferManager.getRenderBuffer("saoOcclusion");
-      renderContext.saoOcclusionTexture = saoOcclusionRenderBuffer ? saoOcclusionRenderBuffer.getTexture() : null;
-    } else {
-      renderContext.saoOcclusionTexture = null;
-    }
+    if (clear !== false) gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    if (params.clear !== false) {
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    }
-
-    // Render normal opaque solids, defer others to subsequent bins, to render after
+    const edgeMat = view.edges;
+    const hlMat = view.highlightMaterial;
+    const slMat = view.selectedMaterial;
+    const xrMat = view.xrayMaterial;
 
     for (let i = 0, len = this.#layerList.length; i < len; i++) {
-
       const layer = this.#layerList[i];
-      const meshCounts = layer.meshCounts[viewIndex];
+      const counts = layer.meshCounts[viewIndex];
 
-      if (meshCounts.numCulled === meshCounts.numMeshes || meshCounts.numVisible === 0) {
-        continue;
+      if (counts.numVisible === 0 || counts.numCulled === counts.numMeshes) continue;
+
+      const opaque = counts.numTransparent < counts.numMeshes;
+      const trans = counts.numTransparent > 0;
+      const xr = counts.numXRayed > 0;
+      const hl = counts.numHighlighted > 0;
+      const sl = counts.numSelected > 0;
+
+      if (opaque) {
+        if (drawWithSAO && layer.saoSupported) bins.normalDrawSAO.push(layer);
+        else layer.drawColorOpaque();
       }
 
-      if (meshCounts.numTransparent < meshCounts.numMeshes) {
-        if (drawWithSAO && layer.saoSupported) {
-          normalDrawSAOBin.push(layer);
-        } else {
-          layer.drawColorOpaque();
-        }
-      }
+      if (rendererView.transparentEnabled && trans) bins.normalFillTransparent.push(layer);
 
-      if (rendererView.transparentEnabled) {
-        if (meshCounts.numTransparent > 0) {
-          normalFillTransparentBin.push(layer);
-        }
-      }
+      if (xr && xrMat.fill) (xrMat.fillAlpha < 1.0 ? bins.xrayedSilhouetteTransparent : bins.xrayedSilhouetteOpaque).push(layer);
+      if (hl && hlMat.fill) (hlMat.fillAlpha < 1.0 ? bins.highlightedSilhouetteTransparent : bins.highlightedSilhouetteOpaque).push(layer);
+      if (sl && slMat.fill) (slMat.fillAlpha < 1.0 ? bins.selectedSilhouetteTransparent : bins.selectedSilhouetteOpaque).push(layer);
 
-      if (meshCounts.numXRayed > 0) {
-        if (view.xrayMaterial.fill) {
-          if (view.xrayMaterial.fillAlpha < 1.0) {
-            xrayedSilhouetteTransparentBin.push(layer);
-          } else {
-            xrayedSilhouetteOpaqueBin.push(layer);
-          }
-        }
-      }
-
-      if (meshCounts.numHighlighted > 0) {
-        if (view.highlightMaterial.fill) {
-          if (view.highlightMaterial.fillAlpha < 1.0) {
-            highlightedSilhouetteTransparentBin.push(layer);
-          } else {
-            highlightedSilhouetteOpaqueBin.push(layer);
-          }
-        }
-      }
-
-      if (meshCounts.numSelected > 0) {
-        if (view.selectedMaterial.fill) {
-          if (view.selectedMaterial.fillAlpha < 1.0) {
-            selectedSilhouetteTransparentBin.push(layer);
-          } else {
-            selectedSilhouetteOpaqueBin.push(layer);
-          }
-        }
-      }
-
-      if (rendererView.edgesEnabled && view.edges.applied) {
-        if (meshCounts.numTransparent < meshCounts.numMeshes) {
-          edgesColorOpaqueBin.push(layer);
-        }
-        if (meshCounts.numTransparent > 0) {
-          edgesColorTransparentBin.push(layer);
-        }
-        if (view.selectedMaterial.edgeAlpha < 1.0) {
-          selectedEdgesTransparentBin.push(layer);
-        } else {
-          selectedEdgesOpaqueBin.push(layer);
-        }
-        if (meshCounts.numXRayed > 0) {
-          if (view.xrayMaterial.edgeAlpha < 1.0) {
-            xrayEdgesTransparentBin.push(layer);
-          } else {
-            xrayEdgesOpaqueBin.push(layer);
-          }
-        }
-        if (view.highlightMaterial.edgeAlpha < 1.0) {
-          highlightedEdgesTransparentBin.push(layer);
-        } else {
-          highlightedEdgesOpaqueBin.push(layer);
-        }
+      if (rendererView.edgesEnabled && edgeMat.applied) {
+        if (opaque) bins.edgesColorOpaque.push(layer);
+        if (trans) bins.edgesColorTransparent.push(layer);
+        (slMat.edgeAlpha < 1.0 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(layer);
+        if (xr) (xrMat.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(layer);
+        (hlMat.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(layer);
       }
     }
 
-    // Render deferred bins
+    // Draw Opaque
+    for (let i = 0; i < bins.normalDrawSAO.length; i++) bins.normalDrawSAO[i].drawColorSAOOpaque();
+    for (let i = 0; i < bins.edgesColorOpaque.length; i++) bins.edgesColorOpaque[i].drawEdgesColorOpaque();
+    for (let i = 0; i < bins.xrayedSilhouetteOpaque.length; i++) bins.xrayedSilhouetteOpaque[i].drawSilhouetteXRayed();
+    for (let i = 0; i < bins.xrayEdgesOpaque.length; i++) bins.xrayEdgesOpaque[i].drawEdgesXRayed();
 
-    if (normalDrawSAOBin.length > 0) {
-      for (let i = 0; i < normalDrawSAOBin.length; i++) {
-        normalDrawSAOBin[i].drawColorSAOOpaque();
-      }
-    }
-
-    for (let i = 0; i < edgesColorOpaqueBin.length; i++) {
-      edgesColorOpaqueBin[i].drawEdgesColorOpaque();
-    }
-
-    for (let i = 0; i < xrayedSilhouetteOpaqueBin.length; i++) {
-      xrayedSilhouetteOpaqueBin[i].drawSilhouetteXRayed();
-    }
-
-    for (let i = 0; i < xrayEdgesOpaqueBin.length; i++) {
-      xrayEdgesOpaqueBin[i].drawEdgesXRayed();
-    }
-
-    if (xrayedSilhouetteTransparentBin.length > 0 ||
-      xrayEdgesTransparentBin.length > 0 ||
-      normalFillTransparentBin.length > 0 ||
-      edgesColorTransparentBin.length > 0) {
-      gl.enable(gl.CULL_FACE);
-      gl.enable(gl.BLEND);
-      if (rendererView.canvasTransparent) {
-        gl.blendEquation(gl.FUNC_ADD);
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-      } else {
-        gl.blendEquation(gl.FUNC_ADD);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      }
-      renderContext.backfaces = false;
-      if (!this.#alphaDepthMask) {
-        gl.depthMask(false);
-      }
-      for (let i = 0; i < xrayEdgesTransparentBin.length; i++) {
-        xrayEdgesTransparentBin[i].drawEdgesXRayed();
-      }
-      for (let i = 0; i < xrayedSilhouetteTransparentBin.length; i++) {
-        xrayedSilhouetteTransparentBin[i].drawSilhouetteXRayed();
-      }
-      if (normalFillTransparentBin.length > 0 || edgesColorTransparentBin.length > 0) {
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      }
-      for (let i = 0; i < edgesColorTransparentBin.length; i++) {
-        edgesColorTransparentBin[i].drawEdgesColorTranslucent();
-      }
-      for (let i = 0; i < normalFillTransparentBin.length; i++) {
-        normalFillTransparentBin[i].drawColorTranslucent();
-      }
-      gl.disable(gl.BLEND);
-      if (!this.#alphaDepthMask) {
-        gl.depthMask(true);
-      }
-    }
-
-    if (highlightedSilhouetteOpaqueBin.length > 0 || highlightedEdgesOpaqueBin.length > 0) {
-      renderContext.lastProgramId = -1; // HACK
-      gl.clear(gl.DEPTH_BUFFER_BIT);
-      for (let i = 0; i < highlightedEdgesOpaqueBin.length; i++) {
-        highlightedEdgesOpaqueBin[i].drawEdgesHighlighted();
-      }
-      for (let i = 0; i < highlightedSilhouetteOpaqueBin.length; i++) {
-        highlightedSilhouetteOpaqueBin[i].drawSilhouetteHighlighted();
-      }
-    }
-
-    if (highlightedSilhouetteTransparentBin.length > 0 ||
-      highlightedEdgesTransparentBin.length > 0 ||
-      highlightedSilhouetteOpaqueBin.length > 0) {
-      renderContext.lastProgramId = -1;
-      gl.clear(gl.DEPTH_BUFFER_BIT);
+    // Draw Translucent
+    if (
+      bins.normalFillTransparent.length ||
+      bins.edgesColorTransparent.length ||
+      bins.xrayedSilhouetteTransparent.length ||
+      bins.xrayEdgesTransparent.length
+    ) {
       gl.enable(gl.CULL_FACE);
       gl.enable(gl.BLEND);
       if (rendererView.canvasTransparent) {
@@ -1120,58 +1037,58 @@ export class WebGLRenderer implements Renderer {
       } else {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       }
-      for (let i = 0; i < highlightedEdgesTransparentBin.length; i++) {
-        highlightedEdgesTransparentBin[i].drawEdgesHighlighted();
-      }
-      for (let i = 0; i < highlightedSilhouetteTransparentBin.length; i++) {
-        highlightedSilhouetteTransparentBin[i].drawSilhouetteHighlighted();
-      }
-      gl.disable(gl.BLEND);
-    }
 
-    if (selectedSilhouetteOpaqueBin.length > 0 || selectedEdgesOpaqueBin.length > 0) {
-      renderContext.lastProgramId = -1;
-      gl.clear(gl.DEPTH_BUFFER_BIT);
-      for (let i = 0; i < selectedEdgesOpaqueBin.length; i++) {
-        selectedEdgesOpaqueBin[i].drawEdgesSelected();
-      }
-      for (let i = 0; i < selectedSilhouetteOpaqueBin.length; i++) {
-        selectedSilhouetteOpaqueBin[i].drawSilhouetteSelected();
-      }
-    }
+      ctx.backfaces = false;
+      if (!this.#alphaDepthMask) gl.depthMask(false);
 
-    if (selectedSilhouetteTransparentBin.length > 0 || selectedEdgesTransparentBin.length > 0) {
-      renderContext.lastProgramId = -1;
-      gl.clear(gl.DEPTH_BUFFER_BIT);
-      gl.enable(gl.CULL_FACE);
-      gl.enable(gl.BLEND);
-      if (rendererView.canvasTransparent) {
-        gl.blendEquation(gl.FUNC_ADD);
-        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
-      } else {
+      for (let i = 0; i < bins.xrayEdgesTransparent.length; i++) bins.xrayEdgesTransparent[i].drawEdgesXRayed();
+      for (let i = 0; i < bins.xrayedSilhouetteTransparent.length; i++) bins.xrayedSilhouetteTransparent[i].drawSilhouetteXRayed();
+      if (bins.edgesColorTransparent.length || bins.normalFillTransparent.length) {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       }
-      for (let i = 0; i < selectedEdgesTransparentBin.length; i++) {
-        selectedEdgesTransparentBin[i].drawEdgesSelected();
-      }
-      for (let i = 0; i < selectedSilhouetteTransparentBin.length; i++) {
-        selectedSilhouetteTransparentBin[i].drawSilhouetteSelected();
-      }
+      for (let i = 0; i < bins.edgesColorTransparent.length; i++) bins.edgesColorTransparent[i].drawEdgesColorTranslucent();
+      for (let i = 0; i < bins.normalFillTransparent.length; i++) bins.normalFillTransparent[i].drawColorTranslucent();
+
       gl.disable(gl.BLEND);
+      if (!this.#alphaDepthMask) gl.depthMask(true);
     }
 
-    const numTextureUnits = WEBGL_INFO.MAX_TEXTURE_UNITS;
-    for (let ii = 0; ii < numTextureUnits; ii++) {
-      gl.activeTexture(gl.TEXTURE0 + ii);
+    // Helper to clear depth and draw silhouette + edges
+    const drawSilAndEdges = (
+      silBin: Layer[],
+      edgesBin: Layer[],
+      drawSil: (l: Layer) => void,
+      drawEdges: (l: Layer) => void
+    ) => {
+      if (silBin.length || edgesBin.length) {
+        ctx.lastProgramId = -1;
+        gl.clear(gl.DEPTH_BUFFER_BIT);
+        for (let i = 0; i < edgesBin.length; i++) drawEdges(edgesBin[i]);
+        for (let i = 0; i < silBin.length; i++) drawSil(silBin[i]);
+      }
+    };
+
+    drawSilAndEdges(bins.highlightedSilhouetteOpaque, bins.highlightedEdgesOpaque,
+      l => l.drawSilhouetteHighlighted(), l => l.drawEdgesHighlighted());
+    drawSilAndEdges(bins.highlightedSilhouetteTransparent, bins.highlightedEdgesTransparent,
+      l => l.drawSilhouetteHighlighted(), l => l.drawEdgesHighlighted());
+    drawSilAndEdges(bins.selectedSilhouetteOpaque, bins.selectedEdgesOpaque,
+      l => l.drawSilhouetteSelected(), l => l.drawEdgesSelected());
+    drawSilAndEdges(bins.selectedSilhouetteTransparent, bins.selectedEdgesTransparent,
+      l => l.drawSilhouetteSelected(), l => l.drawEdgesSelected());
+
+    // Cleanup GPU state
+    for (let i = 0, texUnits = WEBGL_INFO.MAX_TEXTURE_UNITS; i < texUnits; i++) {
+      gl.activeTexture(gl.TEXTURE0 + i);
     }
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
     gl.bindTexture(gl.TEXTURE_2D, null);
 
-    const numVertexAttribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; // Fixes https://github.com/xeokit/xeokit-sdk/issues/174
-    for (let ii = 0; ii < numVertexAttribs; ii++) {
-      gl.disableVertexAttribArray(ii);
+    for (let i = 0, attribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; i < attribs; i++) {
+      gl.disableVertexAttribArray(i);
     }
   }
+
 
   /**
    * TODO
@@ -1181,7 +1098,7 @@ export class WebGLRenderer implements Renderer {
        pickParams: PickParams,
        pickResult = this.#pickResult): PickResult | null {
 
-    if (!this.#viewer) {
+    if (!this.#renderContext) {
       throw new SDKError("Can't pick object with WebGLRenderer - no Viewer and View is attached");
     }
 
@@ -1193,9 +1110,9 @@ export class WebGLRenderer implements Renderer {
     const view = rendererView.view;
     const camera = view.camera;
 
-    if (this.#shadersDirty) {
+    if (this.#needsRebuild) {
       this.onCompiled.dispatch(this, true);
-      this.#shadersDirty = false;
+      this.#needsRebuild = false;
     }
 
     this.#updateLayerList();
@@ -1314,12 +1231,13 @@ export class WebGLRenderer implements Renderer {
     }): WebGLRendererMesh {
 
     const {rendererView, pickCanvasPos, pickProjMatrix, pickViewMatrix, pickInvisible} = params;
-    const gl = this.gl
+
     const view = rendererView.view;
     const viewIndex = view.viewIndex;
     const boundingRect = rendererView.view.htmlElement.getBoundingClientRect();
     const resolutionScale = view.resolutionScale;
-    const renderContext = this.renderContext;
+    const renderContext = this.#renderContext;
+    const gl = renderContext.gl;
     const pickBuffer = this.#pickBufferManager.getRenderBuffer("pickMesh", {
       depthTexture: false,
       size: [1, 1]
@@ -1375,8 +1293,8 @@ export class WebGLRenderer implements Renderer {
     const view = rendererView.view;
     const resolutionScale = view.resolutionScale;
     const layer = rendererMesh.layer;
-    const renderContext = this.renderContext;
-    const gl = this.gl
+    const renderContext = this.#renderContext;
+    const gl = renderContext.gl;
     const canvas = rendererView.view.htmlElement;
     const boundingRect = canvas.getBoundingClientRect();
     const pickBuffer = rendererView.renderBufferManager.getRenderBuffer("pickDepth", {
@@ -1548,14 +1466,20 @@ export class WebGLRenderer implements Renderer {
     if (this.#destroyed) {
       return;
     }
-    if (this.#viewer) {
-      this.detachViewer();
+    this.detachViewer();
+    for (let i = 0, len = this.#layerList.length; i < len; i++) {
+      this.#layerList[i].destroy();
     }
-    this.tileManager.destroy();
+    for (let layerId in this.#layers) {
+      this.#layers[layerId].destroy();
+    }
+    this.#layers = {};
+    this.#layerList = [];
     this.#saoOcclusionRenderer.destroy();
     this.#saoDepthLimitedBlurRenderer.destroy();
     this.#pickBufferManager.destroy();
     this.#destroyed = true;
     this.onDestroyed.dispatch(this, true);
   }
+
 }

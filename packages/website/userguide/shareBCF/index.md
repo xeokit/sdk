@@ -1,4 +1,3 @@
-
 Let's use xeokit to view a BCF viewpoint of a BIM model, in a web page.
 
 First import the npm modules we need from the SDK:
@@ -20,13 +19,13 @@ const scene = new Scene(); // Scene graph
 const renderer = new WebGLRenderer({}); // WebGL renderers kernel
 
 const viewer = new Viewer({ // Browser-based viewer
-    scene,
-    renderer
+  scene,
+  renderer
 });
 
 const view = myViewer.createView({ // Independent view 
-    id: "myView",
-    canvasId: "myView1"
+  id: "myView",
+  canvasId: "myView1"
 });
 
 view.camera.eye = [0, 0, 10]; // Looking down the -Z axis
@@ -36,37 +35,32 @@ view.camera.up = [0, 1, 0];
 const sceneModel = scene.createModel();
 
 fetch("myModel.xgf")
-    .then(response => { // Fetch the XGF
+  .then(response => { // Fetch the XGF
 
-        response
-            .arrayBuffer()
-            .then(fileData => {
+    response
+      .arrayBuffer()
+      .then(fileData => {
 
-                XGFLoader.load({
-                    fileData,
-                    sceneModel
-                }).then(() => { // Load the XGF
+        XGFLoader.load({
+          fileData,
+          sceneModel
+        }).then(() => { // Load the XGF
 
-                    sceneModel
-                        .build()
-                        .then(() => { 
+          // A model now appears on our View's canvas.
 
-                            // A model now appears on our View's canvas.
+          // We can now show/hide/select/highlight the model's objects through the View:
 
-                            // We can now show/hide/select/highlight the model's objects through the View:
+          view.objects["2hExBg8jj4NRG6zzE$aSi6"].visible = true;
+          view.objects["2hExBg8jj4NRG6zzE$aSi6"].highlighted = false;  // etc.
 
-                            view.objects["2hExBg8jj4NRG6zzE$aSi6"].visible = true;
-                            view.objects["2hExBg8jj4NRG6zzE$aSi6"].highlighted = false;  // etc.
+          // Start orbiting the camera:
 
-                            // Start orbiting the camera:
-
-                            viewer.onTick.subscribe(() => {
-                                view.camera.orbitYaw(1.0);
-                            });
-                        });
-                });
-            });
-    });
+          viewer.onTick.subscribe(() => {
+            view.camera.orbitYaw(1.0);
+          });
+        });
+      });
+  });
 ````
 
 In this example, we are:

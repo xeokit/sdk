@@ -66,7 +66,6 @@
  *             fileData: metaModelParams,
  *             dataModel
  *         });
- *         dataModel.build();
  *     });
  * });
  * ````
@@ -92,7 +91,6 @@
  *
  *         // Load DataModelParams into DataModel
  *         dataModel.fromParams(dataModelParams);
- *         dataModel.build();
  *     });
  * });
  * ````

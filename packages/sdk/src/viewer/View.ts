@@ -1,7 +1,7 @@
 import {Component, EventEmitter} from "../core";
 import {FastRender, QualityRender} from "../constants";
 import type {FloatArrayParam, IntArrayParam} from "../math";
-import type {Scene, SceneModel} from "../scene";
+import type {Scene, SceneObject} from "../scene";
 import {AmbientLight} from "./AmbientLight";
 import {Camera} from "./Camera";
 import {createUUID} from "../utils";
@@ -655,56 +655,62 @@ class View extends Component {
    */
   initViewObjects() {
     this.#createViewObjectsForScene();
-    this.viewer.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
-        this.#createViewObjectsForSceneModel(sceneModel);
+    this.viewer.scene.onObjectCreated.subscribe((scene: Scene, sceneObject: SceneObject) => {
+        this.#createViewObject(sceneObject);
       }
     );
-    this.viewer.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
-        this.#destroyViewObjectsForSceneModel(sceneModel);
+    this.viewer.scene.onObjectDestroyed.subscribe((scene: Scene, sceneObject: SceneObject) => {
+        this.#destroyViewObject(sceneObject);
       }
     );
   }
 
   #createViewObjectsForScene() {
-    for (const id in this.viewer.scene.models) {
-      this.#createViewObjectsForSceneModel(this.viewer.scene.models[id]);
+    const sceneObjects = this.viewer.scene.objects;
+    for (const id in sceneObjects) {
+      if (!this.objects[id]) {
+        this.#createViewObject(sceneObjects[id]);
+      }
     }
   }
 
-  #createViewObjectsForSceneModel(sceneModel: SceneModel) {
-    // The Renderer has a RendererObject for each object, through which a ViewObject can
-    // push state changes into the Renderer for its object.
-    // The RendererObject
-    const sceneObjects = sceneModel.objects;
-    for (const id in sceneObjects) {
-      if (!this.objects[id]) {
-        const sceneObject = sceneObjects[id];
-        const layerId = sceneObject.layerId || "default";
-        let viewLayer = this.layers[layerId];
-        if (!viewLayer) {
-          if (!this.#autoLayers) {
-            continue;
-          }
-          viewLayer = new ViewLayer({
-            id: layerId,
-            view: this,
-            viewer: this.viewer,
-          });
-          this.layers[layerId] = viewLayer;
-          viewLayer.onDestroyed.one(() => {
-            delete this.layers[viewLayer.id];
-            this.onLayerDestroyed.dispatch(this, viewLayer);
-          });
-          this.onLayerCreated.dispatch(this, viewLayer);
-        }
-        const rendererObjects = this.viewer.renderer.rendererObjects;
-        const rendererObject = rendererObjects[id];
-        const viewObject = new ViewObject(viewLayer, sceneObject, rendererObject);
-        viewLayer.registerViewObject(viewObject);
-        this.registerViewObject(viewObject);
-        this.onObjectCreated.dispatch(this, viewObject);
+  #createViewObject(sceneObject) {
+    const layerId = sceneObject.layerId || "default";
+    let viewLayer = this.layers[layerId];
+    if (!viewLayer) {
+      if (!this.#autoLayers) {
+        return;
       }
+      viewLayer = new ViewLayer({
+        id: layerId,
+        view: this,
+        viewer: this.viewer,
+      });
+      this.layers[layerId] = viewLayer;
+      viewLayer.onDestroyed.one(() => {
+        delete this.layers[viewLayer.id];
+        this.onLayerDestroyed.dispatch(this, viewLayer);
+      });
+      this.onLayerCreated.dispatch(this, viewLayer);
     }
+    const rendererObjects = this.viewer.renderer.rendererObjects;
+    const rendererObject = rendererObjects[sceneObject.id];
+    const viewObject = new ViewObject(viewLayer, sceneObject, rendererObject);
+    viewLayer.registerViewObject(viewObject);
+    this.registerViewObject(viewObject);
+    this.onObjectCreated.dispatch(this, viewObject);
+  }
+
+  #destroyViewObject(sceneObject) {
+    const viewObject = this.objects[sceneObject.id];
+    if (!viewObject) {
+      return;
+    }
+    const layerId = sceneObject.layerId || "default";
+    let viewLayer = this.layers[layerId];
+    viewLayer?.deregisterViewObject(viewObject);
+    this.deregisterViewObject(viewObject);
+    this.onObjectDestroyed.dispatch(this, viewObject);
   }
 
   /**
@@ -738,7 +744,7 @@ class View extends Component {
   }
 
   /**
-   * Gets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
+   * Gets whether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
    * as {@link RendererObject | ViewerObjects} are created.
    */
   get autoLayers(): boolean {
@@ -765,13 +771,6 @@ class View extends Component {
    */
   get renderMode(): number {
     return this.#renderMode;
-  }
-
-  /**
-   *
-   */
-  get aabb(): FloatArrayParam {
-    return this.viewer.scene.aabb;
   }
 
   /**
@@ -1672,24 +1671,6 @@ class View extends Component {
     this.onSectionPlaneCreated.clear();
     this.onSectionPlaneDestroyed.clear();
     super.destroy();
-  }
-
-  #destroyViewObjectsForSceneModel(sceneModel: SceneModel) {
-    const objects = sceneModel.objects;
-    for (const id in objects) {
-      const object = objects[id];
-      const layerId = object.layerId || "default";
-      const viewLayer = this.layers[layerId];
-      const viewObject = this.objects[object.id];
-      this.deregisterViewObject(viewObject);
-      if (viewLayer) {
-        viewLayer.deregisterViewObject(viewObject);
-        if (viewLayer.autoDestroy && viewLayer.numObjects === 0) {
-          viewLayer.destroy();
-        }
-      }
-      this.onObjectDestroyed.dispatch(this, viewObject);
-    }
   }
 
   #destroyViewLayers() {

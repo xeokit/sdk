@@ -1,4 +1,4 @@
-import type {View} from "../viewer";
+
 import {WebGLRenderBuffer} from "../webglutils";
 
 /**
@@ -6,7 +6,6 @@ import {WebGLRenderBuffer} from "../webglutils";
  */
 export class WebGLRenderBufferManager {
   #gl: WebGL2RenderingContext;
-  #view: View;
   #renderBuffersBasic: { [key: string]: WebGLRenderBuffer };
   #renderBuffersScaled: { [key: string]: WebGLRenderBuffer };
   #webglCanvas: HTMLCanvasElement;

@@ -3,6 +3,7 @@ import type {FloatArrayParam} from "../math";
 import type {IntArrayParam} from "../math";
 import type {RendererGeometry} from "./RendererGeometry";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
+import {SceneModel} from "./SceneModel";
 
 /**
  * A geometry in a {@link SceneModel | SceneModel}.
@@ -21,6 +22,11 @@ export class SceneGeometry {
    * ID for the geometry.
    */
   id: string;
+
+  /**
+   * The SceneModel that contains this SceneGeometry.
+   */
+  model: SceneModel;
 
   /**
    * Primitive type.
@@ -84,16 +90,12 @@ export class SceneGeometry {
   rendererGeometry: RendererGeometry | null;
 
   /**
-   * TODO
-   */
-  origin?: FloatArrayParam;
-
-  /**
    * The count of {@link SceneMesh | SceneMeshes} that reference this SceneGeometry.
    */
   numMeshes: number;
 
-  constructor(params: SceneGeometryCompressedParams) {
+  constructor(model:SceneModel, params: SceneGeometryCompressedParams) {
+    this.model = model;
     this.id = params.id;
     this.primitive = params.primitive;
     this.positionsCompressed = params.positionsCompressed;
@@ -101,10 +103,56 @@ export class SceneGeometry {
     this.colorsCompressed = params.colorsCompressed;
     this.indices = params.indices;
     this.edgeIndices = params.edgeIndices;
-    this.origin = params.origin;
     this.aabb = params.aabb ? params.aabb.slice() : createAABB3();
     this.numMeshes = 0;
   }
+
+  update(params: Partial<SceneGeometryCompressedParams>): void {
+    let changed = false;
+
+    const p = params;
+
+    if (p.primitive !== undefined && this.primitive !== p.primitive) {
+      this.primitive = p.primitive;
+      changed = true;
+    }
+
+    if (p.positionsCompressed && this.positionsCompressed !== p.positionsCompressed) {
+      this.positionsCompressed = p.positionsCompressed;
+      changed = true;
+    }
+
+    if (p.uvsCompressed && this.uvsCompressed !== p.uvsCompressed) {
+      this.uvsCompressed = p.uvsCompressed;
+      changed = true;
+    }
+
+    if (p.colorsCompressed && this.colorsCompressed !== p.colorsCompressed) {
+      this.colorsCompressed = p.colorsCompressed;
+      changed = true;
+    }
+
+    if (p.indices && this.indices !== p.indices) {
+      this.indices = p.indices;
+      changed = true;
+    }
+
+    if (p.edgeIndices && this.edgeIndices !== p.edgeIndices) {
+      this.edgeIndices = p.edgeIndices;
+      changed = true;
+    }
+
+    if (p.aabb && this.aabb !== p.aabb) {
+      this.aabb = p.aabb;
+      changed = true;
+    }
+
+    if (changed) {
+      const scene = this.model.scene;
+      scene.onGeometryUpdated.dispatch(scene, this);
+    }
+  }
+
 
   /**
    * Gets this SceneGeometry as SceneGeometryCompressedParams.
@@ -132,5 +180,12 @@ export class SceneGeometry {
       params.edgeIndices = Array.from(this.edgeIndices);
     }
     return params;
+  }
+
+  /**
+   * Destroys this SceneGeometry.
+   */
+  destroy() {
+    this.model._destroyGeometry(this);
   }
 }

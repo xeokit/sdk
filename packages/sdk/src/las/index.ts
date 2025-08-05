@@ -30,7 +30,6 @@
  *         id
  *         objects
  *         createObject()
- *         build()
  *         destroy()
  *     }
  *     class DataModel {
@@ -40,7 +39,6 @@
  *         createObject()
  *         createRelationship()
  *         createPropertySet()
- *         build()
  *         destroy()
  *     }
  *     class ModelLoadParams {
@@ -119,8 +117,7 @@
  *             sceneModel,
  *             dataModel
  *         }).then(() => {
- *             sceneModel.build();
- *             dataModel.build();
+ *             // Loaded
  *         }).catch(err => {
  *             sceneModel.destroy();
  *             dataModel.destroy();

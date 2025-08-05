@@ -109,11 +109,8 @@ demoHelper.init()
 
                                         }).then(() => { // XGF and JSON files loaded
 
-                                            // Build the SceneModel and DataModel.
-                                            // The LiDAR scan model now appears in our Viewer.
 
-                                            sceneModel.build();
-                                            dataModel.build();
+                                            // The LiDAR scan model now appears in our Viewer.
 
                                             demoHelper.finished();
 

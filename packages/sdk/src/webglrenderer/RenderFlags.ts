@@ -1,11 +1,11 @@
 /**
- * Indicates what rendering needs to be done for the layers within a {@link Drawable}.
+ * Indicates what rendering needs to be done for a Layer.
  *
- * Each Drawable has a RenderFlags in {@link Drawable#renderFlags}.
+ * Each Layer has a RenderFlags in {@link Layer#renderFlags}.
  *
- * Before rendering each frame, {@link Renderer} will call {@link Drawable#rebuildRenderFlags} on each {@link Drawable}.
+ * Before rendering each frame, {@link Renderer} will call {@link Layer#rebuildRenderFlags} on each {@link Layer}.
  *
- * Then, when rendering a frame, Renderer will apply rendering passes to each Drawable according on what flags are set in {@link Drawable#renderFlags}.
+ * Then, when rendering a frame, Renderer will apply rendering passes to each Layer acording on what flags are set in {@link Layer#renderFlags}.
  *
  * @private
  */

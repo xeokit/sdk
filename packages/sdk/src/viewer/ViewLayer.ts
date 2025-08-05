@@ -98,8 +98,6 @@ import type {ViewParams} from "./ViewParams";
  *      meshIds: ["myMesh}],
  *      layerId: "model"
  * });
- *
- * sceneModel.build();
  * ````
  *
  * Our {@link View | View} now has an "environment" {@link ViewLayer | ViewLayer}, which
@@ -189,8 +187,6 @@ import type {ViewParams} from "./ViewParams";
  *      meshIds: ["myMesh}],
  *      layerId: "model"
  * });
- *
- * sceneModel.build();
  * ````
  *
  * This time, however, our View has created ViewObjects only for the "model" SceneObjects, while ignoring the "environment" SceneObjects.
@@ -251,9 +247,6 @@ import type {ViewParams} from "./ViewParams";
  *      id: "skyBox",
  *      meshIds: ["skyBoxMesh}]
  * });
- *
- * environentSceneModel.build();
- *
  * ````
  *
  * Create a second SceneModel, with layerId "model", and load a BIM model into it.
@@ -274,7 +267,7 @@ import type {ViewParams} from "./ViewParams";
  *                     modelSceneModel
  *                 })
  *                 .then(()=>{
- *                     modelSceneModel.build();
+ *                     // Loaded
  *                 })
  *                 .catch(err => {
  *                     console.error(err);

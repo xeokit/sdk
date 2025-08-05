@@ -59,10 +59,6 @@ ifcAPI.Init().then(() => {
                 fileData,
                 dataModel,
                 sceneModel
-            }).then(() => {
-
-                dataModel.build();
-                sceneModel.build();
             }).catch(error => {
 
                 dataModel.destroy();

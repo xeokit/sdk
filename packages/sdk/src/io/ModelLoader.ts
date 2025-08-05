@@ -62,19 +62,13 @@ export class ModelLoader {
   /**
    * Loads file data into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
    *
-   * This method expects the following conditions:
-   * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
-   * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
-   *
    * @param params - The parameters used for loading the file data.
    * @param options - Options for customizing the loading process. These are specific to the Loader subclass.
    * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
    *
    * @throws {@link core!SDKError | SDKError}
    * - If the SceneModel has already been destroyed.
-   * - If the SceneModel has already been built.
    * - If the DataModel has already been destroyed.
-   * - If the DataModel has already been built.
    */
   load(params: ModelLoadParams, options: ModelLoadOptions = {}): Promise<any> {
     return new Promise<void>((resolve, reject) => {
@@ -89,9 +83,6 @@ export class ModelLoader {
         if (sceneModel.destroyed) {
           return reject("SceneModel already destroyed");
         }
-        if (sceneModel.built) {
-          return reject("SceneModel already built");
-        }
       }
       if (dataModel) {
         // if (!(dataModel instanceof DataModel)) {
@@ -99,9 +90,6 @@ export class ModelLoader {
         // }
         if (dataModel.destroyed) {
           return reject("DataModel already destroyed");
-        }
-        if (dataModel.built) {
-          return reject("DataModel already built");
         }
       }
       if (!filePath && !fileData) {

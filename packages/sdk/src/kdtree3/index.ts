@@ -77,16 +77,14 @@
  *         meshIds: ["tableTopMesh"]
  *     });
  *
- *     sceneModel.build().then(() => {
- *         const kdTree = createSceneObjectsKdTree3(Object.values(scene.objects));
+ *     const kdTree = createSceneObjectsKdTree3(Object.values(scene.objects));
  *
- *         const intersectingObjects = searchKdTree3WithAABB({
- *             kdTree,
- *             aabb: [0, 0, 0, 10, 10, 10]
- *         });
- *
- *         console.log(intersectingObjects);
+ *     const intersectingObjects = searchKdTree3WithAABB({
+ *         kdTree,
+ *         aabb: [0, 0, 0, 10, 10, 10]
  *     });
+ *
+ *     console.log(intersectingObjects);
  * }
  * ````
  *

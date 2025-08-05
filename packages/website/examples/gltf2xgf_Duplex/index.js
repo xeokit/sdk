@@ -79,10 +79,7 @@ demoHelper.init()
 
                         }).then(() => { // XGF and JSON files loaded
 
-                            // Build the SceneModel.
                             // The model now appears in our Viewer.
-
-                            sceneModel.build();
 
                             demoHelper.finished();
 

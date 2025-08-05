@@ -103,8 +103,7 @@
  *             sceneModel,
  *             dataModel
  *         }).then(() => {
- *             sceneModel.build();
- *             dataModel.build();
+ *             // Loaded
  *         }).catch((error) => {
  *             console.error("Error loading model chunks:", error);
  *         });

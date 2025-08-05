@@ -1,5 +1,3 @@
-
-
 Let's use xeokit to show a spinning 3D box in a web page.
 
 [![](holterTower.png)](/packages/demos/examples/viewer/#SceneModel_build_table/index.html)
@@ -18,7 +16,7 @@ Then create an HTML page in `index.html` that contains a canvas element:
 <!DOCTYPE html>
 <html>
 <head>
-    <title>xeokit Spinning Box</title>
+  <title>xeokit Spinning Box</title>
 </head>
 <body>
 <canvas id="myView1"></canvas>
@@ -27,13 +25,14 @@ Then create an HTML page in `index.html` that contains a canvas element:
 </html>
 ````
 
-Then create JavaScript in `index.js` to make a spinning box in the canvas. 
+Then create JavaScript in `index.js` to make a spinning box in the canvas.
 
 1. Import the modules we need.
 2. Create a doc:Viewer with a doc:WebGLRenderer and a doc:Scene.
 3. In the Viewer, create a doc:View that draws to the canvas.
 4. Position the View's doc:Camera to look at the center of the 3D coordinate system (default).
-5. In the Scene, create a doc:SceneModel that contains a doc:SceneObject, a doc:SceneMesh, and a doc:SceneGeometry that defines the shape of the box.
+5. In the Scene, create a doc:SceneModel that contains a doc:SceneObject, a doc:SceneMesh, and a doc:SceneGeometry that
+   defines the shape of the box.
 6. Build the SceneModel. This causes the SceneMode's objects to appear in the View's canvas.
 7. Update the visibility and highlight status of the object.
 8. Orbit the Camera by one degree on each Viewer "tick" event. This will continually orbit the model.
@@ -54,15 +53,15 @@ const renderer = new WebGLRenderer({});
 const scene = new Scene();
 
 const viewer = new Viewer({
-    renderer,
-    scene
+  renderer,
+  scene
 });
 
 // 3.
 
 const view = viewer.createView({
-    id: "myView",
-    elementId: "myView1"
+  id: "myView",
+  elementId: "myView1"
 });
 
 // 4.
@@ -76,40 +75,34 @@ view.camera.up = [0, 1, 0];
 const sceneModel = scene.createModel(); // Start building the model
 
 sceneModel.createGeometry({ // Define a box-shaped geometry
-    id: "boxGeometry",
-    primitive: TrianglesPrimitive,
-    positions: [-1, -1, -1, 1, -1, -1, ...],
-    indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
+  id: "boxGeometry",
+  primitive: TrianglesPrimitive,
+  positions: [-1, -1, -1, 1, -1, -1, ...],
+  indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
 });
 
 sceneModel.createMesh({
-    id: "boxMesh",
-    geometryId: "boxGeometry",
-    color: [1, 1, 1]
+  id: "boxMesh",
+  geometryId: "boxGeometry",
+  color: [1, 1, 1]
 });
 
 sceneModel.createObject({
-    id: "boxObject",
-    meshIds: ["boxMesh"]
+  id: "boxObject",
+  meshIds: ["boxMesh"]
 });
 
 // 6.
 
-sceneModel
-    .build()
-    .then(() => {
+// A box object now appears on our View's canvas.
+// We can now show/hide/select/highlight our box through the View:
 
-        // A box object now appears on our View's canvas.
+view.objects["boxObject"].visible = true;
+view.objects["boxObject"].highlighted = false;  // etc.
 
-        // We can now show/hide/select/highlight our box through the View:
+// Start orbiting the camera:
 
-        view.objects["boxObject"].visible = true;
-        view.objects["boxObject"].highlighted = false;  // etc.
-
-        // Start orbiting the camera:
-
-        viewer.onTick.subscribe(() => {
-            view.camera.orbitYaw(1.0);
-        });
-    });
+viewer.onTick.subscribe(() => {
+  view.camera.orbitYaw(1.0);
+});
 ````

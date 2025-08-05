@@ -4,7 +4,6 @@ import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "../math";
 import type {Renderer} from "./Renderer";
 import {Scene} from "../scene";
-import type {SceneModel} from "../scene/SceneModel";
 import {scheduler} from "./scheduler";
 import type {TickParams} from "./TickParams";
 import {View} from "./View";
@@ -176,13 +175,6 @@ export class Viewer extends Component {
 
     this.#tickifiedFunctions = {};
 
-    this.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
-      this.renderer.attachSceneModel(sceneModel);
-    });
-    this.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
-      this.renderer.detachSceneModel(sceneModel);
-    });
-
     scheduler.registerViewer(this);
   }
 
@@ -298,23 +290,11 @@ export class Viewer extends Component {
       }
     }
     const view = new View(this, apply({id: viewId}, viewParams));
-    const result: void | SDKError = this.renderer.attachView(view);
-    if (result instanceof SDKError) {
-      this.error(`Failed to create View (id = "${view.viewId}"): ${result.message}`);
-      return result;
-    }
-
     this.#registerView(view);
     view.onDestroyed.one(() => {
       this.#deregisterView(view);
-      this.renderer.detachView(view);
       this.onViewDestroyed.dispatch(this, view);
     });
-    // Renderer.attachSceneModel creates RendererObjects in Renderer.rendererObjects,
-    // which are then expected by View.initViewObjects
-    for (const id in this.scene.models) {
-      this.renderer.attachSceneModel(this.scene.models[id]);
-    }
     view.initViewObjects();
     this.onViewCreated.dispatch(this, view);
     return view;

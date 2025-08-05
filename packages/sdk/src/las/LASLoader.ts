@@ -33,19 +33,13 @@ export class LASLoader extends ModelLoader {
   /**
    * Loads LAS/LAZ file data into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
    *
-   * This function expects the following conditions:
-   * - The {@link scene!SceneModel.built | SceneModel.built} and {@link scene!SceneModel.destroyed | SceneModel.destroyed} properties must be `false`.
-   * - It does not invoke the {@link scene!SceneModel.build | SceneModel.build} and {@link data!DataModel.build | DataModel.build} methods; those are to be managed by the caller.
-   *
    * @param params - The parameters used for loading the file data.
    * @param options - Options for loading the LAS/LAZ file.
    * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
    *
    * @throws {@link core!SDKError | SDKError}
    * - If the SceneModel has already been destroyed.
-   * - If the SceneModel has already been built.
    * - If the DataModel has already been destroyed.
-   * - If the DataModel has already been built.
    */
   load(params: ModelLoadParams, options: LASLoaderOptions = {}): Promise<any> {
     return super.load(params, options);

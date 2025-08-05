@@ -104,12 +104,9 @@ demoHelper.init()
                         dataModel
                     }).then(() => {
 
-                        // Build the SceneModel and DataModel.
+
                         // The Scene and SceneModel will now contain a SceneObject to represent the LAS/LAZ point cloud,
                       // and the Data and DataModel will contain a corresponding DataObject.
-
-                        dataModel.build();
-                        sceneModel.build();
 
                         demoHelper.finished();
 

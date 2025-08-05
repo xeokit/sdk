@@ -146,22 +146,13 @@ sceneModel.createObject({
   meshIds: ["purpleTableTopMesh"]
 });
 
-// Build the SceneModel. The View will now contain a ViewObject for each
-// SceneObject in the SceneModel.
 
-sceneModel.build().then(() => {
+// At this point, the View will contain five ViewObjects that have the same
+// IDs as our SceneObjects. Through these ViewObjects, we can update the
+// appearance of our model elements in that View.
 
-  // At this point, the View will contain five ViewObjects that have the same
-  // IDs as our SceneObjects. Through these ViewObjects, we can update the
-  // appearance of our model elements in that View.
-
-  view.setObjectsSelected(["purpleTableTop"], true)
-  view.objects["purpleTableTop"].edges = true;
-
-}).catch((e) => {
-  log(`Error building SceneModel: ${e}`);
-  throw e;
-});
+view.setObjectsSelected(["purpleTableTop"], true)
+view.objects["purpleTableTop"].edges = true;
 
 // Finally, we'll bind a "mousemove" listener to the View's canvas. Whenever
 // we get the event, we'll attempt to pick the closest ViewObject that lies

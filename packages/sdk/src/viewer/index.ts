@@ -253,9 +253,8 @@
  * Our {@link scene!Scene | Scene} is a container for model geometry and materials.
  *
  * Within the Scene, we'll create a {@link scene!SceneModel | SceneModel} that contains three
- * textured {@link scene!SceneModel | SceneObjects}. As soon as we've
- * called {@link scene!SceneModel.build | SceneModel.build}, three
- * new objects will appear in the View's canvas to represent them.
+ * textured {@link scene!SceneModel | SceneObjects}. Three
+ * new objects will now appear in the View's canvas to represent them.
  *
  * ````javascript
  * const sceneModel = scene.createModel();
@@ -312,68 +311,6 @@
  *     id: "myObject3",
  *     meshIds: ["myMesh3"]
  * });
- *
- * sceneModel.build();
- * ````
- *
- * <br>
- *
- * ### Reducing Memory Usage
- *
- * When building a SceneModel, the Viewer loads all geometry data into the {@link viewer!Renderer | Renderer} (e.g., a {@link webglrenderer!WebGLRenderer | WebGLRenderer}).
- *
- * By default, the SceneModel retains this geometry data in {@link scene!SceneGeometry | SceneGeometry} components for tasks like runtime querying and file saving. If this data isn't needed, you can configure the SceneModel to discard it, reducing memory usage.
- *
- * ````javascript
- * const sceneModel = scene.createModel({
- *  retained: false // Default is true
- * });
- *
- * // ...build the SceneModel...
- *
- * sceneModel.build(); // Discards geometry
- *
- * const sceneObject = sceneModel.objects["object1"]; // SceneObject
- * const sceneMesh = sceneModel.meshes["myMesh"]; // SceneMesh
- * const geometry = sceneMesh.geometry; // null
- *
- * // geometry is null
- * ````
- *
- * After calling `SceneModel.build`, the `geometry` property of each contained `SceneObject` becomes `null`. Normally, this property would hold a `SceneGeometry` instance if geometry were retained.
- *
- * The geometry remains fully viewable and functional but is no longer accessible from JavaScript memory, as it is stored solely on the GPU.
- *
- * <br>
- *
- * ## Showing and Hiding Objects
- *
- * Having created our Scene, Viewer, View and SceneModel, we now have three objects showing in our View.
- *
- * The objects are represented by {@link ViewObject | ViewObjects}, which are stored in {@link View.objects | View.objects}.
- *
- * Use {@link View.setObjectsVisible | View.setObjectsVisible} to hide one of the objects:
- *
- * ````javascript
- * view1.setObjectsVisible(["myObject1"], false);
- * ````
- *
- * We can also set {@link ViewObject.visible | ViewObject.visible} directly:
- *
- * ````javascript
- * view1.objects["myObject1"].visible = false;
- * ````
- *
- * Show the object again:
- *
- * ````javascript
- * view1.objects["myObject1"].visible = true;
- * ````
- *
- * Get the IDs of all visible ViewObjects:
- *
- * ````javascript
- * const visibleObjectIds = view1.visibleObjectIds;
  * ````
  *
  * <br>
@@ -630,8 +567,6 @@
  *      id: "skyBox",
  *      //...
  * });
- *
- * skyboxSceneModel.build();
  * ````
  *
  * Hide all objects in our new ViewLayer:
@@ -665,7 +600,7 @@
  *                     sceneModel2
  *                 })
  *                 .then(()=>{
- *                     sceneModel2.build();
+ *                     // Loaded
  *                 })
  *                 .catch(err => {
  *                     console.error(err);

@@ -78,7 +78,6 @@
  *     .then(response => {
  *          if (response.ok) {
  *              GLTFLoader(response.arrayBuffer(), sceneModel);
- *              sceneModel.build();
  *          }
  *     });
  * ````
@@ -155,8 +154,6 @@
  *      id: "myObject",
  *      meshIds: ["myMesh"]
  *  });
- *
- * sceneModel.build();
  * ````
  *
  * ## Loading [KTX2](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#ktx2) texture ArrayBuffers into a Viewer
@@ -235,8 +232,6 @@
  *                  id: "myObject",
  *                  meshIds: ["myMesh"]
  *              });
- *
- *              sceneModel.build();
  *          }
  *     });
  * ````

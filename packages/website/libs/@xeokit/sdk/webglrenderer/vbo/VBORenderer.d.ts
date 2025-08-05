@@ -121,4 +121,4 @@ export declare abstract class VBORenderer {
     renderVBOBatchingLayer(vboInstancinglayer: VBOBatchingLayer, renderPass: number): void;
     destroy(): void;
 }
-//# sourceMappingURL=VBORenderer.d.ts.map
+//# sourceMappingURL=LayerRenderer.d.ts.map

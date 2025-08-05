@@ -148,7 +148,7 @@ export class WebGLRendererMesh {
         return true;
     }
     drawPickNormals(renderContext) {
-        //this.rendererObject.rendererModel.drawPickNormals(renderContext);
+        //this.rendererObject.rendererModel.drawPickNormals(#renderContext);
     }
     initFlags(viewIndex, flags) {
         this.layer.initFlags(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);

@@ -173,7 +173,7 @@ sceneModel.<span class="hljs-title function_">createGeometry</span>({ <span clas
     <span class="hljs-attr">indices</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">4</span>, ...]
 });
 
-sceneModel.<span class="hljs-title function_">createMesh</span>({
+sceneModel.<span class="hljs-title function_">addMesh</span>({
     <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;boxMesh&quot;</span>,
     <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;boxGeometry&quot;</span>,
     <span class="hljs-attr">color</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>]
@@ -191,11 +191,11 @@ sceneModel
     .<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
 
         <span class="hljs-comment">// A box object now appears on our View&#x27;s canvas.</span>
-        
+
         <span class="hljs-comment">// 7.</span>
 
         <span class="hljs-keyword">const</span> viewerParams = viewer.<span class="hljs-title function_">getJSON</span>();
-        
+
         <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-variable constant_">JSON</span>.<span class="hljs-title function_">stringify</span>(viewerParams, <span class="hljs-literal">null</span>, <span class="hljs-number">2</span>));
     });
 </code></pre>

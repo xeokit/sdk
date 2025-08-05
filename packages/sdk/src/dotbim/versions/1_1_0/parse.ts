@@ -55,7 +55,7 @@ export const parse: ModelParser = async (params, options) => {
             position: [vector.x, vector.y, vector.z]
           });
           if (mesh instanceof SDKError) {
-            // params.error(`[SceneModel.createMesh]: ${mesh.message}`);
+            // params.error(`[SceneModel.addMesh]: ${mesh.message}`);
             continue;
           }
 

@@ -4,7 +4,7 @@
  *
  * * {@link scene!SceneMeshParams.origin | SceneMeshParams.origin}
  * * Stored in {@link scene!SceneModel.tiles | SceneModel.tiles}
- * * Created automatically for each distinct value of {@link scene!SceneMeshParams.origin | SceneMeshParams.origin} given to {@link scene!SceneMeshParams.createMesh | SceneMeshParams.createMesh}
+ * * Created automatically for each distinct value of {@link scene!SceneMeshParams.origin | SceneMeshParams.origin} given to {@link scene!SceneMeshParams.addMesh | SceneMeshParams.addMesh}
  * * Each SceneTile is destroyed as soon all {@link scene!SceneTile | SceneTiles} with that origin heve been destroyed
  *
  * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.

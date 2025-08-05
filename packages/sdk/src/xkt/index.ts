@@ -102,7 +102,7 @@
  *                     sceneModel
  *                 }).then(() => {
  *
- *                     sceneModel.build();
+ *                     // Loaded
  *
  *                 }).catch(sdkError => {
  *                     sceneModel.destroy();

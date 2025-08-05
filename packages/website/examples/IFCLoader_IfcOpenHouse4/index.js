@@ -23,16 +23,16 @@ const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 // Create a Viewer that will use the WebGLRenderer to draw the Scene
 
 const viewer = new xeokit.viewer.Viewer({
-    id: "demoViewer",
-    scene,
-    renderer
+  id: "demoViewer",
+  scene,
+  renderer
 });
 
 // Give the Viewer a single View to render the Scene in our HTML canvas element
 
 const view = viewer.createView({
-    id: "demoView",
-    elementId: "demoCanvas"
+  id: "demoView",
+  elementId: "demoCanvas"
 });
 
 // Arrange the View's Camera
@@ -49,84 +49,76 @@ new xeokit.cameracontrol.CameraControl(view, {});
 // Create a SceneModel to hold our model's geometry and materials
 
 const sceneModel = scene.createModel({
-    id: "demoModel"
+  id: "demoModel"
 });
 
 // Ignore the DemHelper
 
 const demoHelper = new DemoHelper({
-    viewer,
-    data
+  viewer,
+  data
 });
 
 demoHelper
-    .init()
-    .then(() => {
+  .init()
+  .then(() => {
 
-        // Create a DataModel to hold semantic data for our model
+    // Create a DataModel to hold semantic data for our model
 
-        const dataModel = data.createModel({
-            id: "demoModel"
-        });
-
-        // Load our IFC data into the SceneModel and DataModel
-
-        fetch(`../../models/IfcOpenHouse4/ifc/model.ifc`)
-            .then(response => {
-                response
-                    .arrayBuffer()
-                    .then(fileData => {
-
-                        ifcLoader.load({
-                            fileData,
-                            sceneModel,
-                            dataModel
-
-                        }).then(() => { // IFC file loaded
-
-                            // Build the SceneModel.
-                            // The IFC model now appears in our Viewer.
-
-                            sceneModel.build();
-
-                            // Build the DataModel.
-                            // The DataModel and the Data will then contain DataObject,
-                            // Relationship and PropertySet components that represent the IFC data as an
-                            // entity-relationship graph.
-
-                            dataModel.build();
-
-                            // Using the searchObjects function, query the Data for all the
-                            // IfcMember elements within a given IfcBuildingStorey.
-
-                            const resultObjectIds = [];
-
-                            const result = xeokit.data.searchObjects(data, {
-                                startObjectId: "38aOKO8_DDkBd1FHm_lVXz",
-                                includeObjects: [xeokit.ifctypes.IfcMember],
-                                includeRelated: [xeokit.ifctypes.IfcRelAggregates],
-                                resultObjectIds
-                            });
-
-                            // Check if the query was valid.
-
-                            if (typeof result === xeokit.core.SDKError) {
-                                console.error(result);
-                                return;
-                            }
-
-                            // If the query succeeded, go ahead and mark whatever
-                            // objects we found as selected. In this case, it will set the window
-                            // frames as selected in the View.
-
-                            view.setObjectsSelected(resultObjectIds, true);
-
-                            demoHelper.finished();
-
-                        }).catch(e => {
-                            console.error(e);
-                        });
-                    });
-            });
+    const dataModel = data.createModel({
+      id: "demoModel"
     });
+
+    // Load our IFC data into the SceneModel and DataModel
+
+    fetch(`../../models/IfcOpenHouse4/ifc/model.ifc`)
+      .then(response => {
+        response
+          .arrayBuffer()
+          .then(fileData => {
+
+            ifcLoader.load({
+              fileData,
+              sceneModel,
+              dataModel
+
+            }).then(() => { // IFC file loaded
+
+              // The IFC model now appears in our Viewer.  The DataModel and the Data will then contain DataObject,
+              // Relationship and PropertySet components that represent the IFC data as an
+              // entity-relationship graph.
+
+              // Using the searchObjects function, query the Data for all the
+              // IfcMember elements within a given IfcBuildingStorey.
+
+              const resultObjectIds = [];
+
+              const result = xeokit.data.searchObjects(data, {
+                startObjectId: "38aOKO8_DDkBd1FHm_lVXz",
+                includeObjects: [xeokit.ifctypes.IfcMember],
+                includeRelated: [xeokit.ifctypes.IfcRelAggregates],
+                resultObjectIds
+              });
+
+              // Check if the query was valid.
+
+              if (typeof result === xeokit.core.SDKError) {
+                console.error(result);
+                return;
+              }
+
+              // If the query succeeded, go ahead and mark whatever
+              // objects we found as selected. In this case, it will set the window
+              // frames as selected in the View.
+
+              view.setObjectsSelected(resultObjectIds, true);
+
+              demoHelper.finished();
+
+            }).catch(e => {
+              console.error(e);
+            });
+          });
+      });
+  });
 

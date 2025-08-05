@@ -2,10 +2,10 @@ import type {Capabilities} from "../core";
 import type {PickParams} from "./PickParams";
 import type {PickResult} from "./PickResult";
 import type {RendererObject} from "../scene";
-import type {SceneModel} from "../scene/SceneModel";
 import type {SDKError} from "../core";
 import type {View} from "./View";
 import type {Viewer} from "./Viewer";
+import type {SceneObject} from "../scene";
 
 /**
  * Interface defining the rendering strategy used internally by a {@link Viewer | Viewer}.
@@ -78,65 +78,6 @@ export interface Renderer {
    * @returns {@link core!SDKError | SDKError} if no Viewer is attached.
    */
   detachViewer(): SDKError | void;
-
-  /**
-   * Attaches a {@link View} to this Renderer.
-   *
-   * This enables rendering of all previously or subsequently created
-   * {@link scene!SceneModel | SceneModels} for the new View.
-   *
-   * @internal
-   * @param view The View to attach.
-   * @returns `void` if successful.
-   * @returns {@link core!SDKError | SDKError} if:
-   * - No Viewer is attached.
-   * - Too many Views are attached.
-   * - Renderer initialization for the View fails.
-   */
-  attachView(view: View): SDKError | void;
-
-  /**
-   * Detaches the specified {@link View} from this Renderer.
-   *
-   * Rendering for this View will cease.
-   *
-   * @internal
-   * @param view The View to detach.
-   * @returns `void` if successful.
-   * @returns {@link core!SDKError | SDKError} if:
-   * - No Viewer is attached.
-   * - The View is not currently attached.
-   */
-  detachView(view: View): SDKError | void;
-
-  /**
-   * Attaches a {@link scene!SceneModel | SceneModel} to this Renderer.
-   *
-   * This method establishes rendering hooks for the SceneModel’s elements,
-   * allowing real-time state updates.
-   *
-   * @internal
-   * @param sceneModel The SceneModel to attach.
-   * @returns `void` if successful.
-   * @returns {@link core!SDKError | SDKError} if:
-   * - No View is attached.
-   * - The SceneModel is already attached to this or another Renderer.
-   */
-  attachSceneModel(sceneModel: SceneModel): void | SDKError;
-
-  /**
-   * Detaches the specified {@link scene!SceneModel | SceneModel} from this Renderer.
-   *
-   * Cleans up associated rendering resources.
-   *
-   * @internal
-   * @param sceneModel The SceneModel to detach.
-   * @returns `void` if successful.
-   * @returns {@link core!SDKError | SDKError} if:
-   * - No View is attached.
-   * - The SceneModel is not attached to this Renderer.
-   */
-  detachSceneModel(sceneModel: SceneModel): void | SDKError;
 
   /**
    * Toggles the rendering of transparent objects for a specified View.

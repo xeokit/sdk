@@ -116,8 +116,7 @@
  * {@link SceneObject | SceneObjects}, five {@link SceneMesh | SceneMeshes},
  * one {@link SceneGeometry | SceneGeometry} and one {@link SceneTexture | SceneTexture}.
  *
- * When we've finished constructing our SceneModel, we'll call {@link SceneModel.build | SceneModel.build}. After that,
- * our SceneModel appears in our Viewer and we can interact with it.
+ * Our SceneModel now appears in our Viewer and we can interact with it.
  *
  * ````javascript
  * const sceneModel = theScene.createModel({
@@ -183,7 +182,7 @@
  *          console.error(theTextureSet.message);
  *      }
  *
- *      const redLegMesh = sceneModel.createMesh({
+ *      const redLegMesh = sceneModel.addMesh({
  *          id: "redLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [-4, -6, -4],
@@ -197,7 +196,7 @@
  *          console.error(redLegMesh.message);
  *      }
  *
- *      const greenLegMesh = sceneModel.createMesh({
+ *      const greenLegMesh = sceneModel.addMesh({
  *          id: "greenLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [4, -6, -4],
@@ -207,7 +206,7 @@
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const blueLegMesh = sceneModel.createMesh({
+ *      const blueLegMesh = sceneModel.addMesh({
  *          id: "blueLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [4, -6, 4],
@@ -217,7 +216,7 @@
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const yellowLegMesh = sceneModel.createMesh({
+ *      const yellowLegMesh = sceneModel.addMesh({
  *          id: "yellowLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [-4, -6, 4],
@@ -227,7 +226,7 @@
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const tableTopMesh = sceneModel.createMesh({
+ *      const tableTopMesh = sceneModel.addMesh({
  *          id: "tableTopMesh",
  *          geometryId: "boxGeometry",
  *          position: [0, -3, 0],
@@ -269,13 +268,7 @@
  *          meshIds: ["tableTopMesh"]
  *      });
  *
- *      sceneModel.build().then(()=> {
- *
- *           // SceneModel is ready for use
- *
- *      }).catch((err) => {
- *          console.error(err);
- *       });
+ *      // SceneModel is ready for use
  * }
  * ````
  *
@@ -402,8 +395,16 @@
  * ````javascript
  * import {DotBIMLoader} from "@xeokit/sdk/dotbim";
  *
- * const fileData = DotBIMExporter({ // ArrayBuffer
- *      sceneModel
+ * const exporter = new DotBIMExporter();
+ *
+ * exporter.write({
+ *     sceneModel,
+ *     dataModel,
+ *     version: "1.1.0", // Optional, defaults to latest
+ * }).then(fileData => {
+ *     // Use fileData as needed
+ * }).catch(err => {
+ *     console.error(err);
  * });
  * ````
  *
@@ -422,26 +423,23 @@
  *     id: "mySceneModel2"
  * });
  *
- * fetch(`model.bim`)
- *     .then(response => {
- *         response
- *             .json()
- *             .then(fileData => {
- *                 DotBIMLoader({
- *                     fileData,
- *                     sceneModel2
- *                 })
- *                 .then(()=>{
- *                     sceneModel2.build();
- *                 })
- *                 .catch(err => {
- *                     console.error(err);
- *                 });
- *              }).catch(err => {
- *                  console.error(err);
- *              });
- *     }).catch(err => {
- *         console.error(err);
+ * const dotBIMLoader = new DotBIMLoader();
+ *
+ * fetch("model.bim")
+ *     .then(response => response.json())
+ *     .then(fileData => {
+ *         dotBIMLoader.load({ fileData, sceneModel, dataModel })
+ *             .then(() => {
+ *                 // Loaded
+ *             })
+ *             .catch(err => {
+ *                 sceneModel.destroy();
+ *                 dataModel.destroy();
+ *                 console.error(`Error loading .BIM: ${err}`);
+ *             });
+ *     })
+ *     .catch(err => {
+ *         console.error(`Error fetching .BIM file: ${err}`);
  *     });
  * ````
  *
@@ -463,8 +461,6 @@
  * });
  *
  * sceneModel3.fromParams(sceneModel2JSON);
- *
- * sceneModel3.build();
  * ````
  *
  * <br>
@@ -510,9 +506,6 @@ export * from "./SceneModelParams";
 export * from "./compressGeometryParams";
 
 export * from "./getSceneObjectGeometry";
-
-export * from "./SceneModelStreamParams";
-export * from "./SceneModelStreamLayerParams";
 
 export * from "./buildMat4"
 

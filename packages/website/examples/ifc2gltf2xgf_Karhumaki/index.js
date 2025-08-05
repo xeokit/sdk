@@ -93,11 +93,7 @@ demoHelper.init()
 
                         }).then(() => { // XGF and JSON files loaded
 
-                            // Build the SceneModel and DataModel.
                             // The Karhumaki Bridge model now appears in our Viewer.
-
-                            sceneModel.build();
-                            dataModel.build();
 
                             demoHelper.finished();
 

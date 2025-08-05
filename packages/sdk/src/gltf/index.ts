@@ -97,7 +97,7 @@
  *            dataModel
  *        }).then(() => {
  *
- *            sceneModel.build();
+ *            // Loaded
  *
  *        }).catch(err => {
  *            sceneModel.destroy();

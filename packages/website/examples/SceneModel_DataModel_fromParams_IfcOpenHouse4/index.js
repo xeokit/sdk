@@ -19,16 +19,16 @@ const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 // Create a Viewer that will use the WebGLRenderer to draw the Scene
 
 const viewer = new xeokit.viewer.Viewer({
-    id: "demoViewer",
-    scene,
-    renderer
+  id: "demoViewer",
+  scene,
+  renderer
 });
 
 // Give the Viewer a single View to render the Scene in our HTML canvas element
 
 const view = viewer.createView({
-    id: "demoView",
-    elementId: "demoCanvas"
+  id: "demoView",
+  elementId: "demoCanvas"
 });
 
 // Position the View's Camera
@@ -48,55 +48,52 @@ new xeokit.cameracontrol.CameraControl(view, {});
 // Create a SceneModel to hold our model's geometry and materials
 
 const sceneModel = scene.createModel({
-    id: "demoModel"
+  id: "demoModel"
 });
 
 // Ignore the DemHelper
 
 const demoHelper = new DemoHelper({
-    viewer,
-    data
+  viewer,
+  data
 });
 
 demoHelper.init()
-    .then(() => {
+  .then(() => {
 
-        // Create a DataModel to hold semantic data for our model
+    // Create a DataModel to hold semantic data for our model
 
-        const dataModel = data.createModel({
-            id: "demoModel"
-        });
-
-        if (sceneModel instanceof xeokit.core.SDKError) {
-            log(`Error creating SceneModel: ${sceneModel.message}`);
-
-        } else {
-
-            // Load JSON parameters into our SceneModel. The parameters follow the schema defined by SceneModelParams.
-
-            fetch("../../models/Duplex/json/sceneModel.json").then(response => {
-
-                response.json().then(sceneModelParams => {
-
-                    // Load JSON parameters into our DataModel. The parameters follow the schema defined by DataModelParams.
-
-                    fetch("../../models/Duplex/json/dataModel.json").then(response => {
-
-                        response.json().then(dataModelParams => {
-
-                            dataModel.fromParams(dataModelParams);
-                            sceneModel.fromParams(sceneModelParams);
-
-                            // Build the SceneModel and DataModel. The View will now contain a ViewObject for each SceneObject in the SceneModel.
-
-                            dataModel.build();
-                            sceneModel.build();
-
-                            demoHelper.finished();
-                        });
-                    });
-                });
-            });
-        }
-
+    const dataModel = data.createModel({
+      id: "demoModel"
     });
+
+    if (sceneModel instanceof xeokit.core.SDKError) {
+      log(`Error creating SceneModel: ${sceneModel.message}`);
+
+    } else {
+
+      // Load JSON parameters into our SceneModel. The parameters follow the schema defined by SceneModelParams.
+
+      fetch("../../models/Duplex/json/sceneModel.json").then(response => {
+
+        response.json().then(sceneModelParams => {
+
+          // Load JSON parameters into our DataModel. The parameters follow the schema defined by DataModelParams.
+
+          fetch("../../models/Duplex/json/dataModel.json").then(response => {
+
+            response.json().then(dataModelParams => {
+
+              dataModel.fromParams(dataModelParams);
+              sceneModel.fromParams(sceneModelParams);
+
+              //  The View will now contain a ViewObject for each SceneObject in the SceneModel.
+
+              demoHelper.finished();
+            });
+          });
+        });
+      });
+    }
+
+  });

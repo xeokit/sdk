@@ -216,35 +216,6 @@ export class ModelConverter {
         }
       };
 
-      const buildSceneModels = () => {
-        const sceneModelIds = Object.keys(scene.models);
-        const buildNextSceneModel = (index = 0) => {
-          if (index >= sceneModelIds.length) {
-            return;
-          }
-          const sceneModelId = sceneModelIds[index];
-          const sceneModel = scene.models[sceneModelId];
-          sceneModel.build().then(() => {
-            buildNextSceneModel(index + 1);
-          }).catch(errMsg => {
-            // reject(`Failed to build SceneModel "${sceneModelId}": ${errMsg}`);
-            return;
-          });
-        }
-        buildNextSceneModel(0);
-      }
-
-      const buildDataModels = async () => {
-        const dataModelIds = Object.keys(data.models);
-        try {
-          for (const dataModelId of dataModelIds) {
-            const dataModel = data.models[dataModelId];
-            await dataModel.build();
-          }
-        } catch (err) {
-          // console.error(`❌ Failed to build a DataModel:`, err);
-        }
-      };
 
       const processOutputs = async () => {
         for (const pipelineOutputId of pipelineOutputIds) {
@@ -257,12 +228,6 @@ export class ModelConverter {
           const dataModel = data.models[dataModelId] || data.createModel({id: dataModelId});
           if (sceneModel instanceof SDKError || dataModel instanceof SDKError) {
             continue;
-          }
-          if (dataModel && !dataModel.built) {
-            await dataModel.build();
-          }
-          if (sceneModel && !sceneModel.built) {
-            await sceneModel.build();
           }
           const options = <ModelLoadOptions>pipelineOutput.options || {};
           try {
@@ -312,8 +277,6 @@ export class ModelConverter {
 
       const runPipeline = async (): Promise<ModelConverterResult> => {
         await processInputs();
-        await buildSceneModels();
-        await buildDataModels();
         await processOutputs();
         return modelConverterResult;
       };

@@ -2,7 +2,7 @@ import type {View, Viewer} from "../viewer";
 import {WEBGL_INFO, type WebGLAbstractTexture} from "../webglutils";
 import type {FloatArrayParam} from "../math";
 import type {WebGLRenderer} from "./WebGLRenderer";
-import {WebGLTileManager} from "./WebGLTileManager";
+import {DTXMemory} from "./dtx/DTXMemory";
 
 /**
  * @internal
@@ -14,9 +14,8 @@ export class RenderContext {
    */
   public viewer: Viewer;
 
-
   /**
-   * The View we are rendering.
+   * The View we are currently rendering.
    */
   public view: View;
 
@@ -120,14 +119,20 @@ export class RenderContext {
 
   public webglRenderer: WebGLRenderer;
 
-  public tileManager: WebGLTileManager;
+  /**
+   * GPU-side memory for our model geometry and materials.
+   */
+  public dtxMemory: DTXMemory;
 
-  constructor(viewer: Viewer, gl: WebGL2RenderingContext, webglRenderer: WebGLRenderer, tileManager: WebGLTileManager) {
+  /**
+   * @private
+   */
+  constructor(viewer: Viewer, gl: WebGL2RenderingContext, webglRenderer: WebGLRenderer, dtxMemory: DTXMemory) {
     this.viewer = viewer;
     this.view = null;
     this.gl = gl;
     this.webglRenderer = webglRenderer;
-    this.tileManager = tileManager;
+    this.dtxMemory = dtxMemory;
     this.reset();
   }
 

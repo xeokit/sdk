@@ -178,7 +178,7 @@ export class WebGLRenderer {
         }
         this.#gl.hint(this.#gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this.#gl.NICEST);
         this.#pickBufferManager = new WebGLRenderBufferManager(this.#gl, webglCanvasElement);
-        // this.tileManager = new WebGLTileManager({camera: view.camera, gl});
+        // this.tileManager = new DTXTiles({camera: view.camera, gl});
     }
     /**
      * The Viewer this WebGLRenderer is currently attached to, if any.

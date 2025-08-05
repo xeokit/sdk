@@ -3,17 +3,12 @@ import type {FloatArrayParam} from "../math";
 /**
  * Parameters for a {@link SceneMesh}.
  *
- * * Passed to  {@link SceneModel.createMesh | SceneModel.createMesh}
+ * * Passed to  {@link SceneModel.createMesh | SceneModel.addMesh}
  * * Located at {@link SceneModelParams.meshes | SceneModelParams.meshes}
  *
  * See {@link scene | @xeokit/sdk/scene} for usage.
  */
 export interface SceneMeshParams {
-
-  /**
-   * TODO
-   */
-  streamLayerIndex?: number;
 
   /**
    * ID for the new {@link SceneMesh}, unique within the {@link SceneModel | SceneModel}.

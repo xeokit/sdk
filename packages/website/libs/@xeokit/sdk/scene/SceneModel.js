@@ -129,7 +129,7 @@ export class SceneModel extends Component {
     /**
      * {@link scene!SceneMesh | SceneMeshes} within this SceneModel, each mapped to {@link scene!SceneMesh.id | SceneMesh.id}.
      *
-     * * Created by {@link scene!SceneModel.createMesh | SceneModel.createMesh}.
+     * * Created by {@link scene!SceneModel.addMesh | SceneModel.addMesh}.
      */
     meshes;
     /**

@@ -41,9 +41,9 @@ export function encode2(params: ModelEncodeParams, options?: any): Promise<any> 
 
     let primitivesCreated: Record<string, any> = {};
 
-    for (let i = 0, len = sceneModel.objectsList.length; i < len; i++) {
+    for (let objectId in sceneModel.objects) {
 
-      const sceneObject = sceneModel.objectsList[i];
+      const sceneObject = sceneModel.objects[objectId];
       const sceneMeshes = sceneObject.meshes;
 
       const gltfObjectNode = document.createNode(sceneObject.id);

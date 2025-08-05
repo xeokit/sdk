@@ -44,4 +44,4 @@ export declare class RendererSetFactory {
     constructor(createRendererSet: (webglRenderer: any) => VBORendererSet);
     getRenderers(webglRenderer: WebGLRenderer): VBORendererSet;
 }
-//# sourceMappingURL=VBORendererSet.d.ts.map
+//# sourceMappingURL=LayerRendererSet.d.ts.map

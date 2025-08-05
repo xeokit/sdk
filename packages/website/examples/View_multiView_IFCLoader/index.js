@@ -122,12 +122,9 @@ demoHelper.init()
                         sceneModel
                     }).then(() => {
 
-                        // Build the SceneModel and DataModel.
+
                         // The View will now contain a ViewObject for each SceneObject in the SceneModel.
                         // Via those ViewObjects, we can then control the appearance of each of our model objects in the View.
-
-                        dataModel.build();
-                        sceneModel.build();
 
                         demoHelper.finished();
 

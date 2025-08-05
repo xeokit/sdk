@@ -96,8 +96,7 @@
  *             sceneModel,
  *             dataModel
  *         }).then(() => {
- *             sceneModel.build();
- *             dataModel.build();
+ *             // Loaded
  *         });
  *     });
  * });
@@ -141,8 +140,7 @@
  *             sceneModel,
  *             dataModel
  *         }).then(() => {
- *             sceneModel.build();
- *             dataModel.build();
+ *             // Loaded
  *         });
  *     });
  * });

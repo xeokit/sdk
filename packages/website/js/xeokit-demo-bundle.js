@@ -1935,7 +1935,7 @@ var Component = class {
      * Logs an error for this component to the JavaScript console.
      *
      * The console message will have this format: *````[ERROR] [<component type> =<component id>: <message>````*
-  
+
      @param message The error message to log
      @protected
      */
@@ -10820,7 +10820,7 @@ var SceneModel2 = class extends Component {
   /**
    * {@link SceneMesh | SceneMeshes} within this SceneModel, each mapped to {@link SceneMesh.id | SceneMesh.id}.
    *
-   * * Created by {@link SceneModel.createMesh | SceneModel.createMesh}.
+   * * Created by {@link SceneModel.createMesh | SceneModel.addMesh}.
    */
   meshes;
   /**
@@ -123773,7 +123773,7 @@ var Camera2 = class extends Component {
   }
   /**
      * Rotates {@link Camera.look | Camera.look} about {@link Camera.eye | Camera.eye}, around the right axis (orthogonal to {@link Camera.up | Camera.up} and "look").
-  
+
      * @param angleInc Angle of rotation in degrees
      */
   pitch(angleInc) {
@@ -129017,6 +129017,11 @@ var WebGLArrayBuf = class {
    */
   handle;
   /**
+   * True if the values are integers.
+   * Used to select vertexAttribIPointer vs vertexAttribPointer.
+   */
+  isInteger;
+  /**
    * Creates a WebGL ArrayBuffer.
    */
   constructor(gl, type, data, numItems, itemSize, usage, normalized, stride, offset) {
@@ -129027,30 +129032,37 @@ var WebGLArrayBuf = class {
       case Uint8Array:
         this.itemType = gl.UNSIGNED_BYTE;
         this.itemByteSize = 1;
+        this.isInteger = true;
         break;
       case Int8Array:
         this.itemType = gl.BYTE;
         this.itemByteSize = 1;
+        this.isInteger = true;
         break;
       case Uint16Array:
         this.itemType = gl.UNSIGNED_SHORT;
         this.itemByteSize = 2;
+        this.isInteger = true;
         break;
       case Int16Array:
         this.itemType = gl.SHORT;
         this.itemByteSize = 2;
+        this.isInteger = true;
         break;
       case Uint32Array:
         this.itemType = gl.UNSIGNED_INT;
         this.itemByteSize = 4;
+        this.isInteger = true;
         break;
       case Int32Array:
         this.itemType = gl.INT;
         this.itemByteSize = 4;
+        this.isInteger = true;
         break;
       default:
         this.itemType = gl.FLOAT;
         this.itemByteSize = 4;
+        this.isInteger = false;
     }
     this.usage = usage;
     this.length = 0;
@@ -129091,7 +129103,7 @@ var WebGLArrayBuf = class {
       this._allocate(data);
     } else {
       this.gl.bindBuffer(this.type, this.handle);
-      if (offset || offset === 0) {
+      if (offset && offset !== 0) {
         this.gl.bufferSubData(this.type, offset * this.itemByteSize, data);
       } else {
         this.gl.bufferData(this.type, data, this.usage);
@@ -129152,7 +129164,11 @@ var WebGLAttribute = class {
     }
     arrayBuf.bind();
     this.gl.enableVertexAttribArray(this.location);
-    this.gl.vertexAttribPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.normalized, arrayBuf.stride, arrayBuf.offset);
+    if (arrayBuf.isInteger) {
+      this.gl.vertexAttribIPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.stride, arrayBuf.offset);
+    } else {
+      this.gl.vertexAttribPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.normalized, arrayBuf.stride, arrayBuf.offset);
+    }
   }
 };
 
@@ -131036,51 +131052,54 @@ var BasisWorker = function() {
   }
 };
 
-// ../sdk/src/webglrenderer/WebGLTileManager.ts
+// ../sdk/src/webglrenderer/DTXTiles.ts
 var NUM_VIEWS = 4;
 var NUM_TILES = 2e3;
 var tempVec3a8 = createVec3();
 var WebGLTileManager = class {
+  dataTextures = [];
   #viewer;
-  #tileIndexesUsed;
-  #tiles;
-  #lastFreeTileIndex;
-  #numTiles;
   #webglRenderer;
+  #tileIndexesUsed = [];
+  #lastFreeTileIndex = 0;
+  #tiles = /* @__PURE__ */ new Map();
+  #numTiles = 0;
+  #onCameraViewMatrix = [];
+  #tileIds = new Array(NUM_TILES);
   #onViewCreated;
   #onViewDestroyed;
-  #onCameraViewMatrix;
-  /**
-   * A data texture for each View, containing an RTC view matrix for each Tile.
-   * Each data texture gets updated with new matrices for each tile each time its View's Camera moves.
-   * This is indexed with View.viewIndex.
-   */
-  dataTextures;
   /**
    * Creates a tile manager for a Viewer and WebGLRenderer.
-   * @param viewer
-   * @param webGLRenderer
+   * @param viewer The viewer instance managing views.
+   * @param webGLRenderer The renderer used to handle WebGL operations.
    */
   constructor(viewer, webGLRenderer) {
-    this.#webglRenderer = webGLRenderer;
     this.#viewer = viewer;
-    this.#tileIndexesUsed = [];
-    this.#lastFreeTileIndex = 0;
-    this.#tiles = {};
-    this.#numTiles = 0;
-    this.dataTextures = [];
-    this.#initDataTextures();
-    this.#onCameraViewMatrix = [];
-    for (let viewId in viewer.views) {
-      const view = viewer.views[viewId];
-      this.#attachView(view);
+    this.#webglRenderer = webGLRenderer;
+    this.#allocateDataTextures();
+    for (const viewId in viewer.views) {
+      this.#attachView(viewer.views[viewId]);
     }
-    this.#onViewCreated = this.#viewer.onViewCreated.sub((viewer2, view) => {
-      this.#attachView(view);
-    });
-    this.#onViewDestroyed = this.#viewer.onViewDestroyed.sub((viewer2, view) => {
-      this.#detachView(view);
-    });
+    this.#onViewCreated = this.#viewer.onViewCreated.sub((_, view) => this.#attachView(view));
+    this.#onViewDestroyed = this.#viewer.onViewDestroyed.sub((_, view) => this.#detachView(view));
+  }
+  #allocateDataTextures() {
+    const gl = this.#webglRenderer.gl;
+    const textureWidth = 512 * 4;
+    const textureHeight = Math.ceil(NUM_TILES / (textureWidth / 4));
+    for (let i = 0; i < NUM_VIEWS; i++) {
+      const textureData = new Float32Array(4 * textureWidth * textureHeight);
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, textureData);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      this.dataTextures.push(new WebGLDataTexture({ gl, texture, textureWidth, textureHeight, textureData }));
+    }
   }
   #attachView(view) {
     this.#updateDataTextures(view);
@@ -131098,125 +131117,95 @@ var WebGLTileManager = class {
     view.camera.onViewMatrix.unsub(this.#onCameraViewMatrix[viewIndex]);
     delete this.#onCameraViewMatrix[viewIndex];
   }
-  #initDataTextures() {
-    const gl = this.#webglRenderer.gl;
-    const textureWidth = 512 * 4;
-    const textureHeight = Math.ceil(NUM_TILES / (textureWidth / 4));
-    for (let i = 0; i < NUM_VIEWS; i++) {
-      const textureData = new Float32Array(4 * textureWidth * textureHeight);
-      const texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, textureData, 0);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.bindTexture(gl.TEXTURE_2D, null);
-      this.dataTextures.push(new WebGLDataTexture({ gl, texture, textureWidth, textureHeight, textureData }));
-    }
-  }
   #updateDataTextures(view) {
     const viewMatrix = view.camera.viewMatrix;
     const viewIndex = view.viewIndex;
-    const tileIds = Object.keys(this.#tiles);
-    const numTiles = tileIds.length;
-    if (numTiles > 0) {
-      const gl = this.#webglRenderer.gl;
-      const data = new Float32Array(16 * numTiles);
-      for (let i = 0; i < numTiles; i++) {
-        const tileId = tileIds[i];
-        const tile = this.#tiles[tileId];
-        createRTCViewMat(viewMatrix, tile.center, tile.rtcViewMatrix[viewIndex]);
-        data.set(tile.rtcViewMatrix[viewIndex], tile.index * 16);
-      }
-      gl.bindTexture(gl.TEXTURE_2D, this.dataTextures[viewIndex].texture);
-      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 1, 1, gl.RGBA, gl.FLOAT, data);
-      gl.bindTexture(gl.TEXTURE_2D, null);
+    const gl = this.#webglRenderer.gl;
+    const textureWidth = 512 * 4;
+    const textureHeight = Math.ceil(NUM_TILES / (textureWidth / 4));
+    let tileIndex = 0;
+    for (const [tileId, tile] of this.#tiles) {
+      const rtcViewMatrix = tile.rtcViewMatrix[viewIndex];
+      createRTCViewMat(viewMatrix, tile.center, rtcViewMatrix);
+      this.dataTextures[viewIndex].textureData.set(rtcViewMatrix, tile.index * 16);
+      this.#tileIds[tileIndex++] = tileId;
     }
+    gl.bindTexture(gl.TEXTURE_2D, this.dataTextures[viewIndex].texture);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, this.dataTextures[viewIndex].textureData);
+    gl.bindTexture(gl.TEXTURE_2D, null);
   }
   /**
-   * Get a Tile that contains the given 3D World-space position.
-   * @param worldPos
+   * Get a DTXTile that contains the given 3D World-space position.
+   * @param worldPos A 3D position in world space.
    */
   getTile(worldPos) {
     const rtcCenter2 = worldToRTCCenter(worldPos, tempVec3a8);
     const id = `${rtcCenter2[0]}-${rtcCenter2[1]}-${rtcCenter2[2]}`;
-    let tile = this.#tiles[id];
+    let tile = this.#tiles.get(id);
     if (!tile) {
       tile = {
         id,
         index: this.#getFreeTileIndex(),
         useCount: 0,
         center: createVec3(rtcCenter2),
-        rtcViewMatrix: [
-          createMat4(),
-          createMat4(),
-          createMat4(),
-          createMat4()
-        ]
+        rtcViewMatrix: Array.from({ length: NUM_VIEWS }, () => createMat4())
       };
-      this.#tiles[tile.id] = tile;
+      this.#tiles.set(id, tile);
       this.#numTiles++;
     }
     tile.useCount++;
     return tile;
   }
   /**
-   * Releases a Tile back to the tile manager.
-   * The Tile is destroyed as soon as it is released as many times as it was got.
-   * @param tile
+   * Releases a DTXTile back to the tile manager.
+   * The DTXTile is destroyed as soon as it is released as many times as it was retrieved.
+   * @param tile The tile to release.
    */
   putTile(tile) {
     if (--tile.useCount === 0) {
-      delete this.#tiles[tile.id];
+      this.#tiles.delete(tile.id);
       this.#putFreeTileIndex(tile.index);
-      this.#numTiles--;
     }
   }
   /**
-   * Move a Tile, if neccessary, so that it contains the given World-space 3D position.
-   * @param tile
-   * @param worldPos
+   * Move a DTXTile, if necessary, so that it contains the given World-space 3D position.
+   * @param tile The tile to potentially move.
+   * @param worldPos The target world-space position.
    */
   moveTile(tile, worldPos) {
     const newRTCCenter = worldToRTCCenter(worldPos, createVec3());
     const newId = `${newRTCCenter[0]}-${newRTCCenter[1]}-${newRTCCenter[2]}`;
-    if (newId === tile.id) {
+    if (newId === tile.id)
       return tile;
-    }
     this.putTile(tile);
-    let newTile = this.#tiles[newId];
+    let newTile = this.#tiles.get(newId);
     if (!newTile) {
       newTile = {
         id: newId,
         index: this.#getFreeTileIndex(),
         useCount: 0,
-        center: createVec3(),
-        rtcViewMatrix: [
-          createMat4(),
-          createMat4(),
-          createMat4(),
-          createMat4()
-        ]
+        center: createVec3(newRTCCenter),
+        rtcViewMatrix: Array.from({ length: NUM_VIEWS }, () => createMat4())
       };
-      this.#tiles[newTile.id] = newTile;
+      this.#tiles.set(newId, newTile);
+      this.#numTiles++;
     }
     newTile.useCount++;
     return newTile;
   }
   #getFreeTileIndex() {
-    for (let tileIndex = this.#lastFreeTileIndex; ; tileIndex = (tileIndex + 1) % NUM_TILES) {
-      if (!this.#tileIndexesUsed[tileIndex]) {
-        this.#tileIndexesUsed[tileIndex] = true;
-        return tileIndex;
+    for (let i = this.#lastFreeTileIndex; ; i = (i + 1) % NUM_TILES) {
+      if (!this.#tileIndexesUsed[i]) {
+        this.#tileIndexesUsed[i] = true;
+        this.#lastFreeTileIndex = i;
+        return i;
       }
     }
   }
-  #putFreeTileIndex(tileIndex) {
-    if (this.#tileIndexesUsed[tileIndex]) {
-      delete this.#tileIndexesUsed[tileIndex];
-      this.#lastFreeTileIndex = tileIndex;
+  #putFreeTileIndex(index) {
+    if (this.#tileIndexesUsed[index]) {
+      delete this.#tileIndexesUsed[index];
+      this.#lastFreeTileIndex = index;
       this.#numTiles--;
     }
   }
@@ -131225,7 +131214,9 @@ var WebGLTileManager = class {
    */
   destroy() {
     this.#viewer.onViewCreated.unsub(this.#onViewCreated);
-    this.#viewer.onViewCreated.unsub(this.#onViewDestroyed);
+    this.#viewer.onViewDestroyed.unsub(this.#onViewDestroyed);
+    this.dataTextures.forEach((tex) => tex.destroy());
+    this.dataTextures.length = 0;
   }
 };
 
@@ -132113,7 +132104,7 @@ var RenderFlags = class {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/VBORendererSet.ts
+// ../sdk/src/webglrenderer/layers/LayerRendererSet.ts
 var VBORendererSet = class {
   renderContext;
   renderStats;
@@ -132354,7 +132345,7 @@ var RENDER_PASSES = {
   PICK: 6
 };
 
-// ../sdk/src/webglrenderer/vbo/VBORenderer.ts
+// ../sdk/src/webglrenderer/layers/LayerRenderer.ts
 var defaultColor = new Float32Array([1, 1, 1, 1]);
 function joinSansComments(srcLines) {
   const src = [];
@@ -132521,8 +132512,8 @@ var VBORenderer = class {
     src.push("in vec4 modelMatrixCol2;");
   }
   vertexPickMeshDefs(src) {
-    src.push("in vec4 pickColor;");
-    src.push("out vec4 vPickColor;");
+    src.push("in      vec4 pickColor;");
+    src.push("out     vec4 vPickColor;");
     src.push("uniform vec2 drawingBufferSize;");
     src.push("uniform vec2 pickClipPos;");
     src.push("vec4 remapPickClipPos(vec4 clipPos) {");
@@ -132602,7 +132593,7 @@ var VBORenderer = class {
     src.push("          gl_Position = remapPickClipPos(projMatrix * viewPosition);");
   }
   _vertexTransformCommonLogic(src) {
-    src.push("ivec2 tileSampleCoords = ivec2(tile % 512, tile / 512);");
+    src.push("ivec2 tileSampleCoords = ivec2(int(tile) % 512, int(tile) / 512);");
     src.push("mat4 viewMatrix = mat4 (texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 0, tileSampleCoords.y), 0), texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 1, tileSampleCoords.y), 0), texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 2, tileSampleCoords.y), 0), texelFetch (perTileRTCViewMatrixTexture, ivec2(tileSampleCoords.x * 4 + 3, tileSampleCoords.y), 0));");
   }
   vertexDrawLambertDefs(src) {
@@ -132844,10 +132835,10 @@ var VBORenderer = class {
     }
     if (!this.program) {
       this.build();
+      renderContext.lastProgramId = -1;
       if (this.errors) {
         return false;
       }
-      renderContext.lastProgramId = -1;
     }
     if (!this.program) {
       return false;
@@ -132868,11 +132859,7 @@ var VBORenderer = class {
       renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
     }
     if (uniforms.projMatrix) {
-      gl.uniformMatrix4fv(
-        uniforms.projMatrix,
-        false,
-        renderPass === RENDER_PASSES.PICK ? renderContext.pickProjMatrix : view.camera.projMatrix
-      );
+      gl.uniformMatrix4fv(uniforms.projMatrix, false, renderPass === RENDER_PASSES.PICK ? renderContext.pickProjMatrix : view.camera.projMatrix);
     }
     if (uniforms.pointSize) {
       gl.uniform1f(uniforms.pointSize, view.pointsMaterial.pointSize);
@@ -132969,7 +132956,7 @@ var VBORenderer = class {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/VBOBatchingRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/VBOBatchingRenderer.ts
 var VBOBatchingRenderer = class extends VBORenderer {
   renderVBOBatchingLayer(vboBatchingLayer, renderPass) {
     if (!this.bind(renderPass)) {
@@ -132980,13 +132967,9 @@ var VBOBatchingRenderer = class extends VBORenderer {
     const view = this.renderContext.view;
     const viewIndex = view.viewIndex;
     const gl = this.renderContext.gl;
-    if (attributes.tile) {
-      attributes.tile.bindArrayBuffer(renderState.tilesBuf);
-    }
+    attributes.flags.bindArrayBuffer(renderState.flagsBufs[viewIndex]);
+    attributes.tile.bindArrayBuffer(renderState.tilesBuf);
     attributes.position.bindArrayBuffer(renderState.positionsBuf);
-    if (attributes.flags) {
-      attributes.flags.bindArrayBuffer(renderState.flagsBufs[viewIndex]);
-    }
     if (attributes.color) {
       attributes.color.bindArrayBuffer(renderState.colorsBuf[viewIndex]);
     }
@@ -133008,7 +132991,7 @@ var VBOBatchingRenderer = class extends VBORenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/lines/renderers/VBOLinesBatchingDrawColorRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/lines/renderers/VBOLinesBatchingDrawColorRenderer.ts
 var VBOLinesBatchingDrawColorRenderer = class extends VBOBatchingRenderer {
   getHash() {
     return this.slicingHash;
@@ -133046,7 +133029,7 @@ var VBOLinesBatchingDrawColorRenderer = class extends VBOBatchingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/lines/renderers/VBOLinesBatchingPickMeshRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/lines/renderers/VBOLinesBatchingPickMeshRenderer.ts
 var VBOLinesBatchingPickMeshRenderer = class extends VBOBatchingRenderer {
   getHash() {
     return this.slicingHash;
@@ -133084,7 +133067,7 @@ var VBOLinesBatchingPickMeshRenderer = class extends VBOBatchingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/lines/renderers/VBOLinesBatchingSilhouetteRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/lines/renderers/VBOLinesBatchingSilhouetteRenderer.ts
 var VBOLinesBatchingSilhouetteRenderer = class extends VBOBatchingRenderer {
   getHash() {
     return this.slicingHash;
@@ -133123,7 +133106,7 @@ var VBOLinesBatchingSilhouetteRenderer = class extends VBOBatchingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/lines/renderers/rendererFactory.ts
+// ../sdk/src/webglrenderer/layers/batching/lines/renderers/rendererFactory.ts
 var RendererFactory = class extends VBORendererSet {
   createDrawColorRenderer() {
     return new VBOLinesBatchingDrawColorRenderer(this.renderContext);
@@ -133139,7 +133122,7 @@ var rendererFactory = new RendererSetFactory((webglRenderer) => {
   return new RendererFactory(webglRenderer);
 });
 
-// ../sdk/src/webglrenderer/vbo/ScratchMemory.ts
+// ../sdk/src/webglrenderer/layers/ScratchMemory.ts
 var ScratchMemory = class {
   #uint8Arrays;
   #float32Arrays;
@@ -133184,7 +133167,7 @@ function putScratchMemory() {
   }
 }
 
-// ../sdk/src/webglrenderer/SCENE_OBJECT_FLAGS.ts
+// ../sdk/src/webglrenderer/OBJECT_FLAGS.ts
 var SCENE_OBJECT_FLAGS = {
   VISIBLE: 1,
   CULLED: 1 << 2,
@@ -133200,7 +133183,7 @@ var SCENE_OBJECT_FLAGS = {
   TRANSPARENT: 1 << 12
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/VBOBatchingBuffer.ts
+// ../sdk/src/webglrenderer/layers/batching/VBOBatchingBuffer.ts
 var VBOBatchingBuffer = class {
   maxVerts;
   maxIndices;
@@ -133231,7 +133214,7 @@ var VBOBatchingBuffer = class {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/VBOBatchingLayer.ts
+// ../sdk/src/webglrenderer/layers/batching/VBOBatchingLayer.ts
 var numLayers = 0;
 var tempVec3a9 = createVec3();
 var tempVec4a4 = createVec4();
@@ -133318,11 +133301,11 @@ var VBOBatchingLayer = class {
     if (this.#built) {
       throw new SDKError("Already built");
     }
-    const tile = 0;
+    const tile = layerMeshParams.tile;
     const rtcMatrix = layerMeshParams.rtcMatrix;
     const geometry = sceneMesh.geometry;
-    const color2 = sceneMesh.color;
     const pickColor = layerMeshParams.pickColor;
+    const color2 = sceneMesh.color;
     const buffer = this.#buffer;
     const positionsIndex = buffer.positions.length;
     const vertsIndex = positionsIndex / 3;
@@ -133333,14 +133316,14 @@ var VBOBatchingLayer = class {
     const geometryAABB = geometry.aabb;
     const colorsCompressed = geometry.colorsCompressed;
     const numGeometryVerts = positionsCompressed.length / 3;
-    let numLayerVerts = buffer.positions.length / 3;
+    let numLayerVerts = numGeometryVerts;
     let numLayerMeshVerts = 0;
     if (!positionsCompressed) {
       throw "positionsCompressed expected";
     }
     if (tile !== null && tile !== void 0) {
-      for (let i = 0, len = numLayerMeshVerts; i < len; i++) {
-        buffer.tiles.push(tile);
+      for (let i = 0, len = numGeometryVerts; i < len; i++) {
+        buffer.tiles.push(tile.index);
       }
     }
     if (indices) {
@@ -133420,7 +133403,7 @@ var VBOBatchingLayer = class {
     const numViews = this.meshCounts.length;
     const tiles = this.#buffer.tiles;
     if (tiles && tiles.length > 0) {
-      renderState.tilesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, new Int32Array(tiles), tiles.length, 1, gl.DYNAMIC_DRAW);
+      renderState.tilesBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, new Int32Array(tiles), tiles.length, 1, gl.STATIC_DRAW, false);
     }
     if (buffer.positions.length > 0) {
       const positions = new Float32Array(buffer.positions);
@@ -133925,14 +133908,14 @@ var VBOBatchingLayer = class {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/lines/VBOLinesBatchingLayer.ts
+// ../sdk/src/webglrenderer/layers/batching/lines/VBOLinesBatchingLayer.ts
 var VBOLinesBatchingLayer = class extends VBOBatchingLayer {
   constructor(layerParams) {
     super(layerParams, rendererFactory.getRenderers(layerParams.renderContext.webglRenderer));
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/VBOInstancingRenderer.ts
+// ../sdk/src/webglrenderer/layers/instancing/VBOInstancingRenderer.ts
 var VBOInstancingRenderer = class extends VBORenderer {
   renderVBOInstancingLayer(vboInstancingLayer, renderPass) {
     if (!this.bind(renderPass)) {
@@ -133987,7 +133970,7 @@ var VBOInstancingRenderer = class extends VBORenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/lines/renderers/VBOLinesInstancingDrawColorRenderer.ts
+// ../sdk/src/webglrenderer/layers/instancing/lines/renderers/VBOLinesInstancingDrawColorRenderer.ts
 var VBOLinesInstancingDrawColorRenderer = class extends VBOInstancingRenderer {
   getHash() {
     return this.slicingHash;
@@ -134027,7 +134010,7 @@ var VBOLinesInstancingDrawColorRenderer = class extends VBOInstancingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/lines/renderers/VBOLinesInstancingPickMeshRenderer.ts
+// ../sdk/src/webglrenderer/layers/instancing/lines/renderers/VBOLinesInstancingPickMeshRenderer.ts
 var VBOLinesInstancingPickMeshRenderer = class extends VBOInstancingRenderer {
   getHash() {
     return this.slicingHash;
@@ -134067,7 +134050,7 @@ var VBOLinesInstancingPickMeshRenderer = class extends VBOInstancingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/lines/renderers/VBOLinesInstancingSilhouetteRenderer.ts
+// ../sdk/src/webglrenderer/layers/instancing/lines/renderers/VBOLinesInstancingSilhouetteRenderer.ts
 var VBOLinesInstancingSilhouetteRenderer = class extends VBOInstancingRenderer {
   getHash() {
     return this.slicingHash;
@@ -134107,7 +134090,7 @@ var VBOLinesInstancingSilhouetteRenderer = class extends VBOInstancingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/lines/renderers/rendererFactory.ts
+// ../sdk/src/webglrenderer/layers/instancing/lines/renderers/rendererFactory.ts
 var RendererFactory2 = class extends VBORendererSet {
   createDrawColorRenderer() {
     return new VBOLinesInstancingDrawColorRenderer(this.renderContext);
@@ -134123,7 +134106,7 @@ var rendererFactory2 = new RendererSetFactory((webglRenderer) => {
   return new RendererFactory2(webglRenderer);
 });
 
-// ../sdk/src/webglrenderer/vbo/instancing/VBOInstancingBuffer.ts
+// ../sdk/src/webglrenderer/layers/instancing/VBOInstancingBuffer.ts
 var VBOInstancingBuffer = class {
   maxVerts;
   maxIndices;
@@ -134159,7 +134142,7 @@ var VBOInstancingBuffer = class {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/VBOInstancingLayer.ts
+// ../sdk/src/webglrenderer/layers/instancing/VBOInstancingLayer.ts
 var tempUint8Vec4 = new Uint8Array(4);
 var tempFloat32 = new Float32Array(1);
 var tempVec4a5 = createVec4([0, 0, 0, 1]);
@@ -134327,7 +134310,7 @@ var VBOInstancingLayer = class {
     const colorsCompressed = sceneGeometry.colorsCompressed;
     const tiles = this.#buffer.tiles;
     if (tiles && tiles.length > 0) {
-      renderState.tilesBuf = new WebGLArrayBuf(gl, gl.ELEMENT_ARRAY_BUFFER, new Int32Array(tiles), tiles.length, 1, gl.DYNAMIC_DRAW);
+      renderState.tilesBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, new Int32Array(tiles), tiles.length, 1, gl.STATIC_DRAW, false);
     }
     if (positionsCompressed && positionsCompressed.length > 0) {
       const normalized = false;
@@ -134840,14 +134823,14 @@ var VBOInstancingLayer = class {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/lines/VBOLinesInstancingLayer.ts
+// ../sdk/src/webglrenderer/layers/instancing/lines/VBOLinesInstancingLayer.ts
 var VBOLinesInstancingLayer = class extends VBOInstancingLayer {
   constructor(layerParams) {
     super(layerParams, rendererFactory2.getRenderers(layerParams.renderContext.webglRenderer));
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/points/renderers/VBOPointsBatchingDrawColorRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/points/renderers/VBOPointsBatchingDrawColorRenderer.ts
 var VBOPointsBatchingDrawColorRenderer = class extends VBOBatchingRenderer {
   getHash() {
     const view = this.renderContext.view;
@@ -134895,7 +134878,7 @@ var VBOPointsBatchingDrawColorRenderer = class extends VBOBatchingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/points/renderers/VBOPointsBatchingPickMeshRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/points/renderers/VBOPointsBatchingPickMeshRenderer.ts
 var VBOPointsBatchingPickMeshRenderer = class extends VBOBatchingRenderer {
   getHash() {
     const view = this.renderContext.view;
@@ -134943,7 +134926,7 @@ var VBOPointsBatchingPickMeshRenderer = class extends VBOBatchingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/points/renderers/VBOPointsBatchingSilhouetteRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/points/renderers/VBOPointsBatchingSilhouetteRenderer.ts
 var VBOPointsBatchingSilhouetteRenderer = class extends VBOBatchingRenderer {
   getHash() {
     const view = this.renderContext.view;
@@ -134991,7 +134974,7 @@ var VBOPointsBatchingSilhouetteRenderer = class extends VBOBatchingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/points/renderers/rendererFactory.ts
+// ../sdk/src/webglrenderer/layers/batching/points/renderers/rendererFactory.ts
 var RendererFactory3 = class extends VBORendererSet {
   createDrawColorRenderer() {
     return new VBOPointsBatchingDrawColorRenderer(this.renderContext);
@@ -135007,14 +134990,14 @@ var rendererFactory3 = new RendererSetFactory((webglRenderer) => {
   return new RendererFactory3(webglRenderer);
 });
 
-// ../sdk/src/webglrenderer/vbo/batching/points/VBOPointsBatchingLayer.ts
+// ../sdk/src/webglrenderer/layers/batching/points/VBOPointsBatchingLayer.ts
 var VBOPointsBatchingLayer = class extends VBOBatchingLayer {
   constructor(layerParams) {
     super(layerParams, rendererFactory3.getRenderers(layerParams.renderContext.webglRenderer));
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/triangles/renderers/VBOTrianglesBatchingDrawColorRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/triangles/renderers/VBOTrianglesBatchingDrawColorRenderer.ts
 var VBOTrianglesBatchingDrawColorRenderer = class extends VBOBatchingRenderer {
   getHash() {
     const view = this.renderContext.view;
@@ -135051,7 +135034,7 @@ var VBOTrianglesBatchingDrawColorRenderer = class extends VBOBatchingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/triangles/renderers/VBOTrianglesBatchingDrawColorSAORenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/triangles/renderers/VBOTrianglesBatchingDrawColorSAORenderer.ts
 var VBOTrianglesBatchingDrawColorSAORenderer = class extends VBOBatchingRenderer {
   getHash() {
     const view = this.renderContext.view;
@@ -135090,7 +135073,7 @@ var VBOTrianglesBatchingDrawColorSAORenderer = class extends VBOBatchingRenderer
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/triangles/renderers/VBOTrianglesBatchingDrawDepthRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/triangles/renderers/VBOTrianglesBatchingDrawDepthRenderer.ts
 var VBOTrianglesBatchingDrawDepthRenderer = class extends VBOBatchingRenderer {
   getHash() {
     return `${this.slicingHash}`;
@@ -135124,7 +135107,7 @@ var VBOTrianglesBatchingDrawDepthRenderer = class extends VBOBatchingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/triangles/renderers/VBOTrianglesBatchingEdgesDrawRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/triangles/renderers/VBOTrianglesBatchingEdgesDrawRenderer.ts
 var VBOTrianglesBatchingEdgesDrawRenderer = class extends VBOBatchingRenderer {
   constructor(renderContext) {
     super(renderContext, { edges: true });
@@ -135163,7 +135146,7 @@ var VBOTrianglesBatchingEdgesDrawRenderer = class extends VBOBatchingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/triangles/renderers/VBOTrianglesBatchingEdgesSilhouetteRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/triangles/renderers/VBOTrianglesBatchingEdgesSilhouetteRenderer.ts
 var VBOTrianglesBatchingEdgesSilhouetteRenderer = class extends VBOBatchingRenderer {
   constructor(renderContext) {
     super(renderContext, { edges: true });
@@ -135202,7 +135185,7 @@ var VBOTrianglesBatchingEdgesSilhouetteRenderer = class extends VBOBatchingRende
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/triangles/renderers/VBOTrianglesBatchingPickMeshRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/triangles/renderers/VBOTrianglesBatchingPickMeshRenderer.ts
 var VBOTrianglesBatchingPickMeshRenderer = class extends VBOBatchingRenderer {
   getHash() {
     return this.slicingHash;
@@ -135238,7 +135221,7 @@ var VBOTrianglesBatchingPickMeshRenderer = class extends VBOBatchingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/triangles/renderers/VBOTrianglesBatchingSilhouetteRenderer.ts
+// ../sdk/src/webglrenderer/layers/batching/triangles/renderers/VBOTrianglesBatchingSilhouetteRenderer.ts
 var VBOTrianglesBatchingSilhouetteRenderer = class extends VBOBatchingRenderer {
   getHash() {
     return this.slicingHash;
@@ -135274,7 +135257,7 @@ var VBOTrianglesBatchingSilhouetteRenderer = class extends VBOBatchingRenderer {
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/batching/triangles/renderers/rendererFactory.ts
+// ../sdk/src/webglrenderer/layers/batching/triangles/renderers/rendererFactory.ts
 var RendererFactory4 = class extends VBORendererSet {
   createDrawColorRenderer() {
     return new VBOTrianglesBatchingDrawColorRenderer(this.renderContext);
@@ -135302,14 +135285,14 @@ var rendererFactory4 = new RendererSetFactory((webglRenderer) => {
   return new RendererFactory4(webglRenderer);
 });
 
-// ../sdk/src/webglrenderer/vbo/batching/triangles/VBOTrianglesBatchingLayer.ts
+// ../sdk/src/webglrenderer/layers/batching/triangles/VBOTrianglesBatchingLayer.ts
 var VBOTrianglesBatchingLayer = class extends VBOBatchingLayer {
   constructor(layerParams) {
     super(layerParams, rendererFactory4.getRenderers(layerParams.renderContext.webglRenderer));
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/triangles/renderers/VBOTrianglesInstancingDrawColorRenderer.ts
+// ../sdk/src/webglrenderer/layers/instancing/triangles/renderers/VBOTrianglesInstancingDrawColorRenderer.ts
 var VBOTrianglesInstancingDrawColorRenderer = class extends VBOInstancingRenderer {
   getHash() {
     return `${this.lambertShadingHash}-${this.slicingHash}`;
@@ -135349,7 +135332,7 @@ var VBOTrianglesInstancingDrawColorRenderer = class extends VBOInstancingRendere
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/triangles/renderers/VBOTrianglesInstancingDrawColorSAORenderer.ts
+// ../sdk/src/webglrenderer/layers/instancing/triangles/renderers/VBOTrianglesInstancingDrawColorSAORenderer.ts
 var VBOTrianglesInstancingDrawColorSAORenderer = class extends VBOInstancingRenderer {
   getHash() {
     return `${this.lambertShadingHash}-${this.slicingHash}`;
@@ -135391,7 +135374,7 @@ var VBOTrianglesInstancingDrawColorSAORenderer = class extends VBOInstancingRend
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/triangles/renderers/VBOTrianglesInstancingDrawDepthRenderer.ts
+// ../sdk/src/webglrenderer/layers/instancing/triangles/renderers/VBOTrianglesInstancingDrawDepthRenderer.ts
 var VBOTrianglesInstancingDrawDepthRenderer = class extends VBOInstancingRenderer {
   getHash() {
     return `${this.slicingHash}`;
@@ -135425,7 +135408,7 @@ var VBOTrianglesInstancingDrawDepthRenderer = class extends VBOInstancingRendere
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/triangles/renderers/VBOTrianglesInstancingEdgesDrawRenderer.ts
+// ../sdk/src/webglrenderer/layers/instancing/triangles/renderers/VBOTrianglesInstancingEdgesDrawRenderer.ts
 var VBOTrianglesInstancingEdgesDrawRenderer = class extends VBOInstancingRenderer {
   constructor(renderContext) {
     super(renderContext, { edges: true });
@@ -135468,7 +135451,7 @@ var VBOTrianglesInstancingEdgesDrawRenderer = class extends VBOInstancingRendere
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/triangles/renderers/VBOTrianglesInstancingEdgesSilhouetteRenderer.ts
+// ../sdk/src/webglrenderer/layers/instancing/triangles/renderers/VBOTrianglesInstancingEdgesSilhouetteRenderer.ts
 var VBOTrianglesInstancingEdgesSilhouetteRenderer = class extends VBOInstancingRenderer {
   constructor(renderContext) {
     super(renderContext, { edges: true });
@@ -135511,7 +135494,7 @@ var VBOTrianglesInstancingEdgesSilhouetteRenderer = class extends VBOInstancingR
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/triangles/renderers/VBOTrianglesInstancingPickMeshRenderer.ts
+// ../sdk/src/webglrenderer/layers/instancing/triangles/renderers/VBOTrianglesInstancingPickMeshRenderer.ts
 var VBOTrianglesInstancingPickMeshRenderer = class extends VBOInstancingRenderer {
   getHash() {
     return this.slicingHash;
@@ -135547,7 +135530,7 @@ var VBOTrianglesInstancingPickMeshRenderer = class extends VBOInstancingRenderer
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/triangles/renderers/VBOTrianglesInstancingSilhouetteRenderer.ts
+// ../sdk/src/webglrenderer/layers/instancing/triangles/renderers/VBOTrianglesInstancingSilhouetteRenderer.ts
 var VBOTrianglesInstancingSilhouetteRenderer = class extends VBOInstancingRenderer {
   getHash() {
     return this.slicingHash;
@@ -135587,7 +135570,7 @@ var VBOTrianglesInstancingSilhouetteRenderer = class extends VBOInstancingRender
   }
 };
 
-// ../sdk/src/webglrenderer/vbo/instancing/triangles/renderers/rendererFactory.ts
+// ../sdk/src/webglrenderer/layers/instancing/triangles/renderers/rendererFactory.ts
 var RendererFactory5 = class extends VBORendererSet {
   createDrawColorRenderer() {
     return new VBOTrianglesInstancingDrawColorRenderer(this.renderContext);
@@ -135615,7 +135598,7 @@ var rendererFactory5 = new RendererSetFactory((webglRenderer) => {
   return new RendererFactory5(webglRenderer);
 });
 
-// ../sdk/src/webglrenderer/vbo/instancing/triangles/VBOTrianglesInstancingLayer.ts
+// ../sdk/src/webglrenderer/layers/instancing/triangles/VBOTrianglesInstancingLayer.ts
 var VBOTrianglesInstancingLayer = class extends VBOInstancingLayer {
   constructor(VBOInstancingLayerParams) {
     super(VBOInstancingLayerParams, rendererFactory5.getRenderers(VBOInstancingLayerParams.renderContext.webglRenderer));
@@ -137559,31 +137542,6 @@ var WebGLRenderer2 = class {
           } else {
             selectedSilhouetteOpaqueBin.push(layer);
           }
-        }
-      }
-      if (rendererView.edgesEnabled && view.edges.applied) {
-        if (meshCounts.numTransparent < meshCounts.numMeshes) {
-          edgesColorOpaqueBin.push(layer);
-        }
-        if (meshCounts.numTransparent > 0) {
-          edgesColorTransparentBin.push(layer);
-        }
-        if (view.selectedMaterial.edgeAlpha < 1) {
-          selectedEdgesTransparentBin.push(layer);
-        } else {
-          selectedEdgesOpaqueBin.push(layer);
-        }
-        if (meshCounts.numXRayed > 0) {
-          if (view.xrayMaterial.edgeAlpha < 1) {
-            xrayEdgesTransparentBin.push(layer);
-          } else {
-            xrayEdgesOpaqueBin.push(layer);
-          }
-        }
-        if (view.highlightMaterial.edgeAlpha < 1) {
-          highlightedEdgesTransparentBin.push(layer);
-        } else {
-          highlightedEdgesOpaqueBin.push(layer);
         }
       }
     }

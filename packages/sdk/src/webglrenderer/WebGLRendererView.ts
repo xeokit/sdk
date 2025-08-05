@@ -1,7 +1,6 @@
 import {View} from "../viewer";
 import {WebGLRenderBufferManager} from "./WebGLRenderBufferManager";
 import {Map} from "../utils";
-import {WebGLTileManager} from "./WebGLTileManager";
 
 /** @private */
 export class WebGLRendererView {

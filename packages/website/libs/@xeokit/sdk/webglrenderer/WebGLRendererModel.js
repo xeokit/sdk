@@ -375,7 +375,7 @@ export class WebGLRendererModel extends Component {
                     break;
                 case PointsPrimitive:
                     // layer = new VBOPointsInstancingLayer(<VBOInstancingLayerParams>{
-                    //     renderContext: this.#renderContext,
+                    //     #renderContext: this.##renderContext,
                     //     rendererModel: this,
                     //     sceneGeometry,
                     //     textureSet,

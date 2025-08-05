@@ -124,11 +124,7 @@ demoHelper.init()
             meshIds: ["triangleMesh"]
         });
 
-        sceneModel.build().then(() => {
+      // The model now appears in the View's canvas.
 
-            demoHelper.finished();
-
-        }).catch((e) => {
-            demoHelper.log(`Error building SceneModel: ${e}`);
-        });
+      demoHelper.finished();
     });

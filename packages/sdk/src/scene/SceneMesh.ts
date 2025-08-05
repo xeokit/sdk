@@ -1,5 +1,4 @@
-import {collapseAABB3, createAABB3, expandAABB3Point3} from "../boundaries";
-import {createMat4, createVec3, createVec4, identityMat4, isIdentityMat4, mulMat4, transformPoint4} from "../matrix";
+import {createMat4,  identityMat4, isIdentityMat4, mulMat4} from "../matrix";
 import type {FloatArrayParam} from "../math";
 import type {RendererMesh} from "./RendererMesh";
 import type {SceneGeometry} from "./SceneGeometry";
@@ -7,40 +6,14 @@ import type {SceneMeshParams} from "./SceneMeshParams";
 import type {SceneObject} from "./SceneObject";
 import type {SceneTextureSet} from "./SceneTextureSet";
 import {SceneModel} from "./SceneModel";
-import {createRTCModelMat} from "../rtc";
 
-const tempVec4a = createVec4();
-const tempVec4b = createVec4();
 const tempMat4 = createMat4();
-
-function getPositionsWorldAABB3(
-  positions: FloatArrayParam,
-  aabb: FloatArrayParam,
-  matrix: FloatArrayParam,
-  worldAABB: FloatArrayParam = createAABB3()): FloatArrayParam {
-  collapseAABB3(worldAABB);
-  const xScale = (aabb[3] - aabb[0]) / 65535;
-  const xOffset = aabb[0];
-  const yScale = (aabb[4] - aabb[1]) / 65535;
-  const yOffset = aabb[1];
-  const zScale = (aabb[5] - aabb[2]) / 65535;
-  const zOffset = aabb[2];
-  for (let i = 0, len = positions.length; i < len; i += 3) {
-    tempVec4a[0] = positions[i + 0] * xScale + xOffset;
-    tempVec4a[1] = positions[i + 1] * yScale + yOffset;
-    tempVec4a[2] = positions[i + 2] * zScale + zOffset;
-    tempVec4a[3] = 1.0;
-    transformPoint4(matrix, tempVec4a, tempVec4b);
-    expandAABB3Point3(worldAABB, tempVec4b);
-  }
-  return worldAABB;
-}
 
 /**
  * A mesh in a {@link SceneModel | SceneModel}.
  *
  * * Stored in {@link SceneModel.meshes | SceneModel.meshes}
- * * Created with {@link SceneModel.createMesh | SceneModel.createMesh}
+ * * Created with {@link SceneModel.createMesh | SceneModel.addMesh}
  * * Referenced by {@link SceneObject.meshes | SceneObject.meshes}
  *
  * See {@link scene | @xeokit/sdk/scene}   for usage.
@@ -57,7 +30,12 @@ export class SceneMesh {
   /**
    * The SceneModel that contains this SceneMesh.
    */
-  model: SceneModel;
+  readonly model: SceneModel;
+
+  /**
+   * The {@link SceneObject} that uses this SceneMesh.
+   */
+  object: SceneObject | null;
 
   /**
    * {@link SceneGeometry} used by this SceneMesh.
@@ -79,24 +57,9 @@ export class SceneMesh {
    */
   rendererMesh: RendererMesh | null;
 
-  /**
-   * The {@link SceneObject} that uses this SceneMesh.
-   */
-  object: SceneObject | null;
-
-  /**
-   * TODO
-   */
-  streamLayerIndex: number;
-
   #color: FloatArrayParam;
   #matrix: FloatArrayParam;
   #opacity: number;
-
-  readonly origin: FloatArrayParam;
-
-  #aabbDirty: boolean;
-  #aabb: FloatArrayParam;
 
   /**
    * @private
@@ -109,19 +72,15 @@ export class SceneMesh {
     matrix?: FloatArrayParam;
     color?: FloatArrayParam;
     opacity?: number;
-    streamLayerIndex?: number;
   }) {
     this.id = meshParams.id;
     this.model = meshParams.model;
     this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
-    this.#aabb = createAABB3();
-    this.#aabbDirty = true;
     this.geometry = meshParams.geometry;
     this.textureSet = meshParams.textureSet;
     this.rendererMesh = null;
     this.color = meshParams.color || new Float32Array([1, 1, 1]);
     this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
-    this.streamLayerIndex = meshParams.streamLayerIndex !== undefined ? meshParams.streamLayerIndex : 0;
   }
 
   /**
@@ -176,14 +135,11 @@ export class SceneMesh {
 
       // TODO: recompute AABBs using coordinateSystemMatrix
 
-
       const coordSystemAndModelingMatrix = mulMat4(this.model.coordinateSystemMatrix, this.#matrix, tempMat4);
       this.rendererMesh.setMatrix(coordSystemAndModelingMatrix);
     }
-    this.#aabbDirty = true;
-    if (this.object) {
-      this.object.setAABBDirty();
-    }
+    const scene = this.model.scene;
+    scene.onMeshMoved.dispatch(scene, this);
   }
 
   /**
@@ -223,23 +179,10 @@ export class SceneMesh {
   }
 
   /**
-   * Gets the World-space AABB of this SceneMesh.
-   */
-  get aabb(): FloatArrayParam {
-    if (!this.#aabbDirty) {
-      return this.#aabb;
-    }
-    getPositionsWorldAABB3(this.geometry.positionsCompressed, this.geometry.aabb, this.#matrix, this.#aabb);
-    this.#aabbDirty = false;
-    return this.#aabb;
-  }
-
-  /**
    * Gets this SceneMesh as SceneMeshParams.
    */
   toParams(): SceneMeshParams {
     const meshParams = <SceneMeshParams>{
-      streamLayerIndex: this.streamLayerIndex || 0,
       id: this.id,
       geometryId: this.geometry.id,
       color: Array.from(this.#color),
@@ -253,12 +196,11 @@ export class SceneMesh {
     }
     return meshParams;
   }
-}
 
-function compareRoundedArraysSafe(a: FloatArrayParam, b: FloatArrayParam): boolean {
-  return (
-    Math.round(a[0]) === Math.round(b[0]) &&
-    Math.round(a[1]) === Math.round(b[1]) &&
-    Math.round(a[2]) === Math.round(b[2])
-  );
+  /**
+   * Destroys this SceneMesh.
+   */
+  destroy() {
+    this.model._destroyMesh(this);
+  }
 }

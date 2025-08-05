@@ -27,6 +27,10 @@ export class WebGLAttribute {
     }
     arrayBuf.bind();
     this.gl.enableVertexAttribArray(this.location);
-    this.gl.vertexAttribPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.normalized, arrayBuf.stride, arrayBuf.offset);
+    if (arrayBuf.isInteger) {
+      this.gl.vertexAttribIPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.stride, arrayBuf.offset);
+    } else {
+      this.gl.vertexAttribPointer(this.location, arrayBuf.itemSize, arrayBuf.itemType, arrayBuf.normalized, arrayBuf.stride, arrayBuf.offset);
+    }
   }
 }

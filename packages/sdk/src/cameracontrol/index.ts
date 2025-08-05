@@ -77,7 +77,7 @@
  * const sceneModel = scene.createModel({ id: "myModel" });
  * fetch("model.json").then(response => response.json()).then(fileData => {
  *     CityJSONLoader({ fileData, sceneModel }).then(() => {
- *         sceneModel.build();
+ *         // Loaded
  *     });
  * });
  * ```

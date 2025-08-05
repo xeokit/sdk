@@ -111,8 +111,7 @@ demoHelper.init()
                 const sceneModel = scene.createModel({
                     id: "demoModel1"
                 });
-                xeokit.gltf.GLTFLoader({fileData, sceneModel}).then(() => {
-                    sceneModel.build();
+                xeokit.gltf.GLTFLoader({fileData, sceneModel}).then(() => {;
                 });
             });
         });
@@ -129,7 +128,6 @@ demoHelper.init()
                     fileData,
                     sceneModel
                 }).then(() => {
-                    sceneModel.build();
                 })
             });
         });
@@ -146,7 +144,6 @@ demoHelper.init()
                     fileData,
                     sceneModel
                 }).then(() => {
-                    sceneModel.build();
                 });
             });
         });

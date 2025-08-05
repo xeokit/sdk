@@ -71,8 +71,7 @@
  *             sceneModel,
  *             dataModel
  *         }).then(() => {
- *             sceneModel.build();
- *             dataModel.build();
+ *             // Loaded
  *         }).catch(err => {
  *             sceneModel.destroy();
  *             dataModel.destroy();

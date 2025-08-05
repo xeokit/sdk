@@ -118,15 +118,12 @@ demoHelper.init()
               dataModel
             }).then(() => {
 
-              // Build the SceneModel and DataModel, to finalize the model structure.
               // The Scene and SceneModel will then contain a SceneObject for each displayable object in our model.
               // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
               // will have a corresponding DataObject with the same ID, to attach semantic meaning.
               // The View will contain a ViewObject corresponding to each SceneObject, through which the
               // appearance of the object can be controlled in the View.
 
-              dataModel.build();
-              sceneModel.build();
 
               demoHelper.finished();
 

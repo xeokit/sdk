@@ -15,25 +15,25 @@ const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 // Scene and WebGLRenderer can only be attached to one Viewer at a time.
 
 const viewer = new xeokit.viewer.Viewer({
-    id: "demoViewer",
-    scene,
-    renderer
+  id: "demoViewer",
+  scene,
+  renderer
 });
 
 // Ignore the DemoHelper
 
 const demoHelper = new DemoHelper({
-    viewer
+  viewer
 });
 
 demoHelper.init()
-    .then(() => {
+  .then(() => {
 
-        // Request the Viewer’s Capabilities to determine the features it supports.
+    // Request the Viewer’s Capabilities to determine the features it supports.
 
-        const capabilities = viewer.capabilities;
+    const capabilities = viewer.capabilities;
 
-        console.log(`viewer.capabilities.headless = ${capabilities.headless}\n
+    console.log(`viewer.capabilities.headless = ${capabilities.headless}\n
             viewer.capabilities.maxViews = ${capabilities.maxViews}\n
             viewer.capabilities.dxtSupported = ${capabilities.dxtSupported}\n
             viewer.capabilities.etc1Supported = ${capabilities.etc1Supported}\n
@@ -42,54 +42,50 @@ demoHelper.init()
             viewer.capabilities.astcSupported = ${capabilities.astcSupported}\n
             viewer.capabilities.pvrtcSupported = ${capabilities.pvrtcSupported}`);
 
-        // Add a View, which will render an independent view of the Scene within the
-        // given DOM element.
+    // Add a View, which will render an independent view of the Scene within the
+    // given DOM element.
 
-        const view = viewer.createView({
-            id: "demoView",
-            elementId: "demoCanvas"
-        });
-
-        view.camera.eye = [0, 0, 10]; // Default
-        view.camera.look = [0, 0, 0]; // Default
-        view.camera.up = [0, 1, 0]; // Default
-
-        // Add a CameraControl to interactively control the Camera with keyboard,
-        // mouse and touch input
-
-        new xeokit.cameracontrol.CameraControl(view);
-
-        // Create a minimal SceneModel that contains a single triangle
-
-        const sceneModel = scene.createModel({
-            id: "demoModel",
-            geometries: [{
-                id: "triangleGeometry",
-                primitive: xeokit.constants.TrianglesPrimitive,
-                positions: [0.0, 1.5, 0.0, -1.5, -1.5, 0.0, 1.5, -1.5, 0.0,],
-                indices: [0, 1, 2]
-            }],
-            meshes: [{
-                id: "triangleMesh",
-                geometryId: "triangleGeometry"
-            }],
-            objects: [{
-                id: "triangleObject",
-                meshIds: ["triangleMesh"]
-            }]
-        });
-
-        // Build the SceneModel, which causes the triangle to appear in the View's canvas.
-
-        sceneModel.build().then(() => {
-
-            // At this point, the View will contain a single ViewObject that has the same
-            // ID as the SceneObject. Through the ViewObject, we can now update the
-            // appearance of the triangle in that View.
-
-            view.objects["triangleObject"].highlighted = true;
-            view.setObjectsHighlighted(view.highlightedObjectIds, false);
-
-            demoHelper.finished();
-        });
+    const view = viewer.createView({
+      id: "demoView",
+      elementId: "demoCanvas"
     });
+
+    view.camera.eye = [0, 0, 10]; // Default
+    view.camera.look = [0, 0, 0]; // Default
+    view.camera.up = [0, 1, 0]; // Default
+
+    // Add a CameraControl to interactively control the Camera with keyboard,
+    // mouse and touch input
+
+    new xeokit.cameracontrol.CameraControl(view);
+
+    // Create a minimal SceneModel that contains a single triangle
+
+    const sceneModel = scene.createModel({
+      id: "demoModel",
+      geometries: [{
+        id: "triangleGeometry",
+        primitive: xeokit.constants.TrianglesPrimitive,
+        positions: [0.0, 1.5, 0.0, -1.5, -1.5, 0.0, 1.5, -1.5, 0.0,],
+        indices: [0, 1, 2]
+      }],
+      meshes: [{
+        id: "triangleMesh",
+        geometryId: "triangleGeometry"
+      }],
+      objects: [{
+        id: "triangleObject",
+        meshIds: ["triangleMesh"]
+      }]
+    });
+
+    // At this point, the View will contain a single ViewObject that has the same
+    // ID as the SceneObject. Through the ViewObject, we can now update the
+    // appearance of the triangle in that View.
+
+    view.objects["triangleObject"].highlighted = true;
+    view.setObjectsHighlighted(view.highlightedObjectIds, false);
+
+    demoHelper.finished();
+  });
+

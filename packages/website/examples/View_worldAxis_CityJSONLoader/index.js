@@ -103,11 +103,8 @@ demoHelper.init()
                         })
                             .then(() => {
 
-                                // Build the SceneModel. The View will now contain a ViewObject for each
+                                // The View will now contain a ViewObject for each
                                 // SceneObject in the SceneModel.
-
-                                sceneModel.build();
-                                dataModel.build();
 
                                 demoHelper.finished();
                             })

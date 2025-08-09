@@ -1,10 +1,10 @@
-import type {VBOInstancingLayer} from "../../VBOInstancingLayer";
-import {VBOInstancingRenderer} from "../../VBOInstancingRenderer";
+
+import {LayerRenderer} from "../LayerRenderer";
 
 /**
  * @private
  */
-export class VBOTrianglesInstancingDrawColorRenderer extends VBOInstancingRenderer {
+export class TrianglesDrawColorRenderer extends LayerRenderer {
 
   getHash(): string {
     return `${this.lambertShadingHash}-${this.slicingHash}`;
@@ -13,12 +13,10 @@ export class VBOTrianglesInstancingDrawColorRenderer extends VBOInstancingRender
   buildVertexShader(src: string[]): void {
     this.vertexHeader(src);
     this.vertexCommonDefs(src);
-    this.vertexInstancingTransformDefs(src);
     this.vertexSlicingDefs(src);
     this.vertexDrawLambertDefs(src);
     this.vertexDrawMainOpen(src);
     {
-      this.vertexDrawInstancingTransformLogic(src);
       this.vertexDrawLambertLogic(src);
       this.vertexSlicingLogic(src);
     }
@@ -40,9 +38,13 @@ export class VBOTrianglesInstancingDrawColorRenderer extends VBOInstancingRender
     src.push("}");
   }
 
-  drawVBOInstancingLayerPrimitives(vboInstancingLayer: VBOInstancingLayer, renderPass: number): void {
-    const gl = this.renderContext.gl;
-    const renderState = vboInstancingLayer.renderState;
-    gl.drawElementsInstanced(gl.TRIANGLES, renderState.indicesBuf.numItems, renderState.indicesBuf.itemType, 0, renderState.numInstances);
-  }
+  // renderLayer(layer: Layer, renderPass: number): void {
+  //   const attributes = this.attributes;
+  //   const renderState = layer.renderState;
+  //   const #renderContext = this.#renderContext;
+  //   const view = this.#renderContext.view;
+  //   const viewIndex = view.viewIndex;
+  //   const gl = this.#renderContext.gl;
+  //
+  // }
 }

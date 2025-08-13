@@ -12,9 +12,31 @@ import {Viewer} from "../../viewer";
 const MAX_MESHES = 100000;
 const MAX_GEOMETRIES = 100000;
 
-
 /**
- * GPU-resident dynamically-editable data store for model geometry and attributes, implemented as a set of data textures.
+ * Manages GPU-resident, dynamically-editable data storage for model geometry and attributes.
+ *
+ * The `DTXMemory` class implements a data texture-based system for efficient storage and
+ * rendering of large-scale 3D scenes. It handles memory allocation, updates, and synchronization
+ * for meshes, geometries, and tiles, integrating tightly with WebGL rendering pipelines.
+ *
+ * ### Features:
+ * - **Dynamic Updates**: Supports real-time updates to mesh attributes, matrices, and flags.
+ * - **Tile Management**: Integrates with `DTXTiles` for tile-based coordinate systems.
+ * - **Efficient Memory Use**: Manages GPU memory for indices, positions, and attributes.
+ * - **Multi-View Support**: Maintains per-view attributes for meshes and tiles.
+ * - **Periodic Flushing**: Automatically uploads dirty data to the GPU for optimal performance.
+ *
+ * ### Usage:
+ * - Add meshes with `addMesh(sceneMesh)` and remove them with `removeMesh(sceneMesh)`.
+ * - Manage tile-based rendering with `getTile(worldPos)`, `moveTile(tile, worldPos)`, and `putTile(tile)`.
+ * - Update mesh attributes and matrices dynamically using `setMeshAttributes()` and `setMeshMatrix()`.
+ *
+ * ### Lifecycle:
+ * 1. Initialize with WebGL context and viewer.
+ * 2. Add or remove meshes and geometries as needed.
+ * 3. Periodically flush data to the GPU for rendering.
+ * 4. Clean up resources with `destroy()`.
+ *
  * @internal
  */
 export class DTXMemory {
@@ -84,6 +106,8 @@ export class DTXMemory {
   #meshHandles: any;
   #onTick: () => void;
   #viewer: Viewer;
+  #maxSlices: number;
+  #maxLights: number;
 
   /**
    *
@@ -104,6 +128,8 @@ export class DTXMemory {
     this.#meshes = {};
     this.#numMeshes = 0;
     this.#maxMeshes = 20000;
+    this.#maxSlices = 100;
+    this.#maxLights = 100;
     this.#maxTiles = 20000;
     this.#geometryIndicesUsed = [];
     this.#lastFreeGeometryIndex = 0;
@@ -150,6 +176,44 @@ export class DTXMemory {
       new DTXStructArray({gl, capacity: this.#maxMeshes, structSpec: meshViewAttributesStruct}),
       new DTXStructArray({gl, capacity: this.#maxMeshes, structSpec: meshViewAttributesStruct}),
       new DTXStructArray({gl, capacity: this.#maxMeshes, structSpec: meshViewAttributesStruct})
+    ];
+
+    // Per-View slices
+
+    const slicesStruct: DTXStructSpec = {
+      name: "Slices",
+      fields: [
+        {name: "active", type: "boolean"},
+        {name: "pos", type: "vec3"},
+        {name: "flags2", type: "vec4"},
+        {name: "color", type: "vec4"}
+      ]
+    };
+
+    this.#viewSlices = [
+      new DTXStructArray({gl, capacity: this.#maxSlices, structSpec: slicesStruct}),
+      new DTXStructArray({gl, capacity: this.#maxSlices, structSpec: slicesStruct}),
+      new DTXStructArray({gl, capacity: this.#maxSlices, structSpec: slicesStruct}),
+      new DTXStructArray({gl, capacity: this.#maxSlices, structSpec: slicesStruct})
+    ];
+
+    // Per-View lights
+
+    const lightsStruct: DTXStructSpec = {
+      name: "Lights",
+      fields: [
+        {name: "type", type: "vec3"},
+        {name: "pos", type: "vec3"},
+        {name: "dir", type: "vec3"},
+        {name: "color", type: "vec4"}
+      ]
+    };
+
+    this.#viewLights = [
+      new DTXStructArray({gl, capacity: this.#maxLights, structSpec: lightsStruct}),
+      new DTXStructArray({gl, capacity: this.#maxLights, structSpec: lightsStruct}),
+      new DTXStructArray({gl, capacity: this.#maxLights, structSpec: lightsStruct}),
+      new DTXStructArray({gl, capacity: this.#maxLights, structSpec: lightsStruct})
     ];
 
     // Matrix for each SceneMesh

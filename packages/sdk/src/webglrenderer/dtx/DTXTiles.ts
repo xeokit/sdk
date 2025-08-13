@@ -10,12 +10,31 @@ const NUM_VIEWS = 4;
 const NUM_TILES = 2000;
 const tempVec3a = createVec3();
 
-
-
 /**
- * Manages view matrices for a tiled coordinate system.
+ * Manages a tiled coordinate system for efficient WebGL rendering.
  *
- * @internal
+ * The `DTXTiles` class handles the allocation, synchronization, and lifecycle of tiles
+ * in a tiled coordinate system. It tracks RTC (Relative to Center) matrices for each tile
+ * and synchronizes them with camera view matrices to optimize rendering performance.
+ *
+ * ### Features:
+ * - Allocates and manages tiles for a tiled coordinate system.
+ * - Tracks world-space centers and RTC matrices for multiple views.
+ * - Dynamically moves or reassigns tiles based on world-space positions.
+ * - Synchronizes tile RTC matrices with camera view matrices.
+ * - Efficiently manages memory and tile lifecycle.
+ *
+ * ### Usage:
+ * - Retrieve tiles with `getTile(worldPos)`.
+ * - Move tiles with `moveTile(tile, worldPos)`.
+ * - Release tiles with `putTile(tile)`.
+ * - Automatically updates RTC matrices for all views.
+ *
+ * ### Lifecycle:
+ * 1. Attach views and synchronize tiles with `#attachView()`.
+ * 2. Retrieve or move tiles as needed for rendering.
+ * 3. Release tiles when no longer in use.
+ * 4. Clean up resources with `destroy()`.
  */
 export class DTXTiles {
 

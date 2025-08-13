@@ -2,12 +2,29 @@ import {WebGLDataTexture} from "../index";
 import {type FloatArrayParam} from "../../math";
 
 /**
- * Manages a GPU-side texture that stores model matrices (mat4) for meshes.
+ * Manages a GPU-side texture for storing model matrices (mat4) for meshes.
  *
- * Each mesh is associated with one 4x4 matrix, stored as four consecutive RGBA32F texels.
- * This class buffers matrix updates and performs batched, partial uploads to the GPU texture.
+ * The `DTXMatrixArray` class provides efficient storage and management of 4x4 transformation matrices
+ * for WebGL rendering. Each matrix is stored as four consecutive RGBA32F texels in a GPU texture.
+ * The class buffers matrix updates and performs batched, partial uploads to the GPU for optimal performance.
  *
- * @internal
+ * ### Features:
+ * - **Matrix Storage**: Stores up to `maxMatrices` 4x4 matrices in a GPU texture.
+ * - **Efficient Updates**: Buffers changes and uploads only dirty regions to the GPU.
+ * - **Row-Aligned Batching**: Groups contiguous updates within the same texture row for efficient flushing.
+ * - **Integration**: Designed for use in WebGL rendering pipelines.
+ *
+ * ### Usage:
+ * - Use `setMatrix(index, matrix)` to update a matrix at a specific index.
+ * - Call `flush()` to upload all dirty matrices to the GPU.
+ * - Use `destroy()` to release GPU resources when no longer needed.
+ *
+ * ### Lifecycle:
+ * 1. Initialize with a WebGL2 context and optional maximum matrix count.
+ * 2. Update matrices as needed using `setMatrix()`.
+ * 3. Periodically call `flush()` to synchronize changes with the GPU.
+ * 4. Clean up resources with `destroy()`.
+ *
  */
 export class DTXMatrixArray {
 

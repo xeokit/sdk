@@ -4,7 +4,24 @@ import type {FloatArrayParam} from "../math";
 import type {WebGLRenderer} from "./WebGLRenderer";
 import {DTXMemory} from "./dtx/DTXMemory";
 
+
 /**
+ * Represents the rendering context used by the `WebGLRenderer`.
+ *
+ * The `RenderContext` manages the state and resources required for rendering operations.
+ * It handles the WebGL context, GPU memory, and rendering parameters for the current frame.
+ * This context is shared across renderer components.
+ *
+ * Responsibilities:
+ * - Tracks the current rendering state, including active textures, programs, and passes.
+ * - Manages GPU memory for geometry and materials through the `DTXMemory` system.
+ * - Provides methods for managing texture units and resetting state between frames.
+ * - Stores matrices and parameters for specialized rendering operations like shadow mapping and picking.
+ *
+ * Workflow:
+ * - Initialized by the `WebGLRenderer` and reset before each frame.
+ * - Updated during rendering with the current view, matrices, and parameters.
+ *
  * @internal
  */
 export class RenderContext {
@@ -15,14 +32,24 @@ export class RenderContext {
   public viewer: Viewer;
 
   /**
-   * The View we are currently rendering.
+   * The WebGLRenderer that is using this RenderContext.
    */
-  public view: View;
+  public webglRenderer: WebGLRenderer;
+
+  /**
+   * GPU-side data texture-based memory store for our model geometry and materials.
+   */
+  public dtxMemory: DTXMemory;
 
   /**
    * The WebGL rendering context.
    */
   public gl: WebGL2RenderingContext;
+
+  /**
+   * The View we are currently rendering.
+   */
+  public view: View;
 
   /**
    * Whether to render a quality representation for triangle surfaces.
@@ -57,12 +84,12 @@ export class RenderContext {
   public bindTexture: number;
 
   /**
-   * Indicates which pass the renderers is currently rendering.
+   * Indicates which pass the WebGLRenderer is currently rendering.
    */
   public renderPass: number;
 
   /**
-   * The 4x4 viewing transform matrix the renderers is currently using when rendering castsShadows.
+   * The 4x4 viewing transform matrix the WebGLRenderer is currently using when rendering castsShadows.
    *
    * This sets the viewpoint to look from the point of view of each {@link view!DirLight | DirLight}
    * or {@link view!PointLight|PointLight} that casts a shadow.
@@ -70,19 +97,19 @@ export class RenderContext {
   public shadowViewMatrix: FloatArrayParam;
 
   /**
-   * The 4x4 viewing projection matrix the renderers is currently using when rendering shadows.
+   * The 4x4 viewing projection matrix the WebGLRenderer is currently using when rendering shadows.
    */
   public shadowProjMatrix: FloatArrayParam;
 
   /**
-   * The 4x4 viewing transform matrix the renderers is currently using when rendering a ray-pick.
+   * The 4x4 viewing transform matrix the WebGLRenderer is currently using when rendering a ray-pick.
    *
    * This sets the viewpoint to look along the ray, when picking with a ray.
    */
   public pickViewMatrix: FloatArrayParam;
 
   /**
-   * The 4x4 orthographic projection transform matrix the renderers is currently using when rendering a ray-pick.
+   * The 4x4 orthographic projection transform matrix the WebGLRenderer is currently using when rendering a ray-pick.
    */
   public pickProjMatrix: FloatArrayParam;
 
@@ -97,7 +124,7 @@ export class RenderContext {
   public pickZFar: number;
 
   /**
-   * Whether or not the renderers is currently picking invisible objects.
+   * Whether the WebGLRenderer is currently picking invisible objects.
    */
   public pickInvisible: boolean;
 
@@ -117,15 +144,8 @@ export class RenderContext {
 
   public pickClipPos: FloatArrayParam;
 
-  public webglRenderer: WebGLRenderer;
-
   /**
-   * GPU-side memory for our model geometry and materials.
-   */
-  public dtxMemory: DTXMemory;
-
-  /**
-   * @private
+   * Creates a new RenderContext.
    */
   constructor(viewer: Viewer, gl: WebGL2RenderingContext, webglRenderer: WebGLRenderer, dtxMemory: DTXMemory) {
     this.viewer = viewer;
@@ -137,7 +157,7 @@ export class RenderContext {
   }
 
   /**
-   * Called by the renderers before each frame.
+   * Called by WebGLRenderer before each frame.
    */
   reset() {
     this.lastProgramId = -1;
@@ -157,7 +177,7 @@ export class RenderContext {
   }
 
   /**
-   * Gets the next available texture unit for this render
+   * Gets the next available texture unit for the current render pass.
    */
   get nextTextureUnit() {
     const textureUnit = this.textureUnit;

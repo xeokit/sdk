@@ -1,9 +1,17 @@
 import type {FloatArrayParam} from "../../math";
 
 /**
- * A DTXTile within a DTXTiles.
+ * Represents a single tile in a tiled coordinate system.
  *
- * @internal
+ * Tracks world-space positions, RTC matrices, and usage counts for efficient rendering
+ * and memory management. Integrates with `DTXTiles` to manage tile-based rendering.
+ *
+ * ### Features:
+ * - Stores world-space center and RTC matrices for multiple views.
+ * - Tracks usage count for efficient memory allocation.
+ * - Supports dynamic movement and reassignment within the tiled system.
+ *
+ * @interface
  */
 export interface DTXTile {
 

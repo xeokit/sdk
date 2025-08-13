@@ -5,70 +5,122 @@
  *
  * Before rendering each frame, {@link Renderer} will call {@link Layer#rebuildRenderFlags} on each {@link Layer}.
  *
- * Then, when rendering a frame, Renderer will apply rendering passes to each Layer acording on what flags are set in {@link Layer#renderFlags}.
+ * Then, when rendering a frame, Renderer will apply rendering passes to each Layer acording on what flags
+ * are set in {@link Layer#renderFlags}.
  *
  * @private
  */
 class RenderFlags {
 
   /**
-   * Set by {@link Drawable#rebuildRenderFlags} to indicate which layers are visible within the {@link Drawable}.
-   *
-   * This is a list of IDs of visible layers within the {@link Drawable}. The IDs will be whatever the
-   * {@link Drawable} uses to identify its layers, usually integers.
-   *
-   * @property visibleLayers
-   * @type {Number[]}
+   * Indicates whether the layer is culled (not visible).
    */
-  visibleLayers: any[];
+  culled: boolean;
 
   /**
-   * Set by {@link Drawable#rebuildRenderFlags} to indicate which {@link SectionPlane}s are active within each layer of the {@link Drawable}.
-   *
-   * Layout is as follows:
-   *
-   * ````[
-   *      false, false, true, // Layer 0, SectionPlanes 0, 1, 2
-   *      false, true, true,  // Layer 1, SectionPlanes 0, 1, 2
-   *      true, false, true   // Layer 2, SectionPlanes 0, 1, 2
-   * ]````
-   *
-   * @property sectionPlanesActivePerLayer
-   * @type {Boolean[]}
+   * Indicates whether the layer is sectioned by active `SectionPlane`s.
    */
-  sectionPlanesActivePerLayer: any[];
-  culled: boolean;
   sectioned: boolean;
+
+  /**
+   * Total number of layers in the `Layer`.
+   */
   numLayers: number;
+
+  /**
+   * Number of visible layers in the `Layer`.
+   */
   numVisibleLayers: number;
+
+  /**
+   * Indicates if the opaque color pass is required.
+   */
   colorOpaque: boolean;
+
+  /**
+   * Indicates if the transparent color pass is required.
+   */
   colorTransparent: boolean;
+
+  /**
+   * Indicates if the opaque edges pass is required.
+   */
   edgesOpaque: boolean;
+
+  /**
+   * Indicates if the transparent edges pass is required.
+   */
   edgesTransparent: boolean;
+
+  /**
+   * Indicates if the opaque x-rayed silhouette pass is required.
+   */
   xrayedSilhouetteOpaque: boolean;
+
+  /**
+   * Indicates if the opaque x-rayed edges pass is required.
+   */
   xrayedEdgesOpaque: boolean;
+
+  /**
+   * Indicates if the transparent x-rayed silhouette pass is required.
+   */
   xrayedSilhouetteTransparent: boolean;
+
+  /**
+   * Indicates if the transparent x-rayed edges pass is required.
+   */
   xrayedEdgesTransparent: boolean;
+
+  /**
+   * Indicates if the opaque highlighted silhouette pass is required.
+   */
   highlightedSilhouetteOpaque: boolean;
+
+  /**
+   * Indicates if the opaque highlighted edges pass is required.
+   */
   highlightedEdgesOpaque: boolean;
+
+  /**
+   * Indicates if the transparent highlighted silhouette pass is required.
+   */
   highlightedSilhouetteTransparent: boolean;
+
+  /**
+   * Indicates if the transparent highlighted edges pass is required.
+   */
   highlightedEdgesTransparent: boolean;
+
+  /**
+   * Indicates if the opaque selected silhouette pass is required.
+   */
   selectedSilhouetteOpaque: boolean;
+
+  /**
+   * Indicates if the opaque selected edges pass is required.
+   */
   selectedEdgesOpaque: boolean;
+
+  /**
+   * Indicates if the transparent selected silhouette pass is required.
+   */
   selectedSilhouetteTransparent: boolean;
+
+  /**
+   * Indicates if the transparent selected edges pass is required.
+   */
   selectedEdgesTransparent: boolean;
 
   /**
-   * @private
+   * Creates a new instance of RenderFlags with all flags reset to their initial state.
    */
   constructor() {
-    this.visibleLayers = [];
-    this.sectionPlanesActivePerLayer = [];
     this.reset();
   }
 
   /**
-   * @private
+   * Resets the render flags to their initial state.
    */
   reset() {
     this.culled = false;

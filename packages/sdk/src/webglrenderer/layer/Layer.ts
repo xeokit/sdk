@@ -4,31 +4,50 @@ import {MeshCounts} from "../MeshCounts";
 import type {RenderContext} from "../RenderContext";
 import {OBJECT_FLAGS} from "../OBJECT_FLAGS";
 import {RENDER_PASSES} from "../RENDER_PASSES";
-import {LayerRendererSet} from "../renderers/LayerRendererSet";
 import {RenderFlags} from "../RenderFlags";
 import {type LayerParams} from "./LayerParams";
-
-import {rendererFactory as trianglesRendererFactory} from "../renderers/triangles/rendererFactory";
-import {PointsPrimitive, TrianglesPrimitive} from "../../constants";
-
-const rendererFactories = {
-  [TrianglesPrimitive]: trianglesRendererFactory
-};
+import {PointsPrimitive} from "../../constants";
 
 /**
- * A Layer manages a batch of SceneMeshes that use the same primitive type (e.g., triangles).
- * It tracks visibility and render state flags, delegates drawing to appropriate renderers,
- * and manages GPU memory via the RenderContext.
+ * A Layer manages a batch of SceneMeshes that use the same primitive type.
  */
 export class Layer {
-  #rendererSet: LayerRendererSet;
 
+  /**
+   * The render context associated with this layer.
+   */
   renderContext: RenderContext;
+
+  /**
+   * Counts of meshes and their visibility states for each view. These are used to build the render flags for the views.
+   */
   meshCounts: MeshCounts[];
+
+  /**
+   * Primitive type of the meshes in this layer.
+   */
   primitive: number;
+
+  /**
+   * A unique identifier for sorting this layer in the renderer.
+   */
   sortId: string;
+
+  /**
+   * Whether this layer supports Screen Space Ambient Occlusion (SSAO) rendering.
+   */
   saoSupported: boolean;
+
+  /**
+   * Flags that indicate which render passes are enabled for this layer. These are calculated from `meshCounts`,
+   * to enable render passes on a only-as-needed basis.
+   */
   renderFlags: RenderFlags[];
+
+  /**
+   * The total number of indices in all meshes of this layer. This is used with WebGL draw calls to determine how many indices to render
+   * when drawing this layer.
+   */
   numIndices: number;
 
   constructor(layerParams: LayerParams) {
@@ -40,13 +59,6 @@ export class Layer {
     this.numIndices = 0;
     this.saoSupported = false;
 
-    const factory = rendererFactories[primitive];
-    if (!factory) {
-      throw new Error(`Unsupported primitive type: ${primitive}`);
-    }
-
-    this.#rendererSet = factory.getRenderers(renderContext.webglRenderer);
-
     // Preallocate meshCounts and renderFlags for 4 views
     this.meshCounts = Array.from({length: 4}, () => new MeshCounts());
     this.renderFlags = Array.from({length: 4}, () => new RenderFlags());
@@ -57,14 +69,17 @@ export class Layer {
   }
 
   /**
-   * Whether a mesh can be added to this layer (always true for now).
+   * Checks if a mesh can be added to this layer.
+   * @param sceneMesh
    */
   canAddMesh(sceneMesh: SceneMesh): boolean {
     return true;
   }
 
   /**
-   * Adds a mesh to the layer and updates GPU memory and counters.
+   * Adds a mesh to the layer and updates the mesh counts and indices. Returns the index of the
+   * added mesh in the layer's DTX memory.
+   * @param sceneMesh
    */
   addMesh(sceneMesh: SceneMesh): number {
     const meshIndex = this.renderContext.dtxMemory.addMesh(sceneMesh);
@@ -79,7 +94,10 @@ export class Layer {
   }
 
   /**
-   * Removes a mesh from the layer.
+   * Removes a mesh from the layer and updates the mesh counts and indices. We need to pass the view flags
+   * to update the counts correctly, since the flags are stored for the object, not the mesh.
+   * @param sceneMesh
+   * @param viewFlags
    */
   removeMesh(sceneMesh: SceneMesh, viewFlags: number[]): void {
     this.renderContext.dtxMemory.removeMesh(sceneMesh);
@@ -108,7 +126,7 @@ export class Layer {
    *
    * @param viewIndex - Index of the view.
    * @param meshIndex - Index of the mesh within the layer.
-   * @param flags - Bitmask of OBJECT_FLAGS representing initial mesh states.=
+   * @param flags - Bitmask of OBJECT_FLAGS representing initial mesh states.
    */
   initMeshFlags(viewIndex: number, meshIndex: number, flags: number): void {
     const counts = this.meshCounts[viewIndex];
@@ -123,6 +141,10 @@ export class Layer {
     this.#setMeshObjectFlags(viewIndex, meshIndex, flags);
   }
 
+  /**
+   * Sets the render flags for a mesh in a specific view based on its visibility and interaction states.
+   * @private
+   */
   #setMeshObjectFlags(viewIndex: number, meshIndex: number, flags: number): void {
     const viewer = this.renderContext.viewer;
     const view = viewer.viewList[viewIndex];
@@ -177,7 +199,7 @@ export class Layer {
   }
 
   /**
-   * Sete per-view  mesh visibility state.
+   * Sets per-view mesh visibility state.
    */
   setMeshVisible(viewIndex: number, meshIndex: number, flags: number): void {
     this.meshCounts[viewIndex].numVisible += (flags & OBJECT_FLAGS.VISIBLE) ? 1 : -1;
@@ -271,27 +293,32 @@ export class Layer {
   rebuildRenderFlags(viewIndex: number): void {
     const renderFlags = this.renderFlags[viewIndex];
     renderFlags.reset();
-    this.#updateRenderFlags(viewIndex);
+    this._updateRenderFlags(viewIndex);
   }
 
-  #updateRenderFlags(viewIndex: number): void {
+  /**
+   * Updates the render flags for a specific view based on the mesh counts.
+   */
+  private _updateRenderFlags(viewIndex: number): void {
     const meshCounts = this.meshCounts[viewIndex];
 
     const numMeshes = meshCounts.numMeshes;
-    if (meshCounts.numVisible === 0 || meshCounts.numCulled === numMeshes) return;
+    if (meshCounts.numVisible === 0 || meshCounts.numCulled === numMeshes) {
+      return;
+    }
 
     const numTransparent = meshCounts.numTransparent;
     const isTransparent = numTransparent > 0;
     const isPartiallyOpaque = numTransparent < numMeshes;
 
     const renderFlags = this.renderFlags[viewIndex];
+    renderFlags.reset();
+
     const view = this.renderContext.viewer.viewList[viewIndex]; // Fixed: viewer[viewIndex] → viewList
 
-    // Opaque and Transparent color flags
     renderFlags.colorOpaque = isPartiallyOpaque;
     renderFlags.colorTransparent = isTransparent;
 
-    // XRAYED
     if (meshCounts.numXRayed > 0) {
       const xrayMaterial = view.xrayMaterial;
       const fillAlpha = xrayMaterial.fillAlpha;
@@ -302,14 +329,12 @@ export class Layer {
       renderFlags.xrayedEdgesTransparent = xrayMaterial.edges && edgeAlpha < 1.0;
     }
 
-    // EDGES
     const edgeMaterial = view.edges;
     if (edgeMaterial.applied) {
       renderFlags.edgesOpaque = isPartiallyOpaque;
       renderFlags.edgesTransparent = isTransparent;
     }
 
-    // SELECTED
     if (meshCounts.numSelected > 0) {
       const selectedMaterial = view.selectedMaterial;
       const fillAlpha = selectedMaterial.fillAlpha;
@@ -320,7 +345,6 @@ export class Layer {
       renderFlags.selectedEdgesTransparent = selectedMaterial.edges && edgeAlpha < 1.0;
     }
 
-    // HIGHLIGHTED
     if (meshCounts.numHighlighted > 0) {
       const highlightMaterial = view.highlightMaterial;
       const fillAlpha = highlightMaterial.fillAlpha;
@@ -333,354 +357,9 @@ export class Layer {
   }
 
   /**
-   * Renders opaque color meshes for the current view if there are visible meshes.
-   * Checks if all meshes are culled, invisible, or transparent before rendering.
-   */
-  drawColorOpaque() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numTransparent, numXRayed, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numTransparent === numMeshes ||
-      numXRayed === numMeshes
-    ) {
-      return;
-    }
-    this.#rendererSet.colorRenderer?.renderLayer(this, RENDER_PASSES.DRAW_OPAQUE);
-  }
-
-  /**
-   * Renders opaque color meshes using Screen Space Ambient Occlusion (SSAO) for the current view if there are visible meshes.
-   * Checks if all meshes are culled, invisible, or transparent before rendering.
-   */
-  drawColorSAOOpaque() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numTransparent, numXRayed, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numTransparent === numMeshes ||
-      numXRayed === numMeshes
-    ) {
-      return;
-    }
-    this.#rendererSet.colorSAORenderer?.renderLayer(this, RENDER_PASSES.DRAW_OPAQUE);
-  }
-
-  /**
-   * Renders translucent color meshes for the current view if there are visible meshes.
-   * Checks if all meshes are culled, invisible, or if there are no transparent meshes before rendering.
-   */
-  drawColorTranslucent() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numTransparent, numXRayed, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numTransparent === 0 ||
-      numXRayed === numMeshes
-    ) {
-      return;
-    }
-    this.#rendererSet.colorRenderer?.renderLayer(this, RENDER_PASSES.DRAW_TRANSPARENT);
-  }
-
-  /**
-   * Renders the depth of opaque meshes for the current view if there are visible meshes.
-   * Checks if all meshes are culled, invisible, or transparent before rendering.
-   */
-  drawDepth() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numTransparent, numXRayed, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numTransparent === numMeshes ||
-      numXRayed === numMeshes
-    ) {
-      return;
-    }
-    this.#rendererSet.drawDepthRenderer?.renderLayer(this, RENDER_PASSES.DRAW_OPAQUE);
-  }
-
-  /**
-   * Renders normals for the current view if there are visible meshes.
-   * Checks if all meshes are culled or invisible before rendering.
-   */
-  drawNormals() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numTransparent, numXRayed, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numTransparent === numMeshes ||
-      numXRayed === numMeshes
-    ) {
-      return;
-    }
-    // this.#rendererSet.normalsRenderer?.renderLayer(this, RENDER_PASSES.DRAW_OPAQUE);
-  }
-
-  /**
-   * Renders the silhouette of XRayed meshes for the current view if there are visible XRayed meshes.
-   * Checks if all meshes are culled, invisible, or if there are no XRayed meshes before rendering.
-   */
-  drawSilhouetteXRayed() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numXRayed, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numXRayed === 0
-    ) {
-      return;
-    }
-    this.#rendererSet.silhouetteRenderer?.renderLayer(this, RENDER_PASSES.SILHOUETTE_XRAYED);
-  }
-
-  /**
-   * Renders the silhouette of highlighted meshes for the current view if there are visible highlighted meshes.
-   * Checks if all meshes are culled, invisible, or if there are no highlighted meshes before rendering.
-   */
-  drawSilhouetteHighlighted() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numHighlighted, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numHighlighted === 0
-    ) {
-      return;
-    }
-    this.#rendererSet.silhouetteRenderer?.renderLayer(this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
-  }
-
-  /**
-   * Renders the silhouette of selected meshes for the current view if there are visible selected meshes.
-   * Checks if all meshes are culled, invisible, or if there are no selected meshes before rendering.
-   */
-  drawSilhouetteSelected() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numSelected, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numSelected === 0
-    ) {
-      return;
-    }
-    this.#rendererSet.silhouetteRenderer?.renderLayer(this, RENDER_PASSES.SILHOUETTE_SELECTED);
-  }
-
-  /**
-   * Renders edges of opaque color meshes for the current view if there are visible meshes.
-   * Checks if all meshes are culled or invisible before rendering.
-   */
-  drawEdgesColorOpaque() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0
-    ) {
-      return;
-    }
-    this.#rendererSet.edgesColorRenderer?.renderLayer(this, RENDER_PASSES.DRAW_OPAQUE);
-  }
-
-  /**
-   * Renders edges of translucent color meshes for the current view if there are visible meshes.
-   * Checks if all meshes are culled, invisible, or if there are no transparent meshes before rendering.
-   */
-  drawEdgesColorTranslucent() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numTransparent, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numTransparent === 0
-    ) {
-      return;
-    }
-    this.#rendererSet.edgesColorRenderer?.renderLayer(this, RENDER_PASSES.DRAW_TRANSPARENT);
-  }
-
-  /**
-   * Renders highlighted edges for the current view if there are visible highlighted meshes.
-   * Checks if all meshes are culled, invisible, or if there are no highlighted meshes before rendering.
-   */
-  drawEdgesHighlighted() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numHighlighted, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numHighlighted === 0
-    ) {
-      return;
-    }
-    this.#rendererSet.edgesSilhouetteRenderer?.renderLayer(this, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED);
-  }
-
-  /**
-   * Renders selected edges for the current view if there are visible selected meshes.
-   * Checks if all meshes are culled, invisible, or if there are no selected meshes before rendering.
-   */
-  drawEdgesSelected() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numSelected, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numSelected === 0
-    ) {
-      return;
-    }
-    this.#rendererSet.edgesSilhouetteRenderer?.renderLayer(this, RENDER_PASSES.SILHOUETTE_SELECTED);
-  }
-
-  /**
-   * Renders edges of XRayed meshes for the current view if there are visible XRayed meshes.
-   * Checks if all meshes are culled, invisible, or if there are no XRayed meshes before rendering.
-   */
-  drawEdgesXRayed() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numXRayed, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0 ||
-      numXRayed === 0
-    ) {
-      return;
-    }
-    this.#rendererSet.edgesSilhouetteRenderer?.renderLayer(this, RENDER_PASSES.SILHOUETTE_XRAYED);
-  }
-
-  /**
-   * Renders occlusion for the current view if there are visible meshes.
-   * Checks if all meshes are culled or invisible before rendering.
-   */
-  drawOcclusion() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0
-    ) {
-      return;
-    }
-    this.#rendererSet.occlusionRenderer?.renderLayer(this, RENDER_PASSES.DRAW_OPAQUE);
-  }
-
-  /**
-   * Renders shadows for the current view if there are visible meshes.
-   * Checks if all meshes are culled or invisible before rendering.
-   */
-  drawShadow() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0
-    ) {
-      return;
-    }
-    // this.#rendererSet.shadowRenderer?.render(this, RENDER_PASSES.DRAW_OPAQUE);
-  }
-
-  /**
-   * Renders the pick mesh for the current view if there are visible meshes.
-   * Checks if there are any visible meshes before rendering.
-   */
-  drawPickMesh() {
-    const {viewIndex} = this.renderContext.view;
-    const {numVisible} = this.meshCounts[viewIndex];
-    if (numVisible === 0) return;
-    this.#rendererSet.pickMeshRenderer?.renderLayer(this, RENDER_PASSES.PICK);
-  }
-
-  /**
-   * Renders pick depths for the current view if there are visible meshes.
-   * Checks if there are any visible meshes before rendering.
-   */
-  drawPickDepths() {
-    const {viewIndex} = this.renderContext.view;
-    const {numVisible} = this.meshCounts[viewIndex];
-    if (numVisible === 0) return;
-    this.#rendererSet.pickDepthRenderer?.renderLayer(this, RENDER_PASSES.PICK);
-  }
-
-  /**
-   * Initializes snap rendering for the current view if there are visible meshes.
-   * Checks if all meshes are culled or invisible before rendering.
-   */
-  drawSnapInit() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0
-    ) {
-      return;
-    }
-    this.#rendererSet.snapInitRenderer?.renderLayer(this, RENDER_PASSES.PICK);
-  }
-
-  /**
-   * Renders snap for the current view if there are visible meshes.
-   * Checks if all meshes are culled or invisible before rendering.
-   */
-  drawSnap() {
-    const {viewIndex} = this.renderContext.view;
-    const counts = this.meshCounts[viewIndex];
-    const {numCulled, numVisible, numMeshes} = counts;
-    if (
-      numCulled === numMeshes ||
-      numVisible === 0
-    ) {
-      return;
-    }
-    this.#rendererSet.snapRenderer?.renderLayer(this, RENDER_PASSES.PICK);
-  }
-
-  /**
-   * Renders pick normals for the current view if there are visible meshes.
-   * Checks if all meshes are culled or invisible before rendering.
-   * Note: The rendering logic is currently commented out.
-   */
-  drawPickNormals() {
-    // if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes || this.meshCounts[viewIndex].numVisible === 0) {
-    //     return;
-    // }
-    // if (this.#rendererSet.pickNormalsRenderer) {
-    //     this.#rendererSet.pickNormalsRenderer.render(this, RENDER_PASSES.PICK);
-    // }
-  }
-
-
-  /**
    * Destroys this Layer instance.
    */
   destroy(): void {
     // Hook for cleanup if needed
   }
-
-  // Internal methods (#setMeshObjectFlags, #updateRenderFlags) omitted for brevity
 }

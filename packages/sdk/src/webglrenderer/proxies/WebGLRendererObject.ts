@@ -7,21 +7,44 @@ import {RenderContext} from "../RenderContext";
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 
 /**
+ * Represents a 3D object in the WebGL renderer. This is a proxy
+ * through which each ViewObject controls the visual state of the object in the renderer.
  * @private
  */
 export class WebGLRendererObject implements RendererObject {
 
+  #renderContext: RenderContext;
+
+  /**
+   * Unique identifier for the object.
+   * This ID is used to reference the object within the renderer.
+   */
   readonly id: string;
+
+  /**
+   *   The RendererModel this object belongs to.
+   */
   readonly rendererModel: RendererModel;
+
+  /**
+   * The ID of the ViewLayer this object belongs to, or null if not associated with a ViewLayer.
+   */
   readonly layerId: string | null;
+
+  /**
+   * List of renderer meshes associated with this object.
+   * Each mesh can represent a part of the object, such as its geometry and texture.
+   * The object controls the visual state of these meshes in the renderer, as a whole.
+   */
   readonly rendererMeshes: WebGLRendererMesh[];
 
-  #renderContext: RenderContext;
-  flags: number[];
+  /**
+   * Rendering flags for the object in each view.
+   */
+  readonly flags: number[];
 
   /**
    * @private
-   * @param params
    */
   constructor(params: {
     id: string,
@@ -30,11 +53,11 @@ export class WebGLRendererObject implements RendererObject {
     rendererMeshes: WebGLRendererMesh[]
   }) {
 
+    this.#renderContext = params.renderContext;
+
     this.id = params.id;
     this.rendererModel = params.rendererModel;
     this.rendererMeshes = params.rendererMeshes || [];
-
-    this.#renderContext = params.renderContext;
     this.flags = [];
 
     for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
@@ -60,16 +83,20 @@ export class WebGLRendererObject implements RendererObject {
     }
   }
 
+  /**
+   * Sets the visibility of the object in a specific view.
+   */
   setVisible(viewIndex: number, visible: boolean): void {
     if (!!(this.flags[viewIndex] & OBJECT_FLAGS.VISIBLE) === visible) {
       return;
     }
     this.flags[viewIndex] = visible ? this.flags[viewIndex] | OBJECT_FLAGS.VISIBLE : this.flags[viewIndex] & ~OBJECT_FLAGS.VISIBLE;
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setVisible(viewIndex, this.flags[viewIndex]);
-    }
+    this.rendererMeshes.forEach(mesh => mesh.setVisible(viewIndex, this.flags[viewIndex]));
   }
 
+  /**
+   * Sets the highlighted state of the object in a specific view.
+   */
   setHighlighted(viewIndex: number, highlighted: boolean): void {
     if (!!(this.flags[viewIndex] & OBJECT_FLAGS.HIGHLIGHTED) === highlighted) {
       return;
@@ -80,6 +107,9 @@ export class WebGLRendererObject implements RendererObject {
     }
   }
 
+  /**
+   * Sets the XRayed state of the object in a specific view.
+   */
   setXRayed(viewIndex: number, xrayed: boolean): void {
     if (!!(this.flags[viewIndex] & OBJECT_FLAGS.XRAYED) === xrayed) {
       return;
@@ -90,6 +120,9 @@ export class WebGLRendererObject implements RendererObject {
     }
   }
 
+  /**
+   * Sets the selected state of the object in a specific view.
+   */
   setSelected(viewIndex: number, selected: boolean): void {
     if (!!(this.flags[viewIndex] & OBJECT_FLAGS.SELECTED) === selected) {
       return;
@@ -100,6 +133,9 @@ export class WebGLRendererObject implements RendererObject {
     }
   }
 
+  /**
+   * Sets the culled state of the object in a specific view.
+   */
   setCulled(viewIndex: number, culled: boolean): void {
     if (!!(this.flags[viewIndex] & OBJECT_FLAGS.CULLED) === culled) {
       return;
@@ -110,6 +146,9 @@ export class WebGLRendererObject implements RendererObject {
     }
   }
 
+  /**
+   * Sets the clippable state of the object in a specific view.
+   */
   setClippable(viewIndex: number, clippable: boolean): void {
     if ((!!(this.flags[viewIndex] & OBJECT_FLAGS.CLIPPABLE)) === clippable) {
       return;
@@ -120,6 +159,9 @@ export class WebGLRendererObject implements RendererObject {
     }
   }
 
+  /**
+   * Sets the collidable state of the object in a specific view.
+   */
   setCollidable(viewIndex: number, collidable: boolean): void {
     if (!!(this.flags[viewIndex] & OBJECT_FLAGS.COLLIDABLE) === collidable) {
       return;
@@ -130,6 +172,9 @@ export class WebGLRendererObject implements RendererObject {
     }
   }
 
+  /**
+   * Sets the pickable state of the object in a specific view.
+   */
   setPickable(viewIndex: number, pickable: boolean): void {
     if (!!(this.flags[viewIndex] & OBJECT_FLAGS.PICKABLE) === pickable) {
       return;
@@ -140,6 +185,9 @@ export class WebGLRendererObject implements RendererObject {
     }
   }
 
+  /**
+   * Sets the colorize color of the object in a specific view.
+   */
   setColorize(viewIndex: number, color?: FloatArrayParam): void { // [0..1, 0..1, 0..1]
     if (color) {
       tempIntRGB[0] = Math.floor(color[0] * 255.0); // Quantize
@@ -155,6 +203,9 @@ export class WebGLRendererObject implements RendererObject {
     }
   }
 
+  /**
+   * Sets the opacity of the object in a specific view.
+   */
   setOpacity(viewIndex: number, opacity?: number): void {
     if (this.rendererMeshes.length === 0) {
       return;
@@ -182,12 +233,6 @@ export class WebGLRendererObject implements RendererObject {
     }
     for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
       this.rendererMeshes[i].setOpacity(viewIndex, opacityQuantized);
-    }
-  }
-
-  initFlags(viewIndex: number): void {
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].initFlags(viewIndex, this.flags[viewIndex]);
     }
   }
 }

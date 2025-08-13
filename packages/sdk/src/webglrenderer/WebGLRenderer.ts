@@ -20,7 +20,6 @@ import type {FloatArrayParam} from "../math";
 import {KTX2TextureTranscoder} from "../ktx2";
 import {Layer} from "./layer/Layer";
 import {Map} from "../utils";
-import type {Pickable} from "./Pickable";
 import {RenderContext} from "./RenderContext";
 import {RenderStats} from "./RenderStats";
 import {SAODepthLimitedBlurRenderer} from "./sao/SAODepthLimitedBlurRenderer";
@@ -43,6 +42,10 @@ import type {
 import {WebGLRendererObject} from "./proxies/WebGLRendererObject";
 import {WebGLRendererGeometry} from "./proxies/WebGLRendererGeometry";
 
+import {TrianglesPrimitive} from "../constants";
+import {LayerRendererSet} from "./renderers/LayerRendererSet";
+import {RENDER_PASSES} from "./RENDER_PASSES";
+import {getLayerRenderers} from "./renderers/getLayerRenderers";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -78,6 +81,8 @@ export class WebGLRenderer implements Renderer {
    */
   public rendererObjects: { [key: string]: RendererObject };
 
+  #layerRendererSet: LayerRendererSet;
+
   /**
    * @internal
    */
@@ -111,20 +116,19 @@ export class WebGLRenderer implements Renderer {
   #alphaDepthMask: boolean;
   #occlusionTester: any;
   #textureTranscoder: TextureTranscoder;
-  #viewMatrixDirty: boolean;
   #pickResult: PickResult;
   #snapshotBound: boolean;
   #destroyed: boolean;
 
   /**
    * @internal
-   * @event
+   * @event onCompiled
    */
   readonly onCompiled: EventEmitter<WebGLRenderer, boolean>;
 
   /**
    * @internal
-   * @event
+   * @event onDestroyed
    */
   readonly onDestroyed: EventEmitter<WebGLRenderer, boolean>;
 
@@ -163,7 +167,6 @@ export class WebGLRenderer implements Renderer {
     this.#logarithmicDepthBufferEnabled = false;
     this.#rendererModels = {};
     this.rendererObjects = {};
-    this.#viewMatrixDirty = true;
     this.#snapshotBound = false;
     this.#destroyed = false;
     this.#rendererViews = {};
@@ -301,6 +304,7 @@ export class WebGLRenderer implements Renderer {
     this.#saoDepthLimitedBlurRenderer = new SAODepthLimitedBlurRenderer({
       renderContext: this.#renderContext
     });
+    this.#layerRendererSet = new LayerRendererSet(this.#renderContext);
   }
 
   /**
@@ -346,6 +350,9 @@ export class WebGLRenderer implements Renderer {
     this.#layerList = [];
     this.rendererObjects = {};
     this.#rendererModels = {};
+
+    this.#layerRendererSet.destroy();
+    this.#layerRendererSet= null;
   }
 
   #attachView(view: View): WebGLRendererView {
@@ -530,7 +537,7 @@ export class WebGLRenderer implements Renderer {
   /**
    * @private
    */
-  attachPickable(pickable: Pickable): number { // @ts-ignore
+  attachPickable(pickable: any): number { // @ts-ignore
     return this.#pickIDs.addItem(pickable);
   }
 
@@ -917,7 +924,7 @@ export class WebGLRenderer implements Renderer {
       const layer = this.#layerList[i];
       const meshCounts = layer.meshCounts[viewIndex];
       if (meshCounts.numTransparent < meshCounts.numMeshes) { // Only draw opaque objects in depth pass
-        layer.drawDepth();
+        //  layer.drawDepth();
       }
     }
 
@@ -938,6 +945,7 @@ export class WebGLRenderer implements Renderer {
     const view = rendererView.view;
     const gl = this.#renderContext.gl;
     const ctx = this.#renderContext;
+    const primRenderers = this.#layerRendererSet.prims;
 
     const bins = {
       normalDrawSAO: [] as Layer[],
@@ -998,7 +1006,9 @@ export class WebGLRenderer implements Renderer {
 
       if (opaque) {
         if (drawWithSAO && layer.saoSupported) bins.normalDrawSAO.push(layer);
-        else layer.drawColorOpaque();
+        else {
+          primRenderers[layer.primitive]?.color.renderLayer(layer, RENDER_PASSES.DRAW_OPAQUE);
+        }
       }
 
       if (rendererView.transparentEnabled && trans) bins.normalFillTransparent.push(layer);
@@ -1017,10 +1027,22 @@ export class WebGLRenderer implements Renderer {
     }
 
     // Draw Opaque
-    for (let i = 0; i < bins.normalDrawSAO.length; i++) bins.normalDrawSAO[i].drawColorSAOOpaque();
-    for (let i = 0; i < bins.edgesColorOpaque.length; i++) bins.edgesColorOpaque[i].drawEdgesColorOpaque();
-    for (let i = 0; i < bins.xrayedSilhouetteOpaque.length; i++) bins.xrayedSilhouetteOpaque[i].drawSilhouetteXRayed();
-    for (let i = 0; i < bins.xrayEdgesOpaque.length; i++) bins.xrayEdgesOpaque[i].drawEdgesXRayed();
+    for (let i = 0; i < bins.normalDrawSAO.length; i++) {
+      //  renderers?.colorSAOOpaqueRenderer.bins.normalDrawSAO[i].drawColorSAOOpaque();
+    }
+    for (let i = 0; i < bins.edgesColorOpaque.length; i++) {
+      const layer = bins.edgesColorOpaque[i]
+      primRenderers[layer.primitive]?.colorEdges?.renderLayer(layer, RENDER_PASSES.DRAW_OPAQUE);
+    }
+    for (let i = 0; i < bins.xrayedSilhouetteOpaque.length; i++) {
+      const layer = bins.xrayedSilhouetteOpaque[i]
+      primRenderers[layer.primitive]?.silhouette?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+    }
+    for (let i = 0; i < bins.xrayEdgesOpaque.length; i++) {
+      const layer = bins.xrayEdgesOpaque[i]
+      primRenderers[layer.primitive]?.silhouetteEdges?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+    }
+    //  for (let i = 0; i < bins.xrayEdgesOpaque.length; i++) bins.xrayEdgesOpaque[i].drawEdgesXRayed();
 
     // Draw Translucent
     if (
@@ -1041,13 +1063,25 @@ export class WebGLRenderer implements Renderer {
       ctx.backfaces = false;
       if (!this.#alphaDepthMask) gl.depthMask(false);
 
-      for (let i = 0; i < bins.xrayEdgesTransparent.length; i++) bins.xrayEdgesTransparent[i].drawEdgesXRayed();
-      for (let i = 0; i < bins.xrayedSilhouetteTransparent.length; i++) bins.xrayedSilhouetteTransparent[i].drawSilhouetteXRayed();
+      for (const layer of bins.xrayEdgesTransparent) {
+        primRenderers[layer.primitive]?.silhouetteEdges?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+      }
+
+      for (const layer of bins.xrayedSilhouetteTransparent) {
+        primRenderers[layer.primitive]?.silhouetteEdges?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+      }
+
       if (bins.edgesColorTransparent.length || bins.normalFillTransparent.length) {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       }
-      for (let i = 0; i < bins.edgesColorTransparent.length; i++) bins.edgesColorTransparent[i].drawEdgesColorTranslucent();
-      for (let i = 0; i < bins.normalFillTransparent.length; i++) bins.normalFillTransparent[i].drawColorTranslucent();
+
+      for (const layer of bins.edgesColorTransparent) {
+        primRenderers[layer.primitive]?.colorEdges?.renderLayer(layer, RENDER_PASSES.DRAW_TRANSPARENT);
+      }
+
+      for (const layer of bins.normalFillTransparent) {
+        primRenderers[layer.primitive]?.color?.renderLayer(layer, RENDER_PASSES.DRAW_TRANSPARENT);
+      }
 
       gl.disable(gl.BLEND);
       if (!this.#alphaDepthMask) gl.depthMask(true);
@@ -1069,13 +1103,20 @@ export class WebGLRenderer implements Renderer {
     };
 
     drawSilAndEdges(bins.highlightedSilhouetteOpaque, bins.highlightedEdgesOpaque,
-      l => l.drawSilhouetteHighlighted(), l => l.drawEdgesHighlighted());
+      l => primRenderers[l.primitive]?.silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      l => primRenderers[l.primitive]?.silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
+
     drawSilAndEdges(bins.highlightedSilhouetteTransparent, bins.highlightedEdgesTransparent,
-      l => l.drawSilhouetteHighlighted(), l => l.drawEdgesHighlighted());
+      l => primRenderers[l.primitive]?.silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      l => primRenderers[l.primitive]?.silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
+
     drawSilAndEdges(bins.selectedSilhouetteOpaque, bins.selectedEdgesOpaque,
-      l => l.drawSilhouetteSelected(), l => l.drawEdgesSelected());
+      l => primRenderers[l.primitive]?.silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      l => primRenderers[l.primitive]?.silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
+
     drawSilAndEdges(bins.selectedSilhouetteTransparent, bins.selectedEdgesTransparent,
-      l => l.drawSilhouetteSelected(), l => l.drawEdgesSelected());
+      l => primRenderers[l.primitive]?.silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      l => primRenderers[l.primitive]?.silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
 
     // Cleanup GPU state
     for (let i = 0, texUnits = WEBGL_INFO.MAX_TEXTURE_UNITS; i < texUnits; i++) {
@@ -1088,7 +1129,6 @@ export class WebGLRenderer implements Renderer {
       gl.disableVertexAttribArray(i);
     }
   }
-
 
   /**
    * TODO
@@ -1268,7 +1308,7 @@ export class WebGLRenderer implements Renderer {
         meshCounts.numVisible === 0) {
         continue;
       }
-      layer.drawPickMesh();
+      // layer.drawPickMesh();
     }
     const pix = pickBuffer.read(0, 0);
     const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
@@ -1321,7 +1361,7 @@ export class WebGLRenderer implements Renderer {
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    layer.drawPickDepths();
+    // layer.drawPickDepths();
 
     const pix = pickBuffer.read(0, 0);
 

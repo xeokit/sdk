@@ -3,6 +3,33 @@
  */
 import {WebGLDataTexture} from "../WebGLDataTexture";
 
+/**
+ * Configuration options for creating a `DTXStructArray`.
+ *
+ * Defines the WebGL context, capacity, and structure specification for the array.
+ * Used to initialize a GPU-backed array of structured data for efficient rendering.
+ *
+ * ### Properties:
+ * - `gl`: The WebGL2 rendering context.
+ * - `capacity`: Maximum number of structs the array can hold.
+ * - `structSpec`: Specification of the struct layout, including field names and types.
+ *
+ * ### Usage:
+ * ```typescript
+ * const options: DTXStructArrayOptions = {
+ *   gl: webglContext,
+ *   capacity: 1000,
+ *   structSpec: {
+ *     name: "MyStruct",
+ *     fields: [
+ *       { name: "id", type: "scalar" },
+ *       { name: "position", type: "vec3" },
+ *       { name: "color", type: "vec4" }
+ *     ]
+ *   }
+ * };
+ * const structArray = new DTXStructArray(options);
+ */
 export interface DTXStructArrayOptions {
   gl: WebGL2RenderingContext;
   capacity: number;
@@ -10,9 +37,28 @@ export interface DTXStructArrayOptions {
 }
 
 /**
- * Defines the specification for a field in a struct.
- * - "scalar" is stored as 4 float components encoding a single uint32.
- * - "vec2", "vec3", and "vec4" are stored as-is.
+ * Defines the specification for a field in a struct used by `DTXStructArray`.
+ *
+ * Each field represents a component of the struct, specifying its name and type.
+ * Supported types include scalar values and vector types commonly used in WebGL.
+ *
+ * ### Properties:
+ * - `name`: The name of the field.
+ * - `type`: The data type of the field, which can be:
+ *   - `"scalar"`: Encodes a single uint32 value using 4 float components.
+ *   - `"vec2"`: A 2-component vector.
+ *   - `"vec3"`: A 3-component vector.
+ *   - `"vec4"`: A 4-component vector.
+ *
+ * ### Usage:
+ * Used as part of a `DTXStructSpec` to define the layout of structs stored in a `DTXStructArray`.
+ *
+ * ### Example:
+ * ```typescript
+ * const fieldSpec: DTXStructFieldSpec = {
+ *   name: "position",
+ *   type: "vec3"
+ * };
  */
 export interface DTXStructFieldSpec {
   name: string;
@@ -20,7 +66,27 @@ export interface DTXStructFieldSpec {
 }
 
 /**
- * Defines the specification for the structure stored in a DTXStructArray.
+ * Defines the specification for a struct used by `DTXStructArray`.
+ *
+ * A `DTXStructSpec` describes the layout of a struct, including its name and fields.
+ * Each field specifies its name and type, which can be scalar or vector types commonly
+ * used in WebGL. This specification is used to define how data is stored and accessed
+ * in a GPU-backed array.
+ *
+ * ### Properties:
+ * - `name`: The name of the struct.
+ * - `fields`: An array of `DTXStructFieldSpec` objects, each defining a field's name and type.
+ *
+ * ### Example:
+ * ```typescript
+ * const structSpec: DTXStructSpec = {
+ *   name: "MyStruct",
+ *   fields: [
+ *     { name: "id", type: "scalar" },
+ *     { name: "position", type: "vec3" },
+ *     { name: "color", type: "vec4" }
+ *   ]
+ * };
  */
 export interface DTXStructSpec {
   name: string;
@@ -28,87 +94,62 @@ export interface DTXStructSpec {
 }
 
 /**
- * Handle for referencing a specific struct instance within the array.
- */
-export interface DTXStructHandle {
-  id: number;
-  base: number;
-}
-
-/**
- * A GPU-backed struct array with support for per-struct packing and partial texture updates.
+ * Represents a GPU-backed array of structured data, stored in a WebGL texture.
  *
- * ## Usage
+ * The `DTXStructArray` class provides efficient storage and management of structured data
+ * (e.g., positions, colors, attributes) for use in WebGL rendering. It supports dynamic updates,
+ * partial texture uploads, and GLSL integration for accessing the data in shaders.
  *
- * ````javascript
- * // 1. Initialize WebGL2 context
- * const canvas = document.createElement("canvas");
- * document.body.appendChild(canvas);
- * const gl = canvas.getContext("webgl2");
- * if (!gl) {
- *   throw new Error("WebGL2 not supported");
- * }
+ * ### Features:
+ * - **Custom Struct Layouts**: Define struct layouts using `DTXStructSpec` with fields like `scalar`, `vec2`, `vec3`, and `vec4`.
+ * - **Dynamic Updates**: Modify individual structs or batches and flush changes to the GPU.
+ * - **Partial Uploads**: Upload only modified regions of the texture for performance.
+ * - **GLSL Integration**: Generate GLSL unpacking functions for accessing struct data in shaders.
  *
- * // 2. Define the struct layout using DTXStructFieldSpec[]
- * const layout: DTXStructFieldSpec[] = [
- *   { name: "id", type: "scalar" },
- *   { name: "position", type: "vec3" },
- *   { name: "velocity", type: "vec3" },
- *   { name: "color", type: "vec4" }
- * ];
+ * ### Usage:
+ * 1. Define a struct layout using `DTXStructSpec`.
+ * 2. Create an instance of `DTXStructArray` with the desired capacity and layout.
+ * 3. Use `setStructObject()` or `setStructObjects()` to write data.
+ * 4. Call `flush()` to upload changes to the GPU.
+ * 5. Access the data in GLSL using a generated unpacking function.
  *
- * // 3. Wrap it in a DTXStructSpec
+ * ### Example:
+ * ```typescript
  * const spec: DTXStructSpec = {
  *   name: "MyStruct",
- *   fields: layout
+ *   fields: [
+ *     { name: "id", type: "scalar" },
+ *     { name: "position", type: "vec3" },
+ *     { name: "color", type: "vec4" }
+ *   ]
  * };
  *
- * // 4. Create a DTXStructArray instance
  * const array = new DTXStructArray({
  *   gl,
  *   capacity: 100,
  *   structSpec: spec
  * });
  *
- * // 5. Write data to index 0
  * array.setStructObject(0, {
- *   id: 123456789,
+ *   id: 123,
  *   position: [1.0, 2.0, 3.0],
- *   velocity: [0.1, 0.0, -0.1],
  *   color: [1.0, 0.0, 0.0, 1.0]
  * });
  *
- * // 6. Write multiple values
- * array.setStructObjects(1, [
- *   {
- *     id: 987654321,
- *     position: [4.0, 5.0, 6.0],
- *     velocity: [0.2, 0.3, 0.4],
- *     color: [0.0, 1.0, 0.0, 1.0]
- *   },
- *   {
- *     id: 13579,
- *     position: [7.0, 8.0, 9.0],
- *     velocity: [0.5, -0.2, 0.0],
- *     color: [0.0, 0.0, 1.0, 1.0]
- *   }
- * ]);
- *
- * // 7. Read back a struct
- * const obj = array.getStructObject(0);
- * console.log("Object at index 0:", obj);
- *
- * // 8. Flush to upload modified parts to the GPU
  * array.flush();
  *
- * // 9. Generate and print GLSL code
- * const glsl = glslUnpackFunction(spec);
- * console.log("GLSL struct unpack function:\n", glsl);
- *
- * // 10. Bind texture for use in a shader
- * gl.activeTexture(gl.TEXTURE0);
- * gl.bindTexture(gl.TEXTURE_2D, array.getTexture());
+ * const myObject = array.getStructObject(0);
+ * myObject.id; // 123
+ * myObject.position; // [1.0, 2.0, 3.0]
+ * myObject.color; // [1.0, 0.0, 0.0, 1.0]
  * ````
+ *
+ * ### Methods:
+ * * setStructObject(index, data): Writes a single struct to the array.
+ * * setStructObjects(startIndex, objects): Writes multiple structs to the array.
+ * * getStructObject(index): Reads a struct as a JavaScript object.
+ * * flush(): Uploads modified data to the GPU.
+ * * getTexture(): Returns the WebGL texture for use in shaders.
  */
 export class DTXStructArray {
 

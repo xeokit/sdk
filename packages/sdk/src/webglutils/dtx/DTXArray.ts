@@ -19,16 +19,62 @@ export interface DTXArrayOptions<T extends TypedArray> {
   usePackedRGBAForUint32?: boolean;
 }
 
+/**
+ * Represents a portion of a `DTXArray` allocated for storing data.
+ *
+ * A `DTXArrayPortion` defines a contiguous block of memory within the array,
+ * specified by its starting base index and size. It is used internally to
+ * manage dynamic allocation and deallocation of array portions.
+ *
+ * ### Properties:
+ * - `base`: The starting index of the portion within the array.
+ * - `size`: The number of elements in the portion.
+ * @private
+ */
 interface DTXArrayPortion {
   base: number;
   size: number;
 }
 
+/**
+ * Represents a handle to an allocated portion of a `DTXArray`.
+ *
+ * A `DTXArrayHandle` is used to reference a specific portion of the array,
+ * allowing for dynamic updates, data retrieval, and deallocation.
+ *
+ * ### Properties:
+ * - `id`: A unique identifier for the allocated portion.
+ * - `base`: The starting index of the portion within the array.
+ */
 export interface DTXArrayHandle {
   id: number;
   base: number;
 }
 
+/**
+ * Manages a GPU-backed array of data stored in a WebGL texture.
+ *
+ * The `DTXArray` class provides efficient storage and management of unstructured data
+ * (e.g., indices, positions) for use in WebGL rendering. It supports dynamic allocation,
+ * updates, and partial uploads to the GPU, minimizing memory fragmentation.
+ *
+ * ### Features:
+ * - **Dynamic Allocation**: Allocates and manages portions of the buffer for different data.
+ * - **Efficient Updates**: Buffers changes and uploads only dirty regions to the GPU.
+ * - **Fragmentation Handling**: Packs the buffer to eliminate fragmentation when needed.
+ * - **Customizable Layout**: Supports different data types and component configurations.
+ *
+ * ### Usage:
+ * - Allocate portions with `getPortion(size)` and free them with `putPortion(handle)`.
+ * - Write data using `setPortionData(handle, data)` or `fillPortion(handle, value)`.
+ * - Call `flush()` to upload changes to the GPU.
+ *
+ * ### Lifecycle:
+ * 1. Initialize with WebGL context and desired capacity.
+ * 2. Allocate and manage portions dynamically.
+ * 3. Periodically call `flush()` to synchronize changes with the GPU.
+ * 4. Clean up resources with `destroy()` if necessary.
+ */
 export class DTXArray<T extends TypedArray> {
 
   texture: WebGLDataTexture;

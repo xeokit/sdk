@@ -1,11 +1,14 @@
 import {AmbientLight, DirLight, PointLight} from "../../viewer";
 import {WEBGL_INFO, WebGLProgram} from "../../webglutils";
 import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive} from "../../constants";
-import {RENDER_PASSES} from "../RENDER_PASSES";
+import {RENDER_PASSES} from "../layers/RENDER_PASSES";
 import type {RenderContext} from "../RenderContext";
-import {Layer} from "../layer/Layer";
+import {Layer} from "../layers/Layer";
+import {GPUDataMemoryView} from "../gpuMemory/GPUDataMemoryView";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
+
+export type RenderPassValue = typeof RENDER_PASSES[keyof typeof RENDER_PASSES];
 
 /**
  * Abstract base class for rendering layers in a WebGL context.
@@ -31,8 +34,10 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
  */
 export abstract class LayerRenderer {
 
-  renderContext: RenderContext;
-  program: WebGLProgram | null;
+  private _renderContext: RenderContext;
+  private _dtxMemoryView: GPUDataMemoryView;
+  private _program: WebGLProgram | null;
+
   errors: string[];
   edges: boolean;
 
@@ -40,7 +45,7 @@ export abstract class LayerRenderer {
    * Uniforms and attributes for the shader program.
    * Populated during the `build()` method based on what's included in the shader source.
    */
-  private uniforms: {
+  private _uniforms: {
     primitiveBase: WebGLUniformLocation;
     viewIndex: WebGLUniformLocation;
     renderPass: WebGLUniformLocation;
@@ -68,12 +73,12 @@ export abstract class LayerRenderer {
   /**
    * Attributes for the shader program.
    */
-  private attributes: {};
+  private _attributes: {};
 
   /**
    * Samplers for the shader program.
    */
-  private samplers: {
+  private _samplers: {
     primToMeshLookup: string; // Prim index -> mesh lookup
     meshAttributes: string; // Mesh attributes
     meshMatrices: string; // RTC modeling matrices
@@ -88,13 +93,16 @@ export abstract class LayerRenderer {
   private _vertexSrcBuf: string[];
   private _fragmentSrcBuf: string[];
 
+
   /**
    * Creates a new LayerRenderer instance.
    * @param renderContext
+   * @param dtxMemoryView
    * @param cfg
    */
-  constructor(renderContext: RenderContext, cfg: { edges: boolean } = {edges: false}) {
-    this.renderContext = renderContext;
+  constructor(renderContext: RenderContext, dtxMemoryView: GPUDataMemoryView, cfg: { edges: boolean } = {edges: false}) {
+    this._renderContext = renderContext;
+    this._dtxMemoryView = dtxMemoryView;
     this.edges = cfg.edges;
     this._build();
   }
@@ -260,7 +268,7 @@ export abstract class LayerRenderer {
   }
 
   protected vsSlicingDefines() {
-    // if (this.renderContext.view.getNumAllocatedSectionPlanes() > 0) {
+    // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
     //   const src = this._vertexSrcBuf;
     //   src.push("out vec4 vWorldPosition;");
     //   src.push("out boolean vClippable;");
@@ -310,7 +318,7 @@ export abstract class LayerRenderer {
   }
 
   protected vsSlicingLogic() {
-    // if (this.renderContext.view.getNumAllocatedSectionPlanes() > 0) {
+    // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
     //   const src = this._vertexSrcBuf;
     //   src.push("      vWorldPosition = worldPosition;");
     //   src.push("      vClippable = (int(meshViewAttributes.flags) >> 12 & 0xF) == 1;");
@@ -323,8 +331,8 @@ export abstract class LayerRenderer {
       "          int meshIndex = unpackMeshIndex(primIndex);",
       "          MeshViewAttributes meshViewAttributes = unpackMeshViewAttributes(meshIndex);",
       `          if (meshViewAttributes.color.a == 0u) {`,
-  //    "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
-    //  "              return;",
+      //    "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
+      //  "              return;",
       "          };");
   }
 
@@ -368,7 +376,7 @@ export abstract class LayerRenderer {
 
   protected vertexPointsFilterLogicOpenBlock() {
     // const src = this._vertexSrcBuf;
-    // const pointsMaterial = this.renderContext.view.pointsMaterial;
+    // const pointsMaterial = this._renderContext.view.pointsMaterial;
     // if (pointsMaterial.filterIntensity) {
     //   src.push("float intensity = float(color.a) / 255.0;")
     //   src.push("if (intensity < intensityRange[0] || intensity > intensityRange[1]) {");
@@ -378,7 +386,7 @@ export abstract class LayerRenderer {
   }
 
   protected vertexPointsFilterLogicCloseBlock() {
-    // const pointsMaterial = this.renderContext.view.pointsMaterial;
+    // const pointsMaterial = this._renderContext.view.pointsMaterial;
     // if (pointsMaterial.filterIntensity) {
     //   this._vertexSrcBuf.push("}");
     // }
@@ -386,7 +394,7 @@ export abstract class LayerRenderer {
 
   protected vertexPointsGeometryLogic() {
     const src = this._vertexSrcBuf;
-    const pointsMaterial = this.renderContext.view.pointsMaterial;
+    const pointsMaterial = this._renderContext.view.pointsMaterial;
     // if (pointsMaterial.perspectivePoints) {
     //     src.push("gl_PointSize = (nearPlaneHeight * pointSize) / clipPos.w;");
     //     src.push("gl_PointSize = max(gl_PointSize, " + Math.floor(pointsMaterial.minPerspectivePointSize) + ".0);");
@@ -444,7 +452,7 @@ export abstract class LayerRenderer {
 
   protected fsDrawLambertDefs() {
     const src = this._fragmentSrcBuf;
-    const view = this.renderContext.view;
+    const view = this._renderContext.view;
     src.push(
       "in vec4 vColor;",
       "in vec4 vViewPosition;",
@@ -484,7 +492,7 @@ export abstract class LayerRenderer {
   }
 
   protected fsSlicingDefines() {
-    // const numSectionPlanes = this.renderContext.view.getNumAllocatedSectionPlanes();
+    // const numSectionPlanes = this._renderContext.view.getNumAllocatedSectionPlanes();
     // if (numSectionPlanes === 0) {
     //   return;
     // }
@@ -510,7 +518,7 @@ export abstract class LayerRenderer {
 
   protected fsDrawLambertLogic() {
     const src = this._fragmentSrcBuf;
-    const view = this.renderContext.view;
+    const view = this._renderContext.view;
     this._fragmentSrcBuf.push("vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
       "vec3 viewLightDir = vec3(0.0, 0.0, -1.0);",
       "float lambertian = 1.0;",
@@ -568,7 +576,7 @@ export abstract class LayerRenderer {
   }
 
   protected fsSlicingLogic() {
-    // const numSectionPlanes = this.renderContext.view.getNumAllocatedSectionPlanes();
+    // const numSectionPlanes = this._renderContext.view.getNumAllocatedSectionPlanes();
     // if (numSectionPlanes === 0) {
     //   return;
     // }
@@ -585,7 +593,7 @@ export abstract class LayerRenderer {
   }
 
   protected fragmentPointsGeometryLogic(): void {
-    //if (this.renderContext.view.pointsMaterial.roundPoints) {
+    //if (this._renderContext.view.pointsMaterial.roundPoints) {
     // const src = this._fragmentSrcBuf;
     // src.push("  vec2 cxy = 2.0 * gl_PointCoord - 1.0;");
     // src.push("  float r = dot(cxy, cxy);");
@@ -605,8 +613,8 @@ export abstract class LayerRenderer {
    * @param layer The layer to render, which contains the primitives and their attributes.
    * @param renderPass The render pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
    */
-  renderLayer(layer: Layer, renderPass: number): void {
-    if (!this.program) {
+  renderLayer(layer: Layer, renderPass: RenderPassValue): void {
+    if (!this._program) {
       console.error("Shader program is not initialized.");
       return;
     }
@@ -619,10 +627,10 @@ export abstract class LayerRenderer {
       return;
     }
     this._bind(renderPass);
-    const gl = this.renderContext.gl;
+    const gl = this._renderContext.gl;
     // Select which portion of DTX primitives to draw for the layer
     const primitiveBase = 0; // TODO: Per-layer value
-    gl.uniform1i(this.uniforms.primitiveBase, primitiveBase);
+    gl.uniform1i(this._uniforms.primitiveBase, primitiveBase);
     // Draw the layer's primitives
     const numIndices = layer.numIndices;
     switch (layer.primitive) {
@@ -647,56 +655,57 @@ export abstract class LayerRenderer {
    * @param renderPass The render pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
    * @private
    */
-  private _bind(renderPass: number): boolean {
+  private _bind(renderPass: RenderPassValue): boolean {
 
-    const view = this.renderContext.view;
-    const gl = this.renderContext.gl;
-    const uniforms = this.uniforms;
-    const renderContext = this.renderContext;
+    const view = this._renderContext.view;
+    const gl = this._renderContext.gl;
+    const uniforms = this._uniforms;
+    const renderContext = this._renderContext;
+    const program = this._program;
 
-    if (!this.program) {
+    if (!program) {
       renderContext.lastProgramId = -1;
       return false;
     }
 
-    if (renderContext.lastProgramId === this.program.id) {
+    if (renderContext.lastProgramId === program.id) {
       return true; // Already bound
     }
 
-    this.program.bind();
+    program.bind();
 
-    renderContext.lastProgramId = this.program.id;
+    renderContext.lastProgramId = program.id;
     renderContext.textureUnit = 0;
 
     gl.uniform1i(uniforms.renderPass, renderPass);
 
-    const samplers = this.samplers;
-    const dataTextures = renderContext.dtxMemory.dataTextures;
+    const samplers = this._samplers;
+    const dataTextures = this._dtxMemoryView.dataTextures;
 
-    this.program.bindTexture(samplers.tileViewMatrices, dataTextures.tileViewMatrices[view.viewIndex], renderContext.textureUnit);
+    program.bindTexture(samplers.tileViewMatrices, dataTextures.tileViewMatrices[view.viewIndex], renderContext.textureUnit);
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
 
-    this.program.bindTexture(samplers.primToMeshLookup, dataTextures.primToMeshLookup, renderContext.textureUnit);
+    program.bindTexture(samplers.primToMeshLookup, dataTextures.primToMeshLookup, renderContext.textureUnit);
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
 
     // Positions
 
-    this.program.bindTexture(samplers.positions, dataTextures.positions, renderContext.textureUnit);
+    program.bindTexture(samplers.positions, dataTextures.positions, renderContext.textureUnit);
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
 
     // Mesh modeling matrices
 
-    this.program.bindTexture(samplers.meshMatrices, dataTextures.meshMatrices, renderContext.textureUnit);
+    program.bindTexture(samplers.meshMatrices, dataTextures.meshMatrices, renderContext.textureUnit);
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
 
     // Mesh attributes
 
-    this.program.bindTexture(samplers.meshAttributes, dataTextures.meshAttributes, renderContext.textureUnit);
+    program.bindTexture(samplers.meshAttributes, dataTextures.meshAttributes, renderContext.textureUnit);
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
 
     // Per-geometry dequantization range
 
-    this.program.bindTexture(samplers.geometryAttributes,
+    program.bindTexture(samplers.geometryAttributes,
       dataTextures.geometryAttributes,
       renderContext.textureUnit);
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
@@ -734,51 +743,51 @@ export abstract class LayerRenderer {
 
     for (let i = 0, len = view.lightsList.length; i < len; i++) {
       const light = view.lightsList[i];
-      if (this.uniforms.lightColor[i]) {
-        gl.uniform4f(this.uniforms.lightColor[i], light.color[0], light.color[1], light.color[2], light.intensity);
+      if (uniforms.lightColor[i]) {
+        gl.uniform4f(uniforms.lightColor[i], light.color[0], light.color[1], light.color[2], light.intensity);
       }
-      if (this.uniforms.lightPos[i]) {
+      if (uniforms.lightPos[i]) {
         const pointLight = <PointLight>light;
-        gl.uniform3fv(this.uniforms.lightPos[i], <any>pointLight.pos);
+        gl.uniform3fv(uniforms.lightPos[i], <any>pointLight.pos);
       }
-      if (this.uniforms.lightDir[i]) {
+      if (uniforms.lightDir[i]) {
         const dirLight = <DirLight>light;
-        gl.uniform3fv(this.uniforms.lightDir[i], <any>dirLight.dir);
+        gl.uniform3fv(uniforms.lightDir[i], <any>dirLight.dir);
       }
     }
 
-    if (this.uniforms.silhouetteColor) {
+    if (uniforms.silhouetteColor) {
       if (this.edges) {
         if (renderPass === RENDER_PASSES.SILHOUETTE_XRAYED) {
           const material = view.xrayMaterial;
           const color = material.edgeColor;
-          gl.uniform4f(this.uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
         } else if (renderPass === RENDER_PASSES.SILHOUETTE_HIGHLIGHTED) {
           const material = view.highlightMaterial;
           const color = material.edgeColor;
-          gl.uniform4f(this.uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
         } else if (renderPass === RENDER_PASSES.SILHOUETTE_SELECTED) {
           const material = view.selectedMaterial;
           const color = material.edgeColor;
-          gl.uniform4f(this.uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.edgeAlpha);
         } else {
-          gl.uniform4fv(this.uniforms.silhouetteColor, defaultColor);
+          gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
         }
       } else {
         if (renderPass === RENDER_PASSES.SILHOUETTE_XRAYED) {
           const material = view.xrayMaterial;
           const color = material.fillColor;
-          gl.uniform4f(this.uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
         } else if (renderPass === RENDER_PASSES.SILHOUETTE_HIGHLIGHTED) {
           const material = view.highlightMaterial;
           const color = material.fillColor;
-          gl.uniform4f(this.uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
         } else if (renderPass === RENDER_PASSES.SILHOUETTE_SELECTED) {
           const material = view.selectedMaterial;
           const color = material.fillColor;
-          gl.uniform4f(this.uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
+          gl.uniform4f(uniforms.silhouetteColor, color[0], color[1], color[2], material.fillAlpha);
         } else {
-          gl.uniform4fv(this.uniforms.silhouetteColor, defaultColor);
+          gl.uniform4fv(uniforms.silhouetteColor, defaultColor);
         }
       }
     }
@@ -786,10 +795,10 @@ export abstract class LayerRenderer {
     const sao = view.sao;
     const saoEnabled = sao.possible;
     if (saoEnabled) {
-      if (this.uniforms.saoParams) {
-        gl.uniform4f(this.uniforms.saoParams, gl.drawingBufferWidth, gl.drawingBufferHeight, sao.blendCutoff, sao.blendFactor);
-        this.program.bindTexture(
-          this.samplers.saoOcclusionTexture,
+      if (uniforms.saoParams) {
+        gl.uniform4f(uniforms.saoParams, gl.drawingBufferWidth, gl.drawingBufferHeight, sao.blendCutoff, sao.blendFactor);
+        program.bindTexture(
+          this._samplers.saoOcclusionTexture,
           renderContext.saoOcclusionTexture,
           renderContext.textureUnit);
         renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
@@ -800,8 +809,8 @@ export abstract class LayerRenderer {
 
   private _build(): void {
 
-    const view = this.renderContext.view;
-    const gl = this.renderContext.gl;
+    const view = this._renderContext.view;
+    const gl = this._renderContext.gl;
 
     this._vertexSrcBuf = [];
     this._fragmentSrcBuf = [];
@@ -809,7 +818,7 @@ export abstract class LayerRenderer {
     this.buildVertexShader()
     this.buildFragmentShader()
 
-    this.program = new WebGLProgram(gl, {
+    this._program = new WebGLProgram(gl, {
       vertex: joinSansComments(this._vertexSrcBuf),
       fragment: joinSansComments(this._fragmentSrcBuf)
     });
@@ -817,14 +826,14 @@ export abstract class LayerRenderer {
     this._vertexSrcBuf = [];
     this._fragmentSrcBuf = [];
 
-    if (this.program.errors) {
-      this.errors = this.program.errors;
+    if (this._program.errors) {
+      this.errors = this._program.errors;
       return;
     }
 
-    const program = this.program;
+    const program = this._program;
 
-    this.uniforms = {
+    this._uniforms = {
       primitiveBase: program.getLocation("primitiveBase"),
       viewIndex: program.getLocation("viewIndex"), // IDs the View currently being rendered
       renderPass: program.getLocation("renderPass"), // IDs the render pass - draw, pick, silhouette etc
@@ -853,19 +862,19 @@ export abstract class LayerRenderer {
     for (let i = 0, len = lights.length; i < len; i++) {
       const light = lights[i];
       if (light instanceof DirLight) {
-        this.uniforms.lightColor[i] = program.getLocation("lightColor" + i);
-        this.uniforms.lightPos[i] = null;
-        this.uniforms.lightDir[i] = program.getLocation("lightDir" + i);
+        this._uniforms.lightColor[i] = program.getLocation("lightColor" + i);
+        this._uniforms.lightPos[i] = null;
+        this._uniforms.lightDir[i] = program.getLocation("lightDir" + i);
         break;
       } else {
-        this.uniforms.lightColor[i] = program.getLocation("lightColor" + i);
-        this.uniforms.lightPos[i] = program.getLocation("lightPos" + i);
-        this.uniforms.lightDir[i] = null;
-        this.uniforms.lightAttenuation[i] = program.getLocation("lightAttenuation" + i);
+        this._uniforms.lightColor[i] = program.getLocation("lightColor" + i);
+        this._uniforms.lightPos[i] = program.getLocation("lightPos" + i);
+        this._uniforms.lightDir[i] = null;
+        this._uniforms.lightAttenuation[i] = program.getLocation("lightAttenuation" + i);
       }
     }
 
-    const uniforms = this.uniforms;
+    const uniforms = this._uniforms;
 
     for (let i = 0, len = view.sectionPlanesList.length; i < len; i++) {
       uniforms.sectionPlanes.push({
@@ -875,9 +884,9 @@ export abstract class LayerRenderer {
       });
     }
 
-    this.attributes = {};
+    this._attributes = {};
 
-    this.samplers = {
+    this._samplers = {
       primToMeshLookup: "primToMeshLookup",
       meshAttributes: "meshAttributes",
       meshMatrices: "meshMatrices",
@@ -894,10 +903,10 @@ export abstract class LayerRenderer {
    * Destroys the shader program and cleans up resources.
    */
   destroy() {
-    if (this.program) {
-      this.program.destroy();
+    if (this._program) {
+      this._program.destroy();
     }
-    this.program = null;
+    this._program = null;
   }
 }
 

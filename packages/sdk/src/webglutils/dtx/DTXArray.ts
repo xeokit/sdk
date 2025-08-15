@@ -446,6 +446,13 @@ export class DTXArray<T extends TypedArray> {
       this.dirtyPortions.clear();
     }
   }
+
+  /**
+   * Destroys the internal resources.
+   */
+  destroy(): void {
+    this.gl.deleteTexture(this.texture.texture);
+  }
 }
 
 // Packing utility (JS):

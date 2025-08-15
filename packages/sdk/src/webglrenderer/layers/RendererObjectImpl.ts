@@ -1,7 +1,7 @@
-import type {RendererModel, RendererObject} from "../../scene";
+import type { RendererObject} from "../../scene";
 import type {FloatArrayParam} from "../../math";
-import {createDefaultObjectFlags, createObjectFlags, OBJECT_FLAGS} from '../OBJECT_FLAGS';
-import type {WebGLRendererMesh} from "./WebGLRendererMesh";
+import {createDefaultObjectFlags, createObjectFlags, OBJECT_FLAGS} from './OBJECT_FLAGS';
+import type {RendererMeshImpl} from "./RendererMeshImpl";
 import {RenderContext} from "../RenderContext";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
@@ -11,7 +11,7 @@ const tempIntRGB = new Uint16Array([0, 0, 0]);
  * through which each ViewObject controls the visual state of the object in the renderer.
  * @private
  */
-export class WebGLRendererObject implements RendererObject {
+export class RendererObjectImpl implements RendererObject {
 
   #renderContext: RenderContext;
 
@@ -20,11 +20,6 @@ export class WebGLRendererObject implements RendererObject {
    * This ID is used to reference the object within the renderer.
    */
   readonly id: string;
-
-  /**
-   *   The RendererModel this object belongs to.
-   */
-  readonly rendererModel: RendererModel;
 
   /**
    * The ID of the ViewLayer this object belongs to, or null if not associated with a ViewLayer.
@@ -36,7 +31,7 @@ export class WebGLRendererObject implements RendererObject {
    * Each mesh can represent a part of the object, such as its geometry and texture.
    * The object controls the visual state of these meshes in the renderer, as a whole.
    */
-  readonly rendererMeshes: WebGLRendererMesh[];
+  readonly rendererMeshes: RendererMeshImpl[];
 
   /**
    * Rendering flags for the object in each view.
@@ -49,14 +44,12 @@ export class WebGLRendererObject implements RendererObject {
   constructor(params: {
     id: string,
     renderContext: RenderContext;
-    rendererModel: RendererModel,
-    rendererMeshes: WebGLRendererMesh[]
+    rendererMeshes: RendererMeshImpl[];
   }) {
 
     this.#renderContext = params.renderContext;
 
     this.id = params.id;
-    this.rendererModel = params.rendererModel;
     this.rendererMeshes = params.rendererMeshes || [];
     this.flags = [];
 

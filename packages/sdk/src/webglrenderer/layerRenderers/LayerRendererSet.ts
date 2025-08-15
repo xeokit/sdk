@@ -5,6 +5,7 @@ import {GenericSilhouetteRenderer} from "./generic/GenericSilhouetteRenderer";
 import {PointsSilhouetteRenderer} from "./points/PointsSilhouetteRenderer";
 import {PointsColorRenderer} from "./points/PointsColorRenderer";
 import {LayerRenderer} from "./LayerRenderer";
+import {GPUDataMemoryView} from "../gpuMemory/GPUDataMemoryView";
 
 /**
  * Interface defining the structure of a renderer set for different primitives.
@@ -30,24 +31,23 @@ export class LayerRendererSet {
   /**
    * Initializes the LayerRendererSet with the given rendering context.
    * @param renderContext - The rendering context used for WebGL operations.
+   * @param dtxMemoryView - The DTX memory used for managing GPU resources.
    */
-  constructor(renderContext: RenderContext) {
+  constructor(renderContext: RenderContext, dtxMemoryView: GPUDataMemoryView) {
     this.renderContext = renderContext;
-
-    const silhouette = new GenericSilhouetteRenderer(renderContext);
-
+    const silhouette = new GenericSilhouetteRenderer(renderContext, dtxMemoryView);
     this.prims = {
       [TrianglesPrimitive]: {
-        color: new TrianglesColorRenderer(renderContext),
+        color: new TrianglesColorRenderer(renderContext, dtxMemoryView),
         silhouette,
       },
       [LinesPrimitive]: {
-        color: new TrianglesColorRenderer(renderContext),
+        color: new TrianglesColorRenderer(renderContext, dtxMemoryView),
         silhouette,
       },
       [PointsPrimitive]: {
-        color: new PointsColorRenderer(renderContext),
-        silhouette: new PointsSilhouetteRenderer(renderContext),
+        color: new PointsColorRenderer(renderContext, dtxMemoryView),
+        silhouette: new PointsSilhouetteRenderer(renderContext, dtxMemoryView)
       },
     };
   }

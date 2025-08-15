@@ -2,7 +2,6 @@ import type {View, Viewer} from "../viewer";
 import {WEBGL_INFO, type WebGLAbstractTexture} from "../webglutils";
 import type {FloatArrayParam} from "../math";
 import type {WebGLRenderer} from "./WebGLRenderer";
-import {DTXMemory} from "./dtx/DTXMemory";
 
 
 /**
@@ -14,7 +13,7 @@ import {DTXMemory} from "./dtx/DTXMemory";
  *
  * Responsibilities:
  * - Tracks the current rendering state, including active textures, programs, and passes.
- * - Manages GPU memory for geometry and materials through the `DTXMemory` system.
+ * - Manages GPU memory for geometry and materials through the `GPUDataMemory` system.
  * - Provides methods for managing texture units and resetting state between frames.
  * - Stores matrices and parameters for specialized rendering operations like shadow mapping and picking.
  *
@@ -32,19 +31,14 @@ export class RenderContext {
   public viewer: Viewer;
 
   /**
-   * The WebGLRenderer that is using this RenderContext.
-   */
-  public webglRenderer: WebGLRenderer;
-
-  /**
-   * GPU-side data texture-based memory store for our model geometry and materials.
-   */
-  public dtxMemory: DTXMemory;
-
-  /**
    * The WebGL rendering context.
    */
   public gl: WebGL2RenderingContext;
+
+  /**
+   * The HTML canvas element used for WebGL rendering.
+   */
+  public webglCanvasElement: HTMLCanvasElement;
 
   /**
    * The View we are currently rendering.
@@ -89,19 +83,6 @@ export class RenderContext {
   public renderPass: number;
 
   /**
-   * The 4x4 viewing transform matrix the WebGLRenderer is currently using when rendering castsShadows.
-   *
-   * This sets the viewpoint to look from the point of view of each {@link view!DirLight | DirLight}
-   * or {@link view!PointLight|PointLight} that casts a shadow.
-   */
-  public shadowViewMatrix: FloatArrayParam;
-
-  /**
-   * The 4x4 viewing projection matrix the WebGLRenderer is currently using when rendering shadows.
-   */
-  public shadowProjMatrix: FloatArrayParam;
-
-  /**
    * The 4x4 viewing transform matrix the WebGLRenderer is currently using when rendering a ray-pick.
    *
    * This sets the viewpoint to look along the ray, when picking with a ray.
@@ -144,15 +125,17 @@ export class RenderContext {
 
   public pickClipPos: FloatArrayParam;
 
+
+
+
   /**
    * Creates a new RenderContext.
    */
-  constructor(viewer: Viewer, gl: WebGL2RenderingContext, webglRenderer: WebGLRenderer, dtxMemory: DTXMemory) {
+  constructor(viewer: Viewer, gl: WebGL2RenderingContext, webglCanvasElement: HTMLCanvasElement) {
     this.viewer = viewer;
     this.view = null;
     this.gl = gl;
-    this.webglRenderer = webglRenderer;
-    this.dtxMemory = dtxMemory;
+    this.webglCanvasElement = webglCanvasElement;
     this.reset();
   }
 
@@ -165,8 +148,6 @@ export class RenderContext {
     this.backfaces = false;
     this.frontface = true;
     this.textureUnit = 0;
-    this.shadowViewMatrix = null;
-    this.shadowProjMatrix = null;
     this.pickViewMatrix = null;
     this.pickProjMatrix = null;
     this.pickZNear = 0.01;

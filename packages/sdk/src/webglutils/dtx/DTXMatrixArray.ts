@@ -159,10 +159,8 @@ export class DTXMatrixArray {
 
   /**
    * Destroys the internal resources.
-   * (No-op unless cleanup is explicitly implemented.)
    */
   destroy(): void {
-    // No-op for now. Could delete texture if needed:
     this.gl.deleteTexture(this.texture.texture);
   }
 }

@@ -387,6 +387,13 @@ export class DTXStructArray {
     }
     return result;
   }
+
+  /**
+   * Destroys the internal resources.
+   */
+  destroy(): void {
+    this.gl.deleteTexture(this.texture.texture);
+  }
 }
 
 

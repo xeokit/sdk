@@ -4,7 +4,7 @@ import type {WebGLTexture} from "../../webglutils";
 /**
  * @private
  */
-export class WebGLRendererTexture implements RendererTexture {
+export class RendererTextureImpl implements RendererTexture {
 
   texture: SceneTexture | null;
   texture2D: WebGLTexture;

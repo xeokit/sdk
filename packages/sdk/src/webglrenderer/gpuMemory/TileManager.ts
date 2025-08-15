@@ -3,7 +3,7 @@ import {createRTCViewMat, worldToRTCCenter} from "../../rtc";
 import type {FloatArrayParam} from "../../math";
 import {WebGLDataTexture} from "../../webglutils";
 import {View, Viewer} from "../../viewer";
-import {type DTXTile} from "./DTXTile";
+import {type RenderTile} from "./RenderTile";
 import {DTXMatrixArray} from "../../webglutils/dtx/DTXMatrixArray";
 
 const NUM_VIEWS = 4;
@@ -13,7 +13,7 @@ const tempVec3a = createVec3();
 /**
  * Manages a tiled coordinate system for efficient WebGL rendering.
  *
- * The `DTXTiles` class handles the allocation, synchronization, and lifecycle of tiles
+ * The `TileManager` class handles the allocation, synchronization, and lifecycle of tiles
  * in a tiled coordinate system. It tracks RTC (Relative to Center) matrices for each tile
  * and synchronizes them with camera view matrices to optimize rendering performance.
  *
@@ -36,7 +36,7 @@ const tempVec3a = createVec3();
  * 3. Release tiles when no longer in use.
  * 4. Clean up resources with `destroy()`.
  */
-export class DTXTiles {
+export class TileManager {
 
   dataTextures: WebGLDataTexture[] = [];
 
@@ -44,7 +44,7 @@ export class DTXTiles {
   #viewer: Viewer;
   #tileIndexesUsed: boolean[] = [];
   #lastFreeTileIndex = 0;
-  #tiles = new Map<string, DTXTile>();
+  #tiles = new Map<string, RenderTile>();
   #numTiles = 0;
   #onCameraViewMatrix: Array<() => void> = [];
   #tileIds = new Array(NUM_TILES);
@@ -117,10 +117,10 @@ export class DTXTiles {
   }
 
   /**
-   * Get a DTXTile that contains the given 3D World-space position.
+   * Get a RenderTile that contains the given 3D World-space position.
    * @param worldPos A 3D position in world space.
    */
-  getTile(worldPos: FloatArrayParam): DTXTile {
+  getTile(worldPos: FloatArrayParam): RenderTile {
     const rtcCenter = worldToRTCCenter(worldPos, tempVec3a);
     const id = `${rtcCenter[0]}-${rtcCenter[1]}-${rtcCenter[2]}`;
     let tile = this.#tiles.get(id);
@@ -140,11 +140,11 @@ export class DTXTiles {
   }
 
   /**
-   * Releases a DTXTile back to the tile manager.
-   * The DTXTile is destroyed as soon as it is released as many times as it was retrieved.
+   * Releases a RenderTile back to the tile manager.
+   * The RenderTile is destroyed as soon as it is released as many times as it was retrieved.
    * @param tile The tile to release.
    */
-  putTile(tile: DTXTile) {
+  putTile(tile: RenderTile) {
     if (--tile.useCount === 0) {
       this.#tiles.delete(tile.id);
       this.#putFreeTileIndex(tile.index);
@@ -152,12 +152,12 @@ export class DTXTiles {
   }
 
   /**
-   * Move a DTXTile, if necessary, so that it contains the given World-space 3D position.
+   * Move a RenderTile, if necessary, so that it contains the given World-space 3D position.
    * @param tile The tile to potentially move.
    * @param worldPos The target world-space position.
    */
-  moveTile(tile: DTXTile, worldPos: FloatArrayParam): DTXTile {
-    const newRTCCenter = worldToRTCCenter(worldPos, createVec3());
+  moveTile(tile: RenderTile, worldPos: FloatArrayParam): RenderTile {
+    const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a);
     const newId = `${newRTCCenter[0]}-${newRTCCenter[1]}-${newRTCCenter[2]}`;
     if (newId === tile.id) {
       return tile;

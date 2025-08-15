@@ -1,5 +1,4 @@
 import type {FloatArrayParam} from "../math";
-import type {RendererModel} from "./RendererModel";
 import type {SDKError} from "../core";
 
 /**
@@ -27,11 +26,6 @@ export interface RendererObject {
    * Unique identifier for this RendererObject.
    */
   readonly id: string;
-
-  /**
-   * The {@link RendererModel | RendererModel} containing this RendererObject.
-   */
-  readonly rendererModel: RendererModel;
 
   /**
    * The ID of a {@link viewer!ViewLayer | ViewLayer} in which the {@link viewer!ViewObject | ViewObject} exclusively appears.

@@ -1,17 +1,20 @@
 import type {SceneMesh} from "../../scene";
 import type {FloatArrayParam} from "../../math";
-import {MeshCounts} from "../MeshCounts";
+import {MeshCounts} from "./MeshCounts";
 import type {RenderContext} from "../RenderContext";
-import {OBJECT_FLAGS} from "../OBJECT_FLAGS";
-import {RENDER_PASSES} from "../RENDER_PASSES";
-import {RenderFlags} from "../RenderFlags";
-import {type LayerParams} from "./LayerParams";
+import {OBJECT_FLAGS} from "./OBJECT_FLAGS";
+import {RENDER_PASSES} from "./RENDER_PASSES";
 import {PointsPrimitive} from "../../constants";
+import {Layer} from "./Layer";
+import {GPUDataMemoryEditor} from "../gpuMemory/GPUDataMemoryEditor";
+
 
 /**
  * A Layer manages a batch of SceneMeshes that use the same primitive type.
+ *
+ * @private
  */
-export class Layer {
+export class LayerImpl implements Layer  {
 
   /**
    * The render context associated with this layer.
@@ -19,14 +22,14 @@ export class Layer {
   renderContext: RenderContext;
 
   /**
-   * Counts of meshes and their visibility states for each view. These are used to build the render flags for the views.
-   */
-  meshCounts: MeshCounts[];
-
-  /**
    * Primitive type of the meshes in this layer.
    */
   primitive: number;
+
+  /**
+   * Base primitive index for this layer.
+   */
+  primitiveBase: number;
 
   /**
    * A unique identifier for sorting this layer in the renderer.
@@ -39,29 +42,38 @@ export class Layer {
   saoSupported: boolean;
 
   /**
-   * Flags that indicate which render passes are enabled for this layer. These are calculated from `meshCounts`,
-   * to enable render passes on a only-as-needed basis.
-   */
-  renderFlags: RenderFlags[];
-
-  /**
    * The total number of indices in all meshes of this layer. This is used with WebGL draw calls to determine how many indices to render
    * when drawing this layer.
    */
   numIndices: number;
 
-  constructor(layerParams: LayerParams) {
-    const {renderContext, primitive} = layerParams;
+  /**
+   * Counts of meshes and their visibility states for each view. These are used to build the render flags for the views.
+   */
+  meshCounts: MeshCounts[];
 
+  /**
+   * The GPUDataMemoryEditor instance used to manage the GPU data memory for this layer.
+   * @private
+   */
+  private _gpuDataMemoryEditor: GPUDataMemoryEditor;
+
+  constructor(layerParams: {
+    renderContext: any;
+    gpuDataMemoryEditor:GPUDataMemoryEditor;
+    primitive: number;
+  }) {
+    const {renderContext, gpuDataMemoryEditor, primitive} = layerParams;
     this.renderContext = renderContext;
+    this._gpuDataMemoryEditor = gpuDataMemoryEditor;
     this.primitive = primitive;
+    this.primitiveBase = 0; // TODO
     this.sortId = `Layer-${primitive}`;
     this.numIndices = 0;
     this.saoSupported = false;
 
-    // Preallocate meshCounts and renderFlags for 4 views
+    // Preallocate meshCounts for 4 views
     this.meshCounts = Array.from({length: 4}, () => new MeshCounts());
-    this.renderFlags = Array.from({length: 4}, () => new RenderFlags());
   }
 
   get hash(): string {
@@ -82,7 +94,7 @@ export class Layer {
    * @param sceneMesh
    */
   addMesh(sceneMesh: SceneMesh): number {
-    const meshIndex = this.renderContext.dtxMemory.addMesh(sceneMesh);
+    const meshIndex = this._gpuDataMemoryEditor.addMesh(sceneMesh);
     const geometry = sceneMesh.geometry;
     this.numIndices += geometry.primitive === PointsPrimitive
       ? geometry.positionsCompressed.length / 3
@@ -100,7 +112,7 @@ export class Layer {
    * @param viewFlags
    */
   removeMesh(sceneMesh: SceneMesh, viewFlags: number[]): void {
-    this.renderContext.dtxMemory.removeMesh(sceneMesh);
+    this._gpuDataMemoryEditor.removeMesh(sceneMesh);
     for (let viewIndex = 0; viewIndex < 4; viewIndex++) {
       const counts = this.meshCounts[viewIndex];
       const flags = viewFlags[viewIndex];
@@ -193,7 +205,7 @@ export class Layer {
       (isClippable ? (1 << 12) : 0);
 
     // Apply attributes
-    this.renderContext.dtxMemory.setMeshViewAttributes(meshIndex, viewIndex, {
+    this._gpuDataMemoryEditor.setMeshViewAttributes(meshIndex, viewIndex, {
       flags: renderFlags
     });
   }
@@ -266,7 +278,7 @@ export class Layer {
    * Sets a custom color per view for a mesh.
    */
   setMeshColor(viewIndex: number, meshIndex: number, color: FloatArrayParam): void {
-    this.renderContext.dtxMemory.setMeshViewAttributes(meshIndex, viewIndex, {
+    this._gpuDataMemoryEditor.setMeshViewAttributes(meshIndex, viewIndex, {
       color: <number[]>color
     });
   }
@@ -275,85 +287,16 @@ export class Layer {
    * Sets the transformation matrix for a mesh.
    */
   setMeshMatrix(meshIndex: number, rtcMatrix: FloatArrayParam): void {
-    this.renderContext.dtxMemory.setMeshMatrix(meshIndex, rtcMatrix);
+    this._gpuDataMemoryEditor.setMeshMatrix(meshIndex, rtcMatrix);
   }
 
   /**
    * Sets the tile index for a mesh.
    */
   setMeshTile(meshIndex: number, tileIndex: number): void {
-    this.renderContext.dtxMemory.setMeshAttributes(meshIndex, {
+    this._gpuDataMemoryEditor.setMeshAttributes(meshIndex, {
       tileIndex
     });
-  }
-
-  /**
-   * Recomputes render flags for a view.
-   */
-  rebuildRenderFlags(viewIndex: number): void {
-    const renderFlags = this.renderFlags[viewIndex];
-    renderFlags.reset();
-    this._updateRenderFlags(viewIndex);
-  }
-
-  /**
-   * Updates the render flags for a specific view based on the mesh counts.
-   */
-  private _updateRenderFlags(viewIndex: number): void {
-    const meshCounts = this.meshCounts[viewIndex];
-
-    const numMeshes = meshCounts.numMeshes;
-    if (meshCounts.numVisible === 0 || meshCounts.numCulled === numMeshes) {
-      return;
-    }
-
-    const numTransparent = meshCounts.numTransparent;
-    const isTransparent = numTransparent > 0;
-    const isPartiallyOpaque = numTransparent < numMeshes;
-
-    const renderFlags = this.renderFlags[viewIndex];
-    renderFlags.reset();
-
-    const view = this.renderContext.viewer.viewList[viewIndex]; // Fixed: viewer[viewIndex] → viewList
-
-    renderFlags.colorOpaque = isPartiallyOpaque;
-    renderFlags.colorTransparent = isTransparent;
-
-    if (meshCounts.numXRayed > 0) {
-      const xrayMaterial = view.xrayMaterial;
-      const fillAlpha = xrayMaterial.fillAlpha;
-      const edgeAlpha = xrayMaterial.edgeAlpha;
-      renderFlags.xrayedSilhouetteOpaque = xrayMaterial.fill && fillAlpha >= 1.0;
-      renderFlags.xrayedSilhouetteTransparent = xrayMaterial.fill && fillAlpha < 1.0;
-      renderFlags.xrayedEdgesOpaque = xrayMaterial.edges && edgeAlpha >= 1.0;
-      renderFlags.xrayedEdgesTransparent = xrayMaterial.edges && edgeAlpha < 1.0;
-    }
-
-    const edgeMaterial = view.edges;
-    if (edgeMaterial.applied) {
-      renderFlags.edgesOpaque = isPartiallyOpaque;
-      renderFlags.edgesTransparent = isTransparent;
-    }
-
-    if (meshCounts.numSelected > 0) {
-      const selectedMaterial = view.selectedMaterial;
-      const fillAlpha = selectedMaterial.fillAlpha;
-      const edgeAlpha = selectedMaterial.edgeAlpha;
-      renderFlags.selectedSilhouetteOpaque = selectedMaterial.fill && fillAlpha >= 1.0;
-      renderFlags.selectedSilhouetteTransparent = selectedMaterial.fill && fillAlpha < 1.0;
-      renderFlags.selectedEdgesOpaque = selectedMaterial.edges && edgeAlpha >= 1.0;
-      renderFlags.selectedEdgesTransparent = selectedMaterial.edges && edgeAlpha < 1.0;
-    }
-
-    if (meshCounts.numHighlighted > 0) {
-      const highlightMaterial = view.highlightMaterial;
-      const fillAlpha = highlightMaterial.fillAlpha;
-      const edgeAlpha = highlightMaterial.edgeAlpha;
-      renderFlags.highlightedSilhouetteOpaque = highlightMaterial.fill && fillAlpha >= 1.0;
-      renderFlags.highlightedSilhouetteTransparent = highlightMaterial.fill && fillAlpha < 1.0;
-      renderFlags.highlightedEdgesOpaque = highlightMaterial.edges && edgeAlpha >= 1.0;
-      renderFlags.highlightedEdgesTransparent = highlightMaterial.edges && edgeAlpha < 1.0;
-    }
   }
 
   /**

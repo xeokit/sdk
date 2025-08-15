@@ -488,7 +488,6 @@ export * from "./SceneMesh";
 export * from "./RendererGeometry";
 export * from "./RendererMesh";
 export * from "./RendererObject";
-export * from "./RendererModel";
 export * from "./RendererTexture";
 export * from "./RendererTextureSet";
 

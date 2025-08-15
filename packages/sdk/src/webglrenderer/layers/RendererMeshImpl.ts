@@ -1,11 +1,12 @@
 import {createMat4, createVec4, mulMat4,  transformPoint4, translationMat4c} from "../../matrix";
 import type {RendererGeometry, RendererMesh} from "../../scene";
 import type {FloatArrayParam} from "../../math";
-import type {Layer} from "../layer/Layer";
+import type {LayerImpl} from "./LayerImpl";
 import type {RenderContext} from "../RenderContext";
 import {SceneMesh} from "../../scene";
-import {type DTXTile} from "../dtx/DTXTile";
-import {WebGLRendererObject} from "./WebGLRendererObject";
+import {type RenderTile} from "../gpuMemory/RenderTile";
+import {RendererObjectImpl} from "./RendererObjectImpl";
+import {GPUDataMemoryEditor} from "../gpuMemory/GPUDataMemoryEditor";
 
 const identityMat4 = createMat4();
 const identityVec4 = createVec4([0, 0, 0, 1]);
@@ -19,11 +20,11 @@ const tempMat4b = createMat4();
  *
  * This class encapsulates the data and behavior of a mesh within the WebGL rendering pipeline.
  * It manages the mesh's geometry, transformation, visibility, and rendering states for multiple views.
- * The mesh is associated with a specific layer and is associated with a tile managed by the `DTXMemory` system.
- * The `DTXMemory` is part of the `RenderContext`, which is shared across various renderer components.
+ * The mesh is associated with a specific layer and is associated with a tile managed by the `GPUDataMemory` system.
+ * The `GPUDataMemory` is part of the `RenderContext`, which is shared across various renderer components.
  *
  * Key responsibilities:
- * - Managing the mesh's transformation matrix and associating it with a tile from `DTXMemory`.
+ * - Managing the mesh's transformation matrix and associating it with a tile from `GPUDataMemory`.
  * - Handling rendering states such as visibility, transparency, highlighting, and selection.
  * - Managing color and opacity for the mesh across multiple views.
  * - Interfacing with the layer to update mesh-specific rendering properties.
@@ -31,27 +32,39 @@ const tempMat4b = createMat4();
  * @private
  */
 
-export class WebGLRendererMesh implements RendererMesh {
-  id: string; // Unique identifier for the mesh
-  renderContext: RenderContext; // The rendering context associated with this mesh
-  rendererObject: WebGLRendererObject | null; // The renderer object this mesh belongs to
-  rendererGeometry: RendererGeometry; // The geometry data for this mesh
-  sceneMesh: SceneMesh; // The scene-level representation of this mesh
-  layer: Layer; // The layer this mesh is part of
-  meshIndex: number; // Index of the mesh within its layer
-  tile: DTXTile; // Tile information for spatial partitioning
-  viewStates: any; // State information for each view
+export class RendererMeshImpl implements RendererMesh {
+
+  id: string;
+
+  _renderContext: RenderContext;
+
+  rendererObject: RendererObjectImpl | null;
+
+  rendererGeometry: RendererGeometry;
+
+  sceneMesh: SceneMesh;
+
+  layer: LayerImpl;
+
+  meshIndex: number;
+
+  tile: RenderTile;
+
+  viewStates: any;
+
+  private gpuDataMemoryEditor: GPUDataMemoryEditor;
 
   /**
-   * Constructs a WebGLRendererMesh instance.
+   * Constructs a RendererMeshImpl instance.
    */
   constructor(params: {
     id: string;
     sceneMesh: SceneMesh;
-    layer: Layer;
+    layer: LayerImpl;
     meshIndex: number;
     renderContext: RenderContext;
     rendererGeometry: RendererGeometry;
+    gpuDataMemoryEditor: GPUDataMemoryEditor;
   }) {
     const {
       meshIndex,
@@ -60,19 +73,21 @@ export class WebGLRendererMesh implements RendererMesh {
       layer,
       id,
       rendererGeometry,
+      gpuDataMemoryEditor
     } = params;
 
     const color = (sceneMesh.color) ? new Uint8Array([Math.floor(sceneMesh.color[0] * 255), Math.floor(sceneMesh.color[1] * 255), Math.floor(sceneMesh.color[2] * 255)]) : [255, 255, 255];
     const opacity = (sceneMesh.opacity !== undefined && sceneMesh.opacity !== null) ? Math.floor(sceneMesh.opacity * 255) : 255;
 
     this.id = id;
-    this.renderContext = renderContext;
+    this._renderContext = renderContext;
     this.rendererObject = null; // Set by the renderer
     this.rendererGeometry = rendererGeometry;
     this.sceneMesh = sceneMesh;
     this.tile = null;
     this.layer = layer;
     this.meshIndex = meshIndex;
+    this.gpuDataMemoryEditor = gpuDataMemoryEditor;
 
     const r = color[0], g = color[1], b = color[2], a = opacity;
     const transparent = (opacity < 255);
@@ -111,8 +126,8 @@ export class WebGLRendererMesh implements RendererMesh {
     const center = transformPoint4(matrix, identityVec4, tempVec4a);
     const oldTile = this.tile;
     this.tile = oldTile
-      ? this.renderContext.dtxMemory.moveTile(oldTile, center)
-      : this.renderContext.dtxMemory.getTile(center);
+      ? this.gpuDataMemoryEditor.moveTile(oldTile, center)
+      : this.gpuDataMemoryEditor.getTile(center);
     const tileChanged = !oldTile || oldTile.id !== this.tile.id;
     const tileCenter = this.tile.center;
     const needRTC = (tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0);
@@ -129,7 +144,7 @@ export class WebGLRendererMesh implements RendererMesh {
    * Sets the color of the mesh.
    */
   setColor(color: FloatArrayParam) {
-    for (let viewIndex = 0, len = this.renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
+    for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
       const viewState = this.viewStates[viewIndex];
       if (!viewState.colorizing) {
         this.layer.setMeshColor(viewIndex, this.meshIndex, color);
@@ -230,7 +245,7 @@ export class WebGLRendererMesh implements RendererMesh {
    */
   destroy() {
     if (this.tile) {
-      this.renderContext.dtxMemory.putTile(this.tile);
+      this.gpuDataMemoryEditor.putTile(this.tile);
     }
   }
 }

@@ -1,11 +1,11 @@
-import {WebGLRenderBuffer} from "../webglutils";
+import {WebGLRenderBuffer} from "../../webglutils";
 
 /**
  * Manages WebGL render buffers .
  *
  * @private
  */
-export class WebGLRenderBufferManager {
+export class RenderBufferManager {
 
   /**
    * The WebGL2 rendering context.
@@ -30,7 +30,7 @@ export class WebGLRenderBufferManager {
   private _webglCanvas: HTMLCanvasElement;
 
   /**
-   * Creates an instance of `WebGLRenderBufferManager`.
+   * Creates an instance of `RenderBufferManager`.
    *
    * @param {WebGL2RenderingContext} gl - The WebGL2 rendering context.
    * @param {HTMLCanvasElement} webglCanvas - The HTML canvas element associated with the WebGL context.

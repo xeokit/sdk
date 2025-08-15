@@ -1,4 +1,4 @@
-import {ViewObject} from "../viewer";
+import {ViewObject} from "../../viewer";
 
 /**
  * Bitmask flags representing various object states in the `WebGLRenderer`.

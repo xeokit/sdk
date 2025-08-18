@@ -150,17 +150,6 @@ export interface Renderer {
   clear(viewIndex: number): void | SDKError;
 
   /**
-   * Triggers a shader rebuild for the specified View.
-   *
-   * @internal
-   * @param viewIndex The View index. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
-   * @returns `void` if successful.
-   * @returns {@link core!SDKError | SDKError} if:
-   * - No View with the given index is attached.
-   */
-  setNeedsRebuild(viewIndex: number): void | SDKError;
-
-  /**
    * Checks if a new frame needs to be rendered for the specified attached View.
    *
    * @internal
@@ -195,7 +184,7 @@ export interface Renderer {
    * @returns {@link core!SDKError | SDKError} if:
    * - No View with the given index is attached.
    */
-  pick(viewIndex: number, pickParams: PickParams, pickResult?: PickResult): PickResult | null | SDKError;
+ // pick(viewIndex: number, pickParams: PickParams, pickResult?: PickResult): PickResult | null | SDKError;
 
   /**
    * Begins snapshot mode for the given View.

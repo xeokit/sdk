@@ -5,7 +5,7 @@ import {GenericSilhouetteRenderer} from "./generic/GenericSilhouetteRenderer";
 import {PointsSilhouetteRenderer} from "./points/PointsSilhouetteRenderer";
 import {PointsColorRenderer} from "./points/PointsColorRenderer";
 import {LayerRenderer} from "./LayerRenderer";
-import {GPUDataMemoryView} from "../gpuMemory/GPUDataMemoryView";
+import {type GPUDataMemoryView} from "../gpuDataMemory/GPUDataMemoryView";
 
 /**
  * Interface defining the structure of a renderer set for different primitives.
@@ -57,6 +57,7 @@ export class LayerRendererSet {
    * Ensures proper cleanup of resources.
    */
   destroy() {
+    // @ts-ignore
     Object.values(this.prims).forEach(prim =>
       Object.values(prim).forEach(renderer => renderer.destroy())
     );

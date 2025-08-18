@@ -1,4 +1,4 @@
-import {GPUDataTextures} from "./GPUDataTextures";
+import {type GPUDataTextures} from "./GPUDataTextures";
 
 /**
  * Interface representing a view into the data texture memory (GPUDataMemory) used for GPU-side model storage.

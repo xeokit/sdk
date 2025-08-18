@@ -1,22 +1,22 @@
-
 import type {Capabilities} from "../core";
 import {EventEmitter, SDKError} from "../core";
 import {getWebGLExtension, WEBGL_INFO} from "../webglutils";
-import type {Renderer, View, Viewer} from "../viewer";
-import { PickResult} from "../viewer";
+import type {Renderer, Viewer} from "../viewer";
+import {PickResult} from "../viewer";
 import {EventDispatcher} from "strongly-typed-events";
 import {Map} from "../utils";
 import {RenderContext} from "./RenderContext";
 import {RenderBufferManager} from "./views/RenderBufferManager";
 
 
-import {GPUDataMemory} from "./gpuMemory/GPUDataMemory";
+import { GPUDataMemory} from "./gpuDataMemory/GPUDataMemory";
 import {LayerRendererSet} from "./layerRenderers/LayerRendererSet";
 import {ViewManager} from "./views/ViewManager";
 import {DrawManager} from "./draw/DrawManager";
 import {LayerManager} from "./layers/LayerManager";
-import {GPUDataMemoryView} from "./gpuMemory/GPUDataMemoryView";
-import {GPUDataMemoryEditor} from "./gpuMemory/GPUDataMemoryEditor";
+import {type GPUDataMemoryView} from "./gpuDataMemory/GPUDataMemoryView";
+import {type GPUDataMemoryEditor} from "./gpuDataMemory/GPUDataMemoryEditor";
+import {type RendererObject} from "../scene";
 
 
 /**
@@ -44,11 +44,6 @@ export class WebGLRenderer implements Renderer {
   _snapshotBound: boolean;
   _destroyed: boolean;
 
-  /**
-   * @internal
-   * @event onCompiled
-   */
-  readonly onCompiled: EventEmitter<WebGLRenderer, boolean>;
 
   /**
    * @internal
@@ -103,12 +98,7 @@ export class WebGLRenderer implements Renderer {
     this._pickBufferManager = new RenderBufferManager(this._gl, webglCanvasElement);
   }
 
-  /**
-   * The Viewer this WebGLRenderer is currently attached to, if any.
-   */
-  get viewer(): Viewer {
-    return this._renderContext.viewer;
-  }
+
 
   /**
    * Gets the capabilities of this WebGLRenderer.
@@ -158,7 +148,7 @@ export class WebGLRenderer implements Renderer {
     });
     this._renderContext = new RenderContext(viewer, this._gl, this._webglCanvasElement);
     this._gpuDataMemory = new GPUDataMemory({gl: this._gl, viewer})
-    this._layerManager = new LayerManager(this._renderContext,  <GPUDataMemoryEditor>this._gpuDataMemory);
+    this._layerManager = new LayerManager(this._renderContext, <GPUDataMemoryEditor>this._gpuDataMemory);
     this._layerRendererSet = new LayerRendererSet(this._renderContext, <GPUDataMemoryView>this._gpuDataMemory);
     this._drawManager = new DrawManager({
       renderContext: this._renderContext,
@@ -174,6 +164,18 @@ export class WebGLRenderer implements Renderer {
     //   layerRendererSet: this._layerRendererSet
     // });
   }
+
+  get rendererObjects(): Record<string, RendererObject> {
+    return this._layerManager ? this._layerManager.rendererObjects : {};
+  };
+
+  /**
+   * The Viewer this WebGLRenderer is currently attached to, if any.
+   */
+  get viewer(): Viewer {
+    return this._renderContext ? this._renderContext.viewer : null;
+  }
+
 
   /**
    * Detaches the {@link viewer!Viewer | Viewer} that is currently attached, if any.
@@ -193,25 +195,9 @@ export class WebGLRenderer implements Renderer {
     //this._pickManager.destroy();
     this._gpuDataMemory.destroy();
     this._layerRendererSet.destroy();
-
     this._renderContext = null;
-
     this._layerRendererSet.destroy();
     this._layerRendererSet = null;
-  }
-
-  /**
-   * @private
-   */
-  attachPickable(pickable: any): number { // @ts-ignore
-    return this._pickIDs.addItem(pickable);
-  }
-
-  /**
-   * @private
-   */
-  detachPickable(pickId: number) {
-    this._pickIDs.removeItem(pickId);
   }
 
   /**
@@ -324,7 +310,7 @@ export class WebGLRenderer implements Renderer {
     if (!rendererView) {
       return false;
     }
-    return (rendererView.imageDirty );
+    return (rendererView.imageDirty);
   }
 
   /**
@@ -350,7 +336,7 @@ export class WebGLRenderer implements Renderer {
     if (!rendererView) {
       return new SDKError(`Can't render with WebGLRenderer - no View attached at given viewIndex: ${viewIndex}`);
     }
-    rendererView.draw(params);
+    rendererView.render(params);
   }
 
   beginSnapshot(viewIndex: number, params?: {
@@ -436,7 +422,7 @@ export class WebGLRenderer implements Renderer {
       return;
     }
     this.detachViewer();
-  this._pickBufferManager.destroy();
+    this._pickBufferManager.destroy();
     this._destroyed = true;
     this.onDestroyed.dispatch(this, true);
   }

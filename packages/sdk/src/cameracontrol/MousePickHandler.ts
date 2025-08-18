@@ -1,6 +1,7 @@
 import {canvasPosToWorldRay, createVec3, subVec3} from "../matrix";
 import type {PickResult, View} from "../viewer";
 import {getAABB3Center} from "../boundaries";
+import {getSceneAABBIndex, SceneAABBIndex} from "../aabb/SceneAABBIndex";
 
 /**
  * @private
@@ -15,10 +16,12 @@ class MousePickHandler {
   #canvasMouseMoveHandler: (e) => void;
   #canvasMouseUpHandler: (e) => void;
   #documentMouseUpHandler: (e) => void;
+  #aabbIndex: SceneAABBIndex;
 
   constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 
     this.#view = view;
+    this.#aabbIndex = getSceneAABBIndex(view.viewer.scene);
 
     const pickController = controllers.pickController;
     const pivotController = controllers.pivotController;
@@ -38,7 +41,10 @@ class MousePickHandler {
       if (pickResult && pickResult.worldPos) {
         pos = pickResult.worldPos
       }
-      const aabb = pickResult && pickResult.viewObject ? pickResult.viewObject.aabb : view.aabb;
+      const aabb = pickResult && pickResult.viewObject
+        ? this.#aabbIndex.getObjectAABB(pickResult.viewObject.id)
+        : this.#aabbIndex.getSceneAABB();
+
       if (pos) { // Fly to look at point, don't change eye->look dist
         const camera = view.camera;
         const diff = subVec3(camera.eye, camera.look, []);
@@ -46,12 +52,12 @@ class MousePickHandler {
           // look: pos,
           // eye: xeokit.addVec3(pos, diff, []),
           // up: camera.up,
-          aabb: aabb
+          aabb
         });
         // TODO: Option to back off to fit AABB in view
       } else {// Fly to fit target boundary in view
         controllers.cameraFlight.flyTo({
-          aabb: aabb
+          aabb
         });
       }
     };
@@ -357,10 +363,7 @@ class MousePickHandler {
 
             if ((!configs.firstPerson) && configs.followPointer) {
 
-              const sceneAABB = view.aabb;
-              const sceneCenterPos = getAABB3Center(sceneAABB);
-
-              controllers.pivotController.setPivotPos(sceneCenterPos);
+              controllers.pivotController.setPivotPos(this.#aabbIndex.getSceneCenter());
 
               if (controllers.pivotController.startPivot()) {
                 controllers.pivotController.showPivot();

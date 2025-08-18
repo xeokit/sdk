@@ -5,8 +5,8 @@ import type {RenderContext} from "../RenderContext";
 import {OBJECT_FLAGS} from "./OBJECT_FLAGS";
 import {RENDER_PASSES} from "./RENDER_PASSES";
 import {PointsPrimitive} from "../../constants";
-import {Layer} from "./Layer";
-import {GPUDataMemoryEditor} from "../gpuMemory/GPUDataMemoryEditor";
+import {type Layer} from "./Layer";
+import {type GPUDataMemoryEditor} from "../gpuDataMemory/GPUDataMemoryEditor";
 
 
 /**

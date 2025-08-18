@@ -1,6 +1,6 @@
-import { RenderContext } from "../RenderContext";
-import { SDKError } from "../../core";
-import {
+import {RenderContext} from "../RenderContext";
+import {SDKError} from "../../core";
+import type {
   RendererGeometry,
   RendererMesh,
   RendererObject,
@@ -11,30 +11,33 @@ import {
   SceneModel,
   SceneObject,
 } from "../../scene";
-import { RendererObjectImpl } from "./RendererObjectImpl";
-import { RendererMeshImpl } from "./RendererMeshImpl";
-import { RendererGeometryImpl } from "./RendererGeometryImpl";
-import { LayerImpl } from "./LayerImpl";
-import {Layer} from "./Layer";
-import {GPUDataMemoryEditor} from "../gpuMemory/GPUDataMemoryEditor";
+import {RendererObjectImpl} from "./RendererObjectImpl";
+import {RendererMeshImpl} from "./RendererMeshImpl";
+import {RendererGeometryImpl} from "./RendererGeometryImpl";
+import {LayerImpl} from "./LayerImpl";
+import {type Layer} from "./Layer";
+import {type GPUDataMemoryEditor} from "../gpuDataMemory/GPUDataMemoryEditor";
 
 /**
  * Manages the layers and renderer objects in the WebGLRenderer.
  */
 export class LayerManager {
 
+  /**
+   * A map of renderer objects, keyed by their IDs.
+   */
+  public rendererObjects: Record<string, RendererObject> = {};
+
   private _renderContext: RenderContext;
   private _gpuDataMemoryEditor: GPUDataMemoryEditor;
-  private _rendererObjects: Record<string, RendererObject> = {};
-  private _rendererModels: Record<
-    string,
+
+  private _rendererModels: Record<string,
     {
       rendererGeometries: Record<string, RendererGeometry>;
       rendererTextures: Record<string, RendererTexture>;
       rendererTextureSets: Record<string, RendererTextureSet>;
       rendererMeshes: Record<string, RendererMesh>;
-    }
-    > = {};
+    }> = {};
 
   private _layers: Record<string, LayerImpl> = {};
   private _layerList: Layer[] = [];
@@ -55,8 +58,8 @@ export class LayerManager {
     this._renderContext = renderContext;
     this._gpuDataMemoryEditor = gpuDataMemoryEditor;
 
-    const { viewer } = renderContext;
-    const { models, objects, onModelCreated, onObjectCreated, onObjectDestroyed, onModelDestroyed } = viewer.scene;
+    const {viewer} = renderContext;
+    const {models, objects, onModelCreated, onObjectCreated, onObjectDestroyed, onModelDestroyed} = viewer.scene;
 
     // @ts-ignore
     Object.values(models).forEach((sceneModel) => this._attachModel(sceneModel));
@@ -96,7 +99,7 @@ export class LayerManager {
 
   private _attachObject(sceneObject: SceneObject): void {
     const objectId = sceneObject.id;
-    if (this._rendererObjects[objectId]) {
+    if (this.rendererObjects[objectId]) {
       throw new SDKError(`Already has a SceneObject attached with this ID: ${objectId}`);
     }
     const rendererModel = this._rendererModels[sceneObject.model.id];
@@ -112,7 +115,7 @@ export class LayerManager {
       id: objectId,
       rendererMeshes,
     });
-    this._rendererObjects[objectId] = rendererObject;
+    this.rendererObjects[objectId] = rendererObject;
     sceneObject.rendererObject = rendererObject;
     this._layerListDirty = true;
   }
@@ -166,7 +169,7 @@ export class LayerManager {
       return;
     }
     sceneObject.meshes?.forEach((mesh) => this._detachMesh(rendererModel, mesh));
-    delete this._rendererObjects[sceneObject.id];
+    delete this.rendererObjects[sceneObject.id];
     sceneObject.rendererObject = null;
     this._layerListDirty = true;
   }
@@ -196,8 +199,8 @@ export class LayerManager {
    * Cleans up resources and destroys the LayerManager.
    */
   destroy(): void {
-    const { viewer } = this._renderContext;
-    const { models, objects } = viewer.scene;
+    const {viewer} = this._renderContext;
+    const {models, objects} = viewer.scene;
 
     // @ts-ignore
     Object.values(objects).forEach((object) => this._detachObject(object));
@@ -214,7 +217,7 @@ export class LayerManager {
 
     this._layers = {};
     this._layerList = [];
-    this._rendererObjects = {};
+    this.rendererObjects = {};
     this._rendererModels = {};
   }
 }

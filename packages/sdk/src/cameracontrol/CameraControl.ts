@@ -345,8 +345,6 @@ export class CameraControl extends Component {
 
     super(view, cfg);
 
-    this.#aabbIndex = getSceneAABBIndex(view.viewer.scene);
-    
     this.#keyMap = {}; // Maps key codes to the above actions
 
     this.view = view;

@@ -1,6 +1,7 @@
 import {createVec2, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../matrix";
 import {PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
+import {getSceneAABBIndex, SceneAABBIndex} from "../aabb/SceneAABBIndex";
 
 const getCanvasPosFromEvent = function (event, canvasPos) {
   if (!event) {
@@ -31,10 +32,12 @@ class TouchPanRotateAndDollyHandler {
   #view: View;
   #canvasTouchEndHandler: any;
   #tickSub: () => void;
+  #aabbIndex: SceneAABBIndex;
 
   constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 
     this.#view = view;
+    this.#aabbIndex = getSceneAABBIndex(view.viewer.scene);
 
     const pickController = controllers.pickController;
     const pivotController = controllers.pivotController;
@@ -230,7 +233,7 @@ class TouchPanRotateAndDollyHandler {
         getCanvasPosFromEvent(touch1, tapCanvasPos1);
 
         const lastMiddleTouch = geometricMeanVec2(lastCanvasTouchPosList[0], lastCanvasTouchPosList[1]);
-        const currentMiddleTouch = geometricMeanVec2(tapCanvasPos0, tapCanvasPos1);
+        const currentMiddleTouch = geometricMeanVec2(<any>tapCanvasPos0, <any>tapCanvasPos1);
 
         const touchDelta = createVec2();
 
@@ -255,7 +258,7 @@ class TouchPanRotateAndDollyHandler {
           // We use only canvasHeight here so that aspect ratio does not distort speed
 
           if (camera.projectionType === PerspectiveProjectionType) {
-            const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : view.viewer.scene.center;
+            const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : this.#aabbIndex.getSceneCenter();
 
             const depth = Math.abs(lenVec3(subVec3(pickedWorldPos, view.camera.eye, [])));
             const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);

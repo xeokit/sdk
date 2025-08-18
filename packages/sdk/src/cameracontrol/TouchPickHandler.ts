@@ -1,5 +1,6 @@
 import {distVec2, subVec3} from "../matrix";
 import type {PickResult, View} from "../viewer";
+import {getSceneAABBIndex, SceneAABBIndex} from "../aabb/SceneAABBIndex";
 
 
 const TAP_INTERVAL = 150;
@@ -34,10 +35,12 @@ export class TouchPickHandler {
   #view: View;
   #canvasTouchStartHandler: (e) => void;
   #canvasTouchEndHandler: (e) => void;
+  #aabbIndex: SceneAABBIndex;
 
   constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 
     this.#view = view;
+    this.#aabbIndex = getSceneAABBIndex(view.viewer.scene);
 
     const pickController = controllers.pickController;
     const cameraControl = controllers.cameraControl;
@@ -55,7 +58,10 @@ export class TouchPickHandler {
       if (pickResult && pickResult.worldPos) {
         pos = pickResult.worldPos
       }
-      const aabb = pickResult ? pickResult.viewObject.aabb : view.aabb;
+      const aabb = pickResult && pickResult.viewObject
+        ? this.#aabbIndex.getObjectAABB(pickResult.viewObject.id)
+        : this.#aabbIndex.getSceneAABB();
+
       if (pos) { // Fly to look at point, don't change eye->look dist
         const camera = view.camera;
         const diff = subVec3(camera.eye, camera.look, []);

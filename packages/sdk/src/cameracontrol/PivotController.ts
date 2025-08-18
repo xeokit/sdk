@@ -13,6 +13,7 @@ import type {FloatArrayParam} from "../math";
 import {clamp} from "../math";
 import type {View} from "../viewer";
 import {worldToRTCPos} from "../rtc";
+import {getSceneAABBIndex} from "../aabb/SceneAABBIndex";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -27,8 +28,8 @@ const tempVec4c = createVec4();
 class PivotController {
   #view: View;
   #configs: any;
-  #pivotWorldPos: Float64Array;
-  #cameraOffset: Float64Array;
+  #pivotWorldPos: Float64Array<any>;
+  #cameraOffset: Float64Array<any>;
   #azimuth: number;
   #polar: number;
   #radius: number;
@@ -40,8 +41,8 @@ class PivotController {
   #pivotSphereSize: number;
   #pivotSphereGeometry: any;
   #pivotSphereMaterial: any;
-  #rtcCenter: Float64Array;
-  #rtcPos: Float64Array;
+  #rtcCenter: Float64Array<any>;
+  #rtcPos: Float64Array<any>;
   #pivotViewPos: any;
   #pivotProjPos: any;
   #pivotCanvasPos: any;
@@ -50,6 +51,7 @@ class PivotController {
   #onProjMatrix: () => void;
   #onTick: () => void;
   #pivotElement: any;
+  #aabbIndex: any;
 
   /**
    * @private
@@ -59,6 +61,7 @@ class PivotController {
     // Pivot math by: http://www.derschmale.com/
 
     this.#view = view;
+    this.#aabbIndex = getSceneAABBIndex(view.viewer.scene);
     this.#configs = configs;
     this.#pivotWorldPos = createVec3();
     this.#cameraOffset = createVec3();
@@ -292,7 +295,7 @@ class PivotController {
    */
   setCanvasPivotPos(canvasPos) {
     const camera = this.#view.camera;
-    const pivotShereRadius = Math.abs(distVec3(this.#view.viewer.scene.center, camera.eye));
+    const pivotShereRadius = Math.abs(distVec3(this.#aabbIndex.getSceneCenter(), camera.eye));
     const transposedProjectMat = camera.projection.transposedProjMatrix;
     // @ts-ignore
     const Pt3 = transposedProjectMat.subarray(8, 12);

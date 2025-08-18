@@ -15,7 +15,7 @@ export class ViewManager {
   private _renderContext: RenderContext;
   private _rendererViews: Record<string, RendererView> = {};
   private _rendererViewsList: RendererView[] = [];
-  private _activeRendererView: RendererView;
+  private _activeView: RendererView;
   private _drawManager: DrawManager;
 
   /**
@@ -74,12 +74,12 @@ export class ViewManager {
   /**
    * @internal
    */
-  activateRendererView(viewIndex: number) {
+  activateView(viewIndex: number) {
     const rendererView = this.rendererViews[viewIndex];
     if (!rendererView) {
       throw new SDKError(`Can't activate View - no such target View attached: ${viewIndex}`);
     }
-    const activeRendererView = this._activeRendererView;
+    const activeRendererView = this._activeView;
     if (activeRendererView) {
       const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
       const primarySnapshotBuffer = activeRendererView.renderBufferManager.getRenderBuffer("snapshot", {
@@ -115,14 +115,20 @@ export class ViewManager {
     webglCanvasElement.height = boundingRect.height;
     webglCanvasElement.style["z-index"] = 100000;
 
-    this._activeRendererView = rendererView;
+    this._activeView = rendererView;
   }
 
-  get activeRendererView(): RendererView {
-    return this._activeRendererView;
+  /**
+   * @internal
+   */
+  get activeView(): RendererView {
+    return this._activeView;
   }
 
-  draw(viewIndex: number,
+  /**
+   * @internal
+   */
+  renderView(viewIndex: number,
          params?: {
            force?: boolean;
            opaqueOnly?: boolean
@@ -136,7 +142,7 @@ export class ViewManager {
       rendererView.imageDirty = true;
     }
     if (rendererView.imageDirty) {
-      this.activateRendererView(viewIndex);
+      this.activateView(viewIndex);
       this._drawManager.draw({
         rendererView,
         clear: true
@@ -145,12 +151,12 @@ export class ViewManager {
     }
   }
 
-  clear(viewIndex: number): void | SDKError {
+  clearView(viewIndex: number): void | SDKError {
     const rendererView = this._rendererViews[viewIndex];
     if (!rendererView) {
       return new SDKError(`Can't clear with WebGLRenderer - no View attached at given viewIndex: ${viewIndex}`);
     }
-    this.activateRendererView(viewIndex);
+    this.activateView(viewIndex);
     const gl = this._renderContext.gl;
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     if (rendererView.canvasTransparent) {

@@ -50,6 +50,9 @@ export class SceneAABBIndex {
   #meshDirty = new Set<string>();
   #objectDirty = new Set<string>();
   #unsubscribers: (() => void)[] = [];
+  #sceneAABB: Float64Array<any>;
+  #sceneAABBDirty: boolean;
+  #center: Float64Array<any>;
 
   /**
    * Constructs a new SceneAABBIndex for the given {@link Scene}.
@@ -57,6 +60,10 @@ export class SceneAABBIndex {
    */
   constructor(scene: Scene) {
     this.#scene = scene;
+
+    this.#sceneAABB = createAABB3();
+    this.#center = createVec4();
+    this.#sceneAABBDirty = true;
 
     // Mark initial meshes and objects dirty
     for (const object of Object.values(scene.objects)) {
@@ -152,6 +159,36 @@ export class SceneAABBIndex {
     return aabb;
   }
 
+  /**
+   * Gets the combined axis-aligned bounding box (AABB) of the entire scene.
+   */
+  getSceneAABB(): FloatArrayParam {
+    if (this.#objectDirty.size > 0) {
+      collapseAABB3(this.#sceneAABB);
+      for (const object of Object.values(this.#scene.objects)) {
+        const aabb = this.#getObjectAABB(object.id);
+        if (aabb) {
+          expandAABB3(this.#sceneAABB, aabb);
+        }
+      }
+      this.#sceneAABBDirty = false;
+    }
+    return this.#sceneAABB;
+  }
+
+  /**
+   * Gets the center of the scene's AABB.
+   */
+  getSceneCenter(): FloatArrayParam {
+    if (this.#sceneAABBDirty) {
+      this.getSceneAABB();
+    }
+    this.#center[0] = (this.#sceneAABB[0] + this.#sceneAABB[3]) * 0.5;
+    this.#center[1] = (this.#sceneAABB[1] + this.#sceneAABB[4]) * 0.5;
+    this.#center[2] = (this.#sceneAABB[2] + this.#sceneAABB[5]) * 0.5;
+    this.#center[3] = 1.0; // Homogeneous coordinate
+    return this.#center;
+  }
   /**
    * Gets the combined AABB of the given {@link SceneMesh} IDs.
    * Only includes meshes that are currently registered and valid.

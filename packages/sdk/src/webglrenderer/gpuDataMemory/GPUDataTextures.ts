@@ -1,4 +1,4 @@
-import {WebGLAbstractTexture} from "../../webglutils";
+import {type WebGLAbstractTexture} from "../../webglutils";
 
 export interface GPUDataTextures {
 

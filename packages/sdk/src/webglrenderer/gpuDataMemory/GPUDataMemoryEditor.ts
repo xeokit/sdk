@@ -1,6 +1,6 @@
-import { FloatArrayParam } from "../../math";
-import { RenderTile } from "./RenderTile";
-import { SceneMesh } from "../../scene";
+import { type FloatArrayParam } from "../../math";
+import { type RenderTile } from "./RenderTile";
+import { type SceneMesh } from "../../scene";
 
 /**
  * Interface for managing data texture memory in a WebGL rendering context.

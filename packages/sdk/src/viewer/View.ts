@@ -1205,7 +1205,7 @@ class View extends Component {
    * @private
    */
   rebuild() {
-    this.viewer.renderer.setNeedsRebuild(this.viewIndex);
+
   }
 
   /**
@@ -1470,7 +1470,8 @@ class View extends Component {
    * * Picking attempt completed.
    */
   pick(pickParams: PickParams, pickResult?: PickResult): PickResult | null | SDKError {
-    return this.viewer.renderer.pick(this.viewIndex, pickParams, pickResult);
+    return null;
+  //  return this.viewer.renderer.pick(this.viewIndex, pickParams, pickResult);
   }
 
   /**

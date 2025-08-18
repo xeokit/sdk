@@ -1,4 +1,4 @@
-import {Layer} from "../layers/Layer";
+import {type Layer} from "../layers/Layer";
 import {RENDER_PASSES} from "../layers/RENDER_PASSES";
 import {WEBGL_INFO} from "../../webglutils";
 import {RenderContext} from "../RenderContext";

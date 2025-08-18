@@ -7,9 +7,9 @@ import {DTXArray} from "../../webglutils/dtx/DTXArray";
 import {DTXStructArray, type DTXStructSpec} from "../../webglutils/dtx/DTXStructArray";
 import {type RenderTile} from "./RenderTile";
 import {Viewer} from "../../viewer";
-import {GPUDataMemoryView} from "./GPUDataMemoryView";
-import {GPUDataMemoryEditor} from "./GPUDataMemoryEditor";
-import {GPUDataTextures} from "./GPUDataTextures";
+import {type GPUDataMemoryView} from "./GPUDataMemoryView";
+import {type GPUDataMemoryEditor} from "./GPUDataMemoryEditor";
+import {type GPUDataTextures} from "./GPUDataTextures";
 
 const MAX_MESHES = 100000;
 const MAX_GEOMETRIES = 100000;

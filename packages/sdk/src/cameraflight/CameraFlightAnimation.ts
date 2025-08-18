@@ -129,6 +129,7 @@ export class CameraFlightAnimation extends Component {
    * Fires when the camera animation is cancelled.
    */
   readonly onCancelled: EventEmitter<CameraFlightAnimation, null>;
+  #aabbIndex: any;
 
   /**
    * Creates a new CameraFlightAnimation instance.
@@ -148,6 +149,7 @@ export class CameraFlightAnimation extends Component {
     }
 
     this.view = view;
+    this.#aabbIndex.getSceneCenter()
     this.camera = view.camera;
 
     this.#look1 = createVec3();
@@ -244,7 +246,7 @@ export class CameraFlightAnimation extends Component {
 
     } else {
       if (!flyToProjection) {
-        aabb = this.view.aabb;
+        aabb = this.#aabbIndex.getSceneAABB();
       }
     }
 
@@ -373,7 +375,7 @@ export class CameraFlightAnimation extends Component {
       newLook = params.look;
       newUp = params.up;
     } else {
-      aabb = this.view.aabb;
+      aabb = this.#aabbIndex.getSceneAABB();
     }
 
     const poi = params.poi;

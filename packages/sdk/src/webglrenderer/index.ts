@@ -50,4 +50,3 @@
  * @module webglrenderer
  */
 export {WebGLRenderer} from "./WebGLRenderer";
-export {RenderStats} from "./RenderStats";

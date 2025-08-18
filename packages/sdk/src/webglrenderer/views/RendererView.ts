@@ -47,7 +47,7 @@ export class RendererView {
       return;
     }
     this._active = true;
-    this.viewManager.activateRendererView(this.view.viewIndex);
+    this.viewManager.activateView(this.view.viewIndex);
   }
 
   get imageDirty(): boolean {
@@ -112,23 +112,20 @@ export class RendererView {
     this._imageDirty = true;
   }
 
-  draw(params?: {
+  render(params?: {
     force?: boolean;
     opaqueOnly?: boolean;
   }) {
-    if (params && params.force) {
-      this._imageDirty = true;
-    }
-    if (this._imageDirty) {
+    if (this._imageDirty || (params && params.force)) {
       this.activate();
-      this.viewManager.draw(this.view.viewIndex, params);
+      this.viewManager.renderView(this.view.viewIndex, params);
       this._imageDirty = false;
     }
   }
 
   clear() {
     this.activate();
-    this.viewManager.clear(this.view.viewIndex);
+    this.viewManager.clearView(this.view.viewIndex);
   }
 
   destroy() {

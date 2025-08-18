@@ -4,9 +4,9 @@ import type {FloatArrayParam} from "../../math";
 import type {LayerImpl} from "./LayerImpl";
 import type {RenderContext} from "../RenderContext";
 import {SceneMesh} from "../../scene";
-import {type RenderTile} from "../gpuMemory/RenderTile";
+import {type RenderTile} from "../gpuDataMemory/RenderTile";
 import {RendererObjectImpl} from "./RendererObjectImpl";
-import {GPUDataMemoryEditor} from "../gpuMemory/GPUDataMemoryEditor";
+import {type GPUDataMemoryEditor} from "../gpuDataMemory/GPUDataMemoryEditor";
 
 const identityMat4 = createMat4();
 const identityVec4 = createVec4([0, 0, 0, 1]);

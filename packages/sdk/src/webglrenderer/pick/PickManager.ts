@@ -12,8 +12,9 @@ import {
 } from "../../matrix";
 import {RendererView} from "../views/RendererView";
 import {FloatArrayParam} from "../../math";
-import {RendererMeshImpl} from "../layer/RendererMeshImpl";
+import {RendererMesh} from "../layers/RendererMesh";
 import {createRTCViewMat} from "../../rtc";
+import {RendererMeshImpl} from "../layers/RendererMeshImpl";
 
 
 const tempVec3a = createVec3();

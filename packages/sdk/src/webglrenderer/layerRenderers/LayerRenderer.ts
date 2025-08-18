@@ -1,10 +1,10 @@
-import {AmbientLight, DirLight, PointLight} from "../../viewer";
+import  {AmbientLight, DirLight, PointLight} from "../../viewer";
 import {WEBGL_INFO, WebGLProgram} from "../../webglutils";
 import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive} from "../../constants";
 import {RENDER_PASSES} from "../layers/RENDER_PASSES";
 import type {RenderContext} from "../RenderContext";
-import {Layer} from "../layers/Layer";
-import {GPUDataMemoryView} from "../gpuMemory/GPUDataMemoryView";
+import {type Layer} from "../layers/Layer";
+import {type GPUDataMemoryView} from "../gpuDataMemory/GPUDataMemoryView";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 

@@ -1,10 +1,14 @@
-import {collapseAABB3, expandAABB3} from "../boundaries";
+import {collapseAABB3, createAABB3, expandAABB3, intersectFrustum3AABB3} from "../boundaries";
 import type {SceneGeometry, SceneObject} from "../scene";
 import {type GeometryView, getSceneObjectGeometry} from "../scene";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../constants";
 import type {FloatArrayParam} from "../math";
 import type {KdSceneObjectPrim} from "./KdSceneObjectPrim";
 import {KdTree3} from "./KdTree3";
+import {createSceneObjectAABB3} from "../aabb/createSceneObjectAABB3";
+
+const tempAABB3a = createAABB3();
+const tempAABB3b = createAABB3();
 
 /**
  * k-d tree built by {@link createSceneObjectPrimsKdTree3}.
@@ -69,13 +73,14 @@ export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): Scen
     kdTree.insertItem(<KdSceneObjectPrim>{sceneObject, sceneGeometry, prim: {a, b, c}}, aabb);
   }
 
-  const aabb = collapseAABB3();
+  collapseAABB3(tempAABB3a);
+
   for (let i = 0, len = sceneObjects.length; i < len; i++) {
-    const viewObject = sceneObjects[i];
-    expandAABB3(aabb, viewObject.aabb);
+    const sceneObject = sceneObjects[i];
+    expandAABB3(tempAABB3a, createSceneObjectAABB3(sceneObject,tempAABB3b));
   }
   const kdTree = new SceneObjectsPrimsKdTree3({
-    aabb
+    aabb: tempAABB3a
   });
   for (let i = 0, len = sceneObjects.length; i < len; i++) {
     const sceneObject = sceneObjects[i];

@@ -45,35 +45,35 @@ export class Scene extends Component {
   /**
    * Emits an event each time a {@link SceneObject | SceneObject} is created in this Scene.
    *
-   * @event
+   * @event onObjectCreated
    */
   public readonly onObjectCreated: EventEmitter<Scene, SceneObject>;
 
   /**
    * Emits an event each time a {@link SceneMesh | SceneMesh} is moved (rotated, translated etc).
    *
-   * @event
+   * @event onMeshMoved
    */
   public readonly onMeshMoved: EventEmitter<Scene, SceneMesh>;
 
   /**
    * Emits an event each time a {@link SceneGeometry | SceneGeometry} is updated (any updates to positions, indices, primitive type etc).
    *
-   * @event
+   * @event onGeometryUpdated
    */
   public readonly onGeometryUpdated: EventEmitter<Scene, SceneGeometry>;
 
   /**
    * Emits an event each time a {@link SceneObject | SceneObject} is destroyed in this Scene.
    *
-   * @event
+   * @event onObjectDestroyed
    */
   public readonly onObjectDestroyed: EventEmitter<Scene, SceneObject>;
 
   /**
    * Emits an event each time a {@link SceneModel | SceneModel} is destroyed in this Scene.
    *
-   * @event
+   * @event onModelDestroyed
    */
   public readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
 

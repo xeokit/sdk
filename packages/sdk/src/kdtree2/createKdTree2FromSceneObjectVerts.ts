@@ -2,6 +2,7 @@ import {createMat4, createVec4, transformPoint4} from "../matrix";
 import type {SceneObject} from "../scene";
 import {type GeometryView, getSceneObjectGeometry} from "../scene";
 import {
+  collapseAABB3, createAABB3,
   INSIDE,
   INTERSECT,
   intersectFrustum3AABB3,
@@ -12,6 +13,9 @@ import {
 import type {FloatArrayParam} from "../math";
 import {KdTree2} from "./KdTree2";
 import type {KdVertex2} from "./KdVertex2";
+import {createSceneObjectAABB3} from "../aabb/createSceneObjectAABB3";
+
+const tempAABB3 = createAABB3();
 
 /**
  * A k-d tree to accelerate intersection and nearest-neighbour tests on the projected
@@ -44,7 +48,7 @@ export function createKdTree2FromSceneObjectVerts(params: {
 
   function insertSceneObject(sceneObject: SceneObject, intersects: number = INTERSECT) {
     if (intersects !== INSIDE) {
-      intersects = intersectFrustum3AABB3(frustum, sceneObject.aabb);
+      intersects = intersectFrustum3AABB3(frustum, createSceneObjectAABB3(sceneObject, collapseAABB3(tempAABB3)));
     }
     if (intersects === OUTSIDE) {
       return;

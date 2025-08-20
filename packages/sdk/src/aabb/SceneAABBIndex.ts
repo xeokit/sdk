@@ -44,6 +44,7 @@ function getPositionsWorldAABB3(
  * in a {@link Scene}, using lazy evaluation and dirty flags.
  */
 export class SceneAABBIndex {
+
   #scene: Scene;
   #meshAABBs = new Map<string, FloatArrayParam>();
   #objectAABBs = new Map<string, FloatArrayParam>();
@@ -52,7 +53,7 @@ export class SceneAABBIndex {
   #unsubscribers: (() => void)[] = [];
   #sceneAABB: Float64Array<any>;
   #sceneAABBDirty: boolean;
-  #center: Float64Array<any>;
+  #sceneCenter: Float64Array<any>;
 
   /**
    * Constructs a new SceneAABBIndex for the given {@link Scene}.
@@ -62,7 +63,7 @@ export class SceneAABBIndex {
     this.#scene = scene;
 
     this.#sceneAABB = createAABB3();
-    this.#center = createVec4();
+    this.#sceneCenter = createVec4();
     this.#sceneAABBDirty = true;
 
     // Mark initial meshes and objects dirty
@@ -183,41 +184,41 @@ export class SceneAABBIndex {
     if (this.#sceneAABBDirty) {
       this.getSceneAABB();
     }
-    this.#center[0] = (this.#sceneAABB[0] + this.#sceneAABB[3]) * 0.5;
-    this.#center[1] = (this.#sceneAABB[1] + this.#sceneAABB[4]) * 0.5;
-    this.#center[2] = (this.#sceneAABB[2] + this.#sceneAABB[5]) * 0.5;
-    this.#center[3] = 1.0; // Homogeneous coordinate
-    return this.#center;
+    this.#sceneCenter[0] = (this.#sceneAABB[0] + this.#sceneAABB[3]) * 0.5;
+    this.#sceneCenter[1] = (this.#sceneAABB[1] + this.#sceneAABB[4]) * 0.5;
+    this.#sceneCenter[2] = (this.#sceneAABB[2] + this.#sceneAABB[5]) * 0.5;
+    this.#sceneCenter[3] = 1.0; // Homogeneous coordinate
+    return this.#sceneCenter;
   }
-  /**
-   * Gets the combined AABB of the given {@link SceneMesh} IDs.
-   * Only includes meshes that are currently registered and valid.
-   *
-   * @param meshIds The list of SceneMesh IDs.
-   * @returns Combined AABB, or `null` if none found.
-   */
-  getCombinedAABB(meshIds: string[]): FloatArrayParam | null {
-    const result = createAABB3();
-    collapseAABB3(result);
-    let foundAny = false;
-
-    for (const meshId of meshIds) {
-      let mesh: SceneMesh | undefined = undefined;
-
-      for (const object of Object.values(this.#scene.objects)) {
-        mesh = object.meshes.find((m) => m.id === meshId);
-        if (mesh) break;
-      }
-
-      if (mesh) {
-        const aabb = this.#getMeshAABB(mesh);
-        expandAABB3(result, aabb);
-        foundAny = true;
-      }
-    }
-
-    return foundAny ? result : null;
-  }
+  // /**
+  //  * Gets the combined AABB of the given {@link SceneMesh} IDs.
+  //  * Only includes meshes that are currently registered and valid.
+  //  *
+  //  * @param meshIds The list of SceneMesh IDs.
+  //  * @returns Combined AABB, or `null` if none found.
+  //  */
+  // getCombinedMeshAABB(meshIds: string[]): FloatArrayParam | null {
+  //   const result = createAABB3();
+  //   collapseAABB3(result);
+  //   let foundAny = false;
+  //
+  //   for (const meshId of meshIds) {
+  //     let mesh: SceneMesh | undefined = undefined;
+  //
+  //     for (const object of Object.values(this.#scene.objects)) {
+  //       mesh = object.meshes.find((m) => m.id === meshId);
+  //       if (mesh) break;
+  //     }
+  //
+  //     if (mesh) {
+  //       const aabb = this.#getMeshAABB(mesh);
+  //       expandAABB3(result, aabb);
+  //       foundAny = true;
+  //     }
+  //   }
+  //
+  //   return foundAny ? result : null;
+  // }
 
   /**
    * Gets the combined AABB of the given {@link SceneObject} IDs.

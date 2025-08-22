@@ -209,10 +209,10 @@ export class DataModel extends Component {
    */
   createPropertySet(propertySetCfg: PropertySetParams): PropertySet | SDKError {
     if (this.destroyed) {
-      return new SDKError("Failed to create PropertySet - DataModel already destroyed");
+      return new SDKError("Cannot create PropertySet - DataModel already destroyed");
     }
     if (this.propertySets[propertySetCfg.id]) {
-      return new SDKError("Failed to create PropertySet - PropertySet with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel.")
+      return new SDKError("Cannot create PropertySet - PropertySet with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel.")
     }
     let propertySet = this.data.propertySets[propertySetCfg.id];
     if (propertySet) {
@@ -276,11 +276,11 @@ export class DataModel extends Component {
    */
   createObject(dataObjectParams: DataObjectParams): DataObject | SDKError {
     if (this.destroyed) {
-      return new SDKError("Failed to create DataObject - DataModel already destroyed");
+      return new SDKError("Cannot create DataObject - DataModel already destroyed");
     }
     const id = dataObjectParams.id;
     if (this.objects[id]) {
-      return new SDKError("Failed to create DataObject - DataObject with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel.")
+      return new SDKError("Cannot create DataObject - DataObject with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel.")
     }
     const type = dataObjectParams.type;
     let dataObject = this.data.objects[id];
@@ -291,7 +291,7 @@ export class DataModel extends Component {
           const propertySetId = dataObjectParams.propertySetIds[i];
           const propertySet = this.propertySets[propertySetId];
           if (!propertySet) {
-            return new SDKError(`Failed to create DataObject - PropertySet not found: "${propertySetId}"`);
+            return new SDKError(`Cannot create DataObject - PropertySet not found: "${propertySetId}"`);
           } else {
             propertySets.push(propertySet);
           }
@@ -329,7 +329,7 @@ export class DataModel extends Component {
       this.data.onObjectCreated.dispatch(this.data, dataObject);
     } else {
       if (dataObject.models.length > 0 && this.schema !== dataObject.models[0].schema) {
-        return new SDKError(`Failed to create DataObject of schema '${this.schema}' - ID clashes with existing DataObject of schema '${this.schema}'`);
+        return new SDKError(`Cannot create DataObject of schema '${this.schema}' - ID clashes with existing DataObject of schema '${this.schema}'`);
       }
       this.objects[id] = dataObject;
       this.data.objects[id] = dataObject;
@@ -386,15 +386,15 @@ export class DataModel extends Component {
    */
   createRelationship(relationshipParams: RelationshipParams): Relationship | SDKError {
     if (this.destroyed) {
-      return new SDKError("Failed to create Relationship - DataModel already destroyed");
+      return new SDKError("Cannot create Relationship - DataModel already destroyed");
     }
     const relatingObject = this.data.objects[relationshipParams.relatingObjectId];
     if (!relatingObject) {
-      return new SDKError(`Failed to create Relationship - relating DataObject not found: ${relationshipParams.relatingObjectId}`);
+      return new SDKError(`Cannot create Relationship - relating DataObject not found: ${relationshipParams.relatingObjectId}`);
     }
     const relatedObject = this.data.objects[relationshipParams.relatedObjectId];
     if (!relatedObject) {
-      return new SDKError(`Failed to create Relationship - related DataObject not found: ${relationshipParams.relatedObjectId}`);
+      return new SDKError(`Cannot create Relationship - related DataObject not found: ${relationshipParams.relatedObjectId}`);
     }
     const relation = new Relationship(relationshipParams.type, relatingObject, relatedObject);
     if (!relatedObject.relating[relationshipParams.type]) {
@@ -428,7 +428,7 @@ export class DataModel extends Component {
    */
   fromParams(dataModelParams: DataModelContentParams): void | SDKError {
     if (this.destroyed) {
-      return new SDKError("Failed to add components to DataModel - DataModel already destroyed");
+      return new SDKError("Cannot add components to DataModel - DataModel already destroyed");
     }
     if (dataModelParams.propertySets) {
       for (let i = 0, len = dataModelParams.propertySets.length; i < len; i++) {
@@ -533,7 +533,7 @@ export class DataModel extends Component {
    */
   destroy(): void | SDKError {
     if (this.destroyed) {
-      return new SDKError("Failed to destroy DataModel - DataModel already destroyed");
+      return new SDKError("Cannot destroy DataModel - DataModel already destroyed");
     }
     for (const id in this.objects) {
       const dataObject = this.objects[id];

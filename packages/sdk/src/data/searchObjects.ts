@@ -80,12 +80,12 @@ export function searchObjects(data: Data, searchParams: SearchParams): void | SD
   if (searchParams.startObjectId) {
     const startObject = data.objects[searchParams.startObjectId];
     if (!startObject) {
-      return new SDKError(`Failed to search DataObjects - starting DataObject not found in Data: "${searchParams.startObjectId}"`);
+      return new SDKError(`Cannot search DataObjects - starting DataObject not found in Data: "${searchParams.startObjectId}"`);
     }
     visit(startObject, depth);
   } else if (searchParams.startObject) {
     if (searchParams.startObject.data != data) {
-      return new SDKError(`Failed to search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`);
+      return new SDKError(`Cannot search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`);
     }
     visit(searchParams.startObject, depth + 1);
   } else {

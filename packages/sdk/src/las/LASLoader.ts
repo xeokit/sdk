@@ -117,7 +117,7 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
             colorsCompressed: colorsChunks[j]
           });
           if (geometry instanceof SDKError) {
-            log(`[ERROR] Failed to load point cloud: ${geometry.message}`);
+            log(`[ERROR] Cannot load point cloud: ${geometry.message}`);
           } else {
             const meshId = `mesh-${j}`;
             meshIds.push(meshId);
@@ -126,7 +126,7 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
               geometryId
             });
             if (mesh instanceof SDKError) {
-              log(`[ERROR] Failed to load point cloud: ${mesh.message}`);
+              log(`[ERROR] Cannot load point cloud: ${mesh.message}`);
             }
           }
         }

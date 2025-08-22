@@ -680,7 +680,7 @@ export class TreeView extends Component {
       case TreeView.GroupsHierarchy:
         this.#buildGroupsNodes();
         if (this.#rootNodes.length === 0) {
-          this.error("Failed to build hierarchy TreeView.GroupsHierarchy");
+          this.error("Cannot build hierarchy TreeView.GroupsHierarchy");
         }
         break;
       case TreeView.TypesHierarchy:

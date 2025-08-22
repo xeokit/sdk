@@ -168,7 +168,7 @@ export class WebGLArrayBuf {
     // @ts-ignore
     this.handle = this.gl.createBuffer();
     if (!this.handle) {
-      throw new Error("Failed to allocate WebGL ArrayBuffer");
+      throw new Error("Cannot allocate WebGL ArrayBuffer");
     }
     if (this.handle) {
       this.gl.bindBuffer(this.type, this.handle);

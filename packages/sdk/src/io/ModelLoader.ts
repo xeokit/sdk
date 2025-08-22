@@ -104,7 +104,7 @@ export class ModelLoader {
         // }
         const version = this.getVersion(fileData);
         if (!version) {
-          return reject(`Failed to determine schema version of source file`);
+          return reject(`Cannot determine schema version of source file`);
         }
         const parser = this.parsers[version];
         if (!parser) {
@@ -116,7 +116,7 @@ export class ModelLoader {
               resolve();
             })
             .catch(err => {
-              reject(`Failed to load source file: ${err}`);
+              reject(`Cannot load source file: ${err}`);
             });
         } else {
           return resolve();
@@ -126,7 +126,7 @@ export class ModelLoader {
         fileIO.load(filePath).then((fileData) => {
           loadFileData(fileData);
         }).catch(err => {
-          reject(`Failed to load source file: ${err}`);
+          reject(`Cannot load source file: ${err}`);
         });
       } else {
         loadFileData(fileData);

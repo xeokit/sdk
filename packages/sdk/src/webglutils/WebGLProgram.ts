@@ -148,7 +148,7 @@ export class WebGLProgram {
     this.handle = gl.createProgram();
 
     if (!this.handle) {
-      this.errors = ["Failed to allocate program"];
+      this.errors = ["Cannot allocate program"];
       return;
     }
 

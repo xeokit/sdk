@@ -180,7 +180,7 @@ export function loadJSON(url: string,
       try {
         json = JSON.parse(response);
       } catch (e) {
-        err(`utils.loadJSON(): Failed to parse JSON response - ${e}`);
+        err(`utils.loadJSON(): Cannot parse JSON response - ${e}`);
       }
       ok(json);
     } else if (this.status === 0) {
@@ -190,7 +190,7 @@ export function loadJSON(url: string,
       try {
         ok(JSON.parse(response));
       } catch (e) {
-        err(`utils.loadJSON(): Failed to parse JSON response - ${e}`);
+        err(`utils.loadJSON(): Cannot parse JSON response - ${e}`);
       }
     } else {
       err(event);

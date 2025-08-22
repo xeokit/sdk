@@ -693,8 +693,10 @@ class View extends Component {
       });
       this.onLayerCreated.dispatch(this, viewLayer);
     }
-    const rendererObjects = this.viewer.renderer.rendererObjects;
-    const rendererObject = rendererObjects[sceneObject.id];
+    const rendererObject = this.viewer.renderer.rendererObjects[sceneObject.id];
+    if (!rendererObject) {
+      throw "Cannot create ViewObject for SceneObject that has no RendererObject: " + sceneObject.id;
+    }
     const viewObject = new ViewObject(viewLayer, sceneObject, rendererObject);
     viewLayer.registerViewObject(viewObject);
     this.registerViewObject(viewObject);

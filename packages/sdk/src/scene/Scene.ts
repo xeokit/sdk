@@ -43,6 +43,13 @@ export class Scene extends Component {
   public readonly onModelCreated: EventEmitter<Scene, SceneModel>;
 
   /**
+   * Emits an event each time a {@link SceneModel | SceneModel} is destroyed in this Scene.
+   *
+   * @event onModelDestroyed
+   */
+  public readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
+
+  /**
    * Emits an event each time a {@link SceneObject | SceneObject} is created in this Scene.
    *
    * @event onObjectCreated
@@ -71,11 +78,32 @@ export class Scene extends Component {
   public readonly onObjectDestroyed: EventEmitter<Scene, SceneObject>;
 
   /**
-   * Emits an event each time a {@link SceneModel | SceneModel} is destroyed in this Scene.
+   * Emits an event each time a {@link SceneMesh | SceneMesh} is created in this Scene.
    *
-   * @event onModelDestroyed
+   * @event onMeshCreated
    */
-  public readonly onModelDestroyed: EventEmitter<Scene, SceneModel>;
+  public readonly onMeshCreated: EventEmitter<Scene, SceneMesh>;
+
+  /**
+   * Emits an event each time a {@link SceneMesh | SceneMesh} is destroyed in this Scene.
+   *
+   * @event onMeshDestroyed
+   */
+  public readonly onMeshDestroyed: EventEmitter<Scene, SceneMesh>;
+
+  /**
+   * Emits an event each time a {@link SceneGeometry | SceneGeometry} is created in this Scene.
+   *
+   * @event onGeometryCreated
+   */
+  public readonly onGeometryCreated: EventEmitter<Scene, SceneGeometry>;
+
+  /**
+   * Emits an event each time a {@link SceneGeometry | SceneGeometry} is destroyed in this Scene.
+   *
+   * @event onGeometryDestroyed
+   */
+  public readonly onGeometryDestroyed: EventEmitter<Scene, SceneGeometry>;
 
   /**
    * Creates a new Scene.
@@ -91,10 +119,17 @@ export class Scene extends Component {
 
     this.onModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
     this.onObjectCreated = new EventEmitter(new EventDispatcher<Scene, SceneObject>());
+
     this.onMeshMoved = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
     this.onGeometryUpdated = new EventEmitter(new EventDispatcher<Scene, SceneGeometry>());
     this.onObjectDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneObject>());
     this.onModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
+
+    this.onMeshCreated = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
+    this.onMeshDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
+
+    this.onGeometryCreated = new EventEmitter(new EventDispatcher<Scene, SceneGeometry>());
+    this.onGeometryDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneGeometry>());
   }
 
   /**
@@ -193,6 +228,9 @@ export class Scene extends Component {
     this.onMeshMoved.clear();
     this.onGeometryUpdated.clear();
     this.onObjectDestroyed.clear();
+
+    this.onGeometryCreated .clear();
+    this.onGeometryDestroyed .clear();
     super.destroy();
   }
 

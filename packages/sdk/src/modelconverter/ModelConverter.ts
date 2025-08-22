@@ -199,7 +199,7 @@ export class ModelConverter {
                 dataModel: dataModelId,
                 messages: [],
                 warnings: [],
-                errors: [`Failed to load fileData: ${err}`]
+                errors: [`Cannot load fileData: ${err}`]
               };
             }
           };
@@ -208,7 +208,7 @@ export class ModelConverter {
             fileIO.load(filePath).then((fileData) => {
               loadFileData(fileData);
             }).catch(err => {
-              reject(`Failed to load source file: ${err}`);
+              reject(`Cannot load source file: ${err}`);
             });
           } else {
             await loadFileData(fileData);
@@ -269,7 +269,7 @@ export class ModelConverter {
               dataModel: dataModel.id,
               messages: [],
               warnings: [],
-              errors: [`Failed to export fileData: ${err}`]
+              errors: [`Cannot export fileData: ${err}`]
             };
           }
         }

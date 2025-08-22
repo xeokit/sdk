@@ -91,7 +91,7 @@ export class WebGLRenderer implements Renderer {
     };
     this._gl = <WebGL2RenderingContext>webglCanvasElement.getContext("webgl2", contextAttr);
     if (!this._gl) {
-      throw new SDKError(`Failed to get a WebGL2 context`);
+      throw new SDKError(`Cannot get a WebGL2 context`);
     }
     this._gl.hint(this._gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this._gl.NICEST);
 
@@ -113,7 +113,7 @@ export class WebGLRenderer implements Renderer {
     try {
       gl = htmlElement.getContext("webgl2");
     } catch (e) {
-      console.error('Failed to get a WebGL context');
+      console.error('Cannot get a WebGL context');
     }
     if (gl) {
       capabilities.astcSupported = !!getWebGLExtension(gl, 'WEBGL_compressed_texture_astc');

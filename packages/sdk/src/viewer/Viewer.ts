@@ -142,7 +142,7 @@ export class Viewer extends Component {
     this.id = params.id || createUUID();
 
     if (params.renderer.viewer !== undefined) {
-      throw new SDKError(`Failed to create Viewer - the given Renderer is currently attached to another Viewer`);
+      throw new SDKError(`Cannot create Viewer - the given Renderer is currently attached to another Viewer`);
     }
 
     this.onLog = new EventEmitter(new EventDispatcher<Viewer, string>());
@@ -271,22 +271,27 @@ export class Viewer extends Component {
    */
   createView(viewParams: ViewParams): View | SDKError {
     if (this.viewList.length >= this.capabilities.maxViews) {
-      return new SDKError(`Attempted to create too many Views with View.createView() - maximum of ${this.capabilities.maxViews} is allowed`);
+      return new SDKError(
+        `Cannot create View: Maximum number of Views (${this.capabilities.maxViews}) has been reached.`
+      );
     }
     const viewId = viewParams.id || createUUID();
     if (this.views[viewId]) {
-      return new SDKError(`View with ID "${viewId}" already exists in this Viewer`);
+      return new SDKError(`Cannot create View: A View with ID "${viewId}" already exists.`);
     }
-    // @ts-ignore
     if (viewParams.elementId) {
       const htmlElement = document.getElementById(viewParams.elementId);
       if (!(htmlElement instanceof HTMLElement)) {
-        return new SDKError("viewParams.htmlElement is not an HTMLElement");
+        return new SDKError(
+          `Cannot create View: The elementId "${viewParams.elementId}" does not reference a valid HTMLElement.`
+        );
       }
     }
     if (viewParams.htmlElement) {
       if (!(viewParams.htmlElement instanceof HTMLElement)) {
-        return new SDKError("viewParams.elementId does not reference an HTMLElement");
+        return new SDKError(
+          `Cannot create View: The provided htmlElement is not a valid HTMLElement.`
+        );
       }
     }
     const view = new View(this, apply({id: viewId}, viewParams));

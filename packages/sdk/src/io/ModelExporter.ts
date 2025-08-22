@@ -90,7 +90,7 @@ export class ModelExporter {
           resolve(fileData);
         })
         .catch(err => {
-          reject(`Failed to export target file: ${err}`);
+          reject(`Cannot export target file: ${err}`);
         });
     });
   }

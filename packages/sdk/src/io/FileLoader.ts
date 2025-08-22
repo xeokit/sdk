@@ -43,7 +43,7 @@
 //                 });
 //
 //                 if (!response.ok) {
-//                     throw new Error(`Failed to load ${url}: ${response.status} ${response.statusText}`);
+//                     throw new Error(`Cannot load ${url}: ${response.status} ${response.statusText}`);
 //                 }
 //
 //                 return await FileLoader.parseResponse(response,  <ResponseType>responseType);
@@ -111,7 +111,7 @@
 //         });
 //
 //         if (!response.ok) {
-//             throw new Error(`Failed to load ${url}: ${response.status} ${response.statusText}`);
+//             throw new Error(`Cannot load ${url}: ${response.status} ${response.statusText}`);
 //         }
 //
 //         const contentLength = response.headers.get('Content-Length');

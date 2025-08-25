@@ -28,6 +28,7 @@ export * as scene from "./scene";
 
 // Collisions and picking
 
+export * as aabb from "./aabb";
 export * as kdtree2 from "./kdtree2";
 export * as kdtree3 from "./kdtree3";
 export * as pick from "./pick";

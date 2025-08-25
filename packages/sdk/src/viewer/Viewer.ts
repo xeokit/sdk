@@ -141,7 +141,7 @@ export class Viewer extends Component {
 
     this.id = params.id || createUUID();
 
-    if (params.renderer.viewer !== undefined) {
+    if (!!params.renderer.viewer) {
       throw new SDKError(`Cannot create Viewer - the given Renderer is currently attached to another Viewer`);
     }
 

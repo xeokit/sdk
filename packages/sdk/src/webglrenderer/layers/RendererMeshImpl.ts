@@ -6,7 +6,7 @@ import type {RenderContext} from "../RenderContext";
 import {SceneMesh} from "../../scene";
 import {type RenderTile} from "../gpuDataMemory/RenderTile";
 import {RendererObjectImpl} from "./RendererObjectImpl";
-import {type GPUDataMemoryEditor} from "../gpuDataMemory/GPUDataMemoryEditor";
+import {type GPUDataMemoryEditorIF} from "../gpuDataMemory/GPUDataMemoryEditorIF";
 
 const identityMat4 = createMat4();
 const identityVec4 = createVec4([0, 0, 0, 1]);
@@ -52,7 +52,7 @@ export class RendererMeshImpl implements RendererMesh {
 
   viewStates: any;
 
-  private gpuDataMemoryEditor: GPUDataMemoryEditor;
+  private gpuDataMemoryEditor: GPUDataMemoryEditorIF;
 
   /**
    * Constructs a RendererMeshImpl instance.
@@ -64,7 +64,7 @@ export class RendererMeshImpl implements RendererMesh {
     meshIndex: number;
     renderContext: RenderContext;
     rendererGeometry: RendererGeometry;
-    gpuDataMemoryEditor: GPUDataMemoryEditor;
+    gpuDataMemoryEditor: GPUDataMemoryEditorIF;
   }) {
     const {
       meshIndex,

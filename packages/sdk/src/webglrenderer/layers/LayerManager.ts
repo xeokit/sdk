@@ -16,7 +16,7 @@ import {RendererMeshImpl} from "./RendererMeshImpl";
 import {RendererGeometryImpl} from "./RendererGeometryImpl";
 import {LayerImpl} from "./LayerImpl";
 import {type Layer} from "./Layer";
-import {type GPUDataMemoryEditor} from "../gpuDataMemory/GPUDataMemoryEditor";
+import {type GPUDataMemoryEditorIF} from "../gpuDataMemory/GPUDataMemoryEditorIF";
 
 /**
  * Manages the layers and renderer objects in the WebGLRenderer.
@@ -29,7 +29,7 @@ export class LayerManager {
   public rendererObjects: Record<string, RendererObject> = {};
 
   private _renderContext: RenderContext;
-  private _gpuDataMemoryEditor: GPUDataMemoryEditor;
+  private _gpuDataMemoryEditor: GPUDataMemoryEditorIF;
 
   private _rendererModels: Record<string,
     {
@@ -53,7 +53,7 @@ export class LayerManager {
    * @param renderContext
    * @param gpuDataMemoryEditor
    */
-  constructor(renderContext: RenderContext, gpuDataMemoryEditor: GPUDataMemoryEditor) {
+  constructor(renderContext: RenderContext, gpuDataMemoryEditor: GPUDataMemoryEditorIF) {
 
     this._renderContext = renderContext;
     this._gpuDataMemoryEditor = gpuDataMemoryEditor;

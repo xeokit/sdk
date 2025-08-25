@@ -6,7 +6,7 @@ import {OBJECT_FLAGS} from "./OBJECT_FLAGS";
 import {RENDER_PASSES} from "./RENDER_PASSES";
 import {PointsPrimitive} from "../../constants";
 import {type Layer} from "./Layer";
-import {type GPUDataMemoryEditor} from "../gpuDataMemory/GPUDataMemoryEditor";
+import {type GPUDataMemoryEditorIF} from "../gpuDataMemory/GPUDataMemoryEditorIF";
 
 
 /**
@@ -53,14 +53,14 @@ export class LayerImpl implements Layer  {
   meshCounts: MeshCounts[];
 
   /**
-   * The GPUDataMemoryEditor instance used to manage the GPU data memory for this layer.
+   * The GPUDataMemoryEditorIF instance used to manage the GPU data memory for this layer.
    * @private
    */
-  private _gpuDataMemoryEditor: GPUDataMemoryEditor;
+  private _gpuDataMemoryEditor: GPUDataMemoryEditorIF;
 
   constructor(layerParams: {
     renderContext: any;
-    gpuDataMemoryEditor:GPUDataMemoryEditor;
+    gpuDataMemoryEditor:GPUDataMemoryEditorIF;
     primitive: number;
   }) {
     const {renderContext, gpuDataMemoryEditor, primitive} = layerParams;

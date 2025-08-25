@@ -43,7 +43,7 @@ function getPositionsWorldAABB3(
  * Caches and maintains axis-aligned bounding boxes (AABBs) for {@link SceneMesh} and {@link SceneObject} instances
  * in a {@link Scene}, using lazy evaluation and dirty flags.
  */
-export class SceneAABBIndex {
+export class SceneAABB3Index {
 
   #scene: Scene;
   #meshAABBs = new Map<string, FloatArrayParam>();
@@ -56,7 +56,7 @@ export class SceneAABBIndex {
   #sceneCenter: Float64Array<any>;
 
   /**
-   * Constructs a new SceneAABBIndex for the given {@link Scene}.
+   * Constructs a new SceneAABB3Index for the given {@link Scene}.
    * @param scene The scene to index.
    */
   constructor(scene: Scene) {
@@ -190,35 +190,6 @@ export class SceneAABBIndex {
     this.#sceneCenter[3] = 1.0; // Homogeneous coordinate
     return this.#sceneCenter;
   }
-  // /**
-  //  * Gets the combined AABB of the given {@link SceneMesh} IDs.
-  //  * Only includes meshes that are currently registered and valid.
-  //  *
-  //  * @param meshIds The list of SceneMesh IDs.
-  //  * @returns Combined AABB, or `null` if none found.
-  //  */
-  // getCombinedMeshAABB(meshIds: string[]): FloatArrayParam | null {
-  //   const result = createAABB3();
-  //   collapseAABB3(result);
-  //   let foundAny = false;
-  //
-  //   for (const meshId of meshIds) {
-  //     let mesh: SceneMesh | undefined = undefined;
-  //
-  //     for (const object of Object.values(this.#scene.objects)) {
-  //       mesh = object.meshes.find((m) => m.id === meshId);
-  //       if (mesh) break;
-  //     }
-  //
-  //     if (mesh) {
-  //       const aabb = this.#getMeshAABB(mesh);
-  //       expandAABB3(result, aabb);
-  //       foundAny = true;
-  //     }
-  //   }
-  //
-  //   return foundAny ? result : null;
-  // }
 
   /**
    * Gets the combined AABB of the given {@link SceneObject} IDs.
@@ -282,7 +253,7 @@ const sceneIndexes = {};
 export function getSceneAABBIndex(scene: Scene) {
   let sceneIndex = sceneIndexes[scene.id];
   if (!sceneIndex) {
-    sceneIndex = sceneIndexes[scene.id] = new SceneAABBIndex(scene);
+    sceneIndex = sceneIndexes[scene.id] = new SceneAABB3Index(scene);
     scene.onDestroyed.sub((scene, _) => {
       sceneIndex.destroy();
       delete sceneIndexes[scene.id];

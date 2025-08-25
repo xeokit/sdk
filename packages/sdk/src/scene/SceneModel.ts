@@ -770,10 +770,10 @@ export class SceneModel extends Component {
    * @private
    */
   _destroyObject(sceneObject: SceneObject): void | SDKError {
+    const objectId = sceneObject.id;
     if (this.destroyed) {
       return new SDKError(`Cannot destroy SceneObject ${objectId} - SceneModel already destroyed`);
     }
-    const objectId = sceneObject.id;
     if (!this.objects[objectId]) {
       return new SDKError(`Cannot destroy SceneObject ${objectId} - SceneObject not found in SceneModel`);
     }

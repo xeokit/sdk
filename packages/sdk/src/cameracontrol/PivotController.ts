@@ -13,7 +13,7 @@ import type {FloatArrayParam} from "../math";
 import {clamp} from "../math";
 import type {View} from "../viewer";
 import {worldToRTCPos} from "../rtc";
-import {getSceneAABBIndex} from "../aabb/SceneAABBIndex";
+import {getSceneAABBIndex} from "../aabb/SceneAABB3Index";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();

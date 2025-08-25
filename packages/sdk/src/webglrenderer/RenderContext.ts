@@ -125,9 +125,6 @@ export class RenderContext {
 
   public pickClipPos: FloatArrayParam;
 
-
-
-
   /**
    * Creates a new RenderContext.
    */

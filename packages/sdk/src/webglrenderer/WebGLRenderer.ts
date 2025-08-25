@@ -14,8 +14,8 @@ import {LayerRendererSet} from "./layerRenderers/LayerRendererSet";
 import {ViewManager} from "./views/ViewManager";
 import {DrawManager} from "./draw/DrawManager";
 import {LayerManager} from "./layers/LayerManager";
-import {type GPUDataMemoryView} from "./gpuDataMemory/GPUDataMemoryView";
-import {type GPUDataMemoryEditor} from "./gpuDataMemory/GPUDataMemoryEditor";
+import {type GPUDataMemoryViewIF} from "./gpuDataMemory/GPUDataMemoryViewIF";
+import {type GPUDataMemoryEditorIF} from "./gpuDataMemory/GPUDataMemoryEditorIF";
 import {type RendererObject} from "../scene";
 
 
@@ -148,8 +148,8 @@ export class WebGLRenderer implements Renderer {
     });
     this._renderContext = new RenderContext(viewer, this._gl, this._webglCanvasElement);
     this._gpuDataMemory = new GPUDataMemory({gl: this._gl, viewer})
-    this._layerManager = new LayerManager(this._renderContext, <GPUDataMemoryEditor>this._gpuDataMemory);
-    this._layerRendererSet = new LayerRendererSet(this._renderContext, <GPUDataMemoryView>this._gpuDataMemory);
+    this._layerManager = new LayerManager(this._renderContext, <GPUDataMemoryEditorIF>this._gpuDataMemory);
+    this._layerRendererSet = new LayerRendererSet(this._renderContext, <GPUDataMemoryViewIF>this._gpuDataMemory);
     this._drawManager = new DrawManager({
       renderContext: this._renderContext,
       layerManager: this._layerManager,

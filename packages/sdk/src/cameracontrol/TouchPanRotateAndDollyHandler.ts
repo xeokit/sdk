@@ -1,7 +1,7 @@
 import {createVec2, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../matrix";
 import {PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
-import {getSceneAABBIndex, SceneAABBIndex} from "../aabb/SceneAABBIndex";
+import {getSceneAABBIndex, SceneAABB3Index} from "../aabb/SceneAABB3Index";
 
 const getCanvasPosFromEvent = function (event, canvasPos) {
   if (!event) {
@@ -32,7 +32,7 @@ class TouchPanRotateAndDollyHandler {
   #view: View;
   #canvasTouchEndHandler: any;
   #tickSub: () => void;
-  #aabbIndex: SceneAABBIndex;
+  #aabbIndex: SceneAABB3Index;
 
   constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 

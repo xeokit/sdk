@@ -10,7 +10,7 @@ export class GenericSilhouetteRenderer extends LayerRenderer {
     this.vsCommonDefines();
     this.vsSlicingDefines();
     this.vsSilhouetteDefines();
-    this.vsDrawMainOpen();
+    this.vsSilhouetteMainOpen();
     this.vsSilhouetteLogic();
     this.vsSlicingLogic();
     this.vsMainClose();

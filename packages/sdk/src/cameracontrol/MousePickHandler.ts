@@ -1,7 +1,7 @@
 import {canvasPosToWorldRay, createVec3, subVec3} from "../matrix";
 import type {PickResult, View} from "../viewer";
 import {getAABB3Center} from "../boundaries";
-import {getSceneAABBIndex, SceneAABBIndex} from "../aabb/SceneAABBIndex";
+import {getSceneAABBIndex, SceneAABB3Index} from "../aabb/SceneAABB3Index";
 
 /**
  * @private
@@ -16,7 +16,7 @@ class MousePickHandler {
   #canvasMouseMoveHandler: (e) => void;
   #canvasMouseUpHandler: (e) => void;
   #documentMouseUpHandler: (e) => void;
-  #aabbIndex: SceneAABBIndex;
+  #aabbIndex: SceneAABB3Index;
 
   constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 

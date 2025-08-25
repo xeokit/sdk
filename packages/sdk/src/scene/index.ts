@@ -25,6 +25,78 @@
  *
  * <br>
  *
+ * ````mermaid
+ * classDiagram
+ * direction LR
+ *       class Scene{
+ *           createModel()
+ *           clear()
+ *           models
+ *           objects
+ *       }
+ *       class SceneModel{
+ *         id
+ *         objects
+ *          meshes
+ *          geometries
+ *          textureSets
+ *          textures
+ *         createObject()
+ *         createMesh()
+ *         createGeometry()
+ *         createTexture()
+ *         createTextureSet()
+ *         destroy()
+ *       }
+ *       class SceneObject{
+ *           id
+ *           meshes
+ *           aabb
+ *           destroy()
+ *       }
+ *       class SceneMesh {
+ *         id
+ *         color
+ *         opacity
+ *         matrix
+ *         geometry
+ *         textureSet
+ *         destroy()
+ *       }
+ *       class SceneTexture {
+ *         id,
+ *         destroy()
+ *       }
+ *       class SceneTextureSet {
+ *         id
+ *         colorTexture
+ *         metallicRoughnessTexture
+ *         occlusionTexture
+ *         emissiveTexture,
+ *         destroy()
+ *       }
+ *       class SceneGeometry {
+ *         id
+ *         primitive
+ *         positionsDecompressMatrix
+ *         uvsDecompressMatrix
+ *         positionsCompressed
+ *         uvsCompressed
+ *         indices
+ *         edgeIndices,
+ *         destroy()
+ *       }
+ *
+ *       Scene "1"*--"1..*" SceneModel
+ *       SceneModel "1"*--"1..*" SceneObject
+ *       Scene "1"*--"1..*" SceneObject
+ *       SceneObject "1"*--"1..*" SceneMesh
+ *       SceneMesh "1"*--"1" SceneGeometry
+ *       SceneTextureSet "1"*--"1..4" SceneTexture
+ *       SceneMesh "1"*--"1" SceneTextureSet
+ * ````
+ *
+ * https://www.mermaidchart.com/app/projects/acbb2919-d662-4e57-864f-e34ca6330603/diagrams/d779eb15-f412-426e-a4fb-65e59381dad5/version/v0.1/edit
  * [![](https://mermaid.ink/img/pako:eNqNVEuPmzAQ_ivIp3bFog1xeF270qpSo0qbPVVcHHuauAKMbLNKGuW_17wSQwAVDoZvvnmP54KoYIASRDOi1CsnB0nytGBcAtVcFM6P97RwmqdhODsKBVx6rMElEA1bYyb78nUgyIDIIZTXLGUjYv_HeLpB1wlvjWnLJWf375F67QLUEWzgACIHLfkA1HDSlYQd6AnUgtrkfjZe7FS6pI2vR_StdXh-lHy09mcFJhxbtq94xmyAgdJSWIanytUGO2iRXbGJCjmE7PeLHTAazkwHqMiEtBpSEsr1-Q7kxNT-dP_v2mEx7r1YiqEr0XQYCwrG7GLoHc0KGDTJMk7fRXU4FqDUA0NQmlXK3I4HCeRcKf4JI8FUeP2UzAVXSp5zbWxZkFC8vpTqFajISzOoajuqbvW5ILzpf-sIwAaaUzA3u4Da0wLsAN-H4C29_mwSdFK0StHT87M5Pe8pRdZtHhAbZIbdDvP_2J1gttBcHGamh2HUQ25xe-LbaGDHwzUwj3ut0QQseviwLkD9tirIRTnInHBm1nMzJCnSR8ghRYn5ZPCbVJlOUVpcDZVUWuzOBUWJlhW4qCqZ2SvdQu9BYFwLue02fn24qCQFSi7ohBI_ePFWqxBHgb-J1zhcYxedDbz2cBwGEY7xKorCOPKvLvorhLH64kV-gHHgxziM8AZv4sber0ZYu7z-A6rh2zE?type=png)](https://mermaid.live/edit#pako:eNqNVEuPmzAQ_ivIp3bFog1xeF270qpSo0qbPVVcHHuauAKMbLNKGuW_17wSQwAVDoZvvnmP54KoYIASRDOi1CsnB0nytGBcAtVcFM6P97RwmqdhODsKBVx6rMElEA1bYyb78nUgyIDIIZTXLGUjYv_HeLpB1wlvjWnLJWf375F67QLUEWzgACIHLfkA1HDSlYQd6AnUgtrkfjZe7FS6pI2vR_StdXh-lHy09mcFJhxbtq94xmyAgdJSWIanytUGO2iRXbGJCjmE7PeLHTAazkwHqMiEtBpSEsr1-Q7kxNT-dP_v2mEx7r1YiqEr0XQYCwrG7GLoHc0KGDTJMk7fRXU4FqDUA0NQmlXK3I4HCeRcKf4JI8FUeP2UzAVXSp5zbWxZkFC8vpTqFajISzOoajuqbvW5ILzpf-sIwAaaUzA3u4Da0wLsAN-H4C29_mwSdFK0StHT87M5Pe8pRdZtHhAbZIbdDvP_2J1gttBcHGamh2HUQ25xe-LbaGDHwzUwj3ut0QQseviwLkD9tirIRTnInHBm1nMzJCnSR8ghRYn5ZPCbVJlOUVpcDZVUWuzOBUWJlhW4qCqZ2SvdQu9BYFwLue02fn24qCQFSi7ohBI_ePFWqxBHgb-J1zhcYxedDbz2cBwGEY7xKorCOPKvLvorhLH64kV-gHHgxziM8AZv4sber0ZYu7z-A6rh2zE)
  *
  * <br>

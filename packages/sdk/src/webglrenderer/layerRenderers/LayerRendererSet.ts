@@ -5,7 +5,7 @@ import {GenericSilhouetteRenderer} from "./generic/GenericSilhouetteRenderer";
 import {PointsSilhouetteRenderer} from "./points/PointsSilhouetteRenderer";
 import {PointsColorRenderer} from "./points/PointsColorRenderer";
 import {LayerRenderer} from "./LayerRenderer";
-import {type GPUDataMemoryView} from "../gpuDataMemory/GPUDataMemoryView";
+import {type GPUDataMemoryViewIF} from "../gpuDataMemory/GPUDataMemoryViewIF";
 
 /**
  * Interface defining the structure of a renderer set for different primitives.
@@ -33,7 +33,7 @@ export class LayerRendererSet {
    * @param renderContext - The rendering context used for WebGL operations.
    * @param dtxMemoryView - The DTX memory used for managing GPU resources.
    */
-  constructor(renderContext: RenderContext, dtxMemoryView: GPUDataMemoryView) {
+  constructor(renderContext: RenderContext, dtxMemoryView: GPUDataMemoryViewIF) {
     this.renderContext = renderContext;
     const silhouette = new GenericSilhouetteRenderer(renderContext, dtxMemoryView);
     this.prims = {

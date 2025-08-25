@@ -1,6 +1,6 @@
 import {distVec2, subVec3} from "../matrix";
 import type {PickResult, View} from "../viewer";
-import {getSceneAABBIndex, SceneAABBIndex} from "../aabb/SceneAABBIndex";
+import {getSceneAABBIndex, SceneAABB3Index} from "../aabb/SceneAABB3Index";
 
 
 const TAP_INTERVAL = 150;
@@ -35,7 +35,7 @@ export class TouchPickHandler {
   #view: View;
   #canvasTouchStartHandler: (e) => void;
   #canvasTouchEndHandler: (e) => void;
-  #aabbIndex: SceneAABBIndex;
+  #aabbIndex: SceneAABB3Index;
 
   constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 

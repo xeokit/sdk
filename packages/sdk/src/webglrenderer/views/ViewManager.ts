@@ -44,8 +44,7 @@ export class ViewManager {
     if (this._rendererViews[view.id]) {
       throw new SDKError("Can't attach additional View to WebGLRenderer - View already attached");
     }
-    const rendererView = new RendererView(this,
-      this._renderContext.gl, this._renderContext.webglCanvasElement, view);
+    const rendererView = new RendererView(this, this._renderContext.gl, this._renderContext.webglCanvasElement, view);
     this._rendererViews[view.id] = rendererView;
     view.viewIndex = this._rendererViewsList.length;
     this._rendererViewsList.push(rendererView);
@@ -88,10 +87,7 @@ export class ViewManager {
       });
       primarySnapshotBuffer.bind();
       primarySnapshotBuffer.clear();
-      this._drawManager.draw({
-        rendererView,
-        clear: true
-      });
+      this._drawManager.draw({rendererView, clear: true});
       const image = primarySnapshotBuffer.readImage({
         format: "png",
         height: activeCanvasBoundingRect.height,
@@ -101,11 +97,10 @@ export class ViewManager {
       (<HTMLImageElement>activeRendererView.view.htmlElement).src = image;
     }
 
-    const webglCanvasElement = this._renderContext.webglCanvasElement;
-
     const view = rendererView.view;
     const htmlElement = view.htmlElement;
     const boundingRect = htmlElement.getBoundingClientRect();
+    const webglCanvasElement = this._renderContext.webglCanvasElement;
 
     webglCanvasElement.style["left"] = `${boundingRect.left}px`;
     webglCanvasElement.style["top"] = `${boundingRect.top}px`;

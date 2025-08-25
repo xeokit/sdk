@@ -7,8 +7,8 @@ import {DTXArray} from "../../webglutils/dtx/DTXArray";
 import {DTXStructArray, type DTXStructSpec} from "../../webglutils/dtx/DTXStructArray";
 import {type RenderTile} from "./RenderTile";
 import {Viewer} from "../../viewer";
-import {type GPUDataMemoryView} from "./GPUDataMemoryView";
-import {type GPUDataMemoryEditor} from "./GPUDataMemoryEditor";
+import {type GPUDataMemoryViewIF} from "./GPUDataMemoryViewIF";
+import {type GPUDataMemoryEditorIF} from "./GPUDataMemoryEditorIF";
 import {type GPUDataTextures} from "./GPUDataTextures";
 
 const MAX_MESHES = 100000;
@@ -22,7 +22,7 @@ const MAX_GEOMETRIES = 100000;
  * rendering of large-scale 3D scenes. It handles memory allocation, updates, and synchronization
  * for meshes, geometries, and tiles, integrating tightly with WebGL rendering pipelines.
  */
-export class GPUDataMemory implements GPUDataMemoryView, GPUDataMemoryEditor  {
+export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF  {
 
   /**
    * The data textures that implement GPU-side model storage for this GPUDataMemory.
@@ -420,7 +420,9 @@ export class GPUDataMemory implements GPUDataMemoryView, GPUDataMemoryEditor  {
    * @param meshIndex
    * @param matrix
    */
-  setMeshMatrix(meshIndex: number, matrix: FloatArrayParam): void {
+  setMeshMatrix(
+    meshIndex: number,
+    matrix: FloatArrayParam): void {
     this._meshMatrices.setMatrix(meshIndex, matrix);
   }
 

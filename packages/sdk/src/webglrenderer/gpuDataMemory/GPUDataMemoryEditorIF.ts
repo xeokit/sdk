@@ -6,7 +6,7 @@ import { type SceneMesh } from "../../scene";
  * Interface for managing data texture memory in a WebGL rendering context.
  * Provides methods for handling tiles, meshes, and their attributes.
  */
-export interface GPUDataMemoryEditor {
+export interface GPUDataMemoryEditorIF {
 
   /**
    * Retrieves a RenderTile that contains the specified 3D world-space position.

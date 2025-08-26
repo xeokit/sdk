@@ -158,6 +158,12 @@ export abstract class LayerRenderer {
 
       "uniform mat4 projMatrix;",
 
+      "struct GeometryAttributes {",
+      "  uint vertexBase;",
+      "  vec3 dequantizeOffset;",
+      "  vec3 dequantizeScale;",
+      "};",
+
       "struct MeshAttributes {",
       "  uint tileIndex;",
       "  uint geometryIndex;",
@@ -173,55 +179,70 @@ export abstract class LayerRenderer {
 
       // TODO: Light struct and SectionPlane struct
 
+      "GeometryAttributes unpackGeometryAttributes(uint geometryIndex) {",
+      "  GeometryAttributes s;",
+      "  uint texWidth = 4096u;",
+      "  uint base = geometryIndex * 12u;",
+      "  vec4 packed1 = texelFetch(geometryAttributes, ivec2((base + 0u) % texWidth, (base + 0u) / texWidth), 0);",
+      "  s.vertexBase = uint(packed1.r) + (uint(packed1.g) << 8u) + (uint(packed1.b) << 16u) + (uint(packed1.a) << 24u);",
+      "  s.dequantizeOffset  = texelFetch(geometryAttributes, ivec2((base + 4u) % texWidth, (base + 4u) / texWidth), 0).rgb;",
+      "  s.dequantizeScale  = texelFetch(geometryAttributes, ivec2((base + 8u) % texWidth, (base + 8u) / texWidth), 0).rgb;",
+      "  return s;",
+      "}",
 
-      "uint unpackMeshIndex(int primIndex) {",
-      "  int texWidth = 4096;",
-      "  vec4 packed = texelFetch(primToMeshLookup, ivec2(primIndex % texWidth, primIndex / texWidth), 0);",
+      "uint unpackMeshIndex(uint primIndex) {",
+      "  uint texWidth = 4096u;",
+      "  uint base = primIndex + 4u;",
+      "  vec4 packed = texelFetch(primToMeshLookup, ivec2(base % texWidth, base / texWidth), 0);",
       "  return uint(packed.r) + (uint(packed.g) << 8u) + (uint(packed.b) << 16u) + (uint(packed.a) << 24u);",
       "}",
 
-      "MeshAttributes unpackMeshAttributes(int meshIndex) {",
+      "MeshAttributes unpackMeshAttributes(uint meshIndex) {",
       "  MeshAttributes s;",
-      "  int texWidth = 4096;",
-      "  vec4 packed1 = texelFetch(meshAttributes, ivec2((meshIndex + 0) % texWidth, (meshIndex + 0) / texWidth), 0);",
+      "  uint texWidth = 4096u;",
+      "  uint base = meshIndex * 16u;",
+      "  vec4 packed1 = texelFetch(meshAttributes, ivec2((base + 0u) % texWidth, (base + 0u) / texWidth), 0);",
       "  s.tileIndex = uint(packed1.r) + (uint(packed1.g) << 8u) + (uint(packed1.b) << 16u) + (uint(packed1.a) << 24u);",
-      "  vec4 packed2 = texelFetch(meshAttributes, ivec2((meshIndex + 4) % texWidth, (meshIndex + 4) / texWidth), 0);",
+      "  vec4 packed2 = texelFetch(meshAttributes, ivec2((base + 4u) % texWidth, (base + 4u) / texWidth), 0);",
       "  s.geometryIndex = uint(packed2.r) + (uint(packed2.g) << 8u) + (uint(packed2.b) << 16u) + (uint(packed2.a) << 24u);",
-      "  vec4 packed3 = texelFetch(meshAttributes, ivec2((meshIndex + 8) % texWidth, (meshIndex + 8) / texWidth), 0);",
+      "  vec4 packed3 = texelFetch(meshAttributes, ivec2((base + 8u) % texWidth, (base + 8u) / texWidth), 0);",
       "  s.uniqueIndicesBase = uint(packed3.r) + (uint(packed3.g) << 8u) + (uint(packed3.b) << 16u) + (uint(packed3.a) << 24u);",
-      "  vec4 packed4 = texelFetch(meshAttributes, ivec2((meshIndex + 12) % texWidth, (meshIndex + 12) / texWidth), 0);",
+      "  vec4 packed4 = texelFetch(meshAttributes, ivec2((base + 12u) % texWidth, (base + 12u) / texWidth), 0);",
       "  s.uniqueEdgeIndicesBase = uint(packed4.r) + (uint(packed4.g) << 8u) + (uint(packed4.b) << 16u) + (uint(packed4.a) << 24u);",
       "  return s;",
       "}",
 
-      "MeshViewAttributes unpackMeshViewAttributes(int meshIndex) {",
+      "MeshViewAttributes unpackMeshViewAttributes(uint meshIndex) {",
       "  MeshViewAttributes s;",
-      "  int texWidth = 4096;",
-      "  s.flags1 = texelFetch(meshAttributes, ivec2((meshIndex + 0) % texWidth, (meshIndex + 0) / texWidth), 0);",
-      "  s.flags2 = texelFetch(meshAttributes, ivec2((meshIndex + 4) % texWidth, (meshIndex + 4) / texWidth), 0);",
-      "  s.color  = texelFetch(meshAttributes, ivec2((meshIndex + 8) % texWidth, (meshIndex + 8) / texWidth), 0);",
+      "  uint texWidth = 4096u;",
+      "  uint base = meshIndex * 12u;",
+      "  s.flags1 = texelFetch(meshAttributes, ivec2((base + 0u) % texWidth, (base + 0u) / texWidth), 0);",
+      "  s.flags2 = texelFetch(meshAttributes, ivec2((base + 4u) % texWidth, (base + 4u) / texWidth), 0);",
+      "  s.color  = texelFetch(meshAttributes, ivec2((base + 8u) % texWidth, (base + 8u) / texWidth), 0);",
       "  return s;",
       "}",
 
-      "mat4 unpackTileViewMatrix(int tileIndex) {",
-      "  int matsPerRow = 512;",
-      "  int row = int(floor(float(tileIndex / matsPerRow)));",
-      "  int col = int(mod(float(tileIndex), float(matsPerRow))) * 4;",
-      "  vec4 m0 = texelFetch(tileViewMatrices, ivec2(col + 0, row), 0);",
-      "  vec4 m1 = texelFetch(tileViewMatrices, ivec2(col + 1, row), 0);",
-      "  vec4 m2 = texelFetch(tileViewMatrices, ivec2(col + 2, row), 0);",
-      "  vec4 m3 = texelFetch(tileViewMatrices, ivec2(col + 3, row), 0);",
+      "mat4 unpackTileViewMatrix(uint tileIndex) {",
+      "  uint matsPerRow = 512u;",
+      "  uint base = tileIndex * 16u;",
+      "  uint row = uint(floor(float(base / matsPerRow)));",
+      "  uint col = uint(mod(float(base), float(matsPerRow))) * 4u;",
+      "  vec4 m0 = texelFetch(tileViewMatrices, ivec2(col + 0u, row), 0);",
+      "  vec4 m1 = texelFetch(tileViewMatrices, ivec2(col + 1u, row), 0);",
+      "  vec4 m2 = texelFetch(tileViewMatrices, ivec2(col + 2u, row), 0);",
+      "  vec4 m3 = texelFetch(tileViewMatrices, ivec2(col + 3u, row), 0);",
       "  return mat4(m0, m1, m2, m3);",
       "}",
 
-      "mat4 unpackModelMatrix(int meshIndex) {",
-      "  int matsPerRow = 512;",
-      "  int row = int(floor(float(meshIndex / matsPerRow)));",
-      "  int col = int(mod(float(meshIndex), float(matsPerRow))) * 4;",
-      "  vec4 m0 = texelFetch(meshMatrices, ivec2(col + 0, row), 0);",
-      "  vec4 m1 = texelFetch(meshMatrices, ivec2(col + 1, row), 0);",
-      "  vec4 m2 = texelFetch(meshMatrices, ivec2(col + 2, row), 0);",
-      "  vec4 m3 = texelFetch(meshMatrices, ivec2(col + 3, row), 0);",
+      "mat4 unpackModelMatrix(uint meshIndex) {",
+      "  uint matsPerRow = 512u;",
+      "  uint base = meshIndex * 16u;",
+      "  uint row = uint(floor(float(base / matsPerRow)));",
+      "  uint col = uint(mod(float(base), float(matsPerRow))) * 4u;",
+      "  vec4 m0 = texelFetch(meshMatrices, ivec2(col + 0u, row), 0);",
+      "  vec4 m1 = texelFetch(meshMatrices, ivec2(col + 1u, row), 0);",
+      "  vec4 m2 = texelFetch(meshMatrices, ivec2(col + 2u, row), 0);",
+      "  vec4 m3 = texelFetch(meshMatrices, ivec2(col + 3u, row), 0);",
       "  return mat4(m0, m1, m2, m3);",
       "}");
   }
@@ -327,10 +348,10 @@ export abstract class LayerRenderer {
 
   private _vertexMeshLogic() {
     this._vertexSrcBuf.push(
-      "          int primIndex = (gl_VertexID / 3);", // TODO: Assumes triangles
-      "          int meshIndex = int(unpackMeshIndex(primIndex));",
+      "          uint primIndex = uint(gl_VertexID / 3);", // TODO: Assumes triangles
+      "          uint meshIndex = uint(unpackMeshIndex(primIndex));",
       "          MeshViewAttributes meshViewAttributes = unpackMeshViewAttributes(meshIndex);",
-      `          if (meshViewAttributes.color.a == 0u) {`,
+      `          if (meshViewAttributes.color.a == 0.0) {`,
       //    "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
       //  "              return;",
       "          };");
@@ -341,12 +362,12 @@ export abstract class LayerRenderer {
       "          MeshAttributes meshAttributes = unpackMeshAttributes(meshIndex);",
       "          mat4 viewMatrix = unpackTileViewMatrix(meshAttributes.tileIndex);",
       "          mat4 modelMatrix = unpackModelMatrix(meshIndex);",
-      // Positions dequantization range, sampled from per-geometry dequantization ranges texture
-      "          ivec2 geometryDequantizeRangesCoords = ivec2(int(geometryIndex) % 512, int(geometryIndex) / 512);",
-      "          vec3 positionsDecompressOffset = texelFetch (geometryAttributes, ivec2(geometryDequantizeRangesCoords.x*8+0, geometryDequantizeRangesCoords.y), 0);",
-      "          vec3 positionsDecompressScale = texelFetch (geometryAttributes, ivec2(geometryDequantizeRangesCoords.x*8+0, geometryDequantizeRangesCoords.y), 0);",
-      //  Model, World, View and Clip space coordinates
-      "          vec4 modelPosition = (vec4(positionsDecompressOffset + (positionsDecompressScale * position), 1.0)); ",
+      "          vec3 positions[3];",
+      "          GeometryAttributes geometryAttributes = unpackGeometryAttributes(meshAttributes.geometryIndex);",
+
+
+
+      "          vec4 modelPosition = (vec4(geometryAttributes.dequantizeOffset + (geometryAttributes.dequantizeScale * position), 1.0)); ",
       "          vec4 worldPosition = modelMatrix * modelPosition; ",
       "          vec4 viewPosition  = viewMatrix * worldPosition; ",
       "          gl_Position = projMatrix * viewPosition;");
@@ -705,9 +726,7 @@ export abstract class LayerRenderer {
 
     // Per-geometry dequantization range
 
-    program.bindTexture(samplers.geometryAttributes,
-      dataTextures.geometryAttributes,
-      renderContext.textureUnit);
+    program.bindTexture(samplers.geometryAttributes, dataTextures.geometryAttributes, renderContext.textureUnit);
     renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
 
     if (uniforms.projMatrix) {

@@ -68,6 +68,7 @@ export class SceneObject {
     this.id = cfg.id;
     this.originalSystemId = cfg.originallSystemId || this.id;
     this.layerId = cfg.layerId;
+    this.model = cfg.model;
     this.meshes = cfg.meshes;
     this.rendererObject = null;
   }

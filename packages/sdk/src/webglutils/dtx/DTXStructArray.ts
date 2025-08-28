@@ -193,19 +193,26 @@ export class DTXStructArray {
       }
     }, 0);
 
-    this.buffer = new Float32Array(this.capacity * this.stride);
+    const totalFloats = this.capacity * this.stride;
 
     const textureWidth = 4096;
     const floatsPerRow = textureWidth * 4; // 4 floats per RGBA texel
-    const totalFloats = this.buffer.length;
     const textureHeight = Math.ceil(totalFloats / floatsPerRow);
 
-    const texture = this.gl.createTexture()!;
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    //this.buffer = new Float32Array(totalFloats*4);
+
+    const totalTexFloats = textureWidth * textureHeight * 4;
+    this.buffer = new Float32Array(totalTexFloats);
+
+    const texture = this.gl.createTexture();
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
     gl.texImage2D(
       gl.TEXTURE_2D,
@@ -289,6 +296,10 @@ export class DTXStructArray {
     let offset = 0;
     for (const field of this.structSpec.fields) {
       const value = data[field.name];
+      if (value === undefined) {
+        continue;
+        // throw new Error(`Missing field '${field.name}' in struct data`);
+      }
       switch (field.type) {
         case "scalar": {
           const uintVal = Math.min(Math.max(Number(value), 0), 0xFFFFFFFF) >>> 0;
@@ -328,38 +339,66 @@ export class DTXStructArray {
     this.dirtyIndices.add(index);
   }
 
-  /**
-   * Uploads all dirty struct regions to the GPU texture.
-   */
+  // --- flush(): upload dirty structs as whole-texel chunks, split at row ends ---
   flush(): void {
     const gl = this.gl;
-    const floatsPerRow = this.texture.textureWidth * 4;
+    const tex = this.texture.texture;
+    const texWidth = this.texture.textureWidth;
+    const floatsPerRow = texWidth * 4;
     const stride = this.stride;
 
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+    // Helper to upload a chunk that starts at 'floatOffset' and covers 'floatCount' floats.
+    // It may span rows; we split into row-sized chunks, and always send a whole number of texels.
+    const uploadFloats = (floatOffset: number, floatCount: number) => {
+      let remaining = floatCount;
+      let off = floatOffset;
+
+      while (remaining > 0) {
+        const rowIndex = Math.floor(off / floatsPerRow);
+        const rowOffset = off % floatsPerRow;               // in floats
+        const xTexel = Math.floor(rowOffset / 4);           // texels
+        const floatsUntilRowEnd = floatsPerRow - rowOffset; // capacity left in this row (floats)
+        const chunkFloats = Math.min(remaining, floatsUntilRowEnd);
+
+        // We must upload whole texels.
+        const texels = Math.ceil(chunkFloats / 4);          // width in texels
+        const floatsNeeded = texels * 4;
+
+        // Slice what we have for this row-chunk…
+        const srcStart = off;
+        const srcEnd   = off + chunkFloats;                 // may not be multiple of 4
+        // …and pad with zeros to the next texel if needed.
+        const tmp = new Float32Array(floatsNeeded);
+        tmp.set(this.buffer.subarray(srcStart, srcEnd));
+
+        gl.texSubImage2D(
+          gl.TEXTURE_2D,
+          0,
+          xTexel,
+          rowIndex,
+          texels,
+          1,
+          gl.RGBA,
+          gl.FLOAT,
+          tmp
+        );
+
+        off       += chunkFloats;
+        remaining -= chunkFloats;
+      }
+    };
 
     for (const index of this.dirtyIndices) {
-      const offset = index * stride;
-      const rowOffset = offset % floatsPerRow;
-      const rowIndex = Math.floor(offset / floatsPerRow);
-      const floatsLeft = this.buffer.length - offset;
-      const floatsToUpload = Math.min(floatsLeft, stride);
-
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        0,
-        Math.floor(rowOffset / 4),
-        rowIndex,
-        Math.ceil(floatsToUpload / 4),
-        1,
-        gl.RGBA,
-        gl.FLOAT,
-        this.buffer.subarray(offset, offset + floatsToUpload)
-      );
+      const startFloat = index * stride;
+      uploadFloats(startFloat, stride);
     }
 
     this.dirtyIndices.clear();
   }
+
 
   /**
    * Returns the backing WebGL texture.

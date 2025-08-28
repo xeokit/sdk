@@ -61,9 +61,14 @@ export class DTXMatrixArray {
    */
   allocate(): void {
 
-    const textureWidth = 512 * 4; // 512 matrices per row × 4 texels per matrix
-    const textureHeight = Math.ceil(this.maxMatrices / (textureWidth / 4));
-    const textureData = new Float32Array(4 * textureWidth * textureHeight);
+    const matricesPerRow = 512; // Must be multiple of 4 for RGBA32F
+    const texelsPerMatrix = 4; // 4 texels per mat4
+    const componentsPerTexel = 4; // RGBA
+    const textureWidth = matricesPerRow * texelsPerMatrix; // 512 matrices per row × 4 texels per matrix
+    const textureHeight = Math.ceil(this.maxMatrices / (textureWidth / texelsPerMatrix));
+
+    const requiredFloats = textureWidth * textureHeight * texelsPerMatrix * componentsPerTexel;
+    const textureData = new Float32Array(requiredFloats);
 
     const gl = this.gl;
     const texture = gl.createTexture();

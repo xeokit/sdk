@@ -35,6 +35,7 @@ export * from "./canvas2image";
 export * from "./convertWebGLConstant";
 export * from "./WEBGL_INFO";
 export * from "./dtx/DTXMatrixArray";
+export * from "./dtx/DTXPositionsArray";
 export * from "./dtx/DTXStructArray";
 export * from "./dtx/DTXArray";
 ``

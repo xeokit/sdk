@@ -396,7 +396,7 @@ export class DTXArray<T extends TypedArray> {
   flush(): void {
     const texture = this.texture;
     const gl = this.gl;
-    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.bindTexture(gl.TEXTURE_2D, texture.texture);
     if (this.uploadAllOnFlush) { // Efficient after pack()
       gl.texSubImage2D(
         gl.TEXTURE_2D,

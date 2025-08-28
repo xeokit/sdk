@@ -6,6 +6,7 @@ import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} fr
 import {DEGTORAD, type FloatArrayParam} from "../math";
 import {getAABB3Center, getAABB3Diag, getAABB3DiagPoint} from "../boundaries";
 import {EventDispatcher} from "strongly-typed-events";
+import {getSceneAABBIndex} from "../aabb";
 
 const tempVec3 = createVec3();
 const newLook = createVec3();
@@ -149,7 +150,7 @@ export class CameraFlightAnimation extends Component {
     }
 
     this.view = view;
-    this.#aabbIndex.getSceneCenter()
+    this.#aabbIndex = getSceneAABBIndex(view.viewer.scene);
     this.camera = view.camera;
 
     this.#look1 = createVec3();

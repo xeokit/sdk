@@ -10,6 +10,7 @@ import {Viewer} from "../../viewer";
 import {type GPUDataMemoryViewIF} from "./GPUDataMemoryViewIF";
 import {type GPUDataMemoryEditorIF} from "./GPUDataMemoryEditorIF";
 import {type GPUDataTextures} from "./GPUDataTextures";
+import {DTXPositionsArray} from "../../webglutils";
 
 const MAX_MESHES = 100000;
 const MAX_GEOMETRIES = 100000;
@@ -36,7 +37,7 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
   private _geometryAttributes: DTXStructArray;
   private _uniqueEdgeIndices: DTXArray<any>;
   private _primToMeshLookup: DTXArray<any>;
-  private _positions: DTXArray<any>;
+  private _positions: DTXPositionsArray;
   private _meshMatrices: DTXMatrixArray;
   private _tileViewMatrices: DTXMatrixArray[];
   private _meshIndicesUsed: boolean[];
@@ -201,10 +202,9 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
 
     // Concatenation of all vertex positions
 
-    this._positions = new DTXArray({
+    this._positions = new DTXPositionsArray({
       gl,
-      capacity: 100000,
-      ArrayType: Uint16Array
+      capacity: 100000
     });
 
     // For each View, an array containing a viewing transform matrix for each tile
@@ -392,11 +392,11 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
       ///////////////////////
       // TODO
       ///////////////////////
-      color: [1, 1, 1]
+      color: [1, 1, 1, 1]
     });
 
     this._meshViewAttributes[1].setStructObject(meshIndex, {
-      color: [1, 1, 1]
+      color: [1, 1, 1, 1]
     });
 
     //...

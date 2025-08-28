@@ -1,0 +1,336 @@
+import { WebGLDataTexture } from "../WebGLDataTexture";
+
+/**
+ * Represents a portion of a `DTXPositionsArray` allocated for storing data.
+ * (One item = one vertex = 3 Uint16 components)
+ */
+interface DTXPositionsArrayPortion {
+  base: number; // item index
+  size: number; // number of items (vertices)
+}
+
+/** Handle to an allocated portion */
+export interface DTXPositionsArrayHandle {
+  id: number;
+  base: number; // item index
+}
+
+/** Options: only gl + capacity matter now */
+export interface DTXPositionsArrayOptions {
+  gl: WebGL2RenderingContext;
+  capacity: number; // number of items (vertices)
+}
+
+/**
+ * DTXPositionsArray — Uint16 positions only (XYZ per item), stored in a RGBA16UI texture.
+ * - CPU buffer layout: tightly-packed RGBRGB... (3 Uint16 per item)
+ * - GPU texture layout: one texel per item (RGBA16UI), RGB = XYZ, A = 0
+ */
+export class DTXPositionsArray {
+
+  texture: WebGLDataTexture;
+
+  private readonly gl: WebGL2RenderingContext;
+  private readonly capacity: number;
+
+  // CPU-side data buffer holds 3 components per item (no alpha on CPU).
+  private readonly buffer: Uint16Array<any>;
+
+  // Geometry/packing constants
+  private readonly componentsPerItem = 3; // XYZ
+  private readonly texChannelsPerItem = 4; // RGBA texel, A unused
+  private readonly textureWidth = 4096; // matches the example
+
+  private used: Map<number, DTXPositionsArrayPortion> = new Map();
+  private handles: Map<number, DTXPositionsArrayHandle> = new Map();
+  private free: DTXPositionsArrayPortion[] = [];
+  private portionCallbacks: Map<number, (newBase: number) => void> = new Map();
+
+  private nextId = 1;
+  private dirtyPortions: Set<number> = new Set();
+  private textureHeight: number;
+
+  private uploadAllOnFlush = false;
+
+  constructor(options: DTXPositionsArrayOptions) {
+    this.gl = options.gl;
+    this.capacity = options.capacity;
+
+    // CPU buffer is RGB triplets per item
+    this.buffer = new Uint16Array(this.capacity * this.componentsPerItem);
+
+    // One texel per item, so itemsPerRow == textureWidth
+    const itemsPerRow = this.textureWidth;
+    this.textureHeight = Math.max(1, Math.ceil(this.capacity / itemsPerRow));
+
+    // Start with a single free block spanning all items
+    this.free.push({ base: 0, size: this.capacity });
+
+    this.#allocateTexture();
+  }
+
+  /** Allocates the backing WebGL texture with RGBA16UI and NEAREST/CLAMP params */
+  #allocateTexture(): void {
+    const gl = this.gl;
+
+    const texture = gl.createTexture();
+    if (!texture) throw new Error("Failed to create texture");
+
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+    // Matches the example: RGBA16UI storage, uploaded/read as RGBA_INTEGER + UNSIGNED_SHORT
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA16UI,
+      this.textureWidth,
+      this.textureHeight,
+      0,
+      gl.RGBA_INTEGER,
+      gl.UNSIGNED_SHORT,
+      null
+    );
+
+    this.texture = new WebGLDataTexture({
+      gl,
+      texture,
+      textureWidth: this.textureWidth,
+      textureHeight: this.textureHeight,
+      format: gl.RGBA_INTEGER,
+      type: gl.UNSIGNED_SHORT,
+      // We keep a reference, but uploads expand RGB->RGBA on the fly.
+      textureData: this.buffer
+    });
+  }
+
+  /** Allocate a portion (in items/vertices). */
+  getPortion(size: number, onMove?: (newBase: number) => void): DTXPositionsArrayHandle {
+    const index = this.findFreeBlock(size);
+    if (index === -1) {
+      this.pack();
+      const retryIndex = this.findFreeBlock(size);
+      if (retryIndex === -1) throw new Error("Allocation failed");
+      return this.allocateHandleAt(retryIndex, size, onMove);
+    }
+    return this.allocateHandleAt(index, size, onMove);
+  }
+
+  /** View into the CPU buffer (RGB tightly packed). */
+  getPortionView(handle: DTXPositionsArrayHandle): Uint16Array<any> {
+    const portion = this.used.get(handle.id);
+    if (!portion) throw new Error("Invalid handle ID");
+    return this.buffer.subarray(
+      portion.base * this.componentsPerItem,
+      (portion.base + portion.size) * this.componentsPerItem
+    );
+  }
+
+  /** Write RGB triplets (Uint16) into the allocated region. `data.length == size*3` */
+  setPortionData(handle: DTXPositionsArrayHandle, data: ArrayLike<number>): void {
+    const portion = this.used.get(handle.id);
+    if (!portion) throw new Error("Invalid handle ID");
+
+    const expected = portion.size;
+    if (data.length !== expected) throw new Error("Mismatched data length");
+
+    const offset = portion.base * this.componentsPerItem;
+    this.buffer.set(data as ArrayLike<number> as Uint16Array<any>, offset);
+
+    this.dirtyPortions.add(handle.id);
+  }
+
+  /** Fill the portion with one scalar value across all RGB components. */
+  fillPortion(handle: DTXPositionsArrayHandle, value: number): void {
+    const portion = this.used.get(handle.id);
+    if (!portion) throw new Error("Invalid handle ID");
+
+    const offset = portion.base * this.componentsPerItem;
+    const count = portion.size * this.componentsPerItem;
+    this.buffer.fill(value, offset, offset + count);
+
+    this.dirtyPortions.add(handle.id);
+  }
+
+  /** Free an allocated portion. */
+  putPortion(handle: DTXPositionsArrayHandle): void {
+    const portion = this.used.get(handle.id);
+    if (!portion) return;
+
+    this.used.delete(handle.id);
+    this.handles.delete(handle.id);
+    this.portionCallbacks.delete(handle.id);
+
+    this.insertFreePortionSorted(portion);
+    this.coalesceFree();
+  }
+
+  /** Defragment: compacts items to the start; marks full reupload. */
+  private pack(): void {
+    const sorted = Array.from(this.used.entries()).sort(([, a], [, b]) => a.base - b.base);
+    let writeHead = 0;
+    const newUsed = new Map<number, DTXPositionsArrayPortion>();
+
+    for (const [id, portion] of sorted) {
+      if (portion.base !== writeHead) {
+        const from = portion.base * this.componentsPerItem;
+        const to = writeHead * this.componentsPerItem;
+        const count = portion.size * this.componentsPerItem;
+        this.buffer.copyWithin(to, from, from + count);
+
+        const callback = this.portionCallbacks.get(id);
+        if (callback) callback(writeHead);
+        this.uploadAllOnFlush = true;
+      }
+      newUsed.set(id, { base: writeHead, size: portion.size });
+
+      const handle = this.handles.get(id);
+      if (handle) handle.base = writeHead;
+
+      writeHead += portion.size;
+    }
+
+    this.used = newUsed;
+    this.free = writeHead < this.capacity
+      ? [{ base: writeHead, size: this.capacity - writeHead }]
+      : [];
+  }
+
+  private allocateHandleAt(index: number, size: number, onMove?: (newBase: number) => void): DTXPositionsArrayHandle {
+    const block = this.free[index];
+    const id = this.nextId++;
+    const portion: DTXPositionsArrayPortion = { base: block.base, size };
+    this.used.set(id, portion);
+
+    if (size === block.size) {
+      this.free.splice(index, 1);
+    } else {
+      block.base += size;
+      block.size -= size;
+    }
+
+    const handle: DTXPositionsArrayHandle = { id, base: portion.base };
+    this.handles.set(id, handle);
+    if (onMove) this.portionCallbacks.set(id, onMove);
+    return handle;
+  }
+
+  private findFreeBlock(size: number): number {
+    return this.free.findIndex(block => block.size >= size);
+  }
+
+  private insertFreePortionSorted(portion: DTXPositionsArrayPortion): void {
+    let i = 0;
+    while (i < this.free.length && this.free[i].base < portion.base) i++;
+    this.free.splice(i, 0, portion);
+  }
+
+  private coalesceFree(): void {
+    for (let i = 0; i < this.free.length - 1;) {
+      const a = this.free[i], b = this.free[i + 1];
+      if (a.base + a.size === b.base) {
+        a.size += b.size;
+        this.free.splice(i + 1, 1);
+      } else {
+        i++;
+      }
+    }
+  }
+
+  /**
+   * Flush CPU buffer to GPU.
+   * Expands RGB (CPU) -> RGBA (GPU) on the fly, 1 texel per item.
+   */
+  flush(): void {
+    const { gl, texture } = this;
+    const itemsPerRow = this.textureWidth;
+
+    gl.bindTexture(gl.TEXTURE_2D, texture.texture);
+
+    if (this.uploadAllOnFlush) {
+      // Upload every row with temporary RGBA16UI staging
+      let itemBase = 0;
+      for (let y = 0; y < this.textureHeight; y++) {
+        const remaining = this.capacity - itemBase;
+        const itemsThisRow = Math.max(0, Math.min(itemsPerRow, remaining));
+        if (itemsThisRow <= 0) break;
+
+        const rgba = this.#expandRowToRGBA(itemBase, itemsThisRow);
+        gl.texSubImage2D(
+          gl.TEXTURE_2D,
+          0,
+          0,
+          y,
+          itemsThisRow,
+          1,
+          gl.RGBA_INTEGER,
+          gl.UNSIGNED_SHORT,
+          rgba
+        );
+
+        itemBase += itemsThisRow;
+      }
+      this.dirtyPortions.clear();
+      this.uploadAllOnFlush = false;
+      return;
+    }
+
+    // Upload only dirty portions (split across rows)
+    for (const id of this.dirtyPortions) {
+      const portion = this.used.get(id);
+      if (!portion) continue;
+
+      let base = portion.base;
+      let remaining = portion.size;
+
+      while (remaining > 0) {
+        const rowY = Math.floor(base / itemsPerRow);
+        const rowX = base % itemsPerRow;
+        const itemsThisRow = Math.min(remaining, itemsPerRow - rowX);
+
+        const rgba = this.#expandRowToRGBA(base, itemsThisRow);
+        gl.texSubImage2D(
+          gl.TEXTURE_2D,
+          0,
+          rowX,
+          rowY,
+          itemsThisRow,
+          1,
+          gl.RGBA_INTEGER,
+          gl.UNSIGNED_SHORT,
+          rgba
+        );
+
+        base += itemsThisRow;
+        remaining -= itemsThisRow;
+      }
+    }
+    this.dirtyPortions.clear();
+  }
+
+  /** Expand CPU RGB triplets [base .. base+count) into a RGBA16UI row (A=0). */
+  #expandRowToRGBA(baseItem: number, count: number): Uint16Array<any> {
+    const out = new Uint16Array(count * this.texChannelsPerItem);
+    const srcOffset = baseItem * this.componentsPerItem;
+    const src = this.buffer;
+
+    for (let i = 0; i < count; i++) {
+      const s = srcOffset + i * 3;
+      const d = i * 4;
+      out[d + 0] = src[s + 0]; // R = X
+      out[d + 1] = src[s + 1]; // G = Y
+      out[d + 2] = src[s + 2]; // B = Z
+      out[d + 3] = 0;          // A = 0 (unused)
+    }
+    return out;
+  }
+
+  /** Destroy GL resources. */
+  destroy(): void {
+    this.gl.deleteTexture(this.texture.texture);
+  }
+}

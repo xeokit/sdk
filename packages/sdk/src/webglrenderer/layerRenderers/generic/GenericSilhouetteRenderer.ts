@@ -21,7 +21,7 @@ export class GenericSilhouetteRenderer extends LayerRenderer {
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsSilhouetteDefs();
+    this.fsSilhouetteDefines();
     this.fsMainOpen();
     this.fsSlicingLogic();
     this.fsSilhouetteLogic();

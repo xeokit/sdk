@@ -1,7 +1,6 @@
 import {createMat4, createVec3} from "../../matrix";
 import {createRTCViewMat, worldToRTCCenter} from "../../rtc";
 import type {FloatArrayParam} from "../../math";
-import {WebGLDataTexture} from "../../webglutils";
 import {View, Viewer} from "../../viewer";
 import {type RenderTile} from "./RenderTile";
 import {DTXMatrixArray} from "../../webglutils/dtx/DTXMatrixArray";
@@ -38,7 +37,7 @@ const tempVec3a = createVec3();
  */
 export class TileManager {
 
-  dataTextures: WebGLDataTexture[] = [];
+  dataTextures: WebGLTexture[] = [];
 
   #gl: WebGL2RenderingContext;
   #viewer: Viewer;
@@ -83,7 +82,8 @@ export class TileManager {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.bindTexture(gl.TEXTURE_2D, null);
-      this.dataTextures.push(new WebGLDataTexture({ gl, texture, textureWidth, textureHeight, textureData }));
+      this.dataTextures.push(texture);
+   //   this.dataTextures.push(new WebGLDataTexture({ gl, texture, textureWidth, textureHeight, textureData }));
     }
   }
 
@@ -203,7 +203,7 @@ export class TileManager {
   destroy() {
     this.#viewer.onViewCreated.unsub(this.#onViewCreated);
     this.#viewer.onViewDestroyed.unsub(this.#onViewDestroyed);
-    this.dataTextures.forEach(tex => tex.destroy());
+ //   this.dataTextures.forEach(tex => tex.destroy());
     this.dataTextures.length = 0;
   }
 }

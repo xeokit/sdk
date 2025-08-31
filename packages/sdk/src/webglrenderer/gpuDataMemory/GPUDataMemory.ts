@@ -68,7 +68,6 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
 
     const {gl, viewer} = params;
 
-    this._viewer = viewer;
     this._geometryHandles = {};
     this._meshHandles = {};
 

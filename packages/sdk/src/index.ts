@@ -12,6 +12,7 @@ export * as rtc from "./rtc";
 export * as curves from "./curves";
 export * as boundaries from "./boundaries";
 export * as compression from "./compression";
+export * as webglutils from "./webglutils";
 
 // Geometry generation
 

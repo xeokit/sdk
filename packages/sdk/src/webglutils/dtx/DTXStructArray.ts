@@ -1,7 +1,3 @@
-/**
- * Options for creating a DTXStructArray.
- */
-import {WebGLDataTexture} from "../WebGLDataTexture";
 
 /**
  * Configuration options for creating a `DTXStructArray`.
@@ -154,20 +150,27 @@ export interface DTXStructSpec {
 export class DTXStructArray {
 
   /**
-   *
+   * The WebGL texture storing the struct data.
    */
-  readonly texture: WebGLDataTexture;
+  readonly texture: WebGLTexture;
 
   /**
-   *
+   * The struct specification defining the layout of each struct.
    */
   readonly structSpec: DTXStructSpec;
+
+  /**
+   * The backing Float32Array for struct data.
+   */
+  public readonly buffer: Float32Array<any>;
 
   private gl: WebGL2RenderingContext;
   private capacity: number;
   private stride: number; // in floats
-  private buffer: Float32Array<any>;
+  private strideAligned: number;
+
   private dirtyIndices = new Set<number>();
+
 
   /**
    * Creates a new DTXStructArray instance.
@@ -183,7 +186,7 @@ export class DTXStructArray {
     this.stride = this.structSpec.fields.reduce((acc, field) => {
       switch (field.type) {
         case "scalar":
-          return acc + 4; // packed RGBA per scalar
+          return acc + 4; // one full texel
         case "vec2":
           return acc + 2;
         case "vec3":
@@ -193,13 +196,14 @@ export class DTXStructArray {
       }
     }, 0);
 
-    const totalFloats = this.capacity * this.stride;
+  // Align stride to next multiple of 4
+    this.strideAligned = (this.stride + 3) & ~3;
+
+    const totalFloats = this.capacity * this.strideAligned;
 
     const textureWidth = 4096;
-    const floatsPerRow = textureWidth * 4; // 4 floats per RGBA texel
+    const floatsPerRow = textureWidth * 4;
     const textureHeight = Math.ceil(totalFloats / floatsPerRow);
-
-    //this.buffer = new Float32Array(totalFloats*4);
 
     const totalTexFloats = textureWidth * textureHeight * 4;
     this.buffer = new Float32Array(totalTexFloats);
@@ -226,15 +230,7 @@ export class DTXStructArray {
       this.buffer
     );
 
-    this.texture = new WebGLDataTexture({
-      gl,
-      texture,
-      textureWidth,
-      textureHeight,
-      format: gl.RGBA,
-      type: gl.FLOAT,
-      textureData: this.buffer
-    });
+    this.texture = texture;
   }
 
   /**
@@ -248,7 +244,7 @@ export class DTXStructArray {
    * Returns a view into the underlying buffer for a specific struct.
    */
   getStructView(index: number): Float32Array<any> {
-    const offset = index * this.stride;
+    const offset = index * this.strideAligned;
     return this.buffer.subarray(offset, offset + this.stride);
   }
 
@@ -342,62 +338,37 @@ export class DTXStructArray {
   // --- flush(): upload dirty structs as whole-texel chunks, split at row ends ---
   flush(): void {
     const gl = this.gl;
-    const tex = this.texture.texture;
-    const texWidth = this.texture.textureWidth;
+    const texWidth = 4096;
     const floatsPerRow = texWidth * 4;
-    const stride = this.stride;
 
-    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-    // Helper to upload a chunk that starts at 'floatOffset' and covers 'floatCount' floats.
-    // It may span rows; we split into row-sized chunks, and always send a whole number of texels.
-    const uploadFloats = (floatOffset: number, floatCount: number) => {
-      let remaining = floatCount;
-      let off = floatOffset;
-
-      while (remaining > 0) {
-        const rowIndex = Math.floor(off / floatsPerRow);
-        const rowOffset = off % floatsPerRow;               // in floats
-        const xTexel = Math.floor(rowOffset / 4);           // texels
-        const floatsUntilRowEnd = floatsPerRow - rowOffset; // capacity left in this row (floats)
-        const chunkFloats = Math.min(remaining, floatsUntilRowEnd);
-
-        // We must upload whole texels.
-        const texels = Math.ceil(chunkFloats / 4);          // width in texels
-        const floatsNeeded = texels * 4;
-
-        // Slice what we have for this row-chunk…
-        const srcStart = off;
-        const srcEnd   = off + chunkFloats;                 // may not be multiple of 4
-        // …and pad with zeros to the next texel if needed.
-        const tmp = new Float32Array(floatsNeeded);
-        tmp.set(this.buffer.subarray(srcStart, srcEnd));
-
-        gl.texSubImage2D(
-          gl.TEXTURE_2D,
-          0,
-          xTexel,
-          rowIndex,
-          texels,
-          1,
-          gl.RGBA,
-          gl.FLOAT,
-          tmp
-        );
-
-        off       += chunkFloats;
-        remaining -= chunkFloats;
-      }
-    };
-
     for (const index of this.dirtyIndices) {
-      const startFloat = index * stride;
-      uploadFloats(startFloat, stride);
+      const offset = index * this.strideAligned;
+      const floatsToUpload = this.strideAligned;
+
+      const rowIndex = Math.floor(offset / floatsPerRow);
+      const rowOffset = offset % floatsPerRow;
+      const xTexel = Math.floor(rowOffset / 4);
+      const texels = floatsToUpload / 4;
+
+      gl.texSubImage2D(
+        gl.TEXTURE_2D,
+        0,
+        xTexel,
+        rowIndex,
+        texels,
+        1,
+        gl.RGBA,
+        gl.FLOAT,
+        this.buffer.subarray(offset, offset + floatsToUpload)
+      );
     }
 
     this.dirtyIndices.clear();
   }
+
 
 
   /**
@@ -431,7 +402,7 @@ export class DTXStructArray {
    * Destroys the internal resources.
    */
   destroy(): void {
-    this.gl.deleteTexture(this.texture.texture);
+    this.gl.deleteTexture(this.texture);
   }
 }
 

@@ -1,8 +1,7 @@
 import {Map} from "../utils";
 
-import type {WebGLAbstractTexture} from "./WebGLAbstractTexture";
+
 import {WebGLAttribute} from "./WebGLAttribute";
-import {WebGLSampler} from "./WebGLSampler";
 import {WebGLShader} from "./WebGLShader";
 
 const ids = new Map({}, "");
@@ -35,7 +34,7 @@ export class WebGLProgram {
   /**
    * Map of all samplers in this program.
    */
-  samplers: { [key: string]: WebGLSampler };
+  samplers: { [key: string]: WebGLUniformLocation };
 
   /**
    * Map of all uniforms in this program.
@@ -188,7 +187,8 @@ export class WebGLProgram {
         const location = gl.getUniformLocation(this.handle, uName);
         if ((u.type === gl.SAMPLER_2D) || (u.type === gl.SAMPLER_CUBE) || (u.type === 35682) || (u.type === 36306)) {
           // @ts-ignore
-          this.samplers[uName] = new WebGLSampler(gl, location);
+          //this.samplers[uName] = new WebGLSampler(gl, location);
+          this.samplers[uName] = location;
         } else {
           // @ts-ignore
           this.uniforms[uName] = location;
@@ -238,27 +238,27 @@ export class WebGLProgram {
    * Gets a sampler within this program.
    * @param name
    */
-  getSampler(name: string): WebGLSampler {
+  getSampler(name: string): WebGLUniformLocation {
     return this.samplers[name];
   }
 
-  /**
-   * Binds a texture to this program.
-   * @param name
-   * @param texture
-   * @param unit
-   */
-  bindTexture(name: string, texture: WebGLAbstractTexture, unit: number): boolean {
-    if (!this.allocated) {
-      return false;
-    }
-    const sampler = this.samplers[name];
-    if (sampler) {
-      return sampler.bindTexture(texture, unit);
-    } else {
-      return false;
-    }
-  }
+ //  /**
+ //   * Binds a texture to this program.
+ //   * @param name
+ //   * @param texture
+ //   * @param unit
+ //   */
+ //  bindTexture(name: string, texture: WebGLAbstractTexture, unit: number): boolean {
+ //    if (!this.allocated) {
+ //      return false;
+ //    }
+ //    // const sampler = this.samplers[name];
+ //    // if (sampler) {
+ //    //   return sampler.bindTexture(texture, unit);
+ //    // } else {
+ //      return false;
+ // //   }
+ //  }
 
   /**
    * Destroys this program.

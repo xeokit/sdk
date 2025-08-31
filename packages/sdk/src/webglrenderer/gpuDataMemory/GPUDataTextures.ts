@@ -1,49 +1,49 @@
-import {type WebGLAbstractTexture} from "../../webglutils";
+
 
 export interface GPUDataTextures {
 
     /**
      * Data texture containing unique primitive indices for `gl.drawArrays`.
      */
-    uniqueIndices: WebGLAbstractTexture;
+    uniqueIndices: WebGLTexture;
 
     /**
      * Data texture containing unique edge indices for `gl.drawArrays`.
      */
-    uniqueEdgeIndices: WebGLAbstractTexture;
+    uniqueEdgeIndices: WebGLTexture;
 
     /**
      * Data texture mapping each primitive to its corresponding mesh.
      */
-    primToMeshLookup: WebGLAbstractTexture;
+    primToMeshLookup: WebGLTexture;
 
     /**
      * Data texture containing a table of mesh attributes that are global to all views.
      */
-    meshAttributes: WebGLAbstractTexture;
+    meshAttributes: WebGLTexture;
 
     /**
      * Array of data textures, each containing a table of mesh attributes specific to a particular view.
      */
-    meshViewAttributes: WebGLAbstractTexture[];
+    meshViewAttributes: WebGLTexture[];
 
     /**
      * Data texture containing modeling matrices for meshes.
      */
-    meshMatrices: WebGLAbstractTexture;
+    meshMatrices: WebGLTexture;
 
     /**
      * Data texture containing geometry attributes for meshes.
      */
-    geometryAttributes: WebGLAbstractTexture;
+    geometryAttributes: WebGLTexture;
 
     /**
      * Data texture containing positions for vertices.
      */
-    positions: WebGLAbstractTexture;
+    positions: WebGLTexture;
 
     /**
      * Array of data textures, each containing tile view matrices for specific views.
      */
-    tileViewMatrices: WebGLAbstractTexture[];
+    tileViewMatrices: WebGLTexture[];
   }

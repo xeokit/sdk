@@ -1,5 +1,3 @@
-import { WebGLDataTexture } from "../WebGLDataTexture";
-
 /**
  * Represents a portion of a `DTXPositionsArray` allocated for storing data.
  * (One item = one vertex = 3 Uint16 components)
@@ -28,13 +26,18 @@ export interface DTXPositionsArrayOptions {
  */
 export class DTXPositionsArray {
 
-  texture: WebGLDataTexture;
+  /**
+   * WebGL texture (RGBA16UI).
+   */
+  public  texture: WebGLTexture;
+
+  /**
+   * CPU-side data buffer holds 3 components per item.
+   */
+  public readonly buffer: Uint16Array<any>;
 
   private readonly gl: WebGL2RenderingContext;
   private readonly capacity: number;
-
-  // CPU-side data buffer holds 3 components per item (no alpha on CPU).
-  private readonly buffer: Uint16Array<any>;
 
   // Geometry/packing constants
   private readonly componentsPerItem = 3; // XYZ
@@ -64,7 +67,7 @@ export class DTXPositionsArray {
     this.textureHeight = Math.max(1, Math.ceil(this.capacity / itemsPerRow));
 
     // Start with a single free block spanning all items
-    this.free.push({ base: 0, size: this.capacity });
+    this.free.push({base: 0, size: this.capacity});
 
     this.#allocateTexture();
   }
@@ -96,16 +99,7 @@ export class DTXPositionsArray {
       null
     );
 
-    this.texture = new WebGLDataTexture({
-      gl,
-      texture,
-      textureWidth: this.textureWidth,
-      textureHeight: this.textureHeight,
-      format: gl.RGBA_INTEGER,
-      type: gl.UNSIGNED_SHORT,
-      // We keep a reference, but uploads expand RGB->RGBA on the fly.
-      textureData: this.buffer
-    });
+    this.texture = texture;
   }
 
   /** Allocate a portion (in items/vertices). */
@@ -133,14 +127,12 @@ export class DTXPositionsArray {
   /** Write RGB triplets (Uint16) into the allocated region. `data.length == size*3` */
   setPortionData(handle: DTXPositionsArrayHandle, data: ArrayLike<number>): void {
     const portion = this.used.get(handle.id);
-    if (!portion) throw new Error("Invalid handle ID");
-
-    const expected = portion.size;
-    if (data.length !== expected) throw new Error("Mismatched data length");
-
+    if (!portion) throw new Error('Invalid handle ID');
+  //  const expected = portion.size * this.componentsPerItem; // RGB per item
+    const expected = portion.size ; // RGB per item
+    if (data.length !== expected) throw new Error('Mismatched data length');
     const offset = portion.base * this.componentsPerItem;
-    this.buffer.set(data as ArrayLike<number> as Uint16Array<any>, offset);
-
+    this.buffer.set(data, offset);
     this.dirtyPortions.add(handle.id);
   }
 
@@ -186,7 +178,7 @@ export class DTXPositionsArray {
         if (callback) callback(writeHead);
         this.uploadAllOnFlush = true;
       }
-      newUsed.set(id, { base: writeHead, size: portion.size });
+      newUsed.set(id, {base: writeHead, size: portion.size});
 
       const handle = this.handles.get(id);
       if (handle) handle.base = writeHead;
@@ -196,14 +188,14 @@ export class DTXPositionsArray {
 
     this.used = newUsed;
     this.free = writeHead < this.capacity
-      ? [{ base: writeHead, size: this.capacity - writeHead }]
+      ? [{base: writeHead, size: this.capacity - writeHead}]
       : [];
   }
 
   private allocateHandleAt(index: number, size: number, onMove?: (newBase: number) => void): DTXPositionsArrayHandle {
     const block = this.free[index];
     const id = this.nextId++;
-    const portion: DTXPositionsArrayPortion = { base: block.base, size };
+    const portion: DTXPositionsArrayPortion = {base: block.base, size};
     this.used.set(id, portion);
 
     if (size === block.size) {
@@ -213,7 +205,7 @@ export class DTXPositionsArray {
       block.size -= size;
     }
 
-    const handle: DTXPositionsArrayHandle = { id, base: portion.base };
+    const handle: DTXPositionsArrayHandle = {id, base: portion.base};
     this.handles.set(id, handle);
     if (onMove) this.portionCallbacks.set(id, onMove);
     return handle;
@@ -246,10 +238,10 @@ export class DTXPositionsArray {
    * Expands RGB (CPU) -> RGBA (GPU) on the fly, 1 texel per item.
    */
   flush(): void {
-    const { gl, texture } = this;
+    const {gl, texture} = this;
     const itemsPerRow = this.textureWidth;
 
-    gl.bindTexture(gl.TEXTURE_2D, texture.texture);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
 
     if (this.uploadAllOnFlush) {
       // Upload every row with temporary RGBA16UI staging
@@ -331,6 +323,6 @@ export class DTXPositionsArray {
 
   /** Destroy GL resources. */
   destroy(): void {
-    this.gl.deleteTexture(this.texture.texture);
+    this.gl.deleteTexture(this.texture);
   }
 }

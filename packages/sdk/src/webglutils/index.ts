@@ -23,7 +23,6 @@
 
 export * from "./WebGLArrayBuf";
 export * from "./WebGLAttribute";
-export * from "./WebGLDataTexture";
 export * from "./WebGLProgram";
 export * from "./WebGLRenderBuffer";
 export * from "./WebGLSampler";
@@ -37,5 +36,5 @@ export * from "./WEBGL_INFO";
 export * from "./dtx/DTXMatrixArray";
 export * from "./dtx/DTXPositionsArray";
 export * from "./dtx/DTXStructArray";
-export * from "./dtx/DTXArray";
+export * as dtx from "./dtx/index";
 ``

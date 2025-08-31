@@ -58,6 +58,10 @@ export class LayerImpl implements Layer  {
    */
   private _gpuDataMemoryEditor: GPUDataMemoryEditorIF;
 
+  /**
+   * Creates a new Layer instance.
+   * @param layerParams
+   */
   constructor(layerParams: {
     renderContext: any;
     gpuDataMemoryEditor:GPUDataMemoryEditorIF;
@@ -76,6 +80,9 @@ export class LayerImpl implements Layer  {
     this.meshCounts = Array.from({length: 4}, () => new MeshCounts());
   }
 
+  /**
+   * A hash string representing this layer, used for quick comparisons.
+   */
   get hash(): string {
     return `${this.primitive}`;
   }
@@ -150,14 +157,14 @@ export class LayerImpl implements Layer  {
     if ((flags & OBJECT_FLAGS.PICKABLE) !== 0) counts.numPickable++;
     if ((flags & OBJECT_FLAGS.CULLED) !== 0) counts.numCulled++;
     if ((flags & OBJECT_FLAGS.TRANSPARENT) !== 0) counts.numTransparent++;
-    this.#setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
   }
 
   /**
    * Sets the render flags for a mesh in a specific view based on its visibility and interaction states.
    * @private
    */
-  #setMeshObjectFlags(viewIndex: number, meshIndex: number, flags: number): void {
+  _setMeshObjectFlags(viewIndex: number, meshIndex: number, flags: number): void {
     const viewer = this.renderContext.viewer;
     const view = viewer.viewList[viewIndex];
 
@@ -215,7 +222,7 @@ export class LayerImpl implements Layer  {
    */
   setMeshVisible(viewIndex: number, meshIndex: number, flags: number): void {
     this.meshCounts[viewIndex].numVisible += (flags & OBJECT_FLAGS.VISIBLE) ? 1 : -1;
-    this.#setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
   }
 
   /**
@@ -223,7 +230,7 @@ export class LayerImpl implements Layer  {
    */
   setMeshHighlighted(viewIndex: number, meshIndex: number, flags: number): void {
     this.meshCounts[viewIndex].numHighlighted += (flags & OBJECT_FLAGS.HIGHLIGHTED) ? 1 : -1;
-    this.#setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
   }
 
   /**
@@ -231,7 +238,7 @@ export class LayerImpl implements Layer  {
    */
   setMeshXRayed(viewIndex: number, meshIndex: number, flags: number): void {
     this.meshCounts[viewIndex].numXRayed += (flags & OBJECT_FLAGS.XRAYED) ? 1 : -1;
-    this.#setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
   }
 
   /**
@@ -239,7 +246,7 @@ export class LayerImpl implements Layer  {
    */
   setMeshSelected(viewIndex: number, meshIndex: number, flags: number): void {
     this.meshCounts[viewIndex].numSelected += (flags & OBJECT_FLAGS.SELECTED) ? 1 : -1;
-    this.#setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
   }
 
   /**
@@ -247,7 +254,7 @@ export class LayerImpl implements Layer  {
    */
   setMeshClippable(viewIndex: number, meshIndex: number, flags: number): void {
     this.meshCounts[viewIndex].numClippable += (flags & OBJECT_FLAGS.CLIPPABLE) ? 1 : -1;
-    this.#setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
   }
 
   /**
@@ -255,7 +262,7 @@ export class LayerImpl implements Layer  {
    */
   setMeshCulled(viewIndex: number, meshIndex: number, flags: number): void {
     this.meshCounts[viewIndex].numCulled += (flags & OBJECT_FLAGS.CULLED) ? 1 : -1;
-    this.#setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
   }
 
   /**
@@ -263,7 +270,7 @@ export class LayerImpl implements Layer  {
    */
   setMeshPickable(viewIndex: number, meshIndex: number, flags: number): void {
     this.meshCounts[viewIndex].numPickable += (flags & OBJECT_FLAGS.PICKABLE) ? 1 : -1;
-    this.#setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
   }
 
   /**
@@ -271,7 +278,7 @@ export class LayerImpl implements Layer  {
    */
   setMeshTransparent(viewIndex: number, meshIndex: number, flags: number): void {
     this.meshCounts[viewIndex].numTransparent += (flags & OBJECT_FLAGS.TRANSPARENT) ? 1 : -1;
-    this.#setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
   }
 
   /**

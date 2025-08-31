@@ -1,4 +1,3 @@
-import {WebGLDataTexture} from "../index";
 import {type FloatArrayParam} from "../../math";
 
 /**
@@ -28,13 +27,22 @@ import {type FloatArrayParam} from "../../math";
  */
 export class DTXMatrixArray {
 
-  public texture: WebGLDataTexture;
+  /**
+   * The WebGL texture storing the matrices.
+   */
+  public  texture: WebGLTexture;
+
+  /**
+   * The backing Float32Array for matrix data.
+   */
+  public readonly buffer: Float32Array<ArrayBuffer>;
 
   private gl: WebGL2RenderingContext;
   private lastFreeMatrixIndex: number;
   private numMatrices: number;
   private maxMatrices: number;
   private dirtyIndices: Set<number>;
+  private textureWidth: number;
 
   /**
    * Creates a new matrix buffer for mesh transforms.
@@ -68,26 +76,22 @@ export class DTXMatrixArray {
     const textureHeight = Math.ceil(this.maxMatrices / (textureWidth / texelsPerMatrix));
 
     const requiredFloats = textureWidth * textureHeight * texelsPerMatrix * componentsPerTexel;
-    const textureData = new Float32Array(requiredFloats);
+    this.buffer = new Float32Array(requiredFloats);
 
     const gl = this.gl;
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
     gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, textureData, 0);
+    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, this.buffer, 0);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.bindTexture(gl.TEXTURE_2D, null);
 
-    this.texture = new WebGLDataTexture({
-      gl,
-      texture,
-      textureWidth,
-      textureHeight,
-      textureData
-    });
+    this.texture = texture;
+    this.textureWidth = textureWidth;
   }
 
   /**
@@ -98,7 +102,7 @@ export class DTXMatrixArray {
    * @param matrix - 16-component FloatArray (mat4) in column-major order
    */
   setMatrix(index: number, matrix: FloatArrayParam): void {
-    this.texture.textureData.set(matrix, index * 16);
+    this.buffer.set(matrix, index * 16);
     this.dirtyIndices.add(index);
   }
 
@@ -114,15 +118,16 @@ export class DTXMatrixArray {
 
     const gl = this.gl;
 
-    gl.bindTexture(gl.TEXTURE_2D, this.texture.texture);
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-    const matricesPerRow = this.texture.textureWidth / 4;
+    const matricesPerRow = this.textureWidth / 4;
 
     const sortedIndices = Array.from(this.dirtyIndices).sort((a, b) => a - b);
     let start = sortedIndices[0];
     let end = start;
 
-    const textureData = this.texture.textureData;
+    const buffer = this.buffer;
 
     for (let i = 1; i <= sortedIndices.length; i++) {
       const current = sortedIndices[i];
@@ -148,7 +153,7 @@ export class DTXMatrixArray {
           1,
           gl.RGBA,
           gl.FLOAT,
-          textureData.subarray(offset, offset + count * 16)
+          buffer.subarray(offset, offset + count * 16)
         );
 
         // Start a new batch
@@ -166,6 +171,6 @@ export class DTXMatrixArray {
    * Destroys the internal resources.
    */
   destroy(): void {
-    this.gl.deleteTexture(this.texture.texture);
+    this.gl.deleteTexture(this.texture);
   }
 }

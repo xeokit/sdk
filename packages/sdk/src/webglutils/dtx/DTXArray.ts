@@ -1,6 +1,3 @@
-
-import {WebGLDataTexture} from "../WebGLDataTexture";
-
 type TypedArray =
   | Float32Array<any>
   | Float64Array<any>
@@ -77,10 +74,23 @@ export interface DTXArrayHandle {
  */
 export class DTXArray<T extends TypedArray> {
 
-  texture: WebGLDataTexture;
+  /**
+   * The WebGL texture storing the array data.
+   */
+  texture: WebGLTexture;
+
+  /**
+   * The backing typed array for data storage.
+   */
+  public readonly buffer: T;
+
+  private textureWidth = 4096;
+  private textureHeight: number;
+  private format: GLenum;
+  private type: GLenum;
 
   private readonly gl: WebGL2RenderingContext;
-  private readonly buffer: T;
+
   private readonly capacity: number;
   private readonly componentsPerElement: number;
 
@@ -91,12 +101,11 @@ export class DTXArray<T extends TypedArray> {
 
   private nextId = 1;
   private dirtyPortions: Set<number> = new Set();
-  private textureWidth = 4096;
-  private textureHeight: number;
 
 
   private usePackedRGBA: boolean;
   private uploadAllOnFlush: boolean;
+
 
   constructor(options: DTXArrayOptions<T>) {
     this.gl = options.gl;
@@ -119,56 +128,55 @@ export class DTXArray<T extends TypedArray> {
     const ctor = this.buffer.constructor as Function;
     const comp = this.componentsPerElement;
 
-    let type;
-    let format;
-    let internalFormat;
+
+    let internalFormat: GLenum | GLenum[];
     let bytesPerElement;
 
     if (ctor === Uint32Array && this.usePackedRGBA && comp === 1) {
-      type = gl.UNSIGNED_BYTE;
-      format = gl.RGBA;
+      this.type = gl.UNSIGNED_BYTE;
+      this.format = gl.RGBA;
       internalFormat = gl.RGBA8;
       bytesPerElement = 1;
 
     } else if (ctor === Float32Array) {
-      type = gl.FLOAT;
-      format = gl.RED;
+      this.type = gl.FLOAT;
+      this.format = gl.RED;
       internalFormat = [gl.R32F, gl.RG32F, gl.RGB32F, gl.RGBA32F][comp - 1];
       bytesPerElement = 4;
 
     } else if (ctor === Uint8Array) {
-      type = gl.UNSIGNED_BYTE;
-      format = gl.RED_INTEGER;
+      this.type = gl.UNSIGNED_BYTE;
+      this.format = gl.RED_INTEGER;
       internalFormat = [gl.R8UI, gl.RG8UI, gl.RGB8UI, gl.RGBA8UI][comp - 1];
       bytesPerElement = 1;
 
     } else if (ctor === Uint16Array) {
-      type = gl.UNSIGNED_SHORT;
-      format = gl.RED_INTEGER;
+      this.type = gl.UNSIGNED_SHORT;
+      this.format = gl.RED_INTEGER;
       internalFormat = [gl.R16UI, gl.RG16UI, gl.RGB16UI, gl.RGBA16UI][comp - 1];
       bytesPerElement = 2;
 
     } else if (ctor === Uint32Array) {
-      type = gl.UNSIGNED_INT;
-      format = gl.RED_INTEGER;
+      this.type = gl.UNSIGNED_INT;
+      this.format = gl.RED_INTEGER;
       internalFormat = [gl.R32UI, gl.RG32UI, gl.RGB32UI, gl.RGBA32UI][comp - 1];
       bytesPerElement = 4;
 
     } else if (ctor === Int8Array) {
-      type = gl.BYTE;
-      format = gl.RED_INTEGER;
+      this.type = gl.BYTE;
+      this.format = gl.RED_INTEGER;
       internalFormat = [gl.R8I, gl.RG8I, gl.RGB8I, gl.RGBA8I][comp - 1];
       bytesPerElement = 1;
 
     } else if (ctor === Int16Array) {
-      type = gl.SHORT;
-      format = gl.RED_INTEGER;
+      this.type = gl.SHORT;
+      this.format = gl.RED_INTEGER;
       internalFormat = [gl.R16I, gl.RG16I, gl.RGB16I, gl.RGBA16I][comp - 1];
       bytesPerElement = 2;
 
     } else if (ctor === Int32Array) {
-      type = gl.INT;
-      format = gl.RED_INTEGER;
+      this.type = gl.INT;
+      this.format = gl.RED_INTEGER;
       internalFormat = [gl.R32I, gl.RG32I, gl.RGB32I, gl.RGBA32I][comp - 1];
       bytesPerElement = 4;
 
@@ -176,10 +184,10 @@ export class DTXArray<T extends TypedArray> {
       throw new Error("Unsupported typed array type.");
     }
 
-    const textureWidth = 4096;
+    this.textureWidth = 4096;
     const pixelsPerItem = this.usePackedRGBA ? 1 : this.componentsPerElement;
-    const itemsPerRow = Math.floor(textureWidth / pixelsPerItem);
-    const textureHeight = Math.ceil(this.capacity / itemsPerRow);
+    const itemsPerRow = Math.floor(this.textureWidth / pixelsPerItem);
+    this.textureHeight = Math.ceil(this.capacity / itemsPerRow);
 
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -192,23 +200,15 @@ export class DTXArray<T extends TypedArray> {
       gl.TEXTURE_2D,
       0,
       internalFormat,
-      textureWidth,
-      textureHeight,
+      this.textureWidth,
+      this.textureHeight,
       0,
-      format,
-      type,
+      this.format,
+      this.type,
       null
     );
 
-    this.texture = new WebGLDataTexture({
-      gl,
-      texture,
-      textureWidth,
-      textureHeight,
-      format,
-      type,
-      textureData: this.buffer
-    });
+    this.texture = texture;
   }
 
   /**
@@ -396,24 +396,24 @@ export class DTXArray<T extends TypedArray> {
   flush(): void {
     const texture = this.texture;
     const gl = this.gl;
-    gl.bindTexture(gl.TEXTURE_2D, texture.texture);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
     if (this.uploadAllOnFlush) { // Efficient after pack()
       gl.texSubImage2D(
         gl.TEXTURE_2D,
         0,
         0,
         0,
-        texture.textureWidth,
-        texture.textureHeight,
-        texture.format,
-        texture.type,
-        texture.textureData
+        this.textureWidth,
+        this.textureHeight,
+        this.format,
+        this.type,
+        this.buffer
       );
       this.dirtyPortions.clear();
       this.uploadAllOnFlush = false;
     } else {
       const stride = this.usePackedRGBA ? 4 : this.componentsPerElement;
-      const itemsPerRow = Math.floor(texture.textureWidth / (this.usePackedRGBA ? 1 : this.componentsPerElement));
+      const itemsPerRow = Math.floor(this.textureWidth / (this.usePackedRGBA ? 1 : this.componentsPerElement));
       for (const id of this.dirtyPortions) {
         const portion = this.used.get(id);
         if (!portion) {
@@ -433,9 +433,9 @@ export class DTXArray<T extends TypedArray> {
             rowY,
             itemsThisRow,
             1,
-            texture.format,
-            texture.type,
-            texture.textureData.subarray(offset, offset + itemsThisRow * stride)
+            this.format,
+            this.type,
+            this.buffer.subarray(offset, offset + itemsThisRow * stride)
           );
 
           base += itemsThisRow;
@@ -451,7 +451,7 @@ export class DTXArray<T extends TypedArray> {
    * Destroys the internal resources.
    */
   destroy(): void {
-    this.gl.deleteTexture(this.texture.texture);
+    this.gl.deleteTexture(this.texture);
   }
 }
 

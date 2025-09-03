@@ -212,14 +212,14 @@ export class PickManager {
     // gl.disable(gl.BLEND);
     // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     // for (let i = 0, len = this._layerList.length; i < len; i++) {
-    //   const layer = this._layerList[i];
-    //   const meshCounts = layer.meshCounts[viewIndex];
+    //   const _layer = this._layerList[i];
+    //   const meshCounts = _layer.meshCounts[viewIndex];
     //   if (meshCounts.numPickable < meshCounts.numMeshes ||
     //     meshCounts.numCulled === meshCounts.numMeshes ||
     //     meshCounts.numVisible === 0) {
     //     continue;
     //   }
-    //   // layer.drawPickMesh();
+    //   // _layer.drawPickMesh();
     // }
     // const pix = pickBuffer.read(0, 0);
     // const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
@@ -243,7 +243,7 @@ export class PickManager {
     // const {rendererView, rendererMesh, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
     // const view = rendererView.view;
     // const resolutionScale = view.resolutionScale;
-    // const layer = rendererMesh.layer;
+    // const _layer = rendererMesh._layer;
     // const renderContext = this._renderContext;
     // const gl = renderContext.gl;
     // const canvas = rendererView.view.htmlElement;
@@ -272,7 +272,7 @@ export class PickManager {
     // gl.disable(gl.BLEND);
     // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     //
-    // // layer.drawPickDepths();
+    // // _layer.drawPickDepths();
     //
     // const pix = pickBuffer.read(0, 0);
     //

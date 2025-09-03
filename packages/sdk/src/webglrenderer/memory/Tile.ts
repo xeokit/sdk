@@ -13,17 +13,17 @@ import type {FloatArrayParam} from "../../math";
  *
  * @interface
  */
-export interface RenderTile {
+export interface Tile {
 
   /**
-   * Unique ID of this RenderTile
+   * Unique ID of this Tile
    */
   id: string;
 
   /**
-   * Index of this RenderTile within TileManager
+   * Index of this Tile within TileManager
    */
-  index: number;
+  tileIndex: number;
 
   /**
    * Count of users of this tile.
@@ -36,7 +36,8 @@ export interface RenderTile {
   center: FloatArrayParam;
 
   /**
-   * An RTC view matrix for each existing View
+   * A relative-to-center (RTC) view matrix for each existing View. This is stored in DataTextures.tileViewMatrices
+   * and automatically updates whenever the View's Camera moves.
    */
   rtcViewMatrix: FloatArrayParam[];
 }

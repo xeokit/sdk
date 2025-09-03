@@ -26,7 +26,7 @@ export const earcut = (() => {
     steiner: boolean;
 
     constructor(i: number, x: number, y: number) {
-      // vertex index in coordinates array
+      // vertex tileIndex in coordinates array
       this.i = i;
 
       // vertex coordinates

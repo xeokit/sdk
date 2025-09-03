@@ -73,15 +73,23 @@ export const RTC_CELL_SIZE = 200;
  * @param {FloatArrayParam} [rtcViewMat=tempMat] - Optional parameter to store the resulting RTC view matrix. If not provided, a temporary matrix is used.
  * @returns {FloatArrayParam} The transformed RTC view matrix.
  */
-export function createRTCViewMat(viewMat: FloatArrayParam, rtcCenter: FloatArrayParam, rtcViewMat: FloatArrayParam = tempMat): FloatArrayParam {
-  rtcCenterWorld[0] = rtcCenter[0];
-  rtcCenterWorld[1] = rtcCenter[1];
-  rtcCenterWorld[2] = rtcCenter[2];
-  rtcCenterWorld[3] = 1;
+export function createRTCViewMat(
+  viewMat: FloatArrayParam,
+  rtcCenter: FloatArrayParam,
+  rtcViewMat: FloatArrayParam = tempMat
+): FloatArrayParam {
+  const [x, y, z] = rtcCenter;
+  if (x === 0 && y === 0 && z === 0) {
+    rtcViewMat.set(viewMat);
+    return rtcViewMat;
+  }
+  rtcCenterWorld.set([x, y, z, 1]);
   transformVec4(viewMat, rtcCenterWorld, rtcCenterView);
   setMat4Translation(viewMat, rtcCenterView, rtcViewMat);
+
   return rtcViewMat;
 }
+
 
 /**
  * Creates an RTC model matrix from a full-precision modeling matrix and an RTC center.

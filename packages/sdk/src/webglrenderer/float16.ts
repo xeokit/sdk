@@ -1,6 +1,6 @@
 /**
  * Bundled by jsDelivr using Rollup v2.59.0 and Terser v5.9.0.
- * Original file: /npm/@petamoriken/float16@3.5.11/src/index.mjs
+ * Original file: /npm/@petamoriken/float16@3.5.11/src/tileIndex.mjs
  *
  * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
  */

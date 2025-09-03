@@ -20,11 +20,11 @@ export interface DTXArrayOptions<T extends TypedArray> {
  * Represents a portion of a `DTXArray` allocated for storing data.
  *
  * A `DTXArrayPortion` defines a contiguous block of memory within the array,
- * specified by its starting base index and size. It is used internally to
+ * specified by its starting base tileIndex and size. It is used internally to
  * manage dynamic allocation and deallocation of array portions.
  *
  * ### Properties:
- * - `base`: The starting index of the portion within the array.
+ * - `base`: The starting tileIndex of the portion within the array.
  * - `size`: The number of elements in the portion.
  * @private
  */
@@ -41,7 +41,7 @@ interface DTXArrayPortion {
  *
  * ### Properties:
  * - `id`: A unique identifier for the allocated portion.
- * - `base`: The starting index of the portion within the array.
+ * - `base`: The starting tileIndex of the portion within the array.
  */
 export interface DTXArrayHandle {
   id: number;

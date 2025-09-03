@@ -538,7 +538,7 @@
  *
  * ## Creating ViewLayers
  *
- * A {@link ViewLayer} is a layer of {@link ViewObject | ViewObjects} within a {@link View}.
+ * A {@link ViewLayer} is a _layer of {@link ViewObject | ViewObjects} within a {@link View}.
  *
  * ViewLayers allow users to group and segregate ViewObjects based on their roles or aspects in a scene, simplifying
  * interaction and focusing operations

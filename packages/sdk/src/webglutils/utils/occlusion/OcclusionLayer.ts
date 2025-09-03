@@ -1,6 +1,6 @@
 //
 // import {WebGLArrayBuf} from "../../../webgl/WebGLArrayBuf";
-// import {math, Scene} from "../../../../viewer/index";
+// import {math, Scene} from "../../../../viewer/tileIndex";
 //
 // class OcclusionLayer {
 //     private scene: any;

@@ -3,8 +3,9 @@ import {RENDER_PASSES} from "../layers/RENDER_PASSES";
 import {WEBGL_INFO} from "../../webglutils";
 import {RenderContext} from "../RenderContext";
 import {LayerManager} from "../layers/LayerManager";
-import {LayerRendererSet} from "../layerRenderers/LayerRendererSet";
+import {LayerRendererSet} from "./layerRenderers/LayerRendererSet";
 import {RendererView} from "../views/RendererView";
+import {GPUMemoryViewIF} from "../memory/GPUMemoryViewIF";
 
 /**
  * Manages the drawing operations for WebGL rendering.
@@ -20,15 +21,15 @@ export class DrawManager {
   private _logarithmicDepthBufferEnabled: boolean;
   private _alphaDepthMask: Boolean;
 
-  constructor(params: {
-    renderContext: RenderContext,
-    layerManager: LayerManager,
-    layerRendererSet: LayerRendererSet
-  }) {
+  constructor( params: {
+    renderContext: RenderContext;
+    gpuMemoryView: GPUMemoryViewIF;
+    layerManager: LayerManager
+  } ) {
 
     this._renderContext = params.renderContext;
     this._layerManager = params.layerManager;
-    this._layerRendererSet = params.layerRendererSet;
+    this._layerRendererSet = new LayerRendererSet(this._renderContext, params.gpuMemoryView);
 
     this._extensionHandles = {};
     this._logarithmicDepthBufferEnabled = false;
@@ -37,7 +38,7 @@ export class DrawManager {
     this._activateExtensions();
   }
 
- private _activateExtensions() {
+  private _activateExtensions() {
     if (WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_element_index_uint"]) {
       this._extensionHandles.OES_element_index_uint = this._renderContext.gl.getExtension("OES_element_index_uint");
     }
@@ -52,12 +53,12 @@ export class DrawManager {
   /**
    * Draws the specified view using the provided parameters.
    * Handles opaque and transparent layers, as well as special rendering passes for silhouettes and edges.
-   * @param params - Object containing the view index and a flag indicating whether to clear the buffers.
+   * @param params - Object containing the view tileIndex and a flag indicating whether to clear the buffers.
    */
-  draw(params: {
+  draw( params: {
     rendererView: RendererView;
     clear: boolean;
-  }): void {
+  } ): void {
 
     const {rendererView, clear} = params;
 
@@ -153,15 +154,15 @@ export class DrawManager {
     }
     for (let i = 0; i < bins.edgesColorOpaque.length; i++) {
       const layer = bins.edgesColorOpaque[i]
-      primRenderers[layer.primitive]?.colorEdges.renderLayer(layer, RENDER_PASSES.DRAW_OPAQUE);
+      primRenderers[layer.primitive].colorEdges?.renderLayer(layer, RENDER_PASSES.DRAW_OPAQUE);
     }
     for (let i = 0; i < bins.xrayedSilhouetteOpaque.length; i++) {
       const layer = bins.xrayedSilhouetteOpaque[i]
-      primRenderers[layer.primitive]?.silhouette.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+      primRenderers[layer.primitive].silhouette?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
     }
     for (let i = 0; i < bins.xrayEdgesOpaque.length; i++) {
       const layer = bins.xrayEdgesOpaque[i]
-      primRenderers[layer.primitive]?.silhouetteEdges.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+      primRenderers[layer.primitive].silhouetteEdges?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
     }
     //  for (let i = 0; i < bins.xrayEdgesOpaque.length; i++) bins.xrayEdgesOpaque[i].drawEdgesXRayed();
 
@@ -185,11 +186,11 @@ export class DrawManager {
       if (!this._alphaDepthMask) gl.depthMask(false);
 
       for (const layer of bins.xrayEdgesTransparent) {
-        primRenderers[layer.primitive]?.silhouetteEdges.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+        primRenderers[layer.primitive].silhouetteEdges?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
       }
 
       for (const layer of bins.xrayedSilhouetteTransparent) {
-        primRenderers[layer.primitive]?.silhouetteEdges.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+        primRenderers[layer.primitive].silhouetteEdges?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
       }
 
       if (bins.edgesColorTransparent.length || bins.normalFillTransparent.length) {
@@ -197,11 +198,11 @@ export class DrawManager {
       }
 
       for (const layer of bins.edgesColorTransparent) {
-        primRenderers[layer.primitive]?.colorEdges.renderLayer(layer, RENDER_PASSES.DRAW_TRANSPARENT);
+        primRenderers[layer.primitive].colorEdges?.renderLayer(layer, RENDER_PASSES.DRAW_TRANSPARENT);
       }
 
       for (const layer of bins.normalFillTransparent) {
-        primRenderers[layer.primitive]?.color.renderLayer(layer, RENDER_PASSES.DRAW_TRANSPARENT);
+        primRenderers[layer.primitive].color?.renderLayer(layer, RENDER_PASSES.DRAW_TRANSPARENT);
       }
 
       gl.disable(gl.BLEND);
@@ -212,8 +213,8 @@ export class DrawManager {
     const drawSilAndEdges = (
       silBin: Layer[],
       edgesBin: Layer[],
-      drawSil: (l: Layer) => void,
-      drawEdges: (l: Layer) => void
+      drawSil: ( l: Layer ) => void,
+      drawEdges: ( l: Layer ) => void
     ) => {
       if (silBin.length || edgesBin.length) {
         ctx.lastProgramId = -1;
@@ -224,20 +225,20 @@ export class DrawManager {
     };
 
     drawSilAndEdges(bins.highlightedSilhouetteOpaque, bins.highlightedEdgesOpaque,
-      l => primRenderers[l.primitive]?.silhouette.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
-      l => primRenderers[l.primitive]?.silhouetteEdges.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
+      l => primRenderers[l.primitive].silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      l => primRenderers[l.primitive].silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
 
     drawSilAndEdges(bins.highlightedSilhouetteTransparent, bins.highlightedEdgesTransparent,
-      l => primRenderers[l.primitive]?.silhouette.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
-      l => primRenderers[l.primitive]?.silhouetteEdges.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
+      l => primRenderers[l.primitive].silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      l => primRenderers[l.primitive].silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
 
     drawSilAndEdges(bins.selectedSilhouetteOpaque, bins.selectedEdgesOpaque,
-      l => primRenderers[l.primitive]?.silhouette.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
-      l => primRenderers[l.primitive]?.silhouetteEdges.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
+      l => primRenderers[l.primitive].silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      l => primRenderers[l.primitive].silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
 
     drawSilAndEdges(bins.selectedSilhouetteTransparent, bins.selectedEdgesTransparent,
-      l => primRenderers[l.primitive]?.silhouette.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
-      l => primRenderers[l.primitive]?.silhouetteEdges.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
+      l => primRenderers[l.primitive].silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      l => primRenderers[l.primitive].silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
 
     // Cleanup GPU state
     for (let i = 0, texUnits = WEBGL_INFO.MAX_TEXTURE_UNITS; i < texUnits; i++) {
@@ -252,6 +253,6 @@ export class DrawManager {
   }
 
   destroy() {
-    // No specific cleanup needed for DrawManager
+    this._layerRendererSet.destroy();
   }
 }

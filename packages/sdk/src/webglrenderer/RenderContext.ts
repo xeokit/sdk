@@ -13,7 +13,7 @@ import type {WebGLRenderer} from "./WebGLRenderer";
  *
  * Responsibilities:
  * - Tracks the current rendering state, including active textures, programs, and passes.
- * - Manages GPU memory for geometry and materials through the `GPUDataMemory` system.
+ * - Manages GPU memory for geometry and materials through the `GPUMemory` system.
  * - Provides methods for managing texture units and resetting state between frames.
  * - Stores matrices and parameters for specialized rendering operations like shadow mapping and picking.
  *

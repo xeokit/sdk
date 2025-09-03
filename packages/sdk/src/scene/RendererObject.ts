@@ -23,11 +23,6 @@ import type {SDKError} from "../core";
 export interface RendererObject {
 
   /**
-   * Unique identifier for this RendererObject.
-   */
-  readonly id: string;
-
-  /**
    * The ID of a {@link viewer!ViewLayer | ViewLayer} in which the {@link viewer!ViewObject | ViewObject} exclusively appears.
    */
   readonly layerId: string | null;

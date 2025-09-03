@@ -289,13 +289,13 @@ export class ViewObject {
     if (collidable === this.#state.collidable) {
       return;
     }
-    // const result = this.#rendererObject.setCollidable(this.layer.view.viewIndex, collidable);
+    // const result = this.#rendererObject.setCollidable(this._layer.view.viewIndex, collidable);
     // if (result instanceof SDKError) {
     //     throw result;
     // }
     this.#state.collidable = collidable;
     // this._setAABBDirty();
-    // this.layer._aabbDirty = true;
+    // this._layer._aabbDirty = true;
   }
 
   /**

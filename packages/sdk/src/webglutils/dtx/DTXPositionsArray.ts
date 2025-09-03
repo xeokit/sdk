@@ -3,14 +3,14 @@
  * (One item = one vertex = 3 Uint16 components)
  */
 interface DTXPositionsArrayPortion {
-  base: number; // item index
+  base: number; // item tileIndex
   size: number; // number of items (vertices)
 }
 
 /** Handle to an allocated portion */
 export interface DTXPositionsArrayHandle {
   id: number;
-  base: number; // item index
+  base: number; // item tileIndex
 }
 
 /** Options: only gl + capacity matter now */

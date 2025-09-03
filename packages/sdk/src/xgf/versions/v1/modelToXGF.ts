@@ -69,18 +69,18 @@ export function modelToXGF(params: {
     indices: new Uint32Array(sizeIndices),
     edgeIndices: new Uint32Array(sizeEdgeIndices),
     aabbs: null,
-    eachGeometryPositionsBase: new Uint32Array(numGeometries), // For each geometry, an index to its first element in xgfData.positions. Every primitive type has positions.
-    eachGeometryColorsBase: new Uint32Array(numGeometries), // For each geometry, an index to its first element in xgfData.colors. If the next geometry has the same index, then this geometry has no colors.
-    eachGeometryIndicesBase: new Uint32Array(numGeometries), // For each geometry, an index to its first element in xgfData.indices. If the next geometry has the same index, then this geometry has no indices.
-    eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries), // For each geometry, an index to its first element in xgfData.edgeIndices. If the next geometry has the same index, then this geometry has no edge indices.
+    eachGeometryPositionsBase: new Uint32Array(numGeometries), // For each geometry, an tileIndex to its first element in xgfData.positions. Every primitive type has positions.
+    eachGeometryColorsBase: new Uint32Array(numGeometries), // For each geometry, an tileIndex to its first element in xgfData.colors. If the next geometry has the same tileIndex, then this geometry has no colors.
+    eachGeometryIndicesBase: new Uint32Array(numGeometries), // For each geometry, an tileIndex to its first element in xgfData.indices. If the next geometry has the same tileIndex, then this geometry has no indices.
+    eachGeometryEdgeIndicesBase: new Uint32Array(numGeometries), // For each geometry, an tileIndex to its first element in xgfData.edgeIndices. If the next geometry has the same tileIndex, then this geometry has no edge indices.
     eachGeometryPrimitiveType: new Uint8Array(numGeometries), // Primitive type for each geometry (0=solid triangles, 1=surface triangles, 2=lines, 3=points)
     eachGeometryAABBBase: new Uint32Array(numGeometries), // Positions dequantization matrices
     matrices: null, // Modeling matrices
-    eachMeshGeometriesBase: new Uint32Array(numMeshes), // For each mesh, an index into the eachGeometry* arrays
-    eachMeshMatricesBase: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an index to its first element in xgfData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
+    eachMeshGeometriesBase: new Uint32Array(numMeshes), // For each mesh, an tileIndex into the eachGeometry* arrays
+    eachMeshMatricesBase: new Uint32Array(numMeshes), // For each mesh that shares its geometry, an tileIndex to its first element in xgfData.matrices, to indicate the modeling matrix that transforms the shared geometry Local-space vertex positions. This is ignored for meshes that don't share geometries, because the vertex positions of non-shared geometries are pre-transformed into World-space.
     eachMeshMaterialAttributes: new Uint8Array(numMeshes * NUM_MATERIAL_ATTRIBUTES), // For each mesh, an RGBA integer color of format [0..255, 0..255, 0..255, 0..255], and PBR metallic and roughness factors, of format [0..255, 0..255]
     eachObjectId: [], // For each object, an ID string
-    eachObjectMeshesBase: new Uint32Array(numObjects) // For each object, the index of the first element of meshes used by the object
+    eachObjectMeshesBase: new Uint32Array(numObjects) // For each object, the tileIndex of the first element of meshes used by the object
   };
 
   let positionsBase = 0;

@@ -223,7 +223,7 @@ class Spinner extends Component {
     const element = document.createElement('div');
     const style = element.style;
     // @ts-ignore
-    style["z-index"] = "9000";
+    style["z-tileIndex"] = "9000";
     style.position = "absolute";
     element.innerHTML = '<div class="sk-fading-circle">\
                 <div class="sk-circle1 sk-circle"></div>\

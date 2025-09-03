@@ -83,11 +83,11 @@ export interface Renderer {
    * Toggles the rendering of transparent objects for a specified View.
    *
    * @internal
-   * @param viewIndex The View index. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
+   * @param viewIndex The View tileIndex. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
    * @param enabled Determines whether transparency is enabled.
    * @returns `void` if successful.
    * @returns {@link core!SDKError | SDKError} if:
-   * - No View with the given index is attached.
+   * - No View with the given tileIndex is attached.
    */
   setTransparentEnabled(viewIndex: number, enabled: boolean): void | SDKError;
 
@@ -95,11 +95,11 @@ export interface Renderer {
    * Enables or disables edge enhancement for the specified attached View.
    *
    * @internal
-   * @param viewIndex The View index. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
+   * @param viewIndex The View tileIndex. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
    * @param enabled Whether to enable edge enhancement.
    * @returns `void` if successful.
    * @returns {@link core!SDKError | SDKError} if:
-   * - No View with the given index is attached.
+   * - No View with the given tileIndex is attached.
    */
   setEdgesEnabled(viewIndex: number, enabled: boolean): void | SDKError;
 
@@ -107,11 +107,11 @@ export interface Renderer {
    * Enables or disables Screen Space Ambient Occlusion (SAO) for the specified attached View.
    *
    * @internal
-   * @param viewIndex The View index. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
+   * @param viewIndex The View tileIndex. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
    * @param enabled Whether to enable SAO.
    * @returns `void` if successful.
    * @returns {@link core!SDKError | SDKError} if:
-   * - No View with the given index is attached.
+   * - No View with the given tileIndex is attached.
    */
   setSAOEnabled(viewIndex: number, enabled: boolean): void | SDKError;
 
@@ -119,11 +119,11 @@ export interface Renderer {
    * Enables or disables Physically-Based Rendering (PBR) for the specified attached View.
    *
    * @internal
-   * @param viewIndex The View index. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
+   * @param viewIndex The View tileIndex. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
    * @param enabled Whether to enable PBR.
    * @returns `void` if successful.
    * @returns {@link core!SDKError | SDKError} if:
-   * - No View with the given index is attached.
+   * - No View with the given tileIndex is attached.
    */
   setPBREnabled(viewIndex: number, enabled: boolean): void | SDKError;
 
@@ -131,10 +131,10 @@ export interface Renderer {
    * Requests a new frame to be rendered for the given View.
    *
    * @internal
-   * @param viewIndex The View index. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
+   * @param viewIndex The View tileIndex. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
    * @returns `void` if successful.
    * @returns {@link core!SDKError | SDKError} if:
-   * - No View with the given index is attached.
+   * - No View with the given tileIndex is attached.
    */
   setImageDirty(viewIndex?: number): void | SDKError;
 
@@ -142,10 +142,10 @@ export interface Renderer {
    * Clears the Renderer for the specified View.
    *
    * @internal
-   * @param viewIndex The View index. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
+   * @param viewIndex The View tileIndex. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
    * @returns `void` if successful.
    * @returns {@link core!SDKError | SDKError} if:
-   * - No View with the given index is attached.
+   * - No View with the given tileIndex is attached.
    */
   clear(viewIndex: number): void | SDKError;
 
@@ -153,10 +153,10 @@ export interface Renderer {
    * Checks if a new frame needs to be rendered for the specified attached View.
    *
    * @internal
-   * @param viewIndex The View index. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
+   * @param viewIndex The View tileIndex. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
    * @returns `boolean` indicating if rendering is required.
    * @returns {@link core!SDKError | SDKError} if:
-   * - No View with the given index is attached.
+   * - No View with the given tileIndex is attached.
    */
   getNeedsRender(viewIndex: number): SDKError | boolean;
 
@@ -164,11 +164,11 @@ export interface Renderer {
    * Renders a frame for the specified View.
    *
    * @internal
-   * @param viewIndex The View index. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
+   * @param viewIndex The View tileIndex. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
    * @param params Rendering parameters.
    * @returns `void` if successful.
    * @returns {@link core!SDKError | SDKError} if:
-   * - No View with the given index is attached.
+   * - No View with the given tileIndex is attached.
    */
   render(viewIndex: number, params: { force?: boolean, opaqueOnly?: boolean }): void | SDKError;
 
@@ -176,13 +176,13 @@ export interface Renderer {
    * Performs object picking within a View.
    *
    * @internal
-   * @param viewIndex The View index. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
+   * @param viewIndex The View tileIndex. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
    * @param pickParams Picking parameters.
    * @param pickResult Optional pre-allocated PickResult.
    * @returns A {@link PickResult} or if object successfully picked.
    * @returns null if nothing picked.
    * @returns {@link core!SDKError | SDKError} if:
-   * - No View with the given index is attached.
+   * - No View with the given tileIndex is attached.
    */
  // pick(viewIndex: number, pickParams: PickParams, pickResult?: PickResult): PickResult | null | SDKError;
 
@@ -190,7 +190,7 @@ export interface Renderer {
    * Begins snapshot mode for the given View.
    *
    * @internal
-   * @param viewIndex The View index. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
+   * @param viewIndex The View tileIndex. This matches {@link viewer!View.viewIndex | View.viewIndex} on a View that is currently attached to this Renderer.
    * @param params Snapshot configuration.
    */
   beginSnapshot(viewIndex: number, params?: { width: number, height: number });

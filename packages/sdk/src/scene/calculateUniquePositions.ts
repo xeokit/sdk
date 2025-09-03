@@ -16,7 +16,7 @@ let comparePositions: any = null;
 
 /**
  * This function obtains unique positions in the provided object
- * .positions array and calculates an index mapping, which is then
+ * .positions array and calculates an tileIndex mapping, which is then
  * applied to the provided object .indices and .edgeindices.
  *
  * The input object items are not modified, and instead new set

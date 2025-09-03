@@ -669,7 +669,7 @@ export function compressNormals(array: FloatArrayParam): Int8Array<any> {
  * The encoding compresses the normal while preserving as much detail as possible.
  *
  * @param {FloatArrayParam} array - The array containing the normal vector components.
- * @param {number} i - The index of the normal vector's X component in the array.
+ * @param {number} i - The tileIndex of the normal vector's X component in the array.
  * @param {Function} xfunc - A Math function (e.g., `Math.floor`, `Math.round`) to process the X component.
  * @param {Function} yfunc - A Math function (e.g., `Math.floor`, `Math.round`) to process the Y component.
  * @returns {Int8Array} A 2-element `Int8Array` containing the encoded normal.
@@ -692,7 +692,7 @@ function octEncodeNormalFromArray(array: FloatArrayParam, i: number, xfunc: any,
  * Computes the dot product of a 3D vector from an array with another 3D vector.
  *
  * @param {FloatArrayParam} array - The array containing the first vector's components.
- * @param {number} i - The index of the first vector's X component in the array.
+ * @param {number} i - The tileIndex of the first vector's X component in the array.
  * @param {FloatArrayParam} createVec3 - The second 3D vector as an array.
  * @returns {number} The dot product of the two vectors.
  */
@@ -1200,7 +1200,7 @@ export function octEncodeVec3(
  * using a specified math function (`xfunc` and `yfunc` are typically 'floor' or 'ceil').
  *
  * @param {FloatArrayParam} array - The array containing the 3D normal vector.
- * @param {number} i - The index of the normal vector's x component in the array.
+ * @param {number} i - The tileIndex of the normal vector's x component in the array.
  * @param {string} xfunc - The math function to apply to the x component ('floor', 'ceil', etc.).
  * @param {string} yfunc - The math function to apply to the y component ('floor', 'ceil', etc.).
  * @returns {Int8Array} The oct-encoded normal vector as a 2-element Int8Array.

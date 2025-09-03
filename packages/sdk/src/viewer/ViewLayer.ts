@@ -9,7 +9,7 @@ import type {ViewParams} from "./ViewParams";
 
 
 /**
- * A layer of {@link ViewObject | ViewObjects} within a {@link View}.
+ * A _layer of {@link ViewObject | ViewObjects} within a {@link View}.
  *
  * ViewLayers allow users to group and segregate ViewObjects based on their roles or aspects in a scene, simplifying interaction and focusing operations
  * on specific object groups.

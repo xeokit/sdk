@@ -9,13 +9,13 @@ import {RenderContext} from "./RenderContext";
 import {RenderBufferManager} from "./views/RenderBufferManager";
 
 
-import { GPUDataMemory} from "./gpuDataMemory/GPUDataMemory";
-import {LayerRendererSet} from "./layerRenderers/LayerRendererSet";
+import {GPUMemory} from "./memory/GPUMemory";
+import {LayerRendererSet} from "./draw/layerRenderers/LayerRendererSet";
 import {ViewManager} from "./views/ViewManager";
 import {DrawManager} from "./draw/DrawManager";
 import {LayerManager} from "./layers/LayerManager";
-import {type GPUDataMemoryViewIF} from "./gpuDataMemory/GPUDataMemoryViewIF";
-import {type GPUDataMemoryEditorIF} from "./gpuDataMemory/GPUDataMemoryEditorIF";
+import {type GPUMemoryViewIF} from "./memory/GPUMemoryViewIF";
+import {type GPUMemoryEditIF} from "./memory/GPUMemoryEditIF";
 import {type RendererObject} from "../scene";
 
 
@@ -31,7 +31,7 @@ export class WebGLRenderer implements Renderer {
   private _viewManager: ViewManager;
   private _drawManager: DrawManager;
   private _layerManager: LayerManager;
-  private _gpuDataMemory: GPUDataMemory;
+  private _gpuMemory: GPUMemory;
 
 
   _gl: WebGL2RenderingContext;
@@ -80,7 +80,7 @@ export class WebGLRenderer implements Renderer {
     webglCanvasElement.style.left = '50px';
     webglCanvasElement.style.border = '1px solid black';
     webglCanvasElement.style["pointer-events"] = "none";
-    webglCanvasElement.style["z-index"] = 100000; // HACK
+    webglCanvasElement.style["z-tileIndex"] = 100000; // HACK
     document.body.appendChild(webglCanvasElement);
     const contextAttr = {
       alpha: true,
@@ -99,14 +99,13 @@ export class WebGLRenderer implements Renderer {
   }
 
 
-
   /**
    * Gets the capabilities of this WebGLRenderer.
    *
    * @param capabilities Returns the capabilities of this WebGLRenderer.
    * @internal
    */
-  getCapabilities(capabilities: Capabilities): void {
+  getCapabilities( capabilities: Capabilities ): void {
     capabilities.maxViews = 4;
     const htmlElement = document.createElement('canvas');
     let gl;
@@ -136,25 +135,29 @@ export class WebGLRenderer implements Renderer {
    * * A Viewer is already attached to this Renderer.
    * * The given Viewer is already attached to another Renderer.
    */
-  attachViewer(viewer: Viewer): void {
+  attachViewer( viewer: Viewer ): void {
     if (this._renderContext) {
       throw new SDKError("Can't attach Viewer to WebGLRenderer - a Viewer is already attached");
     }
     if (viewer.renderer) {
       throw new SDKError("Can't attach Viewer to WebGLRenderer - given Viewer is already attached to another Renderer");
     }
-    this._onViewerDestroyed = viewer.onDestroyed.subscribe((viewer, _) => {
+    this._onViewerDestroyed = viewer.onDestroyed.subscribe(( viewer, _ ) => {
       this.detachViewer();
     });
+
     this._renderContext = new RenderContext(viewer, this._gl, this._webglCanvasElement);
-    this._gpuDataMemory = new GPUDataMemory({gl: this._gl, viewer})
-    this._layerManager = new LayerManager(this._renderContext, <GPUDataMemoryEditorIF>this._gpuDataMemory);
-    this._layerRendererSet = new LayerRendererSet(this._renderContext, <GPUDataMemoryViewIF>this._gpuDataMemory);
+
+    this._gpuMemory = new GPUMemory({gl: this._gl, viewer})
+
+    this._layerManager = new LayerManager(this._renderContext, <GPUMemoryEditIF>this._gpuMemory);
+
     this._drawManager = new DrawManager({
       renderContext: this._renderContext,
       layerManager: this._layerManager,
-      layerRendererSet: this._layerRendererSet
+      gpuMemoryView: <GPUMemoryViewIF>this._gpuMemory
     });
+
     this._viewManager = new ViewManager(this._renderContext, this._drawManager);
 
     // this._pickManager = new PickManager({
@@ -193,7 +196,7 @@ export class WebGLRenderer implements Renderer {
     this._layerManager.destroy();
     this._drawManager.destroy();
     //this._pickManager.destroy();
-    this._gpuDataMemory.destroy();
+    this._gpuMemory.destroy();
     this._layerRendererSet.destroy();
     this._renderContext = null;
     this._layerRendererSet.destroy();
@@ -204,7 +207,7 @@ export class WebGLRenderer implements Renderer {
    * Indicates that the WebGLRenderer needs to draw a new frame.
    * @internal
    */
-  setImageDirty(viewIndex?: number): void {
+  setImageDirty( viewIndex?: number ): void {
     const rendererView = this._viewManager.rendererViews[viewIndex];
     if (rendererView) {
       rendererView.imageDirty = true;
@@ -217,7 +220,7 @@ export class WebGLRenderer implements Renderer {
    * Triggers a new frame render.
    * @internal
    */
-  setEdgesEnabled(viewIndex: number, enabled: boolean): void {
+  setEdgesEnabled( viewIndex: number, enabled: boolean ): void {
     const rendererView = this._viewManager.rendererViews[viewIndex];
     if (rendererView) {
       rendererView.edgesEnabled = enabled;
@@ -229,7 +232,7 @@ export class WebGLRenderer implements Renderer {
    * Triggers a new frame render.
    * @internal
    */
-  setPBREnabled(viewIndex: number, enabled: boolean): void {
+  setPBREnabled( viewIndex: number, enabled: boolean ): void {
     const rendererView = this._viewManager.rendererViews[viewIndex];
     if (rendererView) {
       rendererView.pbrEnabled = enabled;
@@ -247,7 +250,7 @@ export class WebGLRenderer implements Renderer {
    * Triggers a new frame render.
    * @internal
    */
-  setSAOEnabled(viewIndex: number, enabled: boolean): void {
+  setSAOEnabled( viewIndex: number, enabled: boolean ): void {
     const rendererView = this._viewManager.rendererViews[viewIndex];
     if (rendererView) {
       rendererView.saoEnabled = enabled;
@@ -266,7 +269,7 @@ export class WebGLRenderer implements Renderer {
    * * No View is currently attached to this Renderer.
    * * Can't find a View attached to this Renderer with the given handle.
    */
-  setTransparentEnabled(viewIndex: number, enabled: boolean): void {
+  setTransparentEnabled( viewIndex: number, enabled: boolean ): void {
     const rendererView = this._viewManager.rendererViews[viewIndex];
     if (rendererView) {
       rendererView.transparentEnabled = enabled;
@@ -284,7 +287,7 @@ export class WebGLRenderer implements Renderer {
    * * No View is currently attached to this WebGLRenderer.
    * * Can't find a View attached to this WebGLRenderer with the given handle.
    */
-  clear(viewIndex: number): void | SDKError {
+  clear( viewIndex: number ): void|SDKError {
     if (!this._renderContext) {
       return new SDKError("Can't clear canvas with WebGLRenderer - no Viewer and View is attached");
     }
@@ -305,7 +308,7 @@ export class WebGLRenderer implements Renderer {
    * * No View is currently attached to this WebGLRenderer.
    * * Can't find a View attached to this WebGLRenderer with the given handle.
    */
-  getNeedsRender(viewIndex?: number): boolean {
+  getNeedsRender( viewIndex?: number ): boolean {
     const rendererView = this._viewManager.rendererViews[viewIndex];
     if (!rendererView) {
       return false;
@@ -324,11 +327,11 @@ export class WebGLRenderer implements Renderer {
    * * No View is currently attached to this Renderer.
    * * Can't find a View attached to this Renderer with the given handle.
    */
-  render(viewIndex: number,
-         params?: {
-           force?: boolean;
-           opaqueOnly?: boolean
-         }): void | SDKError {
+  render( viewIndex: number,
+          params?: {
+            force?: boolean;
+            opaqueOnly?: boolean
+          } ): void|SDKError {
     if (!this._renderContext) {
       return new SDKError("Can't render with WebGLRenderer - no Viewer attached");
     }
@@ -339,10 +342,10 @@ export class WebGLRenderer implements Renderer {
     rendererView.render(params);
   }
 
-  beginSnapshot(viewIndex: number, params?: {
+  beginSnapshot( viewIndex: number, params?: {
     width: number,
     height: number
-  }) {
+  } ) {
     // const rendererView = this._viewManager.rendererViews[viewIndex];
     // if (!rendererView) {
     //     throw new SDKError(`Can't begin snapshot with WebGLRenderer.beginSnapshot() - no View attached at given viewIndex: ${viewIndex}`);

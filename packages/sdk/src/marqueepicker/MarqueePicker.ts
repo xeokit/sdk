@@ -54,7 +54,7 @@
 //         document.body.appendChild(this.#marqueeElement);
 //
 //         this.#marqueeElement.style.position = "absolute";
-//         this.#marqueeElement.style["z-index"] = "40000005";
+//         this.#marqueeElement.style["z-tileIndex"] = "40000005";
 //         this.#marqueeElement.style.width = 8 + "px";
 //         this.#marqueeElement.style.height = 8 + "px";
 //         this.#marqueeElement.style.visibility = "hidden";

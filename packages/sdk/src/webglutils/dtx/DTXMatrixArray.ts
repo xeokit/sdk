@@ -14,7 +14,7 @@ import {type FloatArrayParam} from "../../math";
  * - **Integration**: Designed for use in WebGL rendering pipelines.
  *
  * ### Usage:
- * - Use `setMatrix(index, matrix)` to update a matrix at a specific index.
+ * - Use `setMatrix(tileIndex, matrix)` to update a matrix at a specific tileIndex.
  * - Call `flush()` to upload all dirty matrices to the GPU.
  * - Use `destroy()` to release GPU resources when no longer needed.
  *
@@ -95,7 +95,7 @@ export class DTXMatrixArray {
   }
 
   /**
-   * Sets the model matrix for a mesh at a given index.
+   * Sets the model matrix for a mesh at a given tileIndex.
    * Buffers the change until the next `flush()` call.
    *
    * @param index - Index of the mesh to update

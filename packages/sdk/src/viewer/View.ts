@@ -64,7 +64,7 @@ class View extends Component {
   declare readonly viewer: Viewer;
 
   /**
-   * The index of this View in {@link Viewer.viewList}.
+   * The tileIndex of this View in {@link Viewer.viewList}.
    * @internal
    */
   viewIndex: number;

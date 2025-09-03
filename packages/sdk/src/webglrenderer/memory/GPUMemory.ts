@@ -5,11 +5,11 @@ import {TileManager} from "./TileManager";
 import type {FloatArrayParam} from "../../math";
 import {DTXArray} from "../../webglutils/dtx/DTXArray";
 import {DTXStructArray, type DTXStructSpec} from "../../webglutils/dtx/DTXStructArray";
-import {type RenderTile} from "./RenderTile";
+import {type Tile} from "./Tile";
 import {Viewer} from "../../viewer";
-import {type GPUDataMemoryViewIF} from "./GPUDataMemoryViewIF";
-import {type GPUDataMemoryEditorIF} from "./GPUDataMemoryEditorIF";
-import {type GPUDataTextures} from "./GPUDataTextures";
+import {type GPUMemoryViewIF} from "./GPUMemoryViewIF";
+import {type GPUMemoryEditIF} from "./GPUMemoryEditIF";
+import {type DataTextures} from "./DataTextures";
 import {DTXPositionsArray} from "../../webglutils";
 
 const MAX_MESHES = 100000;
@@ -19,23 +19,23 @@ const MAX_GEOMETRIES = 100000;
 /**
  * Manages GPU-resident, dynamically-editable data storage for model geometry and attributes.
  *
- * The `GPUDataMemory` class implements a data texture-based system for efficient storage and
+ * The `GPUMemory` class implements a data texture-based system for efficient storage and
  * rendering of large-scale 3D scenes. It handles memory allocation, updates, and synchronization
  * for meshes, geometries, and tiles, integrating tightly with WebGL rendering pipelines.
  */
-export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF  {
+export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
 
   /**
-   * The data textures that implement GPU-side model storage for this GPUDataMemory.
+   * The data textures that implement GPU-side model storage for this GPUMemory.
    */
-  dataTextures: GPUDataTextures;
+  dataTextures: DataTextures;
 
-  private _uniqueIndices: DTXArray<any>;
-  private _meshAttributes: DTXStructArray;
-  private _meshViewAttributes: DTXStructArray[];
+  private _indices: DTXArray<any>;
+  private _meshAttribs: DTXStructArray;
+  private _meshViewAttribs: DTXStructArray[];
   private _tiles: TileManager;
-  private _geometryAttributes: DTXStructArray;
-  private _uniqueEdgeIndices: DTXArray<any>;
+  private _geometryAttribs: DTXStructArray;
+  private _edgeIndices: DTXArray<any>;
   private _primToMeshLookup: DTXArray<any>;
   private _positions: DTXPositionsArray;
   private _meshMatrices: DTXMatrixArray;
@@ -61,10 +61,10 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
   /**
    *
    */
-  constructor(params: {
+  constructor( params: {
     gl: WebGL2RenderingContext,
     viewer: Viewer
-  }) {
+  } ) {
 
     const {gl, viewer} = params;
 
@@ -93,16 +93,16 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
 
     // Attributes for each SceneMesh
 
-    this._meshAttributes = new DTXStructArray({
+    this._meshAttribs = new DTXStructArray({
       gl,
       capacity: this._maxMeshes,
       structSpec: {
-        name: "MeshAttributes",
+        name: "MeshAttribs",
         fields: [
           {name: "tileIndex", type: "scalar"},
           {name: "geometryIndex", type: "scalar"},
-          {name: "uniqueIndicesBase", type: "scalar"},
-          {name: "uniqueEdgeIndicesBase", type: "scalar"},
+          {name: "indicesBase", type: "scalar"},
+          {name: "edgeIndicesBase", type: "scalar"},
           {name: "pickColor", type: "vec4"}
         ]
       }
@@ -110,8 +110,8 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
 
     // Per-View attributes for each SceneMesh
 
-    const meshViewAttributesStruct: DTXStructSpec = {
-      name: "MeshViewAttributes",
+    const meshViewAttribsStruct: DTXStructSpec = {
+      name: "MeshViewAttribs",
       fields: [
         {name: "flags1", type: "vec4"},
         {name: "flags2", type: "vec4"},
@@ -119,11 +119,11 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
       ]
     };
 
-    this._meshViewAttributes = [
-      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttributesStruct}),
-      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttributesStruct}),
-      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttributesStruct}),
-      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttributesStruct})
+    this._meshViewAttribs = [
+      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttribsStruct}),
+      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttribsStruct}),
+      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttribsStruct}),
+      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttribsStruct})
     ];
 
     // // Per-View slices
@@ -170,11 +170,11 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
 
     // Attributes for each SceneGeometry
 
-    this._geometryAttributes = new DTXStructArray({
+    this._geometryAttribs = new DTXStructArray({
       gl,
       capacity: 10000, // TODO
       structSpec: {
-        name: "GeometryAttributes",
+        name: "GeometryAttribs",
         fields: [
           {name: "vertexBase", type: "scalar"}, // Base of the geometry's portion in _positions DTX array
           {name: "dequantizeOffset", type: "vec3"}, // Min position dequantization range
@@ -183,9 +183,9 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
       }
     });
 
-    // Concatenation of all indices for a gl draw call (ie. gl.drawElements)
+    // Concatenation of all indices for the purpose of a gl draw call (ie. gl.drawElements)
 
-    this._uniqueIndices = new DTXArray({
+    this._indices = new DTXArray({
       gl,
       capacity: 100000,
       ArrayType: Uint32Array
@@ -193,7 +193,7 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
 
     // Concatenation of all edge indices for a gl draw call (ie. gl.drawElements)
 
-    this._uniqueEdgeIndices = new DTXArray({
+    this._edgeIndices = new DTXArray({
       gl,
       capacity: 100000,
       ArrayType: Uint32Array
@@ -222,13 +222,13 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
     // Periodically upload dirty data to GPU
 
     this._onTick = viewer.onTick.subscribe(() => {
-      this._uniqueIndices.flush()
-      this._meshAttributes.flush();
+      this._indices.flush()
+      this._meshAttribs.flush();
       for (let i = 0; i < 4; i++) {
-        this._meshViewAttributes[i].flush();
+        this._meshViewAttribs[i].flush();
       }
-      this._geometryAttributes.flush();
-      this._uniqueEdgeIndices.flush();
+      this._geometryAttribs.flush();
+      this._edgeIndices.flush();
       this._primToMeshLookup.flush();
       this._positions.flush();
       this._meshMatrices.flush();
@@ -240,18 +240,18 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
     // Expose data textures for LayerRenderer to use
 
     this.dataTextures = {
-      uniqueIndices: this._uniqueIndices.texture,
-      uniqueEdgeIndices: this._uniqueEdgeIndices.texture,
+      indices: this._indices.texture,
+      edgeIndices: this._edgeIndices.texture,
       primToMeshLookup: this._primToMeshLookup.texture,
       meshMatrices: this._meshMatrices.texture,
-      meshAttributes: this._meshAttributes.texture,
-      meshViewAttributes: [
-        this._meshViewAttributes[0].texture,
-        this._meshViewAttributes[1].texture,
-        this._meshViewAttributes[2].texture,
-        this._meshViewAttributes[3].texture
+      meshAttribs: this._meshAttribs.texture,
+      meshViewAttribs: [
+        this._meshViewAttribs[0].texture,
+        this._meshViewAttribs[1].texture,
+        this._meshViewAttribs[2].texture,
+        this._meshViewAttribs[3].texture
       ],
-      geometryAttributes: this._geometryAttributes.texture,
+      geometryAttribs: this._geometryAttribs.texture,
       positions: this._positions.texture,
       tileViewMatrices: [
         this._tileViewMatrices[0].texture,
@@ -262,44 +262,47 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
     };
 
     // this.structSpecs = {
-    //   MeshAttributes: this._meshAttributes.structSpec
+    //   MeshAttribs: this._meshAttribs.structSpec
     // }
   }
 
   /**
-   * Get a RenderTile that contains the given 3D World-space position.
+   * Get a Tile that contains the given 3D World-space position.
    * @param worldPos A 3D position in world space.
+   * @returns The Tile containing the position. The tile's use count is incremented.
    */
-  getTile(worldPos: FloatArrayParam): RenderTile {
+  getTile( worldPos: FloatArrayParam ): Tile {
     return this._tiles.getTile(worldPos);
   }
 
   /**
-   * Move a RenderTile, if necessary, so that it contains the given World-space 3D position.
+   * Move a Tile, if necessary, so that it contains the given World-space 3D position.
    * @param tile The tile to potentially move.
    * @param worldPos The target world-space position.
+   * @returns The original tile if no move was needed, otherwise a different tile.
+   * When returing a different tile, old tile is released back to the TileManager.
    */
-  moveTile(tile: RenderTile, worldPos: FloatArrayParam): RenderTile {
+  moveTile( tile: Tile, worldPos: FloatArrayParam ): Tile {
     return this._tiles.moveTile(tile, worldPos);
   }
 
   /**
-   * Releases a RenderTile back to GPUDataMemory.
-   * The RenderTile is destroyed as soon as it is released as many times as it was retrieved.
+   * Releases a Tile back to GPUMemory.
+   * The Tile is destroyed as soon as it is released as many times as it was retrieved.
    * @param tile The tile to release.
    */
-  putTile(tile: RenderTile) {
+  putTile( tile: Tile ) {
     this._tiles.putTile(tile);
   }
 
   /**
    * Adds a SceneMesh to data texture memory.
    *
-   * Returns an index/handle through which you can dynamically update attributes for the mesh.
+   * Returns an tileIndex/handle through which you can dynamically update attributes for the mesh.
    *
    * @param sceneMesh
    */
-  addMesh(sceneMesh: SceneMesh): number {
+  addMesh( sceneMesh: SceneMesh ): number {
 
     const existingMeshHandle = this._meshHandles[sceneMesh.id];
 
@@ -318,19 +321,21 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
 
       const positionsPortion = this._positions.getPortion(
         geometry.positionsCompressed.length,
-        (newBase: number) => {
+        ( newBase: number ) => {
 
-          this._geometryAttributes.setStructObject(geometryIndex, {
+          this._geometryAttribs.setStructObject(geometryIndex, {
             vertexBase: newBase / 3 // TODO: Assumes triangles
           });
         });
 
       this._positions.setPortionData(positionsPortion, geometry.positionsCompressed);
 
-      this._geometryAttributes.setStructObject(geometryIndex, {
-        vertexBase: positionsPortion.base / 3,
-        dequantizeOffset: [], // TODO
-        dequantizeScale: [] // TODO
+      const [xmin, ymin, zmin, xmax, ymax, zmax] = geometry.aabb;
+
+      this._geometryAttribs.setStructObject(geometryIndex, {
+        vertexBase: positionsPortion.base / 3, // TODO: Only works for triangles
+        dequantizeOffset: [xmin, ymin, zmin],
+        dequantizeScale: [xmax - xmin, ymax - ymin, zmax - zmin]
       });
 
       geometryHandle = {
@@ -348,65 +353,55 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
 
     const primToMeshLookupHandle = this._primToMeshLookup.getPortion(
       primitiveCount,
-      (newBase: number) => {
-        // this._meshAttributes.setStructObject(meshIndex, {
-        //   uniqueIndicesBase: newBase
+      ( newBase: number ) => {
+        // this._meshAttribs.setStructObject(_meshIndex, {
+        //   indicesBase: newBase
         // });
       }
     );
 
     this._primToMeshLookup.fillPortion(primToMeshLookupHandle, meshIndex);
 
-    const uniqueIndicesHandle = this._uniqueIndices.getPortion(
+    const indicesHandle = this._indices.getPortion(
       geometry.indices.length,
-      (newBase: number) => {
-        this._meshAttributes.setStructObject(meshIndex, {
-          uniqueIndicesBase: newBase
+      ( newBase: number ) => {
+        this._meshAttribs.setStructObject(meshIndex, {
+          indicesBase: newBase
         });
       }
     );
 
-    this._uniqueIndices.setPortionData(uniqueIndicesHandle, geometry.indices);
+    this._indices.setPortionData(indicesHandle, geometry.indices);
 
-    const uniqueEdgeIndicesHandle = this._uniqueEdgeIndices.getPortion(
+    const edgeIndicesHandle = this._edgeIndices.getPortion(
       geometry.edgeIndices.length,
-      (newBase: number) => {
-        this._meshAttributes.setStructObject(meshIndex, {
-          uniqueEdgeIndicesBase: newBase
+      ( newBase: number ) => {
+        this._meshAttribs.setStructObject(meshIndex, {
+          edgeIndicesBase: newBase
         });
       }
     );
 
-    this._uniqueEdgeIndices.setPortionData(uniqueEdgeIndicesHandle, geometry.edgeIndices);
+    this._edgeIndices.setPortionData(edgeIndicesHandle, geometry.edgeIndices);
 
-    this._meshAttributes.setStructObject(meshIndex, {
-      tileIndex: 987654321,
+    this._meshAttribs.setStructObject(meshIndex, {
+      tileIndex: 0, // Set by setMeshAttribs()
       geometryIndex: geometryHandle.geometryIndex,
-      uniqueIndicesBase: uniqueIndicesHandle.base,
-      uniqueEdgeIndicesBase: uniqueEdgeIndicesHandle.base
-      // pickColor redundant
+      indicesBase: indicesHandle.base,
+      edgeIndicesBase: edgeIndicesHandle.base
     });
 
-    this._meshViewAttributes[0].setStructObject(meshIndex, {
-      ///////////////////////
-      // TODO
-      ///////////////////////
-      color: [1, 1, 1, 1]
+    this._meshViewAttribs[0].setStructObject(meshIndex, {
+      color: [sceneMesh.color[0], sceneMesh.color[1], sceneMesh.color[2], sceneMesh.opacity]
     });
-
-    this._meshViewAttributes[1].setStructObject(meshIndex, {
-      color: [1, 1, 1, 1]
-    });
-
-    //...
 
     this._meshMatrices.setMatrix(meshIndex, sceneMesh.matrix);
 
     this._meshHandles[sceneMesh.id] = {
       meshIndex,
       primToMeshLookupHandle,
-      uniqueIndicesHandle,
-      uniqueEdgeIndicesHandle
+      indicesHandle,
+      edgeIndicesHandle
     };
 
     return meshIndex;
@@ -421,7 +416,7 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
    */
   setMeshMatrix(
     meshIndex: number,
-    matrix: FloatArrayParam): void {
+    matrix: FloatArrayParam ): void {
     this._meshMatrices.setMatrix(meshIndex, matrix);
   }
 
@@ -430,13 +425,14 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
    *
    * @param meshIndex
    * @param params
+   * @param params.tileIndex Optional tileIndex of the Tile containing the mesh. This can be dynamically updated, as mesh can move between tiles.
    */
-  setMeshAttributes(
+  setMeshAttribs(
     meshIndex: number,
     params: {
       tileIndex?: number;
-    }) {
-    this._meshAttributes.setStructObject(meshIndex, params);
+    } ) {
+    this._meshAttribs.setStructObject(meshIndex, params);
   }
 
   /**
@@ -446,18 +442,18 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
    * @param viewIndex
    * @param params
    */
-  setMeshViewAttributes(
+  setMeshViewAttribs(
     meshIndex: number,
     viewIndex: number,
     params: {
-      flags?: number;
+      flags1?: number;
       flags2?: number;
       color?: number[];
-    }) {
-    if (viewIndex < 0 || viewIndex >= this._meshViewAttributes.length) {
+    } ) {
+    if (viewIndex < 0 || viewIndex >= this._meshViewAttribs.length) {
       throw "viewIndex out of range";
     }
-    this._meshViewAttributes[viewIndex].setStructObject(meshIndex, params);
+    this._meshViewAttribs[viewIndex].setStructObject(meshIndex, params);
   }
 
   /**
@@ -465,9 +461,11 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
    *
    * @param sceneMesh
    */
-  removeMesh(sceneMesh: SceneMesh): void {
+  removeMesh( sceneMesh: SceneMesh ): void {
     const meshHandle = this._meshHandles[sceneMesh.id];
-    if (!meshHandle) return;
+    if (!meshHandle) {
+      return;
+    }
 
     const geometry = sceneMesh.geometry;
     const geometryHandle = this._geometryHandles[geometry.id];
@@ -480,15 +478,14 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
     }
-
     if (meshHandle.primToMeshLookupHandle) {
       this._primToMeshLookup.putPortion(meshHandle.primToMeshLookupHandle);
     }
-    if (meshHandle.uniqueIndicesHandle) {
-      this._uniqueIndices.putPortion(meshHandle.uniqueIndicesHandle);
+    if (meshHandle.indicesHandle) {
+      this._indices.putPortion(meshHandle.indicesHandle);
     }
-    if (meshHandle.uniqueEdgeIndicesHandle) {
-      this._uniqueEdgeIndices.putPortion(meshHandle.uniqueEdgeIndicesHandle);
+    if (meshHandle.edgeIndicesHandle) {
+      this._edgeIndices.putPortion(meshHandle.edgeIndicesHandle);
     }
 
     delete this._meshHandles[sceneMesh.id];
@@ -505,7 +502,7 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
     }
   }
 
-  _putFreeMeshIndex(index: number): void {
+  _putFreeMeshIndex( index: number ): void {
     if (this._meshIndicesUsed[index]) {
       delete this._meshIndicesUsed[index];
       this._lastFreeMeshIndex = index;
@@ -521,7 +518,7 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
     }
   }
 
-  _putFreeGeometryIndex(index: number): void {
+  _putFreeGeometryIndex( index: number ): void {
     if (this._geometryIndicesUsed[index]) {
       delete this._geometryIndicesUsed[index];
       this._lastFreeGeometryIndex = index;
@@ -530,14 +527,13 @@ export class GPUDataMemory implements GPUDataMemoryViewIF, GPUDataMemoryEditorIF
 
   destroy() {
     this._primToMeshLookup.destroy();
-    this._meshAttributes.destroy();
-    this._meshViewAttributes.forEach((viewArray) => viewArray.destroy());
-    this._geometryAttributes.destroy();
-    this._uniqueIndices.destroy();
-    this._uniqueEdgeIndices.destroy();
+    this._meshAttribs.destroy();
+    this._meshViewAttribs.forEach(( viewArray ) => viewArray.destroy());
+    this._geometryAttribs.destroy();
+    this._indices.destroy();
+    this._edgeIndices.destroy();
     this._positions.destroy();
     this._meshMatrices.destroy();
-    this._tileViewMatrices.forEach((viewArray) => viewArray.destroy());
-
+    this._tileViewMatrices.forEach(( viewArray ) => viewArray.destroy());
   }
 }

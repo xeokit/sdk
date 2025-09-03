@@ -13,8 +13,6 @@ const tempIntRGB = new Uint16Array([0, 0, 0]);
  */
 export class RendererObjectImpl implements RendererObject {
 
-  #renderContext: RenderContext;
-
   /**
    * Unique identifier for the object.
    * This ID is used to reference the object within the renderer.
@@ -31,12 +29,17 @@ export class RendererObjectImpl implements RendererObject {
    * Each mesh can represent a part of the object, such as its geometry and texture.
    * The object controls the visual state of these meshes in the renderer, as a whole.
    */
-  readonly rendererMeshes: RendererMeshImpl[];
+  private readonly _rendererMeshes: RendererMeshImpl[];
+
+  /**
+   * The RenderContext associated with this object.
+   */
+  private readonly _renderContext: RenderContext;
 
   /**
    * Rendering flags for the object in each view.
    */
-  readonly flags: number[];
+   readonly flags: number[];
 
   /**
    * @private
@@ -47,21 +50,16 @@ export class RendererObjectImpl implements RendererObject {
     rendererMeshes: RendererMeshImpl[];
   }) {
 
-    this.#renderContext = params.renderContext;
-
     this.id = params.id;
-    this.rendererMeshes = params.rendererMeshes || [];
     this.flags = [];
 
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].rendererObject = this;
-    }
-
-    this.#initFlags();
+    this._rendererMeshes = params.rendererMeshes || [];
+    this._renderContext = params.renderContext;
+    this._initFlags();
   }
 
-  #initFlags() {
-    const viewer = this.#renderContext.viewer;
+  _initFlags() {
+    const viewer = this._renderContext.viewer;
     for (let viewIndex = 0; viewIndex < 4; viewIndex++) {
       if (viewIndex < viewer.numViews) {
         const view = viewer.viewList[viewIndex];
@@ -70,8 +68,8 @@ export class RendererObjectImpl implements RendererObject {
       } else {
         this.flags[viewIndex] = createDefaultObjectFlags();
       }
-      for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-        this.rendererMeshes[i].initFlags(viewIndex, this.flags[viewIndex]);
+      for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+        this._rendererMeshes[i].initFlags(viewIndex, this.flags[viewIndex]);
       }
     }
   }
@@ -84,7 +82,7 @@ export class RendererObjectImpl implements RendererObject {
       return;
     }
     this.flags[viewIndex] = visible ? this.flags[viewIndex] | OBJECT_FLAGS.VISIBLE : this.flags[viewIndex] & ~OBJECT_FLAGS.VISIBLE;
-    this.rendererMeshes.forEach(mesh => mesh.setVisible(viewIndex, this.flags[viewIndex]));
+    this._rendererMeshes.forEach(mesh => mesh.setVisible(viewIndex, this.flags[viewIndex]));
   }
 
   /**
@@ -95,8 +93,8 @@ export class RendererObjectImpl implements RendererObject {
       return;
     }
     this.flags[viewIndex] = highlighted ? this.flags[viewIndex] | OBJECT_FLAGS.HIGHLIGHTED : this.flags[viewIndex] & ~OBJECT_FLAGS.HIGHLIGHTED;
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setHighlighted(viewIndex, this.flags[viewIndex]);
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setHighlighted(viewIndex, this.flags[viewIndex]);
     }
   }
 
@@ -108,8 +106,8 @@ export class RendererObjectImpl implements RendererObject {
       return;
     }
     this.flags[viewIndex] = xrayed ? this.flags[viewIndex] | OBJECT_FLAGS.XRAYED : this.flags[viewIndex] & ~OBJECT_FLAGS.XRAYED;
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setXRayed(viewIndex, this.flags[viewIndex]);
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setXRayed(viewIndex, this.flags[viewIndex]);
     }
   }
 
@@ -121,8 +119,8 @@ export class RendererObjectImpl implements RendererObject {
       return;
     }
     this.flags[viewIndex] = selected ? this.flags[viewIndex] | OBJECT_FLAGS.SELECTED : this.flags[viewIndex] & ~OBJECT_FLAGS.SELECTED;
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setSelected(viewIndex, this.flags[viewIndex]);
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setSelected(viewIndex, this.flags[viewIndex]);
     }
   }
 
@@ -134,8 +132,8 @@ export class RendererObjectImpl implements RendererObject {
       return;
     }
     this.flags[viewIndex] = culled ? this.flags[viewIndex] | OBJECT_FLAGS.CULLED : this.flags[viewIndex] & ~OBJECT_FLAGS.CULLED;
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setCulled(viewIndex, this.flags[viewIndex]);
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setCulled(viewIndex, this.flags[viewIndex]);
     }
   }
 
@@ -147,8 +145,8 @@ export class RendererObjectImpl implements RendererObject {
       return;
     }
     this.flags[viewIndex] = clippable ? this.flags[viewIndex] | OBJECT_FLAGS.CLIPPABLE : this.flags[viewIndex] & ~OBJECT_FLAGS.CLIPPABLE;
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setClippable(viewIndex, this.flags[viewIndex]);
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setClippable(viewIndex, this.flags[viewIndex]);
     }
   }
 
@@ -160,8 +158,8 @@ export class RendererObjectImpl implements RendererObject {
       return;
     }
     this.flags[viewIndex] = collidable ? this.flags[viewIndex] | OBJECT_FLAGS.COLLIDABLE : this.flags[viewIndex] & ~OBJECT_FLAGS.COLLIDABLE;
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setCollidable(viewIndex, this.flags[viewIndex]);
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setCollidable(viewIndex, this.flags[viewIndex]);
     }
   }
 
@@ -173,8 +171,8 @@ export class RendererObjectImpl implements RendererObject {
       return;
     }
     this.flags[viewIndex] = pickable ? this.flags[viewIndex] | OBJECT_FLAGS.PICKABLE : this.flags[viewIndex] & ~OBJECT_FLAGS.PICKABLE;
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setPickable(viewIndex, this.flags[viewIndex]);
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setPickable(viewIndex, this.flags[viewIndex]);
     }
   }
 
@@ -186,12 +184,12 @@ export class RendererObjectImpl implements RendererObject {
       tempIntRGB[0] = Math.floor(color[0] * 255.0); // Quantize
       tempIntRGB[1] = Math.floor(color[1] * 255.0);
       tempIntRGB[2] = Math.floor(color[2] * 255.0);
-      for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-        this.rendererMeshes[i].setColorize(viewIndex, tempIntRGB);
+      for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+        this._rendererMeshes[i].setColorize(viewIndex, tempIntRGB);
       }
     } else {
-      for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-        this.rendererMeshes[i].setColorize(viewIndex, null);
+      for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+        this._rendererMeshes[i].setColorize(viewIndex, null);
       }
     }
   }
@@ -200,11 +198,11 @@ export class RendererObjectImpl implements RendererObject {
    * Sets the opacity of the object in a specific view.
    */
   setOpacity(viewIndex: number, opacity?: number): void {
-    if (this.rendererMeshes.length === 0) {
+    if (this._rendererMeshes.length === 0) {
       return;
     }
     // @ts-ignore
-    const lastOpacityQuantized = this.rendererMeshes[0].colorize[3];
+    const lastOpacityQuantized = this._rendererMeshes[0].colorize[3];
     let opacityQuantized = 255;
     if (opacity !== null && opacity !== undefined) {
       if (opacity < 0) {
@@ -224,8 +222,8 @@ export class RendererObjectImpl implements RendererObject {
         return;
       }
     }
-    for (let i = 0, len = this.rendererMeshes.length; i < len; i++) {
-      this.rendererMeshes[i].setOpacity(viewIndex, opacityQuantized);
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setOpacity(viewIndex, opacityQuantized);
     }
   }
 }

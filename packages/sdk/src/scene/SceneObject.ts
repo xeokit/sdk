@@ -1,4 +1,4 @@
-import type {RendererObject} from "./RendererObject";
+
 import type {SceneMesh} from "./SceneMesh";
 import type {SceneModel} from "./SceneModel";
 import type {SceneObjectParams} from "./SceneObjectParams";
@@ -46,16 +46,6 @@ export class SceneObject {
   public readonly meshes: SceneMesh[];
 
   /**
-   *  Internal interface through which a {@link viewer!ViewObject | ViewObject} can load property updates
-   *  into a {@link viewer!Renderer | Renderer} for this SceneObject.
-   *
-   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
-   *
-   * @internal
-   */
-  rendererObject: RendererObject | null;
-
-  /**
    * @private
    */
   constructor(cfg: {
@@ -70,7 +60,6 @@ export class SceneObject {
     this.layerId = cfg.layerId;
     this.model = cfg.model;
     this.meshes = cfg.meshes;
-    this.rendererObject = null;
   }
 
   /**

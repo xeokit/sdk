@@ -66,7 +66,7 @@ export class ViewManager {
   /**
    * Returns the list of RendererView instances.
    */
-  rendererViews(): RendererView[] {
+  get rendererViews(): RendererView[] {
     return this._rendererViewsList;
   }
 
@@ -108,7 +108,7 @@ export class ViewManager {
     webglCanvasElement.style["height"] = `${boundingRect.height}px`;
     webglCanvasElement.width = boundingRect.width;
     webglCanvasElement.height = boundingRect.height;
-    webglCanvasElement.style["z-index"] = 100000;
+    webglCanvasElement.style["z-tileIndex"] = 100000;
 
     this._activeView = rendererView;
   }
@@ -124,16 +124,16 @@ export class ViewManager {
    * @internal
    */
   renderView(viewIndex: number,
-         params?: {
-           force?: boolean;
-           opaqueOnly?: boolean
-         }): void | SDKError {
-    const rendererView = this._rendererViews[viewIndex];
+             params?: {
+               force?: boolean;
+               opaqueOnly?: boolean
+             }): void | SDKError {
+    const rendererView = this._rendererViewsList[viewIndex];
     if (!rendererView) {
       return new SDKError(`Can't render with WebGLRenderer - no View attached at given viewIndex: ${viewIndex}`);
     }
     // params = params || {};
-    if (params.force) {
+    if (true || params.force) {
       rendererView.imageDirty = true;
     }
     if (rendererView.imageDirty) {

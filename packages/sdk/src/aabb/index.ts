@@ -78,7 +78,7 @@
  * const combinedAABB = sceneAABBIndex.getCombinedObjectAABB(["object1", "object2"]);
  * console.log("Combined AABB:", combinedAABB);
  *
- * // Destroy the index when no longer needed. The index also
+ * // Destroy the tileIndex when no longer needed. The tileIndex also
  * // destructs automatically when the Scene is destroyed.
  *
  * sceneAABBIndex.destroy();

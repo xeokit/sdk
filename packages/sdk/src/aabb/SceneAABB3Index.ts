@@ -57,7 +57,7 @@ export class SceneAABB3Index {
 
   /**
    * Constructs a new SceneAABB3Index for the given {@link Scene}.
-   * @param scene The scene to index.
+   * @param scene The scene to tileIndex.
    */
   constructor(scene: Scene) {
     this.#scene = scene;
@@ -225,7 +225,7 @@ export class SceneAABB3Index {
   }
 
   /**
-   * Destroys this index and releases internal resources.
+   * Destroys this tileIndex and releases internal resources.
    *
    * - Clears cached AABBs and dirty flags.
    * - Unsubscribes from all Scene event listeners.

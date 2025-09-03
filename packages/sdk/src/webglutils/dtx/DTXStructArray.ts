@@ -141,9 +141,9 @@ export interface DTXStructSpec {
  * ````
  *
  * ### Methods:
- * * setStructObject(index, data): Writes a single struct to the array.
+ * * setStructObject(tileIndex, data): Writes a single struct to the array.
  * * setStructObjects(startIndex, objects): Writes multiple structs to the array.
- * * getStructObject(index): Reads a struct as a JavaScript object.
+ * * getStructObject(tileIndex): Reads a struct as a JavaScript object.
  * * flush(): Uploads modified data to the GPU.
  * * getTexture(): Returns the WebGL texture for use in shaders.
  */
@@ -249,7 +249,7 @@ export class DTXStructArray {
   }
 
   /**
-   * Reads and unpacks the struct at the given index as a JS object.
+   * Reads and unpacks the struct at the given tileIndex as a JS object.
    */
   getStructObject(index: number): Record<string, number | number[]> {
     const view = this.getStructView(index);
@@ -285,7 +285,7 @@ export class DTXStructArray {
   }
 
   /**
-   * Writes the given JS object into the buffer at the specified struct index.
+   * Writes the given JS object into the buffer at the specified struct tileIndex.
    */
   setStructObject(index: number, data: Record<string, number | number[]>): void {
     const view = this.getStructView(index);
@@ -379,7 +379,7 @@ export class DTXStructArray {
   }
 
   /**
-   * Writes a batch of JS objects into the buffer starting at a given index.
+   * Writes a batch of JS objects into the buffer starting at a given tileIndex.
    */
   setStructObjects(startIndex: number, objects: Record<string, number | number[]>[]): void {
     for (let i = 0; i < objects.length; i++) {
@@ -388,7 +388,7 @@ export class DTXStructArray {
   }
 
   /**
-   * Reads and returns a batch of JS objects from the buffer starting at a given index.
+   * Reads and returns a batch of JS objects from the buffer starting at a given tileIndex.
    */
   getStructObjects(startIndex: number, count: number): Record<string, number | number[]>[] {
     const result: Record<string, number | number[]>[] = [];

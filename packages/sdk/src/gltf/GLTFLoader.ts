@@ -267,7 +267,7 @@ function parseTextureSet(ctx: ParsingContext, material: any): null | string {
     if (specularPBR) {
       const specularTexture = specularPBR.specularTexture;
       if (specularTexture !== null && specularTexture !== undefined) {
-        //  textureSetCfg.colorTextureId = ctx.gltfData.textures[specularColorTexture.index]._textureId;
+        //  textureSetCfg.colorTextureId = ctx.gltfData.textures[specularColorTexture.tileIndex]._textureId;
       }
       const specularColorTexture = specularPBR.specularColorTexture;
       if (specularColorTexture !== null && specularColorTexture !== undefined) {

@@ -418,7 +418,7 @@ export class ContextMenu {
     const groups = menu.groups;
     const html = [];
 
-    html.push('<div class="xeokit-context-menu ' + menu.id + '" style="z-index:300000; position: absolute;">');
+    html.push('<div class="xeokit-context-menu ' + menu.id + '" style="z-tileIndex:300000; position: absolute;">');
 
     html.push('<ul>');
 
@@ -464,7 +464,7 @@ export class ContextMenu {
 
     menuElement.style["border-radius"] = 4 + "px";
     menuElement.style.display = 'none';
-    menuElement.style["z-index"] = 300000;
+    menuElement.style["z-tileIndex"] = 300000;
     menuElement.style.background = "white";
     menuElement.style.border = "1px solid black";
     menuElement.style["box-shadow"] = "0 4px 5px 0 gray";

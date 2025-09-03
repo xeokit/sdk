@@ -116,7 +116,7 @@ export class RendererView {
     force?: boolean;
     opaqueOnly?: boolean;
   }) {
-    if (this._imageDirty || (params && params.force)) {
+    if (true || this._imageDirty || (params && params.force)) {
       this.activate();
       this.viewManager.renderView(this.view.viewIndex, params);
       this._imageDirty = false;

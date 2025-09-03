@@ -9,7 +9,7 @@
  *
  * ---
  *
- * The {@link KdTree3} provides a fast spatial search index that organizes 3D objects with axis-aligned boundaries,
+ * The {@link KdTree3} provides a fast spatial search tileIndex that organizes 3D objects with axis-aligned boundaries,
  * allowing efficient queries for intersections with other objects, volumes, and rays.
  *
  * ## Features

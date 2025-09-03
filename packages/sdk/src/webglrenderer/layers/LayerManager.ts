@@ -14,9 +14,8 @@ import type {
 import {RendererObjectImpl} from "./RendererObjectImpl";
 import {RendererMeshImpl} from "./RendererMeshImpl";
 import {RendererGeometryImpl} from "./RendererGeometryImpl";
-import {LayerImpl} from "./LayerImpl";
-import {type Layer} from "./Layer";
-import {type GPUDataMemoryEditorIF} from "../gpuDataMemory/GPUDataMemoryEditorIF";
+import {Layer} from "./Layer";
+import {type GPUMemoryEditIF} from "../memory/GPUMemoryEditIF";
 
 /**
  * Manages the layers and renderer objects in the WebGLRenderer.
@@ -29,7 +28,7 @@ export class LayerManager {
   public rendererObjects: Record<string, RendererObject> = {};
 
   private _renderContext: RenderContext;
-  private _gpuDataMemoryEditor: GPUDataMemoryEditorIF;
+  private _gpuMemoryEditIF: GPUMemoryEditIF;
 
   private _rendererModels: Record<string,
     {
@@ -39,7 +38,7 @@ export class LayerManager {
       rendererMeshes: Record<string, RendererMesh>;
     }> = {};
 
-  private _layers: Record<string, LayerImpl> = {};
+  private _layers: Record<string, Layer> = {};
   private _layerList: Layer[] = [];
   private _layerListDirty = true;
 
@@ -51,25 +50,25 @@ export class LayerManager {
   /**
    * Initializes the LayerManager with the given rendering context and GPU data memory editor.
    * @param renderContext
-   * @param gpuDataMemoryEditor
+   * @param gpuMemoryEditIF
    */
-  constructor(renderContext: RenderContext, gpuDataMemoryEditor: GPUDataMemoryEditorIF) {
+  constructor( renderContext: RenderContext, gpuMemoryEditIF: GPUMemoryEditIF ) {
 
     this._renderContext = renderContext;
-    this._gpuDataMemoryEditor = gpuDataMemoryEditor;
+    this._gpuMemoryEditIF = gpuMemoryEditIF;
 
     const {viewer} = renderContext;
     const {models, objects, onModelCreated, onObjectCreated, onObjectDestroyed, onModelDestroyed} = viewer.scene;
 
     // @ts-ignore
-    Object.values(models).forEach((sceneModel) => this._attachModel(sceneModel));
+    Object.values(models).forEach(( sceneModel ) => this._attachModel(sceneModel));
     // @ts-ignore
-    Object.values(objects).forEach((sceneObject) => this._attachObject(sceneObject));
+    Object.values(objects).forEach(( sceneObject ) => this._attachObject(sceneObject));
 
-    this._onModelCreated = onModelCreated.subscribe((_, sceneModel) => this._attachModel(sceneModel));
-    this._onObjectCreated = onObjectCreated.subscribe((_, sceneObject) => this._attachObject(sceneObject));
-    this._onObjectDestroyed = onObjectDestroyed.subscribe((_, sceneObject) => this._detachObject(sceneObject));
-    this._onModelDestroyed = onModelDestroyed.subscribe((_, sceneModel) => this._detachModel(sceneModel));
+    this._onModelCreated = onModelCreated.subscribe(( _, sceneModel ) => this._attachModel(sceneModel));
+    this._onObjectCreated = onObjectCreated.subscribe(( _, sceneObject ) => this._attachObject(sceneObject));
+    this._onObjectDestroyed = onObjectDestroyed.subscribe(( _, sceneObject ) => this._detachObject(sceneObject));
+    this._onModelDestroyed = onModelDestroyed.subscribe(( _, sceneModel ) => this._detachModel(sceneModel));
   }
 
   /**
@@ -78,13 +77,13 @@ export class LayerManager {
   get layers(): Layer[] {
     if (this._layerListDirty) {
       // @ts-ignore
-      this._layerList = Object.values(this._layers).sort((a, b) => a.primitive - b.primitive);
+      this._layerList = Object.values(this._layers).sort(( a, b ) => a.primitive - b.primitive);
       this._layerListDirty = false;
     }
     return this._layerList;
   }
 
-  private _attachModel(sceneModel: SceneModel): void {
+  private _attachModel( sceneModel: SceneModel ): void {
     this._rendererModels[sceneModel.id] ||= {
       rendererGeometries: {},
       rendererTextures: {},
@@ -93,11 +92,11 @@ export class LayerManager {
     };
   }
 
-  private _detachModel(sceneModel: SceneModel): void {
+  private _detachModel( sceneModel: SceneModel ): void {
     delete this._rendererModels[sceneModel.id];
   }
 
-  private _attachObject(sceneObject: SceneObject): void {
+  private _attachObject( sceneObject: SceneObject ): void {
     const objectId = sceneObject.id;
     if (this.rendererObjects[objectId]) {
       throw new SDKError(`Already has a SceneObject attached with this ID: ${objectId}`);
@@ -106,7 +105,7 @@ export class LayerManager {
     if (!rendererModel) {
       throw new SDKError(`SceneModel not found with this ID: ${sceneObject.model.id}`);
     }
-    const rendererMeshes = sceneObject.meshes?.map((mesh) => this._attachMesh(rendererModel, mesh)).filter(Boolean) || [];
+    const rendererMeshes = sceneObject.meshes?.map(( mesh ) => this._attachMesh(rendererModel, mesh)).filter(Boolean) || [];
     if (rendererMeshes.length === 0) {
       return;
     }
@@ -115,36 +114,32 @@ export class LayerManager {
       id: objectId,
       rendererMeshes,
     });
-    this.rendererObjects[objectId] = rendererObject;
-    sceneObject.rendererObject = rendererObject;
+    this.rendererObjects[objectId] = rendererObject; // ViewObject will use this to make view-specific attribute updates
     this._layerListDirty = true;
   }
 
-  private _attachMesh(rendererModel: any, sceneMesh: SceneMesh): RendererMeshImpl | undefined {
+  private _attachMesh( rendererModel: any, sceneMesh: SceneMesh ): RendererMeshImpl|undefined {
     const meshId = sceneMesh.id;
     if (rendererModel.rendererMeshes[meshId]) {
       throw new SDKError(`SceneMesh already attached with this ID: ${meshId}`);
     }
-    const rendererGeometry = this._attachGeometry(rendererModel, sceneMesh.geometry);
     const layer = this._getLayer(sceneMesh);
     if (!layer) {
       return;
     }
+    this._attachGeometry(rendererModel, sceneMesh.geometry);
     const rendererMesh = new RendererMeshImpl({
       renderContext: this._renderContext,
-      id: meshId,
       sceneMesh,
       layer,
-      meshIndex: layer.addMesh(sceneMesh),
-      rendererGeometry,
-      gpuDataMemoryEditor: this._gpuDataMemoryEditor
+      gpuMemoryEditIF: this._gpuMemoryEditIF
     });
     rendererModel.rendererMeshes[meshId] = rendererMesh;
-    sceneMesh.rendererMesh = rendererMesh;
+    sceneMesh.rendererMesh = rendererMesh; // SceneMesh will use this to make view-global attribute updates
     return rendererMesh;
   }
 
-  private _attachGeometry(rendererModel: any, geometry: SceneGeometry): RendererGeometryImpl {
+  private _attachGeometry( rendererModel: any, geometry: SceneGeometry ): RendererGeometryImpl {
     const geometryId = geometry.id;
     const rendererGeometry = rendererModel.rendererGeometries[geometryId] ||= new RendererGeometryImpl();
     geometry.rendererGeometry = rendererGeometry;
@@ -152,42 +147,40 @@ export class LayerManager {
     return rendererGeometry;
   }
 
-  private _getLayer(sceneMesh: SceneMesh): LayerImpl | undefined {
+  private _getLayer( sceneMesh: SceneMesh ): Layer|undefined {
     const layerId = `layer-${sceneMesh.geometry.primitive}`;
-    const layer = this._layers[layerId] ||= new LayerImpl({
+    const layer = this._layers[layerId] ||= new Layer({
       primitive: sceneMesh.geometry.primitive,
       renderContext: this._renderContext,
-      gpuDataMemoryEditor: this._gpuDataMemoryEditor
+      gpuMemoryEditIF: this._gpuMemoryEditIF
     });
     this._layerListDirty = true;
     return layer;
   }
 
-  private _detachObject(sceneObject: SceneObject): void {
+  private _detachObject( sceneObject: SceneObject ): void {
     const rendererModel = this._rendererModels[sceneObject.model.id];
     if (!rendererModel) {
       return;
     }
-    sceneObject.meshes?.forEach((mesh) => this._detachMesh(rendererModel, mesh));
+    sceneObject.meshes?.forEach(( mesh ) => this._detachMesh(rendererModel, mesh));
     delete this.rendererObjects[sceneObject.id];
-    sceneObject.rendererObject = null;
     this._layerListDirty = true;
   }
 
-  private _detachMesh(rendererModel: any, sceneMesh: SceneMesh): void {
+  private _detachMesh( rendererModel: any, sceneMesh: SceneMesh ): void {
     const rendererMesh = sceneMesh.rendererMesh as RendererMeshImpl;
     if (!rendererMesh) {
       return;
     }
     this._detachGeometry(rendererModel, sceneMesh.geometry);
-    rendererMesh.layer.removeMesh(sceneMesh, rendererMesh.rendererObject.flags);
     rendererMesh.destroy();
     delete rendererModel.rendererMeshes[sceneMesh.id];
     sceneMesh.rendererMesh = null;
     this._layerListDirty = true;
   }
 
-  private _detachGeometry(rendererModel: any, sceneGeometry: SceneGeometry): void {
+  private _detachGeometry( rendererModel: any, sceneGeometry: SceneGeometry ): void {
     const rendererGeometry = sceneGeometry.rendererGeometry as RendererGeometryImpl;
     if (rendererGeometry && --rendererGeometry.useCount <= 0) {
       delete rendererModel.rendererGeometries[sceneGeometry.id];
@@ -203,9 +196,9 @@ export class LayerManager {
     const {models, objects} = viewer.scene;
 
     // @ts-ignore
-    Object.values(objects).forEach((object) => this._detachObject(object));
+    Object.values(objects).forEach(( object ) => this._detachObject(object));
     // @ts-ignore
-    Object.values(models).forEach((model) => this._detachModel(model));
+    Object.values(models).forEach(( model ) => this._detachModel(model));
 
     this._onModelCreated?.();
     this._onModelDestroyed?.();
@@ -213,7 +206,7 @@ export class LayerManager {
     this._onObjectDestroyed?.();
 
     // @ts-ignore
-    Object.values(this._layers).forEach((layer) => layer.destroy());
+    Object.values(this._layers).forEach(( layer ) => layer.destroy());
 
     this._layers = {};
     this._layerList = [];

@@ -39,7 +39,7 @@ export class WorkerPool {
 
   /**
    * Finds and returns an idle worker by checking the worker status.
-   * @returns The index of an idle worker, or -1 if no idle workers are available.
+   * @returns The tileIndex of an idle worker, or -1 if no idle workers are available.
    */
   _getIdleWorker() {
     // Check each worker to see if it's idle (not in use).

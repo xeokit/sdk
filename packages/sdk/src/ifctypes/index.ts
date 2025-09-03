@@ -323,7 +323,7 @@ export const IfcBSplineSurfaceWithKnots = 1055;
 export const IfcBuilding = 1056;
 
 /**
- * IfcBuildingElementPart represents major components as subordinate parts of a building element. Typical usage examples include precast concrete sandwich walls, where the layers may have different geometry representations. In this case the layered material representation does not sufficiently describe the element. Each layer is represented by an own instance of the IfcBuildingElementPart with its own geometry description.
+ * IfcBuildingElementPart represents major components as subordinate parts of a building element. Typical usage examples include precast concrete sandwich walls, where the layers may have different geometry representations. In this case the layered material representation does not sufficiently describe the element. Each _layer is represented by an own instance of the IfcBuildingElementPart with its own geometry description.
  */
 export const IfcBuildingElementPart = 1057;
 
@@ -1608,7 +1608,7 @@ export const IfcHumidifierType = 1312;
 export const IfcImageTexture = 1313;
 
 /**
- * The IfcIndexedColourMap provides the assignment of colour information to individual faces. It is used for colouring faces of tessellated face sets. The IfcIndexedColourMap defines an index into an indexed list of colour information. The Colours are a two-dimensional list of colours provided by three RGB values. The ColourIndex attribute corresponds to the CoordIndex of the IfcTessellatedFaceSet defining the corresponding index list of faces. The Opacity attribute provides the alpha channel for all faces of the tessellated face set.
+ * The IfcIndexedColourMap provides the assignment of colour information to individual faces. It is used for colouring faces of tessellated face sets. The IfcIndexedColourMap defines an tileIndex into an indexed list of colour information. The Colours are a two-dimensional list of colours provided by three RGB values. The ColourIndex attribute corresponds to the CoordIndex of the IfcTessellatedFaceSet defining the corresponding tileIndex list of faces. The Opacity attribute provides the alpha channel for all faces of the tessellated face set.
  */
 export const IfcIndexedColourMap = 1314;
 
@@ -1708,7 +1708,7 @@ export const IfcLamp = 1332;
 export const IfcLampType = 1333;
 
 /**
- * An IfcLibraryInformation describes a library where a library is a structured store of information, normally organized in a manner which allows information lookup through an index or reference value. IfcLibraryInformation provides the library Name and optional Description, Version, VersionDate and Publisher attributes. A Location may be added for electronic access to the library.
+ * An IfcLibraryInformation describes a library where a library is a structured store of information, normally organized in a manner which allows information lookup through an tileIndex or reference value. IfcLibraryInformation provides the library Name and optional Description, Version, VersionDate and Publisher attributes. A Location may be added for electronic access to the library.
  */
 export const IfcLibraryInformation = 1334;
 
@@ -1818,7 +1818,7 @@ export const IfcMaterialClassificationRelationship = 1354;
 export const IfcMaterialConstituent = 1355;
 
 /**
- * IfcMaterialConstituentSet is a collection of individual material constituents, each assigning a material to a part of an element. The parts are only identified by a keyword (as opposed to an IfcMaterialLayerSet or IfcMaterialProfileSet where each part has an individual shape parameter (layer thickness or layer profile).
+ * IfcMaterialConstituentSet is a collection of individual material constituents, each assigning a material to a part of an element. The parts are only identified by a keyword (as opposed to an IfcMaterialLayerSet or IfcMaterialProfileSet where each part has an individual shape parameter (_layer thickness or _layer profile).
  */
 export const IfcMaterialConstituentSet = 1356;
 
@@ -1833,7 +1833,7 @@ export const IfcMaterialDefinition = 1357;
 export const IfcMaterialDefinitionRepresentation = 1358;
 
 /**
- * IfcMaterialLayer is a single and identifiable part of an element which is constructed of a number of layers (one or more). Each IfcMaterialLayer has a constant thickness and is located relative to the referencing IfcMaterialLayerSet along the material layer set base (MlsBase).
+ * IfcMaterialLayer is a single and identifiable part of an element which is constructed of a number of layers (one or more). Each IfcMaterialLayer has a constant thickness and is located relative to the referencing IfcMaterialLayerSet along the material _layer set base (MlsBase).
  */
 export const IfcMaterialLayer = 1359;
 
@@ -1843,12 +1843,12 @@ export const IfcMaterialLayer = 1359;
 export const IfcMaterialLayerSet = 1360;
 
 /**
- * The IfcMaterialLayerSetUsage determines the usage of IfcMaterialLayerSet in terms of its location and orientation relative to the associated element geometry. The location of material layer set shall be compatible with the building element geometry (that is, material layers shall fit inside the element geometry). The rules to ensure the compatibility depend on the type of the building element.
+ * The IfcMaterialLayerSetUsage determines the usage of IfcMaterialLayerSet in terms of its location and orientation relative to the associated element geometry. The location of material _layer set shall be compatible with the building element geometry (that is, material layers shall fit inside the element geometry). The rules to ensure the compatibility depend on the type of the building element.
  */
 export const IfcMaterialLayerSetUsage = 1361;
 
 /**
- * IfcMaterialLayerWithOffsets is a specialization of IfcMaterialLayer enabling definition of offset values along edges (within the material layer set usage in parent layer set).
+ * IfcMaterialLayerWithOffsets is a specialization of IfcMaterialLayer enabling definition of offset values along edges (within the material _layer set usage in parent _layer set).
  */
 export const IfcMaterialLayerWithOffsets = 1362;
 
@@ -2258,12 +2258,12 @@ export const IfcPreDefinedTextFont = 1442;
 export const IfcPresentationItem = 1443;
 
 /**
- * The presentation layer assignment provides the layer name (and optionally a description and an identifier) for a collection of geometric representation items. The IfcPresentationLayerAssignment corresponds to the term "CAD RendererLayer" and is used mainly for grouping and visibility control.
+ * The presentation _layer assignment provides the _layer name (and optionally a description and an identifier) for a collection of geometric representation items. The IfcPresentationLayerAssignment corresponds to the term "CAD RendererLayer" and is used mainly for grouping and visibility control.
  */
 export const IfcPresentationLayerAssignment = 1444;
 
 /**
- * An IfcPresentationLayerAssignmentWithStyle extends the presentation layer assignment with capabilities to define visibility control, access control and kdtree3 style information.
+ * An IfcPresentationLayerAssignmentWithStyle extends the presentation _layer assignment with capabilities to define visibility control, access control and kdtree3 style information.
  */
 export const IfcPresentationLayerWithStyle = 1445;
 
@@ -3423,7 +3423,7 @@ export const IfcSurfaceStyle = 1675;
 export const IfcSurfaceStyleLighting = 1676;
 
 /**
- * IfcSurfaceStyleRefraction extends the surface style lighting, or the surface style rendering definition for properties for calculation of physically exact illuminance by adding seldomly used properties. Currently this includes the refraction index (by which the light ray refracts when passing through a prism) and the dispersion factor (or Abbe constant) which takes into account the wavelength dependency of the refraction.
+ * IfcSurfaceStyleRefraction extends the surface style lighting, or the surface style rendering definition for properties for calculation of physically exact illuminance by adding seldomly used properties. Currently this includes the refraction tileIndex (by which the light ray refracts when passing through a prism) and the dispersion factor (or Abbe constant) which takes into account the wavelength dependency of the refraction.
  */
 export const IfcSurfaceStyleRefraction = 1677;
 

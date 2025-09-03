@@ -2,7 +2,7 @@
 // import {OcclusionLayer} from "./OcclusionLayer";
 //
 //
-// import {View, Scene, CustomProjection, math} from "../../../../viewer/index";
+// import {View, Scene, CustomProjection, math} from "../../../../viewer/tileIndex";
 //
 // const TEST_MODE = false;
 // const MARKER_COLOR = math.createVec3([1.0, 0.0, 0.0]);

@@ -2,11 +2,13 @@ import {View} from "../../viewer";
 import {RenderBufferManager} from "./RenderBufferManager";
 import {Map} from "../../utils";
 import {ViewManager} from "./ViewManager";
-import {SDKError} from "../../core";
+import {RenderContext} from "../RenderContext";
+import {RendererView} from "../../viewer/RendererView";
 
 
 /** @private */
-export class RendererView {
+export class RendererViewImpl implements RendererView {
+
   view: View;
   gl: WebGL2RenderingContext;
   renderBufferManager: RenderBufferManager;
@@ -14,7 +16,6 @@ export class RendererView {
 
   private _active: boolean;
   private _transparencyEnabled: boolean;
-  private _imageDirty: boolean;
   private _canvasTransparent: boolean;
   private _saoEnabled: boolean;
   private _edgesEnabled: boolean;
@@ -23,22 +24,23 @@ export class RendererView {
 
   saveCanvasBoundary: DOMRect;
   private viewManager: ViewManager;
+  private _renderContext: RenderContext;
 
-
-  constructor(viewManager: ViewManager, gl: WebGL2RenderingContext, webglCanvasElement: HTMLCanvasElement, view: View) {
+  constructor( viewManager: ViewManager, renderContext: RenderContext, view: View ) {
     this.viewManager = viewManager;
-    this.gl = gl;
+    this.gl = renderContext.gl;
+    this._renderContext = renderContext;
     this.view = view;
     this._active = false;
     this._transparencyEnabled = true;
-    this._imageDirty = true;
+    this.needsRender();
     this._canvasTransparent = false;
     this._pbrEnabled = false;
     this._saoEnabled = false;
     this._edgesEnabled = true;
     this._transparentEnabled = true;
     this.saveCanvasBoundary = view.htmlElement.getBoundingClientRect();
-    this.renderBufferManager = new RenderBufferManager(gl, webglCanvasElement);
+    this.renderBufferManager = new RenderBufferManager(renderContext.gl, renderContext.webglCanvasElement);
     this.pickIDs = new Map({});
   }
 
@@ -47,88 +49,91 @@ export class RendererView {
       return;
     }
     this._active = true;
-    this.viewManager.activateView(this.view.viewIndex);
+    this.viewManager.activateView(this);
   }
 
-  get imageDirty(): boolean {
-    return this._imageDirty;
-  }
-
-  set imageDirty(value: boolean) {
-    this._imageDirty = value;
+  needsRender(): void {
+    this._renderContext.viewFlags[this.view.viewIndex].needsRender = true;
   }
 
   get transparencyEnabled(): boolean {
     return this._transparencyEnabled;
   }
 
-  set transparencyEnabled(value: boolean) {
+  set transparencyEnabled( value: boolean ) {
     this._transparencyEnabled = value;
-    this._imageDirty = true;
+    this.needsRender();
   }
 
   get canvasTransparent(): boolean {
     return this._canvasTransparent;
   }
 
-  set canvasTransparent(value: boolean) {
+  set canvasTransparent( value: boolean ) {
     this._canvasTransparent = value;
-    this._imageDirty = true;
+    this.needsRender();
   }
 
   get saoEnabled(): boolean {
     return this._saoEnabled;
   }
 
-  set saoEnabled(value: boolean) {
+  set saoEnabled( value: boolean ) {
     this._saoEnabled = value;
-    this._imageDirty = true;
+    this.needsRender();
   }
 
   get edgesEnabled(): boolean {
     return this._edgesEnabled;
   }
 
-  set edgesEnabled(value: boolean) {
+  set edgesEnabled( value: boolean ) {
     this._edgesEnabled = value;
-    this._imageDirty = true;
+    this.needsRender();
   }
 
   get transparentEnabled(): boolean {
     return this._transparentEnabled;
   }
 
-  set transparentEnabled(value: boolean) {
+  set transparentEnabled( value: boolean ) {
     this._transparentEnabled = value;
-    this._imageDirty = true;
+    this.needsRender();
   }
 
   get pbrEnabled(): boolean {
     return this._pbrEnabled;
   }
 
-  set pbrEnabled(value: boolean) {
+  set pbrEnabled( value: boolean ) {
     this._pbrEnabled = value;
-    this._imageDirty = true;
+    this.needsRender();
   }
 
-  render(params?: {
-    force?: boolean;
-    opaqueOnly?: boolean;
-  }) {
-    if (true || this._imageDirty || (params && params.force)) {
+  render( params?: {force?: boolean; opaqueOnly?: boolean} ): void {
+    const viewFlags = this._renderContext.viewFlags[this.view.viewIndex];
+    if (!viewFlags) {
+      console.warn("View flags not found for the current view index.");
+      return;
+    }
+    const shouldRender = params?.force || viewFlags.needsRender;
+    if (shouldRender) {
       this.activate();
-      this.viewManager.renderView(this.view.viewIndex, params);
-      this._imageDirty = false;
+      this.viewManager.renderView(this, params);
+      viewFlags.needsRender = false;
     }
   }
 
   clear() {
     this.activate();
-    this.viewManager.clearView(this.view.viewIndex);
+    this.viewManager.clearView(this);
   }
 
   destroy() {
     this.renderBufferManager.destroy();
+  }
+
+  // Add here?
+  beginSnapshot( params?: {width: number; height: number} ) {
   }
 }

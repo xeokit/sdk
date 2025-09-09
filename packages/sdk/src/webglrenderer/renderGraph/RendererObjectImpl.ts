@@ -19,10 +19,6 @@ export class RendererObjectImpl implements RendererObject {
    */
   readonly id: string;
 
-  /**
-   * The ID of the ViewLayer this object belongs to, or null if not associated with a ViewLayer.
-   */
-  readonly layerId: string | null;
 
   /**
    * List of renderer meshes associated with this object.

@@ -641,7 +641,7 @@ class Camera extends Component {
 
   setDirty() {
     super.setDirty();
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   clean() {
@@ -668,7 +668,7 @@ class Camera extends Component {
     }
     inverseMat4(this.#state.viewMatrix, this.#state.inverseViewMatrix);
     transposeMat4(this.#state.inverseViewMatrix, this.#state.viewNormalMatrix);
-    this.view.redraw();
+    this.view.needsRender();
     setFrustum3(this.#state.viewMatrix, this.#activeProjection.projMatrix, this.#frustum);
     this.onViewMatrix.dispatch(this, this.#state.viewMatrix);
     this.onFrustum.dispatch(this, this.#frustum);

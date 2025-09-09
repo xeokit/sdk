@@ -57,7 +57,7 @@ class Edges extends Component {
    */
   set renderModes(value: number[]) {
     this.#state.renderModes = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -84,7 +84,7 @@ class Edges extends Component {
     edgeColor[0] = 0.2;
     edgeColor[1] = 0.2;
     edgeColor[2] = 0.2;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -108,7 +108,7 @@ class Edges extends Component {
       return;
     }
     this.#state.edgeAlpha = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -132,7 +132,7 @@ class Edges extends Component {
       return;
     }
     this.#state.edgeWidth = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**

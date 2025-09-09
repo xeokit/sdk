@@ -10,10 +10,10 @@ import {
   normalizeVec3, subVec3,
   transformVec4
 } from "../../matrix";
-import {RendererView} from "../views/RendererView";
+import {RendererViewImpl} from "../views/RendererViewImpl";
 import {type FloatArrayParam} from "../../math";
 import {createRTCViewMat} from "../../rtc";
-import {RendererMeshImpl} from "../layers/RendererMeshImpl";
+import {RendererMeshImpl} from "../renderGraph/RendererMeshImpl";
 import {RenderContext} from "../RenderContext";
 import {RenderBufferManager} from "../views/RenderBufferManager";
 
@@ -54,7 +54,7 @@ export class PickManager {
    * TODO
    * @internal
    */
-  pick( rendererView: RendererView,
+  pick( rendererView: RendererViewImpl,
        pickParams: PickParams,
        pickResult = this._pickResult): PickResult | null {
 
@@ -133,7 +133,7 @@ export class PickManager {
     //
     //   // Pick a ViewObject
     //
-    //   const rendererMesh = this._pickMesh({
+    //   const rendererObject = this._pickMesh({
     //     rendererView,
     //     pickCanvasPos,
     //     pickViewMatrix,
@@ -141,9 +141,9 @@ export class PickManager {
     //     pickInvisible: !!pickParams.pickInvisible
     //   });
     //
-    //   if (rendererMesh) {
+    //   if (rendererObject) {
     //
-    //     const rendererObject = rendererMesh.rendererObject;
+    //     const rendererObject = rendererObject.rendererObject;
     //     const view = rendererView.view;
     //
     //     pickResult.viewObject = view.objects[rendererObject.id];
@@ -154,7 +154,7 @@ export class PickManager {
     //
     //       const worldPos = this._pickWorldPos({
     //         rendererView,
-    //         rendererMesh,
+    //         rendererObject,
     //         pickCanvasPos,
     //         pickViewMatrix,
     //         pickProjMatrix,
@@ -173,7 +173,7 @@ export class PickManager {
 
   _pickMesh(
     params: {
-      rendererView: RendererView,
+      rendererView: RendererViewImpl,
       pickCanvasPos: FloatArrayParam,
       pickViewMatrix: FloatArrayParam,
       pickProjMatrix: FloatArrayParam,
@@ -232,7 +232,7 @@ export class PickManager {
 
   _pickWorldPos(
     params: {
-      rendererView: RendererView,
+      rendererView: RendererViewImpl,
       pickCanvasPos: FloatArrayParam,
       pickViewMatrix: FloatArrayParam,
       pickProjMatrix: FloatArrayParam,
@@ -240,10 +240,10 @@ export class PickManager {
       rendererMesh: RendererMeshImpl
     }): FloatArrayParam | null {
 
-    // const {rendererView, rendererMesh, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
+    // const {rendererView, rendererObject, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
     // const view = rendererView.view;
     // const resolutionScale = view.resolutionScale;
-    // const _layer = rendererMesh._layer;
+    // const _layer = rendererObject._layer;
     // const renderContext = this._renderContext;
     // const gl = renderContext.gl;
     // const canvas = rendererView.view.htmlElement;
@@ -287,7 +287,7 @@ export class PickManager {
     //
     // // Ensure that unprojection matrix is in RTC space if needed
     //
-    // const origin = rendererMesh.tile.center;
+    // const origin = rendererObject.tile.center;
     // const gotOrigin = (origin[0] !== 0 && origin[1] !== 0 && origin[2] !== 0);
     // let pvMat = gotOrigin
     //   ? mulMat4(pickProjMatrix, createRTCViewMat(pickViewMatrix, origin, tempMat4a), tempMat4b)

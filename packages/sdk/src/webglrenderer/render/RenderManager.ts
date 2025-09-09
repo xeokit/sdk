@@ -1,40 +1,40 @@
-import {type Layer} from "../layers/Layer";
-import {RENDER_PASSES} from "../layers/RENDER_PASSES";
+import {RENDER_PASSES} from "../renderGraph/RENDER_PASSES";
 import {WEBGL_INFO} from "../../webglutils";
 import {RenderContext} from "../RenderContext";
-import {LayerManager} from "../layers/LayerManager";
+import {RenderGraph} from "../renderGraph/RenderGraph";
 import {LayerRendererSet} from "./layerRenderers/LayerRendererSet";
-import {RendererView} from "../views/RendererView";
-import {GPUMemoryViewIF} from "../memory/GPUMemoryViewIF";
+import {RendererViewImpl} from "../views/RendererViewImpl";
+import {GPUMemoryReadIF} from "../gpuMemory/GPUMemoryReadIF";
+import {RenderLayer} from "../renderGraph/RenderLayer";
 
 /**
  * Manages the drawing operations for WebGL rendering.
- * The `DrawManager` class handles rendering layers, views, and extensions,
+ * The `RenderManager` class handles rendering renderGraph, views, and extensions,
  * ensuring proper GPU state and efficient rendering of opaque and transparent objects.
  */
-export class DrawManager {
+export class RenderManager {
 
   private _renderContext: RenderContext;
-  private _layerManager: LayerManager;
+  private _renderGraph: RenderGraph;
   private _layerRendererSet: LayerRendererSet;
   private _extensionHandles: any;
   private _logarithmicDepthBufferEnabled: boolean;
   private _alphaDepthMask: Boolean;
 
-  constructor( params: {
-    renderContext: RenderContext;
-    gpuMemoryView: GPUMemoryViewIF;
-    layerManager: LayerManager
-  } ) {
-
-    this._renderContext = params.renderContext;
-    this._layerManager = params.layerManager;
-    this._layerRendererSet = new LayerRendererSet(this._renderContext, params.gpuMemoryView);
-
+  /**
+   * Creates a RenderManager with the given rendering context, GPU read interface, and render graph.
+   *
+   * @param renderContext - The rendering context.
+   * @param gpuMemoryReadIF - The GPU gpuMemory read interface. Provides data textures that contain model data to load into shaders.
+   * @param renderGraph - The render graph to render.
+   */
+  constructor( renderContext: RenderContext, gpuMemoryReadIF: GPUMemoryReadIF, renderGraph: RenderGraph) {
+    this._renderContext = renderContext;
+    this._renderGraph = renderGraph;
+    this._layerRendererSet = new LayerRendererSet(this._renderContext, gpuMemoryReadIF);
     this._extensionHandles = {};
     this._logarithmicDepthBufferEnabled = false;
     this._alphaDepthMask = false;
-
     this._activateExtensions();
   }
 
@@ -51,12 +51,11 @@ export class DrawManager {
   }
 
   /**
-   * Draws the specified view using the provided parameters.
-   * Handles opaque and transparent layers, as well as special rendering passes for silhouettes and edges.
-   * @param params - Object containing the view tileIndex and a flag indicating whether to clear the buffers.
+   * Renders the RenderGraph in the provided RendererViewImpl.
+   * @param params
    */
-  draw( params: {
-    rendererView: RendererView;
+  render( params: {
+    rendererView: RendererViewImpl;
     clear: boolean;
   } ): void {
 
@@ -69,22 +68,22 @@ export class DrawManager {
     const primRenderers = this._layerRendererSet.prims;
 
     const bins = {
-      normalDrawSAO: [] as Layer[],
-      edgesColorOpaque: [] as Layer[],
-      normalFillTransparent: [] as Layer[],
-      edgesColorTransparent: [] as Layer[],
-      xrayedSilhouetteOpaque: [] as Layer[],
-      xrayEdgesOpaque: [] as Layer[],
-      xrayedSilhouetteTransparent: [] as Layer[],
-      xrayEdgesTransparent: [] as Layer[],
-      highlightedSilhouetteOpaque: [] as Layer[],
-      highlightedEdgesOpaque: [] as Layer[],
-      highlightedSilhouetteTransparent: [] as Layer[],
-      highlightedEdgesTransparent: [] as Layer[],
-      selectedSilhouetteOpaque: [] as Layer[],
-      selectedEdgesOpaque: [] as Layer[],
-      selectedSilhouetteTransparent: [] as Layer[],
-      selectedEdgesTransparent: [] as Layer[]
+      normalDrawSAO: [] as RenderLayer[],
+      edgesColorOpaque: [] as RenderLayer[],
+      normalFillTransparent: [] as RenderLayer[],
+      edgesColorTransparent: [] as RenderLayer[],
+      xrayedSilhouetteOpaque: [] as RenderLayer[],
+      xrayEdgesOpaque: [] as RenderLayer[],
+      xrayedSilhouetteTransparent: [] as RenderLayer[],
+      xrayEdgesTransparent: [] as RenderLayer[],
+      highlightedSilhouetteOpaque: [] as RenderLayer[],
+      highlightedEdgesOpaque: [] as RenderLayer[],
+      highlightedSilhouetteTransparent: [] as RenderLayer[],
+      highlightedEdgesTransparent: [] as RenderLayer[],
+      selectedSilhouetteOpaque: [] as RenderLayer[],
+      selectedEdgesOpaque: [] as RenderLayer[],
+      selectedSilhouetteTransparent: [] as RenderLayer[],
+      selectedEdgesTransparent: [] as RenderLayer[]
     };
 
     ctx.reset();
@@ -113,7 +112,7 @@ export class DrawManager {
     const slMat = view.selectedMaterial;
     const xrMat = view.xrayMaterial;
 
-    const layers = this._layerManager.layers;
+    const layers = this._renderGraph.layers;
     for (let i = 0, len = layers.length; i < len; i++) {
       const layer = layers[i];
       const counts = layer.meshCounts[viewIndex];
@@ -209,12 +208,12 @@ export class DrawManager {
       if (!this._alphaDepthMask) gl.depthMask(true);
     }
 
-    // Helper to clear depth and draw silhouette + edges
+    // Helper to clear depth and render silhouette + edges
     const drawSilAndEdges = (
-      silBin: Layer[],
-      edgesBin: Layer[],
-      drawSil: ( l: Layer ) => void,
-      drawEdges: ( l: Layer ) => void
+      silBin: RenderLayer[],
+      edgesBin: RenderLayer[],
+      drawSil: ( l: RenderLayer ) => void,
+      drawEdges: ( l: RenderLayer ) => void
     ) => {
       if (silBin.length || edgesBin.length) {
         ctx.lastProgramId = -1;

@@ -86,7 +86,7 @@ class CustomProjection extends Component implements Projection {
     this.#inverseProjMatrixDirty = true;
     this.#transposedProjMatrixDirty = true;
     this.setDirty();
-    this.camera.view.redraw();
+    this.camera.view.needsRender();
     this.onProjMatrix.dispatch(this, this.#state.projMatrix);
   }
 

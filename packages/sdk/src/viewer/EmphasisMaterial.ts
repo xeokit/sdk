@@ -22,9 +22,9 @@ class EmphasisMaterial extends Component {
   public readonly view: View;
 
   #state: {
-    fillColor: Float32Array;
+    fillColor: Float32Array<any>;
     backfaces: boolean;
-    edgeColor: Float32Array;
+    edgeColor: Float32Array<any>;
     edgeWidth: number;
     edgeAlpha: number;
     edges: boolean;
@@ -75,7 +75,7 @@ class EmphasisMaterial extends Component {
       return;
     }
     this.#state.fill = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -100,7 +100,7 @@ class EmphasisMaterial extends Component {
     fillColor[0] = 0.4;
     fillColor[1] = 0.4;
     fillColor[2] = 0.4;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -108,7 +108,7 @@ class EmphasisMaterial extends Component {
    *
    * Default is ````[0.4, 0.4, 0.4]````.
    */
-  get fillColor(): Float32Array {
+  get fillColor(): Float32Array<any> {
     return this.#state.fillColor;
   }
 
@@ -124,7 +124,7 @@ class EmphasisMaterial extends Component {
       return;
     }
     this.#state.fillAlpha = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -148,7 +148,7 @@ class EmphasisMaterial extends Component {
       return;
     }
     this.#state.edges = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -173,7 +173,7 @@ class EmphasisMaterial extends Component {
     edgeColor[0] = 0.2;
     edgeColor[1] = 0.2;
     edgeColor[2] = 0.2;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -181,7 +181,7 @@ class EmphasisMaterial extends Component {
    *
    * Default is ```` [0.2, 0.2, 0.2]````.
    */
-  get edgeColor(): Float32Array {
+  get edgeColor(): Float32Array<any> {
     return this.#state.edgeColor;
   }
 
@@ -197,7 +197,7 @@ class EmphasisMaterial extends Component {
       return;
     }
     this.#state.edgeAlpha = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -218,7 +218,7 @@ class EmphasisMaterial extends Component {
    */
   set edgeWidth(value: number) {
     this.#state.edgeWidth = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -242,7 +242,7 @@ class EmphasisMaterial extends Component {
       return;
     }
     this.#state.backfaces = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -269,7 +269,7 @@ class EmphasisMaterial extends Component {
       return;
     }
     this.#state.glowThrough = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**

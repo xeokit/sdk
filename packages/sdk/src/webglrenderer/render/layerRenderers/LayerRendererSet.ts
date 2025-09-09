@@ -5,7 +5,7 @@ import {GenericSilhouetteRenderer} from "./generic/GenericSilhouetteRenderer";
 import {PointsSilhouetteRenderer} from "./points/PointsSilhouetteRenderer";
 import {PointsColorRenderer} from "./points/PointsColorRenderer";
 import {LayerRenderer} from "./LayerRenderer";
-import {type GPUMemoryViewIF} from "../../memory/GPUMemoryViewIF";
+import {type GPUMemoryReadIF} from "../../gpuMemory/GPUMemoryReadIF";
 
 /**
  * Interface defining the structure of a renderer set for different primitives.
@@ -31,23 +31,23 @@ export class LayerRendererSet {
   /**
    * Initializes the LayerRendererSet with the given rendering context.
    * @param renderContext - The rendering context used for WebGL operations.
-   * @param dtxMemoryView - The DTX memory used for managing GPU resources.
+   * @param gpuMemoryReadIF - The DTX gpuMemory used for managing GPU resources.
    */
-  constructor(renderContext: RenderContext, dtxMemoryView: GPUMemoryViewIF) {
+  constructor(renderContext: RenderContext, gpuMemoryReadIF: GPUMemoryReadIF) {
     this.renderContext = renderContext;
-    const silhouette = new GenericSilhouetteRenderer(renderContext, dtxMemoryView);
+    const silhouette = new GenericSilhouetteRenderer(renderContext, gpuMemoryReadIF);
     this.prims = {
       [TrianglesPrimitive]: {
-        color: new TrianglesColorRenderer(renderContext, dtxMemoryView),
+        color: new TrianglesColorRenderer(renderContext, gpuMemoryReadIF),
         silhouette,
       },
       [LinesPrimitive]: {
-        color: new TrianglesColorRenderer(renderContext, dtxMemoryView),
+        color: new TrianglesColorRenderer(renderContext, gpuMemoryReadIF),
         silhouette,
       },
       [PointsPrimitive]: {
-        color: new PointsColorRenderer(renderContext, dtxMemoryView),
-        silhouette: new PointsSilhouetteRenderer(renderContext, dtxMemoryView)
+        color: new PointsColorRenderer(renderContext, gpuMemoryReadIF),
+        silhouette: new PointsSilhouetteRenderer(renderContext, gpuMemoryReadIF)
       },
     };
   }

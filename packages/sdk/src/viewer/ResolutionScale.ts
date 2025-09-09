@@ -5,10 +5,10 @@ import type {View} from "./View";
 
 
 //  /**
-//      * Gets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
+//      * Gets the scale of the canvas back _buffer relative to the CSS-defined size of the canvas.
 //      *
 //      * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
-//      * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
+//      * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back _buffer, giving
 //      * a performance boost.
 //      *
 //      * @returns  The resolution scale.
@@ -18,10 +18,10 @@ import type {View} from "./View";
 // }
 //
 // /**
-//  * Sets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
+//  * Sets the scale of the canvas back _buffer relative to the CSS-defined size of the canvas.
 //  *
 //  * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
-//  * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
+//  * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back _buffer, giving
 //  * a performance boost.
 //  *
 //  * @param resolutionScale The resolution scale.
@@ -39,7 +39,7 @@ import type {View} from "./View";
 //     htmlElement.height = Math.round(
 //         htmlElement.clientHeight * this.#resolutionScale
 //     );
-//     this.redraw();
+//     this.needsRender();
 // }
 
 /**
@@ -90,7 +90,7 @@ export class ResolutionScale extends Component {
    */
   set renderModes(value: number[]) {
     this.#state.renderModes = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -112,7 +112,7 @@ export class ResolutionScale extends Component {
       return;
     }
     this.#state.resolutionScale = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**

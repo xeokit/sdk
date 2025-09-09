@@ -1,7 +1,7 @@
 import type {WebGLAbstractTexture} from "./WebGLAbstractTexture";
 
 /**
- *  Represents a WebGL render buffer.
+ *  Represents a WebGL render _buffer.
  * @private
  */
 class WebGLRenderBuffer {
@@ -31,7 +31,7 @@ class WebGLRenderBuffer {
   }
 
   /**
-   * Sets the size of this render buffer.
+   * Sets the size of this render _buffer.
    * @param size
    */
   setSize(size: any) {
@@ -46,7 +46,7 @@ class WebGLRenderBuffer {
   }
 
   /**
-   * Binds this render buffer.
+   * Binds this render _buffer.
    */
   bind(...internalformats: any) {
     this.touch(...internalformats);
@@ -206,18 +206,18 @@ class WebGLRenderBuffer {
   }
 
   /**
-   * Clears this render buffer.
+   * Clears this render _buffer.
    */
   clear() {
     if (!this.bound) {
-      throw "Render buffer not bound";
+      throw "Render _buffer not bound";
     }
     const gl = this.#gl;
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   }
 
   /**
-   * Reads a pixel from this render buffer.
+   * Reads a pixel from this render _buffer.
    * @param pickX
    * @param pickY
    */
@@ -243,7 +243,7 @@ class WebGLRenderBuffer {
    * Returns an HTMLCanvas containing the contents of the RenderBuffer as an image.
    *
    * - The HTMLCanvas has a CanvasRenderingContext2D.
-   * - Expects the caller to draw more things on the HTMLCanvas (annotations etc).
+   * - Expects the caller to render more things on the HTMLCanvas (annotations etc).
    *
    * @returns {HTMLCanvasElement}
    */
@@ -254,9 +254,9 @@ class WebGLRenderBuffer {
     const canvas = imageDataCache.canvas;
     // const imageData = imageDataCache.imageData;
     // const context = imageDataCache.context;
-    //   gl.readPixels(0, 0, this.#buffer.width, this.#buffer.height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
-    // const width = this.#buffer.width;
-    // const height = this.#buffer.height;
+    //   gl.readPixels(0, 0, this.#_buffer.width, this.#_buffer.height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
+    // const width = this.#_buffer.width;
+    // const height = this.#_buffer.height;
     //  const halfHeight = height / 2 | 0;  // the | 0 keeps the result an int
     //  const bytesPerRow = width * 4;
     //  const temp = new Uint8Array(width * 4);
@@ -273,7 +273,7 @@ class WebGLRenderBuffer {
   }
 
   /**
-   * Redas an image from this render buffer.
+   * Redas an image from this render _buffer.
    * @param params
    */
   readImage(params: {
@@ -373,7 +373,7 @@ class WebGLRenderBuffer {
   }
 
   /**
-   * Gets the depth texture component of this render buffer, if any.
+   * Gets the depth texture component of this render _buffer, if any.
    */
   getDepthTexture(): WebGLAbstractTexture | null {
     if (!this.#hasDepthTexture) {

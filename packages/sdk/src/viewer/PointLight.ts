@@ -33,9 +33,9 @@ class PointLight extends Component {
 
   #state: {
     intensity: number;
-    attenuation: Float32Array;
-    color: Float32Array;
-    pos: Float64Array;
+    attenuation: Float32Array<any>;
+    color: Float32Array<any>;
+    pos: Float64Array<any>;
     type: string;
     space: string
   };
@@ -95,7 +95,7 @@ class PointLight extends Component {
    */
   set pos(pos: FloatArrayParam) {
     this.#state.pos.set(pos || [1.0, 1.0, 1.0]);
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -118,7 +118,7 @@ class PointLight extends Component {
    */
   set color(color: FloatArrayParam) {
     this.#state.color.set(color || [0.7, 0.7, 0.8]);
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -144,7 +144,7 @@ class PointLight extends Component {
       return;
     }
     this.#state.intensity = intensity;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -167,7 +167,7 @@ class PointLight extends Component {
    */
   set constantAttenuation(value: number) {
     this.#state.attenuation[0] = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -190,7 +190,7 @@ class PointLight extends Component {
    */
   set linearAttenuation(value: number) {
     this.#state.attenuation[1] = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -213,7 +213,7 @@ class PointLight extends Component {
    */
   set quadraticAttenuation(value: number) {
     this.#state.attenuation[2] = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -259,7 +259,7 @@ class PointLight extends Component {
   destroy() {
     super.destroy();
     this.view.deregisterLight(this);
-    this.view.redraw();
+    this.view.needsRender();
   }
 }
 

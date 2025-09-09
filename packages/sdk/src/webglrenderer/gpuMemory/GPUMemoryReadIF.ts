@@ -1,9 +1,9 @@
 import {type DataTextures} from "./DataTextures";
 
 /**
- * Interface representing a view into the data texture memory (GPUMemory) used for GPU-side model storage.
+ * Interface representing a view into the data texture gpuMemory (GPUMemory) used for GPU-side model storage.
  */
-export interface GPUMemoryViewIF {
+export interface GPUMemoryReadIF {
 
   /**
    * The data textures that implement GPU-side model storage for this GPUMemory.

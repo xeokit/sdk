@@ -62,7 +62,7 @@ export class SAO extends Component {
    */
   set renderModes(value: number[]) {
     this.#state.renderModes = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -82,7 +82,7 @@ export class SAO extends Component {
    * Even when enabled, SAO will only work if supported.
    */
   get supported(): boolean {
-    return this.view.viewer.renderer.getSAOSupported();
+    return false; //  this.view.viewer.renderer.getSAOSupported();
   }
 
   /**
@@ -126,7 +126,7 @@ export class SAO extends Component {
       return;
     }
     this.#state.kernelRadius = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -151,7 +151,7 @@ export class SAO extends Component {
       return;
     }
     this.#state.intensity = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -176,7 +176,7 @@ export class SAO extends Component {
       return;
     }
     this.#state.bias = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -201,7 +201,7 @@ export class SAO extends Component {
       return;
     }
     this.#state.scale = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -226,7 +226,7 @@ export class SAO extends Component {
       return;
     }
     this.#state.minResolution = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -253,7 +253,7 @@ export class SAO extends Component {
       return;
     }
     this.#state.numSamples = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -276,7 +276,7 @@ export class SAO extends Component {
       return;
     }
     this.#state.blur = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -305,7 +305,7 @@ export class SAO extends Component {
       return;
     }
     this.#state.blendCutoff = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -334,7 +334,7 @@ export class SAO extends Component {
       return;
     }
     this.#state.blendFactor = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**

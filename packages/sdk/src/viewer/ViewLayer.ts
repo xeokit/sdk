@@ -477,7 +477,7 @@ class ViewLayer extends Component {
    */
   set renderModes(value: number[]) {
     this.#renderModes = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -632,13 +632,6 @@ class ViewLayer extends Component {
     this.#numObjects--;
     this.#objectIds = null; // Lazy regenerate
     this.onObjectDestroyed.dispatch(this, viewObject);
-  }
-
-  /**
-   * @private
-   */
-  redraw() {
-    this.viewer.renderer.setImageDirty(this.view.viewIndex);
   }
 
   /**
@@ -958,10 +951,12 @@ class ViewLayer extends Component {
     const sceneObjects = model.objects;
     for (const id in sceneObjects) {
       const sceneObject = sceneObjects[id];
-      const rendererViewObject = this.viewer.renderer.rendererObjects[id];
+      if (!sceneObject.rendererObject) {
+        throw "Cannot create ViewObject for SceneObject that has no RendererObject: " + sceneObject.id;
+      }
       if (sceneObject.layerId == this.id) {
         if (!this.objects[id]) {
-          const viewObject = new ViewObject(this, sceneObject, rendererViewObject);
+          const viewObject = new ViewObject(this, sceneObject);
           this.objects[viewObject.id] = viewObject;
           this.#numObjects++;
           this.#objectIds = null; // Lazy regenerate

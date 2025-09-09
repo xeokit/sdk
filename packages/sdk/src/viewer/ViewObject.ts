@@ -1,5 +1,4 @@
 import type {FloatArrayParam} from "../math";
-import type {RendererObject} from "../scene";
 import type {SceneObject} from "../scene";
 import {SDKError} from "../core";
 import type {ViewLayer} from "./ViewLayer";
@@ -44,12 +43,6 @@ export class ViewObject {
    */
   public readonly sceneObject: SceneObject;
 
-  /**
-   * The corresponding {@link RendererObject}.
-   * @internal
-   */
-  #rendererObject: RendererObject;
-
   #state: {
     visible: boolean;
     culled: boolean;
@@ -67,13 +60,16 @@ export class ViewObject {
   /**
    * @private
    */
-  constructor(layer: ViewLayer, sceneObject: SceneObject, rendererObject: RendererObject) {
+  constructor(layer: ViewLayer, sceneObject: SceneObject) {
+
+    if (!sceneObject.rendererObject) {
+      throw new SDKError("Cannot create ViewObject for SceneObject that has no RendererObject: " + sceneObject.id);
+    }
 
     this.id = sceneObject.id;
     this.originalSystemId = sceneObject.originalSystemId;
     this.layer = layer;
     this.sceneObject = sceneObject;
-    this.#rendererObject = rendererObject;
 
     this.#state = {
       visible: true,
@@ -91,6 +87,7 @@ export class ViewObject {
 
     const viewIndex = this.layer.view.viewIndex;
     const state = this.#state;
+    const rendererObject = sceneObject.rendererObject;
 
     rendererObject.setVisible(viewIndex, state.visible);
     rendererObject.setClippable(viewIndex, state.clippable);
@@ -124,12 +121,8 @@ export class ViewObject {
       return;
     }
     this.#state.visible = visible;
-    const result = this.#rendererObject.setVisible(this.layer.view.viewIndex, visible);
-    if (result instanceof SDKError) {
-      throw result;
-    }
+    this.sceneObject.rendererObject.setVisible(this.layer.view.viewIndex, visible);
     this.layer.objectVisibilityUpdated(this, visible, true);
-    this.layer.redraw();
   }
 
   /**
@@ -153,12 +146,8 @@ export class ViewObject {
       return;
     }
     this.#state.xrayed = xrayed;
-    const result = this.#rendererObject.setXRayed(this.layer.view.viewIndex, xrayed);
-    if (result instanceof SDKError) {
-      throw result;
-    }
+    this.sceneObject.rendererObject.setXRayed(this.layer.view.viewIndex, xrayed);
     this.layer.objectXRayedUpdated(this, xrayed);
-    this.layer.redraw();
   }
 
   /**
@@ -182,12 +171,8 @@ export class ViewObject {
       return;
     }
     this.#state.highlighted = highlighted;
-    const result = this.#rendererObject.setHighlighted(this.layer.view.viewIndex, highlighted);
-    if (result instanceof SDKError) {
-      throw result;
-    }
+    this.sceneObject.rendererObject.setHighlighted(this.layer.view.viewIndex, highlighted);
     this.layer.objectHighlightedUpdated(this, highlighted);
-    this.layer.redraw();
   }
 
   /**
@@ -211,12 +196,8 @@ export class ViewObject {
       return;
     }
     this.#state.selected = selected;
-    const result = this.#rendererObject.setSelected(this.layer.view.viewIndex, selected);
-    if (result instanceof SDKError) {
-      throw result;
-    }
+     this.sceneObject.rendererObject.setSelected(this.layer.view.viewIndex, selected);
     this.layer.objectSelectedUpdated(this, selected);
-    this.layer.redraw();
   }
 
   /**
@@ -239,12 +220,8 @@ export class ViewObject {
     if (culled === this.#state.culled) {
       return;
     }
-    const result = this.#rendererObject.setCulled(this.layer.view.viewIndex, culled);
-    if (result instanceof SDKError) {
-      throw result;
-    }
+    this.sceneObject.rendererObject.setCulled(this.layer.view.viewIndex, culled);
     this.#state.culled = culled;
-    this.layer.redraw();
   }
 
   /**
@@ -267,12 +244,8 @@ export class ViewObject {
     if (clippable === this.#state.clippable) {
       return;
     }
-    const result = this.#rendererObject.setCulled(this.layer.view.viewIndex, clippable);
-    if (result instanceof SDKError) {
-      throw result;
-    }
+     this.sceneObject.rendererObject.setCulled(this.layer.view.viewIndex, clippable);
     this.#state.clippable = clippable;
-    this.layer.redraw();
   }
 
   /**
@@ -289,7 +262,7 @@ export class ViewObject {
     if (collidable === this.#state.collidable) {
       return;
     }
-    // const result = this.#rendererObject.setCollidable(this._layer.view.viewIndex, collidable);
+    // const result = this.sceneObject.rendererObject.setCollidable(this._layer.view.viewIndex, collidable);
     // if (result instanceof SDKError) {
     //     throw result;
     // }
@@ -318,7 +291,7 @@ export class ViewObject {
     if (this.#state.pickable === pickable) {
       return;
     }
-    const result = this.#rendererObject.setPickable(this.layer.view.viewIndex, pickable);
+    const result = this.sceneObject.rendererObject.setPickable(this.layer.view.viewIndex, pickable);
     if (result instanceof SDKError) {
       throw result;
     }
@@ -357,13 +330,12 @@ export class ViewObject {
       colorize[1] = 1;
       colorize[2] = 1;
     }
-    const result = this.#rendererObject.setColorize(this.layer.view.viewIndex, colorize);
+    const result = this.sceneObject.rendererObject.setColorize(this.layer.view.viewIndex, colorize);
     if (result instanceof SDKError) {
       throw result;
     }
     this.#state.colorized = !!value;
     this.layer.objectColorizeUpdated(this, this.#state.colorized);
-    this.layer.redraw();
   }
 
   /**
@@ -389,7 +361,6 @@ export class ViewObject {
     // @ts-ignore
     colorize[3] = this.#state.opacityUpdated ? opacity : 1.0;
     this.layer.objectOpacityUpdated(this, this.#state.opacityUpdated);
-    this.layer.redraw();
   }
 
   /**
@@ -415,7 +386,6 @@ export class ViewObject {
     if (this.#state.opacityUpdated) {
       this.layer.objectOpacityUpdated(this, false);
     }
-    this.layer.redraw();
   }
 }
 

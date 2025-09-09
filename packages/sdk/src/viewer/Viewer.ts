@@ -306,13 +306,13 @@ export class Viewer extends Component {
   }
 
   /**
-   * Trigger redraw of all {@link View | Views} belonging to this Viewer.
+   * Trigger needsRender of all {@link View | Views} belonging to this Viewer.
    *
    * @private
    */
-  redraw(): void {
+  needsRender(): void {
     for (const viewId in this.views) {
-      this.views[viewId].redraw();
+      this.views[viewId].needsRender();
     }
   }
 
@@ -371,9 +371,7 @@ export class Viewer extends Component {
    */
   render(params: any) {
     for (let viewIndex = 0; viewIndex < this.viewList.length; viewIndex++) {
-      // console.log("this.renderer.render()");
-      // console.log("...");
-      this.renderer.render(viewIndex, {force: false});
+      this.viewList[viewIndex].rendererView.render({force: false});
     }
   }
 

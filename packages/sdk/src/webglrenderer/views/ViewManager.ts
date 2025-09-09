@@ -1,8 +1,9 @@
 import {RenderContext} from "../RenderContext";
 import {View} from "../../viewer";
 import {SDKError} from "../../core";
-import {RendererView} from "./RendererView";
-import {DrawManager} from "../draw/DrawManager";
+import {RendererViewImpl} from "./RendererViewImpl";
+import {RenderManager} from "../render/RenderManager";
+import {RendererView} from "../../viewer/RendererView";
 
 /**
  * Manages the views in the WebGLRenderer.
@@ -11,42 +12,42 @@ export class ViewManager {
 
   private _onViewCreated: any;
   private _onViewDestroyed: any;
-
   private _renderContext: RenderContext;
-  private _rendererViews: Record<string, RendererView> = {};
-  private _rendererViewsList: RendererView[] = [];
-  private _activeView: RendererView;
-  private _drawManager: DrawManager;
+  private _rendererViews: Record<string, RendererViewImpl> = {};
+  private _rendererViewsList: RendererViewImpl[] = [];
+  private _activeView: RendererViewImpl;
+  private _renderManager: RenderManager;
 
   /**
    * Initializes the ViewManager with the given rendering context.
    */
-  constructor(renderContext: RenderContext, drawManager: DrawManager) {
+  constructor( renderContext: RenderContext, drawManager: RenderManager ) {
     this._renderContext = renderContext;
-    this._drawManager = drawManager;
+    this._renderManager = drawManager;
     const viewer = renderContext.viewer;
     for (let viewIndex = 0; viewIndex < viewer.numViews; viewIndex++) {
-      this._attachView(viewer.viewList[viewIndex]);
+      this._addView(viewer.viewList[viewIndex]);
     }
-    this._onViewCreated = viewer.onViewCreated.subscribe((_, view) => {
-      this._attachView(view);
+    this._onViewCreated = viewer.onViewCreated.subscribe(( _, view ) => {
+      this._addView(view);
     });
-    this._onViewDestroyed = viewer.onViewDestroyed.subscribe((_, view) => {
-      this._detachView(view);
+    this._onViewDestroyed = viewer.onViewDestroyed.subscribe(( _, view ) => {
+      this._removeView(view);
     });
   }
 
   /**
    * Attaches a view to the renderer.
-   * Throws an error if the view is already attached.
+   * Throws an error if the view is already added.
    */
-  private _attachView(view: View): RendererView {
+  private _addView( view: View ): RendererViewImpl {
     if (this._rendererViews[view.id]) {
-      throw new SDKError("Can't attach additional View to WebGLRenderer - View already attached");
+      throw new SDKError("Can't add additional View to WebGLRenderer - View already added");
     }
-    const rendererView = new RendererView(this, this._renderContext.gl, this._renderContext.webglCanvasElement, view);
+    const rendererView = new RendererViewImpl(this, this._renderContext, view);
     this._rendererViews[view.id] = rendererView;
     view.viewIndex = this._rendererViewsList.length;
+    view.rendererView = <RendererView>rendererView;
     this._rendererViewsList.push(rendererView);
     return rendererView;
   }
@@ -54,30 +55,30 @@ export class ViewManager {
   /**
    * Detaches a view from the renderer.
    */
-  private _detachView(view: View): void {
+  private _removeView( view: View ): void {
     const rendererView = this._rendererViews[view.id];
     if (!rendererView) {
-      throw new SDKError("[WebGLRenderer] View is not attached");
+      throw new SDKError("[WebGLRenderer] View is not added");
     }
     rendererView.destroy();
+    view.rendererView = null;
     delete this._rendererViews[view.id];
+
+    //  TODO: Set rendererViewsList dirty
   }
 
   /**
    * Returns the list of RendererView instances.
    */
-  get rendererViews(): RendererView[] {
+  get rendererViews(): RendererViewImpl[] {
     return this._rendererViewsList;
   }
 
   /**
+   * Called by RendererViewImpl.activate();
    * @internal
    */
-  activateView(viewIndex: number) {
-    const rendererView = this.rendererViews[viewIndex];
-    if (!rendererView) {
-      throw new SDKError(`Can't activate View - no such target View attached: ${viewIndex}`);
-    }
+  activateView( rendererView: RendererViewImpl ) {
     const activeRendererView = this._activeView;
     if (activeRendererView) {
       const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
@@ -87,7 +88,7 @@ export class ViewManager {
       });
       primarySnapshotBuffer.bind();
       primarySnapshotBuffer.clear();
-      this._drawManager.draw({rendererView, clear: true});
+      this._renderManager.render({rendererView, clear: true});
       const image = primarySnapshotBuffer.readImage({
         format: "png",
         height: activeCanvasBoundingRect.height,
@@ -114,44 +115,27 @@ export class ViewManager {
   }
 
   /**
+   *
    * @internal
    */
-  get activeView(): RendererView {
+  get activeView(): RendererViewImpl {
     return this._activeView;
   }
 
   /**
+   * Called by RendererViewImpl.render() to render itself.
    * @internal
    */
-  renderView(viewIndex: number,
-             params?: {
-               force?: boolean;
-               opaqueOnly?: boolean
-             }): void | SDKError {
-    const rendererView = this._rendererViewsList[viewIndex];
-    if (!rendererView) {
-      return new SDKError(`Can't render with WebGLRenderer - no View attached at given viewIndex: ${viewIndex}`);
-    }
-    // params = params || {};
-    if (true || params.force) {
-      rendererView.imageDirty = true;
-    }
-    if (rendererView.imageDirty) {
-      this.activateView(viewIndex);
-      this._drawManager.draw({
-        rendererView,
-        clear: true
-      });
-      rendererView.imageDirty = false;
-    }
+  renderView( rendererView: RendererViewImpl, params?: {force?: boolean; opaqueOnly?: boolean} ): void {
+    this._renderManager.render({rendererView, clear: true});
   }
 
-  clearView(viewIndex: number): void | SDKError {
-    const rendererView = this._rendererViews[viewIndex];
-    if (!rendererView) {
-      return new SDKError(`Can't clear with WebGLRenderer - no View attached at given viewIndex: ${viewIndex}`);
-    }
-    this.activateView(viewIndex);
+  /**
+   * Called by RendererViewImpl.clear() to clear itself.
+   * @internal
+   */
+  clearView( rendererView: RendererViewImpl ): void {
+    this.activateView(rendererView);
     const gl = this._renderContext.gl;
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     if (rendererView.canvasTransparent) {
@@ -163,13 +147,10 @@ export class ViewManager {
   }
 
 
-  /**
-   * Cleans up resources and destroys the ViewManager.
-   */
   destroy(): void {
     const viewer = this._renderContext.viewer;
     for (let viewIndex = 0; viewIndex < viewer.numViews; viewIndex++) {
-      this._detachView(viewer.viewList[viewIndex]);
+      this._removeView(viewer.viewList[viewIndex]);
     }
     this._onViewCreated();
     this._onViewDestroyed();

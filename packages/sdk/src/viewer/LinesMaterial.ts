@@ -39,7 +39,7 @@ class LinesMaterial extends Component {
    */
   set lineWidth(value: number) {
     this.#state.lineWidth = value || 1;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**

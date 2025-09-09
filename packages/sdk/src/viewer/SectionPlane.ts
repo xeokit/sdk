@@ -56,10 +56,10 @@ class SectionPlane extends Component {
   readonly onActive: EventEmitter<SectionPlane, boolean>;
 
   #state: {
-    pos: Float64Array;
+    pos: Float64Array<any>;
     active: boolean;
     dist: number;
-    dir: Float32Array
+    dir: Float32Array<any>
   };
 
   /**
@@ -107,7 +107,7 @@ class SectionPlane extends Component {
       return;
     }
     this.#state.active = value;
-    this.view.redraw();
+    this.view.needsRender();
     this.onActive.dispatch(this, this.#state.active);
   }
 
@@ -156,7 +156,7 @@ class SectionPlane extends Component {
   set dir(value: FloatArrayParam) {
     this.#state.dir.set(value);
     this.#state.dist = (-matrix.dotVec3(this.#state.pos, this.#state.dir));
-    this.view.redraw();
+    this.view.needsRender();
     this.onDir.dispatch(this, this.#state.dir);
   }
 
@@ -182,7 +182,7 @@ class SectionPlane extends Component {
     dir[2] *= -1.0;
     this.#state.dist = (-matrix.dotVec3(this.#state.pos, this.#state.dir));
     this.onDir.dispatch(this, this.#state.dir);
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**

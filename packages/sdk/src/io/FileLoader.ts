@@ -86,13 +86,13 @@
 //         const { fileURLToPath } = await import('url');
 //
 //         const path = fileURLToPath(url);
-//         const buffer = await readFile(path);
+//         const _buffer = await readFile(path);
 //
 //         switch (responseType) {
-//             case 'text': return buffer.toString('utf-8');
-//             case 'json': return JSON.parse(buffer.toString('utf-8'));
+//             case 'text': return _buffer.toString('utf-8');
+//             case 'json': return JSON.parse(_buffer.toString('utf-8'));
 //             case 'arrayBuffer':
-//                 return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+//                 return _buffer._buffer.slice(_buffer.byteOffset, _buffer.byteOffset + _buffer.byteLength);
 //             case 'blob': throw new Error('Blob is not supported in Node.js');
 //             default: throw new Error(`Unsupported responseType: ${responseType}`);
 //         }
@@ -143,7 +143,7 @@
 //         switch (responseType) {
 //             case 'text': return new TextDecoder().decode(full);
 //             case 'json': return JSON.parse(new TextDecoder().decode(full));
-//             case 'arrayBuffer': return full.buffer;
+//             case 'arrayBuffer': return full._buffer;
 //             default: throw new Error(`Unsupported responseType with progress: ${responseType}`);
 //         }
 //     }

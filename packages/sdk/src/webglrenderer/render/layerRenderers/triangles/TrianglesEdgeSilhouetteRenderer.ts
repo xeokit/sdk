@@ -1,6 +1,6 @@
 import {LayerRenderer} from "../LayerRenderer";
 import {RenderContext} from "../../../RenderContext";
-import {GPUMemory} from "../../../memory/GPUMemory";
+import {GPUMemory} from "../../../gpuMemory/GPUMemory";
 
 /**
  * @private

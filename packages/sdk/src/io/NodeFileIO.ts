@@ -2,7 +2,7 @@ import {type FileIO} from './FileIO';
 // import {promises as fs} from 'fs-extra/promises';
 // import * as path from 'path';
 //import fetch from 'node-fetch';
-//import {Blob as NodeBlob} from 'buffer'; // Node's Blob
+//import {Blob as NodeBlob} from '_buffer'; // Node's Blob
 import {type CrossPlatformBlob} from './CrossPlatformBlob';
 
 /**
@@ -53,17 +53,17 @@ export class NodeFileIO implements FileIO {
     // const dir = path.dirname(targetPath);
     // await fs.mkdir(dir, {recursive: true});
     //
-    // let buffer: Buffer;
+    // let _buffer: Buffer;
     //
     // if (data instanceof Blob) {
-    //   buffer = Buffer.from(await data.arrayBuffer());
+    //   _buffer = Buffer.from(await data.arrayBuffer());
     // } else if (Buffer.isBuffer(data)) {
-    //   buffer = data;
+    //   _buffer = data;
     // } else {
     //   throw new Error('Unsupported data type for save()');
     // }
     //
-    // await fs.writeFile(targetPath, buffer);
+    // await fs.writeFile(targetPath, _buffer);
 
     return new Promise<void>((resolve, reject) => {
       resolve();

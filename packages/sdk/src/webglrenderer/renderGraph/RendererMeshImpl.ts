@@ -1,12 +1,12 @@
 import {createMat4, createVec4, mulMat4, transformPoint4, translationMat4c} from "../../matrix";
-import type {RendererGeometry, RendererMesh} from "../../scene";
+import type {RendererMesh} from "../../scene";
 import type {FloatArrayParam} from "../../math";
-import type {Layer} from "./Layer";
+import type {RenderLayerImpl} from "./RenderLayerImpl";
 import type {RenderContext} from "../RenderContext";
 import {SceneMesh} from "../../scene";
-import {type Tile} from "../memory/Tile";
+import {type Tile} from "../gpuMemory/Tile";
+import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
 import {RendererObjectImpl} from "./RendererObjectImpl";
-import {type GPUMemoryEditIF} from "../memory/GPUMemoryEditIF";
 
 const identityMat4 = createMat4();
 const identityVec4 = createVec4([0, 0, 0, 1]);
@@ -36,16 +36,15 @@ const NUM_VIEWS = 4;
 
 export class RendererMeshImpl implements RendererMesh {
 
-  rendererObject: RendererObjectImpl;
-  tile: Tile;
+  public rendererObject: RendererObjectImpl;
+  public tile: Tile;
 
   private readonly _sceneMesh: SceneMesh;
   private readonly _meshIndex: number;
-
-  private readonly _layer: Layer;
+  private readonly _layer: RenderLayerImpl;
   private readonly _renderContext: RenderContext;
   private readonly _viewStates: any;
-  private readonly _gpuMemoryEditIF: GPUMemoryEditIF;
+  private readonly _gpuMemoryWriteIF: GPUMemoryWriteIF;
 
   /**
    * Constructs a RendererMeshImpl instance.
@@ -54,20 +53,20 @@ export class RendererMeshImpl implements RendererMesh {
                  sceneMesh,
                  layer,
                  renderContext,
-                 gpuMemoryEditIF,
+                 gpuMemoryWriteIF,
                }: {
     sceneMesh: SceneMesh;
-    layer: Layer;
+    layer: RenderLayerImpl;
     renderContext: RenderContext;
-    gpuMemoryEditIF: GPUMemoryEditIF;
+    gpuMemoryWriteIF: GPUMemoryWriteIF;
   } ) {
 
+    this.rendererObject = null;
     this._renderContext = renderContext;
     this._sceneMesh = sceneMesh;
     this._layer = layer;
     this._meshIndex = layer.addMesh(sceneMesh);
-    this._gpuMemoryEditIF = gpuMemoryEditIF;
-    this.rendererObject = null; // set by renderer
+    this._gpuMemoryWriteIF = gpuMemoryWriteIF;
     this.tile = null;
 
     // Color / opacity -> 0..255
@@ -110,8 +109,8 @@ export class RendererMeshImpl implements RendererMesh {
     const center = transformPoint4(matrix, identityVec4, tempVec4a);
     const oldTile = this.tile;
     this.tile = oldTile
-      ? this._gpuMemoryEditIF.moveTile(oldTile, center)
-      : this._gpuMemoryEditIF.getTile(center);
+      ? this._gpuMemoryWriteIF.moveTile(oldTile, center)
+      : this._gpuMemoryWriteIF.getTile(center);
     const tileChanged = !oldTile || oldTile.id !== this.tile.id;
     const tileCenter = this.tile.center;
     const needRTC = (tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0);
@@ -140,17 +139,17 @@ export class RendererMeshImpl implements RendererMesh {
    * Sets the colorization for a specific view.
    */
   setColorize( viewIndex: number, colorize: FloatArrayParam|null ) {
-    const _viewStates = this._viewStates[viewIndex];
-    const meshColorize = _viewStates.colorize;
+    const viewStates = this._viewStates[viewIndex];
+    const meshColorize = viewStates.colorize;
     if (colorize) {
       meshColorize[0] = colorize[0];
       meshColorize[1] = colorize[1];
       meshColorize[2] = colorize[2];
       this._layer.setMeshColor(viewIndex, this._meshIndex, meshColorize);
-      _viewStates.colorizing = true;
+      viewStates.colorizing = true;
     } else {
       this._layer.setMeshColor(viewIndex, this._meshIndex, this._sceneMesh.color);
-      _viewStates.colorizing = false;
+      viewStates.colorizing = false;
     }
   }
 
@@ -158,13 +157,13 @@ export class RendererMeshImpl implements RendererMesh {
    * Sets the opacity of the mesh for a specific view.
    */
   setOpacity( viewIndex: number, opacity: number ) {
-    const _viewStates = this._viewStates[viewIndex];
-    _viewStates.color[3] = opacity;
-    _viewStates.colorize[3] = opacity;
+    const viewStates = this._viewStates[viewIndex];
+    viewStates.color[3] = opacity;
+    viewStates.colorize[3] = opacity;
     if (this._viewStates[viewIndex].colorizing) {
-      this._layer.setMeshColor(viewIndex, this._meshIndex, _viewStates.colorize);
+      this._layer.setMeshColor(viewIndex, this._meshIndex, viewStates.colorize);
     } else {
-      this._layer.setMeshColor(viewIndex, this._meshIndex, _viewStates.color);
+      this._layer.setMeshColor(viewIndex, this._meshIndex, viewStates.color);
     }
   }
 
@@ -230,7 +229,7 @@ export class RendererMeshImpl implements RendererMesh {
   destroy() {
     this._layer.removeMesh(this._sceneMesh, this.rendererObject.flags);
     if (this.tile) {
-      this._gpuMemoryEditIF.putTile(this.tile);
+      this._gpuMemoryWriteIF.putTile(this.tile);
     }
   }
 }

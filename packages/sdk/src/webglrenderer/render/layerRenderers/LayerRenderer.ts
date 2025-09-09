@@ -1,17 +1,17 @@
-import {AmbientLight, DirLight, PointLight} from "../../../viewer";
+
 import {WEBGL_INFO, WebGLProgram} from "../../../webglutils";
 import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
-import {RENDER_PASSES} from "../../layers/RENDER_PASSES";
+import {RENDER_PASSES} from "../../renderGraph/RENDER_PASSES";
 import type {RenderContext} from "../../RenderContext";
-import {type Layer} from "../../layers/Layer";
-import {type GPUMemoryViewIF} from "../../memory/GPUMemoryViewIF";
+import {type GPUMemoryReadIF} from "../../gpuMemory/GPUMemoryReadIF";
+import {RenderLayer} from "../../renderGraph/RenderLayer";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 
 export type RenderPassValue = typeof RENDER_PASSES[keyof typeof RENDER_PASSES];
 
 /**
- * Abstract base class for rendering layers in a WebGL context.
+ * Abstract base class for rendering renderGraph in a WebGL context.
  *
  * Provides a foundation for implementing rendering techniques for primitives (e.g., triangles, lines, points).
  * Manages shader construction, WebGL program binding, and rendering logic. Designed for subclassing.
@@ -34,7 +34,7 @@ export type RenderPassValue = typeof RENDER_PASSES[keyof typeof RENDER_PASSES];
  *
  * Data textures (DTX) in this renderer
  * ------------------------------------
- * We avoid VBO attribute streams and instead fetch all per-draw data from textures
+ * We avoid VBO attribute streams and instead fetch all per-render data from textures
  * with texelFetch(). A 1D logical tileIndex is mapped into 2D texel coords using a fixed
  * width (texWidth = 4096): x = base % 4096, y = base / 4096.
  *
@@ -71,7 +71,7 @@ export type RenderPassValue = typeof RENDER_PASSES[keyof typeof RENDER_PASSES];
 export abstract class LayerRenderer {
 
   private _renderContext: RenderContext;
-  private _dtxMemoryView: GPUMemoryViewIF;
+  private _gpuMemoryReadIF: GPUMemoryReadIF;
   private _program: WebGLProgram | null;
 
   errors: string[];
@@ -83,7 +83,7 @@ export abstract class LayerRenderer {
    */
   private _uniforms: {
     renderPass: WebGLUniformLocation; // Current render pass (e.g., color, pick, silhouette)
-    baseIndex: WebGLUniformLocation; // Base tileIndex for the current draw call
+    baseIndex: WebGLUniformLocation; // Base tileIndex for the current render call
     pointCloudIntensityRange: WebGLUniformLocation; // Intensity range for point cloud rendering
     nearPlaneHeight: WebGLUniformLocation; // Near plane height for perspective point size calculation
     silhouetteColor: WebGLUniformLocation; // Color used for silhouette rendering
@@ -127,24 +127,24 @@ export abstract class LayerRenderer {
   };
 
   /**
-   * Temp vertex shader source buffer.
+   * Temp vertex shader source _buffer.
    */
   private _vertexSrcBuf: string[];
 
   /**
-   * Temp fragment shader source buffer.
+   * Temp fragment shader source _buffer.
    */
   private _fragmentSrcBuf: string[];
 
   /**
    * Creates a new LayerRenderer instance.
    * @param renderContext
-   * @param dtxMemoryView
+   * @param gpuMemoryReadIF
    * @param cfg
    */
-  constructor( renderContext: RenderContext, dtxMemoryView: GPUMemoryViewIF, cfg: { edges: boolean } = {edges: false}) {
+  constructor( renderContext: RenderContext, gpuMemoryReadIF: GPUMemoryReadIF, cfg: { edges: boolean } = {edges: false}) {
     this._renderContext = renderContext;
-    this._dtxMemoryView = dtxMemoryView;
+    this._gpuMemoryReadIF = gpuMemoryReadIF;
     this.edges = cfg.edges;
     this._build();
   }
@@ -186,7 +186,7 @@ export abstract class LayerRenderer {
   protected vsCommonDefines() {
     this._vertexSrcBuf.push(
       "uniform int uRenderPass;", // RENDER_PASSES
-      "uniform int uBaseIndex;", // Base primitive tileIndex for this draw call
+      "uniform int uBaseIndex;", // Base primitive tileIndex for this render call
 
       "uniform highp usampler2D uPrimToMeshLookup;", // DTXArray
       "uniform highp usampler2D uPositions;", // DTXPositionsArray
@@ -318,7 +318,7 @@ export abstract class LayerRenderer {
 
   protected vsSilhouetteDefines() {
     this._vertexSrcBuf.push(
-      "uniform vec4 silhouetteColor;",
+      "uniform vec4 uSilhouetteColor;",
       "out vec4 vColor;");
   }
 
@@ -366,8 +366,8 @@ export abstract class LayerRenderer {
     this._vertexSrcBuf.push(
       `    int colorFlag = (int(meshViewAttribs.flags1) & 0xF);`,
       `    if ( colorFlag != uRenderPass) {`,
-      // "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
-      // "        return;",
+      "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
+      "        return;",
       "    } ");
     this._vertexMeshLogic2();
   }
@@ -451,7 +451,7 @@ export abstract class LayerRenderer {
 
   protected vsSilhouetteLogic() {
     this._vertexSrcBuf.push(
-      "    vColor = vec4(silhouetteColor.r, silhouetteColor.g, silhouetteColor.b, 0.5);");
+      "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);");
   }
 
   protected vsDrawFlatColorLogic() {
@@ -707,7 +707,7 @@ export abstract class LayerRenderer {
    * @param layer The _layer to render, which contains the primitives and their attributes.
    * @param renderPass The render pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
    */
-  renderLayer(layer: Layer, renderPass: RenderPassValue): void {
+  renderLayer( layer: RenderLayer, renderPass: RenderPassValue): void {
     if (!this._program) {
       throw new Error("Shader program is not initialized.");
     }
@@ -779,7 +779,7 @@ export abstract class LayerRenderer {
     }
 
     const samplers = this._samplers;
-    const dataTextures = this._dtxMemoryView.dataTextures;
+    const dataTextures = this._gpuMemoryReadIF.dataTextures;
 
     // The full set of these data textures are always used in shaders, via vsCommonDefines
 
@@ -930,7 +930,7 @@ export abstract class LayerRenderer {
       pickZFar: program.getLocation("pickZFar"),
       pickClipPos: program.getLocation("pickClipPos"),
       drawingBufferSize: program.getLocation("drawingBufferSize"),
-      silhouetteColor: program.getLocation("silhouetteColor"),
+      silhouetteColor: program.getLocation("uSilhouetteColor"),
       sectionPlanes: [],
       lightColor: [],
       lightDir: [],

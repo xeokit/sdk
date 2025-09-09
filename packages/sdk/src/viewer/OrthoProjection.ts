@@ -245,7 +245,7 @@ export class OrthoProjection extends Component implements Projection {
     this.#inverseMatrixDirty = true;
     this.#transposedProjMatrixDirty = true;
 
-    this.camera.view.redraw();
+    this.camera.view.needsRender();
 
     this.onProjMatrix.dispatch(this, this.#state.projMatrix);
   }

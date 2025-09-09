@@ -67,7 +67,7 @@ class PointsMaterial extends Component {
    */
   set pointSize(value: number) {
     this.#state.pointSize = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -204,7 +204,7 @@ class PointsMaterial extends Component {
       return;
     }
     this.#state.minIntensity = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -226,7 +226,7 @@ class PointsMaterial extends Component {
       return;
     }
     this.#state.maxIntensity = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**

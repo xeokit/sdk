@@ -146,7 +146,7 @@
 //
 //     _buildVBOs() {
 //         if (this.positionsBuf) {
-//             if (this.lenPositionsBuf === this.positions.length) { // Just updating buffer elements, don't need to reallocate
+//             if (this.lenPositionsBuf === this.positions.length) { // Just updating _buffer elements, don't need to reallocate
 //                 this.positionsBuf.setData(this.positions); // Indices don't need updating
 //                 return;
 //             }

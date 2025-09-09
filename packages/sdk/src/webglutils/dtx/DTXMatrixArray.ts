@@ -35,7 +35,7 @@ export class DTXMatrixArray {
   /**
    * The backing Float32Array for matrix data.
    */
-  public readonly buffer: Float32Array<ArrayBuffer>;
+  public buffer: Float32Array<ArrayBuffer>;
 
   private gl: WebGL2RenderingContext;
   private lastFreeMatrixIndex: number;
@@ -45,7 +45,7 @@ export class DTXMatrixArray {
   private textureWidth: number;
 
   /**
-   * Creates a new matrix buffer for mesh transforms.
+   * Creates a new matrix _buffer for mesh transforms.
    *
    * @param params - Configuration object
    * @param params.gl - WebGL2 context
@@ -60,14 +60,14 @@ export class DTXMatrixArray {
     this.numMatrices = 0;
     this.maxMatrices = params.maxMatrices || 2000;
     this.dirtyIndices = new Set();
-    this.allocate();
+    this.#allocateTexture();
   }
 
   /**
    * Allocates the data texture and backing array for matrix storage.
    * Each mat4 takes 4 texels (RGBA32F), and the texture is laid out in rows.
    */
-  allocate(): void {
+  #allocateTexture(): void {
 
     const matricesPerRow = 512; // Must be multiple of 4 for RGBA32F
     const texelsPerMatrix = 4; // 4 texels per mat4

@@ -2,18 +2,19 @@ import type {View, Viewer} from "../viewer";
 import {WEBGL_INFO, type WebGLAbstractTexture} from "../webglutils";
 import type {FloatArrayParam} from "../math";
 import type {WebGLRenderer} from "./WebGLRenderer";
+import {ViewFlags} from "./ViewFlags";
 
 
 /**
  * Represents the rendering context used by the `WebGLRenderer`.
  *
  * The `RenderContext` manages the state and resources required for rendering operations.
- * It handles the WebGL context, GPU memory, and rendering parameters for the current frame.
+ * It handles the WebGL context, GPU gpuMemory, and rendering parameters for the current frame.
  * This context is shared across renderer components.
  *
  * Responsibilities:
  * - Tracks the current rendering state, including active textures, programs, and passes.
- * - Manages GPU memory for geometry and materials through the `GPUMemory` system.
+ * - Manages GPU gpuMemory for geometry and materials through the `GPUMemory` system.
  * - Provides methods for managing texture units and resetting state between frames.
  * - Stores matrices and parameters for specialized rendering operations like shadow mapping and picking.
  *
@@ -121,18 +122,29 @@ export class RenderContext {
   /**
    * The occlusion rendering texture.
    */
-  public saoOcclusionTexture: WebGLAbstractTexture | null;
+  public saoOcclusionTexture: WebGLAbstractTexture|null;
 
   public pickClipPos: FloatArrayParam;
 
   /**
+   * The view flags for each possible view index (0-3).
+   */
+  public readonly viewFlags: ViewFlags[];
+
+  /**
    * Creates a new RenderContext.
    */
-  constructor(viewer: Viewer, gl: WebGL2RenderingContext, webglCanvasElement: HTMLCanvasElement) {
+  constructor( viewer: Viewer, gl: WebGL2RenderingContext, webglCanvasElement: HTMLCanvasElement ) {
     this.viewer = viewer;
     this.view = null;
     this.gl = gl;
     this.webglCanvasElement = webglCanvasElement;
+    this.viewFlags = [
+      new ViewFlags(),
+      new ViewFlags(),
+      new ViewFlags(),
+      new ViewFlags()
+    ];
     this.reset();
   }
 

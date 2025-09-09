@@ -15,7 +15,6 @@ import type {PickParams} from "./PickParams";
 import type {PickResult} from "./PickResult";
 import type {PointLight} from "./PointLight";
 import {PointsMaterial} from "./PointsMaterial";
-import type {RendererObject} from "../scene";
 import {ResolutionScale} from "./ResolutionScale";
 import {SAO} from "./SAO";
 import type {SDKError} from "../core";
@@ -29,6 +28,7 @@ import {ViewLayer} from "./ViewLayer";
 import type {ViewLayerParams} from "./ViewLayerParams";
 import {ViewObject} from "./ViewObject";
 import type {ViewParams} from "./ViewParams";
+import {RendererView} from "./RendererView";
 
 /**
  * Event that signifies the beginning of a canvas snapshot captured with
@@ -62,6 +62,12 @@ class View extends Component {
    * The Viewer to which this View belongs.
    */
   declare readonly viewer: Viewer;
+
+  /**
+   * The internal renderer interface for this View.
+  * @internal
+   */
+  public rendererView: RendererView;
 
   /**
    * The tileIndex of this View in {@link Viewer.viewList}.
@@ -141,7 +147,7 @@ class View extends Component {
    * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
    *
    * The View automatically ensures that there is a {@link ViewObject} here for
-   * each {@link RendererObject} in the {@link Viewer | Viewer}
+   * each {@link ViewObject} in the {@link Viewer | Viewer}
    */
   readonly objects: { [key: string]: ViewObject };
 
@@ -337,6 +343,7 @@ class View extends Component {
   #snapshotBegun: boolean;
   #autoCanvas: boolean;
 
+
   /**
    * @private
    */
@@ -415,7 +422,7 @@ class View extends Component {
     // });
     //
     // this.canvas.onBoundary.subscribe(() => {
-    //     this.redraw();
+    //     this.needsRender();
     // });
 
     this.onBoundary = new EventEmitter(
@@ -693,11 +700,10 @@ class View extends Component {
       });
       this.onLayerCreated.dispatch(this, viewLayer);
     }
-    const rendererObject = this.viewer.renderer.rendererObjects[sceneObject.id];
-    if (!rendererObject) {
-      throw "Cannot create ViewObject for SceneObject that has no RendererObject: " + sceneObject.id;
+    if (!sceneObject.rendererObject) {
+      throw "Cannot create ViewObject for SceneObject that has no ViewObject: " + sceneObject.id;
     }
-    const viewObject = new ViewObject(viewLayer, sceneObject, rendererObject);
+    const viewObject = new ViewObject(viewLayer, sceneObject);
     viewLayer.registerViewObject(viewObject);
     this.registerViewObject(viewObject);
     this.onObjectCreated.dispatch(this, viewObject);
@@ -717,10 +723,10 @@ class View extends Component {
 
   /**
    * Sets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
-   * as {@link RendererObject | ViewerObjects} are created.
+   * as {@link ViewObject | ViewerObjects} are created.
    *
    * When ````true```` (default), the View will automatically create {@link ViewLayer | ViewLayers} as needed for each new
-   * {@link RendererObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
+   * {@link ViewObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
    * layerId. This "default" ViewLayer ensures that a ViewObject is created in the View for every SceneObject that is created.
    *
    * If you set this ````false````, however, then the View will only create {@link ViewObject | ViewObjects} for
@@ -747,7 +753,7 @@ class View extends Component {
 
   /**
    * Gets whether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
-   * as {@link RendererObject | ViewerObjects} are created.
+   * as {@link ViewObject | ViewerObjects} are created.
    */
   get autoLayers(): boolean {
     return this.#autoLayers;
@@ -763,7 +769,7 @@ class View extends Component {
    */
   set renderMode(renderMode: number) {
     this.#renderMode = renderMode;
-    this.redraw();
+    this.needsRender();
   }
 
   /**
@@ -799,7 +805,7 @@ class View extends Component {
       this.#backgroundColor[1] = 1.0;
       this.#backgroundColor[2] = 1.0;
     }
-    this.redraw();
+    this.needsRender();
   }
 
   /**
@@ -1213,8 +1219,8 @@ class View extends Component {
   /**
    * @private
    */
-  redraw() {
-    this.viewer.renderer.setImageDirty(this.viewIndex);
+  needsRender() {
+    this.rendererView?.needsRender();
   }
 
   /**
@@ -1487,7 +1493,8 @@ class View extends Component {
     if (this.#snapshotBegun) {
       return;
     }
-    this.viewer.renderer.beginSnapshot(this.viewIndex);
+    this.rendererView?.beginSnapshot();
+   // this.viewer.renderer.beginSnapshot(this.viewIndex);
     this.#snapshotBegun = true;
   }
 

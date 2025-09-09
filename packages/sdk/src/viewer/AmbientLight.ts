@@ -52,7 +52,7 @@ class AmbientLight extends Component {
    */
   set color(color: FloatArrayParam) {
     this.#state.color.set(color);
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -73,7 +73,7 @@ class AmbientLight extends Component {
    */
   set intensity(intensity: number) {
     this.#state.intensity = intensity !== undefined ? intensity : 1.0;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**

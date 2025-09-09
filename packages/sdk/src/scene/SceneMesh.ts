@@ -1,4 +1,4 @@
-import {createMat4,  identityMat4, isIdentityMat4, mulMat4} from "../matrix";
+import {createMat4, identityMat4, isIdentityMat4, mulMat4} from "../matrix";
 import type {FloatArrayParam} from "../math";
 import type {RendererMesh} from "./RendererMesh";
 import type {SceneGeometry} from "./SceneGeometry";
@@ -35,7 +35,7 @@ export class SceneMesh {
   /**
    * The {@link SceneObject} that uses this SceneMesh.
    */
-  object: SceneObject | null;
+  object: SceneObject|null;
 
   /**
    * {@link SceneGeometry} used by this SceneMesh.
@@ -48,14 +48,14 @@ export class SceneMesh {
   readonly textureSet?: SceneTextureSet;
 
   /**
-   *  Internal interface through which a {@link SceneMesh} can load property updates into a renderers.
+   *  Internal interface through which a {@link SceneMesh} can load property updates into a renderer.
    *
    *  This is defined when the owner {@link SceneModel | SceneModel} has been added to
    *  a {@link viewer!Viewer | Viewer}.
    *
    * @internal
    */
-  rendererMesh: RendererMesh | null;
+  rendererMesh: RendererMesh|null;
 
   #color: FloatArrayParam;
   #matrix: FloatArrayParam;
@@ -64,7 +64,7 @@ export class SceneMesh {
   /**
    * @private
    */
-  constructor(meshParams: {
+  constructor( meshParams: {
     id: string;
     model: SceneModel;
     geometry: SceneGeometry;
@@ -72,7 +72,7 @@ export class SceneMesh {
     matrix?: FloatArrayParam;
     color?: FloatArrayParam;
     opacity?: number;
-  }) {
+  } ) {
     this.id = meshParams.id;
     this.model = meshParams.model;
     this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
@@ -97,7 +97,7 @@ export class SceneMesh {
    *
    * Each element of the color is in range ````[0..1]````.
    */
-  set color(value: FloatArrayParam) {
+  set color( value: FloatArrayParam ) {
     let color = this.#color;
     if (!color) {
       color = this.#color = new Float32Array(4);
@@ -112,9 +112,7 @@ export class SceneMesh {
       color[1] = 1;
       color[2] = 1;
     }
-    if (this.rendererMesh) {
-      this.rendererMesh.setColor(this.#color);
-    }
+    this.rendererMesh?.setColor(this.#color);
   }
 
   /**
@@ -124,7 +122,7 @@ export class SceneMesh {
    *
    * @type {FloatArrayParam}
    */
-  set matrix(matrix: FloatArrayParam) {
+  set matrix( matrix: FloatArrayParam ) {
     if (matrix) {
       // @ts-ignore
       this.#matrix.set(matrix);
@@ -167,14 +165,14 @@ export class SceneMesh {
    *
    * This is a factor in range ````[0..1]````.
    */
-  set opacity(opacity: number) {
+  set opacity( opacity: number ) {
     opacity = (opacity !== undefined && opacity !== null) ? opacity : 1.0;
     if (this.#opacity === opacity) {
       return;
     }
     this.#opacity = opacity;
     if (this.rendererMesh) {
-      //       this.rendererMesh.setOpacity(this.#opacity);
+      //       this.rendererObject.setOpacity(this.#opacity);
     }
   }
 

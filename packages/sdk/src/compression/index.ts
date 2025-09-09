@@ -1020,7 +1020,7 @@ export function quantizePositions3AndCreateMat4(
  * The positions are mapped into a defined bounding box (AABB) and then scaled to fit into
  * a 16-bit integer range, minimizing precision loss.
  *
- * This process is commonly used in mesh compression techniques to reduce the memory footprint of
+ * This process is commonly used in mesh compression techniques to reduce the gpuMemory footprint of
  * position data while maintaining relative accuracy within the bounds of the specified AABB.
  *
  * @param {FloatArrayParam} positions - A flat array of 3D position data (x, y, z).
@@ -1246,7 +1246,7 @@ export function octEncodeNormal(
  * Compresses a flat array of floating-point RGB or RGBA colors into a Uint16Array.
  *
  * This function scales floating-point color values (0.0 to 1.0) to an 8-bit range (0-255),
- * storing them in a `Uint16Array` for reduced memory usage.
+ * storing them in a `Uint16Array` for reduced gpuMemory usage.
  *
  * @param {FloatArrayParam} colors - A flat array of floating-point color values (RGB or RGBA).
  *                                   Each color component should be in the range [0, 1].

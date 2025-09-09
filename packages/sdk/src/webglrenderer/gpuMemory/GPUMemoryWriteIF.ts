@@ -3,10 +3,10 @@ import { type Tile } from "./Tile";
 import { type SceneMesh } from "../../scene";
 
 /**
- * Interface for managing data texture memory in a WebGL rendering context.
+ * Interface for managing data texture gpuMemory in a WebGL rendering context.
  * Provides methods for handling tiles, meshes, and their attributes.
  */
-export interface GPUMemoryEditIF {
+export interface GPUMemoryWriteIF {
 
   /**
    * Retrieves a Tile that contains the specified 3D world-space position.
@@ -31,7 +31,7 @@ export interface GPUMemoryEditIF {
   putTile(tile: Tile): void;
 
   /**
-   * Adds a SceneMesh to the data texture memory.
+   * Adds a SceneMesh to the data texture gpuMemory.
    * Returns an tileIndex/handle for dynamically updating attributes of the mesh.
    * @param sceneMesh - The mesh to add.
    * @returns The tileIndex/handle of the added mesh.
@@ -78,7 +78,7 @@ export interface GPUMemoryEditIF {
   ): void;
 
   /**
-   * Removes a SceneMesh from the data texture memory.
+   * Removes a SceneMesh from the data texture gpuMemory.
    * @param sceneMesh - The mesh to remove.
    */
   removeMesh(sceneMesh: SceneMesh): void;

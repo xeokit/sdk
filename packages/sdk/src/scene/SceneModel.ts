@@ -571,7 +571,7 @@ export class SceneModel extends Component {
     delete this.geometries[geometryId];
     this.stats.numGeometries--;
     if (sceneGeometry.indices) {
-      // TODO: This will break when SceneModel does not retain memory-resident data
+      // TODO: This will break when SceneModel does not retain gpuMemory-resident data
       if (sceneGeometry.primitive === TrianglesPrimitive) {
         this.stats.numTriangles += sceneGeometry.indices.length / 3;
       } else if (sceneGeometry.primitive === LinesPrimitive) {

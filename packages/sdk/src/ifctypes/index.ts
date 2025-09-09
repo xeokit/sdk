@@ -323,7 +323,7 @@ export const IfcBSplineSurfaceWithKnots = 1055;
 export const IfcBuilding = 1056;
 
 /**
- * IfcBuildingElementPart represents major components as subordinate parts of a building element. Typical usage examples include precast concrete sandwich walls, where the layers may have different geometry representations. In this case the layered material representation does not sufficiently describe the element. Each _layer is represented by an own instance of the IfcBuildingElementPart with its own geometry description.
+ * IfcBuildingElementPart represents major components as subordinate parts of a building element. Typical usage examples include precast concrete sandwich walls, where the renderGraph may have different geometry representations. In this case the layered material representation does not sufficiently describe the element. Each _layer is represented by an own instance of the IfcBuildingElementPart with its own geometry description.
  */
 export const IfcBuildingElementPart = 1057;
 
@@ -1833,17 +1833,17 @@ export const IfcMaterialDefinition = 1357;
 export const IfcMaterialDefinitionRepresentation = 1358;
 
 /**
- * IfcMaterialLayer is a single and identifiable part of an element which is constructed of a number of layers (one or more). Each IfcMaterialLayer has a constant thickness and is located relative to the referencing IfcMaterialLayerSet along the material _layer set base (MlsBase).
+ * IfcMaterialLayer is a single and identifiable part of an element which is constructed of a number of renderGraph (one or more). Each IfcMaterialLayer has a constant thickness and is located relative to the referencing IfcMaterialLayerSet along the material _layer set base (MlsBase).
  */
 export const IfcMaterialLayer = 1359;
 
 /**
- * The IfcMaterialLayerSet is a designation by which materials of an element constructed of a number of material layers is known and through which the relative positioning of individual layers can be expressed.
+ * The IfcMaterialLayerSet is a designation by which materials of an element constructed of a number of material renderGraph is known and through which the relative positioning of individual renderGraph can be expressed.
  */
 export const IfcMaterialLayerSet = 1360;
 
 /**
- * The IfcMaterialLayerSetUsage determines the usage of IfcMaterialLayerSet in terms of its location and orientation relative to the associated element geometry. The location of material _layer set shall be compatible with the building element geometry (that is, material layers shall fit inside the element geometry). The rules to ensure the compatibility depend on the type of the building element.
+ * The IfcMaterialLayerSetUsage determines the usage of IfcMaterialLayerSet in terms of its location and orientation relative to the associated element geometry. The location of material _layer set shall be compatible with the building element geometry (that is, material renderGraph shall fit inside the element geometry). The rules to ensure the compatibility depend on the type of the building element.
  */
 export const IfcMaterialLayerSetUsage = 1361;
 
@@ -2108,7 +2108,7 @@ export const IfcPhysicalQuantity = 1412;
 export const IfcPhysicalSimpleQuantity = 1413;
 
 /**
- * A pile is a slender timber, concrete, or steel structural element, driven, jetted, or otherwise embedded on end in the ground for the purpose of supporting a load. A pile is also characterized as deep foundation, where the loads are transfered to deeper subsurface layers.
+ * A pile is a slender timber, concrete, or steel structural element, driven, jetted, or otherwise embedded on end in the ground for the purpose of supporting a load. A pile is also characterized as deep foundation, where the loads are transfered to deeper subsurface renderGraph.
  */
 export const IfcPile = 1414;
 
@@ -2928,7 +2928,7 @@ export const IfcRoof = 1576;
 export const IfcRoofType = 1577;
 
 /**
- * IfcRoot is the most abstract and root class for all entity definitions that roots in the kernel or in subsequent layers of the IFC specification. It is therefore the kdtree3 supertype of all IFC entities, beside those defined in an IFC resource schema. All entities that are subtypes of IfcRoot can be used independently, whereas resource schema entities, that are not subtypes of IfcRoot, are not supposed to be independent entities.
+ * IfcRoot is the most abstract and root class for all entity definitions that roots in the kernel or in subsequent renderGraph of the IFC specification. It is therefore the kdtree3 supertype of all IFC entities, beside those defined in an IFC resource schema. All entities that are subtypes of IfcRoot can be used independently, whereas resource schema entities, that are not subtypes of IfcRoot, are not supposed to be independent entities.
  */
 export const IfcRoot = 1578;
 

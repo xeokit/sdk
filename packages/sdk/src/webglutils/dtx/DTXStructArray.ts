@@ -1,4 +1,3 @@
-
 /**
  * Configuration options for creating a `DTXStructArray`.
  *
@@ -58,7 +57,7 @@ export interface DTXStructArrayOptions {
  */
 export interface DTXStructFieldSpec {
   name: string;
-  type: "scalar" | "vec2" | "vec3" | "vec4";
+  type: "scalar"|"vec2"|"vec3"|"vec4";
 }
 
 /**
@@ -141,9 +140,9 @@ export interface DTXStructSpec {
  * ````
  *
  * ### Methods:
- * * setStructObject(tileIndex, data): Writes a single struct to the array.
+ * * setStructObject(structIndex, data): Writes a single struct to the array.
  * * setStructObjects(startIndex, objects): Writes multiple structs to the array.
- * * getStructObject(tileIndex): Reads a struct as a JavaScript object.
+ * * getStructObject(structIndex): Reads a struct as a JavaScript object.
  * * flush(): Uploads modified data to the GPU.
  * * getTexture(): Returns the WebGL texture for use in shaders.
  */
@@ -162,28 +161,28 @@ export class DTXStructArray {
   /**
    * The backing Float32Array for struct data.
    */
-  public readonly buffer: Float32Array<any>;
+  public buffer: Float32Array<any>;
 
-  private gl: WebGL2RenderingContext;
-  private capacity: number;
-  private stride: number; // in floats
+  private _gl: WebGL2RenderingContext;
+  private _capacity: number;
+  private _stride: number; // in floats
   private strideAligned: number;
-
-  private dirtyIndices = new Set<number>();
-
+  private _texWidth: number;
+  private _floatsPerRow: number;
+  private _dirtyIndices = new Set<number>();
 
   /**
    * Creates a new DTXStructArray instance.
    */
-  constructor(options: DTXStructArrayOptions) {
+  constructor( options: DTXStructArrayOptions ) {
 
-    this.gl = options.gl;
+    this._gl = options.gl;
     this.structSpec = options.structSpec;
-    this.capacity = options.capacity;
+    this._capacity = options.capacity;
 
-    const gl = this.gl;
+    const gl = this._gl;
 
-    this.stride = this.structSpec.fields.reduce((acc, field) => {
+    this._stride = this.structSpec.fields.reduce(( acc, field ) => {
       switch (field.type) {
         case "scalar":
           return acc + 4; // one full texel
@@ -196,10 +195,12 @@ export class DTXStructArray {
       }
     }, 0);
 
-  // Align stride to next multiple of 4
-    this.strideAligned = (this.stride + 3) & ~3;
+    // Align stride to next multiple of 4
+    this.strideAligned = (this._stride + 3) & ~3;
+    this._texWidth = 4096; // texels
+    this._floatsPerRow = this._texWidth * 4;
 
-    const totalFloats = this.capacity * this.strideAligned;
+    const totalFloats = this._capacity * this.strideAligned;
 
     const textureWidth = 4096;
     const floatsPerRow = textureWidth * 4;
@@ -208,7 +209,7 @@ export class DTXStructArray {
     const totalTexFloats = textureWidth * textureHeight * 4;
     this.buffer = new Float32Array(totalTexFloats);
 
-    const texture = this.gl.createTexture();
+    const texture = this._gl.createTexture();
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
@@ -237,23 +238,23 @@ export class DTXStructArray {
    * Returns the number of floats used per struct.
    */
   getStride(): number {
-    return this.stride;
+    return this._stride;
   }
 
   /**
-   * Returns a view into the underlying buffer for a specific struct.
+   * Returns a view into the underlying _buffer for a specific struct.
    */
-  getStructView(index: number): Float32Array<any> {
+  getStructView( index: number ): Float32Array<any> {
     const offset = index * this.strideAligned;
-    return this.buffer.subarray(offset, offset + this.stride);
+    return this.buffer.subarray(offset, offset + this._stride);
   }
 
   /**
-   * Reads and unpacks the struct at the given tileIndex as a JS object.
+   * Reads and unpacks the struct at the given structIndex as a JS object.
    */
-  getStructObject(index: number): Record<string, number | number[]> {
+  getStructObject( index: number ): Record<string, number|number[]> {
     const view = this.getStructView(index);
-    const result: Record<string, number | number[]> = {};
+    const result: Record<string, number|number[]> = {};
     let offset = 0;
     for (const field of this.structSpec.fields) {
       switch (field.type) {
@@ -285,91 +286,86 @@ export class DTXStructArray {
   }
 
   /**
-   * Writes the given JS object into the buffer at the specified struct tileIndex.
+   * Writes the given JS object into the _buffer at the specified struct structIndex.
    */
-  setStructObject(index: number, data: Record<string, number | number[]>): void {
-    const view = this.getStructView(index);
+  setStructObject( structIndex: number, data: Record<string, number|number[]> ): void {
+    const view = this.getStructView(structIndex);
     let offset = 0;
     for (const field of this.structSpec.fields) {
       const value = data[field.name];
       if (value === undefined) {
-        continue;
-        // throw new Error(`Missing field '${field.name}' in struct data`);
+        offset += (field.type === 'scalar' ? 4 : (field.type === 'vec2' ? 2 : (field.type === 'vec3' ? 3 : 4)));
+        continue; // leave as-is
       }
       switch (field.type) {
-        case "scalar": {
-          const uintVal = Math.min(Math.max(Number(value), 0), 0xFFFFFFFF) >>> 0;
-          view[offset] = uintVal & 0xFF;
-          view[offset + 1] = (uintVal >> 8) & 0xFF;
-          view[offset + 2] = (uintVal >> 16) & 0xFF;
-          view[offset + 3] = (uintVal >> 24) & 0xFF;
+        case 'scalar': {
+          const u = Math.min(Math.max(Number(value), 0), 0xFFFFFFFF) >>> 0;
+          view[offset + 0] = (u) & 255;
+          view[offset + 1] = (u >> 8) & 255;
+          view[offset + 2] = (u >> 16) & 255;
+          view[offset + 3] = (u >> 24) & 255;
           offset += 4;
           break;
         }
-        case "vec2": {
-          const v = value as number[];
-          view[offset] = v[0];
-          view[offset + 1] = v[1];
+        case 'vec2': {
+          const a = value;
+          view[offset] = a[0];
+          view[offset + 1] = a[1];
           offset += 2;
           break;
         }
-        case "vec3": {
-          const v = value as number[];
-          view[offset] = v[0];
-          view[offset + 1] = v[1];
-          view[offset + 2] = v[2];
+        case 'vec3': {
+          const a = value;
+          view[offset] = a[0];
+          view[offset + 1] = a[1];
+          view[offset + 2] = a[2];
           offset += 3;
           break;
         }
-        case "vec4": {
-          const v = value as number[];
-          view[offset] = v[0];
-          view[offset + 1] = v[1];
-          view[offset + 2] = v[2];
-          view[offset + 3] = v[3];
+        case 'vec4': {
+          const a = value;
+          view[offset] = a[0];
+          view[offset + 1] = a[1];
+          view[offset + 2] = a[2];
+          view[offset + 3] = a[3];
           offset += 4;
           break;
         }
       }
     }
-    this.dirtyIndices.add(index);
+    // write back into padded region
+    const off = structIndex * this.strideAligned;
+    this.buffer.set(view, off);
+    this._dirtyIndices.add(structIndex);
   }
 
   // --- flush(): upload dirty structs as whole-texel chunks, split at row ends ---
   flush(): void {
-    const gl = this.gl;
-    const texWidth = 4096;
-    const floatsPerRow = texWidth * 4;
-
+    if (this._dirtyIndices.size === 0) return;
+    const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-
-    for (const index of this.dirtyIndices) {
-      const offset = index * this.strideAligned;
-      const floatsToUpload = this.strideAligned;
-
-      const rowIndex = Math.floor(offset / floatsPerRow);
-      const rowOffset = offset % floatsPerRow;
-      const xTexel = Math.floor(rowOffset / 4);
-      const texels = floatsToUpload / 4;
-
-      gl.texSubImage2D(
-        gl.TEXTURE_2D,
-        0,
-        xTexel,
-        rowIndex,
-        texels,
-        1,
-        gl.RGBA,
-        gl.FLOAT,
-        this.buffer.subarray(offset, offset + floatsToUpload)
-      );
+    for (const idx of this._dirtyIndices) {
+      let off = idx * this.strideAligned;
+      let remain = this.strideAligned;
+      while (remain > 0) {
+        const row = Math.floor(off / this._floatsPerRow);
+        const rowOff = off - row * this._floatsPerRow; // floats into row
+        const rowLeftFloats = this._floatsPerRow - rowOff;
+        const chunk = Math.min(remain, rowLeftFloats);
+        const xTex = Math.floor(rowOff / 4);
+        const texels = Math.ceil(chunk / 4); // whole texels
+        const end = off + texels * 4; // include any extra padding floats within row
+        const sub = this.buffer.subarray(off, end);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, xTex, row, texels, 1, gl.RGBA, gl.FLOAT, sub);
+        remain -= (end - off);
+        off = end;
+      }
     }
+    this._dirtyIndices.clear();
+    gl.bindTexture(gl.TEXTURE_2D, null);
 
-    this.dirtyIndices.clear();
   }
-
-
 
   /**
    * Returns the backing WebGL texture.
@@ -379,19 +375,19 @@ export class DTXStructArray {
   }
 
   /**
-   * Writes a batch of JS objects into the buffer starting at a given tileIndex.
+   * Writes a batch of JS objects into the _buffer starting at a given structIndex.
    */
-  setStructObjects(startIndex: number, objects: Record<string, number | number[]>[]): void {
+  setStructObjects( startIndex: number, objects: Record<string, number|number[]>[] ): void {
     for (let i = 0; i < objects.length; i++) {
       this.setStructObject(startIndex + i, objects[i]);
     }
   }
 
   /**
-   * Reads and returns a batch of JS objects from the buffer starting at a given tileIndex.
+   * Reads and returns a batch of JS objects from the _buffer starting at a given structIndex.
    */
-  getStructObjects(startIndex: number, count: number): Record<string, number | number[]>[] {
-    const result: Record<string, number | number[]>[] = [];
+  getStructObjects( startIndex: number, count: number ): Record<string, number|number[]>[] {
+    const result: Record<string, number|number[]>[] = [];
     for (let i = 0; i < count; i++) {
       result.push(this.getStructObject(startIndex + i));
     }
@@ -402,7 +398,7 @@ export class DTXStructArray {
    * Destroys the internal resources.
    */
   destroy(): void {
-    this.gl.deleteTexture(this.texture);
+    this._gl.deleteTexture(this.texture);
   }
 }
 
@@ -479,7 +475,7 @@ export class DTXStructArray {
  * }
  * ````
  */
-export function glslUnpackFunction(structSpec: DTXStructSpec): string {
+export function glslUnpackFunction( structSpec: DTXStructSpec ): string {
   let offset = 0;
   const lines: string[] = [];
 
@@ -494,7 +490,7 @@ export function glslUnpackFunction(structSpec: DTXStructSpec): string {
 
   for (const field of structSpec.fields) {
     const base = `floatIdx + ${offset}`;
-    const fetch = (ofs: number) => `texelFetch(tex, ivec2((${base} + ${ofs}) % texWidth, (${base} + ${ofs}) / texWidth), 0)`;
+    const fetch = ( ofs: number ) => `texelFetch(tex, ivec2((${base} + ${ofs}) % texWidth, (${base} + ${ofs}) / texWidth), 0)`;
 
     if (field.type === "scalar") {
       lines.push(`  {`);

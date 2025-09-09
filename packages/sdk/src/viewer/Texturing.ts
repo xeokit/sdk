@@ -52,7 +52,7 @@ class Texturing extends Component {
    */
   set renderModes(value: number[]) {
     this.#state.renderModes = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -76,7 +76,7 @@ class Texturing extends Component {
       return;
     }
     this.#state.enabled = value;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**

@@ -43,13 +43,13 @@ export class RenderBufferManager {
   }
 
   /**
-   * Retrieves a render buffer by its ID, creating it if it does not exist.
+   * Retrieves a render _buffer by its ID, creating it if it does not exist.
    *
-   * @param {string} id - The unique identifier for the render buffer.
-   * @param {Object} [options] - Optional configuration for the render buffer.
-   * @param {boolean} options.depthTexture - Whether the render buffer includes a depth texture.
-   * @param {number[]} [options.size] - The size of the render buffer, specified as `[width, height]`.
-   * @returns {WebGLRenderBuffer} The requested or newly created render buffer.
+   * @param {string} id - The unique identifier for the render _buffer.
+   * @param {Object} [options] - Optional configuration for the render _buffer.
+   * @param {boolean} options.depthTexture - Whether the render _buffer includes a depth texture.
+   * @param {number[]} [options.size] - The size of the render _buffer, specified as `[width, height]`.
+   * @returns {WebGLRenderBuffer} The requested or newly created render _buffer.
    */
   getRenderBuffer(id: string, options?: { depthTexture: boolean; size?: number[] }) {
     const renderBuffers = this._renderBuffersBasic; // Currently only basic buffers are used

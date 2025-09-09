@@ -151,11 +151,11 @@
  *
  * Our minimal browser Viewer gets a {@link webglrenderer!WebGLRenderer | WebGLRenderer}, to adapt it
  * to use the browser's WebGL graphics API for 3D viewing. Our Viewer also gets a single {@link viewer!View | View}
- * to make it draw to a specified canvas in the page. The View also gets a {@link cameracontrol!CameraControl | CameraControl},
+ * to make it render to a specified canvas in the page. The View also gets a {@link cameracontrol!CameraControl | CameraControl},
  * so we can interact with it using mouse and touch input.
  *
  * Note that a Scene does not need to be attached to a Viewer. A Scene functions as a stand-alone data structure, and
- * is agnostic of Viewer. In the browser, we typically use Scene with a Viewer. In a NodeJS script, that has no need to draw
+ * is agnostic of Viewer. In the browser, we typically use Scene with a Viewer. In a NodeJS script, that has no need to render
  * anything, we would typically use Scene without a Viewer.
  *
  * ````javascript

@@ -5,7 +5,6 @@ import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "../math";
 import type {FrustumProjectionParams} from "./FrustumProjectionParams";
 import {FrustumProjectionType} from "../constants";
-import type {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
 import type {Projection} from "./Projection";
 
 /**
@@ -249,7 +248,7 @@ export class FrustumProjection extends Component implements Projection {
     frustumMat4(this.#state.left, this.#state.right, this.#state.bottom, this.#state.top, this.#state.near, this.#state.far, this.#state.projMatrix);
     this.#inverseMatrixDirty = true;
     this.#transposedProjMatrixDirty = true;
-    this.camera.view.redraw();
+    this.camera.view.needsRender();
     this.onProjMatrix.dispatch(this, this.#state.projMatrix);
   }
 

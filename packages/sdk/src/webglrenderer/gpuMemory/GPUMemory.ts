@@ -6,11 +6,11 @@ import type {FloatArrayParam} from "../../math";
 import {DTXArray} from "../../webglutils/dtx/DTXArray";
 import {DTXStructArray, type DTXStructSpec} from "../../webglutils/dtx/DTXStructArray";
 import {type Tile} from "./Tile";
-import {Viewer} from "../../viewer";
-import {type GPUMemoryViewIF} from "./GPUMemoryViewIF";
-import {type GPUMemoryEditIF} from "./GPUMemoryEditIF";
+import {type GPUMemoryReadIF} from "./GPUMemoryReadIF";
+import {type GPUMemoryWriteIF} from "./GPUMemoryWriteIF";
 import {type DataTextures} from "./DataTextures";
 import {DTXPositionsArray} from "../../webglutils";
+import {RenderContext} from "../RenderContext";
 
 const MAX_MESHES = 100000;
 const MAX_GEOMETRIES = 100000;
@@ -20,10 +20,10 @@ const MAX_GEOMETRIES = 100000;
  * Manages GPU-resident, dynamically-editable data storage for model geometry and attributes.
  *
  * The `GPUMemory` class implements a data texture-based system for efficient storage and
- * rendering of large-scale 3D scenes. It handles memory allocation, updates, and synchronization
+ * rendering of large-scale 3D scenes. It handles gpuMemory allocation, updates, and synchronization
  * for meshes, geometries, and tiles, integrating tightly with WebGL rendering pipelines.
  */
-export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
+export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
   /**
    * The data textures that implement GPU-side model storage for this GPUMemory.
@@ -54,19 +54,17 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
   private _geometryHandles: any;
   private _meshHandles: any;
   private _onTick: () => void;
-  private _viewer: Viewer;
   private _maxSlices: number;
   private _maxLights: number;
+  private _renderContext: RenderContext;
+
 
   /**
    *
    */
-  constructor( params: {
-    gl: WebGL2RenderingContext,
-    viewer: Viewer
-  } ) {
+  constructor( renderContext: RenderContext ) {
 
-    const {gl, viewer} = params;
+    this._renderContext = renderContext;
 
     this._geometryHandles = {};
     this._meshHandles = {};
@@ -84,6 +82,8 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
     this._geometries = {};
     this._numGeometries = 0;
     this._maxGeometries = 20000;
+
+    const gl = renderContext.gl;
 
     this._primToMeshLookup = new DTXArray({
       gl,
@@ -183,7 +183,7 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
       }
     });
 
-    // Concatenation of all indices for the purpose of a gl draw call (ie. gl.drawElements)
+    // Concatenation of all indices for the purpose of a gl render call (ie. gl.drawElements)
 
     this._indices = new DTXArray({
       gl,
@@ -191,7 +191,7 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
       ArrayType: Uint32Array
     });
 
-    // Concatenation of all edge indices for a gl draw call (ie. gl.drawElements)
+    // Concatenation of all edge indices for a gl render call (ie. gl.drawElements)
 
     this._edgeIndices = new DTXArray({
       gl,
@@ -216,6 +216,8 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
     ];
 
     // Tile manager
+
+    const viewer = renderContext.viewer;
 
     this._tiles = new TileManager(gl, viewer, this._tileViewMatrices);
 
@@ -296,7 +298,7 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
   }
 
   /**
-   * Adds a SceneMesh to data texture memory.
+   * Adds a SceneMesh to data texture gpuMemory.
    *
    * Returns an tileIndex/handle through which you can dynamically update attributes for the mesh.
    *
@@ -320,7 +322,7 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
       const geometryIndex = this._getFreeGeometryIndex();
 
       const positionsPortion = this._positions.getPortion(
-        geometry.positionsCompressed.length,
+        geometry.positionsCompressed.length / 3,
         ( newBase: number ) => {
 
           this._geometryAttribs.setStructObject(geometryIndex, {
@@ -404,12 +406,16 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
       edgeIndicesHandle
     };
 
+    this._needRenderAllViews();
+
     return meshIndex;
   }
 
   /**
    * Sets the modeling transform matrix for a mesh.
    * The modeling transform is relative to the center of the meshes tile.
+   *
+   * Sets RenderContext.viewFlags[...].needsRender to true.
    *
    * @param meshIndex
    * @param matrix
@@ -418,10 +424,19 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
     meshIndex: number,
     matrix: FloatArrayParam ): void {
     this._meshMatrices.setMatrix(meshIndex, matrix);
+    this._needRenderAllViews();
+  }
+
+  private _needRenderAllViews() {
+    for (let i = 0; i < this._renderContext.viewFlags.length; i++) {
+      this._renderContext.viewFlags[i].needsRender = true;
+    }
   }
 
   /**
    * Sets attributes for e mesh to apply across all Views.
+   *
+   * Sets RenderContext.viewFlags[...].needsRender to true.
    *
    * @param meshIndex
    * @param params
@@ -433,10 +448,13 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
       tileIndex?: number;
     } ) {
     this._meshAttribs.setStructObject(meshIndex, params);
+    this._needRenderAllViews();
   }
 
   /**
    * Sets attributes for a mesh within a specific View.
+   *
+   * Sets RenderContext.viewFlags[viewIndex].needsRender to true.
    *
    * @param meshIndex
    * @param viewIndex
@@ -454,10 +472,15 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
       throw "viewIndex out of range";
     }
     this._meshViewAttribs[viewIndex].setStructObject(meshIndex, params);
+    this._needRenderView(viewIndex);
+  }
+
+  private _needRenderView( viewIndex: number ) {
+    this._renderContext.viewFlags[viewIndex].needsRender = true;
   }
 
   /**
-   * Removes a SceneMesh from data texture memory.
+   * Removes a SceneMesh from data texture gpuMemory.
    *
    * @param sceneMesh
    */
@@ -491,6 +514,7 @@ export class GPUMemory implements GPUMemoryViewIF, GPUMemoryEditIF {
     delete this._meshHandles[sceneMesh.id];
     this._putFreeMeshIndex(meshHandle.meshIndex);
     this._numMeshes--;
+    this._needRenderAllViews();
   }
 
   _getFreeMeshIndex(): number {

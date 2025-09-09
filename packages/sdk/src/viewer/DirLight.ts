@@ -28,8 +28,8 @@ class DirLight extends Component {
 
   #state: {
     type: "dir";
-    dir: Float32Array;
-    color: Float32Array;
+    dir: Float32Array<any>;
+    color: Float32Array<any>;
     intensity: number;
     space: string
   };
@@ -83,7 +83,7 @@ class DirLight extends Component {
    */
   set dir(value: FloatArrayParam) {
     this.#state.dir.set(value);
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -106,7 +106,7 @@ class DirLight extends Component {
    */
   set color(color: FloatArrayParam) {
     this.#state.color.set(color);
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -129,7 +129,7 @@ class DirLight extends Component {
    */
   set intensity(intensity: number) {
     this.#state.intensity = intensity;
-    this.view.redraw();
+    this.view.needsRender();
   }
 
   /**
@@ -172,7 +172,7 @@ class DirLight extends Component {
   destroy() {
     super.destroy();
     this.view.deregisterLight(this);
-    this.view.redraw();
+    this.view.needsRender();
   }
 }
 

@@ -8,6 +8,9 @@ type TypedArray =
   | Int16Array<any>
   | Int8Array<any>;
 
+/**
+ * Options for creating a `DTXArray`.
+ */
 export interface DTXArrayOptions<T extends TypedArray> {
   gl: WebGL2RenderingContext;
   ArrayType: new (size: number) => T;
@@ -19,7 +22,7 @@ export interface DTXArrayOptions<T extends TypedArray> {
 /**
  * Represents a portion of a `DTXArray` allocated for storing data.
  *
- * A `DTXArrayPortion` defines a contiguous block of memory within the array,
+ * A `DTXArrayPortion` defines a contiguous block of gpuMemory within the array,
  * specified by its starting base tileIndex and size. It is used internally to
  * manage dynamic allocation and deallocation of array portions.
  *
@@ -53,12 +56,12 @@ export interface DTXArrayHandle {
  *
  * The `DTXArray` class provides efficient storage and management of unstructured data
  * (e.g., indices, positions) for use in WebGL rendering. It supports dynamic allocation,
- * updates, and partial uploads to the GPU, minimizing memory fragmentation.
+ * updates, and partial uploads to the GPU, minimizing gpuMemory fragmentation.
  *
  * ### Features:
- * - **Dynamic Allocation**: Allocates and manages portions of the buffer for different data.
+ * - **Dynamic Allocation**: Allocates and manages portions of the _buffer for different data.
  * - **Efficient Updates**: Buffers changes and uploads only dirty regions to the GPU.
- * - **Fragmentation Handling**: Packs the buffer to eliminate fragmentation when needed.
+ * - **Fragmentation Handling**: Packs the _buffer to eliminate fragmentation when needed.
  * - **Customizable Layout**: Supports different data types and component configurations.
  *
  * ### Usage:
@@ -212,7 +215,7 @@ export class DTXArray<T extends TypedArray> {
   }
 
   /**
-   * Allocates a portion of the buffer.
+   * Allocates a portion of the _buffer.
    */
   getPortion(size: number, onMove?: (newBase: number) => void): DTXArrayHandle {
     const index = this.findFreeBlock(size);
@@ -318,7 +321,7 @@ export class DTXArray<T extends TypedArray> {
   }
 
   /**
-   * Packs the buffer to eliminate fragmentation.
+   * Packs the _buffer to eliminate fragmentation.
    */
   private pack(): void {
     const sorted = Array.from(this.used.entries()).sort(([, a], [, b]) => a.base - b.base);
@@ -392,7 +395,7 @@ export class DTXArray<T extends TypedArray> {
     }
   }
 
-  /** Uploads all dirty portions to GPU or the whole buffer if uploadAllOnFlush is set */
+  /** Uploads all dirty portions to GPU or the whole _buffer if uploadAllOnFlush is set */
   flush(): void {
     const texture = this.texture;
     const gl = this.gl;

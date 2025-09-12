@@ -3,7 +3,7 @@ import {createRTCViewMat, worldToRTCCenter} from "../../rtc";
 import type {FloatArrayParam} from "../../math";
 import {View, Viewer} from "../../viewer";
 import {type Tile} from "./Tile";
-import {DTXMatrixArray} from "../../webglutils/dtx/DTXMatrixArray";
+import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 
 const NUM_VIEWS = 4;
 const NUM_TILES = 2000;

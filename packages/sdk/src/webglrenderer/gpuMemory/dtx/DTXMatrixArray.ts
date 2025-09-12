@@ -1,4 +1,4 @@
-import {type FloatArrayParam} from "../../math";
+import {type FloatArrayParam} from "../../../math";
 
 /**
  * Manages a GPU-side texture for storing model matrices (mat4) for meshes.

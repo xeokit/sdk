@@ -1,16 +1,18 @@
-import {SceneMesh} from "../../scene";
-
-import {DTXMatrixArray} from "../../webglutils/dtx/DTXMatrixArray";
-import {TileManager} from "./TileManager";
 import type {FloatArrayParam} from "../../math";
-import {DTXArray} from "../../webglutils/dtx/DTXArray";
-import {DTXStructArray, type DTXStructSpec} from "../../webglutils/dtx/DTXStructArray";
+import {SceneMesh} from "../../scene";
+import {RenderContext} from "../RenderContext";
+import {TileManager} from "./TileManager";
 import {type Tile} from "./Tile";
 import {type GPUMemoryReadIF} from "./GPUMemoryReadIF";
 import {type GPUMemoryWriteIF} from "./GPUMemoryWriteIF";
 import {type DataTextures} from "./DataTextures";
-import {DTXPositionsArray} from "../../webglutils";
-import {RenderContext} from "../RenderContext";
+import {DTXMeshViewAttribs} from "./dtx/DTXMeshViewAttribs";
+import {DTXMeshAttribs} from "./dtx/DTXMeshAttribs";
+import {DTXQuantRanges} from "./dtx/DTXQuantRanges";
+import {DTXGeometryAttribs} from "./dtx/DTXGeometryAttribs";
+import {DTXPositionsArray} from "./dtx/DTXPositionsArray";
+import {DTXArray} from "./dtx/DTXArray";
+import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 
 const MAX_MESHES = 100000;
 const MAX_GEOMETRIES = 100000;
@@ -31,10 +33,11 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   dataTextures: DataTextures;
 
   private _indices: DTXArray<any>;
-  private _meshAttribs: DTXStructArray;
-  private _meshViewAttribs: DTXStructArray[];
+  private _meshAttribs: DTXMeshAttribs;
+  private _meshViewAttribs: DTXMeshViewAttribs[];
   private _tiles: TileManager;
-  private _geometryAttribs: DTXStructArray;
+  private _geometryQuantRanges: DTXQuantRanges;
+  private _geometryAttribs: DTXGeometryAttribs;
   private _edgeIndices: DTXArray<any>;
   private _primToMeshLookup: DTXArray<any>;
   private _positions: DTXPositionsArray;
@@ -93,37 +96,15 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
     // Attributes for each SceneMesh
 
-    this._meshAttribs = new DTXStructArray({
-      gl,
-      capacity: this._maxMeshes,
-      structSpec: {
-        name: "MeshAttribs",
-        fields: [
-          {name: "tileIndex", type: "scalar"},
-          {name: "geometryIndex", type: "scalar"},
-          {name: "indicesBase", type: "scalar"},
-          {name: "edgeIndicesBase", type: "scalar"},
-          {name: "pickColor", type: "vec4"}
-        ]
-      }
-    });
+    this._meshAttribs = new DTXMeshAttribs({gl, capacity: this._maxMeshes});
 
     // Per-View attributes for each SceneMesh
 
-    const meshViewAttribsStruct: DTXStructSpec = {
-      name: "MeshViewAttribs",
-      fields: [
-        {name: "flags1", type: "vec4"},
-        {name: "flags2", type: "vec4"},
-        {name: "color", type: "vec4"}
-      ]
-    };
-
     this._meshViewAttribs = [
-      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttribsStruct}),
-      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttribsStruct}),
-      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttribsStruct}),
-      new DTXStructArray({gl, capacity: this._maxMeshes, structSpec: meshViewAttribsStruct})
+      new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
+      new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
+      new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
+      new DTXMeshViewAttribs({gl, capacity: this._maxMeshes})
     ];
 
     // // Per-View slices
@@ -170,18 +151,12 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
     // Attributes for each SceneGeometry
 
-    this._geometryAttribs = new DTXStructArray({
-      gl,
-      capacity: 10000, // TODO
-      structSpec: {
-        name: "GeometryAttribs",
-        fields: [
-          {name: "vertexBase", type: "scalar"}, // Base of the geometry's portion in _positions DTX array
-          {name: "dequantizeOffset", type: "vec3"}, // Min position dequantization range
-          {name: "dequantizeScale", type: "vec3"} // Position dequantization scale
-        ]
-      }
+    this._geometryAttribs = new DTXGeometryAttribs({
+      gl, capacity: 10000 // TODO
     });
+
+
+    this._geometryQuantRanges = new DTXQuantRanges({gl});
 
     // Concatenation of all indices for the purpose of a gl render call (ie. gl.drawElements)
 
@@ -229,6 +204,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
       for (let i = 0; i < 4; i++) {
         this._meshViewAttribs[i].flush();
       }
+      this._geometryQuantRanges.flush();
       this._geometryAttribs.flush();
       this._edgeIndices.flush();
       this._primToMeshLookup.flush();
@@ -254,6 +230,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
         this._meshViewAttribs[3].texture
       ],
       geometryAttribs: this._geometryAttribs.texture,
+      geometryQuantRanges: this._geometryQuantRanges.texture,
       positions: this._positions.texture,
       tileViewMatrices: [
         this._tileViewMatrices[0].texture,
@@ -322,23 +299,19 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
       const geometryIndex = this._getFreeGeometryIndex();
 
       const positionsPortion = this._positions.getPortion(
-        geometry.positionsCompressed.length / 3,
+        geometry.positionsCompressed.length / 3, // TODO: Assumes triangles
         ( newBase: number ) => {
-
-          this._geometryAttribs.setStructObject(geometryIndex, {
-            vertexBase: newBase / 3 // TODO: Assumes triangles
-          });
+          const vertexBase = newBase / 3 // TODO: Assumes triangles
+          this._geometryAttribs.setItem(geometryIndex, vertexBase);
         });
 
       this._positions.setPortionData(positionsPortion, geometry.positionsCompressed);
 
       const [xmin, ymin, zmin, xmax, ymax, zmax] = geometry.aabb;
 
-      this._geometryAttribs.setStructObject(geometryIndex, {
-        vertexBase: positionsPortion.base / 3, // TODO: Only works for triangles
-        dequantizeOffset: [xmin, ymin, zmin],
-        dequantizeScale: [xmax - xmin, ymax - ymin, zmax - zmin]
-      });
+      this._geometryAttribs.setItem(geometryIndex, positionsPortion.base / 3); // TODO: Assumes triangles
+
+      this._geometryQuantRanges.setQuantRange(geometryIndex, [xmin, ymin, zmin], [xmax - xmin, ymax - ymin, zmax - zmin]);
 
       geometryHandle = {
         positionsPortion,
@@ -351,7 +324,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
     geometryHandle.useCount++;
 
-    const primitiveCount = geometry.indices.length / 3; // TODO
+    const primitiveCount = geometry.indices.length / 3; // TODO: Assumes triangles
 
     const primToMeshLookupHandle = this._primToMeshLookup.getPortion(
       primitiveCount,
@@ -367,7 +340,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     const indicesHandle = this._indices.getPortion(
       geometry.indices.length,
       ( newBase: number ) => {
-        this._meshAttribs.setStructObject(meshIndex, {
+        this._meshAttribs.setAttribs(meshIndex, {
           indicesBase: newBase
         });
       }
@@ -378,7 +351,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     const edgeIndicesHandle = this._edgeIndices.getPortion(
       geometry.edgeIndices.length,
       ( newBase: number ) => {
-        this._meshAttribs.setStructObject(meshIndex, {
+        this._meshAttribs.setAttribs(meshIndex, {
           edgeIndicesBase: newBase
         });
       }
@@ -386,14 +359,14 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
     this._edgeIndices.setPortionData(edgeIndicesHandle, geometry.edgeIndices);
 
-    this._meshAttribs.setStructObject(meshIndex, {
+    this._meshAttribs.setAttribs(meshIndex, {
       tileIndex: 0, // Set by setMeshAttribs()
       geometryIndex: geometryHandle.geometryIndex,
       indicesBase: indicesHandle.base,
       edgeIndicesBase: edgeIndicesHandle.base
     });
 
-    this._meshViewAttribs[0].setStructObject(meshIndex, {
+    this._meshViewAttribs[0].setAttribs(meshIndex, {
       color: [sceneMesh.color[0], sceneMesh.color[1], sceneMesh.color[2], sceneMesh.opacity]
     });
 
@@ -447,7 +420,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     params: {
       tileIndex?: number;
     } ) {
-    this._meshAttribs.setStructObject(meshIndex, params);
+    this._meshAttribs.setAttribs(meshIndex, params);
     this._needRenderAllViews();
   }
 
@@ -464,14 +437,14 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     meshIndex: number,
     viewIndex: number,
     params: {
-      flags1?: number;
-      flags2?: number;
-      color?: number[];
+      color?: number[];   // uvec4 bytes 0..255
+      flags1?: number;  // uvec4 bytes 0..255
+      flags2?: number;  // uvec4 bytes 0..255
     } ) {
     if (viewIndex < 0 || viewIndex >= this._meshViewAttribs.length) {
       throw "viewIndex out of range";
     }
-    this._meshViewAttribs[viewIndex].setStructObject(meshIndex, params);
+    this._meshViewAttribs[viewIndex].setAttribs(meshIndex, params);
     this._needRenderView(viewIndex);
   }
 

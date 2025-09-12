@@ -39,6 +39,11 @@ export interface DataTextures {
     geometryAttribs: WebGLTexture;
 
     /**
+     * Data texture containing quantization ranges for geometry decoding.
+     */
+    geometryQuantRanges: WebGLTexture;
+
+    /**
      * Data texture containing positions for vertices.
      */
     positions: WebGLTexture;

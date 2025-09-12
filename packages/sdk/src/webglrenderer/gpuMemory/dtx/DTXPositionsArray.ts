@@ -2,7 +2,7 @@
  * Represents a portion of a `DTXPositionsArray` allocated for storing data.
  * (One item = one vertex = 3 Uint16 components)
  */
-import {SDKError} from "../../core";
+import {SDKError} from "../../../core";
 
 interface DTXPositionsArrayPortion {
   base: number; // item tileIndex

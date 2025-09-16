@@ -159,7 +159,8 @@ export class Scene extends Component {
       this.#deregisterObjects(sceneModel);
       this.onModelDestroyed.dispatch(this, sceneModel);
     });
-    this.onModelCreated.dispatch(this, sceneModel);
+    this.onModelCreated.dispatch(this, sceneModel); // Fires onModelCreated
+    sceneModel.fromParams(sceneModelParams);  // Fires onObjectCreated for each SceneObject
     return sceneModel;
   }
 

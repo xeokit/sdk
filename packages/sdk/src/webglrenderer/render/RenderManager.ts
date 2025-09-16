@@ -95,7 +95,7 @@ export class RenderManager {
     gl.clearColor(bg[0], bg[1], bg[2], bg[3]);
     gl.enable(gl.DEPTH_TEST);
     gl.frontFace(gl.CCW);
-    gl.enable(gl.CULL_FACE);
+    gl.disable(gl.CULL_FACE);
     gl.depthMask(true);
     gl.lineWidth(1);
     ctx.lineWidth = 1;

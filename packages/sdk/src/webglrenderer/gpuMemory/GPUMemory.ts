@@ -9,10 +9,10 @@ import {type DataTextures} from "./DataTextures";
 import {DTXMeshViewAttribs} from "./dtx/DTXMeshViewAttribs";
 import {DTXMeshAttribs} from "./dtx/DTXMeshAttribs";
 import {DTXQuantRanges} from "./dtx/DTXQuantRanges";
-import {DTXGeometryAttribs} from "./dtx/DTXGeometryAttribs";
 import {DTXPositionsArray} from "./dtx/DTXPositionsArray";
-import {DTXArray} from "./dtx/DTXArray";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
+import {DTXPointerArray} from "./dtx/DTXPointerArray";
+import {DTXGeometryAttribs} from "./dtx/DTXGeometryAttribs";
 
 const MAX_MESHES = 100000;
 const MAX_GEOMETRIES = 100000;
@@ -32,14 +32,15 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
    */
   dataTextures: DataTextures;
 
-  private _indices: DTXArray<any>;
+  private _indices: DTXPointerArray;
   private _meshAttribs: DTXMeshAttribs;
   private _meshViewAttribs: DTXMeshViewAttribs[];
   private _tiles: TileManager;
   private _geometryQuantRanges: DTXQuantRanges;
   private _geometryAttribs: DTXGeometryAttribs;
-  private _edgeIndices: DTXArray<any>;
-  private _primToMeshLookup: DTXArray<any>;
+  private _edgeIndices: DTXPointerArray;
+  private _primToMeshLookup: DTXPointerArray;
+  private _primToMeshLookupDirty: boolean;
   private _positions: DTXPositionsArray;
   private _meshMatrices: DTXMatrixArray;
   private _tileViewMatrices: DTXMatrixArray[];
@@ -88,11 +89,12 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
     const gl = renderContext.gl;
 
-    this._primToMeshLookup = new DTXArray({
+    this._primToMeshLookup = new DTXPointerArray({
       gl,
-      capacity: 100000,
-      ArrayType: Uint32Array
+      capacity: 100000
     });
+
+    //   this._primToMeshLookupDirty = true;
 
     // Attributes for each SceneMesh
 
@@ -160,18 +162,16 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
     // Concatenation of all indices for the purpose of a gl render call (ie. gl.drawElements)
 
-    this._indices = new DTXArray({
+    this._indices = new DTXPointerArray({
       gl,
-      capacity: 100000,
-      ArrayType: Uint32Array
+      capacity: 100000
     });
 
     // Concatenation of all edge indices for a gl render call (ie. gl.drawElements)
 
-    this._edgeIndices = new DTXArray({
+    this._edgeIndices = new DTXPointerArray({
       gl,
-      capacity: 100000,
-      ArrayType: Uint32Array
+      capacity: 100000
     });
 
     // Concatenation of all vertex positions
@@ -207,12 +207,18 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
       this._geometryQuantRanges.flush();
       this._geometryAttribs.flush();
       this._edgeIndices.flush();
-      this._primToMeshLookup.flush();
       this._positions.flush();
       this._meshMatrices.flush();
       for (let i = 0; i < 4; i++) {
         this._tileViewMatrices[i].flush();
       }
+
+      // if (this._primToMeshLookupDirty) {
+      //
+      //   //
+      //
+      //   this._primToMeshLookup.flush();
+      // }
     });
 
     // Expose data textures for LayerRenderer to use
@@ -274,6 +280,11 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     this._tiles.putTile(tile);
   }
 
+  _rebuildIndicesAndPrims() {
+
+  }
+
+
   /**
    * Adds a SceneMesh to data texture gpuMemory.
    *
@@ -301,41 +312,42 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
       const positionsPortion = this._positions.getPortion(
         geometry.positionsCompressed.length / 3, // TODO: Assumes triangles
         ( newBase: number ) => {
-          const vertexBase = newBase / 3 // TODO: Assumes triangles
-          this._geometryAttribs.setItem(geometryIndex, vertexBase);
+          const verticesBase = newBase / 3 // TODO: Assumes triangles
+          this._geometryAttribs.setAttribs(geometryIndex, {verticesBase});
         });
 
       this._positions.setPortionData(positionsPortion, geometry.positionsCompressed);
 
       const [xmin, ymin, zmin, xmax, ymax, zmax] = geometry.aabb;
 
-      this._geometryAttribs.setItem(geometryIndex, positionsPortion.base / 3); // TODO: Assumes triangles
+      this._geometryQuantRanges.setQuantRange(
+        geometryIndex,
+        [xmin, ymin, zmin],
+        [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]);
 
-      this._geometryQuantRanges.setQuantRange(geometryIndex, [xmin, ymin, zmin], [xmax - xmin, ymax - ymin, zmax - zmin]);
+
+      this._geometryAttribs.setAttribs(geometryIndex, {
+        verticesBase: positionsPortion.base / 3
+        // ,
+        // indicesBase: indicesHandle.base,
+        // edgeIndicesBase:edgeIndicesHandle.base
+      }); // TODO: Assumes triangles
 
       geometryHandle = {
         positionsPortion,
+        // indicesHandle,
+        // edgeIndicesHandle,
         geometryIndex,
         useCount: 0
       };
 
       this._geometryHandles[geometry.id] = geometryHandle;
+
+      this._numGeometries++;
     }
 
     geometryHandle.useCount++;
 
-    const primitiveCount = geometry.indices.length / 3; // TODO: Assumes triangles
-
-    const primToMeshLookupHandle = this._primToMeshLookup.getPortion(
-      primitiveCount,
-      ( newBase: number ) => {
-        // this._meshAttribs.setStructObject(_meshIndex, {
-        //   indicesBase: newBase
-        // });
-      }
-    );
-
-    this._primToMeshLookup.fillPortion(primToMeshLookupHandle, meshIndex);
 
     const indicesHandle = this._indices.getPortion(
       geometry.indices.length,
@@ -359,11 +371,25 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
     this._edgeIndices.setPortionData(edgeIndicesHandle, geometry.edgeIndices);
 
+    const primitiveCount = geometry.indices.length / 3; // TODO: Assumes triangles
+
+    const primToMeshLookupHandle = this._primToMeshLookup.getPortion(
+      primitiveCount,
+      ( newBase: number ) => {
+        this._meshAttribs.setAttribs(meshIndex, {
+          primsBase: newBase
+        });
+      }
+    );
+
+    this._primToMeshLookup.fillPortion(primToMeshLookupHandle, meshIndex);
+
     this._meshAttribs.setAttribs(meshIndex, {
       tileIndex: 0, // Set by setMeshAttribs()
       geometryIndex: geometryHandle.geometryIndex,
       indicesBase: indicesHandle.base,
-      edgeIndicesBase: edgeIndicesHandle.base
+      edgeIndicesBase: edgeIndicesHandle.base,
+      primsBase: primToMeshLookupHandle.base
     });
 
     this._meshViewAttribs[0].setAttribs(meshIndex, {
@@ -375,9 +401,11 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     this._meshHandles[sceneMesh.id] = {
       meshIndex,
       primToMeshLookupHandle,
-      indicesHandle,
-      edgeIndicesHandle
+      indicesHandle: geometryHandle.indicesHandle,
+      edgeIndicesHandle: geometryHandle.edgeIndicesHandle
     };
+
+    this._numMeshes++;
 
     this._needRenderAllViews();
 
@@ -470,18 +498,18 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
       if (geometryHandle.positionsPortion) {
         this._positions.putPortion(geometryHandle.positionsPortion);
       }
+      if (geometryHandle.indicesHandle) {
+        this._indices.putPortion(geometryHandle.indicesHandle);
+      }
+      if (geometryHandle.edgeIndicesHandle) {
+        this._edgeIndices.putPortion(geometryHandle.edgeIndicesHandle);
+      }
       delete this._geometryHandles[geometry.id];
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
     }
     if (meshHandle.primToMeshLookupHandle) {
       this._primToMeshLookup.putPortion(meshHandle.primToMeshLookupHandle);
-    }
-    if (meshHandle.indicesHandle) {
-      this._indices.putPortion(meshHandle.indicesHandle);
-    }
-    if (meshHandle.edgeIndicesHandle) {
-      this._edgeIndices.putPortion(meshHandle.edgeIndicesHandle);
     }
 
     delete this._meshHandles[sceneMesh.id];
@@ -523,14 +551,22 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   }
 
   destroy() {
-    this._primToMeshLookup.destroy();
-    this._meshAttribs.destroy();
-    this._meshViewAttribs.forEach(( viewArray ) => viewArray.destroy());
-    this._geometryAttribs.destroy();
-    this._indices.destroy();
-    this._edgeIndices.destroy();
-    this._positions.destroy();
-    this._meshMatrices.destroy();
-    this._tileViewMatrices.forEach(( viewArray ) => viewArray.destroy());
+    const clear = ( ref: any ) => {
+      if (ref) {
+        ref.destroy();
+        return null;
+      }
+      return ref;
+    };
+    this._onTick = clear(this._onTick);
+    this._primToMeshLookup = clear(this._primToMeshLookup);
+    this._meshAttribs = clear(this._meshAttribs);
+    this._meshViewAttribs = this._meshViewAttribs.map(clear);
+    this._geometryAttribs = clear(this._geometryAttribs);
+    this._indices = clear(this._indices);
+    this._edgeIndices = clear(this._edgeIndices);
+    this._positions = clear(this._positions);
+    this._meshMatrices = clear(this._meshMatrices);
+    this._tileViewMatrices = this._tileViewMatrices.map(clear);
   }
 }

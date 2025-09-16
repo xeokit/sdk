@@ -213,7 +213,7 @@ export class RenderLayerImpl implements RenderLayer {
 
     // Apply attributes
     this._gpuMemoryWriteIF.setMeshViewAttribs(meshIndex, viewIndex, {
-      flags: renderFlags
+      flags1: renderFlags
     });
   }
 

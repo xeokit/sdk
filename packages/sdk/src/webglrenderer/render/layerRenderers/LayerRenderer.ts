@@ -180,145 +180,217 @@ export abstract class LayerRenderer {
         `// ${this.constructor.name} vertex shader`);
   }
 
+  vsDebugMain() {
+    this._vertexSrcBuf.push(
+      `void main(void) {
+        vec2 p;
+        if (gl_VertexID % 3 == 0)      p = vec2(-0.5, -0.5);
+        else if (gl_VertexID % 3 == 1) p = vec2( 0.5, -0.5);
+        else                           p = vec2( 0.0,  0.5);
+        gl_Position = vec4(p, 0.0, 1.0);
+        vColor      = vec4(1.0, 0.3, 0.1, 1.0);
+        vViewPos    = vec4(0.0);
+}`);
+  }
+
   /**
    * Generates the vertex shader precision definitions and common definitions.
    */
-  protected vsCommonDefines() { // default
+  protected vsCommonDefines() {
     this._vertexSrcBuf.push(
-      "uniform int uRenderPass;", // RENDER_PASSES
-      "uniform int uBaseIndex;", // Base primitive tileIndex for this render call
+      "uniform int uRenderPass;         // RENDER_PASSES",
+      "uniform int uBaseIndex;          // Base primitive tileIndex for this render call",
 
-      "uniform highp usampler2D uPrimToMeshLookup;", // DTXArray
-      "uniform highp usampler2D uPositions;", // DTXPositionsArray
-      "uniform highp usampler2D uIndices;", // DTXArray
-      "uniform highp usampler2D uEdgeIndices;", // DTXArray
-      "uniform highp sampler2D  uTileViewMatrices;", // DTXMatrixArray
-      "uniform highp sampler2D  uMeshMatrices;", // DTXMatrixArray
-      "uniform highp usampler2D uMeshAttribs;", // DTXMeshAttribs
-      "uniform highp usampler2D uMeshViewAttribs;", // DTXMeshViewAttribs
-      "uniform highp usampler2D uGeometryAttribs;", // DTXGeometryAttribs
-      "uniform highp sampler2D  uGeometryQuantRanges;", // DTXQuantRanges
+      "uniform highp usampler2D uPrimToMeshLookup;   // DTXPointerArray",
+      "uniform highp usampler2D uPositions;          // DTXPositionsArray",
+      "uniform highp usampler2D uIndices;            // DTXArray",
+      "uniform highp usampler2D uEdgeIndices;        // DTXArray",
+      "uniform highp sampler2D  uTileViewMatrices;   // DTXMatrixArray",
+      "uniform highp sampler2D  uMeshMatrices;       // DTXMatrixArray",
+      "uniform highp usampler2D uMeshAttribs;        // DTXMeshAttribs",
+      "uniform highp usampler2D uMeshViewAttribs;    // DTXMeshViewAttribs",
+      "uniform highp usampler2D uGeometryAttribs;    // DTXGeometryAttribs",
+      "uniform highp sampler2D  uGeometryQuantRanges;// DTXQuantRanges",
 
-      "uniform mat4 uProjMatrix;", // Projection matrix (from view)
+      "uniform mat4 uProjMatrix;        // Projection matrix (from view)",
 
-      "struct QuantRange {" +
-      "  vec3 offset;" +
-      "  vec3 scale;" +
-      "};" +
+      "struct QuantRange {",
+      "  vec3 offset;",
+      "  vec3 scale;",
+      "};",
 
       "struct MeshAttribs {",
       "  uint tileIndex;",
       "  uint geometryIndex;",
       "  uint indicesBase;",
       "  uint edgeIndicesBase;",
+      "  uint primsBase;",
       "};",
 
       "struct MeshViewAttribs {",
       "  uvec4 color;",
-      "  uvec4  flags1;",
-      "  uvec4  flags2;",
+      "  uvec4 flags1;",
+      "  uvec4 flags2;",
       "};",
 
-      // TODO: Light struct and SectionPlane struct
+      "struct GeometryAttribs {",
+      "  uint verticesBase;",
+      // "  uint indicesBase;",
+      // "  uint edgeIndicesBase;",
+      "};",
 
-      // Fetches a mesh tileIndex from the uPrimToMeshLookup texture.
-      "uint getMeshIndex( uint primIndex ) {",
-      "  uint texWidth = 4096u;",
-      "  uvec4 packed = texelFetch(uPrimToMeshLookup, ivec2(primIndex % texWidth, primIndex / texWidth), 0);",
-      "  return packed.r + (packed.g << 8u) + (packed.b << 16u) + (packed.a << 24u);",
+      "ivec2 texCoord(uint index, uint texWidth) {",
+      "  return ivec2(int(index % texWidth), int(index / texWidth));",
       "}",
 
-      // Fetches a vertex tileIndex from the indices texture.
+      "uint getMeshIndex(uint drawPrimID) {",
+     // " return 1u;",
+       "  const uint texWidth = 4096u;",
+       "  return texelFetch(uPrimToMeshLookup, texCoord(drawPrimID, texWidth), 0).r;",
+      "}",
+
       "uint getVertexIndex(uint vertexIndexNum) {",
-      "  uint texWidth = 4096u;",
-      "  uvec4 packed = texelFetch(uIndices, ivec2(vertexIndexNum % texWidth, vertexIndexNum / texWidth), 0);",
-      "  return packed.r + (packed.g << 8u) + (packed.b << 16u) + (packed.a << 24u);",
+      "  const uint texWidth = 4096u;",
+      "  return texelFetch(uIndices, texCoord(vertexIndexNum, texWidth), 0).r;",
+      //
+      // "  uvec4 packed = texelFetch(uIndices, texCoord(vertexIndexNum, texWidth), 0);",
+      // "  return packed.r + (packed.g << 8u) + (packed.b << 16u) + (packed.a << 24u);",
       "}",
 
-      // Fetches a vertex position from the positions texture.
       "uvec3 getPosition(uint vertexIndex) {",
-      "  uint texWidth = 4096u;", // Must match the value in DTXPositions
-      "  return texelFetch(uPositions, ivec2(vertexIndex % texWidth, vertexIndex / texWidth), 0).rgb;",
+      "  const uint texWidth = 4096u;",
+      "  return texelFetch(uPositions, texCoord(vertexIndex, texWidth), 0).rgb;",
       "}",
 
       "QuantRange getGeometryQuantRange(uint geometryIndex) {",
       "  const uint texWidth = 2048u;",
       "  const uint texelsPerItem = 2u;",
       "  uint base = geometryIndex * texelsPerItem;",
-      "  vec4 t0 = texelFetch(uGeometryQuantRanges, ivec2(int((base + 0u) % texWidth), int((base + 0u) / texWidth)), 0);",
-      "  vec4 t1 = texelFetch(uGeometryQuantRanges, ivec2(int((base + 1u) % texWidth), int((base + 1u) / texWidth)), 0);",
+      "  vec4 t0 = texelFetch(uGeometryQuantRanges, texCoord(base + 0u, texWidth), 0);",
+      "  vec4 t1 = texelFetch(uGeometryQuantRanges, texCoord(base + 1u, texWidth), 0);",
       "  QuantRange r;",
       "  r.offset = t0.rgb;",
-      "  r.scale  = t1.rgb;",
+      "  r.scale = t1.rgb;",
       "  return r;",
       "}",
 
-      "uint getGeometryVertexBase(uint geometryIndex) {",
-      "  uint texWidth = 4096u;",
-      "  return uvec4(texelFetch(uGeometryAttribs, ivec2(int(geometryIndex % texWidth), int(geometryIndex / texWidth)), 0)).r;",
-      "}",
-
-      "MeshAttribs getMeshAttribs(uint meshIndex) {",
-      "  MeshAttribs s;",
-      "  uint texWidth = 4096u; // must match DTXMeshAttribs texWidth",
-      "  uvec2 uv = uvec2(meshIndex % texWidth, meshIndex / texWidth);",
-      "  uvec4 lanes = texelFetch(uMeshAttribs, ivec2(uv), 0); // RGBA32UI → uvec4",
-      "  s.tileIndex      = lanes.r;  // uint",
-      "  s.geometryIndex  = lanes.g;  // uint",
-      "  s.indicesBase    = lanes.b;  // uint",
-      "  s.edgeIndicesBase= lanes.a;  // uint",
+      "GeometryAttribs getGeometryAttribs(uint geometryIndex) {",
+      "  const uint texWidth = 4096u;",
+      "  uvec4 lanes1 = texelFetch(uGeometryAttribs, texCoord((geometryIndex), texWidth), 0);",
+      "  GeometryAttribs s;",
+      "  s.verticesBase = lanes1.r;",
+      // "  s.indicesBase = lanes1.g;",
+      // "  s.edgeIndicesBase = lanes1.b;",
       "  return s;",
       "}",
 
-      // "// 4096 must match the texture width used by DTXMeshViewAttribs",
-      // "MeshViewAttribs getMeshViewAttribs(uint meshIndex) {",
-      // "  MeshViewAttribs s;",
-      // "  const uint texWidth = 4096u;",
-      // "  uint base = meshIndex * 3u; // 3 texels per struct: color, flags1, flags2",
-      // "  // texel 0: color (uvec4 bytes)",
-      // "  s.color = texelFetch(uMeshViewAttribs, ivec2((base + 0u) % texWidth, (base + 0u) / texWidth), 0);",
-      // "  // texel 1: flags1 packed as RGBA8UI (little-endian)",
-      // "  uvec4 f1 = texelFetch(uMeshViewAttribs, ivec2((base + 1u) % texWidth, (base + 1u) / texWidth), 0);",
-      // "  s.flags1 = (f1.r) | (f1.g << 8u) | (f1.b << 16u) | (f1.a << 24u);",
-      // "  // texel 2: flags2 packed as RGBA8UI (little-endian)",
-      // "  uvec4 f2 = texelFetch(uMeshViewAttribs, ivec2((base + 2u) % texWidth, (base + 2u) / texWidth), 0);",
-      // "  s.flags2 = (f2.r) | (f2.g << 8u) | (f2.b << 16u) | (f2.a << 24u);",
-      // "  return s;",
-      // "}",
-
       "MeshViewAttribs getMeshViewAttribs(uint meshIndex) {",
+      "  const uint texWidth = 4096u;",
+      "  uint base = meshIndex * 3u;",
       "  MeshViewAttribs s;",
-      "  uint texWidth = 4096u;", // 4096 = 1024 meshes * 12 RGBA floats
-      "  uint base = meshIndex * 12u;", // 3 vec4 per mesh
-      "  s.flags1 = texelFetch(uMeshViewAttribs, ivec2((base + 0u) % texWidth, (base + 0u) / texWidth), 0);",
-      "  s.flags2 = texelFetch(uMeshViewAttribs, ivec2((base + 4u) % texWidth, (base + 4u) / texWidth), 0);",
-      "  s.color  = texelFetch(uMeshViewAttribs, ivec2((base + 8u) % texWidth, (base + 8u) / texWidth), 0);",
+      "  s.color  = texelFetch(uMeshViewAttribs, texCoord(base + 0u, texWidth), 0);",
+      "  s.flags1 = texelFetch(uMeshViewAttribs, texCoord(base + 1u, texWidth), 0);",
+      "  s.flags2 = texelFetch(uMeshViewAttribs, texCoord(base + 2u, texWidth), 0);",
+      "  return s;",
+      "}",
+
+      "MeshAttribs getMeshAttribs(uint meshIndex) {",
+      "  const uint texWidth = 4096u;",
+      "  uvec4 lanes1 = texelFetch(uMeshAttribs, texCoord((meshIndex*2u) + 0u, texWidth), 0);",
+      "  uvec4 lanes2 = texelFetch(uMeshAttribs, texCoord((meshIndex*2u) + 1u, texWidth), 0);",
+      "  MeshAttribs s;",
+      "  s.tileIndex      = lanes1.r;  // uint",
+      "  s.geometryIndex  = lanes1.g;  // uint",
+      "  s.indicesBase    = lanes1.b;  // uint",
+      "  s.edgeIndicesBase= lanes1.a;  // uint",
+      "  s.primsBase      = lanes2.r;  // uint",
       "  return s;",
       "}",
 
       "mat4 getTileViewMatrix(uint tileIndex) {",
-      "  uint matsPerRow = 512u;", // Must match the value in DTXMatrixArray
-      "  uint texWidth = matsPerRow * 4u;", // 4 texels per mat4
-      "  uint base = tileIndex * 4u;", // 4 texels per mat4
-      // column-major mat4 assembled from 4 RGBA texels (each texel = column)
-      "  vec4 m0 = texelFetch(uTileViewMatrices, ivec2((base + 0u) % texWidth, (base + 0u) / texWidth), 0);",
-      "  vec4 m1 = texelFetch(uTileViewMatrices, ivec2((base + 1u) % texWidth, (base + 1u) / texWidth), 0);",
-      "  vec4 m2 = texelFetch(uTileViewMatrices, ivec2((base + 2u) % texWidth, (base + 2u) / texWidth), 0);",
-      "  vec4 m3 = texelFetch(uTileViewMatrices, ivec2((base + 3u) % texWidth, (base + 3u) / texWidth), 0);",
+      "  const uint matsPerRow = 512u;",
+      "  const uint texWidth = matsPerRow * 4u;",
+      "  uint base = tileIndex * 4u;",
+      "  vec4 m0 = texelFetch(uTileViewMatrices, texCoord(base + 0u, texWidth), 0);",
+      "  vec4 m1 = texelFetch(uTileViewMatrices, texCoord(base + 1u, texWidth), 0);",
+      "  vec4 m2 = texelFetch(uTileViewMatrices, texCoord(base + 2u, texWidth), 0);",
+      "  vec4 m3 = texelFetch(uTileViewMatrices, texCoord(base + 3u, texWidth), 0);",
       "  return mat4(m0, m1, m2, m3);",
       "}",
 
       "mat4 getMeshMatrix(uint meshIndex) {",
-      "  uint matsPerRow = 512u;",
-      "  uint texWidth = matsPerRow * 4u;",
+
+      // "  return mat4(1.0);",
+
+      "  const uint matsPerRow = 512u;",
+      "  const uint texWidth = matsPerRow * 4u;",
       "  uint base = meshIndex * 4u;",
-      // column-major mat4 assembled from 4 RGBA texels (each texel = column)
-      "  vec4 m0 = texelFetch(uMeshMatrices, ivec2((base + 0u) % texWidth, (base + 0u) / texWidth), 0);",
-      "  vec4 m1 = texelFetch(uMeshMatrices, ivec2((base + 1u) % texWidth, (base + 1u) / texWidth), 0);",
-      "  vec4 m2 = texelFetch(uMeshMatrices, ivec2((base + 2u) % texWidth, (base + 2u) / texWidth), 0);",
-      "  vec4 m3 = texelFetch(uMeshMatrices, ivec2((base + 3u) % texWidth, (base + 3u) / texWidth), 0);",
+      "  vec4 m0 = texelFetch(uMeshMatrices, texCoord(base + 0u, texWidth), 0);",
+      "  vec4 m1 = texelFetch(uMeshMatrices, texCoord(base + 1u, texWidth), 0);",
+      "  vec4 m2 = texelFetch(uMeshMatrices, texCoord(base + 2u, texWidth), 0);",
+      "  vec4 m3 = texelFetch(uMeshMatrices, texCoord(base + 3u, texWidth), 0);",
       "  return mat4(m0, m1, m2, m3);",
-      "}");
+      "}",
+
+
+      "vec3 mockModelPos(int vid) {",
+      "  int i = vid % 3;",
+      "  if (i == 0) return vec3(-0.5, -0.5, 0.0);",
+      "  if (i == 1) return vec3( 0.5, -0.5, 0.0);",
+      "  return        vec3( 0.0,  0.5, 0.0);",
+      "}",
+
+      "mat4 mockViewMat() {",
+      "  const vec3 eye = vec3(0.0, 0.0, 5.0);",
+      "  const vec3 center = vec3(0.0, 0.0, 0.0);",
+      "  const vec3 up = vec3(0.0, 1.0, 0.0);",
+      "  vec3 f = normalize(center - eye);",
+      "  vec3 s = normalize(cross(f, up));",
+      "  vec3 u = cross(s, f);",
+      "  return mat4(",
+      "    vec4( s, 0.0),",
+      "    vec4( u, 0.0),",
+      "    vec4(-f, 0.0),",
+      "    vec4(-vec3(dot(s, eye), dot(u, eye), dot(-f, eye)), 1.0)",
+      "  );",
+      "}",
+
+      "mat4 mockProjMat() {",
+      "  float fov = radians(90.0);",
+      "  float near = 0.1;",
+      "  float far  = 1000.0;",
+      "  float aspect = 1.0;",
+      "  float f = 1.0 / tan(fov * 0.5);",
+      "",
+      "  return mat4(",
+      "    f / aspect, 0.0, 0.0, 0.0,",
+      "    0.0,        f,   0.0, 0.0,",
+      "    0.0,        0.0, (far + near) / (near - far), -1.0,",
+      "    0.0,        0.0, (2.0 * far * near) / (near - far), 0.0",
+      "  );",
+      "}",
+
+      "mat4 mockMeshMat() {",
+      "  return mat4(1.0);",
+      "}",
+
+      "QuantRange mockQuantRange() {",
+      "   QuantRange r;",
+      "   r.offset = vec3(0.0);",
+      "   r.scale = vec3(5.0);",
+      "   return r;",
+      "}",
+
+      "uvec3 mockPosition(int vertexID) {",
+      "    if (vertexID % 3 == 0) {",
+      "        return uvec3(0, 0, 0);",
+      "    } else if (vertexID % 3 == 1) {",
+      "        return uvec3(1.5, 0, 0);",
+      "    } else {",
+      "        return uvec3(0, 1.5, 0);",
+      "    }",
+      "}"
+    );
   }
 
   protected vsDrawLambertDefs() {
@@ -333,7 +405,7 @@ export abstract class LayerRenderer {
       "out vec4 vColor;");
   }
 
-  protected vertexDrawFlatColorDefs() {
+  protected vsDrawFlatColorDefs() {
     this._vertexSrcBuf.push(
       "out vec4 vColor;");
   }
@@ -345,7 +417,7 @@ export abstract class LayerRenderer {
       "uniform float pointSize;");
   }
 
-  protected vertexPickMeshDefs() {
+  protected vsPickMeshDefs() {
     this._vertexSrcBuf.push(
       "out     vec4 vPickColor;",
       "uniform vec2 drawingBufferSize;",
@@ -374,12 +446,12 @@ export abstract class LayerRenderer {
     this._vertexSrcBuf.push(
       "void main(void) {");
     this._vertexMeshLogic();
-    this._vertexSrcBuf.push(
-      `    int colorFlag = int(meshViewAttribs.flags1 & 0xFu);`,
-      `    if ( colorFlag != uRenderPass) {`,
-      "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
-      "        return;",
-      "    } ");
+    // this._vertexSrcBuf.push(
+    //   `    int colorFlag = int(meshViewAttribs.flags1.r & 0xFu);`,
+    //   `    if ( colorFlag != uRenderPass) {`,
+    //   "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
+    //   "        return;",
+    //   "    } ");
     this._vertexMeshLogic2();
   }
 
@@ -387,12 +459,12 @@ export abstract class LayerRenderer {
     this._vertexSrcBuf.push(
       "void main(void) {");
     this._vertexMeshLogic();
-    this._vertexSrcBuf.push(
-      "    int silhouetteFlag = int (meshViewAttribs.flags1 >> 4u & 0xFu);",
-      `    if (silhouetteFlag != uRenderPass) {`,
-      "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
-      "        return;",
-      "    }");
+    // this._vertexSrcBuf.push(
+    //   "    int silhouetteFlag = int (meshViewAttribs.flags1.g >> 4u & 0xFu);",
+    //   `    if (silhouetteFlag != uRenderPass) {`,
+    //   "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
+    //   "        return;",
+    //   "    }");
     this._vertexMeshLogic2();
   }
 
@@ -401,7 +473,7 @@ export abstract class LayerRenderer {
       "void main(void) {");
     this._vertexMeshLogic();
     this._vertexSrcBuf.push(
-      `    int pickFlag = int(meshViewAttribs.flags1 >> 8u & 0xFu);`,
+      `    int pickFlag = int(meshViewAttribs.flags1.b >> 8u & 0xFu);`,
       `    if (pickFlag != uRenderPass) {`,
       "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
       "        return;",
@@ -424,30 +496,68 @@ export abstract class LayerRenderer {
 
   private _vertexMeshLogic() { // before renderPass check
     this._vertexSrcBuf.push(
-      "    uint vertexIndexNum     = uint(uBaseIndex + gl_VertexID);",
-      "    uint primIndex          = vertexIndexNum / 3u;", // TODO: Assumes triangles
-      "    uint meshIndex          = getMeshIndex( primIndex );",
+
+      "    uint drawVertexID     = uint(uBaseIndex + gl_VertexID);",
+      "    uint drawPrimID       = drawVertexID / 3u;",
+
+      "    uint meshIndex = getMeshIndex( drawPrimID );",
       "    MeshViewAttribs meshViewAttribs = getMeshViewAttribs( meshIndex );",
-      `    if (meshViewAttribs.color.a == 0u) {`,
-      //    "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
-      //  "              return;",
-      "    };");
+
+      `    if (meshViewAttribs.color.a == 3u) {`,
+      "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
+      "              return;",
+      "    };"
+    );
   }
 
   private _vertexMeshLogic2() { // after renderPass check
     this._vertexSrcBuf.push(
-      "    MeshAttribs meshAttribs = getMeshAttribs(meshIndex);",
-      "    uint geometryIndex      = meshAttribs.geometryIndex;",
-      "    QuantRange quantRange   = getGeometryQuantRange( geometryIndex );",
-      "    uint vertexBase         = getGeometryVertexBase( geometryIndex );",
-      "    uint  vertexIndex       = vertexBase + getVertexIndex( vertexIndexNum );",
-      "    mat4  viewMatrix        = getTileViewMatrix( meshAttribs.tileIndex );",
+
+      "    MeshAttribs meshAttribs = getMeshAttribs( meshIndex );",
+
+   //   "    uint drawPrimsBase          = meshAttribs.primsBase;", // Index of first element in primToMeshLookup that points to this mesh
+
+      "    uint geometryIndex = meshAttribs.geometryIndex;",
+      "    GeometryAttribs geometryAttribs  = getGeometryAttribs( geometryIndex );",
+
+   //   "    uint geometryPrimIndex  = drawPrimID - drawPrimsBase;",
+
+      "    uint indicesBase        = meshAttribs.indicesBase;",
+    //  "    uint verticesBase       = geometryAttribs.verticesBase;",
+
+      "    uint indicesIndex = drawVertexID - indicesBase;",
+
+         "    uint index = getVertexIndex( drawVertexID );",
+
+  //    "    uint vertexIndex = geometryAttribs.verticesBase + drawVertexID - verticesBase;",
+
+      "    mat4 viewMatrix        = getTileViewMatrix( meshAttribs.tileIndex );",
+
+      //  "    mat4  viewMatrix        = mockViewMat();",
+
       "    mat4  meshMatrix        = getMeshMatrix( meshIndex );",
-      "    uvec3 quantPos          = getPosition( vertexIndex );",
+
+      //"    mat4  meshMatrix        = mockMeshMat();",
+
+
+
+      "    uvec3 quantPos          = getPosition( index );",
+      "    QuantRange quantRange   = getGeometryQuantRange( geometryIndex );",
+
+      //    "    QuantRange quantRange   = mockQuantRange(  );",
+      //  "    uvec3 quantPos          = mockPosition( gl_VertexID );",
+
       "    vec4  modelPos          = vec4( quantRange.offset + (quantRange.scale * vec3( quantPos )), 1.0); ",
+
+      //"    vec4  modelPos          = vec4( (vec3( quantPos /65000u)), 1.0); ",
+
+      // "    vec4  modelPos          = vec4( mockModelPos(gl_VertexID), 1.0);",
+
       "    vec4  worldPos          = meshMatrix * modelPos; ",
+
       "    vec4  viewPos           = viewMatrix * worldPos; ",
       "    vec4  clipPos           = uProjMatrix * viewPos; ",
+      //  "    vec4  clipPos           = mockProjMat() * viewPos; ",
       "    gl_Position             = clipPos;");
   }
 
@@ -455,17 +565,26 @@ export abstract class LayerRenderer {
     this._vertexSrcBuf.push(
       "    vec4 color = vec4(meshViewAttribs.color) / 255.0;",
       "    vColor = vec4(color.rgb, 1.0);");
+
+    // this._vertexSrcBuf.push(
+    //   "    vColor = vec4(1.0, 0.0, 0.0, 1.0);"
+    // );
   }
 
   protected vsSilhouetteLogic() {
     this._vertexSrcBuf.push(
-      "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);");
+      //  "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);"
+      "    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
+    );
   }
 
   protected vsDrawFlatColorLogic() {
     this._vertexSrcBuf.push(
-      "    vec4 color = vec4(meshViewAttribs.color) / 255.0;",
-      "    vColor = vec4(color.rgb, 1.0);");
+      // "    vec4 color = vec4(meshViewAttribs.color) / 255.0;",
+      // "    vColor = vec4(color.rgb, 1.0);"
+
+      "    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
+    );
   }
 
   protected vertexPickMeshLogic() {
@@ -619,12 +738,16 @@ export abstract class LayerRenderer {
   protected fsDrawLambertLogic() {
     const src = this._fragmentSrcBuf;
     const view = this._renderContext.view;
-    this._fragmentSrcBuf.push("vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
-      "vec3 viewLightDir = vec3(0.0, 0.0, -1.0);",
-      "float lambertian = 1.0;",
-      "vec3 xTangent = dFdx( vViewPos.xyz );",
-      "vec3 yTangent = dFdy( vViewPos.xyz );",
-      "vec3 viewNormal = normalize( cross( xTangent, yTangent ) );");
+    this._fragmentSrcBuf.push(
+      "    color = vColor;"
+    );
+    //
+    // "vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
+    // "vec3 viewLightDir = vec3(0.0, 0.0, -1.0);",
+    // "float lambertian = 1.0;",
+    // "vec3 xTangent = dFdx( vViewPos.xyz );",
+    // "vec3 yTangent = dFdy( vViewPos.xyz );",
+    // "vec3 viewNormal = normalize( cross( xTangent, yTangent ) );");
     // for (let i = 0, len = view.lightsList.length; i < len; i++) {
     //   const light = view.lightsList[i];
     //   if (light instanceof AmbientLight) {
@@ -705,8 +828,8 @@ export abstract class LayerRenderer {
 
   protected fsCommonOutput() {
     this._fragmentSrcBuf.push(
-      //  "    outColor = color;"
-      "    outColor= vec4(1.0, 0.0, 1.0, 1.0);"
+      "    outColor = color;"
+      //"    outColor= vec4(1.0, 0.0, 1.0, 1.0);"
     );
   }
 

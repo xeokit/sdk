@@ -117,11 +117,11 @@ export class RendererViewImpl implements RendererView {
       return;
     }
     const shouldRender = params?.force || viewFlags.needsRender;
-    if (shouldRender) {
+   // if (shouldRender) {
       this.activate();
       this.viewManager.renderView(this, params);
       viewFlags.needsRender = false;
-    }
+  //  }
   }
 
   clear() {

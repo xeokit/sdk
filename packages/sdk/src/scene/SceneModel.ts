@@ -222,8 +222,6 @@ export class SceneModel extends Component {
     };
 
     this.onDestroyed = new EventEmitter(new EventDispatcher<SceneModel, null>());
-
-    this.fromParams(sceneModelParams);
   }
 
   /**

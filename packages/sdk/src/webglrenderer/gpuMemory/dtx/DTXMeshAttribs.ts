@@ -1,5 +1,5 @@
 // A single data element (uvec4: four uint32 lanes)
-export type DTXUvec4 = [number, number, number, number];
+export type DTXUvec4 = [number, number, number, number, number];
 
 export interface DTXUvec4ArrayOptions {
   gl: WebGL2RenderingContext;
@@ -35,20 +35,20 @@ export class DTXMeshAttribs {
     const gl = this._gl;
     const maxSize = (gl.getParameter(gl.MAX_TEXTURE_SIZE) as number) | 0;
 
-    this._texWidth = Math.max(1, Math.min(options.texWidth ?? 4096, maxSize));
+    this._texWidth = 4096;
 
     const texelsNeeded = this.capacity;
-    this._texHeight = Math.max(1, Math.ceil(texelsNeeded / this._texWidth));
-    if (this._texHeight > maxSize) {
-      // Try widening to reduce height
-      this._texWidth = Math.min(maxSize, Math.ceil(texelsNeeded / maxSize));
-      this._texHeight = Math.max(1, Math.ceil(texelsNeeded / this._texWidth));
-      if (this._texHeight > maxSize) {
-        throw new Error(
-          `DTXMeshAttribs: capacity ${this.capacity} exceeds max 2D texture area ${maxSize}x${maxSize}`
-        );
-      }
-    }
+    // this._texHeight = Math.max(1, Math.ceil(texelsNeeded / this._texWidth));
+    // if (this._texHeight > maxSize) {
+    //   // Try widening to reduce height
+    //   this._texWidth = Math.min(maxSize, Math.ceil(texelsNeeded / maxSize));
+    //   this._texHeight = Math.max(1, Math.ceil(texelsNeeded / this._texWidth));
+    //   if (this._texHeight > maxSize) {
+    //     throw new Error(
+    //       `DTXMeshAttribs: capacity ${this.capacity} exceeds max 2D texture area ${maxSize}x${maxSize}`
+    //     );
+    //   }
+    // }
 
     const totalTexels = this._texWidth * this._texHeight;
     const totalElems = totalTexels * 4; // 4 uint32 lanes per texel
@@ -90,18 +90,19 @@ export class DTXMeshAttribs {
 
   /** Read one element (uvec4 as four uint32s). */
   getItem( index: number ): DTXUvec4 {
-    const b = index * 4;
-    return [this.buffer[b], this.buffer[b + 1], this.buffer[b + 2], this.buffer[b + 3]];
+    const b = index * 8;
+    return [this.buffer[b], this.buffer[b + 1], this.buffer[b + 2], this.buffer[b + 3],  this.buffer[b + 4]];
   }
 
   /** Write one element directly (uvec4 lanes). */
   setItem( index: number, lanes: DTXUvec4 ): void {
     this._assertIndex(index);
-    const b = index * 4;
+    const b = index * 8;
     this.buffer[b + 0] = lanes[0] >>> 0;
     this.buffer[b + 1] = lanes[1] >>> 0;
     this.buffer[b + 2] = lanes[2] >>> 0;
     this.buffer[b + 3] = lanes[3] >>> 0;
+    this.buffer[b + 4] = lanes[4] >>> 0;
     this._dirty.add(index);
   }
 
@@ -111,9 +112,10 @@ export class DTXMeshAttribs {
     geometryIndex?: number;
     indicesBase?: number;
     edgeIndicesBase?: number;
+    primsBase?: number;
   } ): void {
     this._assertIndex(meshIndex);
-    const c = meshIndex * 4;
+    const c = meshIndex * 8; // 2x uvec4 per mesh
     const toU32 = ( x: number ): number =>
       typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : (x >>> 0);
 
@@ -121,6 +123,7 @@ export class DTXMeshAttribs {
     if (v.geometryIndex !== undefined) this.buffer[c + 1] = toU32(v.geometryIndex);
     if (v.indicesBase !== undefined) this.buffer[c + 2] = toU32(v.indicesBase);
     if (v.edgeIndicesBase !== undefined) this.buffer[c + 3] = toU32(v.edgeIndicesBase);
+    if (v.primsBase !== undefined) this.buffer[c + 4] = toU32(v.primsBase);
 
     this._dirty.add(meshIndex);
   }
@@ -145,8 +148,8 @@ export class DTXMeshAttribs {
         const maxChunk = end - idx + 1;
         const chunk = Math.min(rowLeft, maxChunk);
 
-        const elemStart = (row * this._texWidth + x) * 4;
-        const elemEnd = elemStart + chunk * 4;
+        const elemStart = (row * this._texWidth + x) * 8;
+        const elemEnd = elemStart + chunk * 8;
         const sub = this.buffer.subarray(elemStart, elemEnd);
 
         gl.texSubImage2D(

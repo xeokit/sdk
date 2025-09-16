@@ -81,13 +81,13 @@ export class DTXQuantRanges {
   }
 
   /**
-   * Set a quantRange at index using two vec3s.
+   * Set a quantRange at geometryIndex using two vec3s.
    */
-  setQuantRange(index: number, dequantizeOffset: FloatArrayParam, dequantizeScale: FloatArrayParam): void {
-    if (index < 0 || index >= this.maxItems) {
-      throw new RangeError(`DTXQuantRanges: index ${index} out of range [0, ${this.maxItems})`);
+  setQuantRange(geometryIndex: number, dequantizeOffset: FloatArrayParam, dequantizeScale: FloatArrayParam): void {
+    if (geometryIndex < 0 || geometryIndex >= this.maxItems) {
+      throw new RangeError(`DTXQuantRanges: geometryIndex ${geometryIndex} out of range [0, ${this.maxItems})`);
     }
-    const base = index * DTXQuantRanges.FLOATS_PER_ITEM;
+    const base = geometryIndex * DTXQuantRanges.FLOATS_PER_ITEM;
 
     // texel 0: offset.xyz in .rgb
     this.buffer[base + 0] = +dequantizeOffset[0];
@@ -103,14 +103,14 @@ export class DTXQuantRanges {
     // base+7 (.a) left unused/padding
     this.buffer[base + 7] = 0.0;
 
-    this.dirtyIndices.add(index);
+    this.dirtyIndices.add(geometryIndex);
   }
 
   /**
    * Convenience: set from a flat 6-float array [ox,oy,oz, sx,sy,sz].
    */
-  setQuantRangeArray(index: number, six: FloatArrayParam): void {
-    this.setQuantRange(index, [six[0], six[1], six[2]], [six[3], six[4], six[5]]);
+  setQuantRangeArray(geometryIndex: number, six: FloatArrayParam): void {
+    this.setQuantRange(geometryIndex, [six[0], six[1], six[2]], [six[3], six[4], six[5]]);
   }
 
   /**

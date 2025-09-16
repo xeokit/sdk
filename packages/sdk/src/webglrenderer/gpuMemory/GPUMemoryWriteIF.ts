@@ -71,7 +71,7 @@ export interface GPUMemoryWriteIF {
     meshIndex: number,
     viewIndex: number,
     params: {
-      flags?: number;
+      flags1?: number;
       flags2?: number;
       color?: number[];
     }

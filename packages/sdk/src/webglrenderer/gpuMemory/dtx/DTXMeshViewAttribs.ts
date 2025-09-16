@@ -99,10 +99,10 @@ export class DTXMeshViewAttribs {
 
     const writeRGBA = (base: number, src?: [number, number, number, number]) => {
       if (!src) return;
-      v[base + 0] = (src[0] | 0) & 0xFF;
-      v[base + 1] = (src[1] | 0) & 0xFF;
-      v[base + 2] = (src[2] | 0) & 0xFF;
-      v[base + 3] = (src[3] | 0) & 0xFF;
+      v[base + 0] = (Math.floor(src[0]*255) | 0) & 0xFF;
+      v[base + 1] = (Math.floor(src[1]*255) | 0) & 0xFF;
+      v[base + 2] = (Math.floor(src[2]*255) | 0) & 0xFF;
+      v[base + 3] = (Math.floor(src[3]*255) | 0) & 0xFF;
     };
 
     // Pack a uint32 into RGBA8 lanes (little-endian: R=LSB, A=MSB).

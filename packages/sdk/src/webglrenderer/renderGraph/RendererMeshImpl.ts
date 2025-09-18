@@ -1,4 +1,12 @@
-import {createMat4, createVec4, mulMat4, transformPoint4, translationMat4c} from "../../matrix";
+import {
+  createMat4,
+  createVec4,
+  mulMat4,
+  transformPoint4,
+  translationMat4c,
+  tempIdentityMat4,
+  identityMat4, setMat4Translation, translateMat4v
+} from "../../matrix";
 import type {RendererMesh} from "../../scene";
 import type {FloatArrayParam} from "../../math";
 import type {RenderLayerImpl} from "./RenderLayerImpl";
@@ -7,8 +15,9 @@ import {SceneMesh} from "../../scene";
 import {type Tile} from "../gpuMemory/Tile";
 import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
 import {RendererObjectImpl} from "./RendererObjectImpl";
+import {createRTCModelMat} from "../../rtc";
 
-const identityMat4 = createMat4();
+const tempIdentityMat4 = createMat4();
 const identityVec4 = createVec4([0, 0, 0, 1]);
 const tempVec4a = createVec4();
 const tempMat4a = createMat4();
@@ -105,7 +114,32 @@ export class RendererMeshImpl implements RendererMesh {
    * Sets the transformation matrix for the mesh.
    */
   setMatrix( matrix: FloatArrayParam ): void {
-    matrix = matrix || identityMat4;
+
+
+     function deriveRTCTileCenterAndRelativeMatrix(matrix: FloatArrayParam): {
+      rtcTileCenter: FloatArrayParam;
+      relativeMatrix: FloatArrayParam;
+    } {
+      const rtcTileCenter = new Float32Array(3);
+      const relativeMatrix = createMat4();
+
+      // Extract translation from the matrix
+      const translation = [matrix[12], matrix[13], matrix[14]];
+
+      // Calculate the RTC tile center
+      rtcTileCenter[0] = Math.round(translation[0] / 200) * 200;
+      rtcTileCenter[1] = Math.round(translation[1] / 200) * 200;
+      rtcTileCenter[2] = Math.round(translation[2] / 200) * 200;
+
+      // Compute the relative transformation matrix
+      setMat4Translation(matrix, [0, 0, 0], relativeMatrix); // Copy rotation and scale
+      translateMat4v([-rtcTileCenter[0], -rtcTileCenter[1], -rtcTileCenter[2]], relativeMatrix);
+
+      return { rtcTileCenter, relativeMatrix };
+    }
+
+
+    matrix = matrix || tempIdentityMat4;
     const center = transformPoint4(matrix, identityVec4, tempVec4a);
     const oldTile = this.tile;
     this.tile = oldTile
@@ -114,10 +148,17 @@ export class RendererMeshImpl implements RendererMesh {
     const tileChanged = !oldTile || oldTile.id !== this.tile.id;
     const tileCenter = this.tile.center;
     const needRTC = (tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0);
+    // const rtcMatrix = needRTC
+    //   ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], identityMat4()), identityMat4())
+    //   : matrix;
+
     const rtcMatrix = needRTC
-      ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a), tempMat4b)
+      ? createRTCModelMat(matrix, tileCenter, identityMat4())
       : matrix;
-    this._layer.setMeshMatrix(this._meshIndex, rtcMatrix);
+
+
+
+    this._layer.setMeshMatrix(this._meshIndex, rtcMatrix.slice());
     if (tileChanged) {
       this._layer.setMeshTile(this._meshIndex, this.tile.tileIndex);
     }

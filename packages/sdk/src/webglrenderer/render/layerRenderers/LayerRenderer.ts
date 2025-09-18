@@ -235,8 +235,6 @@ export abstract class LayerRenderer {
 
       "struct GeometryAttribs {",
       "  uint verticesBase;",
-      // "  uint indicesBase;",
-      // "  uint edgeIndicesBase;",
       "};",
 
       "ivec2 texCoord(uint index, uint texWidth) {",
@@ -244,10 +242,17 @@ export abstract class LayerRenderer {
       "}",
 
       "uint getMeshIndex(uint drawPrimID) {",
-     // " return 1u;",
-       "  const uint texWidth = 4096u;",
-       "  return texelFetch(uPrimToMeshLookup, texCoord(drawPrimID, texWidth), 0).r;",
+   //    " return 0u;",
+      "  const uint texWidth = 4096u;",
+      "  return texelFetch(uPrimToMeshLookup, texCoord(drawPrimID, texWidth), 0).r;",
       "}",
+
+    //   "uint getMeshIndex(uint drawPrimID) {",
+    // //  " return 0u;",
+    //   "  const uint texWidth = 4096u;",
+    //   "  uvec4 px = texelFetch(uPrimToMeshLookup, texCoord(drawPrimID, texWidth), 0);",
+    //   "  return (px.r) | (px.g << 8) | (px.b << 16) | (px.a << 24);",
+    //   "}",
 
       "uint getVertexIndex(uint vertexIndexNum) {",
       "  const uint texWidth = 4096u;",
@@ -496,11 +501,13 @@ export abstract class LayerRenderer {
 
   private _vertexMeshLogic() { // before renderPass check
     this._vertexSrcBuf.push(
-
       "    uint drawVertexID     = uint(uBaseIndex + gl_VertexID);",
-      "    uint drawPrimID       = drawVertexID / 3u;",
+      //  "    uint drawPrimID       = drawVertexID / 3u;",
 
-      "    uint meshIndex = getMeshIndex( drawPrimID );",
+     // "    uint meshIndex = getMeshIndex( drawVertexID );",
+
+      "    uint meshIndex = getMeshIndex( drawVertexID);",
+
       "    MeshViewAttribs meshViewAttribs = getMeshViewAttribs( meshIndex );",
 
       `    if (meshViewAttribs.color.a == 3u) {`,
@@ -512,53 +519,19 @@ export abstract class LayerRenderer {
 
   private _vertexMeshLogic2() { // after renderPass check
     this._vertexSrcBuf.push(
-
-      "    MeshAttribs meshAttribs = getMeshAttribs( meshIndex );",
-
-   //   "    uint drawPrimsBase          = meshAttribs.primsBase;", // Index of first element in primToMeshLookup that points to this mesh
-
-      "    uint geometryIndex = meshAttribs.geometryIndex;",
-      "    GeometryAttribs geometryAttribs  = getGeometryAttribs( geometryIndex );",
-
-   //   "    uint geometryPrimIndex  = drawPrimID - drawPrimsBase;",
-
-      "    uint indicesBase        = meshAttribs.indicesBase;",
-    //  "    uint verticesBase       = geometryAttribs.verticesBase;",
-
-      "    uint indicesIndex = drawVertexID - indicesBase;",
-
-         "    uint index = getVertexIndex( drawVertexID );",
-
-  //    "    uint vertexIndex = geometryAttribs.verticesBase + drawVertexID - verticesBase;",
-
-      "    mat4 viewMatrix        = getTileViewMatrix( meshAttribs.tileIndex );",
-
-      //  "    mat4  viewMatrix        = mockViewMat();",
-
-      "    mat4  meshMatrix        = getMeshMatrix( meshIndex );",
-
-      //"    mat4  meshMatrix        = mockMeshMat();",
-
-
-
-      "    uvec3 quantPos          = getPosition( index );",
-      "    QuantRange quantRange   = getGeometryQuantRange( geometryIndex );",
-
-      //    "    QuantRange quantRange   = mockQuantRange(  );",
-      //  "    uvec3 quantPos          = mockPosition( gl_VertexID );",
-
-      "    vec4  modelPos          = vec4( quantRange.offset + (quantRange.scale * vec3( quantPos )), 1.0); ",
-
-      //"    vec4  modelPos          = vec4( (vec3( quantPos /65000u)), 1.0); ",
-
-      // "    vec4  modelPos          = vec4( mockModelPos(gl_VertexID), 1.0);",
-
-      "    vec4  worldPos          = meshMatrix * modelPos; ",
-
-      "    vec4  viewPos           = viewMatrix * worldPos; ",
-      "    vec4  clipPos           = uProjMatrix * viewPos; ",
-      //  "    vec4  clipPos           = mockProjMat() * viewPos; ",
-      "    gl_Position             = clipPos;");
+      "    MeshAttribs      meshAttribs       = getMeshAttribs( meshIndex );", // Attributes global to meshes in all views
+      "    uint             geometryIndex     = meshAttribs.geometryIndex;",
+      "    GeometryAttribs  geometryAttribs   = getGeometryAttribs( geometryIndex );", // Geometry attributes
+      "    uint             vertexIndex       = getVertexIndex( drawVertexID );", // Index of vertex global positions array
+      "    mat4             viewMatrix        = getTileViewMatrix( meshAttribs.tileIndex );",
+      "    mat4             meshMatrix        = getMeshMatrix( meshIndex );",
+      "    uvec3            quantPos          = getPosition( vertexIndex );",
+      "    QuantRange       quantRange        = getGeometryQuantRange( geometryIndex );",
+      "    vec4             modelPos          = vec4( quantRange.offset + (quantRange.scale * vec3( quantPos )), 1.0); ",
+      "    vec4             worldPos          = meshMatrix * modelPos; ",
+      "    vec4             viewPos           = viewMatrix * worldPos; ",
+      "    vec4             clipPos           = uProjMatrix * viewPos; ",
+      "    gl_Position = clipPos;");
   }
 
   protected vsDrawLambertLogic() {

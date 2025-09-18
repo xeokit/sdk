@@ -13,9 +13,10 @@ import {DTXPositionsArray} from "./dtx/DTXPositionsArray";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 import {DTXPointerArray} from "./dtx/DTXPointerArray";
 import {DTXGeometryAttribs} from "./dtx/DTXGeometryAttribs";
+//import {DTXPointerArray} from "./dtx/DTXPointerArray";
 
-const MAX_MESHES = 100000;
-const MAX_GEOMETRIES = 100000;
+const MAX_MESHES = 500000;
+const MAX_GEOMETRIES = 500000;
 
 
 /**
@@ -40,7 +41,6 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   private _geometryAttribs: DTXGeometryAttribs;
   private _edgeIndices: DTXPointerArray;
   private _primToMeshLookup: DTXPointerArray;
-  private _primToMeshLookupDirty: boolean;
   private _positions: DTXPositionsArray;
   private _meshMatrices: DTXMatrixArray;
   private _tileViewMatrices: DTXMatrixArray[];
@@ -77,7 +77,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     this._lastFreeMeshIndex = 0;
     this._meshes = {};
     this._numMeshes = 0;
-    this._maxMeshes = 20000;
+    this._maxMeshes = 500000;
     this._maxSlices = 100;
     this._maxLights = 100;
     this._maxTiles = 20000;
@@ -91,7 +91,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
     this._primToMeshLookup = new DTXPointerArray({
       gl,
-      capacity: 100000
+      capacity: 500000
     });
 
     //   this._primToMeshLookupDirty = true;
@@ -164,21 +164,21 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
     this._indices = new DTXPointerArray({
       gl,
-      capacity: 100000
+      capacity: 500000
     });
 
     // Concatenation of all edge indices for a gl render call (ie. gl.drawElements)
 
     this._edgeIndices = new DTXPointerArray({
       gl,
-      capacity: 100000
+      capacity: 500000
     });
 
     // Concatenation of all vertex positions
 
     this._positions = new DTXPositionsArray({
       gl,
-      capacity: 100000
+      capacity: 500000
     });
 
     // For each View, an array containing a viewing transform matrix for each tile
@@ -209,6 +209,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
       this._edgeIndices.flush();
       this._positions.flush();
       this._meshMatrices.flush();
+      this._primToMeshLookup.flush();
       for (let i = 0; i < 4; i++) {
         this._tileViewMatrices[i].flush();
       }
@@ -374,7 +375,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     const primitiveCount = geometry.indices.length / 3; // TODO: Assumes triangles
 
     const primToMeshLookupHandle = this._primToMeshLookup.getPortion(
-      primitiveCount,
+      geometry.indices.length,
       ( newBase: number ) => {
         this._meshAttribs.setAttribs(meshIndex, {
           primsBase: newBase

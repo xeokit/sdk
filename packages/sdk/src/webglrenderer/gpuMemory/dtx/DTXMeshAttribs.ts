@@ -38,7 +38,7 @@ export class DTXMeshAttribs {
     this._texWidth = 4096;
 
     const texelsNeeded = this.capacity;
-    // this._texHeight = Math.max(1, Math.ceil(texelsNeeded / this._texWidth));
+     this._texHeight = Math.max(1, Math.ceil(texelsNeeded / this._texWidth));
     // if (this._texHeight > maxSize) {
     //   // Try widening to reduce height
     //   this._texWidth = Math.min(maxSize, Math.ceil(texelsNeeded / maxSize));

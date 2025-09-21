@@ -10,7 +10,7 @@ import { type FloatArrayParam } from "../../../math";
  *   texel 1: RGBA32F -> scale.xyz  in .rgb, .a unused
  *
  * - 1 item = 2 texels = 8 floats (we store 6 and leave 2 padding floats)
- * - Integer count is "maxItems"
+ * - Integer count is "capacity"
  * - Uses batched row-aligned uploads for dirty items
  */
 export class DTXQuantRanges {
@@ -35,10 +35,10 @@ export class DTXQuantRanges {
   constructor(params: {
     gl: WebGL2RenderingContext;
     /** Maximum number of quant ranges (items) to support (default 2000) */
-    maxItems?: number;
+    capacity?: number;
   }) {
     this.gl = params.gl;
-    this.maxItems = params.maxItems ?? 2000;
+    this.maxItems = params.capacity ?? 20000;
     this.dirtyIndices = new Set();
     this.#allocateTexture();
   }

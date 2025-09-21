@@ -1,6 +1,7 @@
-import { type FloatArrayParam } from "../../math";
-import { type Tile } from "./Tile";
-import { type SceneMesh } from "../../scene";
+import {type FloatArrayParam} from "../../math";
+import {type Tile} from "./Tile";
+import {type SceneMesh} from "../../scene";
+import {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
 
 /**
  * Interface for managing data texture gpuMemory in a WebGL rendering context.
@@ -13,7 +14,7 @@ export interface GPUMemoryWriteIF {
    * @param worldPos - A 3D position in world space.
    * @returns The Tile containing the given position.
    */
-  getTile(worldPos: FloatArrayParam): Tile;
+  getTile( worldPos: FloatArrayParam ): Tile;
 
   /**
    * Moves a Tile, if necessary, to ensure it contains the specified 3D world-space position.
@@ -21,40 +22,53 @@ export interface GPUMemoryWriteIF {
    * @param worldPos - The target world-space position.
    * @returns The updated Tile.
    */
-  moveTile( tile: Tile, worldPos: FloatArrayParam): Tile;
+  moveTile( tile: Tile, worldPos: FloatArrayParam ): Tile;
 
   /**
    * Releases a Tile back to the tile manager.
    * The tile is destroyed once it is released as many times as it was retrieved.
    * @param tile - The tile to release.
    */
-  putTile(tile: Tile): void;
+  putTile( tile: Tile ): void;
+
+  /**
+   * Creates a new GPUMemoryLayer instance, up to the maximum number of instances allowed.
+   */
+  createLayer(): number;
+
+  /**
+   * Checks if there is enough gpuMemory in a specific layer for a SceneMesh.
+   * @param layerIndex
+   * @param sceneMesh
+   */
+  hasMemoryForMesh( layerIndex: number, sceneMesh: SceneMesh ): boolean;
 
   /**
    * Adds a SceneMesh to the data texture gpuMemory.
    * Returns an tileIndex/handle for dynamically updating attributes of the mesh.
+   * @param layerIndex - The index of the layer to which the mesh should be added.
    * @param sceneMesh - The mesh to add.
    * @returns The tileIndex/handle of the added mesh.
    */
-  addMesh(sceneMesh: SceneMesh): number;
+  addMesh( layerIndex: number, sceneMesh: SceneMesh ): GPUMemoryMeshHandle;
 
   /**
    * Sets the modeling transform matrix for a mesh.
    * The transform is relative to the center of the mesh's tile.
-   * The matrix is stored in DataTextures.meshMatrices.
-   * @param meshIndex - The tileIndex/handle of the mesh.
+   * The matrix is stored in DataTexturesLayer.meshMatrices.
+   * @param meshHandle - The tileIndex/handle of the mesh.
    * @param matrix - The modeling transform matrix.
    */
-  setMeshMatrix(meshIndex: number, matrix: FloatArrayParam): void;
+  setMeshMatrix( meshHandle: GPUMemoryMeshHandle, matrix: FloatArrayParam ): void;
 
   /**
    * Sets attributes for a mesh to apply across all views.
-   * The attributes are stored in DataTextures.meshAttribs.
-   * @param meshIndex - The tileIndex/handle of the mesh.
+   * The attributes are stored in DataTexturesLayer.meshAttribs.
+   * @param meshHandle
    * @param params - The attributes to set, including optional tile tileIndex.
    */
   setMeshAttribs(
-    meshIndex: number,
+    meshHandle: GPUMemoryMeshHandle,
     params: {
       tileIndex?: number;
     }
@@ -62,13 +76,13 @@ export interface GPUMemoryWriteIF {
 
   /**
    * Sets attributes for a mesh within a specific view.
-   * The attributes are stored in DataTextures.meshViewAttribs.
-   * @param meshIndex - The tileIndex/handle of the mesh.
+   * The attributes are stored in DataTexturesLayer.meshViewAttribs.
+   * @param meshHandle
    * @param viewIndex - The tileIndex of the view.
    * @param params - The attributes to set, including flags, flags2, and color.
    */
   setMeshViewAttribs(
-    meshIndex: number,
+    meshHandle: GPUMemoryMeshHandle,
     viewIndex: number,
     params: {
       flags1?: number;
@@ -79,7 +93,7 @@ export interface GPUMemoryWriteIF {
 
   /**
    * Removes a SceneMesh from the data texture gpuMemory.
-   * @param sceneMesh - The mesh to remove.
+   * @param meshHandle - Handle to the mesh to remove.
    */
-  removeMesh(sceneMesh: SceneMesh): void;
+  removeMesh( meshHandle: GPUMemoryMeshHandle ): void;
 }

@@ -56,6 +56,7 @@ export class DTXPositionsArray {
   private textureHeight: number;
 
   private uploadAllOnFlush = false;
+  private isPacked: boolean = true;
 
   constructor( options: DTXPositionsArrayOptions ) {
     this.gl = options.gl;
@@ -104,8 +105,21 @@ export class DTXPositionsArray {
     this.texture = texture;
   }
 
+  /** Check if a portion of given size (in items/vertices) can be allocated. */
+  canGetPortion( size: number ): boolean {
+    if (size <= 0 || size > this.capacity) {
+      return false;
+    }
+    if (this.findFreeBlock(size) !== -1) {
+      return true;
+    }
+    this.pack();
+    return this.findFreeBlock(size) !== -1;
+  }
+
   /** Allocate a portion (in items/vertices). */
   getPortion( size: number, onMove?: ( newBase: number ) => void ): DTXPositionsArrayHandle {
+    this.isPacked = false;
     const index = this.findFreeBlock(size);
     if (index === -1) {
       this.pack();
@@ -133,7 +147,9 @@ export class DTXPositionsArray {
   /** Write RGB triplets (Uint16) into the allocated region. `data.length == size*3` */
   setPortionData( handle: DTXPositionsArrayHandle, data: ArrayLike<number> ): void {
     const portion = this.used.get(handle.id);
-    if (!portion) throw new Error('Invalid handle ID');
+    if (!portion) {
+      throw new Error('Invalid handle ID');
+    }
     //  const expected = portion.size * this.componentsPerItem; // RGB per item
     const expected = portion.size; // RGB per item
     if ((data.length / this.componentsPerItem) !== expected) {
@@ -147,30 +163,34 @@ export class DTXPositionsArray {
   /** Fill the portion with one scalar value across all RGB components. */
   fillPortion( handle: DTXPositionsArrayHandle, value: number ): void {
     const portion = this.used.get(handle.id);
-    if (!portion) throw new Error("Invalid handle ID");
-
+    if (!portion) {
+      throw new Error("Invalid handle ID");
+    }
     const offset = portion.base * this.componentsPerItem;
     const count = portion.size * this.componentsPerItem;
     this.buffer.fill(value, offset, offset + count);
-
     this.dirtyPortions.add(handle.id);
   }
 
   /** Free an allocated portion. */
   putPortion( handle: DTXPositionsArrayHandle ): void {
     const portion = this.used.get(handle.id);
-    if (!portion) return;
-
+    if (!portion) {
+      return;
+    }
+    this.isPacked = false;
     this.used.delete(handle.id);
     this.handles.delete(handle.id);
     this.portionCallbacks.delete(handle.id);
-
     this.insertFreePortionSorted(portion);
     this.coalesceFree();
   }
 
   /** Defragment: compacts items to the start; marks full reupload. */
   private pack(): void {
+    if (this.isPacked) {
+      return;
+    }
     const sorted = Array.from(this.used.entries()).sort(( [, a], [, b] ) => a.base - b.base);
     let writeHead = 0;
     const newUsed = new Map<number, DTXPositionsArrayPortion>();
@@ -189,7 +209,9 @@ export class DTXPositionsArray {
       newUsed.set(id, {base: writeHead, size: portion.size});
 
       const handle = this.handles.get(id);
-      if (handle) handle.base = writeHead;
+      if (handle) {
+        handle.base = writeHead;
+      }
 
       writeHead += portion.size;
     }
@@ -198,6 +220,7 @@ export class DTXPositionsArray {
     this.free = writeHead < this.capacity
       ? [{base: writeHead, size: this.capacity - writeHead}]
       : [];
+    this.isPacked = true;
   }
 
   private allocateHandleAt( index: number, size: number, onMove?: ( newBase: number ) => void ): DTXPositionsArrayHandle {

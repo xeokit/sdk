@@ -148,15 +148,28 @@ export class RenderGraph {
     return rendererGeometry;
   }
 
-  private _getLayer( sceneMesh: SceneMesh ): RenderLayerImpl|undefined {
-    const layerId = `layer-${sceneMesh.geometry.primitive}`;
-    const layer = this._layers[layerId] ||= new RenderLayerImpl({
-      primitive: sceneMesh.geometry.primitive,
+  /**
+   * Finds or creates a RenderLayer that can accommodate the given SceneMesh based
+   * on its primitive type and memory requirements.
+   */
+  private _getLayer( sceneMesh: SceneMesh ): RenderLayerImpl {
+    const primitive = sceneMesh.geometry.primitive;
+    for (const layer of Object.values(this._layers)) {
+      if (layer.primitive === primitive && layer.canAddMesh(sceneMesh)) {
+        return layer;
+      }
+    }
+    const layerId = `layer-${primitive}-${Object.keys(this._layers).length}`;
+    const newLayer = new RenderLayerImpl({
+      primitive,
       renderContext: this._renderContext,
-      gpuMemoryWriteIF: this._gpuMemoryWriteIF
+      gpuMemoryWriteIF: this._gpuMemoryWriteIF,
+      gpuMemoryLayerIndex: this._gpuMemoryWriteIF.createLayer(),
     });
+
+    this._layers[layerId] = newLayer;
     this._layerListDirty = true;
-    return layer;
+    return newLayer;
   }
 
   private _removeObject( sceneObject: SceneObject ): void {

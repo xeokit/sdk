@@ -1,55 +1,21 @@
+import {DataTexturesLayer} from "./DataTexturesLayer";
+import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
+
 /**
- * Interface representing a collection of data textures used in WebGL rendering.
+ * Interface representing GPU-resident data textures for tile view matrices and layers.
  */
 export interface DataTextures {
 
-    /**
-     * Data texture containing unique primitive indices for `gl.drawArrays`.
-     */
-    indices: WebGLTexture;
+  /**
+   * Array of data textures, each containing tile view matrices for specific views.
+   */
+  tileViewMatrices: DTXMatrixArray[];
 
-    /**
-     * Data texture containing unique edge indices for `gl.drawArrays`.
-     */
-    edgeIndices: WebGLTexture;
+  /**
+   * Array of DataTexturesLayer, each containing the renderable output of a GPUMemoryLayer.
+   *
+   * These are global to all GPUMemoryLayer instances, and are indexed using {@link GPUMemoryLayer.layerIndex | GPUMemoryLayer.layerIndex}.
+   */
+  layers: DataTexturesLayer[];
+}
 
-    /**
-     * Data texture mapping each primitive to its corresponding mesh.
-     */
-    primToMeshLookup: WebGLTexture;
-
-    /**
-     * Data texture containing a table of mesh attributes that are global to all views.
-     */
-    meshAttribs: WebGLTexture;
-
-    /**
-     * Array of data textures, each containing a table of mesh attributes specific to a particular view.
-     */
-    meshViewAttribs: WebGLTexture[];
-
-    /**
-     * Data texture containing modeling matrices for meshes.
-     */
-    meshMatrices: WebGLTexture;
-
-    /**
-     * Data texture containing geometry attributes for meshes.
-     */
-    geometryAttribs: WebGLTexture;
-
-    /**
-     * Data texture containing quantization ranges for geometry decoding.
-     */
-    geometryQuantRanges: WebGLTexture;
-
-    /**
-     * Data texture containing positions for vertices.
-     */
-    positions: WebGLTexture;
-
-    /**
-     * Array of data textures, each containing tile view matrices for specific views.
-     */
-    tileViewMatrices: WebGLTexture[];
-  }

@@ -1,15 +1,15 @@
-import type { Capabilities } from "../core";
-import { EventEmitter, SDKError } from "../core";
-import { getWebGLExtension } from "../webglutils";
-import type { Renderer, Viewer } from "../viewer";
-import { EventDispatcher } from "strongly-typed-events";
-import { RenderContext } from "./RenderContext";
-import { GPUMemory } from "./gpuMemory/GPUMemory";
-import { ViewManager } from "./views/ViewManager";
-import { RenderManager } from "./render/RenderManager";
-import { RenderGraph } from "./renderGraph/RenderGraph";
-import type { GPUMemoryReadIF } from "./gpuMemory/GPUMemoryReadIF";
-import type { GPUMemoryWriteIF } from "./gpuMemory/GPUMemoryWriteIF";
+import type {Capabilities} from "../core";
+import {EventEmitter, SDKError} from "../core";
+import {getWebGLExtension} from "../webglutils";
+import type {Renderer, Viewer} from "../viewer";
+import {EventDispatcher} from "strongly-typed-events";
+import {RenderContext} from "./RenderContext";
+import {ViewManager} from "./views/ViewManager";
+import {RenderManager} from "./render/RenderManager";
+import {RenderGraph} from "./renderGraph/RenderGraph";
+import type {GPUMemoryReadIF} from "./gpuMemory/GPUMemoryReadIF";
+import type {GPUMemoryWriteIF} from "./gpuMemory/GPUMemoryWriteIF";
+import {GPUMemory} from "./gpuMemory/GPUMemory";
 
 /**
  * WebGL rendering strategy for a Viewer.
@@ -23,19 +23,19 @@ export class WebGLRenderer implements Renderer {
   private _gpuMemory!: GPUMemory;
 
   private _gl: WebGL2RenderingContext;
-  private _renderContext: RenderContext | null = null;
+  private _renderContext: RenderContext|null = null;
   private _webglCanvasElement: HTMLCanvasElement;
   private _destroyed = false;
 
   /** @internal */
   readonly onDestroyed: EventEmitter<WebGLRenderer, boolean>;
 
-  private _unsubscribeViewerDestroyed: (() => void) | null = null;
+  private _unsubscribeViewerDestroyed: (() => void)|null = null;
 
   constructor() {
     this.onDestroyed = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
 
-    const { canvas, gl } = WebGLRenderer._createCanvasAndGL();
+    const {canvas, gl} = WebGLRenderer._createCanvasAndGL();
     this._webglCanvasElement = canvas;
     this._gl = gl;
 
@@ -43,7 +43,7 @@ export class WebGLRenderer implements Renderer {
     this._gl.hint(this._gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this._gl.NICEST);
   }
 
-  private static _createCanvasAndGL(): { canvas: HTMLCanvasElement; gl: WebGL2RenderingContext } {
+  private static _createCanvasAndGL(): {canvas: HTMLCanvasElement; gl: WebGL2RenderingContext} {
     const canvas = document.createElement("canvas");
     canvas.width = 400;
     canvas.height = 400;
@@ -67,21 +67,21 @@ export class WebGLRenderer implements Renderer {
       // powerPreference?: "default" | "high-performance" | "low-power"
     };
 
-    const gl = canvas.getContext("webgl2", contextAttr) as WebGL2RenderingContext | null;
+    const gl = canvas.getContext("webgl2", contextAttr) as WebGL2RenderingContext|null;
     if (!gl) {
       throw new SDKError("Cannot get a WebGL2 context");
     }
-    return { canvas, gl };
+    return {canvas, gl};
   }
 
   /**
    * Gets the capabilities of this WebGLRenderer.
    */
-  getCapabilities(capabilities: Capabilities): void {
+  getCapabilities( capabilities: Capabilities ): void {
     capabilities.maxViews = 4;
 
     const testCanvas = document.createElement("canvas");
-    const gl = testCanvas.getContext("webgl2") as WebGL2RenderingContext | null;
+    const gl = testCanvas.getContext("webgl2") as WebGL2RenderingContext|null;
     if (!gl) return;
 
     capabilities.astcSupported = !!getWebGLExtension(gl, "WEBGL_compressed_texture_astc");
@@ -98,7 +98,7 @@ export class WebGLRenderer implements Renderer {
    * Initializes this WebGLRenderer by attaching a Viewer.
    * @internal
    */
-  attachViewer(viewer: Viewer): void {
+  attachViewer( viewer: Viewer ): void {
     if (this._renderContext) {
       throw new SDKError("Can't attach Viewer - a Viewer is already attached");
     }
@@ -106,24 +106,25 @@ export class WebGLRenderer implements Renderer {
       throw new SDKError("Can't attach Viewer - given Viewer is already attached to another Renderer");
     }
 
-    this._unsubscribeViewerDestroyed = viewer.onDestroyed.subscribe((_viewer, _args) => {
+    this._unsubscribeViewerDestroyed = viewer.onDestroyed.subscribe(( _viewer, _args ) => {
       this.detachViewer();
     });
 
     this._renderContext = new RenderContext(viewer, this._gl, this._webglCanvasElement);
+
     this._gpuMemory = new GPUMemory(this._renderContext);
-    this._renderGraph = new RenderGraph(this._renderContext, this._gpuMemory as unknown as GPUMemoryWriteIF);
-    this._renderManager = new RenderManager(
-      this._renderContext,
-      this._gpuMemory as unknown as GPUMemoryReadIF,
-      this._renderGraph
-    );
+
+    this._renderGraph = new RenderGraph(this._renderContext, this._gpuMemory as GPUMemoryWriteIF);
+
+    this._renderManager = new RenderManager(this._renderContext, this._gpuMemory as GPUMemoryReadIF, this._renderGraph);
+
     this._viewManager = new ViewManager(this._renderContext, this._renderManager);
+
     // this._pickManager = new PickManager({ renderContext: this._renderContext, renderGraph: this._renderGraph, viewManager: this._viewManager });
   }
 
   /** The Viewer this WebGLRenderer is currently attached to, if any. */
-  get viewer(): Viewer | null {
+  get viewer(): Viewer|null {
     return this._renderContext ? this._renderContext.viewer : null;
   }
 

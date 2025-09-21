@@ -1,13 +1,13 @@
 import {LayerRenderer} from "../LayerRenderer";
 import {RenderContext} from "../../../RenderContext";
-import {GPUMemory} from "../../../gpuMemory/GPUMemory";
+import {GPUMemoryLayer} from "../../../gpuMemory/GPUMemoryLayer";
 
 /**
  * @private
  */
 export class TrianglesEdgeSilhouetteRenderer extends LayerRenderer {
 
-  constructor(renderContext: RenderContext, dtxMemory:GPUMemory) {
+  constructor(renderContext: RenderContext, dtxMemory:GPUMemoryLayer) {
     super(renderContext, dtxMemory, { edges: true });
   }
 

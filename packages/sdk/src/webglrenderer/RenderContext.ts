@@ -14,7 +14,7 @@ import {ViewFlags} from "./ViewFlags";
  *
  * Responsibilities:
  * - Tracks the current rendering state, including active textures, programs, and passes.
- * - Manages GPU gpuMemory for geometry and materials through the `GPUMemory` system.
+ * - Manages GPU gpuMemory for geometry and materials through the `GPUMemoryLayer` system.
  * - Provides methods for managing texture units and resetting state between frames.
  * - Stores matrices and parameters for specialized rendering operations like shadow mapping and picking.
  *

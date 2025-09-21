@@ -30,4 +30,9 @@ export interface RenderLayer {
    * Counts of meshes and their visibility states for each view. These are used to build the render flags for the views.
    */
   meshCounts: MeshCounts[];
+
+  /**
+   * The index of this layer in the GPUMemory system.
+   */
+  gpuLayerIndex: number;
 }

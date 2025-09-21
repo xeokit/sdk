@@ -3,8 +3,7 @@ import {
   createVec4,
   mulMat4,
   transformPoint4,
-  translationMat4c,
-  tempIdentityMat4,
+
   identityMat4, setMat4Translation, translateMat4v
 } from "../../matrix";
 import type {RendererMesh} from "../../scene";
@@ -16,6 +15,7 @@ import {type Tile} from "../gpuMemory/Tile";
 import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
 import {RendererObjectImpl} from "./RendererObjectImpl";
 import {createRTCModelMat} from "../../rtc";
+import {GPUMemoryMeshHandle} from "../gpuMemory/GPUMemoryMeshHandle";
 
 const tempIdentityMat4 = createMat4();
 const identityVec4 = createVec4([0, 0, 0, 1]);
@@ -31,11 +31,11 @@ const NUM_VIEWS = 4;
  *
  * This class encapsulates the data and behavior of a mesh within the WebGL rendering pipeline.
  * It manages the mesh's geometry, transformation, visibility, and rendering states for multiple views.
- * The mesh is associated with a specific _layer and is associated with a tile managed by the `GPUMemory` system.
- * The `GPUMemory` is part of the `RenderContext`, which is shared across various renderer components.
+ * The mesh is associated with a specific _layer and is associated with a tile managed by the `GPUMemoryLayer` system.
+ * The `GPUMemoryLayer` is part of the `RenderContext`, which is shared across various renderer components.
  *
  * Key responsibilities:
- * - Managing the mesh's transformation matrix and associating it with a tile from `GPUMemory`.
+ * - Managing the mesh's transformation matrix and associating it with a tile from `GPUMemoryLayer`.
  * - Handling rendering states such as visibility, transparency, highlighting, and selection.
  * - Managing color and opacity for the mesh across multiple views.
  * - Interfacing with the _layer to update mesh-specific rendering properties.
@@ -49,7 +49,7 @@ export class RendererMeshImpl implements RendererMesh {
   public tile: Tile;
 
   private readonly _sceneMesh: SceneMesh;
-  private readonly _meshIndex: number;
+  private readonly _meshHandle: GPUMemoryMeshHandle;
   private readonly _layer: RenderLayerImpl;
   private readonly _renderContext: RenderContext;
   private readonly _viewStates: any;
@@ -74,7 +74,7 @@ export class RendererMeshImpl implements RendererMesh {
     this._renderContext = renderContext;
     this._sceneMesh = sceneMesh;
     this._layer = layer;
-    this._meshIndex = layer.addMesh(sceneMesh);
+    this._meshHandle = layer.addMesh(sceneMesh);
     this._gpuMemoryWriteIF = gpuMemoryWriteIF;
     this.tile = null;
 
@@ -95,19 +95,18 @@ export class RendererMeshImpl implements RendererMesh {
     this.setMatrix(sceneMesh.matrix);
   }
 
-
   /**
    * Initializes mesh flags for a specific view.
    */
   initFlags( viewIndex: number, flags: number ) {
-    this._layer.initMeshFlags(viewIndex, this._meshIndex, flags);
+    this._layer.initMeshFlags(viewIndex, this._meshHandle, flags);
   }
 
   /**
    * Sets the visibility of the mesh for a specific view.
    */
   setVisible( viewIndex: number, flags: number ) {
-    this._layer.setMeshVisible(viewIndex, this._meshIndex, flags);
+    this._layer.setMeshVisible(viewIndex, this._meshHandle, flags);
   }
 
   /**
@@ -158,9 +157,9 @@ export class RendererMeshImpl implements RendererMesh {
 
 
 
-    this._layer.setMeshMatrix(this._meshIndex, rtcMatrix.slice());
+    this._layer.setMeshMatrix(this._meshHandle, rtcMatrix.slice());
     if (tileChanged) {
-      this._layer.setMeshTile(this._meshIndex, this.tile.tileIndex);
+      this._layer.setMeshTile(this._meshHandle, this.tile.tileIndex);
     }
   }
 
@@ -171,7 +170,7 @@ export class RendererMeshImpl implements RendererMesh {
     for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
       const viewState = this._viewStates[viewIndex];
       if (!viewState.colorizing) {
-        this._layer.setMeshColor(viewIndex, this._meshIndex, color);
+        this._layer.setMeshColor(viewIndex, this._meshHandle, color);
       }
     }
   }
@@ -186,10 +185,10 @@ export class RendererMeshImpl implements RendererMesh {
       meshColorize[0] = colorize[0];
       meshColorize[1] = colorize[1];
       meshColorize[2] = colorize[2];
-      this._layer.setMeshColor(viewIndex, this._meshIndex, meshColorize);
+      this._layer.setMeshColor(viewIndex, this._meshHandle, meshColorize);
       viewStates.colorizing = true;
     } else {
-      this._layer.setMeshColor(viewIndex, this._meshIndex, this._sceneMesh.color);
+      this._layer.setMeshColor(viewIndex, this._meshHandle, this._sceneMesh.color);
       viewStates.colorizing = false;
     }
   }
@@ -202,9 +201,9 @@ export class RendererMeshImpl implements RendererMesh {
     viewStates.color[3] = opacity;
     viewStates.colorize[3] = opacity;
     if (this._viewStates[viewIndex].colorizing) {
-      this._layer.setMeshColor(viewIndex, this._meshIndex, viewStates.colorize);
+      this._layer.setMeshColor(viewIndex, this._meshHandle, viewStates.colorize);
     } else {
-      this._layer.setMeshColor(viewIndex, this._meshIndex, viewStates.color);
+      this._layer.setMeshColor(viewIndex, this._meshHandle, viewStates.color);
     }
   }
 
@@ -212,56 +211,56 @@ export class RendererMeshImpl implements RendererMesh {
    * Sets the transparency of the mesh for a specific view.
    */
   setTransparent( viewIndex: number, flags: number ) {
-    this._layer.setMeshTransparent(viewIndex, this._meshIndex, flags);
+    this._layer.setMeshTransparent(viewIndex, this._meshHandle, flags);
   }
 
   /**
    * Sets the highlight state of the mesh for a specific view.
    */
   setHighlighted( viewIndex: number, flags: number ) {
-    this._layer.setMeshHighlighted(viewIndex, this._meshIndex, flags);
+    this._layer.setMeshHighlighted(viewIndex, this._meshHandle, flags);
   }
 
   /**
    * Sets the x-ray state of the mesh for a specific view.
    */
   setXRayed( viewIndex: number, flags: number ) {
-    this._layer.setMeshXRayed(viewIndex, this._meshIndex, flags);
+    this._layer.setMeshXRayed(viewIndex, this._meshHandle, flags);
   }
 
   /**
    * Sets the selection state of the mesh for a specific view.
    */
   setSelected( viewIndex: number, flags: number ) {
-    this._layer.setMeshSelected(viewIndex, this._meshIndex, flags);
+    this._layer.setMeshSelected(viewIndex, this._meshHandle, flags);
   }
 
   /**
    * Sets the clippable state of the mesh for a specific view.
    */
   setClippable( viewIndex: number, flags: number ) {
-    this._layer.setMeshClippable(viewIndex, this._meshIndex, flags);
+    this._layer.setMeshClippable(viewIndex, this._meshHandle, flags);
   }
 
   /**
    * Sets the collidable state of the mesh for a specific view.
    */
   setCollidable( viewIndex: number, flags: number ) {
-    // this._layer.setLayerMeshCollidable(viewIndex, this._meshIndex, flags);
+    // this._layer.setLayerMeshCollidable(viewIndex, this._meshHandle, flags);
   }
 
   /**
    * Sets the pickable state of the mesh for a specific view.
    */
   setPickable( viewIndex: number, flags: number ) {
-    this._layer.setMeshPickable(viewIndex, this._meshIndex, flags);
+    this._layer.setMeshPickable(viewIndex, this._meshHandle, flags);
   }
 
   /**
    * Sets the culled state of the mesh for a specific view.
    */
   setCulled( viewIndex: number, flags: number ) {
-    this._layer.setMeshCulled(viewIndex, this._meshIndex, flags);
+    this._layer.setMeshCulled(viewIndex, this._meshHandle, flags);
   }
 
   /**

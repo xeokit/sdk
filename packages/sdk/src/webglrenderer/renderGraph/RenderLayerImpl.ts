@@ -4,10 +4,9 @@ import {MeshCounts} from "./MeshCounts";
 import type {RenderContext} from "../RenderContext";
 import {OBJECT_FLAGS} from "./OBJECT_FLAGS";
 import {RENDER_PASSES} from "./RENDER_PASSES";
-import {PointsPrimitive} from "../../constants";
 import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
 import {RenderLayer} from "./RenderLayer";
-
+import {GPUMemoryMeshHandle} from "../gpuMemory/GPUMemoryMeshHandle";
 
 /**
  * A RenderLayerImpl manages a batch of SceneMeshes that use the same primitive type.
@@ -54,9 +53,13 @@ export class RenderLayerImpl implements RenderLayer {
 
   /**
    * The GPUMemoryWriteIF instance used to manage the GPU data gpuMemory for this layer.
-   * @private
    */
   private _gpuMemoryWriteIF: GPUMemoryWriteIF;
+
+  /**
+   * The index of this layer in the GPUMemory system.
+   */
+  public gpuLayerIndex: number;
 
   /**
    * Creates a new RenderLayerImpl instance.
@@ -65,11 +68,13 @@ export class RenderLayerImpl implements RenderLayer {
   constructor( layerParams: {
     renderContext: any;
     gpuMemoryWriteIF: GPUMemoryWriteIF;
+    gpuMemoryLayerIndex : number;
     primitive: number;
   } ) {
     const {renderContext, gpuMemoryWriteIF, primitive} = layerParams;
     this.renderContext = renderContext;
     this._gpuMemoryWriteIF = gpuMemoryWriteIF;
+    this.gpuLayerIndex = layerParams.gpuMemoryLayerIndex;
     this.primitive = primitive;
     this.baseIndex = 0; // TODO
     this.sortId = `Layer-${primitive}`;
@@ -92,7 +97,7 @@ export class RenderLayerImpl implements RenderLayer {
    * @param sceneMesh
    */
   canAddMesh( sceneMesh: SceneMesh ): boolean {
-    return true;
+    return this._gpuMemoryWriteIF .hasMemoryForMesh(this.gpuLayerIndex, sceneMesh);
   }
 
   /**
@@ -100,26 +105,23 @@ export class RenderLayerImpl implements RenderLayer {
    * added mesh in the layer's DTX gpuMemory.
    * @param sceneMesh
    */
-  addMesh( sceneMesh: SceneMesh ): number {
-    const meshIndex = this._gpuMemoryWriteIF.addMesh(sceneMesh);
-    const geometry = sceneMesh.geometry;
-    this.numIndices += geometry.primitive === PointsPrimitive
-      ? geometry.positionsCompressed.length / 3
-      : geometry.indices.length;
+  addMesh( sceneMesh: SceneMesh ): GPUMemoryMeshHandle {
+    const meshHandle = this._gpuMemoryWriteIF.addMesh(this.gpuLayerIndex, sceneMesh);
+    this.numIndices += meshHandle.numIndices;
     for (const counts of this.meshCounts) {
       counts.numMeshes++;
     }
-    return meshIndex;
+    return meshHandle;
   }
 
   /**
    * Removes a mesh from the layer and updates the mesh counts and indices. We need to pass the view flags
    * to update the counts correctly, since the flags are stored for the object, not the mesh.
-   * @param sceneMesh
+   * @param meshHandle
    * @param viewFlags
    */
-  removeMesh( sceneMesh: SceneMesh, viewFlags: number[] ): void {
-    this._gpuMemoryWriteIF.removeMesh(sceneMesh);
+  removeMesh( meshHandle : GPUMemoryMeshHandle, viewFlags: number[] ): void {
+    this._gpuMemoryWriteIF.removeMesh(meshHandle);
     for (let viewIndex = 0; viewIndex < 4; viewIndex++) {
       const counts = this.meshCounts[viewIndex];
       const flags = viewFlags[viewIndex];
@@ -133,10 +135,7 @@ export class RenderLayerImpl implements RenderLayer {
       if ((flags & OBJECT_FLAGS.TRANSPARENT) !== 0) counts.numTransparent--;
       counts.numMeshes--;
     }
-    const geometry = sceneMesh.geometry;
-    this.numIndices -= geometry.primitive === PointsPrimitive
-      ? geometry.positionsCompressed.length / 3
-      : geometry.indices.length;
+    this.numIndices -= meshHandle.numIndices;
   }
 
   /**
@@ -144,10 +143,10 @@ export class RenderLayerImpl implements RenderLayer {
    * based on initial flags and transparency state.
    *
    * @param viewIndex - Index of the view.
-   * @param meshIndex - Index of the mesh within the layer.
+   * @param meshHandle - Index of the mesh within the layer.
    * @param flags - Bitmask of OBJECT_FLAGS representing initial mesh states.
    */
-  initMeshFlags( viewIndex: number, meshIndex: number, flags: number ): void {
+  initMeshFlags( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
     const counts = this.meshCounts[viewIndex];
     if ((flags & OBJECT_FLAGS.VISIBLE) !== 0) counts.numVisible++;
     if ((flags & OBJECT_FLAGS.HIGHLIGHTED) !== 0) counts.numHighlighted++;
@@ -157,14 +156,14 @@ export class RenderLayerImpl implements RenderLayer {
     if ((flags & OBJECT_FLAGS.PICKABLE) !== 0) counts.numPickable++;
     if ((flags & OBJECT_FLAGS.CULLED) !== 0) counts.numCulled++;
     if ((flags & OBJECT_FLAGS.TRANSPARENT) !== 0) counts.numTransparent++;
-    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
 
   /**
    * Sets the render flags for a mesh in a specific view based on its visibility and interaction states.
    * @private
    */
-  _setMeshObjectFlags( viewIndex: number, meshIndex: number, flags: number ): void {
+  _setMeshObjectFlags( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
     const viewer = this.renderContext.viewer;
     const view = viewer.viewList[viewIndex];
 
@@ -212,7 +211,7 @@ export class RenderLayerImpl implements RenderLayer {
       (isClippable ? (1 << 12) : 0); // Whether the object is clippable (1) or not (0)
 
     // Apply attributes
-    this._gpuMemoryWriteIF.setMeshViewAttribs(meshIndex, viewIndex, {
+    this._gpuMemoryWriteIF.setMeshViewAttribs(meshHandle, viewIndex, {
       flags1: renderFlags
     });
   }
@@ -220,72 +219,72 @@ export class RenderLayerImpl implements RenderLayer {
   /**
    * Sets per-view mesh visibility state.
    */
-  setMeshVisible( viewIndex: number, meshIndex: number, flags: number ): void {
+  setMeshVisible( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numVisible += (flags & OBJECT_FLAGS.VISIBLE) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
 
   /**
    * Sets per-view mesh highlight state.
    */
-  setMeshHighlighted( viewIndex: number, meshIndex: number, flags: number ): void {
+  setMeshHighlighted( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numHighlighted += (flags & OBJECT_FLAGS.HIGHLIGHTED) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
 
   /**
    * Sets per-view mesh x-ray state.
    */
-  setMeshXRayed( viewIndex: number, meshIndex: number, flags: number ): void {
+  setMeshXRayed( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numXRayed += (flags & OBJECT_FLAGS.XRAYED) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
 
   /**
    * Sets per-view mesh selected state.
    */
-  setMeshSelected( viewIndex: number, meshIndex: number, flags: number ): void {
+  setMeshSelected( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numSelected += (flags & OBJECT_FLAGS.SELECTED) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
 
   /**
    * Sets per-view mesh clippable state.
    */
-  setMeshClippable( viewIndex: number, meshIndex: number, flags: number ): void {
+  setMeshClippable( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numClippable += (flags & OBJECT_FLAGS.CLIPPABLE) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
 
   /**
    * Sets per-view mesh culling state.
    */
-  setMeshCulled( viewIndex: number, meshIndex: number, flags: number ): void {
+  setMeshCulled( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numCulled += (flags & OBJECT_FLAGS.CULLED) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
 
   /**
    * Sets per-view mesh pickable state.
    */
-  setMeshPickable( viewIndex: number, meshIndex: number, flags: number ): void {
+  setMeshPickable( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numPickable += (flags & OBJECT_FLAGS.PICKABLE) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
 
   /**
    * Sets transparency per-view for the mesh.
    */
-  setMeshTransparent( viewIndex: number, meshIndex: number, flags: number ): void {
+  setMeshTransparent( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numTransparent += (flags & OBJECT_FLAGS.TRANSPARENT) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshIndex, flags);
+    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
 
   /**
    * Sets a custom color per view for a mesh.
    */
-  setMeshColor( viewIndex: number, meshIndex: number, color: FloatArrayParam ): void {
-    this._gpuMemoryWriteIF.setMeshViewAttribs(meshIndex, viewIndex, {
+  setMeshColor( viewIndex: number, meshHandle: GPUMemoryMeshHandle, color: FloatArrayParam ): void {
+    this._gpuMemoryWriteIF.setMeshViewAttribs(meshHandle, viewIndex, {
       color: <number[]>color
     });
   }
@@ -293,15 +292,15 @@ export class RenderLayerImpl implements RenderLayer {
   /**
    * Sets the transformation matrix for a mesh.
    */
-  setMeshMatrix( meshIndex: number, rtcMatrix: FloatArrayParam ): void {
-    this._gpuMemoryWriteIF.setMeshMatrix(meshIndex, rtcMatrix);
+  setMeshMatrix( meshHandle: GPUMemoryMeshHandle, rtcMatrix: FloatArrayParam ): void {
+    this._gpuMemoryWriteIF.setMeshMatrix(meshHandle, rtcMatrix);
   }
 
   /**
    * Sets the tile tileIndex for a mesh.
    */
-  setMeshTile( meshIndex: number, tileIndex: number ): void {
-    this._gpuMemoryWriteIF.setMeshAttribs(meshIndex, {
+  setMeshTile( meshHandle: GPUMemoryMeshHandle, tileIndex: number ): void {
+    this._gpuMemoryWriteIF.setMeshAttribs(meshHandle, {
       tileIndex
     });
   }

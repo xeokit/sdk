@@ -59,10 +59,12 @@ export class DTXPointerTable {
   // scratch encoder buffer for row uploads (bytes)
   private _scratchBytes: Uint8Array<any> = new Uint8Array(0);
 
+  private _packed: boolean = true;
+
   constructor(opts: DTXPointerTableOptions) {
     const gl = opts.gl;
     this._gl = gl;
-    this.capacity = opts.capacity | 0;
+    this.capacity = opts.capacity | 100000;
 
     const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) | 0;
     this._texWidth = Math.min(Math.max(1, (opts.texWidth ?? 4096) | 0), maxSize);
@@ -110,6 +112,18 @@ export class DTXPointerTable {
 
   // ---------------- Allocation API ----------------
 
+  /** Check if a portion of given size (in items/vertices) can be allocated. */
+  canGetPortion( size: number ): boolean {
+    if (size <= 0 || size > this.capacity) {
+      return false;
+    }
+    if (this._findFree(size) !== -1) {
+      return true;
+    }
+    this._pack();
+    return this._findFree(size) !== -1;
+  }
+
   getPortion(size: number, onMove?: (newBase: number) => void): DTXPointerTableHandle {
     if (size <= 0) throw new Error("DTXPointerTable.getPortion: size must be > 0");
     let idx = this._findFree(size);
@@ -119,6 +133,7 @@ export class DTXPointerTable {
       if (idx === -1) throw new Error(`DTXPointerTable: allocation failed for size=${size}`);
     }
     return this._allocAtFreeIndex(idx, size, onMove);
+    this._packed = false;
   }
 
   putPortion(handle: DTXPointerTableHandle): void {
@@ -131,6 +146,7 @@ export class DTXPointerTable {
 
     this._insertFreeSorted(portion);
     this._coalesceFree();
+    this._packed = false;
   }
 
   /** Get a typed view into a portion (Uint32Array view). */
@@ -178,32 +194,10 @@ export class DTXPointerTable {
    */
   flush(): void {
 
-    this.buffer.set(
-[
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-  4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-  5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
-]
-);
+
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    const bytes = this._encodeRangeToScratch(0, 6*36);
-    gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      6*36,
-      1,
-      gl.RGBA_INTEGER, gl.UNSIGNED_BYTE,
-      bytes
-    );
-    gl.bindTexture(gl.TEXTURE_2D, null);
-  return;
 
     if (this._uploadAllOnFlush) {
       // Encode whole buffer row by row to avoid huge temp allocations
@@ -357,6 +351,9 @@ export class DTXPointerTable {
   }
 
   private _pack(): void {
+    if (this._packed) {
+      return;
+    }
     // Move used portions to eliminate gaps; copyWithin on Uint32Array.
     const sorted = Array.from(this._used.entries()).sort(([, A], [, B]) => A.base - B.base);
     let writeHead = 0;
@@ -384,6 +381,7 @@ export class DTXPointerTable {
 
     this._used = newUsed;
     this._free = writeHead < this.capacity ? [{ base: writeHead, size: this.capacity - writeHead }] : [];
+    this._packed = true;
   }
 
   /**

@@ -502,11 +502,11 @@ export abstract class LayerRenderer {
   private _vertexMeshLogic() { // before renderPass check
     this._vertexSrcBuf.push(
       "    uint drawVertexID     = uint(uBaseIndex + gl_VertexID);",
-      //  "    uint drawPrimID       = drawVertexID / 3u;",
+        "    uint drawPrimID       = drawVertexID / 3u;",
 
-     // "    uint meshIndex = getMeshIndex( drawVertexID );",
+      "    uint meshIndex = getMeshIndex( drawPrimID );", // Per-prim
 
-      "    uint meshIndex = getMeshIndex( drawVertexID);",
+     // "    uint meshIndex = getMeshIndex( drawVertexID);", // Per-vertex
 
       "    MeshViewAttribs meshViewAttribs = getMeshViewAttribs( meshIndex );",
 
@@ -824,18 +824,51 @@ export abstract class LayerRenderer {
     if (!this._bind(renderPass)) {
       return;
     }
+
+    const renderContext = this._renderContext;
+    const view = renderContext.view;
     const gl = this._renderContext.gl;
+
+    renderContext.textureUnit = 0;
+
+    const bindTexture = ( sampler, texture ) => {
+      if (!sampler || !texture) {
+        return;
+      }
+
+      gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.uniform1i(sampler, renderContext.textureUnit);
+      renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+    }
+
+    const samplers = this._samplers;
+    const dataTextures = this._gpuMemoryReadIF.dataTextures;
+    const layerDataTextures = dataTextures.layers[layer.gpuLayerIndex];
+
+    bindTexture(samplers.tileViewMatrices, dataTextures.tileViewMatrices[view.viewIndex].texture); // TODO: Bind this texture once in _bind()
+
+    bindTexture(samplers.primToMeshLookup, layerDataTextures.primToMeshLookup);
+    bindTexture(samplers.positions, layerDataTextures.positions);
+    bindTexture(samplers.meshMatrices, layerDataTextures.meshMatrices);
+    bindTexture(samplers.meshAttribs, layerDataTextures.meshAttribs);
+    bindTexture(samplers.meshViewAttribs, layerDataTextures.meshViewAttribs[view.viewIndex]);
+    bindTexture(samplers.geometryAttribs, layerDataTextures.geometryAttribs);
+    bindTexture(samplers.geometryQuantRanges, layerDataTextures.geometryQuantRanges);
+    bindTexture(samplers.edgeIndices, layerDataTextures.edgeIndices);
+    bindTexture(samplers.indices, layerDataTextures.indices);
+
     gl.uniform1i(this._uniforms.baseIndex, layer.baseIndex);
-    const numIndices = layer.numIndices;
+
     switch (layer.primitive) {
       case TrianglesPrimitive:
-        gl.drawArrays(gl.TRIANGLES, 0, numIndices);
+        gl.drawArrays(gl.TRIANGLES, 0, layer.numIndices);
         break;
       case LinesPrimitive:
-        gl.drawArrays(gl.LINES, 0, numIndices);
+        gl.drawArrays(gl.LINES, 0, layer.numIndices);
         break;
       case PointsPrimitive:
-        gl.drawArrays(gl.POINTS, 0, numIndices);
+        gl.drawArrays(gl.POINTS, 0, layer.numIndices);
         break;
       default:
         console.error(`Unsupported Layer primitive type: ${layer.primitive}`);
@@ -871,32 +904,6 @@ export abstract class LayerRenderer {
     renderContext.textureUnit = 0;
 
     gl.uniform1i(uniforms.renderPass, renderPass);
-
-    const bindTexture = ( sampler, texture ) => {
-      if (!sampler || !texture) {
-        return;
-      }
-      gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.uniform1i(sampler, renderContext.textureUnit);
-      renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
-    }
-
-    const samplers = this._samplers;
-    const dataTextures = this._gpuMemoryReadIF.dataTextures;
-
-    // The full set of these data textures are always used in shaders, via vsCommonDefines
-
-    bindTexture(samplers.primToMeshLookup, dataTextures.primToMeshLookup);
-    bindTexture(samplers.positions, dataTextures.positions);
-    bindTexture(samplers.meshMatrices, dataTextures.meshMatrices);
-    bindTexture(samplers.meshAttribs, dataTextures.meshAttribs);
-    bindTexture(samplers.meshViewAttribs, dataTextures.meshViewAttribs[view.viewIndex]);
-    bindTexture(samplers.tileViewMatrices, dataTextures.tileViewMatrices[view.viewIndex]);
-    bindTexture(samplers.geometryAttribs, dataTextures.geometryAttribs);
-    bindTexture(samplers.geometryQuantRanges, dataTextures.geometryQuantRanges);
-    bindTexture(samplers.edgeIndices, dataTextures.edgeIndices);
-    bindTexture(samplers.indices, dataTextures.indices);
 
     if (uniforms.projMatrix) {
       gl.uniformMatrix4fv(uniforms.projMatrix, false, <any>(renderPass === RENDER_PASSES.PICK

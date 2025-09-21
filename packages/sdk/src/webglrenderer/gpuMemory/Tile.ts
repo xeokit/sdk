@@ -36,7 +36,7 @@ export interface Tile {
   center: FloatArrayParam;
 
   /**
-   * A relative-to-center (RTC) view matrix for each existing View. This is stored in DataTextures.tileViewMatrices
+   * A relative-to-center (RTC) view matrix for each existing View. This is stored in DataTexturesLayer.tileViewMatrices
    * and automatically updates whenever the View's Camera moves.
    */
   rtcViewMatrix: FloatArrayParam[];

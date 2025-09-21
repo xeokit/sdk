@@ -55,6 +55,8 @@ export class DTXPointerArray {
   private _dirtyPortions: Set<number> = new Set();
   private _uploadAllOnFlush = false;
 
+  private _packed: boolean = true;
+
   constructor(opts: DTXPointerArrayOptions) {
     const gl = opts.gl;
     this._gl = gl;
@@ -108,24 +110,49 @@ export class DTXPointerArray {
   // ---------------- Allocation API ----------------
 
   /**
+   * Check if a contiguous portion of `size` entries can be allocated.
+   * @param size
+   */
+  canGetPortion(size: number): boolean {
+    if (size <= 0) {
+      return false;
+    }
+    if (this._findFree(size) !== -1){
+      return true;
+    }
+    if (this._packed) {
+      return false;
+    }
+    this._pack();
+    return this._findFree(size) !== -1;
+  }
+
+  /**
    * Allocate a contiguous portion of `size` entries.
    * Optionally provide `onMove` to be notified if packing moves this portion.
    */
   getPortion(size: number, onMove?: (newBase: number) => void): DTXPointerArrayHandle {
-    if (size <= 0) throw new Error("DTXPointerArray.getPortion: size must be > 0");
+    if (size <= 0) {
+      throw new Error("DTXPointerArray.getPortion: size must be > 0");
+    }
     let idx = this._findFree(size);
     if (idx === -1) {
       this._pack();
       idx = this._findFree(size);
-      if (idx === -1) throw new Error(`DTXPointerArray: allocation failed for size=${size}`);
+      if (idx === -1) {
+        throw new Error(`DTXPointerArray: allocation failed for size=${size}`);
+      }
     }
+    this._packed = false;
     return this._allocAtFreeIndex(idx, size, onMove);
   }
 
   /** Free a previously allocated portion. */
   putPortion(handle: DTXPointerArrayHandle): void {
     const portion = this._used.get(handle.id);
-    if (!portion) return;
+    if (!portion) {
+      return;
+    }
 
     this._used.delete(handle.id);
     this._handles.delete(handle.id);
@@ -133,6 +160,7 @@ export class DTXPointerArray {
 
     this._insertFreeSorted(portion);
     this._coalesceFree();
+    this._packed = false;
   }
 
   /** Get a typed view into a portion (Uint32Array view). */
@@ -333,6 +361,9 @@ export class DTXPointerArray {
   }
 
   private _pack(): void {
+    if (this._packed) {
+      return;
+    }
     // Move used portions to eliminate gaps; copyWithin on Uint32Array.
     const sorted = Array.from(this._used.entries()).sort(([, A], [, B]) => A.base - B.base);
     let writeHead = 0;
@@ -360,6 +391,7 @@ export class DTXPointerArray {
 
     this._used = newUsed;
     this._free = writeHead < this.capacity ? [{ base: writeHead, size: this.capacity - writeHead }] : [];
+    this._packed = true;
   }
 
   /**

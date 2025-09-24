@@ -50,5 +50,8 @@ export interface DataTexturesLayer {
    */
   positions: WebGLTexture;
 
-
+  /**
+   * Data texture containing RGB colors for vertices.
+   */
+  vertexColors: WebGLTexture;
 }

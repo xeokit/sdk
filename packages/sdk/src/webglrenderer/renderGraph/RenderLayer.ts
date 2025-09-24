@@ -27,6 +27,11 @@ export interface RenderLayer {
   numIndices: number;
 
   /**
+   * The total number of vertices in all meshes of this layer. This is used for various calculations and optimizations related to rendering.
+   */
+  numVertices: number;
+
+  /**
    * Counts of meshes and their visibility states for each view. These are used to build the render flags for the views.
    */
   meshCounts: MeshCounts[];

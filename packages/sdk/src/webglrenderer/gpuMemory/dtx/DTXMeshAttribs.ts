@@ -51,7 +51,7 @@ export class DTXMeshAttribs {
     // }
 
     const totalTexels = this._texWidth * this._texHeight;
-    const totalElems = totalTexels * 4; // 4 uint32 lanes per texel
+    const totalElems = totalTexels * 8; // 2x uvec4 per mesh
     this.buffer = new Uint32Array(totalElems);
 
     // Allocate integer texture (RGBA32UI)
@@ -62,19 +62,7 @@ export class DTXMeshAttribs {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); // safe for tightly packed rows
-
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA32UI,              // 4x uint32 lanes per texel
-      this._texWidth,
-      this._texHeight,
-      0,
-      gl.RGBA_INTEGER,
-      gl.UNSIGNED_INT,
-      this.buffer
-    );
-
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32UI, this._texWidth, this._texHeight);
     gl.bindTexture(gl.TEXTURE_2D, null);
     this.texture = tex;
   }
@@ -116,8 +104,7 @@ export class DTXMeshAttribs {
   } ): void {
     this._assertIndex(meshIndex);
     const c = meshIndex * 8; // 2x uvec4 per mesh
-    const toU32 = ( x: number ): number =>
-      typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : (x >>> 0);
+    const toU32 = ( x: number ): number => typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : (x >>> 0);
 
     if (v.tileIndex !== undefined) this.buffer[c + 0] = toU32(v.tileIndex);
     if (v.geometryIndex !== undefined) this.buffer[c + 1] = toU32(v.geometryIndex);
@@ -181,13 +168,8 @@ export class DTXMeshAttribs {
 
   private _assertIndex( i: number ) {
     if (i < 0 || i >= this.capacity) {
-      throw new RangeError(`DTXUvec4Array: index ${i} out of range [0, ${this.capacity})`);
+     throw new Error(`DTXMeshAttribs: index ${i} out of range 0..${this.capacity - 1}`);
     }
-  }
-
-  /** WebGL texture handle. */
-  getTexture(): WebGLTexture {
-    return this.texture;
   }
 
   destroy(): void {

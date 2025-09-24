@@ -4,7 +4,7 @@ import {
   mulMat4,
   transformPoint4,
 
-  identityMat4, setMat4Translation, translateMat4v
+  identityMat4, setMat4Translation, translateMat4v, translationMat4c
 } from "../../matrix";
 import type {RendererMesh} from "../../scene";
 import type {FloatArrayParam} from "../../math";
@@ -119,7 +119,7 @@ export class RendererMeshImpl implements RendererMesh {
       rtcTileCenter: FloatArrayParam;
       relativeMatrix: FloatArrayParam;
     } {
-      const rtcTileCenter = new Float32Array(3);
+      const rtcTileCenter = new Float64Array(3);
       const relativeMatrix = createMat4();
 
       // Extract translation from the matrix
@@ -147,6 +147,7 @@ export class RendererMeshImpl implements RendererMesh {
     const tileChanged = !oldTile || oldTile.id !== this.tile.id;
     const tileCenter = this.tile.center;
     const needRTC = (tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0);
+
     // const rtcMatrix = needRTC
     //   ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], identityMat4()), identityMat4())
     //   : matrix;
@@ -155,7 +156,7 @@ export class RendererMeshImpl implements RendererMesh {
       ? createRTCModelMat(matrix, tileCenter, identityMat4())
       : matrix;
 
-
+//const {rtcTileCenter, relativeMatrix} = deriveRTCTileCenterAndRelativeMatrix(matrix);
 
     this._layer.setMeshMatrix(this._meshHandle, rtcMatrix.slice());
     if (tileChanged) {
@@ -267,7 +268,7 @@ export class RendererMeshImpl implements RendererMesh {
    * Destroys the mesh and releases associated resources.
    */
   destroy() {
-    this._layer.removeMesh(this._sceneMesh, this.rendererObject.flags);
+    this._layer.removeMesh(this._meshHandle, this.rendererObject.flags);
     if (this.tile) {
       this._gpuMemoryWriteIF.putTile(this.tile);
     }

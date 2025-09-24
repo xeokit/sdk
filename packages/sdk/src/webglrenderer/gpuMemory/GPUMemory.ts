@@ -149,11 +149,12 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     }
     const meshIdx = gpuMemoryLayer?.addMesh(sceneMesh);
     this._numMeshes++;
-    console.log("Created Mesh: " + this._numMeshes);
+    console.log("addMesh() Num meshes = " + this._numMeshes);
     return <GPUMemoryMeshHandle>{
       meshIndex: meshIdx,
       layerIndex: gpuMemoryLayer.index,
-      numIndices: sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0
+      numIndices: sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0,
+      numVertices: sceneMesh.geometry.positionsCompressed ? sceneMesh.geometry.positionsCompressed.length / 3 : 0
     };
   }
 
@@ -247,6 +248,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     layer.removeMesh(meshHandle.meshIndex);
     this._needRenderAllViews();
     this._numMeshes--;
+ //   console.log("removeMesh() Num meshes = " + this._numMeshes);
   }
 
   /**
@@ -256,6 +258,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     for (const gpuMemory of this._layers) {
       gpuMemory.destroy();
     }
+    this._numMeshes = 0;
     this._layers.length = 0;
     this.dataTextures.layers.length = 0;
     const clear = ( ref: any ) => {

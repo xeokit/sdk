@@ -62,19 +62,7 @@ export class DTXGeometryAttribs {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); // safe for tightly packed rows
-
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA32UI,              // 4x uint32 lanes per texel
-      this._texWidth,
-      this._texHeight,
-      0,
-      gl.RGBA_INTEGER,
-      gl.UNSIGNED_INT,
-      this.buffer
-    );
-
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32UI, this._texWidth, this._texHeight);
     gl.bindTexture(gl.TEXTURE_2D, null);
     this.texture = tex;
   }

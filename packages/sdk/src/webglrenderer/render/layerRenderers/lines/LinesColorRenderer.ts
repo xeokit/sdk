@@ -13,6 +13,7 @@ export class LinesColorRenderer extends LayerRenderer {
   buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefines();
+    this.vsDrawFlatColorDefs();
     this.vsSlicingDefines();
     this.vsDrawMainOpen();
     this.vsDrawFlatColorLogic(); // Flat color for lines

@@ -76,7 +76,9 @@ export class DTXPointerTable {
 
     // Create RGBA8UI texture
     const tex = gl.createTexture();
-    if (!tex) throw new Error("DTXPointerTable: gl.createTexture() failed");
+    if (!tex) {
+      throw new Error("DTXPointerTable: gl.createTexture() failed");
+    }
     this.texture = tex;
 
     gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -85,20 +87,7 @@ export class DTXPointerTable {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-
-    // Allocate texture storage (zeros). Using texImage2D for compatibility.
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA8UI,        // internal format (unsigned normalized integers, 8-bit each)
-      this._texWidth,
-      this._texHeight,
-      0,
-      gl.RGBA_INTEGER,   // format for integer textures
-      gl.UNSIGNED_BYTE,  // type
-      null
-    );
-
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8UI, this._texWidth, this._texHeight);
     gl.bindTexture(gl.TEXTURE_2D, null);
 
     // Entire range is initially free
@@ -125,15 +114,19 @@ export class DTXPointerTable {
   }
 
   getPortion(size: number, onMove?: (newBase: number) => void): DTXPointerTableHandle {
-    if (size <= 0) throw new Error("DTXPointerTable.getPortion: size must be > 0");
+    if (size <= 0) {
+      throw new Error("DTXPointerTable.getPortion: size must be > 0");
+    }
     let idx = this._findFree(size);
     if (idx === -1) {
       this._pack();
       idx = this._findFree(size);
-      if (idx === -1) throw new Error(`DTXPointerTable: allocation failed for size=${size}`);
+      if (idx === -1) {
+        throw new Error(`DTXPointerTable: allocation failed for size=${size}`);
+      }
     }
-    return this._allocAtFreeIndex(idx, size, onMove);
     this._packed = false;
+    return this._allocAtFreeIndex(idx, size, onMove);
   }
 
   putPortion(handle: DTXPointerTableHandle): void {
@@ -152,7 +145,9 @@ export class DTXPointerTable {
   /** Get a typed view into a portion (Uint32Array view). */
   getPortionView(handle: DTXPointerTableHandle): Uint32Array<any> {
     const portion = this._used.get(handle.id);
-    if (!portion) throw new Error("DTXPointerTable.getPortionView: invalid handle");
+    if (!portion) {
+      throw new Error("DTXPointerTable.getPortionView: invalid handle");
+    }
     return this.buffer.subarray(portion.base, portion.base + portion.size);
   }
 
@@ -167,7 +162,9 @@ export class DTXPointerTable {
 
   setPortionData(handle: DTXPointerTableHandle, values: ArrayLike<number>): void {
     const portion = this._used.get(handle.id);
-    if (!portion) throw new Error("DTXPointerTable.setPortionData: invalid handle");
+    if (!portion) {
+      throw new Error("DTXPointerTable.setPortionData: invalid handle");
+    }
     if (values.length !== portion.size) {
       throw new Error(`DTXPointerTable.setPortionData: expected ${portion.size}, got ${values.length}`);
     }
@@ -180,7 +177,9 @@ export class DTXPointerTable {
 
   fillPortion(handle: DTXPointerTableHandle, value: number): void {
     const portion = this._used.get(handle.id);
-    if (!portion) throw new Error("DTXPointerTable.fillPortion: invalid handle");
+    if (!portion) {
+      throw new Error("DTXPointerTable.fillPortion: invalid handle");
+    }
     this.buffer.fill((value >>> 0), portion.base, portion.base + portion.size);
     this._dirtyPortions.add(handle.id);
   }

@@ -47,6 +47,11 @@ export class RenderLayerImpl implements RenderLayer {
   numIndices: number;
 
   /**
+   * The total number of vertices in all meshes of this layer. This is used for various calculations and optimizations related to rendering.
+   */
+  numVertices: number;
+
+  /**
    * Counts of meshes and their visibility states for each view. These are used to build the render flags for the views.
    */
   meshCounts: MeshCounts[];
@@ -79,6 +84,7 @@ export class RenderLayerImpl implements RenderLayer {
     this.baseIndex = 0; // TODO
     this.sortId = `Layer-${primitive}`;
     this.numIndices = 0;
+    this.numVertices = 0;
     this.saoSupported = false;
 
     // Preallocate meshCounts for 4 views
@@ -108,6 +114,7 @@ export class RenderLayerImpl implements RenderLayer {
   addMesh( sceneMesh: SceneMesh ): GPUMemoryMeshHandle {
     const meshHandle = this._gpuMemoryWriteIF.addMesh(this.gpuLayerIndex, sceneMesh);
     this.numIndices += meshHandle.numIndices;
+    this.numVertices += meshHandle.numVertices;
     for (const counts of this.meshCounts) {
       counts.numMeshes++;
     }
@@ -136,6 +143,7 @@ export class RenderLayerImpl implements RenderLayer {
       counts.numMeshes--;
     }
     this.numIndices -= meshHandle.numIndices;
+    this.numVertices -= meshHandle.numVertices;
   }
 
   /**

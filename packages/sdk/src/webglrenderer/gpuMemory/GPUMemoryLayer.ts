@@ -5,14 +5,15 @@ import {DTXMeshViewAttribs} from "./dtx/DTXMeshViewAttribs";
 import {DTXMeshAttribs} from "./dtx/DTXMeshAttribs";
 import {DTXQuantRanges} from "./dtx/DTXQuantRanges";
 import {DTXPositionsArray} from "./dtx/DTXPositionsArray";
+import {DTXVertexColorsArray} from "./dtx/DTXVertexColorsArray";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 import {DTXPointerArray} from "./dtx/DTXPointerArray";
 import {DTXGeometryAttribs} from "./dtx/DTXGeometryAttribs";
 import {DataTexturesLayer} from "./DataTexturesLayer";
+import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../constants";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
-
 
 /**
  * Manages GPU-resident, dynamically-editable data storage for model geometry and attributes.
@@ -39,6 +40,7 @@ export class GPUMemoryLayer {
   private _edgeIndices: DTXPointerArray;
   private _primToMeshLookup: DTXPointerArray;
   private _positions: DTXPositionsArray;
+  private _vertexColors: DTXVertexColorsArray;
   private _meshMatrices: DTXMatrixArray;
 
   private _meshIndicesUsed: boolean[];
@@ -86,11 +88,11 @@ export class GPUMemoryLayer {
     this._numGeometries = 0;
     this._numMeshes = 0;
 
-    this._maxMeshes = 100000;
-    this._maxGeometries = 100000;
-    this._maxIndices = 800000;
+    this._maxMeshes = 1000000;
+    this._maxGeometries = 1000000;
+    this._maxIndices = 8000000;
     this._maxPrims = this._maxIndices / 3; // TODO: Assumes triangles
-    this._maxPositions = 800000;
+    this._maxPositions = 8000000;
 
     this._maxSlices = 100;
     this._maxLights = 100;
@@ -151,6 +153,7 @@ export class GPUMemoryLayer {
     this._indices = new DTXPointerArray({gl, capacity: this._maxIndices});
     this._edgeIndices = new DTXPointerArray({gl, capacity: this._maxIndices});
     this._positions = new DTXPositionsArray({gl, capacity: this._maxPositions});
+    this._vertexColors = new DTXVertexColorsArray({gl, capacity: this._maxPositions});
 
     this.dataTextures = {
       indices: this._indices.texture,
@@ -166,7 +169,8 @@ export class GPUMemoryLayer {
       ],
       geometryAttribs: this._geometryAttribs.texture,
       geometryQuantRanges: this._geometryQuantRanges.texture,
-      positions: this._positions.texture
+      positions: this._positions.texture,
+      vertexColors: this._vertexColors.texture
     };
 
     // this.structSpecs = {
@@ -178,31 +182,48 @@ export class GPUMemoryLayer {
    * Check if there is enough memory for a SceneMesh.
    * @param sceneMesh
    */
-  hasMemoryForMesh( sceneMesh: SceneMesh ): boolean { // TODO
+  hasMemoryForMesh( sceneMesh: SceneMesh ): boolean {
+    // Mesh capacity
     if (this._numMeshes >= this._maxMeshes) {
       return false;
     }
     const geometry = sceneMesh.geometry;
-    if (!geometry) {
+    if (!geometry) return false;
+    // New geometry handle capacity (only if not already tracked)
+    if (!this._geometryHandles[geometry.id] && this._numGeometries >= this._maxGeometries) {
       return false;
     }
-    if (this._numGeometries >= this._maxGeometries && !this._geometryHandles[geometry.id]) {
+    // Vertex count (assumes 3 components per vertex)
+    const vertCount = (geometry.positionsCompressed?.length ?? 0) / 3;
+    if (vertCount <= 0 || this._positions.canGetPortion(vertCount) === false) {
       return false;
     }
-    if (this._positions.canGetPortion(geometry.positionsCompressed.length / 3) === false) { // TODO: Assumes triangles
-      return false;
+    const isPoints = geometry.primitive === PointsPrimitive;
+    if (isPoints) {
+      // For points, prim→mesh lookup is sized by vertex count
+      if (this._primToMeshLookup.canGetPortion(vertCount) === false) {
+        return false;
+      }
+    } else {
+      // For triangles, prim→mesh lookup is sized by triangle count
+      const indexCount = geometry.indices?.length ?? 0;
+      const triCount = indexCount / 3;
+      if (this._primToMeshLookup.canGetPortion(triCount) === false) {
+        return false;
+      }
+      if (geometry.indices && this._indices.canGetPortion(indexCount) === false) {
+        return false;
+      }
+      if (geometry.edgeIndices && this._edgeIndices.canGetPortion(geometry.edgeIndices.length) === false) {
+        return false;
+      }
     }
-    if (this._primToMeshLookup.canGetPortion(geometry.indices.length / 3) === false) { // TODO: Assumes triangles
-      return false;
-    }
-    if (this._indices.canGetPortion(geometry.indices.length) === false) {
-      return false;
-    }
-    if (this._edgeIndices.canGetPortion(geometry.edgeIndices.length) === false) {
+    if (geometry.colorsCompressed && this._vertexColors.canGetPortion(geometry.colorsCompressed.length) === false) {
       return false;
     }
     return true;
   }
+
 
   /**
    * Adds a SceneMesh to data texture gpuMemory.
@@ -229,9 +250,9 @@ export class GPUMemoryLayer {
       const geometryIndex = this._getFreeGeometryIndex();
 
       const positionsPortion = this._positions.getPortion(
-        geometry.positionsCompressed.length / 3, // TODO: Assumes triangles
+        geometry.positionsCompressed.length / 3, // 3xcomponents per position
         ( newBase: number ) => {
-          const verticesBase = newBase / 3 // TODO: Assumes triangles
+          const verticesBase = newBase / 3 // 3xcomponents per position
           this._geometryAttribs.setAttribs(geometryIndex, {verticesBase});
         });
 
@@ -244,18 +265,19 @@ export class GPUMemoryLayer {
         [xmin, ymin, zmin],
         [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]);
 
+      let vertexColorsPortion = null;
+      if (geometry.colorsCompressed) {
+        vertexColorsPortion = this._vertexColors.getPortion(geometry.colorsCompressed.length / 3); // RGB (0..255, 0..255, 0..255)
+        this._vertexColors.setPortionData(vertexColorsPortion, geometry.colorsCompressed);
+      }
 
       this._geometryAttribs.setAttribs(geometryIndex, {
-        verticesBase: positionsPortion.base / 3
-        // ,
-        // indicesBase: indicesHandle.base,
-        // edgeIndicesBase:edgeIndicesHandle.base
-      }); // TODO: Assumes triangles
+        verticesBase: positionsPortion.base / 3 // XYZ
+      });
 
       geometryHandle = {
         positionsPortion,
-        // indicesHandle,
-        // edgeIndicesHandle,
+        vertexColorsPortion,
         geometryIndex,
         useCount: 0
       };
@@ -267,30 +289,11 @@ export class GPUMemoryLayer {
 
     geometryHandle.useCount++;
 
-
-    const indicesHandle = this._indices.getPortion(
-      geometry.indices.length,
-      ( newBase: number ) => {
-        this._meshAttribs.setAttribs(meshIndex, {
-          indicesBase: newBase
-        });
-      }
-    );
-
-    this._indices.setPortionData(indicesHandle, geometry.indices);
-
-    const edgeIndicesHandle = this._edgeIndices.getPortion(
-      geometry.edgeIndices.length,
-      ( newBase: number ) => {
-        this._meshAttribs.setAttribs(meshIndex, {
-          edgeIndicesBase: newBase
-        });
-      }
-    );
-
-    this._edgeIndices.setPortionData(edgeIndicesHandle, geometry.edgeIndices);
-
-    const primitiveCount = geometry.indices.length / 3; // TODO: Assumes triangles
+    const primitiveCount = geometry.primitive === PointsPrimitive
+      ? geometry.positionsCompressed.length / 3
+      : geometry.primitive === LinesPrimitive
+        ? geometry.indices.length / 2
+        : geometry.indices.length / 3;
 
     const primToMeshLookupHandle = this._primToMeshLookup.getPortion(
       // geometry.indices.length, // Per-index
@@ -304,16 +307,52 @@ export class GPUMemoryLayer {
 
     this._primToMeshLookup.fillPortion(primToMeshLookupHandle, meshIndex);
 
+    let indicesHandle = null; // Only used for Lines and Triangles
+    let edgeIndicesHandle = null; // Only used for Triangles
+
+    if (geometry.primitive !== PointsPrimitive && geometry.indices) {
+
+      indicesHandle = this._indices.getPortion(
+        geometry.indices.length,
+        ( newBase: number ) => {
+          this._meshAttribs.setAttribs(meshIndex, {
+            indicesBase: newBase
+          });
+        }
+      );
+
+      this._indices.setPortionData(indicesHandle, geometry.indices);
+
+      if (geometry.primitive === TrianglesPrimitive && geometry.edgeIndices) {
+
+        edgeIndicesHandle = this._edgeIndices.getPortion(
+          geometry.edgeIndices.length,
+          ( newBase: number ) => {
+            this._meshAttribs.setAttribs(meshIndex, {
+              edgeIndicesBase: newBase
+            });
+          }
+        );
+
+        this._edgeIndices.setPortionData(edgeIndicesHandle, geometry.edgeIndices);
+      }
+    }
+
     this._meshAttribs.setAttribs(meshIndex, {
       tileIndex: 0, // Set by setMeshAttribs()
       geometryIndex: geometryHandle.geometryIndex,
-      indicesBase: indicesHandle.base,
-      edgeIndicesBase: edgeIndicesHandle.base,
+      indicesBase: indicesHandle?.base,
+      edgeIndicesBase: edgeIndicesHandle?.base,
       primsBase: primToMeshLookupHandle.base
     });
 
-    this._meshViewAttribs[0].setAttribs(meshIndex, {
-      color: [sceneMesh.color[0], sceneMesh.color[1], sceneMesh.color[2], sceneMesh.opacity]
+    this._meshViewAttribs[0].setAttribs(meshIndex, { // FIXME: Only defined for View 0
+      color: [
+        Math.floor(sceneMesh.color[0] * 255.0),
+        Math.floor(sceneMesh.color[1] * 255.0),
+        Math.floor(sceneMesh.color[2] * 255.0),
+        Math.floor(sceneMesh.opacity * 255.0)
+      ]
     });
 
     this._meshMatrices.setMatrix(meshIndex, sceneMesh.matrix);
@@ -321,8 +360,8 @@ export class GPUMemoryLayer {
     this._meshHandles[sceneMesh.id] = {
       meshIndex,
       primToMeshLookupHandle,
-      indicesHandle: geometryHandle.indicesHandle,
-      edgeIndicesHandle: geometryHandle.edgeIndicesHandle
+      indicesHandle,
+      edgeIndicesHandle
     };
 
     this._sceneMeshes[meshIndex] = sceneMesh;
@@ -392,7 +431,7 @@ export class GPUMemoryLayer {
       flags2?: number;  // uvec4 bytes 0..255
     } ) {
     if (viewIndex < 0 || viewIndex >= this._meshViewAttribs.length) {
-      throw "viewIndex out of range";
+      throw new Error(`GPUMemoryLayer.setMeshViewAttribs: Invalid viewIndex ${viewIndex}`);
     }
     this._meshViewAttribs[viewIndex].setAttribs(meshIndex, params);
     this._needRenderView(viewIndex);
@@ -422,19 +461,24 @@ export class GPUMemoryLayer {
       if (geometryHandle.positionsPortion) {
         this._positions.putPortion(geometryHandle.positionsPortion);
       }
-      if (geometryHandle.indicesHandle) {
-        this._indices.putPortion(geometryHandle.indicesHandle);
-      }
-      if (geometryHandle.edgeIndicesHandle) {
-        this._edgeIndices.putPortion(geometryHandle.edgeIndicesHandle);
+      if (geometryHandle.vertexColorsPortion) {
+        this._vertexColors.putPortion(geometryHandle.vertexColorsPortion);
       }
       delete this._geometryHandles[geometry.id];
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
     }
+
     if (meshHandle.primToMeshLookupHandle) {
       this._primToMeshLookup.putPortion(meshHandle.primToMeshLookupHandle);
     }
+    if (meshHandle.indicesHandle) {
+      this._indices.putPortion(meshHandle.indicesHandle);
+    }
+    if (meshHandle.edgeIndicesHandle) {
+      this._edgeIndices.putPortion(meshHandle.edgeIndicesHandle);
+    }
+
     delete this._meshHandles[sceneMesh.id];
     this._putFreeMeshIndex(meshHandle.meshIndex);
     delete this._sceneMeshes[meshIndex];
@@ -487,6 +531,7 @@ export class GPUMemoryLayer {
     this._geometryAttribs.flush();
     this._edgeIndices.flush();
     this._positions.flush();
+    this._vertexColors.flush();
     this._meshMatrices.flush();
     this._primToMeshLookup.flush();
   }
@@ -507,6 +552,7 @@ export class GPUMemoryLayer {
     this._indices = clear(this._indices);
     this._edgeIndices = clear(this._edgeIndices);
     this._positions = clear(this._positions);
+    this._vertexColors = clear(this._vertexColors);
     this._meshMatrices = clear(this._meshMatrices);
 
   }

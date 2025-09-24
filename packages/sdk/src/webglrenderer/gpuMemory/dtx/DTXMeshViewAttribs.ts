@@ -64,26 +64,12 @@ export class DTXMeshViewAttribs {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-
-    // Allocate RGBA8UI storage
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA8UI,
-      this._texWidth,
-      this._texHeight,
-      0,
-      gl.RGBA_INTEGER,
-      gl.UNSIGNED_BYTE,
-      this.buffer
-    );
-
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8UI, this._texWidth, this._texHeight);
     gl.bindTexture(gl.TEXTURE_2D, null);
     this.texture = tex;
   }
 
-
-  private getStructByteView( meshIndex: number ): Uint8Array<any> {
+  private getByteView( meshIndex: number ): Uint8Array<any> {
     const startTexel = meshIndex * DTXMeshViewAttribs.TEXELS_PER_STRUCT;
     const byteOffset = startTexel * DTXMeshViewAttribs.BYTES_PER_TEXEL;
     return this.buffer.subarray(byteOffset, byteOffset + 3 * DTXMeshViewAttribs.BYTES_PER_TEXEL);
@@ -92,17 +78,19 @@ export class DTXMeshViewAttribs {
   setAttribs(meshIndex: number, data: Partial<DTXMeshViewAttribsItem>): void {
     // optional: bounds guard
     if (meshIndex < 0 || meshIndex >= this.capacity) {
-      throw new RangeError(`meshIndex ${meshIndex} out of range [0, ${this.capacity})`);
+      throw new Error(`DTXMeshViewAttribs.setAttribs: meshIndex ${meshIndex} out of range 0..${this.capacity-1}`);
     }
 
-    const v = this.getStructByteView(meshIndex);
+    const v = this.getByteView(meshIndex);
 
     const writeRGBA = (base: number, src?: [number, number, number, number]) => {
       if (!src) return;
-      v[base + 0] = (Math.floor(src[0]*255) | 0) & 0xFF;
-      v[base + 1] = (Math.floor(src[1]*255) | 0) & 0xFF;
-      v[base + 2] = (Math.floor(src[2]*255) | 0) & 0xFF;
-      v[base + 3] = (Math.floor(src[3]*255) | 0) & 0xFF;
+      console.log(src)
+      v[base + 0] = src[0];
+      v[base + 1] = src[1];
+      v[base + 2] = src[2];
+      v[base + 3] = src[3];
+      console.log(v[base + 0], v[base + 1], v[base + 2], v[base + 3])
     };
 
     // Pack a uint32 into RGBA8 lanes (little-endian: R=LSB, A=MSB).
@@ -162,11 +150,6 @@ export class DTXMeshViewAttribs {
 
     this._dirty.clear();
     gl.bindTexture(gl.TEXTURE_2D, null);
-  }
-
-  /** WebGL texture handle. */
-  getTexture(): WebGLTexture {
-    return this.texture;
   }
 
   destroy(): void {

@@ -44,7 +44,7 @@ import {
   dotVec3,
   mulVec3Scalar,
   normalizeVec3,
-  setMat4Translation,
+  setMat4Translation, subVec3,
   transformVec4,
   translateMat4v
 } from "../matrix";
@@ -108,13 +108,20 @@ export const createRTCModelMat = (() => {
   const tempVec4a = createVec4();
 
   return (matrix: FloatArrayParam, rtcCenter: FloatArrayParam, rtcModelMatrix?: FloatArrayParam): FloatArrayParam => {
-    const tempVec4 = transformVec4(matrix, zeroVec4, tempVec4a);
-    rtcCenter[0] = Math.round(tempVec4[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-    rtcCenter[1] = Math.round(tempVec4[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-    rtcCenter[2] = Math.round(tempVec4[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+
+    const matCenter = transformVec4(matrix, zeroVec4, tempVec4a);
+
+    rtcCenter[0] = Math.round(matCenter[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+    rtcCenter[1] = Math.round(matCenter[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+    rtcCenter[2] = Math.round(matCenter[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
 
     rtcModelMatrix = rtcModelMatrix || matrix.slice();
-    translateMat4v(mulVec3Scalar(rtcCenter, -1, tempVec3a), rtcModelMatrix);
+
+   // setMat4Translation(matrix, rtcCenter, rtcModelMatrix); // This seems OK
+
+ //  translateMat4v(mulVec3Scalar(rtcCenter, -1, tempVec3a), rtcModelMatrix); // This seems OK
+
+   translateMat4v(subVec3(matCenter, rtcCenter, tempVec3a), rtcModelMatrix);
 
     return rtcModelMatrix;
   };

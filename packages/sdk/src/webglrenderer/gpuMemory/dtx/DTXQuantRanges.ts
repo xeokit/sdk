@@ -49,32 +49,27 @@ export class DTXQuantRanges {
    */
   #allocateTexture(): void {
     const gl = this.gl;
-
-    // Choose items-per-row so that texWidth is a nice power-of-two-ish number.
-    // Keeping the same overall width as your previous matrix atlas (2048 texels).
     const itemsPerRow = 1024; // 1024 items per row * 2 texels/item = 2048 texels wide
     const texelsPerItem = DTXQuantRanges.TEXELS_PER_ITEM;
-
     const textureWidth = itemsPerRow * texelsPerItem; // texels
     const textureHeight = Math.max(1, Math.ceil(this.maxItems / itemsPerRow)); // rows
-
     const totalTexels = textureWidth * textureHeight;
     const totalFloats = totalTexels * DTXQuantRanges.FLOATS_PER_TEXEL;
-
     this.buffer = new Float32Array(totalFloats);
-
-    const texture = gl.createTexture()!;
+    const texture = gl.createTexture();
+    if (!texture) {
+      throw new Error("DTXQuantRanges: Failed to create texture");
+    }
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
     gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
     // initialize with zeros (optional)
-    gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, this.buffer, 0);
+  //  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, this.buffer, 0);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.bindTexture(gl.TEXTURE_2D, null);
-
     this.texture = texture;
     this.textureWidth = textureWidth;
     this.textureHeight = textureHeight;

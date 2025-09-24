@@ -6,6 +6,7 @@ import {PointsSilhouetteRenderer} from "./points/PointsSilhouetteRenderer";
 import {PointsColorRenderer} from "./points/PointsColorRenderer";
 import {LayerRenderer} from "./LayerRenderer";
 import {type GPUMemoryReadIF} from "../../gpuMemory/GPUMemoryReadIF";
+import {LinesColorRenderer} from "./lines/LinesColorRenderer";
 
 /**
  * Interface defining the structure of a renderer set for different primitives.
@@ -42,7 +43,7 @@ export class LayerRendererSet {
         silhouette,
       },
       [LinesPrimitive]: {
-        color: new TrianglesColorRenderer(renderContext, gpuMemoryReadIF),
+        color: new LinesColorRenderer(renderContext, gpuMemoryReadIF),
         silhouette,
       },
       [PointsPrimitive]: {

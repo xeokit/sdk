@@ -72,7 +72,9 @@ export class DTXPointerArray {
 
     // Create R32UI texture
     const tex = gl.createTexture();
-    if (!tex) throw new Error("DTXPointerArray: gl.createTexture() failed");
+    if (!tex) {
+      throw new Error("DTXPointerArray: gl.createTexture() failed");
+    }
     this.texture = tex;
 
     gl.bindTexture(gl.TEXTURE_2D, tex);
@@ -81,21 +83,7 @@ export class DTXPointerArray {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-
-    // Allocate immutable storage if you like; texImage2D is also fine.
-    // Using texImage2D here for widest driver compatibility.
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.R32UI,           // internal format
-      this._texWidth,
-      this._texHeight,
-      0,
-      gl.RED_INTEGER,     // format
-      gl.UNSIGNED_INT,    // type
-      this.buffer
-    );
-
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.R32UI, this._texWidth, this._texHeight);
     gl.bindTexture(gl.TEXTURE_2D, null);
 
     // Entire range is initially free

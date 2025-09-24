@@ -91,7 +91,7 @@ export class TileManager {
     for (const [_, tile] of this._tiles) {
       const rtcViewMatrix = tile.rtcViewMatrix[viewIndex];
       createRTCViewMat(viewMatrix, tile.center, rtcViewMatrix);
-      viewMatrices.setMatrix(tile.index, rtcViewMatrix);
+      viewMatrices.setMatrix(tile.tileIndex, rtcViewMatrix);
     }
   }
 

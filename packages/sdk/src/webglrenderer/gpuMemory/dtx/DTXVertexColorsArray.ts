@@ -1,42 +1,41 @@
 /**
- * Represents a portion of a `DTXPositionsArray` allocated for storing data.
- * (One item = one vertex = 3 Uint16 components)
+ * Represents a portion of a `DTXVertexColorsArray` allocated for storing data.
+ * (One item = one vertex = 3 Uint8 components)
  */
-import {SDKError} from "../../../core";
+import { SDKError } from "../../../core";
 
-interface DTXPositionsArrayPortion {
+interface DTXVertexColorsArrayPortion {
   base: number; // item tileIndex
   size: number; // number of items (vertices)
 }
 
 /** Handle to an allocated portion */
-export interface DTXPositionsArrayHandle {
+export interface DTXVertexColorsArrayHandle {
   id: number;
   base: number; // item tileIndex
 }
 
 /** Options: only gl + capacity matter now */
-export interface DTXPositionsArrayOptions {
+export interface DTXVertexColorsArrayOptions {
   gl: WebGL2RenderingContext;
   capacity: number; // number of items (vertices)
 }
 
 /**
- * DTXPositionsArray — Uint16 positions only (XYZ per item), stored in a RGBA16UI texture.
- * - CPU _buffer layout: tightly-packed RGBRGB... (3 Uint16 per item)
- * - GPU texture layout: one texel per item (RGBA16UI), RGB = XYZ, A = 0
+ * DTXVertexColorsArray — Uint8 colors only (RGB per item), stored in a RGBA8UI texture.
+ * - CPU _buffer layout: tightly-packed RGBRGB... (3 Uint8 per item)
+ * - GPU texture layout: one texel per item (RGBA8UI), RGB = XYZ, A = 0
  */
-export class DTXPositionsArray {
-
+export class DTXVertexColorsArray {
   /**
-   * WebGL texture (RGBA16UI).
+   * WebGL texture (RGBA8UI).
    */
   public texture: WebGLTexture;
 
   /**
    * CPU-side data _buffer holds 3 components per item.
    */
-  public readonly buffer: Uint16Array<any>;
+  public readonly buffer: Uint8Array<any>;
 
   private readonly gl: WebGL2RenderingContext;
   private readonly capacity: number;
@@ -46,10 +45,10 @@ export class DTXPositionsArray {
   private readonly texChannelsPerItem = 4; // RGBA texel, A unused
   private readonly textureWidth = 4096; // matches the example
 
-  private used: Map<number, DTXPositionsArrayPortion> = new Map();
-  private handles: Map<number, DTXPositionsArrayHandle> = new Map();
-  private free: DTXPositionsArrayPortion[] = [];
-  private portionCallbacks: Map<number, ( newBase: number ) => void> = new Map();
+  private used: Map<number, DTXVertexColorsArrayPortion> = new Map();
+  private handles: Map<number, DTXVertexColorsArrayHandle> = new Map();
+  private free: DTXVertexColorsArrayPortion[] = [];
+  private portionCallbacks: Map<number, (newBase: number) => void> = new Map();
 
   private nextId = 1;
   private dirtyPortions: Set<number> = new Set();
@@ -58,19 +57,19 @@ export class DTXPositionsArray {
   private uploadAllOnFlush = false;
   private isPacked: boolean = true;
 
-  constructor( options: DTXPositionsArrayOptions ) {
+  constructor(options: DTXVertexColorsArrayOptions) {
     this.gl = options.gl;
     this.capacity = options.capacity;
 
     // CPU _buffer is RGB triplets per item
-    this.buffer = new Uint16Array(this.capacity * this.componentsPerItem);
+    this.buffer = new Uint8Array(this.capacity * this.componentsPerItem);
 
     // One texel per item, so itemsPerRow == textureWidth
     const itemsPerRow = this.textureWidth;
     this.textureHeight = Math.max(1, Math.ceil(this.capacity / itemsPerRow));
 
     // Start with a single free block spanning all items
-    this.free.push({base: 0, size: this.capacity});
+    this.free.push({ base: 0, size: this.capacity });
 
     this.#allocateTexture();
   }
@@ -86,13 +85,14 @@ export class DTXPositionsArray {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA16UI, this.textureWidth, this.textureHeight);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8UI, this.textureWidth, this.textureHeight);
+    gl.bindTexture(gl.TEXTURE_2D, null);
     this.texture = texture;
   }
 
   /** Check if a portion of given size (in items/vertices) can be allocated. */
-  canGetPortion( size: number ): boolean {
+  canGetPortion(size: number): boolean {
     if (size <= 0 || size > this.capacity) {
       return false;
     }
@@ -104,7 +104,7 @@ export class DTXPositionsArray {
   }
 
   /** Allocate a portion (in items/vertices). */
-  getPortion( size: number, onMove?: ( newBase: number ) => void ): DTXPositionsArrayHandle {
+  getPortion(size: number, onMove?: (newBase: number) => void): DTXVertexColorsArrayHandle {
     this.isPacked = false;
     const index = this.findFreeBlock(size);
     if (index === -1) {
@@ -119,7 +119,7 @@ export class DTXPositionsArray {
   }
 
   /** View into the CPU _buffer (RGB tightly packed). */
-  getPortionView( handle: DTXPositionsArrayHandle ): Uint16Array<any> {
+  getPortionView(handle: DTXVertexColorsArrayHandle): Uint8Array<any> {
     const portion = this.used.get(handle.id);
     if (!portion) {
       throw new Error("Invalid handle ID");
@@ -130,24 +130,23 @@ export class DTXPositionsArray {
     );
   }
 
-  /** Write RGB triplets (Uint16) into the allocated region. `data.length == size*3` */
-  setPortionData( handle: DTXPositionsArrayHandle, data: ArrayLike<number> ): void {
+  /** Write RGB triplets (Uint8) into the allocated region. `data.length == size*3` */
+  setPortionData(handle: DTXVertexColorsArrayHandle, data: ArrayLike<number>): void {
     const portion = this.used.get(handle.id);
     if (!portion) {
-      throw new Error('Invalid handle ID');
+      throw new Error("Invalid handle ID");
     }
-    //  const expected = portion.size * this.componentsPerItem; // RGB per item
     const expected = portion.size; // RGB per item
     if ((data.length / this.componentsPerItem) !== expected) {
-      throw new SDKError('Mismatched data length');
+      throw new SDKError("Mismatched data length");
     }
     const offset = portion.base * this.componentsPerItem;
-    this.buffer.set(data, offset);
+    this.buffer.set(data as ArrayLike<number>, offset);
     this.dirtyPortions.add(handle.id);
   }
 
   /** Fill the portion with one scalar value across all RGB components. */
-  fillPortion( handle: DTXPositionsArrayHandle, value: number ): void {
+  fillPortion(handle: DTXVertexColorsArrayHandle, value: number): void {
     const portion = this.used.get(handle.id);
     if (!portion) {
       throw new Error("Invalid handle ID");
@@ -159,7 +158,7 @@ export class DTXPositionsArray {
   }
 
   /** Free an allocated portion. */
-  putPortion( handle: DTXPositionsArrayHandle ): void {
+  putPortion(handle: DTXVertexColorsArrayHandle): void {
     const portion = this.used.get(handle.id);
     if (!portion) {
       return;
@@ -177,9 +176,9 @@ export class DTXPositionsArray {
     if (this.isPacked) {
       return;
     }
-    const sorted = Array.from(this.used.entries()).sort(( [, a], [, b] ) => a.base - b.base);
+    const sorted = Array.from(this.used.entries()).sort(([, a], [, b]) => a.base - b.base);
     let writeHead = 0;
-    const newUsed = new Map<number, DTXPositionsArrayPortion>();
+    const newUsed = new Map<number, DTXVertexColorsArrayPortion>();
 
     for (const [id, portion] of sorted) {
       if (portion.base !== writeHead) {
@@ -192,7 +191,7 @@ export class DTXPositionsArray {
         if (callback) callback(writeHead);
         this.uploadAllOnFlush = true;
       }
-      newUsed.set(id, {base: writeHead, size: portion.size});
+      newUsed.set(id, { base: writeHead, size: portion.size });
 
       const handle = this.handles.get(id);
       if (handle) {
@@ -203,16 +202,19 @@ export class DTXPositionsArray {
     }
 
     this.used = newUsed;
-    this.free = writeHead < this.capacity
-      ? [{base: writeHead, size: this.capacity - writeHead}]
-      : [];
+    this.free =
+      writeHead < this.capacity ? [{ base: writeHead, size: this.capacity - writeHead }] : [];
     this.isPacked = true;
   }
 
-  private allocateHandleAt( index: number, size: number, onMove?: ( newBase: number ) => void ): DTXPositionsArrayHandle {
+  private allocateHandleAt(
+    index: number,
+    size: number,
+    onMove?: (newBase: number) => void
+  ): DTXVertexColorsArrayHandle {
     const block = this.free[index];
     const id = this.nextId++;
-    const portion: DTXPositionsArrayPortion = {base: block.base, size};
+    const portion: DTXVertexColorsArrayPortion = { base: block.base, size };
     this.used.set(id, portion);
 
     if (size === block.size) {
@@ -222,25 +224,26 @@ export class DTXPositionsArray {
       block.size -= size;
     }
 
-    const handle: DTXPositionsArrayHandle = {id, base: portion.base};
+    const handle: DTXVertexColorsArrayHandle = { id, base: portion.base };
     this.handles.set(id, handle);
     if (onMove) this.portionCallbacks.set(id, onMove);
     return handle;
   }
 
-  private findFreeBlock( size: number ): number {
-    return this.free.findIndex(block => block.size >= size);
+  private findFreeBlock(size: number): number {
+    return this.free.findIndex((block) => block.size >= size);
   }
 
-  private insertFreePortionSorted( portion: DTXPositionsArrayPortion ): void {
+  private insertFreePortionSorted(portion: DTXVertexColorsArrayPortion): void {
     let i = 0;
     while (i < this.free.length && this.free[i].base < portion.base) i++;
     this.free.splice(i, 0, portion);
   }
 
   private coalesceFree(): void {
-    for (let i = 0; i < this.free.length - 1;) {
-      const a = this.free[i], b = this.free[i + 1];
+    for (let i = 0; i < this.free.length - 1; ) {
+      const a = this.free[i],
+        b = this.free[i + 1];
       if (a.base + a.size === b.base) {
         a.size += b.size;
         this.free.splice(i + 1, 1);
@@ -255,13 +258,13 @@ export class DTXPositionsArray {
    * Expands RGB (CPU) -> RGBA (GPU) on the fly, 1 texel per item.
    */
   flush(): void {
-    const {gl, texture} = this;
+    const { gl, texture } = this;
     const itemsPerRow = this.textureWidth;
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     if (this.uploadAllOnFlush) {
-      // Upload every row with temporary RGBA16UI staging
+      // Upload every row with temporary RGBA8UI staging
       let itemBase = 0;
       for (let y = 0; y < this.textureHeight; y++) {
         const remaining = this.capacity - itemBase;
@@ -277,7 +280,7 @@ export class DTXPositionsArray {
           itemsThisRow,
           1,
           gl.RGBA_INTEGER,
-          gl.UNSIGNED_SHORT,
+          gl.UNSIGNED_BYTE,
           rgba
         );
 
@@ -310,7 +313,7 @@ export class DTXPositionsArray {
           itemsThisRow,
           1,
           gl.RGBA_INTEGER,
-          gl.UNSIGNED_SHORT,
+          gl.UNSIGNED_BYTE,
           rgba
         );
 
@@ -321,9 +324,9 @@ export class DTXPositionsArray {
     this.dirtyPortions.clear();
   }
 
-  /** Expand CPU RGB triplets [base .. base+count) into a RGBA16UI row (A=0). */
-  #expandRowToRGBA( baseItem: number, count: number ): Uint16Array<any> {
-    const out = new Uint16Array(count * this.texChannelsPerItem);
+  /** Expand CPU RGB triplets [base .. base+count) into a RGBA8UI row (A=0). */
+  #expandRowToRGBA(baseItem: number, count: number): Uint8Array<any> {
+    const out = new Uint8Array(count * this.texChannelsPerItem);
     const srcOffset = baseItem * this.componentsPerItem;
     const src = this.buffer;
 

@@ -204,11 +204,11 @@
 //         this.#uOcclusionTexture = "uOcclusionTexture";
 //     }
 //
-//     render(depthRenderBuffer: WebGLRenderBuffer, occlusionRenderBuffer: WebGLRenderBuffer, direction: number) {
+//     draw(depthRenderBuffer: WebGLRenderBuffer, occlusionRenderBuffer: WebGLRenderBuffer, direction: number) {
 //         if (this.#programError) {
 //             return;
 //         }
-//         if (!this.#getInverseProjectMat) { // HACK: scene.camera not defined until render time
+//         if (!this.#getInverseProjectMat) { // HACK: scene.camera not defined until draw time
 //             this.#getInverseProjectMat = (() => {
 //                 let projMatDirty = true;
 //                 this.#view.camera.onProjMatrix.subscribe(()=> {

@@ -28,7 +28,7 @@ export class RenderLayerImpl implements RenderLayer {
   /**
    * Base primitive tileIndex for this layer.
    */
-  baseIndex: number;
+  primBaseIndex: number;
 
   /**
    * A unique identifier for sorting this layer in the renderer.
@@ -81,7 +81,7 @@ export class RenderLayerImpl implements RenderLayer {
     this._gpuMemoryWriteIF = gpuMemoryWriteIF;
     this.gpuLayerIndex = layerParams.gpuMemoryLayerIndex;
     this.primitive = primitive;
-    this.baseIndex = 0; // TODO
+    this.primBaseIndex = 0; // TODO
     this.sortId = `Layer-${primitive}`;
     this.numIndices = 0;
     this.numVertices = 0;

@@ -102,7 +102,7 @@ export function createRTCViewMat(
  * @param {FloatArrayParam} rtcModelMatrix - Returns the RTC model matrix.
  * @returns {FloatArrayParam} The RTC model matrix.
  */
-export const createRTCModelMat = (() => {
+export const createRTCModelMatOLD = (() => {
 
   const zeroVec4 = createVec4([0, 0, 0, 1]);
   const tempVec4a = createVec4();
@@ -122,6 +122,27 @@ export const createRTCModelMat = (() => {
  //  translateMat4v(mulVec3Scalar(rtcCenter, -1, tempVec3a), rtcModelMatrix); // This seems OK
 
    translateMat4v(subVec3(matCenter, rtcCenter, tempVec3a), rtcModelMatrix);
+
+    return rtcModelMatrix;
+  };
+})();
+
+export const createRTCModelMat = (() => {
+
+  const zeroVec4 = createVec4([0, 0, 0, 1]);
+  const tempVec4a = createVec4();
+
+  return (matrix: FloatArrayParam, rtcCenter: FloatArrayParam, rtcModelMatrix?: FloatArrayParam): FloatArrayParam => {
+
+    const matCenter = matrix.slice(12, 15);
+
+    rtcCenter[0] = Math.round(matCenter[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+    rtcCenter[1] = Math.round(matCenter[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+    rtcCenter[2] = Math.round(matCenter[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+
+    rtcModelMatrix = rtcModelMatrix || matrix.slice();
+
+    rtcModelMatrix.set(subVec3(matCenter, rtcCenter, createVec3()), 12);
 
     return rtcModelMatrix;
   };

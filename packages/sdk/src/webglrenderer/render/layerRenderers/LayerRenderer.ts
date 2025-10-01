@@ -81,8 +81,8 @@ export abstract class LayerRenderer {
    * Populated during the `build()` method based on what's included in the shader source.
    */
   private _uniforms: {
-    renderPass: WebGLUniformLocation; // Current render pass (e.g., color, pick, silhouette)
-    baseIndex: WebGLUniformLocation; // Base tileIndex for the current render call
+    renderPass: WebGLUniformLocation; // Current draw pass (e.g., color, pick, silhouette)
+    primBaseIndex: WebGLUniformLocation; // Base tileIndex for the current draw call
     primitiveType: WebGLUniformLocation; // Primitive type being rendered (triangles, lines, points)
     pointCloudIntensityRange: WebGLUniformLocation; // Intensity range for point cloud rendering
     nearPlaneHeight: WebGLUniformLocation; // Near plane height for perspective point size calculation
@@ -168,7 +168,7 @@ export abstract class LayerRenderer {
   /**
    * Inserts a line of custom vertex shader code into the generated vertex shader source.
    */
-  protected vertexCode( src ) {
+  protected vsCode( src ) {
     this._vertexSrcBuf.push(src);
   }
 
@@ -198,10 +198,10 @@ export abstract class LayerRenderer {
   /**
    * Generates the vertex shader precision definitions and common definitions.
    */
-  protected vsCommonDefines() {
+  protected vsCommonDefs() {
     this._vertexSrcBuf.push(
       "uniform int uRenderPass;         // RENDER_PASSES",
-      "uniform int uBaseIndex;          // Base primitive tileIndex for this render call",
+      "uniform int uPrimBaseIndex;          // Base primitive index for this draw call",
       "uniform int uPrimitiveType;     // PRIMITIVE_TYPES",
 
       "uniform mat4 uProjMatrix;        // Projection matrix (from view)",
@@ -299,7 +299,6 @@ export abstract class LayerRenderer {
       "}",
 
 
-
       "MeshAttribs getMeshAttribs(uint meshIndex) {",
       "  const uint texWidth = 4096u;",
       "  uvec4 lanes1 = texelFetch(uMeshAttribs, texCoord((meshIndex * 2u) + 0u, texWidth), 0);",
@@ -345,6 +344,16 @@ export abstract class LayerRenderer {
       "  return mat4(m0, m1, m2, m3);",
       "}",
 
+      // Packs a uint into an RGBA color (each channel stores one byte).
+      // Little-endian byte order: R = least significant byte
+      "vec4 encodeUintToRGBA8(uint v) {",
+      "   return vec4(",
+      "     float( ( v        & 0xFFu)),",
+      "     float( ((v >> 8u) & 0xFFu)),",
+      "     float(((v >> 16u) & 0xFFu)),",
+      "     float(((v >> 24u) & 0xFFu))",
+      "   ) / 255.0;",
+      "}",
 
       "vec3 mockModelPos(int vid) {",
       "  int i = vid % 3;",
@@ -435,6 +444,11 @@ export abstract class LayerRenderer {
       "out vec4 vColor;");
   }
 
+  protected vsDrawDepthDefs() {
+    this._vertexSrcBuf.push(
+      "out highp vec2 vHighPrecisionZW;");
+  }
+
   protected vsPointsDefines(): void {
     this._vertexSrcBuf.push(
       "uniform float nearPlaneHeight;",
@@ -470,40 +484,40 @@ export abstract class LayerRenderer {
   protected vsDrawMainOpen() { // default
     this._vertexSrcBuf.push(
       "void main(void) {");
-    this._vertexMeshLogic();
+    this._vsMeshLogic();
     // this._vertexSrcBuf.push(
     //   `    int colorFlag = int(meshViewAttribs.flags1.r & 0xFu);`,
     //   `    if ( colorFlag != uRenderPass) {`,
     //   "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
     //   "        return;",
     //   "    } ");
-    this._vertexMeshLogic2();
+    this._vsMeshLogic2();
   }
 
   protected vsSilhouetteMainOpen() { // silhouette
     this._vertexSrcBuf.push(
       "void main(void) {");
-    this._vertexMeshLogic();
+    this._vsMeshLogic();
     // this._vertexSrcBuf.push(
     //   "    int silhouetteFlag = int (meshViewAttribs.flags1.g >> 4u & 0xFu);",
     //   `    if (silhouetteFlag != uRenderPass) {`,
     //   "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
     //   "        return;",
     //   "    }");
-    this._vertexMeshLogic2();
+    this._vsMeshLogic2();
   }
 
-  protected vertexPickMainOpen() { // pick
+  protected vsPickMainOpen() { // pick
     this._vertexSrcBuf.push(
       "void main(void) {");
-    this._vertexMeshLogic();
+    this._vsMeshLogic();
     this._vertexSrcBuf.push(
       `    int pickFlag = int(meshViewAttribs.flags1.b >> 8u & 0xFu);`,
       `    if (pickFlag != uRenderPass) {`,
       "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
       "        return;",
       "    }");
-    this._vertexMeshLogic2();
+    this._vsMeshLogic2();
   }
 
   protected vsMainClose() { // default, silhouette, pick
@@ -519,9 +533,9 @@ export abstract class LayerRenderer {
     // }
   }
 
-  private _vertexMeshLogic() { // before renderPass check
+  private _vsMeshLogic() { // before renderPass check
     this._vertexSrcBuf.push(
-      "    uint drawVertexID  = uint(uBaseIndex + gl_VertexID);",
+      "    uint drawVertexID  = uint(uPrimBaseIndex + gl_VertexID);",
       "    uint primVertNum   = uint(uPrimitiveType == " + TrianglesPrimitive + " ? 3u : (uPrimitiveType == " + LinesPrimitive + " ? 2u : 1u));",
       "    uint drawPrimID    = drawVertexID / primVertNum;",
 
@@ -539,7 +553,7 @@ export abstract class LayerRenderer {
     ;
   }
 
-  private _vertexMeshLogic2() { // after renderPass check
+  private _vsMeshLogic2() { // after renderPass check
     this._vertexSrcBuf.push(
       "    MeshAttribs      meshAttribs       = getMeshAttribs( meshIndex );", // Attributes global to meshes in all views
       "    uint             geometryIndex     = meshAttribs.geometryIndex;",
@@ -637,14 +651,19 @@ export abstract class LayerRenderer {
     );
   }
 
-
-  protected vsPickMeshLogic() {
+  protected vsDrawDepthLogic() {
     this._vertexSrcBuf.push(
-      "    vPickColor = vec4(float(pickColor.r) / 255.0, float(pickColor.g) / 255.0, float(pickColor.b) / 255.0, float(pickColor.a) / 255.0);");
+      "    vHighPrecisionZW = gl_Position.zw;"
+    );
   }
 
 
-  protected vertexPointsFilterLogicOpenBlock() {
+  protected vsPickMeshLogic() {
+    this._vertexSrcBuf.push("    vPickColor = packUintToRGBA8(meshIndex)");
+  }
+
+
+  protected vsPointsFilterLogicOpenBlock() {
     // const src = this._vertexSrcBuf;
     // const pointsMaterial = this._renderContext.view.pointsMaterial;
     // if (pointsMaterial.filterIntensity) {
@@ -655,14 +674,14 @@ export abstract class LayerRenderer {
     // }
   }
 
-  protected vertexPointsFilterLogicCloseBlock() {
+  protected vsPointsFilterLogicCloseBlock() {
     // const pointsMaterial = this._renderContext.view.pointsMaterial;
     // if (pointsMaterial.filterIntensity) {
     //   this._vertexSrcBuf.push("}");
     // }
   }
 
-  protected vertexPointsGeometryLogic() {
+  protected vsPointsGeometryLogic() {
     const src = this._vertexSrcBuf;
     const pointsMaterial = this._renderContext.view.pointsMaterial;
     // if (pointsMaterial.perspectivePoints) {
@@ -728,11 +747,11 @@ export abstract class LayerRenderer {
       "in vec4 vViewPos;");
   }
 
-  protected fragmentDrawDepthDefs() {
+  protected fsDrawDepthDefs() {
     this._fragmentSrcBuf.push("in vec2 vHighPrecisionZW;");
   }
 
-  protected fragmentDrawSAODefs() {
+  protected fsDrawSAODefs() {
     this._fragmentSrcBuf.push(
       "uniform sampler2D saoOcclusionTexture;",
       "uniform vec4      saoParams;",
@@ -745,7 +764,7 @@ export abstract class LayerRenderer {
   }
 
 
-  protected fragmentPickMeshDefs() {
+  protected fsPickMeshDefs() {
     this._fragmentSrcBuf.push(
       "in vec4 vPickColor;");
   }
@@ -811,7 +830,7 @@ export abstract class LayerRenderer {
       "    color = vColor;");
   }
 
-  protected fragmentDrawSAOLogic() {
+  protected fsDrawSAOLogic() {
     this._fragmentSrcBuf.push(
       "   float saoViewportWidth = saoParams[0];",
       "   float saoViewportHeight = saoParams[1];",
@@ -822,7 +841,7 @@ export abstract class LayerRenderer {
       "   color = vec4(color.rgb * saoAmbient, 1.0);");
   }
 
-  protected fragmentDrawDepthLogic() {
+  protected fsDrawDepthLogic() {
     this._fragmentSrcBuf.push(
       "    float depthFragCoordZ = 0.5 * vHighPrecisionZW[0] / vHighPrecisionZW[1] + 0.5;",
       "    color = vec4(vec3(1.0 - depthFragCoordZ), 1.0); ");
@@ -833,7 +852,7 @@ export abstract class LayerRenderer {
       "    color = vColor;");
   }
 
-  protected fragmentPickMeshLogic() {
+  protected fsPickMeshLogic() {
     this._fragmentSrcBuf.push(
       "    color = vPickColor;");
   }
@@ -855,7 +874,7 @@ export abstract class LayerRenderer {
     // src.push("  }");
   }
 
-  protected fragmentPointsGeometryLogic(): void {
+  protected fsPointsGeometryLogic(): void {
     //if (this._renderContext.view.pointsMaterial.roundPoints) {
     // const src = this._fragmentSrcBuf;
     // src.push("  vec2 cxy = 2.0 * gl_PointCoord - 1.0;");
@@ -869,14 +888,13 @@ export abstract class LayerRenderer {
   protected fsCommonOutput() {
     this._fragmentSrcBuf.push(
       "    outColor = color;"
-      //"    outColor= vec4(1.0, 0.0, 1.0, 1.0);"
     );
   }
 
   /**
    * Renders a _layer.
-   * @param layer The _layer to render, which contains the primitives and their attributes.
-   * @param renderPass The render pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
+   * @param layer The _layer to draw, which contains the primitives and their attributes.
+   * @param renderPass The draw pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
    */
   renderLayer( layer: RenderLayer, renderPass: RenderPassValue ): void {
     if (!this._program) {
@@ -886,7 +904,7 @@ export abstract class LayerRenderer {
       throw new Error("Invalid _layer provided.");
     }
     if (renderPass < 0) {
-      throw new Error("Invalid render pass provided.");
+      throw new Error("Invalid draw pass provided.");
     }
     if (!this._bind(renderPass)) {
       return;
@@ -913,7 +931,11 @@ export abstract class LayerRenderer {
     const dataTextures = this._gpuMemoryReadIF.dataTextures;
     const layerDataTextures = dataTextures.layers[layer.gpuLayerIndex];
 
-    bindTexture(samplers.tileViewMatrices, dataTextures.tileViewMatrices[view.viewIndex].texture); // TODO: Bind this texture once in _bind()
+    bindTexture(samplers.tileViewMatrices,
+      (this._renderContext.rayPicking
+          ? dataTextures.tileRayPickMatrices
+          : dataTextures.tileViewMatrices)
+            [view.viewIndex].texture); // TODO: Bind these textures once in _bind()
 
     bindTexture(samplers.primToMeshLookup, layerDataTextures.primToMeshLookup);
     bindTexture(samplers.positions, layerDataTextures.positions);
@@ -926,7 +948,7 @@ export abstract class LayerRenderer {
     bindTexture(samplers.edgeIndices, layerDataTextures.edgeIndices);
     bindTexture(samplers.indices, layerDataTextures.indices);
 
-    gl.uniform1i(this._uniforms.baseIndex, layer.baseIndex);
+    gl.uniform1i(this._uniforms.primBaseIndex, layer.primBaseIndex);
     gl.uniform1i(this._uniforms.primitiveType, layer.primitive); // TrianglesPrimitive, LinesPrimitive, PointsPrimitive
 
     switch (layer.primitive) {
@@ -947,7 +969,7 @@ export abstract class LayerRenderer {
 
   /**
    * Binds the shader program and sets up the necessary uniforms and textures for rendering.
-   * @param renderPass The render pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
+   * @param renderPass The draw pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
    * @private
    */
   private _bind( renderPass: RenderPassValue ): boolean {
@@ -1098,7 +1120,7 @@ export abstract class LayerRenderer {
     const program = this._program;
 
     this._uniforms = {
-      baseIndex: program.getLocation("uBaseIndex"),
+      primBaseIndex: program.getLocation("uPrimBaseIndex"),
       renderPass: program.getLocation("uRenderPass"),
       primitiveType: program.getLocation("uPrimitiveType"),
       gammaFactor: program.getLocation("uGammaFactor"),

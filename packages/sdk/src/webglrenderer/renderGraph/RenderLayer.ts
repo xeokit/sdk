@@ -13,7 +13,7 @@ export interface RenderLayer {
   /**
    * Base primitive tileIndex for this layer.
    */
-  baseIndex: number;
+  primBaseIndex: number;
 
   /**
    * Whether this layer supports Screen Space Ambient Occlusion (SSAO) rendering.
@@ -21,7 +21,7 @@ export interface RenderLayer {
   saoSupported: boolean;
 
   /**
-   * The total number of indices in all meshes of this layer. This is used with WebGL render calls to determine how many indices to render
+   * The total number of indices in all meshes of this layer. This is used with WebGL draw calls to determine how many indices to draw
    * when drawing this layer.
    */
   numIndices: number;

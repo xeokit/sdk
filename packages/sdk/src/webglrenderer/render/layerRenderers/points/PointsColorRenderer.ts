@@ -7,7 +7,7 @@ export class PointsColorRenderer extends LayerRenderer {
 
   buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
+    this.vsCommonDefs();
     this.vsDrawVertexColorDefs(); // Flat color definitions
     this.vsSlicingDefines();
     this.vsPointsDefines();

@@ -7,7 +7,7 @@ export class LinesSilhouetteRenderer extends LayerRenderer {
 
   buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
+    this.vsCommonDefs();
     this.vsSlicingDefines();
     this.vsSilhouetteDefines();
     this.vsSilhouetteMainOpen();

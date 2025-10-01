@@ -9,6 +9,7 @@ import {DataTextures} from "./DataTextures";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 import {GPUMemoryLayer} from "./GPUMemoryLayer";
 import {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
+import {View} from "../../viewer";
 
 
 /**
@@ -28,7 +29,6 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   private _layers: GPUMemoryLayer[] = [];
   private _maxLayers: number;
   private _renderContext: RenderContext;
-  private _tileViewMatrices: DTXMatrixArray[];
   private _maxTiles: number;
   private _tiles: TileManager;
   private _onTick: () => void;
@@ -63,21 +63,43 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
       ],
 
       /**
+       * Array of data textures, each containing tile pick matrices for specific views.
+       * These are global to all GPUMemoryLayer instances.
+       */
+      tileRayPickMatrices : [
+        new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
+        new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
+        new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
+        new DTXMatrixArray({gl, maxMatrices: this._maxTiles})
+      ],
+
+      /**
        *
        */
       layers: []
     };
 
-    this._tiles = new TileManager(gl, renderContext.viewer, this.dataTextures.tileViewMatrices);
+    this._tiles = new TileManager(gl, renderContext.viewer, this.dataTextures.tileViewMatrices, this.dataTextures.tileRayPickMatrices);
 
     this._onTick = renderContext.viewer.onTick.sub(()=>{
       for (let i = 0; i < 4; i++) {
         this.dataTextures.tileViewMatrices[i].flush();
+        this.dataTextures.tileRayPickMatrices[i].flush();
       }
       for (const layer of this._layers) {
         layer.flush();
       }
     });
+  }
+
+  /**
+   * Sets the pick matrix for a specific View. The pick matrix is substituted for the view matrix when
+   * we are picking along a ray in that View. Otherwise, the standard view matrix is used.
+   * @param view The target View.
+   * @param pickMatrix The pick matrix to set for the View.
+   */
+  setPickMatrix( view: View, pickMatrix: FloatArrayParam ): void {
+    this._tiles.setPickMatrix(view, pickMatrix);
   }
 
   /**
@@ -268,7 +290,8 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
       }
       return ref;
     };
-    this._tileViewMatrices = this._tileViewMatrices.map(clear);
+    this.dataTextures.tileViewMatrices = this.dataTextures.tileViewMatrices.map(clear);
+    this.dataTextures.tileRayPickMatrices = this.dataTextures.tileRayPickMatrices.map(clear);
     this._onTick();
   }
 }

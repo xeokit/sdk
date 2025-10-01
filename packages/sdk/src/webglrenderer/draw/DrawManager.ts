@@ -2,17 +2,18 @@ import {RENDER_PASSES} from "../renderGraph/RENDER_PASSES";
 import {WEBGL_INFO} from "../../webglutils";
 import {RenderContext} from "../RenderContext";
 import {RenderGraph} from "../renderGraph/RenderGraph";
-import {LayerRendererSet} from "./layerRenderers/LayerRendererSet";
+import {getLayerRendererSet, LayerRendererSet, putLayerRendererSet} from "../render/layerRenderers/LayerRendererSet";
 import {RendererViewImpl} from "../views/RendererViewImpl";
 import {GPUMemoryReadIF} from "../gpuMemory/GPUMemoryReadIF";
 import {RenderLayer} from "../renderGraph/RenderLayer";
 
+
 /**
  * Manages the drawing operations for WebGL rendering.
- * The `RenderManager` class handles rendering renderGraph, views, and extensions,
+ * The `DrawManager` class handles rendering renderGraph, views, and extensions,
  * ensuring proper GPU state and efficient rendering of opaque and transparent objects.
  */
-export class RenderManager {
+export class DrawManager {
 
   private _renderContext: RenderContext;
   private _renderGraph: RenderGraph;
@@ -22,16 +23,16 @@ export class RenderManager {
   private _alphaDepthMask: Boolean;
 
   /**
-   * Creates a RenderManager with the given rendering context, GPU read interface, and render graph.
+   * Creates a DrawManager with the given rendering context, GPU read interface, and draw graph.
    *
    * @param renderContext - The rendering context.
    * @param gpuMemoryReadIF - The GPU gpuMemory read interface. Provides data textures that contain model data to load into shaders.
-   * @param renderGraph - The render graph to render.
+   * @param renderGraph - The draw graph to draw.
    */
   constructor( renderContext: RenderContext, gpuMemoryReadIF: GPUMemoryReadIF, renderGraph: RenderGraph) {
     this._renderContext = renderContext;
     this._renderGraph = renderGraph;
-    this._layerRendererSet = new LayerRendererSet(this._renderContext, gpuMemoryReadIF);
+    this._layerRendererSet = getLayerRendererSet(this._renderContext, gpuMemoryReadIF);
     this._extensionHandles = {};
     this._logarithmicDepthBufferEnabled = false;
     this._alphaDepthMask = false;
@@ -54,7 +55,7 @@ export class RenderManager {
    * Renders the RenderGraph in the provided RendererViewImpl.
    * @param params
    */
-  render( params: {
+  draw(params: {
     rendererView: RendererViewImpl;
     clear: boolean;
   } ): void {
@@ -208,7 +209,7 @@ export class RenderManager {
       if (!this._alphaDepthMask) gl.depthMask(true);
     }
 
-    // Helper to clear depth and render silhouette + edges
+    // Helper to clear depth and draw silhouette + edges
     const drawSilAndEdges = (
       silBin: RenderLayer[],
       edgesBin: RenderLayer[],
@@ -252,6 +253,9 @@ export class RenderManager {
   }
 
   destroy() {
-    this._layerRendererSet.destroy();
+  if (this._layerRendererSet) {
+    putLayerRendererSet(this._layerRendererSet);
+    this._layerRendererSet = null;
+  }
   }
 }

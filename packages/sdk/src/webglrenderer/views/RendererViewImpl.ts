@@ -1,4 +1,4 @@
-import {View} from "../../viewer";
+import {PickParams, PickResult, View} from "../../viewer";
 import {RenderBufferManager} from "./RenderBufferManager";
 import {Map} from "../../utils";
 import {ViewManager} from "./ViewManager";
@@ -122,6 +122,11 @@ export class RendererViewImpl implements RendererView {
       this.viewManager.renderView(this, params);
       viewFlags.needsRender = false;
    // }
+  }
+
+  pick( params: PickParams, pickResult: PickResult ): void {
+    this.activate();
+    this.viewManager.pickView(this, params, pickResult);
   }
 
   clear() {

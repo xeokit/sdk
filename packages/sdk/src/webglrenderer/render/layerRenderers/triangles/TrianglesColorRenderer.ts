@@ -7,7 +7,7 @@ export class TrianglesColorRenderer extends LayerRenderer {
 
   buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
+    this.vsCommonDefs();
     this.vsSlicingDefines();
     this.vsDrawLambertDefs();
     this.vsDrawMainOpen();

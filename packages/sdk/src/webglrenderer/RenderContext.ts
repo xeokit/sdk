@@ -131,6 +131,8 @@ export class RenderContext {
    */
   public readonly viewFlags: ViewFlags[];
 
+  public  rayPicking: boolean;
+
   /**
    * Creates a new RenderContext.
    */
@@ -164,10 +166,11 @@ export class RenderContext {
     this.pickInvisible = false;
     this.lineWidth = 1;
     this.saoOcclusionTexture = null;
+    this.rayPicking = false;
   }
 
   /**
-   * Gets the next available texture unit for the current render pass.
+   * Gets the next available texture unit for the current draw pass.
    */
   get nextTextureUnit() {
     const textureUnit = this.textureUnit;

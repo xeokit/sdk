@@ -1,38 +1,30 @@
 import {LayerRenderer} from "../LayerRenderer";
 
 /**
- * Renderer for drawing lines with color in the `WebGLRenderer`.
- *
  * @private
  */
-export class LinesColorRenderer extends LayerRenderer {
+export class TrianglesPickMeshRenderer extends LayerRenderer {
 
-  /**
-   * Builds the vertex shader for rendering lines.
-   */
   buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefs();
-    this.vsDrawFlatColorDefs();
     this.vsSlicingDefines();
-    this.vsDrawMainOpen();
-    this.vsDrawFlatColorLogic(); // Flat color for lines
+    this.vsPickMeshDefs();
+    this.vsPickMainOpen();
+    this.vsPickMeshLogic();
     this.vsSlicingLogic();
     this.vsMainClose();
   }
 
-  /**
-   * Builds the fragment shader for rendering lines.
-   */
   buildFragmentShader(): void {
     this.fsHeader();
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsDrawFlatColorDefines();
+    this.fsPickMeshDefs();
     this.fsMainOpen();
     this.fsSlicingLogic();
-    this.fsDrawFlatColorLogic();
+    this.fsPickMeshLogic();
     this.fsCommonOutput();
     this.fsMainClose();
   }

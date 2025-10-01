@@ -5,11 +5,12 @@ import type {Renderer, Viewer} from "../viewer";
 import {EventDispatcher} from "strongly-typed-events";
 import {RenderContext} from "./RenderContext";
 import {ViewManager} from "./views/ViewManager";
-import {RenderManager} from "./render/RenderManager";
+import {DrawManager} from "./draw/DrawManager";
 import {RenderGraph} from "./renderGraph/RenderGraph";
 import type {GPUMemoryReadIF} from "./gpuMemory/GPUMemoryReadIF";
 import type {GPUMemoryWriteIF} from "./gpuMemory/GPUMemoryWriteIF";
 import {GPUMemory} from "./gpuMemory/GPUMemory";
+import {PickManager} from "./pick/PickManager";
 
 /**
  * WebGL rendering strategy for a Viewer.
@@ -17,8 +18,10 @@ import {GPUMemory} from "./gpuMemory/GPUMemory";
  * See {@link "webglrenderer" | @xeokit/webglrenderer} for usage.
  */
 export class WebGLRenderer implements Renderer {
+
   private _viewManager!: ViewManager;
-  private _renderManager!: RenderManager;
+  private _drawManager!: DrawManager;
+  private _pickManager!: PickManager;
   private _renderGraph!: RenderGraph;
   private _gpuMemory!: GPUMemory;
 
@@ -32,7 +35,11 @@ export class WebGLRenderer implements Renderer {
 
   private _unsubscribeViewerDestroyed: (() => void)|null = null;
 
+  /**
+   * Constructs a new WebGLRenderer.
+   */
   constructor() {
+
     this.onDestroyed = new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>());
 
     const {canvas, gl} = WebGLRenderer._createCanvasAndGL();
@@ -111,16 +118,21 @@ export class WebGLRenderer implements Renderer {
     });
 
     this._renderContext = new RenderContext(viewer, this._gl, this._webglCanvasElement);
-
     this._gpuMemory = new GPUMemory(this._renderContext);
-
     this._renderGraph = new RenderGraph(this._renderContext, this._gpuMemory as GPUMemoryWriteIF);
+    this._drawManager = new DrawManager(this._renderContext, this._gpuMemory as GPUMemoryReadIF, this._renderGraph);
+    this._pickManager = new PickManager({
+      renderContext: this._renderContext,
+      renderGraph: this._renderGraph,
+      viewManager: this._viewManager,
+      gpuMemory: this._gpuMemory
+    });
 
-    this._renderManager = new RenderManager(this._renderContext, this._gpuMemory as GPUMemoryReadIF, this._renderGraph);
+    // The ViewManager attaches RendererView instances to the Views, to which the Views can delegate drawing
+    // and picking to the draw and pick managers. The Views and their RendererViews are what drives the
+    // WebGLRenderer to perform drawing and picking.
 
-    this._viewManager = new ViewManager(this._renderContext, this._renderManager);
-
-    // this._pickManager = new PickManager({ renderContext: this._renderContext, renderGraph: this._renderGraph, viewManager: this._viewManager });
+    this._viewManager = new ViewManager(this._renderContext, this._drawManager, this._pickManager);
   }
 
   /** The Viewer this WebGLRenderer is currently attached to, if any. */
@@ -133,7 +145,9 @@ export class WebGLRenderer implements Renderer {
    * @internal
    */
   detachViewer(): void {
-    if (!this._renderContext) return;
+    if (!this._renderContext) {
+      return;
+    }
 
     // Unsubscribe
     this._unsubscribeViewerDestroyed?.();
@@ -141,20 +155,26 @@ export class WebGLRenderer implements Renderer {
 
     // Destroy in reverse order of construction
     this._viewManager?.destroy();
+    this._pickManager?.destroy();
+    this._drawManager?.destroy();
     this._renderGraph?.destroy();
-    this._renderManager?.destroy();
-    // this._pickManager?.destroy();
     this._gpuMemory?.destroy();
 
+    this._pickManager = undefined as unknown as PickManager;
     this._viewManager = undefined as unknown as ViewManager;
+    this._drawManager = undefined as unknown as DrawManager;
     this._renderGraph = undefined as unknown as RenderGraph;
-    this._renderManager = undefined as unknown as RenderManager;
     this._gpuMemory = undefined as unknown as GPUMemory;
     this._renderContext = null;
   }
 
+  /**
+   * Destroys this WebGLRenderer.
+   */
   destroy(): void {
-    if (this._destroyed) return;
+    if (this._destroyed) {
+      return;
+    }
     this.detachViewer();
     this._destroyed = true;
     this.onDestroyed.dispatch(this, true);

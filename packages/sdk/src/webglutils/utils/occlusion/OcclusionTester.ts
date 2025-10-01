@@ -128,7 +128,7 @@
 //     }
 //
 //     /**
-//      * Binds the render _buffer. After calling this, the caller then renders object silhouettes to the render _buffer,
+//      * Binds the draw _buffer. After calling this, the caller then renders object silhouettes to the draw _buffer,
 //      * then calls drawMarkers() and doOcclusionTest().
 //      */
 //     bindRenderBuf() {
@@ -302,7 +302,7 @@
 //     }
 //
 //     /**
-//      * Draws {@link Marker}s to the render _buffer.
+//      * Draws {@link Marker}s to the draw _buffer.
 //      */
 //     drawMarkers() {
 //
@@ -362,7 +362,7 @@
 //     }
 //
 //     /**
-//      * Sets visibilities of {@link Marker}s according to whether or not they are obscured by anything in the render _buffer.
+//      * Sets visibilities of {@link Marker}s according to whether or not they are obscured by anything in the draw _buffer.
 //      */
 //     doOcclusionTest() {
 //
@@ -392,7 +392,7 @@
 //     }
 //
 //     /**
-//      * Unbinds render _buffer.
+//      * Unbinds draw _buffer.
 //      */
 //     unbindRenderBuf() {
 //         if (!TEST_MODE) {

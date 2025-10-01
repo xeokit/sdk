@@ -7,7 +7,7 @@ export class TrianglesSilhouetteRenderer extends LayerRenderer {
 
   buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefines();
+    this.vsCommonDefs();
     this.vsSlicingDefines();
     this.vsSilhouetteDefines();
     this.vsDrawMainOpen();

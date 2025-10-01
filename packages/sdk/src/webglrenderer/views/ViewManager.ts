@@ -1,9 +1,10 @@
 import {RenderContext} from "../RenderContext";
-import {View} from "../../viewer";
+import {PickParams, View} from "../../viewer";
 import {SDKError} from "../../core";
 import {RendererViewImpl} from "./RendererViewImpl";
-import {RenderManager} from "../render/RenderManager";
+import {DrawManager} from "../draw/DrawManager";
 import {RendererView} from "../../viewer/RendererView";
+import {PickManager} from "../pick/PickManager";
 
 /**
  * Manages the views in the WebGLRenderer.
@@ -16,14 +17,16 @@ export class ViewManager {
   private _rendererViews: Record<string, RendererViewImpl> = {};
   private _rendererViewsList: RendererViewImpl[] = [];
   private _activeView: RendererViewImpl;
-  private _renderManager: RenderManager;
+  private _drawManager: DrawManager;
+  private _pickManager: PickManager;
 
   /**
    * Initializes the ViewManager with the given rendering context.
    */
-  constructor( renderContext: RenderContext, drawManager: RenderManager ) {
+  constructor( renderContext: RenderContext, drawManager: DrawManager, pickManager: PickManager ) {
     this._renderContext = renderContext;
-    this._renderManager = drawManager;
+    this._drawManager = drawManager;
+    this._pickManager = pickManager;
     const viewer = renderContext.viewer;
     for (let viewIndex = 0; viewIndex < viewer.numViews; viewIndex++) {
       this._addView(viewer.viewList[viewIndex]);
@@ -88,7 +91,7 @@ export class ViewManager {
       });
       primarySnapshotBuffer.bind();
       primarySnapshotBuffer.clear();
-      this._renderManager.render({rendererView, clear: true});
+      this._drawManager.draw({rendererView, clear: true});
       const image = primarySnapshotBuffer.readImage({
         format: "png",
         height: activeCanvasBoundingRect.height,
@@ -123,11 +126,19 @@ export class ViewManager {
   }
 
   /**
-   * Called by RendererViewImpl.render() to render itself.
+   * Called by RendererViewImpl.draw() to draw itself.
    * @internal
    */
   renderView( rendererView: RendererViewImpl, params?: {force?: boolean; opaqueOnly?: boolean} ): void {
-    this._renderManager.render({rendererView, clear: true});
+    this._drawManager.draw({rendererView, clear: true});
+  }
+
+  /**
+   * Called by RendererViewImpl.draw() to draw itself.
+   * @internal
+   */
+  pickView( rendererView: RendererViewImpl, params?: PickParams ): void {
+    this._pickManager.pick({rendererView, clear: true});
   }
 
   /**

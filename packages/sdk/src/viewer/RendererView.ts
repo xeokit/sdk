@@ -1,7 +1,9 @@
-
 /**
  * Interface through which a {@link viewer!View | View} interacts with its {@link viewer!Renderer | Renderer}
  */
+import {PickParams} from "./PickParams";
+import {PickResult} from "./PickResult";
+
 export interface RendererView {
 
   /**
@@ -57,11 +59,9 @@ export interface RendererView {
    * Performs object picking within a View.
    *
    * @param pickParams Picking parameters.
-   * @param pickResult Optional pre-allocated PickResult.
-   * @returns A {@link PickResult} or if object successfully picked.
-   * @returns null if nothing picked.
+   * @param pickResult Picking result.
    */
-  // pick(pickParams: PickParams, pickResult?: PickResult): PickResult | null | SDKError;
+   pick(pickParams: PickParams, pickResult?: PickResult);
 
   /**
    * Begins snapshot mode for the given View.

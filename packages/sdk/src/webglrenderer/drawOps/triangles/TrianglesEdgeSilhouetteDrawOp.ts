@@ -1,11 +1,17 @@
-import {LayerRenderer} from "../LayerRenderer";
+import {DrawOp} from "../DrawOp";
+import {RenderContext} from "../../RenderContext";
+import {GPUMemoryBatch} from "../../gpuMemory/GPUMemoryBatch";
 
 /**
  * @private
  */
-export class LinesSilhouetteRenderer extends LayerRenderer {
+export class TrianglesEdgeSilhouetteDrawOp extends DrawOp {
 
-  buildVertexShader(): void {
+  constructor(renderContext: RenderContext, dtxMemory:GPUMemoryBatch) {
+    super(renderContext, dtxMemory, { edges: true });
+  }
+
+  protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefs();
     this.vsSlicingDefines();
@@ -16,7 +22,7 @@ export class LinesSilhouetteRenderer extends LayerRenderer {
     this.vsMainClose();
   }
 
-  buildFragmentShader(): void {
+  protected buildFragmentShader(): void {
     this.fsHeader();
     this.fsPrecisionDefines();
     this.fsCommonDefines();

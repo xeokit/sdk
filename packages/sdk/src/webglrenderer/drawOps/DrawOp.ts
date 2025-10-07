@@ -1,73 +1,27 @@
-import {WEBGL_INFO, WebGLProgram} from "../../../webglutils";
-import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
-import {RENDER_PASSES} from "../../renderGraph/RENDER_PASSES";
-import type {RenderContext} from "../../RenderContext";
-import {type GPUMemoryReadIF} from "../../gpuMemory/GPUMemoryReadIF";
-import {RenderLayer} from "../../renderGraph/RenderLayer";
+import {WEBGL_INFO, WebGLProgram} from "../../webglutils";
+import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive} from "../../constants";
+import {RENDER_PASSES} from "../drawBatches/RENDER_PASSES";
+import type {RenderContext} from "../RenderContext";
+import {type GPUMemoryReadIF} from "../gpuMemory/GPUMemoryReadIF";
+import {DrawBatch} from "../drawBatches/DrawBatch";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 
 export type RenderPassValue = typeof RENDER_PASSES[keyof typeof RENDER_PASSES];
 
 /**
- * Abstract base class for rendering renderGraph in a WebGL context.
+ * Abstract base class for drawing batches in a WebGL context.
  *
- * Provides a foundation for implementing rendering techniques for primitives (e.g., triangles, lines, points).
- * Manages shader construction, WebGL program binding, and rendering logic. Designed for subclassing.
+ * Provides a foundation for implementing various drawing techniques (e.g. color, highlighted, selected) for
+ * primitives (e.g., triangles, lines, points). Manages shader construction, WebGL program binding, and rendering
+ * logic. Designed for subclassing.
  *
- * ### Key Features:
- * - **Dynamic Shaders**: Subclasses define vertex/fragment shader construction.
- * - **Hash-Based Configurations**: Tracks unique renderer configurations.
- * - **WebGL Integration**: Manages uniforms, attributes, and textures.
+ * Subclass Requirements:
  *
- * ### Subclass Requirements:
  * - `buildVertexShader()`: Constructs vertex shader code.
  * - `buildFragmentShader()`: Constructs fragment shader code.
- *
- * ### Lifecycle:
- * 1. **Initialization**: Builds WebGL program and initializes resources.
- * 2. **Validation**: Ensures renderer validity with `getValid()`.
- * 3. **Binding**: Prepares WebGL state with `bind()`.
- * 4. **Rendering**: Executes rendering logic with `renderLayer()`.
- * 5. **Cleanup**: Releases resources with `destroy()`.
- *
- * Data textures (DTX) in this renderer
- * ------------------------------------
- * We avoid VBO attribute streams and instead fetch all per-render data from textures
- * with texelFetch(). A 1D logical tileIndex is mapped into 2D texel coords using a fixed
- * width (texWidth = 4096): x = base % 4096, y = base / 4096.
- *
- * Integer data is stored in INTEGER textures and fetched via `usampler2D` so values
- * are NOT normalized. Float data (matrices/colors/scales) uses `sampler2D`.
- *
- * Textures and roles:
- * - uPrimToMeshLookup (usampler2D): u32 mesh tileIndex per primitive (packed in RGBA bytes).
- * - uIndices / edgeIndicesTex (usampler2D): connectivity indices (u32 packed RGBA).
- * - uPositions (usampler2D): quantized vertex positions; one texel per vertex, RGB = X,Y,Z
- *   (e.g., RGBA16UI with A unused). Dequant in VS: offset + scale * vec3(q.rgb).
- * - geometryAttribs (sampler2D): per-geometry dequant params (vec3 offset/scale) and
- *   vertexBase (when stored as u32, fetch from an integer page or pack/unpack accordingly).
- * - uMeshAttribs (sampler2D): per-mesh view flags/color and indices to other tables.
- * - uMeshMatrices / tileViewMatrices (sampler2D): model/view mat4 packed as 4 vec4 texels,
- *   atlas-organized with matsPerRow for addressing.
- *
- * Vertex shader flow:
- *   primIndex = gl_VertexID / 3
- *   meshIndex = getMeshIndex(uBaseIndex + primIndex)
- *   meshAttrs = getMeshAttribs(meshIndex)
- *   vertexIndex = getVertexIndex(meshAttrs.indicesBase + primIndex)
- *   qPos      = texelFetch(uPositions, uv(vertexIndex), 0).rgb  // integer RGB
- *   geomAttrs = getGeometryAttribs(meshAttrs.geometryIndex)
- *   modelPos  = vec4(geomAttrs.dequantizeOffset + geomAttrs.dequantizeScale * vec3(qPos), 1.0)
- *   worldPos  = modelMatrix(meshIndex) * modelPos
- *   viewPos   = tileViewMatrix(meshAttrs.tileIndex) * worldPos
- *   gl_Position = uProjMatrix * viewPos
- *
- * Why textures:
- * - Scales to huge scenes; updates are partial via texSubImage2D.
- * - Avoids large/fragmented VBOs; all addressing is done in-shader with texelFetch().
  */
-export abstract class LayerRenderer {
+export abstract class DrawOp {
 
   private _renderContext: RenderContext;
   private _gpuMemoryReadIF: GPUMemoryReadIF;
@@ -152,18 +106,96 @@ export abstract class LayerRenderer {
   }
 
   /**
+   * Draw a batch.
+   * This is the only public method on DrawOp.
+   *
+   * @param batch The batch to draw, which contains the primitives and their attributes.
+   * @param renderPass The render pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
+   */
+  public draw(batch: DrawBatch, renderPass: RenderPassValue ): void {
+    if (!this._program) {
+      throw new Error("Shader program is not initialized.");
+    }
+    if (!batch) {
+      throw new Error("Invalid batch provided.");
+    }
+    if (renderPass < 0) {
+      throw new Error("Invalid render pass provided.");
+    }
+    if (!this._bind(renderPass)) {
+      return;
+    }
+
+    const renderContext = this._renderContext;
+    const view = renderContext.view;
+    const gl = this._renderContext.gl;
+
+    renderContext.textureUnit = 0;
+
+    const bindTexture = ( sampler, texture ) => {
+      if (!sampler || !texture) {
+        return;
+      }
+
+      gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.uniform1i(sampler, renderContext.textureUnit);
+      renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+    }
+
+    const samplers = this._samplers;
+    const dataTextures = this._gpuMemoryReadIF.dataTextures;
+    const batchDataTextures = dataTextures.batches[batch.gpuMemoryBatchIndex];
+
+    bindTexture(samplers.tileViewMatrices,
+        (this._renderContext.rayPicking
+            ? dataTextures.tileRayPickMatrices
+            : dataTextures.tileViewMatrices)
+            [view.viewIndex].texture); // TODO: Bind these textures once in _bind()
+
+    bindTexture(samplers.primToMeshLookup, batchDataTextures.primToMeshLookup);
+    bindTexture(samplers.positions, batchDataTextures.positions);
+    bindTexture(samplers.vertexColors, batchDataTextures.vertexColors);
+    bindTexture(samplers.meshMatrices, batchDataTextures.meshMatrices);
+    bindTexture(samplers.meshAttribs, batchDataTextures.meshAttribs);
+    bindTexture(samplers.meshViewAttribs, batchDataTextures.meshViewAttribs[view.viewIndex]);
+    bindTexture(samplers.geometryAttribs, batchDataTextures.geometryAttribs);
+    bindTexture(samplers.geometryQuantRanges, batchDataTextures.geometryQuantRanges);
+    bindTexture(samplers.edgeIndices, batchDataTextures.edgeIndices);
+    bindTexture(samplers.indices, batchDataTextures.indices);
+
+    gl.uniform1i(this._uniforms.primBaseIndex, batch.primBaseIndex);
+    gl.uniform1i(this._uniforms.primitiveType, batch.primitive); // TrianglesPrimitive, LinesPrimitive, PointsPrimitive
+
+    switch (batch.primitive) {
+      case TrianglesPrimitive:
+        gl.drawArrays(gl.TRIANGLES, 0, batch.numIndices);
+        break;
+      case LinesPrimitive:
+        gl.drawArrays(gl.LINES, 0, batch.numIndices);
+        break;
+      case PointsPrimitive:
+        gl.drawArrays(gl.POINTS, 0, batch.numVertices);
+        break;
+      default:
+        console.error(`Unsupported Batch primitive type: ${batch.primitive}`);
+    }
+    // TODO: Add support for drawing only a portion of the indices?
+  }
+
+  /**
    * Abstract method to build the vertex shader source code.
    * Subclasses must implement this method to define the fragment shader logic
    * based on their specific rendering requirements.
    */
-  abstract buildVertexShader();
+  protected abstract buildVertexShader();
 
   /**
    * Abstract method to build the fragment shader source code.
    * Subclasses must implement this method to define the fragment shader logic
    * based on their specific rendering requirements.
    */
-  abstract buildFragmentShader();
+  protected abstract buildFragmentShader();
 
   /**
    * Inserts a line of custom vertex shader code into the generated vertex shader source.
@@ -182,7 +214,7 @@ export abstract class LayerRenderer {
         `// ${this.constructor.name} vertex shader`);
   }
 
-  vsDebugMain() {
+  protected vsDebugMain() {
     this._vertexSrcBuf.push(
       `void main(void) {
         vec2 p;
@@ -889,82 +921,6 @@ export abstract class LayerRenderer {
     this._fragmentSrcBuf.push(
       "    outColor = color;"
     );
-  }
-
-  /**
-   * Renders a _layer.
-   * @param layer The _layer to draw, which contains the primitives and their attributes.
-   * @param renderPass The draw pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
-   */
-  renderLayer( layer: RenderLayer, renderPass: RenderPassValue ): void {
-    if (!this._program) {
-      throw new Error("Shader program is not initialized.");
-    }
-    if (!layer) {
-      throw new Error("Invalid _layer provided.");
-    }
-    if (renderPass < 0) {
-      throw new Error("Invalid draw pass provided.");
-    }
-    if (!this._bind(renderPass)) {
-      return;
-    }
-
-    const renderContext = this._renderContext;
-    const view = renderContext.view;
-    const gl = this._renderContext.gl;
-
-    renderContext.textureUnit = 0;
-
-    const bindTexture = ( sampler, texture ) => {
-      if (!sampler || !texture) {
-        return;
-      }
-
-      gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.uniform1i(sampler, renderContext.textureUnit);
-      renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
-    }
-
-    const samplers = this._samplers;
-    const dataTextures = this._gpuMemoryReadIF.dataTextures;
-    const layerDataTextures = dataTextures.layers[layer.gpuLayerIndex];
-
-    bindTexture(samplers.tileViewMatrices,
-      (this._renderContext.rayPicking
-          ? dataTextures.tileRayPickMatrices
-          : dataTextures.tileViewMatrices)
-            [view.viewIndex].texture); // TODO: Bind these textures once in _bind()
-
-    bindTexture(samplers.primToMeshLookup, layerDataTextures.primToMeshLookup);
-    bindTexture(samplers.positions, layerDataTextures.positions);
-    bindTexture(samplers.vertexColors, layerDataTextures.vertexColors);
-    bindTexture(samplers.meshMatrices, layerDataTextures.meshMatrices);
-    bindTexture(samplers.meshAttribs, layerDataTextures.meshAttribs);
-    bindTexture(samplers.meshViewAttribs, layerDataTextures.meshViewAttribs[view.viewIndex]);
-    bindTexture(samplers.geometryAttribs, layerDataTextures.geometryAttribs);
-    bindTexture(samplers.geometryQuantRanges, layerDataTextures.geometryQuantRanges);
-    bindTexture(samplers.edgeIndices, layerDataTextures.edgeIndices);
-    bindTexture(samplers.indices, layerDataTextures.indices);
-
-    gl.uniform1i(this._uniforms.primBaseIndex, layer.primBaseIndex);
-    gl.uniform1i(this._uniforms.primitiveType, layer.primitive); // TrianglesPrimitive, LinesPrimitive, PointsPrimitive
-
-    switch (layer.primitive) {
-      case TrianglesPrimitive:
-        gl.drawArrays(gl.TRIANGLES, 0, layer.numIndices);
-        break;
-      case LinesPrimitive:
-        gl.drawArrays(gl.LINES, 0, layer.numIndices);
-        break;
-      case PointsPrimitive:
-        gl.drawArrays(gl.POINTS, 0, layer.numVertices);
-        break;
-      default:
-        console.error(`Unsupported Layer primitive type: ${layer.primitive}`);
-    }
-    // TODO: Add support for drawing only a portion of the indices?
   }
 
   /**

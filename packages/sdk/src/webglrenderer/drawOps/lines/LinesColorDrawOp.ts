@@ -1,16 +1,16 @@
-import {LayerRenderer} from "../LayerRenderer";
+import {DrawOp} from "../DrawOp";
 
 /**
  * Renderer for drawing lines with color in the `WebGLRenderer`.
  *
  * @private
  */
-export class LinesColorRenderer extends LayerRenderer {
+export class LinesColorDrawOp extends DrawOp {
 
   /**
    * Builds the vertex shader for rendering lines.
    */
-  buildVertexShader(): void {
+  protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefs();
     this.vsDrawFlatColorDefs();
@@ -24,7 +24,7 @@ export class LinesColorRenderer extends LayerRenderer {
   /**
    * Builds the fragment shader for rendering lines.
    */
-  buildFragmentShader(): void {
+  protected buildFragmentShader(): void {
     this.fsHeader();
     this.fsPrecisionDefines();
     this.fsCommonDefines();

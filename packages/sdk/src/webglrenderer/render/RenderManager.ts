@@ -1,23 +1,23 @@
-import {RENDER_PASSES} from "../renderGraph/RENDER_PASSES";
+import {RENDER_PASSES} from "../drawBatches/RENDER_PASSES";
 import {WEBGL_INFO} from "../../webglutils";
 import {RenderContext} from "../RenderContext";
-import {RenderGraph} from "../renderGraph/RenderGraph";
-import {getLayerRendererSet, LayerRendererSet, putLayerRendererSet} from "../render/layerRenderers/LayerRendererSet";
+import {DrawBatchSet} from "../drawBatches/DrawBatchSet";
+import {getPrimitiveDrawOps, PrimitiveDrawOps, putPrimitiveDrawOps} from "../drawOps/PrimitiveDrawOps";
 import {RendererViewImpl} from "../views/RendererViewImpl";
 import {GPUMemoryReadIF} from "../gpuMemory/GPUMemoryReadIF";
-import {RenderLayer} from "../renderGraph/RenderLayer";
+import {DrawBatch} from "../drawBatches/DrawBatch";
 
 
 /**
  * Manages the drawing operations for WebGL rendering.
- * The `DrawManager` class handles rendering renderGraph, views, and extensions,
+ * The `DrawManager` class handles rendering drawBatchSet, views, and extensions,
  * ensuring proper GPU state and efficient rendering of opaque and transparent objects.
  */
-export class DrawManager {
+export class RenderManager {
 
   private _renderContext: RenderContext;
-  private _renderGraph: RenderGraph;
-  private _layerRendererSet: LayerRendererSet;
+  private _drawBatchSet: DrawBatchSet;
+  private _primDrawOps: PrimitiveDrawOps;
   private _extensionHandles: any;
   private _logarithmicDepthBufferEnabled: boolean;
   private _alphaDepthMask: Boolean;
@@ -27,12 +27,12 @@ export class DrawManager {
    *
    * @param renderContext - The rendering context.
    * @param gpuMemoryReadIF - The GPU gpuMemory read interface. Provides data textures that contain model data to load into shaders.
-   * @param renderGraph - The draw graph to draw.
+   * @param drawBatchSet - The draw graph to draw.
    */
-  constructor( renderContext: RenderContext, gpuMemoryReadIF: GPUMemoryReadIF, renderGraph: RenderGraph) {
+  constructor( renderContext: RenderContext, gpuMemoryReadIF: GPUMemoryReadIF, drawBatchSet: DrawBatchSet) {
     this._renderContext = renderContext;
-    this._renderGraph = renderGraph;
-    this._layerRendererSet = getLayerRendererSet(this._renderContext, gpuMemoryReadIF);
+    this._drawBatchSet = drawBatchSet;
+    this._primDrawOps = getPrimitiveDrawOps(this._renderContext, gpuMemoryReadIF);
     this._extensionHandles = {};
     this._logarithmicDepthBufferEnabled = false;
     this._alphaDepthMask = false;
@@ -55,7 +55,7 @@ export class DrawManager {
    * Renders the RenderGraph in the provided RendererViewImpl.
    * @param params
    */
-  draw(params: {
+  render(params: {
     rendererView: RendererViewImpl;
     clear: boolean;
   } ): void {
@@ -66,25 +66,25 @@ export class DrawManager {
     const viewIndex = view.viewIndex;
     const gl = this._renderContext.gl;
     const ctx = this._renderContext;
-    const primRenderers = this._layerRendererSet.prims;
+    const primDrawOps = this._primDrawOps.prims;
 
     const bins = {
-      normalDrawSAO: [] as RenderLayer[],
-      edgesColorOpaque: [] as RenderLayer[],
-      normalFillTransparent: [] as RenderLayer[],
-      edgesColorTransparent: [] as RenderLayer[],
-      xrayedSilhouetteOpaque: [] as RenderLayer[],
-      xrayEdgesOpaque: [] as RenderLayer[],
-      xrayedSilhouetteTransparent: [] as RenderLayer[],
-      xrayEdgesTransparent: [] as RenderLayer[],
-      highlightedSilhouetteOpaque: [] as RenderLayer[],
-      highlightedEdgesOpaque: [] as RenderLayer[],
-      highlightedSilhouetteTransparent: [] as RenderLayer[],
-      highlightedEdgesTransparent: [] as RenderLayer[],
-      selectedSilhouetteOpaque: [] as RenderLayer[],
-      selectedEdgesOpaque: [] as RenderLayer[],
-      selectedSilhouetteTransparent: [] as RenderLayer[],
-      selectedEdgesTransparent: [] as RenderLayer[]
+      normalDrawSAO: [] as DrawBatch[],
+      edgesColorOpaque: [] as DrawBatch[],
+      normalFillTransparent: [] as DrawBatch[],
+      edgesColorTransparent: [] as DrawBatch[],
+      xrayedSilhouetteOpaque: [] as DrawBatch[],
+      xrayEdgesOpaque: [] as DrawBatch[],
+      xrayedSilhouetteTransparent: [] as DrawBatch[],
+      xrayEdgesTransparent: [] as DrawBatch[],
+      highlightedSilhouetteOpaque: [] as DrawBatch[],
+      highlightedEdgesOpaque: [] as DrawBatch[],
+      highlightedSilhouetteTransparent: [] as DrawBatch[],
+      highlightedEdgesTransparent: [] as DrawBatch[],
+      selectedSilhouetteOpaque: [] as DrawBatch[],
+      selectedEdgesOpaque: [] as DrawBatch[],
+      selectedSilhouetteTransparent: [] as DrawBatch[],
+      selectedEdgesTransparent: [] as DrawBatch[]
     };
 
     ctx.reset();
@@ -113,10 +113,10 @@ export class DrawManager {
     const slMat = view.selectedMaterial;
     const xrMat = view.xrayMaterial;
 
-    const layers = this._renderGraph.layers;
-    for (let i = 0, len = layers.length; i < len; i++) {
-      const layer = layers[i];
-      const counts = layer.meshCounts[viewIndex];
+    const batches = this._drawBatchSet.batches;
+    for (let i = 0, len = batches.length; i < len; i++) {
+      const batch = batches[i];
+      const counts = batch.meshCounts[viewIndex];
 
       if (counts.numVisible === 0 || counts.numCulled === counts.numMeshes) continue;
 
@@ -127,24 +127,24 @@ export class DrawManager {
       const sl = counts.numSelected > 0;
 
       if (opaque) {
-        if (drawWithSAO && layer.saoSupported) bins.normalDrawSAO.push(layer);
+        if (drawWithSAO && batch.saoSupported) bins.normalDrawSAO.push(batch);
         else {
-          primRenderers[layer.primitive]?.color.renderLayer(layer, RENDER_PASSES.DRAW_OPAQUE);
+          primDrawOps[batch.primitive]?.color.draw(batch, RENDER_PASSES.DRAW_OPAQUE);
         }
       }
 
-      if (rendererView.transparentEnabled && trans) bins.normalFillTransparent.push(layer);
+      if (rendererView.transparentEnabled && trans) bins.normalFillTransparent.push(batch);
 
-      if (xr && xrMat.fill) (xrMat.fillAlpha < 1.0 ? bins.xrayedSilhouetteTransparent : bins.xrayedSilhouetteOpaque).push(layer);
-      if (hl && hlMat.fill) (hlMat.fillAlpha < 1.0 ? bins.highlightedSilhouetteTransparent : bins.highlightedSilhouetteOpaque).push(layer);
-      if (sl && slMat.fill) (slMat.fillAlpha < 1.0 ? bins.selectedSilhouetteTransparent : bins.selectedSilhouetteOpaque).push(layer);
+      if (xr && xrMat.fill) (xrMat.fillAlpha < 1.0 ? bins.xrayedSilhouetteTransparent : bins.xrayedSilhouetteOpaque).push(batch);
+      if (hl && hlMat.fill) (hlMat.fillAlpha < 1.0 ? bins.highlightedSilhouetteTransparent : bins.highlightedSilhouetteOpaque).push(batch);
+      if (sl && slMat.fill) (slMat.fillAlpha < 1.0 ? bins.selectedSilhouetteTransparent : bins.selectedSilhouetteOpaque).push(batch);
 
       if (rendererView.edgesEnabled && edgeMat.applied) {
-        if (opaque) bins.edgesColorOpaque.push(layer);
-        if (trans) bins.edgesColorTransparent.push(layer);
-        (slMat.edgeAlpha < 1.0 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(layer);
-        if (xr) (xrMat.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(layer);
-        (hlMat.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(layer);
+        if (opaque) bins.edgesColorOpaque.push(batch);
+        if (trans) bins.edgesColorTransparent.push(batch);
+        (slMat.edgeAlpha < 1.0 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(batch);
+        if (xr) (xrMat.edgeAlpha < 1.0 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(batch);
+        (hlMat.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(batch);
       }
     }
 
@@ -153,16 +153,16 @@ export class DrawManager {
       //  renderers?.colorSAOOpaqueRenderer.bins.normalDrawSAO[i].drawColorSAOOpaque();
     }
     for (let i = 0; i < bins.edgesColorOpaque.length; i++) {
-      const layer = bins.edgesColorOpaque[i]
-      primRenderers[layer.primitive].colorEdges?.renderLayer(layer, RENDER_PASSES.DRAW_OPAQUE);
+      const batch = bins.edgesColorOpaque[i]
+      primDrawOps[batch.primitive].colorEdges?.draw(batch, RENDER_PASSES.DRAW_OPAQUE);
     }
     for (let i = 0; i < bins.xrayedSilhouetteOpaque.length; i++) {
-      const layer = bins.xrayedSilhouetteOpaque[i]
-      primRenderers[layer.primitive].silhouette?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+      const batch = bins.xrayedSilhouetteOpaque[i]
+      primDrawOps[batch.primitive].silhouette?.draw(batch, RENDER_PASSES.SILHOUETTE_XRAYED);
     }
     for (let i = 0; i < bins.xrayEdgesOpaque.length; i++) {
-      const layer = bins.xrayEdgesOpaque[i]
-      primRenderers[layer.primitive].silhouetteEdges?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+      const batch = bins.xrayEdgesOpaque[i]
+      primDrawOps[batch.primitive].silhouetteEdges?.draw(batch, RENDER_PASSES.SILHOUETTE_XRAYED);
     }
     //  for (let i = 0; i < bins.xrayEdgesOpaque.length; i++) bins.xrayEdgesOpaque[i].drawEdgesXRayed();
 
@@ -185,24 +185,24 @@ export class DrawManager {
       ctx.backfaces = false;
       if (!this._alphaDepthMask) gl.depthMask(false);
 
-      for (const layer of bins.xrayEdgesTransparent) {
-        primRenderers[layer.primitive].silhouetteEdges?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+      for (const batch of bins.xrayEdgesTransparent) {
+        primDrawOps[batch.primitive].silhouetteEdges?.draw(batch, RENDER_PASSES.SILHOUETTE_XRAYED);
       }
 
-      for (const layer of bins.xrayedSilhouetteTransparent) {
-        primRenderers[layer.primitive].silhouetteEdges?.renderLayer(layer, RENDER_PASSES.SILHOUETTE_XRAYED);
+      for (const batch of bins.xrayedSilhouetteTransparent) {
+        primDrawOps[batch.primitive].silhouetteEdges?.draw(batch, RENDER_PASSES.SILHOUETTE_XRAYED);
       }
 
       if (bins.edgesColorTransparent.length || bins.normalFillTransparent.length) {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       }
 
-      for (const layer of bins.edgesColorTransparent) {
-        primRenderers[layer.primitive].colorEdges?.renderLayer(layer, RENDER_PASSES.DRAW_TRANSPARENT);
+      for (const batch of bins.edgesColorTransparent) {
+        primDrawOps[batch.primitive].colorEdges?.draw(batch, RENDER_PASSES.DRAW_TRANSPARENT);
       }
 
-      for (const layer of bins.normalFillTransparent) {
-        primRenderers[layer.primitive].color?.renderLayer(layer, RENDER_PASSES.DRAW_TRANSPARENT);
+      for (const batch of bins.normalFillTransparent) {
+        primDrawOps[batch.primitive].color?.draw(batch, RENDER_PASSES.DRAW_TRANSPARENT);
       }
 
       gl.disable(gl.BLEND);
@@ -211,10 +211,10 @@ export class DrawManager {
 
     // Helper to clear depth and draw silhouette + edges
     const drawSilAndEdges = (
-      silBin: RenderLayer[],
-      edgesBin: RenderLayer[],
-      drawSil: ( l: RenderLayer ) => void,
-      drawEdges: ( l: RenderLayer ) => void
+      silBin: DrawBatch[],
+      edgesBin: DrawBatch[],
+      drawSil: ( l: DrawBatch ) => void,
+      drawEdges: ( l: DrawBatch ) => void
     ) => {
       if (silBin.length || edgesBin.length) {
         ctx.lastProgramId = -1;
@@ -225,20 +225,20 @@ export class DrawManager {
     };
 
     drawSilAndEdges(bins.highlightedSilhouetteOpaque, bins.highlightedEdgesOpaque,
-      l => primRenderers[l.primitive].silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
-      l => primRenderers[l.primitive].silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
+      b => primDrawOps[b.primitive].silhouette?.draw(b, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      b => primDrawOps[b.primitive].silhouetteEdges?.draw(b, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
 
     drawSilAndEdges(bins.highlightedSilhouetteTransparent, bins.highlightedEdgesTransparent,
-      l => primRenderers[l.primitive].silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
-      l => primRenderers[l.primitive].silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
+      b => primDrawOps[b.primitive].silhouette?.draw(b, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      b => primDrawOps[b.primitive].silhouetteEdges?.draw(b, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
 
     drawSilAndEdges(bins.selectedSilhouetteOpaque, bins.selectedEdgesOpaque,
-      l => primRenderers[l.primitive].silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
-      l => primRenderers[l.primitive].silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
+      b => primDrawOps[b.primitive].silhouette?.draw(b, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      b => primDrawOps[b.primitive].silhouetteEdges?.draw(b, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
 
     drawSilAndEdges(bins.selectedSilhouetteTransparent, bins.selectedEdgesTransparent,
-      l => primRenderers[l.primitive].silhouette?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
-      l => primRenderers[l.primitive].silhouetteEdges?.renderLayer(l, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
+      b => primDrawOps[b.primitive].silhouette?.draw(b, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED),
+      b => primDrawOps[b.primitive].silhouetteEdges?.draw(b, RENDER_PASSES.SILHOUETTE_HIGHLIGHTED));
 
     // Cleanup GPU state
     for (let i = 0, texUnits = WEBGL_INFO.MAX_TEXTURE_UNITS; i < texUnits; i++) {
@@ -253,9 +253,9 @@ export class DrawManager {
   }
 
   destroy() {
-  if (this._layerRendererSet) {
-    putLayerRendererSet(this._layerRendererSet);
-    this._layerRendererSet = null;
-  }
+    if (this._primDrawOps) {
+        putPrimitiveDrawOps(this._primDrawOps);
+        this._primDrawOps = null;
+    }
   }
 }

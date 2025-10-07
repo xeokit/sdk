@@ -4,12 +4,12 @@
 export class GPUMemoryMeshHandle {
 
   /**
-   * Index of the layer containing the mesh.
+   * Index of the batch containing the mesh.
    */
-  layerIndex: number;
+  batchIndex: number;
 
   /**
-   * Index of the mesh within the layer.
+   * Index of the mesh within the batch.
    */
   meshIndex: number;
 

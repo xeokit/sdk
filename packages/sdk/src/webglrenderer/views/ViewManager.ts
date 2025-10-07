@@ -1,8 +1,8 @@
 import {RenderContext} from "../RenderContext";
-import {PickParams, View} from "../../viewer";
+import {PickParams, PickResult, View} from "../../viewer";
 import {SDKError} from "../../core";
 import {RendererViewImpl} from "./RendererViewImpl";
-import {DrawManager} from "../draw/DrawManager";
+import {RenderManager} from "../render/RenderManager";
 import {RendererView} from "../../viewer/RendererView";
 import {PickManager} from "../pick/PickManager";
 
@@ -17,15 +17,15 @@ export class ViewManager {
   private _rendererViews: Record<string, RendererViewImpl> = {};
   private _rendererViewsList: RendererViewImpl[] = [];
   private _activeView: RendererViewImpl;
-  private _drawManager: DrawManager;
+  private _renderManager: RenderManager;
   private _pickManager: PickManager;
 
   /**
    * Initializes the ViewManager with the given rendering context.
    */
-  constructor( renderContext: RenderContext, drawManager: DrawManager, pickManager: PickManager ) {
+  constructor(renderContext: RenderContext, renderManager: RenderManager, pickManager: PickManager ) {
     this._renderContext = renderContext;
-    this._drawManager = drawManager;
+    this._renderManager = renderManager;
     this._pickManager = pickManager;
     const viewer = renderContext.viewer;
     for (let viewIndex = 0; viewIndex < viewer.numViews; viewIndex++) {
@@ -91,7 +91,7 @@ export class ViewManager {
       });
       primarySnapshotBuffer.bind();
       primarySnapshotBuffer.clear();
-      this._drawManager.draw({rendererView, clear: true});
+      this._renderManager.render({rendererView, clear: true});
       const image = primarySnapshotBuffer.readImage({
         format: "png",
         height: activeCanvasBoundingRect.height,
@@ -126,19 +126,19 @@ export class ViewManager {
   }
 
   /**
-   * Called by RendererViewImpl.draw() to draw itself.
+   * Called by RendererViewImpl.render().
    * @internal
    */
   renderView( rendererView: RendererViewImpl, params?: {force?: boolean; opaqueOnly?: boolean} ): void {
-    this._drawManager.draw({rendererView, clear: true});
+    this._renderManager.render({rendererView, clear: true});
   }
 
   /**
-   * Called by RendererViewImpl.draw() to draw itself.
+   * Called by RendererViewImpl.pick().
    * @internal
    */
-  pickView( rendererView: RendererViewImpl, params?: PickParams ): void {
-    this._pickManager.pick({rendererView, clear: true});
+  pickView( rendererView: RendererViewImpl, pickParams: PickParams, pickResult: PickResult ): void {
+    this._pickManager.pick(rendererView,pickParams, pickResult);
   }
 
   /**

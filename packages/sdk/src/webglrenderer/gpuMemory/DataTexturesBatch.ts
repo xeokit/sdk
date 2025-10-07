@@ -1,9 +1,9 @@
 /**
  * Interface representing a collection of data textures used in WebGL rendering.
  *
- * Kept in {@link DataTextures.layers | DataTextures.layers} array in {@link DataTextures}.
+ * Kept in {@link DataTextures.batches | DataTextures.batches} array in {@link DataTextures}.
  */
-export interface DataTexturesLayer {
+export interface DataTexturesBatch {
 
   /**
    * Data texture containing unique primitive indices for `gl.drawArrays`.

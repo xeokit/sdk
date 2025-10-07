@@ -9,7 +9,7 @@ import {DTXVertexColorsArray} from "./dtx/DTXVertexColorsArray";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 import {DTXPointerArray} from "./dtx/DTXPointerArray";
 import {DTXGeometryAttribs} from "./dtx/DTXGeometryAttribs";
-import {DataTexturesLayer} from "./DataTexturesLayer";
+import {DataTexturesBatch} from "./DataTexturesBatch";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../constants";
 
 const MAX_MESHES = 500000;
@@ -20,15 +20,15 @@ const MAX_GEOMETRIES = 500000;
  *
  * @private
  */
-export class GPUMemoryLayer {
+export class GPUMemoryBatch {
 
   /**
-   * The data textures that implement GPU-side model storage for this GPUMemoryLayer.
+   * The data textures that implement GPU-side model storage for this GPUMemoryBatch.
    */
-  dataTextures: DataTexturesLayer;
+  dataTextures: DataTexturesBatch;
 
   /**
-   * Index of this GPUMemoryLayer within the GPUMemory.layers array.
+   * Index of this GPUMemoryBatch within the GPUMemory.batches array.
    */
   public index: number;
 
@@ -431,7 +431,7 @@ export class GPUMemoryLayer {
       flags2?: number;  // uvec4 bytes 0..255
     } ) {
     if (viewIndex < 0 || viewIndex >= this._meshViewAttribs.length) {
-      throw new Error(`GPUMemoryLayer.setMeshViewAttribs: Invalid viewIndex ${viewIndex}`);
+      throw new Error(`GPUMemoryBatch.setMeshViewAttribs: Invalid viewIndex ${viewIndex}`);
     }
     this._meshViewAttribs[viewIndex].setAttribs(meshIndex, params);
     this._needRenderView(viewIndex);

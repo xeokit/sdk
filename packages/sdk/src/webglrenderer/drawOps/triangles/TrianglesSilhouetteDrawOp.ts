@@ -1,30 +1,30 @@
-import {LayerRenderer} from "../LayerRenderer";
+import {DrawOp} from "../DrawOp";
 
 /**
  * @private
  */
-export class TrianglesColorRenderer extends LayerRenderer {
+export class TrianglesSilhouetteDrawOp extends DrawOp {
 
-  buildVertexShader(): void {
+  protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefs();
     this.vsSlicingDefines();
-    this.vsDrawLambertDefs();
+    this.vsSilhouetteDefines();
     this.vsDrawMainOpen();
-    this.vsDrawLambertLogic(); // Lambert shading for triangles
+    this.vsSilhouetteLogic();
     this.vsSlicingLogic();
     this.vsMainClose();
   }
 
-  buildFragmentShader(): void {
+  protected buildFragmentShader(): void {
     this.fsHeader();
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsDrawLambertDefs(); // Lambert shading definitions
+    this.fsSilhouetteDefines();
     this.fsMainOpen();
     this.fsSlicingLogic();
-    this.fsDrawLambertLogic(); // Lambert shading logic
+    this.fsSilhouetteLogic();
     this.fsCommonOutput();
     this.fsMainClose();
   }

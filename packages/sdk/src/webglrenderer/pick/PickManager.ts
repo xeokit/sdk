@@ -13,15 +13,15 @@ import {
 import {RendererViewImpl} from "../views/RendererViewImpl";
 import {type FloatArrayParam} from "../../math";
 import {createRTCViewMat} from "../../rtc";
-import {RendererMeshImpl} from "../renderGraph/RendererMeshImpl";
+import {RendererMeshImpl} from "../drawBatches/RendererMeshImpl";
 import {RenderContext} from "../RenderContext";
 import {RenderBufferManager} from "../views/RenderBufferManager";
 import {GPUMemoryReadIF} from "../gpuMemory/GPUMemoryReadIF";
-import {RenderGraph} from "../renderGraph/RenderGraph";
+import {DrawBatchSet} from "../drawBatches/DrawBatchSet";
 import {ViewManager} from "../views/ViewManager";
 import {GPUMemory} from "../gpuMemory/GPUMemory";
-import {getLayerRendererSet, LayerRendererSet, putLayerRendererSet} from "../render/layerRenderers/LayerRendererSet";
-import {RENDER_PASSES} from "../renderGraph/RENDER_PASSES";
+import {getPrimitiveDrawOps, PrimitiveDrawOps, putPrimitiveDrawOps} from "../drawOps/PrimitiveDrawOps";
+import {RENDER_PASSES} from "../drawBatches/RENDER_PASSES";
 
 
 
@@ -57,18 +57,20 @@ export class PickManager {
   private _pickResult: PickResult;
   private _renderContext: RenderContext;
   private _gpuMemory: GPUMemory;
-  private _renderGraph: RenderGraph;
-  private _layerRendererSet: LayerRendererSet;
+  private _drawBatchSet: DrawBatchSet;
+  private _primDrawOps: PrimitiveDrawOps;
 
   constructor( cfg: {
     renderContext: RenderContext,
     gpuMemory: GPUMemory,
-    renderGraph: RenderGraph,
+    drawBatchSet: DrawBatchSet,
     viewManager: ViewManager
   } ) {
     this._gpuMemory = cfg.gpuMemory;
-    this._renderGraph = cfg.renderGraph;
-    this._layerRendererSet = getLayerRendererSet(this._renderContext, this._gpuMemory as GPUMemoryReadIF);
+    this._drawBatchSet = cfg.drawBatchSet;
+    this._renderContext = cfg.renderContext;
+    this._primDrawOps = getPrimitiveDrawOps(this._renderContext, this._gpuMemory as GPUMemoryReadIF);
+    this._pickResult = new PickResult();
   }
 
   /**
@@ -122,7 +124,7 @@ export class PickManager {
 
         // Ray defined as matrix
 
-        this._gpuMemory.setPickMatrix(view, pickParams.rayMatrix);
+        this._gpuMemory.setViewPickMatrix(view, pickParams.rayMatrix);
 
         // @ts-ignore
         pickViewMatrix.set(pickParams.rayMatrix);
@@ -147,7 +149,7 @@ export class PickManager {
         cross3Vec3(pickWorldRayDir, tempVec3b, tempVec3c);
         const rayMatrix = lookAtMat4v(pickWorldRayOrigin, look, tempVec3c, tempMat4b);
 
-        this._gpuMemory.setPickMatrix(view, rayMatrix);
+        this._gpuMemory.setViewPickMatrix(view, rayMatrix);
 
         // @ts-ignore
         pickViewMatrix.set(rayMatrix);
@@ -245,17 +247,17 @@ export class PickManager {
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const layers = this._renderGraph.layers;
-    for (let i = 0, len = layers.length; i < len; i++) {
-      const layer = layers[i];
-      const meshCounts = layer.meshCounts[viewIndex];
+    const batches = this._drawBatchSet.batches; // Batches are sorted by prim type
+    for (let i = 0, len = batches.length; i < len; i++) {
+      const batch = batches[i];
+      const meshCounts = batch.meshCounts[viewIndex];
       if (meshCounts.numVisible === 0 ||
           meshCounts.numCulled === meshCounts.numMeshes ||
           meshCounts.numPickable ===0
       ) {
         continue;
       }
-      this._layerRendererSet.prims[layer.primitive]?.pick?.renderLayer(layer, RENDER_PASSES.PICK);
+      this._primDrawOps.prims[batch.primitive]?.pick?.draw(batch, RENDER_PASSES.PICK);
     }
 
     const pix = pickBuffer.read(0, 0);
@@ -268,7 +270,7 @@ export class PickManager {
     const result = this._extract16BitParts(pickID);
 
 
-    const rendererMesh = this._renderGraph.
+    const rendererMesh = this._drawBatchSet.
     return <RendererMeshImpl>this._pickIDs.items[pickID];
   }
 
@@ -280,8 +282,8 @@ export class PickManager {
     // Extract low 16 bits by masking
     const low16 = unsignedInt & 0xFFFF;
     return {
-      layer: this._renderGraph.layers[high16],
-      layerIndex: high16,
+      batch: this._drawBatchSet.batches[high16],
+      batchIndex: high16,
       meshIndex: low16
     };
   }
@@ -300,7 +302,7 @@ export class PickManager {
     // const {rendererView, rendererObject, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
     // const view = rendererView.view;
     // const resolutionScale = view.resolutionScale;
-    // const _layer = rendererObject._layer;
+    // const _batch = rendererObject._batch;
     // const renderContext = this._renderContext;
     // const gl = renderContext.gl;
     // const canvas = rendererView.view.htmlElement;
@@ -329,7 +331,7 @@ export class PickManager {
     // gl.disable(gl.BLEND);
     // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     //
-    // // _layer.drawPickDepths();
+    // // _batch.drawPickDepths();
     //
     // const pix = pickBuffer.read(0, 0);
     //
@@ -397,9 +399,9 @@ export class PickManager {
    * Cleans up resources used by this PickManager.
    */
   destroy() {
-    if (this._layerRendererSet) {
-      putLayerRendererSet(this._layerRendererSet);
-      this._layerRendererSet = null;
+    if (this._primDrawOps) {
+      putPrimitiveDrawOps(this._primDrawOps);
+      this._primDrawOps = null;
     }
   }
 }

@@ -1,6 +1,6 @@
 
 /**
- * Tracks various counts related to meshes in a `RenderLayerImpl` within a `WebGLRenderer`.
+ * Tracks various counts related to meshes in a `DrawBatchImpl` within a `WebGLRenderer`.
  *
  * This class is used to keep track of the number of meshes and their states,
  * such as visibility, transparency, and selection, during rendering.

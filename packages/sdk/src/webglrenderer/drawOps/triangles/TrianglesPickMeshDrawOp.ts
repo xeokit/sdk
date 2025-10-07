@@ -1,30 +1,30 @@
-import {LayerRenderer} from "../LayerRenderer";
+import {DrawOp} from "../DrawOp";
 
 /**
  * @private
  */
-export class GenericSilhouetteRenderer extends LayerRenderer {
+export class TrianglesPickMeshDrawOp extends DrawOp {
 
-  buildVertexShader(): void {
+  protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefs();
     this.vsSlicingDefines();
-    this.vsSilhouetteDefines();
-    this.vsSilhouetteMainOpen();
-    this.vsSilhouetteLogic();
+    this.vsPickMeshDefs();
+    this.vsPickMainOpen();
+    this.vsPickMeshLogic();
     this.vsSlicingLogic();
     this.vsMainClose();
   }
 
-  buildFragmentShader(): void {
+  protected buildFragmentShader(): void {
     this.fsHeader();
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsSilhouetteDefines();
+    this.fsPickMeshDefs();
     this.fsMainOpen();
     this.fsSlicingLogic();
-    this.fsSilhouetteLogic();
+    this.fsPickMeshLogic();
     this.fsCommonOutput();
     this.fsMainClose();
   }

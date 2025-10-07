@@ -7,7 +7,7 @@ import {type GPUMemoryReadIF} from "./GPUMemoryReadIF";
 import {type GPUMemoryWriteIF} from "./GPUMemoryWriteIF";
 import {DataTextures} from "./DataTextures";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
-import {GPUMemoryLayer} from "./GPUMemoryLayer";
+import {GPUMemoryBatch} from "./GPUMemoryBatch";
 import {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
 import {View} from "../../viewer";
 
@@ -15,19 +15,19 @@ import {View} from "../../viewer";
 /**
  * Manages GPU-resident, dynamically-editable data storage for model geometry and attributes.
  *
- * The `GPUMemoryLayer` class implements a data texture-based system for efficient storage and
+ * The `GPUMemoryBatch` class implements a data texture-based system for efficient storage and
  * rendering of large-scale 3D scenes. It handles gpuMemory allocation, updates, and synchronization
  * for meshes, geometries, and tiles, integrating tightly with WebGL rendering pipelines.
  */
 export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
   /**
-   * The data textures that implement GPU-side model storage for this GPUMemoryLayer.
+   * The data textures that implement GPU-side model storage for this GPUMemoryBatch.
    */
   dataTextures: DataTextures;
 
-  private _layers: GPUMemoryLayer[] = [];
-  private _maxLayers: number;
+  private _batches: GPUMemoryBatch[] = [];
+  private _maxBatches: number;
   private _renderContext: RenderContext;
   private _maxTiles: number;
   private _tiles: TileManager;
@@ -40,7 +40,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   constructor( renderContext: RenderContext ) {
 
     this._renderContext = renderContext;
-    this._maxLayers = 100;
+    this._maxBatches = 100;
     this._maxTiles = 1000;
 
     this._numMeshes = 0;
@@ -53,7 +53,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
       /**
        * Array of data textures, each containing tile view matrices for specific views.
-       * These are global to all GPUMemoryLayer instances.
+       * These are global to all GPUMemoryBatch instances.
        */
       tileViewMatrices : [
         new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
@@ -64,7 +64,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
       /**
        * Array of data textures, each containing tile pick matrices for specific views.
-       * These are global to all GPUMemoryLayer instances.
+       * These are global to all GPUMemoryBatch instances.
        */
       tileRayPickMatrices : [
         new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
@@ -74,9 +74,9 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
       ],
 
       /**
-       *
+       * GPUMemoryBatch instances created by this GPUMemory.
        */
-      layers: []
+      batches: []
     };
 
     this._tiles = new TileManager(gl, renderContext.viewer, this.dataTextures.tileViewMatrices, this.dataTextures.tileRayPickMatrices);
@@ -86,8 +86,8 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
         this.dataTextures.tileViewMatrices[i].flush();
         this.dataTextures.tileRayPickMatrices[i].flush();
       }
-      for (const layer of this._layers) {
-        layer.flush();
+      for (const batch of this._batches) {
+        batch.flush();
       }
     });
   }
@@ -98,7 +98,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
    * @param view The target View.
    * @param pickMatrix The pick matrix to set for the View.
    */
-  setPickMatrix( view: View, pickMatrix: FloatArrayParam ): void {
+  setViewPickMatrix(view: View, pickMatrix: FloatArrayParam ): void {
     this._tiles.setPickMatrix(view, pickMatrix);
   }
 
@@ -123,7 +123,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   }
 
   /**
-   * Releases a Tile back to GPUMemoryLayer.
+   * Releases a Tile back to GPUMemoryBatch.
    * The Tile is destroyed as soon as it is released as many times as it was retrieved.
    * @param tile The tile to release.
    */
@@ -132,49 +132,51 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   }
 
   /**
-   * Creates a new GPUMemoryLayer instance, up to the maximum number of instances allowed.
+   * Creates a new GPUMemoryBatch instance, up to the maximum number of instances allowed.
+   * The new batch is added to the {@link dataTextures.batches | dataTextures.batches} array.
+   * Returns the index of the new batch.
    */
-  createLayer(): number {
-    if (this._layers.length < this._maxLayers) {
-      const index = this._layers.length;
-      const gpuMemoryLayer = new GPUMemoryLayer(index, this._renderContext);
-      this._layers.push(gpuMemoryLayer);
-      this.dataTextures.layers.push(gpuMemoryLayer.dataTextures);
-      console.log("Created GPUMEmoryLayer: " + index);
+  createBatch(): number {
+    if (this._batches.length < this._maxBatches) {
+      const index = this._batches.length;
+      const gpuMemoryBatch = new GPUMemoryBatch(index, this._renderContext);
+      this._batches.push(gpuMemoryBatch);
+      this.dataTextures.batches.push(gpuMemoryBatch.dataTextures);
+      // console.log("Created GPUMemoryBatch: " + index);
       return index;
     }
-    throw new Error('GPUMemoryPool: Maximum number of GPUMemoryLayer instances reached.');
+    throw new Error('GPUMemoryPool: Maximum number of GPUMemoryBatch instances reached.');
   }
 
   /**
-   * Checks if there is enough gpuMemory in a specific layer for a SceneMesh.
-   * @param layerIndex
+   * Checks if there is enough gpuMemory in a specific batch for a SceneMesh.
+   * @param batchIndex
    * @param sceneMesh
    */
-  hasMemoryForMesh( layerIndex: number, sceneMesh: SceneMesh ): boolean {
-    const gpuMemoryLayer = this._layers[layerIndex];
-    return gpuMemoryLayer ? gpuMemoryLayer.hasMemoryForMesh(sceneMesh) : false;
+  hasMemoryForMesh( batchIndex: number, sceneMesh: SceneMesh ): boolean {
+    const gpuMemoryBatch = this._batches[batchIndex];
+    return gpuMemoryBatch ? gpuMemoryBatch.hasMemoryForMesh(sceneMesh) : false;
   }
 
   /**
-   * Adds a SceneMesh to the data texture gpuMemory in a specific layer.
+   * Adds a SceneMesh to the data texture gpuMemory in a specific batch.
    *
    * Returns an tileIndex/handle through which you can dynamically update attributes for the mesh.
    *
-   * @param layerIndex
+   * @param batchIndex
    * @param sceneMesh
    */
-  addMesh( layerIndex: number, sceneMesh: SceneMesh ): GPUMemoryMeshHandle {
-    const gpuMemoryLayer = this._layers[layerIndex];
-    if (!gpuMemoryLayer) {
-      throw new Error('GPUMemory.addMesh: Invalid layer index.');
+  addMesh( batchIndex: number, sceneMesh: SceneMesh ): GPUMemoryMeshHandle {
+    const gpuMemoryBatch = this._batches[batchIndex];
+    if (!gpuMemoryBatch) {
+      throw new Error('GPUMemory.addMesh: Invalid batch index.');
     }
-    const meshIdx = gpuMemoryLayer?.addMesh(sceneMesh);
+    const meshIdx = gpuMemoryBatch?.addMesh(sceneMesh);
     this._numMeshes++;
-    console.log("addMesh() Num meshes = " + this._numMeshes);
+    // console.log("addMesh() Num meshes = " + this._numMeshes);
     return <GPUMemoryMeshHandle>{
       meshIndex: meshIdx,
-      layerIndex: gpuMemoryLayer.index,
+      batchIndex: gpuMemoryBatch.index,
       numIndices: sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0,
       numVertices: sceneMesh.geometry.positionsCompressed ? sceneMesh.geometry.positionsCompressed.length / 3 : 0
     };
@@ -192,11 +194,11 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   setMeshMatrix(
     meshHandle: GPUMemoryMeshHandle,
     matrix: FloatArrayParam ): void {
-    const layer = this._layers[meshHandle.layerIndex];
-    if (!layer) {
-      throw new Error('GPUMemory.setMeshMatrix: Invalid layer index in mesh handle.');
+    const batch = this._batches[meshHandle.batchIndex];
+    if (!batch) {
+      throw new Error('GPUMemory.setMeshMatrix: Invalid batch index in mesh handle.');
     }
-    layer.setMeshMatrix(meshHandle.meshIndex, matrix);
+    batch.setMeshMatrix(meshHandle.meshIndex, matrix);
     this._needRenderAllViews();
   }
 
@@ -220,11 +222,11 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
     params: {
       tileIndex?: number;
     } ) {
-    const layer = this._layers[meshHandle.layerIndex];
-    if (!layer) {
-      throw new Error('GPUMemory.setMeshAttribs: Invalid layer index in mesh handle.');
+    const batch = this._batches[meshHandle.batchIndex];
+    if (!batch) {
+      throw new Error('GPUMemory.setMeshAttribs: Invalid batch index in mesh handle.');
     }
-    layer.setMeshAttribs(meshHandle.meshIndex, params);
+    batch.setMeshAttribs(meshHandle.meshIndex, params);
     this._needRenderAllViews();
   }
 
@@ -245,11 +247,11 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
       flags1?: number;  // uvec4 bytes 0..255
       flags2?: number;  // uvec4 bytes 0..255
     } ) {
-    const layer = this._layers[meshHandle.layerIndex];
-    if (!layer) {
-      throw new Error('GPUMemory.setMeshViewAttribs: Invalid layer index in mesh handle.');
+    const batch = this._batches[meshHandle.batchIndex];
+    if (!batch) {
+      throw new Error('GPUMemory.setMeshViewAttribs: Invalid batch index in mesh handle.');
     }
-    layer.setMeshViewAttribs(meshHandle.meshIndex, viewIndex, params);
+    batch.setMeshViewAttribs(meshHandle.meshIndex, viewIndex, params);
     this._needRenderView(viewIndex);
   }
 
@@ -263,11 +265,11 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
    * @param meshHandle
    */
   removeMesh( meshHandle: GPUMemoryMeshHandle ): void {
-    const layer = this._layers[meshHandle.layerIndex];
-    if (!layer) {
-      throw new Error('GPUMemory.removeMesh: Invalid layer index in mesh handle.');
+    const batch = this._batches[meshHandle.batchIndex];
+    if (!batch) {
+      throw new Error('GPUMemory.removeMesh: Invalid batch index in mesh handle.');
     }
-    layer.removeMesh(meshHandle.meshIndex);
+    batch.removeMesh(meshHandle.meshIndex);
     this._needRenderAllViews();
     this._numMeshes--;
  //   console.log("removeMesh() Num meshes = " + this._numMeshes);
@@ -277,12 +279,12 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
    * Destroys this GPUMemory instance and all its resources.
    */
   destroy() {
-    for (const gpuMemory of this._layers) {
+    for (const gpuMemory of this._batches) {
       gpuMemory.destroy();
     }
     this._numMeshes = 0;
-    this._layers.length = 0;
-    this.dataTextures.layers.length = 0;
+    this._batches.length = 0;
+    this.dataTextures.batches.length = 0;
     const clear = ( ref: any ) => {
       if (ref) {
         ref.destroy();

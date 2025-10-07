@@ -14,7 +14,7 @@ import {ViewFlags} from "./ViewFlags";
  *
  * Responsibilities:
  * - Tracks the current rendering state, including active textures, programs, and passes.
- * - Manages GPU gpuMemory for geometry and materials through the `GPUMemoryLayer` system.
+ * - Manages GPU gpuMemory for geometry and materials through the `GPUMemoryBatch` system.
  * - Provides methods for managing texture units and resetting state between frames.
  * - Stores matrices and parameters for specialized rendering operations like shadow mapping and picking.
  *
@@ -115,7 +115,7 @@ export class RenderContext {
   public lineWidth: number;
 
   /**
-   * ID of the last WebGLProgram that was bound during the current frame.
+   * ID of the last WebGLProgram that was bound during the current frame. Used to avoid redundant program binds.
    */
   public lastProgramId: number;
 

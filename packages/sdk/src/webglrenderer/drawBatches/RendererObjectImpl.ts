@@ -19,7 +19,6 @@ export class RendererObjectImpl implements RendererObject {
    */
   readonly id: string;
 
-
   /**
    * List of renderer meshes associated with this object.
    * Each mesh can represent a part of the object, such as its geometry and texture.
@@ -48,7 +47,6 @@ export class RendererObjectImpl implements RendererObject {
 
     this.id = params.id;
     this.flags = [];
-
     this._rendererMeshes = params.rendererMeshes || [];
     this._renderContext = params.renderContext;
     this._initFlags();

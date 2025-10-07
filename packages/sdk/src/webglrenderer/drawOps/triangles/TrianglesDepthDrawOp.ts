@@ -1,11 +1,11 @@
-import {LayerRenderer} from "../LayerRenderer";
+import {DrawOp} from "../DrawOp";
 
 /**
  * @private
  */
-export class TrianglesDepthRenderer extends LayerRenderer {
+export class TrianglesDepthDrawOp extends DrawOp {
 
-  buildVertexShader(): void {
+  protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefs();
     this.vsSlicingDefines();
@@ -16,7 +16,7 @@ export class TrianglesDepthRenderer extends LayerRenderer {
     this.vsMainClose();
   }
 
-  buildFragmentShader(): void {
+  protected buildFragmentShader(): void {
     this.fsHeader();
     this.fsPrecisionDefines();
     this.fsCommonDefines();

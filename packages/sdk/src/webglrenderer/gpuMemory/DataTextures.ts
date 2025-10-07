@@ -1,8 +1,8 @@
-import {DataTexturesLayer} from "./DataTexturesLayer";
+import {DataTexturesBatch} from "./DataTexturesBatch";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 
 /**
- * Interface representing GPU-resident data textures for tile view matrices and layers.
+ * Interface representing GPU-resident data textures for tile view matrices and batches.
  */
 export interface DataTextures {
 
@@ -17,10 +17,10 @@ export interface DataTextures {
   tileRayPickMatrices: DTXMatrixArray[];
 
   /**
-   * Array of DataTexturesLayer, each containing the renderable output of a GPUMemoryLayer.
+   * Array of DataTexturesLayer, each containing the renderable output of a GPUMemoryBatch.
    *
-   * These are global to all GPUMemoryLayer instances, and are indexed using {@link GPUMemoryLayer.layerIndex | GPUMemoryLayer.layerIndex}.
+   * These are indexed using {@link GPUMemoryBatch.batchIndex | GPUMemoryBatch.batchIndex}.
    */
-  layers: DataTexturesLayer[];
+  batches: DataTexturesBatch[];
 }
 

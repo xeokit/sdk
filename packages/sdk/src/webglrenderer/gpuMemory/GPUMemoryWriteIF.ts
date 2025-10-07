@@ -32,25 +32,27 @@ export interface GPUMemoryWriteIF {
   putTile( tile: Tile ): void;
 
   /**
-   * Creates a new GPUMemoryLayer instance, up to the maximum number of instances allowed.
+   * Creates a new GPUMemoryBatch instance, up to the maximum number of instances allowed.
+   * The new batch is added to the  `GPUMemoryWriteIF.dataTextures.batches` array.
+   * Returns the index of the new batch.
    */
-  createLayer(): number;
+  createBatch(): number;
 
   /**
-   * Checks if there is enough gpuMemory in a specific layer for a SceneMesh.
-   * @param layerIndex
+   * Checks if there is enough gpuMemory in a specific batch for a SceneMesh.
+   * @param batchIndex
    * @param sceneMesh
    */
-  hasMemoryForMesh( layerIndex: number, sceneMesh: SceneMesh ): boolean;
+  hasMemoryForMesh( batchIndex: number, sceneMesh: SceneMesh ): boolean;
 
   /**
    * Adds a SceneMesh to the data texture gpuMemory.
    * Returns an tileIndex/handle for dynamically updating attributes of the mesh.
-   * @param layerIndex - The index of the layer to which the mesh should be added.
+   * @param batchIndex - The index of the batch to which the mesh should be added.
    * @param sceneMesh - The mesh to add.
    * @returns The tileIndex/handle of the added mesh.
    */
-  addMesh( layerIndex: number, sceneMesh: SceneMesh ): GPUMemoryMeshHandle;
+  addMesh( batchIndex: number, sceneMesh: SceneMesh ): GPUMemoryMeshHandle;
 
   /**
    * Sets the modeling transform matrix for a mesh.

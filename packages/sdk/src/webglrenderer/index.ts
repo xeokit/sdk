@@ -37,11 +37,7 @@
  * const myViewer = new Viewer({
  *     id: "myViewer",
  *     scene: new Scene(),
- *     renderer: new WebGLRenderer({ // Required
- *          textureTranscoder: new KTX2TextureTranscoder({ // Optional
- *              transcoderPath: "./../dist/basis/" // Path to BasisU transcoder module
- *          })
- *     })
+ *     renderer: new WebGLRenderer()
  * });
  *
  * //...

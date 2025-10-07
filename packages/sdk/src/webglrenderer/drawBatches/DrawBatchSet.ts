@@ -14,14 +14,27 @@ import type {
 import {RendererObjectImpl} from "./RendererObjectImpl";
 import {RendererMeshImpl} from "./RendererMeshImpl";
 import {RendererGeometryImpl} from "./RendererGeometryImpl";
-import {RenderLayerImpl} from "./RenderLayerImpl";
+import {DrawBatchImpl} from "./DrawBatchImpl";
 import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
-import {RenderLayer} from "./RenderLayer";
+import {DrawBatch} from "./DrawBatch";
 
 /**
- * The RenderGraph manages the relationship between scene objects, their geometries, meshes, and rendering layers.
+ * The RenderGraph manages the relationship between scene objects, their geometries, meshes, and rendering batches.
+ *
+ * It listens to the Viewer's Scene for additions and removals of models, objects, meshes and geometries, creating
+ * or destroying the corresponding renderer entities as needed.
+ *
+ * For each existing SceneMesh in the Scene, the RenderGraph creates and attaches a RendererMesh, which is an
+ * interface through which the SceneMesh can upload updates to its color, opacity and transformation into the renderer.
+ *
+ * The RenderGraph also attaches a RendererObject to each SceneObject, which is a similar interface through which
+ * a ViewObject can control the visual state (visibility, highlighting, color, x-ray etc.) of the object in the renderer.
+ *
+ * The RenderGraph organizes RendererMeshes into DrawLayers based on their primitive type (triangles, lines, points).
+ * Each DrawLayer manages GPU resources for rendering its meshes efficiently. The RenderGraph creates new DrawLayers as
+ * needed when meshes with different primitive types are added.
  */
-export class RenderGraph {
+export class DrawBatchSet {
 
   private _rendererObjects: Record<string, RendererObject> = {};
   private _renderContext: RenderContext;
@@ -35,9 +48,9 @@ export class RenderGraph {
       rendererMeshes: Record<string, RendererMesh>;
     }> = {};
 
-  private _layers: Record<string, RenderLayerImpl> = {};
-  private _layerList: RenderLayerImpl[] = [];
-  private _layerListDirty = true;
+  private _batches: Record<string, DrawBatchImpl> = {};
+  private _batchList: DrawBatchImpl[] = [];
+  private _batchListDirty = true;
 
   private _onModelCreated: () => void;
   private _onObjectCreated: () => void;
@@ -69,15 +82,15 @@ export class RenderGraph {
   }
 
   /**
-   * Returns the list of layers sorted by their primitive type.
+   * Returns the list of batches sorted by their primitive type.
    */
-  get layers(): RenderLayer[] {
-    if (this._layerListDirty) {
+  public get batches(): DrawBatch[] {
+    if (this._batchListDirty) {
       // @ts-ignore
-      this._layerList = Object.values(this._layers).sort(( a, b ) => a.primitive - b.primitive);
-      this._layerListDirty = false;
+      this._batchList = Object.values(this._batches).sort(( a, b ) => a.primitive - b.primitive);
+      this._batchListDirty = false;
     }
-    return this._layerList;
+    return this._batchList;
   }
 
   private _addModel( sceneModel: SceneModel ): void {
@@ -115,8 +128,8 @@ export class RenderGraph {
       rendererMeshes[i].rendererObject = rendererObject;
     }
     this._rendererObjects[objectId] = rendererObject;
-    sceneObject.rendererObject = rendererObject;// SceneObject will use this to make view-global attribute updates
-    this._layerListDirty = true;
+    sceneObject.rendererObject = rendererObject;
+    this._batchListDirty = true;
   }
 
   private _addMesh( rendererModel: any, sceneMesh: SceneMesh ): RendererMeshImpl|undefined {
@@ -124,19 +137,19 @@ export class RenderGraph {
     if (rendererModel.rendererMeshes[meshId]) {
       throw new SDKError(`SceneMesh already attached with this ID: ${meshId}`);
     }
-    const layer = this._getLayer(sceneMesh);
-    if (!layer) {
+    const batch = this._getLayer(sceneMesh);
+    if (!batch) {
       return;
     }
     this._addGeometry(rendererModel, sceneMesh.geometry);
     const rendererMesh = new RendererMeshImpl({
       renderContext: this._renderContext,
       sceneMesh,
-      layer,
+      batch,
       gpuMemoryWriteIF: this._gpuMemoryWriteIF
     });
     rendererModel.rendererMeshes[meshId] = rendererMesh;
-    sceneMesh.rendererMesh = rendererMesh; // SceneMesh will use this to make view-global attribute updates
+    sceneMesh.rendererMesh = rendererMesh;
     return rendererMesh;
   }
 
@@ -149,26 +162,26 @@ export class RenderGraph {
   }
 
   /**
-   * Finds or creates a RenderLayer that can accommodate the given SceneMesh based
+   * Finds or creates a batch that can accommodate the given SceneMesh based
    * on its primitive type and memory requirements.
    */
-  private _getLayer( sceneMesh: SceneMesh ): RenderLayerImpl {
+  private _getLayer( sceneMesh: SceneMesh ): DrawBatchImpl {
     const primitive = sceneMesh.geometry.primitive;
-    for (const layer of Object.values(this._layers)) {
-      if (layer.primitive === primitive && layer.canAddMesh(sceneMesh)) {
-        return layer;
+    for (const batch of Object.values(this._batches)) {
+      if (batch.primitive === primitive && batch.canAddMesh(sceneMesh)) {
+        return batch;
       }
     }
-    const layerId = `layer-${primitive}-${Object.keys(this._layers).length}`;
-    const newLayer = new RenderLayerImpl({
+    const batchId = `batch-${primitive}-${Object.keys(this._batches).length}`;
+    const newLayer = new DrawBatchImpl({
       primitive,
       renderContext: this._renderContext,
       gpuMemoryWriteIF: this._gpuMemoryWriteIF,
-      gpuMemoryLayerIndex: this._gpuMemoryWriteIF.createLayer(),
+      gpuMemoryBatchIndex: this._gpuMemoryWriteIF.createBatch(),
     });
 
-    this._layers[layerId] = newLayer;
-    this._layerListDirty = true;
+    this._batches[batchId] = newLayer;
+    this._batchListDirty = true;
     return newLayer;
   }
 
@@ -180,7 +193,7 @@ export class RenderGraph {
     sceneObject.meshes?.forEach(( mesh ) => this._removeMesh(rendererModel, mesh));
     delete this._rendererObjects[sceneObject.id];
     sceneObject.rendererObject = null;
-    this._layerListDirty = true;
+    this._batchListDirty = true;
   }
 
   private _removeMesh( rendererModel: any, sceneMesh: SceneMesh ): void {
@@ -192,7 +205,7 @@ export class RenderGraph {
     rendererMesh.destroy();
     delete rendererModel.rendererMeshes[sceneMesh.id];
     sceneMesh.rendererMesh = null;
-    this._layerListDirty = true;
+    this._batchListDirty = true;
   }
 
   private _removeGeometry( rendererModel: any, sceneGeometry: SceneGeometry ): void {
@@ -218,10 +231,10 @@ export class RenderGraph {
     this._onObjectDestroyed?.();
 
     // @ts-ignore
-    Object.values(this._layers).forEach(( layer ) => layer.destroy());
+    Object.values(this._batches).forEach(( batch ) => batch.destroy());
 
-    this._layers = {};
-    this._layerList = [];
+    this._batches = {};
+    this._batchList = [];
     this._rendererObjects = {};
     this._rendererModels = {};
   }

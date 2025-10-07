@@ -5,49 +5,54 @@ import type {RenderContext} from "../RenderContext";
 import {OBJECT_FLAGS} from "./OBJECT_FLAGS";
 import {RENDER_PASSES} from "./RENDER_PASSES";
 import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
-import {RenderLayer} from "./RenderLayer";
+import {DrawBatch} from "./DrawBatch";
 import {GPUMemoryMeshHandle} from "../gpuMemory/GPUMemoryMeshHandle";
 
 /**
- * A RenderLayerImpl manages a batch of SceneMeshes that use the same primitive type.
+ * A DrawBatchImpl manages a batch of SceneMeshes that use the same primitive type.
  *
  * @private
  */
-export class RenderLayerImpl implements RenderLayer {
+export class DrawBatchImpl implements DrawBatch {
 
   /**
-   * The render context associated with this layer.
+   * The render context associated with this batch.
    */
-  renderContext: RenderContext;
+  private _renderContext: RenderContext;
 
   /**
-   * Primitive type of the meshes in this layer.
+   * The GPUMemoryWriteIF instance used to manage the GPU data gpuMemory for this batch.
+   */
+  private _gpuMemoryWriteIF: GPUMemoryWriteIF;
+
+  /**
+   * Primitive type of the meshes in this batch.
    */
   primitive: number;
 
   /**
-   * Base primitive tileIndex for this layer.
+   * Base primitive tileIndex for this batch.
    */
   primBaseIndex: number;
 
   /**
-   * A unique identifier for sorting this layer in the renderer.
+   * A unique identifier for sorting this batch in the renderer.
    */
   sortId: string;
 
   /**
-   * Whether this layer supports Screen Space Ambient Occlusion (SSAO) rendering.
+   * Whether this batch supports Screen Space Ambient Occlusion (SSAO) rendering.
    */
   saoSupported: boolean;
 
   /**
-   * The total number of indices in all meshes of this layer. This is used with WebGL render calls to determine how many indices to render
-   * when drawing this layer.
+   * The total number of indices in all meshes of this batch. This is used with WebGL render calls to determine how many indices to render
+   * when drawing this batch.
    */
   numIndices: number;
 
   /**
-   * The total number of vertices in all meshes of this layer. This is used for various calculations and optimizations related to rendering.
+   * The total number of vertices in all meshes of this batch. This is used for various calculations and optimizations related to rendering.
    */
   numVertices: number;
 
@@ -57,32 +62,27 @@ export class RenderLayerImpl implements RenderLayer {
   meshCounts: MeshCounts[];
 
   /**
-   * The GPUMemoryWriteIF instance used to manage the GPU data gpuMemory for this layer.
+   * The index of this batch in the GPUMemory system.
    */
-  private _gpuMemoryWriteIF: GPUMemoryWriteIF;
+  public readonly gpuMemoryBatchIndex: number;
 
   /**
-   * The index of this layer in the GPUMemory system.
+   * Creates a new DrawBatchImpl instance.
+   * @param batchParams
    */
-  public gpuLayerIndex: number;
-
-  /**
-   * Creates a new RenderLayerImpl instance.
-   * @param layerParams
-   */
-  constructor( layerParams: {
+  constructor( batchParams: {
     renderContext: any;
     gpuMemoryWriteIF: GPUMemoryWriteIF;
-    gpuMemoryLayerIndex : number;
+    gpuMemoryBatchIndex : number;
     primitive: number;
   } ) {
-    const {renderContext, gpuMemoryWriteIF, primitive} = layerParams;
-    this.renderContext = renderContext;
+    const {renderContext, gpuMemoryWriteIF, primitive} = batchParams;
+    this._renderContext = renderContext;
     this._gpuMemoryWriteIF = gpuMemoryWriteIF;
-    this.gpuLayerIndex = layerParams.gpuMemoryLayerIndex;
+    this.gpuMemoryBatchIndex = batchParams.gpuMemoryBatchIndex;
     this.primitive = primitive;
     this.primBaseIndex = 0; // TODO
-    this.sortId = `Layer-${primitive}`;
+    this.sortId = `batch-${primitive}`;
     this.numIndices = 0;
     this.numVertices = 0;
     this.saoSupported = false;
@@ -92,27 +92,27 @@ export class RenderLayerImpl implements RenderLayer {
   }
 
   /**
-   * A hash string representing this layer, used for quick comparisons.
+   * A hash string representing this batch, used for quick comparisons.
    */
   get hash(): string {
     return `${this.primitive}`;
   }
 
   /**
-   * Checks if a mesh can be added to this layer.
+   * Checks if a mesh can be added to this batch.
    * @param sceneMesh
    */
   canAddMesh( sceneMesh: SceneMesh ): boolean {
-    return this._gpuMemoryWriteIF .hasMemoryForMesh(this.gpuLayerIndex, sceneMesh);
+    return this._gpuMemoryWriteIF .hasMemoryForMesh(this.gpuMemoryBatchIndex, sceneMesh);
   }
 
   /**
-   * Adds a mesh to the layer and updates the mesh counts and indices. Returns the tileIndex of the
-   * added mesh in the layer's DTX gpuMemory.
+   * Adds a mesh to the batch and updates the mesh counts and indices. Returns the tileIndex of the
+   * added mesh in the batch's DTX gpuMemory.
    * @param sceneMesh
    */
   addMesh( sceneMesh: SceneMesh ): GPUMemoryMeshHandle {
-    const meshHandle = this._gpuMemoryWriteIF.addMesh(this.gpuLayerIndex, sceneMesh);
+    const meshHandle = this._gpuMemoryWriteIF.addMesh(this.gpuMemoryBatchIndex, sceneMesh);
     this.numIndices += meshHandle.numIndices;
     this.numVertices += meshHandle.numVertices;
     for (const counts of this.meshCounts) {
@@ -122,7 +122,7 @@ export class RenderLayerImpl implements RenderLayer {
   }
 
   /**
-   * Removes a mesh from the layer and updates the mesh counts and indices. We need to pass the view flags
+   * Removes a mesh from the batch and updates the mesh counts and indices. We need to pass the view flags
    * to update the counts correctly, since the flags are stored for the object, not the mesh.
    * @param meshHandle
    * @param viewFlags
@@ -151,7 +151,7 @@ export class RenderLayerImpl implements RenderLayer {
    * based on initial flags and transparency state.
    *
    * @param viewIndex - Index of the view.
-   * @param meshHandle - Index of the mesh within the layer.
+   * @param meshHandle - Index of the mesh within the batch.
    * @param flags - Bitmask of OBJECT_FLAGS representing initial mesh states.
    */
   initMeshFlags( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
@@ -172,7 +172,7 @@ export class RenderLayerImpl implements RenderLayer {
    * @private
    */
   _setMeshObjectFlags( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
-    const viewer = this.renderContext.viewer;
+    const viewer = this._renderContext.viewer;
     const view = viewer.viewList[viewIndex];
 
     const isVisible = (flags & OBJECT_FLAGS.VISIBLE) !== 0;
@@ -314,7 +314,7 @@ export class RenderLayerImpl implements RenderLayer {
   }
 
   /**
-   * Destroys this RenderLayerImpl instance.
+   * Destroys this DrawBatchImpl instance.
    */
   destroy(): void {
     for (const counts of this.meshCounts) {
@@ -329,7 +329,7 @@ export class RenderLayerImpl implements RenderLayer {
       counts.numTransparent = 0;
     }
     this.meshCounts.length = 0;
-    this.renderContext = null;
+    this._renderContext = null;
     this._gpuMemoryWriteIF = null;
   }
 }

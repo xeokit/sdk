@@ -1,4 +1,4 @@
-import {DrawTechnique} from "../DrawTechnique";
+import {DrawTechnique} from "../../DrawTechnique";
 
 /**
  * @private
@@ -7,7 +7,7 @@ export class TrianglesDepthDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefs();
+    this.vsCommonDefines();
     this.vsSlicingDefines();
     this.vsDrawDepthDefs();
     this.vsPickMainOpen(); // Depth rendering is always for picking

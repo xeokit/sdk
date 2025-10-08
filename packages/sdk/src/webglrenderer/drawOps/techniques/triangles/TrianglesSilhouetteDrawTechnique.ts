@@ -1,16 +1,16 @@
-import {DrawTechnique} from "../DrawTechnique";
+import {DrawTechnique} from "../../DrawTechnique";
 
 /**
  * @private
  */
-export class GenericSilhouetteDrawTechnique extends DrawTechnique {
+export class TrianglesSilhouetteDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefs();
+    this.vsCommonDefines();
     this.vsSlicingDefines();
     this.vsSilhouetteDefines();
-    this.vsSilhouetteMainOpen();
+    this.vsDrawMainOpen();
     this.vsSilhouetteLogic();
     this.vsSlicingLogic();
     this.vsMainClose();

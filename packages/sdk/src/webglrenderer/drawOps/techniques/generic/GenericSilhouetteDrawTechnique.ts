@@ -1,17 +1,17 @@
-import {DrawTechnique} from "../DrawTechnique";
+import {DrawTechnique} from "../../DrawTechnique";
 
 /**
  * @private
  */
-export class TrianglesColorDrawTechnique extends DrawTechnique {
+export class GenericSilhouetteDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefs();
+    this.vsCommonDefines();
     this.vsSlicingDefines();
-    this.vsDrawLambertDefs();
-    this.vsDrawMainOpen();
-    this.vsDrawLambertLogic(); // Lambert shading for triangles
+    this.vsSilhouetteDefines();
+    this.vsSilhouetteMainOpen();
+    this.vsSilhouetteLogic();
     this.vsSlicingLogic();
     this.vsMainClose();
   }
@@ -21,10 +21,10 @@ export class TrianglesColorDrawTechnique extends DrawTechnique {
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsDrawLambertDefs(); // Lambert shading definitions
+    this.fsSilhouetteDefines();
     this.fsMainOpen();
     this.fsSlicingLogic();
-    this.fsDrawLambertLogic(); // Lambert shading logic
+    this.fsSilhouetteLogic();
     this.fsCommonOutput();
     this.fsMainClose();
   }

@@ -1,17 +1,17 @@
-import {DrawTechnique} from "../DrawTechnique";
+import {DrawTechnique} from "../../DrawTechnique";
 
 /**
  * @private
  */
-export class LinesSilhouetteDrawTechnique extends DrawTechnique {
+export class TrianglesPickMeshDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefs();
+    this.vsCommonDefines();
     this.vsSlicingDefines();
-    this.vsSilhouetteDefines();
-    this.vsSilhouetteMainOpen();
-    this.vsSilhouetteLogic();
+    this.vsPickMeshDefines();
+    this.vsPickMainOpen();
+    this.vsPickMeshLogic();
     this.vsSlicingLogic();
     this.vsMainClose();
   }
@@ -21,10 +21,10 @@ export class LinesSilhouetteDrawTechnique extends DrawTechnique {
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsSilhouetteDefines();
+    this.fsPickMeshDefines();
     this.fsMainOpen();
     this.fsSlicingLogic();
-    this.fsSilhouetteLogic();
+    this.fsPickMeshLogic();
     this.fsCommonOutput();
     this.fsMainClose();
   }

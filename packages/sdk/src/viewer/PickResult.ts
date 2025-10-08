@@ -1,5 +1,7 @@
 import type {FloatArrayParam} from "../math";
 import type {ViewObject} from "./ViewObject";
+import {SceneMesh, SceneObject} from "../scene";
+import {View} from "./View";
 
 
 /**
@@ -7,6 +9,9 @@ import type {ViewObject} from "./ViewObject";
  */
 class PickResult {
 
+  #sceneMesh: SceneMesh;
+  #sceneObject: SceneObject;
+  #view: View;
   #viewObject?: ViewObject | null | undefined;
   #gotCanvasPos: boolean;
   #gotSnappedCanvasPos: boolean;
@@ -20,11 +25,11 @@ class PickResult {
   #gotUV: boolean;
   #snappedToVertex: boolean;
   #snappedToEdge: boolean;
-  #canvasPos: Int16Array;
-  #snappedCanvasPos: Int16Array;
+  #canvasPos: Int16Array<any>;
+  #snappedCanvasPos: Int16Array<any>;
   #origin: FloatArrayParam;
   #direction: FloatArrayParam;
-  #indices: Int32Array;
+  #indices: Int32Array<any>;
   #localPos: FloatArrayParam;
   #worldPos: FloatArrayParam;
   #viewPos: FloatArrayParam;
@@ -33,6 +38,9 @@ class PickResult {
 
   constructor() {
 
+    this.#sceneMesh = null as any;
+    this.#sceneObject = null as any;
+    this.#view = null as any;
     this.#viewObject = null;
     this.#canvasPos = new Int16Array([0, 0]);
     this.#origin = new Float64Array([0, 0, 0]);
@@ -59,6 +67,49 @@ class PickResult {
     this.reset();
   }
 
+
+  /**
+   * The picked {@link View}.
+   */
+  get view(): View | null | undefined {
+    return this.#view;
+  }
+
+  /**
+   * @private
+   */
+  set view(value: View | null | undefined) {
+    this.#view = value;
+  }
+
+  /**
+   * The picked {@link SceneObject}.
+   */
+  get sceneObject(): SceneObject | null | undefined {
+    return this.#sceneObject;
+  }
+
+  /**
+   * @private
+   */
+  set sceneObject(value: SceneObject | null | undefined) {
+    this.#sceneObject = value;
+  }
+
+  /**
+   * The picked {@link SceneMesh}.
+   */
+  get sceneMesh(): SceneMesh | null | undefined {
+    return this.#sceneMesh;
+  }
+
+  /**
+   * @private
+   */
+  set sceneMesh(value: SceneMesh | null | undefined) {
+    this.#sceneMesh = value;
+  }
+  
   /**
    * The picked {@link ViewObject}.
    */
@@ -76,14 +127,14 @@ class PickResult {
   /**
    * Canvas coordinates when picking with a 2D pointer.
    */
-  get canvasPos(): Int16Array | undefined {
+  get canvasPos(): Int16Array<any> | undefined {
     return this.#gotCanvasPos ? this.#canvasPos : undefined;
   }
 
   /**
    * @private
    */
-  set canvasPos(value: FloatArrayParam | Int16Array | undefined) {
+  set canvasPos(value: FloatArrayParam | Int16Array<any> | undefined) {
     if (value) {
       this.#canvasPos[0] = value[0];
       this.#canvasPos[1] = value[1];
@@ -139,7 +190,7 @@ class PickResult {
    * Picked triangle's vertex indices.
    * Only defined when an object and triangle was picked.
    */
-  get indices(): Int32Array | null {
+  get indices(): Int32Array<any> | null {
     return this.#viewObject !== null && this.#gotIndices ? this.#indices : null;
   }
 
@@ -297,14 +348,14 @@ class PickResult {
    * Snapped canvas coordinates when picking with a 2D pointer.
    * This has a value when {@link PickResult.snappedToEdge} or {@link PickResult.snappedToVertex} is `true`, otherwise will be `null`.
    */
-  get snappedCanvasPos(): Int16Array | undefined {
+  get snappedCanvasPos(): Int16Array<any> | undefined {
     return this.#gotSnappedCanvasPos ? this.#snappedCanvasPos : undefined;
   }
 
   /**
    * @private
    */
-  set snappedCanvasPos(value: FloatArrayParam | Int16Array | undefined) {
+  set snappedCanvasPos(value: FloatArrayParam | Int16Array<any> | undefined) {
     if (value) {
       this.#snappedCanvasPos[0] = value[0];
       this.#snappedCanvasPos[1] = value[1];
@@ -318,6 +369,9 @@ class PickResult {
    * @private
    */
   reset() {
+    this.#sceneMesh = null;
+    this.#sceneObject = null;
+    this.#view = null;
     this.#viewObject = null;
     this.#gotCanvasPos = false;
     this.#gotSnappedCanvasPos = false;

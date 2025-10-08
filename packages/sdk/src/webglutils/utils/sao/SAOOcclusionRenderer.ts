@@ -268,12 +268,12 @@
 //         this.#dirty = false;
 //     }
 //
-//     draw(depthRenderBuffer: WebGLRenderBuffer) {
+//     drawBatch(depthRenderBuffer: WebGLRenderBuffer) {
 //         this.#registerViewer();
 //         if (this.#programError) {
 //             return;
 //         }
-//         if (!this.#getInverseProjectMat) { // HACK: scene.camera not defined until draw time
+//         if (!this.#getInverseProjectMat) { // HACK: scene.camera not defined until drawBatch time
 //             this.#getInverseProjectMat = (() => {
 //                 let projMatDirty = true;
 //                 this.#view.camera.onProjMatrix.subscribe(()=> {

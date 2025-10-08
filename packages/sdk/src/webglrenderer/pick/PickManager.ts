@@ -21,6 +21,7 @@ import {MeshBatches} from "../meshBatches/MeshBatches";
 import {ViewManager} from "../views/ViewManager";
 import {DTXMemory} from "../dtxMemory/DTXMemory";
 import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
+import {SceneMesh} from "../../scene";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -75,7 +76,7 @@ export class PickManager {
    */
   pick( rendererView: RendererViewImpl,
         pickParams: PickParams,
-        pickResult = this._pickResult ): PickResult|null {
+        pickResult = this._pickResult ): boolean{
 
     if (!this._renderContext) {
       throw new SDKError("Can't pick object with WebGLRenderer - no Viewer and View is attached");
@@ -85,6 +86,8 @@ export class PickManager {
     const camera = view.camera;
 
     pickResult.reset();
+
+    pickResult.view = view;
 
     const {
       pickCanvasPos,
@@ -160,9 +163,7 @@ export class PickManager {
 
     if (pickParams.pickViewObject || pickParams.pickSurface) {
 
-      // Pick a ViewObject
-
-      const rendererObject = this._pickMesh({
+      const pickMeshResult = this._pickMesh({
         rendererView,
         rayPick,
         pickCanvasPos,
@@ -171,34 +172,34 @@ export class PickManager {
         pickInvisible: !!pickParams.pickInvisible
       });
 
-      if (rendererObject) {
+      if (!pickMeshResult) {
+        return false;
+      }
 
-        const rendererObject = rendererObject.rendererObject;
-        const view = rendererView.view;
+      pickResult.sceneMesh = pickMeshResult.sceneMesh;
 
-        pickResult.viewObject = view.objects[rendererObject.id];
+      if (pickParams.pickSurface) {
 
-        if (pickParams.pickSurface) {
+        const worldPos = this._pickWorldPos({
+          rendererView,
+          meshIndex: pickMeshResult.meshIndex,
+          batchIndex: pickMeshResult.batchIndex,
+          sceneMesh: pickMeshResult.sceneMesh,
+          pickCanvasPos,
+          pickViewMatrix,
+          pickProjMatrix,
+          pickInvisible: pickParams.pickInvisible
+        });
 
-          // Pick 3D position on surface of ViewObject
-
-          // const worldPos = this._pickWorldPos({
-          //   rendererView,
-          //   sceneObjectRendererProxy,
-          //   pickCanvasPos,
-          //   pickViewMatrix,
-          //   pickProjMatrix,
-          //   pickInvisible: pickParams.pickInvisible
-          // });
-
-          // if (worldPos) {
-          //   pickResult.worldPos = worldPos;
-          // }
+        if (!worldPos) {
+          return false
         }
+
+          pickResult.worldPos = worldPos;
       }
     }
 
-    return pickResult;
+    return true; // All requested pick info obtained
   };
 
   _pickMesh(
@@ -209,7 +210,7 @@ export class PickManager {
       pickViewMatrix?: FloatArrayParam,
       pickProjMatrix: FloatArrayParam,
       pickInvisible: boolean
-    } ): RendererMesh {
+    } ): { meshIndex: number; batchIndex: number; sceneMesh: SceneMesh } |null {
 
     const {rendererView, rayPick, pickCanvasPos, pickProjMatrix, pickViewMatrix, pickInvisible} = params;
 
@@ -244,7 +245,7 @@ export class PickManager {
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const batches = this._meshBatches.batches; // Batches are sorted by prim type
+    const batches = this._meshBatches.sortedBatches; // Batches are sorted by prim type
     for (let i = 0, len = batches.length; i < len; i++) {
       const batch = batches[i];
       const meshCounts = batch.meshCounts[viewIndex];
@@ -254,21 +255,27 @@ export class PickManager {
       ) {
         continue;
       }
-      this._drawOps.prims[batch.primitive]?.pick?.draw(batch);
+      this._drawOps.prims[batch.primitive]?.pick?.drawBatch(batch);
     }
 
     const pix = pickBuffer.read(0, 0);
     const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
     pickBuffer.unbind();
+
     if (pickID < 0) {
       return null;
     }
 
     const result = this._extract16BitParts(pickID);
 
+    const sceneMesh = this._meshBatches.getMeshAtIndex(result.batchIndex,result.meshIndex);
 
-    const rendererMesh = this._meshBatches.
-    return <RendererMesh>this._pickIDs.items[pickID];
+    return sceneMesh
+        ? {sceneMesh,
+          batchIndex: result.batchIndex,
+          meshIndex: result.meshIndex
+    }
+        : null;
   }
 
   _extract16BitParts(unsignedInt) {
@@ -279,103 +286,101 @@ export class PickManager {
     // Extract low 16 bits by masking
     const low16 = unsignedInt & 0xFFFF;
     return {
-      batch: this._meshBatches.batches[high16],
       batchIndex: high16,
       meshIndex: low16
     };
   }
 
-
   _pickWorldPos(
     params: {
       rendererView: RendererViewImpl,
+      sceneMesh: SceneMesh,
+        batchIndex: number,
+        meshIndex: number,
       pickCanvasPos: FloatArrayParam,
       pickViewMatrix: FloatArrayParam,
       pickProjMatrix: FloatArrayParam,
-      pickInvisible: boolean,
-      rendererMesh: RendererMesh
+      pickInvisible: boolean
     } ): FloatArrayParam|null {
 
-    // const {rendererView, sceneObjectRendererProxy, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
-    // const view = rendererView.view;
-    // const resolutionScale = view.resolutionScale;
-    // const _batch = sceneObjectRendererProxy._batch;
-    // const renderContext = this._renderContext;
-    // const gl = renderContext.gl;
-    // const canvas = rendererView.view.htmlElement;
-    // const boundingRect = canvas.getBoundingClientRect();
-    // const pickBuffer = rendererView.renderBufferManager.getRenderBuffer("pickDepth", {
-    //   depthTexture: true,
-    //   size: [1, 1]
-    // });
-    // pickBuffer.bind();
-    // pickBuffer.clear();
-    // renderContext.reset();
-    // renderContext.backfaces = true;
-    // renderContext.frontface = true; // "ccw"
-    // renderContext.pickViewMatrix = pickViewMatrix;
-    // renderContext.pickProjMatrix = pickProjMatrix;
-    // renderContext.pickInvisible = !!params.pickInvisible;
-    // renderContext.pickClipPos = [
-    //   this._getClipPosX(params.pickCanvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
-    //   this._getClipPosY(params.pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
-    // ];
-    //
-    // gl.viewport(0, 0, 1, 1);
-    // gl.depthMask(true);
-    // gl.enable(gl.DEPTH_TEST);
-    // gl.disable(gl.CULL_FACE);
-    // gl.disable(gl.BLEND);
-    // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    //
-    // // _batch.drawPickDepths();
-    //
-    // const pix = pickBuffer.read(0, 0);
-    //
-    // pickBuffer.unbind();
-    //
-    // const screenZ = this._unpackDepth(pix); // Get screen-space Z at the given canvas coords
-    //
-    // // Calculate clip space coordinates, which will be in range of x=[-1..1] and y=[-1..1], with y=(+1) at top
-    //
-    // const x = (pickCanvasPos[0] - canvas.clientWidth / 2) / (canvas.clientWidth / 2);
-    // const y = -(pickCanvasPos[1] - canvas.clientHeight / 2) / (canvas.clientHeight / 2);
-    //
-    // // Ensure that unprojection matrix is in RTC space if needed
-    //
-    // const origin = sceneObjectRendererProxy.tile.center;
-    // const gotOrigin = (origin[0] !== 0 && origin[1] !== 0 && origin[2] !== 0);
-    // let pvMat = gotOrigin
-    //   ? mulMat4(pickProjMatrix, createRTCViewMat(pickViewMatrix, origin, tempMat4a), tempMat4b)
-    //   : mulMat4(pickProjMatrix, pickViewMatrix, tempMat4b);
-    //
-    // const pvMatInverse = inverseMat4(pvMat, tempMat4c);
-    //
-    // tempVec4a[0] = x;
-    // tempVec4a[1] = y;
-    // tempVec4a[2] = -1;
-    // tempVec4a[3] = 1;
-    //
-    // let world1 = transformVec4(pvMatInverse, tempVec4a);
-    // world1 = mulVec4Scalar(world1, 1 / world1[3]);
-    //
-    // tempVec4b[0] = x;
-    // tempVec4b[1] = y;
-    // tempVec4b[2] = 1;
-    // tempVec4b[3] = 1;
-    //
-    // let world2 = transformVec4(pvMatInverse, tempVec4b);
-    // world2 = mulVec4Scalar(world2, 1 / world2[3]);
-    //
-    // const dir = subVec3(world2, world1, tempVec4c);
-    // const worldPos = addVec3(world1, mulVec4Scalar(dir, screenZ, tempVec4d), tempVec4e);
-    //
-    // if (gotOrigin) {
-    //   addVec3(worldPos, origin);
-    // }
-    // console.log(worldPos);
-    // return worldPos;
-    return null;
+    const {rendererView, batchIndex, meshIndex, sceneMesh, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
+    const view = rendererView.view;
+    const resolutionScale = view.resolutionScale;
+    const meshBatch = this._meshBatches.getBatch(batchIndex);
+    const renderContext = this._renderContext;
+    const gl = renderContext.gl;
+    const canvas = rendererView.view.htmlElement;
+    const boundingRect = canvas.getBoundingClientRect();
+    const pickBuffer = rendererView.renderBufferManager.getRenderBuffer("pickDepth", {
+      depthTexture: true,
+      size: [1, 1]
+    });
+    pickBuffer.bind();
+    pickBuffer.clear();
+    renderContext.reset();
+    renderContext.backfaces = true;
+    renderContext.frontface = true; // "ccw"
+    renderContext.pickViewMatrix = pickViewMatrix;
+    renderContext.pickProjMatrix = pickProjMatrix;
+    renderContext.pickInvisible = !!params.pickInvisible;
+    renderContext.pickClipPos = [
+      this._getClipPosX(params.pickCanvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
+      this._getClipPosY(params.pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
+    ];
+
+    gl.viewport(0, 0, 1, 1);
+    gl.depthMask(true);
+    gl.enable(gl.DEPTH_TEST);
+    gl.disable(gl.CULL_FACE);
+    gl.disable(gl.BLEND);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    this._drawOps.prims[meshBatch.primitive]?.depth?.drawMesh(meshBatch, meshIndex);
+
+    const pix = pickBuffer.read(0, 0);
+
+    pickBuffer.unbind();
+
+    const screenZ = this._unpackDepth(pix); // Get screen-space Z at the given canvas coords
+
+    // Calculate clip space coordinates, which will be in range of x=[-1..1] and y=[-1..1], with y=(+1) at top
+
+    const x = (pickCanvasPos[0] - canvas.clientWidth / 2) / (canvas.clientWidth / 2);
+    const y = -(pickCanvasPos[1] - canvas.clientHeight / 2) / (canvas.clientHeight / 2);
+
+    // Ensure that unprojection matrix is in RTC space if needed
+
+    const origin = (sceneMesh.sceneMeshRendererProxy as RendererMesh).tile.center; // HACK: Cast to RendererMesh is a bit dirty
+    const gotOrigin = (origin[0] !== 0 && origin[1] !== 0 && origin[2] !== 0);
+    let pvMat = gotOrigin
+      ? mulMat4(pickProjMatrix, createRTCViewMat(pickViewMatrix, origin, tempMat4a), tempMat4b)
+      : mulMat4(pickProjMatrix, pickViewMatrix, tempMat4b);
+
+    const pvMatInverse = inverseMat4(pvMat, tempMat4c);
+
+    tempVec4a[0] = x;
+    tempVec4a[1] = y;
+    tempVec4a[2] = -1;
+    tempVec4a[3] = 1;
+
+    let world1 = transformVec4(pvMatInverse, tempVec4a);
+    world1 = mulVec4Scalar(world1, 1 / world1[3]);
+
+    tempVec4b[0] = x;
+    tempVec4b[1] = y;
+    tempVec4b[2] = 1;
+    tempVec4b[3] = 1;
+
+    let world2 = transformVec4(pvMatInverse, tempVec4b);
+    world2 = mulVec4Scalar(world2, 1 / world2[3]);
+
+    const dir = subVec3(world2, world1, tempVec4c);
+    const worldPos = addVec3(world1, mulVec4Scalar(dir, screenZ, tempVec4d), tempVec4e);
+
+    if (gotOrigin) {
+      addVec3(worldPos, origin);
+    }
+    return worldPos;
   }
 
   _unpackDepth( depthZ ) {

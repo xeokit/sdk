@@ -1,7 +1,7 @@
 /**
  * Interface representing a collection of data textures used in WebGL rendering.
  *
- * Kept in {@link DataTextures.batches | DataTextures.batches} array in {@link DataTextures}.
+ * Kept in {@link DataTextures.batches | DataTextures.sortedBatches} array in {@link DataTextures}.
  */
 export interface DataTexturesBatch {
 

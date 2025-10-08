@@ -1,7 +1,7 @@
 import {WebGLRenderBuffer} from "../../webglutils";
 
 /**
- * Manages WebGL draw buffers .
+ * Manages WebGL drawBatch buffers .
  *
  * @private
  */
@@ -14,13 +14,13 @@ export class RenderBufferManager {
   private _gl: WebGL2RenderingContext;
 
   /**
-   * A collection of basic draw buffers, keyed by their unique IDs.
+   * A collection of basic drawBatch buffers, keyed by their unique IDs.
    * @type {{ [key: string]: WebGLRenderBuffer }}
    */
   private _renderBuffersBasic: { [key: string]: WebGLRenderBuffer };
 
   /**
-   * A collection of scaled draw buffers, keyed by their unique IDs.
+   * A collection of scaled drawBatch buffers, keyed by their unique IDs.
    */
   private _renderBuffersScaled: { [key: string]: WebGLRenderBuffer };
 
@@ -43,13 +43,13 @@ export class RenderBufferManager {
   }
 
   /**
-   * Retrieves a draw _buffer by its ID, creating it if it does not exist.
+   * Retrieves a drawBatch _buffer by its ID, creating it if it does not exist.
    *
-   * @param {string} id - The unique identifier for the draw _buffer.
-   * @param {Object} [options] - Optional configuration for the draw _buffer.
-   * @param {boolean} options.depthTexture - Whether the draw _buffer includes a depth texture.
-   * @param {number[]} [options.size] - The size of the draw _buffer, specified as `[width, height]`.
-   * @returns {WebGLRenderBuffer} The requested or newly created draw _buffer.
+   * @param {string} id - The unique identifier for the drawBatch _buffer.
+   * @param {Object} [options] - Optional configuration for the drawBatch _buffer.
+   * @param {boolean} options.depthTexture - Whether the drawBatch _buffer includes a depth texture.
+   * @param {number[]} [options.size] - The size of the drawBatch _buffer, specified as `[width, height]`.
+   * @returns {WebGLRenderBuffer} The requested or newly created drawBatch _buffer.
    */
   getRenderBuffer(id: string, options?: { depthTexture: boolean; size?: number[] }) {
     const renderBuffers = this._renderBuffersBasic; // Currently only basic buffers are used
@@ -66,7 +66,7 @@ export class RenderBufferManager {
   }
 
   /**
-   * Destroys all managed draw buffers, releasing their associated WebGL resources.
+   * Destroys all managed drawBatch buffers, releasing their associated WebGL resources.
    */
   destroy() {
     for (const id in this._renderBuffersBasic) {

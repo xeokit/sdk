@@ -172,7 +172,7 @@ export class RenderContext {
   }
 
   /**
-   * Gets the next available texture unit for the current draw pass.
+   * Gets the next available texture unit for the current drawBatch pass.
    */
   get nextTextureUnit() {
     const textureUnit = this.textureUnit;

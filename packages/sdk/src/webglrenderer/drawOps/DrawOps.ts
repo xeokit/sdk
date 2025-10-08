@@ -1,21 +1,21 @@
 import {RenderContext} from "../RenderContext";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../constants";
-import {TrianglesColorDrawTechnique} from "./triangles/TrianglesColorDrawTechnique";
-import {GenericSilhouetteDrawTechnique} from "./generic/GenericSilhouetteDrawTechnique";
-import {PointsSilhouetteDrawTechnique} from "./points/PointsSilhouetteDrawTechnique";
-import {PointsColorDrawTechnique} from "./points/PointsColorDrawTechnique";
+import {TrianglesColorDrawTechnique} from "./techniques/triangles/TrianglesColorDrawTechnique";
+import {GenericSilhouetteDrawTechnique} from "./techniques/generic/GenericSilhouetteDrawTechnique";
+import {PointsSilhouetteDrawTechnique} from "./techniques/points/PointsSilhouetteDrawTechnique";
+import {PointsColorDrawTechnique} from "./techniques/points/PointsColorDrawTechnique";
 import {type DTXMemoryReader} from "../dtxMemory/DTXMemoryReader";
-import {LinesColorDrawTechnique} from "./lines/LinesColorDrawTechnique";
+import {LinesColorDrawTechnique} from "./techniques/lines/LinesColorDrawTechnique";
 import {RenderPassDrawOps} from "./RenderPassDrawOps";
 import {DrawOp} from "./DrawOp";
 import {RENDER_PASSES} from "./RENDER_PASSES";
-import {TrianglesDepthDrawTechnique} from "./triangles/TrianglesDepthDrawTechnique";
-import {TrianglesEdgeSilhouetteDrawTechnique} from "./triangles/TrianglesEdgeSilhouetteDrawTechnique";
-import {TrianglesPickMeshDrawTechnique} from "./triangles/TrianglesPickMeshDrawTechnique";
+import {TrianglesDepthDrawTechnique} from "./techniques/triangles/TrianglesDepthDrawTechnique";
+import {TrianglesEdgeSilhouetteDrawTechnique} from "./techniques/triangles/TrianglesEdgeSilhouetteDrawTechnique";
+import {TrianglesPickMeshDrawTechnique} from "./techniques/triangles/TrianglesPickMeshDrawTechnique";
 import {DrawTechnique} from "./DrawTechnique";
 
 /**
- * Manages a set of draw operations for different primitive types.
+ * Manages a set of drawBatch operations for different primitive types.
  */
 export class DrawOps {
 
@@ -49,9 +49,9 @@ export class DrawOps {
             return drawTechnique;
         }
 
-        // Some draw techniques are shared between multiple draw ops.
-        // A draw op applies a draw technique to a specific render pass.
-        // E.g. the silhouette draw technique is used for highlighted, selected and xrayed triangles.
+        // Some drawBatch techniques are shared between multiple drawBatch ops.
+        // A drawBatch op applies a drawBatch technique to a specific render pass.
+        // E.g. the silhouette drawBatch technique is used for highlighted, selected and xrayed triangles.
 
         const silhouette = saveForCleanup(new GenericSilhouetteDrawTechnique(renderContext, dtxMemoryReader));
 
@@ -67,15 +67,15 @@ export class DrawOps {
 
             [TrianglesPrimitive]: {
                 opaque: new DrawOp(trianglesColor, RENDER_PASSES.OPAQUE),
-                opaqueEdges: null,
-                transparent: new DrawOp(trianglesColor, RENDER_PASSES.TRANSPARENT),
-                transparentEdges: null,
-                highlighted: new DrawOp(silhouette, RENDER_PASSES.HIGHLIGHTED),
-                highlightedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.HIGHLIGHTED),
-                selected: new DrawOp(silhouette, RENDER_PASSES.SELECTED),
-                selectedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.SELECTED),
-                xrayed: new DrawOp(silhouette, RENDER_PASSES.XRAYED),
-                xrayedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.XRAYED),
+                // opaqueEdges: null,
+                // transparent: new DrawOp(trianglesColor, RENDER_PASSES.TRANSPARENT),
+                // transparentEdges: null,
+                 highlighted: new DrawOp(silhouette, RENDER_PASSES.HIGHLIGHTED),
+                // highlightedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.HIGHLIGHTED),
+                 selected: new DrawOp(silhouette, RENDER_PASSES.SELECTED),
+                // selectedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.SELECTED),
+                // xrayed: new DrawOp(silhouette, RENDER_PASSES.XRAYED),
+                // xrayedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.XRAYED),
                 // pick: new DrawOp(trianglesPick, RENDER_PASSES.PICK),
                 // pickDepth: new DrawOp(trianglesDepth, RENDER_PASSES.PICK)
             },

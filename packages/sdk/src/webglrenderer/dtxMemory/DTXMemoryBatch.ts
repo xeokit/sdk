@@ -28,7 +28,7 @@ export class DTXMemoryBatch {
   dataTextures: DataTexturesBatch;
 
   /**
-   * Index of this DTXMemoryBatch within the DTXMemory.batches array.
+   * Index of this DTXMemoryBatch within the DTXMemory.sortedBatches array.
    */
   public index: number;
 
@@ -228,7 +228,7 @@ export class DTXMemoryBatch {
   /**
    * Adds a SceneMesh to data texture dtxMemory.
    *
-   * Returns an tileIndex/handle through which you can dynamically update attributes for the mesh.
+   * Returns an index through which you can dynamically update attributes for the mesh.
    *
    * @param sceneMesh
    */
@@ -486,6 +486,53 @@ export class DTXMemoryBatch {
     this._needRenderAllViews();
   }
 
+  /**
+   * Retrieves a SceneMesh by its meshIndex.
+   * @param meshIndex
+   */
+  getMeshAtIndex( meshIndex: number ): SceneMesh | null {
+    return this._sceneMeshes[meshIndex] ?? null;
+  }
+
+  /**
+   * Retrieves parameters for a drawArrays() call to render a specific mesh.
+   * @param meshIndex
+   */
+  getDrawArraysParamsForMesh( meshIndex: number ): { first: number, count: number} | null {
+    const sceneMesh = this._sceneMeshes[meshIndex];
+    if (!sceneMesh) {
+      return null;
+    }
+    const geometry = sceneMesh.geometry;
+    if (!geometry) {
+      return null;
+    }
+    const meshHandle = this._meshHandles[sceneMesh.id];
+    if (!meshHandle) {
+      return null;
+    }
+    const primsBase = meshHandle.primsBase;
+    if (geometry.primitive === PointsPrimitive) {
+      const count = geometry.positionsCompressed.length / 3; // 3xcomponents per position
+      return {
+        count,
+        first: primsBase
+      };
+    } else if (geometry.primitive === LinesPrimitive) {
+      const count = (geometry.indices?.length ?? 0);
+      return {
+        count,
+        first: primsBase
+      };
+    } else if (geometry.primitive === TrianglesPrimitive) {
+      const count = (geometry.indices?.length ?? 0);
+      return {
+        count,
+        first: primsBase
+      };
+    }
+    return null;
+  }
   _getFreeMeshIndex(): number {
     for (let i = this._lastFreeMeshIndex; ; i = (i + 1) % MAX_MESHES) {
       if (!this._meshIndicesUsed[i]) {

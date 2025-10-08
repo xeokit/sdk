@@ -21,7 +21,7 @@ import {RendererTexture} from "./RendererTexture";
 import {RendererTextureSet} from "./RendererTextureSet";
 
 /**
- * The RenderGraph manages the relationship between scene objects, their geometries, meshes, and rendering batches.
+ * The RenderGraph manages the relationship between scene objects, their geometries, meshes, and rendering sortedBatches.
  *
  * It listens to the Viewer's Scene for additions and removals of models, objects, meshes and geometries, creating
  * or destroying the corresponding renderer entities as needed.
@@ -49,7 +49,7 @@ export class MeshBatches {
       rendererMeshes: Record<string, RendererMesh>;
     }> = {};
 
-  private _batches: Record<string, MeshBatchImpl> = {};
+  private _sortedBatches: Record<string, MeshBatchImpl> = {};
   private _batchList: MeshBatch[] = [];
   private _batchListDirty = true;
 
@@ -85,14 +85,40 @@ export class MeshBatches {
   /**
    * Returns the list of MeshBatches sorted by their primitive type.
    */
-  public get batches(): MeshBatch[] {
+  public get sortedBatches(): MeshBatch[] {
     if (this._batchListDirty) {
       // @ts-ignore
-      this._batchList = Object.values(this._batches).sort(( a, b ) => a.primitive - b.primitive);
+      this._batchList = Object.values(this._sortedBatches).sort((a, b ) => a.primitive - b.primitive);
       this._batchListDirty = false;
     }
     return this._batchList;
   }
+
+  /**
+   * Retrieves a MeshBatch at the specified index, if it exists.
+   * @param batchIndex
+   */
+  public getBatch( batchIndex: number ): MeshBatch | null {
+    return this._sortedBatches[batchIndex];
+  }
+
+  /**
+   * Retrieves a SceneMesh within a specific batch at the given index.
+   * @param batchIndex
+   * @param meshIndex
+   */
+  public getMeshAtIndex( batchIndex: number, meshIndex: number ): SceneMesh | null {
+    return this._dtxMemoryEditor.getMeshAtIndex(batchIndex, meshIndex);
+  }
+
+  /**
+   * Gets the parameters needed for a drawArrays call for a specific mesh in a specific batch.
+   * @param batchIndex
+   * @param meshIndex
+   */
+  getDrawArraysParamsForMesh( batchIndex: number, meshIndex: number ): { first: number; count: number } | null{
+        return this._dtxMemoryEditor.getDrawArraysParamsForMesh(batchIndex, meshIndex);
+    }
 
   private _addModel( sceneModel: SceneModel ): void {
     this._rendererModels[sceneModel.id] ||= {
@@ -167,12 +193,12 @@ export class MeshBatches {
    */
   private _getDrawBatch( sceneMesh: SceneMesh ): MeshBatchImpl {
     const primitive = sceneMesh.geometry.primitive;
-    for (const drawBatch of Object.values(this._batches)) {
+    for (const drawBatch of Object.values(this._sortedBatches)) {
       if (drawBatch.primitive === primitive && drawBatch.canAddMesh(sceneMesh)) {
         return drawBatch;
       }
     }
-    const drawBatchId = `drawBatch-${primitive}-${Object.keys(this._batches).length}`;
+    const drawBatchId = `drawBatch-${primitive}-${Object.keys(this._sortedBatches).length}`;
     const newLayer = new MeshBatchImpl({
       primitive,
       renderContext: this._renderContext,
@@ -180,7 +206,7 @@ export class MeshBatches {
       dtxMemoryBatchIndex: this._dtxMemoryEditor.createBatch(),
     });
 
-    this._batches[drawBatchId] = newLayer;
+    this._sortedBatches[drawBatchId] = newLayer;
     this._batchListDirty = true;
     return newLayer;
   }
@@ -231,9 +257,9 @@ export class MeshBatches {
     this._onObjectDestroyed?.();
 
     // @ts-ignore
-    Object.values(this._batches).forEach(( drawBatch ) => drawBatch.destroy());
+    Object.values(this._sortedBatches).forEach((drawBatch ) => drawBatch.destroy());
 
-    this._batches = {};
+    this._sortedBatches = {};
     this._batchList = [];
     this._rendererObjects = {};
     this._rendererModels = {};

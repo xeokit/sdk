@@ -1,19 +1,13 @@
-import {DrawTechnique} from "../DrawTechnique";
-import {RenderContext} from "../../RenderContext";
-import {DTXMemoryReader} from "../../dtxMemory/DTXMemoryReader";
+import {DrawTechnique} from "../../DrawTechnique";
 
 /**
  * @private
  */
-export class TrianglesEdgeSilhouetteDrawTechnique extends DrawTechnique {
-
-  constructor(renderContext: RenderContext, dtxMemoryReader: DTXMemoryReader) {
-    super(renderContext, dtxMemoryReader, { edges: true });
-  }
+export class LinesSilhouetteDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefs();
+    this.vsCommonDefines();
     this.vsSlicingDefines();
     this.vsSilhouetteDefines();
     this.vsSilhouetteMainOpen();

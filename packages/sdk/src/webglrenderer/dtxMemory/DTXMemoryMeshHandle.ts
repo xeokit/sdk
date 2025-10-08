@@ -15,13 +15,13 @@ export class DTXMemoryMeshHandle {
 
   /**
    * Number of indices in the mesh.
-   * This helps DTXMemory users to know how many indices to draw in total for TRIANGLES and LINES.
+   * This helps DTXMemory users to know how many indices to drawBatch in total for TRIANGLES and LINES.
    */
   numIndices: number;
 
   /**
    * Number of vertices in the mesh.
-   * This helps DTXMemory users to know how many vertices to draw in total for POINTS.
+   * This helps DTXMemory users to know how many vertices to drawBatch in total for POINTS.
    */
   numVertices: number;
 }

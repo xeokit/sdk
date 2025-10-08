@@ -22,7 +22,7 @@ export class MeshBatchImpl implements MeshBatch {
   private _renderContext: RenderContext;
 
   /**
-   * The DTXMemoryEditor instance used to manage the GPU data dtxMemory for this batch.
+   * The DTXMemoryEditor instance used to manage the GPU data memory for this batch.
    */
   private _dtxMemoryEditor: DTXMemoryEditor;
 
@@ -109,7 +109,7 @@ export class MeshBatchImpl implements MeshBatch {
 
   /**
    * Adds a mesh to the batch and updates the mesh counts and indices. Returns the tileIndex of the
-   * added mesh in the batch's DTX dtxMemory.
+   * added mesh in the batch's DTX memory.
    * @param sceneMesh
    */
   addMesh( sceneMesh: SceneMesh ): MeshBatchMeshHandle {
@@ -146,6 +146,22 @@ export class MeshBatchImpl implements MeshBatch {
     }
     this.numIndices -= gpuMeshHandle.numIndices;
     this.numVertices -= gpuMeshHandle.numVertices;
+  }
+
+  /**
+   * Gets the SceneMesh at the specified index in this batch, if it exists.
+   * @param meshIndex
+   */
+  getMeshAtIndex( meshIndex: number ): SceneMesh | null {
+    return this._dtxMemoryEditor.getMeshAtIndex(this.dtxMemoryBatchIndex, meshIndex);
+  }
+
+  /**
+   * Gets the parameters needed for a drawArrays call for a specific mesh in this batch.
+   * @param meshIndex
+   */
+  getDrawArraysParamsForMesh( meshIndex: number ): { first: number; count: number } | null {
+    return this._dtxMemoryEditor.getDrawArraysParamsForMesh(this.dtxMemoryBatchIndex,  meshIndex);
   }
 
   /**

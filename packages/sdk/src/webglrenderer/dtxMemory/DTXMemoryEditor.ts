@@ -2,6 +2,7 @@ import {type FloatArrayParam} from "../../math";
 import {type Tile} from "./Tile";
 import {type SceneMesh} from "../../scene";
 import {DTXMemoryMeshHandle} from "./DTXMemoryMeshHandle";
+import {MeshBatchMeshHandle} from "../meshBatches/MeshBatchMeshHandle";
 
 /**
  * Interface for creating and updating GPU memory resources.
@@ -31,8 +32,8 @@ export interface DTXMemoryEditor {
   putTile( tile: Tile ): void;
 
   /**
-   * Creates a new GPU memory batch, up to the maximum number of batches allowed.
-   * The new batch is added to the  `DTXMemoryEditor.dataTextures.batches` array.
+   * Creates a new GPU memory batch, up to the maximum number of sortedBatches allowed.
+   * The new batch is added to the  `DTXMemoryEditor.dataTextures.sortedBatches` array.
    * Returns the index of the new batch.
    */
   createBatch(): number;
@@ -97,4 +98,20 @@ export interface DTXMemoryEditor {
    * @param meshHandle - Handle to the mesh to remove.
    */
   removeMesh( meshHandle: DTXMemoryMeshHandle ): void;
+
+  /**
+   * Retrieves a SceneMesh from a specific batch at the given index.
+   * This supports picking, where we need to map from each mesh's fragments, containing the RGBA-encoded batch and mesh indices,
+   * back to the SceneMesh instance.
+   * @param batchIndex
+   * @param meshIndex
+   */
+  getMeshAtIndex(batchIndex: number, meshIndex: number): SceneMesh;
+
+  /**
+   * Retrieves parameters for a drawArrays() call to render a specific mesh within a specific batch.
+   * @param batchIndex
+   * @param meshIndex
+   */
+  getDrawArraysParamsForMesh( batchIndex: number, meshIndex: number ): { first: number, count: number} | null
 }

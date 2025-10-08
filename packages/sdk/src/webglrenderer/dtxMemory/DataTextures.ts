@@ -1,7 +1,7 @@
 import {DataTexturesBatch} from "./DataTexturesBatch";
 
 /**
- * Interface representing GPU-resident data textures for tile view matrices and batches.
+ * Interface representing GPU-resident data textures for tile view matrices and sortedBatches.
  */
 export interface DataTextures {
 

@@ -10,6 +10,7 @@ import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 import {DTXMemoryBatch} from "./DTXMemoryBatch";
 import {DTXMemoryMeshHandle} from "./DTXMemoryMeshHandle";
 import {View} from "../../viewer";
+import {MeshBatchMeshHandle} from "../meshBatches/MeshBatchMeshHandle";
 
 
 /**
@@ -122,8 +123,8 @@ export class DTXMemory implements DTXMemoryReader, DTXMemoryEditor {
   }
 
   /**
-   * Creates a new GPU memory batch, up to the maximum number of batches allowed.
-   * The new batch is added to the  `DTXMemoryEditor.dataTextures.batches` array.
+   * Creates a new GPU memory batch, up to the maximum number of sortedBatches allowed.
+   * The new batch is added to the  `DTXMemoryEditor.dataTextures.sortedBatches` array.
    * Returns the index of the new batch.
    */
   createBatch(): number {
@@ -263,6 +264,32 @@ export class DTXMemory implements DTXMemoryReader, DTXMemoryEditor {
     this._needRenderAllViews();
     this._numMeshes--;
  //   console.log("removeMesh() Num meshes = " + this._numMeshes);
+  }
+
+  /**
+   * Retrieves a SceneMesh within a specific batch at the given index.
+   * @param batchIndex
+   * @param meshIndex
+   */
+  getMeshAtIndex( batchIndex: number, meshIndex: number ): SceneMesh | null {
+    const batch = this._batches[batchIndex];
+    if (!batch) {
+      return null;
+    }
+    return batch.getMeshAtIndex(meshIndex);
+  }
+
+  /**
+   * Retrieves parameters for a drawArrays() call to render a specific mesh within a specific batch.
+   * @param batchIndex
+   * @param meshIndex
+   */
+  getDrawArraysParamsForMesh( batchIndex: number, meshIndex: number ): { first: number, count: number} | null {
+    const batch = this._batches[batchIndex];
+    if (!batch) {
+      return null;
+    }
+    return batch.getDrawArraysParamsForMesh(meshIndex);
   }
 
   /**

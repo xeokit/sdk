@@ -129,7 +129,7 @@ export class WebGLRenderer implements Renderer {
     });
 
     // The ViewManager attaches RendererView instances to the Views, to which the Views can delegate drawing
-    // and picking to the draw and pick managers. The Views and their RendererViews are what drives the
+    // and picking to the drawBatch and pick managers. The Views and their RendererViews are what drives the
     // WebGLRenderer to perform drawing and picking.
 
     this._viewManager = new ViewManager(this._renderContext, this._renderManager, this._pickManager);

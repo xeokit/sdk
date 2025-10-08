@@ -1,19 +1,18 @@
-import {DrawTechnique} from "../DrawTechnique";
+import {DrawTechnique} from "../../DrawTechnique";
 
 /**
- * Renderer for drawing lines with color in the `WebGLRenderer`.
- *
  * @private
  */
-export class LinesColorDrawTechnique extends DrawTechnique {
+export class PointsColorDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
-    this.vsCommonDefs();
-    this.vsDrawFlatColorDefs();
+    this.vsCommonDefines();
+    this.vsDrawVertexColorDefs(); // Flat color definitions
     this.vsSlicingDefines();
+    this.vsPointsDefines();
     this.vsDrawMainOpen();
-    this.vsDrawFlatColorLogic(); // Flat color for lines
+    this.vsDrawVertexColorLogic(); // Vertex colors for points
     this.vsSlicingLogic();
     this.vsMainClose();
   }
@@ -23,10 +22,10 @@ export class LinesColorDrawTechnique extends DrawTechnique {
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsDrawFlatColorDefines();
+    this.fsDrawFlatColorDefines(); // Flat color definitions
     this.fsMainOpen();
     this.fsSlicingLogic();
-    this.fsDrawFlatColorLogic();
+    this.fsDrawFlatColorLogic(); // Flat color logic
     this.fsCommonOutput();
     this.fsMainClose();
   }

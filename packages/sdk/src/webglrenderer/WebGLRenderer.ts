@@ -7,9 +7,9 @@ import {RenderContext} from "./RenderContext";
 import {ViewManager} from "./views/ViewManager";
 import {RenderManager} from "./render/RenderManager";
 import {DrawBatches} from "./drawBatches/DrawBatches";
-import type {GPUMemoryReadIF} from "./gpuMemory/GPUMemoryReadIF";
-import type {GPUMemoryWriteIF} from "./gpuMemory/GPUMemoryWriteIF";
-import {GPUMemory} from "./gpuMemory/GPUMemory";
+import type {DTXMemoryReader} from "./dtxMemory/DTXMemoryReader";
+import type {DTXMemoryEditor} from "./dtxMemory/DTXMemoryEditor";
+import {DTXMemory} from "./dtxMemory/DTXMemory";
 import {PickManager} from "./pick/PickManager";
 
 /**
@@ -23,7 +23,7 @@ export class WebGLRenderer implements Renderer {
   private _renderManager!: RenderManager;
   private _pickManager!: PickManager;
   private _drawBatches!: DrawBatches;
-  private _gpuMemory!: GPUMemory;
+  private _dtxMemory!: DTXMemory;
 
   private _gl: WebGL2RenderingContext;
   private _renderContext: RenderContext|null = null;
@@ -118,14 +118,14 @@ export class WebGLRenderer implements Renderer {
     });
 
     this._renderContext = new RenderContext(viewer, this._gl, this._webglCanvasElement);
-    this._gpuMemory = new GPUMemory(this._renderContext);
-    this._drawBatches = new DrawBatches(this._renderContext, this._gpuMemory as GPUMemoryWriteIF);
-    this._renderManager = new RenderManager(this._renderContext, this._gpuMemory as GPUMemoryReadIF, this._drawBatches);
+    this._dtxMemory = new DTXMemory(this._renderContext);
+    this._drawBatches = new DrawBatches(this._renderContext, this._dtxMemory as DTXMemoryEditor);
+    this._renderManager = new RenderManager(this._renderContext, this._dtxMemory as DTXMemoryReader, this._drawBatches);
     this._pickManager = new PickManager({
       renderContext: this._renderContext,
       viewManager: this._viewManager,
       drawBatches: this._drawBatches,
-      gpuMemory: this._gpuMemory
+      dtxMemory: this._dtxMemory
     });
 
     // The ViewManager attaches RendererView instances to the Views, to which the Views can delegate drawing
@@ -158,13 +158,13 @@ export class WebGLRenderer implements Renderer {
     this._pickManager?.destroy();
     this._renderManager?.destroy();
     this._drawBatches?.destroy();
-    this._gpuMemory?.destroy();
+    this._dtxMemory?.destroy();
 
     this._pickManager = undefined as unknown as PickManager;
     this._viewManager = undefined as unknown as ViewManager;
     this._renderManager = undefined as unknown as RenderManager;
     this._drawBatches = undefined as unknown as DrawBatches;
-    this._gpuMemory = undefined as unknown as GPUMemory;
+    this._dtxMemory = undefined as unknown as DTXMemory;
     this._renderContext = null;
   }
 

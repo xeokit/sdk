@@ -1,15 +1,9 @@
-import {DrawOp} from "../DrawOp";
-import {RenderContext} from "../../RenderContext";
-import {GPUMemoryBatch} from "../../gpuMemory/GPUMemoryBatch";
+import {DrawTechnique} from "../DrawTechnique";
 
 /**
  * @private
  */
-export class TrianglesEdgeSilhouetteDrawOp extends DrawOp {
-
-  constructor(renderContext: RenderContext, dtxMemory:GPUMemoryBatch) {
-    super(renderContext, dtxMemory, { edges: true });
-  }
+export class PointsSilhouetteDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();

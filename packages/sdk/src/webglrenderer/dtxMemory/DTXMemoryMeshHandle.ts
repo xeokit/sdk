@@ -1,7 +1,7 @@
 /**
  * A handle to a mesh stored in GPU memory.
  */
-export class GPUMemoryMeshHandle {
+export class DTXMemoryMeshHandle {
 
   /**
    * Index of the batch containing the mesh.
@@ -15,13 +15,13 @@ export class GPUMemoryMeshHandle {
 
   /**
    * Number of indices in the mesh.
-   * This helps GPUMemory users to know how many indices to draw in total for TRIANGLES and LINES.
+   * This helps DTXMemory users to know how many indices to draw in total for TRIANGLES and LINES.
    */
   numIndices: number;
 
   /**
    * Number of vertices in the mesh.
-   * This helps GPUMemory users to know how many vertices to draw in total for POINTS.
+   * This helps DTXMemory users to know how many vertices to draw in total for POINTS.
    */
   numVertices: number;
 }

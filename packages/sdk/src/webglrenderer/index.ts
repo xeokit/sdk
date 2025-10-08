@@ -15,7 +15,7 @@
  * - High-performance full-precision rendering of large-scale models
  * - Multi-canvas rendering support
  * - Basis-compressed textures for optimized performance
- * - Compressed geometry for reduced gpuMemory footprint
+ * - Compressed geometry for reduced dtxMemory footprint
  *
  * ## Installation
  *

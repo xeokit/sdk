@@ -1,9 +1,9 @@
-import {DrawOp} from "../DrawOp";
+import {DrawTechnique} from "../DrawTechnique";
 
 /**
  * @private
  */
-export class TrianglesColorDrawOp extends DrawOp {
+export class TrianglesColorDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();

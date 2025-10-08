@@ -20,15 +20,15 @@ const MAX_GEOMETRIES = 500000;
  *
  * @private
  */
-export class GPUMemoryBatch {
+export class DTXMemoryBatch {
 
   /**
-   * The data textures that implement GPU-side model storage for this GPUMemoryBatch.
+   * The data textures that implement GPU-side model storage for this DTXMemoryBatch.
    */
   dataTextures: DataTexturesBatch;
 
   /**
-   * Index of this GPUMemoryBatch within the GPUMemory.batches array.
+   * Index of this DTXMemoryBatch within the DTXMemory.batches array.
    */
   public index: number;
 
@@ -226,7 +226,7 @@ export class GPUMemoryBatch {
 
 
   /**
-   * Adds a SceneMesh to data texture gpuMemory.
+   * Adds a SceneMesh to data texture dtxMemory.
    *
    * Returns an tileIndex/handle through which you can dynamically update attributes for the mesh.
    *
@@ -442,7 +442,7 @@ export class GPUMemoryBatch {
   }
 
   /**
-   * Removes a SceneMesh from data texture gpuMemory.
+   * Removes a SceneMesh from data texture dtxMemory.
    *
    * @param meshIndex
    */

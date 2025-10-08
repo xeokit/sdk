@@ -4,11 +4,11 @@ import type {FloatArrayParam} from "../../math";
  * Represents a single tile in a tiled coordinate system.
  *
  * Tracks world-space positions, RTC matrices, and usage counts for efficient rendering
- * and gpuMemory management. Integrates with `TileManager` to manage tile-based rendering.
+ * and dtxMemory management. Integrates with `TileManager` to manage tile-based rendering.
  *
  * ### Features:
  * - Stores world-space center and RTC matrices for multiple views.
- * - Tracks usage count for efficient gpuMemory allocation.
+ * - Tracks usage count for efficient dtxMemory allocation.
  * - Supports dynamic movement and reassignment within the tiled system.
  *
  * @interface

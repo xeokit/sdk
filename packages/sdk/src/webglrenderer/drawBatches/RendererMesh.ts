@@ -11,8 +11,8 @@ import type {FloatArrayParam} from "../../math";
 import type {DrawBatchImpl} from "./DrawBatchImpl";
 import type {RenderContext} from "../RenderContext";
 import {SceneMesh} from "../../scene";
-import {type Tile} from "../gpuMemory/Tile";
-import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
+import {type Tile} from "../dtxMemory/Tile";
+import {type DTXMemoryEditor} from "../dtxMemory/DTXMemoryEditor";
 import {RendererObject} from "./RendererObject";
 import {createRTCModelMat} from "../../rtc";
 import {DrawBatchMeshHandle} from "./DrawBatchMeshHandle";
@@ -31,11 +31,11 @@ const NUM_VIEWS = 4;
  *
  * This class encapsulates the data and behavior of a mesh within the WebGL rendering pipeline.
  * It manages the mesh's geometry, transformation, visibility, and rendering states for multiple views.
- * The mesh is associated with a specific _drawBatch and is associated with a tile managed by the `GPUMemoryBatch` system.
- * The `GPUMemoryBatch` is part of the `RenderContext`, which is shared across various renderer components.
+ * The mesh is associated with a specific _drawBatch and is associated with a tile managed by the `DTXMemoryBatch` system.
+ * The `DTXMemoryBatch` is part of the `RenderContext`, which is shared across various renderer components.
  *
  * Key responsibilities:
- * - Managing the mesh's transformation matrix and associating it with a tile from `GPUMemoryBatch`.
+ * - Managing the mesh's transformation matrix and associating it with a tile from `DTXMemoryBatch`.
  * - Handling rendering states such as visibility, transparency, highlighting, and selection.
  * - Managing color and opacity for the mesh across multiple views.
  * - Interfacing with the _drawBatch to update mesh-specific rendering properties.
@@ -53,7 +53,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
   private readonly _drawBatch: DrawBatchImpl;
   private readonly _renderContext: RenderContext;
   private readonly _viewStates: any;
-  private readonly _gpuMemoryWriteIF: GPUMemoryWriteIF;
+  private readonly _dtxMemoryEditor: DTXMemoryEditor;
 
   /**
    * Constructs a RendererMesh instance.
@@ -62,12 +62,12 @@ export class RendererMesh implements SceneMeshRendererProxy {
                  sceneMesh,
                  drawBatch,
                  renderContext,
-                 gpuMemoryWriteIF,
+                 dtxMemoryEditor,
                }: {
     sceneMesh: SceneMesh;
     drawBatch: DrawBatchImpl;
     renderContext: RenderContext;
-    gpuMemoryWriteIF: GPUMemoryWriteIF;
+    dtxMemoryEditor: DTXMemoryEditor;
   } ) {
 
     this.rendererObject = null;
@@ -75,7 +75,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
     this._sceneMesh = sceneMesh;
     this._drawBatch = drawBatch;
     this._meshHandle = drawBatch.addMesh(sceneMesh);
-    this._gpuMemoryWriteIF = gpuMemoryWriteIF;
+    this._dtxMemoryEditor = dtxMemoryEditor;
     this.tile = null;
 
     // Color / opacity -> 0..255
@@ -136,8 +136,8 @@ export class RendererMesh implements SceneMeshRendererProxy {
     const center = transformPoint4(matrix, identityVec4, tempVec4a);
     const oldTile = this.tile;
     this.tile = oldTile
-      ? this._gpuMemoryWriteIF.moveTile(oldTile, center)
-      : this._gpuMemoryWriteIF.getTile(center);
+      ? this._dtxMemoryEditor.moveTile(oldTile, center)
+      : this._dtxMemoryEditor.getTile(center);
     const tileChanged = !oldTile || oldTile.id !== this.tile.id;
     const tileCenter = this.tile.center;
     const needRTC = (tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0);
@@ -283,7 +283,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
   destroy() {
     this._drawBatch.removeMesh(this._meshHandle, this.rendererObject.flags);
     if (this.tile) {
-      this._gpuMemoryWriteIF.putTile(this.tile);
+      this._dtxMemoryEditor.putTile(this.tile);
     }
   }
 }

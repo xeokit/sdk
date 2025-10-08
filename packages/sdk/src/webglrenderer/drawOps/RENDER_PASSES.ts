@@ -18,30 +18,30 @@ export const RENDER_PASSES = {
   /**
    * Render opaque objects in their normal colors.
    */
-  COLOR_OPAQUE: 1,
+  OPAQUE: 1,
 
   /**
    * Render transparent objects in their normal colors
    */
-  COLOR_TRANSPARENT: 2,
+  TRANSPARENT: 2,
 
   /**
    * Render highlighted silhouettes.
    * Used to accentuate objects that are highlighted.
    */
-  SILHOUETTE_HIGHLIGHTED: 3,
+  HIGHLIGHTED: 3,
 
   /**
    * Render selected silhouettes.
    * Used to accentuate objects that are selected.
    */
-  SILHOUETTE_SELECTED: 4,
+  SELECTED: 4,
 
   /**
    * Render x-rayed silhouettes.
    * Used to render objects with an x-ray effect.
    */
-  SILHOUETTE_XRAYED: 5,
+  XRAYED: 5,
 
   /**
    * Picking pass.

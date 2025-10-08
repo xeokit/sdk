@@ -1,9 +1,9 @@
-import {DrawOp} from "../DrawOp";
+import {DrawTechnique} from "../DrawTechnique";
 
 /**
  * @private
  */
-export class LinesSilhouetteDrawOp extends DrawOp {
+export class GenericSilhouetteDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();

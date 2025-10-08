@@ -1,17 +1,19 @@
-import {DrawOp} from "../DrawOp";
+import {DrawTechnique} from "../DrawTechnique";
 
 /**
+ * Renderer for drawing lines with color in the `WebGLRenderer`.
+ *
  * @private
  */
-export class TrianglesSilhouetteDrawOp extends DrawOp {
+export class LinesColorDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefs();
+    this.vsDrawFlatColorDefs();
     this.vsSlicingDefines();
-    this.vsSilhouetteDefines();
     this.vsDrawMainOpen();
-    this.vsSilhouetteLogic();
+    this.vsDrawFlatColorLogic(); // Flat color for lines
     this.vsSlicingLogic();
     this.vsMainClose();
   }
@@ -21,10 +23,10 @@ export class TrianglesSilhouetteDrawOp extends DrawOp {
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsSilhouetteDefines();
+    this.fsDrawFlatColorDefines();
     this.fsMainOpen();
     this.fsSlicingLogic();
-    this.fsSilhouetteLogic();
+    this.fsDrawFlatColorLogic();
     this.fsCommonOutput();
     this.fsMainClose();
   }

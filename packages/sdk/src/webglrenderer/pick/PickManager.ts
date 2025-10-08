@@ -16,14 +16,11 @@ import {createRTCViewMat} from "../../rtc";
 import {RendererMesh} from "../drawBatches/RendererMesh";
 import {RenderContext} from "../RenderContext";
 import {RenderBufferManager} from "../views/RenderBufferManager";
-import {GPUMemoryReadIF} from "../gpuMemory/GPUMemoryReadIF";
+import {DTXMemoryReader} from "../dtxMemory/DTXMemoryReader";
 import {DrawBatches} from "../drawBatches/DrawBatches";
 import {ViewManager} from "../views/ViewManager";
-import {GPUMemory} from "../gpuMemory/GPUMemory";
-import {getPrimitiveDrawOps, PrimitiveDrawOps, putPrimitiveDrawOps} from "../drawOps/PrimitiveDrawOps";
-import {RENDER_PASSES} from "../RENDER_PASSES";
-
-
+import {DTXMemory} from "../dtxMemory/DTXMemory";
+import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
 
 const tempVec3a = createVec3();
 const tempVec3b = createVec3();
@@ -56,20 +53,20 @@ export class PickManager {
   private _pickBufferManager: RenderBufferManager;
   private _pickResult: PickResult;
   private _renderContext: RenderContext;
-  private _gpuMemory: GPUMemory;
+  private _dtxMemory: DTXMemory;
   private _drawBatches: DrawBatches;
-  private _primDrawOps: PrimitiveDrawOps;
+  private _drawOps: DrawOps;
 
   constructor( cfg: {
     renderContext: RenderContext,
-    gpuMemory: GPUMemory,
+    dtxMemory: DTXMemory,
     drawBatches: DrawBatches,
     viewManager: ViewManager
   } ) {
-    this._gpuMemory = cfg.gpuMemory;
+    this._dtxMemory = cfg.dtxMemory;
     this._drawBatches = cfg.drawBatches;
     this._renderContext = cfg.renderContext;
-    this._primDrawOps = getPrimitiveDrawOps(this._renderContext, this._gpuMemory as GPUMemoryReadIF);
+    this._drawOps = getDrawOps(this._renderContext, this._dtxMemory as DTXMemoryReader);
     this._pickResult = new PickResult();
   }
 
@@ -124,7 +121,7 @@ export class PickManager {
 
         // Ray defined as matrix
 
-        this._gpuMemory.setViewPickMatrix(view, pickParams.rayMatrix);
+        this._dtxMemory.setViewPickMatrix(view, pickParams.rayMatrix);
 
         // @ts-ignore
         pickViewMatrix.set(pickParams.rayMatrix);
@@ -149,7 +146,7 @@ export class PickManager {
         cross3Vec3(pickWorldRayDir, tempVec3b, tempVec3c);
         const rayMatrix = lookAtMat4v(pickWorldRayOrigin, look, tempVec3c, tempMat4b);
 
-        this._gpuMemory.setViewPickMatrix(view, rayMatrix);
+        this._dtxMemory.setViewPickMatrix(view, rayMatrix);
 
         // @ts-ignore
         pickViewMatrix.set(rayMatrix);
@@ -257,7 +254,7 @@ export class PickManager {
       ) {
         continue;
       }
-      this._primDrawOps.prims[batch.primitive]?.pick?.draw(batch, RENDER_PASSES.PICK);
+      this._drawOps.prims[batch.primitive]?.pick?.draw(batch);
     }
 
     const pix = pickBuffer.read(0, 0);
@@ -399,9 +396,9 @@ export class PickManager {
    * Cleans up resources used by this PickManager.
    */
   destroy() {
-    if (this._primDrawOps) {
-      putPrimitiveDrawOps(this._primDrawOps);
-      this._primDrawOps = null;
+    if (this._drawOps) {
+      putDrawOps(this._drawOps);
+      this._drawOps = null;
     }
   }
 }

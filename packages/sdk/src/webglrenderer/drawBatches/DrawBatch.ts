@@ -2,7 +2,7 @@ import {MeshCounts} from "./MeshCounts";
 
 /**
  * A DrawBatch represents a collection of meshes that share the same rendering properties and can be rendered together 
- * in a single draw call using a `DrawOp`.
+ * in a single draw call using a `DrawTechnique`.
  */
 export interface DrawBatch {
 
@@ -33,16 +33,16 @@ export interface DrawBatch {
   numVertices: number;
 
   /**
-   * Counts of meshes and their visibility states for each view. These are used to build the render flags for the views.
+   * Counts of meshes and their visibility states for each view.
    */
   meshCounts: MeshCounts[];
 
   /**
-   * The index of this batch's memory in the GPUMemory system.
-   * This indexes the `GPUMemoryWriteIF.dataTextures.batches` array. Before drawing this batch,
+   * The index of this batch's memory in the DTXMemory system.
+   * This indexes the `DTXMemoryEditor.dataTextures.batches` array. Before drawing this batch,
    * the renderer will bind the corresponding data textures from that array, which contain the
    * mesh data needed for rendering.
    */
-  gpuMemoryBatchIndex: number;
+  dtxMemoryBatchIndex: number;
 }
 

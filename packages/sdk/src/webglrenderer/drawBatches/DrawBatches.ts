@@ -15,7 +15,7 @@ import {RendererObject} from "./RendererObject";
 import {RendererMesh} from "./RendererMesh";
 import {RendererGeometry} from "./RendererGeometry";
 import {DrawBatchImpl} from "./DrawBatchImpl";
-import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
+import {type DTXMemoryEditor} from "../dtxMemory/DTXMemoryEditor";
 import {DrawBatch} from "./DrawBatch";
 import {RendererTexture} from "./RendererTexture";
 import {RendererTextureSet} from "./RendererTextureSet";
@@ -40,7 +40,7 @@ export class DrawBatches {
 
   private _rendererObjects: Record<string, RendererObject> = {}; // A SceneObject can belong to many SceneModels
   private _renderContext: RenderContext;
-  private _gpuMemoryWriteIF: GPUMemoryWriteIF;
+  private _dtxMemoryEditor: DTXMemoryEditor;
 
   private _rendererModels: Record<string, {
       rendererGeometries: Record<string, RendererGeometry>;
@@ -59,14 +59,14 @@ export class DrawBatches {
   private _onModelDestroyed: () => void;
 
   /**
-   * Initializes the RenderGraph with the given rendering context and GPU data gpuMemory editor.
+   * Initializes the RenderGraph with the given rendering context and GPU data dtxMemory editor.
    * @param renderContext
-   * @param gpuMemoryWriteIF
+   * @param dtxMemoryEditor
    */
-  constructor( renderContext: RenderContext, gpuMemoryWriteIF: GPUMemoryWriteIF ) {
+  constructor( renderContext: RenderContext, dtxMemoryEditor: DTXMemoryEditor ) {
 
     this._renderContext = renderContext;
-    this._gpuMemoryWriteIF = gpuMemoryWriteIF;
+    this._dtxMemoryEditor = dtxMemoryEditor;
 
     const {viewer} = renderContext;
     const {models, objects, onModelCreated, onObjectCreated, onObjectDestroyed, onModelDestroyed} = viewer.scene;
@@ -147,7 +147,7 @@ export class DrawBatches {
       renderContext: this._renderContext,
       sceneMesh,
       drawBatch,
-      gpuMemoryWriteIF: this._gpuMemoryWriteIF
+      dtxMemoryEditor: this._dtxMemoryEditor
     });
     rendererModel.rendererMeshes[meshId] = rendererMesh;
     sceneMesh.sceneMeshRendererProxy = rendererMesh as SceneMeshRendererProxy;
@@ -176,8 +176,8 @@ export class DrawBatches {
     const newLayer = new DrawBatchImpl({
       primitive,
       renderContext: this._renderContext,
-      gpuMemoryWriteIF: this._gpuMemoryWriteIF,
-      gpuMemoryBatchIndex: this._gpuMemoryWriteIF.createBatch(),
+      dtxMemoryEditor: this._dtxMemoryEditor,
+      dtxMemoryBatchIndex: this._dtxMemoryEditor.createBatch(),
     });
 
     this._batches[drawBatchId] = newLayer;

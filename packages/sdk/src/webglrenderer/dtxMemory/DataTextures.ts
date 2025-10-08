@@ -16,9 +16,9 @@ export interface DataTextures {
   tileRayPickMatrices: WebGLTexture[];
 
   /**
-   * Array of DataTexturesLayer, each containing the renderable output of a GPUMemoryBatch.
+   * Array of DataTexturesLayer, each containing the renderable output of a DTXMemoryBatch.
    *
-   * These are indexed using {@link GPUMemoryBatch.batchIndex | GPUMemoryBatch.batchIndex}.
+   * These are indexed using {@link GPUMemoryBatch.batchIndex | DTXMemoryBatch.batchIndex}.
    */
   batches: DataTexturesBatch[];
 }

@@ -2,19 +2,18 @@ import type {View, Viewer} from "../viewer";
 import {WEBGL_INFO, type WebGLAbstractTexture} from "../webglutils";
 import type {FloatArrayParam} from "../math";
 import {ViewFlags} from "./ViewFlags";
-import {RenderPassValue} from "./RENDER_PASSES";
 
 
 /**
  * Represents the rendering context used by the `WebGLRenderer`.
  *
  * The `RenderContext` manages the state and resources required for rendering operations.
- * It handles the WebGL context, GPU gpuMemory, and rendering parameters for the current frame.
+ * It handles the WebGL context, GPU dtxMemory, and rendering parameters for the current frame.
  * This context is shared across renderer components.
  *
  * Responsibilities:
  * - Tracks the current rendering state, including active textures, programs, and passes.
- * - Manages GPU gpuMemory for geometry and materials through the `GPUMemoryBatch` system.
+ * - Manages GPU dtxMemory for geometry and materials through the `DTXMemoryBatch` system.
  * - Provides methods for managing texture units and resetting state between frames.
  * - Stores matrices and parameters for specialized rendering operations like shadow mapping and picking.
  *
@@ -77,11 +76,6 @@ export class RenderContext {
    * Statistic that counts how many times ````gl.bindTexture()```` has been called so far within the current frame.
    */
   public bindTexture: number;
-
-  /**
-   * Indicates which pass the WebGLRenderer is currently rendering.
-   */
-  public renderPass: RenderPassValue;
 
   /**
    * Whether we are currently picking with a ray.

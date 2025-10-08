@@ -1,12 +1,12 @@
 import {type FloatArrayParam} from "../../math";
 import {type Tile} from "./Tile";
 import {type SceneMesh} from "../../scene";
-import {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
+import {DTXMemoryMeshHandle} from "./DTXMemoryMeshHandle";
 
 /**
  * Interface for creating and updating GPU memory resources.
  */
-export interface GPUMemoryWriteIF {
+export interface DTXMemoryEditor {
 
   /**
    * Retrieves a Tile that contains the specified 3D world-space position.
@@ -32,7 +32,7 @@ export interface GPUMemoryWriteIF {
 
   /**
    * Creates a new GPU memory batch, up to the maximum number of batches allowed.
-   * The new batch is added to the  `GPUMemoryWriteIF.dataTextures.batches` array.
+   * The new batch is added to the  `DTXMemoryEditor.dataTextures.batches` array.
    * Returns the index of the new batch.
    */
   createBatch(): number;
@@ -51,7 +51,7 @@ export interface GPUMemoryWriteIF {
    * @param sceneMesh - The mesh to add.
    * @returns Handle to the added mesh.
    */
-  addMesh( batchIndex: number, sceneMesh: SceneMesh ): GPUMemoryMeshHandle;
+  addMesh( batchIndex: number, sceneMesh: SceneMesh ): DTXMemoryMeshHandle;
 
   /**
    * Sets the modeling transform matrix for a mesh.
@@ -60,7 +60,7 @@ export interface GPUMemoryWriteIF {
    * @param meshHandle - The handle of the mesh.
    * @param matrix - The modeling transform matrix.
    */
-  setMeshMatrix( meshHandle: GPUMemoryMeshHandle, matrix: FloatArrayParam ): void;
+  setMeshMatrix(meshHandle: DTXMemoryMeshHandle, matrix: FloatArrayParam ): void;
 
   /**
    * Sets attributes for a mesh to apply across all views.
@@ -69,7 +69,7 @@ export interface GPUMemoryWriteIF {
    * @param params - The attributes to set, including optional tile index.
    */
   setMeshAttribs(
-    meshHandle: GPUMemoryMeshHandle,
+    meshHandle: DTXMemoryMeshHandle,
     params: {
       tileIndex?: number;
     }
@@ -83,7 +83,7 @@ export interface GPUMemoryWriteIF {
    * @param params - The attributes to set, including flags, flags2, and color.
    */
   setMeshViewAttribs(
-    meshHandle: GPUMemoryMeshHandle,
+    meshHandle: DTXMemoryMeshHandle,
     viewIndex: number,
     params: {
       flags1?: number;
@@ -93,8 +93,8 @@ export interface GPUMemoryWriteIF {
   ): void;
 
   /**
-   * Removes a SceneMesh from the data texture gpuMemory.
+   * Removes a SceneMesh from the data texture dtxMemory.
    * @param meshHandle - Handle to the mesh to remove.
    */
-  removeMesh( meshHandle: GPUMemoryMeshHandle ): void;
+  removeMesh( meshHandle: DTXMemoryMeshHandle ): void;
 }

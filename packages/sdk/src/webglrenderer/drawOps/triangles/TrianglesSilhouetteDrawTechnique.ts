@@ -1,17 +1,17 @@
-import {DrawOp} from "../DrawOp";
+import {DrawTechnique} from "../DrawTechnique";
 
 /**
  * @private
  */
-export class TrianglesDepthDrawOp extends DrawOp {
+export class TrianglesSilhouetteDrawTechnique extends DrawTechnique {
 
   protected buildVertexShader(): void {
     this.vsHeader();
     this.vsCommonDefs();
     this.vsSlicingDefines();
-    this.vsDrawDepthDefs();
-    this.vsPickMainOpen(); // Depth rendering is always for picking
-    this.vsDrawDepthLogic();
+    this.vsSilhouetteDefines();
+    this.vsDrawMainOpen();
+    this.vsSilhouetteLogic();
     this.vsSlicingLogic();
     this.vsMainClose();
   }
@@ -21,10 +21,10 @@ export class TrianglesDepthDrawOp extends DrawOp {
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsDrawDepthDefs();
+    this.fsSilhouetteDefines();
     this.fsMainOpen();
     this.fsSlicingLogic();
-    this.fsDrawDepthLogic();
+    this.fsSilhouetteLogic();
     this.fsCommonOutput();
     this.fsMainClose();
   }

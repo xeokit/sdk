@@ -3,11 +3,11 @@ import type {FloatArrayParam} from "../../math";
 import {MeshCounts} from "./MeshCounts";
 import type {RenderContext} from "../RenderContext";
 import {OBJECT_FLAGS} from "./OBJECT_FLAGS";
-import {RENDER_PASSES} from "../RENDER_PASSES";
-import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
+import {RENDER_PASSES} from "../drawOps/RENDER_PASSES";
+import {type DTXMemoryEditor} from "../dtxMemory/DTXMemoryEditor";
 import {DrawBatch} from "./DrawBatch";
 import {DrawBatchMeshHandle} from "./DrawBatchMeshHandle";
-import {GPUMemoryMeshHandle} from "../gpuMemory/GPUMemoryMeshHandle";
+import {DTXMemoryMeshHandle} from "../dtxMemory/DTXMemoryMeshHandle";
 
 /**
  * A DrawBatchImpl manages a batch of SceneMeshes that use the same primitive type.
@@ -22,9 +22,9 @@ export class DrawBatchImpl implements DrawBatch {
   private _renderContext: RenderContext;
 
   /**
-   * The GPUMemoryWriteIF instance used to manage the GPU data gpuMemory for this batch.
+   * The DTXMemoryEditor instance used to manage the GPU data dtxMemory for this batch.
    */
-  private _gpuMemoryWriteIF: GPUMemoryWriteIF;
+  private _dtxMemoryEditor: DTXMemoryEditor;
 
   /**
    * Primitive type of the meshes in this batch.
@@ -63,24 +63,24 @@ export class DrawBatchImpl implements DrawBatch {
   meshCounts: MeshCounts[];
 
   /**
-   * The index of this batch in the GPUMemory system.
+   * The index of this batch in the DTXMemory system.
    */
-  public readonly gpuMemoryBatchIndex: number;
+  public readonly dtxMemoryBatchIndex: number;
 
   /**
    * Creates a new DrawBatchImpl instance.
    * @param batchParams
    */
   constructor( batchParams: {
-    renderContext: any;
-    gpuMemoryWriteIF: GPUMemoryWriteIF;
-    gpuMemoryBatchIndex : number;
+    renderContext: RenderContext;
+    dtxMemoryEditor: DTXMemoryEditor;
+    dtxMemoryBatchIndex : number;
     primitive: number;
   } ) {
-    const {renderContext, gpuMemoryWriteIF, primitive} = batchParams;
+    const {renderContext, dtxMemoryEditor, primitive} = batchParams;
     this._renderContext = renderContext;
-    this._gpuMemoryWriteIF = gpuMemoryWriteIF;
-    this.gpuMemoryBatchIndex = batchParams.gpuMemoryBatchIndex;
+    this._dtxMemoryEditor = dtxMemoryEditor;
+    this.dtxMemoryBatchIndex = batchParams.dtxMemoryBatchIndex;
     this.primitive = primitive;
     this.primBaseIndex = 0; // TODO
     this.sortId = `batch-${primitive}`;
@@ -104,22 +104,22 @@ export class DrawBatchImpl implements DrawBatch {
    * @param sceneMesh
    */
   canAddMesh( sceneMesh: SceneMesh ): boolean {
-    return this._gpuMemoryWriteIF .hasMemoryForMesh(this.gpuMemoryBatchIndex, sceneMesh);
+    return this._dtxMemoryEditor .hasMemoryForMesh(this.dtxMemoryBatchIndex, sceneMesh);
   }
 
   /**
    * Adds a mesh to the batch and updates the mesh counts and indices. Returns the tileIndex of the
-   * added mesh in the batch's DTX gpuMemory.
+   * added mesh in the batch's DTX dtxMemory.
    * @param sceneMesh
    */
   addMesh( sceneMesh: SceneMesh ): DrawBatchMeshHandle {
-    const meshHandle = this._gpuMemoryWriteIF.addMesh(this.gpuMemoryBatchIndex, sceneMesh);
-    this.numIndices += meshHandle.numIndices;
-    this.numVertices += meshHandle.numVertices;
+    const gpuMeshHandle = this._dtxMemoryEditor.addMesh(this.dtxMemoryBatchIndex, sceneMesh);
+    this.numIndices += gpuMeshHandle.numIndices;
+    this.numVertices += gpuMeshHandle.numVertices;
     for (const counts of this.meshCounts) {
       counts.numMeshes++;
     }
-    return meshHandle;
+    return gpuMeshHandle as DrawBatchMeshHandle;
   }
 
   /**
@@ -129,8 +129,8 @@ export class DrawBatchImpl implements DrawBatch {
    * @param viewFlags
    */
   removeMesh( meshHandle : DrawBatchMeshHandle, viewFlags: number[] ): void {
-    const gpuMeshHandle = meshHandle as GPUMemoryMeshHandle;
-    this._gpuMemoryWriteIF.removeMesh(gpuMeshHandle );
+    const gpuMeshHandle = meshHandle as DTXMemoryMeshHandle;
+    this._dtxMemoryEditor.removeMesh(gpuMeshHandle );
     for (let viewIndex = 0; viewIndex < 4; viewIndex++) {
       const counts = this.meshCounts[viewIndex];
       const flags = viewFlags[viewIndex];
@@ -194,7 +194,7 @@ export class DrawBatchImpl implements DrawBatch {
       const glowBlocked = (isHighlighted && !view.highlightMaterial.glowThrough) ||
         (isSelected && !view.selectedMaterial.glowThrough);
       if (!isXRayed && !glowBlocked) {
-        colorFlag = isTransparent ? RENDER_PASSES.COLOR_TRANSPARENT : RENDER_PASSES.COLOR_OPAQUE;
+        colorFlag = isTransparent ? RENDER_PASSES.TRANSPARENT : RENDER_PASSES.OPAQUE;
       }
     }
 
@@ -202,11 +202,11 @@ export class DrawBatchImpl implements DrawBatch {
     let silhouetteFlag = RENDER_PASSES.NOT_RENDERED;
     if (!notRenderable) {
       if (isSelected) {
-        silhouetteFlag = RENDER_PASSES.SILHOUETTE_SELECTED;
+        silhouetteFlag = RENDER_PASSES.SELECTED;
       } else if (isHighlighted) {
-        silhouetteFlag = RENDER_PASSES.SILHOUETTE_HIGHLIGHTED;
+        silhouetteFlag = RENDER_PASSES.HIGHLIGHTED;
       } else if (isXRayed) {
-        silhouetteFlag = RENDER_PASSES.SILHOUETTE_XRAYED;
+        silhouetteFlag = RENDER_PASSES.XRAYED;
       }
     }
 
@@ -215,13 +215,13 @@ export class DrawBatchImpl implements DrawBatch {
 
     // Combine all flags into final bitfield
     const renderFlags =
-      colorFlag | // What to do for the color pass - NOT_RENDERED, COLOR_OPAQUE, COLOR_TRANSPARENT
-      (silhouetteFlag << 4) | // What to do for the silhouette pass - NOT_RENDERED, SILHOUETTE_SELECTED, SILHOUETTE_HIGHLIGHTED, SILHOUETTE_XRAYED
+      colorFlag | // What to do for the color pass - NOT_RENDERED, OPAQUE, TRANSPARENT
+      (silhouetteFlag << 4) | // What to do for the silhouette pass - NOT_RENDERED, SELECTED, HIGHLIGHTED, XRAYED
       (pickFlag << 8) | // What to do for the pick pass - NOT_RENDERED, PICK
       (isClippable ? (1 << 12) : 0); // Whether the object is clippable (1) or not (0)
 
     // Apply attributes
-    this._gpuMemoryWriteIF.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
+    this._dtxMemoryEditor.setMeshViewAttribs(meshHandle as DTXMemoryMeshHandle, viewIndex, {
       flags1: renderFlags
     });
   }
@@ -294,7 +294,7 @@ export class DrawBatchImpl implements DrawBatch {
    * Sets a custom color per view for a mesh.
    */
   setMeshColor( viewIndex: number, meshHandle: DrawBatchMeshHandle, color: FloatArrayParam ): void {
-    this._gpuMemoryWriteIF.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
+    this._dtxMemoryEditor.setMeshViewAttribs(meshHandle as DTXMemoryMeshHandle, viewIndex, {
       color: <number[]>color
     });
   }
@@ -303,14 +303,14 @@ export class DrawBatchImpl implements DrawBatch {
    * Sets the transformation matrix for a mesh.
    */
   setMeshMatrix( meshHandle: DrawBatchMeshHandle, rtcMatrix: FloatArrayParam ): void {
-    this._gpuMemoryWriteIF.setMeshMatrix(meshHandle as GPUMemoryMeshHandle, rtcMatrix);
+    this._dtxMemoryEditor.setMeshMatrix(meshHandle as DTXMemoryMeshHandle, rtcMatrix);
   }
 
   /**
    * Sets the tile tileIndex for a mesh.
    */
   setMeshTile( meshHandle: DrawBatchMeshHandle, tileIndex: number ): void {
-    this._gpuMemoryWriteIF.setMeshAttribs(meshHandle as GPUMemoryMeshHandle, {
+    this._dtxMemoryEditor.setMeshAttribs(meshHandle as DTXMemoryMeshHandle, {
       tileIndex
     });
   }
@@ -332,6 +332,6 @@ export class DrawBatchImpl implements DrawBatch {
     }
     this.meshCounts.length = 0;
     this._renderContext = null;
-    this._gpuMemoryWriteIF = null;
+    this._dtxMemoryEditor = null;
   }
 }

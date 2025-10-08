@@ -1,9 +1,9 @@
 
-import {GPUMemoryMeshHandle} from "../gpuMemory/GPUMemoryMeshHandle";
+import {DTXMemoryMeshHandle} from "../dtxMemory/DTXMemoryMeshHandle";
 
 /**
  * A handle to a mesh in a `DrawBatch`.
  *
  * @internal
  */
-export type DrawBatchMeshHandle = GPUMemoryMeshHandle;
+export type DrawBatchMeshHandle = DTXMemoryMeshHandle;

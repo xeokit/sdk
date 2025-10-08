@@ -15,7 +15,7 @@ import {type Tile} from "../gpuMemory/Tile";
 import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
 import {RendererObject} from "./RendererObject";
 import {createRTCModelMat} from "../../rtc";
-import {GPUMemoryMeshHandle} from "../gpuMemory/GPUMemoryMeshHandle";
+import {DrawBatchMeshHandle} from "./DrawBatchMeshHandle";
 
 const tempIdentityMat4 = createMat4();
 const identityVec4 = createVec4([0, 0, 0, 1]);
@@ -45,11 +45,11 @@ const NUM_VIEWS = 4;
 
 export class RendererMesh implements SceneMeshRendererProxy {
 
-  public rendererObject: RendererObject;
+  public rendererObject: RendererObject; // Set in DrawBatches._addObject
   public tile: Tile;
 
   private readonly _sceneMesh: SceneMesh;
-  private readonly _meshHandle: GPUMemoryMeshHandle;
+  private readonly _meshHandle: DrawBatchMeshHandle;
   private readonly _drawBatch: DrawBatchImpl;
   private readonly _renderContext: RenderContext;
   private readonly _viewStates: any;
@@ -103,14 +103,8 @@ export class RendererMesh implements SceneMeshRendererProxy {
   }
 
   /**
-   * Sets the visibility of the mesh for a specific view.
-   */
-  setVisible( viewIndex: number, flags: number ) {
-    this._drawBatch.setMeshVisible(viewIndex, this._meshHandle, flags);
-  }
-
-  /**
    * Sets the transformation matrix for the mesh.
+   * Called by SceneMesh.matrix setter.
    */
   setMatrix( matrix: FloatArrayParam ): void {
 
@@ -166,6 +160,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
 
   /**
    * Sets the color of the mesh.
+   * Called by SceneMesh.color setter.
    */
   setColor( color: FloatArrayParam ) {
     for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
@@ -177,7 +172,16 @@ export class RendererMesh implements SceneMeshRendererProxy {
   }
 
   /**
+   * Sets the visibility of the mesh for a specific view.
+   * Called by RendererObject.setVisible().
+   */
+  setVisible( viewIndex: number, flags: number ) {
+    this._drawBatch.setMeshVisible(viewIndex, this._meshHandle, flags);
+  }
+
+  /**
    * Sets the colorization for a specific view.
+   * Called by RendererObject.setColorize().
    */
   setColorize( viewIndex: number, colorize: FloatArrayParam|null ) {
     const viewStates = this._viewStates[viewIndex];
@@ -196,6 +200,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
 
   /**
    * Sets the opacity of the mesh for a specific view.
+   * Called by RendererObject.setOpacity().
    */
   setOpacity( viewIndex: number, opacity: number ) {
     const viewStates = this._viewStates[viewIndex];
@@ -210,6 +215,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
 
   /**
    * Sets the transparency of the mesh for a specific view.
+   * Called by RendererObject.setTransparency().
    */
   setTransparent( viewIndex: number, flags: number ) {
     this._drawBatch.setMeshTransparent(viewIndex, this._meshHandle, flags);
@@ -217,6 +223,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
 
   /**
    * Sets the highlight state of the mesh for a specific view.
+   * Called by RendererObject.setHighlighted().
    */
   setHighlighted( viewIndex: number, flags: number ) {
     this._drawBatch.setMeshHighlighted(viewIndex, this._meshHandle, flags);
@@ -224,6 +231,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
 
   /**
    * Sets the x-ray state of the mesh for a specific view.
+   * Called by RendererObject.setXRayed().
    */
   setXRayed( viewIndex: number, flags: number ) {
     this._drawBatch.setMeshXRayed(viewIndex, this._meshHandle, flags);
@@ -231,6 +239,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
 
   /**
    * Sets the selection state of the mesh for a specific view.
+   * Called by RendererObject.setSelected().
    */
   setSelected( viewIndex: number, flags: number ) {
     this._drawBatch.setMeshSelected(viewIndex, this._meshHandle, flags);
@@ -238,6 +247,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
 
   /**
    * Sets the clippable state of the mesh for a specific view.
+   * Called by RendererObject.setClippable().
    */
   setClippable( viewIndex: number, flags: number ) {
     this._drawBatch.setMeshClippable(viewIndex, this._meshHandle, flags);
@@ -245,6 +255,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
 
   /**
    * Sets the collidable state of the mesh for a specific view.
+   * Called by RendererObject.setCollidable().
    */
   setCollidable( viewIndex: number, flags: number ) {
     // this._drawBatch.setLayerMeshCollidable(viewIndex, this._meshHandle, flags);
@@ -252,6 +263,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
 
   /**
    * Sets the pickable state of the mesh for a specific view.
+   * Called by RendererObject.setPickable().
    */
   setPickable( viewIndex: number, flags: number ) {
     this._drawBatch.setMeshPickable(viewIndex, this._meshHandle, flags);
@@ -259,6 +271,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
 
   /**
    * Sets the culled state of the mesh for a specific view.
+   * Called by RendererObject.setCulled().
    */
   setCulled( viewIndex: number, flags: number ) {
     this._drawBatch.setMeshCulled(viewIndex, this._meshHandle, flags);

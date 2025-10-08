@@ -6,6 +6,7 @@ import {OBJECT_FLAGS} from "./OBJECT_FLAGS";
 import {RENDER_PASSES} from "../RENDER_PASSES";
 import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
 import {DrawBatch} from "./DrawBatch";
+import {DrawBatchMeshHandle} from "./DrawBatchMeshHandle";
 import {GPUMemoryMeshHandle} from "../gpuMemory/GPUMemoryMeshHandle";
 
 /**
@@ -111,7 +112,7 @@ export class DrawBatchImpl implements DrawBatch {
    * added mesh in the batch's DTX gpuMemory.
    * @param sceneMesh
    */
-  addMesh( sceneMesh: SceneMesh ): GPUMemoryMeshHandle {
+  addMesh( sceneMesh: SceneMesh ): DrawBatchMeshHandle {
     const meshHandle = this._gpuMemoryWriteIF.addMesh(this.gpuMemoryBatchIndex, sceneMesh);
     this.numIndices += meshHandle.numIndices;
     this.numVertices += meshHandle.numVertices;
@@ -127,8 +128,9 @@ export class DrawBatchImpl implements DrawBatch {
    * @param meshHandle
    * @param viewFlags
    */
-  removeMesh( meshHandle : GPUMemoryMeshHandle, viewFlags: number[] ): void {
-    this._gpuMemoryWriteIF.removeMesh(meshHandle);
+  removeMesh( meshHandle : DrawBatchMeshHandle, viewFlags: number[] ): void {
+    const gpuMeshHandle = meshHandle as GPUMemoryMeshHandle;
+    this._gpuMemoryWriteIF.removeMesh(gpuMeshHandle );
     for (let viewIndex = 0; viewIndex < 4; viewIndex++) {
       const counts = this.meshCounts[viewIndex];
       const flags = viewFlags[viewIndex];
@@ -142,8 +144,8 @@ export class DrawBatchImpl implements DrawBatch {
       if ((flags & OBJECT_FLAGS.TRANSPARENT) !== 0) counts.numTransparent--;
       counts.numMeshes--;
     }
-    this.numIndices -= meshHandle.numIndices;
-    this.numVertices -= meshHandle.numVertices;
+    this.numIndices -= gpuMeshHandle.numIndices;
+    this.numVertices -= gpuMeshHandle.numVertices;
   }
 
   /**
@@ -154,7 +156,7 @@ export class DrawBatchImpl implements DrawBatch {
    * @param meshHandle - Index of the mesh within the batch.
    * @param flags - Bitmask of OBJECT_FLAGS representing initial mesh states.
    */
-  initMeshFlags( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
+  initMeshFlags( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
     const counts = this.meshCounts[viewIndex];
     if ((flags & OBJECT_FLAGS.VISIBLE) !== 0) counts.numVisible++;
     if ((flags & OBJECT_FLAGS.HIGHLIGHTED) !== 0) counts.numHighlighted++;
@@ -171,7 +173,7 @@ export class DrawBatchImpl implements DrawBatch {
    * Sets the render flags for a mesh in a specific view based on its visibility and interaction states.
    * @private
    */
-  _setMeshObjectFlags( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
+  _setMeshObjectFlags( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
     const viewer = this._renderContext.viewer;
     const view = viewer.viewList[viewIndex];
 
@@ -219,7 +221,7 @@ export class DrawBatchImpl implements DrawBatch {
       (isClippable ? (1 << 12) : 0); // Whether the object is clippable (1) or not (0)
 
     // Apply attributes
-    this._gpuMemoryWriteIF.setMeshViewAttribs(meshHandle, viewIndex, {
+    this._gpuMemoryWriteIF.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
       flags1: renderFlags
     });
   }
@@ -227,7 +229,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh visibility state.
    */
-  setMeshVisible( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
+  setMeshVisible( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numVisible += (flags & OBJECT_FLAGS.VISIBLE) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -235,7 +237,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh highlight state.
    */
-  setMeshHighlighted( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
+  setMeshHighlighted( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numHighlighted += (flags & OBJECT_FLAGS.HIGHLIGHTED) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -243,7 +245,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh x-ray state.
    */
-  setMeshXRayed( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
+  setMeshXRayed( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numXRayed += (flags & OBJECT_FLAGS.XRAYED) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -251,7 +253,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh selected state.
    */
-  setMeshSelected( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
+  setMeshSelected( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numSelected += (flags & OBJECT_FLAGS.SELECTED) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -259,7 +261,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh clippable state.
    */
-  setMeshClippable( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
+  setMeshClippable( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numClippable += (flags & OBJECT_FLAGS.CLIPPABLE) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -267,7 +269,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh culling state.
    */
-  setMeshCulled( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
+  setMeshCulled( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numCulled += (flags & OBJECT_FLAGS.CULLED) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -275,7 +277,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh pickable state.
    */
-  setMeshPickable( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
+  setMeshPickable( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numPickable += (flags & OBJECT_FLAGS.PICKABLE) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -283,7 +285,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets transparency per-view for the mesh.
    */
-  setMeshTransparent( viewIndex: number, meshHandle: GPUMemoryMeshHandle, flags: number ): void {
+  setMeshTransparent( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numTransparent += (flags & OBJECT_FLAGS.TRANSPARENT) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -291,8 +293,8 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets a custom color per view for a mesh.
    */
-  setMeshColor( viewIndex: number, meshHandle: GPUMemoryMeshHandle, color: FloatArrayParam ): void {
-    this._gpuMemoryWriteIF.setMeshViewAttribs(meshHandle, viewIndex, {
+  setMeshColor( viewIndex: number, meshHandle: DrawBatchMeshHandle, color: FloatArrayParam ): void {
+    this._gpuMemoryWriteIF.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
       color: <number[]>color
     });
   }
@@ -300,15 +302,15 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets the transformation matrix for a mesh.
    */
-  setMeshMatrix( meshHandle: GPUMemoryMeshHandle, rtcMatrix: FloatArrayParam ): void {
-    this._gpuMemoryWriteIF.setMeshMatrix(meshHandle, rtcMatrix);
+  setMeshMatrix( meshHandle: DrawBatchMeshHandle, rtcMatrix: FloatArrayParam ): void {
+    this._gpuMemoryWriteIF.setMeshMatrix(meshHandle as GPUMemoryMeshHandle, rtcMatrix);
   }
 
   /**
    * Sets the tile tileIndex for a mesh.
    */
-  setMeshTile( meshHandle: GPUMemoryMeshHandle, tileIndex: number ): void {
-    this._gpuMemoryWriteIF.setMeshAttribs(meshHandle, {
+  setMeshTile( meshHandle: DrawBatchMeshHandle, tileIndex: number ): void {
+    this._gpuMemoryWriteIF.setMeshAttribs(meshHandle as GPUMemoryMeshHandle, {
       tileIndex
     });
   }

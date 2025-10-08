@@ -1,4 +1,4 @@
-import type {RendererTextureSet} from "./RendererTextureSet";
+import type {SceneTextureSetRendererProxy} from "./SceneTextureSetRendererProxy";
 import type {SceneTexture} from "./SceneTexture";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 
@@ -39,13 +39,13 @@ export class SceneTextureSet {
   emissiveTexture?: SceneTexture;
 
   /**
-   *  Internal interface through which a SceneTextureSet can load property updates into a renderers.
+   *  Internal interface through which a SceneTextureSet can load property updates into a renderer.
    *
    *  This is defined while the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
    *
    * @internal
    */
-  rendererTextureSet: RendererTextureSet | null;
+  sceneTextureSetRendererProxy: SceneTextureSetRendererProxy | null;
 
   /**
    * @private
@@ -63,6 +63,6 @@ export class SceneTextureSet {
     this.metallicRoughnessTexture = textures.metallicRoughnessTexture;
     this.occlusionTexture = textures.occlusionTexture;
     this.emissiveTexture = textures.emissiveTexture;
-    this.rendererTextureSet = null;
+    this.sceneTextureSetRendererProxy = null;
   }
 }

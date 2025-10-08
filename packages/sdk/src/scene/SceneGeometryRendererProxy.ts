@@ -3,6 +3,6 @@
  *
  * @internal
  */
-export interface RendererGeometry {
+export interface SceneGeometryRendererProxy {
 
 }

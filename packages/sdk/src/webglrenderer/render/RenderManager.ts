@@ -1,7 +1,7 @@
-import {RENDER_PASSES} from "../drawBatches/RENDER_PASSES";
+import {RENDER_PASSES} from "../RENDER_PASSES";
 import {WEBGL_INFO} from "../../webglutils";
 import {RenderContext} from "../RenderContext";
-import {DrawBatchSet} from "../drawBatches/DrawBatchSet";
+import {DrawBatches} from "../drawBatches/DrawBatches";
 import {getPrimitiveDrawOps, PrimitiveDrawOps, putPrimitiveDrawOps} from "../drawOps/PrimitiveDrawOps";
 import {RendererViewImpl} from "../views/RendererViewImpl";
 import {GPUMemoryReadIF} from "../gpuMemory/GPUMemoryReadIF";
@@ -10,13 +10,13 @@ import {DrawBatch} from "../drawBatches/DrawBatch";
 
 /**
  * Manages the drawing operations for WebGL rendering.
- * The `DrawManager` class handles rendering drawBatchSet, views, and extensions,
+ * The `DrawManager` class handles rendering drawBatches, views, and extensions,
  * ensuring proper GPU state and efficient rendering of opaque and transparent objects.
  */
 export class RenderManager {
 
   private _renderContext: RenderContext;
-  private _drawBatchSet: DrawBatchSet;
+  private _drawBatches: DrawBatches;
   private _primDrawOps: PrimitiveDrawOps;
   private _extensionHandles: any;
   private _logarithmicDepthBufferEnabled: boolean;
@@ -27,11 +27,11 @@ export class RenderManager {
    *
    * @param renderContext - The rendering context.
    * @param gpuMemoryReadIF - The GPU gpuMemory read interface. Provides data textures that contain model data to load into shaders.
-   * @param drawBatchSet - The draw graph to draw.
+   * @param drawBatches - The draw graph to draw.
    */
-  constructor( renderContext: RenderContext, gpuMemoryReadIF: GPUMemoryReadIF, drawBatchSet: DrawBatchSet) {
+  constructor( renderContext: RenderContext, gpuMemoryReadIF: GPUMemoryReadIF, drawBatches: DrawBatches) {
     this._renderContext = renderContext;
-    this._drawBatchSet = drawBatchSet;
+    this._drawBatches = drawBatches;
     this._primDrawOps = getPrimitiveDrawOps(this._renderContext, gpuMemoryReadIF);
     this._extensionHandles = {};
     this._logarithmicDepthBufferEnabled = false;
@@ -65,7 +65,7 @@ export class RenderManager {
     const view = rendererView.view;
     const viewIndex = view.viewIndex;
     const gl = this._renderContext.gl;
-    const ctx = this._renderContext;
+    const renderContext = this._renderContext;
     const primDrawOps = this._primDrawOps.prims;
 
     const bins = {
@@ -87,9 +87,9 @@ export class RenderManager {
       selectedEdgesTransparent: [] as DrawBatch[]
     };
 
-    ctx.reset();
-    ctx.view = view;
-    ctx.pbrEnabled = rendererView.pbrEnabled;
+    renderContext.reset();
+    renderContext.view = view;
+    renderContext.pbrEnabled = rendererView.pbrEnabled;
 
     gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
     const bg = rendererView.canvasTransparent ? [0, 0, 0, 0] : [...view.backgroundColor, 1];
@@ -99,10 +99,10 @@ export class RenderManager {
     gl.disable(gl.CULL_FACE);
     gl.depthMask(true);
     gl.lineWidth(1);
-    ctx.lineWidth = 1;
+    renderContext.lineWidth = 1;
 
     const drawWithSAO = rendererView.saoEnabled && view.sao.possible;
-    ctx.saoOcclusionTexture = drawWithSAO
+    renderContext.saoOcclusionTexture = drawWithSAO
       ? rendererView.renderBufferManager.getRenderBuffer("saoOcclusion")?.getTexture() ?? null
       : null;
 
@@ -113,7 +113,7 @@ export class RenderManager {
     const slMat = view.selectedMaterial;
     const xrMat = view.xrayMaterial;
 
-    const batches = this._drawBatchSet.batches;
+    const batches = this._drawBatches.batches;
     for (let i = 0, len = batches.length; i < len; i++) {
       const batch = batches[i];
       const counts = batch.meshCounts[viewIndex];
@@ -129,7 +129,7 @@ export class RenderManager {
       if (opaque) {
         if (drawWithSAO && batch.saoSupported) bins.normalDrawSAO.push(batch);
         else {
-          primDrawOps[batch.primitive]?.color.draw(batch, RENDER_PASSES.DRAW_OPAQUE);
+          primDrawOps[batch.primitive]?.color.draw(batch, RENDER_PASSES.COLOR_OPAQUE);
         }
       }
 
@@ -154,7 +154,7 @@ export class RenderManager {
     }
     for (let i = 0; i < bins.edgesColorOpaque.length; i++) {
       const batch = bins.edgesColorOpaque[i]
-      primDrawOps[batch.primitive].colorEdges?.draw(batch, RENDER_PASSES.DRAW_OPAQUE);
+      primDrawOps[batch.primitive].colorEdges?.draw(batch, RENDER_PASSES.COLOR_OPAQUE);
     }
     for (let i = 0; i < bins.xrayedSilhouetteOpaque.length; i++) {
       const batch = bins.xrayedSilhouetteOpaque[i]
@@ -182,7 +182,7 @@ export class RenderManager {
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       }
 
-      ctx.backfaces = false;
+      renderContext.backfaces = false;
       if (!this._alphaDepthMask) gl.depthMask(false);
 
       for (const batch of bins.xrayEdgesTransparent) {
@@ -198,11 +198,11 @@ export class RenderManager {
       }
 
       for (const batch of bins.edgesColorTransparent) {
-        primDrawOps[batch.primitive].colorEdges?.draw(batch, RENDER_PASSES.DRAW_TRANSPARENT);
+        primDrawOps[batch.primitive].colorEdges?.draw(batch, RENDER_PASSES.COLOR_TRANSPARENT);
       }
 
       for (const batch of bins.normalFillTransparent) {
-        primDrawOps[batch.primitive].color?.draw(batch, RENDER_PASSES.DRAW_TRANSPARENT);
+        primDrawOps[batch.primitive].color?.draw(batch, RENDER_PASSES.COLOR_TRANSPARENT);
       }
 
       gl.disable(gl.BLEND);
@@ -217,7 +217,7 @@ export class RenderManager {
       drawEdges: ( l: DrawBatch ) => void
     ) => {
       if (silBin.length || edgesBin.length) {
-        ctx.lastProgramId = -1;
+        renderContext.lastProgramId = -1;
         gl.clear(gl.DEPTH_BUFFER_BIT);
         for (let i = 0; i < edgesBin.length; i++) drawEdges(edgesBin[i]);
         for (let i = 0; i < silBin.length; i++) drawSil(silBin[i]);

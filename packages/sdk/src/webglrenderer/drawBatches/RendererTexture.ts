@@ -1,10 +1,10 @@
-import type {RendererTexture, SceneTexture} from "../../scene";
+import type {SceneTextureRendererProxy, SceneTexture} from "../../scene";
 import type {WebGLTexture} from "../../webglutils";
 
 /**
  * @private
  */
-export class RendererTextureImpl implements RendererTexture {
+export class RendererTexture implements SceneTextureRendererProxy {
 
   texture: SceneTexture | null;
   texture2D: WebGLTexture;

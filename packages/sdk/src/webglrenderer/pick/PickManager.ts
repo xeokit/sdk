@@ -13,15 +13,15 @@ import {
 import {RendererViewImpl} from "../views/RendererViewImpl";
 import {type FloatArrayParam} from "../../math";
 import {createRTCViewMat} from "../../rtc";
-import {RendererMeshImpl} from "../drawBatches/RendererMeshImpl";
+import {RendererMesh} from "../drawBatches/RendererMesh";
 import {RenderContext} from "../RenderContext";
 import {RenderBufferManager} from "../views/RenderBufferManager";
 import {GPUMemoryReadIF} from "../gpuMemory/GPUMemoryReadIF";
-import {DrawBatchSet} from "../drawBatches/DrawBatchSet";
+import {DrawBatches} from "../drawBatches/DrawBatches";
 import {ViewManager} from "../views/ViewManager";
 import {GPUMemory} from "../gpuMemory/GPUMemory";
 import {getPrimitiveDrawOps, PrimitiveDrawOps, putPrimitiveDrawOps} from "../drawOps/PrimitiveDrawOps";
-import {RENDER_PASSES} from "../drawBatches/RENDER_PASSES";
+import {RENDER_PASSES} from "../RENDER_PASSES";
 
 
 
@@ -57,17 +57,17 @@ export class PickManager {
   private _pickResult: PickResult;
   private _renderContext: RenderContext;
   private _gpuMemory: GPUMemory;
-  private _drawBatchSet: DrawBatchSet;
+  private _drawBatches: DrawBatches;
   private _primDrawOps: PrimitiveDrawOps;
 
   constructor( cfg: {
     renderContext: RenderContext,
     gpuMemory: GPUMemory,
-    drawBatchSet: DrawBatchSet,
+    drawBatches: DrawBatches,
     viewManager: ViewManager
   } ) {
     this._gpuMemory = cfg.gpuMemory;
-    this._drawBatchSet = cfg.drawBatchSet;
+    this._drawBatches = cfg.drawBatches;
     this._renderContext = cfg.renderContext;
     this._primDrawOps = getPrimitiveDrawOps(this._renderContext, this._gpuMemory as GPUMemoryReadIF);
     this._pickResult = new PickResult();
@@ -187,7 +187,7 @@ export class PickManager {
 
           // const worldPos = this._pickWorldPos({
           //   rendererView,
-          //   rendererObject,
+          //   sceneObjectRendererProxy,
           //   pickCanvasPos,
           //   pickViewMatrix,
           //   pickProjMatrix,
@@ -212,7 +212,7 @@ export class PickManager {
       pickViewMatrix?: FloatArrayParam,
       pickProjMatrix: FloatArrayParam,
       pickInvisible: boolean
-    } ): RendererMeshImpl {
+    } ): RendererMesh {
 
     const {rendererView, rayPick, pickCanvasPos, pickProjMatrix, pickViewMatrix, pickInvisible} = params;
 
@@ -247,7 +247,7 @@ export class PickManager {
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const batches = this._drawBatchSet.batches; // Batches are sorted by prim type
+    const batches = this._drawBatches.batches; // Batches are sorted by prim type
     for (let i = 0, len = batches.length; i < len; i++) {
       const batch = batches[i];
       const meshCounts = batch.meshCounts[viewIndex];
@@ -270,8 +270,8 @@ export class PickManager {
     const result = this._extract16BitParts(pickID);
 
 
-    const rendererMesh = this._drawBatchSet.
-    return <RendererMeshImpl>this._pickIDs.items[pickID];
+    const rendererMesh = this._drawBatches.
+    return <RendererMesh>this._pickIDs.items[pickID];
   }
 
   _extract16BitParts(unsignedInt) {
@@ -282,7 +282,7 @@ export class PickManager {
     // Extract low 16 bits by masking
     const low16 = unsignedInt & 0xFFFF;
     return {
-      batch: this._drawBatchSet.batches[high16],
+      batch: this._drawBatches.batches[high16],
       batchIndex: high16,
       meshIndex: low16
     };
@@ -296,13 +296,13 @@ export class PickManager {
       pickViewMatrix: FloatArrayParam,
       pickProjMatrix: FloatArrayParam,
       pickInvisible: boolean,
-      rendererMesh: RendererMeshImpl
+      rendererMesh: RendererMesh
     } ): FloatArrayParam|null {
 
-    // const {rendererView, rendererObject, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
+    // const {rendererView, sceneObjectRendererProxy, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
     // const view = rendererView.view;
     // const resolutionScale = view.resolutionScale;
-    // const _batch = rendererObject._batch;
+    // const _batch = sceneObjectRendererProxy._batch;
     // const renderContext = this._renderContext;
     // const gl = renderContext.gl;
     // const canvas = rendererView.view.htmlElement;
@@ -346,7 +346,7 @@ export class PickManager {
     //
     // // Ensure that unprojection matrix is in RTC space if needed
     //
-    // const origin = rendererObject.tile.center;
+    // const origin = sceneObjectRendererProxy.tile.center;
     // const gotOrigin = (origin[0] !== 0 && origin[1] !== 0 && origin[2] !== 0);
     // let pvMat = gotOrigin
     //   ? mulMat4(pickProjMatrix, createRTCViewMat(pickViewMatrix, origin, tempMat4a), tempMat4b)

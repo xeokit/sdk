@@ -3,7 +3,7 @@ import type {FloatArrayParam} from "../../math";
 import {MeshCounts} from "./MeshCounts";
 import type {RenderContext} from "../RenderContext";
 import {OBJECT_FLAGS} from "./OBJECT_FLAGS";
-import {RENDER_PASSES} from "./RENDER_PASSES";
+import {RENDER_PASSES} from "../RENDER_PASSES";
 import {type GPUMemoryWriteIF} from "../gpuMemory/GPUMemoryWriteIF";
 import {DrawBatch} from "./DrawBatch";
 import {GPUMemoryMeshHandle} from "../gpuMemory/GPUMemoryMeshHandle";
@@ -192,7 +192,7 @@ export class DrawBatchImpl implements DrawBatch {
       const glowBlocked = (isHighlighted && !view.highlightMaterial.glowThrough) ||
         (isSelected && !view.selectedMaterial.glowThrough);
       if (!isXRayed && !glowBlocked) {
-        colorFlag = isTransparent ? RENDER_PASSES.DRAW_TRANSPARENT : RENDER_PASSES.DRAW_OPAQUE;
+        colorFlag = isTransparent ? RENDER_PASSES.COLOR_TRANSPARENT : RENDER_PASSES.COLOR_OPAQUE;
       }
     }
 
@@ -213,7 +213,7 @@ export class DrawBatchImpl implements DrawBatch {
 
     // Combine all flags into final bitfield
     const renderFlags =
-      colorFlag | // What to do for the color pass - NOT_RENDERED, DRAW_OPAQUE, DRAW_TRANSPARENT
+      colorFlag | // What to do for the color pass - NOT_RENDERED, COLOR_OPAQUE, COLOR_TRANSPARENT
       (silhouetteFlag << 4) | // What to do for the silhouette pass - NOT_RENDERED, SILHOUETTE_SELECTED, SILHOUETTE_HIGHLIGHTED, SILHOUETTE_XRAYED
       (pickFlag << 8) | // What to do for the pick pass - NOT_RENDERED, PICK
       (isClippable ? (1 << 12) : 0); // Whether the object is clippable (1) or not (0)

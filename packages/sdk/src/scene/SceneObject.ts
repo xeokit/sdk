@@ -2,7 +2,7 @@
 import type {SceneMesh} from "./SceneMesh";
 import type {SceneModel} from "./SceneModel";
 import type {SceneObjectParams} from "./SceneObjectParams";
-import {RendererObject} from "./RendererObject";
+import {SceneObjectRendererProxy} from "./SceneObjectRendererProxy";
 
 /**
  * An object within a {@link SceneModel | SceneModel}.
@@ -54,7 +54,7 @@ export class SceneObject {
    *
    * @internal
    */
-  rendererObject: RendererObject | null;
+  sceneObjectRendererProxy: SceneObjectRendererProxy | null;
 
   /**
    * @private
@@ -71,7 +71,7 @@ export class SceneObject {
     this.layerId = cfg.layerId;
     this.model = cfg.model;
     this.meshes = cfg.meshes;
-    this.rendererObject = null;
+    this.sceneObjectRendererProxy = null;
   }
 
   /**

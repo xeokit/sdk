@@ -1,16 +1,14 @@
 import {WEBGL_INFO, WebGLProgram} from "../../webglutils";
 import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive} from "../../constants";
-import {RENDER_PASSES} from "../drawBatches/RENDER_PASSES";
+import {RENDER_PASSES, RenderPassValue} from "../RENDER_PASSES";
 import type {RenderContext} from "../RenderContext";
 import {type GPUMemoryReadIF} from "../gpuMemory/GPUMemoryReadIF";
 import {DrawBatch} from "../drawBatches/DrawBatch";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 
-export type RenderPassValue = typeof RENDER_PASSES[keyof typeof RENDER_PASSES];
-
 /**
- * Abstract base class for drawing batches in a WebGL context.
+ * Abstract base class for a batch drawing operation.
  *
  * Provides a foundation for implementing various drawing techniques (e.g. color, highlighted, selected) for
  * primitives (e.g., triangles, lines, points). Manages shader construction, WebGL program binding, and rendering
@@ -106,7 +104,8 @@ export abstract class DrawOp {
   }
 
   /**
-   * Draw a batch.
+   * Draws a batch.
+   *
    * This is the only public method on DrawOp.
    *
    * @param batch The batch to draw, which contains the primitives and their attributes.
@@ -136,7 +135,6 @@ export abstract class DrawOp {
       if (!sampler || !texture) {
         return;
       }
-
       gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.uniform1i(sampler, renderContext.textureUnit);
@@ -151,7 +149,7 @@ export abstract class DrawOp {
         (this._renderContext.rayPicking
             ? dataTextures.tileRayPickMatrices
             : dataTextures.tileViewMatrices)
-            [view.viewIndex].texture); // TODO: Bind these textures once in _bind()
+            [view.viewIndex]); // TODO: Bind these textures once in _bind()
 
     bindTexture(samplers.primToMeshLookup, batchDataTextures.primToMeshLookup);
     bindTexture(samplers.positions, batchDataTextures.positions);

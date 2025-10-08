@@ -62,8 +62,8 @@ export class ViewObject {
    */
   constructor(layer: ViewLayer, sceneObject: SceneObject) {
 
-    if (!sceneObject.rendererObject) {
-      throw new SDKError("Cannot create ViewObject for SceneObject that has no RendererObject: " + sceneObject.id);
+    if (!sceneObject.sceneObjectRendererProxy) {
+      throw new SDKError("Cannot create ViewObject for SceneObject that has no SceneObjectRendererProxy: " + sceneObject.id);
     }
 
     this.id = sceneObject.id;
@@ -87,12 +87,12 @@ export class ViewObject {
 
     const viewIndex = this.layer.view.viewIndex;
     const state = this.#state;
-    const rendererObject = sceneObject.rendererObject;
+    const sceneObjectRendererProxy = sceneObject.sceneObjectRendererProxy;
 
-    rendererObject.setVisible(viewIndex, state.visible);
-    rendererObject.setClippable(viewIndex, state.clippable);
-    rendererObject.setCollidable(viewIndex, state.collidable);
-    rendererObject.setPickable(viewIndex, state.pickable);
+    sceneObjectRendererProxy.setVisible(viewIndex, state.visible);
+    sceneObjectRendererProxy.setClippable(viewIndex, state.clippable);
+    sceneObjectRendererProxy.setCollidable(viewIndex, state.collidable);
+    sceneObjectRendererProxy.setPickable(viewIndex, state.pickable);
 
     this.layer.objectVisibilityUpdated(this, state.visible, true);
   }
@@ -121,7 +121,7 @@ export class ViewObject {
       return;
     }
     this.#state.visible = visible;
-    this.sceneObject.rendererObject.setVisible(this.layer.view.viewIndex, visible);
+    this.sceneObject.sceneObjectRendererProxy.setVisible(this.layer.view.viewIndex, visible);
     this.layer.objectVisibilityUpdated(this, visible, true);
   }
 
@@ -146,7 +146,7 @@ export class ViewObject {
       return;
     }
     this.#state.xrayed = xrayed;
-    this.sceneObject.rendererObject.setXRayed(this.layer.view.viewIndex, xrayed);
+    this.sceneObject.sceneObjectRendererProxy.setXRayed(this.layer.view.viewIndex, xrayed);
     this.layer.objectXRayedUpdated(this, xrayed);
   }
 
@@ -171,7 +171,7 @@ export class ViewObject {
       return;
     }
     this.#state.highlighted = highlighted;
-    this.sceneObject.rendererObject.setHighlighted(this.layer.view.viewIndex, highlighted);
+    this.sceneObject.sceneObjectRendererProxy.setHighlighted(this.layer.view.viewIndex, highlighted);
     this.layer.objectHighlightedUpdated(this, highlighted);
   }
 
@@ -196,7 +196,7 @@ export class ViewObject {
       return;
     }
     this.#state.selected = selected;
-     this.sceneObject.rendererObject.setSelected(this.layer.view.viewIndex, selected);
+     this.sceneObject.sceneObjectRendererProxy.setSelected(this.layer.view.viewIndex, selected);
     this.layer.objectSelectedUpdated(this, selected);
   }
 
@@ -220,7 +220,7 @@ export class ViewObject {
     if (culled === this.#state.culled) {
       return;
     }
-    this.sceneObject.rendererObject.setCulled(this.layer.view.viewIndex, culled);
+    this.sceneObject.sceneObjectRendererProxy.setCulled(this.layer.view.viewIndex, culled);
     this.#state.culled = culled;
   }
 
@@ -244,7 +244,7 @@ export class ViewObject {
     if (clippable === this.#state.clippable) {
       return;
     }
-     this.sceneObject.rendererObject.setCulled(this.layer.view.viewIndex, clippable);
+     this.sceneObject.sceneObjectRendererProxy.setCulled(this.layer.view.viewIndex, clippable);
     this.#state.clippable = clippable;
   }
 
@@ -262,7 +262,7 @@ export class ViewObject {
     if (collidable === this.#state.collidable) {
       return;
     }
-    // const result = this.sceneObject.rendererObject.setCollidable(this._layer.view.viewIndex, collidable);
+    // const result = this.sceneObject.sceneObjectRendererProxy.setCollidable(this._layer.view.viewIndex, collidable);
     // if (result instanceof SDKError) {
     //     throw result;
     // }
@@ -291,7 +291,7 @@ export class ViewObject {
     if (this.#state.pickable === pickable) {
       return;
     }
-    const result = this.sceneObject.rendererObject.setPickable(this.layer.view.viewIndex, pickable);
+    const result = this.sceneObject.sceneObjectRendererProxy.setPickable(this.layer.view.viewIndex, pickable);
     if (result instanceof SDKError) {
       throw result;
     }
@@ -330,7 +330,7 @@ export class ViewObject {
       colorize[1] = 1;
       colorize[2] = 1;
     }
-    const result = this.sceneObject.rendererObject.setColorize(this.layer.view.viewIndex, colorize);
+    const result = this.sceneObject.sceneObjectRendererProxy.setColorize(this.layer.view.viewIndex, colorize);
     if (result instanceof SDKError) {
       throw result;
     }

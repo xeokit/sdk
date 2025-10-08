@@ -1,6 +1,6 @@
 import {createMat4, identityMat4, isIdentityMat4, mulMat4} from "../matrix";
 import type {FloatArrayParam} from "../math";
-import type {RendererMesh} from "./RendererMesh";
+import type {SceneMeshRendererProxy} from "./SceneMeshRendererProxy";
 import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneMeshParams} from "./SceneMeshParams";
 import type {SceneObject} from "./SceneObject";
@@ -55,7 +55,7 @@ export class SceneMesh {
    *
    * @internal
    */
-  rendererMesh: RendererMesh|null;
+  sceneMeshRendererProxy: SceneMeshRendererProxy|null;
 
   #color: FloatArrayParam;
   #matrix: FloatArrayParam;
@@ -78,7 +78,7 @@ export class SceneMesh {
     this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
     this.geometry = meshParams.geometry;
     this.textureSet = meshParams.textureSet;
-    this.rendererMesh = null;
+    this.sceneMeshRendererProxy = null;
     this.color = meshParams.color || new Float32Array([1, 1, 1]);
     this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
   }
@@ -112,7 +112,7 @@ export class SceneMesh {
       color[1] = 1;
       color[2] = 1;
     }
-    this.rendererMesh?.setColor(this.#color);
+    this.sceneMeshRendererProxy?.setColor(this.#color);
   }
 
   /**
@@ -129,12 +129,12 @@ export class SceneMesh {
     } else {
       identityMat4(this.#matrix);
     }
-    if (this.rendererMesh) {
+    if (this.sceneMeshRendererProxy) {
 
       // TODO: recompute AABBs using coordinateSystemMatrix
 
       const coordSystemAndModelingMatrix = mulMat4(this.model.coordinateSystemMatrix, this.#matrix, tempMat4);
-      this.rendererMesh.setMatrix(coordSystemAndModelingMatrix);
+      this.sceneMeshRendererProxy.setMatrix(coordSystemAndModelingMatrix);
     }
     const scene = this.model.scene;
     scene.onMeshMoved.dispatch(scene, this);
@@ -171,8 +171,8 @@ export class SceneMesh {
       return;
     }
     this.#opacity = opacity;
-    if (this.rendererMesh) {
-      //       this.rendererObject.setOpacity(this.#opacity);
+    if (this.sceneMeshRendererProxy) {
+      //       this.sceneObjectRendererProxy.setOpacity(this.#opacity);
     }
   }
 

@@ -1,7 +1,7 @@
 import {createAABB3} from "../boundaries";
 import type {FloatArrayParam} from "../math";
 import type {IntArrayParam} from "../math";
-import type {RendererGeometry} from "./RendererGeometry";
+import type {SceneGeometryRendererProxy} from "./SceneGeometryRendererProxy";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import {SceneModel} from "./SceneModel";
 
@@ -87,7 +87,7 @@ export class SceneGeometry {
    *
    * @internal
    */
-  rendererGeometry: RendererGeometry | null;
+  sceneGeometryRendererProxy: SceneGeometryRendererProxy | null;
 
   /**
    * The count of {@link SceneMesh | SceneMeshes} that reference this SceneGeometry.

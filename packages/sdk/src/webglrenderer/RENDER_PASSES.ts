@@ -16,16 +16,14 @@ export const RENDER_PASSES = {
   NOT_RENDERED: 0,
 
   /**
-   * Draw opaque objects.
-   * Used for rendering objects with no transparency.
+   * Render opaque objects in their normal colors.
    */
-  DRAW_OPAQUE: 1,
+  COLOR_OPAQUE: 1,
 
   /**
-   * Draw transparent objects.
-   * Used for rendering objects with transparency.
+   * Render transparent objects in their normal colors
    */
-  DRAW_TRANSPARENT: 2,
+  COLOR_TRANSPARENT: 2,
 
   /**
    * Render highlighted silhouettes.
@@ -51,3 +49,9 @@ export const RENDER_PASSES = {
    */
   PICK: 6
 };
+
+
+/**
+ * Type representing the possible values of rendering passes.
+ */
+export type RenderPassValue = typeof RENDER_PASSES[keyof typeof RENDER_PASSES];

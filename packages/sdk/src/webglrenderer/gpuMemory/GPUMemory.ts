@@ -33,6 +33,8 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   private _tiles: TileManager;
   private _onTick: () => void;
   private _numMeshes: Number;
+  private _tileViewMatrices: DTXMatrixArray[];
+  private _tileRayPickMatrices: DTXMatrixArray[];
 
   /**
    * Constructs a GPUMemory instance.
@@ -47,44 +49,32 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
 
     const gl = renderContext.gl;
 
-    // For each View, an array containing a viewing transform matrix for each tile
+    this._tileViewMatrices = [
+      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: this._maxTiles})
+    ];
+
+      this._tileRayPickMatrices = [
+      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: this._maxTiles})
+    ];
 
     this.dataTextures = {
-
-      /**
-       * Array of data textures, each containing tile view matrices for specific views.
-       * These are global to all GPUMemoryBatch instances.
-       */
-      tileViewMatrices : [
-        new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-        new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-        new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-        new DTXMatrixArray({gl, maxMatrices: this._maxTiles})
-      ],
-
-      /**
-       * Array of data textures, each containing tile pick matrices for specific views.
-       * These are global to all GPUMemoryBatch instances.
-       */
-      tileRayPickMatrices : [
-        new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-        new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-        new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-        new DTXMatrixArray({gl, maxMatrices: this._maxTiles})
-      ],
-
-      /**
-       * GPUMemoryBatch instances created by this GPUMemory.
-       */
+      tileViewMatrices : this._tileViewMatrices.map((t)=>(t.texture)),
+      tileRayPickMatrices : this._tileRayPickMatrices.map((t)=>(t.texture)),
       batches: []
     };
 
-    this._tiles = new TileManager(gl, renderContext.viewer, this.dataTextures.tileViewMatrices, this.dataTextures.tileRayPickMatrices);
+    this._tiles = new TileManager(gl, renderContext.viewer, this._tileViewMatrices, this._tileRayPickMatrices);
 
     this._onTick = renderContext.viewer.onTick.sub(()=>{
       for (let i = 0; i < 4; i++) {
-        this.dataTextures.tileViewMatrices[i].flush();
-        this.dataTextures.tileRayPickMatrices[i].flush();
+        this._tileViewMatrices[i].flush();
+        this._tileRayPickMatrices[i].flush();
       }
       for (const batch of this._batches) {
         batch.flush();
@@ -132,8 +122,8 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   }
 
   /**
-   * Creates a new GPUMemoryBatch instance, up to the maximum number of instances allowed.
-   * The new batch is added to the {@link dataTextures.batches | dataTextures.batches} array.
+   * Creates a new GPU memory batch, up to the maximum number of batches allowed.
+   * The new batch is added to the  `GPUMemoryWriteIF.dataTextures.batches` array.
    * Returns the index of the new batch.
    */
   createBatch(): number {
@@ -149,7 +139,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   }
 
   /**
-   * Checks if there is enough gpuMemory in a specific batch for a SceneMesh.
+   * Checks if there is enough memory in a specific batch for a SceneMesh.
    * @param batchIndex
    * @param sceneMesh
    */
@@ -159,7 +149,7 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
   }
 
   /**
-   * Adds a SceneMesh to the data texture gpuMemory in a specific batch.
+   * Adds a SceneMesh to a specific batch.
    *
    * Returns an tileIndex/handle through which you can dynamically update attributes for the mesh.
    *
@@ -292,8 +282,8 @@ export class GPUMemory implements GPUMemoryReadIF, GPUMemoryWriteIF {
       }
       return ref;
     };
-    this.dataTextures.tileViewMatrices = this.dataTextures.tileViewMatrices.map(clear);
-    this.dataTextures.tileRayPickMatrices = this.dataTextures.tileRayPickMatrices.map(clear);
+    this._tileViewMatrices = this._tileViewMatrices.map(clear);
+    this._tileRayPickMatrices = this._tileRayPickMatrices.map(clear);
     this._onTick();
   }
 }

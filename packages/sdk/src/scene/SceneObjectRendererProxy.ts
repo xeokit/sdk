@@ -5,13 +5,13 @@ import type {FloatArrayParam} from "../math";
  * a {@link SceneObject | SceneObject} in a {@link viewer!Viewer | Viewer}.
  *
  * While a {@link Scene | Scene} is attached to a {@link viewer!Viewer | Viewer}, the Viewer
- * attaches a RendererObject to {@link SceneObject.rendererObject | SceneObject.rendererObject} on
+ * attaches a SceneObjectRendererProxy to {@link SceneObject.sceneObjectRendererProxy | SceneObject.sceneObjectRendererProxy} on
  * each of the Scene's {@link SceneObject | SceneObjects}, to provide an interface through which
  * the Viewer's {@link viewer!ViewObject | ViewObjects} can control the appearance of the SceneObjects
  * within their respective {@link viewer!View | Views}.
  *
  * Internally, the Viewer's {@link viewer!Renderer} attaches these
- * to {@link SceneObject.rendererObject | SceneObject.rendererObject}. When we update properties
+ * to {@link SceneObject.sceneObjectRendererProxy | SceneObject.sceneObjectRendererProxy}. When we update properties
  * like {@link viewer!ViewObject.visible | ViewObject.visible}, the ViewObject will upload those
  * updates through this interface into the {@link viewer!Renderer}.
  *
@@ -19,7 +19,7 @@ import type {FloatArrayParam} from "../math";
  *
  * @internal
  */
-export interface RendererObject {
+export interface SceneObjectRendererProxy {
 
   /**
    * Controls the visibility of the {@link viewer!ViewObject | ViewObject} in a specific {@link viewer!View | View}.

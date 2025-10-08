@@ -1,8 +1,8 @@
 import type {View, Viewer} from "../viewer";
 import {WEBGL_INFO, type WebGLAbstractTexture} from "../webglutils";
 import type {FloatArrayParam} from "../math";
-import type {WebGLRenderer} from "./WebGLRenderer";
 import {ViewFlags} from "./ViewFlags";
+import {RenderPassValue} from "./RENDER_PASSES";
 
 
 /**
@@ -81,7 +81,12 @@ export class RenderContext {
   /**
    * Indicates which pass the WebGLRenderer is currently rendering.
    */
-  public renderPass: number;
+  public renderPass: RenderPassValue;
+
+  /**
+   * Whether we are currently picking with a ray.
+   */
+  public rayPicking: boolean;
 
   /**
    * The 4x4 viewing transform matrix the WebGLRenderer is currently using when rendering a ray-pick.
@@ -124,6 +129,9 @@ export class RenderContext {
    */
   public saoOcclusionTexture: WebGLAbstractTexture|null;
 
+  /**
+   * TODO
+   */
   public pickClipPos: FloatArrayParam;
 
   /**
@@ -131,7 +139,7 @@ export class RenderContext {
    */
   public readonly viewFlags: ViewFlags[];
 
-  public  rayPicking: boolean;
+
 
   /**
    * Creates a new RenderContext.
@@ -151,7 +159,7 @@ export class RenderContext {
   }
 
   /**
-   * Called by WebGLRenderer before each frame.
+   * Called before each frame.
    */
   reset() {
     this.lastProgramId = -1;

@@ -4,13 +4,13 @@ import type {FloatArrayParam} from "../math";
  * Internal interface through which a {@link SceneMesh | SceneMesh} loads attribute updates
  * into a {@link viewer!Viewer | Viewer's} {@link viewer!Renderer | Renderer}.
  *
- *  This exists at each {@link SceneMesh.rendererMesh | SceneMesh.rendererObject} when the
+ *  This exists at each {@link SceneMesh.sceneMeshRendererProxy | SceneMesh.sceneObjectRendererProxy} when the
  *  containing {@link SceneModel | SceneModel} has been added
  *  to a {@link viewer!Viewer | Viewer}.
  *
  * @internal
  */
-export interface RendererMesh {
+export interface SceneMeshRendererProxy {
 
   /**
    * Loads the {@link SceneMesh | SceneMesh's} modeling matrix into the {@link viewer!Renderer}.

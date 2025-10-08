@@ -1,10 +1,10 @@
-import type {RendererGeometry} from "../../scene";
+import type {SceneGeometryRendererProxy} from "../../scene";
 
 /**
  * Represents a geometry in the WebGL renderer.
  * @private
  */
-export class RendererGeometryImpl implements RendererGeometry {
+export class RendererGeometry implements SceneGeometryRendererProxy {
 
   /**
    * The number of times this geometry is used by a mesh

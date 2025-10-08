@@ -26,8 +26,10 @@ export interface DrawOpSet {
  * Manages a set of draw operations for different primitive types.
  */
 export class PrimitiveDrawOps {
-  useCount:number = 0;
-  renderContext: RenderContext;
+
+  _useCount:number = 0;
+  _renderContext: RenderContext;
+
   prims: {
     [TrianglesPrimitive]: DrawOpSet;
     [LinesPrimitive]: DrawOpSet;
@@ -40,7 +42,7 @@ export class PrimitiveDrawOps {
    * @param gpuMemoryReadIF - Reads GPU memory - provides data textures.
    */
   constructor(renderContext: RenderContext, gpuMemoryReadIF: GPUMemoryReadIF) {
-    this.renderContext = renderContext;
+    this._renderContext = renderContext;
     const silhouette = new GenericSilhouetteDrawOp(renderContext, gpuMemoryReadIF);
     this.prims = {
       [TrianglesPrimitive]: {
@@ -86,7 +88,7 @@ export function getPrimitiveDrawOps(renderContext: RenderContext, gpuMemoryReadI
       primDrawOps = new PrimitiveDrawOps(renderContext, gpuMemoryReadIF);
       primDrawOpsInstances[viewerId] = primDrawOps;
     }
-    primDrawOps.useCount++;
+    primDrawOps._useCount++;
     return primDrawOps;
   }
 
@@ -95,9 +97,12 @@ export function getPrimitiveDrawOps(renderContext: RenderContext, gpuMemoryReadI
  * @param primDrawOps
  */
 export function putPrimitiveDrawOps(primDrawOps: PrimitiveDrawOps) {
-    primDrawOps.useCount--;
-    if (primDrawOps.useCount <= 0) {
-      const viewerId = primDrawOps.renderContext.viewer.id;
+  if (primDrawOps._useCount === 0) {
+    throw new Error("PrimitiveDrawOps use count is already zero");
+  }
+    primDrawOps._useCount--;
+    if (primDrawOps._useCount === 0) {
+      const viewerId = primDrawOps._renderContext.viewer.id;
       delete primDrawOpsInstances[viewerId];
       primDrawOps._destroy();
     }

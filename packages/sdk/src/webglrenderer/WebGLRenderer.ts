@@ -6,7 +6,7 @@ import {EventDispatcher} from "strongly-typed-events";
 import {RenderContext} from "./RenderContext";
 import {ViewManager} from "./views/ViewManager";
 import {RenderManager} from "./render/RenderManager";
-import {DrawBatchSet} from "./drawBatches/DrawBatchSet";
+import {DrawBatches} from "./drawBatches/DrawBatches";
 import type {GPUMemoryReadIF} from "./gpuMemory/GPUMemoryReadIF";
 import type {GPUMemoryWriteIF} from "./gpuMemory/GPUMemoryWriteIF";
 import {GPUMemory} from "./gpuMemory/GPUMemory";
@@ -22,7 +22,7 @@ export class WebGLRenderer implements Renderer {
   private _viewManager!: ViewManager;
   private _renderManager!: RenderManager;
   private _pickManager!: PickManager;
-  private _drawBatchSet!: DrawBatchSet;
+  private _drawBatches!: DrawBatches;
   private _gpuMemory!: GPUMemory;
 
   private _gl: WebGL2RenderingContext;
@@ -119,12 +119,12 @@ export class WebGLRenderer implements Renderer {
 
     this._renderContext = new RenderContext(viewer, this._gl, this._webglCanvasElement);
     this._gpuMemory = new GPUMemory(this._renderContext);
-    this._drawBatchSet = new DrawBatchSet(this._renderContext, this._gpuMemory as GPUMemoryWriteIF);
-    this._renderManager = new RenderManager(this._renderContext, this._gpuMemory as GPUMemoryReadIF, this._drawBatchSet);
+    this._drawBatches = new DrawBatches(this._renderContext, this._gpuMemory as GPUMemoryWriteIF);
+    this._renderManager = new RenderManager(this._renderContext, this._gpuMemory as GPUMemoryReadIF, this._drawBatches);
     this._pickManager = new PickManager({
       renderContext: this._renderContext,
       viewManager: this._viewManager,
-      drawBatchSet: this._drawBatchSet,
+      drawBatches: this._drawBatches,
       gpuMemory: this._gpuMemory
     });
 
@@ -157,13 +157,13 @@ export class WebGLRenderer implements Renderer {
     this._viewManager?.destroy();
     this._pickManager?.destroy();
     this._renderManager?.destroy();
-    this._drawBatchSet?.destroy();
+    this._drawBatches?.destroy();
     this._gpuMemory?.destroy();
 
     this._pickManager = undefined as unknown as PickManager;
     this._viewManager = undefined as unknown as ViewManager;
     this._renderManager = undefined as unknown as RenderManager;
-    this._drawBatchSet = undefined as unknown as DrawBatchSet;
+    this._drawBatches = undefined as unknown as DrawBatches;
     this._gpuMemory = undefined as unknown as GPUMemory;
     this._renderContext = null;
   }

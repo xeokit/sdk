@@ -557,11 +557,11 @@ export * from "./SceneTextureSet";
 export * from "./SceneGeometry";
 export * from "./SceneMesh";
 
-export * from "./RendererGeometry";
-export * from "./RendererMesh";
-export * from "./RendererObject";
-export * from "./RendererTexture";
-export * from "./RendererTextureSet";
+export * from "./SceneGeometryRendererProxy";
+export * from "./SceneMeshRendererProxy";
+export * from "./SceneObjectRendererProxy";
+export * from "./SceneTextureRendererProxy";
+export * from "./SceneTextureSetRendererProxy";
 
 export * from "./CoordinateSystem";
 export * from "./CoordinateSystemParams";

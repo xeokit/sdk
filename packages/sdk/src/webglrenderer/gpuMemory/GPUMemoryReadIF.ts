@@ -1,12 +1,13 @@
 import {type DataTextures} from "./DataTextures";
 
 /**
- * Interface representing a view into the data texture gpuMemory (GPUMemoryBatch) used for GPU-side model storage.
+ * Interface that provides the data textures that implement the GPU-side memory.
+ * This interface is used within `DrawOp` instances to access the GPU memory resources.
  */
 export interface GPUMemoryReadIF {
 
   /**
-   * The data textures that implement GPU-side model storage for this GPUMemoryBatch.
+   * The data textures.
    */
   dataTextures: DataTextures;
 }

@@ -1,7 +1,7 @@
-import type { RendererObject} from "../../scene";
+import type { SceneObjectRendererProxy} from "../../scene";
 import type {FloatArrayParam} from "../../math";
 import {createDefaultObjectFlags, createObjectFlags, OBJECT_FLAGS} from './OBJECT_FLAGS';
-import type {RendererMeshImpl} from "./RendererMeshImpl";
+import type {RendererMesh} from "./RendererMesh";
 import {RenderContext} from "../RenderContext";
 
 const tempIntRGB = new Uint16Array([0, 0, 0]);
@@ -11,7 +11,7 @@ const tempIntRGB = new Uint16Array([0, 0, 0]);
  * through which each ViewObject controls the visual state of the object in the renderer.
  * @private
  */
-export class RendererObjectImpl implements RendererObject {
+export class RendererObject implements SceneObjectRendererProxy {
 
   /**
    * Unique identifier for the object.
@@ -24,7 +24,7 @@ export class RendererObjectImpl implements RendererObject {
    * Each mesh can represent a part of the object, such as its geometry and texture.
    * The object controls the visual state of these meshes in the renderer, as a whole.
    */
-  private readonly _rendererMeshes: RendererMeshImpl[];
+  private readonly _rendererMeshes: RendererMesh[];
 
   /**
    * The RenderContext associated with this object.
@@ -42,9 +42,8 @@ export class RendererObjectImpl implements RendererObject {
   constructor(params: {
     id: string,
     renderContext: RenderContext;
-    rendererMeshes: RendererMeshImpl[];
+    rendererMeshes: RendererMesh[];
   }) {
-
     this.id = params.id;
     this.flags = [];
     this._rendererMeshes = params.rendererMeshes || [];

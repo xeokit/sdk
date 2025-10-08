@@ -17,7 +17,7 @@ import {
 } from "../constants";
 import {createVec4} from "../matrix";
 import type {FloatArrayParam} from "../math";
-import type {RendererTexture} from "./RendererTexture";
+import type {SceneTextureRendererProxy} from "./SceneTextureRendererProxy";
 import type {SceneTextureParams} from "./SceneTextureParams";
 
 /**
@@ -32,15 +32,6 @@ import type {SceneTextureParams} from "./SceneTextureParams";
  * See {@link scene | @xeokit/sdk/scene}   for usage.
  */
 export class SceneTexture {
-
-  /**
-   *  Internal interface through which this {@link SceneTexture} can load property updates into a renderers.
-   *
-   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
-   *
-   * @internal
-   */
-  rendererTexture: RendererTexture | null;
 
   /**
    * ID for the texture.
@@ -158,6 +149,15 @@ export class SceneTexture {
   channel: number;
 
   /**
+   *  Internal interface through which this {@link SceneTexture} can load property updates into a renderers.
+   *
+   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
+   *
+   * @internal
+   */
+  sceneTextureRendererProxy: SceneTextureRendererProxy | null;
+
+  /**
    * @private
    */
   constructor(params: SceneTextureParams) {
@@ -173,7 +173,7 @@ export class SceneTexture {
     this.encoding = params.encoding || LinearEncoding;
     this.preloadColor = createVec4(params.preloadColor || [1, 1, 1, 1]);
     this.channel = 0;
-    this.rendererTexture = null;
+    this.sceneTextureRendererProxy = null;
   }
 }
 

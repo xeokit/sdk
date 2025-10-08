@@ -319,7 +319,7 @@ class ViewLayer extends Component {
    * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
    *
    * The ViewLayer automatically ensures that there is a {@link ViewObject} here for
-   * each {@link scene!RendererObject} in the {@link Viewer | Viewer}
+   * each {@link scene!SceneObjectRendererProxy} in the {@link Viewer | Viewer}
    */
   readonly objects: { [key: string]: ViewObject };
 
@@ -951,8 +951,8 @@ class ViewLayer extends Component {
     const sceneObjects = model.objects;
     for (const id in sceneObjects) {
       const sceneObject = sceneObjects[id];
-      if (!sceneObject.rendererObject) {
-        throw "Cannot create ViewObject for SceneObject that has no RendererObject: " + sceneObject.id;
+      if (!sceneObject.sceneObjectRendererProxy) {
+        throw "Cannot create ViewObject for SceneObject that has no SceneObjectRendererProxy: " + sceneObject.id;
       }
       if (sceneObject.layerId == this.id) {
         if (!this.objects[id]) {

@@ -5,16 +5,16 @@ import type {RenderContext} from "../RenderContext";
 import {OBJECT_FLAGS} from "./OBJECT_FLAGS";
 import {RENDER_PASSES} from "../drawOps/RENDER_PASSES";
 import {type DTXMemoryEditor} from "../dtxMemory/DTXMemoryEditor";
-import {DrawBatch} from "./DrawBatch";
-import {DrawBatchMeshHandle} from "./DrawBatchMeshHandle";
+import {MeshBatch} from "./MeshBatch";
+import {MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
 import {DTXMemoryMeshHandle} from "../dtxMemory/DTXMemoryMeshHandle";
 
 /**
- * A DrawBatchImpl manages a batch of SceneMeshes that use the same primitive type.
+ * A MeshBatchImpl manages a batch of SceneMeshes that use the same primitive type.
  *
  * @private
  */
-export class DrawBatchImpl implements DrawBatch {
+export class MeshBatchImpl implements MeshBatch {
 
   /**
    * The render context associated with this batch.
@@ -68,7 +68,7 @@ export class DrawBatchImpl implements DrawBatch {
   public readonly dtxMemoryBatchIndex: number;
 
   /**
-   * Creates a new DrawBatchImpl instance.
+   * Creates a new MeshBatchImpl instance.
    * @param batchParams
    */
   constructor( batchParams: {
@@ -112,14 +112,14 @@ export class DrawBatchImpl implements DrawBatch {
    * added mesh in the batch's DTX dtxMemory.
    * @param sceneMesh
    */
-  addMesh( sceneMesh: SceneMesh ): DrawBatchMeshHandle {
+  addMesh( sceneMesh: SceneMesh ): MeshBatchMeshHandle {
     const gpuMeshHandle = this._dtxMemoryEditor.addMesh(this.dtxMemoryBatchIndex, sceneMesh);
     this.numIndices += gpuMeshHandle.numIndices;
     this.numVertices += gpuMeshHandle.numVertices;
     for (const counts of this.meshCounts) {
       counts.numMeshes++;
     }
-    return gpuMeshHandle as DrawBatchMeshHandle;
+    return gpuMeshHandle as MeshBatchMeshHandle;
   }
 
   /**
@@ -128,7 +128,7 @@ export class DrawBatchImpl implements DrawBatch {
    * @param meshHandle
    * @param viewFlags
    */
-  removeMesh( meshHandle : DrawBatchMeshHandle, viewFlags: number[] ): void {
+  removeMesh(meshHandle : MeshBatchMeshHandle, viewFlags: number[] ): void {
     const gpuMeshHandle = meshHandle as DTXMemoryMeshHandle;
     this._dtxMemoryEditor.removeMesh(gpuMeshHandle );
     for (let viewIndex = 0; viewIndex < 4; viewIndex++) {
@@ -156,7 +156,7 @@ export class DrawBatchImpl implements DrawBatch {
    * @param meshHandle - Index of the mesh within the batch.
    * @param flags - Bitmask of OBJECT_FLAGS representing initial mesh states.
    */
-  initMeshFlags( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
+  initMeshFlags(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     const counts = this.meshCounts[viewIndex];
     if ((flags & OBJECT_FLAGS.VISIBLE) !== 0) counts.numVisible++;
     if ((flags & OBJECT_FLAGS.HIGHLIGHTED) !== 0) counts.numHighlighted++;
@@ -173,7 +173,7 @@ export class DrawBatchImpl implements DrawBatch {
    * Sets the render flags for a mesh in a specific view based on its visibility and interaction states.
    * @private
    */
-  _setMeshObjectFlags( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
+  _setMeshObjectFlags(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     const viewer = this._renderContext.viewer;
     const view = viewer.viewList[viewIndex];
 
@@ -229,7 +229,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh visibility state.
    */
-  setMeshVisible( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
+  setMeshVisible(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numVisible += (flags & OBJECT_FLAGS.VISIBLE) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -237,7 +237,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh highlight state.
    */
-  setMeshHighlighted( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
+  setMeshHighlighted(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numHighlighted += (flags & OBJECT_FLAGS.HIGHLIGHTED) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -245,7 +245,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh x-ray state.
    */
-  setMeshXRayed( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
+  setMeshXRayed(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numXRayed += (flags & OBJECT_FLAGS.XRAYED) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -253,7 +253,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh selected state.
    */
-  setMeshSelected( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
+  setMeshSelected(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numSelected += (flags & OBJECT_FLAGS.SELECTED) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -261,7 +261,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh clippable state.
    */
-  setMeshClippable( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
+  setMeshClippable(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numClippable += (flags & OBJECT_FLAGS.CLIPPABLE) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -269,7 +269,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh culling state.
    */
-  setMeshCulled( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
+  setMeshCulled(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numCulled += (flags & OBJECT_FLAGS.CULLED) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -277,7 +277,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets per-view mesh pickable state.
    */
-  setMeshPickable( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
+  setMeshPickable(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numPickable += (flags & OBJECT_FLAGS.PICKABLE) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -285,7 +285,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets transparency per-view for the mesh.
    */
-  setMeshTransparent( viewIndex: number, meshHandle: DrawBatchMeshHandle, flags: number ): void {
+  setMeshTransparent(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numTransparent += (flags & OBJECT_FLAGS.TRANSPARENT) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
@@ -293,7 +293,7 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets a custom color per view for a mesh.
    */
-  setMeshColor( viewIndex: number, meshHandle: DrawBatchMeshHandle, color: FloatArrayParam ): void {
+  setMeshColor(viewIndex: number, meshHandle: MeshBatchMeshHandle, color: FloatArrayParam ): void {
     this._dtxMemoryEditor.setMeshViewAttribs(meshHandle as DTXMemoryMeshHandle, viewIndex, {
       color: <number[]>color
     });
@@ -302,21 +302,21 @@ export class DrawBatchImpl implements DrawBatch {
   /**
    * Sets the transformation matrix for a mesh.
    */
-  setMeshMatrix( meshHandle: DrawBatchMeshHandle, rtcMatrix: FloatArrayParam ): void {
+  setMeshMatrix(meshHandle: MeshBatchMeshHandle, rtcMatrix: FloatArrayParam ): void {
     this._dtxMemoryEditor.setMeshMatrix(meshHandle as DTXMemoryMeshHandle, rtcMatrix);
   }
 
   /**
    * Sets the tile tileIndex for a mesh.
    */
-  setMeshTile( meshHandle: DrawBatchMeshHandle, tileIndex: number ): void {
+  setMeshTile(meshHandle: MeshBatchMeshHandle, tileIndex: number ): void {
     this._dtxMemoryEditor.setMeshAttribs(meshHandle as DTXMemoryMeshHandle, {
       tileIndex
     });
   }
 
   /**
-   * Destroys this DrawBatchImpl instance.
+   * Destroys this MeshBatchImpl instance.
    */
   destroy(): void {
     for (const counts of this.meshCounts) {

@@ -1,10 +1,10 @@
 import {MeshCounts} from "./MeshCounts";
 
 /**
- * A DrawBatch represents a collection of meshes that share the same rendering properties and can be rendered together 
+ * A MeshBatch represents a collection of meshes that share the same rendering properties and can be rendered together
  * in a single draw call using a `DrawTechnique`.
  */
-export interface DrawBatch {
+export interface MeshBatch {
 
   /**
    * Primitive type of the meshes in this batch.

@@ -6,7 +6,7 @@ import {EventDispatcher} from "strongly-typed-events";
 import {RenderContext} from "./RenderContext";
 import {ViewManager} from "./views/ViewManager";
 import {RenderManager} from "./render/RenderManager";
-import {DrawBatches} from "./drawBatches/DrawBatches";
+import {MeshBatches} from "./meshBatches/MeshBatches";
 import type {DTXMemoryReader} from "./dtxMemory/DTXMemoryReader";
 import type {DTXMemoryEditor} from "./dtxMemory/DTXMemoryEditor";
 import {DTXMemory} from "./dtxMemory/DTXMemory";
@@ -22,7 +22,7 @@ export class WebGLRenderer implements Renderer {
   private _viewManager!: ViewManager;
   private _renderManager!: RenderManager;
   private _pickManager!: PickManager;
-  private _drawBatches!: DrawBatches;
+  private _meshBatches!: MeshBatches;
   private _dtxMemory!: DTXMemory;
 
   private _gl: WebGL2RenderingContext;
@@ -119,12 +119,12 @@ export class WebGLRenderer implements Renderer {
 
     this._renderContext = new RenderContext(viewer, this._gl, this._webglCanvasElement);
     this._dtxMemory = new DTXMemory(this._renderContext);
-    this._drawBatches = new DrawBatches(this._renderContext, this._dtxMemory as DTXMemoryEditor);
-    this._renderManager = new RenderManager(this._renderContext, this._dtxMemory as DTXMemoryReader, this._drawBatches);
+    this._meshBatches = new MeshBatches(this._renderContext, this._dtxMemory as DTXMemoryEditor);
+    this._renderManager = new RenderManager(this._renderContext, this._dtxMemory as DTXMemoryReader, this._meshBatches);
     this._pickManager = new PickManager({
       renderContext: this._renderContext,
       viewManager: this._viewManager,
-      drawBatches: this._drawBatches,
+      meshBatches: this._meshBatches,
       dtxMemory: this._dtxMemory
     });
 
@@ -157,13 +157,13 @@ export class WebGLRenderer implements Renderer {
     this._viewManager?.destroy();
     this._pickManager?.destroy();
     this._renderManager?.destroy();
-    this._drawBatches?.destroy();
+    this._meshBatches?.destroy();
     this._dtxMemory?.destroy();
 
     this._pickManager = undefined as unknown as PickManager;
     this._viewManager = undefined as unknown as ViewManager;
     this._renderManager = undefined as unknown as RenderManager;
-    this._drawBatches = undefined as unknown as DrawBatches;
+    this._meshBatches = undefined as unknown as MeshBatches;
     this._dtxMemory = undefined as unknown as DTXMemory;
     this._renderContext = null;
   }

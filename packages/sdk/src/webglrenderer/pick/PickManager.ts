@@ -13,11 +13,11 @@ import {
 import {RendererViewImpl} from "../views/RendererViewImpl";
 import {type FloatArrayParam} from "../../math";
 import {createRTCViewMat} from "../../rtc";
-import {RendererMesh} from "../drawBatches/RendererMesh";
+import {RendererMesh} from "../meshBatches/RendererMesh";
 import {RenderContext} from "../RenderContext";
 import {RenderBufferManager} from "../views/RenderBufferManager";
 import {DTXMemoryReader} from "../dtxMemory/DTXMemoryReader";
-import {DrawBatches} from "../drawBatches/DrawBatches";
+import {MeshBatches} from "../meshBatches/MeshBatches";
 import {ViewManager} from "../views/ViewManager";
 import {DTXMemory} from "../dtxMemory/DTXMemory";
 import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
@@ -54,17 +54,17 @@ export class PickManager {
   private _pickResult: PickResult;
   private _renderContext: RenderContext;
   private _dtxMemory: DTXMemory;
-  private _drawBatches: DrawBatches;
+  private _meshBatches: MeshBatches;
   private _drawOps: DrawOps;
 
   constructor( cfg: {
     renderContext: RenderContext,
     dtxMemory: DTXMemory,
-    drawBatches: DrawBatches,
+    meshBatches: MeshBatches,
     viewManager: ViewManager
   } ) {
     this._dtxMemory = cfg.dtxMemory;
-    this._drawBatches = cfg.drawBatches;
+    this._meshBatches = cfg.meshBatches;
     this._renderContext = cfg.renderContext;
     this._drawOps = getDrawOps(this._renderContext, this._dtxMemory as DTXMemoryReader);
     this._pickResult = new PickResult();
@@ -244,7 +244,7 @@ export class PickManager {
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const batches = this._drawBatches.batches; // Batches are sorted by prim type
+    const batches = this._meshBatches.batches; // Batches are sorted by prim type
     for (let i = 0, len = batches.length; i < len; i++) {
       const batch = batches[i];
       const meshCounts = batch.meshCounts[viewIndex];
@@ -267,7 +267,7 @@ export class PickManager {
     const result = this._extract16BitParts(pickID);
 
 
-    const rendererMesh = this._drawBatches.
+    const rendererMesh = this._meshBatches.
     return <RendererMesh>this._pickIDs.items[pickID];
   }
 
@@ -279,7 +279,7 @@ export class PickManager {
     // Extract low 16 bits by masking
     const low16 = unsignedInt & 0xFFFF;
     return {
-      batch: this._drawBatches.batches[high16],
+      batch: this._meshBatches.batches[high16],
       batchIndex: high16,
       meshIndex: low16
     };

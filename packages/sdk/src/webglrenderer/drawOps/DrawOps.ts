@@ -57,8 +57,8 @@ export class DrawOps {
 
         const trianglesColor = saveForCleanup(new TrianglesColorDrawTechnique(renderContext, dtxMemoryReader));
         const trianglesEdgeSilhouette = saveForCleanup(new TrianglesEdgeSilhouetteDrawTechnique(renderContext, dtxMemoryReader));
-        const trianglesDepth = saveForCleanup(new TrianglesDepthDrawTechnique(renderContext, dtxMemoryReader));
-        const trianglesPick = saveForCleanup(new TrianglesPickMeshDrawTechnique(renderContext, dtxMemoryReader));
+        // const trianglesDepth = saveForCleanup(new TrianglesDepthDrawTechnique(renderContext, dtxMemoryReader));
+        // const trianglesPick = saveForCleanup(new TrianglesPickMeshDrawTechnique(renderContext, dtxMemoryReader));
 
         const linesColor = saveForCleanup(new LinesColorDrawTechnique(renderContext, dtxMemoryReader));
         const pointsColor = saveForCleanup(new PointsColorDrawTechnique(renderContext, dtxMemoryReader));
@@ -76,8 +76,8 @@ export class DrawOps {
                 selectedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.SELECTED),
                 xrayed: new DrawOp(silhouette, RENDER_PASSES.XRAYED),
                 xrayedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.XRAYED),
-                pick: new DrawOp(trianglesPick, RENDER_PASSES.PICK),
-                pickDepth: new DrawOp(trianglesDepth, RENDER_PASSES.PICK)
+                // pick: new DrawOp(trianglesPick, RENDER_PASSES.PICK),
+                // pickDepth: new DrawOp(trianglesDepth, RENDER_PASSES.PICK)
             },
 
             [LinesPrimitive]: {

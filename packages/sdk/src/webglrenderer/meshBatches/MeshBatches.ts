@@ -14,9 +14,9 @@ import type {
 import {RendererObject} from "./RendererObject";
 import {RendererMesh} from "./RendererMesh";
 import {RendererGeometry} from "./RendererGeometry";
-import {DrawBatchImpl} from "./DrawBatchImpl";
+import {MeshBatchImpl} from "./MeshBatchImpl";
 import {type DTXMemoryEditor} from "../dtxMemory/DTXMemoryEditor";
-import {DrawBatch} from "./DrawBatch";
+import {MeshBatch} from "./MeshBatch";
 import {RendererTexture} from "./RendererTexture";
 import {RendererTextureSet} from "./RendererTextureSet";
 
@@ -36,7 +36,7 @@ import {RendererTextureSet} from "./RendererTextureSet";
  * Each DrawLayer manages GPU resources for rendering its meshes efficiently. The RenderGraph creates new DrawLayers as
  * needed when meshes with different primitive types are added.
  */
-export class DrawBatches {
+export class MeshBatches {
 
   private _rendererObjects: Record<string, RendererObject> = {}; // A SceneObject can belong to many SceneModels
   private _renderContext: RenderContext;
@@ -49,8 +49,8 @@ export class DrawBatches {
       rendererMeshes: Record<string, RendererMesh>;
     }> = {};
 
-  private _batches: Record<string, DrawBatchImpl> = {};
-  private _batchList: DrawBatch[] = [];
+  private _batches: Record<string, MeshBatchImpl> = {};
+  private _batchList: MeshBatch[] = [];
   private _batchListDirty = true;
 
   private _onModelCreated: () => void;
@@ -83,9 +83,9 @@ export class DrawBatches {
   }
 
   /**
-   * Returns the list of DrawBatches sorted by their primitive type.
+   * Returns the list of MeshBatches sorted by their primitive type.
    */
-  public get batches(): DrawBatch[] {
+  public get batches(): MeshBatch[] {
     if (this._batchListDirty) {
       // @ts-ignore
       this._batchList = Object.values(this._batches).sort(( a, b ) => a.primitive - b.primitive);
@@ -165,7 +165,7 @@ export class DrawBatches {
    * Finds or creates a batch that can accommodate the given SceneMesh based
    * on its primitive type and memory requirements.
    */
-  private _getDrawBatch( sceneMesh: SceneMesh ): DrawBatchImpl {
+  private _getDrawBatch( sceneMesh: SceneMesh ): MeshBatchImpl {
     const primitive = sceneMesh.geometry.primitive;
     for (const drawBatch of Object.values(this._batches)) {
       if (drawBatch.primitive === primitive && drawBatch.canAddMesh(sceneMesh)) {
@@ -173,7 +173,7 @@ export class DrawBatches {
       }
     }
     const drawBatchId = `drawBatch-${primitive}-${Object.keys(this._batches).length}`;
-    const newLayer = new DrawBatchImpl({
+    const newLayer = new MeshBatchImpl({
       primitive,
       renderContext: this._renderContext,
       dtxMemoryEditor: this._dtxMemoryEditor,

@@ -1,6 +1,6 @@
 
 /**
- * Tracks various counts related to meshes in a `DrawBatch`.
+ * Tracks various counts related to meshes in a `MeshBatch`.
  *
  * This class is used to keep track of the number of meshes and their states,
  * such as visibility, transparency, and selection, during rendering.

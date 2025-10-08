@@ -8,14 +8,14 @@ import {
 } from "../../matrix";
 import type {SceneMeshRendererProxy} from "../../scene";
 import type {FloatArrayParam} from "../../math";
-import type {DrawBatchImpl} from "./DrawBatchImpl";
+import type {MeshBatchImpl} from "./MeshBatchImpl";
 import type {RenderContext} from "../RenderContext";
 import {SceneMesh} from "../../scene";
 import {type Tile} from "../dtxMemory/Tile";
 import {type DTXMemoryEditor} from "../dtxMemory/DTXMemoryEditor";
 import {RendererObject} from "./RendererObject";
 import {createRTCModelMat} from "../../rtc";
-import {DrawBatchMeshHandle} from "./DrawBatchMeshHandle";
+import {MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
 
 const tempIdentityMat4 = createMat4();
 const identityVec4 = createVec4([0, 0, 0, 1]);
@@ -45,12 +45,12 @@ const NUM_VIEWS = 4;
 
 export class RendererMesh implements SceneMeshRendererProxy {
 
-  public rendererObject: RendererObject; // Set in DrawBatches._addObject
+  public rendererObject: RendererObject; // Set in MeshBatches._addObject
   public tile: Tile;
 
   private readonly _sceneMesh: SceneMesh;
-  private readonly _meshHandle: DrawBatchMeshHandle;
-  private readonly _drawBatch: DrawBatchImpl;
+  private readonly _meshHandle: MeshBatchMeshHandle;
+  private readonly _drawBatch: MeshBatchImpl;
   private readonly _renderContext: RenderContext;
   private readonly _viewStates: any;
   private readonly _dtxMemoryEditor: DTXMemoryEditor;
@@ -65,7 +65,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
                  dtxMemoryEditor,
                }: {
     sceneMesh: SceneMesh;
-    drawBatch: DrawBatchImpl;
+    drawBatch: MeshBatchImpl;
     renderContext: RenderContext;
     dtxMemoryEditor: DTXMemoryEditor;
   } ) {

@@ -1,22 +1,22 @@
 
 import {WEBGL_INFO} from "../../webglutils";
 import {RenderContext} from "../RenderContext";
-import {DrawBatches} from "../drawBatches/DrawBatches";
+import {MeshBatches} from "../meshBatches/MeshBatches";
 import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
 import {RendererViewImpl} from "../views/RendererViewImpl";
 import {DTXMemoryReader} from "../dtxMemory/DTXMemoryReader";
-import {DrawBatch} from "../drawBatches/DrawBatch";
+import {MeshBatch} from "../meshBatches/MeshBatch";
 
 
 /**
  * Manages the drawing operations for WebGL rendering.
- * The `DrawManager` class handles rendering drawBatches, views, and extensions,
+ * The `DrawManager` class handles rendering meshBatches, views, and extensions,
  * ensuring proper GPU state and efficient rendering of opaque and transparent objects.
  */
 export class RenderManager {
 
   private _renderContext: RenderContext;
-  private _drawBatches: DrawBatches;
+  private _meshBatches: MeshBatches;
   private _drawOps: DrawOps;
   private _extensionHandles: any;
   private _logarithmicDepthBufferEnabled: boolean;
@@ -27,11 +27,11 @@ export class RenderManager {
    *
    * @param renderContext - The rendering context.
    * @param dtxMemoryReader - The GPU dtxMemory read interface. Provides data textures that contain model data to load into shaders.
-   * @param drawBatches - The draw graph to draw.
+   * @param meshBatches - The draw graph to draw.
    */
-  constructor(renderContext: RenderContext, dtxMemoryReader: DTXMemoryReader, drawBatches: DrawBatches) {
+  constructor(renderContext: RenderContext, dtxMemoryReader: DTXMemoryReader, meshBatches: MeshBatches) {
     this._renderContext = renderContext;
-    this._drawBatches = drawBatches;
+    this._meshBatches = meshBatches;
     this._drawOps = getDrawOps(this._renderContext, dtxMemoryReader);
     this._extensionHandles = {};
     this._logarithmicDepthBufferEnabled = false;
@@ -69,22 +69,22 @@ export class RenderManager {
     const drawOps = this._drawOps.prims;
 
     const bins = {
-      normalDrawSAO: [] as DrawBatch[],
-      edgesColorOpaque: [] as DrawBatch[],
-      normalFillTransparent: [] as DrawBatch[],
-      edgesColorTransparent: [] as DrawBatch[],
-      xrayedSilhouetteOpaque: [] as DrawBatch[],
-      xrayEdgesOpaque: [] as DrawBatch[],
-      xrayedSilhouetteTransparent: [] as DrawBatch[],
-      xrayEdgesTransparent: [] as DrawBatch[],
-      highlightedSilhouetteOpaque: [] as DrawBatch[],
-      highlightedEdgesOpaque: [] as DrawBatch[],
-      highlightedSilhouetteTransparent: [] as DrawBatch[],
-      highlightedEdgesTransparent: [] as DrawBatch[],
-      selectedSilhouetteOpaque: [] as DrawBatch[],
-      selectedEdgesOpaque: [] as DrawBatch[],
-      selectedSilhouetteTransparent: [] as DrawBatch[],
-      selectedEdgesTransparent: [] as DrawBatch[]
+      normalDrawSAO: [] as MeshBatch[],
+      edgesColorOpaque: [] as MeshBatch[],
+      normalFillTransparent: [] as MeshBatch[],
+      edgesColorTransparent: [] as MeshBatch[],
+      xrayedSilhouetteOpaque: [] as MeshBatch[],
+      xrayEdgesOpaque: [] as MeshBatch[],
+      xrayedSilhouetteTransparent: [] as MeshBatch[],
+      xrayEdgesTransparent: [] as MeshBatch[],
+      highlightedSilhouetteOpaque: [] as MeshBatch[],
+      highlightedEdgesOpaque: [] as MeshBatch[],
+      highlightedSilhouetteTransparent: [] as MeshBatch[],
+      highlightedEdgesTransparent: [] as MeshBatch[],
+      selectedSilhouetteOpaque: [] as MeshBatch[],
+      selectedEdgesOpaque: [] as MeshBatch[],
+      selectedSilhouetteTransparent: [] as MeshBatch[],
+      selectedEdgesTransparent: [] as MeshBatch[]
     };
 
     renderContext.reset();
@@ -115,7 +115,7 @@ export class RenderManager {
     const slMat = view.selectedMaterial;
     const xrMat = view.xrayMaterial;
 
-    const batches = this._drawBatches.batches;
+    const batches = this._meshBatches.batches;
 
     for (let i = 0, len = batches.length; i < len; i++) {
       const batch = batches[i];
@@ -237,10 +237,10 @@ export class RenderManager {
 
     // Helper to clear depth and draw silhouette + edges
     const drawSilAndEdges = (
-      silBin: DrawBatch[],
-      edgesBin: DrawBatch[],
-      drawSil: ( l: DrawBatch ) => void,
-      drawEdges: ( l: DrawBatch ) => void
+      silBin: MeshBatch[],
+      edgesBin: MeshBatch[],
+      drawSil: ( l: MeshBatch ) => void,
+      drawEdges: ( l: MeshBatch ) => void
     ) => {
       if (silBin.length || edgesBin.length) {
         renderContext.lastProgramId = -1;

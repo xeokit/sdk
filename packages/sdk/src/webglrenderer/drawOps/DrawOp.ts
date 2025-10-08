@@ -1,6 +1,6 @@
 import {DrawTechnique} from "./DrawTechnique";
 import {RenderPassValue} from "./RENDER_PASSES";
-import {DrawBatch} from "../drawBatches/DrawBatch";
+import {MeshBatch} from "../meshBatches/MeshBatch";
 
 /**
  * A draw operation associated with a specific rendering technique.
@@ -15,7 +15,7 @@ export class DrawOp {
         this._renderPass = renderPass;
     }
 
-    public draw(batch: DrawBatch) {
-        this._technique.draw(batch, this._renderPass);
+    public draw(meshBatch: MeshBatch) {
+        this._technique.draw(meshBatch, this._renderPass);
     }
 }

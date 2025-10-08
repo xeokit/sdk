@@ -3,7 +3,7 @@ import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive
 import {RENDER_PASSES, RenderPassValue} from "./RENDER_PASSES";
 import type {RenderContext} from "../RenderContext";
 import {type DTXMemoryReader} from "../dtxMemory/DTXMemoryReader";
-import {DrawBatch} from "../drawBatches/DrawBatch";
+import {MeshBatch} from "../meshBatches/MeshBatch";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 
@@ -108,15 +108,15 @@ export abstract class DrawTechnique {
    *
    * This is the only public method on DrawTechnique.
    *
-   * @param batch The batch to draw, which contains the primitives and their attributes.
+   * @param meshBatch The batch to draw, which contains the primitives and their attributes.
    * @param renderPass The render pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
    */
-  public draw(batch: DrawBatch, renderPass: RenderPassValue ): void {
+  public draw(meshBatch: MeshBatch, renderPass: RenderPassValue ): void {
     if (!this._program) {
       throw new Error("Shader program is not initialized.");
     }
-    if (!batch) {
-      throw new Error("Invalid batch provided.");
+    if (!meshBatch) {
+      throw new Error("Invalid meshBatch provided.");
     }
     if (renderPass < 0) {
       throw new Error("Invalid render pass provided.");
@@ -143,7 +143,7 @@ export abstract class DrawTechnique {
 
     const samplers = this._samplers;
     const dataTextures = this._dtxMemoryReader.dataTextures;
-    const batchDataTextures = dataTextures.batches[batch.dtxMemoryBatchIndex];
+    const batchDataTextures = dataTextures.batches[meshBatch.dtxMemoryBatchIndex];
 
     bindTexture(samplers.tileViewMatrices,
         (this._renderContext.rayPicking
@@ -162,21 +162,21 @@ export abstract class DrawTechnique {
     bindTexture(samplers.edgeIndices, batchDataTextures.edgeIndices);
     bindTexture(samplers.indices, batchDataTextures.indices);
 
-    gl.uniform1i(this._uniforms.primBaseIndex, batch.primBaseIndex);
-    gl.uniform1i(this._uniforms.primitiveType, batch.primitive); // TrianglesPrimitive, LinesPrimitive, PointsPrimitive
+    gl.uniform1i(this._uniforms.primBaseIndex, meshBatch.primBaseIndex);
+    gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive); // TrianglesPrimitive, LinesPrimitive, PointsPrimitive
 
-    switch (batch.primitive) {
+    switch (meshBatch.primitive) {
       case TrianglesPrimitive:
-        gl.drawArrays(gl.TRIANGLES, 0, batch.numIndices);
+        gl.drawArrays(gl.TRIANGLES, 0, meshBatch.numIndices);
         break;
       case LinesPrimitive:
-        gl.drawArrays(gl.LINES, 0, batch.numIndices);
+        gl.drawArrays(gl.LINES, 0, meshBatch.numIndices);
         break;
       case PointsPrimitive:
-        gl.drawArrays(gl.POINTS, 0, batch.numVertices);
+        gl.drawArrays(gl.POINTS, 0, meshBatch.numVertices);
         break;
       default:
-        console.error(`Unsupported Batch primitive type: ${batch.primitive}`);
+        console.error(`Unsupported Batch primitive type: ${meshBatch.primitive}`);
     }
     // TODO: Add support for drawing only a portion of the indices?
   }

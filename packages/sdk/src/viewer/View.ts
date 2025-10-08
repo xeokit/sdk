@@ -700,7 +700,7 @@ class View extends Component {
       });
       this.onLayerCreated.dispatch(this, viewLayer);
     }
-    if (!sceneObject.rendererObject) {
+    if (!sceneObject.sceneObjectRendererProxy) {
       throw "Cannot create ViewObject for SceneObject that has no ViewObject: " + sceneObject.id;
     }
     const viewObject = new ViewObject(viewLayer, sceneObject);

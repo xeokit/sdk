@@ -2,8 +2,8 @@
 import {DTXMemoryMeshHandle} from "../dtxMemory/DTXMemoryMeshHandle";
 
 /**
- * A handle to a mesh in a `DrawBatch`.
+ * A handle to a mesh in a `MeshBatch`.
  *
  * @internal
  */
-export type DrawBatchMeshHandle = DTXMemoryMeshHandle;
+export type MeshBatchMeshHandle = DTXMemoryMeshHandle;

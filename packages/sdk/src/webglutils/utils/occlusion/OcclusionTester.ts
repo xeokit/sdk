@@ -16,11 +16,11 @@
 //  */
 // class OcclusionTester {
 //
-//     constructor(scene, renderBufferManager) {
+//     constructor(scene, renderBuffers) {
 //
 //         this.#scene = scene;
 //
-//         this._renderBufferManager = renderBufferManager;
+//         this._renderBufferManager = renderBuffers;
 //
 //         this._occlusionLayers = {};
 //         this._occlusionLayersList = [];

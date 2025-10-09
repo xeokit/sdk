@@ -168,7 +168,7 @@ function parseSceneModel(ctx: ParsingContext): void {
       }
 
       const matrix = identityMat4();
-      (matrix as Float64Array).set(placedGeometry.flatTransformation);
+      (matrix as Float64Array<any>).set(placedGeometry.flatTransformation);
 
       const geometryId = `${ctx.nextId++}`;
       const meshId = `${ctx.nextId++}`;

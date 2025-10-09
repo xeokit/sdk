@@ -1,7 +1,8 @@
 import type {View, Viewer} from "../viewer";
-import {WEBGL_INFO, type WebGLAbstractTexture} from "../webglutils";
+import {getWebGLExtension, WEBGL_INFO, type WebGLAbstractTexture} from "../webglutils";
 import type {FloatArrayParam} from "../math";
 import {ViewFlags} from "./ViewFlags";
+import {Capabilities, SDKError} from "../core";
 
 
 /**
@@ -133,14 +134,13 @@ export class RenderContext {
    */
   public readonly viewFlags: ViewFlags[];
 
-
-
   /**
    * Creates a new RenderContext.
    */
-  constructor( viewer: Viewer, gl: WebGL2RenderingContext, webglCanvasElement: HTMLCanvasElement ) {
+  constructor( viewer: Viewer ) {
     this.viewer = viewer;
     this.view = null;
+    const {canvas: webglCanvasElement, gl} = RenderContext._createCanvasAndGL();
     this.gl = gl;
     this.webglCanvasElement = webglCanvasElement;
     this.viewFlags = [
@@ -150,6 +150,52 @@ export class RenderContext {
       new ViewFlags()
     ];
     this.reset();
+  }
+
+  private static _createCanvasAndGL(): {canvas: HTMLCanvasElement; gl: WebGL2RenderingContext} {
+    const canvas = document.createElement("canvas");
+    canvas.width = 400;
+    canvas.height = 400;
+    const s = canvas.style;
+    s.position = "absolute";
+    s.top = "50px";
+    s.left = "50px";
+    s.border = "1px solid black";
+    (s as any)["pointer-events"] = "none";
+    s.zIndex = "100000"; // HACK
+    document.body.appendChild(canvas);
+    const contextAttr: WebGLContextAttributes = {
+      alpha: true,
+      preserveDrawingBuffer: true,
+      stencil: false,
+      premultipliedAlpha: false,
+      antialias: true,
+      // powerPreference?: "default" | "high-performance" | "low-power"
+    };
+    const gl = canvas.getContext("webgl2", contextAttr) as WebGL2RenderingContext|null;
+    if (!gl) {
+      throw new SDKError("Cannot get a WebGL2 context");
+    }
+    // Nicest derivatives hint (valid in WebGL2)
+    gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
+    return {canvas, gl};
+  }
+
+  public static getCapabilities( capabilities: Capabilities ): void {
+    capabilities.maxViews = 4;
+    const testCanvas = document.createElement("canvas");
+    const gl = testCanvas.getContext("webgl2") as WebGL2RenderingContext|null;
+    if (!gl) {
+      return;
+    }
+    capabilities.astcSupported = !!getWebGLExtension(gl, "WEBGL_compressed_texture_astc");
+    capabilities.etc1Supported = true; // WebGL
+    capabilities.etc2Supported = !!getWebGLExtension(gl, "WEBGL_compressed_texture_etc");
+    capabilities.dxtSupported = !!getWebGLExtension(gl, "WEBGL_compressed_texture_s3tc");
+    capabilities.bptcSupported = !!getWebGLExtension(gl, "EXT_texture_compression_bptc");
+    capabilities.pvrtcSupported =
+        !!getWebGLExtension(gl, "WEBGL_compressed_texture_pvrtc") ||
+        !!getWebGLExtension(gl, "WEBKIT_WEBGL_compressed_texture_pvrtc");
   }
 
   /**
@@ -178,5 +224,10 @@ export class RenderContext {
     const textureUnit = this.textureUnit;
     this.textureUnit = (this.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
     return textureUnit;
+  }
+
+  destroy() {
+    this.gl.getExtension("WEBGL_lose_context")?.loseContext();
+    (this.webglCanvasElement.parentNode as Node).removeChild(this.webglCanvasElement);
   }
 }

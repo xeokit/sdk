@@ -28,7 +28,7 @@ import {ViewLayer} from "./ViewLayer";
 import type {ViewLayerParams} from "./ViewLayerParams";
 import {ViewObject} from "./ViewObject";
 import type {ViewParams} from "./ViewParams";
-import {RendererView} from "./RendererView";
+import {ViewRendererProxy} from "./ViewRendererProxy";
 
 /**
  * Event that signifies the beginning of a canvas snapshot captured with
@@ -67,7 +67,7 @@ class View extends Component {
    * The internal renderer interface for this View.
   * @internal
    */
-  public rendererView: RendererView;
+  public rendererView: ViewRendererProxy;
 
   /**
    * The tileIndex of this View in {@link Viewer.viewList}.
@@ -1474,10 +1474,10 @@ class View extends Component {
    * * No View is currently attached to this Renderer.
    * * Can't find a View attached to this Renderer with the given handle.
    * * Illegal picking parameters given.
-   * @returns {@link PickResult}
+   * @returns {Boolean}
    * * Picking attempt completed.
    */
-  pick(pickParams: PickParams, pickResult?: PickResult): PickResult | null | SDKError {
+  pick(pickParams: PickParams, pickResult?: PickResult): boolean | null | SDKError {
     return this.rendererView.pick(pickParams, pickResult);
   }
 

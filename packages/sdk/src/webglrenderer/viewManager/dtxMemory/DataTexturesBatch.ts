@@ -6,6 +6,32 @@
 export interface DataTexturesBatch {
 
   /**
+   *
+   */
+  views: {
+
+    /**
+     * Number of drawable primitives in the batch.
+     */
+    numDrawablePrims: number;
+
+    /**
+     * Data texture mapping each primitive to its corresponding mesh.
+     */
+    primToMeshLookup: WebGLTexture;
+
+    /**
+     * Table of mesh attributes.
+     */
+    meshViewAttribs: WebGLTexture;
+
+    /**
+     * Mapping of rendering passes to their respective primitive ranges in primToMeshLookup.
+     */
+    renderPassDrawRanges: Map<number, { first: number; count: number }>;
+  }[];
+
+  /**
    * Data texture containing unique primitive indices for `gl.drawArrays`.
    */
   indices: WebGLTexture;
@@ -16,19 +42,9 @@ export interface DataTexturesBatch {
   edgeIndices: WebGLTexture;
 
   /**
-   * Data texture mapping each primitive to its corresponding mesh.
-   */
-  primToMeshLookup: WebGLTexture;
-
-  /**
    * Data texture containing a table of mesh attributes that are global to all viewManager.
    */
   meshAttribs: WebGLTexture;
-
-  /**
-   * Array of data textures, each containing a table of mesh attributes specific to a particular view.
-   */
-  meshViewAttribs: WebGLTexture[];
 
   /**
    * Data texture containing modeling matrices for meshes.

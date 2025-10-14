@@ -4,8 +4,6 @@ import type {
   SceneGeometryRendererProxy,
   SceneMeshRendererProxy,
   SceneObjectRendererProxy,
-  SceneTextureRendererProxy,
-  SceneTextureSetRendererProxy,
   SceneGeometry,
   SceneMesh,
   SceneModel,
@@ -157,6 +155,7 @@ export class MeshBatches {
     this._rendererObjects[objectId] = rendererObject;
     sceneObject.sceneObjectRendererProxy = rendererObject as SceneObjectRendererProxy;
     this._batchListDirty = true;
+    this._renderContext.setAllViewsDirty();
   }
 
   private _addMesh( rendererModel: any, sceneMesh: SceneMesh ): RendererMesh|undefined {
@@ -198,7 +197,8 @@ export class MeshBatches {
         return drawBatch;
       }
     }
-    const drawBatchId = `drawBatch-${primitive}-${Object.keys(this._sortedBatches).length}`;
+  //  const drawBatchId = `drawBatch-${primitive}-${Object.keys(this._sortedBatches).length}`;
+    const drawBatchId = `drawBatch-${primitive}`; // TODO: allow multiple batches of same primitive
     const newLayer = new MeshBatchImpl({
       primitive,
       renderContext: this._renderContext,
@@ -220,6 +220,7 @@ export class MeshBatches {
     delete this._rendererObjects[sceneObject.id];
     sceneObject.sceneObjectRendererProxy = null;
     this._batchListDirty = true;
+    this._renderContext.setAllViewsDirty();
   }
 
   private _removeMesh( rendererModel: any, sceneMesh: SceneMesh ): void {

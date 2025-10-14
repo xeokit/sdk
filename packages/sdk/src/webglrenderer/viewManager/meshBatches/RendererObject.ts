@@ -76,6 +76,7 @@ export class RendererObject implements SceneObjectRendererProxy {
     }
     this.flags[viewIndex] = visible ? this.flags[viewIndex] | OBJECT_FLAGS.VISIBLE : this.flags[viewIndex] & ~OBJECT_FLAGS.VISIBLE;
     this._rendererMeshes.forEach(mesh => mesh.setVisible(viewIndex, this.flags[viewIndex]));
+    this._renderContext.setViewDirty(viewIndex);
   }
 
   /**
@@ -89,6 +90,7 @@ export class RendererObject implements SceneObjectRendererProxy {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
       this._rendererMeshes[i].setHighlighted(viewIndex, this.flags[viewIndex]);
     }
+    this._renderContext.setViewDirty(viewIndex);
   }
 
   /**
@@ -102,6 +104,7 @@ export class RendererObject implements SceneObjectRendererProxy {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
       this._rendererMeshes[i].setXRayed(viewIndex, this.flags[viewIndex]);
     }
+    this._renderContext.setViewDirty(viewIndex);
   }
 
   /**
@@ -115,6 +118,7 @@ export class RendererObject implements SceneObjectRendererProxy {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
       this._rendererMeshes[i].setSelected(viewIndex, this.flags[viewIndex]);
     }
+    this._renderContext.setViewDirty(viewIndex);
   }
 
   /**
@@ -128,6 +132,7 @@ export class RendererObject implements SceneObjectRendererProxy {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
       this._rendererMeshes[i].setCulled(viewIndex, this.flags[viewIndex]);
     }
+    this._renderContext.setViewDirty(viewIndex);
   }
 
   /**
@@ -141,6 +146,7 @@ export class RendererObject implements SceneObjectRendererProxy {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
       this._rendererMeshes[i].setClippable(viewIndex, this.flags[viewIndex]);
     }
+    this._renderContext.setViewDirty(viewIndex);
   }
 
   /**
@@ -154,6 +160,7 @@ export class RendererObject implements SceneObjectRendererProxy {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
       this._rendererMeshes[i].setCollidable(viewIndex, this.flags[viewIndex]);
     }
+    this._renderContext.setViewDirty(viewIndex);
   }
 
   /**
@@ -167,6 +174,7 @@ export class RendererObject implements SceneObjectRendererProxy {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
       this._rendererMeshes[i].setPickable(viewIndex, this.flags[viewIndex]);
     }
+    this._renderContext.setViewDirty(viewIndex);
   }
 
   /**
@@ -185,6 +193,7 @@ export class RendererObject implements SceneObjectRendererProxy {
         this._rendererMeshes[i].setColorize(viewIndex, null);
       }
     }
+    this._renderContext.setViewDirty(viewIndex);
   }
 
   /**
@@ -218,5 +227,6 @@ export class RendererObject implements SceneObjectRendererProxy {
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
       this._rendererMeshes[i].setOpacity(viewIndex, opacityQuantized);
     }
+    this._renderContext.setViewDirty(viewIndex);
   }
 }

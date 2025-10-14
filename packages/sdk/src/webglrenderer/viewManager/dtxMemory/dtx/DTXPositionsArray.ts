@@ -254,7 +254,11 @@ export class DTXPositionsArray {
    * Flush CPU _buffer to GPU.
    * Expands RGB (CPU) -> RGBA (GPU) on the fly, 1 texel per item.
    */
-  flush(): void {
+  flush(): boolean {
+
+    if (this.dirtyPortions.size === 0 && !this.uploadAllOnFlush) {
+      return;
+    }
     const {gl, texture} = this;
     const itemsPerRow = this.textureWidth;
 
@@ -319,6 +323,8 @@ export class DTXPositionsArray {
       }
     }
     this.dirtyPortions.clear();
+
+    return true;
   }
 
   /** Expand CPU RGB triplets [base .. base+count) into a RGBA16UI row (A=0). */

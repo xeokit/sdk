@@ -2,14 +2,12 @@ import {RenderContext} from "../../RenderContext";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
 import {TrianglesColorDrawTechnique} from "./techniques/triangles/TrianglesColorDrawTechnique";
 import {GenericSilhouetteDrawTechnique} from "./techniques/generic/GenericSilhouetteDrawTechnique";
-import {PointsSilhouetteDrawTechnique} from "./techniques/points/PointsSilhouetteDrawTechnique";
 import {PointsColorDrawTechnique} from "./techniques/points/PointsColorDrawTechnique";
 import {type DTXMemoryReader} from "../dtxMemory/DTXMemoryReader";
 import {LinesColorDrawTechnique} from "./techniques/lines/LinesColorDrawTechnique";
 import {RenderPassDrawOps} from "./RenderPassDrawOps";
 import {DrawOp} from "./DrawOp";
-import {RENDER_PASSES} from "./RENDER_PASSES";
-import {TrianglesDepthDrawTechnique} from "./techniques/triangles/TrianglesDepthDrawTechnique";
+import {RENDER_PASSES} from "../RENDER_PASSES";
 import {TrianglesEdgeSilhouetteDrawTechnique} from "./techniques/triangles/TrianglesEdgeSilhouetteDrawTechnique";
 import {TrianglesPickMeshDrawTechnique} from "./techniques/triangles/TrianglesPickMeshDrawTechnique";
 import {DrawTechnique} from "./DrawTechnique";
@@ -76,7 +74,7 @@ export class DrawOps {
                 // selectedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.SELECTED),
                 // xrayed: new DrawOp(silhouette, RENDER_PASSES.XRAYED),
                 // xrayedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.XRAYED),
-                 pick: new DrawOp(trianglesPick, RENDER_PASSES.PICK),
+               //  pick: new DrawOp(trianglesPick, RENDER_PASSES.PICK),
                 // pickDepth: new DrawOp(trianglesDepth, RENDER_PASSES.PICK)
             },
 

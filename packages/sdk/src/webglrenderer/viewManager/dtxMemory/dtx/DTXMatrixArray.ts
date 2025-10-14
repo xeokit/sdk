@@ -109,10 +109,10 @@ export class DTXMatrixArray {
    * Uploads all dirty (changed) matrices to the GPU in batched, row-aligned subimage calls.
    * Batches contiguous ranges within the same texture row for efficient flushing.
    */
-  flush(): void {
+  flush(): boolean {
 
     if (this.dirtyIndices.size === 0) {
-      return;
+      return false;
     }
 
     const gl = this.gl;
@@ -164,6 +164,8 @@ export class DTXMatrixArray {
     gl.bindTexture(gl.TEXTURE_2D, null);
 
     this.dirtyIndices.clear();
+
+    return true;
   }
 
   /**

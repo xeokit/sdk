@@ -18,7 +18,7 @@ export interface DataTextures {
   /**
    * Array of DataTexturesLayer, each containing the renderable output of a DTXMemoryBatch.
    *
-   * These are indexed using {@link GPUMemoryBatch.batchIndex | DTXMemoryBatch.batchIndex}.
+   * These are indexed using {@link DTXMemoryBatch.batchIndex | DTXMemoryBatch.batchIndex}.
    */
   batches: DataTexturesBatch[];
 }

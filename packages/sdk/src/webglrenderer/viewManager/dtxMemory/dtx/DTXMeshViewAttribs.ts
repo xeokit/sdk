@@ -2,7 +2,6 @@
 export type DTXMeshViewAttribsItem = {
   color: [number, number, number, number];   // uvec4 bytes 0..255
   flags1: number;  // uvec4 bytes 0..255
-  flags2: number;  // uvec4 bytes 0..255
 };
 
 export interface DTXMeshViewAttribsOptions {
@@ -28,7 +27,7 @@ export class DTXMeshViewAttribs {
   private _gl: WebGL2RenderingContext;
 
   // Layout (in texels, not floats)
-  private static readonly TEXELS_PER_STRUCT = 3; // color, flags1, flags2
+  private static readonly TEXELS_PER_STRUCT = 2; // color, flags1
   private static readonly LANES_PER_TEXEL = 4; // RGBA
   private static readonly BYTES_PER_TEXEL = 4; // RGBA8UI
 
@@ -72,7 +71,7 @@ export class DTXMeshViewAttribs {
   private getByteView( meshIndex: number ): Uint8Array<any> {
     const startTexel = meshIndex * DTXMeshViewAttribs.TEXELS_PER_STRUCT;
     const byteOffset = startTexel * DTXMeshViewAttribs.BYTES_PER_TEXEL;
-    return this.buffer.subarray(byteOffset, byteOffset + 3 * DTXMeshViewAttribs.BYTES_PER_TEXEL);
+    return this.buffer.subarray(byteOffset, byteOffset + 2 * DTXMeshViewAttribs.BYTES_PER_TEXEL);
   }
 
   setAttribs(meshIndex: number, data: Partial<DTXMeshViewAttribsItem>): void {
@@ -105,16 +104,17 @@ export class DTXMeshViewAttribs {
 
     // texel 0: color (RGBA8UI)
     writeRGBA(0, data.color);
+    
     // texel 1: flags1 as uint32 -> RGBA8UI lanes
     writeU32(4, data.flags1);
-    // texel 2: flags2 as uint32 -> RGBA8UI lanes
-    writeU32(8, data.flags2);
 
     this._dirty.add(meshIndex);
   }
 
-  flush(): void {
-    if (this._dirty.size === 0) return;
+  flush(): boolean {
+    if (this._dirty.size === 0) {
+      return false;
+    }
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -150,6 +150,7 @@ export class DTXMeshViewAttribs {
 
     this._dirty.clear();
     gl.bindTexture(gl.TEXTURE_2D, null);
+    return true;
   }
 
   destroy(): void {

@@ -111,8 +111,10 @@ export class DTXQuantRanges {
   /**
    * Upload all dirty items with batched, row-aligned subimage calls.
    */
-  flush(): void {
-    if (this.dirtyIndices.size === 0) return;
+  flush(): boolean {
+    if (this.dirtyIndices.size === 0) {
+      return false;
+    }
 
     const gl = this.gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -155,6 +157,8 @@ export class DTXQuantRanges {
 
         idx += chunkItems;
       }
+
+      return true;
     };
 
     for (const i of sorted) {

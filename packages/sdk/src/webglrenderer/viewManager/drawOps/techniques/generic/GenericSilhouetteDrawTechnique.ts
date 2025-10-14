@@ -10,7 +10,7 @@ export class GenericSilhouetteDrawTechnique extends DrawTechnique {
     this.vsCommonDefines();
     this.vsSlicingDefines();
     this.vsSilhouetteDefines();
-    this.vsSilhouetteMainOpen();
+    this.vsMainOpen();
     this.vsSilhouetteLogic();
     this.vsSlicingLogic();
     this.vsMainClose();

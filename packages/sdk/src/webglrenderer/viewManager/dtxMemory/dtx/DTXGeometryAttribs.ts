@@ -109,8 +109,10 @@ export class DTXGeometryAttribs {
   }
 
   /** Upload dirty elements. Groups contiguous indices and splits at row ends. */
-  flush(): void {
-    if (this._dirty.size === 0) return;
+  flush(): boolean {
+    if (this._dirty.size === 0) {
+      return false;
+    }
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -144,6 +146,7 @@ export class DTXGeometryAttribs {
 
         idx += chunk;
       }
+      return true;
     };
 
     for (const i of sorted) {

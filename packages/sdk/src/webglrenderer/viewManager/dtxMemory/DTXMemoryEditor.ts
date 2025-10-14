@@ -2,7 +2,7 @@ import {type FloatArrayParam} from "../../../math";
 import {type Tile} from "./Tile";
 import {type SceneMesh} from "../../../scene";
 import {DTXMemoryMeshHandle} from "./DTXMemoryMeshHandle";
-import {MeshBatchMeshHandle} from "../meshBatches/MeshBatchMeshHandle";
+import {RenderPassValue} from "../RENDER_PASSES";
 
 /**
  * Interface for creating and updating GPU memory resources.
@@ -55,6 +55,14 @@ export interface DTXMemoryEditor {
   addMesh( batchIndex: number, sceneMesh: SceneMesh ): DTXMemoryMeshHandle;
 
   /**
+   * Sets whether a mesh is visible.
+   * @param meshHandle
+   * @param viewIndex
+   * @param visible
+   */
+  setMeshVisible(meshHandle: DTXMemoryMeshHandle, viewIndex: number, visible: boolean): void;
+
+  /**
    * Sets the modeling transform matrix for a mesh.
    * The transform is relative to the center of the mesh's tile.
    * The matrix is stored in DataTexturesBatch.meshMatrices.
@@ -81,23 +89,24 @@ export interface DTXMemoryEditor {
    * The attributes are stored in DataTexturesLayer.meshViewAttribs.
    * @param meshHandle
    * @param viewIndex - The index of the view.
-   * @param params - The attributes to set, including flags, flags2, and color.
+   * @param params - The attributes to set, including flags and color.
    */
   setMeshViewAttribs(
     meshHandle: DTXMemoryMeshHandle,
     viewIndex: number,
     params: {
       flags1?: number;
-      flags2?: number;
       color?: number[];
     }
   ): void;
 
   /**
-   * Removes a SceneMesh from the data texture dtxMemory.
-   * @param meshHandle - Handle to the mesh to remove.
+   *
+   * @param meshHandle1
+   * @param viewIndex
+   * @param renderPass
    */
-  removeMesh( meshHandle: DTXMemoryMeshHandle ): void;
+  setMeshRenderPass(meshHandle1: DTXMemoryMeshHandle, viewIndex: number, renderPass: RenderPassValue): void;
 
   /**
    * Retrieves a SceneMesh from a specific batch at the given index.
@@ -113,5 +122,11 @@ export interface DTXMemoryEditor {
    * @param batchIndex
    * @param meshIndex
    */
-  getDrawArraysParamsForMesh( batchIndex: number, meshIndex: number ): { first: number, count: number} | null
+  getDrawArraysParamsForMesh( batchIndex: number, meshIndex: number ): { first: number, count: number} | null;
+
+  /**
+   * Removes a SceneMesh from the data texture dtxMemory.
+   * @param meshHandle - Handle to the mesh to remove.
+   */
+  removeMesh( meshHandle: DTXMemoryMeshHandle ): void;
 }

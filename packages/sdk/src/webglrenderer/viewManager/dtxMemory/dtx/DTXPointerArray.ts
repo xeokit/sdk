@@ -198,7 +198,10 @@ export class DTXPointerArray {
    * Note: This unbinds the texture when done. If your render path samples this
    * texture immediately after, re-bind it to the intended unit.
    */
-  flush(): void {
+  flush(): boolean {
+    if (this._dirtyPortions.size === 0 && !this._uploadAllOnFlush) {
+      return false;
+    }
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -214,7 +217,7 @@ export class DTXPointerArray {
       this._dirtyPortions.clear();
       this._uploadAllOnFlush = false;
       gl.bindTexture(gl.TEXTURE_2D, null);
-      return;
+      return true;
     }
 
     // Gather segments to upload
@@ -265,6 +268,7 @@ export class DTXPointerArray {
     }
 
     gl.bindTexture(gl.TEXTURE_2D, null);
+    return true;
   }
 
   /** Destroy GL resources. */

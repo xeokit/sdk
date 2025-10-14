@@ -12,7 +12,7 @@ export class LinesColorDrawTechnique extends DrawTechnique {
     this.vsCommonDefines();
     this.vsDrawFlatColorDefs();
     this.vsSlicingDefines();
-    this.vsDrawMainOpen();
+    this.vsMainOpen();
     this.vsDrawFlatColorLogic(); // Flat color for lines
     this.vsSlicingLogic();
     this.vsMainClose();

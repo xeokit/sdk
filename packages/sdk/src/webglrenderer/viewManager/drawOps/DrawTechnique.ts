@@ -1,6 +1,6 @@
 import {WEBGL_INFO, WebGLProgram} from "../../../webglutils";
 import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
-import {RENDER_PASSES, RenderPassValue} from "./RENDER_PASSES";
+import {RENDER_PASSES, RenderPassValue} from "../RENDER_PASSES";
 import type {RenderContext} from "../../RenderContext";
 import {type DTXMemoryReader} from "../dtxMemory/DTXMemoryReader";
 import {MeshBatch} from "../meshBatches/MeshBatch";
@@ -83,12 +83,12 @@ export abstract class DrawTechnique {
     /**
      * Temp vertex shader source _buffer.
      */
-    private _vertexSrcBuf: string[];
+    private __vertSrcBuf: string[];
 
     /**
      * Temp fragment shader source _buffer.
      */
-    private _fragmentSrcBuf: string[];
+    private _fragSrcBuf: string[];
 
     /**
      * Creates a new LayerRenderer instance.
@@ -150,6 +150,7 @@ export abstract class DrawTechnique {
         const samplers = this._samplers;
         const dataTextures = this._dtxMemoryReader.dataTextures;
         const batchDataTextures = dataTextures.batches[meshBatch.dtxMemoryBatchIndex];
+        const viewIndex = view.viewIndex;
 
         bindTexture(samplers.tileViewMatrices,
             (this._renderContext.rayPicking
@@ -157,12 +158,15 @@ export abstract class DrawTechnique {
                 : dataTextures.tileViewMatrices)
                 [view.viewIndex]); // TODO: Bind these textures once in _bind()
 
-        bindTexture(samplers.primToMeshLookup, batchDataTextures.primToMeshLookup);
+        const batchViewDataTextures = batchDataTextures.views[viewIndex]
+        const primToMeshLookup = batchViewDataTextures.primToMeshLookup;
+
+        bindTexture(samplers.primToMeshLookup, primToMeshLookup);
         bindTexture(samplers.positions, batchDataTextures.positions);
         bindTexture(samplers.vertexColors, batchDataTextures.vertexColors);
         bindTexture(samplers.meshMatrices, batchDataTextures.meshMatrices);
         bindTexture(samplers.meshAttribs, batchDataTextures.meshAttribs);
-        bindTexture(samplers.meshViewAttribs, batchDataTextures.meshViewAttribs[view.viewIndex]);
+        bindTexture(samplers.meshViewAttribs, batchViewDataTextures.meshViewAttribs);
         bindTexture(samplers.geometryAttribs, batchDataTextures.geometryAttribs);
         bindTexture(samplers.geometryQuantRanges, batchDataTextures.geometryQuantRanges);
         bindTexture(samplers.edgeIndices, batchDataTextures.edgeIndices);
@@ -171,25 +175,32 @@ export abstract class DrawTechnique {
         gl.uniform1i(this._uniforms.primBaseIndex, meshBatch.primBaseIndex);
         gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive); // TrianglesPrimitive, LinesPrimitive, PointsPrimitive
 
-        const drawSingleMesh = (meshIndex >= 0); // -1 means draw all meshes in the batch
-        const {first, count} = drawSingleMesh
-            ? meshBatch.getDrawArraysParamsForMesh(meshIndex)
-            : {
-                first: 0,
-                count: (meshBatch.primitive === PointsPrimitive
-                    ? meshBatch.numVertices
-                    : meshBatch.numIndices)
-            };
+        const drawRange = batchViewDataTextures.renderPassDrawRanges.get(renderPass);
+        if (!drawRange || drawRange.count === 0) {
+            return; // Nothing to draw for this pass
+        }
+
+        // const drawSingleMesh = (meshIndex >= 0); // -1 means draw all meshes in the batch
+        // const {first, count} = drawSingleMesh
+        //     ? meshBatch.getDrawArraysParamsForMesh(meshIndex)
+        //     : {
+        //         first: 0,
+        //         count: batchViewDataTextures.numDrawablePrims * (meshBatch.primitive === TrianglesPrimitive
+        //             ? 3
+        //             : (meshBatch.primitive === LinesPrimitive
+        //                 ? 2
+        //                 : 1))
+        //     };
 
         switch (meshBatch.primitive) {
             case TrianglesPrimitive:
-                gl.drawArrays(gl.TRIANGLES, first, count);
+                gl.drawArrays(gl.TRIANGLES, drawRange.first, drawRange.count);
                 break;
             case LinesPrimitive:
-                gl.drawArrays(gl.LINES, first, count);
+                gl.drawArrays(gl.LINES, drawRange.first, drawRange.count);
                 break;
             case PointsPrimitive:
-                gl.drawArrays(gl.POINTS, first, count);
+                gl.drawArrays(gl.POINTS, drawRange.first, drawRange.count);
                 break;
             default:
                 console.error(`Unsupported Batch primitive type: ${meshBatch.primitive}`);
@@ -214,21 +225,21 @@ export abstract class DrawTechnique {
      * Inserts a line of custom vertex shader code into the generated vertex shader source.
      */
     protected vsCode(src) {
-        this._vertexSrcBuf.push(src);
+        this.__vertSrcBuf.push(src);
     }
 
     /**
      * Generates the vertex shader header.
      */
     protected vsHeader() {
-        this._vertexSrcBuf
+        this.__vertSrcBuf
             .push(
                 '#version 300 es',
                 `// ${this.constructor.name} vertex shader`);
     }
 
     protected vsDebugMain() {
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             `void main(void) {
         vec2 p;
         if (gl_VertexID % 3 == 0)      p = vec2(-0.5, -0.5);
@@ -244,9 +255,9 @@ export abstract class DrawTechnique {
      * Generates the vertex shader precision definitions and common definitions.
      */
     protected vsCommonDefines() {
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             "uniform int uRenderPass;         // RENDER_PASSES",
-            "uniform int uPrimBaseIndex;          // Base primitive index for this drawBatch call",
+            "uniform int uPrimBaseIndex;     // Base primitive index for this drawBatch call",
             "uniform int uPrimitiveType;     // PRIMITIVE_TYPES",
 
             "uniform mat4 uProjMatrix;        // Projection matrix (from view)",
@@ -460,8 +471,8 @@ export abstract class DrawTechnique {
         );
     }
 
-    protected vsDrawLambertDefs() {
-        this._vertexSrcBuf.push(
+    protected vsLambertShadingDefines() {
+        this.__vertSrcBuf.push(
             "uniform vec4 uLightAmbient;",
             "uniform vec3 uLightDir1;",
             "uniform vec4 uLightColor1;",
@@ -474,35 +485,32 @@ export abstract class DrawTechnique {
     }
 
     protected vsSilhouetteDefines() {
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             "uniform vec4 uSilhouetteColor;",
             "out vec4 vColor;");
     }
 
     protected vsDrawFlatColorDefs() {
-        this._vertexSrcBuf.push(
-            "out vec4 vColor;");
+        this.__vertSrcBuf.push("out vec4 vColor;");
     }
 
     protected vsDrawVertexColorDefs() {
-        this._vertexSrcBuf.push(
-            "out vec4 vColor;");
+        this.__vertSrcBuf.push("out vec4 vColor;");
     }
 
-    protected vsDrawDepthDefs() {
-        this._vertexSrcBuf.push(
-            "out highp vec2 vHighPrecisionZW;");
+    protected vsDrawDepthDefines() {
+        this.__vertSrcBuf.push("out highp vec2 vHighPrecisionZW;");
     }
 
     protected vsPointsDefines(): void {
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             "uniform float nearPlaneHeight;",
             "uniform vec2 intensityRange;",
             "uniform float pointSize;");
     }
 
     protected vsPickMeshDefines() {
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             "out     vec4 vPickColor;",
             "uniform vec2 drawingBufferSize;",
             "uniform vec2 pickClipPos;",
@@ -520,43 +528,28 @@ export abstract class DrawTechnique {
 
     protected vsSlicingDefines() {
         // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
-        //   const src = this._vertexSrcBuf;
+        //   const src = this.__vertSrcBuf;
         //   src.push("out vec4 vWorldPosition;");
         //   src.push("out boolean vClippable;");
         // }
     }
 
-    protected vsDrawMainOpen() { // default
-        this._vertexSrcBuf.push(
-            "void main(void) {");
+    protected vsMainOpen() { // default
+        this.__vertSrcBuf.push("void main(void) {");
         this._vsMeshLogic();
-        // this._vertexSrcBuf.push(
-        //   `    int colorFlag = int(meshViewAttribs.flags1.r & 0xFu);`,
-        //   `    if ( colorFlag != uRenderPass) {`,
-        //   "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
-        //   "        return;",
-        //   "    } ");
         this._vsMeshLogic2();
     }
 
-    protected vsSilhouetteMainOpen() { // silhouette
-        this._vertexSrcBuf.push(
-            "void main(void) {");
+    protected vsDrawMainOpen() { // default
+        this.__vertSrcBuf.push("void main(void) {");
         this._vsMeshLogic();
-        // this._vertexSrcBuf.push(
-        //   "    int silhouetteFlag = int (meshViewAttribs.flags1.g >> 4u & 0xFu);",
-        //   `    if (silhouetteFlag != uRenderPass) {`,
-        //   "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
-        //   "        return;",
-        //   "    }");
         this._vsMeshLogic2();
     }
 
     protected vsPickMainOpen() { // pick
-        this._vertexSrcBuf.push(
-            "void main(void) {");
+        this.__vertSrcBuf.push("void main(void) {");
         this._vsMeshLogic();
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             `    int pickFlag = int(meshViewAttribs.flags1.b >> 8u & 0xFu);`,
             `    if (pickFlag != uRenderPass) {`,
             "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
@@ -566,20 +559,20 @@ export abstract class DrawTechnique {
     }
 
     protected vsMainClose() { // default, silhouette, pick
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             "}");
     }
 
     protected vsSlicingLogic() {
         // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
-        //   const src = this._vertexSrcBuf;
+        //   const src = this.__vertSrcBuf;
         //   src.push("      vWorldPosition = worldPos;");
         //   src.push("      vClippable = (int(meshViewAttribs.flags1) >> 12 & 0xF) == 1;");
         // }
     }
 
     private _vsMeshLogic() { // before renderPass check
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             "    uint drawVertexID  = uint(uPrimBaseIndex + gl_VertexID);",
             "    uint primVertNum   = uint(uPrimitiveType == " + TrianglesPrimitive + " ? 3u : (uPrimitiveType == " + LinesPrimitive + " ? 2u : 1u));",
             "    uint drawPrimID    = drawVertexID / primVertNum;",
@@ -594,12 +587,11 @@ export abstract class DrawTechnique {
             "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
             "              return;",
             "    };"
-        )
-        ;
+        );
     }
 
     private _vsMeshLogic2() { // after renderPass check
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             "    MeshAttribs      meshAttribs       = getMeshAttribs( meshIndex );", // Attributes global to meshes in all viewManager
             "    uint             geometryIndex     = meshAttribs.geometryIndex;",
             "    GeometryAttribs  geometryAttribs   = getGeometryAttribs( geometryIndex );", // Geometry attributes
@@ -619,8 +611,8 @@ export abstract class DrawTechnique {
             "    gl_Position = clipPos;");
     }
 
-    protected vsDrawLambertLogic() {
-        this._vertexSrcBuf.push(
+    protected vsLambertShadingLogic() {
+        this.__vertSrcBuf.push(
             // For triangles, get the three vertex positions for the triangle
             "    uint ia  = getVertexIndex(drawPrimID * 3u + 0u);",
             "    uint ib  = getVertexIndex(drawPrimID * 3u + 1u);",
@@ -668,20 +660,20 @@ export abstract class DrawTechnique {
 
         //  "    vColor = vec4(color.rgb, 1.0);");
 
-        // this._vertexSrcBuf.push(
+        // this.__vertSrcBuf.push(
         //   "    vColor = vec4(1.0, 0.0, 0.0, 1.0);"
         // );
     }
 
     protected vsSilhouetteLogic() {
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             //  "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);"
             "    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
         );
     }
 
     protected vsDrawFlatColorLogic() {
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             // "    vec4 color = vec4(meshViewAttribs.color) / 255.0;",
             // "    vColor = vec4(color.rgb, 1.0);"
 
@@ -690,26 +682,26 @@ export abstract class DrawTechnique {
     }
 
     protected vsDrawVertexColorLogic() {
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             "    uvec3 color = getVertexColor(vertexIndex);",
             "    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);"
         );
     }
 
     protected vsDrawDepthLogic() {
-        this._vertexSrcBuf.push(
+        this.__vertSrcBuf.push(
             "    vHighPrecisionZW = gl_Position.zw;"
         );
     }
 
 
     protected vsPickMeshLogic() {
-        this._vertexSrcBuf.push("    vPickColor = packUintToRGBA8(meshIndex);");
+        this.__vertSrcBuf.push("    vPickColor = packUintToRGBA8(meshIndex);");
     }
 
 
     protected vsPointsFilterLogicOpenBlock() {
-        // const src = this._vertexSrcBuf;
+        // const src = this.__vertSrcBuf;
         // const pointsMaterial = this._renderContext.view.pointsMaterial;
         // if (pointsMaterial.filterIntensity) {
         //   src.push("float intensity = float(color.a) / 255.0;")
@@ -722,12 +714,12 @@ export abstract class DrawTechnique {
     protected vsPointsFilterLogicCloseBlock() {
         // const pointsMaterial = this._renderContext.view.pointsMaterial;
         // if (pointsMaterial.filterIntensity) {
-        //   this._vertexSrcBuf.push("}");
+        //   this.__vertSrcBuf.push("}");
         // }
     }
 
     protected vsPointsGeometryLogic() {
-        const src = this._vertexSrcBuf;
+        const src = this.__vertSrcBuf;
         const pointsMaterial = this._renderContext.view.pointsMaterial;
         // if (pointsMaterial.perspectivePoints) {
         //     src.push("gl_PointSize = (nearPlaneHeight * pointSize) / clipPos.w;");
@@ -742,17 +734,17 @@ export abstract class DrawTechnique {
      * Inserts a line of custom vertex shader code into the generated vertex shader source.
      */
     protected fragmentCode(src) {
-        this._fragmentSrcBuf.push(src);
+        this._fragSrcBuf.push(src);
     }
 
     protected fsHeader() {
-        this._fragmentSrcBuf.push(
+        this._fragSrcBuf.push(
             '#version 300 es',
             `// ${this.constructor.name} fragment shader`);
     }
 
     protected fsPrecisionDefines() {
-        this._fragmentSrcBuf.push(
+        this._fragSrcBuf.push(
             "#ifdef GL_FRAGMENT_PRECISION_HIGH",
             "precision highp float;",
             "precision highp int;",
@@ -769,35 +761,51 @@ export abstract class DrawTechnique {
     }
 
     protected fsCommonDefines() {
-        this._fragmentSrcBuf.push(
+        this._fragSrcBuf.push(
             "vec4 color;",
             "out vec4 outColor;");
     }
 
     protected fsSilhouetteDefines() {
-        this._fragmentSrcBuf.push(
-            "in vec4 vColor;"
-        );
+        this._fragSrcBuf.push("in vec4 vColor;");
+    }
+
+    protected fsSilhouetteLogic() {
+        this._fragSrcBuf.push("color = vColor;");
     }
 
     protected fsDrawFlatColorDefines() {
-        this._fragmentSrcBuf.push("in vec4 vColor;");
+        this._fragSrcBuf.push("in vec4 vColor;");
     }
 
-    protected fsDrawLambertDefs() {
-        const src = this._fragmentSrcBuf;
+    protected fsDrawFlatColorLogic() {
+        this._fragSrcBuf.push("color = vColor;");
+    }
+
+    protected fsLambertShadingDefines() {
+        const src = this._fragSrcBuf;
         const view = this._renderContext.view;
         src.push(
             "in vec4 vColor;",
             "in vec4 vViewPos;");
     }
 
-    protected fsDrawDepthDefs() {
-        this._fragmentSrcBuf.push("in vec2 vHighPrecisionZW;");
+    protected fsLambertShadingLogic() {
+        this._fragSrcBuf.push("color = vColor;");
+    }
+
+    protected fsDrawDepthDefines() {
+        this._fragSrcBuf.push("in vec2 vHighPrecisionZW;");
+    }
+
+    protected fsDrawDepthLogic() {
+        this._fragSrcBuf.push(
+            "    float depthFragCoordZ = 0.5 * vHighPrecisionZW[0] / vHighPrecisionZW[1] + 0.5;",
+            "    color = vec4(vec3(1.0 - depthFragCoordZ), 1.0); ");
     }
 
     protected fsDrawSAODefs() {
-        this._fragmentSrcBuf.push(
+        this._fragSrcBuf.push(
             "uniform sampler2D saoOcclusionTexture;",
             "uniform vec4      saoParams;",
             "const float       saoUnpackDownScale = 255. / 256.;",
@@ -808,75 +816,8 @@ export abstract class DrawTechnique {
             "}");
     }
 
-
-    protected fsPickMeshDefines() {
-        this._fragmentSrcBuf.push(
-            "in vec4 vPickColor;");
-    }
-
-    protected fsSlicingDefines() {
-        // const numSectionPlanes = this._renderContext.view.getNumAllocatedSectionPlanes();
-        // if (numSectionPlanes === 0) {
-        //   return;
-        // }
-        // const src = this._fragmentSrcBuf;
-        // src.push("in vec4 vWorldPosition;");
-        // src.push("in boolean vClippable;");
-        // for (let i = 0; i < numSectionPlanes; i++) {
-        //   src.push("uniform bool sectionPlaneActive" + i + ";");
-        //   src.push("uniform vec3 sectionPlanePos" + i + ";");
-        //   src.push("uniform vec3 sectionPlaneDir" + i + ";");
-        // }
-    }
-
-    protected fsMainOpen() {
-        this._fragmentSrcBuf.push(
-            "void main(void) {");
-    }
-
-    protected fsMainClose() {
-        this._fragmentSrcBuf.push(
-            "}");
-    }
-
-    protected fsDrawLambertLogic() {
-        const src = this._fragmentSrcBuf;
-        const view = this._renderContext.view;
-        this._fragmentSrcBuf.push(
-            "    color = vColor;"
-        );
-        //
-        // "vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
-        // "vec3 viewLightDir = vec3(0.0, 0.0, -1.0);",
-        // "float lambertian = 1.0;",
-        // "vec3 xTangent = dFdx( vViewPos.xyz );",
-        // "vec3 yTangent = dFdy( vViewPos.xyz );",
-        // "vec3 viewNormal = normalize( cross( xTangent, yTangent ) );");
-        // for (let i = 0, len = view.lightsList.length; i < len; i++) {
-        //   const light = view.lightsList[i];
-        //   if (light instanceof AmbientLight) {
-        //     continue;
-        //   }
-        //   if (light instanceof DirLight) {
-        //     src.push(`viewLightDir = normalize(lightDir${i});`);
-        //   } else if (light instanceof PointLight) {
-        //     src.push(`viewLightDir = -normalize(lightPos${i} - viewPos.xyz);`);
-        //   } else {
-        //     continue;
-        //   }
-        //   src.push("lambertian = max(dot(-viewNormal, viewLightDir), 0.0);");
-        //   src.push(`reflectedColor += lambertian * (lightColor${i}.rgb * lightColor${i}.a);`);
-        // }
-        // src.push("color = vec4((lightAmbient.rgb * lightAmbient.a * vColor.rgb) + (reflectedColor * vColor.rgb), vColor.a);");
-    }
-
-    protected fsDrawFlatColorLogic() {
-        this._fragmentSrcBuf.push(
-            "    color = vColor;");
-    }
-
     protected fsDrawSAOLogic() {
-        this._fragmentSrcBuf.push(
+        this._fragSrcBuf.push(
             "   float saoViewportWidth = saoParams[0];",
             "   float saoViewportHeight = saoParams[1];",
             "   float saoBlendCutoff = saoParams[2];",
@@ -886,20 +827,27 @@ export abstract class DrawTechnique {
             "   color = vec4(color.rgb * saoAmbient, 1.0);");
     }
 
-    protected fsDrawDepthLogic() {
-        this._fragmentSrcBuf.push(
-            "    float depthFragCoordZ = 0.5 * vHighPrecisionZW[0] / vHighPrecisionZW[1] + 0.5;",
-            "    color = vec4(vec3(1.0 - depthFragCoordZ), 1.0); ");
-    }
-
-    protected fsSilhouetteLogic() {
-        this._fragmentSrcBuf.push(
-            "    color = vColor;");
+    protected fsPickMeshDefines() {
+        this._fragSrcBuf.push("in vec4 vPickColor;");
     }
 
     protected fsPickMeshLogic() {
-        this._fragmentSrcBuf.push(
-            "    color = vPickColor;");
+        this._fragSrcBuf.push("color = vPickColor;");
+    }
+
+    protected fsSlicingDefines() {
+        // const numSectionPlanes = this._renderContext.view.getNumAllocatedSectionPlanes();
+        // if (numSectionPlanes === 0) {
+        //   return;
+        // }
+        // const src = this._fragSrcBuf;
+        // src.push("in vec4 vWorldPosition;");
+        // src.push("in boolean vClippable;");
+        // for (let i = 0; i < numSectionPlanes; i++) {
+        //   src.push("uniform bool sectionPlaneActive" + i + ";");
+        //   src.push("uniform vec3 sectionPlanePos" + i + ";");
+        //   src.push("uniform vec3 sectionPlaneDir" + i + ";");
+        // }
     }
 
     protected fsSlicingLogic() {
@@ -907,7 +855,7 @@ export abstract class DrawTechnique {
         // if (numSectionPlanes === 0) {
         //   return;
         // }
-        // const src = this._fragmentSrcBuf;
+        // const src = this._fragSrcBuf;
         // src.push("  if (vClippable) {");
         // src.push("    float dist = 0.0;");
         // for (let i = 0; i < numSectionPlanes; i++) {
@@ -919,9 +867,17 @@ export abstract class DrawTechnique {
         // src.push("  }");
     }
 
+    protected fsMainOpen() {
+        this._fragSrcBuf.push("void main(void) {");
+    }
+
+    protected fsMainClose() {
+        this._fragSrcBuf.push("}");
+    }
+
     protected fsPointsGeometryLogic(): void {
         //if (this._renderContext.view.pointsMaterial.roundPoints) {
-        // const src = this._fragmentSrcBuf;
+        // const src = this._fragSrcBuf;
         // src.push("  vec2 cxy = 2.0 * gl_PointCoord - 1.0;");
         // src.push("  float r = dot(cxy, cxy);");
         // src.push("  if (r > 1.0) {");
@@ -931,9 +887,7 @@ export abstract class DrawTechnique {
     }
 
     protected fsCommonOutput() {
-        this._fragmentSrcBuf.push(
-            "    outColor = color;"
-        );
+        this._fragSrcBuf.push("outColor = color;");
     }
 
     /**
@@ -1067,19 +1021,19 @@ export abstract class DrawTechnique {
         const view = this._renderContext.view;
         const gl = this._renderContext.gl;
 
-        this._vertexSrcBuf = [];
-        this._fragmentSrcBuf = [];
+        this.__vertSrcBuf = [];
+        this._fragSrcBuf = [];
 
         this.buildVertexShader()
         this.buildFragmentShader()
 
         this._program = new WebGLProgram(gl, {
-            vertex: joinSansComments(this._vertexSrcBuf),
-            fragment: joinSansComments(this._fragmentSrcBuf)
+            vertex: joinSansComments(this.__vertSrcBuf),
+            fragment: joinSansComments(this._fragSrcBuf)
         });
 
-        this._vertexSrcBuf = [];
-        this._fragmentSrcBuf = [];
+        this.__vertSrcBuf = [];
+        this._fragSrcBuf = [];
 
         if (this._program.errors) {
             this.errors = this._program.errors;

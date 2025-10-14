@@ -3,7 +3,7 @@ import type {FloatArrayParam} from "../../../math";
 import {MeshCounts} from "./MeshCounts";
 import type {RenderContext} from "../../RenderContext";
 import {OBJECT_FLAGS} from "./OBJECT_FLAGS";
-import {RENDER_PASSES} from "../drawOps/RENDER_PASSES";
+import {RENDER_PASSES} from "../RENDER_PASSES";
 import {type DTXMemoryEditor} from "../dtxMemory/DTXMemoryEditor";
 import {MeshBatch} from "./MeshBatch";
 import {MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
@@ -190,53 +190,10 @@ export class MeshBatchImpl implements MeshBatch {
    * @private
    */
   _setMeshObjectFlags(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
-    const viewer = this._renderContext.viewer;
-    const view = viewer.viewList[viewIndex];
-
-    const isVisible = (flags & OBJECT_FLAGS.VISIBLE) !== 0;
-    const isXRayed = (flags & OBJECT_FLAGS.XRAYED) !== 0;
-    const isHighlighted = (flags & OBJECT_FLAGS.HIGHLIGHTED) !== 0;
-    const isSelected = (flags & OBJECT_FLAGS.SELECTED) !== 0;
     const isPickable = (flags & OBJECT_FLAGS.PICKABLE) !== 0;
-    const isCulled = (flags & OBJECT_FLAGS.CULLED) !== 0;
     const isClippable = (flags & OBJECT_FLAGS.CLIPPABLE) !== 0;
-    const isTransparent = (flags & OBJECT_FLAGS.TRANSPARENT) !== 0;
-
-    const notRenderable = !isVisible || isCulled;
-
-    // Color flag (early return path fast)
-    let colorFlag = RENDER_PASSES.NOT_RENDERED;
-    if (!notRenderable) {
-      const glowBlocked = (isHighlighted && !view.highlightMaterial.glowThrough) ||
-        (isSelected && !view.selectedMaterial.glowThrough);
-      if (!isXRayed && !glowBlocked) {
-        colorFlag = isTransparent ? RENDER_PASSES.TRANSPARENT : RENDER_PASSES.OPAQUE;
-      }
-    }
-
-    // Silhouette flag
-    let silhouetteFlag = RENDER_PASSES.NOT_RENDERED;
-    if (!notRenderable) {
-      if (isSelected) {
-        silhouetteFlag = RENDER_PASSES.SELECTED;
-      } else if (isHighlighted) {
-        silhouetteFlag = RENDER_PASSES.HIGHLIGHTED;
-      } else if (isXRayed) {
-        silhouetteFlag = RENDER_PASSES.XRAYED;
-      }
-    }
-
-    // Pick flag
-    const pickFlag = (!notRenderable && isPickable) ? RENDER_PASSES.PICK : RENDER_PASSES.NOT_RENDERED;
-
-    // Combine all flags into final bitfield
-    const renderFlags =
-      colorFlag | // What to do for the color pass - NOT_RENDERED, OPAQUE, TRANSPARENT
-      (silhouetteFlag << 4) | // What to do for the silhouette pass - NOT_RENDERED, SELECTED, HIGHLIGHTED, XRAYED
-      (pickFlag << 8) | // What to do for the pick pass - NOT_RENDERED, PICK
-      (isClippable ? (1 << 12) : 0); // Whether the object is clippable (1) or not (0)
-
-    // Apply attributes
+    const pickFlag = isPickable ? RENDER_PASSES.PICK : RENDER_PASSES.NOT_RENDERED;
+    const renderFlags = pickFlag | (isClippable << 4);
     this._dtxMemoryEditor.setMeshViewAttribs(meshHandle as DTXMemoryMeshHandle, viewIndex, {
       flags1: renderFlags
     });
@@ -246,8 +203,25 @@ export class MeshBatchImpl implements MeshBatch {
    * Sets per-view mesh visibility state.
    */
   setMeshVisible(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
-    this.meshCounts[viewIndex].numVisible += (flags & OBJECT_FLAGS.VISIBLE) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
+    const visible = (flags & OBJECT_FLAGS.VISIBLE) !== 0;
+    this.meshCounts[viewIndex].numVisible += visible? 1 : -1;
+    this._dtxMemoryEditor.setMeshCulled( meshHandle as DTXMemoryMeshHandle, viewIndex, !visible);
+  }
+
+  /**
+   *
+   */
+  setMeshOpaque(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
+    this.meshCounts[viewIndex].numTransparent += (flags & OBJECT_FLAGS.TRANSPARENT) ? 1 : -1;
+    this._dtxMemoryEditor.setMeshRenderPass( meshHandle as DTXMemoryMeshHandle, viewIndex, RENDER_PASSES.OPAQUE);
+  }
+
+  /**
+   * Sets transparency per-view for the mesh.
+   */
+  setMeshTransparent(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
+    this.meshCounts[viewIndex].numTransparent += (flags & OBJECT_FLAGS.TRANSPARENT) ? 1 : -1;
+    this._dtxMemoryEditor.setMeshRenderPass( meshHandle as DTXMemoryMeshHandle, viewIndex, RENDER_PASSES.TRANSPARENT);
   }
 
   /**
@@ -255,7 +229,7 @@ export class MeshBatchImpl implements MeshBatch {
    */
   setMeshHighlighted(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numHighlighted += (flags & OBJECT_FLAGS.HIGHLIGHTED) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
+    this._dtxMemoryEditor.setMeshRenderPass( meshHandle as DTXMemoryMeshHandle, viewIndex, RENDER_PASSES.HIGHLIGHTED);
   }
 
   /**
@@ -263,7 +237,7 @@ export class MeshBatchImpl implements MeshBatch {
    */
   setMeshXRayed(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numXRayed += (flags & OBJECT_FLAGS.XRAYED) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
+    this._dtxMemoryEditor.setMeshRenderPass( meshHandle as DTXMemoryMeshHandle, viewIndex, RENDER_PASSES.XRAYED);
   }
 
   /**
@@ -271,7 +245,7 @@ export class MeshBatchImpl implements MeshBatch {
    */
   setMeshSelected(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numSelected += (flags & OBJECT_FLAGS.SELECTED) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
+    this._dtxMemoryEditor.setMeshRenderPass( meshHandle as DTXMemoryMeshHandle, viewIndex, RENDER_PASSES.SELECTED);
   }
 
   /**
@@ -295,14 +269,6 @@ export class MeshBatchImpl implements MeshBatch {
    */
   setMeshPickable(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
     this.meshCounts[viewIndex].numPickable += (flags & OBJECT_FLAGS.PICKABLE) ? 1 : -1;
-    this._setMeshObjectFlags(viewIndex, meshHandle, flags);
-  }
-
-  /**
-   * Sets transparency per-view for the mesh.
-   */
-  setMeshTransparent(viewIndex: number, meshHandle: MeshBatchMeshHandle, flags: number ): void {
-    this.meshCounts[viewIndex].numTransparent += (flags & OBJECT_FLAGS.TRANSPARENT) ? 1 : -1;
     this._setMeshObjectFlags(viewIndex, meshHandle, flags);
   }
 

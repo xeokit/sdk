@@ -199,6 +199,26 @@ export class RenderContext {
   }
 
   /**
+   * Marks the view with the given index as needing to be re-rendered.
+   * @param viewIndex
+   */
+  setViewDirty( viewIndex: number ): void {
+    if (viewIndex < 0 || viewIndex >= this.viewFlags.length) {
+      throw new SDKError("Invalid view index");
+    }
+    this.viewFlags[viewIndex].needsRender = true;
+  }
+
+  /**
+   * Marks all views as needing to be re-rendered.
+   */
+  setAllViewsDirty(): void {
+    for (const vf of this.viewFlags) {
+      vf.needsRender = true;
+    }
+  }
+
+  /**
    * Called before each frame.
    */
   reset() {

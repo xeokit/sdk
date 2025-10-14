@@ -23,6 +23,7 @@ export interface DTXMemoryReader {
 
   /**
    * Retrieves parameters for a drawArrays() call to render a specific mesh within a specific batch.
+   * This supports surface-picking, where we only draw the specific mesh being surface-picked.
    * @param batchIndex
    * @param meshIndex
    */

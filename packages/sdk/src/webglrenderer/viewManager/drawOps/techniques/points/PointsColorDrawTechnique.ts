@@ -11,7 +11,7 @@ export class PointsColorDrawTechnique extends DrawTechnique {
     this.vsDrawVertexColorDefs(); // Flat color definitions
     this.vsSlicingDefines();
     this.vsPointsDefines();
-    this.vsDrawMainOpen();
+    this.vsMainOpen();
     this.vsDrawVertexColorLogic(); // Vertex colors for points
     this.vsSlicingLogic();
     this.vsMainClose();

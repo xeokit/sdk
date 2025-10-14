@@ -9,7 +9,7 @@ export class TrianglesDepthDrawTechnique extends DrawTechnique {
     this.vsHeader();
     this.vsCommonDefines();
     this.vsSlicingDefines();
-    this.vsDrawDepthDefs();
+    this.vsDrawDepthDefines();
     this.vsPickMainOpen(); // Depth rendering is always for picking
     this.vsDrawDepthLogic();
     this.vsSlicingLogic();
@@ -21,7 +21,7 @@ export class TrianglesDepthDrawTechnique extends DrawTechnique {
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsDrawDepthDefs();
+    this.fsDrawDepthDefines();
     this.fsMainOpen();
     this.fsSlicingLogic();
     this.fsDrawDepthLogic();

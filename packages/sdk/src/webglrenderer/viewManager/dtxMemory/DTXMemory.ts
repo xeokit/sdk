@@ -10,7 +10,7 @@ import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 import {DTXMemoryBatch} from "./DTXMemoryBatch";
 import {DTXMemoryMeshHandle} from "./DTXMemoryMeshHandle";
 import {View} from "../../../viewer";
-import {MeshBatchMeshHandle} from "../meshBatches/MeshBatchMeshHandle";
+import {RenderPassValue} from "../RENDER_PASSES";
 
 
 /**
@@ -72,15 +72,20 @@ export class DTXMemory implements DTXMemoryReader, DTXMemoryEditor {
 
     this._tiles = new TileManager(gl, renderContext.viewer, this._tileViewMatrices, this._tileRayPickMatrices);
 
-    this._onTick = renderContext.viewer.onTick.sub(()=>{
+    this._onTick = renderContext.viewer.onTick.sub(() => {
+      let didFlush = false;
       for (let i = 0; i < 4; i++) {
-        this._tileViewMatrices[i].flush();
-        this._tileRayPickMatrices[i].flush();
+        didFlush ||= this._tileViewMatrices[i].flush();
+        didFlush ||= this._tileRayPickMatrices[i].flush();
       }
       for (const batch of this._batches) {
-        batch.flush();
+        didFlush ||= batch.flush();
+      }
+      if (didFlush) {
+    //  this._renderContext.setAllViewsDirty()
       }
     });
+
   }
 
   /**
@@ -174,6 +179,25 @@ export class DTXMemory implements DTXMemoryReader, DTXMemoryEditor {
   }
 
   /**
+   * Sets whether a mesh is visible .
+   *
+   * @param meshHandle
+   * @param viewIndex
+   * @param visible
+   */
+  setMeshVisible(
+      meshHandle: DTXMemoryMeshHandle,
+      viewIndex: number,
+      visible: boolean) {
+    const batch = this._batches[meshHandle.batchIndex];
+    if (!batch) {
+      throw new Error('DTXMemory.setMeshVisible: Invalid batch index in mesh handle.');
+    }
+    batch.setMeshVisible( meshHandle.meshIndex, viewIndex,visible);
+    //this._needRenderAllViews();
+  }
+
+  /**
    * Sets the modeling transform matrix for a mesh.
    * The modeling transform is relative to the center of the meshes tile.
    *
@@ -236,7 +260,6 @@ export class DTXMemory implements DTXMemoryReader, DTXMemoryEditor {
     params: {
       color?: number[];   // uvec4 bytes 0..255
       flags1?: number;  // uvec4 bytes 0..255
-      flags2?: number;  // uvec4 bytes 0..255
     } ) {
     const batch = this._batches[meshHandle.batchIndex];
     if (!batch) {
@@ -244,6 +267,23 @@ export class DTXMemory implements DTXMemoryReader, DTXMemoryEditor {
     }
     batch.setMeshViewAttribs(meshHandle.meshIndex, viewIndex, params);
     this._needRenderView(viewIndex);
+  }
+
+  /**
+   * Sets the state for a mesh within a specific View.
+   * @param meshHandle1
+   * @param viewIndex
+   * @param renderPass
+   */
+  setMeshRenderPass(
+      meshHandle1: DTXMemoryMeshHandle,
+      viewIndex: number,
+      renderPass: RenderPassValue): void {
+    const batch = this._batches[meshHandle1.batchIndex];
+    if (!batch) {
+      throw new Error('DTXMemory.setMeshRenderPass: Invalid batch index in mesh handle.');
+    }
+    batch.setMeshRenderPass(meshHandle1.meshIndex, viewIndex, renderPass);
   }
 
   private _needRenderView( viewIndex: number ) {
@@ -313,4 +353,6 @@ export class DTXMemory implements DTXMemoryReader, DTXMemoryEditor {
     this._tileRayPickMatrices = this._tileRayPickMatrices.map(clear);
     this._onTick();
   }
+
+
 }

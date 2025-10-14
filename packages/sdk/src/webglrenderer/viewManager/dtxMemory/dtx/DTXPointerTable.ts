@@ -191,8 +191,10 @@ export class DTXPointerTable {
    * Note: This unbinds the texture when done. If your render path samples this
    * texture immediately after, re-bind it to the intended unit.
    */
-  flush(): void {
-
+  flush(): boolean {
+    if (this._dirtyPortions.size === 0 && !this._uploadAllOnFlush) {
+      return false;
+    }
 
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);

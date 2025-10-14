@@ -11,6 +11,8 @@ import {DTXPointerArray} from "./dtx/DTXPointerArray";
 import {DTXGeometryAttribs} from "./dtx/DTXGeometryAttribs";
 import {DataTexturesBatch} from "./DataTexturesBatch";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
+import {DTXPrimDrawList} from "./dtx/DTXPrimDrawList";
+import {RENDER_PASSES, RenderPassValue} from "../RENDER_PASSES";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
@@ -38,7 +40,7 @@ export class DTXMemoryBatch {
   private _geometryQuantRanges: DTXQuantRanges;
   private _geometryAttribs: DTXGeometryAttribs;
   private _edgeIndices: DTXPointerArray;
-  private _primToMeshLookup: DTXPointerArray;
+  private primDrawLists: DTXPrimDrawList[];
   private _positions: DTXPositionsArray;
   private _vertexColors: DTXVertexColorsArray;
   private _meshMatrices: DTXMatrixArray;
@@ -100,52 +102,29 @@ export class DTXMemoryBatch {
 
     const gl = renderContext.gl;
 
-    this._primToMeshLookup = new DTXPointerArray({gl, capacity: this._maxPrims});
-    this._meshAttribs = new DTXMeshAttribs({gl, capacity: this._maxMeshes});
-    this._meshViewAttribs = [
-      new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
-      new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
-      new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
-      new DTXMeshViewAttribs({gl, capacity: this._maxMeshes})
+    const bins = [
+        RENDER_PASSES.OPAQUE,
+      RENDER_PASSES.TRANSPARENT,
+      RENDER_PASSES.HIGHLIGHTED,
+      RENDER_PASSES.SELECTED,
+      RENDER_PASSES.XRAYED
     ];
 
-    // // Per-View slices
-    //
-    // const slicesStruct: DTXStructSpec = {
-    //   name: "Slices",
-    //   fields: [
-    //     {name: "active", type: "boolean"},
-    //     {name: "pos", type: "vec3"},
-    //     {name: "flags2", type: "vec4"},
-    //     {name: "color", type: "vec4"}
-    //   ]
-    // };
-    //
-    // this._viewSlices = [
-    //   new DTXStructArray({gl, capacity: this._maxSlices, structSpec: slicesStruct}),
-    //   new DTXStructArray({gl, capacity: this._maxSlices, structSpec: slicesStruct}),
-    //   new DTXStructArray({gl, capacity: this._maxSlices, structSpec: slicesStruct}),
-    //   new DTXStructArray({gl, capacity: this._maxSlices, structSpec: slicesStruct})
-    // ];
-    //
-    // // Per-View lights
-    //
-    // const lightsStruct: DTXStructSpec = {
-    //   name: "Lights",
-    //   fields: [
-    //     {name: "type", type: "vec3"},
-    //     {name: "pos", type: "vec3"},
-    //     {name: "dir", type: "vec3"},
-    //     {name: "color", type: "vec4"}
-    //   ]
-    // };
-    //
-    // this._viewLights = [
-    //   new DTXStructArray({gl, capacity: this._maxLights, structSpec: lightsStruct}),
-    //   new DTXStructArray({gl, capacity: this._maxLights, structSpec: lightsStruct}),
-    //   new DTXStructArray({gl, capacity: this._maxLights, structSpec: lightsStruct}),
-    //   new DTXStructArray({gl, capacity: this._maxLights, structSpec: lightsStruct})
-    // ];
+    this.primDrawLists = [
+        new DTXPrimDrawList({gl, capacity: this._maxPrims, bins}), // FIXME: Only defined for View 0
+       // new DTXPrimDrawList({gl, capacity: this._maxPrims, bins}),
+       // new DTXPrimDrawList({gl, capacity: this._maxPrims, bins}),
+       // new DTXPrimDrawList({gl, capacity: this._maxPrims, bins})
+    ];
+
+    this._meshAttribs = new DTXMeshAttribs({gl, capacity: this._maxMeshes});
+
+    this._meshViewAttribs = [
+      new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}), // FIXME: Only defined for View 0
+      // new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
+      // new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
+      // new DTXMeshViewAttribs({gl, capacity: this._maxMeshes})
+    ];
 
     this._meshMatrices = new DTXMatrixArray({gl, maxMatrices: this._maxMeshes});
     this._geometryAttribs = new DTXGeometryAttribs({gl, capacity: this._maxGeometries});
@@ -156,17 +135,36 @@ export class DTXMemoryBatch {
     this._vertexColors = new DTXVertexColorsArray({gl, capacity: this._maxPositions});
 
     this.dataTextures = {
+      views: [
+        {
+          numDrawablePrims: 0,
+            primToMeshLookup: this.primDrawLists[0].texture,
+          meshViewAttribs: this._meshViewAttribs[0].texture,
+          renderPassDrawRanges: this.primDrawLists[0].passRanges
+            },
+        //     {
+        //       numDrawablePrims: 0,
+        //       primToMeshLookup: this.primDrawLists[1].texture,
+        //         meshViewAttribs: this._meshViewAttribs[1].texture,
+        //       passRanges: this.primDrawLists[1].passRanges
+        //     },
+        //     {
+        //       numDrawablePrims: 0,
+        //       primToMeshLookup: this.primDrawLists[2].texture,
+        //         meshViewAttribs: this._meshViewAttribs[2].texture,
+        //       passRanges: this.primDrawLists[2].passRanges
+        //     },
+        //     {
+        //       numDrawablePrims: 0,
+        //       primToMeshLookup: this.primDrawLists[3].texture,
+        //         meshViewAttribs: this._meshViewAttribs[3].texture,
+        //       passRanges: this.primDrawLists[3].passRanges
+        // }
+      ],
       indices: this._indices.texture,
       edgeIndices: this._edgeIndices.texture,
-      primToMeshLookup: this._primToMeshLookup.texture,
       meshMatrices: this._meshMatrices.texture,
       meshAttribs: this._meshAttribs.texture,
-      meshViewAttribs: [
-        this._meshViewAttribs[0].texture,
-        this._meshViewAttribs[1].texture,
-        this._meshViewAttribs[2].texture,
-        this._meshViewAttribs[3].texture
-      ],
       geometryAttribs: this._geometryAttribs.texture,
       geometryQuantRanges: this._geometryQuantRanges.texture,
       positions: this._positions.texture,
@@ -201,14 +199,14 @@ export class DTXMemoryBatch {
     const isPoints = geometry.primitive === PointsPrimitive;
     if (isPoints) {
       // For points, prim→mesh lookup is sized by vertex count
-      if (this._primToMeshLookup.canGetPortion(vertCount) === false) {
+      if (this.primDrawLists[0].canGetPortion(vertCount) === false) {
         return false;
       }
     } else {
       // For triangles, prim→mesh lookup is sized by triangle count
       const indexCount = geometry.indices?.length ?? 0;
       const triCount = indexCount / 3;
-      if (this._primToMeshLookup.canGetPortion(triCount) === false) {
+      if (this.primDrawLists[0].canGetPortion(triCount) === false) {
         return false;
       }
       if (geometry.indices && this._indices.canGetPortion(indexCount) === false) {
@@ -223,7 +221,6 @@ export class DTXMemoryBatch {
     }
     return true;
   }
-
 
   /**
    * Adds a SceneMesh to data texture dtxMemory.
@@ -295,17 +292,12 @@ export class DTXMemoryBatch {
         ? geometry.indices.length / 2
         : geometry.indices.length / 3;
 
-    const primToMeshLookupHandle = this._primToMeshLookup.getPortion(
-      // geometry.indices.length, // Per-index
-      primitiveCount, // Per-prim
-      ( newBase: number ) => {
-        this._meshAttribs.setAttribs(meshIndex, {
-          primsBase: newBase
-        });
-      }
-    );
-
-    this._primToMeshLookup.fillPortion(primToMeshLookupHandle, meshIndex);
+    const primToMeshLookupHandle = [ // one per view
+        this.primDrawLists[0].createPortion(primitiveCount, meshIndex, 0), // FIXME: Only defined for View 0
+        // this.primDrawLists[1].createPortion(primitiveCount, meshIndex, 0),
+        // this.primDrawLists[2].createPortion(primitiveCount, meshIndex, 0),
+        // this.primDrawLists[3].createPortion(primitiveCount, meshIndex, 0)
+    ];
 
     let indicesHandle = null; // Only used for Lines and Triangles
     let edgeIndicesHandle = null; // Only used for Triangles
@@ -342,8 +334,7 @@ export class DTXMemoryBatch {
       tileIndex: 0, // Set by setMeshAttribs()
       geometryIndex: geometryHandle.geometryIndex,
       indicesBase: indicesHandle?.base,
-      edgeIndicesBase: edgeIndicesHandle?.base,
-      primsBase: primToMeshLookupHandle.base
+      edgeIndicesBase: edgeIndicesHandle?.base
     });
 
     this._meshViewAttribs[0].setAttribs(meshIndex, { // FIXME: Only defined for View 0
@@ -428,7 +419,6 @@ export class DTXMemoryBatch {
     params: {
       color?: number[];   // uvec4 bytes 0..255
       flags1?: number;  // uvec4 bytes 0..255
-      flags2?: number;  // uvec4 bytes 0..255
     } ) {
     if (viewIndex < 0 || viewIndex >= this._meshViewAttribs.length) {
       throw new Error(`GPUMemoryBatch.setMeshViewAttribs: Invalid viewIndex ${viewIndex}`);
@@ -440,6 +430,59 @@ export class DTXMemoryBatch {
   private _needRenderView( viewIndex: number ) {
     this._renderContext.viewFlags[viewIndex].needsRender = true;
   }
+
+  /**
+   * Sets the renderPass for a SceneMesh within a specific View.
+   *
+   * @param meshIndex
+   * @param viewIndex
+   * @param renderPass
+   */
+  setMeshRenderPass(
+      meshIndex: number,
+      viewIndex: number,
+      renderPass: RenderPassValue ) {
+    const sceneMesh = this._sceneMeshes[meshIndex];
+    if (!sceneMesh) {
+      throw new Error(`DTXMemoryBatch.setMeshRenderBin: No SceneMesh at index ${meshIndex}`);
+    }
+    const meshHandle = this._meshHandles[sceneMesh.id];
+    if (!meshHandle) {
+      throw new Error(`DTXMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no meshHandle`);
+    }
+    const primToMeshLookupHandle = meshHandle.primToMeshLookupHandle;
+    if (!primToMeshLookupHandle) {
+      throw new Error(`DTXMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no primToMeshLookupHandle`);
+    }
+    this.primDrawLists[viewIndex].setRenderPass(primToMeshLookupHandle, renderPass);
+    this._needRenderView(viewIndex);
+  }
+
+  /**
+   * Sets whether a SceneMesh is visible in a specific View.
+   *
+   * @param meshIndex
+   * @param viewIndex
+   * @param visible
+   */
+  setMeshVisible(
+      meshIndex: number,
+      viewIndex: number,
+      visible: boolean ) {
+    const sceneMesh = this._sceneMeshes[meshIndex];
+    if (!sceneMesh) {
+      throw new Error(`DTXMemoryBatch.setMeshVisible: No SceneMesh at index ${meshIndex}`);
+    }
+    const meshHandle = this._meshHandles[sceneMesh.id];
+    if (!meshHandle) {
+   throw new Error(`DTXMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
+    }
+    const primToMeshLookupHandle = meshHandle.primToMeshLookupHandle;
+    if (!primToMeshLookupHandle) {
+    throw new Error(`DTXMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primToMeshLookupHandle`);
+    }
+    this.primDrawLists[viewIndex].setVisible(primToMeshLookupHandle, visible);
+    }
 
   /**
    * Removes a SceneMesh from data texture dtxMemory.
@@ -470,7 +513,10 @@ export class DTXMemoryBatch {
     }
 
     if (meshHandle.primToMeshLookupHandle) {
-      this._primToMeshLookup.putPortion(meshHandle.primToMeshLookupHandle);
+        this.primDrawLists[0].deletePortion(meshHandle.primToMeshLookupHandle[0]); // FIXME: Only defined for View 0
+        // this.primDrawLists[1].deletePortion(meshHandle.primToMeshLookupHandle[1]);
+        // this.primDrawLists[2].deletePortion(meshHandle.primToMeshLookupHandle[2]);
+        // this.primDrawLists[3].deletePortion(meshHandle.primToMeshLookupHandle[3]);
     }
     if (meshHandle.indicesHandle) {
       this._indices.putPortion(meshHandle.indicesHandle);
@@ -568,19 +614,34 @@ export class DTXMemoryBatch {
   /**
    * Flush any pending updates to the GPU.
    */
-  flush() {
-    this._indices.flush()
-    this._meshAttribs.flush();
+  flush(): boolean {
+    let didFlush = false;
+
+    // Check flush calls and update the flag if any returns true
+    didFlush ||= this._indices.flush();
+    didFlush ||= this._meshAttribs.flush();
     for (let i = 0; i < 4; i++) {
-      this._meshViewAttribs[i].flush();
+      didFlush ||= this._meshViewAttribs[i].flush();
     }
-    this._geometryQuantRanges.flush();
-    this._geometryAttribs.flush();
-    this._edgeIndices.flush();
-    this._positions.flush();
-    this._vertexColors.flush();
-    this._meshMatrices.flush();
-    this._primToMeshLookup.flush();
+    didFlush ||= this._geometryQuantRanges.flush();
+    didFlush ||= this._geometryAttribs.flush();
+    didFlush ||= this._edgeIndices.flush();
+    didFlush ||= this._positions.flush();
+    didFlush ||= this._vertexColors.flush();
+    didFlush ||= this._meshMatrices.flush();
+    for (let i = 0; i < 4; i++) {
+      const primToMeshLookup = this.primDrawLists[i];
+      if (primToMeshLookup) {
+        const primToMeshLookupFlushed = primToMeshLookup.flush()
+        didFlush ||=primToMeshLookupFlushed;
+        if (primToMeshLookupFlushed) {
+          this.dataTextures.views[i].numDrawablePrims = primToMeshLookup.numPrimitives;
+        }
+      }
+    }
+
+    // Return whether any flush call returned true
+    return didFlush;
   }
 
   destroy() {
@@ -592,7 +653,7 @@ export class DTXMemoryBatch {
       return ref;
     };
     this._onTick = clear(this._onTick);
-    this._primToMeshLookup = clear(this._primToMeshLookup);
+    this.primDrawLists = clear(this.primDrawLists);
     this._meshAttribs = clear(this._meshAttribs);
     this._meshViewAttribs = this._meshViewAttribs.map(clear);
     this._geometryAttribs = clear(this._geometryAttribs);

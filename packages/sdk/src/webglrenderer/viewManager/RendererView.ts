@@ -212,8 +212,10 @@ export class RendererView implements ViewRendererProxy {
       return;
     }
     const shouldRender = params?.force || viewFlags.needsRender;
-    this.activate();
+   // if (shouldRender) {
+      this.activate();
       this._renderManager.render(this, {clear: true});
+   // }
     viewFlags.needsRender = false;
   }
 

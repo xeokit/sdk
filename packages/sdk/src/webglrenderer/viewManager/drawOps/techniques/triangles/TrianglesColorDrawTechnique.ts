@@ -9,9 +9,9 @@ export class TrianglesColorDrawTechnique extends DrawTechnique {
     this.vsHeader();
     this.vsCommonDefines();
     this.vsSlicingDefines();
-    this.vsDrawLambertDefs();
-    this.vsDrawMainOpen();
-    this.vsDrawLambertLogic(); // Lambert shading for triangles
+    this.vsLambertShadingDefines();
+    this.vsMainOpen();
+    this.vsLambertShadingLogic();
     this.vsSlicingLogic();
     this.vsMainClose();
   }
@@ -21,10 +21,10 @@ export class TrianglesColorDrawTechnique extends DrawTechnique {
     this.fsPrecisionDefines();
     this.fsCommonDefines();
     this.fsSlicingDefines();
-    this.fsDrawLambertDefs(); // Lambert shading definitions
+    this.fsLambertShadingDefines();
     this.fsMainOpen();
     this.fsSlicingLogic();
-    this.fsDrawLambertLogic(); // Lambert shading logic
+    this.fsLambertShadingLogic();
     this.fsCommonOutput();
     this.fsMainClose();
   }

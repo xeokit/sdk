@@ -257,7 +257,11 @@ export class DTXVertexColorsArray {
    * Flush CPU _buffer to GPU.
    * Expands RGB (CPU) -> RGBA (GPU) on the fly, 1 texel per item.
    */
-  flush(): void {
+  flush(): boolean {
+
+    if (this.dirtyPortions.size === 0 && !this.uploadAllOnFlush) {
+      return false;
+    }
     const { gl, texture } = this;
     const itemsPerRow = this.textureWidth;
 
@@ -288,7 +292,7 @@ export class DTXVertexColorsArray {
       }
       this.dirtyPortions.clear();
       this.uploadAllOnFlush = false;
-      return;
+      return true;
     }
 
     // Upload only dirty portions (split across rows)

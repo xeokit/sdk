@@ -1,10 +1,8 @@
 import {
   createMat4,
   createVec4,
-  mulMat4,
   transformPoint4,
-
-  identityMat4, setMat4Translation, translateMat4v, translationMat4c
+  subVec3
 } from "../../../matrix";
 import type {SceneMeshRendererProxy} from "../../../scene";
 import type {FloatArrayParam} from "../../../math";
@@ -14,8 +12,8 @@ import {SceneMesh} from "../../../scene";
 import {type Tile} from "../dtxMemory/Tile";
 import {type DTXMemoryEditor} from "../dtxMemory/DTXMemoryEditor";
 import {RendererObject} from "./RendererObject";
-import {createRTCModelMat} from "../../../rtc";
 import {MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
+import {worldToRTCPositions} from "../../../rtc";
 
 const tempIdentityMat4 = createMat4();
 const identityVec4 = createVec4([0, 0, 0, 1]);
@@ -31,14 +29,14 @@ const NUM_VIEWS = 4;
  *
  * This class encapsulates the data and behavior of a mesh within the WebGL rendering pipeline.
  * It manages the mesh's geometry, transformation, visibility, and rendering states for multiple viewManager.
- * The mesh is associated with a specific _drawBatch and is associated with a tile managed by the `DTXMemoryBatch` system.
+ * The mesh is associated with a specific meshBatch and is associated with a tile managed by the `DTXMemoryBatch` system.
  * The `DTXMemoryBatch` is part of the `RenderContext`, which is shared across various renderer components.
  *
  * Key responsibilities:
  * - Managing the mesh's transformation matrix and associating it with a tile from `DTXMemoryBatch`.
  * - Handling rendering states such as visibility, transparency, highlighting, and selection.
  * - Managing color and opacity for the mesh across multiple viewManager.
- * - Interfacing with the _drawBatch to update mesh-specific rendering properties.
+ * - Interfacing with the _meshBatch to update mesh-specific rendering properties.
  *
  * @private
  */
@@ -50,7 +48,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
 
   private readonly _sceneMesh: SceneMesh;
   private readonly _meshHandle: MeshBatchMeshHandle;
-  private readonly _drawBatch: MeshBatchImpl;
+  private readonly _meshBatch: MeshBatchImpl;
   private readonly _renderContext: RenderContext;
   private readonly _viewStates: any;
   private readonly _dtxMemoryEditor: DTXMemoryEditor;
@@ -60,12 +58,12 @@ export class RendererMesh implements SceneMeshRendererProxy {
    */
   constructor( {
                  sceneMesh,
-                 drawBatch,
+                 meshBatch,
                  renderContext,
                  dtxMemoryEditor,
                }: {
     sceneMesh: SceneMesh;
-    drawBatch: MeshBatchImpl;
+    meshBatch: MeshBatchImpl;
     renderContext: RenderContext;
     dtxMemoryEditor: DTXMemoryEditor;
   } ) {
@@ -73,8 +71,8 @@ export class RendererMesh implements SceneMeshRendererProxy {
     this.rendererObject = null;
     this._renderContext = renderContext;
     this._sceneMesh = sceneMesh;
-    this._drawBatch = drawBatch;
-    this._meshHandle = drawBatch.addMesh(sceneMesh);
+    this._meshBatch = meshBatch;
+    this._meshHandle = meshBatch.addMesh(sceneMesh);
     this._dtxMemoryEditor = dtxMemoryEditor;
     this.tile = null;
 
@@ -92,14 +90,14 @@ export class RendererMesh implements SceneMeshRendererProxy {
       transparent,
     }));
 
-    this.setMatrix(sceneMesh.matrix);
+    this.setMatrix(sceneMesh.globalMatrix);
   }
 
   /**
    * Initializes mesh flags for a specific view.
    */
   initFlags( viewIndex: number, flags: number ) {
-    this._drawBatch.initMeshFlags(viewIndex, this._meshHandle, flags);
+    this._meshBatch.initMeshFlags(viewIndex, this._meshHandle, flags);
   }
 
   /**
@@ -107,31 +105,6 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Called by SceneMesh.matrix setter.
    */
   setMatrix( matrix: FloatArrayParam ): void {
-
-
-     function deriveRTCTileCenterAndRelativeMatrix(matrix: FloatArrayParam): {
-      rtcTileCenter: FloatArrayParam;
-      relativeMatrix: FloatArrayParam;
-    } {
-      const rtcTileCenter = new Float64Array(3);
-      const relativeMatrix = createMat4();
-
-      // Extract translation from the matrix
-      const translation = [matrix[12], matrix[13], matrix[14]];
-
-      // Calculate the RTC tile center
-      rtcTileCenter[0] = Math.round(translation[0] / 200) * 200;
-      rtcTileCenter[1] = Math.round(translation[1] / 200) * 200;
-      rtcTileCenter[2] = Math.round(translation[2] / 200) * 200;
-
-      // Compute the relative transformation matrix
-      setMat4Translation(matrix, [0, 0, 0], relativeMatrix); // Copy rotation and scale
-      translateMat4v([-rtcTileCenter[0], -rtcTileCenter[1], -rtcTileCenter[2]], relativeMatrix);
-
-      return { rtcTileCenter, relativeMatrix };
-    }
-
-
     matrix = matrix || tempIdentityMat4;
     const center = transformPoint4(matrix, identityVec4, tempVec4a);
     const oldTile = this.tile;
@@ -139,23 +112,22 @@ export class RendererMesh implements SceneMeshRendererProxy {
       ? this._dtxMemoryEditor.moveTile(oldTile, center)
       : this._dtxMemoryEditor.getTile(center);
     const tileChanged = !oldTile || oldTile.id !== this.tile.id;
-    const tileCenter = this.tile.center;
-    const needRTC = (tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0);
-
-    // const rtcMatrix = needRTC
-    //   ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], identityMat4()), identityMat4())
-    //   : matrix;
-
-    const rtcMatrix = needRTC
-      ? createRTCModelMat(matrix, tileCenter, identityMat4())
-      : matrix;
-
-//const {rtcTileCenter, relativeMatrix} = deriveRTCTileCenterAndRelativeMatrix(matrix);
-
-    this._drawBatch.setMeshMatrix(this._meshHandle, rtcMatrix.slice());
     if (tileChanged) {
-      this._drawBatch.setMeshTile(this._meshHandle, this.tile.tileIndex);
+      this._meshBatch.setMeshTile(this._meshHandle, this.tile.tileIndex);
     }
+    const tileCenter = this.tile.center;
+    const relativeMatrix = createMat4(matrix);
+
+    // const worldOrigin = matrix.slice(12, 15); // translation xyz
+    // const origin = [];
+    //worldToRTCPositions(worldOrigin, worldOrigin, origin);
+
+    relativeMatrix.set(subVec3(center,tileCenter), 12);
+
+    //relativeMatrix.set(worldOrigin, 12);
+
+    this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix);
+    this._renderContext.setAllViewsDirty()
   }
 
   /**
@@ -166,9 +138,10 @@ export class RendererMesh implements SceneMeshRendererProxy {
     for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
       const viewState = this._viewStates[viewIndex];
       if (!viewState.colorizing) {
-        this._drawBatch.setMeshColor(viewIndex, this._meshHandle, color);
+        this._meshBatch.setMeshColor(viewIndex, this._meshHandle, color);
       }
     }
+    this._renderContext.setAllViewsDirty()
   }
 
   /**
@@ -176,7 +149,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Called by RendererObject.setVisible().
    */
   setVisible( viewIndex: number, flags: number ) {
-    this._drawBatch.setMeshVisible(viewIndex, this._meshHandle, flags);
+    this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, flags);
   }
 
   /**
@@ -190,10 +163,10 @@ export class RendererMesh implements SceneMeshRendererProxy {
       meshColorize[0] = colorize[0];
       meshColorize[1] = colorize[1];
       meshColorize[2] = colorize[2];
-      this._drawBatch.setMeshColor(viewIndex, this._meshHandle, meshColorize);
+      this._meshBatch.setMeshColor(viewIndex, this._meshHandle, meshColorize);
       viewStates.colorizing = true;
     } else {
-      this._drawBatch.setMeshColor(viewIndex, this._meshHandle, this._sceneMesh.color);
+      this._meshBatch.setMeshColor(viewIndex, this._meshHandle, this._sceneMesh.color);
       viewStates.colorizing = false;
     }
   }
@@ -207,9 +180,9 @@ export class RendererMesh implements SceneMeshRendererProxy {
     viewStates.color[3] = opacity;
     viewStates.colorize[3] = opacity;
     if (this._viewStates[viewIndex].colorizing) {
-      this._drawBatch.setMeshColor(viewIndex, this._meshHandle, viewStates.colorize);
+      this._meshBatch.setMeshColor(viewIndex, this._meshHandle, viewStates.colorize);
     } else {
-      this._drawBatch.setMeshColor(viewIndex, this._meshHandle, viewStates.color);
+      this._meshBatch.setMeshColor(viewIndex, this._meshHandle, viewStates.color);
     }
   }
 
@@ -218,7 +191,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Called by RendererObject.setTransparency().
    */
   setTransparent( viewIndex: number, flags: number ) {
-    this._drawBatch.setMeshTransparent(viewIndex, this._meshHandle, flags);
+    this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, flags);
   }
 
   /**
@@ -226,7 +199,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Called by RendererObject.setHighlighted().
    */
   setHighlighted( viewIndex: number, flags: number ) {
-    this._drawBatch.setMeshHighlighted(viewIndex, this._meshHandle, flags);
+    this._meshBatch.setMeshHighlighted(viewIndex, this._meshHandle, flags);
   }
 
   /**
@@ -234,7 +207,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Called by RendererObject.setXRayed().
    */
   setXRayed( viewIndex: number, flags: number ) {
-    this._drawBatch.setMeshXRayed(viewIndex, this._meshHandle, flags);
+    this._meshBatch.setMeshXRayed(viewIndex, this._meshHandle, flags);
   }
 
   /**
@@ -242,7 +215,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Called by RendererObject.setSelected().
    */
   setSelected( viewIndex: number, flags: number ) {
-    this._drawBatch.setMeshSelected(viewIndex, this._meshHandle, flags);
+    this._meshBatch.setMeshSelected(viewIndex, this._meshHandle, flags);
   }
 
   /**
@@ -250,7 +223,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Called by RendererObject.setClippable().
    */
   setClippable( viewIndex: number, flags: number ) {
-    this._drawBatch.setMeshClippable(viewIndex, this._meshHandle, flags);
+    this._meshBatch.setMeshClippable(viewIndex, this._meshHandle, flags);
   }
 
   /**
@@ -258,7 +231,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Called by RendererObject.setCollidable().
    */
   setCollidable( viewIndex: number, flags: number ) {
-    // this._drawBatch.setLayerMeshCollidable(viewIndex, this._meshHandle, flags);
+    // this._meshBatch.setLayerMeshCollidable(viewIndex, this._meshHandle, flags);
   }
 
   /**
@@ -266,7 +239,7 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Called by RendererObject.setPickable().
    */
   setPickable( viewIndex: number, flags: number ) {
-    this._drawBatch.setMeshPickable(viewIndex, this._meshHandle, flags);
+    this._meshBatch.setMeshPickable(viewIndex, this._meshHandle, flags);
   }
 
   /**
@@ -274,14 +247,14 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Called by RendererObject.setCulled().
    */
   setCulled( viewIndex: number, flags: number ) {
-    this._drawBatch.setMeshCulled(viewIndex, this._meshHandle, flags);
+    this._meshBatch.setMeshCulled(viewIndex, this._meshHandle, flags);
   }
 
   /**
    * Destroys the mesh and releases associated resources.
    */
   destroy() {
-    this._drawBatch.removeMesh(this._meshHandle, this.rendererObject.flags);
+    this._meshBatch.removeMesh(this._meshHandle, this.rendererObject.flags);
     if (this.tile) {
       this._dtxMemoryEditor.putTile(this.tile);
     }

@@ -1,5 +1,5 @@
 import {DrawTechnique} from "./DrawTechnique";
-import {RenderPassValue} from "./RENDER_PASSES";
+import {RenderPassValue} from "../RENDER_PASSES";
 import {MeshBatch} from "../meshBatches/MeshBatch";
 
 /**

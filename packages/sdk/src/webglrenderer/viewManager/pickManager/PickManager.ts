@@ -77,7 +77,7 @@ export class PickManager {
   pick( rendererView: RendererView,
         pickParams: PickParams,
         pickResult = this._pickResult ): boolean{
-
+return;
     if (!this._renderContext) {
       throw new SDKError("Can't pick object with WebGLRenderer - no Viewer and View is attached");
     }

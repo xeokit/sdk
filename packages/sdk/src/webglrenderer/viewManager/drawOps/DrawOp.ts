@@ -1,9 +1,9 @@
 import {DrawTechnique} from "./DrawTechnique";
 import {RenderPassValue} from "../RENDER_PASSES";
-import {MeshBatch} from "../meshBatches/MeshBatch";
+import {MeshBatch} from "../meshManager/MeshBatch";
 
 /**
- * A drawBatch operation associated with a specific rendering technique.
+ * A draw operation (draw op) applies a specific draw technique to a specific render pass.
  */
 export class DrawOp {
 
@@ -16,7 +16,7 @@ export class DrawOp {
     }
 
     public drawBatch(meshBatch: MeshBatch) {
-        this._technique.draw(meshBatch, this._renderPass);
+        this._technique.drawBatch(meshBatch, this._renderPass);
     }
 
     public drawMesh(meshBatch: MeshBatch, meshIndex: number) {

@@ -1,7 +1,7 @@
 import {DrawOp} from "./DrawOp";
 
 /**
- * Set of drawBatch operations for different rendering techniques.
+ * A collection of draw operations (draw ops) for different render passes.
  */
 export interface RenderPassDrawOps {
     opaque?: DrawOp; // Render opaque objects with color and lighting

@@ -9,12 +9,12 @@ import {Capabilities, SDKError} from "../core";
  * Represents the rendering context used by the `WebGLRenderer`.
  *
  * The `RenderContext` manages the state and resources required for rendering operations.
- * It handles the WebGL context, GPU dtxMemory, and rendering parameters for the current frame.
+ * It handles the WebGL context, GPU gpuMemoryManager, and rendering parameters for the current frame.
  * This context is shared across renderer components.
  *
  * Responsibilities:
  * - Tracks the current rendering state, including active textures, programs, and passes.
- * - Manages GPU dtxMemory for geometry and materials through the `DTXMemoryBatch` system.
+ * - Manages GPU gpuMemoryManager for geometry and materials through the `GPUMemoryBatch` system.
  * - Provides methods for managing texture units and resetting state between frames.
  * - Stores matrices and parameters for specialized rendering operations like shadow mapping and picking.
  *
@@ -44,7 +44,7 @@ export class RenderContext {
   /**
    * The View we are currently rendering.
    */
-  public view: View;
+  public activeView: View;
 
   /**
    * Whether to render a quality representation for triangle surfaces.
@@ -139,7 +139,7 @@ export class RenderContext {
    */
   constructor( viewer: Viewer ) {
     this.viewer = viewer;
-    this.view = null;
+    this.activeView = null;
     const {canvas: webglCanvasElement, gl} = RenderContext._createCanvasAndGL();
     this.gl = gl;
     this.webglCanvasElement = webglCanvasElement;
@@ -203,18 +203,26 @@ export class RenderContext {
    * @param viewIndex
    */
   setViewDirty( viewIndex: number ): void {
-    if (viewIndex < 0 || viewIndex >= this.viewFlags.length) {
+    const viewFlags = this.viewFlags[viewIndex];
+    if (!viewFlags) {
       throw new SDKError("Invalid view index");
     }
-    this.viewFlags[viewIndex].needsRender = true;
+    if (!viewFlags.needsRender) {
+         console.log(`RenderContext.setViewDirty: Marking view index ${viewIndex} as dirty`);
+    }
+    viewFlags.needsRender = true;
   }
 
   /**
    * Marks all views as needing to be re-rendered.
    */
   setAllViewsDirty(): void {
-    for (const vf of this.viewFlags) {
-      vf.needsRender = true;
+    for (let viewIndex = 0, len = this.viewFlags.length; viewIndex < len; viewIndex++) {
+      const viewFlags = this.viewFlags[viewIndex];
+      if (!viewFlags.needsRender) {
+        console.log(`RenderContext.setAllViewsDirty: Marking view index ${viewIndex} as dirty`);
+      }
+      viewFlags.needsRender = true;
     }
   }
 

@@ -147,7 +147,7 @@ export class SAOOcclusionRenderer {
 
     let dirty = false;
 
-    const sao = this.#renderContext.view.sao;
+    const sao = this.#renderContext.activeView.sao;
 
     if (sao.numSamples !== this.#numSamples) {
       this.#numSamples = Math.floor(sao.numSamples);

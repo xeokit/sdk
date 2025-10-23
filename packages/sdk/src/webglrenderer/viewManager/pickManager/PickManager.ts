@@ -13,13 +13,13 @@ import {
 import {RendererView} from "../RendererView";
 import {type FloatArrayParam} from "../../../math";
 import {createRTCViewMat} from "../../../rtc";
-import {RendererMesh} from "../meshBatches/RendererMesh";
+import {RendererMesh} from "../meshManager/RendererMesh";
 import {RenderContext} from "../../RenderContext";
 import {RenderBuffers} from "../RenderBuffers";
-import {DTXMemoryReader} from "../dtxMemory/DTXMemoryReader";
-import {MeshBatches} from "../meshBatches/MeshBatches";
+import {GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
+import {MeshManager} from "../meshManager/MeshManager";
 import {ViewManager} from "../ViewManager";
-import {DTXMemory} from "../dtxMemory/DTXMemory";
+import {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
 import {SceneMesh} from "../../../scene";
 
@@ -54,20 +54,20 @@ export class PickManager {
   private _renderBufferManager: RenderBuffers;
   private _pickResult: PickResult;
   private _renderContext: RenderContext;
-  private _dtxMemory: DTXMemory;
-  private _meshBatches: MeshBatches;
+  private _gpuMemoryManager: GPUMemoryManager;
+  private _meshBatchManager: MeshManager;
   private _drawOps: DrawOps;
 
 
   constructor(cfg: {
     renderContext: RenderContext;
-    dtxMemory: DTXMemory;
-    meshBatches: MeshBatches
+    gpuMemoryManager: GPUMemoryManager;
+    meshManager: MeshManager
   }) {
-    this._dtxMemory = cfg.dtxMemory;
-    this._meshBatches = cfg.meshBatches;
+    this._gpuMemoryManager = cfg.gpuMemoryManager;
+    this._meshBatchManager = cfg.meshManager;
     this._renderContext = cfg.renderContext;
-    this._drawOps = getDrawOps(this._renderContext, this._dtxMemory as DTXMemoryReader);
+    this._drawOps = getDrawOps(this._renderContext, this._gpuMemoryManager as GPUMemoryReader);
     this._pickResult = new PickResult();
   }
 
@@ -124,7 +124,7 @@ return;
 
         // Ray defined as matrix
 
-        this._dtxMemory.setViewPickMatrix(view, pickParams.rayMatrix);
+        this._gpuMemoryManager.setViewPickMatrix(view, pickParams.rayMatrix);
 
         // @ts-ignore
         pickViewMatrix.set(pickParams.rayMatrix);
@@ -149,7 +149,7 @@ return;
         cross3Vec3(pickWorldRayDir, tempVec3b, tempVec3c);
         const rayMatrix = lookAtMat4v(pickWorldRayOrigin, look, tempVec3c, tempMat4b);
 
-        this._dtxMemory.setViewPickMatrix(view, rayMatrix);
+        this._gpuMemoryManager.setViewPickMatrix(view, rayMatrix);
 
         // @ts-ignore
         pickViewMatrix.set(rayMatrix);
@@ -227,6 +227,7 @@ return;
     pickBuffer.bind();
     pickBuffer.clear();
     renderContext.reset();
+    renderContext.activeView = view;
     renderContext.rayPicking = rayPick;
     renderContext.backfaces = true;
     renderContext.frontface = true; // "ccw"
@@ -245,7 +246,7 @@ return;
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const batches = this._meshBatches.sortedBatches; // Batches are sorted by prim type
+    const batches = this._meshBatchManager.sortedBatches; // Batches are sorted by prim type
     for (let i = 0, len = batches.length; i < len; i++) {
       const batch = batches[i];
       const meshCounts = batch.meshCounts[viewIndex];
@@ -268,7 +269,7 @@ return;
 
     const result = this._extract16BitParts(pickID);
 
-    const sceneMesh = this._meshBatches.getMeshAtIndex(result.batchIndex,result.meshIndex);
+    const sceneMesh = this._meshBatchManager.getMeshAtIndex(result.batchIndex,result.meshIndex);
 
     return sceneMesh
         ? {sceneMesh,
@@ -306,7 +307,7 @@ return;
     const {rendererView, batchIndex, meshIndex, sceneMesh, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
     const view = rendererView.view;
     const resolutionScale = view.resolutionScale;
-    const meshBatch = this._meshBatches.getBatch(batchIndex);
+    const meshBatch = this._meshBatchManager.getBatch(batchIndex);
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
     const canvas = rendererView.view.htmlElement;
@@ -403,8 +404,8 @@ return;
   destroy() {
     if (this._drawOps) {
       putDrawOps(this._drawOps);
-      this._dtxMemory = null;
-      this._meshBatches = null;
+      this._gpuMemoryManager = null;
+      this._meshBatchManager = null;
       this._renderContext = null;
       this._renderBufferManager = null;
       this._drawOps = null;

@@ -5,10 +5,10 @@ import {RendererView} from "./RendererView";
 import {RenderManager} from "./renderManager/RenderManager";
 import {ViewRendererProxy} from "../../viewer/ViewRendererProxy";
 import {PickManager} from "./pickManager/PickManager";
-import {DTXMemory} from "./dtxMemory/DTXMemory";
-import {MeshBatches} from "./meshBatches/MeshBatches";
-import {DTXMemoryEditor} from "./dtxMemory/DTXMemoryEditor";
-import {DTXMemoryReader} from "./dtxMemory/DTXMemoryReader";
+import {GPUMemoryManager} from "./gpuMemoryManager/GPUMemoryManager";
+import {MeshManager} from "./meshManager/MeshManager";
+import {GPUMemoryEditor} from "./gpuMemoryManager/GPUMemoryEditor";
+import {GPUMemoryReader} from "./gpuMemoryManager/GPUMemoryReader";
 
 interface RendererViewParent {
   activateView( rendererView: RendererView ) ;
@@ -28,8 +28,8 @@ export class ViewManager implements RendererViewParent {
   private _activeView: RendererView;
   private _renderManager: RenderManager;
   private _pickManager: PickManager;
-  private _dtxMemory: DTXMemory;
-  private _meshBatches: MeshBatches;
+  private _gpuMemoryManager: GPUMemoryManager;
+  private _meshManager: MeshManager;
 
   /**
    * Initializes the ViewManager with the given rendering context.
@@ -38,32 +38,32 @@ export class ViewManager implements RendererViewParent {
 
     this._renderContext = renderContext;
 
-    // DTXMemory manages GPU memory for Mesh geometries, textures and texture sets. It exposes two interfaces:
-    // DTXMemoryEditor for uploading updates to GPU memory, and DTXMemoryReader for reading from GPU memory.
+    // GPUMemoryManager manages GPU memory for Mesh geometries, textures and texture sets. It exposes two interfaces:
+    // GPUMemoryEditor for uploading updates to GPU memory, and GPUMemoryReader for reading from GPU memory.
 
-    this._dtxMemory = new DTXMemory(this._renderContext);
+    this._gpuMemoryManager = new GPUMemoryManager(this._renderContext);
 
     // MeshBatches attaches a SceneObjectRendererProxy instance to each SceneObject, through which the SceneObjects can
     // control their visual state (visibility, highlighting, color, x-ray etc.) in the renderer. Likewise,
     // it also attaches a SceneMeshRendererProxy instance to each SceneMesh, through which the SceneMeshes can upload
     // updates to their color, opacity and transformation into the renderer.
 
-    this._meshBatches = new MeshBatches(this._renderContext, this._dtxMemory as DTXMemoryEditor);
+    this._meshManager = new MeshManager(this._renderContext, this._gpuMemoryManager as GPUMemoryEditor);
 
-    // The RenderManager performs drawing, using the data in MeshBatches and reading from GPU memory via DTXMemoryReader.
+    // The RenderManager performs drawing, using the data in MeshBatches and reading from GPU memory via GPUMemoryReader.
 
     this._renderManager = new RenderManager({
       renderContext: this._renderContext,
-      meshBatches: this._meshBatches,
-      dtxMemoryReader: this._dtxMemory as DTXMemoryReader
+      meshManager: this._meshManager,
+      gpuMemoryReader: this._gpuMemoryManager as GPUMemoryReader
     });
 
-    // The PickManager performs picking, using the data in MeshBatches and reading from GPU memory via DTXMemoryReader.
+    // The PickManager performs picking, using the data in MeshBatches and reading from GPU memory via GPUMemoryReader.
 
     this._pickManager = new PickManager({
       renderContext: this._renderContext,
-      meshBatches: this._meshBatches,
-      dtxMemory: this._dtxMemory
+      meshManager: this._meshManager,
+      gpuMemoryManager: this._gpuMemoryManager
     });
 
     const viewer = renderContext.viewer;
@@ -96,7 +96,7 @@ export class ViewManager implements RendererViewParent {
         view);
     this._rendererViews[view.id] = rendererView;
     view.viewIndex = this._rendererViewsList.length;
-    view.rendererView = <ViewRendererProxy>rendererView;
+    view.viewRendererProxy = <ViewRendererProxy>rendererView;
     this._rendererViewsList.push(rendererView);
     return rendererView;
   }
@@ -110,7 +110,7 @@ export class ViewManager implements RendererViewParent {
       throw new SDKError("[WebGLRenderer] View is not added");
     }
     rendererView.destroy();
-    view.rendererView = null;
+    view.viewRendererProxy = null;
     delete this._rendererViews[view.id];
 
     //  TODO: Set rendererViewsList dirty
@@ -206,13 +206,13 @@ export class ViewManager implements RendererViewParent {
     // Destroy in reverse order of construction
     this._pickManager?.destroy();
     this._renderManager?.destroy();
-    this._meshBatches?.destroy();
-    this._dtxMemory?.destroy();
+    this._meshManager?.destroy();
+    this._gpuMemoryManager?.destroy();
 
     this._pickManager = undefined as unknown as PickManager;
     this._renderManager = undefined as unknown as RenderManager;
-    this._meshBatches = undefined as unknown as MeshBatches;
-    this._dtxMemory = undefined as unknown as DTXMemory;
+    this._meshManager = undefined as unknown as MeshManager;
+    this._gpuMemoryManager = undefined as unknown as GPUMemoryManager;
     this._renderContext = null;
   }
 }

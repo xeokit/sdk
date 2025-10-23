@@ -2,13 +2,13 @@ import {WEBGL_INFO, WebGLProgram} from "../../../webglutils";
 import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
 import {RENDER_PASSES, RenderPassValue} from "../RENDER_PASSES";
 import type {RenderContext} from "../../RenderContext";
-import {type DTXMemoryReader} from "../dtxMemory/DTXMemoryReader";
-import {MeshBatch} from "../meshBatches/MeshBatch";
+import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
+import {MeshBatch} from "../meshManager/MeshBatch";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 
 /**
- * Abstract base class for a batch drawing operation.
+ * Abstract template base class for draw techniques.
  *
  * Provides a foundation for implementing various drawing techniques (e.g. color, highlighted, selected) for
  * primitives (e.g., triangles, lines, points). Manages shader construction, WebGL program binding, and rendering
@@ -22,7 +22,7 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
 export abstract class DrawTechnique {
 
     private _renderContext: RenderContext;
-    private _dtxMemoryReader: DTXMemoryReader;
+    private _gpuMemoryReader: GPUMemoryReader;
     private _program: WebGLProgram | null;
 
     errors: string[];
@@ -93,12 +93,12 @@ export abstract class DrawTechnique {
     /**
      * Creates a new LayerRenderer instance.
      * @param renderContext
-     * @param dtxMemoryReader
+     * @param gpuMemoryReader
      * @param cfg
      */
-    constructor(renderContext: RenderContext, dtxMemoryReader: DTXMemoryReader, cfg: { edges: boolean } = {edges: false}) {
+    constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader, cfg: { edges: boolean } = {edges: false}) {
         this._renderContext = renderContext;
-        this._dtxMemoryReader = dtxMemoryReader;
+        this._gpuMemoryReader = gpuMemoryReader;
         this.edges = cfg.edges;
         this._build();
     }
@@ -106,7 +106,7 @@ export abstract class DrawTechnique {
     /**
      * Draws a batch.
      */
-    public draw(meshBatch: MeshBatch, renderPass: RenderPassValue): void {
+    public drawBatch(meshBatch: MeshBatch, renderPass: RenderPassValue): void {
         this._draw(meshBatch, renderPass);
     }
 
@@ -132,7 +132,7 @@ export abstract class DrawTechnique {
         }
 
         const renderContext = this._renderContext;
-        const view = renderContext.view;
+        const view = renderContext.activeView;
         const gl = this._renderContext.gl;
 
         renderContext.textureUnit = 0;
@@ -148,8 +148,8 @@ export abstract class DrawTechnique {
         }
 
         const samplers = this._samplers;
-        const dataTextures = this._dtxMemoryReader.dataTextures;
-        const batchDataTextures = dataTextures.batches[meshBatch.dtxMemoryBatchIndex];
+        const dataTextures = this._gpuMemoryReader.dataTextures;
+        const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
         const viewIndex = view.viewIndex;
 
         bindTexture(samplers.tileViewMatrices,
@@ -172,13 +172,13 @@ export abstract class DrawTechnique {
         bindTexture(samplers.edgeIndices, batchDataTextures.edgeIndices);
         bindTexture(samplers.indices, batchDataTextures.indices);
 
-        gl.uniform1i(this._uniforms.primBaseIndex, meshBatch.primBaseIndex);
-        gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive); // TrianglesPrimitive, LinesPrimitive, PointsPrimitive
-
         const drawRange = batchViewDataTextures.renderPassDrawRanges.get(renderPass);
         if (!drawRange || drawRange.count === 0) {
             return; // Nothing to draw for this pass
         }
+
+        gl.uniform1i(this._uniforms.primBaseIndex, drawRange.first);
+        gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive); // TrianglesPrimitive, LinesPrimitive, PointsPrimitive
 
         // const drawSingleMesh = (meshIndex >= 0); // -1 means draw all meshes in the batch
         // const {first, count} = drawSingleMesh
@@ -289,8 +289,7 @@ export abstract class DrawTechnique {
 
             "struct MeshViewAttribs {",
             "  uvec4 color;",
-            "  uvec4 flags1;",
-            "  uvec4 flags2;",
+            "  uvec4 renderFlags;",
             "};",
 
             "struct GeometryAttribs {",
@@ -370,11 +369,10 @@ export abstract class DrawTechnique {
 
             "MeshViewAttribs getMeshViewAttribs(uint meshIndex) {",
             "  const uint texWidth = 4096u;",
-            "  uint base = meshIndex * 3u;",
+            "  uint base = meshIndex * 2u;",
             "  MeshViewAttribs s;",
             "  s.color  = texelFetch(uMeshViewAttribs, texCoord(base + 0u, texWidth), 0);",
-            "  s.flags1 = texelFetch(uMeshViewAttribs, texCoord(base + 1u, texWidth), 0);",
-            "  s.flags2 = texelFetch(uMeshViewAttribs, texCoord(base + 2u, texWidth), 0);",
+            "  s.renderFlags = texelFetch(uMeshViewAttribs, texCoord(base + 1u, texWidth), 0);",
             "  return s;",
             "}",
 
@@ -550,7 +548,7 @@ export abstract class DrawTechnique {
         this.__vertSrcBuf.push("void main(void) {");
         this._vsMeshLogic();
         this.__vertSrcBuf.push(
-            `    int pickFlag = int(meshViewAttribs.flags1.b >> 8u & 0xFu);`,
+            `    int pickFlag = int(meshViewAttribs.renderFlags.b >> 8u & 0xFu);`,
             `    if (pickFlag != uRenderPass) {`,
             "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
             "        return;",
@@ -567,7 +565,7 @@ export abstract class DrawTechnique {
         // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
         //   const src = this.__vertSrcBuf;
         //   src.push("      vWorldPosition = worldPos;");
-        //   src.push("      vClippable = (int(meshViewAttribs.flags1) >> 12 & 0xF) == 1;");
+        //   src.push("      vClippable = (int(meshViewAttribs.renderFlags) >> 12 & 0xF) == 1;");
         // }
     }
 
@@ -584,8 +582,8 @@ export abstract class DrawTechnique {
             "    MeshViewAttribs meshViewAttribs = getMeshViewAttribs( meshIndex );",
 
             `    if (meshViewAttribs.color.a == 3u) {`,
-            "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
-            "              return;",
+            // "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
+            // "              return;",
             "    };"
         );
     }
@@ -720,7 +718,7 @@ export abstract class DrawTechnique {
 
     protected vsPointsGeometryLogic() {
         const src = this.__vertSrcBuf;
-        const pointsMaterial = this._renderContext.view.pointsMaterial;
+        const pointsMaterial = this._renderContext.activeView.pointsMaterial;
         // if (pointsMaterial.perspectivePoints) {
         //     src.push("gl_PointSize = (nearPlaneHeight * pointSize) / clipPos.w;");
         //     src.push("gl_PointSize = max(gl_PointSize, " + Math.floor(pointsMaterial.minPerspectivePointSize) + ".0);");
@@ -784,7 +782,7 @@ export abstract class DrawTechnique {
 
     protected fsLambertShadingDefines() {
         const src = this._fragSrcBuf;
-        const view = this._renderContext.view;
+        const view = this._renderContext.activeView;
         src.push(
             "in vec4 vColor;",
             "in vec4 vViewPos;");
@@ -897,7 +895,7 @@ export abstract class DrawTechnique {
      */
     private _bind(renderPass: RenderPassValue): boolean {
 
-        const view = this._renderContext.view;
+        const view = this._renderContext.activeView;
         const gl = this._renderContext.gl;
         const uniforms = this._uniforms;
         const renderContext = this._renderContext;
@@ -1018,7 +1016,7 @@ export abstract class DrawTechnique {
 
     private _build(): void {
 
-        const view = this._renderContext.view;
+        const view = this._renderContext.activeView;
         const gl = this._renderContext.gl;
 
         this.__vertSrcBuf = [];

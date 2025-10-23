@@ -1,21 +1,21 @@
 import {WEBGL_INFO} from "../../../webglutils";
 import {RenderContext} from "../../RenderContext";
-import {MeshBatches} from "../meshBatches/MeshBatches";
+import {MeshManager} from "../meshManager/MeshManager";
 import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
 import {RendererView} from "../RendererView";
-import {DTXMemoryReader} from "../dtxMemory/DTXMemoryReader";
-import {MeshBatch} from "../meshBatches/MeshBatch";
+import {GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
+import {MeshBatch} from "../meshManager/MeshBatch";
 
 
 /**
  * Manages the drawing operations for WebGL rendering.
- * The `DrawManager` class handles rendering meshBatches, viewManager, and extensions,
+ * The `RenderManager` class handles rendering meshManager, viewManager, and extensions,
  * ensuring proper GPU state and efficient rendering of opaque and transparent objects.
  */
 export class RenderManager {
 
     private _renderContext: RenderContext;
-    private _meshBatches: MeshBatches;
+    private _meshManager: MeshManager;
     private _drawOps: DrawOps;
     private _extensionHandles: any;
     private _logarithmicDepthBufferEnabled: boolean;
@@ -25,17 +25,17 @@ export class RenderManager {
      * Creates a DrawManager with the given rendering context, GPU read interface, and drawBatch graph.
      *
         * @param cfg.renderContext The rendering context.
-     * @param cfg.dtxMemoryReader The GPU memory reader.
-     * @param cfg.meshBatches The mesh batches.
+     * @param cfg.gpuMemoryReader The GPU memory reader.
+     * @param cfg.meshManager The mesh batches.
      */
     constructor(cfg: {
         renderContext: RenderContext,
-        dtxMemoryReader: DTXMemoryReader,
-        meshBatches: MeshBatches
+        gpuMemoryReader: GPUMemoryReader,
+        meshManager: MeshManager
     }) {
         this._renderContext = cfg.renderContext;
-        this._meshBatches = cfg.meshBatches;
-        this._drawOps = getDrawOps(this._renderContext, cfg.dtxMemoryReader);
+        this._meshManager = cfg.meshManager;
+        this._drawOps = getDrawOps(this._renderContext, cfg.gpuMemoryReader);
         this._extensionHandles = {};
         this._logarithmicDepthBufferEnabled = false;
         this._alphaDepthMask = false;
@@ -59,7 +59,7 @@ export class RenderManager {
      * @param rendererView
      * @param options
      */
-    render(
+    public render(
         rendererView: RendererView,
         options: {
         clear: boolean;
@@ -93,7 +93,7 @@ export class RenderManager {
         };
 
         renderContext.reset();
-        renderContext.view = view;
+        renderContext.activeView = view;
         renderContext.pbrEnabled = rendererView.pbrEnabled;
 
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -120,7 +120,7 @@ export class RenderManager {
         const selectedMaterial = view.selectedMaterial;
         const xrayMaterial = view.xrayMaterial;
 
-        const meshBatches = this._meshBatches.sortedBatches;
+        const meshBatches = this._meshManager.sortedBatches;
 
         meshBatches.forEach(meshBatch => {
             
@@ -185,15 +185,15 @@ export class RenderManager {
         }
 
         bins.edgesColorOpaque.forEach(meshBatch => {
-            drawOps[meshBatch.primitive].opaqueEdges?.draw(meshBatch);
+            drawOps[meshBatch.primitive].opaqueEdges?.drawBatch(meshBatch);
         });
 
         bins.xrayedSilhouetteOpaque.forEach(meshBatch => {
-            drawOps[meshBatch.primitive].xrayed?.draw(meshBatch);
+            drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
         });
 
         bins.xrayEdgesOpaque.forEach(meshBatch => {
-            drawOps[meshBatch.primitive].xrayedEdges?.draw(meshBatch);
+            drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
         });
 
         //  for (let i = 0; i < bins.xrayEdgesOpaque.length; i++) bins.xrayEdgesOpaque[i].drawEdgesXRayed();
@@ -221,11 +221,11 @@ export class RenderManager {
             }
 
             bins.xrayEdgesTransparent.forEach(meshBatch => {
-                drawOps[meshBatch.primitive].xrayedEdges?.draw(meshBatch);
+                drawOps[meshBatch.primitive].xrayedEdges?.drawBatch(meshBatch);
             });
 
             bins.xrayedSilhouetteTransparent.forEach(meshBatch => {
-                drawOps[meshBatch.primitive].xrayed?.draw(meshBatch);
+                drawOps[meshBatch.primitive].xrayed?.drawBatch(meshBatch);
             });
 
             if (bins.edgesColorTransparent.length || bins.normalFillTransparent.length) {
@@ -233,11 +233,11 @@ export class RenderManager {
             }
 
             bins.edgesColorTransparent.forEach(meshBatch => {
-                drawOps[meshBatch.primitive].transparentEdges?.draw(meshBatch);
+                drawOps[meshBatch.primitive].transparentEdges?.drawBatch(meshBatch);
             });
 
             bins.normalFillTransparent.forEach(meshBatch => {
-                drawOps[meshBatch.primitive].transparent?.draw(meshBatch);
+                drawOps[meshBatch.primitive].transparent?.drawBatch(meshBatch);
             });
 
             gl.disable(gl.BLEND);
@@ -262,23 +262,22 @@ export class RenderManager {
         };
 
         drawSilAndEdges(bins.highlightedSilhouetteOpaque, bins.highlightedEdgesOpaque,
-            b => drawOps[b.primitive].highlighted?.draw(b),
-            b => drawOps[b.primitive].highlightedEdges?.draw(b));
+            b => drawOps[b.primitive].highlighted?.drawBatch(b),
+            b => drawOps[b.primitive].highlightedEdges?.drawBatch(b));
 
         drawSilAndEdges(bins.selectedSilhouetteOpaque, bins.selectedEdgesOpaque,
-            b => drawOps[b.primitive].selected?.draw(b),
-            b => drawOps[b.primitive].selectedEdges?.draw(b));
+            b => drawOps[b.primitive].selected?.drawBatch(b),
+            b => drawOps[b.primitive].selectedEdges?.drawBatch(b));
 
         // TODO: Switch on blending if needed
 
-
         drawSilAndEdges(bins.highlightedSilhouetteTransparent, bins.highlightedEdgesTransparent,
-            b => drawOps[b.primitive].highlighted?.draw(b),
-            b => drawOps[b.primitive].highlightedEdges?.draw(b));
+            b => drawOps[b.primitive].highlighted?.drawBatch(b),
+            b => drawOps[b.primitive].highlightedEdges?.drawBatch(b));
 
         drawSilAndEdges(bins.selectedSilhouetteTransparent, bins.selectedEdgesTransparent,
-            b => drawOps[b.primitive].selected?.draw(b),
-            b => drawOps[b.primitive].selectedEdges?.draw(b));
+            b => drawOps[b.primitive].selected?.drawBatch(b),
+            b => drawOps[b.primitive].selectedEdges?.drawBatch(b));
 
         // Cleanup GPU state
         for (let i = 0, texUnits = WEBGL_INFO.MAX_TEXTURE_UNITS; i < texUnits; i++) {
@@ -292,7 +291,7 @@ export class RenderManager {
         }
     }
 
-    destroy() {
+    public destroy() {
         if (this._drawOps) {
             putDrawOps(this._drawOps);
             this._drawOps = null;

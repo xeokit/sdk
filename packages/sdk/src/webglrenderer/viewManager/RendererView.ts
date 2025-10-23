@@ -5,6 +5,7 @@ import {RenderContext} from "../RenderContext";
 import {ViewRendererProxy} from "../../viewer/ViewRendererProxy";
 import {PickManager} from "./pickManager/PickManager";
 import {RenderManager} from "./renderManager/RenderManager";
+import {SDKError} from "../../core";
 
 /**
  * Represents a renderer view that manages rendering, picking, and state for a specific view.
@@ -74,7 +75,7 @@ export class RendererView implements ViewRendererProxy {
     this.view = view;
     this._active = false;
     this._transparencyEnabled = true;
-    this.needsRender();
+    this._renderContext.setViewDirty(this.view.viewIndex);
     this._canvasTransparent = false;
     this._pbrEnabled = false;
     this._saoEnabled = false;
@@ -99,7 +100,7 @@ export class RendererView implements ViewRendererProxy {
    * Marks the view as needing to be rendered.
    */
   needsRender(): void {
-    this._renderContext.viewFlags[this.view.viewIndex].needsRender = true;
+    this._renderContext.setViewDirty(this.view.viewIndex);
   }
 
   /**
@@ -115,7 +116,7 @@ export class RendererView implements ViewRendererProxy {
    */
   set transparencyEnabled( value: boolean ) {
     this._transparencyEnabled = value;
-    this.needsRender();
+    this._renderContext.setViewDirty(this.view.viewIndex);
   }
 
   /**
@@ -131,7 +132,7 @@ export class RendererView implements ViewRendererProxy {
    */
   set canvasTransparent( value: boolean ) {
     this._canvasTransparent = value;
-    this.needsRender();
+    this._renderContext.setViewDirty(this.view.viewIndex);
   }
 
   /**
@@ -147,7 +148,7 @@ export class RendererView implements ViewRendererProxy {
    */
   set saoEnabled( value: boolean ) {
     this._saoEnabled = value;
-    this.needsRender();
+    this._renderContext.setViewDirty(this.view.viewIndex);
   }
 
   /**
@@ -163,7 +164,7 @@ export class RendererView implements ViewRendererProxy {
    */
   set edgesEnabled( value: boolean ) {
     this._edgesEnabled = value;
-    this.needsRender();
+    this._renderContext.setViewDirty(this.view.viewIndex);
   }
 
   /**
@@ -179,7 +180,7 @@ export class RendererView implements ViewRendererProxy {
    */
   set transparentEnabled( value: boolean ) {
     this._transparentEnabled = value;
-    this.needsRender();
+    this._renderContext.setViewDirty(this.view.viewIndex);
   }
 
   /**
@@ -195,7 +196,7 @@ export class RendererView implements ViewRendererProxy {
    */
   set pbrEnabled( value: boolean ) {
     this._pbrEnabled = value;
-    this.needsRender();
+    this._renderContext.setViewDirty(this.view.viewIndex);
   }
 
   /**
@@ -208,14 +209,14 @@ export class RendererView implements ViewRendererProxy {
   render( params?: {force?: boolean; opaqueOnly?: boolean} ): void {
     const viewFlags = this._renderContext.viewFlags[this.view.viewIndex];
     if (!viewFlags) {
-      console.warn("View flags not found for the current view index.");
-      return;
+      throw new SDKError("RendererView: View flags not found for the current view index.");
     }
     const shouldRender = params?.force || viewFlags.needsRender;
-   // if (shouldRender) {
+    if (shouldRender) {
+      console.log(`RendererView.render: Rendering view index ${this.view.viewIndex}`)
       this.activate();
       this._renderManager.render(this, {clear: true});
-   // }
+    }
     viewFlags.needsRender = false;
   }
 

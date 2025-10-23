@@ -1,16 +1,18 @@
 import {RenderContext} from "../../RenderContext";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
-import {TrianglesColorDrawTechnique} from "./techniques/triangles/TrianglesColorDrawTechnique";
-import {GenericSilhouetteDrawTechnique} from "./techniques/generic/GenericSilhouetteDrawTechnique";
-import {PointsColorDrawTechnique} from "./techniques/points/PointsColorDrawTechnique";
-import {type DTXMemoryReader} from "../dtxMemory/DTXMemoryReader";
-import {LinesColorDrawTechnique} from "./techniques/lines/LinesColorDrawTechnique";
+import {TrianglesDrawColorTechnique} from "./techniques/triangles/TrianglesDrawColorTechnique";
+import {GenericDrawSilhouetteTechnique} from "./techniques/generic/GenericDrawSilhouetteTechnique";
+import {PointsDrawColorTechnique} from "./techniques/points/PointsDrawColorTechnique";
+import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
+import {LinesDrawColorTechnique} from "./techniques/lines/LinesDrawColorTechnique";
 import {RenderPassDrawOps} from "./RenderPassDrawOps";
 import {DrawOp} from "./DrawOp";
 import {RENDER_PASSES} from "../RENDER_PASSES";
-import {TrianglesEdgeSilhouetteDrawTechnique} from "./techniques/triangles/TrianglesEdgeSilhouetteDrawTechnique";
-import {TrianglesPickMeshDrawTechnique} from "./techniques/triangles/TrianglesPickMeshDrawTechnique";
+import {TrianglesDrawEdgeSilhouetteTechnique} from "./techniques/triangles/TrianglesDrawEdgeSilhouetteTechnique";
 import {DrawTechnique} from "./DrawTechnique";
+import {GenericPickMeshTechnique} from "./techniques/generic/GenericPickMeshTechnique";
+import {GenericPickDepthTechnique} from "./techniques/generic/GenericPickDepthTechnique";
+import {TrianglesDrawEdgeColorTechnique} from "./techniques/triangles/TrianglesDrawEdgeColorTechnique";
 
 /**
  * Manages a set of drawBatch operations for different primitive types.
@@ -20,7 +22,7 @@ export class DrawOps {
     _useCount: number = 0;
     _renderContext: RenderContext;
 
-    private _drawTechniques: DrawTechnique[];
+    private _techniques: DrawTechnique[];
 
     /**
      * Draw operations organized by primitive type and rendering technique.
@@ -35,64 +37,75 @@ export class DrawOps {
     /**
      * Initializes the DrawOps with the given rendering context and GPU memory.
      * @param renderContext - The rendering context used for WebGL operations.
-     * @param dtxMemoryReader - Reads GPU memory - provides data textures.
+     * @param gpuMemoryReader - Reads GPU memory - provides data textures.
      */
-    constructor(renderContext: RenderContext, dtxMemoryReader: DTXMemoryReader) {
+    constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader) {
 
         this._renderContext = renderContext;
-        this._drawTechniques = [];
+        this._techniques = [];
 
         const saveForCleanup = (drawTechnique: DrawTechnique): DrawTechnique => {
-            this._drawTechniques.push(drawTechnique);
+            this._techniques.push(drawTechnique);
             return drawTechnique;
         }
 
         // Some drawBatch techniques are shared between multiple drawBatch ops.
         // A drawBatch op applies a drawBatch technique to a specific render pass.
-        // E.g. the silhouette drawBatch technique is used for highlighted, selected and xrayed triangles.
+        // E.g. the silhouetteTechnique drawBatch technique is used for highlighted, selected and xrayed triangles.
 
-        const silhouette = saveForCleanup(new GenericSilhouetteDrawTechnique(renderContext, dtxMemoryReader));
+        const silhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader));
+        const trianglesDrawColor = saveForCleanup(new TrianglesDrawColorTechnique(renderContext, gpuMemoryReader));
+        const trianglesDrawEdgeSilhouette = saveForCleanup(new TrianglesDrawEdgeSilhouetteTechnique(renderContext, gpuMemoryReader));
+        const trianglesDrawEdgeColor = saveForCleanup(new TrianglesDrawEdgeColorTechnique(renderContext, gpuMemoryReader));
+        const pickMesh = saveForCleanup(new GenericPickMeshTechnique(renderContext, gpuMemoryReader));
+        const pickDepth = saveForCleanup(new GenericPickDepthTechnique(renderContext, gpuMemoryReader));
+        const linesDrawColor = saveForCleanup(new LinesDrawColorTechnique(renderContext, gpuMemoryReader));
+        const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader));
 
-        const trianglesColor = saveForCleanup(new TrianglesColorDrawTechnique(renderContext, dtxMemoryReader));
-        const trianglesEdgeSilhouette = saveForCleanup(new TrianglesEdgeSilhouetteDrawTechnique(renderContext, dtxMemoryReader));
-        // const trianglesDepth = saveForCleanup(new TrianglesDepthDrawTechnique(renderContext, dtxMemoryReader));
-         const trianglesPick = saveForCleanup(new TrianglesPickMeshDrawTechnique(renderContext, dtxMemoryReader));
-
-        const linesColor = saveForCleanup(new LinesColorDrawTechnique(renderContext, dtxMemoryReader));
-        const pointsColor = saveForCleanup(new PointsColorDrawTechnique(renderContext, dtxMemoryReader));
+        const {OPAQUE, TRANSPARENT, HIGHLIGHTED, SELECTED, XRAYED, PICK} = RENDER_PASSES;
 
         this.prims = {
 
             [TrianglesPrimitive]: {
-                opaque: new DrawOp(trianglesColor, RENDER_PASSES.OPAQUE),
-                // opaqueEdges: null,
-                // transparent: new DrawOp(trianglesColor, RENDER_PASSES.TRANSPARENT),
-                // transparentEdges: null,
-                 highlighted: new DrawOp(silhouette, RENDER_PASSES.HIGHLIGHTED),
-                // highlightedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.HIGHLIGHTED),
-                 selected: new DrawOp(silhouette, RENDER_PASSES.SELECTED),
-                // selectedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.SELECTED),
-                // xrayed: new DrawOp(silhouette, RENDER_PASSES.XRAYED),
-                // xrayedEdges: new DrawOp(trianglesEdgeSilhouette, RENDER_PASSES.XRAYED),
-               //  pick: new DrawOp(trianglesPick, RENDER_PASSES.PICK),
-                // pickDepth: new DrawOp(trianglesDepth, RENDER_PASSES.PICK)
+                opaque: new DrawOp(trianglesDrawColor, OPAQUE),
+                opaqueEdges: new DrawOp(trianglesDrawEdgeColor, OPAQUE),
+                transparent: new DrawOp(trianglesDrawColor, TRANSPARENT),
+                transparentEdges: new DrawOp(trianglesDrawEdgeColor, TRANSPARENT),
+                highlighted: new DrawOp(silhouette, HIGHLIGHTED),
+                highlightedEdges: new DrawOp(trianglesDrawEdgeSilhouette, HIGHLIGHTED),
+                selected: new DrawOp(silhouette, SELECTED),
+                selectedEdges: new DrawOp(trianglesDrawEdgeSilhouette, SELECTED),
+                xrayed: new DrawOp(silhouette, XRAYED),
+                xrayedEdges: new DrawOp(trianglesDrawEdgeSilhouette, XRAYED),
+                pick: new DrawOp(pickMesh, PICK),
+                pickDepth: new DrawOp(pickDepth, PICK)
             },
 
             [LinesPrimitive]: {
-                opaque: new DrawOp(linesColor, RENDER_PASSES.OPAQUE),
-                transparent: new DrawOp(linesColor, RENDER_PASSES.TRANSPARENT)
+                opaque: new DrawOp(linesDrawColor, OPAQUE),
+                transparent: new DrawOp(linesDrawColor, TRANSPARENT),
+                highlighted: new DrawOp(silhouette, HIGHLIGHTED),
+                selected: new DrawOp(silhouette, SELECTED),
+                xrayed: new DrawOp(silhouette, XRAYED),
+                pick: new DrawOp(pickMesh, PICK),
+                pickDepth: new DrawOp(pickDepth, PICK)
             },
 
             [PointsPrimitive]: {
-                opaque: new DrawOp(pointsColor, RENDER_PASSES.OPAQUE),
-                transparent: new DrawOp(pointsColor, RENDER_PASSES.TRANSPARENT)
+                opaque: new DrawOp(pointsDrawColor, OPAQUE),
+                transparent: new DrawOp(pointsDrawColor, TRANSPARENT),
+                // highlighted: new DrawOp(pointsSilhouette, HIGHLIGHTED),
+                // selected: new DrawOp(pointsSilhouette, SELECTED),
+                // xrayed: new DrawOp(pointsSilhouette, XRAYED),
+                pick: new DrawOp(pickMesh, PICK),
+                pickDepth: new DrawOp(pickDepth, PICK)
             }
         };
     }
 
     _destroy() {
         // @ts-ignore
-        Object.values(this._drawTechniques).forEach(drawTechnique => drawTechnique.destroy());
+        Object.values(this._techniques).forEach(drawTechnique => drawTechnique.destroy());
     }
 }
 
@@ -101,13 +114,13 @@ const drawOpsInstances = {};
 /**
  * Gets or creates a DrawOps for the given RenderContext.
  * @param renderContext
- * @param dtxMemoryReader
+ * @param gpuMemoryReader
  */
-export function getDrawOps(renderContext: RenderContext, dtxMemoryReader: DTXMemoryReader): DrawOps {
+export function getDrawOps(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader): DrawOps {
     const viewerId = renderContext.viewer.id;
     let drawOps = drawOpsInstances[viewerId];
     if (!drawOps) {
-        drawOps = new DrawOps(renderContext, dtxMemoryReader);
+        drawOps = new DrawOps(renderContext, gpuMemoryReader);
         drawOpsInstances[viewerId] = drawOps;
     }
     drawOps._useCount++;

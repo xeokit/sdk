@@ -1,3 +1,5 @@
+import {DTXPassRange} from "./dtx/DTXPrimDrawList";
+
 /**
  * Interface representing a collection of data textures used in WebGL rendering.
  *
@@ -29,7 +31,7 @@ export interface DataTexturesBatch {
      * Mapping of rendering passes to their respective primitive ranges in primToMeshLookup.
      * Primitive ranges are used with gl.drawArrays to efficiently render specific passes.
      */
-    renderPassDrawRanges: Map<number, { first: number; count: number }>;
+    renderPassDrawRanges: Map<number, DTXPassRange>;
 
   }[];
 

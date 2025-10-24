@@ -603,7 +603,7 @@ export class GPUMemoryBatch {
     // Check flush calls and update the flag if any returns true
     didFlush = this._indices.flush()|| didFlush;
     didFlush = this._meshAttribs.flush()|| didFlush;
-    for (let i = 0, len = this._meshViewAttribs; i < len; i++) {
+    for (let i = 0, len = this._meshViewAttribs.length; i < len; i++) {
       didFlush = this._meshViewAttribs[i].flush()|| didFlush;
     }
     didFlush = this._geometryQuantRanges.flush()|| didFlush;

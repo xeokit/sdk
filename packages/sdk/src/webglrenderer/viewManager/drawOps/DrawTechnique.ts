@@ -173,11 +173,11 @@ export abstract class DrawTechnique {
         bindTexture(samplers.indices, batchDataTextures.indices);
 
         const drawRange = batchViewDataTextures.renderPassDrawRanges.get(renderPass);
-        if (!drawRange || drawRange.count === 0) {
+        if (!drawRange || drawRange.numPrims === 0) {
             return; // Nothing to draw for this pass
         }
 
-        gl.uniform1i(this._uniforms.primBaseIndex, drawRange.first);
+        gl.uniform1i(this._uniforms.primBaseIndex, drawRange.firstPrim);
         gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive); // TrianglesPrimitive, LinesPrimitive, PointsPrimitive
 
         // const drawSingleMesh = (meshIndex >= 0); // -1 means draw all meshes in the batch
@@ -194,13 +194,13 @@ export abstract class DrawTechnique {
 
         switch (meshBatch.primitive) {
             case TrianglesPrimitive:
-                gl.drawArrays(gl.TRIANGLES, drawRange.first, drawRange.count);
+                gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim*3, drawRange.numPrims*3);
                 break;
             case LinesPrimitive:
-                gl.drawArrays(gl.LINES, drawRange.first, drawRange.count);
+                gl.drawArrays(gl.LINES, drawRange.firstPrim*2, drawRange.numPrims*2);
                 break;
             case PointsPrimitive:
-                gl.drawArrays(gl.POINTS, drawRange.first, drawRange.count);
+                gl.drawArrays(gl.POINTS, drawRange.firstPrim, drawRange.numPrims);
                 break;
             default:
                 console.error(`Unsupported Batch primitive type: ${meshBatch.primitive}`);
@@ -371,7 +371,7 @@ export abstract class DrawTechnique {
             "  const uint texWidth = 4096u;",
             "  uint base = meshIndex * 2u;",
             "  MeshViewAttribs s;",
-            "  s.color  = texelFetch(uMeshViewAttribs, texCoord(base + 0u, texWidth), 0);",
+            "  s.color       = texelFetch(uMeshViewAttribs, texCoord(base + 0u, texWidth), 0);",
             "  s.renderFlags = texelFetch(uMeshViewAttribs, texCoord(base + 1u, texWidth), 0);",
             "  return s;",
             "}",
@@ -652,7 +652,7 @@ export abstract class DrawTechnique {
             // "    lambertian = max(dot(normal, normalize(lightDir3)), 0.0);",
             // "    reflectedColor += lambertian * (lightColor3.rgb * lightColor3.a);",
 
-            "    vec4 color = vec4(meshViewAttribs.color) / 255.0;",
+            "    vec4 color = vec4(meshViewAttribs.color) /255.0;",
 
             "   vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), 1.0);")
 
@@ -885,7 +885,7 @@ export abstract class DrawTechnique {
     }
 
     protected fsCommonOutput() {
-        this._fragSrcBuf.push("outColor = color;");
+                this._fragSrcBuf.push("outColor = color;");
     }
 
     /**

@@ -28,9 +28,9 @@ export interface DTXPrimDrawListHandle {
 export interface DTXPassRange  {
  //   renderPass: number;
     /** First primitive index for this pass (inclusive). */
-    first: number;
+    firstPrim: number;
     /** Number of primitives in this pass. */
-    count: number;
+    numPrims: number;
 }
 
 /**
@@ -74,7 +74,7 @@ export class DTXPrimDrawList {
     private _renderPassIds: RenderPassValue[];
 
     /** Ranges per pass/type after the last rebuild. */
-    public passRanges: Map<number, { first: number; count: number }> = new Map();
+    public passRanges: Map<number, DTXPassRange> = new Map();
 
     constructor(opts: DTXPrimDrawListOptions) {
         const gl = opts.gl;
@@ -267,11 +267,11 @@ export class DTXPrimDrawList {
             }
             const count = base - start;
             if (count > 0) {
-                this.passRanges.set(renderPass, { first: start, count });
+                this.passRanges.set(renderPass, { firstPrim: start, numPrims: count });
             } else {
                 // Ensure a zeroed entry exists only if previously known; consumers can ignore zeros.
                 if (this.passRanges.has(renderPass)) {
-                    this.passRanges.set(renderPass, { first: 0, count: 0 });
+                    this.passRanges.set(renderPass, { firstPrim: 0, numPrims: 0 });
                 }
             }
         }

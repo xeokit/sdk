@@ -204,17 +204,17 @@ export class MeshManager {
     }
     const meshBatchId = `meshBatch-${primitive}-${Object.keys(this._sortedBatches).length}`;
   //  const meshBatchId = `meshBatch-${primitive}`; // TODO: allow multiple batches of same primitive
-    const newLayer = new MeshBatchImpl({
+    const newMeshBatch = new MeshBatchImpl({
       primitive,
       renderContext: this._renderContext,
       gpuMemoryEditor: this._gpuMemoryEditor,
       gpuMemoryBatchIndex: this._gpuMemoryEditor.createBatch(),
     });
 
-    this._sortedBatches[meshBatchId] = newLayer;
+    this._sortedBatches[meshBatchId] = newMeshBatch;
     this._batchListDirty = true;
     console.log(`MeshBatches: Created new MeshBatch: ${meshBatchId} for primitive type: ${primitive}`);
-    return newLayer;
+    return newMeshBatch;
   }
 
   private _removeObject( sceneObject: SceneObject ): void {

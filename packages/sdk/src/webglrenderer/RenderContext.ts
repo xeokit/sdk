@@ -207,9 +207,9 @@ export class RenderContext {
     if (!viewFlags) {
       throw new SDKError("Invalid view index");
     }
-    if (!viewFlags.needsRender) {
-         console.log(`RenderContext.setViewDirty: Marking view index ${viewIndex} as dirty`);
-    }
+    // if (!viewFlags.needsRender) {
+    //      console.log(`RenderContext.setViewDirty: Marking view index ${viewIndex} as dirty`);
+    // }
     viewFlags.needsRender = true;
   }
 
@@ -219,9 +219,9 @@ export class RenderContext {
   setAllViewsDirty(): void {
     for (let viewIndex = 0, len = this.viewFlags.length; viewIndex < len; viewIndex++) {
       const viewFlags = this.viewFlags[viewIndex];
-      if (!viewFlags.needsRender) {
-        console.log(`RenderContext.setAllViewsDirty: Marking view index ${viewIndex} as dirty`);
-      }
+      // if (!viewFlags.needsRender) {
+      //   console.log(`RenderContext.setAllViewsDirty: Marking view index ${viewIndex} as dirty`);
+      // }
       viewFlags.needsRender = true;
     }
   }

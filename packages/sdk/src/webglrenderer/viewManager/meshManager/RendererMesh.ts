@@ -50,8 +50,13 @@ export class RendererMesh implements SceneMeshRendererProxy {
   private readonly _meshHandle: MeshBatchMeshHandle;
   private readonly _meshBatch: MeshBatchImpl;
   private readonly _renderContext: RenderContext;
-  private readonly _viewStates: any;
   private readonly _gpuMemoryEditor: GPUMemoryEditor;
+
+  private readonly _viewStates: {
+    colorize: [number, number, number, number];
+    colorizing: boolean;
+    transparent: boolean;
+  }[];
 
   /**
    * Constructs a RendererMesh instance.
@@ -177,12 +182,11 @@ export class RendererMesh implements SceneMeshRendererProxy {
    */
   setOpacity( viewIndex: number, opacity: number ) {
     const viewStates = this._viewStates[viewIndex];
-    viewStates.color[3] = opacity;
     viewStates.colorize[3] = opacity;
     if (this._viewStates[viewIndex].colorizing) {
       this._meshBatch.setMeshColor(viewIndex, this._meshHandle, viewStates.colorize);
     } else {
-      this._meshBatch.setMeshColor(viewIndex, this._meshHandle, viewStates.color);
+      this._meshBatch.setMeshColor(viewIndex, this._meshHandle, this._sceneMesh.color);
     }
   }
 

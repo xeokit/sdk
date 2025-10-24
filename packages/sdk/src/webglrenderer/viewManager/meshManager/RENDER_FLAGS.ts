@@ -81,3 +81,19 @@ export function createDefaultRenderFlags(): number {
   renderFlags |= RENDER_FLAGS.PICKABLE;
   return renderFlags;
 }
+
+
+interface Flags {
+  visible: boolean;
+    culled: boolean;
+    pickable: boolean;
+    clippable: boolean;
+    collidable: boolean;
+    castShadow: boolean;
+    receiveShadow: boolean;
+    xrayed: boolean;
+    highlighted: boolean;
+    selected: boolean;
+    backfaces: boolean;
+    transparent: boolean;
+}

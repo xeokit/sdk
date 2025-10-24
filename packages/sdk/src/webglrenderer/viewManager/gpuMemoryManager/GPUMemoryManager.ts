@@ -172,7 +172,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     // console.log("addMesh() Num meshes = " + this._numMeshes);
     return <GPUMemoryMeshHandle>{
       meshIndex: meshIdx,
-      batchIndex: gpuMemoryBatch.index,
+      gpuMemoryBatchIndex: gpuMemoryBatch.index,
       numIndices: sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0,
       numVertices: sceneMesh.geometry.positionsCompressed ? sceneMesh.geometry.positionsCompressed.length / 3 : 0
     };
@@ -189,7 +189,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       meshHandle: GPUMemoryMeshHandle,
       viewIndex: number,
       visible: boolean) {
-    const batch = this._batches[meshHandle.batchIndex];
+    const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
       throw new Error('GPUMemoryManager.setMeshVisible: Invalid batch index in mesh handle.');
     }
@@ -209,7 +209,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   setMeshMatrix(
     meshHandle: GPUMemoryMeshHandle,
     matrix: FloatArrayParam ): void {
-    const batch = this._batches[meshHandle.batchIndex];
+    const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
       throw new Error('GPUMemoryManager.setMeshMatrix: Invalid batch index in mesh handle.');
     }
@@ -231,7 +231,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     params: {
       tileIndex?: number;
     } ) {
-    const batch = this._batches[meshHandle.batchIndex];
+    const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
       throw new Error('GPUMemoryManager.setMeshAttribs: Invalid batch index in mesh handle.');
     }
@@ -255,7 +255,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       color?: number[];   // uvec4 bytes 0..255
       renderFlags?: number;  // uvec4 bytes 0..255
     } ) {
-    const batch = this._batches[meshHandle.batchIndex];
+    const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
       throw new Error('GPUMemoryManager.setMeshViewAttribs: Invalid batch index in mesh handle.');
     }
@@ -272,7 +272,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       meshHandle1: GPUMemoryMeshHandle,
       viewIndex: number,
       renderPass: RenderPassValue): void {
-    const batch = this._batches[meshHandle1.batchIndex];
+    const batch = this._batches[meshHandle1.gpuMemoryBatchIndex];
     if (!batch) {
       throw new Error('GPUMemoryManager.setMeshRenderPass: Invalid batch index in mesh handle.');
     }
@@ -285,7 +285,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param meshHandle
    */
   removeMesh( meshHandle: GPUMemoryMeshHandle ): void {
-    const batch = this._batches[meshHandle.batchIndex];
+    const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
       throw new Error('GPUMemoryManager.removeMesh: Invalid batch index in mesh handle.');
     }

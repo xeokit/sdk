@@ -213,7 +213,7 @@ export class RendererView implements ViewRendererProxy {
     }
     const shouldRender = params?.force || viewFlags.needsRender;
     if (shouldRender) {
-      console.log(`RendererView.render: Rendering view index ${this.view.viewIndex}`)
+     // console.log(`RendererView.render: Rendering view index ${this.view.viewIndex}`)
       this.activate();
       this._renderManager.render(this, {clear: true});
     }

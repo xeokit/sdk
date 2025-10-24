@@ -28,7 +28,6 @@ export class DTXMeshViewAttribs {
 
   // Layout (in texels, not floats)
   private static readonly TEXELS_PER_STRUCT = 2; // color, renderFlags
-  private static readonly LANES_PER_TEXEL = 4; // RGBA
   private static readonly BYTES_PER_TEXEL = 4; // RGBA8UI
 
   // Texture geometry
@@ -75,10 +74,8 @@ export class DTXMeshViewAttribs {
   }
 
   setAttribs(meshIndex: number, data: Partial<DTXMeshViewAttribsItem>): void {
-    // optional: bounds guard
-    if (meshIndex < 0 || meshIndex >= this.capacity) {
-      throw new Error(`DTXMeshViewAttribs.setAttribs: meshIndex ${meshIndex} out of range 0..${this.capacity-1}`);
-    }
+    // console.assert(meshIndex >= 0 && meshIndex < this.capacity, `Invalid meshIndex: ${meshIndex}`);
+    // console.log("Setting attribs for meshIndex:", meshIndex, data);
 
     const v = this.getByteView(meshIndex);
 
@@ -90,29 +87,29 @@ export class DTXMeshViewAttribs {
       v[base + 3] = src[3];
     };
 
-    // Pack a uint32 into RGBA8 lanes (little-endian: R=LSB, A=MSB).
     const writeU32 = (base: number, n?: number) => {
       if (n === undefined) return;
-      const u = (n >>> 0); // coerce to uint32
+      const u = (n >>> 0);
       v[base + 0] =  u         & 0xFF;
       v[base + 1] = (u >>> 8)  & 0xFF;
       v[base + 2] = (u >>> 16) & 0xFF;
       v[base + 3] = (u >>> 24) & 0xFF;
     };
 
-    // texel 0: color (RGBA8UI)
     writeRGBA(0, data.color);
-    
-    // texel 1: renderFlags as uint32 -> RGBA8UI lanes
     writeU32(4, data.renderFlags);
 
     this._dirty.add(meshIndex);
+   // console.log("Dirty indices after setAttribs:", Array.from(this._dirty));
   }
 
   flush(): boolean {
     if (this._dirty.size === 0) {
+   //   console.log("No dirty indices to flush");
       return false;
     }
+  //  console.log("Flushing dirty indices:", Array.from(this._dirty));
+
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -131,14 +128,17 @@ export class DTXMeshViewAttribs {
         const byteEnd = byteStart + chunkTexels * DTXMeshViewAttribs.BYTES_PER_TEXEL;
         const sub = this.buffer.subarray(byteStart, byteEnd);
 
+        // console.assert(chunkTexels > 0, "Invalid chunkTexels");
+        // console.assert(sub.length > 0, "Empty subarray for texSubImage2D");
+
         gl.texSubImage2D(
-          gl.TEXTURE_2D,
-          0,
-          x, row,
-          chunkTexels, 1,
-          gl.RGBA_INTEGER,
-          gl.UNSIGNED_BYTE,
-          sub
+            gl.TEXTURE_2D,
+            0,
+            x, row,
+            chunkTexels, 1,
+            gl.RGBA_INTEGER,
+            gl.UNSIGNED_BYTE,
+            sub
         );
 
         startTexel += chunkTexels;
@@ -148,6 +148,7 @@ export class DTXMeshViewAttribs {
 
     this._dirty.clear();
     gl.bindTexture(gl.TEXTURE_2D, null);
+    console.log("Flush complete");
     return true;
   }
 

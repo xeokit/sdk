@@ -1,12 +1,12 @@
 /**
  * A handle to a mesh stored in GPU memory.
  */
-export class GPUMemoryMeshHandle {
+export interface GPUMemoryMeshHandle {
 
   /**
    * Index of the batch containing the mesh.
    */
-  batchIndex: number;
+  gpuMemoryBatchIndex: number;
 
   /**
    * Index of the mesh within the batch.

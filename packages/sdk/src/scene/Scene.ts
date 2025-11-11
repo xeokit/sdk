@@ -1,4 +1,4 @@
-import {SDKResult} from "../core";
+import {SDKErrorType, SDKResult} from "../core";
 import {SceneModel} from "./SceneModel";
 import type {SceneModelParams} from "./SceneModelParams";
 import type {SceneObject} from "./SceneObject";
@@ -66,18 +66,18 @@ export class Scene {
    */
   createModel(sceneModelParams: SceneModelParams): SDKResult<SceneModel, string> {
     if (this.destroyed) {
-      return { ok: false, error: "Scene already destroyed" };
+      return { ok: false, type: SDKErrorType.InvalidInput, error: "Scene already destroyed" };
     }
 
     const id = sceneModelParams.id ?? createUUID();
     if (this.models[id]) {
-      return { ok: false, error: `SceneModel already created in this Scene: ${id}` };
+      return { ok: false, type: SDKErrorType.InvalidInput, error: `SceneModel already created in this Scene: ${id}` };
     }
     const paramsWithId: SceneModelParams = { ...sceneModelParams, id };
     const sceneModel = new SceneModel(this, paramsWithId);
     const populated = sceneModel.fromParams(paramsWithId);
     if (populated.ok===false) {
-      return { ok: false, error: populated.error}; // { ok: false, error: string }
+      return { ok: false, type: SDKErrorType.InvalidInput, error: populated.error}; // { ok: false, error: string }
     }
     this.models[id] = sceneModel;
     this.events.onSceneModelCreated.dispatch(this, sceneModel); // Fires modelCreated

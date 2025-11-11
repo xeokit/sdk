@@ -184,14 +184,14 @@ export class DataModel  {
     if (this.destroyed) {
       return {
         ok: false,
-        type: SDKErrorType.Destroyed,
+        type: SDKErrorType.InvalidOperation,
         error: "Cannot create PropertySet - DataModel already destroyed"
       };
     }
     if (this.propertySets[propertySetCfg.id]) {
       return {
         ok: false,
-        type: SDKErrorType.InvalidParameter,
+        type: SDKErrorType.InvalidInput,
         error: "Cannot create PropertySet - PropertySet with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel."
       };
     }
@@ -234,7 +234,7 @@ export class DataModel  {
     if (this.destroyed) {
       return {
         ok: false,
-        type: SDKErrorType.Destroyed,
+        type: SDKErrorType.InvalidOperation,
         error: "Cannot create DataObject - DataModel already destroyed"
       };
     }
@@ -242,7 +242,7 @@ export class DataModel  {
     if (this.objects[id]) {
       return {
         ok: false,
-        type: SDKErrorType.InvalidParameter,
+        type: SDKErrorType.InvalidInput,
         error: "Cannot create DataObject - DataObject with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel."
       };
     }
@@ -257,7 +257,7 @@ export class DataModel  {
           if (!propertySet) {
             return {
               ok: false,
-              type: SDKErrorType.InvalidParameter,
+              type: SDKErrorType.InvalidInput,
               error: `Cannot create DataObject - PropertySet not found: "${propertySetId}"`
             };
           } else {
@@ -279,7 +279,7 @@ export class DataModel  {
       if (dataObject.models.length > 0 && this.schema !== dataObject.models[0].schema) {
         return {
           ok: false,
-            type: SDKErrorType.InvalidParameter,
+            type: SDKErrorType.InvalidInput,
           error: `Cannot create DataObject of schema '${this.schema}' - ID clashes with existing DataObject of schema '${this.schema}'`
         };
       }
@@ -314,7 +314,7 @@ export class DataModel  {
     if (this.destroyed) {
       return {
         ok: false,
-        type: SDKErrorType.Destroyed,
+        type: SDKErrorType.InvalidOperation,
         error: "Cannot create Relationship - DataModel already destroyed"
       };
     }
@@ -322,7 +322,7 @@ export class DataModel  {
     if (!relatingObject) {
       return {
         ok: false,
-        type: SDKErrorType.InvalidParameter,
+        type: SDKErrorType.InvalidInput,
         error: `Cannot create Relationship - relating DataObject not found: ${relationshipParams.relatingObjectId}`
       };
     }
@@ -330,7 +330,7 @@ export class DataModel  {
     if (!relatedObject) {
       return {
         ok: false,
-        type: SDKErrorType.InvalidParameter,
+        type: SDKErrorType.InvalidInput,
         error: `Cannot create Relationship - related DataObject not found: ${relationshipParams.relatedObjectId}`
       };
     }
@@ -362,7 +362,7 @@ export class DataModel  {
     if (this.destroyed) {
       return {
         ok: false,
-        type: SDKErrorType.Destroyed,
+        type: SDKErrorType.InvalidOperation,
         error: "Cannot add components to DataModel - DataModel already destroyed"
       };
     }
@@ -372,7 +372,7 @@ export class DataModel  {
         if (result.ok!== true) {
           return {
             ok: false,
-            type: SDKErrorType.InvalidParameter,
+            type: SDKErrorType.InvalidInput,
             error: `Failed to create PropertySet: ${result.error}`
           };
         }
@@ -384,7 +384,7 @@ export class DataModel  {
         if (result.ok!== true) {
           return {
             ok: false,
-            type: SDKErrorType.InvalidParameter,
+            type: SDKErrorType.InvalidInput,
             error: `Failed to create DataObject: ${result.error}`
           };
         }
@@ -396,7 +396,7 @@ export class DataModel  {
         if (result.ok!== true) {
           return {
             ok: false,
-          type: SDKErrorType.InvalidParameter,
+          type: SDKErrorType.InvalidInput,
             error: `Failed to create Relationship: ${result.error}`
           };
         }
@@ -417,7 +417,7 @@ export class DataModel  {
     if (this.destroyed) {
       return {
         ok: false,
-        type: SDKErrorType.Destroyed,
+        type: SDKErrorType.InvalidOperation,
         error: "DataModel already destroyed"
       };
     }
@@ -495,7 +495,7 @@ export class DataModel  {
     if (this.destroyed) {
       return {
         ok: false,
-        type: SDKErrorType.Destroyed,
+        type: SDKErrorType.InvalidOperation,
         error: "Cannot destroy DataModel - DataModel already destroyed"
       };
     }

@@ -47,7 +47,7 @@ export function buildPlaneGeometry(cfg = {
   if (xSize < 0) {
     return {
       ok: false,
-      type: SDKErrorType.InvalidParameter,
+      type: SDKErrorType.InvalidInput,
       error: "Negative xSize not allowed."
     };
   }
@@ -56,7 +56,7 @@ export function buildPlaneGeometry(cfg = {
   if (zSize < 0) {
     return {
       ok: false,
-      type: SDKErrorType.InvalidParameter,
+      type: SDKErrorType.InvalidInput,
       error: "Negative zSize not allowed."
     };
   }
@@ -65,7 +65,7 @@ export function buildPlaneGeometry(cfg = {
   if (xSegments < 1) {
     return {
       ok: false,
-      type: SDKErrorType.InvalidParameter,
+      type: SDKErrorType.InvalidInput,
       error: "xSegments must be at least 1."
     };
   }
@@ -74,7 +74,7 @@ export function buildPlaneGeometry(cfg = {
   if (zSegments < 1) {
     return {
       ok: false,
-      type: SDKErrorType.InvalidParameter,
+      type: SDKErrorType.InvalidInput,
       error: "zSegments must be at least 1."
     };
   }

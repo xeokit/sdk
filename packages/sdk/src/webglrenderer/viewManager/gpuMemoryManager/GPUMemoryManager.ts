@@ -83,7 +83,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
         }
         return {
           ok: false,
-          type: SDKErrorType.OutOfMemory,
+          type: SDKErrorType.MemoryExceeded,
           error: 'GPUMemoryManager.init: Out of GPU memory'
         };
       }
@@ -175,7 +175,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
         gpuMemoryBatch.destroy();
         return {
           ok: false,
-          type: SDKErrorType.OutOfMemory,
+          type: SDKErrorType.MemoryExceeded,
           error: 'GPUMemoryManager.createBatch: Out of GPU memory'
         };
       }

@@ -45,7 +45,7 @@ export function buildBoxLinesGeometry(cfg: {
   if (xSize < 0) {
     return {
       ok: false,
-      type: SDKErrorType.InvalidParameter,
+      type: SDKErrorType.InvalidInput,
       error: "Negative xSize not allowed"
     };
   }
@@ -54,7 +54,7 @@ export function buildBoxLinesGeometry(cfg: {
   if (ySize < 0) {
     return {
       ok: false,
-      type: SDKErrorType.InvalidParameter,
+      type: SDKErrorType.InvalidInput,
       error: "Negative ySize not allowed"
     };
   }
@@ -63,7 +63,7 @@ export function buildBoxLinesGeometry(cfg: {
   if (zSize < 0) {
     return {
       ok: false,
-      type: SDKErrorType.InvalidParameter,
+      type: SDKErrorType.InvalidInput,
       error: "Negative zSize not allowed"
     };
   }

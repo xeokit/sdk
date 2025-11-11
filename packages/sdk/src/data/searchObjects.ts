@@ -22,7 +22,7 @@ export function searchObjects(data: Data, searchParams: SearchParams): SDKResult
   if (data.destroyed) {
     return {
       ok: false,
-      type: SDKErrorType.Destroyed,
+      type: SDKErrorType.InvalidOperation,
       error: "Data already destroyed"
     };
   }
@@ -84,7 +84,7 @@ export function searchObjects(data: Data, searchParams: SearchParams): SDKResult
     if (!startObject) {
       return {
         ok: false,
-        type: SDKErrorType.InvalidParameter,
+        type: SDKErrorType.InvalidInput,
         error: `Cannot search DataObjects - starting DataObject not found in Data: "${searchParams.startObjectId}"`
       };
     }
@@ -93,7 +93,7 @@ export function searchObjects(data: Data, searchParams: SearchParams): SDKResult
     if (searchParams.startObject.data != data) {
       return {
         ok: false,
-        type: SDKErrorType.InvalidParameter,
+        type: SDKErrorType.InvalidInput,
         error: `Cannot search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`
       };
     }

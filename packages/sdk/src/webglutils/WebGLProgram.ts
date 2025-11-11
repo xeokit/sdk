@@ -1,8 +1,8 @@
 import {Map} from "../utils";
-
-
 import {WebGLAttribute} from "./WebGLAttribute";
 import {WebGLShader} from "./WebGLShader";
+import {SDKErrorType, SDKResult} from "../core";
+import {WebGLContextProvider} from "./WebGLContextProvider";
 
 const ids = new Map({}, "");
 
@@ -69,7 +69,7 @@ export class WebGLProgram {
   /**
    * The WebGL2 rendering context.
    */
-  gl: WebGL2RenderingContext;
+  private _glSrc: WebGLContextProvider;
 
   /**
    * The source code from which the shaders are built.
@@ -79,31 +79,22 @@ export class WebGLProgram {
   /**
    * Handle to the WebGL program itself, which resides on the GPU.
    */
-  handle: WebGLProgram;
+  handle: any;
 
   /**
    * Creates a new program.
-   * @param gl
+   * @param glSrc
    * @param shaderSource
    */
-  constructor(gl: WebGL2RenderingContext,
+  constructor(glSrc: WebGLContextProvider,
               shaderSource: {
                 vertex: string,
                 fragment: string
               }) {
 
-    // console.log("WebGLProgram constructor")
-    // console.log("-----------------------------------------------------")
-    // console.log("\nshaderSource.vertex:\n");
-    // console.log(shaderSource.vertex);
-    // console.log("\nshaderSource.fragment:\n");
-    // console.log(shaderSource.fragment);
-    // console.log("-----------------------------------------------------")
-
-    // @ts-ignore
     this.id = ids.addItem({});
     this.source = shaderSource;
-    this.gl = gl;
+    this._glSrc = glSrc;
     this.allocated = false;
     this.compiled = false;
     this.linked = false;
@@ -112,43 +103,55 @@ export class WebGLProgram {
     this.uniforms = {};
     this.samplers = {};
     this.attributes = {};
+  }
 
-    this.vertexShader = new WebGLShader(gl, gl.VERTEX_SHADER, this.source.vertex);
-    this.fragmentShader = new WebGLShader(gl, gl.FRAGMENT_SHADER, this.source.fragment);
+  /**
+   * Initializes this program.
+   */
+  public init(): SDKResult<any, string> {
 
-    if (!this.vertexShader.allocated) {
-      this.errors = ["Vertex shader failed to allocate"].concat(this.vertexShader.errors);
-      logErrors(this.errors);
-      return;
+    const gl = this._glSrc.gl;
+
+    if (!gl) {
+        return {
+            ok: false,
+            type: SDKErrorType.InvalidOperation,
+            error: "Cannot initialize program: Missing WebGL context"
+        };
     }
 
-    if (!this.fragmentShader.allocated) {
-      this.errors = ["Fragment shader failed to allocate"].concat(this.fragmentShader.errors);
-      logErrors(this.errors);
-      return;
+    this.vertexShader = new WebGLShader(this._glSrc, gl.VERTEX_SHADER, this.source.vertex);
+    const resultVertex = this.vertexShader.init();
+    if (resultVertex.ok===false) {
+      this.vertexShader.destroy();
+      return {
+        ok: false,
+        type: resultVertex.type,
+        error: `Vertex shader initialization failed: ${resultVertex.error}`
+      };
     }
 
-    this.allocated = true;
-
-    if (!this.vertexShader.compiled) {
-      this.errors = ["Vertex shader failed to compile"].concat(this.vertexShader.errors);
-      logErrors(this.errors);
-      return;
+    this.fragmentShader = new WebGLShader(this._glSrc, gl.FRAGMENT_SHADER, this.source.fragment);
+    const resultFragment = this.fragmentShader.init();
+    if (resultFragment.ok===false) {
+      this.vertexShader.destroy();
+      this.fragmentShader.destroy();
+      return {
+        ok: false,
+        type: resultFragment.type,
+        error: `Fragment shader initialization failed: ${resultFragment.error}`
+      };
     }
 
-    if (!this.fragmentShader.compiled) {
-      this.errors = ["Fragment shader failed to compile"].concat(this.fragmentShader.errors);
-      logErrors(this.errors);
-      return;
-    }
-
-    this.compiled = true;
-    // @ts-ignore
     this.handle = gl.createProgram();
-
     if (!this.handle) {
-      this.errors = ["Cannot allocate program"];
-      return;
+      this.vertexShader.destroy();
+      this.fragmentShader.destroy();
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: "Cannot allocate WebGL program"
+      };
     }
 
     gl.attachShader(this.handle, this.vertexShader.handle);
@@ -156,46 +159,71 @@ export class WebGLProgram {
     gl.linkProgram(this.handle);
 
     this.linked = gl.getProgramParameter(this.handle, gl.LINK_STATUS);
+    if (!this.linked) {
+      const programInfoLog = gl.getProgramInfoLog(this.handle) || "Unknown error during program linking";
+      const errorDetails = [
+        "Program Linking Error:",
+        programInfoLog,
+        "\nVertex Shader Source:",
+        this.source.vertex,
+        "\nFragment Shader Source:",
+        this.source.fragment
+      ].join("\n");
 
-    // HACK: Disable validation temporarily: https://github.com/xeolabs/xeokit-sdk/issues/5
-    // Perhaps we should defer validation until render-time, when the program has values set for all inputs?
+      this.destroy();
 
-    this.validated = true;
-
-    if (!this.linked || !this.validated) {
-      this.errors = [];
-      this.errors.push("");
-      // @ts-ignore
-      this.errors.push(gl.getProgramInfoLog(this.handle));
-      this.errors.push("\nVertex shader:\n");
-      this.errors = this.errors.concat(this.source.vertex);
-      this.errors.push("\nFragment shader:\n");
-      this.errors = this.errors.concat(this.source.fragment);
-      logErrors(this.errors);
-      return;
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: errorDetails
+      };
     }
 
+    gl.validateProgram(this.handle);
+    this.validated = gl.getProgramParameter(this.handle, gl.VALIDATE_STATUS);
+    if (!this.validated) {
+      const validationLog = gl.getProgramInfoLog(this.handle) || "Unknown error during program validation";
+      this.destroy();
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `Program validation failed: ${validationLog}`
+      };
+    }
+
+    this._extractUniformsAndAttributes();
+
+    this.allocated = true;
+    this.compiled = true;
+
+    return {
+      ok: true,
+      value: this
+    };
+  }
+
+  private _extractUniformsAndAttributes(): void {
+    const gl = this._glSrc.gl;
+
+    // Extract uniforms
     const numUniforms = gl.getProgramParameter(this.handle, gl.ACTIVE_UNIFORMS);
     for (let i = 0; i < numUniforms; ++i) {
       const u = gl.getActiveUniform(this.handle, i);
       if (u) {
         let uName = u.name;
-
         if (uName[uName.length - 1] === "\u0000") {
           uName = uName.substr(0, uName.length - 1);
         }
         const location = gl.getUniformLocation(this.handle, uName);
         if ((u.type === gl.SAMPLER_2D) || (u.type === gl.SAMPLER_CUBE) || (u.type === 35682) || (u.type === 36306)) {
-          // @ts-ignore
-          //this.samplers[uName] = new WebGLSampler(gl, location);
           this.samplers[uName] = location;
         } else {
-          // @ts-ignore
           this.uniforms[uName] = location;
         }
       }
     }
 
+    // Extract attributes
     const numAttribs = gl.getProgramParameter(this.handle, gl.ACTIVE_ATTRIBUTES);
     for (let i = 0; i < numAttribs; i++) {
       const a = gl.getActiveAttrib(this.handle, i);
@@ -204,8 +232,6 @@ export class WebGLProgram {
         this.attributes[a.name] = new WebGLAttribute(gl, location);
       }
     }
-
-    this.allocated = true;
   }
 
   /**
@@ -215,7 +241,7 @@ export class WebGLProgram {
     if (!this.allocated) {
       return;
     }
-    this.gl.useProgram(this.handle);
+    this._glSrc.gl.useProgram(this.handle);
   }
 
   /**
@@ -242,23 +268,53 @@ export class WebGLProgram {
     return this.samplers[name];
   }
 
- //  /**
- //   * Binds a texture to this program.
- //   * @param name
- //   * @param texture
- //   * @param unit
- //   */
- //  bindTexture(name: string, texture: WebGLAbstractTexture, unit: number): boolean {
- //    if (!this.allocated) {
- //      return false;
- //    }
- //    // const sampler = this.samplers[name];
- //    // if (sampler) {
- //    //   return sampler.bindTexture(texture, unit);
- //    // } else {
- //      return false;
- // //   }
- //  }
+  /**
+   * Rebuilds the program after WebGL context has been restored.
+   */
+  public webglContextRestored(): SDKResult<any, string> {
+    if (!this._glSrc.gl || !this.source || !this.source.vertex || !this.source.fragment) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "Cannot restore program: Missing WebGL context or shader source"
+      };
+    }
+
+    // Rebuild vertex shader
+    const vertexRestoreResult = this.vertexShader.webglContextRestored();
+    if (vertexRestoreResult.ok===false) {
+      return {
+        ok: false,
+        type: vertexRestoreResult.type,
+        error: `Failed to restore vertex shader: ${vertexRestoreResult.error}`
+      };
+    }
+
+    // Rebuild fragment shader
+    const fragmentRestoreResult = this.fragmentShader.webglContextRestored();
+    if (fragmentRestoreResult.ok===false) {
+      return {
+        ok: false,
+        type: fragmentRestoreResult.type,
+        error: `Failed to restore fragment shader: ${fragmentRestoreResult.error}`
+      };
+    }
+
+    // Reinitialize the program
+    const initResult = this.init();
+    if (initResult.ok===false) {
+      return {
+        ok: false,
+        type: initResult.type,
+        error: `Failed to restore program: ${initResult.error}`
+      };
+    }
+
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
 
   /**
    * Destroys this program.
@@ -268,9 +324,12 @@ export class WebGLProgram {
       return;
     }
     ids.removeItem(this.id);
-    this.gl.deleteProgram(this.handle);
-    this.gl.deleteShader(this.vertexShader.handle);
-    this.gl.deleteShader(this.fragmentShader.handle);
+    const gl = this._glSrc.gl;
+    if (gl) {
+      gl.deleteProgram(this.handle);
+      gl.deleteShader(this.vertexShader.handle);
+      gl.deleteShader(this.fragmentShader.handle);
+    }
     this.attributes = {};
     this.uniforms = {};
     this.samplers = {};

@@ -19,6 +19,11 @@ export class ViewerEvents {
     //---------------------------- Viewer Events ----------------------------//
 
     /**
+     * Emits an event when the Viewer is destroyed.
+     */
+    readonly onDestroyed: EventEmitter<Viewer, boolean>;
+
+    /**
      * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
      */
     readonly onTick: EventEmitter<Viewer, TickParams>;
@@ -125,7 +130,7 @@ export class ViewerEvents {
      */
     readonly onViewLayerDestroyed: EventEmitter<View, ViewLayer>;
 
-   //---------------------------- Camera Events ----------------------------//
+    //---------------------------- Camera Events ----------------------------//
 
     /**
      * Emits an event each time {@link Camera.projectionType} updates.
@@ -162,17 +167,17 @@ export class ViewerEvents {
     /**
      * Emits an event each time a {@link SectionPlane.pos} changes.
      */
-    readonly onSectionPlanePosChanged : EventEmitter<SectionPlane, FloatArrayParam>;
+    readonly onSectionPlanePosChanged: EventEmitter<SectionPlane, FloatArrayParam>;
 
     /**
      * Emits an event each time a {@link SectionPlane.dir} changes.
      */
-    readonly onSectionPlaneDirChanged : EventEmitter<SectionPlane, FloatArrayParam>;
+    readonly onSectionPlaneDirChanged: EventEmitter<SectionPlane, FloatArrayParam>;
 
     /**
      * Emits an event each time a {@link SectionPlane.active} changes.
      */
-    readonly onSectionPlaneActive : EventEmitter<SectionPlane, boolean>;
+    readonly onSectionPlaneActive: EventEmitter<SectionPlane, boolean>;
 
     //---------------------------- Snapshot Events ----------------------------//
 
@@ -193,11 +198,13 @@ export class ViewerEvents {
      */
     readonly onViewUpdated: EventEmitter<View, View>;
 
+
     /**
      * @private
      */
     constructor() {
 
+        this.onDestroyed = new EventEmitter(new EventDispatcher<Viewer, boolean>());
         this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
         this.processes = new EventEmitter(new EventDispatcher<Spinner, number>());
         this.zeroProcesses = new EventEmitter(new EventDispatcher<Spinner, number>());
@@ -234,32 +241,33 @@ export class ViewerEvents {
      * @private
      */
     destroy() {
-       this.onTick.clear();
+        this.onDestroyed.clear();
+        this.onTick.clear();
         this.log.clear();
-         this.onViewCreated.clear();
-         this.onViewUpdated.clear();
-         this.onViewDestroyed.clear();
-            this.onViewCanvasBoundaryChanged.clear();
-            this.onViewObjectCreated.clear();
-            this.onViewObjectDestroyed.clear();
-            this.onViewObjectVisibleChanged.clear();
-            this.onViewObjectXRayedChanged.clear();
-            this.onViewObjectSelectedChanged.clear();
-            this.onViewObjectHighlightedChanged.clear();
-            this.onViewObjectColorizeChanged.clear();
-            this.onViewObjectOpacityChanged.clear();
-            this.onViewLayerCreated.clear();
-            this.onViewLayerDestroyed.clear();
-            this.onCameraProjectionTypeChanged.clear();
-            this.onCameraViewMatrixUpdated.clear();
-            this.onCameraProjMatrixUpdated.clear();
-            this.onCameraFrustumUpdated.clear();
-            this.onSectionPlaneCreated.clear();
-            this.onSectionPlaneDestroyed.clear();
-            this.onSectionPlanePosChanged.clear();
-            this.onSectionPlaneDirChanged.clear();
-            this.onSectionPlaneActive.clear();
-            this.onSnapshotStarted.clear();
-            this.onSnapshotFinished.clear();
+        this.onViewCreated.clear();
+        this.onViewUpdated.clear();
+        this.onViewDestroyed.clear();
+        this.onViewCanvasBoundaryChanged.clear();
+        this.onViewObjectCreated.clear();
+        this.onViewObjectDestroyed.clear();
+        this.onViewObjectVisibleChanged.clear();
+        this.onViewObjectXRayedChanged.clear();
+        this.onViewObjectSelectedChanged.clear();
+        this.onViewObjectHighlightedChanged.clear();
+        this.onViewObjectColorizeChanged.clear();
+        this.onViewObjectOpacityChanged.clear();
+        this.onViewLayerCreated.clear();
+        this.onViewLayerDestroyed.clear();
+        this.onCameraProjectionTypeChanged.clear();
+        this.onCameraViewMatrixUpdated.clear();
+        this.onCameraProjMatrixUpdated.clear();
+        this.onCameraFrustumUpdated.clear();
+        this.onSectionPlaneCreated.clear();
+        this.onSectionPlaneDestroyed.clear();
+        this.onSectionPlanePosChanged.clear();
+        this.onSectionPlaneDirChanged.clear();
+        this.onSectionPlaneActive.clear();
+        this.onSnapshotStarted.clear();
+        this.onSnapshotFinished.clear();
     }
 }

@@ -1,5 +1,5 @@
 import {apply, createUUID, inQuotes} from "../utils";
-import {SDKResult} from "../core";
+import {SDKErrorType, SDKResult} from "../core";
 import type {FloatArrayParam} from "../math";
 import {Scene} from "../scene";
 import {scheduler} from "./scheduler";
@@ -187,19 +187,38 @@ export class Viewer {
    * @returns A result containing the created {@link View} on success, or an error message on failure.
    */
   createView(viewParams: ViewParams): SDKResult<View, string> {
+    if (this.destroyed) {
+      return { 
+        ok: false, 
+        type: SDKErrorType.InvalidOperation,
+        error: "Cannot create View: Viewer has been destroyed." 
+      };
+    }
     const viewId = viewParams.id || createUUID();
     if (this.views[viewId]) {
-      return { ok: false, error: `Cannot create View: A View with ID "${viewId}" already exists.` };
+      return { 
+        ok: false, 
+        type: SDKErrorType.InvalidInput,
+        error: `Cannot create View: A View with ID "${viewId}" already exists.` 
+      };
     }
     if (viewParams.elementId) {
       const htmlElement = document.getElementById(viewParams.elementId);
       if (!(htmlElement instanceof HTMLElement)) {
-        return { ok: false, error: `Cannot create View: The elementId "${viewParams.elementId}" does not reference a valid HTMLElement.` };
+        return { 
+          ok: false, 
+            type: SDKErrorType.InvalidInput,
+          error: `Cannot create View: The elementId "${viewParams.elementId}" does not reference a valid HTMLElement.` 
+        };
       }
     }
     if (viewParams.htmlElement) {
       if (!(viewParams.htmlElement instanceof HTMLElement)) {
-        return { ok: false, error: `Cannot create View: The provided htmlElement is not a valid HTMLElement.` };
+        return { 
+          ok: false, 
+            type: SDKErrorType.InvalidInput,
+          error: `Cannot create View: The provided htmlElement is not a valid HTMLElement.` 
+        };
       }
     }
     const view = new View(this, apply({ id: viewId }, viewParams));
@@ -354,11 +373,11 @@ export class Viewer {
     if (this.destroyed) {
       return;
     }
-   // this.renderer.detachViewer();
     scheduler.deregisterViewer(this);
     for (const id in this.views) {
       this.views[id].destroy();
     }
+    this.events.onDestroyed.dispatch(this, false);
     this.events.destroy();
   }
 }

@@ -38,7 +38,7 @@ export function buildGridGeometry(cfg = {
   if (size < 0) {
     return {
       ok: false,
-      type: SDKErrorType.InvalidParameter,
+      type: SDKErrorType.InvalidInput,
       error: "Negative size not allowed."
     };
   }
@@ -47,7 +47,7 @@ export function buildGridGeometry(cfg = {
   if (divisions < 0) {
     return {
       ok: false,
-      type: SDKErrorType.InvalidParameter,
+      type: SDKErrorType.InvalidInput,
       error: "Negative divisions not allowed."
     };
   }

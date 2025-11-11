@@ -53,7 +53,6 @@ export class ViewManager {
         this._renderContext = new RenderContext();
 
         const resultCtx = this._renderContext.init(viewer);
-
         if (resultCtx.ok === false) {
             return resultCtx;
         }
@@ -61,7 +60,6 @@ export class ViewManager {
         this._gpuMemoryManager = new GPUMemoryManager(this._renderContext);
 
         const resultGPU = this._gpuMemoryManager.init();
-
         if (resultGPU.ok === false) {
             return resultGPU;
         }
@@ -69,7 +67,6 @@ export class ViewManager {
         this._meshManager = new MeshManager(this._renderContext, this._gpuMemoryManager as GPUMemoryEditor);
 
         const resultMesh = this._meshManager.init();
-
         if (resultMesh.ok === false) {
             return resultMesh;
         }
@@ -80,11 +77,21 @@ export class ViewManager {
             gpuMemoryReader: this._gpuMemoryManager as GPUMemoryReader
         });
 
+        const resultRender = this._renderManager.init();
+        if (resultRender.ok === false) {
+            return resultRender;
+        }
+
         this._pickManager = new PickManager({
             renderContext: this._renderContext,
             meshManager: this._meshManager,
             gpuMemoryManager: this._gpuMemoryManager
         });
+
+        const resultPick = this._pickManager.init();
+        if (resultPick.ok === false) {
+            return resultPick;
+        }
 
         for (const view of viewer.viewList) {
             const result = this.viewCreated(view);

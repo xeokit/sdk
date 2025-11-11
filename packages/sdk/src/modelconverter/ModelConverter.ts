@@ -332,7 +332,7 @@ export class ModelConverter {
             if (!pipelineInputs) {
                 return {
                     ok: false,
-                    type: SDKErrorType.InvalidParameter,
+                    type: SDKErrorType.InvalidInput,
                     error: `No inputs defined on pipeline "${pipelineId}"`
                 };
             }
@@ -340,7 +340,7 @@ export class ModelConverter {
             if (pipelineInputIds.length === 0) {
                 return {
                     ok: false,
-                    type: SDKErrorType.InvalidParameter,
+                    type: SDKErrorType.InvalidInput,
                     error: `No inputs defined on pipeline "${pipelineId}"`
                 };
             }
@@ -348,7 +348,7 @@ export class ModelConverter {
             if (!pipelineOutputs) {
                 return {
                     ok: false,
-                    type: SDKErrorType.InvalidParameter,
+                    type: SDKErrorType.InvalidInput,
                     error: `No outputs defined on pipeline "${pipelineId}"`
                 };
             }
@@ -356,7 +356,7 @@ export class ModelConverter {
             if (pipelineOutputIds.length === 0) {
                 return {
                     ok: false,
-                    type: SDKErrorType.InvalidParameter,
+                    type: SDKErrorType.InvalidInput,
                     error: `No outputs defined on pipeline "${pipelineId}"`
                 };
             }
@@ -366,7 +366,7 @@ export class ModelConverter {
                 if (!loaderId) {
                     return {
                         ok: false,
-                        type: SDKErrorType.InvalidParameter,
+                        type: SDKErrorType.InvalidInput,
                         error: `No loader defined on input "${inputId}" of pipeline "${pipelineId}"`
                     };
                 }
@@ -374,7 +374,7 @@ export class ModelConverter {
                 if (!loader) {
                     return {
                         ok: false,
-                        type: SDKErrorType.InvalidParameter,
+                        type: SDKErrorType.InvalidInput,
                         error: `Can't resolve loader "${loaderId}" on input "${inputId}" of pipeline "${pipelineId}"`
                     };
                 }
@@ -385,7 +385,7 @@ export class ModelConverter {
                 if (!exporterId) {
                     return {
                         ok: false,
-                        type: SDKErrorType.InvalidParameter,
+                        type: SDKErrorType.InvalidInput,
                         error: `No exporter defined on output "${outputId}" of pipeline "${pipelineId}"`
                     };
                 }
@@ -393,7 +393,7 @@ export class ModelConverter {
                 if (!exporter) {
                     return {
                         ok: false,
-                        type: SDKErrorType.InvalidParameter,
+                        type: SDKErrorType.InvalidInput,
                         error: `Can't resolve exporter "${exporterId}" on output "${outputId}" of pipeline "${pipelineId}"`
                     };
                 }

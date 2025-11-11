@@ -98,6 +98,7 @@ export class WebGLRenderer {
         const result = this._viewManager.init(viewer);
 
         if (result.ok === false) {
+            this._viewManager.destroy();
             this._viewManager = undefined as unknown as ViewManager;
             return {
                 ok: false,
@@ -131,9 +132,7 @@ export class WebGLRenderer {
 
             sceneEvents.onSceneModelCreated.subscribe((_, sceneModel) => viewManager.sceneModelCreated(sceneModel)),
             sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => viewManager.sceneModelDestroyed(sceneModel)),
-            sceneEvents.onSceneObjectCreated.subscribe((_, sceneObject) => {
-                catchError(viewManager.sceneObjectCreated(sceneObject));
-            }),
+            sceneEvents.onSceneObjectCreated.subscribe((_, sceneObject) => {catchError(viewManager.sceneObjectCreated(sceneObject));}),
             sceneEvents.onSceneObjectDestroyed.subscribe((_, sceneObject) => viewManager.sceneObjectDestroyed(sceneObject)),
             sceneEvents.onSceneMeshMatrixChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshMatrixChanged(sceneMesh)),
             sceneEvents.onSceneMeshColorChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshColorChanged(sceneMesh)),
@@ -142,24 +141,22 @@ export class WebGLRenderer {
 
             // Delegate Viewer events
 
-            //viewerEvents.onDestroyed.subscribe((_viewer, _args) => this.detachViewer()),
             viewerEvents.onTick.subscribe((_, tickParams) => viewManager.onTick(tickParams)),
-            viewerEvents.onViewCreated.subscribe((_, view) => {
-                catchError(viewManager.viewCreated(view))
-            }),
+            
+            viewerEvents.onViewCreated.subscribe((_, view) => {catchError(viewManager.viewCreated(view))}),
             viewerEvents.onViewUpdated.subscribe((_, view) => viewManager.viewUpdated(view)), // Triggers a render
             viewerEvents.onViewDestroyed.subscribe((_, view) => viewManager.viewDestroyed(view)),
-            viewerEvents.onViewObjectCreated.subscribe((_, viewObject) => { /* nop */
-            }),
-            viewerEvents.onViewObjectDestroyed.subscribe((_, viewObject) => { /* nop */
-            }),
+            
             viewerEvents.onViewObjectVisibleChanged.subscribe((view, viewObject) => viewManager.viewObjectVisibilityChanged(viewObject)),
             viewerEvents.onViewObjectXRayedChanged.subscribe((view, viewObject) => viewManager.viewObjectXRayedChanged(viewObject)),
             viewerEvents.onViewObjectHighlightedChanged.subscribe((view, viewObject) => viewManager.viewObjectHighlightedChanged(viewObject)),
             viewerEvents.onViewObjectSelectedChanged.subscribe((view, viewObject) => viewManager.viewObjectSelectedChanged(viewObject)),
             viewerEvents.onViewObjectColorizeChanged.subscribe((view, viewObject) => viewManager.viewObjectColorizeChanged(viewObject)),
             viewerEvents.onViewObjectOpacityChanged.subscribe((view, viewObject) => viewManager.viewObjectOpacityChanged(viewObject)),
-            viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera))
+            
+            viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera)),
+
+            viewerEvents.onDestroyed.subscribe((_viewer, _args) => this.detachViewer())
         ];
 
         return {

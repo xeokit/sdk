@@ -69,28 +69,28 @@ export function buildCylinderGeometry(cfg: {
     if (radiusTop < 0 || radiusBottom < 0) {
         return {
             ok: false,
-            type: SDKErrorType.InvalidParameter,
+            type: SDKErrorType.InvalidInput,
             error: "Negative radius values are not allowed."
         };
     }
     if (height < 0) {
         return {
             ok: false,
-            type: SDKErrorType.InvalidParameter,
+            type: SDKErrorType.InvalidInput,
             error: "Negative height is not allowed."
         };
     }
     if (radialSegments < 3) {
         return {
             ok: false,
-            type: SDKErrorType.InvalidParameter,
+            type: SDKErrorType.InvalidInput,
             error: "radialSegments must be at least 3."
         };
     }
     if (heightSegments < 1) {
         return {
             ok: false,
-            type: SDKErrorType.InvalidParameter,
+            type: SDKErrorType.InvalidInput,
             error: "heightSegments must be at least 1."
         };
     }

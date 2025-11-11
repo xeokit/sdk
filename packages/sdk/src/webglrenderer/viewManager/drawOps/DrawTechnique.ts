@@ -4,6 +4,8 @@ import {RENDER_PASSES, RenderPassValue} from "../RENDER_PASSES";
 import type {RenderContext} from "../RenderContext";
 import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {MeshBatch} from "../meshManager/MeshBatch";
+import {SDKResult} from "../../../core";
+import {WebGLContextProvider} from "../../../webglutils/WebGLContextProvider";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 
@@ -83,7 +85,7 @@ export abstract class DrawTechnique {
     /**
      * Temp vertex shader source _buffer.
      */
-    private __vertSrcBuf: string[];
+    private _vertSrcBuf: string[];
 
     /**
      * Temp fragment shader source _buffer.
@@ -100,7 +102,115 @@ export abstract class DrawTechnique {
         this._renderContext = renderContext;
         this._gpuMemoryReader = gpuMemoryReader;
         this.edges = cfg.edges;
-        this._build();
+        this._program = null;
+    }
+
+    /**
+     * Initializes this draw technique by building and compiling the shader program.
+     */
+    public init(): SDKResult<any, string> {
+
+        if (this._program) {
+            const resultProg = this._program.init();
+            if (resultProg.ok === false) {
+                return resultProg;
+            }
+        } else {
+
+            this._vertSrcBuf = [];
+            this._fragSrcBuf = [];
+
+            this.buildVertexShader()
+            this.buildFragmentShader()
+
+            this._program = new WebGLProgram(this._renderContext as WebGLContextProvider, {
+                vertex: joinSansComments(this._vertSrcBuf),
+                fragment: joinSansComments(this._fragSrcBuf)
+            });
+
+            this._vertSrcBuf = [];
+            this._fragSrcBuf = [];
+
+            const resultProg = this._program.init();
+            if (resultProg.ok === false) {
+                return resultProg;
+            }
+        }
+
+        const program = this._program;
+
+        this._uniforms = {
+            primBaseIndex: program.getLocation("uPrimBaseIndex"),
+            renderPass: program.getLocation("uRenderPass"),
+            primitiveType: program.getLocation("uPrimitiveType"),
+            gammaFactor: program.getLocation("uGammaFactor"),
+            projMatrix: program.getLocation("uProjMatrix"),
+            snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
+            pointSize: program.getLocation("pointSize"),
+            intensityRange: program.getLocation("intensityRange"),
+            nearPlaneHeight: program.getLocation("nearPlaneHeight"),
+            pointCloudIntensityRange: program.getLocation("pointCloudIntensityRange"),
+            pickZNear: program.getLocation("pickZNear"),
+            pickZFar: program.getLocation("pickZFar"),
+            pickClipPos: program.getLocation("pickClipPos"),
+            drawingBufferSize: program.getLocation("drawingBufferSize"),
+            silhouetteColor: program.getLocation("uSilhouetteColor"),
+            sectionPlanes: [],
+            lightColor: [],
+            lightDir: [],
+            lightPos: [],
+            lightAttenuation: [],
+            lightAmbient: program.getLocation("lightAmbient"),
+            saoParams: program.getLocation("saoParams")
+        };
+
+        // const lights = view.lightsList;
+        // for (let i = 0, len = lights.length; i < len; i++) {
+        //   const light = lights[i];
+        //   if (light instanceof DirLight) {
+        //     this._uniforms.lightColor[i] = program.getLocation("lightColor" + i);
+        //     this._uniforms.lightPos[i] = null;
+        //     this._uniforms.lightDir[i] = program.getLocation("lightDir" + i);
+        //     break;
+        //   } else {
+        //     this._uniforms.lightColor[i] = program.getLocation("lightColor" + i);
+        //     this._uniforms.lightPos[i] = program.getLocation("lightPos" + i);
+        //     this._uniforms.lightDir[i] = null;
+        //     this._uniforms.lightAttenuation[i] = program.getLocation("lightAttenuation" + i);
+        //   }
+        // }
+        //
+        // const uniforms = this._uniforms;
+        //
+        // for (let i = 0, len = view.sectionPlanesList.length; i < len; i++) {
+        //   uniforms.sectionPlanes.push({
+        //     active: program.getLocation("sectionPlaneActive" + i),
+        //     pos: program.getLocation("sectionPlanePos" + i),
+        //     dir: program.getLocation("sectionPlaneDir" + i)
+        //   });
+        // }
+
+        this._attributes = {};
+
+        this._samplers = {
+            primToMeshLookup: program.getSampler("uPrimToMeshLookup"),
+            meshAttribs: program.getSampler("uMeshAttribs"),
+            meshViewAttribs: program.getSampler("uMeshViewAttribs"),
+            meshMatrices: program.getSampler("uMeshMatrices"),
+            geometryAttribs: program.getSampler("uGeometryAttribs"),
+            geometryQuantRanges: program.getSampler("uGeometryQuantRanges"),
+            tileViewMatrices: program.getSampler("uTileViewMatrices"),
+            positions: program.getSampler("uPositions"),
+            vertexColors: program.getSampler("uVertexColors"),
+            indices: program.getSampler("uIndices"),
+            edgeIndices: program.getSampler("uEdgeIndices"),
+            saoOcclusionTexture: program.getSampler("saoOcclusionTexture")
+        };
+
+        return {
+            ok: true,
+            value: null
+        };
     }
 
     /**
@@ -225,21 +335,21 @@ export abstract class DrawTechnique {
      * Inserts a line of custom vertex shader code into the generated vertex shader source.
      */
     protected vsCode(src) {
-        this.__vertSrcBuf.push(src);
+        this._vertSrcBuf.push(src);
     }
 
     /**
      * Generates the vertex shader header.
      */
     protected vsHeader() {
-        this.__vertSrcBuf
+        this._vertSrcBuf
             .push(
                 '#version 300 es',
                 `// ${this.constructor.name} vertex shader`);
     }
 
     protected vsDebugMain() {
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             `void main(void) {
         vec2 p;
         if (gl_VertexID % 3 == 0)      p = vec2(-0.5, -0.5);
@@ -255,7 +365,7 @@ export abstract class DrawTechnique {
      * Generates the vertex shader precision definitions and common definitions.
      */
     protected vsCommonDefines() {
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             "uniform int uRenderPass;         // RENDER_PASSES",
             "uniform int uPrimBaseIndex;     // Base primitive index for this draw call",
             "uniform int uPrimitiveType;     // PRIMITIVE_TYPES",
@@ -464,7 +574,7 @@ export abstract class DrawTechnique {
     }
 
     protected vsLambertShadingDefines() {
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             "uniform vec4 uLightAmbient;",
             "uniform vec3 uLightDir1;",
             "uniform vec4 uLightColor1;",
@@ -477,32 +587,32 @@ export abstract class DrawTechnique {
     }
 
     protected vsSilhouetteDefines() {
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             "uniform vec4 uSilhouetteColor;",
             "out vec4 vColor;");
     }
 
     protected vsDrawFlatColorDefs() {
-        this.__vertSrcBuf.push("out vec4 vColor;");
+        this._vertSrcBuf.push("out vec4 vColor;");
     }
 
     protected vsDrawVertexColorDefs() {
-        this.__vertSrcBuf.push("out vec4 vColor;");
+        this._vertSrcBuf.push("out vec4 vColor;");
     }
 
     protected vsDrawDepthDefines() {
-        this.__vertSrcBuf.push("out highp vec2 vHighPrecisionZW;");
+        this._vertSrcBuf.push("out highp vec2 vHighPrecisionZW;");
     }
 
     protected vsPointsDefines(): void {
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             "uniform float nearPlaneHeight;",
             "uniform vec2 intensityRange;",
             "uniform float pointSize;");
     }
 
     protected vsPickMeshDefines() {
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             "out     vec4 vPickColor;",
             "uniform vec2 drawingBufferSize;",
             "uniform vec2 pickClipPos;",
@@ -520,28 +630,28 @@ export abstract class DrawTechnique {
 
     protected vsSlicingDefines() {
         // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
-        //   const src = this.__vertSrcBuf;
+        //   const src = this._vertSrcBuf;
         //   src.push("out vec4 vWorldPosition;");
         //   src.push("out boolean vClippable;");
         // }
     }
 
     protected vsMainOpen() { // default
-        this.__vertSrcBuf.push("void main(void) {");
+        this._vertSrcBuf.push("void main(void) {");
         this._vsMeshLogic();
         this._vsMeshLogic2();
     }
 
     protected vsDrawMainOpen() { // default
-        this.__vertSrcBuf.push("void main(void) {");
+        this._vertSrcBuf.push("void main(void) {");
         this._vsMeshLogic();
         this._vsMeshLogic2();
     }
 
     protected vsPickMainOpen() { // pick
-        this.__vertSrcBuf.push("void main(void) {");
+        this._vertSrcBuf.push("void main(void) {");
         this._vsMeshLogic();
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             `    int pickFlag = int(meshViewAttribs.renderFlags.b >> 8u & 0xFu);`,
             `    if (pickFlag != uRenderPass) {`,
             "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
@@ -551,20 +661,20 @@ export abstract class DrawTechnique {
     }
 
     protected vsMainClose() { // default, silhouette, pick
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             "}");
     }
 
     protected vsSlicingLogic() {
         // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
-        //   const src = this.__vertSrcBuf;
+        //   const src = this._vertSrcBuf;
         //   src.push("      vWorldPosition = worldPos;");
         //   src.push("      vClippable = (int(meshViewAttribs.renderFlags) >> 12 & 0xF) == 1;");
         // }
     }
 
     private _vsMeshLogic() { // before renderPass check
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             "    uint drawVertexIndex  = uint(gl_VertexID);",
             "    uint numVertsPerPrim  = uint(uPrimitiveType == " + TrianglesPrimitive + " ? 3u : (uPrimitiveType == " + LinesPrimitive + " ? 2u : 1u));",
             "    uint primIndex        = uint(uPrimBaseIndex) + (drawVertexIndex / numVertsPerPrim);",
@@ -580,7 +690,7 @@ export abstract class DrawTechnique {
     }
 
     private _vsMeshLogic2() { // after renderPass check
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             "    MeshAttribs      meshAttribs       = getMeshAttribs( meshIndex );",
 
             "    uint             tileIndex         = meshAttribs.tileIndex;",
@@ -606,7 +716,7 @@ export abstract class DrawTechnique {
     }
 
     protected vsLambertShadingLogic() {
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             // For triangles, get the three vertex positions for the triangle
             "    uint ia  = getVertexIndex(primIndex * 3u + 0u);",
             "    uint ib  = getVertexIndex(primIndex * 3u + 1u);",
@@ -654,20 +764,20 @@ export abstract class DrawTechnique {
 
         //  "    vColor = vec4(color.rgb, 1.0);");
 
-        // this.__vertSrcBuf.push(
+        // this._vertSrcBuf.push(
         //   "    vColor = vec4(1.0, 0.0, 0.0, 1.0);"
         // );
     }
 
     protected vsSilhouetteLogic() {
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             //  "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);"
             "    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
         );
     }
 
     protected vsDrawFlatColorLogic() {
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             // "    vec4 color = vec4(meshViewAttribs.color) / 255.0;",
             // "    vColor = vec4(color.rgb, 1.0);"
 
@@ -676,26 +786,26 @@ export abstract class DrawTechnique {
     }
 
     protected vsDrawVertexColorLogic() {
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             "    uvec3 color = getVertexColor(vertexIndex);",
             "    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);"
         );
     }
 
     protected vsDrawDepthLogic() {
-        this.__vertSrcBuf.push(
+        this._vertSrcBuf.push(
             "    vHighPrecisionZW = gl_Position.zw;"
         );
     }
 
 
     protected vsPickMeshLogic() {
-        this.__vertSrcBuf.push("    vPickColor = packUintToRGBA8(meshIndex);");
+        this._vertSrcBuf.push("    vPickColor = packUintToRGBA8(meshIndex);");
     }
 
 
     protected vsPointsFilterLogicOpenBlock() {
-        // const src = this.__vertSrcBuf;
+        // const src = this._vertSrcBuf;
         // const pointsMaterial = this._renderContext.view.pointsMaterial;
         // if (pointsMaterial.filterIntensity) {
         //   src.push("float intensity = float(color.a) / 255.0;")
@@ -708,12 +818,12 @@ export abstract class DrawTechnique {
     protected vsPointsFilterLogicCloseBlock() {
         // const pointsMaterial = this._renderContext.view.pointsMaterial;
         // if (pointsMaterial.filterIntensity) {
-        //   this.__vertSrcBuf.push("}");
+        //   this._vertSrcBuf.push("}");
         // }
     }
 
     protected vsPointsGeometryLogic() {
-        const src = this.__vertSrcBuf;
+        const src = this._vertSrcBuf;
         const pointsMaterial = this._renderContext.activeView.pointsMaterial;
         // if (pointsMaterial.perspectivePoints) {
         //     src.push("gl_PointSize = (nearPlaneHeight * pointSize) / clipPos.w;");
@@ -1008,101 +1118,6 @@ export abstract class DrawTechnique {
             // }
         }
         return true;
-    }
-
-    private _build(): void {
-
-        const view = this._renderContext.activeView;
-        const gl = this._renderContext.gl;
-
-        this.__vertSrcBuf = [];
-        this._fragSrcBuf = [];
-
-        this.buildVertexShader()
-        this.buildFragmentShader()
-
-        this._program = new WebGLProgram(gl, {
-            vertex: joinSansComments(this.__vertSrcBuf),
-            fragment: joinSansComments(this._fragSrcBuf)
-        });
-
-        this.__vertSrcBuf = [];
-        this._fragSrcBuf = [];
-
-        if (this._program.errors) {
-            this.errors = this._program.errors;
-            return;
-        }
-
-        const program = this._program;
-
-        this._uniforms = {
-            primBaseIndex: program.getLocation("uPrimBaseIndex"),
-            renderPass: program.getLocation("uRenderPass"),
-            primitiveType: program.getLocation("uPrimitiveType"),
-            gammaFactor: program.getLocation("uGammaFactor"),
-            projMatrix: program.getLocation("uProjMatrix"),
-            snapCameraEyeRTC: program.getLocation("snapCameraEyeRTC"),
-            pointSize: program.getLocation("pointSize"),
-            intensityRange: program.getLocation("intensityRange"),
-            nearPlaneHeight: program.getLocation("nearPlaneHeight"),
-            pointCloudIntensityRange: program.getLocation("pointCloudIntensityRange"),
-            pickZNear: program.getLocation("pickZNear"),
-            pickZFar: program.getLocation("pickZFar"),
-            pickClipPos: program.getLocation("pickClipPos"),
-            drawingBufferSize: program.getLocation("drawingBufferSize"),
-            silhouetteColor: program.getLocation("uSilhouetteColor"),
-            sectionPlanes: [],
-            lightColor: [],
-            lightDir: [],
-            lightPos: [],
-            lightAttenuation: [],
-            lightAmbient: program.getLocation("lightAmbient"),
-            saoParams: program.getLocation("saoParams")
-        };
-
-        // const lights = view.lightsList;
-        // for (let i = 0, len = lights.length; i < len; i++) {
-        //   const light = lights[i];
-        //   if (light instanceof DirLight) {
-        //     this._uniforms.lightColor[i] = program.getLocation("lightColor" + i);
-        //     this._uniforms.lightPos[i] = null;
-        //     this._uniforms.lightDir[i] = program.getLocation("lightDir" + i);
-        //     break;
-        //   } else {
-        //     this._uniforms.lightColor[i] = program.getLocation("lightColor" + i);
-        //     this._uniforms.lightPos[i] = program.getLocation("lightPos" + i);
-        //     this._uniforms.lightDir[i] = null;
-        //     this._uniforms.lightAttenuation[i] = program.getLocation("lightAttenuation" + i);
-        //   }
-        // }
-        //
-        // const uniforms = this._uniforms;
-        //
-        // for (let i = 0, len = view.sectionPlanesList.length; i < len; i++) {
-        //   uniforms.sectionPlanes.push({
-        //     active: program.getLocation("sectionPlaneActive" + i),
-        //     pos: program.getLocation("sectionPlanePos" + i),
-        //     dir: program.getLocation("sectionPlaneDir" + i)
-        //   });
-        // }
-
-        this._attributes = {};
-
-        this._samplers = {
-            primToMeshLookup: program.getSampler("uPrimToMeshLookup"),
-            meshAttribs: program.getSampler("uMeshAttribs"),
-            meshViewAttribs: program.getSampler("uMeshViewAttribs"),
-            meshMatrices: program.getSampler("uMeshMatrices"),
-            geometryAttribs: program.getSampler("uGeometryAttribs"),
-            geometryQuantRanges: program.getSampler("uGeometryQuantRanges"),
-            tileViewMatrices: program.getSampler("uTileViewMatrices"),
-            positions: program.getSampler("uPositions"),
-            vertexColors: program.getSampler("uVertexColors"),
-            indices: program.getSampler("uIndices"),
-            edgeIndices: program.getSampler("uEdgeIndices"),
-            saoOcclusionTexture: program.getSampler("saoOcclusionTexture")
-        };
     }
 
     /**

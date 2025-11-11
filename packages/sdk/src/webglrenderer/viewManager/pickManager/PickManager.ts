@@ -1,5 +1,5 @@
 import {type PickParams, PickResult} from "../../../viewer";
-import {SDKError} from "../../../core";
+import {SDKError, SDKResult} from "../../../core";
 import {
   addVec3, createMat4, createVec2, createVec3, createVec4,
   cross3Vec3, dotVec4,
@@ -69,6 +69,13 @@ export class PickManager {
     this._renderContext = cfg.renderContext;
     this._drawOps = getDrawOps(this._renderContext, this._gpuMemoryManager as GPUMemoryReader);
     this._pickResult = new PickResult();
+  }
+
+  /**
+   *
+   */
+  init() : SDKResult<null, string>{
+    return {ok: true, result: null};
   }
 
   /**
@@ -413,4 +420,6 @@ return;
 
     }
   }
+
+
 }

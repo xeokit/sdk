@@ -2,6 +2,7 @@ import type {View, Viewer} from "../../viewer";
 import { WEBGL_INFO, type WebGLAbstractTexture} from "../../webglutils";
 import type {FloatArrayParam} from "../../math";
 import {SDKError, SDKErrorType, SDKResult} from "../../core";
+import {WebGLContextProvider} from "../../webglutils/WebGLContextProvider";
 
 
 /**
@@ -9,7 +10,7 @@ import {SDKError, SDKErrorType, SDKResult} from "../../core";
  *
  * @internal
  */
-export class RenderContext {
+export class RenderContext implements WebGLContextProvider {
 
   /**
    * The Viewer.

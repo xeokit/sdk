@@ -88,7 +88,7 @@ export class Data {
     if (this.destroyed) {
       return {
         ok: false,
-        type: SDKErrorType.Destroyed,
+        type: SDKErrorType.InvalidOperation,
         error: "Cannot create DataModel - Data already destroyed"
       };
     }
@@ -96,7 +96,7 @@ export class Data {
     if (this.models[id]) {
       return {
         ok: false,
-        type: SDKErrorType.InvalidParameter,
+        type: SDKErrorType.InvalidInput,
         error: `Cannot create DataModel - DataModel already created in this Data: ${id}`
       };
     }
@@ -130,7 +130,7 @@ export class Data {
     if (this.destroyed) {
       return {
         ok: false,
-        type: SDKErrorType.Destroyed,
+        type: SDKErrorType.InvalidOperation,
         error: "Data already destroyed"
       };
     }
@@ -150,7 +150,7 @@ export class Data {
     if (this.destroyed) {
       return {
         ok: false,
-        type: SDKErrorType.Destroyed,
+        type: SDKErrorType.InvalidOperation,
         error: "Data already destroyed"
       };
     }
@@ -176,7 +176,7 @@ export class Data {
     if (this.destroyed) {
       return {
         ok: false,
-        type: SDKErrorType.Destroyed,
+        type: SDKErrorType.InvalidOperation,
         error: "Data already destroyed"
       };
     }

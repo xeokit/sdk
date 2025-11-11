@@ -13,15 +13,16 @@ import {DrawTechnique} from "./DrawTechnique";
 import {GenericPickMeshTechnique} from "./techniques/generic/GenericPickMeshTechnique";
 import {GenericPickDepthTechnique} from "./techniques/generic/GenericPickDepthTechnique";
 import {TrianglesDrawEdgeColorTechnique} from "./techniques/triangles/TrianglesDrawEdgeColorTechnique";
+import {SDKResult} from "../../../core";
 
 /**
  * Manages a set of draw operations for different primitive types.
  */
 export class DrawOps {
 
-    _useCount: number = 0;
-    _renderContext: RenderContext;
-
+     _useCount: number = 0;
+     _renderContext: RenderContext;
+    private _gpuMemoryReader: GPUMemoryReader;
     private _techniques: DrawTechnique[];
 
     /**
@@ -34,15 +35,27 @@ export class DrawOps {
         [PointsPrimitive]?: RenderPassDrawOps;
     };
 
+
     /**
      * Initializes the DrawOps with the given rendering context and GPU memory.
      * @param renderContext - The rendering context used for WebGL operations.
      * @param gpuMemoryReader - Reads GPU memory - provides data textures.
      */
     constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader) {
-
         this._renderContext = renderContext;
+        this._gpuMemoryReader = gpuMemoryReader;
+    }
+
+    /**
+     * Initializes the draw operations and techniques.
+     */
+    init(): SDKResult<null, string> {
+
+        const renderContext = this._renderContext;
+        const gpuMemoryReader = this._gpuMemoryReader;
+
         this._techniques = [];
+        this.prims = {};
 
         const saveForCleanup = (drawTechnique: DrawTechnique): DrawTechnique => {
             this._techniques.push(drawTechnique);
@@ -61,6 +74,16 @@ export class DrawOps {
         const pickDepth = saveForCleanup(new GenericPickDepthTechnique(renderContext, gpuMemoryReader));
         const linesDrawColor = saveForCleanup(new LinesDrawColorTechnique(renderContext, gpuMemoryReader));
         const pointsDrawColor = saveForCleanup(new PointsDrawColorTechnique(renderContext, gpuMemoryReader));
+
+        for (let i = 0, len = this._techniques.length; i < len; i++) {
+            const result = this._techniques[i].init();
+            if (!result.ok) {
+               for (let j = i-1; j >= 0; j--) {
+                   this._techniques[j].destroy();
+               }
+               return result;
+            }
+        }
 
         const {OPAQUE, TRANSPARENT, HIGHLIGHTED, SELECTED, XRAYED, PICK} = RENDER_PASSES;
 
@@ -116,15 +139,22 @@ const drawOpsInstances = {};
  * @param renderContext
  * @param gpuMemoryReader
  */
-export function getDrawOps(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader): DrawOps {
+export function getDrawOps(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader): SDKResult<DrawOps, string> {
     const viewerId = renderContext.viewer.id;
     let drawOps = drawOpsInstances[viewerId];
     if (!drawOps) {
         drawOps = new DrawOps(renderContext, gpuMemoryReader);
+        const result = drawOps.init();
+        if (!result.ok) {
+            return result;
+        }
         drawOpsInstances[viewerId] = drawOps;
     }
     drawOps._useCount++;
-    return drawOps;
+    return {
+        ok: true,
+        value: drawOps
+    };
 }
 
 /**

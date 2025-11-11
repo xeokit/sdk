@@ -6,6 +6,7 @@ import {RendererView} from "../RendererView";
 import {GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {MeshBatch} from "../meshManager/MeshBatch";
 import {RENDER_PASSES} from "../RENDER_PASSES";
+import {SDKResult} from "../../../core";
 
 
 /**
@@ -21,6 +22,8 @@ export class RenderManager {
     private _extensionHandles: any;
     private _logarithmicDepthBufferEnabled: boolean;
     private _alphaDepthMask: Boolean;
+    private _gpuMemoryReader: GPUMemoryReader;
+    private _initialized: boolean;
 
     /**
      * Creates a DrawManager with the given rendering context, GPU read interface, and draw graph.
@@ -35,12 +38,30 @@ export class RenderManager {
         meshManager: MeshManager
     }) {
         this._renderContext = cfg.renderContext;
+        this._gpuMemoryReader = cfg.gpuMemoryReader;
         this._meshManager = cfg.meshManager;
-        this._drawOps = getDrawOps(this._renderContext, cfg.gpuMemoryReader);
+        this._initialized = false;
+    }
+
+    /**
+     * Initializes the RenderManager.
+     */
+    public init():SDKResult<any, string> {
+        if (!this._drawOps) {
+            const result = getDrawOps(this._renderContext, this._gpuMemoryReader);
+            if (result.ok === false) {
+                return result;
+            }
+            this._drawOps = result.value;
+        }
         this._extensionHandles = {};
         this._logarithmicDepthBufferEnabled = false;
         this._alphaDepthMask = false;
         this._activateExtensions();
+        return {
+            ok: true,
+            value: undefined
+        };
     }
 
     private _activateExtensions() {
@@ -65,6 +86,10 @@ export class RenderManager {
         options: {
         clear: boolean;
     }): void {
+
+        if (!this._drawOps) {
+            throw new Error("RenderManager not initialized");
+        }
 
         const {view} = rendererView;
         const { clear} = options;
@@ -287,5 +312,8 @@ export class RenderManager {
             putDrawOps(this._drawOps);
             this._drawOps = null;
         }
+        this._extensionHandles = null;
+        this._renderContext = null;
+        this._gpuMemoryReader = null;
     }
 }

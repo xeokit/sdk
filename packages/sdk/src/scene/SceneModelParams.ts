@@ -6,6 +6,7 @@ import type {SceneObjectParams} from "./SceneObjectParams";
 import type {SceneTextureParams} from "./SceneTextureParams";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 import type {CoordinateSystemParams} from "./CoordinateSystemParams";
+import {SceneTransform} from "./SceneTransform";
 
 
 /**
@@ -65,6 +66,11 @@ export interface SceneModelParams {
    * World-space position of the SceneModel.
    */
   position?: FloatArrayParam;
+
+  /**
+   * Parameters for {@link SceneTransform  | SceneTransforms} in the {@link SceneModel | SceneModel}.
+   */
+  transforms?: SceneTransform[];
 
   /**
    * Parameters for {@link SceneGeometry  | SceneGeometries} in the {@link SceneModel | SceneModel}.

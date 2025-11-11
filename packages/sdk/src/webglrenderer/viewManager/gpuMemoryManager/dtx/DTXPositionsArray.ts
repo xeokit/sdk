@@ -36,7 +36,7 @@ export class DTXPositionsArray {
   /**
    * CPU-side data _buffer holds 3 components per item.
    */
-  public readonly buffer: Uint16Array<any>;
+  public buffer: Uint16Array<any>;
 
   private readonly gl: WebGL2RenderingContext;
   private readonly capacity: number;
@@ -61,34 +61,37 @@ export class DTXPositionsArray {
   constructor( options: DTXPositionsArrayOptions ) {
     this.gl = options.gl;
     this.capacity = options.capacity;
-
-    // CPU _buffer is RGB triplets per item
-    this.buffer = new Uint16Array(this.capacity * this.componentsPerItem);
-
-    // One texel per item, so itemsPerRow == textureWidth
-    const itemsPerRow = this.textureWidth;
-    this.textureHeight = Math.max(1, Math.ceil(this.capacity / itemsPerRow));
-
-    // Start with a single free block spanning all items
-    this.free.push({base: 0, size: this.capacity});
-
-    this.#allocateTexture();
   }
 
-  #allocateTexture(): void {
+  allocate(): boolean {
     const gl = this.gl;
     const texture = gl.createTexture();
     if (!texture) {
-      throw new Error("Failed to create texture");
+     return false;
     }
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA16UI, this.textureWidth, this.textureHeight);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    try {
+      // CPU _buffer is RGB triplets per item
+      this.buffer = new Uint16Array(this.capacity * this.componentsPerItem);
+      // One texel per item, so itemsPerRow == textureWidth
+      const itemsPerRow = this.textureWidth;
+      this.textureHeight = Math.max(1, Math.ceil(this.capacity / itemsPerRow));
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA16UI, this.textureWidth, this.textureHeight);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    } catch (e) {
+        gl.deleteTexture(texture);
+        return false;
+    }
     this.texture = texture;
+    // Start with a single free block spanning all items
+    this.free=[
+      {base: 0, size: this.capacity}
+    ];
+    return true;
   }
 
   /** Check if a portion of given size (in items/vertices) can be allocated. */
@@ -104,6 +107,7 @@ export class DTXPositionsArray {
   }
 
   /** Allocate a portion (in items/vertices). */
+
   getPortion( size: number, onMove?: ( newBase: number ) => void ): DTXPositionsArrayHandle {
     this.isPacked = false;
     const index = this.findFreeBlock(size);
@@ -254,7 +258,7 @@ export class DTXPositionsArray {
    * Flush CPU _buffer to GPU.
    * Expands RGB (CPU) -> RGBA (GPU) on the fly, 1 texel per item.
    */
-  flush(): boolean {
+  uploadChanges(): boolean {
 
     if (this.dirtyPortions.size === 0 && !this.uploadAllOnFlush) {
       return;
@@ -344,8 +348,9 @@ export class DTXPositionsArray {
     return out;
   }
 
-  /** Destroy GL resources. */
   destroy(): void {
-    this.gl.deleteTexture(this.texture);
+    if (this.texture) {
+      this.gl.deleteTexture(this.texture);
+    }
   }
 }

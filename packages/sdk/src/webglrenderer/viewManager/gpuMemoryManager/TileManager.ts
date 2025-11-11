@@ -1,7 +1,7 @@
 import {createMat4, createVec3} from "../../../matrix";
 import {createRTCViewMat, worldToRTCCenter} from "../../../rtc";
 import type {FloatArrayParam} from "../../../math";
-import {View, Viewer} from "../../../viewer";
+import {Camera, View, Viewer} from "../../../viewer";
 import {type Tile} from "./Tile";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 
@@ -21,7 +21,6 @@ const tempVec3a = createVec3();
  */
 export class TileManager {
 
-  private _gl: WebGL2RenderingContext;
   private _viewer: Viewer;
   private _viewMatrices: DTXMatrixArray[] = [];
   private _pickMatrices: DTXMatrixArray[] = [];
@@ -29,30 +28,27 @@ export class TileManager {
   private _lastFreeTileIndex = 0;
   private _tiles = new Map<string, Tile>();
   private _numTiles = 0;
-  private _onCameraViewMatrix: Array<() => void> = [];
-
-  private _onViewCreated: () => void;
-  private _onViewDestroyed: () => void;
 
   /**
    * Creates a tile manager for a WebGLRenderer.
    */
-  constructor( gl: WebGL2RenderingContext, viewer: Viewer, viewMatrices: DTXMatrixArray[], pickMatrices: DTXMatrixArray[] ) {
-    this._gl = gl;
+  constructor(viewer: Viewer, viewMatrices: DTXMatrixArray[], pickMatrices: DTXMatrixArray[] ) {
     this._viewer = viewer;
     // this._allocateDataTextures();
     this._viewMatrices = viewMatrices;
     this._pickMatrices = pickMatrices;
-    for (const viewId in viewer.views) {
-      this._attachView(viewer.views[viewId]);
-    }
-    this._onViewCreated = viewer.onViewCreated.sub(( _, view ) => this._attachView(view));
-    this._onViewDestroyed = viewer.onViewDestroyed.sub(( _, view ) => this._detachView(view));
+  }
+
+  /**
+   * Called when a View's camera view matrix is updated.
+   * Synchronizes all tile RTC view matrices to the given Camera's view matrix.
+   */
+  public cameraViewMatrixUpdated(camera: Camera) {
+    this._synchTilesToViewMatrix( camera);
   }
 
   /**
    * Get a Tile that contains the given 3D World-space position.
-   * @param worldPos A 3D position in world space.
    */
   getTile( worldPos: FloatArrayParam ): Tile {
     const rtcCenter = worldToRTCCenter(worldPos, tempVec3a);
@@ -66,7 +62,6 @@ export class TileManager {
   /**
    * Releases a Tile back to the tile manager.
    * The Tile is destroyed as soon as it is released as many times as it was retrieved.
-   * @param tile The tile to release.
    */
   putTile( tile: Tile ) {
     if (--tile.useCount === 0) {
@@ -78,8 +73,6 @@ export class TileManager {
 
   /**
    * Move a Tile, if necessary, so that it contains the given World-space 3D position.
-   * @param tile The tile to potentially move.
-   * @param worldPos The target world-space position.
    */
   moveTile( tile: Tile, worldPos: FloatArrayParam ): Tile {
     const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a);
@@ -113,46 +106,22 @@ export class TileManager {
    */
   destroy() {
     console.log(`TileManager.destroy: Destroying TileManager with ${this._numTiles} tiles`);
-    this._onViewCreated();
-    this._onViewDestroyed();
-  }
-
-  private _attachView( view: View ) {
-    console.log(`TileManager._attachView: view.viewIndex=${view.viewIndex}`);
-    this._synchTilesToViewMatrix(view);
-    this._onCameraViewMatrix[view.viewIndex] = view.camera.onViewMatrix.sub(() => {
-      this._synchTilesToViewMatrix(view);
-    });
-  }
-
-  private _detachView( view: View ) {
-    const viewIndex = view.viewIndex;
-
-    // Don't delete the matrices, they may be reused if a new view is created
-
-    // const dataTexture = this.dataTextures[viewIndex];
-    // if (dataTexture) {
-    //   delete this.dataTextures[viewIndex];
-    //   dataTexture.destroy();
-    // }
-
-    view.camera.onViewMatrix.unsub(this._onCameraViewMatrix[viewIndex]);
-    delete this._onCameraViewMatrix[viewIndex];
-  }
+   }
 
   /**
    * Synchronizes all tile RTC view matrices to the given View's camera view matrix.
    */
-  private _synchTilesToViewMatrix( view: View ) {
-    console.log(`TileManager._synchTilesToViewMatrix: viewIndex=${view.viewIndex}`);
-    const viewMatrix = view.camera.viewMatrix;
+  private _synchTilesToViewMatrix( camera: Camera ) {
+    console.log(`TileManager._synchTilesToViewMatrix: viewIndex=${camera.view.viewIndex}`);
+    const view = camera.view;
+    const viewMatrix = camera.viewMatrix;
     const viewIndex = view.viewIndex;
     const viewMatrices = this._viewMatrices[viewIndex];
     for (const [_, tile] of this._tiles) {
       const rtcViewMatrix = tile.rtcViewMatrix[viewIndex];
       createRTCViewMat(viewMatrix, tile.center, rtcViewMatrix);
       viewMatrices.setMatrix(tile.tileIndex, rtcViewMatrix);
-    //  console.log(`TileManager: synchTilesToViewMatrix  Tile id=${tile.id} View matrix updated`);
+      //  console.log(`TileManager: synchTilesToViewMatrix  Tile id=${tile.id} View matrix updated`);
     }
   }
 
@@ -208,5 +177,4 @@ export class TileManager {
       this._numTiles--;
     }
   }
-
 }

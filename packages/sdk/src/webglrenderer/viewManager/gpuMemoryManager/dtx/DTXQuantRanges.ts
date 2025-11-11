@@ -40,14 +40,14 @@ export class DTXQuantRanges {
     this.gl = params.gl;
     this.maxItems = params.capacity ?? 20000;
     this.dirtyIndices = new Set();
-    this.#allocateTexture();
+
   }
 
   /**
    * Allocates the RGBA32F texture and backing array.
    * We keep the texture fairly wide to minimize row breaks.
    */
-  #allocateTexture(): void {
+ allocate(): boolean {
     const gl = this.gl;
     const itemsPerRow = 1024; // 1024 items per row * 2 texels/item = 2048 texels wide
     const texelsPerItem = DTXQuantRanges.TEXELS_PER_ITEM;
@@ -55,24 +55,30 @@ export class DTXQuantRanges {
     const textureHeight = Math.max(1, Math.ceil(this.maxItems / itemsPerRow)); // rows
     const totalTexels = textureWidth * textureHeight;
     const totalFloats = totalTexels * DTXQuantRanges.FLOATS_PER_TEXEL;
-    this.buffer = new Float32Array(totalFloats);
     const texture = gl.createTexture();
     if (!texture) {
-      throw new Error("DTXQuantRanges: Failed to create texture");
+    return false;
     }
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
-    // initialize with zeros (optional)
-  //  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, this.buffer, 0);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    try {
+        this.buffer = new Float32Array(totalFloats);
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
+      // initialize with zeros (optional)
+      //  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, textureWidth, textureHeight, gl.RGBA, gl.FLOAT, this.buffer, 0);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    } catch (e) {
+        gl.deleteTexture(texture);
+        return false;
+    }
     this.texture = texture;
     this.textureWidth = textureWidth;
     this.textureHeight = textureHeight;
+    return true;
   }
 
   /**
@@ -111,7 +117,7 @@ export class DTXQuantRanges {
   /**
    * Upload all dirty items with batched, row-aligned subimage calls.
    */
-  flush(): boolean {
+  uploadChanges(): boolean {
     if (this.dirtyIndices.size === 0) {
       return false;
     }
@@ -175,7 +181,9 @@ export class DTXQuantRanges {
   }
 
   destroy(): void {
-    this.gl.deleteTexture(this.texture);
+    if (this.texture) {
+      this.buffer = null;
+      this.gl.deleteTexture(this.texture);
+    }
   }
-
 }

@@ -15,9 +15,14 @@ export interface ModelConverterResult {
    */
   modelConverter: ModelConverter;
 
-
+  /**
+   * The scene model produced by the conversion.
+   */
   scene: Scene;
 
+  /**
+   * The data model produced by the conversion.
+   */
   data: Data;
 
   /**

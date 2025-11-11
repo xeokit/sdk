@@ -1,5 +1,5 @@
 import {DrawTechnique} from "../../DrawTechnique";
-import {RenderContext} from "../../../../RenderContext";
+import {RenderContext} from "../../../RenderContext";
 import {GPUMemoryReader} from "../../../gpuMemoryManager/GPUMemoryReader";
 
 /**

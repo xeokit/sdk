@@ -76,7 +76,7 @@ export class SceneAABB3Index {
 
     // Subscribe to Scene events
     this.#unsubscribers.push(
-      scene.onObjectCreated.subscribe((_, object) => {
+      scene.events.onSceneObjectCreated.subscribe((_, object) => {
         for (const mesh of object.meshes) {
           this.#meshDirty.add(mesh.id);
         }

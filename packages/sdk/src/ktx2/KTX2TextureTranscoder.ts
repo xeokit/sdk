@@ -337,7 +337,7 @@ const BasisWorker = function () {
   // for ETC1S and UASTC.
   //
   // In some cases, transcoding UASTC to RGBA32 might be preferred for higher quality (at
-  // significant dtxMemory cost) compared to ETC1/2, BC1/3, and PVRTC. The transcoder currently
+  // significant gpuMemoryManager cost) compared to ETC1/2, BC1/3, and PVRTC. The transcoder currently
   // chooses RGBA32 only as a last resort and does not expose that option to the caller.
 
   const FORMAT_OPTIONS = [{

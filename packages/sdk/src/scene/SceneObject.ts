@@ -2,7 +2,6 @@
 import type {SceneMesh} from "./SceneMesh";
 import type {SceneModel} from "./SceneModel";
 import type {SceneObjectParams} from "./SceneObjectParams";
-import {SceneObjectRendererProxy} from "./SceneObjectRendererProxy";
 
 /**
  * An object within a {@link SceneModel | SceneModel}.
@@ -47,16 +46,6 @@ export class SceneObject {
   public readonly meshes: SceneMesh[];
 
   /**
-   *  Internal interface through which a {@link SceneObject} can load property updates into a renderer.
-   *
-   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to
-   *  a {@link viewer!Viewer | Viewer}.
-   *
-   * @internal
-   */
-  sceneObjectRendererProxy: SceneObjectRendererProxy | null;
-
-  /**
    * @private
    */
   constructor(cfg: {
@@ -71,7 +60,6 @@ export class SceneObject {
     this.layerId = cfg.layerId;
     this.model = cfg.model;
     this.meshes = cfg.meshes;
-    this.sceneObjectRendererProxy = null;
   }
 
   /**

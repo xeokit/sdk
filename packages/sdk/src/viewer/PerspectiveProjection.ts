@@ -1,4 +1,4 @@
-import {Component, EventEmitter} from "../core";
+import {EventEmitter} from "../core";
 import {createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "../matrix";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
@@ -6,19 +6,17 @@ import type {FloatArrayParam} from "../math";
 import type {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
 import {PerspectiveProjectionType} from "../constants";
 import type {Projection} from "./Projection";
-
+import {Task} from "../core/Task";
 
 /**
  * PerspectiveProjection projection configuration for a {@link Camera | Camera} .
- *
- *
  *
  * * Located at {@link Camera.perspectiveProjection | Camera.perspectiveProjection}.
  * * Implicitly sets the left, right, top, bottom frustum planes using {@link PerspectiveProjection.fov | PerspectiveProjection.fov}.
  * * {@link PerspectiveProjection.near | PerspectiveProjection.near} and {@link PerspectiveProjection.far| PerspectiveProjection.far} specify the distances to the clipping planes.
  * * {@link PerspectiveProjection.onProjMatrix | PerspectiveProjection.onProjMatrix} will fire an event whenever {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-export class PerspectiveProjection extends Component implements Projection {
+export class PerspectiveProjection  implements Projection {
 
   /**
    * The Camera this PerspectiveProjection belongs to.
@@ -37,20 +35,17 @@ export class PerspectiveProjection extends Component implements Projection {
    */
   static readonly type: number = PerspectiveProjectionType;
 
-  #state: {
-    far: number;
-    near: number;
-    fov: number;
-    fovAxis: string;
-    projMatrix: FloatArrayParam;
-    inverseProjMatrix: FloatArrayParam;
-    transposedProjMatrix: FloatArrayParam;
-  };
-
-  #inverseMatrixDirty: boolean;
-  #transposedProjMatrixDirty: boolean;
-  #onViewBoundary: any;
-
+  private _far: number;
+  private _near: number;
+  private _fov: number;
+  private _fovAxis: string;
+  private _projMatrix: FloatArrayParam;
+  private _inverseProjMatrix: FloatArrayParam;
+  private _transposedProjMatrix: FloatArrayParam;
+  private _inverseMatrixDirty: boolean;
+  private _transposedProjMatrixDirty: boolean;
+  private _onViewBoundary: any;
+  private _task: Task;
 
   /**
    * @private
@@ -62,28 +57,40 @@ export class PerspectiveProjection extends Component implements Projection {
     far?: number
   } = {}) {
 
-    super(camera, cfg);
-
     this.camera = camera;
 
-    this.#state = {
-      near: cfg.near || 0.1,
-      far: cfg.far || 10000.0,
-      fov: cfg.fov || 60.0,
-      fovAxis: cfg.fovAxis || "min",
-      projMatrix: createMat4(),
-      inverseProjMatrix: createMat4(),
-      transposedProjMatrix: createMat4()
-    };
+    this._far = cfg.far || 10000.0;
+    this._near = cfg.near || 0.1;
+    this._fov = cfg.fov || 60.0;
+    this._fovAxis = cfg.fovAxis || "min";
+    this._projMatrix = createMat4();
+    this._inverseProjMatrix = createMat4();
+    this._transposedProjMatrix = createMat4();
+    this._inverseMatrixDirty = true;
+    this._transposedProjMatrixDirty = true;
 
-    this.#inverseMatrixDirty = true;
-    this.#transposedProjMatrixDirty = true;
-
-    this.#onViewBoundary = this.camera.view.onBoundary.subscribe(() => {
-      this.setDirty();
+    this._onViewBoundary = this.camera.view.onBoundary.subscribe(() => {
+      this._task.setDirty();
     });
 
     this.onProjMatrix = new EventEmitter(new EventDispatcher<PerspectiveProjection, FloatArrayParam>());
+
+    this._task = new Task(() => {
+      const WIDTH_INDEX = 2;
+      const HEIGHT_INDEX = 3;
+      const boundary = this.camera.view.boundary;
+      const aspect = boundary[WIDTH_INDEX] / boundary[HEIGHT_INDEX];
+      const fovAxis = this._fovAxis;
+      let fov = this._fov;
+      if (fovAxis === "x" || (fovAxis === "min" && aspect < 1) || (fovAxis === "max" && aspect > 1)) {
+        fov = fov / aspect;
+      }
+      fov = Math.min(fov, 120);
+      perspectiveMat4(fov * (Math.PI / 180.0), aspect, this._near, this._far, this._projMatrix);
+      this._inverseMatrixDirty = true;
+      this._transposedProjMatrixDirty = true;
+      this.onProjMatrix.dispatch(this, this._projMatrix);
+    });
   }
 
   /**
@@ -94,7 +101,7 @@ export class PerspectiveProjection extends Component implements Projection {
    * @returns {Number} Current field-of-view.
    */
   get fov(): number {
-    return this.#state.fov;
+    return this._fov;
   }
 
   /**
@@ -105,11 +112,11 @@ export class PerspectiveProjection extends Component implements Projection {
    * @param value New field-of-view.
    */
   set fov(value: number) {
-    if (value === this.#state.fov) {
+    if (value === this._fov) {
       return;
     }
-    this.#state.fov = value;
-    this.setDirty();
+    this._fov = value;
+    this._task.setDirty();
   }
 
   /**
@@ -122,7 +129,7 @@ export class PerspectiveProjection extends Component implements Projection {
    * @returns {String} The current FOV axis value.
    */
   get fovAxis(): string {
-    return this.#state.fovAxis;
+    return this._fovAxis;
   }
 
   /**
@@ -136,15 +143,15 @@ export class PerspectiveProjection extends Component implements Projection {
    */
   set fovAxis(value: string) {
     value = value || "min";
-    if (this.#state.fovAxis === value) {
+    if (this._fovAxis === value) {
       return;
     }
     if (value !== "x" && value !== "y" && value !== "min") {
-      this.error("Unsupported value for 'fovAxis': " + value + " - defaulting to 'min'");
+      console.error("Unsupported value for 'fovAxis': " + value + " - defaulting to 'min'");
       value = "min";
     }
-    this.#state.fovAxis = value;
-    this.setDirty();
+    this._fovAxis = value;
+    this._task.setDirty();
   }
 
   /**
@@ -155,7 +162,7 @@ export class PerspectiveProjection extends Component implements Projection {
    * @returns The PerspectiveProjection's near plane position.
    */
   get near(): number {
-    return this.#state.near;
+    return this._near;
   }
 
   /**
@@ -166,11 +173,11 @@ export class PerspectiveProjection extends Component implements Projection {
    * @param value New PerspectiveProjection near plane position.
    */
   set near(value: number) {
-    if (this.#state.near === value) {
+    if (this._near === value) {
       return;
     }
-    this.#state.near = value;
-    this.setDirty();
+    this._near = value;
+    this._task.setDirty();
   }
 
   /**
@@ -179,7 +186,7 @@ export class PerspectiveProjection extends Component implements Projection {
    * @return {Number} The PerspectiveProjection's far plane position.
    */
   get far(): number {
-    return this.#state.far;
+    return this._far;
   }
 
   /**
@@ -188,11 +195,11 @@ export class PerspectiveProjection extends Component implements Projection {
    * @param value New PerspectiveProjection far plane position.
    */
   set far(value: number) {
-    if (this.#state.far === value) {
+    if (this._far === value) {
       return;
     }
-    this.#state.far = value;
-    this.setDirty();
+    this._far = value;
+    this._task.setDirty();
   }
 
   /**
@@ -203,10 +210,10 @@ export class PerspectiveProjection extends Component implements Projection {
    * @returns  The PerspectiveProjection's projection matrix.
    */
   get projMatrix(): FloatArrayParam {
-    if (this.dirty) {
-      this.cleanIfDirty();
+    if (this._task.dirty) {
+        this._task.cleanIfDirty();
     }
-    return this.#state.projMatrix;
+    return this._projMatrix;
   }
 
   /**
@@ -215,14 +222,14 @@ export class PerspectiveProjection extends Component implements Projection {
    * @returns  The inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
    */
   get inverseProjMatrix(): FloatArrayParam {
-    if (this.dirty) {
-      this.cleanIfDirty();
+    if (this._task.dirty) {
+      this._task.cleanIfDirty();
     }
-    if (this.#inverseMatrixDirty) {
-      inverseMat4(this.#state.projMatrix, this.#state.inverseProjMatrix);
-      this.#inverseMatrixDirty = false;
+    if (this._inverseMatrixDirty) {
+      inverseMat4(this._projMatrix, this._inverseProjMatrix);
+      this._inverseMatrixDirty = false;
     }
-    return this.#state.inverseProjMatrix;
+    return this._inverseProjMatrix;
   }
 
   /**
@@ -231,35 +238,14 @@ export class PerspectiveProjection extends Component implements Projection {
    * @returns  The transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
    */
   get transposedProjMatrix(): FloatArrayParam {
-    if (this.dirty) {
-      this.cleanIfDirty();
+    if (this._task.dirty) {
+      this._task.cleanIfDirty();
     }
-    if (this.#transposedProjMatrixDirty) {
-      transposeMat4(this.#state.projMatrix, this.#state.transposedProjMatrix);
-      this.#transposedProjMatrixDirty = false;
+    if (this._transposedProjMatrixDirty) {
+      transposeMat4(this._projMatrix, this._transposedProjMatrix);
+      this._transposedProjMatrixDirty = false;
     }
-    return this.#state.transposedProjMatrix;
-  }
-
-  /**
-   * @private
-   */
-  clean() {
-    const WIDTH_INDEX = 2;
-    const HEIGHT_INDEX = 3;
-    const boundary = this.camera.view.boundary;
-    const aspect = boundary[WIDTH_INDEX] / boundary[HEIGHT_INDEX];
-    const fovAxis = this.#state.fovAxis;
-    let fov = this.#state.fov;
-    if (fovAxis === "x" || (fovAxis === "min" && aspect < 1) || (fovAxis === "max" && aspect > 1)) {
-      fov = fov / aspect;
-    }
-    fov = Math.min(fov, 120);
-    perspectiveMat4(fov * (Math.PI / 180.0), aspect, this.#state.near, this.#state.far, this.#state.projMatrix);
-    this.#inverseMatrixDirty = true;
-    this.#transposedProjMatrixDirty = true;
-    this.camera.view.needsRender();
-    this.onProjMatrix.dispatch(this, this.#state.projMatrix);
+    return this._transposedProjMatrix;
   }
 
   /**
@@ -325,11 +311,10 @@ export class PerspectiveProjection extends Component implements Projection {
   }
 
   /** @private
-   *
    */
   destroy() {
-    super.destroy();
-    this.camera.view.onBoundary.unsubscribe(this.#onViewBoundary);
+    this._task.destroy();
+    this.camera.view.onBoundary.unsubscribe(this._onViewBoundary);
     this.onProjMatrix.clear();
   }
 }

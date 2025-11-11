@@ -64,7 +64,7 @@
 //
 //     try {
 //         const screenshotBuffer = await takeScreenshot(`http://${HOST}:${PORT}`);
-//         console.log(`📸 Screenshot captured in dtxMemory. Size: ${screenshotBuffer.length} bytes`);
+//         console.log(`📸 Screenshot captured in gpuMemoryManager. Size: ${screenshotBuffer.length} bytes`);
 //         // // Optional: Base64 encode
 //         // const base64 = screenshotBuffer.toString('base64');
 //         // console.log(`Base64 (truncated): ${base64.substring(0, 100)}...`);

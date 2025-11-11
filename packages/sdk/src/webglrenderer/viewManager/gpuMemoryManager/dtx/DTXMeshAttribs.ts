@@ -1,5 +1,5 @@
 // A single data element (uvec4: four uint32 lanes)
-export type DTXUvec4 = [number, number, number, number, number];
+export type DTXUvec4 = [number, number, number, number];
 
 export interface DTXUvec4ArrayOptions {
   gl: WebGL2RenderingContext;
@@ -16,7 +16,7 @@ export interface DTXUvec4ArrayOptions {
  * - Tracks dirty indices and uploads only changed texels.
  */
 export class DTXMeshAttribs {
-  readonly texture: WebGLTexture;
+  texture: WebGLTexture;
   readonly capacity: number;
 
   /** Backing lanes (RGBA32UI). One element = 4 uint32s (16 bytes). */
@@ -30,7 +30,9 @@ export class DTXMeshAttribs {
   constructor( options: DTXUvec4ArrayOptions ) {
     this._gl = options.gl;
     this.capacity = options.capacity;
+  }
 
+  allocate() : boolean {
     // Clamp to device limits and keep rows wide to reduce uploads.
     const gl = this._gl;
     const maxSize = (gl.getParameter(gl.MAX_TEXTURE_SIZE) as number) | 0;
@@ -51,20 +53,29 @@ export class DTXMeshAttribs {
     // }
 
     const totalTexels = this._texWidth * this._texHeight;
-    const totalElems = totalTexels * 8; // 2x uvec4 per mesh
-    this.buffer = new Uint32Array(totalElems);
+    const totalElems = totalTexels * 4; // 1x uvec4 per mesh
 
     // Allocate integer texture (RGBA32UI)
     const tex = gl.createTexture()!;
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); // safe for tightly packed rows
-    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32UI, this._texWidth, this._texHeight);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    if (!tex) {
+        return false;
+    }
+    try {
+      this.buffer = new Uint32Array(totalElems);
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); // safe for tightly packed rows
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32UI, this._texWidth, this._texHeight);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    } catch (e) {
+      gl.deleteTexture(tex);
+      return false;
+    }
     this.texture = tex;
+    return true;
   }
 
   /** Texture size (texels). */
@@ -78,19 +89,16 @@ export class DTXMeshAttribs {
 
   /** Read one element (uvec4 as four uint32s). */
   getItem( index: number ): DTXUvec4 {
-    const b = index * 8;
-    return [this.buffer[b], this.buffer[b + 1], this.buffer[b + 2], this.buffer[b + 3],  this.buffer[b + 4]];
+    const b = index * 4;
+    return [this.buffer[b], this.buffer[b + 1], this.buffer[b + 2], this.buffer[b + 3]];
   }
 
   /** Write one element directly (uvec4 lanes). */
   setItem( index: number, lanes: DTXUvec4 ): void {
     this._assertIndex(index);
-    const b = index * 8;
+    const b = index * 4;
     this.buffer[b + 0] = lanes[0] >>> 0;
     this.buffer[b + 1] = lanes[1] >>> 0;
-    this.buffer[b + 2] = lanes[2] >>> 0;
-    this.buffer[b + 3] = lanes[3] >>> 0;
-    this.buffer[b + 4] = lanes[4] >>> 0;
     this._dirty.add(index);
   }
 
@@ -98,25 +106,17 @@ export class DTXMeshAttribs {
   setAttribs( meshIndex: number, v: {
     tileIndex?: number;
     geometryIndex?: number;
-    indicesBase?: number;
-    edgeIndicesBase?: number;
-    primsBase?: number;
   } ): void {
     this._assertIndex(meshIndex);
-    const c = meshIndex * 8; // 2x uvec4 per mesh
+    const c = meshIndex * 4; // 1x uvec4 per mesh
     const toU32 = ( x: number ): number => typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : (x >>> 0);
-
     if (v.tileIndex !== undefined) this.buffer[c + 0] = toU32(v.tileIndex);
     if (v.geometryIndex !== undefined) this.buffer[c + 1] = toU32(v.geometryIndex);
-    if (v.indicesBase !== undefined) this.buffer[c + 2] = toU32(v.indicesBase);
-    if (v.edgeIndicesBase !== undefined) this.buffer[c + 3] = toU32(v.edgeIndicesBase);
-    if (v.primsBase !== undefined) this.buffer[c + 4] = toU32(v.primsBase);
-
     this._dirty.add(meshIndex);
   }
 
   /** Upload dirty elements. Groups contiguous indices and splits at row ends. */
-  flush(): boolean {
+  uploadChanges(): boolean {
     if (this._dirty.size === 0) {
       return false;
     }
@@ -137,8 +137,8 @@ export class DTXMeshAttribs {
         const maxChunk = end - idx + 1;
         const chunk = Math.min(rowLeft, maxChunk);
 
-        const elemStart = (row * this._texWidth + x) * 8;
-        const elemEnd = elemStart + chunk * 8;
+        const elemStart = (row * this._texWidth + x) * 4;
+        const elemEnd = elemStart + chunk * 4;
         const sub = this.buffer.subarray(elemStart, elemEnd);
 
         gl.texSubImage2D(
@@ -176,7 +176,10 @@ export class DTXMeshAttribs {
   }
 
   destroy(): void {
-    this._gl.deleteTexture(this.texture);
+    if (this.texture) {
+      this.buffer = null;
+      this._gl.deleteTexture(this.texture);
+    }
   }
 }
 

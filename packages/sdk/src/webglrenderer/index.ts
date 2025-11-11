@@ -30,19 +30,50 @@
  * Configure a {@link viewer!Viewer | Viewer} with a {@link WebGLRenderer} to leverage WebGL2 for model storage and rendering:
  *
  * ````javascript
+ * import { SDKErrorType } from "@xeokit/sdk/core";
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
  *
- * const myViewer = new Viewer({
+ * const scene = new Scene();
+ *
+ * const viewer = new Viewer({
  *     id: "myViewer",
- *     scene: new Scene(),
- *     renderer: new WebGLRenderer()
+ *     scene
  * });
  *
- * //...
+ * const webglRenderer = new WebGLRenderer();
+ *
+ * const result = webglRenderer.attachViewer(viewer);
+ *
+ * if (!result.ok) {
+ *    console.error("Failed to attach WebGLRenderer to Viewer:", result.error);
+ * } else {
+ *
+ *    // WebGLRenderer begins rendering...
+ *    // Listen for WebGLRenderer events
+ *
+ *     webglRenderer.events.onError.subscribe((renderer, result2) => {
+ *          switch (result2.type) {
+ *              case SDKErrorType.NotSupported:
+ *                  console.error("WebGLRenderer not supported:", result2.error);
+ *                  break;
+ *              case SDKErrorType.OutOfMemory:
+ *                  console.error("WebGLRenderer out of memory:", result2.error);
+ *                  break;
+ *              default:
+ *                  console.error("WebGLRenderer error:", result2.error);
+ *          }
+ *     });
+ *
+ *     webglRenderer.events.onDestroyed.subscribe((renderer, _) => {
+ *          console.log("WebGLRenderer destroyed.");
+ *     });
+ * }
+ *
  * ````
  *
  * @module webglrenderer
  */
 export {WebGLRenderer} from "./WebGLRenderer";
+export {WebGLRendererEvents} from "./WebGLRendererEvents";

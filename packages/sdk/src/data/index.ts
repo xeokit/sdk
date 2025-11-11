@@ -73,17 +73,17 @@
  * guided uniformly by the same set of types across all the DataObjects and Relationships in the graph.
  *
  * To create our DataModel, we will use the following code, which creates a new Data object and then
- * creates a DataModel from a set of objects, relationships, and property sets. The {@link core!SDKError | SDKError} class
- * is used to handle errors that may occur during the process:
+ * creates a DataModel from a set of objects, relationships, and property sets.
+ * All methods used return {@link core!SDKResult | SDKResult} objects, which we check for errors.
  *
  * ````javascript
- * import { SDKError } from "@xeokit/sdk/core";
+ * import { SDKResult } from "@xeokit/sdk/core";
  * import { Data } from "@xeokit/sdk/data";
  * import * as basicTypes from "@xeokit/sdk/basictypes/basicTypes";
  *
  * const myData = new Data({});
  *
- * const myDataModel = myData.createModel({
+ * const result: SDKResult<DataModel> = myData.createModel({
  *   id: "myTableModel",
  *   objects: [
  *     {
@@ -157,20 +157,8 @@
  *       name: "Table properties",
  *       type: "",
  *       properties: [
- *         {
- *           name: "Weight",
- *           value: 5,
- *           type: "",
- *           valueType: "",
- *           description: "Weight of the thing",
- *         },
- *         {
- *           name: "Height",
- *           value: 12,
- *           type: "",
- *           valueType: "",
- *           description: "Height of the thing",
- *         },
+ *         { name: "Weight", value: 5, type: "", valueType: "", description: "Weight of the thing" },
+ *         { name: "Height", value: 12, type: "", valueType: "", description: "Height of the thing" },
  *       ],
  *     },
  *     {
@@ -179,27 +167,18 @@
  *       name: "Table leg properties",
  *       type: "",
  *       properties: [
- *         {
- *           name: "Weight",
- *           value: 5,
- *           type: "",
- *           valueType: "",
- *           description: "Weight of the thing",
- *         },
- *         {
- *           name: "Height",
- *           value: 12,
- *           type: "",
- *           valueType: "",
- *           description: "Height of the thing",
- *         },
+ *         { name: "Weight", value: 5, type: "", valueType: "", description: "Weight of the thing" },
+ *         { name: "Height", value: 12, type: "", valueType: "", description: "Height of the thing" },
  *       ],
  *     },
  *   ],
  * });
  *
- * if (myDataModel instanceof SDKError) {
- *   console.log(myDataModel.message);
+ * if (!result.ok) {
+ *   console.error(result.error);
+ * } else {
+ *   const dataModel = result.value;
+ *   console.log("DataModel created:", dataModel.id);
  * }
  * ````
  *
@@ -210,151 +189,116 @@
  * In our second example, we'll create our {@link DataModel | DataModel} again, this time instantiating
  * each {@link PropertySet | PropertySet}, {@link Property}, {@link DataObject | DataObject}
  * and {@link Relationship | Relationship} individually, using the
- * {@link DataModel | DataModel's} builder methods.
+ * {@link DataModel | DataModel's} builder methods. All builder methods return {@link core!SDKResult | SDKResult}.
  *
- * ````javascript
- * import {SDKError} from "@xeokit/sdk/core";
- * import {Data, searchObjects} from "@xeokit/sdk/data";
+ * ````ts
+ * import { SDKResult } from "@xeokit/sdk/core";
+ * import { Data, searchObjects } from "@xeokit/sdk/data";
  * import * as basicTypes from "@xeokit/sdk/basictypes/basicTypes";
  *
  * const data = new Data();
  *
- * const dataModel = data.createModel({ // DataModel | SDKError
- *     id: "myTableModel"
+ * const modelRes: SDKResult<DataModel> = data.createModel({
+ *   id: "myTableModel",
  * });
  *
- * if (dataModel instanceof SDKError) {
- *      console.log(dataModel.message);
- *
+ * if (!modelRes.ok) {
+ *   console.error(modelRes.error);
  * } else {
+ *   const dataModel = modelRes.value;
  *
- *      const tablePropertySet = dataModel.createPropertySet({ // PropertySet | SDKError
- *          id: "tablePropertySet",
- *          name: "Table properties",
- *          type: "",
- *          properties: [ // Property[]
- *              {
- *                  name: "Weight",
- *                  value: 5,
- *                  type: "",
- *                  valueType: "",
- *                  description: "Weight of the thing"
- *              },
- *              {
- *                  name: "Height",
- *                  value: 12,
- *                  type: "",
- *                  valueType: "",
- *                  description: "Height of the thing"
- *              }
- *          ]
- *      });
+ *   const tablePSRes: SDKResult<PropertySet> = dataModel.createPropertySet({
+ *     id: "tablePropertySet",
+ *     name: "Table properties",
+ *     type: "",
+ *     properties: [
+ *       { name: "Weight", value: 5, type: "", valueType: "", description: "Weight of the thing" },
+ *       { name: "Height", value: 12, type: "", valueType: "", description: "Height of the thing" },
+ *     ],
+ *   });
+ *   if (!tablePSRes.ok) console.log(tablePSRes.error);
  *
- *      if (tablePropertySet instanceof SDKError) {
- *          console.log(tablePropertySet.message);
- *      }
+ *   const legPSRes: SDKResult<PropertySet> = dataModel.createPropertySet({
+ *     id: "legPropertySet",
+ *     name: "Table leg properties",
+ *     type: "",
+ *     properties: [
+ *       { name: "Weight", value: 5, type: "", valueType: "", description: "Weight of the thing" },
+ *       { name: "Height", value: 12, type: "", valueType: "", description: "Height of the thing" },
+ *     ],
+ *   });
+ *   if (!legPSRes.ok) console.log(legPSRes.error);
  *
- *      const legPropertySet = dataModel.createPropertySet({
- *          id: "legPropertySet",
- *          name: "Table leg properties",
- *          type: "",
- *          properties: [
- *              {
- *                  name: "Weight",
- *                  value: 5,
- *                  type: "",
- *                  valueType: "",
- *                  description: "Weight of the thing"
- *              },
- *              {
- *                  name: "Height",
- *                  value: 12,
- *                  type: "",
- *                  valueType: "",
- *                  description: "Height of the thing"
- *              }
- *          ]
- *      });
+ *   const tableRes: SDKResult<DataObject> = dataModel.createObject({
+ *     id: "table",
+ *     type: basicTypes.BasicEntity,
+ *     name: "Table",
+ *     propertySetIds: ["tablePropertySet"],
+ *   });
+ *   if (!tableRes.ok) console.log(tableRes.error);
  *
- *      const myTableObject = dataModel.createObject({ // DataObject | SDKError
- *          id: "table",
- *          type:  basicTypes.BasicEntity,
- *          name: "Table",
- *          propertySetIds: ["tablePropertySet"]
- *      });
+ *   dataModel.createObject({
+ *     id: "redLeg",
+ *     name: "Red table Leg",
+ *     type: basicTypes.BasicEntity,
+ *     propertySetIds: ["tableLegPropertySet"],
+ *   });
  *
- *      if (myTableObject instanceof SDKError) {
- *          console.log(myTableObject.message);
- *      }
+ *   dataModel.createObject({
+ *     id: "greenLeg",
+ *     name: "Green table leg",
+ *     type: basicTypes.BasicEntity,
+ *     propertySetIds: ["tableLegPropertySet"],
+ *   });
  *
- *      dataModel.createObject({
- *          id: "redLeg",
- *          name: "Red table Leg",
- *          type:  basicTypes.BasicEntity,
- *          propertySetIds: ["tableLegPropertySet"]
- *      });
+ *   dataModel.createObject({
+ *     id: "blueLeg",
+ *     name: "Blue table leg",
+ *     type: basicTypes.BasicEntity,
+ *     propertySetIds: ["tableLegPropertySet"],
+ *   });
  *
- *      dataModel.createObject({
- *          id: "greenLeg",
- *          name: "Green table leg",
- *          type:  basicTypes.BasicEntity,
- *          propertySetIds: ["tableLegPropertySet"]
- *      });
+ *   dataModel.createObject({
+ *     id: "yellowLeg",
+ *     name: "Yellow table leg",
+ *     type: basicTypes.BasicEntity,
+ *     propertySetIds: ["tableLegPropertySet"],
+ *   });
  *
- *      dataModel.createObject({
- *          id: "blueLeg",
- *          name: "Blue table leg",
- *          type:  basicTypes.BasicEntity,
- *          propertySetIds: ["tableLegPropertySet"]
- *      });
+ *   dataModel.createObject({
+ *     id: "tableTop",
+ *     name: "Purple table top",
+ *     type: basicTypes.BasicEntity,
+ *     propertySetIds: ["tableTopPropertySet"],
+ *   });
  *
- *      dataModel.createObject({
- *          id: "yellowLeg",
- *          name: "Yellow table leg",
- *          type: "leg",
- *          propertySetIds: ["tableLegPropertySet"]
- *      });
+ *   const rel1Res: SDKResult<Relationship> = dataModel.createRelationship({
+ *     type: basicTypes.BasicAggregation,
+ *     relatingObjectId: "table",
+ *     relatedObjectId: "tableTop",
+ *   });
+ *   if (!rel1Res.ok) console.log(rel1Res.error);
  *
- *      dataModel.createObject({
- *          id: "tableTop",
- *          name: "Purple table top",
- *          type:  basicTypes.BasicEntity,
- *          propertySetIds: ["tableTopPropertySet"]
- *      });
- *
- *      const myRelationship = dataModel.createRelationship({
- *          type: basicTypes.BasicAggregation,
- *          relatingObjectId: "table",
- *          relatedObjectId: "tableTop"
- *      });
- *
- *      if (myRelationship instanceof SDKError) {
- *              console.log(myRelationship.message);
- *      }
- *
- *      dataModel.createRelationship({
- *          type: basicTypes.BasicAggregation,
- *          relatingObjectId: "tableTop",
- *          relatedObjectId: "redLeg"
- *      });
- *
- *      dataModel.createRelationship({
- *          type: basicTypes.BasicAggregation,
- *          relatingObjectId: "tableTop",
- *          relatedObjectId: "greenLeg"
- *      });
- *
- *      dataModel.createRelationship({
- *          type: basicTypes.BasicAggregation,
- *          relatingObjectId: "tableTop",
- *          relatedObjectId: "blueLeg"
- *      });
- *
- *      dataModel.createRelationship({
- *          type: basicTypes.BasicAggregation,
- *          relatingObjectId: "tableTop",
- *          relatedObjectId: "yellowLeg"
- *      });
+ *   dataModel.createRelationship({
+ *     type: basicTypes.BasicAggregation,
+ *     relatingObjectId: "tableTop",
+ *     relatedObjectId: "redLeg",
+ *   });
+ *   dataModel.createRelationship({
+ *     type: basicTypes.BasicAggregation,
+ *     relatingObjectId: "tableTop",
+ *     relatedObjectId: "greenLeg",
+ *   });
+ *   dataModel.createRelationship({
+ *     type: basicTypes.BasicAggregation,
+ *     relatingObjectId: "tableTop",
+ *     relatedObjectId: "blueLeg",
+ *   });
+ *   dataModel.createRelationship({
+ *     type: basicTypes.BasicAggregation,
+ *     relatingObjectId: "tableTop",
+ *     relatedObjectId: "yellowLeg",
+ *   });
  * }
  * ````
  *
@@ -368,14 +312,14 @@
  * One example of where we use this method is to query the aggregation hierarchy of the DataObjects for building
  * a tree view of an IFC element hierarchy.
  *
- * ````javascript
- * const resultObjectIds = [];
+ * ````ts
+ * const resultObjectIds: string[] = [];
  *
  * searchObjects(data, {
- *     startObjectId: "table",
- *     includeObjects: [basicTypes.BasicEntity],
- *     includeRelated: [basicTypes.BasicAggregation],
- *     resultObjectIds
+ *   startObjectId: "table",
+ *   includeObjects: [basicTypes.BasicEntity],
+ *   includeRelated: [basicTypes.BasicAggregation],
+ *   resultObjectIds,
  * });
  *
  * // resultObjectIds == ["table", "tableTop", "redLeg", "greenLeg", "blueLeg", "yellowLeg"];
@@ -389,17 +333,14 @@
  * {@link Relationship | Relationships}. We'll start at the root DataObject and visit all the DataObjects
  * we encounter along the outgoing Relationships.
  *
- * ````javascript
+ * ````ts
  * const table = data.objects["table"];
- *
  * const relations = table.related[basicTypes.BasicAggregation];
  *
  * for (let i = 0, len = relations.length; i < len; i++) {
- *
- *      const relation = relations[i];
- *      const dataObject = relation.related;
- *
- *      //..
+ *   const relation = relations[i];
+ *   const dataObject = relation.related;
+ *   //..
  * }
  * ````
  *
@@ -407,28 +348,30 @@
  *
  * ## Serializing a DataModel to JSON
  *
- * ````javascript
- *  const dataModelParams = dataModel.toParams();
+ * ````ts
+ * const dataModelParams = dataModel.toParams();
  * ````
  *
  * <br>
  *
  * ## Deserializing a DataModel from JSON
  *
- * ````javascript
- * const dataModel2 = sce.createDataModel({
- *     id: "myDataModel2"
- * });
- *
- * dataModel2.fromParams(dataModelParams);
+ * ````ts
+ * const dataModel2Res = data.createModel({ id: "myDataModel2" });
+ * if (dataModel2Res.ok) {
+ *   const dataModel2 = dataModel2Res.value;
+ *   dataModel2.fromParams(dataModelParams);
+ * } else {
+ *   console.error(dataModel2Res.error);
+ * }
  * ````
  *
  * <br>
  *
  * ## Destroying a DataModel
  *
- * ````javascript
- *  dataModel2.destroy();
+ * ````ts
+ * dataModel2.destroy();
  * ````
  *
  * ## Loading a DataModel from a File
@@ -437,47 +380,57 @@
  *
  * For example, let's use {@link dotbim!DotBIMLoader | DotBIMLoader} to load a .BIM file into a new {@link scene!SceneModel | SceneModel} and DataModel:
  *
- * ````javascript
- * const sceneModel3 = scene.createModel({
- *     id: "myModel3"
- * });
+ * ````ts
+ * const sceneModel3 = scene.createModel({ id: "myModel3" });
  *
- * const dataModel3 = data.createModel({
- *     id: "myModel3"
- * });
+ * const dataModel3Res = data.createModel({ id: "myModel3" });
+ * if (!dataModel3Res.ok) {
+ *   console.error(dataModel3Res.error);
+ * } else {
+ *   const dataModel3 = dataModel3Res.value;
  *
- * fetch("model.json").then(response => {
- *
- *     response.json().then(fileData => {
- *
- *         DotBIMLoader({
- *             fileData,
- *             sceneModel3,
- *             dataModel3
- *         }).then(() => {
- *
- *             // Loaded
- *
- *         }).catch(err => {
- *
- *             sceneModel3.destroy();
- *             dataModel3.destroy();
- *
- *             console.error(`Error loading CityJSON: ${err}`);
- *         });
- *
- *     }).catch(err => {
- *         console.error(`Error creating JSON from fetch response: ${err}`);
+ *   fetch("model.json")
+ *     .then((response) => response.json())
+ *     .then((fileData) =>
+ *       DotBIMLoader({
+ *         fileData,
+ *         sceneModel3,
+ *         dataModel3,
+ *       })
+ *     )
+ *     .then(() => {
+ *       // Loaded
+ *     })
+ *     .catch((err) => {
+ *       sceneModel3.destroy();
+ *       dataModel3.destroy();
+ *       console.error(`Error loading DotBIM: ${err}`);
  *     });
- *
- * }).catch(err => {
- *     console.error(`Error fetching CityJSON file: ${err}`);
- * });
+ * }
  * ````
+ *
+ * <br>
+ *
+ *  ## Handling Events
+ *
+ *  All events for a Data are emitted through the {@link DataEvents} interface, which is accessible via the
+ *  {@link Data.events | Data.events} property. For example, to listen for the creation and destruction of
+ *  new DataModels within a Data:
+ *
+ *  ``ts
+ *  data.events.onModelCreated.subscribe((data, dataModel) => {
+ *      console.log(`New DataModel created with ID: ${dataModel.id}`);
+ *  });
+ *
+ *  data.events.onModelDestroyed.subscribe((data, dataModel) => {
+ *    console.log(`DataModel destroyed with ID: ${dataModel.id}`);
+ *  });
+ *  ``
  *
  * @module data
  */
 export * from "./Data";
+export * from "./DataEvents";
 export * from "./DataModel";
 export * from "./DataObject";
 export * from "./Relationship";
@@ -494,4 +447,3 @@ export * from "./searchObjects";
 export * from "./DataModelParamsLoader";
 export * from "./DataModelParamsExporter";
 export * from "./DataModelStats";
-

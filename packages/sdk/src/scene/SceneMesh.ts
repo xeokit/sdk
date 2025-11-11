@@ -1,13 +1,12 @@
-import {createMat4, identityMat4, isIdentityMat4, mulMat4} from "../matrix";
+import {createMat4, identityMat4, inverseMat4, isIdentityMat4, mulMat4} from "../matrix";
 import type {FloatArrayParam} from "../math";
-import type {SceneMeshRendererProxy} from "./SceneMeshRendererProxy";
 import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneMeshParams} from "./SceneMeshParams";
 import type {SceneObject} from "./SceneObject";
 import type {SceneTextureSet} from "./SceneTextureSet";
 import {SceneModel} from "./SceneModel";
+import {SceneTransform} from "./SceneTransform";
 
-const tempMat4 = createMat4();
 
 /**
  * A mesh in a {@link SceneModel | SceneModel}.
@@ -47,19 +46,14 @@ export class SceneMesh {
    */
   readonly textureSet?: SceneTextureSet;
 
-  /**
-   *  Internal interface through which a {@link SceneMesh} can load property updates into a renderer.
-   *
-   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to
-   *  a {@link viewer!Viewer | Viewer}.
-   *
-   * @internal
-   */
-  sceneMeshRendererProxy: SceneMeshRendererProxy|null;
+  private _color: FloatArrayParam;
+  private _opacity: number;
 
-  #color: FloatArrayParam;
-  #matrix: FloatArrayParam;
-  #opacity: number;
+  private _localMatrix: FloatArrayParam;
+  private _globalMatrix: FloatArrayParam;
+
+   _parentTransform: SceneTransform | null = null;
+  
 
   /**
    * @private
@@ -75,10 +69,10 @@ export class SceneMesh {
   } ) {
     this.id = meshParams.id;
     this.model = meshParams.model;
-    this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
+    this._localMatrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
+    this._globalMatrix = createMat4();
     this.geometry = meshParams.geometry;
     this.textureSet = meshParams.textureSet;
-    this.sceneMeshRendererProxy = null;
     this.color = meshParams.color || new Float32Array([1, 1, 1]);
     this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
   }
@@ -89,7 +83,7 @@ export class SceneMesh {
    * Each element of the color is in range ````[0..1]````.
    */
   get color(): FloatArrayParam {
-    return this.#color;
+    return this._color;
   }
 
   /**
@@ -98,9 +92,9 @@ export class SceneMesh {
    * Each element of the color is in range ````[0..1]````.
    */
   set color( value: FloatArrayParam ) {
-    let color = this.#color;
+    let color = this._color;
     if (!color) {
-      color = this.#color = new Float32Array(4);
+      color = this._color = new Float32Array(4);
       color[3] = 1;
     }
     if (value) {
@@ -112,7 +106,7 @@ export class SceneMesh {
       color[1] = 1;
       color[2] = 1;
     }
-    this.sceneMeshRendererProxy?.setColor(this.#color);
+    this.model.scene.events.onSceneMeshColorChanged.dispatch(this.model.scene, this);
   }
 
   /**
@@ -125,19 +119,12 @@ export class SceneMesh {
   set matrix( matrix: FloatArrayParam ) {
     if (matrix) {
       // @ts-ignore
-      this.#matrix.set(matrix);
+      this._localMatrix.set(matrix);
     } else {
-      identityMat4(this.#matrix);
+      identityMat4(this._localMatrix);
     }
-    if (this.sceneMeshRendererProxy) {
-
-      // TODO: recompute AABBs using coordinateSystemMatrix
-
-      const coordSystemAndModelingMatrix = mulMat4(this.model.coordinateSystemMatrix, this.#matrix, tempMat4);
-      this.sceneMeshRendererProxy.setMatrix(coordSystemAndModelingMatrix);
-    }
-    const scene = this.model.scene;
-    scene.onMeshMoved.dispatch(scene, this);
+    this._updateGlobal();
+    this.model.scene.events.onSceneMeshMatrixChanged.dispatch(this.model.scene, this);
   }
 
   /**
@@ -148,7 +135,15 @@ export class SceneMesh {
    * @type {FloatArrayParam}
    */
   get matrix(): FloatArrayParam {
-    return this.#matrix;
+    return this._localMatrix;
+  }
+
+  /**
+   * Gets the global transform matrix for this SceneMesh.
+   */
+  get globalMatrix(): FloatArrayParam {
+    this._updateGlobal();
+    return this._globalMatrix;
   }
 
   /**
@@ -157,7 +152,7 @@ export class SceneMesh {
    * This is a factor in range ````[0..1]````.
    */
   get opacity(): number {
-    return this.#opacity;
+    return this._opacity;
   }
 
   /**
@@ -167,12 +162,103 @@ export class SceneMesh {
    */
   set opacity( opacity: number ) {
     opacity = (opacity !== undefined && opacity !== null) ? opacity : 1.0;
-    if (this.#opacity === opacity) {
+    if (this._opacity === opacity) {
       return;
     }
-    this.#opacity = opacity;
-    if (this.sceneMeshRendererProxy) {
-      //       this.sceneObjectRendererProxy.setOpacity(this.#opacity);
+    this._opacity = opacity;
+    this.model.scene.events.onSceneMeshOpacityChanged.dispatch(this.model.scene, this);
+  }
+
+  /**
+   * Gets the parent {@link SceneTransform} of this SceneMesh, or ````null```` if this SceneMesh is not parented.
+   */
+  get parentTransform(): SceneTransform | null {
+    return this._parentTransform;
+  }
+
+  /**
+   * Updates the global transform matrix.
+   * @private
+   */
+   _updateGlobal(): void {
+    if (this._parentTransform) {
+      mulMat4( this._parentTransform.globalMatrix, this._localMatrix, this._globalMatrix);
+    } else {
+      // @ts-ignore
+      this._globalMatrix.set(this._localMatrix);
+    }
+    const scene = this.model.scene;
+      // TODO: recompute AABBs using coordinateSystemMatrix
+
+      // Transforms are in the coordinate system of the model
+      // const coordSystemAndModelingMatrix = mulMat4(this.model.coordinateSystemMatrix, this._globalMatrix, tempMat4);
+      // scene.events.meshMatrix.dispatch(scene, this);
+      // scene.events.meshMoved.dispatch(scene, this);
+  }
+
+  // /**
+  //  * Sets the {@link SceneTransform} that is the parent of this SceneMesh.
+  //  * @param parent
+  //  */
+  // setParentTransformOLD(parent: SceneTransform | null): void {
+  //   if (this._parentTransform === parent) {
+  //     return;
+  //   }
+  //   if (this._parentTransform) {
+  //     this._parentTransform.removeChildMesh(this);
+  //   }
+  //   this._parentTransform = parent;
+  //   if (parent) {
+  //     parent.addChildMesh(this);
+  //   }
+  //   this._updateGlobal();
+  // }
+
+  /**
+   * Attaches a parent transform to this transform.
+   * @param parent - The new parent transform or null to detach.
+   */
+  private _attachParentTransform(parent: SceneTransform | null): void {
+    if (this._parentTransform === parent) {
+      return;
+    }
+    if (this._parentTransform) {
+      const idx = this._parentTransform._childMeshes.indexOf(this);
+      if (idx !== -1) {
+        this._parentTransform._childMeshes.splice(idx, 1);
+      }
+    }
+    this._parentTransform = parent;
+    if (parent) {
+      parent._childMeshes.push(this);
+    }
+    this._updateGlobal();
+  }
+
+  /**
+   * Sets the parent transform for this mesh.
+   * @param next - The new parent transform or null to detach.
+   * @param opts - Options to preserve world transformation.
+   */
+  public setParentTransform(next: SceneTransform | null, opts?: { preserveWorld?: boolean }): void {
+    if (next === this) {
+      throw new Error("Cannot parent to self");
+    }
+    const preserve = !!opts?.preserveWorld;
+    if (preserve) {
+      this._updateGlobal();
+      const currentWorld = createMat4(this._globalMatrix);
+      this._attachParentTransform(next);
+      if (this._parentTransform) {
+        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4());
+        mulMat4(this._localMatrix, invParent, currentWorld);
+      } else {
+        // @ts-ignore
+        this._localMatrix.set(currentWorld);
+      }
+      this._updateGlobal();
+    } else {
+      this._attachParentTransform(next);
     }
   }
 
@@ -183,14 +269,17 @@ export class SceneMesh {
     const meshParams = <SceneMeshParams>{
       id: this.id,
       geometryId: this.geometry.id,
-      color: Array.from(this.#color),
-      opacity: this.#opacity
+      color: Array.from(this._color),
+      opacity: this._opacity
     };
-    if (!isIdentityMat4(this.#matrix)) {
-      meshParams.matrix = Array.from(this.#matrix);
+    if (!isIdentityMat4(this._localMatrix)) {
+      meshParams.matrix = Array.from(this._localMatrix);
     }
     if (this.textureSet !== undefined) {
       meshParams.textureSetId = this.textureSet.id;
+    }
+    if (this._parentTransform !== undefined) {
+      meshParams.parentTransformId = this.parentTransform.id;
     }
     return meshParams;
   }
@@ -199,6 +288,10 @@ export class SceneMesh {
    * Destroys this SceneMesh.
    */
   destroy() {
+    if (this._parentTransform) {
+      this._parentTransform.removeChildMesh(this);
+    }
+    this._parentTransform = null;
     this.model._destroyMesh(this);
   }
 }

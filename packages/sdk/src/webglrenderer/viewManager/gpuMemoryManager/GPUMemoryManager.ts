@@ -1,6 +1,6 @@
 import type {FloatArrayParam} from "../../../math";
 import {SceneMesh} from "../../../scene";
-import {RenderContext} from "../../RenderContext";
+import {RenderContext} from "../RenderContext";
 import {TileManager} from "./TileManager";
 import {type Tile} from "./Tile";
 import {type GPUMemoryReader} from "./GPUMemoryReader";
@@ -9,8 +9,9 @@ import {DataTextures} from "./DataTextures";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 import {GPUMemoryBatch} from "./GPUMemoryBatch";
 import {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
-import {View} from "../../../viewer";
+import {Camera, TickParams, View} from "../../../viewer";
 import {RenderPassValue} from "../RENDER_PASSES";
+import {SDKErrorType, SDKResult} from "../../../core";
 
 
 /**
@@ -25,10 +26,9 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   /**
    * The data textures that implement GPU-side model storage for this GPUMemoryManager.
    */
-  dataTextures: DataTextures;
+  dataTextures: DataTextures| null = null;
 
   private _batches: GPUMemoryBatch[] = [];
-  private _maxBatches: number;
   private _renderContext: RenderContext;
   private _maxTiles: number;
   private _tiles: TileManager;
@@ -41,13 +41,17 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * Constructs a GPUMemoryManager instance.
    */
   constructor( renderContext: RenderContext ) {
-
     this._renderContext = renderContext;
-    this._maxBatches = 100;
     this._maxTiles = 1000;
-
     this._numMeshes = 0;
+  }
 
+  /**
+   * Allocates GPU memory for this GPUMemoryManager.
+   */
+  init(): SDKResult<void, string> {
+
+    const renderContext = this._renderContext;
     const gl = renderContext.gl;
 
     this._tileViewMatrices = [
@@ -57,12 +61,35 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       new DTXMatrixArray({gl, maxMatrices: this._maxTiles})
     ];
 
-      this._tileRayPickMatrices = [
+    this._tileRayPickMatrices = [
       new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
       new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
       new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
       new DTXMatrixArray({gl, maxMatrices: this._maxTiles})
     ];
+
+    const textures: {
+      allocate(): Boolean;
+      destroy(): void;
+    }[] = [
+      ...this._tileViewMatrices,
+      ...this._tileRayPickMatrices
+    ];
+
+    for (let i = 0, leni = textures.length; i < leni; i++) {
+      if (!textures[i].allocate()) {
+        for (let j = i - 1; j >= 0; j--) {
+          textures[j].destroy();
+        }
+        return {
+          ok: false,
+          type: SDKErrorType.OutOfMemory,
+          error: 'GPUMemoryManager.init: Out of GPU memory'
+        };
+      }
+    }
+
+    this._tiles = new TileManager(renderContext.viewer, this._tileViewMatrices, this._tileRayPickMatrices);
 
     this.dataTextures = {
       tileViewMatrices : this._tileViewMatrices.map((t)=>(t.texture)),
@@ -70,22 +97,31 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       batches: []
     };
 
-    this._tiles = new TileManager(gl, renderContext.viewer, this._tileViewMatrices, this._tileRayPickMatrices);
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
 
-    this._onTick = renderContext.viewer.onTick.sub(() => {
-      let didFlush = false;
-      for (let i = 0; i < 4; i++) {
-        didFlush = this._tileViewMatrices[i].flush() || didFlush;
-        didFlush = this._tileRayPickMatrices[i].flush() || didFlush;
-      }
-      for (const batch of this._batches) {
-        didFlush = batch.flush()|| didFlush;
-      }
-      if (didFlush) {
-    //  this._renderContext.setAllViewsDirty()
-      }
-    });
+  /**
+   * Called on each tick to upload any pending changes to GPU memory.
+   */
+  uploadChanges():void{
+    for (let i = 0; i < 4; i++) {
+      this._tileViewMatrices[i].uploadChanges();
+      this._tileRayPickMatrices[i].uploadChanges();
+    }
+    for (const batch of this._batches) {
+     batch.uploadChanges();
+    }
+  }
 
+  /**
+   * Notifies the GPUMemoryManager that a Camera's view matrix has been updated.
+   * @param camera
+   */
+  cameraViewMatrixUpdated(camera: Camera) : void {
+    this._tiles.cameraViewMatrixUpdated(camera);
   }
 
   /**
@@ -128,20 +164,27 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   }
 
   /**
-   * Creates a new GPU memory batch, up to the maximum number of sortedBatches allowed.
+   * Creates a new GPU memory batch.
    * The new batch is added to the  `GPUMemoryEditor.dataTextures.sortedBatches` array.
-   * Returns the index of the new batch.
+   * @returns SDKResult containing the index of the new batch, or an error if out of memory.
    */
-  createBatch(): number {
-    if (this._batches.length < this._maxBatches) {
+  createBatch(): SDKResult<number, string> {
       const index = this._batches.length;
       const gpuMemoryBatch = new GPUMemoryBatch(index, this._renderContext);
+      if (!gpuMemoryBatch.allocate() ) {
+        gpuMemoryBatch.destroy();
+        return {
+          ok: false,
+          type: SDKErrorType.OutOfMemory,
+          error: 'GPUMemoryManager.createBatch: Out of GPU memory'
+        };
+      }
       this._batches.push(gpuMemoryBatch);
       this.dataTextures.batches.push(gpuMemoryBatch.dataTextures);
-     console.log(`DTXMemoryManager: Created batch index ${index}`);
-      return index;
-    }
-    throw new Error('GPUMemoryPool: Maximum number of GPUMemoryBatch instances reached.');
+      return {
+        ok: true,
+        value: index
+      };
   }
 
   /**
@@ -214,7 +257,6 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       throw new Error('GPUMemoryManager.setMeshMatrix: Invalid batch index in mesh handle.');
     }
     batch.setMeshMatrix(meshHandle.meshIndex, matrix);
-    this._renderContext.setAllViewsDirty();
   }
 
   /**
@@ -236,7 +278,6 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       throw new Error('GPUMemoryManager.setMeshAttribs: Invalid batch index in mesh handle.');
     }
     batch.setMeshAttribs(meshHandle.meshIndex, params);
-     this._renderContext.setAllViewsDirty();
   }
 
   /**
@@ -253,7 +294,8 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     viewIndex: number,
     params: {
       color?: number[];   // uvec4 bytes 0..255
-      renderFlags?: number;  // uvec4 bytes 0..255
+      clippable?: boolean;
+      pickable?: boolean;
     } ) {
     const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
@@ -292,7 +334,6 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     batch.removeMesh(meshHandle.meshIndex);
     this._numMeshes--;
  //   console.log("removeMesh() Num meshes = " + this._numMeshes);
-    this._renderContext.setAllViewsDirty();
   }
 
   /**
@@ -330,7 +371,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     }
     this._numMeshes = 0;
     this._batches.length = 0;
-    this.dataTextures.batches.length = 0;
+    this.dataTextures = null as any;
     const clear = ( ref: any ) => {
       if (ref) {
         ref.destroy();
@@ -338,8 +379,12 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       }
       return ref;
     };
-    this._tileViewMatrices = this._tileViewMatrices.map(clear);
-    this._tileRayPickMatrices = this._tileRayPickMatrices.map(clear);
+    if (this._tileViewMatrices) {
+      this._tileViewMatrices = this._tileViewMatrices.map(clear);
+    }
+    if (this._tileRayPickMatrices) {
+      this._tileRayPickMatrices = this._tileRayPickMatrices.map(clear);
+    }
     this._onTick();
   }
 

@@ -6,7 +6,10 @@ import type {ModelParseParams} from "../../../io";
 export function parse(params: ModelParseParams, options?: any): Promise<void> {
   return new Promise<void>(function (resolve, reject) {
     if (params.sceneModel && params.fileData) {
-      params.sceneModel.fromParams(params.fileData);
+      const result = params.sceneModel.fromParams(params.fileData);
+        if (result.ok===false) {
+            return reject(new Error(`Failed to parse scene model: ${result.error}`));
+        }
     }
     return resolve();
   });

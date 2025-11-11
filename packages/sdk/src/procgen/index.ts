@@ -20,12 +20,19 @@
  * ````javascript
  * import {buildBoxGeometry} from "@xeokit/sdk/procgen";
  *
- * const boxGeometry = buildBoxGeometry({
+ * const result = buildBoxGeometry({
  *     center: [0, 0, 0],
  *     xSize: 1,
  *     ySize: 1,
  *     zSize: 1
  * });
+ *
+ * if (result.ok) {
+ *    const boxGeometry = result.value;
+ *    // Use boxGeometry here
+ * } else {
+ *    console.error("Error creating box geometry:", result.error);
+ * }
  * ```
  * ---
  *

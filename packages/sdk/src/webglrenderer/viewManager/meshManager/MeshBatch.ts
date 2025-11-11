@@ -1,9 +1,10 @@
-import {MeshCounts} from "./MeshCounts";
+
 import {SceneMesh} from "../../../scene";
+import {RENDER_PASSES} from "../RENDER_PASSES";
 
 /**
  * A MeshBatch represents a collection of meshes that share the same rendering properties and can be rendered together
- * in a single drawBatch call using a `DrawTechnique`.
+ * in a single draw call using a `DrawTechnique`.
  */
 export interface MeshBatch {
 
@@ -23,7 +24,7 @@ export interface MeshBatch {
   saoSupported: boolean;
 
   /**
-   * The total number of indices in all meshes of this batch. This is used with WebGL drawBatch calls to determine how many indices to drawBatch
+   * The total number of indices in all meshes of this batch. This is used with WebGL draw calls to determine how many indices to draw
    * when drawing this batch.
    */
   numIndices: number;
@@ -32,11 +33,6 @@ export interface MeshBatch {
    * The total number of vertices in all meshes of this batch. This is used for various calculations and optimizations related to rendering.
    */
   numVertices: number;
-
-  /**
-   * Counts of meshes and their visibility states for each view.
-   */
-  meshCounts: MeshCounts[];
 
   /**
    * The index of this batch's memory in the GPUMemoryManager system.
@@ -56,6 +52,13 @@ export interface MeshBatch {
    * Gets the parameters needed for a drawArrays call for a specific mesh in this batch.
    * @param meshIndex
    */
-  getDrawArraysParamsForMesh( meshIndex: number ): { first: number; count: number } | null
+  getDrawArraysParamsForMesh( meshIndex: number ): { first: number; count: number } | null;
+
+  /**
+   * Determines if there are any meshes in this batch that should be rendered in the specified render pass for the given view.
+   * @param viewIndex
+   * @param renderPass
+   */
+  hasMeshesInRenderPass(viewIndex: number, renderPass: RENDER_PASSES ): boolean
 }
 

@@ -1,28 +1,30 @@
 import type {Data} from "./Data";
 import type {DataObject} from "./DataObject";
-import {SDKError} from "../core";
+import {SDKErrorType, SDKResult} from "../core";
 import type {SearchParams} from "./SearchParams";
 
 /**
- * Finds {@link DataObject | DataObjects} in a {@link Data | Data} using a customized depth-first traversal.
+ * Finds {@link DataObject | DataObjects} in a {@link Data | Data} using a customized
+ * depth-first traversal.
  *
- * Usually we use data method to recursively find DataObjects of specific {@link DataObject.type | types} within
- * a hierarchy.
+ * Usually used to recursively find DataObjects of specific {@link DataObject.type | types}
+ * within a hierarchy.
  *
- * See {@link data | @xeokit/sdk/data}   for usage.
+ * See {@link data | @xeokit/sdk/data} for usage.
  *
  * @param data The Data to search.
  * @param searchParams Search parameters.
- * @returns *void*
- * * On success.
- * @returns *{@link core!SDKError | SDKError}*
- * * data Data has already been destroyed.
- * * The specified starting DataObject was not found in data Data.
- * * The specified starting DataObject is contained in a different Data than data one.
+ * @returns A result indicating success or an error message on failure.
+ * - On success: `{ ok: true, value: undefined }`
+ * - On failure: `{ ok: false, error: string }`
  */
-export function searchObjects(data: Data, searchParams: SearchParams): void | SDKError {
+export function searchObjects(data: Data, searchParams: SearchParams): SDKResult<void, string> {
   if (data.destroyed) {
-    return new SDKError("Data already destroyed");
+    return {
+      ok: false,
+      type: SDKErrorType.Destroyed,
+      error: "Data already destroyed"
+    };
   }
   const includeObjects = (searchParams.includeObjects && searchParams.includeObjects.length > 0) ? arrayToMap(searchParams.includeObjects) : null;
   const excludeObjects = (searchParams.excludeObjects && searchParams.excludeObjects.length > 0) ? arrayToMap(searchParams.excludeObjects) : null;
@@ -36,7 +38,7 @@ export function searchObjects(data: Data, searchParams: SearchParams): void | SD
     let includeObject = true;
     if (excludeObjects && excludeObjects[dataObject.type]) {
       includeObject = false;
-    } else { // @ts-ignore
+    } else {
       if (includeObjects && (!includeObjects[dataObject.type])) {
         includeObject = false;
       }
@@ -80,12 +82,20 @@ export function searchObjects(data: Data, searchParams: SearchParams): void | SD
   if (searchParams.startObjectId) {
     const startObject = data.objects[searchParams.startObjectId];
     if (!startObject) {
-      return new SDKError(`Cannot search DataObjects - starting DataObject not found in Data: "${searchParams.startObjectId}"`);
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidParameter,
+        error: `Cannot search DataObjects - starting DataObject not found in Data: "${searchParams.startObjectId}"`
+      };
     }
     visit(startObject, depth);
   } else if (searchParams.startObject) {
     if (searchParams.startObject.data != data) {
-      return new SDKError(`Cannot search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`);
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidParameter,
+        error: `Cannot search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`
+      };
     }
     visit(searchParams.startObject, depth + 1);
   } else {
@@ -93,8 +103,12 @@ export function searchObjects(data: Data, searchParams: SearchParams): void | SD
       visit(data.rootObjects[id], depth + 1);
     }
   }
-}
 
+  return {
+    ok: true,
+    value: undefined
+  };
+}
 function arrayToMap(array: any[]): { [key: string]: any } {
   const map: { [key: string]: any } = {};
   for (let i = 0, len = array.length; i < len; i++) {

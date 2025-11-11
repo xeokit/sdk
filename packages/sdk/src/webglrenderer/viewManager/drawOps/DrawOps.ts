@@ -1,4 +1,4 @@
-import {RenderContext} from "../../RenderContext";
+import {RenderContext} from "../RenderContext";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
 import {TrianglesDrawColorTechnique} from "./techniques/triangles/TrianglesDrawColorTechnique";
 import {GenericDrawSilhouetteTechnique} from "./techniques/generic/GenericDrawSilhouetteTechnique";
@@ -15,7 +15,7 @@ import {GenericPickDepthTechnique} from "./techniques/generic/GenericPickDepthTe
 import {TrianglesDrawEdgeColorTechnique} from "./techniques/triangles/TrianglesDrawEdgeColorTechnique";
 
 /**
- * Manages a set of drawBatch operations for different primitive types.
+ * Manages a set of draw operations for different primitive types.
  */
 export class DrawOps {
 
@@ -49,9 +49,9 @@ export class DrawOps {
             return drawTechnique;
         }
 
-        // Some drawBatch techniques are shared between multiple drawBatch ops.
-        // A drawBatch op applies a drawBatch technique to a specific render pass.
-        // E.g. the silhouetteTechnique drawBatch technique is used for highlighted, selected and xrayed triangles.
+        // Some draw techniques are shared between multiple draw ops.
+        // A draw op applies a draw technique to a specific render pass.
+        // E.g. the silhouetteTechnique draw technique is used for highlighted, selected and xrayed triangles.
 
         const silhouette = saveForCleanup(new GenericDrawSilhouetteTechnique(renderContext, gpuMemoryReader));
         const trianglesDrawColor = saveForCleanup(new TrianglesDrawColorTechnique(renderContext, gpuMemoryReader));

@@ -1,4 +1,3 @@
-
 import { inQuotes, Map, Queue } from "../utils";
 import { stats } from './stats';
 import type { Viewer } from "./Viewer";
@@ -27,10 +26,7 @@ const tickEvent: TickEvent = {
  * @internal
  */
 export class Scheduler {
-
-  /**
-   * Registered Viewer instances, keyed by their IDs.
-   */
+  /** Registered Viewer instances, keyed by their IDs. */
   public readonly viewers: { [key: string]: Viewer };
 
   #viewersRenderInfo: { [key: string]: any } = {};
@@ -42,7 +38,6 @@ export class Scheduler {
 
   /**
    * Creates a new Scheduler that begins executing tasks and rendering Viewers on animation frames.
-   *
    * @private
    */
   constructor() {
@@ -66,7 +61,6 @@ export class Scheduler {
 
   /**
    * Executes queued tasks within the allowed task budget.
-   *
    * @param time Current frame time in ms.
    */
   #runTasks(time: number) {
@@ -79,13 +73,13 @@ export class Scheduler {
 
   /**
    * Executes tasks from the queue until a given deadline or until the queue is empty.
-   *
    * @param until Timestamp (ms) to stop executing tasks.
    * @returns Number of tasks executed.
    */
   #runTasksUntil(until: number = -1): number {
-    let time = (new Date()).getTime();
+    let time = Date.now();
     let tasksRun = 0;
+
     while (this.#taskQueue.length > 0 && (until < 0 || time < until)) {
       const callback = this.#taskQueue.shift();
       const scope = this.#taskQueue.shift();
@@ -94,7 +88,7 @@ export class Scheduler {
       } else {
         callback();
       }
-      time = (new Date()).getTime();
+      time = Date.now();
       tasksRun++;
     }
     return tasksRun;
@@ -102,12 +96,11 @@ export class Scheduler {
 
   /**
    * Dispatches tick events to all registered Viewers.
-   *
    * @param time Current time in ms.
    */
   #fireTickEvents(time: number) {
     tickEvent.time = time;
-    for (const id in scheduler.viewers) {
+    for (const id in this.viewers) {
       if (this.viewers.hasOwnProperty(id)) {
         const viewer = this.viewers[id];
         tickEvent.viewerId = id;
@@ -138,7 +131,6 @@ export class Scheduler {
 
   /**
    * Registers a Viewer with the Scheduler for tick and render updates.
-   *
    * @param viewer Viewer to register.
    */
   registerViewer(viewer: Viewer) {
@@ -149,7 +141,6 @@ export class Scheduler {
       }
     } else {
       // @ts-ignore
-      // noinspection JSConstantReassignment
       viewer.id = this.#viewerIDMap.addItem({});
     }
     this.viewers[viewer.id] = viewer;
@@ -159,7 +150,6 @@ export class Scheduler {
 
   /**
    * Deregisters a Viewer, stopping tick and render updates.
-   *
    * @internal
    * @param viewer Viewer to deregister.
    */
@@ -175,7 +165,6 @@ export class Scheduler {
 
   /**
    * Schedules a task to be executed on an upcoming animation frame.
-   *
    * @param callback Function to execute.
    * @param scope Optional scope to call the function in.
    */
@@ -186,7 +175,6 @@ export class Scheduler {
 
   /**
    * Gets the number of tasks currently scheduled.
-   *
    * @returns Number of queued tasks.
    */
   getNumTasks(): number {

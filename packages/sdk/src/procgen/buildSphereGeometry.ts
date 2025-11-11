@@ -1,6 +1,7 @@
 import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";
+import {SDKResult} from "../core";
 
 /**
  * Creates a sphere-shaped geometry.
@@ -34,12 +35,19 @@ import {TrianglesPrimitive} from "../constants";
  *
  * ## Example:
  * ```javascript
- * const sphereGeometry = buildSphereGeometry({
+ * const sphereGeometryResult = buildSphereGeometry({
  *     radius: 2,
  *     heightSegments: 24,
  *     widthSegments: 18,
  *     center: [0, 0, 0]
  * });
+ *
+ * if (sphereGeometryResult.ok) {
+ *   const sphereGeometry = sphereGeometryResult.value;
+ *   // Use sphereGeometry here
+ * } else {
+ *   console.error("Error creating sphere geometry:", sphereGeometryResult.error);
+ * }
  * ````
  *
  * ## Notes:
@@ -48,34 +56,32 @@ import {TrianglesPrimitive} from "../constants";
  * - UV coordinates are mapped to the sphere based on the latitude and longitude of each vertex.
  * - Indices are generated to create triangles from the vertices.
  *
- * @returns {GeometryArrays} The geometry data for the sphere, including positions, normals, UV coordinates, and indices.
+ * @returns {SDKResult<GeometryArrays, string>} The geometry data for the sphere, including positions, normals, UVs, and indices for rendering, or an error message.
  */
+
 export function buildSphereGeometry(cfg: {
-  center: number[];
-  heightSegments: number;
-  radius: number;
-  widthSegments: number;
+  center?: number[];
+  heightSegments?: number;
+  radius?: number;
+  widthSegments?: number;
 } = {
   heightSegments: 18,
   widthSegments: 18,
   radius: 1,
   center: [0, 0, 0]
-}): GeometryArrays {
-
+}): SDKResult<GeometryArrays, string> {
   const centerX = cfg.center ? cfg.center[0] : 0;
   const centerY = cfg.center ? cfg.center[1] : 0;
   const centerZ = cfg.center ? cfg.center[2] : 0;
 
   let radius = cfg.radius || 1;
   if (radius < 0) {
-    console.error("negative radius not allowed - will invert");
-    radius *= -1;
+    return { ok: false, error: "Negative radius not allowed." };
   }
 
   let heightSegments = cfg.heightSegments || 18;
   if (heightSegments < 0) {
-    console.error("negative heightSegments not allowed - will invert");
-    heightSegments *= -1;
+    return { ok: false, error: "Negative heightSegments not allowed." };
   }
   heightSegments = Math.floor(heightSegments);
   if (heightSegments < 18) {
@@ -84,8 +90,7 @@ export function buildSphereGeometry(cfg: {
 
   let widthSegments = cfg.widthSegments || 18;
   if (widthSegments < 0) {
-    console.error("negative widthSegments not allowed - will invert");
-    widthSegments *= -1;
+    return { ok: false, error: "Negative widthSegments not allowed." };
   }
   widthSegments = Math.floor(widthSegments);
   if (widthSegments < 18) {
@@ -97,77 +102,46 @@ export function buildSphereGeometry(cfg: {
   const uvs: number[] = [];
   const indices: number[] = [];
 
-  let i;
-  let j;
+  for (let i = 0; i <= heightSegments; i++) {
+    const theta = (i * Math.PI) / heightSegments;
+    const sinTheta = Math.sin(theta);
+    const cosTheta = Math.cos(theta);
 
-  let theta;
-  let sinTheta;
-  let cosTheta;
+    for (let j = 0; j <= widthSegments; j++) {
+      const phi = (j * 2 * Math.PI) / widthSegments;
+      const sinPhi = Math.sin(phi);
+      const cosPhi = Math.cos(phi);
 
-  let phi;
-  let sinPhi;
-  let cosPhi;
+      const x = cosPhi * sinTheta;
+      const y = cosTheta;
+      const z = sinPhi * sinTheta;
 
-  let x;
-  let y;
-  let z;
+      const u = j / widthSegments;
+      const v = i / heightSegments;
 
-  let u;
-  let v;
-
-  let first;
-  let second;
-
-  // Generate the vertices, normals, and UVs
-  for (i = 0; i <= heightSegments; i++) {
-    theta = i * Math.PI / heightSegments;
-    sinTheta = Math.sin(theta);
-    cosTheta = Math.cos(theta);
-
-    for (j = 0; j <= widthSegments; j++) {
-      phi = j * 2 * Math.PI / widthSegments;
-      sinPhi = Math.sin(phi);
-      cosPhi = Math.cos(phi);
-
-      x = cosPhi * sinTheta;
-      y = cosTheta;
-      z = sinPhi * sinTheta;
-      u = 1.0 - j / widthSegments;
-      v = i / heightSegments;
-
-      normals.push(x);
-      normals.push(y);
-      normals.push(z);
-
-      uvs.push(u);
-      uvs.push(v);
-
-      positions.push(centerX + radius * x);
-      positions.push(centerY + radius * y);
-      positions.push(centerZ + radius * z);
+      positions.push(radius * x + centerX, radius * y + centerY, radius * z + centerZ);
+      normals.push(x, y, z);
+      uvs.push(u, v);
     }
   }
 
-  // Generate the indices for the triangles
-  for (i = 0; i < heightSegments; i++) {
-    for (j = 0; j < widthSegments; j++) {
-      first = (i * (widthSegments + 1)) + j;
-      second = first + widthSegments + 1;
+  for (let i = 0; i < heightSegments; i++) {
+    for (let j = 0; j < widthSegments; j++) {
+      const first = i * (widthSegments + 1) + j;
+      const second = first + widthSegments + 1;
 
-      indices.push(first + 1);
-      indices.push(second + 1);
-      indices.push(second);
-      indices.push(first + 1);
-      indices.push(second);
-      indices.push(first);
+      indices.push(first, second, first + 1);
+      indices.push(second, second + 1, first + 1);
     }
   }
 
-  return utils.apply(cfg, {
-    primitive: TrianglesPrimitive, // The geometry is created as triangles
-    positions: positions,
-    normals: normals,
+  const geometryArrays: GeometryArrays = utils.apply(cfg, {
+    primitive: TrianglesPrimitive,
+    positions,
+    normals,
     uv: uvs,
-    indices: indices
+    indices
   });
+
+  return { ok: true, value: geometryArrays };
 }

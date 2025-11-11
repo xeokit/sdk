@@ -16,6 +16,11 @@ export interface SceneMeshParams {
   id: string;
 
   /**
+   * ID of the parent {@link ViewTransform} that was created previously with {@link SceneModel.createTransform | SceneModel.createTransform}.
+   */
+  parentTransformId?: string;
+
+  /**
    * ID of a {@link SceneTextureSet} that was created previously with {@link SceneModel.createTextureSet | SceneModel.createTextureSet}.
    */
   textureSetId?: string;

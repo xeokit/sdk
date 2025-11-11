@@ -3,7 +3,7 @@ import {
   createMat4,
   createVec3,
   cross3Vec3,
-  dotVec3,
+  dotVec3, frustumMat4,
   identityMat4,
   inverseMat4,
   lenVec3,
@@ -27,12 +27,12 @@ import {DEGTORAD, type FloatArrayParam} from "../math";
 import {Frustum3, setFrustum3} from "../boundaries";
 import type {CameraParams} from "./CameraParams";
 import {CustomProjection} from './CustomProjection';
-import {EventDispatcher} from "strongly-typed-events";
 import {FrustumProjection} from './FrustumProjection';
 import {OrthoProjection} from './OrthoProjection';
 import {PerspectiveProjection} from './PerspectiveProjection';
 import type {Projection} from "./Projection";
 import type {View} from "./View";
+import {Task} from "../core/Task";
 
 
 const tempVec3 = createVec3();
@@ -90,7 +90,7 @@ const offsetEye = createVec3();
  * var viewMatrix = camera.viewMatrix;
  * ````
  *
- * {@link Camera.onViewMatrix} fires whenever {@link Camera.viewMatrix} updates:
+ * {@link ViewerEvents.onCameraViewMatrixUpdated} fires whenever {@link Camera.viewMatrix} updates:
  *
  * ````javascript
  * camera.onViewMatrix.subscribe((camera, matrix) => { ... });
@@ -224,7 +224,7 @@ const offsetEye = createVec3();
  *
  * See: <a href="https://en.wikipedia.org/wiki/Gimbal_lock">https://en.wikipedia.org/wiki/Gimbal_lock</a>
  */
-class Camera extends Component {
+class Camera {
 
   /**
    * The View to which this Camera belongs.
@@ -263,50 +263,6 @@ class Camera extends Component {
    */
   public readonly customProjection: CustomProjection;
 
-  /**
-   * Emits an event each time {@link Camera.projectionType} updates.
-   *
-   * ````javascript
-   * myView.camera.onProjectionType.subscribe((camera, projType) => { ... });
-   * ````
-   *
-   * @event
-   */
-  readonly onProjectionType: EventEmitter<Camera, number>;
-
-  /**
-   * Emits an event each time {@link Camera.viewMatrix} updates.
-   *
-   * ````javascript
-   * myView.camera.onViewMatrix.subscribe((camera, viewMatrix) => { ... });
-   * ````
-   *
-   * @event
-   */
-  readonly onViewMatrix: EventEmitter<Camera, FloatArrayParam>;
-
-  /**
-   * Emits an event each time {@link Camera.projMatrix} updates.
-   *
-   * ````javascript
-   * myView.camera.onProjMatrix.subscribe((camera, projMatrix) => { ... });
-   * ````
-   *
-   * @event
-   */
-  readonly onProjMatrix: EventEmitter<Camera, FloatArrayParam>;
-
-  /**
-   * Emits an event each time {@link Camera.frustum} updates.
-   *
-   * ````javascript
-   * myView.camera.onFrustum.subscribe((camera, frustum) => { ... });
-   * ````
-   *
-   * @event
-   */
-  readonly onFrustum: EventEmitter<Camera, Frustum3>;
-
   readonly #state: {
     deviceMatrix: FloatArrayParam,
     viewNormalMatrix: FloatArrayParam,
@@ -326,19 +282,14 @@ class Camera extends Component {
    */
   #frustum: Frustum3;
   #activeProjection: PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection;
+  
+  private _task: Task;
 
   /**
    * @private
    */
   constructor(view: View, cfg: CameraParams = {}) {
-
-    super(view, cfg);
-
-    this.onProjectionType = new EventEmitter(new EventDispatcher<Camera, number>());
-    this.onViewMatrix = new EventEmitter(new EventDispatcher<Camera, FloatArrayParam>());
-    this.onProjMatrix = new EventEmitter(new EventDispatcher<Camera, FloatArrayParam>());
-    this.onFrustum = new EventEmitter(new EventDispatcher<Camera, Frustum3>());
-
+    
     this.view = view;
 
     this.#state = {
@@ -366,26 +317,69 @@ class Camera extends Component {
 
     this.perspectiveProjection.onProjMatrix.subscribe(() => {
       if (this.#state.projectionType === PerspectiveProjectionType) {
-        this.onProjMatrix.dispatch(this, this.perspectiveProjection.projMatrix);
+        this.view.needsRender();
+        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
       }
     });
 
     this.orthoProjection.onProjMatrix.subscribe(() => {
       if (this.#state.projectionType === OrthoProjectionType) {
-        this.onProjMatrix.dispatch(this, this.orthoProjection.projMatrix);
+        this.view.needsRender();
+        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
       }
     });
 
     this.frustumProjection.onProjMatrix.subscribe(() => {
       if (this.#state.projectionType === FrustumProjectionType) {
-        this.onProjMatrix.dispatch(this, this.frustumProjection.projMatrix);
+        this.view.needsRender();
+        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
       }
     });
 
     this.customProjection.onProjMatrix.subscribe(() => {
       if (this.#state.projectionType === CustomProjectionType) {
-        this.onProjMatrix.dispatch(this, this.customProjection.projMatrix);
+        this.view.needsRender();
+        this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
       }
+    });
+
+    this._task = new Task(() => {
+        
+      // In ortho mode, build the view matrix with an eye position that's translated
+      // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
+      // the front off the view (not a problem with perspective, since objects close enough
+      // to be clipped by the front plane are usually too big to see anything of their cross-sections).
+
+      const state = this.#state;
+      let eye;
+
+      if (this.projectionType === OrthoProjectionType) {
+        subVec3(this.#state.eye, this.#state.look, eyeLookVec);
+        normalizeVec3(eyeLookVec, eyeLookVecNorm);
+        mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
+        addVec3(this.#state.look, eyeLookOffset, offsetEye);
+        eye = offsetEye;
+      } else {
+        eye = this.#state.eye;
+      }
+
+      if (state.hasDeviceMatrix) {
+        lookAtMat4v(eye, this.#state.look, this.#state.up, tempMatb);
+        mulMat4(state.deviceMatrix, tempMatb, state.viewMatrix);
+      } else {
+        lookAtMat4v(eye, this.#state.look, this.#state.up, state.viewMatrix);
+      }
+
+      inverseMat4(this.#state.viewMatrix, this.#state.inverseViewMatrix);
+      transposeMat4(this.#state.inverseViewMatrix, this.#state.viewNormalMatrix);
+      setFrustum3(this.#state.viewMatrix, this.#activeProjection.projMatrix, this.#frustum);
+
+      const events = this.view.viewer.events;
+
+      events.onCameraViewMatrixUpdated.dispatch(this.view, this);
+      events.onCameraFrustumUpdated.dispatch(this, this.#frustum);
+
+      this.view.needsRender();
     });
   }
 
@@ -421,7 +415,7 @@ class Camera extends Component {
   set eye(eye: FloatArrayParam) {
     // @ts-ignore
     this.#state.eye.set(eye);
-    this.setDirty(); // Ensure matrix built on next "tick"
+    this._task.setDirty(); // Ensure matrix built on next "tick"
   }
 
   /**
@@ -445,7 +439,7 @@ class Camera extends Component {
   set look(look: FloatArrayParam) {
     // @ts-ignore
     this.#state.look.set(look);
-    this.setDirty(); // Ensure matrix built on next "tick"
+    this._task.setDirty(); // Ensure matrix built on next "tick"
   }
 
   /**
@@ -465,7 +459,7 @@ class Camera extends Component {
   set up(up: FloatArrayParam) {
     // @ts-ignore
     this.#state.up.set(up);
-    this.setDirty();
+    this._task.setDirty();
   }
 
   /**
@@ -533,7 +527,7 @@ class Camera extends Component {
     // @ts-ignore
     this.#state.deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this.#state.hasDeviceMatrix = !!matrix;
-    this.setDirty();
+    this._task.setDirty();
   }
 
   /**
@@ -551,8 +545,8 @@ class Camera extends Component {
    * @returns {Number[]} The viewing transform matrix.
    */
   get viewMatrix(): FloatArrayParam {
-    if (this.dirty) {
-      this.cleanIfDirty();
+    if (this._task.dirty) {
+      this._task.cleanIfDirty();
     }
     return this.#state.viewMatrix;
   }
@@ -563,8 +557,8 @@ class Camera extends Component {
    * @returns {Number[]} The inverse viewing transform matrix.
    */
   get inverseViewMatrix(): FloatArrayParam {
-    if (this.dirty) {
-      this.cleanIfDirty();
+    if (this._task.dirty) {
+      this._task.cleanIfDirty();
     }
     return this.#state.inverseViewMatrix;
   }
@@ -585,8 +579,8 @@ class Camera extends Component {
    * @returns {Frustum3} The frustum.
    */
   get frustum() {
-    if (this.dirty) {
-      this.cleanIfDirty();
+    if (this._task.dirty) {
+      this._task.cleanIfDirty();
     }
     return this.#frustum;
   }
@@ -627,52 +621,57 @@ class Camera extends Component {
     } else if (value === CustomProjectionType) {
       this.#activeProjection = this.customProjection;
     } else {
-      this.error("Unsupported value for 'projection': " + value + " defaulting to PerspectiveProjectionType");
+      console.error("Unsupported value for 'projection': " + value + " defaulting to PerspectiveProjectionType");
       this.#activeProjection = this.perspectiveProjection;
       value = PerspectiveProjectionType;
     }
     // @ts-ignore
     this.#activeProjection.clean();
     this.#state.projectionType = value;
-    this.clean();
-    this.onProjectionType.dispatch(this, this.#state.projectionType);
-    this.onProjMatrix.dispatch(this, this.#activeProjection.projMatrix);
+    this._task.clean();
+    const events = this.view.viewer.events;
+    events.onCameraProjectionTypeChanged.dispatch(this.view, this);
+    events.onCameraProjMatrixUpdated.dispatch(this.view, this);
   }
 
-  setDirty() {
-    super.setDirty();
-    this.view.needsRender();
-  }
-
-  clean() {
-    const state = this.#state;
-    // In ortho mode, build the view matrix with an eye position that's translated
-    // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
-    // the front off the view (not a problem with perspective, since objects close enough
-    // to be clipped by the front plane are usually too big to see anything of their cross-sections).
-    let eye;
-    if (this.projectionType === OrthoProjectionType) {
-      subVec3(this.#state.eye, this.#state.look, eyeLookVec);
-      normalizeVec3(eyeLookVec, eyeLookVecNorm);
-      mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
-      addVec3(this.#state.look, eyeLookOffset, offsetEye);
-      eye = offsetEye;
-    } else {
-      eye = this.#state.eye;
-    }
-    if (state.hasDeviceMatrix) {
-      lookAtMat4v(eye, this.#state.look, this.#state.up, tempMatb);
-      mulMat4(state.deviceMatrix, tempMatb, state.viewMatrix);
-    } else {
-      lookAtMat4v(eye, this.#state.look, this.#state.up, state.viewMatrix);
-    }
-    inverseMat4(this.#state.viewMatrix, this.#state.inverseViewMatrix);
-    transposeMat4(this.#state.inverseViewMatrix, this.#state.viewNormalMatrix);
-    this.view.needsRender();
-    setFrustum3(this.#state.viewMatrix, this.#activeProjection.projMatrix, this.#frustum);
-    this.onViewMatrix.dispatch(this, this.#state.viewMatrix);
-    this.onFrustum.dispatch(this, this.#frustum);
-  }
+  // clean() {
+  //
+  //   // In ortho mode, build the view matrix with an eye position that's translated
+  //   // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
+  //   // the front off the view (not a problem with perspective, since objects close enough
+  //   // to be clipped by the front plane are usually too big to see anything of their cross-sections).
+  //
+  //   const state = this.#state;
+  //   let eye;
+  //
+  //   if (this.projectionType === OrthoProjectionType) {
+  //     subVec3(this.#state.eye, this.#state.look, eyeLookVec);
+  //     normalizeVec3(eyeLookVec, eyeLookVecNorm);
+  //     mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
+  //     addVec3(this.#state.look, eyeLookOffset, offsetEye);
+  //     eye = offsetEye;
+  //   } else {
+  //     eye = this.#state.eye;
+  //   }
+  //
+  //   if (state.hasDeviceMatrix) {
+  //     lookAtMat4v(eye, this.#state.look, this.#state.up, tempMatb);
+  //     mulMat4(state.deviceMatrix, tempMatb, state.viewMatrix);
+  //   } else {
+  //     lookAtMat4v(eye, this.#state.look, this.#state.up, state.viewMatrix);
+  //   }
+  //
+  //   inverseMat4(this.#state.viewMatrix, this.#state.inverseViewMatrix);
+  //   transposeMat4(this.#state.inverseViewMatrix, this.#state.viewNormalMatrix);
+  //   setFrustum3(this.#state.viewMatrix, this.#activeProjection.projMatrix, this.#frustum);
+  //
+  //   const events = this.view.viewer.events;
+  //
+  //   events.onCameraViewMatrixUpdated.dispatch(this.view, this);
+  //   events.onCameraFrustumUpdated.dispatch(this, this.#frustum);
+  //
+  //   this.view.needsRender();
+  // }
 
   /**
    * Rotates {@link Camera.eye | Camera.eye} about {@link Camera.look | Camera.look}, around the {@link Camera.up | Camera.up} vector
@@ -846,10 +845,7 @@ class Camera extends Component {
    * @private
    */
   destroy() {
-    super.destroy();
-    this.onProjectionType.clear();
-    this.onViewMatrix.clear();
-    this.onProjMatrix.clear();
+    this._task.destroy();
   }
 }
 

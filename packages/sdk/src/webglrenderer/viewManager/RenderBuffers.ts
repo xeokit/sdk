@@ -1,5 +1,5 @@
 import { WebGLRenderBuffer } from "../../webglutils";
-import { RenderContext } from "../RenderContext";
+import { RenderContext } from "./RenderContext";
 import {View} from "../../viewer";
 
 /**

@@ -1,7 +1,6 @@
 import {createAABB3} from "../boundaries";
 import type {FloatArrayParam} from "../math";
 import type {IntArrayParam} from "../math";
-import type {SceneGeometryRendererProxy} from "./SceneGeometryRendererProxy";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import {SceneModel} from "./SceneModel";
 
@@ -83,13 +82,6 @@ export class SceneGeometry {
   edgeIndices?: IntArrayParam;
 
   /**
-   * Interface through which this SceneGeometry can load any user-updated geometry arrays into the renderers.
-   *
-   * @internal
-   */
-  sceneGeometryRendererProxy: SceneGeometryRendererProxy | null;
-
-  /**
    * The count of {@link SceneMesh | SceneMeshes} that reference this SceneGeometry.
    */
   numMeshes: number;
@@ -149,7 +141,7 @@ export class SceneGeometry {
 
     if (changed) {
       const scene = this.model.scene;
-      scene.onGeometryUpdated.dispatch(scene, this);
+      scene.events.onSceneGeometryUpdated.dispatch(scene, this);
     }
   }
 

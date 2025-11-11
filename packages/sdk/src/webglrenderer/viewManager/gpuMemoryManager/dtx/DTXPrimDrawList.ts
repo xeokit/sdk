@@ -25,8 +25,8 @@ export interface DTXPrimDrawListHandle {
 }
 
 /** Range info for a render pass/bin. */
-export interface DTXPassRange  {
- //   renderPass: number;
+export interface DTXPassRange {
+    //   renderPass: number;
     /** First primitive index for this pass (inclusive). */
     firstPrim: number;
     /** Number of primitives in this pass. */
@@ -47,11 +47,12 @@ export interface DTXPassRange  {
  *
  * - getPortion / putPortion
  * - setCulled / setType
- * - flush() rebuilds runs and uploads only when needed
+ * - uploadChanges() rebuilds runs and uploads only when needed
  * - canGetPortion() to check capacity
  */
 export class DTXPrimDrawList {
-    readonly texture: WebGLTexture;
+
+    texture: WebGLTexture;
     readonly capacity: number;
 
     /** One uint per texel. Sized to the full physical texture area. */
@@ -61,7 +62,7 @@ export class DTXPrimDrawList {
     private _texWidth: number;
     private _texHeight: number;
 
-    private _portions: Map<number, DTXPrimDrawListHandle > = new Map();
+    private _portions: Map<number, DTXPrimDrawListHandle> = new Map();
     private _nextId = 1;
     private _needFlush = true;
 
@@ -80,41 +81,52 @@ export class DTXPrimDrawList {
         const gl = opts.gl;
         this._gl = gl;
         this.capacity = opts.capacity | 0;
-
         this._renderPassIds = opts.bins;
-
         const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) | 0; // reserved for future validation
         this._texWidth = Math.min(Math.max(1, opts.texWidth ?? 4096), maxSize);
         this._texHeight = Math.max(1, Math.ceil(this.capacity / this._texWidth));
+    }
 
+    allocate(): boolean {
         // Allocate CPU buffer to full texture area (padding at end is harmless)
         const totalTexels = this._texWidth * this._texHeight;
-        this.buffer = new Uint32Array(totalTexels);
-
         // Create R32UI texture
+        const gl = this._gl;
         const tex = gl.createTexture();
         if (!tex) {
-            throw new Error("DTXPrimList: gl.createTexture() failed");
+            return false;
         }
         this.texture = tex;
-
-        gl.bindTexture(gl.TEXTURE_2D, tex);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-        gl.texStorage2D(gl.TEXTURE_2D, 1, gl.R32UI, this._texWidth, this._texHeight);
-        gl.bindTexture(gl.TEXTURE_2D, null);
+        try {
+            this.buffer = new Uint32Array(totalTexels);
+            gl.bindTexture(gl.TEXTURE_2D, tex);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+            gl.texStorage2D(gl.TEXTURE_2D, 1, gl.R32UI, this._texWidth, this._texHeight);
+            gl.bindTexture(gl.TEXTURE_2D, null);
+        } catch (e) {
+            gl.deleteTexture(tex);
+            return false;
+        }
     }
 
     /** Texture width (in texels). */
-    get texWidth(): number { return this._texWidth; }
-    /** Texture height (in texels). */
-    get texHeight(): number { return this._texHeight; }
+    get texWidth(): number {
+        return this._texWidth;
+    }
 
-    /** Number of primitives currently drawable (post-\`flush\`). */
-    get numPrimitives(): number { return this.numDrawablePrims; }
+    /** Texture height (in texels). */
+    get texHeight(): number {
+        return this._texHeight;
+    }
+
+    /** Number of primitives currently drawable (post-\`uploadChanges\`). */
+    get numPrimitives(): number {
+        return this.numDrawablePrims;
+    }
 
     /** Check if a new portion of \`size\` fits (ignores culling). */
     canGetPortion(size: number): boolean {
@@ -132,7 +144,7 @@ export class DTXPrimDrawList {
             throw new Error("DTXPrimList: Not enough capacity");
         }
         const id = this._nextId++;
-        const portion = { id, size, meshIndex, offset: 0, renderPass, visible: true } as const;
+        const portion = {id, size, meshIndex, offset: 0, renderPass, visible: true} as const;
         this._portions.set(id, portion);
         this._totalAllocatedPrims += size;
         this._needFlush = true;
@@ -184,7 +196,7 @@ export class DTXPrimDrawList {
     }
 
     /** Upload current CPU buffer if dirty; rebuilds runs when necessary. */
-    flush(): boolean {
+    uploadChanges(): boolean {
         if (!this._needFlush) {
             return false;
         }
@@ -212,7 +224,7 @@ export class DTXPrimDrawList {
         );
         gl.bindTexture(gl.TEXTURE_2D, null);
         this._needFlush = false;
-        console.log(`DTXPrimDrawList: flush uploaded ${this.numDrawablePrims} drawable prims`);
+        console.log(`DTXPrimDrawList: uploadChanges uploaded ${this.numDrawablePrims} drawable prims`);
         return true;
     }
 
@@ -227,7 +239,10 @@ export class DTXPrimDrawList {
 
     /** Destroy GL resources. */
     destroy(): void {
-        this._gl.deleteTexture(this.texture);
+        if (this.texture) {
+            this._gl.deleteTexture(this.texture);
+            this.texture = null;
+        }
         // Help GC
         (this.buffer as any) = null;
         this._portions.clear();
@@ -241,7 +256,7 @@ export class DTXPrimDrawList {
         // Build buckets by renderPass while preserving *global* insertion order of portions
         const buckets = new Map<number, Array<DTXPrimDrawListHandle>>();
         for (const p of this._portions.values()) {
-            if (!p.visible) continue; // visible portions don't contribute to runs
+            if (!p.visible) continue; // invisible portions don't contribute to runs
             let arr = buckets.get(p.renderPass);
             if (!arr) {
                 arr = [];
@@ -254,7 +269,7 @@ export class DTXPrimDrawList {
         let base = 0;
         this.passRanges.clear();
 
-        for (const renderPass of this._renderPassIds){
+        for (const renderPass of this._renderPassIds) {
             const group = buckets.get(renderPass);
             const start = base;
             if (group && group.length) {
@@ -267,17 +282,17 @@ export class DTXPrimDrawList {
             }
             const count = base - start;
             if (count > 0) {
-                this.passRanges.set(renderPass, { firstPrim: start, numPrims: count });
+                this.passRanges.set(renderPass, {firstPrim: start, numPrims: count});
             } else {
                 // Ensure a zeroed entry exists only if previously known; consumers can ignore zeros.
                 if (this.passRanges.has(renderPass)) {
-                    this.passRanges.set(renderPass, { firstPrim: 0, numPrims: 0 });
+                    this.passRanges.set(renderPass, {firstPrim: 0, numPrims: 0});
                 }
             }
         }
 
         // Zero out the remainder (optional but keeps content deterministic for debugging)
-       // if (base < this.buffer.length) this.buffer.fill(0, base);
+        // if (base < this.buffer.length) this.buffer.fill(0, base);
 
         this.numDrawablePrims = base;
     }
@@ -291,6 +306,6 @@ export class DTXPrimDrawList {
     static decodeAddress(addr: number, width: number): { x: number; y: number } {
         const a = addr >>> 0;
         const w = width | 0;
-        return { x: (a % w) | 0, y: (a / w) | 0 };
+        return {x: (a % w) | 0, y: (a / w) | 0};
     }
 }

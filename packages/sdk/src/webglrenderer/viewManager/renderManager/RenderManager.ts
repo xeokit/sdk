@@ -1,10 +1,11 @@
 import {WEBGL_INFO} from "../../../webglutils";
-import {RenderContext} from "../../RenderContext";
+import {RenderContext} from "../RenderContext";
 import {MeshManager} from "../meshManager/MeshManager";
 import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
 import {RendererView} from "../RendererView";
 import {GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {MeshBatch} from "../meshManager/MeshBatch";
+import {RENDER_PASSES} from "../RENDER_PASSES";
 
 
 /**
@@ -22,7 +23,7 @@ export class RenderManager {
     private _alphaDepthMask: Boolean;
 
     /**
-     * Creates a DrawManager with the given rendering context, GPU read interface, and drawBatch graph.
+     * Creates a DrawManager with the given rendering context, GPU read interface, and draw graph.
      *
         * @param cfg.renderContext The rendering context.
      * @param cfg.gpuMemoryReader The GPU memory reader.
@@ -65,12 +66,16 @@ export class RenderManager {
         clear: boolean;
     }): void {
 
+        const {view} = rendererView;
         const { clear} = options;
-
-        const view = rendererView.view;
         const viewIndex = view.viewIndex;
-        const gl = this._renderContext.gl;
         const renderContext = this._renderContext;
+        const gl = renderContext.gl;
+        const edgeMaterial = view.edges;
+        const highlightMaterial = view.highlightMaterial;
+        const selectedMaterial = view.selectedMaterial;
+        const xrayMaterial = view.xrayMaterial;
+        const meshBatches = this._meshManager.sortedBatches;
         const drawOps = this._drawOps.prims;
 
         const bins = {
@@ -94,10 +99,10 @@ export class RenderManager {
 
         renderContext.reset();
         renderContext.activeView = view;
-        renderContext.pbrEnabled = rendererView.pbrEnabled;
+        renderContext.pbrEnabled = false; // rendererView.view.pbrEnabled;
 
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-        const bg = rendererView.canvasTransparent ? [0, 0, 0, 0] : [...view.backgroundColor, 1];
+        const bg = rendererView.view.transparent ? [0, 0, 0, 0] : [...view.backgroundColor, 1];
         gl.clearColor(bg[0], bg[1], bg[2], bg[3]);
         gl.enable(gl.DEPTH_TEST);
         gl.frontFace(gl.CCW);
@@ -106,7 +111,7 @@ export class RenderManager {
         gl.lineWidth(1);
         renderContext.lineWidth = 1;
 
-        const drawWithSAO = rendererView.saoEnabled && view.sao.possible;
+        const drawWithSAO = rendererView.view.sao.applied && view.sao.possible;
         renderContext.saoOcclusionTexture = drawWithSAO
             ? rendererView.renderBuffers.getRenderBuffer("saoOcclusion")?.getTexture() ?? null
             : null;
@@ -115,27 +120,13 @@ export class RenderManager {
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         }
 
-        const edgeMaterial = view.edges;
-        const highlightMaterial = view.highlightMaterial;
-        const selectedMaterial = view.selectedMaterial;
-        const xrayMaterial = view.xrayMaterial;
-
-        const meshBatches = this._meshManager.sortedBatches;
-
         meshBatches.forEach(meshBatch => {
-            
-            const meshCounts = meshBatch.meshCounts[viewIndex];
 
-            if (meshCounts.numVisible === 0 || 
-                meshCounts.numCulled === meshCounts.numMeshes) {
-                return;
-            }
-
-            const opaque = meshCounts.numTransparent < meshCounts.numMeshes;
-            const transparent = meshCounts.numTransparent > 0;
-            const xray = meshCounts.numXRayed > 0;
-            const highlight = meshCounts.numHighlighted > 0;
-            const select = meshCounts.numSelected > 0;
+            const opaque = meshBatch.hasMeshesInRenderPass(viewIndex,  RENDER_PASSES.OPAQUE);
+            const transparent = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.TRANSPARENT);
+            const xray = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.XRAYED);
+            const highlight = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.HIGHLIGHTED);
+            const select = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.SELECTED);
 
             if (opaque) {
                 if (drawWithSAO && meshBatch.saoSupported) {
@@ -145,7 +136,7 @@ export class RenderManager {
                 }
             }
 
-            if (rendererView.transparentEnabled && transparent) {
+            if (transparent) {
                 bins.normalFillTransparent.push(meshBatch);
             }
 
@@ -165,7 +156,7 @@ export class RenderManager {
                     : bins.selectedSilhouetteOpaque).push(meshBatch);
             }
 
-            if (rendererView.edgesEnabled && edgeMaterial.applied) {
+            if (edgeMaterial.applied) {
                 if (opaque) {
                     bins.edgesColorOpaque.push(meshBatch);
                 }
@@ -207,7 +198,7 @@ export class RenderManager {
         ) {
             gl.enable(gl.CULL_FACE);
             gl.enable(gl.BLEND);
-            if (rendererView.canvasTransparent) {
+            if (rendererView.view.transparent) {
                 gl.blendEquation(gl.FUNC_ADD);
                 gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
             } else {
@@ -246,7 +237,7 @@ export class RenderManager {
             }
         }
 
-        // Helper to clear depth and drawBatch silhouette + edges
+        // Helper to clear depth and draw silhouette + edges
         const drawSilAndEdges = (
             silBin: MeshBatch[],
             edgesBin: MeshBatch[],

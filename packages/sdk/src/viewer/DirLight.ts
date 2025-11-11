@@ -1,5 +1,3 @@
-import {Component} from "../core";
-import type {CustomProjectionParams} from "./CustomProjectionParams";
 import type {DirLightParams} from "./DirLightParams";
 import type {FloatArrayParam} from "../math";
 import type {View} from "./View";
@@ -14,7 +12,7 @@ import type {View} from "./View";
  * relative to the View coordinate system, and will behave as if fixed to the viewer's head.
  * * {@link AmbientLight}s, {@link DirLight}s and {@link PointLight}s are registered by their {@link Component.id} on {@link View.lights}.
  */
-class DirLight extends Component {
+class DirLight  {
 
   /**
    ID of this DirLight, unique within the {@link View}.
@@ -26,13 +24,10 @@ class DirLight extends Component {
    */
   public readonly view: View;
 
-  #state: {
-    type: "dir";
-    dir: Float32Array<any>;
-    color: Float32Array<any>;
-    intensity: number;
-    space: string
-  };
+  private _dir: FloatArrayParam;
+  private _color: FloatArrayParam;
+  private _intensity: number;
+  private _space: string;
 
   /**
    * @param view View that owns this DirLight. When destroyed, the View will destroy this DirLight as well.
@@ -44,15 +39,11 @@ class DirLight extends Component {
    * @param [options.space="view"] The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
    */
   constructor(view: View, options: DirLightParams = {}) {
-    super(view, options);
     this.view = view;
-    this.#state = {
-      type: "dir",
-      dir: new Float32Array(options.dir || [1.0, 1.0, 1.0]),
-      color: new Float32Array(options.color || [0.7, 0.7, 0.8]),
-      intensity: (options.intensity !== undefined && options.intensity !== null) ? options.intensity : 1.0,
-      space: options.space || "view"
-    };
+    this._dir = new Float32Array(options.dir || [1.0, 1.0, 1.0]);
+    this._color = new Float32Array(options.color || [0.7, 0.7, 0.8]);
+    this._intensity = options.intensity !== undefined ? options.intensity : 1.0;
+    this._space = options.space || "view";
     this.view.registerLight(this);
   }
 
@@ -64,14 +55,14 @@ class DirLight extends Component {
    * @returns {Number[]} The direction vector.
    */
   get dir(): FloatArrayParam {
-    return this.#state.dir;
+    return this._dir;
   }
 
   /**
    * The coordinate system the DirLight is defined in - ````"view"```` or ````"space"````.
    */
   get space(): string {
-    return this.#state.space;
+    return this._space;
   }
 
   /**
@@ -82,7 +73,8 @@ class DirLight extends Component {
    * @param value The direction vector.
    */
   set dir(value: FloatArrayParam) {
-    this.#state.dir.set(value);
+    // @@ts-ignore
+    this._dir.set(value);
     this.view.needsRender();
   }
 
@@ -94,7 +86,7 @@ class DirLight extends Component {
    * @returns {Number[]} The DirLight's RGB color.
    */
   get color(): FloatArrayParam {
-    return this.#state.color;
+    return this._color;
   }
 
   /**
@@ -105,7 +97,8 @@ class DirLight extends Component {
    * @param color The DirLight's RGB color.
    */
   set color(color: FloatArrayParam) {
-    this.#state.color.set(color);
+    // @@ts-ignore
+    this._color.set(color);
     this.view.needsRender();
   }
 
@@ -117,7 +110,7 @@ class DirLight extends Component {
    * @returns {Number} The DirLight's intensity.
    */
   get intensity(): number {
-    return this.#state.intensity;
+    return this._intensity;
   }
 
   /**
@@ -128,7 +121,7 @@ class DirLight extends Component {
    * @param intensity The DirLight's intensity
    */
   set intensity(intensity: number) {
-    this.#state.intensity = intensity;
+    this._intensity = intensity;
     this.view.needsRender();
   }
 
@@ -170,7 +163,6 @@ class DirLight extends Component {
    * Destroys this DirLight.
    */
   destroy() {
-    super.destroy();
     this.view.deregisterLight(this);
     this.view.needsRender();
   }

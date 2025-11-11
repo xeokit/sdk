@@ -16,8 +16,8 @@ export interface DTXUvec4ArrayOptions {
  * - Tracks dirty indices and uploads only changed texels.
  */
 export class DTXGeometryAttribs {
-  readonly texture: WebGLTexture;
-  readonly capacity: number;
+  public texture: WebGLTexture;
+  public capacity: number;
 
   /** Backing lanes (RGBA32UI). One element = 4 uint32s (16 bytes). */
   public buffer: Uint32Array<any>;
@@ -30,13 +30,13 @@ export class DTXGeometryAttribs {
   constructor( options: DTXUvec4ArrayOptions ) {
     this._gl = options.gl;
     this.capacity = options.capacity;
+  }
 
+  allocate(): boolean {
     // Clamp to device limits and keep rows wide to reduce uploads.
     const gl = this._gl;
     const maxSize = (gl.getParameter(gl.MAX_TEXTURE_SIZE) as number) | 0;
-
     this._texWidth = 4096;
-
     const texelsNeeded = this.capacity;
     this._texHeight = Math.max(1, Math.ceil(texelsNeeded / this._texWidth));
     // if (this._texHeight > maxSize) {
@@ -49,24 +49,30 @@ export class DTXGeometryAttribs {
     //     );
     //   }
     // }
-
     const totalTexels = this._texWidth * this._texHeight;
     const totalElems = totalTexels * 4; // 4 uint32 lanes per texel
     this.buffer = new Uint32Array(totalElems);
-
     // Allocate integer texture (RGBA32UI)
     const tex = gl.createTexture()!;
-    gl.bindTexture(gl.TEXTURE_2D, tex);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); // safe for tightly packed rows
-    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32UI, this._texWidth, this._texHeight);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    if (!tex) {
+        return false;
+    }
+    try {
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); // safe for tightly packed rows
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32UI, this._texWidth, this._texHeight);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    } catch (e) {
+      gl.deleteTexture(tex);
+      return false;
+    }
     this.texture = tex;
+    return true;
   }
-
   /** Texture size (texels). */
   get texWidth(): number {
     return this._texWidth;
@@ -109,7 +115,7 @@ export class DTXGeometryAttribs {
   }
 
   /** Upload dirty elements. Groups contiguous indices and splits at row ends. */
-  flush(): boolean {
+  uploadChanges(): boolean {
     if (this._dirty.size === 0) {
       return false;
     }
@@ -174,7 +180,10 @@ export class DTXGeometryAttribs {
   }
 
   destroy(): void {
-    this._gl.deleteTexture(this.texture);
+    if (this.texture) {
+      this.buffer = null;
+      this._gl.deleteTexture(this.texture);
+    }
   }
 }
 

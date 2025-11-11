@@ -1,5 +1,6 @@
 import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
+import {SDKErrorType, SDKResult} from "../core";
 
 /**
  * Creates a grid-shaped geometry.
@@ -11,41 +12,48 @@ import type {GeometryArrays} from "./GeometryArrays";
  * ## Usage
  *
  * ````javascript
- * const gridGeometry = buildGridGeometry({
+ * const gridGeometryResult = buildGridGeometry({
  *     size: 10,               // Size of the grid along both X and Z axes
  *     divisions: 10           // Number of divisions (grid lines) along X and Z axes
  * });
+ *
+ * if (gridGeometryResult.ok) {
+ *    const gridGeometry = gridGeometryResult.value;
+ *    // Use gridGeometry here
+ * } else {
+ *    console.error("Error creating grid geometry:", gridGeometryResult.error);
+ * }
  * ````
  *
  * @param cfg Configuration for the grid geometry.
  * @param [cfg.size=1] The size of the grid along both the X and Z axes. Default is `1`.
  * @param [cfg.divisions=1] The number of divisions (lines) on the X and Z axes. Default is `1`.
- * @returns {GeometryArrays} The geometry arrays for the grid, including positions and indices for the lines.
- *
- * @throws {SDKError} If any of the size or division parameters are negative, the function automatically inverts the values and logs a warning.
+ * @returns {SDKResult<GeometryArrays, string>} The geometry arrays for the grid, including positions and indices for the lines, or an error message.
  */
 export function buildGridGeometry(cfg = {
   size: 1,
   divisions: 1
-}): GeometryArrays {
-
+}): SDKResult<GeometryArrays, string> {
   let size = cfg.size || 1;
   if (size < 0) {
-    console.error("negative size not allowed - will invert");
-    size *= -1;
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidParameter,
+      error: "Negative size not allowed."
+    };
   }
 
   let divisions = cfg.divisions || 1;
   if (divisions < 0) {
-    console.error("negative divisions not allowed - will invert");
-    divisions *= -1;
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidParameter,
+      error: "Negative divisions not allowed."
+    };
   }
   if (divisions < 1) {
     divisions = 1;
   }
-
-  size = size || 10;
-  divisions = divisions || 10;
 
   const step = size / divisions;
   const halfSize = size / 2;
@@ -55,36 +63,24 @@ export function buildGridGeometry(cfg = {
   let l = 0;
 
   // Create the grid lines (X and Z axis)
-  for (let i = 0, j = 0, k = -halfSize; i <= divisions; i++, k += step) {
-
+  for (let i = 0, k = -halfSize; i <= divisions; i++, k += step) {
     // X-axis lines
-    positions.push(-halfSize);
-    positions.push(0);
-    positions.push(k);
-
-    positions.push(halfSize);
-    positions.push(0);
-    positions.push(k);
+    positions.push(-halfSize, 0, k);
+    positions.push(halfSize, 0, k);
 
     // Z-axis lines
-    positions.push(k);
-    positions.push(0);
-    positions.push(-halfSize);
-
-    positions.push(k);
-    positions.push(0);
-    positions.push(halfSize);
+    positions.push(k, 0, -halfSize);
+    positions.push(k, 0, halfSize);
 
     // Add indices for the lines
-    indices.push(l++);
-    indices.push(l++);
-    indices.push(l++);
-    indices.push(l++);
+    indices.push(l++, l++, l++, l++);
   }
 
-  return utils.apply(cfg, {
+  const geometryArrays: GeometryArrays = utils.apply(cfg, {
     primitive: "lines",
     positions: positions,
     indices: indices
   });
+
+  return { ok: true, value: geometryArrays };
 }

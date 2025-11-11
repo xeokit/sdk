@@ -4,10 +4,9 @@ import {
   transformPoint4,
   subVec3
 } from "../../../matrix";
-import type {SceneMeshRendererProxy} from "../../../scene";
 import type {FloatArrayParam} from "../../../math";
 import type {MeshBatchImpl} from "./MeshBatchImpl";
-import type {RenderContext} from "../../RenderContext";
+import type {RenderContext} from "../RenderContext";
 import {SceneMesh} from "../../../scene";
 import {type Tile} from "../gpuMemoryManager/Tile";
 import {type GPUMemoryEditor} from "../gpuMemoryManager/GPUMemoryEditor";
@@ -26,32 +25,18 @@ const NUM_VIEWS = 4;
 
 /**
  * Represents a mesh in the WebGLRenderer.
- *
- * This class encapsulates the data and behavior of a mesh within the WebGL rendering pipeline.
- * It manages the mesh's geometry, transformation, visibility, and rendering states for multiple viewManager.
- * The mesh is associated with a specific meshBatch and is associated with a tile managed by the `GPUMemoryBatch` system.
- * The `GPUMemoryBatch` is part of the `RenderContext`, which is shared across various renderer components.
- *
- * Key responsibilities:
- * - Managing the mesh's transformation matrix and associating it with a tile from `GPUMemoryBatch`.
- * - Handling rendering states such as visibility, transparency, highlighting, and selection.
- * - Managing color and opacity for the mesh across multiple viewManager.
- * - Interfacing with the _meshBatch to update mesh-specific rendering properties.
- *
  * @private
  */
 
-export class RendererMesh implements SceneMeshRendererProxy {
+export class RendererMesh {
 
-  public rendererObject: RendererObject; // Set in MeshBatches._addObject
   public tile: Tile;
 
-  private readonly _sceneMesh: SceneMesh;
-  private readonly _meshHandle: MeshBatchMeshHandle;
-  private readonly _meshBatch: MeshBatchImpl;
   private readonly _renderContext: RenderContext;
+  private readonly _sceneMesh: SceneMesh;
+  private readonly _meshBatch: MeshBatchImpl;
+  private readonly _meshHandle: MeshBatchMeshHandle;
   private readonly _gpuMemoryEditor: GPUMemoryEditor;
-
   private readonly _viewStates: {
     colorize: [number, number, number, number];
     colorizing: boolean;
@@ -73,7 +58,6 @@ export class RendererMesh implements SceneMeshRendererProxy {
     gpuMemoryEditor: GPUMemoryEditor;
   } ) {
 
-    this.rendererObject = null;
     this._renderContext = renderContext;
     this._sceneMesh = sceneMesh;
     this._meshBatch = meshBatch;
@@ -99,15 +83,8 @@ export class RendererMesh implements SceneMeshRendererProxy {
   }
 
   /**
-   * Initializes mesh flags for a specific view.
-   */
-  initFlags( viewIndex: number, renderFlags: number ) {
-    this._meshBatch.initMeshFlags(viewIndex, this._meshHandle, renderFlags);
-  }
-
-  /**
    * Sets the transformation matrix for the mesh.
-   * Called by SceneMesh.matrix setter.
+   * Triggered by SceneMesh.globalMatrix setter.
    */
   setMatrix( matrix: FloatArrayParam ): void {
     matrix = matrix || tempIdentityMat4;
@@ -122,22 +99,17 @@ export class RendererMesh implements SceneMeshRendererProxy {
     }
     const tileCenter = this.tile.center;
     const relativeMatrix = createMat4(matrix);
-
     // const worldOrigin = matrix.slice(12, 15); // translation xyz
     // const origin = [];
     //worldToRTCPositions(worldOrigin, worldOrigin, origin);
-
     relativeMatrix.set(subVec3(center,tileCenter), 12);
-
     //relativeMatrix.set(worldOrigin, 12);
-
     this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix);
-    this._renderContext.setAllViewsDirty(); // Since caller is SceneMesh, where we're at this API boundary
   }
 
   /**
    * Sets the color of the mesh.
-   * Called by SceneMesh.color setter.
+   * Triggered by SceneMesh.color setter.
    */
   setColor( color: FloatArrayParam ) {
     for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
@@ -146,14 +118,13 @@ export class RendererMesh implements SceneMeshRendererProxy {
         this._meshBatch.setMeshColor(viewIndex, this._meshHandle, color);
       }
     }
-    this._renderContext.setAllViewsDirty()
   }
 
   /**
    * Sets the visibility of the mesh for a specific view.
    * Called by RendererObject.setVisible().
    */
-  setVisible( viewIndex: number, renderFlags: number ) {
+  setVisible( viewIndex: number, renderFlags: boolean ) {
     this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, renderFlags);
   }
 
@@ -194,47 +165,50 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Sets the transparency of the mesh for a specific view.
    * Called by RendererObject.setTransparency().
    */
-  setTransparent( viewIndex: number, renderFlags: number ) {
-    this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, renderFlags);
+  setTransparent( viewIndex: number, transparent: boolean ) {
+    this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
   }
 
   /**
    * Sets the highlight state of the mesh for a specific view.
    * Called by RendererObject.setHighlighted().
    */
-  setHighlighted( viewIndex: number, renderFlags: number ) {
-    this._meshBatch.setMeshHighlighted(viewIndex, this._meshHandle, renderFlags);
+  setHighlighted( viewIndex: number, highlighted: boolean) {
+    const transparent = this._viewStates[viewIndex].transparent; // For restore to opaque vs transparent bin, when un-highlighting
+    this._meshBatch.setMeshHighlighted(viewIndex, this._meshHandle, highlighted, transparent);
   }
 
   /**
    * Sets the x-ray state of the mesh for a specific view.
    * Called by RendererObject.setXRayed().
    */
-  setXRayed( viewIndex: number, renderFlags: number ) {
-    this._meshBatch.setMeshXRayed(viewIndex, this._meshHandle, renderFlags);
+  setXRayed( viewIndex: number, xrayed: boolean) {
+    const transparent = this._viewStates[viewIndex].transparent; // For restore to opaque vs transparent bin, when un-x-raying
+    this._meshBatch.setMeshXRayed(viewIndex, this._meshHandle, xrayed, transparent);
   }
 
   /**
    * Sets the selection state of the mesh for a specific view.
    * Called by RendererObject.setSelected().
    */
-  setSelected( viewIndex: number, renderFlags: number ) {
-    this._meshBatch.setMeshSelected(viewIndex, this._meshHandle, renderFlags);
+  setSelected( viewIndex: number, selected: boolean ) {
+    const transparent = this._viewStates[viewIndex].transparent; // For restore to opaque vs transparent bin, when de-selecting
+    this._meshBatch.setMeshSelected(viewIndex, this._meshHandle, selected, transparent);
   }
 
   /**
    * Sets the clippable state of the mesh for a specific view.
    * Called by RendererObject.setClippable().
    */
-  setClippable( viewIndex: number, renderFlags: number ) {
-    this._meshBatch.setMeshClippable(viewIndex, this._meshHandle, renderFlags);
+  setClippable( viewIndex: number, clippable: boolean ) {
+    this._meshBatch.setMeshClippable(viewIndex, this._meshHandle, clippable);
   }
 
   /**
    * Sets the collidable state of the mesh for a specific view.
    * Called by RendererObject.setCollidable().
    */
-  setCollidable( viewIndex: number, renderFlags: number ) {
+  setCollidable( viewIndex: number, collidable: boolean ) {
     // this._meshBatch.setLayerMeshCollidable(viewIndex, this._meshHandle, renderFlags);
   }
 
@@ -242,23 +216,23 @@ export class RendererMesh implements SceneMeshRendererProxy {
    * Sets the pickable state of the mesh for a specific view.
    * Called by RendererObject.setPickable().
    */
-  setPickable( viewIndex: number, renderFlags: number ) {
-    this._meshBatch.setMeshPickable(viewIndex, this._meshHandle, renderFlags);
+  setPickable( viewIndex: number, pickable: boolean ) {
+    this._meshBatch.setMeshPickable(viewIndex, this._meshHandle, pickable);
   }
 
   /**
    * Sets the culled state of the mesh for a specific view.
    * Called by RendererObject.setCulled().
    */
-  setCulled( viewIndex: number, renderFlags: number ) {
-    this._meshBatch.setMeshCulled(viewIndex, this._meshHandle, renderFlags);
+  setCulled( viewIndex: number, culled: boolean ) {
+    this._meshBatch.setMeshCulled(viewIndex, this._meshHandle, culled);
   }
 
   /**
    * Destroys the mesh and releases associated resources.
    */
   destroy() {
-    this._meshBatch.removeMesh(this._meshHandle, this.rendererObject.renderFlags);
+    this._meshBatch.removeMesh(this._meshHandle);
     if (this.tile) {
       this._gpuMemoryEditor.putTile(this.tile);
     }

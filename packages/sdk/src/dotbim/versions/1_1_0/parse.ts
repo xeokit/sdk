@@ -1,7 +1,6 @@
-import {ifcTypeCodes} from "../../../ifctypes";
-import type {ModelParser} from "../../../io";
-import {SDKError} from "../../../core";
-import {TrianglesPrimitive} from "../../../constants";
+import { ifcTypeCodes } from "../../../ifctypes";
+import type { ModelParser } from "../../../io";
+import { TrianglesPrimitive } from "../../../constants";
 
 /**
  * @private
@@ -15,14 +14,14 @@ export const parse: ModelParser = async (params, options) => {
       if (meshes) {
         for (let i = 0, len = meshes.length; i < len; i++) {
           const mesh = meshes[i];
-          const geometry = params.sceneModel.createGeometry({
+          const geometryRes = params.sceneModel.createGeometry({
             id: mesh.mesh_id,
             primitive: TrianglesPrimitive,
             positions: mesh.coordinates,
-            indices: mesh.indices
+            indices: mesh.indices,
           });
-          if (geometry instanceof SDKError) {
-            // params.error(`[SceneModel.createGeometry]: ${geometry.message}`);
+          if (!geometryRes.ok) {
+            // params.error(`[SceneModel.createGeometry]: ${geometryRes.error}`);
           }
         }
       }
@@ -34,11 +33,11 @@ export const parse: ModelParser = async (params, options) => {
         const element = elements[i];
         const info = element.info;
         const objectId =
-          element.guid !== undefined
-            ? `${element.guid}`
-            : (info !== undefined && info.id !== undefined
-              ? info.id
-              : i);
+            element.guid !== undefined
+                ? `${element.guid}`
+                : info !== undefined && info.id !== undefined
+                    ? info.id
+                    : i;
 
         if (params.sceneModel) {
           const geometryId = element.mesh_id;
@@ -46,39 +45,44 @@ export const parse: ModelParser = async (params, options) => {
           const vector = element.vector;
           const rotation = element.rotation;
           const color = element.color;
-          const mesh = params.sceneModel.createMesh({
+
+          const meshRes = params.sceneModel.createMesh({
             id: meshId,
             geometryId,
-            color: color ? [color.r / 255.0, color.g / 255.0, color.b / 255.0] : undefined,
+            color: color
+                ? [color.r / 255.0, color.g / 255.0, color.b / 255.0]
+                : undefined,
             opacity: color ? color.a / 255.0 : 1.0,
-            quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : undefined,
-            position: [vector.x, vector.y, vector.z]
+            quaternion: rotation
+                ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw]
+                : undefined,
+            position: [vector.x, vector.y, vector.z],
           });
-          if (mesh instanceof SDKError) {
-            // params.error(`[SceneModel.addMesh]: ${mesh.message}`);
+          if (!meshRes.ok) {
+            // params.error(`[SceneModel.createMesh]: ${meshRes.error}`);
             continue;
           }
 
-          const sceneObject = params.sceneModel.createObject({
+          const sceneObjectRes = params.sceneModel.createObject({
             id: objectId,
-            meshIds: [meshId]
+            meshIds: [meshId],
           });
-          if (sceneObject instanceof SDKError) {
-            // params.error(`[SceneModel.createObject]: ${sceneObject.message}`);
+          if (!sceneObjectRes.ok) {
+            // params.error(`[SceneModel.createObject]: ${sceneObjectRes.error}`);
             continue;
           }
         }
 
         if (params.dataModel) {
           if (!params.dataModel.objects[element.guid]) {
-            const dataObject = params.dataModel.createObject({
+            const dataObjectRes = params.dataModel.createObject({
               id: objectId,
               type: ifcTypeCodes[element.type],
-              name: info.Name,
-              description: info.Description
+              name: info?.Name,
+              description: info?.Description,
             });
-            if (dataObject instanceof SDKError) {
-              // params.error(`[SceneModel.createObject]: ${dataObject.message}`);
+            if (!dataObjectRes.ok) {
+              // params.error(`[DataModel.createObject]: ${dataObjectRes.error}`);
             }
           }
         }

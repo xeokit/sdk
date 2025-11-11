@@ -1,6 +1,4 @@
-import {Component, EventEmitter} from "../core";
 import type {Scene, SceneModel} from "../scene";
-import {EventDispatcher} from "strongly-typed-events";
 import type {View} from "./View";
 import type {Viewer} from "./Viewer";
 import type {ViewLayerParams} from "./ViewLayerParams";
@@ -292,7 +290,7 @@ import type {ViewParams} from "./ViewParams";
  * environmentLayer.setObjectsVisible(environmentLayer.objectIds, false);
  * ````
  */
-class ViewLayer extends Component {
+class ViewLayer  {
 
   /**
    ID of this ViewLayer, unique within the {@link View}.
@@ -380,45 +378,45 @@ class ViewLayer extends Component {
    */
   autoDestroy: boolean;
 
-  /**
-   * Emits an event each time a {@link ViewObject} is created in this ViewLayer.
-   *
-   * @event
-   */
-  readonly onObjectCreated: EventEmitter<ViewLayer, ViewObject>;
+  // /**
+  //  * Emits an event each time a {@link ViewObject} is created in this ViewLayer.
+  //  *
+  //  * @event
+  //  */
+  // readonly objectCreated: EventEmitter<ViewLayer, ViewObject>;
+  //
+  // /**
+  //  * Emits an event each time a {@link ViewObject} is destroyed in this ViewLayer.
+  //  *
+  //  * @event
+  //  */
+  // readonly objectDestroyed: EventEmitter<ViewLayer, ViewObject>;
+  //
+  // /**
+  //  * Emits an event each time the visibility of a {@link ViewObject} changes.
+  //  *
+  //  * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
+  //  *
+  //  * @event
+  //  */
+  // readonly onObjectVisibility: EventEmitter<ViewLayer, ViewObject>;
 
-  /**
-   * Emits an event each time a {@link ViewObject} is destroyed in this ViewLayer.
-   *
-   * @event
-   */
-  readonly onObjectDestroyed: EventEmitter<ViewLayer, ViewObject>;
+  _renderModes: number[];
 
-  /**
-   * Emits an event each time the visibility of a {@link ViewObject} changes.
-   *
-   * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
-   *
-   * @event
-   */
-  readonly onObjectVisibility: EventEmitter<ViewLayer, ViewObject>;
-
-  #renderModes: number[];
-
-  #numObjects: number;
-  #objectIds: string[] | null;
-  #numVisibleObjects: number;
-  #visibleObjectIds: string[] | null;
-  #numXRayedObjects: number;
-  #xrayedObjectIds: string[] | null;
-  #numHighlightedObjects: number;
-  #highlightedObjectIds: string[] | null;
-  #numSelectedObjects: number;
-  #selectedObjectIds: string[] | null;
-  #numColorizedObjects: number;
-  #colorizedObjectIds: string[] | null;
-  #numOpacityObjects: number;
-  #opacityObjectIds: string[] | null;
+  _numObjects: number;
+  _objectIds: string[] | null;
+  _numVisibleObjects: number;
+  _visibleObjectIds: string[] | null;
+  _numXRayedObjects: number;
+  _xrayedObjectIds: string[] | null;
+  _numHighlightedObjects: number;
+  _highlightedObjectIds: string[] | null;
+  _numSelectedObjects: number;
+  _selectedObjectIds: string[] | null;
+  _numColorizedObjects: number;
+  _colorizedObjectIds: string[] | null;
+  _numOpacityObjects: number;
+  _opacityObjectIds: string[] | null;
 
   gammaOutput: boolean;
 
@@ -429,8 +427,6 @@ class ViewLayer extends Component {
     renderMode?: number;
     autoDestroy?: boolean;
   }) {
-
-    super(options.view, options);
 
     this.id = options.id;
     this.viewer = options.viewer;
@@ -446,21 +442,17 @@ class ViewLayer extends Component {
 
     this.autoDestroy = (options.autoDestroy !== false);
 
-    this.#numObjects = 0;
-    this.#numVisibleObjects = 0;
-    this.#numXRayedObjects = 0
-    this.#numHighlightedObjects = 0;
-    this.#numSelectedObjects = 0;
-    this.#numColorizedObjects = 0;
-    this.#numOpacityObjects = 0;
+    this._numObjects = 0;
+    this._numVisibleObjects = 0;
+    this._numXRayedObjects = 0
+    this._numHighlightedObjects = 0;
+    this._numSelectedObjects = 0;
+    this._numColorizedObjects = 0;
+    this._numOpacityObjects = 0;
 
-    this.#renderModes = [];
+    this._renderModes = [];
 
-    this.onObjectCreated = new EventEmitter(new EventDispatcher<ViewLayer, ViewObject>());
-    this.onObjectDestroyed = new EventEmitter(new EventDispatcher<ViewLayer, ViewObject>());
-    this.onObjectVisibility = new EventEmitter(new EventDispatcher<ViewLayer, ViewObject>());
-
-    this.#initViewObjects();
+    this._initViewObjects();
   }
 
   /**
@@ -476,7 +468,7 @@ class ViewLayer extends Component {
    * Default value is [].
    */
   set renderModes(value: number[]) {
-    this.#renderModes = value;
+    this._renderModes = value;
     this.view.needsRender();
   }
 
@@ -486,126 +478,126 @@ class ViewLayer extends Component {
    * Default value is [].
    */
   get renderModes(): number[] {
-    return this.#renderModes;
+    return this._renderModes;
   }
 
   /**
    * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get numObjects(): number {
-    return this.#numObjects;
+    return this._numObjects;
   }
 
   /**
    * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get objectIds(): string[] {
-    if (!this.#objectIds) {
-      this.#objectIds = Object.keys(this.objects);
+    if (!this._objectIds) {
+      this._objectIds = Object.keys(this.objects);
     }
-    return this.#objectIds;
+    return this._objectIds;
   }
 
   /**
    * Gets the number of visible {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get numVisibleObjects(): number {
-    return this.#numVisibleObjects;
+    return this._numVisibleObjects;
   }
 
   /**
    * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get visibleObjectIds(): string[] {
-    if (!this.#visibleObjectIds) {
-      this.#visibleObjectIds = Object.keys(this.visibleObjects);
+    if (!this._visibleObjectIds) {
+      this._visibleObjectIds = Object.keys(this.visibleObjects);
     }
-    return this.#visibleObjectIds;
+    return this._visibleObjectIds;
   }
 
   /**
    * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get numXRayedObjects(): number {
-    return this.#numXRayedObjects;
+    return this._numXRayedObjects;
   }
 
   /**
    * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get xrayedObjectIds(): string[] {
-    if (!this.#xrayedObjectIds) {
-      this.#xrayedObjectIds = Object.keys(this.xrayedObjects);
+    if (!this._xrayedObjectIds) {
+      this._xrayedObjectIds = Object.keys(this.xrayedObjects);
     }
-    return this.#xrayedObjectIds;
+    return this._xrayedObjectIds;
   }
 
   /**
    * Gets the number of highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get numHighlightedObjects(): number {
-    return this.#numHighlightedObjects;
+    return this._numHighlightedObjects;
   }
 
   /**
    * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get highlightedObjectIds(): string[] {
-    if (!this.#highlightedObjectIds) {
-      this.#highlightedObjectIds = Object.keys(this.highlightedObjects);
+    if (!this._highlightedObjectIds) {
+      this._highlightedObjectIds = Object.keys(this.highlightedObjects);
     }
-    return this.#highlightedObjectIds;
+    return this._highlightedObjectIds;
   }
 
   /**
    * Gets the number of selected {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get numSelectedObjects(): number {
-    return this.#numSelectedObjects;
+    return this._numSelectedObjects;
   }
 
   /**
    * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get selectedObjectIds(): string[] {
-    if (!this.#selectedObjectIds) {
-      this.#selectedObjectIds = Object.keys(this.selectedObjects);
+    if (!this._selectedObjectIds) {
+      this._selectedObjectIds = Object.keys(this.selectedObjects);
     }
-    return this.#selectedObjectIds;
+    return this._selectedObjectIds;
   }
 
   /**
    * Gets the number of colorized {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get numColorizedObjects(): number {
-    return this.#numColorizedObjects;
+    return this._numColorizedObjects;
   }
 
   /**
    * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this ViewLayer.
    */
   get colorizedObjectIds(): string[] {
-    if (!this.#colorizedObjectIds) {
-      this.#colorizedObjectIds = Object.keys(this.colorizedObjects);
+    if (!this._colorizedObjectIds) {
+      this._colorizedObjectIds = Object.keys(this.colorizedObjects);
     }
-    return this.#colorizedObjectIds;
+    return this._colorizedObjectIds;
   }
 
   /**
    * Gets the IDs of the {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
    */
   get opacityObjectIds(): string[] {
-    if (!this.#opacityObjectIds) {
-      this.#opacityObjectIds = Object.keys(this.opacityObjects);
+    if (!this._opacityObjectIds) {
+      this._opacityObjectIds = Object.keys(this.opacityObjects);
     }
-    return this.#opacityObjectIds;
+    return this._opacityObjectIds;
   }
 
   /**
    * Gets the number of {@link ViewObject | ViewObjects} in this ViewLayer that have updated opacities.
    */
   get numOpacityObjects(): number {
-    return this.#numOpacityObjects;
+    return this._numOpacityObjects;
   }
 
   /**
@@ -613,9 +605,9 @@ class ViewLayer extends Component {
    */
   registerViewObject(viewObject: ViewObject) {
     this.objects[viewObject.id] = viewObject;
-    this.#numObjects++;
-    this.#objectIds = null; // Lazy regenerate
-    this.onObjectCreated.dispatch(this, viewObject);
+    this._numObjects++;
+    this._objectIds = null; // Lazy regenerate
+   // this.objectCreated.dispatch(this, viewObject);
   }
 
   /**
@@ -629,101 +621,106 @@ class ViewLayer extends Component {
     delete this.selectedObjects[viewObject.id];
     delete this.colorizedObjects[viewObject.id];
     delete this.opacityObjects[viewObject.id];
-    this.#numObjects--;
-    this.#objectIds = null; // Lazy regenerate
-    this.onObjectDestroyed.dispatch(this, viewObject);
+    this._numObjects--;
+    this._objectIds = null; // Lazy regenerate
+  //  this.objectDestroyed.dispatch(this, viewObject);
   }
 
   /**
+   * Called by ViewObject.visible setter.
    * @private
    */
   objectVisibilityUpdated(viewObject: ViewObject, visible: boolean, notify: boolean = true) {
     if (visible) {
       this.visibleObjects[viewObject.id] = viewObject;
-      this.#numVisibleObjects++;
+      this._numVisibleObjects++;
     } else {
       delete this.visibleObjects[viewObject.id];
-      this.#numVisibleObjects--;
+      this._numVisibleObjects--;
     }
-    this.#visibleObjectIds = null; // Lazy regenerate
-    if (notify) {
-      this.onObjectVisibility.dispatch(this, viewObject);
-    }
+    this._visibleObjectIds = null; // Lazy regenerate
+     if (notify) {
     this.view.objectVisibilityUpdated(viewObject, visible, notify);
+     }
   }
 
   /**
+   * Called by ViewObject.xrayed setter.
    * @private
    */
   objectXRayedUpdated(viewObject: ViewObject, xrayed: boolean) {
     if (xrayed) {
       this.xrayedObjects[viewObject.id] = viewObject;
-      this.#numXRayedObjects++;
+      this._numXRayedObjects++;
     } else {
       delete this.xrayedObjects[viewObject.id];
-      this.#numXRayedObjects--;
+      this._numXRayedObjects--;
     }
-    this.#xrayedObjectIds = null; // Lazy regenerate
+    this._xrayedObjectIds = null; // Lazy regenerate
     this.view.objectXRayedUpdated(viewObject, xrayed);
   }
 
   /**
+   * Called by ViewObject.highlighted setter.
    * @private
    */
   objectHighlightedUpdated(viewObject: ViewObject, highlighted: boolean) {
     if (highlighted) {
       this.highlightedObjects[viewObject.id] = viewObject;
-      this.#numHighlightedObjects++;
+      this._numHighlightedObjects++;
     } else {
       delete this.highlightedObjects[viewObject.id];
-      this.#numHighlightedObjects--;
+      this._numHighlightedObjects--;
     }
-    this.#highlightedObjectIds = null; // Lazy regenerate
+    this._highlightedObjectIds = null; // Lazy regenerate
     this.view.objectHighlightedUpdated(viewObject, highlighted);
   }
 
   /**
+   * Called by ViewObject.selected setter.
    * @private
    */
   objectSelectedUpdated(viewObject: ViewObject, selected: boolean) {
     if (selected) {
       this.selectedObjects[viewObject.id] = viewObject;
-      this.#numSelectedObjects++;
+      this._numSelectedObjects++;
     } else {
       delete this.selectedObjects[viewObject.id];
-      this.#numSelectedObjects--;
+      this._numSelectedObjects--;
     }
-    this.#selectedObjectIds = null; // Lazy regenerate
+    this._selectedObjectIds = null; // Lazy regenerate
     this.view.objectSelectedUpdated(viewObject, selected);
   }
 
   /**
+   * Called by ViewObject.colorized setter.
    * @private
    */
   objectColorizeUpdated(viewObject: ViewObject, colorized: boolean) {
     if (colorized) {
       this.colorizedObjects[viewObject.id] = viewObject;
-      this.#numColorizedObjects++;
+      this._numColorizedObjects++;
     } else {
       delete this.colorizedObjects[viewObject.id];
-      this.#numColorizedObjects--;
+      this._numColorizedObjects--;
     }
-    this.#colorizedObjectIds = null; // Lazy regenerate
+    this._colorizedObjectIds = null; // Lazy regenerate
     this.view.objectColorizeUpdated(viewObject, colorized);
   }
 
   /**
+   * Called by ViewObject.opacity setter.
    * @private
    */
   objectOpacityUpdated(viewObject: ViewObject, opacityUpdated: boolean) {
     if (opacityUpdated) {
       this.opacityObjects[viewObject.id] = viewObject;
-      this.#numOpacityObjects++;
+      this._numOpacityObjects++;
     } else {
       delete this.opacityObjects[viewObject.id];
-      this.#numOpacityObjects--;
+      this._numOpacityObjects--;
     }
-    this.#opacityObjectIds = null; // Lazy regenerate
+    this._opacityObjectIds = null; // Lazy regenerate
     this.view.objectOpacityUpdated(viewObject, opacityUpdated);
   }
 
@@ -740,10 +737,7 @@ class ViewLayer extends Component {
   setObjectsVisible(objectIds: string[], visible: boolean): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = (viewObject.visible !== visible);
-      viewObject.visible = visible;
-      if (changed) {
-        this.onObjectVisibility.dispatch(this, viewObject);
-      }
+      viewObject.visible = visible; // Triggers ViewLayer.objectVisibilityUpdated
       return changed;
     });
   }
@@ -795,7 +789,7 @@ class ViewLayer extends Component {
   setObjectsSelected(objectIds: string[], selected: boolean): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = (viewObject.selected !== selected);
-      viewObject.selected = selected;
+      viewObject.selected = selected; // Triggers ViewLayer.objectSelectedUpdated
       return changed;
     });
   }
@@ -813,7 +807,7 @@ class ViewLayer extends Component {
   setObjectsHighlighted(objectIds: string[], highlighted: boolean): boolean {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = (viewObject.highlighted !== highlighted);
-      viewObject.highlighted = highlighted;
+      viewObject.highlighted = highlighted; // Triggers ViewLayer.objectHighlightedUpdated
       return changed;
     });
   }
@@ -832,7 +826,7 @@ class ViewLayer extends Component {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = (viewObject.xrayed !== xrayed);
       if (changed) {
-        viewObject.xrayed = xrayed;
+        viewObject.xrayed = xrayed; // Triggers ViewLayer.objectXRayedUpdated
       }
       return changed;
     });
@@ -850,7 +844,7 @@ class ViewLayer extends Component {
    */
   setObjectsColorized(objectIds: string[], colorize: number[]) {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
-      viewObject.colorize = colorize;
+      viewObject.colorize = colorize; // Triggers ViewLayer.objectColorizeUpdated
     });
   }
 
@@ -868,7 +862,7 @@ class ViewLayer extends Component {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = (viewObject.opacity !== opacity);
       if (changed) {
-        viewObject.opacity = opacity;
+        viewObject.opacity = opacity; // Triggers ViewLayer.objectOpacityUpdated
       }
       return changed;
     });
@@ -933,49 +927,47 @@ class ViewLayer extends Component {
     return changed;
   }
 
-  #initViewObjects() {
+  _initViewObjects() {
     const models = this.viewer.scene.models;
     for (const id in models) {
       const model = models[id];
-      this.#createViewObjects(model);
+      this._createViewObjects(model);
     }
-    this.viewer.scene.onModelCreated.subscribe((scene: Scene, model: SceneModel) => {
-      this.#createViewObjects(model);
+    const sceneEvents = this.viewer.scene.events;
+    sceneEvents.onSceneModelCreated.subscribe((scene: Scene, model: SceneModel) => {
+      this._createViewObjects(model);
     });
-    // this.viewer.scene.onModelDestroyed.subscribe((scene:Scene, model: SceneModel) => {
-    //     this.#destroyViewObjects(model);
-    // });
+    sceneEvents.onSceneModelDestroyed.subscribe((scene:Scene, model: SceneModel) => {
+        this._destroyViewObjects(model);
+    });
   }
 
-  #createViewObjects(model: SceneModel) {
+  _createViewObjects(model: SceneModel) {
     const sceneObjects = model.objects;
     for (const id in sceneObjects) {
       const sceneObject = sceneObjects[id];
-      if (!sceneObject.sceneObjectRendererProxy) {
-        throw "Cannot create ViewObject for SceneObject that has no SceneObjectRendererProxy: " + sceneObject.id;
-      }
       if (sceneObject.layerId == this.id) {
         if (!this.objects[id]) {
           const viewObject = new ViewObject(this, sceneObject);
           this.objects[viewObject.id] = viewObject;
-          this.#numObjects++;
-          this.#objectIds = null; // Lazy regenerate
-          this.onObjectCreated.dispatch(this, viewObject);
+          this._numObjects++;
+          this._objectIds = null; // Lazy regenerate
+       //   this.objectCreated.dispatch(this, viewObject);
         }
       }
     }
   }
 
-  #destroyViewObjectsForModel(model: SceneModel) {
+  _destroyViewObjects(model: SceneModel) {
     const viewerObjects = model.objects;
     for (const id in viewerObjects) {
       const viewerObject = viewerObjects[id];
       const viewObject = this.objects[viewerObject.id];
       if (viewObject) {
         viewObject._destroy();
-        this.#numObjects--;
-        this.#objectIds = null; // Lazy regenerate
-        this.onObjectDestroyed.dispatch(this, viewObject);
+        this._numObjects--;
+        this._objectIds = null; // Lazy regenerate
+     //   this.objectDestroyed.dispatch(this, viewObject);
       }
     }
   }
@@ -1007,19 +999,23 @@ class ViewLayer extends Component {
    * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
    */
   destroy() {
-    this.#destroyViewObjects();
-    this.onObjectCreated.clear();
-    this.onObjectDestroyed.clear();
-    this.onObjectVisibility.clear();
-    super.destroy();
+    this._destroyViewObjects();
+    // this.objectCreated.clear();
+    // this.objectDestroyed.clear();
+    // this.onObjectVisibility.clear();
+    this.view._destroyLayer(this);
   }
 
-  #destroyViewObjects() {
+  ///////////////////////////////////////////////////
+  // FIXME
+  ///////////////////////////////////////////////////
+
+  _destroyViewObjects() {
     const objects = this.objects;
     for (const id in objects) {
       const viewObject = objects[id];
       this.deregisterViewObject(viewObject);
-      this.onObjectDestroyed.dispatch(this, viewObject);
+  //    this.objectDestroyed.dispatch(this, viewObject);
     }
   }
 }

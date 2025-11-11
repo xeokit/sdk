@@ -17,8 +17,8 @@ import {
 } from "../constants";
 import {createVec4} from "../matrix";
 import type {FloatArrayParam} from "../math";
-import type {SceneTextureRendererProxy} from "./SceneTextureRendererProxy";
 import type {SceneTextureParams} from "./SceneTextureParams";
+import {SceneModel} from "./SceneModel";
 
 /**
  * A texture in a {@link SceneModel | SceneModel}.
@@ -149,18 +149,15 @@ export class SceneTexture {
   channel: number;
 
   /**
-   *  Internal interface through which this {@link SceneTexture} can load property updates into a renderers.
-   *
-   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
-   *
-   * @internal
+   * The SceneModel that this texture belongs to.
    */
-  sceneTextureRendererProxy: SceneTextureRendererProxy | null;
+  public model: SceneModel;
 
   /**
    * @private
    */
-  constructor(params: SceneTextureParams) {
+  constructor(sceneModel: SceneModel, params: SceneTextureParams) {
+    this.model = sceneModel;
     this.id = params.id;
     this.imageData = params.imageData;
     this.src = params.src;
@@ -173,7 +170,17 @@ export class SceneTexture {
     this.encoding = params.encoding || LinearEncoding;
     this.preloadColor = createVec4(params.preloadColor || [1, 1, 1, 1]);
     this.channel = 0;
-    this.sceneTextureRendererProxy = null;
+  }
+
+  /**
+   * Destroy this SceneTexture.
+   */
+  destroy() {
+    //  TODO: Null any TextureSet references to this texture
+    this.image = undefined;
+    this.imageData = undefined;
+    this.buffers = undefined;
+    this.model._destroyTexture(this);
   }
 }
 

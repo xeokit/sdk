@@ -8,6 +8,10 @@ import type {FloatArrayParam} from "../math";
  * * Located at {@link ViewParams.sectionPlanes | ViewParams.sectionPlanes}
  */
 export interface SectionPlaneParams {
+
+  /**
+   * The unique ID of the {@link SectionPlane}.
+   */
   id?: string;
 
   /**

@@ -1,45 +1,41 @@
 import type {AmbientLightParams} from "./AmbientLightParams";
-import {Component} from "../core";
 import type {FloatArrayParam} from "../math";
 import type {View} from "./View";
+import {createUUID} from "../utils";
 
 
 /**
  * An ambient light source within a {@link View}.
  *
  * * Has fixed color and intensity that illuminates all objects equally.
- * * {@link AmbientLight}s, {@link DirLight}s and {@link PointLight}s are registered by their {@link Component.id} on {@link View.lights}.
+ * * {@link AmbientLight}s, {@link DirLight}s and {@link PointLight}s are registered by their IDs on {@link View.lights}.
  */
-class AmbientLight extends Component {
+class AmbientLight  {
 
   /**
    ID of this AmbientLight, unique within the {@link View}.
    */
-  declare public id: string;
+   public id: string;
 
   /**
    * The View to which this AmbientLight belongs.
    */
   public readonly view: View;
 
-  #state: {
-    intensity: number;
-    color: Float32Array<any>;
-    type: string
-  };
+  private _intensity: number;
+  private _color: Float32Array<any>;
+  private _type: string;
 
   /**
    * @param view Owner component. When destroyed, the owner will destroy this AmbientLight as well.
    * @param cfg AmbientLight configuration
    */
   constructor(view: View, cfg: AmbientLightParams = {}) {
-    super(view, cfg);
+    this.id = cfg.id || createUUID();
     this.view = view;
-    this.#state = {
-      type: "ambient",
-      color: new Float32Array(cfg.color || [0.7, 0.7, 0.7]),
-      intensity: (cfg.intensity !== undefined && cfg.intensity !== null) ? cfg.intensity : 1.0
-    };
+    this._type="ambient",
+        this._color= new Float32Array(cfg.color || [0.7, 0.7, 0.7]);
+        this._intensity= (cfg.intensity !== undefined && cfg.intensity !== null) ? cfg.intensity : 1.0;
     this.view.registerLight(this);
   }
 
@@ -51,7 +47,7 @@ class AmbientLight extends Component {
    * @param color The AmbientLight's RGB color.
    */
   set color(color: FloatArrayParam) {
-    this.#state.color.set(color);
+    this._color.set(color);
     this.view.needsRender();
   }
 
@@ -61,7 +57,7 @@ class AmbientLight extends Component {
    * Default value is ````[0.7, 0.7, 0.7]````.
    */
   get color(): FloatArrayParam {
-    return this.#state.color;
+    return this._color;
   }
 
   /**
@@ -72,7 +68,7 @@ class AmbientLight extends Component {
    * @param intensity The AmbientLight's intensity.
    */
   set intensity(intensity: number) {
-    this.#state.intensity = intensity !== undefined ? intensity : 1.0;
+    this._intensity = intensity !== undefined ? intensity : 1.0;
     this.view.needsRender();
   }
 
@@ -84,7 +80,7 @@ class AmbientLight extends Component {
    * @returns {Number} The AmbientLight's intensity.
    */
   get intensity(): number {
-    return this.#state.intensity;
+    return this._intensity;
   }
 
   /**
@@ -116,7 +112,6 @@ class AmbientLight extends Component {
    * Destroys this AmbientLight.
    */
   destroy() {
-    super.destroy();
     this.view.deregisterLight(this);
   }
 }

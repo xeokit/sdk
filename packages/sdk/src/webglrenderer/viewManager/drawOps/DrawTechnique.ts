@@ -1,7 +1,7 @@
 import {WEBGL_INFO, WebGLProgram} from "../../../webglutils";
 import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
 import {RENDER_PASSES, RenderPassValue} from "../RENDER_PASSES";
-import type {RenderContext} from "../../RenderContext";
+import type {RenderContext} from "../RenderContext";
 import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {MeshBatch} from "../meshManager/MeshBatch";
 
@@ -33,8 +33,8 @@ export abstract class DrawTechnique {
      * Populated during the `build()` method based on what's included in the shader source.
      */
     private _uniforms: {
-        renderPass: WebGLUniformLocation; // Current drawBatch pass (e.g., color, pick, silhouette)
-        primBaseIndex: WebGLUniformLocation; // Base tileIndex for the current drawBatch call
+        renderPass: WebGLUniformLocation; // Current draw pass (e.g., color, pick, silhouette)
+        primBaseIndex: WebGLUniformLocation; // Base tileIndex for the current draw call
         primitiveType: WebGLUniformLocation; // Primitive type being rendered (triangles, lines, points)
         pointCloudIntensityRange: WebGLUniformLocation; // Intensity range for point cloud rendering
         nearPlaneHeight: WebGLUniformLocation; // Near plane height for perspective point size calculation
@@ -257,7 +257,7 @@ export abstract class DrawTechnique {
     protected vsCommonDefines() {
         this.__vertSrcBuf.push(
             "uniform int uRenderPass;         // RENDER_PASSES",
-            "uniform int uPrimBaseIndex;     // Base primitive index for this drawBatch call",
+            "uniform int uPrimBaseIndex;     // Base primitive index for this draw call",
             "uniform int uPrimitiveType;     // PRIMITIVE_TYPES",
 
             "uniform mat4 uProjMatrix;        // Projection matrix (from view)",
@@ -282,9 +282,6 @@ export abstract class DrawTechnique {
             "struct MeshAttribs {",
             "  uint tileIndex;",
             "  uint geometryIndex;",
-            "  uint indicesBase;",
-            "  uint edgeIndicesBase;",
-            "  uint primsBase;",
             "};",
 
             "struct MeshViewAttribs {",
@@ -294,22 +291,24 @@ export abstract class DrawTechnique {
 
             "struct GeometryAttribs {",
             "  uint verticesBase;",
+            "  uint indicesBase;",
+            "  uint edgeIndicesBase;",
             "};",
 
             "ivec2 texCoord(uint index, uint texWidth) {",
             "  return ivec2(int(index % texWidth), int(index / texWidth));",
             "}",
 
-            "uint getMeshIndex(uint drawPrimID) {",
+            "uint primToMeshLookup(uint primIndex) {",
             //    " return 0u;",
             "  const uint texWidth = 4096u;",
-            "  return texelFetch(uPrimToMeshLookup, texCoord(drawPrimID, texWidth), 0).r;",
+            "  return texelFetch(uPrimToMeshLookup, texCoord(primIndex, texWidth), 0).r;",
             "}",
 
-            //   "uint getMeshIndex(uint drawPrimID) {",
+            //   "uint primToMeshLookup(uint primIndex) {",
             // //  " return 0u;",
             //   "  const uint texWidth = 4096u;",
-            //   "  uvec4 px = texelFetch(uPrimToMeshLookup, texCoord(drawPrimID, texWidth), 0);",
+            //   "  uvec4 px = texelFetch(uPrimToMeshLookup, texCoord(primIndex, texWidth), 0);",
             //   "  return (px.r) | (px.g << 8) | (px.b << 16) | (px.a << 24);",
             //   "}",
 
@@ -335,39 +334,34 @@ export abstract class DrawTechnique {
             "  const uint texWidth = 2048u;",
             "  const uint texelsPerItem = 2u;",
             "  uint base = geometryIndex * texelsPerItem;",
-            "  vec4 t0 = texelFetch(uGeometryQuantRanges, texCoord(base + 0u, texWidth), 0);",
-            "  vec4 t1 = texelFetch(uGeometryQuantRanges, texCoord(base + 1u, texWidth), 0);",
+            "  vec4 texel0 = texelFetch(uGeometryQuantRanges, texCoord(base + 0u, texWidth), 0);",
+            "  vec4 texel1 = texelFetch(uGeometryQuantRanges, texCoord(base + 1u, texWidth), 0);",
             "  QuantRange r;",
-            "  r.offset = t0.rgb;",
-            "  r.scale = t1.rgb;",
+            "  r.offset = texel0.rgb;",
+            "  r.scale  = texel1.rgb;",
             "  return r;",
             "}",
 
             "GeometryAttribs getGeometryAttribs(uint geometryIndex) {",
             "  const uint texWidth = 4096u;",
-            "  uvec4 lanes1 = texelFetch(uGeometryAttribs, texCoord((geometryIndex), texWidth), 0);",
+            "  uvec4 texel = texelFetch(uGeometryAttribs, texCoord((geometryIndex), texWidth), 0);",
             "  GeometryAttribs s;",
-            "  s.verticesBase = lanes1.r;",
-            // "  s.indicesBase = lanes1.g;",
-            // "  s.edgeIndicesBase = lanes1.b;",
+            "  s.verticesBase    = texel.r;",
+            "  s.indicesBase     = texel.g;",
+            "  s.edgeIndicesBase = texel.b;",
             "  return s;",
             "}",
-
 
             "MeshAttribs getMeshAttribs(uint meshIndex) {",
             "  const uint texWidth = 4096u;",
-            "  uvec4 lanes1 = texelFetch(uMeshAttribs, texCoord((meshIndex * 2u) + 0u, texWidth), 0);",
-            "  uvec4 lanes2 = texelFetch(uMeshAttribs, texCoord((meshIndex * 2u) + 1u, texWidth), 0);",
+            "  uvec4 texel = texelFetch(uMeshAttribs, texCoord((meshIndex), texWidth), 0);",
             "  MeshAttribs s;",
-            "  s.tileIndex      = lanes1.r;  // uint",
-            "  s.geometryIndex  = lanes1.g;  // uint",
-            "  s.indicesBase    = lanes1.b;  // uint",
-            "  s.edgeIndicesBase= lanes1.a;  // uint",
-            "  s.primsBase      = lanes2.r;  // uint",
+            "  s.tileIndex      = texel.r;",
+            "  s.geometryIndex  = texel.g;",
             "  return s;",
             "}",
 
-            "MeshViewAttribs getMeshViewAttribs(uint meshIndex) {",
+            "MeshViewAttribs meshViewAttribsLookup(uint meshIndex) {",
             "  const uint texWidth = 4096u;",
             "  uint base = meshIndex * 2u;",
             "  MeshViewAttribs s;",
@@ -571,15 +565,12 @@ export abstract class DrawTechnique {
 
     private _vsMeshLogic() { // before renderPass check
         this.__vertSrcBuf.push(
-            "    uint drawVertexID  = uint(uPrimBaseIndex + gl_VertexID);",
-            "    uint primVertNum   = uint(uPrimitiveType == " + TrianglesPrimitive + " ? 3u : (uPrimitiveType == " + LinesPrimitive + " ? 2u : 1u));",
-            "    uint drawPrimID    = drawVertexID / primVertNum;",
+            "    uint drawVertexIndex  = uint(gl_VertexID);",
+            "    uint numVertsPerPrim  = uint(uPrimitiveType == " + TrianglesPrimitive + " ? 3u : (uPrimitiveType == " + LinesPrimitive + " ? 2u : 1u));",
+            "    uint primIndex        = uint(uPrimBaseIndex) + (drawVertexIndex / numVertsPerPrim);",
+            "    uint meshIndex        = primToMeshLookup( primIndex );",
 
-            "    uint meshIndex = getMeshIndex( drawPrimID );", // Per-prim
-
-            // "    uint meshIndex = getMeshIndex( drawVertexID);", // Per-vertex
-
-            "    MeshViewAttribs meshViewAttribs = getMeshViewAttribs( meshIndex );",
+            "    MeshViewAttribs meshViewAttribs = meshViewAttribsLookup( meshIndex );",
 
             `    if (meshViewAttribs.color.a == 3u) {`,
             // "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
@@ -590,18 +581,23 @@ export abstract class DrawTechnique {
 
     private _vsMeshLogic2() { // after renderPass check
         this.__vertSrcBuf.push(
-            "    MeshAttribs      meshAttribs       = getMeshAttribs( meshIndex );", // Attributes global to meshes in all viewManager
+            "    MeshAttribs      meshAttribs       = getMeshAttribs( meshIndex );",
+
+            "    uint             tileIndex         = meshAttribs.tileIndex;",
             "    uint             geometryIndex     = meshAttribs.geometryIndex;",
-            "    GeometryAttribs  geometryAttribs   = getGeometryAttribs( geometryIndex );", // Geometry attributes
 
-            "    uint             vertexIndex       = uPrimitiveType == " + PointsPrimitive + " ? drawVertexID : getVertexIndex( drawVertexID );",
+            "    GeometryAttribs  geometryAttribs   = getGeometryAttribs( geometryIndex );",
 
-            "    uvec3            quantPos          = getVertexPosition( vertexIndex );",
+            "    uint             vertexIndex       = uPrimitiveType == " + PointsPrimitive +
+            "                                       ? geometryAttribs.indicesBase + drawVertexIndex " +
+            "                                       : getVertexIndex( geometryAttribs.indicesBase + drawVertexIndex );",
+
             "    QuantRange       quantRange        = getGeometryQuantRange( geometryIndex );",
-
             "    mat4             modelMatrix       = getMeshMatrix( meshIndex );",
-            "    mat4             viewMatrix        = getTileViewMatrix( meshAttribs.tileIndex );",
-            "    vec4             modelPos          = vec4( quantRange.offset + (quantRange.scale * vec3( quantPos )), 1.0); ",
+            "    mat4             viewMatrix        = getTileViewMatrix( tileIndex );",
+
+            "    uvec3            quantPos          = getVertexPosition( geometryAttribs.verticesBase + vertexIndex );",
+            "    vec4             modelPos          = vec4( quantRange.offset + ( quantRange.scale * vec3( quantPos )), 1.0); ",
             "    vec4             worldPos          = modelMatrix * modelPos; ",
             "    vec4             viewPos           = viewMatrix * worldPos; ",
             "    vec4             clipPos           = uProjMatrix * viewPos; ",
@@ -612,9 +608,9 @@ export abstract class DrawTechnique {
     protected vsLambertShadingLogic() {
         this.__vertSrcBuf.push(
             // For triangles, get the three vertex positions for the triangle
-            "    uint ia  = getVertexIndex(drawPrimID * 3u + 0u);",
-            "    uint ib  = getVertexIndex(drawPrimID * 3u + 1u);",
-            "    uint ic  = getVertexIndex(drawPrimID * 3u + 2u);",
+            "    uint ia  = getVertexIndex(primIndex * 3u + 0u);",
+            "    uint ib  = getVertexIndex(primIndex * 3u + 1u);",
+            "    uint ic  = getVertexIndex(primIndex * 3u + 2u);",
 
             // Dequantized positions in OBJECT space
             "    vec3 a_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ia));",
@@ -890,7 +886,7 @@ export abstract class DrawTechnique {
 
     /**
      * Binds the shader program and sets up the necessary uniforms and textures for rendering.
-     * @param renderPass The drawBatch pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
+     * @param renderPass The draw pass identifier, which determines the rendering context (e.g., solid fill, silhouette, picking).
      * @private
      */
     private _bind(renderPass: RenderPassValue): boolean {

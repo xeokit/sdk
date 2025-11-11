@@ -1,4 +1,4 @@
-import {Component, EventEmitter} from "../core";
+import {EventEmitter} from "../core";
 import type {Data, DataModel, DataObject} from "../data";
 import type {View, Viewer, ViewObject} from "../viewer";
 import {EventDispatcher} from "strongly-typed-events";
@@ -15,7 +15,7 @@ import type {TreeViewParams} from "./TreeViewParams";
  *
  * See {@link treeview | @xeokit/sdk/treeview} for usage.
  */
-export class TreeView extends Component {
+export class TreeView  {
 
   /**
    * Hierarchy mode that arranges the {@link TreeViewNode | TreeViewNodes} as an aggregation hierarchy.
@@ -65,15 +65,11 @@ export class TreeView extends Component {
 
   /**
    * Emits an event each time the title of a node is clicked in the tree view.
-   *
-   * @event
    */
   readonly onNodeTitleClicked: EventEmitter<TreeView, TreeViewNodeTitleClickedEvent>;
 
   /**
    * Emits an event each time we right-click on a tree node.
-   *
-   * @event
    */
   readonly onContextMenu: EventEmitter<TreeView, TreeViewNodeContextMenuEvent>;
 
@@ -81,8 +77,6 @@ export class TreeView extends Component {
    * Emits an event when this TreeView has been destroyed.
    *
    * Triggered by {@link TreeView.destroy}.
-   *
-   * @event
    */
   declare readonly onDestroyed: EventEmitter<TreeView, null>;
 
@@ -122,8 +116,6 @@ export class TreeView extends Component {
    * @param params
    */
   constructor(params: TreeViewParams) {
-
-    super(null);
 
     if (!params.containerElement) {
       throw new Error("Config expected: containerElement");
@@ -170,7 +162,7 @@ export class TreeView extends Component {
       e.preventDefault();
     };
 
-    this.#onViewObjectVisibility = this.view.onObjectVisibility.subscribe((view: View, viewObject: ViewObject) => {
+    this.#onViewObjectVisibility = this.view.viewer.events.onViewObjectVisibleChanged.subscribe((view: View, viewObject: ViewObject) => {
       if (this.#muteSceneEvents) {
         return;
       }
@@ -216,7 +208,7 @@ export class TreeView extends Component {
       this.#muteTreeEvents = false;
     });
 
-    this.#onViewObjectXRayed = this.view.onObjectXRayed.subscribe((view: View, viewObject: ViewObject) => {
+    this.#onViewObjectXRayed = this.view.viewer.events.onViewObjectXRayedChanged.subscribe((view: View, viewObject: ViewObject) => {
       if (this.#muteSceneEvents) {
         return;
       }
@@ -314,7 +306,7 @@ export class TreeView extends Component {
       this.#addModel(modelId);
     }
 
-    this.#viewer.scene.onModelCreated.subscribe((scene, sceneModel) => {
+    this.#viewer.scene.events.onSceneModelCreated.subscribe((scene, sceneModel) => {
       if (this.data.models[sceneModel.id]) {
         this.#addModel(sceneModel.id);
       }
@@ -346,7 +338,7 @@ export class TreeView extends Component {
   set hierarchy(hierarchy: number) {
     hierarchy = (hierarchy !== null && hierarchy !== undefined) ? hierarchy : TreeView.AggregationHierarchy;
     if (hierarchy !== TreeView.AggregationHierarchy && hierarchy !== TreeView.GroupsHierarchy && hierarchy !== TreeView.TypesHierarchy) {
-      this.error("Unsupported value for `hierarchy' - defaulting to TreeView.AggregationHierarchy ");
+      console.error("Unsupported value for `hierarchy' - defaulting to TreeView.AggregationHierarchy ");
       hierarchy = TreeView.AggregationHierarchy;
     }
     if (this.#hierarchy === hierarchy) {

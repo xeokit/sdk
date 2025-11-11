@@ -15,13 +15,13 @@ import {type FloatArrayParam} from "../../../../math";
  *
  * ### Usage:
  * - Use `setMatrix(tileIndex, matrix)` to update a matrix at a specific tileIndex.
- * - Call `flush()` to upload all dirty matrices to the GPU.
+ * - Call `uploadChanges()` to upload all dirty matrices to the GPU.
  * - Use `destroy()` to release GPU resources when no longer needed.
  *
  * ### Lifecycle:
  * 1. Initialize with a WebGL2 context and optional maximum matrix count.
  * 2. Update matrices as needed using `setMatrix()`.
- * 3. Periodically call `flush()` to synchronize changes with the GPU.
+ * 3. Periodically call `uploadChanges()` to synchronize changes with the GPU.
  * 4. Clean up resources with `destroy()`.
  *
  */
@@ -60,14 +60,13 @@ export class DTXMatrixArray {
     this.numMatrices = 0;
     this.maxMatrices = params.maxMatrices || 2000;
     this.dirtyIndices = new Set();
-    this.#allocateTexture();
-  }
+    }
 
   /**
    * Allocates the data texture and backing array for matrix storage.
    * Each mat4 takes 4 texels (RGBA32F), and the texture is laid out in rows.
    */
-  #allocateTexture(): void {
+  allocate(): boolean {
 
     const matricesPerRow = 512; // Must be multiple of 4 for RGBA32F
     const texelsPerMatrix = 4; // 4 texels per mat4
@@ -80,22 +79,30 @@ export class DTXMatrixArray {
 
     const gl = this.gl;
     const texture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.bindTexture(gl.TEXTURE_2D, null);
 
+    if (!texture) {
+        return false;
+    }
+    try {
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    } catch (e) {
+        gl.deleteTexture(texture);
+        return false;
+    }
     this.texture = texture;
     this.textureWidth = textureWidth;
   }
 
   /**
    * Sets the model matrix for a mesh at a given tileIndex.
-   * Buffers the change until the next `flush()` call.
+   * Buffers the change until the next `uploadChanges()` call.
    *
    * @param index - Index of the mesh to update
    * @param matrix - 16-component FloatArray (mat4) in column-major order
@@ -109,7 +116,7 @@ export class DTXMatrixArray {
    * Uploads all dirty (changed) matrices to the GPU in batched, row-aligned subimage calls.
    * Batches contiguous ranges within the same texture row for efficient flushing.
    */
-  flush(): boolean {
+  uploadChanges(): boolean {
 
     if (this.dirtyIndices.size === 0) {
       return false;
@@ -172,6 +179,9 @@ export class DTXMatrixArray {
    * Destroys the internal resources.
    */
   destroy(): void {
-    this.gl.deleteTexture(this.texture);
+    if (this.texture) {
+      this.buffer = null as unknown as Float32Array<ArrayBuffer>;
+      this.gl.deleteTexture(this.texture);
+    }
   }
 }

@@ -7,7 +7,6 @@ import {LASLoader as glLASLoader} from '@loaders.gl/las';
 import type {LASLoaderOptions} from "./LASLoaderOptions";
 import {parse} from '@loaders.gl/core';
 import {PointsPrimitive} from "../constants";
-import {SDKError} from "../core";
 
 const MAX_VERTICES = 500000; // TODO: Rough estimate
 
@@ -110,23 +109,23 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
         const colorsChunks = chunkArray(readAttributes.colors, MAX_VERTICES * 4);
         for (let j = 0, lenj = pointsChunks.length; j < lenj; j++) {
           const geometryId = `geometry-${j}`;
-          const geometry = sceneModel.createGeometry({
+          const geometryResult = sceneModel.createGeometry({
             id: geometryId,
             primitive: PointsPrimitive,
             positions: pointsChunks[j],
             colorsCompressed: colorsChunks[j]
           });
-          if (geometry instanceof SDKError) {
-            log(`[ERROR] Cannot load point cloud: ${geometry.message}`);
+          if (geometryResult.ok===false) {
+            log(`[ERROR] Cannot load point cloud: ${geometryResult.error}`);
           } else {
             const meshId = `mesh-${j}`;
             meshIds.push(meshId);
-            const mesh = sceneModel.createMesh({
+            const meshResult = sceneModel.createMesh({
               id: meshId,
               geometryId
             });
-            if (mesh instanceof SDKError) {
-              log(`[ERROR] Cannot load point cloud: ${mesh.message}`);
+            if (meshResult.ok===false) {
+              log(`[ERROR] Cannot load point cloud: ${meshResult.error}`);
             }
           }
         }

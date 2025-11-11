@@ -1,6 +1,7 @@
 import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {LinesPrimitive} from "../constants";
+import {SDKResult} from "../core";
 
 
 const letters = {
@@ -1608,11 +1609,17 @@ const letters = {
  *
  * ## Example:
  * ````javascript
- * const textGeometry = buildVectorTextGeometry({
+ * const textGeometryResult = buildVectorTextGeometry({
  *     size: 1.5,
  *     origin: [0, 0, 0],
  *     text: "Sample Text"
  * });
+ *
+ * if (textGeometryResult.ok) {
+ *   const textGeometry = textGeometryResult.value;
+ * } else {
+ *   console.error("Error generating text geometry:", textGeometryResult.error);
+ * }
  * ````
  *
  * ## Notes:
@@ -1620,7 +1627,7 @@ const letters = {
  * - The geometry is created by breaking down each character into a series of points, connecting those points with lines to form the wireframe.
  * - The `size` parameter scales the text, and the `mag` constant adjusts the scaling factor for the points' positions.
  *
- * @returns {GeometryArrays} The geometry data for the wireframe vector text.
+ * @returns {SDKResult<GeometryArrays, string>} A result object containing the geometry arrays for the wireframe text or an error message.
  */
 export function buildVectorTextGeometry(cfg: {
   size: number;
@@ -1630,7 +1637,7 @@ export function buildVectorTextGeometry(cfg: {
   origin: [0, 0, 0],
   size: 1,
   text: ""
-}): GeometryArrays {
+}): SDKResult<GeometryArrays, string> {
 
   const origin = cfg.origin || [0, 0, 0];
   const xOrigin = origin[0];
@@ -1726,11 +1733,14 @@ export function buildVectorTextGeometry(cfg: {
     y -= 35 * mag * size; // Vertical spacing for each line of text
   }
 
-  return utils.apply(cfg, {
+  return {
+    ok: true,
+    value: utils.apply(cfg, {
     primitive: LinesPrimitive, // The geometry is constructed as wireframe lines
     positions: positions,
     indices: indices
-  });
+  })
+  };
 }
 
 

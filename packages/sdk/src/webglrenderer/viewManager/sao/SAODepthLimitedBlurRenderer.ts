@@ -1,7 +1,7 @@
 import type {WebGLAttribute, WebGLRenderBuffer} from "../../../webglutils";
 import {WebGLArrayBuf, WebGLProgram} from "../../../webglutils";
 import {PerspectiveProjectionType} from "../../../constants";
-import type {RenderContext} from "../../RenderContext";
+import type {RenderContext} from "../RenderContext";
 import type {View} from "../../../viewer";
 
 const blurStdDev = 4;

@@ -3,6 +3,8 @@ import {type Tile} from "./Tile";
 import {type SceneMesh} from "../../../scene";
 import {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
 import {RenderPassValue} from "../RENDER_PASSES";
+import {Camera} from "../../../viewer";
+import {SDKResult} from "../../../core";
 
 /**
  * Interface for creating and updating GPU memory resources.
@@ -34,9 +36,9 @@ export interface GPUMemoryEditor {
   /**
    * Creates a new GPU memory batch, up to the maximum number of sortedBatches allowed.
    * The new batch is added to the  `GPUMemoryEditor.dataTextures.sortedBatches` array.
-   * Returns the index of the new batch.
+   * @returns The index of the newly created batch, or an error if the maximum number of batches has been reached.
    */
-  createBatch(): number;
+  createBatch(): SDKResult<number, string>;
 
   /**
    * Checks if there is enough memory in a specific GPU memory batch for a SceneMesh.
@@ -55,7 +57,7 @@ export interface GPUMemoryEditor {
   addMesh( batchIndex: number, sceneMesh: SceneMesh ): GPUMemoryMeshHandle;
 
   /**
-   * Sets whether a mesh is visible.
+   * Sets whether a mesh is visible in a specific view.
    * @param meshHandle
    * @param viewIndex
    * @param visible
@@ -72,7 +74,7 @@ export interface GPUMemoryEditor {
   setMeshMatrix(meshHandle: GPUMemoryMeshHandle, matrix: FloatArrayParam ): void;
 
   /**
-   * Sets attributes for a mesh to apply across all viewManager.
+   * Sets attributes for a mesh to apply across all views.
    * The attributes are stored in DataTexturesLayer.meshAttribs.
    * @param meshHandle
    * @param params - The attributes to set, including optional tile index.
@@ -95,8 +97,9 @@ export interface GPUMemoryEditor {
     meshHandle: GPUMemoryMeshHandle,
     viewIndex: number,
     params: {
-      renderFlags?: number;
       color?: number[];
+      clippable?: boolean;
+      pickable?: boolean;
     }
   ): void;
 
@@ -129,4 +132,16 @@ export interface GPUMemoryEditor {
    * @param meshHandle - Handle to the mesh to remove.
    */
   removeMesh( meshHandle: GPUMemoryMeshHandle ): void;
+
+  /**
+   * Called when the camera's view matrix is updated.
+   * Internally updates all tile RTC view matrices.
+   */
+  cameraViewMatrixUpdated(camera: Camera): void;
+
+  /**
+   * Uploads all pending changes to GPU memory.
+   * This is typically called once per frame.
+   */
+  uploadChanges(): void;
 }

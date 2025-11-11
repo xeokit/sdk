@@ -794,7 +794,6 @@
 export * from "./Viewer";
 export * from "./ViewerParams";
 export * from "./ViewParams";
-export * from "./Renderer";
 export * from "./Camera";
 export * from "./CameraParams";
 export * from "./Projection";
@@ -820,7 +819,6 @@ export * from "./EdgesParams";
 export * from "./PointsMaterial";
 export * from "./PointsMaterialParams";
 export * from "./LinesMaterial";
-export * from "./Metriqs";
 export * from "./View";
 export * from "./ViewParams";
 export * from "./ViewLayer";

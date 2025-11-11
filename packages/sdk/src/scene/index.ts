@@ -548,6 +548,7 @@
 
 export * from "./SceneParams";
 export * from "./Scene";
+export * from "./SceneEvents";
 export * from "./SceneModel";
 export * from "./SceneModelParams";
 export * from "./SceneModelStats";
@@ -556,12 +557,6 @@ export * from "./SceneTexture";
 export * from "./SceneTextureSet";
 export * from "./SceneGeometry";
 export * from "./SceneMesh";
-
-export * from "./SceneGeometryRendererProxy";
-export * from "./SceneMeshRendererProxy";
-export * from "./SceneObjectRendererProxy";
-export * from "./SceneTextureRendererProxy";
-export * from "./SceneTextureSetRendererProxy";
 
 export * from "./CoordinateSystem";
 export * from "./CoordinateSystemParams";

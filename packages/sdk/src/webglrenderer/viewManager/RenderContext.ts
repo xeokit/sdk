@@ -1,26 +1,11 @@
-import type {View, Viewer} from "../viewer";
-import {getWebGLExtension, WEBGL_INFO, type WebGLAbstractTexture} from "../webglutils";
-import type {FloatArrayParam} from "../math";
-import {ViewFlags} from "./ViewFlags";
-import {Capabilities, SDKError} from "../core";
+import type {View, Viewer} from "../../viewer";
+import { WEBGL_INFO, type WebGLAbstractTexture} from "../../webglutils";
+import type {FloatArrayParam} from "../../math";
+import {SDKError, SDKErrorType, SDKResult} from "../../core";
 
 
 /**
- * Represents the rendering context used by the `WebGLRenderer`.
- *
- * The `RenderContext` manages the state and resources required for rendering operations.
- * It handles the WebGL context, GPU gpuMemoryManager, and rendering parameters for the current frame.
- * This context is shared across renderer components.
- *
- * Responsibilities:
- * - Tracks the current rendering state, including active textures, programs, and passes.
- * - Manages GPU gpuMemoryManager for geometry and materials through the `GPUMemoryBatch` system.
- * - Provides methods for managing texture units and resetting state between frames.
- * - Stores matrices and parameters for specialized rendering operations like shadow mapping and picking.
- *
- * Workflow:
- * - Initialized by the `WebGLRenderer` and reset before each frame.
- * - Updated during rendering with the current view, matrices, and parameters.
+ * Represents the rendering context`.
  *
  * @internal
  */
@@ -129,30 +114,39 @@ export class RenderContext {
    */
   public pickClipPos: FloatArrayParam;
 
-  /**
-   * The view flags for each possible view index (0-3).
-   */
-  public readonly viewFlags: ViewFlags[];
+  private initialized: boolean = false;
 
   /**
    * Creates a new RenderContext.
    */
-  constructor( viewer: Viewer ) {
-    this.viewer = viewer;
-    this.activeView = null;
-    const {canvas: webglCanvasElement, gl} = RenderContext._createCanvasAndGL();
-    this.gl = gl;
-    this.webglCanvasElement = webglCanvasElement;
-    this.viewFlags = [
-      new ViewFlags(),
-      new ViewFlags(),
-      new ViewFlags(),
-      new ViewFlags()
-    ];
-    this.reset();
+  constructor( ) {
+    this.initialized = false;
   }
 
-  private static _createCanvasAndGL(): {canvas: HTMLCanvasElement; gl: WebGL2RenderingContext} {
+  /**
+   * Initializes this RenderContext.
+   * @param viewer
+   * @returns {SDKResult<undefined, string>}
+   */
+  public init( viewer: Viewer ): SDKResult<undefined, string> {
+    this.viewer = viewer;
+    this.activeView = null;
+    const result = this._createCanvasAndGL();
+    if (result.ok===false) {
+      return result;
+    }
+    const {canvas: webglCanvasElement, gl} = result.value;
+    this.gl = gl;
+    this.webglCanvasElement = webglCanvasElement;
+    this.initialized = true;
+    this.reset();
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
+  private _createCanvasAndGL(): SDKResult<{canvas: HTMLCanvasElement; gl: WebGL2RenderingContext}, string> {
     const canvas = document.createElement("canvas");
     canvas.width = 400;
     canvas.height = 400;
@@ -174,62 +168,30 @@ export class RenderContext {
     };
     const gl = canvas.getContext("webgl2", contextAttr) as WebGL2RenderingContext|null;
     if (!gl) {
-      throw new SDKError("Cannot get a WebGL2 context");
+      return {
+        ok: false,
+        type: SDKErrorType.NotSupported,
+        error: "WebGL2 not supported by this browser"
+      };
     }
     // Nicest derivatives hint (valid in WebGL2)
     gl.hint(gl.FRAGMENT_SHADER_DERIVATIVE_HINT, gl.NICEST);
-    return {canvas, gl};
-  }
-
-  public static getCapabilities( capabilities: Capabilities ): void {
-    capabilities.maxViews = 4;
-    const testCanvas = document.createElement("canvas");
-    const gl = testCanvas.getContext("webgl2") as WebGL2RenderingContext|null;
-    if (!gl) {
-      return;
-    }
-    capabilities.astcSupported = !!getWebGLExtension(gl, "WEBGL_compressed_texture_astc");
-    capabilities.etc1Supported = true; // WebGL
-    capabilities.etc2Supported = !!getWebGLExtension(gl, "WEBGL_compressed_texture_etc");
-    capabilities.dxtSupported = !!getWebGLExtension(gl, "WEBGL_compressed_texture_s3tc");
-    capabilities.bptcSupported = !!getWebGLExtension(gl, "EXT_texture_compression_bptc");
-    capabilities.pvrtcSupported =
-        !!getWebGLExtension(gl, "WEBGL_compressed_texture_pvrtc") ||
-        !!getWebGLExtension(gl, "WEBKIT_WEBGL_compressed_texture_pvrtc");
-  }
-
-  /**
-   * Marks the view with the given index as needing to be re-rendered.
-   * @param viewIndex
-   */
-  setViewDirty( viewIndex: number ): void {
-    const viewFlags = this.viewFlags[viewIndex];
-    if (!viewFlags) {
-      throw new SDKError("Invalid view index");
-    }
-    // if (!viewFlags.needsRender) {
-    //      console.log(`RenderContext.setViewDirty: Marking view index ${viewIndex} as dirty`);
-    // }
-    viewFlags.needsRender = true;
-  }
-
-  /**
-   * Marks all views as needing to be re-rendered.
-   */
-  setAllViewsDirty(): void {
-    for (let viewIndex = 0, len = this.viewFlags.length; viewIndex < len; viewIndex++) {
-      const viewFlags = this.viewFlags[viewIndex];
-      // if (!viewFlags.needsRender) {
-      //   console.log(`RenderContext.setAllViewsDirty: Marking view index ${viewIndex} as dirty`);
-      // }
-      viewFlags.needsRender = true;
-    }
+    return {
+      ok: true,
+      value:{
+        canvas,
+        gl
+      }
+    };
   }
 
   /**
    * Called before each frame.
    */
   reset() {
+    if (!this.initialized) {
+        throw new SDKError("RenderContext not initialized");
+    }
     this.lastProgramId = -1;
     this.pbrEnabled = false;
     this.backfaces = false;
@@ -246,16 +208,26 @@ export class RenderContext {
   }
 
   /**
-   * Gets the next available texture unit for the current drawBatch pass.
+   * Gets the next available texture unit for the current draw pass.
    */
   get nextTextureUnit() {
+    if (!this.initialized) {
+        throw new SDKError("RenderContext not initialized");
+    }
     const textureUnit = this.textureUnit;
     this.textureUnit = (this.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
     return textureUnit;
   }
 
+  /**
+   * Destroys this RenderContext.
+   */
   destroy() {
-    this.gl.getExtension("WEBGL_lose_context")?.loseContext();
-    (this.webglCanvasElement.parentNode as Node).removeChild(this.webglCanvasElement);
+    if (this.initialized) {
+      this.gl.getExtension("WEBGL_lose_context")?.loseContext();
+      (this.webglCanvasElement.parentNode as Node).removeChild(this.webglCanvasElement);
+      this.webglCanvasElement = null;
+        this.gl = null;
+    }
   }
 }

@@ -5,7 +5,6 @@ import type {SceneModel} from "../scene/SceneModel";
 import {Scene} from "../scene";
 import {convertMetaModel} from "../metamodel";
 import {GLTFLoader} from "../gltf";
-import {SDKError} from "../core";
 import {XGFExporter} from "../xgf";
 
 const xgfExporter = new XGFExporter();
@@ -23,12 +22,13 @@ function ifc2gltf2xgf(params: {
   const {fileData, xgfVersion} = params;
   return new Promise(function (resolve, reject) {
     const scene = new Scene();
-    const sceneModel = scene.createModel({
+    const sceneModelResult = scene.createModel({
       id: "foo"
     });
-    if (sceneModel instanceof SDKError) {
-      return reject(sceneModel.message);
+    if (sceneModelResult.ok===false) {
+      return reject(sceneModelResult.error);
     } else {
+        const sceneModel = sceneModelResult.value;
       (new GLTFLoader()).load({fileData, sceneModel})
         .then(() => {
           xgfExporter.write({

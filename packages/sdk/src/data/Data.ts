@@ -1,9 +1,10 @@
-import {Component, EventEmitter, SDKError} from "../core";
+import {SDKErrorType, SDKResult} from "../core";
 import {DataModel} from "./DataModel";
 import type {DataModelParams} from "./DataModelParams";
 import type {DataObject} from "./DataObject";
-import {EventDispatcher} from "strongly-typed-events";
 import type {PropertySet} from "./PropertySet";
+import {DataEvents} from "./DataEvents";
+import {createUUID} from "../utils";
 
 /**
  * Container of model semantic data.
@@ -14,71 +15,51 @@ import type {PropertySet} from "./PropertySet";
  *
  * See {@link data | @xeokit/sdk/data}  for usage.
  */
-export class Data extends Component {
+
+export class Data {
 
   /**
-   * The {@link DataModel | DataModels} belonging to this Data, each keyed to
-   * its {@link DataModel.id | DataModel.id}.
+   * A collection of {@link DataModel | DataModels} in this `Data`, keyed by their {@link DataModel.id | ID}.
    */
   public readonly models: { [key: string]: DataModel };
 
   /**
-   * The{@link PropertySet | PropertySets} belonging to this Data, mapped to{@link PropertySet.id | PropertySet.id}.
+   * A collection of {@link PropertySet | PropertySets} in this `Data`, keyed by their {@link PropertySet.id | ID}.
    */
   public readonly propertySets: { [key: string]: PropertySet };
 
   /**
-   * The {@link DataObject | DataObjects} in this Data, mapped to {@link DataObject.id | DataObject.id}.
+   * A collection of {@link DataObject | DataObjects} in this `Data`, keyed by their {@link DataObject.id | ID}.
    */
   public readonly objects: { [key: string]: DataObject };
 
   /**
-   * The root {@link DataObject | DataObjects} belonging to this Data, each keyed to its {@link DataObject.id | DataObject.id}.
+   * A collection of root {@link DataObject | DataObjects} in this `Data`, keyed by their {@link DataObject.id | ID}.
    *
-   * * This is the set of DataObjects in the DataModels within this Data that are not the *related* participant in
-   * any {@link Relationship | Relationships}, where they have no incoming Relationships and
-   * their {@link DataObject.relating} property is empty.
+   * Root objects are those that are not the "related" participant in any {@link Relationship | Relationships}.
    */
   public readonly rootObjects: { [key: string]: DataObject };
 
   /**
-   * The {@link DataObject | DataObjects} belonging to this Data, each map keyed to {@link DataObject.type | DataObject.type},
-   * containing {@link DataObject | DataObjects} keyed to {@link DataObject.id | DataObject.id}.
+   * A collection of {@link DataObject | DataObjects} grouped by their {@link DataObject.type | type}.
+   * Each type maps to a collection of objects keyed by their {@link DataObject.id | ID}.
    */
   public readonly objectsByType: { [key: string]: { [key: string]: DataObject } };
 
   /**
-   * Tracks number of {@link DataObject | DataObjects} of each type in this Data.
+   * Tracks the count of {@link DataObject | DataObjects} for each type in this `Data`.
    */
   public readonly typeCounts: { [key: string]: number };
 
   /**
-   * Emits an event each time a {@link DataModel | DataModel} has been created in this Data.
-   *
-   * @event
+   * Events emitted by this `Data` instance.
    */
-  public readonly onModelCreated: EventEmitter<Data, DataModel>;
+  public readonly events: DataEvents;
 
   /**
-   * Emits an event each time a {@link DataModel | DataModel} has been destroyed within this Data.
-   *
-   * @event
+   * Indicates whether this `Data` instance has been destroyed.
    */
-  public readonly onModelDestroyed: EventEmitter<Data, DataModel>;
-
-  /**
-   * Emits an event each time a {@link DataObject | DataObject} is created within this Data.
-   *
-   * @event
-   */
-  public readonly onObjectCreated: EventEmitter<Data, DataObject>;
-
-  /**
-   * Emits an event each time a {@link DataObject | DataObject} is destroyed within this Data.
-   *
-   * @event
-   */
-  public readonly onObjectDestroyed: EventEmitter<Data, DataObject>;
+  public destroyed = false;
 
   /**
    * Creates a new Data.
@@ -87,8 +68,6 @@ export class Data extends Component {
    */
   constructor() {
 
-    super(null, {});
-
     this.models = {};
     this.propertySets = {};
     this.objects = {};
@@ -96,106 +75,117 @@ export class Data extends Component {
     this.objectsByType = {};
     this.typeCounts = {};
 
-    this.onModelCreated = new EventEmitter(new EventDispatcher<Data, DataModel>());
-    this.onModelDestroyed = new EventEmitter(new EventDispatcher<Data, DataModel>());
-    this.onObjectCreated = new EventEmitter(new EventDispatcher<Data, DataObject>());
-    this.onObjectDestroyed = new EventEmitter(new EventDispatcher<Data, DataObject>());
+   this.events = new DataEvents();
   }
 
   /**
-   * Creates a new {@link DataModel | DataModel} in this Data.
+   * Creates a new {@link DataModel | DataModel} in this `Data`.
    *
-   * See {@link data | @xeokit/sdk/data} for more details on usage.
-   *
-   * @param  dataModelParams Creation parameters for the new {@link DataModel | DataModel}.
-   * @returns {@link DataModel | DataModel}
-   * * On success.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * This Data has already been destroyed.
-   * * A DataModel with the given ID already exists in this Data.
+   * @param dataModelParams The parameters for creating the new {@link DataModel | DataModel}.
+   * @returns A result containing the created {@link DataModel | DataModel} on success, or an error message on failure.
    */
-  createModel(dataModelParams: DataModelParams): DataModel | SDKError {
+  createModel(dataModelParams: DataModelParams): SDKResult<DataModel, string> {
     if (this.destroyed) {
-      return new SDKError("Data already destroyed");
+      return {
+        ok: false,
+        type: SDKErrorType.Destroyed,
+        error: "Cannot create DataModel - Data already destroyed"
+      };
     }
-    const id = dataModelParams.id;
+    const id = dataModelParams.id || createUUID();
     if (this.models[id]) {
-      return new SDKError(`DataModel already created in this Data: ${id}`);
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidParameter,
+        error: `Cannot create DataModel - DataModel already created in this Data: ${id}`
+      };
     }
     // @ts-ignore
     const dataModel = new DataModel(this, id, dataModelParams);
     this.models[dataModel.id] = dataModel;
-    dataModel.onDestroyed.one(() => { // DataModel#destroy() called
-      delete this.models[dataModel.id];
-      this.onModelDestroyed.dispatch(this, dataModel);
-    });
-    this.onModelCreated.dispatch(this, dataModel);
-    return dataModel;
+    this.events.onModelCreated.dispatch(this, dataModel);
+    return {
+      ok: true,
+      value: dataModel
+    };
   }
 
   /**
-   * Gets the {@link DataObject.id}s of the {@link DataObject | DataObjects} that have the given {@link DataObject.type}.
-   *
-   * See {@link data | @xeokit/sdk/data} for usage.
-   *
-   * @param type The type.
-   * @returns {string[]}
-   * * Array of {@link DataObject.id}s on success.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * This Data has already been destroyed.
+   * Called by a {@link DataModel | DataModel} when it is destroyed.
+   * @private
+   * @param dataModel
    */
-  getObjectIdsByType(type: string): string[] | SDKError {
+  _destroyModel(dataModel: DataModel) {
+    delete this.models[dataModel.id];
+    this.events.onModelDestroyed.dispatch(this, dataModel);
+  }
+
+  /**
+   * Retrieves the IDs of {@link DataObject | DataObjects} that have the specified {@link DataObject.type | type}.
+   *
+   * @param type The type of the objects to retrieve.
+   * @returns A result containing an array of object IDs on success, or an error message on failure.
+   */
+  getObjectIdsByType(type: string): SDKResult<string[], string> {
     if (this.destroyed) {
-      return new SDKError("Data already destroyed");
+      return {
+        ok: false,
+        type: SDKErrorType.Destroyed,
+        error: "Data already destroyed"
+      };
     }
     const objects = this.objectsByType[type];
-    return objects ? Object.keys(objects) : [];
+    return { ok: true, value: objects ? Object.keys(objects) : [] };
   }
 
   /**
-   * Destroys all contained {@link DataModel | DataModels}.
+   * Destroys all {@link DataModel | DataModels} contained in this `Data`.
    *
-   * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
-   * for each existing DataModel in this Data.
+   * Fires the {@link DataEvents.onModelDestroyed | DataEvents.onModelDestroyed} event
+   * for each destroyed {@link DataModel | DataModel}.
    *
-   * See {@link data | @xeokit/sdk/data}   for usage.
-   *
-   * @returns *void*
-   * * On success.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * This Data has already been destroyed.
+   * @returns A result indicating success or an error message on failure.
    */
-  clear(): void | SDKError {
+  clear(): SDKResult<void, string> {
     if (this.destroyed) {
-      return new SDKError("Data already destroyed");
+      return {
+        ok: false,
+        type: SDKErrorType.Destroyed,
+        error: "Data already destroyed"
+      };
     }
     for (const id in this.models) {
       this.models[id].destroy();
     }
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   /**
-   * Destroys this Data and all contained {@link DataModel | DataModels}.
+   * Destroys this `Data` instance and all contained {@link DataModel | DataModels}.
    *
-   * * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
-   * for each existing DataModels in this Data.
-   * * Unsubscribes all subscribers to {@link Data.onModelCreated | Data.onModelCreated}, {@link Data.onModelDestroyed | Data.onModelDestroyed}, {@link DataModel.onDestroyed | DataModel.onDestroyed}
+   * Fires the {@link DataEvents.onModelDestroyed | onModelDestroyed} event
+   * for each destroyed {@link DataModel | DataModel}.
+   * Unsubscribes all event listeners.
    *
-   * See {@link data | @xeokit/sdk/data}   for usage.
-   *
-   * @returns *void*
-   * * On success.
-   * @returns *{@link core!SDKError | SDKError}*
-   * * This Data has already been destroyed.
+   * @returns A result indicating success or an error message on failure.
    */
-  destroy(): void | SDKError {
+  destroy(): SDKResult<void, string> {
     if (this.destroyed) {
-      return new SDKError("Data already destroyed");
+      return {
+        ok: false,
+        type: SDKErrorType.Destroyed,
+        error: "Data already destroyed"
+      };
     }
-    this.clear();
-    this.onModelCreated.clear();
-    this.onModelDestroyed.clear();
-    super.destroy();
+    const result = this.clear();
+    if (!result.ok) {
+      return result;
+    }
+    this.events.destroy();
+    return { ok: true, value: undefined };
   }
 }
 

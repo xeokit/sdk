@@ -78,7 +78,7 @@ export interface FlyToParams {
  *
  * Use {@link cameraflight | @xeokit/sdk/cameraflight} to create cinematic camera motions.
  */
-export class CameraFlightAnimation extends Component {
+export class CameraFlightAnimation {
 
   /**
    * The View that owns this CameraFlightAnimation.
@@ -90,31 +90,31 @@ export class CameraFlightAnimation extends Component {
    */
   public readonly camera: Camera;
 
-  #duration: number;
-  #look1: FloatArrayParam;
-  #eye1: FloatArrayParam;
-  #up1: FloatArrayParam;
-  #look2: FloatArrayParam;
-  #eye2: FloatArrayParam;
-  #up2: FloatArrayParam;
-  #orthoScale1: number;
-  #orthoScale2: number;
-  #fit: boolean;
-  #trail: boolean;
-  #flying: boolean;
-  #flyEyeLookUp: boolean;
-  #flyingEye: boolean;
-  #flyingLook: boolean;
-  #callback: any;
-  #callbackScope: any;
-  #time1: number | null;
-  #time2: number | null;
+  _duration: number;
+  _look1: FloatArrayParam;
+  _eye1: FloatArrayParam;
+  _up1: FloatArrayParam;
+  _look2: FloatArrayParam;
+  _eye2: FloatArrayParam;
+  _up2: FloatArrayParam;
+  _orthoScale1: number;
+  _orthoScale2: number;
+  _fit: boolean;
+  _trail: boolean;
+  _flying: boolean;
+  _flyEyeLookUp: boolean;
+  _flyingEye: boolean;
+  _flyingLook: boolean;
+  _callback: any;
+  _callbackScope: any;
+  _time1: number | null;
+  _time2: number | null;
   easing: boolean;
-  #flyingEyeLookUp: boolean;
-  #fitFOV: number;
-  #projection2: number;
-  #projMatrix1: FloatArrayParam;
-  #projMatrix2: FloatArrayParam;
+  _flyingEyeLookUp: boolean;
+  _fitFOV: number;
+  _projection2: number;
+  _projMatrix1: FloatArrayParam;
+  _projMatrix2: FloatArrayParam;
 
   /**
    * Fires when the camera animation starts.
@@ -130,7 +130,7 @@ export class CameraFlightAnimation extends Component {
    * Fires when the camera animation is cancelled.
    */
   readonly onCancelled: EventEmitter<CameraFlightAnimation, null>;
-  #aabbIndex: any;
+  _aabbIndex: any;
 
   /**
    * Creates a new CameraFlightAnimation instance.
@@ -143,37 +143,35 @@ export class CameraFlightAnimation extends Component {
     duration: number
   }) {
 
-    super(view, cfg);
-
     if (!(view instanceof View)) {
       throw "[CameraFlightAnimation] Expected instance of View";
     }
 
     this.view = view;
-    this.#aabbIndex = getSceneAABBIndex(view.viewer.scene);
+    this._aabbIndex = getSceneAABBIndex(view.viewer.scene);
     this.camera = view.camera;
 
-    this.#look1 = createVec3();
-    this.#eye1 = createVec3();
-    this.#up1 = createVec3();
-    this.#look2 = createVec3();
-    this.#eye2 = createVec3();
-    this.#up2 = createVec3();
-    this.#orthoScale1 = 1;
-    this.#orthoScale2 = 1;
-    this.#flying = false;
-    this.#flyEyeLookUp = false;
-    this.#flyingEye = false;
-    this.#flyingLook = false;
-    this.#callback = null;
-    this.#callbackScope = null;
-    this.#time1 = null;
-    this.#time2 = null;
+    this._look1 = createVec3();
+    this._eye1 = createVec3();
+    this._up1 = createVec3();
+    this._look2 = createVec3();
+    this._eye2 = createVec3();
+    this._up2 = createVec3();
+    this._orthoScale1 = 1;
+    this._orthoScale2 = 1;
+    this._flying = false;
+    this._flyEyeLookUp = false;
+    this._flyingEye = false;
+    this._flyingLook = false;
+    this._callback = null;
+    this._callbackScope = null;
+    this._time1 = null;
+    this._time2 = null;
     this.easing = true;
-    this.#trail = false;
-    this.#fit = true;
-    this.#duration = 500;
-    this.#fitFOV = 60;
+    this._trail = false;
+    this._fit = true;
+    this._duration = 500;
+    this._fitFOV = 60;
 
     this.onStarted = new EventEmitter(new EventDispatcher<CameraFlightAnimation, null>());
     this.onStopped = new EventEmitter(new EventDispatcher<CameraFlightAnimation, null>());
@@ -193,35 +191,35 @@ export class CameraFlightAnimation extends Component {
   flyTo(params: FlyToParams = {},
         callback?: (arg0: any) => void) {
 
-    if (this.#flying) {
+    if (this._flying) {
       this.stop();
     }
 
-    this.#flying = false;
-    this.#flyingEye = false;
-    this.#flyingLook = false;
-    this.#flyingEyeLookUp = false;
+    this._flying = false;
+    this._flyingEye = false;
+    this._flyingLook = false;
+    this._flyingEyeLookUp = false;
 
-    this.#callback = callback || function () {
+    this._callback = callback || function () {
     };
 
     const camera = this.camera;
     const flyToProjection = (!!params.projection) && (params.projection !== camera.projectionType);
 
-    this.#eye1[0] = camera.eye[0];
-    this.#eye1[1] = camera.eye[1];
-    this.#eye1[2] = camera.eye[2];
+    this._eye1[0] = camera.eye[0];
+    this._eye1[1] = camera.eye[1];
+    this._eye1[2] = camera.eye[2];
 
-    this.#look1[0] = camera.look[0];
-    this.#look1[1] = camera.look[1];
-    this.#look1[2] = camera.look[2];
+    this._look1[0] = camera.look[0];
+    this._look1[1] = camera.look[1];
+    this._look1[2] = camera.look[2];
 
-    this.#up1[0] = camera.up[0];
-    this.#up1[1] = camera.up[1];
-    this.#up1[2] = camera.up[2];
+    this._up1[0] = camera.up[0];
+    this._up1[1] = camera.up[1];
+    this._up1[2] = camera.up[2];
 
-    this.#orthoScale1 = camera.orthoProjection.scale;
-    this.#orthoScale2 = params.orthoScale || this.#orthoScale1;
+    this._orthoScale1 = camera.orthoProjection.scale;
+    this._orthoScale2 = params.orthoScale || this._orthoScale1;
 
     let aabb: FloatArrayParam;
     let eye: FloatArrayParam;
@@ -247,7 +245,7 @@ export class CameraFlightAnimation extends Component {
 
     } else {
       if (!flyToProjection) {
-        aabb = this.#aabbIndex.getSceneAABB();
+        aabb = this._aabbIndex.getSceneAABB();
       }
     }
 
@@ -266,82 +264,82 @@ export class CameraFlightAnimation extends Component {
       aabb = aabb.slice();
       const aabbCenter = getAABB3Center(aabb);
 
-      this.#look2 = poi || aabbCenter;
+      this._look2 = poi || aabbCenter;
 
-      const eyeLookVec = subVec3(this.#eye1, this.#look1, tempVec3);
+      const eyeLookVec = subVec3(this._eye1, this._look1, tempVec3);
       const eyeLookVecNorm = normalizeVec3(eyeLookVec);
       const diag = poi ? getAABB3DiagPoint(aabb, poi) : getAABB3Diag(aabb);
-      const fitFOV = params.fitFOV || this.#fitFOV;
+      const fitFOV = params.fitFOV || this._fitFOV;
       const sca = Math.abs(diag / Math.tan(fitFOV * DEGTORAD));
 
-      this.#orthoScale2 = diag * 1.1;
+      this._orthoScale2 = diag * 1.1;
 
-      this.#eye2[0] = this.#look2[0] + (eyeLookVecNorm[0] * sca);
-      this.#eye2[1] = this.#look2[1] + (eyeLookVecNorm[1] * sca);
-      this.#eye2[2] = this.#look2[2] + (eyeLookVecNorm[2] * sca);
+      this._eye2[0] = this._look2[0] + (eyeLookVecNorm[0] * sca);
+      this._eye2[1] = this._look2[1] + (eyeLookVecNorm[1] * sca);
+      this._eye2[2] = this._look2[2] + (eyeLookVecNorm[2] * sca);
 
-      this.#up2[0] = this.#up1[0];
-      this.#up2[1] = this.#up1[1];
-      this.#up2[2] = this.#up1[2];
+      this._up2[0] = this._up1[0];
+      this._up2[1] = this._up1[1];
+      this._up2[2] = this._up1[2];
 
-      this.#flyingEyeLookUp = true;
+      this._flyingEyeLookUp = true;
 
       // @ts-ignore
     } else if (eye || look || up) {
       // @ts-ignore
-      this.#flyingEyeLookUp = !!eye && !!look && !!up;
+      this._flyingEyeLookUp = !!eye && !!look && !!up;
       // @ts-ignore
-      this.#flyingEye = !!eye && !look;
+      this._flyingEye = !!eye && !look;
       // @ts-ignore
-      this.#flyingLook = !!look && !eye;
+      this._flyingLook = !!look && !eye;
       // @ts-ignore
       if (eye) {
-        this.#eye2[0] = eye[0];
-        this.#eye2[1] = eye[1];
-        this.#eye2[2] = eye[2];
+        this._eye2[0] = eye[0];
+        this._eye2[1] = eye[1];
+        this._eye2[2] = eye[2];
       }
       // @ts-ignore
       if (look) {
-        this.#look2[0] = look[0];
-        this.#look2[1] = look[1];
-        this.#look2[2] = look[2];
+        this._look2[0] = look[0];
+        this._look2[1] = look[1];
+        this._look2[2] = look[2];
       }
       // @ts-ignore
       if (up) {
-        this.#up2[0] = up[0];
-        this.#up2[1] = up[1];
-        this.#up2[2] = up[2];
+        this._up2[0] = up[0];
+        this._up2[1] = up[1];
+        this._up2[2] = up[2];
       }
     }
 
     if (flyToProjection) {
 
       if (params.projection === OrthoProjectionType && camera.projectionType !== OrthoProjectionType) {
-        this.#projection2 = OrthoProjectionType;
-        this.#projMatrix1 = camera.projMatrix.slice();
-        this.#projMatrix2 = camera.orthoProjection.projMatrix.slice();
+        this._projection2 = OrthoProjectionType;
+        this._projMatrix1 = camera.projMatrix.slice();
+        this._projMatrix2 = camera.orthoProjection.projMatrix.slice();
         camera.projectionType = CustomProjectionType;
       }
 
       if (params.projection === PerspectiveProjectionType && camera.projectionType !== PerspectiveProjectionType) {
-        this.#projection2 = PerspectiveProjectionType;
-        this.#projMatrix1 = camera.projMatrix.slice();
-        this.#projMatrix2 = camera.perspectiveProjection.projMatrix.slice();
+        this._projection2 = PerspectiveProjectionType;
+        this._projMatrix1 = camera.projMatrix.slice();
+        this._projMatrix2 = camera.perspectiveProjection.projMatrix.slice();
         camera.projectionType = CustomProjectionType;
       }
     } else {
       // @ts-ignore
-      this.#projection2 = null;
+      this._projection2 = null;
     }
 
     this.onStarted.dispatch(this, null);
 
-    this.#time1 = Date.now();
-    this.#time2 = this.#time1 + (params.duration ? params.duration * 1000 : this.#duration);
+    this._time1 = Date.now();
+    this._time2 = this._time1 + (params.duration ? params.duration * 1000 : this._duration);
 
-    this.#flying = true; // False as soon as we stop
+    this._flying = true; // False as soon as we stop
 
-    scheduler.scheduleTask(this.#update, this);
+    scheduler.scheduleTask(this._update, this);
   }
 
   /**
@@ -353,12 +351,12 @@ export class CameraFlightAnimation extends Component {
    * @param params Target camera state or bounding box.
    */
   jumpTo(params: any) {
-    this.#jumpTo(params);
+    this._jumpTo(params);
   }
 
-  #jumpTo(params: any) {
+  _jumpTo(params: any) {
 
-    if (this.#flying) {
+    if (this._flying) {
       this.stop();
     }
 
@@ -376,7 +374,7 @@ export class CameraFlightAnimation extends Component {
       newLook = params.look;
       newUp = params.up;
     } else {
-      aabb = this.#aabbIndex.getSceneAABB();
+      aabb = this._aabbIndex.getSceneAABB();
     }
 
     const poi = params.poi;
@@ -391,7 +389,7 @@ export class CameraFlightAnimation extends Component {
       // @ts-ignore
       newLook = poi || getAABB3Center(aabb, newLook);
 
-      if (this.#trail) {
+      if (this._trail) {
         subVec3(camera.look, newLook, newLookEyeVec);
       } else {
         subVec3(camera.eye, camera.look, newLookEyeVec);
@@ -399,10 +397,10 @@ export class CameraFlightAnimation extends Component {
 
       normalizeVec3(newLookEyeVec);
       let dist;
-      const fit = (params.fit !== undefined) ? params.fit : this.#fit;
+      const fit = (params.fit !== undefined) ? params.fit : this._fit;
 
       if (fit) {
-        dist = Math.abs((diag) / Math.tan((params.fitFOV || this.#fitFOV) * DEGTORAD));
+        dist = Math.abs((diag) / Math.tan((params.fitFOV || this._fitFOV) * DEGTORAD));
 
       } else {
         dist = lenVec3(subVec3(camera.eye, camera.look, tempVec3));
@@ -433,67 +431,67 @@ export class CameraFlightAnimation extends Component {
     }
   }
 
-  #update() {
-    if (!this.#flying) {
+  _update() {
+    if (!this._flying) {
       return;
     }
     const time = Date.now();
     // @ts-ignore
-    let t = (time - this.#time1) / (this.#time2 - this.#time1);
+    let t = (time - this._time1) / (this._time2 - this._time1);
     const stopping = (t >= 1);
 
     if (t > 1) {
       t = 1;
     }
 
-    const tFlight = this.easing ? CameraFlightAnimation.#ease(t, 0, 1, 1) : t;
+    const tFlight = this.easing ? CameraFlightAnimation._ease(t, 0, 1, 1) : t;
     const camera = this.camera;
 
-    if (this.#flyingEye || this.#flyingLook) {
+    if (this._flyingEye || this._flyingLook) {
 
-      if (this.#flyingEye) {
+      if (this._flyingEye) {
         subVec3(camera.eye, camera.look, newLookEyeVec);
-        camera.eye = lerpVec3(tFlight, 0, 1, this.#eye1, this.#eye2, newEye);
+        camera.eye = lerpVec3(tFlight, 0, 1, this._eye1, this._eye2, newEye);
         camera.look = subVec3(newEye, newLookEyeVec, newLook);
-      } else if (this.#flyingLook) {
-        camera.look = lerpVec3(tFlight, 0, 1, this.#look1, this.#look2, newLook);
-        camera.up = lerpVec3(tFlight, 0, 1, this.#up1, this.#up2, newUp);
+      } else if (this._flyingLook) {
+        camera.look = lerpVec3(tFlight, 0, 1, this._look1, this._look2, newLook);
+        camera.up = lerpVec3(tFlight, 0, 1, this._up1, this._up2, newUp);
       }
 
-    } else if (this.#flyingEyeLookUp) {
+    } else if (this._flyingEyeLookUp) {
 
-      camera.eye = lerpVec3(tFlight, 0, 1, this.#eye1, this.#eye2, newEye);
-      camera.look = lerpVec3(tFlight, 0, 1, this.#look1, this.#look2, newLook);
-      camera.up = lerpVec3(tFlight, 0, 1, this.#up1, this.#up2, newUp);
+      camera.eye = lerpVec3(tFlight, 0, 1, this._eye1, this._eye2, newEye);
+      camera.look = lerpVec3(tFlight, 0, 1, this._look1, this._look2, newLook);
+      camera.up = lerpVec3(tFlight, 0, 1, this._up1, this._up2, newUp);
     }
 
-    if (this.#projection2) {
-      const tProj = (this.#projection2 === OrthoProjectionType) ? CameraFlightAnimation.#easeOutExpo(t, 0, 1, 1) : CameraFlightAnimation.#easeInCubic(t, 0, 1, 1);
-      camera.customProjection.projMatrix = lerpMat4(tProj, 0, 1, this.#projMatrix1, this.#projMatrix2);
+    if (this._projection2) {
+      const tProj = (this._projection2 === OrthoProjectionType) ? CameraFlightAnimation._easeOutExpo(t, 0, 1, 1) : CameraFlightAnimation._easeInCubic(t, 0, 1, 1);
+      camera.customProjection.projMatrix = lerpMat4(tProj, 0, 1, this._projMatrix1, this._projMatrix2);
 
     } else {
-      camera.orthoProjection.scale = this.#orthoScale1 + (t * (this.#orthoScale2 - this.#orthoScale1));
+      camera.orthoProjection.scale = this._orthoScale1 + (t * (this._orthoScale2 - this._orthoScale1));
     }
 
     if (stopping) {
-      camera.orthoProjection.scale = this.#orthoScale2;
+      camera.orthoProjection.scale = this._orthoScale2;
       this.stop();
       return;
     }
-    scheduler.scheduleTask(this.#update, this); // Keep flying
+    scheduler.scheduleTask(this._update, this); // Keep flying
   }
 
-  static #ease(t: number, b: number, c: number, d: number) { // Quadratic easing out - decelerating to zero velocity http://gizma.com/easing
+  static _ease(t: number, b: number, c: number, d: number) { // Quadratic easing out - decelerating to zero velocity http://gizma.com/easing
     t /= d;
     return -c * t * (t - 2) + b;
   }
 
-  static #easeInCubic(t: number, b: number, c: number, d: number) {
+  static _easeInCubic(t: number, b: number, c: number, d: number) {
     t /= d;
     return c * t * t * t + b;
   }
 
-  static #easeOutExpo(t: number, b: number, c: number, d: number) {
+  static _easeOutExpo(t: number, b: number, c: number, d: number) {
     return c * (-Math.pow(2, -10 * t / d) + 1) + b;
   }
 
@@ -501,18 +499,18 @@ export class CameraFlightAnimation extends Component {
    * Stops an earlier {@link CameraFlightAnimation.flyTo | CameraFlightAnimation.flyTo}, fires arrival callback, then "stopped" event.
    */
   stop() {
-    if (!this.#flying) {
+    if (!this._flying) {
       return;
     }
-    this.#flying = false;
-    this.#time1 = null;
-    this.#time2 = null;
-    if (this.#projection2) {
-      this.camera.projectionType = this.#projection2;
+    this._flying = false;
+    this._time1 = null;
+    this._time2 = null;
+    if (this._projection2) {
+      this.camera.projectionType = this._projection2;
     }
-    const callback = this.#callback;
+    const callback = this._callback;
     if (callback) {
-      this.#callback = null;
+      this._callback = null;
       callback();
     }
     this.onStopped.dispatch(this, null);
@@ -522,14 +520,14 @@ export class CameraFlightAnimation extends Component {
    * Cancels a flight in progress, without calling the arrival callback.
    */
   cancel() {
-    if (!this.#flying) {
+    if (!this._flying) {
       return;
     }
-    this.#flying = false;
-    this.#time1 = null;
-    this.#time2 = null;
-    if (this.#callback) {
-      this.#callback = null;
+    this._flying = false;
+    this._time1 = null;
+    this._time2 = null;
+    if (this._callback) {
+      this._callback = null;
     }
     this.onCancelled.dispatch(this, null);
   }
@@ -542,7 +540,7 @@ export class CameraFlightAnimation extends Component {
    * Default value is ````0.5````.
    */
   set duration(value: number) {
-    this.#duration = value ? (value * 1000.0) : 500;
+    this._duration = value ? (value * 1000.0) : 500;
     this.stop();
   }
 
@@ -552,7 +550,7 @@ export class CameraFlightAnimation extends Component {
    * Default value is ````0.5````.
    */
   get duration(): number {
-    return this.#duration / 1000.0;
+    return this._duration / 1000.0;
   }
 
   /**
@@ -564,7 +562,7 @@ export class CameraFlightAnimation extends Component {
    * Default value is ````true````.
    */
   set fit(value: boolean) {
-    this.#fit = value;
+    this._fit = value;
   }
 
   /**
@@ -576,7 +574,7 @@ export class CameraFlightAnimation extends Component {
    * Default value is ````true````.
    */
   get fit(): boolean {
-    return this.#fit;
+    return this._fit;
   }
 
   /**
@@ -586,7 +584,7 @@ export class CameraFlightAnimation extends Component {
    * Default value is ````45````.
    */
   set fitFOV(value: number) {
-    this.#fitFOV = value;
+    this._fitFOV = value;
   }
 
   /**
@@ -596,7 +594,7 @@ export class CameraFlightAnimation extends Component {
    * Default value is ````45````.
    */
   get fitFOV(): number {
-    return this.#fitFOV;
+    return this._fitFOV;
   }
 
   /**
@@ -606,7 +604,7 @@ export class CameraFlightAnimation extends Component {
    * Default value is ````false````.
    */
   set trail(value: boolean) {
-    this.#trail = value;
+    this._trail = value;
   }
 
   /**
@@ -616,7 +614,7 @@ export class CameraFlightAnimation extends Component {
    * Default value is ````false````.
    */
   get trail(): boolean {
-    return this.#trail;
+    return this._trail;
   }
 
   /**
@@ -624,7 +622,6 @@ export class CameraFlightAnimation extends Component {
    */
   destroy() {
     this.stop();
-    super.destroy();
     this.onStarted.clear();
     this.onStopped.clear();
     this.onCancelled.clear();

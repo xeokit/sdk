@@ -4,6 +4,11 @@
 export interface Capabilities {
 
   /**
+   * Is WebGL2 supported?
+   */
+  webgl2Supported: boolean;
+
+  /**
    * Maximum number of Views allowed.
    */
   maxViews: number;

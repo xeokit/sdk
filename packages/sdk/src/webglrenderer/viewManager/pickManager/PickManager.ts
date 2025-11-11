@@ -14,7 +14,7 @@ import {RendererView} from "../RendererView";
 import {type FloatArrayParam} from "../../../math";
 import {createRTCViewMat} from "../../../rtc";
 import {RendererMesh} from "../meshManager/RendererMesh";
-import {RenderContext} from "../../RenderContext";
+import {RenderContext} from "../RenderContext";
 import {RenderBuffers} from "../RenderBuffers";
 import {GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {MeshManager} from "../meshManager/MeshManager";
@@ -249,13 +249,13 @@ return;
     const batches = this._meshBatchManager.sortedBatches; // Batches are sorted by prim type
     for (let i = 0, len = batches.length; i < len; i++) {
       const batch = batches[i];
-      const meshCounts = batch.meshCounts[viewIndex];
-      if (meshCounts.numVisible === 0 ||
-          meshCounts.numCulled === meshCounts.numMeshes ||
-          meshCounts.numPickable ===0
-      ) {
-        continue;
-      }
+      // const meshCounts = batch.meshCounts[viewIndex];
+      // if (meshCounts.numVisible === 0 ||
+      //     meshCounts.numCulled === meshCounts.numMeshes ||
+      //     meshCounts.numPickable ===0
+      // ) {
+      //   continue;
+      // }
       this._drawOps.prims[batch.primitive]?.pick?.drawBatch(batch);
     }
 
@@ -303,85 +303,86 @@ return;
       pickProjMatrix: FloatArrayParam,
       pickInvisible: boolean
     } ): FloatArrayParam|null {
-
-    const {rendererView, batchIndex, meshIndex, sceneMesh, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
-    const view = rendererView.view;
-    const resolutionScale = view.resolutionScale;
-    const meshBatch = this._meshBatchManager.getBatch(batchIndex);
-    const renderContext = this._renderContext;
-    const gl = renderContext.gl;
-    const canvas = rendererView.view.htmlElement;
-    const boundingRect = canvas.getBoundingClientRect();
-    const pickBuffer = rendererView.renderBuffers.getRenderBuffer("pickDepth", {
-      depthTexture: true,
-      size: [1, 1]
-    });
-    pickBuffer.bind();
-    pickBuffer.clear();
-    renderContext.reset();
-    renderContext.backfaces = true;
-    renderContext.frontface = true; // "ccw"
-    renderContext.pickViewMatrix = pickViewMatrix;
-    renderContext.pickProjMatrix = pickProjMatrix;
-    renderContext.pickInvisible = !!params.pickInvisible;
-    renderContext.pickClipPos = [
-      this._getClipPosX(params.pickCanvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
-      this._getClipPosY(params.pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
-    ];
-
-    gl.viewport(0, 0, 1, 1);
-    gl.depthMask(true);
-    gl.enable(gl.DEPTH_TEST);
-    gl.disable(gl.CULL_FACE);
-    gl.disable(gl.BLEND);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    this._drawOps.prims[meshBatch.primitive]?.depth?.drawMesh(meshBatch, meshIndex);
-
-    const pix = pickBuffer.read(0, 0);
-
-    pickBuffer.unbind();
-
-    const screenZ = this._unpackDepth(pix); // Get screen-space Z at the given canvas coords
-
-    // Calculate clip space coordinates, which will be in range of x=[-1..1] and y=[-1..1], with y=(+1) at top
-
-    const x = (pickCanvasPos[0] - canvas.clientWidth / 2) / (canvas.clientWidth / 2);
-    const y = -(pickCanvasPos[1] - canvas.clientHeight / 2) / (canvas.clientHeight / 2);
-
-    // Ensure that unprojection matrix is in RTC space if needed
-
-    const origin = (sceneMesh.sceneMeshRendererProxy as RendererMesh).tile.center; // HACK: Cast to RendererMesh is a bit dirty
-    const gotOrigin = (origin[0] !== 0 && origin[1] !== 0 && origin[2] !== 0);
-    let pvMat = gotOrigin
-      ? mulMat4(pickProjMatrix, createRTCViewMat(pickViewMatrix, origin, tempMat4a), tempMat4b)
-      : mulMat4(pickProjMatrix, pickViewMatrix, tempMat4b);
-
-    const pvMatInverse = inverseMat4(pvMat, tempMat4c);
-
-    tempVec4a[0] = x;
-    tempVec4a[1] = y;
-    tempVec4a[2] = -1;
-    tempVec4a[3] = 1;
-
-    let world1 = transformVec4(pvMatInverse, tempVec4a);
-    world1 = mulVec4Scalar(world1, 1 / world1[3]);
-
-    tempVec4b[0] = x;
-    tempVec4b[1] = y;
-    tempVec4b[2] = 1;
-    tempVec4b[3] = 1;
-
-    let world2 = transformVec4(pvMatInverse, tempVec4b);
-    world2 = mulVec4Scalar(world2, 1 / world2[3]);
-
-    const dir = subVec3(world2, world1, tempVec4c);
-    const worldPos = addVec3(world1, mulVec4Scalar(dir, screenZ, tempVec4d), tempVec4e);
-
-    if (gotOrigin) {
-      addVec3(worldPos, origin);
-    }
-    return worldPos;
+    return null;
+    //
+    // const {rendererView, batchIndex, meshIndex, sceneMesh, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
+    // const view = rendererView.view;
+    // const resolutionScale = view.resolutionScale;
+    // const meshBatch = this._meshBatchManager.getBatch(batchIndex);
+    // const renderContext = this._renderContext;
+    // const gl = renderContext.gl;
+    // const canvas = rendererView.view.htmlElement;
+    // const boundingRect = canvas.getBoundingClientRect();
+    // const pickBuffer = rendererView.renderBuffers.getRenderBuffer("pickDepth", {
+    //   depthTexture: true,
+    //   size: [1, 1]
+    // });
+    // pickBuffer.bind();
+    // pickBuffer.clear();
+    // renderContext.reset();
+    // renderContext.backfaces = true;
+    // renderContext.frontface = true; // "ccw"
+    // renderContext.pickViewMatrix = pickViewMatrix;
+    // renderContext.pickProjMatrix = pickProjMatrix;
+    // renderContext.pickInvisible = !!params.pickInvisible;
+    // renderContext.pickClipPos = [
+    //   this._getClipPosX(params.pickCanvasPos[0] * resolutionScale.resolutionScale, gl.drawingBufferWidth),
+    //   this._getClipPosY(params.pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
+    // ];
+    //
+    // gl.viewport(0, 0, 1, 1);
+    // gl.depthMask(true);
+    // gl.enable(gl.DEPTH_TEST);
+    // gl.disable(gl.CULL_FACE);
+    // gl.disable(gl.BLEND);
+    // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    //
+    // this._drawOps.prims[meshBatch.primitive]?.depth?.drawMesh(meshBatch, meshIndex);
+    //
+    // const pix = pickBuffer.read(0, 0);
+    //
+    // pickBuffer.unbind();
+    //
+    // const screenZ = this._unpackDepth(pix); // Get screen-space Z at the given canvas coords
+    //
+    // // Calculate clip space coordinates, which will be in range of x=[-1..1] and y=[-1..1], with y=(+1) at top
+    //
+    // const x = (pickCanvasPos[0] - canvas.clientWidth / 2) / (canvas.clientWidth / 2);
+    // const y = -(pickCanvasPos[1] - canvas.clientHeight / 2) / (canvas.clientHeight / 2);
+    //
+    // // Ensure that unprojection matrix is in RTC space if needed
+    //
+    // const origin = (sceneMesh.sceneMeshRendererProxy as RendererMesh).tile.center; // HACK: Cast to RendererMesh is a bit dirty
+    // const gotOrigin = (origin[0] !== 0 && origin[1] !== 0 && origin[2] !== 0);
+    // let pvMat = gotOrigin
+    //   ? mulMat4(pickProjMatrix, createRTCViewMat(pickViewMatrix, origin, tempMat4a), tempMat4b)
+    //   : mulMat4(pickProjMatrix, pickViewMatrix, tempMat4b);
+    //
+    // const pvMatInverse = inverseMat4(pvMat, tempMat4c);
+    //
+    // tempVec4a[0] = x;
+    // tempVec4a[1] = y;
+    // tempVec4a[2] = -1;
+    // tempVec4a[3] = 1;
+    //
+    // let world1 = transformVec4(pvMatInverse, tempVec4a);
+    // world1 = mulVec4Scalar(world1, 1 / world1[3]);
+    //
+    // tempVec4b[0] = x;
+    // tempVec4b[1] = y;
+    // tempVec4b[2] = 1;
+    // tempVec4b[3] = 1;
+    //
+    // let world2 = transformVec4(pvMatInverse, tempVec4b);
+    // world2 = mulVec4Scalar(world2, 1 / world2[3]);
+    //
+    // const dir = subVec3(world2, world1, tempVec4c);
+    // const worldPos = addVec3(world1, mulVec4Scalar(dir, screenZ, tempVec4d), tempVec4e);
+    //
+    // if (gotOrigin) {
+    //   addVec3(worldPos, origin);
+    // }
+    // return worldPos;
   }
 
   _unpackDepth( depthZ ) {

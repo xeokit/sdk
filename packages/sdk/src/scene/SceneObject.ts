@@ -1,7 +1,7 @@
-
 import type {SceneMesh} from "./SceneMesh";
 import type {SceneModel} from "./SceneModel";
 import type {SceneObjectParams} from "./SceneObjectParams";
+import {SDKErrorType, SDKResult} from "../core";
 
 /**
  * An object within a {@link SceneModel | SceneModel}.
@@ -13,78 +13,95 @@ import type {SceneObjectParams} from "./SceneObjectParams";
  */
 export class SceneObject {
 
-  /**
-   * Unique ID of this SceneObject.
-   *
-   * SceneObjects are stored by ID in {@link Scene.objects | Scene.objects}
-   * and {@link SceneModel.objects | SceneModel.objects}.
-   */
-  public readonly id: string;
+    /**
+     * Unique ID of this SceneObject.
+     *
+     * SceneObjects are stored by ID in {@link Scene.objects | Scene.objects}
+     * and {@link SceneModel.objects | SceneModel.objects}.
+     */
+    public readonly id: string;
 
-  /**
-   * ID of this SceneObject within the originating system.
-   */
-  public readonly originalSystemId: string;
+    /**
+     * ID of this SceneObject within the originating system.
+     */
+    public readonly originalSystemId: string;
 
-  /**
-   * Optional layer ID for this SceneObject.
-   *
-   * When the {@link Scene} is attached to a {@link viewer!View | View}, this will identify an optional {@link viewer!ViewLayer | ViewLayer}
-   * to assign the object to. ViewLayers allow users to group and segregate object based on their roles or aspects in a scene,
-   * simplifying interaction and focusing operations on specific object groups.
-   */
-  public readonly layerId?: string;
+    /**
+     * Optional layer ID for this SceneObject.
+     *
+     * When the {@link Scene} is attached to a {@link viewer!View | View}, this will identify an optional {@link viewer!ViewLayer | ViewLayer}
+     * to assign the object to. ViewLayers allow users to group and segregate object based on their roles or aspects in a scene,
+     * simplifying interaction and focusing operations on specific object groups.
+     */
+    public readonly layerId?: string;
 
-  /**
-   * The {@link SceneModel | SceneModel} that contains this SceneObject.
-   */
-  public readonly model: SceneModel;
+    /**
+     * The {@link SceneModel | SceneModel} that contains this SceneObject.
+     */
+    public readonly model: SceneModel;
 
-  /**
-   * The {@link SceneMesh | Meshes} belonging to this SceneObject.
-   */
-  public readonly meshes: SceneMesh[];
+    /**
+     * The {@link SceneMesh | Meshes} belonging to this SceneObject.
+     */
+    public readonly meshes: SceneMesh[];
 
-  /**
-   * @private
-   */
-  constructor(cfg: {
-    model: SceneModel;
-    meshes: SceneMesh[];
-    id: string;
-    originallSystemId?: string;
-    layerId?: string;
-  }) {
-    this.id = cfg.id;
-    this.originalSystemId = cfg.originallSystemId || this.id;
-    this.layerId = cfg.layerId;
-    this.model = cfg.model;
-    this.meshes = cfg.meshes;
-  }
+    /**
+     * True if this SceneObject has been destroyed.
+     */
+    public destroyed: boolean = false;
 
-  /**
-   * Gets this SceneObject as SceneObjectParams.
-   */
-  toParams(): SceneObjectParams {
-    const sceneObjectParams = <SceneObjectParams>{
-      id: this.id,
-      meshIds: []
-    };
-    if (this.layerId != undefined) {
-      sceneObjectParams.layerId = this.layerId;
+    /**
+     * @private
+     */
+    constructor(cfg: {
+        model: SceneModel;
+        meshes: SceneMesh[];
+        id: string;
+        originallSystemId?: string;
+        layerId?: string;
+    }) {
+        this.id = cfg.id;
+        this.originalSystemId = cfg.originallSystemId || this.id;
+        this.layerId = cfg.layerId;
+        this.model = cfg.model;
+        this.meshes = cfg.meshes;
     }
-    if (this.meshes != undefined) {
-      for (let i = 0, len = this.meshes.length; i < len; i++) {
-        sceneObjectParams.meshIds.push(this.meshes[i].id);
-      }
-    }
-    return sceneObjectParams;
-  }
 
-  /**
-   * Destroys this SceneObject.
-   */
-  destroy() {
-    this.model._destroyObject(this);
-  }
+    /**
+     * Gets this SceneObject as SceneObjectParams.
+     */
+    toParams(): SceneObjectParams {
+        const sceneObjectParams = <SceneObjectParams>{
+            id: this.id,
+            meshIds: []
+        };
+        if (this.layerId != undefined) {
+            sceneObjectParams.layerId = this.layerId;
+        }
+        if (this.meshes != undefined) {
+            for (let i = 0, len = this.meshes.length; i < len; i++) {
+                sceneObjectParams.meshIds.push(this.meshes[i].id);
+            }
+        }
+        return sceneObjectParams;
+    }
+
+    /**
+     * Destroys this SceneObject.
+     */
+    destroy(): SDKResult<void, string> {
+        if (this.destroyed) {
+            return this.model.scene.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[SceneObject.destroy] SceneObject already destroyed"
+            });
+        }
+        this.model._destroyObject(this);
+        this.destroyed = true;
+        return {
+            ok: true,
+            value: undefined
+        };
+    }
 }

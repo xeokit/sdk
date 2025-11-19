@@ -1,6 +1,7 @@
 import type {SceneTexture} from "./SceneTexture";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 import {SceneModel} from "./SceneModel";
+import {SDKErrorType} from "../core";
 
 /**
  * A set of {@link SceneTexture | Textures} in a {@link SceneModel | SceneModel}.
@@ -45,6 +46,11 @@ export class SceneTextureSet {
     model: SceneModel;
 
     /**
+     * True if this SceneTextureSet has been destroyed.
+     */
+    public destroyed: boolean = false;
+
+    /**
      * @private
      */
     constructor(model: SceneModel, textureSetParams: SceneTextureSetParams,
@@ -67,6 +73,10 @@ export class SceneTextureSet {
      * Destroys this SceneTextureSet.
      */
     destroy(): void {
+        if (this.destroyed) {
+                 return;
+        }
         this.model._destroyTextureSet(this);
+        this.destroyed = true;
     }
 }

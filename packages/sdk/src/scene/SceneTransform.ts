@@ -1,10 +1,9 @@
-
-import { createMat4, identityMat4, inverseMat4, mulMat4 } from "../matrix";
-import type { FloatArrayParam } from "../math";
-import type { SceneTransformParams } from "./SceneTransformParams";
-import type { SceneObject } from "./SceneObject";
-import { SceneModel } from "./SceneModel";
-import { SceneMesh } from "./SceneMesh";
+import {createMat4, identityMat4, inverseMat4, mulMat4} from "../matrix";
+import type {FloatArrayParam} from "../math";
+import type {SceneTransformParams} from "./SceneTransformParams";
+import {SceneModel} from "./SceneModel";
+import {SceneMesh} from "./SceneMesh";
+import {SDKErrorType} from "../core";
 
 /**
  * A transform within a {@link SceneModel | SceneModel}.
@@ -39,6 +38,11 @@ export class SceneTransform {
 
   /** Reference to the parent SceneTransform, if any */
   private _parentTransform: SceneTransform | null = null;
+
+  /**
+   * True if this SceneTransform has been destroyed.
+   */
+  public destroyed: boolean = false;
 
   /**
    * Creates a new SceneTransform instance.
@@ -249,6 +253,8 @@ export class SceneTransform {
    * Destroys the transform, detaching it from its parent and children.
    */
   destroy(): void {
+    if (this.destroyed) {
+         }
     if (this._parentTransform) {
       this._parentTransform.removeChildTransform(this);
     }
@@ -256,8 +262,8 @@ export class SceneTransform {
     for (const child of [...this._childTransforms]) {
       child.setParentTransform(null, { preserveWorld: false });
     }
-
     this._childTransforms = [];
     this.model._destroyTransform(this);
+    this.destroyed = true;
   }
 }

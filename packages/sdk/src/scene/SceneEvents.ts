@@ -1,5 +1,5 @@
 import {Scene} from "./Scene";
-import {EventEmitter} from "../core";
+import {EventEmitter, SDKErrorType, SDKResult} from "../core";
 import {SceneModel} from "./SceneModel";
 import {SceneObject} from "./SceneObject";
 import {SceneMesh} from "./SceneMesh";
@@ -20,6 +20,12 @@ import {SceneTextureSet} from "./SceneTextureSet";
 export class SceneEvents {
 
     /**
+     * Emits an event when an error occurs within the `Scene` or its components. This non-fatal event
+     * is fired with an `SDKResult` containing error details whenever any operation fails.
+     */
+    public readonly onError: EventEmitter<Scene, SDKResult<any, string>>;
+
+    /**
      * Emits an event when the `Scene` itself is destroyed.
      */
     public readonly onSceneDestroyed: EventEmitter<Scene, Scene>;
@@ -27,28 +33,28 @@ export class SceneEvents {
     /**
      * Emits an event when the {@link CoordinateSystem.basis | CoordinateSystem.basis} of the `Scene` is updated.
      */
-    public  readonly onCoordSystemBasisChanged: EventEmitter<Scene, CoordinateSystem>;
+    public readonly onSceneCoordSystemBasisChanged: EventEmitter<Scene, CoordinateSystem>;
 
     /**
      * Emits an event when the {@link CoordinateSystem.origin | CoordinateSystem.origin} of the `Scene` is updated.
      */
-    public  readonly onCoordSystemOriginChanged: EventEmitter<Scene, CoordinateSystem>;
+    public readonly onSceneCoordSystemOriginChanged: EventEmitter<Scene, CoordinateSystem>;
 
     /**
      * Emits an event when the {@link CoordinateSystem.units | CoordinateSystem.units} of the `Scene` is updated.
      */
-    public   readonly onCoordSystemUnitsChanged: EventEmitter<Scene, CoordinateSystem>;
+    public readonly onSceneCoordSystemUnitsChanged: EventEmitter<Scene, CoordinateSystem>;
 
     /**
      * Emits an event when the {@link CoordinateSystem.scaleToMeters | CoordinateSystem.scaleToMeters} of the `Scene` is updated.
      */
-    public  readonly onCoordSystemScaleToMetersChanged: EventEmitter<Scene, CoordinateSystem>;
+    public readonly onSceneCoordSystemScaleToMetersChanged: EventEmitter<Scene, CoordinateSystem>;
 
     /**
      * Emits an event after one or more coordinate system properties have been updated,
      * indicating that the {@link CoordinateSystem} is ready for use.
      */
-    public  readonly onCoordSystemUpdated: EventEmitter<Scene, CoordinateSystem>;
+    public readonly onSceneCoordSystemUpdated: EventEmitter<Scene, CoordinateSystem>;
 
     /**
      * Emits an event when a {@link SceneModel} is created in the `Scene`.
@@ -63,28 +69,28 @@ export class SceneEvents {
     /**
      * Emits an event when the {@link CoordinateSystem.basis | CoordinateSystem.basis} of a {@link SceneModel} is updated.
      */
-    public   readonly onSceneModelCoordSystemBasisChanged: EventEmitter<SceneModel, CoordinateSystem>;
+    public readonly onSceneModelCoordSystemBasisChanged: EventEmitter<SceneModel, CoordinateSystem>;
 
     /**
      * Emits an event when the {@link CoordinateSystem.origin | CoordinateSystem.origin} of a {@link SceneModel} is updated.
      */
-    public  readonly onSceneModelCoordSystemOriginChanged: EventEmitter<SceneModel, CoordinateSystem>;
+    public readonly onSceneModelCoordSystemOriginChanged: EventEmitter<SceneModel, CoordinateSystem>;
 
     /**
      * Emits an event when the {@link CoordinateSystem.units | CoordinateSystem.units} of a {@link SceneModel} is updated.
      */
-    public   readonly onSceneModelCoordSystemUnitsChanged: EventEmitter<SceneModel, CoordinateSystem>;
+    public readonly onSceneModelCoordSystemUnitsChanged: EventEmitter<SceneModel, CoordinateSystem>;
 
     /**
      * Emits an event when the {@link CoordinateSystem.scaleToMeters | CoordinateSystem.scaleToMeters} of a {@link SceneModel} is updated.
      */
-    public  readonly onSceneModelCoordSystemScaleToMetersChanged: EventEmitter<SceneModel, CoordinateSystem>;
+    public readonly onSceneModelCoordSystemScaleToMetersChanged: EventEmitter<SceneModel, CoordinateSystem>;
 
     /**
      * Emits an event after one or more coordinate system properties of a {@link SceneModel} have been updated,
      * indicating that the {@link CoordinateSystem} is ready for use.
      */
-    public  readonly onSceneModelCoordSystemUpdated: EventEmitter<SceneModel, CoordinateSystem>;
+    public readonly onSceneModelCoordSystemUpdated: EventEmitter<SceneModel, CoordinateSystem>;
 
     /**
      * Emits an event when a {@link SceneObject} is created in the `Scene`.
@@ -180,12 +186,13 @@ export class SceneEvents {
      * @private
      */
     constructor() {
+        this.onError = new EventEmitter(new EventDispatcher<Scene, SDKResult<any, string>>());
         this.onSceneDestroyed = new EventEmitter(new EventDispatcher<Scene, Scene>());
-        this.onCoordSystemBasisChanged = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
-        this.onCoordSystemOriginChanged = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
-        this.onCoordSystemUnitsChanged = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
-        this.onCoordSystemScaleToMetersChanged = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
-        this.onCoordSystemUpdated = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
+        this.onSceneCoordSystemBasisChanged = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
+        this.onSceneCoordSystemOriginChanged = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
+        this.onSceneCoordSystemUnitsChanged = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
+        this.onSceneCoordSystemScaleToMetersChanged = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
+        this.onSceneCoordSystemUpdated = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
         this.onSceneModelCreated = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
         this.onSceneModelDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneModel>());
         this.onSceneModelCoordSystemBasisChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
@@ -217,12 +224,13 @@ export class SceneEvents {
      * @private
      */
     destroy() {
+        this.onError.clear();
         this.onSceneDestroyed.clear();
-        this.onCoordSystemBasisChanged.clear();
-        this.onCoordSystemOriginChanged.clear();
-        this.onCoordSystemUnitsChanged.clear();
-        this.onCoordSystemScaleToMetersChanged.clear();
-        this.onCoordSystemUpdated.clear();
+        this.onSceneCoordSystemBasisChanged.clear();
+        this.onSceneCoordSystemOriginChanged.clear();
+        this.onSceneCoordSystemUnitsChanged.clear();
+        this.onSceneCoordSystemScaleToMetersChanged.clear();
+        this.onSceneCoordSystemUpdated.clear();
         this.onSceneModelCreated.clear();
         this.onSceneModelDestroyed.clear();
         this.onSceneModelCoordSystemBasisChanged.clear();
@@ -241,8 +249,8 @@ export class SceneEvents {
         this.onSceneTextureSetDestroyed.clear();
         this.onSceneGeometryUpdated.clear();
         this.onSceneObjectDestroyed.clear();
-        this.onSceneGeometryCreated .clear();
-        this.onSceneGeometryDestroyed .clear();
+        this.onSceneGeometryCreated.clear();
+        this.onSceneGeometryDestroyed.clear();
         this.onSceneMeshCreated.clear();
         this.onSceneMeshDestroyed.clear();
         this.onSceneTransformCreated.clear();

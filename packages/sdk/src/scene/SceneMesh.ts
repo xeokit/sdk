@@ -6,6 +6,7 @@ import type {SceneObject} from "./SceneObject";
 import type {SceneTextureSet} from "./SceneTextureSet";
 import {SceneModel} from "./SceneModel";
 import {SceneTransform} from "./SceneTransform";
+import {SDKErrorType, SDKResult} from "../core";
 
 
 /**
@@ -53,7 +54,8 @@ export class SceneMesh {
   private _globalMatrix: FloatArrayParam;
 
    _parentTransform: SceneTransform | null = null;
-  
+
+   destroyed: boolean = false;
 
   /**
    * @private
@@ -75,6 +77,7 @@ export class SceneMesh {
     this.textureSet = meshParams.textureSet;
     this.color = meshParams.color || new Float32Array([1, 1, 1]);
     this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
+    this.object = null;
   }
 
   /**
@@ -92,6 +95,14 @@ export class SceneMesh {
    * Each element of the color is in range ````[0..1]````.
    */
   set color( value: FloatArrayParam ) {
+    if (this.destroyed) {
+      this.model.scene.logError( {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneMesh.color] Cannot set color on destroyed SceneMesh ${this.id}`
+      });
+      return;
+    }
     let color = this._color;
     if (!color) {
       color = this._color = new Float32Array(4);
@@ -117,6 +128,14 @@ export class SceneMesh {
    * @type {FloatArrayParam}
    */
   set matrix( matrix: FloatArrayParam ) {
+    if (this.destroyed) {
+      this.model.scene.logError( {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneMesh.matrix] Cannot set matrix on destroyed SceneMesh ${this.id}`
+      });
+      return;
+    }
     if (matrix) {
       // @ts-ignore
       this._localMatrix.set(matrix);
@@ -161,6 +180,14 @@ export class SceneMesh {
    * This is a factor in range ````[0..1]````.
    */
   set opacity( opacity: number ) {
+    if (this.destroyed) {
+      this.model.scene.logError( {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneMesh.opacity] Cannot set opacity on destroyed SceneMesh ${this.id}`
+      });
+      return;
+    }
     opacity = (opacity !== undefined && opacity !== null) ? opacity : 1.0;
     if (this._opacity === opacity) {
       return;
@@ -241,6 +268,9 @@ export class SceneMesh {
    * @param opts - Options to preserve world transformation.
    */
   public setParentTransform(next: SceneTransform | null, opts?: { preserveWorld?: boolean }): void {
+    if (this.destroyed) {
+      return;
+    }
     if (next === this) {
       throw new Error("Cannot parent to self");
     }
@@ -288,10 +318,22 @@ export class SceneMesh {
    * Destroys this SceneMesh.
    */
   destroy() {
+    if (this.destroyed) {
+        return;
+    }
+    if (this.object) {
+      this.model.scene.logError( {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneMesh.destroy] Cannot destroy SceneMesh ${this.id} - SceneMesh is currently used by SceneObject ${this.object.id}, which you need to destroy first`
+      });
+      return;
+    }
     if (this._parentTransform) {
       this._parentTransform.removeChildMesh(this);
     }
     this._parentTransform = null;
     this.model._destroyMesh(this);
+    this.destroyed = true;
   }
 }

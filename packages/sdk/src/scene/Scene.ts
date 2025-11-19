@@ -46,6 +46,13 @@ export class Scene {
    */
   public destroyed: boolean = false;
 
+    /**
+     * Indicates whether to log errors to the console.
+     *
+     * Default value is ````false````.
+     */
+    public logging: boolean = false;
+
   /**
    * Creates a new Scene.
    */
@@ -55,6 +62,7 @@ export class Scene {
     this.coordinateSystem = new CoordinateSystem(this, params?.coordinateSystem);
     this.models = {};
     this.objects = {};
+    this.logging = params?.logging ?? false;
   }
   /**
    * Creates a new {@link SceneModel | SceneModel} in this Scene.
@@ -66,22 +74,36 @@ export class Scene {
    */
   createModel(sceneModelParams: SceneModelParams): SDKResult<SceneModel, string> {
     if (this.destroyed) {
-      return { ok: false, type: SDKErrorType.InvalidInput, error: "Scene already destroyed" };
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "Scene already destroyed"
+      });
     }
-
     const id = sceneModelParams.id ?? createUUID();
     if (this.models[id]) {
-      return { ok: false, type: SDKErrorType.InvalidInput, error: `SceneModel already created in this Scene: ${id}` };
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `SceneModel already created in this Scene: ${id}`
+      });
     }
     const paramsWithId: SceneModelParams = { ...sceneModelParams, id };
     const sceneModel = new SceneModel(this, paramsWithId);
     const populated = sceneModel.fromParams(paramsWithId);
     if (populated.ok===false) {
-      return { ok: false, type: SDKErrorType.InvalidInput, error: populated.error}; // { ok: false, error: string }
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: populated.error
+      });
     }
     this.models[id] = sceneModel;
     this.events.onSceneModelCreated.dispatch(this, sceneModel); // Fires modelCreated
-    return { ok: true, value: sceneModel };
+    return {
+      ok: true,
+      value: sceneModel
+    };
   }
 
   /**
@@ -120,36 +142,62 @@ export class Scene {
   /**
    * Destroys all contained {@link SceneModel | SceneModels}.
    *
-   * * Fires {@link SceneEvents.onModelDestroyed | SceneEvents.onModelDestroyed}
+   * * Fires {@link SceneEvents.onSceneModelDestroyed | SceneEvents.onSceneModelDestroyed}
    * for each existing SceneModel in this Scene.
    *
    * See {@link scene | @xeokit/sdk/scene}   for usage.
    */
-  clear(): void {
+  clear(): SDKResult<void, string> {
     if (this.destroyed) {
-      return ;
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[Scene.clear] Scene already destroyed"
+      });
     }
     for (const id in this.models) {
       this.models[id].destroy();
     }
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   /**
    * Destroys this Scene and all contained {@link SceneModel | SceneModels}.
    *
-   * * Fires {@link Scene.onModelDestroyed | Scene.modelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   * * Fires {@link SceneEvents.onSceneModelDestroyed | Scene.modelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
    * for each existing SceneModels in this Data.
-   * * Unsubscribes all subscribers to {@link Scene.onModelCreated | Scene.modelCreated}, {@link Scene.onModelDestroyed | Scene.modelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   * * Unsubscribes all subscribers to {@link SceneEvents.onSceneModelCreated | SceneEvents.onSceneModelCreated}, {@link SceneEvents.onSceneModelDestroyed | Scene.modelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
    *
    * See {@link scene | @xeokit/sdk/scene}   for usage.
    *
    * @returns *void*
    */
   destroy(): void {
+    if (this.destroyed) {
+      return;
+    }
     this.clear();
     this.events.onSceneDestroyed.dispatch(this, this)
     this.events.destroy();
+    this.destroyed = true;
   }
 
+  /**
+   * Logs an error via the Scene's {@link SceneEvents.onError | SceneEvents.onError} event.
+   * @private
+   * @param result
+   */
+  logError(result:SDKResult<any,string>) : SDKResult<any, string>{
+    if (result.ok === false) {
+      if (this.logging) {
+        console.error(result.error);
+      }
+      this.events.onError.dispatch(this, result);
+    }
+    return result;
+  }
 
 }

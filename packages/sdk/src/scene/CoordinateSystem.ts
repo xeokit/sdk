@@ -4,6 +4,7 @@ import {type CoordinateSystemParams} from "./CoordinateSystemParams";
 import {Scene} from "./Scene";
 import {SceneModel} from "./SceneModel";
 import {createVec3} from "../matrix";
+import {SDKErrorType} from "../core";
 
 
 
@@ -34,6 +35,11 @@ export class CoordinateSystem  {
     private _worldForward: FloatArrayParam;
 
     /**
+     * True if this CoordinateSystem has been destroyed.
+     */
+    public destroyed: boolean = false;
+
+    /**
      * @private
      */
     constructor(parent: Scene | SceneModel, params?: CoordinateSystemParams) {
@@ -59,7 +65,7 @@ export class CoordinateSystem  {
                 this.#notifyUpdatedScheduled = false;
                 (this._model)
                     ? this._model.scene.events.onSceneModelCoordSystemUpdated.dispatch(this._model, this)
-                    :  this._scene.events.onCoordSystemUpdated.dispatch(this._scene, this);
+                    :  this._scene.events.onSceneCoordSystemUpdated.dispatch(this._scene, this);
             }, 100)
         }
     }
@@ -74,6 +80,13 @@ export class CoordinateSystem  {
      * Emits event on change, via `Scene.events.coordSystemBasis` or `SceneModel.events.modelCoordSystemBasis`.
      */
     set basis(value: FloatArrayParam) {
+        if (this.destroyed) {
+            return (this._scene||this._model.scene).logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[CoordinateSystem.basis] CoordinateSystem already destroyed - cannot set basis"
+            });
+        }
         this._basis = new Float32Array(<any>value || [
             1, 0, 0, // Right
             0, 0, 1, // Up
@@ -90,7 +103,7 @@ export class CoordinateSystem  {
         this._worldForward[2] = this._basis[8];
         (this._model)
             ? this._model.scene.events.onSceneModelCoordSystemBasisChanged.dispatch(this._model, this)
-            :  this._scene.events.onCoordSystemBasisChanged.dispatch(this._scene, this);
+            :  this._scene.events.onSceneCoordSystemBasisChanged.dispatch(this._scene, this);
         this.#notifyUpdated();
     }
 
@@ -104,10 +117,17 @@ export class CoordinateSystem  {
      * Emits event on change, via `Scene.events.coordSystemOrigin` or `SceneModel.events.modelCoordSystemOrigin`.
      */
     set origin(value: FloatArrayParam) {
+        if (this.destroyed) {
+            return (this._scene||this._model.scene).logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[CoordinateSystem.origin] CoordinateSystem already destroyed - cannot set origin"
+            });
+        }
         this._origin = new Float32Array(<any>value);
         (this._model)
             ? this._model.scene.events.onSceneModelCoordSystemOriginChanged.dispatch(this._model, this)
-            :  this._scene.events.onCoordSystemOriginChanged.dispatch(this._scene, this);
+            :  this._scene.events.onSceneCoordSystemOriginChanged.dispatch(this._scene, this);
         this.#notifyUpdated();
     }
 
@@ -121,10 +141,17 @@ export class CoordinateSystem  {
      * Emits event on change, via `Scene.events.coordSystemUnits` or `SceneModel.events.modelCoordSystemUnits`.
      */
     set units(value: 'meters' | 'millimeters' | 'inches' | 'feet') {
+        if (this.destroyed) {
+            return (this._scene||this._model.scene).logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[CoordinateSystem.units] CoordinateSystem already destroyed - cannot set units"
+            });
+        }
         this._units = value;
         (this._model)
             ? this._model.scene.events.onSceneModelCoordSystemUnitsChanged.dispatch(this._model, this)
-            :  this._scene.events.onCoordSystemUnitsChanged.dispatch(this._scene, this);
+            :  this._scene.events.onSceneCoordSystemUnitsChanged.dispatch(this._scene, this);
         this.#notifyUpdated();
     }
 
@@ -138,10 +165,17 @@ export class CoordinateSystem  {
      * Emits event on change, via `Scene.events.coordSystemMeters` or `SceneModel.events.modelCoordSystemMeters`.
      */
     set scaleToMeters(value: number | undefined) {
+        if (this.destroyed) {
+            return (this._scene||this._model.scene).logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[CoordinateSystem.scaleToMeters] CoordinateSystem already destroyed - cannot set scaleToMeters"
+            });
+        }
         this._scaleToMeters = value;
         (this._model)
             ? this._model.scene.events.onSceneModelCoordSystemScaleToMetersChanged.dispatch(this._model, this)
-        :  this._scene.events.onCoordSystemScaleToMetersChanged.dispatch(this._scene, this);
+        :  this._scene.events.onSceneCoordSystemScaleToMetersChanged.dispatch(this._scene, this);
         this.#notifyUpdated();
     }
 
@@ -224,10 +258,29 @@ export class CoordinateSystem  {
      * Updates this instance's state from a CoordinateSystemParams object.
      */
     fromParams(params: CoordinateSystemParams): void {
+        if (this.destroyed) {
+             (this._scene||this._model.scene).logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[CoordinateSystem.fromParams] CoordinateSystem already destroyed - cannot call fromParams"
+            });
+             return;
+        }
         this._basis = new Float32Array(params.basis);
         this._origin = new Float64Array(params.origin);
         this._units = params.units;
         this._scaleToMeters = params.scaleToMeters;
         this.#notifyUpdated();
+    }
+
+    /**
+     * Destroys this CoordinateSystem.
+     * @private
+     */
+    destroy(): void {
+        if (this.destroyed) {
+            return;
+        }
+        this.destroyed = true;
     }
 }

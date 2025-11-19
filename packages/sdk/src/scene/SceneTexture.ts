@@ -19,6 +19,7 @@ import {createVec4} from "../matrix";
 import type {FloatArrayParam} from "../math";
 import type {SceneTextureParams} from "./SceneTextureParams";
 import {SceneModel} from "./SceneModel";
+import {SDKErrorType} from "../core";
 
 /**
  * A texture in a {@link SceneModel | SceneModel}.
@@ -154,6 +155,11 @@ export class SceneTexture {
   public model: SceneModel;
 
   /**
+   * True if this SceneTexture has been destroyed.
+   */
+  public destroyed: boolean = false;
+
+  /**
    * @private
    */
   constructor(sceneModel: SceneModel, params: SceneTextureParams) {
@@ -176,11 +182,15 @@ export class SceneTexture {
    * Destroy this SceneTexture.
    */
   destroy() {
+    if (this.destroyed) {
+        return;
+    }
     //  TODO: Null any TextureSet references to this texture
     this.image = undefined;
     this.imageData = undefined;
     this.buffers = undefined;
     this.model._destroyTexture(this);
+    this.destroyed = true;
   }
 }
 

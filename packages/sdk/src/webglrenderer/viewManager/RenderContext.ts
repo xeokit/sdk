@@ -1,8 +1,9 @@
 import type {View, Viewer} from "../../viewer";
 import { WEBGL_INFO, type WebGLAbstractTexture} from "../../webglutils";
 import type {FloatArrayParam} from "../../math";
-import {SDKError, SDKErrorType, SDKResult} from "../../core";
+import {SDKInternalException, SDKErrorType, SDKResult} from "../../core";
 import {WebGLContextProvider} from "../../webglutils/WebGLContextProvider";
+import {GPUMemoryConfigs} from "../GPUMemoryConfigs";
 
 
 /**
@@ -16,6 +17,11 @@ export class RenderContext implements WebGLContextProvider {
    * The Viewer.
    */
   public viewer: Viewer;
+
+  /**
+   * The memory configuration for the WebGLRenderer.
+   */
+  public memConfigs: GPUMemoryConfigs;
 
   /**
    * The WebGL rendering context.
@@ -117,10 +123,12 @@ export class RenderContext implements WebGLContextProvider {
 
   private initialized: boolean = false;
 
+
   /**
    * Creates a new RenderContext.
    */
-  constructor( ) {
+  constructor(memConfigs: GPUMemoryConfigs) {
+    this.memConfigs = memConfigs;
     this.initialized = false;
   }
 
@@ -191,7 +199,7 @@ export class RenderContext implements WebGLContextProvider {
    */
   reset() {
     if (!this.initialized) {
-        throw new SDKError("RenderContext not initialized");
+        throw new SDKInternalException("RenderContext not initialized");
     }
     this.lastProgramId = -1;
     this.pbrEnabled = false;
@@ -213,7 +221,7 @@ export class RenderContext implements WebGLContextProvider {
    */
   get nextTextureUnit() {
     if (!this.initialized) {
-        throw new SDKError("RenderContext not initialized");
+        throw new SDKInternalException("RenderContext not initialized");
     }
     const textureUnit = this.textureUnit;
     this.textureUnit = (this.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;

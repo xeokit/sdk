@@ -1,10 +1,6 @@
 import {RenderContext} from "../RenderContext";
-import {SDKError, SDKResult} from "../../../core";
-import type {
-    SceneMesh,
-    SceneModel,
-    SceneObject,
-} from "../../../scene";
+import {SDKErrorType, SDKResult} from "../../../core";
+import type {SceneMesh, SceneModel, SceneObject,} from "../../../scene";
 import {RendererObject} from "./RendererObject";
 import {RendererMesh} from "./RendererMesh";
 import {MeshBatchImpl} from "./MeshBatchImpl";
@@ -12,7 +8,6 @@ import {type GPUMemoryEditor} from "../gpuMemoryManager/GPUMemoryEditor";
 import {MeshBatch} from "./MeshBatch";
 import {Camera, ViewObject} from "../../../viewer";
 import {SceneTransform} from "../../../scene/SceneTransform";
-import {GPUMemoryBatch} from "../gpuMemoryManager/GPUMemoryBatch";
 
 /**
  * The MeshManager manages the relationship between scene objects, their geometries, meshes, and rendering sortedBatches.
@@ -20,9 +15,13 @@ import {GPUMemoryBatch} from "../gpuMemoryManager/GPUMemoryBatch";
  * It listens to the Viewer's Scene for additions and removals of models, objects, meshes and geometries, creating
  * or destroying the corresponding renderer entities as needed.
  *
- * The MeshManager organizes RendererMeshes into DrawLayers based on their primitive type (triangles, lines, points).
- * Each DrawLayer manages GPU resources for rendering its meshes efficiently. The MeshManager creates new DrawLayers as
+ * The MeshManager organizes RendererMeshes into MeshBatches based on their primitive type (triangles, lines, points).
+ * Each DrawLayer manages GPU resources for rendering its meshes efficiently. The MeshManager creates new MeshBatches as
  * needed when meshes with different primitive types are added.
+ *
+ * Assuming the Scene operates correctly, it should consistently emit the appropriate events, ensuring a valid state.
+ * However, to maintain robustness, we defensively validate and log errors instead of fully relying on this behavior.
+ * SDKInternalExceptions would be used if we had greater confidence in the Scene's reliability.
  */
 export class MeshManager {
 
@@ -49,9 +48,10 @@ export class MeshManager {
     }
 
     /**
-     * Initializes the MeshManager by processing existing SceneModels and SceneObjects in the Viewer's Scene.
+     * Initializes the MeshManager by registering existing SceneModels and SceneObjects in the Viewer's Scene.
+     * @return SDKResult<void, string> indicating success or failure.
      */
-    init(): SDKResult<void, string> {
+    public init(): SDKResult<void, string> {
         const {
             models: sceneModels,
             objects: sceneObjects
@@ -72,66 +72,63 @@ export class MeshManager {
     }
 
     /**
-     * Returns the list of MeshBatches sorted by their primitive type.
+     * Handles the creation of a SceneModel.
      */
-    public get sortedBatches(): MeshBatch[] {
-        if (this._batchListDirty) {
-            // @ts-ignore
-            this._batchList = Object.values(this._sortedBatches).sort((a, b) => a.primitive - b.primitive);
-            this._batchListDirty = false;
+    public sceneModelCreated(sceneModel: SceneModel): SDKResult<any, string> {
+        if (this._rendererModels[sceneModel.id]) { //  Don't trust Scene's events
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidInput,
+                error: `[MeshManager.sceneModelCreated] SceneModel already added with this ID: ${sceneModel.id}`
+            };
         }
-        return this._batchList;
-    }
-
-    /**
-     * Retrieves a MeshBatch at the specified index, if it exists.
-     * @param batchIndex
-     */
-    public getBatch(batchIndex: number): MeshBatch | null {
-        return this._sortedBatches[batchIndex];
-    }
-
-    /**
-     * Retrieves a SceneMesh within a specific batch at the given index.
-     * @param batchIndex
-     * @param meshIndex
-     */
-    public getMeshAtIndex(batchIndex: number, meshIndex: number): SceneMesh | null {
-        return this._gpuMemoryEditor.getMeshAtIndex(batchIndex, meshIndex);
-    }
-
-    /**
-     * Gets the parameters needed for a drawArrays call for a specific mesh in a specific batch.
-     * @param batchIndex
-     * @param meshIndex
-     */
-    public getDrawArraysParamsForMesh(batchIndex: number, meshIndex: number): { first: number; count: number } | null {
-        return this._gpuMemoryEditor.getDrawArraysParamsForMesh(batchIndex, meshIndex);
-    }
-
-    public sceneModelCreated(sceneModel: SceneModel): void {
         this._rendererModels[sceneModel.id] ||= {
             rendererMeshes: {}
         };
-    }
-
-    public sceneModelDestroyed(sceneModel: SceneModel): void {
-        delete this._rendererModels[sceneModel.id];
+        return {
+            ok: true,
+            value: undefined
+        };
     }
 
     /**
-     * Creates a RendererObject for the given SceneObject, along with its associated RendererMeshes.
-     * Returns error when memory limit hit.
-     * @param sceneObject
+     * Handles the destruction of a SceneModel.
+     */
+    public sceneModelDestroyed(sceneModel: SceneModel): SDKResult<any, string> {
+        if (!this._rendererModels[sceneModel.id]) {
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: `[MeshManager.sceneModelDestroyed] SceneModel not attached with this ID: ${sceneModel.id}`
+            };
+        }
+        delete this._rendererModels[sceneModel.id];
+        return {
+            ok: true,
+            value: undefined
+        };
+    }
+
+    /**
+     * Handles the creation of a SceneObject.
      */
     public sceneObjectCreated(sceneObject: SceneObject): SDKResult<any, string> {
         const objectId = sceneObject.id;
         if (this._rendererObjects[objectId]) {
-            throw new SDKError(`Already has a SceneObject attached with this ID: ${objectId}`);
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidInput,
+                error: `[MeshManager.sceneObjectCreated] SceneObject already added with this ID: ${objectId}`
+            };
         }
-        const rendererModel = this._rendererModels[sceneObject.model.id];
+        const modelId = sceneObject.model.id
+        const rendererModel = this._rendererModels[modelId];
         if (!rendererModel) {
-            throw new SDKError(`SceneModel not attached with this ID: ${sceneObject.model.id}`);
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidInput,
+                error: `[MeshManager.sceneObjectCreated] No SceneModel added with this ID: ${modelId}`
+            };
         }
         const rendererMeshes = [];
         for (const sceneMesh of sceneObject.meshes) {
@@ -157,7 +154,11 @@ export class MeshManager {
     private _addMesh(rendererModel: any, sceneMesh: SceneMesh): SDKResult<RendererMesh, string> {
         const meshId = sceneMesh.id;
         if (rendererModel.rendererMeshes[meshId]) {
-            throw new SDKError(`SceneMesh already attached with this ID: ${meshId}`);
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidInput,
+                error: `SceneMesh already added with this ID: ${meshId}`
+            };
         }
         const result = this._getMeshBatch(sceneMesh);
         if (result.ok === false) {
@@ -208,16 +209,31 @@ export class MeshManager {
     }
 
     /**
-     * Removes a SceneObject and its associated RendererObject from the MeshManager.
+     * Handles the destruction of a SceneObject.
      */
-    public sceneObjectDestroyed(sceneObject: SceneObject): void {
+    public sceneObjectDestroyed(sceneObject: SceneObject): SDKResult<any, string> {
         const rendererModel = this._rendererModels[sceneObject.model.id];
         if (!rendererModel) {
-            return;
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: `SceneModel not attached with this ID: ${sceneObject.model.id}`
+            };
         }
-        sceneObject.meshes?.forEach((mesh) => this._removeMesh(rendererModel, mesh));
+        if (!this._rendererObjects[sceneObject.id]) {
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: `SceneObject not attached with this ID: ${sceneObject.id}`
+            };
+        }
         delete this._rendererObjects[sceneObject.id];
+        sceneObject.meshes?.forEach((mesh) => this._removeMesh(rendererModel, mesh));
         this._batchListDirty = true;
+        return {
+            ok: true,
+            value: undefined
+        };
     }
 
     private _removeMesh(rendererModel: any, sceneMesh: SceneMesh): void {
@@ -229,62 +245,132 @@ export class MeshManager {
         rendererMesh.destroy();
         delete rendererModel.rendererMeshes[sceneMesh.id];
         this._batchListDirty = true;
-        console.log(`MeshBatches: Removed RendererMesh for SceneMesh ID: ${sceneMesh.id}`);
     }
 
+    /**
+     * Handles changes to a SceneTransform's matrix.
+     */
     public sceneTransformMatrixChanged(sceneTransform: SceneTransform): void {
     }
 
+    /**
+     * Handles changes to a SceneMesh's matrix.
+     */
     public sceneMeshMatrixChanged(sceneMesh: SceneMesh): void {
         this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setMatrix(sceneMesh.matrix);
     }
 
+    /**
+     * Handles changes to a SceneMesh's color.
+     */
     public sceneMeshColorChanged(sceneMesh: SceneMesh): void {
         this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setColor(sceneMesh.color);
     }
 
+    /**
+     * Handles changes to a SceneMesh's opacity.
+     */
     public sceneMeshOpacityChanged(sceneMesh: SceneMesh): void {
         // this._rendererModels[sceneMesh.model.id]
         //     ?.rendererMeshes[sceneMesh.id]
         //     ?.setOpacity(viewObject.layer.view.viewIndex, sceneMesh.opacity);
     }
 
+    /**
+     * Handles changes to a ViewObject's visibility.
+     */
     public viewObjectVisibilityChanged(viewObject: ViewObject): void {
         this._rendererObjects[viewObject.id]?.setVisible(viewObject.layer.view.viewIndex, viewObject.visible);
     }
 
-    viewObjectXRayedChanged(viewObject: ViewObject): void {
+    /**
+     * Handles changes to a ViewObject's xrayed state.
+     */
+    public viewObjectXRayedChanged(viewObject: ViewObject): void {
         this._rendererObjects[viewObject.id]?.setXRayed(viewObject.layer.view.viewIndex, viewObject.xrayed);
     }
 
-    viewObjectHighlightedChanged(viewObject: ViewObject): void {
+    /**
+     * Handles changes to a ViewObject's highlighted state.
+     */
+    public viewObjectHighlightedChanged(viewObject: ViewObject): void {
         this._rendererObjects[viewObject.id]?.setHighlighted(viewObject.layer.view.viewIndex, viewObject.highlighted);
     }
 
-    viewObjectSelectedChanged(viewObject: ViewObject): void {
+    /**
+     * Handles changes to a ViewObject's selected state.
+     */
+    public viewObjectSelectedChanged(viewObject: ViewObject): void {
         this._rendererObjects[viewObject.id]?.setSelected(viewObject.layer.view.viewIndex, viewObject.selected);
     }
 
-    viewObjectColorizeChanged(viewObject: ViewObject): void {
+    /**
+     * Handles changes to a ViewObject's colorize state.
+     */
+    public viewObjectColorizeChanged(viewObject: ViewObject): void {
         this._rendererObjects[viewObject.id]?.setColorize(viewObject.layer.view.viewIndex, viewObject.colorize);
     }
 
-    viewObjectOpacityChanged(viewObject: ViewObject): void {
+    /**
+     * Handles changes to a ViewObject's opacity.
+     */
+    public viewObjectOpacityChanged(viewObject: ViewObject): void {
         this._rendererObjects[viewObject.id]?.setOpacity(viewObject.layer.view.viewIndex, viewObject.opacity);
     }
 
+    /**
+     * Handles updates to the camera's view matrix.
+     */
     public cameraViewMatrixUpdated(camera: Camera) {
         this._gpuMemoryEditor.cameraViewMatrixUpdated(camera);
     }
 
+    /**
+     * Returns the list of MeshBatches sorted by their primitive type.
+     */
+    public get sortedBatches(): MeshBatch[] {
+        if (this._batchListDirty) {
+            // @ts-ignore
+            this._batchList = Object.values(this._sortedBatches).sort((a, b) => a.primitive - b.primitive);
+            this._batchListDirty = false;
+        }
+        return this._batchList;
+    }
+
+    /**
+     * Retrieves a MeshBatch at the specified index, if it exists.
+     */
+    public getBatch(batchIndex: number): MeshBatch | null {
+        return this._sortedBatches[batchIndex];
+    }
+
+    /**
+     * Retrieves a SceneMesh within a specific batch at the given index.
+     */
+    public getMeshAtIndex(batchIndex: number, meshIndex: number): SceneMesh | null {
+        return this._gpuMemoryEditor.getMeshAtIndex(batchIndex, meshIndex);
+    }
+
+    /**
+     * Gets the parameters needed for a drawArrays call for a specific mesh in a specific batch.
+     */
+    public getDrawArraysParamsForMesh(batchIndex: number, meshIndex: number): { first: number; count: number } | null {
+        return this._gpuMemoryEditor.getDrawArraysParamsForMesh(batchIndex, meshIndex);
+    }
+
+    /**
+     * Destroys the MeshManager, cleaning up all resources.
+     */
     public destroy(): void {
+
         const {viewer} = this._renderContext;
         const {models, objects} = viewer.scene;
 
         // @ts-ignore
-        Object.values(objects).forEach((object) => this._removeObject(object));
+        Object.values(objects).forEach((sceneObject) => this.sceneObjectDestroyed(sceneObject));
+
         // @ts-ignore
-        Object.values(models).forEach((model) => this.sceneModelDestroyed(model));
+        Object.values(models).forEach((sceneModel) => this.sceneModelDestroyed(sceneModel));
 
         // @ts-ignore
         Object.values(this._sortedBatches).forEach((meshBatch) => meshBatch.destroy());

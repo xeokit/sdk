@@ -43,6 +43,10 @@ export class DTXMeshViewAttribs {
         this.capacity = options.capacity;
     }
 
+    static get elementSizeInBytes() {
+        return DTXMeshViewAttribs.TEXELS_PER_STRUCT * DTXMeshViewAttribs.BYTES_PER_TEXEL;
+    }
+
     allocate(): boolean {
         // Choose a wide power-of-two for fewer rows
         this._texWidth = 4096; // texels

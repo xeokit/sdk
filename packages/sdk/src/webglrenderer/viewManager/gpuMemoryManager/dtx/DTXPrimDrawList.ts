@@ -87,6 +87,10 @@ export class DTXPrimDrawList {
         this._texHeight = Math.max(1, Math.ceil(this.capacity / this._texWidth));
     }
 
+   static get elementSizeInBytes(): number {
+        return 4; // 1 uint32 per texel
+    }
+
     allocate(): boolean {
         // Allocate CPU buffer to full texture area (padding at end is harmless)
         const totalTexels = this._texWidth * this._texHeight;

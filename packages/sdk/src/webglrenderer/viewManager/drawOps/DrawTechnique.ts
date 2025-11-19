@@ -4,7 +4,7 @@ import {RENDER_PASSES, RenderPassValue} from "../RENDER_PASSES";
 import type {RenderContext} from "../RenderContext";
 import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {MeshBatch} from "../meshManager/MeshBatch";
-import {SDKResult} from "../../../core";
+import {SDKErrorType, SDKResult} from "../../../core";
 import {WebGLContextProvider} from "../../../webglutils/WebGLContextProvider";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
@@ -111,9 +111,9 @@ export abstract class DrawTechnique {
     public init(): SDKResult<any, string> {
 
         if (this._program) {
-            const resultProg = this._program.init();
-            if (resultProg.ok === false) {
-                return resultProg;
+            const result = this._program.init();
+            if (result.ok === false) {
+                return result;
             }
         } else {
 
@@ -131,9 +131,9 @@ export abstract class DrawTechnique {
             this._vertSrcBuf = [];
             this._fragSrcBuf = [];
 
-            const resultProg = this._program.init();
-            if (resultProg.ok === false) {
-                return resultProg;
+            const result = this._program.init();
+            if (result.ok === false) {
+                return result;
             }
         }
 
@@ -216,104 +216,117 @@ export abstract class DrawTechnique {
     /**
      * Draws a batch.
      */
-    public drawBatch(meshBatch: MeshBatch, renderPass: RenderPassValue): void {
-        this._draw(meshBatch, renderPass);
+    public drawBatch(meshBatch: MeshBatch, renderPass: RenderPassValue): SDKResult<any, string> {
+        return this._draw(meshBatch, renderPass);
     }
 
     /**
      * Draws a specific mesh within a batch.
      */
-    public drawMesh(meshBatch: MeshBatch, meshIndex: number, renderPass: RenderPassValue): void {
-        this._draw(meshBatch, renderPass, meshIndex);
+    public drawMesh(meshBatch: MeshBatch, meshIndex: number, renderPass: RenderPassValue): SDKResult<any, string> {
+       return this._draw(meshBatch, renderPass, meshIndex);
     }
 
-    private _draw(meshBatch: MeshBatch, renderPass: RenderPassValue, meshIndex: number = -1): void {
+    _draw(meshBatch: MeshBatch, renderPass: RenderPassValue, meshIndex?: number): SDKResult<any, string> {
+
         if (!this._program) {
-            throw new Error("Shader program is not initialized.");
-        }
-        if (!meshBatch) {
-            throw new Error("Invalid meshBatch provided.");
-        }
-        if (renderPass < 0) {
-            throw new Error("Invalid render pass provided.");
-        }
-        if (!this._bind(renderPass)) {
-            return;
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[DrawTechnique._draw] Shader program is not initialized."
+            };
         }
 
-        const renderContext = this._renderContext;
-        const view = renderContext.activeView;
-        const gl = this._renderContext.gl;
-
-        renderContext.textureUnit = 0;
-
-        const bindTexture = (sampler, texture) => {
-            if (!sampler || !texture) {
-                return;
+        try {
+            if (!this._bind(renderPass)) {
+                return {
+                    ok: false,
+                    type: SDKErrorType.InvalidOperation,
+                    error: "Failed to bind the shader program."
+                };
             }
-            gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.uniform1i(sampler, renderContext.textureUnit);
-            renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
-        }
 
-        const samplers = this._samplers;
-        const dataTextures = this._gpuMemoryReader.dataTextures;
-        const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
-        const viewIndex = view.viewIndex;
+            const renderContext = this._renderContext;
+            const view = renderContext.activeView;
+            const gl = this._renderContext.gl;
 
-        bindTexture(samplers.tileViewMatrices,
-            (this._renderContext.rayPicking
-                ? dataTextures.tileRayPickMatrices
-                : dataTextures.tileViewMatrices)
-                [view.viewIndex]); // TODO: Bind these textures once in _bind()
+            renderContext.textureUnit = 0;
 
-        const batchViewDataTextures = batchDataTextures.views[viewIndex]
-        const primToMeshLookup = batchViewDataTextures.primToMeshLookup;
+            const bindTexture = (sampler, texture) => {
+                if (!sampler || !texture) {
+                    return;
+                }
+                gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.uniform1i(sampler, renderContext.textureUnit);
+                renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
+            };
 
-        bindTexture(samplers.primToMeshLookup, primToMeshLookup);
-        bindTexture(samplers.positions, batchDataTextures.positions);
-        bindTexture(samplers.vertexColors, batchDataTextures.vertexColors);
-        bindTexture(samplers.meshMatrices, batchDataTextures.meshMatrices);
-        bindTexture(samplers.meshAttribs, batchDataTextures.meshAttribs);
-        bindTexture(samplers.meshViewAttribs, batchViewDataTextures.meshViewAttribs);
-        bindTexture(samplers.geometryAttribs, batchDataTextures.geometryAttribs);
-        bindTexture(samplers.geometryQuantRanges, batchDataTextures.geometryQuantRanges);
-        bindTexture(samplers.edgeIndices, batchDataTextures.edgeIndices);
-        bindTexture(samplers.indices, batchDataTextures.indices);
+            const samplers = this._samplers;
+            const dataTextures = this._gpuMemoryReader.dataTextures;
+            const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
+            const viewIndex = view.viewIndex;
 
-        const drawRange = batchViewDataTextures.renderPassDrawRanges.get(renderPass);
-        if (!drawRange || drawRange.numPrims === 0) {
-            return; // Nothing to draw for this pass
-        }
+            bindTexture(samplers.tileViewMatrices,
+                (this._renderContext.rayPicking
+                    ? dataTextures.tileRayPickMatrices
+                    : dataTextures.tileViewMatrices)
+                    [view.viewIndex]);
 
-        gl.uniform1i(this._uniforms.primBaseIndex, drawRange.firstPrim);
-        gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive); // TrianglesPrimitive, LinesPrimitive, PointsPrimitive
+            const batchViewDataTextures = batchDataTextures.views[viewIndex];
+            const primToMeshLookup = batchViewDataTextures.primToMeshLookup;
 
-        // const drawSingleMesh = (meshIndex >= 0); // -1 means draw all meshes in the batch
-        // const {first, count} = drawSingleMesh
-        //     ? meshBatch.getDrawArraysParamsForMesh(meshIndex)
-        //     : {
-        //         first: 0,
-        //         count: batchViewDataTextures.numDrawablePrims * (meshBatch.primitive === TrianglesPrimitive
-        //             ? 3
-        //             : (meshBatch.primitive === LinesPrimitive
-        //                 ? 2
-        //                 : 1))
-        //     };
+            bindTexture(samplers.primToMeshLookup, primToMeshLookup);
+            bindTexture(samplers.positions, batchDataTextures.positions);
+            bindTexture(samplers.vertexColors, batchDataTextures.vertexColors);
+            bindTexture(samplers.meshMatrices, batchDataTextures.meshMatrices);
+            bindTexture(samplers.meshAttribs, batchDataTextures.meshAttribs);
+            bindTexture(samplers.meshViewAttribs, batchViewDataTextures.meshViewAttribs);
+            bindTexture(samplers.geometryAttribs, batchDataTextures.geometryAttribs);
+            bindTexture(samplers.geometryQuantRanges, batchDataTextures.geometryQuantRanges);
+            bindTexture(samplers.edgeIndices, batchDataTextures.edgeIndices);
+            bindTexture(samplers.indices, batchDataTextures.indices);
 
-        switch (meshBatch.primitive) {
-            case TrianglesPrimitive:
-                gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim*3, drawRange.numPrims*3);
-                break;
-            case LinesPrimitive:
-                gl.drawArrays(gl.LINES, drawRange.firstPrim*2, drawRange.numPrims*2);
-                break;
-            case PointsPrimitive:
-                gl.drawArrays(gl.POINTS, drawRange.firstPrim, drawRange.numPrims);
-                break;
-            default:
-                console.error(`Unsupported Batch primitive type: ${meshBatch.primitive}`);
+            const drawRange = batchViewDataTextures.renderPassDrawRanges.get(renderPass);
+            if (!drawRange || drawRange.numPrims === 0) {
+                return {
+                    ok: true,
+                    value: null // Nothing to draw for this pass
+                };
+            }
+
+            gl.uniform1i(this._uniforms.primBaseIndex, drawRange.firstPrim);
+            gl.uniform1i(this._uniforms.primitiveType, meshBatch.primitive);
+
+            switch (meshBatch.primitive) {
+                case TrianglesPrimitive:
+                    gl.drawArrays(gl.TRIANGLES, drawRange.firstPrim * 3, drawRange.numPrims * 3);
+                    break;
+                case LinesPrimitive:
+                    gl.drawArrays(gl.LINES, drawRange.firstPrim * 2, drawRange.numPrims * 2);
+                    break;
+                case PointsPrimitive:
+                    gl.drawArrays(gl.POINTS, drawRange.firstPrim, drawRange.numPrims);
+                    break;
+                default:
+                    return {
+                        ok: false,
+                        type: SDKErrorType.InvalidInput,
+                        error: `[DrawTechnique._draw] Unsupported Batch primitive type: ${meshBatch.primitive}`
+                    };
+            }
+
+            return {
+                ok: true,
+                value: null
+            };
+
+        } catch (error) {
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: error instanceof Error ? error.message : "[DrawTechnique._draw] An unknown error occurred during draw."
+            };
         }
     }
 

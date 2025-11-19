@@ -11,7 +11,7 @@ import {GPUMemoryBatch} from "./GPUMemoryBatch";
 import {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
 import {Camera, TickParams, View} from "../../../viewer";
 import {RenderPassValue} from "../RENDER_PASSES";
-import {SDKErrorType, SDKResult} from "../../../core";
+import {SDKErrorType, SDKInternalException, SDKResult} from "../../../core";
 
 
 /**
@@ -26,11 +26,10 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   /**
    * The data textures that implement GPU-side model storage for this GPUMemoryManager.
    */
-  dataTextures: DataTextures| null = null;
+  public dataTextures: DataTextures| null = null;
 
   private _batches: GPUMemoryBatch[] = [];
   private _renderContext: RenderContext;
-  private _maxTiles: number;
   private _tiles: TileManager;
   private _onTick: () => void;
   private _numMeshes: Number;
@@ -42,30 +41,30 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    */
   constructor( renderContext: RenderContext ) {
     this._renderContext = renderContext;
-    this._maxTiles = 1000;
     this._numMeshes = 0;
   }
 
   /**
    * Allocates GPU memory for this GPUMemoryManager.
    */
-  init(): SDKResult<void, string> {
+  public init(): SDKResult<void, string> {
 
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
+    const maxTiles = renderContext.memConfigs.maxTiles;
 
     this._tileViewMatrices = [
-      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: this._maxTiles})
+      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: maxTiles})
     ];
 
     this._tileRayPickMatrices = [
-      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: this._maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: this._maxTiles})
+      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
+      new DTXMatrixArray({gl, maxMatrices: maxTiles})
     ];
 
     const textures: {
@@ -84,7 +83,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
         return {
           ok: false,
           type: SDKErrorType.MemoryExceeded,
-          error: 'GPUMemoryManager.init: Out of GPU memory'
+          error: '[GPUMemoryManager.init] Out of GPU memory. Try increasing the maximum number of tiles.'
         };
       }
     }
@@ -104,9 +103,19 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   }
 
   /**
+   * Gets the size in bytes of each element managed by GPUMemoryManager.
+   */
+  static get elementSizesInBytes(): { [key: string]: number } {
+    return Object.assign({
+      tile: (DTXMatrixArray.elementSizeInBytes * 4)
+          + (DTXMatrixArray.elementSizeInBytes * 4),
+    }, GPUMemoryBatch.elementSizesInBytes);
+  }
+
+  /**
    * Called on each tick to upload any pending changes to GPU memory.
    */
-  uploadChanges():void{
+  public uploadChanges():void{
     for (let i = 0; i < 4; i++) {
       this._tileViewMatrices[i].uploadChanges();
       this._tileRayPickMatrices[i].uploadChanges();
@@ -120,7 +129,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * Notifies the GPUMemoryManager that a Camera's view matrix has been updated.
    * @param camera
    */
-  cameraViewMatrixUpdated(camera: Camera) : void {
+  public cameraViewMatrixUpdated(camera: Camera) : void {
     this._tiles.cameraViewMatrixUpdated(camera);
   }
 
@@ -130,7 +139,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param view The target View.
    * @param pickMatrix The pick matrix to set for the View.
    */
-  setViewPickMatrix(view: View, pickMatrix: FloatArrayParam ): void {
+  public setViewPickMatrix(view: View, pickMatrix: FloatArrayParam ): void {
     this._tiles.setPickMatrix(view, pickMatrix);
   }
 
@@ -139,7 +148,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param worldPos A 3D position in world space.
    * @returns The Tile containing the position. The tile's use count is incremented.
    */
-  getTile( worldPos: FloatArrayParam ): Tile {
+  public getTile( worldPos: FloatArrayParam ): Tile {
     return this._tiles.getTile(worldPos);
   }
 
@@ -150,7 +159,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @returns The original tile if no move was needed, otherwise a different tile.
    * When returing a different tile, old tile is released back to the TileManager.
    */
-  moveTile( tile: Tile, worldPos: FloatArrayParam ): Tile {
+  public moveTile( tile: Tile, worldPos: FloatArrayParam ): Tile {
     return this._tiles.moveTile(tile, worldPos);
   }
 
@@ -159,7 +168,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * The Tile is destroyed as soon as it is released as many times as it was retrieved.
    * @param tile The tile to release.
    */
-  putTile( tile: Tile ) {
+  public putTile( tile: Tile ) {
     this._tiles.putTile(tile);
   }
 
@@ -168,15 +177,22 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * The new batch is added to the  `GPUMemoryEditor.dataTextures.sortedBatches` array.
    * @returns SDKResult containing the index of the new batch, or an error if out of memory.
    */
-  createBatch(): SDKResult<number, string> {
+  public createBatch(): SDKResult<number, string> {
+    if (this._batches.length >= this._renderContext.memConfigs.maxMeshBatches) {
+        return {
+            ok: false,
+            type: SDKErrorType.MemoryExceeded,
+            error: '[GPUMemoryManager.createBatch] Exceeded maximum number of GPU memory batches.'
+        };
+    }
       const index = this._batches.length;
       const gpuMemoryBatch = new GPUMemoryBatch(index, this._renderContext);
-      if (!gpuMemoryBatch.allocate() ) {
+      if (!gpuMemoryBatch.allocate()) {
         gpuMemoryBatch.destroy();
         return {
           ok: false,
           type: SDKErrorType.MemoryExceeded,
-          error: 'GPUMemoryManager.createBatch: Out of GPU memory'
+          error: '[GPUMemoryManager.createBatch] Out of GPU memory'
         };
       }
       this._batches.push(gpuMemoryBatch);
@@ -192,7 +208,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param batchIndex
    * @param sceneMesh
    */
-  hasMemoryForMesh( batchIndex: number, sceneMesh: SceneMesh ): boolean {
+  public hasMemoryForMesh( batchIndex: number, sceneMesh: SceneMesh ): boolean {
     const gpuMemoryBatch = this._batches[batchIndex];
     return gpuMemoryBatch ? gpuMemoryBatch.hasMemoryForMesh(sceneMesh) : false;
   }
@@ -205,10 +221,10 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param batchIndex
    * @param sceneMesh
    */
-  addMesh( batchIndex: number, sceneMesh: SceneMesh ): GPUMemoryMeshHandle {
+  public addMesh( batchIndex: number, sceneMesh: SceneMesh ): GPUMemoryMeshHandle {
     const gpuMemoryBatch = this._batches[batchIndex];
     if (!gpuMemoryBatch) {
-      throw new Error('GPUMemoryManager.addMesh: Invalid batch index.');
+      throw new SDKInternalException('[GPUMemoryManager.addMesh] Invalid batch index.');
     }
     const meshIdx = gpuMemoryBatch?.addMesh(sceneMesh);
     this._numMeshes++;
@@ -228,13 +244,13 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param viewIndex
    * @param visible
    */
-  setMeshVisible(
+  public setMeshVisible(
       meshHandle: GPUMemoryMeshHandle,
       viewIndex: number,
       visible: boolean) {
     const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
-      throw new Error('GPUMemoryManager.setMeshVisible: Invalid batch index in mesh handle.');
+      throw new SDKInternalException('GPUMemoryManager.setMeshVisible: Invalid batch index in mesh handle.');
     }
     batch.setMeshVisible( meshHandle.meshIndex, viewIndex,visible);
     //this._needRenderAllViews();
@@ -249,12 +265,12 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param meshHandle
    * @param matrix
    */
-  setMeshMatrix(
+  public setMeshMatrix(
     meshHandle: GPUMemoryMeshHandle,
     matrix: FloatArrayParam ): void {
     const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
-      throw new Error('GPUMemoryManager.setMeshMatrix: Invalid batch index in mesh handle.');
+      throw new SDKInternalException('[GPUMemoryManager.setMeshMatrix] Invalid batch index in mesh handle.');
     }
     batch.setMeshMatrix(meshHandle.meshIndex, matrix);
   }
@@ -268,14 +284,14 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param params
    * @param params.tileIndex Optional tileIndex of the Tile containing the mesh. This can be dynamically updated, as mesh can move between tiles.
    */
-  setMeshAttribs(
+  public setMeshAttribs(
     meshHandle: GPUMemoryMeshHandle,
     params: {
       tileIndex?: number;
     } ) {
     const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
-      throw new Error('GPUMemoryManager.setMeshAttribs: Invalid batch index in mesh handle.');
+      throw new SDKInternalException('[GPUMemoryManager.setMeshAttribs] Invalid batch index in mesh handle.');
     }
     batch.setMeshAttribs(meshHandle.meshIndex, params);
   }
@@ -289,7 +305,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param viewIndex
    * @param params
    */
-  setMeshViewAttribs(
+  public setMeshViewAttribs(
     meshHandle: GPUMemoryMeshHandle,
     viewIndex: number,
     params: {
@@ -299,7 +315,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     } ) {
     const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
-      throw new Error('GPUMemoryManager.setMeshViewAttribs: Invalid batch index in mesh handle.');
+      throw new SDKInternalException('[GPUMemoryManager.setMeshViewAttribs] Invalid batch index in mesh handle.');
     }
     batch.setMeshViewAttribs(meshHandle.meshIndex, viewIndex, params);
   }
@@ -310,13 +326,13 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param viewIndex
    * @param renderPass
    */
-  setMeshRenderPass(
+  public setMeshRenderPass(
       meshHandle1: GPUMemoryMeshHandle,
       viewIndex: number,
       renderPass: RenderPassValue): void {
     const batch = this._batches[meshHandle1.gpuMemoryBatchIndex];
     if (!batch) {
-      throw new Error('GPUMemoryManager.setMeshRenderPass: Invalid batch index in mesh handle.');
+      throw new SDKInternalException('[GPUMemoryManager.setMeshRenderPass] Invalid batch index in mesh handle.');
     }
     batch.setMeshRenderPass(meshHandle1.meshIndex, viewIndex, renderPass);
   }
@@ -326,10 +342,10 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    *
    * @param meshHandle
    */
-  removeMesh( meshHandle: GPUMemoryMeshHandle ): void {
+  public removeMesh( meshHandle: GPUMemoryMeshHandle ): void {
     const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
-      throw new Error('GPUMemoryManager.removeMesh: Invalid batch index in mesh handle.');
+      throw new SDKInternalException('[GPUMemoryManager.removeMesh] Invalid batch index in mesh handle.');
     }
     batch.removeMesh(meshHandle.meshIndex);
     this._numMeshes--;
@@ -341,7 +357,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param batchIndex
    * @param meshIndex
    */
-  getMeshAtIndex( batchIndex: number, meshIndex: number ): SceneMesh | null {
+  public getMeshAtIndex( batchIndex: number, meshIndex: number ): SceneMesh | null {
     const batch = this._batches[batchIndex];
     if (!batch) {
       return null;
@@ -354,7 +370,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param batchIndex
    * @param meshIndex
    */
-  getDrawArraysParamsForMesh( batchIndex: number, meshIndex: number ): { first: number, count: number} | null {
+  public getDrawArraysParamsForMesh( batchIndex: number, meshIndex: number ): { first: number, count: number} | null {
     const batch = this._batches[batchIndex];
     if (!batch) {
       return null;
@@ -365,7 +381,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   /**
    * Destroys this GPUMemoryManager instance and all its resources.
    */
-  destroy() {
+  public destroy() {
     for (const gpuMemory of this._batches) {
       gpuMemory.destroy();
     }
@@ -387,6 +403,4 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     }
     this._onTick();
   }
-
-
 }

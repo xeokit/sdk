@@ -5,35 +5,49 @@ import {EventDispatcher} from "strongly-typed-events";
 import {getWebGLExtension} from "../webglutils";
 import {Capabilities} from "./Capabilities";
 import {WebGLRendererEvents} from "./WebGLRendererEvents";
+import {GPUMemoryConfigs} from "./GPUMemoryConfigs";
+import {createGPUMemoryConfigs} from "./createGPUMemoryConfigs";
 
 /**
  * WebGL renderer for a Viewer.
+ *
+ * This class manages the rendering pipeline for a Viewer using WebGL. It handles
+ * the initialization, event subscriptions, and destruction of the rendering context.
  *
  * See {@link "webglrenderer" | @xeokit/webglrenderer} for usage.
  */
 export class WebGLRenderer {
 
-    private _viewManager: ViewManager;
-    private _destroyed = false;
-    private _eventSubs = [];
+    private _viewManager: ViewManager; // Manages views and their rendering lifecycle
+    private _destroyed = false; // Indicates if the renderer has been destroyed
+    private _eventSubs = []; // Stores event subscriptions for cleanup
+
+    /**
+     * Enables or disables logging of errors to the console.
+     * When true, errors encountered during rendering are logged.
+     */
+    public logging: boolean = false;
 
     /**
      * Events emitted by this WebGLRenderer.
+     * Includes lifecycle events such as destruction, WebGL context loss, and error reporting.
      */
     public events: WebGLRendererEvents = {
 
         /**
-         * Emits an event when the WebGLRenderer itself is destroyed.
+         * Dispatched when the WebGLRenderer is destroyed.
          */
-        onDestroyed: new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>()),
+        onRendererDestroyed: new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>()),
 
         /**
-         * Emits an event when the WebGL context is lost.
+         * Dispatched when the WebGL context is lost.
+         * This event is critical for handling WebGL context restoration.
          */
         webglContextLost: new EventEmitter(new EventDispatcher<WebGLRenderer, WebGLContextEvent>()),
 
         /**
-         * Emits an event when an error occurs within the WebGLRenderer.
+         * Dispatched when an error occurs within the WebGLRenderer.
+         * Provides detailed error information for debugging.
          */
         onError: new EventEmitter(new EventDispatcher<WebGLRenderer, {
             ok: false,
@@ -43,11 +57,33 @@ export class WebGLRenderer {
     }
 
     /**
-     * Constructs a new WebGLRenderer.
+     * Configurations for GPU memory usage.
+     */
+    private readonly _memConfigs: GPUMemoryConfigs;
+
+    /**
+     * Constructs a new WebGLRenderer instance.
      *
      * @param params.viewer Optional Viewer to attach to this WebGLRenderer upon construction.
+     * If provided, the Viewer is immediately attached, and any errors during attachment
+     * are dispatched via the `onError` event.
+     * @param params.memConfigs Optional partial GPU memory configurations to override defaults.
      */
-    constructor(params: { viewer?: Viewer } = {}) {
+    constructor(params: {
+        viewer?: Viewer,
+        memConfigs?: Partial<GPUMemoryConfigs>
+    } = {}) {
+        if (params.memConfigs) {
+            Object.assign(this._memConfigs, params.memConfigs);
+        } else {
+            this._memConfigs = createGPUMemoryConfigs({
+                grossMemoryMB: 2024, // 2GB
+                device: "medium", // Assume mid-range device
+                utilization: 0.7, // Use 70% of available memory
+                user: { // No overrides
+                }
+            });
+        }
         if (params.viewer) {
             const result = this.attachViewer(params.viewer);
             if (result.ok === false) {
@@ -57,10 +93,14 @@ export class WebGLRenderer {
     }
 
     /**
-     * Gets the capabilities of this WebGLRenderer.
+     * Retrieves the capabilities of the WebGLRenderer.
+     * Populates the provided `Capabilities` object with information about supported
+     * WebGL features, such as texture compression formats and WebGL2 support.
+     *
+     * @param capabilities The object to populate with capability information.
      */
     public getCapabilities(capabilities: Capabilities): void {
-        capabilities.maxViews = 4;
+        capabilities.maxViews = 4; // Maximum number of views supported
         const testCanvas = document.createElement("canvas");
         const gl = testCanvas.getContext("webgl2") as WebGL2RenderingContext | null;
         if (!gl) {
@@ -79,84 +119,93 @@ export class WebGLRenderer {
     }
 
     /**
-     * Initializes this WebGLRenderer by attaching a Viewer.
+     * Logs an error result to the console and dispatches an `onError` event.
+     *
+     * @param result The error result to log and dispatch.
+     * @returns The same error result for chaining or further handling.
+     */
+    public logError(result: SDKResult<any, string>): SDKResult<any, string> {
+        if (result && result.ok === false) {
+            if (this.logging) {
+                console.error(`[WebGLRenderer] ${result.error}`);
+            }
+            this.events.onError.dispatch(this, {
+                ok: false,
+                type: result.type,
+                error: `[WebGLRenderer] ${result.error}`
+            });
+        }
+        return result;
+    }
+
+    /**
+     * Attaches a Viewer to this WebGLRenderer.
+     * Initializes the rendering pipeline and subscribes to Viewer and Scene events.
+     *
      * @param viewer The Viewer to attach.
      * @returns OK result upon success, or an Error result upon failure.
      */
     public attachViewer(viewer: Viewer): SDKResult<void, string> {
-
         if (this._viewManager) {
-            return {
+            return this.logError({
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
-                error: "WebGLRenderer.attachViewer: A Viewer is already attached"
-            };
+                error: "[WebGLRenderer.attachViewer] Failed to attach Viewer - a Viewer is already attached."
+            });
         }
 
         this._viewManager = new ViewManager();
 
-        const result = this._viewManager.init(viewer);
+        const result = this._viewManager.init(viewer, this._memConfigs);
 
         if (result.ok === false) {
             this._viewManager.destroy();
             this._viewManager = undefined as unknown as ViewManager;
-            return {
+            return this.logError({
                 ok: false,
                 type: result.type,
-                error: `WebGLRenderer.attachViewer: ${result.error}`
-            };
+                error: `[WebGLRenderer.attachViewer] Failed to attach Viewer - ${result.error}`
+            });
         }
 
         const viewManager = this._viewManager;
         const sceneEvents = viewer.scene.events;
         const viewerEvents = viewer.events;
 
-        // All rendering activities are driven by Viewer and Scene events, including rendering of new frames.
-        // We simply delegate relevant events to the ViewManager.
-        // We track the success of onSceneObjectCreated and onViewCreated in particular, as failures there
-        // are likely to indicate critical WebGL resource allocation failures.
-
-        const catchError = (result) => {
-            if (result && result.ok === false) {
-                this.events.onError.dispatch(this, {
-                    ok: false,
-                    type: result.type,
-                    error: `WebGLRenderer: ${result.error}`
-                });
-            }
-        }
-
+        // Subscribing to critical and non-critical events for rendering lifecycle management
         this._eventSubs = [
+            // Scene components creation/destruction
+            sceneEvents.onSceneModelCreated.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelCreated(sceneModel))),
+            sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelDestroyed(sceneModel))),
+            sceneEvents.onSceneObjectCreated.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectCreated(sceneObject))),
+            sceneEvents.onSceneObjectDestroyed.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectDestroyed(sceneObject))),
 
-            // Delegate Scene events
+            // View and ViewObject creation/destruction
+            viewerEvents.onViewCreated.subscribe((_, view) => this.logError(viewManager.viewCreated(view))),
+            viewerEvents.onViewUpdated.subscribe((_, view) => this.logError(viewManager.viewUpdated(view))),
+            viewerEvents.onViewDestroyed.subscribe((_, view) => this.logError(viewManager.viewDestroyed(view))),
 
-            sceneEvents.onSceneModelCreated.subscribe((_, sceneModel) => viewManager.sceneModelCreated(sceneModel)),
-            sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => viewManager.sceneModelDestroyed(sceneModel)),
-            sceneEvents.onSceneObjectCreated.subscribe((_, sceneObject) => {catchError(viewManager.sceneObjectCreated(sceneObject));}),
-            sceneEvents.onSceneObjectDestroyed.subscribe((_, sceneObject) => viewManager.sceneObjectDestroyed(sceneObject)),
+            // SceneMesh and SceneTransform state changes
             sceneEvents.onSceneMeshMatrixChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshMatrixChanged(sceneMesh)),
             sceneEvents.onSceneMeshColorChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshColorChanged(sceneMesh)),
-            //sceneEvents.onMeshOpacityChanged.subscribe((_, sceneMesh) => meshManager.sceneMeshOpacityChanged(sceneMesh)),
             sceneEvents.onSceneTransformMatrixChanged.subscribe((_, sceneMesh) => viewManager.sceneTransformMatrixChanged(sceneMesh)),
 
-            // Delegate Viewer events
-
-            viewerEvents.onTick.subscribe((_, tickParams) => viewManager.onTick(tickParams)),
-            
-            viewerEvents.onViewCreated.subscribe((_, view) => {catchError(viewManager.viewCreated(view))}),
-            viewerEvents.onViewUpdated.subscribe((_, view) => viewManager.viewUpdated(view)), // Triggers a render
-            viewerEvents.onViewDestroyed.subscribe((_, view) => viewManager.viewDestroyed(view)),
-            
+            // ViewObject visual state changes
             viewerEvents.onViewObjectVisibleChanged.subscribe((view, viewObject) => viewManager.viewObjectVisibilityChanged(viewObject)),
             viewerEvents.onViewObjectXRayedChanged.subscribe((view, viewObject) => viewManager.viewObjectXRayedChanged(viewObject)),
             viewerEvents.onViewObjectHighlightedChanged.subscribe((view, viewObject) => viewManager.viewObjectHighlightedChanged(viewObject)),
             viewerEvents.onViewObjectSelectedChanged.subscribe((view, viewObject) => viewManager.viewObjectSelectedChanged(viewObject)),
             viewerEvents.onViewObjectColorizeChanged.subscribe((view, viewObject) => viewManager.viewObjectColorizeChanged(viewObject)),
             viewerEvents.onViewObjectOpacityChanged.subscribe((view, viewObject) => viewManager.viewObjectOpacityChanged(viewObject)),
-            
+
+            // Camera updates
             viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera)),
 
-            viewerEvents.onDestroyed.subscribe((_viewer, _args) => this.detachViewer())
+            // Tick event
+            viewerEvents.onTick.subscribe((_, tickParams) => viewManager.onTick(tickParams)),
+
+            // Viewer destruction
+            viewerEvents.onViewerDestroyed.subscribe((_viewer, _args) => this.detachViewer())
         ];
 
         return {
@@ -166,14 +215,17 @@ export class WebGLRenderer {
     }
 
     /**
-     * The Viewer this WebGLRenderer is currently attached to, if any.
+     * Retrieves the Viewer currently attached to this WebGLRenderer, if any.
+     *
+     * @returns The attached Viewer, or null if no Viewer is attached.
      */
     public get viewer(): Viewer | null {
         return this._viewManager ? this._viewManager.viewer : null;
     }
 
     /**
-     * Detaches the Viewer that is currently attached, if any.
+     * Detaches the currently attached Viewer, if any.
+     * Cleans up event subscriptions and destroys the ViewManager.
      */
     public detachViewer(): void {
         if (!this._viewManager) {
@@ -189,6 +241,7 @@ export class WebGLRenderer {
 
     /**
      * Destroys this WebGLRenderer.
+     * Detaches the Viewer, cleans up resources, and dispatches the `onRendererDestroyed` event.
      */
     public destroy(): void {
         if (this._destroyed) {
@@ -196,6 +249,6 @@ export class WebGLRenderer {
         }
         this.detachViewer();
         this._destroyed = true;
-        this.events.onDestroyed.dispatch(this, true);
+        this.events.onRendererDestroyed.dispatch(this, true);
     }
 }

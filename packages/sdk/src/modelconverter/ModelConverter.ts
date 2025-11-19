@@ -1,7 +1,7 @@
 import {Data} from "../data";
 import {Scene} from "../scene";
 import {ModelLoader, ModelExporter} from "../io";
-import {SDKError, SDKErrorType, SDKResult} from "../core";
+import {SDKInternalException, SDKErrorType, SDKResult} from "../core";
 import {type ModelConverterParams} from "./ModelConverterParams";
 import {type ModelConverterPipelineParams} from "./ModelConverterPipelineParams";
 import {type ModelConverterRequest} from "./ModelConverterRequest";
@@ -62,7 +62,7 @@ export class ModelConverter {
      * @param modelConverterRequest - The parameters specifying the pipeline and input data.
      * @returns A promise that resolves to a `ModelConverterResult` object containing the output files.
      *
-     * @throws {SDKError} If required parameters are missing or if an unsupported pipeline is specified.
+     * @throws {SDKInternalException} If required parameters are missing or if an unsupported pipeline is specified.
      */
     convert(modelConverterRequest: ModelConverterRequest): Promise<ModelConverterResult> {
 

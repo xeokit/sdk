@@ -9,7 +9,7 @@ export interface WebGLRendererEvents {
     /**
      * Emits an event when the `WebGLRenderer` itself is destroyed.
      */
-    readonly onDestroyed: EventEmitter<WebGLRenderer, boolean>;
+    readonly onRendererDestroyed: EventEmitter<WebGLRenderer, boolean>;
 
     /**
      * Emits an event when the WebGL context is lost.

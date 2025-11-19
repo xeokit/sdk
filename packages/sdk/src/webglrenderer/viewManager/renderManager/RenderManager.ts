@@ -1,12 +1,12 @@
 import {WEBGL_INFO} from "../../../webglutils";
 import {RenderContext} from "../RenderContext";
 import {MeshManager} from "../meshManager/MeshManager";
-import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
+import {DrawOps, getDrawOps, putDrawOps} from "../drawOps/DrawOps";
 import {RendererView} from "../RendererView";
 import {GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {MeshBatch} from "../meshManager/MeshBatch";
 import {RENDER_PASSES} from "../RENDER_PASSES";
-import {SDKResult} from "../../../core";
+import {SDKErrorType, SDKResult} from "../../../core";
 
 
 /**
@@ -85,10 +85,14 @@ export class RenderManager {
         rendererView: RendererView,
         options: {
         clear: boolean;
-    }): void {
+    }): SDKResult<any, string> {
 
         if (!this._drawOps) {
-            throw new Error("RenderManager not initialized");
+            return {
+                ok: false,
+               type: SDKErrorType.InvalidOperation,
+                error: "RenderManager not initialized"
+            };
         }
 
         const {view} = rendererView;
@@ -305,6 +309,11 @@ export class RenderManager {
         for (let i = 0, attribs = WEBGL_INFO.MAX_VERTEX_ATTRIBS; i < attribs; i++) {
             gl.disableVertexAttribArray(i);
         }
+
+        return {
+            ok: true,
+            value: undefined
+        };
     }
 
     public destroy() {

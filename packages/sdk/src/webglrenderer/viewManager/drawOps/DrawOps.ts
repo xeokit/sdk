@@ -81,11 +81,14 @@ export class DrawOps {
                for (let j = i-1; j >= 0; j--) {
                    this._techniques[j].destroy();
                }
+               this._techniques = [];
                return result;
             }
         }
 
         const {OPAQUE, TRANSPARENT, HIGHLIGHTED, SELECTED, XRAYED, PICK} = RENDER_PASSES;
+
+        // DrawOp instances are just thin wrappers around DrawTechniques for specific render passes.
 
         this.prims = {
 
@@ -146,6 +149,7 @@ export function getDrawOps(renderContext: RenderContext, gpuMemoryReader: GPUMem
         drawOps = new DrawOps(renderContext, gpuMemoryReader);
         const result = drawOps.init();
         if (!result.ok) {
+            // DrawOps init failure cleaned up after itself
             return result;
         }
         drawOpsInstances[viewerId] = drawOps;

@@ -1,4 +1,4 @@
-import {EventEmitter} from "../core";
+import {EventEmitter, SDKResult} from "../core";
 import {DataModel} from "./DataModel";
 import {DataObject} from "./DataObject";
 import {Data} from "./Data";
@@ -12,24 +12,30 @@ import {PropertySet} from "./PropertySet";
 export class DataEvents {
 
     /**
+     * Emits an event when an error occurs within the `Data` or its components. This non-fatal event
+     * is fired with an `SDKResult` containing error details whenever any operation fails.
+     */
+    public readonly onError: EventEmitter<Data, SDKResult<any, string>>;
+
+    /**
      * Emits an event each time a {@link DataModel | DataModel} has been created in this Data.
      */
-    public readonly onModelCreated: EventEmitter<Data, DataModel>;
+    public readonly onDataModelCreated: EventEmitter<Data, DataModel>;
 
     /**
      * Emits an event each time a {@link DataModel | DataModel} has been destroyed within this Data.
      */
-    public readonly onModelDestroyed: EventEmitter<Data, DataModel>;
+    public readonly onDataModelDestroyed: EventEmitter<Data, DataModel>;
 
     /**
      * Emits an event each time a {@link DataObject | DataObject} is created within this Data.
      */
-    public readonly onObjectCreated: EventEmitter<Data, DataObject>;
+    public readonly onDataObjectCreated: EventEmitter<Data, DataObject>;
 
     /**
      * Emits an event each time a {@link DataObject | DataObject} is destroyed within this Data.
      */
-    public readonly onObjectDestroyed: EventEmitter<Data, DataObject>;
+    public readonly onDataObjectDestroyed: EventEmitter<Data, DataObject>;
 
     /**
      * Emits an event each time a {@link Relationship | Relationship} is created within this Data.
@@ -50,15 +56,22 @@ export class DataEvents {
      * Emits an event each time a {@link PropertySet | PropertySet} is destroyed within this Data.
      */
     public readonly onPropertySetDestroyed: EventEmitter<Data, PropertySet>;
-    
+
+    /**
+     * Emits an event when the Data itself is destroyed.
+     */
+    public readonly onDataDestroyed: EventEmitter<Data, void> = new EventEmitter(new EventDispatcher<Data, void>());
+
     /**
      * @private
      */
     constructor() {
-        this.onModelCreated = new EventEmitter(new EventDispatcher<Data, DataModel>());
-        this.onModelDestroyed = new EventEmitter(new EventDispatcher<Data, DataModel>());
-        this.onObjectCreated = new EventEmitter(new EventDispatcher<Data, DataObject>());
-        this.onObjectDestroyed = new EventEmitter(new EventDispatcher<Data, DataObject>());
+        this.onError = new EventEmitter(new EventDispatcher<Data, SDKResult<any, string>>());
+        this.onDataDestroyed = new EventEmitter(new EventDispatcher<Data, void>());
+        this.onDataModelCreated = new EventEmitter(new EventDispatcher<Data, DataModel>());
+        this.onDataModelDestroyed = new EventEmitter(new EventDispatcher<Data, DataModel>());
+        this.onDataObjectCreated = new EventEmitter(new EventDispatcher<Data, DataObject>());
+        this.onDataObjectDestroyed = new EventEmitter(new EventDispatcher<Data, DataObject>());
         this.onRelationshipCreated = new EventEmitter(new EventDispatcher<Data, Relationship>());
         this.onRelationshipDestroyed = new EventEmitter(new EventDispatcher<Data, Relationship>());
         this.onPropertySetCreated = new EventEmitter(new EventDispatcher<Data, PropertySet>());
@@ -69,10 +82,12 @@ export class DataEvents {
      * @private
      */
     destroy() {
-        this.onModelCreated.clear();
-        this.onModelDestroyed.clear();
-        this.onObjectCreated.clear();
-        this.onObjectDestroyed.clear();
+        this.onError.clear();
+        this.onDataDestroyed.clear();
+        this.onDataModelCreated.clear();
+        this.onDataModelDestroyed.clear();
+        this.onDataObjectCreated.clear();
+        this.onDataObjectDestroyed.clear();
         this.onRelationshipCreated.clear();
         this.onRelationshipDestroyed.clear();
         this.onPropertySetCreated.clear();

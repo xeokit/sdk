@@ -63,6 +63,13 @@ export class DTXMatrixArray {
     }
 
   /**
+   * Size in bytes of a single matrix element (mat4).
+   */
+  static get elementSizeInBytes() {
+        return 16 * 4; // 16 floats per mat4, 4 bytes per float
+    }
+
+  /**
    * Allocates the data texture and backing array for matrix storage.
    * Each mat4 takes 4 texels (RGBA32F), and the texture is laid out in rows.
    */

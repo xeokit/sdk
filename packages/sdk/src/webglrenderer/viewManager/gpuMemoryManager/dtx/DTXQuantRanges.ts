@@ -43,6 +43,10 @@ export class DTXQuantRanges {
 
   }
 
+  static get elementSizeInBytes(): number {
+    return DTXQuantRanges.FLOATS_PER_ITEM * 4; // 4 bytes per float
+  }
+
   /**
    * Allocates the RGBA32F texture and backing array.
    * We keep the texture fairly wide to minimize row breaks.

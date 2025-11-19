@@ -70,6 +70,10 @@ export class DTXPointerTable {
         this._texHeight = Math.max(1, Math.ceil(this.capacity / this._texWidth));
     }
 
+    static get elementSizeInBytes(): number {
+        return 4; // one uint32 per texel
+    }
+
     allocate(): boolean {
         const gl = this._gl;
         // Logical CPU buffer is one uint per texel (capacity rounded up to texture area)

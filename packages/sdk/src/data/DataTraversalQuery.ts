@@ -1,6 +1,6 @@
 import type {Data} from "./Data";
 import type {DataObject} from "./DataObject";
-import {SDKError} from "../core";
+import {SDKInternalException} from "../core";
 
 /**
  * Traverses a {@link data!Data | Data} to collect {@link data!DataObject | DataObjects} that matching given search criteria.
@@ -25,9 +25,9 @@ export class DataTraversalQuery {
   /**
    * TODO
    */
-  query(): void | SDKError {
+  query(): void | SDKInternalException {
     if (!this.data) {
-      return new SDKError("Data already destroyed");
+      return new SDKInternalException("Data already destroyed");
     }
     // const includeObjects = (this.includeObjects && this.includeObjects.length > 0) ? arrayToMap(this.includeObjects) : null;
     // const excludeObjects = (this.excludeObjects && this.excludeObjects.length > 0) ? arrayToMap(this.excludeObjects) : null;
@@ -84,7 +84,7 @@ export class DataTraversalQuery {
     if (this.startObjectId) {
       const startObject = this.data.objects[this.startObjectId];
       if (!startObject) {
-        return new SDKError(`Cannot search DataObjects - starting DataObject not found in Data: "${this.startObjectId}"`);
+        return new SDKInternalException(`Cannot search DataObjects - starting DataObject not found in Data: "${this.startObjectId}"`);
       }
       visit(startObject, depth);
     } else {

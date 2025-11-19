@@ -13,6 +13,8 @@ import {DataTexturesBatch} from "./DataTexturesBatch";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
 import {DTXPrimDrawList} from "./dtx/DTXPrimDrawList";
 import {RENDER_PASSES, RenderPassValue} from "../RENDER_PASSES";
+import {SDKInternalException} from "../../../core";
+import {GPUMemoryConfigs} from "../../GPUMemoryConfigs";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
@@ -48,9 +50,7 @@ export class GPUMemoryBatch {
     private _meshIndicesUsed: boolean[];
     private _meshes: {};
     private _sceneMeshes: {};
-    private _maxTiles: number;
-    private _numMeshes: number;
-    private _maxMeshes: number;
+     private _numMeshes: number;
     private _geometryIndicesUsed: boolean[];
     private _geometries: {};
     private _numGeometries: number;
@@ -89,16 +89,6 @@ export class GPUMemoryBatch {
 
         this._numGeometries = 0;
         this._numMeshes = 0;
-
-        this._maxMeshes = 1000000;
-        this._maxGeometries = 1000000;
-        this._maxIndices = 8000000;
-        this._maxPrims = this._maxIndices / 3; // TODO: Assumes triangles
-        this._maxPositions = 8000000;
-
-        this._maxSlices = 100;
-        this._maxLights = 100;
-        this._maxTiles = 20000;
     }
 
     /**
@@ -106,6 +96,7 @@ export class GPUMemoryBatch {
      */
     allocate(): boolean {
         const gl = this._renderContext.gl;
+        const memConfigs: GPUMemoryConfigs = this._renderContext.memConfigs;
 
         const bins = [
             RENDER_PASSES.OPAQUE,
@@ -116,28 +107,28 @@ export class GPUMemoryBatch {
         ];
 
         this.primDrawLists = [
-            new DTXPrimDrawList({gl, capacity: this._maxPrims, bins}), // FIXME: Only defined for View 0
+            new DTXPrimDrawList({gl, capacity: memConfigs.maxPrimsPerBatch, bins}), // FIXME: Only defined for View 0
             // new DTXPrimDrawList({gl, capacity: this._maxPrims, bins}),
             // new DTXPrimDrawList({gl, capacity: this._maxPrims, bins}),
             // new DTXPrimDrawList({gl, capacity: this._maxPrims, bins})
         ];
 
-        this._meshAttribs = new DTXMeshAttribs({gl, capacity: this._maxMeshes});
+        this._meshAttribs = new DTXMeshAttribs({gl, capacity: memConfigs.maxMeshesPerBatch});
 
         this._meshViewAttribs = [
-            new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}), // FIXME: Only defined for View 0
+            new DTXMeshViewAttribs({gl, capacity: memConfigs.maxMeshesPerBatch}), // FIXME: Only defined for View 0
             // new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
             // new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
             // new DTXMeshViewAttribs({gl, capacity: this._maxMeshes})
         ];
 
-        this._meshMatrices = new DTXMatrixArray({gl, maxMatrices: this._maxMeshes});
-        this._geometryAttribs = new DTXGeometryAttribs({gl, capacity: this._maxGeometries});
-        this._geometryQuantRanges = new DTXQuantRanges({gl, capacity: this._maxMeshes});
-        this._indices = new DTXPointerArray({gl, capacity: this._maxIndices});
-        this._edgeIndices = new DTXPointerArray({gl, capacity: this._maxIndices});
-        this._positions = new DTXPositionsArray({gl, capacity: this._maxPositions});
-        this._vertexColors = new DTXVertexColorsArray({gl, capacity: this._maxPositions});
+        this._meshMatrices = new DTXMatrixArray({gl, maxMatrices: memConfigs.maxMeshesPerBatch});
+        this._geometryAttribs = new DTXGeometryAttribs({gl, capacity: memConfigs.maxGeometriesPerBatch});
+        this._geometryQuantRanges = new DTXQuantRanges({gl, capacity: memConfigs.maxGeometriesPerBatch});
+        this._indices = new DTXPointerArray({gl, capacity: memConfigs.maxIndicesPerBatch});
+        this._edgeIndices = new DTXPointerArray({gl, capacity: memConfigs.maxIndicesPerBatch});
+        this._positions = new DTXPositionsArray({gl, capacity: memConfigs.maxVerticesPerBatch});
+        this._vertexColors = new DTXVertexColorsArray({gl, capacity: memConfigs.maxVerticesPerBatch});
 
         const textures: {
             allocate(): Boolean;
@@ -208,13 +199,24 @@ export class GPUMemoryBatch {
         return true;
     }
 
+    static get elementSizesInBytes(): { [key: string]: number } {
+        return {
+            mesh: DTXMeshAttribs.elementSizeInBytes
+                + DTXMeshViewAttribs.elementSizeInBytes * 4 // 4 views FIXME
+                + DTXMatrixArray.elementSizeInBytes,
+            geometry: DTXGeometryAttribs.elementSizeInBytes + DTXQuantRanges.elementSizeInBytes,
+            vertex: DTXPositionsArray.elementSizeInBytes + DTXVertexColorsArray.elementSizeInBytes,
+            index: DTXPointerArray.elementSizeInBytes,
+            prim: DTXPrimDrawList.elementSizeInBytes
+        }
+    }
     /**
      * Check if there is enough memory for a SceneMesh.
      * @param sceneMesh
      */
     hasMemoryForMesh(sceneMesh: SceneMesh): boolean {
         // Mesh capacity
-        if (this._numMeshes >= this._maxMeshes) {
+        if (this._numMeshes >= this._renderContext.memConfigs.maxMeshesPerBatch) {
             return false;
         }
         const geometry = sceneMesh.geometry;
@@ -446,7 +448,7 @@ export class GPUMemoryBatch {
             clippable?: boolean;
         }) {
         if (viewIndex < 0 || viewIndex >= this._meshViewAttribs.length) {
-            throw new Error(`GPUMemoryBatch.setMeshViewAttribs: Invalid viewIndex ${viewIndex}`);
+            throw new SDKInternalException(`GPUMemoryBatch.setMeshViewAttribs: Invalid viewIndex ${viewIndex}`);
         }
         this._meshViewAttribs[viewIndex].setAttribs(meshIndex, params);
     }
@@ -464,15 +466,15 @@ export class GPUMemoryBatch {
         renderPass: RenderPassValue) {
         const sceneMesh = this._sceneMeshes[meshIndex];
         if (!sceneMesh) {
-            throw new Error(`GPUMemoryBatch.setMeshRenderBin: No SceneMesh at index ${meshIndex}`);
+            throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: No SceneMesh at index ${meshIndex}`);
         }
         const meshHandle = this._meshHandles[sceneMesh.id];
         if (!meshHandle) {
-            throw new Error(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no meshHandle`);
+            throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no meshHandle`);
         }
         const primToMeshLookupHandle = meshHandle.primToMeshLookupHandles[viewIndex];
         if (!primToMeshLookupHandle) {
-            throw new Error(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no primToMeshLookupHandle`);
+            throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no primToMeshLookupHandle`);
         }
         this.primDrawLists[viewIndex].setRenderPass(primToMeshLookupHandle, renderPass);
     }
@@ -490,15 +492,15 @@ export class GPUMemoryBatch {
         visible: boolean) {
         const sceneMesh = this._sceneMeshes[meshIndex];
         if (!sceneMesh) {
-            throw new Error(`GPUMemoryBatch.setMeshVisible: No SceneMesh at index ${meshIndex}`);
+            throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: No SceneMesh at index ${meshIndex}`);
         }
         const meshHandle = this._meshHandles[sceneMesh.id];
         if (!meshHandle) {
-            throw new Error(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
+            throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
         }
         const primToMeshLookupHandle = meshHandle.primToMeshLookupHandles[viewIndex];
         if (!primToMeshLookupHandle) {
-            throw new Error(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primToMeshLookupHandle`);
+            throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primToMeshLookupHandle`);
         }
         this.primDrawLists[viewIndex].setVisible(primToMeshLookupHandle, visible);
     }

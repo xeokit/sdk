@@ -2,7 +2,7 @@
  * Represents a portion of a `DTXVertexColorsArray` allocated for storing data.
  * (One item = one vertex = 3 Uint8 components)
  */
-import {SDKError} from "../../../../core";
+import {SDKInternalException} from "../../../../core";
 
 interface DTXVertexColorsArrayPortion {
     base: number; // item tileIndex
@@ -67,6 +67,10 @@ export class DTXVertexColorsArray {
 
         // Start with a single free block spanning all items
         this.free.push({base: 0, size: this.capacity});
+    }
+
+    static get elementSizeInBytes(): number {
+        return 3; // RGB per item
     }
 
     allocate(): boolean {
@@ -141,7 +145,7 @@ export class DTXVertexColorsArray {
         }
         const expected = portion.size; // RGB per item
         if ((data.length / this.componentsPerItem) !== expected) {
-            throw new SDKError("Mismatched data length");
+            throw new SDKInternalException("Mismatched data length");
         }
         const offset = portion.base * this.componentsPerItem;
         this.buffer.set(data as ArrayLike<number>, offset);

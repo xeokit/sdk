@@ -32,6 +32,13 @@ export class DTXGeometryAttribs {
     this.capacity = options.capacity;
   }
 
+  /**
+   * Size in bytes of a single matrix element (mat4).
+   */
+  static get elementSizeInBytes() {
+    return 16; // 4 uint32 lanes per uvec4, 4 bytes each
+  }
+
   allocate(): boolean {
     // Clamp to device limits and keep rows wide to reduce uploads.
     const gl = this._gl;

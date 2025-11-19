@@ -2,7 +2,7 @@
  * Represents a portion of a `DTXPositionsArray` allocated for storing data.
  * (One item = one vertex = 3 Uint16 components)
  */
-import {SDKError} from "../../../../core";
+import {SDKInternalException} from "../../../../core";
 
 interface DTXPositionsArrayPortion {
   base: number; // item tileIndex
@@ -61,6 +61,10 @@ export class DTXPositionsArray {
   constructor( options: DTXPositionsArrayOptions ) {
     this.gl = options.gl;
     this.capacity = options.capacity;
+  }
+
+  static get elementSizeInBytes() {
+    return 3 * 2; // 3 Uint16 components per item, 2 bytes each
   }
 
   allocate(): boolean {
@@ -143,7 +147,7 @@ export class DTXPositionsArray {
     //  const expected = portion.size * this.componentsPerItem; // RGB per item
     const expected = portion.size; // RGB per item
     if ((data.length / this.componentsPerItem) !== expected) {
-      throw new SDKError('Mismatched data length');
+      throw new SDKInternalException('Mismatched data length');
     }
     const offset = portion.base * this.componentsPerItem;
     this.buffer.set(data, offset);

@@ -59,23 +59,34 @@ export class Data {
   /**
    * Indicates whether this `Data` instance has been destroyed.
    */
-  public destroyed = false;
+  public destroyed:boolean = false;
+
+  /**
+   * Indicates whether to log errors to the console for this Data.
+   *
+   * Default value is ````false````.
+   */
+  public logging: boolean = false;
 
   /**
    * Creates a new Data.
    *
    * See {@link data | @xeokit/sdk/data}   for usage.
+   *
+   * @param dataParams Parameters for creating this Data.
+   * @param dataParams.logging Indicates whether to log errors to the console for this Data.
    */
-  constructor() {
-
+  constructor(dataParams?:{
+    logging?: boolean
+  }) {
     this.models = {};
     this.propertySets = {};
     this.objects = {};
     this.rootObjects = {};
     this.objectsByType = {};
     this.typeCounts = {};
-
-   this.events = new DataEvents();
+    this.logging = dataParams?.logging ?? false;
+    this.events = new DataEvents();
   }
 
   /**
@@ -86,24 +97,24 @@ export class Data {
    */
   createModel(dataModelParams: DataModelParams): SDKResult<DataModel, string> {
     if (this.destroyed) {
-      return {
+      return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "Cannot create DataModel - Data already destroyed"
-      };
+        error: "[Data.createModel] Cannot create DataModel - Data already destroyed"
+      });
     }
     const id = dataModelParams.id || createUUID();
     if (this.models[id]) {
-      return {
+      return this.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `Cannot create DataModel - DataModel already created in this Data: ${id}`
-      };
+        error: `[Data.createModel] Cannot create DataModel - DataModel already created in this Data: ${id}`
+      });
     }
     // @ts-ignore
     const dataModel = new DataModel(this, id, dataModelParams);
     this.models[dataModel.id] = dataModel;
-    this.events.onModelCreated.dispatch(this, dataModel);
+    this.events.onDataModelCreated.dispatch(this, dataModel);
     return {
       ok: true,
       value: dataModel
@@ -117,7 +128,7 @@ export class Data {
    */
   _destroyModel(dataModel: DataModel) {
     delete this.models[dataModel.id];
-    this.events.onModelDestroyed.dispatch(this, dataModel);
+    this.events.onDataModelDestroyed.dispatch(this, dataModel);
   }
 
   /**
@@ -128,11 +139,11 @@ export class Data {
    */
   getObjectIdsByType(type: string): SDKResult<string[], string> {
     if (this.destroyed) {
-      return {
+      return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "Data already destroyed"
-      };
+        error: "[Data.getObjectIdsByType] Data already destroyed"
+      });
     }
     const objects = this.objectsByType[type];
     return { ok: true, value: objects ? Object.keys(objects) : [] };
@@ -141,18 +152,18 @@ export class Data {
   /**
    * Destroys all {@link DataModel | DataModels} contained in this `Data`.
    *
-   * Fires the {@link DataEvents.onModelDestroyed | DataEvents.onModelDestroyed} event
+   * Fires the {@link DataEvents.onDataModelDestroyed | DataEvents.onModelDestroyed} event
    * for each destroyed {@link DataModel | DataModel}.
    *
    * @returns A result indicating success or an error message on failure.
    */
   clear(): SDKResult<void, string> {
     if (this.destroyed) {
-      return {
+      return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "Data already destroyed"
-      };
+        error: "[Data.clear] Data already destroyed"
+      });
     }
     for (const id in this.models) {
       this.models[id].destroy();
@@ -164,28 +175,50 @@ export class Data {
   }
 
   /**
+   * Logs an error via the Data's {@link DataEvents.onError | DaraEvents.onError} event.
+   * @private
+   * @param result
+   */
+  logError(result:SDKResult<any,string>) : SDKResult<any, string>{
+    if (result.ok === false) {
+      if (this.logging) {
+        console.error(`[xeokit Data] ${result.error}`);
+      }
+      this.events.onError.dispatch(this, result);
+    }
+    return result;
+  }
+
+  /**
    * Destroys this `Data` instance and all contained {@link DataModel | DataModels}.
    *
-   * Fires the {@link DataEvents.onModelDestroyed | onModelDestroyed} event
+   * Fires the {@link DataEvents.onDataModelDestroyed | onModelDestroyed} event
    * for each destroyed {@link DataModel | DataModel}.
+   *
+   * Fires the {@link DataEvents.onDataDestroyed | onDataDestroyed} event.
+   *
    * Unsubscribes all event listeners.
    *
    * @returns A result indicating success or an error message on failure.
    */
   destroy(): SDKResult<void, string> {
     if (this.destroyed) {
-      return {
+      return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "Data already destroyed"
-      };
+        error: "[Data.destroy] Data already destroyed"
+      });
     }
     const result = this.clear();
     if (!result.ok) {
       return result;
     }
+    this.events.onDataDestroyed.dispatch(this, undefined);
     this.events.destroy();
-    return { ok: true, value: undefined };
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 }
 

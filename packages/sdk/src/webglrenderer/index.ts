@@ -38,7 +38,6 @@
  * const scene = new Scene();
  *
  * const viewer = new Viewer({
- *     id: "myViewer",
  *     scene
  * });
  *
@@ -77,3 +76,5 @@
  */
 export {WebGLRenderer} from "./WebGLRenderer";
 export {WebGLRendererEvents} from "./WebGLRendererEvents";
+export {GPUMemoryConfigs} from "./GPUMemoryConfigs";
+export {createGPUMemoryConfigs} from "./createGPUMemoryConfigs";

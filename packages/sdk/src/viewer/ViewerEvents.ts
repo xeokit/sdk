@@ -1,5 +1,5 @@
 import {Viewer} from "./Viewer";
-import {EventEmitter} from "../core";
+import {EventEmitter, SDKResult} from "../core";
 import {TickParams} from "./TickParams";
 import {SnapshotFinishedEvent, SnapshotStartedEvent, View} from "./View";
 import {FloatArrayParam, IntArrayParam} from "../math";
@@ -10,18 +10,27 @@ import {Frustum3} from "../boundaries";
 import {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
 import {Spinner} from "./Spinner";
+import {Scene} from "../scene";
 
 /**
  * Events emitted by a {@link viewer!Viewer | Viewer}.
  */
 export class ViewerEvents {
 
+
+
     //---------------------------- Viewer Events ----------------------------//
+
+    /**
+     * Emits an event when an error occurs within the `Viewer` or its components. This non-fatal event
+     * is fired with an `SDKResult` containing error details whenever any operation fails.
+     */
+    public readonly onError: EventEmitter<Viewer, SDKResult<any, string>>;
 
     /**
      * Emits an event when the Viewer is destroyed.
      */
-    readonly onDestroyed: EventEmitter<Viewer, boolean>;
+    readonly onViewerDestroyed: EventEmitter<Viewer, boolean>;
 
     /**
      * Emits an event each time a Viewer "tick" occurs (~10-60 times per second).
@@ -204,7 +213,8 @@ export class ViewerEvents {
      */
     constructor() {
 
-        this.onDestroyed = new EventEmitter(new EventDispatcher<Viewer, boolean>());
+        this.onError = new EventEmitter<Viewer, SDKResult<any, string>>(new EventDispatcher<Viewer, SDKResult<any, string>>());
+        this.onViewerDestroyed = new EventEmitter(new EventDispatcher<Viewer, boolean>());
         this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
         this.processes = new EventEmitter(new EventDispatcher<Spinner, number>());
         this.zeroProcesses = new EventEmitter(new EventDispatcher<Spinner, number>());
@@ -241,7 +251,8 @@ export class ViewerEvents {
      * @private
      */
     destroy() {
-        this.onDestroyed.clear();
+        this.onError.clear();
+        this.onViewerDestroyed.clear();
         this.onTick.clear();
         this.log.clear();
         this.onViewCreated.clear();

@@ -116,7 +116,7 @@ export class WebGLProgram {
         return {
             ok: false,
             type: SDKErrorType.InvalidOperation,
-            error: "Cannot initialize program: Missing WebGL context"
+            error: "Cannot initialize WebGL program: Missing WebGL context"
         };
     }
 
@@ -127,7 +127,7 @@ export class WebGLProgram {
       return {
         ok: false,
         type: resultVertex.type,
-        error: `Vertex shader initialization failed: ${resultVertex.error}`
+        error: `WebGL vertex shader initialization failed: ${resultVertex.error}`
       };
     }
 
@@ -139,7 +139,7 @@ export class WebGLProgram {
       return {
         ok: false,
         type: resultFragment.type,
-        error: `Fragment shader initialization failed: ${resultFragment.error}`
+        error: `WebGL fragment shader initialization failed: ${resultFragment.error}`
       };
     }
 
@@ -187,7 +187,7 @@ export class WebGLProgram {
       return {
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: `Program validation failed: ${validationLog}`
+        error: `WebGL program validation failed: ${validationLog}`
       };
     }
 
@@ -276,7 +276,7 @@ export class WebGLProgram {
       return {
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "Cannot restore program: Missing WebGL context or shader source"
+        error: "Cannot restore WebGL program: Missing WebGL context or shader source"
       };
     }
 
@@ -286,7 +286,7 @@ export class WebGLProgram {
       return {
         ok: false,
         type: vertexRestoreResult.type,
-        error: `Failed to restore vertex shader: ${vertexRestoreResult.error}`
+        error: `Failed to restore WebGL vertex shader: ${vertexRestoreResult.error}`
       };
     }
 
@@ -296,7 +296,7 @@ export class WebGLProgram {
       return {
         ok: false,
         type: fragmentRestoreResult.type,
-        error: `Failed to restore fragment shader: ${fragmentRestoreResult.error}`
+        error: `Failed to restore WebGL fragment shader: ${fragmentRestoreResult.error}`
       };
     }
 
@@ -306,7 +306,7 @@ export class WebGLProgram {
       return {
         ok: false,
         type: initResult.type,
-        error: `Failed to restore program: ${initResult.error}`
+        error: `Failed to restore WebGL program: ${initResult.error}`
       };
     }
 

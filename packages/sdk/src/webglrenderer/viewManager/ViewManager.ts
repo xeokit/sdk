@@ -1,6 +1,6 @@
 import {RenderContext} from "./RenderContext";
 import {Camera, TickParams, View, Viewer, ViewObject} from "../../viewer";
-import {SDKError, SDKErrorType, SDKResult} from "../../core";
+import {SDKInternalException, SDKErrorType, SDKResult} from "../../core";
 import {RendererView} from "./RendererView";
 import {RenderManager} from "./renderManager/RenderManager";
 import {PickManager} from "./pickManager/PickManager";
@@ -10,6 +10,7 @@ import {GPUMemoryEditor} from "./gpuMemoryManager/GPUMemoryEditor";
 import {GPUMemoryReader} from "./gpuMemoryManager/GPUMemoryReader";
 import {SceneMesh, SceneModel, SceneObject} from "../../scene";
 import {SceneTransform} from "../../scene/SceneTransform";
+import {GPUMemoryConfigs} from "../GPUMemoryConfigs";
 
 /**
  * Manages the viewManager in the WebGLRenderer.
@@ -37,8 +38,9 @@ export class ViewManager {
      * Initializes the ViewManager with the given Viewer.
      * Separate init method is used to allow for error handling.
      * @param viewer
+     * @param memConfigs
      */
-    public init(viewer: Viewer): SDKResult<void, string> {
+    public init(viewer: Viewer, memConfigs: GPUMemoryConfigs): SDKResult<void, string> {
 
         this._viewer = viewer;
 
@@ -50,7 +52,7 @@ export class ViewManager {
             };
         }
 
-        this._renderContext = new RenderContext();
+        this._renderContext = new RenderContext(memConfigs);
 
         const resultCtx = this._renderContext.init(viewer);
         if (resultCtx.ok === false) {
@@ -116,7 +118,7 @@ export class ViewManager {
 
     public viewCreated(view: View): SDKResult<any, string> {
         if (this._rendererViews[view.id]) {
-            throw new SDKError("Can't add additional View to WebGLRenderer - View already added");
+            throw new SDKInternalException("Can't add additional View to WebGLRenderer - View already added");
         }
         if (this._rendererViewsList.length >= 4) { // TODO: Capabilities.maxViews
             return {
@@ -143,18 +145,22 @@ export class ViewManager {
         return this._rendererViewsList;
     }
 
-    public viewUpdated(view: View):void {
+    public viewUpdated(view: View): SDKResult<any, string> {
         const rendererView = this._rendererViews[view.id];
         if (!rendererView) {
-            throw new SDKError("View is not added");
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "View is not added"
+            };
         }
         if (this._activeView !== rendererView) {
             this._activateView(rendererView);
         }
-        this._renderManager.render(rendererView, {clear: true});
+       return this._renderManager.render(rendererView, {clear: true});
     }
 
-    private _activateView(rendererView: RendererView):void {
+    private _activateView(rendererView: RendererView): void {
         const activeRendererView = this._activeView;
         if (activeRendererView) {
             const activeCanvasBoundingRect = activeRendererView.view.htmlElement.getBoundingClientRect();
@@ -187,69 +193,89 @@ export class ViewManager {
         this._activeView = rendererView;
     }
 
-    public viewDestroyed(view: View): void {
+    public viewDestroyed(view: View): SDKResult<any, string> {
         const rendererView = this._rendererViews[view.id];
         if (!rendererView) {
-            throw new SDKError("View is not added");
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "View is not added"
+            };
         }
         rendererView.destroy();
         delete this._rendererViews[view.id];
         //  TODO: Set rendererViewsList dirty
+        return {
+            ok: true,
+            value: undefined
+        };
     }
 
-    public sceneModelCreated(sceneModel: SceneModel):void {
-        this._meshManager.sceneModelCreated(sceneModel);
+    // public viewObjectCreated(viewObject: ViewObject): SDKResult<any, string> {
+    //     return this._meshManager.viewObjectCreated(viewObject);
+    // }
+    //
+    // public viewObjectDestroyed(viewObject: ViewObject): SDKResult<any, string> {
+    //     return this._meshManager.viewObjectDestroyed(viewObject);
+    // }
+
+    // Scene creation and destruction with error handling
+
+    public sceneModelCreated(sceneModel: SceneModel): SDKResult<any, string> {
+        return this._meshManager.sceneModelCreated(sceneModel);
     }
 
-    public sceneModelDestroyed(sceneModel: SceneModel):void {
-        this._meshManager.sceneModelDestroyed(sceneModel);
+    public sceneModelDestroyed(sceneModel: SceneModel): SDKResult<any, string> {
+        return this._meshManager.sceneModelDestroyed(sceneModel);
     }
 
-    public sceneObjectCreated(sceneObject: SceneObject):SDKResult<any, string> {
+    public sceneObjectCreated(sceneObject: SceneObject): SDKResult<any, string> {
         return this._meshManager.sceneObjectCreated(sceneObject);
     }
 
-    public sceneObjectDestroyed(sceneObject: SceneObject):void {
-        this._meshManager.sceneObjectDestroyed(sceneObject);
+    public sceneObjectDestroyed(sceneObject: SceneObject): SDKResult<any, string> {
+        return this._meshManager.sceneObjectDestroyed(sceneObject);
     }
 
-    public sceneMeshMatrixChanged(sceneMesh: SceneMesh):void {
+    // Mesh and Transform state uploads, not requiring error handling
+
+    public sceneMeshMatrixChanged(sceneMesh: SceneMesh): void {
         this._meshManager.sceneMeshMatrixChanged(sceneMesh);
     }
 
-    public sceneMeshColorChanged(sceneMesh: SceneMesh):void {
+    public sceneMeshColorChanged(sceneMesh: SceneMesh): void {
         this._meshManager.sceneMeshColorChanged(sceneMesh);
     }
 
-    public sceneTransformMatrixChanged(sceneMesh: SceneTransform):void {
+    public sceneTransformMatrixChanged(sceneMesh: SceneTransform): void {
         this._meshManager.sceneTransformMatrixChanged(sceneMesh);
     }
 
-    public viewObjectVisibilityChanged(viewObject: ViewObject):void {
+    public viewObjectVisibilityChanged(viewObject: ViewObject): void {
         this._meshManager.viewObjectVisibilityChanged(viewObject);
     }
 
-    public viewObjectXRayedChanged(viewObject: ViewObject):void {
+    public viewObjectXRayedChanged(viewObject: ViewObject): void {
         this._meshManager.viewObjectXRayedChanged(viewObject);
     }
 
-    public viewObjectHighlightedChanged(viewObject: ViewObject):void {
+    public viewObjectHighlightedChanged(viewObject: ViewObject): void {
         this._meshManager.viewObjectHighlightedChanged(viewObject);
     }
 
-    public viewObjectSelectedChanged(viewObject: ViewObject):void {
+    public viewObjectSelectedChanged(viewObject: ViewObject): void {
         this._meshManager.viewObjectSelectedChanged(viewObject);
     }
 
-    public viewObjectColorizeChanged(viewObject: ViewObject):void {
+    public viewObjectColorizeChanged(viewObject: ViewObject): void {
         this._meshManager.viewObjectColorizeChanged(viewObject);
     }
 
-    public viewObjectOpacityChanged(viewObject: ViewObject):void {
+    public viewObjectOpacityChanged(viewObject: ViewObject): void {
         this._meshManager.viewObjectOpacityChanged(viewObject);
     }
 
-    public cameraViewMatrixUpdated(camera: Camera):void {
+    public cameraViewMatrixUpdated(camera: Camera): void {
         this._meshManager.cameraViewMatrixUpdated(camera);
     }
 

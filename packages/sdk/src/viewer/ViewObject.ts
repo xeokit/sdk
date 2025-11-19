@@ -1,6 +1,7 @@
 import type {FloatArrayParam} from "../math";
 import type {SceneObject} from "../scene";
 import type {ViewLayer} from "./ViewLayer";
+import {SDKErrorType} from "../core";
 
 /**
  * An object within a {@link View | View}.
@@ -55,6 +56,11 @@ export class ViewObject {
     private _opacityUpdated: boolean;
 
     /**
+     * True if this ViewObject has been destroyed.
+     */
+    public destroyed: boolean = false;
+
+    /**
      * @private
      */
     constructor(layer: ViewLayer, sceneObject: SceneObject) {
@@ -99,6 +105,14 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsVisible} to batch-update the visibility of ViewObjects, which fires a single event for the batch.
      */
     set visible(visible: boolean) {
+        if (this.destroyed) {
+            this.layer.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[ViewObject.visible] ViewObject already destroyed"
+            });
+            return;
+        }
         if (visible === this._visible) {
             return;
         }
@@ -123,6 +137,14 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsXRayed} to batch-update the X-rayed state of ViewObjects.
      */
     set xrayed(xrayed: boolean) {
+        if (this.destroyed) {
+            this.layer.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[ViewObject.xrayed] ViewObject already destroyed"
+            });
+            return;
+        }
         if (this._xrayed === xrayed) {
             return;
         }
@@ -147,6 +169,14 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsHighlighted} to batch-update the highlighted state of ViewObjects.
      */
     set highlighted(highlighted: boolean) {
+        if (this.destroyed) {
+            this.layer.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[ViewObject.highlighted] ViewObject already destroyed"
+            });
+            return;
+        }
         if (highlighted === this._highlighted) {
             return;
         }
@@ -171,6 +201,14 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsSelected} to batch-update the selected state of ViewObjects.
      */
     set selected(selected: boolean) {
+        if (this.destroyed) {
+            this.layer.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[ViewObject.selected] ViewObject already destroyed"
+            });
+            return;
+        }
         if (selected === this._selected) {
             return;
         }
@@ -195,6 +233,14 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsCulled} to batch-update the culled state of ViewObjects.
      */
     set culled(culled: boolean) {
+        if (this.destroyed) {
+            this.layer.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[ViewObject.culled] ViewObject already destroyed"
+            });
+            return;
+        }
         if (culled === this._culled) {
             return;
         }
@@ -219,6 +265,14 @@ export class ViewObject {
      * * Use {@link View.setObjectsClippable | View.setObjectsClippable} or {@link ViewLayer.setObjectsClippable | ViewLayer.setObjectsClippable} to batch-update the clippable state of multiple ViewObjects.
      */
     set clippable(clippable: boolean) {
+        if (this.destroyed) {
+            this.layer.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[ViewObject.clippable] ViewObject already destroyed"
+            });
+            return;
+        }
         if (clippable === this._clippable) {
             return;
         }
@@ -237,6 +291,14 @@ export class ViewObject {
      * Sets if this ViewObject included in boundary calculations.
      */
     set collidable(collidable: boolean) {
+        if (this.destroyed) {
+            this.layer.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[ViewObject.collidable] ViewObject already destroyed"
+            });
+            return;
+        }
         if (collidable === this._collidable) {
             return;
         }
@@ -266,6 +328,14 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsPickable} to batch-update the pickable state of ViewObjects.
      */
     set pickable(pickable: boolean) {
+        if (this.destroyed) {
+            this.layer.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[ViewObject.pickable] ViewObject already destroyed"
+            });
+            return;
+        }
         if (this._pickable === pickable) {
             return;
         }
@@ -295,6 +365,14 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
     set colorize(value: FloatArrayParam | undefined | null) {
+        if (this.destroyed) {
+            this.layer.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[ViewObject.colorize] ViewObject already destroyed"
+            });
+            return;
+        }
         const colorize = this._colorize;
         if (value) {
             colorize[0] = value[0];
@@ -327,6 +405,14 @@ export class ViewObject {
      * * Use {@link ViewLayer.setObjectsOpacity} to batch-update the opacities of ViewObjects.
      */
     set opacity(opacity: number | undefined | null) {
+        if (this.destroyed) {
+            this.layer.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[ViewObject.opacity] ViewObject already destroyed"
+            });
+            return;
+        }
         const colorize = this._colorize;
         this._opacityUpdated = opacity !== null && opacity !== undefined;
         // @ts-ignore

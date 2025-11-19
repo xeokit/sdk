@@ -16,7 +16,7 @@ import {
   transformPoint3,
   transposeMat4
 } from "../matrix";
-import {Component, EventEmitter} from "../core";
+import {Component, EventEmitter, SDKResult} from "../core";
 import {
   CustomProjectionType,
   FrustumProjectionType,
@@ -811,7 +811,7 @@ class Camera {
    * Configures this Camera.
    * @param cameraParams
    */
-  fromParams(cameraParams: CameraParams) {
+  fromParams(cameraParams: CameraParams) :SDKResult<any, string>{
     if (cameraParams.eye) {
       this.eye = cameraParams.eye;
     }
@@ -839,6 +839,10 @@ class Camera {
     if (cameraParams.projectionType !== undefined) {
       this.projectionType = cameraParams.projectionType;
     }
+    return {
+        ok: true,
+        value: null
+    };
   }
 
   /**

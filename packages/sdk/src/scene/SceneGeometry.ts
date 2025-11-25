@@ -158,7 +158,14 @@ export class SceneGeometry {
     /**
      * Gets this SceneGeometry as SceneGeometryCompressedParams.
      */
-    toParams(): SceneGeometryCompressedParams {
+    toParams(): SDKResult<SceneGeometryCompressedParams, string> {
+        if (this.destroyed) {
+            return this.model.scene.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[SceneGeometry.toParams] SceneGeometry already destroyed"
+            });
+        }
         const params = <SceneGeometryCompressedParams>{
             id: this.id,
             primitive: this.primitive,
@@ -180,25 +187,35 @@ export class SceneGeometry {
         if (this.edgeIndices) {
             params.edgeIndices = Array.from(this.edgeIndices);
         }
-        return params;
+        return {
+            ok: true,
+            value: params
+        };
     }
 
     /**
      * Destroys this SceneGeometry.
      */
-    destroy() {
+    destroy() : SDKResult<void, string>{
         if (this.destroyed) {
-            return;
+            return this.model.scene.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[SceneGeometry.destroy] SceneGeometry already destroyed"
+            });
         }
         if (this.numMeshes > 0) {
-            this.model.scene.logError({
+            return this.model.scene.logError({
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
                 error: `[SceneGeometry.destroy] Cannot destroy SceneGeometry ${this.id} - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first`
             });
-            return;
         }
         this.model._destroyGeometry(this);
         this.destroyed = true;
+        return {
+            ok: true,
+            value: undefined
+        };
     }
 }

@@ -1,196 +1,231 @@
-import {SDKErrorType, SDKResult} from "../core";
-import {SceneModel} from "./SceneModel";
-import type {SceneModelParams} from "./SceneModelParams";
-import type {SceneObject} from "./SceneObject";
-import {CoordinateSystem} from "./CoordinateSystem";
-import {type SceneParams} from "./SceneParams";
-import {SceneMesh} from "./SceneMesh";
-import {SceneGeometry} from "./SceneGeometry";
-import {SceneEvents} from "./SceneEvents";
-import {createUUID} from "../utils";
+
+import { SDKErrorType, SDKResult } from "../core";
+import { SceneModel } from "./SceneModel";
+import type { SceneModelParams } from "./SceneModelParams";
+import type { SceneObject } from "./SceneObject";
+import { CoordinateSystem } from "./CoordinateSystem";
+import { type SceneParams } from "./SceneParams";
+import { SceneMesh } from "./SceneMesh";
+import { SceneGeometry } from "./SceneGeometry";
+import { SceneEvents } from "./SceneEvents";
+import { createUUID } from "../utils";
 
 /**
- * Container of model geometry and materials.
+ * Represents the root container for all scene‑level state, including models, objects,
+ * meshes, geometries, textures and runtime events.
  *
- * A Scene contains {@link SceneModel | SceneModels}, {@link SceneObject | SceneObjects},
- *  {@link SceneMesh | SceneMeshes}, {@link SceneGeometry | SceneGeometries},
- *  {@link SceneTextureSet | SceneTextureSets} and {@link SceneTexture | SceneTextures}.
+ * A `Scene` serves as the authoritative registry and lifecycle manager of:
  *
- * See {@link scene | @xeokit/sdk/scene} for usage.
+ * - {@link SceneModel | SceneModels}
+ * - {@link SceneObject | SceneObjects}
+ * - {@link SceneMesh | SceneMeshes}
+ * - {@link SceneGeometry | SceneGeometries}
+ * - Texture sets and textures (when applicable)
+ *
+ * It provides:
+ * - A shared {@link CoordinateSystem | coordinate system}
+ * - A central event hub via {@link SceneEvents}
+ * - Lifecycle management (creation, destruction, registration)
+ * - Error reporting with optional console logging
+ *
+ * See {@link scene | @xeokit/sdk/scene} for general usage examples.
  */
 export class Scene {
-
   /**
-   * Configures the Scene's coordinate system.
+   * The coordinate system used throughout this Scene.
+   *
+   * This determines how all positions, orientations, and transformations
+   * within the Scene are interpreted.
    */
   public readonly coordinateSystem: CoordinateSystem;
 
   /**
-   * The {@link SceneModel | SceneModels} belonging to this Scene, each keyed to
-   * its {@link SceneModel.id | SceneModel.id}.
+   * All {@link SceneModel} instances belonging to this Scene, keyed by
+   * their {@link SceneModel.id | unique model ID}.
    */
   public readonly models: { [key: string]: SceneModel };
 
   /**
-   * The {@link SceneObject | SceneObjects} in this Scene, mapped to {@link SceneObject.id | SceneObject.id}.
+   * All {@link SceneObject} instances currently registered in this Scene.
+   *
+   * Objects are stored at the Scene level so tools and utilities can
+   * access them without needing to know which model they belong to.
    */
   public readonly objects: { [key: string]: SceneObject };
 
   /**
-   * Emits events related to this Scene.
+   * Event dispatcher for Scene‑level lifecycle events.
    */
   public readonly events: SceneEvents;
 
   /**
-   * True if this Scene has been destroyed.
+   * Indicates whether this Scene has been destroyed.
+   *
+   * When `true`, new models cannot be created and most operations will
+   * return an error result.
    */
   public destroyed: boolean = false;
 
-    /**
-     * Indicates whether to log errors to the console.
-     *
-     * Default value is ````false````.
-     */
-    public logging: boolean = false;
+  /**
+   * Enables or disables console logging of SDK errors.
+   *
+   * Defaults to `false`. When enabled, any dispatched error will also be
+   * logged via `console.error`.
+   */
+  public logging: boolean = false;
 
   /**
-   * Creates a new Scene.
+   * Creates a new Scene container.
+   *
+   * @param params Optional configuration including coordinate system settings
+   * and logging preferences.
    */
   constructor(params?: SceneParams) {
-
     this.events = new SceneEvents();
     this.coordinateSystem = new CoordinateSystem(this, params?.coordinateSystem);
     this.models = {};
     this.objects = {};
     this.logging = params?.logging ?? false;
   }
+
   /**
-   * Creates a new {@link SceneModel | SceneModel} in this Scene.
+   * Creates a new {@link SceneModel} and registers it with this Scene.
    *
-   * See {@link scene|@xeokit/sdk/scene} for more details on usage.
+   * This method:
+   * - Validates the Scene is not destroyed
+   * - Generates a UUID if no `id` is provided
+   * - Ensures the ID is unique within the Scene
+   * - Instantiates the model and populates it via {@link SceneModel.fromParams}
+   * - Registers the model and dispatches creation events
    *
-   * @param  sceneModelParams Creation parameters for the new {@link SceneModel | SceneModel}.
-   * @returns *SDKResult&lt;SceneModel, string&gt;*
+   * @param sceneModelParams Configuration for the new model.
+   * @returns A {@link SDKResult} containing either the created {@link SceneModel}
+   * or an error message.
    */
   createModel(sceneModelParams: SceneModelParams): SDKResult<SceneModel, string> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "Scene already destroyed"
+        error: "Scene already destroyed",
       });
     }
+
     const id = sceneModelParams.id ?? createUUID();
+
     if (this.models[id]) {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `SceneModel already created in this Scene: ${id}`
+        error: `SceneModel already exists in this Scene: ${id}`,
       });
     }
+
     const paramsWithId: SceneModelParams = { ...sceneModelParams, id };
     const sceneModel = new SceneModel(this, paramsWithId);
     const populated = sceneModel.fromParams(paramsWithId);
+
     if (populated.ok===false) {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: populated.error
+        error: populated.error,
       });
     }
+
     this.models[id] = sceneModel;
-    this.events.onSceneModelCreated.dispatch(this, sceneModel); // Fires modelCreated
-    return {
-      ok: true,
-      value: sceneModel
-    };
+    this.events.onSceneModelCreated.dispatch(this, sceneModel);
+
+    return { ok: true, value: sceneModel };
   }
 
   /**
-   * Called by a {@link SceneModel | SceneModel} when it is destroyed.
+   * Called internally when a {@link SceneModel} is destroyed.
+   *
+   * Removes the model from the registry and dispatches its destruction event.
    * @private
    */
   _destroyModel(sceneModel: SceneModel) {
     delete this.models[sceneModel.id];
-    this.#deregisterObjects(sceneModel);
+    this._deregisterObjects(sceneModel);
     this.events.onSceneModelDestroyed.dispatch(this, sceneModel);
   }
 
-
-  #deregisterObjects(model: SceneModel) {
+  /** @private */
+  _deregisterObjects(model: SceneModel) {
     for (const id in model.objects) {
       this._deregisterObject(model.objects[id]);
     }
   }
 
-  /**
-   * @private
-   */
+  /** @private */
   _deregisterObject(sceneObject: SceneObject) {
     delete this.objects[sceneObject.id];
     this.events.onSceneObjectDestroyed.dispatch(this, sceneObject);
   }
 
-  /**
-   * @private
-   */
+  /** @private */
   _registerObject(sceneObject: SceneObject) {
     this.objects[sceneObject.id] = sceneObject;
     this.events.onSceneObjectCreated.dispatch(this, sceneObject);
   }
 
   /**
-   * Destroys all contained {@link SceneModel | SceneModels}.
+   * Destroys all {@link SceneModel} instances in this Scene.
    *
-   * * Fires {@link SceneEvents.onSceneModelDestroyed | SceneEvents.onSceneModelDestroyed}
-   * for each existing SceneModel in this Scene.
+   * For each model:
+   * - Calls {@link SceneModel.destroy}
+   * - Dispatches `onSceneModelDestroyed`
    *
-   * See {@link scene | @xeokit/sdk/scene}   for usage.
+   * @returns A {@link SDKResult} indicating success or failure.
    */
   clear(): SDKResult<void, string> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[Scene.clear] Scene already destroyed"
+        error: "[Scene.clear] Scene already destroyed",
       });
     }
+
     for (const id in this.models) {
       this.models[id].destroy();
     }
-    return {
-      ok: true,
-      value: undefined
-    };
+
+    return { ok: true, value: undefined };
   }
 
   /**
-   * Destroys this Scene and all contained {@link SceneModel | SceneModels}.
+   * Fully destroys this Scene and all of its models and objects.
    *
-   * * Fires {@link SceneEvents.onSceneModelDestroyed | Scene.modelDestroyed} and {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
-   * for each existing SceneModels in this Data.
-   * * Unsubscribes all subscribers to {@link SceneEvents.onSceneModelCreated | SceneEvents.onSceneModelCreated}, {@link SceneEvents.onSceneModelDestroyed | Scene.modelDestroyed}, {@link SceneModel.onDestroyed | SceneModel.onDestroyed}
+   * This performs:
+   * - A {@link clear} of all models
+   * - Dispatching of {@link SceneEvents.onSceneDestroyed}
+   * - Cleanup of all Scene‑level event subscriptions
    *
-   * See {@link scene | @xeokit/sdk/scene}   for usage.
-   *
-   * @returns *void*
+   * After destruction, most Scene operations become invalid.
    */
   destroy(): void {
     if (this.destroyed) {
       return;
     }
+
     this.clear();
-    this.events.onSceneDestroyed.dispatch(this, this)
+    this.events.onSceneDestroyed.dispatch(this, this);
     this.events.destroy();
     this.destroyed = true;
   }
 
   /**
-   * Logs an error via the Scene's {@link SceneEvents.onError | SceneEvents.onError} event.
+   * Emits an error event and optionally logs the error to the console.
+   *
+   * Called internally whenever an SDK operation fails.
+   *
+   * @param result The failed {@link SDKResult}.
+   * @returns The same {@link SDKResult} for convenience.
    * @private
-   * @param result
    */
-  logError(result:SDKResult<any,string>) : SDKResult<any, string>{
+  logError(result: SDKResult<any, string>): SDKResult<any, string> {
     if (result.ok === false) {
       if (this.logging) {
         console.error(result.error);
@@ -199,5 +234,4 @@ export class Scene {
     }
     return result;
   }
-
 }

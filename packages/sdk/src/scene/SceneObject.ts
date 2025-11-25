@@ -57,11 +57,11 @@ export class SceneObject {
         model: SceneModel;
         meshes: SceneMesh[];
         id: string;
-        originallSystemId?: string;
+        originalSystemId?: string;
         layerId?: string;
     }) {
         this.id = cfg.id;
-        this.originalSystemId = cfg.originallSystemId || this.id;
+        this.originalSystemId = cfg.originalSystemId || this.id;
         this.layerId = cfg.layerId;
         this.model = cfg.model;
         this.meshes = cfg.meshes;
@@ -70,7 +70,14 @@ export class SceneObject {
     /**
      * Gets this SceneObject as SceneObjectParams.
      */
-    toParams(): SceneObjectParams {
+    toParams(): SDKResult<SceneObjectParams, string> {
+        if (this.destroyed) {
+            return this.model.scene.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[SceneObject.toParams] SceneObject already destroyed"
+            });
+        }
         const sceneObjectParams = <SceneObjectParams>{
             id: this.id,
             meshIds: []
@@ -83,7 +90,10 @@ export class SceneObject {
                 sceneObjectParams.meshIds.push(this.meshes[i].id);
             }
         }
-        return sceneObjectParams;
+        return {
+            ok: true,
+            value: sceneObjectParams
+        };
     }
 
     /**

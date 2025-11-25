@@ -49,11 +49,9 @@ export class SceneMesh {
 
   private _color: FloatArrayParam;
   private _opacity: number;
-
   private _localMatrix: FloatArrayParam;
   private _globalMatrix: FloatArrayParam;
-
-   _parentTransform: SceneTransform | null = null;
+   private _parentTransform: SceneTransform | null = null;
 
    destroyed: boolean = false;
 
@@ -295,7 +293,14 @@ export class SceneMesh {
   /**
    * Gets this SceneMesh as SceneMeshParams.
    */
-  toParams(): SceneMeshParams {
+  toParams(): SDKResult<SceneMeshParams, string> {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneMesh.toParams] Cannot get params of destroyed SceneMesh ${this.id}`
+      });
+    }
     const meshParams = <SceneMeshParams>{
       id: this.id,
       geometryId: this.geometry.id,
@@ -311,23 +316,29 @@ export class SceneMesh {
     if (this._parentTransform !== undefined) {
       meshParams.parentTransformId = this.parentTransform.id;
     }
-    return meshParams;
+    return {
+      ok: true,
+      value: meshParams
+    };
   }
 
   /**
    * Destroys this SceneMesh.
    */
-  destroy() {
+  destroy(): SDKResult<void, string>  {
     if (this.destroyed) {
-        return;
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneMesh.destroy] SceneMesh already destroyed"
+      });
     }
     if (this.object) {
-      this.model.scene.logError( {
+      return this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
         error: `[SceneMesh.destroy] Cannot destroy SceneMesh ${this.id} - SceneMesh is currently used by SceneObject ${this.object.id}, which you need to destroy first`
       });
-      return;
     }
     if (this._parentTransform) {
       this._parentTransform.removeChildMesh(this);
@@ -335,5 +346,9 @@ export class SceneMesh {
     this._parentTransform = null;
     this.model._destroyMesh(this);
     this.destroyed = true;
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 }

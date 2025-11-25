@@ -26,11 +26,8 @@ import {CoordinateSystem} from "./CoordinateSystem";
 import {createCoordinateSystemTransform} from "./createCoordinateSystemTransform";
 import {SceneTransform} from "./SceneTransform";
 import {SceneTransformParams} from "./SceneTransformParams";
+import {DataModelParams} from "../data";
 
-
-// -------------------------------------------------------------------------------------------------
-// XGF texture channels
-// -------------------------------------------------------------------------------------------------
 
 /**
  * Texture channel for base color (albedo). Interpreted as sRGB.
@@ -58,10 +55,6 @@ const EMISSIVE_TEXTURE = 3;
  * Texture channel for ambient occlusion. Linear color space.
  */
 const OCCLUSION_TEXTURE = 4;
-
-// -------------------------------------------------------------------------------------------------
-// KTX2 encoding defaults per channel
-// -------------------------------------------------------------------------------------------------
 
 /**
  * Default KTX2 encoding options per texture channel.
@@ -147,7 +140,7 @@ export class SceneModel {
     public readonly coordinateSystem: CoordinateSystem;
 
     /**
-     * Caches a matrix used to transform posititions between SceneModel and Scene CoordinateSystems.
+     * Caches a matrix used to transform positions between SceneModel and Scene CoordinateSystems.
      * Each SceneMesh's matrix is pre-multiplied by this matrix to effectively move the vertex
      * positions from the SceneModel CoordinateSystem to the Scene CoordinateSystem within.
      */
@@ -314,9 +307,9 @@ export class SceneModel {
      * @returns An SDKResult with:
      * - On success, the created {@link SceneTransform}.
      * - On failure, an error message. Reasons for failure include:
-     * - SceneModel already destroyed.
-     * - SceneTransform already exists with the given ID.
-     * - Parent SceneTransform not found with the given parentTransformId.
+     *   - SceneModel already destroyed.
+     *   - SceneTransform already exists with the given ID.
+     *   - Parent SceneTransform not found with the given parentTransformId.
      */
     createTransform(transformParams: SceneTransformParams): SDKResult<SceneTransform, string> {
 
@@ -397,7 +390,7 @@ export class SceneModel {
     _destroyTransform(sceneTransform: SceneTransform) {
         const transformId = sceneTransform.id;
         if (this.destroyed) {
-            throw new SDKInternalException( `Cannot destroy SceneTransform ${transformId} - SceneModel already destroyed`);
+            throw new SDKInternalException(`Cannot destroy SceneTransform ${transformId} - SceneModel already destroyed`);
         }
         if (!this.transforms[transformId]) {
             throw new SDKInternalException(`Cannot destroy SceneTransform ${transformId} - SceneTransform not found in SceneModel`);
@@ -446,10 +439,10 @@ export class SceneModel {
      * @returns SDKResult with:
      * - On success, the created {@link SceneTexture}.
      * - On failure, an error message. Reasons for failure include:
-     * - SceneModel already destroyed.
-     * - Missing required parameter: textureParams.imageData, textureParams.src or textureParams.buffers.
-     * - Texture already exists with the given ID.
-     * - Unsupported image extension.
+     *   - SceneModel already destroyed.
+     *   - Missing required parameter: textureParams.imageData, textureParams.src or textureParams.buffers.
+     *   - Texture already exists with the given ID.
+     *   - Unsupported image extension.
      */
     createTexture(textureParams: SceneTextureParams): SDKResult<SceneTexture, string> {
 
@@ -557,7 +550,7 @@ export class SceneModel {
     createTextureSet(textureSetParams: SceneTextureSetParams): SDKResult<SceneTextureSet, string> {
 
         if (this.destroyed) {
-            return this.scene.logError( {
+            return this.scene.logError({
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
                 error: "[SceneModel.createTextureSet] Cannot create SceneTextureSet - SceneModel already destroyed"
@@ -636,7 +629,7 @@ export class SceneModel {
         if (textureSetParams.occlusionTextureId !== undefined && textureSetParams.occlusionTextureId !== null) {
             occlusionTexture = this.textures[textureSetParams.occlusionTextureId];
             if (!occlusionTexture) {
-                return this.scene.logError( {
+                return this.scene.logError({
                     ok: false,
                     type: SDKErrorType.InvalidInput,
                     error:
@@ -670,10 +663,10 @@ export class SceneModel {
      * @private
      * @param sceneTextureSet
      */
-    _destroyTextureSet(sceneTextureSet: SceneTextureSet){
+    _destroyTextureSet(sceneTextureSet: SceneTextureSet) {
         const textureSetId = sceneTextureSet.id;
         if (this.destroyed) {
-            throw new SDKInternalException( `Cannot destroy SceneTextureSet ${textureSetId} - SceneModel already destroyed`);
+            throw new SDKInternalException(`Cannot destroy SceneTextureSet ${textureSetId} - SceneModel already destroyed`);
         }
         if (!this.textureSets[textureSetId]) {
             throw new SDKInternalException(`Cannot destroy SceneTextureSet ${textureSetId} - SceneTextureSet not found in SceneModel`);
@@ -959,6 +952,41 @@ export class SceneModel {
             });
         }
 
+
+        if (geometryCompressedParams.uvsCompressed) {
+            if (geometryCompressedParams.uvsCompressed.length / 2 !== geometryCompressedParams.positionsCompressed.length / 3) {
+                return this.scene.logError({
+                    ok: false,
+                    type: SDKErrorType.InvalidInput,
+                    error: "[SceneModel.createGeometryCompressed] Cannot create SceneGeometry: Mismatch between given quantities of vertex positions and UVs"
+                });
+            }
+        }
+
+        if (geometryCompressedParams.indices) {
+            const lastPositionsIdx = geometryCompressedParams.positionsCompressed.length / 3;
+            for (let i = 0, len = geometryCompressedParams.indices.length; i < len; i++) {
+                const idx = geometryCompressedParams.indices[i];
+                if (idx < 0 || idx >= lastPositionsIdx) {
+                    return this.scene.logError({
+                        ok: false,
+                        type: SDKErrorType.InvalidInput,
+                        error: "[SceneModel.createGeometryCompressed] Cannot create SceneGeometry: indices out of range of vertex positions"
+                    });
+                }
+                if (geometryCompressedParams.uvsCompressed) {
+                    const lastUVsIdx = geometryCompressedParams.uvsCompressed.length / 2;
+                    if (idx < 0 || idx >= lastUVsIdx) {
+                        return this.scene.logError({
+                            ok: false,
+                            type: SDKErrorType.InvalidInput,
+                            error: "[SceneModel.createGeometryCompressed] Cannot create SceneGeometry: indices out of range of vertex UVs"
+                        });
+                    }
+                }
+            }
+        }
+
         const geometryId = geometryCompressedParams.id;
         if (this.geometries[geometryId]) {
             return this.scene.logError({
@@ -1007,7 +1035,7 @@ export class SceneModel {
             throw new SDKInternalException(`Cannot destroy SceneGeometry ${geometryId} - SceneModel already destroyed`);
         }
         if (!this.geometries[geometryId]) {
-            throw new SDKInternalException( `Cannot destroy SceneGeometry ${geometryId} - SceneGeometry not found in SceneModel`);
+            throw new SDKInternalException(`Cannot destroy SceneGeometry ${geometryId} - SceneGeometry not found in SceneModel`);
         }
         if (sceneGeometry.numMeshes > 0) {
             // We catch this gracefully in SceneGeometry.destroy(), but just in case...
@@ -1073,60 +1101,69 @@ export class SceneModel {
      */
     createMesh(meshParams: SceneMeshParams): SDKResult<SceneMesh, string> {
 
+        let {
+            id,
+            geometryId,
+            parentTransformId,
+            textureSetId,
+            matrix,
+            position,
+            scale,
+            rotation,
+            quaternion,
+            color,
+            opacity
+        } = meshParams;
+
         if (this.destroyed) {
-            return this.scene.logError( {
+            return this.scene.logError({
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
                 error: "[SceneModel.createMesh] Cannot create SceneMesh: SceneModel already destroyed"
             });
         }
 
-        if (this.meshes[meshParams.id]) {
+        if (this.meshes[id]) {
             return this.scene.logError({
                 ok: false,
                 type: SDKErrorType.InvalidInput,
-                error: `[SceneModel.createMesh] Cannot create SceneMesh: SceneMesh already exists with this ID: ${meshParams.id}`
+                error: `[SceneModel.createMesh] Cannot create SceneMesh: SceneMesh already exists with this ID: ${id}`
             });
         }
 
         let transform: SceneTransform | undefined;
-        if (meshParams.parentTransformId) {
-            transform = this.transforms[meshParams.parentTransformId];
+        if (parentTransformId) {
+            transform = this.transforms[parentTransformId];
             if (!transform) {
                 return this.scene.logError({
                     ok: false,
                     type: SDKErrorType.InvalidInput,
-                    error: `[SceneModel.createMesh] Cannot create SceneMesh: parent SceneTransform not found: ${meshParams.parentTransformId}`
+                    error: `[SceneModel.createMesh] Cannot create SceneMesh: parent SceneTransform not found: ${parentTransformId}`
                 });
             }
         }
 
-        const geometry = this.geometries[meshParams.geometryId];
+        const geometry = this.geometries[geometryId];
         if (!geometry) {
             return this.scene.logError({
                 ok: false,
                 type: SDKErrorType.InvalidInput,
-                error: `[SceneModel.createMesh] Cannot create SceneMesh: SceneGeometry not found: ${meshParams.geometryId}`
+                error: `[SceneModel.createMesh] Cannot create SceneMesh: SceneGeometry not found: ${geometryId}`
             });
         }
 
-        const textureSet = meshParams.textureSetId ? this.textureSets[meshParams.textureSetId] : undefined;
-        if (meshParams.textureSetId && !textureSet) {
-            return this.scene.logError( {
+        const textureSet = textureSetId ? this.textureSets[textureSetId] : undefined;
+        if (textureSetId && !textureSet) {
+            return this.scene.logError({
                 ok: false,
                 type: SDKErrorType.InvalidInput,
-                error: `[SceneModel.createMesh] Cannot create SceneMesh: TextureSet not found: ${meshParams.textureSetId}`
+                error: `[SceneModel.createMesh] Cannot create SceneMesh: TextureSet not found: ${textureSetId}`
             });
         }
 
         // Build matrix (clone if provided; otherwise compose or identity)
-        let matrix = meshParams.matrix;
-        if (!matrix) {
-            const position = meshParams.position;
-            const scale = meshParams.scale;
-            const rotation = meshParams.rotation;
-            const quaternion = meshParams.quaternion;
 
+        if (!matrix) {
             if (position || scale || rotation || quaternion) {
                 matrix = identityMat4();
                 composeMat4(
@@ -1143,13 +1180,13 @@ export class SceneModel {
         }
 
         const sceneMesh = new SceneMesh({
-            id: meshParams.id,
+            id,
             model: this,
             geometry,
             textureSet,
             matrix,
-            color: meshParams.color,
-            opacity: meshParams.opacity
+            color,
+            opacity
         });
 
         if (transform) {
@@ -1157,7 +1194,7 @@ export class SceneModel {
         }
 
         geometry.numMeshes++;
-        this.meshes[meshParams.id] = sceneMesh;
+        this.meshes[id] = sceneMesh;
         this.stats.numMeshes++;
         this.scene.events.onSceneMeshCreated.dispatch(this.scene, sceneMesh);
 
@@ -1172,7 +1209,7 @@ export class SceneModel {
      * Destroys a {@link SceneMesh} previously created in this model.
      * Called by a {@link SceneMesh} when it is destroyed.
      */
-    _destroyMesh(sceneMesh: SceneMesh){
+    _destroyMesh(sceneMesh: SceneMesh) {
         const meshId = sceneMesh.id;
         if (this.destroyed) {
             throw new SDKInternalException(`Cannot destroy SceneMesh ${meshId} - SceneModel already destroyed`);
@@ -1183,7 +1220,7 @@ export class SceneModel {
         }
         // (Optional strengthening) Ensure the passed instance matches the one stored.
         if (existing !== sceneMesh) {
-            throw new SDKInternalException( `Cannot destroy SceneMesh ${meshId} - provided instance does not match stored mesh`);
+            throw new SDKInternalException(`Cannot destroy SceneMesh ${meshId} - provided instance does not match stored mesh`);
         }
         if (existing.object) {
             // We catch this gracefully in SceneMesh.destroy(), but just in case...
@@ -1237,6 +1274,14 @@ export class SceneModel {
      *  - A specified {@link SceneMesh} already belongs to an existing {@link SceneObject}.
      */
     createObject(objectParams: SceneObjectParams): SDKResult<SceneObject, string> {
+
+        const {
+            id,
+            meshIds,
+            layerId,
+            originalSystemId
+        } = objectParams;
+
         if (this.destroyed) {
             return this.scene.logError({
                 ok: false,
@@ -1244,14 +1289,16 @@ export class SceneModel {
                 error: "[SceneModel.createObject] Cannot create SceneObject - SceneModel already destroyed"
             });
         }
-        if (objectParams.meshIds.length === 0) {
+
+        if (!meshIds || meshIds.length === 0) {
             return this.scene.logError({
                 ok: false,
                 type: SDKErrorType.InvalidInput,
                 error: "[SceneModel.createObject] Cannot create SceneObject - no meshes specified"
             });
         }
-        const objectId = this.globalizedIds ? `${this.id}.${objectParams.id}` : objectParams.id;
+
+        const objectId = this.globalizedIds ? `${this.id}.${id}` : id;
         if (this.scene.objects[objectId]) {
             return this.scene.logError({
                 ok: false,
@@ -1259,7 +1306,7 @@ export class SceneModel {
                 error: `[SceneModel.createObject] Cannot create SceneObject - SceneObject already exists: ${objectId}`
             });
         }
-        const meshIds = objectParams.meshIds;
+
         const meshes = [];
         for (let meshIdIdx = 0, meshIdLen = meshIds.length; meshIdIdx < meshIdLen; meshIdIdx++) {
             const meshId = meshIds[meshIdIdx];
@@ -1280,20 +1327,24 @@ export class SceneModel {
             }
             meshes.push(mesh);
         }
+
         const sceneObject = new SceneObject({
             id: objectId,
-            originallSystemId: objectParams.originalSystemId,
-            layerId: this.layerId || objectParams.layerId,
+            originalSystemId: originalSystemId,
+            layerId: this.layerId || layerId,
             model: this,
             meshes
         });
+
         for (let i = 0, len = meshes.length; i < len; i++) {
             const mesh = meshes[i];
             mesh.object = sceneObject;
         }
+
         this.objects[objectId] = sceneObject;
         this.stats.numObjects++;
         this.scene._registerObject(sceneObject);
+
         return {
             ok: true,
             value: sceneObject
@@ -1305,13 +1356,13 @@ export class SceneModel {
      * Destroys a {@link SceneObject} previously created in this model.
      * Called by a {@link SceneObject} when it is destroyed.
      */
-    _destroyObject(sceneObject: SceneObject){
+    _destroyObject(sceneObject: SceneObject) {
         const objectId = sceneObject.id;
         if (this.destroyed) {
             throw new SDKInternalException(`Cannot destroy SceneObject ${objectId} - SceneModel already destroyed`);
         }
         if (!this.objects[objectId]) {
-            throw new SDKInternalException( `Cannot destroy SceneObject ${objectId} - SceneObject not found in SceneModel`);
+            throw new SDKInternalException(`Cannot destroy SceneObject ${objectId} - SceneObject not found in SceneModel`);
         }
         const meshes = sceneObject.meshes;
         for (let i = 0, len = meshes.length; i < len; i++) {
@@ -1334,6 +1385,7 @@ export class SceneModel {
      * * On failure, an error message.
      */
     fromParams(sceneModelParams: SceneModelParams): SDKResult<any, string> {
+
         if (this.destroyed) {
             return this.scene.logError({
                 ok: false,
@@ -1391,9 +1443,11 @@ export class SceneModel {
             }
         }
 
-        return {ok: true, value: undefined};
+        return {
+            ok: true,
+            value: undefined
+        };
     }
-
 
     /**
      * Gets this SceneModel as {@link SceneModelParams}.
@@ -1404,8 +1458,15 @@ export class SceneModel {
      *
      * See {@link scene | @xeokit/sdk/scene} for usage.
      */
-    toParams(): SceneModelParams {
-        const sceneModelParams = <SceneModelParams>{
+    toParams(): SDKResult<SceneModelParams, string> {
+        if (this.destroyed) {
+            return this.scene.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[SceneModel.toParams] SceneModel already destroyed"
+            });
+        }
+        const sceneModelParams: SceneModelParams = {
             id: this.id,
             geometriesCompressed: [],
             textures: [],
@@ -1414,25 +1475,40 @@ export class SceneModel {
             meshes: [],
             objects: []
         };
-        Object.entries(this.transforms).forEach(([key, sceneTransform]) => {
-            sceneModelParams.transforms.push(sceneTransform.toParams());
-        });
-        Object.entries(this.geometries).forEach(([key, sceneGeometry]) => {
-            sceneModelParams.geometriesCompressed.push((<SceneGeometry>sceneGeometry).toParams());
-        });
-        // Object.entries(this.textures).forEach(([key, value]) => {
-        //     sceneModelParams.textures[key] = (<SceneTexture>value).toParams();
-        // });
-        // Object.entries(this.textureSets).forEach(([key, value]) => {
-        //     sceneModelParams.textureSets[key] = (<SceneTextureSet>value).toParams();
-        // });
-        Object.entries(this.meshes).forEach(([key, sceneMesh]) => {
-            sceneModelParams.meshes.push((<SceneMesh>sceneMesh).toParams());
-        });
-        Object.entries(this.objects).forEach(([key, sceneObject]) => {
-            sceneModelParams.objects.push((<SceneObject>sceneObject).toParams());
-        });
-        return sceneModelParams;
+        // for (const key in this.transforms) {
+        //         sceneModelParams.transforms.push(this.transforms[key].toParams());
+        // }
+        for (const key in this.geometries) {
+            const res = this.geometries[key].toParams();
+            if (!res.ok) {
+                return res;
+            }
+            sceneModelParams.geometriesCompressed.push(res.value);
+        }
+        for (const key in this.meshes) {
+            const res = this.meshes[key].toParams();
+            if (!res.ok) {
+                return res;
+            }
+            sceneModelParams.meshes.push(res.value);
+        }
+        for (const key in this.objects) {
+            const res = this.objects[key].toParams();
+            if (!res.ok) {
+                return res;
+            }
+            sceneModelParams.objects.push(res.value);
+        }
+        // for (const key in this.textures) {
+        //         sceneModelParams.textures.push(this.textures[key].toParams());
+        // }
+        // for (const key in this.textureSets) {
+        //         sceneModelParams.textureSets.push(this.textureSets[key].toParams());
+        // }
+        return {
+            ok: true,
+            value: sceneModelParams
+        };
     }
 
     /**
@@ -1442,7 +1518,7 @@ export class SceneModel {
      * - Removes this SceneModel from its {@link Scene}.
      * - Destroys all components created within this SceneModel.
      */
-    destroy() : SDKResult<any, string>{
+    destroy(): SDKResult<any, string> {
         if (this.destroyed) {
             return this.scene.logError({
                 ok: false,
@@ -1450,29 +1526,26 @@ export class SceneModel {
                 error: "[SceneModel.destroy] Cannot destroy SceneModel - SceneModel already destroyed"
             });
         }
-        // Destroy SceneObjects, SceneMeshes, SceneTransforms, SceneGeometries, in that order
-        Object.entries(this.objects).forEach(([key, sceneObject]) => {
-            sceneObject.destroy();
-        });
-        Object.entries(this.meshes).forEach(([key, sceneMesh]) => {
-            sceneMesh.destroy();
-        });
-        Object.entries(this.transforms).forEach(([key, sceneTransform]) => {
-            sceneTransform.destroy();
-        });
-        Object.entries(this.geometries).forEach(([key, sceneGeometry]) => {
-            sceneGeometry.destroy();
-        });
-
-        // Object.entries(this.textures).forEach(([key, value]) => {
-        //     sceneModelParams.textures[key] = (<SceneTexture>value).toParams();
-        // });
-        // Object.entries(this.textureSets).forEach(([key, value]) => {
-        //     sceneModelParams.textureSets[key] = (<SceneTextureSet>value).toParams();
-        // });
-
-        this.scene._destroyModel(this);
         this.destroyed = true;
+        for (const key in this.objects) {
+            this.objects[key].destroy();
+        }
+        for (const key in this.meshes) {
+            this.meshes[key].destroy();
+        }
+        for (const key in this.transforms) {
+            this.transforms[key].destroy();
+        }
+        for (const key in this.geometries) {
+            this.geometries[key].destroy();
+        }
+        // for (const key in this.textures) {
+        //         this.textures[key].destroy();
+        // }
+        // for (const key in this.textureSets) {
+        //    this.textureSets[key].destroy();
+        // }
+        this.scene._destroyModel(this);
         return {
             ok: true,
             value: undefined

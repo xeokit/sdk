@@ -34,6 +34,16 @@ export class WebGLRenderer {
      */
     public events: WebGLRendererEvents = {
 
+            /**
+            * Dispatched when the WebGLRenderer is attached to a Viewer.
+            */
+        onViewerAttached: new EventEmitter(new EventDispatcher<WebGLRenderer, Viewer>()),
+
+        /**
+         * Dispatched when the WebGLRenderer is detached from a Viewer.
+         */
+        onViewerDetached: new EventEmitter(new EventDispatcher<WebGLRenderer, Viewer>()),
+
         /**
          * Dispatched when the WebGLRenderer is destroyed.
          */
@@ -146,6 +156,7 @@ export class WebGLRenderer {
      * @returns OK result upon success, or an Error result upon failure.
      */
     public attachViewer(viewer: Viewer): SDKResult<void, string> {
+
         if (this._viewManager) {
             return this.logError({
                 ok: false,
@@ -173,24 +184,32 @@ export class WebGLRenderer {
         const viewerEvents = viewer.events;
 
         // Subscribing to critical and non-critical events for rendering lifecycle management
+
         this._eventSubs = [
+
             // Scene components creation/destruction
+            // Log errors from these calls
+
             sceneEvents.onSceneModelCreated.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelCreated(sceneModel))),
             sceneEvents.onSceneModelDestroyed.subscribe((_, sceneModel) => this.logError(viewManager.sceneModelDestroyed(sceneModel))),
             sceneEvents.onSceneObjectCreated.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectCreated(sceneObject))),
             sceneEvents.onSceneObjectDestroyed.subscribe((_, sceneObject) => this.logError(viewManager.sceneObjectDestroyed(sceneObject))),
 
             // View and ViewObject creation/destruction
+            // Log errors from these calls
+
             viewerEvents.onViewCreated.subscribe((_, view) => this.logError(viewManager.viewCreated(view))),
             viewerEvents.onViewUpdated.subscribe((_, view) => this.logError(viewManager.viewUpdated(view))),
             viewerEvents.onViewDestroyed.subscribe((_, view) => this.logError(viewManager.viewDestroyed(view))),
 
             // SceneMesh and SceneTransform state changes
+
             sceneEvents.onSceneMeshMatrixChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshMatrixChanged(sceneMesh)),
             sceneEvents.onSceneMeshColorChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshColorChanged(sceneMesh)),
             sceneEvents.onSceneTransformMatrixChanged.subscribe((_, sceneMesh) => viewManager.sceneTransformMatrixChanged(sceneMesh)),
 
             // ViewObject visual state changes
+
             viewerEvents.onViewObjectVisibleChanged.subscribe((view, viewObject) => viewManager.viewObjectVisibilityChanged(viewObject)),
             viewerEvents.onViewObjectXRayedChanged.subscribe((view, viewObject) => viewManager.viewObjectXRayedChanged(viewObject)),
             viewerEvents.onViewObjectHighlightedChanged.subscribe((view, viewObject) => viewManager.viewObjectHighlightedChanged(viewObject)),
@@ -199,14 +218,19 @@ export class WebGLRenderer {
             viewerEvents.onViewObjectOpacityChanged.subscribe((view, viewObject) => viewManager.viewObjectOpacityChanged(viewObject)),
 
             // Camera updates
+
             viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera)),
 
             // Tick event
+
             viewerEvents.onTick.subscribe((_, tickParams) => viewManager.onTick(tickParams)),
 
             // Viewer destruction
+
             viewerEvents.onViewerDestroyed.subscribe((_viewer, _args) => this.detachViewer())
         ];
+
+        this.events.onViewerAttached.dispatch(this, viewer);
 
         return {
             ok: true,
@@ -231,12 +255,14 @@ export class WebGLRenderer {
         if (!this._viewManager) {
             return;
         }
+        const viewer = this._viewManager.viewer;
         for (const sub of this._eventSubs) {
             sub();
         }
         this._eventSubs = [];
         this._viewManager?.destroy();
         this._viewManager = undefined as unknown as ViewManager;
+        this.events.onViewerDetached.dispatch(this, viewer);
     }
 
     /**

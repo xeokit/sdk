@@ -25,6 +25,9 @@ export class Task {
    * Flags this Task as having a deferred state updates it needs to perform.
    */
   public setDirty(): void {
+    if (this.destroyed) {
+      return;
+    }
     if (!this.dirty) {
       this.dirty = true;
         taskRunner.addTask(this);
@@ -35,6 +38,9 @@ export class Task {
    * Gives this Task an opportunity to action any deferred state updates.
    */
   public cleanIfDirty(): void {
+    if (this.destroyed) {
+      return;
+    }
     if (this.dirty) {
       this.clean();
       this.dirty = false;

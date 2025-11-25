@@ -1,6 +1,7 @@
 import {FastRender} from "../constants";
 import type {ResolutionScaleParams} from "./ResolutionScaleParams";
 import type {View} from "./View";
+import {SDKErrorType, SDKResult} from "../core";
 
 /**
  * Configures canvas resolution scaling for a {@link View}.
@@ -22,6 +23,7 @@ export class ResolutionScale {
 
     private _resolutionScale: number;
     private _renderModes: number[];
+    private _destroyed: boolean = false;
 
     /**
      * @private
@@ -95,22 +97,29 @@ export class ResolutionScale {
      *
      * @param resolutionScaleParams
      */
-    fromParams(resolutionScaleParams: ResolutionScaleParams) {
+    fromParams(resolutionScaleParams: ResolutionScaleParams) : SDKResult<any, any> {
         if (resolutionScaleParams.renderModes !== undefined) {
             this.renderModes = resolutionScaleParams.renderModes;
         }
         if (resolutionScaleParams.resolutionScale !== undefined) {
             this.resolutionScale = resolutionScaleParams.resolutionScale;
         }
+        return {
+            ok: true,
+            value: undefined
+        };
     }
 
     /**
      * Gets the current configuration of this ResolutionScale.
      */
-    toParams(): ResolutionScaleParams {
+    toParams(): SDKResult<ResolutionScaleParams, any> {
         return {
+          ok: true,
+          value: {
             renderModes: this.renderModes,
             resolutionScale: this.resolutionScale
+          }
         };
     }
 

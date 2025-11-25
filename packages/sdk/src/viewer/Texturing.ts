@@ -18,6 +18,7 @@ class Texturing {
 
     private _enabled: boolean;
     private _renderModes: number[];
+    private _destroyed: boolean = false;
 
     /**
      * @private
@@ -99,6 +100,7 @@ class Texturing {
      * @private
      */
     destroy() {
+        this._destroyed = true;
     }
 }
 

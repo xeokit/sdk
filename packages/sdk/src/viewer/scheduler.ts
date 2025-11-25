@@ -106,7 +106,7 @@ export class Scheduler {
         tickEvent.viewerId = id;
         tickEvent.startTime = viewer.startTime;
         tickEvent.deltaTime = tickEvent.prevTime != null ? tickEvent.time - tickEvent.prevTime : 0;
-        viewer.onTick.dispatch(viewer, tickEvent);
+        viewer.events.onTick.dispatch(viewer, tickEvent);
       }
     }
     tickEvent.prevTime = time;
@@ -123,7 +123,6 @@ export class Scheduler {
         if (!renderInfo) {
           renderInfo = this.#viewersRenderInfo[id] = {};
         }
-
         viewer.render({});
       }
     }
@@ -133,7 +132,7 @@ export class Scheduler {
    * Registers a Viewer with the Scheduler for tick and render updates.
    * @param viewer Viewer to register.
    */
-  registerViewer(viewer: Viewer) {
+  attachViewer(viewer: Viewer) {
     if (viewer.id) {
       if (this.viewers[viewer.id]) {
         console.error(`[ERROR] Viewer ${inQuotes(viewer.id)} already exists`);
@@ -153,7 +152,7 @@ export class Scheduler {
    * @internal
    * @param viewer Viewer to deregister.
    */
-  deregisterViewer(viewer: Viewer) {
+  detachViewer(viewer: Viewer) {
     if (!this.viewers[viewer.id]) {
       return;
     }

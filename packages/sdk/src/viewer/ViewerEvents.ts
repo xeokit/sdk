@@ -28,6 +28,16 @@ export class ViewerEvents {
     public readonly onError: EventEmitter<Viewer, SDKResult<any, string>>;
 
     /**
+     * Emits an event each time a {@link Scene} is attached to a {@link Viewer}.
+     */
+    readonly  onSceneAttached: EventEmitter<Viewer, Scene>;
+
+    /**
+     * Emits an event each time a {@link Scene} is detached from a {@link Viewer}.
+     */
+    readonly  onSceneDetached: EventEmitter<Viewer, Scene>;
+
+    /**
      * Emits an event when the Viewer is destroyed.
      */
     readonly onViewerDestroyed: EventEmitter<Viewer, boolean>;
@@ -207,13 +217,14 @@ export class ViewerEvents {
      */
     readonly onViewUpdated: EventEmitter<View, View>;
 
-
     /**
      * @private
      */
     constructor() {
 
         this.onError = new EventEmitter<Viewer, SDKResult<any, string>>(new EventDispatcher<Viewer, SDKResult<any, string>>());
+        this.onSceneAttached = new EventEmitter(new EventDispatcher<View, Scene>());
+        this.onSceneDetached = new EventEmitter(new EventDispatcher<View, Scene>());
         this.onViewerDestroyed = new EventEmitter(new EventDispatcher<Viewer, boolean>());
         this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
         this.processes = new EventEmitter(new EventDispatcher<Spinner, number>());
@@ -244,7 +255,6 @@ export class ViewerEvents {
         this.onSectionPlaneActive = new EventEmitter(new EventDispatcher<SectionPlane, boolean>());
         this.onSnapshotStarted = new EventEmitter(new EventDispatcher<View, SnapshotStartedEvent>());
         this.onSnapshotFinished = new EventEmitter(new EventDispatcher<View, SnapshotFinishedEvent>());
-
     }
 
     /**
@@ -252,6 +262,8 @@ export class ViewerEvents {
      */
     destroy() {
         this.onError.clear();
+        this.onSceneAttached.clear();
+        this.onSceneDetached.clear();
         this.onViewerDestroyed.clear();
         this.onTick.clear();
         this.log.clear();

@@ -3,7 +3,7 @@ import {
   createMat4,
   createVec3,
   cross3Vec3,
-  dotVec3, frustumMat4,
+  dotVec3,
   identityMat4,
   inverseMat4,
   lenVec3,
@@ -16,7 +16,7 @@ import {
   transformPoint3,
   transposeMat4
 } from "../matrix";
-import {Component, EventEmitter, SDKResult} from "../core";
+import {SDKErrorType, SDKResult} from "../core";
 import {
   CustomProjectionType,
   FrustumProjectionType,
@@ -33,6 +33,10 @@ import {PerspectiveProjection} from './PerspectiveProjection';
 import type {Projection} from "./Projection";
 import type {View} from "./View";
 import {Task} from "../core/Task";
+import {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
+import {OrthoProjectionParams} from "./OrthoProjectionParams";
+import {FrustumProjectionParams} from "./FrustumProjectionParams";
+import {CustomProjectionParams} from "./CustomProjectionParams";
 
 
 const tempVec3 = createVec3();
@@ -263,121 +267,109 @@ class Camera {
    */
   public readonly customProjection: CustomProjection;
 
-  readonly #state: {
-    deviceMatrix: FloatArrayParam,
-    viewNormalMatrix: FloatArrayParam,
-    hasDeviceMatrix: boolean,
-    viewMatrix: FloatArrayParam,
-    inverseViewMatrix: FloatArrayParam,
-    eye: FloatArrayParam,
-    look: FloatArrayParam,
-    up: FloatArrayParam,
-    gimbalLock: boolean,
-    constrainPitch: boolean,
-    projectionType: number
-  };
-
-  /**
-   * The viewing frustum.
-   */
-  #frustum: Frustum3;
-  #activeProjection: PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection;
-  
+  private _destroyed: boolean = false;
+  private _deviceMatrix: FloatArrayParam;
+  private _viewNormalMatrix: FloatArrayParam;
+  private _hasDeviceMatrix: boolean;
+  private _viewMatrix: FloatArrayParam;
+  private _inverseViewMatrix: FloatArrayParam;
+  private _eye: FloatArrayParam;
+  private _look: FloatArrayParam;
+  private _up: FloatArrayParam;
+  private _gimbalLock: boolean;
+  private _constrainPitch: boolean;
+  private _projectionType: number;
+  private _frustum: Frustum3;
+  private _activeProjection: PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection;
   private _task: Task;
 
   /**
    * @private
    */
   constructor(view: View, cfg: CameraParams = {}) {
-    
+
     this.view = view;
-
-    this.#state = {
-      eye: createVec3(cfg.eye || [0, -10, 0]),
-      look: createVec3(cfg.look || [0, 0, 0]),
-      up: createVec3(cfg.up || [0, 0, 1]),
-      gimbalLock: cfg.gimbalLock !== false,
-      constrainPitch: cfg.constrainPitch === true,
-      projectionType: cfg.projectionType || PerspectiveProjectionType,
-      deviceMatrix: cfg.deviceMatrix ? createMat4(cfg.deviceMatrix) : identityMat4(),
-      hasDeviceMatrix: !!cfg.deviceMatrix,
-      viewMatrix: createMat4(),
-      viewNormalMatrix: createMat4(),
-      inverseViewMatrix: createMat4()
-    };
-
-    this.#frustum = new Frustum3();
-
     this.perspectiveProjection = new PerspectiveProjection(this);
     this.orthoProjection = new OrthoProjection(this);
     this.frustumProjection = new FrustumProjection(this);
     this.customProjection = new CustomProjection(this);
 
-    this.#activeProjection = this.perspectiveProjection;
+    this._eye = createVec3(cfg.eye || [0, -10, 0]);
+    this._look = createVec3(cfg.look || [0, 0, 0]);
+    this._up = createVec3(cfg.up || [0, 0, 1]);
+    this._gimbalLock = cfg.gimbalLock !== false;
+    this._constrainPitch = cfg.constrainPitch === true;
+    this._projectionType = cfg.projectionType || PerspectiveProjectionType;
+    this._deviceMatrix = cfg.deviceMatrix ? createMat4(cfg.deviceMatrix) : identityMat4();
+    this._hasDeviceMatrix = !!cfg.deviceMatrix;
+    this._viewMatrix = createMat4();
+    this._viewNormalMatrix = createMat4();
+    this._inverseViewMatrix = createMat4();
+    this._frustum = new Frustum3();
+    this._activeProjection = this.perspectiveProjection;
 
     this.perspectiveProjection.onProjMatrix.subscribe(() => {
-      if (this.#state.projectionType === PerspectiveProjectionType) {
+      if (this._projectionType === PerspectiveProjectionType) {
         this.view.needsRender();
         this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
       }
     });
 
     this.orthoProjection.onProjMatrix.subscribe(() => {
-      if (this.#state.projectionType === OrthoProjectionType) {
+      if (this._projectionType === OrthoProjectionType) {
         this.view.needsRender();
         this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
       }
     });
 
     this.frustumProjection.onProjMatrix.subscribe(() => {
-      if (this.#state.projectionType === FrustumProjectionType) {
+      if (this._projectionType === FrustumProjectionType) {
         this.view.needsRender();
         this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
       }
     });
 
     this.customProjection.onProjMatrix.subscribe(() => {
-      if (this.#state.projectionType === CustomProjectionType) {
+      if (this._projectionType === CustomProjectionType) {
         this.view.needsRender();
         this.view.viewer.events.onCameraProjMatrixUpdated.dispatch(this.view, this);
       }
     });
 
     this._task = new Task(() => {
-        
+
       // In ortho mode, build the view matrix with an eye position that's translated
       // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
       // the front off the view (not a problem with perspective, since objects close enough
       // to be clipped by the front plane are usually too big to see anything of their cross-sections).
 
-      const state = this.#state;
       let eye;
 
       if (this.projectionType === OrthoProjectionType) {
-        subVec3(this.#state.eye, this.#state.look, eyeLookVec);
+        subVec3(this._eye, this._look, eyeLookVec);
         normalizeVec3(eyeLookVec, eyeLookVecNorm);
         mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
-        addVec3(this.#state.look, eyeLookOffset, offsetEye);
+        addVec3(this._look, eyeLookOffset, offsetEye);
         eye = offsetEye;
       } else {
-        eye = this.#state.eye;
+        eye = this._eye;
       }
 
-      if (state.hasDeviceMatrix) {
-        lookAtMat4v(eye, this.#state.look, this.#state.up, tempMatb);
-        mulMat4(state.deviceMatrix, tempMatb, state.viewMatrix);
+      if (this._hasDeviceMatrix) {
+        lookAtMat4v(eye, this._look, this._up, tempMatb);
+        mulMat4(this._deviceMatrix, tempMatb, this._viewMatrix);
       } else {
-        lookAtMat4v(eye, this.#state.look, this.#state.up, state.viewMatrix);
+        lookAtMat4v(eye, this._look, this._up, this._viewMatrix);
       }
 
-      inverseMat4(this.#state.viewMatrix, this.#state.inverseViewMatrix);
-      transposeMat4(this.#state.inverseViewMatrix, this.#state.viewNormalMatrix);
-      setFrustum3(this.#state.viewMatrix, this.#activeProjection.projMatrix, this.#frustum);
+      inverseMat4(this._viewMatrix, this._inverseViewMatrix);
+      transposeMat4(this._inverseViewMatrix, this._viewNormalMatrix);
+      setFrustum3(this._viewMatrix, this._activeProjection.projMatrix, this._frustum);
 
       const events = this.view.viewer.events;
 
       events.onCameraViewMatrixUpdated.dispatch(this.view, this);
-      events.onCameraFrustumUpdated.dispatch(this, this.#frustum);
+      events.onCameraFrustumUpdated.dispatch(this, this._frustum);
 
       this.view.needsRender();
     });
@@ -391,7 +383,7 @@ class Camera {
    * @returns {PerspectiveProjection|OrthoProjection|FrustumProjection|CustomProjection} The currently active projection is active.
    */
   get projection(): Projection {
-    return this.#activeProjection;
+    return this._activeProjection;
   }
 
   /**
@@ -402,7 +394,7 @@ class Camera {
    * @type {Number[]} New eye position.
    */
   get eye(): FloatArrayParam {
-    return this.#state.eye;
+    return this._eye;
   }
 
   /**
@@ -414,7 +406,7 @@ class Camera {
    */
   set eye(eye: FloatArrayParam) {
     // @ts-ignore
-    this.#state.eye.set(eye);
+    this._eye.set(eye);
     this._task.setDirty(); // Ensure matrix built on next "tick"
   }
 
@@ -426,7 +418,7 @@ class Camera {
    * @returns {Number[]} Camera look position.
    */
   get look(): FloatArrayParam {
-    return this.#state.look;
+    return this._look;
   }
 
   /**
@@ -438,7 +430,7 @@ class Camera {
    */
   set look(look: FloatArrayParam) {
     // @ts-ignore
-    this.#state.look.set(look);
+    this._look.set(look);
     this._task.setDirty(); // Ensure matrix built on next "tick"
   }
 
@@ -448,7 +440,7 @@ class Camera {
    * @returns {Number[]} Direction of "up".
    */
   get up(): FloatArrayParam {
-    return this.#state.up;
+    return this._up;
   }
 
   /**
@@ -458,7 +450,7 @@ class Camera {
    */
   set up(up: FloatArrayParam) {
     // @ts-ignore
-    this.#state.up.set(up);
+    this._up.set(up);
     this._task.setDirty();
   }
 
@@ -472,7 +464,7 @@ class Camera {
    * @returns {Boolean} ````true```` if pitch rotation is currently constrained.
    */
   get constrainPitch(): boolean {
-    return this.#state.constrainPitch;
+    return this._constrainPitch;
   }
 
   /**
@@ -485,7 +477,7 @@ class Camera {
    * @param value Set ````true```` to contrain pitch rotation.
    */
   set constrainPitch(value: boolean) {
-    this.#state.constrainPitch = value;
+    this._constrainPitch = value;
   }
 
   /**
@@ -494,7 +486,7 @@ class Camera {
    * @returns {Boolean} Returns ````true```` if gimbal is locked.
    */
   get gimbalLock(): boolean {
-    return this.#state.gimbalLock;
+    return this._gimbalLock;
   }
 
   /**
@@ -503,7 +495,7 @@ class Camera {
    * @param {Boolean} value Set true to lock gimbal.
    */
   set gimbalLock(value: boolean) {
-    this.#state.gimbalLock = value;
+    this._gimbalLock = value;
   }
 
   /**
@@ -512,8 +504,7 @@ class Camera {
    * @returns {Number[]} The matrix.
    */
   get deviceMatrix(): FloatArrayParam {
-    // @ts-ignore
-    return this.#state.deviceMatrix;
+    return this._deviceMatrix;
   }
 
   /**
@@ -525,8 +516,8 @@ class Camera {
    */
   set deviceMatrix(matrix: FloatArrayParam) {
     // @ts-ignore
-    this.#state.deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
-    this.#state.hasDeviceMatrix = !!matrix;
+    this._deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    this._hasDeviceMatrix = !!matrix;
     this._task.setDirty();
   }
 
@@ -536,7 +527,7 @@ class Camera {
    * @returns {Number} The distance.
    */
   get eyeLookDist(): number {
-    return lenVec3(subVec3(this.#state.look, this.#state.eye, tempVec3));
+    return lenVec3(subVec3(this._look, this._eye, tempVec3));
   }
 
   /**
@@ -548,7 +539,7 @@ class Camera {
     if (this._task.dirty) {
       this._task.cleanIfDirty();
     }
-    return this.#state.viewMatrix;
+    return this._viewMatrix;
   }
 
   /**
@@ -560,7 +551,7 @@ class Camera {
     if (this._task.dirty) {
       this._task.cleanIfDirty();
     }
-    return this.#state.inverseViewMatrix;
+    return this._inverseViewMatrix;
   }
 
   /**
@@ -570,7 +561,7 @@ class Camera {
    */
   get projMatrix(): FloatArrayParam {
     // @ts-ignore
-    return this.#activeProjection.projMatrix;
+    return this._activeProjection.projMatrix;
   }
 
   /**
@@ -582,7 +573,7 @@ class Camera {
     if (this._task.dirty) {
       this._task.cleanIfDirty();
     }
-    return this.#frustum;
+    return this._frustum;
   }
 
   /**
@@ -595,7 +586,7 @@ class Camera {
    * @returns {number} Identifies the active projection type.
    */
   get projectionType(): number {
-    return this.#state.projectionType;
+    return this._projectionType;
   }
 
   /**
@@ -609,69 +600,34 @@ class Camera {
    */
   set projectionType(value: number | undefined) {
     value = value || PerspectiveProjectionType;
-    if (this.#state.projectionType === value) {
+    if (this._projectionType === value) {
       return;
     }
     if (value === PerspectiveProjectionType) {
-      this.#activeProjection = this.perspectiveProjection;
+      this._activeProjection = this.perspectiveProjection;
     } else if (value === OrthoProjectionType) {
-      this.#activeProjection = this.orthoProjection;
+      this._activeProjection = this.orthoProjection;
     } else if (value === FrustumProjectionType) {
-      this.#activeProjection = this.frustumProjection;
+      this._activeProjection = this.frustumProjection;
     } else if (value === CustomProjectionType) {
-      this.#activeProjection = this.customProjection;
+      this._activeProjection = this.customProjection;
     } else {
-      console.error("Unsupported value for 'projection': " + value + " defaulting to PerspectiveProjectionType");
-      this.#activeProjection = this.perspectiveProjection;
+      this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[Camera.projectionType] Unsupported value for 'projection': ${value} defaulting to PerspectiveProjectionType.`
+      });
+      this._activeProjection = this.perspectiveProjection;
       value = PerspectiveProjectionType;
     }
     // @ts-ignore
-    this.#activeProjection.clean();
-    this.#state.projectionType = value;
+    this._activeProjection.clean();
+    this._projectionType = value;
     this._task.clean();
     const events = this.view.viewer.events;
     events.onCameraProjectionTypeChanged.dispatch(this.view, this);
     events.onCameraProjMatrixUpdated.dispatch(this.view, this);
   }
-
-  // clean() {
-  //
-  //   // In ortho mode, build the view matrix with an eye position that's translated
-  //   // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
-  //   // the front off the view (not a problem with perspective, since objects close enough
-  //   // to be clipped by the front plane are usually too big to see anything of their cross-sections).
-  //
-  //   const state = this.#state;
-  //   let eye;
-  //
-  //   if (this.projectionType === OrthoProjectionType) {
-  //     subVec3(this.#state.eye, this.#state.look, eyeLookVec);
-  //     normalizeVec3(eyeLookVec, eyeLookVecNorm);
-  //     mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
-  //     addVec3(this.#state.look, eyeLookOffset, offsetEye);
-  //     eye = offsetEye;
-  //   } else {
-  //     eye = this.#state.eye;
-  //   }
-  //
-  //   if (state.hasDeviceMatrix) {
-  //     lookAtMat4v(eye, this.#state.look, this.#state.up, tempMatb);
-  //     mulMat4(state.deviceMatrix, tempMatb, state.viewMatrix);
-  //   } else {
-  //     lookAtMat4v(eye, this.#state.look, this.#state.up, state.viewMatrix);
-  //   }
-  //
-  //   inverseMat4(this.#state.viewMatrix, this.#state.inverseViewMatrix);
-  //   transposeMat4(this.#state.inverseViewMatrix, this.#state.viewNormalMatrix);
-  //   setFrustum3(this.#state.viewMatrix, this.#activeProjection.projMatrix, this.#frustum);
-  //
-  //   const events = this.view.viewer.events;
-  //
-  //   events.onCameraViewMatrixUpdated.dispatch(this.view, this);
-  //   events.onCameraFrustumUpdated.dispatch(this, this.#frustum);
-  //
-  //   this.view.needsRender();
-  // }
 
   /**
    * Rotates {@link Camera.eye | Camera.eye} about {@link Camera.look | Camera.look}, around the {@link Camera.up | Camera.up} vector
@@ -679,11 +635,11 @@ class Camera {
    * @param angleInc Angle of rotation in degrees
    */
   orbitYaw(angleInc: number) {
-    let lookEyeVec = subVec3(this.#state.eye, this.#state.look, tempVec3);
-    rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.view.viewer.scene.coordinateSystem.worldUp : this.#state.up, tempMat);
+    let lookEyeVec = subVec3(this._eye, this._look, tempVec3);
+    rotationMat4v(angleInc * 0.0174532925, this._gimbalLock ? this.view.viewer.scene.coordinateSystem.worldUp : this._up, tempMat);
     lookEyeVec = transformPoint3(tempMat, lookEyeVec, tempVec3b);
-    this.eye = addVec3(this.#state.look, lookEyeVec, tempVec3c); // Set eye position as 'look' plus 'eye' vector
-    this.up = transformPoint3(tempMat, this.#state.up, tempVec3d); // Rotate 'up' vector
+    this.eye = addVec3(this._look, lookEyeVec, tempVec3c); // Set eye position as 'look' plus 'eye' vector
+    this.up = transformPoint3(tempMat, this._up, tempVec3d); // Rotate 'up' vector
   }
 
   /**
@@ -692,18 +648,18 @@ class Camera {
    * @param angleInc Angle of rotation in degrees
    */
   orbitPitch(angleInc: number) {
-    if (this.#state.constrainPitch) {
-      angleInc = dotVec3(this.#state.up, this.view.viewer.scene.coordinateSystem.worldUp) / DEGTORAD;
+    if (this._constrainPitch) {
+      angleInc = dotVec3(this._up, this.view.viewer.scene.coordinateSystem.worldUp) / DEGTORAD;
       if (angleInc < 1) {
         return;
       }
     }
-    let eye2 = subVec3(this.#state.eye, this.#state.look, tempVec3);
-    const left = cross3Vec3(normalizeVec3(eye2, tempVec3b), normalizeVec3(this.#state.up, tempVec3c));
+    let eye2 = subVec3(this._eye, this._look, tempVec3);
+    const left = cross3Vec3(normalizeVec3(eye2, tempVec3b), normalizeVec3(this._up, tempVec3c));
     rotationMat4v(angleInc * 0.0174532925, left, tempMat);
     eye2 = transformPoint3(tempMat, eye2, tempVec3d);
-    this.up = transformPoint3(tempMat, this.#state.up, tempVec3e);
-    this.eye = addVec3(eye2, this.#state.look, tempVec3f);
+    this.up = transformPoint3(tempMat, this._up, tempVec3e);
+    this.eye = addVec3(eye2, this._look, tempVec3f);
   }
 
   /**
@@ -712,12 +668,12 @@ class Camera {
    * @param angleInc Angle of rotation in degrees
    */
   yaw(angleInc: number) {
-    let look2 = subVec3(this.#state.look, this.#state.eye, tempVec3);
-    rotationMat4v(angleInc * 0.0174532925, this.#state.gimbalLock ? this.view.viewer.scene.coordinateSystem.worldUp : this.#state.up, tempMat);
+    let look2 = subVec3(this._look, this._eye, tempVec3);
+    rotationMat4v(angleInc * 0.0174532925, this._gimbalLock ? this.view.viewer.scene.coordinateSystem.worldUp : this._up, tempMat);
     look2 = transformPoint3(tempMat, look2, tempVec3b);
-    this.look = addVec3(look2, this.#state.eye, tempVec3c);
-    if (this.#state.gimbalLock) {
-      this.up = transformPoint3(tempMat, this.#state.up, tempVec3d);
+    this.look = addVec3(look2, this._eye, tempVec3c);
+    if (this._gimbalLock) {
+      this.up = transformPoint3(tempMat, this._up, tempVec3d);
     }
   }
 
@@ -727,18 +683,18 @@ class Camera {
    * @param angleInc Angle of rotation in degrees
    */
   pitch(angleInc: number) {
-    if (this.#state.constrainPitch) {
-      angleInc = dotVec3(this.#state.up,this.view.viewer.scene.coordinateSystem.worldUp) / DEGTORAD;
+    if (this._constrainPitch) {
+      angleInc = dotVec3(this._up, this.view.viewer.scene.coordinateSystem.worldUp) / DEGTORAD;
       if (angleInc < 1) {
         return;
       }
     }
-    let look2 = subVec3(this.#state.look, this.#state.eye, tempVec3);
-    const left = cross3Vec3(normalizeVec3(look2, tempVec3b), normalizeVec3(this.#state.up, tempVec3c));
+    let look2 = subVec3(this._look, this._eye, tempVec3);
+    const left = cross3Vec3(normalizeVec3(look2, tempVec3b), normalizeVec3(this._up, tempVec3c));
     rotationMat4v(angleInc * 0.0174532925, left, tempMat);
-    this.up = transformPoint3(tempMat, this.#state.up, tempVec3f);
+    this.up = transformPoint3(tempMat, this._up, tempVec3f);
     look2 = transformPoint3(tempMat, look2, tempVec3d);
-    this.look = addVec3(look2, this.#state.eye, tempVec3e);
+    this.look = addVec3(look2, this._eye, tempVec3e);
   }
 
   /**
@@ -747,18 +703,18 @@ class Camera {
    * @param pan The pan vector
    */
   pan(pan: FloatArrayParam) {
-    const eye2 = subVec3(this.#state.eye, this.#state.look, tempVec3);
+    const eye2 = subVec3(this._eye, this._look, tempVec3);
     const vec = [0, 0, 0];
     let v;
     if (pan[0] !== 0) {
-      const left = cross3Vec3(normalizeVec3(eye2, []), normalizeVec3(this.#state.up, tempVec3b));
+      const left = cross3Vec3(normalizeVec3(eye2, []), normalizeVec3(this._up, tempVec3b));
       v = mulVec3Scalar(left, pan[0]);
       vec[0] += v[0];
       vec[1] += v[1];
       vec[2] += v[2];
     }
     if (pan[1] !== 0) {
-      v = mulVec3Scalar(normalizeVec3(this.#state.up, tempVec3c), pan[1]);
+      v = mulVec3Scalar(normalizeVec3(this._up, tempVec3c), pan[1]);
       vec[0] += v[0];
       vec[1] += v[1];
       vec[2] += v[2];
@@ -769,8 +725,8 @@ class Camera {
       vec[1] += v[1];
       vec[2] += v[2];
     }
-    this.eye = addVec3(this.#state.eye, vec, tempVec3e);
-    this.look = addVec3(this.#state.look, vec, tempVec3f);
+    this.eye = addVec3(this._eye, vec, tempVec3e);
+    this.look = addVec3(this._look, vec, tempVec3f);
   }
 
   /**
@@ -779,31 +735,42 @@ class Camera {
    * @param delta Zoom factor increment.
    */
   zoom(delta: number) {
-    const vec = subVec3(this.#state.eye, this.#state.look, tempVec3);
+    const vec = subVec3(this._eye, this._look, tempVec3);
     const lenLook = Math.abs(lenVec3(vec));
     const newLenLook = Math.abs(lenLook + delta);
     if (newLenLook < 0.5) {
       return;
     }
     const dir = normalizeVec3(vec, tempVec3c);
-    this.eye = addVec3(this.#state.look, mulVec3Scalar(dir, newLenLook), tempVec3d);
+    this.eye = addVec3(this._look, mulVec3Scalar(dir, newLenLook), tempVec3d);
   }
 
   /**
    * Gets the configuration of this Camera.
    */
-  toParams(): CameraParams {
-    return {
-      eye: Array.from(this.#state.eye),
-      look: Array.from(this.#state.look),
-      up: Array.from(this.#state.up),
+  toParams(): SDKResult<CameraParams, string> {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[Camera.toParams] Camera already destroyed"
+      });
+    }
+    const cameraParams: CameraParams = {
+      eye: Array.from(this._eye),
+      look: Array.from(this._look),
+      up: Array.from(this._up),
       gimbalLock: this.gimbalLock,
       constrainPitch: this.constrainPitch,
       projectionType: this.projectionType,
-      perspectiveProjection: this.perspectiveProjection.toParams(),
-      orthoProjection: this.orthoProjection.toParams(),
-      frustumProjection: this.frustumProjection.toParams(),
-      customProjection: this.customProjection.toParams()
+      perspectiveProjection: (<{value:PerspectiveProjectionParams}>this.perspectiveProjection.toParams()).value,
+      orthoProjection:  (<{value:OrthoProjectionParams}>this.orthoProjection.toParams()).value,
+      frustumProjection:  (<{value:FrustumProjectionParams}>this.frustumProjection.toParams()).value,
+      customProjection:  (<{value:CustomProjectionParams}>this.customProjection.toParams()).value,
+    }
+    return {
+      ok: true,
+      value: cameraParams
     };
   }
 
@@ -811,7 +778,14 @@ class Camera {
    * Configures this Camera.
    * @param cameraParams
    */
-  fromParams(cameraParams: CameraParams) :SDKResult<any, string>{
+  fromParams(cameraParams: CameraParams): SDKResult<any, string> {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[Camera.fromParams] Camera already destroyed"
+      });
+    }
     if (cameraParams.eye) {
       this.eye = cameraParams.eye;
     }
@@ -840,8 +814,8 @@ class Camera {
       this.projectionType = cameraParams.projectionType;
     }
     return {
-        ok: true,
-        value: null
+      ok: true,
+      value: null
     };
   }
 
@@ -849,6 +823,7 @@ class Camera {
    * @private
    */
   destroy() {
+    this._destroyed = true;
     this._task.destroy();
   }
 }

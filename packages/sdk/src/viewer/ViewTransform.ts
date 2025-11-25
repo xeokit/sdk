@@ -4,6 +4,7 @@ import type { FloatArrayParam } from "../math";
 import type { ViewTransformParams } from "./ViewTransformParams";
 import {ViewObject} from "./ViewObject";
 import {SceneMesh, SceneModel} from "../scene";
+import {SDKResult} from "../core";
 
 
 /**
@@ -39,6 +40,11 @@ export class ViewTransform {
   private _parentTransform: ViewTransform | null = null;
 
   /**
+   * Indicates whether this ViewTransform has been destroyed.
+   */
+  public destroyed: boolean = false;
+
+  /**
    * Creates a new ViewTransform instance.
    * @param model - The SceneModel this transform belongs to.
    * @param transformParams - Parameters for initializing the transform.
@@ -55,6 +61,9 @@ export class ViewTransform {
    * @param matrix - The new local matrix.
    */
   set matrix(matrix: FloatArrayParam) {
+    if (this.destroyed) {
+      return;
+    }
     if (matrix) {
       // @ts-ignore
       this._localMatrix.set(matrix);
@@ -97,14 +106,14 @@ export class ViewTransform {
   get childTransforms(): ReadonlyArray<ViewTransform> {
     return this._childTransforms;
   }
-
-  /**
-   * Gets the list of child SceneMesh objects.
-   * @returns A readonly array of child meshes.
-   */
-  get childMeshes(): ReadonlyArray<SceneMesh> {
-    return this._childMeshes;
-  }
+  //
+  // /**
+  //  * Gets the list of child SceneMesh objects.
+  //  * @returns A readonly array of child meshes.
+  //  */
+  // get childMeshes(): ReadonlyArray<SceneMesh> {
+  //   return this._childMeshes;
+  // }
 
   /**
    * Marks the transform and its children as dirty, requiring updates.
@@ -116,7 +125,7 @@ export class ViewTransform {
         child._markTransformDirty();
       }
       for (const child of this._childMeshes) {
-        child._updateGlobal(); // Immediately uploads mesh matrix to renderer
+        //child._updateGlobal(); // Immediately uploads mesh matrix to renderer
       }
    // }
   }
@@ -193,7 +202,7 @@ export class ViewTransform {
    * @param child - The child mesh to add.
    */
   addChildMesh(child: SceneMesh): void {
-    child.setParentTransform(this);
+    //child.setParentTransform(this);
   }
 
   /**
@@ -231,7 +240,7 @@ export class ViewTransform {
    * Converts the transform to its parameter representation.
    * @returns The transform parameters.
    */
-  toParams(): ViewTransformParams {
+  toParams(): SDKResult<ViewTransformParams, never> {
     const transformParams: ViewTransformParams = {
       id: this.id,
       matrix: Array.from(this._localMatrix),
@@ -239,7 +248,10 @@ export class ViewTransform {
     if (this._parentTransform) {
       transformParams.parentTransformId = this._parentTransform.id;
     }
-    return transformParams;
+    return {
+      ok: true,
+      value: transformParams
+    };
   }
 
   /**
@@ -255,6 +267,6 @@ export class ViewTransform {
     }
 
     this._childTransforms = [];
-    this.model._destroyTransform(this);
+   // this.model._destroyTransform(this);
   }
 }

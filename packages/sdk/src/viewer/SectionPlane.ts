@@ -3,6 +3,7 @@ import type {FloatArrayParam} from "../math";
 import {type SectionPlaneParams} from "./SectionPlaneParams";
 import type {View} from "./View";
 import {createUUID} from "../utils";
+import {SDKErrorType, SDKResult} from "../core";
 
 
 /**
@@ -162,8 +163,15 @@ class SectionPlane {
      *
      * @param sectionPlaneParams
      */
-    fromParams(sectionPlaneParams: SectionPlaneParams) {
-        if (sectionPlaneParams.dir) {
+    fromParams(sectionPlaneParams: SectionPlaneParams) : SDKResult<any, any>{
+      if (this.destroyed) {
+          return this.view.viewer.logError({
+            ok: false,
+            type: SDKErrorType.InvalidOperation,
+            error: "[SectionPlane.fromParams] SectionPlane has been destroyed.",
+          });
+      }
+      if (sectionPlaneParams.dir) {
             this.dir = sectionPlaneParams.dir;
         }
         if (sectionPlaneParams.pos) {
@@ -172,17 +180,24 @@ class SectionPlane {
         if (sectionPlaneParams.active !== undefined) {
             this.active = sectionPlaneParams.active;
         }
+        return {
+          ok: true,
+          value: null
+        };
     }
 
     /**
      * Gets the current configuration of this SectionPlane.
      */
-    toParams(): SectionPlaneParams {
+    toParams(): SDKResult<SectionPlaneParams, any> {
         return {
+          ok: true,
+          value: {
             id: this.id,
             dir: Array.from(this._dir),
             pos: Array.from(this._pos),
             active: this._active
+          }
         };
     }
 

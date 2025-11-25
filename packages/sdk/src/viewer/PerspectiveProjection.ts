@@ -1,4 +1,4 @@
-import {EventEmitter} from "../core";
+import {EventEmitter, SDKErrorType, SDKResult} from "../core";
 import {createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "../matrix";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
@@ -16,7 +16,7 @@ import {Task} from "../core/Task";
  * * {@link PerspectiveProjection.near | PerspectiveProjection.near} and {@link PerspectiveProjection.far| PerspectiveProjection.far} specify the distances to the clipping planes.
  * * {@link PerspectiveProjection.onProjMatrix | PerspectiveProjection.onProjMatrix} will fire an event whenever {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-export class PerspectiveProjection  implements Projection {
+export class PerspectiveProjection implements Projection {
 
   /**
    * The Camera this PerspectiveProjection belongs to.
@@ -46,6 +46,7 @@ export class PerspectiveProjection  implements Projection {
   private _transposedProjMatrixDirty: boolean;
   private _onViewBoundary: any;
   private _task: Task;
+  private _destroyed: boolean = false;
 
   /**
    * @private
@@ -211,7 +212,7 @@ export class PerspectiveProjection  implements Projection {
    */
   get projMatrix(): FloatArrayParam {
     if (this._task.dirty) {
-        this._task.cleanIfDirty();
+      this._task.cleanIfDirty();
     }
     return this._projMatrix;
   }
@@ -283,7 +284,14 @@ export class PerspectiveProjection  implements Projection {
    * Sets the state of this PerspectiveParams from the given parameters.
    * @param perspectiveProjectionParams
    */
-  fromParams(perspectiveProjectionParams: PerspectiveProjectionParams) {
+  fromParams(perspectiveProjectionParams: PerspectiveProjectionParams): SDKResult<any, string> {
+    if (this._destroyed) {
+      return this.camera.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[PerspectiveProjection.fromParams] PerspectiveProjection has been destroyed."
+      });
+    }
     if (perspectiveProjectionParams.far !== undefined) {
       this.far = perspectiveProjectionParams.far;
     }
@@ -296,17 +304,31 @@ export class PerspectiveProjection  implements Projection {
     if (perspectiveProjectionParams.fovAxis !== undefined) {
       this.fovAxis = perspectiveProjectionParams.fovAxis;
     }
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   /**
    * Gets this PerspectiveProjection as JSON.
    */
-  toParams(): PerspectiveProjectionParams {
+  toParams(): SDKResult<PerspectiveProjectionParams, string> {
+    if (this._destroyed) {
+      return this.camera.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[PerspectiveProjection.toParams] PerspectiveProjection has been destroyed."
+      });
+    }
     return {
-      far: this.far,
-      near: this.near,
-      fov: this.fov,
-      fovAxis: this.fovAxis
+      ok: true,
+      value: {
+        far: this.far,
+        near: this.near,
+        fov: this.fov,
+        fovAxis: this.fovAxis
+      }
     };
   }
 
@@ -316,5 +338,6 @@ export class PerspectiveProjection  implements Projection {
     this._task.destroy();
     this.camera.view.onBoundary.unsubscribe(this._onViewBoundary);
     this.onProjMatrix.clear();
+    this._destroyed = true;
   }
 }

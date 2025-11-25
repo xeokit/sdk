@@ -1,6 +1,7 @@
 import type {DirLightParams} from "./DirLightParams";
 import type {FloatArrayParam} from "../math";
 import type {View} from "./View";
+import {SDKErrorType, SDKResult} from "../core";
 
 /**
  * A directional light source within a {@link View}.
@@ -12,7 +13,7 @@ import type {View} from "./View";
  * relative to the View coordinate system, and will behave as if fixed to the viewer's head.
  * * {@link AmbientLight}s, {@link DirLight}s and {@link PointLight}s are registered by their {@link Component.id} on {@link View.lights}.
  */
-class DirLight  {
+class DirLight {
 
   /**
    ID of this DirLight, unique within the {@link View}.
@@ -28,6 +29,7 @@ class DirLight  {
   private _color: FloatArrayParam;
   private _intensity: number;
   private _space: string;
+  private _destroyed: boolean = false;
 
   /**
    * @param view View that owns this DirLight. When destroyed, the View will destroy this DirLight as well.
@@ -133,7 +135,14 @@ class DirLight  {
    *
    * @param dirLightParams
    */
-  fromParams(dirLightParams: DirLightParams) {
+  fromParams(dirLightParams: DirLightParams) : SDKResult<any, string>{
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[DirLight.fromParams] DirLight has been destroyed"
+      });
+    }
     if (dirLightParams.dir) {
       this.dir = dirLightParams.dir;
     }
@@ -144,18 +153,25 @@ class DirLight  {
       this.intensity = dirLightParams.intensity;
     }
     // Space is not dynamically-updatable
+    return {
+      ok: true,
+      value: null
+    };
   }
 
   /**
    * Gets this DirLight's current configuration.
    */
-  toParams(): DirLightParams {
+  toParams(): SDKResult<DirLightParams, never> {
     return {
-      id: this.id,
-      dir: Array.from(this.dir),
-      color: Array.from(this.color),
-      intensity: this.intensity,
-      space: this.space
+      ok: true,
+      value: {
+        id: this.id,
+        dir: Array.from(this.dir),
+        color: Array.from(this.color),
+        intensity: this.intensity,
+        space: this.space
+      }
     };
   }
 
@@ -163,6 +179,7 @@ class DirLight  {
    * Destroys this DirLight.
    */
   destroy() {
+    this._destroyed = true;
     this.view.deregisterLight(this);
     this.view.needsRender();
   }

@@ -2,6 +2,7 @@ import type {EdgesParams} from "./EdgesParams";
 import type {FloatArrayParam} from "../math";
 import {QualityRender} from "../constants";
 import type {View} from "./View";
+import {SDKErrorType, SDKResult} from "../core";
 
 
 /**
@@ -24,6 +25,7 @@ class Edges {
     private _edgeWidth: number;
     private _edgeAlpha: number;
     private _renderModes: number[];
+    private _destroyed = false;
 
     /**
      * @private
@@ -154,12 +156,15 @@ class Edges {
     /**
      * Gets the current configuration of this Edges effect.
      */
-    toParams(): EdgesParams {
+    toParams(): SDKResult<EdgesParams, never> {
         return {
+          ok: true,
+          value:{
             renderModes: this.renderModes,
             edgeColor: Array.from(this.edgeColor),
             edgeWidth: this.edgeWidth,
             edgeAlpha: this.edgeAlpha
+        }
         };
     }
 
@@ -168,18 +173,29 @@ class Edges {
      *
      * @param edgesParams
      */
-    fromParams(edgesParams: EdgesParams) {
+    fromParams(edgesParams: EdgesParams) : SDKResult<any, string> {
+        if (this._destroyed) {
+            return this.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[Edges.fromParams] Edges has been destroyed."
+            });
+        }
         this.renderModes = edgesParams.renderModes;
         this.edgeColor = Array.from(edgesParams.edgeColor);
         this.edgeWidth = edgesParams.edgeWidth;
         this.edgeAlpha = edgesParams.edgeAlpha;
+        return {
+            ok: true,
+            value: undefined
+        };
     }
 
     /**
      * @private
      */
     destroy() {
-        // Do nothing
+        this._destroyed = true;
     }
 }
 

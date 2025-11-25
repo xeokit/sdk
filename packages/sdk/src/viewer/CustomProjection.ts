@@ -1,4 +1,4 @@
-import {EventEmitter} from "../core";
+import {EventEmitter, SDKErrorType, SDKResult} from "../core";
 import {createMat4, identityMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "../matrix";
 import type {Camera} from "./Camera";
 import type {CustomProjectionParams} from "./CustomProjectionParams";
@@ -6,6 +6,7 @@ import {CustomProjectionType} from "../constants";
 import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "../math";
 import type {Projection} from "./Projection";
+import {FrustumProjectionParams} from "./FrustumProjectionParams";
 
 /**
  * Configures a custom projection for a {@link Camera | Camera} .
@@ -37,6 +38,8 @@ class CustomProjection implements Projection {
     private _inverseProjMatrix: FloatArrayParam
     private _inverseProjMatrixDirty: boolean;
     private _transposedProjMatrixDirty: boolean;
+
+    private _destroyed: boolean = false;
 
     /**
      * @private
@@ -141,19 +144,40 @@ class CustomProjection implements Projection {
      * Configures this CustomProjection.
      * @param customProjectionParams
      */
-    fromParams(customProjectionParams: CustomProjectionParams) {
+    fromParams(customProjectionParams: CustomProjectionParams): SDKResult<any, string> {
+        if (this._destroyed) {
+            return this.camera.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[CustomProjection.fromParams] CustomProjection has been destroyed."
+            });
+        }
         if (customProjectionParams.projMatrix) {
             this.projMatrix = customProjectionParams.projMatrix;
         }
+        return {
+            ok: true,
+            value: undefined
+        };
     }
 
     /**
      * Gets the current configuration of this CustomProjection.
      */
-    toParams(): CustomProjectionParams {
-        return {
-            projMatrix: Array.from(this.projMatrix)
-        };
+    toParams(): SDKResult<CustomProjectionParams, string> {
+      if (this._destroyed) {
+        return this.camera.view.viewer.logError({
+          ok: false,
+          type: SDKErrorType.InvalidOperation,
+          error: "[FrustumProjection.toParams] FrustumProjection has been destroyed."
+        });
+      }
+      return {
+        ok: true,
+        value: {
+        projMatrix: Array.from(this.projMatrix)
+        }
+      };
     }
 
     /** @private
@@ -161,6 +185,7 @@ class CustomProjection implements Projection {
      */
     destroy() {
         this.onProjMatrix.clear();
+        this._destroyed = true;
     }
 }
 

@@ -6,7 +6,7 @@ import type {FloatArrayParam} from "../math";
 import type {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
 import {PerspectiveProjectionType} from "../constants";
 import type {Projection} from "./Projection";
-import {Task} from "../core/Task";
+import {SDKTask} from "../core/SDKTask";
 
 /**
  * PerspectiveProjection projection configuration for a {@link Camera | Camera} .
@@ -45,7 +45,7 @@ export class PerspectiveProjection implements Projection {
   private _inverseMatrixDirty: boolean;
   private _transposedProjMatrixDirty: boolean;
   private _onViewBoundary: any;
-  private _task: Task;
+  private _rebuildMatricesTask: SDKTask;
   private _destroyed: boolean = false;
 
   /**
@@ -70,13 +70,11 @@ export class PerspectiveProjection implements Projection {
     this._inverseMatrixDirty = true;
     this._transposedProjMatrixDirty = true;
 
-    this._onViewBoundary = this.camera.view.onBoundary.subscribe(() => {
-      this._task.setDirty();
-    });
+    this._onViewBoundary = this.camera.view.onBoundary.subscribe(() => this._rebuildMatricesTask.schedule());
 
     this.onProjMatrix = new EventEmitter(new EventDispatcher<PerspectiveProjection, FloatArrayParam>());
 
-    this._task = new Task(() => {
+    this._rebuildMatricesTask = new SDKTask(() => {
       const WIDTH_INDEX = 2;
       const HEIGHT_INDEX = 3;
       const boundary = this.camera.view.boundary;
@@ -91,7 +89,7 @@ export class PerspectiveProjection implements Projection {
       this._inverseMatrixDirty = true;
       this._transposedProjMatrixDirty = true;
       this.onProjMatrix.dispatch(this, this._projMatrix);
-    });
+    }, SDKTask.PHASE_0);
   }
 
   /**
@@ -117,7 +115,7 @@ export class PerspectiveProjection implements Projection {
       return;
     }
     this._fov = value;
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -152,7 +150,7 @@ export class PerspectiveProjection implements Projection {
       value = "min";
     }
     this._fovAxis = value;
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -178,7 +176,7 @@ export class PerspectiveProjection implements Projection {
       return;
     }
     this._near = value;
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -200,7 +198,7 @@ export class PerspectiveProjection implements Projection {
       return;
     }
     this._far = value;
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -211,8 +209,8 @@ export class PerspectiveProjection implements Projection {
    * @returns  The PerspectiveProjection's projection matrix.
    */
   get projMatrix(): FloatArrayParam {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._rebuildMatricesTask.scheduled) {
+      this._rebuildMatricesTask.runIfScheduled();
     }
     return this._projMatrix;
   }
@@ -223,8 +221,8 @@ export class PerspectiveProjection implements Projection {
    * @returns  The inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
    */
   get inverseProjMatrix(): FloatArrayParam {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._rebuildMatricesTask.scheduled) {
+      this._rebuildMatricesTask.runIfScheduled();
     }
     if (this._inverseMatrixDirty) {
       inverseMat4(this._projMatrix, this._inverseProjMatrix);
@@ -239,8 +237,8 @@ export class PerspectiveProjection implements Projection {
    * @returns  The transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
    */
   get transposedProjMatrix(): FloatArrayParam {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._rebuildMatricesTask.scheduled) {
+      this._rebuildMatricesTask.runIfScheduled();
     }
     if (this._transposedProjMatrixDirty) {
       transposeMat4(this._projMatrix, this._transposedProjMatrix);
@@ -335,7 +333,7 @@ export class PerspectiveProjection implements Projection {
   /** @private
    */
   destroy() {
-    this._task.destroy();
+    this._rebuildMatricesTask.destroy();
     this.camera.view.onBoundary.unsubscribe(this._onViewBoundary);
     this.onProjMatrix.clear();
     this._destroyed = true;

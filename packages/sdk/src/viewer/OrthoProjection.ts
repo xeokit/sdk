@@ -6,7 +6,7 @@ import type {FloatArrayParam} from "../math";
 import type {OrthoProjectionParams} from "./OrthoProjectionParams";
 import {OrthoProjectionType} from "../constants";
 import type {Projection} from "./Projection";
-import {Task} from "../core/Task";
+import {SDKTask} from "../core/SDKTask";
 
 
 /**
@@ -25,7 +25,7 @@ export class OrthoProjection implements Projection {
    * The task that updates the projection matrix.
    * @private
    */
-  private _task: Task;
+  private _rebuildMatricesTask: SDKTask;
 
   /**
    * The Camera this OrthoProjection belongs to.
@@ -74,10 +74,10 @@ export class OrthoProjection implements Projection {
     this._transposedProjMatrixDirty = true;
 
     this._onViewBoundary = this.camera.view.onBoundary.subscribe(() => {
-      this._task.setDirty();
+      this._rebuildMatricesTask.schedule();
     });
 
-    this._task = new Task(() => {
+    this._rebuildMatricesTask = new SDKTask(() => {
       const WIDTH_INDEX = 2;
       const HEIGHT_INDEX = 3;
 
@@ -114,7 +114,7 @@ export class OrthoProjection implements Projection {
       this._transposedProjMatrixDirty = true;
 
       this.onProjMatrix.dispatch(this, this._projMatrix);
-    });
+    }, SDKTask.PHASE_0);
   }
 
   /**
@@ -143,7 +143,7 @@ export class OrthoProjection implements Projection {
       value = 0.01;
     }
     this._scale = value;
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -169,7 +169,7 @@ export class OrthoProjection implements Projection {
       return;
     }
     this._near = value;
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -195,7 +195,7 @@ export class OrthoProjection implements Projection {
       return;
     }
     this._far = value;
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -206,8 +206,8 @@ export class OrthoProjection implements Projection {
    * @returns  The OrthoProjection's projection matrix.
    */
   get projMatrix(): FloatArrayParam {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._rebuildMatricesTask.scheduled) {
+      this._rebuildMatricesTask.runIfScheduled();
     }
     return this._projMatrix;
   }
@@ -218,8 +218,8 @@ export class OrthoProjection implements Projection {
    * @returns  The inverse of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
    */
   get inverseProjMatrix(): FloatArrayParam {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._rebuildMatricesTask.scheduled) {
+      this._rebuildMatricesTask.runIfScheduled();
     }
     if (this._inverseMatrixDirty) {
       inverseMat4(this._projMatrix, this._inverseProjMatrix);
@@ -234,8 +234,8 @@ export class OrthoProjection implements Projection {
    * @returns  The transpose of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
    */
   get transposedProjMatrix(): FloatArrayParam {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._rebuildMatricesTask.scheduled) {
+      this._rebuildMatricesTask.runIfScheduled();
     }
     if (this._transposedProjMatrixDirty) {
       transposeMat4(this._projMatrix, this._transposedProjMatrix);
@@ -334,7 +334,7 @@ export class OrthoProjection implements Projection {
    * @private
    */
   destroy() {
-    this._task.destroy();
+    this._rebuildMatricesTask.destroy();
     this.camera.view.onBoundary.unsubscribe(this._onViewBoundary);
     this.onProjMatrix.clear();
     this._destroyed = true;

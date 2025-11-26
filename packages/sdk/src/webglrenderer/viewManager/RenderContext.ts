@@ -180,7 +180,7 @@ export class RenderContext implements WebGLContextProvider {
       return {
         ok: false,
         type: SDKErrorType.NotSupported,
-        error: "WebGL2 not supported by this browser"
+        error: "[RenderContext.init] WebGL2 not supported by this browser"
       };
     }
     // Nicest derivatives hint (valid in WebGL2)

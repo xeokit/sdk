@@ -6,7 +6,7 @@ import type {FloatArrayParam} from "../math";
 import type {FrustumProjectionParams} from "./FrustumProjectionParams";
 import {FrustumProjectionType} from "../constants";
 import type {Projection} from "./Projection";
-import {Task} from "../core/Task";
+import {SDKTask} from "../core/SDKTask";
 
 /**
  *  FrustumProjection-based perspective projection configuration for a {@link Camera | Camera} .
@@ -22,7 +22,7 @@ export class FrustumProjection implements Projection {
    * The task that updates the projection matrix.
    * @private
    */
-  private _task: Task;
+  private _rebuildMatricesTask: SDKTask;
 
   /**
    * The type of this projection.
@@ -76,12 +76,12 @@ export class FrustumProjection implements Projection {
     this._inverseMatrixDirty = true;
     this._transposedProjMatrixDirty = true;
 
-    this._task = new Task(() => {
+    this._rebuildMatricesTask = new SDKTask(() => {
       frustumMat4(this._left, this._right, this._bottom, this._top, this._near, this._far, this.projMatrix);
       this._inverseMatrixDirty = true;
       this._transposedProjMatrixDirty = true;
       this.onProjMatrix.dispatch(this, this.projMatrix);
-    });
+    }, SDKTask.PHASE_0);
   }
 
   /**
@@ -100,7 +100,7 @@ export class FrustumProjection implements Projection {
    */
   set left(value: number) {
     this._left = value;
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -119,7 +119,7 @@ export class FrustumProjection implements Projection {
    */
   set right(value: number) {
     this._right = value
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -138,7 +138,7 @@ export class FrustumProjection implements Projection {
    */
   set top(value: number) {
     this._top = value
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -157,7 +157,7 @@ export class FrustumProjection implements Projection {
    */
   set bottom(value: number) {
     this._bottom = value
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -180,7 +180,7 @@ export class FrustumProjection implements Projection {
    */
   set near(value: number) {
     this._near = value
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -203,7 +203,7 @@ export class FrustumProjection implements Projection {
    */
   set far(value: number) {
     this._far = value
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
   }
 
   /**
@@ -214,8 +214,8 @@ export class FrustumProjection implements Projection {
    * @returns The FrustumProjection's projection matrix
    */
   get projMatrix(): FloatArrayParam {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._rebuildMatricesTask.scheduled) {
+      this._rebuildMatricesTask.runIfScheduled();
     }
     return this._projMatrix;
   }
@@ -226,8 +226,8 @@ export class FrustumProjection implements Projection {
    * @returns  The inverse orthographic projection projMatrix.
    */
   get inverseProjMatrix(): FloatArrayParam {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._rebuildMatricesTask.scheduled) {
+      this._rebuildMatricesTask.runIfScheduled();
     }
     if (this._inverseMatrixDirty) {
       inverseMat4(this.projMatrix, this._inverseProjMatrix);
@@ -242,8 +242,8 @@ export class FrustumProjection implements Projection {
    * @returns The transpose of {@link FrustumProjection.projMatrix}.
    */
   get transposedProjMatrix(): FloatArrayParam {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._rebuildMatricesTask.scheduled) {
+      this._rebuildMatricesTask.runIfScheduled();
     }
     if (this._transposedProjMatrixDirty) {
       transposeMat4(this.projMatrix, this._transposedProjMatrix);
@@ -320,7 +320,7 @@ export class FrustumProjection implements Projection {
     if (frustumProjectionParams.left !== undefined) {
       this._left = frustumProjectionParams.left;
     }
-    this._task.setDirty();
+    this._rebuildMatricesTask.schedule();
     return {
       ok: true,
       value: undefined
@@ -357,6 +357,6 @@ export class FrustumProjection implements Projection {
   destroy() {
     this._destroyed = true;
     this.onProjMatrix.clear();
-    this._task.destroy();
+    this._rebuildMatricesTask.destroy();
   }
 }

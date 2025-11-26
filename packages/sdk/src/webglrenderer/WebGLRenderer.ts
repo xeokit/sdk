@@ -221,10 +221,6 @@ export class WebGLRenderer {
 
             viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera)),
 
-            // Tick event
-
-            viewerEvents.onTick.subscribe((_, tickParams) => viewManager.onTick(tickParams)),
-
             // Viewer destruction
 
             viewerEvents.onViewerDestroyed.subscribe((_viewer, _args) => this.detachViewer())

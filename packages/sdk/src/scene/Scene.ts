@@ -107,7 +107,7 @@ export class Scene {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "Scene already destroyed",
+        error: "[Scene.createModel] Scene already destroyed",
       });
     }
 
@@ -117,7 +117,7 @@ export class Scene {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `SceneModel already exists in this Scene: ${id}`,
+        error: `[Scene.createModel] SceneModel already exists in this Scene: ${id}`,
       });
     }
 

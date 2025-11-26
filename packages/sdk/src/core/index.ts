@@ -20,8 +20,8 @@
  * @module core
  */
 
-export * from "./Task";
-export * from "./TaskRunner";
+export * from "./SDKTask";
+export * from "./SDKTaskRunner";
 export * from "./SDKResult";
 export * from "./SDKInternalException";
 export * from "./EventEmitter";

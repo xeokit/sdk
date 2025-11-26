@@ -157,7 +157,7 @@ export class MeshManager {
             return {
                 ok: false,
                 type: SDKErrorType.InvalidInput,
-                error: `SceneMesh already added with this ID: ${meshId}`
+                error: `[MeshManager._addMesh] SceneMesh already added with this ID: ${meshId}`
             };
         }
         const result = this._getMeshBatch(sceneMesh);
@@ -217,14 +217,14 @@ export class MeshManager {
             return {
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
-                error: `SceneModel not attached with this ID: ${sceneObject.model.id}`
+                error: `[MeshManager.sceneObjectDestroyed] SceneModel not attached with this ID: ${sceneObject.model.id}`
             };
         }
         if (!this._rendererObjects[sceneObject.id]) {
             return {
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
-                error: `SceneObject not attached with this ID: ${sceneObject.id}`
+                error: `[MeshManager.sceneObjectDestroyed] SceneObject not attached with this ID: ${sceneObject.id}`
             };
         }
         delete this._rendererObjects[sceneObject.id];

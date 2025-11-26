@@ -1,5 +1,5 @@
 import {type PickParams, PickResult} from "../../../viewer";
-import {SDKError, SDKResult} from "../../../core";
+import {SDKInternalException, SDKResult} from "../../../core";
 import {
   addVec3, createMat4, createVec2, createVec3, createVec4,
   cross3Vec3, dotVec4,
@@ -86,7 +86,7 @@ export class PickManager {
         pickResult = this._pickResult ): boolean{
 return;
     if (!this._renderContext) {
-      throw new SDKError("Can't pick object with WebGLRenderer - no Viewer and View is attached");
+      throw new SDKInternalException("Can't pick object with WebGLRenderer - no Viewer and View is attached");
     }
 
     const view = rendererView.view;

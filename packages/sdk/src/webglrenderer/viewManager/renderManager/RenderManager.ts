@@ -6,7 +6,7 @@ import {RendererView} from "../RendererView";
 import {GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {MeshBatch} from "../meshManager/MeshBatch";
 import {RENDER_PASSES} from "../RENDER_PASSES";
-import {SDKErrorType, SDKResult} from "../../../core";
+import {SDKErrorType, SDKInternalException, SDKResult} from "../../../core";
 
 
 /**
@@ -88,11 +88,7 @@ export class RenderManager {
     }): SDKResult<any, string> {
 
         if (!this._drawOps) {
-            return {
-                ok: false,
-               type: SDKErrorType.InvalidOperation,
-                error: "RenderManager not initialized"
-            };
+          throw new SDKInternalException("[RenderManager.render] RenderManager not initialized");
         }
 
         const {view} = rendererView;

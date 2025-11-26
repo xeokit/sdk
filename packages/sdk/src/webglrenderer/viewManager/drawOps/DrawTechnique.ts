@@ -242,7 +242,7 @@ export abstract class DrawTechnique {
                 return {
                     ok: false,
                     type: SDKErrorType.InvalidOperation,
-                    error: "Failed to bind the shader program."
+                    error: "[DrawTechnique._draw] Failed to bind the shader program."
                 };
             }
 

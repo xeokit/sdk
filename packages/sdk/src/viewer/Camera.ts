@@ -32,7 +32,7 @@ import {OrthoProjection} from './OrthoProjection';
 import {PerspectiveProjection} from './PerspectiveProjection';
 import type {Projection} from "./Projection";
 import type {View} from "./View";
-import {Task} from "../core/Task";
+import {SDKTask} from "../core/SDKTask";
 import {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
 import {OrthoProjectionParams} from "./OrthoProjectionParams";
 import {FrustumProjectionParams} from "./FrustumProjectionParams";
@@ -281,7 +281,7 @@ class Camera {
   private _projectionType: number;
   private _frustum: Frustum3;
   private _activeProjection: PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection;
-  private _task: Task;
+  private _task: SDKTask;
 
   /**
    * @private
@@ -336,7 +336,7 @@ class Camera {
       }
     });
 
-    this._task = new Task(() => {
+    this._task = new SDKTask(() => {
 
       // In ortho mode, build the view matrix with an eye position that's translated
       // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
@@ -372,7 +372,7 @@ class Camera {
       events.onCameraFrustumUpdated.dispatch(this, this._frustum);
 
       this.view.needsRender();
-    });
+    }, SDKTask.PHASE_0);
   }
 
   /**
@@ -407,7 +407,7 @@ class Camera {
   set eye(eye: FloatArrayParam) {
     // @ts-ignore
     this._eye.set(eye);
-    this._task.setDirty(); // Ensure matrix built on next "tick"
+    this._task.schedule(); // Ensure matrix built on next "tick"
   }
 
   /**
@@ -431,7 +431,7 @@ class Camera {
   set look(look: FloatArrayParam) {
     // @ts-ignore
     this._look.set(look);
-    this._task.setDirty(); // Ensure matrix built on next "tick"
+    this._task.schedule(); // Ensure matrix built on next "tick"
   }
 
   /**
@@ -451,7 +451,7 @@ class Camera {
   set up(up: FloatArrayParam) {
     // @ts-ignore
     this._up.set(up);
-    this._task.setDirty();
+    this._task.schedule();
   }
 
   /**
@@ -518,7 +518,7 @@ class Camera {
     // @ts-ignore
     this._deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this._hasDeviceMatrix = !!matrix;
-    this._task.setDirty();
+    this._task.schedule();
   }
 
   /**
@@ -536,8 +536,8 @@ class Camera {
    * @returns {Number[]} The viewing transform matrix.
    */
   get viewMatrix(): FloatArrayParam {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._task.scheduled) {
+      this._task.runIfScheduled();
     }
     return this._viewMatrix;
   }
@@ -548,8 +548,8 @@ class Camera {
    * @returns {Number[]} The inverse viewing transform matrix.
    */
   get inverseViewMatrix(): FloatArrayParam {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._task.scheduled) {
+      this._task.runIfScheduled();
     }
     return this._inverseViewMatrix;
   }
@@ -570,8 +570,8 @@ class Camera {
    * @returns {Frustum3} The frustum.
    */
   get frustum() {
-    if (this._task.dirty) {
-      this._task.cleanIfDirty();
+    if (this._task.scheduled) {
+      this._task.runIfScheduled();
     }
     return this._frustum;
   }

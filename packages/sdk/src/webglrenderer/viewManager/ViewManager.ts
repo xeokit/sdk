@@ -48,7 +48,7 @@ export class ViewManager {
       return {
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[ViewManager.init] Maximum number of Views exceeded"
+        error: `[ViewManager.init] Maximum number of Views exceeded - max allowed is 4`
       };
     }
 
@@ -147,7 +147,7 @@ export class ViewManager {
       return {
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[ViewManager.viewUpdated] View is not added"
+        error: `[ViewManager.viewUpdated] View not found with id ${view.id}`
       };
     }
     if (this._activeView !== rendererView) {
@@ -196,7 +196,7 @@ export class ViewManager {
       return {
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[ViewManager.viewDestroyed] View is not added"
+        error: `[ViewManager.viewDestroyed] View not found with id ${view.id}`
       };
     }
     rendererView.destroy();

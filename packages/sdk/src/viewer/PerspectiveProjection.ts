@@ -45,7 +45,7 @@ export class PerspectiveProjection implements Projection {
   private _inverseMatrixDirty: boolean;
   private _transposedProjMatrixDirty: boolean;
   private _onViewBoundary: any;
-  private _rebuildMatricesTask: SDKTask;
+  private _buildMatricesTask: SDKTask;
   private _destroyed: boolean = false;
 
   /**
@@ -70,26 +70,30 @@ export class PerspectiveProjection implements Projection {
     this._inverseMatrixDirty = true;
     this._transposedProjMatrixDirty = true;
 
-    this._onViewBoundary = this.camera.view.onBoundary.subscribe(() => this._rebuildMatricesTask.schedule());
+    this._onViewBoundary = this.camera.view.onBoundary.subscribe(() => this._buildMatricesTask.schedule());
 
     this.onProjMatrix = new EventEmitter(new EventDispatcher<PerspectiveProjection, FloatArrayParam>());
 
-    this._rebuildMatricesTask = new SDKTask(() => {
-      const WIDTH_INDEX = 2;
-      const HEIGHT_INDEX = 3;
-      const boundary = this.camera.view.boundary;
-      const aspect = boundary[WIDTH_INDEX] / boundary[HEIGHT_INDEX];
-      const fovAxis = this._fovAxis;
-      let fov = this._fov;
-      if (fovAxis === "x" || (fovAxis === "min" && aspect < 1) || (fovAxis === "max" && aspect > 1)) {
-        fov = fov / aspect;
-      }
-      fov = Math.min(fov, 120);
-      perspectiveMat4(fov * (Math.PI / 180.0), aspect, this._near, this._far, this._projMatrix);
-      this._inverseMatrixDirty = true;
-      this._transposedProjMatrixDirty = true;
-      this.onProjMatrix.dispatch(this, this._projMatrix);
-    }, SDKTask.PHASE_0);
+    this._buildMatricesTask = new SDKTask({
+      name: "PerspectiveProjection._buildMatricesTask",
+      task: () => {
+        const WIDTH_INDEX = 2;
+        const HEIGHT_INDEX = 3;
+        const boundary = this.camera.view.boundary;
+        const aspect = boundary[WIDTH_INDEX] / boundary[HEIGHT_INDEX];
+        const fovAxis = this._fovAxis;
+        let fov = this._fov;
+        if (fovAxis === "x" || (fovAxis === "min" && aspect < 1) || (fovAxis === "max" && aspect > 1)) {
+          fov = fov / aspect;
+        }
+        fov = Math.min(fov, 120);
+        perspectiveMat4(fov * (Math.PI / 180.0), aspect, this._near, this._far, this._projMatrix);
+        this._inverseMatrixDirty = true;
+        this._transposedProjMatrixDirty = true;
+        this.onProjMatrix.dispatch(this, this._projMatrix);
+      },
+      phase: SDKTask.ComputePhase
+    });
   }
 
   /**
@@ -115,7 +119,7 @@ export class PerspectiveProjection implements Projection {
       return;
     }
     this._fov = value;
-    this._rebuildMatricesTask.schedule();
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -150,7 +154,7 @@ export class PerspectiveProjection implements Projection {
       value = "min";
     }
     this._fovAxis = value;
-    this._rebuildMatricesTask.schedule();
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -176,7 +180,7 @@ export class PerspectiveProjection implements Projection {
       return;
     }
     this._near = value;
-    this._rebuildMatricesTask.schedule();
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -198,7 +202,7 @@ export class PerspectiveProjection implements Projection {
       return;
     }
     this._far = value;
-    this._rebuildMatricesTask.schedule();
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -209,8 +213,8 @@ export class PerspectiveProjection implements Projection {
    * @returns  The PerspectiveProjection's projection matrix.
    */
   get projMatrix(): FloatArrayParam {
-    if (this._rebuildMatricesTask.scheduled) {
-      this._rebuildMatricesTask.runIfScheduled();
+    if (this._buildMatricesTask.scheduled) {
+      this._buildMatricesTask.runIfScheduled();
     }
     return this._projMatrix;
   }
@@ -221,8 +225,8 @@ export class PerspectiveProjection implements Projection {
    * @returns  The inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
    */
   get inverseProjMatrix(): FloatArrayParam {
-    if (this._rebuildMatricesTask.scheduled) {
-      this._rebuildMatricesTask.runIfScheduled();
+    if (this._buildMatricesTask.scheduled) {
+      this._buildMatricesTask.runIfScheduled();
     }
     if (this._inverseMatrixDirty) {
       inverseMat4(this._projMatrix, this._inverseProjMatrix);
@@ -237,8 +241,8 @@ export class PerspectiveProjection implements Projection {
    * @returns  The transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
    */
   get transposedProjMatrix(): FloatArrayParam {
-    if (this._rebuildMatricesTask.scheduled) {
-      this._rebuildMatricesTask.runIfScheduled();
+    if (this._buildMatricesTask.scheduled) {
+      this._buildMatricesTask.runIfScheduled();
     }
     if (this._transposedProjMatrixDirty) {
       transposeMat4(this._projMatrix, this._transposedProjMatrix);
@@ -333,7 +337,7 @@ export class PerspectiveProjection implements Projection {
   /** @private
    */
   destroy() {
-    this._rebuildMatricesTask.destroy();
+    this._buildMatricesTask.destroy();
     this.camera.view.onBoundary.unsubscribe(this._onViewBoundary);
     this.onProjMatrix.clear();
     this._destroyed = true;

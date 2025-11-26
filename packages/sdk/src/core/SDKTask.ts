@@ -4,56 +4,91 @@ import {getGlobalTaskRunner} from "./SDKTaskRunner";
 const taskRunner = getGlobalTaskRunner();
 
 /**
- * Common base class for xeokit SDK Tasks.
+ * A Task represents a unit of work that can be scheduled to run in a specific phase of the SDK's update cycle.
+ * Tasks can be persistent (running every frame) or non-persistent (running only when scheduled).
  */
 export class SDKTask {
 
   /**
-   * Phase 0 priority for Tasks.
-   * Viewer uses this phase for recalculating foundational state, such as world matrices.
-   * Tasks with this priority run before phases 1, 2, and 3.
+   * Phase in which Tasks run that handle input updates.
    * @readonly
    */
-  public static readonly PHASE_0 = 0;
+  public static readonly CollectInputPhase = 0;
 
   /**
-   * Phase 1 priority for Tasks.
-   * Viewer uses this to notify whenever a view is ready to be rendered.
+   * Phase in which Tasks run that handle compute updates.
    */
-  public static readonly PHASE_1 = 1;
+  public static readonly ComputePhase = 1;
 
   /**
-   * Phase 2 priority for Tasks.
+   * Phase in which Tasks run that handle render updates.
    */
-  public static readonly PHASE_2 = 2;
+  public static readonly RenderPhase = 2;
 
   /**
-   * Phase 3 priority for Tasks.
+   * Phase in which Tasks run that handle post-render updates.
    */
-  public static readonly PHASE_3 = 3;
+  public static readonly PostRenderPhase = 3;
 
-  public priority: number;
-  public clean: ()=>void;
+  /**
+   * The function that performs this Task's work.
+   */
+  public task: ()=>void;
+
+  /**
+   * The phase in which this Task runs.
+   */
+  public phase: number;
+
+  /**
+   * Indicates whether this Task has been destroyed.
+   */
   public destroyed: boolean;
+
+  /**
+   * Indicates whether this Task is currently scheduled to run.
+   */
   public scheduled: boolean;
+
+  /**
+   * Indicates whether this Task is persistent (runs every frame) or non-persistent (runs only when scheduled).
+   */
   public persistent: boolean;
 
   /**
-   * Creates a new Task.
+   * Optional name for this Task, useful for debugging.
    */
-  constructor(clean: ()=>void, priority:number, persistent: boolean = false) {
+  public name?: string;
+
+  /**
+   * Creates a new Task.
+   *
+   * @param params Task parameters.
+   * @param params.name Optional name for this Task.
+   * @param params.task The function that performs this Task's work.
+   * @param params.phase The phase in which this Task runs.
+   * @param params.persistent Indicates whether this Task is persistent (runs every frame) or non-persistent (runs only when scheduled).
+   * @constructor
+   */
+  constructor(params: {
+    name?: string,
+    task: ()=>void,
+    phase:number,
+    persistent?: boolean
+  }) {
+    this.name = params.name;
     this.destroyed = false;
     this.scheduled = false;
-    this.priority = priority;
-    this.clean = clean;
-    this.persistent = persistent;
+    this.phase = params.phase;
+    this.task = params.task;
+    this.persistent = !!params.persistent;
     if (this.persistent) {
       taskRunner.addTask(this);
     }
   }
 
   /**
-   * Flags this Task as having a deferred state updates it needs to perform.
+   * Flags this Task as having a deferred state update it needs to perform.
    */
   public schedule(): void {
     if (this.destroyed) {
@@ -75,7 +110,7 @@ export class SDKTask {
       return;
     }
     if (this.scheduled || this.persistent) {
-      this.clean();
+      this.task();
       this.scheduled = false;
     }
   }

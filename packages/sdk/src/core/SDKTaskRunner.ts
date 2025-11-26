@@ -3,21 +3,21 @@ import {SDKTask} from "./SDKTask";
 
 export class SDKTaskRunner {
 
-  private tasksByPriority: Map<number, Set<SDKTask>>;
+  private tasksByPhase: Map<number, Set<SDKTask>>;
   private running: boolean;
 
   constructor() {
-    this.tasksByPriority = new Map<number, Set<SDKTask>>();
-    this.tasksByPriority.set(0, new Set<SDKTask>());
-    this.tasksByPriority.set(1, new Set<SDKTask>());
-    this.tasksByPriority.set(2, new Set<SDKTask>());
-    this.tasksByPriority.set(3, new Set<SDKTask>());
+    this.tasksByPhase = new Map<number, Set<SDKTask>>();
+    this.tasksByPhase.set(SDKTask.CollectInputPhase, new Set<SDKTask>());
+    this.tasksByPhase.set(SDKTask.ComputePhase, new Set<SDKTask>());
+    this.tasksByPhase.set(SDKTask.RenderPhase, new Set<SDKTask>());
+    this.tasksByPhase.set(SDKTask.PostRenderPhase, new Set<SDKTask>());
     this.running = false;
   }
 
   addTask(task: SDKTask): void {
-    const priority = Math.max(0, Math.min(2, task.priority || 0));
-    this.tasksByPriority.get(priority)!.add(task);
+    const phase = Math.max(0, Math.min(2, task.phase || 0));
+    this.tasksByPhase.get(phase)!.add(task);
     if (!this.running) {
       this.running = true;
       requestAnimationFrame(() => this.runTasks());
@@ -27,8 +27,8 @@ export class SDKTaskRunner {
   private runTasks(): void {
     let tasksRemain = false;
 
-    for (let priority = 0; priority <= 2; priority++) {
-      const tasks = this.tasksByPriority.get(priority)!;
+    for (let phase = 0; phase <= 2; phase++) {
+      const tasks = this.tasksByPhase.get(phase)!;
       for (const task of Array.from(tasks)) {
         if (!task.destroyed) {
           task.runIfScheduled();
@@ -41,7 +41,12 @@ export class SDKTaskRunner {
       }
     }
 
-    tasksRemain = [0, 1, 2].some(p => this.tasksByPriority.get(p)!.size > 0);
+    tasksRemain = [
+      SDKTask.CollectInputPhase,
+      SDKTask.ComputePhase,
+      SDKTask.RenderPhase,
+      SDKTask.PostRenderPhase
+    ].some(p => this.tasksByPhase.get(p)!.size > 0);
 
     if (tasksRemain) {
       requestAnimationFrame(() => this.runTasks());

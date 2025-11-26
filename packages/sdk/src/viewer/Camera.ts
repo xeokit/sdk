@@ -281,7 +281,7 @@ class Camera {
   private _projectionType: number;
   private _frustum: Frustum3;
   private _activeProjection: PerspectiveProjection | OrthoProjection | FrustumProjection | CustomProjection;
-  private _task: SDKTask;
+  private _buildViewMatrixTask: SDKTask;
 
   /**
    * @private
@@ -336,43 +336,47 @@ class Camera {
       }
     });
 
-    this._task = new SDKTask(() => {
+    this._buildViewMatrixTask = new SDKTask({
+      name: "Camera._buildViewMatrixTask",
+      task: () => {
 
-      // In ortho mode, build the view matrix with an eye position that's translated
-      // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
-      // the front off the view (not a problem with perspective, since objects close enough
-      // to be clipped by the front plane are usually too big to see anything of their cross-sections).
+        // In ortho mode, build the view matrix with an eye position that's translated
+        // well back from look, so that the front sectionPlane plane doesn't unexpectedly cut
+        // the front off the view (not a problem with perspective, since objects close enough
+        // to be clipped by the front plane are usually too big to see anything of their cross-sections).
 
-      let eye;
+        let eye;
 
-      if (this.projectionType === OrthoProjectionType) {
-        subVec3(this._eye, this._look, eyeLookVec);
-        normalizeVec3(eyeLookVec, eyeLookVecNorm);
-        mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
-        addVec3(this._look, eyeLookOffset, offsetEye);
-        eye = offsetEye;
-      } else {
-        eye = this._eye;
-      }
+        if (this.projectionType === OrthoProjectionType) {
+          subVec3(this._eye, this._look, eyeLookVec);
+          normalizeVec3(eyeLookVec, eyeLookVecNorm);
+          mulVec3Scalar(eyeLookVecNorm, 1000.0, eyeLookOffset);
+          addVec3(this._look, eyeLookOffset, offsetEye);
+          eye = offsetEye;
+        } else {
+          eye = this._eye;
+        }
 
-      if (this._hasDeviceMatrix) {
-        lookAtMat4v(eye, this._look, this._up, tempMatb);
-        mulMat4(this._deviceMatrix, tempMatb, this._viewMatrix);
-      } else {
-        lookAtMat4v(eye, this._look, this._up, this._viewMatrix);
-      }
+        if (this._hasDeviceMatrix) {
+          lookAtMat4v(eye, this._look, this._up, tempMatb);
+          mulMat4(this._deviceMatrix, tempMatb, this._viewMatrix);
+        } else {
+          lookAtMat4v(eye, this._look, this._up, this._viewMatrix);
+        }
 
-      inverseMat4(this._viewMatrix, this._inverseViewMatrix);
-      transposeMat4(this._inverseViewMatrix, this._viewNormalMatrix);
-      setFrustum3(this._viewMatrix, this._activeProjection.projMatrix, this._frustum);
+        inverseMat4(this._viewMatrix, this._inverseViewMatrix);
+        transposeMat4(this._inverseViewMatrix, this._viewNormalMatrix);
+        setFrustum3(this._viewMatrix, this._activeProjection.projMatrix, this._frustum);
 
-      const events = this.view.viewer.events;
+        const events = this.view.viewer.events;
 
-      events.onCameraViewMatrixUpdated.dispatch(this.view, this);
-      events.onCameraFrustumUpdated.dispatch(this, this._frustum);
+        events.onCameraViewMatrixUpdated.dispatch(this.view, this);
+        events.onCameraFrustumUpdated.dispatch(this, this._frustum);
 
-      this.view.needsRender();
-    }, SDKTask.PHASE_0);
+        this.view.needsRender();
+      },
+      phase: SDKTask.ComputePhase
+    });
   }
 
   /**
@@ -407,7 +411,7 @@ class Camera {
   set eye(eye: FloatArrayParam) {
     // @ts-ignore
     this._eye.set(eye);
-    this._task.schedule(); // Ensure matrix built on next "tick"
+    this._buildViewMatrixTask.schedule(); // Ensure matrix built on next "tick"
   }
 
   /**
@@ -431,7 +435,7 @@ class Camera {
   set look(look: FloatArrayParam) {
     // @ts-ignore
     this._look.set(look);
-    this._task.schedule(); // Ensure matrix built on next "tick"
+    this._buildViewMatrixTask.schedule(); // Ensure matrix built on next "tick"
   }
 
   /**
@@ -451,7 +455,7 @@ class Camera {
   set up(up: FloatArrayParam) {
     // @ts-ignore
     this._up.set(up);
-    this._task.schedule();
+    this._buildViewMatrixTask.schedule();
   }
 
   /**
@@ -518,7 +522,7 @@ class Camera {
     // @ts-ignore
     this._deviceMatrix.set(matrix || [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
     this._hasDeviceMatrix = !!matrix;
-    this._task.schedule();
+    this._buildViewMatrixTask.schedule();
   }
 
   /**
@@ -536,8 +540,8 @@ class Camera {
    * @returns {Number[]} The viewing transform matrix.
    */
   get viewMatrix(): FloatArrayParam {
-    if (this._task.scheduled) {
-      this._task.runIfScheduled();
+    if (this._buildViewMatrixTask.scheduled) {
+      this._buildViewMatrixTask.runIfScheduled();
     }
     return this._viewMatrix;
   }
@@ -548,8 +552,8 @@ class Camera {
    * @returns {Number[]} The inverse viewing transform matrix.
    */
   get inverseViewMatrix(): FloatArrayParam {
-    if (this._task.scheduled) {
-      this._task.runIfScheduled();
+    if (this._buildViewMatrixTask.scheduled) {
+      this._buildViewMatrixTask.runIfScheduled();
     }
     return this._inverseViewMatrix;
   }
@@ -570,8 +574,8 @@ class Camera {
    * @returns {Frustum3} The frustum.
    */
   get frustum() {
-    if (this._task.scheduled) {
-      this._task.runIfScheduled();
+    if (this._buildViewMatrixTask.scheduled) {
+      this._buildViewMatrixTask.runIfScheduled();
     }
     return this._frustum;
   }
@@ -623,7 +627,7 @@ class Camera {
     // @ts-ignore
     this._activeProjection.clean();
     this._projectionType = value;
-    this._task.clean();
+    this._buildViewMatrixTask.clean();
     const events = this.view.viewer.events;
     events.onCameraProjectionTypeChanged.dispatch(this.view, this);
     events.onCameraProjMatrixUpdated.dispatch(this.view, this);
@@ -763,10 +767,10 @@ class Camera {
       gimbalLock: this.gimbalLock,
       constrainPitch: this.constrainPitch,
       projectionType: this.projectionType,
-      perspectiveProjection: (<{value:PerspectiveProjectionParams}>this.perspectiveProjection.toParams()).value,
-      orthoProjection:  (<{value:OrthoProjectionParams}>this.orthoProjection.toParams()).value,
-      frustumProjection:  (<{value:FrustumProjectionParams}>this.frustumProjection.toParams()).value,
-      customProjection:  (<{value:CustomProjectionParams}>this.customProjection.toParams()).value,
+      perspectiveProjection: (<{ value: PerspectiveProjectionParams }>this.perspectiveProjection.toParams()).value,
+      orthoProjection: (<{ value: OrthoProjectionParams }>this.orthoProjection.toParams()).value,
+      frustumProjection: (<{ value: FrustumProjectionParams }>this.frustumProjection.toParams()).value,
+      customProjection: (<{ value: CustomProjectionParams }>this.customProjection.toParams()).value,
     }
     return {
       ok: true,
@@ -824,7 +828,7 @@ class Camera {
    */
   destroy() {
     this._destroyed = true;
-    this._task.destroy();
+    this._buildViewMatrixTask.destroy();
   }
 }
 

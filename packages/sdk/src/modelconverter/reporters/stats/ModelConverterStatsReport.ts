@@ -57,4 +57,9 @@ export interface ModelConverterStatsReport {
   outputs: {
     [key: string]: ModelConverterStatsReportInput;
   };
+
+  /**
+   * Any errors that occurred during the conversion process.
+   */
+  errors: string[];
 }

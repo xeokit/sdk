@@ -136,8 +136,18 @@ export class ModelConverter {
                 scene,
                 data,
                 inputs: {},
-                outputs: {}
+                outputs: {},
+                errors: []
             };
+
+          const logError = (sdkResult) => {
+            if (sdkResult.ok === false) {
+              modelConverterResult.errors.push(sdkResult.error);
+            }
+          }
+
+          scene.events.onError.subscribe(logError);
+          data.events.onError.subscribe(logError);
 
             const processInputs = async () => {
 
@@ -152,7 +162,6 @@ export class ModelConverter {
                     if (!sceneModel) {
                         const sceneModelResult = scene.createModel({id: sceneModelId});
                         if (!sceneModelResult.ok) {
-                            // TODO
                             continue;
                         }
                         sceneModel = sceneModelResult.value;
@@ -162,13 +171,12 @@ export class ModelConverter {
                     if (!dataModel) {
                         const dataModelResult = data.createModel({id: dataModelId});
                         if (!dataModelResult.ok) {
-                            // TODO
                             continue;
                         }
                         dataModel = dataModelResult.value;
                     }
-                    const loadFileData = async (fileData) => {
 
+                    const loadFileData = async (fileData) => {
                         switch (loader.fileDataType) {
                             case "text":
                                 fileDataSizeBytes = (new TextEncoder()).encode(fileData).length;
@@ -236,7 +244,6 @@ export class ModelConverter {
                     if (!sceneModel) {
                         const sceneModelResult = scene.createModel({id: sceneModelId});
                         if (!sceneModelResult.ok) {
-                            // TODO
                             continue;
                         }
                         sceneModel = sceneModelResult.value;
@@ -246,7 +253,6 @@ export class ModelConverter {
                     if (!dataModel) {
                         const dataModelResult = data.createModel({id: dataModelId});
                         if (!dataModelResult.ok) {
-                            // TODO
                             continue;
                         }
                         dataModel = dataModelResult.value;

@@ -22,7 +22,8 @@ export const createStatsReport: ModelConverterReporter = (modelConverterResult: 
     inputs: {},
     sceneModels: {},
     dataModels: {},
-    outputs: {}
+    outputs: {},
+    errors: modelConverterResult.errors
   };
 
   for (const inputId in modelConverterResult.inputs) {

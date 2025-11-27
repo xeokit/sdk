@@ -43,4 +43,9 @@ export interface ModelConverterResult {
   outputs: {
     [key: string]: ModelConverterResultOutput;
   };
+
+  /**
+   * Any errors that occurred during the conversion.
+   */
+  errors: string[];
 }

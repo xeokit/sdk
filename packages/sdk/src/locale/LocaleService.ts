@@ -32,7 +32,7 @@ class LocaleService {
     messages: {},
     locale: ""
   }) {
-    this.onUpdated = new EventEmitter(new EventDispatcher<LocaleService, string>());
+    this.onUpdated = new EventEmitter(new EventDispatcher<LocaleService>());
     this.messages = cfg.messages;
     this.locale = cfg.locale;
   }

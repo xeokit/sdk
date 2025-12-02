@@ -41,5 +41,12 @@ export enum SDKErrorType {
     /**
      * Indicates that the WebGL context has been lost.
      */
-    WebGLContextLost=7
+    WebGLContextLost=7,
+
+    /**
+     * Indicates that memory allocation has failed. This occurs when the
+     * memory requested is within limits but the SDK is unable to fulfill the request
+     * for some reason.
+     */
+    MemoryAllocationFailed,
 }

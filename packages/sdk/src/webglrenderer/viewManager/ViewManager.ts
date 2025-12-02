@@ -40,7 +40,7 @@ export class ViewManager {
    * @param viewer
    * @param memConfigs
    */
-  public init(viewer: Viewer, memConfigs: GPUMemoryConfigs): SDKResult<void, string> {
+  public init(viewer: Viewer, memConfigs: GPUMemoryConfigs): SDKResult<void> {
 
     this._viewer = viewer;
 
@@ -108,11 +108,15 @@ export class ViewManager {
     };
   }
 
+  getGPUMemoryUsage() {
+    return undefined;
+  }
+
   public get viewer(): Viewer {
     return this._viewer;
   }
 
-  public viewCreated(view: View): SDKResult<any, string> {
+  public viewCreated(view: View): SDKResult<any> {
     if (this._rendererViews[view.id]) {
       throw new SDKInternalException("[ViewManager.viewCreated] Can't add additional View to WebGLRenderer - View already added");
     }
@@ -141,7 +145,7 @@ export class ViewManager {
     return this._rendererViewsList;
   }
 
-  public viewUpdated(view: View): SDKResult<any, string> {
+  public viewUpdated(view: View): SDKResult<any> {
     const rendererView = this._rendererViews[view.id];
     if (!rendererView) {
       return {
@@ -190,7 +194,7 @@ export class ViewManager {
     this._activeView = rendererView;
   }
 
-  public viewDestroyed(view: View): SDKResult<any, string> {
+  public viewDestroyed(view: View): SDKResult<any> {
     const rendererView = this._rendererViews[view.id];
     if (!rendererView) {
       return {
@@ -208,29 +212,29 @@ export class ViewManager {
     };
   }
 
-  // public viewObjectCreated(viewObject: ViewObject): SDKResult<any, string> {
+  // public viewObjectCreated(viewObject: ViewObject): SDKResult<any> {
   //     return this._meshManager.viewObjectCreated(viewObject);
   // }
   //
-  // public viewObjectDestroyed(viewObject: ViewObject): SDKResult<any, string> {
+  // public viewObjectDestroyed(viewObject: ViewObject): SDKResult<any> {
   //     return this._meshManager.viewObjectDestroyed(viewObject);
   // }
 
   // Scene creation and destruction with error handling
 
-  public sceneModelCreated(sceneModel: SceneModel): SDKResult<any, string> {
+  public sceneModelCreated(sceneModel: SceneModel): SDKResult<any> {
     return this._meshManager.sceneModelCreated(sceneModel);
   }
 
-  public sceneModelDestroyed(sceneModel: SceneModel): SDKResult<any, string> {
+  public sceneModelDestroyed(sceneModel: SceneModel): SDKResult<any> {
     return this._meshManager.sceneModelDestroyed(sceneModel);
   }
 
-  public sceneObjectCreated(sceneObject: SceneObject): SDKResult<any, string> {
+  public sceneObjectCreated(sceneObject: SceneObject): SDKResult<any> {
     return this._meshManager.sceneObjectCreated(sceneObject);
   }
 
-  public sceneObjectDestroyed(sceneObject: SceneObject): SDKResult<any, string> {
+  public sceneObjectDestroyed(sceneObject: SceneObject): SDKResult<any> {
     return this._meshManager.sceneObjectDestroyed(sceneObject);
   }
 

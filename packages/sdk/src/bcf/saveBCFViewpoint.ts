@@ -4,6 +4,7 @@ import type {FloatArrayParam} from "../math";
 import {OrthoProjectionType} from "../constants";
 import type {SaveBCFViewpointParams} from "./SaveBCFViewpointParams";
 import type {ViewObject} from "../viewer";
+import {SDKErrorType, SDKResult} from "../core";
 
 /**
  * Saves a {@link viewer!View | View} to a {@link BCFViewpoint | BCFViewpoint}.
@@ -13,7 +14,7 @@ import type {ViewObject} from "../viewer";
  * @param params BCF saving parameters.
  * @returns The BCF viewpoint.
  */
-export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
+export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFViewpoint> {
 
   const includeViewLayers = params.includeViewLayerIds ? new Set(params.includeViewLayerIds) : null;
   const excludeViewLayers = params.excludeViewLayerIds ? new Set(params.excludeViewLayerIds) : null;
@@ -24,6 +25,14 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
   const realWorldOffset = createVec3();
   const reverseClippingPlanes = (params.reverseClippingPlanes === true);
   const bcfViewpoint: any = {};
+
+  if (view.destroyed) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidOperation,
+      error: "[saveBCFViewpoint] View has been destroyed."
+    };
+  }
 
   let lookDirection = normalizeVec3(subVec3(camera.look, camera.eye, createVec3()));
   let eye = camera.eye;
@@ -262,13 +271,16 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): BCFViewpoint {
   bcfViewpoint.components.translucency = createBCFComponents(view.xrayedObjectIds);
 
   if (params.snapshot !== false) {
-    bcfViewpoint.snapshot = {
-      snapshot_type: "png",
-      snapshot_data: view.getSnapshot({format: "png"})
-    };
+    // bcfViewpoint.snapshot = {
+    //   snapshot_type: "png",
+    //   snapshot_data: view.getSnapshot({format: "png"})
+    // };
   }
 
-  return bcfViewpoint;
+  return {
+    ok: true,
+    value: bcfViewpoint
+  };
 }
 
 function xyzArrayToObject(arr: FloatArrayParam): any {

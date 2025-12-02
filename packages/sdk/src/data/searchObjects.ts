@@ -18,7 +18,7 @@ import type {SearchParams} from "./SearchParams";
  * - On success: `{ ok: true, value: undefined }`
  * - On failure: `{ ok: false, error: string }`
  */
-export function searchObjects(data: Data, searchParams: SearchParams): SDKResult<void, string> {
+export function searchObjects(data: Data, searchParams: SearchParams): SDKResult<void> {
   if (data.destroyed) {
     return {
       ok: false,

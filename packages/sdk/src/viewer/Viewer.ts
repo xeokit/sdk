@@ -1,7 +1,6 @@
 import {apply, createUUID} from "../utils";
 import {SDKErrorType, SDKResult} from "../core";
 import {Scene, SceneObject} from "../scene";
-import {scheduler} from "./scheduler";
 import {View} from "./View";
 import type {ViewerParams} from "./ViewerParams";
 import type {ViewParams} from "./ViewParams";
@@ -100,7 +99,6 @@ export class Viewer {
     if (params.scene) {
       this.attachScene(params.scene);
     }
-    scheduler.attachViewer(this);
   }
 
   /**
@@ -112,7 +110,7 @@ export class Viewer {
    * @param scene - The Scene to attach.
    * @param scene
    */
-  public attachScene(scene: Scene): SDKResult<Viewer, string> {
+  public attachScene(scene: Scene): SDKResult<Viewer> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
@@ -178,7 +176,7 @@ export class Viewer {
    * * Destroys all {@link ViewObject | ViewObjects} in each existing {@link View} that were created for {@link SceneObject | SceneObjects} in the detached {@link Scene}.
    * * Unsubscribes from {@link Scene.events.onSceneObjectCreated | Scene.events.onSceneObjectCreated} and {@link Scene.events.onSceneObjectDestroyed | Scene.events.onSceneObjectDestroyed} events of the detached {@link Scene}.
    */
-  public detachScene(): SDKResult<Viewer, string> {
+  public detachScene(): SDKResult<Viewer> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
@@ -294,7 +292,7 @@ export class Viewer {
    * @param viewParams - View configuration.
    * @returns A result containing the created {@link View} on success, or an error message on failure.
    */
-  createView(viewParams: ViewParams): SDKResult<View, string> {
+  createView(viewParams: ViewParams): SDKResult<View> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
@@ -308,6 +306,13 @@ export class Viewer {
         ok: false,
         type: SDKErrorType.InvalidInput,
         error: `[Viewer.createView] Cannot create View - A View with ID "${viewId}" already exists.`
+      });
+    }
+    if (!viewParams.elementId && !viewParams.htmlElement) {
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[Viewer.createView] Cannot create View - Must provide either elementId or htmlElement in viewParams.`
       });
     }
     if (viewParams.elementId) {
@@ -327,6 +332,26 @@ export class Viewer {
           type: SDKErrorType.InvalidInput,
           error: `[Viewer.createView] Cannot create View - The provided htmlElement is not a valid HTMLElement.`
         });
+      }
+    }
+    if (viewParams.backgroundColor) {
+      const bgColor = viewParams.backgroundColor;
+      if (bgColor.length < 3) {
+        return this.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: `[Viewer.createView] Cannot create View - The provided backgroundColor must have at least three elements for R, G, and B.`
+        });
+      }
+      for (let i = 0; i < 3; i++) {
+        const c = bgColor[i];
+        if (c < 0 || c > 1) {
+          return this.logError({
+            ok: false,
+            type: SDKErrorType.InvalidInput,
+            error: `[Viewer.createView] Cannot create View - The provided backgroundColor elements must be in range [0..1].`
+          });
+        }
       }
     }
     const view = new View(this, apply({id: viewId}, viewParams));
@@ -364,19 +389,12 @@ export class Viewer {
     }
   }
 
-  tick(): void {
-    for (const viewId in this.views) {
-      this.views[viewId].tick();
-    }
-  }
-
-
   /**
    * Clears this Viewer.
    *
    * Destroys all existing {@link View | Views} and resets all properties to their default values.
    */
-  clear(): SDKResult<void, string> {
+  clear(): SDKResult<void> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
@@ -423,7 +441,7 @@ export class Viewer {
    *
    * @param viewerParams
    */
-  fromParams(viewerParams: ViewerParams): SDKResult<void, string> {
+  fromParams(viewerParams: ViewerParams): SDKResult<void> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
@@ -463,7 +481,7 @@ export class Viewer {
   /**
    * Gets the current configuration of this Viewer.
    */
-  toParams(): SDKResult<any, string> {
+  toParams(): SDKResult<any> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
@@ -496,7 +514,7 @@ export class Viewer {
    * @private
    * @param result
    */
-  logError(result: SDKResult<any, string>): SDKResult<any, string> {
+  logError(result: SDKResult<any>): SDKResult<any> {
     if (result.ok === false) {
       if (this.logging) {
         console.error(`[xeokit Viewer] ${result.error}`);
@@ -514,7 +532,6 @@ export class Viewer {
       return;
     }
     this.destroyed = true;
-    scheduler.detachViewer(this);
     for (const id in this.views) {
       this.views[id].destroy();
     }

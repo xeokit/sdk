@@ -1,7 +1,7 @@
 import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";
-import {SDKResult} from "../core";
+import {SDKErrorType, SDKResult} from "../core";
 
 /**
  * Creates a sphere-shaped geometry.
@@ -56,7 +56,7 @@ import {SDKResult} from "../core";
  * - UV coordinates are mapped to the sphere based on the latitude and longitude of each vertex.
  * - Indices are generated to create triangles from the vertices.
  *
- * @returns {SDKResult<GeometryArrays, string>} The geometry data for the sphere, including positions, normals, UVs, and indices for rendering, or an error message.
+ * @returns {SDKResult<GeometryArrays>} The geometry data for the sphere, including positions, normals, UVs, and indices for rendering, or an error message.
  */
 
 export function buildSphereGeometry(cfg: {
@@ -69,19 +69,37 @@ export function buildSphereGeometry(cfg: {
   widthSegments: 18,
   radius: 1,
   center: [0, 0, 0]
-}): SDKResult<GeometryArrays, string> {
-  const centerX = cfg.center ? cfg.center[0] : 0;
-  const centerY = cfg.center ? cfg.center[1] : 0;
-  const centerZ = cfg.center ? cfg.center[2] : 0;
+}): SDKResult<GeometryArrays> {
+
+  const center = cfg.center;
+  if (center && center.length !== 3) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildSphereGeometry] Center must be a 3D point [x, y, z]."
+    };
+  }
+
+  const centerX = center ? center[0] : 0;
+  const centerY = center ? center[1] : 0;
+  const centerZ = center ? center[2] : 0;
 
   let radius = cfg.radius || 1;
   if (radius < 0) {
-    return { ok: false, error: "Negative radius not allowed." };
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildSphereGeometry] Negative radius not allowed."
+    };
   }
 
   let heightSegments = cfg.heightSegments || 18;
   if (heightSegments < 0) {
-    return { ok: false, error: "Negative heightSegments not allowed." };
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildSphereGeometry] Negative heightSegments not allowed."
+    };
   }
   heightSegments = Math.floor(heightSegments);
   if (heightSegments < 18) {
@@ -90,7 +108,11 @@ export function buildSphereGeometry(cfg: {
 
   let widthSegments = cfg.widthSegments || 18;
   if (widthSegments < 0) {
-    return { ok: false, error: "Negative widthSegments not allowed." };
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildSphereGeometry] Negative widthSegments not allowed."
+    };
   }
   widthSegments = Math.floor(widthSegments);
   if (widthSegments < 18) {

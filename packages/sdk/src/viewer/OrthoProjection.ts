@@ -117,7 +117,7 @@ export class OrthoProjection implements Projection {
 
         this.onProjMatrix.dispatch(this, this._projMatrix);
       },
-      phase: SDKTask.ComputePhase
+      stage: SDKTask.ComputeStage
     });
   }
 
@@ -290,7 +290,7 @@ export class OrthoProjection implements Projection {
    *
    * @param orthoProjectionParams
    */
-  fromParams(orthoProjectionParams: OrthoProjectionParams): SDKResult<any, string> {
+  fromParams(orthoProjectionParams: OrthoProjectionParams): SDKResult<any> {
     if (this._destroyed) {
       return this.camera.view.viewer.logError({
         ok: false,
@@ -316,7 +316,7 @@ export class OrthoProjection implements Projection {
   /**
    * Gets the current configuration of this OrthoProjection.
    */
-  toParams(): SDKResult<OrthoProjectionParams, string> {
+  toParams(): SDKResult<OrthoProjectionParams> {
     if (this._destroyed) {
       return this.camera.view.viewer.logError({
         ok: false,

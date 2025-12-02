@@ -51,6 +51,7 @@ export class DTXPointerTable {
     private _handles: Map<number, DTXPointerTableHandle> = new Map();
     private _onMove: Map<number, (newBase: number) => void> = new Map();
     private _nextId = 1;
+    private _numUsedItems = 0;
 
     // upload bookkeeping
     private _dirtyPortions: Set<number> = new Set();
@@ -139,6 +140,7 @@ export class DTXPointerTable {
                 throw new Error(`DTXPointerTable: allocation failed for size=${size}`);
             }
         }
+        this._numUsedItems += size;
         this._packed = false;
         return this._allocAtFreeIndex(idx, size, onMove);
     }
@@ -154,6 +156,7 @@ export class DTXPointerTable {
         this._insertFreeSorted(portion);
         this._coalesceFree();
         this._packed = false;
+        this._numUsedItems -= portion.size;
     }
 
     /** Get a typed view into a portion (Uint32Array view). */

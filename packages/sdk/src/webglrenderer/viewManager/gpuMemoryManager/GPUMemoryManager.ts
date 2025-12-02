@@ -47,7 +47,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   /**
    * Allocates GPU memory for this GPUMemoryManager.
    */
-  public init(): SDKResult<void, string> {
+  public init(): SDKResult<void> {
 
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
@@ -177,7 +177,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * The new batch is added to the  `GPUMemoryEditor.dataTextures.sortedBatches` array.
    * @returns SDKResult containing the index of the new batch, or an error if out of memory.
    */
-  public createBatch(): SDKResult<number, string> {
+  public createBatch(): SDKResult<number> {
     if (this._batches.length >= this._renderContext.memConfigs.maxMeshBatches) {
         return {
             ok: false,
@@ -221,19 +221,25 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param batchIndex
    * @param sceneMesh
    */
-  public addMesh( batchIndex: number, sceneMesh: SceneMesh ): GPUMemoryMeshHandle {
+  public addMesh( batchIndex: number, sceneMesh: SceneMesh ): SDKResult<GPUMemoryMeshHandle> {
     const gpuMemoryBatch = this._batches[batchIndex];
     if (!gpuMemoryBatch) {
       throw new SDKInternalException('[GPUMemoryManager.addMesh] Invalid batch index.');
     }
-    const meshIdx = gpuMemoryBatch?.addMesh(sceneMesh);
+    const meshIdxResult = gpuMemoryBatch?.addMesh(sceneMesh);
+    if (meshIdxResult.ok === false) {
+      return meshIdxResult;
+    }
+    const meshIdx = meshIdxResult.value;
     this._numMeshes++;
-    // console.log("addMesh() Num meshes = " + this._numMeshes);
-    return <GPUMemoryMeshHandle>{
-      meshIndex: meshIdx,
-      gpuMemoryBatchIndex: gpuMemoryBatch.index,
-      numIndices: sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0,
-      numVertices: sceneMesh.geometry.positionsCompressed ? sceneMesh.geometry.positionsCompressed.length / 3 : 0
+    return {
+      ok: true,
+      value: <GPUMemoryMeshHandle>{
+        meshIndex: meshIdx,
+        gpuMemoryBatchIndex: gpuMemoryBatch.index,
+        numIndices: sceneMesh.geometry.indices ? sceneMesh.geometry.indices.length : 0,
+        numVertices: sceneMesh.geometry.positionsCompressed ? sceneMesh.geometry.positionsCompressed.length / 3 : 0
+      }
     };
   }
 

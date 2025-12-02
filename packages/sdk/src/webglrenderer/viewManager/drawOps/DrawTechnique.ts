@@ -108,7 +108,7 @@ export abstract class DrawTechnique {
     /**
      * Initializes this draw technique by building and compiling the shader program.
      */
-    public init(): SDKResult<any, string> {
+    public init(): SDKResult<any> {
 
         if (this._program) {
             const result = this._program.init();
@@ -216,18 +216,18 @@ export abstract class DrawTechnique {
     /**
      * Draws a batch.
      */
-    public drawBatch(meshBatch: MeshBatch, renderPass: RenderPassValue): SDKResult<any, string> {
+    public drawBatch(meshBatch: MeshBatch, renderPass: RenderPassValue): SDKResult<any> {
         return this._draw(meshBatch, renderPass);
     }
 
     /**
      * Draws a specific mesh within a batch.
      */
-    public drawMesh(meshBatch: MeshBatch, meshIndex: number, renderPass: RenderPassValue): SDKResult<any, string> {
+    public drawMesh(meshBatch: MeshBatch, meshIndex: number, renderPass: RenderPassValue): SDKResult<any> {
        return this._draw(meshBatch, renderPass, meshIndex);
     }
 
-    _draw(meshBatch: MeshBatch, renderPass: RenderPassValue, meshIndex?: number): SDKResult<any, string> {
+    _draw(meshBatch: MeshBatch, renderPass: RenderPassValue, meshIndex?: number): SDKResult<any> {
 
         if (!this._program) {
             return {

@@ -70,6 +70,19 @@ export class DTXMatrixArray {
     }
 
   /**
+   * Gets the total capacity in bytes of the matrix array.
+   */
+  getCapacityBytes() : number {
+        return this.maxMatrices * DTXMatrixArray.elementSizeInBytes;
+    }
+
+  /**
+   * Gets the currently allocated bytes based on number of matrices in use.
+   */
+  getAllocatedBytes(): number {
+        return this.numMatrices * DTXMatrixArray.elementSizeInBytes;
+    }
+  /**
    * Allocates the data texture and backing array for matrix storage.
    * Each mat4 takes 4 texels (RGBA32F), and the texture is laid out in rows.
    */

@@ -92,7 +92,7 @@ export class PerspectiveProjection implements Projection {
         this._transposedProjMatrixDirty = true;
         this.onProjMatrix.dispatch(this, this._projMatrix);
       },
-      phase: SDKTask.ComputePhase
+      stage: SDKTask.ComputeStage
     });
   }
 
@@ -286,7 +286,7 @@ export class PerspectiveProjection implements Projection {
    * Sets the state of this PerspectiveParams from the given parameters.
    * @param perspectiveProjectionParams
    */
-  fromParams(perspectiveProjectionParams: PerspectiveProjectionParams): SDKResult<any, string> {
+  fromParams(perspectiveProjectionParams: PerspectiveProjectionParams): SDKResult<any> {
     if (this._destroyed) {
       return this.camera.view.viewer.logError({
         ok: false,
@@ -315,7 +315,7 @@ export class PerspectiveProjection implements Projection {
   /**
    * Gets this PerspectiveProjection as JSON.
    */
-  toParams(): SDKResult<PerspectiveProjectionParams, string> {
+  toParams(): SDKResult<PerspectiveProjectionParams> {
     if (this._destroyed) {
       return this.camera.view.viewer.logError({
         ok: false,

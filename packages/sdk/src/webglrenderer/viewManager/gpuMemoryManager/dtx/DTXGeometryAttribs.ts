@@ -39,6 +39,14 @@ export class DTXGeometryAttribs {
     return 16; // 4 uint32 lanes per uvec4, 4 bytes each
   }
 
+  getCapacityBytes() : number {
+    return this.capacity * DTXGeometryAttribs.elementSizeInBytes;
+  }
+
+  getUsedBytes(): number {
+    return this._dirty.size * DTXGeometryAttribs.elementSizeInBytes;
+  }
+
   allocate(): boolean {
     // Clamp to device limits and keep rows wide to reduce uploads.
     const gl = this._gl;
@@ -90,35 +98,35 @@ export class DTXGeometryAttribs {
   }
 
   /** Read one element (uvec4 as four uint32s). */
-  getItem( index: number ): DTXUvec4 {
-    const b = index * 4;
+  getItem( geometryIndex: number ): DTXUvec4 {
+    const b = geometryIndex * 4;
     return [this.buffer[b], this.buffer[b + 1], this.buffer[b + 2], this.buffer[b + 3]];
   }
 
   /** Write one element directly (uvec4 lanes). */
-  setItem( index: number, lanes: DTXUvec4 ): void {
-    this._assertIndex(index);
-    const b = index * 4;
+  setItem( geometryIndex: number, lanes: DTXUvec4 ): void {
+    this._assertIndex(geometryIndex);
+    const b = geometryIndex * 4;
     this.buffer[b + 0] = lanes[0] >>> 0;
     this.buffer[b + 1] = lanes[1] >>> 0;
     this.buffer[b + 2] = lanes[2] >>> 0;
     this.buffer[b + 3] = lanes[3] >>> 0;
-    this._dirty.add(index);
+    this._dirty.add(geometryIndex);
   }
 
   /** Named lanes convenience for four 32-bit unsigned indices. */
-  setAttribs( meshIndex: number, v: {
+  setAttribs( geometryIndex: number, v: {
     verticesBase?: number;
     indicesBase?: number;
     edgeIndicesBase?: number;
   } ): void {
-    this._assertIndex(meshIndex);
-    const c = meshIndex * 4; // 1x uvec4 per geometry
+    this._assertIndex(geometryIndex);
+    const c = geometryIndex * 4; // 1x uvec4 per geometry
     const toU32 = ( x: number ): number => typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : (x >>> 0);
     if (v.verticesBase !== undefined) this.buffer[c + 0] = toU32(v.verticesBase);
     if (v.indicesBase !== undefined) this.buffer[c + 1] = toU32(v.indicesBase);
     if (v.edgeIndicesBase !== undefined) this.buffer[c + 2] = toU32(v.edgeIndicesBase);
-    this._dirty.add(meshIndex);
+    this._dirty.add(geometryIndex);
   }
 
   /** Upload dirty elements. Groups contiguous indices and splits at row ends. */
@@ -170,14 +178,13 @@ export class DTXGeometryAttribs {
       prev = i;
     }
     if (runStart >= 0) pushRun(runStart, prev);
-
     this._dirty.clear();
     gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
   private _assertIndex( i: number ) {
     if (i < 0 || i >= this.capacity) {
-      throw new RangeError(`DTXUvec4Array: index ${i} out of range [0, ${this.capacity})`);
+      throw new RangeError(`DTXUvec4Array: geometryIndex ${i} out of range [0, ${this.capacity})`);
     }
   }
 

@@ -158,7 +158,7 @@ export class SceneGeometry {
     /**
      * Gets this SceneGeometry as SceneGeometryCompressedParams.
      */
-    toParams(): SDKResult<SceneGeometryCompressedParams, string> {
+    toParams(): SDKResult<SceneGeometryCompressedParams> {
         if (this.destroyed) {
             return this.model.scene.logError({
                 ok: false,
@@ -196,7 +196,7 @@ export class SceneGeometry {
     /**
      * Destroys this SceneGeometry.
      */
-    destroy() : SDKResult<void, string>{
+    destroy() : SDKResult<void>{
         if (this.destroyed) {
             return this.model.scene.logError({
                 ok: false,

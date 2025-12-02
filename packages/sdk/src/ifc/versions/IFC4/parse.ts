@@ -1,5 +1,5 @@
 import * as WebIFC from "web-ifc";
-import { createVec3, identityMat4 } from "../../../matrix";
+import {identityMat4 } from "../../../matrix";
 import { IfcElement, IfcRelAggregates, ifcTypeCodes } from "../../../ifctypes";
 import type { DataModel } from "../../../data";
 import type { ModelParseParams } from "../../../io";
@@ -173,14 +173,19 @@ function parseSceneModel(ctx: ParsingContext): void {
       const geometryId = `${ctx.nextId++}`;
       const meshId = `${ctx.nextId++}`;
 
-      ctx.sceneModel.createGeometry({
+      const geometryResult = ctx.sceneModel.createGeometry({
         id: geometryId,
         primitive: TrianglesPrimitive,
         positions,
         indices,
       });
 
-      ctx.sceneModel.createMesh({
+      if (!geometryResult.ok) {
+        // Error is logged via Scene.events.onError
+        continue;
+      }
+
+      const meshResult = ctx.sceneModel.createMesh({
         id: meshId,
         geometryId,
         matrix,
@@ -191,6 +196,11 @@ function parseSceneModel(ctx: ParsingContext): void {
         ],
         opacity: placedGeometry.color.w,
       });
+
+      if (!meshResult.ok) {
+        // Error is logged via Scene.events.onError
+        continue;
+      }
 
       meshIds.push(meshId);
     }

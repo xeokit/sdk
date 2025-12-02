@@ -42,7 +42,7 @@ export class WebGLShader {
     /**
      * Initializes this shader.
      */
-    init(): SDKResult<any, string> {
+    init(): SDKResult<any> {
 
         const gl = this._glSrc.gl;
 
@@ -105,7 +105,7 @@ export class WebGLShader {
     /**
      * Rebuilds the shader after WebGL context has been restored.
      */
-    webglContextRestored(): SDKResult<any, string> {
+    webglContextRestored(): SDKResult<any> {
 
         if (!this._glSrc.gl || !this._source || !this._type) {
             return {

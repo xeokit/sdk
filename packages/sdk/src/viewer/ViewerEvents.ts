@@ -50,7 +50,7 @@ export class ViewerEvents {
     /**
      * Emits an event each time a message is logged.
      */
-    readonly log: EventEmitter<Viewer, string>;
+    readonly log: EventEmitter<Viewer>;
 
     /**
      * Emits an event each time the number of active processes changes.
@@ -229,7 +229,7 @@ export class ViewerEvents {
         this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
         this.processes = new EventEmitter(new EventDispatcher<Spinner, number>());
         this.zeroProcesses = new EventEmitter(new EventDispatcher<Spinner, number>());
-        this.log = new EventEmitter(new EventDispatcher<Viewer, string>());
+        this.log = new EventEmitter(new EventDispatcher<Viewer>());
         this.onViewCreated = new EventEmitter(new EventDispatcher<Viewer, View>());
         this.onViewUpdated = new EventEmitter(new EventDispatcher<View, View>());
         this.onViewDestroyed = new EventEmitter(new EventDispatcher<Viewer, View>());

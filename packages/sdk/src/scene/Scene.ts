@@ -102,7 +102,7 @@ export class Scene {
    * @returns A {@link SDKResult} containing either the created {@link SceneModel}
    * or an error message.
    */
-  createModel(sceneModelParams: SceneModelParams): SDKResult<SceneModel, string> {
+  createModel(sceneModelParams: SceneModelParams): SDKResult<SceneModel> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
@@ -179,7 +179,7 @@ export class Scene {
    *
    * @returns A {@link SDKResult} indicating success or failure.
    */
-  clear(): SDKResult<void, string> {
+  clear(): SDKResult<void> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
@@ -225,7 +225,7 @@ export class Scene {
    * @returns The same {@link SDKResult} for convenience.
    * @private
    */
-  logError(result: SDKResult<any, string>): SDKResult<any, string> {
+  logError(result: SDKResult<any>): SDKResult<any> {
     if (result.ok === false) {
       if (this.logging) {
         console.error(result.error);

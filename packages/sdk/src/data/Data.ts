@@ -95,7 +95,7 @@ export class Data {
    * @param dataModelParams The parameters for creating the new {@link DataModel | DataModel}.
    * @returns A result containing the created {@link DataModel | DataModel} on success, or an error message on failure.
    */
-  createModel(dataModelParams: DataModelParams): SDKResult<DataModel, string> {
+  createModel(dataModelParams: DataModelParams): SDKResult<DataModel> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
@@ -137,7 +137,7 @@ export class Data {
    * @param type The type of the objects to retrieve.
    * @returns A result containing an array of object IDs on success, or an error message on failure.
    */
-  getObjectIdsByType(type: string): SDKResult<string[], string> {
+  getObjectIdsByType(type: string): SDKResult<string[]> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
@@ -157,7 +157,7 @@ export class Data {
    *
    * @returns A result indicating success or an error message on failure.
    */
-  clear(): SDKResult<void, string> {
+  clear(): SDKResult<void> {
     if (this.destroyed) {
       return this.logError({
         ok: false,
@@ -179,7 +179,7 @@ export class Data {
    * @private
    * @param result
    */
-  logError(result:SDKResult<any,string>) : SDKResult<any, string>{
+  logError(result:SDKResult<any,string>) : SDKResult<any>{
     if (result.ok === false) {
       if (this.logging) {
         console.error(`[xeokit Data] ${result.error}`);
@@ -201,7 +201,7 @@ export class Data {
    *
    * @returns A result indicating success or an error message on failure.
    */
-  destroy(): SDKResult<void, string> {
+  destroy(): SDKResult<void> {
     if (this.destroyed) {
       return this.logError({
         ok: false,

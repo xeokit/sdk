@@ -85,6 +85,13 @@ class EmphasisMaterial {
    * Default is ````[0.4, 0.4, 0.4]````.
    */
   set fillColor(value: FloatArrayParam) {
+    if (!value || value.length < 3) {
+      this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[EmphasisMaterial set fillColor] Invalid color parameter."
+      });
+      }
     const fillColor = this._fillColor;
     if (fillColor[0] === value[0] && fillColor[1] === value[1] && fillColor[2] === value[2]) {
       return;
@@ -158,6 +165,13 @@ class EmphasisMaterial {
    * Default is ```` [0.2, 0.2, 0.2]````.
    */
   set edgeColor(value: FloatArrayParam) {
+    if (!value || value.length < 3) {
+      this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[EmphasisMaterial set edgeColor] Invalid color parameter."
+      });
+    }
     const edgeColor = this._edgeColor;
     if (edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
       return;
@@ -286,7 +300,7 @@ class EmphasisMaterial {
    * Configures this EmphasisMaterial.
    * @param emphasisMaterialParams
    */
-  fromParams(emphasisMaterialParams: EmphasisMaterialParams): SDKResult<any, string> {
+  fromParams(emphasisMaterialParams: EmphasisMaterialParams): SDKResult<any> {
     if (this._destroyed) {
       return this.view.viewer.logError({
         ok: false,
@@ -330,7 +344,7 @@ class EmphasisMaterial {
   /**
    * Gets the current configuration of this EmphasisMaterial.
    */
-  toParams(): SDKResult<EmphasisMaterialParams, never> {
+  toParams(): SDKResult<EmphasisMaterialParams> {
     return {
       ok: true,
       value: {

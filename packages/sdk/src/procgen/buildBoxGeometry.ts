@@ -33,7 +33,7 @@ import {TrianglesPrimitive} from "../constants";
  * @param [cfg.xSize=1.0] Half-size of the box along the X-axis. The default value is `1.0`.
  * @param [cfg.ySize=1.0] Half-size of the box along the Y-axis. The default value is `1.0`.
  * @param [cfg.zSize=1.0] Half-size of the box along the Z-axis. The default value is `1.0`.
- * @returns {SDKResult<GeometryArrays, string>} The geometry arrays for a box, including positions, UVs, and indices, or an error message.
+ * @returns {SDKResult<GeometryArrays>} The geometry arrays for a box, including positions, UVs, and indices, or an error message.
  */
 export function buildBoxGeometry(cfg: {
   center?: number[],
@@ -45,7 +45,17 @@ export function buildBoxGeometry(cfg: {
   xSize: 1,
   ySize: 1,
   zSize: 1
-}): SDKResult<GeometryArrays, string> {
+}): SDKResult<GeometryArrays> {
+
+  const center = cfg.center;
+
+  if (center && center.length !== 3) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "Center must be a 3D point [x, y, z]"
+    };
+  }
 
   const xSize = cfg.xSize || 1;
   if (xSize < 0) {
@@ -74,7 +84,6 @@ export function buildBoxGeometry(cfg: {
     };
   }
 
-  const center = cfg.center;
   const centerX = center ? center[0] : 0;
   const centerY = center ? center[1] : 0;
   const centerZ = center ? center[2] : 0;

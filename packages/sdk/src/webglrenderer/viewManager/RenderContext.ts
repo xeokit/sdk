@@ -4,6 +4,7 @@ import type {FloatArrayParam} from "../../math";
 import {SDKInternalException, SDKErrorType, SDKResult} from "../../core";
 import {WebGLContextProvider} from "../../webglutils/WebGLContextProvider";
 import {GPUMemoryConfigs} from "../GPUMemoryConfigs";
+import {GPUMemoryUsage} from "../GPUMemoryUsage";
 
 
 /**
@@ -22,6 +23,11 @@ export class RenderContext implements WebGLContextProvider {
    * The memory configuration for the WebGLRenderer.
    */
   public memConfigs: GPUMemoryConfigs;
+
+  /**
+   * The GPU memory usage statistics.
+   */
+  public gpuMemoryUsage: GPUMemoryUsage;
 
   /**
    * The WebGL rendering context.
@@ -129,15 +135,19 @@ export class RenderContext implements WebGLContextProvider {
    */
   constructor(memConfigs: GPUMemoryConfigs) {
     this.memConfigs = memConfigs;
+    this.gpuMemoryUsage = {
+      usedMB: 0,
+      allocatedMB: 0
+    };
     this.initialized = false;
   }
 
   /**
    * Initializes this RenderContext.
    * @param viewer
-   * @returns {SDKResult<undefined, string>}
+   * @returns {SDKResult<undefined>}
    */
-  public init( viewer: Viewer ): SDKResult<undefined, string> {
+  public init( viewer: Viewer ): SDKResult<undefined> {
     this.viewer = viewer;
     this.activeView = null;
     const result = this._createCanvasAndGL();
@@ -155,7 +165,7 @@ export class RenderContext implements WebGLContextProvider {
     };
   }
 
-  private _createCanvasAndGL(): SDKResult<{canvas: HTMLCanvasElement; gl: WebGL2RenderingContext}, string> {
+  private _createCanvasAndGL(): SDKResult<{canvas: HTMLCanvasElement; gl: WebGL2RenderingContext}> {
     const canvas = document.createElement("canvas");
     canvas.width = 400;
     canvas.height = 400;

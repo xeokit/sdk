@@ -84,7 +84,7 @@ export class FrustumProjection implements Projection {
         this._transposedProjMatrixDirty = true;
         this.onProjMatrix.dispatch(this, this.projMatrix);
       },
-      phase: SDKTask.ComputePhase
+      stage: SDKTask.ComputeStage
     });
   }
 
@@ -298,7 +298,7 @@ export class FrustumProjection implements Projection {
    *
    * @param frustumProjectionParams
    */
-  fromParams(frustumProjectionParams: FrustumProjectionParams): SDKResult<any, string> {
+  fromParams(frustumProjectionParams: FrustumProjectionParams): SDKResult<any> {
     if (this._destroyed) {
       return this.camera.view.viewer.logError({
         ok: false,
@@ -334,7 +334,7 @@ export class FrustumProjection implements Projection {
   /**
    * Gets the current configuration of this FrustumProjection.
    */
-  toParams(): SDKResult<FrustumProjectionParams, string> {
+  toParams(): SDKResult<FrustumProjectionParams> {
     if (this._destroyed) {
       return this.camera.view.viewer.logError({
         ok: false,

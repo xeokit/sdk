@@ -85,18 +85,20 @@
  * const scene = new Scene();
  * const data = new Data();
  *
- * const renderer = new WebGLRenderer({});
- *
  * const viewer = new Viewer({
- *     id: "myViewer",
- *     scene,
- *     renderer
+ *     scene
  * });
  *
- * const view = viewer.createView({
+ * const renderer = new WebGLRenderer({
+ *   viewer
+ * });
+ *
+ * const viewResult = viewer.createView({
  *     id: "myView",
  *     elementId: "myCanvas" // Ensure this HTMLElement exists in the page
  * });
+ *
+ * const view = viewResult.value;
  *
  * view.camera.eye = [1841982.93, 10.03, -5173286.74];
  * view.camera.look = [1842009.49, 9.68, -5173295.85];
@@ -104,8 +106,11 @@
  *
  * new CameraControl(view, {});
  *
- * const sceneModel = scene.createModel({ id: "myModel" });
- * const dataModel = data.createModel({ id: "myModel" });
+ * const sceneModelResult = scene.createModel({ id: "myModel" });
+ * const sceneModel = sceneModelResult.value;
+ *
+ * const dataModelResult = data.createModel({ id: "myModel" });
+ * const dataModel = dataModelResult.value;
  *
  * const lasLoader = new LASLoader();
  *

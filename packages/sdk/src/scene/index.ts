@@ -138,7 +138,7 @@
  * Next, we'll create a {@link Scene | Scene}:
  *
  * ````javascript
- * const theScene = new Scene();
+ * const scene = new Scene();
  * ````
  *
  * <br>
@@ -159,16 +159,20 @@
  * anything, we would typically use Scene without a Viewer.
  *
  * ````javascript
- * const myViewer = new Viewer({
- *     id: "myViewer",
- *     scene,
- *     renderer: new WebGLRenderer({})
+ * const viewer = new Viewer({
+ *     scene
  * });
  *
- * const view1 = myViewer.createView({
+ * const webglRenderer = new WebGLRenderer({
+ *    viewer
+ * });
+ *
+ * const view1Result = myViewer.createView({
  *     id: "myView",
  *     elementId: "myView1"
  * });
+ *
+ * const view1 = view1Result.value;
  *
  * view1.camera.eye = [0,0,-100];
  * view1.camera.look = [0,0,0];
@@ -191,23 +195,17 @@
  * Our SceneModel now appears in our Viewer and we can interact with it.
  *
  * ````javascript
- * const sceneModel = theScene.createModel({
+ * const sceneModelResult = theScene.createModel({
  *   id: "theModel"
  * });
  *
- * if (sceneModel instanceof SDKError) {
+ * if (!sceneModelResult.ok) {
  *
- *      // Most SDK methods return an SDKError when
- *      // something goes wrong.
- *
- *      // We'll use some SDKErrors in this example
- *      // to demonstrate where we can use them.
- *
- *      console.error(sceneModel.message);
+ *      console.error(sceneModelResult.error);
  *
  * } else {
  *
- *      const geometry = sceneModel.createGeometry({
+ *      const geometryResult = sceneModel.createGeometry({
  *          id: "boxGeometry",
  *          primitive: TrianglesPrimitive,
  *          positions: [ // Floats
@@ -224,11 +222,11 @@
  *          ]
  *      });
  *
- *      if (geometry instanceof SDKError) {
- *          console.error(geometry.message);
+ *      if (!geometryResult.ok) {
+ *          console.error(geometryResult.error);
  *      }
  *
- *      const texture = sceneModel.createTexture({
+ *      sceneModel.createTexture({
  *          id: "colorTexture",
  *          src: "./assets/sample_etc1s.ktx2",
  *          preloadColor: [1, 0, 0, 1],
@@ -241,20 +239,12 @@
  *          wrapT: ClampToEdgeWrapping,
  *      });
  *
- *      if (texture instanceof SDKError) {
- *          console.error(texture.message);
- *      }
- *
- *      const theTextureSet = sceneModel.createTextureSet({
+ *      sceneModel.createTextureSet({
  *          id: "theTextureSet",
  *          colorTextureId: "colorTexture"
  *      });
  *
- *      if (theTextureSet instanceof SDKError) {
- *          console.error(theTextureSet.message);
- *      }
- *
- *      const redLegMesh = sceneModel.addMesh({
+ *      sceneModel.addMesh({
  *          id: "redLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [-4, -6, -4],
@@ -264,11 +254,7 @@
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      if (redLegMesh instanceof SDKError) {
- *          console.error(redLegMesh.message);
- *      }
- *
- *      const greenLegMesh = sceneModel.addMesh({
+ *      sceneModel.addMesh({
  *          id: "greenLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [4, -6, -4],
@@ -278,7 +264,7 @@
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const blueLegMesh = sceneModel.addMesh({
+ *      sceneModel.addMesh({
  *          id: "blueLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [4, -6, 4],
@@ -288,7 +274,7 @@
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const yellowLegMesh = sceneModel.addMesh({
+ *      sceneModel.addMesh({
  *          id: "yellowLegMesh",
  *          geometryId: "boxGeometry",
  *          position: [-4, -6, 4],
@@ -298,7 +284,7 @@
  *          textureSetId: "theTextureSet"
  *      });
  *
- *      const tableTopMesh = sceneModel.addMesh({
+ *      sceneModel.addMesh({
  *          id: "tableTopMesh",
  *          geometryId: "boxGeometry",
  *          position: [0, -3, 0],
@@ -311,31 +297,27 @@
  *      // Create five SceneObjects, each using a SceneMesh.
  *      // A SceneMesh belongs to exactly one SceneObject.
  *
- *      const redLegSceneObject = sceneModel.createObject({
+ *      sceneModel.createObject({
  *          id: "redLegObject",
  *          meshIds: ["redLegMesh"]
  *      });
  *
- *      if (redLegSceneObject instanceof SDKError) {
- *          console.log(redLegSceneObject.message);
- *      }
- *
- *      const greenLegSceneObject = sceneModel.createObject({
+ *      sceneModel.createObject({
  *          id: "greenLegObject",
  *          meshIds: ["greenLegMesh"]
  *      });
  *
- *      const blueLegSceneObject = sceneModel.createObject({
+ *      sceneModel.createObject({
  *          id: "blueLegObject",
  *          meshIds: ["blueLegMesh"]
  *      });
  *
- *      const yellowLegSceneObject = sceneModel.createObject({
+ *      sceneModel.createObject({
  *          id: "yellowLegObject",
  *          meshIds: ["yellowLegMesh"]
  *      });
  *
- *      const tableTopSceneObject = sceneModel.createObject({
+ *      sceneModel.createObject({
  *          id: "tableTopObject",
  *          meshIds: ["tableTopMesh"]
  *      });
@@ -491,22 +473,23 @@
  * ````javascript
  * import {DotBIMLoader} from "@xeokit/sdk/dotbim";
  *
- * const sceneModel2 = scene.createModel({
+ * const sceneModelResult = scene.createModel({
  *     id: "mySceneModel2"
  * });
+ *
+ * const sceneModel = sceneModelResult.value;
  *
  * const dotBIMLoader = new DotBIMLoader();
  *
  * fetch("model.bim")
  *     .then(response => response.json())
  *     .then(fileData => {
- *         dotBIMLoader.load({ fileData, sceneModel, dataModel })
+ *         dotBIMLoader.load({ fileData, sceneModel })
  *             .then(() => {
  *                 // Loaded
  *             })
  *             .catch(err => {
  *                 sceneModel.destroy();
- *                 dataModel.destroy();
  *                 console.error(`Error loading .BIM: ${err}`);
  *             });
  *     })

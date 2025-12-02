@@ -83,14 +83,14 @@ export class SceneAABB3Index {
         this.#objectDirty.add(object.id);
       }),
 
-      scene.onMeshMoved.subscribe((_, mesh) => {
+      SceneEvents.onMeshMoved.subscribe((_, mesh) => {
         this.#meshDirty.add(mesh.id);
         if (mesh.object) {
           this.#objectDirty.add(mesh.object.id);
         }
       }),
 
-      scene.onObjectDestroyed.subscribe((_, object) => {
+      SceneEvents.onObjectDestroyed.subscribe((_, object) => {
         for (const mesh of object.meshes) {
           this.#meshAABBs.delete(mesh.id);
           this.#meshDirty.delete(mesh.id);
@@ -99,7 +99,7 @@ export class SceneAABB3Index {
         this.#objectDirty.delete(object.id);
       }),
 
-      scene.onModelDestroyed.subscribe((_, model) => {
+      SceneEvents.onSceneModelDestroyed.subscribe((_, model) => {
         for (const object of Object.values(model.objects)) {
           for (const mesh of object.meshes) {
             this.#meshAABBs.delete(mesh.id);
@@ -254,7 +254,7 @@ export function getSceneAABBIndex(scene: Scene) {
   let sceneIndex = sceneIndexes[scene.id];
   if (!sceneIndex) {
     sceneIndex = sceneIndexes[scene.id] = new SceneAABB3Index(scene);
-    scene.onDestroyed.sub((scene, _) => {
+    SceneEvents.onDestroyed.sub((scene, _) => {
       sceneIndex.destroy();
       delete sceneIndexes[scene.id];
     });

@@ -40,7 +40,6 @@ import {PickController} from "./PickController";
 import {PivotController} from "./PivotController";
 import {TouchPanRotateAndDollyHandler} from "./TouchPanRotateAndDollyHandler";
 import {TouchPickHandler} from "./TouchPickHandler";
-import {SceneAABB3Index} from "../aabb/SceneAABB3Index";
 
 
 const DEFAULT_SNAP_PICK_RADIUS = 30;

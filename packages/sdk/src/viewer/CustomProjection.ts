@@ -144,7 +144,7 @@ class CustomProjection implements Projection {
      * Configures this CustomProjection.
      * @param customProjectionParams
      */
-    fromParams(customProjectionParams: CustomProjectionParams): SDKResult<any, string> {
+    fromParams(customProjectionParams: CustomProjectionParams): SDKResult<any> {
         if (this._destroyed) {
             return this.camera.view.viewer.logError({
                 ok: false,
@@ -164,7 +164,7 @@ class CustomProjection implements Projection {
     /**
      * Gets the current configuration of this CustomProjection.
      */
-    toParams(): SDKResult<CustomProjectionParams, string> {
+    toParams(): SDKResult<CustomProjectionParams> {
       if (this._destroyed) {
         return this.camera.view.viewer.logError({
           ok: false,

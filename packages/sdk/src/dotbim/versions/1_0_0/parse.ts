@@ -22,7 +22,7 @@ export const parse: ModelParser = async (params, options) => {
           });
 
           if (!geometryRes.ok) {
-            // params.error(`[SceneModel.createGeometry]: ${geometryRes.error}`);
+           // Error is logged via Scene.events.onError
           }
         }
       }
@@ -61,7 +61,7 @@ export const parse: ModelParser = async (params, options) => {
           });
 
           if (!meshRes.ok) {
-            // params.error(`[SceneModel.createMesh]: ${meshRes.error}`);
+            // Error is logged via Scene.events.onError
             continue;
           }
 
@@ -71,7 +71,7 @@ export const parse: ModelParser = async (params, options) => {
           });
 
           if (!sceneObjectRes.ok) {
-            // params.error(`[SceneModel.createObject]: ${sceneObjectRes.error}`);
+            // Error is logged via Scene.events.onError
             continue;
           }
         }
@@ -86,7 +86,7 @@ export const parse: ModelParser = async (params, options) => {
             });
 
             if (!dataObjectRes.ok) {
-              // params.error(`[DataModel.createObject]: ${dataObjectRes.error}`);
+             // Error is logged via Data.events.onError
             }
           }
         }

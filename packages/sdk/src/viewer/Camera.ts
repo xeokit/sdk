@@ -375,7 +375,7 @@ class Camera {
 
         this.view.needsRender();
       },
-      phase: SDKTask.ComputePhase
+      stage: SDKTask.ComputeStage
     });
   }
 
@@ -627,7 +627,7 @@ class Camera {
     // @ts-ignore
     this._activeProjection.clean();
     this._projectionType = value;
-    this._buildViewMatrixTask.clean();
+    this._buildViewMatrixTask.schedule();
     const events = this.view.viewer.events;
     events.onCameraProjectionTypeChanged.dispatch(this.view, this);
     events.onCameraProjMatrixUpdated.dispatch(this.view, this);
@@ -752,7 +752,7 @@ class Camera {
   /**
    * Gets the configuration of this Camera.
    */
-  toParams(): SDKResult<CameraParams, string> {
+  toParams(): SDKResult<CameraParams> {
     if (this._destroyed) {
       return this.view.viewer.logError({
         ok: false,
@@ -782,7 +782,7 @@ class Camera {
    * Configures this Camera.
    * @param cameraParams
    */
-  fromParams(cameraParams: CameraParams): SDKResult<any, string> {
+  fromParams(cameraParams: CameraParams): SDKResult<any> {
     if (this._destroyed) {
       return this.view.viewer.logError({
         ok: false,

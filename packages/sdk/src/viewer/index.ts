@@ -132,17 +132,14 @@
  * Create a {@link Viewer | Viewer} to view our Scene.
  *
  * Our Viewer gets a {@link webglrenderer!WebGLRenderer | WebGLRenderer}, which adapts it to use the browser's WebGL graphics API.
- * We'll also equip our WebGLRenderer with a {@link ktx2!KTX2TextureTranscoder | KTX2TextureTranscoder}, in case we need to view compressed textures.
  *
  * ````javascript
- * const myViewer = new Viewer({
- *     id: "myViewer",
- *     scene,
- *     renderer: new WebGLRenderer({
- *          textureTranscoder: new KTX2TextureTranscoder({  // Optional, this is the default
- *              transcoderPath: "./../dist/basis/" // Optional, defaults to CDN
- *          })
- *      })
+ * const viewer = new Viewer({
+ *    scene
+ * });
+ *
+ * const renderer = new WebGLRenderer({
+ *   viewer
  * });
  * ````
  *
@@ -156,10 +153,12 @@
  * Within our Viewer, we'll create a {@link View | View} and arrange its Camera:
  *
  * ````javascript
- * const view1 = myViewer.createView({
+ * const view1Result = viewer.createView({
  *     id: "myView",
  *     elementId: "myView1"
  * });
+ *
+ * const view1 = view1Result.value;
  * ````
  *
  * <br>
@@ -207,7 +206,7 @@
  * touch input:
  *
  * ````javascript
- * const myCameraControl = new CameraControl({
+ * const cameraControl = new CameraControl({
  *      view: view1
  * });
  * ````
@@ -257,7 +256,8 @@
  * new objects will now appear in the View's canvas to represent them.
  *
  * ````javascript
- * const sceneModel = scene.createModel();
+ * const sceneModelResult = scene.createModel();
+ * const sceneModel = sceneModelResult.value;
  *
  * sceneModel.createGeometry({
  *      id: "myGeometry",
@@ -375,21 +375,6 @@
  *
  * ````javascript
  * const colorizedObjectIds = view1.colorizedObjectIds;
- * ````
- *
- * <br>
- *
- * ## Object Boundary Queries
- *
- * A View monitors the 3D world-space boundaries of objects, allowing efficient runtime queries for tasks such as
- * collision detection, visibility culling, and camera navigation.
- *
- * You can access an object's boundary at any time:
- *
- * ````javascript
- * const viewObject1 = view1.objects["myObject1"]; // ViewObject
- *
- * const aabb1 = viewObject1.aabb; // [xmin, ymin, zmin, xmax, ymax, zmax]
  * ````
  *
  * <br>
@@ -515,16 +500,18 @@
  * Let's create a second View, with a separate canvas, that shows the other object highlighted instead:
  *
  * ```` javascript
- * const view2 = myViewer.createView({
+ * const view2Result = viewer.createView({
  *      id: "myView2",
  *      elementId: "myView2"
  * });
+ *
+ * const view2 = view2Result.value;
  *
  * view2.camera.eye = [-3.933, 2.855, 27.018];
  * view2.camera.look = [4.400, 3.724, 8.899];
  * view2.camera.up = [-0.018, 0.999, 0.039];
  *
- * const myCameraControl2 = new CameraControl({
+ * const cameraControl2 = new CameraControl({
  *      view: view2
  * });
  *
@@ -550,7 +537,7 @@
  * Let's add a ViewLayer to our {@link View}, to hold environmental objects, like sky boxes, that are not part of any model.
  *
  * ````javascript
- * const environmentViewLayer = view.createLayer({
+ * view.createLayer({
  *     id: "myEnvironmentViewLayer"
  * });
  * ````
@@ -558,10 +545,12 @@
  * Now we'll create a SceneModel for our skybox in that ViewLayer:
  *
  * ````javascript
- * const skyboxSceneModel = myVScene.createModel({
+ * const skyboxSceneModelResult = myVScene.createModel({
  *      id: "mySkyBox",
  *      layerId: "myEnvironmentViewLayer"
  * });
+ *
+ * const skyboxSceneModel = skyboxSceneModelResult.value;
  *
  * skyboxSceneModel.createObject({
  *      id: "skyBox",
@@ -585,9 +574,11 @@
  * load a house model into it from .BIM format.
  *
  * ````javascript
- * const sceneModel2 = scene.createModel({
+ * const sceneModel2Result = scene.createModel({
  *     id: "houseModel"
  * });
+ *
+ * const sceneModel2 = sceneModel2Result.value;
  *
  * fetch(`model.bim`)
  *     .then(response => {
@@ -597,7 +588,7 @@
  *
  *                  DotBIMLoader({
  *                     fileData,
- *                     sceneModel2
+ *                     sceneModel: sceneModel2
  *                 })
  *                 .then(()=>{
  *                     // Loaded
@@ -622,14 +613,16 @@
  * Lets use {@link dotbim!DotBIMExporter} to export our house model back to a .BIM file.
  *
  * ````javascript
- * const xktFileData = saveXKT({
- *      sceneModel
+ * const dotBIMFileData = saveDotBIM({
+ *      sceneModel: sceneModel2
  * });
  * ````
  *
  * <br>
  *
  * ## Capturing Canvas Snapshots
+ *
+ * TODO: Outdated section - needs updating.
  *
  * Let's use {!link View.getSnapshot | View.getSnapshot} to capture a snapshot image of the
  * canvas to a {@link SnapshotResult}, while including UI elements ({@link treeview!TreeView | TreeView} etc) in the snapshot.
@@ -706,10 +699,16 @@
  * In this example, we’ll exclude the states of the ViewObjects in the skybox or environment ViewLayer when saving the viewpoint:
  *
  * ```javascript
- * const bcfViewpoint = saveBCFViewpoint({
+ * const bcfViewpointResult = saveBCFViewpoint({
  *    view,
  *    excludeViewLayerIds: ["myEnvironmentViewLayer"]
  * });
+ *
+ * if (!bcfViewpointResult.ok) {
+ *    console.log("Error saving BCF viewpoint:", bcfViewpointResult.error);
+ * }
+ *
+ * const bcfViewpoint = bcfViewpointResult.value;
  * ```
  *
  * To reload the saved BCF viewpoint back into the View, we use {@link bcf!loadBCFViewpoint | loadBCFViewpoint}. Even
@@ -717,11 +716,15 @@
  * to ensure they are not loaded:
  *
  * ```javascript
- * loadBCFViewpoint({
+ * const loadBCFResult = loadBCFViewpoint({
  *    bcfViewpoint,
  *    view,
  *    excludeViewLayerIds: ["myEnvironmentViewLayer"]
  * });
+ *
+ * if (!loadBCFResult.ok) {
+ *    console.log("Error loading BCF viewpoint:", loadBCFResult.error);
+ * }
  * ```
  * <br>
  *
@@ -733,7 +736,8 @@
  * into a {@link ViewerParams} object, which can then be saved as JSON.
  *
  * ````javascript
- * const viewerParams = viewer.toParams();
+ * const viewerParamsResult = viewer.toParams();
+ * const viewerParams = viewerParamsResult.value;
  * ````
  *
  * Now let's create a second Viewer and configure it using {@link viewer!Viewer.fromParams | Viewer.fromParams} with the
@@ -742,12 +746,19 @@
  *
  * ````javascript
  * const viewer2 = new Viewer({
- *     id: "myViewer2",
- *     scene: new Scene(), // Must have own Scene
- *     renderer: new WebGLRenderer() // Must have own WebGLRenderer
+ *    scene: new Scene() // Could also be the same Scene as viewer1
  * });
  *
- * viewer2.fromParams(viewerParams);
+ *
+ * const renderer2 =  new WebGLRenderer({
+ *   viewer: viewer2
+ * });
+ *
+ * const fromParamsResult = viewer2.fromParams(viewerParams);
+ *
+ * if (!fromParamsResult.ok) {
+ *    console.error("Error loading ViewerParams:", fromParamsResult.error);
+ * }
  * ````
  *
  * A ViewerParams object contains parameter objects for various components within a Viewer, such as Views, Lights, Cameras, ViewLayers, and more. If the components do
@@ -758,7 +769,8 @@
  * {@link ViewParams} object between two Views:
  *
  * ````javascript
- * const viewParams = viewer.views["myView"].toParams();
+ * const viewParamsResult = viewer.views["myView"].toParams();
+ * const viewParams = viewParamsResult.value;
  *
  * viewer2.views["myView"].fromParams(viewParams);
  * ````
@@ -768,7 +780,8 @@
  * To go deeper, let's copy a {@link CameraParams} object between the Cameras of two Views:
  *
  * ````javascript
- * const cameraParams = viewer.views["myView"].camera.toParams();
+ * const cameraParamsResult = viewer.views["myView"].camera.toParams();
+ * const cameraParams = cameraParamsResult.value;
  *
  * viewer2.views["myView"].camera.fromParams(cameraParams);
  * ````
@@ -776,7 +789,8 @@
  * Delving further, let's exchange a {@link PerspectiveProjectionParams} object between the {@link PerspectiveProjection | PerspectiveProjections} of two Cameras:
  *
  * ````javascript
- * const perspectiveProjectionParams = viewer.views["myView"].camera.perspective.toParams();
+ * const perspectiveProjectionParamsResult = viewer.views["myView"].camera.perspective.toParams();
+ * const perspectiveProjectionParams = perspectiveProjectionParamsResult.value;
  *
  * viewer2.views["myView"].camera.perspective.fromParams(perspectiveProjectionParams);
  * ````
@@ -784,7 +798,8 @@
  * We can even transfer configurations for rendering effects, such as X-Ray mode:
  *
  * ````javascript
- * const xrayMaterialParams = viewer.views["myView"].xrayMaterial.toParams();
+ * const xrayMaterialParamsResult = viewer.views["myView"].xrayMaterial.toParams();
+ * const xrayMaterialParams = xrayMaterialParamsResult.value;
  *
  * viewer2.views["myView"].xrayMaterial.fromParams(xrayMaterialParams);
  * ````

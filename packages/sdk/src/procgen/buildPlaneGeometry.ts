@@ -34,7 +34,7 @@ import {SDKErrorType, SDKResult} from "../core";
  * @param [cfg.zSize=1] The depth of the plane along the Z-axis. Default is `1`.
  * @param [cfg.xSegments=1] The number of segments along the X-axis. Default is `1`.
  * @param [cfg.zSegments=1] The number of segments along the Z-axis. Default is `1`.
- * @returns {SDKResult<GeometryArrays, string>} The geometry arrays for the plane, including positions, normals, UVs, and indices, or an error message.
+ * @returns {SDKResult<GeometryArrays>} The geometry arrays for the plane, including positions, normals, UVs, and indices, or an error message.
  */
 export function buildPlaneGeometry(cfg = {
   xSize: 1,
@@ -42,13 +42,13 @@ export function buildPlaneGeometry(cfg = {
   xSegments: 1,
   zSegments: 1,
   center: [0, 0, 0]
-}): SDKResult<GeometryArrays, string> {
+}): SDKResult<GeometryArrays> {
   let xSize = cfg.xSize || 1;
   if (xSize < 0) {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "Negative xSize not allowed."
+      error: "[buildPlaneGeometry] Negative xSize not allowed."
     };
   }
 
@@ -57,7 +57,7 @@ export function buildPlaneGeometry(cfg = {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "Negative zSize not allowed."
+      error: "[buildPlaneGeometry] Negative zSize not allowed."
     };
   }
 
@@ -66,7 +66,7 @@ export function buildPlaneGeometry(cfg = {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "xSegments must be at least 1."
+      error: "[buildPlaneGeometry] xSegments must be at least 1."
     };
   }
 
@@ -75,11 +75,20 @@ export function buildPlaneGeometry(cfg = {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "zSegments must be at least 1."
+      error: "[buildPlaneGeometry] zSegments must be at least 1."
     };
   }
 
   const center = cfg.center;
+
+  if (center && center.length !== 3) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildPlaneGeometry] Center must be a 3D point [x, y, z]."
+    };
+  }
+
   const centerX = center ? center[0] : 0;
   const centerY = center ? center[1] : 0;
   const centerZ = center ? center[2] : 0;

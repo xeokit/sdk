@@ -1,7 +1,7 @@
 import {EventEmitter, SDKErrorType, SDKResult, SDKTask,} from "../core";
 import {FastRender, QualityRender} from "../constants";
 import type {FloatArrayParam, IntArrayParam} from "../math";
-import type {Scene, SceneObject} from "../scene";
+import type {SceneObject} from "../scene";
 import {AmbientLight} from "./AmbientLight";
 import {Camera} from "./Camera";
 import {createUUID} from "../utils";
@@ -225,8 +225,6 @@ class View {
    * Each {@link ViewLayer} is mapped here by {@link ViewLayer.id}.
    */
   readonly layers: { [key: string]: ViewLayer };
-
-  _onTick: () => void;
 
   /**
    * Emits an event each time the canvas boundary changes.
@@ -545,8 +543,8 @@ class View {
     this._viewResizeTask = new SDKTask({
       name: "View._viewResizeTask",
       task: handleResize,
-      phase: SDKTask.CollectInputPhase,
-      persistent: true
+      stage: SDKTask.CollectInputStage,
+      repeat: true
     });
 
     // Handle rendering on each tick, if needed
@@ -558,7 +556,7 @@ class View {
           this._needsRender = false;
         }
       },
-      phase: SDKTask.RenderPhase
+      stage: SDKTask.RenderStage
     });
   }
 
@@ -700,7 +698,7 @@ class View {
       this.viewer.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[View.renderMode] View already destroyed"
+        error: "[View set renderMode] View already destroyed"
       });
       return;
     }
@@ -736,11 +734,19 @@ class View {
       this.viewer.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[View.backgroundColor] View already destroyed"
+        error: "[View set backgroundColor] View already destroyed"
       });
       return;
     }
     if (value) {
+      if (value.length < 3) {
+        this.viewer.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[View set backgroundColor] Expected FloatArrayParam with at least 3 elements"
+        });
+        return;
+      }
       this._backgroundColor[0] = value[0];
       this._backgroundColor[1] = value[1];
       this._backgroundColor[2] = value[2];
@@ -1068,7 +1074,7 @@ class View {
    * @returns A result containing the created {@link SectionPlane} on success,
    * or an error message on failure.
    */
-  createSectionPlane(sectionPlaneParams: SectionPlaneParams): SDKResult<SectionPlane, string> {
+  createSectionPlane(sectionPlaneParams: SectionPlaneParams): SDKResult<SectionPlane> {
     if (this.destroyed) {
       this.viewer.logError({
         ok: false,
@@ -1560,7 +1566,7 @@ class View {
    * @param viewLayerParams - Configuration parameters for the new {@link ViewLayer}.
    * @returns A result containing the created {@link ViewLayer} on success, or an error message on failure.
    */
-  createLayer(viewLayerParams: ViewLayerParams): SDKResult<ViewLayer, string> {
+  createLayer(viewLayerParams: ViewLayerParams): SDKResult<ViewLayer> {
     if (!viewLayerParams.id) {
       return this.viewer.logError({
         ok: false,
@@ -1631,7 +1637,7 @@ class View {
    * Sets the state of this View.
    * @param viewParams
    */
-  fromParams(viewParams: ViewParams): SDKResult<any, string> {
+  fromParams(viewParams: ViewParams): SDKResult<any> {
     if (this.destroyed) {
       return this.viewer.logError({
         ok: false,
@@ -1719,7 +1725,7 @@ class View {
   /**
    * Gets this View as JSON.
    */
-  toParams(): SDKResult<ViewParams, string> {
+  toParams(): SDKResult<ViewParams> {
     return {
       ok: true,
       value: {
@@ -1757,7 +1763,6 @@ class View {
     }
     this._viewResizeTask.destroy();
     this._renderTask.destroy();
-    this.viewer.events.onTick.unsubscribe(this._onTick);
     this._destroyViewLayers();
     this._destroyViewObjects();
     this.viewer._destroyView(this);

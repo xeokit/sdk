@@ -101,6 +101,14 @@ export class SceneMesh {
       });
       return;
     }
+    if (!value || value.length < 3){
+      this.model.scene.logError( {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneMesh.color] Invalid color for SceneMesh ${this.id}`
+      });
+      return;
+    }
     let color = this._color;
     if (!color) {
       color = this._color = new Float32Array(4);
@@ -131,6 +139,14 @@ export class SceneMesh {
         ok: false,
         type: SDKErrorType.InvalidOperation,
         error: `[SceneMesh.matrix] Cannot set matrix on destroyed SceneMesh ${this.id}`
+      });
+      return;
+    }
+    if (!matrix || matrix.length !== 16) {
+      this.model.scene.logError( {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneMesh.matrix] Invalid matrix for SceneMesh ${this.id}`
       });
       return;
     }
@@ -293,7 +309,7 @@ export class SceneMesh {
   /**
    * Gets this SceneMesh as SceneMeshParams.
    */
-  toParams(): SDKResult<SceneMeshParams, string> {
+  toParams(): SDKResult<SceneMeshParams> {
     if (this.destroyed) {
       return this.model.scene.logError({
         ok: false,
@@ -325,7 +341,7 @@ export class SceneMesh {
   /**
    * Destroys this SceneMesh.
    */
-  destroy(): SDKResult<void, string>  {
+  destroy(): SDKResult<void>  {
     if (this.destroyed) {
       return this.model.scene.logError({
         ok: false,

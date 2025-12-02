@@ -27,7 +27,7 @@ import {SDKErrorType, SDKResult} from "../core";
  * @param [cfg.xSize=1.0] Half-size of the box along the X-axis. The default value is `1.0`.
  * @param [cfg.ySize=1.0] Half-size of the box along the Y-axis. The default value is `1.0`.
  * @param [cfg.zSize=1.0] Half-size of the box along the Z-axis. The default value is `1.0`.
- * @returns {SDKResult<GeometryArrays, string>} The geometry arrays for a box wireframe, including positions and indices, or an error message.
+ * @returns {SDKResult<GeometryArrays>} The geometry arrays for a box wireframe, including positions and indices, or an error message.
  */
 export function buildBoxLinesGeometry(cfg: {
   center?: FloatArrayParam,
@@ -39,14 +39,24 @@ export function buildBoxLinesGeometry(cfg: {
   xSize: 1,
   ySize: 1,
   zSize: 1
-}): SDKResult<GeometryArrays, string> {
+}): SDKResult<GeometryArrays> {
+
+  const center = cfg.center;
+
+  if (center && center.length !== 3) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildBoxLinesGeometry] Center must be a 3D point [x, y, z]."
+    };
+  }
 
   const xSize = cfg.xSize || 1;
   if (xSize < 0) {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "Negative xSize not allowed"
+      error: "[buildBoxLinesGeometry] Negative xSize not allowed."
     };
   }
 
@@ -55,7 +65,7 @@ export function buildBoxLinesGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "Negative ySize not allowed"
+      error: "[buildBoxLinesGeometry] Negative ySize not allowed."
     };
   }
 
@@ -64,11 +74,10 @@ export function buildBoxLinesGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "Negative zSize not allowed"
+      error: "[buildBoxLinesGeometry] Negative zSize not allowed."
     };
   }
 
-  const center = cfg.center;
   const centerX = center ? center[0] : 0;
   const centerY = center ? center[1] : 0;
   const centerZ = center ? center[2] : 0;

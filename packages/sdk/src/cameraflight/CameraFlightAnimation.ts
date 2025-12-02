@@ -1,7 +1,16 @@
-import {addVec3, createVec3, lenVec3, lerpMat4, lerpVec3, mulVec3Scalar, normalizeVec3, subVec3} from "../matrix";
+import {
+  addVec3,
+  createVec3,
+  lenVec3,
+  lerpMat4,
+  lerpVec3,
+  mulVec3Scalar,
+  normalizeVec3,
+  subVec3
+} from "../matrix";
 import type {Camera} from "../viewer";
-import {scheduler, View} from "../viewer";
-import {Component, EventEmitter} from "../core";
+import { View} from "../viewer";
+import {EventEmitter, SDKTask} from "../core";
 import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} from "../constants";
 import {DEGTORAD, type FloatArrayParam} from "../math";
 import {getAABB3Center, getAABB3Diag, getAABB3DiagPoint} from "../boundaries";
@@ -116,6 +125,8 @@ export class CameraFlightAnimation {
   _projMatrix1: FloatArrayParam;
   _projMatrix2: FloatArrayParam;
 
+  private _animationTask: SDKTask;
+
   /**
    * Fires when the camera animation starts.
    */
@@ -176,6 +187,52 @@ export class CameraFlightAnimation {
     this.onStarted = new EventEmitter(new EventDispatcher<CameraFlightAnimation, null>());
     this.onStopped = new EventEmitter(new EventDispatcher<CameraFlightAnimation, null>());
     this.onCancelled = new EventEmitter(new EventDispatcher<CameraFlightAnimation, null>());
+
+    this._animationTask = new SDKTask({
+      name: "CameraFlightAnimation._update",
+      task: () => {
+          if (!this._flying) {
+            return;
+          }
+          const time = Date.now();
+          // @ts-ignore
+          let t = (time - this._time1) / (this._time2 - this._time1);
+          const stopping = (t >= 1);
+          if (t > 1) {
+            t = 1;
+          }
+          const tFlight = this.easing ? CameraFlightAnimation._ease(t, 0, 1, 1) : t;
+          const camera = this.camera;
+          if (this._flyingEye || this._flyingLook) {
+            if (this._flyingEye) {
+              subVec3(camera.eye, camera.look, newLookEyeVec);
+              camera.eye = lerpVec3(tFlight, 0, 1, this._eye1, this._eye2, newEye);
+              camera.look = subVec3(newEye, newLookEyeVec, newLook);
+            } else if (this._flyingLook) {
+              camera.look = lerpVec3(tFlight, 0, 1, this._look1, this._look2, newLook);
+              camera.up = lerpVec3(tFlight, 0, 1, this._up1, this._up2, newUp);
+            }
+          } else if (this._flyingEyeLookUp) {
+            camera.eye = lerpVec3(tFlight, 0, 1, this._eye1, this._eye2, newEye);
+            camera.look = lerpVec3(tFlight, 0, 1, this._look1, this._look2, newLook);
+            camera.up = lerpVec3(tFlight, 0, 1, this._up1, this._up2, newUp);
+          }
+          if (this._projection2) {
+            const tProj = (this._projection2 === OrthoProjectionType) ? CameraFlightAnimation._easeOutExpo(t, 0, 1, 1) : CameraFlightAnimation._easeInCubic(t, 0, 1, 1);
+            camera.customProjection.projMatrix = lerpMat4(tProj, 0, 1, this._projMatrix1, this._projMatrix2);
+
+          } else {
+            camera.orthoProjection.scale = this._orthoScale1 + (t * (this._orthoScale2 - this._orthoScale1));
+          }
+          if (stopping) {
+            camera.orthoProjection.scale = this._orthoScale2;
+            this.stop();
+            return;
+          }
+          this._animationTask.schedule();
+      },
+      stage: SDKTask.CollectInputStage
+    });
   }
 
   /**
@@ -339,7 +396,7 @@ export class CameraFlightAnimation {
 
     this._flying = true; // False as soon as we stop
 
-    scheduler.scheduleTask(this._update, this);
+    this._animationTask.schedule();
   }
 
   /**
@@ -431,56 +488,6 @@ export class CameraFlightAnimation {
     }
   }
 
-  _update() {
-    if (!this._flying) {
-      return;
-    }
-    const time = Date.now();
-    // @ts-ignore
-    let t = (time - this._time1) / (this._time2 - this._time1);
-    const stopping = (t >= 1);
-
-    if (t > 1) {
-      t = 1;
-    }
-
-    const tFlight = this.easing ? CameraFlightAnimation._ease(t, 0, 1, 1) : t;
-    const camera = this.camera;
-
-    if (this._flyingEye || this._flyingLook) {
-
-      if (this._flyingEye) {
-        subVec3(camera.eye, camera.look, newLookEyeVec);
-        camera.eye = lerpVec3(tFlight, 0, 1, this._eye1, this._eye2, newEye);
-        camera.look = subVec3(newEye, newLookEyeVec, newLook);
-      } else if (this._flyingLook) {
-        camera.look = lerpVec3(tFlight, 0, 1, this._look1, this._look2, newLook);
-        camera.up = lerpVec3(tFlight, 0, 1, this._up1, this._up2, newUp);
-      }
-
-    } else if (this._flyingEyeLookUp) {
-
-      camera.eye = lerpVec3(tFlight, 0, 1, this._eye1, this._eye2, newEye);
-      camera.look = lerpVec3(tFlight, 0, 1, this._look1, this._look2, newLook);
-      camera.up = lerpVec3(tFlight, 0, 1, this._up1, this._up2, newUp);
-    }
-
-    if (this._projection2) {
-      const tProj = (this._projection2 === OrthoProjectionType) ? CameraFlightAnimation._easeOutExpo(t, 0, 1, 1) : CameraFlightAnimation._easeInCubic(t, 0, 1, 1);
-      camera.customProjection.projMatrix = lerpMat4(tProj, 0, 1, this._projMatrix1, this._projMatrix2);
-
-    } else {
-      camera.orthoProjection.scale = this._orthoScale1 + (t * (this._orthoScale2 - this._orthoScale1));
-    }
-
-    if (stopping) {
-      camera.orthoProjection.scale = this._orthoScale2;
-      this.stop();
-      return;
-    }
-    scheduler.scheduleTask(this._update, this); // Keep flying
-  }
-
   static _ease(t: number, b: number, c: number, d: number) { // Quadratic easing out - decelerating to zero velocity http://gizma.com/easing
     t /= d;
     return -c * t * (t - 2) + b;
@@ -502,6 +509,7 @@ export class CameraFlightAnimation {
     if (!this._flying) {
       return;
     }
+    this._animationTask.unschedule();
     this._flying = false;
     this._time1 = null;
     this._time2 = null;
@@ -523,6 +531,7 @@ export class CameraFlightAnimation {
     if (!this._flying) {
       return;
     }
+    this._animationTask.unschedule();
     this._flying = false;
     this._time1 = null;
     this._time2 = null;
@@ -622,6 +631,7 @@ export class CameraFlightAnimation {
    */
   destroy() {
     this.stop();
+    this._animationTask.destroy();
     this.onStarted.clear();
     this.onStopped.clear();
     this.onCancelled.clear();

@@ -51,6 +51,7 @@ export class DTXPositionsArray {
   private free: DTXPositionsArrayPortion[] = [];
   private portionCallbacks: Map<number, ( newBase: number ) => void> = new Map();
 
+  private numUsedElements = 0;
   private nextId = 1;
   private dirtyPortions: Set<number> = new Set();
   private textureHeight: number;
@@ -98,6 +99,21 @@ export class DTXPositionsArray {
     return true;
   }
 
+  /**
+   * Returns the total number of bytes allocated.
+   */
+  getCapacityBytes() {
+    return this.capacity * DTXPositionsArray.elementSizeInBytes;
+  }
+
+  /**
+   * Returns the total number of bytes currently used.
+   */
+  getUsedBytes(): number {
+    return this.numUsedElements * DTXPositionsArray.elementSizeInBytes;
+  }
+
+
   /** Check if a portion of given size (in items/vertices) can be allocated. */
   canGetPortion( size: number ): boolean {
     if (size <= 0 || size > this.capacity) {
@@ -110,19 +126,24 @@ export class DTXPositionsArray {
     return this.findFreeBlock(size) !== -1;
   }
 
-  /** Allocate a portion (in items/vertices). */
+  /**
+   * Allocate a portion (in items/vertices).
+   * Returns null if allocation fails.
+   */
 
-  getPortion( size: number, onMove?: ( newBase: number ) => void ): DTXPositionsArrayHandle {
+  getPortion( size: number, onMove?: ( newBase: number ) => void ): DTXPositionsArrayHandle | null{
     this.isPacked = false;
     const index = this.findFreeBlock(size);
     if (index === -1) {
       this.pack();
       const retryIndex = this.findFreeBlock(size);
       if (retryIndex === -1) {
-        throw new Error("Allocation failed");
+        return null;
       }
+      this.numUsedElements += size;
       return this.allocateHandleAt(retryIndex, size, onMove);
     }
+    this.numUsedElements += size;
     return this.allocateHandleAt(index, size, onMove);
   }
 
@@ -130,7 +151,7 @@ export class DTXPositionsArray {
   getPortionView( handle: DTXPositionsArrayHandle ): Uint16Array<any> {
     const portion = this.used.get(handle.id);
     if (!portion) {
-      throw new Error("Invalid handle ID");
+      throw new SDKInternalException("Invalid handle ID");
     }
     return this.buffer.subarray(
       portion.base * this.componentsPerItem,
@@ -142,7 +163,7 @@ export class DTXPositionsArray {
   setPortionData( handle: DTXPositionsArrayHandle, data: ArrayLike<number> ): void {
     const portion = this.used.get(handle.id);
     if (!portion) {
-      throw new Error('Invalid handle ID');
+      throw new SDKInternalException('Invalid handle ID');
     }
     //  const expected = portion.size * this.componentsPerItem; // RGB per item
     const expected = portion.size; // RGB per item
@@ -158,7 +179,7 @@ export class DTXPositionsArray {
   fillPortion( handle: DTXPositionsArrayHandle, value: number ): void {
     const portion = this.used.get(handle.id);
     if (!portion) {
-      throw new Error("Invalid handle ID");
+      throw new SDKInternalException("Invalid handle ID");
     }
     const offset = portion.base * this.componentsPerItem;
     const count = portion.size * this.componentsPerItem;
@@ -172,6 +193,7 @@ export class DTXPositionsArray {
     if (!portion) {
       return;
     }
+    this.numUsedElements -= portion.size;
     this.isPacked = false;
     this.used.delete(handle.id);
     this.handles.delete(handle.id);

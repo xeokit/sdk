@@ -74,7 +74,7 @@ export class PickManager {
   /**
    *
    */
-  init() : SDKResult<null, string>{
+  init() : SDKResult<null>{
     return {ok: true, result: null};
   }
 

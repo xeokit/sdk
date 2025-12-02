@@ -79,8 +79,11 @@
  * const scene = new Scene();
  * const data = new Data();
  *
- * const sceneModel = scene.createModel({ id: "myModel" });
- * const dataModel = data.createModel({ id: "myModel" });
+ * const sceneModelResult = scene.createModel({ id: "myModel" });
+ * const sceneModel = sceneModelResult.value;
+ *
+ * const dataModelResult = data.createModel({ id: "myModel" });
+ * const dataModel = dataModelResult.value;
  *
  * const modelChunksLoader = new ModelChunksLoader({
  *     sceneModelLoader: GLTFLoader,
@@ -124,8 +127,11 @@
  * const scene = new Scene();
  * const data = new Data();
  *
- * const sceneModel = scene.createModel({ id: "myModel" });
- * const dataModel = data.createModel({ id: "myModel" });
+ * const sceneModelResult = scene.createModel({ id: "myModel" });
+ * const sceneModel = sceneModelResult.value;
+ *
+ * const dataModelResult = data.createModel({ id: "myModel" });
+ * const dataModel = dataModelResult.value;
  *
  * const modelChunksLoader = new ModelChunksLoader({
  *     sceneModelLoader: new XGFLoader(),

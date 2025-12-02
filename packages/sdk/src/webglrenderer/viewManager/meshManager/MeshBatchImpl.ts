@@ -7,6 +7,7 @@ import {MeshBatch} from "./MeshBatch";
 import {MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
 import {GPUMemoryMeshHandle} from "../gpuMemoryManager/GPUMemoryMeshHandle";
 import {GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
+import {SDKResult} from "../../../core";
 
 /**
  * A MeshBatchImpl manages a batch of SceneMeshes that use the same primitive type.
@@ -120,11 +121,14 @@ export class MeshBatchImpl implements MeshBatch {
      * @param sceneMesh - The SceneMesh to add.
      * @returns A handle to the added mesh in the batch's GPU memory.
      */
-    public addMesh(sceneMesh: SceneMesh): MeshBatchMeshHandle {
-        const gpuMeshHandle = this._gpuMemoryEditor.addMesh(this.gpuMemoryBatchIndex, sceneMesh);
+    public addMesh(sceneMesh: SceneMesh): SDKResult<MeshBatchMeshHandle> {
+      const gpuMeshHandleResult = this._gpuMemoryEditor.addMesh(this.gpuMemoryBatchIndex, sceneMesh);
+      if (gpuMeshHandleResult.ok) {
+        const gpuMeshHandle = gpuMeshHandleResult.value;
         this.numIndices += gpuMeshHandle.numIndices;
         this.numVertices += gpuMeshHandle.numVertices;
-        return gpuMeshHandle as MeshBatchMeshHandle;
+      }
+      return gpuMeshHandleResult;
     }
 
     /**

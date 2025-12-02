@@ -46,7 +46,7 @@ export class RenderManager {
     /**
      * Initializes the RenderManager.
      */
-    public init():SDKResult<any, string> {
+    public init():SDKResult<void> {
         if (!this._drawOps) {
             const result = getDrawOps(this._renderContext, this._gpuMemoryReader);
             if (result.ok === false) {
@@ -85,7 +85,7 @@ export class RenderManager {
         rendererView: RendererView,
         options: {
         clear: boolean;
-    }): SDKResult<any, string> {
+    }): SDKResult<any> {
 
         if (!this._drawOps) {
           throw new SDKInternalException("[RenderManager.render] RenderManager not initialized");

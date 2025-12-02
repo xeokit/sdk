@@ -21,7 +21,7 @@ export const parse: ModelParser = async (params, options) => {
             indices: mesh.indices,
           });
           if (!geometryRes.ok) {
-            // params.error(`[SceneModel.createGeometry]: ${geometryRes.error}`);
+           // Error is logged via Scene.events.onError
           }
         }
       }
@@ -68,7 +68,7 @@ export const parse: ModelParser = async (params, options) => {
             meshIds: [meshId],
           });
           if (!sceneObjectRes.ok) {
-            // params.error(`[SceneModel.createObject]: ${sceneObjectRes.error}`);
+            // Error is logged via Scene.events.onError
             continue;
           }
         }

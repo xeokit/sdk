@@ -248,7 +248,7 @@ class PointsMaterial {
    *
    * @param pointsMaterialParams
    */
-  fromParams(pointsMaterialParams: PointsMaterialParams): SDKResult<any, string> {
+  fromParams(pointsMaterialParams: PointsMaterialParams): SDKResult<any> {
     if (this._destroyed) {
       return this.view.viewer.logError({
         ok: false,

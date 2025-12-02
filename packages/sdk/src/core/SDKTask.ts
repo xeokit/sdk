@@ -1,94 +1,125 @@
-
-import {getGlobalTaskRunner} from "./SDKTaskRunner";
+import { getGlobalTaskRunner, SDKTaskRunner } from "./SDKTaskRunner";
 
 const taskRunner = getGlobalTaskRunner();
 
 /**
- * A Task represents a unit of work that can be scheduled to run in a specific phase of the SDK's update cycle.
- * Tasks can be persistent (running every frame) or non-persistent (running only when scheduled).
+ * Represents a unit of work that can be scheduled to run during a specific
+ * stage of the SDK's update cycle.
+ *
+ * Tasks may be:
+ * - **repeating** — automatically executed every update cycle
+ * - **non-repeating** — executed only when explicitly scheduled
+ *
+ * A task is managed by an {@link SDKTaskRunner}, which handles scheduling
+ * and invoking tasks at their designated stage.
  */
 export class SDKTask {
 
   /**
-   * Phase in which Tasks run that handle input updates.
+   * Stage at which tasks handle input collection or preprocessing.
    * @readonly
    */
-  public static readonly CollectInputPhase = 0;
+  public static readonly CollectInputStage = 0;
 
   /**
-   * Phase in which Tasks run that handle compute updates.
+   * Stage at which tasks perform animation updates.
+   * @readonly
    */
-  public static readonly ComputePhase = 1;
+  public static readonly AnimateStage = 1;
 
   /**
-   * Phase in which Tasks run that handle render updates.
+   * Stage at which tasks perform compute or simulation work.
+   * @readonly
    */
-  public static readonly RenderPhase = 2;
+  public static readonly ComputeStage = 2;
 
   /**
-   * Phase in which Tasks run that handle post-render updates.
+   * Stage at which tasks perform rendering-related updates.
+   * @readonly
    */
-  public static readonly PostRenderPhase = 3;
+  public static readonly RenderStage = 3;
 
   /**
-   * The function that performs this Task's work.
+   * Stage at which tasks run after rendering is complete.
+   * @readonly
    */
-  public task: ()=>void;
+  public static readonly PostRenderStage = 4;
 
   /**
-   * The phase in which this Task runs.
+   * The function invoked when this task is executed.
+   * Implementations should be side-effecting and synchronous.
    */
-  public phase: number;
+  public task: () => void;
 
   /**
-   * Indicates whether this Task has been destroyed.
+   * The update stage in which this task should run.
+   * Must be one of the static stage constants.
+   */
+  public stage: number;
+
+  /**
+   * Whether this task has been destroyed and should no longer run.
    */
   public destroyed: boolean;
 
   /**
-   * Indicates whether this Task is currently scheduled to run.
+   * Whether this task is currently scheduled to run.
+   * Non-repeating tasks must be scheduled before they will execute.
    */
   public scheduled: boolean;
 
   /**
-   * Indicates whether this Task is persistent (runs every frame) or non-persistent (runs only when scheduled).
+   * If `true`, this task runs every update cycle without needing
+   * to be manually scheduled.
    */
-  public persistent: boolean;
+  public repeating: boolean;
 
   /**
-   * Optional name for this Task, useful for debugging.
+   * Optional human-readable identifier useful for debugging and profiling.
    */
   public name?: string;
 
   /**
-   * Creates a new Task.
+   * The {@link SDKTaskRunner} responsible for managing this task.
+   */
+  public taskRunner: SDKTaskRunner;
+
+  /**
+   * Creates a new {@link SDKTask}.
    *
-   * @param params Task parameters.
-   * @param params.name Optional name for this Task.
-   * @param params.task The function that performs this Task's work.
-   * @param params.phase The phase in which this Task runs.
-   * @param params.persistent Indicates whether this Task is persistent (runs every frame) or non-persistent (runs only when scheduled).
-   * @constructor
+   * @param params Configuration options for the task.
+   * @param params.name Optional display name for debugging.
+   * @param params.task The function to execute when the task runs.
+   * @param params.stage The update stage in which this task should run.
+   * @param params.repeat If `true`, the task will run every update cycle.
+   * @param params.taskRunner Optional task runner; defaults to the global runner.
    */
   constructor(params: {
-    name?: string,
-    task: ()=>void,
-    phase:number,
-    persistent?: boolean
+    name?: string;
+    task: () => void;
+    stage: number;
+    repeat?: boolean;
+    taskRunner?: SDKTaskRunner;
   }) {
     this.name = params.name;
     this.destroyed = false;
     this.scheduled = false;
-    this.phase = params.phase;
+    this.stage = params.stage;
     this.task = params.task;
-    this.persistent = !!params.persistent;
-    if (this.persistent) {
-      taskRunner.addTask(this);
+    this.repeating = !!params.repeat;
+    this.taskRunner = params.taskRunner || taskRunner;
+
+    // Repeating tasks are always registered immediately.
+    if (this.repeating) {
+      this.taskRunner.addTask(this);
     }
   }
 
   /**
-   * Flags this Task as having a deferred state update it needs to perform.
+   * Schedules this task to run during its update stage.
+   *
+   * Non-repeating tasks must be scheduled to execute,
+   * while repeating tasks ignore manual scheduling.
    */
   public schedule(): void {
     if (this.destroyed) {
@@ -96,34 +127,52 @@ export class SDKTask {
     }
     if (!this.scheduled) {
       this.scheduled = true;
-      if (!this.persistent) {
-        taskRunner.addTask(this);
+      if (!this.repeating) {
+        this.taskRunner.addTask(this);
       }
     }
   }
 
   /**
-   * Gives this Task an opportunity to action any deferred state updates.
+   * Called internally by {@link SDKTaskRunner} to execute this task
+   * if it is scheduled or if it is repeating.
    */
   public runIfScheduled(): void {
     if (this.destroyed) {
       return;
     }
-    if (this.scheduled || this.persistent) {
+    if (this.scheduled || this.repeating) {
       this.task();
       this.scheduled = false;
     }
   }
 
   /**
-   * Destroys this Task.
+   * Unschedules this task, preventing it from running.
+   * Ignores repeating tasks.
    */
-  destroy(): void {
+  public unschedule(): void {
+    if (this.destroyed) {
+      return;
+    }
+    this.scheduled = false;
+  }
+
+  /**
+   * Permanently destroys this task.
+   *
+   * A destroyed task:
+   * - will no longer be scheduled,
+   * - will no longer run,
+   * - releases its reference to the task runner.
+   */
+  public destroy(): void {
     if (this.destroyed) {
       return;
     }
     this.destroyed = true;
     this.scheduled = false;
+    this.taskRunner = null;
   }
 }
 

@@ -46,23 +46,25 @@ export class RendererMesh {
   /**
    * Constructs a RendererMesh instance.
    */
-  constructor( {
-                 sceneMesh,
-                 meshBatch,
-                 renderContext,
-                 gpuMemoryEditor,
-               }: {
+  constructor({
+                sceneMesh,
+                meshBatch,
+                renderContext,
+                gpuMemoryEditor,
+                meshHandle
+              }: {
     sceneMesh: SceneMesh;
     meshBatch: MeshBatchImpl;
     renderContext: RenderContext;
     gpuMemoryEditor: GPUMemoryEditor;
-  } ) {
+    meshHandle: MeshBatchMeshHandle;
+  }) {
 
     this._renderContext = renderContext;
     this._sceneMesh = sceneMesh;
     this._meshBatch = meshBatch;
-    this._meshHandle = meshBatch.addMesh(sceneMesh);
     this._gpuMemoryEditor = gpuMemoryEditor;
+    this._meshHandle = meshHandle;
     this.tile = null;
 
     // Color / opacity -> 0..255
@@ -86,7 +88,7 @@ export class RendererMesh {
    * Sets the transformation matrix for the mesh.
    * Triggered by SceneMesh.globalMatrix setter.
    */
-  setMatrix( matrix: FloatArrayParam ): void {
+  setMatrix(matrix: FloatArrayParam): void {
     matrix = matrix || tempIdentityMat4;
     const center = transformPoint4(matrix, identityVec4, tempVec4a);
     const oldTile = this.tile;
@@ -102,7 +104,7 @@ export class RendererMesh {
     // const worldOrigin = matrix.slice(12, 15); // translation xyz
     // const origin = [];
     //worldToRTCPositions(worldOrigin, worldOrigin, origin);
-    relativeMatrix.set(subVec3(center,tileCenter), 12);
+    relativeMatrix.set(subVec3(center, tileCenter), 12);
     //relativeMatrix.set(worldOrigin, 12);
     this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix);
   }
@@ -111,7 +113,7 @@ export class RendererMesh {
    * Sets the color of the mesh.
    * Triggered by SceneMesh.color setter.
    */
-  setColor( color: FloatArrayParam ) {
+  setColor(color: FloatArrayParam) {
     for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
       const viewState = this._viewStates[viewIndex];
       if (!viewState.colorizing) {
@@ -124,7 +126,7 @@ export class RendererMesh {
    * Sets the visibility of the mesh for a specific view.
    * Called by RendererObject.setVisible().
    */
-  setVisible( viewIndex: number, renderFlags: boolean ) {
+  setVisible(viewIndex: number, renderFlags: boolean) {
     this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, renderFlags);
   }
 
@@ -132,7 +134,7 @@ export class RendererMesh {
    * Sets the colorization for a specific view.
    * Called by RendererObject.setColorize().
    */
-  setColorize( viewIndex: number, colorize: FloatArrayParam|null ) {
+  setColorize(viewIndex: number, colorize: FloatArrayParam | null) {
     const viewStates = this._viewStates[viewIndex];
     const meshColorize = viewStates.colorize;
     if (colorize) {
@@ -151,7 +153,7 @@ export class RendererMesh {
    * Sets the opacity of the mesh for a specific view.
    * Called by RendererObject.setOpacity().
    */
-  setOpacity( viewIndex: number, opacity: number ) {
+  setOpacity(viewIndex: number, opacity: number) {
     const viewStates = this._viewStates[viewIndex];
     viewStates.colorize[3] = opacity;
     if (this._viewStates[viewIndex].colorizing) {
@@ -165,7 +167,7 @@ export class RendererMesh {
    * Sets the transparency of the mesh for a specific view.
    * Called by RendererObject.setTransparency().
    */
-  setTransparent( viewIndex: number, transparent: boolean ) {
+  setTransparent(viewIndex: number, transparent: boolean) {
     this._meshBatch.setMeshTransparent(viewIndex, this._meshHandle, transparent);
   }
 
@@ -173,7 +175,7 @@ export class RendererMesh {
    * Sets the highlight state of the mesh for a specific view.
    * Called by RendererObject.setHighlighted().
    */
-  setHighlighted( viewIndex: number, highlighted: boolean) {
+  setHighlighted(viewIndex: number, highlighted: boolean) {
     const transparent = this._viewStates[viewIndex].transparent; // For restore to opaque vs transparent bin, when un-highlighting
     this._meshBatch.setMeshHighlighted(viewIndex, this._meshHandle, highlighted, transparent);
   }
@@ -182,7 +184,7 @@ export class RendererMesh {
    * Sets the x-ray state of the mesh for a specific view.
    * Called by RendererObject.setXRayed().
    */
-  setXRayed( viewIndex: number, xrayed: boolean) {
+  setXRayed(viewIndex: number, xrayed: boolean) {
     const transparent = this._viewStates[viewIndex].transparent; // For restore to opaque vs transparent bin, when un-x-raying
     this._meshBatch.setMeshXRayed(viewIndex, this._meshHandle, xrayed, transparent);
   }
@@ -191,7 +193,7 @@ export class RendererMesh {
    * Sets the selection state of the mesh for a specific view.
    * Called by RendererObject.setSelected().
    */
-  setSelected( viewIndex: number, selected: boolean ) {
+  setSelected(viewIndex: number, selected: boolean) {
     const transparent = this._viewStates[viewIndex].transparent; // For restore to opaque vs transparent bin, when de-selecting
     this._meshBatch.setMeshSelected(viewIndex, this._meshHandle, selected, transparent);
   }
@@ -200,7 +202,7 @@ export class RendererMesh {
    * Sets the clippable state of the mesh for a specific view.
    * Called by RendererObject.setClippable().
    */
-  setClippable( viewIndex: number, clippable: boolean ) {
+  setClippable(viewIndex: number, clippable: boolean) {
     this._meshBatch.setMeshClippable(viewIndex, this._meshHandle, clippable);
   }
 
@@ -208,7 +210,7 @@ export class RendererMesh {
    * Sets the collidable state of the mesh for a specific view.
    * Called by RendererObject.setCollidable().
    */
-  setCollidable( viewIndex: number, collidable: boolean ) {
+  setCollidable(viewIndex: number, collidable: boolean) {
     // this._meshBatch.setLayerMeshCollidable(viewIndex, this._meshHandle, renderFlags);
   }
 
@@ -216,7 +218,7 @@ export class RendererMesh {
    * Sets the pickable state of the mesh for a specific view.
    * Called by RendererObject.setPickable().
    */
-  setPickable( viewIndex: number, pickable: boolean ) {
+  setPickable(viewIndex: number, pickable: boolean) {
     this._meshBatch.setMeshPickable(viewIndex, this._meshHandle, pickable);
   }
 
@@ -224,7 +226,7 @@ export class RendererMesh {
    * Sets the culled state of the mesh for a specific view.
    * Called by RendererObject.setCulled().
    */
-  setCulled( viewIndex: number, culled: boolean ) {
+  setCulled(viewIndex: number, culled: boolean) {
     this._meshBatch.setMeshCulled(viewIndex, this._meshHandle, culled);
   }
 

@@ -7,6 +7,7 @@ import {Capabilities} from "./Capabilities";
 import {WebGLRendererEvents} from "./WebGLRendererEvents";
 import {GPUMemoryConfigs} from "./GPUMemoryConfigs";
 import {createGPUMemoryConfigs} from "./createGPUMemoryConfigs";
+import {GPUMemoryUsage} from "./GPUMemoryUsage";
 
 /**
  * WebGL renderer for a Viewer.
@@ -134,7 +135,7 @@ export class WebGLRenderer {
      * @param result The error result to log and dispatch.
      * @returns The same error result for chaining or further handling.
      */
-    public logError(result: SDKResult<any, string>): SDKResult<any, string> {
+    public logError(result: SDKResult<any>): SDKResult<any> {
         if (result && result.ok === false) {
             if (this.logging) {
                 console.error(`[WebGLRenderer] ${result.error}`);
@@ -155,7 +156,7 @@ export class WebGLRenderer {
      * @param viewer The Viewer to attach.
      * @returns OK result upon success, or an Error result upon failure.
      */
-    public attachViewer(viewer: Viewer): SDKResult<void, string> {
+    public attachViewer(viewer: Viewer): SDKResult<void> {
 
         if (this._viewManager) {
             return this.logError({
@@ -241,6 +242,19 @@ export class WebGLRenderer {
      */
     public get viewer(): Viewer | null {
         return this._viewManager ? this._viewManager.viewer : null;
+    }
+
+  /**
+   * Gets the current GPU memory usage by this WebGLRenderer.
+   */
+  public getGPUMemoryUsage(): GPUMemoryUsage {
+        if (!this._viewManager) {
+            return {
+                allocatedMB: 0,
+                usedMB: 0
+            };
+        }
+        return this._viewManager.getGPUMemoryUsage();
     }
 
     /**

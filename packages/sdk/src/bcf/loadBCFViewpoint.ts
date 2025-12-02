@@ -356,16 +356,16 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
       look = ZToY(look);
       up = ZToY(up);
     }
-    if (rayCast) {
-      const hit = view.pick({
-        pickSurface: true, // <<------ This causes picking to find the intersection point on the viewObject
-        rayOrigin: eye,
-        rayDirection: look
-      });
-      look = (hit instanceof PickResult ? hit.worldPos : addVec3(eye, look, tempVec3));
-    } else {
+    // if (rayCast) {
+    //   const hit = view.pick({
+    //     pickSurface: true, // <<------ This causes picking to find the intersection point on the viewObject
+    //     rayOrigin: eye,
+    //     rayDirection: look
+    //   });
+    //   look = (hit instanceof PickResult ? hit.worldPos : addVec3(eye, look, tempVec3));
+    // } else {
       look = addVec3(eye, look, tempVec3);
-    }
+   // }
     camera.eye = eye;
     camera.look = look;
     camera.up = up;

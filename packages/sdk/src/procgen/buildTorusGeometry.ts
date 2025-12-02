@@ -2,7 +2,7 @@ import {normalizeVec3, subVec3} from "../matrix";
 import {apply} from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";
-import {SDKResult} from "../core";
+import {SDKErrorType, SDKResult} from "../core";
 
 /**
  * Creates a torus-shaped {@link scene!SceneGeometry | SceneGeometry}.
@@ -69,7 +69,7 @@ import {SDKResult} from "../core";
  * - The arc parameter defines how much of the torus is created. A full circle corresponds to `Math.PI * 2`, and any smaller value creates a partial torus.
  * - The function calculates vertex normals using the difference between each vertex and the center of the torus.
  *
- * * @returns {SDKResult<GeometryArrays, string>} The geometry data for the torus, including positions, normals, UVs, and indices for rendering, or an error message.
+ * * @returns {SDKResult<GeometryArrays>} The geometry data for the torus, including positions, normals, UVs, and indices for rendering, or an error message.
  */
 export function buildTorusGeometry(cfg: {
   tube?: number;
@@ -85,34 +85,63 @@ export function buildTorusGeometry(cfg: {
   tubeSegments: 0,
   arc: 0,
   center: [0, 0, 0]
-}): SDKResult<GeometryArrays, string> {
+}): SDKResult<GeometryArrays> {
   let radius = cfg.radius || 1;
   if (radius < 0) {
-    return { ok: false, error: "Negative radius not allowed." };
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildTorusGeometry] Negative radius not allowed."
+    };
   }
   radius *= 0.5;
 
   let tube = cfg.tube || 0.3;
   if (tube < 0) {
-    return { ok: false, error: "Negative tube not allowed." };
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildTorusGeometry] Negative tube not allowed."
+    };
   }
 
   let radialSegments = cfg.radialSegments || 32;
   if (radialSegments < 4) {
-    return { ok: false, error: "radialSegments must be at least 4." };
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildTorusGeometry] radialSegments must be at least 4."
+    };
   }
 
   let tubeSegments = cfg.tubeSegments || 24;
   if (tubeSegments < 4) {
-    return { ok: false, error: "tubeSegments must be at least 4." };
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildTorusGeometry] tubeSegments must be at least 4."
+    };
   }
 
   let arc = cfg.arc || Math.PI * 2;
   if (arc <= 0) {
-    return { ok: false, error: "Arc must be greater than 0." };
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildTorusGeometry] Arc must be greater than 0."
+    };
   }
 
   const center = cfg.center || [0, 0, 0];
+
+  if (center.length !== 3) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildTorusGeometry] Center must be a 3D point [x, y, z]."
+    };
+  }
+
   const centerX = center[0];
   const centerY = center[1];
   const centerZ = center[2];

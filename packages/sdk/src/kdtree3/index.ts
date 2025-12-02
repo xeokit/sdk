@@ -51,41 +51,38 @@
  * import { createSceneObjectsKdTree3, searchKdTree3WithAABB } from "@xeokit/sdk/kdtree3";
  *
  * const scene = new Scene();
- * const sceneModel = scene.createModel({ id: "myModel" });
+ * const sceneModelResult = scene.createModel({ id: "myModel" });
+ * const sceneModel = sceneModelResult.value;
  *
- * if (sceneModel instanceof SDKError) {
- *     console.error(sceneModel.message);
- * } else {
- *     sceneModel.createGeometry({
- *         id: "theGeometry",
- *         primitive: TrianglesPrimitive,
- *         positions: [10.07, 0, 11.07, 9.58, 3.11, 11.07, 8.15, ...],
- *         indices: [21, 0, 1, 1, 22, 21, 22, 1, 2, 2, 23, 22, 23, ...]
- *     });
+ * sceneModel.createGeometry({
+ *     id: "theGeometry",
+ *     primitive: TrianglesPrimitive,
+ *     positions: [10.07, 0, 11.07, 9.58, 3.11, 11.07, 8.15, ...],
+ *     indices: [21, 0, 1, 1, 22, 21, 22, 1, 2, 2, 23, 22, 23, ...]
+ * });
  *
- *     sceneModel.createLayerMesh({
- *         id: "tableTopMesh",
- *         geometryId: "theGeometry",
- *         position: [0, -3, 0],
- *         scale: [6, 0.5, 6],
- *         rotation: [0, 0, 0],
- *         color: [1.0, 0.3, 1.0]
- *     });
+ * sceneModel.createLayerMesh({
+ *     id: "tableTopMesh",
+ *     geometryId: "theGeometry",
+ *     position: [0, -3, 0],
+ *     scale: [6, 0.5, 6],
+ *     rotation: [0, 0, 0],
+ *     color: [1.0, 0.3, 1.0]
+ * });
  *
- *     sceneModel.createObject({
- *         id: "tableTopSceneObject",
- *         meshIds: ["tableTopMesh"]
- *     });
+ * sceneModel.createObject({
+ *     id: "tableTopSceneObject",
+ *     meshIds: ["tableTopMesh"]
+ * });
  *
- *     const kdTree = createSceneObjectsKdTree3(Object.values(scene.objects));
+ * const kdTree = createSceneObjectsKdTree3(Object.values(scene.objects));
  *
- *     const intersectingObjects = searchKdTree3WithAABB({
- *         kdTree,
- *         aabb: [0, 0, 0, 10, 10, 10]
- *     });
+ * const intersectingObjects = searchKdTree3WithAABB({
+ *     kdTree,
+ *     aabb: [0, 0, 0, 10, 10, 10]
+ * });
  *
- *     console.log(intersectingObjects);
- * }
+ * console.log(intersectingObjects);
  * ````
  *
  * @module kdtree3

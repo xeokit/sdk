@@ -3,7 +3,7 @@ import {type FloatArrayParam} from "../math";
 import {type CoordinateSystemParams} from "./CoordinateSystemParams";
 import {Scene} from "./Scene";
 import {SceneModel} from "./SceneModel";
-import {createVec3} from "../matrix";
+import {createVec3, testOrthogonalAxis} from "../matrix";
 import {SDKErrorType} from "../core";
 
 
@@ -87,6 +87,20 @@ export class CoordinateSystem  {
                 error: "[CoordinateSystem.basis] CoordinateSystem already destroyed - cannot set basis"
             });
         }
+        if (value && value.length !== 9) {
+            return (this._scene||this._model.scene).logError({
+                ok: false,
+                type: SDKErrorType.InvalidInput,
+                error: "[CoordinateSystem.basis] Invalid basis array - must have 9 elements"
+            });
+        }
+        if (!testOrthogonalAxis(value)) {
+            return (this._scene||this._model.scene).logError({
+                ok: false,
+                type: SDKErrorType.InvalidInput,
+                error: "[CoordinateSystem.basis] Invalid basis array - axes are not orthogonal"
+            });
+        }
         this._basis = new Float32Array(<any>value || [
             1, 0, 0, // Right
             0, 0, 1, // Up
@@ -148,6 +162,13 @@ export class CoordinateSystem  {
                 error: "[CoordinateSystem.units] CoordinateSystem already destroyed - cannot set units"
             });
         }
+        if (value !== 'meters' && value !== 'millimeters' && value !== 'inches' && value !== 'feet') {
+            return (this._scene||this._model.scene).logError({
+                ok: false,
+                type: SDKErrorType.InvalidInput,
+                error: "[CoordinateSystem.units] Invalid units - must be 'meters', 'millimeters', 'inches', or 'feet'"
+            });
+        }
         this._units = value;
         (this._model)
             ? this._model.scene.events.onSceneModelCoordSystemUnitsChanged.dispatch(this._model, this)
@@ -170,6 +191,13 @@ export class CoordinateSystem  {
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
                 error: "[CoordinateSystem.scaleToMeters] CoordinateSystem already destroyed - cannot set scaleToMeters"
+            });
+        }
+        if (value !== undefined && (typeof value !== "number" || isNaN(value) || value <= 0) ) {
+            return (this._scene||this._model.scene).logError({
+                ok: false,
+                type: SDKErrorType.InvalidInput,
+                error: "[CoordinateSystem.scaleToMeters] Invalid scaleToMeters - must be a positive number"
             });
         }
         this._scaleToMeters = value;

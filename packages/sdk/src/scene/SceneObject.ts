@@ -70,7 +70,7 @@ export class SceneObject {
     /**
      * Gets this SceneObject as SceneObjectParams.
      */
-    toParams(): SDKResult<SceneObjectParams, string> {
+    toParams(): SDKResult<SceneObjectParams> {
         if (this.destroyed) {
             return this.model.scene.logError({
                 ok: false,
@@ -99,7 +99,7 @@ export class SceneObject {
     /**
      * Destroys this SceneObject.
      */
-    destroy(): SDKResult<void, string> {
+    destroy(): SDKResult<void> {
         if (this.destroyed) {
             return this.model.scene.logError({
                 ok: false,

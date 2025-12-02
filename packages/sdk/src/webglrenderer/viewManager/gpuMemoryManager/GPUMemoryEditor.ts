@@ -38,7 +38,7 @@ export interface GPUMemoryEditor {
    * The new batch is added to the  `GPUMemoryEditor.dataTextures.sortedBatches` array.
    * @returns The index of the newly created batch, or an error if the maximum number of batches has been reached.
    */
-  createBatch(): SDKResult<number, string>;
+  createBatch(): SDKResult<number>;
 
   /**
    * Checks if there is enough memory in a specific GPU memory batch for a SceneMesh.
@@ -54,7 +54,7 @@ export interface GPUMemoryEditor {
    * @param sceneMesh - The mesh to add.
    * @returns Handle to the added mesh.
    */
-  addMesh( batchIndex: number, sceneMesh: SceneMesh ): GPUMemoryMeshHandle;
+  addMesh( batchIndex: number, sceneMesh: SceneMesh ): SDKResult<GPUMemoryMeshHandle> ;
 
   /**
    * Sets whether a mesh is visible in a specific view.

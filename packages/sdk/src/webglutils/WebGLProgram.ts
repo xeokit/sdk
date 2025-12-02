@@ -108,7 +108,7 @@ export class WebGLProgram {
   /**
    * Initializes this program.
    */
-  public init(): SDKResult<any, string> {
+  public init(): SDKResult<any> {
 
     const gl = this._glSrc.gl;
 
@@ -271,7 +271,7 @@ export class WebGLProgram {
   /**
    * Rebuilds the program after WebGL context has been restored.
    */
-  public webglContextRestored(): SDKResult<any, string> {
+  public webglContextRestored(): SDKResult<any> {
     if (!this._glSrc.gl || !this.source || !this.source.vertex || !this.source.fragment) {
       return {
         ok: false,

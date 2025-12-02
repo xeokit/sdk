@@ -69,6 +69,13 @@ class Edges {
      * Default value is ````[0.2, 0.2, 0.2]````.
      */
     set edgeColor(value: FloatArrayParam) {
+      if (!value || value.length < 3) {
+        this.view.viewer.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[Edges set edgeColor] Invalid color parameter."
+        });
+      }
         const edgeColor = this._edgeColor;
         if (value && edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
             return;
@@ -173,7 +180,7 @@ class Edges {
      *
      * @param edgesParams
      */
-    fromParams(edgesParams: EdgesParams) : SDKResult<any, string> {
+    fromParams(edgesParams: EdgesParams) : SDKResult<any> {
         if (this._destroyed) {
             return this.view.viewer.logError({
                 ok: false,

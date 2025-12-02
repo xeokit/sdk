@@ -4,7 +4,7 @@
 //
 // interface LoadOptions {
 //     responseType?: ResponseType;
-//     headers?: Record<string, string>;
+//     headers?: Record<string>;
 //     timeout?: number; // in milliseconds
 //     onProgress?: (percent: number) => void; // browser only
 // }
@@ -101,7 +101,7 @@
 //     private static async fetchWithProgress(
 //         url: string,
 //         responseType: ResponseType,
-//         headers: Record<string, string>,
+//         headers: Record<string>,
 //         onProgress: (percent: number) => void,
 //         controller?: AbortController
 //     ): Promise<any> {

@@ -180,7 +180,7 @@ export class DataModel  {
    * @param propertySetCfg - Configuration parameters for the new `PropertySet`.
    * @returns A result containing the created `PropertySet` on success, or an error message on failure.
    */
-  createPropertySet(propertySetCfg: PropertySetParams): SDKResult<PropertySet, string> {
+  createPropertySet(propertySetCfg: PropertySetParams): SDKResult<PropertySet> {
     if (this.destroyed) {
       return this.data.logError({
         ok: false,
@@ -230,7 +230,7 @@ export class DataModel  {
    * @param dataObjectParams - Configuration parameters for the new `DataObject`.
    * @returns A result containing the created `DataObject` on success, or an error message on failure.
    */
-  createObject(dataObjectParams: DataObjectParams): SDKResult<DataObject, string> {
+  createObject(dataObjectParams: DataObjectParams): SDKResult<DataObject> {
     if (this.destroyed) {
       return this.data.logError({
         ok: false,
@@ -310,7 +310,7 @@ export class DataModel  {
    * @param relationshipParams - Configuration parameters for the new `Relationship`.
    * @returns A result containing the created `Relationship` on success, or an error message on failure.
    */
-  createRelationship(relationshipParams: RelationshipParams): SDKResult<Relationship, string> {
+  createRelationship(relationshipParams: RelationshipParams): SDKResult<Relationship> {
     if (this.destroyed) {
       return this.data.logError({
         ok: false,
@@ -358,7 +358,7 @@ export class DataModel  {
    * @param dataModelParams - Parameters to configure and populate the `DataModel`.
    * @returns A result indicating success or an error message on failure.
    */
-  fromParams(dataModelParams: DataModelContentParams): SDKResult<any, string> {
+  fromParams(dataModelParams: DataModelContentParams): SDKResult<any> {
     if (this.destroyed) {
       return this.data.logError({
         ok: false,
@@ -413,7 +413,7 @@ export class DataModel  {
    *
    * @returns A result containing the `DataModelParams` on success, or an error message on failure.
    */
-  toParams(): SDKResult<DataModelParams, string> {
+  toParams(): SDKResult<DataModelParams> {
     if (this.destroyed) {
       return this.data.logError({
         ok: false,
@@ -491,7 +491,7 @@ export class DataModel  {
    *
    * @returns A result indicating success or an error message on failure.
    */
-  destroy(): SDKResult<void, string> {
+  destroy(): SDKResult<void> {
     if (this.destroyed) {
       return this.data.logError({
         ok: false,

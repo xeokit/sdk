@@ -135,7 +135,7 @@ class DirLight {
    *
    * @param dirLightParams
    */
-  fromParams(dirLightParams: DirLightParams) : SDKResult<any, string>{
+  fromParams(dirLightParams: DirLightParams) : SDKResult<any>{
     if (this._destroyed) {
       return this.view.viewer.logError({
         ok: false,
@@ -162,7 +162,7 @@ class DirLight {
   /**
    * Gets this DirLight's current configuration.
    */
-  toParams(): SDKResult<DirLightParams, never> {
+  toParams(): SDKResult<DirLightParams> {
     return {
       ok: true,
       value: {

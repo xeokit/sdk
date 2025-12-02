@@ -54,9 +54,9 @@ class TouchPanRotateAndDollyHandler {
     let tapStartTime = -1;
     let waitForTick = false;
 
-    this.#tickSub = view.viewer.onTick.sub(() => {
-      waitForTick = false;
-    });
+    // this.#tickSub = view.viewer.onTick.sub(() => {
+    //   waitForTick = false;
+    // });
 
     let firstDragDeltaX = 0;
     let firstDragDeltaY = 1;
@@ -291,7 +291,7 @@ class TouchPanRotateAndDollyHandler {
     canvas.removeEventListener("touchstart", this.#canvasTouchStartHandler);
     canvas.removeEventListener("touchend", this.#canvasTouchEndHandler);
     canvas.removeEventListener("touchmove", this.#canvasTouchMoveHandler);
-    this.#view.viewer.onTick.unsub(this.#tickSub);
+   // this.#view.viewer.onTick.unsub(this.#tickSub);
   }
 }
 

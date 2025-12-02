@@ -49,7 +49,7 @@ export class DrawOps {
     /**
      * Initializes the draw operations and techniques.
      */
-    init(): SDKResult<null, string> {
+    init(): SDKResult<null> {
 
         const renderContext = this._renderContext;
         const gpuMemoryReader = this._gpuMemoryReader;
@@ -142,7 +142,7 @@ const drawOpsInstances = {};
  * @param renderContext
  * @param gpuMemoryReader
  */
-export function getDrawOps(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader): SDKResult<DrawOps, string> {
+export function getDrawOps(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader): SDKResult<DrawOps> {
     const viewerId = renderContext.viewer.id;
     let drawOps = drawOpsInstances[viewerId];
     if (!drawOps) {

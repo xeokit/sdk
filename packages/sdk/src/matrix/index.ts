@@ -2651,3 +2651,26 @@ export const canvasPosToWorldRay = (() => {
     normalizeVec3(worldRayDir);
   };
 })();
+
+
+/**
+ * Validates that three 3D axes are mutually orthogonal.
+ *
+ * @param axes - flat array of 9 numbers (3 axes)
+ * @param epsilon - floating-point tolerance
+ */
+export function testOrthogonalAxis(
+  axes: FloatArrayParam,
+  epsilon = 1e-6
+): boolean {
+
+  const x = axes.slice(0, 3);
+  const y = axes.slice(3, 6);
+  const z = axes.slice(6, 9);
+
+  return (
+    Math.abs(dotVec3(x, y)) < epsilon &&
+    Math.abs(dotVec3(x, z)) < epsilon &&
+    Math.abs(dotVec3(y, z)) < epsilon
+  );
+}

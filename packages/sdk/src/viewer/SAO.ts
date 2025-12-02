@@ -373,7 +373,7 @@ export class SAO {
    *
    * @param saoParams
    */
-  fromParams(saoParams: SAOParams): SDKResult<any, string> {
+  fromParams(saoParams: SAOParams): SDKResult<any> {
     if (this._destroyed) {
       return this.view.viewer.logError({
         ok: false,

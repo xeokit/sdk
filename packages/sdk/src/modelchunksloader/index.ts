@@ -67,16 +67,18 @@
  * // Initialize scene, data, and viewer
  * const scene = new Scene();
  * const data = new Data();
- * const renderer = new WebGLRenderer({});
+ *
  * const viewer = new Viewer({
- *     id: "myViewer",
- *     scene,
- *     renderer
+ *    scene
  * });
- * const view = viewer.createView({
- *     id: "myView",
- *     elementId: "myCanvas"
+ * const renderer = new WebGLRenderer({
+ *   viewer
  * });
+ * const viewResult = viewer.createView({
+ *    id: "myView",
+ *    elementId: "myCanvas"
+ * });
+ * const view = viewResult.view;
  *
  * // Camera setup
  * view.camera.eye = [0, 0, -100];
@@ -85,8 +87,11 @@
  * new CameraControl(view, {});
  *
  * // Create SceneModel and DataModel
- * const sceneModel = scene.createModel({ id: "myModel" });
- * const dataModel = data.createModel({ id: "myModel" });
+ * const sceneModelResult = scene.createModel({ id: "myModel" });
+ * const sceneModel = sceneModelResult.value;
+ *
+ * const dataModelResult = data.createModel({ id: "myModel" });
+ * const dataModel = dataModelResult.value;
  *
  * // Initialize ModelChunksLoader
  * const modelChunksLoader = new ModelChunksLoader({

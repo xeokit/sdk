@@ -5,7 +5,7 @@
  */
 export interface TextureCompressedParams {
   mipmaps: {
-    data: Uint8Array;
+    data: Uint8Array<number>;
     width: number;
     height: number
   }[],

@@ -1,4 +1,5 @@
 import { type FloatArrayParam } from "../../../../math";
+import {SDKInternalException} from "../../../../core";
 
 /**
  * DTXQuantRanges
@@ -26,6 +27,7 @@ export class DTXQuantRanges {
   private textureWidth: number; // in texels
   private textureHeight: number; // in texels
   private maxItems: number;
+  private numUsedItems: number;
 
   // Layout constants
   private static readonly TEXELS_PER_ITEM = 2;     // offset, scale
@@ -40,7 +42,6 @@ export class DTXQuantRanges {
     this.gl = params.gl;
     this.maxItems = params.capacity ?? 20000;
     this.dirtyIndices = new Set();
-
   }
 
   static get elementSizeInBytes(): number {
@@ -90,7 +91,7 @@ export class DTXQuantRanges {
    */
   setQuantRange(geometryIndex: number, dequantizeOffset: FloatArrayParam, dequantizeScale: FloatArrayParam): void {
     if (geometryIndex < 0 || geometryIndex >= this.maxItems) {
-      throw new RangeError(`DTXQuantRanges: geometryIndex ${geometryIndex} out of range [0, ${this.maxItems})`);
+      throw new SDKInternalException(`DTXQuantRanges: geometryIndex ${geometryIndex} out of range [0, ${this.maxItems})`);
     }
     const base = geometryIndex * DTXQuantRanges.FLOATS_PER_ITEM;
 

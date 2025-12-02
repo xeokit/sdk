@@ -28,12 +28,12 @@ import {SDKErrorType, SDKResult} from "../core";
  * @param cfg Configuration for the grid geometry.
  * @param [cfg.size=1] The size of the grid along both the X and Z axes. Default is `1`.
  * @param [cfg.divisions=1] The number of divisions (lines) on the X and Z axes. Default is `1`.
- * @returns {SDKResult<GeometryArrays, string>} The geometry arrays for the grid, including positions and indices for the lines, or an error message.
+ * @returns {SDKResult<GeometryArrays>} The geometry arrays for the grid, including positions and indices for the lines, or an error message.
  */
 export function buildGridGeometry(cfg = {
   size: 1,
   divisions: 1
-}): SDKResult<GeometryArrays, string> {
+}): SDKResult<GeometryArrays> {
   let size = cfg.size || 1;
   if (size < 0) {
     return {
@@ -48,7 +48,7 @@ export function buildGridGeometry(cfg = {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "Negative divisions not allowed."
+      error: "[buildGridGeometry] Negative divisions not allowed."
     };
   }
   if (divisions < 1) {

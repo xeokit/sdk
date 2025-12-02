@@ -58,25 +58,27 @@
  *
  * const scene = new Scene();
  *
- * const renderer = new WebGLRenderer({});
- *
  * const viewer = new Viewer({
- *     id: "myViewer",
- *     scene,
- *     renderer
+ *   scene
  * });
  *
- * const view = viewer.createView({
- *     id: "myView",
- *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
+ * const renderer = new WebGLRenderer({
+ *   viewer
+ * });
+ *
+ * const viewResult = viewer.createView({
+ *   id: "myView",
+ *   elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
  * });
  *
  * const xktLoader = new XKTLoader();
  *
- * if (view instanceof SDKError) {
- *     console.error(`Error creating View: ${view.message}`);
+ * if (!viewResult.ok) {
+ *     console.error(`Error creating View: ${viewResult.error}`);
  *
  * } else {
+ *
+ *     const view = viewResult.value;
  *
  *     view.camera.eye = [1841982.93, 10.03, -5173286.74];
  *     view.camera.look = [1842009.49, 9.68, -5173295.85];
@@ -84,16 +86,18 @@
  *
  *     new CameraControl(view, {});
  *
- *     const sceneModel = scene.createModel({
+ *     const sceneModelResult = scene.createModel({
  *         id: "myModel"
  *     });
  *
- *     if (sceneModel instanceof SDKError) {
- *         console.error(`Error creating SceneModel: ${sceneModel.message}`);
+ *     if (!sceneModelResult.ok) {
+ *         console.error(`Error creating SceneModel: ${sceneModel.error}`);
  *
  *     } else {
  *
- *         fetch("model.xkt").then(response => {
+ *        const sceneModel = sceneModelResult.model;
+ *
+ *        fetch("model.xkt").then(response => {
  *
  *             response.arrayBuffer().then(fileData => {
  *

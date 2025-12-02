@@ -49,21 +49,23 @@
  * // Create a Scene to manage geometry and materials
  * const scene = new Scene();
  *
- * // Create a WebGLRenderer for rendering the Scene
- * const renderer = new WebGLRenderer({});
- *
  * // Create a Viewer instance
  * const viewer = new Viewer({
- *     id: "viewer",
- *     scene,
- *     renderer
+ *     scene
+ * });
+ *
+ * // Create a WebGLRenderer for rendering the Scene
+ * const renderer = new WebGLRenderer({
+ *    viewer
  * });
  *
  * // Create a View for rendering
- * const view = viewer.createView({
+ * const viewResult = viewer.createView({
  *     id: "myView",
  *     elementId: "myCanvas"
  * });
+ *
+ * const view = viewResult.value;
  *
  * // Configure the camera's initial position and orientation
  * view.camera.eye = [1841982.93, 10.03, -5173286.74];
@@ -74,7 +76,10 @@
  * new CameraControl(view, {});
  *
  * // Load a CityJSON model into the Scene
- * const sceneModel = scene.createModel({ id: "myModel" });
+ * const sceneModelResult = scene.createModel({ id: "myModel" });
+ *
+ * const sceneModel = sceneModelResult.value;
+ *
  * fetch("model.json").then(response => response.json()).then(fileData => {
  *     CityJSONLoader({ fileData, sceneModel }).then(() => {
  *         // Loaded

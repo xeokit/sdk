@@ -103,18 +103,21 @@
  *
  * const scene = new Scene();
  * const data = new Data();
- * const renderer = new WebGLRenderer({});
  *
  * const viewer = new Viewer({
- *     id: "myViewer",
- *     scene,
- *     renderer
+ *     scene
  * });
  *
- * const view = viewer.createView({
+ * const renderer = new WebGLRenderer({
+ *   viewer
+ * });
+ *
+ * const viewResult = viewer.createView({
  *     id: "myView",
  *     elementId: "myCanvas"
  * });
+ *
+ * const view = viewResult.value;
  *
  * view.camera.eye = [1841982.93, 10.03, -5173286.74];
  * view.camera.look = [1842009.49, 9.68, -5173295.85];

@@ -53,9 +53,10 @@
  * import {MetaModelLoader} from "@xeokit/sdk/metamodel";
  *
  * const data = new Data();
- * const dataModel = data.createModel({
+ * const dataModelResult = data.createModel({
  *     id: "myModel"
  * });
+ * const dataModel = dataModelResult.value;
  *
  * const metaModelLoader = new MetaModelLoader();
  *
@@ -80,9 +81,10 @@
  * import {convertMetaModel} from "@xeokit/sdk/metamodel";
  *
  * const data = new Data();
- * const dataModel = data.createModel({
+ * const dataModelResult = data.createModel({
  *     id: "myModel"
  * });
+ * const dataModel = dataModelResult.value;
  *
  * fetch("myMetaModel.json").then(response => {
  *     response.json().then(metaModelParams => {

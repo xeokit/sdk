@@ -39,7 +39,7 @@ import {SDKErrorType, SDKResult} from "../core";
  * @param [cfg.radialSegments=60] The number of radial (horizontal) segments. Default is `60`.
  * @param [cfg.heightSegments=1] The number of vertical segments. Default is `1`.
  * @param [cfg.openEnded=false] Whether or not the cylinder has solid caps at the top and bottom. Default is `false`.
- * @returns {SDKResult<GeometryArrays, string>} The geometry arrays for the cylinder, including positions, normals, UVs, and indices, or an error message.
+ * @returns {SDKResult<GeometryArrays>} The geometry arrays for the cylinder, including positions, normals, UVs, and indices, or an error message.
  */
 export function buildCylinderGeometry(cfg: {
     center?: FloatArrayParam;
@@ -57,7 +57,7 @@ export function buildCylinderGeometry(cfg: {
     radialSegments: 60,
     heightSegments: 1,
     openEnded: false,
-}): SDKResult<GeometryArrays, string> {
+}): SDKResult<GeometryArrays> {
     const center = cfg.center || [0, 0, 0];
     const radiusTop = cfg.radiusTop ?? 1;
     const radiusBottom = cfg.radiusBottom ?? 1;
@@ -66,32 +66,40 @@ export function buildCylinderGeometry(cfg: {
     const heightSegments = cfg.heightSegments ?? 1;
     const openEnded = cfg.openEnded ?? false;
 
-    if (radiusTop < 0 || radiusBottom < 0) {
+  if (center.length !== 3) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildCylinderGeometry] Center must be a 3D point [x, y, z]."
+    };
+  }
+
+  if (radiusTop < 0 || radiusBottom < 0) {
         return {
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: "Negative radius values are not allowed."
+            error: "[buildCylinderGeometry] Negative radius values are not allowed."
         };
     }
     if (height < 0) {
         return {
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: "Negative height is not allowed."
+            error: "[buildCylinderGeometry] Negative height is not allowed."
         };
     }
     if (radialSegments < 3) {
         return {
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: "radialSegments must be at least 3."
+            error: "[buildCylinderGeometry] radialSegments must be at least 3."
         };
     }
     if (heightSegments < 1) {
         return {
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: "heightSegments must be at least 1."
+            error: "[buildCylinderGeometry] heightSegments must be at least 1."
         };
     }
 

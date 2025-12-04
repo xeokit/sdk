@@ -1,11 +1,11 @@
 import {WEBGL_INFO, WebGLProgram} from "../../../webglutils";
 import {LinesPrimitive, OrthoProjectionType, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
-import {RENDER_PASSES, RenderPassValue} from "../RENDER_PASSES";
+import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import type {RenderContext} from "../RenderContext";
 import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
-import {MeshBatch} from "../meshManager/MeshBatch";
-import {SDKErrorType, SDKResult} from "../../../core";
-import {WebGLContextProvider} from "../../../webglutils/WebGLContextProvider";
+import {type MeshBatch} from "../meshManager/MeshBatch";
+import {SDKErrorType, type SDKResult} from "../../../core";
+import {type WebGLContextProvider} from "../../../webglutils/WebGLContextProvider";
 
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 

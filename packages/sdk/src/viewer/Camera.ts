@@ -16,7 +16,7 @@ import {
   transformPoint3,
   transposeMat4
 } from "../matrix";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 import {
   CustomProjectionType,
   FrustumProjectionType,
@@ -33,11 +33,10 @@ import {PerspectiveProjection} from './PerspectiveProjection';
 import type {Projection} from "./Projection";
 import type {View} from "./View";
 import {SDKTask} from "../core/SDKTask";
-import {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
-import {OrthoProjectionParams} from "./OrthoProjectionParams";
-import {FrustumProjectionParams} from "./FrustumProjectionParams";
-import {CustomProjectionParams} from "./CustomProjectionParams";
-
+import type {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
+import type {OrthoProjectionParams} from "./OrthoProjectionParams";
+import type {FrustumProjectionParams} from "./FrustumProjectionParams";
+import type {CustomProjectionParams} from "./CustomProjectionParams";
 
 const tempVec3 = createVec3();
 const tempVec3b = createVec3();

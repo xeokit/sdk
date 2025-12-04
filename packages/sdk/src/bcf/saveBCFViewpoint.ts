@@ -4,7 +4,7 @@ import type {FloatArrayParam} from "../math";
 import {OrthoProjectionType} from "../constants";
 import type {SaveBCFViewpointParams} from "./SaveBCFViewpointParams";
 import type {ViewObject} from "../viewer";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * Saves a {@link viewer!View | View} to a {@link BCFViewpoint | BCFViewpoint}.

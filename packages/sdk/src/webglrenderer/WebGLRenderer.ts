@@ -1,13 +1,13 @@
-import {EventEmitter, SDKErrorType, SDKResult} from "../core";
+import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
 import type {Viewer} from "../viewer";
 import {ViewManager} from "./viewManager/ViewManager";
 import {EventDispatcher} from "strongly-typed-events";
 import {getWebGLExtension} from "../webglutils";
-import {Capabilities} from "./Capabilities";
-import {WebGLRendererEvents} from "./WebGLRendererEvents";
-import {GPUMemoryConfigs} from "./GPUMemoryConfigs";
+import {type Capabilities} from "./Capabilities";
+import {type WebGLRendererEvents} from "./WebGLRendererEvents";
+import {type GPUMemoryConfigs} from "./GPUMemoryConfigs";
 import {createGPUMemoryConfigs} from "./createGPUMemoryConfigs";
-import {GPUMemoryUsage} from "./GPUMemoryUsage";
+import {type GPUMemoryUsage} from "./GPUMemoryUsage";
 
 /**
  * WebGL renderer for a Viewer.

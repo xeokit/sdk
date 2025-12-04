@@ -1,4 +1,4 @@
-import {SDKErrorType, SDKInternalException, SDKResult} from "../core";
+import {SDKErrorType, SDKInternalException, type SDKResult} from "../core";
 import {
   composeMat4, createMat4,
   eulerToQuat,
@@ -25,8 +25,7 @@ import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 import {CoordinateSystem} from "./CoordinateSystem";
 import {createCoordinateSystemTransform} from "./createCoordinateSystemTransform";
 import {SceneTransform} from "./SceneTransform";
-import {SceneTransformParams} from "./SceneTransformParams";
-import {DataModelParams} from "../data";
+import {type SceneTransformParams} from "./SceneTransformParams";
 
 
 /**

@@ -1,6 +1,6 @@
 import {DrawTechnique} from "./DrawTechnique";
-import {RenderPassValue} from "../RENDER_PASSES";
-import {MeshBatch} from "../meshManager/MeshBatch";
+import {type RenderPassValue} from "../RENDER_PASSES";
+import {type MeshBatch} from "../meshManager/MeshBatch";
 
 /**
  * A draw operation (draw op) applies a specific draw technique to a specific render pass.

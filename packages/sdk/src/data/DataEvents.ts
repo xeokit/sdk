@@ -1,4 +1,4 @@
-import {EventEmitter, SDKResult} from "../core";
+import {EventEmitter, type SDKResult} from "../core";
 import {DataModel} from "./DataModel";
 import {DataObject} from "./DataObject";
 import {Data} from "./Data";
@@ -15,7 +15,7 @@ export class DataEvents {
      * Emits an event when an error occurs within the `Data` or its components. This non-fatal event
      * is fired with an `SDKResult` containing error details whenever any operation fails.
      */
-    public readonly onError: EventEmitter<Data, SDKResult<any, string>>;
+    public readonly onError: EventEmitter<Data, SDKResult<any>>;
 
     /**
      * Emits an event each time a {@link DataModel | DataModel} has been created in this Data.
@@ -66,7 +66,7 @@ export class DataEvents {
      * @private
      */
     constructor() {
-        this.onError = new EventEmitter(new EventDispatcher<Data, SDKResult<any, string>>());
+        this.onError = new EventEmitter(new EventDispatcher<Data, SDKResult<any>>());
         this.onDataDestroyed = new EventEmitter(new EventDispatcher<Data, void>());
         this.onDataModelCreated = new EventEmitter(new EventDispatcher<Data, DataModel>());
         this.onDataModelDestroyed = new EventEmitter(new EventDispatcher<Data, DataModel>());

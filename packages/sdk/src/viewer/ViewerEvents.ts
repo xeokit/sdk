@@ -1,16 +1,16 @@
-import {Viewer} from "./Viewer";
-import {EventEmitter, SDKResult} from "../core";
-import {TickParams} from "./TickParams";
-import {SnapshotFinishedEvent, SnapshotStartedEvent, View} from "./View";
-import {FloatArrayParam, IntArrayParam} from "../math";
-import {ViewObject} from "./ViewObject";
-import {ViewLayer} from "./ViewLayer";
-import {SectionPlane} from "./SectionPlane";
-import {Frustum3} from "../boundaries";
-import {Camera} from "./Camera";
+import type {Viewer} from "./Viewer";
+import {EventEmitter, type SDKResult} from "../core";
+import {type TickParams} from "./TickParams";
+import type {SnapshotFinishedEvent, SnapshotStartedEvent, View} from "./View";
+import type {FloatArrayParam, IntArrayParam} from "../math";
+import type {ViewObject} from "./ViewObject";
+import type {ViewLayer} from "./ViewLayer";
+import type {SectionPlane} from "./SectionPlane";
+import type {Frustum3} from "../boundaries";
+import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
-import {Spinner} from "./Spinner";
-import {Scene} from "../scene";
+import type {Spinner} from "./Spinner";
+import type {Scene} from "../scene";
 
 /**
  * Events emitted by a {@link viewer!Viewer | Viewer}.
@@ -25,7 +25,7 @@ export class ViewerEvents {
      * Emits an event when an error occurs within the `Viewer` or its components. This non-fatal event
      * is fired with an `SDKResult` containing error details whenever any operation fails.
      */
-    public readonly onError: EventEmitter<Viewer, SDKResult<any, string>>;
+    public readonly onError: EventEmitter<Viewer, SDKResult<any>>;
 
     /**
      * Emits an event each time a {@link Scene} is attached to a {@link Viewer}.
@@ -50,7 +50,7 @@ export class ViewerEvents {
     /**
      * Emits an event each time a message is logged.
      */
-    readonly log: EventEmitter<Viewer>;
+    readonly log: EventEmitter<Viewer, string>;
 
     /**
      * Emits an event each time the number of active processes changes.
@@ -222,14 +222,14 @@ export class ViewerEvents {
      */
     constructor() {
 
-        this.onError = new EventEmitter<Viewer, SDKResult<any, string>>(new EventDispatcher<Viewer, SDKResult<any, string>>());
-        this.onSceneAttached = new EventEmitter(new EventDispatcher<View, Scene>());
-        this.onSceneDetached = new EventEmitter(new EventDispatcher<View, Scene>());
+        this.onError = new EventEmitter<Viewer, SDKResult<any>>(new EventDispatcher<Viewer, SDKResult<any>>());
+        this.onSceneAttached = new EventEmitter(new EventDispatcher<Viewer, Scene>());
+        this.onSceneDetached = new EventEmitter(new EventDispatcher<Viewer, Scene>());
         this.onViewerDestroyed = new EventEmitter(new EventDispatcher<Viewer, boolean>());
         this.onTick = new EventEmitter(new EventDispatcher<Viewer, TickParams>());
         this.processes = new EventEmitter(new EventDispatcher<Spinner, number>());
         this.zeroProcesses = new EventEmitter(new EventDispatcher<Spinner, number>());
-        this.log = new EventEmitter(new EventDispatcher<Viewer>());
+        this.log = new EventEmitter(new EventDispatcher<Viewer, string>());
         this.onViewCreated = new EventEmitter(new EventDispatcher<Viewer, View>());
         this.onViewUpdated = new EventEmitter(new EventDispatcher<View, View>());
         this.onViewDestroyed = new EventEmitter(new EventDispatcher<Viewer, View>());

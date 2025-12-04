@@ -1,7 +1,7 @@
 import {CustomProjectionType, FrustumProjectionType, QualityRender} from "../constants";
 import {type SAOParams} from "./SAOParams";
 import type {View} from "./View";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * Configures Scalable Ambient Obscurance (SAO) for a {@link View}.
@@ -350,7 +350,7 @@ export class SAO {
   /**
    * Gets the current configuration of this SAO.
    */
-  toParams(): SDKResult<SAOParams, never> {
+  toParams(): SDKResult<SAOParams> {
     return {
       ok: true,
       value: {

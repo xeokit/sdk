@@ -1,5 +1,5 @@
 import {RenderContext} from "../RenderContext";
-import {SDKErrorType, SDKResult} from "../../../core";
+import {SDKErrorType, type SDKResult} from "../../../core";
 import type {SceneMesh, SceneModel, SceneObject,} from "../../../scene";
 import {RendererObject} from "./RendererObject";
 import {RendererMesh} from "./RendererMesh";

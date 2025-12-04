@@ -1,6 +1,6 @@
 import type {Data} from "./Data";
 import type {DataObject} from "./DataObject";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 import type {SearchParams} from "./SearchParams";
 
 /**

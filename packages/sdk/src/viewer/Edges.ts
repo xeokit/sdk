@@ -2,7 +2,7 @@ import type {EdgesParams} from "./EdgesParams";
 import type {FloatArrayParam} from "../math";
 import {QualityRender} from "../constants";
 import type {View} from "./View";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 
 /**
@@ -163,7 +163,7 @@ class Edges {
     /**
      * Gets the current configuration of this Edges effect.
      */
-    toParams(): SDKResult<EdgesParams, never> {
+    toParams(): SDKResult<EdgesParams> {
         return {
           ok: true,
           value:{

@@ -48,6 +48,14 @@ export class DTXQuantRanges {
     return DTXQuantRanges.FLOATS_PER_ITEM * 4; // 4 bytes per float
   }
 
+  getCapacityBytes(): number {
+    return this.maxItems * DTXQuantRanges.elementSizeInBytes;
+  }
+
+  getUsedBytes() {
+    return this.numUsedItems * DTXQuantRanges.elementSizeInBytes;
+  }
+
   /**
    * Allocates the RGBA32F texture and backing array.
    * We keep the texture fairly wide to minimize row breaks.
@@ -191,4 +199,6 @@ export class DTXQuantRanges {
       this.gl.deleteTexture(this.texture);
     }
   }
+
+
 }

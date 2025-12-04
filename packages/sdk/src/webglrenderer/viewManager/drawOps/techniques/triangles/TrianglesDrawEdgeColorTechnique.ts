@@ -1,6 +1,6 @@
 import {DrawTechnique} from "../../DrawTechnique";
 import {RenderContext} from "../../../RenderContext";
-import {GPUMemoryReader} from "../../../gpuMemoryManager/GPUMemoryReader";
+import {type GPUMemoryReader} from "../../../gpuMemoryManager/GPUMemoryReader";
 
 /**
  * @private

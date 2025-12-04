@@ -15,6 +15,7 @@ import {SDKErrorType} from "../core";
  * See {@link scene | @xeokit/sdk/scene}   for usage.
  */
 export class SceneTransform {
+
   /** Unique identifier for the SceneTransform */
   readonly id: string;
 
@@ -208,9 +209,9 @@ export class SceneTransform {
    * @param child - The child mesh to remove.
    */
   removeChildMesh(child: SceneMesh): void {
-    if (child._parentTransform === this) {
-      child.setParentTransform(null);
-    }
+    // if (child._parentTransform === this) {
+    //   child.setParentTransform(null);
+    // }
   }
 
   /**

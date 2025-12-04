@@ -1,10 +1,10 @@
 import type {View, Viewer} from "../../viewer";
 import { WEBGL_INFO, type WebGLAbstractTexture} from "../../webglutils";
 import type {FloatArrayParam} from "../../math";
-import {SDKInternalException, SDKErrorType, SDKResult} from "../../core";
-import {WebGLContextProvider} from "../../webglutils/WebGLContextProvider";
-import {GPUMemoryConfigs} from "../GPUMemoryConfigs";
-import {GPUMemoryUsage} from "../GPUMemoryUsage";
+import {SDKInternalException, SDKErrorType, type SDKResult} from "../../core";
+import type {WebGLContextProvider} from "../../webglutils/WebGLContextProvider";
+import type {GPUMemoryConfigs} from "../GPUMemoryConfigs";
+import type {GPUMemoryUsage} from "../GPUMemoryUsage";
 
 
 /**

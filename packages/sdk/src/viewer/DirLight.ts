@@ -1,7 +1,7 @@
 import type {DirLightParams} from "./DirLightParams";
 import type {FloatArrayParam} from "../math";
 import type {View} from "./View";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * A directional light source within a {@link View}.
@@ -25,8 +25,8 @@ class DirLight {
    */
   public readonly view: View;
 
-  private _dir: FloatArrayParam;
-  private _color: FloatArrayParam;
+  private _dir: Float32Array<any>;
+  private _color: Float32Array<any>
   private _intensity: number;
   private _space: string;
   private _destroyed: boolean = false;

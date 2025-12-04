@@ -1,6 +1,3 @@
-import {Component, EventEmitter} from "../core";
-
-
 const defaultCSS = ".sk-fading-circle {\
         background: transparent;\
         margin: 20px auto;\
@@ -161,7 +158,7 @@ const defaultCSS = ".sk-fading-circle {\
  * spinner.process--;
  * ````
  */
-class Spinner extends ViewerComponent {
+class Spinner  {
   private _canvas: any;
   private _element: any;
   private _isCustom: boolean;
@@ -177,19 +174,18 @@ class Spinner extends ViewerComponent {
   /**
    @private
    */
-  constructor(owner: Component, cfg: {
+  constructor( cfg: {
     element: HTMLElement,
     elementId: false,
     canvas: HTMLElement
   }) {
-    super(owner, cfg);
     this._canvas = cfg.canvas;
     this._element = null;
     this._isCustom = false; // True when the element is custom HTML
     if (cfg.elementId) { // Custom spinner element supplied
       this._element = document.getElementById(cfg.elementId);
       if (!this._element) {
-        this.error("Can't find given Spinner HTML element: '" + cfg.elementId + "' - will automatically create default element");
+        console.error("Can't find given Spinner HTML element: '" + cfg.elementId + "' - will automatically create default element");
       } else {
         this._adjustPosition();
       }

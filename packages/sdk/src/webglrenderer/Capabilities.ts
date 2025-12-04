@@ -15,8 +15,6 @@ export interface Capabilities {
 
   /**
    * Does the renderer run headless?
-   *
-   * This is `true` when the renderer is a "mock renderer", that works without rendering anything.
    */
   headless: boolean;
 

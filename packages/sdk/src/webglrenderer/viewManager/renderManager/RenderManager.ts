@@ -3,10 +3,10 @@ import {RenderContext} from "../RenderContext";
 import {MeshManager} from "../meshManager/MeshManager";
 import {DrawOps, getDrawOps, putDrawOps} from "../drawOps/DrawOps";
 import {RendererView} from "../RendererView";
-import {GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
+import {type GPUMemoryReader} from "../gpuMemoryManager/type GPUMemoryReader";
 import {MeshBatch} from "../meshManager/MeshBatch";
 import {RENDER_PASSES} from "../RENDER_PASSES";
-import {SDKErrorType, SDKInternalException, SDKResult} from "../../../core";
+import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 
 
 /**

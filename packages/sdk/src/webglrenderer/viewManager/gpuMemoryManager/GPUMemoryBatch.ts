@@ -9,12 +9,12 @@ import {DTXVertexColorsArray} from "./dtx/DTXVertexColorsArray";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 import {DTXPointerArray} from "./dtx/DTXPointerArray";
 import {DTXGeometryAttribs} from "./dtx/DTXGeometryAttribs";
-import {DataTexturesBatch} from "./DataTexturesBatch";
+import {type DataTexturesBatch} from "./DataTexturesBatch";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
 import {DTXPrimDrawList} from "./dtx/DTXPrimDrawList";
-import {RENDER_PASSES, RenderPassValue} from "../RENDER_PASSES";
-import {SDKErrorType, SDKInternalException, SDKResult} from "../../../core";
-import {GPUMemoryConfigs} from "../../GPUMemoryConfigs";
+import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
+import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
+import {type GPUMemoryConfigs} from "../../GPUMemoryConfigs";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
@@ -214,7 +214,7 @@ export class GPUMemoryBatch {
   /**
    * Returns the total number of bytes currently used by all managed arrays in this batch.
    */
-  getTotalUsedBytes(): number {
+  getUsedBytes(): number {
     let total = 0;
     total += this._positions.getUsedBytes();
     total += this._vertexColors.getUsedBytes();
@@ -489,7 +489,10 @@ export class GPUMemoryBatch {
 
     this._numMeshes++;
 
-    return meshIndex;
+    return {
+      ok: true,
+      value: meshIndex
+    };
   }
 
   /**

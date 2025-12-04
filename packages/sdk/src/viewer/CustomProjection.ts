@@ -1,4 +1,4 @@
-import {EventEmitter, SDKErrorType, SDKResult} from "../core";
+import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
 import {createMat4, identityMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "../matrix";
 import type {Camera} from "./Camera";
 import type {CustomProjectionParams} from "./CustomProjectionParams";
@@ -6,7 +6,6 @@ import {CustomProjectionType} from "../constants";
 import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "../math";
 import type {Projection} from "./Projection";
-import {FrustumProjectionParams} from "./FrustumProjectionParams";
 
 /**
  * Configures a custom projection for a {@link Camera | Camera} .

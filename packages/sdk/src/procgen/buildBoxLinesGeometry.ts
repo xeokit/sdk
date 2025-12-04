@@ -2,7 +2,7 @@ import * as constants from "../constants";
 import * as utils from "../utils";
 import type {FloatArrayParam} from "../math";
 import type {GeometryArrays} from "./GeometryArrays";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * Creates a box-shaped wireframe geometry.

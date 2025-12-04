@@ -81,25 +81,28 @@ export class CoordinateSystem  {
      */
     set basis(value: FloatArrayParam) {
         if (this.destroyed) {
-            return (this._scene||this._model.scene).logError({
+             (this._scene||this._model.scene).logError({
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
                 error: "[CoordinateSystem.basis] CoordinateSystem already destroyed - cannot set basis"
             });
+             return;
         }
         if (value && value.length !== 9) {
-            return (this._scene||this._model.scene).logError({
+            (this._scene||this._model.scene).logError({
                 ok: false,
                 type: SDKErrorType.InvalidInput,
                 error: "[CoordinateSystem.basis] Invalid basis array - must have 9 elements"
             });
+            return;
         }
         if (!testOrthogonalAxis(value)) {
-            return (this._scene||this._model.scene).logError({
+            (this._scene||this._model.scene).logError({
                 ok: false,
                 type: SDKErrorType.InvalidInput,
                 error: "[CoordinateSystem.basis] Invalid basis array - axes are not orthogonal"
             });
+            return;
         }
         this._basis = new Float32Array(<any>value || [
             1, 0, 0, // Right
@@ -132,11 +135,12 @@ export class CoordinateSystem  {
      */
     set origin(value: FloatArrayParam) {
         if (this.destroyed) {
-            return (this._scene||this._model.scene).logError({
+            (this._scene||this._model.scene).logError({
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
                 error: "[CoordinateSystem.origin] CoordinateSystem already destroyed - cannot set origin"
             });
+            return;
         }
         this._origin = new Float32Array(<any>value);
         (this._model)
@@ -156,18 +160,20 @@ export class CoordinateSystem  {
      */
     set units(value: 'meters' | 'millimeters' | 'inches' | 'feet') {
         if (this.destroyed) {
-            return (this._scene||this._model.scene).logError({
+            (this._scene||this._model.scene).logError({
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
                 error: "[CoordinateSystem.units] CoordinateSystem already destroyed - cannot set units"
             });
+            return;
         }
         if (value !== 'meters' && value !== 'millimeters' && value !== 'inches' && value !== 'feet') {
-            return (this._scene||this._model.scene).logError({
+            (this._scene||this._model.scene).logError({
                 ok: false,
                 type: SDKErrorType.InvalidInput,
                 error: "[CoordinateSystem.units] Invalid units - must be 'meters', 'millimeters', 'inches', or 'feet'"
             });
+            return;
         }
         this._units = value;
         (this._model)
@@ -187,18 +193,20 @@ export class CoordinateSystem  {
      */
     set scaleToMeters(value: number | undefined) {
         if (this.destroyed) {
-            return (this._scene||this._model.scene).logError({
+            (this._scene||this._model.scene).logError({
                 ok: false,
                 type: SDKErrorType.InvalidOperation,
                 error: "[CoordinateSystem.scaleToMeters] CoordinateSystem already destroyed - cannot set scaleToMeters"
             });
+            return;
         }
         if (value !== undefined && (typeof value !== "number" || isNaN(value) || value <= 0) ) {
-            return (this._scene||this._model.scene).logError({
+            (this._scene||this._model.scene).logError({
                 ok: false,
                 type: SDKErrorType.InvalidInput,
                 error: "[CoordinateSystem.scaleToMeters] Invalid scaleToMeters - must be a positive number"
             });
+            return;
         }
         this._scaleToMeters = value;
         (this._model)

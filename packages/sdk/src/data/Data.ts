@@ -1,4 +1,4 @@
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 import {DataModel} from "./DataModel";
 import type {DataModelParams} from "./DataModelParams";
 import type {DataObject} from "./DataObject";
@@ -179,7 +179,7 @@ export class Data {
    * @private
    * @param result
    */
-  logError(result:SDKResult<any,string>) : SDKResult<any>{
+  logError(result:SDKResult<void>) : SDKResult<any>{
     if (result.ok === false) {
       if (this.logging) {
         console.error(`[xeokit Data] ${result.error}`);

@@ -2,7 +2,7 @@ import {normalizeVec3, subVec3} from "../matrix";
 import {apply} from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * Creates a torus-shaped {@link scene!SceneGeometry | SceneGeometry}.

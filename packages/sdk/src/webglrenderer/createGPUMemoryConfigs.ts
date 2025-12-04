@@ -1,4 +1,4 @@
-import {GPUMemoryConfigs} from "./GPUMemoryConfigs";
+import {type GPUMemoryConfigs} from "./GPUMemoryConfigs";
 import {GPUMemoryManager} from "./viewManager/gpuMemoryManager/GPUMemoryManager";
 
 /**

@@ -1,4 +1,4 @@
-import {EventEmitter, SDKErrorType, SDKResult, SDKTask,} from "../core";
+import {EventEmitter, SDKErrorType, type SDKResult, SDKTask,} from "../core";
 import {FastRender, QualityRender} from "../constants";
 import type {FloatArrayParam, IntArrayParam} from "../math";
 import type {SceneObject} from "../scene";
@@ -23,12 +23,12 @@ import type {ViewLayerParams} from "./ViewLayerParams";
 import {ViewObject} from "./ViewObject";
 import type {ViewParams} from "./ViewParams";
 import {EventDispatcher} from "strongly-typed-events";
-import {CameraParams} from "./CameraParams";
-import {SAOParams} from "./SAOParams";
-import {EdgesParams} from "./EdgesParams";
-import {EmphasisMaterialParams} from "./EmphasisMaterialParams";
-import {PointsMaterialParams} from "./PointsMaterialParams";
-import {ResolutionScaleParams} from "./ResolutionScaleParams";
+import type {CameraParams} from "./CameraParams";
+import type {SAOParams} from "./SAOParams";
+import type {EdgesParams} from "./EdgesParams";
+import type {EmphasisMaterialParams} from "./EmphasisMaterialParams";
+import type {PointsMaterialParams} from "./PointsMaterialParams";
+import type {ResolutionScaleParams} from "./ResolutionScaleParams";
 
 /**
  * Event that signifies the beginning of a canvas snapshot captured with
@@ -231,7 +231,7 @@ class View {
    *
    * @private
    */
-  readonly onBoundary: EventEmitter<View, IntArrayParam>;
+  readonly onBoundary: EventEmitter<View, FloatArrayParam>;
 
   /**
    * True if this View has been destroyed.
@@ -1733,8 +1733,8 @@ class View {
         camera: (<{ value: CameraParams }>this.camera.toParams()).value,
         autoLayers: this.autoLayers,
         layers: Object.values(this.layers).map(viewLayer => (<{ value: ViewLayerParams }>viewLayer.toParams()).value),
-        sectionPlanes: Object.values(this.sectionPlanes).map(sectionPlane => (<{ value: SectionPlaneParams }>sectionPlane.toParams()).value),
-        lights: Object.values(this.lights).map(light => light.toParams()),
+       // sectionPlanes: Object.values(this.sectionPlanes).map(sectionPlane => (<{ value: SectionPlaneParams }>sectionPlane.toParams()).value),
+       // lights: Object.values(this.lights).map(light => light.toParams()),
         sao: (<{ value: SAOParams }>this.sao.toParams()).value,
         edges: (<{ value: EdgesParams }>this.edges.toParams()).value,
         highlightMaterial: (<{ value: EmphasisMaterialParams }>this.highlightMaterial.toParams()).value,

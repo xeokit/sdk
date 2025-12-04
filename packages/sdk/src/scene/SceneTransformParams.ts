@@ -1,5 +1,5 @@
 
-import {FloatArrayParam} from "../math";
+import {type FloatArrayParam} from "../math";
 
 /**
  * Parameters for a {@link SceneTransform}.
@@ -42,7 +42,7 @@ export class SceneTransformParams {
     rotation?: FloatArrayParam;
 
     /**
-     * ID of the parent {@link ViewTransform} that was created previously
+     * ID of the parent {@link SceneTransform} that was created previously
      * with {@link SceneModel.createTransform | SceneModel.createTransform}.
      */
     parentTransformId?: string;

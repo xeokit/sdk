@@ -1,5 +1,5 @@
 
-import {SceneMesh} from "../../../scene";
+import {type SceneMesh} from "../../../scene";
 import {RENDER_PASSES} from "../RENDER_PASSES";
 
 /**
@@ -59,6 +59,6 @@ export interface MeshBatch {
    * @param viewIndex
    * @param renderPass
    */
-  hasMeshesInRenderPass(viewIndex: number, renderPass: RENDER_PASSES ): boolean
+  hasMeshesInRenderPass(viewIndex: number, renderPass: RENDER_PASSES ): boolean;
 }
 

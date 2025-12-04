@@ -1,6 +1,6 @@
 import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * Creates a plane-shaped geometry.

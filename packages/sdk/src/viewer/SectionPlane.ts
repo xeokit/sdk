@@ -3,7 +3,7 @@ import type {FloatArrayParam} from "../math";
 import {type SectionPlaneParams} from "./SectionPlaneParams";
 import type {View} from "./View";
 import {createUUID} from "../utils";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 
 /**
@@ -163,7 +163,7 @@ class SectionPlane {
      *
      * @param sectionPlaneParams
      */
-    fromParams(sectionPlaneParams: SectionPlaneParams) : SDKResult<any, any>{
+    fromParams(sectionPlaneParams: SectionPlaneParams) : SDKResult<void>{
       if (this.destroyed) {
           return this.view.viewer.logError({
             ok: false,
@@ -189,7 +189,7 @@ class SectionPlane {
     /**
      * Gets the current configuration of this SectionPlane.
      */
-    toParams(): SDKResult<SectionPlaneParams, any> {
+    toParams(): SDKResult<SectionPlaneParams> {
         return {
           ok: true,
           value: {

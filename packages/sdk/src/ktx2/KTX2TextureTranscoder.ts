@@ -1,4 +1,4 @@
-import type {Capabilities, TextureCompressedParams, TextureTranscoder} from "../core";
+import type { TextureCompressedParams, TextureTranscoder} from "../core";
 import {FileLoader, WorkerPool} from "../utils";
 import {
   LinearEncoding,
@@ -16,6 +16,7 @@ import {
   RGBAFormat,
   sRGBEncoding
 } from "../constants";
+import {type Capabilities} from "../webglrenderer/Capabilities";
 
 const KTX2TransferSRGB = 2;
 const KTX2_ALPHA_PREMULTIPLIED = 1;

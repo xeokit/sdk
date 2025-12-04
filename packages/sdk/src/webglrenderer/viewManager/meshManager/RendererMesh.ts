@@ -7,18 +7,14 @@ import {
 import type {FloatArrayParam} from "../../../math";
 import type {MeshBatchImpl} from "./MeshBatchImpl";
 import type {RenderContext} from "../RenderContext";
-import {SceneMesh} from "../../../scene";
+import {type SceneMesh} from "../../../scene";
 import {type Tile} from "../gpuMemoryManager/Tile";
 import {type GPUMemoryEditor} from "../gpuMemoryManager/GPUMemoryEditor";
-import {RendererObject} from "./RendererObject";
-import {MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
-import {worldToRTCPositions} from "../../../rtc";
+import {type MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
 
 const tempIdentityMat4 = createMat4();
 const identityVec4 = createVec4([0, 0, 0, 1]);
 const tempVec4a = createVec4();
-const tempMat4a = createMat4();
-const tempMat4b = createMat4();
 
 const NUM_VIEWS = 4;
 

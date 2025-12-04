@@ -39,6 +39,9 @@ export class DTXMeshAttribs {
       return 16; // 4 uint32 lanes per uvec4, 4 bytes each
     }
 
+  getUsedBytes() {
+    return 0;
+  }
 
   allocate() : boolean {
     // Clamp to device limits and keep rows wide to reduce uploads.
@@ -189,5 +192,7 @@ export class DTXMeshAttribs {
       this._gl.deleteTexture(this.texture);
     }
   }
+
+
 }
 

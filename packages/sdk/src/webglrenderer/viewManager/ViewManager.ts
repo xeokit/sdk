@@ -1,16 +1,16 @@
 import {RenderContext} from "./RenderContext";
 import {Camera,  View, Viewer, ViewObject} from "../../viewer";
-import {SDKInternalException, SDKErrorType, SDKResult} from "../../core";
+import {SDKInternalException, SDKErrorType, type SDKResult} from "../../core";
 import {RendererView} from "./RendererView";
 import {RenderManager} from "./renderManager/RenderManager";
 import {PickManager} from "./pickManager/PickManager";
 import {GPUMemoryManager} from "./gpuMemoryManager/GPUMemoryManager";
 import {MeshManager} from "./meshManager/MeshManager";
-import {GPUMemoryEditor} from "./gpuMemoryManager/GPUMemoryEditor";
-import {GPUMemoryReader} from "./gpuMemoryManager/GPUMemoryReader";
+import {type GPUMemoryEditor} from "./gpuMemoryManager/GPUMemoryEditor";
+import {type GPUMemoryReader} from "./gpuMemoryManager/GPUMemoryReader";
 import {SceneMesh, SceneModel, SceneObject} from "../../scene";
 import {SceneTransform} from "../../scene/SceneTransform";
-import {GPUMemoryConfigs} from "../GPUMemoryConfigs";
+import {type GPUMemoryConfigs} from "../GPUMemoryConfigs";
 
 /**
  * Manages the viewManager in the WebGLRenderer.

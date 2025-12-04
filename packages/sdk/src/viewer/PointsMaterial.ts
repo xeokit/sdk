@@ -1,11 +1,9 @@
-import type {PointsMaterialParams} from "./PointsMaterialParams";
+import type { PointsMaterialParams} from "./PointsMaterialParams";
 import type {View} from "./View";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * Configures the size and shape of {@link ViewObject | ViewObjects} that represent clouds of points.
- *
- *
  *
  * * Located at {@link View.pointsMaterial}.
  * * Supports round and square points.
@@ -83,7 +81,7 @@ class PointsMaterial {
       return;
     }
     this._roundPoints = value;
-    this.view.rebuild();
+    //this.view.rebuild();
   }
 
   /**
@@ -105,7 +103,7 @@ class PointsMaterial {
       return;
     }
     this._perspectivePoints = value;
-    this.view.rebuild();
+   // this.view.rebuild();
   }
 
   /**
@@ -127,7 +125,7 @@ class PointsMaterial {
       return;
     }
     this._minPerspectivePointSize = value;
-    this.view.rebuild();
+   // this.view.rebuild();
   }
 
   /**
@@ -151,7 +149,7 @@ class PointsMaterial {
       return;
     }
     this._maxPerspectivePointSize = value;
-    this.view.rebuild();
+  //  this.view.rebuild();
   }
 
   /**
@@ -174,7 +172,7 @@ class PointsMaterial {
       return;
     }
     this._filterIntensity = value;
-    this.view.rebuild();
+ //   this.view.rebuild();
   }
 
   /**
@@ -289,7 +287,7 @@ class PointsMaterial {
   /**
    * Gets the current configuration of this PointsMaterial.
    */
-  toParams(): SDKResult<PointsMaterialParams, never> {
+  toParams(): SDKResult<PointsMaterialParams> {
     return {
       ok: true,
       value: {

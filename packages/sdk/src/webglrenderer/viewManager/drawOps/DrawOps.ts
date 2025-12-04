@@ -1,19 +1,19 @@
-import {RenderContext} from "../RenderContext";
-import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
-import {TrianglesDrawColorTechnique} from "./techniques/triangles/TrianglesDrawColorTechnique";
-import {GenericDrawSilhouetteTechnique} from "./techniques/generic/GenericDrawSilhouetteTechnique";
-import {PointsDrawColorTechnique} from "./techniques/points/PointsDrawColorTechnique";
-import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
-import {LinesDrawColorTechnique} from "./techniques/lines/LinesDrawColorTechnique";
-import {RenderPassDrawOps} from "./RenderPassDrawOps";
-import {DrawOp} from "./DrawOp";
-import {RENDER_PASSES} from "../RENDER_PASSES";
-import {TrianglesDrawEdgeSilhouetteTechnique} from "./techniques/triangles/TrianglesDrawEdgeSilhouetteTechnique";
-import {DrawTechnique} from "./DrawTechnique";
-import {GenericPickMeshTechnique} from "./techniques/generic/GenericPickMeshTechnique";
-import {GenericPickDepthTechnique} from "./techniques/generic/GenericPickDepthTechnique";
-import {TrianglesDrawEdgeColorTechnique} from "./techniques/triangles/TrianglesDrawEdgeColorTechnique";
-import {SDKResult} from "../../../core";
+import type { GPUMemoryReader } from "../gpuMemoryManager/GPUMemoryReader";
+import type { SDKResult } from "../../../core";
+import { RenderContext } from "../RenderContext";
+import { LinesPrimitive, PointsPrimitive, TrianglesPrimitive } from "../../../constants";
+import { TrianglesDrawColorTechnique } from "./techniques/triangles/TrianglesDrawColorTechnique";
+import { GenericDrawSilhouetteTechnique } from "./techniques/generic/GenericDrawSilhouetteTechnique";
+import { PointsDrawColorTechnique } from "./techniques/points/PointsDrawColorTechnique";
+import { LinesDrawColorTechnique } from "./techniques/lines/LinesDrawColorTechnique";
+import { type RenderPassDrawOps } from "./RenderPassDrawOps";
+import { DrawOp } from "./DrawOp";
+import { RENDER_PASSES } from "../RENDER_PASSES";
+import { TrianglesDrawEdgeSilhouetteTechnique } from "./techniques/triangles/TrianglesDrawEdgeSilhouetteTechnique";
+import { DrawTechnique } from "./DrawTechnique";
+import { GenericPickMeshTechnique } from "./techniques/generic/GenericPickMeshTechnique";
+import { GenericPickDepthTechnique } from "./techniques/generic/GenericPickDepthTechnique";
+import { TrianglesDrawEdgeColorTechnique } from "./techniques/triangles/TrianglesDrawEdgeColorTechnique";
 
 /**
  * Manages a set of draw operations for different primitive types.

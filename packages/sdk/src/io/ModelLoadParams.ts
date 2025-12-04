@@ -1,5 +1,5 @@
-import {SceneModel} from "../scene/SceneModel";
-import {DataModel} from "../data/DataModel";
+import {type SceneModel} from "../scene/SceneModel";
+import {type DataModel} from "../data/DataModel";
 
 /**
  * Parameters for {@link ModelLoader.load | ModelLoader.load}.

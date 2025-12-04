@@ -1,5 +1,5 @@
 import {apply, createUUID} from "../utils";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 import {Scene, SceneObject} from "../scene";
 import {View} from "./View";
 import type {ViewerParams} from "./ViewerParams";

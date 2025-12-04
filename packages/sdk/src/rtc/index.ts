@@ -80,6 +80,7 @@ export function createRTCViewMat(
 ): FloatArrayParam {
   const [x, y, z] = rtcCenter;
   if (x === 0 && y === 0 && z === 0) {
+    // @ts-ignore
     rtcViewMat.set(viewMat);
     return rtcViewMat;
   }
@@ -142,6 +143,7 @@ export const createRTCModelMat = (() => {
 
     rtcModelMatrix = rtcModelMatrix || matrix.slice();
 
+    // @ts-ignore
     rtcModelMatrix.set(subVec3(matCenter, rtcCenter, createVec3()), 12);
 
     return rtcModelMatrix;

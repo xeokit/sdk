@@ -1,4 +1,3 @@
-import {Component} from "../core";
 import type {FloatArrayParam} from "../math";
 import type {PointLightParams} from "./PointLightParams";
 import type {View} from "./View";
@@ -16,7 +15,7 @@ import {createUUID} from "../utils";
  * {@link PointLight.pos} is relative to the View coordinate system, and will behave as if fixed to the viewer's head.
  * * Has {@link PointLight.constantAttenuation}, {@link PointLight.linearAttenuation} and {@link PointLight.quadraticAttenuation}
  * factors, which indicate how intensity attenuates over distance.
- * * {@link AmbientLight}s, {@link PointLight}s and {@link PointLight}s are registered by their {@link Component.id} on {@link View.lights}.
+ * * {@link AmbientLight}s, {@link PointLight}s and {@link PointLight}s are registered by their IDs on {@link View.lights}.
  */
 class PointLight {
 

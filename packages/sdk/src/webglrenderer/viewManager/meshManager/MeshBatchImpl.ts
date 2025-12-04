@@ -6,7 +6,7 @@ import {type GPUMemoryEditor} from "../gpuMemoryManager/GPUMemoryEditor";
 import {MeshBatch} from "./MeshBatch";
 import {MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
 import {GPUMemoryMeshHandle} from "../gpuMemoryManager/GPUMemoryMeshHandle";
-import {GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
+import {type GPUMemoryReader} from "../gpuMemoryManager/type GPUMemoryReader";
 import {SDKResult} from "../../../core";
 
 /**

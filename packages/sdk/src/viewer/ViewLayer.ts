@@ -4,9 +4,8 @@ import type {Viewer} from "./Viewer";
 import type {ViewLayerParams} from "./ViewLayerParams";
 import {ViewObject} from "./ViewObject";
 import type {ViewParams} from "./ViewParams";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 import {SceneObject} from "../scene";
-import {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
 
 
 /**
@@ -1027,7 +1026,7 @@ class ViewLayer {
    *
    * @param viewLayerParams
    */
-  fromParams(viewLayerParams: ViewLayerParams) : SDKResult<void, any> {
+  fromParams(viewLayerParams: ViewLayerParams) : SDKResult<void> {
     return {
       ok: true,
       value: void 0
@@ -1037,7 +1036,7 @@ class ViewLayer {
   /**
    * Gets the current configuration of this ViewLayer.
    */
-  toParams(): SDKResult<ViewLayerParams, any> {
+  toParams(): SDKResult<ViewLayerParams> {
     return {
       ok: true,
       value: {

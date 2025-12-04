@@ -4,9 +4,9 @@ import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneMeshParams} from "./SceneMeshParams";
 import type {SceneObject} from "./SceneObject";
 import type {SceneTextureSet} from "./SceneTextureSet";
-import {SceneModel} from "./SceneModel";
+import type {SceneModel} from "./SceneModel";
 import {SceneTransform} from "./SceneTransform";
-import {SDKErrorType, SDKResult} from "../core";
+import { SDKErrorType, type SDKResult} from "../core";
 
 
 /**
@@ -284,9 +284,6 @@ export class SceneMesh {
   public setParentTransform(next: SceneTransform | null, opts?: { preserveWorld?: boolean }): void {
     if (this.destroyed) {
       return;
-    }
-    if (next === this) {
-      throw new Error("Cannot parent to self");
     }
     const preserve = !!opts?.preserveWorld;
     if (preserve) {

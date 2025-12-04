@@ -1,4 +1,4 @@
-import {DTXPassRange} from "./dtx/DTXPrimDrawList";
+import {type DTXPassRange} from "./dtx/DTXPrimDrawList";
 
 /**
  * Interface representing a collection of data textures used in WebGL rendering.

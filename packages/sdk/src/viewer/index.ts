@@ -820,7 +820,6 @@ export * from "./PerspectiveProjection";
 export * from "./PerspectiveProjectionParams";
 export * from "./CustomProjection";
 export * from "./CustomProjectionParams";
-export * from "./scheduler";
 export * from "./AmbientLight";
 export * from "./AmbientLightParams";
 export * from "./DirLight";

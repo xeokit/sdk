@@ -12,6 +12,42 @@ const taskRunner = getGlobalTaskRunner();
  *
  * A task is managed by an {@link SDKTaskRunner}, which handles scheduling
  * and invoking tasks at their designated stage.
+ *
+ * ## Example
+ *
+ * ```typescript
+ *
+ * // Create a repeating task within the
+ * // input collection stage of the SDK's update cycle. The task
+ * // will run automatically every update cycle.
+ *
+ * const myTask = new SDKTask({
+ *   name: "MyTask",
+ *   stage: SDKTask.CollectInputStage,
+ *   task: () => {
+ *     console.log("Running my task");
+ *   },
+ *   repeat: true
+ * });
+ *
+ * // Schedule a non-repeating task within the
+ * // animation stage of the SDK's update cycle.
+ *
+ * const oneTimeTask = new SDKTask({
+ *   name: "OneTimeTask",
+ *   stage: SDKTask.AnimateStage,
+ *   task: () => {
+ *     console.log("Running one-time task");
+ *   },
+ *   repeat: false
+ * });
+ *
+ * // Manually schedule the one-time task to run. We can also
+ * // reschedule it later if needed.
+ * oneTimeTask.schedule();
+ * ```
+ *
+ * * @see SDKTaskRunner
  */
 export class SDKTask {
 

@@ -1,5 +1,5 @@
 import {Scene} from "./Scene";
-import {EventEmitter, SDKErrorType, SDKResult} from "../core";
+import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
 import {SceneModel} from "./SceneModel";
 import {SceneObject} from "./SceneObject";
 import {SceneMesh} from "./SceneMesh";
@@ -23,7 +23,7 @@ export class SceneEvents {
      * Emits an event when an error occurs within the `Scene` or its components. This non-fatal event
      * is fired with an `SDKResult` containing error details whenever any operation fails.
      */
-    public readonly onError: EventEmitter<Scene, SDKResult<any, string>>;
+    public readonly onError: EventEmitter<Scene, SDKResult<any>>;
 
     /**
      * Emits an event when the `Scene` itself is destroyed.
@@ -186,7 +186,7 @@ export class SceneEvents {
      * @private
      */
     constructor() {
-        this.onError = new EventEmitter(new EventDispatcher<Scene, SDKResult<any, string>>());
+        this.onError = new EventEmitter(new EventDispatcher<Scene, SDKResult<any>>());
         this.onSceneDestroyed = new EventEmitter(new EventDispatcher<Scene, Scene>());
         this.onSceneCoordSystemBasisChanged = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());
         this.onSceneCoordSystemOriginChanged = new EventEmitter(new EventDispatcher<Scene, CoordinateSystem>());

@@ -1,4 +1,4 @@
-import {EventEmitter, SDKErrorType, SDKResult} from "../core";
+import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
 import {createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "../matrix";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";

@@ -1,7 +1,7 @@
 import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {LinesPrimitive} from "../constants";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 
 const letters = {

@@ -1,7 +1,7 @@
 import type {SceneMesh} from "./SceneMesh";
 import type {SceneModel} from "./SceneModel";
 import type {SceneObjectParams} from "./SceneObjectParams";
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * An object within a {@link SceneModel | SceneModel}.

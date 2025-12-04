@@ -1,5 +1,5 @@
 
-import { SDKErrorType, SDKResult } from "../core";
+import { SDKErrorType, type SDKResult } from "../core";
 import { SceneModel } from "./SceneModel";
 import type { SceneModelParams } from "./SceneModelParams";
 import type { SceneObject } from "./SceneObject";

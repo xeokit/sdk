@@ -1,5 +1,5 @@
 import {type PickParams, PickResult} from "../../../viewer";
-import {SDKInternalException, SDKResult} from "../../../core";
+import {SDKInternalException, type SDKResult} from "../../../core";
 import {
   addVec3, createMat4, createVec2, createVec3, createVec4,
   cross3Vec3, dotVec4,
@@ -16,7 +16,7 @@ import {createRTCViewMat} from "../../../rtc";
 import {RendererMesh} from "../meshManager/RendererMesh";
 import {RenderContext} from "../RenderContext";
 import {RenderBuffers} from "../RenderBuffers";
-import {GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
+import {type GPUMemoryReader} from "../gpuMemoryManager/type GPUMemoryReader";
 import {MeshManager} from "../meshManager/MeshManager";
 import {ViewManager} from "../ViewManager";
 import {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";

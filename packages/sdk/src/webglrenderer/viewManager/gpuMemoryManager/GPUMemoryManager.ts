@@ -8,10 +8,10 @@ import {type GPUMemoryEditor} from "./GPUMemoryEditor";
 import {DataTextures} from "./DataTextures";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 import {GPUMemoryBatch} from "./GPUMemoryBatch";
-import {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
-import {Camera, TickParams, View} from "../../../viewer";
-import {RenderPassValue} from "../RENDER_PASSES";
-import {SDKErrorType, SDKInternalException, SDKResult} from "../../../core";
+import {type GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
+import {Camera, View} from "../../../viewer";
+import {type RenderPassValue} from "../RENDER_PASSES";
+import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 
 
 /**
@@ -32,7 +32,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   private _renderContext: RenderContext;
   private _tiles: TileManager;
   private _onTick: () => void;
-  private _numMeshes: Number;
+  private _numMeshes: number;
   private _tileViewMatrices: DTXMatrixArray[];
   private _tileRayPickMatrices: DTXMatrixArray[];
 

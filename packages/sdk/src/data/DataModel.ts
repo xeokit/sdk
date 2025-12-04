@@ -1,4 +1,4 @@
-import {SDKErrorType, SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 import type {Data} from "./Data";
 import type {DataModelContentParams} from "./DataModelContentParams";
 import type {DataModelParams} from "./DataModelParams";

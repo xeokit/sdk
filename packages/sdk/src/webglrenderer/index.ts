@@ -74,8 +74,8 @@
  *
  * @module webglrenderer
  */
-export {WebGLRenderer} from "./WebGLRenderer";
-export {WebGLRendererEvents} from "./WebGLRendererEvents";
-export {GPUMemoryConfigs} from "./GPUMemoryConfigs";
-export {createGPUMemoryConfigs} from "./createGPUMemoryConfigs";
-export {GPUMemoryUsage} from "./GPUMemoryUsage";
+export * from "./WebGLRenderer";
+export * from "./WebGLRendererEvents";
+export * from "./GPUMemoryConfigs";
+export * from "./createGPUMemoryConfigs";
+export * from "./GPUMemoryUsage";

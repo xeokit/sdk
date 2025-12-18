@@ -1,5 +1,4 @@
-import {composeMat4, eulerToQuat, identityMat4, identityQuat} from "../matrix";
-import type {FloatArrayParam} from "../math";
+import {composeMat4, eulerToQuat, type Vec3Float, identityMat4, identityQuat, type Quat} from "../matrix";
 
 const identityQuaternion = identityQuat();
 
@@ -9,10 +8,10 @@ const identityQuaternion = identityQuat();
  * @param params
  */
 export function buildMat4(params: {
-  quaternion?: FloatArrayParam;
-  rotation?: FloatArrayParam;
-  scale?: FloatArrayParam;
-  position?: FloatArrayParam;
+  quaternion?: Quat;
+  rotation?: Vec3Float;
+  scale?: Vec3Float;
+  position?: Vec3Float;
 
 }) {
   const matrix = identityMat4();

@@ -2,6 +2,7 @@ import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {SDKErrorType, type SDKResult} from "../core";
 import {TrianglesPrimitive} from "../constants";
+import type {Vec3} from "../matrix";
 
 /**
  * Creates box-shaped geometry.
@@ -36,7 +37,7 @@ import {TrianglesPrimitive} from "../constants";
  * @returns {SDKResult<GeometryArrays>} The geometry arrays for a box, including positions, UVs, and indices, or an error message.
  */
 export function buildBoxGeometry(cfg: {
-  center?: number[],
+  center?: Vec3,
   ySize?: number,
   xSize?: number,
   zSize?: number

@@ -1,8 +1,13 @@
 import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
-import {createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, perspectiveMat4, transposeMat4} from "../matrix";
+import {
+  createMat4Float64,
+  inverseMat4,
+  perspectiveMat4,
+  transposeMat4, Vec2, Vec3
+} from "../matrix";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
-import type {FloatArrayParam} from "../math";
+import type {Mat4} from "../matrix";
 import type {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
 import {PerspectiveProjectionType} from "../constants";
 import type {Projection} from "./Projection";
@@ -25,10 +30,8 @@ export class PerspectiveProjection implements Projection {
 
   /**
    * Emits an event each time {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix} updates.
-   *
-   * @event
    */
-  readonly onProjMatrix: EventEmitter<PerspectiveProjection, FloatArrayParam>;
+  readonly onProjMatrix: EventEmitter<PerspectiveProjection, Mat4>;
 
   /**
    * The type of this projection.
@@ -39,9 +42,9 @@ export class PerspectiveProjection implements Projection {
   private _near: number;
   private _fov: number;
   private _fovAxis: string;
-  private _projMatrix: FloatArrayParam;
-  private _inverseProjMatrix: FloatArrayParam;
-  private _transposedProjMatrix: FloatArrayParam;
+  private _projMatrix: Mat4;
+  private _inverseProjMatrix: Mat4;
+  private _transposedProjMatrix: Mat4;
   private _inverseMatrixDirty: boolean;
   private _transposedProjMatrixDirty: boolean;
   private _onViewBoundary: any;
@@ -64,15 +67,15 @@ export class PerspectiveProjection implements Projection {
     this._near = cfg.near || 0.1;
     this._fov = cfg.fov || 60.0;
     this._fovAxis = cfg.fovAxis || "min";
-    this._projMatrix = createMat4();
-    this._inverseProjMatrix = createMat4();
-    this._transposedProjMatrix = createMat4();
+    this._projMatrix = createMat4Float64();
+    this._inverseProjMatrix = createMat4Float64();
+    this._transposedProjMatrix = createMat4Float64();
     this._inverseMatrixDirty = true;
     this._transposedProjMatrixDirty = true;
 
     this._onViewBoundary = this.camera.view.onBoundary.subscribe(() => this._buildMatricesTask.schedule());
 
-    this.onProjMatrix = new EventEmitter(new EventDispatcher<PerspectiveProjection, FloatArrayParam>());
+    this.onProjMatrix = new EventEmitter(new EventDispatcher<PerspectiveProjection, Mat4>());
 
     this._buildMatricesTask = new SDKTask({
       name: "PerspectiveProjection._buildMatricesTask",
@@ -212,7 +215,7 @@ export class PerspectiveProjection implements Projection {
    *
    * @returns  The PerspectiveProjection's projection matrix.
    */
-  get projMatrix(): FloatArrayParam {
+  get projMatrix(): Mat4 {
     if (this._buildMatricesTask.scheduled) {
       this._buildMatricesTask.runIfScheduled();
     }
@@ -224,7 +227,7 @@ export class PerspectiveProjection implements Projection {
    *
    * @returns  The inverse of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
    */
-  get inverseProjMatrix(): FloatArrayParam {
+  get inverseProjMatrix(): Mat4 {
     if (this._buildMatricesTask.scheduled) {
       this._buildMatricesTask.runIfScheduled();
     }
@@ -240,7 +243,7 @@ export class PerspectiveProjection implements Projection {
    *
    * @returns  The transpose of {@link PerspectiveProjection.projMatrix | PerspectiveProjection.projMatrix}.
    */
-  get transposedProjMatrix(): FloatArrayParam {
+  get transposedProjMatrix(): Mat4 {
     if (this._buildMatricesTask.scheduled) {
       this._buildMatricesTask.runIfScheduled();
     }
@@ -260,24 +263,24 @@ export class PerspectiveProjection implements Projection {
    * @param viewPos Outputs un-projected 3D View-space coordinates.
    * @param worldPos Outputs un-projected 3D World-space coordinates.
    */
-  unproject(canvasPos: FloatArrayParam, screenZ: number, screenPos: FloatArrayParam, viewPos: FloatArrayParam, worldPos: FloatArrayParam): FloatArrayParam {
+  unproject(canvasPos: Vec2, screenZ: number, screenPos: Vec3, viewPos: Vec3, worldPos: Vec3): Vec3 {
 
-    const htmlElement = this.camera.view.htmlElement;
-    const halfViewWidth = htmlElement.offsetWidth / 2.0;
-    const halfViewHeight = htmlElement.offsetHeight / 2.0;
-
-    screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
-    screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
-    screenPos[2] = screenZ;
-    screenPos[3] = 1.0;
-
-    mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
-    mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
-
-    viewPos[3] = 1.0;
-    viewPos[1] *= -1;
-
-    mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
+    // const htmlElement = this.camera.view.htmlElement;
+    // const halfViewWidth = htmlElement.offsetWidth / 2.0;
+    // const halfViewHeight = htmlElement.offsetHeight / 2.0;
+    //
+    // screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
+    // screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
+    // screenPos[2] = screenZ;
+    // screenPos[3] = 1.0;
+    //
+    // mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
+    // mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
+    //
+    // viewPos[3] = 1.0;
+    // viewPos[1] *= -1;
+    //
+    // mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
 
     return worldPos;
   }

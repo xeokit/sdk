@@ -419,7 +419,7 @@ class WebGLRenderBuffer {
       canvas.height = bufferHeight;
 
       cache = {
-        pixelData: new type(bufferWidth * bufferHeight * multiplier) as unknown as Uint8Array,
+        pixelData: new type(bufferWidth * bufferHeight * multiplier) as unknown as Uint8Array<any>,
         canvas,
         context,
         imageData: context.createImageData(bufferWidth, bufferHeight),
@@ -451,7 +451,7 @@ interface BufferState {
 }
 
 interface ImageCache {
-  pixelData: Uint8Array;
+  pixelData: Uint8Array<any>;
   canvas: HTMLCanvasElement;
   context: CanvasRenderingContext2D;
   imageData: ImageData;

@@ -2,6 +2,7 @@ import type {FloatArrayParam} from "../math";
 import type {PointLightParams} from "./PointLightParams";
 import type {View} from "./View";
 import {createUUID} from "../utils";
+import {createVec3Float64, Vec3Float} from "../matrix";
 
 /**
  * A positional light source within a {@link View}.
@@ -31,8 +32,8 @@ class PointLight {
 
     private _intensity: number;
     private _attenuation: Float32Array<any>;
-    private _color: Float32Array<any>;
-    private _pos: Float64Array<any>;
+    private _color: Vec3Float;
+    private _pos: Vec3Float;
     private _type: string;
     private _space: string;
 
@@ -47,8 +48,8 @@ class PointLight {
         this.view = view;
 
         this._type = "point";
-        this._pos = new Float64Array(cfg.pos || [1.0, 1.0, 1.0]);
-        this._color = new Float32Array(cfg.color || [0.7, 0.7, 0.8]);
+        this._pos = createVec3Float64(cfg.pos);
+        this._color = createVec3Float64(cfg.color || [0.7, 0.7, 0.8]);
         this._intensity = 1.0;
         // @ts-ignore
         this._attenuation = new Float32Array([cfg.constantAttenuation, cfg.linearAttenuation, cfg.quadraticAttenuation]);
@@ -71,9 +72,9 @@ class PointLight {
      *
      * Default value is ````[1.0, 1.0, 1.0]````.
      *
-     * @returns {Number[]} The position.
+     * @returns {Vec3Float} The position.
      */
-    get pos(): FloatArrayParam {
+    get pos(): Vec3Float {
         return this._pos;
     }
 
@@ -87,6 +88,7 @@ class PointLight {
      * @param pos The position.
      */
     set pos(pos: FloatArrayParam) {
+      // @ts-ignore
         this._pos.set(pos || [1.0, 1.0, 1.0]);
         this.view.needsRender();
     }
@@ -110,6 +112,7 @@ class PointLight {
      * @param color The PointLight's RGB color.
      */
     set color(color: FloatArrayParam) {
+      // @ts-ignore
         this._color.set(color || [0.7, 0.7, 0.8]);
         this.view.needsRender();
     }

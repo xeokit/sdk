@@ -61,8 +61,7 @@ export class ModelConverter {
    *
    * @param modelConverterRequest - The parameters specifying the pipeline and input data.
    * @returns A promise that resolves to a `ModelConverterResult` object containing the output files.
-   *
-   * @throws {SDKError} If required parameters are missing or if an unsupported pipeline is specified.
+   * @throws Will reject the promise if required parameters are missing or if conversion fails.
    */
   convert(modelConverterRequest: ModelConverterRequest): Promise<ModelConverterResult> {
 

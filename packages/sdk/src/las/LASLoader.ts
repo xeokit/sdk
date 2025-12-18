@@ -1,5 +1,5 @@
 import {BasicAggregation, BasicEntity} from "../basictypes";
-import {createMat4, createVec3, transformPoint3} from "../matrix";
+import {createMat4Float64, createVec3Float64, transformPoint3} from "../matrix";
 import type {ModelLoadParams, ModelParseParams} from "../io";
 import {ModelLoader} from "../io";
 import {createUUID} from "../utils";
@@ -160,7 +160,7 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
     function readPositions(positionsValue) {
       if (positionsValue) {
         if (options.center) {
-          const centerPos = createVec3();
+          const centerPos = createVec3Float64();
           const numPoints = positionsValue.length;
           for (let i = 0, len = positionsValue.length; i < len; i += 3) {
             centerPos[0] += positionsValue[i + 0];
@@ -177,8 +177,8 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
           }
         }
         if (options.transform) {
-          const mat = createMat4(options.transform);
-          const pos = createVec3();
+          const mat = createMat4Float64(options.transform);
+          const pos = createVec3Float64();
           for (let i = 0, len = positionsValue.length; i < len; i += 3) {
             pos[0] = positionsValue[i + 0];
             pos[1] = positionsValue[i + 1];

@@ -15,11 +15,9 @@ import {
   RepeatWrapping,
   sRGBEncoding
 } from "../constants";
-import {createVec4} from "../matrix";
-import type {FloatArrayParam} from "../math";
+import {createVec4Float64, type Vec4} from "../matrix";
 import type {SceneTextureParams} from "./SceneTextureParams";
-import {SceneModel} from "./SceneModel";
-import {SDKErrorType} from "../core";
+import type {SceneModel} from "./SceneModel";
 
 /**
  * A texture in a {@link SceneModel | SceneModel}.
@@ -142,7 +140,7 @@ export class SceneTexture {
   /**
    * RGBA color to preload the texture with.
    */
-  preloadColor: FloatArrayParam;
+  preloadColor: Vec4;
 
   /**
    * @private
@@ -174,7 +172,7 @@ export class SceneTexture {
     this.wrapT = params.wrapT || RepeatWrapping;
     this.wrapR = params.wrapR || RepeatWrapping
     this.encoding = params.encoding || LinearEncoding;
-    this.preloadColor = createVec4(params.preloadColor || [1, 1, 1, 1]);
+    this.preloadColor = createVec4Float64(params.preloadColor || [1, 1, 1, 1]);
     this.channel = 0;
   }
 

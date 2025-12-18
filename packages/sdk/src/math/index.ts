@@ -26,6 +26,8 @@
  * @module math
  */
 
+
+
 /**
  * Represents an array of floating-point numbers.
  */
@@ -49,6 +51,8 @@ export type IntArrayParam =
   | Uint16Array<any>
   | Int16Array<any>
   | number[];
+
+
 
 /**
  * Minimum safe double-precision value.

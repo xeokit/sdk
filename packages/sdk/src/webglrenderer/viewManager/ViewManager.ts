@@ -6,7 +6,6 @@ import {RenderManager} from "./renderManager/RenderManager";
 import {PickManager} from "./pickManager/PickManager";
 import {GPUMemoryManager} from "./gpuMemoryManager/GPUMemoryManager";
 import {MeshManager} from "./meshManager/MeshManager";
-import {type GPUMemoryEditor} from "./gpuMemoryManager/GPUMemoryEditor";
 import {type GPUMemoryReader} from "./gpuMemoryManager/GPUMemoryReader";
 import {SceneMesh, SceneModel, SceneObject} from "../../scene";
 import {SceneTransform} from "../../scene/SceneTransform";
@@ -66,7 +65,7 @@ export class ViewManager {
       return resultGPU;
     }
 
-    this._meshManager = new MeshManager(this._renderContext, this._gpuMemoryManager as GPUMemoryEditor);
+    this._meshManager = new MeshManager(this._renderContext, this._gpuMemoryManager);
 
     const resultMesh = this._meshManager.init();
     if (resultMesh.ok === false) {

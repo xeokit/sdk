@@ -26,55 +26,197 @@
  * ## Usage Example
  *
  * ```javascript
- * import { createAABB3 } from "@xeokit/sdk/boundaries";
+ * import { createAABBFloat64 } from "@xeokit/sdk/boundaries";
  *
- * const aabb = createAABB3([-100, -100, -100, 100, 100, 100]);
+ * const aabb = createAABBFloat64([-100, -100, -100, 100, 100, 100]);
  * ```
  *
  * @module boundaries
  */
 
-import {createMat4, createVec2, createVec3, lenVec3, mulMat4, subVec3} from "../matrix";
-import type {FloatArrayParam, IntArrayParam} from "../math";
+import {
+  createMat4Float64,
+  createVec3Float64,
+  lenVec3, Mat4,
+  mulMat4,
+  subVec3, Vec2, Vec3
+} from "../matrix";
+import type {
+  FloatArrayParam, IntArrayParam
+} from "../math";
 import {MAX_DOUBLE, MIN_DOUBLE, newFloatArray} from "../math";
 import {decompressPoint3WithMat4} from "../compression";
 
-const tempVec3a = createVec3();
-const tempVec3b = createVec3();
-const tempVec3c = createVec3();
-const tempMat4a = createMat4();
-
+const tempVec3a = createVec3Float64();
+const tempVec3b = createVec3Float64();
+const tempVec3c = createVec3Float64();
+const tempMat4a = createMat4Float64();
 
 /**
- * Creates a new 3D axis-aligned bounding box (AABB3).
- *
- * @param values - Optional initial values for the AABB3.
- * @returns A new Float64Array representing the AABB3.
+ * ============================================================
+ * Generic fixed-length AABB tuples
+ * ============================================================
  */
-export function createAABB3(values?: FloatArrayParam): Float64Array<any> {
+
+/**
+ * Generic 2D axis-aligned bounding box.
+ * Tuple layout: [minX, minY, maxX, maxY].
+ */
+export type AABB2Generic<T = number> = [T, T, T, T];
+
+/**
+ * Generic 3D axis-aligned bounding box.
+ * Tuple layout: [minX, minY, minZ, maxX, maxY, maxZ].
+ */
+export type AABB3Generic<T = number> = [T, T, T, T, T, T];
+
+/**
+ * ============================================================
+ * Floating-point AABBs (explicit precision)
+ * ============================================================
+ */
+
+/**
+ * 32-bit floating-point 2D axis-aligned bounding box.
+ */
+export type AABB2Float32 =
+  | Float32Array<number>
+  | AABB2Generic<number>;
+
+/**
+ * 64-bit floating-point 2D axis-aligned bounding box.
+ */
+export type AABB2Float64 =
+  | Float64Array<number>
+  | AABB2Generic<number>;
+
+/**
+ * 32-bit floating-point 3D axis-aligned bounding box.
+ */
+export type AABB3Float32 =
+  | Float32Array<number>
+  | AABB3Generic<number>;
+
+/**
+ * 64-bit floating-point 3D axis-aligned bounding box.
+ */
+export type AABB3Float64 =
+  | Float64Array<number>
+  | AABB3Generic<number>;
+
+/**
+ * ============================================================
+ * Floating-point AABBs (either precision)
+ * ============================================================
+ */
+
+/**
+ * Floating-point 2D axis-aligned bounding box.
+ */
+export type AABB2Float =
+  | AABB2Float32
+  | AABB2Float64;
+
+/**
+ * Floating-point 3D axis-aligned bounding box.
+ */
+export type AABB3Float =
+  | AABB3Float32
+  | AABB3Float64;
+
+/**
+ * ============================================================
+ * Integer AABBs
+ * ============================================================
+ */
+
+/**
+ * Integer 2D axis-aligned bounding box.
+ */
+export type AABB2Int =
+  | Int8Array<number>
+  | Uint8Array<number>
+  | Int16Array<number>
+  | Uint16Array<number>
+  | Int32Array<number>
+  | Uint32Array<number>
+  | AABB2Generic<number>;
+
+/**
+ * Integer 3D axis-aligned bounding box.
+ */
+export type AABB3Int =
+  | Int8Array<number>
+  | Uint8Array<number>
+  | Int16Array<number>
+  | Uint16Array<number>
+  | Int32Array<number>
+  | Uint32Array<number>
+  | AABB3Generic<number>;
+
+/**
+ * ============================================================
+ * General AABBs (integer or float)
+ * ============================================================
+ */
+
+/**
+ * 2D axis-aligned bounding box (integer or floating-point).
+ */
+export type AABB2 =
+  | AABB2Int
+  | AABB2Float;
+
+/**
+ * 3D axis-aligned bounding box (integer or floating-point).
+ */
+export type AABB3 =
+  | AABB3Int
+  | AABB3Float;
+
+/**
+ * Creates a new 3D axis-aligned bounding box (AABB3) with Float64 values.
+ * @param values
+ */
+export function createAABB3Float64(values?: AABB3): AABB3Float64 {
   // @ts-ignore
-  return new Float64Array(values || 6);
+  return new Float64Array(values || 9);
 }
 
 /**
- * Creates a new 3D axis-aligned bounding box (AABB3) with Int16 values.
- *
- * @param values - Optional initial values for the AABB3.
- * @returns A new Int16Array representing the AABB3.
+ * Creates a new 3D axis-aligned bounding box (AABB3) with Float32 values.
+ * @param values
  */
-export function createAABB3Int16(values?: IntArrayParam): Int16Array<any> {
+export function createAABB3Float32(values?: AABB3): AABB3Float32 {
+  // @ts-ignore
+  return new Float32Array(values || 9);
+}
+
+/**
+ * Creates a new 3D axis-aligned bounding box (AABB3) with Int32 values.
+ * @param values
+ */
+export function createAABB3Int16(values?: AABB3): AABB3Int {
   // @ts-ignore
   return new Int16Array(values || 6);
 }
 
 /**
- * Creates a new 2D axis-aligned bounding box (AABB2).
- *
- * @param values - Optional initial values for the AABB2.
- * @returns A new FloatArrayParam representing the AABB2.
+ * Creates a new 2D axis-aligned bounding box (AABB2) with Float64 values.
+ * @param values
  */
-export function createAABB2(values?: FloatArrayParam): FloatArrayParam {
-  return newFloatArray(values || 4);
+export function createAABB2Float64(values?: AABB2): AABB2Float64 {
+  // @ts-ignore
+  return new Float64Array(values|| 4);
+}
+
+/**
+ * Creates a new 2D axis-aligned bounding box (AABB2) with Float32 values.
+ * @param values
+ */
+export function createAABB2Float32(values?: AABB2): AABB2Float32 {
+  // @ts-ignore
+  return new Float32Array(values|| 4);
 }
 
 /**
@@ -124,7 +266,7 @@ export function createSphere3(
  * @returns The transformed OBB3.
  */
 export function transformOBB3(
-  m: FloatArrayParam,
+  m: Mat4,
   p: FloatArrayParam,
   p2: FloatArrayParam = p
 ): FloatArrayParam {
@@ -146,8 +288,8 @@ export function transformOBB3(
  * @returns `true` if `aabb1` contains `aabb2`, otherwise `false`.
  */
 export function containsAABB2(
-  aabb1: FloatArrayParam,
-  aabb2: FloatArrayParam
+  aabb1: AABB2,
+  aabb2: AABB2
 ): boolean {
   return aabb1[0] <= aabb2[0] && aabb2[3] <= aabb1[3] &&
     aabb1[1] <= aabb2[1] && aabb2[2] <= aabb1[2];
@@ -161,8 +303,8 @@ export function containsAABB2(
  * @returns `true` if `aabb1` contains `aabb2`, otherwise `false`.
  */
 export function containsAABB3(
-  aabb1: FloatArrayParam,
-  aabb2: FloatArrayParam
+  aabb1: AABB3,
+  aabb2: AABB3
 ): boolean {
   return aabb1[0] <= aabb2[0] && aabb2[3] <= aabb1[3] &&
     aabb1[1] <= aabb2[1] && aabb2[4] <= aabb1[4] &&
@@ -175,7 +317,7 @@ export function containsAABB3(
  * @param aabb - The AABB3.
  * @returns The diagonal length.
  */
-export function getAABB3Diag(aabb: FloatArrayParam): number {
+export function getAABB3Diag(aabb: AABB3): number {
   return Math.abs(lenVec3(subVec3([aabb[3], aabb[4], aabb[5]], [aabb[0], aabb[1], aabb[2]], tempVec3a)));
 }
 
@@ -187,9 +329,9 @@ export function getAABB3Diag(aabb: FloatArrayParam): number {
  * @returns The center coordinates.
  */
 export function getAABB3Center(
-  aabb: FloatArrayParam,
-  dest: FloatArrayParam = createVec3()
-): FloatArrayParam {
+  aabb: AABB3,
+  dest: Vec3 = createVec3Float64()
+): Vec3 {
   dest[0] = (aabb[0] + aabb[3]) / 2;
   dest[1] = (aabb[1] + aabb[4]) / 2;
   dest[2] = (aabb[2] + aabb[5]) / 2;
@@ -199,7 +341,9 @@ export function getAABB3Center(
 /**
  * Get a diagonal boundary size that is symmetrical about the given point.
  */
-export const getAABB3DiagPoint = (aabb: FloatArrayParam, p: FloatArrayParam): number => {
+export const getAABB3DiagPoint = (
+  aabb: AABB3,
+  p: Vec3): number => {
 
   const min = tempVec3a;
   const max = tempVec3b;
@@ -231,7 +375,7 @@ export const getAABB3DiagPoint = (aabb: FloatArrayParam, p: FloatArrayParam): nu
 /**
  * Gets the area of an AABB.
  */
-export function getAABB3Area(aabb: FloatArrayParam): number {
+export function getAABB3Area(aabb: AABB3): number {
   const width = aabb[3] - aabb[0];
   const height = aabb[4] - aabb[1];
   const depth = aabb[5] - aabb[2];
@@ -244,12 +388,14 @@ export function getAABB3Area(aabb: FloatArrayParam): number {
  * @param aabb - Optional AABB3 to collapse. If omitted, a new one is created.
  * @returns The collapsed AABB3.
  */
-export function collapseAABB3(aabb: FloatArrayParam = createAABB3()): FloatArrayParam {
+export function collapseAABB3(aabb: AABB3): AABB3 {
   // @ts-ignore
   aabb.set([MAX_DOUBLE, MAX_DOUBLE, MAX_DOUBLE, MIN_DOUBLE, MIN_DOUBLE, MIN_DOUBLE]);
   return aabb;
 }
 
+const c = createAABB3Float64()
+collapseAABB3(c);
 
 /**
  * Converts an axis-aligned bounding box (AABB) into an oriented bounding box (OBB)
@@ -260,7 +406,7 @@ export function collapseAABB3(aabb: FloatArrayParam = createAABB3()): FloatArray
  * @returns The computed OBB.
  */
 export function AABB3ToOBB3(
-  aabb: FloatArrayParam = createAABB3(),
+  aabb: AABB3 = createAABB3Float64(),
   obb: FloatArrayParam = createOBB3()
 ): FloatArrayParam {
   const [minX, minY, minZ, maxX, maxY, maxZ] = aabb;
@@ -287,7 +433,7 @@ export function AABB3ToOBB3(
  * @param aabb2 - The source AABB to enclose.
  * @returns The expanded AABB1.
  */
-export function expandAABB3(aabb1: FloatArrayParam, aabb2: FloatArrayParam): FloatArrayParam {
+export function expandAABB3(aabb1: AABB3, aabb2: AABB3): AABB3 {
   for (let i = 0; i < 3; i++) {
     aabb1[i] = Math.min(aabb1[i], aabb2[i]);
     aabb1[i + 3] = Math.max(aabb1[i + 3], aabb2[i + 3]);
@@ -302,7 +448,7 @@ export function expandAABB3(aabb1: FloatArrayParam, aabb2: FloatArrayParam): Flo
  * @param aabb2 - The source AABB to enclose.
  * @returns The expanded AABB1.
  */
-export function expandAABB2(aabb1: FloatArrayParam, aabb2: FloatArrayParam): FloatArrayParam {
+export function expandAABB2(aabb1: AABB2, aabb2: AABB2): AABB2 {
   for (let i = 0; i < 2; i++) {
     aabb1[i] = Math.min(aabb1[i], aabb2[i]);
     aabb1[i + 3] = Math.max(aabb1[i + 3], aabb2[i + 3]);
@@ -317,7 +463,7 @@ export function expandAABB2(aabb1: FloatArrayParam, aabb2: FloatArrayParam): Flo
  * @param p - The 3D point `[x, y, z]`.
  * @returns The expanded AABB.
  */
-export function expandAABB3Point3(aabb: FloatArrayParam, p: FloatArrayParam): FloatArrayParam {
+export function expandAABB3Point3(aabb: AABB3, p: Vec3): AABB3 {
   for (let i = 0; i < 3; i++) {
     aabb[i] = Math.min(aabb[i], p[i]);
     aabb[i + 3] = Math.max(aabb[i + 3], p[i]);
@@ -332,7 +478,7 @@ export function expandAABB3Point3(aabb: FloatArrayParam, p: FloatArrayParam): Fl
  * @param p - The 2D point `[x, y]`.
  * @returns The expanded AABB.
  */
-export function expandAABB2Point2(aabb: FloatArrayParam, p: FloatArrayParam): FloatArrayParam {
+export function expandAABB2Point2(aabb: AABB2, p: Vec2): AABB2 {
   for (let i = 0; i < 2; i++) {
     aabb[i] = Math.min(aabb[i], p[i]);
     aabb[i + 3] = Math.max(aabb[i + 3], p[i]);
@@ -347,7 +493,7 @@ export function expandAABB2Point2(aabb: FloatArrayParam, p: FloatArrayParam): Fl
  * @param positions - A flattened array of 3D points `[x0, y0, z0, x1, y1, z1, ...]`.
  * @returns The expanded AABB.
  */
-export function expandAABB3Points3(aabb: FloatArrayParam, positions: FloatArrayParam): FloatArrayParam {
+export function expandAABB3Points3(aabb: AABB3, positions: FloatArrayParam): AABB3 {
   for (let i = 0; i < positions.length; i += 3) {
     for (let j = 0; j < 3; j++) {
       aabb[j] = Math.min(aabb[j], positions[i + j]);
@@ -368,13 +514,13 @@ export function expandAABB3Points3(aabb: FloatArrayParam, positions: FloatArrayP
  * @returns The computed AABB.
  */
 export const positions3ToAABB3 = (() => {
-  const p = newFloatArray(3);
+  const p = createVec3Float64();
 
   return (
     positions: FloatArrayParam,
-    aabb: FloatArrayParam = createAABB3(),
-    positionsDecompressMatrix?: FloatArrayParam
-  ): FloatArrayParam => {
+    aabb: AABB3 = createAABB3Float64(),
+    positionsDecompressMatrix?: Mat4
+  ): AABB3 => {
     let xmin = MAX_DOUBLE, ymin = MAX_DOUBLE, zmin = MAX_DOUBLE;
     let xmax = MIN_DOUBLE, ymax = MIN_DOUBLE, zmax = MIN_DOUBLE;
 
@@ -419,8 +565,8 @@ export const positions3ToAABB3 = (() => {
  */
 export function OBB3ToAABB3(
   obb: FloatArrayParam,
-  aabb: FloatArrayParam = createAABB3()
-): FloatArrayParam {
+  aabb: AABB3 = createAABB3Float64()
+): AABB3 {
   let xmin = MAX_DOUBLE, ymin = MAX_DOUBLE, zmin = MAX_DOUBLE;
   let xmax = MIN_DOUBLE, ymax = MIN_DOUBLE, zmax = MIN_DOUBLE;
 
@@ -454,8 +600,8 @@ export function OBB3ToAABB3(
  */
 export function points3ToAABB3(
   points: number[][],
-  aabb: FloatArrayParam = createAABB3()
-): FloatArrayParam {
+  aabb: AABB3 = createAABB3Float64()
+): AABB3 {
   let xmin = MAX_DOUBLE, ymin = MAX_DOUBLE, zmin = MAX_DOUBLE;
   let xmax = MIN_DOUBLE, ymax = MIN_DOUBLE, zmax = MIN_DOUBLE;
 
@@ -487,8 +633,8 @@ export function points3ToAABB3(
  */
 export function getPositions3Center(
   positions: FloatArrayParam,
-  center: FloatArrayParam = createVec3()
-): FloatArrayParam {
+  center: Vec3 = createVec3Float64()
+): Vec3 {
   let xSum = 0, ySum = 0, zSum = 0;
   const numPoints = positions.length / 3;
 
@@ -513,7 +659,7 @@ export class FrustumPlane3 {
   /**
    * A vertex used to test intersections with this plane.
    */
-  public testVertex: FloatArrayParam;
+  public testVertex: Vec3;
 
   /**
    * The distance of the plane from the origin along its normal.
@@ -523,15 +669,15 @@ export class FrustumPlane3 {
   /**
    * The normal vector of the plane.
    */
-  public normal: FloatArrayParam;
+  public normal: Vec3;
 
   /**
    * Creates a new frustum plane.
    */
   constructor() {
-    this.normal = createVec3();
+    this.normal = createVec3Float64();
     this.offset = 0;
-    this.testVertex = createVec3();
+    this.testVertex = createVec3Float64();
   }
 
   /**
@@ -598,7 +744,7 @@ export class Frustum3 {
  * @param frustum - Optional frustum instance to modify. If not provided, a new frustum is created.
  * @returns The updated or newly created frustum.
  */
-export function setFrustum3(viewMat: FloatArrayParam, projMat: FloatArrayParam, frustum?: Frustum3): Frustum3 {
+export function setFrustum3(viewMat: Mat4, projMat: Mat4, frustum?: Frustum3): Frustum3 {
   const m = mulMat4(projMat, viewMat, tempMat4a);
   const m0 = m[0], m1 = m[1], m2 = m[2], m3 = m[3];
   const m4 = m[4], m5 = m[5], m6 = m[6], m7 = m[7];
@@ -623,7 +769,7 @@ export function setFrustum3(viewMat: FloatArrayParam, projMat: FloatArrayParam, 
  * @param aabb - The axis-aligned bounding box (AABB) represented as an array `[minX, minY, minZ, maxX, maxY, maxZ]`.
  * @returns The intersection state: `INSIDE`, `INTERSECT`, or `OUTSIDE`.
  */
-export function intersectFrustum3AABB3(frustum: Frustum3, aabb: FloatArrayParam): number {
+export function intersectFrustum3AABB3(frustum: Frustum3, aabb: AABB3): number {
   let ret = INSIDE;
   const min = tempVec3a;
   const max = tempVec3b;
@@ -664,57 +810,57 @@ export function intersectFrustum3AABB3(frustum: Frustum3, aabb: FloatArrayParam)
 /**
  * Tests for intersection between two axis-aligned 3D boundaries.
  *
- * @param {FloatArrayParam} aabb1 - The first axis-aligned bounding box, represented as an array of six numbers [minX, minY, minZ, maxX, maxY, maxZ].
- * @param {FloatArrayParam} aabb2 - The second axis-aligned bounding box, represented as an array of six numbers.
+ * @param {AABB3} aabb1 - The first axis-aligned bounding box, represented as an array of six numbers [minX, minY, minZ, maxX, maxY, maxZ].
+ * @param {AABB3} aabb2 - The second axis-aligned bounding box, represented as an array of six numbers.
  * @returns {number} - Returns an intersection code indicating the result of the test.
  */
-export function intersectAABB3s(aabb1: FloatArrayParam, aabb2: FloatArrayParam): number {
+export function intersectAABB3s(aabb1: AABB3, aabb2: AABB3): number {
   return INTERSECT;
 }
 
 /**
  * Tests if a frustum intersects a triangles primitive geometry.
  *
- * @param {Frustum3} frustum - The frustum to test.
- * @param {FloatArrayParam} positions - The vertex positions of the geometry.
- * @param {IntArrayParam} indices - The indices defining the triangle faces.
- * @returns {boolean} - True if there is an intersection, false otherwise.
+ * @param frustum - The frustum to test.
+ * @param positions - The vertex positions of the geometry.
+ * @param indices - The indices defining the triangle faces.
+ * @returns - True if there is an intersection, false otherwise.
  */
-export function intersectFrustum3Triangles3(frustum, positions: FloatArrayParam, indices: IntArrayParam): boolean {
+export function intersectFrustum3Triangles3(frustum: Frustum3, positions: FloatArrayParam, indices: IntArrayParam): boolean {
   return true;
 }
 
 /**
  * Tests if a frustum intersects a single triangle.
  *
- * @param {Frustum3} frustum - The frustum to test.
- * @param {FloatArrayParam} a - The first vertex of the triangle.
- * @param {FloatArrayParam} b - The second vertex of the triangle.
- * @param {FloatArrayParam} c - The third vertex of the triangle.
- * @returns {boolean} - True if there is an intersection, false otherwise.
+ * @param frustum - The frustum to test.
+ * @param a - The first vertex of the triangle.
+ * @param b - The second vertex of the triangle.
+ * @param c - The third vertex of the triangle.
+ * @returns - True if there is an intersection, false otherwise.
  */
-export function intersectFrustum3Triangle3(frustum, a: FloatArrayParam, b: FloatArrayParam, c: FloatArrayParam): boolean {
+export function intersectFrustum3Triangle3(frustum: Frustum3, a: FloatArrayParam, b: FloatArrayParam, c: FloatArrayParam): boolean {
   return true;
 }
 
 /**
  * Tests if a frustum intersects a lines primitive geometry.
  *
- * @param {Frustum3} frustum - The frustum to test.
- * @param {FloatArrayParam} positions - The vertex positions of the lines.
- * @param {IntArrayParam} indices - The indices defining the line segments.
- * @returns {boolean} - True if there is an intersection, false otherwise.
+ * @param  frustum - The frustum to test.
+ * @param positions - The vertex positions of the lines.
+ * @param indices - The indices defining the line segments.
+ * @returns - True if there is an intersection, false otherwise.
  */
-export function intersectFrustum3Lines3(frustum, positions, indices): boolean {
+export function intersectFrustum3Lines3(frustum: Frustum3, positions, indices): boolean {
   return true;
 }
 
 /**
  * Tests if a frustum intersects a points primitive geometry.
  *
- * @param {Frustum3} frustum - The frustum to test.
- * @param {FloatArrayParam} positions - The vertex positions of the points.
- * @returns {boolean} - True if there is an intersection, false otherwise.
+ * @param  frustum - The frustum to test.
+ * @param positions - The vertex positions of the points.
+ * @returns - True if there is an intersection, false otherwise.
  */
 export function intersectFrustum3Positions3(frustum: Frustum3, positions: FloatArrayParam): boolean {
   return true;
@@ -723,9 +869,9 @@ export function intersectFrustum3Positions3(frustum: Frustum3, positions: FloatA
 /**
  * Tests if a frustum intersects a single point.
  *
- * @param {Frustum3} frustum - The frustum to test.
- * @param {FloatArrayParam} position - The position of the point.
- * @returns {boolean} - True if there is an intersection, false otherwise.
+ * @param  frustum - The frustum to test.
+ * @param position - The position of the point.
+ * @returns - True if there is an intersection, false otherwise.
  */
 export function intersectFrustum3Point3(frustum: Frustum3, position: FloatArrayParam): boolean {
   return true;
@@ -734,33 +880,33 @@ export function intersectFrustum3Point3(frustum: Frustum3, position: FloatArrayP
 /**
  * Tests if an AABB intersects a triangles primitive geometry.
  *
- * @param {FloatArrayParam} aabb - The axis-aligned bounding box.
- * @param {FloatArrayParam} positions - The vertex positions of the geometry.
- * @param {IntArrayParam} indices - The indices defining the triangle faces.
- * @returns {boolean} - True if there is an intersection, false otherwise.
+ * @param aabb - The axis-aligned bounding box.
+ * @param positions - The vertex positions of the geometry.
+ * @param indices - The indices defining the triangle faces.
+ * @returns - True if there is an intersection, false otherwise.
  */
-export function intersectAABB3Triangles3(aabb: FloatArrayParam, positions: FloatArrayParam, indices: IntArrayParam): boolean {
+export function intersectAABB3Triangles3(aabb: AABB3, positions: FloatArrayParam, indices: IntArrayParam): boolean {
   return false;
 }
 
 /**
  * Tests if an AABB intersects a lines primitive geometry.
  *
- * @param {FloatArrayParam} aabb - The axis-aligned bounding box.
- * @param {FloatArrayParam} positions - The vertex positions of the lines.
- * @param {IntArrayParam} indices - The indices defining the line segments.
- * @returns {boolean} - True if there is an intersection, false otherwise.
+ * @param aabb - The axis-aligned bounding box.
+ * @param positions - The vertex positions of the lines.
+ * @param indices - The indices defining the line segments.
+ * @returns - True if there is an intersection, false otherwise.
  */
-export function intersectAABB3Lines3(aabb: FloatArrayParam, positions: FloatArrayParam, indices: IntArrayParam): boolean {
+export function intersectAABB3Lines3(aabb: AABB3, positions: FloatArrayParam, indices: IntArrayParam): boolean {
   return false;
 }
 
 /**
  * Tests if an AABB intersects points within the given positions array.
  *
- * @param {FloatArrayParam} aabb - The axis-aligned bounding box.
- * @param {FloatArrayParam} positions - The vertex positions of the points.
- * @returns {boolean} - True if there is an intersection, false otherwise.
+ * @param aabb - The axis-aligned bounding box.
+ * @param positions - The vertex positions of the points.
+ * @returns - True if there is an intersection, false otherwise.
  */
 export function intersectAABB3Positions3(aabb: FloatArrayParam, positions: FloatArrayParam): boolean {
   return false;
@@ -769,11 +915,11 @@ export function intersectAABB3Positions3(aabb: FloatArrayParam, positions: Float
 /**
  * Tests if a 3D AABB contains a 3D point.
  *
- * @param {FloatArrayParam} aabb - The axis-aligned bounding box.
- * @param {FloatArrayParam} p - The position of the point.
- * @returns {boolean} - True if the point is inside the AABB, false otherwise.
+ * @param aabb - The axis-aligned bounding box.
+ * @param p - The position of the point.
+ * @returns True if the point is inside the AABB, false otherwise.
  */
-export function containsAABB3Point3(aabb: FloatArrayParam, p: FloatArrayParam): boolean {
+export function containsAABB3Point3(aabb: AABB3, p: Vec3): boolean {
   return (
     aabb[0] <= p[0] && p[0] <= aabb[3] &&
     aabb[1] <= p[1] && p[1] <= aabb[4] &&
@@ -784,9 +930,9 @@ export function containsAABB3Point3(aabb: FloatArrayParam, p: FloatArrayParam): 
 /**
  * Tests if a 2D AABB contains a 2D point.
  *
- * @param {FloatArrayParam} aabb - The axis-aligned bounding box.
- * @param {FloatArrayParam} p - The position of the point.
- * @returns {boolean} - True if the point is inside the AABB, false otherwise.
+ * @param aabb - The axis-aligned bounding box.
+ * @param p - The position of the point.
+ * @returns - True if the point is inside the AABB, false otherwise.
  */
 export function containsAABB2Point2(aabb: FloatArrayParam, p: FloatArrayParam): boolean {
   return (

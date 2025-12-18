@@ -31,6 +31,13 @@ import { createUUID } from "../utils";
  * See {@link scene | @xeokit/sdk/scene} for general usage examples.
  */
 export class Scene {
+
+  /**
+   * Unique ID of this Scene.
+   * This is generated automatically.
+   */
+  public readonly id: string;
+
   /**
    * The coordinate system used throughout this Scene.
    *
@@ -81,6 +88,7 @@ export class Scene {
    * and logging preferences.
    */
   constructor(params?: SceneParams) {
+    this.id = params.id || createUUID();
     this.events = new SceneEvents();
     this.coordinateSystem = new CoordinateSystem(this, params?.coordinateSystem);
     this.models = {};

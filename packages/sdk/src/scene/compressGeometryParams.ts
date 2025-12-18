@@ -1,12 +1,12 @@
-import {collapseAABB3, expandAABB3Points3} from "../boundaries";
+import {collapseAABB3, expandAABB3Points3, createAABB3Float32} from "../boundaries";
 import {compressRGBColors, quantizePositions3} from "../compression";
-import {createMat4, createVec3} from "../matrix";
+import {createVec3Float64} from "../matrix";
 import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";
 import {buildEdgeIndices} from "./buildEdgeIndices";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import type {SceneGeometryParams} from "./SceneGeometryParams";
 
-const rtcCenter = createVec3();
+const rtcCenter = createVec3Float64();
 
 /**
  * Compresses a {@link SceneGeometryParams | SceneGeometryParams} into a {@link SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
@@ -24,7 +24,7 @@ export function compressGeometryParams(geometryParams: SceneGeometryParams): Sce
   // const rtcNeeded = worldToRTCPositions(geometryParams.positions, geometryParams.positions, rtcCenter);
   const rtcNeeded = false;
 
-  const aabb = collapseAABB3();
+  const aabb = collapseAABB3(createAABB3Float32());
   expandAABB3Points3(aabb, geometryParams.positions);
   const positionsCompressed = quantizePositions3(geometryParams.positions, aabb);
   if (geometryParams.primitive === PointsPrimitive) {

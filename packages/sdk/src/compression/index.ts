@@ -97,25 +97,23 @@
 
 
 import {
-  createMat3,
-  createMat4,
-  createVec3,
-  identityMat3,
+  createVec2Int32,
+  createMat4Float64, createVec2Float64,
+  createVec3Float64,
   identityMat4,
-  mulMat3,
   mulMat4,
   normalizeVec3,
-  scalingMat3v,
   scalingMat4v,
   transformVec3,
-  translationMat3v,
-  translationMat4v
+  translationMat4c,
+  translationMat4v, Mat4, Vec2, Vec2Int, Vec3
 } from "../matrix";
 
-import type {FloatArrayParam} from "../math";
+import type {FloatArrayParam, IntArrayParam} from "../math";
+import {AABB3} from "../boundaries";
 
-const translate = createMat4();
-const scale = createMat4();
+const translate = createMat4Float64();
+const scale = createMat4Float64();
 
 /**
  * Retrieves the minimum and maximum values for a set of 3D positions.
@@ -124,8 +122,8 @@ const scale = createMat4();
  * The array is assumed to be a flat array where every three consecutive values represent a 3D position (x, y, z).
  *
  * @param {FloatArrayParam} array - The array of 3D positions to evaluate. The array length must be a multiple of 3.
- * @param {FloatArrayParam} [min] - Optional pre-allocated array to store the minimum values. Defaults to a new array if not provided.
- * @param {FloatArrayParam} [max] - Optional pre-allocated array to store the maximum values. Defaults to a new array if not provided.
+ * @param  [min] - Optional pre-allocated array to store the minimum values. Defaults to a new array if not provided.
+ * @param  [max] - Optional pre-allocated array to store the maximum values. Defaults to a new array if not provided.
  * @returns {Object} - An object containing the min and max values as arrays:
  *  - `min`: The minimum values along the x, y, and z axes.
  *  - `max`: The maximum values along the x, y, and z axes.
@@ -138,8 +136,8 @@ const scale = createMat4();
  */
 export function getPositions3MinMax(
   array: FloatArrayParam,
-  min: FloatArrayParam = new Float64Array(3),
-  max: FloatArrayParam = new Float64Array(3)
+  min: Vec3 = createVec3Float64(),
+  max: Vec3 =createVec3Float64()
 ) {
   // Initialize min and max values with extreme values
   for (let i = 0; i < 3; i++) {
@@ -167,7 +165,7 @@ export function getPositions3MinMax(
  * Creates a 4x4 matrix for decompressing 3D positions based on a given axis-aligned bounding box (AABB).
  * This matrix is used to map compressed positions back to their original space.
  *
- * @param {FloatArrayParam} aabb - The axis-aligned bounding box (AABB) defined by [xmin, ymin, zmin, xmax, ymax, zmax].
+ * @param {AABB3} aabb - The axis-aligned bounding box (AABB) defined by [xmin, ymin, zmin, xmax, ymax, zmax].
  * @param {FloatArrayParam} [positionsDecompressMatrix] - An optional pre-allocated matrix to store the result. Defaults to a new matrix if not provided.
  * @returns {FloatArrayParam} - The decompression matrix used for transforming compressed positions back to their original scale.
  *
@@ -176,9 +174,9 @@ export function getPositions3MinMax(
  * const decompressionMatrix = createPositions3DecompressMat4(aabb);
  */
 export function createPositions3DecompressMat4(
-  aabb: FloatArrayParam,
-  positionsDecompressMatrix: FloatArrayParam = createMat4()
-): FloatArrayParam {
+  aabb: AABB3,
+  positionsDecompressMatrix: Mat4 = createMat4Float64()
+): Mat4 {
   // Extract AABB min and max values
   const [xmin, ymin, zmin, xmax, ymax, zmax] = aabb;
 
@@ -192,7 +190,7 @@ export function createPositions3DecompressMat4(
 
   // Initialize translation and scaling matrices
   identityMat4(translate); // Reset the translation matrix
-  translationMat4v(aabb, translate); // Apply the translation from the AABB
+  translationMat4c(aabb[0], aabb[1], aabb[2], translate); // Apply the translation from the AABB
 
   identityMat4(scale); // Reset the scale matrix
   scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale); // Apply scaling based on AABB width and maxInt
@@ -209,8 +207,8 @@ export function createPositions3DecompressMat4(
  * back to the original range.
  *
  * @param {FloatArrayParam} array - The array of 3D positions to be compressed.
- * @param {FloatArrayParam} min - The minimum bounds for the 3D positions.
- * @param {FloatArrayParam} max - The maximum bounds for the 3D positions.
+ * @param  min - The minimum bounds for the 3D positions.
+ * @param  max - The maximum bounds for the 3D positions.
  * @returns {Object} - An object containing the quantized positions and the decompression matrix.
  *
  * @example
@@ -219,7 +217,7 @@ export function createPositions3DecompressMat4(
  * const max = [1, 1, 1];
  * const { quantized, decompressMatrix } = compressPositions3(positions, min, max);
  */
-export function compressPositions3(array: FloatArrayParam, min: FloatArrayParam, max: FloatArrayParam) {
+export function compressPositions3(array: FloatArrayParam, min: Vec3, max: Vec3) {
   // Initialize a quantized array to store the compressed positions
   const quantized = new Uint16Array(array.length);
 
@@ -238,10 +236,10 @@ export function compressPositions3(array: FloatArrayParam, min: FloatArrayParam,
   }
 
   // Create the decompression matrix for transforming compressed positions back to their original space
-  const translate = createMat4();
+  const translate = createMat4Float64();
   translationMat4v(min, translate); // Apply translation based on the minimum bounds
 
-  const scale = createMat4();
+  const scale = createMat4Float64();
   scalingMat4v([
     (max[0] - min[0]) / 65535,
     (max[1] - min[1]) / 65535,
@@ -262,17 +260,17 @@ export function compressPositions3(array: FloatArrayParam, min: FloatArrayParam,
  * Compresses a single 3D point (p) within a specified axis-aligned bounding box (AABB) and stores the result in dest.
  * The point is quantized to fit within the range [0, 65535] based on the AABB bounds.
  *
- * @param {FloatArrayParam} p - The 3D point to be compressed.
- * @param {FloatArrayParam} aabb - The axis-aligned bounding box [xmin, ymin, zmin, xmax, ymax, zmax].
- * @param {FloatArrayParam} dest - The destination array where the compressed point will be stored. Defaults to the input point (p).
- * @returns {FloatArrayParam} - The compressed point in dest.
+ * @param  p - The 3D point to be compressed.
+ * @param {AABB3} aabb - The axis-aligned bounding box [xmin, ymin, zmin, xmax, ymax, zmax].
+ * @param  dest - The destination array where the compressed point will be stored. Defaults to the input point (p).
+ * @returns  - The compressed point in dest.
  *
  * @example
  * const point = [0.5, 0.5, 0.5];
  * const aabb = [0, 0, 0, 1, 1, 1];
  * const compressedPoint = compressPoint3WithAABB3(point, aabb);
  */
-export function compressPoint3WithAABB3(p: FloatArrayParam, aabb: FloatArrayParam, dest: FloatArrayParam = p): FloatArrayParam {
+export function compressPoint3WithAABB3(p: Vec3, aabb: AABB3, dest: Vec3 = p): Vec3 {
   // Compute the scale factors based on the AABB dimensions
   const multiplier = new Float32Array([
     aabb[3] !== aabb[0] ? 65535 / (aabb[3] - aabb[0]) : 0,
@@ -292,10 +290,10 @@ export function compressPoint3WithAABB3(p: FloatArrayParam, aabb: FloatArrayPara
  * Decompresses a 3D point (position) using a given 4x4 matrix (decompressMatrix).
  * This function applies the matrix transformations to the position to restore the original values.
  *
- * @param {FloatArrayParam} position - The compressed 3D point to be decompressed.
- * @param {FloatArrayParam} decompressMatrix - A 4x4 matrix used to decompress the position.
- * @param {FloatArrayParam} dest - The destination array to store the decompressed point. Defaults to the input position.
- * @returns {FloatArrayParam} - The decompressed 3D point stored in dest.
+ * @param  position - The compressed 3D point to be decompressed.
+ * @param  decompressMatrix - A 4x4 matrix used to decompress the position.
+ * @param dest - The destination array to store the decompressed point. Defaults to the input position.
+ * @returns  - The decompressed 3D point stored in dest.
  *
  * @example
  * const compressedPosition = [100, 150, 200];
@@ -303,10 +301,10 @@ export function compressPoint3WithAABB3(p: FloatArrayParam, aabb: FloatArrayPara
  * const decompressedPoint = decompressPoint3WithMat4(compressedPosition, matrix);
  */
 export function decompressPoint3WithMat4(
-  position: FloatArrayParam,
+  position: Vec3,
   decompressMatrix: FloatArrayParam,
-  dest: FloatArrayParam = position
-): FloatArrayParam {
+  dest: Vec3 = position
+): Vec3 {
   // Apply matrix transformation to each component of the position
   dest[0] = position[0] * decompressMatrix[0] + decompressMatrix[12];
   dest[1] = position[1] * decompressMatrix[5] + decompressMatrix[13];
@@ -320,10 +318,10 @@ export function decompressPoint3WithMat4(
  * Decompresses a 3D point (position) based on a given AABB (Axis-Aligned Bounding Box).
  * The function scales and offsets the position to restore it to its original coordinates.
  *
- * @param {FloatArrayParam} position - The compressed 3D point to be decompressed.
- * @param {FloatArrayParam} aabb - The AABB (min and max values) used to decompress the position.
- * @param {FloatArrayParam} dest - The destination array to store the decompressed point. Defaults to the input position.
- * @returns {FloatArrayParam} - The decompressed 3D point stored in dest.
+ * @param  position - The compressed 3D point to be decompressed.
+ * @param {AABB3} aabb - The AABB (min and max values) used to decompress the position.
+ * @param  dest - The destination array to store the decompressed point. Defaults to the input position.
+ * @returns  - The decompressed 3D point stored in dest.
  *
  * @example
  * const compressedPosition = [30000, 30000, 30000];
@@ -331,10 +329,10 @@ export function decompressPoint3WithMat4(
  * const decompressedPoint = decompressPoint3WithAABB3(compressedPosition, aabb);
  */
 export function decompressPoint3WithAABB3(
-  position: FloatArrayParam,
-  aabb: FloatArrayParam,
-  dest: FloatArrayParam = position
-): FloatArrayParam {
+  position: Vec3,
+  aabb: AABB3,
+  dest: Vec3 = position
+): Vec3 {
   // Calculate scaling and offsets based on the AABB values
   const xScale = (aabb[3] - aabb[0]) / 65535;
   const xOffset = aabb[0];
@@ -356,10 +354,10 @@ export function decompressPoint3WithAABB3(
  * Decompresses an AABB (Axis-Aligned Bounding Box) using a transformation matrix.
  * This function applies a matrix to each corner of the AABB to compute the decompressed AABB.
  *
- * @param {FloatArrayParam} aabb - The AABB values to be decompressed (min and max values).
+ * @param {AABB3} aabb - The AABB values to be decompressed (min and max values).
  * @param {FloatArrayParam} decompressMatrix - The transformation matrix used to decompress the AABB.
- * @param {FloatArrayParam} dest - The destination array where the decompressed AABB will be stored. Defaults to the input AABB.
- * @returns {FloatArrayParam} - The decompressed AABB stored in `dest`.
+ * @param {AABB3} dest - The destination array where the decompressed AABB will be stored. Defaults to the input AABB.
+ * @returns {AABB3} - The decompressed AABB stored in `dest`.
  *
  * @example
  * const aabb = [0, 0, 0, 10, 10, 10]; // Example AABB
@@ -367,10 +365,10 @@ export function decompressPoint3WithAABB3(
  * const decompressedAABB = decompressAABB3WithMat4(aabb, matrix);
  */
 export function decompressAABB3WithMat4(
-  aabb: FloatArrayParam,
+  aabb: AABB3,
   decompressMatrix: FloatArrayParam,
-  dest: FloatArrayParam = aabb
-): FloatArrayParam {
+  dest: AABB3 = aabb
+): AABB3 {
   // Decompress each corner of the AABB using the matrix
   dest[0] = aabb[0] * decompressMatrix[0] + decompressMatrix[12]; // minX
   dest[1] = aabb[1] * decompressMatrix[5] + decompressMatrix[13]; // minY
@@ -387,10 +385,10 @@ export function decompressAABB3WithMat4(
  * Decompresses an AABB (Axis-Aligned Bounding Box) using another AABB as reference for scaling and offset.
  * This function applies the scaling and offset defined by the second AABB to the first AABB.
  *
- * @param {FloatArrayParam} aabb - The AABB values to be decompressed (min and max values).
- * @param {FloatArrayParam} aabb2 - The reference AABB used for decompression (min and max values).
- * @param {FloatArrayParam} dest - The destination array where the decompressed AABB will be stored. Defaults to the input AABB.
- * @returns {FloatArrayParam} - The decompressed AABB stored in `dest`.
+ * @param {AABB3} aabb - The AABB values to be decompressed (min and max values).
+ * @param {AABB3} aabb2 - The reference AABB used for decompression (min and max values).
+ * @param {AABB3} dest - The destination array where the decompressed AABB will be stored. Defaults to the input AABB.
+ * @returns {AABB3} - The decompressed AABB stored in `dest`.
  *
  * @example
  * const aabb = [0, 0, 0, 10, 10, 10]; // Example AABB
@@ -398,10 +396,10 @@ export function decompressAABB3WithMat4(
  * const decompressedAABB = decompressAABB3WithAABB3(aabb, aabb2);
  */
 export function decompressAABB3WithAABB3(
-  aabb: FloatArrayParam,
-  aabb2: FloatArrayParam,
-  dest: FloatArrayParam = aabb
-): FloatArrayParam {
+  aabb: AABB3,
+  aabb2: AABB3,
+  dest: AABB3 = aabb
+): AABB3 {
   // Calculate scaling and offsets based on aabb2
   const xScale = (aabb2[3] - aabb2[0]) / 65535;
   const xOffset = aabb2[0];
@@ -469,7 +467,7 @@ export function decompressPositions3WithMat4(
  * It calculates the scale and offset for each axis based on the AABB and the maximum quantization value (65535).
  *
  * @param {FloatArrayParam} positions - The quantized positions array to be decompressed. Each position is a 3D point (x, y, z).
- * @param {FloatArrayParam} aabb - The AABB used for decompressing. The AABB contains 6 values: [xmin, ymin, zmin, xmax, ymax, zmax].
+ * @param {AABB3} aabb - The AABB used for decompressing. The AABB contains 6 values: [xmin, ymin, zmin, xmax, ymax, zmax].
  * @param {FloatArrayParam} [dest=new Float32Array(positions.length)] - The destination array to store the decompressed positions.
  * @returns {FloatArrayParam} - The decompressed positions array.
  *
@@ -481,7 +479,7 @@ export function decompressPositions3WithMat4(
  */
 export function decompressPositions3WithAABB3(
   positions: FloatArrayParam,
-  aabb: FloatArrayParam,
+  aabb: AABB3,
   dest: FloatArrayParam = new Float32Array(positions.length)
 ): FloatArrayParam {
   // Calculate the scale and offset for each axis
@@ -521,10 +519,10 @@ export function decompressPositions3WithAABB3(
  * console.log(min); // [0.1, 0.2]
  * console.log(max); // [0.5, 0.6]
  */
-export function getUVBounds(array: FloatArrayParam): { min: FloatArrayParam, max: FloatArrayParam } {
+export function getUVBounds(array: FloatArrayParam): { min: Vec2, max: Vec2 } {
   // Initialize min and max values to extreme bounds
-  const min = new Float32Array(2).fill(Number.MAX_VALUE);
-  const max = new Float32Array(2).fill(-Number.MAX_VALUE);
+  const min = createVec2Float64().fill(Number.MAX_VALUE);
+  const max = createVec2Float64().fill(-Number.MAX_VALUE);
 
   // Iterate over the UV coordinates and update the min and max bounds
   for (let i = 0; i < array.length; i += 2) {
@@ -550,8 +548,8 @@ export function getUVBounds(array: FloatArrayParam): { min: FloatArrayParam, max
  * for each component of the UV coordinates.
  *
  * @param {FloatArrayParam} array - The input array of UV coordinates (each UV pair consisting of [u, v]).
- * @param {FloatArrayParam} min - The minimum values for [u, v] coordinates to scale to the quantized range.
- * @param {FloatArrayParam} max - The maximum values for [u, v] coordinates to scale to the quantized range.
+ * @param {FloatVec2} min - The minimum values for [u, v] coordinates to scale to the quantized range.
+ * @param {FloatVec2} max - The maximum values for [u, v] coordinates to scale to the quantized range.
  * @returns {Object} - An object containing:
  *   - `quantized`: The quantized UV coordinates as a Uint16Array.
  *   - `decompressMatrix`: A matrix (either FloatArray or Float64Array) used to decompress the quantized UVs back to their original values.
@@ -562,41 +560,42 @@ export function getUVBounds(array: FloatArrayParam): { min: FloatArrayParam, max
  * const max = new Float32Array([1, 1]);
  * const { quantized, decompressMatrix } = compressUVs(uvs, min, max);
  */
-export function compressUVs(array: FloatArrayParam, min: FloatArrayParam, max: FloatArrayParam): {
-  quantized: Uint16Array<any>,
-  decompressMatrix: FloatArrayParam
-} {
-  const quantized = new Uint16Array(array.length);
-
-  // Compute multipliers for each component (u, v) to map them to the [0, 65535] range
-  const multipliers = new Float32Array([
-    65535 / (max[0] - min[0]),
-    65535 / (max[1] - min[1])
-  ]);
-
-  // Quantize the UV coordinates
-  for (let i = 0; i < array.length; i += 2) {
-    quantized[i] = Math.floor((array[i] - min[0]) * multipliers[0]);
-    quantized[i + 1] = Math.floor((array[i + 1] - min[1]) * multipliers[1]);
-  }
-
-  // Create transformation matrices for decompressing
-  identityMat3(translate);
-  translationMat3v(min, translate);
-
-  identityMat3(scale);
-  scalingMat3v([
-    (max[0] - min[0]) / 65535,
-    (max[1] - min[1]) / 65535
-  ], scale);
-
-  const decompressMatrix = mulMat3(translate, scale, identityMat3());
-
-  return {
-    quantized,
-    decompressMatrix
-  };
-}
+// export function compressUVs(array: FloatArrayParam, min: FloatVec2, max: FloatVec2): {
+//   quantized: Uint16Array<any>,
+//   decompressMatrix: Mat4Float
+// } {
+//   const quantized = new Uint16Array(array.length);
+//
+//   // Compute multipliers for each component (u, v) to map them to the [0, 65535] range
+//   const multipliers = new Float32Array([
+//     65535 / (max[0] - min[0]),
+//     65535 / (max[1] - min[1])
+//   ]);
+//
+//   // Quantize the UV coordinates
+//   for (let i = 0; i < array.length; i += 2) {
+//     quantized[i] = Math.floor((array[i] - min[0]) * multipliers[0]);
+//     quantized[i + 1] = Math.floor((array[i + 1] - min[1]) * multipliers[1]);
+//   }
+//
+//   // Create transformation matrices for decompressing
+//   const translate = createMat3();
+//   identityMat3(translate);
+//   translationMat3v(min, translate);
+//
+//   identityMat3(scale);
+//   scalingMat3v([
+//     (max[0] - min[0]) / 65535,
+//     (max[1] - min[1]) / 65535
+//   ], scale);
+//
+//   const decompressMatrix = mulMat3(translate, scale, identityMat3());
+//
+//   return {
+//     quantized,
+//     decompressMatrix
+//   };
+// }
 
 
 /**
@@ -626,7 +625,7 @@ export function compressNormals(array: FloatArrayParam): Int8Array<any> {
   // Initialize the encoded result array (same length as input but compressed)
   const encoded = new Int8Array(array.length);
 
-  let oct: Int8Array<any>, dec: FloatArrayParam, best: Int8Array<any>, currentCos: number, bestCos: number;
+  let oct: Int8Array<any>, dec: Vec3, best: Int8Array<any>, currentCos: number, bestCos: number;
 
   // Iterate through each normal in the array (processed in triplets)
   for (let i = 0; i < array.length; i += 3) {
@@ -674,7 +673,7 @@ export function compressNormals(array: FloatArrayParam): Int8Array<any> {
  * @param {Function} yfunc - A Math function (e.g., `Math.floor`, `Math.round`) to process the Y component.
  * @returns {Int8Array} A 2-element `Int8Array` containing the encoded normal.
  */
-function octEncodeNormalFromArray(array: FloatArrayParam, i: number, xfunc: any, yfunc: any): Int8Array { // Oct-encode single normal vector in 2 bytes
+function octEncodeNormalFromArray(array: FloatArrayParam, i: number, xfunc: any, yfunc: any): Int8Array<number> { // Oct-encode single normal vector in 2 bytes
   let x = array[i] / (Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]));
   let y = array[i + 1] / (Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]));
   if (array[i + 2] < 0) {
@@ -693,11 +692,11 @@ function octEncodeNormalFromArray(array: FloatArrayParam, i: number, xfunc: any,
  *
  * @param {FloatArrayParam} array - The array containing the first vector's components.
  * @param {number} i - The tileIndex of the first vector's X component in the array.
- * @param {FloatArrayParam} createVec3 - The second 3D vector as an array.
+ * @param {FloatArrayParam} v - The second 3D vector as an array.
  * @returns {number} The dot product of the two vectors.
  */
-function dot(array: FloatArrayParam, i: number, createVec3: FloatArrayParam): number {
-  return array[i] * createVec3[0] + array[i + 1] * createVec3[1] + array[i + 2] * createVec3[2];
+function dot(array: FloatArrayParam, i: number, v: Vec3): number {
+  return array[i] * v[0] + array[i + 1] * v[1] + array[i + 2] * v[2];
 }
 
 /**
@@ -707,18 +706,18 @@ function dot(array: FloatArrayParam, i: number, createVec3: FloatArrayParam): nu
  * adjusting it based on the transformation parameters.
  *
  * @param {FloatArrayParam} uv - The compressed UV coordinates as a 2-element array.
- * @param {FloatArrayParam} decompressMatrix - The 3x3 decompression matrix stored in a 1D array.
+ * @param {Mat4Float} decompressMatrix - The 3x3 decompression matrix stored in a 1D array.
  * @param {FloatArrayParam} [dest] - Optional destination array for decompressed UVs. If not provided, a new Float32Array(2) is created.
  * @returns {FloatArrayParam} The decompressed UV coordinates.
  */
 export function decompressUV(
   uv: FloatArrayParam,
-  decompressMatrix: FloatArrayParam,
+  decompressMatrix: Mat4,
   dest: FloatArrayParam = new Float32Array(2)
 ): FloatArrayParam {
-  if (uv.length < 2 || decompressMatrix.length < 8) {
-    throw new Error("Invalid input arrays: UV must have at least 2 elements, and decompressMatrix must have at least 8 elements.");
-  }
+  // if (uv.length < 2 || decompressMatrix.length < 8) {
+  //   throw new Error("Invalid input arrays: UV must have at least 2 elements, and decompressMatrix must have at least 8 elements.");
+  // }
 
   const u = uv[0];
   const v = uv[1];
@@ -737,7 +736,7 @@ export function decompressUV(
  * adjusting them based on the transformation parameters.
  *
  * @param {FloatArrayParam} uvs - The compressed UV coordinates (flat array).
- * @param {FloatArrayParam} decompressMatrix - The 3x3 decompression matrix stored in a 1D array.
+ * @param {Mat4Float} decompressMatrix - The 3x3 decompression matrix stored in a 1D array.
  * @param {FloatArrayParam} [dest] - Optional destination array. If not provided, a new Float32Array is created.
  * @returns {FloatArrayParam} The decompressed UV coordinates.
  */
@@ -857,7 +856,7 @@ export function decompressNormals(
  * octDecodeVec2(oct, result);
  * console.log(result); // Decoded 3D unit vector
  */
-function octDecodeVec2(oct: Int8Array<any>, result: FloatArrayParam = createVec3()): FloatArrayParam {
+function octDecodeVec2(oct: Vec2Int, result: Vec3 = createVec3Float64()): Vec3 {
   let x = oct[0];
   let y = oct[1];
 
@@ -966,8 +965,8 @@ function octDecodeVec2s(octs: Int8Array<any>, result: FloatArrayParam): FloatArr
  */
 export function quantizePositions3AndCreateMat4(
   positions: FloatArrayParam,
-  aabb: FloatArrayParam,
-  positionsDecompressMatrix: FloatArrayParam
+  aabb: AABB3,
+  positionsDecompressMatrix: Mat4
 ): Uint16Array<any> {
 
   const lenPositions = positions.length;
@@ -1000,11 +999,11 @@ export function quantizePositions3AndCreateMat4(
   }
 
   // Create the decomposition matrix: translation + scaling
-  const translate = new Float32Array(16);
+  const translate = createMat4Float64();
   identityMat4(translate);
-  translationMat4v(aabb, translate);
+  translationMat4c(aabb[0], aabb[1], aabb[2], translate);
 
-  const scale = new Float32Array(16);
+  const scale = createMat4Float64();
   identityMat4(scale);
   scalingMat4v([xwid / maxInt, ywid / maxInt, zwid / maxInt], scale);
 
@@ -1033,7 +1032,7 @@ export function quantizePositions3AndCreateMat4(
  * const quantizedPositions = quantizePositions3(positions, aabb);
  * console.log(quantizedPositions);
  */
-export function quantizePositions3(positions: FloatArrayParam, aabb: FloatArrayParam): Uint16Array<any> {
+export function quantizePositions3(positions: FloatArrayParam, aabb: AABB3): IntArrayParam {
   const lenPositions = positions.length;
   const positionsCompressed = new Uint16Array(lenPositions);
 
@@ -1090,21 +1089,21 @@ export function quantizePositions3(positions: FloatArrayParam, aabb: FloatArrayP
  * console.log(newLen, compressedNormals);
  */
 export function transformAndOctEncodeNormals(
-  worldNormalMatrix: FloatArrayParam,
+  worldNormalMatrix: Mat4,
   normals: FloatArrayParam,
   lenNormals: number,
   compressedNormals: FloatArrayParam,
   lenCompressedNormals: number
 ): number {
   // Helper function for computing the dot product of two vectors
-  const dot = (p: FloatArrayParam, createVec3: FloatArrayParam): number => {
-    return p[0] * createVec3[0] + p[1] * createVec3[1] + p[2] * createVec3[2];
+  const dot = (p: Vec3, v: Vec3): number => {
+    return p[0] * v[0] + p[1] * v[1] + p[2] * v[2];
   };
 
   // Local and world normal buffers for transformation
-  const localNormal = new Float32Array(3); // Local normal vector (x, y, z)
-  const worldNormal = new Float32Array(3); // Transformed world normal vector (x, y, z)
-  let best: Int8Array<any>, currentCos: number, bestCos: number, dec: FloatArrayParam;
+  const localNormal = createVec3Float64(); // Local normal vector (x, y, z)
+  const worldNormal = createVec3Float64(); // Transformed world normal vector (x, y, z)
+  let best: Vec2Int, currentCos: number, bestCos: number, dec: Vec3;
 
   for (let i = 0; i < lenNormals; i += 3) {
     // Load normal from input array
@@ -1170,7 +1169,7 @@ export function octEncodeVec3(
   p: FloatArrayParam,
   xfunc: string,
   yfunc: string
-): Int8Array<any> {
+): Vec2Int {
   if (typeof Math[xfunc] !== 'function' || typeof Math[yfunc] !== 'function') {
     throw new Error(`Invalid math function names: ${xfunc} or ${yfunc} are not valid functions.`);
   }
@@ -1189,7 +1188,7 @@ export function octEncodeVec3(
   const encodedX = Math[xfunc](x * 127.5 + (x < 0 ? -1 : 0));
   const encodedY = Math[yfunc](y * 127.5 + (y < 0 ? -1 : 0));
 
-  return new Int8Array([encodedX, encodedY]);
+  return createVec2Int32([encodedX, encodedY]);
 }
 
 
@@ -1259,7 +1258,7 @@ export function octEncodeNormal(
  * const compressed = compressRGBColors(colors);
  * console.log(compressed); // Uint16Array([127, 51, 204, 255, 76, 153, 25, 255])
  */
-export function compressRGBColors(colors: FloatArrayParam): Uint16Array<any> {
+export function compressRGBColors(colors: FloatArrayParam): IntArrayParam {
   const len = colors.length;
   const compressed = new Uint16Array(len);
 

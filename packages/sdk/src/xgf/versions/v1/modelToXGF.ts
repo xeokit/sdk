@@ -5,7 +5,7 @@ import {
   SurfacePrimitive,
   TrianglesPrimitive
 } from "../../../constants";
-import {createMat4, isIdentityMat4, mulMat4} from "../../../matrix";
+import {createMat4Float64, isIdentityMat4, mulMat4} from "../../../matrix";
 import type {SceneModel} from "../../../scene";
 import type {XGFData_v1} from "./XGFData_v1";
 import {createCoordinateSystemTransform} from "../../../scene";
@@ -24,7 +24,7 @@ export function modelToXGF(params: {
   const options = params.options;
 
   const coordinateSystemMatrix = options.coordinateSystem
-    ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4())
+    ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64())
     : null;
 
   const geometriesList = Object.values(sceneModel.geometries);
@@ -160,7 +160,7 @@ export function modelToXGF(params: {
       const mesh = object.meshes[objectMeshIdx];
       xgfData.eachMeshGeometriesBase [meshesBase] = geometryIndices[mesh.geometry.id];
       const matrix = coordinateSystemMatrix
-        ? mulMat4(mesh.matrix, coordinateSystemMatrix, createMat4())
+        ? mulMat4(mesh.matrix, coordinateSystemMatrix, createMat4Float64())
         : mesh.matrix;
       if (isIdentityMat4(matrix)) {
         if (!identityMatrixAdded) {
@@ -185,7 +185,9 @@ export function modelToXGF(params: {
     }
   }
 
+  // @ts-ignore
   xgfData.aabbs = new Float32Array(aabbs);
+  // @ts-ignore
   xgfData.matrices = new Float64Array(matrices);
 
   return <XGFData_v1>xgfData;

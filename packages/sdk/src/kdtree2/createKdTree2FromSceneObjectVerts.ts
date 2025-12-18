@@ -1,8 +1,9 @@
-import {createMat4, createVec4, transformPoint4} from "../matrix";
+import {createMat4Float64, createVec4Float64, Mat4, transformPoint4} from "../matrix";
 import type {SceneObject} from "../scene";
 import {type GeometryView, getSceneObjectGeometry} from "../scene";
 import {
-  collapseAABB3, createAABB3,
+  AABB2,
+  collapseAABB3, createAABB3Float64,
   INSIDE,
   INTERSECT,
   intersectFrustum3AABB3,
@@ -15,7 +16,7 @@ import {KdTree2} from "./KdTree2";
 import type {KdVertex2} from "./KdVertex2";
 import {createSceneObjectAABB3} from "../aabb/createSceneObjectAABB3";
 
-const tempAABB3 = createAABB3();
+const tempAABB3 = createAABB3Float64();
 
 /**
  * A k-d tree to accelerate intersection and nearest-neighbour tests on the projected
@@ -24,9 +25,9 @@ const tempAABB3 = createAABB3();
  * See {@link kdtree2 | @xeokit/sdk/kdtree2} for usage.
  */
 export function createKdTree2FromSceneObjectVerts(params: {
-  viewMatrix: FloatArrayParam,
-  projMatrix: FloatArrayParam,
-  canvasBoundary: FloatArrayParam,
+  viewMatrix: Mat4,
+  projMatrix: Mat4,
+  canvasBoundary: AABB2,
   sceneObjects: SceneObject[]
 }): KdTree2 {
 
@@ -34,8 +35,8 @@ export function createKdTree2FromSceneObjectVerts(params: {
     aabb: params.canvasBoundary
   });
 
-  const viewMatrix = createMat4(params.viewMatrix);
-  const projMatrix = createMat4(params.projMatrix);
+  const viewMatrix = createMat4Float64(params.viewMatrix);
+  const projMatrix = createMat4Float64(params.projMatrix);
   const frustum = setFrustum3(viewMatrix, projMatrix);
   const canvasBoundary = params.canvasBoundary;
   const sceneObjects = params.sceneObjects;
@@ -57,7 +58,7 @@ export function createKdTree2FromSceneObjectVerts(params: {
     getSceneObjectGeometry(sceneObject, (geometryView: GeometryView): boolean | undefined => {
       const positionsWorld = geometryView.positionsWorld;
       for (let i = 0, len = positionsWorld.length; i < len; i += 3) {
-        const worldPos = createVec4();
+        const worldPos = createVec4Float64();
         worldPos[0] = positionsWorld[i];
         worldPos[1] = positionsWorld[i + 1];
         worldPos[2] = positionsWorld[i + 2];
@@ -71,8 +72,8 @@ export function createKdTree2FromSceneObjectVerts(params: {
   }
 
   function insertVertex(sceneObject: SceneObject, worldPos: FloatArrayParam) {
-    const viewPos = createVec4();
-    const projPos = createVec4();
+    const viewPos = createVec4Float64();
+    const projPos = createVec4Float64();
     const canvasPos = new Uint16Array(2);
     transformPoint4(viewMatrix, worldPos, viewPos);
     transformPoint4(projMatrix, viewPos, projPos);

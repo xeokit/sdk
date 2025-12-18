@@ -1,15 +1,15 @@
-import { identityMat4, inverseMat4, mulMat4 } from "../matrix";
-import type { FloatArrayParam } from "../math";
-import { SceneTransform } from ".../scene/SceneTransform";
+import {createMat4Float64, identityMat4, inverseMat4, Mat4, mulMat4, Vec3, Vec4} from "../matrix";
+import type { Mat4 } from "../matrix";
+import { SceneTransform } from "../scene/SceneTransform";
 
 /** Optional callback for renderer upload when a world matrix updates */
 export interface TransformEngineOptions {
-    onWorldMatrixUpdate?: (node: SceneTransform, world: FloatArrayParam) => void;
+    onWorldMatrixUpdate?: (node: SceneTransform, world: Mat4) => void;
 }
 
 /** Internal cache entry per node */
 interface Entry {
-    world: FloatArrayParam;       // cached world matrix (Float64)
+    world: Mat4;       // cached world matrix (Float64)
     key: number;               // (parentWorldVersion << 2) ^ node._localVersion
     worldVersion: number;      // increments whenever world changes
 }
@@ -30,8 +30,9 @@ export class SceneTransformEngine {
     private _entry(node: SceneTransform): Entry {
         let e = this.cache.get(node);
         if (!e) {
-            e = { world: new Float64Array(16), key: 0, worldVersion: 0 };
-            identityMat4(e.world as unknown as FloatArrayParam);
+            e = {
+              world: createMat4Float64(), key: 0, worldVersion: 0 };
+            identityMat4(e.world as unknown as Mat4);
             this.cache.set(node, e);
         }
         return e;
@@ -47,7 +48,7 @@ export class SceneTransformEngine {
      * Compute (or retrieve cached) world matrix for a node.
      * Lazy: uses (parentWorldVersion, localVersion) to know if recompute is needed.
      */
-    getWorldMatrix(node: SceneTransform, force = false): FloatArrayParam {
+    getWorldMatrix(node: SceneTransform, force = false): Mat4 {
         const parent = node.parentTransform;
         const parentWV = parent ? this._getWorldVersion(parent, force) : 0;
 
@@ -58,9 +59,9 @@ export class SceneTransformEngine {
             if (parent) {
                 const pWorld = this._entry(parent).world;
                 mulMat4(
-                    pWorld as unknown as FloatArrayParam,
-                    node.matrix as unknown as FloatArrayParam,
-                    e.world as unknown as FloatArrayParam
+                    pWorld as unknown as Mat4,
+                    node.matrix as unknown as Mat4,
+                    e.world as unknown as Mat4
                 );
             } else {
                 // world = local
@@ -79,12 +80,12 @@ export class SceneTransformEngine {
     /**
      * Set a node's local matrix (64-bit) and invalidate cache lazily.
      */
-    setLocalMatrix(node: SceneTransform, m: FloatArrayParam | null): void {
+    setLocalMatrix(node: SceneTransform, m: Mat4 | null): void {
         if (m) {
             // @ts-ignore
-            (node.matrix as FloatArrayParam).set(m);
+            (node.matrix as Mat4).set(m);
         } else {
-            identityMat4(node.matrix as unknown as FloatArrayParam);
+            identityMat4(node.matrix as unknown as Mat4);
         }
         (node as any)._localVersion++;
         // no deep invalidation required; lazy keys handle it
@@ -96,42 +97,42 @@ export class SceneTransformEngine {
      *   local' = inverse(parentNext.world) * oldWorld
      */
     setParent(node: SceneTransform, next: SceneTransform | null, opts?: { preserveWorld?: boolean }): void {
-        if (next === node) throw new Error("Cannot parent to self");
-        const preserve = !!opts?.preserveWorld;
-
-        if (!preserve) {
-            node._attachParentTransform(next);
-            return;
-        }
-
-        // save current world
-        const oldWorld = this.getWorldMatrix(node, /*force*/ false);
-        // tmpA = oldWorld
-        // @ts-ignore
-        this._tmpA.set(oldWorld);
-
-        node._attachParentTransform(next);
-
-        if (next) {
-            const parentWorld = this.getWorldMatrix(next, /*force*/ false);
-            // tmpB = inv(parentWorld)
-            inverseMat4(
-                parentWorld as unknown as FloatArrayParam,
-                this._tmpB as unknown as FloatArrayParam
-            );
-            // local' = tmpB * oldWorld
-            mulMat4(
-                this._tmpB as unknown as FloatArrayParam,
-                this._tmpA as unknown as FloatArrayParam,
-                node.matrix as unknown as FloatArrayParam
-            );
-        } else {
-            // local' = oldWorld
-            // @ts-ignore
-            (node.matrix as FloatArrayParam).set(this._tmpA);
-        }
-
-        (node as any)._localVersion++;
+        // if (next === node) throw new Error("Cannot parent to self");
+        // const preserve = !!opts?.preserveWorld;
+        //
+        // if (!preserve) {
+        //     node._attachParentTransform(next);
+        //     return;
+        // }
+        //
+        // // save current world
+        // const oldWorld = this.getWorldMatrix(node, /*force*/ false);
+        // // tmpA = oldWorld
+        // // @ts-ignore
+        // this._tmpA.set(oldWorld);
+        //
+        // node._attachParentTransform(next);
+        //
+        // if (next) {
+        //     const parentWorld = this.getWorldMatrix(next, /*force*/ false);
+        //     // tmpB = inv(parentWorld)
+        //     inverseMat4(
+        //         parentWorld as unknown as Mat4,
+        //         this._tmpB as unknown as Mat4
+        //     );
+        //     // local' = tmpB * oldWorld
+        //     mulMat4(
+        //         this._tmpB as unknown as Mat4,
+        //         this._tmpA as unknown as Mat4,
+        //         node.matrix as unknown as Mat4
+        //     );
+        // } else {
+        //     // local' = oldWorld
+        //     // @ts-ignore
+        //     (node.matrix as FloatArrayParam).set(this._tmpA);
+        // }
+        //
+        // (node as any)._localVersion++;
     }
 
     /**

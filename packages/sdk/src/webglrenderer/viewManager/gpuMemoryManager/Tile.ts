@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "../../../math";
+import type {Mat4, Vec3} from "../../../matrix";
 
 /**
  * Represents a single tile in a tiled coordinate system.
@@ -33,17 +33,17 @@ export interface Tile {
   /**
    * World-space 3D tile center
    */
-  center: FloatArrayParam;
+  center: Vec3;
 
   /**
    * A relative-to-center (RTC) view matrix for each existing View. This is stored in DataTexturesLayer.tileViewMatrices
    * and automatically updates on all Tiles whenever the View's Camera moves.
    */
-  rtcViewMatrix: FloatArrayParam[];
+  rtcViewMatrix: Mat4[];
 
   /**
    * A relative-to-center (RTC) pick matrix for each existing View. This is stored in DataTexturesLayer.tileRayPickMatrices
    * and is manually updated on all Tiles for a target View before picking in that View.
    */
-  rtcRayPickMatrix: FloatArrayParam[];
+  rtcRayPickMatrix: Mat4[];
 }

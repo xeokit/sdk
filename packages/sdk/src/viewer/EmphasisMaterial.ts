@@ -2,6 +2,7 @@ import type {EmphasisMaterialParams} from "./EmphasisMaterialParams";
 import type {FloatArrayParam} from "../math";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../core";
+import {Vec3Float} from "../matrix";
 
 /**
  * Configures the appearance of {@link ViewObject | ViewObjects} when they are xrayed, highlighted or selected.
@@ -84,7 +85,7 @@ class EmphasisMaterial {
    *
    * Default is ````[0.4, 0.4, 0.4]````.
    */
-  set fillColor(value: FloatArrayParam) {
+  set fillColor(value: Vec3Float) {
     if (!value || value.length < 3) {
       this.view.viewer.logError({
         ok: false,
@@ -107,7 +108,7 @@ class EmphasisMaterial {
    *
    * Default is ````[0.4, 0.4, 0.4]````.
    */
-  get fillColor(): Float32Array<any> {
+  get fillColor(): Vec3Float {
     return this._fillColor;
   }
 

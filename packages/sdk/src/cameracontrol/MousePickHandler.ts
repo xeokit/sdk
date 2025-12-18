@@ -1,4 +1,4 @@
-import {canvasPosToWorldRay, createVec3, subVec3} from "../matrix";
+import {canvasPosToWorldRay, createVec3Float64, subVec3} from "../matrix";
 import type {PickResult, View} from "../viewer";
 import {getAABB3Center} from "../boundaries";
 import {getSceneAABBIndex, SceneAABB3Index} from "../aabb/SceneAABB3Index";
@@ -73,8 +73,8 @@ class MousePickHandler {
         }
 
         if (cameraControl.onRayMove.count > 0) {
-          const origin = createVec3();
-          const direction = createVec3();
+          const origin = createVec3Float64();
+          const direction = createVec3Float64();
           canvasPosToWorldRay(view.htmlElement, view.camera.viewMatrix, view.camera.projMatrix, view.camera.projection, states.pointerCanvasPos, origin, direction);
           cameraControl.onRayMove.dispatch(cameraControl, {
             canvasPos: states.pointerCanvasPos,

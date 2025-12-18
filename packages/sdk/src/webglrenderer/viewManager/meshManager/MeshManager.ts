@@ -4,10 +4,10 @@ import type {SceneMesh, SceneModel, SceneObject,} from "../../../scene";
 import {RendererObject} from "./RendererObject";
 import {RendererMesh} from "./RendererMesh";
 import {MeshBatchImpl} from "./MeshBatchImpl";
-import {type GPUMemoryEditor} from "../gpuMemoryManager/GPUMemoryEditor";
-import {MeshBatch} from "./MeshBatch";
-import {Camera, ViewObject} from "../../../viewer";
-import {SceneTransform} from "../../../scene/SceneTransform";
+import {type MeshBatch} from "./MeshBatch";
+import type {Camera, ViewObject} from "../../../viewer";
+import type {SceneTransform} from "../../../scene/SceneTransform";
+import {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 
 /**
  * The MeshManager manages the relationship between scene objects, their geometries, meshes, and rendering sortedBatches.
@@ -27,7 +27,7 @@ export class MeshManager {
 
   private _rendererObjects: Record<string, RendererObject> = {}; // A SceneObject can belong to many SceneModels
   private _renderContext: RenderContext;
-  private _gpuMemoryEditor: GPUMemoryEditor;
+  private _gpuMemoryManager: GPUMemoryManager;
 
   private _rendererModels: Record<string, {
     rendererMeshes: Record<string, RendererMesh>;
@@ -40,11 +40,11 @@ export class MeshManager {
   /**
    * Initializes the MeshManager with the given rendering context and GPU data gpuMemoryManager editor.
    * @param renderContext
-   * @param gpuMemoryEditor
+   * @param gpuMemoryManager
    */
-  constructor(renderContext: RenderContext, gpuMemoryEditor: GPUMemoryEditor) {
+  constructor(renderContext: RenderContext, gpuMemoryManager: GPUMemoryManager) {
     this._renderContext = renderContext;
-    this._gpuMemoryEditor = gpuMemoryEditor;
+    this._gpuMemoryManager = gpuMemoryManager;
   }
 
   /**
@@ -174,7 +174,7 @@ export class MeshManager {
       renderContext: this._renderContext,
       sceneMesh,
       meshBatch,
-      gpuMemoryEditor: this._gpuMemoryEditor,
+      gpuMemoryManager: this._gpuMemoryManager,
       meshHandle
     });
     rendererModel.rendererMeshes[meshId] = rendererMesh;
@@ -195,7 +195,7 @@ export class MeshManager {
       }
     }
     const meshBatchId = `meshBatch-${primitive}-${Object.keys(this._sortedBatches).length}`; // TODO: optimize ID generation
-    const result = this._gpuMemoryEditor.createBatch();
+    const result = this._gpuMemoryManager.createBatch();
     if (result.ok === false) {
       return result;
     }
@@ -203,7 +203,7 @@ export class MeshManager {
     const newMeshBatch = new MeshBatchImpl({
       primitive,
       renderContext: this._renderContext,
-      gpuMemoryEditor: this._gpuMemoryEditor,
+      gpuMemoryManager: this._gpuMemoryManager,
       gpuMemoryBatchIndex,
     });
     this._sortedBatches[meshBatchId] = newMeshBatch;
@@ -328,7 +328,7 @@ export class MeshManager {
    * Handles updates to the camera's view matrix.
    */
   public cameraViewMatrixUpdated(camera: Camera) {
-    this._gpuMemoryEditor.cameraViewMatrixUpdated(camera);
+    this._gpuMemoryManager.cameraViewMatrixUpdated(camera);
   }
 
   /**
@@ -354,14 +354,14 @@ export class MeshManager {
    * Retrieves a SceneMesh within a specific batch at the given index.
    */
   public getMeshAtIndex(batchIndex: number, meshIndex: number): SceneMesh | null {
-    return this._gpuMemoryEditor.getMeshAtIndex(batchIndex, meshIndex);
+    return this._gpuMemoryManager.getMeshAtIndex(batchIndex, meshIndex);
   }
 
   /**
    * Gets the parameters needed for a drawArrays call for a specific mesh in a specific batch.
    */
   public getDrawArraysParamsForMesh(batchIndex: number, meshIndex: number): { first: number; count: number } | null {
-    return this._gpuMemoryEditor.getDrawArraysParamsForMesh(batchIndex, meshIndex);
+    return this._gpuMemoryManager.getDrawArraysParamsForMesh(batchIndex, meshIndex);
   }
 
   /**

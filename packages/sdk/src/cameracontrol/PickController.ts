@@ -1,7 +1,7 @@
 import type {View} from "../viewer";
 import {PickResult} from "../viewer";
 import type {CameraControl} from "./CameraControl";
-import {createVec2} from "../matrix";
+import {createVec2Float64} from "../matrix";
 
 const DEFAULT_SNAP_PICK_RADIUS = 45;
 const DEFAULT_SNAP_MODE = "vertex";
@@ -62,7 +62,7 @@ class PickController {
      * The canvas position at which to do the next scheduled pick.
      * @type {Number[]}
      */
-    this.pickCursorPos = createVec2();
+    this.pickCursorPos = createVec2Float64();
 
     /**
      * Will be true after picking to indicate that something was picked.

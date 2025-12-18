@@ -1,13 +1,13 @@
 import {
-  createAABB3, collapseAABB3,
-  expandAABB3, expandAABB3Point3
+  createAABB3Float64, collapseAABB3,
+  expandAABB3, expandAABB3Point3, AABB3Float
 } from "../boundaries";
 import type {Scene, SceneMesh, SceneObject} from "../scene";
-import {createVec4, transformPoint4} from "../matrix";
+import {createVec3Float64, createVec4Float64, type Mat4, type Vec3Float, type Vec3, transformPoint4} from "../matrix";
 import type {FloatArrayParam} from "../math";
 
-const tempVec4a = createVec4();
-const tempVec4b = createVec4();
+const tempVec4a = createVec4Float64();
+const tempVec4b = createVec4Float64();
 
 /**
  * Computes the world-space AABB for a set of compressed positions using a transform matrix.
@@ -15,10 +15,10 @@ const tempVec4b = createVec4();
  */
 function getPositionsWorldAABB3(
   positionsCompressed: FloatArrayParam,
-  aabb: FloatArrayParam,
-  matrix: FloatArrayParam,
-  worldAABB: FloatArrayParam
-): FloatArrayParam {
+  aabb: AABB3Float,
+  matrix: Mat4,
+  worldAABB: AABB3Float
+): AABB3Float {
   collapseAABB3(worldAABB);
   const xScale = (aabb[3] - aabb[0]) / 65535;
   const xOffset = aabb[0];
@@ -33,7 +33,7 @@ function getPositionsWorldAABB3(
     tempVec4a[2] = positionsCompressed[i + 2] * zScale + zOffset;
     tempVec4a[3] = 1.0;
     transformPoint4(matrix, tempVec4a, tempVec4b);
-    expandAABB3Point3(worldAABB, tempVec4b);
+    expandAABB3Point3(worldAABB, <Vec3>tempVec4b);
   }
 
   return worldAABB;
@@ -46,14 +46,14 @@ function getPositionsWorldAABB3(
 export class SceneAABB3Index {
 
   #scene: Scene;
-  #meshAABBs = new Map<string, FloatArrayParam>();
-  #objectAABBs = new Map<string, FloatArrayParam>();
+  #meshAABBs = new Map<string, AABB3Float>();
+  #objectAABBs = new Map<string, AABB3Float>();
   #meshDirty = new Set<string>();
   #objectDirty = new Set<string>();
   #unsubscribers: (() => void)[] = [];
-  #sceneAABB: Float64Array<any>;
+  #sceneAABB: AABB3Float;
   #sceneAABBDirty: boolean;
-  #sceneCenter: Float64Array<any>;
+  #sceneCenter: Vec3Float;
 
   /**
    * Constructs a new SceneAABB3Index for the given {@link Scene}.
@@ -62,11 +62,12 @@ export class SceneAABB3Index {
   constructor(scene: Scene) {
     this.#scene = scene;
 
-    this.#sceneAABB = createAABB3();
-    this.#sceneCenter = createVec4();
+    this.#sceneAABB = createAABB3Float64();
+    this.#sceneCenter = createVec3Float64();
     this.#sceneAABBDirty = true;
 
     // Mark initial meshes and objects dirty
+    // @ts-ignore
     for (const object of Object.values(scene.objects)) {
       for (const mesh of object.meshes) {
         this.#meshDirty.add(mesh.id);
@@ -83,14 +84,14 @@ export class SceneAABB3Index {
         this.#objectDirty.add(object.id);
       }),
 
-      SceneEvents.onMeshMoved.subscribe((_, mesh) => {
+      scene.events.onSceneMeshMoved.subscribe((_, mesh) => {
         this.#meshDirty.add(mesh.id);
         if (mesh.object) {
           this.#objectDirty.add(mesh.object.id);
         }
       }),
 
-      SceneEvents.onObjectDestroyed.subscribe((_, object) => {
+      scene.events.onSceneObjectDestroyed.subscribe((_, object) => {
         for (const mesh of object.meshes) {
           this.#meshAABBs.delete(mesh.id);
           this.#meshDirty.delete(mesh.id);
@@ -99,7 +100,8 @@ export class SceneAABB3Index {
         this.#objectDirty.delete(object.id);
       }),
 
-      SceneEvents.onSceneModelDestroyed.subscribe((_, model) => {
+      scene.events.onSceneModelDestroyed.subscribe((_, model) => {
+        // @ts-ignore
         for (const object of Object.values(model.objects)) {
           for (const mesh of object.meshes) {
             this.#meshAABBs.delete(mesh.id);
@@ -112,10 +114,10 @@ export class SceneAABB3Index {
     );
   }
 
-  #getMeshAABB(mesh: SceneMesh): FloatArrayParam {
+  #getMeshAABB(mesh: SceneMesh): AABB3Float {
     let aabb = this.#meshAABBs.get(mesh.id);
     if (!aabb) {
-      aabb = createAABB3();
+      aabb = createAABB3Float64();
       this.#meshAABBs.set(mesh.id, aabb);
     }
 
@@ -132,13 +134,13 @@ export class SceneAABB3Index {
     return aabb;
   }
 
-  #getObjectAABB(objectId: string): FloatArrayParam | null {
+  #getObjectAABB(objectId: string): AABB3Float | null {
     const object = this.#scene.objects[objectId];
     if (!object) return null;
 
     let aabb = this.#objectAABBs.get(objectId);
     if (!aabb) {
-      aabb = createAABB3();
+      aabb = createAABB3Float64();
       this.#objectAABBs.set(objectId, aabb);
     }
 
@@ -163,9 +165,10 @@ export class SceneAABB3Index {
   /**
    * Gets the combined axis-aligned bounding box (AABB) of the entire scene.
    */
-  getSceneAABB(): FloatArrayParam {
+  getSceneAABB(): AABB3Float {
     if (this.#objectDirty.size > 0) {
       collapseAABB3(this.#sceneAABB);
+      // @ts-ignore
       for (const object of Object.values(this.#scene.objects)) {
         const aabb = this.#getObjectAABB(object.id);
         if (aabb) {
@@ -180,7 +183,7 @@ export class SceneAABB3Index {
   /**
    * Gets the center of the scene's AABB.
    */
-  getSceneCenter(): FloatArrayParam {
+  getSceneCenter(): Vec3Float {
     if (this.#sceneAABBDirty) {
       this.getSceneAABB();
     }
@@ -198,8 +201,8 @@ export class SceneAABB3Index {
    * @param objectIds The list of SceneObject IDs.
    * @returns Combined AABB, or `null` if none found.
    */
-  getCombinedObjectAABB(objectIds: string[]): FloatArrayParam | null {
-    const result = createAABB3();
+  getCombinedObjectAABB(objectIds: string[]): AABB3Float | null {
+    const result = createAABB3Float64();
     collapseAABB3(result);
     let foundAny = false;
 
@@ -220,7 +223,7 @@ export class SceneAABB3Index {
    * @param objectId The SceneObject ID.
    * @returns AABB or `null` if the object does not exist or has no meshes.
    */
-  getObjectAABB(objectId: string): FloatArrayParam | null {
+  getObjectAABB(objectId: string): AABB3Float | null {
     return this.#getObjectAABB(objectId);
   }
 
@@ -254,7 +257,7 @@ export function getSceneAABBIndex(scene: Scene) {
   let sceneIndex = sceneIndexes[scene.id];
   if (!sceneIndex) {
     sceneIndex = sceneIndexes[scene.id] = new SceneAABB3Index(scene);
-    SceneEvents.onDestroyed.sub((scene, _) => {
+    scene.events.onSceneDestroyed.sub((scene, _) => {
       sceneIndex.destroy();
       delete sceneIndexes[scene.id];
     });

@@ -1,4 +1,4 @@
-import {normalizeVec3, subVec3} from "../matrix";
+import {normalizeVec3, subVec3, type Vec3} from "../matrix";
 import {apply} from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";
@@ -74,7 +74,7 @@ import {SDKErrorType, type SDKResult} from "../core";
 export function buildTorusGeometry(cfg: {
   tube?: number;
   arc?: number;
-  center?: number[];
+  center?: Vec3;
   radialSegments?: number;
   radius?: number;
   tubeSegments?: number;

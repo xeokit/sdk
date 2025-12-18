@@ -1,13 +1,13 @@
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../core";
 import {
-  composeMat4, createMat4,
+  composeMat4, createMat4Float64,
   eulerToQuat,
   identityMat4,
-  identityQuat
+  identityQuat,
+  type  Mat4
 } from "../matrix";
 import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";
 import {compressGeometryParams} from "./compressGeometryParams";
-import type {FloatArrayParam} from "../math";
 import type {Scene} from "./Scene";
 import {SceneGeometry} from "./SceneGeometry";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
@@ -143,7 +143,7 @@ export class SceneModel {
    * Each SceneMesh's matrix is pre-multiplied by this matrix to effectively move the vertex
    * positions from the SceneModel CoordinateSystem to the Scene CoordinateSystem within.
    */
-  public readonly coordinateSystemMatrix: FloatArrayParam;
+  public readonly coordinateSystemMatrix: Mat4;
 
   /**
    * Whether IDs of {@link SceneObject | SceneObjects} are globalized.
@@ -248,7 +248,7 @@ export class SceneModel {
     this.id = sceneModelParams.id;
     this.scene = scene;
     this.coordinateSystem = new CoordinateSystem(this, sceneModelParams?.coordinateSystem);
-    this.coordinateSystemMatrix = createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, createMat4());
+    this.coordinateSystemMatrix = createCoordinateSystemTransform(this.coordinateSystem, this.scene.coordinateSystem, createMat4Float64());
     this.globalizedIds = (!!sceneModelParams.globalizedIds);
     this.layerId = sceneModelParams.layerId;
     this.transforms = {};
@@ -368,7 +368,7 @@ export class SceneModel {
         matrix = identityMat4();
       }
     } else {
-      matrix = matrix.slice(); // defensive copy
+      matrix = createMat4Float64(matrix); // defensive copy
     }
 
     const sceneTransform = new SceneTransform(this, {
@@ -1230,7 +1230,7 @@ export class SceneModel {
           error: `[SceneModel.createMesh] Cannot create SceneMesh: matrix must be a mat4 array`
         });
       }
-      matrix = matrix.slice();
+      matrix = createMat4Float64(matrix);
     }
 
     if (color && color.length !== 3) {

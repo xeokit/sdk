@@ -29,7 +29,7 @@
 //     constructor(scene: Scene, origin: math.FloatArrayParam) {
 //
 //         this.scene = scene;
-//         this.aabb = math.boundaries.createAABB3();
+//         this.aabb = math.boundaries.createAABBFloat64();
 //         this.origin = math.createVec3(origin);
 //         this.originHash = this.origin.join();
 //         this.numMarkers = 0;

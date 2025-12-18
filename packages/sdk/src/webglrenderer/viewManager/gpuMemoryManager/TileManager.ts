@@ -1,13 +1,13 @@
-import {createMat4, createVec3} from "../../../matrix";
+import {createMat4Float64, createVec3Float64} from "../../../matrix";
 import {createRTCViewMat, worldToRTCCenter} from "../../../rtc";
-import type {FloatArrayParam} from "../../../math";
+import type {Vec3, Mat4} from "../../../matrix";
 import {Camera, View, Viewer} from "../../../viewer";
 import {type Tile} from "./Tile";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
 
 const NUM_VIEWS = 4;
 const NUM_TILES = 2000;
-const tempVec3a = createVec3();
+const tempVec3a = createVec3Float64();
 
 /**
  * Manages a tiled coordinate system for efficient WebGL rendering.
@@ -32,7 +32,7 @@ export class TileManager {
   /**
    * Creates a tile manager for a WebGLRenderer.
    */
-  constructor(viewer: Viewer, viewMatrices: DTXMatrixArray[], pickMatrices: DTXMatrixArray[] ) {
+  constructor(viewer: Viewer, viewMatrices: DTXMatrixArray[], pickMatrices: DTXMatrixArray[]) {
     this._viewer = viewer;
     // this._allocateDataTextures();
     this._viewMatrices = viewMatrices;
@@ -44,13 +44,13 @@ export class TileManager {
    * Synchronizes all tile RTC view matrices to the given Camera's view matrix.
    */
   public cameraViewMatrixUpdated(camera: Camera) {
-    this._synchTilesToViewMatrix( camera);
+    this._synchTilesToViewMatrix(camera);
   }
 
   /**
    * Get a Tile that contains the given 3D World-space position.
    */
-  getTile( worldPos: FloatArrayParam ): Tile {
+  getTile(worldPos: Vec3): Tile {
     const rtcCenter = worldToRTCCenter(worldPos, tempVec3a);
     const id = this._makeTileId(rtcCenter);
     let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter);
@@ -63,18 +63,18 @@ export class TileManager {
    * Releases a Tile back to the tile manager.
    * The Tile is destroyed as soon as it is released as many times as it was retrieved.
    */
-  putTile( tile: Tile ) {
+  putTile(tile: Tile) {
     if (--tile.useCount === 0) {
       this._tiles.delete(tile.id);
       this._putFreeTileIndex(tile.tileIndex);
-        console.log(`TileManager.putTile: putTile id=${tile.id} DESTROYED`);
+      console.log(`TileManager.putTile: putTile id=${tile.id} DESTROYED`);
     }
   }
 
   /**
    * Move a Tile, if necessary, so that it contains the given World-space 3D position.
    */
-  moveTile( tile: Tile, worldPos: FloatArrayParam ): Tile {
+  moveTile(tile: Tile, worldPos: Vec3): Tile {
     const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a);
     const newId = this._makeTileId(newRTCCenter);
     if (newId === tile.id) {
@@ -90,7 +90,7 @@ export class TileManager {
   /**
    * Sets the pick matrices for all tiles for the given view.
    */
-  public setPickMatrix( view: View, pickMatrix: FloatArrayParam ) {
+  public setPickMatrix(view: View, pickMatrix: Mat4) {
     console.log(`TileManager.setPickMatrix: viewIndex=${view.viewIndex}`);
     const viewIndex = view.viewIndex;
     const pickMatrices = this._pickMatrices[viewIndex];
@@ -106,12 +106,12 @@ export class TileManager {
    */
   destroy() {
     console.log(`TileManager.destroy: Destroying TileManager with ${this._numTiles} tiles`);
-   }
+  }
 
   /**
    * Synchronizes all tile RTC view matrices to the given View's camera view matrix.
    */
-  private _synchTilesToViewMatrix( camera: Camera ) {
+  private _synchTilesToViewMatrix(camera: Camera) {
     console.log(`TileManager._synchTilesToViewMatrix: viewIndex=${camera.view.viewIndex}`);
     const view = camera.view;
     const viewMatrix = camera.viewMatrix;
@@ -125,22 +125,22 @@ export class TileManager {
     }
   }
 
-  private _makeTileId( rtcCenter: FloatArrayParam ): string {
+  private _makeTileId(rtcCenter: Vec3): string {
     return rtcCenter.join("-");
   }
 
-  private _createTile( id: string, rtcCenter: FloatArrayParam ): Tile {
+  private _createTile(id: string, rtcCenter: Vec3): Tile {
     const {viewList, numViews} = this._viewer;
-    const center = createVec3(rtcCenter);
-    const rtcViewMatrix = Array.from({length: NUM_VIEWS}, ( _, i ) =>
+    const center = createVec3Float64(rtcCenter);
+    const rtcViewMatrix = Array.from({length: NUM_VIEWS}, (_, i) =>
       i < numViews
-        ? createRTCViewMat(viewList[i].camera.viewMatrix, center, createMat4())
-        : createMat4()
+        ? createRTCViewMat(viewList[i].camera.viewMatrix, center, createMat4Float64())
+        : createMat4Float64()
     );
-    const rtcPickMatrix = Array.from({length: NUM_VIEWS}, ( _, i ) =>
+    const rtcPickMatrix = Array.from({length: NUM_VIEWS}, (_, i) =>
       i < numViews
-        ? createRTCViewMat(viewList[i].camera.viewMatrix, center, createMat4())
-        : createMat4()
+        ? createRTCViewMat(viewList[i].camera.viewMatrix, center, createMat4Float64())
+        : createMat4Float64()
     );
     const tileIndex = this._getFreeTileIndex();
     const tile: Tile = {
@@ -152,8 +152,8 @@ export class TileManager {
       rtcRayPickMatrix: rtcPickMatrix
     };
     for (let viewIndex = 0; viewIndex < NUM_VIEWS; viewIndex++) {
-      this._viewMatrices[viewIndex].setMatrix(tileIndex, rtcViewMatrix as FloatArrayParam);
-      this._pickMatrices[viewIndex].setMatrix(tileIndex, rtcPickMatrix as FloatArrayParam);
+      this._viewMatrices[viewIndex].setMatrix(tileIndex, rtcViewMatrix as unknown as Mat4);
+      this._pickMatrices[viewIndex].setMatrix(tileIndex, rtcPickMatrix as unknown as Mat4);
     }
     this._tiles.set(id, tile);
     this._numTiles++;
@@ -170,7 +170,7 @@ export class TileManager {
     }
   }
 
-  private _putFreeTileIndex( index: number ) {
+  private _putFreeTileIndex(index: number) {
     if (this._tileIndexesUsed[index]) {
       delete this._tileIndexesUsed[index];
       this._lastFreeTileIndex = index;

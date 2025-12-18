@@ -1,10 +1,10 @@
-import {createVec3, lenVec3, subVec3} from "../matrix";
+import {createVec3Float64, lenVec3, subVec3} from "../matrix";
 import type {View} from "../viewer";
 import {SDKTask} from "../core";
 
 const SCALE_DOLLY_EACH_FRAME = 1; // Recalculate dolly speed for eye->target distance on each Nth frame
 const EPSILON = 0.001;
-const tempVec3 = createVec3();
+const tempVec3 = createVec3Float64();
 
 /**
  * Handles camera updates on each "tick" that were scheduled by the various controllers.
@@ -173,7 +173,7 @@ export class CameraUpdater {
 
         if (updates.panDeltaX !== 0 || updates.panDeltaY !== 0 || updates.panDeltaZ !== 0) {
 
-          const vec = createVec3();
+          const vec = createVec3Float64();
 
           vec[0] = updates.panDeltaX;
           vec[1] = updates.panDeltaY;

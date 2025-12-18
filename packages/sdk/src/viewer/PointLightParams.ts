@@ -1,4 +1,5 @@
-import {type FloatArrayParam} from "../math";
+
+import {Vec3Float} from "../matrix";
 
 /**
  * Parameters for a {@link PointLight}.
@@ -29,12 +30,12 @@ export interface PointLightParams {
    *
    * Default value is `[1.0, 1.0, 1.0]`.
    */
-  color?: FloatArrayParam;
+  color?: Vec3Float;
 
   /**
    * 3D position of the {@link PointLight}.
    */
-  pos?: FloatArrayParam;
+  pos?: Vec3Float;
 
   /**
    * 3D coordinate space in which the {@link PointLight} is positioned.

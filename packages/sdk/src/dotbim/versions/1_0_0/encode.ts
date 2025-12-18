@@ -1,13 +1,13 @@
-import {createMat4, createVec3, createVec4, decomposeMat4, mulMat4} from "../../../matrix";
+import {createMat4Float64, createVec3Float64, createVec4Float64, decomposeMat4, mulMat4} from "../../../matrix";
 import {decompressPoint3WithAABB3} from "../../../compression";
 import {ifcTypeNames} from "../../../ifctypes";
 import type {ModelEncodeParams} from "../../../io";
 import {createCoordinateSystemTransform} from "../../../scene";
 
-const tempVec3a = createVec3();
-const tempVec3b = createVec3();
+const tempVec3a = createVec3Float64();
+const tempVec3b = createVec3Float64();
 
-const tempMat4a = createMat4();
+const tempMat4a = createMat4Float64();
 
 
 /**
@@ -20,7 +20,7 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
     const {sceneModel, dataModel} = params;
 
     const coordinateSystemMatrix = options.coordinateSystem
-      ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4())
+      ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64())
       : null;
 
     const dotBim = {
@@ -92,9 +92,9 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
       }
       const firstMesh = meshes[0];
       const color = firstMesh.color;
-      const position = createVec3();
-      const quaternion = createVec4();
-      const scale = createVec3();
+      const position = createVec3Float64();
+      const quaternion = createVec4Float64();
+      const scale = createVec3Float64();
       const matrix = coordinateSystemMatrix
         ? mulMat4(firstMesh.matrix, coordinateSystemMatrix, tempMat4a)
         : firstMesh.matrix;

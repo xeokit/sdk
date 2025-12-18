@@ -1,6 +1,7 @@
 import {
   addVec3,
-  createVec3,
+  createVec3Float64,
+  type Mat4, type Vec3,
   lenVec3,
   lerpMat4,
   lerpVec3,
@@ -12,16 +13,16 @@ import type {Camera} from "../viewer";
 import { View} from "../viewer";
 import {EventEmitter, SDKTask} from "../core";
 import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} from "../constants";
-import {DEGTORAD, type FloatArrayParam} from "../math";
-import {getAABB3Center, getAABB3Diag, getAABB3DiagPoint} from "../boundaries";
+import {DEGTORAD, } from "../math";
+import {createAABB3Float64, AABB3Float, getAABB3Center, getAABB3Diag, getAABB3DiagPoint, AABB3} from "../boundaries";
 import {EventDispatcher} from "strongly-typed-events";
 import {getSceneAABBIndex} from "../aabb";
 
-const tempVec3 = createVec3();
-const newLook = createVec3();
-const newEye = createVec3();
-const newUp = createVec3();
-const newLookEyeVec = createVec3();
+const tempVec3 = createVec3Float64();
+const newLook = createVec3Float64();
+const newEye = createVec3Float64();
+const newUp = createVec3Float64();
+const newLookEyeVec = createVec3Float64();
 
 /**
  * Parameters for {@link CameraFlightAnimation.flyTo} and {@link CameraFlightAnimation.jumpTo}.
@@ -42,7 +43,7 @@ export interface FlyToParams {
   /**
    * Target axis-aligned bounding box (AABB) in world coordinates for the camera to focus on.
    */
-  aabb?: FloatArrayParam;
+  aabb?: AABB3Float;
 
   /**
    * Target distance between the camera and its point-of-interest.
@@ -52,22 +53,22 @@ export interface FlyToParams {
   /**
    * Target position for the camera eye.
    */
-  eye?: FloatArrayParam;
+  eye?: Vec3;
 
   /**
    * Target position for the camera to look at.
    */
-  look?: FloatArrayParam;
+  look?: Vec3;
 
   /**
    * Target "up" vector for the camera orientation.
    */
-  up?: FloatArrayParam;
+  up?: Vec3;
 
   /**
    * Optional point-of-interest in world coordinates for the camera to focus on.
    */
-  poi?: FloatArrayParam;
+  poi?: Vec3;
 
   /**
    * In perspective projection mode, defines how much of the field-of-view
@@ -100,12 +101,12 @@ export class CameraFlightAnimation {
   public readonly camera: Camera;
 
   _duration: number;
-  _look1: FloatArrayParam;
-  _eye1: FloatArrayParam;
-  _up1: FloatArrayParam;
-  _look2: FloatArrayParam;
-  _eye2: FloatArrayParam;
-  _up2: FloatArrayParam;
+  _look1: Vec3;
+  _eye1: Vec3;
+  _up1: Vec3;
+  _look2: Vec3;
+  _eye2: Vec3;
+  _up2: Vec3;
   _orthoScale1: number;
   _orthoScale2: number;
   _fit: boolean;
@@ -122,8 +123,8 @@ export class CameraFlightAnimation {
   _flyingEyeLookUp: boolean;
   _fitFOV: number;
   _projection2: number;
-  _projMatrix1: FloatArrayParam;
-  _projMatrix2: FloatArrayParam;
+  _projMatrix1: Mat4;
+  _projMatrix2: Mat4;
 
   private _animationTask: SDKTask;
 
@@ -162,12 +163,12 @@ export class CameraFlightAnimation {
     this._aabbIndex = getSceneAABBIndex(view.viewer.scene);
     this.camera = view.camera;
 
-    this._look1 = createVec3();
-    this._eye1 = createVec3();
-    this._up1 = createVec3();
-    this._look2 = createVec3();
-    this._eye2 = createVec3();
-    this._up2 = createVec3();
+    this._look1 = createVec3Float64();
+    this._eye1 = createVec3Float64();
+    this._up1 = createVec3Float64();
+    this._look2 = createVec3Float64();
+    this._eye2 = createVec3Float64();
+    this._up2 = createVec3Float64();
     this._orthoScale1 = 1;
     this._orthoScale2 = 1;
     this._flying = false;
@@ -278,10 +279,10 @@ export class CameraFlightAnimation {
     this._orthoScale1 = camera.orthoProjection.scale;
     this._orthoScale2 = params.orthoScale || this._orthoScale1;
 
-    let aabb: FloatArrayParam;
-    let eye: FloatArrayParam;
-    let look: FloatArrayParam;
-    let up: FloatArrayParam;
+    let aabb: AABB3Float;
+    let eye: Vec3;
+    let look: Vec3;
+    let up: Vec3;
 
     if (params.aabb) {
       aabb = params.aabb;
@@ -318,7 +319,7 @@ export class CameraFlightAnimation {
         return;
       }
 
-      aabb = aabb.slice();
+      aabb = createAABB3Float64(aabb);
       const aabbCenter = getAABB3Center(aabb);
 
       this._look2 = poi || aabbCenter;
@@ -373,15 +374,15 @@ export class CameraFlightAnimation {
 
       if (params.projection === OrthoProjectionType && camera.projectionType !== OrthoProjectionType) {
         this._projection2 = OrthoProjectionType;
-        this._projMatrix1 = camera.projMatrix.slice();
-        this._projMatrix2 = camera.orthoProjection.projMatrix.slice();
+        this._projMatrix1 = <Mat4>camera.projMatrix.slice();
+        this._projMatrix2 = <Mat4>camera.orthoProjection.projMatrix.slice();
         camera.projectionType = CustomProjectionType;
       }
 
       if (params.projection === PerspectiveProjectionType && camera.projectionType !== PerspectiveProjectionType) {
         this._projection2 = PerspectiveProjectionType;
-        this._projMatrix1 = camera.projMatrix.slice();
-        this._projMatrix2 = camera.perspectiveProjection.projMatrix.slice();
+        this._projMatrix1 = <Mat4>camera.projMatrix.slice();
+        this._projMatrix2 = <Mat4>camera.perspectiveProjection.projMatrix.slice();
         camera.projectionType = CustomProjectionType;
       }
     } else {
@@ -419,10 +420,10 @@ export class CameraFlightAnimation {
 
     const camera = this.camera;
 
-    let aabb: FloatArrayParam;
-    let newEye: FloatArrayParam;
-    let newLook: FloatArrayParam;
-    let newUp: FloatArrayParam;
+    let aabb: AABB3;
+    let newEye: Vec3;
+    let newLook: Vec3;
+    let newUp: Vec3;
 
     if (params.aabb) { // Boundary3D
       aabb = params.aabb;

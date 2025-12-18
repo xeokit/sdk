@@ -1,20 +1,20 @@
 import {type SceneObject} from "../scene";
-import {collapseAABB3, createAABB3, expandAABB3, expandAABB3Point3} from "../boundaries";
-import {createVec4, transformPoint4} from "../matrix";
+import {collapseAABB3, createAABB3Float64, expandAABB3, expandAABB3Point3, AABB3} from "../boundaries";
+import {createVec4Float64, type Mat4, transformPoint4, type Vec3} from "../matrix";
 import {type FloatArrayParam} from "../math";
 
-const tempVec4a = createVec4();
-const tempVec4b = createVec4();
-const tempAABB3a = createAABB3();
+const tempVec4a = createVec4Float64();
+const tempVec4b = createVec4Float64();
+const tempAABB3a = createAABB3Float64();
 
 /**
  * Creates an Axis-Aligned Bounding Box (AABB) for a given scene object.
  *
  * @param {SceneObject} sceneObject - The scene object for which the AABB is created.
- * @param {FloatArrayParam} [aabb=createAABB3()] - The initial AABB to be modified. Defaults to a collapsed AABB.
+ * @param {FloatArrayParam} [aabb=createAABBFloat64()] - The initial AABB to be modified. Defaults to a collapsed AABB.
  * @returns {FloatArrayParam} - The resulting AABB for the scene object.
  */
-export function createSceneObjectAABB3(sceneObject: SceneObject, aabb: FloatArrayParam = createAABB3()): FloatArrayParam {
+export function createSceneObjectAABB3(sceneObject: SceneObject, aabb: AABB3 = createAABB3Float64()): AABB3 {
   collapseAABB3(aabb);
   let found = false;
   for (const mesh of sceneObject.meshes) {
@@ -34,10 +34,10 @@ export function createSceneObjectAABB3(sceneObject: SceneObject, aabb: FloatArra
 
 function getPositionsWorldAABB3(
   positionsCompressed: FloatArrayParam,
-  aabb: FloatArrayParam,
-  matrix: FloatArrayParam,
-  worldAABB: FloatArrayParam
-): FloatArrayParam {
+  aabb: AABB3,
+  matrix: Mat4,
+  worldAABB: AABB3
+): AABB3 {
 
   const xScale = (aabb[3] - aabb[0]) / 65535;
   const xOffset = aabb[0];
@@ -52,7 +52,7 @@ function getPositionsWorldAABB3(
     tempVec4a[2] = positionsCompressed[i + 2] * zScale + zOffset;
     tempVec4a[3] = 1.0;
     transformPoint4(matrix, tempVec4a, tempVec4b);
-    expandAABB3Point3(worldAABB, tempVec4b);
+    expandAABB3Point3(worldAABB, <Vec3>tempVec4b);
   }
 
   return aabb;

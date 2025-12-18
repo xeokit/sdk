@@ -1,5 +1,5 @@
 
-import {type FloatArrayParam} from "../math";
+import type {Mat4, Quat, Vec3} from "../matrix";
 
 /**
  * Parameters for a {@link SceneTransform}.
@@ -19,27 +19,27 @@ export class SceneTransformParams {
     /**
      * A flat 4x4 matrix that defines the local transform.
      */
-    matrix?: FloatArrayParam;
+    matrix?: Mat4;
 
     /**
      * Optional local 3D translation vector.
      */
-    position?: FloatArrayParam;
+    position?: Vec3;
 
     /**
      * Optional local 3D scale vector.
      */
-    scale?: FloatArrayParam;
+    scale?: Vec3;
 
     /**
      * Optional local 3D rotation quaternion.
      */
-    quaternion?: FloatArrayParam;
+    quaternion?: Quat;
 
     /**
      * Optional local 3D rotation as Euler angles in degrees for X, Y and Z axis.
      */
-    rotation?: FloatArrayParam;
+    rotation?: Vec3;
 
     /**
      * ID of the parent {@link SceneTransform} that was created previously

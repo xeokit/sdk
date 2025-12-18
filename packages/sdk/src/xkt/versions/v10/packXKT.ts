@@ -5,7 +5,7 @@ import type {XKTDataDeflated} from "./XKTDataDeflated";
  * @private
  */
 export function packXKT(xktDataDeflated: XKTDataDeflated): ArrayBuffer {
-  return toArrayBuffer(<Buffer[]>[
+  return toArrayBuffer([
     xktDataDeflated.metadata,
     xktDataDeflated.textureData,
     xktDataDeflated.eachTextureDataPortion,
@@ -37,7 +37,7 @@ export function packXKT(xktDataDeflated: XKTDataDeflated): ArrayBuffer {
   ]);
 }
 
-function toArrayBuffer(elements: Buffer[]): ArrayBuffer {
+function toArrayBuffer(elements: any[]): ArrayBuffer {
   const indexData = new Uint32Array(elements.length + 2);
   indexData[0] = XKT_INFO.xktVersion;
   indexData [1] = elements.length; // Stored Data 1.1: number of stored elements

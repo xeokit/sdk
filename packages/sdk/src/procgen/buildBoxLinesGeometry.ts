@@ -1,8 +1,8 @@
 import * as constants from "../constants";
 import * as utils from "../utils";
-import type {FloatArrayParam} from "../math";
 import type {GeometryArrays} from "./GeometryArrays";
 import {SDKErrorType, type SDKResult} from "../core";
+import type {Vec3} from "../matrix";
 
 /**
  * Creates a box-shaped wireframe geometry.
@@ -30,7 +30,7 @@ import {SDKErrorType, type SDKResult} from "../core";
  * @returns {SDKResult<GeometryArrays>} The geometry arrays for a box wireframe, including positions and indices, or an error message.
  */
 export function buildBoxLinesGeometry(cfg: {
-  center?: FloatArrayParam,
+  center?: Vec3,
   ySize?: number,
   xSize?: number,
   zSize?: number

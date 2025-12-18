@@ -1,6 +1,7 @@
 import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {SDKErrorType, type SDKResult} from "../core";
+import type {Vec3} from "../matrix";
 
 /**
  * Creates a plane-shaped geometry.
@@ -36,12 +37,12 @@ import {SDKErrorType, type SDKResult} from "../core";
  * @param [cfg.zSegments=1] The number of segments along the Z-axis. Default is `1`.
  * @returns {SDKResult<GeometryArrays>} The geometry arrays for the plane, including positions, normals, UVs, and indices, or an error message.
  */
-export function buildPlaneGeometry(cfg = {
-  xSize: 1,
-  zSize: 1,
-  xSegments: 1,
-  zSegments: 1,
-  center: [0, 0, 0]
+export function buildPlaneGeometry(cfg : {
+  xSize?: number,
+  zSize?: number,
+  xSegments?: number,
+  zSegments?: number,
+  center?: Vec3
 }): SDKResult<GeometryArrays> {
   let xSize = cfg.xSize || 1;
   if (xSize < 0) {

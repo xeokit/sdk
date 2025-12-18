@@ -1,16 +1,16 @@
-import {createVec3} from "../matrix";
+import {createVec3Float64} from "../matrix";
 import type {View} from "../viewer";
 
-const center = createVec3();
-const tempVec3a = createVec3();
-const tempVec3b = createVec3();
-const tempVec3c = createVec3();
-const tempVec3d = createVec3();
+const center = createVec3Float64();
+const tempVec3a = createVec3Float64();
+const tempVec3b = createVec3Float64();
+const tempVec3c = createVec3Float64();
+const tempVec3d = createVec3Float64();
 
 const tempCameraTarget = {
-  eye: createVec3(),
-  look: createVec3(),
-  up: createVec3()
+  eye: createVec3Float64(),
+  look: createVec3Float64(),
+  up: createVec3Float64()
 };
 
 /**

@@ -1,12 +1,12 @@
 import {WEBGL_INFO} from "../../../webglutils";
-import {RenderContext} from "../RenderContext";
-import {MeshManager} from "../meshManager/MeshManager";
-import {DrawOps, getDrawOps, putDrawOps} from "../drawOps/DrawOps";
-import {RendererView} from "../RendererView";
-import {type GPUMemoryReader} from "../gpuMemoryManager/type GPUMemoryReader";
-import {MeshBatch} from "../meshManager/MeshBatch";
+import {type RenderContext} from "../RenderContext";
+import {type MeshManager} from "../meshManager/MeshManager";
+import {type DrawOps, getDrawOps, putDrawOps} from "../drawOps/DrawOps";
+import {type RendererView} from "../RendererView";
+import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
+import {type MeshBatch} from "../meshManager/MeshBatch";
 import {RENDER_PASSES} from "../RENDER_PASSES";
-import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
+import {SDKInternalException, type SDKResult} from "../../../core";
 
 
 /**

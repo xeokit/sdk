@@ -5,7 +5,7 @@ import type {SceneObject} from "../scene";
 import {AmbientLight} from "./AmbientLight";
 import {Camera} from "./Camera";
 import {createUUID} from "../utils";
-import {createVec3} from "../matrix";
+import {createVec3Float64} from "../matrix";
 import {DirLight} from "./DirLight";
 import {Edges} from "./Edges";
 import {EmphasisMaterial} from "./EmphasisMaterial";
@@ -350,7 +350,7 @@ class View {
     //   new EventDispatcher<View, IntArrayParam>()
     // );
 
-    this._backgroundColor = createVec3([
+    this._backgroundColor = createVec3Float64([
       viewParams.backgroundColor ? viewParams.backgroundColor[0] : 1,
       viewParams.backgroundColor ? viewParams.backgroundColor[1] : 1,
       viewParams.backgroundColor ? viewParams.backgroundColor[2] : 1,

@@ -2,6 +2,7 @@ import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";
 import {SDKErrorType, type SDKResult} from "../core";
+import type {Vec3} from "../matrix";
 
 /**
  * Creates a sphere-shaped geometry.
@@ -60,7 +61,7 @@ import {SDKErrorType, type SDKResult} from "../core";
  */
 
 export function buildSphereGeometry(cfg: {
-  center?: number[];
+  center?: Vec3
   heightSegments?: number;
   radius?: number;
   widthSegments?: number;

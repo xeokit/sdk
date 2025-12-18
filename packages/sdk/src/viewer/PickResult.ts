@@ -1,7 +1,7 @@
-import type {FloatArrayParam} from "../math";
 import type {ViewObject} from "./ViewObject";
 import {SceneMesh, SceneObject} from "../scene";
 import {View} from "./View";
+import {createVec2Int32, createVec2Float64, createVec3Float64, type Vec2, type Vec3} from "../matrix";
 
 
 /**
@@ -25,16 +25,16 @@ class PickResult {
   #gotUV: boolean;
   #snappedToVertex: boolean;
   #snappedToEdge: boolean;
-  #canvasPos: Int16Array<any>;
-  #snappedCanvasPos: Int16Array<any>;
-  #origin: FloatArrayParam;
-  #direction: FloatArrayParam;
+  #canvasPos: Vec2
+  #snappedCanvasPos: Vec2;
+  #origin: Vec3;
+  #direction: Vec3;
   #indices: Int32Array<any>;
-  #localPos: FloatArrayParam;
-  #worldPos: FloatArrayParam;
-  #viewPos: FloatArrayParam;
-  #worldNormal: FloatArrayParam;
-  #uv: FloatArrayParam;
+  #localPos: Vec3;
+  #worldPos: Vec3;
+  #viewPos: Vec3;
+  #worldNormal: Vec3;
+  #uv: Vec2;
 
   constructor() {
 
@@ -42,15 +42,15 @@ class PickResult {
     this.#sceneObject = null as any;
     this.#view = null as any;
     this.#viewObject = null;
-    this.#canvasPos = new Int16Array([0, 0]);
-    this.#origin = new Float64Array([0, 0, 0]);
-    this.#direction = new Float64Array([0, 0, 0]);
+    this.#canvasPos = createVec2Int32();
+    this.#origin = createVec3Float64();
+    this.#direction = createVec3Float64();
     this.#indices = new Int32Array(3);
-    this.#localPos = new Float64Array([0, 0, 0]);
-    this.#worldPos = new Float64Array([0, 0, 0]);
-    this.#viewPos = new Float64Array([0, 0, 0]);
-    this.#worldNormal = new Float64Array([0, 0, 0]);
-    this.#uv = new Float64Array([0, 0]);
+    this.#localPos = createVec3Float64();
+    this.#worldPos = createVec3Float64();
+    this.#viewPos = createVec3Float64();
+    this.#worldNormal = createVec3Float64();
+    this.#uv = createVec2Float64();
     this.#gotOrigin = false;
     this.#gotDirection = false;
     this.#gotIndices = false;
@@ -109,7 +109,7 @@ class PickResult {
   set sceneMesh(value: SceneMesh | null | undefined) {
     this.#sceneMesh = value;
   }
-  
+
   /**
    * The picked {@link ViewObject}.
    */
@@ -127,14 +127,14 @@ class PickResult {
   /**
    * Canvas coordinates when picking with a 2D pointer.
    */
-  get canvasPos(): Int16Array<any> | undefined {
+  get canvasPos(): Vec2 {
     return this.#gotCanvasPos ? this.#canvasPos : undefined;
   }
 
   /**
    * @private
    */
-  set canvasPos(value: FloatArrayParam | Int16Array<any> | undefined) {
+  set canvasPos(value: Vec2 | undefined) {
     if (value) {
       this.#canvasPos[0] = value[0];
       this.#canvasPos[1] = value[1];
@@ -147,7 +147,7 @@ class PickResult {
   /**
    * World-space 3D ray origin when raypicked.
    */
-  get origin(): FloatArrayParam | null {
+  get origin(): Vec3 | null {
     return this.#gotOrigin ? this.#origin : null;
   }
 
@@ -168,7 +168,7 @@ class PickResult {
   /**
    * World-space 3D ray direction when raypicked.
    */
-  get direction(): FloatArrayParam | null {
+  get direction(): Vec3 | null {
     return this.#gotDirection ? this.#direction : null;
   }
 
@@ -212,7 +212,7 @@ class PickResult {
    * Picked Local-space point on surface.
    * Only defined when an object and a point on its surface was picked.
    */
-  get localPos(): FloatArrayParam | null {
+  get localPos(): Vec3 | null {
     return this.#viewObject !== null && this.#gotLocalPos ? this.#localPos : null;
   }
 
@@ -234,7 +234,7 @@ class PickResult {
    * Picked World-space point on surface.
    * Only defined when an object and a point on its surface was picked.
    */
-  get worldPos(): FloatArrayParam | null {
+  get worldPos(): Vec3 | null {
     return this.#viewObject && this.#gotWorldPos ? this.#worldPos : null;
   }
 
@@ -256,7 +256,7 @@ class PickResult {
    * Picked View-space point on surface.
    * Only defined when an object and a point on its surface was picked.
    */
-  get viewPos(): FloatArrayParam | null {
+  get viewPos(): Vec3 | null {
     return this.#viewObject && this.#gotViewPos ? this.#viewPos : null;
   }
 
@@ -278,7 +278,7 @@ class PickResult {
    * Normal vector at picked position on surface.
    * Only defined when an object and a point on its surface was picked.
    */
-  get worldNormal(): FloatArrayParam | null {
+  get worldNormal(): Vec3 | null {
     return this.#viewObject !== null && this.#gotWorldNormal ? this.#worldNormal : null;
   }
 
@@ -300,7 +300,7 @@ class PickResult {
    * UV coordinates at picked position on surface.
    * Only defined when an object and a point on its surface was picked.
    */
-  get uv(): FloatArrayParam | null {
+  get uv(): Vec2 | null {
     return this.#viewObject !== null && this.#gotUV ? this.#uv : null;
   }
 
@@ -348,14 +348,14 @@ class PickResult {
    * Snapped canvas coordinates when picking with a 2D pointer.
    * This has a value when {@link PickResult.snappedToEdge} or {@link PickResult.snappedToVertex} is `true`, otherwise will be `null`.
    */
-  get snappedCanvasPos(): Int16Array<any> | undefined {
+  get snappedCanvasPos(): Vec2 | undefined {
     return this.#gotSnappedCanvasPos ? this.#snappedCanvasPos : undefined;
   }
 
   /**
    * @private
    */
-  set snappedCanvasPos(value: FloatArrayParam | Int16Array<any> | undefined) {
+  set snappedCanvasPos(value: Vec2 | undefined) {
     if (value) {
       this.#snappedCanvasPos[0] = value[0];
       this.#snappedCanvasPos[1] = value[1];

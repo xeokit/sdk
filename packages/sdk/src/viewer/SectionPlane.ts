@@ -1,5 +1,4 @@
-import * as matrix from '../matrix';
-import type {FloatArrayParam} from "../math";
+import {type Vec3, dotVec3} from "../matrix";
 import {type SectionPlaneParams} from "./SectionPlaneParams";
 import type {View} from "./View";
 import {createUUID} from "../utils";
@@ -91,7 +90,7 @@ class SectionPlane {
      *
      * @returns  Current position.
      */
-    get pos(): FloatArrayParam {
+    get pos(): Vec3 {
         return this._pos;
     }
 
@@ -102,9 +101,9 @@ class SectionPlane {
      *
      * @param value New position.
      */
-    set pos(value: FloatArrayParam) {
+    set pos(value: Vec3) {
         this._pos.set(value);
-        this._dist = (-matrix.dotVec3(this._pos, this._dir));
+        this._dist = (-dotVec3(this._pos, this._dir));
         this.view.viewer.events.onSectionPlanePosChanged.dispatch(this, this._pos);
     }
 
@@ -115,7 +114,7 @@ class SectionPlane {
      *
      * @returns value Current direction.
      */
-    get dir(): FloatArrayParam {
+    get dir(): Vec3 {
         return this._dir;
     }
 
@@ -126,9 +125,9 @@ class SectionPlane {
      *
      * @param value New direction.
      */
-    set dir(value: FloatArrayParam) {
+    set dir(value: Vec3) {
         this._dir.set(value);
-        this._dist = (-matrix.dotVec3(this._pos, this._dir));
+        this._dist = (-dotVec3(this._pos, this._dir));
         this.view.needsRender();
         this.view.viewer.events.onSectionPlaneDirChanged.dispatch(this, this._dir);
     }
@@ -153,7 +152,7 @@ class SectionPlane {
         dir[0] *= -1.0;
         dir[1] *= -1.0;
         dir[2] *= -1.0;
-        this._dist = (-matrix.dotVec3(this._pos, this._dir));
+        this._dist = (-dotVec3(this._pos, this._dir));
         this.view.viewer.events.onSectionPlaneDirChanged.dispatch(this, this._dir);
         this.view.needsRender();
     }

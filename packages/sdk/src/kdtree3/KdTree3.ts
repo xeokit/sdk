@@ -1,4 +1,4 @@
-import {containsAABB3, expandAABB3} from "../boundaries";
+import {containsAABB3, createAABB3Float64, expandAABB3} from "../boundaries";
 import type {FloatArrayParam} from "../math";
 import type {KdItem3D} from "./KdItem3";
 import type {KdNode3} from "./KdNode3";
@@ -30,7 +30,7 @@ export class KdTree3 {
     this.#maxDepth = params?.maxDepth || MAX_KD_TREE_DEPTH;
     this.#root = {
       index: 0,
-      aabb: params.aabb.slice()
+      aabb: createAABB3Float64(params.aabb)
     };
     this.#numNodes = 0;
   }
@@ -74,7 +74,7 @@ export class KdTree3 {
       dim = 2;
     }
     if (!node.left) {
-      const aabbLeft = nodeAABB.slice();
+      const aabbLeft = createAABB3Float64(nodeAABB);
       aabbLeft[dim + 3] = ((nodeAABB[dim] + nodeAABB[dim + 3]) / 2.0);
       node.left = {
         index: this.#numNodes++,
@@ -86,7 +86,7 @@ export class KdTree3 {
       }
     }
     if (!node.right) {
-      const aabbRight = nodeAABB.slice();
+      const aabbRight = createAABB3Float64(nodeAABB);
       aabbRight[dim] = ((nodeAABB[dim] + nodeAABB[dim + 3]) / 2.0);
       node.right = {
         index: this.#numNodes++,

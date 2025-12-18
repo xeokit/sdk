@@ -1,5 +1,5 @@
-import {createAABB3, getAABB3Center} from "../../../boundaries";
-import {createVec3, createVec4} from "../../../matrix";
+import {AABB3, createAABB3Float64, getAABB3Center} from "../../../boundaries";
+import {createVec3Float32, createVec3Float64, createVec4Float64, Mat4, Vec3} from "../../../matrix";
 import {
   JPEGMediaType,
   LinesPrimitive,
@@ -12,8 +12,8 @@ import type {FloatArrayParam} from "../../../math";
 import type {SceneModel} from "../../../scene";
 import type {XKTData} from "./XKTData";
 
-const tempVec4a = createVec4();
-const tempVec4b = createVec4();
+const tempVec4a = createVec4Float64();
+const tempVec4b = createVec4Float64();
 
 const NUM_TEXTURE_ATTRIBUTES = 9;
 
@@ -34,8 +34,8 @@ function lineStripToLines(positions, indices) {
 }
 
 const decompressColor = (function () {
-  const floatColor = new Float32Array(3);
-  return function (intColor: FloatArrayParam) {
+  const floatColor = createVec3Float32()
+  return function (intColor: FloatArrayParam):Vec3 {
     floatColor[0] = intColor[0] / 255;
     floatColor[1] = intColor[1] / 255;
     floatColor[2] = intColor[2] / 255;
@@ -204,8 +204,8 @@ export function xktToModel(params: {
 
   // Iterate over tiles
 
-  const tileCenter = createVec3();
-  const rtcAABB = createAABB3();
+  const tileCenter = createVec3Float64();
+  const rtcAABB = createAABB3Float64();
 
   const geometryArraysCache = {};
 
@@ -221,7 +221,7 @@ export function xktToModel(params: {
     const tileAABBIndex = tileIndex * 6;
     const tileAABB = eachTileAABB.subarray(tileAABBIndex, tileAABBIndex + 6);
 
-    getAABB3Center(tileAABB, tileCenter);
+    getAABB3Center(<AABB3>tileAABB, tileCenter);
 
     rtcAABB[0] = tileAABB[0] - tileCenter[0];
     rtcAABB[1] = tileAABB[1] - tileCenter[1];
@@ -274,7 +274,7 @@ export function xktToModel(params: {
           // Create mesh for multi-use geometry - create (or reuse) geometry, create mesh using that geometry
 
           const meshMatrixIndex = eachMeshMatricesPortion[meshIndex];
-          const meshMatrix = matrices.slice(meshMatrixIndex, meshMatrixIndex + 16);
+          const meshMatrix = <Mat4>matrices.slice(meshMatrixIndex, meshMatrixIndex + 16);
 
           const geometryId = `${modelPartId}-geometry.${tileIndex}.${geometryIndex}`; // These IDs are local to the SceneModel
 

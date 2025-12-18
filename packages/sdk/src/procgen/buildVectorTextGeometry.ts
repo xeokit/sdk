@@ -2,6 +2,7 @@ import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {LinesPrimitive} from "../constants";
 import {SDKErrorType, type SDKResult} from "../core";
+import type {Vec3} from "../matrix";
 
 
 const letters = {
@@ -1631,7 +1632,7 @@ const letters = {
  */
 export function buildVectorTextGeometry(cfg: {
   size: number;
-  origin: number[];
+  origin: Vec3;
   text: string;
 } = {
   origin: [0, 0, 0],

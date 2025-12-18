@@ -1,13 +1,13 @@
 /**
  * @private
  */
-import {createVec2, createVec3, lenVec3, subVec3} from "../matrix";
+import {createVec2Float64, createVec3Float64, lenVec3, subVec3} from "../matrix";
 import {KEY_SHIFT} from "./keycodes";
 import {PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
 
 
-const canvasPos = createVec2();
+const canvasPos = createVec2Float64();
 
 export const getCanvasPosFromEvent = function (event, canvasPos) {
   if (!event) {
@@ -66,7 +66,7 @@ export class MousePanRotateDollyHandler {
     let mouseDownRight;
 
     let mouseDownPicked = false;
-    const pickedWorldPos = createVec3();
+    const pickedWorldPos = createVec3Float64();
 
     let mouseMovedOnCanvasSinceLastWheel = true;
 

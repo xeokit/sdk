@@ -1,8 +1,13 @@
 import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
-import {createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4} from "../matrix";
+import {
+  createMat4Float64,
+  inverseMat4,
+  orthoMat4c,
+  transposeMat4, Vec2, Vec3
+} from "../matrix";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
-import type {FloatArrayParam} from "../math";
+import type {Mat4} from "../matrix";
 import type {OrthoProjectionParams} from "./OrthoProjectionParams";
 import {OrthoProjectionType} from "../constants";
 import type {Projection} from "./Projection";
@@ -23,7 +28,6 @@ export class OrthoProjection implements Projection {
 
   /**
    * The task that updates the projection matrix.
-   * @private
    */
   private _buildMatricesTask: SDKTask;
 
@@ -34,10 +38,8 @@ export class OrthoProjection implements Projection {
 
   /**
    * Emits an event each time {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix} updates.
-   *
-   * @event
    */
-  readonly onProjMatrix: EventEmitter<OrthoProjection, FloatArrayParam>;
+  readonly onProjMatrix: EventEmitter<OrthoProjection, Mat4>;
 
   /**
    * The type of this projection.
@@ -47,9 +49,9 @@ export class OrthoProjection implements Projection {
   private _far: number;
   private _near: number;
   private _scale: number;
-  private _projMatrix: FloatArrayParam;
-  private _inverseProjMatrix: FloatArrayParam;
-  private _transposedProjMatrix: FloatArrayParam;
+  private _projMatrix: Mat4;
+  private _inverseProjMatrix: Mat4;
+  private _transposedProjMatrix: Mat4;
   private _inverseMatrixDirty: boolean;
   private _transposedProjMatrixDirty: boolean;
   private _onViewBoundary: any;
@@ -64,11 +66,11 @@ export class OrthoProjection implements Projection {
     this._near = cfg.near || 0.1;
     this._far = cfg.far || 2000.0;
     this._scale = cfg.scale || 1.0;
-    this._projMatrix = createMat4();
-    this._inverseProjMatrix = createMat4();
-    this._transposedProjMatrix = createMat4();
+    this._projMatrix = createMat4Float64();
+    this._inverseProjMatrix = createMat4Float64();
+    this._transposedProjMatrix = createMat4Float64();
 
-    this.onProjMatrix = new EventEmitter(new EventDispatcher<OrthoProjection, FloatArrayParam>());
+    this.onProjMatrix = new EventEmitter(new EventDispatcher<OrthoProjection, Mat4>());
 
     this._inverseMatrixDirty = true;
     this._transposedProjMatrixDirty = true;
@@ -209,7 +211,7 @@ export class OrthoProjection implements Projection {
    *
    * @returns  The OrthoProjection's projection matrix.
    */
-  get projMatrix(): FloatArrayParam {
+  get projMatrix(): Mat4 {
     if (this._buildMatricesTask.scheduled) {
       this._buildMatricesTask.runIfScheduled();
     }
@@ -221,7 +223,7 @@ export class OrthoProjection implements Projection {
    *
    * @returns  The inverse of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
    */
-  get inverseProjMatrix(): FloatArrayParam {
+  get inverseProjMatrix(): Mat4 {
     if (this._buildMatricesTask.scheduled) {
       this._buildMatricesTask.runIfScheduled();
     }
@@ -237,7 +239,7 @@ export class OrthoProjection implements Projection {
    *
    * @returns  The transpose of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
    */
-  get transposedProjMatrix(): FloatArrayParam {
+  get transposedProjMatrix(): Mat4 {
     if (this._buildMatricesTask.scheduled) {
       this._buildMatricesTask.runIfScheduled();
     }
@@ -258,29 +260,29 @@ export class OrthoProjection implements Projection {
    * @param worldPos Outputs un-projected 3D World-space coordinates.
    */
   unproject(
-    canvasPos: FloatArrayParam,
+    canvasPos: Vec2,
     screenZ: number,
-    screenPos: FloatArrayParam,
-    viewPos: FloatArrayParam,
-    worldPos: FloatArrayParam): FloatArrayParam {
+    screenPos: Vec3,
+    viewPos: Vec3,
+    worldPos: Vec3): Vec3 {
 
-    const canvas = this.camera.view.htmlElement;
-
-    const halfViewWidth = canvas.offsetWidth / 2.0;
-    const halfViewHeight = canvas.offsetHeight / 2.0;
-
-    screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
-    screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
-    screenPos[2] = screenZ;
-    screenPos[3] = 1.0;
-
-    mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
-    mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
-
-    viewPos[3] = 1.0;
-    viewPos[1] *= -1;
-
-    mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
+    // const canvas = this.camera.view.htmlElement;
+    //
+    // const halfViewWidth = canvas.offsetWidth / 2.0;
+    // const halfViewHeight = canvas.offsetHeight / 2.0;
+    //
+    // screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
+    // screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
+    // screenPos[2] = screenZ;
+    // screenPos[3] = 1.0;
+    //
+    // mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
+    // mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
+    //
+    // viewPos[3] = 1.0;
+    // viewPos[1] *= -1;
+    //
+    // mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
 
     return worldPos;
   }

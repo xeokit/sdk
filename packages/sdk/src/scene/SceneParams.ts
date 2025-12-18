@@ -6,6 +6,13 @@ import type {CoordinateSystemParams} from "./CoordinateSystemParams";
 export interface SceneParams {
 
   /**
+   * Unique ID for the Scene.
+   *
+   * Default value is a generated UUID.
+   */
+  id?: string;
+
+  /**
    * Configures the Scene's global coordinate system.
    */
   coordinateSystem: CoordinateSystemParams;

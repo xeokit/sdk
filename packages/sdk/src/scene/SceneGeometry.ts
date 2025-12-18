@@ -1,9 +1,9 @@
-import {createAABB3} from "../boundaries";
-import type {FloatArrayParam} from "../math";
+import {type  AABB3Float32, createAABB3Float32} from "../boundaries";
 import type {IntArrayParam} from "../math";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import {SceneModel} from "./SceneModel";
 import {SDKErrorType, type SDKResult} from "../core";
+import type {Mat4} from "../matrix";
 
 /**
  * A geometry in a {@link SceneModel | SceneModel}.
@@ -40,12 +40,12 @@ export class SceneGeometry {
     /**
      * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
      */
-    aabb?: FloatArrayParam;
+    aabb?: AABB3Float32;
 
     /**
      * 4x4 matrix to de-quantize the geometry's UV coordinates, when UVs are provided.
      */
-    uvsDecompressMatrix?: FloatArrayParam;
+    uvsDecompressMatrix?: Mat4;
 
     /**
      * 3D vertex positions, quantized as 16-bit integers.
@@ -104,7 +104,7 @@ export class SceneGeometry {
         this.colorsCompressed = params.colorsCompressed;
         this.indices = params.indices;
         this.edgeIndices = params.edgeIndices;
-        this.aabb = params.aabb ? params.aabb.slice() : createAABB3();
+        this.aabb = createAABB3Float32(params.aabb);
         this.numMeshes = 0;
     }
 
@@ -144,7 +144,8 @@ export class SceneGeometry {
         }
 
         if (p.aabb && this.aabb !== p.aabb) {
-            this.aabb = p.aabb;
+            // @ts-ignore
+            this.aabb.set(p.aabb);
             changed = true;
         }
 

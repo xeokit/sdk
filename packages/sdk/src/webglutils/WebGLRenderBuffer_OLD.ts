@@ -156,7 +156,7 @@ export class WebGLRenderBuffer {
    * @param pickX
    * @param pickY
    */
-  read(pickX: number, pickY: number): Uint8Array {
+  read(pickX: number, pickY: number): Uint8Array<any> {
     const x = pickX;
     const y = this.#gl.drawingBufferHeight - pickY;
     const pix = new Uint8Array(4);

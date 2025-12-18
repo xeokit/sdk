@@ -2,7 +2,7 @@ import {Map} from "../utils";
 import {WebGLAttribute} from "./WebGLAttribute";
 import {WebGLShader} from "./WebGLShader";
 import {SDKErrorType, type SDKResult} from "../core";
-import {WebGLContextProvider} from "./WebGLContextProvider";
+import {type WebGLContextProvider} from "./WebGLContextProvider";
 
 const ids = new Map({}, "");
 
@@ -92,7 +92,7 @@ export class WebGLProgram {
                 fragment: string
               }) {
 
-    this.id = ids.addItem({});
+    this.id = ids.addItem();
     this.source = shaderSource;
     this._glSrc = glSrc;
     this.allocated = false;

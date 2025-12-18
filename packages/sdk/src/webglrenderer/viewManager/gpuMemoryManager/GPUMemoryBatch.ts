@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "../../../math";
+
 import {SceneMesh} from "../../../scene";
 import {RenderContext} from "../RenderContext";
 import {DTXMeshViewAttribs} from "./dtx/DTXMeshViewAttribs";
@@ -15,6 +15,7 @@ import {DTXPrimDrawList} from "./dtx/DTXPrimDrawList";
 import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 import {type GPUMemoryConfigs} from "../../GPUMemoryConfigs";
+import type {Mat4} from "../../../matrix";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
@@ -506,7 +507,7 @@ export class GPUMemoryBatch {
    */
   setMeshMatrix(
     meshIndex: number,
-    matrix: FloatArrayParam): void {
+    matrix: Mat4): void {
     this._meshMatrices.setMatrix(meshIndex, matrix);
   }
 
@@ -540,7 +541,7 @@ export class GPUMemoryBatch {
     meshIndex: number,
     viewIndex: number,
     params: {
-      color?: number[];   // uvec4 bytes 0..255
+      color?: [number, number, number, number];   // uvec4 bytes 0..255
       pickable?: boolean;
       clippable?: boolean;
     }) {

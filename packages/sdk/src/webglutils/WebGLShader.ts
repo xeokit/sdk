@@ -1,5 +1,5 @@
 import {SDKErrorType, type SDKResult} from "../core";
-import {WebGLContextProvider} from "./WebGLContextProvider";
+import {type WebGLContextProvider} from "./WebGLContextProvider";
 
 /**
  * Represents a WebGL2 shader.

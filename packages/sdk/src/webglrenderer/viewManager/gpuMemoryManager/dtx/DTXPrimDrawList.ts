@@ -1,7 +1,4 @@
-// DTXPrimList.ts
-
-
-import {RenderPassValue} from "../../RENDER_PASSES";
+import type {RenderPassValue} from "../../RENDER_PASSES";
 import {SDKInternalException} from "../../../../core";
 
 export interface DTXPrimDrawListOptions {

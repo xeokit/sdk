@@ -1,5 +1,7 @@
-import type {FloatArrayParam} from "../math";
+
 import type {IntArrayParam} from "../math";
+import type {AABB3} from "../boundaries";
+import type {Mat4, Vec3} from "../matrix";
 
 
 /**
@@ -32,12 +34,12 @@ export interface SceneGeometryCompressedParams {
   /**
    * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
    */
-  aabb?: FloatArrayParam;
+  aabb?: AABB3;
 
   /**
    * 4x4 matrix to de-quantize the geometry's UV coordinates, when UVs are provided.
    */
-  uvsDecompressMatrix?: FloatArrayParam;
+  uvsDecompressMatrix?: Mat4;
 
   /**
    * 3D vertex positions, quantized as 16-bit integers.
@@ -79,5 +81,5 @@ export interface SceneGeometryCompressedParams {
   /**
    * TODO
    */
-  origin?: FloatArrayParam;
+  origin?: Vec3;
 }

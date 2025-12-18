@@ -1,10 +1,13 @@
 import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
-import {createMat4, identityMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "../matrix";
+import {
+  createMat4Float32, identityMat4,
+  inverseMat4, type Mat4,
+  transposeMat4, type Vec2, type Vec3,
+} from "../matrix";
 import type {Camera} from "./Camera";
 import type {CustomProjectionParams} from "./CustomProjectionParams";
 import {CustomProjectionType} from "../constants";
 import {EventDispatcher} from "strongly-typed-events";
-import type {FloatArrayParam} from "../math";
 import type {Projection} from "./Projection";
 
 /**
@@ -25,16 +28,16 @@ class CustomProjection implements Projection {
      *
      * @private
      */
-    readonly onProjMatrix: EventEmitter<CustomProjection, FloatArrayParam>;
+    readonly onProjMatrix: EventEmitter<CustomProjection, Mat4>;
 
     /**
      * The type of this projection.
      */
     static readonly type: number = CustomProjectionType;
 
-    private _projMatrix: FloatArrayParam;
-    private _transposedProjMatrix: FloatArrayParam;
-    private _inverseProjMatrix: FloatArrayParam
+    private _projMatrix: Mat4;
+    private _transposedProjMatrix: Mat4;
+    private _inverseProjMatrix: Mat4
     private _inverseProjMatrixDirty: boolean;
     private _transposedProjMatrixDirty: boolean;
 
@@ -47,11 +50,11 @@ class CustomProjection implements Projection {
 
         this.camera = camera;
 
-        this._projMatrix = createMat4(cfg.projMatrix || identityMat4());
-        this._inverseProjMatrix = createMat4();
-        this._transposedProjMatrix = createMat4();
+        this._projMatrix = createMat4Float32(cfg.projMatrix || identityMat4());
+        this._inverseProjMatrix = createMat4Float32();
+        this._transposedProjMatrix = createMat4Float32();
 
-        this.onProjMatrix = new EventEmitter(new EventDispatcher<CustomProjection, FloatArrayParam>());
+        this.onProjMatrix = new EventEmitter(new EventDispatcher<CustomProjection, Mat4>());
 
         this._inverseProjMatrixDirty = true;
         this._transposedProjMatrixDirty = false;
@@ -64,7 +67,7 @@ class CustomProjection implements Projection {
      *
      * @return  New value for the CustomProjection's matrix.
      */
-    get projMatrix(): FloatArrayParam {
+    get projMatrix(): Mat4 {
         return this._projMatrix;
     }
 
@@ -75,7 +78,7 @@ class CustomProjection implements Projection {
      *
      * @param projMatrix New value for the CustomProjection's matrix.
      */
-    set projMatrix(projMatrix: FloatArrayParam) {
+    set projMatrix(projMatrix: Mat4) {
         // @ts-ignore
         this._projMatrix.set(projMatrix);
         this._inverseProjMatrixDirty = true;
@@ -88,7 +91,7 @@ class CustomProjection implements Projection {
      *
      * @returns The inverse of {@link CustomProjection.projMatrix}.
      */
-    get inverseProjMatrix(): FloatArrayParam {
+    get inverseProjMatrix(): Mat4 {
         if (this._inverseProjMatrixDirty) {
             inverseMat4(this._projMatrix, this._inverseProjMatrix);
             this._inverseProjMatrixDirty = false;
@@ -101,7 +104,7 @@ class CustomProjection implements Projection {
      *
      * @returns The transpose of {@link CustomProjection.projMatrix}.
      */
-    get transposedProjMatrix(): FloatArrayParam {
+    get transposedProjMatrix(): Mat4 {
         if (this._transposedProjMatrixDirty) {
             transposeMat4(this._projMatrix, this._transposedProjMatrix);
             this._transposedProjMatrixDirty = false;
@@ -119,23 +122,23 @@ class CustomProjection implements Projection {
      * @param worldPos Outputs un-projected 3D World-space coordinates.
      */
     unproject(
-        canvasPos: FloatArrayParam,
+        canvasPos: Vec2,
         screenZ: number,
-        screenPos: FloatArrayParam,
-        viewPos: FloatArrayParam,
-        worldPos: FloatArrayParam) {
-        const htmlElement = this.camera.view.htmlElement;
-        const halfViewWidth = htmlElement.offsetWidth / 2.0;
-        const halfViewHeight = htmlElement.offsetHeight / 2.0;
-        screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
-        screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
-        screenPos[2] = screenZ;
-        screenPos[3] = 1.0;
-        mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
-        mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
-        viewPos[3] = 1.0;
-        viewPos[1] *= -1;
-        mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
+        screenPos: Vec3,
+        viewPos: Vec3,
+        worldPos: Vec3) {
+        // const htmlElement = this.camera.view.htmlElement;
+        // const halfViewWidth = htmlElement.offsetWidth / 2.0;
+        // const halfViewHeight = htmlElement.offsetHeight / 2.0;
+        // screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
+        // screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
+        // screenPos[2] = screenZ;
+        // screenPos[3] = 1.0;
+        // mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
+        // mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
+        // viewPos[3] = 1.0;
+        // viewPos[1] *= -1;
+        // mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
         return worldPos;
     }
 

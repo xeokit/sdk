@@ -1,4 +1,4 @@
-import {collapseAABB3, createAABB3, expandAABB3, intersectFrustum3AABB3} from "../boundaries";
+import {collapseAABB3, createAABB3Float64, expandAABB3} from "../boundaries";
 import type {SceneGeometry, SceneObject} from "../scene";
 import {type GeometryView, getSceneObjectGeometry} from "../scene";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../constants";
@@ -7,8 +7,8 @@ import type {KdSceneObjectPrim} from "./KdSceneObjectPrim";
 import {KdTree3} from "./KdTree3";
 import {createSceneObjectAABB3} from "../aabb/createSceneObjectAABB3";
 
-const tempAABB3a = createAABB3();
-const tempAABB3b = createAABB3();
+const tempAABB3a = createAABB3Float64();
+const tempAABB3b = createAABB3Float64();
 
 /**
  * k-d tree built by {@link createSceneObjectPrimsKdTree3}.

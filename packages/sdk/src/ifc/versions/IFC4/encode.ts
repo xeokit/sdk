@@ -11,7 +11,7 @@ import {
 import type {ModelEncodeParams} from "../../../io";
 import * as WebIFC from "web-ifc";
 import {createCoordinateSystemTransform} from "../../../scene";
-import {createMat4} from "../../../matrix";
+import {createMat4Float64} from "../../../matrix";
 
 /** @private
  */
@@ -21,7 +21,7 @@ export function encode(ifcAPI: WebIFC.IfcAPI, params: ModelEncodeParams, options
     const {sceneModel, dataModel} = params;
 
     const coordinateSystemMatrix = options.coordinateSystem
-      ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4())
+      ? createCoordinateSystemTransform(sceneModel.scene.coordinateSystem, options.coordinateSystem, createMat4Float64())
       : null;
 
     const modelId = ifcAPI.CreateModel({

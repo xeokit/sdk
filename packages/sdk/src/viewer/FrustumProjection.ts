@@ -1,5 +1,12 @@
 import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
-import {createMat4, frustumMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "../matrix";
+import {
+  createMat4Float64,
+  type Mat4,
+  Vec2,
+  frustumMat4,
+  inverseMat4,
+  transposeMat4, Vec3
+} from "../matrix";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "../math";
@@ -47,9 +54,9 @@ export class FrustumProjection implements Projection {
   private _right: number;
   private _bottom: number;
   private _top: number;
-  private _projMatrix: FloatArrayParam;
-  private _inverseProjMatrix: FloatArrayParam;
-  private _transposedProjMatrix: FloatArrayParam;
+  private _projMatrix: Mat4;
+  private _inverseProjMatrix: Mat4;
+  private _transposedProjMatrix: Mat4;
   private _inverseMatrixDirty: boolean;
   private _transposedProjMatrixDirty: boolean;
   private _destroyed: boolean = false;
@@ -61,9 +68,9 @@ export class FrustumProjection implements Projection {
 
     this.camera = camera;
 
-    this._projMatrix = createMat4();
-    this._inverseProjMatrix = createMat4();
-    this._transposedProjMatrix = createMat4();
+    this._projMatrix = createMat4Float64();
+    this._inverseProjMatrix = createMat4Float64();
+    this._transposedProjMatrix = createMat4Float64();
     this._near = 0.1;
     this._far = 10000.0;
     this._left = (cfg.left !== undefined && cfg.left !== null) ? cfg.left : -1.0;
@@ -71,7 +78,7 @@ export class FrustumProjection implements Projection {
     this._bottom = (cfg.bottom !== undefined && cfg.bottom !== null) ? cfg.bottom : -1.0;
     this._top = (cfg.top !== undefined && cfg.top !== null) ? cfg.top : 1.0;
 
-    this.onProjMatrix = new EventEmitter(new EventDispatcher<FrustumProjection, FloatArrayParam>());
+    this.onProjMatrix = new EventEmitter(new EventDispatcher<FrustumProjection, Mat4>());
 
     this._inverseMatrixDirty = true;
     this._transposedProjMatrixDirty = true;
@@ -217,7 +224,7 @@ export class FrustumProjection implements Projection {
    *
    * @returns The FrustumProjection's projection matrix
    */
-  get projMatrix(): FloatArrayParam {
+  get projMatrix(): Mat4 {
     if (this._buildMatricesTask.scheduled) {
       this._buildMatricesTask.runIfScheduled();
     }
@@ -229,7 +236,7 @@ export class FrustumProjection implements Projection {
    *
    * @returns  The inverse orthographic projection projMatrix.
    */
-  get inverseProjMatrix(): FloatArrayParam {
+  get inverseProjMatrix(): Mat4 {
     if (this._buildMatricesTask.scheduled) {
       this._buildMatricesTask.runIfScheduled();
     }
@@ -245,7 +252,7 @@ export class FrustumProjection implements Projection {
    *
    * @returns The transpose of {@link FrustumProjection.projMatrix}.
    */
-  get transposedProjMatrix(): FloatArrayParam {
+  get transposedProjMatrix(): Mat4 {
     if (this._buildMatricesTask.scheduled) {
       this._buildMatricesTask.runIfScheduled();
     }
@@ -266,29 +273,29 @@ export class FrustumProjection implements Projection {
    * @param worldPos Outputs un-projected 3D World-space coordinates.
    */
   unproject(
-    canvasPos: FloatArrayParam,
+    canvasPos: Vec2,
     screenZ: number,
-    screenPos: FloatArrayParam,
-    viewPos: FloatArrayParam,
-    worldPos: FloatArrayParam): FloatArrayParam {
+    screenPos: Vec3,
+    viewPos: Vec3,
+    worldPos: Vec3): Vec3{
 
-    const htmlElement = this.camera.view.htmlElement;
-
-    const halfViewWidth = htmlElement.offsetWidth / 2.0;
-    const halfViewHeight = htmlElement.offsetHeight / 2.0;
-
-    screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
-    screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
-    screenPos[2] = screenZ;
-    screenPos[3] = 1.0;
-
-    mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
-    mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
-
-    viewPos[3] = 1.0;
-    viewPos[1] *= -1;
-
-    mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
+    // const htmlElement = this.camera.view.htmlElement;
+    //
+    // const halfViewWidth = htmlElement.offsetWidth / 2.0;
+    // const halfViewHeight = htmlElement.offsetHeight / 2.0;
+    //
+    // screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
+    // screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
+    // screenPos[2] = screenZ;
+    // screenPos[3] = 1.0;
+    //
+    // mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
+    // mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
+    //
+    // viewPos[3] = 1.0;
+    // viewPos[1] *= -1;
+    //
+    // mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
 
     return worldPos;
   }

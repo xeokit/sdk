@@ -1,9 +1,9 @@
 import {
   addVec3,
-  createMat4,
-  createVec3,
+  createMat4Float64,
+  createVec3Float64,
   cross3Vec3,
-  dotVec3,
+  dotVec3, Mat4, Vec3,
   identityMat4,
   inverseMat4,
   lenVec3,
@@ -38,18 +38,18 @@ import type {OrthoProjectionParams} from "./OrthoProjectionParams";
 import type {FrustumProjectionParams} from "./FrustumProjectionParams";
 import type {CustomProjectionParams} from "./CustomProjectionParams";
 
-const tempVec3 = createVec3();
-const tempVec3b = createVec3();
-const tempVec3c = createVec3();
-const tempVec3d = createVec3();
-const tempVec3e = createVec3();
-const tempVec3f = createVec3();
-const tempMat = createMat4();
-const tempMatb = createMat4();
-const eyeLookVec = createVec3();
-const eyeLookVecNorm = createVec3();
-const eyeLookOffset = createVec3();
-const offsetEye = createVec3();
+const tempVec3 = createVec3Float64();
+const tempVec3b = createVec3Float64();
+const tempVec3c = createVec3Float64();
+const tempVec3d = createVec3Float64();
+const tempVec3e = createVec3Float64();
+const tempVec3f = createVec3Float64();
+const tempMat = createMat4Float64();
+const tempMatb = createMat4Float64();
+const eyeLookVec = createVec3Float64();
+const eyeLookVecNorm = createVec3Float64();
+const eyeLookOffset = createVec3Float64();
+const offsetEye = createVec3Float64();
 
 /**
  * Controls the viewpoint and projection for a {@link View}.
@@ -267,14 +267,14 @@ class Camera {
   public readonly customProjection: CustomProjection;
 
   private _destroyed: boolean = false;
-  private _deviceMatrix: FloatArrayParam;
-  private _viewNormalMatrix: FloatArrayParam;
+  private _deviceMatrix: Mat4;
+  private _viewNormalMatrix: Mat4;
   private _hasDeviceMatrix: boolean;
-  private _viewMatrix: FloatArrayParam;
-  private _inverseViewMatrix: FloatArrayParam;
-  private _eye: FloatArrayParam;
-  private _look: FloatArrayParam;
-  private _up: FloatArrayParam;
+  private _viewMatrix: Mat4;
+  private _inverseViewMatrix: Mat4;
+  private _eye: Vec3;
+  private _look: Vec3;
+  private _up: Vec3;
   private _gimbalLock: boolean;
   private _constrainPitch: boolean;
   private _projectionType: number;
@@ -293,17 +293,17 @@ class Camera {
     this.frustumProjection = new FrustumProjection(this);
     this.customProjection = new CustomProjection(this);
 
-    this._eye = createVec3(cfg.eye || [0, -10, 0]);
-    this._look = createVec3(cfg.look || [0, 0, 0]);
-    this._up = createVec3(cfg.up || [0, 0, 1]);
+    this._eye = createVec3Float64(cfg.eye || [0, -10, 0]);
+    this._look = createVec3Float64(cfg.look || [0, 0, 0]);
+    this._up = createVec3Float64(cfg.up || [0, 0, 1]);
     this._gimbalLock = cfg.gimbalLock !== false;
     this._constrainPitch = cfg.constrainPitch === true;
     this._projectionType = cfg.projectionType || PerspectiveProjectionType;
-    this._deviceMatrix = cfg.deviceMatrix ? createMat4(cfg.deviceMatrix) : identityMat4();
+    this._deviceMatrix = cfg.deviceMatrix ? createMat4Float64(cfg.deviceMatrix) : identityMat4();
     this._hasDeviceMatrix = !!cfg.deviceMatrix;
-    this._viewMatrix = createMat4();
-    this._viewNormalMatrix = createMat4();
-    this._inverseViewMatrix = createMat4();
+    this._viewMatrix = createMat4Float64();
+    this._viewNormalMatrix = createMat4Float64();
+    this._inverseViewMatrix = createMat4Float64();
     this._frustum = new Frustum3();
     this._activeProjection = this.perspectiveProjection;
 
@@ -396,7 +396,7 @@ class Camera {
    *
    * @type {Number[]} New eye position.
    */
-  get eye(): FloatArrayParam {
+  get eye(): Vec3 {
     return this._eye;
   }
 
@@ -407,7 +407,7 @@ class Camera {
    *
    * @type {Number[]} New eye position.
    */
-  set eye(eye: FloatArrayParam) {
+  set eye(eye: Vec3) {
     // @ts-ignore
     this._eye.set(eye);
     this._buildViewMatrixTask.schedule(); // Ensure matrix built on next "tick"
@@ -420,7 +420,7 @@ class Camera {
    *
    * @returns {Number[]} Camera look position.
    */
-  get look(): FloatArrayParam {
+  get look(): Vec3 {
     return this._look;
   }
 
@@ -431,7 +431,7 @@ class Camera {
    *
    * @param look Camera look position.
    */
-  set look(look: FloatArrayParam) {
+  set look(look: Vec3) {
     // @ts-ignore
     this._look.set(look);
     this._buildViewMatrixTask.schedule(); // Ensure matrix built on next "tick"
@@ -442,7 +442,7 @@ class Camera {
    *
    * @returns {Number[]} Direction of "up".
    */
-  get up(): FloatArrayParam {
+  get up(): Vec3 {
     return this._up;
   }
 
@@ -451,7 +451,7 @@ class Camera {
    *
    * @param up Direction of "up".
    */
-  set up(up: FloatArrayParam) {
+  set up(up: Vec3) {
     // @ts-ignore
     this._up.set(up);
     this._buildViewMatrixTask.schedule();
@@ -536,9 +536,9 @@ class Camera {
   /**
    * Gets the Camera's viewing transformation matrix.
    *
-   * @returns {Number[]} The viewing transform matrix.
+   * @returns {Mat4} The viewing transform matrix.
    */
-  get viewMatrix(): FloatArrayParam {
+  get viewMatrix(): Mat4 {
     if (this._buildViewMatrixTask.scheduled) {
       this._buildViewMatrixTask.runIfScheduled();
     }
@@ -548,9 +548,9 @@ class Camera {
   /**
    * Gets the inverse of the Camera's viewing transform matrix.
    *
-   * @returns {Number[]} The inverse viewing transform matrix.
+   * @returns {Mat4} The inverse viewing transform matrix.
    */
-  get inverseViewMatrix(): FloatArrayParam {
+  get inverseViewMatrix(): Mat4 {
     if (this._buildViewMatrixTask.scheduled) {
       this._buildViewMatrixTask.runIfScheduled();
     }
@@ -560,9 +560,9 @@ class Camera {
   /**
    * Gets the Camera's projection transformation projMatrix.
    *
-   * @returns {Number[]} The projection matrix.
+   * @returns {Mat4} The projection matrix.
    */
-  get projMatrix(): FloatArrayParam {
+  get projMatrix(): Mat4 {
     // @ts-ignore
     return this._activeProjection.projMatrix;
   }
@@ -572,7 +572,7 @@ class Camera {
    *
    * @returns {Frustum3} The frustum.
    */
-  get frustum() {
+  get frustum() : Frustum3 {
     if (this._buildViewMatrixTask.scheduled) {
       this._buildViewMatrixTask.runIfScheduled();
     }

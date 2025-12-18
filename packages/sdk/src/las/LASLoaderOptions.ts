@@ -1,5 +1,5 @@
-import type {FloatArrayParam} from "../math";
 import type {ModelLoadOptions} from "../io/ModelLoadOptions";
+import type {Mat4} from "../matrix";
 
 /**
  * Options for {@link las!LASLoader.load | LASLoader.load}.
@@ -16,7 +16,7 @@ export interface LASLoaderOptions extends ModelLoadOptions  {
   /**
    * A 4x4 transformation matrix to apply to the loaded point cloud.
    */
-  transform?: FloatArrayParam;
+  transform?: Mat4;
 
   /**
    * Number of points to skip when loading the point cloud (for downsampling).

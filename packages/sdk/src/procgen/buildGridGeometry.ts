@@ -30,9 +30,9 @@ import {SDKErrorType, type SDKResult} from "../core";
  * @param [cfg.divisions=1] The number of divisions (lines) on the X and Z axes. Default is `1`.
  * @returns {SDKResult<GeometryArrays>} The geometry arrays for the grid, including positions and indices for the lines, or an error message.
  */
-export function buildGridGeometry(cfg = {
-  size: 1,
-  divisions: 1
+export function buildGridGeometry(cfg : {
+  size?: number,
+  divisions?: number
 }): SDKResult<GeometryArrays> {
   let size = cfg.size || 1;
   if (size < 0) {

@@ -1,6 +1,6 @@
 // Fixed spec metadata
 export type DTXMeshViewAttribsItem = {
-    color: [number, number, number, number];   // uvec4 bytes 0..255
+    color?: [number, number, number, number];   // uvec4 bytes 0..255
     pickable?: boolean;
     clippable?: boolean;
 };

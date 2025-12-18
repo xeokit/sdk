@@ -1,5 +1,5 @@
 
-import {GPUMemoryMeshHandle} from "../gpuMemoryManager/GPUMemoryMeshHandle";
+import {type GPUMemoryMeshHandle} from "../gpuMemoryManager/GPUMemoryMeshHandle";
 
 /**
  * A handle to a mesh in a `MeshBatch`.

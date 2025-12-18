@@ -65,8 +65,8 @@ class GeometryViewImpl {
   meshIndex: number;
   geometry: SceneGeometry | null;
 
-  #positionsDecompressed: Float32Array | null;
-  #positionsWorld: Float64Array | null;
+  #positionsDecompressed: FloatArrayParam | null;
+  #positionsWorld: FloatArrayParam | null;
 
   constructor() {
     this.object = null;
@@ -95,7 +95,7 @@ class GeometryViewImpl {
     if (!this.#positionsWorld) {
       const positionsDecompressed = this.positionsDecompressed;
       this.#positionsWorld = new Float64Array(positionsDecompressed.length);
-      transformPositions3(positionsDecompressed, (<SceneMesh>this.mesh).matrix, this.#positionsWorld);
+      transformPositions3((<SceneMesh>this.mesh).matrix, positionsDecompressed, this.#positionsWorld);
     }
     return this.#positionsWorld;
   }

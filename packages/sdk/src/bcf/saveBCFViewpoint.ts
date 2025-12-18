@@ -1,6 +1,5 @@
-import {addVec3, createVec3, negateVec3, normalizeVec3, subVec3} from "../matrix";
+import {addVec3, createVec3Float64,  negateVec3, normalizeVec3, subVec3, type Vec3} from "../matrix";
 import type {BCFViewpoint} from "./BCFViewpoint";
-import type {FloatArrayParam} from "../math";
 import {OrthoProjectionType} from "../constants";
 import type {SaveBCFViewpointParams} from "./SaveBCFViewpointParams";
 import type {ViewObject} from "../viewer";
@@ -22,7 +21,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
   const view = params.view;
   const camera = view.camera;
   const coordinateSystem = view.viewer.scene.coordinateSystem;
-  const realWorldOffset = createVec3();
+  const realWorldOffset = createVec3Float64();
   const reverseClippingPlanes = (params.reverseClippingPlanes === true);
   const bcfViewpoint: any = {};
 
@@ -34,7 +33,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
     };
   }
 
-  let lookDirection = normalizeVec3(subVec3(camera.look, camera.eye, createVec3()));
+  let lookDirection = normalizeVec3(subVec3(camera.look, camera.eye, createVec3Float64()));
   let eye = camera.eye;
   let up = camera.up;
 
@@ -103,7 +102,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
       let location = sectionPlane.pos;
       let direction;
       if (reverseClippingPlanes) {
-        direction = negateVec3(sectionPlane.dir, createVec3());
+        direction = negateVec3(sectionPlane.dir, createVec3Float64());
       } else {
         direction = sectionPlane.dir;
       }
@@ -201,6 +200,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
   const xrayedObjectIds = new Set(view.xrayedObjectIds);
   const colorizedObjectIds = new Set(view.colorizedObjectIds);
 
+  // @ts-ignore
   const coloringMap = Object.values(view.objects)
 
     .filter(viewObject =>
@@ -219,9 +219,11 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
         } else {
           alpha = view.xrayMaterial.fillAlpha;
         }
+        // @ts-ignore
         alpha = Math.round(alpha * 255).toString(16).padStart(2, "0");
         color = alpha + color;
       } else if (opacityObjectIds.has(viewObject.id)) {
+        // @ts-ignore
         alpha = Math.round(viewObject.opacity * 255).toString(16).padStart(2, "0");
         color = alpha + color;
       }
@@ -246,6 +248,7 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
 
     }, {});
 
+  // @ts-ignore
   const coloringArray = Object.entries(coloringMap).map(([color, components]) => {
     return {color, components};
   });
@@ -283,22 +286,25 @@ export function saveBCFViewpoint(params: SaveBCFViewpointParams): SDKResult<BCFV
   };
 }
 
-function xyzArrayToObject(arr: FloatArrayParam): any {
+function xyzArrayToObject(arr: Vec3): any {
   return {"x": arr[0], "y": arr[1], "z": arr[2]};
 }
 
-function YToZ(vec: FloatArrayParam): FloatArrayParam {
-  return new Float64Array([vec[0], -vec[2], vec[1]]);
+function YToZ(vec: Vec3): Vec3 {
+  return createVec3Float64([vec[0], -vec[2], vec[1]]);
 }
 
-function ZToY(vec: FloatArrayParam): FloatArrayParam {
-  return new Float64Array([vec[0], vec[2], -vec[1]]);
+function ZToY(vec: Vec3): Vec3 {
+  return createVec3Float64([vec[0], vec[2], -vec[1]]);
 }
 
-function colorizeToRGB(color) {
+function colorizeToRGB(color: Vec3): string {
   let rgb = "";
+  // @ts-ignore
   rgb += Math.round(color[0] * 255).toString(16).padStart(2, "0");
+  // @ts-ignore
   rgb += Math.round(color[1] * 255).toString(16).padStart(2, "0");
+  // @ts-ignore
   rgb += Math.round(color[2] * 255).toString(16).padStart(2, "0");
   return rgb;
 }

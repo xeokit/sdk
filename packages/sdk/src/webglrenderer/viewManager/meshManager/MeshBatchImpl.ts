@@ -1,13 +1,12 @@
 import type {SceneMesh} from "../../../scene";
-import type {FloatArrayParam} from "../../../math";
 import type {RenderContext} from "../RenderContext";
-import {RENDER_PASSES} from "../RENDER_PASSES";
-import {type GPUMemoryEditor} from "../gpuMemoryManager/GPUMemoryEditor";
-import {MeshBatch} from "./MeshBatch";
-import {MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
-import {GPUMemoryMeshHandle} from "../gpuMemoryManager/GPUMemoryMeshHandle";
-import {type GPUMemoryReader} from "../gpuMemoryManager/type GPUMemoryReader";
-import {SDKResult} from "../../../core";
+import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
+import type {MeshBatch} from "./MeshBatch";
+import type {MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
+import type {GPUMemoryMeshHandle} from "../gpuMemoryManager/GPUMemoryMeshHandle";
+import type {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
+import type {SDKResult} from "../../../core";
+import type {Mat4, Vec3} from "../../../matrix";
 
 /**
  * A MeshBatchImpl manages a batch of SceneMeshes that use the same primitive type.
@@ -22,9 +21,9 @@ export class MeshBatchImpl implements MeshBatch {
     private _renderContext: RenderContext;
 
     /**
-     * The GPUMemoryEditor instance used to manage the GPU data memory for this batch.
+     * The GPUMemoryManager instance used to manage the GPU data memory for this batch.
      */
-    private _gpuMemoryEditor: GPUMemoryEditor;
+    private _gpuMemoryManager: GPUMemoryManager;
 
     /**
      * Primitive type of the meshes in this batch.
@@ -68,13 +67,13 @@ export class MeshBatchImpl implements MeshBatch {
      */
     constructor(batchParams: {
         renderContext: RenderContext;
-        gpuMemoryEditor: GPUMemoryEditor;
+        gpuMemoryManager: GPUMemoryManager;
         gpuMemoryBatchIndex: number;
         primitive: number;
     }) {
-        const {renderContext, gpuMemoryEditor, primitive} = batchParams;
+        const {renderContext, gpuMemoryManager, primitive} = batchParams;
         this._renderContext = renderContext;
-        this._gpuMemoryEditor = gpuMemoryEditor;
+        this._gpuMemoryManager = gpuMemoryManager;
         this.gpuMemoryBatchIndex = batchParams.gpuMemoryBatchIndex;
         this.primitive = primitive;
         this.primBaseIndex = 0; // TODO
@@ -98,8 +97,8 @@ export class MeshBatchImpl implements MeshBatch {
      * @param renderPass - The render pass to check for (e.g., opaque, transparent).
      * @returns True if there are meshes to render in the specified pass, false otherwise.
      */
-    public hasMeshesInRenderPass(viewIndex: number, renderPass: RENDER_PASSES): boolean {
-        return (<GPUMemoryReader>this._gpuMemoryEditor).dataTextures.batches[this.gpuMemoryBatchIndex]
+    public hasMeshesInRenderPass(viewIndex: number, renderPass: RenderPassValue): boolean {
+        return (<GPUMemoryManager>this._gpuMemoryManager).dataTextures.batches[this.gpuMemoryBatchIndex]
             ?.views[viewIndex]
             ?.renderPassDrawRanges.get(<number>renderPass)
             ?.numPrims! > 0; // Single point-of-truth for mesh counts
@@ -112,7 +111,7 @@ export class MeshBatchImpl implements MeshBatch {
      * @returns True if the mesh can be added, false otherwise.
      */
     public canAddMesh(sceneMesh: SceneMesh): boolean {
-        return this._gpuMemoryEditor.hasMemoryForMesh(this.gpuMemoryBatchIndex, sceneMesh);
+        return this._gpuMemoryManager.hasMemoryForMesh(this.gpuMemoryBatchIndex, sceneMesh);
     }
 
     /**
@@ -122,7 +121,7 @@ export class MeshBatchImpl implements MeshBatch {
      * @returns A handle to the added mesh in the batch's GPU memory.
      */
     public addMesh(sceneMesh: SceneMesh): SDKResult<MeshBatchMeshHandle> {
-      const gpuMeshHandleResult = this._gpuMemoryEditor.addMesh(this.gpuMemoryBatchIndex, sceneMesh);
+      const gpuMeshHandleResult = this._gpuMemoryManager.addMesh(this.gpuMemoryBatchIndex, sceneMesh);
       if (gpuMeshHandleResult.ok) {
         const gpuMeshHandle = gpuMeshHandleResult.value;
         this.numIndices += gpuMeshHandle.numIndices;
@@ -138,7 +137,7 @@ export class MeshBatchImpl implements MeshBatch {
      */
     public removeMesh(meshHandle: MeshBatchMeshHandle): void {
         const gpuMeshHandle = meshHandle as GPUMemoryMeshHandle;
-        this._gpuMemoryEditor.removeMesh(gpuMeshHandle);
+        this._gpuMemoryManager.removeMesh(gpuMeshHandle);
         this.numIndices -= gpuMeshHandle.numIndices;
         this.numVertices -= gpuMeshHandle.numVertices;
     }
@@ -150,7 +149,7 @@ export class MeshBatchImpl implements MeshBatch {
      * @returns The SceneMesh at the specified index, or null if not found.
      */
     public getMeshAtIndex(meshIndex: number): SceneMesh | null {
-        return this._gpuMemoryEditor.getMeshAtIndex(this.gpuMemoryBatchIndex, meshIndex);
+        return this._gpuMemoryManager.getMeshAtIndex(this.gpuMemoryBatchIndex, meshIndex);
     }
 
     /**
@@ -160,7 +159,7 @@ export class MeshBatchImpl implements MeshBatch {
      * @returns An object containing the `first` and `count` parameters, or null if not found.
      */
     public getDrawArraysParamsForMesh(meshIndex: number): { first: number; count: number } | null {
-        return this._gpuMemoryEditor.getDrawArraysParamsForMesh(this.gpuMemoryBatchIndex, meshIndex);
+        return this._gpuMemoryManager.getDrawArraysParamsForMesh(this.gpuMemoryBatchIndex, meshIndex);
     }
 
     /**
@@ -172,7 +171,7 @@ export class MeshBatchImpl implements MeshBatch {
         // const isClippable = (renderFlags & RENDER_FLAGS.CLIPPABLE) !== 0;
         // const pickFlag = isPickable ? RENDER_PASSES.PICK : RENDER_PASSES.NOT_RENDERED;
         // const renderFlags2 = pickFlag | (isClippable << 4);
-        // this._gpuMemoryEditor.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
+        // this._gpuMemoryManager.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
         //   renderFlags: renderFlags2
         // });
     }
@@ -185,7 +184,7 @@ export class MeshBatchImpl implements MeshBatch {
      * @param visible - True to make the mesh visible, false to hide it.
      */
     public setMeshVisible(viewIndex: number, meshHandle: MeshBatchMeshHandle, visible: boolean): void {
-        this._gpuMemoryEditor.setMeshVisible(meshHandle as GPUMemoryMeshHandle, viewIndex, visible);
+        this._gpuMemoryManager.setMeshVisible(meshHandle as GPUMemoryMeshHandle, viewIndex, visible);
     }
 
     /**
@@ -196,7 +195,7 @@ export class MeshBatchImpl implements MeshBatch {
      * @param renderFlags - The render flags for the mesh.
      */
     public setMeshOpaque(viewIndex: number, meshHandle: MeshBatchMeshHandle, renderFlags: number): void {
-        this._gpuMemoryEditor.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.OPAQUE);
+        this._gpuMemoryManager.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.OPAQUE);
     }
 
     /**
@@ -204,9 +203,9 @@ export class MeshBatchImpl implements MeshBatch {
      */
     public setMeshTransparent(viewIndex: number, meshHandle: MeshBatchMeshHandle, transparent: boolean): void {
         if (transparent) {
-            this._gpuMemoryEditor.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.TRANSPARENT);
+            this._gpuMemoryManager.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.TRANSPARENT);
         } else {
-            this._gpuMemoryEditor.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.OPAQUE);
+            this._gpuMemoryManager.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.OPAQUE);
         }
     }
 
@@ -215,9 +214,9 @@ export class MeshBatchImpl implements MeshBatch {
      */
     public setMeshHighlighted(viewIndex: number, meshHandle: MeshBatchMeshHandle, highlighted: boolean, transparent: boolean): void {
         if (highlighted) {
-            this._gpuMemoryEditor.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.HIGHLIGHTED);
+            this._gpuMemoryManager.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.HIGHLIGHTED);
         } else {
-            this._gpuMemoryEditor.setMeshRenderPass(meshHandle, viewIndex,
+            this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex,
                 transparent ? RENDER_PASSES.TRANSPARENT : RENDER_PASSES.OPAQUE);
         }
     }
@@ -227,9 +226,9 @@ export class MeshBatchImpl implements MeshBatch {
      */
     public setMeshXRayed(viewIndex: number, meshHandle: MeshBatchMeshHandle, xrayed: boolean, transparent: boolean): void {
         if (xrayed) {
-            this._gpuMemoryEditor.setMeshRenderPass(meshHandle, viewIndex, RENDER_PASSES.XRAYED);
+            this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex, RENDER_PASSES.XRAYED);
         } else {
-            this._gpuMemoryEditor.setMeshRenderPass(meshHandle, viewIndex,
+            this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex,
                 transparent
                     ? RENDER_PASSES.TRANSPARENT
                     : RENDER_PASSES.OPAQUE);
@@ -241,9 +240,9 @@ export class MeshBatchImpl implements MeshBatch {
      */
     public setMeshSelected(viewIndex: number, meshHandle: MeshBatchMeshHandle, selected: boolean, transparent: boolean): void {
         if (selected) {
-            this._gpuMemoryEditor.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.SELECTED);
+            this._gpuMemoryManager.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.SELECTED);
         } else {
-            this._gpuMemoryEditor.setMeshRenderPass(meshHandle, viewIndex,
+            this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex,
                 transparent
                     ? RENDER_PASSES.TRANSPARENT
                     : RENDER_PASSES.OPAQUE);
@@ -277,24 +276,24 @@ export class MeshBatchImpl implements MeshBatch {
     /**
      * Sets a custom color per view for a mesh.
      */
-    public setMeshColor(viewIndex: number, meshHandle: MeshBatchMeshHandle, color: FloatArrayParam): void {
-        this._gpuMemoryEditor.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
-            color: <number[]>color
+    public setMeshColor(viewIndex: number, meshHandle: MeshBatchMeshHandle, color: Vec3): void {
+        this._gpuMemoryManager.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
+            color: <[number,number,number,number]>color
         });
     }
 
     /**
      * Sets the transformation matrix for a mesh.
      */
-    public setMeshMatrix(meshHandle: MeshBatchMeshHandle, rtcMatrix: FloatArrayParam): void {
-        this._gpuMemoryEditor.setMeshMatrix(meshHandle as GPUMemoryMeshHandle, rtcMatrix);
+    public setMeshMatrix(meshHandle: MeshBatchMeshHandle, rtcMatrix: Mat4): void {
+        this._gpuMemoryManager.setMeshMatrix(meshHandle as GPUMemoryMeshHandle, rtcMatrix);
     }
 
     /**
      * Sets the tile tileIndex for a mesh.
      */
     public setMeshTile(meshHandle: MeshBatchMeshHandle, tileIndex: number): void {
-        this._gpuMemoryEditor.setMeshAttribs(meshHandle as GPUMemoryMeshHandle, {
+        this._gpuMemoryManager.setMeshAttribs(meshHandle as GPUMemoryMeshHandle, {
             tileIndex
         });
     }
@@ -304,7 +303,7 @@ export class MeshBatchImpl implements MeshBatch {
      */
     public destroy(): void {
         this._renderContext = null;
-        this._gpuMemoryEditor = null;
+        this._gpuMemoryManager = null;
     }
 }
 

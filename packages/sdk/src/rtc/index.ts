@@ -39,23 +39,24 @@
  * @module rtc
  */
 import {
-  createVec3,
-  createVec4,
-  dotVec3,
+  createMat4Float64,
+  createVec3Float64,
+  createVec4Float64,
+  dotVec3, Mat4,
   mulVec3Scalar,
   normalizeVec3,
   setMat4Translation, subVec3,
   transformVec4,
-  translateMat4v
+  Vec3
 } from "../matrix";
-import type {FloatArrayParam} from "../math";
 import {getPositions3Center} from "../boundaries";
+import type {FloatArrayParam} from "../math";
 
 // Temporary vectors and matrices used internally
-const tempVec3a = createVec3();
-const tempMat = new Float32Array(16);
-const rtcCenterWorld = new Float64Array(4);
-const rtcCenterView = new Float64Array(4);
+const tempVec3a = createVec3Float64();
+const tempMat = createMat4Float64();
+const rtcCenterWorld = createVec4Float64();
+const rtcCenterView = createVec4Float64();
 
 /**
  * The size of the coordinate cells in the Relative-To-Center (RTC) system.
@@ -68,25 +69,29 @@ export const RTC_CELL_SIZE = 200;
  *
  * This matrix allows the transformation of RTC coordinates (relative to a defined origin) into view-space coordinates.
  *
- * @param {FloatArrayParam} viewMat - The View matrix to transform RTC coordinates into view-space.
- * @param {FloatArrayParam} rtcCenter - The RTC center coordinates, which define the origin of the RTC system.
- * @param {FloatArrayParam} [rtcViewMat=tempMat] - Optional parameter to store the resulting RTC view matrix. If not provided, a temporary matrix is used.
- * @returns {FloatArrayParam} The transformed RTC view matrix.
+ * @param  viewMat - The View matrix to transform RTC coordinates into view-space.
+ * @param  rtcCenter - The RTC center coordinates, which define the origin of the RTC system.
+ * @param  [rtcViewMat=tempMat] - Optional parameter to store the resulting RTC view matrix. If not provided, a temporary matrix is used.
+ * @returns  The transformed RTC view matrix.
  */
 export function createRTCViewMat(
-  viewMat: FloatArrayParam,
-  rtcCenter: FloatArrayParam,
-  rtcViewMat: FloatArrayParam = tempMat
-): FloatArrayParam {
+  viewMat: Mat4,
+  rtcCenter: Vec3,
+  rtcViewMat: Mat4 = tempMat
+): Mat4 {
   const [x, y, z] = rtcCenter;
   if (x === 0 && y === 0 && z === 0) {
     // @ts-ignore
     rtcViewMat.set(viewMat);
     return rtcViewMat;
   }
+  // @ts-ignore
   rtcCenterWorld.set([x, y, z, 1]);
   transformVec4(viewMat, rtcCenterWorld, rtcCenterView);
-  setMat4Translation(viewMat, rtcCenterView, rtcViewMat);
+  tempVec3a[0] = rtcCenterView[0];
+  tempVec3a[1] = rtcCenterView[1];
+  tempVec3a[2] = rtcCenterView[2];
+  setMat4Translation(viewMat, tempVec3a, rtcViewMat);
 
   return rtcViewMat;
 }
@@ -98,42 +103,42 @@ export function createRTCViewMat(
  * This function transforms a modeling matrix, which may include very large translations, into an RTC model matrix.
  * The RTC model matrix applies transformations relative to the RTC center, which helps with the efficient handling of large-scale data.
  *
- * @param {FloatArrayParam} matrix - The absolute modeling matrix, which may contain large translations.
- * @param {FloatArrayParam} rtcCenter - The RTC center coordinates, used to compute the RTC-relative transformation.
- * @param {FloatArrayParam} rtcModelMatrix - Returns the RTC model matrix.
- * @returns {FloatArrayParam} The RTC model matrix.
+ * @param  matrix - The absolute modeling matrix, which may contain large translations.
+ * @param  rtcCenter - The RTC center coordinates, used to compute the RTC-relative transformation.
+ * @param  rtcModelMatrix - Returns the RTC model matrix.
+ * @returns  The RTC model matrix.
  */
-export const createRTCModelMatOLD = (() => {
-
-  const zeroVec4 = createVec4([0, 0, 0, 1]);
-  const tempVec4a = createVec4();
-
-  return (matrix: FloatArrayParam, rtcCenter: FloatArrayParam, rtcModelMatrix?: FloatArrayParam): FloatArrayParam => {
-
-    const matCenter = transformVec4(matrix, zeroVec4, tempVec4a);
-
-    rtcCenter[0] = Math.round(matCenter[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-    rtcCenter[1] = Math.round(matCenter[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-    rtcCenter[2] = Math.round(matCenter[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
-
-    rtcModelMatrix = rtcModelMatrix || matrix.slice();
-
-   // setMat4Translation(matrix, rtcCenter, rtcModelMatrix); // This seems OK
-
- //  translateMat4v(mulVec3Scalar(rtcCenter, -1, tempVec3a), rtcModelMatrix); // This seems OK
-
-   translateMat4v(subVec3(matCenter, rtcCenter, tempVec3a), rtcModelMatrix);
-
-    return rtcModelMatrix;
-  };
-})();
+// export const createRTCModelMatOLD = (() => {
+//
+//   const zeroVec4 = createVec4Float64([0, 0, 0, 1]);
+//   const tempVec4a = createVec4Float64();
+//
+//   return (matrix: Mat4, rtcCenter: Vec3, rtcModelMatrix?: Mat4): Mat4 => {
+//
+//     const matCenter = transformVec4(matrix, zeroVec4, tempVec4a);
+//
+//     rtcCenter[0] = Math.round(matCenter[0] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+//     rtcCenter[1] = Math.round(matCenter[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+//     rtcCenter[2] = Math.round(matCenter[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
+//
+//     rtcModelMatrix = rtcModelMatrix || matrix.slice();
+//
+//    // setMat4Translation(matrix, rtcCenter, rtcModelMatrix); // This seems OK
+//
+//  //  translateMat4v(mulVec3Scalar(rtcCenter, -1, tempVec3a), rtcModelMatrix); // This seems OK
+//
+//    translateMat4v(subVec3(matCenter, rtcCenter, tempVec3a), rtcModelMatrix);
+//
+//     return rtcModelMatrix;
+//   };
+// })();
 
 export const createRTCModelMat = (() => {
 
-  const zeroVec4 = createVec4([0, 0, 0, 1]);
-  const tempVec4a = createVec4();
+  const zeroVec4 = createVec4Float64([0, 0, 0, 1]);
+  const tempVec4a = createVec4Float64();
 
-  return (matrix: FloatArrayParam, rtcCenter: FloatArrayParam, rtcModelMatrix?: FloatArrayParam): FloatArrayParam => {
+  return (matrix: Mat4, rtcCenter: Vec3, rtcModelMatrix?: Mat4): Mat4 => {
 
     const matCenter = matrix.slice(12, 15);
 
@@ -141,10 +146,10 @@ export const createRTCModelMat = (() => {
     rtcCenter[1] = Math.round(matCenter[1] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
     rtcCenter[2] = Math.round(matCenter[2] / RTC_CELL_SIZE) * RTC_CELL_SIZE;
 
-    rtcModelMatrix = rtcModelMatrix || matrix.slice();
+    rtcModelMatrix = rtcModelMatrix || createMat4Float64(matrix);
 
     // @ts-ignore
-    rtcModelMatrix.set(subVec3(matCenter, rtcCenter, createVec3()), 12);
+    rtcModelMatrix.set(subVec3(matCenter, rtcCenter, createVec3Float64()), 12);
 
     return rtcModelMatrix;
   };
@@ -156,11 +161,11 @@ export const createRTCModelMat = (() => {
  * This function takes a World-space position, which is a double-precision value, and transforms it into RTC coordinates.
  * The result is a double-precision RTC center position, and a single-precision offset from that center.
  *
- * @param {FloatArrayParam} worldPos - The World-space position as an array of `[x, y, z]` coordinates.
- * @param {FloatArrayParam} rtcCenter - The resulting RTC center coordinates.
- * @param {FloatArrayParam} rtcPos - The resulting RTC position (offset from the RTC center).
+ * @param  worldPos - The World-space position as an array of `[x, y, z]` coordinates.
+ * @param  rtcCenter - The resulting RTC center coordinates.
+ * @param  rtcPos - The resulting RTC position (offset from the RTC center).
  */
-export function worldToRTCPos(worldPos: FloatArrayParam, rtcCenter: FloatArrayParam, rtcPos: FloatArrayParam) {
+export function worldToRTCPos(worldPos: Vec3, rtcCenter: Vec3, rtcPos: Vec3)  {
 
   const xHigh = Float32Array.from([worldPos[0]])[0];
   const xLow = worldPos[0] - xHigh;
@@ -185,12 +190,12 @@ export function worldToRTCPos(worldPos: FloatArrayParam, rtcCenter: FloatArrayPa
  *
  * Given a World-space position, this function calculates the nearest RTC center, ensuring that the position aligns with a grid defined by RTC_CELL_SIZE.
  *
- * @param {FloatArrayParam} worldCenter - The World-space position to convert.
- * @param {FloatArrayParam} rtcCenter - The resulting RTC center position.
+ * @param  worldCenter - The World-space position to convert.
+ * @param  rtcCenter - The resulting RTC center position.
  * @param {number} [cellSize=200] - The size of each coordinate cell within the RTC coordinate system (default is 200).
- * @returns {FloatArrayParam} The RTC center position.
+ * @returns  The RTC center position.
  */
-export function worldToRTCCenter(worldCenter: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = RTC_CELL_SIZE) {
+export function worldToRTCCenter(worldCenter: Vec3, rtcCenter: Vec3, cellSize = RTC_CELL_SIZE): Vec3 {
   rtcCenter[0] = Math.round(worldCenter[0] / cellSize) * cellSize;
   rtcCenter[1] = Math.round(worldCenter[1] / cellSize) * cellSize;
   rtcCenter[2] = Math.round(worldCenter[2] / cellSize) * cellSize;
@@ -203,13 +208,13 @@ export function worldToRTCCenter(worldCenter: FloatArrayParam, rtcCenter: FloatA
  * This function computes the RTC positions for an entire array of World-space coordinates. It returns both the RTC positions
  * and the RTC center, ensuring the data is aligned with the RTC grid. If conversion is not needed, the function will return `false`.
  *
- * @param {FloatArrayParam} worldPositions - A flat array of World-space 3D positions.
- * @param {FloatArrayParam} rtcPositions - The resulting flat array of RTC positions.
- * @param {FloatArrayParam} rtcCenter - The computed RTC center position.
+ * @param  worldPositions - A flat array of World-space 3D positions.
+ * @param  rtcPositions - The resulting flat array of RTC positions.
+ * @param  rtcCenter - The computed RTC center position.
  * @param {number} [cellSize=200] - The size of each coordinate cell within the RTC system.
  * @returns {boolean} Returns `true` if conversion to RTC was needed, otherwise `false`.
  */
-export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: FloatArrayParam, cellSize = RTC_CELL_SIZE): boolean {
+export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPositions: FloatArrayParam, rtcCenter: Vec3, cellSize = RTC_CELL_SIZE): boolean {
 
   const center = getPositions3Center(worldPositions, tempVec3a);
 
@@ -235,12 +240,12 @@ export function worldToRTCPositions(worldPositions: FloatArrayParam, rtcPosition
  *
  * Given an RTC position (relative to the RTC center), this function returns the corresponding World-space position.
  *
- * @param {FloatArrayParam} rtcCenter - The RTC center coordinates.
- * @param {FloatArrayParam} rtcPos - The RTC position (offset from the RTC center).
- * @param {FloatArrayParam} worldPos - The resulting World-space position.
- * @returns {FloatArrayParam} The World-space position.
+ * @param  rtcCenter - The RTC center coordinates.
+ * @param  rtcPos - The RTC position (offset from the RTC center).
+ * @param  worldPos - The resulting World-space position.
+ * @returns  The World-space position.
  */
-export function rtcToWorldPos(rtcCenter: FloatArrayParam, rtcPos: FloatArrayParam, worldPos: FloatArrayParam): FloatArrayParam {
+export function rtcToWorldPos(rtcCenter: Vec3, rtcPos: Vec3, worldPos: Vec3): Vec3 {
   worldPos[0] = rtcCenter[0] + rtcPos[0];
   worldPos[1] = rtcCenter[1] + rtcPos[1];
   worldPos[2] = rtcCenter[2] + rtcPos[2];
@@ -254,12 +259,12 @@ export function rtcToWorldPos(rtcCenter: FloatArrayParam, rtcPos: FloatArrayPara
  * relative to the RTC center. It is useful for working with planes in the context of RTC coordinates.
  *
  * @param {number} dist - The distance from the origin to the plane along the plane's normal.
- * @param {FloatArrayParam} dir - The normalized direction vector of the plane.
- * @param {FloatArrayParam} rtcCenter - The RTC center coordinates.
- * @param {FloatArrayParam} rtcPlanePos - The resulting RTC position of the plane.
- * @returns {FloatArrayParam} The position of the plane relative to the RTC center.
+ * @param  dir - The normalized direction vector of the plane.
+ * @param  rtcCenter - The RTC center coordinates.
+ * @param  rtcPlanePos - The resulting RTC position of the plane.
+ * @returns  The position of the plane relative to the RTC center.
  */
-export function getPlaneRTCPos(dist: number, dir: FloatArrayParam, rtcCenter: FloatArrayParam, rtcPlanePos: FloatArrayParam): FloatArrayParam {
+export function getPlaneRTCPos(dist: number, dir: Vec3, rtcCenter: Vec3, rtcPlanePos: Vec3): Vec3 {
   const rtcCenterToPlaneDist = dotVec3(dir, rtcCenter) + dist;
   const dirNormalized = normalizeVec3(dir, tempVec3a);
   mulVec3Scalar(dirNormalized, -rtcCenterToPlaneDist, rtcPlanePos);

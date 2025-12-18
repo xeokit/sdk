@@ -1,4 +1,14 @@
-import {createMat4, identityMat4, inverseMat4, isIdentityMat4, mulMat4} from "../matrix";
+import {
+  createMat4Float64,
+  createVec4Float64,
+  type Mat4,
+  type Vec3Float,
+  identityMat4,
+  inverseMat4,
+  isIdentityMat4,
+  mulMat4,
+  type Vec4Float
+} from "../matrix";
 import type {FloatArrayParam} from "../math";
 import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneMeshParams} from "./SceneMeshParams";
@@ -47,11 +57,11 @@ export class SceneMesh {
    */
   readonly textureSet?: SceneTextureSet;
 
-  private _color: FloatArrayParam;
+  private _color: Vec4Float;
   private _opacity: number;
-  private _localMatrix: FloatArrayParam;
-  private _globalMatrix: FloatArrayParam;
-   private _parentTransform: SceneTransform | null = null;
+  private _localMatrix: Mat4;
+  private _globalMatrix: Mat4;
+  private _parentTransform: SceneTransform | null = null;
 
    destroyed: boolean = false;
 
@@ -63,17 +73,17 @@ export class SceneMesh {
     model: SceneModel;
     geometry: SceneGeometry;
     textureSet?: SceneTextureSet;
-    matrix?: FloatArrayParam;
-    color?: FloatArrayParam;
+    matrix?: Mat4;
+    color?: Vec3Float;
     opacity?: number;
   } ) {
     this.id = meshParams.id;
     this.model = meshParams.model;
-    this._localMatrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
-    this._globalMatrix = createMat4();
+    this._localMatrix = meshParams.matrix ? createMat4Float64(meshParams.matrix) : identityMat4();
+    this._globalMatrix = createMat4Float64();
     this.geometry = meshParams.geometry;
     this.textureSet = meshParams.textureSet;
-    this.color = meshParams.color || new Float32Array([1, 1, 1]);
+    this.color = meshParams.color || [1, 1, 1];    // FIXME: This fires update events during construction
     this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
     this.object = null;
   }
@@ -83,7 +93,7 @@ export class SceneMesh {
    *
    * Each element of the color is in range ````[0..1]````.
    */
-  get color(): FloatArrayParam {
+  get color(): Vec4Float {
     return this._color;
   }
 
@@ -92,7 +102,7 @@ export class SceneMesh {
    *
    * Each element of the color is in range ````[0..1]````.
    */
-  set color( value: FloatArrayParam ) {
+  set color( value: Vec3Float ) {
     if (this.destroyed) {
       this.model.scene.logError( {
         ok: false,
@@ -111,8 +121,8 @@ export class SceneMesh {
     }
     let color = this._color;
     if (!color) {
-      color = this._color = new Float32Array(4);
-      color[3] = 1;
+      color = this._color = createVec4Float64();
+        color[3] = 1;
     }
     if (value) {
       color[0] = value[0];
@@ -133,7 +143,7 @@ export class SceneMesh {
    *
    * @type {FloatArrayParam}
    */
-  set matrix( matrix: FloatArrayParam ) {
+  set matrix( matrix: Mat4 ) {
     if (this.destroyed) {
       this.model.scene.logError( {
         ok: false,
@@ -164,17 +174,15 @@ export class SceneMesh {
    * Gets this SceneMesh's local modeling transform matrix.
    *
    * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
-   *
-   * @type {FloatArrayParam}
    */
-  get matrix(): FloatArrayParam {
+  get matrix(): Mat4 {
     return this._localMatrix;
   }
 
   /**
    * Gets the global transform matrix for this SceneMesh.
    */
-  get globalMatrix(): FloatArrayParam {
+  get globalMatrix(): Mat4 {
     this._updateGlobal();
     return this._globalMatrix;
   }
@@ -288,10 +296,10 @@ export class SceneMesh {
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
       this._updateGlobal();
-      const currentWorld = createMat4(this._globalMatrix);
+      const currentWorld = createMat4Float64(this._globalMatrix);
       this._attachParentTransform(next);
       if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4());
+        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
         mulMat4(this._localMatrix, invParent, currentWorld);
       } else {
         // @ts-ignore

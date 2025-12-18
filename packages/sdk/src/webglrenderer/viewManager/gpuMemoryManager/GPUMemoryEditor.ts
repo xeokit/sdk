@@ -1,10 +1,10 @@
-import {type FloatArrayParam} from "../../../math";
+import {type Vec3, Mat4} from "../../../matrix";
 import {type Tile} from "./Tile";
 import {type SceneMesh} from "../../../scene";
-import {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
-import {RenderPassValue} from "../RENDER_PASSES";
-import {Camera} from "../../../viewer";
-import {SDKResult} from "../../../core";
+import type {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
+import type {RenderPassValue} from "../RENDER_PASSES";
+import type {Camera} from "../../../viewer";
+import type {SDKResult} from "../../../core";
 
 /**
  * Interface for creating and updating GPU memory resources.
@@ -16,7 +16,7 @@ export interface GPUMemoryEditor {
    * @param worldPos - A 3D position in world space.
    * @returns The Tile containing the given position.
    */
-  getTile( worldPos: FloatArrayParam ): Tile;
+  getTile( worldPos: Vec3 ): Tile;
 
   /**
    * Moves a Tile, if necessary, to ensure it contains the specified 3D world-space position.
@@ -24,7 +24,7 @@ export interface GPUMemoryEditor {
    * @param worldPos - The target world-space position.
    * @returns The updated Tile.
    */
-  moveTile( tile: Tile, worldPos: FloatArrayParam ): Tile;
+  moveTile( tile: Tile, worldPos: Vec3 ): Tile;
 
   /**
    * Releases a Tile back to the tile manager.
@@ -71,7 +71,7 @@ export interface GPUMemoryEditor {
    * @param meshHandle - The handle of the mesh.
    * @param matrix - The modeling transform matrix.
    */
-  setMeshMatrix(meshHandle: GPUMemoryMeshHandle, matrix: FloatArrayParam ): void;
+  setMeshMatrix(meshHandle: GPUMemoryMeshHandle, matrix: Mat4 ): void;
 
   /**
    * Sets attributes for a mesh to apply across all views.

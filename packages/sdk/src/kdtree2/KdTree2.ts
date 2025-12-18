@@ -1,5 +1,5 @@
 import type {FloatArrayParam, IntArrayParam} from "../math";
-import {containsAABB2} from "../boundaries";
+import {AABB2, containsAABB2, createAABB2Float64} from "../boundaries";
 
 const MAX_KD_TREE_DEPTH = 10; // Increase if greater precision needed
 const kdTreeDimLength = new Float32Array(2);
@@ -55,7 +55,7 @@ export interface KdTree2DParams {
   /**
    * The 2D boundary of all the nodes we'll add to this k-d tree.
    */
-  aabb: FloatArrayParam;
+  aabb: AABB2;
 
   /**
    * Maximum depth of the 2D kd-tree.
@@ -90,7 +90,7 @@ export class KdTree2 {
 
     this.root = {
       // @ts-ignore
-      aabb: params.aabb.slice()
+      aabb: createAABB2Float64(params.aabb)
     };
   }
 
@@ -130,7 +130,7 @@ export class KdTree2 {
       dim = 1;
     }
     if (!node.left) {
-      const aabbLeft = nodeAABB.slice();
+      const aabbLeft = createAABB2Float64(nodeAABB);
       aabbLeft[dim + 2] = ((nodeAABB[dim] + nodeAABB[dim + 2]) / 2.0);
       node.left = {
         aabb: aabbLeft
@@ -141,7 +141,7 @@ export class KdTree2 {
       }
     }
     if (!node.right) {
-      const aabbRight = nodeAABB.slice();
+      const aabbRight = createAABB2Float64(nodeAABB);
       aabbRight[dim] = ((nodeAABB[dim] + nodeAABB[dim + 2]) / 2.0);
       node.right = {
         aabb: aabbRight

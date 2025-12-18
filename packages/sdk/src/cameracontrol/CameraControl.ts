@@ -26,9 +26,8 @@ import type {PickResult, View} from "../viewer";
 import type {CameraControlParams} from "./CameraControlParams";
 import {CameraFlightAnimation} from "../cameraflight";
 import {CameraUpdater} from "./CameraUpdater";
-import {createVec2} from "../matrix";
+import {createVec2Float64, Vec3Float} from "../matrix";
 import {EventDispatcher} from "strongly-typed-events";
-import type {FloatArrayParam} from "../math";
 import {isString} from "../utils";
 import {KeyboardAxisViewHandler} from "./KeyboardAxisViewHandler";
 import {KeyboardPanRotateDollyHandler} from "./KeyboardPanRotateDollyHandler";
@@ -376,7 +375,7 @@ export class CameraControl {
     // Current runtime state of the CameraControl
 
     this._states = {
-      pointerCanvasPos: createVec2(),
+      pointerCanvasPos: createVec2Float64(),
       mouseover: false,
       followPointerDirty: true,
       mouseDownClientX: 0,
@@ -385,7 +384,7 @@ export class CameraControl {
       mouseDownCursorY: 0,
       touchStartTime: null,
       activeTouches: [],
-      tapStartPos: createVec2(),
+      tapStartPos: createVec2Float64(),
       tapStartTime: -1,
       lastTapTime: -1,
       longTouchTimeout: null
@@ -792,22 +791,22 @@ export class CameraControl {
   /**
    * Sets the current World-space 3D target position.
    *
-   * Only applies when {@link CameraControl_followPointer} is ````true````.
+   * Only applies when {@link CameraControl.followPointer} is ````true````.
    *
    * @param worldPos The new World-space 3D target position.
    */
-  set pivotPos(worldPos: FloatArrayParam) {
+  set pivotPos(worldPos: Vec3Float) {
     this._controllers.pivotController.setPivotPos(worldPos);
   }
 
   /**
    * Gets the current World-space 3D pivot position.
    *
-   * Only applies when {@link CameraControl_followPointer} is ````true````.
+   * Only applies when {@link CameraControl.followPointer} is ````true````.
    *
    * @return  worldPos The current World-space 3D pivot position.
    */
-  get pivotPos(): FloatArrayParam {
+  get pivotPos(): Vec3Float {
     return this._controllers.pivotController.getPivotPos();
   }
 
@@ -816,7 +815,7 @@ export class CameraControl {
    *
    * When set ````true````, this constrains {@link viewer!Camera_eye} to its current vertical position.
    *
-   * Only applies when {@link CameraControl_navMode} is ````"firstPerson"````.
+   * Only applies when {@link CameraControl.navMode} is ````"firstPerson"````.
    *
    * Default is ````false````.
    *
@@ -831,7 +830,7 @@ export class CameraControl {
    *
    * When set ````true````, this constrains {@link viewer!Camera_eye} to its current vertical position.
    *
-   * Only applies when {@link CameraControl_navMode} is ````"firstPerson"````.
+   * Only applies when {@link CameraControl.navMode} is ````"firstPerson"````.
    *
    * Default is ````false````.
    *
@@ -897,7 +896,7 @@ export class CameraControl {
    *
    * Default is ````0.0````.
    *
-   * Does not apply when {@link CameraControl_navMode} is ````"planView"````, which disallows rotation.
+   * Does not apply when {@link CameraControl.navMode} is ````"planView"````, which disallows rotation.
    *
    * @param rotationInertia New inertial factor.
    */
@@ -910,7 +909,7 @@ export class CameraControl {
    *
    * Default is ````0.0````.
    *
-   * Does not apply when {@link CameraControl_navMode} is ````"planView"````, which disallows rotation.
+   * Does not apply when {@link CameraControl.navMode} is ````"planView"````, which disallows rotation.
    *
    * @returns The inertia factor.
    */

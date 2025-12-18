@@ -1,6 +1,6 @@
 import {
-  createVec2,
-  createVec3,
+  createVec2Float64,
+  createVec3Float64,
   cross3Vec3,
   dotVec3,
   lenVec3,
@@ -15,10 +15,10 @@ import type {ModelParser} from "../../../io";
 import {TrianglesPrimitive} from "../../../constants";
 import {typeCodes} from "../../../cityjsontypes_1_1_3";
 
-const tempVec2a = createVec2();
-const tempVec3a = createVec3();
-const tempVec3b = createVec3();
-const tempVec3c = createVec3();
+const tempVec2a = createVec2Float64();
+const tempVec3a = createVec3Float64();
+const tempVec3b = createVec3Float64();
+const tempVec3c = createVec3Float64();
 
 /**
  * @private
@@ -51,8 +51,8 @@ export const parse: ModelParser = async (
 
 function transformVertices(vertices: any, transform: any) {
   const transformedVertices = [];
-  const scale = transform.scale || createVec3([1, 1, 1]);
-  const translate = transform.translate || createVec3([0, 0, 0]);
+  const scale = transform.scale || createVec3Float64([1, 1, 1]);
+  const translate = transform.translate || createVec3Float64([0, 0, 0]);
   for (let i = 0, j = 0; i < vertices.length; i++, j += 3) {
     const x = (vertices[i][0] * scale[0]) + translate[0];
     const y = (vertices[i][1] * scale[1]) + translate[1];
@@ -213,7 +213,7 @@ function parseSurfacesWithOwnMaterials(ctx: any, surfaceMaterials: any, surfaces
           z: vertices[sharedIndices[face[k]]][2]
         });
       }
-      const normal = getNormalOfPositions(pList, createVec3());
+      const normal = getNormalOfPositions(pList, createVec3Float64());
       // Convert to 2D
       const pv = [];
       for (let k = 0; k < pList.length; k++) {
@@ -330,7 +330,7 @@ function parseSurfacesWithSharedMaterial(ctx: any, surfaces: any, sharedIndices:
           z: vertices[sharedIndices[boundary[k]]][2]
         });
       }
-      const normal = getNormalOfPositions(pList, createVec3());
+      const normal = getNormalOfPositions(pList, createVec3Float64());
       const pv = [];
       for (let k = 0; k < pList.length; k++) {
         to2D(pList[k], normal, tempVec2a);
@@ -399,12 +399,12 @@ function to2D(_p: any, _n: any, re: any) {
     x3[2] += 3.0;
   }
   const dot = dotVec3(x3, n);
-  const tmp2 = mulVec3Scalar(n, dot, createVec3());
+  const tmp2 = mulVec3Scalar(n, dot, createVec3Float64());
   x3[0] -= tmp2[0];
   x3[1] -= tmp2[1];
   x3[2] -= tmp2[2];
   normalizeVec3(x3);
-  const y3 = cross3Vec3(n, x3, createVec3());
+  const y3 = cross3Vec3(n, x3, createVec3Float64());
   const x = dotVec3(p, x3);
   const y = dotVec3(p, y3);
   re[0] = x;

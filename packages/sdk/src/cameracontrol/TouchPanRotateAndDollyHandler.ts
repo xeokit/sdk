@@ -1,4 +1,4 @@
-import {createVec2, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../matrix";
+import {createVec2Float64, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../matrix";
 import {PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
 import {getSceneAABBIndex, SceneAABB3Index} from "../aabb/SceneAABB3Index";
@@ -42,10 +42,10 @@ class TouchPanRotateAndDollyHandler {
     const pickController = controllers.pickController;
     const pivotController = controllers.pivotController;
 
-    const tapStartCanvasPos = createVec2();
-    const tapCanvasPos0 = createVec2();
-    const tapCanvasPos1 = createVec2();
-    const touch0Vec = createVec2();
+    const tapStartCanvasPos = createVec2Float64();
+    const tapCanvasPos0 = createVec2Float64();
+    const tapCanvasPos1 = createVec2Float64();
+    const touch0Vec = createVec2Float64();
 
     const lastCanvasTouchPosList = [];
     const canvas = this.#view.htmlElement;
@@ -117,7 +117,7 @@ class TouchPanRotateAndDollyHandler {
       }
 
       while (lastCanvasTouchPosList.length < touches.length) {
-        lastCanvasTouchPosList.push(createVec2());
+        lastCanvasTouchPosList.push(createVec2Float64());
       }
 
       for (let i = 0, len = touches.length; i < len; ++i) {
@@ -235,7 +235,7 @@ class TouchPanRotateAndDollyHandler {
         const lastMiddleTouch = geometricMeanVec2(lastCanvasTouchPosList[0], lastCanvasTouchPosList[1]);
         const currentMiddleTouch = geometricMeanVec2(<any>tapCanvasPos0, <any>tapCanvasPos1);
 
-        const touchDelta = createVec2();
+        const touchDelta = createVec2Float64();
 
         subVec2(lastMiddleTouch, currentMiddleTouch, touchDelta);
 

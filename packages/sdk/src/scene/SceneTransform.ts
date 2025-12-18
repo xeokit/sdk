@@ -1,9 +1,8 @@
-import {createMat4, identityMat4, inverseMat4, mulMat4} from "../matrix";
-import type {FloatArrayParam} from "../math";
+import {createMat4Float64, type Mat4, identityMat4, inverseMat4, mulMat4} from "../matrix";
+
 import type {SceneTransformParams} from "./SceneTransformParams";
-import {SceneModel} from "./SceneModel";
-import {SceneMesh} from "./SceneMesh";
-import {SDKErrorType} from "../core";
+import type {SceneModel} from "./SceneModel";
+import type {SceneMesh} from "./SceneMesh";
 
 /**
  * A transform within a {@link SceneModel | SceneModel}.
@@ -23,10 +22,10 @@ export class SceneTransform {
   readonly model: SceneModel;
 
   /** Local transformation matrix */
-  private _localMatrix: FloatArrayParam;
+  private _localMatrix: Mat4;
 
   /** Global transformation matrix */
-  _globalMatrix: FloatArrayParam;
+  _globalMatrix: Mat4;
 
   /** Flag indicating if the transform is dirty and needs updating */
   private _dirty: boolean = true;
@@ -53,15 +52,15 @@ export class SceneTransform {
   constructor(model: SceneModel, transformParams: SceneTransformParams) {
     this.id = transformParams.id;
     this.model = model;
-    this._localMatrix = transformParams.matrix ? createMat4(transformParams.matrix) : identityMat4();
-    this._globalMatrix = createMat4();
+    this._localMatrix = transformParams.matrix ? createMat4Float64(transformParams.matrix) : identityMat4();
+    this._globalMatrix = createMat4Float64();
   }
 
   /**
    * Sets the local transformation matrix.
    * @param matrix - The new local matrix.
    */
-  set matrix(matrix: FloatArrayParam) {
+  set matrix(matrix: Mat4) {
     if (matrix) {
       // @ts-ignore
       this._localMatrix.set(matrix);
@@ -76,7 +75,7 @@ export class SceneTransform {
    * Gets the local transformation matrix.
    * @returns The local matrix.
    */
-  get matrix(): FloatArrayParam {
+  get matrix(): Mat4 {
     return this._localMatrix;
   }
 
@@ -85,7 +84,7 @@ export class SceneTransform {
    * Updates the global matrix if necessary.
    * @returns The global matrix.
    */
-  get globalMatrix(): FloatArrayParam {
+  get globalMatrix(): Mat4 {
     this._updateGlobal();
     return this._globalMatrix;
   }
@@ -162,10 +161,10 @@ export class SceneTransform {
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
       this._updateGlobal();
-      const currentWorld = createMat4(this._globalMatrix);
+      const currentWorld = createMat4Float64(this._globalMatrix);
       this._attachParentTransform(next);
       if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4());
+        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
         mulMat4(this._localMatrix, invParent, currentWorld);
       } else {
         // @ts-ignore

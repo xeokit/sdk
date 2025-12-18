@@ -1,5 +1,5 @@
 
-import { createMat4, identityMat4, inverseMat4, mulMat4 } from "../matrix";
+import { createMat4Float64, identityMat4, inverseMat4, mulMat4 } from "../matrix";
 import type { FloatArrayParam } from "../math";
 import type { ViewTransformParams } from "./ViewTransformParams";
 import {ViewObject} from "./ViewObject";
@@ -52,8 +52,8 @@ export class ViewTransform {
   constructor(model: SceneModel, transformParams: ViewTransformParams) {
     this.id = transformParams.id;
     this.model = model;
-    this._localMatrix = transformParams.matrix ? createMat4(transformParams.matrix) : identityMat4();
-    this._globalMatrix = createMat4();
+    this._localMatrix = transformParams.matrix ? createMat4Float64(transformParams.matrix) : identityMat4();
+    this._globalMatrix = createMat4Float64();
   }
 
   /**
@@ -163,10 +163,10 @@ export class ViewTransform {
     const preserve = !!opts?.preserveWorld;
     if (preserve) {
       this._updateGlobal();
-      const currentWorld = createMat4(this._globalMatrix);
+      const currentWorld = createMat4Float64(this._globalMatrix);
       this._attachParentTransform(next);
       if (this._parentTransform) {
-        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4());
+        const invParent = inverseMat4(this._parentTransform._globalMatrix, createMat4Float64());
         mulMat4(this._localMatrix, invParent, currentWorld);
       } else {
         // @ts-ignore
@@ -240,7 +240,7 @@ export class ViewTransform {
    * Converts the transform to its parameter representation.
    * @returns The transform parameters.
    */
-  toParams(): SDKResult<ViewTransformParams, never> {
+  toParams(): SDKResult<ViewTransformParams> {
     const transformParams: ViewTransformParams = {
       id: this.id,
       matrix: Array.from(this._localMatrix),

@@ -1,4 +1,3 @@
-import type {FloatArrayParam} from "../math";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import type {SceneGeometryParams} from "./SceneGeometryParams";
 import type {SceneMeshParams} from "./SceneMeshParams";
@@ -7,7 +6,7 @@ import type {SceneTextureParams} from "./SceneTextureParams";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 import type {CoordinateSystemParams} from "./CoordinateSystemParams";
 import {SceneTransform} from "./SceneTransform";
-
+import type  {Mat4, Quat, Vec3} from "../matrix";
 
 /**
  * Parameters for a {@link SceneModel}.
@@ -43,29 +42,29 @@ export interface SceneModelParams {
   /**
    * 4x4 transform matrix.
    */
-  matrix?: FloatArrayParam;
+  matrix?: Mat4;
 
   /**
    * Scale of the SceneModel.
    *
    * Default is ````[1,1,1]````.
    */
-  scale?: FloatArrayParam;
+  scale?: Vec3;
 
   /**
    * Quaternion defining the orientation of the SceneModel.
    */
-  quaternion?: FloatArrayParam;
+  quaternion?: Quat;
 
   /**
    * Orientation of the SceneModel, given as Euler angles in degrees for X, Y and Z axis.
    */
-  rotation?: FloatArrayParam;
+  rotation?: Vec3;
 
   /**
    * World-space position of the SceneModel.
    */
-  position?: FloatArrayParam;
+  position?: Vec3;
 
   /**
    * Parameters for {@link SceneTransform  | SceneTransforms} in the {@link SceneModel | SceneModel}.

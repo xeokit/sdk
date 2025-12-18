@@ -1,7 +1,7 @@
 import {type PickParams, PickResult} from "../../../viewer";
 import {SDKInternalException, type SDKResult} from "../../../core";
 import {
-  addVec3, createMat4, createVec2, createVec3, createVec4,
+  addVec3, createMat4Float64, createVec2Float64, createVec3Float64, createVec4Float64,
   cross3Vec3, dotVec4,
   inverseMat4,
   lookAtMat4v,
@@ -16,33 +16,33 @@ import {createRTCViewMat} from "../../../rtc";
 import {RendererMesh} from "../meshManager/RendererMesh";
 import {RenderContext} from "../RenderContext";
 import {RenderBuffers} from "../RenderBuffers";
-import {type GPUMemoryReader} from "../gpuMemoryManager/type GPUMemoryReader";
+import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {MeshManager} from "../meshManager/MeshManager";
 import {ViewManager} from "../ViewManager";
 import {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
 import {SceneMesh} from "../../../scene";
 
-const tempVec3a = createVec3();
-const tempVec3b = createVec3();
-const tempVec3c = createVec3();
+const tempVec3a = createVec3Float64();
+const tempVec3b = createVec3Float64();
+const tempVec3c = createVec3Float64();
 
-const tempVec4a = createVec4();
-const tempVec4b = createVec4();
-const tempVec4c = createVec4();
-const tempVec4d = createVec4();
-const tempVec4e = createVec4();
+const tempVec4a = createVec4Float64();
+const tempVec4b = createVec4Float64();
+const tempVec4c = createVec4Float64();
+const tempVec4d = createVec4Float64();
+const tempVec4e = createVec4Float64();
 
-const tempMat4a = createMat4();
-const tempMat4b = createMat4();
-const tempMat4c = createMat4();
+const tempMat4a = createMat4Float64();
+const tempMat4b = createMat4Float64();
+const tempMat4c = createMat4Float64();
 
 const pickTemps = {
-  pickCanvasPos: createVec2(),
-  pickWorldRayDir: createVec3(),
-  pickWorldRayOrigin: createVec3(),
-  pickViewMatrix: createMat4(),
-  pickProjMatrix: createMat4()
+  pickCanvasPos: createVec2Float64(),
+  pickWorldRayDir: createVec3Float64(),
+  pickWorldRayOrigin: createVec3Float64(),
+  pickViewMatrix: createMat4Float64(),
+  pickProjMatrix: createMat4Float64()
 };
 
 /**
@@ -74,8 +74,12 @@ export class PickManager {
   /**
    *
    */
-  init() : SDKResult<null>{
-    return {ok: true, result: null};
+  init() : SDKResult<void>{
+    const drawOpsResult = getDrawOps(this._renderContext, this._gpuMemoryManager as GPUMemoryReader);
+    if (drawOpsResult.ok === false) {
+      return drawOpsResult;
+    }
+    return {ok: true, value: undefined};
   }
 
   /**

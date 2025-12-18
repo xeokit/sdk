@@ -1,20 +1,21 @@
 import {
-  createMat4,
-  createVec4,
+  createMat4Float64,
+  createVec4Float64,
   transformPoint4,
-  subVec3
+  subVec3,
+  type Mat4, Vec3, identityMat4
 } from "../../../matrix";
 import type {FloatArrayParam} from "../../../math";
 import type {MeshBatchImpl} from "./MeshBatchImpl";
 import type {RenderContext} from "../RenderContext";
 import {type SceneMesh} from "../../../scene";
 import {type Tile} from "../gpuMemoryManager/Tile";
-import {type GPUMemoryEditor} from "../gpuMemoryManager/GPUMemoryEditor";
+import {type GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 import {type MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
 
-const tempIdentityMat4 = createMat4();
-const identityVec4 = createVec4([0, 0, 0, 1]);
-const tempVec4a = createVec4();
+const tempIdentityMat4 = identityMat4(createMat4Float64());
+const identityVec4 = createVec4Float64([0, 0, 0, 1]);
+const tempVec4a = createVec4Float64();
 
 const NUM_VIEWS = 4;
 
@@ -32,7 +33,7 @@ export class RendererMesh {
   private readonly _sceneMesh: SceneMesh;
   private readonly _meshBatch: MeshBatchImpl;
   private readonly _meshHandle: MeshBatchMeshHandle;
-  private readonly _gpuMemoryEditor: GPUMemoryEditor;
+  private readonly _gpuMemoryManager: GPUMemoryManager;
   private readonly _viewStates: {
     colorize: [number, number, number, number];
     colorizing: boolean;
@@ -46,20 +47,20 @@ export class RendererMesh {
                 sceneMesh,
                 meshBatch,
                 renderContext,
-                gpuMemoryEditor,
+                gpuMemoryManager,
                 meshHandle
               }: {
     sceneMesh: SceneMesh;
     meshBatch: MeshBatchImpl;
     renderContext: RenderContext;
-    gpuMemoryEditor: GPUMemoryEditor;
+    gpuMemoryManager: GPUMemoryManager;
     meshHandle: MeshBatchMeshHandle;
   }) {
 
     this._renderContext = renderContext;
     this._sceneMesh = sceneMesh;
     this._meshBatch = meshBatch;
-    this._gpuMemoryEditor = gpuMemoryEditor;
+    this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
     this.tile = null;
 
@@ -84,22 +85,23 @@ export class RendererMesh {
    * Sets the transformation matrix for the mesh.
    * Triggered by SceneMesh.globalMatrix setter.
    */
-  setMatrix(matrix: FloatArrayParam): void {
+  setMatrix(matrix: Mat4): void {
     matrix = matrix || tempIdentityMat4;
-    const center = transformPoint4(matrix, identityVec4, tempVec4a);
+    const center:Vec3 = <Vec3>transformPoint4(matrix, identityVec4, tempVec4a);
     const oldTile = this.tile;
     this.tile = oldTile
-      ? this._gpuMemoryEditor.moveTile(oldTile, center)
-      : this._gpuMemoryEditor.getTile(center);
+      ? this._gpuMemoryManager.moveTile(oldTile, center)
+      : this._gpuMemoryManager.getTile(center);
     const tileChanged = !oldTile || oldTile.id !== this.tile.id;
     if (tileChanged) {
       this._meshBatch.setMeshTile(this._meshHandle, this.tile.tileIndex);
     }
     const tileCenter = this.tile.center;
-    const relativeMatrix = createMat4(matrix);
+    const relativeMatrix = createMat4Float64(matrix);
     // const worldOrigin = matrix.slice(12, 15); // translation xyz
     // const origin = [];
     //worldToRTCPositions(worldOrigin, worldOrigin, origin);
+    // @ts-ignore
     relativeMatrix.set(subVec3(center, tileCenter), 12);
     //relativeMatrix.set(worldOrigin, 12);
     this._meshBatch.setMeshMatrix(this._meshHandle, relativeMatrix);
@@ -232,7 +234,7 @@ export class RendererMesh {
   destroy() {
     this._meshBatch.removeMesh(this._meshHandle);
     if (this.tile) {
-      this._gpuMemoryEditor.putTile(this.tile);
+      this._gpuMemoryManager.putTile(this.tile);
     }
   }
 }

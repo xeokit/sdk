@@ -1,5 +1,5 @@
 import {Scene} from "./Scene";
-import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
+import {EventEmitter, type SDKResult} from "../core";
 import {SceneModel} from "./SceneModel";
 import {SceneObject} from "./SceneObject";
 import {SceneMesh} from "./SceneMesh";

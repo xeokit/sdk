@@ -12,7 +12,7 @@ import {
   RepeatWrapping,
   TrianglesPrimitive
 } from "../constants";
-import {createMat4, identityMat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "../matrix";
+import {createMat4Float64, identityMat4, Mat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "../matrix";
 import {createUUID, isString} from "../utils";
 import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 import type {ModelLoadParams} from "../io";
@@ -523,7 +523,7 @@ function parseNodeMatrix(node, matrix) {
   if (node.matrix) {
     localMatrix = node.matrix;
     if (matrix) {
-      matrix = mulMat4(matrix, localMatrix, createMat4());
+      matrix = mulMat4(matrix, localMatrix, createMat4Float64());
     } else {
       matrix = localMatrix;
     }
@@ -531,7 +531,7 @@ function parseNodeMatrix(node, matrix) {
   if (node.translation) {
     localMatrix = translationMat4v(node.translation);
     if (matrix) {
-      matrix = mulMat4(matrix, localMatrix, createMat4());
+      matrix = mulMat4(matrix, localMatrix, createMat4Float64());
     } else {
       matrix = localMatrix;
     }
@@ -539,7 +539,7 @@ function parseNodeMatrix(node, matrix) {
   if (node.rotation) {
     localMatrix = quatToMat4(node.rotation);
     if (matrix) {
-      matrix = mulMat4(matrix, localMatrix, createMat4());
+      matrix = mulMat4(matrix, localMatrix, createMat4Float64());
     } else {
       matrix = localMatrix;
     }
@@ -547,7 +547,7 @@ function parseNodeMatrix(node, matrix) {
   if (node.scale) {
     localMatrix = scalingMat4v(node.scale);
     if (matrix) {
-      matrix = mulMat4(matrix, localMatrix, createMat4());
+      matrix = mulMat4(matrix, localMatrix, createMat4Float64());
     } else {
       matrix = localMatrix;
     }
@@ -555,7 +555,7 @@ function parseNodeMatrix(node, matrix) {
   return matrix;
 }
 
-function parseMesh(node: any, ctx: ParsingContext, matrix: FloatArrayParam, meshIds: string[]) {
+function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string[]) {
 
   if (node.mesh) {
 
@@ -626,7 +626,7 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: FloatArrayParam, mesh
       const meshParams: SceneMeshParams = {
         id: meshId,
         geometryId,
-        matrix: matrix ? matrix.slice() : identityMat4(),
+        matrix: matrix ? createMat4Float64(matrix) : identityMat4(createMat4Float64()),
         textureSetId: undefined
       };
       const material = primitive.material;

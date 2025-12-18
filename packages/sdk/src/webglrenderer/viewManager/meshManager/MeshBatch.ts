@@ -1,6 +1,6 @@
 
 import {type SceneMesh} from "../../../scene";
-import {RENDER_PASSES} from "../RENDER_PASSES";
+import {type RenderPassValue} from "../RENDER_PASSES";
 
 /**
  * A MeshBatch represents a collection of meshes that share the same rendering properties and can be rendered together
@@ -59,6 +59,6 @@ export interface MeshBatch {
    * @param viewIndex
    * @param renderPass
    */
-  hasMeshesInRenderPass(viewIndex: number, renderPass: RENDER_PASSES ): boolean;
+  hasMeshesInRenderPass(viewIndex: number, renderPass: RenderPassValue ): boolean;
 }
 

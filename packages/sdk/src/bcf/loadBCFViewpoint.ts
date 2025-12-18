@@ -1,19 +1,18 @@
-import {addVec3, createVec3, negateVec3, subVec3} from "../matrix";
+import {addVec3, createVec3Float64, Vec3Float, negateVec3, subVec3} from "../matrix";
 import {IfcOpeningElement, IfcSpace} from "../ifctypes";
 import {OrthoProjectionType, PerspectiveProjectionType} from "../constants";
 import {BasicAggregation} from "../basictypes";
 import type {BCFComponent} from "./BCFComponent";
 import type {BCFVector} from "./BCFVector";
 import type {DataObject} from "../data";
-import type {FloatArrayParam} from "../math";
 import type {LoadBCFViewpointParams} from "./LoadBCFViewpointParams";
 import {PickResult, ViewObject} from "../viewer";
 import {searchObjects} from "../data";
 
-const tempVec3 = createVec3();
-const tempVec3a = createVec3();
-const tempVec3b = createVec3();
-const tempVec3c = createVec3();
+const tempVec3 = createVec3Float64();
+const tempVec3a = createVec3Float64();
+const tempVec3b = createVec3Float64();
+const tempVec3c = createVec3Float64();
 
 /**
  * Loads a {@link BCFViewpoint | BCFViewpoint} into a {@link viewer!View | View}.
@@ -34,7 +33,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
   const rayCast = (!!params.rayCast);
   const reset = (params.reset !== false);
   //const realWorldOffset = scene.realWorldOffset;
-  const realWorldOffset = createVec3();
+  const realWorldOffset = createVec3Float64();
   const reverseClippingPlanes = (params.reverseClippingPlanes === true);
   const bcfViewpoint = params.bcfViewpoint;
 
@@ -52,7 +51,10 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
         pos = ZToY(pos);
         dir = ZToY(dir);
       }
-      view.createSectionPlane({pos, dir});
+      view.createSectionPlane({
+        pos,
+        dir
+      });
     });
   }
 
@@ -378,13 +380,13 @@ function globalizeObjectId(modelId: string, objectId: string): string {
   return (modelId + "#" + objectId)
 }
 
-function xyzObjectToArray(xyz: BCFVector, arry: FloatArrayParam): FloatArrayParam {
+function xyzObjectToArray(xyz: BCFVector, arry: Vec3Float): Vec3Float {
   arry[0] = xyz.x;
   arry[1] = xyz.y;
   arry[2] = xyz.z;
   return arry;
 }
 
-function ZToY(vec: FloatArrayParam): FloatArrayParam {
-  return new Float64Array([vec[0], vec[2], -vec[1]]);
+function ZToY(vec: Vec3Float): Vec3Float {
+  return createVec3Float64([vec[0], vec[2], -vec[1]]);
 }

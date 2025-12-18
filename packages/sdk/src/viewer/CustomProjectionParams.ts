@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "../math";
+import {Mat4} from "../matrix";
 
 /**
  * Parameters for a {@link CustomProjection}.
@@ -14,5 +14,5 @@ export interface CustomProjectionParams {
    *
    * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
    */
-  projMatrix?: FloatArrayParam;
+  projMatrix?: Mat4;
 }

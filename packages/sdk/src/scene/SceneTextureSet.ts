@@ -1,7 +1,6 @@
 import type {SceneTexture} from "./SceneTexture";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
-import {SceneModel} from "./SceneModel";
-import {SDKErrorType} from "../core";
+import type {SceneModel} from "./SceneModel";
 
 /**
  * A set of {@link SceneTexture | Textures} in a {@link SceneModel | SceneModel}.

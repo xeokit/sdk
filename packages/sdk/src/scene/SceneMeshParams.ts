@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "../math";
+import type  {Mat4, Quat, Vec3, Vec3Float, Vec4} from "../matrix";
 
 /**
  * Parameters for a {@link SceneMesh}.
@@ -35,14 +35,14 @@ export interface SceneMeshParams {
    *
    * * Default is ````[1,1,1]````.
    */
-  color?: FloatArrayParam;
+  color?: Vec3Float;
 
   /**
    * RGB pick color of the new {@link SceneMesh}.
    *
    * This is used internally within {@link SceneModel | SceneModel}.
    */
-  pickColor?: FloatArrayParam;
+  pickColor?: Vec4;
 
   /**
    * Opacity of the new {@link SceneMesh}.
@@ -54,22 +54,22 @@ export interface SceneMeshParams {
   /**
    * Optional local 3D translation vector.
    */
-  position?: FloatArrayParam;
+  position?: Vec3;
 
   /**
    * Optional local 3D scale vector.
    */
-  scale?: FloatArrayParam;
+  scale?: Vec3;
 
   /**
    * Optional local 3D rotation quaternion.
    */
-  quaternion?: FloatArrayParam;
+  quaternion?: Quat;
 
   /**
    * Optional local 3D rotation as Euler angles given in degrees, for each of the X, Y and Z axis.
    */
-  rotation?: FloatArrayParam;
+  rotation?: Vec3;
 
   /**
    * Optional local 3D transform matrix.
@@ -78,12 +78,12 @@ export interface SceneMeshParams {
    * {@link SceneMeshParams.quaternion | SceneMeshParams.quaternion}
    * and {@link SceneMeshParams.rotation | SceneMeshParams.rotation}.
    */
-  matrix?: FloatArrayParam;
+  matrix?: Mat4;
 
   /**
    * Relative-to-center (RTC) origin.
    *
    * When this is given, then {@link SceneMeshParams.matrix | SceneMeshParams.matrix} will be relative to this origin.
    */
-  origin?: FloatArrayParam;
+  origin?: Vec3;
 }

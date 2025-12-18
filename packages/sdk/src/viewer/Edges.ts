@@ -1,8 +1,8 @@
 import type {EdgesParams} from "./EdgesParams";
-import type {FloatArrayParam} from "../math";
 import {QualityRender} from "../constants";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../core";
+import {createVec3Float64, Vec3Float} from "../matrix";
 
 
 /**
@@ -21,7 +21,7 @@ class Edges {
      */
     public readonly view: View;
 
-    private _edgeColor: FloatArrayParam;
+    private _edgeColor: Vec3Float;
     private _edgeWidth: number;
     private _edgeAlpha: number;
     private _renderModes: number[];
@@ -35,7 +35,7 @@ class Edges {
         this.view = view;
 
         this._renderModes = options.renderModes || [QualityRender];
-        this._edgeColor = new Float32Array(options.edgeColor || [0.2, 0.2, 0.2]);
+        this._edgeColor = createVec3Float64(options.edgeColor || [0.2, 0.2, 0.2]);
         this._edgeAlpha = (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.5;
         this._edgeWidth = (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1;
     }
@@ -68,7 +68,7 @@ class Edges {
      *
      * Default value is ````[0.2, 0.2, 0.2]````.
      */
-    set edgeColor(value: FloatArrayParam) {
+    set edgeColor(value: Vec3Float) {
       if (!value || value.length < 3) {
         this.view.viewer.logError({
           ok: false,
@@ -91,7 +91,7 @@ class Edges {
      *
      * Default value is ````[0.2, 0.2, 0.2]````.
      */
-    get edgeColor(): FloatArrayParam {
+    get edgeColor(): Vec3Float {
         return this._edgeColor;
     }
 

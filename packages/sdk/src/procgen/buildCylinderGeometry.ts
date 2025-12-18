@@ -1,8 +1,8 @@
-import * as utils from "../utils";
-import type {FloatArrayParam} from "../math";
+
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";
 import {SDKErrorType, type SDKResult} from "../core";
+import type {Vec3} from "../matrix";
 
 /**
  * Creates a cylinder-shaped geometry.
@@ -42,7 +42,7 @@ import {SDKErrorType, type SDKResult} from "../core";
  * @returns {SDKResult<GeometryArrays>} The geometry arrays for the cylinder, including positions, normals, UVs, and indices, or an error message.
  */
 export function buildCylinderGeometry(cfg: {
-    center?: FloatArrayParam;
+    center?: Vec3;
     radiusTop?: number;
     radiusBottom?: number;
     height?: number;

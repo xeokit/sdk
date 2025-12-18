@@ -1,11 +1,11 @@
 import {WebGLArrayBuf, WebGLProgram} from "../../../webglutils";
 import type {WebGLAttribute, WebGLRenderBuffer} from "../../../webglutils";
-import {createVec2} from "../../../matrix";
+import {createVec2Float64} from "../../../matrix";
 import {PerspectiveProjectionType} from "../../../constants";
 import type {RenderContext} from "../RenderContext";
 import type {View} from "../../../viewer";
 
-const tempVec2 = createVec2();
+const tempVec2 = createVec2Float64();
 
 /**
  * @private

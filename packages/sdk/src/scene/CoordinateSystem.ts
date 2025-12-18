@@ -1,9 +1,9 @@
 
 import {type FloatArrayParam} from "../math";
 import {type CoordinateSystemParams} from "./CoordinateSystemParams";
-import {Scene} from "./Scene";
-import {SceneModel} from "./SceneModel";
-import {createVec3, testOrthogonalAxis} from "../matrix";
+import  {Scene} from "./Scene";
+import type {SceneModel} from "./SceneModel";
+import {createVec3Float64, createVec9, type Vec3, type Vec9, testOrthogonalAxis} from "../matrix";
 import {SDKErrorType} from "../core";
 
 
@@ -26,13 +26,13 @@ export class CoordinateSystem  {
 
     private _scene: Scene;
     private _model: SceneModel;
-    private _basis: FloatArrayParam;
-    private _origin: FloatArrayParam;
+    private _basis: Vec9;
+    private _origin: Vec3;
     private _units: 'meters' | 'millimeters' | 'inches' | 'feet';
     private _scaleToMeters?: number;
-    private _worldUp: FloatArrayParam;
-    private _worldRight: FloatArrayParam;
-    private _worldForward: FloatArrayParam;
+    private _worldUp: Vec3;
+    private _worldRight: Vec3;
+    private _worldForward: Vec3;
 
     /**
      * True if this CoordinateSystem has been destroyed.
@@ -48,12 +48,12 @@ export class CoordinateSystem  {
         } else {
             this._model = parent;
         }
-        this._origin = new Float64Array(<any>params?.origin || [0, 0, 0]);
+        this._origin = createVec3Float64(<any>params?.origin || [0, 0, 0]);
         this._units = params?.units || "meters";
         this._scaleToMeters = params?.scaleToMeters || 1;
-        this._worldUp = createVec3();
-        this._worldRight = createVec3();
-        this._worldForward = createVec3();
+        this._worldUp = createVec3Float64();
+        this._worldRight = createVec3Float64();
+        this._worldForward = createVec3Float64();
 
         this.basis = params?.basis;
     }
@@ -79,7 +79,7 @@ export class CoordinateSystem  {
      * Sets the flat 9-element coordinate system basis (column-major).
      * Emits event on change, via `Scene.events.coordSystemBasis` or `SceneModel.events.modelCoordSystemBasis`.
      */
-    set basis(value: FloatArrayParam) {
+    set basis(value: Vec9) {
         if (this.destroyed) {
              (this._scene||this._model.scene).logError({
                 ok: false,
@@ -104,7 +104,7 @@ export class CoordinateSystem  {
             });
             return;
         }
-        this._basis = new Float32Array(<any>value || [
+        this._basis = createVec9(<any>value || [
             1, 0, 0, // Right
             0, 0, 1, // Up
             0, 1, 0 // Forward
@@ -125,7 +125,7 @@ export class CoordinateSystem  {
     }
 
     /** Gets the origin of the coordinate system in global space. */
-    get origin(): FloatArrayParam {
+    get origin(): Vec3 {
         return this._origin;
     }
 
@@ -133,7 +133,7 @@ export class CoordinateSystem  {
      * Sets the origin of the coordinate system in global space.
      * Emits event on change, via `Scene.events.coordSystemOrigin` or `SceneModel.events.modelCoordSystemOrigin`.
      */
-    set origin(value: FloatArrayParam) {
+    set origin(value: Vec3) {
         if (this.destroyed) {
             (this._scene||this._model.scene).logError({
                 ok: false,
@@ -142,7 +142,7 @@ export class CoordinateSystem  {
             });
             return;
         }
-        this._origin = new Float32Array(<any>value);
+        this._origin = createVec3Float64(value);
         (this._model)
             ? this._model.scene.events.onSceneModelCoordSystemOriginChanged.dispatch(this._model, this)
             :  this._scene.events.onSceneCoordSystemOriginChanged.dispatch(this._scene, this);
@@ -224,7 +224,7 @@ export class CoordinateSystem  {
      *
      * @returns {Number[]} The "up" vector.
      */
-    get worldUp(): FloatArrayParam {
+    get worldUp(): Vec3 {
         return this._worldUp;
     }
 
@@ -237,7 +237,7 @@ export class CoordinateSystem  {
      *
      * @returns {Number[]} The "right" vector.
      */
-    get worldRight(): FloatArrayParam {
+    get worldRight(): Vec3 {
         return this._worldRight;
     }
 
@@ -250,7 +250,7 @@ export class CoordinateSystem  {
      *
      * @returns {Number[]} The "forwards" vector.
      */
-    get worldForward(): FloatArrayParam {
+    get worldForward(): Vec3 {
         return this._worldForward;
     }
 
@@ -302,8 +302,8 @@ export class CoordinateSystem  {
             });
              return;
         }
-        this._basis = new Float32Array(params.basis);
-        this._origin = new Float64Array(params.origin);
+        this._basis = createVec9(params.basis);
+        this._origin = createVec3Float64(params.origin);
         this._units = params.units;
         this._scaleToMeters = params.scaleToMeters;
         this.#notifyUpdated();

@@ -7,7 +7,7 @@ import {
   mulVec3Scalar,
   normalizeVec3,
   subVec3
-} from "../../../matrix";
+} from "../../../math";
 // @ts-ignore
 import {BasicAggregation} from "../../../basictypes";
 import {earcut} from './earcut';

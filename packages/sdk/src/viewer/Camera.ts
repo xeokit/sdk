@@ -15,7 +15,7 @@ import {
   subVec3,
   transformPoint3,
   transposeMat4
-} from "../matrix";
+} from "../math";
 import {SDKErrorType, type SDKResult} from "../core";
 import {
   CustomProjectionType,

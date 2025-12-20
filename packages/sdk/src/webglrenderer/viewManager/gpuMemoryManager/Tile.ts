@@ -1,4 +1,4 @@
-import type {Mat4, Vec3} from "../../../matrix";
+import type {Mat4, Vec3} from "../../../math";
 
 /**
  * Represents a single tile in a tiled coordinate system.

@@ -1,4 +1,4 @@
-import {Vec3Float} from "../matrix";
+import {type Vec3Float} from "../math";
 
 /**
  * Parameters for a {@link SectionPlane}.
@@ -19,7 +19,7 @@ export interface SectionPlaneParams {
    *
    * Default value is ````[0, 0, 0]````.
    */
-  pos?: Vec3Float;
+  pos?: Vec3;
 
   /**
    * 3D direction of the {@link SectionPlane}.
@@ -28,7 +28,7 @@ export interface SectionPlaneParams {
    *
    * Default value is `[0.0, 0.0, -1.0]`.
    */
-  dir?: Vec3Float;
+  dir?: Vec3;
 
   /**
    * Whether the {@link SectionPlane} is active or not.

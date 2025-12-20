@@ -8,7 +8,7 @@ import {
   mulVec3Scalar,
   normalizeVec3,
   subVec3
-} from "../matrix";
+} from "../math";
 import type {Camera} from "../viewer";
 import { View} from "../viewer";
 import {EventEmitter, SDKTask} from "../core";

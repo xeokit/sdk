@@ -2,7 +2,7 @@ import type {FloatArrayParam} from "../math";
 import type {PointLightParams} from "./PointLightParams";
 import type {View} from "./View";
 import {createUUID} from "../utils";
-import {createVec3Float64, Vec3Float} from "../matrix";
+import {createVec3Float64, Vec3Float} from "../math";
 
 /**
  * A positional light source within a {@link View}.

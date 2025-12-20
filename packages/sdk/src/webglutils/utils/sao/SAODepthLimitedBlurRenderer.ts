@@ -1,5 +1,5 @@
 // import {CustomProjection, View} from "@xeokit/viewer";
-// import {inverseMat4, createMat4} from "@xeokit/matrix";
+// import {inverseMat4, createMat4} from "@xeokit/math";
 // import {WebGLArrayBuf, WebGLAttribute, WebGLProgram, WebGLRenderBuffer, WEBGL_INFO} from "@xeokit/webglutils";
 //
 //

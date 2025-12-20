@@ -4,7 +4,7 @@ import type {FloatArrayParam} from "../math";
 import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneMesh} from "./SceneMesh";
 import type {SceneObject} from "./SceneObject";
-import {transformPositions3} from "../matrix";
+import {transformPositions3} from "../math";
 
 /**
  * The {@link getSceneObjectGeometry} passes an instance of GeometryView to its callback

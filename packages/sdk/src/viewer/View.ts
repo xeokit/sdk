@@ -5,7 +5,7 @@ import type {SceneObject} from "../scene";
 import {AmbientLight} from "./AmbientLight";
 import {Camera} from "./Camera";
 import {createUUID} from "../utils";
-import {createVec3Float64} from "../matrix";
+import {createVec3Float64} from "../math";
 import {DirLight} from "./DirLight";
 import {Edges} from "./Edges";
 import {EmphasisMaterial} from "./EmphasisMaterial";

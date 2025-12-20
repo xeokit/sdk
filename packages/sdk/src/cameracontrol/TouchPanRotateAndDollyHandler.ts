@@ -1,4 +1,4 @@
-import {createVec2Float64, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../matrix";
+import {createVec2Float64, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../math";
 import {PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
 import {getSceneAABBIndex, SceneAABB3Index} from "../aabb/SceneAABB3Index";

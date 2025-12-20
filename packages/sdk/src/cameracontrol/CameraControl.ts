@@ -26,7 +26,7 @@ import type {PickResult, View} from "../viewer";
 import type {CameraControlParams} from "./CameraControlParams";
 import {CameraFlightAnimation} from "../cameraflight";
 import {CameraUpdater} from "./CameraUpdater";
-import {createVec2Float64, Vec3Float} from "../matrix";
+import {createVec2Float64, type Vec3} from "../math";
 import {EventDispatcher} from "strongly-typed-events";
 import {isString} from "../utils";
 import {KeyboardAxisViewHandler} from "./KeyboardAxisViewHandler";
@@ -569,7 +569,7 @@ export class CameraControl {
   }
 
   /**
-   * Sets the HTMl element to represent the pivot point when {@link CameraControl_followPointer} is true.
+   * Sets the HTMl element to represent the pivot point when {@link CameraControl.followPointer} is true.
    *
    * See class comments for an example.
    */
@@ -795,7 +795,7 @@ export class CameraControl {
    *
    * @param worldPos The new World-space 3D target position.
    */
-  set pivotPos(worldPos: Vec3Float) {
+  set pivotPos(worldPos: Vec3) {
     this._controllers.pivotController.setPivotPos(worldPos);
   }
 
@@ -806,7 +806,7 @@ export class CameraControl {
    *
    * @return  worldPos The current World-space 3D pivot position.
    */
-  get pivotPos(): Vec3Float {
+  get pivotPos(): Vec3 {
     return this._controllers.pivotController.getPivotPos();
   }
 

@@ -1,4 +1,4 @@
-import {createMat4Float64, createVec4Float64, Mat4, transformPoint4} from "../matrix";
+import {createMat4Float64, createVec4Float64, Mat4, transformPoint4} from "../math";
 import type {SceneObject} from "../scene";
 import {type GeometryView, getSceneObjectGeometry} from "../scene";
 import {

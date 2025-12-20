@@ -1,5 +1,5 @@
 
-import type {Mat4, Quat, Vec3} from "../matrix";
+import type {Mat4, Quat, Vec3} from "../math";
 
 /**
  * Parameters for a {@link SceneTransform}.

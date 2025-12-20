@@ -1,4 +1,4 @@
-import {Vec3Float} from "../matrix";
+import {Vec3Float} from "../math";
 
 /**
  * Parameters for a View's edge enhancement effect, {@link Edges}.

@@ -1,7 +1,7 @@
 import {type ModelEncodeParams, ModelExporter} from "../io";
 import {Document, type mat4, WebIO,} from '@gltf-transform/core';
 import {decompressPoint3WithAABB3} from "../compression";
-import {createMat4Float64, createVec3Float64, mulMat4} from "../matrix";
+import {createMat4Float64, createVec3Float64, mulMat4} from "../math";
 import {createCoordinateSystemTransform} from "../scene";
 
 const tempVec3a = createVec3Float64();

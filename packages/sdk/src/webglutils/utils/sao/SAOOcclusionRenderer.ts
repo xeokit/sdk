@@ -1,4 +1,4 @@
-// import {inverseMat4, createMat4, createVec2} from "@xeokit/matrix";
+// import {inverseMat4, createMat4, createVec2} from "@xeokit/math";
 // import {CustomProjection, View} from "@xeokit/viewer";
 //
 // import {PerspectiveProjectionType} from "@xeokit/constants";

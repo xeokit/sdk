@@ -9,7 +9,7 @@
 // } from "../../../constants";
 // import {XKT_INFO} from "./XKT_INFO";
 // import type {xktData} from "./xktData";
-// import {isIdentityMat4} from "../../../matrix";
+// import {isIdentityMat4} from "../../../math";
 // import {XKTData} from "./XKTData";
 //
 // const XKT_VERSION = XKT_INFO.xktVersion;

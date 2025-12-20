@@ -48,7 +48,7 @@ import {
   setMat4Translation, subVec3,
   transformVec4,
   Vec3
-} from "../matrix";
+} from "../math";
 import {getPositions3Center} from "../boundaries";
 import type {FloatArrayParam} from "../math";
 

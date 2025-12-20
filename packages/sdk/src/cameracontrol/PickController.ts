@@ -1,7 +1,7 @@
 import type {View} from "../viewer";
 import {PickResult} from "../viewer";
 import type {CameraControl} from "./CameraControl";
-import {createVec2Float64} from "../matrix";
+import {createVec2Float64} from "../math";
 
 const DEFAULT_SNAP_PICK_RADIUS = 45;
 const DEFAULT_SNAP_MODE = "vertex";
@@ -114,22 +114,22 @@ class PickController {
 
     const hasHoverSurfaceSubs = this.#cameraControl.onHoverSurface.count > 0;
 
-    if (this.scheduleSnapOrPick) {
-      const snapPickResult = this.#view.pick({
-        canvasPos: this.pickCursorPos,
-        snapRadius: this.#configs.snapRadius,
-        snapToVertex: this.#configs.snapToVertex,
-        snapToEdge: this.#configs.snapToEdge,
-      });
-      if (snapPickResult instanceof PickResult && (snapPickResult.snappedToEdge || snapPickResult.snappedToVertex)) {
-        this.snapPickResult = snapPickResult;
-        this.snappedOrPicked = true;
-        this.#needFireEvents++;
-      } else {
-        this.schedulePickSurface = true; // Fallback
-        this.snapPickResult = null;
-      }
-    }
+    // if (this.scheduleSnapOrPick) {
+    //   const snapPickResult = this.#view.pick({
+    //     canvasPos: this.pickCursorPos,
+    //     snapRadius: this.#configs.snapRadius,
+    //     snapToVertex: this.#configs.snapToVertex,
+    //     snapToEdge: this.#configs.snapToEdge,
+    //   });
+    //   if (snapPickResult instanceof PickResult && (snapPickResult.snappedToEdge || snapPickResult.snappedToVertex)) {
+    //     this.snapPickResult = snapPickResult;
+    //     this.snappedOrPicked = true;
+    //     this.#needFireEvents++;
+    //   } else {
+    //     this.schedulePickSurface = true; // Fallback
+    //     this.snapPickResult = null;
+    //   }
+    // }
 
     if (this.schedulePickSurface) {
       if (this.pickResult && this.pickResult.worldPos) {
@@ -164,37 +164,37 @@ class PickController {
       }
     }
 
-    if (this.schedulePickSurface || (this.scheduleSnapOrPick && !this.snapPickResult)) {
-      const pickResult = this.#view.pick({
-        pickSurface: true,
-        pickSurfaceNormal: false,
-        canvasPos: this.pickCursorPos
-      });
-      this.pickResult = pickResult instanceof PickResult ? pickResult : null;
-      if (this.pickResult) {
-        this.picked = true;
-        if (this.scheduleSnapOrPick) {
-          this.snappedOrPicked = true;
-        } else {
-          this.pickedSurface = true;
-        }
-        this.#needFireEvents++;
-      } else if (this.scheduleSnapOrPick) {
-        this.hoveredSnappedOrSurfaceOff = true;
-        this.#needFireEvents++;
-      }
-
-    } else { // schedulePickEntity == true
-      const pickResult = this.#view.pick({
-        canvasPos: this.pickCursorPos
-      });
-      this.pickResult = pickResult instanceof PickResult ? pickResult : null;
-      if (this.pickResult) {
-        this.picked = true;
-        this.pickedSurface = false;
-        this.#needFireEvents++;
-      }
-    }
+    // if (this.schedulePickSurface || (this.scheduleSnapOrPick && !this.snapPickResult)) {
+    //   const pickResult = this.#view.pick({
+    //     pickSurface: true,
+    //     pickSurfaceNormal: false,
+    //     canvasPos: this.pickCursorPos
+    //   });
+    //   this.pickResult = pickResult instanceof PickResult ? pickResult : null;
+    //   if (this.pickResult) {
+    //     this.picked = true;
+    //     if (this.scheduleSnapOrPick) {
+    //       this.snappedOrPicked = true;
+    //     } else {
+    //       this.pickedSurface = true;
+    //     }
+    //     this.#needFireEvents++;
+    //   } else if (this.scheduleSnapOrPick) {
+    //     this.hoveredSnappedOrSurfaceOff = true;
+    //     this.#needFireEvents++;
+    //   }
+    //
+    // } else { // schedulePickEntity == true
+    //   const pickResult = this.#view.pick({
+    //     canvasPos: this.pickCursorPos
+    //   });
+    //   this.pickResult = pickResult instanceof PickResult ? pickResult : null;
+    //   if (this.pickResult) {
+    //     this.picked = true;
+    //     this.pickedSurface = false;
+    //     this.#needFireEvents++;
+    //   }
+    // }
 
     this.scheduleSnapOrPick = false;
     this.schedulePickEntity = false;

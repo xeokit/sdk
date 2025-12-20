@@ -1,6 +1,6 @@
 import {type SceneObject} from "../scene";
-import {collapseAABB3, createAABB3Float64, expandAABB3, expandAABB3Point3, AABB3} from "../boundaries";
-import {createVec4Float64, type Mat4, transformPoint4, type Vec3} from "../matrix";
+import {collapseAABB3, createAABB3Float64, expandAABB3, expandAABB3Point3, type AABB3} from "../boundaries";
+import {createVec4Float64, type Mat4, transformPoint4, type Vec3} from "../math";
 import {type FloatArrayParam} from "../math";
 
 const tempVec4a = createVec4Float64();

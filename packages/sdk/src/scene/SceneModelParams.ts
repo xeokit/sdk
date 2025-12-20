@@ -6,7 +6,7 @@ import type {SceneTextureParams} from "./SceneTextureParams";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 import type {CoordinateSystemParams} from "./CoordinateSystemParams";
 import {SceneTransform} from "./SceneTransform";
-import type  {Mat4, Quat, Vec3} from "../matrix";
+import type  {Mat4, Quat, Vec3} from "../math";
 
 /**
  * Parameters for a {@link SceneModel}.

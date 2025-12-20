@@ -37,11 +37,12 @@
 import {
   createMat4Float64,
   createVec3Float64,
-  lenVec3, Mat4,
+  lenVec3,
   mulMat4,
-  subVec3, Vec2, Vec3
-} from "../matrix";
+  subVec3,
+} from "../math";
 import type {
+  Vec3, Vec2,Mat4,
   FloatArrayParam, IntArrayParam
 } from "../math";
 import {MAX_DOUBLE, MIN_DOUBLE, newFloatArray} from "../math";
@@ -80,29 +81,29 @@ export type AABB3Generic<T = number> = [T, T, T, T, T, T];
  * 32-bit floating-point 2D axis-aligned bounding box.
  */
 export type AABB2Float32 =
-  | Float32Array<number>
-  | AABB2Generic<number>;
+  | Float32Array<any>
+  | AABB2Generic;
 
 /**
  * 64-bit floating-point 2D axis-aligned bounding box.
  */
 export type AABB2Float64 =
-  | Float64Array<number>
-  | AABB2Generic<number>;
+  | Float64Array<any>
+  | AABB2Generic;
 
 /**
  * 32-bit floating-point 3D axis-aligned bounding box.
  */
 export type AABB3Float32 =
-  | Float32Array<number>
-  | AABB3Generic<number>;
+  | Float32Array<any>
+  | AABB3Generic;
 
 /**
  * 64-bit floating-point 3D axis-aligned bounding box.
  */
 export type AABB3Float64 =
-  | Float64Array<number>
-  | AABB3Generic<number>;
+  | Float64Array<any>
+  | AABB3Generic;
 
 /**
  * ============================================================
@@ -134,25 +135,25 @@ export type AABB3Float =
  * Integer 2D axis-aligned bounding box.
  */
 export type AABB2Int =
-  | Int8Array<number>
-  | Uint8Array<number>
-  | Int16Array<number>
-  | Uint16Array<number>
-  | Int32Array<number>
-  | Uint32Array<number>
-  | AABB2Generic<number>;
+  | Int8Array<any>
+  | Uint8Array<any>
+  | Int16Array<any>
+  | Uint16Array<any>
+  | Int32Array<any>
+  | Uint32Array<any>
+  | AABB2Generic;
 
 /**
  * Integer 3D axis-aligned bounding box.
  */
 export type AABB3Int =
-  | Int8Array<number>
-  | Uint8Array<number>
-  | Int16Array<number>
-  | Uint16Array<number>
-  | Int32Array<number>
-  | Uint32Array<number>
-  | AABB3Generic<number>;
+  | Int8Array<any>
+  | Uint8Array<any>
+  | Int16Array<any>
+  | Uint16Array<any>
+  | Int32Array<any>
+  | Uint32Array<any>
+  | AABB3Generic;
 
 /**
  * ============================================================

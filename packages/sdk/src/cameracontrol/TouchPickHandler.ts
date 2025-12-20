@@ -1,4 +1,4 @@
-import {distVec2, subVec3} from "../matrix";
+import {distVec2, subVec3} from "../math";
 import type {PickResult, View} from "../viewer";
 import {getSceneAABBIndex, SceneAABB3Index} from "../aabb/SceneAABB3Index";
 

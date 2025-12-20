@@ -1,6 +1,8 @@
 // Fixed spec metadata
+import {Vec4} from "../../../../math";
+
 export type DTXMeshViewAttribsItem = {
-    color?: [number, number, number, number];   // uvec4 bytes 0..255
+    color?: Vec4;   // uvec4 bytes 0..255
     pickable?: boolean;
     clippable?: boolean;
 };

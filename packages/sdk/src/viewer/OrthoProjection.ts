@@ -4,10 +4,10 @@ import {
   inverseMat4,
   orthoMat4c,
   transposeMat4, Vec2, Vec3
-} from "../matrix";
+} from "../math";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
-import type {Mat4} from "../matrix";
+import type {Mat4} from "../math";
 import type {OrthoProjectionParams} from "./OrthoProjectionParams";
 import {OrthoProjectionType} from "../constants";
 import type {Projection} from "./Projection";

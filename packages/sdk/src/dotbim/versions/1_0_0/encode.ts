@@ -1,4 +1,4 @@
-import {createMat4Float64, createVec3Float64, createVec4Float64, decomposeMat4, mulMat4} from "../../../matrix";
+import {createMat4Float64, createVec3Float64, createVec4Float64, decomposeMat4, mulMat4} from "../../../math";
 import {decompressPoint3WithAABB3} from "../../../compression";
 import {ifcTypeNames} from "../../../ifctypes";
 import type {ModelEncodeParams} from "../../../io";

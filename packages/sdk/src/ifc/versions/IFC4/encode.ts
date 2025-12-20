@@ -11,7 +11,7 @@ import {
 import type {ModelEncodeParams} from "../../../io";
 import * as WebIFC from "web-ifc";
 import {createCoordinateSystemTransform} from "../../../scene";
-import {createMat4Float64} from "../../../matrix";
+import {createMat4Float64} from "../../../math";
 
 /** @private
  */

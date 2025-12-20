@@ -1,4 +1,4 @@
-import {type Vec3, Mat4} from "../../../matrix";
+import {type Vec3, Mat4} from "../../../math";
 import {type Tile} from "./Tile";
 import {type SceneMesh} from "../../../scene";
 import type {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";

@@ -1,6 +1,6 @@
 import {WebGLArrayBuf, WebGLProgram} from "../../../webglutils";
 import type {WebGLAttribute, WebGLRenderBuffer} from "../../../webglutils";
-import {createVec2Float64} from "../../../matrix";
+import {createVec2Float64} from "../../../math";
 import {PerspectiveProjectionType} from "../../../constants";
 import type {RenderContext} from "../RenderContext";
 import type {View} from "../../../viewer";
@@ -119,8 +119,8 @@ export class SAOOcclusionRenderer {
     gl.uniform1f(this.#uCameraNear, near);
     gl.uniform1f(this.#uCameraFar, far);
 
-    gl.uniformMatrix4fv(this.#uCameraProjectionMatrix, false, <Float32Array | GLfloat[]>projectionMatrix);
-    gl.uniformMatrix4fv(this.#uCameraInverseProjectionMatrix, false, <Float32Array | GLfloat[]>inverseProjectionMatrix);
+    gl.uniformMatrix4fv(this.#uCameraProjectionMatrix, false, <Float32List>projectionMatrix);
+    gl.uniformMatrix4fv(this.#uCameraInverseProjectionMatrix, false, <Float32List>inverseProjectionMatrix);
 
     gl.uniform1i(this.#uPerspective, perspective ? 1 : 0);
 
@@ -129,12 +129,12 @@ export class SAOOcclusionRenderer {
     gl.uniform1f(this.#uBias, sao.bias);
     gl.uniform1f(this.#uKernelRadius, sao.kernelRadius);
     gl.uniform1f(this.#uMinResolution, sao.minResolution);
-    gl.uniform2fv(this.#uViewport, <Float32Array | GLfloat[]>tempVec2);
+    gl.uniform2fv(this.#uViewport, <Float32List>tempVec2);
     gl.uniform1f(this.#uRandomSeed, randomSeed);
 
-    const depthTexture = depthRenderBuffer.getDepthTexture();
-
-    program.bindTexture(this.#uDepthTexture, depthTexture, 0);
+    // const depthTexture = depthRenderBuffer.getDepthTexture();
+    //
+    // program.bindTexture(this.#uDepthTexture, depthTexture, 0);
 
     this.#aUV.bindArrayBuffer(this.#uvBuf);
     this.#aPosition.bindArrayBuffer(this.#positionsBuf);
@@ -165,7 +165,7 @@ export class SAOOcclusionRenderer {
       this.#program = null;
     }
 
-    this.#program = new WebGLProgram(gl, {
+    this.#program = new WebGLProgram(this.#renderContext, {
       vertex: `#version 300 es
                     precision highp float;
                     precision highp int;

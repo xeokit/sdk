@@ -15,7 +15,7 @@ import {DTXPrimDrawList} from "./dtx/DTXPrimDrawList";
 import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 import {type GPUMemoryConfigs} from "../../GPUMemoryConfigs";
-import type {Mat4} from "../../../matrix";
+import type {Mat4, Vec4} from "../../../math";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
@@ -541,7 +541,7 @@ export class GPUMemoryBatch {
     meshIndex: number,
     viewIndex: number,
     params: {
-      color?: [number, number, number, number];   // uvec4 bytes 0..255
+      color?: Vec4;   // uvec4 bytes 0..255
       pickable?: boolean;
       clippable?: boolean;
     }) {

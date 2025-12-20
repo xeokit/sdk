@@ -1,7 +1,9 @@
-import {canvasPosToWorldRay, createVec3Float64, subVec3} from "../matrix";
+import {canvasPosToWorldRay, createVec3Float64, subVec3} from "../math";
 import type {PickResult, View} from "../viewer";
 import {getAABB3Center} from "../boundaries";
 import {getSceneAABBIndex, SceneAABB3Index} from "../aabb/SceneAABB3Index";
+
+const tempVec3a = createVec3Float64();
 
 /**
  * @private
@@ -47,7 +49,7 @@ class MousePickHandler {
 
       if (pos) { // Fly to look at point, don't change eye->look dist
         const camera = view.camera;
-        const diff = subVec3(camera.eye, camera.look, []);
+        const diff = subVec3(camera.eye, camera.look, tempVec3a);
         controllers.cameraFlight.flyTo({
           // look: pos,
           // eye: xeokit.addVec3(pos, diff, []),

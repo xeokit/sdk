@@ -1,4 +1,4 @@
-import {Mat4, Vec3Float} from "../matrix";
+import {Mat4, Vec3Float} from "../math";
 
 /**
  * TODO

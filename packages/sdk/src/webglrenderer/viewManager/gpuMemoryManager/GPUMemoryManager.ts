@@ -11,7 +11,7 @@ import {type GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
 import {Camera, View} from "../../../viewer";
 import {type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
-import type {Mat4, Vec3} from "../../../matrix";
+import type {Mat4, Vec3, Vec4} from "../../../math";
 
 
 /**
@@ -315,7 +315,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     meshHandle: GPUMemoryMeshHandle,
     viewIndex: number,
     params: {
-      color?: [number, number, number, number];   // uvec4 bytes 0..255
+      color?: Vec4;   // uvec4 bytes 0..255
       clippable?: boolean;
       pickable?: boolean;
     }) {

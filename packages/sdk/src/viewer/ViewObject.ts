@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "../math";
+import type {FloatArrayParam, Vec3} from "../math";
 import type {SceneObject} from "../scene";
 import type {ViewLayer} from "./ViewLayer";
 import {SDKErrorType} from "../core";
@@ -352,7 +352,7 @@ export class ViewObject {
      * * Each element of the color is in range ````[0..1]````.
      * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
-    get colorize(): FloatArrayParam {
+    get colorize(): Vec3 {
         return this._colorize;
     }
 
@@ -364,7 +364,7 @@ export class ViewObject {
      * * Set to ````null```` or ````undefined```` to reset the colorize color to its default value of ````[1,1,1]````.
      * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
-    set colorize(value: FloatArrayParam | undefined | null) {
+    set colorize(value: Vec3 | undefined | null) {
         if (this.destroyed) {
             this.layer.view.viewer.logError({
                 ok: false,

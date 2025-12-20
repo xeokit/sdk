@@ -9,7 +9,7 @@ import {
   mulVec4Scalar,
   normalizeVec3, subVec3,
   transformVec4
-} from "../../../matrix";
+} from "../../../math";
 import {RendererView} from "../RendererView";
 import {type FloatArrayParam} from "../../../math";
 import {createRTCViewMat} from "../../../rtc";

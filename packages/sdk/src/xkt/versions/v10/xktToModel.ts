@@ -1,5 +1,5 @@
 import {AABB3, createAABB3Float64, getAABB3Center} from "../../../boundaries";
-import {createVec3Float32, createVec3Float64, createVec4Float64, Mat4, Vec3} from "../../../matrix";
+import {createVec3Float32, createVec3Float64, createVec4Float64, Mat4, Vec3} from "../../../math";
 import {
   JPEGMediaType,
   LinesPrimitive,

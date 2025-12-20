@@ -93,15 +93,11 @@ export class ContextMenu {
 
   /**
    * Emits an event each time this ContextMenu is shown.
-   *
-   * @event
    */
   public readonly onShown: EventEmitter<ContextMenu, null>;
 
   /**
    * Emits an event each time this ContextMenu is hidden.
-   *
-   * @event
    */
   public readonly onHidden: EventEmitter<ContextMenu, null>;
 

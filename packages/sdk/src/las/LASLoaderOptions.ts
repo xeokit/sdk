@@ -1,5 +1,5 @@
 import type {ModelLoadOptions} from "../io/ModelLoadOptions";
-import type {Mat4} from "../matrix";
+import type {Mat4} from "../math";
 
 /**
  * Options for {@link las!LASLoader.load | LASLoader.load}.

@@ -1,5 +1,5 @@
-import {createMat4Float64, identityMat4, inverseMat4, Mat4, mulMat4, Vec3, Vec4} from "../matrix";
-import type { Mat4 } from "../matrix";
+import {createMat4Float64, identityMat4, inverseMat4, Mat4, mulMat4, Vec3, Vec4} from "../math";
+import type { Mat4 } from "../math";
 import { SceneTransform } from "../scene/SceneTransform";
 
 /** Optional callback for renderer upload when a world matrix updates */

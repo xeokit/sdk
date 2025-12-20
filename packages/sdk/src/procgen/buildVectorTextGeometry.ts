@@ -2,7 +2,7 @@ import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {LinesPrimitive} from "../constants";
 import {SDKErrorType, type SDKResult} from "../core";
-import type {Vec3} from "../matrix";
+import type {Vec3} from "../math";
 
 
 const letters = {

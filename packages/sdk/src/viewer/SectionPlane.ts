@@ -1,4 +1,4 @@
-import {type Vec3, dotVec3} from "../matrix";
+import {type Vec3, dotVec3} from "../math";
 import {type SectionPlaneParams} from "./SectionPlaneParams";
 import type {View} from "./View";
 import {createUUID} from "../utils";

@@ -3,7 +3,7 @@ import {
   createMat4Float32, identityMat4,
   inverseMat4, type Mat4,
   transposeMat4, type Vec2, type Vec3,
-} from "../matrix";
+} from "../math";
 import type {Camera} from "./Camera";
 import type {CustomProjectionParams} from "./CustomProjectionParams";
 import {CustomProjectionType} from "../constants";

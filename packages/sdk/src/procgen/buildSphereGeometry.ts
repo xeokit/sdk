@@ -2,7 +2,7 @@ import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";
 import {SDKErrorType, type SDKResult} from "../core";
-import type {Vec3} from "../matrix";
+import type {Vec3} from "../math";
 
 /**
  * Creates a sphere-shaped geometry.

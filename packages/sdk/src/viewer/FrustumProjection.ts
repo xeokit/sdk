@@ -6,7 +6,7 @@ import {
   frustumMat4,
   inverseMat4,
   transposeMat4, Vec3
-} from "../matrix";
+} from "../math";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "../math";

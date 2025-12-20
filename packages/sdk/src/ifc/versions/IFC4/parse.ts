@@ -1,5 +1,5 @@
 import * as WebIFC from "web-ifc";
-import {identityMat4 } from "../../../matrix";
+import {identityMat4 } from "../../../math";
 import { IfcElement, IfcRelAggregates, ifcTypeCodes } from "../../../ifctypes";
 import type { DataModel } from "../../../data";
 import type { ModelParseParams } from "../../../io";

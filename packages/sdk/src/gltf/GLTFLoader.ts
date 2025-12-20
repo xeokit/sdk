@@ -12,7 +12,7 @@ import {
   RepeatWrapping,
   TrianglesPrimitive
 } from "../constants";
-import {createMat4Float64, identityMat4, Mat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "../matrix";
+import {createMat4Float64, identityMat4, Mat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "../math";
 import {createUUID, isString} from "../utils";
 import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 import type {ModelLoadParams} from "../io";

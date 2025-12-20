@@ -5,7 +5,7 @@ import {
   identityMat4,
   identityQuat,
   type  Mat4
-} from "../matrix";
+} from "../math";
 import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";
 import {compressGeometryParams} from "./compressGeometryParams";
 import type {Scene} from "./Scene";

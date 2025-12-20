@@ -1,13 +1,13 @@
 import {
   addVec3,
-  createVec3Float64,
+  createVec3Float64, createVec4Float32,
   dotVec4,
   lenVec3,
   mulVec3Scalar,
   normalizeVec3,
   subVec3,
-  Vec2, Vec3
-} from "../matrix";
+  type Vec2, type Vec3
+} from "../math";
 import {OrthoProjectionType, PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
 
@@ -61,7 +61,7 @@ class PanController {
 
       const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec3a);
       const offset = subVec3(unprojectedWorldPos, camera.eye, tempVec3b);
-      const moveVec = mulVec3Scalar(normalizeVec3(offset), -dollyDelta, []);
+      const moveVec = mulVec3Scalar(normalizeVec3(offset), -dollyDelta, tempVec3c);
 
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
       camera.look = [camera.look[0] - moveVec[0], camera.look[1] - moveVec[1], camera.look[2] - moveVec[2]];
@@ -74,9 +74,9 @@ class PanController {
         // suddenly a lot closer than the point we pivoted about on the surface of the last object
         // that we click-drag-pivoted on.
 
-        const eyeTargetVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3c);
+        const eyeTargetVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3d);
         const lenEyeTargetVec = lenVec3(eyeTargetVec);
-        const eyeLookVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3d)), lenEyeTargetVec);
+        const eyeLookVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3e)), lenEyeTargetVec);
         camera.look = [camera.eye[0] + eyeLookVec[0], camera.eye[1] + eyeLookVec[1], camera.eye[2] + eyeLookVec[2]];
       }
 
@@ -114,7 +114,7 @@ class PanController {
     const Pt3 = transposedProjectMat.subarray(8, 12);
     // @ts-ignore
     const Pt4 = transposedProjectMat.subarray(12);
-    const D = [0, 0, -1.0, 1];
+    const D = createVec4Float32([0, 0, -1.0, 1]);
     const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
 
     camera.projection.unproject(canvasPos, screenZ, screenPos, viewPos, worldPos);

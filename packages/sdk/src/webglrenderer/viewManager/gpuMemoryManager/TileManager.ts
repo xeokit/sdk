@@ -1,6 +1,6 @@
-import {createMat4Float64, createVec3Float64} from "../../../matrix";
+import {createMat4Float64, createVec3Float64} from "../../../math";
 import {createRTCViewMat, worldToRTCCenter} from "../../../rtc";
-import type {Vec3, Mat4} from "../../../matrix";
+import type {Vec3, Mat4} from "../../../math";
 import {Camera, View, Viewer} from "../../../viewer";
 import {type Tile} from "./Tile";
 import {DTXMatrixArray} from "./dtx/DTXMatrixArray";

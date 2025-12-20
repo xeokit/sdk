@@ -1,5 +1,5 @@
 import {BasicAggregation, BasicEntity} from "../basictypes";
-import {createMat4Float64, createVec3Float64, transformPoint3} from "../matrix";
+import {createMat4Float64, createVec3Float64, transformPoint3} from "../math";
 import type {ModelLoadParams, ModelParseParams} from "../io";
 import {ModelLoader} from "../io";
 import {createUUID} from "../utils";

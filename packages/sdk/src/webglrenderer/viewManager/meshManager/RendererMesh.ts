@@ -4,7 +4,7 @@ import {
   transformPoint4,
   subVec3,
   type Mat4, Vec3, identityMat4
-} from "../../../matrix";
+} from "../../../math";
 import type {FloatArrayParam} from "../../../math";
 import type {MeshBatchImpl} from "./MeshBatchImpl";
 import type {RenderContext} from "../RenderContext";

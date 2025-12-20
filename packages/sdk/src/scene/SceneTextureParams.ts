@@ -1,5 +1,5 @@
 
-import type {Vec4} from "../matrix";
+import type {Vec4} from "../math";
 
 /**
  * {@link SceneTexture} creation parameters for {@link SceneModel.createTexture | SceneModel.createTexture}.

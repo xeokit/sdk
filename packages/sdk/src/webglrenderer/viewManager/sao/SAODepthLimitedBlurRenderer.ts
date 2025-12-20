@@ -77,7 +77,7 @@ export class SAODepthLimitedBlurRenderer {
 
     const gl = this.#renderContext.gl;
 
-    this.#program = new WebGLProgram(gl, {
+    this.#program = new WebGLProgram(this.#renderContext, {
 
       vertex: `#version 300 es
                 precision highp float;

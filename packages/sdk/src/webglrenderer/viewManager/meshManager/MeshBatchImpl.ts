@@ -6,7 +6,7 @@ import type {MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
 import type {GPUMemoryMeshHandle} from "../gpuMemoryManager/GPUMemoryMeshHandle";
 import type {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 import type {SDKResult} from "../../../core";
-import type {Mat4, Vec3} from "../../../matrix";
+import type {Mat4, Vec3} from "../../../math";
 
 /**
  * A MeshBatchImpl manages a batch of SceneMeshes that use the same primitive type.

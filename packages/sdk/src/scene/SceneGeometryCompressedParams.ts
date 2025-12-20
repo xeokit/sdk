@@ -1,7 +1,7 @@
 
 import type {IntArrayParam} from "../math";
 import type {AABB3} from "../boundaries";
-import type {Mat4, Vec3} from "../matrix";
+import type {Mat4, Vec3} from "../math";
 
 
 /**

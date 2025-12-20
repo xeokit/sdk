@@ -1,4 +1,4 @@
-import {createVec3Float64, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "../matrix";
+import {createVec3Float64, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "../math";
 import {decompressPoint3WithAABB3} from "../compression";
 import {DEGTORAD, type FloatArrayParam, type IntArrayParam} from "../math";
 import type {AABB3} from "../boundaries";

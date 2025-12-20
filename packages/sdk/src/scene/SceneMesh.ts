@@ -8,7 +8,7 @@ import {
   isIdentityMat4,
   mulMat4,
   type Vec4Float
-} from "../matrix";
+} from "../math";
 import type {FloatArrayParam} from "../math";
 import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneMeshParams} from "./SceneMeshParams";

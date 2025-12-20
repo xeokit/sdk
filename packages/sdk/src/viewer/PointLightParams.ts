@@ -1,5 +1,5 @@
 
-import {Vec3Float} from "../matrix";
+import {Vec3Float} from "../math";
 
 /**
  * Parameters for a {@link PointLight}.

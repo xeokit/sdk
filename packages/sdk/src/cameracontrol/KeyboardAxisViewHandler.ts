@@ -1,4 +1,4 @@
-import {createVec3Float64} from "../matrix";
+import {createVec3Float64} from "../math";
 import type {View} from "../viewer";
 
 const center = createVec3Float64();

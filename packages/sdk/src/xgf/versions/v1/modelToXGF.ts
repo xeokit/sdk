@@ -5,7 +5,7 @@ import {
   SurfacePrimitive,
   TrianglesPrimitive
 } from "../../../constants";
-import {createMat4Float64, isIdentityMat4, mulMat4} from "../../../matrix";
+import {createMat4Float64, isIdentityMat4, mulMat4} from "../../../math";
 import type {SceneModel} from "../../../scene";
 import type {XGFData_v1} from "./XGFData_v1";
 import {createCoordinateSystemTransform} from "../../../scene";

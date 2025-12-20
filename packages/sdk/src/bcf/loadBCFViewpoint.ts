@@ -1,4 +1,4 @@
-import {addVec3, createVec3Float64, Vec3Float, negateVec3, subVec3} from "../matrix";
+import {addVec3, createVec3Float64, type Vec3, negateVec3, subVec3} from "../math";
 import {IfcOpeningElement, IfcSpace} from "../ifctypes";
 import {OrthoProjectionType, PerspectiveProjectionType} from "../constants";
 import {BasicAggregation} from "../basictypes";
@@ -6,7 +6,7 @@ import type {BCFComponent} from "./BCFComponent";
 import type {BCFVector} from "./BCFVector";
 import type {DataObject} from "../data";
 import type {LoadBCFViewpointParams} from "./LoadBCFViewpointParams";
-import {PickResult, ViewObject} from "../viewer";
+import {ViewObject} from "../viewer";
 import {searchObjects} from "../data";
 
 const tempVec3 = createVec3Float64();
@@ -380,13 +380,13 @@ function globalizeObjectId(modelId: string, objectId: string): string {
   return (modelId + "#" + objectId)
 }
 
-function xyzObjectToArray(xyz: BCFVector, arry: Vec3Float): Vec3Float {
+function xyzObjectToArray(xyz: BCFVector, arry: Vec3): Vec3 {
   arry[0] = xyz.x;
   arry[1] = xyz.y;
   arry[2] = xyz.z;
   return arry;
 }
 
-function ZToY(vec: Vec3Float): Vec3Float {
+function ZToY(vec: Vec3): Vec3 {
   return createVec3Float64([vec[0], vec[2], -vec[1]]);
 }

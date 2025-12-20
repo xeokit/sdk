@@ -1,5 +1,5 @@
 
-import { createMat4Float64, identityMat4, inverseMat4, mulMat4 } from "../matrix";
+import { createMat4Float64, identityMat4, inverseMat4, mulMat4 } from "../math";
 import type { FloatArrayParam } from "../math";
 import type { ViewTransformParams } from "./ViewTransformParams";
 import {ViewObject} from "./ViewObject";

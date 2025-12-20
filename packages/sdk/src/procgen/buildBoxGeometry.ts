@@ -2,7 +2,7 @@ import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {SDKErrorType, type SDKResult} from "../core";
 import {TrianglesPrimitive} from "../constants";
-import type {Vec3} from "../matrix";
+import type {Vec3} from "../math";
 
 /**
  * Creates box-shaped geometry.

@@ -8,7 +8,7 @@ import {
   distVec3, dotVec4, Vec3Float,
   inverseMat4, lenVec3, lookAtMat4v, mulVec3Scalar, normalizeVec3, sqLenVec3, subVec3,
   transformPoint3, transformVec3, Vec3
-} from "../matrix";
+} from "../math";
 import {clamp} from "../math";
 import type {View} from "../viewer";
 import {worldToRTCPos} from "../rtc";

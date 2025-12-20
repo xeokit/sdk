@@ -6,7 +6,6 @@ export * as constants from "./constants";
 // Utilities
 
 export * as math from "./math";
-export * as matrix from "./matrix";
 export * as utils from "./utils";
 export * as rtc from "./rtc";
 export * as curves from "./curves";

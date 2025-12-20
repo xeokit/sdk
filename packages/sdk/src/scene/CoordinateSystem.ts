@@ -3,7 +3,7 @@ import {type FloatArrayParam} from "../math";
 import {type CoordinateSystemParams} from "./CoordinateSystemParams";
 import  {Scene} from "./Scene";
 import type {SceneModel} from "./SceneModel";
-import {createVec3Float64, createVec9, type Vec3, type Vec9, testOrthogonalAxis} from "../matrix";
+import {createVec3Float64, createVec9, type Vec3, type Vec9, testOrthogonalAxis} from "../math";
 import {SDKErrorType} from "../core";
 
 

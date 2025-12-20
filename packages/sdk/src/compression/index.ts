@@ -107,7 +107,7 @@ import {
   transformVec3,
   translationMat4c,
   translationMat4v, Mat4, Vec2, Vec2Int, Vec3
-} from "../matrix";
+} from "../math";
 
 import type {FloatArrayParam, IntArrayParam} from "../math";
 import {AABB3} from "../boundaries";

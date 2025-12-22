@@ -1,4 +1,4 @@
-import {type Vec3Float} from "../math";
+import {type Vec3} from "../math";
 
 /**
  * Parameters for a {@link SectionPlane}.

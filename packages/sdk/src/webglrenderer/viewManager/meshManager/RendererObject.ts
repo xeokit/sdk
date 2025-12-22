@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "../../../math";
+import type { Vec3} from "../../../math";
 import type {RendererMesh} from "./RendererMesh";
 import {RenderContext} from "../RenderContext";
 
@@ -114,17 +114,17 @@ export class RendererObject  {
   /**
    * Sets the colorize color of the object in a specific view.
    */
-  setColorize(viewIndex: number, color?: FloatArrayParam): void { // [0..1, 0..1, 0..1]
+  setColorize(viewIndex: number, color?: Vec3): void { // [0..1, 0..1, 0..1]
     if (color) {
       tempIntRGB[0] = Math.floor(color[0] * 255.0); // Quantize
       tempIntRGB[1] = Math.floor(color[1] * 255.0);
       tempIntRGB[2] = Math.floor(color[2] * 255.0);
       for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-        this._rendererMeshes[i].setColorize(viewIndex, tempIntRGB);
+        this._rendererMeshes[i].setColorInView(viewIndex, tempIntRGB);
       }
     } else {
       for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-        this._rendererMeshes[i].setColorize(viewIndex, null);
+        this._rendererMeshes[i].setColorInView(viewIndex, null);
       }
     }
   }
@@ -137,7 +137,7 @@ export class RendererObject  {
       return;
     }
     // @ts-ignore
-    const lastOpacityQuantized = this._rendererMeshes[0].colorize[3];
+    const lastOpacityQuantized = this._rendererMeshes[0].opacity;
     let opacityQuantized = 255;
     if (opacity !== null && opacity !== undefined) {
       if (opacity < 0) {
@@ -158,7 +158,7 @@ export class RendererObject  {
       }
     }
     for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setOpacity(viewIndex, opacityQuantized);
+      this._rendererMeshes[i].setOpacityInView(viewIndex, opacityQuantized);
     }
   }
 }

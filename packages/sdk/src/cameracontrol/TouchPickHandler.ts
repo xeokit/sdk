@@ -47,7 +47,7 @@ export class TouchPickHandler {
 
     let touchStartTime;
     const activeTouches = [];
-    const tapStartPos = new Float32Array(2);
+    const tapStartPos = createVec2();
     let tapStartTime = -1;
     let lastTapTime = -1;
 

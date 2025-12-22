@@ -1,13 +1,13 @@
 import {
   addVec3,
   compareVec3,
-  createVec2Float64,
+  createVec2Float64, createVec3Float32,
   createVec3Float64,
   createVec4Float64,
   cross3Vec3,
-  distVec3, dotVec4, Vec3Float,
+  distVec3, dotVec4,
   inverseMat4, lenVec3, lookAtMat4v, mulVec3Scalar, normalizeVec3, sqLenVec3, subVec3,
-  transformPoint3, transformVec3, Vec3
+  transformPoint3, transformVec3, type Vec3
 } from "../math";
 import {clamp} from "../math";
 import type {View} from "../viewer";
@@ -27,8 +27,8 @@ const tempVec3f = createVec3Float64();
 class PivotController {
   #view: View;
   #configs: any;
-  #pivotWorldPos: Vec3Float;
-  #cameraOffset: Vec3Float;
+  #pivotWorldPos: Vec3;
+  #cameraOffset: Vec3;
   #azimuth: number;
   #polar: number;
   #radius: number;
@@ -40,8 +40,8 @@ class PivotController {
   #pivotSphereSize: number;
   #pivotSphereGeometry: any;
   #pivotSphereMaterial: any;
-  #rtcCenter: Vec3Float;
-  #rtcPos: Vec3Float;
+  #rtcCenter: Vec3;
+  #rtcPos: Vec3;
   #pivotViewPos: any;
   #pivotProjPos: any;
   #pivotCanvasPos: any;
@@ -307,7 +307,7 @@ class PivotController {
     const Pt3 = transposedProjectMat.subarray(8, 12);
     // @ts-ignore
     const Pt4 = transposedProjectMat.subarray(12);
-    const D = [0, 0, -1.0, 1];
+    const D = createVec4Float64([0, 0, -1.0, 1]);
     const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
     const worldPos = tempVec3a;
     camera.projection.unproject(canvasPos, screenZ, tempVec3b, tempVec3c, worldPos);
@@ -347,11 +347,11 @@ class PivotController {
     this.#azimuth += -dx * .01;
     this.#polar += dy * .01;
     this.#polar = clamp(this.#polar, .001, Math.PI - .001);
-    const pos = [
+    const pos = createVec3Float64([
       this.#radius * Math.sin(this.#polar) * Math.sin(this.#azimuth),
       this.#radius * Math.cos(this.#polar),
       this.#radius * Math.sin(this.#polar) * Math.cos(this.#azimuth)
-    ];
+    ]);
     if (worldUp[2] === 1) {
       const t = pos[1];
       pos[1] = pos[2];
@@ -367,7 +367,7 @@ class PivotController {
     lookat[12] -= offset[0];
     lookat[13] -= offset[1];
     lookat[14] -= offset[2];
-    const zAxis = [lookat[8], lookat[9], lookat[10]];
+    const zAxis = createVec3Float32([lookat[8], lookat[9], lookat[10]]);
     camera.eye = [lookat[12], lookat[13], lookat[14]];
     subVec3(camera.eye, mulVec3Scalar(zAxis, eyeLookLen), camera.look);
     camera.up = [lookat[4], lookat[5], lookat[6]];

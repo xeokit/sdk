@@ -1,6 +1,6 @@
 
 import { createMat4Float64, identityMat4, inverseMat4, mulMat4 } from "../math";
-import type { FloatArrayParam } from "../math";
+import type { Mat4 } from "../math";
 import type { ViewTransformParams } from "./ViewTransformParams";
 import {ViewObject} from "./ViewObject";
 import {SceneMesh, SceneModel} from "../scene";
@@ -22,10 +22,10 @@ export class ViewTransform {
   object: ViewObject[];
 
   /** Local transformation matrix */
-  private _localMatrix: FloatArrayParam;
+  private _localMatrix: Mat4;
 
   /** Global transformation matrix */
-  _globalMatrix: FloatArrayParam;
+  _globalMatrix: Mat4;
 
   /** Flag indicating if the transform is dirty and needs updating */
   private _dirty: boolean = true;
@@ -60,7 +60,7 @@ export class ViewTransform {
    * Sets the local transformation matrix.
    * @param matrix - The new local matrix.
    */
-  set matrix(matrix: FloatArrayParam) {
+  set matrix(matrix: Mat4) {
     if (this.destroyed) {
       return;
     }
@@ -77,7 +77,7 @@ export class ViewTransform {
    * Gets the local transformation matrix.
    * @returns The local matrix.
    */
-  get matrix(): FloatArrayParam {
+  get matrix(): Mat4 {
     return this._localMatrix;
   }
 
@@ -86,7 +86,7 @@ export class ViewTransform {
    * Updates the global matrix if necessary.
    * @returns The global matrix.
    */
-  get globalMatrix(): FloatArrayParam {
+  get globalMatrix(): Mat4 {
     this._updateGlobal();
     return this._globalMatrix;
   }
@@ -210,9 +210,9 @@ export class ViewTransform {
    * @param child - The child mesh to remove.
    */
   removeChildMesh(child: SceneMesh): void {
-    if (child._parentTransform === this) {
-      child.setParentTransform(null);
-    }
+    // if (child._parentTransform === this) {
+    //   child.setParentTransform(null);
+    // }
   }
 
   /**

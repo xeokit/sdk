@@ -181,6 +181,15 @@ export function createVec2Float64(values?: Vec2): Vec2 {
  * Creates a new 2D single-precision float vector.
  * @param values
  */
+export function createVec2Float32(values?: Vec2): Vec2Float32 {
+  // @ts-ignore
+  return new Float32Array(values || 2);
+}
+
+/**
+ * Creates a new 2D single-precision float vector.
+ * @param values
+ */
 export function createVec2Int32(values?: Vec2): Vec2Int {
   // @ts-ignore
   return new Int32Array(values || 2);

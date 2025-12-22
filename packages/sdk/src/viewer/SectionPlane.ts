@@ -1,4 +1,4 @@
-import {type Vec3, dotVec3} from "../math";
+import {type Vec3, dotVec3, createVec3Float32, createVec3Float64} from "../math";
 import {type SectionPlaneParams} from "./SectionPlaneParams";
 import type {View} from "./View";
 import {createUUID} from "../utils";
@@ -33,10 +33,10 @@ class SectionPlane {
      */
     public readonly view: View;
 
-    private _pos: Float64Array<any>;
+    private _pos: Vec3;
     private _active: boolean;
     private _dist: number;
-    private _dir: Float32Array<any>
+    private _dir: Vec3;
 
     /**
      * True once this SectionPlane has been destroyed.
@@ -51,8 +51,8 @@ class SectionPlane {
         this.id = sectionPlaneParams.id || createUUID();
         this.view = view;
         this._active = sectionPlaneParams.active !== false;
-        this._pos = new Float64Array(sectionPlaneParams.pos || [0, 0, 0]);
-        this._dir = new Float32Array(sectionPlaneParams.pos || [0, 0, -1]);
+        this._pos = createVec3Float64(sectionPlaneParams.pos || [0, 0, 0]);
+        this._dir = createVec3Float32(sectionPlaneParams.pos || [0, 0, -1]);
         this._dist = 0;
     }
 
@@ -102,6 +102,7 @@ class SectionPlane {
      * @param value New position.
      */
     set pos(value: Vec3) {
+      // @ts-ignore
         this._pos.set(value);
         this._dist = (-dotVec3(this._pos, this._dir));
         this.view.viewer.events.onSectionPlanePosChanged.dispatch(this, this._pos);

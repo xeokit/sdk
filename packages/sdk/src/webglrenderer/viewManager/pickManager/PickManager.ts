@@ -67,7 +67,7 @@ export class PickManager {
     this._gpuMemoryManager = cfg.gpuMemoryManager;
     this._meshBatchManager = cfg.meshManager;
     this._renderContext = cfg.renderContext;
-    this._drawOps = getDrawOps(this._renderContext, this._gpuMemoryManager as GPUMemoryReader);
+   // this._drawOps = getDrawOps(this._renderContext, this._gpuMemoryManager as GPUMemoryReader);
     this._pickResult = new PickResult();
   }
 
@@ -89,126 +89,126 @@ export class PickManager {
         pickParams: PickParams,
         pickResult = this._pickResult ): boolean{
 return;
-    if (!this._renderContext) {
-      throw new SDKInternalException("Can't pick object with WebGLRenderer - no Viewer and View is attached");
-    }
-
-    const view = rendererView.view;
-    const camera = view.camera;
-
-    pickResult.reset();
-
-    pickResult.view = view;
-
-    const {
-      pickCanvasPos,
-      pickViewMatrix,
-      pickProjMatrix,
-      pickWorldRayOrigin,
-      pickWorldRayDir
-    } = pickTemps;
-
-    let rayPick = false;
-
-    if (pickParams.canvasPos) {
-
-      // @ts-ignore
-      pickCanvasPos.set(pickParams.canvasPos);
-      // @ts-ignore
-      pickViewMatrix.set(camera.viewMatrix);
-      // @ts-ignore
-      pickProjMatrix.set(camera.projMatrix);
-
-      pickResult.canvasPos = pickParams.canvasPos;
-
-    } else {
-
-      // Picking with arbitrary World-space ray
-      // Align camera along ray and fire ray through center of canvas
-
-        rayPick = true;
-
-      pickCanvasPos[0] = view.htmlElement.clientWidth * 0.5;
-      pickCanvasPos[1] = view.htmlElement.clientHeight * 0.5;
-
-      if (pickParams.rayMatrix) {
-
-        // Ray defined as matrix
-
-        this._gpuMemoryManager.setViewPickMatrix(view, pickParams.rayMatrix);
-
-        // @ts-ignore
-        pickViewMatrix.set(pickParams.rayMatrix);
-        // @ts-ignore
-        pickProjMatrix.set(camera.orthoProjection.projMatrix);
-
-      } else {
-
-        // Ray defined as origin and direction
-
-        // @ts-ignore
-        pickWorldRayOrigin.set(pickParams.rayOrigin || [0, 0, 0]);
-        // @ts-ignore
-        pickWorldRayDir.set(pickParams.rayDirection || [0, 1, 0]);
-
-        const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a);
-
-        tempVec3b[0] = Math.random();
-        tempVec3b[1] = Math.random();
-        tempVec3b[2] = Math.random();
-        normalizeVec3(tempVec3b);
-        cross3Vec3(pickWorldRayDir, tempVec3b, tempVec3c);
-        const rayMatrix = lookAtMat4v(pickWorldRayOrigin, look, tempVec3c, tempMat4b);
-
-        this._gpuMemoryManager.setViewPickMatrix(view, rayMatrix);
-
-        // @ts-ignore
-        pickViewMatrix.set(rayMatrix);
-        // @ts-ignore
-        pickProjMatrix.set(camera.orthoProjection.projMatrix);
-
-        pickResult.origin = pickWorldRayOrigin;
-        pickResult.direction = pickWorldRayDir;
-      }
-    }
-
-    if (pickParams.pickViewObject || pickParams.pickSurface) {
-
-      const pickMeshResult = this._pickMesh({
-        rendererView,
-        rayPick,
-        pickCanvasPos,
-        pickViewMatrix,
-        pickProjMatrix,
-        pickInvisible: !!pickParams.pickInvisible
-      });
-
-      if (!pickMeshResult) {
-        return false;
-      }
-
-      pickResult.sceneMesh = pickMeshResult.sceneMesh;
-
-      if (pickParams.pickSurface) {
-
-        const worldPos = this._pickWorldPos({
-          rendererView,
-          meshIndex: pickMeshResult.meshIndex,
-          batchIndex: pickMeshResult.batchIndex,
-          sceneMesh: pickMeshResult.sceneMesh,
-          pickCanvasPos,
-          pickViewMatrix,
-          pickProjMatrix,
-          pickInvisible: pickParams.pickInvisible
-        });
-
-        if (!worldPos) {
-          return false
-        }
-
-          pickResult.worldPos = worldPos;
-      }
-    }
+    // if (!this._renderContext) {
+    //   throw new SDKInternalException("Can't pick object with WebGLRenderer - no Viewer and View is attached");
+    // }
+    //
+    // const view = rendererView.view;
+    // const camera = view.camera;
+    //
+    // pickResult.reset();
+    //
+    // pickResult.view = view;
+    //
+    // const {
+    //   pickCanvasPos,
+    //   pickViewMatrix,
+    //   pickProjMatrix,
+    //   pickWorldRayOrigin,
+    //   pickWorldRayDir
+    // } = pickTemps;
+    //
+    // let rayPick = false;
+    //
+    // if (pickParams.canvasPos) {
+    //
+    //   // @ts-ignore
+    //   pickCanvasPos.set(pickParams.canvasPos);
+    //   // @ts-ignore
+    //   pickViewMatrix.set(camera.viewMatrix);
+    //   // @ts-ignore
+    //   pickProjMatrix.set(camera.projMatrix);
+    //
+    //   pickResult.canvasPos = pickParams.canvasPos;
+    //
+    // } else {
+    //
+    //   // Picking with arbitrary World-space ray
+    //   // Align camera along ray and fire ray through center of canvas
+    //
+    //     rayPick = true;
+    //
+    //   pickCanvasPos[0] = view.htmlElement.clientWidth * 0.5;
+    //   pickCanvasPos[1] = view.htmlElement.clientHeight * 0.5;
+    //
+    //   if (pickParams.rayMatrix) {
+    //
+    //     // Ray defined as matrix
+    //
+    //     this._gpuMemoryManager.setViewPickMatrix(view, pickParams.rayMatrix);
+    //
+    //     // @ts-ignore
+    //     pickViewMatrix.set(pickParams.rayMatrix);
+    //     // @ts-ignore
+    //     pickProjMatrix.set(camera.orthoProjection.projMatrix);
+    //
+    //   } else {
+    //
+    //     // Ray defined as origin and direction
+    //
+    //     // @ts-ignore
+    //     pickWorldRayOrigin.set(pickParams.rayOrigin || [0, 0, 0]);
+    //     // @ts-ignore
+    //     pickWorldRayDir.set(pickParams.rayDirection || [0, 1, 0]);
+    //
+    //     const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a);
+    //
+    //     tempVec3b[0] = Math.random();
+    //     tempVec3b[1] = Math.random();
+    //     tempVec3b[2] = Math.random();
+    //     normalizeVec3(tempVec3b);
+    //     cross3Vec3(pickWorldRayDir, tempVec3b, tempVec3c);
+    //     const rayMatrix = lookAtMat4v(pickWorldRayOrigin, look, tempVec3c, tempMat4b);
+    //
+    //     this._gpuMemoryManager.setViewPickMatrix(view, rayMatrix);
+    //
+    //     // @ts-ignore
+    //     pickViewMatrix.set(rayMatrix);
+    //     // @ts-ignore
+    //     pickProjMatrix.set(camera.orthoProjection.projMatrix);
+    //
+    //     pickResult.origin = pickWorldRayOrigin;
+    //     pickResult.direction = pickWorldRayDir;
+    //   }
+    // }
+    //
+    // if (pickParams.pickViewObject || pickParams.pickSurface) {
+    //
+    //   const pickMeshResult = this._pickMesh({
+    //     rendererView,
+    //     rayPick,
+    //     pickCanvasPos,
+    //     pickViewMatrix,
+    //     pickProjMatrix,
+    //     pickInvisible: !!pickParams.pickInvisible
+    //   });
+    //
+    //   if (!pickMeshResult) {
+    //     return false;
+    //   }
+    //
+    //   pickResult.sceneMesh = pickMeshResult.sceneMesh;
+    //
+    //   if (pickParams.pickSurface) {
+    //
+    //     const worldPos = this._pickWorldPos({
+    //       rendererView,
+    //       meshIndex: pickMeshResult.meshIndex,
+    //       batchIndex: pickMeshResult.batchIndex,
+    //       sceneMesh: pickMeshResult.sceneMesh,
+    //       pickCanvasPos,
+    //       pickViewMatrix,
+    //       pickProjMatrix,
+    //       pickInvisible: pickParams.pickInvisible
+    //     });
+    //
+    //     if (!worldPos) {
+    //       return false
+    //     }
+    //
+    //       pickResult.worldPos = worldPos;
+    //   }
+    // }
 
     return true; // All requested pick info obtained
   };

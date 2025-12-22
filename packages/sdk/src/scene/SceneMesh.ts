@@ -2,12 +2,11 @@ import {
   createMat4Float64,
   createVec4Float64,
   type Mat4,
-  type Vec3Float,
+  type Vec3,
   identityMat4,
   inverseMat4,
   isIdentityMat4,
-  mulMat4,
-  type Vec4Float
+  mulMat4, createVec3Float64,
 } from "../math";
 import type {FloatArrayParam} from "../math";
 import type {SceneGeometry} from "./SceneGeometry";
@@ -16,7 +15,7 @@ import type {SceneObject} from "./SceneObject";
 import type {SceneTextureSet} from "./SceneTextureSet";
 import type {SceneModel} from "./SceneModel";
 import {SceneTransform} from "./SceneTransform";
-import { SDKErrorType, type SDKResult} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 
 
 /**
@@ -45,7 +44,7 @@ export class SceneMesh {
   /**
    * The {@link SceneObject} that uses this SceneMesh.
    */
-  object: SceneObject|null;
+  object: SceneObject | null;
 
   /**
    * {@link SceneGeometry} used by this SceneMesh.
@@ -57,26 +56,26 @@ export class SceneMesh {
    */
   readonly textureSet?: SceneTextureSet;
 
-  private _color: Vec4Float;
+  private _color: Vec3;
   private _opacity: number;
   private _localMatrix: Mat4;
   private _globalMatrix: Mat4;
   private _parentTransform: SceneTransform | null = null;
 
-   destroyed: boolean = false;
+  destroyed: boolean = false;
 
   /**
    * @private
    */
-  constructor( meshParams: {
+  constructor(meshParams: {
     id: string;
     model: SceneModel;
     geometry: SceneGeometry;
     textureSet?: SceneTextureSet;
     matrix?: Mat4;
-    color?: Vec3Float;
+    color?: Vec3;
     opacity?: number;
-  } ) {
+  }) {
     this.id = meshParams.id;
     this.model = meshParams.model;
     this._localMatrix = meshParams.matrix ? createMat4Float64(meshParams.matrix) : identityMat4();
@@ -93,7 +92,7 @@ export class SceneMesh {
    *
    * Each element of the color is in range ````[0..1]````.
    */
-  get color(): Vec4Float {
+  get color(): Vec3 {
     return this._color;
   }
 
@@ -102,17 +101,17 @@ export class SceneMesh {
    *
    * Each element of the color is in range ````[0..1]````.
    */
-  set color( value: Vec3Float ) {
+  set color(value: Vec3) {
     if (this.destroyed) {
-      this.model.scene.logError( {
+      this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
         error: `[SceneMesh.color] Cannot set color on destroyed SceneMesh ${this.id}`
       });
       return;
     }
-    if (!value || value.length < 3){
-      this.model.scene.logError( {
+    if (!value || value.length < 3) {
+      this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
         error: `[SceneMesh.color] Invalid color for SceneMesh ${this.id}`
@@ -121,8 +120,7 @@ export class SceneMesh {
     }
     let color = this._color;
     if (!color) {
-      color = this._color = createVec4Float64();
-        color[3] = 1;
+      color = this._color = createVec3Float64();
     }
     if (value) {
       color[0] = value[0];
@@ -143,9 +141,9 @@ export class SceneMesh {
    *
    * @type {FloatArrayParam}
    */
-  set matrix( matrix: Mat4 ) {
+  set matrix(matrix: Mat4) {
     if (this.destroyed) {
-      this.model.scene.logError( {
+      this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
         error: `[SceneMesh.matrix] Cannot set matrix on destroyed SceneMesh ${this.id}`
@@ -153,7 +151,7 @@ export class SceneMesh {
       return;
     }
     if (!matrix || matrix.length !== 16) {
-      this.model.scene.logError( {
+      this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
         error: `[SceneMesh.matrix] Invalid matrix for SceneMesh ${this.id}`
@@ -201,9 +199,9 @@ export class SceneMesh {
    *
    * This is a factor in range ````[0..1]````.
    */
-  set opacity( opacity: number ) {
+  set opacity(opacity: number) {
     if (this.destroyed) {
-      this.model.scene.logError( {
+      this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
         error: `[SceneMesh.opacity] Cannot set opacity on destroyed SceneMesh ${this.id}`
@@ -229,20 +227,20 @@ export class SceneMesh {
    * Updates the global transform matrix.
    * @private
    */
-   _updateGlobal(): void {
+  _updateGlobal(): void {
     if (this._parentTransform) {
-      mulMat4( this._parentTransform.globalMatrix, this._localMatrix, this._globalMatrix);
+      mulMat4(this._parentTransform.globalMatrix, this._localMatrix, this._globalMatrix);
     } else {
       // @ts-ignore
       this._globalMatrix.set(this._localMatrix);
     }
     const scene = this.model.scene;
-      // TODO: recompute AABBs using coordinateSystemMatrix
+    // TODO: recompute AABBs using coordinateSystemMatrix
 
-      // Transforms are in the coordinate system of the model
-      // const coordSystemAndModelingMatrix = mulMat4(this.model.coordinateSystemMatrix, this._globalMatrix, tempMat4);
-      // scene.events.meshMatrix.dispatch(scene, this);
-      // scene.events.meshMoved.dispatch(scene, this);
+    // Transforms are in the coordinate system of the model
+    // const coordSystemAndModelingMatrix = mulMat4(this.model.coordinateSystemMatrix, this._globalMatrix, tempMat4);
+    // scene.events.meshMatrix.dispatch(scene, this);
+    // scene.events.meshMoved.dispatch(scene, this);
   }
 
   // /**
@@ -346,7 +344,7 @@ export class SceneMesh {
   /**
    * Destroys this SceneMesh.
    */
-  destroy(): SDKResult<void>  {
+  destroy(): SDKResult<void> {
     if (this.destroyed) {
       return this.model.scene.logError({
         ok: false,

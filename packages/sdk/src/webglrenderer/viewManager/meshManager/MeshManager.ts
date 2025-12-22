@@ -277,9 +277,7 @@ export class MeshManager {
    * Handles changes to a SceneMesh's opacity.
    */
   public sceneMeshOpacityChanged(sceneMesh: SceneMesh): void {
-    // this._rendererModels[sceneMesh.model.id]
-    //     ?.rendererMeshes[sceneMesh.id]
-    //     ?.setOpacity(viewObject.layer.view.viewIndex, sceneMesh.opacity);
+    this._rendererModels[sceneMesh.model.id]?.rendererMeshes[sceneMesh.id]?.setOpacity(sceneMesh.opacity);
   }
 
   /**

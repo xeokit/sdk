@@ -1,8 +1,9 @@
 // Fixed spec metadata
-import {Vec4} from "../../../../math";
+import {Vec3, Vec4} from "../../../../math";
 
 export type DTXMeshViewAttribsItem = {
-    color?: Vec4;   // uvec4 bytes 0..255
+    color?: Vec3;   // uvec3 bytes 0..255
+    opacity?: number; // float32
     pickable?: boolean;
     clippable?: boolean;
 };
@@ -92,12 +93,14 @@ export class DTXMeshViewAttribs {
     setAttribs(meshIndex: number, data: Partial<DTXMeshViewAttribsItem>): void {
         // console.log("Setting attribs for meshIndex:", meshIndex, data);
         const v = this.getByteView(meshIndex);
-        const color = data.color;
+        const color = data.color; // [0..1, 0..1, 0..1]
         if (color) {
             v[0] = color[0];
             v[1] = color[1];
             v[2] = color[2];
-            v[3] = color[3];
+        }
+        if (data.opacity !== undefined) {
+          v[3] = data.opacity; // 0..1
         }
         if (data.pickable !== undefined) {
             v[4] = data.pickable ? 1 : 0;

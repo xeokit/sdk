@@ -2,7 +2,7 @@ import type {Viewer} from "./Viewer";
 import {EventEmitter, type SDKResult} from "../core";
 import {type TickParams} from "./TickParams";
 import type {SnapshotFinishedEvent, SnapshotStartedEvent, View} from "./View";
-import type {FloatArrayParam, IntArrayParam} from "../math";
+import type {FloatArrayParam, IntArrayParam, Vec3} from "../math";
 import type {ViewObject} from "./ViewObject";
 import type {ViewLayer} from "./ViewLayer";
 import type {SectionPlane} from "./SectionPlane";
@@ -186,12 +186,12 @@ export class ViewerEvents {
     /**
      * Emits an event each time a {@link SectionPlane.pos} changes.
      */
-    readonly onSectionPlanePosChanged: EventEmitter<SectionPlane, FloatArrayParam>;
+    readonly onSectionPlanePosChanged: EventEmitter<SectionPlane, Vec3>;
 
     /**
      * Emits an event each time a {@link SectionPlane.dir} changes.
      */
-    readonly onSectionPlaneDirChanged: EventEmitter<SectionPlane, FloatArrayParam>;
+    readonly onSectionPlaneDirChanged: EventEmitter<SectionPlane, Vec3>;
 
     /**
      * Emits an event each time a {@link SectionPlane.active} changes.
@@ -250,8 +250,8 @@ export class ViewerEvents {
         this.onCameraFrustumUpdated = new EventEmitter(new EventDispatcher<Camera, Frustum3>());
         this.onSectionPlaneCreated = new EventEmitter(new EventDispatcher<View, SectionPlane>());
         this.onSectionPlaneDestroyed = new EventEmitter(new EventDispatcher<View, SectionPlane>());
-        this.onSectionPlanePosChanged = new EventEmitter(new EventDispatcher<SectionPlane, FloatArrayParam>());
-        this.onSectionPlaneDirChanged = new EventEmitter(new EventDispatcher<SectionPlane, FloatArrayParam>());
+        this.onSectionPlanePosChanged = new EventEmitter(new EventDispatcher<SectionPlane, Vec3>());
+        this.onSectionPlaneDirChanged = new EventEmitter(new EventDispatcher<SectionPlane, Vec3>());
         this.onSectionPlaneActive = new EventEmitter(new EventDispatcher<SectionPlane, boolean>());
         this.onSnapshotStarted = new EventEmitter(new EventDispatcher<View, SnapshotStartedEvent>());
         this.onSnapshotFinished = new EventEmitter(new EventDispatcher<View, SnapshotFinishedEvent>());

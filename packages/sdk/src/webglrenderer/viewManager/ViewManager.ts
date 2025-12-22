@@ -247,6 +247,10 @@ export class ViewManager {
     this._meshManager.sceneMeshColorChanged(sceneMesh);
   }
 
+  public sceneMeshOpacityChanged(sceneMesh: SceneMesh): void {
+    this._meshManager.sceneMeshOpacityChanged(sceneMesh);
+  }
+
   public sceneTransformMatrixChanged(sceneMesh: SceneTransform): void {
     this._meshManager.sceneTransformMatrixChanged(sceneMesh);
   }

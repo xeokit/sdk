@@ -276,12 +276,17 @@ export class MeshBatchImpl implements MeshBatch {
     /**
      * Sets a custom color per view for a mesh.
      */
-    public setMeshColor(viewIndex: number, meshHandle: MeshBatchMeshHandle, color: Vec3): void {
+    public setMeshColorInView(viewIndex: number, meshHandle: MeshBatchMeshHandle, color: Vec3): void {
         this._gpuMemoryManager.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
-            color: <[number,number,number,number]>color
+            color
         });
     }
 
+    public setMeshOpacityInView(viewIndex: number, meshHandle: MeshBatchMeshHandle, opacity: number): void {
+        this._gpuMemoryManager.setMeshViewAttribs(meshHandle as GPUMemoryMeshHandle, viewIndex, {
+            opacity
+        });
+    }
     /**
      * Sets the transformation matrix for a mesh.
      */

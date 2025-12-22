@@ -15,7 +15,7 @@ import {DTXPrimDrawList} from "./dtx/DTXPrimDrawList";
 import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 import {type GPUMemoryConfigs} from "../../GPUMemoryConfigs";
-import type {Mat4, Vec4} from "../../../math";
+import type {Mat4, Vec3, Vec4} from "../../../math";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
@@ -461,9 +461,9 @@ export class GPUMemoryBatch {
       color: [
         Math.floor(sceneMesh.color[0] * 255.0),
         Math.floor(sceneMesh.color[1] * 255.0),
-        Math.floor(sceneMesh.color[2] * 255.0),
-        Math.floor(sceneMesh.opacity * 255.0)
-      ]
+        Math.floor(sceneMesh.color[2] * 255.0)
+      ],
+      opacity: Math.floor(sceneMesh.opacity * 255.0)
     });
 
     this._meshMatrices.setMatrix(meshIndex, sceneMesh.matrix);
@@ -541,7 +541,8 @@ export class GPUMemoryBatch {
     meshIndex: number,
     viewIndex: number,
     params: {
-      color?: Vec4;   // uvec4 bytes 0..255
+      color?: Vec3;   // uvec3 bytes 0..255
+      opacity?: number; // byte 0..255
       pickable?: boolean;
       clippable?: boolean;
     }) {

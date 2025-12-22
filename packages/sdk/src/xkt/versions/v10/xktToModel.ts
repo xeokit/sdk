@@ -35,7 +35,7 @@ function lineStripToLines(positions, indices) {
 
 const decompressColor = (function () {
   const floatColor = createVec3Float32()
-  return function (intColor: FloatArrayParam):Vec3 {
+  return function (intColor: Vec3):Vec3 {
     floatColor[0] = intColor[0] / 255;
     floatColor[1] = intColor[1] / 255;
     floatColor[2] = intColor[2] / 255;
@@ -262,7 +262,7 @@ export function xktToModel(params: {
 
         const textureSetId = (textureSetIndex >= 0) ? `${modelPartId}-textureSet-${textureSetIndex}` : null;
 
-        const meshColor = decompressColor(eachMeshMaterialAttributes.subarray((meshIndex * 6), (meshIndex * 6) + 3));
+        const meshColor = <Vec3>decompressColor(eachMeshMaterialAttributes.subarray((meshIndex * 6), (meshIndex * 6) + 3));
         const meshOpacity = eachMeshMaterialAttributes[(meshIndex * 6) + 3] / 255.0;
         const meshMetallic = eachMeshMaterialAttributes[(meshIndex * 6) + 4] / 255.0;
         const meshRoughness = eachMeshMaterialAttributes[(meshIndex * 6) + 5] / 255.0;

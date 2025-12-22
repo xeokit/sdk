@@ -3,7 +3,7 @@ import {
   createVec4Float64,
   transformPoint4,
   subVec3,
-  type Mat4, Vec3, identityMat4
+  type Mat4, Vec3, identityMat4, createVec3Float32
 } from "../../../math";
 import type {FloatArrayParam} from "../../../math";
 import type {MeshBatchImpl} from "./MeshBatchImpl";
@@ -35,8 +35,8 @@ export class RendererMesh {
   private readonly _meshHandle: MeshBatchMeshHandle;
   private readonly _gpuMemoryManager: GPUMemoryManager;
   private readonly _viewStates: {
-    colorize: [number, number, number, number];
     colorizing: boolean;
+    coloringOpacity?: boolean;
     transparent: boolean;
   }[];
 
@@ -73,8 +73,8 @@ export class RendererMesh {
     const transparent = a < 255;
 
     this._viewStates = Array.from({length: NUM_VIEWS}, () => ({
-      colorize: [r, g, b, a] as [number, number, number, number],
       colorizing: false,
+      coloringOpacity: false,
       transparent,
     }));
 
@@ -111,14 +111,28 @@ export class RendererMesh {
    * Sets the color of the mesh.
    * Triggered by SceneMesh.color setter.
    */
-  setColor(color: FloatArrayParam) {
+  setColor(color: Vec3) {
     for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
       const viewState = this._viewStates[viewIndex];
       if (!viewState.colorizing) {
-        this._meshBatch.setMeshColor(viewIndex, this._meshHandle, color);
+        this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, color);
       }
     }
   }
+
+  /**
+   * Sets the opacity of the mesh.
+   * @param opacity
+   */
+  setOpacity(opacity: number) {
+    for (let viewIndex = 0, len = this._renderContext.viewer.viewList.length; viewIndex < len; viewIndex++) {
+      const viewState = this._viewStates[viewIndex];
+      if (!viewState.coloringOpacity) {
+        this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
+      }
+    }
+  }
+
 
   /**
    * Sets the visibility of the mesh for a specific view.
@@ -132,17 +146,13 @@ export class RendererMesh {
    * Sets the colorization for a specific view.
    * Called by RendererObject.setColorize().
    */
-  setColorize(viewIndex: number, colorize: FloatArrayParam | null) {
+  setColorInView(viewIndex: number, colorize: Vec3 | null) {
     const viewStates = this._viewStates[viewIndex];
-    const meshColorize = viewStates.colorize;
-    if (colorize) {
-      meshColorize[0] = colorize[0];
-      meshColorize[1] = colorize[1];
-      meshColorize[2] = colorize[2];
-      this._meshBatch.setMeshColor(viewIndex, this._meshHandle, meshColorize);
+    if (colorize !== null) { // Apply color override
+      this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, colorize);
       viewStates.colorizing = true;
-    } else {
-      this._meshBatch.setMeshColor(viewIndex, this._meshHandle, this._sceneMesh.color);
+    } else { // Restore original color
+      this._meshBatch.setMeshColorInView(viewIndex, this._meshHandle, this._sceneMesh.color);
       viewStates.colorizing = false;
     }
   }
@@ -151,13 +161,14 @@ export class RendererMesh {
    * Sets the opacity of the mesh for a specific view.
    * Called by RendererObject.setOpacity().
    */
-  setOpacity(viewIndex: number, opacity: number) {
+  setOpacityInView(viewIndex: number, opacity: number | null) {
     const viewStates = this._viewStates[viewIndex];
-    viewStates.colorize[3] = opacity;
-    if (this._viewStates[viewIndex].colorizing) {
-      this._meshBatch.setMeshColor(viewIndex, this._meshHandle, viewStates.colorize);
-    } else {
-      this._meshBatch.setMeshColor(viewIndex, this._meshHandle, this._sceneMesh.color);
+    if (opacity !== null) { // Apply opacity override
+      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, opacity);
+      viewStates.coloringOpacity = true;
+    } else { // Restore original opacity
+      this._meshBatch.setMeshOpacityInView(viewIndex, this._meshHandle, this._sceneMesh.opacity);
+      viewStates.coloringOpacity = false;
     }
   }
 

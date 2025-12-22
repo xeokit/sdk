@@ -9,8 +9,9 @@ import {
 import type {SceneGeometryCompressedParams, SceneModel} from "../../../scene";
 import {createUUID} from "../../../utils";
 import type {DataModel} from "../../../data";
-import type {FloatArrayParam} from "../../../math";
+import type {FloatArrayParam, Vec3} from "../../../math";
 import type {XGFData_v1} from "./XGFData_v1";
+import {createVec3Float32} from "../../../math";
 
 /**
  * @private
@@ -142,8 +143,8 @@ export function xgfToModel(params: {
 }
 
 const decompressColor = (function () {
-  const floatColor = new Float32Array(3);
-  return function (intColor: FloatArrayParam) {
+  const floatColor = createVec3Float32();
+  return function (intColor: Vec3) {
     floatColor[0] = intColor[0] / 255;
     floatColor[1] = intColor[1] / 255;
     floatColor[2] = intColor[2] / 255;

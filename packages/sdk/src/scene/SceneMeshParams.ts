@@ -1,4 +1,4 @@
-import type  {Mat4, Quat, Vec3, Vec3Float, Vec4} from "../math";
+import type  {Mat4, Quat, Vec3, Vec4} from "../math";
 
 /**
  * Parameters for a {@link SceneMesh}.
@@ -35,7 +35,7 @@ export interface SceneMeshParams {
    *
    * * Default is ````[1,1,1]````.
    */
-  color?: Vec3Float;
+  color?: Vec3;
 
   /**
    * RGB pick color of the new {@link SceneMesh}.

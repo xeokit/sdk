@@ -315,7 +315,8 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     meshHandle: GPUMemoryMeshHandle,
     viewIndex: number,
     params: {
-      color?: Vec4;   // uvec4 bytes 0..255
+      color?: Vec3;   // uvec3 bytes 0..255
+      opacity?: number; // float 0..1
       clippable?: boolean;
       pickable?: boolean;
     }) {
@@ -328,19 +329,19 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
 
   /**
    * Sets the state for a mesh within a specific View.
-   * @param meshHandle1
+   * @param meshHandle
    * @param viewIndex
    * @param renderPass
    */
   public setMeshRenderPass(
-    meshHandle1: GPUMemoryMeshHandle,
+    meshHandle: GPUMemoryMeshHandle,
     viewIndex: number,
     renderPass: RenderPassValue): void {
-    const batch = this._batches[meshHandle1.gpuMemoryBatchIndex];
+    const batch = this._batches[meshHandle.gpuMemoryBatchIndex];
     if (!batch) {
       throw new SDKInternalException('[GPUMemoryManager.setMeshRenderPass] Invalid batch index in mesh handle.');
     }
-    batch.setMeshRenderPass(meshHandle1.meshIndex, viewIndex, renderPass);
+    batch.setMeshRenderPass(meshHandle.meshIndex, viewIndex, renderPass);
   }
 
   /**

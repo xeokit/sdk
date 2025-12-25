@@ -283,8 +283,8 @@ export class CoordinateSystem  {
      */
     toParams(): CoordinateSystemParams {
         return {
-            basis: Array.from(this._basis),
-            origin: Array.from(this._origin),
+            basis: <Vec9>Array.from(this._basis),
+            origin: <Vec3>Array.from(this._origin),
             units: this._units,
             scaleToMeters: this._scaleToMeters
         };

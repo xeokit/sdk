@@ -1,7 +1,7 @@
 
 import {createVec3Float64, createVec4Float64, cross3Vec3, dotVec3, lenVec4, type Vec3, type Vec4} from "./vector";
 import {DEGTORAD} from "./index";
-import {createMat4Float64, identityMat4, Mat4, mat4ToEuler} from "./matrix";
+import {createMat4Float64, identityMat4, type Mat4, mat4ToEuler} from "./matrix";
 
 /**
  * Generic quaternion tuple: [x, y, z, w].
@@ -15,14 +15,14 @@ const tempQuat: Quat = createQuat();
  * Single-precision float quaternion.
  */
 export type QuatFloat32 =
-  | Float32Array<number>
+  | Float32Array<any>
   | QuatGeneric<number>;
 
 /**
  * Double-precision float quaternion.
  */
 export type QuatFloat64 =
-  | Float64Array<number>
+  | Float64Array<any>
   | QuatGeneric<number>;
 
 /**
@@ -62,7 +62,7 @@ export function identityQuat(dest: Quat = createVec4Float64()): Quat {
 export function eulerToQuat(
   euler: Vec3,
   order: string,
-  dest: Quat = createVec4Float64()
+  dest: Quat = createQuat()
 ): Quat {
   const a = (euler[0] * DEGTORAD) / 2;
   const b = (euler[1] * DEGTORAD) / 2;

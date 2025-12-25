@@ -1,8 +1,8 @@
-import type {FloatArrayParam} from "../math";
+
 import type {PointLightParams} from "./PointLightParams";
 import type {View} from "./View";
 import {createUUID} from "../utils";
-import {createVec3Float64, Vec3Float} from "../math";
+import {createVec3Float64, type Vec3} from "../math";
 
 /**
  * A positional light source within a {@link View}.
@@ -32,8 +32,8 @@ class PointLight {
 
     private _intensity: number;
     private _attenuation: Float32Array<any>;
-    private _color: Vec3Float;
-    private _pos: Vec3Float;
+    private _color: Vec3;
+    private _pos: Vec3;
     private _type: string;
     private _space: string;
 
@@ -72,9 +72,9 @@ class PointLight {
      *
      * Default value is ````[1.0, 1.0, 1.0]````.
      *
-     * @returns {Vec3Float} The position.
+     * @returns {Vec3} The position.
      */
-    get pos(): Vec3Float {
+    get pos(): Vec3 {
         return this._pos;
     }
 
@@ -87,7 +87,7 @@ class PointLight {
      *
      * @param pos The position.
      */
-    set pos(pos: FloatArrayParam) {
+    set pos(pos: Vec3) {
       // @ts-ignore
         this._pos.set(pos || [1.0, 1.0, 1.0]);
         this.view.needsRender();
@@ -100,7 +100,7 @@ class PointLight {
      *
      * @returns {Number[]} The PointLight's RGB color.
      */
-    get color(): FloatArrayParam {
+    get color(): Vec3 {
         return this._color;
     }
 
@@ -111,7 +111,7 @@ class PointLight {
      *
      * @param color The PointLight's RGB color.
      */
-    set color(color: FloatArrayParam) {
+    set color(color: Vec3) {
       // @ts-ignore
         this._color.set(color || [0.7, 0.7, 0.8]);
         this.view.needsRender();
@@ -239,8 +239,8 @@ class PointLight {
     toParams(): PointLightParams {
         return {
             id: this.id,
-            color: Array.from(this.color),
-            pos: Array.from(this.pos),
+            color: <Vec3>Array.from(this.color),
+            pos: <Vec3>Array.from(this.pos),
             quadraticAttenuation: this.quadraticAttenuation,
             linearAttenuation: this.linearAttenuation,
             constantAttenuation: this.constantAttenuation,

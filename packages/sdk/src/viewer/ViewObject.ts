@@ -51,7 +51,7 @@ export class ViewObject {
     private _xrayed: boolean;
     private _selected: boolean;
     private _highlighted: boolean;
-    private _colorize: FloatArrayParam;
+    private _colorize: Vec3;
     private _colorized: boolean;
     private _opacityUpdated: boolean;
 

@@ -2,7 +2,8 @@ import type {EmphasisMaterialParams} from "./EmphasisMaterialParams";
 import type {FloatArrayParam} from "../math";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../core";
-import {Vec3Float} from "../math";
+import type {Vec3} from "../math";
+import {createVec3Float32} from "../math";
 
 /**
  * Configures the appearance of {@link ViewObject | ViewObjects} when they are xrayed, highlighted or selected.
@@ -19,9 +20,9 @@ class EmphasisMaterial {
    */
   public readonly view: View;
 
-  private _fillColor: Float32Array<any>;
+  private _fillColor: Vec3;
   private _backfaces: boolean;
-  private _edgeColor: Float32Array<any>;
+  private _edgeColor: Vec3;
   private _edgeWidth: number;
   private _edgeAlpha: number;
   private _edges: boolean;
@@ -34,9 +35,9 @@ class EmphasisMaterial {
    * @private
    */
   constructor(view: View, options: {
-    fillColor?: FloatArrayParam;
+    fillColor?: Vec3;
     backfaces?: boolean;
-    edgeColor?: FloatArrayParam;
+    edgeColor?: Vec3;
     edgeWidth?: number;
     edgeAlpha?: number;
     edges?: boolean;
@@ -48,10 +49,10 @@ class EmphasisMaterial {
     this.view = view;
 
     this._fill = !!options.fill;
-    this._fillColor = new Float32Array(options.fillColor || [0.4, 0.4, 0.4]);
+    this._fillColor = createVec3Float32(options.fillColor || [0.4, 0.4, 0.4]);
     this._fillAlpha = (options.fillAlpha !== undefined && options.fillAlpha !== null) ? options.fillAlpha : 0.2;
     this._edges = options.edges !== false;
-    this._edgeColor = new Float32Array(options.edgeColor || [0.2, 0.2, 0.2]);
+    this._edgeColor = createVec3Float32(options.edgeColor || [0.2, 0.2, 0.2]);
     this._edgeAlpha = (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.5;
     this._edgeWidth = (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1;
     this._backfaces = !!options.backfaces;
@@ -85,7 +86,7 @@ class EmphasisMaterial {
    *
    * Default is ````[0.4, 0.4, 0.4]````.
    */
-  set fillColor(value: Vec3Float) {
+  set fillColor(value: Vec3) {
     if (!value || value.length < 3) {
       this.view.viewer.logError({
         ok: false,
@@ -108,7 +109,7 @@ class EmphasisMaterial {
    *
    * Default is ````[0.4, 0.4, 0.4]````.
    */
-  get fillColor(): Vec3Float {
+  get fillColor(): Vec3 {
     return this._fillColor;
   }
 
@@ -165,7 +166,7 @@ class EmphasisMaterial {
    *
    * Default is ```` [0.2, 0.2, 0.2]````.
    */
-  set edgeColor(value: FloatArrayParam) {
+  set edgeColor(value: Vec3) {
     if (!value || value.length < 3) {
       this.view.viewer.logError({
         ok: false,
@@ -188,7 +189,7 @@ class EmphasisMaterial {
    *
    * Default is ```` [0.2, 0.2, 0.2]````.
    */
-  get edgeColor(): Float32Array<any> {
+  get edgeColor(): Vec3 {
     return this._edgeColor;
   }
 
@@ -349,9 +350,9 @@ class EmphasisMaterial {
     return {
       ok: true,
       value: {
-        fillColor: Array.from(this._fillColor),
+        fillColor: <Vec3>Array.from(this._fillColor),
         backfaces: this._backfaces,
-        edgeColor: Array.from(this._edgeColor),
+        edgeColor: <Vec3>Array.from(this._edgeColor),
         edgeWidth: this._edgeWidth,
         edgeAlpha: this._edgeAlpha,
         edges: this._edges,

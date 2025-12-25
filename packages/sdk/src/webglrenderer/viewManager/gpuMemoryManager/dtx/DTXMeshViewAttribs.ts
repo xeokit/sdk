@@ -1,5 +1,4 @@
-// Fixed spec metadata
-import {Vec3, Vec4} from "../../../../math";
+import type {Vec3} from "../../../../math";
 
 export type DTXMeshViewAttribsItem = {
     color?: Vec3;   // uvec3 bytes 0..255

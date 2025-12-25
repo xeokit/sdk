@@ -3,7 +3,7 @@ import {
   createVec4Float64,
   transformPoint4,
   subVec3,
-  type Mat4, Vec3, identityMat4, createVec3Float32
+  type Mat4, type Vec3, identityMat4, createVec3Float32
 } from "../../../math";
 import type {FloatArrayParam} from "../../../math";
 import type {MeshBatchImpl} from "./MeshBatchImpl";

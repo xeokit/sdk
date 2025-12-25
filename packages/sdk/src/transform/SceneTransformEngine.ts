@@ -1,5 +1,4 @@
-import {createMat4Float64, identityMat4, inverseMat4, Mat4, mulMat4, Vec3, Vec4} from "../math";
-import type { Mat4 } from "../math";
+import {createMat4Float64, identityMat4, type Mat4, mulMat4} from "../math";
 import { SceneTransform } from "../scene/SceneTransform";
 
 /** Optional callback for renderer upload when a world matrix updates */
@@ -19,8 +18,8 @@ export class SceneTransformEngine {
     private opts: TransformEngineOptions;
 
     // scratch buffers to avoid temp allocs
-    private _tmpA = new Float64Array(16);
-    private _tmpB = new Float64Array(16);
+    private _tmpA = createMat4Float64()
+    private _tmpB = createMat4Float64();
 
     constructor(opts: TransformEngineOptions = {}) {
         this.opts = opts;

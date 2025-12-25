@@ -50,7 +50,7 @@ class CustomProjection implements Projection {
 
         this.camera = camera;
 
-        this._projMatrix = createMat4Float32(cfg.projMatrix || identityMat4());
+        this._projMatrix = cfg.projMatrix? createMat4Float32(cfg.projMatrix): identityMat4(createMat4Float32());
         this._inverseProjMatrix = createMat4Float32();
         this._transposedProjMatrix = createMat4Float32();
 
@@ -177,7 +177,7 @@ class CustomProjection implements Projection {
       return {
         ok: true,
         value: {
-        projMatrix: Array.from(this.projMatrix)
+        projMatrix: <Mat4>Array.from(this.projMatrix)
         }
       };
     }

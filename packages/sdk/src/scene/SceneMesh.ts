@@ -1,6 +1,5 @@
 import {
   createMat4Float64,
-  createVec4Float64,
   type Mat4,
   type Vec3,
   identityMat4,
@@ -110,7 +109,7 @@ export class SceneMesh {
       });
       return;
     }
-    if (!value || value.length < 3) {
+    if (!value || value.length !== 3) {
       this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
@@ -120,7 +119,8 @@ export class SceneMesh {
     }
     let color = this._color;
     if (!color) {
-      color = this._color = createVec3Float64();
+      this._color = createVec3Float64();
+      color = this._color;
     }
     if (value) {
       color[0] = value[0];
@@ -327,7 +327,7 @@ export class SceneMesh {
       opacity: this._opacity
     };
     if (!isIdentityMat4(this._localMatrix)) {
-      meshParams.matrix = Array.from(this._localMatrix);
+      meshParams.matrix = <Mat4>Array.from(this._localMatrix);
     }
     if (this.textureSet !== undefined) {
       meshParams.textureSetId = this.textureSet.id;

@@ -538,12 +538,15 @@ export class TreeView  {
     if (this.#rootElement && !this.#destroyed) {
       // @ts-ignore
       this.#rootElement.parentNode.removeChild(this.#rootElement);
-      this.view.onObjectVisibility.unsubscribe(this.#onViewObjectVisibility);
-      this.view.onObjectXRayed.unsubscribe(this.#onViewObjectXRayed);
+      const viewerEvents = this.view.viewer.events;
+
+      viewerEvents.onViewObjectVisibleChanged.unsubscribe(this.#onViewObjectVisibility);
+      viewerEvents.onViewObjectXRayedChanged.unsubscribe(this.#onViewObjectXRayed);
+
       this.#destroyed = true;
     }
     // TODO: Unsubscribe from Scene events
-    super.destroy();
+
   }
 
   /**

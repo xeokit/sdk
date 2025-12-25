@@ -2,7 +2,7 @@ import type {EdgesParams} from "./EdgesParams";
 import {QualityRender} from "../constants";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../core";
-import {createVec3Float64, Vec3Float} from "../math";
+import {createVec3Float64, type Vec3} from "../math";
 
 
 /**
@@ -21,7 +21,7 @@ class Edges {
      */
     public readonly view: View;
 
-    private _edgeColor: Vec3Float;
+    private _edgeColor: Vec3;
     private _edgeWidth: number;
     private _edgeAlpha: number;
     private _renderModes: number[];
@@ -68,7 +68,7 @@ class Edges {
      *
      * Default value is ````[0.2, 0.2, 0.2]````.
      */
-    set edgeColor(value: Vec3Float) {
+    set edgeColor(value: Vec3) {
       if (!value || value.length < 3) {
         this.view.viewer.logError({
           ok: false,
@@ -91,7 +91,7 @@ class Edges {
      *
      * Default value is ````[0.2, 0.2, 0.2]````.
      */
-    get edgeColor(): Vec3Float {
+    get edgeColor(): Vec3 {
         return this._edgeColor;
     }
 
@@ -168,7 +168,7 @@ class Edges {
           ok: true,
           value:{
             renderModes: this.renderModes,
-            edgeColor: Array.from(this.edgeColor),
+            edgeColor: <Vec3> Array.from(this.edgeColor),
             edgeWidth: this.edgeWidth,
             edgeAlpha: this.edgeAlpha
         }
@@ -189,7 +189,7 @@ class Edges {
             });
         }
         this.renderModes = edgesParams.renderModes;
-        this.edgeColor = Array.from(edgesParams.edgeColor);
+        this.edgeColor = <Vec3>Array.from(edgesParams.edgeColor);
         this.edgeWidth = edgesParams.edgeWidth;
         this.edgeAlpha = edgesParams.edgeAlpha;
         return {

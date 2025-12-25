@@ -14,7 +14,7 @@ import { View} from "../viewer";
 import {EventEmitter, SDKTask} from "../core";
 import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} from "../constants";
 import {DEGTORAD, } from "../math";
-import {createAABB3Float64, AABB3Float, getAABB3Center, getAABB3Diag, getAABB3DiagPoint, AABB3} from "../boundaries";
+import {createAABB3Float64,getAABB3Center, getAABB3Diag, getAABB3DiagPoint, type AABB3} from "../boundaries";
 import {EventDispatcher} from "strongly-typed-events";
 import {getSceneAABBIndex} from "../aabb";
 
@@ -43,7 +43,7 @@ export interface FlyToParams {
   /**
    * Target axis-aligned bounding box (AABB) in world coordinates for the camera to focus on.
    */
-  aabb?: AABB3Float;
+  aabb?: AABB3;
 
   /**
    * Target distance between the camera and its point-of-interest.
@@ -279,7 +279,7 @@ export class CameraFlightAnimation {
     this._orthoScale1 = camera.orthoProjection.scale;
     this._orthoScale2 = params.orthoScale || this._orthoScale1;
 
-    let aabb: AABB3Float;
+    let aabb: AABB3;
     let eye: Vec3;
     let look: Vec3;
     let up: Vec3;

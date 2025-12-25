@@ -12,16 +12,14 @@ import {
   RepeatWrapping,
   TrianglesPrimitive
 } from "../constants";
-import {createMat4Float64, identityMat4, Mat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "../math";
+import {createMat4Float64, identityMat4, type Mat4, mulMat4, quatToMat4, scalingMat4v, translationMat4v} from "../math";
 import {createUUID, isString} from "../utils";
 import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 import type {ModelLoadParams} from "../io";
 import {ModelLoader} from "../io";
 import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams} from "../scene";
 import type {DataModel} from "../data/DataModel";
-import type {FloatArrayParam} from "../math";
 import {parse} from '@loaders.gl/core';
-import type {ModelLoadOptions} from "../io/ModelLoadOptions";
 
 /**
  * Loads a glTF file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.

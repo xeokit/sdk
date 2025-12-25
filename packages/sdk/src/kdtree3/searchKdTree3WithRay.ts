@@ -1,5 +1,5 @@
-import {INTERSECT, OUTSIDE} from "../boundaries";
-import type {FloatArrayParam} from "../math";
+import {type AABB3, INTERSECT, OUTSIDE} from "../boundaries";
+import type {Vec3} from "../math";
 import type {KdItem3D} from "./KdItem3";
 import type {KdNode3} from "./KdNode3";
 import type {KdTree3} from "./KdTree3";
@@ -13,8 +13,8 @@ import type {KdTree3} from "./KdTree3";
  */
 export function searchKdTree3WithRay(params: {
   kdTree: KdTree3,
-  origin: FloatArrayParam,
-  dir: FloatArrayParam
+  origin: Vec3,
+  dir: Vec3
 }): KdItem3D[] {
 
   const kdTree = params.kdTree;
@@ -22,7 +22,7 @@ export function searchKdTree3WithRay(params: {
   const dir = params.dir;
   const foundItems: KdItem3D[] = [];
 
-  function testRayIntersectsAABB3(origin: FloatArrayParam, dir: FloatArrayParam, aabb: FloatArrayParam): number {
+  function testRayIntersectsAABB3(origin: Vec3, dir: Vec3, aabb: AABB3): number {
     return 0;
   }
 

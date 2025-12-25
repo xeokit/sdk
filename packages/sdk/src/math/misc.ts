@@ -14,10 +14,10 @@ import {
   mulVec4Scalar,
   normalizeVec3,
   subVec3,
-  Vec3,
-  Vec9
+  type Vec3,
+  type Vec9
 } from "./vector";
-import {createMat4Float64, inverseMat4, Mat4, mulMat4, transformVec3, transformVec4} from "./matrix";
+import {createMat4Float64, inverseMat4, type Mat4, mulMat4, transformVec3, transformVec4} from "./matrix";
 
 /**
  * Any numeric TypedArray.

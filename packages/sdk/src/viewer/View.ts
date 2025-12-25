@@ -1,6 +1,6 @@
 import {EventEmitter, SDKErrorType, type SDKResult, SDKTask,} from "../core";
 import {FastRender, QualityRender} from "../constants";
-import type {FloatArrayParam, IntArrayParam} from "../math";
+import type {FloatArrayParam, Vec3} from "../math";
 import type {SceneObject} from "../scene";
 import {AmbientLight} from "./AmbientLight";
 import {Camera} from "./Camera";
@@ -1412,7 +1412,7 @@ class View {
    * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
    * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */
-  setObjectsColorized(objectIds: string[], colorize: number[]) {
+  setObjectsColorized(objectIds: string[], colorize: Vec3) {
     if (this.destroyed) {
       this.viewer.logError({
         ok: false,

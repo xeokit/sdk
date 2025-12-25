@@ -106,11 +106,11 @@ import {
   scalingMat4v,
   transformVec3,
   translationMat4c,
-  translationMat4v, Mat4, Vec2, Vec2Int, Vec3
+  translationMat4v,type Mat4, type Vec2, type Vec2Int, type Vec3
 } from "../math";
 
 import type {FloatArrayParam, IntArrayParam} from "../math";
-import {AABB3} from "../boundaries";
+import type {AABB3} from "../boundaries";
 
 const translate = createMat4Float64();
 const scale = createMat4Float64();
@@ -121,7 +121,7 @@ const scale = createMat4Float64();
  * This function calculates the minimum and maximum values along each axis (x, y, and z) from an array of 3D positions.
  * The array is assumed to be a flat array where every three consecutive values represent a 3D position (x, y, z).
  *
- * @param {FloatArrayParam} array - The array of 3D positions to evaluate. The array length must be a multiple of 3.
+ * @param  array - The array of 3D positions to evaluate. The array length must be a multiple of 3.
  * @param  [min] - Optional pre-allocated array to store the minimum values. Defaults to a new array if not provided.
  * @param  [max] - Optional pre-allocated array to store the maximum values. Defaults to a new array if not provided.
  * @returns {Object} - An object containing the min and max values as arrays:
@@ -138,7 +138,7 @@ export function getPositions3MinMax(
   array: FloatArrayParam,
   min: Vec3 = createVec3Float64(),
   max: Vec3 =createVec3Float64()
-) {
+) : { min: Vec3, max: Vec3 } {
   // Initialize min and max values with extreme values
   for (let i = 0; i < 3; i++) {
     min[i] = Number.MAX_VALUE;
@@ -166,8 +166,8 @@ export function getPositions3MinMax(
  * This matrix is used to map compressed positions back to their original space.
  *
  * @param {AABB3} aabb - The axis-aligned bounding box (AABB) defined by [xmin, ymin, zmin, xmax, ymax, zmax].
- * @param {FloatArrayParam} [positionsDecompressMatrix] - An optional pre-allocated matrix to store the result. Defaults to a new matrix if not provided.
- * @returns {FloatArrayParam} - The decompression matrix used for transforming compressed positions back to their original scale.
+ * @param  [positionsDecompressMatrix] - An optional pre-allocated matrix to store the result. Defaults to a new matrix if not provided.
+ * @returns  - The decompression matrix used for transforming compressed positions back to their original scale.
  *
  * @example
  * const aabb = [0, 0, 0, 10, 10, 10];
@@ -206,7 +206,7 @@ export function createPositions3DecompressMat4(
  * Compresses a flat array of 3D positions into a quantized format, and computes the matrix for decompressing
  * back to the original range.
  *
- * @param {FloatArrayParam} array - The array of 3D positions to be compressed.
+ * @param  array - The array of 3D positions to be compressed.
  * @param  min - The minimum bounds for the 3D positions.
  * @param  max - The maximum bounds for the 3D positions.
  * @returns {Object} - An object containing the quantized positions and the decompression matrix.
@@ -217,7 +217,10 @@ export function createPositions3DecompressMat4(
  * const max = [1, 1, 1];
  * const { quantized, decompressMatrix } = compressPositions3(positions, min, max);
  */
-export function compressPositions3(array: FloatArrayParam, min: Vec3, max: Vec3) {
+export function compressPositions3(array: FloatArrayParam, min: Vec3, max: Vec3): {
+  quantized: Uint16Array<any>,
+  decompressMatrix: Mat4
+} {
   // Initialize a quantized array to store the compressed positions
   const quantized = new Uint16Array(array.length);
 
@@ -355,7 +358,7 @@ export function decompressPoint3WithAABB3(
  * This function applies a matrix to each corner of the AABB to compute the decompressed AABB.
  *
  * @param {AABB3} aabb - The AABB values to be decompressed (min and max values).
- * @param {FloatArrayParam} decompressMatrix - The transformation matrix used to decompress the AABB.
+ * @param  decompressMatrix - The transformation matrix used to decompress the AABB.
  * @param {AABB3} dest - The destination array where the decompressed AABB will be stored. Defaults to the input AABB.
  * @returns {AABB3} - The decompressed AABB stored in `dest`.
  *
@@ -426,8 +429,8 @@ export function decompressAABB3WithAABB3(
  * This function applies the provided decompression matrix to the quantized positions. Each position is transformed by the matrix
  * to restore the original 3D coordinates. The decompression matrix should represent scaling and translation transformations.
  *
- * @param {FloatArrayParam} positions - The quantized positions array to be decompressed. Each position is a 3D point (x, y, z).
- * @param {FloatArrayParam} decompressMatrix - The 4x4 matrix used to decompress the positions. It contains scaling and translation values.
+ * @param  positions - The quantized positions array to be decompressed. Each position is a 3D point (x, y, z).
+ * @param  decompressMatrix - The 4x4 matrix used to decompress the positions. It contains scaling and translation values.
  * @param {Float32Array} [dest=new Float32Array(positions.length)] - The destination array to store the decompressed positions.
  * @returns {Float32Array} - The decompressed positions array.
  *
@@ -444,7 +447,7 @@ export function decompressAABB3WithAABB3(
  */
 export function decompressPositions3WithMat4(
   positions: FloatArrayParam,
-  decompressMatrix: FloatArrayParam,
+  decompressMatrix: Mat4,
   dest: Float32Array<any> = new Float32Array(positions.length)
 ): Float32Array<any> {
   const m = decompressMatrix;
@@ -466,10 +469,10 @@ export function decompressPositions3WithMat4(
  * This function restores the original 3D positions by scaling and offsetting the quantized values using the provided AABB.
  * It calculates the scale and offset for each axis based on the AABB and the maximum quantization value (65535).
  *
- * @param {FloatArrayParam} positions - The quantized positions array to be decompressed. Each position is a 3D point (x, y, z).
+ * @param  positions - The quantized positions array to be decompressed. Each position is a 3D point (x, y, z).
  * @param {AABB3} aabb - The AABB used for decompressing. The AABB contains 6 values: [xmin, ymin, zmin, xmax, ymax, zmax].
- * @param {FloatArrayParam} [dest=new Float32Array(positions.length)] - The destination array to store the decompressed positions.
- * @returns {FloatArrayParam} - The decompressed positions array.
+ * @param  [dest=new Float32Array(positions.length)] - The destination array to store the decompressed positions.
+ * @returns  - The decompressed positions array.
  *
  * @example
  * const quantizedPositions = new Uint16Array([1000, 2000, 3000, 4000, 5000, 6000]);
@@ -508,7 +511,7 @@ export function decompressPositions3WithAABB3(
  * minimum and maximum values for each component (u, v). These bounds can be used
  * for various operations like normalization, quantization, or texture mapping.
  *
- * @param {FloatArrayParam} array - The input array of UV coordinates (each UV pair consisting of [u, v]).
+ * @param  array - The input array of UV coordinates (each UV pair consisting of [u, v]).
  * @returns {Object} - An object containing:
  *   - `min`: The minimum values for each component ([u, v]).
  *   - `max`: The maximum values for each component ([u, v]).
@@ -547,7 +550,7 @@ export function getUVBounds(array: FloatArrayParam): { min: Vec2, max: Vec2 } {
  * The compression uses a simple linear transformation based on the provided min and max values
  * for each component of the UV coordinates.
  *
- * @param {FloatArrayParam} array - The input array of UV coordinates (each UV pair consisting of [u, v]).
+ * @param  array - The input array of UV coordinates (each UV pair consisting of [u, v]).
  * @param {FloatVec2} min - The minimum values for [u, v] coordinates to scale to the quantized range.
  * @param {FloatVec2} max - The maximum values for [u, v] coordinates to scale to the quantized range.
  * @returns {Object} - An object containing:
@@ -613,8 +616,8 @@ export function getUVBounds(array: FloatArrayParam): { min: Vec2, max: Vec2 } {
  * The function performs various oct-encoding operations using combinations of `ceil` and `floor` to
  * minimize rounding errors during compression.
  *
- * @param {FloatArrayParam} array - The input array of 3D normals (each consisting of three components: x, y, z).
- * @returns {Int8Array} The compressed array of oct-encoded normals, with redundant third components.
+ * @param  array - The input array of 3D normals (each consisting of three components: x, y, z).
+ * @returns  The compressed array of oct-encoded normals, with redundant third components.
  *
  * @example
  * const normals = new Float32Array([1, 0, 0, 0, 1, 0, 0, 0, 1]);
@@ -667,13 +670,13 @@ export function compressNormals(array: FloatArrayParam): Int8Array<any> {
  * This function converts a 3D normal vector into a 2D octahedral representation.
  * The encoding compresses the normal while preserving as much detail as possible.
  *
- * @param {FloatArrayParam} array - The array containing the normal vector components.
- * @param {number} i - The tileIndex of the normal vector's X component in the array.
+ * @param  array - The array containing the normal vector components.
+ * @param  i - The tileIndex of the normal vector's X component in the array.
  * @param {Function} xfunc - A Math function (e.g., `Math.floor`, `Math.round`) to process the X component.
  * @param {Function} yfunc - A Math function (e.g., `Math.floor`, `Math.round`) to process the Y component.
- * @returns {Int8Array} A 2-element `Int8Array` containing the encoded normal.
+ * @returns  A 2-element `Int8Array` containing the encoded normal.
  */
-function octEncodeNormalFromArray(array: FloatArrayParam, i: number, xfunc: any, yfunc: any): Int8Array<number> { // Oct-encode single normal vector in 2 bytes
+function octEncodeNormalFromArray(array: FloatArrayParam, i: number, xfunc: any, yfunc: any): Int8Array<any> { // Oct-encode single normal vector in 2 bytes
   let x = array[i] / (Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]));
   let y = array[i + 1] / (Math.abs(array[i]) + Math.abs(array[i + 1]) + Math.abs(array[i + 2]));
   if (array[i + 2] < 0) {
@@ -690,10 +693,10 @@ function octEncodeNormalFromArray(array: FloatArrayParam, i: number, xfunc: any,
 /**
  * Computes the dot product of a 3D vector from an array with another 3D vector.
  *
- * @param {FloatArrayParam} array - The array containing the first vector's components.
- * @param {number} i - The tileIndex of the first vector's X component in the array.
- * @param {FloatArrayParam} v - The second 3D vector as an array.
- * @returns {number} The dot product of the two vectors.
+ * @param  array - The array containing the first vector's components.
+ * @param  i - The tileIndex of the first vector's X component in the array.
+ * @param  v - The second 3D vector as an array.
+ * @returns  The dot product of the two vectors.
  */
 function dot(array: FloatArrayParam, i: number, v: Vec3): number {
   return array[i] * v[0] + array[i + 1] * v[1] + array[i + 2] * v[2];
@@ -705,10 +708,10 @@ function dot(array: FloatArrayParam, i: number, v: Vec3): number {
  * This function applies a decompression matrix to a given UV coordinate,
  * adjusting it based on the transformation parameters.
  *
- * @param {FloatArrayParam} uv - The compressed UV coordinates as a 2-element array.
+ * @param  uv - The compressed UV coordinates as a 2-element array.
  * @param {Mat4Float} decompressMatrix - The 3x3 decompression matrix stored in a 1D array.
- * @param {FloatArrayParam} [dest] - Optional destination array for decompressed UVs. If not provided, a new Float32Array(2) is created.
- * @returns {FloatArrayParam} The decompressed UV coordinates.
+ * @param  [dest] - Optional destination array for decompressed UVs. If not provided, a new Float32Array(2) is created.
+ * @returns  The decompressed UV coordinates.
  */
 export function decompressUV(
   uv: FloatArrayParam,
@@ -735,10 +738,10 @@ export function decompressUV(
  * This function applies a decompression matrix to a batch of UV coordinates,
  * adjusting them based on the transformation parameters.
  *
- * @param {FloatArrayParam} uvs - The compressed UV coordinates (flat array).
+ * @param  uvs - The compressed UV coordinates (flat array).
  * @param {Mat4Float} decompressMatrix - The 3x3 decompression matrix stored in a 1D array.
- * @param {FloatArrayParam} [dest] - Optional destination array. If not provided, a new Float32Array is created.
- * @returns {FloatArrayParam} The decompressed UV coordinates.
+ * @param  [dest] - Optional destination array. If not provided, a new Float32Array is created.
+ * @returns  The decompressed UV coordinates.
  */
 export function decompressUVs(
   uvs: FloatArrayParam,
@@ -761,9 +764,9 @@ export function decompressUVs(
 /**
  * Decompresses a single oct-encoded normal vector into a 3D unit vector.
  *
- * @param {FloatArrayParam} oct - The compressed normal vector (2D).
- * @param {FloatArrayParam} result - The destination array to store the decompressed normal (3D).
- * @returns {FloatArrayParam} The decompressed 3D normal vector.
+ * @param  oct - The compressed normal vector (2D).
+ * @param  result - The destination array to store the decompressed normal (3D).
+ * @returns  The decompressed 3D normal vector.
  */
 export function decompressNormal(
   oct: FloatArrayParam,
@@ -796,9 +799,9 @@ export function decompressNormal(
 /**
  * Decompresses an array of oct-encoded normal vectors into 3D unit vectors.
  *
- * @param {FloatArrayParam} octs - The compressed normal vectors (flat array).
- * @param {FloatArrayParam} result - The destination array to store the decompressed normals.
- * @returns {FloatArrayParam} The decompressed 3D normal vectors.
+ * @param  octs - The compressed normal vectors (flat array).
+ * @param  result - The destination array to store the decompressed normals.
+ * @returns  The decompressed 3D normal vectors.
  */
 export function decompressNormals(
   octs: FloatArrayParam,
@@ -846,9 +849,9 @@ export function decompressNormals(
  * - Computing the missing z component.
  * - Normalizing the resulting vector.
  *
- * @param {Int8Array} oct - An array containing the oct-encoded normal components (x, y).
- * @param {FloatArrayParam} result - A pre-allocated array where the decoded 3D unit vector will be stored (default is `createVec3()`).
- * @returns {FloatArrayParam} The input `result` array, populated with the decoded 3D unit vector.
+ * @param  oct - An array containing the oct-encoded normal components (x, y).
+ * @param  result - A pre-allocated array where the decoded 3D unit vector will be stored (default is `createVec3()`).
+ * @returns  The input `result` array, populated with the decoded 3D unit vector.
  *
  * @example
  * const oct = new Int8Array([1, -1]);
@@ -895,9 +898,9 @@ function octDecodeVec2(oct: Vec2Int, result: Vec3 = createVec3Float64()): Vec3 {
  * - Computing the missing z component to ensure the decoded vectors lie on the unit sphere.
  * - Normalizing the resulting vectors to have unit length.
  *
- * @param {Int8Array} octs - An array of oct-encoded normal components, stored as pairs of signed 8-bit integers (x, y).
- * @param {FloatArrayParam} result - A pre-allocated array where the decoded 3D unit vectors will be stored.
- * @returns {FloatArrayParam} The input `result` array, populated with the decoded 3D normal vectors (x, y, z).
+ * @param  octs - An array of oct-encoded normal components, stored as pairs of signed 8-bit integers (x, y).
+ * @param  result - A pre-allocated array where the decoded 3D unit vectors will be stored.
+ * @returns  The input `result` array, populated with the decoded 3D normal vectors (x, y, z).
  *
  * @example
  * const octs = new Int8Array([1, -1, 1, 1, -1, -1]);
@@ -950,9 +953,9 @@ function octDecodeVec2s(octs: Int8Array<any>, result: FloatArrayParam): FloatArr
  * maintaining the relative precision within the bounding box. The decompress matrix can be used to recover
  * the original positions after decompression.
  *
- * @param {FloatArrayParam} positions - A flat array of 3D position data (x, y, z).
- * @param {FloatArrayParam} aabb - The axis-aligned bounding box (AABB) represented as a 6-element array [xmin, ymin, zmin, xmax, ymax, zmax].
- * @param {FloatArrayParam} positionsDecompressMatrix - A 4x4 matrix to be populated with the transformation matrix for decompression.
+ * @param  positions - A flat array of 3D position data (x, y, z).
+ * @param  aabb - The axis-aligned bounding box (AABB) represented as a 6-element array [xmin, ymin, zmin, xmax, ymax, zmax].
+ * @param  positionsDecompressMatrix - A 4x4 matrix to be populated with the transformation matrix for decompression.
  * @returns {Uint16Array} A new array containing the quantized positions in a compressed 16-bit format.
  *
  * @example
@@ -1022,8 +1025,8 @@ export function quantizePositions3AndCreateMat4(
  * This process is commonly used in mesh compression techniques to reduce the gpuMemoryManager footprint of
  * position data while maintaining relative accuracy within the bounds of the specified AABB.
  *
- * @param {FloatArrayParam} positions - A flat array of 3D position data (x, y, z).
- * @param {FloatArrayParam} aabb - The axis-aligned bounding box (AABB) represented as a 6-element array [xmin, ymin, zmin, xmax, ymax, zmax].
+ * @param  positions - A flat array of 3D position data (x, y, z).
+ * @param  aabb - The axis-aligned bounding box (AABB) represented as a 6-element array [xmin, ymin, zmin, xmax, ymax, zmax].
  * @returns {Uint16Array} A new array containing the quantized positions in a compressed 16-bit format.
  *
  * @example
@@ -1074,12 +1077,12 @@ export function quantizePositions3(positions: FloatArrayParam, aabb: AABB3): Int
  * with optimizations to minimize rounding errors. The function tests different combinations of the `ceil` and `floor`
  * functions for the oct-encoding process and picks the encoding that maximizes the cosine similarity.
  *
- * @param {FloatArrayParam} worldNormalMatrix - A 4x4 matrix used to transform normals from local space to world space.
- * @param {FloatArrayParam} normals - A flat array of normals in local space (x, y, z components).
- * @param {number} lenNormals - The length of the `normals` array, indicating the number of normals to process.
- * @param {FloatArrayParam} compressedNormals - An array where the compressed normals will be stored.
- * @param {number} lenCompressedNormals - The length of the `compressedNormals` array before processing begins.
- * @returns {number} The updated length of the `compressedNormals` array.
+ * @param  worldNormalMatrix - A 4x4 matrix used to transform normals from local space to world space.
+ * @param  normals - A flat array of normals in local space (x, y, z components).
+ * @param  lenNormals - The length of the `normals` array, indicating the number of normals to process.
+ * @param  compressedNormals - An array where the compressed normals will be stored.
+ * @param  lenCompressedNormals - The length of the `compressedNormals` array before processing begins.
+ * @returns  The updated length of the `compressedNormals` array.
  *
  * @example
  * const worldMatrix = new Float32Array([ ... 4x4 matrix ... ]);
@@ -1153,12 +1156,12 @@ export function transformAndOctEncodeNormals(
  * This function normalizes a 3D vector to the 2D oct encoding range and encodes it
  * using the specified math functions (`xfunc` and `yfunc`), which typically are 'floor' or 'ceil'.
  *
- * @param {FloatArrayParam} p - A 3D vector, typically representing a normal (x, y, z).
- * @param {string} xfunc - The math function to apply to the x component ('floor', 'ceil', etc.).
- * @param {string} yfunc - The math function to apply to the y component ('floor', 'ceil', etc.).
- * @returns {Int8Array} The oct-encoded 2D vector as a 2-element Int8Array.
+ * @param  p - A 3D vector, typically representing a normal (x, y, z).
+ * @param  xfunc - The math function to apply to the x component ('floor', 'ceil', etc.).
+ * @param  yfunc - The math function to apply to the y component ('floor', 'ceil', etc.).
+ * @returns  The oct-encoded 2D vector as a 2-element Int8Array.
  *
- * @throws {Error} If xfunc or yfunc are not valid function names.
+ * @throws  If xfunc or yfunc are not valid function names.
  *
  * @example
  * const vec3 = new Float32Array([0.5, -0.5, 0.5]);
@@ -1198,13 +1201,13 @@ export function octEncodeVec3(
  * This function normalizes the 3D normal vector to the 2D oct encoding range and encodes it
  * using a specified math function (`xfunc` and `yfunc` are typically 'floor' or 'ceil').
  *
- * @param {FloatArrayParam} array - The array containing the 3D normal vector.
- * @param {number} i - The tileIndex of the normal vector's x component in the array.
- * @param {string} xfunc - The math function to apply to the x component ('floor', 'ceil', etc.).
- * @param {string} yfunc - The math function to apply to the y component ('floor', 'ceil', etc.).
- * @returns {Int8Array} The oct-encoded normal vector as a 2-element Int8Array.
+ * @param  array - The array containing the 3D normal vector.
+ * @param  i - The tileIndex of the normal vector's x component in the array.
+ * @param  xfunc - The math function to apply to the x component ('floor', 'ceil', etc.).
+ * @param  yfunc - The math function to apply to the y component ('floor', 'ceil', etc.).
+ * @returns  The oct-encoded normal vector as a 2-element Int8Array.
  *
- * @throws {Error} If xfunc or yfunc are not valid function names.
+ * @throws  If xfunc or yfunc are not valid function names.
  *
  * @example
  * const normal = new Float32Array([0.5, -0.5, 0.5]);
@@ -1247,11 +1250,11 @@ export function octEncodeNormal(
  * This function scales floating-point color values (0.0 to 1.0) to an 8-bit range (0-255),
  * storing them in a `Uint16Array` for reduced gpuMemoryManager usage.
  *
- * @param {FloatArrayParam} colors - A flat array of floating-point color values (RGB or RGBA).
+ * @param  colors - A flat array of floating-point color values (RGB or RGBA).
  *                                   Each color component should be in the range [0, 1].
  * @returns {Uint16Array} A compressed Uint16Array where each value represents a color channel (0-255).
  *
- * @throws {Error} If input contains values outside the expected [0,1] range.
+ * @throws  If input contains values outside the expected [0,1] range.
  *
  * @example
  * const colors = new Float32Array([0.5, 0.2, 0.8, 1.0, 0.3, 0.6, 0.1, 1.0]);

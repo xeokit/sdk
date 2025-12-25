@@ -1,4 +1,4 @@
-import {Mat4} from "../math";
+import type {Mat4} from "../math";
 
 /**
  * Parameters for a {@link CustomProjection}.

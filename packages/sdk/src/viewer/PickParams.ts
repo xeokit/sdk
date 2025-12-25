@@ -1,4 +1,4 @@
-import {Mat4, Vec3Float} from "../math";
+import type {Mat4, Vec3, Vec2} from "../math";
 
 /**
  * TODO
@@ -48,17 +48,17 @@ export interface PickParams {
   /**
    * Canvas coordinates, used when {@link PickParams.rayPick} is ````false````.
    */
-  canvasPos?: Vec2Int;
+  canvasPos?: Vec2;
 
   /**
    * Ray-picking origin, used when {@link PickParams.rayPick} is ````true````.
    */
-  rayOrigin?: Vec3Float;
+  rayOrigin?: Vec3;
 
   /**
    * Ray-picking direction, used when {@link PickParams.rayPick} is ````true````.
    */
-  rayDirection?: Vec3Float;
+  rayDirection?: Vec3;
 
   /**
    * Ray-picking direction matrix, used when {@link PickParams.rayPick} is ````true````.

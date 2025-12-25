@@ -241,7 +241,7 @@ export class SceneTransform {
   toParams(): SceneTransformParams {
     const transformParams: SceneTransformParams = {
       id: this.id,
-      matrix: Array.from(this._localMatrix),
+      matrix: <Mat4>Array.from(this._localMatrix),
     };
     if (this._parentTransform) {
       transformParams.parentTransformId = this._parentTransform.id;

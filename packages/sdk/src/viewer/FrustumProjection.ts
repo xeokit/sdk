@@ -2,10 +2,11 @@ import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
 import {
   createMat4Float64,
   type Mat4,
-  Vec2,
+ type Vec2,
   frustumMat4,
   inverseMat4,
-  transposeMat4, Vec3
+  transposeMat4,
+  type Vec3
 } from "../math";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";

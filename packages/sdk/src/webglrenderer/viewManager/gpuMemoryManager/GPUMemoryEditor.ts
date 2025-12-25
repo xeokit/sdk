@@ -1,4 +1,4 @@
-import {type Vec3, Mat4} from "../../../math";
+import {type Vec3, type Mat4} from "../../../math";
 import {type Tile} from "./Tile";
 import {type SceneMesh} from "../../../scene";
 import type {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
@@ -97,7 +97,8 @@ export interface GPUMemoryEditor {
     meshHandle: GPUMemoryMeshHandle,
     viewIndex: number,
     params: {
-      color?: number[];
+      color?: Vec3;   // uvec3 bytes 0..255
+      opacity?: number; // float 0..1
       clippable?: boolean;
       pickable?: boolean;
     }

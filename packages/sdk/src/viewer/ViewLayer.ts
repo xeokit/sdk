@@ -6,6 +6,7 @@ import {ViewObject} from "./ViewObject";
 import type {ViewParams} from "./ViewParams";
 import {SDKErrorType, type SDKResult} from "../core";
 import {SceneObject} from "../scene";
+import type {Vec3} from "../math";
 
 
 /**
@@ -936,7 +937,7 @@ class ViewLayer {
    * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
    * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */
-  setObjectsColorized(objectIds: string[], colorize: number[]) {
+  setObjectsColorized(objectIds: string[], colorize: Vec3) {
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       viewObject.colorize = colorize; // Triggers ViewLayer.objectColorizeUpdated
     });

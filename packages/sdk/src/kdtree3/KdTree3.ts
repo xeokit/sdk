@@ -1,5 +1,4 @@
-import {containsAABB3, createAABB3Float64, expandAABB3} from "../boundaries";
-import type {FloatArrayParam} from "../math";
+import {type AABB3, containsAABB3, createAABB3Float64, expandAABB3} from "../boundaries";
 import type {KdItem3D} from "./KdItem3";
 import type {KdNode3} from "./KdNode3";
 import type {KdTree3Params} from "./KdTree3Params";
@@ -39,11 +38,11 @@ export class KdTree3 {
     return this.#root;
   }
 
-  insertItem(item: any, aabb: FloatArrayParam) {
+  insertItem(item: any, aabb: AABB3) {
     this.#insertItem(this.#root, <KdItem3D>{index: this.#numObjects++, item}, aabb, 1)
   }
 
-  #insertItem(node: KdNode3, item: KdItem3D, aabb: FloatArrayParam, depth: number) {
+  #insertItem(node: KdNode3, item: KdItem3D, aabb: AABB3, depth: number) {
     if (depth >= this.#maxDepth) {
       node.items = node.items || [];
       node.items.push(item);

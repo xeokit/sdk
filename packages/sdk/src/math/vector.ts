@@ -63,56 +63,56 @@ export type Vec4Int =
  * 2-element single-precision float vector.
  */
 export type Vec2Float32 =
-  | Float32Array<number>
+  | Float32Array<any>
   | Vec2Generic;
 
 /**
  * 2-element double-precision float vector.
  */
 export type Vec2Float64 =
-  | Float64Array<number>
+  | Float64Array<any>
   | Vec2Generic;
 
 /**
  * 3-element single-precision float vector.
  */
 export type Vec3Float32 =
-  | Float32Array<number>
+  | Float32Array<any>
   | Vec3Generic;
 
 /**
  * 3-element double-precision float vector.
  */
 export type Vec3Float64 =
-  | Float64Array<number>
+  | Float64Array<any>
   | Vec3Generic;
 
 /**
  * 4-element single-precision float vector.
  */
 export type Vec4Float32 =
-  | Float32Array<number>
+  | Float32Array<any>
   | Vec4Generic;
 
 /**
  * 4-element double-precision float vector.
  */
 export type Vec4Float64 =
-  | Float64Array<number>
+  | Float64Array<any>
   | Vec4Generic;
 
 /**
  * 9-element single-precision float vector.
  */
 export type Vec9Float32 =
-  | Float32Array<number>
+  | Float32Array<any>
   | Vec9Generic;
 
 /**
  * 9-element double-precision float vector.
  */
 export type Vec9Float64 =
-  | Float64Array<number>
+  | Float64Array<any>
   | Vec9Generic;
 
 /**
@@ -141,6 +141,7 @@ export type Vec4Float = Vec4Float32 | Vec4Float64;
  */
 export type Vec9Float = Vec9Float32 | Vec9Float64;
 
+
 /**
  * ============================================================
  * General vectors (integer or float)
@@ -165,7 +166,7 @@ export type Vec4 = Vec4Int | Vec4Float;
 /**
  * 9-element numeric vector.
  */
-export type Vec9 = Vec9Float32 | Vec9Float64;
+export type Vec9 = Vec9Float;
 
 
 /**

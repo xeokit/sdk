@@ -1,8 +1,8 @@
-import {createMat4Float64, createVec4Float64, Mat4, transformPoint4} from "../math";
+import {createMat4Float64, createVec4Float64, type Mat4, transformPoint4, type Vec4} from "../math";
 import type {SceneObject} from "../scene";
 import {type GeometryView, getSceneObjectGeometry} from "../scene";
 import {
-  AABB2,
+ type AABB2,
   collapseAABB3, createAABB3Float64,
   INSIDE,
   INTERSECT,
@@ -11,7 +11,6 @@ import {
   OUTSIDE,
   setFrustum3
 } from "../boundaries";
-import type {FloatArrayParam} from "../math";
 import {KdTree2} from "./KdTree2";
 import type {KdVertex2} from "./KdVertex2";
 import {createSceneObjectAABB3} from "../aabb/createSceneObjectAABB3";
@@ -71,7 +70,7 @@ export function createKdTree2FromSceneObjectVerts(params: {
     });
   }
 
-  function insertVertex(sceneObject: SceneObject, worldPos: FloatArrayParam) {
+  function insertVertex(sceneObject: SceneObject, worldPos: Vec4) {
     const viewPos = createVec4Float64();
     const projPos = createVec4Float64();
     const canvasPos = new Uint16Array(2);

@@ -42,12 +42,12 @@ import {
   createMat4Float64,
   createVec3Float64,
   createVec4Float64,
-  dotVec3, Mat4,
+  dotVec3, type Mat4,
   mulVec3Scalar,
   normalizeVec3,
   setMat4Translation, subVec3,
   transformVec4,
-  Vec3
+  type Vec3
 } from "../math";
 import {getPositions3Center} from "../boundaries";
 import type {FloatArrayParam} from "../math";

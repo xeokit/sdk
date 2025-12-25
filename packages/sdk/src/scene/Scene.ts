@@ -1,14 +1,13 @@
-
-import { SDKErrorType, type SDKResult } from "../core";
-import { SceneModel } from "./SceneModel";
-import type { SceneModelParams } from "./SceneModelParams";
-import type { SceneObject } from "./SceneObject";
-import { CoordinateSystem } from "./CoordinateSystem";
-import { type SceneParams } from "./SceneParams";
-import { SceneMesh } from "./SceneMesh";
-import { SceneGeometry } from "./SceneGeometry";
-import { SceneEvents } from "./SceneEvents";
-import { createUUID } from "../utils";
+import {SDKErrorType, type SDKResult} from "../core";
+import {SceneModel} from "./SceneModel";
+import type {SceneModelParams} from "./SceneModelParams";
+import type {SceneObject} from "./SceneObject";
+import {CoordinateSystem} from "./CoordinateSystem";
+import {type SceneParams} from "./SceneParams";
+import {SceneMesh} from "./SceneMesh";
+import {SceneGeometry} from "./SceneGeometry";
+import {SceneEvents} from "./SceneEvents";
+import {createUUID} from "../utils";
 
 /**
  * Represents the root container for all scene‑level state, including models, objects,

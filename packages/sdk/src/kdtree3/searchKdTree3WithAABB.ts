@@ -1,5 +1,4 @@
-import {INTERSECT, intersectAABB3s, OUTSIDE} from "../boundaries";
-import type {FloatArrayParam} from "../math";
+import {type AABB3, INTERSECT, intersectAABB3s, OUTSIDE} from "../boundaries";
 import type {KdItem3D} from "./KdItem3";
 import type {KdNode3} from "./KdNode3";
 import type {KdTree3} from "./KdTree3";
@@ -13,7 +12,7 @@ import type {KdTree3} from "./KdTree3";
  */
 export function searchKdTree3WithAABB(params: {
   kdTree: KdTree3,
-  aabb: FloatArrayParam
+  aabb: AABB3
 }): KdItem3D[] {
 
   const kdTree = params.kdTree;

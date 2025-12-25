@@ -11,7 +11,7 @@ import {type GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
 import {Camera, View} from "../../../viewer";
 import {type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
-import type {Mat4, Vec3, Vec4} from "../../../math";
+import type {Mat4, Vec3} from "../../../math";
 
 
 /**

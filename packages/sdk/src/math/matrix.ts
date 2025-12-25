@@ -34,28 +34,28 @@ export type Mat4Generic<T = number> = [
  * 3×3 single-precision float matrix.
  */
 export type Mat3Float32 =
-  | Float32Array<number>
+  | Float32Array<any>
   | Mat3Generic<number>;
 
 /**
  * 3×3 double-precision float matrix.
  */
 export type Mat3Float64 =
-  | Float64Array<number>
-  | Mat3Generic<number>;
+  | Float64Array<any>
+  | Mat3Generic<any>;
 
 /**
  * 4×4 single-precision float matrix.
  */
 export type Mat4Float32 =
-  | Float32Array<number>
+  | Float32Array<any>
   | Mat4Generic<number>;
 
 /**
  * 4×4 double-precision float matrix.
  */
 export type Mat4Float64 =
-  | Float64Array<number>
+  | Float64Array<any>
   | Mat4Generic<number>;
 
 /**
@@ -188,8 +188,8 @@ export function perspectiveMat4(
   zfar: number,
   m?: Mat4
 ): Mat4 {
-  const pmin = [];
-  const pmax = [];
+  const pmin = createVec3Float64();
+  const pmax = createVec3Float64();
   pmin[2] = znear;
   pmax[2] = zfar;
   pmax[1] = pmin[2] * Math.tan(fovyrad / 2.0);
@@ -225,8 +225,8 @@ export function frustumMat4v(
   if (!m) {
     m = createMat4Float64();
   }
-  const fmin4 = [fmin[0], fmin[1], fmin[2], 0.0];
-  const fmax4 = [fmax[0], fmax[1], fmax[2], 0.0];
+  const fmin4 = <Vec4>[fmin[0], fmin[1], fmin[2], 0.0];
+  const fmax4 = <Vec4>[fmax[0], fmax[1], fmax[2], 0.0];
   addVec4(fmax4, fmin4, tempVec4a);
   subVec4(fmax4, fmin4, tempVec4b);
   const t = 2.0 * fmin4[2];
@@ -448,7 +448,7 @@ export function rotationMat4v(
   }
 
   // Normalize the axis to ensure it's a unit vector
-  const ax = normalizeVec4([axis[0], axis[1], axis[2], 0.0], []);
+  const ax = normalizeVec4([axis[0], axis[1], axis[2], 0.0], createVec4Float64());
   const s = Math.sin(anglerad);
   const c = Math.cos(anglerad);
   const q = 1.0 - c;

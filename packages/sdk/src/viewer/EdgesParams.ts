@@ -1,4 +1,4 @@
-import {Vec3Float} from "../math";
+import type {Vec3} from "../math";
 
 /**
  * Parameters for a View's edge enhancement effect, {@link Edges}.
@@ -14,7 +14,7 @@ export interface EdgesParams {
    *
    * Default value is ````[0.2, 0.2, 0.2]````.
    */
-  edgeColor?: Vec3Float;
+  edgeColor?: Vec3;
 
   /**
    * Line width for {@link Edges | Edges}.

@@ -3,7 +3,9 @@ import {
   createMat4Float64,
   inverseMat4,
   perspectiveMat4,
-  transposeMat4, Vec2, Vec3
+  transposeMat4,
+  type Vec2,
+  type Vec3
 } from "../math";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";

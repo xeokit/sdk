@@ -7,7 +7,7 @@ import type {KdTree3} from "./KdTree3";
 import type {KdTrianglePrim} from "./KdTrianglePrim";
 import {PrimsKdTree3} from "./PrimsKdTree3";
 
-const tempAABBInt16 = new Int16Array(6);
+const tempAABBInt16 = createAABB3Int16();
 
 /**
  * Creates a KdTree3 that indexes the 3D primitives in the given arrays.
@@ -20,7 +20,7 @@ const tempAABBInt16 = new Int16Array(6);
  */
 export function createPrimsKdTree3(primitiveType: number, positions: FloatArrayParam, indices?: IntArrayParam): PrimsKdTree3 {
   const kdTree = new PrimsKdTree3({
-    aabb: <IntArrayParam>expandAABB3Points3(createAABB3Int16(), positions)
+    aabb: expandAABB3Points3(createAABB3Int16(), positions)
   });
 
   switch (primitiveType) {

@@ -1,5 +1,6 @@
-import type {FloatArrayParam} from "../math";
+
 import type {KdItem3D} from "./KdItem3";
+import type {AABB3} from "../boundaries";
 
 /**
  * A node in a {@link KdTree3}.
@@ -18,7 +19,7 @@ export interface KdNode3 {
   /**
    * The axis-aligned World-space 3D boundary of this kd-tree node.
    */
-  aabb: FloatArrayParam;
+  aabb: AABB3;
 
   /**
    * The left KDNode.

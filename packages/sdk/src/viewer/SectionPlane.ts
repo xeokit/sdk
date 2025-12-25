@@ -127,6 +127,7 @@ class SectionPlane {
      * @param value New direction.
      */
     set dir(value: Vec3) {
+      // @ts-ignore
         this._dir.set(value);
         this._dist = (-dotVec3(this._pos, this._dir));
         this.view.needsRender();
@@ -153,7 +154,7 @@ class SectionPlane {
         dir[0] *= -1.0;
         dir[1] *= -1.0;
         dir[2] *= -1.0;
-        this._dist = (-dotVec3(this._pos, this._dir));
+        this._dist = -dotVec3(this._pos, this._dir);
         this.view.viewer.events.onSectionPlaneDirChanged.dispatch(this, this._dir);
         this.view.needsRender();
     }
@@ -194,8 +195,8 @@ class SectionPlane {
           ok: true,
           value: {
             id: this.id,
-            dir: Array.from(this._dir),
-            pos: Array.from(this._pos),
+            dir: <Vec3>Array.from(this._dir),
+            pos: <Vec3>Array.from(this._pos),
             active: this._active
           }
         };

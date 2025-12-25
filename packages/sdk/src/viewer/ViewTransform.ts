@@ -4,7 +4,7 @@ import type { Mat4 } from "../math";
 import type { ViewTransformParams } from "./ViewTransformParams";
 import {ViewObject} from "./ViewObject";
 import {SceneMesh, SceneModel} from "../scene";
-import {SDKResult} from "../core";
+import type {SDKResult} from "../core";
 
 
 /**

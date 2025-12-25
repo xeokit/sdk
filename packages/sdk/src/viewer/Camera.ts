@@ -3,18 +3,22 @@ import {
   createMat4Float64,
   createVec3Float64,
   cross3Vec3,
-  dotVec3, Mat4, Vec3,
+  DEGTORAD,
+  dotVec3,
+  type FloatArrayParam,
   identityMat4,
   inverseMat4,
   lenVec3,
   lookAtMat4v,
+  type Mat4,
   mulMat4,
   mulVec3Scalar,
   normalizeVec3,
   rotationMat4v,
   subVec3,
   transformPoint3,
-  transposeMat4
+  transposeMat4,
+  type Vec3
 } from "../math";
 import {SDKErrorType, type SDKResult} from "../core";
 import {
@@ -23,7 +27,6 @@ import {
   OrthoProjectionType,
   PerspectiveProjectionType
 } from "../constants";
-import {DEGTORAD, type FloatArrayParam} from "../math";
 import {Frustum3, setFrustum3} from "../boundaries";
 import type {CameraParams} from "./CameraParams";
 import {CustomProjection} from './CustomProjection';
@@ -44,6 +47,7 @@ const tempVec3c = createVec3Float64();
 const tempVec3d = createVec3Float64();
 const tempVec3e = createVec3Float64();
 const tempVec3f = createVec3Float64();
+const tempVec3g = createVec3Float64();
 const tempMat = createMat4Float64();
 const tempMatb = createMat4Float64();
 const eyeLookVec = createVec3Float64();
@@ -705,12 +709,12 @@ class Camera {
    *
    * @param pan The pan vector
    */
-  pan(pan: FloatArrayParam) {
+  pan(pan: Vec3) {
     const eye2 = subVec3(this._eye, this._look, tempVec3);
-    const vec = [0, 0, 0];
+    const vec = tempVec3b;
     let v;
     if (pan[0] !== 0) {
-      const left = cross3Vec3(normalizeVec3(eye2, []), normalizeVec3(this._up, tempVec3b));
+      const left = cross3Vec3(normalizeVec3(eye2, tempVec3c), normalizeVec3(this._up, tempVec3d));
       v = mulVec3Scalar(left, pan[0]);
       vec[0] += v[0];
       vec[1] += v[1];
@@ -723,13 +727,13 @@ class Camera {
       vec[2] += v[2];
     }
     if (pan[2] !== 0) {
-      v = mulVec3Scalar(normalizeVec3(eye2, tempVec3d), pan[2]);
+      v = mulVec3Scalar(normalizeVec3(eye2, tempVec3c), pan[2]);
       vec[0] += v[0];
       vec[1] += v[1];
       vec[2] += v[2];
     }
-    this.eye = addVec3(this._eye, vec, tempVec3e);
-    this.look = addVec3(this._look, vec, tempVec3f);
+    this.eye = addVec3(this._eye, vec, tempVec3d);
+    this.look = addVec3(this._look, vec, tempVec3e);
   }
 
   /**
@@ -760,9 +764,9 @@ class Camera {
       });
     }
     const cameraParams: CameraParams = {
-      eye: Array.from(this._eye),
-      look: Array.from(this._look),
-      up: Array.from(this._up),
+      eye: <Vec3>Array.from(this._eye),
+      look: <Vec3>Array.from(this._look),
+      up: <Vec3>Array.from(this._up),
       gimbalLock: this.gimbalLock,
       constrainPitch: this.constrainPitch,
       projectionType: this.projectionType,

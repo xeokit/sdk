@@ -76,7 +76,7 @@
  * - Handle loading and error scenarios
  *
  * ```ts
- * import { SDKError } from "@xeokit/sdk/core";
+ * import { SDKInternalException } from "@xeokit/sdk/core";
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Data } from "@xeokit/sdk/data";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";

@@ -243,7 +243,7 @@ export class ViewTransform {
   toParams(): SDKResult<ViewTransformParams> {
     const transformParams: ViewTransformParams = {
       id: this.id,
-      matrix: Array.from(this._localMatrix),
+      matrix: <Mat4>Array.from(this._localMatrix),
     };
     if (this._parentTransform) {
       transformParams.parentTransformId = this._parentTransform.id;

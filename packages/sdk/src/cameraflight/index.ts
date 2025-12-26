@@ -26,10 +26,9 @@
  * - Set up a {@link viewer!Viewer | Viewer} with a {@link webglrenderer!WebGLRenderer | WebGLRenderer} and a {@link scene!Scene | Scene}.
  * - Attach a {@link cameracontrol!CameraControl | CameraControl} for user interaction.
  * - Load and render a CityJSON model using {@link cityjson!CityJSONLoader | CityJSONLoader}.
- * - Handle potential errors using {@link core!SDKError | SDKError}.
  *
  * ```javascript
- * import { SDKError } from "@xeokit/sdk/core";
+ * import { SDKInternalException } from "@xeokit/sdk/core";
  * import { Scene } from "@xeokit/sdk/scene";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
  * import { Viewer } from "@xeokit/sdk/viewer";

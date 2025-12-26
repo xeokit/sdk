@@ -294,8 +294,8 @@ export class SAODepthLimitedBlurRenderer {
     const depthTexture = depthRenderBuffer.getDepthTexture();
     const saoOcclusionTexture = occlusionRenderBuffer.getTexture();
 
-    program.bindTexture(this.#uDepthTexture, depthTexture, 0); // TODO: use FrameCtx.textureUnit
-    program.bindTexture(this.#uOcclusionTexture, saoOcclusionTexture, 1);
+    // program.bindTexture(this.#uDepthTexture, depthTexture, 0); // TODO: use FrameCtx.textureUnit
+    // program.bindTexture(this.#uOcclusionTexture, saoOcclusionTexture, 1);
 
     this.#aUV.bindArrayBuffer(this.#uvBuf);
     this.#aPosition.bindArrayBuffer(this.#positionsBuf);

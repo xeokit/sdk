@@ -12,51 +12,40 @@ import {clamp, type FloatArrayParam} from "./index";
 import {eulerToQuat, identityQuat, mat4ToQuat, type Quat, quatToRotationMat4} from "./quat";
 
 /**
- * Generic 3×3 matrix stored in column- or row-major flat order.
- */
-export type Mat3Generic<T = number> = [
-  T, T, T,
-  T, T, T,
-  T, T, T
-];
-
-/**
- * Generic 4×4 matrix stored in column- or row-major flat order.
- */
-export type Mat4Generic<T = number> = [
-  T, T, T, T,
-  T, T, T, T,
-  T, T, T, T,
-  T, T, T, T
-];
-
-/**
  * 3×3 single-precision float matrix.
  */
 export type Mat3Float32 =
   | Float32Array<any>
-  | Mat3Generic<number>;
+  | [number, number, number, number, number, number, number, number, number];
 
 /**
  * 3×3 double-precision float matrix.
  */
 export type Mat3Float64 =
   | Float64Array<any>
-  | Mat3Generic<any>;
+  | [number, number, number, number, number, number, number, number, number];
 
 /**
  * 4×4 single-precision float matrix.
  */
 export type Mat4Float32 =
   | Float32Array<any>
-  | Mat4Generic<number>;
+  | [
+    number, number, number, number,
+  number, number, number, number,
+  number, number, number, number,
+  number, number, number, number];
 
 /**
  * 4×4 double-precision float matrix.
  */
 export type Mat4Float64 =
   | Float64Array<any>
-  | Mat4Generic<number>;
+  | [
+  number, number, number, number,
+  number, number, number, number,
+  number, number, number, number,
+  number, number, number, number];
 
 /**
  * 3×3 floating-point matrix.

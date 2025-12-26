@@ -8,50 +8,27 @@ import type {FloatArrayParam} from "./index";
  * ============================================================
  */
 
-/**
- * Generic 2-element vector tuple.
- */
-export type Vec2Generic<T = number> = [T, T];
-
-/**
- * Generic 3-element vector tuple.
- */
-export type Vec3Generic<T = number> = [T, T, T];
-
-/**
- * Generic 4-element vector tuple.
- */
-export type Vec4Generic<T = number> = [T, T, T, T];
-
-/**
- * Generic 9-element vector tuple.
- */
-export type Vec9Generic<T = number> = [
-  T, T, T,
-  T, T, T,
-  T, T, T
-];
 
 /**
  * 2-element integer vector.
  */
 export type Vec2Int =
   | IntTypedArray
-  | Vec2Generic;
+  | [number, number];
 
 /**
  * 3-element integer vector.
  */
 export type Vec3Int =
   | IntTypedArray
-  | Vec3Generic;
+  | [number, number, number];
 
 /**
  * 4-element integer vector.
  */
 export type Vec4Int =
   | IntTypedArray
-  | Vec4Generic;
+  | [number, number, number, number];
 
 /**
  * ============================================================
@@ -64,56 +41,56 @@ export type Vec4Int =
  */
 export type Vec2Float32 =
   | Float32Array<any>
-  | Vec2Generic;
+  | [number, number];
 
 /**
  * 2-element double-precision float vector.
  */
 export type Vec2Float64 =
   | Float64Array<any>
-  | Vec2Generic;
+  | [number, number];
 
 /**
  * 3-element single-precision float vector.
  */
 export type Vec3Float32 =
   | Float32Array<any>
-  | Vec3Generic;
+  | [number, number, number];
 
 /**
  * 3-element double-precision float vector.
  */
 export type Vec3Float64 =
   | Float64Array<any>
-  | Vec3Generic;
+  | [number, number, number];
 
 /**
  * 4-element single-precision float vector.
  */
 export type Vec4Float32 =
   | Float32Array<any>
-  | Vec4Generic;
+  | [number, number, number, number];
 
 /**
  * 4-element double-precision float vector.
  */
 export type Vec4Float64 =
   | Float64Array<any>
-  | Vec4Generic;
+  | [number, number, number, number];
 
 /**
  * 9-element single-precision float vector.
  */
 export type Vec9Float32 =
   | Float32Array<any>
-  | Vec9Generic;
+  | [number, number, number, number, number, number, number, number, number];
 
 /**
  * 9-element double-precision float vector.
  */
 export type Vec9Float64 =
   | Float64Array<any>
-  | Vec9Generic;
+  | [number, number, number, number, number, number, number, number, number];
 
 /**
  * ============================================================
@@ -173,7 +150,7 @@ export type Vec9 = Vec9Float;
  * Creates a new 2D double-precision float vector.
  * @param values
  */
-export function createVec2Float64(values?: Vec2): Vec2 {
+export function createVec2Float64(values?: Vec2): Vec2Float64 {
   // @ts-ignore
   return new Float64Array(values || 2);
 }
@@ -256,15 +233,20 @@ export function createVec4Int16(values?: Vec4): Vec4Int {
 }
 
 /**
- * Creates a new 9-element vector.
- * @param values Optional initial values for the vector.
- * @returns The new 9-element vector.
+ * Creates a new 9-element double-precision float vector.
  */
-export function createVec9(values?: Vec9): Vec9 {
+export function createVec9Float64(values?: Vec9): Vec9 {
   // @ts-ignore
   return new Float64Array(values || 9);
 }
 
+/**
+ * Creates a new 9-element single-precision float vector.
+ */
+export function createVec9Float32(values?: Vec9): Vec9 {
+  // @ts-ignore
+  return new Float32Array(values || 9);
+}
 
 /**
  * Calculates and returns the dot product of two 3D vectors.

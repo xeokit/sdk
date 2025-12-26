@@ -59,7 +59,7 @@
  * import {ModelChunksLoader} from "@xeokit/sdk/modelchunksloader";
  * import {XGFLoader} from "@xeokit/sdk/xgf";
  * import {DataModelParamsLoader} from "@xeokit/sdk/data";
- * import {SDKError} from "@xeokit/sdk/core";
+ * import {SDKInternalException} from "@xeokit/sdk/core";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {CameraControl} from "@xeokit/sdk/cameracontrol";

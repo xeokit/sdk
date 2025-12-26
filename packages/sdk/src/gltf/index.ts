@@ -44,10 +44,8 @@
  * Within the Scene, a {@link scene!SceneModel | SceneModel} is created to hold the model. Then, the {@link gltf!GLTFLoader | GLTFLoader} class
  * is used to load a binary glTF (GLB) file into the SceneModel.
  *
- * The {@link core!SDKError | SDKError} class is used to handle any errors during this process.
- *
  * ````javascript
- * import {SDKError} from "@xeokit/sdk/core";
+ * import {SDKInternalException} from "@xeokit/sdk/core";
  * import {Scene} from "@xeokit/sdk/scene";
  * import {Data} from "@xeokit/sdk/data";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";

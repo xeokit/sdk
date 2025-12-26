@@ -36,7 +36,7 @@ export class LASLoader extends ModelLoader {
    * @param options - Options for loading the LAS/LAZ file.
    * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
    *
-   * @throws {@link core!SDKError | SDKError}
+   * @throws
    * - If the SceneModel has already been destroyed.
    * - If the DataModel has already been destroyed.
    */

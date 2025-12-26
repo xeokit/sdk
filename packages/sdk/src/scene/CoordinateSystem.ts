@@ -1,9 +1,15 @@
 
-import {type FloatArrayParam} from "../math";
 import {type CoordinateSystemParams} from "./CoordinateSystemParams";
 import  {Scene} from "./Scene";
 import type {SceneModel} from "./SceneModel";
-import {createVec3Float64, createVec9, type Vec3, type Vec9, testOrthogonalAxis} from "../math";
+import {
+  createVec3Float32,
+  createVec9Float64,
+  type Vec3,
+  type Vec9,
+  testOrthogonalAxis,
+  createVec3Float64
+} from "../math";
 import {SDKErrorType} from "../core";
 
 
@@ -22,7 +28,7 @@ import {SDKErrorType} from "../core";
  */
 export class CoordinateSystem  {
 
-    #notifyUpdatedScheduled: boolean;
+    _notifyUpdatedScheduled: boolean;
 
     private _scene: Scene;
     private _model: SceneModel;
@@ -51,18 +57,18 @@ export class CoordinateSystem  {
         this._origin = createVec3Float64(<any>params?.origin || [0, 0, 0]);
         this._units = params?.units || "meters";
         this._scaleToMeters = params?.scaleToMeters || 1;
-        this._worldUp = createVec3Float64();
-        this._worldRight = createVec3Float64();
-        this._worldForward = createVec3Float64();
+        this._worldUp = createVec3Float32();
+        this._worldRight = createVec3Float32();
+        this._worldForward = createVec3Float32();
 
         this.basis = params?.basis;
     }
 
-    #notifyUpdated() {
-        if (!this.#notifyUpdatedScheduled) {
-            this.#notifyUpdatedScheduled = true;
+    _notifyUpdated() {
+        if (!this._notifyUpdatedScheduled) {
+            this._notifyUpdatedScheduled = true;
             setTimeout(() => {
-                this.#notifyUpdatedScheduled = false;
+                this._notifyUpdatedScheduled = false;
                 (this._model)
                     ? this._model.scene.events.onSceneModelCoordSystemUpdated.dispatch(this._model, this)
                     :  this._scene.events.onSceneCoordSystemUpdated.dispatch(this._scene, this);
@@ -71,7 +77,7 @@ export class CoordinateSystem  {
     }
 
     /** Gets the flat 9-element coordinate system basis (column-major). */
-    get basis(): FloatArrayParam {
+    get basis(): Vec9 {
         return this._basis;
     }
 
@@ -104,7 +110,7 @@ export class CoordinateSystem  {
             });
             return;
         }
-        this._basis = createVec9(<any>value || [
+        this._basis = createVec9Float64(<any>value || [
             1, 0, 0, // Right
             0, 0, 1, // Up
             0, 1, 0 // Forward
@@ -121,7 +127,7 @@ export class CoordinateSystem  {
         (this._model)
             ? this._model.scene.events.onSceneModelCoordSystemBasisChanged.dispatch(this._model, this)
             :  this._scene.events.onSceneCoordSystemBasisChanged.dispatch(this._scene, this);
-        this.#notifyUpdated();
+        this._notifyUpdated();
     }
 
     /** Gets the origin of the coordinate system in global space. */
@@ -142,11 +148,11 @@ export class CoordinateSystem  {
             });
             return;
         }
-        this._origin = createVec3Float64(value);
+        this._origin = createVec3Float32(value);
         (this._model)
             ? this._model.scene.events.onSceneModelCoordSystemOriginChanged.dispatch(this._model, this)
             :  this._scene.events.onSceneCoordSystemOriginChanged.dispatch(this._scene, this);
-        this.#notifyUpdated();
+        this._notifyUpdated();
     }
 
     /** Gets the unit system used. */
@@ -179,7 +185,7 @@ export class CoordinateSystem  {
         (this._model)
             ? this._model.scene.events.onSceneModelCoordSystemUnitsChanged.dispatch(this._model, this)
             :  this._scene.events.onSceneCoordSystemUnitsChanged.dispatch(this._scene, this);
-        this.#notifyUpdated();
+        this._notifyUpdated();
     }
 
     /** Gets the optional scale-to-meters multiplier. */
@@ -212,7 +218,7 @@ export class CoordinateSystem  {
         (this._model)
             ? this._model.scene.events.onSceneModelCoordSystemScaleToMetersChanged.dispatch(this._model, this)
         :  this._scene.events.onSceneCoordSystemScaleToMetersChanged.dispatch(this._scene, this);
-        this.#notifyUpdated();
+        this._notifyUpdated();
     }
 
     /**
@@ -302,11 +308,11 @@ export class CoordinateSystem  {
             });
              return;
         }
-        this._basis = createVec9(params.basis);
-        this._origin = createVec3Float64(params.origin);
+        this._basis = createVec9Float64(params.basis);
+        this._origin = createVec3Float32(params.origin);
         this._units = params.units;
         this._scaleToMeters = params.scaleToMeters;
-        this.#notifyUpdated();
+        this._notifyUpdated();
     }
 
     /**

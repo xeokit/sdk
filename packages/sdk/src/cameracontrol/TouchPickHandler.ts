@@ -1,4 +1,4 @@
-import {distVec2, subVec3} from "../math";
+import {createVec2Float32, distVec2, subVec3} from "../math";
 import type {PickResult, View} from "../viewer";
 import {getSceneAABBIndex, SceneAABB3Index} from "../aabb/SceneAABB3Index";
 
@@ -47,7 +47,7 @@ export class TouchPickHandler {
 
     let touchStartTime;
     const activeTouches = [];
-    const tapStartPos = createVec2();
+    const tapStartPos = createVec2Float32();
     let tapStartTime = -1;
     let lastTapTime = -1;
 
@@ -64,14 +64,14 @@ export class TouchPickHandler {
 
       if (pos) { // Fly to look at point, don't change eye->look dist
         const camera = view.camera;
-        const diff = subVec3(camera.eye, camera.look, []);
+       // const diff = subVec3(camera.eye, camera.look, []);
         controllers.cameraFlight.flyTo({
-          aabb: aabb
+          aabb
         });
         // TODO: Option to back off to fit AABB in view
       } else {// Fly to fit target boundary in view
         controllers.cameraFlight.flyTo({
-          aabb: aabb
+          aabb
         });
       }
     };

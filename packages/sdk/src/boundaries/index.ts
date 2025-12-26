@@ -60,18 +60,6 @@ const tempMat4a = createMat4Float64();
  */
 
 /**
- * Generic 2D axis-aligned bounding box.
- * Tuple layout: [minX, minY, maxX, maxY].
- */
-export type AABB2Generic<T = number> = [T, T, T, T];
-
-/**
- * Generic 3D axis-aligned bounding box.
- * Tuple layout: [minX, minY, minZ, maxX, maxY, maxZ].
- */
-export type AABB3Generic<T = number> = [T, T, T, T, T, T];
-
-/**
  * ============================================================
  * Floating-point AABBs (explicit precision)
  * ============================================================
@@ -82,28 +70,28 @@ export type AABB3Generic<T = number> = [T, T, T, T, T, T];
  */
 export type AABB2Float32 =
   | Float32Array<any>
-  | AABB2Generic;
+  | [number, number, number, number];
 
 /**
  * 64-bit floating-point 2D axis-aligned bounding box.
  */
 export type AABB2Float64 =
   | Float64Array<any>
-  | AABB2Generic;
+  | [number, number, number, number];
 
 /**
  * 32-bit floating-point 3D axis-aligned bounding box.
  */
 export type AABB3Float32 =
   | Float32Array<any>
-  | AABB3Generic;
+  | [number, number, number, number, number, number];
 
 /**
  * 64-bit floating-point 3D axis-aligned bounding box.
  */
 export type AABB3Float64 =
   | Float64Array<any>
-  | AABB3Generic;
+  | [number, number, number, number, number, number];
 
 /**
  * ============================================================
@@ -141,7 +129,7 @@ export type AABB2Int =
   | Uint16Array<any>
   | Int32Array<any>
   | Uint32Array<any>
-  | AABB2Generic;
+  | [number, number, number, number];
 
 /**
  * Integer 3D axis-aligned bounding box.
@@ -153,7 +141,7 @@ export type AABB3Int =
   | Uint16Array<any>
   | Int32Array<any>
   | Uint32Array<any>
-  | AABB3Generic;
+  | [number, number, number, number, number, number];
 
 /**
  * ============================================================

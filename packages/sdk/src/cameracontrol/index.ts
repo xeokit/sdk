@@ -38,7 +38,7 @@
  * a {@link scene!Scene | Scene} to manage geometry and materials, and an interactive camera controlled via CameraControl.
  *
  * ```javascript
- * import {SDKError} from "@xeokit/sdk/core";
+ * import {SDKInternalException} from "@xeokit/sdk/core";
  * import {Scene} from "@xeokit/sdk/scene";
  * import {OrbitNavigationMode, FirstPersonNavigationMode, PlanViewNavigationMode, QWERTYLayout} from "@xeokit/sdk/constants";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";

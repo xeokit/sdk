@@ -158,6 +158,11 @@
  *     elementId: "myView1"
  * });
  *
+ * if (view1Result.ok === false) {
+ *    console.error(view1Result.error);
+ *    // handle error...
+ * }
+ *
  * const view1 = view1Result.value;
  * ````
  *
@@ -256,7 +261,15 @@
  * new objects will now appear in the View's canvas to represent them.
  *
  * ````javascript
- * const sceneModelResult = scene.createModel();
+ * const sceneModelResult = scene.createModel({
+ *   id: "myModel"
+ * });
+ *
+ * if (sceneModelResult.ok === false) {
+ *    console.error(sceneModelResult.error);
+ *    // handle error...
+ * }
+ *
  * const sceneModel = sceneModelResult.value;
  *
  * sceneModel.createGeometry({
@@ -387,11 +400,16 @@
  * Here’s how to create a SectionPlane that slices away half of the Scene:
  *
  * ```javascript
- * view1.createSectionPlane({
+ * const sectionPlaneResult = view1.createSectionPlane({
  *     id: "sectionPlane1",
  *     pos: [0, 0, 0],
  *     dir: [-1, -1, -1]
  * });
+ *
+ * if (sectionPlaneResult.ok === false) {
+ *    console.error(sectionPlaneResult.error);
+ *    // handle error...
+ * }
  * ```
  *
  * SectionPlanes can also be animated dynamically:
@@ -439,12 +457,17 @@
  * ```javascript
  * view1.clearLights();
  *
- * view1.createDirLight({ // DirLight
+ * const lightResult = view1.createDirLight({ // DirLight
  *   id: "dirLight1",
  *   dir: [-1, -1, -1],
  *   color: [0.9, 0.9, 0.9],
  *   intensity: 0.9
  * });
+ *
+ * if (lightResult.ok === false) {
+ *    console.error(lightResult.error);
+ *    // handle error...
+ * }
  *
  * view1.createPointLight({ // PointLight
  *   id: "pointLight1",
@@ -504,6 +527,11 @@
  *      id: "myView2",
  *      elementId: "myView2"
  * });
+ *
+ * if (view2Result.ok === false) {
+ *    console.error(view2Result.error);
+ *    // handle error...
+ * }
  *
  * const view2 = view2Result.value;
  *

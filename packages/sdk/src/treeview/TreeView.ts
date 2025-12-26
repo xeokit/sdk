@@ -1,4 +1,4 @@
-import {EventEmitter} from "../core";
+import {EventEmitter, SDKInternalException} from "../core";
 import type {Data, DataModel, DataObject} from "../data";
 import type {View, Viewer, ViewObject} from "../viewer";
 import {EventDispatcher} from "strongly-typed-events";
@@ -6,6 +6,7 @@ import type {TreeViewNode} from "./TreeViewNode";
 import type {TreeViewNodeContextMenuEvent} from "./TreeViewNodeContextMenuEvent";
 import type {TreeViewNodeTitleClickedEvent} from "./TreeViewNodeTitleClickedEvent";
 import type {TreeViewParams} from "./TreeViewParams";
+import {TreeViewEvents} from "./TreeViewEvents";
 
 
 /**
@@ -53,63 +54,55 @@ export class TreeView  {
   static GroupsHierarchy = 2;
 
   /**
+   * The events emitted by this TreeView.
+   */
+  public readonly events: TreeViewEvents = new TreeViewEvents();
+
+  /**
    * The semantic {@link data!Data | Data} model that determines the structure of this TreeView.
    */
-  data: Data;
+  public readonly data: Data;
 
   /**
    * The {@link viewer!View | View} that contains the {@link viewer!ViewObject | ViewObjects}
    * navigated by this TreeView.
    */
-  view: View;
+  public readonly view: View;
 
-  /**
-   * Emits an event each time the title of a node is clicked in the tree view.
-   */
-  readonly onNodeTitleClicked: EventEmitter<TreeView, TreeViewNodeTitleClickedEvent>;
 
-  /**
-   * Emits an event each time we right-click on a tree node.
-   */
-  readonly onContextMenu: EventEmitter<TreeView, TreeViewNodeContextMenuEvent>;
-
-  /**
-   * Emits an event when this TreeView has been destroyed.
-   *
-   * Triggered by {@link TreeView.destroy}.
-   */
-  declare readonly onDestroyed: EventEmitter<TreeView, null>;
-
-  #linkType: number;
-  #groupTypes: number[];
-  #containerElement: HTMLElement;
-  #hierarchy: number;
-  #dataModels: {
+  _linkType: number;
+  _groupTypes: number[];
+  _containerElement: HTMLElement;
+  _hierarchy: number;
+  _dataModels: {
     [key: string]: DataModel
   };
-  #autoAddModels: boolean;
-  #autoExpandDepth: any;
-  #sortNodes: boolean | undefined;
-  #pruneEmptyNodes: boolean;
-  #viewer: Viewer;
-  #rootElement: HTMLUListElement | null;
-  #muteSceneEvents: boolean;
-  #muteTreeEvents: boolean;
-  #rootNodes: any[];
-  #objectNodes: {
+  _autoAddModels: boolean;
+  _autoExpandDepth: any;
+  _sortNodes: boolean | undefined;
+  _pruneEmptyNodes: boolean;
+  _viewer: Viewer;
+  _rootElement: HTMLUListElement | null;
+  _muteSceneEvents: boolean;
+  _muteTreeEvents: boolean;
+  _rootNodes: any[];
+  _objectNodes: {
     [key: string]: TreeViewNode
   };
-  #rootName: any;
-  #showListItemElementId: string | null;
-  #spatialSortFunc: (node1: TreeViewNode, node2: TreeViewNode) => (number);
-  #switchExpandHandler: (event: MouseEvent) => void;
-  #switchCollapseHandler: (event: MouseEvent) => void;
-  #checkboxChangeHandler: (event: MouseEvent) => void;
-  #destroyed: boolean;
-  #onViewObjectVisibility: () => void;
-  #onViewObjectXRayed: () => void;
+  _rootName: any;
+  _showListItemElementId: string | null;
+  _spatialSortFunc: (node1: TreeViewNode, node2: TreeViewNode) => (number);
+  _switchExpandHandler: (event: MouseEvent) => void;
+  _switchCollapseHandler: (event: MouseEvent) => void;
+  _checkboxChangeHandler: (event: MouseEvent) => void;
+  _destroyed: boolean;
 
-  #dataObjectSceneObjectCounts: { [key: string]: number };
+  private _onSceneModelCreated: () => void;
+  private _onSceneModelDestroyed: () => void;
+  private _onViewObjectVisibility: () => void;
+  private _onViewObjectXRayed: () => void;
+  private _dataObjectSceneObjectCounts: { [key: string]: number };
+
 
   /**
    *
@@ -132,43 +125,39 @@ export class TreeView  {
     this.data = params.data;
     this.view = params.view;
 
-    this.#viewer = params.view.viewer;
-    this.#linkType = params.linkType;
-    this.#groupTypes = params.groupTypes;
-    this.#hierarchy = TreeView.AggregationHierarchy;
-    this.#containerElement = params.containerElement;
-    this.#dataModels = {};
-    this.#autoExpandDepth = (params.autoExpandDepth || 0);
-    this.#sortNodes = (params.sortNodes !== false);
-    this.#pruneEmptyNodes = (params.pruneEmptyNodes !== false);
-    this.#rootElement = null;
-    this.#muteSceneEvents = false;
-    this.#muteTreeEvents = false;
-    this.#rootNodes = [];
-    this.#objectNodes = {}; // Object ID -> TreeViewNode
-    this.#rootName = params.rootName;
-    this.#sortNodes = params.sortNodes;
+    this._viewer = params.view.viewer;
+    this._linkType = params.linkType;
+    this._groupTypes = params.groupTypes;
+    this._hierarchy = TreeView.AggregationHierarchy;
+    this._containerElement = params.containerElement;
+    this._dataModels = {};
+    this._autoExpandDepth = (params.autoExpandDepth || 0);
+    this._sortNodes = (params.sortNodes !== false);
+    this._pruneEmptyNodes = (params.pruneEmptyNodes !== false);
+    this._rootElement = null;
+    this._muteSceneEvents = false;
+    this._muteTreeEvents = false;
+    this._rootNodes = [];
+    this._objectNodes = {}; // Object ID -> TreeViewNode
+    this._rootName = params.rootName;
+    this._sortNodes = params.sortNodes;
     // @ts-ignore
-    this.#pruneEmptyNodes = params.pruneEmptyNodes;
+    this._pruneEmptyNodes = params.pruneEmptyNodes;
     // @ts-ignore
-    this.#showListItemElementId = null;
-    this.#destroyed = false;
+    this._showListItemElementId = null;
+    this._destroyed = false;
 
-    this.onNodeTitleClicked = new EventEmitter(new EventDispatcher<TreeView, TreeViewNodeTitleClickedEvent>());
-    this.onContextMenu = new EventEmitter(new EventDispatcher<TreeView, TreeViewNodeContextMenuEvent>());
-    this.onDestroyed = new EventEmitter(new EventDispatcher<TreeView, null>());
-
-    this.#containerElement.oncontextmenu = (e) => {
+    this._containerElement.oncontextmenu = (e) => {
       e.preventDefault();
     };
 
-    this.#onViewObjectVisibility = this.view.viewer.events.onViewObjectVisibleChanged.subscribe((view: View, viewObject: ViewObject) => {
-      if (this.#muteSceneEvents) {
+    this._onViewObjectVisibility = this.view.viewer.events.onViewObjectVisibleChanged.subscribe((view: View, viewObject: ViewObject) => {
+      if (this._muteSceneEvents) {
         return;
       }
       const objectId = viewObject.id;
       // @ts-ignore
-      const node = this.#objectNodes[objectId];
+      const node = this._objectNodes[objectId];
       if (!node) {
         return; // Not in this tree
       }
@@ -177,7 +166,7 @@ export class TreeView  {
       if (!updated) {
         return;
       }
-      this.#muteTreeEvents = true;
+      this._muteTreeEvents = true;
       node.checked = visible;
       if (visible) {
         node.numVisibleViewObjects++;
@@ -205,19 +194,19 @@ export class TreeView  {
         }
         parentNode = parentNode.parentNode;
       }
-      this.#muteTreeEvents = false;
+      this._muteTreeEvents = false;
     });
 
-    this.#onViewObjectXRayed = this.view.viewer.events.onViewObjectXRayedChanged.subscribe((view: View, viewObject: ViewObject) => {
-      if (this.#muteSceneEvents) {
+    this._onViewObjectXRayed = this.view.viewer.events.onViewObjectXRayedChanged.subscribe((view: View, viewObject: ViewObject) => {
+      if (this._muteSceneEvents) {
         return;
       }
       const objectId = viewObject.id;
-      const node = this.#objectNodes[objectId];
+      const node = this._objectNodes[objectId];
       if (!node) {
         return; // Not in this tree
       }
-      this.#muteTreeEvents = true;
+      this._muteTreeEvents = true;
       const xrayed = viewObject.xrayed;
       const updated = (xrayed !== node.xrayed);
       if (!updated) {
@@ -233,36 +222,36 @@ export class TreeView  {
           listItemElement.classList.remove('xrayed-node');
         }
       }
-      this.#muteTreeEvents = false;
+      this._muteTreeEvents = false;
     });
 
-    this.#switchExpandHandler = (event: MouseEvent) => {
+    this._switchExpandHandler = (event: MouseEvent) => {
       event.preventDefault();
       event.stopPropagation();
       const switchElement = (<HTMLElement>event.target);
-      this.#expandSwitchElement(switchElement);
+      this._expandSwitchElement(switchElement);
     };
 
-    this.#switchCollapseHandler = (event) => {
+    this._switchCollapseHandler = (event) => {
       event.preventDefault();
       event.stopPropagation();
       const switchElement = (<HTMLElement>event.target);
-      this.#collapseSwitchElement(switchElement);
+      this._collapseSwitchElement(switchElement);
     };
 
-    this.#checkboxChangeHandler = (event: any) => {
-      if (this.#muteTreeEvents) {
+    this._checkboxChangeHandler = (event: any) => {
+      if (this._muteTreeEvents) {
         return;
       }
-      this.#muteSceneEvents = true;
+      this._muteSceneEvents = true;
       const checkbox = event.target;
       const visible = checkbox.checked;
       const nodeId = checkbox.id;
       const checkedObjectId = nodeId;
-      const checkedNode = this.#objectNodes[checkedObjectId];
+      const checkedNode = this._objectNodes[checkedObjectId];
       const objects = this.view.objects;
       let numUpdated = 0;
-      this.#withNodeTree(checkedNode, (node: TreeViewNode) => {
+      this._withNodeTree(checkedNode, (node: TreeViewNode) => {
         const objectId = node.objectId;
         const checkBoxId = node.nodeId;
         const viewObject = objects[objectId];
@@ -295,7 +284,7 @@ export class TreeView  {
         }
         parentNode = parentNode.parentNode;
       }
-      this.#muteSceneEvents = false;
+      this._muteSceneEvents = false;
     };
 
     this.hierarchy = params.hierarchy;
@@ -303,12 +292,18 @@ export class TreeView  {
     const modelIds = Object.keys(this.data.models);
     for (let i = 0, len = modelIds.length; i < len; i++) {
       const modelId = modelIds[i];
-      this.#addModel(modelId);
+      this._addModel(modelId);
     }
 
-    this.#viewer.scene.events.onSceneModelCreated.subscribe((scene, sceneModel) => {
+    this._onSceneModelCreated = this._viewer.scene.events.onSceneModelCreated.subscribe((scene, sceneModel) => {
       if (this.data.models[sceneModel.id]) {
-        this.#addModel(sceneModel.id);
+        this._addModel(sceneModel.id);
+      }
+    });
+
+    this._onSceneModelDestroyed = this._viewer.scene.events.onSceneModelDestroyed.subscribe((scene, sceneModel) => {
+      if (this.data.models[sceneModel.id]) {
+        this._removeModel(sceneModel.id);
       }
     });
   }
@@ -323,7 +318,7 @@ export class TreeView  {
    * * {@link TreeView.GroupsHierarchy}
    */
   get hierarchy(): number {
-    return this.#hierarchy;
+    return this._hierarchy;
   }
 
   /**
@@ -341,11 +336,11 @@ export class TreeView  {
       console.error("Unsupported value for `hierarchy' - defaulting to TreeView.AggregationHierarchy ");
       hierarchy = TreeView.AggregationHierarchy;
     }
-    if (this.#hierarchy === hierarchy) {
+    if (this._hierarchy === hierarchy) {
       return;
     }
-    this.#hierarchy = hierarchy;
-    this.#rebuildNodes();
+    this._hierarchy = hierarchy;
+    this._rebuildNodes();
   }
 
   /**
@@ -355,7 +350,7 @@ export class TreeView  {
    * {@link data!DataObject.relating | DataObject.relating}.
    */
   get linkType(): number {
-    return this.#linkType;
+    return this._linkType;
   }
 
   /**
@@ -365,11 +360,11 @@ export class TreeView  {
    * {@link data!DataObject.relating | DataObject.relating}.
    */
   set linkType(linkType: number) {
-    if (this.#linkType === linkType) {
+    if (this._linkType === linkType) {
       return;
     }
-    this.#linkType = linkType;
-    this.#rebuildNodes();
+    this._linkType = linkType;
+    this._rebuildNodes();
   }
 
   /**
@@ -384,7 +379,7 @@ export class TreeView  {
    * Example: ````[IfcBuilding, IfcBuildingStorey]````.
    */
   get groupTypes(): number [] {
-    return this.#groupTypes;
+    return this._groupTypes;
   }
 
   /**
@@ -399,12 +394,12 @@ export class TreeView  {
    * Example: ````[IfcBuilding, IfcBuildingStorey]````.
    */
   set groupTypes(groupTypes: number[]) {
-    if (this.#groupTypes === groupTypes) {
+    if (this._groupTypes === groupTypes) {
       return;
     }
-    this.#groupTypes = groupTypes;
-    if (this.#hierarchy === TreeView.GroupsHierarchy) {
-      this.#rebuildNodes();
+    this._groupTypes = groupTypes;
+    if (this._hierarchy === TreeView.GroupsHierarchy) {
+      this._rebuildNodes();
     }
   }
 
@@ -425,18 +420,18 @@ export class TreeView  {
    * @param {String} objectId ID of the {@link viewer!ViewObject | ViewObject}.
    */
   showNode(objectId: string): void {
-    if (this.#showListItemElementId) {
+    if (this._showListItemElementId) {
       this.unShowNode();
     }
-    const node = this.#objectNodes[objectId];
+    const node = this._objectNodes[objectId];
     if (!node) {
-      return; // TreeViewNode may not exist for the given object if (this.#pruneEmptyNodes == true)
+      return; // TreeViewNode may not exist for the given object if (this._pruneEmptyNodes == true)
     }
     const nodeId = node.nodeId;
     const switchElementId = "switch-" + nodeId;
     const switchElement = document.getElementById(switchElementId);
     if (switchElement) {
-      this.#expandSwitchElement(switchElement);
+      this._expandSwitchElement(switchElement);
       switchElement.scrollIntoView();
       return;
     }
@@ -453,7 +448,7 @@ export class TreeView  {
       const switchElementId = "switch-" + nodeId;
       const switchElement = document.getElementById(switchElementId);
       if (switchElement) {
-        this.#expandSwitchElement(switchElement);
+        this._expandSwitchElement(switchElement);
       }
     }
     const listItemElementId = 'node-' + nodeId;
@@ -462,27 +457,27 @@ export class TreeView  {
     listItemElement.scrollIntoView({block: "center"});
     // @ts-ignore
     listItemElement.classList.add("highlighted-node");
-    this.#showListItemElementId = listItemElementId;
+    this._showListItemElementId = listItemElementId;
   }
 
   /**
-   * De-highlights the node previously shown with {@link TreeView#showNode}.
+   * De-highlights the node previously shown with {@link TreeView_showNode}.
    *
    * Does nothing if no node is currently shown.
    *
    * If the node is currently scrolled into view, keeps the node in view.
    */
   unShowNode(): void {
-    if (!this.#showListItemElementId) {
+    if (!this._showListItemElementId) {
       return;
     }
-    const listItemElement = document.getElementById(this.#showListItemElementId);
+    const listItemElement = document.getElementById(this._showListItemElementId);
     if (!listItemElement) {
-      this.#showListItemElementId = null;
+      this._showListItemElementId = null;
       return;
     }
     listItemElement.classList.remove("highlighted-node");
-    this.#showListItemElementId = null;
+    this._showListItemElementId = null;
   }
 
   /**
@@ -502,7 +497,7 @@ export class TreeView  {
       const switchElementId = `switch-${nodeId}`;
       const switchElement = document.getElementById(switchElementId);
       if (switchElement) {
-        this.#expandSwitchElement(switchElement);
+        this._expandSwitchElement(switchElement);
         const childNodes = node.childNodes;
         for (let i = 0, len = childNodes.length; i < len; i++) {
           const childNode = childNodes[i];
@@ -510,8 +505,8 @@ export class TreeView  {
         }
       }
     };
-    for (let i = 0, len = this.#rootNodes.length; i < len; i++) {
-      const rootNode = this.#rootNodes[i];
+    for (let i = 0, len = this._rootNodes.length; i < len; i++) {
+      const rootNode = this._rootNodes[i];
       expand(rootNode, 0);
     }
   }
@@ -520,10 +515,10 @@ export class TreeView  {
    * Closes all the nodes in the tree.
    */
   collapse(): void {
-    for (let i = 0, len = this.#rootNodes.length; i < len; i++) {
-      const rootNode = this.#rootNodes[i];
+    for (let i = 0, len = this._rootNodes.length; i < len; i++) {
+      const rootNode = this._rootNodes[i];
       const objectId = rootNode.objectId;
-      this.#collapseNode(objectId);
+      this._collapseNode(objectId);
     }
   }
 
@@ -531,112 +526,108 @@ export class TreeView  {
    * Destroys this TreeView.
    */
   destroy(): void {
-    if (!this.#containerElement) {
+    if (!this._containerElement) {
       return;
     }
-    this.#dataModels = {};
-    if (this.#rootElement && !this.#destroyed) {
+    this._dataModels = {};
+    if (this._rootElement && !this._destroyed) {
       // @ts-ignore
-      this.#rootElement.parentNode.removeChild(this.#rootElement);
+      this._rootElement.parentNode.removeChild(this._rootElement);
+
+      const sceneEvents = this.view.viewer.scene.events;
+      sceneEvents.onSceneModelCreated.unsubscribe(this._onSceneModelCreated);
+
       const viewerEvents = this.view.viewer.events;
+      viewerEvents.onViewObjectVisibleChanged.unsubscribe(this._onViewObjectVisibility);
+      viewerEvents.onViewObjectXRayedChanged.unsubscribe(this._onViewObjectXRayed);
 
-      viewerEvents.onViewObjectVisibleChanged.unsubscribe(this.#onViewObjectVisibility);
-      viewerEvents.onViewObjectXRayedChanged.unsubscribe(this.#onViewObjectXRayed);
-
-      this.#destroyed = true;
+      this._destroyed = true;
     }
-    // TODO: Unsubscribe from Scene events
-
+this.events.destroy();
   }
 
   /**
    * Adds a model to this tree view.
    *
    * @private
-   * @param {String} modelId ID of a model {@link viewObject} in {@link scene!Scene#models}.
+   * @param {String} modelId ID of a model {@link viewObject} in {@link scene!Scene_models}.
    * @param {Object} [options] Options for model in the tree view.
    * @param {String} [options.rootName] Optional display name for the root node. Ordinary, for "containment"
    * and {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy types, the tree would derive the root node name from the model's "IfcProject" element
    * name. This option allows to override that name when it is not suitable as a display name.
    */
-  #addModel(modelId: string, options = {}): void {
-    if (!this.#containerElement) {
+  _addModel(modelId: string, options = {}): void {
+    if (!this._containerElement) {
       return;
     }
-    const model = this.#viewer.scene.models[modelId];
+    const model = this._viewer.scene.models[modelId];
     if (!model) {
-      this.error(`SceneModel not found: ${modelId}`);
-      return;
+      throw new SDKInternalException(`SceneModel not found: ${modelId}`);
     }
     const dataModel = this.data.models[modelId];
     if (!dataModel) {
-      this.error(`DataModel not found: ${modelId}`);
-      return;
+      throw new SDKInternalException(`DataModel not found: ${modelId}`);
     }
-    if (this.#dataModels[modelId]) {
-      this.error(`Model already added: ${modelId}`);
-      return;
+    if (this._dataModels[modelId]) {
+      throw new SDKInternalException(`Model already added: ${modelId}`);
     }
-    this.#dataModels[modelId] = dataModel;
-    model.onDestroyed.one(() => {
-      this.#removeModel(model.id);
-    });
-    this.#rebuildNodes();
+    this._dataModels[modelId] = dataModel;
+    this._rebuildNodes();
   }
 
   /**
    * Removes a model from this tree view.
    *
    * @private
-   * @param {String} modelId ID of a model {@link viewObject} in {@link scene!Scene#models}.
+   * @param {String} modelId ID of a model {@link viewObject} in {@link scene!Scene_models}.
    */
-  #removeModel(modelId: string): void {
-    if (!this.#containerElement) {
+  _removeModel(modelId: string): void {
+    if (!this._containerElement) {
       return;
     }
-    const dataModel = this.#dataModels[modelId];
+    const dataModel = this._dataModels[modelId];
     if (!dataModel) {
       return;
     }
-    delete this.#dataModels[modelId];
-    this.#rebuildNodes();
+    delete this._dataModels[modelId];
+    this._rebuildNodes();
   }
 
-  #rebuildNodes(): void {
-    if (this.#rootElement) {
+  _rebuildNodes(): void {
+    if (this._rootElement) {
       // @ts-ignore
-      this.#rootElement.parentNode.removeChild(this.#rootElement);
-      this.#rootElement = null;
+      this._rootElement.parentNode.removeChild(this._rootElement);
+      this._rootElement = null;
     }
 
-    this.#rootNodes = [];
-    this.#objectNodes = {};
-    //    if (this.#validate()) {
-    this.#createEnabledNodes();
+    this._rootNodes = [];
+    this._objectNodes = {};
+    //    if (this._validate()) {
+    this._createEnabledNodes();
     // } else {
-    //     this.#createDisabledNodes();
+    //     this._createDisabledNodes();
     // }
   }
 
-  #validate(): boolean {
+  _validate(): boolean {
     let valid = true;
-    switch (this.#hierarchy) {
+    switch (this._hierarchy) {
       case TreeView.GroupsHierarchy:
-        valid = (this.#rootNodes.length > 0);
-        //   valid = this.#validateMetaModelForStoreysHierarchy();
+        valid = (this._rootNodes.length > 0);
+        //   valid = this._validateMetaModelForStoreysHierarchy();
         break;
       case TreeView.TypesHierarchy:
-        valid = (this.#rootNodes.length > 0);
+        valid = (this._rootNodes.length > 0);
         break;
       case TreeView.AggregationHierarchy:
       default:
-        valid = (this.#rootNodes.length > 0);
+        valid = (this._rootNodes.length > 0);
         break;
     }
     return valid;
   }
 
-  #validateMetaModelForStoreysHierarchy(level = 0, ctx: any, buildingNode: any) {
+  _validateMetaModelForStoreysHierarchy(level = 0, ctx: any, buildingNode: any) {
     // ctx = ctx || {
     //     foundIFCBuildingStoreys: false
     // };
@@ -654,7 +645,7 @@ export class TreeView  {
     // if (children) {
     //     for (let i = 0, len = children.length; i < len; i++) {
     //         const aggregatedDataObject = children[i];
-    //         if (!this.#validateMetaModelForStoreysHierarchy(aggregatedDataObject, errors, level + 1, ctx, buildingNode)) {
+    //         if (!this._validateMetaModelForStoreysHierarchy(aggregatedDataObject, errors, level + 1, ctx, buildingNode)) {
     //             return false;
     //         }
     //     }
@@ -667,33 +658,33 @@ export class TreeView  {
     return true;
   }
 
-  #createEnabledNodes(): void {
-    if (this.#pruneEmptyNodes) {
-      this.#findEmptyNodes();
+  _createEnabledNodes(): void {
+    if (this._pruneEmptyNodes) {
+      this._findEmptyNodes();
     }
-    switch (this.#hierarchy) {
+    switch (this._hierarchy) {
       case TreeView.GroupsHierarchy:
-        this.#buildGroupsNodes();
-        if (this.#rootNodes.length === 0) {
-          this.error("Cannot build hierarchy TreeView.GroupsHierarchy");
+        this._buildGroupsNodes();
+        if (this._rootNodes.length === 0) {
+          throw new SDKInternalException("Cannot build hierarchy TreeView.GroupsHierarchy");
         }
         break;
       case TreeView.TypesHierarchy:
-        this.#buildTypesNodes();
+        this._buildTypesNodes();
         break;
       case TreeView.AggregationHierarchy:
       default:
-        this.#buildAggregationNodes();
+        this._buildAggregationNodes();
     }
-    if (this.#sortNodes) {
-      this.#doSortNodes();
+    if (this._sortNodes) {
+      this._doSortNodes();
     }
-    this.#synchNodesToEntities();
-    this.#createNodeElements();
-    this.expandToDepth(this.#autoExpandDepth);
+    this._synchNodesToEntities();
+    this._createNodeElements();
+    this.expandToDepth(this._autoExpandDepth);
   }
 
-  #createDisabledNodes(): void { // Creates empty HTML nodes for data graph roots
+  _createDisabledNodes(): void { // Creates empty HTML nodes for data graph roots
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
@@ -704,10 +695,10 @@ export class TreeView  {
         const ul = document.createElement('ul');
         const li = document.createElement('li');
         ul.appendChild(li);
-        this.#containerElement.appendChild(ul);
-        this.#rootElement = ul;
+        this._containerElement.appendChild(ul);
+        this._rootElement = ul;
         const switchElement = document.createElement('a');
-        switchElement.href = '#';
+        switchElement.href = '_';
         switchElement.textContent = '!';
         switchElement.classList.add('warn');
         switchElement.classList.add('warning');
@@ -719,20 +710,20 @@ export class TreeView  {
     }
   }
 
-  #findEmptyNodes(): void {
+  _findEmptyNodes(): void {
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
       if (Object.keys(dataObject.relating).length === 0) {
-        this.#findEmptyNodes2(dataObject);
+        this._findEmptyNodes2(dataObject);
       }
     }
   }
 
-  #findEmptyNodes2(dataObject: DataObject): number {
-    const viewer = this.#viewer;
+  _findEmptyNodes2(dataObject: DataObject): number {
+    const viewer = this._viewer;
     const scene = viewer.scene;
-    const aggregations = dataObject.related[this.#linkType];
+    const aggregations = dataObject.related[this._linkType];
     const objectId = dataObject.id;
     const viewObject = scene.objects[objectId];
     let sceneObjectCounts = 0;
@@ -743,49 +734,49 @@ export class TreeView  {
       for (let i = 0, len = aggregations.length; i < len; i++) {
         const aggregation = aggregations[i];
         const aggregatedDataObject = aggregation.relatedObject;
-        const aggregatedCount = this.#findEmptyNodes2(aggregatedDataObject);
-        this.#dataObjectSceneObjectCounts[aggregatedDataObject.id] = aggregatedCount;
+        const aggregatedCount = this._findEmptyNodes2(aggregatedDataObject);
+        this._dataObjectSceneObjectCounts[aggregatedDataObject.id] = aggregatedCount;
         sceneObjectCounts += aggregatedCount;
       }
     }
-    this.#dataObjectSceneObjectCounts[dataObject.id] = sceneObjectCounts;
+    this._dataObjectSceneObjectCounts[dataObject.id] = sceneObjectCounts;
     return sceneObjectCounts;
   }
 
-  #buildGroupsNodes(): void {
+  _buildGroupsNodes(): void {
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
       if (Object.keys(dataObject.relating).length === 0) {
-        this.#buildGroupsNodes2(dataObject, [], null, null, null);
+        this._buildGroupsNodes2(dataObject, [], null, null, null);
       }
     }
   }
 
-  #buildGroupsNodes2(
+  _buildGroupsNodes2(
     dataObject: DataObject,
     pathNodes: TreeViewNode[],
     buildingNode: TreeViewNode | null,
     storeyNode: TreeViewNode | null,
     typeNodes: { [key: number]: TreeViewNode } | null) {
 
-    if (this.#pruneEmptyNodes && (!this.#dataObjectSceneObjectCounts[dataObject.id])) {
+    if (this._pruneEmptyNodes && (!this._dataObjectSceneObjectCounts[dataObject.id])) {
       return;
     }
 
     const objectId = dataObject.id;
     const type = dataObject.type;
     const name = dataObject.name;
-    const aggregations = dataObject.related[this.#linkType];
+    const aggregations = dataObject.related[this._linkType];
 
-    if (pathNodes.length < this.#groupTypes.length) {
-      const groupType = this.#groupTypes[pathNodes.length];
+    if (pathNodes.length < this._groupTypes.length) {
+      const groupType = this._groupTypes[pathNodes.length];
       if (pathNodes.length === 0) {
         if (type === groupType) {
           const node: TreeViewNode = {
             nodeId: objectId,
             objectId,
-            title: this.#rootName || ((name && name !== "" && name !== "Undefined" && name !== "Default") ? name : type),
+            title: this._rootName || ((name && name !== "" && name !== "Undefined" && name !== "Default") ? name : type),
             type,
             parentNode: null,
             numViewObjects: 0,
@@ -795,8 +786,8 @@ export class TreeView  {
             childNodes: []
           };
           pathNodes.push(node);
-          this.#rootNodes.push(node);
-          this.#objectNodes[node.objectId] = node;
+          this._rootNodes.push(node);
+          this._objectNodes[node.objectId] = node;
         }
       } else {
         if (type === groupType) {
@@ -815,7 +806,7 @@ export class TreeView  {
           };
           parentNode.childNodes.push(node);
           pathNodes.push(node);
-          this.#objectNodes[node.objectId] = node;
+          this._objectNodes[node.objectId] = node;
         }
       }
     } else {
@@ -846,7 +837,7 @@ export class TreeView  {
             childNodes: []
           };
           parentNode.childNodes.push(typeNode);
-          this.#objectNodes[typeNodeObjectId] = typeNode;
+          this._objectNodes[typeNodeObjectId] = typeNode;
           typeNodes[type] = typeNode;
         }
         const leafNode: TreeViewNode = {
@@ -862,7 +853,7 @@ export class TreeView  {
           childNodes: []
         };
         typeNode.childNodes.push(leafNode);
-        this.#objectNodes[leafNode.objectId] = leafNode;
+        this._objectNodes[leafNode.objectId] = leafNode;
       }
     }
 
@@ -870,37 +861,37 @@ export class TreeView  {
       for (let i = 0, len = aggregations.length; i < len; i++) {
         const aggregation = aggregations[i];
         const aggregatedDataObject = aggregation.relatedObject;
-        this.#buildGroupsNodes2(aggregatedDataObject, pathNodes, buildingNode, storeyNode, typeNodes);
+        this._buildGroupsNodes2(aggregatedDataObject, pathNodes, buildingNode, storeyNode, typeNodes);
       }
     }
   }
 
-  #buildTypesNodes() {
+  _buildTypesNodes() {
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
       if (Object.keys(dataObject.relating).length === 0) {
-        this.#buildTypesNodes2(dataObject, null, null);
+        this._buildTypesNodes2(dataObject, null, null);
       }
     }
   }
 
-  #buildTypesNodes2(dataObject: DataObject, rootNode: TreeViewNode | null, typeNodes: { [key: string | number]: TreeViewNode } | null) {
+  _buildTypesNodes2(dataObject: DataObject, rootNode: TreeViewNode | null, typeNodes: { [key: string | number]: TreeViewNode } | null) {
 
-    if (this.#pruneEmptyNodes && (!this.#dataObjectSceneObjectCounts[dataObject.id])) {
+    if (this._pruneEmptyNodes && (!this._dataObjectSceneObjectCounts[dataObject.id])) {
       return;
     }
 
     const objectId = dataObject.id;
     const type = dataObject.type;
     const name = dataObject.name;
-    const aggregations = dataObject.related[this.#linkType];
+    const aggregations = dataObject.related[this._linkType];
 
-    // if (dataObject.id === this.#rootdataObject.id) {
+    // if (dataObject.id === this._rootdataObject.id) {
     //     rootNode = {
     //         nodeId: objectId,
     //         objectId: objectId,
-    //         title: this.#rootName || ((name && name !== "" && name !== "Undefined" && name !== "Default")
+    //         title: this._rootName || ((name && name !== "" && name !== "Undefined" && name !== "Default")
     //             ? name
     //             : type),
     //         type: type,
@@ -911,12 +902,12 @@ export class TreeView  {
     //         xrayed: false,
     //         childNodes: []
     //     };
-    //     this.#rootNodes.push(rootNode);
-    //     this.#objectNodes[rootNode.objectId] = rootNode;
+    //     this._rootNodes.push(rootNode);
+    //     this._objectNodes[rootNode.objectId] = rootNode;
     //     typeNodes = {};
     // } else {
     //     if (rootNode) {
-    //         const objects = this.#viewer.scene.objects;
+    //         const objects = this._viewer.scene.objects;
     //         const object = objects[objectId];
     //         if (object) {
     //             let typeNode = typeNodes[type];
@@ -934,7 +925,7 @@ export class TreeView  {
     //                     childNodes: []
     //                 };
     //                 rootNode.childNodes.push(typeNode);
-    //                 this.#objectNodes[typeNode.objectId] = typeNode;
+    //                 this._objectNodes[typeNode.objectId] = typeNode;
     //                 typeNodes[type] = typeNode;
     //             }
     //             const node: TreeViewNode = {
@@ -952,7 +943,7 @@ export class TreeView  {
     //                 childNodes: []
     //             };
     //             typeNode.childNodes.push(node);
-    //             this.#objectNodes[node.objectId] = node;
+    //             this._objectNodes[node.objectId] = node;
     //         }
     //     }
     // }
@@ -961,37 +952,37 @@ export class TreeView  {
       for (let i = 0, len = aggregations.length; i < len; i++) {
         const aggregation = aggregations[i];
         const aggregatedDataObject = aggregation.relatedObject;
-        this.#buildTypesNodes2(aggregatedDataObject, rootNode, typeNodes);
+        this._buildTypesNodes2(aggregatedDataObject, rootNode, typeNodes);
       }
     }
   }
 
-  #buildAggregationNodes() {
+  _buildAggregationNodes() {
     const objects = this.data.objects;
     for (const objectId in objects) {
       const dataObject = objects[objectId];
       if (Object.keys(dataObject.relating).length === 0) {
-        this.#buildAggregationNodes2(dataObject, null);
+        this._buildAggregationNodes2(dataObject, null);
       }
     }
   }
 
-  #buildAggregationNodes2(dataObject: DataObject, parentNode: TreeViewNode | null) {
+  _buildAggregationNodes2(dataObject: DataObject, parentNode: TreeViewNode | null) {
 
-    if (this.#pruneEmptyNodes && (!this.#dataObjectSceneObjectCounts[dataObject.id])) {
+    if (this._pruneEmptyNodes && (!this._dataObjectSceneObjectCounts[dataObject.id])) {
       return;
     }
 
     const objectId = dataObject.id;
     const type = dataObject.type;
     const name = dataObject.name || type;
-    const aggregations = dataObject.related[this.#linkType];
+    const aggregations = dataObject.related[this._linkType];
 
     const node: TreeViewNode = {
       nodeId: objectId,
       objectId: objectId,
       title: (!parentNode)
-        ? (this.#rootName || name)
+        ? (this._rootName || name)
         : (name && name !== "" && name !== "Undefined" && name !== "Default")
           ? name
           : type,
@@ -1006,49 +997,49 @@ export class TreeView  {
     if (parentNode) {
       parentNode.childNodes.push(node);
     } else {
-      this.#rootNodes.push(node);
+      this._rootNodes.push(node);
     }
-    this.#objectNodes[node.objectId] = node;
+    this._objectNodes[node.objectId] = node;
 
     if (aggregations) {
       for (let i = 0, len = aggregations.length; i < len; i++) {
         const aggregation = aggregations[i];
         const aggregatedDataObject = aggregation.relatedObject;
-        this.#buildAggregationNodes2(aggregatedDataObject, node);
+        this._buildAggregationNodes2(aggregatedDataObject, node);
       }
     }
   }
 
-  #doSortNodes() {
-    for (let i = 0, len = this.#rootNodes.length; i < len; i++) {
-      const rootNode = this.#rootNodes[i];
-      this.#sortChildNodes(rootNode);
+  _doSortNodes() {
+    for (let i = 0, len = this._rootNodes.length; i < len; i++) {
+      const rootNode = this._rootNodes[i];
+      this._sortChildNodes(rootNode);
     }
   }
 
-  #sortChildNodes(node: TreeViewNode) {
+  _sortChildNodes(node: TreeViewNode) {
     // const childNodes = node.childNodes;
     // if (!childNodes || childNodes.length === 0) {
     //     return;
     // }
-    // if (this.#hierarchy === "storeys" && node.type === "IfcBuilding") {
+    // if (this._hierarchy === "storeys" && node.type === "IfcBuilding") {
     //     // Assumes that childNodes of an IfcBuilding will always be IfcBuildingStoreys
-    //     childNodes.sort(this.#getSpatialSortFunc());
+    //     childNodes.sort(this._getSpatialSortFunc());
     // } else {
-    //     childNodes.sort(this.#alphaSortFunc);
+    //     childNodes.sort(this._alphaSortFunc);
     // }
     // for (let i = 0, len = childNodes.length; i < len; i++) {
     //     const node = childNodes[i];
-    //     this.#sortChildNodes(node);
+    //     this._sortChildNodes(node);
     // }
   }
 
-  #getSpatialSortFunc() { // Creates cached sort func with Viewer in scope
-    // const viewer = this.#viewer;
+  _getSpatialSortFunc() { // Creates cached sort func with Viewer in scope
+    // const viewer = this._viewer;
     // const scene = viewer.scene;
     // const camera = scene.camera;
     // const metaScene = viewer.metaScene;
-    // return this.#spatialSortFunc || (this.#spatialSortFunc = (node1, node2) => {
+    // return this._spatialSortFunc || (this._spatialSortFunc = (node1, node2) => {
     //     if (!node1.aabb || !node2.aabb) {
     //         // Sorting on lowest point of the AABB is likely more more robust when objects could overlap storeys
     //         if (!node1.aabb) {
@@ -1076,7 +1067,7 @@ export class TreeView  {
     // });
   }
 
-  #alphaSortFunc(node1: TreeViewNode, node2: TreeViewNode): number {
+  _alphaSortFunc(node1: TreeViewNode, node2: TreeViewNode): number {
     const title1 = node1.title.toUpperCase(); // FIXME: Should be case sensitive?
     const title2 = node2.title.toUpperCase();
     if (title1 < title2) {
@@ -1088,7 +1079,7 @@ export class TreeView  {
     return 0;
   }
 
-  #synchNodesToEntities(): void {
+  _synchNodesToEntities(): void {
     const objectIds = Object.keys(this.data.objects);
     const dataObjects = this.data.objects;
     const viewObjects = this.view.objects;
@@ -1096,7 +1087,7 @@ export class TreeView  {
       const objectId = objectIds[i];
       const dataObject = dataObjects[objectId];
       if (dataObject) {
-        const node = this.#objectNodes[objectId];
+        const node = this._objectNodes[objectId];
         if (node) {
           const viewObject = viewObjects[objectId];
           if (viewObject) {
@@ -1125,35 +1116,35 @@ export class TreeView  {
     }
   }
 
-  #withNodeTree(node: TreeViewNode, callback: (arg0: TreeViewNode) => void) {
+  _withNodeTree(node: TreeViewNode, callback: (arg0: TreeViewNode) => void) {
     callback(node);
     const childNodes = node.childNodes;
     if (!childNodes) {
       return;
     }
     for (let i = 0, len = childNodes.length; i < len; i++) {
-      this.#withNodeTree(childNodes[i], callback);
+      this._withNodeTree(childNodes[i], callback);
     }
   }
 
-  #createNodeElements(): void {
-    if (this.#rootNodes.length === 0) {
+  _createNodeElements(): void {
+    if (this._rootNodes.length === 0) {
       return;
     }
-    const rootNodeElements = this.#rootNodes.map((rootNode) => {
-      return this.#createNodeElement(rootNode);
+    const rootNodeElements = this._rootNodes.map((rootNode) => {
+      return this._createNodeElement(rootNode);
     });
     const ul = document.createElement('ul');
     rootNodeElements.forEach((nodeElement) => {
       ul.appendChild(nodeElement);
     });
-    this.#containerElement.appendChild(ul);
-    this.#rootElement = ul;
+    this._containerElement.appendChild(ul);
+    this._rootElement = ul;
   }
 
-  #createNodeElement(node: TreeViewNode): HTMLElement {
+  _createNodeElement(node: TreeViewNode): HTMLElement {
     const nodeElement = document.createElement('li');
-    //const nodeId = this.#objectToNodeID(node.objectId);
+    //const nodeId = this._objectToNodeID(node.objectId);
     const nodeId = node.nodeId;
     if (node.xrayed) {
       nodeElement.classList.add('xrayed-node');
@@ -1162,11 +1153,11 @@ export class TreeView  {
     if (node.childNodes.length > 0) {
       const switchElementId = "switch-" + nodeId;
       const switchElement = document.createElement('a');
-      switchElement.href = '#';
+      switchElement.href = '_';
       switchElement.id = switchElementId;
       switchElement.textContent = '+';
       switchElement.classList.add('plus');
-      switchElement.addEventListener('click', this.#switchExpandHandler);
+      switchElement.addEventListener('click', this._switchExpandHandler);
       nodeElement.appendChild(switchElement);
     }
     const checkbox = document.createElement('input');
@@ -1176,13 +1167,13 @@ export class TreeView  {
     // @ts-ignore
     checkbox.style["pointer-events"] = "all";
     // @ts-ignore
-    checkbox.addEventListener("change", this.#checkboxChangeHandler);
+    checkbox.addEventListener("change", this._checkboxChangeHandler);
     nodeElement.appendChild(checkbox);
     const span = document.createElement('span');
     span.textContent = node.title;
     nodeElement.appendChild(span);
     span.oncontextmenu = (e: MouseEvent) => {
-      this.onContextMenu.dispatch(this, <TreeViewNodeContextMenuEvent>{
+      this.events.onContextMenu.dispatch(this, <TreeViewNodeContextMenuEvent>{
         event: e,
         treeView: this,
         treeViewNode: node
@@ -1190,7 +1181,7 @@ export class TreeView  {
       e.preventDefault();
     };
     span.onclick = (e: MouseEvent) => {
-      this.onNodeTitleClicked.dispatch(this, <TreeViewNodeTitleClickedEvent>{
+      this.events.onNodeTitleClicked.dispatch(this, <TreeViewNodeTitleClickedEvent>{
         event: e,
         treeView: this,
         treeViewNode: node
@@ -1200,7 +1191,7 @@ export class TreeView  {
     return nodeElement;
   }
 
-  #expandSwitchElement(switchElement: HTMLElement): void {
+  _expandSwitchElement(switchElement: HTMLElement): void {
     const parentElement = switchElement.parentElement;
     if (!parentElement) {
       return;
@@ -1211,10 +1202,10 @@ export class TreeView  {
     }
     const nodeId = parentElement.id.replace('node-', '');
     const objectId = nodeId;
-    const switchNode = this.#objectNodes[objectId];
+    const switchNode = this._objectNodes[objectId];
     const childNodes = switchNode.childNodes;
     const nodeElements = childNodes.map((node) => {
-      return this.#createNodeElement(node);
+      return this._createNodeElement(node);
     });
     const ul = document.createElement('ul');
     nodeElements.forEach((nodeElement) => {
@@ -1224,21 +1215,21 @@ export class TreeView  {
     switchElement.classList.remove('plus');
     switchElement.classList.add('minus');
     switchElement.textContent = '-';
-    switchElement.removeEventListener('click', this.#switchExpandHandler);
-    switchElement.addEventListener('click', this.#switchCollapseHandler);
+    switchElement.removeEventListener('click', this._switchExpandHandler);
+    switchElement.addEventListener('click', this._switchCollapseHandler);
   }
 
-  #collapseNode(objectId: string): void {
+  _collapseNode(objectId: string): void {
     const nodeId = objectId;
     const switchElementId = `switch-${nodeId}`;
     const switchElement = document.getElementById(switchElementId);
     if (!switchElement) {
       return;
     }
-    this.#collapseSwitchElement(switchElement);
+    this._collapseSwitchElement(switchElement);
   }
 
-  #collapseSwitchElement(switchElement: HTMLElement): void {
+  _collapseSwitchElement(switchElement: HTMLElement): void {
     if (!switchElement) {
       return;
     }
@@ -1254,8 +1245,8 @@ export class TreeView  {
     switchElement.classList.remove('minus');
     switchElement.classList.add('plus');
     switchElement.textContent = '+';
-    switchElement.removeEventListener('click', this.#switchCollapseHandler);
-    switchElement.addEventListener('click', this.#switchExpandHandler);
+    switchElement.removeEventListener('click', this._switchCollapseHandler);
+    switchElement.addEventListener('click', this._switchExpandHandler);
   }
 }
 

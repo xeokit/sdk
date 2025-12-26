@@ -1,5 +1,5 @@
 import type {DirLightParams} from "./DirLightParams";
-import type {FloatArrayParam} from "../math";
+import type {Vec3} from "../math";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../core";
 
@@ -56,7 +56,7 @@ class DirLight {
    *
    * @returns {Number[]} The direction vector.
    */
-  get dir(): FloatArrayParam {
+  get dir(): Vec3 {
     return this._dir;
   }
 
@@ -74,7 +74,7 @@ class DirLight {
    *
    * @param value The direction vector.
    */
-  set dir(value: FloatArrayParam) {
+  set dir(value: Vec3) {
     // @@ts-ignore
     this._dir.set(value);
     this.view.needsRender();
@@ -87,7 +87,7 @@ class DirLight {
    *
    * @returns {Number[]} The DirLight's RGB color.
    */
-  get color(): FloatArrayParam {
+  get color(): Vec3 {
     return this._color;
   }
 
@@ -98,7 +98,7 @@ class DirLight {
    *
    * @param color The DirLight's RGB color.
    */
-  set color(color: FloatArrayParam) {
+  set color(color: Vec3) {
     // @@ts-ignore
     this._color.set(color);
     this.view.needsRender();
@@ -167,8 +167,8 @@ class DirLight {
       ok: true,
       value: {
         id: this.id,
-        dir: Array.from(this.dir),
-        color: Array.from(this.color),
+        dir: <Vec3>Array.from(this.dir),
+        color: <Vec3>Array.from(this.color),
         intensity: this.intensity,
         space: this.space
       }

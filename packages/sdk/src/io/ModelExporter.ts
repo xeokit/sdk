@@ -55,7 +55,7 @@ export class ModelExporter {
    * @param options - Options for customizing the loading process. These are specific to the Exporter subclass.
    * @returns {Promise} Resolves when the SceneModel and/or DataModel has been successfully written.
    *
-   * @throws {@link core!SDKError | SDKError}
+   * @throws
    * - If the SceneModel has already been destroyed.
    * - If the DataModel has already been destroyed.
    */

@@ -1,4 +1,4 @@
-import {createVec2Float64, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../math";
+import {createVec2Float64, createVec3Float32, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../math";
 import {PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
 import {getSceneAABBIndex, SceneAABB3Index} from "../aabb/SceneAABB3Index";
@@ -193,9 +193,9 @@ class TouchPanRotateAndDollyHandler {
           if (camera.projectionType === PerspectiveProjectionType) {
 
             const touchPicked = false;
-            const pickedWorldPos = [0, 0, 0];
+            const pickedWorldPos = createVec3Float32([0, 0, 0]);
 
-            const depth = Math.abs(touchPicked ? lenVec3(subVec3(pickedWorldPos, view.camera.eye, [])) : view.camera.eyeLookDist);
+            const depth = Math.abs(touchPicked ? lenVec3(subVec3(pickedWorldPos, view.camera.eye, createVec3Float32())) : view.camera.eyeLookDist);
             const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
 
             updates.panDeltaX += (xPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
@@ -260,7 +260,7 @@ class TouchPanRotateAndDollyHandler {
           if (camera.projectionType === PerspectiveProjectionType) {
             const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : this.#aabbIndex.getSceneCenter();
 
-            const depth = Math.abs(lenVec3(subVec3(pickedWorldPos, view.camera.eye, [])));
+            const depth = Math.abs(lenVec3(subVec3(pickedWorldPos, view.camera.eye, createVec3Float32())));
             const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
 
             updates.panDeltaX -= (xPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;

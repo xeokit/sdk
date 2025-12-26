@@ -66,7 +66,7 @@ export class ModelLoader {
    * @param options - Options for customizing the loading process. These are specific to the Loader subclass.
    * @returns {Promise} Resolves when the file data has been successfully loaded into the SceneModel and/or DataModel.
    *
-   * @throws {@link core!SDKError | SDKError}
+   * @throws
    * - If the SceneModel has already been destroyed.
    * - If the DataModel has already been destroyed.
    */

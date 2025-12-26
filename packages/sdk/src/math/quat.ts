@@ -3,41 +3,44 @@ import {createVec3Float64, createVec4Float64, cross3Vec3, dotVec3, lenVec4, type
 import {DEGTORAD} from "./index";
 import {createMat4Float64, identityMat4, type Mat4, mat4ToEuler} from "./matrix";
 
-/**
- * Generic quaternion tuple: [x, y, z, w].
- */
-export type QuatGeneric<T = number> = [T, T, T, T];
-
 const tempMat4a: Mat4 = createMat4Float64();
-const tempQuat: Quat = createQuat();
+const tempQuat: Quat = createQuatFloat64();
 
 /**
  * Single-precision float quaternion.
  */
 export type QuatFloat32 =
   | Float32Array<any>
-  | QuatGeneric<number>;
+  | [number, number, number, number];
 
 /**
  * Double-precision float quaternion.
  */
 export type QuatFloat64 =
   | Float64Array<any>
-  | QuatGeneric<number>;
+  | [number, number, number, number];
 
 /**
  * Floating-point quaternion.
  */
-export type Quat = QuatFloat32 | QuatFloat64;
+export type Quat = QuatFloat32 | QuatFloat64 | [number, number, number, number];
 
 /**
- * Creates a new quaternion.
+ * Creates a new double-precision float quaternion.
  */
-export function createQuat(): Quat {
-  return identityQuat();
+export function createQuatFloat64(values?: Quat): QuatFloat64 {
+  return new Float64Array(values || [0, 0, 0, 1]);
 }
 
 /**
+ * Creates a new single-precision float quaternion.
+ */
+export function createQuatFloat32(values?: Quat): QuatFloat32 {
+  return new Float32Array(values || [0, 0, 0, 1]);
+}
+
+  /**
+ *
  * Creates an identity quaternion.
  * @param dest Optional quaternion to initialize, if not provided a new quaternion will be created.
  * @returns The identity quaternion.
@@ -62,7 +65,7 @@ export function identityQuat(dest: Quat = createVec4Float64()): Quat {
 export function eulerToQuat(
   euler: Vec3,
   order: string,
-  dest: Quat = createQuat()
+  dest: Quat = createQuatFloat64()
 ): Quat {
   const a = (euler[0] * DEGTORAD) / 2;
   const b = (euler[1] * DEGTORAD) / 2;
@@ -128,7 +131,7 @@ export function eulerToQuat(
  */
 export function mat4ToQuat(
   m: Mat4,
-  dest: Quat = createQuat()
+  dest: Quat = createQuatFloat64()
 ): Quat {
   const m11 = m[0], m12 = m[4], m13 = m[8];
   const m21 = m[1], m22 = m[5], m23 = m[9];
@@ -180,7 +183,7 @@ export function mat4ToQuat(
 export function vec3PairToQuat(
   u: Vec3,
   v: Vec3,
-  dest: Quat = createQuat()
+  dest: Quat = createQuatFloat64()
 ): Quat {
   const norm_u_norm_v = Math.sqrt(dotVec3(u, u) * dotVec3(v, v));
   let real_part = norm_u_norm_v + dotVec3(u, v);

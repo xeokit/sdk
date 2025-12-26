@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "../math";
+import type {Vec3} from "../math";
 
 /**
  * Parameters for a {@link DirLight}.
@@ -20,7 +20,7 @@ export interface DirLightParams {
    *
    * Default value is `[1.0, 1.0, 1.0]`.
    */
-  dir?: FloatArrayParam;
+  dir?: Vec3;
 
   /**
    * RGB color of the {@link DirLight}.
@@ -29,7 +29,7 @@ export interface DirLightParams {
    *
    * Default value is `[1.0, 1.0, 1.0]`.
    */
-  color?: FloatArrayParam;
+  color?: Vec3;
 
   /**
    * Intensity of the {@link DirLight}.

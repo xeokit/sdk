@@ -2,7 +2,7 @@ import type {Viewer} from "./Viewer";
 import {EventEmitter, type SDKResult} from "../core";
 import {type TickParams} from "./TickParams";
 import type {SnapshotFinishedEvent, SnapshotStartedEvent, View} from "./View";
-import type {FloatArrayParam, IntArrayParam, Vec3} from "../math";
+import type {IntArrayParam, Vec3} from "../math";
 import type {ViewObject} from "./ViewObject";
 import type {ViewLayer} from "./ViewLayer";
 import type {SectionPlane} from "./SectionPlane";

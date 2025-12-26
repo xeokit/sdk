@@ -1,4 +1,4 @@
-import * as pako from "pako";
+
 import type {XKTData} from "./XKTData";
 import type {XKTDataDeflated} from "./XKTDataDeflated";
 
@@ -7,14 +7,14 @@ import type {XKTDataDeflated} from "./XKTDataDeflated";
  */
 export function inflateXKT(xktDataDeflated: XKTDataDeflated): XKTData {
 
-  function inflate(array: any, options?: any): Buffer {
-    // @ts-ignore
-    return (array.length === 0) ? [] : pako.(array, options).buffer;
-  }
+  // function inflate(array: any, options?: any): any {
+  //   // @ts-ignore
+  //   return (array.length === 0) ? [] : pako.(array, options).buffer;
+  // }
 
 
   return <XKTData>{
-    metadata: JSON.parse(xktDataDeflated.metadata, {to: 'string'}),
+    metadata: JSON.parse(xktDataDeflated.metadata),
     textureData: new Uint8Array((xktDataDeflated.textureData)), // <<----------------------------- ??? ZIPPing to blame?
     eachTextureDataPortion: new Uint32Array((xktDataDeflated.eachTextureDataPortion)),
     eachTextureAttributes: new Uint16Array((xktDataDeflated.eachTextureAttributes)),
@@ -38,7 +38,7 @@ export function inflateXKT(xktDataDeflated: XKTDataDeflated): XKTData {
     eachMeshMatricesPortion: new Uint32Array((xktDataDeflated.eachMeshMatricesPortion)),
     eachMeshTextureSet: new Int32Array((xktDataDeflated.eachMeshTextureSet)), // Can be -1
     eachMeshMaterialAttributes: new Uint8Array((xktDataDeflated.eachMeshMaterialAttributes)),
-    eachEntityId: JSON.parse(pako.(xktDataDeflated.eachEntityId, {to: 'string'})),
+    eachEntityId: JSON.parse(xktDataDeflated.eachEntityId),
     eachEntityMeshesPortion: new Uint32Array((xktDataDeflated.eachEntityMeshesPortion)),
     eachTileAABB: new Float64Array((xktDataDeflated.eachTileAABB)),
     eachTileEntitiesPortion: new Uint32Array((xktDataDeflated.eachTileEntitiesPortion)),

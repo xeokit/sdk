@@ -28,7 +28,11 @@
  * ```javascript
  * import { createAABBFloat64 } from "@xeokit/sdk/boundaries";
  *
- * const aabb = createAABBFloat64([-100, -100, -100, 100, 100, 100]);
+ * const aabb = createAABB3Float64([-100, -100, -100, 100, 100, 100]);
+ * const aabb2 = createAABB3Float32([-50, -50, -50, 50, 50, 50]);
+ * const aabb3 = createAABB3Int16([-25, -25, -25, 25, 25, 25]);
+ *
+ *
  * ```
  *
  * @module boundaries
@@ -52,18 +56,6 @@ const tempVec3a = createVec3Float64();
 const tempVec3b = createVec3Float64();
 const tempVec3c = createVec3Float64();
 const tempMat4a = createMat4Float64();
-
-/**
- * ============================================================
- * Generic fixed-length AABB tuples
- * ============================================================
- */
-
-/**
- * ============================================================
- * Floating-point AABBs (explicit precision)
- * ============================================================
- */
 
 /**
  * 32-bit floating-point 2D axis-aligned bounding box.

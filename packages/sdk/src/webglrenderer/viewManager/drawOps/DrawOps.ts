@@ -127,6 +127,10 @@ export class DrawOps {
                 pickDepth: new DrawOp(pickDepth, PICK)
             }
         };
+        return {
+            ok: true,
+            value: null
+        };
     }
 
     _destroy() {

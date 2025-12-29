@@ -81,6 +81,7 @@ export class DTXMeshViewAttribs {
             return false;
         }
         this.texture = tex;
+      return true;
     }
 
     private getByteView(meshIndex: number): Uint8Array<any> {

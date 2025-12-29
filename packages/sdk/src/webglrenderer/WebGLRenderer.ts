@@ -27,7 +27,7 @@ export class WebGLRenderer {
      * Enables or disables logging of errors to the console.
      * When true, errors encountered during rendering are logged.
      */
-    public logging: boolean = false;
+    public logging: boolean = true;
 
     /**
      * Events emitted by this WebGLRenderer.

@@ -119,6 +119,7 @@ export class DTXMatrixArray {
     }
     this.texture = texture;
     this.textureWidth = textureWidth;
+    return true;
   }
 
   /**

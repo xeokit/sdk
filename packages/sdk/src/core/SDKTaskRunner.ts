@@ -32,11 +32,11 @@ export class SDKTaskRunner {
 
   constructor() {
     this.tasksByStage = new Map<number, Set<SDKTask>>();
-    this.tasksByStage.set(SDKTask.CollectInputStage, new Set<SDKTask>());
-    this.tasksByStage.set(SDKTask.AnimateStage, new Set<SDKTask>());
-    this.tasksByStage.set(SDKTask.ComputeStage, new Set<SDKTask>());
-    this.tasksByStage.set(SDKTask.RenderStage, new Set<SDKTask>());
-    this.tasksByStage.set(SDKTask.PostRenderStage, new Set<SDKTask>());
+    this.tasksByStage.set(0, new Set<SDKTask>());
+    this.tasksByStage.set(1, new Set<SDKTask>());
+    this.tasksByStage.set(2, new Set<SDKTask>());
+    this.tasksByStage.set(3, new Set<SDKTask>());
+    this.tasksByStage.set(4, new Set<SDKTask>());
     this.running = false;
   }
 

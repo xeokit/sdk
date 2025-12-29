@@ -130,6 +130,7 @@ export class DTXPrimDrawList {
       gl.deleteTexture(tex);
       return false;
     }
+    return true;
   }
 
   /** Texture width (in texels). */

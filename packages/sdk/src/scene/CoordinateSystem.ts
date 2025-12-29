@@ -94,21 +94,23 @@ export class CoordinateSystem  {
             });
              return;
         }
-        if (value && value.length !== 9) {
-            (this._scene||this._model.scene).logError({
-                ok: false,
-                type: SDKErrorType.InvalidInput,
-                error: "[CoordinateSystem.basis] Invalid basis array - must have 9 elements"
+        if (value) {
+          if (value.length !== 9) {
+            (this._scene || this._model.scene).logError({
+              ok: false,
+              type: SDKErrorType.InvalidInput,
+              error: "[CoordinateSystem.basis] Invalid basis array - must have 9 elements"
             });
             return;
-        }
-        if (!testOrthogonalAxis(value)) {
-            (this._scene||this._model.scene).logError({
-                ok: false,
-                type: SDKErrorType.InvalidInput,
-                error: "[CoordinateSystem.basis] Invalid basis array - axes are not orthogonal"
+          }
+          if (!testOrthogonalAxis(value)) {
+            (this._scene || this._model.scene).logError({
+              ok: false,
+              type: SDKErrorType.InvalidInput,
+              error: "[CoordinateSystem.basis] Invalid basis array - axes are not orthogonal"
             });
             return;
+          }
         }
         this._basis = createVec9Float64(<any>value || [
             1, 0, 0, // Right

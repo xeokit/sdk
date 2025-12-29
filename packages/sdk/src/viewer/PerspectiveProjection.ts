@@ -75,7 +75,12 @@ export class PerspectiveProjection implements Projection {
     this._inverseMatrixDirty = true;
     this._transposedProjMatrixDirty = true;
 
-    this._onViewBoundary = this.camera.view.onBoundary.subscribe(() => this._buildMatricesTask.schedule());
+    this._onViewBoundary = this.camera.view.viewer.events.onViewCanvasBoundaryChanged
+      .subscribe((view, _) => {
+        if (view === this.camera.view) {
+          this._buildMatricesTask.schedule();
+        }
+      });
 
     this.onProjMatrix = new EventEmitter(new EventDispatcher<PerspectiveProjection, Mat4>());
 
@@ -343,7 +348,7 @@ export class PerspectiveProjection implements Projection {
    */
   destroy() {
     this._buildMatricesTask.destroy();
-    this.camera.view.onBoundary.unsubscribe(this._onViewBoundary);
+    this.camera.view.viewer.events.onViewCanvasBoundaryChanged.unsubscribe(this._onViewBoundary);
     this.onProjMatrix.clear();
     this._destroyed = true;
   }

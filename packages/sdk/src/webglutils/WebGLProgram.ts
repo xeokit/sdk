@@ -179,17 +179,17 @@ export class WebGLProgram {
       };
     }
 
-    gl.validateProgram(this.handle);
-    this.validated = gl.getProgramParameter(this.handle, gl.VALIDATE_STATUS);
-    if (!this.validated) {
-      const validationLog = gl.getProgramInfoLog(this.handle) || "Unknown error during program validation";
-      this.destroy();
-      return {
-        ok: false,
-        type: SDKErrorType.InvalidOperation,
-        error: `WebGL program validation failed: ${validationLog}`
-      };
-    }
+    // gl.validateProgram(this.handle);
+    // this.validated = gl.getProgramParameter(this.handle, gl.VALIDATE_STATUS);
+    // if (!this.validated) {
+    //   const validationLog = gl.getProgramInfoLog(this.handle) || "Unknown error during program validation";
+    //   this.destroy();
+    //   return {
+    //     ok: false,
+    //     type: SDKErrorType.InvalidOperation,
+    //     error: `WebGL program validation failed: ${validationLog}`
+    //   };
+    // }
 
     this._extractUniformsAndAttributes();
 

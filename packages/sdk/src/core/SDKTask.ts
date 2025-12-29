@@ -178,8 +178,8 @@ export class SDKTask {
       return;
     }
     if (this.scheduled || this.repeating) {
-      this.task();
       this.scheduled = false;
+      this.task();
     }
   }
 

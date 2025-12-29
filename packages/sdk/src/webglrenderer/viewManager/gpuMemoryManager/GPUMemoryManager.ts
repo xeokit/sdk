@@ -31,7 +31,6 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   private _batches: GPUMemoryBatch[] = [];
   private _renderContext: RenderContext;
   private _tiles: TileManager;
-  private _onTick: () => void;
   private _numMeshes: number;
   private _tileViewMatrices: DTXMatrixArray[];
   private _tileRayPickMatrices: DTXMatrixArray[];
@@ -408,6 +407,5 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     if (this._tileRayPickMatrices) {
       this._tileRayPickMatrices = this._tileRayPickMatrices.map(clear);
     }
-    this._onTick();
   }
 }

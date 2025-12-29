@@ -87,7 +87,7 @@ export class Scene {
    * and logging preferences.
    */
   constructor(params?: SceneParams) {
-    this.id = params.id || createUUID();
+    this.id = params?.id || createUUID();
     this.events = new SceneEvents();
     this.coordinateSystem = new CoordinateSystem(this, params?.coordinateSystem);
     this.models = {};

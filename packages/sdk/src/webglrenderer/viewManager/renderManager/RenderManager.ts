@@ -145,7 +145,7 @@ export class RenderManager {
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         }
 
-        meshBatches.forEach(meshBatch => {
+      for (const meshBatch of meshBatches) {
 
             const opaque = meshBatch.hasMeshesInRenderPass(viewIndex,  RENDER_PASSES.OPAQUE);
             const transparent = meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.TRANSPARENT);
@@ -194,7 +194,7 @@ export class RenderManager {
                 }
                 (highlightMaterial.edgeAlpha < 1.0 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
             }
-        });
+        }
 
         for (let i = 0; i < bins.normalDrawSAO.length; i++) {
             //  renderers?.colorSAOOpaqueRenderer.bins.normalDrawSAO[i].drawColorSAOOpaque();

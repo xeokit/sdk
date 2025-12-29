@@ -5,7 +5,7 @@ import {
   identityMat4,
   inverseMat4,
   isIdentityMat4,
-  mulMat4, createVec3Float64,
+  mulMat4, createVec3Float64, createVec3Float32,
 } from "../math";
 import type {FloatArrayParam} from "../math";
 import type {SceneGeometry} from "./SceneGeometry";
@@ -81,8 +81,8 @@ export class SceneMesh {
     this._globalMatrix = createMat4Float64();
     this.geometry = meshParams.geometry;
     this.textureSet = meshParams.textureSet;
-    this.color = meshParams.color || [1, 1, 1];    // FIXME: This fires update events during construction
-    this.opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
+    this._color = createVec3Float32(meshParams.color || [1, 1, 1]);
+    this._opacity = (meshParams.opacity !== undefined && meshParams.opacity !== null) ? meshParams.opacity : 1.0;
     this.object = null;
   }
 
@@ -118,10 +118,6 @@ export class SceneMesh {
       return;
     }
     let color = this._color;
-    if (!color) {
-      this._color = createVec3Float64();
-      color = this._color;
-    }
     if (value) {
       color[0] = value[0];
       color[1] = value[1];

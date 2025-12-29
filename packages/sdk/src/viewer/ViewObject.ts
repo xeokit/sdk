@@ -82,7 +82,7 @@ export class ViewObject {
         this._colorized = false;
         this._opacityUpdated = false;
 
-        this.layer.objectVisibilityUpdated(this, this._visible, true);
+        this.layer.objectVisibilityUpdated(this, this._visible, false);
     }
 
     /**

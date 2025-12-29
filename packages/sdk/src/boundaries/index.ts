@@ -161,7 +161,7 @@ export type AABB3 =
  */
 export function createAABB3Float64(values?: AABB3): AABB3Float64 {
   // @ts-ignore
-  return new Float64Array(values || 9);
+  return new Float64Array(values || 6);
 }
 
 /**
@@ -170,7 +170,7 @@ export function createAABB3Float64(values?: AABB3): AABB3Float64 {
  */
 export function createAABB3Float32(values?: AABB3): AABB3Float32 {
   // @ts-ignore
-  return new Float32Array(values || 9);
+  return new Float32Array(values || 6);
 }
 
 /**

@@ -55,7 +55,7 @@ export class TileManager {
     const id = this._makeTileId(rtcCenter);
     let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter);
     tile.useCount++;
-    console.log(`TileManager.getTile: getTile id=${id} useCount=${tile.useCount}`);
+    //console.log(`TileManager.getTile: getTile id=${id} useCount=${tile.useCount}`);
     return tile;
   }
 
@@ -67,7 +67,7 @@ export class TileManager {
     if (--tile.useCount === 0) {
       this._tiles.delete(tile.id);
       this._putFreeTileIndex(tile.tileIndex);
-      console.log(`TileManager.putTile: putTile id=${tile.id} DESTROYED`);
+      //console.log(`TileManager.putTile: putTile id=${tile.id} DESTROYED`);
     }
   }
 
@@ -83,7 +83,7 @@ export class TileManager {
     this.putTile(tile);
     let newTile = this._tiles.get(newId) ?? this._createTile(newId, newRTCCenter);
     newTile.useCount++;
-    console.log(`TileManager.moveTile: moveTile oldId=${tile.id} newId=${newId} useCount=${newTile.useCount}`);
+    //console.log(`TileManager.moveTile: moveTile oldId=${tile.id} newId=${newId} useCount=${newTile.useCount}`);
     return newTile;
   }
 
@@ -91,7 +91,7 @@ export class TileManager {
    * Sets the pick matrices for all tiles for the given view.
    */
   public setPickMatrix(view: View, pickMatrix: Mat4) {
-    console.log(`TileManager.setPickMatrix: viewIndex=${view.viewIndex}`);
+   // console.log(`TileManager.setPickMatrix: viewIndex=${view.viewIndex}`);
     const viewIndex = view.viewIndex;
     const pickMatrices = this._pickMatrices[viewIndex];
     for (const [_, tile] of this._tiles) {
@@ -112,7 +112,7 @@ export class TileManager {
    * Synchronizes all tile RTC view matrices to the given View's camera view matrix.
    */
   private _synchTilesToViewMatrix(camera: Camera) {
-    console.log(`TileManager._synchTilesToViewMatrix: viewIndex=${camera.view.viewIndex}`);
+  //  console.log(`TileManager._synchTilesToViewMatrix: viewIndex=${camera.view.viewIndex}`);
     const view = camera.view;
     const viewMatrix = camera.viewMatrix;
     const viewIndex = view.viewIndex;

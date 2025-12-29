@@ -78,7 +78,7 @@ export class Scene {
    * Defaults to `false`. When enabled, any dispatched error will also be
    * logged via `console.error`.
    */
-  public logging: boolean = false;
+  public logging: boolean = true;
 
   /**
    * Creates a new Scene container.

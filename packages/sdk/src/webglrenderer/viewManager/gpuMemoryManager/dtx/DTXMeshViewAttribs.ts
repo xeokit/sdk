@@ -157,7 +157,6 @@ export class DTXMeshViewAttribs {
 
         this._dirty.clear();
         gl.bindTexture(gl.TEXTURE_2D, null);
-        console.log("Flush complete");
         return true;
     }
 

@@ -718,9 +718,7 @@ class ViewLayer {
       this._numVisibleObjects--;
     }
     this._visibleObjectIds = null; // Lazy regenerate
-    if (notify) {
-      this.view.objectVisibilityUpdated(viewObject, visible, notify);
-    }
+    this.view.objectVisibilityUpdated(viewObject, visible, notify);
   }
 
   /**

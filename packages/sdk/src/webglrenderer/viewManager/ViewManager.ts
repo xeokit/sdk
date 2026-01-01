@@ -10,11 +10,17 @@ import {type GPUMemoryReader} from "./gpuMemoryManager/GPUMemoryReader";
 import {SceneMesh, SceneModel, SceneObject} from "../../scene";
 import {SceneTransform} from "../../scene/SceneTransform";
 import {type GPUMemoryConfigs} from "../GPUMemoryConfigs";
+import type {DataTextures} from "./gpuMemoryManager/DataTextures";
 
 /**
  * Manages the viewManager in the WebGLRenderer.
  */
 export class ViewManager {
+
+  /**
+   * DataTextures managed internally by this ViewManager.
+   */
+  public dataTextures: DataTextures | undefined = undefined;
 
   private _viewer: Viewer;
   private _renderContext: RenderContext;
@@ -65,6 +71,8 @@ export class ViewManager {
       return resultGPU;
     }
 
+    this.dataTextures = this._gpuMemoryManager.dataTextures;
+
     this._meshManager = new MeshManager(this._renderContext, this._gpuMemoryManager);
 
     const resultMesh = this._meshManager.init();
@@ -108,7 +116,7 @@ export class ViewManager {
   }
 
   getGPUMemoryUsage() {
-    return undefined;
+    return this._gpuMemoryManager.getGPUMemoryUsage();
   }
 
   public get viewer(): Viewer {
@@ -221,6 +229,14 @@ export class ViewManager {
 
   // Scene creation and destruction with error handling
 
+  public sceneAttached(): SDKResult<any> {
+    return this._meshManager.sceneAttached();
+  }
+
+  public sceneDetached() : SDKResult<any>{
+    return this._meshManager.sceneDetached();
+  }
+
   public sceneModelCreated(sceneModel: SceneModel): SDKResult<any> {
     return this._meshManager.sceneModelCreated(sceneModel);
   }
@@ -299,5 +315,7 @@ export class ViewManager {
     this._gpuMemoryManager = undefined as unknown as GPUMemoryManager;
     this._renderContext.destroy();
     this._viewer = undefined as unknown as Viewer;
+    this.dataTextures = undefined;
   }
+
 }

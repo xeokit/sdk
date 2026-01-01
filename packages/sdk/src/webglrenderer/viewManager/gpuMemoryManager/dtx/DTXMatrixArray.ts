@@ -1,4 +1,5 @@
-import {type FloatArrayParam} from "../../../../math";
+import {type FloatArrayParam, type Mat4} from "../../../../math";
+import {DataTexture} from "./DataTexture";
 
 /**
  * Manages a GPU-side texture for storing model matrices (mat4) for meshes.
@@ -8,7 +9,7 @@ import {type FloatArrayParam} from "../../../../math";
  * The class buffers matrix updates and performs batched, partial uploads to the GPU for optimal performance.
  *
  * ### Features:
- * - **Matrix Storage**: Stores up to `maxMatrices` 4x4 matrices in a GPU texture.
+ * - **Matrix Storage**: Stores up to `maxItems` 4x4 matrices in a GPU texture.
  * - **Efficient Updates**: Buffers changes and uploads only dirty regions to the GPU.
  * - **Row-Aligned Batching**: Groups contiguous updates within the same texture row for efficient flushing.
  * - **Integration**: Designed for use in WebGL rendering pipelines.
@@ -25,63 +26,56 @@ import {type FloatArrayParam} from "../../../../math";
  * 4. Clean up resources with `destroy()`.
  *
  */
-export class DTXMatrixArray {
-
-  /**
-   * The WebGL texture storing the matrices.
-   */
-  public  texture: WebGLTexture;
-
-  /**
-   * The backing Float32Array for matrix data.
-   */
-  public buffer: Float32Array<ArrayBuffer>;
+export class DTXMatrixArray extends DataTexture {
 
   private gl: WebGL2RenderingContext;
   private lastFreeMatrixIndex: number;
   private numMatrices: number;
-  private maxMatrices: number;
+  private maxItems: number;
   private dirtyIndices: Set<number>;
-  private textureWidth: number;
+
 
   /**
    * Creates a new matrix _buffer for mesh transforms.
    *
    * @param params - Configuration object
    * @param params.gl - WebGL2 context
-   * @param params.maxMatrices - Maximum number of matrices to support (default 2000)
+   * @param params.maxItems - Maximum number of matrices to support (default 2000)
    */
   constructor(params: {
     gl: WebGL2RenderingContext;
-    maxMatrices?: number;
+    maxItems?: number;
+    description?: string;
   }) {
+    super();
+    this.description = params.description || "meshIndex -> Mat4";
     this.gl = params.gl;
     this.lastFreeMatrixIndex = 0;
     this.numMatrices = 0;
-    this.maxMatrices = params.maxMatrices || 2000;
+    this.maxItems = params.maxItems || 2000;
     this.dirtyIndices = new Set();
-    }
+  }
 
   /**
-   * Size in bytes of a single matrix element (mat4).
+   * Size in bytes of a single item (mat4).
    */
-  static get elementSizeInBytes() {
-        return 16 * 4; // 16 floats per mat4, 4 bytes per float
-    }
+  static get itemSizeInBytes() {
+    return 16 * 4; // 16 floats per mat4, 4 bytes per float
+  }
 
   /**
    * Gets the total capacity in bytes of the matrix array.
    */
-  getCapacityBytes() : number {
-        return this.maxMatrices * DTXMatrixArray.elementSizeInBytes;
-    }
+  getAllocatedBytes(): number {
+    return this.maxItems * DTXMatrixArray.itemSizeInBytes;
+  }
 
   /**
    * Gets the currently allocated bytes based on number of matrices in use.
    */
   getUsedBytes(): number {
-        return this.numMatrices * DTXMatrixArray.elementSizeInBytes;
-    }
+    return this.numMatrices * DTXMatrixArray.itemSizeInBytes;
+  }
 
   /**
    * Allocates the data texture and backing array for matrix storage.
@@ -92,33 +86,34 @@ export class DTXMatrixArray {
     const matricesPerRow = 512; // Must be multiple of 4 for RGBA32F
     const texelsPerMatrix = 4; // 4 texels per mat4
     const componentsPerTexel = 4; // RGBA
-    const textureWidth = matricesPerRow * texelsPerMatrix; // 512 matrices per row × 4 texels per matrix
-    const textureHeight = Math.ceil(this.maxMatrices / (textureWidth / texelsPerMatrix));
+    const width = matricesPerRow * texelsPerMatrix; // 512 matrices per row × 4 texels per matrix
+    const textureHeight = Math.ceil(this.maxItems / (width / texelsPerMatrix));
 
-    const requiredFloats = textureWidth * textureHeight * texelsPerMatrix * componentsPerTexel;
+    const requiredFloats = width * textureHeight * texelsPerMatrix * componentsPerTexel;
     this.buffer = new Float32Array(requiredFloats);
 
     const gl = this.gl;
     const texture = gl.createTexture();
 
     if (!texture) {
-        return false;
+      return false;
     }
     try {
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, textureWidth, textureHeight);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, width, textureHeight);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.bindTexture(gl.TEXTURE_2D, null);
     } catch (e) {
-        gl.deleteTexture(texture);
-        return false;
+      gl.deleteTexture(texture);
+      return false;
     }
     this.texture = texture;
-    this.textureWidth = textureWidth;
+    this.width = width;
+    this.height = textureHeight;
     return true;
   }
 
@@ -134,6 +129,7 @@ export class DTXMatrixArray {
     this.dirtyIndices.add(index);
   }
 
+
   /**
    * Uploads all dirty (changed) matrices to the GPU in batched, row-aligned subimage calls.
    * Batches contiguous ranges within the same texture row for efficient flushing.
@@ -144,12 +140,14 @@ export class DTXMatrixArray {
       return false;
     }
 
+    this.bufferUpdated();
+
     const gl = this.gl;
 
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-    const matricesPerRow = this.textureWidth / 4;
+    const matricesPerRow = this.width / 4;
 
     const sortedIndices = Array.from(this.dirtyIndices).sort((a, b) => a - b);
     let start = sortedIndices[0];
@@ -195,6 +193,24 @@ export class DTXMatrixArray {
     this.dirtyIndices.clear();
 
     return true;
+  }
+
+  /**
+   * Samples the matrix stored at the given texel coordinates.
+   * @param x
+   * @param y
+   */
+  readAtTexel(x: number, y: number): Mat4 {
+    const matricesPerRow = this.width / 4;
+    const matrixIndex = y * matricesPerRow + Math.floor(x / 4);
+    const offset = matrixIndex * 16;
+    const matrix = <Mat4>Array.from(this.buffer.subarray(offset, offset + 16));
+    return matrix;
+  }
+
+  getItem(matrixIndex: number): {matrix:Mat4 } {
+    const offset = matrixIndex * 16;
+    return {matrix: <Mat4>Array.from(this.buffer.subarray(offset, offset + 16))};
   }
 
   /**

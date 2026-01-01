@@ -88,6 +88,13 @@ export class TileManager {
   }
 
   /**
+   * Number of currently allocated tiles.
+   */
+  public get numTiles() : number {
+    return this._numTiles;
+  }
+
+  /**
    * Sets the pick matrices for all tiles for the given view.
    */
   public setPickMatrix(view: View, pickMatrix: Mat4) {
@@ -152,8 +159,8 @@ export class TileManager {
       rtcRayPickMatrix: rtcPickMatrix
     };
     for (let viewIndex = 0; viewIndex < NUM_VIEWS; viewIndex++) {
-      this._viewMatrices[viewIndex].setMatrix(tileIndex, rtcViewMatrix as unknown as Mat4);
-      this._pickMatrices[viewIndex].setMatrix(tileIndex, rtcPickMatrix as unknown as Mat4);
+      this._viewMatrices[viewIndex].setMatrix(tileIndex, rtcViewMatrix[viewIndex] as unknown as Mat4);
+      this._pickMatrices[viewIndex].setMatrix(tileIndex, rtcPickMatrix[viewIndex] as unknown as Mat4);
     }
     this._tiles.set(id, tile);
     this._numTiles++;

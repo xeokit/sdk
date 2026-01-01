@@ -366,19 +366,16 @@ export class MeshManager {
    * Destroys the MeshManager, cleaning up all resources.
    */
   public destroy(): void {
-
     const {viewer} = this._renderContext;
-    const {models, objects} = viewer.scene;
-
-    // @ts-ignore
-    Object.values(objects).forEach((sceneObject) => this.sceneObjectDestroyed(sceneObject));
-
-    // @ts-ignore
-    Object.values(models).forEach((sceneModel) => this.sceneModelDestroyed(sceneModel));
-
-    // @ts-ignore
-    Object.values(this._sortedBatches).forEach((meshBatch) => meshBatch.destroy());
-
+    if (viewer && viewer.scene) {
+      const {models, objects} = viewer.scene;
+      // @ts-ignore
+      Object.values(objects).forEach((sceneObject) => this.sceneObjectDestroyed(sceneObject));
+      // @ts-ignore
+      Object.values(models).forEach((sceneModel) => this.sceneModelDestroyed(sceneModel));
+      // @ts-ignore
+      Object.values(this._sortedBatches).forEach((meshBatch) => meshBatch.destroy());
+    }
     this._sortedBatches = {};
     this._batchList = [];
     this._rendererObjects = {};

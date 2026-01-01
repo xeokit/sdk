@@ -3,6 +3,7 @@
  * (One item = one vertex = 3 Uint8 components)
  */
 import {SDKInternalException} from "../../../../core";
+import {DataTexture} from "./DataTexture";
 
 interface DTXVertexColorsArrayPortion {
   base: number; // item tileIndex
@@ -15,35 +16,19 @@ export interface DTXVertexColorsArrayHandle {
   base: number; // item tileIndex
 }
 
-/** Options: only gl + capacity matter now */
-export interface DTXVertexColorsArrayOptions {
-  gl: WebGL2RenderingContext;
-  capacity: number; // number of items (vertices)
-}
-
 /**
  * DTXVertexColorsArray — Uint8 colors only (RGB per item), stored in a RGBA8UI texture.
  * - CPU _buffer layout: tightly-packed RGBRGB... (3 Uint8 per item)
  * - GPU texture layout: one texel per item (RGBA8UI), RGB = XYZ, A = 0
  */
-export class DTXVertexColorsArray {
-  /**
-   * WebGL texture (RGBA8UI).
-   */
-  public texture: WebGLTexture;
-
-  /**
-   * CPU-side data _buffer holds 3 components per item.
-   */
-  public buffer: Uint8Array<any>;
+export class DTXVertexColorsArray extends DataTexture {
 
   private readonly gl: WebGL2RenderingContext;
-  private readonly capacity: number;
+  private readonly maxItems: number;
 
   // Geometry/packing constants
   private readonly componentsPerItem = 3; // XYZ
   private readonly texChannelsPerItem = 4; // RGBA texel, A unused
-  private readonly textureWidth = 4096; // matches the example
 
   private used: Map<number, DTXVertexColorsArrayPortion> = new Map();
   private handles: Map<number, DTXVertexColorsArrayHandle> = new Map();
@@ -54,24 +39,31 @@ export class DTXVertexColorsArray {
 
   private nextId = 1;
   private dirtyPortions: Set<number> = new Set();
-  private textureHeight: number;
+  declare public height: number;
 
   private uploadAllOnFlush = false;
   private isPacked: boolean = true;
 
-  constructor(options: DTXVertexColorsArrayOptions) {
+  constructor(options: {
+    gl: WebGL2RenderingContext;
+    maxItems: number; // number of items (vertices)
+    description?: string;
+  }) {
+    super();
+    this.description = options.description || "Vertex colors (Uint8 RGB).";
     this.gl = options.gl;
-    this.capacity = options.capacity;
+    this.maxItems = options.maxItems;
 
-    // One texel per item, so itemsPerRow == textureWidth
-    const itemsPerRow = this.textureWidth;
-    this.textureHeight = Math.max(1, Math.ceil(this.capacity / itemsPerRow));
+    // One texel per item, so itemsPerRow == width
+    this.width = 4096;
+    const itemsPerRow = this.width;
+    this.height = Math.max(1, Math.ceil(this.maxItems / itemsPerRow));
 
     // Start with a single free block spanning all items
-    this.free.push({base: 0, size: this.capacity});
+    this.free.push({base: 0, size: this.maxItems});
   }
 
-  static get elementSizeInBytes(): number {
+  static get itemSizeInBytes(): number {
     return 3; // RGB per item
   }
 
@@ -83,14 +75,14 @@ export class DTXVertexColorsArray {
     }
     try {
       // CPU _buffer is RGB triplets per item
-      this.buffer = new Uint8Array(this.capacity * this.componentsPerItem);
+      this.buffer = new Uint8Array(this.maxItems * this.componentsPerItem);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8UI, this.textureWidth, this.textureHeight);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA8UI, this.width, this.height);
       gl.bindTexture(gl.TEXTURE_2D, null);
     } catch (e) {
       gl.deleteTexture(texture);
@@ -103,8 +95,8 @@ export class DTXVertexColorsArray {
   /**
    * Gets the total capacity in bytes of the vertex colors array.
    */
-  getCapacityBytes(): number {
-    return this.capacity * this.componentsPerItem;
+  getAllocatedBytes(): number {
+    return this.maxItems * this.componentsPerItem;
   }
 
   /**
@@ -116,7 +108,7 @@ export class DTXVertexColorsArray {
 
   /** Check if a portion of given size (in items/vertices) can be allocated. */
   canGetPortion(size: number): boolean {
-    if (size <= 0 || size > this.capacity) {
+    if (size <= 0 || size > this.maxItems) {
       return false;
     }
     if (this.findFreeBlock(size) !== -1) {
@@ -229,7 +221,7 @@ export class DTXVertexColorsArray {
 
     this.used = newUsed;
     this.free =
-      writeHead < this.capacity ? [{base: writeHead, size: this.capacity - writeHead}] : [];
+      writeHead < this.maxItems ? [{base: writeHead, size: this.maxItems - writeHead}] : [];
     this.isPacked = true;
   }
 
@@ -288,16 +280,17 @@ export class DTXVertexColorsArray {
     if (this.dirtyPortions.size === 0 && !this.uploadAllOnFlush) {
       return false;
     }
+    this.bufferUpdated();
     const {gl, texture} = this;
-    const itemsPerRow = this.textureWidth;
+    const itemsPerRow = this.width;
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     if (this.uploadAllOnFlush) {
       // Upload every row with temporary RGBA8UI staging
       let itemBase = 0;
-      for (let y = 0; y < this.textureHeight; y++) {
-        const remaining = this.capacity - itemBase;
+      for (let y = 0; y < this.height; y++) {
+        const remaining = this.maxItems - itemBase;
         const itemsThisRow = Math.max(0, Math.min(itemsPerRow, remaining));
         if (itemsThisRow <= 0) break;
 
@@ -371,7 +364,41 @@ export class DTXVertexColorsArray {
     return out;
   }
 
-  destroy(): void {
+  readAtTexel(x: number, y: number): {
+    color: [number, number, number]
+  } {
+    const texelsPerRow = this.width;
+    const index = y * texelsPerRow + x;
+    const itemIndex = index; // one texel per item
+    const base = itemIndex * this.componentsPerItem;
+
+    const color: [number, number, number] = [
+      this.buffer[base + 0],
+      this.buffer[base + 1],
+      this.buffer[base + 2]
+    ];
+
+    return {color};
+  }
+
+  getItem(geometryIndex: number): {
+    color: [number, number, number]
+  } {
+    if (geometryIndex < 0 || geometryIndex >= this.maxItems) {
+      throw new SDKInternalException("Index out of range");
+    }
+    const base = geometryIndex * this.componentsPerItem;
+
+    const color: [number, number, number] = [
+      this.buffer[base + 0],
+      this.buffer[base + 1],
+      this.buffer[base + 2]
+    ];
+
+    return {color};
+  }
+
+    destroy(): void {
     if (this.texture) {
       this.buffer = null;
       this.gl.deleteTexture(this.texture);

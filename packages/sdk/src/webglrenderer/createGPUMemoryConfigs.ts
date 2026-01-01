@@ -17,7 +17,7 @@ export function createGPUMemoryConfigs(params:{
     utilization: number
 }): GPUMemoryConfigs {
 
-    const elementSizes = GPUMemoryManager.elementSizesInBytes;
+    const elementSizes = GPUMemoryManager.itemSizesInBytes;
 
     const user = params.user || {};
 

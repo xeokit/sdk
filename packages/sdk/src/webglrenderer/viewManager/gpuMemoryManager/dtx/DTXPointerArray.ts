@@ -1,12 +1,7 @@
 // DTXPointerArray.ts
 
-export interface DTXPointerArrayOptions {
-  gl: WebGL2RenderingContext;
-  /** Number of 32-bit entries (one texel per entry). */
-  capacity: number;
-  /** Optional override; defaults to 4096 (clamped to MAX_TEXTURE_SIZE). */
-  texWidth?: number;
-}
+import {DataTexture} from "./DataTexture";
+
 
 /** Handle to an allocated portion. */
 export interface DTXPointerArrayHandle {
@@ -33,16 +28,11 @@ interface Portion {
  * - getPortion / putPortion, with packing (defrag) when needed
  * - uploadChanges() only uploads dirty regions (coalesced per row)
  */
-export class DTXPointerArray {
-  texture: WebGLTexture;
-  readonly capacity: number;
+export class DTXPointerArray extends DataTexture {
+  readonly maxItems: number;
 
-  /** One uint per texel. */
-  public buffer: Uint32Array<any>;
 
   private _gl: WebGL2RenderingContext;
-  private _texWidth: number;
-  private _texHeight: number;
 
   // allocation state
   private _free: Portion[] = [];
@@ -59,34 +49,43 @@ export class DTXPointerArray {
 
   private _packed: boolean = true;
 
-  constructor(opts: DTXPointerArrayOptions) {
+  constructor(opts: {
+    gl: WebGL2RenderingContext;
+    /** Number of 32-bit entries (one texel per entry). */
+    maxItems: number;
+    /** Optional override; defaults to 4096 (clamped to MAX_TEXTURE_SIZE). */
+    texWidth?: number;
+    description?: string;
+  }) {
+    super();
+    this.description = opts.description || "Array of 32-bit unsigned integer pointers into other data textures";
     this._gl = opts.gl;
-    this.capacity = opts.capacity | 0;
-    this._texWidth = 4096;
-    this._texHeight = Math.max(1, Math.ceil(this.capacity / this._texWidth));
+    this.maxItems = opts.maxItems | 0;
+    this.width = 4096;
+    this.height = Math.max(1, Math.ceil(this.maxItems / this.width));
   }
 
-  static get elementSizeInBytes(): number {
+  static get itemSizeInBytes(): number {
     return 4; // one uint32 per entry
   }
 
   /**
    * Gets the total capacity in bytes of the pointer array.
    */
-  getCapacityBytes(): number {
-    return this.capacity * DTXPointerArray.elementSizeInBytes;
+  getAllocatedBytes(): number {
+    return this.maxItems * DTXPointerArray.itemSizeInBytes;
   }
 
   /**
    * Gets the used bytes in the pointer array.
    */
   getUsedBytes() {
-    return this._numUsedElements * DTXPointerArray.elementSizeInBytes;
+    return this._numUsedElements * DTXPointerArray.itemSizeInBytes;
   }
 
   allocate(): boolean {
     // Allocate CPU buffer to full texture area (padding at end is harmless)
-    const totalTexels = this._texWidth * this._texHeight;
+    const totalTexels = this.width * this.height;
     const gl = this._gl;
     // Create R32UI texture
     const tex = gl.createTexture();
@@ -102,25 +101,25 @@ export class DTXPointerArray {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.R32UI, this._texWidth, this._texHeight);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.R32UI, this.width, this.height);
       gl.bindTexture(gl.TEXTURE_2D, null);
     } catch (e) {
       gl.deleteTexture(tex);
       return false;
     }
     // Entire range is initially free
-    this._free.push({base: 0, size: this.capacity});
+    this._free.push({base: 0, size: this.maxItems});
     return true;
   }
 
   /** Texture width (in texels). */
   get texWidth(): number {
-    return this._texWidth;
+    return this.width;
   }
 
   /** Texture height (in texels). */
   get texHeight(): number {
-    return this._texHeight;
+    return this.height;
   }
 
   // ---------------- Allocation API ----------------
@@ -221,6 +220,20 @@ export class DTXPointerArray {
     this._dirtyPortions.add(handle.id);
   }
 
+  readAtTexel(x: number, y: number): { value: number } {
+    const clampedX = Math.min(this.width - 1, Math.max(0, x));
+    const clampedY = Math.min(this.height - 1, Math.max(0, y));
+    const idx = clampedY * this.width + clampedX;
+    return {
+      value: this.buffer[idx],
+    };
+  }
+
+  getItem(index: number): {value: number} {
+    this._assertIndex(index);
+    return {value:this.buffer[index]};
+  }
+
   // ---------------- GPU upload ----------------
 
   /**
@@ -232,6 +245,9 @@ export class DTXPointerArray {
     if (this._dirtyPortions.size === 0 && !this._uploadAllOnFlush) {
       return false;
     }
+
+    this.bufferUpdated();
+
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -240,7 +256,7 @@ export class DTXPointerArray {
       gl.texSubImage2D(
         gl.TEXTURE_2D, 0,
         0, 0,
-        this._texWidth, this._texHeight,
+        this.width, this.height,
         gl.RED_INTEGER, gl.UNSIGNED_INT,
         this.buffer
       );
@@ -251,7 +267,7 @@ export class DTXPointerArray {
     }
 
     // Gather segments to upload
-    const itemsPerRow = this._texWidth;
+    const itemsPerRow = this.width;
     type Seg = { base: number; size: number; };
     const segs: Seg[] = [];
 
@@ -298,6 +314,8 @@ export class DTXPointerArray {
     }
 
     gl.bindTexture(gl.TEXTURE_2D, null);
+
+
     return true;
   }
 
@@ -338,8 +356,8 @@ export class DTXPointerArray {
   // ---------------- Internals ----------------
 
   private _assertIndex(i: number) {
-    if (i < 0 || i >= this.capacity) {
-      throw new RangeError(`DTXPointerArray: index ${i} out of range [0, ${this.capacity})`);
+    if (i < 0 || i >= this.maxItems) {
+      throw new RangeError(`DTXPointerArray: index ${i} out of range [0, ${this.maxItems})`);
     }
   }
 
@@ -415,7 +433,7 @@ export class DTXPointerArray {
     }
 
     this._used = newUsed;
-    this._free = writeHead < this.capacity ? [{base: writeHead, size: this.capacity - writeHead}] : [];
+    this._free = writeHead < this.maxItems ? [{base: writeHead, size: this.maxItems - writeHead}] : [];
     this._packed = true;
   }
 

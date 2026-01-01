@@ -10,8 +10,9 @@ import {GPUMemoryBatch} from "./GPUMemoryBatch";
 import {type GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
 import {Camera, View} from "../../../viewer";
 import {type RenderPassValue} from "../RENDER_PASSES";
-import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
+import {EventEmitter, SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 import type {Mat4, Vec3} from "../../../math";
+import {EventDispatcher} from "strongly-typed-events";
 
 
 /**
@@ -53,17 +54,17 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     const maxTiles = renderContext.memConfigs.maxTiles;
 
     this._tileViewMatrices = [
-      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: maxTiles})
+      new DTXMatrixArray({gl, maxItems: maxTiles, description: '[View 0] - tileIndex->(view matrix)'}),
+      new DTXMatrixArray({gl, maxItems: maxTiles, description: '[View 1] - tileIndex->(view matrix)'}),
+      new DTXMatrixArray({gl, maxItems: maxTiles, description: '[View 2] - tileIndex->(view matrix)'}),
+      new DTXMatrixArray({gl, maxItems: maxTiles, description: '[View 3] - tileIndex->(view matrix)'})
     ];
 
     this._tileRayPickMatrices = [
-      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: maxTiles}),
-      new DTXMatrixArray({gl, maxMatrices: maxTiles})
+      new DTXMatrixArray({gl, maxItems: maxTiles, description: '[View 0] - tileIndex->(ray pick view matrix)'}),
+      new DTXMatrixArray({gl, maxItems: maxTiles, description: '[View 1] - tileIndex->(ray pick view matrix)'}),
+      new DTXMatrixArray({gl, maxItems: maxTiles, description: '[View 2] - tileIndex->(ray pick view matrix)'}),
+      new DTXMatrixArray({gl, maxItems: maxTiles, description: '[View 3] - tileIndex->(ray pick view matrix)'})
     ];
 
     const textures: {
@@ -90,9 +91,10 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     this._tiles = new TileManager(renderContext.viewer, this._tileViewMatrices, this._tileRayPickMatrices);
 
     this.dataTextures = {
-      tileViewMatrices: this._tileViewMatrices.map((t) => (t.texture)),
-      tileRayPickMatrices: this._tileRayPickMatrices.map((t) => (t.texture)),
-      batches: []
+      tileViewMatrices: this._tileViewMatrices.map((t) => (t)),
+      tileRayPickMatrices: this._tileRayPickMatrices.map((t) => (t)),
+      batches: [],
+      onBatchCreated: new EventEmitter(new EventDispatcher<DataTextures, undefined>())
     };
 
     return {
@@ -104,11 +106,13 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   /**
    * Gets the size in bytes of each element managed by GPUMemoryManager.
    */
-  static get elementSizesInBytes(): { [key: string]: number } {
+  static get itemSizesInBytes(): { [key: string]: number } {
     return Object.assign({
-      tile: (DTXMatrixArray.elementSizeInBytes * 4)
-        + (DTXMatrixArray.elementSizeInBytes * 4),
-    }, GPUMemoryBatch.elementSizesInBytes);
+      tile:
+        (DTXMatrixArray.itemSizeInBytes * 4) + // view matrices for 4 views
+        (DTXMatrixArray.itemSizeInBytes * 4), // ray pick matrices for 4 views
+    },
+      GPUMemoryBatch.itemSizesInBytes);
   }
 
   /**
@@ -196,6 +200,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     }
     this._batches.push(gpuMemoryBatch);
     this.dataTextures.batches.push(gpuMemoryBatch.dataTextures);
+    this.dataTextures.onBatchCreated.dispatch(this.dataTextures, undefined);
     return {
       ok: true,
       value: index
@@ -385,11 +390,37 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   }
 
   /**
+   * Retrieves GPU memory usage statistics.
+   */
+  getGPUMemoryUsage(): { allocatedMB: number; usedMB: number } {
+
+    let allocatedBytes = 0;
+    let usedBytes = 0;
+
+    // Tiles
+    const maxTiles = this._renderContext.memConfigs.maxTiles;
+    const tileSize = GPUMemoryManager.itemSizesInBytes.tile;
+    allocatedBytes += (maxTiles * tileSize);
+    usedBytes += (this._tiles.numTiles * tileSize);
+
+    // Batches
+    for (const batch of this._batches) {
+      allocatedBytes += batch.getAllocatedBytes();
+      usedBytes += batch.getUsedBytes();
+    }
+
+    return {
+      allocatedMB: allocatedBytes /(1024 * 1024),
+      usedMB: usedBytes/(1024 * 1024)
+    };
+  }
+
+  /**
    * Destroys this GPUMemoryManager instance and all its resources.
    */
   public destroy() {
-    for (const gpuMemory of this._batches) {
-      gpuMemory.destroy();
+    for (const batch of this._batches) {
+      batch.destroy();
     }
     this._numMeshes = 0;
     this._batches.length = 0;
@@ -408,4 +439,6 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       this._tileRayPickMatrices = this._tileRayPickMatrices.map(clear);
     }
   }
+
+
 }

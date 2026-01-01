@@ -1,4 +1,5 @@
 import {type DTXPassRange} from "./dtx/DTXPrimDrawList";
+import {DataTexture} from "./dtx/DataTexture";
 
 /**
  * Interface representing a collection of data textures used in WebGL rendering.
@@ -20,12 +21,12 @@ export interface DataTexturesBatch {
     /**
      * Data texture mapping each primitive to its corresponding mesh.
      */
-    primToMeshLookup: WebGLTexture;
+    primToMeshLookup: DataTexture;
 
     /**
      * Table of mesh attributes.
      */
-    meshViewAttribs: WebGLTexture;
+    meshViewAttribs: DataTexture;
 
     /**
      * Mapping of rendering passes to their respective primitive ranges in primToMeshLookup.
@@ -38,40 +39,40 @@ export interface DataTexturesBatch {
   /**
    * Data texture containing unique primitive indices for `gl.drawArrays`.
    */
-  indices: WebGLTexture;
+  indices: DataTexture;
 
   /**
    * Data texture containing unique edge indices for `gl.drawArrays`.
    */
-  edgeIndices: WebGLTexture;
+  edgeIndices: DataTexture;
 
   /**
    * Data texture containing a table of mesh attributes that are global to all viewManager.
    */
-  meshAttribs: WebGLTexture;
+  meshAttribs: DataTexture;
 
   /**
    * Data texture containing modeling matrices for meshes.
    */
-  meshMatrices: WebGLTexture;
+  meshMatrices: DataTexture;
 
   /**
    * Data texture containing geometry attributes for meshes.
    */
-  geometryAttribs: WebGLTexture;
+  geometryAttribs: DataTexture;
 
   /**
    * Data texture containing quantization ranges for geometry decoding.
    */
-  geometryQuantRanges: WebGLTexture;
+  geometryQuantRanges: DataTexture;
 
   /**
    * Data texture containing positions for vertices.
    */
-  positions: WebGLTexture;
+  positions: DataTexture;
 
   /**
    * Data texture containing RGB colors for vertices.
    */
-  vertexColors: WebGLTexture;
+  vertexColors: DataTexture;
 }

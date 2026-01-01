@@ -16,6 +16,7 @@ import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 import {type GPUMemoryConfigs} from "../../GPUMemoryConfigs";
 import type {Mat4, Vec3, Vec4} from "../../../math";
+import {DataTexture} from "./dtx/DataTexture";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
@@ -30,7 +31,7 @@ export class GPUMemoryBatch {
   /**
    * The data textures that implement GPU-side model storage for this GPUMemoryBatch.
    */
-  dataTextures: DataTexturesBatch;
+  public dataTextures: DataTexturesBatch;
 
   /**
    * Index of this GPUMemoryBatch within the GPUMemoryManager.sortedBatches array.
@@ -108,28 +109,75 @@ export class GPUMemoryBatch {
     ];
 
     this.primDrawLists = [
-      new DTXPrimDrawList({gl, capacity: memConfigs.maxPrimsPerBatch, bins}), // FIXME: Only defined for View 0
-      // new DTXPrimDrawList({gl, capacity: this._maxPrims, bins}),
-      // new DTXPrimDrawList({gl, capacity: this._maxPrims, bins}),
-      // new DTXPrimDrawList({gl, capacity: this._maxPrims, bins})
+      new DTXPrimDrawList({
+        gl,
+        maxItems: memConfigs.maxPrimsPerBatch,
+        bins,
+        description: `[Batch ${this.index}, View 0] - primIndex -> meshIndex`
+      }),
+      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
+      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins}),
+      // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins})
     ];
 
-    this._meshAttribs = new DTXMeshAttribs({gl, capacity: memConfigs.maxMeshesPerBatch});
+    this._meshAttribs = new DTXMeshAttribs({
+      gl,
+      maxItems: memConfigs.maxMeshesPerBatch,
+      description: `[Batch ${this.index}] - meshIndex -> geometryIndex, tileIndex`
+    });
 
     this._meshViewAttribs = [
-      new DTXMeshViewAttribs({gl, capacity: memConfigs.maxMeshesPerBatch}), // FIXME: Only defined for View 0
-      // new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
-      // new DTXMeshViewAttribs({gl, capacity: this._maxMeshes}),
-      // new DTXMeshViewAttribs({gl, capacity: this._maxMeshes})
+      new DTXMeshViewAttribs({
+        gl,
+        maxItems: memConfigs.maxMeshesPerBatch,
+        description: `[Batch ${this.index}, View 0] - meshIndex -> color, opacity, flags`
+      }), // FIXME: Only defined for View 0
+      // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes}),
+      // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes}),
+      // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes})
     ];
 
-    this._meshMatrices = new DTXMatrixArray({gl, maxMatrices: memConfigs.maxMeshesPerBatch});
-    this._geometryAttribs = new DTXGeometryAttribs({gl, capacity: memConfigs.maxGeometriesPerBatch});
-    this._geometryQuantRanges = new DTXQuantRanges({gl, capacity: memConfigs.maxGeometriesPerBatch});
-    this._indices = new DTXPointerArray({gl, capacity: memConfigs.maxIndicesPerBatch});
-    this._edgeIndices = new DTXPointerArray({gl, capacity: memConfigs.maxIndicesPerBatch});
-    this._positions = new DTXPositionsArray({gl, capacity: memConfigs.maxVerticesPerBatch});
-    this._vertexColors = new DTXVertexColorsArray({gl, capacity: memConfigs.maxVerticesPerBatch});
+    this._meshMatrices = new DTXMatrixArray({
+      gl,
+      maxItems: memConfigs.maxMeshesPerBatch,
+      description: `[Batch ${this.index}] - meshIndex -> modelMatrix`
+    });
+
+    this._geometryAttribs = new DTXGeometryAttribs({
+      gl,
+      maxItems: memConfigs.maxGeometriesPerBatch,
+      description: `[Batch ${this.index}] - geometryIndex -> verticesBase, indicesBase, edgeIndicesBase`
+    });
+
+    this._geometryQuantRanges = new DTXQuantRanges({
+      gl,
+      maxItems: memConfigs.maxGeometriesPerBatch,
+      description: `[Batch ${this.index}] - geometryIndex -> quantization ranges (offset, scale)`
+    });
+
+    this._indices = new DTXPointerArray({
+      gl,
+      maxItems: memConfigs.maxIndicesPerBatch,
+      description: `[Batch ${this.index}] - primitive indices`
+    });
+
+    this._edgeIndices = new DTXPointerArray({
+      gl,
+      maxItems: memConfigs.maxIndicesPerBatch,
+      description: `[Batch ${this.index}] - edge indices`
+    });
+
+    this._positions = new DTXPositionsArray({
+      gl,
+      maxItems: memConfigs.maxVerticesPerBatch,
+      description: `[Batch ${this.index}] - vertex XYZ positions`
+    });
+
+    this._vertexColors = new DTXVertexColorsArray({
+      gl,
+      maxItems: memConfigs.maxVerticesPerBatch,
+      description: `[Batch ${this.index}] - vertex RGB colors`
+    });
 
     const textures: {
       allocate(): Boolean;
@@ -160,37 +208,37 @@ export class GPUMemoryBatch {
       views: [
         {
           numDrawablePrims: 0,
-          primToMeshLookup: this.primDrawLists[0].texture,
-          meshViewAttribs: this._meshViewAttribs[0].texture,
+          primToMeshLookup: this.primDrawLists[0],
+          meshViewAttribs: this._meshViewAttribs[0],
           renderPassDrawRanges: this.primDrawLists[0].passRanges //  FIXME:
         },
         //     {
         //       numDrawablePrims: 0,
-        //       primToMeshLookup: this.primDrawLists[1].texture,
-        //         meshViewAttribs: this._meshViewAttribs[1].texture,
+        //       primToMeshLookup: this.primDrawLists[1],
+        //         meshViewAttribs: this._meshViewAttribs[1],
         //       passRanges: this.primDrawLists[1].passRanges
         //     },
         //     {
         //       numDrawablePrims: 0,
-        //       primToMeshLookup: this.primDrawLists[2].texture,
-        //         meshViewAttribs: this._meshViewAttribs[2].texture,
+        //       primToMeshLookup: this.primDrawLists[2],
+        //         meshViewAttribs: this._meshViewAttribs[2],
         //       passRanges: this.primDrawLists[2].passRanges
         //     },
         //     {
         //       numDrawablePrims: 0,
-        //       primToMeshLookup: this.primDrawLists[3].texture,
-        //         meshViewAttribs: this._meshViewAttribs[3].texture,
+        //       primToMeshLookup: this.primDrawLists[3],
+        //         meshViewAttribs: this._meshViewAttribs[3],
         //       passRanges: this.primDrawLists[3].passRanges
         // }
       ],
-      indices: this._indices.texture,
-      edgeIndices: this._edgeIndices.texture,
-      meshMatrices: this._meshMatrices.texture,
-      meshAttribs: this._meshAttribs.texture,
-      geometryAttribs: this._geometryAttribs.texture,
-      geometryQuantRanges: this._geometryQuantRanges.texture,
-      positions: this._positions.texture,
-      vertexColors: this._vertexColors.texture
+      indices: this._indices,
+      edgeIndices: this._edgeIndices,
+      meshMatrices: this._meshMatrices,
+      meshAttribs: this._meshAttribs,
+      geometryAttribs: this._geometryAttribs,
+      geometryQuantRanges: this._geometryQuantRanges,
+      positions: this._positions,
+      vertexColors: this._vertexColors
     };
 
     // this.structSpecs = {
@@ -200,16 +248,32 @@ export class GPUMemoryBatch {
     return true;
   }
 
-  static get elementSizesInBytes(): { [key: string]: number } {
+  static get itemSizesInBytes(): { [key: string]: number } {
     return {
-      mesh: DTXMeshAttribs.elementSizeInBytes
-        + DTXMeshViewAttribs.elementSizeInBytes * 4 // 4 views FIXME
-        + DTXMatrixArray.elementSizeInBytes,
-      geometry: DTXGeometryAttribs.elementSizeInBytes + DTXQuantRanges.elementSizeInBytes,
-      vertex: DTXPositionsArray.elementSizeInBytes + DTXVertexColorsArray.elementSizeInBytes,
-      index: DTXPointerArray.elementSizeInBytes,
-      prim: DTXPrimDrawList.elementSizeInBytes
+      mesh: DTXMeshAttribs.itemSizeInBytes
+        + DTXMeshViewAttribs.itemSizeInBytes * 4 // 4 views FIXME
+        + DTXMatrixArray.itemSizeInBytes,
+      geometry: DTXGeometryAttribs.itemSizeInBytes + DTXQuantRanges.itemSizeInBytes,
+      vertex: DTXPositionsArray.itemSizeInBytes + DTXVertexColorsArray.itemSizeInBytes,
+      index: DTXPointerArray.itemSizeInBytes,
+      prim: DTXPrimDrawList.itemSizeInBytes
     }
+  }
+
+  getAllocatedBytes(): number {
+    let total = 0;
+    total += this._positions.getAllocatedBytes();
+    total += this._vertexColors.getAllocatedBytes();
+    total += this._indices.getAllocatedBytes();
+    total += this._edgeIndices.getAllocatedBytes();
+    total += this._meshAttribs.getAllocatedBytes();
+    total += this._geometryAttribs.getAllocatedBytes();
+    total += this._geometryQuantRanges.getAllocatedBytes();
+    total += this._meshMatrices.getAllocatedBytes();
+    for (let i = 0; i < this.primDrawLists.length; i++) {
+      total += this.primDrawLists[i].getAllocatedBytes();
+    }
+    return total;
   }
 
   /**
@@ -221,10 +285,10 @@ export class GPUMemoryBatch {
     total += this._vertexColors.getUsedBytes();
     total += this._indices.getUsedBytes();
     total += this._edgeIndices.getUsedBytes();
-    total += this._meshAttribs.getUsedBytes();
-    total += this._geometryAttribs.getUsedBytes();
-    total += this._geometryQuantRanges.getUsedBytes();
-    total += this._meshMatrices.getUsedBytes();
+    total += this._numMeshes * DTXMeshAttribs.itemSizeInBytes;
+    total += this._numGeometries * DTXGeometryAttribs.itemSizeInBytes;
+    total += this._numGeometries * DTXQuantRanges.itemSizeInBytes;
+    total += this._numMeshes * DTXMatrixArray.itemSizeInBytes;
     for (let i = 0; i < this.primDrawLists.length; i++) {
       total += this.primDrawLists[i].getUsedBytes();
     }
@@ -773,7 +837,10 @@ export class GPUMemoryBatch {
       return ref;
     };
     this._onTick = clear(this._onTick);
-    this.primDrawLists = clear(this.primDrawLists);
+    for (let i = 0; i < this.primDrawLists.length; i++) {
+      this.primDrawLists[i].destroy();
+    }
+    this.primDrawLists = [];
     this._meshAttribs = clear(this._meshAttribs);
     this._meshViewAttribs = this._meshViewAttribs.map(clear);
     this._geometryAttribs = clear(this._geometryAttribs);

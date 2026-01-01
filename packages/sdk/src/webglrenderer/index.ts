@@ -79,3 +79,8 @@ export * from "./WebGLRendererEvents";
 export * from "./GPUMemoryConfigs";
 export * from "./createGPUMemoryConfigs";
 export * from "./GPUMemoryUsage";
+export * from "./viewManager/gpuMemoryManager/dtx/DataTexture";
+export * from "./viewManager/gpuMemoryManager/DataTexturesBatch";
+export * from "./viewManager/gpuMemoryManager/DataTextures";
+export * from "./DataTexturesDebugger";
+export * from "./GPUMemoryUsageDebugger";

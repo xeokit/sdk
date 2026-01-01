@@ -1,10 +1,12 @@
 // A single data element (uvec4: four uint32 lanes)
+import {DataTexture} from "./DataTexture";
+
 export type DTXUvec4 = [number, number, number, number];
 
 export interface DTXUvec4ArrayOptions {
   gl: WebGL2RenderingContext;
   /** Number of uvec4 elements to store (each element = 1 texel). */
-  capacity: number;
+  maxItems: number;
   /** Optional override; defaults to 4096 texels (clamped to MAX_TEXTURE_SIZE). */
   texWidth?: number;
 }
@@ -15,56 +17,60 @@ export interface DTXUvec4ArrayOptions {
  * - Integer upload path (RGBA_INTEGER / UNSIGNED_INT).
  * - Tracks dirty indices and uploads only changed texels.
  */
-export class DTXGeometryAttribs {
-  public texture: WebGLTexture;
-  public capacity: number;
+export class DTXGeometryAttribs extends DataTexture {
 
-  /** Backing lanes (RGBA32UI). One element = 4 uint32s (16 bytes). */
-  public buffer: Uint32Array<any>;
+  public maxItems: number;
 
   private _gl: WebGL2RenderingContext;
-  private _texWidth: number;      // texels per row
-  private _texHeight: number;     // rows
   private _dirty = new Set<number>(); // element indices (texels)
 
-  constructor( options: DTXUvec4ArrayOptions ) {
+  constructor( options: {
+    gl: WebGL2RenderingContext;
+    /** Number of uvec4 elements to store (each element = 1 texel). */
+    maxItems: number;
+    /** Optional override; defaults to 4096 texels (clamped to MAX_TEXTURE_SIZE). */
+    texWidth?: number;
+    description?: string;
+  } ) {
+    super();
+    this.description = options.description || "geometryIndex -> (verticesBase, indicesBase, edgeIndicesBase)";
     this._gl = options.gl;
-    this.capacity = options.capacity;
+    this.maxItems = options.maxItems;
   }
 
   /**
    * Size in bytes of a single matrix element (mat4).
    */
-  static get elementSizeInBytes() {
+  static get itemSizeInBytes() {
     return 16; // 4 uint32 lanes per uvec4, 4 bytes each
   }
 
-  getCapacityBytes() : number {
-    return this.capacity * DTXGeometryAttribs.elementSizeInBytes;
+  getAllocatedBytes() : number {
+    return this.maxItems * DTXGeometryAttribs.itemSizeInBytes;
   }
 
   getUsedBytes(): number {
-    return this._dirty.size * DTXGeometryAttribs.elementSizeInBytes;
+    return this._dirty.size * DTXGeometryAttribs.itemSizeInBytes;
   }
 
   allocate(): boolean {
     // Clamp to device limits and keep rows wide to reduce uploads.
     const gl = this._gl;
     const maxSize = (gl.getParameter(gl.MAX_TEXTURE_SIZE) as number) | 0;
-    this._texWidth = 4096;
-    const texelsNeeded = this.capacity;
-    this._texHeight = Math.max(1, Math.ceil(texelsNeeded / this._texWidth));
-    // if (this._texHeight > maxSize) {
+    this.width = 4096;
+    const texelsNeeded = this.maxItems;
+    this.height = Math.max(1, Math.ceil(texelsNeeded / this.width));
+    // if (this.height > maxSize) {
     //   // Try widening to reduce height
-    //   this._texWidth = Math.min(maxSize, Math.ceil(texelsNeeded / maxSize));
-    //   this._texHeight = Math.max(1, Math.ceil(texelsNeeded / this._texWidth));
-    //   if (this._texHeight > maxSize) {
+    //   this.width = Math.min(maxSize, Math.ceil(texelsNeeded / maxSize));
+    //   this.height = Math.max(1, Math.ceil(texelsNeeded / this.width));
+    //   if (this.height > maxSize) {
     //     throw new Error(
-    //       `DTXGeometryAttribs: capacity ${this.capacity} exceeds max 2D texture area ${maxSize}x${maxSize}`
+    //       `DTXGeometryAttribs: maxItems ${this.maxItems} exceeds max 2D texture area ${maxSize}x${maxSize}`
     //     );
     //   }
     // }
-    const totalTexels = this._texWidth * this._texHeight;
+    const totalTexels = this.width * this.height;
     const totalElems = totalTexels * 4; // 4 uint32 lanes per texel
     this.buffer = new Uint32Array(totalElems);
     // Allocate integer texture (RGBA32UI)
@@ -79,7 +85,8 @@ export class DTXGeometryAttribs {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1); // safe for tightly packed rows
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32UI, this._texWidth, this._texHeight);
+      /** Backing lanes (RGBA32UI). One element = 4 uint32s (16 bytes). */
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32UI, this.width, this.height);
       gl.bindTexture(gl.TEXTURE_2D, null);
     } catch (e) {
       gl.deleteTexture(tex);
@@ -90,17 +97,11 @@ export class DTXGeometryAttribs {
   }
   /** Texture size (texels). */
   get texWidth(): number {
-    return this._texWidth;
+    return this.width;
   }
 
   get texHeight(): number {
-    return this._texHeight;
-  }
-
-  /** Read one element (uvec4 as four uint32s). */
-  getItem( geometryIndex: number ): DTXUvec4 {
-    const b = geometryIndex * 4;
-    return [this.buffer[b], this.buffer[b + 1], this.buffer[b + 2], this.buffer[b + 3]];
+    return this.height;
   }
 
   /** Write one element directly (uvec4 lanes). */
@@ -134,6 +135,7 @@ export class DTXGeometryAttribs {
     if (this._dirty.size === 0) {
       return false;
     }
+    this.bufferUpdated();
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -145,13 +147,13 @@ export class DTXGeometryAttribs {
     const pushRun = ( start: number, end: number ) => { // inclusive
       let idx = start;
       while (idx <= end) {
-        const row = Math.floor(idx / this._texWidth);
-        const x = idx % this._texWidth;
-        const rowLeft = this._texWidth - x;
+        const row = Math.floor(idx / this.width);
+        const x = idx % this.width;
+        const rowLeft = this.width - x;
         const maxChunk = end - idx + 1;
         const chunk = Math.min(rowLeft, maxChunk);
 
-        const elemStart = (row * this._texWidth + x) * 8;
+        const elemStart = (row * this.width + x) * 8;
         const elemEnd = elemStart + chunk * 4;
         const sub = this.buffer.subarray(elemStart, elemEnd);
 
@@ -180,11 +182,13 @@ export class DTXGeometryAttribs {
     if (runStart >= 0) pushRun(runStart, prev);
     this._dirty.clear();
     gl.bindTexture(gl.TEXTURE_2D, null);
+
+    return true;
   }
 
   private _assertIndex( i: number ) {
-    if (i < 0 || i >= this.capacity) {
-      throw new RangeError(`DTXUvec4Array: geometryIndex ${i} out of range [0, ${this.capacity})`);
+    if (i < 0 || i >= this.maxItems) {
+      throw new RangeError(`DTXUvec4Array: geometryIndex ${i} out of range [0, ${this.maxItems})`);
     }
   }
 
@@ -193,7 +197,29 @@ export class DTXGeometryAttribs {
     return this.texture;
   }
 
-  destroy(): void {
+  getItem(geometryIndex:number):{ verticesBase: number, indicesBase: number, edgeIndicesBase: number} {
+    const b = geometryIndex * 4;
+    return {
+      verticesBase: this.buffer[b + 0],
+      indicesBase: this.buffer[b + 1],
+      edgeIndicesBase: this.buffer[b + 2],
+    };
+  }
+
+  readAtTexel(x: number, y: number): {
+    verticesBase: number,
+    indicesBase: number,
+    edgeIndicesBase: number
+  } {
+    const idx = (y * this.width + x) * 4;
+    return {
+      verticesBase: this.buffer[idx + 0],
+      indicesBase: this.buffer[idx + 1],
+      edgeIndicesBase: this.buffer[idx + 2],
+    };
+  }
+
+    destroy(): void {
     if (this.texture) {
       this.buffer = null;
       this._gl.deleteTexture(this.texture);

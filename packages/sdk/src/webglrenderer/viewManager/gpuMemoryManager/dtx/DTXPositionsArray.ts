@@ -3,6 +3,7 @@
  * (One item = one vertex = 3 Uint16 components)
  */
 import {SDKInternalException} from "../../../../core";
+import {DataTexture} from "./DataTexture";
 
 interface DTXPositionsArrayPortion {
   base: number; // item tileIndex
@@ -15,56 +16,43 @@ export interface DTXPositionsArrayHandle {
   base: number; // item tileIndex
 }
 
-/** Options: only gl + capacity matter now */
-export interface DTXPositionsArrayOptions {
-  gl: WebGL2RenderingContext;
-  capacity: number; // number of items (vertices)
-}
-
 /**
  * DTXPositionsArray — Uint16 positions only (XYZ per item), stored in a RGBA16UI texture.
  * - CPU _buffer layout: tightly-packed RGBRGB... (3 Uint16 per item)
  * - GPU texture layout: one texel per item (RGBA16UI), RGB = XYZ, A = 0
  */
-export class DTXPositionsArray {
-
-  /**
-   * WebGL texture (RGBA16UI).
-   */
-  public texture: WebGLTexture;
-
-  /**
-   * CPU-side data _buffer holds 3 components per item.
-   */
-  public buffer: Uint16Array<any>;
+export class DTXPositionsArray extends DataTexture {
 
   private readonly gl: WebGL2RenderingContext;
-  private readonly capacity: number;
+  private readonly maxItems: number;
 
   // Geometry/packing constants
   private readonly componentsPerItem = 3; // XYZ
   private readonly texChannelsPerItem = 4; // RGBA texel, A unused
-  private readonly textureWidth = 4096; // matches the example
-
   private used: Map<number, DTXPositionsArrayPortion> = new Map();
   private handles: Map<number, DTXPositionsArrayHandle> = new Map();
   private free: DTXPositionsArrayPortion[] = [];
-  private portionCallbacks: Map<number, ( newBase: number ) => void> = new Map();
+  private portionCallbacks: Map<number, (newBase: number) => void> = new Map();
 
   private numUsedElements = 0;
   private nextId = 1;
   private dirtyPortions: Set<number> = new Set();
-  private textureHeight: number;
 
   private uploadAllOnFlush = false;
   private isPacked: boolean = true;
 
-  constructor( options: DTXPositionsArrayOptions ) {
+  constructor(options: {
+    gl: WebGL2RenderingContext;
+    maxItems: number; // number of items (vertices)
+    description?: string;
+  }) {
+    super();
+    this.description = options.description || "Vertex positions (Uint16 XYZ)";
     this.gl = options.gl;
-    this.capacity = options.capacity;
+    this.maxItems = options.maxItems;
   }
 
-  static get elementSizeInBytes() {
+  static get itemSizeInBytes() {
     return 3 * 2; // 3 Uint16 components per item, 2 bytes each
   }
 
@@ -72,29 +60,30 @@ export class DTXPositionsArray {
     const gl = this.gl;
     const texture = gl.createTexture();
     if (!texture) {
-     return false;
+      return false;
     }
     try {
       // CPU _buffer is RGB triplets per item
-      this.buffer = new Uint16Array(this.capacity * this.componentsPerItem);
-      // One texel per item, so itemsPerRow == textureWidth
-      const itemsPerRow = this.textureWidth;
-      this.textureHeight = Math.max(1, Math.ceil(this.capacity / itemsPerRow));
+      this.buffer = new Uint16Array(this.maxItems * this.componentsPerItem);
+      // One texel per item, so itemsPerRow == width
+      this.width=4096;
+      const itemsPerRow = this.width;
+      this.height = Math.max(1, Math.ceil(this.maxItems / itemsPerRow));
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA16UI, this.textureWidth, this.textureHeight);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA16UI, this.width, this.height);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
     } catch (e) {
-        gl.deleteTexture(texture);
-        return false;
+      gl.deleteTexture(texture);
+      return false;
     }
     this.texture = texture;
     // Start with a single free block spanning all items
-    this.free=[
-      {base: 0, size: this.capacity}
+    this.free = [
+      {base: 0, size: this.maxItems}
     ];
     return true;
   }
@@ -102,21 +91,21 @@ export class DTXPositionsArray {
   /**
    * Returns the total number of bytes allocated.
    */
-  getCapacityBytes() {
-    return this.capacity * DTXPositionsArray.elementSizeInBytes;
+  getAllocatedBytes() {
+    return this.maxItems * DTXPositionsArray.itemSizeInBytes;
   }
 
   /**
    * Returns the total number of bytes currently used.
    */
   getUsedBytes(): number {
-    return this.numUsedElements * DTXPositionsArray.elementSizeInBytes;
+    return this.numUsedElements * DTXPositionsArray.itemSizeInBytes;
   }
 
 
   /** Check if a portion of given size (in items/vertices) can be allocated. */
-  canGetPortion( size: number ): boolean {
-    if (size <= 0 || size > this.capacity) {
+  canGetPortion(size: number): boolean {
+    if (size <= 0 || size > this.maxItems) {
       return false;
     }
     if (this.findFreeBlock(size) !== -1) {
@@ -131,7 +120,7 @@ export class DTXPositionsArray {
    * Returns null if allocation fails.
    */
 
-  getPortion( size: number, onMove?: ( newBase: number ) => void ): DTXPositionsArrayHandle | null{
+  getPortion(size: number, onMove?: (newBase: number) => void): DTXPositionsArrayHandle | null {
     this.isPacked = false;
     const index = this.findFreeBlock(size);
     if (index === -1) {
@@ -148,7 +137,7 @@ export class DTXPositionsArray {
   }
 
   /** View into the CPU _buffer (RGB tightly packed). */
-  getPortionView( handle: DTXPositionsArrayHandle ): Uint16Array<any> {
+  getPortionView(handle: DTXPositionsArrayHandle): Uint16Array<any> {
     const portion = this.used.get(handle.id);
     if (!portion) {
       throw new SDKInternalException("Invalid handle ID");
@@ -160,7 +149,7 @@ export class DTXPositionsArray {
   }
 
   /** Write RGB triplets (Uint16) into the allocated region. `data.length == size*3` */
-  setPortionData( handle: DTXPositionsArrayHandle, data: ArrayLike<number> ): void {
+  setPortionData(handle: DTXPositionsArrayHandle, data: ArrayLike<number>): void {
     const portion = this.used.get(handle.id);
     if (!portion) {
       throw new SDKInternalException('Invalid handle ID');
@@ -176,7 +165,7 @@ export class DTXPositionsArray {
   }
 
   /** Fill the portion with one scalar value across all RGB components. */
-  fillPortion( handle: DTXPositionsArrayHandle, value: number ): void {
+  fillPortion(handle: DTXPositionsArrayHandle, value: number): void {
     const portion = this.used.get(handle.id);
     if (!portion) {
       throw new SDKInternalException("Invalid handle ID");
@@ -188,7 +177,7 @@ export class DTXPositionsArray {
   }
 
   /** Free an allocated portion. */
-  putPortion( handle: DTXPositionsArrayHandle ): void {
+  putPortion(handle: DTXPositionsArrayHandle): void {
     const portion = this.used.get(handle.id);
     if (!portion) {
       return;
@@ -207,7 +196,7 @@ export class DTXPositionsArray {
     if (this.isPacked) {
       return;
     }
-    const sorted = Array.from(this.used.entries()).sort(( [, a], [, b] ) => a.base - b.base);
+    const sorted = Array.from(this.used.entries()).sort(([, a], [, b]) => a.base - b.base);
     let writeHead = 0;
     const newUsed = new Map<number, DTXPositionsArrayPortion>();
 
@@ -233,13 +222,13 @@ export class DTXPositionsArray {
     }
 
     this.used = newUsed;
-    this.free = writeHead < this.capacity
-      ? [{base: writeHead, size: this.capacity - writeHead}]
+    this.free = writeHead < this.maxItems
+      ? [{base: writeHead, size: this.maxItems - writeHead}]
       : [];
     this.isPacked = true;
   }
 
-  private allocateHandleAt( index: number, size: number, onMove?: ( newBase: number ) => void ): DTXPositionsArrayHandle {
+  private allocateHandleAt(index: number, size: number, onMove?: (newBase: number) => void): DTXPositionsArrayHandle {
     const block = this.free[index];
     const id = this.nextId++;
     const portion: DTXPositionsArrayPortion = {base: block.base, size};
@@ -258,11 +247,11 @@ export class DTXPositionsArray {
     return handle;
   }
 
-  private findFreeBlock( size: number ): number {
+  private findFreeBlock(size: number): number {
     return this.free.findIndex(block => block.size >= size);
   }
 
-  private insertFreePortionSorted( portion: DTXPositionsArrayPortion ): void {
+  private insertFreePortionSorted(portion: DTXPositionsArrayPortion): void {
     let i = 0;
     while (i < this.free.length && this.free[i].base < portion.base) i++;
     this.free.splice(i, 0, portion);
@@ -289,16 +278,17 @@ export class DTXPositionsArray {
     if (this.dirtyPortions.size === 0 && !this.uploadAllOnFlush) {
       return;
     }
+    this.bufferUpdated();
     const {gl, texture} = this;
-    const itemsPerRow = this.textureWidth;
+    const itemsPerRow = this.width;
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     if (this.uploadAllOnFlush) {
       // Upload every row with temporary RGBA16UI staging
       let itemBase = 0;
-      for (let y = 0; y < this.textureHeight; y++) {
-        const remaining = this.capacity - itemBase;
+      for (let y = 0; y < this.height; y++) {
+        const remaining = this.maxItems - itemBase;
         const itemsThisRow = Math.max(0, Math.min(itemsPerRow, remaining));
         if (itemsThisRow <= 0) break;
 
@@ -358,7 +348,7 @@ export class DTXPositionsArray {
   }
 
   /** Expand CPU RGB triplets [base .. base+count) into a RGBA16UI row (A=0). */
-  #expandRowToRGBA( baseItem: number, count: number ): Uint16Array<any> {
+  #expandRowToRGBA(baseItem: number, count: number): Uint16Array<any> {
     const out = new Uint16Array(count * this.texChannelsPerItem);
     const srcOffset = baseItem * this.componentsPerItem;
     const src = this.buffer;
@@ -374,7 +364,31 @@ export class DTXPositionsArray {
     return out;
   }
 
-  destroy(): void {
+  readAtTexel(x: number, y: number): { position: [number, number, number] } {
+    const itemsPerRow = this.width;
+    const itemIndex = y * itemsPerRow + x;
+    const offset = itemIndex * this.componentsPerItem;
+    const buffer = this.buffer;
+    return {
+      position: [
+        buffer[offset + 0],
+        buffer[offset + 1],
+        buffer[offset + 2]
+      ]
+    };
+  }
+
+  getItem(itemIndex: number): [number, number, number] {
+    const offset = itemIndex * this.componentsPerItem;
+    const buffer = this.buffer;
+    return [
+      buffer[offset + 0],
+      buffer[offset + 1],
+      buffer[offset + 2]
+    ];
+  }
+
+    destroy(): void {
     if (this.texture) {
       this.gl.deleteTexture(this.texture);
     }

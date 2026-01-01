@@ -1,13 +1,15 @@
 import type {RenderPassValue} from "../../RENDER_PASSES";
 import {SDKInternalException} from "../../../../core";
+import {DataTexture} from "./DataTexture";
 
 export interface DTXPrimDrawListOptions {
   bins: number[];
   gl: WebGL2RenderingContext;
   /** Number of 32-bit entries (one texel per entry). */
-  capacity: number;
+  maxItems: number;
   /** Optional fixed texture width. Defaults to 4096. */
   texWidth?: number;
+  description?: string;
 }
 
 /** Handle to an allocated portion. */
@@ -46,20 +48,13 @@ export interface DTXPassRange {
  * - getPortion / putPortion
  * - setCulled / setType
  * - uploadChanges() rebuilds runs and uploads only when needed
- * - canGetPortion() to check capacity
+ * - canGetPortion() to check maxItems
  */
-export class DTXPrimDrawList {
+export class DTXPrimDrawList extends DataTexture {
 
-  texture: WebGLTexture;
-  readonly capacity: number;
-
-  /** One uint per texel. Sized to the full physical texture area. */
-  public buffer: Uint32Array<any>;
+  readonly maxItems: number;
 
   private _gl: WebGL2RenderingContext;
-  private _texWidth: number;
-  private _texHeight: number;
-
   private _portions: Map<number, DTXPrimDrawListHandle> = new Map();
   private _nextId = 1;
   private _needFlush = true;
@@ -76,39 +71,41 @@ export class DTXPrimDrawList {
   public passRanges: Map<number, DTXPassRange> = new Map();
 
   constructor(opts: DTXPrimDrawListOptions) {
+    super();
+    this.description = opts.description ||  "primIndex -> meshIndex";
     const gl = opts.gl;
     this._gl = gl;
-    this.capacity = opts.capacity | 0;
+    this.maxItems = opts.maxItems | 0;
     this._renderPassIds = opts.bins;
     const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) | 0; // reserved for future validation
-    this._texWidth = Math.min(Math.max(1, opts.texWidth ?? 4096), maxSize);
-    this._texHeight = Math.max(1, Math.ceil(this.capacity / this._texWidth));
+    this.width = Math.min(Math.max(1, opts.texWidth ?? 4096), maxSize);
+    this.height = Math.max(1, Math.ceil(this.maxItems / this.width));
   }
 
   /**
    * Size in bytes of a single element (uint32).
    */
-  static get elementSizeInBytes(): number {
-    return 4; // 1 uint32 per texel
+  static get itemSizeInBytes(): number {
+    return 8; // 1 uint32 per prim + 1 uint32 offset
   }
 
   /**
    * Gets the total capacity in bytes of the primitive draw list.
    */
-  getCapacityBytes(): number {
-    return this.capacity * DTXPrimDrawList.elementSizeInBytes;
+  getAllocatedBytes(): number {
+    return this.maxItems * DTXPrimDrawList.itemSizeInBytes;
   }
 
   /**
    * Gets the currently allocated bytes based on number of primitives in use.
    */
   getUsedBytes(): number {
-    return this._totalAllocatedPrims * DTXPrimDrawList.elementSizeInBytes;
+    return this._totalAllocatedPrims * DTXPrimDrawList.itemSizeInBytes;
   }
 
   allocate(): boolean {
     // Allocate CPU buffer to full texture area (padding at end is harmless)
-    const totalTexels = this._texWidth * this._texHeight;
+    const totalTexels = this.width * this.height;
     // Create R32UI texture
     const gl = this._gl;
     const tex = gl.createTexture();
@@ -117,14 +114,14 @@ export class DTXPrimDrawList {
     }
     this.texture = tex;
     try {
-      this.buffer = new Uint32Array(totalTexels);
+      this.buffer = new Uint32Array(totalTexels * 2); // 2x uint32 per prim (meshIndex, offset)
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.R32UI, this._texWidth, this._texHeight);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.R32UI, this.width, this.height);
       gl.bindTexture(gl.TEXTURE_2D, null);
     } catch (e) {
       gl.deleteTexture(tex);
@@ -135,12 +132,12 @@ export class DTXPrimDrawList {
 
   /** Texture width (in texels). */
   get texWidth(): number {
-    return this._texWidth;
+    return this.width;
   }
 
   /** Texture height (in texels). */
   get texHeight(): number {
-    return this._texHeight;
+    return this.height;
   }
 
   /** Number of primitives currently drawable (post-\`uploadChanges\`). */
@@ -150,7 +147,7 @@ export class DTXPrimDrawList {
 
   /** Check if a new portion of \`size\` fits (ignores culling). */
   canGetPortion(size: number): boolean {
-    return this._totalAllocatedPrims + (size | 0) <= this.capacity;
+    return this._totalAllocatedPrims + (size | 0) <= this.maxItems;
   }
 
   /**
@@ -160,7 +157,7 @@ export class DTXPrimDrawList {
   createPortion(size: number, meshIndex: number, renderPass: RenderPassValue): DTXPrimDrawListHandle {
     size |= 0;
     if (size <= 0) throw new Error("DTXPrimList: size must be > 0");
-    if (this._totalAllocatedPrims + size > this.capacity) {
+    if (this._totalAllocatedPrims + size > this.maxItems) {
       throw new SDKInternalException("DTXPrimList: Not enough capacity");
     }
     const id = this._nextId++;
@@ -175,7 +172,7 @@ export class DTXPrimDrawList {
   deletePortion(portion: DTXPrimDrawListHandle): void {
     const removed = this._portions.get(portion.id);
     if (!removed) {
-      return;
+       throw new SDKInternalException("DTXPrimDrawList: Unknown portion handle");
     }
     this._portions.delete(portion.id);
     this._totalAllocatedPrims -= removed.size;
@@ -186,7 +183,7 @@ export class DTXPrimDrawList {
   setRenderPass(handle: DTXPrimDrawListHandle, renderPass: RenderPassValue): void {
     const p = this._portions.get(handle.id);
     if (!p) {
-      return;
+      throw new SDKInternalException("DTXPrimDrawList: Unknown portion handle");
     }
     if (p.renderPass === renderPass) {
       return;
@@ -197,10 +194,9 @@ export class DTXPrimDrawList {
   }
 
   setVisible(handle: DTXPrimDrawListHandle, visible: boolean): void {
-    console.log(`DTXPrimDrawList: setVisible id=${handle.id} visible=${visible}`);
     const p = this._portions.get(handle.id);
     if (!p) {
-      return;
+      throw new SDKInternalException("DTXPrimDrawList: Unknown portion handle");
     }
     p.visible = !!visible;
     handle.visible = p.visible;
@@ -225,6 +221,7 @@ export class DTXPrimDrawList {
       return false;
     }
     this._rebuildRunsAndBuffer();
+    this.bufferUpdated();
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -233,8 +230,8 @@ export class DTXPrimDrawList {
       0,
       0,
       0,
-      this._texWidth,
-      this._texHeight,
+      this.width,
+      this.height,
       gl.RED_INTEGER,
       gl.UNSIGNED_INT,
       this.buffer
@@ -254,13 +251,25 @@ export class DTXPrimDrawList {
     return r;
   }
 
+  readAtTexel(x: number, y: number): { meshIndex: number, offset: number } {
+    const addr = DTXPrimDrawList.encodeAddress(x, y, this.width);
+    const meshIndex = this.buffer[addr*2];
+    const offset = this.buffer[addr*2 + 1];
+    return {meshIndex, offset};
+  }
+
+  getItem(primIndex: number): { meshIndex: number, offset: number} {
+    const meshIndex = this.buffer[primIndex*2];
+    const offset = this.buffer[primIndex*2 + 1];
+    return {meshIndex, offset};
+  }
+
   /** Destroy GL resources. */
   destroy(): void {
     if (this.texture) {
       this._gl.deleteTexture(this.texture);
       this.texture = null;
     }
-    // Help GC
     (this.buffer as any) = null;
     this._portions.clear();
     this.passRanges.clear();
@@ -293,7 +302,11 @@ export class DTXPrimDrawList {
         for (const portion of group) {
           const end = base + portion.size;
           // Fill with meshIndex for each prim in this portion
-          this.buffer.fill(portion.meshIndex >>> 0, base, end);
+          for (let i = base, offset =0; i < end; i+=2, offset++) {
+            this.buffer[i] = portion.meshIndex >>> 0;
+            this.buffer[i+1] = offset;
+          }
+      //    this.buffer.fill(portion.meshIndex >>> 0, base, end);
           base = end;
         }
       }

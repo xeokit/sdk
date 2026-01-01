@@ -1,25 +1,33 @@
 import {type DataTexturesBatch} from "./DataTexturesBatch";
+import {DataTexture} from "./dtx/DataTexture";
+import {EventEmitter} from "../../../core";
 
 /**
- * Interface representing GPU-resident data textures for tile view matrices and sortedBatches.
+ * GPU-resident data textures used internally within a WebGLRenderer.
+ * These data textures are exposed as read-only resources for debugging tools to inspect.
  */
 export interface DataTextures {
 
   /**
-   * Array of data textures, each containing tile view matrices for specific viewManager.
+   * For each View, a DataTexture containing a table of RTC view matrices for the tiles in that view.
    */
-  tileViewMatrices: WebGLTexture[];
+  tileViewMatrices: DataTexture[];
 
   /**
-   * Array of data textures, each containing tile ray pick matrices for specific viewManager.
+   * For each View, a DataTexture containing a table of RTC ray pick matrices for the tiles in that view.
    */
-  tileRayPickMatrices: WebGLTexture[];
+  tileRayPickMatrices: DataTexture[];
 
   /**
-   * Array of DataTexturesLayer, each containing the renderable output of a GPUMemoryBatch.
+   * Batches of data textures for sorted rendering.
    *
    * These are indexed using {@link GPUMemoryBatch.batchIndex | GPUMemoryBatch.batchIndex}.
    */
   batches: DataTexturesBatch[];
+
+  /**
+   * Event fired when a new batch is created.
+   */
+  onBatchCreated : EventEmitter<DataTextures, undefined>;
 }
 

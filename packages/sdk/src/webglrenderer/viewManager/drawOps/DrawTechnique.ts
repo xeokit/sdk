@@ -252,12 +252,12 @@ export abstract class DrawTechnique {
 
             renderContext.textureUnit = 0;
 
-            const bindTexture = (sampler, texture) => {
-                if (!sampler || !texture) {
+            const bindTexture = (sampler, dataTexture) => {
+                if (!sampler || !dataTexture) {
                     return;
                 }
                 gl.activeTexture(gl["TEXTURE" + renderContext.textureUnit]);
-                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.bindTexture(gl.TEXTURE_2D, dataTexture.texture);
                 gl.uniform1i(sampler, renderContext.textureUnit);
                 renderContext.textureUnit = (renderContext.textureUnit + 1) % WEBGL_INFO.MAX_TEXTURE_UNITS;
             };
@@ -423,10 +423,14 @@ export abstract class DrawTechnique {
             "}",
 
             "uint primToMeshLookup(uint primIndex) {",
-            //    " return 0u;",
             "  const uint texWidth = 4096u;",
-            "  return texelFetch(uPrimToMeshLookup, texCoord(primIndex, texWidth), 0).r;",
+            "  return texelFetch(uPrimToMeshLookup, texCoord(primIndex * 2u, texWidth), 0).r;",
             "}",
+
+          "uint primToOffsetLookup(uint primIndex) {",
+          "  const uint texWidth = 4096u;",
+          "  return texelFetch(uPrimToMeshLookup, texCoord((primIndex * 2u) + 1u, texWidth), 0).r;",
+          "}",
 
             //   "uint primToMeshLookup(uint primIndex) {",
             // //  " return 0u;",
@@ -690,8 +694,16 @@ export abstract class DrawTechnique {
         this._vertSrcBuf.push(
             "    uint drawVertexIndex  = uint(gl_VertexID);",
             "    uint numVertsPerPrim  = uint(uPrimitiveType == " + TrianglesPrimitive + " ? 3u : (uPrimitiveType == " + LinesPrimitive + " ? 2u : 1u));",
+
+            // We are drawing a portion of the primitive array, so adjust the primIndex accordingly
+
             "    uint primIndex        = uint(uPrimBaseIndex) + (drawVertexIndex / numVertsPerPrim);",
+
+            // Lookup the mesh and primitive offset for this primitive
+            // The primitive offset is the index of the primitive within the mesh's geometry
+
             "    uint meshIndex        = primToMeshLookup( primIndex );",
+            "    uint primOffset       = primToOffsetLookup( primIndex );",
 
             "    MeshViewAttribs meshViewAttribs = meshViewAttribsLookup( meshIndex );",
 
@@ -706,14 +718,16 @@ export abstract class DrawTechnique {
         this._vertSrcBuf.push(
             "    MeshAttribs      meshAttribs       = getMeshAttribs( meshIndex );",
 
+            // Lookup the tile and geometry from the mesh
+
             "    uint             tileIndex         = meshAttribs.tileIndex;",
             "    uint             geometryIndex     = meshAttribs.geometryIndex;",
 
             "    GeometryAttribs  geometryAttribs   = getGeometryAttribs( geometryIndex );",
 
             "    uint             vertexIndex       = uPrimitiveType == " + PointsPrimitive +
-            "                                       ? geometryAttribs.indicesBase + drawVertexIndex " +
-            "                                       : getVertexIndex( geometryAttribs.indicesBase + drawVertexIndex );",
+            "                                       ? geometryAttribs.indicesBase + primOffset " + // points indices are simple
+            "                                       : getVertexIndex( geometryAttribs.indicesBase + primOffset );",
 
             "    QuantRange       quantRange        = getGeometryQuantRange( geometryIndex );",
             "    mat4             modelMatrix       = getMeshMatrix( meshIndex );",

@@ -2,13 +2,6 @@
 
 import {DataTexture} from "./DataTexture";
 
-export interface DTXPointerTableOptions {
-  gl: WebGL2RenderingContext;
-  /** Number of 32-bit entries (one texel per entry). */
-  maxItems: number;
-  /** Optional override; defaults to 4096 (clamped to MAX_TEXTURE_SIZE). */
-  texWidth?: number;
-}
 
 /** Handle to an allocated portion. */
 export interface DTXPointerTableHandle {
@@ -38,8 +31,6 @@ interface Portion {
  */
 export class DTXPointerTable extends DataTexture {
 
-  readonly maxItems: number;
-
   private _gl: WebGL2RenderingContext;
 
   // allocation state
@@ -48,7 +39,7 @@ export class DTXPointerTable extends DataTexture {
   private _handles: Map<number, DTXPointerTableHandle> = new Map();
   private _onMove: Map<number, (newBase: number) => void> = new Map();
   private _nextId = 1;
-  private _numUsedItems = 0;
+  private _numItems = 0;
 
   // upload bookkeeping
   private _dirtyPortions: Set<number> = new Set();
@@ -59,19 +50,37 @@ export class DTXPointerTable extends DataTexture {
 
   private _packed: boolean = true;
 
-  constructor(opts: DTXPointerTableOptions) {
+  constructor(opts: {
+    gl: WebGL2RenderingContext;
+    /** Number of 32-bit entries (one texel per entry). */
+    maxItems: number;
+    /** Optional override; defaults to 4096 (clamped to MAX_TEXTURE_SIZE). */
+    texWidth?: number;
+  }) {
     super();
     this.description = "Array of 32-bit unsigned integers";
-    const gl = opts.gl;
-    this._gl = gl;
+   this._gl = opts.gl;
+  const gl = this._gl;
     this.maxItems = opts.maxItems | 100000;
     const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) | 0;
     this.width = Math.min(Math.max(1, (opts.texWidth ?? 4096) | 0), maxSize);
     this.height = Math.max(1, Math.ceil(this.maxItems / this.width));
   }
 
+  get numItems(): number {
+    return this._numItems;
+  }
+
   static get itemSizeInBytes(): number {
     return 4; // one uint32 per texel
+  }
+
+  getAllocatedBytes(): number {
+    return this.maxItems * DTXPointerTable.itemSizeInBytes;
+  }
+
+  getUsedBytes(): number {
+    return this._numItems * DTXPointerTable.itemSizeInBytes;
   }
 
   allocate(): boolean {
@@ -139,7 +148,7 @@ export class DTXPointerTable extends DataTexture {
         throw new Error(`DTXPointerTable: allocation failed for size=${size}`);
       }
     }
-    this._numUsedItems += size;
+    this._numItems += size;
     this._packed = false;
     return this._allocAtFreeIndex(idx, size, onMove);
   }
@@ -155,7 +164,7 @@ export class DTXPointerTable extends DataTexture {
     this._insertFreeSorted(portion);
     this._coalesceFree();
     this._packed = false;
-    this._numUsedItems -= portion.size;
+    this._numItems -= portion.size;
   }
 
   /** Get a typed view into a portion (Uint32Array view). */
@@ -226,7 +235,7 @@ export class DTXPointerTable extends DataTexture {
       return false;
     }
 
-    this.bufferUpdated();
+    this.notifyUpdated();
 
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -305,11 +314,14 @@ export class DTXPointerTable extends DataTexture {
     return true;
   }
 
-  /** Destroy GL resources. */
+  webglContextRestored(): void {
+
+  }
+
   destroy(): void {
     if (this.texture) {
       this.buffer = null;
-      this._gl.deleteTexture(this.texture);
+      this._gl?.deleteTexture(this.texture);
     }
   }
 

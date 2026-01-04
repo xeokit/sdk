@@ -1,7 +1,7 @@
 /**
  * Interface representing GPU memory usage statistics.
  */
-export interface GPUMemoryUsage {
+export interface MemoryUsage {
 
   /**
    * Total allocated GPU memory in megabytes (MB).

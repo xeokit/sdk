@@ -1,7 +1,7 @@
 // DTXPointerArray.ts
 
 import {DataTexture} from "./DataTexture";
-
+import {SDKErrorType, SDKResult} from "../../../../core";
 
 /** Handle to an allocated portion. */
 export interface DTXPointerArrayHandle {
@@ -29,8 +29,6 @@ interface Portion {
  * - uploadChanges() only uploads dirty regions (coalesced per row)
  */
 export class DTXPointerArray extends DataTexture {
-  readonly maxItems: number;
-
 
   private _gl: WebGL2RenderingContext;
 
@@ -45,13 +43,12 @@ export class DTXPointerArray extends DataTexture {
   private _dirtyPortions: Set<number> = new Set();
   private _uploadAllOnFlush = false;
 
-  private _numUsedElements = 0;
+  private _numItems = 0;
 
   private _packed: boolean = true;
 
   constructor(opts: {
     gl: WebGL2RenderingContext;
-    /** Number of 32-bit entries (one texel per entry). */
     maxItems: number;
     /** Optional override; defaults to 4096 (clamped to MAX_TEXTURE_SIZE). */
     texWidth?: number;
@@ -61,8 +58,13 @@ export class DTXPointerArray extends DataTexture {
     this.description = opts.description || "Array of 32-bit unsigned integer pointers into other data textures";
     this._gl = opts.gl;
     this.maxItems = opts.maxItems | 0;
+    this._numItems = 0;
     this.width = 4096;
     this.height = Math.max(1, Math.ceil(this.maxItems / this.width));
+  }
+
+  get numItems(): number {
+    return this._numItems;
   }
 
   static get itemSizeInBytes(): number {
@@ -80,21 +82,32 @@ export class DTXPointerArray extends DataTexture {
    * Gets the used bytes in the pointer array.
    */
   getUsedBytes() {
-    return this._numUsedElements * DTXPointerArray.itemSizeInBytes;
+    return this._numItems * DTXPointerArray.itemSizeInBytes;
   }
 
-  allocate(): boolean {
-    // Allocate CPU buffer to full texture area (padding at end is harmless)
+  allocate(): SDKResult<void> {
     const totalTexels = this.width * this.height;
+    this.buffer = new Uint32Array(totalTexels);
+    this._free.push({base: 0, size: this.maxItems});
+    return this._allocateTexture(false);
+  }
+
+  webglContextRestored(): SDKResult<void> {
+    return this._allocateTexture(true);
+  }
+
+  _allocateTexture(uploadBuffer: boolean):SDKResult<void>{
     const gl = this._gl;
-    // Create R32UI texture
     const tex = gl.createTexture();
     if (!tex) {
-      return false;
+      return {
+        ok: false,
+        type:SDKErrorType.InitializationFailed,
+        error: "[DTXPointerArray]: Texture creation failed",
+      };
     }
     this.texture = tex;
     try {
-      this.buffer = new Uint32Array(totalTexels);
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -102,14 +115,20 @@ export class DTXPointerArray extends DataTexture {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
       gl.texStorage2D(gl.TEXTURE_2D, 1, gl.R32UI, this.width, this.height);
+      if (uploadBuffer) {
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, this.width, this.height, gl.RED_INTEGER, gl.UNSIGNED_INT, this.buffer);
+        this._dirtyPortions.clear();
+      }
       gl.bindTexture(gl.TEXTURE_2D, null);
     } catch (e) {
       gl.deleteTexture(tex);
-      return false;
+      this.texture = null;
+      return {
+        ok: false,
+        type:SDKErrorType.InitializationFailed,
+        error: `[DTXPointerArray]: Exception during texture allocation: ${e}`,
+      };
     }
-    // Entire range is initially free
-    this._free.push({base: 0, size: this.maxItems});
-    return true;
   }
 
   /** Texture width (in texels). */
@@ -159,7 +178,7 @@ export class DTXPointerArray extends DataTexture {
       }
     }
     this._packed = false;
-    this._numUsedElements += size;
+    this._numItems += size;
     return this._allocAtFreeIndex(idx, size, onMove);
   }
 
@@ -177,7 +196,7 @@ export class DTXPointerArray extends DataTexture {
     this._insertFreeSorted(portion);
     this._coalesceFree();
     this._packed = false;
-    this._numUsedElements -= portion.size;
+    this._numItems -= portion.size;
   }
 
   /** Get a typed view into a portion (Uint32Array view). */
@@ -246,7 +265,7 @@ export class DTXPointerArray extends DataTexture {
       return false;
     }
 
-    this.bufferUpdated();
+    this.notifyUpdated();
 
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
@@ -319,11 +338,10 @@ export class DTXPointerArray extends DataTexture {
     return true;
   }
 
-  /** Destroy GL resources. */
   destroy(): void {
     if (this.texture) {
       this.buffer = null;
-      this._gl.deleteTexture(this.texture);
+      this._gl?.deleteTexture(this.texture);
     }
   }
 

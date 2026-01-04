@@ -100,7 +100,7 @@ export class MeshBatchImpl implements MeshBatch {
     public hasMeshesInRenderPass(viewIndex: number, renderPass: RenderPassValue): boolean {
         return (<GPUMemoryManager>this._gpuMemoryManager).dataTextures.batches[this.gpuMemoryBatchIndex]
             ?.views[viewIndex]
-            ?.renderPassDrawRanges.get(<number>renderPass)
+            ?.renderPassPrimRanges.get(<number>renderPass)
             ?.numPrims! > 0; // Single point-of-truth for mesh counts
     }
 

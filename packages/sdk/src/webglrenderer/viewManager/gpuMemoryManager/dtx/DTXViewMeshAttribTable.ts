@@ -1,6 +1,7 @@
 import type {Vec3} from "../../../../math";
 import {DataTexture} from "./DataTexture";
 
+
 export type DTXMeshViewAttribsItem = {
   color?: Vec3;   // uvec3 bytes 0..255
   opacity?: number; // float32
@@ -14,9 +15,7 @@ export type DTXMeshViewAttribsItem = {
  * - 1 struct == 2 texels
  * - Upload path uses RGBA_INTEGER / UNSIGNED_BYTE
  */
-export class DTXMeshViewAttribs extends DataTexture {
-
-  readonly maxItems: number;
+export class DTXViewMeshAttribTable extends DataTexture {
 
   private _gl: WebGL2RenderingContext;
 
@@ -25,10 +24,12 @@ export class DTXMeshViewAttribs extends DataTexture {
   private static readonly BYTES_PER_TEXEL = 4; // RGBA8UI
 
   // Texture geometry
-   private _texelsPerRow: number;   // == width
-   private _dirty = new Set<number>(); // struct indices
+  private _texelsPerRow: number;   // == width
+  private _dirty = new Set<number>(); // struct indices
+  private _getNumItems: () => number;
 
   constructor(options: {
+    getNumItems: () => number;
     gl: WebGL2RenderingContext;
     maxItems: number;
     description?: string;
@@ -37,10 +38,23 @@ export class DTXMeshViewAttribs extends DataTexture {
     this.description = options.description || "meshIndex -> color, opacity, pickable, clippable";
     this._gl = options.gl;
     this.maxItems = options.maxItems;
+    this._getNumItems = options.getNumItems;
+  }
+
+  get numItems(): number {
+    return this._getNumItems();
   }
 
   static get itemSizeInBytes() {
-    return DTXMeshViewAttribs.TEXELS_PER_STRUCT * DTXMeshViewAttribs.BYTES_PER_TEXEL;
+    return DTXViewMeshAttribTable.TEXELS_PER_STRUCT * DTXViewMeshAttribTable.BYTES_PER_TEXEL;
+  }
+
+  getAllocatedBytes(): number {
+    return this.maxItems * DTXViewMeshAttribTable.itemSizeInBytes;
+  }
+
+  getUsedBytes(): number {
+    return this._getNumItems() * DTXViewMeshAttribTable.itemSizeInBytes;
   }
 
   allocate(): boolean {
@@ -49,11 +63,11 @@ export class DTXMeshViewAttribs extends DataTexture {
     this._texelsPerRow = this.width;
 
     const structs = this.maxItems;
-    const texelsNeeded = structs * DTXMeshViewAttribs.TEXELS_PER_STRUCT;
+    const texelsNeeded = structs * DTXViewMeshAttribTable.TEXELS_PER_STRUCT;
     this.height = Math.max(1, Math.ceil(texelsNeeded / this._texelsPerRow));
 
     const totalTexels = this.width * this.height;
-    const totalBytes = totalTexels * DTXMeshViewAttribs.BYTES_PER_TEXEL;
+    const totalBytes = totalTexels * DTXViewMeshAttribTable.BYTES_PER_TEXEL;
     const gl = this._gl;
     const tex = gl.createTexture()!;
 
@@ -79,9 +93,9 @@ export class DTXMeshViewAttribs extends DataTexture {
   }
 
   private getByteView(meshIndex: number): Uint8Array<any> {
-    const startTexel = meshIndex * DTXMeshViewAttribs.TEXELS_PER_STRUCT;
-    const byteOffset = startTexel * DTXMeshViewAttribs.BYTES_PER_TEXEL;
-    return this.buffer.subarray(byteOffset, byteOffset + 2 * DTXMeshViewAttribs.BYTES_PER_TEXEL);
+    const startTexel = meshIndex * DTXViewMeshAttribTable.TEXELS_PER_STRUCT;
+    const byteOffset = startTexel * DTXViewMeshAttribTable.BYTES_PER_TEXEL;
+    return this.buffer.subarray(byteOffset, byteOffset + 2 * DTXViewMeshAttribTable.BYTES_PER_TEXEL);
   }
 
   setAttribs(meshIndex: number, data: Partial<DTXMeshViewAttribsItem>): void {
@@ -112,14 +126,14 @@ export class DTXMeshViewAttribs extends DataTexture {
     pickable: boolean;
     clippable: boolean;
   } {
-    const structsPerRow = this.width / DTXMeshViewAttribs.TEXELS_PER_STRUCT;
-    const structIndex = y * structsPerRow + Math.floor(x / DTXMeshViewAttribs.TEXELS_PER_STRUCT);
-    const byteOffset = structIndex * DTXMeshViewAttribs.TEXELS_PER_STRUCT * DTXMeshViewAttribs.BYTES_PER_TEXEL;
-    const v = this.buffer.subarray(byteOffset, byteOffset + DTXMeshViewAttribs.TEXELS_PER_STRUCT * DTXMeshViewAttribs.BYTES_PER_TEXEL);
+    const structsPerRow = this.width / DTXViewMeshAttribTable.TEXELS_PER_STRUCT;
+    const structIndex = y * structsPerRow + Math.floor(x / DTXViewMeshAttribTable.TEXELS_PER_STRUCT);
+    const byteOffset = structIndex * DTXViewMeshAttribTable.TEXELS_PER_STRUCT * DTXViewMeshAttribTable.BYTES_PER_TEXEL;
+    const v = this.buffer.subarray(byteOffset, byteOffset + DTXViewMeshAttribTable.TEXELS_PER_STRUCT * DTXViewMeshAttribTable.BYTES_PER_TEXEL);
     return {
       color: [v[0], v[1], v[2]],
       opacity: v[3],
-      pickable:  v[4] !== 0,
+      pickable: v[4] !== 0,
       clippable: v[5] !== 0
     };
   }
@@ -129,7 +143,7 @@ export class DTXMeshViewAttribs extends DataTexture {
     return {
       color: [v[0], v[1], v[2]],
       opacity: v[3],
-      pickable:  v[4] !== 0,
+      pickable: v[4] !== 0,
       clippable: v[5] !== 0
     };
   }
@@ -140,7 +154,7 @@ export class DTXMeshViewAttribs extends DataTexture {
       return false;
     }
 
-    this.bufferUpdated();
+    this.notifyUpdated();
     //  console.log("Flushing dirty indices:", Array.from(this._dirty));
 
     const gl = this._gl;
@@ -148,8 +162,8 @@ export class DTXMeshViewAttribs extends DataTexture {
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
     for (const idx of this._dirty) {
-      let startTexel = idx * DTXMeshViewAttribs.TEXELS_PER_STRUCT;
-      let remainingTexels = DTXMeshViewAttribs.TEXELS_PER_STRUCT;
+      let startTexel = idx * DTXViewMeshAttribTable.TEXELS_PER_STRUCT;
+      let remainingTexels = DTXViewMeshAttribTable.TEXELS_PER_STRUCT;
 
       while (remainingTexels > 0) {
         const row = Math.floor(startTexel / this._texelsPerRow);
@@ -157,8 +171,8 @@ export class DTXMeshViewAttribs extends DataTexture {
         const rowLeft = this._texelsPerRow - x;
         const chunkTexels = Math.min(remainingTexels, rowLeft);
 
-        const byteStart = (row * this._texelsPerRow + x) * DTXMeshViewAttribs.BYTES_PER_TEXEL;
-        const byteEnd = byteStart + chunkTexels * DTXMeshViewAttribs.BYTES_PER_TEXEL;
+        const byteStart = (row * this._texelsPerRow + x) * DTXViewMeshAttribTable.BYTES_PER_TEXEL;
+        const byteEnd = byteStart + chunkTexels * DTXViewMeshAttribTable.BYTES_PER_TEXEL;
         const sub = this.buffer.subarray(byteStart, byteEnd);
 
         // console.assert(chunkTexels > 0, "Invalid chunkTexels");
@@ -186,10 +200,14 @@ export class DTXMeshViewAttribs extends DataTexture {
     return true;
   }
 
+  webglContextRestored(): void {
+
+  }
+
   destroy(): void {
     if (this.texture) {
       this.buffer = null;
-      this._gl.deleteTexture(this.texture);
+      this._gl?.deleteTexture(this.texture);
     }
   }
 }

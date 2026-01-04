@@ -1,14 +1,10 @@
-// DataTexturesDebugger.ts (extended with GPU memory usage panel)
+// MemoryDebugger.ts (extended with GPU memory usage panel)
 import { DataTexture } from "./viewManager/gpuMemoryManager/dtx/DataTexture";
 import type { DataTextures } from "./viewManager/gpuMemoryManager/DataTextures";
-import type { GPUMemoryUsage } from "./GPUMemoryUsage";
+import type { MemoryUsage } from "./MemoryUsage";
 import { WebGLRenderer } from "./WebGLRenderer";
+import type { PrimRange } from "./viewManager/gpuMemoryManager/dtx/PrimRange";
 
-/** Range info for a render pass/bin. */
-export interface DTXPassRange {
-  firstPrim: number;
-  numPrims: number;
-}
 
 /**
  * Config: show first N items from each DataTexture (0-based indices).
@@ -22,7 +18,7 @@ const DEBUG_VIEW_ITEMS = 128; // N
  *  3) First N items for each DataTexture using getItem(index)
  *  4) DataTexture.description shown above each texture output box
  */
-export class DataTexturesDebugger {
+export class MemoryDebugger {
   private root!: HTMLDivElement;
   private header!: HTMLDivElement;
   private grid!: HTMLDivElement;
@@ -112,7 +108,7 @@ export class DataTexturesDebugger {
   private buildHeader() {
     const title = document.createElement("div");
     title.className = "dtx-json-title";
-    title.textContent = `[@xeokit/sdk/webglrenderer/DataTexturesDebugger] - Showing first ${this.maxItemsPerTexture} items per data texture`;
+    title.textContent = `[@xeokit/sdk/webglrenderer/GPUMemoryDebugger] - Showing first ${this.maxItemsPerTexture} items per data texture`;
     this.header.appendChild(title);
 
     const controls = document.createElement("div");
@@ -196,8 +192,8 @@ export class DataTexturesDebugger {
    * Pulls memory usage from the renderer if available.
    *
    * Expected renderer API (choose what matches your implementation):
-   *  - renderer.getGPUMemoryUsage(): GPUMemoryUsage
-   *  - renderer.getGPUMemoryManager().getUsage(): GPUMemoryUsage
+   *  - renderer.getMemoryUsage(): MemoryUsage
+   *  - renderer.getGPUMemoryManager().getUsage(): MemoryUsage
    *  - renderer.gpuMemoryUsage (property)
    *
    * If none exist, the panel will show "(unavailable)".
@@ -231,13 +227,13 @@ export class DataTexturesDebugger {
     }
   }
 
-  private tryGetUsage(): GPUMemoryUsage | null {
+  private tryGetUsage(): MemoryUsage | null {
     const r: any = this.renderer as any;
 
     // Option A: direct method
-    if (typeof r.getGPUMemoryUsage === "function") {
+    if (typeof r.getMemoryUsage === "function") {
       try {
-        const u = r.getGPUMemoryUsage();
+        const u = r.getMemoryUsage();
         if (u && typeof u.allocatedMB === "number" && typeof u.usedMB === "number") return u;
       } catch {
         /* ignore */
@@ -277,11 +273,15 @@ export class DataTexturesDebugger {
       out.push({ tex, path });
     };
 
-    const dataTextures = this.renderer.getDataTextures() as DataTextures;
-    if (!dataTextures) throw new Error("DataTexturesDebugger: renderer is rendering and should have dataTextures");
+    const memoryViewRes = this.renderer.getMemoryView();
+    if (memoryViewRes.ok === false) {
+      throw new Error(`MemoryDebugger: renderer.getMemoryView() error: ${memoryViewRes.error}`);
+    }
+    const dataTextures = memoryViewRes.value.dataTextures as DataTextures;
+    if (!dataTextures) throw new Error("MemoryDebugger: renderer is rendering and should have dataTextures");
 
-    dataTextures.tileViewMatrices?.forEach((t, i) => push(t, `tileViewMatrices[${i}]`));
-    dataTextures.tileRayPickMatrices?.forEach((t, i) => push(t, `tileRayPickMatrices[${i}]`));
+    dataTextures.viewTileCameraMatrices?.forEach((t, i) => push(t, `viewTileCameraMatrices[${i}]`));
+    dataTextures.viewTilePickMatrices?.forEach((t, i) => push(t, `viewTilePickMatrices[${i}]`));
 
     this.batchInfos.length = 0;
 
@@ -296,14 +296,14 @@ export class DataTexturesDebugger {
       push(batch.vertexColors, `batches[${bi}].vertexColors`);
 
       batch.views?.forEach((v: any, vi: number) => {
-        push(v.primToMeshLookup, `batches[${bi}].views[${vi}].primToMeshLookup`);
+        push(v.primMeshIndexTable, `batches[${bi}].views[${vi}].primMeshIndexTable`);
         push(v.meshViewAttribs, `batches[${bi}].views[${vi}].meshViewAttribs`);
       });
 
       this.batchInfos.push({
         batchIndex: bi,
         path: `batches[${bi}].renderPassDrawRanges`,
-        getRanges: () => (batch.renderPassDrawRanges as DTXPassRange[] | undefined),
+        getRanges: () => (batch.renderPassDrawRanges as PrimRange[] | undefined),
       });
     });
 
@@ -414,7 +414,7 @@ export class DataTexturesDebugger {
     for (const { tex } of this.allTextures) {
       tex.debugging = true;
 
-      const unsub = tex.onBufferUpdated.subscribe(() => {
+      const unsub = tex.onUpdated.subscribe(() => {
         // NEW: update memory usage when textures update
         this.refreshMemoryUsage();
 
@@ -429,7 +429,7 @@ export class DataTexturesDebugger {
 
     // Optional: re-render batch ranges when any texture updates
     for (const { tex } of this.allTextures) {
-      const unsub = tex.onBufferUpdated.subscribe(() => {
+      const unsub = tex.onUpdated.subscribe(() => {
         // NEW: update memory usage when textures update
         this.refreshMemoryUsage();
 
@@ -707,7 +707,7 @@ type JsonCard = {
 type BatchInfo = {
   batchIndex: number;
   path: string;
-  getRanges: () => DTXPassRange[] | undefined;
+  getRanges: () => PrimRange[] | undefined;
   preEl?: HTMLPreElement;
   metaEl?: HTMLDivElement;
 };

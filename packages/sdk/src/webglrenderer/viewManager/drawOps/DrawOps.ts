@@ -14,14 +14,15 @@ import { DrawTechnique } from "./DrawTechnique";
 import { GenericPickMeshTechnique } from "./techniques/generic/GenericPickMeshTechnique";
 import { GenericPickDepthTechnique } from "./techniques/generic/GenericPickDepthTechnique";
 import { TrianglesDrawEdgeColorTechnique } from "./techniques/triangles/TrianglesDrawEdgeColorTechnique";
+import {SDKInternalException} from "../../../core";
 
 /**
  * Manages a set of draw operations for different primitive types.
  */
 export class DrawOps {
 
-     _useCount: number = 0;
-     _renderContext: RenderContext;
+     private _useCount: number = 0;
+    private _renderContext: RenderContext;
     private _gpuMemoryReader: GPUMemoryReader;
     private _techniques: DrawTechnique[];
 
@@ -44,6 +45,7 @@ export class DrawOps {
     constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader) {
         this._renderContext = renderContext;
         this._gpuMemoryReader = gpuMemoryReader;
+        this._techniques = [];
     }
 
     /**
@@ -133,6 +135,19 @@ export class DrawOps {
         };
     }
 
+    webglContextRestored(): SDKResult<void> {
+        for (let i = 0, len = this._techniques.length; i < len; i++) {
+            const result = this._techniques[i].webglContextRestored();
+            if (result.ok===false) {
+                return result;
+            }
+        }
+        return {
+            ok: true,
+            value: undefined
+        };
+    }
+
     _destroy() {
         // @ts-ignore
         Object.values(this._techniques).forEach(drawTechnique => drawTechnique.destroy());
@@ -171,7 +186,7 @@ export function getDrawOps(renderContext: RenderContext, gpuMemoryReader: GPUMem
  */
 export function putDrawOps(drawOps: DrawOps) {
     if (drawOps._useCount === 0) {
-        throw new Error("DrawOps use count is already zero");
+        throw new SDKInternalException("DrawOps use count is already zero");
     }
     drawOps._useCount--;
     if (drawOps._useCount === 0) {
@@ -180,3 +195,4 @@ export function putDrawOps(drawOps: DrawOps) {
         drawOps._destroy();
     }
 }
+

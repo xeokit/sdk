@@ -36,7 +36,7 @@ export interface MeshBatch {
 
   /**
    * The index of this batch's memory in the GPUMemoryManager system.
-   * This indexes the `GPUMemoryEditor.dataTextures.sortedBatches` array. Before drawing this batch,
+   * This indexes the `GPUMemoryEditor.dataTextures.batches` array. Before drawing this batch,
    * the renderer will bind the corresponding data textures from that array, which contain the
    * mesh data needed for rendering.
    */

@@ -67,7 +67,7 @@ export interface GPUMemoryEditor {
   /**
    * Sets the modeling transform matrix for a mesh.
    * The transform is relative to the center of the mesh's tile.
-   * The matrix is stored in DataTexturesBatch.meshMatrices.
+   * The matrix is stored in BatchDataTextures.meshMatrices.
    * @param meshHandle - The handle of the mesh.
    * @param matrix - The modeling transform matrix.
    */

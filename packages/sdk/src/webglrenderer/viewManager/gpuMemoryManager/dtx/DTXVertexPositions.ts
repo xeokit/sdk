@@ -5,6 +5,7 @@
 import {SDKInternalException} from "../../../../core";
 import {DataTexture} from "./DataTexture";
 
+
 interface DTXPositionsArrayPortion {
   base: number; // item tileIndex
   size: number; // number of items (vertices)
@@ -21,10 +22,9 @@ export interface DTXPositionsArrayHandle {
  * - CPU _buffer layout: tightly-packed RGBRGB... (3 Uint16 per item)
  * - GPU texture layout: one texel per item (RGBA16UI), RGB = XYZ, A = 0
  */
-export class DTXPositionsArray extends DataTexture {
+export class DTXVertexPositions extends DataTexture {
 
-  private readonly gl: WebGL2RenderingContext;
-  private readonly maxItems: number;
+  private readonly _gl: WebGL2RenderingContext;
 
   // Geometry/packing constants
   private readonly componentsPerItem = 3; // XYZ
@@ -34,7 +34,7 @@ export class DTXPositionsArray extends DataTexture {
   private free: DTXPositionsArrayPortion[] = [];
   private portionCallbacks: Map<number, (newBase: number) => void> = new Map();
 
-  private numUsedElements = 0;
+  private _numItems = 0;
   private nextId = 1;
   private dirtyPortions: Set<number> = new Set();
 
@@ -48,8 +48,12 @@ export class DTXPositionsArray extends DataTexture {
   }) {
     super();
     this.description = options.description || "Vertex positions (Uint16 XYZ)";
-    this.gl = options.gl;
+    this._gl = options.gl;
     this.maxItems = options.maxItems;
+  }
+
+  get numItems(): number {
+    return this._numItems;
   }
 
   static get itemSizeInBytes() {
@@ -57,7 +61,7 @@ export class DTXPositionsArray extends DataTexture {
   }
 
   allocate(): boolean {
-    const gl = this.gl;
+    const gl = this._gl;
     const texture = gl.createTexture();
     if (!texture) {
       return false;
@@ -92,14 +96,14 @@ export class DTXPositionsArray extends DataTexture {
    * Returns the total number of bytes allocated.
    */
   getAllocatedBytes() {
-    return this.maxItems * DTXPositionsArray.itemSizeInBytes;
+    return this.maxItems * DTXVertexPositions.itemSizeInBytes;
   }
 
   /**
    * Returns the total number of bytes currently used.
    */
   getUsedBytes(): number {
-    return this.numUsedElements * DTXPositionsArray.itemSizeInBytes;
+    return this._numItems * DTXVertexPositions.itemSizeInBytes;
   }
 
 
@@ -129,10 +133,10 @@ export class DTXPositionsArray extends DataTexture {
       if (retryIndex === -1) {
         return null;
       }
-      this.numUsedElements += size;
+      this._numItems += size;
       return this.allocateHandleAt(retryIndex, size, onMove);
     }
-    this.numUsedElements += size;
+    this._numItems += size;
     return this.allocateHandleAt(index, size, onMove);
   }
 
@@ -182,7 +186,7 @@ export class DTXPositionsArray extends DataTexture {
     if (!portion) {
       return;
     }
-    this.numUsedElements -= portion.size;
+    this._numItems -= portion.size;
     this.isPacked = false;
     this.used.delete(handle.id);
     this.handles.delete(handle.id);
@@ -278,9 +282,10 @@ export class DTXPositionsArray extends DataTexture {
     if (this.dirtyPortions.size === 0 && !this.uploadAllOnFlush) {
       return;
     }
-    this.bufferUpdated();
-    const {gl, texture} = this;
+    this.notifyUpdated();
+    const texture = this.texture;
     const itemsPerRow = this.width;
+    const gl = this._gl;
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
@@ -388,9 +393,13 @@ export class DTXPositionsArray extends DataTexture {
     ];
   }
 
+  webglContextRestored(): void {
+
+  }
+
     destroy(): void {
     if (this.texture) {
-      this.gl.deleteTexture(this.texture);
+      this._gl?.deleteTexture(this.texture);
     }
   }
 }

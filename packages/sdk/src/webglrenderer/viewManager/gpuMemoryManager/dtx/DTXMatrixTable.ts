@@ -1,6 +1,8 @@
 import {type FloatArrayParam, type Mat4} from "../../../../math";
 import {DataTexture} from "./DataTexture";
 
+import {SDKErrorType, SDKResult} from "../../../../core";
+
 /**
  * Manages a GPU-side texture for storing model matrices (mat4) for meshes.
  *
@@ -26,14 +28,12 @@ import {DataTexture} from "./DataTexture";
  * 4. Clean up resources with `destroy()`.
  *
  */
-export class DTXMatrixArray extends DataTexture {
+export class DTXMatrixTable extends DataTexture {
 
-  private gl: WebGL2RenderingContext;
+  private _gl: WebGL2RenderingContext;
   private lastFreeMatrixIndex: number;
-  private numMatrices: number;
-  private maxItems: number;
   private dirtyIndices: Set<number>;
-
+  private _getNumItems: () => number;
 
   /**
    * Creates a new matrix _buffer for mesh transforms.
@@ -45,15 +45,23 @@ export class DTXMatrixArray extends DataTexture {
   constructor(params: {
     gl: WebGL2RenderingContext;
     maxItems?: number;
+    getNumItems: () => number;
     description?: string;
   }) {
     super();
     this.description = params.description || "meshIndex -> Mat4";
-    this.gl = params.gl;
+    this._gl = params.gl;
     this.lastFreeMatrixIndex = 0;
-    this.numMatrices = 0;
     this.maxItems = params.maxItems || 2000;
     this.dirtyIndices = new Set();
+    this._getNumItems = params.getNumItems ;
+  }
+
+  /**
+   * Number of logical items currently stored in this texture.
+   */
+  get numItems(): number {
+    return this._getNumItems();
   }
 
   /**
@@ -67,41 +75,47 @@ export class DTXMatrixArray extends DataTexture {
    * Gets the total capacity in bytes of the matrix array.
    */
   getAllocatedBytes(): number {
-    return this.maxItems * DTXMatrixArray.itemSizeInBytes;
+    return this.maxItems * DTXMatrixTable.itemSizeInBytes;
   }
 
   /**
    * Gets the currently allocated bytes based on number of matrices in use.
    */
   getUsedBytes(): number {
-    return this.numMatrices * DTXMatrixArray.itemSizeInBytes;
+    return this._getNumItems() * DTXMatrixTable.itemSizeInBytes;
   }
 
   /**
    * Allocates the data texture and backing array for matrix storage.
    * Each mat4 takes 4 texels (RGBA32F), and the texture is laid out in rows.
    */
-  allocate(): boolean {
-
+  allocate(): SDKResult<void> {
     const matricesPerRow = 512; // Must be multiple of 4 for RGBA32F
     const texelsPerMatrix = 4; // 4 texels per mat4
     const componentsPerTexel = 4; // RGBA
     const width = matricesPerRow * texelsPerMatrix; // 512 matrices per row × 4 texels per matrix
     const textureHeight = Math.ceil(this.maxItems / (width / texelsPerMatrix));
-
     const requiredFloats = width * textureHeight * texelsPerMatrix * componentsPerTexel;
     this.buffer = new Float32Array(requiredFloats);
+    this.width = width;
+    this.height = textureHeight;
+    return this._allocateTexture();
+  }
 
-    const gl = this.gl;
-    const texture = gl.createTexture();
-
+  _allocateTexture(): SDKResult<void> {
+    const gl = this._gl;
+    const texture = gl.createTexture()!;
     if (!texture) {
-      return false;
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: "[DTXMatrixTable]: Failed to create texture"
+      };
     }
     try {
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, width, textureHeight);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, this.width, this.height);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -109,12 +123,21 @@ export class DTXMatrixArray extends DataTexture {
       gl.bindTexture(gl.TEXTURE_2D, null);
     } catch (e) {
       gl.deleteTexture(texture);
-      return false;
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: `[DTXMatrixTable]: Exception during texture allocation: ${e}`
+      };
     }
     this.texture = texture;
-    this.width = width;
-    this.height = textureHeight;
-    return true;
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
+  webglContextRestored(): SDKResult<void> {
+    return this._allocateTexture();
   }
 
   /**
@@ -140,9 +163,9 @@ export class DTXMatrixArray extends DataTexture {
       return false;
     }
 
-    this.bufferUpdated();
+    this.notifyUpdated();
 
-    const gl = this.gl;
+    const gl = this._gl;
 
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -213,13 +236,14 @@ export class DTXMatrixArray extends DataTexture {
     return {matrix: <Mat4>Array.from(this.buffer.subarray(offset, offset + 16))};
   }
 
-  /**
-   * Destroys the internal resources.
-   */
+  webglContextRestored(): void {
+
+  }
+
   destroy(): void {
     if (this.texture) {
       this.buffer = null as unknown as Float32Array<ArrayBuffer>;
-      this.gl.deleteTexture(this.texture);
+      this._gl?.deleteTexture(this.texture);
     }
   }
 }

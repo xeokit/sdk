@@ -5,6 +5,7 @@
 import {SDKInternalException} from "../../../../core";
 import {DataTexture} from "./DataTexture";
 
+
 interface DTXVertexColorsArrayPortion {
   base: number; // item tileIndex
   size: number; // number of items (vertices)
@@ -21,10 +22,9 @@ export interface DTXVertexColorsArrayHandle {
  * - CPU _buffer layout: tightly-packed RGBRGB... (3 Uint8 per item)
  * - GPU texture layout: one texel per item (RGBA8UI), RGB = XYZ, A = 0
  */
-export class DTXVertexColorsArray extends DataTexture {
+export class DTXVertexColors extends DataTexture {
 
-  private readonly gl: WebGL2RenderingContext;
-  private readonly maxItems: number;
+  private readonly _gl: WebGL2RenderingContext;
 
   // Geometry/packing constants
   private readonly componentsPerItem = 3; // XYZ
@@ -35,7 +35,7 @@ export class DTXVertexColorsArray extends DataTexture {
   private free: DTXVertexColorsArrayPortion[] = [];
   private portionCallbacks: Map<number, (newBase: number) => void> = new Map();
 
-  private numUsedElements = 0;
+  private _numItems = 0;
 
   private nextId = 1;
   private dirtyPortions: Set<number> = new Set();
@@ -51,7 +51,7 @@ export class DTXVertexColorsArray extends DataTexture {
   }) {
     super();
     this.description = options.description || "Vertex colors (Uint8 RGB).";
-    this.gl = options.gl;
+   this._gl = options.gl;
     this.maxItems = options.maxItems;
 
     // One texel per item, so itemsPerRow == width
@@ -63,12 +63,16 @@ export class DTXVertexColorsArray extends DataTexture {
     this.free.push({base: 0, size: this.maxItems});
   }
 
+  get numItems(): number {
+    return this._numItems;
+  }
+
   static get itemSizeInBytes(): number {
     return 3; // RGB per item
   }
 
   allocate(): boolean {
-    const gl = this.gl;
+    const gl = this._gl;
     const texture = gl.createTexture();
     if (!texture) {
       return false;
@@ -103,7 +107,7 @@ export class DTXVertexColorsArray extends DataTexture {
    * Gets the currently used bytes based on number of items in use.
    */
   getUsedBytes() {
-    return this.numUsedElements * this.componentsPerItem; // 3 bytes, RGB, per item
+    return this._numItems * this.componentsPerItem; // 3 bytes, RGB, per item
   }
 
   /** Check if a portion of given size (in items/vertices) can be allocated. */
@@ -128,10 +132,10 @@ export class DTXVertexColorsArray extends DataTexture {
       if (retryIndex === -1) {
         throw new SDKInternalException("Allocation failed");
       }
-      this.numUsedElements += size;
+      this._numItems += size;
       return this.allocateHandleAt(retryIndex, size, onMove);
     }
-    this.numUsedElements += size;
+    this._numItems += size;
     return this.allocateHandleAt(index, size, onMove);
   }
 
@@ -180,7 +184,7 @@ export class DTXVertexColorsArray extends DataTexture {
     if (!portion) {
       return;
     }
-    this.numUsedElements -= portion.size;
+    this._numItems -= portion.size;
     this.isPacked = false;
     this.used.delete(handle.id);
     this.handles.delete(handle.id);
@@ -280,7 +284,7 @@ export class DTXVertexColorsArray extends DataTexture {
     if (this.dirtyPortions.size === 0 && !this.uploadAllOnFlush) {
       return false;
     }
-    this.bufferUpdated();
+    this.notifyUpdated();
     const {gl, texture} = this;
     const itemsPerRow = this.width;
 
@@ -398,10 +402,14 @@ export class DTXVertexColorsArray extends DataTexture {
     return {color};
   }
 
+  webglContextRestored(): void {
+
+  }
+
     destroy(): void {
     if (this.texture) {
       this.buffer = null;
-      this.gl.deleteTexture(this.texture);
+      this._gl?.deleteTexture(this.texture);
     }
   }
 }

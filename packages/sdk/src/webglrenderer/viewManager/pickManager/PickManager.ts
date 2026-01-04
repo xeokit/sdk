@@ -82,6 +82,15 @@ export class PickManager {
     return {ok: true, value: undefined};
   }
 
+  webglContextRestored() : SDKResult<void> {
+    return this._drawOps
+      ? this._drawOps.webglContextRestored()
+      : {
+        ok: true,
+        value: undefined
+      };
+  }
+
   /**
    * Picks a {@link ViewObject} and/or a 3D position on its surface, given either canvas coordinates or a World-space ray.
    */

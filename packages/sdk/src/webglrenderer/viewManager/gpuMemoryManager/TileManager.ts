@@ -3,7 +3,7 @@ import {createRTCViewMat, worldToRTCCenter} from "../../../rtc";
 import type {Vec3, Mat4} from "../../../math";
 import {Camera, View, Viewer} from "../../../viewer";
 import {type Tile} from "./Tile";
-import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
+import {DTXMatrixTable} from "./dtx/DTXMatrixTable";
 
 const NUM_VIEWS = 4;
 const NUM_TILES = 2000;
@@ -22,8 +22,8 @@ const tempVec3a = createVec3Float64();
 export class TileManager {
 
   private _viewer: Viewer;
-  private _viewMatrices: DTXMatrixArray[] = [];
-  private _pickMatrices: DTXMatrixArray[] = [];
+  private _viewMatrices: DTXMatrixTable[] = [];
+  private _pickMatrices: DTXMatrixTable[] = [];
   private _tileIndexesUsed: boolean[] = [];
   private _lastFreeTileIndex = 0;
   private _tiles = new Map<string, Tile>();
@@ -32,7 +32,7 @@ export class TileManager {
   /**
    * Creates a tile manager for a WebGLRenderer.
    */
-  constructor(viewer: Viewer, viewMatrices: DTXMatrixArray[], pickMatrices: DTXMatrixArray[]) {
+  constructor(viewer: Viewer, viewMatrices: DTXMatrixTable[], pickMatrices: DTXMatrixTable[]) {
     this._viewer = viewer;
     // this._allocateDataTextures();
     this._viewMatrices = viewMatrices;

@@ -263,8 +263,8 @@ class View {
   _autoCanvas: boolean;
   private _needsRender: boolean;
 
-  private _viewResizeTask: SDKTask;
-  private _renderTask: SDKTask;
+  private _checkViewResizedTask: SDKTask;
+  private _fireViewUpdatedEventTask: SDKTask;
 
 
   /**
@@ -540,16 +540,15 @@ class View {
     }
 
     // Handle resizes on each tick
-    this._viewResizeTask = new SDKTask({
-      name: "View._viewResizeTask",
+    this._checkViewResizedTask = new SDKTask({
+      name: "View._checkViewResizedTask",
       task: handleResize,
       stage: SDKTask.CollectInputStage,
       repeat: true
     });
 
-    // Handle rendering on each tick, if needed
-    this._renderTask = new SDKTask({
-      name: "View._renderTask",
+    this._fireViewUpdatedEventTask = new SDKTask({
+      name: "View._fireViewUpdatedEventTask",
       task: () => {
         if (this._needsRender) {
           this.viewer.events.onViewUpdated.dispatch(this, this);
@@ -1236,7 +1235,7 @@ class View {
       return;
     }
     this._needsRender = true;
-    this._renderTask.schedule();
+    this._fireViewUpdatedEventTask.schedule();
   }
 
   /**
@@ -1761,8 +1760,8 @@ class View {
       });
       return;
     }
-    this._viewResizeTask.destroy();
-    this._renderTask.destroy();
+    this._checkViewResizedTask.destroy();
+    this._fireViewUpdatedEventTask.destroy();
     this._destroyViewLayers();
     this._destroyViewObjects();
     this.viewer._destroyView(this);

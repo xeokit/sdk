@@ -88,15 +88,15 @@ export class Viewer {
     id?: string,
     logging?: boolean
   }) {
-    this.id = params.id || createUUID();
+    this.id = params?.id || createUUID();
     this.events = new ViewerEvents();
     this.viewList = [];
     this.numViews = 0;
     this.views = {};
     this.destroyed = false;
     this._tickifiedFunctions = {};
-    this.logging = !!params.logging;
-    if (params.scene) {
+    this.logging = !!params?.logging;
+    if (params?.scene) {
       this.attachScene(params.scene);
     }
   }

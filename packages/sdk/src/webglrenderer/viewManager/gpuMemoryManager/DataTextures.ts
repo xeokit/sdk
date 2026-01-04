@@ -1,33 +1,57 @@
-import {type DataTexturesBatch} from "./DataTexturesBatch";
-import {DataTexture} from "./dtx/DataTexture";
-import {EventEmitter} from "../../../core";
+import { type BatchDataTextures } from "./BatchDataTextures";
+import { DataTexture } from "./dtx/DataTexture";
+import { EventEmitter } from "../../../core";
 
 /**
- * GPU-resident data textures used internally within a WebGLRenderer.
- * These data textures are exposed as read-only resources for debugging tools to inspect.
+ * Collection of GPU data textures used by a {@link WebGLRenderer}.
+ *
+ * {@link DataTextures} centralizes all GPU-resident data required for rendering,
+ * including:
+ * - Global, view-dependent textures shared across all render batches
+ * - Per-batch textures used for sorted, efficient draw submission
+ *
+ * This object represents the renderer’s authoritative view of GPU-side data.
  */
 export interface DataTextures {
 
   /**
-   * For each View, a DataTexture containing a table of RTC view matrices for the tiles in that view.
-   */
-  tileViewMatrices: DataTexture[];
-
-  /**
-   * For each View, a DataTexture containing a table of RTC ray pick matrices for the tiles in that view.
-   */
-  tileRayPickMatrices: DataTexture[];
-
-  /**
-   * Batches of data textures for sorted rendering.
+   * Per-view tile camera matrix tables.
    *
-   * These are indexed using {@link GPUMemoryBatch.batchIndex | GPUMemoryBatch.batchIndex}.
+   * For each View, this array contains a {@link DataTexture} holding the
+   * RTC camera view matrices for all tiles in that View.
+   *
+   * These textures are global and shared across all render batches.
    */
-  batches: DataTexturesBatch[];
+  viewTileCameraMatrices: DataTexture[];
 
   /**
-   * Event fired when a new batch is created.
+   * Per-view tile ray-picking matrix tables.
+   *
+   * For each View, this array contains a {@link DataTexture} holding the
+   * RTC matrices used for ray picking against tiles in that View.
+   *
+   * These textures are global and shared across all render batches.
    */
-  onBatchCreated : EventEmitter<DataTextures, undefined>;
-}
+  viewTilePickMatrices: DataTexture[];
 
+  /**
+   * Render batches for sorted rendering.
+   *
+   * The renderer groups renderable meshes into batches that share compatible
+   * rendering state in order to minimize draw calls. Each batch owns a set
+   * of {@link DataTexture}s containing all GPU-resident data needed to draw
+   * the meshes in that batch.
+   *
+   * Each batch is drawn independently, with one draw call per render pass.
+   */
+  batches: BatchDataTextures[];
+
+  /**
+   * Event emitted when a new render batch is created.
+   *
+   * This event is fired after the batch has been initialized and added to
+   * {@link batches}. Listeners may use it to attach debugging tools, statistics
+   * collectors, or other batch-level observers.
+   */
+  onBatchCreated: EventEmitter<DataTextures, undefined>;
+}

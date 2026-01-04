@@ -36,13 +36,13 @@ export interface Tile {
   center: Vec3;
 
   /**
-   * A relative-to-center (RTC) view matrix for each existing View. This is stored in DataTexturesLayer.tileViewMatrices
+   * A relative-to-center (RTC) view matrix for each existing View. This is stored in DataTexturesLayer.viewTileCameraMatrices
    * and automatically updates on all Tiles whenever the View's Camera moves.
    */
   rtcViewMatrix: Mat4[];
 
   /**
-   * A relative-to-center (RTC) pick matrix for each existing View. This is stored in DataTexturesLayer.tileRayPickMatrices
+   * A relative-to-center (RTC) pick matrix for each existing View. This is stored in DataTexturesLayer.viewTilePickMatrices
    * and is manually updated on all Tiles for a target View before picking in that View.
    */
   rtcRayPickMatrix: Mat4[];

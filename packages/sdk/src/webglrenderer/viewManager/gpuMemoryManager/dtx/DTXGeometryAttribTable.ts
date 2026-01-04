@@ -1,7 +1,17 @@
 // A single data element (uvec4: four uint32 lanes)
 import {DataTexture} from "./DataTexture";
 
+import {SDKErrorType, SDKInternalException, SDKResult} from "../../../../core";
+
 export type DTXUvec4 = [number, number, number, number];
+
+export interface DTXUvec4ArrayOptions {
+  gl: WebGL2RenderingContext;
+  /** Number of uvec4 elements to store (each element = 1 texel). */
+  maxItems: number;
+  /** Optional override; defaults to 4096 texels (clamped to MAX_TEXTURE_SIZE). */
+  texWidth?: number;
+}
 
 /**
  * Minimal GPU-backed array of uvec4 elements in an RGBA32UI texture.
@@ -9,30 +19,30 @@ export type DTXUvec4 = [number, number, number, number];
  * - Integer upload path (RGBA_INTEGER / UNSIGNED_INT).
  * - Tracks dirty indices and uploads only changed texels.
  */
-export class DTXMeshAttribs extends DataTexture {
-
-  readonly maxItems: number;
+export class DTXGeometryAttribTable extends DataTexture {
 
   private _gl: WebGL2RenderingContext;
   private _dirty = new Set<number>(); // element indices (texels)
+  private _getNumItems: () => number;
 
   constructor(options: {
     gl: WebGL2RenderingContext;
     /** Number of uvec4 elements to store (each element = 1 texel). */
     maxItems: number;
+    /** Optional override; defaults to 4096 texels (clamped to MAX_TEXTURE_SIZE). */
+    texWidth?: number;
     description?: string;
+    getNumItems: () => number;
   }) {
     super();
-    this.description = options.description || "meshIndex -> (tileIndex, geometryIndex)";
+    this.description = options.description || "geometryIndex -> (verticesBase, indicesBase, edgeIndicesBase)";
     this._gl = options.gl;
     this.maxItems = options.maxItems;
+    this._getNumItems = options.getNumItems;
   }
 
-  /**
-   * Total capacity in bytes.
-   */
-  getAllocatedBytes(): number {
-    return this.maxItems * DTXMeshAttribs.itemSizeInBytes;
+  get numItems(): number {
+    return this._getNumItems();
   }
 
   /**
@@ -42,17 +52,18 @@ export class DTXMeshAttribs extends DataTexture {
     return 16; // 4 uint32 lanes per uvec4, 4 bytes each
   }
 
-  getUsedBytes() {
-    return 0;
+  getAllocatedBytes(): number {
+    return this.maxItems * DTXGeometryAttribTable.itemSizeInBytes;
   }
 
-  allocate(): boolean {
-    // Clamp to device limits and keep rows wide to reduce uploads.
+  getUsedBytes(): number {
+    return this._getNumItems() * DTXGeometryAttribTable.itemSizeInBytes;
+  }
+
+  allocate(): SDKResult<void> {
     const gl = this._gl;
     const maxSize = (gl.getParameter(gl.MAX_TEXTURE_SIZE) as number) | 0;
-
     this.width = 4096;
-
     const texelsNeeded = this.maxItems;
     this.height = Math.max(1, Math.ceil(texelsNeeded / this.width));
     // if (this.height > maxSize) {
@@ -61,21 +72,32 @@ export class DTXMeshAttribs extends DataTexture {
     //   this.height = Math.max(1, Math.ceil(texelsNeeded / this.width));
     //   if (this.height > maxSize) {
     //     throw new Error(
-    //       `DTXMeshAttribs: maxItems ${this.maxItems} exceeds max 2D texture area ${maxSize}x${maxSize}`
+    //       `DTXGeometryAttribs: maxItems ${this.maxItems} exceeds max 2D texture area ${maxSize}x${maxSize}`
     //     );
     //   }
     // }
-
     const totalTexels = this.width * this.height;
-    const totalElems = totalTexels * 4; // 1x uvec4 per mesh
+    const totalElems = totalTexels * 4; // 4 uint32 lanes per texel
+    this.buffer = new Uint32Array(totalElems);
 
-    // Allocate integer texture (RGBA32UI)
+    return this._allocateTexture();
+  }
+
+  webglContextRestored(): SDKResult<void> {
+    return this._allocateTexture();
+  }
+
+  _allocateTexture(): SDKResult<void> {
+    const gl = this._gl;
     const tex = gl.createTexture()!;
     if (!tex) {
-      return false;
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: "[DTXGeometryAttribTable]: Failed to create texture"
+      };
     }
     try {
-      this.buffer = new Uint32Array(totalElems);
       gl.bindTexture(gl.TEXTURE_2D, tex);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -87,10 +109,17 @@ export class DTXMeshAttribs extends DataTexture {
       gl.bindTexture(gl.TEXTURE_2D, null);
     } catch (e) {
       gl.deleteTexture(tex);
-      return false;
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: `[DTXGeometryAttribTable]: Exception during texture allocation: ${e}`
+      };
     }
     this.texture = tex;
-    return true;
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   /** Texture size (texels). */
@@ -102,57 +131,30 @@ export class DTXMeshAttribs extends DataTexture {
     return this.height;
   }
 
-
   /** Write one element directly (uvec4 lanes). */
-  setItem(index: number, lanes: DTXUvec4): void {
-    this._assertIndex(index);
-    const b = index * 4;
+  setItem(geometryIndex: number, lanes: DTXUvec4): void {
+    this._assertIndex(geometryIndex);
+    const b = geometryIndex * 4;
     this.buffer[b + 0] = lanes[0] >>> 0;
     this.buffer[b + 1] = lanes[1] >>> 0;
-    this._dirty.add(index);
+    this.buffer[b + 2] = lanes[2] >>> 0;
+    this.buffer[b + 3] = lanes[3] >>> 0;
+    this._dirty.add(geometryIndex);
   }
 
   /** Named lanes convenience for four 32-bit unsigned indices. */
-  setAttribs(meshIndex: number, v: {
-    tileIndex?: number;
-    geometryIndex?: number;
+  setAttribs(geometryIndex: number, v: {
+    verticesBase?: number;
+    indicesBase?: number;
+    edgeIndicesBase?: number;
   }): void {
-    this._assertIndex(meshIndex);
-    const c = meshIndex * 4; // 1x uvec4 per mesh
+    this._assertIndex(geometryIndex);
+    const c = geometryIndex * 4; // 1x uvec4 per geometry
     const toU32 = (x: number): number => typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : (x >>> 0);
-    if (v.tileIndex !== undefined) this.buffer[c + 0] = toU32(v.tileIndex);
-    if (v.geometryIndex !== undefined) this.buffer[c + 1] = toU32(v.geometryIndex);
-    this._dirty.add(meshIndex);
-  }
-
-  /**
-   * Sample the texture at given texel coordinates.
-   * @param x
-   * @param y
-   */
-  readAtTexel(x: number, y: number): {
-    tileIndex: number;
-    geometryIndex: number
-  } {
-    const clampedX = Math.min(this.width - 1, Math.max(0, x));
-    const clampedY = Math.min(this.height - 1, Math.max(0, y));
-    const idx = clampedY * this.width + clampedX;
-    const b = idx * 4;
-    return {
-      tileIndex: this.buffer[b + 0],
-      geometryIndex: this.buffer[b + 1],
-    };
-  }
-
-  getItem(meshIndex: number): {
-    tileIndex: number;
-    geometryIndex: number
-  } {
-    const c = meshIndex * 4; // 1x uvec4 per mesh
-    return {
-      tileIndex: this.buffer[c + 0],
-      geometryIndex: this.buffer[c + 1],
-    };
+    if (v.verticesBase !== undefined) this.buffer[c + 0] = toU32(v.verticesBase);
+    if (v.indicesBase !== undefined) this.buffer[c + 1] = toU32(v.indicesBase);
+    if (v.edgeIndicesBase !== undefined) this.buffer[c + 2] = toU32(v.edgeIndicesBase);
+    this._dirty.add(geometryIndex);
   }
 
   /** Upload dirty elements. Groups contiguous indices and splits at row ends. */
@@ -160,7 +162,7 @@ export class DTXMeshAttribs extends DataTexture {
     if (this._dirty.size === 0) {
       return false;
     }
-    this.bufferUpdated();
+    const t0 = (this.debugging) ? performance.now() : 0;
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -178,7 +180,7 @@ export class DTXMeshAttribs extends DataTexture {
         const maxChunk = end - idx + 1;
         const chunk = Math.min(rowLeft, maxChunk);
 
-        const elemStart = (row * this.width + x) * 4;
+        const elemStart = (row * this.width + x) * 8;
         const elemEnd = elemStart + chunk * 4;
         const sub = this.buffer.subarray(elemStart, elemEnd);
 
@@ -194,6 +196,14 @@ export class DTXMeshAttribs extends DataTexture {
 
         idx += chunk;
       }
+
+      if (this.debugging) {
+        this.lastUploadTimeMS = performance.now() - t0;
+      }
+
+      this.notifyUpdated();
+
+      return true;
     };
 
     for (const i of sorted) {
@@ -204,27 +214,51 @@ export class DTXMeshAttribs extends DataTexture {
       prev = i;
     }
     if (runStart >= 0) pushRun(runStart, prev);
-
     this._dirty.clear();
     gl.bindTexture(gl.TEXTURE_2D, null);
-
 
     return true;
   }
 
   private _assertIndex(i: number) {
     if (i < 0 || i >= this.maxItems) {
-      throw new Error(`DTXMeshAttribs: index ${i} out of range 0..${this.maxItems - 1}`);
+      throw new SDKInternalException(`[DTXGeometryAttribTable]: geometryIndex ${i} out of range [0, ${this.maxItems})`);
     }
   }
 
-  destroy(): void {
-    if (this.texture) {
+  /** WebGL texture handle. */
+  getTexture(): WebGLTexture {
+    return this.texture;
+  }
+
+  getItem(geometryIndex: number): { verticesBase: number, indicesBase: number, edgeIndicesBase: number } {
+    const b = geometryIndex * 4;
+    return {
+      verticesBase: this.buffer[b + 0],
+      indicesBase: this.buffer[b + 1],
+      edgeIndicesBase: this.buffer[b + 2],
+    };
+  }
+
+  readAtTexel(x: number, y: number): {
+    verticesBase: number,
+    indicesBase: number,
+    edgeIndicesBase: number
+  } {
+    const idx = (y * this.width + x) * 4;
+    return {
+      verticesBase: this.buffer[idx + 0],
+      indicesBase: this.buffer[idx + 1],
+      edgeIndicesBase: this.buffer[idx + 2],
+    };
+  }
+
+
+    destroy(): void {
+      if(this.texture) {
       this.buffer = null;
-      this._gl.deleteTexture(this.texture);
+      this._gl?.deleteTexture(this.texture);
     }
   }
-
-
-}
+  }
 

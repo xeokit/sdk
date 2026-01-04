@@ -29,4 +29,5 @@ export * from "./TextureTranscoder";
 export * from "./TextureCompressedParams";
 export * from "./ModelChunksManifestParams";
 export * from "./SDKErrorType";
+export * from "./EventsLogger";
 

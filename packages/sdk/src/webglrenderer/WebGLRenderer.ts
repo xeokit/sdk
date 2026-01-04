@@ -5,16 +5,21 @@ import {EventDispatcher} from "strongly-typed-events";
 import {getWebGLExtension} from "../webglutils";
 import {type Capabilities} from "./Capabilities";
 import {type WebGLRendererEvents} from "./WebGLRendererEvents";
-import {type GPUMemoryConfigs} from "./GPUMemoryConfigs";
-import {createGPUMemoryConfigs} from "./createGPUMemoryConfigs";
-import {type GPUMemoryUsage} from "./GPUMemoryUsage";
+import {type MemoryConfigs} from "./MemoryConfigs";
+import {createMemoryConfigs} from "./createMemoryConfigs";
+import {type MemoryUsage} from "./MemoryUsage";
+import {type MemoryView} from "./MemoryView";
 import {type DataTextures} from "./viewManager/gpuMemoryManager/DataTextures";
 
 /**
- * WebGL renderer for a Viewer.
+ * WebGL renderer backing a {@link Viewer}.
  *
- * This class manages the rendering pipeline for a Viewer using WebGL. It handles
- * the initialization, event subscriptions, and destruction of the rendering context.
+ * {@link WebGLRenderer} owns and manages the WebGL rendering pipeline for a Viewer.
+ * It is responsible for:
+ * - Attaching to and detaching from a Viewer
+ * - Initializing and tearing down internal rendering state when a Scene is present
+ * - Responding to Viewer and Scene events by updating GPU-resident data
+ * - Exposing capabilities and GPU memory inspection APIs for diagnostics and tooling
  *
  * See {@link "webglrenderer" | @xeokit/webglrenderer} for usage.
  */
@@ -32,72 +37,101 @@ export class WebGLRenderer {
   public logging: boolean = true;
 
   /**
-   * Events emitted by this WebGLRenderer.
-   * Includes lifecycle events such as destruction, WebGL context loss, and error reporting.
+   * Events emitted by this renderer.
+   *
+   * These events describe lifecycle transitions (Viewer attachment, rendering start/stop),
+   * WebGL context issues, and error reporting.
    */
   public events: WebGLRendererEvents = {
 
     /**
-     * Dispatched when the WebGLRenderer is attached to a Viewer.
+     * Emitted after a {@link Viewer} has been attached via {@link attachViewer}.
      */
     onViewerAttached: new EventEmitter(new EventDispatcher<WebGLRenderer, Viewer>()),
 
     /**
-     * Dispatched when the WebGLRenderer is detached from a Viewer.
+     * Emitted after the currently attached {@link Viewer} has been detached.
      */
     onViewerDetached: new EventEmitter(new EventDispatcher<WebGLRenderer, Viewer>()),
 
     /**
-     * Dispatched when the WebGLRenderer starts rendering.
+     * Emitted when the renderer begins rendering.
+     *
+     * Rendering starts when a Viewer is attached and has an active Scene,
+     * and the renderer’s internal rendering state has been successfully initialized.
      */
     onRendererStarted: new EventEmitter(new EventDispatcher<WebGLRenderer, void>()),
 
     /**
-     * Dispatched when the WebGLRenderer stops rendering.
+     * Emitted when the renderer stops rendering.
+     *
+     * Rendering stops when the Scene is detached or when the renderer’s internal
+     * rendering state is torn down.
      */
     onRendererStopped: new EventEmitter(new EventDispatcher<WebGLRenderer, void>()),
 
     /**
-     * Dispatched when the WebGLRenderer is destroyed.
+     * Emitted when {@link destroy} is called and the renderer transitions to
+     * the destroyed state.
      */
     onRendererDestroyed: new EventEmitter(new EventDispatcher<WebGLRenderer, boolean>()),
 
     /**
-     * Dispatched when the WebGL context is lost.
+     * Emitted when the underlying WebGL context is lost.
+     *
+     * At this point, the renderer’s internal state is not valid.
      */
     webglContextLost: new EventEmitter(new EventDispatcher<WebGLRenderer, WebGLContextEvent>()),
 
     /**
-     * Dispatched when an error occurs within the WebGLRenderer.
+     * Emitted when the underlying WebGL context is restored.
+     *
+     * At this point, the renderer will have automatically reinitialized its internal state and
+     * resumed rendering.
      */
-    onError: new EventEmitter(new EventDispatcher<WebGLRenderer, {
-      ok: false,
-      type: SDKErrorType,
-      error: string
-    }>())
+    webglContextRestored: new EventEmitter(new EventDispatcher<WebGLRenderer, void>()),
+
+    /**
+     * Emitted when an error occurs within the renderer.
+     *
+     * Errors are also logged to the console when {@link logging} is enabled.
+     */
+    onError: new EventEmitter(
+      new EventDispatcher<
+        WebGLRenderer,
+        {
+          ok: false;
+          type: SDKErrorType;
+          error: string;
+        }
+        >()
+    ),
   };
 
-  /**
-   * Configurations for GPU memory usage.
-   */
-  private readonly _memConfigs: GPUMemoryConfigs;
+  private readonly _memoryConfigs: MemoryConfigs;
+  private readonly _memoryView: MemoryView;
 
   /**
-   * Constructs a new WebGLRenderer instance.
+   * Constructs a new {@link WebGLRenderer}.
    *
-   * @param params.viewer Optional Viewer to attach to this WebGLRenderer upon construction.
-   * If provided, the Viewer is immediately attached, and any errors during attachment
-   * are dispatched via the `onError` event.
-   * @param params.memConfigs Optional partial GPU memory configurations to override defaults.
+   * If a {@link Viewer} is provided, the renderer immediately attempts to attach to it.
+   * Any errors encountered during attachment are emitted via {@link events.onError}.
+   *
+   * @param params.viewer Optional Viewer to attach during construction.
+   * @param params.memoryConfigs Optional overrides for GPU memory budgeting and allocation behavior.
    */
   constructor(params: {
     viewer?: Viewer,
-    memConfigs?: Partial<GPUMemoryConfigs>
+    memoryConfigs?: Partial<MemoryConfigs>,
+    debugging?: boolean
   } = {}) {
-    if (params.memConfigs) {
-      Object.assign(this._memConfigs={}, params.memConfigs);
+    this._memoryView = {
+      dataTextures: null // Populated when rendering starts
+    };
+    if (params.memoryConfigs) {
+      Object.assign(this._memoryConfigs=<MemoryConfigs>{}, params.memoryConfigs);
     } else {
-      this._memConfigs = createGPUMemoryConfigs({
+      this._memoryConfigs = createMemoryConfigs({
         grossMemoryMB: 2024, // 2GB
         device: "medium", // Assume mid-range device
         utilization: 0.7, // Use 70% of available memory
@@ -105,11 +139,38 @@ export class WebGLRenderer {
         }
       });
     }
+    this._debugging = !!params.debugging;
     if (params.viewer) {
       const result = this.attachViewer(params.viewer);
       if (result.ok === false) {
         this.events.onError.dispatch(this, result);
       }
+    }
+  }
+
+  private _debugging: boolean;
+
+  /**
+   * Indicates whether debugging features are enabled.
+   *
+   * When `true`, the renderer and its components may emit additional events
+   * and perform extra checks to facilitate debugging and diagnostics.
+   * This may incur performance overhead, so it should be disabled in production.
+   */
+  public get debugging(): boolean {
+    return this._debugging;
+  }
+
+  /**
+   * Enables or disables debugging features.
+   *
+   * When `true`, the renderer and its components may emit additional events
+   * and perform extra checks to facilitate debugging and diagnostics.
+   */
+  public set debugging(value: boolean) {
+    this._debugging = value;
+    if (this._viewManager) {
+      this._viewManager.debugging = value;
     }
   }
 
@@ -140,6 +201,53 @@ export class WebGLRenderer {
   }
 
   /**
+   * Retrieves the GPU memory configuration used by this WebGLRenderer.
+   */
+  public getMemoryConfigs(): MemoryConfigs {
+    return this._memoryConfigs;
+  }
+
+  /**
+   * Returns the renderer’s current GPU memory usage summary.
+   *
+   * When the renderer is not actively rendering (no attached Viewer with a Scene),
+   * this returns zero usage.
+   */
+  public getMemoryUsage(): MemoryUsage {
+    if (!this._viewManager) {
+      return {
+        allocatedMB: 0,
+        usedMB: 0
+      };
+    }
+    return this._viewManager.getMemoryUsage();
+  }
+
+  /**
+   * Returns a read-only view of GPU-resident data used by the renderer.
+   *
+   * This API is intended for diagnostics, debugging tools, and monitoring UIs.
+   * The returned object exposes structured access to {@link DataTextures} while
+   * rendering is active.
+   *
+   * @returns `{ ok: true, value }` when a Viewer with an attached Scene is present;
+   * otherwise `{ ok: false }` with {@link SDKErrorType.InvalidOperation}.
+   */
+  public getMemoryView(): SDKResult<MemoryView>  {
+    if (!this._viewManager) {
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGLRenderer.getMemoryView] Failed to get MemoryView - no Viewer with Scene is currently attached."
+      });
+    }
+    return {
+      ok: true,
+      value: this._memoryView
+    };
+  }
+
+  /**
    * Logs an error result to the console and dispatches an `onError` event.
    *
    * @param result The error result to log and dispatch.
@@ -160,11 +268,14 @@ export class WebGLRenderer {
   }
 
   /**
-   * Attaches a Viewer to this WebGLRenderer.
-   * Initializes the rendering pipeline and subscribes to Viewer and Scene events.
+   * Attaches a {@link Viewer} to this renderer.
    *
-   * @param viewer The Viewer to attach.
-   * @returns An SDKResult indicating success or failure of the attachment.
+   * If the Viewer already has an active Scene, the renderer immediately initializes
+   * its internal rendering state and begins rendering. Otherwise, rendering begins
+   * once a Scene is attached to the Viewer.
+   *
+   * @param viewer Viewer to attach.
+   * @returns Success or failure. Attaching while another Viewer is already attached is an error.
    */
   public attachViewer(viewer: Viewer): SDKResult<void> {
 
@@ -230,11 +341,16 @@ export class WebGLRenderer {
 
     this._viewManager = new ViewManager();
 
-    const result = this._viewManager.init(this._viewer, this._memConfigs);
+    const result = this._viewManager.init({
+      viewer: this._viewer,
+      memoryConfigs: this._memoryConfigs,
+      debugging: this._debugging
+    });
 
     if (result.ok === false) {
       this._viewManager.destroy();
       this._viewManager = undefined as unknown as ViewManager;
+      this._memoryView.dataTextures= null;
       return result;
     }
 
@@ -282,6 +398,26 @@ export class WebGLRenderer {
       viewerEvents.onCameraViewMatrixUpdated.subscribe((_, camera) => viewManager.cameraViewMatrixUpdated(camera))
     ];
 
+    this._memoryView.dataTextures= this._viewManager.dataTextures;
+
+    this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextlost", (event) => {
+      event.preventDefault();
+      this._events.webglContextLost.dispatch(this, event);
+    });
+
+    this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextrestored", (event) => {
+      const result = this._viewManager.webglContextRestored();
+      if (result.ok === false) {
+        this.logError({
+          ok: false,
+          type: result.type,
+          error: `[WebGLRenderer] WebGL context restoration failed - ${result.error}`
+        });
+        return;
+      }
+      this.events.webglContextRestored.dispatch(this);
+    });
+
     this.events.onRendererStarted.dispatch(this);
 
     return {
@@ -298,41 +434,20 @@ export class WebGLRenderer {
   }
 
   /**
-   * Indicates whether this WebGLRenderer is currently rendering, i.e.,
-   * has a Viewer with a Scene attached.
+   * Indicates whether the renderer is actively rendering.
+   *
+   * Rendering is considered active when a Viewer with an attached Scene is present
+   * and the renderer’s internal rendering state has been initialized.
    */
   public get rendering(): boolean {
     return !!this._viewManager;
   }
 
   /**
-   * Retrieves the DataTextures managed internally by this WebGLRenderer.
-   * This is used by debugging and monitoring tools to visualize the contents of the data textures.
-   * Returns null if not currently rendering, i.e.,
-   * no Viewer attached, or attached Viewer has no Scene attached.
-   */
-  public getDataTextures(): DataTextures | null {
-    if (!this._viewManager) {
-      return null;
-    }
-    return this._viewManager.dataTextures;
-  }
-
-  /**
-   * Gets the current GPU memory usage by this WebGLRenderer.
-   */
-  public getGPUMemoryUsage(): GPUMemoryUsage {
-    if (!this._viewManager) {
-      return {
-        allocatedMB: 0,
-        usedMB: 0
-      };
-    }
-    return this._viewManager.getGPUMemoryUsage();
-  }
-
-  /**
-   * Detaches the currently attached Viewer, if any.
+   * Detaches the currently attached {@link Viewer}, if any.
+   *
+   * If rendering is active, this also tears down the renderer’s internal rendering state
+   * before emitting lifecycle events.
    */
   public detachViewer(): void {
     if (!this._viewer) {
@@ -364,8 +479,11 @@ export class WebGLRenderer {
   }
 
   /**
-   * Destroys this WebGLRenderer.
-   * Detaches the Viewer, cleans up resources, and dispatches the `onRendererDestroyed` event.
+   * Destroys this renderer instance.
+   *
+   * Detaches any attached Viewer, releases internal resources and subscriptions,
+   * and emits {@link events.onRendererDestroyed}. After this call, the instance
+   * should be considered unusable.
    */
   public destroy(): void {
     if (this._destroyed) {

@@ -345,6 +345,7 @@ export class DataModel  {
     relatingObject.related[relationshipParams.type].push(relation);
     this.relationships.push(relation);
     this.stats.numRelationships++;
+    this.data.events.onRelationshipCreated.dispatch(this.data, relation);
     return {
       ok: true,
       value: relation

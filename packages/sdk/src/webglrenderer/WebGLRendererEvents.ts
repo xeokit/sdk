@@ -34,15 +34,20 @@ export interface WebGLRendererEvents {
 
   /**
    * Emits an event when the WebGL context is lost.
+   *
+   * At this point, the `WebGLRenderer` is not functional until the context is restored.
    */
   readonly webglContextLost: EventEmitter<WebGLRenderer, WebGLContextEvent>,
 
   /**
+   * Emits an event when the WebGL context is restored.
+   *
+   * At this point, the `WebGLRenderer` should have automatically recovered and resumed rendering.
+   */
+  readonly webglContextRestored: EventEmitter<WebGLRenderer, void>,
+
+  /**
    * Emits an event when an error occurs within the `WebGLRenderer`.
    */
-  readonly onError: EventEmitter<WebGLRenderer, {
-    ok: false,
-    type: SDKErrorType,
-    error: string
-  }>;
+  readonly onError: EventEmitter<WebGLRenderer, { ok: false, type: SDKErrorType, error: string }>;
 }

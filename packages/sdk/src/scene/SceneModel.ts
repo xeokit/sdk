@@ -1582,7 +1582,6 @@ export class SceneModel {
         error: "[SceneModel.destroy] Cannot destroy SceneModel - SceneModel already destroyed"
       });
     }
-    this.destroyed = true;
     for (const key in this.objects) {
       this.objects[key].destroy();
     }
@@ -1602,6 +1601,7 @@ export class SceneModel {
     //    this.textureSets[key].destroy();
     // }
     this.scene._destroyModel(this);
+    this.destroyed = true;
     return {
       ok: true,
       value: undefined

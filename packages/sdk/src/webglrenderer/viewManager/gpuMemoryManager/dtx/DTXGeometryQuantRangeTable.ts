@@ -1,6 +1,7 @@
-import { type FloatArrayParam } from "../../../../math";
-import {SDKInternalException} from "../../../../core";
+import {type FloatArrayParam} from "../../../../math";
+import {SDKErrorType, SDKInternalException, SDKResult} from "../../../../core";
 import {DataTexture} from "./DataTexture";
+
 
 /**
  * DTXQuantRanges
@@ -15,65 +16,92 @@ import {DataTexture} from "./DataTexture";
  * - Integer count is "maxItems"
  * - Uses batched row-aligned uploads for dirty items
  */
-export class DTXQuantRanges extends DataTexture {
+export class DTXGeometryQuantRangeTable extends DataTexture {
 
-  private gl: WebGL2RenderingContext;
+  private _gl: WebGL2RenderingContext;
   private dirtyIndices: Set<number>;
-  private maxItems: number;
   private numUsedItems: number;
 
   // Layout constants
   private static readonly TEXELS_PER_ITEM = 2;     // offset, scale
   private static readonly FLOATS_PER_TEXEL = 4;    // RGBA
-  private static readonly FLOATS_PER_ITEM = DTXQuantRanges.TEXELS_PER_ITEM * DTXQuantRanges.FLOATS_PER_TEXEL; // 8
+  private static readonly FLOATS_PER_ITEM = DTXGeometryQuantRangeTable.TEXELS_PER_ITEM * DTXGeometryQuantRangeTable.FLOATS_PER_TEXEL; // 8
+  private _getNumItems: () => number;
 
   constructor(params: {
     gl: WebGL2RenderingContext;
-    /** Maximum number of quant ranges (items) to support (default 2000) */
     maxItems?: number;
     description?: string;
+    getNumItems: () => number;
   }) {
     super();
     this.description = params.description || "geometryIndex -> dequantization range (offset + scale)";
-    this.gl = params.gl;
+    this._gl = params.gl;
     this.maxItems = params.maxItems ?? 20000;
     this.dirtyIndices = new Set()
     this.numUsedItems = 0;
-  }
-
-  static get itemSizeInBytes(): number {
-    return DTXQuantRanges.FLOATS_PER_ITEM * 4; // 4 bytes per float
-  }
-
-  getAllocatedBytes(): number {
-    return this.maxItems * DTXQuantRanges.itemSizeInBytes;
-  }
-
-  getUsedBytes() {
-    return this.numUsedItems * DTXQuantRanges.itemSizeInBytes;
+    this._getNumItems = params.getNumItems;
   }
 
   /**
-   * Allocates the RGBA32F texture and backing array.
-   * We keep the texture fairly wide to minimize row breaks.
+   * Number of logical items currently stored in this texture.
    */
- allocate(): boolean {
-    const gl = this.gl;
+  get numItems(): number {
+    return this._getNumItems();
+  }
+
+  /**
+   * Size in bytes of a single item (quantRange).
+   */
+  static get itemSizeInBytes(): number {
+    return DTXGeometryQuantRangeTable.FLOATS_PER_ITEM * 4; // 4 bytes per float
+  }
+
+  /**
+   * Gets the total capacity in bytes of the quantRange array.
+   */
+  getAllocatedBytes(): number {
+    return this.maxItems * DTXGeometryQuantRangeTable.itemSizeInBytes;
+  }
+
+  /**
+   * Gets the currently allocated bytes based on number of quantRanges in use.
+   */
+  getUsedBytes() {
+    return this._getNumItems() * DTXGeometryQuantRangeTable.itemSizeInBytes;
+  }
+
+  allocate(): SDKResult<void> {
     const itemsPerRow = 1024; // 1024 items per row * 2 texels/item = 2048 texels wide
-    const texelsPerItem = DTXQuantRanges.TEXELS_PER_ITEM;
+    const texelsPerItem = DTXGeometryQuantRangeTable.TEXELS_PER_ITEM;
     const width = itemsPerRow * texelsPerItem; // texels
     const height = Math.max(1, Math.ceil(this.maxItems / itemsPerRow)); // rows
     const totalTexels = width * height;
-    const totalFloats = totalTexels * DTXQuantRanges.FLOATS_PER_TEXEL;
-    const texture = gl.createTexture();
+    const totalFloats = totalTexels * DTXGeometryQuantRangeTable.FLOATS_PER_TEXEL;
+    this.buffer = new Float32Array(totalFloats);
+    this.width = width;
+    this.height = height;
+    return this._allocateTexture();
+  }
+
+  webglContextRestored(): SDKResult<void> {
+    return this._allocateTexture();
+  }
+
+  _allocateTexture(): SDKResult<void> {
+    const gl = this._gl;
+    const texture = gl.createTexture()!;
     if (!texture) {
-    return false;
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: "[DTXGeometryQuantRangeTable]: Failed to create texture"
+      };
     }
     try {
-        this.buffer = new Float32Array(totalFloats);
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, width, height);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.RGBA32F, this.width, this.height);
       // initialize with zeros (optional)
       //  gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, width, height, gl.RGBA, gl.FLOAT, this.buffer, 0);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -82,13 +110,18 @@ export class DTXQuantRanges extends DataTexture {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       gl.bindTexture(gl.TEXTURE_2D, null);
     } catch (e) {
-        gl.deleteTexture(texture);
-        return false;
+      gl.deleteTexture(texture);
+      return {
+        ok: false,
+        type: SDKErrorType.InitializationFailed,
+        error: `[DTXGeometryQuantRangeTable]: Exception during texture allocation: ${e}`
+      };
     }
     this.texture = texture;
-    this.width = width;
-    this.height = height;
-    return true;
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   /**
@@ -98,7 +131,7 @@ export class DTXQuantRanges extends DataTexture {
     if (geometryIndex < 0 || geometryIndex >= this.maxItems) {
       throw new SDKInternalException(`DTXQuantRanges: geometryIndex ${geometryIndex} out of range [0, ${this.maxItems})`);
     }
-    const base = geometryIndex * DTXQuantRanges.FLOATS_PER_ITEM;
+    const base = geometryIndex * DTXGeometryQuantRangeTable.FLOATS_PER_ITEM;
 
     // texel 0: offset.xyz in .rgb
     this.buffer[base + 0] = +dequantizeOffset[0];
@@ -131,13 +164,13 @@ export class DTXQuantRanges extends DataTexture {
     if (this.dirtyIndices.size === 0) {
       return false;
     }
-    this.bufferUpdated();
-    const gl = this.gl;
+    this.notifyUpdated();
+    const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-    const texelsPerItem = DTXQuantRanges.TEXELS_PER_ITEM;        // 2
-    const floatsPerItem = DTXQuantRanges.FLOATS_PER_ITEM;        // 8
+    const texelsPerItem = DTXGeometryQuantRangeTable.TEXELS_PER_ITEM;        // 2
+    const floatsPerItem = DTXGeometryQuantRangeTable.FLOATS_PER_ITEM;        // 8
     const itemsPerRow = this.width / texelsPerItem;       // integer
 
     const sorted = Array.from(this.dirtyIndices).sort((a, b) => a - b);
@@ -196,8 +229,8 @@ export class DTXQuantRanges extends DataTexture {
   } {
     const texelsPerRow = this.width;
     const index = y * texelsPerRow + x;
-    const itemIndex = Math.floor(index / DTXQuantRanges.TEXELS_PER_ITEM);
-    const base = itemIndex * DTXQuantRanges.FLOATS_PER_ITEM;
+    const itemIndex = Math.floor(index / DTXGeometryQuantRangeTable.TEXELS_PER_ITEM);
+    const base = itemIndex * DTXGeometryQuantRangeTable.FLOATS_PER_ITEM;
 
     const offset: [number, number, number] = [
       this.buffer[base + 0],
@@ -210,17 +243,17 @@ export class DTXQuantRanges extends DataTexture {
       this.buffer[base + 6]
     ];
 
-    return { offset, scale };
+    return {offset, scale};
   }
 
   getItem(geometryIndex: number): {
     offset: [number, number, number],
-    scale: [number, number, number]}
-  {
+    scale: [number, number, number]
+  } {
     if (geometryIndex < 0 || geometryIndex >= this.maxItems) {
       throw new SDKInternalException(`DTXQuantRanges: geometryIndex ${geometryIndex} out of range [0, ${this.maxItems})`);
     }
-    const base = geometryIndex * DTXQuantRanges.FLOATS_PER_ITEM;
+    const base = geometryIndex * DTXGeometryQuantRangeTable.FLOATS_PER_ITEM;
 
     const offset: [number, number, number] = [
       this.buffer[base + 0],
@@ -233,13 +266,13 @@ export class DTXQuantRanges extends DataTexture {
       this.buffer[base + 6]
     ];
 
-    return { offset, scale };
+    return {offset, scale};
   }
 
-    destroy(): void {
+  destroy(): void {
     if (this.texture) {
       this.buffer = null;
-      this.gl.deleteTexture(this.texture);
+      this._gl?.deleteTexture(this.texture);
     }
   }
 

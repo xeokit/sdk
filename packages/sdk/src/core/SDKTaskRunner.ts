@@ -78,6 +78,16 @@ export class SDKTaskRunner {
 
       for (const task of Array.from(tasks)) {
         if (!task.destroyed) {
+         if (!task.repeating) {
+           console.log(`[SDKTaskRunner] Running non-repeating task '${task.name}' at stage ${stage}:`, task);
+         // @ts-ignore
+         } else
+           // @ts-ignore
+           if (!task.logged) {
+           // @ts-ignore
+           task.logged = true;
+           console.log(`[SDKTaskRunner] Running repeating task '${task.name}' at stage ${stage}:`, task);
+          }
           task.runIfScheduled();
           if (!task.repeating) {
             tasks.delete(task);

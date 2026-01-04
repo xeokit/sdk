@@ -1,35 +1,43 @@
 /**
- * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:100px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_webgl_logo.svg"/>
+ * <img
+ *   style="padding-top:20px; padding-bottom:30px; height:100px;"
+ *   src="https://xeokit.github.io/sdk/docs/assets/xeokit_webgl_logo.svg"
+ * />
  *
  * # xeokit WebGL2 Renderer
  *
  * ---
  *
- * ### *Enables WebGL2 rendering in a xeokit Viewer*
+ * ### *WebGL2-based rendering backend for xeokit Viewers*
  *
  * ---
  *
- * This module provides WebGL2-based rendering capabilities for the xeokit Viewer, offering:
+ * This module provides a WebGL2 rendering backend for the xeokit {@link viewer!Viewer | Viewer}.
+ * It is responsible for managing GPU-resident rendering data, issuing draw calls,
+ * and keeping GPU state synchronized with scene and view changes.
  *
- * - Seamless integration with {@link viewer!Viewer | Viewer} via {@link WebGLRenderer}
- * - High-performance full-precision rendering of large-scale models
+ * Key features include:
+ *
+ * - Tight integration with {@link viewer!Viewer | Viewer} via {@link WebGLRenderer}
+ * - High-performance, full-precision rendering of large-scale models
+ * - Efficient batching and sorted rendering to minimize draw calls
  * - Multi-canvas rendering support
- * - Basis-compressed textures for optimized performance
- * - Compressed geometry for reduced gpuMemoryManager footprint
+ * - GPU memory management with configurable budgeting
  *
  * ## Installation
  *
- * To install the package, use:
+ * Install via npm:
  *
- * ````bash
+ * ```bash
  * npm install @xeokit/sdk
- * ````
+ * ```
  *
  * ## Usage
  *
- * Configure a {@link viewer!Viewer | Viewer} with a {@link WebGLRenderer} to leverage WebGL2 for model storage and rendering:
+ * Attach a {@link WebGLRenderer} to a {@link viewer!Viewer | Viewer} to enable WebGL2-based
+ * storage and rendering of scene data:
  *
- * ````javascript
+ * ```ts
  * import { SDKErrorType } from "@xeokit/sdk/core";
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Viewer } from "@xeokit/sdk/viewer";
@@ -37,50 +45,59 @@
  *
  * const scene = new Scene();
  *
- * const viewer = new Viewer({
- *     scene
- * });
+ * const viewer = new Viewer({ scene });
  *
  * const webglRenderer = new WebGLRenderer();
  *
  * const result = webglRenderer.attachViewer(viewer);
  *
  * if (!result.ok) {
- *    console.error("Failed to attach WebGLRenderer to Viewer:", result.error);
- * } else {
- *
- *    // WebGLRenderer begins rendering...
- *    // Listen for WebGLRenderer events
- *
- *     webglRenderer.events.onError.subscribe((renderer, result2) => {
- *          switch (result2.type) {
- *              case SDKErrorType.NotSupported:
- *                  console.error("WebGLRenderer not supported:", result2.error);
- *                  break;
- *              case SDKErrorType.OutOfMemory:
- *                  console.error("WebGLRenderer out of memory:", result2.error);
- *                  break;
- *              default:
- *                  console.error("WebGLRenderer error:", result2.error);
- *          }
- *     });
- *
- *     webglRenderer.events.onDestroyed.subscribe((renderer, _) => {
- *          console.log("WebGLRenderer destroyed.");
- *     });
+ *   console.error("Failed to attach WebGLRenderer:", result.error);
+ *   return;
  * }
  *
- * ````
+ * // Rendering begins once a Scene is attached to the Viewer.
+ * // Subscribe to renderer lifecycle and error events as needed.
+ *
+ * webglRenderer.events.onError.subscribe((renderer, err) => {
+ *   switch (err.type) {
+ *     case SDKErrorType.NotSupported:
+ *       console.error("WebGL2 not supported:", err.error);
+ *       break;
+ *     case SDKErrorType.OutOfMemory:
+ *       console.error("GPU memory exhausted:", err.error);
+ *       break;
+ *     default:
+ *       console.error("WebGLRenderer error:", err.error);
+ *   }
+ * });
+ *
+ * webglRenderer.events.onRendererDestroyed.subscribe(() => {
+ *   console.log("WebGLRenderer destroyed.");
+ * });
+ * ```
+ *
+ * ## Diagnostics and tooling
+ *
+ * The renderer exposes structured inspection APIs for debugging and tooling:
+ *
+ * - {@link MemoryUsage} provides a summary of GPU memory consumption
+ * - {@link MemoryView} exposes read-only access to GPU-resident {@link DataTextures}
+ * - Debugger utilities can visualize batch layouts, data textures, and draw ranges
+ *
+ * These APIs are intended for diagnostics and monitoring and do not allow direct mutation
+ * of renderer-owned GPU state.
  *
  * @module webglrenderer
  */
 export * from "./WebGLRenderer";
 export * from "./WebGLRendererEvents";
-export * from "./GPUMemoryConfigs";
-export * from "./createGPUMemoryConfigs";
-export * from "./GPUMemoryUsage";
+export * from "./MemoryConfigs";
+export * from "./createMemoryConfigs";
+export * from "./MemoryUsage";
+export * from "./MemoryView";
 export * from "./viewManager/gpuMemoryManager/dtx/DataTexture";
-export * from "./viewManager/gpuMemoryManager/DataTexturesBatch";
+export * from "./viewManager/gpuMemoryManager/BatchDataTextures";
 export * from "./viewManager/gpuMemoryManager/DataTextures";
-export * from "./DataTexturesDebugger";
-export * from "./GPUMemoryUsageDebugger";
+export * from "./MemoryDebugger";
+export * from "./viewManager/gpuMemoryManager/dtx/PrimRange";

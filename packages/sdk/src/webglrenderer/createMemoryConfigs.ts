@@ -1,4 +1,4 @@
-import {type GPUMemoryConfigs} from "./GPUMemoryConfigs";
+import {type MemoryConfigs} from "./MemoryConfigs";
 import {GPUMemoryManager} from "./viewManager/gpuMemoryManager/GPUMemoryManager";
 
 /**
@@ -10,12 +10,12 @@ import {GPUMemoryManager} from "./viewManager/gpuMemoryManager/GPUMemoryManager"
  *  especially those with geometry similar to IFC (Industry Foundation Classes) models.
  *  @param params - Parameters for generating the GPU memory configurations.
  */
-export function createGPUMemoryConfigs(params:{
+export function createMemoryConfigs(params:{
     grossMemoryMB: number,
-    user: Partial<GPUMemoryConfigs>,
+    user: Partial<MemoryConfigs>,
     device: "low" | "medium" | "high",
     utilization: number
-}): GPUMemoryConfigs {
+}): MemoryConfigs {
 
     const elementSizes = GPUMemoryManager.itemSizesInBytes;
 
@@ -57,7 +57,7 @@ export function createGPUMemoryConfigs(params:{
     const tileBudgetBytes     = usableBytes * 0.1;
 
     // Shape from device, clamped by budgets
-    const maxMeshBatchesBase = user.maxMeshBatches ?? perf.meshBatches;
+    const maxBatchesBase = user.maxBatches ?? perf.meshBatches;
     const maxTilesBase       = user.maxTiles       ?? perf.tiles;
 
     const derivedMaxTiles = clamp(
@@ -71,25 +71,25 @@ export function createGPUMemoryConfigs(params:{
         4096
     );
 
-    const maxMeshBatches = clamp(maxMeshBatchesBase, 8, 1024);
+    const maxBatches = clamp(maxBatchesBase, 8, 1024);
 
     // Meshes per batch from mesh metadata budget
     const totalMeshCapacity       = Math.floor(meshBudgetBytes / BYTES_PER_MESH);
     const meshesPerBatchFromBudget =
-        Math.floor(totalMeshCapacity / Math.max(1, maxMeshBatches));
+        Math.floor(totalMeshCapacity / Math.max(1, maxBatches));
 
-    const maxMeshesPerBatch = clamp(
-        user.maxMeshesPerBatch ?? meshesPerBatchFromBudget,
+    const maxBatchMeshes = clamp(
+        user.maxBatchMeshes ?? meshesPerBatchFromBudget,
         100,
         16_384
     );
 
-    let maxGeometriesPerBatch =
-        user.maxGeometriesPerBatch ?? maxMeshesPerBatch;
+    let maxBatchGeometries =
+        user.maxBatchGeometries ?? maxBatchMeshes;
 
     // Per-batch geometry from *linked* vertex/index/prim cost
-    const bytesPerBatch = maxMeshBatches > 0
-        ? geometryBudgetBytes / maxMeshBatches
+    const bytesPerBatch = maxBatches > 0
+        ? geometryBudgetBytes / maxBatches
         : geometryBudgetBytes;
 
     const costPerVertex =
@@ -97,35 +97,35 @@ export function createGPUMemoryConfigs(params:{
         INDICES_PER_VERTEX * BYTES_PER_INDEX +
         PRIMS_PER_VERTEX   * BYTES_PER_PRIM;
 
-    const maxVerticesPerBatchRaw = Math.floor(bytesPerBatch / costPerVertex);
+    const maxBatchVerticesRaw = Math.floor(bytesPerBatch / costPerVertex);
 
-    const maxVerticesPerBatch = user.maxVerticesPerBatch ?? clamp(
-        maxVerticesPerBatchRaw,
+    const maxBatchVertices = user.maxBatchVertices ?? clamp(
+        maxBatchVerticesRaw,
         100_000,
         16_000_000
     );
 
-    const maxIndicesPerBatch = user.maxIndicesPerBatch ?? clamp(
-        Math.floor(maxVerticesPerBatch * INDICES_PER_VERTEX),
+    const maxBatchIndices = user.maxBatchIndices ?? clamp(
+        Math.floor(maxBatchVertices * INDICES_PER_VERTEX),
         100_000,
         16_000_000
     );
 
-    const maxPrimsPerBatch = user.maxPrimsPerBatch ?? clamp(
-        Math.floor(maxVerticesPerBatch * PRIMS_PER_VERTEX),
+    const maxBatchPrims = user.maxBatchPrims ?? clamp(
+        Math.floor(maxBatchVertices * PRIMS_PER_VERTEX),
         100_000,
         16_000_000
     );
 
     // Sanity caps: how many geometries fit with this topology
     const maxGeometriesByVerts = Math.floor(
-        maxVerticesPerBatch / AVG_VERTICES_PER_GEOMETRY
+        maxBatchVertices / AVG_VERTICES_PER_GEOMETRY
     );
     const maxGeometriesByIdx = Math.floor(
-        maxIndicesPerBatch / AVG_INDICES_PER_GEOMETRY
+        maxBatchIndices / AVG_INDICES_PER_GEOMETRY
     );
     const maxGeometriesByPrims = Math.floor(
-        maxPrimsPerBatch / AVG_PRIMS_PER_GEOMETRY
+        maxBatchPrims / AVG_PRIMS_PER_GEOMETRY
     );
 
     const geomCap = Math.max(
@@ -133,25 +133,25 @@ export function createGPUMemoryConfigs(params:{
         Math.min(maxGeometriesByVerts, maxGeometriesByIdx, maxGeometriesByPrims)
     );
 
-    maxGeometriesPerBatch = clamp(
-        Math.min(maxGeometriesPerBatch, geomCap),
+    maxBatchGeometries = clamp(
+        Math.min(maxBatchGeometries, geomCap),
         1,
-        maxGeometriesPerBatch
+        maxBatchGeometries
     );
 
-    const finalMaxMeshesPerBatch = clamp(
-        Math.min(maxMeshesPerBatch, maxGeometriesPerBatch),
+    const finalMaxBatchMeshes = clamp(
+        Math.min(maxBatchMeshes, maxBatchGeometries),
         100,
         16_384
     );
 
     return {
         maxTiles,
-        maxMeshBatches,
-        maxVerticesPerBatch,
-        maxIndicesPerBatch,
-        maxGeometriesPerBatch,
-        maxMeshesPerBatch: finalMaxMeshesPerBatch,
-        maxPrimsPerBatch
+        maxBatches,
+        maxBatchVertices,
+        maxBatchIndices,
+        maxBatchGeometries,
+        maxBatchMeshes: finalMaxBatchMeshes,
+        maxBatchPrims
     };
 }

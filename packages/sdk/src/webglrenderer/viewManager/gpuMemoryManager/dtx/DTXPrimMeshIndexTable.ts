@@ -1,16 +1,8 @@
 import type {RenderPassValue} from "../../RENDER_PASSES";
 import {SDKInternalException} from "../../../../core";
 import {DataTexture} from "./DataTexture";
+import {type PrimRange} from "./PrimRange";
 
-export interface DTXPrimDrawListOptions {
-  bins: number[];
-  gl: WebGL2RenderingContext;
-  /** Number of 32-bit entries (one texel per entry). */
-  maxItems: number;
-  /** Optional fixed texture width. Defaults to 4096. */
-  texWidth?: number;
-  description?: string;
-}
 
 /** Handle to an allocated portion. */
 export interface DTXPrimDrawListHandle {
@@ -22,15 +14,6 @@ export interface DTXPrimDrawListHandle {
   meshIndex: number;
   visible: boolean;
   renderPass: RenderPassValue;
-}
-
-/** Range info for a render pass/bin. */
-export interface DTXPassRange {
-  //   renderPass: number;
-  /** First primitive index for this pass (inclusive). */
-  firstPrim: number;
-  /** Number of primitives in this pass. */
-  numPrims: number;
 }
 
 /**
@@ -50,9 +33,7 @@ export interface DTXPassRange {
  * - uploadChanges() rebuilds runs and uploads only when needed
  * - canGetPortion() to check maxItems
  */
-export class DTXPrimDrawList extends DataTexture {
-
-  readonly maxItems: number;
+export class DTXPrimMeshIndexTable extends DataTexture {
 
   private _gl: WebGL2RenderingContext;
   private _portions: Map<number, DTXPrimDrawListHandle> = new Map();
@@ -60,7 +41,7 @@ export class DTXPrimDrawList extends DataTexture {
   private _needFlush = true;
 
   /** Total allocated primitives across all portions (visible or not). Capacity check uses this. */
-  private _totalAllocatedPrims = 0;
+  private _numItems = 0;
 
   /** Total *drawable* primitives in the last rebuild (excludes visible). */
   public numDrawablePrims = 0;
@@ -68,18 +49,31 @@ export class DTXPrimDrawList extends DataTexture {
   private _renderPassIds: RenderPassValue[];
 
   /** Ranges per pass/type after the last rebuild. */
-  public passRanges: Map<number, DTXPassRange> = new Map();
+  public passRanges: Map<number, PrimRange> = new Map();
 
-  constructor(opts: DTXPrimDrawListOptions) {
+  constructor(opts: {
+                bins: number[];
+                gl: WebGL2RenderingContext;
+                /** Number of 32-bit entries (one texel per entry). */
+                maxItems: number;
+                /** Optional fixed texture width. Defaults to 4096. */
+                texWidth?: number;
+                description?: string;
+              }
+  ) {
     super();
     this.description = opts.description ||  "primIndex -> meshIndex";
-    const gl = opts.gl;
-    this._gl = gl;
+    this._gl = opts.gl;
     this.maxItems = opts.maxItems | 0;
     this._renderPassIds = opts.bins;
+    const gl = this._gl;
     const maxSize = gl.getParameter(gl.MAX_TEXTURE_SIZE) | 0; // reserved for future validation
     this.width = Math.min(Math.max(1, opts.texWidth ?? 4096), maxSize);
     this.height = Math.max(1, Math.ceil(this.maxItems / this.width));
+  }
+
+  get numItems(): number {
+    return this._numItems;
   }
 
   /**
@@ -93,14 +87,14 @@ export class DTXPrimDrawList extends DataTexture {
    * Gets the total capacity in bytes of the primitive draw list.
    */
   getAllocatedBytes(): number {
-    return this.maxItems * DTXPrimDrawList.itemSizeInBytes;
+    return this.maxItems * DTXPrimMeshIndexTable.itemSizeInBytes;
   }
 
   /**
    * Gets the currently allocated bytes based on number of primitives in use.
    */
   getUsedBytes(): number {
-    return this._totalAllocatedPrims * DTXPrimDrawList.itemSizeInBytes;
+    return this._numItems * DTXPrimMeshIndexTable.itemSizeInBytes;
   }
 
   allocate(): boolean {
@@ -147,7 +141,7 @@ export class DTXPrimDrawList extends DataTexture {
 
   /** Check if a new portion of \`size\` fits (ignores culling). */
   canGetPortion(size: number): boolean {
-    return this._totalAllocatedPrims + (size | 0) <= this.maxItems;
+    return this._numItems + (size | 0) <= this.maxItems;
   }
 
   /**
@@ -157,13 +151,13 @@ export class DTXPrimDrawList extends DataTexture {
   createPortion(size: number, meshIndex: number, renderPass: RenderPassValue): DTXPrimDrawListHandle {
     size |= 0;
     if (size <= 0) throw new Error("DTXPrimList: size must be > 0");
-    if (this._totalAllocatedPrims + size > this.maxItems) {
+    if (this._numItems + size > this.maxItems) {
       throw new SDKInternalException("DTXPrimList: Not enough capacity");
     }
     const id = this._nextId++;
     const portion = {id, size, meshIndex, offset: 0, renderPass, visible: true} as const;
     this._portions.set(id, portion);
-    this._totalAllocatedPrims += size;
+    this._numItems += size;
     this._needFlush = true;
     return portion;
   }
@@ -175,7 +169,7 @@ export class DTXPrimDrawList extends DataTexture {
        throw new SDKInternalException("DTXPrimDrawList: Unknown portion handle");
     }
     this._portions.delete(portion.id);
-    this._totalAllocatedPrims -= removed.size;
+    this._numItems -= removed.size;
     this._needFlush = true;
   }
 
@@ -213,7 +207,7 @@ export class DTXPrimDrawList extends DataTexture {
     if (!this._needFlush) {
       return false;
     }
-    if (this._totalAllocatedPrims === 0) {
+    if (this._numItems === 0) {
       // Nothing allocated; still clear ranges.
       this.passRanges.clear();
       this.numDrawablePrims = 0;
@@ -221,7 +215,7 @@ export class DTXPrimDrawList extends DataTexture {
       return false;
     }
     this._rebuildRunsAndBuffer();
-    this.bufferUpdated();
+    this.notifyUpdated();
     const gl = this._gl;
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
@@ -243,7 +237,7 @@ export class DTXPrimDrawList extends DataTexture {
   }
 
   /** Get first/count for a pass type. Returns {first:0,count:0} if absent. */
-  getPassRange(renderPass: RenderPassValue): DTXPassRange {
+  getPassRange(renderPass: RenderPassValue): PrimRange {
     const r = this.passRanges.get(renderPass);
     if (!r) {
       throw new Error(`DTXPrimDrawList: Unknown pass renderPass ${renderPass}`);
@@ -252,7 +246,7 @@ export class DTXPrimDrawList extends DataTexture {
   }
 
   readAtTexel(x: number, y: number): { meshIndex: number, offset: number } {
-    const addr = DTXPrimDrawList.encodeAddress(x, y, this.width);
+    const addr = DTXPrimMeshIndexTable.encodeAddress(x, y, this.width);
     const meshIndex = this.buffer[addr*2];
     const offset = this.buffer[addr*2 + 1];
     return {meshIndex, offset};
@@ -264,10 +258,13 @@ export class DTXPrimDrawList extends DataTexture {
     return {meshIndex, offset};
   }
 
-  /** Destroy GL resources. */
+  webglContextRestored(): void {
+
+  }
+
   destroy(): void {
     if (this.texture) {
-      this._gl.deleteTexture(this.texture);
+      this._gl?.deleteTexture(this.texture);
       this.texture = null;
     }
     (this.buffer as any) = null;

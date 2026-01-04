@@ -64,6 +64,15 @@ export class RenderManager {
         };
     }
 
+    webglContextRestored() : SDKResult<void> {
+        return this._drawOps
+          ? this._drawOps.webglContextRestored()
+          : {
+            ok: true,
+            value: undefined
+        };
+    }
+
     private _activateExtensions() {
         if (WEBGL_INFO.SUPPORTED_EXTENSIONS["OES_element_index_uint"]) {
             this._extensionHandles.OES_element_index_uint = this._renderContext.gl.getExtension("OES_element_index_uint");

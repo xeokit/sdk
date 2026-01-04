@@ -3,8 +3,7 @@ import { WEBGL_INFO, type WebGLAbstractTexture} from "../../webglutils";
 import type {FloatArrayParam} from "../../math";
 import {SDKInternalException, SDKErrorType, type SDKResult} from "../../core";
 import type {WebGLContextProvider} from "../../webglutils/WebGLContextProvider";
-import type {GPUMemoryConfigs} from "../GPUMemoryConfigs";
-import type {GPUMemoryUsage} from "../GPUMemoryUsage";
+import type {MemoryConfigs} from "../MemoryConfigs";
 
 
 /**
@@ -22,12 +21,12 @@ export class RenderContext implements WebGLContextProvider {
   /**
    * The memory configuration for the WebGLRenderer.
    */
-  public memConfigs: GPUMemoryConfigs;
+  public memoryConfigs: MemoryConfigs;
 
   /**
-   * The GPU memory usage statistics.
+   * Whether debugging is enabled.
    */
-  public gpuMemoryUsage: GPUMemoryUsage;
+  public debugging: boolean;
 
   /**
    * The WebGL rendering context.
@@ -133,12 +132,8 @@ export class RenderContext implements WebGLContextProvider {
   /**
    * Creates a new RenderContext.
    */
-  constructor(memConfigs: GPUMemoryConfigs) {
-    this.memConfigs = memConfigs;
-    this.gpuMemoryUsage = {
-      usedMB: 0,
-      allocatedMB: 0
-    };
+  constructor(memoryConfigs: MemoryConfigs) {
+    this.memoryConfigs = memoryConfigs;
     this.initialized = false;
   }
 
@@ -157,6 +152,7 @@ export class RenderContext implements WebGLContextProvider {
     const {canvas: webglCanvasElement, gl} = result.value;
     this.gl = gl;
     this.webglCanvasElement = webglCanvasElement;
+    this.debugging = false;
     this.initialized = true;
     this.reset();
     return {

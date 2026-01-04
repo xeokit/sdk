@@ -9,7 +9,7 @@ import {MeshManager} from "./meshManager/MeshManager";
 import {type GPUMemoryReader} from "./gpuMemoryManager/GPUMemoryReader";
 import {SceneMesh, SceneModel, SceneObject} from "../../scene";
 import {SceneTransform} from "../../scene/SceneTransform";
-import {type GPUMemoryConfigs} from "../GPUMemoryConfigs";
+import {type MemoryConfigs} from "../MemoryConfigs";
 import type {DataTextures} from "./gpuMemoryManager/DataTextures";
 
 /**
@@ -42,11 +42,14 @@ export class ViewManager {
   /**
    * Initializes the ViewManager with the given Viewer.
    * Separate init method is used to allow for error handling.
-   * @param viewer
-   * @param memConfigs
    */
-  public init(viewer: Viewer, memConfigs: GPUMemoryConfigs): SDKResult<void> {
+  public init(params: {
+    viewer: Viewer,
+    memoryConfigs: MemoryConfigs,
+    debugging?: boolean
+  }): SDKResult<void> {
 
+    const viewer = params.viewer;
     this._viewer = viewer;
 
     if (viewer.viewList.length >= 4) { // TODO: Capabilities.maxViews
@@ -57,7 +60,9 @@ export class ViewManager {
       };
     }
 
-    this._renderContext = new RenderContext(memConfigs);
+    this._renderContext = new RenderContext(params.memoryConfigs);
+
+    this._renderContext.debugging = !!params.debugging;
 
     const resultCtx = this._renderContext.init(viewer);
     if (resultCtx.ok === false) {
@@ -115,8 +120,40 @@ export class ViewManager {
     };
   }
 
-  getGPUMemoryUsage() {
-    return this._gpuMemoryManager.getGPUMemoryUsage();
+  getWebGLCanvasElement(): HTMLCanvasElement {
+    if (!this._renderContext) {
+      throw new SDKInternalException("[ViewManager.getWebGLCanvasElement] ViewManager is not initialized");
+    }
+    return this._renderContext.webglCanvasElement;
+  }
+
+  webglContextRestored(): SDKResult<void> {
+    if (!this._gpuMemoryManager || !this._renderManager || !this._pickManager) {
+      throw new SDKInternalException("[ViewManager.webglContextRestored] ViewManager is not initialized");
+    }
+    const resultGPU = this._gpuMemoryManager.webglContextRestored();
+    if (resultGPU.ok === false) {
+      return resultGPU;
+    }
+    const resultRender = this._renderManager.webglContextRestored();
+    if (resultRender.ok === false) {
+      return resultRender;
+    }
+    const resultPick = this._pickManager.webglContextRestored();
+    if (resultPick.ok === false) {
+      return resultPick;
+    }
+    return {
+      ok: true,
+      value: undefined
+    };
+  }
+
+  getMemoryUsage() {
+    if (!this._gpuMemoryManager) {
+      throw new SDKInternalException("[ViewManager.getMemoryUsage] ViewManager is not initialized");
+    }
+    return this._gpuMemoryManager.getMemoryUsage();
   }
 
   public get viewer(): Viewer {
@@ -217,24 +254,6 @@ export class ViewManager {
       ok: true,
       value: undefined
     };
-  }
-
-  // public viewObjectCreated(viewObject: ViewObject): SDKResult<any> {
-  //     return this._meshManager.viewObjectCreated(viewObject);
-  // }
-  //
-  // public viewObjectDestroyed(viewObject: ViewObject): SDKResult<any> {
-  //     return this._meshManager.viewObjectDestroyed(viewObject);
-  // }
-
-  // Scene creation and destruction with error handling
-
-  public sceneAttached(): SDKResult<any> {
-    return this._meshManager.sceneAttached();
-  }
-
-  public sceneDetached() : SDKResult<any>{
-    return this._meshManager.sceneDetached();
   }
 
   public sceneModelCreated(sceneModel: SceneModel): SDKResult<any> {

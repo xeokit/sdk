@@ -1,22 +1,21 @@
 
 import {SceneMesh} from "../../../scene";
 import {RenderContext} from "../RenderContext";
-import {DTXMeshViewAttribs} from "./dtx/DTXMeshViewAttribs";
-import {DTXMeshAttribs} from "./dtx/DTXMeshAttribs";
-import {DTXQuantRanges} from "./dtx/DTXQuantRanges";
-import {DTXPositionsArray} from "./dtx/DTXPositionsArray";
-import {DTXVertexColorsArray} from "./dtx/DTXVertexColorsArray";
-import {DTXMatrixArray} from "./dtx/DTXMatrixArray";
+import {DTXViewMeshAttribTable} from "./dtx/DTXViewMeshAttribTable";
+import {DTXMeshAttribTable} from "./dtx/DTXMeshAttribTable";
+import {DTXGeometryQuantRangeTable} from "./dtx/DTXGeometryQuantRangeTable";
+import {DTXVertexPositions} from "./dtx/DTXVertexPositions";
+import {DTXVertexColors} from "./dtx/DTXVertexColors";
+import {DTXMatrixTable} from "./dtx/DTXMatrixTable";
 import {DTXPointerArray} from "./dtx/DTXPointerArray";
-import {DTXGeometryAttribs} from "./dtx/DTXGeometryAttribs";
-import {type DataTexturesBatch} from "./DataTexturesBatch";
+import {DTXGeometryAttribTable} from "./dtx/DTXGeometryAttribTable";
+import {type BatchDataTextures} from "./BatchDataTextures";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
-import {DTXPrimDrawList} from "./dtx/DTXPrimDrawList";
+import {DTXPrimMeshIndexTable} from "./dtx/DTXPrimMeshIndexTable";
 import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
-import {type GPUMemoryConfigs} from "../../GPUMemoryConfigs";
+import {type MemoryConfigs} from "../../MemoryConfigs";
 import type {Mat4, Vec3, Vec4} from "../../../math";
-import {DataTexture} from "./dtx/DataTexture";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
@@ -31,7 +30,7 @@ export class GPUMemoryBatch {
   /**
    * The data textures that implement GPU-side model storage for this GPUMemoryBatch.
    */
-  public dataTextures: DataTexturesBatch;
+  public dataTextures: BatchDataTextures;
 
   /**
    * Index of this GPUMemoryBatch within the GPUMemoryManager.sortedBatches array.
@@ -39,15 +38,15 @@ export class GPUMemoryBatch {
   public index: number;
 
   private _indices: DTXPointerArray;
-  private _meshAttribs: DTXMeshAttribs;
-  private _meshViewAttribs: DTXMeshViewAttribs[];
-  private _geometryQuantRanges: DTXQuantRanges;
-  private _geometryAttribs: DTXGeometryAttribs;
+  private _mashAttribTable: DTXMeshAttribTable;
+  private _meshViewAttribTable: DTXViewMeshAttribTable[];
+  private _geometryQuantRangeTable: DTXGeometryQuantRangeTable;
+  private _geometryAttribTable: DTXGeometryAttribTable;
   private _edgeIndices: DTXPointerArray;
-  private primDrawLists: DTXPrimDrawList[];
-  private _positions: DTXPositionsArray;
-  private _vertexColors: DTXVertexColorsArray;
-  private _meshMatrices: DTXMatrixArray;
+  private primMeshIndexTables: DTXPrimMeshIndexTable[];
+  private _vertexPositions: DTXVertexPositions;
+  private _vertexColors: DTXVertexColors;
+  private _meshMatrixTable: DTXMatrixTable;
 
   private _meshIndicesUsed: boolean[];
   private _meshes: {};
@@ -96,9 +95,11 @@ export class GPUMemoryBatch {
   /**
    * Allocates all data textures for this GPUMemoryBatch.
    */
-  allocate(): boolean {
+  allocate(): SDKResult<void> {
+
     const gl = this._renderContext.gl;
-    const memConfigs: GPUMemoryConfigs = this._renderContext.memConfigs;
+
+    const memoryConfigs: MemoryConfigs = this._renderContext.memoryConfigs;
 
     const bins = [
       RENDER_PASSES.OPAQUE,
@@ -108,10 +109,10 @@ export class GPUMemoryBatch {
       RENDER_PASSES.XRAYED
     ];
 
-    this.primDrawLists = [
-      new DTXPrimDrawList({
+    this.primMeshIndexTables = [
+      new DTXPrimMeshIndexTable({
         gl,
-        maxItems: memConfigs.maxPrimsPerBatch,
+        maxItems: memoryConfigs.maxBatchPrims,
         bins,
         description: `[Batch ${this.index}, View 0] - primIndex -> meshIndex`
       }),
@@ -120,87 +121,94 @@ export class GPUMemoryBatch {
       // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins})
     ];
 
-    this._meshAttribs = new DTXMeshAttribs({
+    this._mashAttribTable = new DTXMeshAttribTable({
       gl,
-      maxItems: memConfigs.maxMeshesPerBatch,
-      description: `[Batch ${this.index}] - meshIndex -> geometryIndex, tileIndex`
+      maxItems: memoryConfigs.maxBatchMeshes,
+      description: `[Batch ${this.index}] - meshIndex -> geometryIndex, tileIndex`,
+      getNumItems: () => this._numMeshes
     });
 
-    this._meshViewAttribs = [
-      new DTXMeshViewAttribs({
+    this._meshViewAttribTable = [
+      new DTXViewMeshAttribTable({
         gl,
-        maxItems: memConfigs.maxMeshesPerBatch,
+        maxItems: memoryConfigs.maxBatchMeshes,
+        getNumItems: () => this._numMeshes,
         description: `[Batch ${this.index}, View 0] - meshIndex -> color, opacity, flags`
       }), // FIXME: Only defined for View 0
       // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes}),
       // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes}),
       // new DTXMeshViewAttribs({gl, maxItems: this._maxMeshes})
+
     ];
 
-    this._meshMatrices = new DTXMatrixArray({
+    this._meshMatrixTable = new DTXMatrixTable({
       gl,
-      maxItems: memConfigs.maxMeshesPerBatch,
+      maxItems: memoryConfigs.maxBatchMeshes,
+      getNumItems: () => this._numMeshes,
       description: `[Batch ${this.index}] - meshIndex -> modelMatrix`
     });
 
-    this._geometryAttribs = new DTXGeometryAttribs({
+    this._geometryAttribTable = new DTXGeometryAttribTable({
       gl,
-      maxItems: memConfigs.maxGeometriesPerBatch,
+      maxItems: memoryConfigs.maxBatchGeometries,
+      getNumItems: () => this._numGeometries,
       description: `[Batch ${this.index}] - geometryIndex -> verticesBase, indicesBase, edgeIndicesBase`
     });
 
-    this._geometryQuantRanges = new DTXQuantRanges({
+    this._geometryQuantRangeTable = new DTXGeometryQuantRangeTable({
       gl,
-      maxItems: memConfigs.maxGeometriesPerBatch,
+      maxItems: memoryConfigs.maxBatchGeometries,
+      getNumItems: () => this._numGeometries,
       description: `[Batch ${this.index}] - geometryIndex -> quantization ranges (offset, scale)`
     });
 
     this._indices = new DTXPointerArray({
       gl,
-      maxItems: memConfigs.maxIndicesPerBatch,
+      maxItems: memoryConfigs.maxBatchIndices,
       description: `[Batch ${this.index}] - primitive indices`
     });
 
     this._edgeIndices = new DTXPointerArray({
       gl,
-      maxItems: memConfigs.maxIndicesPerBatch,
+      maxItems: memoryConfigs.maxBatchIndices,
       description: `[Batch ${this.index}] - edge indices`
     });
 
-    this._positions = new DTXPositionsArray({
+    this._vertexPositions = new DTXVertexPositions({
       gl,
-      maxItems: memConfigs.maxVerticesPerBatch,
+      maxItems: memoryConfigs.maxBatchVertices,
       description: `[Batch ${this.index}] - vertex XYZ positions`
     });
 
-    this._vertexColors = new DTXVertexColorsArray({
+    this._vertexColors = new DTXVertexColors({
       gl,
-      maxItems: memConfigs.maxVerticesPerBatch,
+      maxItems: memoryConfigs.maxBatchVertices,
       description: `[Batch ${this.index}] - vertex RGB colors`
     });
 
     const textures: {
-      allocate(): Boolean;
+      allocate(): SDKResult<void>;
       destroy(): void;
     }[] = [
-      ...this.primDrawLists,
-      this._meshAttribs,
-      ...this._meshViewAttribs,
-      this._meshMatrices,
-      this._geometryAttribs,
-      this._geometryQuantRanges,
+      ...this.primMeshIndexTables,
+      this._mashAttribTable,
+      ...this._meshViewAttribTable,
+      this._meshMatrixTable,
+      this._geometryAttribTable,
+      this._geometryQuantRangeTable,
       this._indices,
       this._edgeIndices,
-      this._positions,
+      this._vertexPositions,
       this._vertexColors
     ];
 
     for (let i = 0, leni = textures.length; i < leni; i++) {
-      if (!textures[i].allocate()) {
+      const result = textures[i].allocate();
+      if (result.ok === false) {
         for (let j = i - 1; j >= 0; j--) {
           textures[j].destroy();
         }
-        return false;
+        return result;
       }
     }
 
@@ -208,70 +216,73 @@ export class GPUMemoryBatch {
       views: [
         {
           numDrawablePrims: 0,
-          primToMeshLookup: this.primDrawLists[0],
-          meshViewAttribs: this._meshViewAttribs[0],
-          renderPassDrawRanges: this.primDrawLists[0].passRanges //  FIXME:
+          primMeshIndexTable: this.primMeshIndexTables[0],
+          meshViewAttribTable: this._meshViewAttribTable[0],
+          renderPassPrimRanges: this.primMeshIndexTables[0].passRanges //  FIXME:
         },
         //     {
         //       numDrawablePrims: 0,
-        //       primToMeshLookup: this.primDrawLists[1],
-        //         meshViewAttribs: this._meshViewAttribs[1],
-        //       passRanges: this.primDrawLists[1].passRanges
+        //       primMeshIndexTable: this.primMeshIndexTables[1],
+        //         meshViewAttribs: this._meshViewAttribTable[1],
+        //       passRanges: this.primMeshIndexTables[1].passRanges
         //     },
         //     {
         //       numDrawablePrims: 0,
-        //       primToMeshLookup: this.primDrawLists[2],
-        //         meshViewAttribs: this._meshViewAttribs[2],
-        //       passRanges: this.primDrawLists[2].passRanges
+        //       primMeshIndexTable: this.primMeshIndexTables[2],
+        //         meshViewAttribs: this._meshViewAttribTable[2],
+        //       passRanges: this.primMeshIndexTables[2].passRanges
         //     },
         //     {
         //       numDrawablePrims: 0,
-        //       primToMeshLookup: this.primDrawLists[3],
-        //         meshViewAttribs: this._meshViewAttribs[3],
-        //       passRanges: this.primDrawLists[3].passRanges
+        //       primMeshIndexTable: this.primMeshIndexTables[3],
+        //         meshViewAttribs: this._meshViewAttribTable[3],
+        //       passRanges: this.primMeshIndexTables[3].passRanges
         // }
       ],
       indices: this._indices,
       edgeIndices: this._edgeIndices,
-      meshMatrices: this._meshMatrices,
-      meshAttribs: this._meshAttribs,
-      geometryAttribs: this._geometryAttribs,
-      geometryQuantRanges: this._geometryQuantRanges,
-      positions: this._positions,
+      meshMatrixTable: this._meshMatrixTable,
+      meshAttribTable: this._mashAttribTable,
+      geometryAttribTable: this._geometryAttribTable,
+      geometryQuantRangeTable: this._geometryQuantRangeTable,
+      vertexPositions: this._vertexPositions,
       vertexColors: this._vertexColors
     };
 
     // this.structSpecs = {
-    //   MeshAttribs: this._meshAttribs.structSpec
+    //   MeshAttribs: this._mashAttribTable.structSpec
     // }
 
-    return true;
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   static get itemSizesInBytes(): { [key: string]: number } {
     return {
-      mesh: DTXMeshAttribs.itemSizeInBytes
-        + DTXMeshViewAttribs.itemSizeInBytes * 4 // 4 views FIXME
-        + DTXMatrixArray.itemSizeInBytes,
-      geometry: DTXGeometryAttribs.itemSizeInBytes + DTXQuantRanges.itemSizeInBytes,
-      vertex: DTXPositionsArray.itemSizeInBytes + DTXVertexColorsArray.itemSizeInBytes,
+      mesh: DTXMeshAttribTable.itemSizeInBytes
+        + DTXViewMeshAttribTable.itemSizeInBytes * 4 // 4 views FIXME
+        + DTXMatrixTable.itemSizeInBytes,
+      geometry: DTXGeometryAttribTable.itemSizeInBytes + DTXGeometryQuantRangeTable.itemSizeInBytes,
+      vertex: DTXVertexPositions.itemSizeInBytes + DTXVertexColors.itemSizeInBytes,
       index: DTXPointerArray.itemSizeInBytes,
-      prim: DTXPrimDrawList.itemSizeInBytes
+      prim: DTXPrimMeshIndexTable.itemSizeInBytes
     }
   }
 
   getAllocatedBytes(): number {
     let total = 0;
-    total += this._positions.getAllocatedBytes();
+    total += this._vertexPositions.getAllocatedBytes();
     total += this._vertexColors.getAllocatedBytes();
     total += this._indices.getAllocatedBytes();
     total += this._edgeIndices.getAllocatedBytes();
-    total += this._meshAttribs.getAllocatedBytes();
-    total += this._geometryAttribs.getAllocatedBytes();
-    total += this._geometryQuantRanges.getAllocatedBytes();
-    total += this._meshMatrices.getAllocatedBytes();
-    for (let i = 0; i < this.primDrawLists.length; i++) {
-      total += this.primDrawLists[i].getAllocatedBytes();
+    total += this._mashAttribTable.getAllocatedBytes();
+    total += this._geometryAttribTable.getAllocatedBytes();
+    total += this._geometryQuantRangeTable.getAllocatedBytes();
+    total += this._meshMatrixTable.getAllocatedBytes();
+    for (let i = 0; i < this.primMeshIndexTables.length; i++) {
+      total += this.primMeshIndexTables[i].getAllocatedBytes();
     }
     return total;
   }
@@ -281,16 +292,16 @@ export class GPUMemoryBatch {
    */
   getUsedBytes(): number {
     let total = 0;
-    total += this._positions.getUsedBytes();
+    total += this._vertexPositions.getUsedBytes();
     total += this._vertexColors.getUsedBytes();
     total += this._indices.getUsedBytes();
     total += this._edgeIndices.getUsedBytes();
-    total += this._numMeshes * DTXMeshAttribs.itemSizeInBytes;
-    total += this._numGeometries * DTXGeometryAttribs.itemSizeInBytes;
-    total += this._numGeometries * DTXQuantRanges.itemSizeInBytes;
-    total += this._numMeshes * DTXMatrixArray.itemSizeInBytes;
-    for (let i = 0; i < this.primDrawLists.length; i++) {
-      total += this.primDrawLists[i].getUsedBytes();
+    total += this._mashAttribTable.getUsedBytes();
+    total += this._geometryAttribTable.getUsedBytes();
+    total += this._geometryQuantRangeTable.getUsedBytes();
+    total += this._meshMatrixTable.getUsedBytes();
+    for (let i = 0; i < this.primMeshIndexTables.length; i++) {
+      total += this.primMeshIndexTables[i].getUsedBytes();
     }
     return total;
   }
@@ -301,31 +312,34 @@ export class GPUMemoryBatch {
    */
   hasMemoryForMesh(sceneMesh: SceneMesh): boolean {
     // Mesh capacity
-    if (this._numMeshes >= this._renderContext.memConfigs.maxMeshesPerBatch) {
+    if (this._numMeshes >= this._renderContext.memoryConfigs.maxBatchMeshes) {
       return false;
     }
     const geometry = sceneMesh.geometry;
-    if (!geometry) return false;
+    if (!geometry) {
+      return false;
+    }
     // New geometry handle capacity (only if not already tracked)
     if (!this._geometryHandles[geometry.id] && this._numGeometries >= this._maxGeometries) {
       return false;
     }
     // Vertex count (assumes 3 components per vertex)
     const vertCount = (geometry.positionsCompressed?.length ?? 0) / 3;
-    if (vertCount <= 0 || this._positions.canGetPortion(vertCount) === false) {
+    if (vertCount <= 0 || this._vertexPositions.canGetPortion(vertCount) === false) {
       return false;
     }
     const isPoints = geometry.primitive === PointsPrimitive;
     if (isPoints) {
       // For points, prim→mesh lookup is sized by vertex count
-      if (this.primDrawLists[0].canGetPortion(vertCount) === false) {
+      if (this.primMeshIndexTables[0].canGetPortion(vertCount) === false) {
+        // Only need to check one view, as they are sized the same
         return false;
       }
     } else {
       // For triangles, prim→mesh lookup is sized by triangle count
       const indexCount = geometry.indices?.length ?? 0;
       const triCount = indexCount / 3;
-      if (this.primDrawLists[0].canGetPortion(triCount) === false) {
+      if (this.primMeshIndexTables[0].canGetPortion(triCount) === false) {
         return false;
       }
       if (geometry.indices && this._indices.canGetPortion(indexCount) === false) {
@@ -381,7 +395,7 @@ export class GPUMemoryBatch {
 
     const cleanup = () => {
       if (positionsPortion) {
-        this._positions.putPortion(positionsPortion);
+        this._vertexPositions.putPortion(positionsPortion);
       }
       if (vertexColorsPortion) {
         this._vertexColors.putPortion(vertexColorsPortion);
@@ -410,11 +424,11 @@ export class GPUMemoryBatch {
 
       geometryIndex = this._getFreeGeometryIndex();
 
-      positionsPortion = this._positions.getPortion(
+      positionsPortion = this._vertexPositions.getPortion(
         geometry.positionsCompressed.length / 3, // 3xcomponents per position
         (newBase: number) => {
           const verticesBase = newBase / 3 // 3xcomponents per position
-          this._geometryAttribs.setAttribs(geometryIndex, {
+          this._geometryAttribTable.setAttribs(geometryIndex, {
             verticesBase
           });
         });
@@ -428,11 +442,11 @@ export class GPUMemoryBatch {
         }
       }
 
-      this._positions.setPortionData(positionsPortion, geometry.positionsCompressed);
+      this._vertexPositions.setPortionData(positionsPortion, geometry.positionsCompressed);
 
       const [xmin, ymin, zmin, xmax, ymax, zmax] = geometry.aabb;
 
-      this._geometryQuantRanges.setQuantRange(
+      this._geometryQuantRangeTable.setQuantRange(
         geometryIndex,
         [xmin, ymin, zmin],
         [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]);
@@ -454,7 +468,7 @@ export class GPUMemoryBatch {
         indicesHandle = this._indices.getPortion(
           geometry.indices.length,
           (newBase: number) => {
-            this._geometryAttribs.setAttribs(geometryIndex, {
+            this._geometryAttribTable.setAttribs(geometryIndex, {
               indicesBase: newBase
             });
           }
@@ -475,7 +489,7 @@ export class GPUMemoryBatch {
           edgeIndicesHandle = this._edgeIndices.getPortion(
             geometry.edgeIndices.length,
             (newBase: number) => {
-              this._geometryAttribs.setAttribs(geometryIndex, {
+              this._geometryAttribTable.setAttribs(geometryIndex, {
                 edgeIndicesBase: newBase
               });
             }
@@ -494,7 +508,7 @@ export class GPUMemoryBatch {
         }
       }
 
-      this._geometryAttribs.setAttribs(geometryIndex, {
+      this._geometryAttribTable.setAttribs(geometryIndex, {
         verticesBase: positionsPortion.base, // XYZ
         indicesBase: indicesHandle ? indicesHandle.base : 0,
         edgeIndicesBase: edgeIndicesHandle ? edgeIndicesHandle.base : 0
@@ -516,12 +530,12 @@ export class GPUMemoryBatch {
 
     geometryHandle.useCount++;
 
-    this._meshAttribs.setAttribs(meshIndex, {
+    this._mashAttribTable.setAttribs(meshIndex, {
       tileIndex: 0, // Set by setMeshAttribs()
       geometryIndex: geometryHandle.geometryIndex
     });
 
-    this._meshViewAttribs[0].setAttribs(meshIndex, { // FIXME: Only defined for View 0
+    this._meshViewAttribTable[0].setAttribs(meshIndex, { // FIXME: Only defined for View 0
       color: [
         Math.floor(sceneMesh.color[0] * 255.0),
         Math.floor(sceneMesh.color[1] * 255.0),
@@ -530,7 +544,7 @@ export class GPUMemoryBatch {
       opacity: Math.floor(sceneMesh.opacity * 255.0)
     });
 
-    this._meshMatrices.setMatrix(meshIndex, sceneMesh.matrix);
+    this._meshMatrixTable.setMatrix(meshIndex, sceneMesh.matrix);
 
     const primitiveCount = geometry.primitive === PointsPrimitive
       ? geometry.positionsCompressed.length / 3
@@ -538,16 +552,16 @@ export class GPUMemoryBatch {
         ? geometry.indices.length / 2
         : geometry.indices.length / 3;
 
-    const primToMeshLookupHandles = [ // one per view
-      this.primDrawLists[0].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE), // FIXME: Only defined for View 0
-      // this.primDrawLists[1].createPortion(primitiveCount, meshIndex, 0),
-      // this.primDrawLists[2].createPortion(primitiveCount, meshIndex, 0),
-      // this.primDrawLists[3].createPortion(primitiveCount, meshIndex, 0)
+    const primMeshIndexTableHandles = [ // one per view
+      this.primMeshIndexTables[0].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE), // FIXME: Only defined for View 0
+      // this.primMeshIndexTables[1].createPortion(primitiveCount, meshIndex, 0),
+      // this.primMeshIndexTables[2].createPortion(primitiveCount, meshIndex, 0),
+      // this.primMeshIndexTables[3].createPortion(primitiveCount, meshIndex, 0)
     ];
 
     this._meshHandles[sceneMesh.id] = {
       meshIndex,
-      primToMeshLookupHandles
+      primMeshIndexTableHandles
     };
 
     this._sceneMeshes[meshIndex] = sceneMesh;
@@ -572,7 +586,7 @@ export class GPUMemoryBatch {
   setMeshMatrix(
     meshIndex: number,
     matrix: Mat4): void {
-    this._meshMatrices.setMatrix(meshIndex, matrix);
+    this._meshMatrixTable.setMatrix(meshIndex, matrix);
   }
 
   /**
@@ -589,7 +603,7 @@ export class GPUMemoryBatch {
     params: {
       tileIndex?: number;
     }) {
-    this._meshAttribs.setAttribs(meshIndex, params);
+    this._mashAttribTable.setAttribs(meshIndex, params);
   }
 
   /**
@@ -610,10 +624,10 @@ export class GPUMemoryBatch {
       pickable?: boolean;
       clippable?: boolean;
     }) {
-    if (viewIndex < 0 || viewIndex >= this._meshViewAttribs.length) {
+    if (viewIndex < 0 || viewIndex >= this._meshViewAttribTable.length) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshViewAttribs: Invalid viewIndex ${viewIndex}`);
     }
-    this._meshViewAttribs[viewIndex].setAttribs(meshIndex, params);
+    this._meshViewAttribTable[viewIndex].setAttribs(meshIndex, params);
   }
 
   /**
@@ -635,11 +649,11 @@ export class GPUMemoryBatch {
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no meshHandle`);
     }
-    const primToMeshLookupHandle = meshHandle.primToMeshLookupHandles[viewIndex];
-    if (!primToMeshLookupHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no primToMeshLookupHandle`);
+    const primMeshIndexTableHandle = meshHandle.primMeshIndexTableHandles[viewIndex];
+    if (!primMeshIndexTableHandle) {
+      throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no primMeshIndexTableHandle`);
     }
-    this.primDrawLists[viewIndex].setRenderPass(primToMeshLookupHandle, renderPass);
+    this.primMeshIndexTables[viewIndex].setRenderPass(primMeshIndexTableHandle, renderPass);
   }
 
   /**
@@ -661,11 +675,11 @@ export class GPUMemoryBatch {
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
     }
-    const primToMeshLookupHandle = meshHandle.primToMeshLookupHandles[viewIndex];
-    if (!primToMeshLookupHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primToMeshLookupHandle`);
+    const primMeshIndexTableHandle = meshHandle.primMeshIndexTableHandles[viewIndex];
+    if (!primMeshIndexTableHandle) {
+      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primMeshIndexTableHandle`);
     }
-    this.primDrawLists[viewIndex].setVisible(primToMeshLookupHandle, visible);
+    this.primMeshIndexTables[viewIndex].setVisible(primMeshIndexTableHandle, visible);
   }
 
   /**
@@ -686,7 +700,7 @@ export class GPUMemoryBatch {
     const geometryHandle = this._geometryHandles[geometry.id];
     if (geometryHandle && --geometryHandle.useCount <= 0) {
       if (geometryHandle.positionsPortion) {
-        this._positions.putPortion(geometryHandle.positionsPortion);
+        this._vertexPositions.putPortion(geometryHandle.positionsPortion);
       }
       if (geometryHandle.vertexColorsPortion) {
         this._vertexColors.putPortion(geometryHandle.vertexColorsPortion);
@@ -696,11 +710,11 @@ export class GPUMemoryBatch {
       this._numGeometries--;
     }
 
-    if (meshHandle.primToMeshLookupHandles) {
-      this.primDrawLists[0].deletePortion(meshHandle.primToMeshLookupHandles[0]); // FIXME: Only defined for View 0
-      // this.primDrawLists[1].deletePortion(meshHandle.primToMeshLookupHandles[1]);
-      // this.primDrawLists[2].deletePortion(meshHandle.primToMeshLookupHandles[2]);
-      // this.primDrawLists[3].deletePortion(meshHandle.primToMeshLookupHandles[3]);
+    if (meshHandle.primMeshIndexTableHandles) {
+      this.primMeshIndexTables[0].deletePortion(meshHandle.primMeshIndexTableHandles[0]); // FIXME: Only defined for View 0
+      // this.primMeshIndexTables[1].deletePortion(meshHandle.primMeshIndexTableHandles[1]);
+      // this.primMeshIndexTables[2].deletePortion(meshHandle.primMeshIndexTableHandles[2]);
+      // this.primMeshIndexTables[3].deletePortion(meshHandle.primMeshIndexTableHandles[3]);
     }
     if (meshHandle.indicesHandle) {
       this._indices.putPortion(meshHandle.indicesHandle);
@@ -800,32 +814,49 @@ export class GPUMemoryBatch {
    */
   uploadChanges(): boolean {
     let didFlush = false;
-
-    // Check uploadChanges calls and update the flag if any returns true
     didFlush = this._indices.uploadChanges() || didFlush;
-    didFlush = this._meshAttribs.uploadChanges() || didFlush;
-    for (let i = 0, len = this._meshViewAttribs.length; i < len; i++) {
-      didFlush = this._meshViewAttribs[i].uploadChanges() || didFlush;
+    didFlush = this._mashAttribTable.uploadChanges() || didFlush;
+    for (let i = 0, len = this._meshViewAttribTable.length; i < len; i++) {
+      didFlush = this._meshViewAttribTable[i].uploadChanges() || didFlush;
     }
-    didFlush = this._geometryQuantRanges.uploadChanges() || didFlush;
-    didFlush = this._geometryAttribs.uploadChanges() || didFlush;
+    didFlush = this._geometryQuantRangeTable.uploadChanges() || didFlush;
+    didFlush = this._geometryAttribTable.uploadChanges() || didFlush;
     didFlush = this._edgeIndices.uploadChanges() || didFlush;
-    didFlush = this._positions.uploadChanges() || didFlush;
+    didFlush = this._vertexPositions.uploadChanges() || didFlush;
     didFlush = this._vertexColors.uploadChanges() || didFlush;
-    didFlush = this._meshMatrices.uploadChanges() || didFlush;
+    didFlush = this._meshMatrixTable.uploadChanges() || didFlush;
     for (let i = 0; i < 4; i++) {
-      const primToMeshLookup = this.primDrawLists[i];
-      if (primToMeshLookup) {
-        const primToMeshLookupFlushed = primToMeshLookup.uploadChanges()
-        didFlush = primToMeshLookupFlushed;
-        if (primToMeshLookupFlushed) {
-          this.dataTextures.views[i].numDrawablePrims = primToMeshLookup.numPrimitives;
+      const primMeshIndexTable = this.primMeshIndexTables[i];
+      if (primMeshIndexTable) {
+        const primMeshIndexTableFlushed = primMeshIndexTable.uploadChanges()
+        didFlush = primMeshIndexTableFlushed;
+        if (primMeshIndexTableFlushed) {
+          this.dataTextures.views[i].numDrawablePrims = primMeshIndexTable.numPrimitives;
         }
       }
     }
-
-    // Return whether any uploadChanges call returned true
     return didFlush;
+  }
+
+  webglContextRestored(): SDKResult<void> {
+    for (const dataTexture:any in  [
+      ...this.primMeshIndexTables,
+      this._mashAttribTable,
+      ...this._meshViewAttribTable,
+      this._meshMatrixTable,
+      this._geometryAttribTable,
+      this._geometryQuantRangeTable,
+      this._indices,
+      this._edgeIndices,
+      this._vertexPositions,
+      this._vertexColors
+    ]) {
+      const result = dataTexture.webglContextRestored();
+      if (!result.ok) {
+        return result;
+      }
+    }
+    return {ok: true, value: undefined};
   }
 
   destroy() {
@@ -837,18 +868,18 @@ export class GPUMemoryBatch {
       return ref;
     };
     this._onTick = clear(this._onTick);
-    for (let i = 0; i < this.primDrawLists.length; i++) {
-      this.primDrawLists[i].destroy();
+    for (let i = 0; i < this.primMeshIndexTables.length; i++) {
+      this.primMeshIndexTables[i].destroy();
     }
-    this.primDrawLists = [];
-    this._meshAttribs = clear(this._meshAttribs);
-    this._meshViewAttribs = this._meshViewAttribs.map(clear);
-    this._geometryAttribs = clear(this._geometryAttribs);
+    this.primMeshIndexTables = [];
+    this._mashAttribTable = clear(this._mashAttribTable);
+    this._meshViewAttribTable = this._meshViewAttribTable.map(clear);
+    this._geometryAttribTable = clear(this._geometryAttribTable);
     this._indices = clear(this._indices);
     this._edgeIndices = clear(this._edgeIndices);
-    this._positions = clear(this._positions);
+    this._vertexPositions = clear(this._vertexPositions);
     this._vertexColors = clear(this._vertexColors);
-    this._meshMatrices = clear(this._meshMatrices);
+    this._meshMatrixTable = clear(this._meshMatrixTable);
 
   }
 }

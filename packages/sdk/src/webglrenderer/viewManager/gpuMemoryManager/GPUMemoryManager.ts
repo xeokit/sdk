@@ -14,7 +14,6 @@ import {EventEmitter, SDKErrorType, SDKInternalException, type SDKResult} from "
 import type {Mat4, Vec3} from "../../../math";
 import {EventDispatcher} from "strongly-typed-events";
 import type {MemoryUsage} from "../../MemoryUsage";
-import {WebGLContextProvider} from "../../../webglutils/WebGLContextProvider";
 
 
 /**
@@ -113,12 +112,12 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * Notifies the GPUMemoryManager that the WebGL context has been restored.
    */
   webglContextRestored(): SDKResult<void> {
-    for (const contextUsers:any in  [
+    for (const contextUsers in  [
       ...this._tileViewMatrices,
       ...this._tileRayPickMatrices,
       this._batches
     ]) {
-      const result = contextUsers.webglContextRestored();
+      const result = (<any>contextUsers).webglContextRestored();
       if (!result.ok) {
         return result;
       }

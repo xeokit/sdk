@@ -8,6 +8,8 @@ import { type DataTextures } from "./viewManager/gpuMemoryManager/DataTextures";
  *
  * It does not provide mutation APIs; all updates to the underlying data are
  * performed internally by the renderer and its memory managers.
+ *
+ * @debugging
  */
 export interface MemoryView {
 

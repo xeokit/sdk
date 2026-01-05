@@ -230,14 +230,6 @@ export abstract class DrawTechnique {
   }
 
   /**
-   *
-   */
-  webglContextRestored(): SDKResult<any> {
-
-    return
-  }
-
-  /**
    * Draws a batch.
    */
   public drawBatch(meshBatch: MeshBatch, renderPass: RenderPassValue): SDKResult<any> {

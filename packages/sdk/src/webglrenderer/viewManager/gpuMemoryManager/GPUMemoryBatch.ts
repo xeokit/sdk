@@ -16,6 +16,7 @@ import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 import {type MemoryConfigs} from "../../MemoryConfigs";
 import type {Mat4, Vec3, Vec4} from "../../../math";
+import {DataTexture} from "./dtx/DataTexture";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
@@ -428,7 +429,7 @@ export class GPUMemoryBatch {
         geometry.positionsCompressed.length / 3, // 3xcomponents per position
         (newBase: number) => {
           const verticesBase = newBase / 3 // 3xcomponents per position
-          this._geometryAttribTable.setAttribs(geometryIndex, {
+          this._geometryAttribTable.setItem(geometryIndex, {
             verticesBase
           });
         });
@@ -446,10 +447,10 @@ export class GPUMemoryBatch {
 
       const [xmin, ymin, zmin, xmax, ymax, zmax] = geometry.aabb;
 
-      this._geometryQuantRangeTable.setQuantRange(
-        geometryIndex,
-        [xmin, ymin, zmin],
-        [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]);
+      this._geometryQuantRangeTable.setItem(geometryIndex, {
+          offset: [xmin, ymin, zmin],
+          scale: [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]
+        });
 
       if (geometry.colorsCompressed) {
         vertexColorsPortion = this._vertexColors.getPortion(geometry.colorsCompressed.length / 3); // RGB (0..255, 0..255, 0..255)
@@ -468,7 +469,7 @@ export class GPUMemoryBatch {
         indicesHandle = this._indices.getPortion(
           geometry.indices.length,
           (newBase: number) => {
-            this._geometryAttribTable.setAttribs(geometryIndex, {
+            this._geometryAttribTable.setItem(geometryIndex, {
               indicesBase: newBase
             });
           }
@@ -489,7 +490,7 @@ export class GPUMemoryBatch {
           edgeIndicesHandle = this._edgeIndices.getPortion(
             geometry.edgeIndices.length,
             (newBase: number) => {
-              this._geometryAttribTable.setAttribs(geometryIndex, {
+              this._geometryAttribTable.setItem(geometryIndex, {
                 edgeIndicesBase: newBase
               });
             }
@@ -508,7 +509,7 @@ export class GPUMemoryBatch {
         }
       }
 
-      this._geometryAttribTable.setAttribs(geometryIndex, {
+      this._geometryAttribTable.setItem(geometryIndex, {
         verticesBase: positionsPortion.base, // XYZ
         indicesBase: indicesHandle ? indicesHandle.base : 0,
         edgeIndicesBase: edgeIndicesHandle ? edgeIndicesHandle.base : 0
@@ -530,12 +531,12 @@ export class GPUMemoryBatch {
 
     geometryHandle.useCount++;
 
-    this._mashAttribTable.setAttribs(meshIndex, {
+    this._mashAttribTable.setItem(meshIndex, {
       tileIndex: 0, // Set by setMeshAttribs()
       geometryIndex: geometryHandle.geometryIndex
     });
 
-    this._meshViewAttribTable[0].setAttribs(meshIndex, { // FIXME: Only defined for View 0
+    this._meshViewAttribTable[0].setItem(meshIndex, { // FIXME: Only defined for View 0
       color: [
         Math.floor(sceneMesh.color[0] * 255.0),
         Math.floor(sceneMesh.color[1] * 255.0),
@@ -544,7 +545,7 @@ export class GPUMemoryBatch {
       opacity: Math.floor(sceneMesh.opacity * 255.0)
     });
 
-    this._meshMatrixTable.setMatrix(meshIndex, sceneMesh.matrix);
+    this._meshMatrixTable.setItem(meshIndex, sceneMesh.matrix);
 
     const primitiveCount = geometry.primitive === PointsPrimitive
       ? geometry.positionsCompressed.length / 3
@@ -586,7 +587,7 @@ export class GPUMemoryBatch {
   setMeshMatrix(
     meshIndex: number,
     matrix: Mat4): void {
-    this._meshMatrixTable.setMatrix(meshIndex, matrix);
+    this._meshMatrixTable.setItem(meshIndex, matrix);
   }
 
   /**
@@ -603,7 +604,7 @@ export class GPUMemoryBatch {
     params: {
       tileIndex?: number;
     }) {
-    this._mashAttribTable.setAttribs(meshIndex, params);
+    this._mashAttribTable.setItem(meshIndex, params);
   }
 
   /**
@@ -627,7 +628,7 @@ export class GPUMemoryBatch {
     if (viewIndex < 0 || viewIndex >= this._meshViewAttribTable.length) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshViewAttribs: Invalid viewIndex ${viewIndex}`);
     }
-    this._meshViewAttribTable[viewIndex].setAttribs(meshIndex, params);
+    this._meshViewAttribTable[viewIndex].setItem(meshIndex, params);
   }
 
   /**
@@ -839,7 +840,7 @@ export class GPUMemoryBatch {
   }
 
   webglContextRestored(): SDKResult<void> {
-    for (const dataTexture:any in  [
+    for (const dataTexture in  [
       ...this.primMeshIndexTables,
       this._mashAttribTable,
       ...this._meshViewAttribTable,
@@ -851,7 +852,7 @@ export class GPUMemoryBatch {
       this._vertexPositions,
       this._vertexColors
     ]) {
-      const result = dataTexture.webglContextRestored();
+      const result = (<any>dataTexture).webglContextRestored();
       if (!result.ok) {
         return result;
       }

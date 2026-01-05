@@ -37,7 +37,7 @@ export interface WebGLRendererEvents {
    *
    * At this point, the `WebGLRenderer` is not functional until the context is restored.
    */
-  readonly webglContextLost: EventEmitter<WebGLRenderer, WebGLContextEvent>,
+  readonly webglContextLost: EventEmitter<WebGLRenderer, Event>,
 
   /**
    * Emits an event when the WebGL context is restored.

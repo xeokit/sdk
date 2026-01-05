@@ -104,7 +104,7 @@ export class TileManager {
     for (const [_, tile] of this._tiles) {
       const rtcPickMatrix = tile.rtcRayPickMatrix[viewIndex];
       createRTCViewMat(pickMatrix, tile.center, rtcPickMatrix);
-      pickMatrices.setMatrix(tile.tileIndex, rtcPickMatrix);
+      pickMatrices.setItem(tile.tileIndex, rtcPickMatrix);
     }
   }
 
@@ -127,7 +127,7 @@ export class TileManager {
     for (const [_, tile] of this._tiles) {
       const rtcViewMatrix = tile.rtcViewMatrix[viewIndex];
       createRTCViewMat(viewMatrix, tile.center, rtcViewMatrix);
-      viewMatrices.setMatrix(tile.tileIndex, rtcViewMatrix);
+      viewMatrices.setItem(tile.tileIndex, rtcViewMatrix);
       //  console.log(`TileManager: synchTilesToViewMatrix  Tile id=${tile.id} View matrix updated`);
     }
   }
@@ -159,8 +159,8 @@ export class TileManager {
       rtcRayPickMatrix: rtcPickMatrix
     };
     for (let viewIndex = 0; viewIndex < NUM_VIEWS; viewIndex++) {
-      this._viewMatrices[viewIndex].setMatrix(tileIndex, rtcViewMatrix[viewIndex] as unknown as Mat4);
-      this._pickMatrices[viewIndex].setMatrix(tileIndex, rtcPickMatrix[viewIndex] as unknown as Mat4);
+      this._viewMatrices[viewIndex].setItem(tileIndex, rtcViewMatrix[viewIndex] as unknown as Mat4);
+      this._pickMatrices[viewIndex].setItem(tileIndex, rtcPickMatrix[viewIndex] as unknown as Mat4);
     }
     this._tiles.set(id, tile);
     this._numTiles++;

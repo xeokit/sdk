@@ -288,11 +288,11 @@ export class MemoryDebugger {
     dataTextures.batches?.forEach((batch: any, bi: number) => {
       push(batch.indices, `batches[${bi}].indices`);
       push(batch.edgeIndices, `batches[${bi}].edgeIndices`);
-      push(batch.meshAttribs, `batches[${bi}].meshAttribs`);
-      push(batch.meshMatrices, `batches[${bi}].meshMatrices`);
-      push(batch.geometryAttribs, `batches[${bi}].geometryAttribs`);
-      push(batch.geometryQuantRanges, `batches[${bi}].geometryQuantRanges`);
-      push(batch.positions, `batches[${bi}].positions`);
+      push(batch.meshAttribTable, `batches[${bi}].meshAttribTable`);
+      push(batch.meshMatrixTable, `batches[${bi}].meshMatrixTable`);
+      push(batch.geometryAttribTable, `batches[${bi}].geometryAttribTable`);
+      push(batch.geometryQuantRangeTable, `batches[${bi}].geometryQuantRangeTable`);
+      push(batch.vertexPositions, `batches[${bi}].vertexPositions`);
       push(batch.vertexColors, `batches[${bi}].vertexColors`);
 
       batch.views?.forEach((v: any, vi: number) => {

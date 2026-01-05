@@ -170,7 +170,7 @@ export class WebGLRenderer {
   public set debugging(value: boolean) {
     this._debugging = value;
     if (this._viewManager) {
-      this._viewManager.debugging = value;
+ //     this._viewManager.debugging = value;
     }
   }
 
@@ -402,7 +402,7 @@ export class WebGLRenderer {
 
     this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextlost", (event) => {
       event.preventDefault();
-      this._events.webglContextLost.dispatch(this, event);
+      this.events.webglContextLost.dispatch(this, event);
     });
 
     this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextrestored", (event) => {

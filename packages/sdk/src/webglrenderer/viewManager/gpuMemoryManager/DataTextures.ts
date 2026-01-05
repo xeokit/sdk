@@ -11,6 +11,8 @@ import { EventEmitter } from "../../../core";
  * - Per-batch textures used for sorted, efficient draw submission
  *
  * This object represents the renderer’s authoritative view of GPU-side data.
+ *
+ * @debugging
  */
 export interface DataTextures {
 

@@ -146,11 +146,10 @@ export abstract class DataTexture {
   /**
    * Enables debug event emission for this data texture.
    */
-  public debugging: boolean = false;
+  public debugging: boolean = true;
 
   /**
-   * Emitted when the CPU-side buffer for this texture has changed and (typically)
-   * has been or will be uploaded to the GPU.
+   * Emitted when the CPU-side buffer for this texture has changed and been uploaded to the GPU.
    *
    * This event is intended for debugging tools and monitoring UIs; it is only
    * emitted when {@link debugging} is enabled.

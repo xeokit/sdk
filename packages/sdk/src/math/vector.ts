@@ -192,10 +192,21 @@ export function createVec3Int32(values?: Vec3): Vec3Int {
   return new Int32Array(values || 3);
 }
 
+export function createVec3Int16(values?: Vec3): Vec3Int {
+  // @ts-ignore
+  return new Int16Array(values || 3);
+}
+
 export function createVec2Int16(values?: Vec2): Vec2Int {
   // @ts-ignore
   return new Int16Array(values || 2);
 }
+
+export function createVec2Uint16(values?: Vec2): Vec2Int {
+  // @ts-ignore
+  return new Uint16Array(values || 2);
+}
+
 
 /**
  * Creates a new 4D double-precision float vector.

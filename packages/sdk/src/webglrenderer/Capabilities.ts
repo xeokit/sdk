@@ -1,5 +1,5 @@
 /**
- * A set of capability flags.
+ * WebGLRenderer capabilities.
  */
 export interface Capabilities {
 

@@ -4,6 +4,7 @@ import type { DataTextures } from "./viewManager/gpuMemoryManager/DataTextures";
 import type { MemoryUsage } from "./MemoryUsage";
 import { WebGLRenderer } from "./WebGLRenderer";
 import type { PrimRange } from "./viewManager/gpuMemoryManager/dtx/PrimRange";
+import { RENDER_PASSES } from "./viewManager/RENDER_PASSES";
 
 
 /**
@@ -14,7 +15,7 @@ const DEBUG_VIEW_ITEMS = 128; // N
 /**
  * Displays:
  *  1) GPU memory usage (allocated/used)
- *  2) Batch-level renderPassDrawRanges for each DataTextures batch
+ *  2) Batch-level renderPassPrimRanges for each DataTextures batch
  *  3) First N items for each DataTexture using getItem(index)
  *  4) DataTexture.description shown above each texture output box
  */
@@ -209,22 +210,44 @@ export class MemoryDebugger {
       return;
     }
 
-    const allocated = Math.max(0, Number(usage.allocatedMB) || 0);
-    const used = Math.max(0, Number(usage.usedMB) || 0);
-    const pct = allocated > 0 ? Math.min(1, used / allocated) : 0;
+    const allocated = Number(usage.allocatedMB) || 0;
+    const used = Number(usage.usedMB) || 0;
+    const pct = allocated > 0 ? used / allocated : 0;
+    const pctStr = allocated > 0 ? (pct * 100).toFixed(2) : "0.00";
 
-    this.memAllocatedEl.textContent = `Allocated: ${this.fmtMB(allocated)}`;
-    this.memUsedEl.textContent = `Used: ${this.fmtMB(used)} (${Math.round(pct * 100)}%)`;
+    this.memAllocatedEl.textContent = `Allocated: ${this.fmtMB(allocated)} (${this.fmtKB(allocated)})`;
+    this.memUsedEl.textContent = `Used: ${this.fmtMB(used)} (${this.fmtKB(used)}) (${pctStr}%)`;
     this.memBarUsed.style.width = `${pct * 100}%`;
 
-    // Small warning text when used exceeds allocated (shouldn’t happen, but can signal accounting mismatch)
     if (allocated > 0 && used > allocated) {
-      this.memNoteEl.textContent = `Warning: usedMB > allocatedMB (accounting mismatch).`;
-    } else if (allocated > 0 && pct > 0.9) {
-      this.memNoteEl.textContent = `High usage: consider freeing batches/textures if possible.`;
+      this.memNoteEl.textContent = `Warning: used memory exceeds allocated memory!`;
+    } else if (allocated <= 0 && used <= 0) {
+      this.memNoteEl.textContent = `Note: memory usage is zero or negative (raw: allocated=${allocated}, used=${used})`;
+    } else if (allocated < 0 || used < 0) {
+      this.memNoteEl.textContent = `Note: negative memory usage (raw: allocated=${allocated}, used=${used})`;
+    } else if (allocated < 0.01 && used < 0.01) {
+      this.memNoteEl.textContent = `Note: memory usage is very low (<0.01 MB)`;
     } else {
-      this.memNoteEl.textContent = ``;
+      this.memNoteEl.textContent = "";
     }
+  }
+
+  private fmtMB(mb: number): string {
+    if (Math.abs(mb) < 0.01) {
+      return `${mb.toFixed(4)} MB`;
+    }
+    if (Math.abs(mb) < 1) {
+      return `${mb.toFixed(3)} MB`;
+    }
+    return `${mb.toFixed(2)} MB`;
+  }
+
+  private fmtKB(mb: number): string {
+    const kb = mb * 1024;
+    if (Math.abs(kb) < 1) {
+      return `${kb.toFixed(2)} KB`;
+    }
+    return `${kb.toFixed(0)} KB`;
   }
 
   private tryGetUsage(): MemoryUsage | null {
@@ -256,12 +279,6 @@ export class MemoryDebugger {
     if (u && typeof u.allocatedMB === "number" && typeof u.usedMB === "number") return u;
 
     return null;
-  }
-
-  private fmtMB(mb: number): string {
-    // keep it readable without being too noisy
-    if (mb < 100) return `${mb.toFixed(1)} MB`;
-    return `${Math.round(mb)} MB`;
   }
 
   // ---------------------------------------------------------------------------
@@ -296,15 +313,23 @@ export class MemoryDebugger {
       push(batch.vertexColors, `batches[${bi}].vertexColors`);
 
       batch.views?.forEach((v: any, vi: number) => {
+
+        const renderPassPrimRanges = batch.views[vi].renderPassPrimRanges;
+        this.batchInfos.push({
+          batchIndex: bi,
+          path: `batches[${bi}].views[${vi}].renderPassPrimRanges`,
+          getRanges: () => (renderPassPrimRanges as PrimRange[] | undefined),
+        });
+
         push(v.primMeshIndexTable, `batches[${bi}].views[${vi}].primMeshIndexTable`);
-        push(v.meshViewAttribs, `batches[${bi}].views[${vi}].meshViewAttribs`);
+        push(v.meshViewAttribTable, `batches[${bi}].views[${vi}].meshViewAttribTable`);
       });
 
-      this.batchInfos.push({
-        batchIndex: bi,
-        path: `batches[${bi}].renderPassDrawRanges`,
-        getRanges: () => (batch.renderPassDrawRanges as PrimRange[] | undefined),
-      });
+      // this.batchInfos.push({
+      //   batchIndex: bi,
+      //   path: `batches[${bi}].renderPassPrimRanges`,
+      //   getRanges: () => (renderPassPrimRanges as PrimRange[] | undefined),
+      // });
     });
 
     this.allTextures.length = 0;
@@ -319,11 +344,11 @@ export class MemoryDebugger {
   private buildGrid() {
     this.grid.innerHTML = "";
 
-    // 1) Batch renderPassDrawRanges section
+    // 1) Batch renderPassPrimRanges section
     if (this.batchInfos.length) {
       const section = document.createElement("div");
       section.className = "dtx-json-section";
-      section.textContent = "Batch renderPassDrawRanges";
+      section.textContent = "Batch renderPassPrimRanges";
       this.grid.appendChild(section);
 
       for (const b of this.batchInfos) {
@@ -439,6 +464,28 @@ export class MemoryDebugger {
       });
       this.unsubs.push(unsub);
     }
+
+    // NEW: subscribe to primMeshIndexTable updates for each batch view
+    const memoryViewRes = this.renderer.getMemoryView();
+    if (memoryViewRes.ok === false) return;
+    const dataTextures = memoryViewRes.value.dataTextures as DataTextures;
+    if (!dataTextures) return;
+
+    dataTextures.batches?.forEach((batch: any, bi: number) => {
+      batch.views?.forEach((view: any, vi: number) => {
+        const primMeshIndexTable = view.primMeshIndexTable;
+        if (primMeshIndexTable && typeof primMeshIndexTable.onUpdated?.subscribe === "function") {
+          // Find the corresponding BatchInfo for this batch
+          const batchInfo = this.batchInfos.find(b => b.batchIndex === bi);
+          if (batchInfo) {
+            const unsub = primMeshIndexTable.onUpdated.subscribe(() => {
+              if (batchInfo.preEl) this.renderBatchRanges(batchInfo);
+            });
+            this.unsubs.push(() => unsub());
+          }
+        }
+      });
+    });
   }
 
   // ---------------------------------------------------------------------------
@@ -446,33 +493,51 @@ export class MemoryDebugger {
   // ---------------------------------------------------------------------------
 
   private renderBatchRanges(b: BatchInfo) {
-    const ranges = b.getRanges?.();
+
+    function getRenderPassKey(): Array<{ id: number; name: string }> {
+      // RENDER_PASSES is an object { NAME: number }
+      return Object.entries(RENDER_PASSES)
+        .filter(([k, v]) => typeof v === "number")
+        .map(([name, id]) => ({ id: id as number, name }));
+    }
+
+    const rangesMap = b.getRanges?.();
     const out: string[] = [];
 
-    if (!ranges || !Array.isArray(ranges) || ranges.length === 0) {
+    if (!rangesMap || !(rangesMap instanceof Map) || rangesMap.size === 0) {
       out.push("(no ranges)");
       b.preEl!.textContent = out.join("\n");
       b.metaEl!.textContent = `batch ${b.batchIndex} — 0 passes`;
       return;
     }
 
-    let total = 0;
-    out.push(b.path);
-    out.push(`passes: ${ranges.length}`);
+    // --- Render pass key ---
+    const passKey = getRenderPassKey();
+    out.push("Pass ID key:");
+    for (const { id, name } of passKey) {
+      out.push(`  ${id}: ${name}`);
+    }
     out.push("");
 
-    ranges.forEach((r, i) => {
+    let total = 0;
+    out.push(b.path);
+    out.push(`passes: ${rangesMap.size}`);
+    out.push("");
+
+    let idx = 0;
+    for (const [passId, r] of rangesMap.entries()) {
       const first = r?.firstPrim ?? 0;
-      const num = r?.numPrims ?? 0;
-      total += num;
-      out.push(`[${i}] firstPrim=${first}, numPrims=${num}, lastPrim=${num > 0 ? first + num - 1 : first}`);
-    });
+      const count = r?.numPrims ?? 0;
+      total += count;
+      out.push(`[${idx}] passId=${passId} firstPrim=${first}, numPrims=${count}, lastPrim=${count > 0 ? first + count - 1 : first}`);
+      idx++;
+    }
 
     out.push("");
     out.push(`totalPrims (sum numPrims) = ${total}`);
 
     b.preEl!.textContent = out.join("\n");
-    b.metaEl!.textContent = `batch ${b.batchIndex} — ${ranges.length} passes`;
+    b.metaEl!.textContent = `batch ${b.batchIndex} — ${rangesMap.size} passes`;
   }
 
   // ---------------------------------------------------------------------------

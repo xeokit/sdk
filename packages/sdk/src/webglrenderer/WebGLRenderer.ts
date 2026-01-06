@@ -10,6 +10,8 @@ import {createMemoryConfigs} from "./createMemoryConfigs";
 import {type MemoryUsage} from "./MemoryUsage";
 import {type MemoryView} from "./MemoryView";
 import {type DataTextures} from "./viewManager/gpuMemoryManager/DataTextures";
+import {SceneGeometry, SceneMesh} from "../scene";
+import {View} from "../viewer";
 
 /**
  * WebGL renderer backing a {@link Viewer}.
@@ -126,10 +128,20 @@ export class WebGLRenderer {
     debugging?: boolean
   } = {}) {
     this._memoryView = {
-      dataTextures: null // Populated when rendering starts
+      dataTextures: null, // Populated when rendering starts
+      getViewAtIndex: (viewIndex: number): View|null => {
+        return this._viewManager ? this._viewManager.getViewAtIndex(viewIndex) : null;
+      },
+      getGeometryAtIndex: (batchIndex: number, geometryIndex: number): SceneGeometry|null => {
+        return this._viewManager ? this._viewManager.getGeometryAtIndex(batchIndex, geometryIndex) : null;
+      },
+      getMeshAtIndex: (batchIndex: number, meshIndex: number): SceneMesh|null => {
+        return this._viewManager ? this._viewManager.getMeshAtIndex(batchIndex, meshIndex) : null;
+      }
     };
     if (params.memoryConfigs) {
-      Object.assign(this._memoryConfigs=<MemoryConfigs>{}, params.memoryConfigs);
+      this._memoryConfigs=<MemoryConfigs>{};
+      Object.assign(this._memoryConfigs, params.memoryConfigs);
     } else {
       this._memoryConfigs = createMemoryConfigs({
         grossMemoryMB: 2024, // 2GB

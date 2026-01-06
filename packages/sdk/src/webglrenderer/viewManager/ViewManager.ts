@@ -7,7 +7,7 @@ import {PickManager} from "./pickManager/PickManager";
 import {GPUMemoryManager} from "./gpuMemoryManager/GPUMemoryManager";
 import {MeshManager} from "./meshManager/MeshManager";
 import {type GPUMemoryReader} from "./gpuMemoryManager/GPUMemoryReader";
-import {SceneMesh, SceneModel, SceneObject} from "../../scene";
+import {SceneGeometry, SceneMesh, SceneModel, SceneObject} from "../../scene";
 import {SceneTransform} from "../../scene/SceneTransform";
 import {type MemoryConfigs} from "../MemoryConfigs";
 import type {DataTextures} from "./gpuMemoryManager/DataTextures";
@@ -154,6 +154,18 @@ export class ViewManager {
       throw new SDKInternalException("[ViewManager.getMemoryUsage] ViewManager is not initialized");
     }
     return this._gpuMemoryManager.getMemoryUsage();
+  }
+
+  public getViewAtIndex(viewIndex: number): View | null {
+  return this._rendererViewsList[viewIndex]?.view || null;
+  }
+
+  public getGeometryAtIndex(batchIndex: number, geometryIndex: number): SceneGeometry | null {
+    return this._gpuMemoryManager.getGeometryAtIndex(batchIndex, geometryIndex);
+  }
+
+  public getMeshAtIndex(batchIndex: number, meshIndex: number): SceneMesh | null {
+    return this._gpuMemoryManager.getMeshAtIndex(batchIndex, meshIndex);
   }
 
   public get viewer(): Viewer {

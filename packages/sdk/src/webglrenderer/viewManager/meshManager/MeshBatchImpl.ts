@@ -229,9 +229,7 @@ export class MeshBatchImpl implements MeshBatch {
             this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex, RENDER_PASSES.XRAYED);
         } else {
             this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex,
-                transparent
-                    ? RENDER_PASSES.TRANSPARENT
-                    : RENDER_PASSES.OPAQUE);
+                transparent ? RENDER_PASSES.TRANSPARENT : RENDER_PASSES.OPAQUE);
         }
     }
 
@@ -243,9 +241,7 @@ export class MeshBatchImpl implements MeshBatch {
             this._gpuMemoryManager.setMeshRenderPass(meshHandle as GPUMemoryMeshHandle, viewIndex, RENDER_PASSES.SELECTED);
         } else {
             this._gpuMemoryManager.setMeshRenderPass(meshHandle, viewIndex,
-                transparent
-                    ? RENDER_PASSES.TRANSPARENT
-                    : RENDER_PASSES.OPAQUE);
+                transparent ? RENDER_PASSES.TRANSPARENT : RENDER_PASSES.OPAQUE);
         }
     }
 

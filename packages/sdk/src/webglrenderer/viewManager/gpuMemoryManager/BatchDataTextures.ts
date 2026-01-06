@@ -24,6 +24,7 @@ export interface BatchDataTextures {
    * depend on view-specific state such as visibility, selection, or pass filtering.
    */
   views: Array<{
+
     /**
      * Number of primitives that are drawable for this View.
      *

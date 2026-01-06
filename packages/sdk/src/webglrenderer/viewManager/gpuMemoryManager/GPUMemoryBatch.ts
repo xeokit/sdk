@@ -1,5 +1,5 @@
 
-import {SceneMesh} from "../../../scene";
+import {SceneGeometry, SceneMesh} from "../../../scene";
 import {RenderContext} from "../RenderContext";
 import {DTXViewMeshAttribTable} from "./dtx/DTXViewMeshAttribTable";
 import {DTXMeshAttribTable} from "./dtx/DTXMeshAttribTable";
@@ -54,7 +54,7 @@ export class GPUMemoryBatch {
   private _sceneMeshes: {};
   private _numMeshes: number;
   private _geometryIndicesUsed: boolean[];
-  private _geometries: {};
+  private _sceneGeometries: {};
   private _numGeometries: number;
   private _maxGeometries: number;
   private _lastFreeMeshIndex: number;
@@ -87,7 +87,7 @@ export class GPUMemoryBatch {
     this._meshes = {};
     this._geometryIndicesUsed = [];
     this._lastFreeGeometryIndex = 0;
-    this._geometries = {};
+    this._sceneGeometries = {};
 
     this._numGeometries = 0;
     this._numMeshes = 0;
@@ -417,16 +417,16 @@ export class GPUMemoryBatch {
 
     meshIndex = this._getFreeMeshIndex();
 
-    const geometry = sceneMesh.geometry;
+    const sceneGeometry = sceneMesh.geometry;
 
-    let geometryHandle = this._geometryHandles[geometry.id];
+    let geometryHandle = this._geometryHandles[sceneGeometry.id];
 
     if (!geometryHandle) {
 
       geometryIndex = this._getFreeGeometryIndex();
 
       positionsPortion = this._vertexPositions.getPortion(
-        geometry.positionsCompressed.length / 3, // 3xcomponents per position
+        sceneGeometry.positionsCompressed.length / 3, // 3xcomponents per position
         (newBase: number) => {
           const verticesBase = newBase / 3 // 3xcomponents per position
           this._geometryAttribTable.setItem(geometryIndex, {
@@ -439,35 +439,35 @@ export class GPUMemoryBatch {
         return {
           ok: false,
           type: SDKErrorType.MemoryAllocationFailed,
-          error: `GPUMemoryBatch.addMesh: Unable to allocate positions portion for geometry ${geometry.id}`
+          error: `GPUMemoryBatch.addMesh: Unable to allocate positions portion for geometry ${sceneGeometry.id}`
         }
       }
 
-      this._vertexPositions.setPortionData(positionsPortion, geometry.positionsCompressed);
+      this._vertexPositions.setPortionData(positionsPortion, sceneGeometry.positionsCompressed);
 
-      const [xmin, ymin, zmin, xmax, ymax, zmax] = geometry.aabb;
+      const [xmin, ymin, zmin, xmax, ymax, zmax] = sceneGeometry.aabb;
 
       this._geometryQuantRangeTable.setItem(geometryIndex, {
           offset: [xmin, ymin, zmin],
           scale: [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]
         });
 
-      if (geometry.colorsCompressed) {
-        vertexColorsPortion = this._vertexColors.getPortion(geometry.colorsCompressed.length / 3); // RGB (0..255, 0..255, 0..255)
+      if (sceneGeometry.colorsCompressed) {
+        vertexColorsPortion = this._vertexColors.getPortion(sceneGeometry.colorsCompressed.length / 3); // RGB (0..255, 0..255, 0..255)
         if (vertexColorsPortion === null) {
           cleanup();
           return {
             ok: false,
             type: SDKErrorType.MemoryAllocationFailed,
-            error: `GPUMemoryBatch.addMesh: Unable to allocate vertex colors portion for geometry ${geometry.id}`
+            error: `GPUMemoryBatch.addMesh: Unable to allocate vertex colors portion for geometry ${sceneGeometry.id}`
           }
         }
-        this._vertexColors.setPortionData(vertexColorsPortion, geometry.colorsCompressed);
+        this._vertexColors.setPortionData(vertexColorsPortion, sceneGeometry.colorsCompressed);
       }
 
-      if (geometry.primitive !== PointsPrimitive && geometry.indices) {
+      if (sceneGeometry.primitive !== PointsPrimitive && sceneGeometry.indices) {
         indicesHandle = this._indices.getPortion(
-          geometry.indices.length,
+          sceneGeometry.indices.length,
           (newBase: number) => {
             this._geometryAttribTable.setItem(geometryIndex, {
               indicesBase: newBase
@@ -480,15 +480,15 @@ export class GPUMemoryBatch {
           return {
             ok: false,
             type: SDKErrorType.MemoryAllocationFailed,
-            error: `GPUMemoryBatch.addMesh: Unable to allocate indices portion for geometry ${geometry.id}`
+            error: `GPUMemoryBatch.addMesh: Unable to allocate indices portion for geometry ${sceneGeometry.id}`
           }
         }
 
-        this._indices.setPortionData(indicesHandle, geometry.indices);
+        this._indices.setPortionData(indicesHandle, sceneGeometry.indices);
 
-        if (geometry.primitive === TrianglesPrimitive && geometry.edgeIndices) {
+        if (sceneGeometry.primitive === TrianglesPrimitive && sceneGeometry.edgeIndices) {
           edgeIndicesHandle = this._edgeIndices.getPortion(
-            geometry.edgeIndices.length,
+            sceneGeometry.edgeIndices.length,
             (newBase: number) => {
               this._geometryAttribTable.setItem(geometryIndex, {
                 edgeIndicesBase: newBase
@@ -501,11 +501,11 @@ export class GPUMemoryBatch {
             return {
               ok: false,
               type: SDKErrorType.MemoryAllocationFailed,
-              error: `GPUMemoryBatch.addMesh: Unable to allocate edge indices portion for geometry ${geometry.id}`
+              error: `GPUMemoryBatch.addMesh: Unable to allocate edge indices portion for geometry ${sceneGeometry.id}`
             }
           }
 
-          this._edgeIndices.setPortionData(edgeIndicesHandle, geometry.edgeIndices);
+          this._edgeIndices.setPortionData(edgeIndicesHandle, sceneGeometry.edgeIndices);
         }
       }
 
@@ -524,7 +524,7 @@ export class GPUMemoryBatch {
         useCount: 0
       };
 
-      this._geometryHandles[geometry.id] = geometryHandle;
+      this._geometryHandles[sceneGeometry.id] = geometryHandle;
 
       this._numGeometries++;
     }
@@ -547,11 +547,11 @@ export class GPUMemoryBatch {
 
     this._meshMatrixTable.setItem(meshIndex, sceneMesh.matrix);
 
-    const primitiveCount = geometry.primitive === PointsPrimitive
-      ? geometry.positionsCompressed.length / 3
-      : geometry.primitive === LinesPrimitive
-        ? geometry.indices.length / 2
-        : geometry.indices.length / 3;
+    const primitiveCount = sceneGeometry.primitive === PointsPrimitive
+      ? sceneGeometry.positionsCompressed.length / 3
+      : sceneGeometry.primitive === LinesPrimitive
+        ? sceneGeometry.indices.length / 2
+        : sceneGeometry.indices.length / 3;
 
     const primMeshIndexTableHandles = [ // one per view
       this.primMeshIndexTables[0].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE), // FIXME: Only defined for View 0
@@ -565,6 +565,7 @@ export class GPUMemoryBatch {
       primMeshIndexTableHandles
     };
 
+    this._sceneGeometries[geometryHandle.geometryIndex] = sceneGeometry;
     this._sceneMeshes[meshIndex] = sceneMesh;
 
     this._numMeshes++;
@@ -697,8 +698,8 @@ export class GPUMemoryBatch {
     if (!meshHandle) {
       return;
     }
-    const geometry = sceneMesh.geometry;
-    const geometryHandle = this._geometryHandles[geometry.id];
+    const sceneGeometry = sceneMesh.geometry;
+    const geometryHandle = this._geometryHandles[sceneGeometry.id];
     if (geometryHandle && --geometryHandle.useCount <= 0) {
       if (geometryHandle.positionsPortion) {
         this._vertexPositions.putPortion(geometryHandle.positionsPortion);
@@ -706,7 +707,7 @@ export class GPUMemoryBatch {
       if (geometryHandle.vertexColorsPortion) {
         this._vertexColors.putPortion(geometryHandle.vertexColorsPortion);
       }
-      delete this._geometryHandles[geometry.id];
+      delete this._geometryHandles[sceneGeometry.id];
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
     }
@@ -725,9 +726,21 @@ export class GPUMemoryBatch {
     }
 
     delete this._meshHandles[sceneMesh.id];
-    this._putFreeMeshIndex(meshHandle.meshIndex);
+
+    this._putFreeMeshIndex(meshIndex);
+
+    delete this._sceneGeometries[meshIndex];
     delete this._sceneMeshes[meshIndex];
+
     this._numMeshes--;
+  }
+
+  /**
+   * Retrieves a SceneGeometry by its geometryIndex.
+   * @param geometryIndex
+   */
+  getGeometryAtIndex(geometryIndex: number): SceneGeometry | null {
+    return this._sceneGeometries[geometryIndex] ?? null;
   }
 
   /**
@@ -747,8 +760,8 @@ export class GPUMemoryBatch {
     if (!sceneMesh) {
       return null;
     }
-    const geometry = sceneMesh.geometry;
-    if (!geometry) {
+    const sceneGeometry = sceneMesh.geometry;
+    if (!sceneGeometry) {
       return null;
     }
     const meshHandle = this._meshHandles[sceneMesh.id];
@@ -756,20 +769,20 @@ export class GPUMemoryBatch {
       return null;
     }
     const primsBase = meshHandle.primsBase;
-    if (geometry.primitive === PointsPrimitive) {
-      const count = geometry.positionsCompressed.length / 3; // 3xcomponents per position
+    if (sceneGeometry.primitive === PointsPrimitive) {
+      const count = sceneGeometry.positionsCompressed.length / 3; // 3xcomponents per position
       return {
         count,
         first: primsBase
       };
-    } else if (geometry.primitive === LinesPrimitive) {
-      const count = (geometry.indices?.length ?? 0);
+    } else if (sceneGeometry.primitive === LinesPrimitive) {
+      const count = (sceneGeometry.indices?.length ?? 0);
       return {
         count,
         first: primsBase
       };
-    } else if (geometry.primitive === TrianglesPrimitive) {
-      const count = (geometry.indices?.length ?? 0);
+    } else if (sceneGeometry.primitive === TrianglesPrimitive) {
+      const count = (sceneGeometry.indices?.length ?? 0);
       return {
         count,
         first: primsBase

@@ -10,16 +10,34 @@ import {type WebGLContextProvider} from "../../../webglutils/WebGLContextProvide
 const defaultColor = new Float32Array([1, 1, 1, 1]);
 
 /**
- * Abstract template base class for draw techniques.
+ * Base class for GPU draw techniques.
  *
- * Provides a foundation for implementing various drawing techniques (e.g. color, highlighted, selected) for
- * primitives (e.g., triangles, lines, points). Manages shader construction, WebGL program binding, and rendering
- * logic. Designed for subclassing.
+ * A {@link DrawTechnique} encapsulates:
+ * - GLSL source generation (vertex + fragment)
+ * - WebGL program compilation/linking ({@link WebGLProgram})
+ * - Uniform / sampler discovery and per-pass binding
+ * - Issuing draw calls for a {@link MeshBatch}
  *
- * Subclass Requirements:
+ * Techniques are *render-pass aware* but do not own render-pass routing:
+ * callers pass a {@link RenderPassValue} to {@link drawBatch} / {@link drawMesh},
+ * and the technique binds uniforms accordingly.
  *
- * - `buildVertexShader()`: Constructs vertex shader code.
- * - `buildFragmentShader()`: Constructs fragment shader code.
+ * ## Responsibilities
+ * - Build shader sources via {@link buildVertexShader} and {@link buildFragmentShader}.
+ * - Compile/link the program and cache uniform/sampler locations in {@link init}.
+ * - Bind the program and set pass/view-dependent uniforms in {@link _bind}.
+ * - Bind batch data textures from {@link GPUMemoryReader} and draw primitives in {@link _draw}.
+ *
+ * ## Lifecycle
+ * - Call {@link init} once after construction to allocate GPU resources.
+ * - Call {@link destroy} to release GPU resources.
+ * - On WebGL context loss/restoration, call {@link webglContextRestored} to recreate state.
+ *
+ * Subclasses must implement:
+ * - {@link buildVertexShader}
+ * - {@link buildFragmentShader}
+ *
+ * @internal
  */
 export abstract class DrawTechnique {
 
@@ -27,8 +45,30 @@ export abstract class DrawTechnique {
   private _gpuMemoryReader: GPUMemoryReader;
   private _program: WebGLProgram | null;
 
-  errors: string[];
-  edges: boolean;
+  /**
+   * Compilation errors encountered during program initialization.
+   * Available after `init()` is called.
+   */
+ public errors: string[];
+
+  /**
+   * When true, the technique binds silhouette-related uniforms using "edge" material
+   * settings (edgeColor/edgeAlpha) instead of fill settings (fillColor/fillAlpha).
+   *
+   * Used by silhouette-like techniques that can render both filled silhouettes
+   * and edge silhouettes.
+   */
+  public edges: boolean;
+
+  /**
+   * Vertex shader source code. Available after `init()` is called.
+   */
+  public vertexShaderSrc: string;
+
+  /**
+   * Fragment shader source code. Available after `init()` is called.
+   */
+  public fragmentShaderSrc: string;
 
   /**
    * Uniforms and attributes for the shader program.
@@ -68,17 +108,17 @@ export abstract class DrawTechnique {
    * Samplers for the shader program.
    */
   private _samplers: {
-    primMeshIndexTable: WebGLUniformLocation; // Prim tileIndex -> mesh lookup
-    meshAttribTable: WebGLUniformLocation; // Mesh attributes
-    viewMeshAttribTable: WebGLUniformLocation; // Mesh view attributes
-    meshMatrixTable: WebGLUniformLocation; // RTC modeling matrices
-    geometryAttribTable: WebGLUniformLocation; // Geometry attributes
-    geometryQuantRangeTable: WebGLUniformLocation; // Quantization ranges
-    vertexPositions: WebGLUniformLocation; // World-space vertex positions
-    vertexColors: WebGLUniformLocation; // Vertex RGB colors
-    indices: WebGLUniformLocation; // Primitive connectivity indices
-    edgeIndices: WebGLUniformLocation; // Edge connectivity indices
-    viewTileCameraMatrices: WebGLUniformLocation; // Tile view matrices
+    primitiveMeshIndexTexture: WebGLUniformLocation; // Prim tileIndex -> mesh lookup
+    meshAttributeTexture: WebGLUniformLocation; // Mesh attributes
+    meshViewAttributeTexture: WebGLUniformLocation; // Mesh view attributes
+    meshMatrixTexture: WebGLUniformLocation; // RTC modeling matrices
+    geometryAttributeTexture: WebGLUniformLocation; // Geometry attributes
+    geometryQuantRangeTexture: WebGLUniformLocation; // Quantization ranges
+    vertexPositionTexture: WebGLUniformLocation; // World-space vertex positions
+    vertexColorTexture: WebGLUniformLocation; // Vertex RGB colors
+    indexTexture: WebGLUniformLocation; // Primitive connectivity indices
+    edgeIndexTexture: WebGLUniformLocation; // Edge connectivity indices
+    viewTileCameraMatrixTexture: WebGLUniformLocation; // Tile view matrices
     saoOcclusionTexture: WebGLUniformLocation; // SAO occlusion texture
   };
 
@@ -93,7 +133,8 @@ export abstract class DrawTechnique {
   private _fragSrcBuf: string[];
 
   /**
-   * Creates a new LayerRenderer instance.
+   * Creates a new DrawTechnique.
+   *
    * @param renderContext
    * @param gpuMemoryReader
    * @param cfg
@@ -116,9 +157,12 @@ export abstract class DrawTechnique {
     this.buildVertexShader();
     this.buildFragmentShader();
 
+    this.vertexShaderSrc = joinSansComments(this._vertSrcBuf);
+    this.fragmentShaderSrc = joinSansComments(this._fragSrcBuf);
+
     this._program = new WebGLProgram(this._renderContext as WebGLContextProvider, {
-      vertex: joinSansComments(this._vertSrcBuf),
-      fragment: joinSansComments(this._fragSrcBuf)
+      vertex: this.vertexShaderSrc,
+      fragment: this.fragmentShaderSrc,
     });
 
     this._vertSrcBuf = [];
@@ -127,6 +171,13 @@ export abstract class DrawTechnique {
     return this._initProgram();
   }
 
+  /**
+   * Notifies draw technique that the WebGL context has been restored.
+   *
+   * This allows the technique to recreate its shaders after context loss.
+   *
+   * @returns Result indicating success or failure.
+   */
   webglContextRestored(): SDKResult<void> {
     if (!this._program) {
       return {
@@ -202,17 +253,17 @@ export abstract class DrawTechnique {
     this._attributes = {};
 
     this._samplers = {
-      primMeshIndexTable: program.getSampler("uPrimMeshIndexTable"),
-      meshAttribTable: program.getSampler("uMeshAttribTable"),
-      viewMeshAttribTable: program.getSampler("uViewMeshAttribTable"),
-      meshMatrixTable: program.getSampler("uMeshMatrixTable"),
-      geometryAttribTable: program.getSampler("uGeometryAttribTable"),
-      geometryQuantRangeTable: program.getSampler("uGeometryQuantRangeTable"),
-      viewTileCameraMatrices: program.getSampler("uViewTileCameraMatrices"),
-      vertexPositions: program.getSampler("uVertexPositions"),
-      vertexColors: program.getSampler("uVertexColors"),
-      indices: program.getSampler("uIndices"),
-      edgeIndices: program.getSampler("uEdgeIndices"),
+      primitiveMeshIndexTexture: program.getSampler("uPrimitiveMeshIndexTexture"),
+      meshAttributeTexture: program.getSampler("uMeshAttribTable"),
+      meshViewAttributeTexture: program.getSampler("uViewMeshAttribTexture"),
+      meshMatrixTexture: program.getSampler("uMeshMatrixTexture"),
+      geometryAttributeTexture: program.getSampler("uGeometryAttributeTexture"),
+      geometryQuantRangeTexture: program.getSampler("uGeometryQuantRangeTexture"),
+      viewTileCameraMatrixTexture: program.getSampler("uViewTileCameraMatrixTexture"),
+      vertexPositionTexture: program.getSampler("uVertexPositionTexture"),
+      vertexColorTexture: program.getSampler("uVertexColorTexture"),
+      indexTexture: program.getSampler("uIndexTexture"),
+      edgeIndexTexture: program.getSampler("uEdgeIndextexture"),
       saoOcclusionTexture: program.getSampler("saoOcclusionTexture")
     };
 
@@ -223,27 +274,26 @@ export abstract class DrawTechnique {
   }
 
   /**
-   *
+   * Notifies draw technique that the WebGL context has been lost.
    */
   webglContextLost() {
-
   }
 
   /**
-   * Draws a batch.
+   * Draws a batch of meshes for the specified render pass.
    */
   public drawBatch(meshBatch: MeshBatch, renderPass: RenderPassValue): SDKResult<any> {
     return this._draw(meshBatch, renderPass);
   }
 
   /**
-   * Draws a specific mesh within a batch.
+   * Draws a specific mesh within a batch, for the specified render pass.
    */
   public drawMesh(meshBatch: MeshBatch, meshIndex: number, renderPass: RenderPassValue): SDKResult<any> {
     return this._draw(meshBatch, renderPass, meshIndex);
   }
 
-  _draw(meshBatch: MeshBatch, renderPass: RenderPassValue, meshIndex?: number): SDKResult<any> {
+  private _draw(meshBatch: MeshBatch, renderPass: RenderPassValue, meshIndex?: number): SDKResult<any> {
 
     if (!this._program) {
       return {
@@ -283,27 +333,27 @@ export abstract class DrawTechnique {
       const batchDataTextures = dataTextures.batches[meshBatch.gpuMemoryBatchIndex];
       const viewIndex = view.viewIndex;
 
-      bindTexture(samplers.viewTileCameraMatrices,
+      bindTexture(samplers.viewTileCameraMatrixTexture,
         (this._renderContext.rayPicking
-          ? dataTextures.viewTilePickMatrices
-          : dataTextures.viewTileCameraMatrices)
+          ? dataTextures.viewTilePickMatrixTexture
+          : dataTextures.viewTileCameraMatrixTexture)
           [view.viewIndex]);
 
       const batchViewDataTextures = batchDataTextures.views[viewIndex];
-      const primMeshIndexTable = batchViewDataTextures.primMeshIndexTable;
+      const primitiveMeshIndexTexture = batchViewDataTextures.primitiveMeshIndexTexture;
 
-      bindTexture(samplers.primMeshIndexTable, primMeshIndexTable);
-      bindTexture(samplers.vertexPositions, batchDataTextures.vertexPositions);
-      bindTexture(samplers.vertexColors, batchDataTextures.vertexColors);
-      bindTexture(samplers.meshMatrixTable, batchDataTextures.meshMatrixTable);
-      bindTexture(samplers.meshAttribTable, batchDataTextures.meshAttribTable);
-      bindTexture(samplers.viewMeshAttribTable, batchViewDataTextures.meshViewAttribTable);
-      bindTexture(samplers.geometryAttribTable, batchDataTextures.geometryAttribTable);
-      bindTexture(samplers.geometryQuantRangeTable, batchDataTextures.geometryQuantRangeTable);
-      bindTexture(samplers.edgeIndices, batchDataTextures.edgeIndices);
-      bindTexture(samplers.indices, batchDataTextures.indices);
+      bindTexture(samplers.primitiveMeshIndexTexture, primitiveMeshIndexTexture);
+      bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
+      bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
+      bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
+      bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
+      bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
+      bindTexture(samplers.geometryAttributeTexture, batchDataTextures.geometryAttributeTexture);
+      bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
+      bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture);
+      bindTexture(samplers.indexTexture, batchDataTextures.indexTexture);
 
-      const drawRange = batchViewDataTextures.renderPassPrimRanges.get(renderPass);
+      const drawRange = batchViewDataTextures.renderPassPrimitiveRanges.get(renderPass);
       if (!drawRange || drawRange.numPrims === 0) {
         return {
           ok: true,
@@ -377,6 +427,9 @@ export abstract class DrawTechnique {
         `// ${this.constructor.name} vertex shader`);
   }
 
+  /**
+   * Generates a simple debug vertex shader main function.
+   */
   protected vsDebugMain() {
     this._vertSrcBuf.push(
       `void main(void) {
@@ -391,7 +444,7 @@ export abstract class DrawTechnique {
   }
 
   /**
-   * Generates the vertex shader precision definitions and common definitions.
+   * Generates vertex shader precision definitions and common definitions.
    */
   protected vsCommonDefines() {
     this._vertSrcBuf.push(
@@ -401,17 +454,17 @@ export abstract class DrawTechnique {
 
       "uniform mat4 uProjMatrix;        // Projection matrix (from view)",
 
-      "uniform highp usampler2D uPrimMeshIndexTable; ",
-      "uniform highp usampler2D uVertexPositions;         ",
-      "uniform highp usampler2D uVertexColors;",
-      "uniform highp usampler2D uIndices;",
-      "uniform highp usampler2D uEdgeIndices;",
-      "uniform highp sampler2D  uViewTileCameraMatrices;",
-      "uniform highp sampler2D  uMeshMatrixTable;",
-      "uniform highp usampler2D uMeshAttribTable;",
-      "uniform highp usampler2D uViewMeshAttribTable;",
-      "uniform highp usampler2D uGeometryAttribTable;",
-      "uniform highp sampler2D  uGeometryQuantRangeTable;",
+      "uniform highp usampler2D uPrimitiveMeshIndexTexture; ",
+      "uniform highp usampler2D uVertexPositionTexture;         ",
+      "uniform highp usampler2D uVertexColorTexture;",
+      "uniform highp usampler2D uIndexTexture;",
+      "uniform highp usampler2D uEdgeIndextexture;",
+      "uniform highp sampler2D  uViewTileCameraMatrixTexture;",
+      "uniform highp sampler2D  uMeshMatrixTexture;",
+      "uniform highp usampler2D uMeshAttributeTexture;",
+      "uniform highp usampler2D uViewMeshAttribTexture;",
+      "uniform highp usampler2D uGeometryAttributeTexture;",
+      "uniform highp sampler2D  uGeometryQuantRangeTexture;",
 
       "struct QuantRange {",
       "  vec3 offset;",
@@ -423,12 +476,12 @@ export abstract class DrawTechnique {
       "  uint geometryIndex;",
       "};",
 
-      "struct ViewMeshAttribTable {",
+      "struct ViewMeshAttributes {",
       "  uvec4 color;",
       "  uvec4 renderFlags;",
       "};",
 
-      "struct GeometryAttribTable {",
+      "struct GeometryAttributeTexture {",
       "  uint verticesBase;",
       "  uint indicesBase;",
       "  uint edgeIndicesBase;",
@@ -438,57 +491,57 @@ export abstract class DrawTechnique {
       "  return ivec2(int(index % texWidth), int(index / texWidth));",
       "}",
 
-      "uint primMeshIndexTable(uint primIndex) {",
+      "uint primitiveMeshIndexTexture(uint primIndex) {",
       "  const uint texWidth = 4096u;",
-      "  return texelFetch(uPrimMeshIndexTable, texCoord(primIndex * 2u, texWidth), 0).r;",
+      "  return texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex * 2u, texWidth), 0).r;",
       "}",
 
       "uint primToOffsetLookup(uint primIndex) {",
       "  const uint texWidth = 4096u;",
-      "  return texelFetch(uPrimMeshIndexTable, texCoord((primIndex * 2u) + 1u, texWidth), 0).r;",
+      "  return texelFetch(uPrimitiveMeshIndexTexture, texCoord((primIndex * 2u) + 1u, texWidth), 0).r;",
       "}",
 
-      //   "uint primMeshIndexTable(uint primIndex) {",
+      //   "uint primitiveMeshIndexTexture(uint primIndex) {",
       // //  " return 0u;",
       //   "  const uint texWidth = 4096u;",
-      //   "  uvec4 px = texelFetch(uPrimMeshIndexTable, texCoord(primIndex, texWidth), 0);",
+      //   "  uvec4 px = texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex, texWidth), 0);",
       //   "  return (px.r) | (px.g << 8) | (px.b << 16) | (px.a << 24);",
       //   "}",
 
       "uint getVertexIndex(uint vertexIndexNum) {",
       "  const uint texWidth = 4096u;",
-      "  return texelFetch(uIndices, texCoord(vertexIndexNum, texWidth), 0).r;",
+      "  return texelFetch(uIndexTexture, texCoord(vertexIndexNum, texWidth), 0).r;",
       //
-      // "  uvec4 packed = texelFetch(uIndices, texCoord(vertexIndexNum, texWidth), 0);",
+      // "  uvec4 packed = texelFetch(uIndexTexture, texCoord(vertexIndexNum, texWidth), 0);",
       // "  return packed.r + (packed.g << 8u) + (packed.b << 16u) + (packed.a << 24u);",
       "}",
 
       "uvec3 getVertexPosition(uint vertexIndex) {",
       "  const uint texWidth = 4096u;",
-      "  return texelFetch(uVertexPositions, texCoord(vertexIndex, texWidth), 0).rgb;",
+      "  return texelFetch(uVertexPositionTexture, texCoord(vertexIndex, texWidth), 0).rgb;",
       "}",
 
       "uvec3 getVertexColor(uint vertexIndex) {",
       "  const uint texWidth = 4096u;",
-      "  return texelFetch(uVertexColors, texCoord(vertexIndex, texWidth), 0).rgb;",
+      "  return texelFetch(uVertexColorTexture, texCoord(vertexIndex, texWidth), 0).rgb;",
       "}",
 
       "QuantRange getGeometryQuantRange(uint geometryIndex) {",
       "  const uint texWidth = 2048u;",
       "  const uint texelsPerItem = 2u;",
       "  uint base = geometryIndex * texelsPerItem;",
-      "  vec4 texel0 = texelFetch(uGeometryQuantRangeTable, texCoord(base + 0u, texWidth), 0);",
-      "  vec4 texel1 = texelFetch(uGeometryQuantRangeTable, texCoord(base + 1u, texWidth), 0);",
+      "  vec4 texel0 = texelFetch(uGeometryQuantRangeTexture, texCoord(base + 0u, texWidth), 0);",
+      "  vec4 texel1 = texelFetch(uGeometryQuantRangeTexture, texCoord(base + 1u, texWidth), 0);",
       "  QuantRange r;",
       "  r.offset = texel0.rgb;",
       "  r.scale  = texel1.rgb;",
       "  return r;",
       "}",
 
-      "GeometryAttribTable getGeometryAttribTable(uint geometryIndex) {",
+      "GeometryAttributeTexture getGeometryAttributeTexture(uint geometryIndex) {",
       "  const uint texWidth = 4096u;",
-      "  uvec4 texel = texelFetch(uGeometryAttribTable, texCoord((geometryIndex), texWidth), 0);",
-      "  GeometryAttribTable s;",
+      "  uvec4 texel = texelFetch(uGeometryAttributeTexture, texCoord((geometryIndex), texWidth), 0);",
+      "  GeometryAttributeTexture s;",
       "  s.verticesBase    = texel.r;",
       "  s.indicesBase     = texel.g;",
       "  s.edgeIndicesBase = texel.b;",
@@ -497,19 +550,19 @@ export abstract class DrawTechnique {
 
       "MeshAttribTable getMeshAttribTable(uint meshIndex) {",
       "  const uint texWidth = 4096u;",
-      "  uvec4 texel = texelFetch(uMeshAttribTable, texCoord((meshIndex), texWidth), 0);",
+      "  uvec4 texel = texelFetch(uMeshAttributeTexture, texCoord((meshIndex), texWidth), 0);",
       "  MeshAttribTable s;",
       "  s.tileIndex      = texel.r;",
       "  s.geometryIndex  = texel.g;",
       "  return s;",
       "}",
 
-      "ViewMeshAttribTable viewMeshAttribTableLookup(uint meshIndex) {",
+      "ViewMeshAttributes viewMeshAttribTableLookup(uint meshIndex) {",
       "  const uint texWidth = 4096u;",
       "  uint base = meshIndex * 2u;",
-      "  ViewMeshAttribTable s;",
-      "  s.color       = texelFetch(uViewMeshAttribTable, texCoord(base + 0u, texWidth), 0);",
-      "  s.renderFlags = texelFetch(uViewMeshAttribTable, texCoord(base + 1u, texWidth), 0);",
+      "  ViewMeshAttributes s;",
+      "  s.color       = texelFetch(uViewMeshAttribTexture, texCoord(base + 0u, texWidth), 0);",
+      "  s.renderFlags = texelFetch(uViewMeshAttribTexture, texCoord(base + 1u, texWidth), 0);",
       "  return s;",
       "}",
 
@@ -517,10 +570,10 @@ export abstract class DrawTechnique {
       "  const uint matsPerRow = 512u;",
       "  const uint texWidth = matsPerRow * 4u;",
       "  uint base = tileIndex * 4u;",
-      "  vec4 m0 = texelFetch(uViewTileCameraMatrices, texCoord(base + 0u, texWidth), 0);",
-      "  vec4 m1 = texelFetch(uViewTileCameraMatrices, texCoord(base + 1u, texWidth), 0);",
-      "  vec4 m2 = texelFetch(uViewTileCameraMatrices, texCoord(base + 2u, texWidth), 0);",
-      "  vec4 m3 = texelFetch(uViewTileCameraMatrices, texCoord(base + 3u, texWidth), 0);",
+      "  vec4 m0 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 0u, texWidth), 0);",
+      "  vec4 m1 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 1u, texWidth), 0);",
+      "  vec4 m2 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 2u, texWidth), 0);",
+      "  vec4 m3 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 3u, texWidth), 0);",
       "  return mat4(m0, m1, m2, m3);",
       "}",
 
@@ -528,10 +581,10 @@ export abstract class DrawTechnique {
       "  const uint matsPerRow = 512u;",
       "  const uint texWidth = matsPerRow * 4u;",
       "  uint base = meshIndex * 4u;",
-      "  vec4 m0 = texelFetch(uMeshMatrixTable, texCoord(base + 0u, texWidth), 0);",
-      "  vec4 m1 = texelFetch(uMeshMatrixTable, texCoord(base + 1u, texWidth), 0);",
-      "  vec4 m2 = texelFetch(uMeshMatrixTable, texCoord(base + 2u, texWidth), 0);",
-      "  vec4 m3 = texelFetch(uMeshMatrixTable, texCoord(base + 3u, texWidth), 0);",
+      "  vec4 m0 = texelFetch(uMeshMatrixTexture, texCoord(base + 0u, texWidth), 0);",
+      "  vec4 m1 = texelFetch(uMeshMatrixTexture, texCoord(base + 1u, texWidth), 0);",
+      "  vec4 m2 = texelFetch(uMeshMatrixTexture, texCoord(base + 2u, texWidth), 0);",
+      "  vec4 m3 = texelFetch(uMeshMatrixTexture, texCoord(base + 3u, texWidth), 0);",
       "  return mat4(m0, m1, m2, m3);",
       "}",
 
@@ -606,6 +659,10 @@ export abstract class DrawTechnique {
     );
   }
 
+  /**
+   * Generates vertex shader definitions for Lambert shading.
+   * @protected
+   */
   protected vsLambertShadingDefines() {
     this._vertSrcBuf.push(
       "uniform vec4 uLightAmbient;",
@@ -619,20 +676,36 @@ export abstract class DrawTechnique {
       "out vec4 vViewPos;");
   }
 
+  /**
+   * Generates vertex shader definitions for silhouette rendering.
+   * @protected
+   */
   protected vsSilhouetteDefines() {
     this._vertSrcBuf.push(
       "uniform vec4 uSilhouetteColor;",
       "out vec4 vColor;");
   }
 
+  /**
+   * Generates vertex shader definitions for flat color rendering.
+   * @protected
+   */
   protected vsDrawFlatColorDefs() {
     this._vertSrcBuf.push("out vec4 vColor;");
   }
 
+  /**
+   * Generates vertex shader definitions for vertex color rendering.
+   * @protected
+   */
   protected vsDrawVertexColorDefs() {
     this._vertSrcBuf.push("out vec4 vColor;");
   }
 
+  /**
+   * Generates vertex shader definitions for depth rendering.
+   * @protected
+   */
   protected vsDrawDepthDefines() {
     this._vertSrcBuf.push("out highp vec2 vHighPrecisionZW;");
   }
@@ -644,6 +717,10 @@ export abstract class DrawTechnique {
       "uniform float pointSize;");
   }
 
+  /**
+   * Generates vertex shader definitions for pick rendering.
+   * @protected
+   */
   protected vsPickMeshDefines() {
     this._vertSrcBuf.push(
       "out     vec4 vPickColor;",
@@ -661,6 +738,10 @@ export abstract class DrawTechnique {
       "}");
   }
 
+  /**
+   * Generates vertex shader definitions for slicing (section planes).
+   * @protected
+   */
   protected vsSlicingDefines() {
     // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
     //   const src = this._vertSrcBuf;
@@ -669,23 +750,35 @@ export abstract class DrawTechnique {
     // }
   }
 
+  /**
+   * Generates the opening of the vertex shader main function.
+   * @protected
+   */
   protected vsMainOpen() { // default
     this._vertSrcBuf.push("void main(void) {");
     this._vsMeshLogic();
     this._vsMeshLogic2();
   }
 
+  /**
+   * Generates the opening of the vertex shader main function for draw rendering.
+   * @protected
+   */
   protected vsDrawMainOpen() { // default
     this._vertSrcBuf.push("void main(void) {");
     this._vsMeshLogic();
     this._vsMeshLogic2();
   }
 
+  /**
+   * Generates the opening of the vertex shader main function for pick rendering.
+   * @protected
+   */
   protected vsPickMainOpen() { // pick
     this._vertSrcBuf.push("void main(void) {");
     this._vsMeshLogic();
     this._vertSrcBuf.push(
-      `    int pickFlag = int(viewMeshAttribTable.renderFlags.b >> 8u & 0xFu);`,
+      `    int pickFlag = int(meshViewAttributeTexture.renderFlags.b >> 8u & 0xFu);`,
       `    if (pickFlag != uRenderPass) {`,
       "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
       "        return;",
@@ -693,19 +786,31 @@ export abstract class DrawTechnique {
     this._vsMeshLogic2();
   }
 
+  /**
+   * Generates the closing of the vertex shader main function.
+   * @protected
+   */
   protected vsMainClose() { // default, silhouette, pick
     this._vertSrcBuf.push(
       "}");
   }
 
+  /**
+   * Generates vertex shader logic for slicing (section planes).
+   * @protected
+   */
   protected vsSlicingLogic() {
     // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
     //   const src = this._vertSrcBuf;
     //   src.push("      vWorldPosition = worldPos;");
-    //   src.push("      vClippable = (int(viewMeshAttribTable.renderFlags) >> 12 & 0xF) == 1;");
+    //   src.push("      vClippable = (int(meshViewAttributeTexture.renderFlags) >> 12 & 0xF) == 1;");
     // }
   }
 
+  /**
+   * Generates vertex shader logic for mesh processing.
+   * @private
+   */
   private _vsMeshLogic() { // before renderPass check
     this._vertSrcBuf.push(
       "    uint drawVertexIndex  = uint(gl_VertexID);",
@@ -718,38 +823,42 @@ export abstract class DrawTechnique {
       // Lookup the mesh and primitive offset for this primitive
       // The primitive offset is the index of the primitive within the mesh's geometry
 
-      "    uint meshIndex        = primMeshIndexTable( primIndex );",
+      "    uint meshIndex        = primitiveMeshIndexTexture( primIndex );",
       "    uint primOffset       = primToOffsetLookup( primIndex );",
 
-      "    ViewMeshAttribTable viewMeshAttribTable = viewMeshAttribTableLookup( meshIndex );",
+      "    ViewMeshAttributes viewMeshAttributes = viewMeshAttribTableLookup( meshIndex );",
 
-      `    if (viewMeshAttribTable.color.a == 3u) {`,
+      `    if (viewMeshAttributes.color.a == 3u) {`,
       // "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
       // "              return;",
       "    };"
     );
   }
 
+  /**
+   * Generates vertex shader logic for mesh processing (part 2).
+   * @private
+   */
   private _vsMeshLogic2() { // after renderPass check
     this._vertSrcBuf.push(
-      "    MeshAttribTable      meshAttribTable       = getMeshAttribTable( meshIndex );",
+      "    MeshAttribTable      meshAttributeTexture       = getMeshAttribTable( meshIndex );",
 
       // Lookup the tile and geometry from the mesh
 
-      "    uint             tileIndex         = meshAttribTable.tileIndex;",
-      "    uint             geometryIndex     = meshAttribTable.geometryIndex;",
+      "    uint             tileIndex         = meshAttributeTexture.tileIndex;",
+      "    uint             geometryIndex     = meshAttributeTexture.geometryIndex;",
 
-      "    GeometryAttribTable  geometryAttribTable   = getGeometryAttribTable( geometryIndex );",
+      "    GeometryAttributeTexture  geometryAttributeTexture   = getGeometryAttributeTexture( geometryIndex );",
 
       "    uint             vertexIndex       = uPrimitiveType == " + PointsPrimitive +
-      "                                       ? geometryAttribTable.indicesBase + primOffset " + // points indices are simple
-      "                                       : getVertexIndex( geometryAttribTable.indicesBase + primOffset );",
+      "                                       ? geometryAttributeTexture.indicesBase + primOffset " + // points indices are simple
+      "                                       : getVertexIndex( geometryAttributeTexture.indicesBase + primOffset );",
 
       "    QuantRange       quantRange        = getGeometryQuantRange( geometryIndex );",
       "    mat4             modelMatrix       = getMeshMatrix( meshIndex );",
       "    mat4             viewMatrix        = getTileViewMatrix( tileIndex );",
 
-      "    uvec3            quantPos          = getVertexPosition( geometryAttribTable.verticesBase + vertexIndex );",
+      "    uvec3            quantPos          = getVertexPosition( geometryAttributeTexture.verticesBase + vertexIndex );",
       "    vec4             modelPos          = vec4( quantRange.offset + ( quantRange.scale * vec3( quantPos )), 1.0); ",
       "    vec4             worldPos          = modelMatrix * modelPos; ",
       "    vec4             viewPos           = viewMatrix * worldPos; ",
@@ -758,6 +867,10 @@ export abstract class DrawTechnique {
       "    gl_Position = clipPos;");
   }
 
+  /**
+   * Generates vertex shader logic for Lambert shading.
+   * @protected
+   */
   protected vsLambertShadingLogic() {
     this._vertSrcBuf.push(
       // For triangles, get the three vertex positions for the triangle
@@ -801,7 +914,7 @@ export abstract class DrawTechnique {
       // "    lambertian = max(dot(normal, normalize(lightDir3)), 0.0);",
       // "    reflectedColor += lambertian * (lightColor3.rgb * lightColor3.a);",
 
-      "    vec4 color = vec4(viewMeshAttribTable.color) /255.0;",
+      "    vec4 color = vec4(viewMeshAttributes.color) /255.0;",
 
       "   vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), 1.0);")
 
@@ -812,6 +925,10 @@ export abstract class DrawTechnique {
     // );
   }
 
+  /**
+   * Generates vertex shader logic for silhouette rendering.
+   * @protected
+   */
   protected vsSilhouetteLogic() {
     this._vertSrcBuf.push(
       //  "    vColor = vec4(uSilhouetteColor.r, uSilhouetteColor.g, uSilhouetteColor.b, 0.5);"
@@ -819,15 +936,23 @@ export abstract class DrawTechnique {
     );
   }
 
+  /**
+   * Generates vertex shader logic for flat color rendering.
+   * @protected
+   */
   protected vsDrawFlatColorLogic() {
     this._vertSrcBuf.push(
-      // "    vec4 color = vec4(viewMeshAttribTable.color) / 255.0;",
+      // "    vec4 color = vec4(viewMeshAttributes.color) / 255.0;",
       // "    vColor = vec4(color.rgb, 1.0);"
 
       "    vColor = vec4(1.0, 1.0, 0.0, 1.0);"
     );
   }
 
+  /**
+   * Generates vertex shader logic for vertex color rendering.
+   * @protected
+   */
   protected vsDrawVertexColorLogic() {
     this._vertSrcBuf.push(
       "    uvec3 color = getVertexColor(vertexIndex);",
@@ -835,18 +960,29 @@ export abstract class DrawTechnique {
     );
   }
 
+  /**
+   * Generates vertex shader logic for depth rendering.
+   * @protected
+   */
   protected vsDrawDepthLogic() {
     this._vertSrcBuf.push(
       "    vHighPrecisionZW = gl_Position.zw;"
     );
   }
 
-
+  /**
+   * Generates vertex shader logic for pick rendering.
+   * @protected
+   */
   protected vsPickMeshLogic() {
     this._vertSrcBuf.push("    vPickColor = packUintToRGBA8(meshIndex);");
   }
 
 
+  /**
+   * Generates vertex shader logic for point size and intensity filtering.
+   * @protected
+   */
   protected vsPointsFilterLogicOpenBlock() {
     // const src = this._vertSrcBuf;
     // const pointsMaterial = this._renderContext.view.pointsMaterial;
@@ -858,6 +994,10 @@ export abstract class DrawTechnique {
     // }
   }
 
+  /**
+   * Generates vertex shader logic for point size and intensity filtering.
+   * @protected
+   */
   protected vsPointsFilterLogicCloseBlock() {
     // const pointsMaterial = this._renderContext.view.pointsMaterial;
     // if (pointsMaterial.filterIntensity) {
@@ -865,6 +1005,10 @@ export abstract class DrawTechnique {
     // }
   }
 
+  /**
+   * Generates vertex shader logic for point size calculation.
+   * @protected
+   */
   protected vsPointsGeometryLogic() {
     const src = this._vertSrcBuf;
     const pointsMaterial = this._renderContext.activeView.pointsMaterial;
@@ -884,12 +1028,20 @@ export abstract class DrawTechnique {
     this._fragSrcBuf.push(src);
   }
 
+  /**
+   * Generates the fragment shader header.
+   * @protected
+   */
   protected fsHeader() {
     this._fragSrcBuf.push(
       '#version 300 es',
       `// ${this.constructor.name} fragment shader`);
   }
 
+  /**
+   * Generates fragment shader precision definitions.
+   * @protected
+   */
   protected fsPrecisionDefines() {
     this._fragSrcBuf.push(
       "#ifdef GL_FRAGMENT_PRECISION_HIGH",
@@ -907,28 +1059,52 @@ export abstract class DrawTechnique {
       "#endif");
   }
 
+  /**
+   * Generates fragment shader common definitions.
+   * @protected
+   */
   protected fsCommonDefines() {
     this._fragSrcBuf.push(
       "vec4 color;",
       "out vec4 outColor;");
   }
 
+  /**
+   * Generates fragment shader defines for silhouette rendering.
+   * @protected
+   */
   protected fsSilhouetteDefines() {
     this._fragSrcBuf.push("in vec4 vColor;");
   }
 
+  /**
+   * Generates fragment shader logic for silhouette rendering.
+   * @protected
+   */
   protected fsSilhouetteLogic() {
     this._fragSrcBuf.push("color = vColor;");
   }
 
+  /**
+   * Generates fragment shader defines for flat-shaded color rendering.
+   * @protected
+   */
   protected fsDrawFlatColorDefines() {
     this._fragSrcBuf.push("in vec4 vColor;");
   }
 
+  /**
+   * Generates fragment shader logic for flat-shaded color rendering.
+   * @protected
+   */
   protected fsDrawFlatColorLogic() {
     this._fragSrcBuf.push("color = vColor;");
   }
 
+  /**
+   * Generates fragment shader defines for Lambert shading.
+   * @protected
+   */
   protected fsLambertShadingDefines() {
     const src = this._fragSrcBuf;
     const view = this._renderContext.activeView;
@@ -937,20 +1113,36 @@ export abstract class DrawTechnique {
       "in vec4 vViewPos;");
   }
 
+  /**
+   * Generates fragment shader logic for Lambert shading.
+   * @protected
+   */
   protected fsLambertShadingLogic() {
     this._fragSrcBuf.push("color = vColor;");
   }
 
+  /**
+   * Generates fragment shader defines for depth rendering.
+   * @protected
+   */
   protected fsDrawDepthDefines() {
     this._fragSrcBuf.push("in vec2 vHighPrecisionZW;");
   }
 
+  /**
+   * Generates fragment shader logic for depth rendering.
+   * @protected
+   */
   protected fsDrawDepthLogic() {
     this._fragSrcBuf.push(
       "    float depthFragCoordZ = 0.5 * vHighPrecisionZW[0] / vHighPrecisionZW[1] + 0.5;",
       "    color = vec4(vec3(1.0 - depthFragCoordZ), 1.0); ");
   }
 
+  /**
+   * Generates fragment shader defines for screen-space ambient occlusion (SAO).
+   * @protected
+   */
   protected fsDrawSAODefs() {
     this._fragSrcBuf.push(
       "uniform sampler2D saoOcclusionTexture;",
@@ -963,6 +1155,10 @@ export abstract class DrawTechnique {
       "}");
   }
 
+  /**
+   * Generates fragment shader logic for screen-space ambient occlusion (SAO).
+   * @protected
+   */
   protected fsDrawSAOLogic() {
     this._fragSrcBuf.push(
       "   float saoViewportWidth = saoParams[0];",
@@ -974,14 +1170,26 @@ export abstract class DrawTechnique {
       "   color = vec4(color.rgb * saoAmbient, 1.0);");
   }
 
+  /**
+   * Generates fragment shader defines for pick rendering.
+   * @protected
+   */
   protected fsPickMeshDefines() {
     this._fragSrcBuf.push("in vec4 vPickColor;");
   }
 
+  /**
+   * Generates fragment shader logic for pick rendering.
+   * @protected
+   */
   protected fsPickMeshLogic() {
     this._fragSrcBuf.push("color = vPickColor;");
   }
 
+  /**
+   * Generates fragment shader defines for slicing (section planes).
+   * @protected
+   */
   protected fsSlicingDefines() {
     // const numSectionPlanes = this._renderContext.view.getNumAllocatedSectionPlanes();
     // if (numSectionPlanes === 0) {
@@ -997,6 +1205,10 @@ export abstract class DrawTechnique {
     // }
   }
 
+  /**
+   * Generates fragment shader logic for slicing (section planes).
+   * @protected
+   */
   protected fsSlicingLogic() {
     // const numSectionPlanes = this._renderContext.view.getNumAllocatedSectionPlanes();
     // if (numSectionPlanes === 0) {
@@ -1014,14 +1226,27 @@ export abstract class DrawTechnique {
     // src.push("  }");
   }
 
+  /**
+   * Generates the opening of the fragment shader main function.
+   * @protected
+   */
   protected fsMainOpen() {
     this._fragSrcBuf.push("void main(void) {");
   }
 
+
+  /**
+   * Generates the closing of the fragment shader main function.
+   * @protected
+   */
   protected fsMainClose() {
     this._fragSrcBuf.push("}");
   }
 
+  /**
+   * Generates fragment shader logic for point rendering.
+   * @protected
+   */
   protected fsPointsGeometryLogic(): void {
     //if (this._renderContext.view.pointsMaterial.roundPoints) {
     // const src = this._fragSrcBuf;
@@ -1033,6 +1258,10 @@ export abstract class DrawTechnique {
     //   }
   }
 
+  /**
+   * Generates fragment shader logic for common output.
+   * @protected
+   */
   protected fsCommonOutput() {
     this._fragSrcBuf.push("outColor = color;");
   }

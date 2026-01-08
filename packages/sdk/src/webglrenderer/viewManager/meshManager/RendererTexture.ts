@@ -3,7 +3,9 @@ import type {WebGLTexture} from "../../../webglutils";
 import {SceneTexture} from "../../../scene";
 
 /**
- * @private
+ * Represents a texture used in the WebGL renderer.
+ *
+ * @internal
  */
 export class RendererTexture {
 

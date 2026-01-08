@@ -22,7 +22,7 @@ const NUM_VIEWS = 4;
 
 /**
  * Represents a mesh in the WebGLRenderer.
- * @private
+ * @internal
  */
 
 export class RendererMesh {

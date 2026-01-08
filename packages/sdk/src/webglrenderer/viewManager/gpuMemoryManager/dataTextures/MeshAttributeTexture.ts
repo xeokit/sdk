@@ -3,7 +3,7 @@ import { ItemDataTexture } from "./ItemDataTexture";
 /**
  * Stores per-mesh attributes like tile index and geometry index.
  */
-export class DTXMeshAttribTable extends ItemDataTexture {
+export class MeshAttributeTexture extends ItemDataTexture {
   static readonly itemSizeInBytes = 16; // 4 × uint32 per uvec4
 
   constructor(options: {
@@ -21,7 +21,7 @@ export class DTXMeshAttribTable extends ItemDataTexture {
       maxItems: options.maxItems,
       getNumItems: options.getNumItems,
       width: 4096,
-      itemSizeInBytes: DTXMeshAttribTable.itemSizeInBytes,
+      itemSizeInBytes: MeshAttributeTexture.itemSizeInBytes,
       texelsPerItem: 1,
       elementsPerTexel: 4,
     });

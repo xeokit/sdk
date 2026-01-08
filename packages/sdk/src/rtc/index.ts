@@ -49,7 +49,7 @@ import {
   transformVec4,
   type Vec3
 } from "../math";
-import {getPositions3Center} from "../boundaries";
+import {getPositions3Center} from "../math/boundaries";
 import type {FloatArrayParam} from "../math";
 
 // Temporary vectors and matrices used internally

@@ -1,7 +1,7 @@
 
 /**
  * Represents a geometry in the WebGL renderer.
- * @private
+ * @internal
  */
 export class RendererGeometry  {
 

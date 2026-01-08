@@ -2,10 +2,16 @@ import { ItemDataTexture } from "./ItemDataTexture";
 
 /**
  * Stores per-geometry attributes such as base addresses for vertex, index, and edge index data.
+ *
+ * @internal
  */
-export class DTXGeometryAttribTable extends ItemDataTexture {
+export class GeometryAttributeTexture extends ItemDataTexture {
   static readonly itemSizeInBytes = 16; // 4 × uint32 per uvec4
 
+  /**
+   * @private
+   * @param options
+   */
   constructor(options: {
     gl: WebGL2RenderingContext;
     description: string;
@@ -21,12 +27,17 @@ export class DTXGeometryAttribTable extends ItemDataTexture {
       maxItems: options.maxItems,
       getNumItems: options.getNumItems,
       width: 4096,
-      itemSizeInBytes: DTXGeometryAttribTable.itemSizeInBytes,
+      itemSizeInBytes: GeometryAttributeTexture.itemSizeInBytes,
       texelsPerItem: 1,
       elementsPerTexel: 4
     });
   }
 
+  /**
+   * Sets the attribute data for a specific geometry item.
+   * @param itemIndex
+   * @param item
+   */
   setItem(itemIndex: number, item: { verticesBase?: number; indicesBase?: number; edgeIndicesBase?: number }): void {
     const base = itemIndex * this.elementsPerItem;
     if (item.verticesBase !== undefined) this.buffer[base] = this.toU32(item.verticesBase);
@@ -35,6 +46,10 @@ export class DTXGeometryAttribTable extends ItemDataTexture {
     this.setItemDirty(itemIndex);
   }
 
+  /**
+   * Retrieves the attribute data for a specific geometry item.
+   * @param itemIndex
+   */
   getItem(itemIndex: number): { verticesBase: number; indicesBase: number; edgeIndicesBase: number } {
     const base = itemIndex * this.elementsPerItem;
     return {

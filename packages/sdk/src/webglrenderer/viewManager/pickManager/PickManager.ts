@@ -47,7 +47,8 @@ const pickTemps = {
 
 /**
  *  Manages picking of objects within a {@link WebGLRenderer}.
- * @private
+ *
+ *  @internal
  */
 export class PickManager {
 

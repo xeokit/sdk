@@ -9,7 +9,7 @@ export * as math from "./math";
 export * as utils from "./utils";
 export * as rtc from "./rtc";
 export * as curves from "./curves";
-export * as boundaries from "./boundaries";
+export * as boundaries from "./math/boundaries";
 export * as compression from "./compression";
 export * as webglutils from "./webglutils";
 

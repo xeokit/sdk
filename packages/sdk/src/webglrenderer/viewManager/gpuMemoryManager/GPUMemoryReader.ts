@@ -4,6 +4,8 @@ import {SceneMesh} from "../../../scene";
 /**
  * Interface that provides the data textures that implement the GPU-side memory.
  * This interface is used within `DrawTechnique` instances to access the GPU memory resources.
+ *
+ * @internal
  */
 export interface GPUMemoryReader {
 

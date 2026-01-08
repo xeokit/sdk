@@ -1,4 +1,4 @@
-// // DTXPointerTable.ts  (RGBA8UI version)
+// // PointerTexture.ts  (RGBA8UI version)
 //
 // import {DataTexture} from "./DataTexture";
 // import {PortionDataTexture} from "./PortionDataTexture";

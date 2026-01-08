@@ -1,4 +1,4 @@
-import {type  AABB3Float32, createAABB3Float32} from "../boundaries";
+import {type  AABB3Float32, createAABB3Float32} from "../math/boundaries";
 import type {IntArrayParam} from "../math";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import {SceneModel} from "./SceneModel";

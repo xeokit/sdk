@@ -11,7 +11,7 @@ import type {Mat4, Vec3} from "../../../math";
  * - Tracks usage count for efficient gpuMemoryManager allocation.
  * - Supports dynamic movement and reassignment within the tiled system.
  *
- * @interface
+ * @internal
  */
 export interface Tile {
 
@@ -36,13 +36,13 @@ export interface Tile {
   center: Vec3;
 
   /**
-   * A relative-to-center (RTC) view matrix for each existing View. This is stored in DataTexturesLayer.viewTileCameraMatrices
+   * A relative-to-center (RTC) view matrix for each existing View. This is stored in DataTexturesLayer.viewTileCameraMatrixTexture
    * and automatically updates on all Tiles whenever the View's Camera moves.
    */
   rtcViewMatrix: Mat4[];
 
   /**
-   * A relative-to-center (RTC) pick matrix for each existing View. This is stored in DataTexturesLayer.viewTilePickMatrices
+   * A relative-to-center (RTC) pick matrix for each existing View. This is stored in DataTexturesLayer.viewTilePickMatrixTexture
    * and is manually updated on all Tiles for a target View before picking in that View.
    */
   rtcRayPickMatrix: Mat4[];

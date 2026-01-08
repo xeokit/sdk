@@ -4,9 +4,9 @@ import { DataTexture } from "./DataTexture";
 import { type PrimRange } from "./PrimRange";
 
 /**
- * Handle to an allocated portion in DTXPrimMeshIndexTable.
+ * Handle to an allocated portion in PrimitiveMeshIndexTexture.
  */
-export interface DTXPrimDrawListHandle {
+export interface PrimitiveMeshIndexTexturePortionHandle {
   id: number;
   offset: number;
   size: number;
@@ -16,14 +16,19 @@ export interface DTXPrimDrawListHandle {
 }
 
 /**
- * GPU-backed array of 32-bit unsigned integers stored in an R32UI texture.
- * Each element is one texel (RED_INTEGER / UNSIGNED_INT).
- * Manages portions partitioned into runs by arbitrary type (bins), e.g. render passes.
- * Tracks first/count for each bin for use with drawArrays.
+ * GPU data texture mapping each primitive to its owning mesh for a given render pass.
+ *
+ * `PrimitiveMeshIndexTexture` is a GPU-resident table used by the renderer to efficiently determine,
+ * for each primitive (triangle, line, or point), which mesh it belongs to and its offset within that mesh.
+ *
+ * ## Structure
+ * - Each item stores two `uint32` values: `meshIndex` and `offset`.
+ * - Items are grouped into "portions", each associated with a mesh and a render pass (e.g., OPAQUE, XRAYED).
+ * - The texture maintains a mapping of render pass IDs to primitive ranges, enabling fast per-pass rendering.
  */
-export class DTXPrimMeshIndexTable extends DataTexture {
+export class PrimitiveMeshIndexTexture extends DataTexture {
 
-  private readonly portions: Map<number, DTXPrimDrawListHandle> = new Map();
+  private readonly portions: Map<number, PrimitiveMeshIndexTexturePortionHandle> = new Map();
   private readonly renderPassIds: RenderPassValue[];
 
   public readonly passRanges: Map<number, PrimRange> = new Map();
@@ -35,6 +40,10 @@ export class DTXPrimMeshIndexTable extends DataTexture {
 
   public static readonly itemSizeInBytes = 8; // 2 × uint32 per item (meshIndex, offset)
 
+  /**
+   * @private
+   * @param options
+   */
   constructor(options: {
     gl: WebGL2RenderingContext;
     bins: RenderPassValue[];
@@ -50,7 +59,7 @@ export class DTXPrimMeshIndexTable extends DataTexture {
       maxItems: options.maxItems,
       getNumItems: () => this.numItems,
       width: 4096,
-      itemSizeInBytes: DTXPrimMeshIndexTable.itemSizeInBytes,
+      itemSizeInBytes: PrimitiveMeshIndexTexture.itemSizeInBytes,
       texelsPerItem: 1,
       elementsPerTexel: 2,
     });
@@ -85,14 +94,14 @@ export class DTXPrimMeshIndexTable extends DataTexture {
    * @param meshIndex Mesh index for the portion.
    * @param renderPass Render pass bin.
    */
-  public createPortion(size: number, meshIndex: number, renderPass: RenderPassValue): DTXPrimDrawListHandle {
+  public createPortion(size: number, meshIndex: number, renderPass: RenderPassValue): PrimitiveMeshIndexTexturePortionHandle {
     size |= 0;
-    if (size <= 0) throw new SDKInternalException("DTXPrimMeshIndexTable: size must be > 0");
+    if (size <= 0) throw new SDKInternalException("PrimitiveMeshIndexTexture: size must be > 0");
     if (this.numAllocatedItems + size > this.maxItems) {
-      throw new SDKInternalException("DTXPrimMeshIndexTable: Not enough capacity");
+      throw new SDKInternalException("PrimitiveMeshIndexTexture: Not enough capacity");
     }
     const id = this.nextPortionId++;
-    const handle: DTXPrimDrawListHandle = {
+    const handle: PrimitiveMeshIndexTexturePortionHandle = {
       id,
       size,
       meshIndex,
@@ -110,10 +119,10 @@ export class DTXPrimMeshIndexTable extends DataTexture {
    * Frees a previously allocated portion.
    * @param handle Portion handle.
    */
-  public deletePortion(handle: DTXPrimDrawListHandle): void {
+  public deletePortion(handle: PrimitiveMeshIndexTexturePortionHandle): void {
     const removed = this.portions.get(handle.id);
     if (!removed) {
-      throw new SDKInternalException("DTXPrimMeshIndexTable: Unknown portion handle");
+      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
     }
     this.portions.delete(handle.id);
     this.numAllocatedItems -= removed.size;
@@ -125,10 +134,10 @@ export class DTXPrimMeshIndexTable extends DataTexture {
    * @param handle Portion handle.
    * @param renderPass New render pass bin.
    */
-  public setRenderPass(handle: DTXPrimDrawListHandle, renderPass: RenderPassValue): void {
+  public setRenderPass(handle: PrimitiveMeshIndexTexturePortionHandle, renderPass: RenderPassValue): void {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("DTXPrimMeshIndexTable: Unknown portion handle");
+      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
     }
     if (portion.renderPass === renderPass) {
       return;
@@ -143,10 +152,10 @@ export class DTXPrimMeshIndexTable extends DataTexture {
    * @param handle Portion handle.
    * @param visible Whether the portion is visible.
    */
-  public setVisible(handle: DTXPrimDrawListHandle, visible: boolean): void {
+  public setVisible(handle: PrimitiveMeshIndexTexturePortionHandle, visible: boolean): void {
     const portion = this.portions.get(handle.id);
     if (!portion) {
-      throw new SDKInternalException("DTXPrimMeshIndexTable: Unknown portion handle");
+      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
     }
     portion.visible = !!visible;
     handle.visible = portion.visible;
@@ -157,7 +166,7 @@ export class DTXPrimMeshIndexTable extends DataTexture {
    * Gets the visibility of a portion.
    * @param handle Portion handle.
    */
-  public isVisible(handle: DTXPrimDrawListHandle): boolean {
+  public isVisible(handle: PrimitiveMeshIndexTexturePortionHandle): boolean {
     const portion = this.portions.get(handle.id);
     return portion ? portion.visible : handle.visible;
   }
@@ -172,6 +181,10 @@ export class DTXPrimMeshIndexTable extends DataTexture {
 
   /**
    * Gets the meshIndex and offset for a primitive index.
+   *
+   * The offset is the index of the primitive within its mesh. For example, for a triangle mesh,
+   * the offset will be 0 for the first triangle, 1 for the second triangle, and so on. This
+   * allows the vertex shader to determine which vertices to use when rendering the primitive.
    * @param primIndex Primitive index.
    */
   public getItem(primIndex: number): { meshIndex: number; offset: number } {
@@ -251,7 +264,7 @@ export class DTXPrimMeshIndexTable extends DataTexture {
    */
   private _rebuildRunsAndBuffer(): void {
     // Group portions by renderPass, preserving insertion order
-    const buckets = new Map<number, DTXPrimDrawListHandle[]>();
+    const buckets = new Map<number, PrimitiveMeshIndexTexturePortionHandle[]>();
     for (const portion of this.portions.values()) {
       if (!portion.visible) continue;
       if (!buckets.has(portion.renderPass)) {

@@ -1,2 +1,0 @@
-Management of GPU-resident data textures for WebGL rendering, including classes for handling transformation matrices, 
-mesh attributes, vertex positions, primitive draw lists, dequantization ranges, and vertex colors.

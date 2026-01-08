@@ -4,9 +4,13 @@ import { ItemDataTexture } from "./ItemDataTexture";
 /**
  * Stores per-item 4x4 matrices.
  */
-export class DTXMatrixTable extends ItemDataTexture {
+export class MatrixTexture extends ItemDataTexture {
   static readonly itemSizeInBytes = 64; // 16 × float per mat4
 
+  /**
+   * @private
+   * @param options
+   */
   constructor(options: {
     gl: WebGL2RenderingContext;
     maxItems?: number;
@@ -22,17 +26,26 @@ export class DTXMatrixTable extends ItemDataTexture {
       maxItems: options.maxItems,
       getNumItems: options.getNumItems,
       width: 2048,
-      itemSizeInBytes: DTXMatrixTable.itemSizeInBytes,
+      itemSizeInBytes: MatrixTexture.itemSizeInBytes,
       texelsPerItem: 4,
       elementsPerTexel: 4,
     });
   }
 
+  /**
+   * Sets the matrix for the given item index.
+   * @param itemIndex
+   * @param matrix
+   */
   setItem(itemIndex: number, matrix: Mat4): void {
     this.buffer.set(matrix, itemIndex * this.elementsPerItem);
     this.setItemDirty(itemIndex);
   }
 
+  /**
+   * Gets the matrix for the given item index.
+   * @param itemIndex
+   */
   getItem(itemIndex: number): { matrix: Mat4 } {
     const offset = itemIndex * this.elementsPerItem;
     return {

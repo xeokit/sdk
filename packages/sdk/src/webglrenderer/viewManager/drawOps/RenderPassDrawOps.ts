@@ -1,19 +1,71 @@
 import {DrawOp} from "./DrawOp";
 
 /**
- * A collection of draw operations (draw ops) for different render passes.
+ * Collection of draw operations for all render passes, for a specific primitive type.
+ *
+ * Each property represents a {@link DrawOp} used to render the given primitive type within a particular pass,
+ * such as opaque, transparent, highlighted, selected, x-rayed, edge rendering, and picking.
+ *
+ * @internal
  */
 export interface RenderPassDrawOps {
-    opaque?: DrawOp; // Render opaque objects with color and lighting
-    opaqueEdges?: DrawOp; // Render opaque edges with color
-    transparent?: DrawOp; // Render transparent objects with color and lighting
-    transparentEdges?: DrawOp; // Render transparent edges with color
-    highlighted?: DrawOp; // Render highlighted silhouettes
-    selected?: DrawOp; // Render selected silhouettes
-    xrayed?: DrawOp; // Render x-rayed silhouettes
-    highlightedEdges?: DrawOp; // Render highlighted silhouettes edges
-    selectedEdges?: DrawOp; // Render selected silhouettes edges
-    xrayedEdges?: DrawOp; // Render x-rayed silhouettes edges
-    pick?: DrawOp; // Render meshes as their RGBA-encoded mesh IDs to the pick buffer
-    pickDepth?: DrawOp; // Render screen-space depths to depth buffer
+  /**
+   * Draw operation for rendering opaque objects.
+   */
+  opaque?: DrawOp;
+
+  /**
+   * Draw operation for rendering opaque edges.
+   */
+  opaqueEdges?: DrawOp;
+
+  /**
+   * Draw operation for rendering transparent objects.
+   */
+  transparent?: DrawOp;
+
+  /**
+   * Draw operation for rendering transparent edges.
+   */
+  transparentEdges?: DrawOp;
+
+  /**
+   * Draw operation for rendering highlighted silhouettes.
+   */
+  highlighted?: DrawOp;
+
+  /**
+   * Draw operation for rendering selected silhouettes.
+   */
+  selected?: DrawOp;
+
+  /**
+   * Draw operation for rendering x-rayed silhouettes.
+   */
+  xrayed?: DrawOp;
+
+  /**
+   * Draw operation for rendering highlighted silhouette edges.
+   */
+  highlightedEdges?: DrawOp;
+
+  /**
+   * Draw operation for rendering selected silhouette edges.
+   */
+  selectedEdges?: DrawOp;
+
+  /**
+   * Draw operation for rendering x-rayed silhouette edges.
+   */
+  xrayedEdges?: DrawOp;
+
+  /**
+   * Draw operation for mesh picking (renders mesh IDs to pick buffer).
+   */
+  pick?: DrawOp;
+
+  /**
+   * Draw operation for depth picking (renders screen-space depths).
+   */
+  pickDepth?: DrawOp;
 }

@@ -27,7 +27,7 @@ import {
   OrthoProjectionType,
   PerspectiveProjectionType
 } from "../constants";
-import {Frustum3, setFrustum3} from "../boundaries";
+import {Frustum3, setFrustum3} from "../math/boundaries";
 import type {CameraParams} from "./CameraParams";
 import {CustomProjection} from './CustomProjection';
 import {FrustumProjection} from './FrustumProjection';

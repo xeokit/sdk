@@ -3,7 +3,7 @@ import {RenderContext} from "../../../RenderContext";
 import {type GPUMemoryReader} from "../../../gpuMemoryManager/GPUMemoryReader";
 
 /**
- * @private
+ * @internal
  */
 export class TrianglesDrawEdgeColorTechnique extends DrawTechnique {
 

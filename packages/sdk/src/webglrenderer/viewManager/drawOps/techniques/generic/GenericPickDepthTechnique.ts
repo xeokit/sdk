@@ -1,7 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
- * @private
+ * @internal
  */
 export class GenericPickDepthTechnique extends DrawTechnique {
 

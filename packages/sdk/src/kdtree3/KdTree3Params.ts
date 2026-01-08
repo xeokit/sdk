@@ -1,5 +1,5 @@
 
-import type {AABB3} from "../boundaries";
+import type {AABB3} from "../math/boundaries";
 
 /**
  * Parameters for creating a {@link KdTree3}.

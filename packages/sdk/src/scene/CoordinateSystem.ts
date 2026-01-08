@@ -28,6 +28,7 @@ import {SDKErrorType} from "../core";
  */
 export class CoordinateSystem  {
 
+  /** @private */
     _notifyUpdatedScheduled: boolean;
 
     private _scene: Scene;
@@ -64,6 +65,7 @@ export class CoordinateSystem  {
         this.basis = params?.basis;
     }
 
+    /** @private */
     _notifyUpdated() {
         if (!this._notifyUpdatedScheduled) {
             this._notifyUpdatedScheduled = true;

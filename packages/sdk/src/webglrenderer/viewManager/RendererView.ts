@@ -6,7 +6,7 @@ import {RenderManager} from "./renderManager/RenderManager";
 
 /**
  * Represents a view within the WebGL renderer.
- * @private
+ * @internal
  */
 export class RendererView {
 

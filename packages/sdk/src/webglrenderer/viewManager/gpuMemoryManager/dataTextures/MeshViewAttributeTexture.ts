@@ -4,7 +4,7 @@ import { ItemDataTexture } from "./ItemDataTexture";
 /**
  * Stores per-view-mesh attributes: color, opacity, pickability, clippability.
  */
-export class DTXViewMeshAttribTable extends ItemDataTexture {
+export class MeshViewAttributeTexture extends ItemDataTexture {
   static readonly itemSizeInBytes = 16; // 4 × uint32 per uvec4
 
   constructor(options: {
@@ -22,7 +22,7 @@ export class DTXViewMeshAttribTable extends ItemDataTexture {
       maxItems: options.maxItems,
       getNumItems: options.getNumItems,
       width: 4096,
-      itemSizeInBytes: DTXViewMeshAttribTable.itemSizeInBytes,
+      itemSizeInBytes: MeshViewAttributeTexture.itemSizeInBytes,
       texelsPerItem: 2,
       elementsPerTexel: 4,
     });

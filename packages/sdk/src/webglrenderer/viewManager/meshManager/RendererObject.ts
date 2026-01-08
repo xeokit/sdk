@@ -6,7 +6,7 @@ const tempIntRGB = new Uint16Array([0, 0, 0]);
 
 /**
  * Represents a 3D object in the WebGL renderer.
- * @private
+ * @internal
  */
 export class RendererObject  {
 

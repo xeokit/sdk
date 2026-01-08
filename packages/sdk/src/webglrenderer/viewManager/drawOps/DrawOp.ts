@@ -3,23 +3,54 @@ import {type RenderPassValue} from "../RENDER_PASSES";
 import {type MeshBatch} from "../meshManager/MeshBatch";
 
 /**
- * A draw operation (draw op) applies a specific draw technique to a specific render pass.
+ * A draw operation (DrawOp) binds a {@link DrawTechnique} to a specific render pass.
+ *
+ * DrawOp is intentionally lightweight: it contains no rendering logic of its own.
+ * Instead, it forwards draw calls to its {@link DrawTechnique}, supplying the
+ * appropriate {@link RenderPassValue}.
+ *
+ * @internal
  */
 export class DrawOp {
 
-    private _technique: DrawTechnique;
-    private _renderPass: RenderPassValue;
+  /**
+   * The draw technique that performs the actual rendering.
+   */
+  public readonly technique: DrawTechnique;
 
-    constructor(technique: DrawTechnique, renderPass: RenderPassValue) {
-        this._technique = technique;
-        this._renderPass = renderPass;
-    }
+  /**
+   * The render pass in which this draw operation is executed.
+   */
+  public readonly renderPass: RenderPassValue;
 
-    public drawBatch(meshBatch: MeshBatch) {
-        this._technique.drawBatch(meshBatch, this._renderPass);
-    }
+  /**
+   * Creates a new DrawOp.
+   *
+   * @param technique - Draw technique responsible for issuing draw calls.
+   * @param renderPass - Render pass to apply when drawing.
+   */
+  constructor(technique: DrawTechnique, renderPass: RenderPassValue) {
+    this.technique = technique;
+    this.renderPass = renderPass;
+  }
 
-    public drawMesh(meshBatch: MeshBatch, meshIndex: number) {
-        this._technique.drawMesh(meshBatch, meshIndex, this._renderPass);
-    }
+  /**
+   * Draws all meshes contained in the given {@link MeshBatch}.
+   *
+   * @param meshBatch - Batch of meshes to render.
+   */
+  public drawBatch(meshBatch: MeshBatch): void {
+    this.technique.drawBatch(meshBatch, this.renderPass);
+  }
+
+  /**
+   * Draws a single mesh from the given {@link MeshBatch}.
+   *
+   * @param meshBatch - Batch containing the mesh.
+   * @param meshIndex - Index of the mesh within the batch.
+   */
+  public drawMesh(meshBatch: MeshBatch, meshIndex: number): void {
+    this.technique.drawMesh(meshBatch, meshIndex, this.renderPass);
+  }
 }
+

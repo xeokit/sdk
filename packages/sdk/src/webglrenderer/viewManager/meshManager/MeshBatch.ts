@@ -5,6 +5,8 @@ import {type RenderPassValue} from "../RENDER_PASSES";
 /**
  * A MeshBatch represents a collection of meshes that share the same rendering properties and can be rendered together
  * in a single draw call using a `DrawTechnique`.
+ *
+ * @internal
  */
 export interface MeshBatch {
 

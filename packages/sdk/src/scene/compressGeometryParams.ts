@@ -1,4 +1,4 @@
-import {collapseAABB3, expandAABB3Points3, createAABB3Float32} from "../boundaries";
+import {collapseAABB3, expandAABB3Points3, createAABB3Float32} from "../math/boundaries";
 import {compressRGBColors, quantizePositions3} from "../compression";
 import {createVec3Float64} from "../math";
 import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";

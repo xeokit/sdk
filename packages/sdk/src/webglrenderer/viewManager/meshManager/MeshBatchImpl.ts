@@ -11,7 +11,7 @@ import type {Mat4, Vec3} from "../../../math";
 /**
  * A MeshBatchImpl manages a batch of SceneMeshes that use the same primitive type.
  *
- * @private
+ * @internal
  */
 export class MeshBatchImpl implements MeshBatch {
 
@@ -100,7 +100,7 @@ export class MeshBatchImpl implements MeshBatch {
     public hasMeshesInRenderPass(viewIndex: number, renderPass: RenderPassValue): boolean {
         return (<GPUMemoryManager>this._gpuMemoryManager).dataTextures.batches[this.gpuMemoryBatchIndex]
             ?.views[viewIndex]
-            ?.renderPassPrimRanges.get(<number>renderPass)
+            ?.renderPassPrimitiveRanges.get(<number>renderPass)
             ?.numPrims! > 0; // Single point-of-truth for mesh counts
     }
 

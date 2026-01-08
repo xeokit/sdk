@@ -1,4 +1,4 @@
-import {type AABB2, containsAABB2, createAABB2Float64} from "../boundaries";
+import {type AABB2, containsAABB2, createAABB2Float64} from "../math/boundaries";
 
 const MAX_KD_TREE_DEPTH = 10; // Increase if greater precision needed
 const kdTreeDimLength = new Float32Array(2);

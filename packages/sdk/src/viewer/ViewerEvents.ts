@@ -6,7 +6,7 @@ import type {IntArrayParam, Vec3} from "../math";
 import type {ViewObject} from "./ViewObject";
 import type {ViewLayer} from "./ViewLayer";
 import type {SectionPlane} from "./SectionPlane";
-import type {Frustum3} from "../boundaries";
+import type {Frustum3} from "../math/boundaries";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
 import type {Spinner} from "./Spinner";

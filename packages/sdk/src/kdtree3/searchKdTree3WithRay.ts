@@ -1,4 +1,4 @@
-import {type AABB3, INTERSECT, OUTSIDE} from "../boundaries";
+import {type AABB3, INTERSECT, OUTSIDE} from "../math/boundaries";
 import type {Vec3} from "../math";
 import type {KdItem3D} from "./KdItem3";
 import type {KdNode3} from "./KdNode3";

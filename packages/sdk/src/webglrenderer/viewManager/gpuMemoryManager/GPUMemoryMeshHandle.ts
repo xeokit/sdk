@@ -1,5 +1,7 @@
 /**
  * A handle to a mesh stored in GPU memory.
+ *
+ * @internal
  */
 export interface GPUMemoryMeshHandle {
 

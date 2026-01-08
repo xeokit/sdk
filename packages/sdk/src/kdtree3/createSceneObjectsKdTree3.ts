@@ -1,4 +1,4 @@
-import {collapseAABB3, createAABB3Float64, expandAABB3} from "../boundaries";
+import {collapseAABB3, createAABB3Float64, expandAABB3} from "../math/boundaries";
 import type {SceneObject} from "../scene";
 import {SceneObjectsKdTree3} from "./sceneObjectsKdTree3";
 

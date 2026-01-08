@@ -10,7 +10,7 @@ import {
   intersectFrustum3Point3,
   OUTSIDE,
   setFrustum3
-} from "../boundaries";
+} from "../math/boundaries";
 import {KdTree2} from "./KdTree2";
 import type {KdVertex2} from "./KdVertex2";
 import {createSceneObjectAABB3} from "../aabb/createSceneObjectAABB3";

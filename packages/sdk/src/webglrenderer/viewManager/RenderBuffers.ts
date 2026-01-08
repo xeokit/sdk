@@ -5,7 +5,7 @@ import {View} from "../../viewer";
 /**
  * Manages WebGL render buffers for a view.
  *
- * @private
+ * @internal
  */
 export class RenderBuffers {
 

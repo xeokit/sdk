@@ -1,10 +1,20 @@
 import {PortionDataTexture} from "./PortionDataTexture";
 import type {Vec3} from "../../../../math";
 
-export class DTXVertexColors extends PortionDataTexture {
+/**
+ * Data texture that stores vertex colors as RGB uint8 values.
+ */
+export class VertexColorTexture extends PortionDataTexture {
 
+  /**
+   * The size of each item in bytes.
+   */
   public static readonly itemSizeInBytes = 3; // 3 × uint8 per item (RGB)
 
+  /**
+   * @private
+   * @param options
+   */
   constructor(options: {
     gl: WebGL2RenderingContext;
     maxItems: number; // number of items (vertices)
@@ -19,7 +29,7 @@ export class DTXVertexColors extends PortionDataTexture {
       maxItems: options.maxItems,
       getNumItems: () => this.numItems,
       width: 4096,
-      itemSizeInBytes: DTXVertexColors.itemSizeInBytes, // 3 × uint8 per item (RGB)
+      itemSizeInBytes: VertexColorTexture.itemSizeInBytes, // 3 × uint8 per item (RGB)
       texelsPerItem: 1,    // 1 RGB8UI texel per item
       elementsPerTexel: 3, // RGB8UI
     });

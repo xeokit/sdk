@@ -13,12 +13,19 @@ import {SDKInternalException, type SDKResult} from "../../../core";
  * Manages the drawing operations for WebGL rendering.
  * The `RenderManager` class handles rendering meshManager, viewManager, and extensions,
  * ensuring proper GPU state and efficient rendering of opaque and transparent objects.
+ *
+ * @internal
  */
 export class RenderManager {
 
+  /**
+   * The drawing operations used by this RenderManager.
+   * Available after `init()` has been called.
+   */
+  public drawOps: DrawOps;
+
     private _renderContext: RenderContext;
     private _meshManager: MeshManager;
-    private _drawOps: DrawOps;
     private _extensionHandles: any;
     private _logarithmicDepthBufferEnabled: boolean;
     private _alphaDepthMask: Boolean;
@@ -47,12 +54,12 @@ export class RenderManager {
      * Initializes the RenderManager.
      */
     public init():SDKResult<void> {
-        if (!this._drawOps) {
+        if (!this.drawOps) {
             const result = getDrawOps(this._renderContext, this._gpuMemoryReader);
             if (result.ok === false) {
                 return result;
             }
-            this._drawOps = result.value;
+            this.drawOps = result.value;
         }
         this._extensionHandles = {};
         this._logarithmicDepthBufferEnabled = false;
@@ -64,9 +71,12 @@ export class RenderManager {
         };
     }
 
-    webglContextRestored() : SDKResult<void> {
-        return this._drawOps
-          ? this._drawOps.webglContextRestored()
+  /**
+   * Handles WebGL context restoration.
+   */
+  webglContextRestored() : SDKResult<void> {
+        return this.drawOps
+          ? this.drawOps.webglContextRestored()
           : {
             ok: true,
             value: undefined
@@ -96,7 +106,7 @@ export class RenderManager {
         clear: boolean;
     }): SDKResult<any> {
 
-        if (!this._drawOps) {
+        if (!this.drawOps) {
           throw new SDKInternalException("[RenderManager.render] RenderManager not initialized");
         }
 
@@ -110,7 +120,7 @@ export class RenderManager {
         const selectedMaterial = view.selectedMaterial;
         const xrayMaterial = view.xrayMaterial;
         const meshBatches = this._meshManager.sortedBatches;
-        const drawOps = this._drawOps.prims;
+        const drawOps = this.drawOps.prims;
 
         const bins = {
             normalDrawSAO: [] as MeshBatch[],
@@ -321,10 +331,13 @@ export class RenderManager {
         };
     }
 
-    public destroy() {
-        if (this._drawOps) {
-            putDrawOps(this._drawOps);
-            this._drawOps = null;
+  /**
+   * @private
+   */
+  public destroy() {
+        if (this.drawOps) {
+            putDrawOps(this.drawOps);
+            this.drawOps = null;
         }
         this._extensionHandles = null;
         this._renderContext = null;

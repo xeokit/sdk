@@ -8,7 +8,7 @@ import {type WebGLRendererEvents} from "./WebGLRendererEvents";
 import {type MemoryConfigs} from "./MemoryConfigs";
 import {createMemoryConfigs} from "./createMemoryConfigs";
 import {type MemoryUsage} from "./MemoryUsage";
-import {type MemoryView} from "./MemoryView";
+import {type MemoryView} from "./debug/MemoryView";
 import {type DataTextures} from "./viewManager/gpuMemoryManager/DataTextures";
 import {SceneGeometry, SceneMesh} from "../scene";
 import {View} from "../viewer";
@@ -242,6 +242,7 @@ export class WebGLRenderer {
    * The returned object exposes structured access to {@link DataTextures} while
    * rendering is active.
    *
+   * @internal
    * @returns `{ ok: true, value }` when a Viewer with an attached Scene is present;
    * otherwise `{ ok: false }` with {@link SDKErrorType.InvalidOperation}.
    */
@@ -257,6 +258,16 @@ export class WebGLRenderer {
       ok: true,
       value: this._memoryView
     };
+  }
+
+  /**
+   * Retrieves the internal {@link ViewManager}, if rendering is active.
+   *
+   * @internal
+   * @returns The ViewManager or `null` if not rendering.
+   */
+  get viewManager(): ViewManager | null {
+    return this._viewManager || null;
   }
 
   /**

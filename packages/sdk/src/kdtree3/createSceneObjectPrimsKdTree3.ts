@@ -1,4 +1,4 @@
-import {collapseAABB3, createAABB3Float64, expandAABB3} from "../boundaries";
+import {collapseAABB3, createAABB3Float64, expandAABB3} from "../math/boundaries";
 import type {SceneGeometry, SceneObject} from "../scene";
 import {type GeometryView, getSceneObjectGeometry} from "../scene";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../constants";

@@ -5,7 +5,7 @@ import {type Tile} from "./Tile";
 import {type GPUMemoryReader} from "./GPUMemoryReader";
 import {type GPUMemoryEditor} from "./GPUMemoryEditor";
 import {type DataTextures} from "./DataTextures";
-import {DTXMatrixTable} from "./dtx/DTXMatrixTable";
+import {MatrixTexture} from "./dataTextures/MatrixTexture";
 import {GPUMemoryBatch} from "./GPUMemoryBatch";
 import {type GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
 import {Camera, View} from "../../../viewer";
@@ -22,6 +22,8 @@ import type {MemoryUsage} from "../../MemoryUsage";
  * The `GPUMemoryManager` class implements a data texture-based system for efficient storage and
  * rendering of large-scale 3D scenes. It handles gpuMemoryManager allocation, updates, and synchronization
  * for meshes, geometries, and tiles, integrating tightly with WebGL rendering pipelines.
+ *
+ * @internal
  */
 export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
 
@@ -34,8 +36,8 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   private _renderContext: RenderContext;
   private _tiles: TileManager;
   private _numMeshes: number;
-  private _viewTileCameraMatrices: DTXMatrixTable[];
-  private _viewTilePickMatrices: DTXMatrixTable[];
+  private _viewTileCameraMatrixTexture: MatrixTexture[];
+  private _viewTilePickMatrixTexture: MatrixTexture[];
 
   /**
    * Constructs a GPUMemoryManager instance.
@@ -57,26 +59,26 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
 
     const getNumItems = () => this._tiles ? this._tiles.numTiles : 0; // Only tile manager knows current tile count
 
-    this._viewTileCameraMatrices = [
-      new DTXMatrixTable({gl, maxItems: maxTiles, getNumItems, description: '[View 0] - tileIndex->(view matrix)'}),
-      new DTXMatrixTable({gl, maxItems: maxTiles, getNumItems, description: '[View 1] - tileIndex->(view matrix)'}),
-      new DTXMatrixTable({gl, maxItems: maxTiles, getNumItems, description: '[View 2] - tileIndex->(view matrix)'}),
-      new DTXMatrixTable({gl, maxItems: maxTiles, getNumItems, description: '[View 3] - tileIndex->(view matrix)'})
+    this._viewTileCameraMatrixTexture = [
+      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: '[View 0] - tileIndex->(view matrix)'}),
+      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: '[View 1] - tileIndex->(view matrix)'}),
+      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: '[View 2] - tileIndex->(view matrix)'}),
+      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: '[View 3] - tileIndex->(view matrix)'})
     ];
 
-    this._viewTilePickMatrices = [
-      new DTXMatrixTable({gl, maxItems: maxTiles, getNumItems, description: '[View 0] - tileIndex->(pick matrix)'}),
-      new DTXMatrixTable({gl, maxItems: maxTiles, getNumItems, description: '[View 1] - tileIndex->(pick matrix)'}),
-      new DTXMatrixTable({gl, maxItems: maxTiles, getNumItems, description: '[View 2] - tileIndex->(pick matrix)'}),
-      new DTXMatrixTable({gl, maxItems: maxTiles, getNumItems, description: '[View 3] - tileIndex->(pick matrix)'})
+    this._viewTilePickMatrixTexture = [
+      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: '[View 0] - tileIndex->(pick matrix)'}),
+      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: '[View 1] - tileIndex->(pick matrix)'}),
+      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: '[View 2] - tileIndex->(pick matrix)'}),
+      new MatrixTexture({gl, maxItems: maxTiles, getNumItems, description: '[View 3] - tileIndex->(pick matrix)'})
     ];
 
     const textures: {
       allocate(): SDKResult<void>;
       destroy(): void;
     }[] = [
-      ...this._viewTileCameraMatrices,
-      ...this._viewTilePickMatrices
+      ...this._viewTileCameraMatrixTexture,
+      ...this._viewTilePickMatrixTexture
     ];
 
     for (let i = 0, leni = textures.length; i < leni; i++) {
@@ -93,11 +95,11 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       }
     }
 
-    this._tiles = new TileManager(renderContext.viewer, this._viewTileCameraMatrices, this._viewTilePickMatrices);
+    this._tiles = new TileManager(renderContext.viewer, this._viewTileCameraMatrixTexture, this._viewTilePickMatrixTexture);
 
     this.dataTextures = {
-      viewTileCameraMatrices: this._viewTileCameraMatrices.map((t) => (t)),
-      viewTilePickMatrices: this._viewTilePickMatrices.map((t) => (t)),
+      viewTileCameraMatrixTexture: this._viewTileCameraMatrixTexture.map((t) => (t)),
+      viewTilePickMatrixTexture: this._viewTilePickMatrixTexture.map((t) => (t)),
       batches: [],
       onBatchCreated: new EventEmitter(new EventDispatcher<DataTextures, undefined>())
     };
@@ -113,8 +115,8 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    */
   webglContextRestored(): SDKResult<void> {
     for (const contextUsers in  [
-      ...this._viewTileCameraMatrices,
-      ...this._viewTilePickMatrices,
+      ...this._viewTileCameraMatrixTexture,
+      ...this._viewTilePickMatrixTexture,
       this._batches
     ]) {
       const result = (<any>contextUsers).webglContextRestored();
@@ -140,10 +142,10 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    */
   getAllocatedBytes() : number {
     let allocatedBytes = 0;
-    for (const tileCameraMatrixTable of this._viewTileCameraMatrices) {
+    for (const tileCameraMatrixTable of this._viewTileCameraMatrixTexture) {
       allocatedBytes += tileCameraMatrixTable.getAllocatedBytes();
     }
-    for (const tilePickMatrixTable of this._viewTilePickMatrices) {
+    for (const tilePickMatrixTable of this._viewTilePickMatrixTexture) {
       allocatedBytes += tilePickMatrixTable.getAllocatedBytes();
     }
     for (const batch of this._batches) {
@@ -157,10 +159,10 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    */
   getUsedBytes() : number {
     let usedBytes = 0;
-    for (const tileCameraMatrixTable of this._viewTileCameraMatrices) {
+    for (const tileCameraMatrixTable of this._viewTileCameraMatrixTexture) {
       usedBytes += tileCameraMatrixTable.getUsedBytes();
     }
-    for (const tilePickMatrixTable of this._viewTilePickMatrices) {
+    for (const tilePickMatrixTable of this._viewTilePickMatrixTexture) {
       usedBytes += tilePickMatrixTable.getUsedBytes();
     }
     for (const batch of this._batches) {
@@ -175,8 +177,8 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
   static get itemSizesInBytes(): { [key: string]: number } {
     return Object.assign({
         tile:
-          (DTXMatrixTable.itemSizeInBytes * 4) + // view matrices for 4 views
-          (DTXMatrixTable.itemSizeInBytes * 4), // ray pick matrices for 4 views
+          (MatrixTexture.itemSizeInBytes * 4) + // view matrices for 4 views
+          (MatrixTexture.itemSizeInBytes * 4), // ray pick matrices for 4 views
       },
       GPUMemoryBatch.itemSizesInBytes);
   }
@@ -186,8 +188,8 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    */
   public uploadChanges(): void {
     for (let i = 0; i < 4; i++) {
-      this._viewTileCameraMatrices[i].uploadChanges();
-      this._viewTilePickMatrices[i].uploadChanges();
+      this._viewTileCameraMatrixTexture[i].uploadChanges();
+      this._viewTilePickMatrixTexture[i].uploadChanges();
     }
     for (const batch of this._batches) {
       batch.uploadChanges();
@@ -486,11 +488,11 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
       }
       return ref;
     };
-    if (this._viewTileCameraMatrices) {
-      this._viewTileCameraMatrices = this._viewTileCameraMatrices.map(clear);
+    if (this._viewTileCameraMatrixTexture) {
+      this._viewTileCameraMatrixTexture = this._viewTileCameraMatrixTexture.map(clear);
     }
-    if (this._viewTilePickMatrices) {
-      this._viewTilePickMatrices = this._viewTilePickMatrices.map(clear);
+    if (this._viewTilePickMatrixTexture) {
+      this._viewTilePickMatrixTexture = this._viewTilePickMatrixTexture.map(clear);
     }
   }
 }

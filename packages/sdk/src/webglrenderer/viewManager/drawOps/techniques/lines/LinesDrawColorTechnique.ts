@@ -3,7 +3,7 @@ import {DrawTechnique} from "../../DrawTechnique";
 /**
  * Renderer for drawing lines with color in the `WebGLRenderer`.
  *
- * @private
+ * @internal
  */
 export class LinesDrawColorTechnique extends DrawTechnique {
 

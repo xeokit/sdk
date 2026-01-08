@@ -1,4 +1,4 @@
-import {createAABB3Int16, expandAABB3Points3} from "../boundaries";
+import {createAABB3Int16, expandAABB3Points3} from "../math/boundaries";
 import type {FloatArrayParam, IntArrayParam} from "../math";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../constants";
 import type {KdLinePrim} from "./KdLinePrim";

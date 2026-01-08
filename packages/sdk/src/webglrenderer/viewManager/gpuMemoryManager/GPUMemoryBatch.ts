@@ -1,22 +1,21 @@
 
 import {SceneGeometry, SceneMesh} from "../../../scene";
 import {RenderContext} from "../RenderContext";
-import {DTXViewMeshAttribTable} from "./dtx/DTXViewMeshAttribTable";
-import {DTXMeshAttribTable} from "./dtx/DTXMeshAttribTable";
-import {DTXGeometryQuantRangeTable} from "./dtx/DTXGeometryQuantRangeTable";
-import {DTXVertexPositions} from "./dtx/DTXVertexPositions";
-import {DTXVertexColors} from "./dtx/DTXVertexColors";
-import {DTXMatrixTable} from "./dtx/DTXMatrixTable";
-import {DTXPointerArray} from "./dtx/DTXPointerArray";
-import {DTXGeometryAttribTable} from "./dtx/DTXGeometryAttribTable";
+import {MeshViewAttributeTexture} from "./dataTextures/MeshViewAttributeTexture";
+import {MeshAttributeTexture} from "./dataTextures/MeshAttributeTexture";
+import {GeometryQuantRangeTexture} from "./dataTextures/GeometryQuantRangeTexture";
+import {VertexPositionTexture} from "./dataTextures/VertexPositionTexture";
+import {VertexColorTexture} from "./dataTextures/VertexColorTexture";
+import {MatrixTexture} from "./dataTextures/MatrixTexture";
+import {IndexTexture} from "./dataTextures/IndexTexture";
+import {GeometryAttributeTexture} from "./dataTextures/GeometryAttributeTexture";
 import {type BatchDataTextures} from "./BatchDataTextures";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../../../constants";
-import {DTXPrimMeshIndexTable} from "./dtx/DTXPrimMeshIndexTable";
+import {PrimitiveMeshIndexTexture} from "./dataTextures/PrimitiveMeshIndexTexture";
 import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 import {type MemoryConfigs} from "../../MemoryConfigs";
 import type {Mat4, Vec3, Vec4} from "../../../math";
-import {DataTexture} from "./dtx/DataTexture";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;
@@ -24,7 +23,7 @@ const MAX_GEOMETRIES = 500000;
 /**
  * Manages GPU-resident, dynamically-editable data storage for model geometry and attributes.
  *
- * @private
+ * @internal
  */
 export class GPUMemoryBatch {
 
@@ -38,16 +37,16 @@ export class GPUMemoryBatch {
    */
   public index: number;
 
-  private _indices: DTXPointerArray;
-  private _mashAttribTable: DTXMeshAttribTable;
-  private _meshViewAttribTable: DTXViewMeshAttribTable[];
-  private _geometryQuantRangeTable: DTXGeometryQuantRangeTable;
-  private _geometryAttribTable: DTXGeometryAttribTable;
-  private _edgeIndices: DTXPointerArray;
-  private primMeshIndexTables: DTXPrimMeshIndexTable[];
-  private _vertexPositions: DTXVertexPositions;
-  private _vertexColors: DTXVertexColors;
-  private _meshMatrixTable: DTXMatrixTable;
+  private _indexTexture: IndexTexture;
+  private _meshAttributeTexture: MeshAttributeTexture;
+  private _meshViewAttributeTexture: MeshViewAttributeTexture[];
+  private _geometryQuantRangeTexture: GeometryQuantRangeTexture;
+  private _geometryAttributeTexture: GeometryAttributeTexture;
+  private _edgeIndexTexture: IndexTexture;
+  private _primitiveMeshIndexTexture: PrimitiveMeshIndexTexture[];
+  private _vertexPositionTexture: VertexPositionTexture;
+  private _vertexColorTexture: VertexColorTexture;
+  private _meshMatrixTexture: MatrixTexture;
 
   private _meshIndicesUsed: boolean[];
   private _meshes: {};
@@ -110,8 +109,8 @@ export class GPUMemoryBatch {
       RENDER_PASSES.XRAYED
     ];
 
-    this.primMeshIndexTables = [
-      new DTXPrimMeshIndexTable({
+    this._primitiveMeshIndexTexture = [
+      new PrimitiveMeshIndexTexture({
         gl,
         maxItems: memoryConfigs.maxBatchPrims,
         bins,
@@ -122,15 +121,15 @@ export class GPUMemoryBatch {
       // new DTXPrimDrawList({gl, maxItems: this._maxPrims, bins})
     ];
 
-    this._mashAttribTable = new DTXMeshAttribTable({
+    this._meshAttributeTexture = new MeshAttributeTexture({
       gl,
       maxItems: memoryConfigs.maxBatchMeshes,
       description: `[Batch ${this.index}] - meshIndex -> geometryIndex, tileIndex`,
       getNumItems: () => this._numMeshes
     });
 
-    this._meshViewAttribTable = [
-      new DTXViewMeshAttribTable({
+    this._meshViewAttributeTexture = [
+      new MeshViewAttributeTexture({
         gl,
         maxItems: memoryConfigs.maxBatchMeshes,
         getNumItems: () => this._numMeshes,
@@ -142,46 +141,46 @@ export class GPUMemoryBatch {
 
     ];
 
-    this._meshMatrixTable = new DTXMatrixTable({
+    this._meshMatrixTexture = new MatrixTexture({
       gl,
       maxItems: memoryConfigs.maxBatchMeshes,
       getNumItems: () => this._numMeshes,
       description: `[Batch ${this.index}] - meshIndex -> modelMatrix`
     });
 
-    this._geometryAttribTable = new DTXGeometryAttribTable({
+    this._geometryAttributeTexture = new GeometryAttributeTexture({
       gl,
       maxItems: memoryConfigs.maxBatchGeometries,
       getNumItems: () => this._numGeometries,
       description: `[Batch ${this.index}] - geometryIndex -> verticesBase, indicesBase, edgeIndicesBase`
     });
 
-    this._geometryQuantRangeTable = new DTXGeometryQuantRangeTable({
+    this._geometryQuantRangeTexture = new GeometryQuantRangeTexture({
       gl,
       maxItems: memoryConfigs.maxBatchGeometries,
       getNumItems: () => this._numGeometries,
       description: `[Batch ${this.index}] - geometryIndex -> quantization ranges (offset, scale)`
     });
 
-    this._indices = new DTXPointerArray({
+    this._indexTexture = new IndexTexture({
       gl,
       maxItems: memoryConfigs.maxBatchIndices,
       description: `[Batch ${this.index}] - primitive indices`
     });
 
-    this._edgeIndices = new DTXPointerArray({
+    this._edgeIndexTexture = new IndexTexture({
       gl,
       maxItems: memoryConfigs.maxBatchIndices,
       description: `[Batch ${this.index}] - edge indices`
     });
 
-    this._vertexPositions = new DTXVertexPositions({
+    this._vertexPositionTexture = new VertexPositionTexture({
       gl,
       maxItems: memoryConfigs.maxBatchVertices,
       description: `[Batch ${this.index}] - vertex XYZ positions`
     });
 
-    this._vertexColors = new DTXVertexColors({
+    this._vertexColorTexture = new VertexColorTexture({
       gl,
       maxItems: memoryConfigs.maxBatchVertices,
       description: `[Batch ${this.index}] - vertex RGB colors`
@@ -191,16 +190,16 @@ export class GPUMemoryBatch {
       allocate(): SDKResult<void>;
       destroy(): void;
     }[] = [
-      ...this.primMeshIndexTables,
-      this._mashAttribTable,
-      ...this._meshViewAttribTable,
-      this._meshMatrixTable,
-      this._geometryAttribTable,
-      this._geometryQuantRangeTable,
-      this._indices,
-      this._edgeIndices,
-      this._vertexPositions,
-      this._vertexColors
+      ...this._primitiveMeshIndexTexture,
+      this._meshAttributeTexture,
+      ...this._meshViewAttributeTexture,
+      this._meshMatrixTexture,
+      this._geometryAttributeTexture,
+      this._geometryQuantRangeTexture,
+      this._indexTexture,
+      this._edgeIndexTexture,
+      this._vertexPositionTexture,
+      this._vertexColorTexture
     ];
 
     for (let i = 0, leni = textures.length; i < leni; i++) {
@@ -217,41 +216,41 @@ export class GPUMemoryBatch {
       views: [
         {
           numDrawablePrims: 0,
-          primMeshIndexTable: this.primMeshIndexTables[0],
-          meshViewAttribTable: this._meshViewAttribTable[0],
-          renderPassPrimRanges: this.primMeshIndexTables[0].passRanges //  FIXME:
+          primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[0],
+          meshViewAttributeTexture: this._meshViewAttributeTexture[0],
+          renderPassPrimitiveRanges: this._primitiveMeshIndexTexture[0].passRanges //  FIXME:
         },
         //     {
         //       numDrawablePrims: 0,
-        //       primMeshIndexTable: this.primMeshIndexTables[1],
-        //         meshViewAttribs: this._meshViewAttribTable[1],
-        //       passRanges: this.primMeshIndexTables[1].passRanges
+        //       primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[1],
+        //         meshViewAttribs: this._meshViewAttributeTexture[1],
+        //       passRanges: this._primitiveMeshIndexTexture[1].passRanges
         //     },
         //     {
         //       numDrawablePrims: 0,
-        //       primMeshIndexTable: this.primMeshIndexTables[2],
-        //         meshViewAttribs: this._meshViewAttribTable[2],
-        //       passRanges: this.primMeshIndexTables[2].passRanges
+        //       primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[2],
+        //         meshViewAttribs: this._meshViewAttributeTexture[2],
+        //       passRanges: this._primitiveMeshIndexTexture[2].passRanges
         //     },
         //     {
         //       numDrawablePrims: 0,
-        //       primMeshIndexTable: this.primMeshIndexTables[3],
-        //         meshViewAttribs: this._meshViewAttribTable[3],
-        //       passRanges: this.primMeshIndexTables[3].passRanges
+        //       primitiveMeshIndexTexture: this._primitiveMeshIndexTexture[3],
+        //         meshViewAttribs: this._meshViewAttributeTexture[3],
+        //       passRanges: this._primitiveMeshIndexTexture[3].passRanges
         // }
       ],
-      indices: this._indices,
-      edgeIndices: this._edgeIndices,
-      meshMatrixTable: this._meshMatrixTable,
-      meshAttribTable: this._mashAttribTable,
-      geometryAttribTable: this._geometryAttribTable,
-      geometryQuantRangeTable: this._geometryQuantRangeTable,
-      vertexPositions: this._vertexPositions,
-      vertexColors: this._vertexColors
+      indexTexture: this._indexTexture,
+      edgeIndexTexture: this._edgeIndexTexture,
+      meshMatrixTexture: this._meshMatrixTexture,
+      meshAttributeTexture: this._meshAttributeTexture,
+      geometryAttributeTexture: this._geometryAttributeTexture,
+      geometryQuantRangeTexture: this._geometryQuantRangeTexture,
+      vertexPositionTexture: this._vertexPositionTexture,
+      vertexColorTexture: this._vertexColorTexture
     };
 
     // this.structSpecs = {
-    //   MeshAttribs: this._mashAttribTable.structSpec
+    //   MeshAttribs: this._meshAttributeTexture.structSpec
     // }
 
     return {
@@ -262,28 +261,28 @@ export class GPUMemoryBatch {
 
   static get itemSizesInBytes(): { [key: string]: number } {
     return {
-      mesh: DTXMeshAttribTable.itemSizeInBytes
-        + DTXViewMeshAttribTable.itemSizeInBytes * 4 // 4 views FIXME
-        + DTXMatrixTable.itemSizeInBytes,
-      geometry: DTXGeometryAttribTable.itemSizeInBytes + DTXGeometryQuantRangeTable.itemSizeInBytes,
-      vertex: DTXVertexPositions.itemSizeInBytes + DTXVertexColors.itemSizeInBytes,
-      index: DTXPointerArray.itemSizeInBytes,
-      prim: DTXPrimMeshIndexTable.itemSizeInBytes
+      mesh: MeshAttributeTexture.itemSizeInBytes
+        + MeshViewAttributeTexture.itemSizeInBytes * 4 // 4 views FIXME
+        + MatrixTexture.itemSizeInBytes,
+      geometry: GeometryAttributeTexture.itemSizeInBytes + GeometryQuantRangeTexture.itemSizeInBytes,
+      vertex: VertexPositionTexture.itemSizeInBytes + VertexColorTexture.itemSizeInBytes,
+      index: IndexTexture.itemSizeInBytes,
+      prim: PrimitiveMeshIndexTexture.itemSizeInBytes
     }
   }
 
   getAllocatedBytes(): number {
     let total = 0;
-    total += this._vertexPositions.getAllocatedBytes();
-    total += this._vertexColors.getAllocatedBytes();
-    total += this._indices.getAllocatedBytes();
-    total += this._edgeIndices.getAllocatedBytes();
-    total += this._mashAttribTable.getAllocatedBytes();
-    total += this._geometryAttribTable.getAllocatedBytes();
-    total += this._geometryQuantRangeTable.getAllocatedBytes();
-    total += this._meshMatrixTable.getAllocatedBytes();
-    for (let i = 0; i < this.primMeshIndexTables.length; i++) {
-      total += this.primMeshIndexTables[i].getAllocatedBytes();
+    total += this._vertexPositionTexture.getAllocatedBytes();
+    total += this._vertexColorTexture.getAllocatedBytes();
+    total += this._indexTexture.getAllocatedBytes();
+    total += this._edgeIndexTexture.getAllocatedBytes();
+    total += this._meshAttributeTexture.getAllocatedBytes();
+    total += this._geometryAttributeTexture.getAllocatedBytes();
+    total += this._geometryQuantRangeTexture.getAllocatedBytes();
+    total += this._meshMatrixTexture.getAllocatedBytes();
+    for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
+      total += this._primitiveMeshIndexTexture[i].getAllocatedBytes();
     }
     return total;
   }
@@ -293,16 +292,16 @@ export class GPUMemoryBatch {
    */
   getUsedBytes(): number {
     let total = 0;
-    total += this._vertexPositions.getUsedBytes();
-    total += this._vertexColors.getUsedBytes();
-    total += this._indices.getUsedBytes();
-    total += this._edgeIndices.getUsedBytes();
-    total += this._mashAttribTable.getUsedBytes();
-    total += this._geometryAttribTable.getUsedBytes();
-    total += this._geometryQuantRangeTable.getUsedBytes();
-    total += this._meshMatrixTable.getUsedBytes();
-    for (let i = 0; i < this.primMeshIndexTables.length; i++) {
-      total += this.primMeshIndexTables[i].getUsedBytes();
+    total += this._vertexPositionTexture.getUsedBytes();
+    total += this._vertexColorTexture.getUsedBytes();
+    total += this._indexTexture.getUsedBytes();
+    total += this._edgeIndexTexture.getUsedBytes();
+    total += this._meshAttributeTexture.getUsedBytes();
+    total += this._geometryAttributeTexture.getUsedBytes();
+    total += this._geometryQuantRangeTexture.getUsedBytes();
+    total += this._meshMatrixTexture.getUsedBytes();
+    for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
+      total += this._primitiveMeshIndexTexture[i].getUsedBytes();
     }
     return total;
   }
@@ -326,13 +325,13 @@ export class GPUMemoryBatch {
     }
     // Vertex count (assumes 3 components per vertex)
     const vertCount = (geometry.positionsCompressed?.length ?? 0) / 3;
-    if (vertCount <= 0 || this._vertexPositions.canGetPortion(vertCount) === false) {
+    if (vertCount <= 0 || this._vertexPositionTexture.canGetPortion(vertCount) === false) {
       return false;
     }
     const isPoints = geometry.primitive === PointsPrimitive;
     if (isPoints) {
       // For points, prim→mesh lookup is sized by vertex count
-      if (this.primMeshIndexTables[0].canGetPortion(vertCount) === false) {
+      if (this._primitiveMeshIndexTexture[0].canGetPortion(vertCount) === false) {
         // Only need to check one view, as they are sized the same
         return false;
       }
@@ -340,17 +339,17 @@ export class GPUMemoryBatch {
       // For triangles, prim→mesh lookup is sized by triangle count
       const indexCount = geometry.indices?.length ?? 0;
       const triCount = indexCount / 3;
-      if (this.primMeshIndexTables[0].canGetPortion(triCount) === false) {
+      if (this._primitiveMeshIndexTexture[0].canGetPortion(triCount) === false) {
         return false;
       }
-      if (geometry.indices && this._indices.canGetPortion(indexCount) === false) {
+      if (geometry.indices && this._indexTexture.canGetPortion(indexCount) === false) {
         return false;
       }
-      if (geometry.edgeIndices && this._edgeIndices.canGetPortion(geometry.edgeIndices.length) === false) {
+      if (geometry.edgeIndices && this._edgeIndexTexture.canGetPortion(geometry.edgeIndices.length) === false) {
         return false;
       }
     }
-    if (geometry.colorsCompressed && this._vertexColors.canGetPortion(geometry.colorsCompressed.length) === false) {
+    if (geometry.colorsCompressed && this._vertexColorTexture.canGetPortion(geometry.colorsCompressed.length) === false) {
       return false;
     }
     return true;
@@ -396,16 +395,16 @@ export class GPUMemoryBatch {
 
     const cleanup = () => {
       if (positionsPortion) {
-        this._vertexPositions.putPortion(positionsPortion);
+        this._vertexPositionTexture.putPortion(positionsPortion);
       }
       if (vertexColorsPortion) {
-        this._vertexColors.putPortion(vertexColorsPortion);
+        this._vertexColorTexture.putPortion(vertexColorsPortion);
       }
       if (indicesHandle) {
-        this._indices.putPortion(indicesHandle);
+        this._indexTexture.putPortion(indicesHandle);
       }
       if (edgeIndicesHandle) {
-        this._edgeIndices.putPortion(edgeIndicesHandle);
+        this._edgeIndexTexture.putPortion(edgeIndicesHandle);
       }
       if (geometryIndex !== -1) {
         this._putFreeGeometryIndex(geometryIndex);
@@ -425,11 +424,11 @@ export class GPUMemoryBatch {
 
       geometryIndex = this._getFreeGeometryIndex();
 
-      positionsPortion = this._vertexPositions.getPortion(
+      positionsPortion = this._vertexPositionTexture.getPortion(
         sceneGeometry.positionsCompressed.length / 3, // 3xcomponents per position
         (newBase: number) => {
           const verticesBase = newBase / 3 // 3xcomponents per position
-          this._geometryAttribTable.setItem(geometryIndex, {
+          this._geometryAttributeTexture.setItem(geometryIndex, {
             verticesBase
           });
         });
@@ -443,17 +442,17 @@ export class GPUMemoryBatch {
         }
       }
 
-      this._vertexPositions.setPortionData(positionsPortion, sceneGeometry.positionsCompressed);
+      this._vertexPositionTexture.setPortionData(positionsPortion, sceneGeometry.positionsCompressed);
 
       const [xmin, ymin, zmin, xmax, ymax, zmax] = sceneGeometry.aabb;
 
-      this._geometryQuantRangeTable.setItem(geometryIndex, {
+      this._geometryQuantRangeTexture.setItem(geometryIndex, {
           offset: [xmin, ymin, zmin],
           scale: [(xmax - xmin) / 65536, (ymax - ymin) / 65536, (zmax - zmin) / 65536]
         });
 
       if (sceneGeometry.colorsCompressed) {
-        vertexColorsPortion = this._vertexColors.getPortion(sceneGeometry.colorsCompressed.length / 3); // RGB (0..255, 0..255, 0..255)
+        vertexColorsPortion = this._vertexColorTexture.getPortion(sceneGeometry.colorsCompressed.length / 3); // RGB (0..255, 0..255, 0..255)
         if (vertexColorsPortion === null) {
           cleanup();
           return {
@@ -462,14 +461,14 @@ export class GPUMemoryBatch {
             error: `GPUMemoryBatch.addMesh: Unable to allocate vertex colors portion for geometry ${sceneGeometry.id}`
           }
         }
-        this._vertexColors.setPortionData(vertexColorsPortion, sceneGeometry.colorsCompressed);
+        this._vertexColorTexture.setPortionData(vertexColorsPortion, sceneGeometry.colorsCompressed);
       }
 
       if (sceneGeometry.primitive !== PointsPrimitive && sceneGeometry.indices) {
-        indicesHandle = this._indices.getPortion(
+        indicesHandle = this._indexTexture.getPortion(
           sceneGeometry.indices.length,
           (newBase: number) => {
-            this._geometryAttribTable.setItem(geometryIndex, {
+            this._geometryAttributeTexture.setItem(geometryIndex, {
               indicesBase: newBase
             });
           }
@@ -484,13 +483,13 @@ export class GPUMemoryBatch {
           }
         }
 
-        this._indices.setPortionData(indicesHandle, sceneGeometry.indices);
+        this._indexTexture.setPortionData(indicesHandle, sceneGeometry.indices);
 
         if (sceneGeometry.primitive === TrianglesPrimitive && sceneGeometry.edgeIndices) {
-          edgeIndicesHandle = this._edgeIndices.getPortion(
+          edgeIndicesHandle = this._edgeIndexTexture.getPortion(
             sceneGeometry.edgeIndices.length,
             (newBase: number) => {
-              this._geometryAttribTable.setItem(geometryIndex, {
+              this._geometryAttributeTexture.setItem(geometryIndex, {
                 edgeIndicesBase: newBase
               });
             }
@@ -505,11 +504,11 @@ export class GPUMemoryBatch {
             }
           }
 
-          this._edgeIndices.setPortionData(edgeIndicesHandle, sceneGeometry.edgeIndices);
+          this._edgeIndexTexture.setPortionData(edgeIndicesHandle, sceneGeometry.edgeIndices);
         }
       }
 
-      this._geometryAttribTable.setItem(geometryIndex, {
+      this._geometryAttributeTexture.setItem(geometryIndex, {
         verticesBase: positionsPortion.base, // XYZ
         indicesBase: indicesHandle ? indicesHandle.base : 0,
         edgeIndicesBase: edgeIndicesHandle ? edgeIndicesHandle.base : 0
@@ -531,12 +530,12 @@ export class GPUMemoryBatch {
 
     geometryHandle.useCount++;
 
-    this._mashAttribTable.setItem(meshIndex, {
+    this._meshAttributeTexture.setItem(meshIndex, {
       tileIndex: 0, // Set by setMeshAttribs()
       geometryIndex: geometryHandle.geometryIndex
     });
 
-    this._meshViewAttribTable[0].setItem(meshIndex, { // FIXME: Only defined for View 0
+    this._meshViewAttributeTexture[0].setItem(meshIndex, { // FIXME: Only defined for View 0
       color: [
         Math.floor(sceneMesh.color[0] * 255.0),
         Math.floor(sceneMesh.color[1] * 255.0),
@@ -545,7 +544,7 @@ export class GPUMemoryBatch {
       opacity: Math.floor(sceneMesh.opacity * 255.0)
     });
 
-    this._meshMatrixTable.setItem(meshIndex, sceneMesh.matrix);
+    this._meshMatrixTexture.setItem(meshIndex, sceneMesh.matrix);
 
     const primitiveCount = sceneGeometry.primitive === PointsPrimitive
       ? sceneGeometry.positionsCompressed.length / 3
@@ -553,16 +552,16 @@ export class GPUMemoryBatch {
         ? sceneGeometry.indices.length / 2
         : sceneGeometry.indices.length / 3;
 
-    const primMeshIndexTableHandles = [ // one per view
-      this.primMeshIndexTables[0].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE), // FIXME: Only defined for View 0
-      // this.primMeshIndexTables[1].createPortion(primitiveCount, meshIndex, 0),
-      // this.primMeshIndexTables[2].createPortion(primitiveCount, meshIndex, 0),
-      // this.primMeshIndexTables[3].createPortion(primitiveCount, meshIndex, 0)
+    const primitiveMeshIndexTextureHandles = [ // one per view
+      this._primitiveMeshIndexTexture[0].createPortion(primitiveCount, meshIndex, RENDER_PASSES.OPAQUE), // FIXME: Only defined for View 0
+      // this._primitiveMeshIndexTexture[1].createPortion(primitiveCount, meshIndex, 0),
+      // this._primitiveMeshIndexTexture[2].createPortion(primitiveCount, meshIndex, 0),
+      // this._primitiveMeshIndexTexture[3].createPortion(primitiveCount, meshIndex, 0)
     ];
 
     this._meshHandles[sceneMesh.id] = {
       meshIndex,
-      primMeshIndexTableHandles
+      primitiveMeshIndexTextureHandles
     };
 
     this._sceneGeometries[geometryHandle.geometryIndex] = sceneGeometry;
@@ -588,7 +587,7 @@ export class GPUMemoryBatch {
   setMeshMatrix(
     meshIndex: number,
     matrix: Mat4): void {
-    this._meshMatrixTable.setItem(meshIndex, matrix);
+    this._meshMatrixTexture.setItem(meshIndex, matrix);
   }
 
   /**
@@ -605,7 +604,7 @@ export class GPUMemoryBatch {
     params: {
       tileIndex?: number;
     }) {
-    this._mashAttribTable.setItem(meshIndex, params);
+    this._meshAttributeTexture.setItem(meshIndex, params);
   }
 
   /**
@@ -626,10 +625,10 @@ export class GPUMemoryBatch {
       pickable?: boolean;
       clippable?: boolean;
     }) {
-    if (viewIndex < 0 || viewIndex >= this._meshViewAttribTable.length) {
+    if (viewIndex < 0 || viewIndex >= this._meshViewAttributeTexture.length) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshViewAttribs: Invalid viewIndex ${viewIndex}`);
     }
-    this._meshViewAttribTable[viewIndex].setItem(meshIndex, params);
+    this._meshViewAttributeTexture[viewIndex].setItem(meshIndex, params);
   }
 
   /**
@@ -651,11 +650,11 @@ export class GPUMemoryBatch {
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no meshHandle`);
     }
-    const primMeshIndexTableHandle = meshHandle.primMeshIndexTableHandles[viewIndex];
-    if (!primMeshIndexTableHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no primMeshIndexTableHandle`);
+    const primitiveMeshIndexTextureHandle = meshHandle.primitiveMeshIndexTextureHandles[viewIndex];
+    if (!primitiveMeshIndexTextureHandle) {
+      throw new SDKInternalException(`GPUMemoryBatch.setMeshRenderBin: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
     }
-    this.primMeshIndexTables[viewIndex].setRenderPass(primMeshIndexTableHandle, renderPass);
+    this._primitiveMeshIndexTexture[viewIndex].setRenderPass(primitiveMeshIndexTextureHandle, renderPass);
   }
 
   /**
@@ -677,11 +676,11 @@ export class GPUMemoryBatch {
     if (!meshHandle) {
       throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no meshHandle`);
     }
-    const primMeshIndexTableHandle = meshHandle.primMeshIndexTableHandles[viewIndex];
-    if (!primMeshIndexTableHandle) {
-      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primMeshIndexTableHandle`);
+    const primitiveMeshIndexTextureHandle = meshHandle.primitiveMeshIndexTextureHandles[viewIndex];
+    if (!primitiveMeshIndexTextureHandle) {
+      throw new SDKInternalException(`GPUMemoryBatch.setMeshVisible: Mesh ${meshIndex} has no primitiveMeshIndexTextureHandle`);
     }
-    this.primMeshIndexTables[viewIndex].setVisible(primMeshIndexTableHandle, visible);
+    this._primitiveMeshIndexTexture[viewIndex].setVisible(primitiveMeshIndexTextureHandle, visible);
   }
 
   /**
@@ -702,27 +701,27 @@ export class GPUMemoryBatch {
     const geometryHandle = this._geometryHandles[sceneGeometry.id];
     if (geometryHandle && --geometryHandle.useCount <= 0) {
       if (geometryHandle.positionsPortion) {
-        this._vertexPositions.putPortion(geometryHandle.positionsPortion);
+        this._vertexPositionTexture.putPortion(geometryHandle.positionsPortion);
       }
       if (geometryHandle.vertexColorsPortion) {
-        this._vertexColors.putPortion(geometryHandle.vertexColorsPortion);
+        this._vertexColorTexture.putPortion(geometryHandle.vertexColorsPortion);
       }
       delete this._geometryHandles[sceneGeometry.id];
       this._putFreeGeometryIndex(geometryHandle.geometryIndex);
       this._numGeometries--;
     }
 
-    if (meshHandle.primMeshIndexTableHandles) {
-      this.primMeshIndexTables[0].deletePortion(meshHandle.primMeshIndexTableHandles[0]); // FIXME: Only defined for View 0
-      // this.primMeshIndexTables[1].deletePortion(meshHandle.primMeshIndexTableHandles[1]);
-      // this.primMeshIndexTables[2].deletePortion(meshHandle.primMeshIndexTableHandles[2]);
-      // this.primMeshIndexTables[3].deletePortion(meshHandle.primMeshIndexTableHandles[3]);
+    if (meshHandle.primitiveMeshIndexTextureHandles) {
+      this._primitiveMeshIndexTexture[0].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[0]); // FIXME: Only defined for View 0
+      // this._primitiveMeshIndexTexture[1].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[1]);
+      // this._primitiveMeshIndexTexture[2].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[2]);
+      // this._primitiveMeshIndexTexture[3].deletePortion(meshHandle.primitiveMeshIndexTextureHandles[3]);
     }
     if (meshHandle.indicesHandle) {
-      this._indices.putPortion(meshHandle.indicesHandle);
+      this._indexTexture.putPortion(meshHandle.indicesHandle);
     }
     if (meshHandle.edgeIndicesHandle) {
-      this._edgeIndices.putPortion(meshHandle.edgeIndicesHandle);
+      this._edgeIndexTexture.putPortion(meshHandle.edgeIndicesHandle);
     }
 
     delete this._meshHandles[sceneMesh.id];
@@ -828,24 +827,24 @@ export class GPUMemoryBatch {
    */
   uploadChanges(): boolean {
     let didFlush = false;
-    didFlush = this._indices.uploadChanges() || didFlush;
-    didFlush = this._mashAttribTable.uploadChanges() || didFlush;
-    for (let i = 0, len = this._meshViewAttribTable.length; i < len; i++) {
-      didFlush = this._meshViewAttribTable[i].uploadChanges() || didFlush;
+    didFlush = this._indexTexture.uploadChanges() || didFlush;
+    didFlush = this._meshAttributeTexture.uploadChanges() || didFlush;
+    for (let i = 0, len = this._meshViewAttributeTexture.length; i < len; i++) {
+      didFlush = this._meshViewAttributeTexture[i].uploadChanges() || didFlush;
     }
-    didFlush = this._geometryQuantRangeTable.uploadChanges() || didFlush;
-    didFlush = this._geometryAttribTable.uploadChanges() || didFlush;
-    didFlush = this._edgeIndices.uploadChanges() || didFlush;
-    didFlush = this._vertexPositions.uploadChanges() || didFlush;
-    didFlush = this._vertexColors.uploadChanges() || didFlush;
-    didFlush = this._meshMatrixTable.uploadChanges() || didFlush;
+    didFlush = this._geometryQuantRangeTexture.uploadChanges() || didFlush;
+    didFlush = this._geometryAttributeTexture.uploadChanges() || didFlush;
+    didFlush = this._edgeIndexTexture.uploadChanges() || didFlush;
+    didFlush = this._vertexPositionTexture.uploadChanges() || didFlush;
+    didFlush = this._vertexColorTexture.uploadChanges() || didFlush;
+    didFlush = this._meshMatrixTexture.uploadChanges() || didFlush;
     for (let i = 0; i < 4; i++) {
-      const primMeshIndexTable = this.primMeshIndexTables[i];
-      if (primMeshIndexTable) {
-        const primMeshIndexTableFlushed = primMeshIndexTable.uploadChanges()
-        didFlush = primMeshIndexTableFlushed;
-        if (primMeshIndexTableFlushed) {
-          this.dataTextures.views[i].numDrawablePrims = primMeshIndexTable.numPrimitives;
+      const primitiveMeshIndexTexture = this._primitiveMeshIndexTexture[i];
+      if (primitiveMeshIndexTexture) {
+        const primitiveMeshIndexTextureFlushed = primitiveMeshIndexTexture.uploadChanges()
+        didFlush = primitiveMeshIndexTextureFlushed;
+        if (primitiveMeshIndexTextureFlushed) {
+          this.dataTextures.views[i].numDrawablePrims = primitiveMeshIndexTexture.numPrimitives;
         }
       }
     }
@@ -854,16 +853,16 @@ export class GPUMemoryBatch {
 
   webglContextRestored(): SDKResult<void> {
     for (const dataTexture in  [
-      ...this.primMeshIndexTables,
-      this._mashAttribTable,
-      ...this._meshViewAttribTable,
-      this._meshMatrixTable,
-      this._geometryAttribTable,
-      this._geometryQuantRangeTable,
-      this._indices,
-      this._edgeIndices,
-      this._vertexPositions,
-      this._vertexColors
+      ...this._primitiveMeshIndexTexture,
+      this._meshAttributeTexture,
+      ...this._meshViewAttributeTexture,
+      this._meshMatrixTexture,
+      this._geometryAttributeTexture,
+      this._geometryQuantRangeTexture,
+      this._indexTexture,
+      this._edgeIndexTexture,
+      this._vertexPositionTexture,
+      this._vertexColorTexture
     ]) {
       const result = (<any>dataTexture).webglContextRestored();
       if (!result.ok) {
@@ -882,18 +881,18 @@ export class GPUMemoryBatch {
       return ref;
     };
     this._onTick = clear(this._onTick);
-    for (let i = 0; i < this.primMeshIndexTables.length; i++) {
-      this.primMeshIndexTables[i].destroy();
+    for (let i = 0; i < this._primitiveMeshIndexTexture.length; i++) {
+      this._primitiveMeshIndexTexture[i].destroy();
     }
-    this.primMeshIndexTables = [];
-    this._mashAttribTable = clear(this._mashAttribTable);
-    this._meshViewAttribTable = this._meshViewAttribTable.map(clear);
-    this._geometryAttribTable = clear(this._geometryAttribTable);
-    this._indices = clear(this._indices);
-    this._edgeIndices = clear(this._edgeIndices);
-    this._vertexPositions = clear(this._vertexPositions);
-    this._vertexColors = clear(this._vertexColors);
-    this._meshMatrixTable = clear(this._meshMatrixTable);
+    this._primitiveMeshIndexTexture = [];
+    this._meshAttributeTexture = clear(this._meshAttributeTexture);
+    this._meshViewAttributeTexture = this._meshViewAttributeTexture.map(clear);
+    this._geometryAttributeTexture = clear(this._geometryAttributeTexture);
+    this._indexTexture = clear(this._indexTexture);
+    this._edgeIndexTexture = clear(this._edgeIndexTexture);
+    this._vertexPositionTexture = clear(this._vertexPositionTexture);
+    this._vertexColorTexture = clear(this._vertexColorTexture);
+    this._meshMatrixTexture = clear(this._meshMatrixTexture);
 
   }
 }

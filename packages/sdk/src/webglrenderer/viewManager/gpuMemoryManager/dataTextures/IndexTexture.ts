@@ -1,9 +1,13 @@
 import {PortionDataTexture} from "./PortionDataTexture";
 
-export class DTXPointerArray extends PortionDataTexture {
+export class IndexTexture extends PortionDataTexture {
 
   public static readonly itemSizeInBytes = 4; // 1 × uint32 per item
 
+  /**
+   * @private
+   * @param options
+   */
   constructor(options: {
     gl: WebGL2RenderingContext;
     maxItems: number; // number of items (vertices)
@@ -18,7 +22,7 @@ export class DTXPointerArray extends PortionDataTexture {
       maxItems: options.maxItems,
       getNumItems: () => this.numItems,
       width: 4096,
-      itemSizeInBytes: DTXPointerArray.itemSizeInBytes, // 1 × uint32 per item
+      itemSizeInBytes: IndexTexture.itemSizeInBytes, // 1 × uint32 per item
       texelsPerItem: 1,    // 1 R32UI texel per item
       elementsPerTexel: 1 // R32UI
     });

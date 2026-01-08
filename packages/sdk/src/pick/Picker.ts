@@ -13,7 +13,7 @@ import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../constants"
 import type {SceneGeometry, SceneObject} from "../scene";
 import {decompressPositions3WithAABB3} from "../compression";
 import type {FloatArrayParam} from "../math";
-import type {Frustum3} from "../boundaries";
+import type {Frustum3} from "../math/boundaries";
 import type {MarqueePickResult} from "./MarqueePickResult";
 import {PickPrimsCache} from "./PickPrimsCache";
 import type {RayPickResult} from "./RayPickResult";

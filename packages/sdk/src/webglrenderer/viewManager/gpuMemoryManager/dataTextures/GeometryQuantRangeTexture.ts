@@ -4,9 +4,13 @@ import {ItemDataTexture} from "./ItemDataTexture";
 /**
  * Stores per-geometry quantization range data (offset and scale).
  */
-export class DTXGeometryQuantRangeTable extends ItemDataTexture {
+export class GeometryQuantRangeTexture extends ItemDataTexture {
   static readonly itemSizeInBytes = 32; // 8 × float per item
 
+  /**
+   * @private
+   * @param options
+   */
   constructor(options: {
     gl: WebGL2RenderingContext;
     maxItems: number;
@@ -22,7 +26,7 @@ export class DTXGeometryQuantRangeTable extends ItemDataTexture {
       maxItems: options.maxItems,
       getNumItems: options.getNumItems,
       width: 2048,
-      itemSizeInBytes: DTXGeometryQuantRangeTable.itemSizeInBytes,
+      itemSizeInBytes: GeometryQuantRangeTexture.itemSizeInBytes,
       texelsPerItem: 2,
       elementsPerTexel: 4,
     });

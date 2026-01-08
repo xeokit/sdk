@@ -26,7 +26,7 @@
  * ## Usage Example
  *
  * ```javascript
- * import { createAABBFloat64 } from "@xeokit/sdk/boundaries";
+ * import { createAABBFloat64 } from "@xeokit/sdk/math/boundaries";
  *
  * const aabb = createAABB3Float64([-100, -100, -100, 100, 100, 100]);
  * const aabb2 = createAABB3Float32([-50, -50, -50, 50, 50, 50]);

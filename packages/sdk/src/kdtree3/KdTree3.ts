@@ -1,4 +1,4 @@
-import {type AABB3, containsAABB3, createAABB3Float64, expandAABB3} from "../boundaries";
+import {type AABB3, containsAABB3, createAABB3Float64, expandAABB3} from "../math/boundaries";
 import type {KdItem3D} from "./KdItem3";
 import type {KdNode3} from "./KdNode3";
 import type {KdTree3Params} from "./KdTree3Params";

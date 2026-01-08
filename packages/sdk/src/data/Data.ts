@@ -7,15 +7,23 @@ import {DataEvents} from "./DataEvents";
 import {createUUID} from "../utils";
 
 /**
- * Container of model semantic data.
+ * Represents the root container for semantic data, including models, objects,
+ * relationships and property sets.
  *
- * A Data is a container of {@link DataModel | DataModels}, {@link DataObject | DataObjects},
- * {@link Relationship | Relationships}, {@link PropertySet | PropertySets}
- * and {@link Property | Properties}.
+ * A `Data` serves as the authoritative registry and lifecycle manager of:
  *
- * See {@link data | @xeokit/sdk/data}  for usage.
+ * - {@link DataModel | DataModels}
+ * - {@link DataObject | DataObjects}
+ * - {@link Relationship | Relationships}
+ * - {@link PropertySet | PropertySets}
+ *
+ * It provides:
+ * - A central event hub via {@link DataEvents}
+ * - Lifecycle management (creation, destruction, registration)
+ * - Error reporting with optional console logging
+ *
+ * See {@link data | @xeokit/sdk/data} for general usage examples.
  */
-
 export class Data {
 
   /**

@@ -3,7 +3,7 @@
 // import {View} from "@xeokit/viewer";
 // import {createMat4, createVec2, frustumMat4} from "@xeokit/math";
 // import {FloatArrayParam} from "@xeokit/math";
-// import {createAABB2, Frustum3, setFrustum3} from "@xeokit/boundaries";
+// import {createAABB2, Frustum3, setFrustum3} from "@xeokit/math/boundaries";
 //
 // /**
 //  *

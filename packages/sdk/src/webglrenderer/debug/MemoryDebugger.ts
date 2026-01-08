@@ -1,10 +1,10 @@
 // MemoryDebugger.ts (extended with GPU memory usage panel)
-import { DataTexture } from "./viewManager/gpuMemoryManager/dtx/DataTexture";
-import type { DataTextures } from "./viewManager/gpuMemoryManager/DataTextures";
-import type { MemoryUsage } from "./MemoryUsage";
-import { WebGLRenderer } from "./WebGLRenderer";
-import type { PrimRange } from "./viewManager/gpuMemoryManager/dtx/PrimRange";
-import { RENDER_PASSES } from "./viewManager/RENDER_PASSES";
+import { DataTexture } from "../viewManager/gpuMemoryManager/dataTextures/DataTexture";
+import type { DataTextures } from "../viewManager/gpuMemoryManager/DataTextures";
+import type { MemoryUsage } from "../MemoryUsage";
+import { WebGLRenderer } from "../WebGLRenderer";
+import type { PrimRange } from "../viewManager/gpuMemoryManager/dataTextures/PrimRange";
+import { RENDER_PASSES } from "../viewManager/RENDER_PASSES";
 
 
 /**
@@ -15,7 +15,7 @@ const DEBUG_VIEW_ITEMS = 128; // N
 /**
  * Displays:
  *  1) GPU memory usage (allocated/used)
- *  2) Batch-level renderPassPrimRanges for each DataTextures batch
+ *  2) Batch-level renderPassPrimitiveRanges for each DataTextures batch
  *  3) First N items for each DataTexture using getItem(index)
  *  4) DataTexture.description shown above each texture output box
  */
@@ -50,20 +50,20 @@ export class MemoryDebugger {
 
   private _init() {
     this.root = document.createElement("div");
-    this.root.className = "dtx-json-root";
+    this.root.className = "dataTextures-json-root";
     this.host.appendChild(this.root);
 
     this.header = document.createElement("div");
-    this.header.className = "dtx-json-header";
+    this.header.className = "dataTextures-json-header";
     this.root.appendChild(this.header);
 
     // NEW: memory panel lives under the header
     this.memPanel = document.createElement("div");
-    this.memPanel.className = "dtx-mem-panel";
+    this.memPanel.className = "dataTextures-mem-panel";
     this.root.appendChild(this.memPanel);
 
     this.grid = document.createElement("div");
-    this.grid.className = "dtx-json-grid";
+    this.grid.className = "dataTextures-json-grid";
     this.root.appendChild(this.grid);
 
     this.injectStylesOnce();
@@ -108,16 +108,16 @@ export class MemoryDebugger {
 
   private buildHeader() {
     const title = document.createElement("div");
-    title.className = "dtx-json-title";
+    title.className = "dataTextures-json-title";
     title.textContent = `[@xeokit/sdk/webglrenderer/GPUMemoryDebugger] - Showing first ${this.maxItemsPerTexture} items per data texture`;
     this.header.appendChild(title);
 
     const controls = document.createElement("div");
-    controls.className = "dtx-json-controls";
+    controls.className = "dataTextures-json-controls";
     this.header.appendChild(controls);
 
     const nLabel = document.createElement("label");
-    nLabel.className = "dtx-json-control";
+    nLabel.className = "dataTextures-json-control";
     nLabel.textContent = "Items ";
     const nInput = document.createElement("input");
     nInput.type = "number";
@@ -135,7 +135,7 @@ export class MemoryDebugger {
     controls.appendChild(nLabel);
 
     const refreshBtn = document.createElement("button");
-    refreshBtn.className = "dtx-json-button";
+    refreshBtn.className = "dataTextures-json-button";
     refreshBtn.textContent = "Refresh";
     refreshBtn.addEventListener("click", () => this.refresh());
     controls.appendChild(refreshBtn);
@@ -149,41 +149,41 @@ export class MemoryDebugger {
     // Layout:
     //  [GPU memory]  Allocated: X MB   Used: Y MB   [██████----]  (percent)
     const left = document.createElement("div");
-    left.className = "dtx-mem-left";
+    left.className = "dataTextures-mem-left";
     left.textContent = "GPU memory";
     this.memPanel.appendChild(left);
 
     const stats = document.createElement("div");
-    stats.className = "dtx-mem-stats";
+    stats.className = "dataTextures-mem-stats";
     this.memPanel.appendChild(stats);
 
     this.memAllocatedEl = document.createElement("div");
-    this.memAllocatedEl.className = "dtx-mem-stat";
+    this.memAllocatedEl.className = "dataTextures-mem-stat";
     stats.appendChild(this.memAllocatedEl);
 
     this.memUsedEl = document.createElement("div");
-    this.memUsedEl.className = "dtx-mem-stat";
+    this.memUsedEl.className = "dataTextures-mem-stat";
     stats.appendChild(this.memUsedEl);
 
     const barWrap = document.createElement("div");
-    barWrap.className = "dtx-mem-bar-wrap";
+    barWrap.className = "dataTextures-mem-bar-wrap";
     this.memPanel.appendChild(barWrap);
 
     const barBg = document.createElement("div");
-    barBg.className = "dtx-mem-bar-bg";
+    barBg.className = "dataTextures-mem-bar-bg";
     barWrap.appendChild(barBg);
 
     this.memBarUsed = document.createElement("div");
-    this.memBarUsed.className = "dtx-mem-bar-used";
+    this.memBarUsed.className = "dataTextures-mem-bar-used";
     barBg.appendChild(this.memBarUsed);
 
     this.memNoteEl = document.createElement("div");
-    this.memNoteEl.className = "dtx-mem-note";
+    this.memNoteEl.className = "dataTextures-mem-note";
     this.memPanel.appendChild(this.memNoteEl);
 
     // Manual refresh button (handy if memory updates without texture events)
     const btn = document.createElement("button");
-    btn.className = "dtx-json-button";
+    btn.className = "dataTextures-json-button";
     btn.textContent = "Refresh memory";
     btn.addEventListener("click", () => this.refreshMemoryUsage());
     this.memPanel.appendChild(btn);
@@ -297,8 +297,8 @@ export class MemoryDebugger {
     const dataTextures = memoryViewRes.value.dataTextures as DataTextures;
     if (!dataTextures) throw new Error("MemoryDebugger: renderer is rendering and should have dataTextures");
 
-    dataTextures.viewTileCameraMatrices?.forEach((t, i) => push(t, `viewTileCameraMatrices[${i}]`));
-    dataTextures.viewTilePickMatrices?.forEach((t, i) => push(t, `viewTilePickMatrices[${i}]`));
+    dataTextures.viewTileCameraMatrixTexture?.forEach((t, i) => push(t, `viewTileCameraMatrixTexture[${i}]`));
+    dataTextures.viewTilePickMatrixTexture?.forEach((t, i) => push(t, `viewTilePickMatrixTexture[${i}]`));
 
     this.batchInfos.length = 0;
 
@@ -306,11 +306,11 @@ export class MemoryDebugger {
       push(batch.indices, `batches[${bi}].indices`);
       push(batch.edgeIndices, `batches[${bi}].edgeIndices`);
       push(batch.meshAttribTable, `batches[${bi}].meshAttribTable`);
-      push(batch.meshMatrixTable, `batches[${bi}].meshMatrixTable`);
-      push(batch.geometryAttribTable, `batches[${bi}].geometryAttribTable`);
-      push(batch.geometryQuantRangeTable, `batches[${bi}].geometryQuantRangeTable`);
-      push(batch.vertexPositions, `batches[${bi}].vertexPositions`);
-      push(batch.vertexColors, `batches[${bi}].vertexColors`);
+      push(batch.meshMatrixTexture, `batches[${bi}].meshMatrixTexture`);
+      push(batch.geometryAttributeTexture, `batches[${bi}].geometryAttributeTexture`);
+      push(batch.geometryQuantRangeTexture, `batches[${bi}].geometryQuantRangeTexture`);
+      push(batch.vertexPositionTexture, `batches[${bi}].vertexPositionTexture`);
+      push(batch.vertexColorTexture, `batches[${bi}].vertexColorTexture`);
 
       batch.views?.forEach((v: any, vi: number) => {
 
@@ -321,14 +321,14 @@ export class MemoryDebugger {
           getRanges: () => (renderPassPrimRanges as PrimRange[] | undefined),
         });
 
-        push(v.primMeshIndexTable, `batches[${bi}].views[${vi}].primMeshIndexTable`);
-        push(v.meshViewAttribTable, `batches[${bi}].views[${vi}].meshViewAttribTable`);
+        push(v.primitiveMeshIndexTexture, `batches[${bi}].views[${vi}].primitiveMeshIndexTexture`);
+        push(v.meshAttributeTexture, `batches[${bi}].views[${vi}].meshAttributeTexture`);
       });
 
       // this.batchInfos.push({
       //   batchIndex: bi,
-      //   path: `batches[${bi}].renderPassPrimRanges`,
-      //   getRanges: () => (renderPassPrimRanges as PrimRange[] | undefined),
+      //   path: `batches[${bi}].renderPassPrimitiveRanges`,
+      //   getRanges: () => (renderPassPrimitiveRanges as PrimRange[] | undefined),
       // });
     });
 
@@ -344,38 +344,38 @@ export class MemoryDebugger {
   private buildGrid() {
     this.grid.innerHTML = "";
 
-    // 1) Batch renderPassPrimRanges section
+    // 1) Batch renderPassPrimitiveRanges section
     if (this.batchInfos.length) {
       const section = document.createElement("div");
-      section.className = "dtx-json-section";
-      section.textContent = "Batch renderPassPrimRanges";
+      section.className = "dataTextures-json-section";
+      section.textContent = "Batch renderPassPrimitiveRanges";
       this.grid.appendChild(section);
 
       for (const b of this.batchInfos) {
         const card = document.createElement("div");
-        card.className = "dtx-json-card";
+        card.className = "dataTextures-json-card";
 
         const top = document.createElement("div");
-        top.className = "dtx-json-card-top";
+        top.className = "dataTextures-json-card-top";
         card.appendChild(top);
 
         const name = document.createElement("div");
-        name.className = "dtx-json-card-title";
+        name.className = "dataTextures-json-card-title";
         name.textContent = b.path;
         top.appendChild(name);
 
         const meta = document.createElement("div");
-        meta.className = "dtx-json-card-meta";
+        meta.className = "dataTextures-json-card-meta";
         meta.textContent = `batch ${b.batchIndex}`;
         top.appendChild(meta);
 
         const pre = document.createElement("pre");
-        pre.className = "dtx-json-pre";
+        pre.className = "dataTextures-json-pre";
         pre.textContent = "(rendering...)";
         card.appendChild(pre);
 
         const footer = document.createElement("div");
-        footer.className = "dtx-json-card-footer";
+        footer.className = "dataTextures-json-card-footer";
         footer.textContent = `Lists pass bins: { firstPrim, numPrims }`;
         card.appendChild(footer);
 
@@ -390,42 +390,42 @@ export class MemoryDebugger {
 
     // 2) Texture items section
     const section2 = document.createElement("div");
-    section2.className = "dtx-json-section";
+    section2.className = "dataTextures-json-section";
     section2.textContent = "Texture items (getItem)";
     this.grid.appendChild(section2);
 
     for (const { tex, path } of this.allTextures) {
       const card = document.createElement("div");
-      card.className = "dtx-json-card";
+      card.className = "dataTextures-json-card";
 
       const top = document.createElement("div");
-      top.className = "dtx-json-card-top";
+      top.className = "dataTextures-json-card-top";
       card.appendChild(top);
 
       // description banner
       const desc = document.createElement("div");
-      desc.className = "dtx-json-card-desc";
+      desc.className = "dataTextures-json-card-desc";
       const description = (tex as any).description as string | undefined;
       desc.textContent = description?.trim() ? description : "(no description)";
       card.appendChild(desc);
 
       const name = document.createElement("div");
-      name.className = "dtx-json-card-title";
+      name.className = "dataTextures-json-card-title";
       name.textContent = path;
       top.appendChild(name);
 
       const meta = document.createElement("div");
-      meta.className = "dtx-json-card-meta";
+      meta.className = "dataTextures-json-card-meta";
       meta.textContent = `${tex.width ?? 0} × ${tex.height ?? 0}`;
       top.appendChild(meta);
 
       const pre = document.createElement("pre");
-      pre.className = "dtx-json-pre";
+      pre.className = "dataTextures-json-pre";
       pre.textContent = "(rendering...)";
       card.appendChild(pre);
 
       const footer = document.createElement("div");
-      footer.className = "dtx-json-card-footer";
+      footer.className = "dataTextures-json-card-footer";
       footer.textContent = `Items are queried by index: getItem(0..N-1).`;
       card.appendChild(footer);
 
@@ -465,7 +465,7 @@ export class MemoryDebugger {
       this.unsubs.push(unsub);
     }
 
-    // NEW: subscribe to primMeshIndexTable updates for each batch view
+    // NEW: subscribe to primitiveMeshIndexTexture updates for each batch view
     const memoryViewRes = this.renderer.getMemoryView();
     if (memoryViewRes.ok === false) return;
     const dataTextures = memoryViewRes.value.dataTextures as DataTextures;
@@ -473,12 +473,12 @@ export class MemoryDebugger {
 
     dataTextures.batches?.forEach((batch: any, bi: number) => {
       batch.views?.forEach((view: any, vi: number) => {
-        const primMeshIndexTable = view.primMeshIndexTable;
-        if (primMeshIndexTable && typeof primMeshIndexTable.onUpdated?.subscribe === "function") {
+        const primitiveMeshIndexTexture = view.primitiveMeshIndexTexture;
+        if (primitiveMeshIndexTexture && typeof primitiveMeshIndexTexture.onUpdated?.subscribe === "function") {
           // Find the corresponding BatchInfo for this batch
           const batchInfo = this.batchInfos.find(b => b.batchIndex === bi);
           if (batchInfo) {
-            const unsub = primMeshIndexTable.onUpdated.subscribe(() => {
+            const unsub = primitiveMeshIndexTexture.onUpdated.subscribe(() => {
               if (batchInfo.preEl) this.renderBatchRanges(batchInfo);
             });
             this.unsubs.push(() => unsub());
@@ -598,7 +598,7 @@ export class MemoryDebugger {
   // ---------------------------------------------------------------------------
 
   private injectStylesOnce() {
-    const id = "dtx-json-styles";
+    const id = "dataTextures-json-styles";
     if (document.getElementById(id)) return;
 
     const style = document.createElement("style");

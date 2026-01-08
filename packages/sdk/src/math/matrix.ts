@@ -1,3 +1,8 @@
+/**
+ * Matrix math functions.
+ *
+ * @module math/matrix
+ */
 import {
   addVec4,
   createVec3Float64,
@@ -37,8 +42,10 @@ export type Mat4Float32 =
   number, number, number, number];
 
 /**
- * 4×4 double-precision float matrix.
+ * 3×3 floating-point matrix.
  */
+export type Mat3 = Mat3Float32 | Mat3Float64;
+
 export type Mat4Float64 =
   | Float64Array<any>
   | [
@@ -48,9 +55,54 @@ export type Mat4Float64 =
   number, number, number, number];
 
 /**
- * 3×3 floating-point matrix.
+ * Returns a 4x4 perspective projection matrix based on the given field of view, aspect ratio, and near/far clipping planes.
+ *
+ * This function generates a perspective projection matrix, which transforms 3D coordinates into 2D space. The matrix
+ * maps the frustum defined by the near and far planes and the field of view into the canonical view volume.
+ *
+ * @param  fovyrad - The vertical field of view (in radians).
+ * @param  aspectratio - The aspect ratio (width / height) of the viewport.
+ * @param  znear - The distance to the near clipping plane.
+ * @param  zfar - The distance to the far clipping plane.
+ * @param {Mat4} [m] - An optional destination matrix to store the result. If not provided, a new matrix is created.
+ *
+ * @returns {Mat4} The resulting 4x4 perspective projection matrix. If `m` is provided, it will be modified; otherwise, a new matrix is returned.
+ *
+ * @example
+ * const fov = Math.PI / 4; // 45 degrees in radians
+ * const aspect = 16 / 9;
+ * const znear = 0.1;
+ * const zfar = 1000;
+ * const matrix = perspectiveMat4(fov, aspect, znear, zfar);
+ * console.log(matrix);
  */
-export type Mat3 = Mat3Float32 | Mat3Float64;
+export function perspectiveMat4(
+  fovyrad: number,
+  aspectratio: number,
+  znear: number,
+  zfar: number,
+  m?: Mat4
+): Mat4 {
+  const pmin = createVec3Float64();
+  const pmax = createVec3Float64();
+  pmin[2] = znear;
+  pmax[2] = zfar;
+  pmax[1] = pmin[2] * Math.tan(fovyrad / 2.0);
+  pmin[1] = -pmax[1];
+  pmax[0] = pmax[1] * aspectratio;
+  pmin[0] = -pmax[0];
+  return frustumMat4v(pmin, pmax, m);
+}
+
+/**
+ * Returns a new 4x4 matrix with 32-bit float values.
+ * @param values - Optional initial values for the matrix (defaults to an empty 4x4 matrix).
+ * @returns A new 4x4 matrix.
+ */
+export function createMat4Float32(values?: Mat4): Mat4 {
+  // @ts-ignore
+  return new Float32Array(values || 16);
+}
 
 /**
  * 4×4 floating-point matrix.
@@ -81,16 +133,6 @@ export function createMat3(values?: Mat3): Mat3 {
 export function createMat4Float64(values?: Mat4): Mat4 {
   // @ts-ignore
   return new Float64Array(values || 16);
-}
-
-/**
- * Returns a new 4x4 matrix with 32-bit float values.
- * @param values - Optional initial values for the matrix (defaults to an empty 4x4 matrix).
- * @returns A new 4x4 matrix.
- */
-export function createMat4Float32(values?: Mat4): Mat4 {
-  // @ts-ignore
-  return new Float32Array(values || 16);
 }
 
 
@@ -146,46 +188,6 @@ export function compareMat4(m1: Mat4, m2: Mat4): boolean {
     m1[13] === m2[13] &&
     m1[14] === m2[14] &&
     m1[15] === m2[15];
-}
-
-/**
- * Returns a 4x4 perspective projection matrix based on the given field of view, aspect ratio, and near/far clipping planes.
- *
- * This function generates a perspective projection matrix, which transforms 3D coordinates into 2D space. The matrix
- * maps the frustum defined by the near and far planes and the field of view into the canonical view volume.
- *
- * @param  fovyrad - The vertical field of view (in radians).
- * @param  aspectratio - The aspect ratio (width / height) of the viewport.
- * @param  znear - The distance to the near clipping plane.
- * @param  zfar - The distance to the far clipping plane.
- * @param {Mat4} [m] - An optional destination matrix to store the result. If not provided, a new matrix is created.
- *
- * @returns {Mat4} The resulting 4x4 perspective projection matrix. If `m` is provided, it will be modified; otherwise, a new matrix is returned.
- *
- * @example
- * const fov = Math.PI / 4; // 45 degrees in radians
- * const aspect = 16 / 9;
- * const znear = 0.1;
- * const zfar = 1000;
- * const matrix = perspectiveMat4(fov, aspect, znear, zfar);
- * console.log(matrix);
- */
-export function perspectiveMat4(
-  fovyrad: number,
-  aspectratio: number,
-  znear: number,
-  zfar: number,
-  m?: Mat4
-): Mat4 {
-  const pmin = createVec3Float64();
-  const pmax = createVec3Float64();
-  pmin[2] = znear;
-  pmax[2] = zfar;
-  pmax[1] = pmin[2] * Math.tan(fovyrad / 2.0);
-  pmin[1] = -pmax[1];
-  pmax[0] = pmax[1] * aspectratio;
-  pmin[0] = -pmax[0];
-  return frustumMat4v(pmin, pmax, m);
 }
 
 /**

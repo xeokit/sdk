@@ -157,7 +157,7 @@ export abstract class DataTexture {
   public onUpdated = new EventEmitter(new EventDispatcher<DataTexture, undefined>());
 
   /**
-   * @internal
+   * @private
    */
   constructor(params: {
     gl: WebGL2RenderingContext;

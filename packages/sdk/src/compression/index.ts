@@ -110,7 +110,7 @@ import {
 } from "../math";
 
 import type {FloatArrayParam, IntArrayParam} from "../math";
-import type {AABB3} from "../boundaries";
+import type {AABB3} from "../math/boundaries";
 
 const translate = createMat4Float64();
 const scale = createMat4Float64();

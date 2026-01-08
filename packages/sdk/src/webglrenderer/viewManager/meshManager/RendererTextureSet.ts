@@ -1,6 +1,8 @@
 
 /**
- * @private
+ * Represents a set of renderer textures for a mesh.
+ *
+ * @internal
  */
 export class RendererTextureSet  {
 

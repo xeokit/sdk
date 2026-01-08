@@ -1,6 +1,6 @@
-import type { DataTextures } from "./viewManager/gpuMemoryManager/DataTextures";
-import type { SceneGeometry, SceneMesh } from "../scene";
-import type { View } from "../viewer";
+import type { DataTextures } from "../viewManager/gpuMemoryManager/DataTextures";
+import type { SceneGeometry, SceneMesh } from "../../scene";
+import type { View } from "../../viewer";
 
 /**
  * Read-only view of GPU-related memory owned by a {@link WebGLRenderer}.

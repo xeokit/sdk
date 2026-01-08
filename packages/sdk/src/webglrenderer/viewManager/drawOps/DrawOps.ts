@@ -17,19 +17,76 @@ import {TrianglesDrawEdgeColorTechnique} from "./techniques/triangles/TrianglesD
 import {SDKInternalException} from "../../../core";
 
 /**
- * Manages a set of draw operations for different primitive types.
+ * Central registry of draw operations for a single {@link RenderContext}.
+ *
+ * A {@link DrawOps} instance owns and manages all {@link DrawTechnique} instances
+ * required to render every supported primitive type across all render passes.
+ *
+ * ## Structure
+ *
+ * - One {@link DrawOps} exists per {@link WebGLRenderer} / viewer.
+ * - Draw operations are organized:
+ *   1. by **primitive type** (triangles, lines, points)
+ *   2. then by **render pass** (opaque, transparent, highlighted, selected, xrayed, pick, etc.)
+ *
+ * Each leaf entry is a {@link DrawOp}, which binds a {@link DrawTechnique} to a
+ * specific render pass.
+ *
+ * ## Usage
+ *
+ * To render a batch of geometry, callers retrieve the appropriate {@link DrawOp}
+ * and invoke it:
+ *
+ * ```ts
+ * drawOps.prims[primitiveType][renderPass].drawBatch(meshBatch);
+ * ```
+ *
+ * ## Lifecycle
+ *
+ * - {@link DrawTechnique} instances are created once and may be shared by multiple {@link DrawOp}s.
+ * - Initialization is fail-fast: if any technique fails to initialize, all previously
+ *   initialized techniques are destroyed.
+ * - Techniques are reference-counted via {@link getDrawOps} / {@link putDrawOps}.
+ *
+ * @internal
  */
+
 export class DrawOps {
 
+  /**
+   * Reference count used to share a single DrawOps instance across multiple users
+   * within the same viewer.
+   *
+   * @private
+   */
   public _useCount: number = 0;
+
+  /**
+   * Render context associated with this DrawOps instance.
+   *
+   * @private
+   */
   public _renderContext: RenderContext;
 
-  private _gpuMemoryReader: GPUMemoryReader;
+  /**
+   * Interface for reading GPU-resident data via data textures.
+   */
+  public readonly gpuMemoryReader: GPUMemoryReader;
+
+  /**
+   * All draw techniques owned by this DrawOps instance.
+   *
+   * Stored for initialization, context restoration, and cleanup.
+   *
+   * @private
+   */
   private _techniques: DrawTechnique[];
 
   /**
-   * Draw operations organized by primitive type and rendering technique.
+   * Draw operations indexed first by primitive type, then by render pass.
    *
+   * Each entry is a {@link DrawOp}, which applies a {@link DrawTechnique}
+   * within a specific render pass.
    */
   prims: {
     [TrianglesPrimitive]?: RenderPassDrawOps;
@@ -37,27 +94,42 @@ export class DrawOps {
     [PointsPrimitive]?: RenderPassDrawOps;
   };
 
-
   /**
-   * Initializes the DrawOps with the given rendering context and GPU memory.
+   * Initializes the draw operationa with the given rendering context and GPU memory reader interface.
+   *
    * @param renderContext - The rendering context used for WebGL operations.
    * @param gpuMemoryReader - Reads GPU memory - provides data textures.
    */
   constructor(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader) {
     this._renderContext = renderContext;
-    this._gpuMemoryReader = gpuMemoryReader;
+    this.gpuMemoryReader = gpuMemoryReader;
     this._techniques = [];
   }
 
   /**
-   * Initializes the draw operations and techniques.
+   * Initializes all draw techniques and builds the primitive/render-pass map.
+   *
+   * This method:
+   * - Instantiates all required {@link DrawTechnique}s
+   * - Initializes them in sequence
+   * - Cleans up fully if any initialization step fails
+   * - Constructs {@link DrawOp} wrappers for each primitive/pass combination
+   *
+   * @returns
+   * Result indicating success or failure. Errors are emitted via
+   * {@link WebGLRendererEvents.onError}.
    */
+
   init(): SDKResult<null> {
 
     const renderContext = this._renderContext;
-    const gpuMemoryReader = this._gpuMemoryReader;
+    const gpuMemoryReader = this.gpuMemoryReader;
 
     this._techniques = [];
+
+    /**
+     * The draw operations grouped by primitive type, and then sub-grouped by render pass.
+     */
     this.prims = {};
 
     const saveForCleanup = (drawTechnique: DrawTechnique): DrawTechnique => {
@@ -136,6 +208,13 @@ export class DrawOps {
     };
   }
 
+  /**
+   * Notifies all draw techniques that the WebGL context has been restored.
+   *
+   * This allows techniques to recreate GPU resources after context loss.
+   *
+   * @returns Result indicating success or failure.
+   */
   webglContextRestored(): SDKResult<void> {
     for (let i = 0, len = this._techniques.length; i < len; i++) {
       const result = this._techniques[i].webglContextRestored();
@@ -149,6 +228,7 @@ export class DrawOps {
     };
   }
 
+  /** @private */
   _destroy() {
     // @ts-ignore
     Object.values(this._techniques).forEach(drawTechnique => drawTechnique.destroy());
@@ -158,9 +238,12 @@ export class DrawOps {
 const drawOpsInstances = {};
 
 /**
- * Gets or creates a DrawOps for the given RenderContext.
- * @param renderContext
- * @param gpuMemoryReader
+ * Gets or creates a set of draw operations for the given RenderContext.
+ *
+ * @param renderContext The rendering context.
+ * @param gpuMemoryReader The GPU memory reader.
+ *
+ * @internal
  */
 export function getDrawOps(renderContext: RenderContext, gpuMemoryReader: GPUMemoryReader): SDKResult<DrawOps> {
   const viewerId = renderContext.viewer.id;
@@ -183,7 +266,9 @@ export function getDrawOps(renderContext: RenderContext, gpuMemoryReader: GPUMem
 
 /**
  * Releases a DrawOps, destroying it if no longer in use.
- * @param drawOps
+ *
+ * @param drawOps The DrawOps to release.
+ * @internal
  */
 export function putDrawOps(drawOps: DrawOps) {
   if (drawOps._useCount === 0) {

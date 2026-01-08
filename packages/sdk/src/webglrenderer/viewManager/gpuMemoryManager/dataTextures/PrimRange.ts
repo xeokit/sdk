@@ -1,7 +1,7 @@
 /**
- * Describes a range of primitives in a `DTXPrimMeshIndexTable`.
+ * Describes a range of primitives in a `PrimitiveMeshIndexTexture`.
  * Primitive ranges are used with `gl.drawArrays` to efficiently render specific passes.
- * The `primMeshIndexTable` contains all primitives for a View within a render batch, partitioned
+ * The `primitiveMeshIndexTexture` contains all primitives for a View within a render batch, partitioned
  * by render pass.
  */
 export interface PrimRange {

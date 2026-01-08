@@ -22,6 +22,8 @@ import {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
  * Assuming the Scene operates correctly, it should consistently emit the appropriate events, ensuring a valid state.
  * However, to maintain robustness, we defensively validate and log errors instead of fully relying on this behavior.
  * SDKInternalExceptions would be used if we had greater confidence in the Scene's reliability.
+ *
+ * @internal
  */
 export class MeshManager {
 

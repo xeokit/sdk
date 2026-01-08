@@ -14,6 +14,8 @@ import type {DataTextures} from "./gpuMemoryManager/DataTextures";
 
 /**
  * Manages the viewManager in the WebGLRenderer.
+ *
+ * @internal
  */
 export class ViewManager {
 

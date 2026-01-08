@@ -1,6 +1,7 @@
 import { type BatchDataTextures } from "./BatchDataTextures";
-import { DataTexture } from "./dtx/DataTexture";
+import { DataTexture } from "./dataTextures/DataTexture";
 import { EventEmitter } from "../../../core";
+import {MatrixTexture} from "./dataTextures/MatrixTexture";
 
 /**
  * Collection of GPU data textures used by a {@link WebGLRenderer}.
@@ -12,7 +13,7 @@ import { EventEmitter } from "../../../core";
  *
  * This object represents the renderer’s authoritative view of GPU-side data.
  *
- * @debugging
+ * @internal
  */
 export interface DataTextures {
 
@@ -24,7 +25,7 @@ export interface DataTextures {
    *
    * These textures are global and shared across all render batches.
    */
-  viewTileCameraMatrices: DataTexture[];
+  viewTileCameraMatrixTexture: MatrixTexture[];
 
   /**
    * Per-view tile ray-picking matrix tables.
@@ -34,7 +35,7 @@ export interface DataTextures {
    *
    * These textures are global and shared across all render batches.
    */
-  viewTilePickMatrices: DataTexture[];
+  viewTilePickMatrixTexture: MatrixTexture[];
 
   /**
    * Render batches for sorted rendering.

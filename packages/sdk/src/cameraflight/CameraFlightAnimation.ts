@@ -14,7 +14,7 @@ import { View} from "../viewer";
 import {EventEmitter, SDKTask} from "../core";
 import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} from "../constants";
 import {DEGTORAD, } from "../math";
-import {createAABB3Float64,getAABB3Center, getAABB3Diag, getAABB3DiagPoint, type AABB3} from "../boundaries";
+import {createAABB3Float64,getAABB3Center, getAABB3Diag, getAABB3DiagPoint, type AABB3} from "../math/boundaries";
 import {EventDispatcher} from "strongly-typed-events";
 import {getSceneAABBIndex} from "../aabb";
 

@@ -5,7 +5,7 @@
  * These passes are used to control how objects are rendered, including color, transparency,
  * silhouette effects, and picking.
  *
- * @private
+ * @internal
  */
 export const RENDER_PASSES = {
 

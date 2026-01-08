@@ -1,6 +1,6 @@
 
 import type {KdItem3D} from "./KdItem3";
-import type {AABB3} from "../boundaries";
+import type {AABB3} from "../math/boundaries";
 
 /**
  * A node in a {@link KdTree3}.

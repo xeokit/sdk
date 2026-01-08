@@ -128,3 +128,6 @@ export * from "../math/vector";
 export * from "../math/matrix";
 export * from "../math/quat";
 export * from "../math/misc";
+
+
+export * as boundaries from "../math/boundaries";

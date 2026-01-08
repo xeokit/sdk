@@ -8,6 +8,8 @@ import type {SDKResult} from "../../../core";
 
 /**
  * Interface for creating and updating GPU memory resources.
+ *
+ * @internal
  */
 export interface GPUMemoryEditor {
 

@@ -1,5 +1,15 @@
-import { DataTexture } from "./dtx/DataTexture";
-import { type PrimRange } from "./dtx/PrimRange";
+import { DataTexture } from "./dataTextures/DataTexture";
+import { type PrimRange } from "./dataTextures/PrimRange";
+import {PrimitiveMeshIndexTexture} from "./dataTextures/PrimitiveMeshIndexTexture";
+import {MeshAttributeTexture} from "./dataTextures/MeshAttributeTexture";
+import {MatrixTexture} from "./dataTextures/MatrixTexture";
+import {GeometryAttributeTexture} from "./dataTextures/GeometryAttributeTexture";
+import {GeometryQuantRangeTexture} from "./dataTextures/GeometryQuantRangeTexture";
+import {VertexPositionTexture} from "./dataTextures/VertexPositionTexture";
+import {VertexColorTexture} from "./dataTextures/VertexColorTexture";
+import {MeshViewAttributeTexture} from "./dataTextures/MeshViewAttributeTexture";
+import {IndexTexture} from "./dataTextures/IndexTexture";
+
 
 /**
  * GPU data textures for a single sorted render batch.
@@ -14,6 +24,8 @@ import { type PrimRange } from "./dtx/PrimRange";
  * - **View-invariant textures**, shared across all Views
  *
  * Instances are stored in {@link DataTextures.batches}.
+ *
+ * @internal
  */
 export interface BatchDataTextures {
 
@@ -43,9 +55,9 @@ export interface BatchDataTextures {
      * dependent mesh state (e.g. visibility, transparency, selection) may cause
      * primitives to move between pass partitions or be removed entirely.
      *
-     * The per-pass partitions of this draw list are defined by {@link renderPassPrimRanges}.
+     * The per-pass partitions of this draw list are defined by {@link renderPassPrimitiveRanges}.
      */
-    primMeshIndexTable: DataTexture;
+    primitiveMeshIndexTexture: PrimitiveMeshIndexTexture;
 
     /**
      * Per-view mesh attribute table.
@@ -55,18 +67,18 @@ export interface BatchDataTextures {
      *
      * Indexed by mesh index.
      */
-    meshViewAttribTable: DataTexture;
+    meshViewAttributeTexture: MeshViewAttributeTexture;
 
     /**
      * Primitive ranges to draw for each render pass.
      *
      * For each render pass ID, this map provides a contiguous range of primitive
-     * indices within {@link primMeshIndexTable} that should be drawn for that pass.
+     * indices within {@link primitiveMeshIndexTexture} that should be drawn for that pass.
      *
      * These ranges are intended to be used directly with `gl.drawArrays`
      * to issue one draw call per pass.
      */
-    renderPassPrimRanges: Map<number, PrimRange>;
+    renderPassPrimitiveRanges: Map<number, PrimRange>;
   }>;
 
   /**
@@ -77,7 +89,7 @@ export interface BatchDataTextures {
    *
    * Indexed by mesh index.
    */
-  meshAttribTable: DataTexture;
+  meshAttributeTexture: MeshAttributeTexture;
 
   /**
    * Mesh transform matrix table.
@@ -86,7 +98,7 @@ export interface BatchDataTextures {
    *
    * Indexed by mesh index.
    */
-  meshMatrixTable: DataTexture;
+  meshMatrixTexture: MatrixTexture;
 
   /**
    * Geometry attribute table.
@@ -96,7 +108,7 @@ export interface BatchDataTextures {
    *
    * Indexed by geometry index.
    */
-  geometryAttribTable: DataTexture;
+  geometryAttributeTexture: GeometryAttributeTexture;
 
   /**
    * Geometry quantization range table.
@@ -106,33 +118,33 @@ export interface BatchDataTextures {
    *
    * Indexed by geometry index.
    */
-  geometryQuantRangeTable: DataTexture;
+  geometryQuantRangeTexture: GeometryQuantRangeTexture;
 
   /**
    * Primitive index buffer for this batch.
    *
    * Contains the indices of all geometry primitives referenced by the batch.
    */
-  indices: DataTexture;
+  indexTexture: IndexTexture;
 
   /**
    * Edge primitive index buffer.
    *
-   * Similar to {@link indices}, but contains indices for edge rendering.
+   * Similar to {@link indexTexture}, but contains indices for edge rendering.
    */
-  edgeIndices: DataTexture;
+  edgeIndexTexture: IndexTexture;
 
   /**
    * Vertex position buffer.
    *
    * Stores packed 3D vertex positions for all geometries in this batch.
    */
-  vertexPositions: DataTexture;
+  vertexPositionTexture: VertexPositionTexture;
 
   /**
    * Vertex color buffer.
    *
    * Stores per-vertex RGB color data for geometries in this batch.
    */
-  vertexColors: DataTexture;
+  vertexColorTexture: VertexColorTexture;
 }

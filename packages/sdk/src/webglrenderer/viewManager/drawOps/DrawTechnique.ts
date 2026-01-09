@@ -37,6 +37,10 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
  * - {@link buildVertexShader}
  * - {@link buildFragmentShader}
  *
+ * These methods are called during {@link init} to generate the GLSL source code,
+ * and would typically use helper methods like {@link vsCode}, {@link vsHeader},
+ * and {@link vsCommonDefines}, provided by the base class, to construct the shader source.
+ *
  * @internal
  */
 export abstract class DrawTechnique {
@@ -114,11 +118,11 @@ export abstract class DrawTechnique {
     meshMatrixTexture: WebGLUniformLocation; // RTC modeling matrices
     geometryAttributeTexture: WebGLUniformLocation; // Geometry attributes
     geometryQuantRangeTexture: WebGLUniformLocation; // Quantization ranges
-    vertexPositionTexture: WebGLUniformLocation; // World-space vertex positions
+    vertexPositionTexture: WebGLUniformLocation; // Quantized vertex positions
     vertexColorTexture: WebGLUniformLocation; // Vertex RGB colors
     indexTexture: WebGLUniformLocation; // Primitive connectivity indices
     edgeIndexTexture: WebGLUniformLocation; // Edge connectivity indices
-    viewTileCameraMatrixTexture: WebGLUniformLocation; // Tile view matrices
+    viewTileCameraMatrixTexture: WebGLUniformLocation; // GPUTile view matrices
     saoOcclusionTexture: WebGLUniformLocation; // SAO occlusion texture
   };
 
@@ -428,7 +432,7 @@ export abstract class DrawTechnique {
   }
 
   /**
-   * Generates a simple debug vertex shader main function.
+   * Generates a simple internal vertex shader main function.
    */
   protected vsDebugMain() {
     this._vertSrcBuf.push(

@@ -1,7 +1,7 @@
 /**
  * Defines the configuration for a single input in a conversion pipeline.
  */
-export interface ModelConverterInputParams {
+export interface ModelConverterInputConfig {
 
   /**
    * Specifies the key of a {@link io!ModelLoader | ModelLoader} defined in

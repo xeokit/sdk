@@ -2,7 +2,7 @@ import {createMat4Float64, createVec3Float64} from "../../../math";
 import {createRTCViewMat, worldToRTCCenter} from "../../../rtc";
 import type {Vec3, Mat4} from "../../../math";
 import {Camera, View, Viewer} from "../../../viewer";
-import {type Tile} from "./Tile";
+import {type GPUTile} from "./GPUTile";
 import {MatrixTexture} from "./dataTextures/MatrixTexture";
 
 const NUM_VIEWS = 4;
@@ -12,21 +12,22 @@ const tempVec3a = createVec3Float64();
 /**
  * Manages a tiled coordinate system for efficient WebGL rendering.
  *
- * The `TileManager` class handles the allocation, synchronization, and lifecycle of tiles
+ * Owned and used internally by {@link GPUMemoryManager}.
+ *
+ * The `GPUTileManager` class handles the allocation, synchronization, and lifecycle of tiles
  * in a tiled coordinate system. It tracks RTC (Relative to Center) view and pick matrices for each tile
  * and synchronizes them with camera view matrices to optimize rendering performance.
 
- *
  * @internal
  */
-export class TileManager {
+export class GPUTileManager {
 
   private _viewer: Viewer;
   private _viewMatrices: MatrixTexture[] = [];
   private _pickMatrices: MatrixTexture[] = [];
   private _tileIndexesUsed: boolean[] = [];
   private _lastFreeTileIndex = 0;
-  private _tiles = new Map<string, Tile>();
+  private _tiles = new Map<string, GPUTile>();
   private _numTiles = 0;
 
   /**
@@ -48,33 +49,33 @@ export class TileManager {
   }
 
   /**
-   * Get a Tile that contains the given 3D World-space position.
+   * Get a GPUTile that contains the given 3D World-space position.
    */
-  getTile(worldPos: Vec3): Tile {
+  getTile(worldPos: Vec3): GPUTile {
     const rtcCenter = worldToRTCCenter(worldPos, tempVec3a);
     const id = this._makeTileId(rtcCenter);
     let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter);
     tile.useCount++;
-    //console.log(`TileManager.getTile: getTile id=${id} useCount=${tile.useCount}`);
+    //console.log(`GPUTileManager.getTile: getTile id=${id} useCount=${tile.useCount}`);
     return tile;
   }
 
   /**
-   * Releases a Tile back to the tile manager.
-   * The Tile is destroyed as soon as it is released as many times as it was retrieved.
+   * Releases a GPUTile back to the tile manager.
+   * The GPUTile is destroyed as soon as it is released as many times as it was retrieved.
    */
-  putTile(tile: Tile) {
+  putTile(tile: GPUTile) {
     if (--tile.useCount === 0) {
       this._tiles.delete(tile.id);
       this._putFreeTileIndex(tile.tileIndex);
-      //console.log(`TileManager.putTile: putTile id=${tile.id} DESTROYED`);
+      //console.log(`GPUTileManager.putTile: putTile id=${tile.id} DESTROYED`);
     }
   }
 
   /**
-   * Move a Tile, if necessary, so that it contains the given World-space 3D position.
+   * Move a GPUTile, if necessary, so that it contains the given World-space 3D position.
    */
-  moveTile(tile: Tile, worldPos: Vec3): Tile {
+  moveTile(tile: GPUTile, worldPos: Vec3): GPUTile {
     const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a);
     const newId = this._makeTileId(newRTCCenter);
     if (newId === tile.id) {
@@ -83,7 +84,7 @@ export class TileManager {
     this.putTile(tile);
     let newTile = this._tiles.get(newId) ?? this._createTile(newId, newRTCCenter);
     newTile.useCount++;
-    //console.log(`TileManager.moveTile: moveTile oldId=${tile.id} newId=${newId} useCount=${newTile.useCount}`);
+    //console.log(`GPUTileManager.moveTile: moveTile oldId=${tile.id} newId=${newId} useCount=${newTile.useCount}`);
     return newTile;
   }
 
@@ -98,7 +99,7 @@ export class TileManager {
    * Sets the pick matrices for all tiles for the given view.
    */
   public setPickMatrix(view: View, pickMatrix: Mat4) {
-   // console.log(`TileManager.setPickMatrix: viewIndex=${view.viewIndex}`);
+   // console.log(`GPUTileManager.setPickMatrix: viewIndex=${view.viewIndex}`);
     const viewIndex = view.viewIndex;
     const pickMatrices = this._pickMatrices[viewIndex];
     for (const [_, tile] of this._tiles) {
@@ -112,14 +113,14 @@ export class TileManager {
    * Destroys this tile manager.
    */
   destroy() {
-    console.log(`TileManager.destroy: Destroying TileManager with ${this._numTiles} tiles`);
+    console.log(`GPUTileManager.destroy: Destroying GPUTileManager with ${this._numTiles} tiles`);
   }
 
   /**
    * Synchronizes all tile RTC view matrices to the given View's camera view matrix.
    */
   private _synchTilesToViewMatrix(camera: Camera) {
-  //  console.log(`TileManager._synchTilesToViewMatrix: viewIndex=${camera.view.viewIndex}`);
+  //  console.log(`GPUTileManager._synchTilesToViewMatrix: viewIndex=${camera.view.viewIndex}`);
     const view = camera.view;
     const viewMatrix = camera.viewMatrix;
     const viewIndex = view.viewIndex;
@@ -128,7 +129,7 @@ export class TileManager {
       const rtcViewMatrix = tile.rtcViewMatrix[viewIndex];
       createRTCViewMat(viewMatrix, tile.center, rtcViewMatrix);
       viewMatrices.setItem(tile.tileIndex, rtcViewMatrix);
-      //  console.log(`TileManager: synchTilesToViewMatrix  Tile id=${tile.id} View matrix updated`);
+      //  console.log(`GPUTileManager: synchTilesToViewMatrix  GPUTile id=${tile.id} View matrix updated`);
     }
   }
 
@@ -136,7 +137,7 @@ export class TileManager {
     return rtcCenter.join("-");
   }
 
-  private _createTile(id: string, rtcCenter: Vec3): Tile {
+  private _createTile(id: string, rtcCenter: Vec3): GPUTile {
     const {viewList, numViews} = this._viewer;
     const center = createVec3Float64(rtcCenter);
     const rtcViewMatrix = Array.from({length: NUM_VIEWS}, (_, i) =>
@@ -150,7 +151,7 @@ export class TileManager {
         : createMat4Float64()
     );
     const tileIndex = this._getFreeTileIndex();
-    const tile: Tile = {
+    const tile: GPUTile = {
       id,
       tileIndex,
       useCount: 0,              // callers will increment once per acquisition

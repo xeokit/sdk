@@ -1,4 +1,4 @@
-import type {ModelConverterPipelineParams} from "./ModelConverterPipelineParams";
+import type {ModelConverterPipelineConfig} from "./ModelConverterPipelineConfig";
 
 /**
  * Configurations for a {@link ModelConverter | ModelConverter}.
@@ -9,6 +9,6 @@ export interface ModelConverterConfig {
    * The available pipelines within the ModelConverter.
    */
   pipelines: {
-    [key: string]: ModelConverterPipelineParams
+    [key: string]: ModelConverterPipelineConfig
   };
 }

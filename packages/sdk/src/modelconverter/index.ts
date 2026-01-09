@@ -219,9 +219,9 @@
  */
 export * from "./ModelConverter";
 export * from "./ModelConverterParams";
-export * from "./ModelConverterPipelineParams";
-export * from "./ModelConverterInputParams";
-export * from "./ModelConverterOutputParams";
+export * from "./ModelConverterPipelineConfig";
+export * from "./ModelConverterInputConfig";
+export * from "./ModelConverterOutputConfig";
 
 export * from "./ModelConverterConfig";
 
@@ -230,4 +230,6 @@ export * from "./ModelConverterResult";
 export * from "./ModelConverterResultInput";
 export * from "./ModelConverterResultOutput";
 
-export * from "./reporters"
+export * as reporters from "./reporters"
+// export * as exporters from "./exporters";
+

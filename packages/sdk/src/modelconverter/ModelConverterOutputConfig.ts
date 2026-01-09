@@ -1,7 +1,7 @@
 /**
  * Defines the configuration for a single output in a conversion pipeline.
  */
-export interface ModelConverterOutputParams {
+export interface ModelConverterOutputConfig {
 
   /**
    * The key of an {@link io!ModelExporter | ModelExporter} declared in

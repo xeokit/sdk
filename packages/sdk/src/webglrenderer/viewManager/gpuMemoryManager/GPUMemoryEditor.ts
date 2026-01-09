@@ -1,5 +1,5 @@
 import {type Vec3, type Mat4} from "../../../math";
-import {type Tile} from "./Tile";
+import {type GPUTile} from "./GPUTile";
 import {type SceneMesh} from "../../../scene";
 import type {GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
 import type {RenderPassValue} from "../RENDER_PASSES";
@@ -14,26 +14,26 @@ import type {SDKResult} from "../../../core";
 export interface GPUMemoryEditor {
 
   /**
-   * Retrieves a Tile that contains the specified 3D world-space position.
+   * Retrieves a GPUTile that contains the specified 3D world-space position.
    * @param worldPos - A 3D position in world space.
-   * @returns The Tile containing the given position.
+   * @returns The GPUTile containing the given position.
    */
-  getTile( worldPos: Vec3 ): Tile;
+  getTile( worldPos: Vec3 ): GPUTile;
 
   /**
-   * Moves a Tile, if necessary, to ensure it contains the specified 3D world-space position.
+   * Moves a GPUTile, if necessary, to ensure it contains the specified 3D world-space position.
    * @param tile - The tile to potentially move.
    * @param worldPos - The target world-space position.
-   * @returns The updated Tile.
+   * @returns The updated GPUTile.
    */
-  moveTile( tile: Tile, worldPos: Vec3 ): Tile;
+  moveTile(tile: GPUTile, worldPos: Vec3 ): GPUTile;
 
   /**
-   * Releases a Tile back to the tile manager.
+   * Releases a GPUTile back to the tile manager.
    * The tile is destroyed once it is released as many times as it was retrieved.
    * @param tile - The tile to release.
    */
-  putTile( tile: Tile ): void;
+  putTile( tile: GPUTile ): void;
 
   /**
    * Creates a new GPU memory batch, up to the maximum number of sortedBatches allowed.

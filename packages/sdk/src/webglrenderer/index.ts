@@ -85,4 +85,4 @@ export * from "./MemoryConfigs";
 export * from "./createMemoryConfigs";
 export * from "./MemoryUsage";
 
-export * as debug from "./debug";
+export * as internal from "./internal";

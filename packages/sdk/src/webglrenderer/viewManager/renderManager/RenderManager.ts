@@ -2,7 +2,7 @@ import {WEBGL_INFO} from "../../../webglutils";
 import {type RenderContext} from "../RenderContext";
 import {type MeshManager} from "../meshManager/MeshManager";
 import {type DrawOps, getDrawOps, putDrawOps} from "../drawOps/DrawOps";
-import {type RendererView} from "../RendererView";
+import {type ViewRenderState} from "../ViewRenderState";
 import {type GPUMemoryReader} from "../gpuMemoryManager/GPUMemoryReader";
 import {type MeshBatch} from "../meshManager/MeshBatch";
 import {RENDER_PASSES} from "../RENDER_PASSES";
@@ -10,35 +10,77 @@ import {SDKInternalException, type SDKResult} from "../../../core";
 
 
 /**
- * Manages the drawing operations for WebGL rendering.
- * The `RenderManager` class handles rendering meshManager, viewManager, and extensions,
- * ensuring proper GPU state and efficient rendering of opaque and transparent objects.
+ * Orchestrates all WebGL draw calls for a single render pass.
+ *
+ * Owned by a {@link ViewManager}.
+ *
+ * `RenderManager` is responsible for:
+ * - Translating {@link MeshBatch} state into concrete WebGL draw calls
+ * - Managing GPU state (depth, blending, culling) across render phases
+ * - Executing multi-pass rendering (opaque, transparent, edges, x-ray, highlight, selection)
+ * - Binding draw programs via {@link DrawOps}
+ *
+ * It does **not**:
+ * - Own per-view GPU resources (handled by {@link ViewRenderState})
+ * - Track scene or mesh lifecycles (handled by {@link MeshManager})
+ * - Upload GPU data (handled by {@link GPUMemoryManager})
+ *
+ * ### Rendering model
+ * Rendering is performed in phases:
+ * 1. Opaque geometry (optionally SAO)
+ * 2. Opaque edges
+ * 3. X-ray / highlighted / selected silhouettes (opaque)
+ * 4. Transparent geometry & edges (with blending)
+ * 5. Transparent silhouettes (depth-cleared overlay passes)
+ *
+ * Meshes are grouped into bins per phase to ensure correct ordering and
+ * minimal GPU state changes.
+ *
+ * @remarks
+ * - Uses a shared {@link DrawOps} pool to reduce shader/program churn.
+ * - Assumes a maximum of 4 views (indexed via `View.viewIndex`).
+ * - GPU state cleanup is performed explicitly at the end of each render.
  *
  * @internal
  */
 export class RenderManager {
 
   /**
-   * The drawing operations used by this RenderManager.
-   * Available after `init()` has been called.
+   * Active drawing operations (shader programs + draw routines).
+   *
+   * Populated during {@link init} and returned to the pool during {@link destroy}.
    */
   public drawOps: DrawOps;
 
-    private _renderContext: RenderContext;
-    private _meshManager: MeshManager;
-    private _extensionHandles: any;
-    private _logarithmicDepthBufferEnabled: boolean;
-    private _alphaDepthMask: Boolean;
-    private _gpuMemoryReader: GPUMemoryReader;
-    private _initialized: boolean;
+  /** Shared render context (WebGL state + global flags). */
+  private _renderContext: RenderContext;
 
-    /**
-     * Creates a DrawManager with the given rendering context, GPU read interface, and draw graph.
-     *
-        * @param cfg.renderContext The rendering context.
-     * @param cfg.gpuMemoryReader The GPU memory reader.
-     * @param cfg.meshManager The mesh batches.
-     */
+  /** Provides access to mesh batches and render-pass classification. */
+  private _meshManager: MeshManager;
+
+  /** WebGL extension handles enabled for this renderer. */
+  private _extensionHandles: any;
+
+  /** Whether logarithmic depth buffer rendering is enabled. */
+  private _logarithmicDepthBufferEnabled: boolean;
+
+  /** Whether alpha-tested geometry writes to the depth buffer. */
+  private _alphaDepthMask: boolean;
+
+  /** Read-only interface into GPU memory (geometry, attributes, indices). */
+  private _gpuMemoryReader: GPUMemoryReader;
+
+  /** Whether {@link init} has completed successfully. */
+  private _initialized: boolean;
+
+
+  /**
+   * Creates a {@link RenderManager}.
+   *
+   * @param cfg.renderContext - Shared render context (WebGL state, flags, configs).
+   * @param cfg.gpuMemoryReader - Read-only access to GPU memory.
+   * @param cfg._meshManager - Provides sorted mesh batches and render-pass queries.
+   */
     constructor(cfg: {
         renderContext: RenderContext,
         gpuMemoryReader: GPUMemoryReader,
@@ -50,9 +92,15 @@ export class RenderManager {
         this._initialized = false;
     }
 
-    /**
-     * Initializes the RenderManager.
-     */
+  /**
+   * Initializes draw operations and activates supported WebGL extensions.
+   *
+   * @returns {@link SDKResult} indicating success or failure.
+   *
+   * @remarks
+   * - Must be called before {@link render}
+   * - Draw operations are pooled; this may reuse previously created programs
+   */
     public init():SDKResult<void> {
         if (!this.drawOps) {
             const result = getDrawOps(this._renderContext, this._gpuMemoryReader);
@@ -72,7 +120,7 @@ export class RenderManager {
     }
 
   /**
-   * Handles WebGL context restoration.
+   * Reinitializes draw operations after a WebGL context restore.
    */
   webglContextRestored() : SDKResult<void> {
         return this.drawOps
@@ -95,13 +143,23 @@ export class RenderManager {
         }
     }
 
-    /**
-     * Renders the RenderGraph in the provided RendererView.
-     * @param rendererView
-     * @param options
-     */
+
+  /**
+   * Renders a single {@link ViewRenderState}.
+   *
+   * This method:
+   * - Configures global WebGL state
+   * - Classifies mesh batches into render bins
+   * - Executes multi-pass rendering in correct order
+   * - Cleans up GPU state after rendering
+   *
+   * @param rendererView - Renderer-side state for the target view.
+   * @param options.clear - Whether to clear color/depth buffers before rendering.
+   *
+   * @throws {@link SDKInternalException} If called before {@link init}.
+   */
     public render(
-        rendererView: RendererView,
+        rendererView: ViewRenderState,
         options: {
         clear: boolean;
     }): SDKResult<any> {

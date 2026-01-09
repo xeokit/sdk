@@ -597,7 +597,7 @@ export class GPUMemoryBatch {
    *
    * @param meshIndex
    * @param params
-   * @param params.tileIndex Optional tileIndex of the Tile containing the mesh. This can be dynamically updated, as mesh can move between tiles.
+   * @param params.tileIndex Optional tileIndex of the GPUTile containing the mesh. This can be dynamically updated, as mesh can move between tiles.
    */
   setMeshAttribs(
     meshIndex: number,
@@ -684,7 +684,7 @@ export class GPUMemoryBatch {
   }
 
   /**
-   * Removes a SceneMesh from data texture gpuMemoryManager.
+   * Removes a SceneMesh from data texture _gpuMemoryManager.
    *
    * @param meshIndex
    */

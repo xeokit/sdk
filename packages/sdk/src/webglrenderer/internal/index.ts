@@ -4,7 +4,7 @@
  *   src="https://xeokit.github.io/sdk/docs/assets/xeokit_webgl_logo.svg"
  * />
  *
- * # xeokit WebGL2 Renderer Debugging APIs
+ * # xeokit WebGL2 Renderer Internal APIs
  *
  * ---
  *
@@ -56,7 +56,7 @@
  * const memoryUsage: MemoryUsage = webglRenderer.getMemoryUsage();
  * console.log(`GPU Memory Usage: ${memoryUsage.usedMB} MB used of ${memoryUsage.totalMB} MB total`);
  *
- * // Get read-only debug view of GPU-resident data
+ * // Get read-only internal view of GPU-resident data
  * const memoryView: MemoryView = webglRenderer.getMemoryView();
  *
  * // Example: select a render pass (e.g. OPAQUE)
@@ -191,7 +191,7 @@
  * }
  * ```
  *
- * @module debug
+ * @module internal
  */
 
 export * as viewManager from "../viewManager";

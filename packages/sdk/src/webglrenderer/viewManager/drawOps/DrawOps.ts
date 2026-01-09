@@ -17,9 +17,7 @@ import {TrianglesDrawEdgeColorTechnique} from "./techniques/triangles/TrianglesD
 import {SDKInternalException} from "../../../core";
 
 /**
- * Central registry of draw operations for a single {@link RenderContext}.
- *
- * A {@link DrawOps} instance owns and manages all {@link DrawTechnique} instances
+ * Owns and manages all {@link DrawTechnique} instances
  * required to render every supported primitive type across all render passes.
  *
  * ## Structure
@@ -39,6 +37,12 @@ import {SDKInternalException} from "../../../core";
  *
  * ```ts
  * drawOps.prims[primitiveType][renderPass].drawBatch(meshBatch);
+ * ```
+ *
+ * or, to draw a single mesh:
+ *
+ * ```ts
+ * drawOps.prims[primitiveType][renderPass].drawMesh(meshBatch, meshIndex);
  * ```
  *
  * ## Lifecycle

@@ -3,13 +3,12 @@ import {
   createVec4Float64,
   transformPoint4,
   subVec3,
-  type Mat4, type Vec3, identityMat4, createVec3Float32
+  type Mat4, type Vec3, identityMat4,
 } from "../../../math";
-import type {FloatArrayParam} from "../../../math";
 import type {MeshBatchImpl} from "./MeshBatchImpl";
 import type {RenderContext} from "../RenderContext";
 import {type SceneMesh} from "../../../scene";
-import {type Tile} from "../gpuMemoryManager/Tile";
+import {type GPUTile} from "../gpuMemoryManager/GPUTile";
 import {type GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 import {type MeshBatchMeshHandle} from "./MeshBatchMeshHandle";
 
@@ -27,7 +26,16 @@ const NUM_VIEWS = 4;
 
 export class RendererMesh {
 
-  public tile: Tile;
+  /**
+   * The GPU tile currently assigned to this mesh.
+   *
+   * @remarks
+   * - This tile defines the mesh's local RTC (Relative To Center) coordinate system for high-precision rendering.
+   * - The tile is managed and updated automatically by the GPU memory management layer; it may change if the mesh moves in world space.
+   * - RendererMesh does not manage tiling logic directly—tile assignment and RTC matrix updates are fully encapsulated by {@link GPUMemoryManager} and {@link GPUTileManager}.
+   * - This reference is used for efficient mesh picking and RTC-space transformations.
+   */
+  public gpuTile: GPUTile;
 
   private readonly _renderContext: RenderContext;
   private readonly _sceneMesh: SceneMesh;
@@ -62,7 +70,7 @@ export class RendererMesh {
     this._meshBatch = meshBatch;
     this._gpuMemoryManager = gpuMemoryManager;
     this._meshHandle = meshHandle;
-    this.tile = null;
+    this.gpuTile = null;
 
     // Color / opacity -> 0..255
     const rgb = sceneMesh.color ?? [1, 1, 1];
@@ -88,15 +96,15 @@ export class RendererMesh {
   setMatrix(matrix: Mat4): void {
     matrix = matrix || tempIdentityMat4;
     const center:Vec3 = <Vec3>transformPoint4(matrix, identityVec4, tempVec4a);
-    const oldTile = this.tile;
-    this.tile = oldTile
+    const oldTile = this.gpuTile;
+    this.gpuTile = oldTile
       ? this._gpuMemoryManager.moveTile(oldTile, center)
       : this._gpuMemoryManager.getTile(center);
-    const tileChanged = !oldTile || oldTile.id !== this.tile.id;
+    const tileChanged = !oldTile || oldTile.id !== this.gpuTile.id;
     if (tileChanged) {
-      this._meshBatch.setMeshTile(this._meshHandle, this.tile.tileIndex);
+      this._meshBatch.setMeshTile(this._meshHandle, this.gpuTile.tileIndex);
     }
-    const tileCenter = this.tile.center;
+    const tileCenter = this.gpuTile.center;
     const relativeMatrix = createMat4Float64(matrix);
     // const worldOrigin = matrix.slice(12, 15); // translation xyz
     // const origin = [];
@@ -244,8 +252,8 @@ export class RendererMesh {
    */
   destroy() {
     this._meshBatch.removeMesh(this._meshHandle);
-    if (this.tile) {
-      this._gpuMemoryManager.putTile(this.tile);
+    if (this.gpuTile) {
+      this._gpuMemoryManager.putTile(this.gpuTile);
     }
   }
 }

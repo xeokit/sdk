@@ -2,7 +2,7 @@ import {Data} from "../data";
 import {Scene} from "../scene";
 import {ModelLoader, ModelExporter} from "../io";
 import {type ModelConverterParams} from "./ModelConverterParams";
-import {type ModelConverterPipelineParams} from "./ModelConverterPipelineParams";
+import {type ModelConverterPipelineConfig} from "./ModelConverterPipelineConfig";
 import {type ModelConverterRequest} from "./ModelConverterRequest";
 import {type ModelConverterResult} from "./ModelConverterResult";
 import {type ModelConverterConfig} from "./ModelConverterConfig";
@@ -40,7 +40,7 @@ export class ModelConverter {
    * A collection of conversion pipelines, indexed by pipeline name.
    * Each pipeline defines how input data is processed and converted into output formats.
    */
-  pipelines: { [key: string]: ModelConverterPipelineParams };
+  pipelines: { [key: string]: ModelConverterPipelineConfig };
 
   /**
    * Creates a new ModelConverter instance with the provided configuration.

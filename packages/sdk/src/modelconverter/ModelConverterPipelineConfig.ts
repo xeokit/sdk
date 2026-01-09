@@ -1,12 +1,12 @@
-import type {ModelConverterInputParams} from "./ModelConverterInputParams";
-import type {ModelConverterOutputParams} from "./ModelConverterOutputParams";
+import type {ModelConverterInputConfig} from "./ModelConverterInputConfig";
+import type {ModelConverterOutputConfig} from "./ModelConverterOutputConfig";
 
 /**
  * Defines the structure of a conversion pipeline within a {@link ModelConverter | ModelConverter}.
  *
  * A pipeline consists of one or more inputs and outputs, each identified by a unique key.
  */
-export interface ModelConverterPipelineParams {
+export interface ModelConverterPipelineConfig {
 
   /**
    * A map of input configurations, where each key identifies a pipeline input.
@@ -14,7 +14,7 @@ export interface ModelConverterPipelineParams {
    * Each input specifies how the source data is loaded into the pipeline.
    */
   inputs: {
-    [key: string]: ModelConverterInputParams;
+    [key: string]: ModelConverterInputConfig;
   };
 
   /**
@@ -23,7 +23,7 @@ export interface ModelConverterPipelineParams {
    * Each output specifies how the processed data is exported from the pipeline.
    */
   outputs?: {
-    [key: string]: ModelConverterOutputParams;
+    [key: string]: ModelConverterOutputConfig;
   };
 
 }

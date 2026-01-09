@@ -1,6 +1,6 @@
 import {type ModelLoader} from "../io";
 import {type ModelExporter} from "../io";
-import {type ModelConverterPipelineParams} from "./ModelConverterPipelineParams";
+import {type ModelConverterPipelineConfig} from "./ModelConverterPipelineConfig";
 
 /**
  * Constructor parameters for a {@link ModelConverter | ModelConverter}.
@@ -21,6 +21,6 @@ export interface ModelConverterParams {
    * Configures  pipelines within the ModelConverter.
    */
   pipelines: {
-    [key: string]: ModelConverterPipelineParams
+    [key: string]: ModelConverterPipelineConfig
   };
 }

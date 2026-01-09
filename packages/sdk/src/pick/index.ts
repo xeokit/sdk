@@ -49,7 +49,7 @@
  * SceneGeometry.positionsCompressed. These coordinates can be decompressed using SceneGeometry.positionsDecompressMatrix and
  * then transformed into the World-space coordinate system using SceneMesh.matrix to obtain the final coordinates of the primitive.
  *
- * To keep a low gpuMemoryManager footprint, while being flexible and extensible, both the RayPickResult and xeokit's
+ * To keep a low _gpuMemoryManager footprint, while being flexible and extensible, both the RayPickResult and xeokit's
  * scene graph have been designed in such a way that requires some boilerplate code to traverse and unpack them. This
  * includes coordinate decompression and transformation, which we'll demonstrate in the example code below.
  *

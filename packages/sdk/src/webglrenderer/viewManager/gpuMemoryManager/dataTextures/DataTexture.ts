@@ -144,7 +144,7 @@ export abstract class DataTexture {
   public lastUploadTimeMS: number = 0;
 
   /**
-   * Enables debug event emission for this data texture.
+   * Enables internal event emission for this data texture.
    */
   public debugging: boolean = true;
 

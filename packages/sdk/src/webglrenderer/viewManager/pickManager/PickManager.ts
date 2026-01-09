@@ -10,7 +10,7 @@ import {
   normalizeVec3, subVec3,
   transformVec4
 } from "../../../math";
-import {RendererView} from "../RendererView";
+import {ViewRenderState} from "../ViewRenderState";
 import {type FloatArrayParam} from "../../../math";
 import {createRTCViewMat} from "../../../rtc";
 import {RendererMesh} from "../meshManager/RendererMesh";
@@ -47,6 +47,8 @@ const pickTemps = {
 
 /**
  *  Manages picking of objects within a {@link WebGLRenderer}.
+ *
+ *  Owned by a {@link ViewManager}.
  *
  *  @internal
  */
@@ -95,7 +97,7 @@ export class PickManager {
   /**
    * Picks a {@link ViewObject} and/or a 3D position on its surface, given either canvas coordinates or a World-space ray.
    */
-  pick( rendererView: RendererView,
+  pick( rendererView: ViewRenderState,
         pickParams: PickParams,
         pickResult = this._pickResult ): boolean{
 return;
@@ -225,7 +227,7 @@ return;
 
   _pickMesh(
     params: {
-      rendererView: RendererView,
+      rendererView: ViewRenderState,
       rayPick: boolean,
       pickCanvasPos?: FloatArrayParam,
       pickViewMatrix?: FloatArrayParam,
@@ -315,7 +317,7 @@ return;
 
   _pickWorldPos(
     params: {
-      rendererView: RendererView,
+      rendererView: ViewRenderState,
       sceneMesh: SceneMesh,
         batchIndex: number,
         meshIndex: number,

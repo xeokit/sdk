@@ -9,7 +9,8 @@ export * from "./GPUMemoryBatch";
 export * from "./GPUMemoryMeshHandle";
 export * from "./GPUMemoryReader";
 export * from "./GPUMemoryEditor";
-export * from "./Tile";
-export * from "./TileManager";
+export * from "./GPUTile";
+export * from "./GPUTileManager";
 
-export * as dtx from "./dataTextures/";
+
+export * as dataTextures from "./dataTextures/";

@@ -10,6 +10,6 @@ export * as pickManager from "./pickManager";
 export * as meshManager from "./meshManager";
 
 export * from "./ViewManager";
-export * from "./RendererView";
+export * from "./ViewRenderState";
 export * from "./RenderBuffers";
 export * from "./RenderContext";

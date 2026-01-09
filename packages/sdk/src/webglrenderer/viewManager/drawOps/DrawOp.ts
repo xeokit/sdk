@@ -35,7 +35,8 @@ export class DrawOp {
   }
 
   /**
-   * Draws all meshes contained in the given {@link MeshBatch}.
+   * Draws all meshes contained in the given {@link MeshBatch}, within
+   * this DrawOp's render pass.
    *
    * @param meshBatch - Batch of meshes to render.
    */
@@ -44,7 +45,8 @@ export class DrawOp {
   }
 
   /**
-   * Draws a single mesh from the given {@link MeshBatch}.
+   * Draws a single mesh from the given {@link MeshBatch},
+   * within this DrawOp's render pass.
    *
    * @param meshBatch - Batch containing the mesh.
    * @param meshIndex - Index of the mesh within the batch.

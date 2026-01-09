@@ -8,7 +8,7 @@ import {type WebGLRendererEvents} from "./WebGLRendererEvents";
 import {type MemoryConfigs} from "./MemoryConfigs";
 import {createMemoryConfigs} from "./createMemoryConfigs";
 import {type MemoryUsage} from "./MemoryUsage";
-import {type MemoryView} from "./debug/MemoryView";
+import {type MemoryView} from "./internal/MemoryView";
 import {type DataTextures} from "./viewManager/gpuMemoryManager/DataTextures";
 import {SceneGeometry, SceneMesh} from "../scene";
 import {View} from "../viewer";
@@ -28,7 +28,23 @@ import {View} from "../viewer";
 export class WebGLRenderer {
 
   private _viewer: Viewer | null = null; // The currently attached Viewer
-  private _viewManager: ViewManager; // Manages views and their rendering lifecycle - only exists when a Viewer with a Scene is attached
+
+  /**
+   * Manages views and their rendering lifecycle - only exists when a
+   * Viewer with a Scene is attached to the renderer.
+   *
+   * The ViewManager core is a central part of the renderer’s internal state,
+   * managing views, batches, and GPU resources. It only exists while
+   * a Viewer with an attached Scene is present.
+   *
+   * This API is exposed on the renderer for internal developer docs and debugging/telemetry only
+   * and is **not** covered by semantic versioning. It may change or be removed
+   * at any time.
+   *
+   * @internal
+   */
+   _viewManager: ViewManager;
+
   private _viewerSubs: (() => void)[];
   private _viewManagerSubs: (() => void)[];
   private _destroyed = false; // Indicates if the renderer has been destroyed
@@ -261,18 +277,9 @@ export class WebGLRenderer {
   }
 
   /**
-   * Retrieves the internal {@link ViewManager}, if rendering is active.
-   *
-   * @internal
-   * @returns The ViewManager or `null` if not rendering.
-   */
-  get viewManager(): ViewManager | null {
-    return this._viewManager || null;
-  }
-
-  /**
    * Logs an error result to the console and dispatches an `onError` event.
    *
+   * @internal
    * @param result The error result to log and dispatch.
    * @returns The same error result for chaining or further handling.
    */

@@ -12,6 +12,7 @@ import {type MemoryView} from "./internal/MemoryView";
 import {type DataTextures} from "./viewManager/gpuMemoryManager/DataTextures";
 import {SceneGeometry, SceneMesh} from "../scene";
 import {View} from "../viewer";
+import {ShaderView} from "./internal";
 
 /**
  * WebGL renderer backing a {@link Viewer}.
@@ -128,6 +129,7 @@ export class WebGLRenderer {
 
   private readonly _memoryConfigs: MemoryConfigs;
   private readonly _memoryView: MemoryView;
+  private _shaderView: ShaderView;
 
   /**
    * Constructs a new {@link WebGLRenderer}.
@@ -155,6 +157,7 @@ export class WebGLRenderer {
         return this._viewManager ? this._viewManager.getMeshAtIndex(batchIndex, meshIndex) : null;
       }
     };
+    this._shaderView = null;
     if (params.memoryConfigs) {
       this._memoryConfigs=<MemoryConfigs>{};
       Object.assign(this._memoryConfigs, params.memoryConfigs);
@@ -273,6 +276,29 @@ export class WebGLRenderer {
     return {
       ok: true,
       value: this._memoryView
+    };
+  }
+
+  /**
+   * Returns a debug view of program shaders used by the renderer.
+   *
+   * This API is intended for diagnostics, debugging tools, and monitoring UIs.
+   *
+   * @internal
+   * @returns `{ ok: true, value }` when a Viewer with an attached Scene is present;
+   * otherwise `{ ok: false }` with {@link SDKErrorType.InvalidOperation}.
+   */
+  public getShaderView(): SDKResult<ShaderView>  {
+    if (!this._viewManager) {
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGLRenderer.getShaderView] Failed to get ShaderView - no Viewer with Scene is currently attached."
+      });
+    }
+    return {
+      ok: true,
+      value: this._shaderView
     };
   }
 
@@ -429,6 +455,8 @@ export class WebGLRenderer {
     ];
 
     this._memoryView.dataTextures= this._viewManager.dataTextures;
+
+    this._shaderView = this._viewManager.shaderView;
 
     this._viewManager.getWebGLCanvasElement().addEventListener("webglcontextlost", (event) => {
       event.preventDefault();

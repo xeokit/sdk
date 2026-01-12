@@ -21,7 +21,9 @@
  */
 export * from "./MeshManager";
 export * from "./MeshBatch";
+export * from "./MeshBatchImpl";
 export * from "./MeshBatchMeshHandle";
+export * from "./RendererObject"
 export * from "./RendererMesh";
 export * from "./RendererGeometry";
 export * from "./RendererTexture";

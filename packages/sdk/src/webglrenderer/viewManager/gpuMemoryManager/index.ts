@@ -4,6 +4,7 @@
  * @module gpuMemoryManager
  */
 export * from "./GPUMemoryManager";
+export * from "./DataTextures";
 export * from "./BatchDataTextures";
 export * from "./GPUMemoryBatch";
 export * from "./GPUMemoryMeshHandle";

@@ -4,196 +4,126 @@
  *   src="https://xeokit.github.io/sdk/docs/assets/xeokit_webgl_logo.svg"
  * />
  *
- * # xeokit WebGL2 Renderer Internal APIs
+ * # WebGLRenderer Internal APIs
  *
  * ---
  *
- * ### *WebGL2-based rendering backend for xeokit Viewers*
+ * ### *Internal documentation for xeokit developers*
  *
  * ---
  *
- * This module provides **diagnostics-only** APIs for inspecting the WebGL2 renderer’s
- * **GPU-resident state**. It is intended for troubleshooting, profiling, and validating
+ * <br>
+ *
+ * ## GPU Memory Inspection APIs
+ *
+ * WebGLRenderer provides **diagnostics-only** APIs for inspecting the WebGL2 renderer’s
+ * **GPU-resident state**. They are intended for troubleshooting, profiling, and validating
  * renderer behavior (eg. batch layout, draw ranges, and the contents of renderer-managed
  * data textures).
  *
- * These APIs are **read-only**: they do **not** allow mutation of renderer-owned GPU state.
- *
- * ## Diagnostics and tooling
+ * These APIs are **read-only**: they not intended for mutation of renderer-owned GPU state.
  *
  * The main entry points are:
  *
- * - {@link MemoryUsage} returned by `WebGLRenderer#getMemoryUsage()` for high-level GPU memory stats.
- * - {@link MemoryView} returned by `WebGLRenderer#getMemoryView()` for structured read-only access to
+ * - {@link MemoryUsage} returned by {@link WebGLRenderer.getMemoryUsage} for high-level GPU memory stats.
+ * - {@link MemoryView} returned by {@link WebGLRenderer.getMemoryView} for structured read-only access to
  *   GPU-resident {@link DataTextures}.
- * - Debugger utilities (eg. {@link MemoryDebugger}) for visualizing batches, textures, and draw ranges.
  *
- * ### Mental model
+ * <br>
  *
- * The renderer’s data is organized roughly as:
+ * ## Shader Inspection APIs
  *
- * - **DataTextures** → a top-level container for GPU tables.
- * - **Batches** → groups of meshes by compatible draw state / primitive type.
- * - **Views** → per-view/per-pass state (eg. camera view, picking, etc.).
- * - **Render passes** → opaque/translucent/selected/highlighted/xrayed, etc., each with its own draw range.
+ * WebGLRenderer provides **diagnostics-only** APIs for inspecting the WebGL2 renderer’s
+ * **shader programs**. They are intended for troubleshooting, profiling, and validating
+ * renderer behavior (eg. verifying shader code generation and correctness).
  *
- * ## Example
+ * These APIs are **read-only**: they not intended for mutation of renderer-owned shader state.
  *
- * The example below demonstrates how to:
+ * The main entry point is:
  *
- * - query a GPU memory usage summary,
- * - access GPU-resident data textures through {@link MemoryView},
- * - walk batches → views → render passes → primitive ranges,
- * - map GPU indices back to {@link SceneMesh} and geometry instances for correlation,
- * - sanity-check vertex data and simulate parts of the vertex transform path.
+ * - {@link ShaderView} returned by {@link WebGLRenderer.getShaderView} for structured read-only access to
+ *  shader program source code.
  *
- * > Note: This example is intentionally verbose and “inspection oriented”. It is not a recommended
- * > render loop pattern, and it elides some details (eg. certain offsets) that may differ depending
- * > on renderer configuration.
+ *  <br>
  *
- * ```ts
- * // Get GPU memory usage summary
- * const memoryUsage: MemoryUsage = webglRenderer.getMemoryUsage();
- * console.log(`GPU Memory Usage: ${memoryUsage.usedMB} MB used of ${memoryUsage.totalMB} MB total`);
+ * ## Architectural Overview
  *
- * // Get read-only internal view of GPU-resident data
- * const memoryView: MemoryView = webglRenderer.getMemoryView();
+ * WebGLRenderer is structured as follows:
  *
- * // Example: select a render pass (e.g. OPAQUE)
- * const renderPass: number = 0;
+ * ````
+ * WebGLRenderer
+ *     ├── Capabilities
+ *     ├── MemoryUsage
+ *     ├── MemoryView (internal)
+ *     ├── MemoryConfigs
+ *     ├── WebGLRendererEvents
+ *     └── ViewManager (internal)
+ *           ├── MeshManager
+ *           ├── GPUMemoryManager
+ *           ├── RenderManager
+ *           ├── PickManager
+ *           └── DrawOps
  *
- * // Access the top-level data textures collection from the renderer
- * const dataTextures = memoryView.dataTextures;
+ * ````
  *
- * // Iterate over all views (e.g. camera, picking, etc.)
- * for (let viewIndex = 0; viewIndex < 4; viewIndex++) {
+ * - **{@link WebGLRenderer}**
  *
- *   const tileCameraMatrixTexture = dataTextures.viewTileCameraMatrixTexture[viewIndex];
+ *   - Root entry point for WebGL2 rendering in xeokit.
+ *   - Owns and manages the entire rendering pipeline for a {@link Viewer}.
+ *   - Attaches to a {@link Viewer}, initializes rendering state, and responds to scene/view/model events.
+ *   - Exposes diagnostics, memory inspection, and error events.
+ *   - Owns a single internal {@link ViewManager} instance.
  *
- *   // Iterate over all render batches (each batch groups meshes by primitive type)
- *   for (let batchIndex = 0; batchIndex < dataTextures.batches.length; batchIndex++) {
+ * - **{@link ViewManager}**
+ *   - Coordinates all per-{@link View} rendering and pipeline management.
+ *   - Manages all {@link View} instances for a {@link Viewer}.
+ *   - Owns and wires together the core pipeline managers:
+ *     - {@link MeshManager}
+ *     - {@link GPUMemoryManager}
+ *     - {@link RenderManager}
+ *     - {@link PickManager}
+ *   - Handles view activation, canvas management, and per-view state.
+ *   - Ensures scene/view changes are reflected in GPU state.
  *
- *     // Get the batch's data textures (per-batch, per-view)
- *     const batchDataTextures = dataTextures.batches[batchIndex];
+ * - **{@link MeshManager}**
+ *   - Bridges scene/view state changes into GPU-ready render state.
+ *   - Owns renderer-side representations of models, objects, and meshes:
+ *     - {@link RendererObject} (per scene object)
+ *     - {@link RendererMesh} (per mesh)
+ *     - {@link MeshBatchImpl} (batches of compatible meshes)
+ *   - Coordinates with {@link GPUMemoryManager} for GPU memory allocation and updates.
+ *   - Maintains mesh batches for efficient rendering.
  *
- *     // Get the view-dependent textures for this batch and view
- *     const batchViewDataTextures = batchDataTextures.views[viewIndex];
+ * - **{@link GPUMemoryManager}**
+ *   - Allocates, updates, and releases all GPU-resident memory for geometry, attributes, and data textures.
+ *   - Manages tiled RTC (Relative To Center) coordinate system for high-precision rendering.
+ *   - Handles all data texture packing and GPU uploads.
+ *   - Provides APIs for diagnostics and memory inspection.
  *
- *     // Get the primitive range for the current render pass
- *     // This defines which primitives to draw for this pass
- *     const primRange = batchViewDataTextures.renderPassPrimitiveRanges[renderPass];
+ * - **{@link RenderManager}**
+ *   - Executes the rendering pipeline for the active view.
+ *   - Manages draw passes, render state, and integration with mesh batches and GPU memory.
+ *   - Handles context restoration and per-frame rendering logic.
  *
- *     // Iterate over all primitives in the current pass's range
- *     // i.e. gl.drawArrays(gl.TRIANGLES, primRange.start * 3, primRange.numPrims * 3);
- *     for (let primIndex = primRange.start; primIndex < primRange.end; primIndex++) { // Each primitive is a triangle
- *       for (let vertexOffset = 0; vertexOffset < 3; vertexOffset++) { // A, B, C vertices of the triangle
- *
- *         const vertexIndex = primIndex * 3 + vertexOffset;
- *
- *         // Lookup the mesh index for this primitive using the primitiveMeshIndexTexture
- *         // This table maps each primitive to its owning mesh
- *         const { meshIndex, offset } = batchViewDataTextures.primitiveMeshIndexTexture.getItem(primIndex);
- *
- *         // Lookup the SceneMesh using batchIndex and meshIndex
- *         const sceneMesh = memoryView.getMeshAtIndex(batchIndex, meshIndex);
- *
- *         if (!sceneMesh) {
- *           console.error("Error: scene mesh not found for mesh index:", meshIndex);
- *           continue;
- *         }
- *
- *         // Lookup mesh attributes (view-invariant) using meshAttributeTexture
- *         // This includes geometry index, material info, etc.
- *         const meshAttribs = batchDataTextures.meshAttributeTexture.getItem(meshIndex);
- *
- *         // Lookup geometry index for the mesh
- *         const geometryIndex = meshAttribs.geometryIndex;
- *         const tileIndex = meshAttribs.tileIndex;
- *
- *         // Lookup geometry attributes using geometryAttributeTexture
- *         // This includes base offsets for vertices and indices
- *         const geometryAttributeTexture = batchDataTextures.geometryAttributeTexture.getItem(geometryIndex);
- *
- *         const verticesBase = geometryAttributeTexture.verticesBase;
- *         const indicesBase = geometryAttributeTexture.indicesBase;
- *
- *         // Lookup index value using indices texture
- *         const index = batchDataTextures.indexTexture.getItem(indicesBase + offset);
- *
- *         // Lookup vertex position using vertexPositions texture
- *         const vertexPosition = batchDataTextures.vertexPositionTexture.getItem(verticesBase + index);
- *
- *         const sceneGeometry = memoryView.getGeometryAtIndex(batchIndex, geometryIndex);
- *
- *         if (!sceneGeometry) {
- *           console.error("Error: scene geometry not found for geometry index:", geometryIndex);
- *           continue;
- *         }
- *
- *         // Optional: compare against CPU-side compressed positions (if available)
- *         const geometryPositionsCompressed = sceneGeometry.positionsCompressed;
- *         const geometryPosition = createVec3Int16();
- *
- *         geometryPosition[0] = geometryPositionsCompressed[index * 3];
- *         geometryPosition[1] = geometryPositionsCompressed[index * 3 + 1];
- *         geometryPosition[2] = geometryPositionsCompressed[index * 3 + 2];
- *
- *         if (vertexPosition[0] !== geometryPosition[0] ||
- *             vertexPosition[1] !== geometryPosition[1] ||
- *             vertexPosition[2] !== geometryPosition[2]) {
- *           console.error("Error: vertex position mismatch between data textures and scene geometry");
- *         }
- *
- *         // Lookup view-dependent mesh attributes (e.g. visibility, selection)
- *         const meshViewAttribs = batchViewDataTextures.meshViewAttributeTexture.getItem(meshIndex);
- *
- *         const colorize = meshViewAttribs.color;
- *         const colorizeOpacity = meshViewAttribs.opacity;
- *         const pickable = meshViewAttribs.pickable;
- *         const clippable = meshViewAttribs.clippable;
- *
- *         switch (renderPass) {
- *           case 0: // OPAQUE
- *             break;
- *           case 1: // TRANSLUCENT
- *             break;
- *           case 2: // SELECTED
- *             break;
- *           case 3: // HIGHLIGHTED
- *             break;
- *           case 4: // XRAYED
- *             break;
- *           default:
- *             console.error("Error: unknown render pass");
- *         }
- *
- *         // Simulate vertex transformation using model and view matrices
- *         const { matrix: modelMatrix } = batchDataTextures.meshMatrixTexture.getItem(meshIndex);
- *         const { matrix: viewMatrix } = tileCameraMatrixTexture.getItem(tileIndex);
- *
- *         // Dequantize vertex position
- *         const quantRange = batchDataTextures.geometryQuantRangeTexture.getItem(geometryIndex);
- *
- *         const modelVertexPos = createVec4Float32();
- *         modelVertexPos[0] = vertexPosition[0] * quantRange.scale[0] + quantRange.offset[0];
- *         modelVertexPos[1] = vertexPosition[1] * quantRange.scale[1] + quantRange.offset[1];
- *         modelVertexPos[2] = vertexPosition[2] * quantRange.scale[2] + quantRange.offset[2];
- *         modelVertexPos[3] = 1.0;
- *
- *         const worldVertexPos = createVec4Float32();
- *         const viewVertexPos = createVec4Float32();
- *
- *         transformVec4(modelMatrix, modelVertexPos, worldVertexPos);
- *         transformVec4(viewMatrix, worldVertexPos, viewVertexPos);
- *       }
- *     }
- *   }
- * }
- * ```
+ * - **{@link PickManager}**
+ *   - Manages GPU-backed picking resources and queries.
+ *   - Handles object hit-testing and selection using screen-space or ray-based picking.
+ *   - Integrates with mesh batches and GPU memory.
  *
  * @module internal
  */
 
 export * as viewManager from "../viewManager";
+export * from "../../viewer";
 export * from "./MemoryView";
+export * from "./ShaderView";
 export * from "./MemoryDebugger";
+export * from "./ShaderDebugger";
+export * from "../viewManager/drawOps";
+export * from "../viewManager/ViewManager";
+export * from "../viewManager/meshManager";
+export * from "../viewManager/gpuMemoryManager";
+export * from "../viewManager/ViewRenderState";
+export * from "../viewManager/gpuMemoryManager/dataTextures/index";
+export * from "../viewManager/renderManager";
+export * from "../viewManager/pickManager";

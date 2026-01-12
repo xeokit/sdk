@@ -5,7 +5,19 @@ import {RenderContext} from "../RenderContext";
 const tempIntRGB = new Uint16Array([0, 0, 0]);
 
 /**
- * Represents a 3D object in the WebGL renderer.
+ * Represents a logical renderable object within the WebGL renderer, grouping one or more {@link RendererMesh} instances.
+ *
+ * @remarks
+ * - `RendererObject` is the GPU-side container for all meshes that make up a single scene/model object.
+ * - Each `RendererObject` owns one or more {@link RendererMesh} instances, each representing a distinct mesh or geometry part of the object.
+ * - Provides APIs to control visual and interaction state (visibility, highlighting, selection, x-ray, culling, clipping, collision, picking) across all its meshes and views.
+ * - Delegates all geometry, GPU memory, and RTC tiling logic to its {@link RendererMesh} instances.
+ * - `RendererMesh` instances are managed and batched by {@link MeshBatchImpl}, which organizes compatible meshes for efficient GPU upload and draw calls.
+ * - The {@link MeshManager} (or MeshBatchRegistry) coordinates creation, update, and removal of `RendererObject` and `RendererMesh` instances, responding to scene/view changes and synchronizing with the GPU memory manager.
+ * - The {@link ViewManager} manages all per-view state, coordinates with {@link MeshManager}, and tracks all `RendererObject` instances for each view.
+ * - The root {@link WebGLRenderer} owns the {@link ViewManager}, which in turn manages all `RendererObject` instances for the renderer.
+ * - Used internally by the renderer for efficient per-object state updates and synchronization with the GPU; application code interacts with higher-level scene/model objects.
+ *
  * @internal
  */
 export class RendererObject  {

@@ -340,7 +340,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
    * @param pickMatrix - Pick matrix to associate with the view.
    */
   public setViewPickMatrix(view: View, pickMatrix: Mat4): void {
-    this._tileManager.setPickMatrix(view, pickMatrix);
+    this._tileManager.setViewPickMatrix(view, pickMatrix);
   }
 
   /**

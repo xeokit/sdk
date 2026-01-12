@@ -23,8 +23,8 @@ const tempVec3a = createVec3Float64();
 export class GPUTileManager {
 
   private _viewer: Viewer;
-  private _viewMatrices: MatrixTexture[] = [];
-  private _pickMatrices: MatrixTexture[] = [];
+  private _viewTileCameraMatrixTexture: MatrixTexture[] = [];
+  private _viewTilePickMatrixTexture: MatrixTexture[] = [];
   private _tileIndexesUsed: boolean[] = [];
   private _lastFreeTileIndex = 0;
   private _tiles = new Map<string, GPUTile>();
@@ -33,11 +33,13 @@ export class GPUTileManager {
   /**
    * Creates a tile manager for a WebGLRenderer.
    */
-  constructor(viewer: Viewer, viewMatrices: MatrixTexture[], pickMatrices: MatrixTexture[]) {
+  constructor(
+    viewer: Viewer,
+    viewTileCameraMatrixTexture: MatrixTexture[],
+    viewTilePickMatrixTexture: MatrixTexture[]) {
     this._viewer = viewer;
-    // this._allocateDataTextures();
-    this._viewMatrices = viewMatrices;
-    this._pickMatrices = pickMatrices;
+    this._viewTileCameraMatrixTexture = viewTileCameraMatrixTexture;
+    this._viewTilePickMatrixTexture = viewTilePickMatrixTexture;
   }
 
   /**
@@ -56,7 +58,6 @@ export class GPUTileManager {
     const id = this._makeTileId(rtcCenter);
     let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter);
     tile.useCount++;
-    //console.log(`GPUTileManager.getTile: getTile id=${id} useCount=${tile.useCount}`);
     return tile;
   }
 
@@ -68,7 +69,6 @@ export class GPUTileManager {
     if (--tile.useCount === 0) {
       this._tiles.delete(tile.id);
       this._putFreeTileIndex(tile.tileIndex);
-      //console.log(`GPUTileManager.putTile: putTile id=${tile.id} DESTROYED`);
     }
   }
 
@@ -84,7 +84,6 @@ export class GPUTileManager {
     this.putTile(tile);
     let newTile = this._tiles.get(newId) ?? this._createTile(newId, newRTCCenter);
     newTile.useCount++;
-    //console.log(`GPUTileManager.moveTile: moveTile oldId=${tile.id} newId=${newId} useCount=${newTile.useCount}`);
     return newTile;
   }
 
@@ -98,14 +97,13 @@ export class GPUTileManager {
   /**
    * Sets the pick matrices for all tiles for the given view.
    */
-  public setPickMatrix(view: View, pickMatrix: Mat4) {
-   // console.log(`GPUTileManager.setPickMatrix: viewIndex=${view.viewIndex}`);
+  public setViewPickMatrix(view: View, pickMatrix: Mat4) {
     const viewIndex = view.viewIndex;
-    const pickMatrices = this._pickMatrices[viewIndex];
+    const viewTilePickMatrixTexture = this._viewTilePickMatrixTexture[viewIndex];
     for (const [_, tile] of this._tiles) {
       const rtcPickMatrix = tile.rtcRayPickMatrix[viewIndex];
       createRTCViewMat(pickMatrix, tile.center, rtcPickMatrix);
-      pickMatrices.setItem(tile.tileIndex, rtcPickMatrix);
+      viewTilePickMatrixTexture.setItem(tile.tileIndex, rtcPickMatrix);
     }
   }
 
@@ -120,16 +118,14 @@ export class GPUTileManager {
    * Synchronizes all tile RTC view matrices to the given View's camera view matrix.
    */
   private _synchTilesToViewMatrix(camera: Camera) {
-  //  console.log(`GPUTileManager._synchTilesToViewMatrix: viewIndex=${camera.view.viewIndex}`);
     const view = camera.view;
     const viewMatrix = camera.viewMatrix;
     const viewIndex = view.viewIndex;
-    const viewMatrices = this._viewMatrices[viewIndex];
+    const matrixTexture = this._viewTileCameraMatrixTexture[viewIndex];
     for (const [_, tile] of this._tiles) {
       const rtcViewMatrix = tile.rtcViewMatrix[viewIndex];
       createRTCViewMat(viewMatrix, tile.center, rtcViewMatrix);
-      viewMatrices.setItem(tile.tileIndex, rtcViewMatrix);
-      //  console.log(`GPUTileManager: synchTilesToViewMatrix  GPUTile id=${tile.id} View matrix updated`);
+      matrixTexture.setItem(tile.tileIndex, rtcViewMatrix);
     }
   }
 
@@ -160,8 +156,8 @@ export class GPUTileManager {
       rtcRayPickMatrix: rtcPickMatrix
     };
     for (let viewIndex = 0; viewIndex < NUM_VIEWS; viewIndex++) {
-      this._viewMatrices[viewIndex].setItem(tileIndex, rtcViewMatrix[viewIndex] as unknown as Mat4);
-      this._pickMatrices[viewIndex].setItem(tileIndex, rtcPickMatrix[viewIndex] as unknown as Mat4);
+      this._viewTileCameraMatrixTexture[viewIndex].setItem(tileIndex, rtcViewMatrix[viewIndex] as unknown as Mat4);
+      this._viewTilePickMatrixTexture[viewIndex].setItem(tileIndex, rtcPickMatrix[viewIndex] as unknown as Mat4);
     }
     this._tiles.set(id, tile);
     this._numTiles++;

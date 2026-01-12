@@ -2,42 +2,46 @@ import {RenderContext} from "./RenderContext";
 import {Camera,  View, Viewer, ViewObject} from "../../viewer";
 import {SDKInternalException, SDKErrorType, type SDKResult} from "../../core";
 import {ViewRenderState} from "./ViewRenderState";
-import {RenderManager} from "./renderManager/RenderManager";
-import {PickManager} from "./pickManager/PickManager";
-import {GPUMemoryManager} from "./gpuMemoryManager/GPUMemoryManager";
-import {MeshManager} from "./meshManager/MeshManager";
-import {type GPUMemoryReader} from "./gpuMemoryManager/GPUMemoryReader";
+import {RenderManager} from "./renderManager";
+import {PickManager} from "./pickManager";
+import {GPUMemoryManager} from "./gpuMemoryManager";
+import {MeshManager} from "./meshManager";
+import {type GPUMemoryReader} from "./gpuMemoryManager";
 import {SceneGeometry, SceneMesh, SceneModel, SceneObject} from "../../scene";
 import {SceneTransform} from "../../scene/SceneTransform";
 import {type MemoryConfigs} from "../MemoryConfigs";
 import type {DataTextures} from "./gpuMemoryManager/DataTextures";
+import {ShaderView} from "../internal";
 
 /**
- * Coordinates per-{@link View} rendering in the WebGL renderer.
+ * Top-level, internal rendering and pipeline manager within a {@link WebGLRenderer}.
  *
- * Owned by a {@link WebGLRenderer}.
+ * @remarks
+ * - `ViewManager` is owned by a single {@link WebGLRenderer} instance.
+ * - It manages all {@link View}s for a given {@link Viewer}.
+ * - Acts as the central coordinator for per-View state, rendering, and GPU resource management.
+ * - Owns and initializes the shared WebGL {@link RenderContext} and its underlying canvas element.
+ * - Instantiates and wires together the core pipeline managers:
+ *   - {@link GPUMemoryManager}: Manages GPU-side storage, data textures, and memory uploads for all views.
+ *   - {@link MeshManager}: Bridges scene/view state changes (transforms, colors, visibility, etc.) into GPU-ready render state for all views.
+ *   - {@link RenderManager}: Executes draw passes for the currently active view, managing the render pipeline.
+ *   - {@link PickManager}: Handles GPU-backed picking resources and queries for all views.
+ * - Tracks and manages {@link ViewRenderState} instances for each {@link View}, synchronizing per-view state and resources.
+ * - Handles view activation, moving/resizing the shared WebGL canvas to match the active view element, and snapshotting the previous view as needed.
+ * - Exposes the set of GPU-backed data textures (via {@link dataTextures}) for diagnostics.
  *
- * The {@link ViewManager} is responsible for:
- * - Creating and tracking {@link ViewRenderState} instances for each {@link View} in a {@link Viewer}.
- * - Owning the shared WebGL {@link RenderContext} and its underlying canvas element.
- * - Initializing and wiring the render pipeline managers:
- *   - {@link GPUMemoryManager} for GPU-side storage and uploads
- *   - {@link MeshManager} for scene/view object state changes (transforms, colors, visibility, etc.)
- *   - {@link RenderManager} for drawing into the active view
- *   - {@link PickManager} for GPU-backed picking support
- * - Handling view activation (moving/resizing the shared WebGL canvas to the active view element and
- *   snapshotting the previous active view into an image).
+ * ## Architectural Role
+ * - The {@link WebGLRenderer} owns a single `ViewManager`.
+ * - The `ViewManager` manages all {@link View}s for the associated {@link Viewer}, supporting multi-view rendering.
+ * - It owns and coordinates all pipeline managers, ensuring that scene and view changes are efficiently reflected in GPU state and draw calls.
+ * - All per-view rendering, picking, and GPU resource management flows through the `ViewManager` and its managers.
  *
- * ### Lifecycle
- * 1) Construct
- * 2) {@link init} with a {@link Viewer}
- * 3) For each view added/removed: {@link viewCreated} / {@link viewDestroyed}
- * 4) For each view update: {@link viewUpdated}
- * 5) On shutdown: {@link destroy}
- *
- * ### Important notes
- * - A single shared WebGL canvas is repositioned/resized to match the currently “active” view.
- * - The number of supported views is currently capped at 4 (see TODO: capabilities/maxViews).
+ * ## Lifecycle
+ * 1. Constructed by {@link WebGLRenderer}.
+ * 2. Initialized via {@link init} with a {@link Viewer} and memory configs.
+ * 3. For each view added/removed: {@link viewCreated} / {@link viewDestroyed}.
+ * 4. For each view update: {@link viewUpdated}.
+ * 5. On shutdown: {@link destroy}.
  *
  * @internal
  */
@@ -45,11 +49,17 @@ export class ViewManager {
 
   /**
    * GPU-backed textures created/owned by {@link GPUMemoryManager}.
-   *
-   * Exposed for internal consumers that need direct access to the data-texture set.
+   * Exposed for diagnostics.
    * Available after {@link init} succeeds; `undefined` after {@link destroy}.
    */
   public dataTextures: DataTextures | undefined = undefined;
+
+  /**
+   * Exposes shader source code for all techniques used by the renderer.
+   * Exposed for diagnostics.
+   * Available after {@link init} succeeds; `undefined` after {@link destroy}.
+   */
+  public shaderView: ShaderView;
 
   /** The owning {@link Viewer} instance. Set during {@link init}. */
   private _viewer: Viewer;
@@ -72,12 +82,12 @@ export class ViewManager {
    *
    * @internal
    */
-  _activeView: ViewRenderState;
+  public _activeView: ViewRenderState;
 
   /** Executes draw passes for the active view.
    * @internal
    */
-  _renderManager: RenderManager;
+  public _renderManager: RenderManager;
 
   /** Manages GPU picking resources and queries.
    * @internal
@@ -172,6 +182,8 @@ export class ViewManager {
     if (resultRender.ok === false) {
       return resultRender;
     }
+
+    this.shaderView = new ShaderView(this._renderManager.drawOps);
 
     this._pickManager = new PickManager({
       renderContext: this._renderContext,
@@ -582,7 +594,8 @@ export class ViewManager {
     this._gpuMemoryManager = undefined as unknown as GPUMemoryManager;
     this._renderContext.destroy();
     this._viewer = undefined as unknown as Viewer;
-    this.dataTextures = undefined;
+    this.dataTextures = undefined as unknown as DataTextures;
+    this.shaderView = undefined as unknown as ShaderView;
   }
 
 }

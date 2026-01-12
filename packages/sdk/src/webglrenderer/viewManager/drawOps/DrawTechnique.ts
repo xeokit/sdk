@@ -112,7 +112,7 @@ export abstract class DrawTechnique {
    * Samplers for the shader program.
    */
   private _samplers: {
-    primitiveMeshIndexTexture: WebGLUniformLocation; // Prim tileIndex -> mesh lookup
+    primitiveMeshIndex: WebGLUniformLocation; // Prim tileIndex -> mesh lookup
     meshAttributeTexture: WebGLUniformLocation; // Mesh attributes
     meshViewAttributeTexture: WebGLUniformLocation; // Mesh view attributes
     meshMatrixTexture: WebGLUniformLocation; // RTC modeling matrices
@@ -257,9 +257,9 @@ export abstract class DrawTechnique {
     this._attributes = {};
 
     this._samplers = {
-      primitiveMeshIndexTexture: program.getSampler("uPrimitiveMeshIndexTexture"),
+      primitiveMeshIndex: program.getSampler("uPrimitiveMeshIndexTexture"),
       meshAttributeTexture: program.getSampler("uMeshAttribTable"),
-      meshViewAttributeTexture: program.getSampler("uViewMeshAttribTexture"),
+      meshViewAttributeTexture: program.getSampler("uMeshViewAttributeTexture"),
       meshMatrixTexture: program.getSampler("uMeshMatrixTexture"),
       geometryAttributeTexture: program.getSampler("uGeometryAttributeTexture"),
       geometryQuantRangeTexture: program.getSampler("uGeometryQuantRangeTexture"),
@@ -346,7 +346,7 @@ export abstract class DrawTechnique {
       const batchViewDataTextures = batchDataTextures.views[viewIndex];
       const primitiveMeshIndexTexture = batchViewDataTextures.primitiveMeshIndexTexture;
 
-      bindTexture(samplers.primitiveMeshIndexTexture, primitiveMeshIndexTexture);
+      bindTexture(samplers.primitiveMeshIndex, primitiveMeshIndexTexture);
       bindTexture(samplers.vertexPositionTexture, batchDataTextures.vertexPositionTexture);
       bindTexture(samplers.vertexColorTexture, batchDataTextures.vertexColorTexture);
       bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
@@ -466,7 +466,7 @@ export abstract class DrawTechnique {
       "uniform highp sampler2D  uViewTileCameraMatrixTexture;",
       "uniform highp sampler2D  uMeshMatrixTexture;",
       "uniform highp usampler2D uMeshAttributeTexture;",
-      "uniform highp usampler2D uViewMeshAttribTexture;",
+      "uniform highp usampler2D uMeshViewAttributeTexture;",
       "uniform highp usampler2D uGeometryAttributeTexture;",
       "uniform highp sampler2D  uGeometryQuantRangeTexture;",
 
@@ -480,7 +480,7 @@ export abstract class DrawTechnique {
       "  uint geometryIndex;",
       "};",
 
-      "struct ViewMeshAttributes {",
+      "struct MeshViewAttributes {",
       "  uvec4 color;",
       "  uvec4 renderFlags;",
       "};",
@@ -495,17 +495,17 @@ export abstract class DrawTechnique {
       "  return ivec2(int(index % texWidth), int(index / texWidth));",
       "}",
 
-      "uint primitiveMeshIndexTexture(uint primIndex) {",
+      "uint getPrimitiveMeshIndex(uint primIndex) {",
       "  const uint texWidth = 4096u;",
       "  return texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex * 2u, texWidth), 0).r;",
       "}",
 
-      "uint primToOffsetLookup(uint primIndex) {",
+      "uint getPrimitiveOffsetWithinGeometry(uint primIndex) {",
       "  const uint texWidth = 4096u;",
       "  return texelFetch(uPrimitiveMeshIndexTexture, texCoord((primIndex * 2u) + 1u, texWidth), 0).r;",
       "}",
 
-      //   "uint primitiveMeshIndexTexture(uint primIndex) {",
+      //   "uint getPrimitiveMeshIndex(uint primIndex) {",
       // //  " return 0u;",
       //   "  const uint texWidth = 4096u;",
       //   "  uvec4 px = texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex, texWidth), 0);",
@@ -561,12 +561,12 @@ export abstract class DrawTechnique {
       "  return s;",
       "}",
 
-      "ViewMeshAttributes viewMeshAttribTableLookup(uint meshIndex) {",
+      "MeshViewAttributes getMeshViewAttributes(uint meshIndex) {",
       "  const uint texWidth = 4096u;",
       "  uint base = meshIndex * 2u;",
-      "  ViewMeshAttributes s;",
-      "  s.color       = texelFetch(uViewMeshAttribTexture, texCoord(base + 0u, texWidth), 0);",
-      "  s.renderFlags = texelFetch(uViewMeshAttribTexture, texCoord(base + 1u, texWidth), 0);",
+      "  MeshViewAttributes s;",
+      "  s.color       = texelFetch(uMeshViewAttributeTexture, texCoord(base + 0u, texWidth), 0);",
+      "  s.renderFlags = texelFetch(uMeshViewAttributeTexture, texCoord(base + 1u, texWidth), 0);",
       "  return s;",
       "}",
 
@@ -653,11 +653,11 @@ export abstract class DrawTechnique {
 
       "uvec3 mockPosition(int vertexID) {",
       "    if (vertexID % 3 == 0) {",
-      "        return uvec3(0, 0, 0);",
+      "        return uvec3(0u, 0u, 0u);",
       "    } else if (vertexID % 3 == 1) {",
-      "        return uvec3(1.5, 0, 0);",
+      "        return uvec3(1u, 0u, 0u);",
       "    } else {",
-      "        return uvec3(0, 1.5, 0);",
+      "        return uvec3(0u, 1u, 0u);",
       "    }",
       "}"
     );
@@ -782,7 +782,7 @@ export abstract class DrawTechnique {
     this._vertSrcBuf.push("void main(void) {");
     this._vsMeshLogic();
     this._vertSrcBuf.push(
-      `    int pickFlag = int(meshViewAttributeTexture.renderFlags.b >> 8u & 0xFu);`,
+      `    int pickFlag = int(meshViewAttributes.renderFlags.b >> 8u & 0xFu);`,
       `    if (pickFlag != uRenderPass) {`,
       "        gl_Position = vec4(2.0, 0.0, 0.0, 1.0);",
       "        return;",
@@ -807,7 +807,7 @@ export abstract class DrawTechnique {
     // if (this._renderContext.view.getNumAllocatedSectionPlanes() > 0) {
     //   const src = this._vertSrcBuf;
     //   src.push("      vWorldPosition = worldPos;");
-    //   src.push("      vClippable = (int(meshViewAttributeTexture.renderFlags) >> 12 & 0xF) == 1;");
+    //   src.push("      vClippable = (int(uMeshViewAttributeTexture.renderFlags) >> 12 & 0xF) == 1;");
     // }
   }
 
@@ -822,21 +822,23 @@ export abstract class DrawTechnique {
 
       // We are drawing a portion of the primitive array, so adjust the primIndex accordingly
 
-      "    uint primIndex        = uint(uPrimBaseIndex) + (drawVertexIndex / numVertsPerPrim);",
+      "    uint drawPrimIndex   = drawVertexIndex / numVertsPerPrim;",
+      "    uint primIndex       = uint(uPrimBaseIndex) + drawPrimIndex;",
 
       // Lookup the mesh and primitive offset for this primitive
       // The primitive offset is the index of the primitive within the mesh's geometry
 
-      "    uint meshIndex        = primitiveMeshIndexTexture( primIndex );",
-      "    uint primOffset       = primToOffsetLookup( primIndex );",
+      "    uint meshIndex       = getPrimitiveMeshIndex( primIndex );",
 
-      "    ViewMeshAttributes viewMeshAttributes = viewMeshAttribTableLookup( meshIndex );",
+      "    MeshViewAttributes meshViewAttributes = getMeshViewAttributes( meshIndex );",
 
-      `    if (viewMeshAttributes.color.a == 3u) {`,
+      `    if (meshViewAttributes.color.a == 3u) {`,
       // "              gl_Position = vec4(3.0, 3.0, 3.0, 1.0);", // Cull vertex
       // "              return;",
-      "    };"
-    );
+      "    };",
+
+      "    uint primOffset      = getPrimitiveOffsetWithinGeometry( primIndex );"
+  );
   }
 
   /**
@@ -845,7 +847,7 @@ export abstract class DrawTechnique {
    */
   private _vsMeshLogic2() { // after renderPass check
     this._vertSrcBuf.push(
-      "    MeshAttribTable      meshAttributeTexture       = getMeshAttribTable( meshIndex );",
+      "    MeshAttribTable  meshAttributeTexture       = getMeshAttribTable( meshIndex );",
 
       // Lookup the tile and geometry from the mesh
 
@@ -854,9 +856,12 @@ export abstract class DrawTechnique {
 
       "    GeometryAttributeTexture  geometryAttributeTexture   = getGeometryAttributeTexture( geometryIndex );",
 
-      "    uint             vertexIndex       = uPrimitiveType == " + PointsPrimitive +
-      "                                       ? geometryAttributeTexture.indicesBase + primOffset " + // points indices are simple
-      "                                       : getVertexIndex( geometryAttributeTexture.indicesBase + primOffset );",
+      "    uint localVert = drawVertexIndex % numVertsPerPrim;",
+      "    uint vertOffsetWithinGeom = primOffset * numVertsPerPrim + localVert;",
+
+      "    uint vertexIndex = (uPrimitiveType == 20000)", // Points
+      "       ? vertOffsetWithinGeom",
+      "       : getVertexIndex(geometryAttributeTexture.indicesBase + vertOffsetWithinGeom);",
 
       "    QuantRange       quantRange        = getGeometryQuantRange( geometryIndex );",
       "    mat4             modelMatrix       = getMeshMatrix( meshIndex );",
@@ -878,9 +883,10 @@ export abstract class DrawTechnique {
   protected vsLambertShadingLogic() {
     this._vertSrcBuf.push(
       // For triangles, get the three vertex positions for the triangle
-      "    uint ia  = getVertexIndex(primIndex * 3u + 0u);",
-      "    uint ib  = getVertexIndex(primIndex * 3u + 1u);",
-      "    uint ic  = getVertexIndex(primIndex * 3u + 2u);",
+      "    uint triBase = geometryAttributeTexture.indicesBase + primOffset * 3u;",
+      "    uint ia = getVertexIndex(triBase + 0u);",
+      "    uint ib = getVertexIndex(triBase + 1u);",
+      "    uint ic = getVertexIndex(triBase + 2u);",
 
       // Dequantized positions in OBJECT space
       "    vec3 a_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ia));",
@@ -892,9 +898,9 @@ export abstract class DrawTechnique {
       "    vec3 pb_w = (modelMatrix * vec4(b_obj, 1.0)).xyz;",
       "    vec3 pc_w = (modelMatrix * vec4(c_obj, 1.0)).xyz;",
 
-      "    vec3 pa = vec4((vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ia))), 1.0) * modelMatrix) * viewMatrix ).xyz;",
-      "    vec3 pb = vec4((vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ib))), 1.0) * modelMatrix) * viewMatrix).xyz;",
-      "    vec3 pc = vec4((vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ic))), 1.0) * modelMatrix) * viewMatrix).xyz;",
+      "    vec3 pa = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ia))), 1.0))).xyz;",
+      "    vec3 pb = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ib))), 1.0))).xyz;",
+      "    vec3 pc = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ic))), 1.0))).xyz;",
 
       "    vec3 normal = cross(pc - pa, pb - pa);",
 
@@ -918,7 +924,7 @@ export abstract class DrawTechnique {
       // "    lambertian = max(dot(normal, normalize(lightDir3)), 0.0);",
       // "    reflectedColor += lambertian * (lightColor3.rgb * lightColor3.a);",
 
-      "    vec4 color = vec4(viewMeshAttributes.color) /255.0;",
+      "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
 
       "   vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), 1.0);")
 
@@ -946,7 +952,7 @@ export abstract class DrawTechnique {
    */
   protected vsDrawFlatColorLogic() {
     this._vertSrcBuf.push(
-      // "    vec4 color = vec4(viewMeshAttributes.color) / 255.0;",
+      // "    vec4 color = vec4(meshViewAttributes.color) / 255.0;",
       // "    vColor = vec4(color.rgb, 1.0);"
 
       "    vColor = vec4(1.0, 1.0, 0.0, 1.0);"

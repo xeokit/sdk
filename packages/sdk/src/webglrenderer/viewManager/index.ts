@@ -1,6 +1,5 @@
 /**
  * Internal managers and components for WebGL rendering.
- *
  * @module viewManager
  */
 export * as drawOps from "./drawOps";

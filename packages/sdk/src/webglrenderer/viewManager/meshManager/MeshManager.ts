@@ -7,26 +7,30 @@ import {MeshBatchImpl} from "./MeshBatchImpl";
 import {type MeshBatch} from "./MeshBatch";
 import type {Camera, ViewObject} from "../../../viewer";
 import type {SceneTransform} from "../../../scene/SceneTransform";
-import {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
+import {GPUMemoryManager} from "../gpuMemoryManager";
 
 /**
- * Bridges scene/view state changes into GPU-ready render state.
+ * Bridges scene/view state changes into GPU-ready render state for the renderer.
  *
- * Owned by a {@link ViewManager}.
+ * @remarks
+ * - `MeshManager` is owned by a {@link ViewManager}, which manages all {@link View}s for a single {@link Viewer} (not one ViewManager per View).
+ * - It acts as the central bridge between the scene graph (models, objects, meshes) and the renderer's GPU memory and batching subsystems.
+ * - Owns the renderer-side representation of:
+ *   - {@link SceneModel}s (as containers of renderer meshes)
+ *   - {@link SceneObject}s (as {@link RendererObject}s, which can span multiple meshes)
+ *   - {@link SceneMesh} instances (as {@link RendererMesh}s)
+ *   - {@link MeshBatch} groupings (as {@link MeshBatchImpl}s), used to batch meshes by primitive type and compatibility constraints, backed by {@link GPUMemoryManager} allocations.
+ * - Coordinates with {@link GPUMemoryManager} to allocate, update, and release GPU memory for mesh, geometry, and attribute data.
+ * - Maintains mesh batches for efficient rendering, minimizing draw calls and optimizing memory usage.
+ * - Handles registration and lifecycle of models, objects, and meshes in response to scene/view events.
+ * - Forwards per-frame and per-event updates (matrix, color, opacity, visibility, etc.) to the relevant renderer objects/meshes and/or {@link GPUMemoryManager}.
+ * - Used internally by the renderer; not accessed directly by application code.
  *
- * The {@link MeshManager} owns the renderer-side representation of:
- * - {@link SceneModel}s (as a container of renderer meshes)
- * - {@link SceneObject}s (as {@link RendererObject}s, which can span multiple meshes)
- * - {@link SceneMesh} instances (as {@link RendererMesh}s)
- * - {@link MeshBatch} groupings (as {@link MeshBatchImpl}s), used to batch meshes by primitive and
- *   other compatibility constraints, backed by {@link GPUMemoryManager} allocations.
- *
- * Responsibilities:
- * - Register existing models/objects during {@link init}.
- * - Create/destroy renderer meshes and objects in response to scene lifecycle events.
- * - Maintain batches of meshes for efficient rendering.
- * - Forward per-frame/per-event updates (matrix/color/opacity/visibility/etc.) to the relevant
- *   renderer objects/meshes and/or {@link GPUMemoryManager}.
+ * ## Architectural Role
+ * - The {@link WebGLRenderer} owns a single {@link ViewManager} for each renderer instance.
+ * - The {@link ViewManager} manages all {@link View}s for the {@link Viewer}.
+ * - The `MeshManager` is owned by the {@link ViewManager} and manages all renderer objects and meshes for all views.
+ * - `MeshManager` ensures that changes in the scene or any view are efficiently reflected in GPU state, supporting high-performance, multi-view rendering.
  *
  * @internal
  */

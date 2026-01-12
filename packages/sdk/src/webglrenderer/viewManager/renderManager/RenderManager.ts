@@ -10,7 +10,7 @@ import {SDKInternalException, type SDKResult} from "../../../core";
 
 
 /**
- * Orchestrates all WebGL draw calls for a single render pass.
+ * Renders mesh batches.
  *
  * Owned by a {@link ViewManager}.
  *
@@ -20,18 +20,13 @@ import {SDKInternalException, type SDKResult} from "../../../core";
  * - Executing multi-pass rendering (opaque, transparent, edges, x-ray, highlight, selection)
  * - Binding draw programs via {@link DrawOps}
  *
- * It does **not**:
- * - Own per-view GPU resources (handled by {@link ViewRenderState})
- * - Track scene or mesh lifecycles (handled by {@link MeshManager})
- * - Upload GPU data (handled by {@link GPUMemoryManager})
- *
  * ### Rendering model
  * Rendering is performed in phases:
- * 1. Opaque geometry (optionally SAO)
+ * 1. Opaque geometry
  * 2. Opaque edges
  * 3. X-ray / highlighted / selected silhouettes (opaque)
  * 4. Transparent geometry & edges (with blending)
- * 5. Transparent silhouettes (depth-cleared overlay passes)
+ * 5. X-ray / highlighted / selected silhouettes (transparent)
  *
  * Meshes are grouped into bins per phase to ensure correct ordering and
  * minimal GPU state changes.
@@ -49,6 +44,8 @@ export class RenderManager {
    * Active drawing operations (shader programs + draw routines).
    *
    * Populated during {@link init} and returned to the pool during {@link destroy}.
+   *
+   * Used internally, but made public to support diagnostics and testing.
    */
   public drawOps: DrawOps;
 

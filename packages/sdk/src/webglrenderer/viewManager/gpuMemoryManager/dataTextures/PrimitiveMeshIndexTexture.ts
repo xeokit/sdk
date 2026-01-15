@@ -11,7 +11,8 @@ export interface PrimitiveMeshIndexTexturePortionHandle {
   offset: number;
   size: number;
   meshIndex: number;
-  visible: boolean;
+  objectVisible: boolean;
+  meshVisible: boolean;
   renderPass: RenderPassValue;
 }
 
@@ -107,7 +108,8 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
       meshIndex,
       offset: 0,
       renderPass,
-      visible: true,
+      objectVisible: true,
+      meshVisible: true,
     };
     this.portions.set(id, handle);
     this.numAllocatedItems += size;
@@ -148,17 +150,32 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
   }
 
   /**
-   * Sets the visibility of a portion.
+   * Sets the object-level visibility of a portion.
    * @param handle Portion handle.
-   * @param visible Whether the portion is visible.
+   * @param objectVisible Whether the portion is visible at the object level.
    */
-  public setVisible(handle: PrimitiveMeshIndexTexturePortionHandle, visible: boolean): void {
+  public setObjectVisible(handle: PrimitiveMeshIndexTexturePortionHandle, objectVisible: boolean): void {
     const portion = this.portions.get(handle.id);
     if (!portion) {
       throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
     }
-    portion.visible = !!visible;
-    handle.visible = portion.visible;
+    portion.objectVisible = !!objectVisible;
+    handle.objectVisible = portion.objectVisible;
+    this.needUpload = true;
+  }
+
+  /**
+   * Sets the mesh-level visibility of a portion.
+   * @param handle Portion handle.
+   * @param meshVisible Whether the portion is visible at the mesh level.
+   */
+  public setMeshVisible(handle: PrimitiveMeshIndexTexturePortionHandle, meshVisible: boolean): void {
+    const portion = this.portions.get(handle.id);
+    if (!portion) {
+      throw new SDKInternalException("PrimitiveMeshIndexTexture: Unknown portion handle");
+    }
+    portion.meshVisible = !!meshVisible;
+    handle.meshVisible = portion.meshVisible;
     this.needUpload = true;
   }
 
@@ -168,7 +185,7 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
    */
   public isVisible(handle: PrimitiveMeshIndexTexturePortionHandle): boolean {
     const portion = this.portions.get(handle.id);
-    return portion ? portion.visible : handle.visible;
+    return portion ? portion.meshVisible : handle.meshVisible;
   }
 
   /**
@@ -266,7 +283,7 @@ export class PrimitiveMeshIndexTexture extends DataTexture {
     // Group portions by renderPass, preserving insertion order
     const buckets = new Map<number, PrimitiveMeshIndexTexturePortionHandle[]>();
     for (const portion of this.portions.values()) {
-      if (!portion.visible) continue;
+      if (!portion.objectVisible || !portion.meshVisible) continue;
       if (!buckets.has(portion.renderPass)) {
         buckets.set(portion.renderPass, []);
       }

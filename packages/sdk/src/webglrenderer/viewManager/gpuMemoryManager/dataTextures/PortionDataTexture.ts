@@ -1,5 +1,5 @@
 import { DataTexture } from "./DataTexture";
-import { SDKInternalException } from "../../../../core";
+import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../../core";
 
 /**
  * Portion representing a contiguous block of items.
@@ -62,23 +62,31 @@ export abstract class PortionDataTexture extends DataTexture {
   }
 
   /**
-   * Allocates a portion of the given size, optionally with a move callback.
-   * @param size Number of items in the portion.
+   * Allocates a portion of the given size and sets its data.
+   * @param data Data array (must be a multiple of elementsPerItem).
    * @param onMove Optional callback invoked if the portion is moved during packing.
-   * @throws SDKInternalException if allocation fails.
+   * @returns Portion handle, or null if allocation failed.
    */
-  public getPortion(size: number, onMove?: (newBase: number) => void): PortionHandle {
-    this.isPacked = false;
+  public getPortion(
+    data: ArrayLike<number>,
+    onMove?: (newBase: number) => void
+  ): PortionHandle | null {
+    const size = (data.length / this.elementsPerItem) | 0;
+    if (size <= 0 || (data.length % this.elementsPerItem) !== 0) {
+      throw new SDKInternalException("getPortion: data length must be a positive multiple of elementsPerItem");
+    }
     let index = this.findFreeBlock(size);
     if (index === -1) {
       this.pack();
       index = this.findFreeBlock(size);
       if (index === -1) {
-        throw new SDKInternalException("Allocation failed");
+        return null;
       }
     }
     this._numItems += size;
-    return this.allocateHandleAt(index, size, onMove);
+    const handle = this.allocateHandleAt(index, size, onMove);
+    this._setPortionData(handle, data);
+    return handle;
   }
 
   /**
@@ -101,7 +109,7 @@ export abstract class PortionDataTexture extends DataTexture {
    * @param handle Portion handle.
    * @param data Data to set.
    */
-  public setPortionData(handle: PortionHandle, data: ArrayLike<number>): void {
+  private _setPortionData(handle: PortionHandle, data: ArrayLike<number>): void {
     const portion = this.usedPortions.get(handle.id);
     if (!portion) {
       throw new SDKInternalException("Invalid handle ID");
@@ -116,19 +124,70 @@ export abstract class PortionDataTexture extends DataTexture {
   }
 
   /**
-   * Fills the buffer for the given portion handle with a value.
-   * @param handle Portion handle.
-   * @param value Value to fill.
+   * Replaces the data for a portion, resizing the portion if needed.
+   * If the new data is longer or shorter than the current portion, reallocates as needed.
+   * Updates the handle's base and size if the portion moves.
+   * @param handle Portion handle to update (will be mutated if moved).
+   * @param data New data array (must be a multiple of elementsPerItem).
+   * @returns SDKResult with updated PortionHandle.
    */
-  public fillPortion(handle: PortionHandle, value: number): void {
+  public setPortionData(handle: PortionHandle, data: ArrayLike<number>): SDKResult<PortionHandle> {
     const portion = this.usedPortions.get(handle.id);
     if (!portion) {
       throw new SDKInternalException("Invalid handle ID");
     }
-    const offset = portion.base * this.elementsPerItem;
-    const count = portion.size * this.elementsPerItem;
-    this.buffer.fill(value, offset, offset + count);
-    this.dirtyPortionIds.add(handle.id);
+    const newSize = (data.length / this.elementsPerItem) | 0;
+    if (newSize <= 0) {
+      throw new SDKInternalException("New portion size must be > 0");
+    }
+    if (newSize === portion.size) {
+      // In-place update
+      this._setPortionData(handle, data);
+      return { ok: true, value: handle};
+    }
+    // Try to grow/shrink in-place if possible
+    const canGrowInPlace =
+      newSize > portion.size &&
+      this.freePortions.length > 0 &&
+      this.freePortions.some(f =>
+        f.base === portion.base + portion.size && f.size >= (newSize - portion.size)
+      );
+    if (canGrowInPlace) {
+      // Extend into adjacent free block
+      const growBy = newSize - portion.size;
+      const freeIdx = this.freePortions.findIndex(f =>
+        f.base === portion.base + portion.size && f.size >= growBy
+      );
+      if (freeIdx !== -1) {
+        const free = this.freePortions[freeIdx];
+        free.base += growBy;
+        free.size -= growBy;
+        if (free.size === 0) this.freePortions.splice(freeIdx, 1);
+        portion.size = newSize;
+        this._setPortionData(handle, data);
+        this.dirtyPortionIds.add(handle.id);
+        this._numItems += (newSize - portion.size);
+        return { ok: true, value: handle  };
+      }
+    }
+    // Otherwise, allocate a new portion, copy data, free old
+    let newHandle: PortionHandle;
+    try {
+      newHandle = this.getPortion(data, this.portionCallbacks.get(handle.id));
+    } catch (e) {
+      return {
+        ok: false,
+        type: SDKErrorType.MemoryAllocationFailed,
+        error: "Failed to allocate new portion: " + e
+      };
+    }
+    this._setPortionData(newHandle, data);
+    this.putPortion(handle);
+    // Update handle in-place
+    handle.base = newHandle.base;
+    handle.id = newHandle.id;
+    this.portionHandles.set(handle.id, handle);
+    return { ok: true, value: handle  };
   }
 
   /**

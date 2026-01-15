@@ -98,6 +98,16 @@ export class SceneEvents {
     public readonly onSceneObjectCreated: EventEmitter<Scene, SceneObject>;
 
     /**
+     * Emits an event when a {@link SceneMesh} is added to a {@link SceneObject}.
+     */
+    public readonly onSceneObjectMeshAdded: EventEmitter<SceneObject, SceneMesh>;
+
+    /**
+     * Emits an event when a {@link SceneMesh} is removed from a {@link SceneObject}.
+     */
+    public readonly onSceneObjectMeshRemoved: EventEmitter<SceneObject, SceneMesh>;
+
+    /**
      * Emits an event when a {@link SceneObject} is destroyed in the `Scene`.
      */
     public readonly onSceneObjectDestroyed: EventEmitter<Scene, SceneObject>;
@@ -121,6 +131,11 @@ export class SceneEvents {
      * Emits an event when a {@link SceneMesh} is moved.
      */
     public readonly onSceneMeshMoved: EventEmitter<Scene, SceneMesh>;
+
+  /**
+   * Emits an event when a {@link SceneMesh} switches to a different {@link SceneGeometry}.
+   */
+  public readonly onSceneMeshGeometryChanged: EventEmitter<Scene, SceneMesh>;
 
     /**
      * Emits an event when the color of a {@link SceneMesh} is updated.
@@ -201,11 +216,14 @@ export class SceneEvents {
         this.onSceneModelCoordSystemScaleToMetersChanged = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
         this.onSceneModelCoordSystemUpdated = new EventEmitter(new EventDispatcher<SceneModel, CoordinateSystem>());
         this.onSceneObjectCreated = new EventEmitter(new EventDispatcher<Scene, SceneObject>());
+        this.onSceneObjectMeshAdded = new EventEmitter(new EventDispatcher<SceneObject, SceneMesh>());
+        this.onSceneObjectMeshRemoved = new EventEmitter(new EventDispatcher<SceneObject, SceneMesh>());
         this.onSceneObjectDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneObject>());
         this.onSceneMeshCreated = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
         this.onSceneMeshDestroyed = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
         this.onSceneMeshMatrixChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
         this.onSceneMeshMoved = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
+         this.onSceneMeshGeometryChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
         this.onSceneMeshColorChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
         this.onSceneMeshOpacityChanged = new EventEmitter(new EventDispatcher<Scene, SceneMesh>());
         this.onSceneTextureCreated = new EventEmitter(new EventDispatcher<Scene, SceneTexture>());
@@ -239,7 +257,10 @@ export class SceneEvents {
         this.onSceneModelCoordSystemScaleToMetersChanged.clear();
         this.onSceneModelCoordSystemUpdated.clear();
         this.onSceneObjectCreated.clear();
+        this.onSceneObjectMeshAdded.clear();
+        this.onSceneObjectMeshRemoved.clear();
         this.onSceneMeshMoved.clear();
+        this.onSceneMeshGeometryChanged.clear();
         this.onSceneMeshColorChanged.clear()
         this.onSceneMeshMatrixChanged.clear();
         this.onSceneMeshOpacityChanged.clear();

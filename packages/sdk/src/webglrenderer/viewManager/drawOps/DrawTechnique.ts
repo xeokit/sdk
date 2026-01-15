@@ -41,8 +41,75 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
  * and would typically use helper methods like {@link vsCode}, {@link vsHeader},
  * and {@link vsCommonDefines}, provided by the base class, to construct the shader source.
  *
+ * #TODO
+ *
+ * Vertex shader for drawing triangle geometry using a fully texture-driven data layout.
+ *
+ * This shader does not consume traditional vertex attributes. Instead, all geometry,
+ * topology, transforms, and per-mesh state are reconstructed from a set of lookup textures.
+ * Each invocation derives its vertex and primitive identity from `gl_VertexID`.
+ *
+ * ## Primitive and mesh lookup
+ * - The draw call is assumed to render a contiguous range of primitives.
+ * - `gl_VertexID` is mapped to a *draw primitive index* using `uPrimitiveType`
+ *   (3 vertices for triangles, 2 for lines, 1 for points).
+ * - A global primitive index is computed as `uPrimBaseIndex + drawPrimIndex`.
+ * - For each primitive, `uPrimitiveMeshIndexTexture` provides:
+ *   - the mesh index the primitive belongs to
+ *   - the primitive’s offset within that mesh’s geometry (eg. triangle number)
+ *
+ * ## Geometry and vertex indexing
+ * - Each mesh maps to a geometry via `uMeshAttributeTexture`.
+ * - Geometry attributes (`uGeometryAttributeTexture`) provide base offsets into
+ *   packed vertex and index buffers stored in textures.
+ * - For each vertex of a primitive:
+ *   - the local vertex index is `gl_VertexID % numVertsPerPrim`
+ *   - the vertex offset within the geometry is
+ *     `primOffset * numVertsPerPrim + localVert`
+ * - If `uPrimitiveType == 20000`, geometry is treated as non-indexed and the
+ *   vertex offset is used directly.
+ * - Otherwise, the index buffer (`uIndexTexture`) is consulted to resolve the
+ *   final vertex index.
+ *
+ * ## Vertex position decoding
+ * - Vertex positions are stored quantized as `uvec3` in `uVertexPositionTexture`.
+ * - Per-geometry quantization parameters (`offset`, `scale`) are fetched from
+ *   `uGeometryQuantRangeTexture`.
+ * - Object-space position is reconstructed as:
+ *   `position = offset + scale * quantizedPosition`.
+ *
+ * ## Transforms
+ * - Per-mesh model matrices are fetched from `uMeshMatrixTexture`.
+ * - Per-tile view matrices are fetched from `uViewTileCameraMatrixTexture`.
+ * - The final clip-space position is computed as:
+ *   `clipPos = projection * view * model * position`.
+ *
+ * ## Lighting and color
+ * - Per-mesh view attributes (`uMeshViewAttributeTexture`) provide a packed RGBA
+ *   color used as the base material color.
+ * - A per-triangle face normal is computed by:
+ *   - fetching the three triangle vertex indices from the index buffer
+ *   - reconstructing their positions
+ *   - transforming them to view space
+ *   - taking the cross product of the triangle edges
+ * - A simple Lambert-style diffuse term is computed against a fixed light direction,
+ *   plus a fixed ambient term.
+ * - The final vertex color is:
+ *   `(ambient + diffuse) * meshColor`.
+ *
+ * ## Outputs
+ * - `gl_Position` is set to the computed clip-space position.
+ * - `vColor` outputs the lit mesh color for interpolation to the fragment shader.
+ *
+ * ## Notes and assumptions
+ * - Normal computation always assumes indexed triangle geometry.
+ * - The face normal is not normalized, so lighting intensity scales with triangle area.
+ * - Light parameters are hardcoded in the shader despite uniform declarations.
+ * - This shader is intended for triangle rendering; behavior for lines/points is limited.
+ *
  * @internal
  */
+
 export abstract class DrawTechnique {
 
   private _renderContext: RenderContext;
@@ -116,7 +183,7 @@ export abstract class DrawTechnique {
     meshAttributeTexture: WebGLUniformLocation; // Mesh attributes
     meshViewAttributeTexture: WebGLUniformLocation; // Mesh view attributes
     meshMatrixTexture: WebGLUniformLocation; // RTC modeling matrices
-    geometryAttributeTexture: WebGLUniformLocation; // Geometry attributes
+    geometryAttributes: WebGLUniformLocation; // Geometry attributes
     geometryQuantRangeTexture: WebGLUniformLocation; // Quantization ranges
     vertexPositionTexture: WebGLUniformLocation; // Quantized vertex positions
     vertexColorTexture: WebGLUniformLocation; // Vertex RGB colors
@@ -258,10 +325,10 @@ export abstract class DrawTechnique {
 
     this._samplers = {
       primitiveMeshIndex: program.getSampler("uPrimitiveMeshIndexTexture"),
-      meshAttributeTexture: program.getSampler("uMeshAttribTable"),
+      meshAttributeTexture: program.getSampler("uMeshAttributeTexture"),
       meshViewAttributeTexture: program.getSampler("uMeshViewAttributeTexture"),
       meshMatrixTexture: program.getSampler("uMeshMatrixTexture"),
-      geometryAttributeTexture: program.getSampler("uGeometryAttributeTexture"),
+      geometryAttributes: program.getSampler("uGeometryAttributeTexture"),
       geometryQuantRangeTexture: program.getSampler("uGeometryQuantRangeTexture"),
       viewTileCameraMatrixTexture: program.getSampler("uViewTileCameraMatrixTexture"),
       vertexPositionTexture: program.getSampler("uVertexPositionTexture"),
@@ -352,7 +419,7 @@ export abstract class DrawTechnique {
       bindTexture(samplers.meshMatrixTexture, batchDataTextures.meshMatrixTexture);
       bindTexture(samplers.meshAttributeTexture, batchDataTextures.meshAttributeTexture);
       bindTexture(samplers.meshViewAttributeTexture, batchViewDataTextures.meshViewAttributeTexture);
-      bindTexture(samplers.geometryAttributeTexture, batchDataTextures.geometryAttributeTexture);
+      bindTexture(samplers.geometryAttributes, batchDataTextures.geometryAttributeTexture);
       bindTexture(samplers.geometryQuantRangeTexture, batchDataTextures.geometryQuantRangeTexture);
       bindTexture(samplers.edgeIndexTexture, batchDataTextures.edgeIndexTexture);
       bindTexture(samplers.indexTexture, batchDataTextures.indexTexture);
@@ -384,6 +451,11 @@ export abstract class DrawTechnique {
             type: SDKErrorType.InvalidInput,
             error: `[DrawTechnique._draw] Unsupported Batch primitive type: ${meshBatch.primitive}`
           };
+      }
+
+      for (let i =0; i< 12; i++) {
+        gl.activeTexture(gl["TEXTURE" + i]);
+        gl.bindTexture(gl.TEXTURE_2D, null);
       }
 
       return {
@@ -485,7 +557,7 @@ export abstract class DrawTechnique {
       "  uvec4 renderFlags;",
       "};",
 
-      "struct GeometryAttributeTexture {",
+      "struct GeometryAttributes {",
       "  uint verticesBase;",
       "  uint indicesBase;",
       "  uint edgeIndicesBase;",
@@ -520,14 +592,14 @@ export abstract class DrawTechnique {
       // "  return packed.r + (packed.g << 8u) + (packed.b << 16u) + (packed.a << 24u);",
       "}",
 
-      "uvec3 getVertexPosition(uint vertexIndex) {",
+      "uvec3 getVertexPosition(uint vertexIndexWithinGeometry) {",
       "  const uint texWidth = 4096u;",
-      "  return texelFetch(uVertexPositionTexture, texCoord(vertexIndex, texWidth), 0).rgb;",
+      "  return texelFetch(uVertexPositionTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;",
       "}",
 
-      "uvec3 getVertexColor(uint vertexIndex) {",
+      "uvec3 getVertexColor(uint vertexIndexWithinGeometry) {",
       "  const uint texWidth = 4096u;",
-      "  return texelFetch(uVertexColorTexture, texCoord(vertexIndex, texWidth), 0).rgb;",
+      "  return texelFetch(uVertexColorTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;",
       "}",
 
       "QuantRange getGeometryQuantRange(uint geometryIndex) {",
@@ -542,10 +614,10 @@ export abstract class DrawTechnique {
       "  return r;",
       "}",
 
-      "GeometryAttributeTexture getGeometryAttributeTexture(uint geometryIndex) {",
+      "GeometryAttributes getGeometryAttributeTexture(uint geometryIndex) {",
       "  const uint texWidth = 4096u;",
       "  uvec4 texel = texelFetch(uGeometryAttributeTexture, texCoord((geometryIndex), texWidth), 0);",
-      "  GeometryAttributeTexture s;",
+      "  GeometryAttributes s;",
       "  s.verticesBase    = texel.r;",
       "  s.indicesBase     = texel.g;",
       "  s.edgeIndicesBase = texel.b;",
@@ -854,20 +926,20 @@ export abstract class DrawTechnique {
       "    uint             tileIndex         = meshAttributeTexture.tileIndex;",
       "    uint             geometryIndex     = meshAttributeTexture.geometryIndex;",
 
-      "    GeometryAttributeTexture  geometryAttributeTexture   = getGeometryAttributeTexture( geometryIndex );",
+      "    GeometryAttributes  geometryAttributes   = getGeometryAttributeTexture( geometryIndex );",
 
       "    uint localVert = drawVertexIndex % numVertsPerPrim;",
-      "    uint vertOffsetWithinGeom = primOffset * numVertsPerPrim + localVert;",
+      "    uint vertexOffsetWithinGeometry = primOffset * numVertsPerPrim + localVert;",
 
-      "    uint vertexIndex = (uPrimitiveType == 20000)", // Points
-      "       ? vertOffsetWithinGeom",
-      "       : getVertexIndex(geometryAttributeTexture.indicesBase + vertOffsetWithinGeom);",
+      "    uint vertexIndexWithinGeometry = (uPrimitiveType == 20000)", // Points
+      "       ? vertexOffsetWithinGeometry",
+      "       : getVertexIndex(geometryAttributes.indicesBase + vertexOffsetWithinGeometry);",
 
       "    QuantRange       quantRange        = getGeometryQuantRange( geometryIndex );",
       "    mat4             modelMatrix       = getMeshMatrix( meshIndex );",
       "    mat4             viewMatrix        = getTileViewMatrix( tileIndex );",
 
-      "    uvec3            quantPos          = getVertexPosition( geometryAttributeTexture.verticesBase + vertexIndex );",
+      "    uvec3            quantPos          = getVertexPosition( geometryAttributes.verticesBase + vertexIndexWithinGeometry );",
       "    vec4             modelPos          = vec4( quantRange.offset + ( quantRange.scale * vec3( quantPos )), 1.0); ",
       "    vec4             worldPos          = modelMatrix * modelPos; ",
       "    vec4             viewPos           = viewMatrix * worldPos; ",
@@ -883,7 +955,7 @@ export abstract class DrawTechnique {
   protected vsLambertShadingLogic() {
     this._vertSrcBuf.push(
       // For triangles, get the three vertex positions for the triangle
-      "    uint triBase = geometryAttributeTexture.indicesBase + primOffset * 3u;",
+      "    uint triBase = geometryAttributes.indicesBase + primOffset * 3u;",
       "    uint ia = getVertexIndex(triBase + 0u);",
       "    uint ib = getVertexIndex(triBase + 1u);",
       "    uint ic = getVertexIndex(triBase + 2u);",
@@ -965,7 +1037,7 @@ export abstract class DrawTechnique {
    */
   protected vsDrawVertexColorLogic() {
     this._vertSrcBuf.push(
-      "    uvec3 color = getVertexColor(vertexIndex);",
+      "    uvec3 color = getVertexColor(vertexIndexWithinGeometry);",
       "    vColor = vec4( float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);"
     );
   }
@@ -1303,7 +1375,9 @@ export abstract class DrawTechnique {
     renderContext.lastProgramId = program.id;
     renderContext.textureUnit = 0;
 
-    gl.uniform1i(uniforms.renderPass, renderPass);
+    if (uniforms.renderPass) {
+      gl.uniform1i(uniforms.renderPass, renderPass);
+    }
 
     if (uniforms.projMatrix) {
       gl.uniformMatrix4fv(uniforms.projMatrix, false, <any>(renderPass === RENDER_PASSES.PICK

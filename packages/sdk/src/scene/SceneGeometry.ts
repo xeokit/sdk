@@ -1,5 +1,5 @@
 import {type  AABB3Float32, createAABB3Float32} from "../math/boundaries";
-import type {IntArrayParam} from "../math";
+import type {FloatArrayParam, IntArrayParam} from "../math";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import {SceneModel} from "./SceneModel";
 import {SDKErrorType, type SDKResult} from "../core";
@@ -154,7 +154,6 @@ export class SceneGeometry {
             scene.events.onSceneGeometryUpdated.dispatch(scene, this);
         }
     }
-
 
     /**
      * Gets this SceneGeometry as SceneGeometryCompressedParams.

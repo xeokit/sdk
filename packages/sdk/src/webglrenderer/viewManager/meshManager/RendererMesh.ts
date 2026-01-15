@@ -57,6 +57,8 @@ export class RendererMesh {
     colorizing: boolean;
     coloringOpacity?: boolean;
     transparent: boolean;
+    objectVisible: boolean;
+    meshVisible: boolean;
   }[];
 
   /**
@@ -95,6 +97,8 @@ export class RendererMesh {
       colorizing: false,
       coloringOpacity: false,
       transparent,
+      objectVisible: true,
+      meshVisible: true
     }));
 
     this.setMatrix(sceneMesh.globalMatrix);
@@ -152,13 +156,33 @@ export class RendererMesh {
     }
   }
 
+  /**
+   * Sets the object-level visibility of the mesh in a specific view.
+   * @param viewIndex
+   * @param objectVisible
+   */
+  setObjectVisible(viewIndex: number, objectVisible: boolean) {
+    const viewState = this._viewStates[viewIndex];
+    if (viewState.objectVisible === objectVisible) {
+      return;
+    }
+    viewState.objectVisible = objectVisible;
+    this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, objectVisible && viewState.meshVisible);
+  }
 
   /**
-   * Sets the visibility of the mesh for a specific view.
+   * Sets the mesh-level visibility of the mesh in all views.
    * Called by {@link RendererObject.setVisible}.
    */
-  setVisible(viewIndex: number, renderFlags: boolean) {
-    this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, renderFlags);
+  setVisible( meshVisible: boolean) {
+    for (let viewIndex = 0, len = NUM_VIEWS; viewIndex < len; viewIndex++) {
+      const viewState = this._viewStates[viewIndex];
+      if (viewState.meshVisible === meshVisible) {
+        continue;
+      }
+      viewState.meshVisible = meshVisible;
+      this._meshBatch.setMeshVisible(viewIndex, this._meshHandle, viewState.objectVisible && meshVisible);
+    }
   }
 
   /**

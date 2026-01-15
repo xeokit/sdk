@@ -8,6 +8,7 @@ import {type MeshBatch} from "./MeshBatch";
 import type {Camera, ViewObject} from "../../../viewer";
 import type {SceneTransform} from "../../../scene/SceneTransform";
 import {GPUMemoryManager} from "../gpuMemoryManager";
+import {SceneGeometry} from "../../../scene";
 
 /**
  * Bridges scene/view state changes into GPU-ready render state for the renderer.
@@ -158,10 +159,66 @@ export class MeshManager {
   }
 
   /**
+   * Registers a newly created {@link SceneGeometry}.
+   *
+   * @param sceneGeometry - The geometry to register.
+   * @returns {@link SDKResult} indicating success, or `ok:false` if registration fails.
+   */
+  public sceneGeometryCreated(sceneGeometry: SceneGeometry) : SDKResult<any> {
+    return { ok: true, value: undefined};
+  }
+
+  /**
+   * Unregisters a {@link SceneGeometry}.
+   * @param sceneGeometry - The geometry to unregister.
+   * @returns {@link SDKResult} indicating success, or `ok:false` if unregistration fails.
+   */
+  sceneGeometryDestroyed(sceneGeometry: SceneGeometry) : SDKResult<any> {
+    return { ok: true, value: undefined};
+  }
+
+  /**
+   * Registers a newly created {@link SceneMesh}.
+   * @param sceneMesh - The mesh to register.
+   * @returns {@link SDKResult} indicating success, or `ok:false` if registration fails.
+   */
+  sceneMeshCreated(sceneMesh: SceneMesh) : SDKResult<any> {
+    const modelId = sceneMesh.model.id;
+    const rendererModel = this._rendererModels[modelId];
+    if (!rendererModel) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[MeshManager.sceneMeshCreated] No SceneModel added with this ID: ${modelId}`
+      };
+    }
+    return this._addMesh(rendererModel, sceneMesh);
+  }
+
+  /**
+   * Unregisters a {@link SceneMesh}.
+   * @param sceneMesh - The mesh to unregister.
+   * @returns {@link SDKResult} indicating success, or `ok:false` if unregistration fails.
+   */
+  sceneMeshDestroyed(sceneMesh: SceneMesh) : SDKResult<any> {
+    const modelId = sceneMesh.model.id;
+    const rendererModel = this._rendererModels[modelId];
+    if (!rendererModel) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[MeshManager.sceneMeshDestroyed] No SceneModel added with this ID: ${modelId}`
+      };
+    }
+    this._removeMesh(rendererModel, sceneMesh);
+    return { ok: true, value: undefined };
+  }
+
+  /**
    * Registers a newly created {@link SceneObject}.
    *
-   * Creates a {@link RendererObject} and ensures all its meshes are registered as {@link RendererMesh}
-   * instances on the owning {@link SceneModel}.
+   * Creates a {@link RendererObject}, expects that all its meshes are pre-registered
+   * and have {@link RendererMesh} instances registered on the owning {@link SceneModel}.
    *
    * @param sceneObject - The object to register.
    * @returns {@link SDKResult} indicating success, or `ok:false` if:
@@ -192,11 +249,21 @@ export class MeshManager {
 
     const rendererMeshes: RendererMesh[] = [];
     for (const sceneMesh of sceneObject.meshes) {
-      const result = this._addMesh(rendererModel, sceneMesh);
-      if (result.ok === false) {
-        return result;
+
+      const meshId = sceneMesh.id;
+      const rendererMesh = rendererModel.rendererMeshes[meshId];
+
+      if (!rendererMesh) {
+        return {
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: `[MeshManager.sceneObjectCreated] SceneMesh not attached with this ID: ${meshId}`
+        };
       }
-      rendererMeshes.push(result.value);
+
+      // TODO: test if mesh already owned by another object?
+
+      rendererMeshes.push(rendererMesh);
     }
 
     this._rendererObjects[objectId] = new RendererObject({
@@ -356,11 +423,118 @@ export class MeshManager {
   }
 
   /**
+   * Connects an existing {@link SceneMesh} to an existing {@link SceneObject}.
+   * @param sceneObject
+   * @param sceneMesh
+   */
+  public sceneObjectMeshAdded(sceneObject: SceneObject, sceneMesh: SceneMesh): SDKResult<any> {
+    const rendererModel = this._rendererModels[sceneObject.model.id];
+    if (!rendererModel) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[MeshManager.sceneObjectMeshAdded] SceneModel not attached with this ID: ${sceneObject.model.id}`
+      };
+    }
+    const rendererObject = this._rendererObjects[sceneObject.id];
+    if (!rendererObject) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[MeshManager.sceneObjectMeshAdded] SceneObject not attached with this ID: ${sceneObject.id}`
+      };
+    }
+    const rendererMesh = rendererModel.rendererMeshes[sceneMesh.id];
+    if (!rendererMesh) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[MeshManager.sceneObjectMeshAdded] SceneMesh not attached with this ID: ${sceneMesh.id}`
+      };
+    }
+    // TODO test if maesh is already added to object
+
+    rendererObject.addRendererMesh(rendererMesh);
+
+    const objectId = sceneObject.id;
+    const viewer = this._renderContext.viewer;
+    for (let viewIndex = 0, numViews = viewer.numViews; viewIndex < numViews; viewIndex++) {
+      const view = viewer.viewList[viewIndex];
+      const viewObject = view.objects[objectId];
+      if (!viewObject) {
+        continue;
+      }
+      this._synchronizeMeshWithViewObject(sceneMesh, viewObject);
+    }
+
+    return { ok: true, value: undefined };
+  }
+
+  /**
+   * Synchronizes the per-view state of a {@link SceneMesh} according to a given {@link ViewObject}.
+   * This is used when adding a SceneMesh to a SceneObject to ensure the mesh reflects the current object view state.
+   * @param sceneMesh
+   * @param viewObject
+   */
+ private _synchronizeMeshWithViewObject(sceneMesh: SceneMesh, viewObject: ViewObject): void {
+    const rendererModel = this._rendererModels[sceneMesh.model.id];
+    if (!rendererModel) {
+      return;
+    }
+    const rendererMesh = rendererModel.rendererMeshes[sceneMesh.id];
+    if (!rendererMesh) {
+      return;
+    }
+    const viewIndex = viewObject.layer.view.viewIndex;
+    rendererMesh.setObjectVisible(viewIndex, viewObject.visible);
+    rendererMesh.setXRayed(viewIndex, viewObject.xrayed);
+    rendererMesh.setHighlighted(viewIndex, viewObject.highlighted);
+    rendererMesh.setSelected(viewIndex, viewObject.selected);
+    // rendererMesh.setColorize(viewIndex, viewObject.colorize);
+    // rendererMesh.setOpacity(viewIndex, viewObject.opacity);
+  }
+
+  /**
+   * Disconnects an existing {@link SceneMesh} from an existing {@link SceneObject}.
+   * The mesh remains cached, but is no longer rendered as part of the object.
+   * To do that, we set the mesh as having an object visibility of false for all views.
+   * @param sceneObject
+   * @param sceneMesh
+   */
+  public sceneObjectMeshRemoved(sceneObject: SceneObject, sceneMesh: SceneMesh): SDKResult<any> {
+    const rendererModel = this._rendererModels[sceneObject.model.id];
+    if (!rendererModel) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[MeshManager.sceneObjectMeshRemoved] SceneModel not attached with this ID: ${sceneObject.model.id}`
+      };
+    }
+    const rendererObject = this._rendererObjects[sceneObject.id];
+    if (!rendererObject) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[MeshManager.sceneObjectMeshAdded] SceneObject not attached with this ID: ${sceneObject.id}`
+      };
+    }
+    const existingMesh = rendererModel.rendererMeshes[sceneMesh.id];
+    if (!existingMesh) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[MeshManager.sceneObjectMeshRemoved] SceneMesh not attached with this ID: ${sceneMesh.id}`
+      };
+    }
+    rendererObject.removeRendererMesh(existingMesh);
+    for (let viewIndex = 0, numViews = this._renderContext.viewer.viewList.length; viewIndex < numViews; viewIndex++) {
+      existingMesh.setObjectVisible(viewIndex, false); // Hide the mesh when removed from object
+    }
+    return { ok: true, value: undefined };
+  }
+
+  /**
    * Handles changes to a {@link SceneTransform}'s matrix.
-   *
-   * @remarks
-   * Currently unimplemented. If transform nodes can affect multiple meshes, this should fan out
-   * and update the impacted {@link RendererMesh} instances.
    */
   public sceneTransformMatrixChanged(sceneTransform: SceneTransform): void {
     // TODO: implement transform graph propagation (if applicable)
@@ -540,5 +714,6 @@ export class MeshManager {
     this._rendererModels = {};
     this._batchListDirty = true;
   }
+
 
 }

@@ -1,6 +1,6 @@
 import {apply, createUUID} from "../utils";
 import {SDKErrorType, type SDKResult} from "../core";
-import {Scene, SceneObject} from "../scene";
+import {Scene, SceneMesh, SceneObject} from "../scene";
 import {View} from "./View";
 import type {ViewerParams} from "./ViewerParams";
 import type {ViewParams} from "./ViewParams";
@@ -74,6 +74,8 @@ export class Viewer {
   private _onSceneObjectCreated: () => void;
   private _onSceneObjectDestroyed: () => void;
   private _onSceneDestroyed: () => void;
+  private _onSceneMeshMatrixChanged: () => void;
+  private _onSceneMeshColorChanged: () => void;
 
   /**
    * Creates a Viewer.
@@ -149,6 +151,18 @@ export class Viewer {
     this._onSceneObjectDestroyed = this.scene.events.onSceneObjectDestroyed.subscribe((scene: Scene, sceneObject: SceneObject) => {
       this._detachSceneObject(sceneObject);
     });
+    // also listen for mesh matrix changes
+
+    const sceneMeshUpdated = (scene: Scene, mesh: SceneMesh) => {
+      for (const viewId in this.views) {
+        const view = this.views[viewId];
+        view.needsRender();
+      }
+    };
+
+    this._onSceneMeshMatrixChanged = this.scene.events.onSceneMeshMatrixChanged.subscribe(sceneMeshUpdated);
+    this._onSceneMeshColorChanged = this.scene.events.onSceneMeshColorChanged.subscribe(sceneMeshUpdated);
+
     this.events.onSceneAttached.dispatch(this, scene);
     return {
       ok: true,

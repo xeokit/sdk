@@ -54,10 +54,27 @@ export class RendererObject  {
    }
 
   /**
+   * Adds a renderer mesh to this object.
+   */
+  addRendererMesh(rendererMesh: RendererMesh) {
+    this._rendererMeshes.push(rendererMesh);
+  }
+
+  /**
+   * Removes a renderer mesh from this object.
+   */
+  removeRendererMesh(rendererMesh: RendererMesh) {
+    const index = this._rendererMeshes.indexOf(rendererMesh);
+    if (index !== -1) {
+      this._rendererMeshes.splice(index, 1);
+    }
+  }
+
+  /**
    * Sets the visibility of the object in a specific view.
    */
   setVisible(viewIndex: number, visible: boolean): void {
-      this._rendererMeshes.forEach(mesh => mesh.setVisible(viewIndex, visible));
+      this._rendererMeshes.forEach(mesh => mesh.setObjectVisible(viewIndex, visible));
   }
 
   /**

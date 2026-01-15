@@ -96,18 +96,16 @@ export class Scene {
   }
 
   /**
-   * Creates a new {@link SceneModel} and registers it with this Scene.
+   * Creates and registers a new {@link SceneModel} in this Scene.
    *
-   * This method:
-   * - Validates the Scene is not destroyed
-   * - Generates a UUID if no `id` is provided
-   * - Ensures the ID is unique within the Scene
-   * - Instantiates the model and populates it via {@link SceneModel.fromParams}
-   * - Registers the model and dispatches creation events
+   * - Validates that the Scene is not destroyed and the model ID is unique.
+   * - Instantiates the SceneModel and populates it from the given parameters.
+   * - Registers the model and dispatches a creation event.
+   * - If population fails, destroys the model and all its components (objects, meshes, geometries),
+   *   dispatching destruction events for each component and the model itself.
    *
-   * @param sceneModelParams Configuration for the new model.
-   * @returns A {@link SDKResult} containing either the created {@link SceneModel}
-   * or an error message.
+   * @param sceneModelParams Parameters for the new SceneModel.
+   * @returns SDKResult containing the created SceneModel or an error.
    */
   createModel(sceneModelParams: SceneModelParams): SDKResult<SceneModel> {
     if (this.destroyed) {
@@ -130,18 +128,16 @@ export class Scene {
 
     const paramsWithId: SceneModelParams = { ...sceneModelParams, id };
     const sceneModel = new SceneModel(this, paramsWithId);
-    const populated = sceneModel.fromParams(paramsWithId);
-
-    if (populated.ok===false) {
-      return this.logError({
-        ok: false,
-        type: SDKErrorType.InvalidInput,
-        error: populated.error,
-      });
-    }
 
     this.models[id] = sceneModel;
     this.events.onSceneModelCreated.dispatch(this, sceneModel);
+
+    const populated = sceneModel.fromParams(paramsWithId);
+
+    if (populated.ok===false) {
+      sceneModel.destroy();
+      return this.logError(populated);
+    }
 
     return { ok: true, value: sceneModel };
   }

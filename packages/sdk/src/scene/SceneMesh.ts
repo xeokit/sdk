@@ -87,6 +87,57 @@ export class SceneMesh {
   }
 
   /**
+   * Sets the {@link SceneGeometry} used by this SceneMesh.
+   *
+   * The SceneMesh will already have the SceneGeometry it was created with,
+   * and then you can change it to a different SceneGeometry using this setter.
+   *
+   * This mechanism allows you to dynamically switch the geometric representation
+   * of a SceneMesh at runtime.
+   *
+   * When the switch succeeds, {@link @xeokit/sdk/scene#SceneMesh.geometry} will reference
+   * the new SceneGeometry and an {@link @xeokit/sdk/scene#SceneEvents.onSceneMeshGeometryChanged}
+   * event is dispatched on the Scene.
+   *
+   * If the given geometryId is invalid, such as when the SceneGeometry does not
+   * exist in the SceneModel, an error will be logged and the SceneGeometry will not be changed.
+   *
+   * Note that you cannot destroy a SceneGeometry that is currently in use by a SceneMesh.
+   *
+   * @param value - The ID of the new SceneGeometry to use. Must exist in the SceneModel.
+   */
+  set geometryId(value: string) {
+    if (this.destroyed) {
+      this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneMesh.geometryId] Cannot set geometryId on destroyed SceneMesh ${this.id}`
+      });
+      return;
+    }
+    const geometry = this.model.geometries[value];
+    if (!geometry) {
+      this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneMesh.geometryId] Invalid geometryId '${value}' for SceneMesh ${this.id}`
+      });
+      return;
+    }
+    if (this.geometry === geometry) {
+      return;
+    }
+    this.model.scene.events.onSceneMeshGeometryChanged.dispatch(this.model.scene, this);
+  }
+
+  /**
+   * Gets the ID of the {@link SceneGeometry} used by this SceneMesh.
+   */
+  get geometryId(): string {
+    return this.geometry.id;
+  }
+
+  /**
    * Gets the RGB color for this SceneMesh.
    *
    * Each element of the color is in range ````[0..1]````.

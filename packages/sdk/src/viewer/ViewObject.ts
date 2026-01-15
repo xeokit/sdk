@@ -120,6 +120,23 @@ export class ViewObject {
         this.layer.objectVisibilityUpdated(this, visible, true);
     }
 
+    // /**
+    //  * Sets the visibility of a specific mesh within this ViewObject.
+    //  * @param meshIndex
+    //  * @param visible
+    // */
+    // setMeshVisible(meshIndex: number, visible: boolean) {
+    //     if (this.destroyed) {
+    //         this.layer.view.viewer.logError({
+    //             ok: false,
+    //             type: SDKErrorType.InvalidOperation,
+    //             error: "[ViewObject.setMeshVisible] ViewObject already destroyed"
+    //         });
+    //         return;
+    //     }
+    //     this.layer.objectMeshVisibilityUpdated(this, meshIndex, visible);
+    // }
+
     /**
      * Gets if this ViewObject is X-rayed.
      *
@@ -346,14 +363,14 @@ export class ViewObject {
     }
 
     /**
-     * Gets the RGB colorize color for this ViewObject.
+     * Gets the RGB colorize color for this ViewObject, if set.
      *
      * * Multiplies by rendered fragment colors.
      * * Each element of the color is in range ````[0..1]````.
      * * Use {@link ViewLayer.setObjectsColorized} to batch-update the colorized state of ViewObjects.
      */
-    get colorize(): Vec3 {
-        return this._colorize;
+    get colorize(): Vec3 | null{
+        return this._colorized ? this._colorize : null;
     }
 
     /**

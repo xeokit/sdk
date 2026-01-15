@@ -462,6 +462,40 @@ export class ViewManager {
   }
 
   /**
+   * Notifies the renderer that a {@link SceneGeometry} was created.
+   * @param sceneGeometry
+   */
+  sceneGeometryCreated(sceneGeometry: SceneGeometry) : SDKResult<any> {
+    return this._meshManager.sceneGeometryCreated(sceneGeometry);
+  }
+
+  /**
+   * Notifies the renderer that a {@link SceneGeometry} was destroyed.
+   * @param sceneGeometry
+   */
+  sceneGeometryDestroyed(sceneGeometry: SceneGeometry) : SDKResult<any> {
+    return this._meshManager.sceneGeometryDestroyed(sceneGeometry);
+  }
+
+  /**
+   * Notifies the renderer that a {@link SceneMesh} was created.
+   *
+   * Forwards to {@link MeshManager} to allocate and upload required GPU structures.
+   */
+  sceneMeshCreated(sceneMesh: SceneMesh) : SDKResult<any> {
+    return this._meshManager.sceneMeshCreated(sceneMesh);
+  }
+
+  /**
+   * Notifies the renderer that a {@link SceneMesh} was destroyed.
+   *
+   * Forwards to {@link MeshManager} to release associated GPU structures.
+   */
+  sceneMeshDestroyed(sceneMesh: SceneMesh) : SDKResult<any> {
+    return this._meshManager.sceneMeshDestroyed(sceneMesh);
+  }
+
+  /**
    * Notifies the renderer that a {@link SceneObject} was created.
    *
    * Forwards to {@link MeshManager} to create/track renderable state.
@@ -479,7 +513,28 @@ export class ViewManager {
     return this._meshManager.sceneObjectDestroyed(sceneObject);
   }
 
+  /**
+   * Notifies that a {@link SceneObject} had a {@link SceneMesh} added.
+   * @param sceneObject
+   * @param sceneMesh
+   */
+  sceneObjectMeshAdded(sceneObject: SceneObject, sceneMesh: SceneMesh): SDKResult<any> {
+    return this._meshManager.sceneObjectMeshAdded(sceneObject, sceneMesh);
+  }
+
+  /**
+   * Notifies that a {@link SceneObject} had a {@link SceneMesh} removed.
+   * @param sceneObject
+   * @param sceneMesh
+   */
+  sceneObjectMeshRemoved(sceneObject: SceneObject, sceneMesh: SceneMesh): SDKResult<any> {
+    return this._meshManager.sceneObjectMeshRemoved(sceneObject, sceneMesh);
+  }
+
   // Mesh and Transform state uploads, not requiring error handling
+
+  sceneMeshGeometryChanged(sceneMesh: SceneMesh) {
+  }
 
   /**
    * Notifies that a {@link SceneMesh}'s world matrix changed (eg. moved/rotated/scaled).
@@ -597,5 +652,8 @@ export class ViewManager {
     this.dataTextures = undefined as unknown as DataTextures;
     this.shaderView = undefined as unknown as ShaderView;
   }
+
+
+
 
 }

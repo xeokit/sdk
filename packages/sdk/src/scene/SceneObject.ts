@@ -76,12 +76,12 @@ export class SceneObject {
    * @param meshId The ID of the SceneMesh to add.
    * @returns SDKResult<void> indicating success or failure.
    */
-  addMesh(meshId: string): SDKResult<void> {
+  createMesh(meshId: string): SDKResult<void> {
     if (this.destroyed) {
       return this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneObject.addMesh] SceneObject already destroyed"
+        error: "[SceneObject.createMesh] SceneObject already destroyed"
       });
     }
     const mesh = this.model.meshes[meshId];
@@ -89,7 +89,7 @@ export class SceneObject {
       return this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneObject.addMesh] Mesh with ID '${meshId}' does not exist in model '${this.model.id}'`
+        error: `[SceneObject.createMesh] Mesh with ID '${meshId}' does not exist in model '${this.model.id}'`
       });
     }
     if (mesh.object) {
@@ -97,13 +97,13 @@ export class SceneObject {
         return this.model.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidOperation,
-          error: `[SceneObject.addMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
+          error: `[SceneObject.createMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
         });
       }
       return this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: `[SceneObject.addMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
+        error: `[SceneObject.createMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
       });
     }
     this.meshes.push(mesh);

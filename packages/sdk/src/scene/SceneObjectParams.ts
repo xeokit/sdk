@@ -20,7 +20,7 @@ export interface SceneObjectParams {
   originalSystemId?: string;
 
   /**
-   * IDs of meshes previously created with {@link SceneModel.createMesh | SceneModel.addMesh}.
+   * IDs of meshes previously created with {@link SceneModel.createMesh | SceneModel.createMesh}.
    */
   meshIds: string[];
 

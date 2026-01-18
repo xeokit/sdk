@@ -1,533 +1,485 @@
 /**
  * <img style="padding:20px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_docmodel_greyscale_icon.png"/>
  *
- * # xeokit 3D Scene Representation
+ * # xeokit Scene (Buildable 3D Scene Representation)
  *
  * ---
  *
- * ***The SDK's buildable, viewable, importable and exportable 3D scene representation***
+ * **A buildable, viewable, importable, and exportable 3D scene graph that works in both browsers and Node.js.**
  *
  * ---
  *
- * # Overview
+ * ## Overview
  *
- * The xeokit SDK represents models in a scene graph that include the model's 3D objects, geometries, and materials. This scene
- * graph works on both the browser and NodeJS platforms and can be used to create models, convert between model formats, and provide
- * content for the SDK's model Viewer.
+ * The xeokit SDK represents content as a scene graph:
  *
- * To elaborate further:
+ * - A {@link Scene} is the top-level container.
+ * - A {@link Scene} contains one or more {@link SceneModel | SceneModels}.
+ * - Each {@link SceneModel} contains:
+ *   - {@link SceneObject | SceneObjects} (logical entities),
+ *   - {@link SceneMesh | SceneMeshes} (renderable instances),
+ *   - {@link SceneGeometry | SceneGeometries} (shared vertex/index data),
+ *   - {@link SceneTexture | SceneTextures} and {@link SceneTextureSet | SceneTextureSets}.
  *
- * * The {@link Scene | Scene} acts as a container for {@link SceneModel | SceneModels}, which, in turn,
- * comprise {@link SceneObject | SceneObjects}, {@link SceneMesh | SceneMeshes}, {@link SceneGeometry | SceneGeometries}, and {@link SceneTexture | SceneTextures}.
- * * Optionally attach the Scene to a {@link viewer!Viewer | Viewer} to view it in the browser.
- * * Import and export various formats, including {@link gltf}, {@link las}, {@link cityjson}, {@link xgf}, {@link dotbim} and {@link ifc}.
- * * Create Scene content programmatically using builder methods.
+ * You can use the Scene graph to:
  *
- * <br>
- *
- * ````mermaid
- * classDiagram
- * direction LR
- *       class Scene{
- *           createModel()
- *           clear()
- *           models
- *           objects
- *       }
- *       class SceneModel{
- *         id
- *         objects
- *          meshes
- *          geometries
- *          textureSets
- *          textures
- *         createObject()
- *         createMesh()
- *         createGeometry()
- *         createTexture()
- *         createTextureSet()
- *         destroy()
- *       }
- *       class SceneObject{
- *           id
- *           meshes
- *           aabb
- *           destroy()
- *       }
- *       class SceneMesh {
- *         id
- *         color
- *         opacity
- *         matrix
- *         geometry
- *         textureSet
- *         destroy()
- *       }
- *       class SceneTexture {
- *         id,
- *         destroy()
- *       }
- *       class SceneTextureSet {
- *         id
- *         colorTexture
- *         metallicRoughnessTexture
- *         occlusionTexture
- *         emissiveTexture,
- *         destroy()
- *       }
- *       class SceneGeometry {
- *         id
- *         primitive
- *         positionsDecompressMatrix
- *         uvsDecompressMatrix
- *         positionsCompressed
- *         uvsCompressed
- *         indices
- *         edgeIndices,
- *         destroy()
- *       }
- *
- *       Scene "1"*--"1..*" SceneModel
- *       SceneModel "1"*--"1..*" SceneObject
- *       Scene "1"*--"1..*" SceneObject
- *       SceneObject "1"*--"1..*" SceneMesh
- *       SceneMesh "1"*--"1" SceneGeometry
- *       SceneTextureSet "1"*--"1..4" SceneTexture
- *       SceneMesh "1"*--"1" SceneTextureSet
- * ````
- *
- * https://www.mermaidchart.com/app/projects/acbb2919-d662-4e57-864f-e34ca6330603/diagrams/d779eb15-f412-426e-a4fb-65e59381dad5/version/v0.1/edit
- * [![](https://mermaid.ink/img/pako:eNqNVEuPmzAQ_ivIp3bFog1xeF270qpSo0qbPVVcHHuauAKMbLNKGuW_17wSQwAVDoZvvnmP54KoYIASRDOi1CsnB0nytGBcAtVcFM6P97RwmqdhODsKBVx6rMElEA1bYyb78nUgyIDIIZTXLGUjYv_HeLpB1wlvjWnLJWf375F67QLUEWzgACIHLfkA1HDSlYQd6AnUgtrkfjZe7FS6pI2vR_StdXh-lHy09mcFJhxbtq94xmyAgdJSWIanytUGO2iRXbGJCjmE7PeLHTAazkwHqMiEtBpSEsr1-Q7kxNT-dP_v2mEx7r1YiqEr0XQYCwrG7GLoHc0KGDTJMk7fRXU4FqDUA0NQmlXK3I4HCeRcKf4JI8FUeP2UzAVXSp5zbWxZkFC8vpTqFajISzOoajuqbvW5ILzpf-sIwAaaUzA3u4Da0wLsAN-H4C29_mwSdFK0StHT87M5Pe8pRdZtHhAbZIbdDvP_2J1gttBcHGamh2HUQ25xe-LbaGDHwzUwj3ut0QQseviwLkD9tirIRTnInHBm1nMzJCnSR8ghRYn5ZPCbVJlOUVpcDZVUWuzOBUWJlhW4qCqZ2SvdQu9BYFwLue02fn24qCQFSi7ohBI_ePFWqxBHgb-J1zhcYxedDbz2cBwGEY7xKorCOPKvLvorhLH64kV-gHHgxziM8AZv4sber0ZYu7z-A6rh2zE?type=png)](https://mermaid.live/edit#pako:eNqNVEuPmzAQ_ivIp3bFog1xeF270qpSo0qbPVVcHHuauAKMbLNKGuW_17wSQwAVDoZvvnmP54KoYIASRDOi1CsnB0nytGBcAtVcFM6P97RwmqdhODsKBVx6rMElEA1bYyb78nUgyIDIIZTXLGUjYv_HeLpB1wlvjWnLJWf375F67QLUEWzgACIHLfkA1HDSlYQd6AnUgtrkfjZe7FS6pI2vR_StdXh-lHy09mcFJhxbtq94xmyAgdJSWIanytUGO2iRXbGJCjmE7PeLHTAazkwHqMiEtBpSEsr1-Q7kxNT-dP_v2mEx7r1YiqEr0XQYCwrG7GLoHc0KGDTJMk7fRXU4FqDUA0NQmlXK3I4HCeRcKf4JI8FUeP2UzAVXSp5zbWxZkFC8vpTqFajISzOoajuqbvW5ILzpf-sIwAaaUzA3u4Da0wLsAN-H4C29_mwSdFK0StHT87M5Pe8pRdZtHhAbZIbdDvP_2J1gttBcHGamh2HUQ25xe-LbaGDHwzUwj3ut0QQseviwLkD9tirIRTnInHBm1nMzJCnSR8ghRYn5ZPCbVJlOUVpcDZVUWuzOBUWJlhW4qCqZ2SvdQu9BYFwLue02fn24qCQFSi7ohBI_ePFWqxBHgb-J1zhcYxedDbz2cBwGEY7xKorCOPKvLvorhLH64kV-gHHgxziM8AZv4sber0ZYu7z-A6rh2zE)
+ * - Build content programmatically (builder methods on {@link Scene} / {@link SceneModel})
+ * - Import and export formats such as {@link gltf}, {@link las}, {@link cityjson}, {@link xgf}, {@link dotbim}, and {@link ifc}
+ * - Attach a Scene to a {@link viewer!Viewer | Viewer} for interactive rendering in the browser
+ * - Serialize/deserialize models to/from JSON
+ * - Observe lifecycle events via {@link SceneEvents}
  *
  * <br>
  *
- * ### Notes
+ * ## Installation
  *
- * * SceneTextureSets are collections of textures that are shared among SceneMeshes and are organized into texture atlasses to optimize rendering efficiency on GPUs.
- * * Each SceneMesh can be assigned to only one SceneObject, whereas each SceneGeometry and SceneTextureSet can be allocated to an unlimited number of SceneMeshes.
- *
- * <br>
- *
- * # Installation
- *
- * ````bash
+ * ```bash
  * npm install @xeokit/sdk
- * ````
+ * ```
  *
  * <br>
  *
- * # Usage
+ * ## Quick Start (Tutorial)
+ *
+ * This tutorial builds a simple “table” model (5 parts), attaches a Viewer, and shows how to read back created components.
  *
  * <br>
  *
- * ## Import Modules
+ * ### 1) Import the modules you’ll use
  *
- * First we'll import the modules we'll need:
+ * ```javascript
+ * import { Scene } from "@xeokit/sdk/scene";
+ * import {
+ *   TrianglesPrimitive,
+ *   LinearEncoding,
+ *   LinearFilter,
+ *   ClampToEdgeWrapping
+ * } from "@xeokit/sdk/constants";
  *
- * ````javascript
- * import {Scene} from "@xeokit/sdk/scene";
- * import {TrianglesPrimitive, LinearEncoding, LinearFilter, ClampToEdgeWrapping} from "@xeokit/sdk/constants";
- * import {Viewer} from "@xeokit/sdk/viewer";
- * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
- * import {CameraControl} from "@xeokit/sdk/cameracontrol";
- * ````
+ * import { Viewer } from "@xeokit/sdk/viewer";
+ * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
+ * import { CameraControl } from "@xeokit/sdk/cameracontrol";
+ * ```
+ *
  * <br>
  *
- * ## Creating a Scene
+ * ### 2) Create a Scene
  *
- * Next, we'll create a {@link Scene | Scene}:
- *
- * ````javascript
+ * ```javascript
  * const scene = new Scene();
- * ````
+ * ```
  *
  * <br>
  *
- * ## Viewing the Scene
+ * ### 3) Subscribe to Scene lifecycle events (optional)
  *
- * If we're coding in the browser, we can view our Scene by attaching it to a {@link viewer!Viewer | Viewer}, as
- * shown below. The Viewer will then provide an interactive 3D view of our Scene. As we create and destroy objects,
- * they will appear and disaapear in the view.
+ * Everything that happens in a {@link Scene} is reported via the {@link SceneEvents} dispatcher at {@link Scene.events}.
  *
- * Our minimal browser Viewer gets a {@link webglrenderer!WebGLRenderer | WebGLRenderer}, to adapt it
- * to use the browser's WebGL graphics API for 3D viewing. Our Viewer also gets a single {@link viewer!View | View}
- * to make it render to a specified canvas in the page. The View also gets a {@link cameracontrol!CameraControl | CameraControl},
- * so we can interact with it using mouse and touch input.
- *
- * Note that a Scene does not need to be attached to a Viewer. A Scene functions as a stand-alone data structure, and
- * is agnostic of Viewer. In the browser, we typically use Scene with a Viewer. In a NodeJS script, that has no need to render
- * anything, we would typically use Scene without a Viewer.
- *
- * ````javascript
- * const viewer = new Viewer({
- *     scene
+ * ```javascript
+ * scene.events.onError.subscribe((scene, sdkResult) => {
+ *   console.error(`Scene error: ${sdkResult.error}`);
  * });
  *
- * const webglRenderer = new WebGLRenderer({
- *    viewer
+ * scene.events.onSceneModelCreated.subscribe((scene, sceneModel) => {
+ *   console.log(`SceneModel created: ${sceneModel.id}`);
  * });
  *
- * const view1Result = myViewer.createView({
- *     id: "myView",
- *     elementId: "myView1"
+ * scene.events.onSceneObjectCreated.subscribe((scene, sceneObject) => {
+ *   console.log(`SceneObject created: ${sceneObject.id}`);
  * });
- *
- * const view1 = view1Result.value;
- *
- * view1.camera.eye = [0,0,-100];
- * view1.camera.look = [0,0,0];
- * view1.camera.up = [0,1,0];
- *
- * const myCameraControl = new CameraControl({
- *      view: view1
- * });
- * ````
+ * ```
  *
  * <br>
  *
- * ## Building a SceneModel
+ * ### 4) Configure the Scene coordinate system (optional)
  *
- * Next, we'll create a {@link SceneModel | SceneModel} that will model the simple table object
- * shown in the image above. Our SceneModel will contain five
- * {@link SceneObject | SceneObjects}, five {@link SceneMesh | SceneMeshes},
- * one {@link SceneGeometry | SceneGeometry} and one {@link SceneTexture | SceneTexture}.
+ * The Scene coordinate system is configured via {@link Scene.coordinateSystem}. By default, the Scene uses a
+ * right-handed Z-Up coordinate system.
  *
- * Our SceneModel now appears in our Viewer and we can interact with it.
+ * Each {@link SceneModel} may also specify its own {@link SceneModel.coordinateSystem}, allowing you to mix models
+ * that originate in different coordinate systems without pre-processing them into a single common basis.
  *
- * ````javascript
- * const sceneModelResult = theScene.createModel({
- *   id: "theModel"
+ * Example: set the Scene to a left-handed, Y-Up basis:
+ *
+ * ```javascript
+ * scene.coordinateSystem.basis = [ // +Y-up left-handed
+ *   1, 0, 0,  // Right
+ *   0, 1, 0,  // Up
+ *   0, 0, -1  // Forward
+ * ];
+ *
+ * scene.coordinateSystem.units = "meters";
+ * scene.coordinateSystem.origin = [0, 0, 0];
+ * scene.coordinateSystem.scaleToMeters = 1.0;
+ * ```
+ *
+ * <br>
+ *
+ * ### 5) Attach a Viewer (browser only)
+ *
+ * A {@link Scene} is renderer-agnostic. In Node.js you typically build/convert/export without rendering.
+ * In the browser, attach the Scene to a {@link viewer!Viewer | Viewer} and {@link webglrenderer!WebGLRenderer | WebGLRenderer}.
+ *
+ * A minimal setup uses:
+ *
+ * - {@link webglrenderer!WebGLRenderer | WebGLRenderer} (WebGL rendering)
+ * - {@link viewer!View | View} (a canvas target)
+ * - {@link cameracontrol!CameraControl | CameraControl} (mouse/touch navigation)
+ *
+ * ```javascript
+ * const viewer = new Viewer({ scene });
+ *
+ * const webglRenderer = new WebGLRenderer({ viewer });
+ *
+ * const viewResult = viewer.createView({
+ *   id: "myView",
+ *   elementId: "myView1"
+ * });
+ *
+ * if (!viewResult.ok) {
+ *   console.error(viewResult.error);
+ *   // ..handle error
+ * }
+ *
+ * const view = viewResult.value;
+ *
+ * view.camera.eye  = [0, 0, -100];
+ * view.camera.look = [0, 0, 0];
+ * view.camera.up   = [0, 1, 0];
+ *
+ * const cameraControl = new CameraControl(view);
+ * ```
+ *
+ * <br>
+ *
+ * ### 6) Build a SceneModel (a simple “table”)
+ *
+ * Next we create a {@link SceneModel} and populate it with:
+ *
+ * - one {@link SceneGeometry} (a box),
+ * - one {@link SceneTexture} + {@link SceneTextureSet},
+ * - five {@link SceneMesh | SceneMeshes} (legs + tabletop),
+ * - five {@link SceneObject | SceneObjects} (logical parts referencing meshes).
+ *
+ * We’ll also set a local coordinate system for this SceneModel (optional).
+ *
+ * ```javascript
+ * const sceneModelResult = scene.createModel({
+ *   id: "theModel",
+ *
+ *   // Optional: coordinate system for this SceneModel
+ *   coordinateSystem: {
+ *     basis: [ // +Y-up right-handed
+ *       1, 0, 0,  // Right
+ *       0, 1, 0,  // Up
+ *       0, 0, -1  // Forward
+ *     ],
+ *     units: "centimeters",
+ *     origin: [0, 0, 0],
+ *     scaleToMeters: 0.01
+ *   }
  * });
  *
  * if (!sceneModelResult.ok) {
- *
- *      console.error(sceneModelResult.error);
- *
- * } else {
- *
- *      const geometryResult = sceneModel.createGeometry({
- *          id: "boxGeometry",
- *          primitive: TrianglesPrimitive,
- *          positions: [ // Floats
- *              1, 1, 1, -1, 1, 1,
- *              -1, -1, 1, 1, -1, 1, 1,
- *              -1, -1, 1, 1, -1, -1, 1, -1, -1,
- *              -1, -1
- *          ],
- *          indices: [
- *              0, 1, 2, 0, 2, 3, 4, 5, 6, 4,
- *              6, 7, 8, 9, 10, 8, 10, 11, 12,
- *              13, 14, 12, 14, 15, 16, 17, 18,
- *              16, 18, 19, 20, 21, 22, 20, 22, 23
- *          ]
- *      });
- *
- *      if (!geometryResult.ok) {
- *          console.error(geometryResult.error);
- *      }
- *
- *      sceneModel.createTexture({
- *          id: "colorTexture",
- *          src: "./assets/sample_etc1s.ktx2",
- *          preloadColor: [1, 0, 0, 1],
- *          flipY: false,
- *          encoding: LinearEncoding,
- *          magFilter: LinearFilter,
- *          minFilter: LinearFilter,
- *          wrapR: ClampToEdgeWrapping,
- *          wrapS: ClampToEdgeWrapping,
- *          wrapT: ClampToEdgeWrapping,
- *      });
- *
- *      sceneModel.createTextureSet({
- *          id: "theTextureSet",
- *          colorTextureId: "colorTexture"
- *      });
- *
- *      sceneModel.addMesh({
- *          id: "redLegMesh",
- *          geometryId: "boxGeometry",
- *          position: [-4, -6, -4],
- *          scale: [1, 3, 1],
- *          rotation: [0, 0, 0],
- *          color: [1, 0.3, 0.3],
- *          textureSetId: "theTextureSet"
- *      });
- *
- *      sceneModel.addMesh({
- *          id: "greenLegMesh",
- *          geometryId: "boxGeometry",
- *          position: [4, -6, -4],
- *          scale: [1, 3, 1],
- *          rotation: [0, 0, 0],
- *          color: [0.3, 1.0, 0.3],
- *          textureSetId: "theTextureSet"
- *      });
- *
- *      sceneModel.addMesh({
- *          id: "blueLegMesh",
- *          geometryId: "boxGeometry",
- *          position: [4, -6, 4],
- *          scale: [1, 3, 1],
- *          rotation: [0, 0, 0],
- *          color: [0.3, 0.3, 1.0],
- *          textureSetId: "theTextureSet"
- *      });
- *
- *      sceneModel.addMesh({
- *          id: "yellowLegMesh",
- *          geometryId: "boxGeometry",
- *          position: [-4, -6, 4],
- *          scale: [1, 3, 1],
- *          rotation: [0, 0, 0],
- *          color: [1.0, 1.0, 0.0],
- *          textureSetId: "theTextureSet"
- *      });
- *
- *      sceneModel.addMesh({
- *          id: "tableTopMesh",
- *          geometryId: "boxGeometry",
- *          position: [0, -3, 0],
- *          scale: [6, 0.5, 6],
- *          rotation: [0, 0, 0],
- *          color: [1.0, 0.3, 1.0],
- *          textureSetId: "theTextureSet"
- *      });
- *
- *      // Create five SceneObjects, each using a SceneMesh.
- *      // A SceneMesh belongs to exactly one SceneObject.
- *
- *      sceneModel.createObject({
- *          id: "redLegObject",
- *          meshIds: ["redLegMesh"]
- *      });
- *
- *      sceneModel.createObject({
- *          id: "greenLegObject",
- *          meshIds: ["greenLegMesh"]
- *      });
- *
- *      sceneModel.createObject({
- *          id: "blueLegObject",
- *          meshIds: ["blueLegMesh"]
- *      });
- *
- *      sceneModel.createObject({
- *          id: "yellowLegObject",
- *          meshIds: ["yellowLegMesh"]
- *      });
- *
- *      sceneModel.createObject({
- *          id: "tableTopObject",
- *          meshIds: ["tableTopMesh"]
- *      });
- *
- *      // SceneModel is ready for use
+ *   console.error(sceneModelResult.error);
+ *   // ..handle error
  * }
- * ````
+ *
+ * const sceneModel = sceneModelResult.value;
+ *
+ * // 1) Create shared geometry (a box)
+ * const geometryResult = sceneModel.createGeometry({
+ *   id: "boxGeometry",
+ *   primitive: TrianglesPrimitive,
+ *   positions: [
+ *     1, 1, 1,  -1, 1, 1,
+ *     -1, -1, 1,  1, -1, 1,
+ *     1, 1, -1,  -1, 1, -1,
+ *     -1, -1, -1, 1, -1, -1
+ *   ],
+ *   indices: [
+ *     0, 1, 2, 0, 2, 3,     // +Z
+ *     4, 0, 3, 4, 3, 7,     // +X
+ *     5, 4, 7, 5, 7, 6,     // -Z
+ *     1, 5, 6, 1, 6, 2,     // -X
+ *     4, 5, 1, 4, 1, 0,     // +Y
+ *     3, 2, 6, 3, 6, 7      // -Y
+ *   ]
+ * });
+ *
+ * if (!geometryResult.ok) {
+ *   console.error(geometryResult.error);
+ *   // ..handle error
+ * }
+ *
+ * // 2) Create a texture and a texture set
+ * const textureResult = sceneModel.createTexture({
+ *   id: "colorTexture",
+ *   src: "./assets/sample_etc1s.ktx2",
+ *   preloadColor: [1, 0, 0, 1],
+ *   flipY: false,
+ *   encoding: LinearEncoding,
+ *   magFilter: LinearFilter,
+ *   minFilter: LinearFilter,
+ *   wrapR: ClampToEdgeWrapping,
+ *   wrapS: ClampToEdgeWrapping,
+ *   wrapT: ClampToEdgeWrapping
+ * });
+ *
+ * if (!textureResult.ok) {
+ *   console.error(textureResult.error);
+ *   // ..handle error
+ * }
+ *
+ * const textureSetResult = sceneModel.createTextureSet({
+ *   id: "theTextureSet",
+ *   colorTextureId: "colorTexture"
+ * });
+ *
+ * if (!textureSetResult.ok) {
+ *   console.error(textureSetResult.error);
+ *   // ..handle error
+ * }
+ *
+ * // 3) Create meshes (instances of the shared box geometry)
+ * sceneModel.createMesh({
+ *   id: "redLegMesh",
+ *   geometryId: "boxGeometry",
+ *   position: [-4, -6, -4],
+ *   scale: [1, 3, 1],
+ *   rotation: [0, 0, 0],
+ *   color: [1, 0.3, 0.3],
+ *   textureSetId: "theTextureSet"
+ * });
+ *
+ * sceneModel.createMesh({
+ *   id: "greenLegMesh",
+ *   geometryId: "boxGeometry",
+ *   position: [4, -6, -4],
+ *   scale: [1, 3, 1],
+ *   rotation: [0, 0, 0],
+ *   color: [0.3, 1.0, 0.3],
+ *   textureSetId: "theTextureSet"
+ * });
+ *
+ * sceneModel.createMesh({
+ *   id: "blueLegMesh",
+ *   geometryId: "boxGeometry",
+ *   position: [4, -6, 4],
+ *   scale: [1, 3, 1],
+ *   rotation: [0, 0, 0],
+ *   color: [0.3, 0.3, 1.0],
+ *   textureSetId: "theTextureSet"
+ * });
+ *
+ * sceneModel.createMesh({
+ *   id: "yellowLegMesh",
+ *   geometryId: "boxGeometry",
+ *   position: [-4, -6, 4],
+ *   scale: [1, 3, 1],
+ *   rotation: [0, 0, 0],
+ *   color: [1.0, 1.0, 0.0],
+ *   textureSetId: "theTextureSet"
+ * });
+ *
+ * sceneModel.createMesh({
+ *   id: "tableTopMesh",
+ *   geometryId: "boxGeometry",
+ *   position: [0, -3, 0],
+ *   scale: [6, 0.5, 6],
+ *   rotation: [0, 0, 0],
+ *   color: [1.0, 0.3, 1.0],
+ *   textureSetId: "theTextureSet"
+ * });
+ *
+ * // 4) Create objects (logical entities). Each SceneObject references one or more meshes.
+ * sceneModel.createObject({ id: "redLegObject",    meshIds: ["redLegMesh"] });
+ * sceneModel.createObject({ id: "greenLegObject",  meshIds: ["greenLegMesh"] });
+ * sceneModel.createObject({ id: "blueLegObject",   meshIds: ["blueLegMesh"] });
+ * sceneModel.createObject({ id: "yellowLegObject", meshIds: ["yellowLegMesh"] });
+ * sceneModel.createObject({ id: "tableTopObject",  meshIds: ["tableTopMesh"] });
+ *
+ * // SceneModel is now ready for use (rendering, picking, exporting, etc).
+ * ```
  *
  * <br>
  *
- * ## Reading the SceneModel
+ * ### 7) Read back components you created
  *
- * Now that we've built our SceneModel, we can read all of its components.
+ * The SceneModel stores its components in dictionaries keyed by ID.
+ * Note: the Scene also indexes objects globally by ID, so you can access an object through either the model or the scene.
  *
- * ````javascript
- * const theSceneModel = theScene.models["theModel"];
- * const theTexture = theSceneModel.textures["theColorTexture"];
- * const theTextureSet = theSceneModel.textureSets["theTextureSet"];
- * const boxGeometry = theSceneModel.geometries["boxGeometry"];
- * const theTableTopMesh = theSceneModel.meshes["tableTopMesh"];
- * const theTableTopObject = theSceneModel.objects["tableTopObject"];
- * const theTableTopObjectAgain = theScene.objects["tableTopObject"];
- * ````
+ * ```javascript
+ * const theSceneModel = scene.models["theModel"];
  *
- * <br>
+ * const colorTexture  = theSceneModel.textures["colorTexture"];
+ * const textureSet    = theSceneModel.textureSets["theTextureSet"];
+ * const boxGeometry   = theSceneModel.geometries["boxGeometry"];
  *
- * ## Reading Boundaries
- *
- * The classes Scene, SceneModel, SceneObject, and SceneMesh each have
- * an "aabb" property that contains their axis-aligned world-space 3D boundaries
- * (AABB).
- *
- * The SceneGeometry class has an "aabb" property that represents the geometry's local-space boundary.
- *
- * ````javascript
- * const sceneAABB = theScene.aabb; // [xmin,ymin,zmin,xmax,ymax,zmax]
- * const sceneModelAABB = theSceneModel.aabb;
- * const sceneMeshAABB = theTableTopMesh.aabb;
- * const sceneObjectAABB = theTableTopObject.aabb;
- * ````
+ * const tableTopMesh  = theSceneModel.meshes["tableTopMesh"];
+ * const tableTopObj1  = theSceneModel.objects["tableTopObject"];
+ * const tableTopObj2  = scene.objects["tableTopObject"];
+ * ```
  *
  * <br>
  *
  * ## Using Compressed Geometry
  *
- * When we created our SceneModel, the {@link SceneModel.createGeometry | SceneModel.createGeometry}
- * method internally performed some on-the-fly compression and processing of our geometry parameters.
+ * When you create a {@link SceneGeometry} via {@link SceneModel.createGeometry}, the SDK may perform on-the-fly
+ * processing and compression of geometry parameters.
  *
- * To speed up SceneModel creation, we may want to perform that compression in advance.
+ * If you want faster SceneModel creation (or you already have geometry data offline), you can pre-compress
+ * parameters using {@link compressGeometryParams}, then create geometry from those compressed parameters using
+ * {@link SceneModel.createGeometryCompressed}.
  *
- * We can use the {@link compressGeometryParams | compressGeometryParams} function to pre-compress the geometry parameters so
- * that we can then use {@link SceneModel.createGeometryCompressed | SceneModel.createGeometryCompressed}
- * instead, to create the geometry directly from the compressed parameters.
+ * In the example below, {@link compressGeometryParams} converts {@link SceneGeometryParams} into
+ * {@link SceneGeometryCompressedParams}:
  *
- * In the example below, we'll now use {@link compressGeometryParams | compressGeometryParams} to compress
- * a {@link SceneGeometryParams | SceneGeometryParams} into a
- * {@link SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
- *
- * ````javascript
- * import {compressGeometryParams} from "@xeokit/sdk/compression";
- * import {TrianglesPrimitive} from "@xeokit/sdk/constants";
+ * ```javascript
+ * import { compressGeometryParams } from "@xeokit/sdk/compression";
+ * import { TrianglesPrimitive } from "@xeokit/sdk/constants";
  *
  * const geometryCompressedParams = compressGeometryParams({
- *      id: "boxGeometry",
- *      primitive: TrianglesPrimitive,
- *      positions: [ // Floats
- *          1, 1, 1, -1, 1, 1,
- *          -1, -1, 1, 1, -1, 1, 1,
- *          -1, -1, 1, 1, -1, -1, 1, -1, -1,
- *          -1, -1
- *      ],
- *      indices: [
- *          0, 1, 2, 0, 2, 3, 4, 5, 6, 4,
- *          6, 7, 8, 9, 10, 8, 10, 11, 12,
- *          13, 14, 12, 14, 15, 16, 17, 18,
- *          16, 18, 19, 20, 21, 22, 20, 22, 23
- *      ]
- *  });
- * ````
+ *   id: "boxGeometry",
+ *   primitive: TrianglesPrimitive,
+ *   positions: [
+ *     1, 1, 1,  -1, 1, 1,
+ *     -1, -1, 1,  1, -1, 1,
+ *     1, 1, -1,  -1, 1, -1,
+ *     -1, -1, -1, 1, -1, -1
+ *   ],
+ *   indices: [
+ *     0, 1, 2, 0, 2, 3,
+ *     4, 0, 3, 4, 3, 7,
+ *     5, 4, 7, 5, 7, 6,
+ *     1, 5, 6, 1, 6, 2,
+ *     4, 5, 1, 4, 1, 0,
+ *     3, 2, 6, 3, 6, 7
+ *   ]
+ * });
+ * ```
  *
- * The value of our new {@link SceneGeometryCompressedParams | SceneGeometryCompressedParams} is shown below.
+ * A {@link SceneGeometryCompressedParams} typically includes:
  *
- * We can see that:
+ * - Vertex positions quantized to 16-bit integers
+ * - Edge indices (when applicable, e.g. for {@link TrianglesPrimitive})
+ * - A quantization range (`aabb`) used to de-quantize in the Viewer
  *
- * * Vertex positions are now quantized to 16-bit integers
- * * Edge indices are generated for our TrianglesPrimitive
- * * Quantization range is given in axis-sligned bounding box ````aabb````, to de-quantize the positions within the Viewer
+ * Create geometry from the compressed parameters:
  *
- * ````javascript
- * {
- *      id: "boxGeometry",
- *      primitive: TrianglesPrimitive,
- *      aabb: [
- *          -1, -,1 -,1, 1, 1, 1
- *      ],
- *      positionsCompressed: [
- *          65525, 65525, 65525, 0, 65525, 65525,
- *          0, 0, 65525, 65525, 0, 65525, 65525,
- *          0, 0, 65525, 65525, 0, 0, 65525, 0, 0,
- *          0, 0
- *      ],
- *      indices: [
- *          0, 1, 2, 0, 2, 3, 0, 3, 4, 0, 4, 5, 0, 5, 6,
- *          0, 6, 1, 1, 6, 7, 1, 7, 2, 7, 4, 3, 7, 3, 2,
- *          4, 7, 6, 4, 6, 5
- *      ],
- *      edgeIndices: [
- *          3, 4, 0, 4, 5, 0, 5, 6,
- *          0, 6, 1, 1, 6, 7, 1, 7,
- *          3, 2, 4, 7, 6, 4, 6
- *      ]
+ * ```javascript
+ * const geometryResult2 = sceneModel.createGeometryCompressed(geometryCompressedParams);
+ *
+ * if (!geometryResult2.ok) {
+ *   console.error(geometryResult2.error);
  * }
- * ````
- *
- * We could then create a SceneGeometry from the compressed parameters like this:
- *
- * ````javascript
- * const geometry = sceneModel.createGeometryCompressed(geometryCompressedParams);
- * ````
+ * ```
  *
  * <br>
  *
- * ## Saving a SceneModel to a File
+ * ## Exporting a SceneModel to a file
  *
- * We can export SceneModels to several file formats.
+ * SceneModels can be exported to several formats. For example, export to DotBIM with
+ * {@link dotbim!DotBIMExporter | DotBIMExporter}:
  *
- * For example, let's use {@link dotbim!DotBIMExporter | DotBIMExporter} to export our SceneModel to .BIM format:
- *
- * ````javascript
- * import {DotBIMLoader} from "@xeokit/sdk/dotbim";
+ * ```javascript
+ * import { DotBIMExporter } from "@xeokit/sdk/dotbim";
  *
  * const exporter = new DotBIMExporter();
  *
  * exporter.write({
- *     sceneModel,
- *     dataModel,
- *     version: "1.1.0", // Optional, defaults to latest
+ *   sceneModel,
+ *   dataModel,
+ *   version: "1.1.0" // Optional; defaults to the latest supported version
  * }).then(fileData => {
- *     // Use fileData as needed
+ *   // Use fileData as needed
  * }).catch(err => {
- *     console.error(err);
+ *   console.error(err);
  * });
- * ````
+ * ```
  *
  * <br>
  *
- * ## Loading a SceneModel from a File
+ * ## Importing a SceneModel from a file
  *
- * We can also import SceneModels from several file formats.
+ * Import SceneModels from several formats. For example, load DotBIM using
+ * {@link dotbim!DotBIMLoader | DotBIMLoader}:
  *
- * For example, let's use {@link dotbim!DotBIMLoader | DotBIMLoader} to load a .BIM file into a new SceneModel:
+ * ```javascript
+ * import { DotBIMLoader } from "@xeokit/sdk/dotbim";
  *
- * ````javascript
- * import {DotBIMLoader} from "@xeokit/sdk/dotbim";
+ * const sceneModelResult2 = scene.createModel({ id: "mySceneModel2" });
  *
- * const sceneModelResult = scene.createModel({
- *     id: "mySceneModel2"
- * });
+ * if (!sceneModelResult2.ok) {
+ *   console.error(sceneModelResult2.error);
+ *   // ..handle error
+ * }
  *
- * const sceneModel = sceneModelResult.value;
- *
+ * const sceneModel2 = sceneModelResult2.value;
  * const dotBIMLoader = new DotBIMLoader();
  *
  * fetch("model.bim")
- *     .then(response => response.json())
- *     .then(fileData => {
- *         dotBIMLoader.load({ fileData, sceneModel })
- *             .then(() => {
- *                 // Loaded
- *             })
- *             .catch(err => {
- *                 sceneModel.destroy();
- *                 console.error(`Error loading .BIM: ${err}`);
- *             });
- *     })
- *     .catch(err => {
- *         console.error(`Error fetching .BIM file: ${err}`);
- *     });
- * ````
+ *   .then(response => response.json())
+ *   .then(fileData => {
+ *     return dotBIMLoader.load({ fileData, sceneModel: sceneModel2 });
+ *   })
+ *   .then(() => {
+ *     // Loaded
+ *   })
+ *   .catch(err => {
+ *     sceneModel2.destroy();
+ *     console.error(`Error loading .BIM: ${err}`);
+ *   });
+ * ```
  *
  * <br>
  *
  * ## Serializing a SceneModel to JSON
  *
- * ````javascript
- *  const sceneModel2JSON = sceneModel2.toParams();
- * ````
+ * ```javascript
+ * const toParamsResult = sceneModel2.toParams();
+ *
+ * if (!toParamsResult.ok) {
+ *   console.error(toParamsResult.error);
+ *   // ..handle error
+ * }
+ *
+ * const sceneModelParams = toParamsResult.value;
+ * ```
  *
  * <br>
  *
  * ## Deserializing a SceneModel from JSON
  *
- * ````javascript
- * const sceneModel3 = sce.createSceneModel({
- *     id: "mySceneModel3"
- * });
+ * ```javascript
+ * const sceneModelResult3 = scene.createModel({ id: "mySceneModel3" });
  *
- * sceneModel3.fromParams(sceneModel2JSON);
- * ````
+ * if (!sceneModelResult3.ok) {
+ *   console.error(sceneModelResult3.error);
+ *   // ..handle error
+ * }
+ *
+ * const sceneModel3 = sceneModelResult3.value;
+ *
+ * const fromParamsResult = sceneModel3.fromParams(sceneModelParams);
+ *
+ * if (!fromParamsResult.ok) {
+ *   console.error(fromParamsResult.error);
+ * }
+ * ```
  *
  * <br>
  *
  * ## Destroying a SceneModel
  *
- * ````javascript
- *  sceneModel3.destroy();
- * ````
+ * ```javascript
+ * sceneModel3.destroy();
+ * ```
  *
  * @module scene
  */
+
+
 
 export * from "./SceneParams";
 export * from "./Scene";
@@ -554,7 +506,6 @@ export * from "./SceneGeometryParams";
 export * from "./SceneModelParams";
 export * from "./compressGeometryParams";
 
-export * from "./getSceneObjectGeometry";
 
 export * from "./buildMat4"
 

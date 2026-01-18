@@ -3,7 +3,7 @@ import type  {Mat4, Quat, Vec3, Vec4} from "../math";
 /**
  * Parameters for a {@link SceneMesh}.
  *
- * * Passed to  {@link SceneModel.createMesh | SceneModel.addMesh}
+ * * Passed to  {@link SceneModel.createMesh | SceneModel.createMesh}
  * * Located at {@link SceneModelParams.meshes | SceneModelParams.meshes}
  *
  * See {@link scene | @xeokit/sdk/scene} for usage.

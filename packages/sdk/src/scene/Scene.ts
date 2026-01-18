@@ -81,7 +81,7 @@ export class Scene {
   public logging: boolean = true;
 
   /**
-   * Creates a new Scene container.
+   * Creates a new Scene.
    *
    * @param params Optional configuration including coordinate system settings
    * and logging preferences.

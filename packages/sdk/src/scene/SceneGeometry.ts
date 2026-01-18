@@ -1,5 +1,5 @@
 import {type  AABB3Float32, createAABB3Float32} from "../math/boundaries";
-import type {FloatArrayParam, IntArrayParam} from "../math";
+import type {IntArrayParam} from "../math";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import {SceneModel} from "./SceneModel";
 import {SDKErrorType, type SDKResult} from "../core";
@@ -106,53 +106,6 @@ export class SceneGeometry {
         this.edgeIndices = params.edgeIndices;
         this.aabb = createAABB3Float32(params.aabb);
         this.numMeshes = 0;
-    }
-
-    update(params: Partial<SceneGeometryCompressedParams>): void {
-        let changed = false;
-
-        const p = params;
-
-        if (p.primitive !== undefined && this.primitive !== p.primitive) {
-            this.primitive = p.primitive;
-            changed = true;
-        }
-
-        if (p.positionsCompressed && this.positionsCompressed !== p.positionsCompressed) {
-            this.positionsCompressed = p.positionsCompressed;
-            changed = true;
-        }
-
-        if (p.uvsCompressed && this.uvsCompressed !== p.uvsCompressed) {
-            this.uvsCompressed = p.uvsCompressed;
-            changed = true;
-        }
-
-        if (p.colorsCompressed && this.colorsCompressed !== p.colorsCompressed) {
-            this.colorsCompressed = p.colorsCompressed;
-            changed = true;
-        }
-
-        if (p.indices && this.indices !== p.indices) {
-            this.indices = p.indices;
-            changed = true;
-        }
-
-        if (p.edgeIndices && this.edgeIndices !== p.edgeIndices) {
-            this.edgeIndices = p.edgeIndices;
-            changed = true;
-        }
-
-        if (p.aabb && this.aabb !== p.aabb) {
-            // @ts-ignore
-            this.aabb.set(p.aabb);
-            changed = true;
-        }
-
-        if (changed) {
-            const scene = this.model.scene;
-            scene.events.onSceneGeometryUpdated.dispatch(scene, this);
-        }
     }
 
     /**

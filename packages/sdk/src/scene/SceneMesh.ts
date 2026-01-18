@@ -21,7 +21,7 @@ import {SDKErrorType, type SDKResult} from "../core";
  * A mesh in a {@link SceneModel | SceneModel}.
  *
  * * Stored in {@link SceneModel.meshes | SceneModel.meshes}
- * * Created with {@link SceneModel.createMesh | SceneModel.addMesh}
+ * * Created with {@link SceneModel.createMesh | SceneModel.createMesh}
  * * Referenced by {@link SceneObject.meshes | SceneObject.meshes}
  *
  * See {@link scene | @xeokit/sdk/scene}   for usage.

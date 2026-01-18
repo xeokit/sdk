@@ -9,7 +9,6 @@ const tempVec3b = createVec3Float64(); // transformed delta origin
 
 /**
  * Computes a 4x4 transformation matrix to convert coordinates from one CoordinateSystem to another.
- * Uses provided result buffers to avoid unnecessary allocations.
  */
 export function createCoordinateSystemTransform(
   model: CoordinateSystem,

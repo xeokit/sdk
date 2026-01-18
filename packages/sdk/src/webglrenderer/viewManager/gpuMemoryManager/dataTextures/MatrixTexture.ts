@@ -25,7 +25,7 @@ export class MatrixTexture extends ItemDataTexture {
       internalFormat: options.gl.RGBA32F,
       maxItems: options.maxItems,
       getNumItems: options.getNumItems,
-      width: 2048,
+      width: 4096,
       itemSizeInBytes: MatrixTexture.itemSizeInBytes,
       texelsPerItem: 4,
       elementsPerTexel: 4,

@@ -46,7 +46,7 @@ export class EventsLogger {
 
     const error = ((eventName, sender, args) => {
         // eslint-disable-next-line no-console
-        console.error(`%c${prefix}%c${eventName}`, "color: red;", "color:red;", { sender, args });
+        console.error(`%c${prefix}%c${eventName}: ${args.error} `, "color: red;", "color:red;", { sender, args });
       });
 
     for (const [name, maybeEmitter] of Object.entries(this.events as any)) {

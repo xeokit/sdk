@@ -36,7 +36,7 @@ import {SDKInternalException} from "../../../core";
  * and invoke it:
  *
  * ```ts
- * drawOps.prims[primitiveType][renderPass].drawBatch(meshBatch);
+ * drawOps.prims[primitiveType][renderPass].draw(meshBatch);
  * ```
  *
  * or, to draw a single mesh:

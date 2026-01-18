@@ -13,7 +13,7 @@ export class TrianglesDrawColorTechnique extends DrawTechnique {
     this.vsMainOpen();
     this.vsLambertShadingLogic();
     this.vsSlicingLogic();
-    this.vsMainClose();
+   this.vsMainClose();
   }
 
   protected buildFragmentShader(): void {

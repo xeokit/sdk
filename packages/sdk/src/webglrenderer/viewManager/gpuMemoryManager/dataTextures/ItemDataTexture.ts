@@ -51,57 +51,69 @@ export abstract class ItemDataTexture extends DataTexture {
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
     gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-    const texelsPerItem = this.texelsPerItem;
-    const elementsPerItem = this.elementsPerItem;
-    const itemsPerRow = this.width / texelsPerItem;
-    const sortedItemIndices = Array.from(this.dirtyItemIndices).sort((a, b) => a - b);
+    // const texelsPerItem = this.texelsPerItem;
+    // const elementsPerItem = this.elementsPerItem;
+    // const itemsPerRow = this.width / texelsPerItem;
+    // const sortedItemIndices = Array.from(this.dirtyItemIndices).sort((a, b) => a - b);
+    //
+    // let runStartIdx = -1;
+    // let prevIdx = -2;
+    //
+    // const uploadRun = (startIdx: number, endIdx: number): void => {
+    //   let currentIdx = startIdx;
+    //   while (currentIdx <= endIdx) {
+    //     const xOffset = currentIdx % itemsPerRow;
+    //     const yOffset = Math.floor(currentIdx / texelsPerItem);
+    //     const rowItemsLeft = itemsPerRow - xOffset;
+    //     const maxChunkItems = endIdx - currentIdx + 1;
+    //     const chunkItemCount = Math.min(rowItemsLeft, maxChunkItems);
+    //     const bufferStartIdx = currentIdx * elementsPerItem;
+    //     const bufferEndIdx = bufferStartIdx + chunkItemCount * elementsPerItem;
+    //     const pixelData = this.buffer.subarray(bufferStartIdx, bufferEndIdx);
+    //     gl.texSubImage2D(
+    //       gl.TEXTURE_2D,
+    //       0,
+    //       xOffset,
+    //       yOffset,
+    //       chunkItemCount,
+    //       1,
+    //       this.format,
+    //       this.type,
+    //       pixelData
+    //     );
+    //     currentIdx += chunkItemCount;
+    //   }
+    // };
+    //
+    // for (const itemIdx of sortedItemIndices) {
+    //   if (itemIdx !== prevIdx + 1) {
+    //     if (runStartIdx >= 0) {
+    //       uploadRun(runStartIdx, prevIdx);
+    //     }
+    //     runStartIdx = itemIdx;
+    //   }
+    //   prevIdx = itemIdx;
+    // }
+    //
+    // if (runStartIdx >= 0) {
+    //   uploadRun(runStartIdx, prevIdx);
+    // }
+    //
+    // if (this.debugging) {
+    //   this.lastUploadTimeMS = performance.now() - startTimeMs;
+    // }
 
-    let runStartIdx = -1;
-    let prevIdx = -2;
-
-    const uploadRun = (startIdx: number, endIdx: number): void => {
-      let currentIdx = startIdx;
-      while (currentIdx <= endIdx) {
-        const xOffset = currentIdx % itemsPerRow;
-        const yOffset = Math.floor(currentIdx / texelsPerItem);
-        const rowItemsLeft = itemsPerRow - xOffset;
-        const maxChunkItems = endIdx - currentIdx + 1;
-        const chunkItemCount = Math.min(rowItemsLeft, maxChunkItems);
-        const bufferStartIdx = currentIdx * elementsPerItem;
-        const bufferEndIdx = bufferStartIdx + chunkItemCount * elementsPerItem;
-        const pixelData = this.buffer.subarray(bufferStartIdx, bufferEndIdx);
-        gl.texSubImage2D(
-          gl.TEXTURE_2D,
-          0,
-          xOffset,
-          yOffset,
-          chunkItemCount,
-          1,
-          this.format,
-          this.type,
-          pixelData
-        );
-        currentIdx += chunkItemCount;
-      }
-    };
-
-    for (const itemIdx of sortedItemIndices) {
-      if (itemIdx !== prevIdx + 1) {
-        if (runStartIdx >= 0) {
-          uploadRun(runStartIdx, prevIdx);
-        }
-        runStartIdx = itemIdx;
-      }
-      prevIdx = itemIdx;
-    }
-
-    if (runStartIdx >= 0) {
-      uploadRun(runStartIdx, prevIdx);
-    }
-
-    if (this.debugging) {
-      this.lastUploadTimeMS = performance.now() - startTimeMs;
-    }
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      0,
+      0,
+      this.width,
+      this.height,
+      this.format,
+      this.type,
+      this.buffer
+    );
 
     this.dirtyItemIndices.clear();
     gl.bindTexture(gl.TEXTURE_2D, null);

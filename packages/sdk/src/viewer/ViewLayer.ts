@@ -380,30 +380,7 @@ class ViewLayer {
    * @private
    */
   readonly autoDestroy: boolean;
-
-  // /**
-  //  * Emits an event each time a {@link ViewObject} is created in this ViewLayer.
-  //  *
-  //  * @event
-  //  */
-  // readonly objectCreated: EventEmitter<ViewLayer, ViewObject>;
-  //
-  // /**
-  //  * Emits an event each time a {@link ViewObject} is destroyed in this ViewLayer.
-  //  *
-  //  * @event
-  //  */
-  // readonly objectDestroyed: EventEmitter<ViewLayer, ViewObject>;
-  //
-  // /**
-  //  * Emits an event each time the visibility of a {@link ViewObject} changes.
-  //  *
-  //  * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
-  //  *
-  //  * @event
-  //  */
-  // readonly onObjectVisibility: EventEmitter<ViewLayer, ViewObject>;
-
+  
   _renderModes: number[];
   _numObjects: number;
   _objectIds: string[] | null;

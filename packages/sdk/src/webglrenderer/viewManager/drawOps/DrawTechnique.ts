@@ -19,7 +19,7 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
  * - Issuing draw calls for a {@link MeshBatch}
  *
  * Techniques are *render-pass aware* but do not own render-pass routing:
- * callers pass a {@link RenderPassValue} to {@link drawBatch} / {@link drawMesh},
+ * callers pass a {@link RenderPassValue} to {@link draw} / {@link drawMesh},
  * and the technique binds uniforms accordingly.
  *
  * ## Responsibilities
@@ -120,7 +120,7 @@ export abstract class DrawTechnique {
    * Compilation errors encountered during program initialization.
    * Available after `init()` is called.
    */
- public errors: string[];
+  public errors: string[];
 
   /**
    * When true, the technique binds silhouette-related uniforms using "edge" material
@@ -453,7 +453,7 @@ export abstract class DrawTechnique {
           };
       }
 
-      for (let i =0; i< 12; i++) {
+      for (let i = 0; i < 12; i++) {
         gl.activeTexture(gl["TEXTURE" + i]);
         gl.bindTexture(gl.TEXTURE_2D, null);
       }
@@ -524,215 +524,145 @@ export abstract class DrawTechnique {
    */
   protected vsCommonDefines() {
     this._vertSrcBuf.push(
-      "uniform int uRenderPass;         // RENDER_PASSES",
-      "uniform int uPrimBaseIndex;     // Base primitive index for this draw call",
-      "uniform int uPrimitiveType;     // PRIMITIVE_TYPES",
+      `uniform int uRenderPass;
+uniform int uPrimBaseIndex;
+uniform int uPrimitiveType;
 
-      "uniform mat4 uProjMatrix;        // Projection matrix (from view)",
+uniform mat4 uProjMatrix;
 
-      "uniform highp usampler2D uPrimitiveMeshIndexTexture; ",
-      "uniform highp usampler2D uVertexPositionTexture;         ",
-      "uniform highp usampler2D uVertexColorTexture;",
-      "uniform highp usampler2D uIndexTexture;",
-      "uniform highp usampler2D uEdgeIndextexture;",
-      "uniform highp sampler2D  uViewTileCameraMatrixTexture;",
-      "uniform highp sampler2D  uMeshMatrixTexture;",
-      "uniform highp usampler2D uMeshAttributeTexture;",
-      "uniform highp usampler2D uMeshViewAttributeTexture;",
-      "uniform highp usampler2D uGeometryAttributeTexture;",
-      "uniform highp sampler2D  uGeometryQuantRangeTexture;",
+uniform highp usampler2D uPrimitiveMeshIndexTexture;
+uniform highp usampler2D uVertexPositionTexture;
+uniform highp usampler2D uVertexColorTexture;
+uniform highp usampler2D uIndexTexture;
+uniform highp usampler2D uEdgeIndextexture;
+uniform highp sampler2D  uViewTileCameraMatrixTexture;
+uniform highp sampler2D  uMeshMatrixTexture;
+uniform highp usampler2D uMeshAttributeTexture;
+uniform highp usampler2D uMeshViewAttributeTexture;
+uniform highp usampler2D uGeometryAttributeTexture;
+uniform highp sampler2D  uGeometryQuantRangeTexture;
 
-      "struct QuantRange {",
-      "  vec3 offset;",
-      "  vec3 scale;",
-      "};",
+struct QuantRange {
+  vec3 offset;
+  vec3 scale;
+};
 
-      "struct MeshAttribTable {",
-      "  uint tileIndex;",
-      "  uint geometryIndex;",
-      "};",
+struct MeshAttribTable {
+  uint tileIndex;
+  uint geometryIndex;
+};
 
-      "struct MeshViewAttributes {",
-      "  uvec4 color;",
-      "  uvec4 renderFlags;",
-      "};",
+struct MeshViewAttributes {
+  uvec4 color;
+  uvec4 renderFlags;
+};
 
-      "struct GeometryAttributes {",
-      "  uint verticesBase;",
-      "  uint indicesBase;",
-      "  uint edgeIndicesBase;",
-      "};",
+struct GeometryAttributes {
+  uint verticesBase;
+  uint indicesBase;
+  uint edgeIndicesBase;
+};
 
-      "ivec2 texCoord(uint index, uint texWidth) {",
-      "  return ivec2(int(index % texWidth), int(index / texWidth));",
-      "}",
+ivec2 texCoord(uint index, uint texWidth) {
+  return ivec2(int(index % texWidth), int(index / texWidth));
+}
 
-      "uint getPrimitiveMeshIndex(uint primIndex) {",
-      "  const uint texWidth = 4096u;",
-      "  return texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex * 2u, texWidth), 0).r;",
-      "}",
+uint getPrimitiveMeshIndex(uint primIndex) {
+  const uint texWidth = 4096u;
+  return texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex * 2u, texWidth), 0).r;
+}
 
-      "uint getPrimitiveOffsetWithinGeometry(uint primIndex) {",
-      "  const uint texWidth = 4096u;",
-      "  return texelFetch(uPrimitiveMeshIndexTexture, texCoord((primIndex * 2u) + 1u, texWidth), 0).r;",
-      "}",
+uint getPrimitiveOffsetWithinGeometry(uint primIndex) {
+  const uint texWidth = 4096u;
+  return texelFetch(uPrimitiveMeshIndexTexture, texCoord((primIndex * 2u) + 1u, texWidth), 0).r;
+}
 
-      //   "uint getPrimitiveMeshIndex(uint primIndex) {",
-      // //  " return 0u;",
-      //   "  const uint texWidth = 4096u;",
-      //   "  uvec4 px = texelFetch(uPrimitiveMeshIndexTexture, texCoord(primIndex, texWidth), 0);",
-      //   "  return (px.r) | (px.g << 8) | (px.b << 16) | (px.a << 24);",
-      //   "}",
+uint getVertexIndex(uint vertexIndexNum) {
+  const uint texWidth = 4096u;
+  return texelFetch(uIndexTexture, texCoord(vertexIndexNum, texWidth), 0).r;
+}
 
-      "uint getVertexIndex(uint vertexIndexNum) {",
-      "  const uint texWidth = 4096u;",
-      "  return texelFetch(uIndexTexture, texCoord(vertexIndexNum, texWidth), 0).r;",
-      //
-      // "  uvec4 packed = texelFetch(uIndexTexture, texCoord(vertexIndexNum, texWidth), 0);",
-      // "  return packed.r + (packed.g << 8u) + (packed.b << 16u) + (packed.a << 24u);",
-      "}",
+uvec3 getVertexPosition(uint vertexIndexWithinGeometry) {
+  const uint texWidth = 4096u;
+  return texelFetch(uVertexPositionTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;
+}
 
-      "uvec3 getVertexPosition(uint vertexIndexWithinGeometry) {",
-      "  const uint texWidth = 4096u;",
-      "  return texelFetch(uVertexPositionTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;",
-      "}",
+uvec3 getVertexColor(uint vertexIndexWithinGeometry) {
+  const uint texWidth = 4096u;
+  return texelFetch(uVertexColorTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;
+}
 
-      "uvec3 getVertexColor(uint vertexIndexWithinGeometry) {",
-      "  const uint texWidth = 4096u;",
-      "  return texelFetch(uVertexColorTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;",
-      "}",
+QuantRange getGeometryQuantRange(uint geometryIndex) {
+  const uint texWidth = 2048u;
+  const uint texelsPerItem = 2u;
+  uint base = geometryIndex * texelsPerItem;
+  vec4 texel0 = texelFetch(uGeometryQuantRangeTexture, texCoord(base + 0u, texWidth), 0);
+  vec4 texel1 = texelFetch(uGeometryQuantRangeTexture, texCoord(base + 1u, texWidth), 0);
+  QuantRange r;
+  r.offset = texel0.rgb;
+  r.scale  = texel1.rgb;
+  return r;
+}
 
-      "QuantRange getGeometryQuantRange(uint geometryIndex) {",
-      "  const uint texWidth = 2048u;",
-      "  const uint texelsPerItem = 2u;",
-      "  uint base = geometryIndex * texelsPerItem;",
-      "  vec4 texel0 = texelFetch(uGeometryQuantRangeTexture, texCoord(base + 0u, texWidth), 0);",
-      "  vec4 texel1 = texelFetch(uGeometryQuantRangeTexture, texCoord(base + 1u, texWidth), 0);",
-      "  QuantRange r;",
-      "  r.offset = texel0.rgb;",
-      "  r.scale  = texel1.rgb;",
-      "  return r;",
-      "}",
+GeometryAttributes getGeometryAttributeTexture(uint geometryIndex) {
+  const uint texWidth = 4096u;
+  uvec4 texel = texelFetch(uGeometryAttributeTexture, texCoord((geometryIndex), texWidth), 0);
+  GeometryAttributes s;
+  s.verticesBase    = texel.r;
+  s.indicesBase     = texel.g;
+  s.edgeIndicesBase = texel.b;
+  return s;
+}
 
-      "GeometryAttributes getGeometryAttributeTexture(uint geometryIndex) {",
-      "  const uint texWidth = 4096u;",
-      "  uvec4 texel = texelFetch(uGeometryAttributeTexture, texCoord((geometryIndex), texWidth), 0);",
-      "  GeometryAttributes s;",
-      "  s.verticesBase    = texel.r;",
-      "  s.indicesBase     = texel.g;",
-      "  s.edgeIndicesBase = texel.b;",
-      "  return s;",
-      "}",
+MeshAttribTable getMeshAttribTable(uint meshIndex) {
+  const uint texWidth = 4096u;
+  uvec4 texel = texelFetch(uMeshAttributeTexture, texCoord((meshIndex), texWidth), 0);
+  MeshAttribTable s;
+  s.tileIndex      = texel.r;
+  s.geometryIndex  = texel.g;
+  return s;
+}
 
-      "MeshAttribTable getMeshAttribTable(uint meshIndex) {",
-      "  const uint texWidth = 4096u;",
-      "  uvec4 texel = texelFetch(uMeshAttributeTexture, texCoord((meshIndex), texWidth), 0);",
-      "  MeshAttribTable s;",
-      "  s.tileIndex      = texel.r;",
-      "  s.geometryIndex  = texel.g;",
-      "  return s;",
-      "}",
+MeshViewAttributes getMeshViewAttributes(uint meshIndex) {
+  const uint texWidth = 4096u;
+  uint base = meshIndex * 2u;
+  MeshViewAttributes s;
+  s.color       = texelFetch(uMeshViewAttributeTexture, texCoord(base + 0u, texWidth), 0);
+  s.renderFlags = texelFetch(uMeshViewAttributeTexture, texCoord(base + 1u, texWidth), 0);
+  return s;
+}
 
-      "MeshViewAttributes getMeshViewAttributes(uint meshIndex) {",
-      "  const uint texWidth = 4096u;",
-      "  uint base = meshIndex * 2u;",
-      "  MeshViewAttributes s;",
-      "  s.color       = texelFetch(uMeshViewAttributeTexture, texCoord(base + 0u, texWidth), 0);",
-      "  s.renderFlags = texelFetch(uMeshViewAttributeTexture, texCoord(base + 1u, texWidth), 0);",
-      "  return s;",
-      "}",
+mat4 getTileViewMatrix(uint tileIndex) {
+  const uint texWidth = 4096u;
+  uint base = tileIndex * 4u;
+  vec4 m0 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 0u, texWidth), 0);
+  vec4 m1 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 1u, texWidth), 0);
+  vec4 m2 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 2u, texWidth), 0);
+  vec4 m3 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 3u, texWidth), 0);
+  return mat4(m0, m1, m2, m3);
+}
 
-      "mat4 getTileViewMatrix(uint tileIndex) {",
-      "  const uint matsPerRow = 512u;",
-      "  const uint texWidth = matsPerRow * 4u;",
-      "  uint base = tileIndex * 4u;",
-      "  vec4 m0 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 0u, texWidth), 0);",
-      "  vec4 m1 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 1u, texWidth), 0);",
-      "  vec4 m2 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 2u, texWidth), 0);",
-      "  vec4 m3 = texelFetch(uViewTileCameraMatrixTexture, texCoord(base + 3u, texWidth), 0);",
-      "  return mat4(m0, m1, m2, m3);",
-      "}",
+mat4 getMeshMatrix(uint meshIndex) {
+  const uint texWidth = 4096u;
+  uint base = meshIndex * 4u;
+  vec4 m0 = texelFetch(uMeshMatrixTexture, texCoord(base + 0u, texWidth), 0);
+  vec4 m1 = texelFetch(uMeshMatrixTexture, texCoord(base + 1u, texWidth), 0);
+  vec4 m2 = texelFetch(uMeshMatrixTexture, texCoord(base + 2u, texWidth), 0);
+  vec4 m3 = texelFetch(uMeshMatrixTexture, texCoord(base + 3u, texWidth), 0);
+  return mat4(m0, m1, m2, m3);
+}
 
-      "mat4 getMeshMatrix(uint meshIndex) {",
-      "  const uint matsPerRow = 512u;",
-      "  const uint texWidth = matsPerRow * 4u;",
-      "  uint base = meshIndex * 4u;",
-      "  vec4 m0 = texelFetch(uMeshMatrixTexture, texCoord(base + 0u, texWidth), 0);",
-      "  vec4 m1 = texelFetch(uMeshMatrixTexture, texCoord(base + 1u, texWidth), 0);",
-      "  vec4 m2 = texelFetch(uMeshMatrixTexture, texCoord(base + 2u, texWidth), 0);",
-      "  vec4 m3 = texelFetch(uMeshMatrixTexture, texCoord(base + 3u, texWidth), 0);",
-      "  return mat4(m0, m1, m2, m3);",
-      "}",
-
-      // Packs a uint into an RGBA color (each channel stores one byte).
-      // Little-endian byte order: R = least significant byte
-      "vec4 packUintToRGBA8(uint v) {",
-      "   return vec4(",
-      "     float( ( v        & 0xFFu)),",
-      "     float( ((v >> 8u) & 0xFFu)),",
-      "     float(((v >> 16u) & 0xFFu)),",
-      "     float(((v >> 24u) & 0xFFu))",
-      "   ) / 255.0;",
-      "}",
-
-      "vec3 mockModelPos(int vid) {",
-      "  int i = vid % 3;",
-      "  if (i == 0) return vec3(-0.5, -0.5, 0.0);",
-      "  if (i == 1) return vec3( 0.5, -0.5, 0.0);",
-      "  return        vec3( 0.0,  0.5, 0.0);",
-      "}",
-
-      "mat4 mockViewMat() {",
-      "  const vec3 eye = vec3(0.0, 0.0, 5.0);",
-      "  const vec3 center = vec3(0.0, 0.0, 0.0);",
-      "  const vec3 up = vec3(0.0, 1.0, 0.0);",
-      "  vec3 f = normalize(center - eye);",
-      "  vec3 s = normalize(cross(f, up));",
-      "  vec3 u = cross(s, f);",
-      "  return mat4(",
-      "    vec4( s, 0.0),",
-      "    vec4( u, 0.0),",
-      "    vec4(-f, 0.0),",
-      "    vec4(-vec3(dot(s, eye), dot(u, eye), dot(-f, eye)), 1.0)",
-      "  );",
-      "}",
-
-      "mat4 mockProjMat() {",
-      "  float fov = radians(90.0);",
-      "  float near = 0.1;",
-      "  float far  = 1000.0;",
-      "  float aspect = 1.0;",
-      "  float f = 1.0 / tan(fov * 0.5);",
-      "",
-      "  return mat4(",
-      "    f / aspect, 0.0, 0.0, 0.0,",
-      "    0.0,        f,   0.0, 0.0,",
-      "    0.0,        0.0, (far + near) / (near - far), -1.0,",
-      "    0.0,        0.0, (2.0 * far * near) / (near - far), 0.0",
-      "  );",
-      "}",
-
-      "mat4 mockMeshMat() {",
-      "  return mat4(1.0);",
-      "}",
-
-      "QuantRange mockQuantRange() {",
-      "   QuantRange r;",
-      "   r.offset = vec3(0.0);",
-      "   r.scale = vec3(5.0);",
-      "   return r;",
-      "}",
-
-      "uvec3 mockPosition(int vertexID) {",
-      "    if (vertexID % 3 == 0) {",
-      "        return uvec3(0u, 0u, 0u);",
-      "    } else if (vertexID % 3 == 1) {",
-      "        return uvec3(1u, 0u, 0u);",
-      "    } else {",
-      "        return uvec3(0u, 1u, 0u);",
-      "    }",
-      "}"
-    );
+// Packs a uint into an RGBA color (each channel stores one byte).
+// Little-endian byte order: R = least significant byte
+vec4 packUintToRGBA8(uint v) {
+   return vec4(
+     float( ( v        & 0xFFu)),
+     float( ((v >> 8u) & 0xFFu)),
+     float(((v >> 16u) & 0xFFu)),
+     float(((v >> 24u) & 0xFFu))
+   ) / 255.0;
+}
+`);
   }
 
   /**
@@ -910,7 +840,7 @@ export abstract class DrawTechnique {
       "    };",
 
       "    uint primOffset      = getPrimitiveOffsetWithinGeometry( primIndex );"
-  );
+    );
   }
 
   /**
@@ -920,8 +850,6 @@ export abstract class DrawTechnique {
   private _vsMeshLogic2() { // after renderPass check
     this._vertSrcBuf.push(
       "    MeshAttribTable  meshAttributeTexture       = getMeshAttribTable( meshIndex );",
-
-      // Lookup the tile and geometry from the mesh
 
       "    uint             tileIndex         = meshAttributeTexture.tileIndex;",
       "    uint             geometryIndex     = meshAttributeTexture.geometryIndex;",
@@ -933,9 +861,10 @@ export abstract class DrawTechnique {
 
       "    uint vertexIndexWithinGeometry = (uPrimitiveType == 20000)", // Points
       "       ? vertexOffsetWithinGeometry",
-      "       : getVertexIndex(geometryAttributes.indicesBase + vertexOffsetWithinGeometry);",
+      "       : getVertexIndex(0u + vertexOffsetWithinGeometry);",
 
       "    QuantRange       quantRange        = getGeometryQuantRange( geometryIndex );",
+
       "    mat4             modelMatrix       = getMeshMatrix( meshIndex );",
       "    mat4             viewMatrix        = getTileViewMatrix( tileIndex );",
 
@@ -945,7 +874,8 @@ export abstract class DrawTechnique {
       "    vec4             viewPos           = viewMatrix * worldPos; ",
       "    vec4             clipPos           = uProjMatrix * viewPos; ",
 
-      "    gl_Position = clipPos;");
+      "    gl_Position = clipPos;"
+    );
   }
 
   /**
@@ -954,7 +884,7 @@ export abstract class DrawTechnique {
    */
   protected vsLambertShadingLogic() {
     this._vertSrcBuf.push(
-      // For triangles, get the three vertex positions for the triangle
+     // For triangles, get the three vertex positions for the triangle
       "    uint triBase = geometryAttributes.indicesBase + primOffset * 3u;",
       "    uint ia = getVertexIndex(triBase + 0u);",
       "    uint ib = getVertexIndex(triBase + 1u);",
@@ -998,13 +928,10 @@ export abstract class DrawTechnique {
 
       "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
 
-      "   vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), 1.0);")
+     "   vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), 1.0);",
 
     //  "    vColor = vec4(color.rgb, 1.0);");
-
-    // this._vertSrcBuf.push(
-    //   "    vColor = vec4(1.0, 0.0, 0.0, 1.0);"
-    // );
+     );
   }
 
   /**
@@ -1050,6 +977,94 @@ export abstract class DrawTechnique {
     this._vertSrcBuf.push(
       "    vHighPrecisionZW = gl_Position.zw;"
     );
+  }
+
+  /**
+   * Generates a mock vertex shader for testing.
+   * @protected
+   */
+  protected vsDrawMock() {
+    this._vertSrcBuf.push(`#version 300 es
+precision highp float;
+out vec4 vColor;
+void main() {
+    vec2 p = (gl_VertexID == 0) ? vec2(-1.0, -1.0)
+           : (gl_VertexID == 1) ? vec2( 3.0, -1.0)
+                                : vec2(-1.0,  3.0);
+    gl_Position = vec4(p, 0.0, 1.0);
+    vColor = vec4(1.0, 0.0, 1.0, 1.0);
+}`);
+  }
+
+  /**
+   * Generates a second mock vertex shader for testing.
+   * This time, the uProjMatrix is used.
+   * @protected
+   */
+  protected vsDrawMock2() {
+    this._vertSrcBuf.push(`#version 300 es
+precision highp float;
+uniform mat4 uProjMatrix;
+out vec4 vColor;
+
+vec3 mockModelPos(int vid) {
+    int i = vid % 3;
+    if (i == 0) return vec3(-0.5, -0.5, -0.95);
+    if (i == 1) return vec3( 0.5, -0.5, -0.95);
+    return        vec3( 0.0,  0.5, -0.95);
+}
+
+void main() {
+    vec4 viewPos = vec4(mockModelPos(gl_VertexID), 1.0);
+    gl_Position = uProjMatrix * viewPos;
+    vColor = vec4(0.0, 1.0, 1.0, 1.0);
+}
+`);
+  }
+
+  /**
+   * Generates a third mock vertex shader for testing.
+   * This time, the uVertexPositionTexture is tested.
+   * @protected
+   */
+  protected vsDrawMock3() {
+    this._vertSrcBuf.push(`#version 300 es
+precision highp float;
+precision highp usampler2D;
+
+uniform highp usampler2D uVertexPositionTexture;
+out vec4 vColor;
+
+ivec2 texCoord(uint index, uint texWidth) {
+    return ivec2(int(index % texWidth), int(index / texWidth));
+}
+
+uvec3 getVertexPosition(uint vertexIndexWithinGeometry) {
+    const uint texWidth = 4096u;
+    return texelFetch(uVertexPositionTexture, texCoord(vertexIndexWithinGeometry, texWidth), 0).rgb;
+}
+
+void main() {
+    uvec3 q = getVertexPosition(uint(gl_VertexID));
+   vec3 p = (vec3(q) / 1024.0) * 2.0 - 1.0;
+    gl_Position = vec4(p.xy, 0.0, 1.0);
+    vColor = vec4(fract(vec3(q) / 255.0), 1.0);
+}
+`);
+  }
+
+  /**
+   * Generates a mock fragment shader for testing.
+   * @protected
+   */
+  protected fsDrawMock() {
+    this._fragSrcBuf.push("#version 300 es",
+"precision highp float;",
+"in vec4 vColor;",
+"out vec4 outColor;",
+"void main() {",
+"    outColor = vColor;",
+"}");
   }
 
   /**

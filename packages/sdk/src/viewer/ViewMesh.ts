@@ -27,7 +27,7 @@ export class ViewMesh {
       });
       return;
     }
-   // this.viewObject.layer.objectMeshVisibilityUpdated(this, meshIndex, visible);
+   // this.viewObject.layer.view.viewer.events.viewMeshVisibilityChanged.dispatch(this.viewObject.layer.view, this, visible);
   }
 
   get visible(): boolean {

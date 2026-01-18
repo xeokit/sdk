@@ -216,30 +216,33 @@ export function frustumMat4v(
   if (!m) {
     m = createMat4Float64();
   }
-  const fmin4 = <Vec4>[fmin[0], fmin[1], fmin[2], 0.0];
-  const fmax4 = <Vec4>[fmax[0], fmax[1], fmax[2], 0.0];
-  addVec4(fmax4, fmin4, tempVec4a);
-  subVec4(fmax4, fmin4, tempVec4b);
-  const t = 2.0 * fmin4[2];
-  const tempMat4b0 = tempMat4b[0];
-  const tempMat4b1 = tempMat4b[1];
-  const tempMat4b2 = tempMat4b[2];
-  m[0] = t / tempMat4b0;
+  const left = fmin[0], right = fmax[0];
+  const bottom = fmin[1], top = fmax[1];
+  const near = fmin[2], far = fmax[2];
+  const rl = right - left;
+  const tb = top - bottom;
+  const fn = far - near;
+
+  m[0] = (2 * near) / rl;
   m[1] = 0.0;
   m[2] = 0.0;
   m[3] = 0.0;
+
   m[4] = 0.0;
-  m[5] = t / tempMat4b1;
+  m[5] = (2 * near) / tb;
   m[6] = 0.0;
   m[7] = 0.0;
-  m[8] = tempMat4a[0] / tempMat4b0;
-  m[9] = tempMat4a[1] / tempMat4b1;
-  m[10] = -tempMat4a[2] / tempMat4b2;
+
+  m[8] = (right + left) / rl;
+  m[9] = (top + bottom) / tb;
+  m[10] = -(far + near) / fn;
   m[11] = -1.0;
+
   m[12] = 0.0;
   m[13] = 0.0;
-  m[14] = -t * fmax4[2] / tempMat4b2;
+  m[14] = -(2 * near * far) / fn;
   m[15] = 0.0;
+
   return m;
 }
 

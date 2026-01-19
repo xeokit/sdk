@@ -59,7 +59,7 @@ export const parse: ModelParser = async (params, options) => {
             position: [vector.x, vector.y, vector.z],
           });
           if (!meshRes.ok) {
-            // params.error(`[SceneModel.createMesh]: ${meshRes.error}`);
+            // params.error(`[SceneModel.addMesh]: ${meshRes.error}`);
             continue;
           }
 

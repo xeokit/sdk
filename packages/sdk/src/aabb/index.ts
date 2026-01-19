@@ -50,7 +50,7 @@
  *   indices: [... ]
  * });
  *
- * sceneModel.createMesh({
+ * sceneModel.addMesh({
  *   id: "boxMesh",
  *   geometryId: "boxGeometry",
  *   color: [1.0, 0.0, 0.0]

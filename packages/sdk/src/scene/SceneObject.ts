@@ -73,15 +73,17 @@ export class SceneObject {
    * The SceneMesh must exist in the parent SceneModel and
    * must not already be assigned to a SceneObject.
    *
+   * Fires {@link SceneEvents.onSceneObjectMeshAdded | SceneEvents.onSceneObjectMeshAdded} event.
+   *
    * @param meshId The ID of the SceneMesh to add.
    * @returns SDKResult<void> indicating success or failure.
    */
-  createMesh(meshId: string): SDKResult<void> {
+  addMesh(meshId: string): SDKResult<void> {
     if (this.destroyed) {
       return this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneObject.createMesh] SceneObject already destroyed"
+        error: "[SceneObject.addMesh] SceneObject already destroyed"
       });
     }
     const mesh = this.model.meshes[meshId];
@@ -116,6 +118,8 @@ export class SceneObject {
    *
    * The SceneMesh must exist in the parent SceneModel and
    * must be assigned to this SceneObject.
+   *
+   * Fires {@link SceneEvents.onSceneObjectMeshRemoved | SceneEvents.onSceneObjectMeshRemoved} event.
    *
    * @param meshId The ID of the SceneMesh to remove.
    * @returns SDKResult<void> indicating success or failure.
@@ -189,6 +193,8 @@ export class SceneObject {
 
   /**
    * Destroys this SceneObject.
+   *
+   * Fires {@link SceneEvents.onSceneObjectDestroyed | SceneEvents.onSceneObjectDestroyed} event.
    */
   destroy(): SDKResult<void> {
     if (this.destroyed) {

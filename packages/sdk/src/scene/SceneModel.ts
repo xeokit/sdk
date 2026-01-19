@@ -192,7 +192,7 @@ export class SceneModel {
   /**
    * {@link SceneMesh | SceneMeshes} within this SceneModel, each mapped to {@link SceneMesh.id | SceneMesh.id}.
    *
-   * - Created by {@link SceneModel.createMesh | SceneModel.createMesh}.
+   * - Created by {@link SceneModel.createMesh | SceneModel.addMesh}.
    */
   public readonly meshes: { [key: string]: SceneMesh };
 
@@ -274,6 +274,7 @@ export class SceneModel {
    * - Optionally attaches it under a parent transform using {@link SceneTransform.setParentTransform}.
    * - The final transform matrix can be supplied directly via `matrix` or composed from
    *   `position`, `scale` and `rotation` (Euler) or `quaternion`.
+   * - Fires {@link Scene.events.onSceneTransformCreated | Scene.events.onSceneTransformCreated} event.
    *
    * @example
    * ```javascript
@@ -405,6 +406,7 @@ export class SceneModel {
    * Creates a new {@link SceneTexture} within this SceneModel.
    *
    * - Stores the new {@link SceneTexture} in {@link SceneModel.textures | SceneModel.textures}.
+   * - Fires {@link Scene.events.onSceneTextureCreated | Scene.events.onSceneTextureCreated} event.
    *
    * ### Usage
    *
@@ -524,6 +526,7 @@ export class SceneModel {
    * Creates a new {@link SceneTextureSet} within this SceneModel.
    *
    * - Stores the new {@link SceneTextureSet} in {@link SceneModel.textureSets | SceneModel.textureSets}.
+   * - Fires {@link Scene.events.onSceneTextureSetCreated | Scene.events.onSceneTextureSetCreated} event.
    *
    * ### Usage
    *
@@ -687,6 +690,7 @@ export class SceneModel {
    * Creates a new {@link SceneGeometry} within this SceneModel, from non-compressed geometry parameters.
    *
    * - Stores the new {@link SceneGeometry} in {@link SceneModel.geometries | SceneModel.geometries}.
+   * - Fires {@link Scene.events.onSceneGeometryCreated | Scene.events.onSceneGeometryCreated} event.
    *
    * ### Usage
    *
@@ -869,6 +873,7 @@ export class SceneModel {
    * - Stores the new {@link SceneGeometry} in {@link SceneModel.geometries | SceneModel.geometries}.
    * - Use {@link compressGeometryParams | compressGeometryParams} to pre-compress {@link SceneGeometryParams | SceneGeometryParams}
    *   into {@link SceneGeometryCompressedParams | SceneGeometryCompressedParams}.
+   * - Fires {@link Scene.events.onSceneGeometryCreated | Scene.events.onSceneGeometryCreated} event.
    *
    * ### Usage
    *
@@ -1069,7 +1074,7 @@ export class SceneModel {
    * - Stores the new {@link SceneMesh} in {@link SceneModel.meshes | SceneModel.meshes}.
    * - A {@link SceneMesh} can be owned by one {@link SceneObject}, which can own multiple {@link SceneMesh}es.
    * - Increments the {@link SceneGeometry.numMeshes | numMeshes} of the associated {@link SceneGeometry}.
-   * - Fires {@link SceneEvents.onSceneMeshCreated}.
+   * - Fires {@link SceneEvents.onSceneMeshCreated | SceneEvents.onSceneMeshCreated} event.
    *
    * ### Usage
    *
@@ -1126,7 +1131,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createMesh] Cannot create SceneMesh: SceneModel already destroyed"
+        error: "[SceneModel.addMesh] Cannot create SceneMesh: SceneModel already destroyed"
       });
     }
 
@@ -1298,6 +1303,7 @@ export class SceneModel {
    * - Stores the new {@link SceneObject} in {@link SceneModel.objects | SceneModel.objects} and {@link Scene.objects | Scene.objects}.
    * - Each {@link SceneMesh} is allowed to belong to one SceneObject.
    * - SceneObject IDs must be unique within the SceneModel's {@link Scene | Scene}.
+   * - Triggers {@link SceneEvents.onSceneObjectCreated | SceneEvents.onSceneObjectCreated}.
    *
    * ### Usage
    *
@@ -1570,7 +1576,7 @@ export class SceneModel {
   /**
    * Destroys this SceneModel.
    *
-   * - Fires {@link Scene.events.onSceneModelDestroyed | Scene.events.onSceneModelDestroyed}.
+   * - Fires {@link SceneEvents.onSceneModelDestroyed | SceneEvents.onSceneModelDestroyed}.
    * - Removes this SceneModel from its {@link Scene}.
    * - Destroys all components created within this SceneModel.
    */

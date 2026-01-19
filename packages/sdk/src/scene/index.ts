@@ -242,7 +242,7 @@
  * }
  *
  * // 3) Create meshes (instances of the shared box geometry)
- * sceneModel.createMesh({
+ * sceneModel.addMesh({
  *   id: "redLegMesh",
  *   geometryId: "boxGeometry",
  *   position: [-4, -6, -4],
@@ -252,7 +252,7 @@
  *   textureSetId: "theTextureSet"
  * });
  *
- * sceneModel.createMesh({
+ * sceneModel.addMesh({
  *   id: "greenLegMesh",
  *   geometryId: "boxGeometry",
  *   position: [4, -6, -4],
@@ -262,7 +262,7 @@
  *   textureSetId: "theTextureSet"
  * });
  *
- * sceneModel.createMesh({
+ * sceneModel.addMesh({
  *   id: "blueLegMesh",
  *   geometryId: "boxGeometry",
  *   position: [4, -6, 4],
@@ -272,7 +272,7 @@
  *   textureSetId: "theTextureSet"
  * });
  *
- * sceneModel.createMesh({
+ * sceneModel.addMesh({
  *   id: "yellowLegMesh",
  *   geometryId: "boxGeometry",
  *   position: [-4, -6, 4],
@@ -282,7 +282,7 @@
  *   textureSetId: "theTextureSet"
  * });
  *
- * sceneModel.createMesh({
+ * sceneModel.addMesh({
  *   id: "tableTopMesh",
  *   geometryId: "boxGeometry",
  *   position: [0, -3, 0],

@@ -3,9 +3,14 @@ import {composeMat4, eulerToQuat, type Vec3Float, identityMat4, identityQuat, ty
 const identityQuaternion = identityQuat();
 
 /**
- * Helper function to build 4x4 transform matrices.
+ * Helper function to build a 4x4 transformation matrix from position, scale, and rotation or quaternion.
  *
- * @param params
+ * @param params - Transformation parameters.
+ * @param params.position - Optional translation as [x, y, z].
+ * @param params.scale - Optional scale as [x, y, z].
+ * @param params.rotation - Optional Euler rotation as [x, y, z] in radians.
+ * @param params.quaternion - Optional quaternion rotation as [x, y, z, w].
+ * @returns The resulting 4x4 transformation matrix.
  */
 export function buildMat4(params: {
   quaternion?: Quat;

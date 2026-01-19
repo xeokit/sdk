@@ -98,6 +98,7 @@ export class Scene {
   /**
    * Creates and registers a new {@link SceneModel} in this Scene.
    *
+   * - Fires a {@link SceneEvents.onSceneModelCreated | SceneEvents.onSceneModelCreated} event.
    * - Validates that the Scene is not destroyed and the model ID is unique.
    * - Instantiates the SceneModel and populates it from the given parameters.
    * - Registers the model and dispatches a creation event.
@@ -178,7 +179,7 @@ export class Scene {
    *
    * For each model:
    * - Calls {@link SceneModel.destroy}
-   * - Dispatches `onSceneModelDestroyed`
+   * - Fires {@link SceneEvents.onSceneModelDestroyed | SceneEvents.onSceneModelDestroyed} events.
    *
    * @returns A {@link SDKResult} indicating success or failure.
    */
@@ -203,8 +204,8 @@ export class Scene {
    *
    * This performs:
    * - A {@link clear} of all models
-   * - Dispatching of {@link SceneEvents.onSceneDestroyed}
    * - Cleanup of all Scene‑level event subscriptions
+   * - Fires {@link SceneEvents.onSceneDestroyed | SceneEvents.onSceneDestroyed} event
    *
    * After destruction, most Scene operations become invalid.
    */

@@ -21,7 +21,7 @@ import {SDKErrorType, type SDKResult} from "../core";
  * A mesh in a {@link SceneModel | SceneModel}.
  *
  * * Stored in {@link SceneModel.meshes | SceneModel.meshes}
- * * Created with {@link SceneModel.createMesh | SceneModel.createMesh}
+ * * Created with {@link SceneModel.createMesh | SceneModel.addMesh}
  * * Referenced by {@link SceneObject.meshes | SceneObject.meshes}
  *
  * See {@link scene | @xeokit/sdk/scene}   for usage.
@@ -95,8 +95,8 @@ export class SceneMesh {
    * This mechanism allows you to dynamically switch the geometric representation
    * of a SceneMesh at runtime.
    *
-   * When the switch succeeds, {@link @xeokit/sdk/scene#SceneMesh.geometry} will reference
-   * the new SceneGeometry and an {@link @xeokit/sdk/scene#SceneEvents.onSceneMeshGeometryChanged}
+   * When the switch succeeds, {@link SceneMesh.geometry | SceneMesh.geometry} will reference
+   * the new SceneGeometry and an {@link SceneEvents.onSceneMeshGeometryChanged | SceneEvents.onSceneMeshGeometryChanged}
    * event is dispatched on the Scene.
    *
    * If the given geometryId is invalid, such as when the SceneGeometry does not
@@ -149,7 +149,8 @@ export class SceneMesh {
   /**
    * Sets the RGB color for this SceneMesh.
    *
-   * Each element of the color is in range ````[0..1]````.
+   * - Fires an {@link SceneEvents.onSceneMeshColorChanged | SceneEvents.onSceneMeshColorChanged} event on the Scene.
+   * - Each element of the color is in range ````[0..1]````.
    */
   set color(value: Vec3) {
     if (this.destroyed) {
@@ -184,7 +185,8 @@ export class SceneMesh {
   /**
    * Updates this SceneMesh's local modeling transform matrix.
    *
-   * Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
+   * - Fires an {@link SceneEvents.onSceneMeshMatrixChanged | SceneEvents.onSceneMeshMatrixChanged} event on the Scene.
+   * - Default value is ````[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]````.
    *
    * @type {FloatArrayParam}
    */
@@ -244,7 +246,8 @@ export class SceneMesh {
   /**
    * Sets the opacity factor for this SceneMesh.
    *
-   * This is a factor in range ````[0..1]````.
+   * - This is a factor in range ````[0..1]````.
+   * - Fires an {@link SceneEvents.onSceneMeshOpacityChanged | SceneEvents.onSceneMeshOpacityChanged} event on the Scene.
    */
   set opacity(opacity: number) {
     if (this.destroyed) {
@@ -390,6 +393,9 @@ export class SceneMesh {
 
   /**
    * Destroys this SceneMesh.
+   *
+   * - Fires an {@link SceneEvents.onSceneMeshDestroyed | SceneEvents.onSceneMeshDestroyed} event on the Scene.
+   * - You cannot destroy a SceneMesh that is currently used by a SceneObject; you must destroy the SceneObject first.
    */
   destroy(): SDKResult<void> {
     if (this.destroyed) {

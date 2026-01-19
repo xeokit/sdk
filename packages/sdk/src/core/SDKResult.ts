@@ -34,3 +34,8 @@ import { SDKErrorType } from "./SDKErrorType";
 export type SDKResult<T> =
   | { ok: true; value: T }
   | { ok: false; error: string; type: SDKErrorType };
+
+/**
+ * A predefined successful SDKResult with an undefined value.
+ */
+export const SDKResultOK: { ok: true, value: any } = { ok: true, value: undefined};

@@ -1,7 +1,7 @@
 /**
  * <img src="http://xeokit.io/img/kdtree.jpeg" />
  *
- * # xeokit Scene AABB Index
+ * # xeokit Scene AABB3 Index
  *
  * ---
  *
@@ -10,7 +10,8 @@
  * ---
  *
  * **Features:**
- * - Efficient caching and lazy evaluation of AABBs for SceneMeshes and SceneObjects.
+ *
+ * - Comprehensive AABB management for {@link scene!Scene}, {@link SceneObject}, and {@link SceneMesh} instances.
  * - World-space AABB computation for compressed geometry.
  * - Scene-wide AABB and center calculations.
  * - Dynamic updates based on scene events.
@@ -25,16 +26,22 @@
  *
  * ```typescript
  * import { Scene } from "@xeokit/sdk/scene";
- * import { SceneAABB3Index, getSceneAABBIndex } from "@xeokit/sdk/aabb";
+ * import { SceneAABB3Index, getSceneAABB3Index } from "@xeokit/sdk/aabb";
  * import {TrianglesPrimitive } from "@xeokit/sdk/constants";
  *
  * // Create a new Scene
  *
- * const scene = new Scene({ });
+ * const scene = new Scene();
  *
- * const sceneModel = scene.createModel({
+ * const sceneModelResult = scene.createModel({
  *     id: "demoModel"
  * });
+ *
+ * if (!sceneModelResult.ok) {
+ *   console.error("Failed to create model:", sceneModelResult.error);
+ * }
+ *
+ * const sceneModel = sceneModelResult.value;
  *
  * sceneModel.createGeometry({
  *   id: "boxGeometry",
@@ -56,38 +63,38 @@
  *
  * // Create a SceneAABB3Index for the Scene
  *
- * const sceneAABBIndex = getSceneAABBIndex(scene);
+ * const sceneAABB3Index = getSceneAABB3Index(scene);
  *
  * // Get the AABB for the entire Scene
  *
- * const sceneAABB = sceneAABBIndex.getSceneAABB();
+ * const sceneAABB = sceneAABB3Index.getSceneAABB();
  * console.log("Scene AABB:", sceneAABB);
  *
  * // Get the center of the Scene's AABB
  *
- * const sceneCenter = sceneAABBIndex.getSceneCenter();
+ * const sceneCenter = sceneAABB3Index.getSceneCenter();
  * console.log("Scene Center:", sceneCenter);
  *
  * // Get the AABB for a specific SceneObject
  *
- * const objectAABB = sceneAABBIndex.getObjectAABB("object1");
+ * const objectAABB = sceneAABB3Index.getObjectAABB("object1");
  * console.log("Object1 AABB:", objectAABB);
  *
  * // Get the combined AABB for multiple SceneObjects
  *
- * const combinedAABB = sceneAABBIndex.getCombinedObjectAABB(["object1", "object2"]);
+ * const combinedAABB = sceneAABB3Index.getCombinedObjectAABB(["object1", "object2"]);
  * console.log("Combined AABB:", combinedAABB);
  *
  * // Destroy the tileIndex when no longer needed. The tileIndex also
  * // destructs automatically when the Scene is destroyed.
  *
- * sceneAABBIndex.destroy();
+ * sceneAABB3Index.destroy();
  * ```
  *
  * @module aabb
  */
 
-export {getSceneAABBIndex, SceneAABB3Index} from "./SceneAABB3Index";
+export {getSceneAABB3Index, SceneAABB3Index} from "./SceneAABB3Index";
 export {createSceneObjectAABB3} from "./createSceneObjectAABB3";
 
 

@@ -1,6 +1,5 @@
 import {collapseAABB3, createAABB3Float64, expandAABB3} from "../math/boundaries";
 import type {SceneGeometry, SceneObject} from "../scene";
-import {type GeometryView, getSceneObjectGeometry} from "../scene";
 import {LinesPrimitive, PointsPrimitive, TrianglesPrimitive} from "../constants";
 import type {FloatArrayParam} from "../math";
 import type {KdSceneObjectPrim} from "./KdSceneObjectPrim";
@@ -82,36 +81,36 @@ export function createSceneObjectPrimsKdTree3(sceneObjects: SceneObject[]): Scen
   const kdTree = new SceneObjectsPrimsKdTree3({
     aabb: tempAABB3a
   });
-  for (let i = 0, len = sceneObjects.length; i < len; i++) {
-    const sceneObject = sceneObjects[i];
-    getSceneObjectGeometry(sceneObject, (geometryView: GeometryView) => {
-      const sceneGeometry = geometryView.geometry;
-      const positionsWorld = geometryView.positionsWorld; // <-- Can be expensive
-      const indices = sceneGeometry.indices;
-      switch (sceneGeometry.primitive) {
-        case PointsPrimitive:
-          for (let j = 0, lenj = positionsWorld.length / 3; j < lenj; j++) {
-            insertPoint(sceneObject, sceneGeometry, positionsWorld, j, kdTree);
-          }
-          break;
-        case TrianglesPrimitive:
-          if (indices) {
-            for (let j = 0, lenj = indices.length; j < lenj; j += 3) {
-              insertTriangle(sceneObject, sceneGeometry, positionsWorld, indices[j], indices[j + 1], indices[j + 2], kdTree);
-            }
-          }
-          break;
-        case LinesPrimitive:
-          if (indices) {
-            for (let j = 0, lenj = indices.length; j < lenj; j += 2) {
-              insertLine(sceneObject, sceneGeometry, positionsWorld, indices[j], indices[j + 1], kdTree);
-            }
-          }
-          break;
-      }
-      return true;
-
-    });
-  }
+  // for (let i = 0, len = sceneObjects.length; i < len; i++) {
+  //   const sceneObject = sceneObjects[i];
+  //   getSceneObjectGeometry(sceneObject, (geometryView: GeometryView) => {
+  //     const sceneGeometry = geometryView.geometry;
+  //     const positionsWorld = geometryView.positionsWorld; // <-- Can be expensive
+  //     const indices = sceneGeometry.indices;
+  //     switch (sceneGeometry.primitive) {
+  //       case PointsPrimitive:
+  //         for (let j = 0, lenj = positionsWorld.length / 3; j < lenj; j++) {
+  //           insertPoint(sceneObject, sceneGeometry, positionsWorld, j, kdTree);
+  //         }
+  //         break;
+  //       case TrianglesPrimitive:
+  //         if (indices) {
+  //           for (let j = 0, lenj = indices.length; j < lenj; j += 3) {
+  //             insertTriangle(sceneObject, sceneGeometry, positionsWorld, indices[j], indices[j + 1], indices[j + 2], kdTree);
+  //           }
+  //         }
+  //         break;
+  //       case LinesPrimitive:
+  //         if (indices) {
+  //           for (let j = 0, lenj = indices.length; j < lenj; j += 2) {
+  //             insertLine(sceneObject, sceneGeometry, positionsWorld, indices[j], indices[j + 1], kdTree);
+  //           }
+  //         }
+  //         break;
+  //     }
+  //     return true;
+  //
+  //   });
+  // }
   return kdTree;
 }

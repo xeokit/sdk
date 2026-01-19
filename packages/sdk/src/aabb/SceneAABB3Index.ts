@@ -253,7 +253,7 @@ const sceneIndexes = {};
  *
  * @param scene
  */
-export function getSceneAABBIndex(scene: Scene) {
+export function getSceneAABB3Index(scene: Scene) {
   let sceneIndex = sceneIndexes[scene.id];
   if (!sceneIndex) {
     sceneIndex = sceneIndexes[scene.id] = new SceneAABB3Index(scene);

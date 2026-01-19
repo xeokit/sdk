@@ -4,6 +4,7 @@ import type {Vec3, Mat4} from "../../../math";
 import {Camera, View, Viewer} from "../../../viewer";
 import {type GPUTile} from "./GPUTile";
 import {MatrixTexture} from "./dataTextures/MatrixTexture";
+import {RenderContext} from "./../RenderContext";
 
 const NUM_VIEWS = 4;
 const NUM_TILES = 2000;
@@ -21,8 +22,7 @@ const tempVec3a = createVec3Float64();
  * @internal
  */
 export class GPUTileManager {
-
-  private _viewer: Viewer;
+  private _renderContext: RenderContext;
   private _viewTileCameraMatrixTexture: MatrixTexture[] = [];
   private _viewTilePickMatrixTexture: MatrixTexture[] = [];
   private _tileIndexesUsed: boolean[] = [];
@@ -34,10 +34,10 @@ export class GPUTileManager {
    * Creates a tile manager for a WebGLRenderer.
    */
   constructor(
-    viewer: Viewer,
+    renderContext: RenderContext,
     viewTileCameraMatrixTexture: MatrixTexture[],
     viewTilePickMatrixTexture: MatrixTexture[]) {
-    this._viewer = viewer;
+    this._renderContext = renderContext;
     this._viewTileCameraMatrixTexture = viewTileCameraMatrixTexture;
     this._viewTilePickMatrixTexture = viewTilePickMatrixTexture;
   }
@@ -54,7 +54,8 @@ export class GPUTileManager {
    * Get a GPUTile that contains the given 3D World-space position.
    */
   getTile(worldPos: Vec3): GPUTile {
-    const rtcCenter = worldToRTCCenter(worldPos, tempVec3a);
+    const tileSize = this._renderContext.memoryConfigs.tileSize;
+    const rtcCenter = worldToRTCCenter(worldPos, tempVec3a, tileSize);
     const id = this._makeTileId(rtcCenter);
     let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter);
     tile.useCount++;
@@ -134,7 +135,7 @@ export class GPUTileManager {
   }
 
   private _createTile(id: string, rtcCenter: Vec3): GPUTile {
-    const {viewList, numViews} = this._viewer;
+    const {viewList, numViews} = this._renderContext.viewer;
     const center = createVec3Float64(rtcCenter);
     const rtcViewMatrix = Array.from({length: NUM_VIEWS}, (_, i) =>
       i < numViews

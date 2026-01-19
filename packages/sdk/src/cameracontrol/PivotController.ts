@@ -12,7 +12,7 @@ import {
 import {clamp} from "../math";
 import type {View} from "../viewer";
 import {worldToRTCPos} from "../rtc";
-import {getSceneAABBIndex} from "../aabb/SceneAABB3Index";
+import {getSceneAABB3Index} from "../aabb/SceneAABB3Index";
 import {SDKTask} from "../core";
 
 const tempVec3a = createVec3Float64();
@@ -61,7 +61,7 @@ class PivotController {
     // Pivot math by: http://www.derschmale.com/
 
     this.#view = view;
-    this.#aabbIndex = getSceneAABBIndex(view.viewer.scene);
+    this.#aabbIndex = getSceneAABB3Index(view.viewer.scene);
     this.#configs = configs;
     this.#pivotWorldPos = createVec3Float64();
     this.#cameraOffset = createVec3Float64();

@@ -16,7 +16,7 @@ import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} fr
 import {DEGTORAD, } from "../math";
 import {createAABB3Float64,getAABB3Center, getAABB3Diag, getAABB3DiagPoint, type AABB3} from "../math/boundaries";
 import {EventDispatcher} from "strongly-typed-events";
-import {getSceneAABBIndex} from "../aabb";
+import {getSceneAABB3Index} from "../aabb";
 
 const tempVec3 = createVec3Float64();
 const newLook = createVec3Float64();
@@ -160,7 +160,7 @@ export class CameraFlightAnimation {
     }
 
     this.view = view;
-    this._aabbIndex = getSceneAABBIndex(view.viewer.scene);
+    this._aabbIndex = getSceneAABB3Index(view.viewer.scene);
     this.camera = view.camera;
 
     this._look1 = createVec3Float64();

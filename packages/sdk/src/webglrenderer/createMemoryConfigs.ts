@@ -145,7 +145,10 @@ export function createMemoryConfigs(params:{
         16_384
     );
 
+    const tileSize = user.tileSize ?? 1000;
+
     return {
+        tileSize,
         maxTiles,
         maxBatches,
         maxBatchVertices,

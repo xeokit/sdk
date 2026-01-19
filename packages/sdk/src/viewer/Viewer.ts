@@ -63,14 +63,13 @@ export class Viewer {
    */
   numViews: number;
 
-  _tickifiedFunctions: {};
-
   /**
    * Enables or disables error logging to the console for this Viewer.
    *
    * Default value is ````false````.
    */
   public logging: boolean = false;
+
   private _onSceneObjectCreated: () => void;
   private _onSceneObjectDestroyed: () => void;
   private _onSceneDestroyed: () => void;
@@ -96,7 +95,6 @@ export class Viewer {
     this.numViews = 0;
     this.views = {};
     this.destroyed = false;
-    this._tickifiedFunctions = {};
     this.logging = !!params?.logging;
     if (params?.scene) {
       this.attachScene(params.scene);
@@ -219,63 +217,6 @@ export class Viewer {
       ok: true,
       value: this
     };
-  }
-
-  /**
-   * This method will "tickify" the provided `cb` function.
-   *
-   * This means, the function will be wrapped so:
-   *
-   * - it runs time-aligned to scene ticks
-   * - it runs maximum once per scene-tick
-   *
-   * @param {Function} cb The function to tickify
-   * @returns {Function}
-   */
-  tickify(cb: any): any {
-    const cbString = cb.toString();
-
-    /**
-     * Check if the function is already tickified, and if so return the cached one.
-     */
-    if (cbString in this._tickifiedFunctions) {
-      return this._tickifiedFunctions[cbString].wrapperFunc;
-    }
-
-    let alreadyRun = 0;
-    let needToRun = 0;
-
-    let lastArgs;
-
-    /**
-     * The provided `cb` function is replaced with a "set-dirty" function
-     *
-     * @type {Function}
-     */
-    const wrapperFunc = function (...args) {
-      lastArgs = args;
-      needToRun++;
-    };
-
-    /**
-     * On each scene tick, if the "dirty-flag" is set, run the `cb` function.
-     *
-     * This will make it run time-aligned to the scene tick.
-     */
-    const tickSubId = this.events.onTick.sub(() => {
-      const tmp = needToRun;
-      if (tmp > alreadyRun) {
-        alreadyRun = tmp;
-        cb(...lastArgs);
-      }
-    });
-
-    /**
-     * And, store the list of subscribers.
-     */
-    this._tickifiedFunctions[cbString] = {tickSubId, wrapperFunc};
-
-    return wrapperFunc;
   }
 
   /**
@@ -426,7 +367,7 @@ export class Viewer {
     };
   }
 
-  _attachView(view: View): void {
+ private _attachView(view: View): void {
     if (this.views[view.id]) {
       return;
     }
@@ -441,7 +382,7 @@ export class Viewer {
     }
   }
 
-  _detachView(view: View): void {
+  private _detachView(view: View): void {
     if (!this.views[view.id]) {
       return;
     }

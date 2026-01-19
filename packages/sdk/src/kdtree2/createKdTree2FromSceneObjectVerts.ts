@@ -1,6 +1,6 @@
 import {createMat4Float64, createVec4Float64, type Mat4, transformPoint4, type Vec4} from "../math";
 import type {SceneObject} from "../scene";
-import {type GeometryView, getSceneObjectGeometry} from "../scene";
+
 import {
  type AABB2,
   collapseAABB3, createAABB3Float64,
@@ -47,27 +47,27 @@ export function createKdTree2FromSceneObjectVerts(params: {
   }
 
   function insertSceneObject(sceneObject: SceneObject, intersects: number = INTERSECT) {
-    if (intersects !== INSIDE) {
-      intersects = intersectFrustum3AABB3(frustum, createSceneObjectAABB3(sceneObject, collapseAABB3(tempAABB3)));
-    }
-    if (intersects === OUTSIDE) {
-      return;
-    }
-    // @ts-ignore
-    getSceneObjectGeometry(sceneObject, (geometryView: GeometryView): boolean | undefined => {
-      const positionsWorld = geometryView.positionsWorld;
-      for (let i = 0, len = positionsWorld.length; i < len; i += 3) {
-        const worldPos = createVec4Float64();
-        worldPos[0] = positionsWorld[i];
-        worldPos[1] = positionsWorld[i + 1];
-        worldPos[2] = positionsWorld[i + 2];
-        worldPos[3] = 1.0;
-        if (intersects === INSIDE || intersectFrustum3Point3(frustum, worldPos)) {
-          insertVertex(sceneObject, worldPos);
-        }
-      }
-      return false;
-    });
+    // if (intersects !== INSIDE) {
+    //   intersects = intersectFrustum3AABB3(frustum, createSceneObjectAABB3(sceneObject, collapseAABB3(tempAABB3)));
+    // }
+    // if (intersects === OUTSIDE) {
+    //   return;
+    // }
+    // // @ts-ignore
+    // getSceneObjectGeometry(sceneObject, (geometryView: GeometryView): boolean | undefined => {
+    //   const positionsWorld = geometryView.positionsWorld;
+    //   for (let i = 0, len = positionsWorld.length; i < len; i += 3) {
+    //     const worldPos = createVec4Float64();
+    //     worldPos[0] = positionsWorld[i];
+    //     worldPos[1] = positionsWorld[i + 1];
+    //     worldPos[2] = positionsWorld[i + 2];
+    //     worldPos[3] = 1.0;
+    //     if (intersects === INSIDE || intersectFrustum3Point3(frustum, worldPos)) {
+    //       insertVertex(sceneObject, worldPos);
+    //     }
+    //   }
+    //   return false;
+    // });
   }
 
   function insertVertex(sceneObject: SceneObject, worldPos: Vec4) {

@@ -1,15 +1,15 @@
 /**
- * Interface representing GPU memory usage statistics.
+ * Represents GPU memory usage statistics for a WebGLRenderer.
  */
 export interface MemoryUsage {
 
   /**
-   * Total allocated GPU memory in megabytes (MB).
+   * Total GPU memory allocated by the WebGLRenderer, in megabytes (MB).
    */
   allocatedMB: number;
 
   /**
-   * Total used GPU memory in megabytes (MB).
+   * Total GPU memory actively used by the WebGLRenderer, in megabytes (MB).
    */
   usedMB: number;
 }

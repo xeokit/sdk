@@ -189,7 +189,7 @@ export class GPUMemoryManager implements GPUMemoryReader, GPUMemoryEditor {
     }
 
     this._tileManager = new GPUTileManager(
-      renderContext.viewer,
+      renderContext,
       this._viewTileCameraMatrixTexture,
       this._viewTilePickMatrixTexture
     );

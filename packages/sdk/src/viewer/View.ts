@@ -238,34 +238,31 @@ class View {
    */
   public destroyed: boolean = false;
 
-  _renderMode: number = QualityRender;
-
-  _autoLayers: boolean;
-  _backgroundColor: FloatArrayParam;
-  _backgroundColorFromAmbientLight: boolean;
-  _numObjects: number;
-  _objectIds: string[] | null;
-  _numVisibleObjects: number;
-  _visibleObjectIds: string[] | null;
-  _numXRayedObjects: number;
-  _xrayedObjectIds: string[] | null;
-  _numHighlightedObjects: number;
-  _highlightedObjectIds: string[] | null;
-  _numSelectedObjects: number;
-  _selectedObjectIds: string[] | null;
-  _numColorizedObjects: number;
-  _colorizedObjectIds: string[] | null;
-  _numOpacityObjects: number;
-  _opacityObjectIds: string[] | null;
-  _lightsHash: string | null = null;
-  _sectionPlanesHash: string | null = null;
-  _snapshotBegun: boolean;
-  _autoCanvas: boolean;
+  private _renderMode: number = QualityRender;
+  private _autoLayers: boolean;
+  private _backgroundColor: FloatArrayParam;
+  private _backgroundColorFromAmbientLight: boolean;
+  private _numObjects: number;
+  private _objectIds: string[] | null;
+  private _numVisibleObjects: number;
+  private _visibleObjectIds: string[] | null;
+  private _numXRayedObjects: number;
+  private _xrayedObjectIds: string[] | null;
+  private _numHighlightedObjects: number;
+  private _highlightedObjectIds: string[] | null;
+  private _numSelectedObjects: number;
+  private _selectedObjectIds: string[] | null;
+  private _numColorizedObjects: number;
+  private _colorizedObjectIds: string[] | null;
+  private _numOpacityObjects: number;
+  private _opacityObjectIds: string[] | null;
+  private _lightsHash: string | null = null;
+  private _sectionPlanesHash: string | null = null;
+  private _snapshotBegun: boolean;
+  private _autoCanvas: boolean;
   private _needsRender: boolean;
-
   private _checkViewResizedTask: SDKTask;
   private _fireViewUpdatedEventTask: SDKTask;
-
 
   /**
    * @private
@@ -559,11 +556,10 @@ class View {
     });
   }
 
-
   /**
    * @private
    */
-  _attachSceneObject(sceneObject: SceneObject) {
+   _attachSceneObject(sceneObject: SceneObject) {
     const layerId = sceneObject.layerId || "default";
     let viewLayer = this.layers[layerId];
     if (!viewLayer) {
@@ -587,7 +583,7 @@ class View {
   /**
    * @private
    */
-  _attachViewObject(viewObject: ViewObject) {
+   _attachViewObject(viewObject: ViewObject) {
     this.objects[viewObject.id] = viewObject;
     this._numObjects++;
     this._objectIds = null; // Lazy regenerate
@@ -665,7 +661,7 @@ class View {
     }
   }
 
-  _createViewObjectsForScene() {
+  private _createViewObjectsForScene() {
     const scene = this.viewer.scene;
     if (!scene) {
       return;
@@ -1615,6 +1611,10 @@ class View {
   //   this.viewer.events.onSectionPlaneCreated.dispatch(this, sectionPlane);
   // }
 
+  /**
+   * @private
+   * @param sectionPlane
+   */
   _deregisterSectionPlane(sectionPlane: SectionPlane) {
     for (let i = 0, len = this.sectionPlanesList.length; i < len; i++) {
       if (this.sectionPlanesList[i].id === sectionPlane.id) {
@@ -1732,8 +1732,8 @@ class View {
         camera: (<{ value: CameraParams }>this.camera.toParams()).value,
         autoLayers: this.autoLayers,
         layers: Object.values(this.layers).map(viewLayer => (<{ value: ViewLayerParams }>viewLayer.toParams()).value),
-       // sectionPlanes: Object.values(this.sectionPlanes).map(sectionPlane => (<{ value: SectionPlaneParams }>sectionPlane.toParams()).value),
-       // lights: Object.values(this.lights).map(light => light.toParams()),
+        // sectionPlanes: Object.values(this.sectionPlanes).map(sectionPlane => (<{ value: SectionPlaneParams }>sectionPlane.toParams()).value),
+        // lights: Object.values(this.lights).map(light => light.toParams()),
         sao: (<{ value: SAOParams }>this.sao.toParams()).value,
         edges: (<{ value: EdgesParams }>this.edges.toParams()).value,
         highlightMaterial: (<{ value: EmphasisMaterialParams }>this.highlightMaterial.toParams()).value,
@@ -1794,8 +1794,6 @@ class View {
       this.viewer.events.onViewObjectDestroyed.dispatch(this, viewObject);
     }
   }
-
-
 }
 
 export {View};

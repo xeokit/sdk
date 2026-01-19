@@ -353,9 +353,8 @@ export class DataModel  {
   }
 
   /**
-   * Adds components from the specified `DataModelParams` to the `DataModel`.
+   * Adds components from the specified `DataModelContentParams` to the `DataModel`.
    *
-
    * @param dataModelParams - Parameters to configure and populate the `DataModel`.
    * @returns A result indicating success or an error message on failure.
    */

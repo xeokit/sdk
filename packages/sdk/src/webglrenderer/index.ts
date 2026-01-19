@@ -4,13 +4,15 @@
  *   src="https://xeokit.github.io/sdk/docs/assets/xeokit_webgl_logo.svg"
  * />
  *
- * # xeokit WebGL2 Renderer
+ * # xeokit WebGL Renderer
  *
  * ---
  *
- * ### *WebGL2-based rendering backend for xeokit Viewers*
+ * ***WebGL2-based rendering backend for xeokit Viewers***
  *
  * ---
+ *
+ * ## Overview
  *
  * This module provides a WebGL2 rendering backend for the xeokit {@link viewer!Viewer | Viewer}.
  * It is responsible for managing GPU-resident rendering data, issuing draw calls,
@@ -24,13 +26,15 @@
  * - Multi-canvas rendering support
  * - GPU memory management with configurable budgeting
  *
- * ## Installation
+ * <br>
  *
- * Install via npm:
+ * ## Installation
  *
  * ```bash
  * npm install @xeokit/sdk
  * ```
+ *
+ * <br>
  *
  * ## Usage
  *
@@ -44,20 +48,10 @@
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
  *
  * const scene = new Scene();
- *
- * const viewer = new Viewer({ scene });
- *
+ * const viewer = new Viewer();
  * const webglRenderer = new WebGLRenderer();
  *
- * const result = webglRenderer.attachViewer(viewer);
- *
- * if (!result.ok) {
- *   console.error("Failed to attach WebGLRenderer:", result.error);
- *   return;
- * }
- *
- * // Rendering begins once a Scene is attached to the Viewer.
- * // Subscribe to renderer lifecycle and error events as needed.
+ * // Subscribe to renderer lifecycle and error events as needed
  *
  * webglRenderer.events.onError.subscribe((renderer, err) => {
  *   switch (err.type) {
@@ -72,15 +66,98 @@
  *   }
  * });
  *
- * webglRenderer.events.onRendererDestroyed.subscribe(() => {
- *   console.log("WebGLRenderer destroyed.");
- * });
+ * // Attach the Scene to the Viewer and the WebGLRenderer to the Viewer
+ *
+ * const res1 = viewer.attachScene(scene);
+ * if (!res1.ok) {
+ *   console.error("Failed to attach Scene:", res1.error);
+ * }
+ *
+ * const res2 = webglRenderer.attachViewer(viewer);
+ * if (!res2.ok) {
+ *   console.error("Failed to attach WebGLRenderer to Viewer:", res2.error);
+ * }
  * ```
+ *
+ * <br>
+ *
+ * ## Reading Memory Usage
+ *
+ * You can monitor GPU memory usage via the {@link MemoryUsage} interface, accessible from
+ * {@link WebGLRenderer.getMemoryUsage}:
+ *
+ * ```ts
+ * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
+ *
+ * const webglRenderer = new WebGLRenderer();
+ *
+ * const memoryUsage = webglRenderer.getMemoryUsage();
+ *
+ * console.log("Allocated Memory (MB):", memoryUsage.allocatedMB);
+ * console.log("Used Memory (MB):", memoryUsage.usedMB);
+ * ```
+ *
+ * <br>
+ *
+ * ## Configuring GPU Memory Limits
+ *
+ * The {@link MemoryConfigs} interface allows you to configure GPU memory usage for the
+ * {@link WebGLRenderer}. This defines a budget that the renderer adheres to when allocating
+ * textures, indices, and vertex buffers.
+ *
+ * The easiest way to create memory configurations is with {@link createMemoryConfigs}:
+ *
+ * ```ts
+ * import { createMemoryConfigs } from "@xeokit/sdk/webglrenderer";
+ *
+ * const memoryConfigs = createMemoryConfigs({
+ *   grossMemoryMB: 500,      // Max GPU memory in MB
+ *   user: {
+ *     // Optional overrides
+ *   },
+ *   device: "high",          // "low" | "medium" | "high"
+ *   utilization: 0.8         // Fraction of grossMemoryMB to use
+ * });
+ *
+ * const webglRenderer = new WebGLRenderer({ memoryConfigs });
+ * ```
+ *
+ * A more manual approach is to directly implement {@link MemoryConfigs}:
+ *
+ * ```ts
+ * import { MemoryConfigs } from "@xeokit/sdk/webglrenderer";
+ *
+ * const memoryConfigs: MemoryConfigs = {
+ *   maxTiles: 512,
+ *   maxBatches: 128,
+ *   maxBatchVertices: 500000,
+ *   maxBatchIndices: 800000,
+ *   maxBatchGeometries: 2000,
+ *   maxBatchMeshes: 2000,
+ *   maxBatchPrims: 400000
+ * };
+ *
+ * const webglRenderer = new WebGLRenderer({ memoryConfigs });
+ * ```
+ *
+ * <br>
+ *
+ * ## Internal Diagnostics API
+ *
+ * The {@link internal} namespace exposes internal diagnostics and debugging facilities
+ * used by the WebGLRenderer implementation itself. These APIs provide deep visibility
+ * into GPU-resident resources, shader programs, command submission, and internal
+ * rendering state while the renderer is running.
+ *
+ * This namespace is **not part of the public API** and is intended solely for
+ * xeokit SDK development and debugging. It is not supported for application use
+ * and may change or be removed without notice.
  *
  * @module webglrenderer
  */
 export * from "./WebGLRenderer";
 export * from "./WebGLRendererEvents";
+
 export * from "./MemoryConfigs";
 export * from "./createMemoryConfigs";
 export * from "./MemoryUsage";

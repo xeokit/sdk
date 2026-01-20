@@ -1,5 +1,5 @@
 import {PortionDataTexture} from "./PortionDataTexture";
-import type {Vec3} from "../../../../math";
+import type {Vec3} from "../../../../math/vector";
 
 /**
  * Data texture that stores vertex colors as RGB uint8 values.

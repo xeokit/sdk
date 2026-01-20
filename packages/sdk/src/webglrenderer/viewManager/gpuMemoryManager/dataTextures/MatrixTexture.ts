@@ -1,4 +1,4 @@
-import { type Mat4 } from "../../../../math";
+import { type Mat4 } from "../../../../math/matrix";
 import { ItemDataTexture } from "./ItemDataTexture";
 
 /**

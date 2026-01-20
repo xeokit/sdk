@@ -1,6 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
+ * Draw technique for rendering point silhouettes.
  * @internal
  */
 export class PointsDrawSilhouetteTechnique extends DrawTechnique {

@@ -1,6 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
+ * Draw technique for rendering generic triangle meshes for picking.
  * @internal
  */
 export class GenericPickMeshTechnique extends DrawTechnique {

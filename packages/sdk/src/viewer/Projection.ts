@@ -1,4 +1,5 @@
-import type {Mat4, Vec2, Vec3} from "../math";
+import type {Mat4} from "../math/matrix";
+import type { Vec2, Vec3} from "../math/vector";
 
 /**
  * Defines a projection for a {@link Camera | Camera}.

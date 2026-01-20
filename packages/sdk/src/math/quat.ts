@@ -1,3 +1,83 @@
+/**
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="https://xeokit.github.io/sdk/docs/assets/3D-Cart.svg"/>
+ *
+ * # xeokit Quaternion Math Utilities
+ *
+ * ---
+ *
+ * ***Utilities for representing and manipulating 3D rotations with quaternions.***
+ *
+ * ---
+ *
+ * This module provides quaternion primitives (typed-array friendly) plus common conversion
+ * and composition helpers used throughout xeokit math:
+ *
+ * - Build quaternions from **Euler angles**, **rotation matrices**, **angle–axis**, or by
+ *   aligning one direction vector to another.
+ * - Convert quaternions back to **Euler angles**, **matrices**, or **angle–axis** form.
+ * - Apply quaternion rotations to vectors and combine rotations via quaternion multiplication.
+ *
+ * Quaternions are stored as **[x, y, z, w]**, where *(x, y, z)* is the vector part and *w*
+ * is the scalar part. Most functions accept either typed arrays (`Float32Array` / `Float64Array`)
+ * or plain 4-tuples, and many support an optional destination parameter to avoid allocations.
+ *
+ * ## Installation
+ *
+ * ```bash
+ * npm install @xeokit/sdk
+ * ```
+ *
+ * ## Usage
+ *
+ * Import the helpers you need:
+ *
+ * ```javascript
+ * import {
+ *   identityQuat,
+ *   eulerToQuat,
+ *   quatToEuler,
+ *   quatToRotationMat4,
+ *   mat4ToQuat,
+ *   mulQuats,
+ *   vec3ApplyQuat,
+ *   quatToAngleAxis,
+ *   angleAxisToQuaternion
+ * } from "@xeokit/sdk/math/quat";
+ * ```
+ *
+ * ### Create a quaternion from Euler angles
+ *
+ * ```javascript
+ * const q = eulerToQuat([30, 45, 0], "XYZ"); // degrees
+ * console.log("Quaternion:", q);
+ * ```
+ *
+ * ### Rotate a vector with a quaternion
+ *
+ * ```javascript
+ * const v = [1, 0, 0];
+ * const rotated = vec3ApplyQuat(q, v);
+ * console.log("Rotated vector:", rotated);
+ * ```
+ *
+ * ### Convert between quaternion and matrix
+ *
+ * ```javascript
+ * const m = quatToRotationMat4(q, new Float64Array(16));
+ * const q2 = mat4ToQuat(m);
+ * console.log("Round-trip quaternion:", q2);
+ * ```
+ *
+ * ### Angle–axis conversion
+ *
+ * ```javascript
+ * const aa = quatToAngleAxis(q); // [x, y, z, angleRadians]
+ * const q3 = angleAxisToQuaternion(aa);
+ * console.log("Angle–axis:", aa, "Back to quat:", q3);
+ * ```
+ *
+ * @module quat
+ */
 
 import {createVec3Float64, createVec4Float64, cross3Vec3, dotVec3, lenVec4, type Vec3, type Vec4} from "./vector";
 import {DEGTORAD} from "./index";

@@ -1,7 +1,7 @@
 import type {DataModel} from "../data/DataModel";
-import {DataModelParamsLoader} from "../data/DataModelParamsLoader";
+import {DataModelParamsLoader} from "../formats/datamodel/DataModelParamsLoader";
 import type {ModelChunksManifestParams} from "../core";
-import type {ModelLoader} from "../io";
+import type {ModelLoader} from "../formats/ModelLoader";
 import type {SceneModel} from "../scene/SceneModel";
 
 /**

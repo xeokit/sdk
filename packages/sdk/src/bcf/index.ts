@@ -54,7 +54,7 @@
  * import { Data } from "@xeokit/sdk/data";
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
- * import { loadXKT } from "@xeokit/sdk/xkt";
+ * import { loadXKT } from "@xeokit/sdk/formats/xkt";
  * import { saveBCFViewpoint, loadBCFViewpoint } from "@xeokit/sdk/bcf";
  *
  * const scene = new Scene();

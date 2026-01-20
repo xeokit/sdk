@@ -34,6 +34,9 @@ export interface ModelConverterRequest {
   };
 }
 
+/**
+ * Reference to a file, either by path or by data.
+ */
 export interface FileRef {
   filePath?: string;
   fileData?: any;

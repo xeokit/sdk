@@ -9,7 +9,7 @@ import {
   type Vec9,
   testOrthogonalAxis,
   createVec3Float64
-} from "../math";
+} from "../math/vector";
 import {SDKErrorType} from "../core";
 
 

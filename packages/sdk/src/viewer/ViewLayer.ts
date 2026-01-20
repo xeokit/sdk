@@ -6,7 +6,7 @@ import {ViewObject} from "./ViewObject";
 import type {ViewParams} from "./ViewParams";
 import {SDKErrorType, type SDKResult} from "../core";
 import {SceneObject} from "../scene";
-import type {Vec3} from "../math";
+import type {Vec3} from "../math/vector";
 
 
 /**
@@ -207,7 +207,7 @@ import type {Vec3} from "../math";
  *
  * ````javascript
  * import {Viewer} from "@xeokit/sdk/viewer";
- * import {DotBIMLoader} from "@xeokit/sdk/dotbim";
+ * import {DotBIMLoader} from "@xeokit/sdk/formats/dotbim";
  *
  * const myViewer = new Viewer({
  *      id: "myViewer"
@@ -380,7 +380,7 @@ class ViewLayer {
    * @private
    */
   readonly autoDestroy: boolean;
-  
+
   _renderModes: number[];
   _numObjects: number;
   _objectIds: string[] | null;

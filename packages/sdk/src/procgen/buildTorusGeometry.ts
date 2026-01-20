@@ -1,4 +1,4 @@
-import {normalizeVec3, subVec3, type Vec3} from "../math";
+import {normalizeVec3, subVec3, type Vec3} from "../math/vector";
 import {apply} from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";

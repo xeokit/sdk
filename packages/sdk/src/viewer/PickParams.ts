@@ -1,4 +1,5 @@
-import type {Mat4, Vec3, Vec2} from "../math";
+import type {Mat4} from "../math/matrix";
+import type { Vec3, Vec2} from "../math/vector";
 
 /**
  * TODO

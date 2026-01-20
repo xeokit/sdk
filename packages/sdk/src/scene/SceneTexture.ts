@@ -15,7 +15,7 @@ import {
   RepeatWrapping,
   sRGBEncoding
 } from "../constants";
-import {createVec4Float64, type Vec4} from "../math";
+import {createVec4Float64, type Vec4} from "../math/vector";
 import type {SceneTextureParams} from "./SceneTextureParams";
 import type {SceneModel} from "./SceneModel";
 

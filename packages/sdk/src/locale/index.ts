@@ -5,13 +5,20 @@
  *
  * ---
  *
- * **Provides locale-specific translations for words and phrases.**
+ * **Locale-aware message lookup and translation utilities.**
  *
  * ---
  *
- * [![](https://mermaid.ink/img/pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt?type=png)](https://mermaid.live/edit#pako:eNqNUsFuwjAM_ZXKp00CabtWqIeN0wQD0WsupnFHpjSpnORQIf59SUMHCImtl9TPznvPjo_QWElQQqPRuaXCL8ZOGGGkYmq8sqZY7VI85ou6IUPreEMXR2GK-CmZT7v_jvUuBw0TetqM0NNzxvZBaTkFkpxnO6TwlNgn_iV6HOkfsfdse2I_1PRIL2M70pi6cAfV32a2F5Z_WcwGVxblu_LDR7353GKclZsGsVj0KSZPXFUZQmYc3kLbEmfA_Y7vrDG1e6OhrzQu7G0w43sk8rH43oqAFwHzeSXgVUB9pfVH6fJi41p7St_fhhl0xB0qGTdndCjAH6gjAWX8ldRi0F5AdBpLMXhbD6aB0nOgGYQ-9k3nXYOyRe0iSlJ5y-vzNqbj9AOT7uJt)
+ * This module provides a lightweight localization layer for xeokit components,
+ * allowing UI text to be defined once and rendered in different languages at runtime.
+ * Translations are keyed by stable identifiers (for example `"NavCube.front"`) and
+ * resolved based on the currently active locale.
  *
- * ---
+ * The service is designed for:
+ *
+ * - UI widgets that need dynamic language switching
+ * - Centralized management of translated strings
+ * - Incremental loading or replacement of translation bundles
  *
  * ## Installation
  *
@@ -23,10 +30,10 @@
  *
  * ## Usage
  *
- * The example below demonstrates how to create a {@link locale!LocaleService | LocaleService} instance
+ * The example below shows how to create a {@link locale!LocaleService | LocaleService}
  * with English, Māori, and French translations for a NavCube widget.
  *
- * The `LocaleService` provides translations for:
+ * The following keys are used by the NavCube:
  *
  * - `"NavCube.front"`
  * - `"NavCube.back"`
@@ -35,52 +42,52 @@
  * - `"NavCube.left"`
  * - `"NavCube.right"`
  *
- * These terms act as keys that map to translations based on the active locale.
- * For example, if the locale is set to `"fr"`, `"NavCube.back"` resolves to `"Arrière"`.
+ * These keys are resolved against the active locale. For example, when the locale
+ * is set to `"fr"`, `"NavCube.back"` resolves to `"Arrière"`.
  *
  * ```javascript
  * import { LocaleService } from "@xeokit/sdk/locale";
  *
  * const localeService = new LocaleService({
- *     messages: {
- *         "en": { // English
- *             "NavCube": {
- *                 "front": "Front",
- *                 "back": "Back",
- *                 "top": "Top",
- *                 "bottom": "Bottom",
- *                 "left": "Left",
- *                 "right": "Right"
- *             }
- *         },
- *         "mi": { // Māori
- *             "NavCube": {
- *                 "front": "Mua",
- *                 "back": "Tuarā",
- *                 "top": "Runga",
- *                 "bottom": "Raro",
- *                 "left": "Mauī",
- *                 "right": "Tika"
- *             }
- *         },
- *         "fr": { // French
- *             "NavCube": {
- *                 "front": "Avant",
- *                 "back": "Arrière",
- *                 "top": "Supérieur",
- *                 "bottom": "Inférieur",
- *                 "left": "Gauche",
- *                 "right": "Droit"
- *             }
- *         }
+ *   messages: {
+ *     en: { // English
+ *       NavCube: {
+ *         front: "Front",
+ *         back: "Back",
+ *         top: "Top",
+ *         bottom: "Bottom",
+ *         left: "Left",
+ *         right: "Right"
+ *       }
  *     },
- *     locale: "en"
+ *     mi: { // Māori
+ *       NavCube: {
+ *         front: "Mua",
+ *         back: "Tuarā",
+ *         top: "Runga",
+ *         bottom: "Raro",
+ *         left: "Mauī",
+ *         right: "Tika"
+ *       }
+ *     },
+ *     fr: { // French
+ *       NavCube: {
+ *         front: "Avant",
+ *         back: "Arrière",
+ *         top: "Supérieur",
+ *         bottom: "Inférieur",
+ *         left: "Gauche",
+ *         right: "Droit"
+ *       }
+ *     }
+ *   },
+ *   locale: "en"
  * });
  * ```
  *
  * ---
  *
- * ### Switching Locales Dynamically
+ * ## Switching locales at runtime
  *
  * ```javascript
  * localeService.locale = "mi"; // Switch to Māori
@@ -88,26 +95,28 @@
  *
  * ---
  *
- * ### Loading New Translations
+ * ## Loading additional translations
+ *
+ * New message bundles can be merged in at any time, without recreating the service:
  *
  * ```javascript
  * localeService.loadMessages({
- *     "jp": { // Japanese
- *         "NavCube": {
- *             "front": "前部",
- *             "back": "裏",
- *             "top": "上",
- *             "bottom": "底",
- *             "left": "左",
- *             "right": "右"
- *         }
+ *   jp: { // Japanese
+ *     NavCube: {
+ *       front: "前部",
+ *       back: "裏",
+ *       top: "上",
+ *       bottom: "底",
+ *       left: "左",
+ *       right: "右"
  *     }
+ *   }
  * });
  * ```
  *
  * ---
  *
- * ### Clearing Translations
+ * ## Clearing translations
  *
  * ```javascript
  * localeService.clearMessages();
@@ -115,14 +124,14 @@
  *
  * ---
  *
- * ### Listening for Locale Changes
+ * ## Reacting to locale updates
  *
- * The `LocaleService` emits an event when the locale changes or new messages are loaded.
- * This can be useful for refreshing UI elements dynamically.
+ * `LocaleService` emits an update event whenever the active locale changes or new
+ * messages are loaded. This allows UI components to re-render automatically.
  *
  * ```javascript
  * localeService.onUpdated.subscribe(() => {
- *     console.log(localeService.translate("NavCube.left"));
+ *   console.log(localeService.translate("NavCube.left"));
  * });
  * ```
  *

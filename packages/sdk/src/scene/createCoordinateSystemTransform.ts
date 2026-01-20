@@ -1,5 +1,6 @@
 import type {FloatArrayParam} from "../math";
-import {createMat4Float64, createVec3Float64, type Mat4} from "../math";
+import {createVec3Float64} from "../math/vector";
+import {createMat4Float64, type Mat4} from "../math/matrix";
 import {CoordinateSystem} from "./CoordinateSystem";
 
 const tempMat3a = createMat4Float64(); // e.g., transposed viewer basis

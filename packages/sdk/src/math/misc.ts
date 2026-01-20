@@ -204,27 +204,7 @@ export const canvasPosToWorldRay = (() => {
 })();
 
 
-/**
- * Validates that three 3D axes are mutually orthogonal.
- *
- * @param axes - flat array of 9 numbers (3 axes)
- * @param epsilon - floating-point tolerance
- */
-export function testOrthogonalAxis(
-  axes: Vec9,
-  epsilon = 1e-6
-): boolean {
 
-  const x = <Vec3>axes.slice(0, 3);
-  const y = <Vec3>axes.slice(3, 6);
-  const z = <Vec3>axes.slice(6, 9);
-
-  return (
-    Math.abs(dotVec3(x, y)) < epsilon &&
-    Math.abs(dotVec3(x, z)) < epsilon &&
-    Math.abs(dotVec3(y, z)) < epsilon
-  );
-}
 
 
 

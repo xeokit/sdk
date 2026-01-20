@@ -1,7 +1,7 @@
-import {createVec2Float64, createVec3Float32, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../math";
+import {createVec2Float64, createVec3Float32, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../math/vector";
 import {PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
-import {getSceneAABB3Index, SceneAABB3Index} from "../aabb/SceneAABB3Index";
+import {getSceneAABB3Index, SceneAABB3Index} from "../collision/aabb/SceneAABB3Index";
 
 const getCanvasPosFromEvent = function (event, canvasPos) {
   if (!event) {

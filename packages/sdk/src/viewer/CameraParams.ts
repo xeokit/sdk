@@ -2,7 +2,8 @@ import type {CustomProjectionParams} from "./CustomProjectionParams";
 import type {FrustumProjectionParams} from "./FrustumProjectionParams";
 import type {OrthoProjectionParams} from "./OrthoProjectionParams";
 import type {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
-import type {Mat4, Vec3, Vec9} from "../math";
+import type { Vec3, Vec9} from "../math/vector";
+import type {Mat4} from "../math/matrix";
 
 /**
  * Parameters for a {@link Camera}.

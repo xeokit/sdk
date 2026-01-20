@@ -1,6 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
+ * Draw technique for rendering colored points.
  * @internal
  */
 export class PointsDrawColorTechnique extends DrawTechnique {

@@ -1,15 +1,58 @@
 /**
- * Matrix math functions.
  *
- * @module math/matrix
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="https://xeokit.github.io/sdk/docs/assets/3D-Cart.svg"/>
+ *
+ * # xeokit Matrix Math Utilities
+ *
+ * ---
+ *
+ * ***Mathematical functions and types for working with matrices***
+ *
+ * ---
+ *
+ * Helpers for building and manipulating **3×3** and **4×4** matrices used throughout the
+ * SDK for camera projection, object transforms, and coordinate conversion.
+ *
+ * Matrices are represented as either typed arrays (`Float32Array` / `Float64Array`) or
+ * plain JS numeric tuples. All functions accept either form and (where supported) can
+ * write results into an optional destination array to reduce allocations.
+ *
+ * ## Matrix types
+ *
+ * - {@link Mat3Float32}, {@link Mat3Float64} and {@link Mat3} represent 3×3 matrices.
+ * - {@link Mat4Float32}, {@link Mat4Float64} and {@link Mat4} represent 4×4 matrices.
+ *
+ * ## Coordinate conventions
+ *
+ * This module assumes an affine transform layout where translation occupies the last
+ * column (`m[12]`, `m[13]`, `m[14]`) and the homogeneous component is `m[15]`.
+ * Many functions treat the matrix as an affine transform (rotation/scale + translation),
+ * while projection helpers (perspective/frustum/ortho) create full projective matrices.
+ *
+ * ## Common workflows
+ *
+ * - **Projection matrices**: {@link perspectiveMat4}, {@link frustumMat4}, {@link frustumMat4v},
+ *   {@link orthoMat4c}
+ * - **View matrix**: {@link lookAtMat4v}
+ * - **Transform composition**: {@link composeMat4}, {@link composeMat4Euler}
+ * - **Transform decomposition**: {@link decomposeMat4}, {@link mat4ToEuler}
+ * - **Applying transforms**: {@link transformPoint3}, {@link transformVec3}, {@link transformVec4},
+ *   {@link transformPositions3}, {@link transformPositions4}
+ *
+ * ## Performance notes
+ *
+ * Several helpers (eg. {@link decomposeMat4}, some closures like {@link scalingMat4c})
+ * keep internal scratch vectors/matrices to avoid repeated allocations. These are not
+ * thread-safe/re-entrant, but are safe for typical single-threaded JS execution.
+ *
+ * @module matrix
  */
+
 import {
-  addVec4,
   createVec3Float64,
   createVec4Float64,
   lenVec3,
   normalizeVec4,
-  subVec4,
   type Vec3,
   type Vec4
 } from "./vector";

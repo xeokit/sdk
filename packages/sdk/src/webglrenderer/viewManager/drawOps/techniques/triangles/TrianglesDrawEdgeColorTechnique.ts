@@ -3,6 +3,7 @@ import {RenderContext} from "../../../RenderContext";
 import {type GPUMemoryReader} from "../../../gpuMemoryManager/GPUMemoryReader";
 
 /**
+ * Draw technique for rendering triangle edges with color.
  * @internal
  */
 export class TrianglesDrawEdgeColorTechnique extends DrawTechnique {

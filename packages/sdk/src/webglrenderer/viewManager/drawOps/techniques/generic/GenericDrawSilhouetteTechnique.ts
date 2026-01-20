@@ -1,6 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
+ * Draw technique for rendering generic silhouettes.
  * @internal
  */
 export class GenericDrawSilhouetteTechnique extends DrawTechnique {

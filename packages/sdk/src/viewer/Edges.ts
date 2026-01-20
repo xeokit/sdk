@@ -2,7 +2,7 @@ import type {EdgesParams} from "./EdgesParams";
 import {QualityRender} from "../constants";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../core";
-import {createVec3Float64, type Vec3} from "../math";
+import {createVec3Float64, type Vec3} from "../math/vector";
 
 
 /**

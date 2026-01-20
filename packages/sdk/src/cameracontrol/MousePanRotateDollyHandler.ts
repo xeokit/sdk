@@ -1,7 +1,7 @@
 /**
  * @private
  */
-import {createVec2Float64, createVec3Float32, createVec3Float64, lenVec3, subVec3} from "../math";
+import {createVec2Float64, createVec3Float32, createVec3Float64, lenVec3, subVec3} from "../math/vector";
 import {KEY_SHIFT} from "./keycodes";
 import {PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";

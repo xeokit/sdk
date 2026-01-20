@@ -2,7 +2,7 @@
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";
 import {SDKErrorType, type SDKResult} from "../core";
-import type {Vec3} from "../math";
+import type {Vec3} from "../math/vector";
 
 /**
  * Creates a cylinder-shaped geometry.

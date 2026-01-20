@@ -1,18 +1,21 @@
 import {type PickParams, PickResult} from "../../../viewer";
 import {SDKInternalException, type SDKResult} from "../../../core";
 import {
-  addVec3, createMat4Float64, createVec2Float64, createVec3Float64, createVec4Float64,
-  cross3Vec3, dotVec4,
+  createMat4Float64,
   inverseMat4,
   lookAtMat4v,
   mulMat4,
-  mulVec4Scalar,
-  normalizeVec3, subVec3,
   transformVec4
-} from "../../../math";
+} from "../../../math/matrix";
+import {
+  addVec3,  createVec2Float64, createVec3Float64, createVec4Float64,
+  cross3Vec3, dotVec4,
+  mulVec4Scalar,
+  normalizeVec3, subVec3
+} from "../../../math/vector";
 import {ViewRenderState} from "../ViewRenderState";
 import {type FloatArrayParam} from "../../../math";
-import {createRTCViewMat} from "../../../rtc";
+import {createRTCViewMat} from "../../../math/rtc";
 import {RendererMesh} from "../meshManager/RendererMesh";
 import {RenderContext} from "../RenderContext";
 import {RenderBuffers} from "../RenderBuffers";

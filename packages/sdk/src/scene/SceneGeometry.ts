@@ -3,7 +3,7 @@ import type {IntArrayParam} from "../math";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import {SceneModel} from "./SceneModel";
 import {SDKErrorType, type SDKResult} from "../core";
-import type {Mat4} from "../math";
+import type {Mat4} from "../math/matrix";
 
 /**
  * A geometry in a {@link SceneModel | SceneModel}.

@@ -1,5 +1,5 @@
-import {type ModelLoader} from "../io";
-import {type ModelExporter} from "../io";
+import {type ModelLoader} from "../formats";
+import {type ModelExporter} from "../formats";
 import {type ModelConverterPipelineConfig} from "./ModelConverterPipelineConfig";
 
 /**
@@ -8,12 +8,12 @@ import {type ModelConverterPipelineConfig} from "./ModelConverterPipelineConfig"
 export interface ModelConverterParams {
 
   /**
-   * A map of {@link io!ModelLoader | ModelLoaders} for supported input formats.
+   * A map of {@link formats!ModelLoader | ModelLoaders} for supported input formats.
    */
   loaders?: { [key: string]: ModelLoader };
 
   /**
-   * A map of {@link io!ModelExporter | ModelExporters} for supported output formats.
+   * A map of {@link formats!ModelExporter | ModelExporters} for supported output formats.
    */
   exporters?: { [key: string]: ModelExporter };
 

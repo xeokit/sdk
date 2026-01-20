@@ -1,6 +1,8 @@
-import {createMat4Float64, createVec3Float64} from "../../../math";
-import {createRTCViewMat, worldToRTCCenter} from "../../../rtc";
-import type {Vec3, Mat4} from "../../../math";
+import {createMat4Float64} from "../../../math/matrix";
+import {createVec3Float64} from "../../../math/vector";
+import {createRTCViewMat, worldToRTCCenter} from "../../../math/rtc";
+import type { Mat4} from "../../../math/matrix";
+import type {Vec3} from "../../../math/vector";
 import {Camera, View, Viewer} from "../../../viewer";
 import {type GPUTile} from "./GPUTile";
 import {MatrixTexture} from "./dataTextures/MatrixTexture";

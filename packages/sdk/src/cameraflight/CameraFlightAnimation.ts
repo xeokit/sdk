@@ -1,14 +1,18 @@
 import {
+  type Mat4,
+  lerpMat4,
+} from "../math/matrix";
+
+import {
   addVec3,
   createVec3Float64,
-  type Mat4, type Vec3,
   lenVec3,
-  lerpMat4,
   lerpVec3,
   mulVec3Scalar,
   normalizeVec3,
-  subVec3
-} from "../math";
+  subVec3,
+  type Vec3,
+} from "../math/vector";
 import type {Camera} from "../viewer";
 import { View} from "../viewer";
 import {EventEmitter, SDKTask} from "../core";
@@ -16,7 +20,7 @@ import {CustomProjectionType, OrthoProjectionType, PerspectiveProjectionType} fr
 import {DEGTORAD, } from "../math";
 import {createAABB3Float64,getAABB3Center, getAABB3Diag, getAABB3DiagPoint, type AABB3} from "../math/boundaries";
 import {EventDispatcher} from "strongly-typed-events";
-import {getSceneAABB3Index} from "../aabb";
+import {getSceneAABB3Index} from "../collision/aabb";
 
 const tempVec3 = createVec3Float64();
 const newLook = createVec3Float64();

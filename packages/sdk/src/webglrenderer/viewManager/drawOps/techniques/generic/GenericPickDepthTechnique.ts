@@ -1,6 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
+ * Draw technique for rendering generic pick depth.
  * @internal
  */
 export class GenericPickDepthTechnique extends DrawTechnique {

@@ -57,7 +57,7 @@
  * import {Scene} from "@xeokit/sdk/scene";
  * import {Data} from "@xeokit/sdk/data";
  * import {ModelChunksLoader} from "@xeokit/sdk/modelchunksloader";
- * import {XGFLoader} from "@xeokit/sdk/xgf";
+ * import {XGFLoader} from "@xeokit/sdk/formats/xgf";
  * import {DataModelParamsLoader} from "@xeokit/sdk/data";
  * import {SDKInternalException} from "@xeokit/sdk/core";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";

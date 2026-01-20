@@ -1,5 +1,5 @@
 
-import type {Vec3, Vec9} from "../math";
+import type {Vec3, Vec9} from "../math/vector";
 
 /**
  * Describes the coordinate system, origin, and unit system in which a 3D model was authored.

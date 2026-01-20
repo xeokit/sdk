@@ -1,5 +1,6 @@
-import type  {Mat4, Quat, Vec3, Vec4} from "../math";
-
+import type  {Mat4} from "../math/matrix";
+import type  {Vec3, Vec4} from "../math/vector";
+import type {Quat} from "../math/quat";
 /**
  * Parameters for a {@link SceneMesh}.
  *

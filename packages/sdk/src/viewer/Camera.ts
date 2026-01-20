@@ -1,25 +1,32 @@
 import {
-  addVec3,
   createMat4Float64,
-  createVec3Float64,
-  cross3Vec3,
-  DEGTORAD,
-  dotVec3,
-  type FloatArrayParam,
   identityMat4,
   inverseMat4,
-  lenVec3,
   lookAtMat4v,
   type Mat4,
   mulMat4,
+  rotationMat4v, transformPoint3,
+  transposeMat4,
+} from "../math/matrix";
+
+import {
+  DEGTORAD,
+  type FloatArrayParam,
+} from "../math";
+
+
+import {
+  addVec3,
+  createVec3Float64,
+  cross3Vec3,
+  dotVec3,
+  lenVec3,
   mulVec3Scalar,
   normalizeVec3,
-  rotationMat4v,
   subVec3,
-  transformPoint3,
-  transposeMat4,
   type Vec3
-} from "../math";
+} from "../math/vector";
+
 import {SDKErrorType, type SDKResult} from "../core";
 import {
   CustomProjectionType,

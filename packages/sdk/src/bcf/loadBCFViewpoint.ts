@@ -1,7 +1,7 @@
-import {addVec3, createVec3Float64, type Vec3, negateVec3, subVec3} from "../math";
-import {IfcOpeningElement, IfcSpace} from "../ifctypes";
+import {addVec3, createVec3Float64, type Vec3, negateVec3, subVec3} from "../math/vector";
+import {IfcOpeningElement, IfcSpace} from "../formats/ifc/ifctypes_4_0_2_1";
 import {OrthoProjectionType, PerspectiveProjectionType} from "../constants";
-import {BasicAggregation} from "../basictypes";
+import {BasicAggregation} from "../formats/datamodel/basicTypes";
 import type {BCFComponent} from "./BCFComponent";
 import type {BCFVector} from "./BCFVector";
 import type {DataObject} from "../data";

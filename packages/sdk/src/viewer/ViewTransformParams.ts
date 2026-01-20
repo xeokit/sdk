@@ -1,5 +1,7 @@
 
-import type { Mat4, Quat, Vec3} from "../math";
+import type {  Vec3} from "../math/vector";
+import type { Mat4} from "../math/matrix";
+import type { Quat } from "../math/quat";
 
 /**
  * Parameters for {@link ViewTransform}.

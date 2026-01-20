@@ -20,7 +20,7 @@
  * npm install @xeokit/sdk
  * ```
  *
- * ## Usage Example
+ * ## Usage
  *
  * The following example demonstrates how to:
  * - Set up a {@link viewer!Viewer | Viewer} with a {@link webglrenderer!WebGLRenderer | WebGLRenderer} and a {@link scene!Scene | Scene}.
@@ -33,7 +33,7 @@
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { CameraControl } from "@xeokit/sdk/cameracontrol";
- * import { CityJSONLoader } from "@xeokit/sdk/cityjson";
+ * import { CityJSONLoader } from "@xeokit/sdk/formats/cityjson";
  *
  * const scene = new Scene();
  * const data = new Data();

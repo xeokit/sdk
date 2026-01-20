@@ -1,7 +1,7 @@
 /**
- * <img src="http://xeokit.io/img/kdtree.jpeg" />
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="https://xeokit.github.io/sdk/docs/assets/3D-Cart.svg"/>
  *
- * # xeokit Boundaries Math Library
+ * # xeokit Boundary Math Utilities
  *
  * ---
  *
@@ -23,7 +23,7 @@
  * npm install @xeokit/sdk
  * ```
  *
- * ## Usage Example
+ * ## Usage
  *
  * ```javascript
  * import { createAABBFloat64 } from "@xeokit/sdk/math/boundaries";
@@ -35,22 +35,30 @@
  *
  * ```
  *
- * @module math/boundaries
+ * @module boundaries
  */
 
 import {
-  createMat4Float64,
   createVec3Float64,
   lenVec3,
-  mulMat4,
   subVec3,
-} from "../math";
+} from "../math/vector";
+
+import {
+  createMat4Float64,
+  mulMat4,
+} from "../math/matrix";
+
+import type {Vec3, Vec2} from "../math/vector";
+
 import type {
-  Vec3, Vec2,Mat4,
   FloatArrayParam, IntArrayParam
 } from "../math";
+import type {
+  Mat4
+} from "../math/matrix";
 import {MAX_DOUBLE, MIN_DOUBLE, newFloatArray} from "../math";
-import {decompressPoint3WithMat4} from "../compression";
+import {decompressPoint3WithMat4} from "../math/compression";
 
 const tempVec3a = createVec3Float64();
 const tempVec3b = createVec3Float64();

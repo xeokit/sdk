@@ -11,13 +11,9 @@
  *
  * @module io
  */
-export {ModelLoader} from "./ModelLoader";
-export * from "./ModelExporter";
-export * from "./ModelLoaderParams";
-export {type ModelLoadParams} from "./ModelLoadParams";
-export * from "./ModelExportParams";
-export * from "./ModelEncoder";
-export * from "./ModelEncodeParams";
-export * from "./ModelExporterParams";
-export * from "./ModelParser";
-export * from "./ModelParseParams";
+
+export * from "./FileIO";
+export * from "./BrowserFileIO";
+export * from "./NodeFileIO";
+//export * from "./FileLoader";
+export * from "./CrossPlatformBlob";

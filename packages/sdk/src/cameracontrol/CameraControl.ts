@@ -26,7 +26,7 @@ import type {PickResult, View} from "../viewer";
 import type {CameraControlParams} from "./CameraControlParams";
 import {CameraFlightAnimation} from "../cameraflight";
 import {CameraUpdater} from "./CameraUpdater";
-import {createVec2Float64, type Vec3} from "../math";
+import {createVec2Float64, type Vec3} from "../math/vector";
 import {EventDispatcher} from "strongly-typed-events";
 import {isString} from "../utils";
 import {KeyboardAxisViewHandler} from "./KeyboardAxisViewHandler";

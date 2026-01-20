@@ -7,7 +7,7 @@ import {
   normalizeVec3,
   subVec3,
   type Vec2, type Vec3
-} from "../math";
+} from "../math/vector";
 import {OrthoProjectionType, PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
 

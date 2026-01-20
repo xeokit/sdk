@@ -15,7 +15,8 @@ import {PrimitiveMeshIndexTexture} from "./dataTextures/PrimitiveMeshIndexTextur
 import {RENDER_PASSES, type RenderPassValue} from "../RENDER_PASSES";
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
 import {type MemoryConfigs} from "../../MemoryConfigs";
-import type {FloatArrayParam, Mat4, Vec3, Vec4} from "../../../math";
+import type { Mat4} from "../../../math/matrix";
+import type {Vec3, Vec4} from "../../../math/vector";
 
 const MAX_MESHES = 500000;
 const MAX_GEOMETRIES = 500000;

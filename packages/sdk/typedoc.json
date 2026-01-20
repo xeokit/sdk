@@ -12,5 +12,6 @@
     },
     "entryPoints": [
         "src/index.ts"
-    ]
+    ],
+  "useTsLinkResolution": true
 }

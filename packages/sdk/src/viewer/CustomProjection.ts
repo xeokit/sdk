@@ -2,8 +2,11 @@ import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
 import {
   createMat4Float32, identityMat4,
   inverseMat4, type Mat4,
-  transposeMat4, type Vec2, type Vec3,
-} from "../math";
+  transposeMat4,
+} from "../math/matrix";
+import {
+type Vec2, type Vec3,
+} from "../math/vector";
 import type {Camera} from "./Camera";
 import type {CustomProjectionParams} from "./CustomProjectionParams";
 import {CustomProjectionType} from "../constants";

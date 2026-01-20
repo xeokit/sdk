@@ -1,4 +1,6 @@
-import {composeMat4, eulerToQuat, type Vec3Float, identityMat4, identityQuat, type Quat} from "../math";
+import {eulerToQuat, identityQuat, type Quat} from "../math/quat";
+import {composeMat4, identityMat4} from "../math/matrix";
+import {type Vec3Float} from "../math/vector"
 
 const identityQuaternion = identityQuat();
 

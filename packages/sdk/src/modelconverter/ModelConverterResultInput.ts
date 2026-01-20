@@ -23,17 +23,17 @@ export interface ModelConverterResultInput {
   fileDataType: string;
 
   /**
-   *
+   * The size of the file data in bytes.
    */
   fileDataSizeBytes: number;
 
   /**
-   *
+   * The format of the input file.
    */
   fileFormat: string;
 
   /**
-   * The schema version applied when generating this input.
+   * The schema version applied when reading this input.
    */
   fileFormatVersion?: string;
 
@@ -43,22 +43,27 @@ export interface ModelConverterResultInput {
   options: { [key: string]: any };
 
   /**
-   * The {@link scene!SceneModel | SceneModel} used during export.
-   *
-   * This object is managed internally and valid only within the scope of {@link ModelConverter.convert}.
+   * The {@link scene!SceneModel | SceneModel} this input was imported into.
    */
   sceneModel: string;
 
   /**
-   * The {@link data!DataModel | DataModel} used during export.
-   *
-   * This object is managed internally and valid only within the scope of {@link ModelConverter.convert}.
+   * The {@link data!DataModel | DataModel} this input was imported into.
    */
   dataModel: string;
 
+  /**
+   * Messages produced when reading this input.
+   */
   messages: string[];
 
+  /**
+   * Warnings produced when reading this input.
+   */
   warnings: string[];
 
+  /**
+   * Errors produced when reading this input.
+   */
   errors: string[];
 }

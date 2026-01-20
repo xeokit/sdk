@@ -5,14 +5,17 @@ import {
   createVec3Float64,
   createVec4Float64,
   cross3Vec3,
-  distVec3, dotVec4,
-  inverseMat4, lenVec3, lookAtMat4v, mulVec3Scalar, normalizeVec3, sqLenVec3, subVec3,
-  transformPoint3, transformVec3, type Vec3
-} from "../math";
+  distVec3, dotVec4, lenVec3, mulVec3Scalar, normalizeVec3, sqLenVec3, subVec3, type Vec3
+} from "../math/vector";
+
+import {
+  inverseMat4, lookAtMat4v,
+  transformPoint3, transformVec3
+} from "../math/matrix";
 import {clamp} from "../math";
 import type {View} from "../viewer";
-import {worldToRTCPos} from "../rtc";
-import {getSceneAABB3Index} from "../aabb/SceneAABB3Index";
+import {worldToRTCPos} from "../math/rtc";
+import {getSceneAABB3Index} from "../collision/aabb/SceneAABB3Index";
 import {SDKTask} from "../core";
 
 const tempVec3a = createVec3Float64();

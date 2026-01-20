@@ -27,9 +27,9 @@
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
  * import { Data } from "@xeokit/sdk/data";
  * import { Scene } from "@xeokit/sdk/scene";
- * import * as ifcTypes from "@xeokit/sdk/ifctypes";
+ * import * as ifcTypes from "@xeokit/sdk/formats/ifc/ifctypes_4_0_2_1";
  * import { TreeView } from "@xeokit/sdk/treeview";
- * import { XGFLoader } from "@xeokit/sdk/xgf";
+ * import { XGFLoader } from "@xeokit/sdk/formats/xgf";
  * ```
  *
  * ### Initialize a Viewer with a WebGL Renderer

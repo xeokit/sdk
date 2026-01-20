@@ -1,9 +1,8 @@
 import type {EmphasisMaterialParams} from "./EmphasisMaterialParams";
-import type {FloatArrayParam} from "../math";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../core";
-import type {Vec3} from "../math";
-import {createVec3Float32} from "../math";
+import type {Vec3} from "../math/vector";
+import {createVec3Float32} from "../math/vector";
 
 /**
  * Configures the appearance of {@link ViewObject | ViewObjects} when they are xrayed, highlighted or selected.

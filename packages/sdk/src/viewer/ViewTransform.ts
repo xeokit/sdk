@@ -1,6 +1,6 @@
 
-import { createMat4Float64, identityMat4, inverseMat4, mulMat4 } from "../math";
-import type { Mat4 } from "../math";
+import { createMat4Float64, identityMat4, inverseMat4, mulMat4 } from "../math/matrix";
+import type { Mat4 } from "../math/matrix";
 import type { ViewTransformParams } from "./ViewTransformParams";
 import {ViewObject} from "./ViewObject";
 import {SceneMesh, SceneModel} from "../scene";

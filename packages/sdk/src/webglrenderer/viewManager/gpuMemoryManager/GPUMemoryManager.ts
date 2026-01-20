@@ -11,7 +11,8 @@ import {type GPUMemoryMeshHandle} from "./GPUMemoryMeshHandle";
 import {Camera, View} from "../../../viewer";
 import {type RenderPassValue} from "../RENDER_PASSES";
 import {EventEmitter, SDKErrorType, SDKInternalException, type SDKResult} from "../../../core";
-import type {Mat4, Vec3} from "../../../math";
+import type {Vec3} from "../../../math/vector";
+import type {Mat4} from "../../../math/matrix";
 import {EventDispatcher} from "strongly-typed-events";
 import type {MemoryUsage} from "../../MemoryUsage";
 

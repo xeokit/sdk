@@ -3,6 +3,7 @@ import {RenderContext} from "../../../RenderContext";
 import {type GPUMemoryReader} from "../../../gpuMemoryManager/GPUMemoryReader";
 
 /**
+ * Draw technique for rendering triangle edges as silhouettes.
  * @internal
  */
 export class TrianglesDrawEdgeSilhouetteTechnique extends DrawTechnique {

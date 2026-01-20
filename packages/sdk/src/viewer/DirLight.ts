@@ -1,5 +1,5 @@
 import type {DirLightParams} from "./DirLightParams";
-import type {Vec3} from "../math";
+import type {Vec3} from "../math/vector";
 import type {View} from "./View";
 import {SDKErrorType, type SDKResult} from "../core";
 

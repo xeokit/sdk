@@ -1,6 +1,6 @@
 import {Data} from "../data";
 import {Scene} from "../scene";
-import {ModelLoader, ModelExporter} from "../io";
+import type {ModelLoader, ModelExporter} from "../formats";
 import {type ModelConverterParams} from "./ModelConverterParams";
 import {type ModelConverterPipelineConfig} from "./ModelConverterPipelineConfig";
 import {type ModelConverterRequest} from "./ModelConverterRequest";
@@ -8,7 +8,7 @@ import {type ModelConverterResult} from "./ModelConverterResult";
 import {type ModelConverterConfig} from "./ModelConverterConfig";
 
 import {createFileIO} from "./../io/FileIOFactory";
-import {type ModelLoadOptions} from "../io/ModelLoadOptions";
+import {type ModelLoadOptions} from "../formats/ModelLoadOptions";
 import {SDKErrorType, type SDKResult} from "../core";
 
 const fileIO = createFileIO();

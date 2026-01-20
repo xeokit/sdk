@@ -1,6 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
+ * Draw technique for rendering triangle meshes for picking.
  * @internal
  */
 export class TrianglesPickMeshDrawTechnique extends DrawTechnique {

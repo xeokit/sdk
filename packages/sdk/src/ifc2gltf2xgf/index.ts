@@ -73,7 +73,7 @@
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Data } from "@xeokit/sdk/data";
  * import { ModelChunksLoader } from "@xeokit/sdk/modelChunksLoader";
- * import { GLTFLoader } from "@xeokit/sdk/gltf";
+ * import { GLTFLoader } from "@xeokit/sdk/formats/gltf";
  * import { loadMetaModel } from "@xeokit/sdk/metamodel";
  *
  * const scene = new Scene();
@@ -121,7 +121,7 @@
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Data } from "@xeokit/sdk/data";
  * import { ModelChunksLoader } from "@xeokit/sdk/modelChunksLoader";
- * import { XGFLoader } from "@xeokit/sdk/xgf";
+ * import { XGFLoader } from "@xeokit/sdk/formats/xgf";
  * import { DataModelParamsLoader } from "@xeokit/sdk/data";
  *
  * const scene = new Scene();

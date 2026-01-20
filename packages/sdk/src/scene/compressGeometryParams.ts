@@ -1,6 +1,6 @@
 import {collapseAABB3, expandAABB3Points3, createAABB3Float32} from "../math/boundaries";
-import {compressRGBColors, quantizePositions3} from "../compression";
-import {createVec3Float64} from "../math";
+import {compressRGBColors, quantizePositions3} from "../math/compression";
+import {createVec3Float64} from "../math/vector";
 import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";
 import {buildEdgeIndices} from "./buildEdgeIndices";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";

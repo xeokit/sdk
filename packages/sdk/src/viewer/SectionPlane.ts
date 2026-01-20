@@ -1,4 +1,4 @@
-import {type Vec3, dotVec3, createVec3Float32, createVec3Float64} from "../math";
+import {type Vec3, dotVec3, createVec3Float32, createVec3Float64} from "../math/vector";
 import {type SectionPlaneParams} from "./SectionPlaneParams";
 import type {View} from "./View";
 import {createUUID} from "../utils";

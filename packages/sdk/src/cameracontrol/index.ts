@@ -44,7 +44,7 @@
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {CameraControl, KEY_A, KEY_D, KEY_W, KEY_S} from "@xeokit/sdk/cameracontrol";
- * import {CityJSONLoader} from "@xeokit/sdk/cityjson";
+ * import {CityJSONLoader} from "@xeokit/sdk/formats/cityjson";
  *
  * // Create a Scene to manage geometry and materials
  * const scene = new Scene();

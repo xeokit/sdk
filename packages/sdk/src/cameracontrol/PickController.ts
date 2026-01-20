@@ -1,7 +1,7 @@
 import type {View} from "../viewer";
 import {PickResult} from "../viewer";
 import type {CameraControl} from "./CameraControl";
-import {createVec2Float64} from "../math";
+import {createVec2Float64} from "../math/vector";
 
 const DEFAULT_SNAP_PICK_RADIUS = 45;
 const DEFAULT_SNAP_MODE = "vertex";

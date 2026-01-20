@@ -1,7 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
- * Renderer for drawing lines with color in the `WebGLRenderer`.
+ * Draw technique for rendering lines with a flat color.
  *
  * @internal
  */

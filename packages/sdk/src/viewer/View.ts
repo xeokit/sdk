@@ -1,11 +1,12 @@
 import {EventEmitter, SDKErrorType, type SDKResult, SDKTask,} from "../core";
 import {FastRender, QualityRender} from "../constants";
-import type {FloatArrayParam, Vec3} from "../math";
+import type {FloatArrayParam} from "../math";
+import type { Vec3} from "../math/vector";
 import type {SceneObject} from "../scene";
 import {AmbientLight} from "./AmbientLight";
 import {Camera} from "./Camera";
 import {createUUID} from "../utils";
-import {createVec3Float64} from "../math";
+import {createVec3Float64} from "../math/vector";
 import {DirLight} from "./DirLight";
 import {Edges} from "./Edges";
 import {EmphasisMaterial} from "./EmphasisMaterial";

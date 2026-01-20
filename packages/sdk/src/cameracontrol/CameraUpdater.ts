@@ -1,4 +1,4 @@
-import {createVec3Float64, lenVec3, subVec3} from "../math";
+import {createVec3Float64, lenVec3, subVec3} from "../math/vector";
 import type {View} from "../viewer";
 import {SDKTask} from "../core";
 

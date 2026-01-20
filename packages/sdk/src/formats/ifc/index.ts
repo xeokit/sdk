@@ -1,0 +1,117 @@
+/**
+ * <img style="padding:0px; padding-top:20px; padding-bottom:30px; width: 180px;" src="https://xeokit.github.io/sdk/docs/assets/ifc_logo.png"/>
+ *
+ * # xeokit IFC Importer and Exporter
+ *
+ * ---
+ *
+ * **Import and export IFC STEP files**
+ *
+ * ---
+ *
+ * The xeokit SDK enables seamless import and export of 3D models
+ * as
+ * IFC (Industry Foundation Classes), an open, global standard file format used for exchanging
+ * Building Information Modeling (BIM) data between different software applications in the
+ * Architecture, Engineering, and Construction (AEC) industry.
+ *
+ * ### Importing IFC Models
+ *
+ * Use the {@link IFCLoader} class to load IFC files into:
+ * - a {@link scene!SceneModel | SceneModel} for geometry and materials
+ * - a {@link data!DataModel | DataModel} for semantic data
+ *
+ * ### Exporting IFC Models
+ *
+ * Use the {@link IFCExporter} class to export:
+ * - a {@link scene!SceneModel | SceneModel}
+ * - a {@link data!DataModel | DataModel}
+ *
+ * into IFC file data.
+ *
+ * ---
+ *
+ * ## Installation
+ *
+ * ```bash
+ * npm install @xeokit/sdk
+ * ```
+ *
+ * ---
+ *
+ * ## Usage
+ *
+ * Below is an example of loading and displaying a IFC model in a {@link viewer!Viewer | Viewer}:
+ *
+ * ```ts
+ * import { Scene } from "@xeokit/sdk/scene";
+ * import { Data } from "@xeokit/sdk/data";
+ * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
+ * import { Viewer } from "@xeokit/sdk/viewer";
+ * import { CameraControl } from "@xeokit/sdk/cameracontrol";
+ * import { IFCLoader, IFCExporter } from "@xeokit/sdk/formats/ifc";
+ *
+ * const scene = new Scene();
+ * const data = new Data();
+ *
+ * const viewer = new Viewer({
+ *     scene
+ * });
+ *
+ * const renderer = new WebGLRenderer({
+ *   viewer
+ * });
+ *
+ * const viewResult = viewer.createView({
+ *     id: "myView",
+ *     elementId: "myCanvas"
+ * });
+ *
+ * const view = viewResult.value;
+ *
+ * view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ * view.camera.look = [1842009.49, 9.68, -5173295.85];
+ * view.camera.up = [0.0, 1.0, 0.0];
+ *
+ * new CameraControl(view, {});
+ *
+ * const sceneModel = scene.createModel({ id: "myModel" });
+ * const dataModel = data.createModel({ id: "myModel" });
+ *
+ * const ifcLoader = new IFCLoader();
+ *
+ * ifcLoader.load({
+ *       filePath:"model.ifc",
+ *       sceneModel,
+ *       dataModel
+ *    }).then(() => {
+ *        // Loaded
+ *    }).catch(err => {
+ *        sceneModel.destroy();
+ *        dataModel.destroy();
+ *        console.error(`Error loading IFC: ${err}`);
+ *    });
+ * ```
+ *
+ * ### Exporting to IFC
+ *
+ * ```ts
+ * const exporter = new IFCExporter();
+ *
+ * exporter.export({
+ *     sceneModel,
+ *     dataModel,
+ *     version: "IFC4", // Optional, defaults to latest
+ * }).then(fileData => {
+ *     // Use fileData as needed
+ * }).catch(err => {
+ *     console.error(err);
+ * });
+ * ```
+ *
+ * @module ifc
+ */
+export * from "./IFCLoader";
+export * from "./IFCExporter";
+
+export * as ifctypes_4_0_2_1 from "./ifctypes_4_0_2_1";

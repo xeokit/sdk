@@ -1,4 +1,4 @@
-import type { Vec3} from "../../../math";
+import type { Vec3} from "../../../math/vector";
 import type {RendererMesh} from "./RendererMesh";
 import {RenderContext} from "../RenderContext";
 

@@ -1,3 +1,59 @@
+/**
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="https://xeokit.github.io/sdk/docs/assets/3D-Cart.svg"/>
+ *
+ * # xeokit Vector Math Utilities
+ *
+ * ---
+ *
+ * ***Mathematical functions and types for working with vectors***
+ *
+ * ---
+ *
+ * A small, allocation-conscious set of vector primitives and operations used by the
+ * math modules (eg. {@link matrix} and {@link quat}) and by geometry/transforms across
+ * the SDK.
+ *
+ * Vectors are represented as either typed arrays (eg. `Float32Array`, `Float64Array`,
+ * `Int32Array`, …) or fixed-length numeric tuples. All functions accept either form
+ * and generally support an optional `dest` parameter to write results in-place, which
+ * helps avoid temporary allocations in tight loops.
+ *
+ * ## Vector type system
+ *
+ * This module defines vector aliases grouped by:
+ *
+ * - **Length**: {@link Vec2}, {@link Vec3}, {@link Vec4}, {@link Vec9}
+ * - **Domain**: integer vs floating-point
+ * - **Precision** (floats): explicit `Float32` / `Float64` or “either precision”
+ *
+ * Notable aliases:
+ *
+ * - {@link Vec2Int}, {@link Vec3Int}, {@link Vec4Int}
+ * - {@link Vec2Float32}, {@link Vec2Float64}, {@link Vec3Float32}, {@link Vec3Float64}, …
+ * - {@link Vec2Float}, {@link Vec3Float}, {@link Vec4Float}, {@link Vec9Float}
+ *
+ * Factory helpers like {@link createVec3Float64} and {@link createVec4Float32}
+ * produce typed arrays of the requested size/precision, optionally seeded from an
+ * existing vector.
+ *
+ * ## Core operations
+ *
+ * - **Arithmetic**: {@link addVec3}, {@link subVec3}, {@link mulVec3Scalar}, {@link divVec3Scalar},
+ *   plus scalar variants for common dimensions.
+ * - **Products**: {@link dotVec2}, {@link dotVec3}, {@link dotVec4}, {@link cross3Vec3}
+ * - **Length & distance**: {@link lenVec2}, {@link lenVec3}, {@link lenVec4}, {@link distVec2}, {@link distVec3}
+ * - **Normalization**: {@link normalizeVec2}, {@link normalizeVec3}, {@link normalizeVec4}
+ * - **Geometry helpers**: {@link triangleNormal}, {@link angleVec3}, {@link testOrthogonalAxis}
+ *
+ * ## Mutability and destinations
+ *
+ * Many functions default to mutating their first input (eg. `addVec3(u, v)` writes into `u`)
+ * unless a `dest` is provided. If you need to keep inputs unchanged, always pass an explicit
+ * destination vector.
+ *
+ * @module vector
+ */
+
 
 import type {IntTypedArray} from "./misc";
 import type {FloatArrayParam} from "./index";
@@ -948,3 +1004,24 @@ export function triangleNormal(a: Vec3, b: Vec3, c: Vec3, normal: Vec3 = createV
   return normal;
 }
 
+/**
+ * Validates that three 3D axes are mutually orthogonal.
+ *
+ * @param axes - flat array of 9 numbers (3 axes)
+ * @param epsilon - floating-point tolerance
+ */
+export function testOrthogonalAxis(
+  axes: Vec9,
+  epsilon = 1e-6
+): boolean {
+
+  const x = <Vec3>axes.slice(0, 3);
+  const y = <Vec3>axes.slice(3, 6);
+  const z = <Vec3>axes.slice(6, 9);
+
+  return (
+    Math.abs(dotVec3(x, y)) < epsilon &&
+    Math.abs(dotVec3(x, z)) < epsilon &&
+    Math.abs(dotVec3(y, z)) < epsilon
+  );
+}

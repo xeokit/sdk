@@ -1,12 +1,15 @@
 import {
+  type Vec3,
+  createVec3Float32,
+} from "../math/vector";
+import {
   createMat4Float64,
   type Mat4,
-  type Vec3,
   identityMat4,
   inverseMat4,
   isIdentityMat4,
-  mulMat4, createVec3Float64, createVec3Float32,
-} from "../math";
+  mulMat4,
+} from "../math/matrix";
 import type {FloatArrayParam} from "../math";
 import type {SceneGeometry} from "./SceneGeometry";
 import type {SceneMeshParams} from "./SceneMeshParams";
@@ -15,7 +18,6 @@ import type {SceneTextureSet} from "./SceneTextureSet";
 import type {SceneModel} from "./SceneModel";
 import {SceneTransform} from "./SceneTransform";
 import {SDKErrorType, type SDKResult} from "../core";
-
 
 /**
  * A mesh in a {@link SceneModel | SceneModel}.

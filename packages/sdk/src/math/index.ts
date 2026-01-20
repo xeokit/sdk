@@ -1,16 +1,16 @@
 /**
- * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:140px;" src="https://xeokit.github.io/sdk/docs/assets/math_icon.png"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="https://xeokit.github.io/sdk/docs/assets/3D-Cart.svg"/>
  *
- * # xeokit SDK Math Library
+ * # xeokit SDK Math Libraries
  *
  * ---
  *
  * ***Mathematical functions for 2D/3D matrices, quaternions, and vectors***
  *
+ * ---
+ *
  * This library provides a set of utilities for working with mathematical operations commonly used in 3D graphics,
  * including vector and matrix operations such as dot products, vector negation, addition, and more.
- *
- * ---
  *
  * # Installation
  *
@@ -124,10 +124,12 @@ export function safeInv(x: number): number {
   return isFinite(result) ? result : 1;
 }
 
-export * from "../math/vector";
-export * from "../math/matrix";
-export * from "../math/quat";
-export * from "../math/misc";
-
+export * as vector from "./vector";
+export * as matrix from "./matrix";
+export * as quat from "./quat";
+export * from "./misc";
 
 export * as boundaries from "../math/boundaries";
+export * as rtc from "./rtc";
+export * as compression from "./compression";
+export * as curves from "./curves";

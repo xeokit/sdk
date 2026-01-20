@@ -1,7 +1,7 @@
-import {canvasPosToWorldRay, createVec3Float64, subVec3} from "../math";
+import { createVec3Float64, subVec3} from "../math/vector";
 import type {PickResult, View} from "../viewer";
 import {getAABB3Center} from "../math/boundaries";
-import {getSceneAABB3Index, SceneAABB3Index} from "../aabb/SceneAABB3Index";
+import {getSceneAABB3Index, SceneAABB3Index} from "../collision/aabb/SceneAABB3Index";
 
 const tempVec3a = createVec3Float64();
 

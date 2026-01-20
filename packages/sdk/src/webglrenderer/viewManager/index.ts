@@ -12,3 +12,4 @@ export * from "./ViewManager";
 export * from "./ViewRenderState";
 export * from "./RenderBuffers";
 export * from "./RenderContext";
+export * from "./RENDER_PASSES";

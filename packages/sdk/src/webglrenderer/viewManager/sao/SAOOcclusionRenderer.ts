@@ -1,6 +1,6 @@
 import {WebGLArrayBuf, WebGLProgram} from "../../../webglutils";
 import type {WebGLAttribute, WebGLRenderBuffer} from "../../../webglutils";
-import {createVec2Float64} from "../../../math";
+import {createVec2Float64} from "../../../math/vector";
 import {PerspectiveProjectionType} from "../../../constants";
 import type {RenderContext} from "../RenderContext";
 import type {View} from "../../../viewer";

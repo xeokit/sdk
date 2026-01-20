@@ -5,29 +5,36 @@
  *
  * ---
  *
- * **A buildable, viewable, importable, and exportable 3D scene graph that works in both browsers and Node.js.**
+ * **Core scene-graph types and APIs for constructing, inspecting, importing, exporting,
+ * and rendering 3D content in xeokit.**
  *
  * ---
  *
- * ## Overview
+ * This module defines xeokit’s primary in-memory **scene graph** model. It provides a
+ * structured, extensible representation of 3D content that is designed to work
+ * consistently in both browsers and Node.js.
  *
- * The xeokit SDK represents content as a scene graph:
+ * At its core:
  *
- * - A {@link Scene} is the top-level container.
- * - A {@link Scene} contains one or more {@link SceneModel | SceneModels}.
- * - Each {@link SceneModel} contains:
+ * - A {@link Scene} is the top-level container and lifecycle manager.
+ * - A {@link Scene} owns one or more {@link SceneModel | SceneModels}.
+ * - Each {@link SceneModel} groups renderable and logical content, including:
  *   - {@link SceneObject | SceneObjects} (logical entities),
  *   - {@link SceneMesh | SceneMeshes} (renderable instances),
- *   - {@link SceneGeometry | SceneGeometries} (shared vertex/index data),
+ *   - {@link SceneGeometry | SceneGeometries} (shared vertex/index buffers),
  *   - {@link SceneTexture | SceneTextures} and {@link SceneTextureSet | SceneTextureSets}.
  *
- * You can use the Scene graph to:
+ * The scene graph is deliberately **buildable** and **serializable**:
  *
- * - Build content programmatically (builder methods on {@link Scene} / {@link SceneModel})
- * - Import and export formats such as {@link gltf}, {@link las}, {@link cityjson}, {@link xgf}, {@link dotbim}, and {@link ifc}
- * - Attach a Scene to a {@link viewer!Viewer | Viewer} for interactive rendering in the browser
- * - Serialize/deserialize models to/from JSON
- * - Observe lifecycle events via {@link SceneEvents}
+ * - Content can be created programmatically using builder-style APIs.
+ * - Models can be imported from and exported to multiple industry formats
+ *   (eg. {@link gltf}, {@link las}, {@link cityjson}, {@link xgf}, {@link dotbim}, {@link ifc}).
+ * - SceneModels can be serialized to JSON and reconstructed later.
+ * - A {@link Scene} can be attached to a {@link viewer!Viewer | Viewer} for interactive
+ *   rendering, or used headlessly in Node.js for conversion and processing workflows.
+ *
+ * The {@link SceneEvents} system exposes lifecycle and error events, allowing applications
+ * to observe and react to changes as models, objects, and resources are created or destroyed.
  *
  * <br>
  *
@@ -380,10 +387,10 @@
  * ## Exporting a SceneModel to a file
  *
  * SceneModels can be exported to several formats. For example, export to DotBIM with
- * {@link dotbim!DotBIMExporter | DotBIMExporter}:
+ * `DotBIMExporter` :
  *
  * ```javascript
- * import { DotBIMExporter } from "@xeokit/sdk/dotbim";
+ * import { DotBIMExporter } from "@xeokit/sdk/formats/dotbim";
  *
  * const exporter = new DotBIMExporter();
  *
@@ -403,10 +410,10 @@
  * ## Importing a SceneModel from a file
  *
  * Import SceneModels from several formats. For example, load DotBIM using
- * {@link dotbim!DotBIMLoader | DotBIMLoader}:
+ * `DotBIMLoader`:
  *
  * ```javascript
- * import { DotBIMLoader } from "@xeokit/sdk/dotbim";
+ * import { DotBIMLoader } from "@xeokit/sdk/formats/dotbim";
  *
  * const sceneModelResult2 = scene.createModel({ id: "mySceneModel2" });
  *
@@ -509,5 +516,4 @@ export * from "./compressGeometryParams";
 
 export * from "./buildMat4"
 
-export * from "./SceneModelParamsLoader";
-export * from "./SceneModelParamsExporter";
+

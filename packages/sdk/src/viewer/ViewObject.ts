@@ -1,4 +1,4 @@
-import type {FloatArrayParam, Vec3} from "../math";
+import type {Vec3} from "../math/vector";
 import type {SceneObject} from "../scene";
 import type {ViewLayer} from "./ViewLayer";
 import {SDKErrorType} from "../core";

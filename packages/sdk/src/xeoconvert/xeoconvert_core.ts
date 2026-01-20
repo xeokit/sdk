@@ -1,14 +1,14 @@
 import '@loaders.gl/polyfills';/**/
 import {ModelConverter} from "../modelconverter";
-import {GLTFLoader, GLTFExporter} from "../gltf";
-import {DotBIMLoader, DotBIMExporter} from "../dotbim";
-import {DataModelParamsLoader, DataModelParamsExporter} from "../data";
-import {SceneModelParamsLoader, SceneModelParamsExporter} from "../scene";
-import {CityJSONLoader} from "../cityjson";
-import {XKTLoader} from "../xkt";
-import {XGFLoader, XGFExporter} from "../xgf";
-import {LASLoader} from "../las";
-import {IFCExporter, IFCLoader} from "../ifc";
+import {GLTFLoader, GLTFExporter} from "../formats/gltf";
+import {DotBIMLoader, DotBIMExporter} from "../formats/dotbim";
+import {DataModelParamsLoader, DataModelParamsExporter} from "../formats/datamodel";
+import {SceneModelParamsLoader, SceneModelParamsExporter} from "../formats/scenemodel";
+import {CityJSONLoader} from "../formats/cityjson";
+import {XKTLoader} from "../formats/xkt";
+import {XGFLoader, XGFExporter} from "../formats/xgf";
+import {LASLoader} from "../formats/las";
+import {IFCExporter, IFCLoader} from "../formats/ifc";
 
 import {createStatsReport} from "../modelconverter/reporters/stats/createStatsReport";
 import {createManifestReport} from "../modelconverter/reporters/manifest/createManifestReport";

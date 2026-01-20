@@ -1,4 +1,4 @@
-import {addVec3, createVec3Float64,  negateVec3, normalizeVec3, subVec3, type Vec3} from "../math";
+import {addVec3, createVec3Float64,  negateVec3, normalizeVec3, subVec3, type Vec3} from "../math/vector";
 import type {BCFViewpoint} from "./BCFViewpoint";
 import {OrthoProjectionType} from "../constants";
 import type {SaveBCFViewpointParams} from "./SaveBCFViewpointParams";

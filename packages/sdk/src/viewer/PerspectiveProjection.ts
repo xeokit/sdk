@@ -3,13 +3,15 @@ import {
   createMat4Float64,
   inverseMat4,
   perspectiveMat4,
-  transposeMat4,
+  transposeMat4
+} from "../math/matrix";
+import {
   type Vec2,
   type Vec3
-} from "../math";
+} from "../math/vector";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
-import type {Mat4} from "../math";
+import type {Mat4} from "../math/matrix";
 import type {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
 import {PerspectiveProjectionType} from "../constants";
 import type {Projection} from "./Projection";

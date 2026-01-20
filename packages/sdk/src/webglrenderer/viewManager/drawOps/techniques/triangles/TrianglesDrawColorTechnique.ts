@@ -1,6 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
+ * Draw technique for rendering colored triangles with Lambert shading.
  * @internal
  */
 export class TrianglesDrawColorTechnique extends DrawTechnique {

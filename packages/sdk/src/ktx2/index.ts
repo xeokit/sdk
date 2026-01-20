@@ -50,7 +50,7 @@
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {KTX2TextureTranscoder} from "@xeokit/sdk/ktx2";
- * import {GLTFLoader} from "@xeokit/sdk/gltf";
+ * import {GLTFLoader} from "@xeokit/sdk/formats/gltf";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
@@ -95,7 +95,7 @@
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {KTX2TextureTranscoder} from "@xeokit/sdk/ktx2";
- * import {GLTFLoader} from "@xeokit/sdk/gltf";
+ * import {GLTFLoader} from "@xeokit/sdk/formats/gltf";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",
@@ -169,7 +169,7 @@
  * import {Viewer} from "@xeokit/sdk/viewer";
  * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
  * import {KTX2TextureTranscoder} from "@xeokit/sdk/ktx2";
- * import {GLTFLoader} from "@xeokit/sdk/gltf";
+ * import {GLTFLoader} from "@xeokit/sdk/formats/gltf";
  *
  * const myViewer = new Viewer({
  *     id: "myViewer",

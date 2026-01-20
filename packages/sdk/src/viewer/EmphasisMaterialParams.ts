@@ -1,4 +1,4 @@
-import type {Vec3} from "../math";
+import type {Vec3} from "../math/vector";
 
 /**
  * Parameters for a View's selected, highlighted and x-ray effects.

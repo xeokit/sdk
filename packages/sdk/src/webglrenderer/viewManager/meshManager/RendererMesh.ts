@@ -1,10 +1,14 @@
 import {
-  createMat4Float64,
   createVec4Float64,
-  transformPoint4,
   subVec3,
-  type Mat4, type Vec3, identityMat4,
-} from "../../../math";
+ type Vec3,
+} from "../../../math/vector";
+import {
+  createMat4Float64,
+  transformPoint4,
+  type Mat4,
+  identityMat4,
+} from "../../../math/matrix";
 import type {MeshBatchImpl} from "./MeshBatchImpl";
 import type {RenderContext} from "../RenderContext";
 import {type SceneMesh} from "../../../scene";

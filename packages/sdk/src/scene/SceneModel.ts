@@ -1,5 +1,6 @@
 import {SDKErrorType, SDKInternalException, type SDKResult} from "../core";
-import {composeMat4, createMat4Float64, eulerToQuat, identityMat4, identityQuat, type  Mat4} from "../math";
+import {composeMat4, createMat4Float64, identityMat4, type  Mat4} from "../math/matrix";
+import {eulerToQuat, identityQuat} from "../math/quat";
 import {LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive} from "../constants";
 import {compressGeometryParams} from "./compressGeometryParams";
 import type {Scene} from "./Scene";

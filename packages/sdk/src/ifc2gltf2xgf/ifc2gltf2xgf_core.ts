@@ -3,9 +3,9 @@
 import '@loaders.gl/polyfills';
 import type {SceneModel} from "../scene/SceneModel";
 import {Scene} from "../scene";
-import {convertMetaModel} from "../metamodel";
-import {GLTFLoader} from "../gltf";
-import {XGFExporter} from "../xgf";
+import {convertMetaModel} from "../formats/metamodel";
+import {GLTFLoader} from "../formats/gltf";
+import {XGFExporter} from "../formats/xgf";
 
 const xgfExporter = new XGFExporter();
 

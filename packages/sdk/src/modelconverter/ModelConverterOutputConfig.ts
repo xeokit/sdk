@@ -4,14 +4,14 @@
 export interface ModelConverterOutputConfig {
 
   /**
-   * The key of an {@link io!ModelExporter | ModelExporter} declared in
+   * The key of an {@link formats!ModelExporter | ModelExporter} declared in
    * {@link ModelConverterParams.exporters | ModelConverterParams.exporters}, which the
    * pipeline will use to write the output file.
    */
   exporter: string;
 
   /**
-   * Optional schema version to be used by the {@link io!ModelExporter | ModelExporter}
+   * Optional schema version to be used by the {@link formats!ModelExporter | ModelExporter}
    * when generating the output file.
    */
   version?: string;

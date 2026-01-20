@@ -1,6 +1,7 @@
 import {DrawTechnique} from "../../DrawTechnique";
 
 /**
+ * Draw technique for rendering point depth for picking.
  * @internal
  */
 export class PointsPickDepth extends DrawTechnique {

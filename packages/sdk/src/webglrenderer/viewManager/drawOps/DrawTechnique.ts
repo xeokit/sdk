@@ -12,6 +12,8 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
 /**
  * Base class for GPU draw techniques.
  *
+ * Used by {@link DrawOp}s to perform actual draw calls.
+ *
  * A {@link DrawTechnique} encapsulates:
  * - GLSL source generation (vertex + fragment)
  * - WebGL program compilation/linking ({@link WebGLProgram})
@@ -19,7 +21,7 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
  * - Issuing draw calls for a {@link MeshBatch}
  *
  * Techniques are *render-pass aware* but do not own render-pass routing:
- * callers pass a {@link RenderPassValue} to {@link draw} / {@link drawMesh},
+ * callers pass a {@link RenderPassValue} to {@link drawMesh},
  * and the technique binds uniforms accordingly.
  *
  * ## Responsibilities
@@ -39,73 +41,8 @@ const defaultColor = new Float32Array([1, 1, 1, 1]);
  *
  * These methods are called during {@link init} to generate the GLSL source code,
  * and would typically use helper methods like {@link vsCode}, {@link vsHeader},
- * and {@link vsCommonDefines}, provided by the base class, to construct the shader source.
- *
- * #TODO
- *
- * Vertex shader for drawing triangle geometry using a fully texture-driven data layout.
- *
- * This shader does not consume traditional vertex attributes. Instead, all geometry,
- * topology, transforms, and per-mesh state are reconstructed from a set of lookup textures.
- * Each invocation derives its vertex and primitive identity from `gl_VertexID`.
- *
- * ## Primitive and mesh lookup
- * - The draw call is assumed to render a contiguous range of primitives.
- * - `gl_VertexID` is mapped to a *draw primitive index* using `uPrimitiveType`
- *   (3 vertices for triangles, 2 for lines, 1 for points).
- * - A global primitive index is computed as `uPrimBaseIndex + drawPrimIndex`.
- * - For each primitive, `uPrimitiveMeshIndexTexture` provides:
- *   - the mesh index the primitive belongs to
- *   - the primitive’s offset within that mesh’s geometry (eg. triangle number)
- *
- * ## Geometry and vertex indexing
- * - Each mesh maps to a geometry via `uMeshAttributeTexture`.
- * - Geometry attributes (`uGeometryAttributeTexture`) provide base offsets into
- *   packed vertex and index buffers stored in textures.
- * - For each vertex of a primitive:
- *   - the local vertex index is `gl_VertexID % numVertsPerPrim`
- *   - the vertex offset within the geometry is
- *     `primOffset * numVertsPerPrim + localVert`
- * - If `uPrimitiveType == 20000`, geometry is treated as non-indexed and the
- *   vertex offset is used directly.
- * - Otherwise, the index buffer (`uIndexTexture`) is consulted to resolve the
- *   final vertex index.
- *
- * ## Vertex position decoding
- * - Vertex positions are stored quantized as `uvec3` in `uVertexPositionTexture`.
- * - Per-geometry quantization parameters (`offset`, `scale`) are fetched from
- *   `uGeometryQuantRangeTexture`.
- * - Object-space position is reconstructed as:
- *   `position = offset + scale * quantizedPosition`.
- *
- * ## Transforms
- * - Per-mesh model matrices are fetched from `uMeshMatrixTexture`.
- * - Per-tile view matrices are fetched from `uViewTileCameraMatrixTexture`.
- * - The final clip-space position is computed as:
- *   `clipPos = projection * view * model * position`.
- *
- * ## Lighting and color
- * - Per-mesh view attributes (`uMeshViewAttributeTexture`) provide a packed RGBA
- *   color used as the base material color.
- * - A per-triangle face normal is computed by:
- *   - fetching the three triangle vertex indices from the index buffer
- *   - reconstructing their positions
- *   - transforming them to view space
- *   - taking the cross product of the triangle edges
- * - A simple Lambert-style diffuse term is computed against a fixed light direction,
- *   plus a fixed ambient term.
- * - The final vertex color is:
- *   `(ambient + diffuse) * meshColor`.
- *
- * ## Outputs
- * - `gl_Position` is set to the computed clip-space position.
- * - `vColor` outputs the lit mesh color for interpolation to the fragment shader.
- *
- * ## Notes and assumptions
- * - Normal computation always assumes indexed triangle geometry.
- * - The face normal is not normalized, so lighting intensity scales with triangle area.
- * - Light parameters are hardcoded in the shader despite uniform declarations.
- * - This shader is intended for triangle rendering; behavior for lines/points is limited.
+ * and {@link vsCommonDefines}, provided by the base class, to construct the shader source
+ * (i.e. Template Method / Template Base Class pattern).
  *
  * @internal
  */

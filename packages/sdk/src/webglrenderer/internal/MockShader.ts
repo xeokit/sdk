@@ -9,7 +9,8 @@
  * Once that's verified, we then know that any remaining problems are likely due to GPU-specific issues.
  */
 import {type MemoryView} from "./MemoryView";
-import {createVec3Int16, createVec4Float32, transformVec4} from "../../math";
+import {createVec3Int16, createVec4Float32} from "../../math/vector";
+import {transformVec4} from "../../math/matrix";
 
 export class MockShader {
 

@@ -1,7 +1,5 @@
 import {addVec3, createVec3Float64, type Vec3, negateVec3, subVec3} from "../math/vector";
-import {IfcOpeningElement, IfcSpace} from "../formats/ifc/ifctypes_4_0_2_1";
 import {OrthoProjectionType, PerspectiveProjectionType} from "../constants";
-import {BasicAggregation} from "../formats/datamodel/basicTypes";
 import type {BCFComponent} from "./BCFComponent";
 import type {BCFVector} from "./BCFVector";
 import type {DataObject} from "../data";
@@ -176,7 +174,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
           searchObjects(data, { // Updated aggregated IFC elements
             startObjectId: dataObject.id,
             includeStart: true,
-            includeRelated: [BasicAggregation],
+            includeRelated: ["BasicAggregation"],
             resultCallback: (dataObject: DataObject): boolean => {
               const viewObject = view.objects[dataObject.id];
               if (viewObject) {
@@ -205,7 +203,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
           searchObjects(data, {
             startObjectId: dataObject.id,
             includeStart: true,
-            includeRelated: [BasicAggregation],
+            includeRelated: ["BasicAggregation"],
             resultCallback: (dataObject: DataObject): boolean => {
               const viewObject = view.objects[dataObject.id];
               if (viewObject) {
@@ -259,12 +257,12 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
       const view_setup_hints = bcfViewpoint.components.visibility.view_setup_hints;
       if (view_setup_hints) {
         if (view_setup_hints.spaces_visible === false) { // Hide IfcSpaces
-          withViewObjectsOfType(IfcSpace, viewObject => {
+          withViewObjectsOfType("IfcSpace", viewObject => {
             viewObject.visible = false;
           });
         }
         if (view_setup_hints.spaces_translucent !== undefined) { // X-ray IfcSpaces
-          withViewObjectsOfType(IfcSpace, viewObject => {
+          withViewObjectsOfType("IfcSpace", viewObject => {
             viewObject.xrayed = true;
           });
         }
@@ -272,7 +270,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
           // TODO
         }
         if (view_setup_hints.openings_visible === false) { // Hide IfcOpeningElements
-          withViewObjectsOfType(IfcOpeningElement, viewObject => {
+          withViewObjectsOfType("IfcOpeningElement", viewObject => {
             viewObject.visible = false;
           });
         }
@@ -280,7 +278,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
           // TODO
         }
         if (view_setup_hints.openings_translucent !== undefined) { // X-ray IfcOpeningElements
-          withViewObjectsOfType(IfcOpeningElement, viewObject => {
+          withViewObjectsOfType("IfcOpeningElement", viewObject => {
             viewObject.xrayed = true;
           });
         }

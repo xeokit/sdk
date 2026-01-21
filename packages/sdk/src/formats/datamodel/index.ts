@@ -87,4 +87,3 @@
  */
 export * from "./DataModelParamsLoader";
 export * from "./DataModelParamsExporter";
-export * as basictypes from "./basicTypes";

@@ -40,7 +40,6 @@ export * as modelchunksloader from "./modelchunksloader";
 
 export * as viewer from "./viewer";
 export * as webglrenderer from "./webglrenderer";
-export * as ktx2 from "./ktx2";
 export * as cameracontrol from "./cameracontrol";
 export * as cameraflight from "./cameraflight";
 export * as bcf from "./bcf";

@@ -102,5 +102,3 @@
  * @module cityjson
  */
 export * from "./CityJSONLoader";
-
-export * as cityjsontypes_1_1_3 from "./cityjsontypes_1_1_3";

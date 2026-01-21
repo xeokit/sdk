@@ -37,7 +37,7 @@ export interface TreeViewNode {
    *
    * This type code could correspond to different kinds of nodes, such as groups, categories, or individual objects.
    */
-  type: number;
+  type: string;
 
   /**
    * The parent node of this node. If this node is a root node, this will be `null`.

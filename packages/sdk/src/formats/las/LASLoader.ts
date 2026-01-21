@@ -1,4 +1,4 @@
-import {BasicAggregation, BasicEntity} from "../datamodel/basicTypes";
+
 import {createMat4Float64, transformPoint3} from "../../math/matrix";
 import { createVec3Float64} from "../../math/vector";
 import {ModelLoader} from "../ModelLoader";
@@ -140,16 +140,16 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
         const rootMetaObjectId = createUUID();
         dataModel.createObject({
           id: rootMetaObjectId,
-          type: BasicEntity,
+          type: "BasicEntity",
           name: "Model",
         });
         dataModel.createObject({
           id: entityId,
-          type: BasicEntity,
+          type: "BasicEntity",
           name: "PointCloud (LAZ)",
         });
         dataModel.createRelationship({
-          type: BasicAggregation,
+          type: "BasicAggregation",
           relatingObjectId: rootMetaObjectId,
           relatedObjectId: entityId
         });

@@ -1,150 +1,168 @@
-// // FileLoader.ts
-//
-// type ResponseType = 'text' | 'json' | 'arrayBuffer' | 'blob';
-//
-// interface LoadOptions {
-//     responseType?: ResponseType;
-//     headers?: Record<string>;
-//     timeout?: number; // in milliseconds
-//     onProgress?: (percent: number) => void; // browser only
-// }
-//
-// export class FileLoader {
-//
-//     /**
-//      * Load a file from a URL or file:// (Node only)
-//      */
-//     static async load(url: string, options: LoadOptions = {}): Promise<any> {
-//         const {
-//             responseType = 'text',
-//             headers = {},
-//             timeout,
-//             onProgress,
-//         } = options;
-//
-//         if (FileLoader.isNodeFileUrl(url)) {
-//             return await FileLoader.loadNodeFile(url, <ResponseType>responseType);
-//         }
-//
-//         const controller = timeout ? new AbortController() : undefined;
-//         let timeoutId: NodeJS.Timeout | undefined;
-//
-//         if (timeout && controller) {
-//             timeoutId = setTimeout(() => controller.abort(), timeout);
-//         }
-//
-//         try {
-//             if (typeof onProgress === 'function' && FileLoader.isBrowser()) {
-//                 return await FileLoader.fetchWithProgress(url,  <ResponseType>responseType, headers, onProgress, controller);
-//             } else {
-//                 const response = await fetch(url, {
-//                     headers,
-//                     signal: controller?.signal,
-//                 });
-//
-//                 if (!response.ok) {
-//                     throw new Error(`Cannot load ${url}: ${response.status} ${response.statusText}`);
-//                 }
-//
-//                 return await FileLoader.parseResponse(response,  <ResponseType>responseType);
-//             }
-//         } finally {
-//             if (timeoutId) clearTimeout(<any>timeoutId);
-//         }
-//     }
-//
-//     private static async parseResponse(response: Response, responseType: ResponseType): Promise<any> {
-//         switch (responseType) {
-//             case 'text': return await response.text();
-//             case 'json': return await response.json();
-//             case 'arrayBuffer': return await response.arrayBuffer();
-//             case 'blob':
-//                 if (FileLoader.isNode()) throw new Error('Blob is not supported in Node.js');
-//                 return await response.blob();
-//             default:
-//                 throw new Error(`Unsupported responseType: ${responseType}`);
-//         }
-//     }
-//
-//     private static isNodeFileUrl(url: string): boolean {
-//         return FileLoader.isNode() && url.startsWith('file://');
-//     }
-//
-//     private static isNode(): boolean {
-//         // @ts-ignore
-//         return typeof process !== 'undefined' &&
-//             typeof process.versions?.node !== 'undefined';
-//     }
-//
-//     private static isBrowser(): boolean {
-//         return typeof window !== 'undefined' &&
-//             typeof window.document !== 'undefined';
-//     }
-//
-//     private static async loadNodeFile(url: string, responseType: ResponseType): Promise<any> {
-//         const { readFile } = await import('fs/promises');
-//         const { fileURLToPath } = await import('url');
-//
-//         const path = fileURLToPath(url);
-//         const _buffer = await readFile(path);
-//
-//         switch (responseType) {
-//             case 'text': return _buffer.toString('utf-8');
-//             case 'json': return JSON.parse(_buffer.toString('utf-8'));
-//             case 'arrayBuffer':
-//                 return _buffer._buffer.slice(_buffer.byteOffset, _buffer.byteOffset + _buffer.byteLength);
-//             case 'blob': throw new Error('Blob is not supported in Node.js');
-//             default: throw new Error(`Unsupported responseType: ${responseType}`);
-//         }
-//     }
-//
-//     private static async fetchWithProgress(
-//         url: string,
-//         responseType: ResponseType,
-//         headers: Record<string>,
-//         onProgress: (percent: number) => void,
-//         controller?: AbortController
-//     ): Promise<any> {
-//         const response = await fetch(url, {
-//             headers,
-//             signal: controller?.signal,
-//         });
-//
-//         if (!response.ok) {
-//             throw new Error(`Cannot load ${url}: ${response.status} ${response.statusText}`);
-//         }
-//
-//         const contentLength = response.headers.get('Content-Length');
-//         const total = contentLength ? parseInt(contentLength, 10) : null;
-//
-//         const reader = response.body?.getReader();
-//         if (!reader) throw new Error('Streaming not supported in this environment.');
-//
-//         const chunks: Uint8Array<any>[] = [];
-//         let loaded = 0;
-//
-//         while (true) {
-//             const { done, value } = await reader.read();
-//             if (done) break;
-//             if (value) {
-//                 chunks.push(value);
-//                 loaded += value.length;
-//                 if (total) onProgress((loaded / total) * 100);
-//             }
-//         }
-//
-//         const full = new Uint8Array(loaded);
-//         let offset = 0;
-//         for (const chunk of chunks) {
-//             full.set(chunk, offset);
-//             offset += chunk.length;
-//         }
-//
-//         switch (responseType) {
-//             case 'text': return new TextDecoder().decode(full);
-//             case 'json': return JSON.parse(new TextDecoder().decode(full));
-//             case 'arrayBuffer': return full._buffer;
-//             default: throw new Error(`Unsupported responseType with progress: ${responseType}`);
-//         }
-//     }
-// }
+import {Cache} from './Cache';
+import {Loader} from './Loader';
+import type {LoadingManager} from "./LoadingManager";
+
+const loading: { [key: string]: any } = {};
+
+class FileLoader extends Loader {
+
+  mimeType: string;
+  responseType: string;
+
+  constructor(manager?: LoadingManager) {
+    super(manager);
+  }
+
+  load(url: string, onLoad: Function, onProgress: Function, onError: Function) {
+    if (url === undefined) {
+      url = '';
+    }
+    if (this.path !== undefined) {
+      url = this.path + url;
+    }
+    url = this.manager.resolveURL(url);
+    const cached = Cache.get(url);
+    if (cached !== undefined) {
+      this.manager.itemStart(url);
+      setTimeout(() => {
+        if (onLoad) {
+          onLoad(cached);
+        }
+        this.manager.itemEnd(url);
+      }, 0);
+      return cached;
+    }
+    if (loading[url] !== undefined) {
+      loading[url].push({onLoad, onProgress, onError});
+      return;
+    }
+    loading[url] = [];
+    loading[url].push({onLoad, onProgress, onError});
+    const req = new Request(url, {
+      headers: new Headers(this.requestHeader),
+      credentials: this.withCredentials ? 'include' : 'same-origin'
+    });
+    const mimeType = this.mimeType;
+    const responseType = this.responseType;
+    fetch(req).then(response => {
+      if (response.status === 200 || response.status === 0) {
+        // Some browsers return HTTP Status 0 when using non-http protocol
+        // e.g. 'file://' or 'data://'. Handle as success.
+        if (response.status === 0) {
+          console.warn('FileLoader: HTTP Status 0 received.');
+        }
+        // @ts-ignore
+        if (typeof ReadableStream === 'undefined' || response.body.getReader === undefined) {
+          return response;
+        }
+        const callbacks = loading[url];
+        // @ts-ignore
+        const reader = response.body.getReader();
+        const contentLength = response.headers.get('Content-Length');
+        const total = contentLength ? parseInt(contentLength) : 0;
+        const lengthComputable = total !== 0;
+        let loaded = 0;
+        const stream = new ReadableStream({
+          start(controller) {
+            readData();
+
+            function readData() {
+              reader.read().then(({done, value}) => {
+                if (done) {
+                  controller.close();
+                } else {
+                  // @ts-ignore
+                  loaded += value.byteLength;
+                  const event = new ProgressEvent('progress', {lengthComputable, loaded, total});
+                  for (let i = 0, il = callbacks.length; i < il; i++) {
+                    const callback = callbacks[i];
+                    if (callback.onProgress) {
+                      callback.onProgress(event);
+                    }
+                  }
+                  controller.enqueue(value);
+                  readData();
+                }
+              });
+            }
+          }
+        });
+        return new Response(stream);
+      } else {
+        throw new Error(`fetch for "${response.url}" responded with ${response.status}: ${response.statusText}`);
+      }
+    }).then(response => {
+      switch (responseType) {
+        case 'arraybuffer':
+          return response.arrayBuffer();
+        case 'blob':
+          return response.blob();
+        case 'document':
+          return response.text()
+            .then(text => {
+              const parser = new DOMParser();
+              // @ts-ignore
+              return parser.parseFromString(text, mimeType);
+            });
+        case 'json':
+          return response.json();
+        default:
+          if (mimeType === undefined) {
+            return response.text();
+          } else {
+            // sniff encoding
+            const re = /charset="?([^;"\s]*)"?/i;
+            const exec = re.exec(mimeType);
+            const label = exec && exec[1] ? exec[1].toLowerCase() : undefined;
+            const decoder = new TextDecoder(label);
+            return response.arrayBuffer().then(ab => decoder.decode(ab));
+          }
+      }
+    }).then(data => {
+      // Add to cache only on HTTP success, so that we do not cache
+      // error response bodies as proper responses to requests.
+      Cache.add(url, data);
+      const callbacks = loading[url];
+      delete loading[url];
+      for (let i = 0, il = callbacks.length; i < il; i++) {
+        const callback = callbacks[i];
+        if (callback.onLoad) {
+          callback.onLoad(data);
+        }
+      }
+    }).catch(err => {
+      // Abort errors and other errors are handled the same
+      const callbacks = loading[url];
+      if (callbacks === undefined) {
+        // When onLoad was called and url was deleted in `loading`
+        this.manager.itemError(url);
+        throw err;
+
+      }
+      delete loading[url];
+      for (let i = 0, il = callbacks.length; i < il; i++) {
+        const callback = callbacks[i];
+        if (callback.onError) {
+          callback.onError(err);
+        }
+      }
+      this.manager.itemError(url);
+    }).finally(() => {
+      this.manager.itemEnd(url);
+    });
+    this.manager.itemStart(url);
+  }
+
+  setResponseType(value: string) {
+    this.responseType = value;
+    return this;
+  }
+
+  setMimeType(value: string) {
+    this.mimeType = value;
+    return this;
+  }
+}
+
+
+export {FileLoader};

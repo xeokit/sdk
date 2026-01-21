@@ -24,9 +24,9 @@ export class Property {
   public readonly value: any;
 
   /**
-   * The type of this property (e.g., string, number, etc.).
+   * The semantic type of this property.
    */
-  public readonly type?: string | number;
+  public readonly type?: string;
 
   /**
    * The type of this property's value (e.g., string, integer, etc.).

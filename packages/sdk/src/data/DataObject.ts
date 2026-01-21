@@ -18,7 +18,7 @@ export class DataObject {
   /**
    * The {@link Data | Data} instance that contains this DataObject.
    */
-  public data: Data;
+  public readonly data: Data;
 
   /**
    * The {@link DataModel | DataModels} that share this DataObject.
@@ -39,7 +39,7 @@ export class DataObject {
    *
    * Defaults to the value of {@link DataObject.id | DataObject.id} if not provided.
    */
-  originalSystemId?: string;
+ public readonly originalSystemId?: string;
 
   /**
    * A human-readable name for this DataObject.
@@ -54,7 +54,7 @@ export class DataObject {
   /**
    * The type of this DataObject.
    */
-  public readonly type: number;
+  public readonly type: string;
 
   /**
    * A list of {@link PropertySet | PropertySets} referenced by this DataObject.
@@ -91,7 +91,7 @@ export class DataObject {
     originalSystemId: string,
     name: string,
     description: string | undefined,
-    type: number,
+    type: string,
     propertySets?: PropertySet[]) {
 
     this.data = data;

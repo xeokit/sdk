@@ -1,4 +1,3 @@
-import { ifcTypeCodes } from "../../../../formats/ifc/ifctypes_4_0_2_1";
 import type { ModelParser } from "../../../ModelParser";
 import { TrianglesPrimitive } from "../../../../constants";
 
@@ -77,7 +76,7 @@ export const parse: ModelParser = async (params, options) => {
           if (!params.dataModel.objects[element.guid]) {
             const dataObjectRes = params.dataModel.createObject({
               id: objectId,
-              type: ifcTypeCodes[element.type],
+              type: element.type,
               name: info?.Name,
               description: info?.Description,
             });

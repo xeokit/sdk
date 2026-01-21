@@ -1,5 +1,4 @@
 import type {DataModelParams, RelationshipParams} from "../../data";
-import {IfcRelAggregates} from "../../formats/ifc/ifctypes_4_0_2_1";
 import type {MetaModelParams} from "./MetaModelParams";
 
 /***
@@ -29,13 +28,13 @@ export function convertMetaModel(metaModelParams: MetaModelParams): DataModelPar
       dataModelParams.objects.push({
         id: metaObject.id,
         name: metaObject.name,
-        type: 0//metaObject.type
+        type: metaObject.type
       });
       if (metaObject.parent) {
         dataModelParams.relationships.push(<RelationshipParams>{
           relatingObjectId: metaObject.parent,
           relatedObjectId: metaObject.id,
-          type: IfcRelAggregates
+          type: "IfcRelAggregates"
         })
       }
     }

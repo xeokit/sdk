@@ -63,39 +63,30 @@
  * * aggregation Relationships that connect them into a hierarchy, and
  * * PropertySets with Properties that describe attributes such as height and weight.
  *
- * To give DataObjects and Relationships consistent meaning, the example uses the SDK’s bundled type set
- * {@link "basictypes" | @xeokit/basictypes}. This classifies each DataObject as a {@link basictypes!BasicEntity | BasicEntity}
- * and each Relationship as a {@link basictypes!BasicAggregation | BasicAggregation}.
- *
- * In larger projects you might use a richer type set such as {@link "ifctypes" | @xeokit/ifctypes}. Type sets are intended
- * to be consistent within a {@link Data}: traversals performed by {@link searchObjects} rely on a single type system across
- * the object/relationship graph.
- *
  * All methods in this example return {@link core!SDKResult | SDKResult} values, which should be checked for errors.
  *
  * ````ts
  * import type { SDKResult } from "@xeokit/sdk/core";
  * import { Data, type DataModel } from "@xeokit/sdk/data";
- * import * as basicTypes from "@xeokit/sdk/basictypes/basicTypes";
  *
  * const data = new Data();
  *
  * const result: SDKResult<DataModel> = data.createModel({
  *   id: "myTableModel",
  *   objects: [
- *     { id: "table",    type: basicTypes.BasicEntity, name: "Table",           propertySetIds: ["tablePropertySet"] },
- *     { id: "tableTop", type: basicTypes.BasicEntity, name: "Purple tabletop", propertySetIds: ["tableTopPropertySet"] },
- *     { id: "redLeg",   type: basicTypes.BasicEntity, name: "Red leg",         propertySetIds: ["legPropertySet"] },
- *     { id: "greenLeg", type: basicTypes.BasicEntity, name: "Green leg",       propertySetIds: ["legPropertySet"] },
- *     { id: "blueLeg",  type: basicTypes.BasicEntity, name: "Blue leg",        propertySetIds: ["legPropertySet"] },
- *     { id: "yellowLeg",type: basicTypes.BasicEntity, name: "Yellow leg",      propertySetIds: ["legPropertySet"] },
+ *     { id: "table",    type: "BasicEntity", name: "Table",           propertySetIds: ["tablePropertySet"] },
+ *     { id: "tableTop", type: "BasicEntity", name: "Purple tabletop", propertySetIds: ["tableTopPropertySet"] },
+ *     { id: "redLeg",   type: "BasicEntity", name: "Red leg",         propertySetIds: ["legPropertySet"] },
+ *     { id: "greenLeg", type: "BasicEntity", name: "Green leg",       propertySetIds: ["legPropertySet"] },
+ *     { id: "blueLeg",  type: "BasicEntity", name: "Blue leg",        propertySetIds: ["legPropertySet"] },
+ *     { id: "yellowLeg",type: "BasicEntity", name: "Yellow leg",      propertySetIds: ["legPropertySet"] },
  *   ],
  *   relationships: [
- *     { type: basicTypes.BasicAggregation, relatingObjectId: "table",    relatedObjectId: "tableTop" },
- *     { type: basicTypes.BasicAggregation, relatingObjectId: "tableTop", relatedObjectId: "redLeg" },
- *     { type: basicTypes.BasicAggregation, relatingObjectId: "tableTop", relatedObjectId: "greenLeg" },
- *     { type: basicTypes.BasicAggregation, relatingObjectId: "tableTop", relatedObjectId: "blueLeg" },
- *     { type: basicTypes.BasicAggregation, relatingObjectId: "tableTop", relatedObjectId: "yellowLeg" },
+ *     { type: "BasicAggregation", relatingObjectId: "table",    relatedObjectId: "tableTop" },
+ *     { type: "BasicAggregation", relatingObjectId: "tableTop", relatedObjectId: "redLeg" },
+ *     { type: "BasicAggregation", relatingObjectId: "tableTop", relatedObjectId: "greenLeg" },
+ *     { type: "BasicAggregation", relatingObjectId: "tableTop", relatedObjectId: "blueLeg" },
+ *     { type: "BasicAggregation", relatingObjectId: "tableTop", relatedObjectId: "yellowLeg" },
  *   ],
  *   propertySets: [
  *     {
@@ -149,7 +140,6 @@
  * ````ts
  * import { SDKResult } from "@xeokit/sdk/core";
  * import { Data, searchObjects } from "@xeokit/sdk/data";
- * import * as basicTypes from "@xeokit/sdk/basictypes/basicTypes";
  *
  * const data = new Data();
  *
@@ -197,7 +187,7 @@
  *
  *   const tableRes: SDKResult<DataObject> = dataModel.createObject({
  *     id: "table",
- *     type: basicTypes.BasicEntity,
+ *     type: "BasicEntity"",
  *     name: "Table",
  *     propertySetIds: ["tablePropertySet"],
  *   });
@@ -206,7 +196,7 @@
  *   const redLegRes = dataModel.createObject({
  *     id: "redLeg",
  *     name: "Red table leg",
- *     type: basicTypes.BasicEntity,
+ *     type: "BasicEntity",
  *     propertySetIds: ["legPropertySet"],
  *   });
  *   if (!redLegRes.ok) console.error(redLegRes.error);
@@ -214,7 +204,7 @@
  *   const greenLegRes = dataModel.createObject({
  *     id: "greenLeg",
  *     name: "Green table leg",
- *     type: basicTypes.BasicEntity,
+ *     type: "BasicEntity",
  *     propertySetIds: ["legPropertySet"],
  *   });
  *   if (!greenLegRes.ok) console.error(greenLegRes.error);
@@ -222,7 +212,7 @@
  *   const blueLegRes = dataModel.createObject({
  *     id: "blueLeg",
  *     name: "Blue table leg",
- *     type: basicTypes.BasicEntity,
+ *     type: "BasicEntity",
  *     propertySetIds: ["legPropertySet"],
  *   });
  *   if (!blueLegRes.ok) console.error(blueLegRes.error);
@@ -230,7 +220,7 @@
  *   const yellowLegRes = dataModel.createObject({
  *     id: "yellowLeg",
  *     name: "Yellow table leg",
- *     type: basicTypes.BasicEntity,
+ *     type: "BasicEntity",
  *     propertySetIds: ["legPropertySet"],
  *   });
  *   if (!yellowLegRes.ok) console.error(yellowLegRes.error);
@@ -238,41 +228,41 @@
  *   const tableTopRes = dataModel.createObject({
  *     id: "tableTop",
  *     name: "Purple table top",
- *     type: basicTypes.BasicEntity,
+ *     type: "BasicEntity",
  *     propertySetIds: ["tableTopPropertySet"],
  *   });
  *   if (!tableTopRes.ok) console.error(tableTopRes.error);
  *
  *   const rel1Res: SDKResult<Relationship> = dataModel.createRelationship({
- *     type: basicTypes.BasicAggregation,
+ *     type: "BasicAggregation",
  *     relatingObjectId: "table",
  *     relatedObjectId: "tableTop",
  *   });
  *   if (!rel1Res.ok) console.error(rel1Res.error);
  *
  *   const rel2Res = dataModel.createRelationship({
- *     type: basicTypes.BasicAggregation,
+ *     type: "BasicAggregation",
  *     relatingObjectId: "tableTop",
  *     relatedObjectId: "redLeg",
  *   });
  *   if (!rel2Res.ok) console.error(rel2Res.error);
  *
  *   const rel3Res = dataModel.createRelationship({
- *     type: basicTypes.BasicAggregation,
+ *     type: "BasicAggregation",
  *     relatingObjectId: "tableTop",
  *     relatedObjectId: "greenLeg",
  *   });
  *   if (!rel3Res.ok) console.error(rel3Res.error);
  *
  *   const rel4Res = dataModel.createRelationship({
- *     type: basicTypes.BasicAggregation,
+ *     type: "BasicAggregation",
  *     relatingObjectId: "tableTop",
  *     relatedObjectId: "blueLeg",
  *   });
  *   if (!rel4Res.ok) console.error(rel4Res.error);
  *
  *   const rel5Res = dataModel.createRelationship({
- *     type: basicTypes.BasicAggregation,
+ *     type: "BasicAggregation",
  *     relatingObjectId: "tableTop",
  *     relatedObjectId: "yellowLeg",
  *   });
@@ -292,8 +282,8 @@
  *
  * searchObjects(data, {
  *   startObjectId: "table",
- *   includeObjects: [basicTypes.BasicEntity],
- *   includeRelated: [basicTypes.BasicAggregation],
+ *   includeObjects: ["BasicEntity"],
+ *   includeRelated: ["BasicAggregation"],
  *   resultObjectIds,
  * });
  *
@@ -308,7 +298,7 @@
  *
  * ````ts
  * const table = data.objects["table"];
- * const relations = table.related[basicTypes.BasicAggregation] || [];
+ * const relations = table.related["BasicAggregation"] || [];
  *
  * for (let i = 0, len = relations.length; i < len; i++) {
  *   const relation = relations[i];

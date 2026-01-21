@@ -1,13 +1,4 @@
 import {createUUID} from "../../../../utils";
-import {
-  IfcBuilding,
-  IfcBuildingElementProxy,
-  IfcBuildingStorey,
-  IfcProject,
-  IfcRelAggregates,
-  IfcSite,
-  ifcTypeNames
-} from "../../../../formats/ifc/ifctypes_4_0_2_1";
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
 import * as WebIFC from "web-ifc";
 import {createCoordinateSystemTransform} from "../../../../scene";
@@ -85,7 +76,7 @@ export function encode(ifcAPI: WebIFC.IfcAPI, params: ModelEncodeParams, options
 
     // IfcProject
 
-    const projectDataObjects = dataModel.objectsByType[IfcProject];
+    const projectDataObjects = dataModel.objectsByType["IfcProject"];
     const projectDataObject = projectDataObjects ? Object.values(projectDataObjects)[0] : null;
     const projectId = projectDataObject ? projectDataObject.id : createUUID();
 
@@ -111,9 +102,9 @@ export function encode(ifcAPI: WebIFC.IfcAPI, params: ModelEncodeParams, options
       const dataObjectType =
         (dataObject.type !== undefined && dataObject.type !== null)
           ? dataObject.type
-          : IfcBuildingElementProxy;
+          : "IfcBuildingElementProxy";
 
-      const dataObjectTypeName = ifcTypeNames[dataObjectType] || "IfcBuildingElementProxy";
+      const dataObjectTypeName = dataObjectType || "IfcBuildingElementProxy";
       const ifcElementClass = <any>WebIFC.IFC4[dataObjectTypeName];
 
       if (ifcElementClass) {
@@ -150,9 +141,9 @@ export function encode(ifcAPI: WebIFC.IfcAPI, params: ModelEncodeParams, options
       const relationshipType =
         (relationship.type !== undefined && relationship.type !== null)
           ? relationship.type
-          : IfcRelAggregates;
+          : "IfcRelAggregates";
 
-      const relatonshipTypeName = ifcTypeNames[relationshipType] || "IfcRelAggregates";
+      const relatonshipTypeName = relationshipType;
       const ifcRelationshipClass = <any>WebIFC.IFC4[relatonshipTypeName];
 
       if (ifcRelationshipClass) {

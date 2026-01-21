@@ -2,7 +2,6 @@ import {createMat4Float64,  decomposeMat4, mulMat4} from "../../../../math/matri
 import { createVec3Float64, createVec4Float64} from "../../../../math/vector";
 
 import {decompressPoint3WithAABB3} from "../../../../math/compression";
-import {ifcTypeNames} from "../../../../formats/ifc/ifctypes_4_0_2_1";
 import type {ModelEncodeParams} from "../../../ModelEncodeParams";
 import {createCoordinateSystemTransform} from "../../../../scene";
 
@@ -109,7 +108,7 @@ export function encode(params: ModelEncodeParams, options?: any): Promise<any> {
       if (dataModel) {
         dataObject = dataModel.objects[sceneObject.id];
         if (dataObject) {
-          info.type = ifcTypeNames[dataObject.type];
+          info.type = dataObject.type;
           info.Name = dataObject.name;
           info.Description = dataObject.description;
         }

@@ -1,7 +1,6 @@
 import {EventEmitter, SDKInternalException} from "../core";
 import type {Data, DataModel, DataObject} from "../data";
 import type {View, Viewer, ViewObject} from "../viewer";
-import {EventDispatcher} from "strongly-typed-events";
 import type {TreeViewNode} from "./TreeViewNode";
 import type {TreeViewNodeContextMenuEvent} from "./TreeViewNodeContextMenuEvent";
 import type {TreeViewNodeTitleClickedEvent} from "./TreeViewNodeTitleClickedEvent";
@@ -70,8 +69,8 @@ export class TreeView  {
   public readonly view: View;
 
 
-  _linkType: number;
-  _groupTypes: number[];
+  _linkType: string;
+  _groupTypes: string[];
   _containerElement: HTMLElement;
   _hierarchy: number;
   _dataModels: {
@@ -349,7 +348,7 @@ export class TreeView  {
    * {@link data!Relationship | Relationships} of this type in
    * {@link data!DataObject.relating | DataObject.relating}.
    */
-  get linkType(): number {
+  get linkType(): string {
     return this._linkType;
   }
 
@@ -359,7 +358,7 @@ export class TreeView  {
    * {@link data!Relationship | Relationships} of this type in
    * {@link data!DataObject.relating | DataObject.relating}.
    */
-  set linkType(linkType: number) {
+  set linkType(linkType: string) {
     if (this._linkType === linkType) {
       return;
     }
@@ -378,7 +377,7 @@ export class TreeView  {
    *
    * Example: ````[IfcBuilding, IfcBuildingStorey]````.
    */
-  get groupTypes(): number [] {
+  get groupTypes(): string [] {
     return this._groupTypes;
   }
 
@@ -393,7 +392,7 @@ export class TreeView  {
    *
    * Example: ````[IfcBuilding, IfcBuildingStorey]````.
    */
-  set groupTypes(groupTypes: number[]) {
+  set groupTypes(groupTypes: string[]) {
     if (this._groupTypes === groupTypes) {
       return;
     }
@@ -691,7 +690,7 @@ this.events.destroy();
       if (Object.keys(dataObject.relating).length === 0) {
         const dataObjectType = dataObject.type;
         const name = dataObject.name;
-        const rootName = (name && name !== "" && name !== "Undefined" && name !== "Default") ? name : `${dataObjectType}`; // TODO: type is a number - needs to be human-readable
+        const rootName = (name && name !== "" && name !== "Undefined" && name !== "Default") ? name : `${dataObjectType}`; // TODO: type is a string - needs to be human-readable
         const ul = document.createElement('ul');
         const li = document.createElement('li');
         ul.appendChild(li);
@@ -758,7 +757,7 @@ this.events.destroy();
     pathNodes: TreeViewNode[],
     buildingNode: TreeViewNode | null,
     storeyNode: TreeViewNode | null,
-    typeNodes: { [key: number]: TreeViewNode } | null) {
+    typeNodes: { [key: string]: TreeViewNode } | null) {
 
     if (this._pruneEmptyNodes && (!this._dataObjectSceneObjectCounts[dataObject.id])) {
       return;
@@ -876,7 +875,7 @@ this.events.destroy();
     }
   }
 
-  _buildTypesNodes2(dataObject: DataObject, rootNode: TreeViewNode | null, typeNodes: { [key: string | number]: TreeViewNode } | null) {
+  _buildTypesNodes2(dataObject: DataObject, rootNode: TreeViewNode | null, typeNodes: { [key: string | string]: TreeViewNode } | null) {
 
     if (this._pruneEmptyNodes && (!this._dataObjectSceneObjectCounts[dataObject.id])) {
       return;

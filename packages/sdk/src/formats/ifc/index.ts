@@ -113,5 +113,3 @@
  */
 export * from "./IFCLoader";
 export * from "./IFCExporter";
-
-export * as ifctypes_4_0_2_1 from "./ifctypes_4_0_2_1";

@@ -1,6 +1,5 @@
 import * as WebIFC from "web-ifc";
 import {identityMat4 } from "../../../../math/matrix";
-import { IfcElement, IfcRelAggregates, ifcTypeCodes } from "../../../../formats/ifc/ifctypes_4_0_2_1";
 import type { DataModel } from "../../../../data";
 import type { ModelParseParams } from "../../../ModelParseParams";
 import type { SceneModel } from "../../../../scene";
@@ -106,13 +105,13 @@ function createDataObject(ctx: ParsingContext, element: any, parentId?: string):
   const id = element.GlobalId.value;
   const typeName = element.__proto__.constructor.name;
   const name = element.Name?.value || typeName;
-  const typeCode = ifcTypeCodes[typeName] ?? IfcElement;
+  const typeCode = typeName ?? "IfcElement";
 
   ctx.dataModel!.createObject({ id, name, type: typeCode });
 
   if (parentId) {
     ctx.dataModel!.createRelationship({
-      type: IfcRelAggregates,
+      type: "IfcRelAggregates",
       relatingObjectId: parentId,
       relatedObjectId: id,
     });

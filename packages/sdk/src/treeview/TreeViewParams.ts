@@ -40,7 +40,7 @@ export interface TreeViewParams {
    * {@link data!Relationship| Relationships} of this type in
    * {@link data!DataObject.relating | DataObject.relating}.
    */
-  linkType: number,
+  linkType: string,
 
   /**
    * When traversing the {@link data!Data | Data} to build the tree UI nodes for a {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy}
@@ -50,7 +50,7 @@ export interface TreeViewParams {
    * The grouping for the {@link treeview!TreeView.GroupsHierarchy | GroupsHierarchy} hierarchy has two levels. The major grouping type is given
    * in ````groupTypes[0]```` and the minor grouping type is given in ````storeyGroups[1]````.
    */
-  groupTypes: number[]
+  groupTypes: string[]
 
   /**
    * {@link data!DataObject.type | DataObject.type}

@@ -9,11 +9,9 @@ import {
   subVec3
 } from "../../../../math/vector";
 // @ts-ignore
-import {BasicAggregation} from "../../../datamodel/basicTypes";
 import {earcut} from './earcut';
 import type {ModelParser} from "../../../ModelParser";
 import {TrianglesPrimitive} from "../../../../constants";
-import {typeCodes} from "../../cityjsontypes_1_1_3";
 
 const tempVec2a = createVec2Float64();
 const tempVec3a = createVec3Float64();
@@ -80,7 +78,7 @@ function parseCityObject(ctx: any, cityObject: any, objectId: any) {
     ctx.dataModel.createObject({
       id: objectId,
       name: cityObject.type + " : " + objectId,
-      type: typeCodes[cityObject.type] | 0,
+      type: cityObject.type,
       parent: cityObject.parents ? cityObject.parents[0] : null
     });
   }
@@ -140,7 +138,7 @@ function parseRelationship(ctx: any, cityObject: any, objectId: any) {
     ctx.dataModel.createRelationship({
       relatingObjectId: cityObject.parents[0],
       relatedObjectId: objectId,
-      type: BasicAggregation
+      type: "BasicAggregation"
     });
   }
 }

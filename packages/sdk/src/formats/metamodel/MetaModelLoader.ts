@@ -1,4 +1,4 @@
-import {IfcRelAggregates, ifcTypeCodes} from "../../formats/ifc/ifctypes_4_0_2_1";
+
 import type {ModelLoadParams} from "../ModelLoadParams";
 import {ModelLoader} from "../ModelLoader";
 import {DataModel} from "../../data";
@@ -58,7 +58,7 @@ function parseMetaModel(params: ModelLoadParams): Promise<void> {
       if (!dataObject) {
         const originalSystemId = metaObjectData.originalSystemId;
         const propertySetIds = metaObjectData.propertySets || metaObjectData.propertySetIds;
-        const type = ifcTypeCodes[metaObjectData.type];
+        const type = metaObjectData.type;
         dataModel.createObject({
           id,
           originalSystemId,
@@ -70,7 +70,7 @@ function parseMetaModel(params: ModelLoadParams): Promise<void> {
           dataModel.createRelationship({
             relatingObjectId: metaObjectData.parent,
             relatedObjectId: id,
-            type: IfcRelAggregates
+            type: "IfcRelAggregates"
           })
         }
       }

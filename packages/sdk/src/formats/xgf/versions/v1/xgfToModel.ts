@@ -1,4 +1,3 @@
-import {BasicAggregation, BasicEntity} from "../../../datamodel/basicTypes";
 import {
   LinesPrimitive,
   PointsPrimitive,
@@ -29,7 +28,7 @@ export function xgfToModel(params: {
     dataModel.createObject({
       id: defaultId,
       name: defaultId,
-      type: BasicEntity
+      type: "BasicEntity"
     });
   }
 
@@ -130,10 +129,10 @@ export function xgfToModel(params: {
         dataModel.createObject({
           id: objectId,
           name: objectId,
-          type: BasicEntity
+          type: "BasicEntity"
         });
         dataModel.createRelationship({
-          type: BasicAggregation,
+          type: "BasicAggregation",
           relatingObjectId: defaultId,
           relatedObjectId: objectId
         });

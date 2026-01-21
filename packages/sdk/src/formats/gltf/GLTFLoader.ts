@@ -15,8 +15,8 @@ import {
 import {createMat4Float64, identityMat4, type Mat4, mulMat4,  scalingMat4v, translationMat4v} from "../../math/matrix";
 import {createUUID, isString} from "../../utils";
 import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
-import type {ModelLoadParams} from "../";
-import {ModelLoader} from "../";
+import type {ModelLoadParams} from "../ModelLoadParams";
+import {ModelLoader} from "../ModelLoader";
 import type {SceneGeometryParams, SceneMeshParams, SceneModel, SceneTextureSetParams} from "../../scene";
 import type {DataModel} from "../../data/DataModel";
 import {parse} from '@loaders.gl/core';

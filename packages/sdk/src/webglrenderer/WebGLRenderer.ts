@@ -357,6 +357,7 @@ export class WebGLRenderer {
             error: `[WebGLRenderer] Failed to attach Viewer - ${result.error}`
           });
         }
+        this.events.onRendererStarted.dispatch(this);
       }),
       viewerEvents.onSceneDetached.subscribe((viewer, scene) => {
         this._destroyViewManager();
@@ -375,9 +376,11 @@ export class WebGLRenderer {
           error: `[WebGLRenderer.attachViewer] Failed to attach Viewer - ${result.error}`
         });
       }
+      this.events.onViewerAttached.dispatch(this, this._viewer);
+      this.events.onRendererStarted.dispatch(this);
+    } else {
+      this.events.onViewerAttached.dispatch(this, this._viewer);
     }
-
-    this.events.onViewerAttached.dispatch(this, this._viewer);
 
     return {
       ok: true,
@@ -487,8 +490,6 @@ export class WebGLRenderer {
       }
       this.events.webglContextRestored.dispatch(this);
     });
-
-    this.events.onRendererStarted.dispatch(this);
 
     return {
       ok: true,

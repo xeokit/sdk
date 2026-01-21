@@ -1,5 +1,6 @@
 import { encode as encode_IFC4 } from "./versions/IFC4/encode";
-import {type ModelEncodeParams, ModelExporter} from "../";
+import {type ModelEncodeParams} from "../ModelEncodeParams";
+import {ModelExporter} from "../ModelExporter";
 import { getInitializedIFCAPI } from "./getInitializedIFCAPI";
 
 /**

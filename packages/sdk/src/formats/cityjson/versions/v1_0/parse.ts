@@ -9,7 +9,7 @@ import {
   subVec3
 } from "../../../../math/vector";
 // @ts-ignore
-import {BasicAggregation} from "../../../../basictypes";
+import {BasicAggregation} from "../../../datamodel/basicTypes";
 import {earcut} from './earcut';
 import type {ModelParser} from "../../../ModelParser";
 import {TrianglesPrimitive} from "../../../../constants";

@@ -1,4 +1,5 @@
-import {type ModelEncodeParams, ModelExporter} from "../";
+import {type ModelEncodeParams} from "../ModelEncodeParams";
+import {ModelExporter} from "../ModelExporter";
 import {Document, type mat4, WebIO,} from '@gltf-transform/core';
 import {decompressPoint3WithAABB3} from "../../math/compression";
 import {createVec3Float64} from "../../math/vector";

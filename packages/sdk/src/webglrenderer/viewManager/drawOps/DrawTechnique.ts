@@ -841,7 +841,7 @@ vec4 packUintToRGBA8(uint v) {
       "    vec3 pb = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ib))), 1.0))).xyz;",
       "    vec3 pc = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ic))), 1.0))).xyz;",
 
-      "    vec3 normal = cross(pc - pa, pb - pa);",
+      "    vec3 normal = normalize(cross(pc - pa, pb - pa));",
 
       "    float lambertian = 1.0;",
       "    vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",

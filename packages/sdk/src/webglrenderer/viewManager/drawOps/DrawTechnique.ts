@@ -793,12 +793,12 @@ vec4 packUintToRGBA8(uint v) {
 
       "    GeometryAttributes  geometryAttributes   = getGeometryAttributeTexture( geometryIndex );",
 
-      "    uint localVert = drawVertexIndex % numVertsPerPrim;",
-      "    uint vertexOffsetWithinGeometry = primOffset * numVertsPerPrim + localVert;",
+      "    uint localVert = drawVertexIndex % numVertsPerPrim;", // 0, 1, 2 for triangle; 0, 1 for line; 0 for point
+      "    uint vertexOffsetWithinGeometry = (primOffset * numVertsPerPrim) + localVert;",
 
       "    uint vertexIndexWithinGeometry = (uPrimitiveType == 20000)", // Points
       "       ? vertexOffsetWithinGeometry",
-      "       : getVertexIndex(0u + vertexOffsetWithinGeometry);",
+      "       : getVertexIndex(geometryAttributes.indicesBase + vertexOffsetWithinGeometry);",
 
       "    QuantRange       quantRange        = getGeometryQuantRange( geometryIndex );",
 

@@ -487,8 +487,6 @@ export class GPUMemoryBatch {
           }
         }
 
-        this._indexTexture.setPortionData(indicesHandle, sceneGeometry.indices);
-
         if (sceneGeometry.primitive === TrianglesPrimitive && sceneGeometry.edgeIndices) {
           edgeIndicesHandle = this._edgeIndexTexture.getPortion(
             sceneGeometry.edgeIndices,

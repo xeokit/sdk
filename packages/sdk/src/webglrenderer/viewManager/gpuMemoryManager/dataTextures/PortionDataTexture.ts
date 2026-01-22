@@ -265,7 +265,7 @@ export abstract class PortionDataTexture extends DataTexture {
     onMove?: (newBase: number) => void
   ): PortionHandle {
     const block = this.freePortions[index];
-    const id = this.nextPortionId++;
+    const id = ++this.nextPortionId;
     const portion: Portion = { base: block.base, size };
     this.usedPortions.set(id, portion);
     if (size === block.size) {

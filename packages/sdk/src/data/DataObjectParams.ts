@@ -32,6 +32,11 @@ export interface DataObjectParams {
   type: string;
 
   /**
+   * The model schema version, if available.
+   */
+  schema?: string;
+
+  /**
    * A human-readable name for the DataObject.
    */
   name: string;

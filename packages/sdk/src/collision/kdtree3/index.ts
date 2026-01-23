@@ -1,89 +1,96 @@
 /**
- * <img style="padding:30px; padding-left:0;" src="https://xeokit.github.io/sdk/docs/assets/kdtree.jpeg"/>
+ * <img style="padding:30px; padding-left:0;" src="https://xeokit.github.io/sdk/docs/assets/kdtree.png"/>
  *
- * # xeokit 3D Collision Utilities
- *
- * ---
- *
- * ***Efficient spatial searching and collision detection using 3D k-d trees, rays, and boundaries.***
+ * # kdtree3 — 3D Spatial Search & Collision Utilities
  *
  * ---
  *
- * The {@link KdTree3} provides a fast spatial search tileIndex that organizes 3D objects with axis-aligned boundaries,
- * allowing efficient queries for intersections with other objects, volumes, and rays.
+ * **Efficient spatial querying and coarse collision detection using 3D k-d trees, rays, and bounding volumes**
  *
- * ## Features
+ * ---
  *
- * This module includes functions for building and searching `KdTree3` instances:
+ * ## What this module provides
  *
- * **Building KdTree3s:**
- * * {@link createPrimsKdTree3} - Creates a `KdTree3` containing primitives from geometry arrays, organized by their 3D boundaries.
- * * {@link createSceneObjectPrimsKdTree3} - Creates a `KdTree3` containing primitives from `SceneObjects`, organized by their world-space boundaries.
- * * {@link createSceneObjectsKdTree3} - Creates a `KdTree3` containing `SceneObjects`, organized by their world-space boundaries.
+ * This module centers around {@link KdTree3}, a k-d tree that indexes items by their **axis-aligned bounding boxes (AABBs)**.
+ * Building a `KdTree3` up-front lets you run fast queries such as:
  *
- * **Searching KdTree3s:**
- * * {@link searchKdTree3WithAABB} - Finds objects intersecting a given 3D axis-aligned bounding box (AABB).
- * * {@link searchKdTree3WithFrustum} - Finds objects intersecting a given 3D frustum volume.
- * * {@link searchKdTree3WithRay} - Finds objects intersecting a given 3D ray.
+ * - “Which objects intersect this AABB?”
+ * - “Which objects are inside (or intersect) the camera frustum?”
+ * - “Which objects does this picking ray hit?”
  *
- * ## Use Cases
- * With these utilities, applications can implement:
- * * **Frustum culling** for {@link scene!SceneObject | SceneObjects}
- * * **Ray-picking** for object selection
- * * **Marquee selection** of multiple objects
+ * In practice, this is a high-performance way to *reduce the number of candidates* before doing more expensive, exact tests.
+ *
+ * ## Build a k-d tree
+ *
+ * Choose one of the builders depending on what you want to index:
+ *
+ * - {@link createPrimsKdTree3} — Indexes **geometry primitives** (triangles/lines/points) from raw arrays.
+ * - {@link createSceneObjectPrimsKdTree3} — Indexes **primitives belonging to `SceneObjects`**, using world-space bounds.
+ * - {@link createSceneObjectsKdTree3} — Indexes **whole `SceneObjects`**, using their world-space bounds.
+ *
+ * ## Query a k-d tree
+ *
+ * Once built, you can query the tree with common spatial volumes:
+ *
+ * - {@link searchKdTree3WithAABB} — Finds items whose AABB intersects a given AABB.
+ * - {@link searchKdTree3WithFrustum} — Finds items intersecting a frustum (useful for culling/selection).
+ * - {@link searchKdTree3WithRay} — Finds items intersecting a ray (useful for picking).
+ *
+ * ## Typical use cases
+ *
+ * - **Frustum culling** to quickly find potentially visible {@link scene!SceneObject | SceneObjects}
+ * - **Ray picking** to find selection candidates under the cursor
+ * - **Marquee / box selection** using an AABB or frustum derived from screen-space drag
  *
  * ## Installation
  *
- * Install the xeokit SDK:
- *
- * ````bash
+ * ```bash
  * npm install @xeokit/sdk
- * ````
+ * ```
  *
- * ## Usage
+ * ## Example: find SceneObjects intersecting an AABB
  *
- * Searching for {@link scene!SceneObject | SceneObjects} intersecting a 3D world-space boundary:
- *
- * ````javascript
+ * ```javascript
  * import { Scene } from "@xeokit/sdk/scene";
- * import { SDKError } from "@xeokit/sdk/core";
  * import { TrianglesPrimitive } from "@xeokit/sdk/constants";
  * import { createSceneObjectsKdTree3, searchKdTree3WithAABB } from "@xeokit/sdk/kdtree3";
  *
+ * // 1) Build a simple scene with one object
  * const scene = new Scene();
- * const sceneModelResult = scene.createModel({ id: "myModel" });
- * const sceneModel = sceneModelResult.value;
+ * const sceneModel = scene.createModel({ id: "myModel" }).value;
  *
  * sceneModel.createGeometry({
- *     id: "theGeometry",
- *     primitive: TrianglesPrimitive,
- *     positions: [10.07, 0, 11.07, 9.58, 3.11, 11.07, 8.15, ...],
- *     indices: [21, 0, 1, 1, 22, 21, 22, 1, 2, 2, 23, 22, 23, ...]
+ *   id: "theGeometry",
+ *   primitive: TrianglesPrimitive,
+ *   positions: [10.07, 0, 11.07, 9.58, 3.11, 11.07, 8.15 ...],
+ *   indices:   [21, 0, 1, 1, 22, 21, 22, 1, 2, 2, 23, 22, 23 ...]
  * });
  *
- * sceneModel.createLayerMesh({
- *     id: "tableTopMesh",
- *     geometryId: "theGeometry",
- *     position: [0, -3, 0],
- *     scale: [6, 0.5, 6],
- *     rotation: [0, 0, 0],
- *     color: [1.0, 0.3, 1.0]
+ * sceneModel.createMesh({
+ *   id: "tableTopMesh",
+ *   geometryId: "theGeometry",
+ *   position: [0, -3, 0],
+ *   scale: [6, 0.5, 6],
+ *   rotation: [0, 0, 0],
+ *   color: [1.0, 0.3, 1.0]
  * });
  *
  * sceneModel.createObject({
- *     id: "tableTopSceneObject",
- *     meshIds: ["tableTopMesh"]
+ *   id: "tableTopSceneObject",
+ *   meshIds: ["tableTopMesh"]
  * });
  *
+ * // 2) Build a KdTree3 over all SceneObjects in the scene
  * const kdTree = createSceneObjectsKdTree3(Object.values(scene.objects));
  *
+ * // 3) Query candidates intersecting an AABB
  * const intersectingObjects = searchKdTree3WithAABB({
- *     kdTree,
- *     aabb: [0, 0, 0, 10, 10, 10]
+ *   kdTree,
+ *   aabb: [0, 0, 0, 10, 10, 10]
  * });
  *
  * console.log(intersectingObjects);
- * ````
+ * ```
  *
  * @module kdtree3
  */

@@ -381,10 +381,10 @@ export class SceneMesh {
     if (!isIdentityMat4(this._localMatrix)) {
       meshParams.matrix = <Mat4>Array.from(this._localMatrix);
     }
-    if (this.textureSet !== undefined) {
+    if (this.textureSet !== null && this.textureSet !== undefined) {
       meshParams.textureSetId = this.textureSet.id;
     }
-    if (this._parentTransform !== undefined) {
+    if (this._parentTransform !== null && this._parentTransform !== undefined) {
       meshParams.parentTransformId = this.parentTransform.id;
     }
     return {

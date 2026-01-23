@@ -10,7 +10,6 @@ const tempVec3b = createVec3Float64();
 
 const tempMat4a = createMat4Float64();
 
-
 /**
  * @private
  */

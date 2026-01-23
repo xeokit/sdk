@@ -1,120 +1,129 @@
 /**
- * <img style="padding:0px; padding-top:20px; padding-bottom:30px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_gltf_logo.svg"/>
+ * <img style="padding:0; padding-top:20px; padding-bottom:30px; height:130px;"
+ *      src="https://xeokit.github.io/sdk/docs/assets/xeokit_gltf_logo.svg"/>
  *
- * # xeokit glTF Importer and Exporter
+ * # gltf — glTF Importer
+ *
+ * Import models using the industry-standard
+ * {@link https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#gltf | glTF}
+ * (GL Transmission Format).
+ *
+ * ## Overview
+ *
+ * The xeokit SDK provides support for loading **glTF**, a compact, efficient,
+ * and royalty-free format designed for fast delivery of 3D assets in real-time
+ * applications and web browsers.
+ *
+ * glTF is widely used for:
+ *
+ * - runtime asset delivery
+ * - web-based 3D visualization
+ * - interchange between 3D tools and engines
+ *
+ * A glTF asset may contain:
+ *
+ * - geometry and materials
+ * - textures
+ * - a hierarchical scene graph
  *
  * ---
  *
- * ***Import and export models in the industry-standard glTF model file format.***
+ * ## Importing glTF
  *
- * ---
+ * Use {@link GLTFLoader} to load glTF (JSON `.gltf` or binary `.glb`) file data into xeokit.
  *
- * The xeokit SDK enables the import and export of 3D models as [glTF](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#gltf) (GL Transmission Format),
- * a widely used format for runtime asset delivery of 3D scenes and models.
+ * The loader populates:
  *
- * glTF is a compact and efficient format designed for fast loading and rendering in applications and web browsers. It stores geometry, materials,
- * textures, animations, and scene hierarchy. Open and royalty-free, it has become the go-to format for 3D content distribution and exchange.
+ * - a {@link scene!SceneModel | SceneModel} with geometry and materials
+ * - optionally, a {@link data!DataModel | DataModel} that mirrors the glTF node hierarchy
  *
- * To import a glTF model into xeokit, use the {@link GLTFLoader | GLTFLoader} class, which loads the file into
- * a {@link scene!SceneModel | SceneModel}. The function also provides the option to load a basic
- * data model into a {@link data!DataModel | DataModel}, to describe the hierarchy of the `nodes` in the glTF `scene`.
+ * This allows applications to render glTF content while also retaining
+ * structural information about the model’s scene graph.
  *
  * ---
  *
  * ## Installation
  *
- * Install the xeokit SDK by running:
- *
- * ````bash
+ * ```bash
  * npm install @xeokit/sdk
- * ````
+ * ```
  *
  * ---
  *
- * ## Usage
+ * ## Example: loading a glTF model
  *
- * The following example demonstrates how to create a {@link viewer!Viewer | Viewer} with a {@link webglrenderer!WebGLRenderer | WebGLRenderer}
- * and a {@link scene!Scene | Scene} that holds model geometry and materials.
+ * The following example demonstrates a complete flow:
  *
- * The example also creates a single {@link viewer!View | View} to render the model to a canvas element on the page,
- * and attaches a {@link cameracontrol!CameraControl | CameraControl} to control the camera using mouse and touch input.
+ * - create a {@link viewer!Viewer | Viewer} and {@link webglrenderer!WebGLRenderer | WebGLRenderer}
+ * - create a {@link viewer!View | View} bound to a canvas
+ * - load a binary glTF (`.glb`) file into a {@link scene!SceneModel | SceneModel}
  *
- * Within the Scene, a {@link scene!SceneModel | SceneModel} is created to hold the model. Then, the {@link gltf!GLTFLoader | GLTFLoader} class
- * is used to load a binary glTF (GLB) file into the SceneModel.
+ * ```ts
+ * import { Scene } from "@xeokit/sdk/scene";
+ * import { Data } from "@xeokit/sdk/data";
+ * import { Viewer } from "@xeokit/sdk/viewer";
+ * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
+ * import { CameraControl } from "@xeokit/sdk/cameracontrol";
+ * import { GLTFLoader } from "@xeokit/sdk/formats/gltf";
  *
- * ````javascript
- * import {SDKInternalException} from "@xeokit/sdk/core";
- * import {Scene} from "@xeokit/sdk/scene";
- * import {Data} from "@xeokit/sdk/data";
- * import {WebGLRenderer} from "@xeokit/sdk/webglrenderer";
- * import {Viewer} from "@xeokit/sdk/viewer";
- * import {CameraControl} from "@xeokit/sdk/cameracontrol";
- * import {GLTFLoader} from "@xeokit/sdk/formats/gltf";
- *
+ * // 1) Create containers for geometry and optional structural data
  * const scene = new Scene();
- * const data = new Data();
+ * const data  = new Data();
  *
- * const viewer = new Viewer({
- *    scene
- * });
+ * // 2) Create a Viewer and WebGL renderer
+ * const viewer = new Viewer({ scene });
+ * new WebGLRenderer({ viewer });
  *
- * const renderer = new WebGLRenderer({
- *   viewer
- * });
+ * // 3) Create a View bound to an existing canvas element
+ * const view = viewer.createView({
+ *   id: "myView",
+ *   elementId: "myCanvas" // Ensure this element exists
+ * }).value;
  *
- * const viewResult = viewer.createView({
- *     id: "myView",
- *     elementId: "myCanvas" // << Ensure that this HTMLElement exists in the page
- * });
- *
- * const view = viewResult.value;
- *
- * view.camera.eye = [1841982.93, 10.03, -5173286.74];
+ * // 4) Position the camera
+ * view.camera.eye  = [1841982.93, 10.03, -5173286.74];
  * view.camera.look = [1842009.49, 9.68, -5173295.85];
- * view.camera.up = [0.0, 1.0, 0.0];
+ * view.camera.up   = [0, 1, 0];
  *
+ * // 5) Enable mouse / touch camera interaction
  * new CameraControl(view, {});
  *
- * const sceneModelResult = scene.createModel({
- *     id: "myModel"
- * });
+ * // 6) Create target models for the loader
+ * const sceneModel = scene.createModel({ id: "myModel" }).value;
+ * const dataModel  = data.createModel({ id: "myModel" }).value;
  *
- * const sceneModel = sceneModelResult.value;
- *
- * const dataModelResult = data.createModel({
- *     id: "myModel"
- * });
- *
- * const dataModel = dataModelResult.value;
- *
+ * // 7) Create the glTF loader
  * const glTFLoader = new GLTFLoader();
  *
- * fetch("model.glb").then(response => {
+ * // 8) Fetch and decode the binary glTF file
+ * fetch("model.glb")
+ *   .then(r => r.arrayBuffer())
+ *   .then(fileData => {
  *
- *     response.arrayBuffer().then(fileData => {
+ *     // 9) Load geometry (and optional node hierarchy) into the models
+ *     return glTFLoader.load({
+ *       fileData,
+ *       sceneModel,
+ *       dataModel
+ *     });
+ *   })
+ *   .then(() => {
+ *     // Model successfully loaded and visible
+ *   })
+ *   .catch(err => {
+ *     // Clean up on failure
+ *     sceneModel.destroy();
+ *     dataModel.destroy();
+ *     console.error("Error loading glTF:", err);
+ *   });
+ * ```
  *
- *        glTFLoader.load({
- *            fileData,
- *            sceneModel,
- *            dataModel
- *        }).then(() => {
+ * ---
  *
- *            // Loaded
+ * ## Notes
  *
- *        }).catch(err => {
- *            sceneModel.destroy();
- *            dataModel.destroy();
- *            console.error(`Error loading glTF data: ${err}`);
- *        });
- *
- *    }).catch(err => {
- *        console.error(`Error creating ArrayBuffer from fetch response: ${err}`);
- *    });
- *
- * }).catch(err => {
- *    console.error(`Error fetching glTF file: ${err}`);
- * });
- * ````
+ * - glTF loading is optimized for **runtime use**, not authoring-time editing.
+ * - The optional DataModel reflects the glTF node hierarchy, not BIM-level semantics.
  *
  * @module gltf
  */

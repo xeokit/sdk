@@ -8,6 +8,7 @@ export * as constants from "./constants";
 export * as math from "./math";
 export * as utils from "./utils";
 export * as webglutils from "./webglutils";
+export * as io from "./io";
 
 // Geometry generation
 
@@ -29,11 +30,8 @@ export * as pick from "./pick";
 
 // Model importers and exporters
 
-export * as io from "./io";
-export * as modelconverter from "./modelconverter";
-
 export * as formats from "./formats";
-
+export * as modelconverter from "./modelconverter";
 export * as modelchunksloader from "./modelchunksloader";
 
 // Viewer

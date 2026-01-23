@@ -3,6 +3,7 @@
  * generated in the model conversion process.
  */
 export interface ModelConverterStatsReportOutput {
+
   /**
    * The absolute or relative path to the output file.
    */

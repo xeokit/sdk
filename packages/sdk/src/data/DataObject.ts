@@ -57,6 +57,11 @@ export class DataObject {
   public readonly type: string;
 
   /**
+   * The model schema version, if available.
+   */
+  public schema?: string;
+
+  /**
    * A list of {@link PropertySet | PropertySets} referenced by this DataObject.
    */
   public readonly propertySets?: PropertySet[];
@@ -92,6 +97,7 @@ export class DataObject {
     name: string,
     description: string | undefined,
     type: string,
+    schema?: string,
     propertySets?: PropertySet[]) {
 
     this.data = data;
@@ -101,6 +107,7 @@ export class DataObject {
     this.name = name;
     this.description = description;
     this.type = type;
+    this.schema = schema;
     this.propertySets = propertySets || [];
     this.related = {};
     this.relating = {};

@@ -821,21 +821,26 @@ vec4 packUintToRGBA8(uint v) {
    */
   protected vsLambertShadingLogic() {
     this._vertSrcBuf.push(
-     // For triangles, get the three vertex positions for the triangle
-      "    uint triBase = geometryAttributes.indicesBase + primOffset * 3u;",
-      "    uint ia = getVertexIndex(triBase + 0u);",
-      "    uint ib = getVertexIndex(triBase + 1u);",
-      "    uint ic = getVertexIndex(triBase + 2u);",
+
+      // For triangles, get the three vertex positions for the triangle
+
+      "    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;",
+
+      "    uint ia = getVertexIndex(triIndex + 0u);",
+      "    uint ib = getVertexIndex(triIndex + 1u);",
+      "    uint ic = getVertexIndex(triIndex + 2u);",
 
       // Dequantized positions in OBJECT space
-      "    vec3 a_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ia));",
-      "    vec3 b_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ib));",
-      "    vec3 c_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ic));",
+
+      // "    vec3 a_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ia));",
+      // "    vec3 b_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ib));",
+      // "    vec3 c_obj = quantRange.offset + quantRange.scale * vec3(getVertexPosition(ic));",
 
       // Transform to WORLD space
-      "    vec3 pa_w = (modelMatrix * vec4(a_obj, 1.0)).xyz;",
-      "    vec3 pb_w = (modelMatrix * vec4(b_obj, 1.0)).xyz;",
-      "    vec3 pc_w = (modelMatrix * vec4(c_obj, 1.0)).xyz;",
+
+      // "    vec3 pa_w = (modelMatrix * vec4(a_obj, 1.0)).xyz;",
+      // "    vec3 pb_w = (modelMatrix * vec4(b_obj, 1.0)).xyz;",
+      // "    vec3 pc_w = (modelMatrix * vec4(c_obj, 1.0)).xyz;",
 
       "    vec3 pa = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ia))), 1.0))).xyz;",
       "    vec3 pb = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ib))), 1.0))).xyz;",
@@ -857,7 +862,8 @@ vec4 packUintToRGBA8(uint v) {
       // "    lambertian = max(dot(normal, normalize(lightDir1)), 0.0);",
       // "    reflectedColor += lambertian * (lightColor1.rgb * lightColor1.a);",
 
-      "    lambertian = max(dot(normal, normalize(lightDir2)), 0.0);",
+      "    lambertian = max( dot(normal, normalize(lightDir2)), 0.0);",
+      "   if (lambertian < 0.0) lambertian = lambertian * -1.0;",
       "    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);",
       //
       // "    lambertian = max(dot(normal, normalize(lightDir3)), 0.0);",

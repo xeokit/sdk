@@ -19,6 +19,11 @@ export class Relationship {
   readonly type: string;
 
   /**
+   * The schema version of this Relationship, if applicable.
+   */
+  readonly schema?: string;
+
+  /**
    * The {@link DataObject | DataObject} that is the source of this Relationship.
    *
    * This Relationship will be stored in the {@link DataObject.related | DataObject.related} attribute
@@ -39,11 +44,13 @@ export class Relationship {
    *
    * @private
    * @param type - The type of relationship.
+   * @param schema - The schema version of the relationship, if applicable.
    * @param relatingObject - The source DataObject in the relationship.
    * @param relatedObject - The target DataObject in the relationship.
    */
-  constructor(type: string, relatingObject: DataObject, relatedObject: DataObject) {
+  constructor(type: string, schema: string, relatingObject: DataObject, relatedObject: DataObject) {
     this.type = type;
+    this.schema =schema;
     this.relatingObject = relatingObject;
     this.relatedObject = relatedObject;
   }

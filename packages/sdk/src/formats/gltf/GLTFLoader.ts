@@ -178,7 +178,7 @@ function parseTexture(ctx: any, texture: any) {
       wrapR = RepeatWrapping;
       break;
   }
-  ctx.sceneModel.createTexture({
+  const result = ctx.sceneModel.createTexture({
     id: textureId,
     imageData: texture.source.image,
     mediaType: texture.source.mediaType,
@@ -193,6 +193,10 @@ function parseTexture(ctx: any, texture: any) {
     flipY: !!texture.flipY,
     //     encoding: "sRGB"
   });
+  if (result.ok === false) {
+    ctx.error(`Failed to create texture: ${result.error}`);
+    return;
+  }
   texture._textureId = textureId;
 }
 
@@ -280,7 +284,11 @@ function parseTextureSet(ctx: ParsingContext, material: any): null | string {
     textureSetCfg.metallicRoughnessTextureId !== undefined) {
     textureSetCfg.id = `textureSet-${ctx.nextId++};`
     // @ts-ignore
-    ctx.sceneModel.createTextureSet(textureSetCfg);
+   const textureSetResult = ctx.sceneModel.createTextureSet(textureSetCfg);
+    if (textureSetResult.ok === false) {
+      ctx.error(`Failed to create texture set: ${textureSetResult.error}`);
+      return null;
+    }
     return textureSetCfg.id;
   }
   return null;
@@ -444,10 +452,13 @@ const parseNodesWithoutNames = (function () {
       const objectId = "entity-" + ctx.nextId++;
       if (meshIds && meshIds.length > 0) {
         ctx.log("Creating SceneObject with default ID: " + objectId);
-        ctx.sceneModel.createObject({
+        const result = ctx.sceneModel.createObject({
           id: objectId,
           meshIds
         });
+        if (result.ok === false) {
+          ctx.error(`Failed to create SceneObject: ${result.error}`);
+        }
         meshIds.length = 0;
       }
     }
@@ -504,10 +515,13 @@ const parseNodesWithNames = (function () {
       }
       const entityMeshIds = meshIdsStack.pop();
       if (meshIds && meshIds.length > 0) {
-        ctx.sceneModel.createObject({
+        const result = ctx.sceneModel.createObject({
           id: objectId,
           meshIds: entityMeshIds
         });
+        if (result.ok === false) {
+          ctx.error(`Failed to create SceneObject: ${result.error}`);
+        }
       }
       meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
     }
@@ -617,7 +631,11 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
           geometryParams.indices = primitive.indices.value;
         }
         // @ts-ignore
-        ctx.sceneModel.createGeometry(geometryParams);
+        const result = ctx.sceneModel.createGeometry(geometryParams);
+        if (result.ok === false) {
+          ctx.error(`Failed to create SceneGeometry: ${result.error}`);
+          continue;
+        }
         ctx.geometryCreated[geometryId] = true;
       }
 
@@ -631,7 +649,7 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
       const material = primitive.material;
       if (material) {
         //     meshParams.textureSetId = material._textureSetId;
-        meshParams.color = material._attributes.color;
+        meshParams.color = material._attributes.color.slice(0,3);
         meshParams.opacity = material._attributes.opacity;
         // meshParams.metallic = material._attributes.metallic;
         // meshParams.roughness = material._attributes.roughness;
@@ -640,7 +658,11 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
         meshParams.opacity = 1.0;
       }
       // @ts-ignore
-      ctx.sceneModel.createMesh(meshParams);
+     const result =  ctx.sceneModel.createMesh(meshParams);
+      if (result.ok === false) {
+        ctx.error(`Failed to create SceneMesh: ${result.error}`);
+        continue;
+      }
       meshIds.push(meshId);
     }
   }

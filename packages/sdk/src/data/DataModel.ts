@@ -70,11 +70,6 @@ export class DataModel  {
   public creatingApplication?: string;
 
   /**
-   * The model schema version, if available.
-   */
-  public schema?: string;
-
-  /**
    * The{@link PropertySet | PropertySets} in this DataModel, mapped to
    * {@link PropertySet.id | PropertySet.id}.
    *
@@ -147,7 +142,6 @@ export class DataModel  {
     this.author = dataModelParams.author || "";
     this.createdAt = dataModelParams.createdAt || "";
     this.creatingApplication = dataModelParams.creatingApplication || "";
-    this.schema = dataModelParams.schema || "";
     this.propertySets = {};
     this.objects = {};
     this.objectsByType = {};
@@ -261,11 +255,18 @@ export class DataModel  {
               error: `[Data.createObject] Cannot create DataObject - PropertySet not found: "${propertySetId}"`
             });
           } else {
+            if (propertySet.schema !== dataObjectParams.schema) {
+              return this.data.logError({
+                ok: false,
+                type: SDKErrorType.InvalidInput,
+                error: `[Data.createObject] Cannot create DataObject - PropertySet "${propertySet.id}" and DataObject "${dataObjectParams.id}" belong to different schemas`
+              });
+            }
             propertySets.push(propertySet);
           }
         }
       }
-      dataObject = new DataObject(this.data, this, id, dataObjectParams.originalSystemId, dataObjectParams.name, dataObjectParams.description, dataObjectParams.type, propertySets);
+      dataObject = new DataObject(this.data, this, id, dataObjectParams.originalSystemId, dataObjectParams.name, dataObjectParams.description, dataObjectParams.type, dataObjectParams.schema, propertySets);
       this.objects[id] = dataObject;
       this.data.objects[id] = dataObject;
       if (!this.data.objectsByType[type]) {
@@ -276,13 +277,6 @@ export class DataModel  {
       dataObject.models.push(this);
       this.data.events.onDataObjectCreated.dispatch(this.data, dataObject);
     } else {
-      if (dataObject.models.length > 0 && this.schema !== dataObject.models[0].schema) {
-        return this.data.logError({
-          ok: false,
-            type: SDKErrorType.InvalidInput,
-          error: `[Data.createObject] Cannot create DataObject of schema '${this.schema}' - ID clashes with existing DataObject of schema '${this.schema}'`
-        });
-      }
       this.objects[id] = dataObject;
       this.data.objects[id] = dataObject;
       if (!this.objectsByType[type]) {
@@ -334,7 +328,14 @@ export class DataModel  {
         error: `[DataModel.createRelationship] Cannot create Relationship - related DataObject not found: ${relationshipParams.relatedObjectId}`
       });
     }
-    const relation = new Relationship(relationshipParams.type, relatingObject, relatedObject);
+    if (relatingObject.schema !== relatedObject.schema) {
+      return this.data.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[DataModel.createRelationship] Cannot create Relationship between DataObjects of different schemas: '${relatingObject.schema}' and '${relatedObject.schema}'`
+      });
+    }
+    const relation = new Relationship(relationshipParams.type, relatingObject.schema, relatingObject, relatedObject);
     if (!relatedObject.relating[relationshipParams.type]) {
       relatedObject.relating[relationshipParams.type] = [];
     }
@@ -434,6 +435,7 @@ export class DataModel  {
         name: propertySet.name,
         properties: [],
         type: propertySet.type,
+        schema: propertySet.schema,
         originalSystemId: propertySet.originalSystemId
       };
       for (let i = 0, len = propertySet.properties.length; i < len; i++) {
@@ -455,6 +457,7 @@ export class DataModel  {
         id,
         originalSystemId: dataObject.originalSystemId,
         type: dataObject.type,
+        schema: dataObject.schema,
         name: dataObject.name,
         propertySetIds: []
       };
@@ -473,6 +476,7 @@ export class DataModel  {
       const relationship = this.relationships[i];
       const relationParams = <RelationshipParams>{
         type: relationship.type,
+        schema: relationship.schema,
         relatingObjectId: relationship.relatingObject.id,
         relatedObjectId: relationship.relatedObject.id
       };

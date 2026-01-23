@@ -18,6 +18,8 @@ const tempVec3a = createVec3Float64();
 const tempVec3b = createVec3Float64();
 const tempVec3c = createVec3Float64();
 
+const SCHEMA = "cityjson_2_0_1";
+
 /**
  * @private
  */
@@ -79,6 +81,7 @@ function parseCityObject(ctx: any, cityObject: any, objectId: any) {
       id: objectId,
       name: cityObject.type + " : " + objectId,
       type: cityObject.type,
+      schema: SCHEMA,
       parent: cityObject.parents ? cityObject.parents[0] : null
     });
   }
@@ -127,6 +130,7 @@ function parseCityObject(ctx: any, cityObject: any, objectId: any) {
     if (meshIds.length > 0) {
       ctx.sceneModel.createObject({
         id: objectId,
+        schema: SCHEMA,
         meshIds: meshIds
       });
     }

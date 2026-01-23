@@ -1,6 +1,8 @@
 import type { ModelParser } from "../../../ModelParser";
 import { TrianglesPrimitive } from "../../../../constants";
 
+const SCHEMA = "IFC4";
+
 /**
  * @private
  */
@@ -80,6 +82,7 @@ export const parse: ModelParser = async (params, options) => {
             const dataObjectRes= params.dataModel.createObject({
               id: objectId,
               type: element.type,
+              schema: SCHEMA,
               name: info?.Name,
               description: info?.Description,
             });

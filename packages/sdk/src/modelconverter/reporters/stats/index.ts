@@ -1,14 +1,13 @@
 /**
  * # Model Converter Statistics Reporters
  *
- * Utilities for generating statistics and metrics about the model conversion process.
+ * Provides utilities for generating statistics and metrics about models and conversion processes.
  *
  * @remarks
- * - {@link ModelConverterStatsReport}: Represents a statistics report for a conversion.
- * - {@link createStatsReport}: Utility to generate a statistics report from conversion results.
+ * - {@link ModelConverterStatsReport}: Statistics report for a conversion.
+ * - {@link createStatsReport}: Generates a statistics report from conversion results.
  *
  * @module stats
  */
-
 export * from "./ModelConverterStatsReport";
 export * from "./createStatsReport";

@@ -5,6 +5,8 @@ import type { ModelParseParams } from "../../../ModelParseParams";
 import type { SceneModel } from "../../../../scene";
 import { TrianglesPrimitive } from "../../../../constants";
 
+const SCHEMA = "IFC4";
+
 /**
  * Parses an IFC model into scene and data models.
  */
@@ -79,6 +81,7 @@ function parsePropertySets(ctx: ParsingContext): void {
     ctx.dataModel!.createPropertySet({
       id: propertySetId,
       type: "Default",
+      schema: SCHEMA,
       name: def.Name?.value,
       properties,
     });
@@ -102,16 +105,23 @@ function parseDataObjectAggregation(ctx: ParsingContext, element: any, parentId?
 }
 
 function createDataObject(ctx: ParsingContext, element: any, parentId?: string): void {
+
   const id = element.GlobalId.value;
   const typeName = element.__proto__.constructor.name;
   const name = element.Name?.value || typeName;
   const typeCode = typeName ?? "IfcElement";
 
-  ctx.dataModel!.createObject({ id, name, type: typeCode });
+  ctx.dataModel!.createObject({
+    id,
+    name,
+    type: typeCode,
+    schema: SCHEMA
+  });
 
   if (parentId) {
     ctx.dataModel!.createRelationship({
       type: "IfcRelAggregates",
+      schema: SCHEMA,
       relatingObjectId: parentId,
       relatedObjectId: id,
     });

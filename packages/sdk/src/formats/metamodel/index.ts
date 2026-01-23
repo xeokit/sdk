@@ -1,97 +1,141 @@
 /**
- * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;" src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
+ * <img style="padding:0px; padding-top:30px; padding-bottom:10px; height:130px;"
+ *      src="https://xeokit.github.io/sdk/docs/assets/xeokit_logo_mesh.png"/>
  *
  * # xeokit Legacy MetaModel Utilities
  *
  * ---
  *
- * ***Utilities for importing and migrating data models from xeokit's legacy MetaModel format***
+ * **Utilities for importing and migrating semantic data from xeokit's legacy MetaModel format.**
  *
- * This module provides functions for converting and loading legacy MetaModel data into xeokit's newer semantic data model,
- * the `DataModel`, which is based on an entity-relationship graph with property sets.
+ * ---
+ *
+ * This module helps you move from xeokit's older `MetaModel` format to the newer
+ * `DataModel`, which represents semantic information as an entity–relationship
+ * graph with property sets.
+ *
+ * You can either:
+ * - Load legacy MetaModel data directly into a `DataModel`, or
+ * - Convert MetaModel data into `DataModelParams` first, then load it explicitly
  *
  * ---
  *
  * <br>
  *
- * # Overview
+ * ## Overview
  *
- * This module includes functions that help you migrate from xeokit's legacy `MetaModel` format to the newer `DataModel` format.
+ * xeokit's legacy `MetaModel` format represents a simple hierarchy of entities
+ * with attached property sets. While still supported for compatibility, it has
+ * been superseded by the `DataModel`, which offers a richer and more flexible
+ * semantic representation.
  *
- * Key functions:
+ * This module provides utilities to bridge the two formats.
  *
- * * {@link convertMetaModel | convertMetaModel}: Converts a `MetaModelParams` object into a `DataModelParams` object.
- * * {@link MetaModelLoader | MetaModelLoader}: Loads a `MetaModelParams` object directly into a `DataModel` instance.
- * * {@link data!DataModel | DataModel}: The newer, semantic data model in xeokit based on entity-relationship graphs and property sets.
- * * {@link data!DataModelParams | DataModelParams}: The JSON data format that can be loaded into a `DataModel`.
- * * {@link MetaModelParams | MetaModelParams}: The older JSON data format representing a simple entity hierarchy with property sets.
+ * ### Key components
+ *
+ * - {@link convertMetaModel | convertMetaModel}
+ *   Converts a `MetaModelParams` object into a `DataModelParams` object.
+ * - {@link MetaModelLoader | MetaModelLoader}
+ *   Loads a `MetaModelParams` object directly into an existing `DataModel`.
+ * - {@link data!DataModel | DataModel}
+ *   The modern semantic data model used by xeokit, based on entity–relationship graphs.
+ * - {@link data!DataModelParams | DataModelParams}
+ *   The JSON format used to populate a `DataModel`.
+ * - {@link MetaModelParams | MetaModelParams}
+ *   The legacy JSON format describing a hierarchy of entities with property sets.
  *
  * ---
  *
- * # Installation
+ * ## Installation
  *
- * To install the xeokit SDK, run the following npm command:
+ * Install the xeokit SDK using npm:
  *
- * ````bash
+ * ```bash
  * npm install @xeokit/sdk
- * ````
+ * ```
  *
  * ---
  *
- * # Usage
+ * ## Usage
  *
- * ## Loading MetaModel data into a DataModel
+ * The following examples show two common migration workflows.
  *
- * The following example shows how to use {@link MetaModelLoader} to load a `MetaModelParams` file directly into a `DataModel` instance:
+ * ---
  *
- * ````javascript
- * import {Data} from "@xeokit/sdk/data";
- * import {MetaModelLoader} from "@xeokit/sdk/formats/metamodel";
+ * ### Option 1: Load MetaModel data directly into a DataModel
+ *
+ * Use {@link MetaModelLoader} when you want to load legacy MetaModel data
+ * straight into a `DataModel` without creating intermediate parameters.
+ *
+ * #### Step 1: Create a DataModel
+ *
+ * ```js
+ * import { Data } from "@xeokit/sdk/data";
+ * import { MetaModelLoader } from "@xeokit/sdk/formats/metamodel";
  *
  * const data = new Data();
+ *
  * const dataModelResult = data.createModel({
  *     id: "myModel"
  * });
- * const dataModel = dataModelResult.value;
  *
+ * const dataModel = dataModelResult.value;
+ * ```
+ *
+ * #### Step 2: Load the MetaModelParams
+ *
+ * ```js
  * const metaModelLoader = new MetaModelLoader();
  *
  * fetch("myMetaModel.json").then(response => {
  *     response.json().then(metaModelParams => {
- *         // Load MetaModelParams directly into DataModel
+ *         // Load MetaModelParams directly into the DataModel
  *         metaModelLoader.load({
  *             fileData: metaModelParams,
  *             dataModel
  *         });
  *     });
  * });
- * ````
+ * ```
  *
- * ## Converting MetaModel data into DataModel data
+ * ---
  *
- * This example demonstrates how to use {@link convertMetaModel | convertMetaModel} to convert a `MetaModelParams` file
- * into a `DataModelParams` object, and then load that into a `DataModel`.
+ * ### Option 2: Convert MetaModel data before loading
  *
- * ````javascript
- * import {Data} from "@xeokit/sdk/data";
- * import {convertMetaModel} from "@xeokit/sdk/metamodel";
+ * Use {@link convertMetaModel | convertMetaModel} when you want access to
+ * `DataModelParams`—for example, to inspect, modify, or store the converted
+ * data before loading it.
+ *
+ * #### Step 1: Create a DataModel
+ *
+ * ```js
+ * import { Data } from "@xeokit/sdk/data";
+ * import { convertMetaModel } from "@xeokit/sdk/metamodel";
  *
  * const data = new Data();
+ *
  * const dataModelResult = data.createModel({
  *     id: "myModel"
  * });
- * const dataModel = dataModelResult.value;
  *
+ * const dataModel = dataModelResult.value;
+ * ```
+ *
+ * #### Step 2: Convert MetaModelParams to DataModelParams
+ *
+ * ```js
  * fetch("myMetaModel.json").then(response => {
  *     response.json().then(metaModelParams => {
  *         // Convert MetaModelParams -> DataModelParams
  *         const dataModelParams = convertMetaModel(metaModelParams);
  *
- *         // Load DataModelParams into DataModel
+ *         // Load DataModelParams into the DataModel
  *         dataModel.fromParams(dataModelParams);
  *     });
  * });
- * ````
+ * ```
+ *
+ * ---
  *
  * @module metamodel
  */

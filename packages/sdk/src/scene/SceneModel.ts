@@ -942,7 +942,7 @@ export class SceneModel {
 
     const {id, indices, primitive, positionsCompressed, uvsCompressed} = geometryCompressedParams;
 
-    if (!id) {
+    if (id === null || id === undefined) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,

@@ -21,48 +21,34 @@
   const baseDir = `./${modelId}/${pipelineId}`;
 
   const formatLoaderClasses = {
-    "XKT": xeokit.xkt.XKTLoader,
-    "XGF": xeokit.xgf.XGFLoader,
-    "glTF": xeokit.gltf.GLTFLoader,
-    "CityJSON": xeokit.cityjson.CityJSONLoader,
-    "IFC": xeokit.ifc.IFCLoader,
-    "LAS": xeokit.las.LASLoader,
-    "DotBIM": xeokit.dotbim.DotBIMLoader,
-    "SceneModelParams": xeokit.scene.SceneModelParamsLoader,
-    "DataModelParams": xeokit.data.DataModelParamsLoader
+    "XKT": xeokit.formats.xkt.XKTLoader,
+    "XGF": xeokit.formats.xgf.XGFLoader,
+    "glTF": xeokit.formats.gltf.GLTFLoader,
+    "CityJSON": xeokit.formats.cityjson.CityJSONLoader,
+    "IFC": xeokit.formats.ifc.IFCLoader,
+    "LAS": xeokit.formats.las.LASLoader,
+    "DotBIM": xeokit.formats.dotbim.DotBIMLoader,
+    "SceneModelParams": xeokit.formats.scenemodel.SceneModelParamsLoader,
+    "DataModelParams": xeokit.formats.datamodel.DataModelParamsLoader
   };
 
   const formatLoaders = {};
 
   const demoHelper = new DemoHelper();
 
-  const scene = new xeokit.scene.Scene();
-  const data = new xeokit.data.Data();
+  demoHelper
+    .init({
+      logging: false
+    })
+    .then(({
+             viewer,
+             view,
+             scene,
+             data,
+             renderer
+           }) => {
 
-  const renderer = new xeokit.webglrenderer.WebGLRenderer({});
-
-  const viewer = new xeokit.viewer.Viewer({
-    id: "demoViewer",
-    scene,
-    renderer
-  });
-
-  const view = viewer.createView({
-    id: "demoView",
-    elementId: "demoCanvas"
-  });
-
-  window.view = view;
-  //
-  // view.camera.orbitPitch(20);
-  // view.camera.orbitYaw(-40);
-
-  new xeokit.cameracontrol.CameraControl(view, {});
-
-  const cameraFlight = new xeokit.cameraflight.CameraFlightAnimation(view);
-
-  demoHelper.init({})
-    .then(() => {
+      const cameraFlight = new xeokit.cameraflight.CameraFlightAnimation(view);
 
       fetch(`${baseDir}/xeoconvert-manifest-report.json`).then(response => {
         response.json()
@@ -81,11 +67,27 @@
                 const sceneModelId = fileInfo.sceneModel || "default";
                 const dataModelId = fileInfo.dataModel || "defaut";
 
-                const sceneModel = scene.models[sceneModelId] || scene.createModel({
-                  id: sceneModelId,
-                  coordinateSystem: options.coordinateSystem
-                });
-                const dataModel = data.models[dataModelId] || data.createModel({id: dataModelId});
+                let sceneModel = scene.models[sceneModelId];
+
+                if (!sceneModel) {
+                  const result = scene.createModel({
+                    id: sceneModelId,
+                    coordinateSystem: options.coordinateSystem
+                  });
+                  if (result.ok === false) {
+                    throw new Error(`Failed to create scene model ${sceneModelId}: ${result.error}`);
+                  }
+                  sceneModel = result.value;
+                }
+
+                let dataModel = data.models[dataModelId];
+                if (!dataModel) {
+                  const result = data.createModel({id: dataModelId});
+                  if (result.ok === false) {
+                    throw new Error(`Failed to create data model ${dataModelId}: ${result.error}`);
+                  }
+                  dataModel = result.value;
+                }
 
                 return fetch(url)
                   .then(response => {
@@ -108,42 +110,33 @@
                     }
                   })
                   .then(fileData => {
+
                     let loader = formatLoaders[format];
+
                     if (!loader) {
                       const loaderClass = formatLoaderClasses[format];
                       if (!loaderClass) {
                         throw new Error(`Unsupported format: ${format}`);
                       }
-                      loader = formatLoaders[format] = new loaderClass({});
+                      loader = new loaderClass({});
+                      formatLoaders[format] = loader;
                     }
+
                     return loader.load({
-                      fileData,
-                      version,
-                      sceneModel,
-                      dataModel,
-                    }, options);
+                        fileData,
+                        version,
+                        sceneModel,
+                        dataModel,
+                      },
+                      options);
                   });
               });
 
               await Promise.all(fetchEntries);
 
-              for (let sceneModelId in scene.models) {
-                const sceneModel = scene.models[sceneModelId];
-                if (!sceneModel.built) {
-                  sceneModel.build();
-                }
-              }
-
-              for (let dataModelId in data.models) {
-                const dataModel = data.models[dataModelId];
-                if (!dataModel.built) {
-                  dataModel.build();
-                }
-              }
-
-              cameraFlight.jumpTo({
-                aabb: scene.aabb
-              });
+              // cameraFlight.jumpTo({
+              //   aabb: scene.aabb
+              // });
 
               demoHelper.finished();
             }

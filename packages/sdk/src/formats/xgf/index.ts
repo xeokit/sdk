@@ -90,11 +90,11 @@
  *             .catch(err => {
  *                 sceneModel.destroy();
  *                 dataModel.destroy();
- *                 console.error(`Error loading XGF: ${err}`);
+ *                 console.error(`Error loading XGF -> ${err}`);
  *             });
  *     })
  *     .catch(err => {
- *         console.error(`Error fetching XGF file: ${err}`);
+ *         console.error(`Error fetching XGF file -> ${err}`);
  *     });
  * ```
  *

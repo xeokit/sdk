@@ -131,7 +131,7 @@
  *     // Clean up on failure
  *     sceneModel.destroy();
  *     dataModel.destroy();
- *     handleError(`Error loading CityJSON: ${err}`);
+ *     handleError(`Error loading CityJSON -> ${err}`);
  *   });
  * ```
  *

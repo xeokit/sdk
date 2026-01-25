@@ -12,7 +12,7 @@ import {
   RepeatWrapping,
   TrianglesPrimitive
 } from "../../constants";
-import {createMat4Float64, identityMat4, type Mat4, mulMat4,  scalingMat4v, translationMat4v} from "../../math/matrix";
+import {createMat4Float64, identityMat4, type Mat4, mulMat4, scalingMat4v, translationMat4v} from "../../math/matrix";
 import {createUUID, isString} from "../../utils";
 import {GLTFLoader as glGLTFLoader, postProcessGLTF} from '@loaders.gl/gltf';
 import type {ModelLoadParams} from "../ModelLoadParams";
@@ -47,12 +47,9 @@ interface ParsingContext {
   baseId: string,
   gltfData: any;
   nextId: number;
-  log: any;
-  error: (msg: any) => void;
+  errors: string[];
   dataModel?: DataModel;
   sceneModel?: SceneModel;
-  objectCreated: { [key: string]: boolean },
-  geometryCreated: { [key: string]: boolean },
   meshIds: any;
   meshIdsStack: string[];
   objectIdStack: string[];
@@ -74,42 +71,43 @@ function parseGLTF(params: ModelLoadParams): Promise<any> {
         baseId: createUUID(),
         gltfData: processedGLTF,
         nextId: 0,
-        log: (function (msg: string) {
-        }),
-        error: function (msg) {
-          console.error(msg);
-        },
+        errors: [],
         dataModel,
-        sceneModel,
-        objectCreated: {},
-        geometryCreated: {}
+        sceneModel
       };
-      parseTextures(ctx);
-      parseMaterials(ctx);
-      parseDefaultScene(ctx);
-      return resolve();
+      if (parseTextures(ctx)
+        && parseMaterials(ctx)
+        && parseDefaultScene(ctx)) {
+        return resolve();
+      } else {
+        return reject(ctx.errors.length > 0 ? ctx.errors[0] : `[GLTFLoader.load] Error parsing glTF`);
+      }
     }, (errMsg) => {
-      return reject(`Error parsing glTF: ${errMsg}`);
+      return reject(`[GLTFLoader.load] Error parsing glTF -> ${errMsg}`);
     });
   });
 }
 
-function parseTextures(ctx: any) {
+function parseTextures(ctx: any): boolean {
   if (!ctx.sceneModel) {
-    return;
+    return true;
   }
   const gltfData = ctx.gltfData;
   const textures = gltfData.textures;
   if (textures) {
     for (let i = 0, len = textures.length; i < len; i++) {
-      parseTexture(ctx, textures[i]);
+      if (!parseTexture(ctx, textures[i])) {
+        return false;
+      }
     }
   }
+  return true;
 }
 
-function parseTexture(ctx: any, texture: any) {
+function parseTexture(ctx: any, texture: any): boolean {
   if (!texture.source || !texture.source.image) {
-    return;
+    ctx.errors.push(`[GLTFLoader.load] Texture has no image source`);
+    return false;
   }
   const textureId = `texture-${ctx.nextId++}`;
   let minFilter = NearestMipMapLinearFilter;
@@ -194,32 +192,37 @@ function parseTexture(ctx: any, texture: any) {
     //     encoding: "sRGB"
   });
   if (result.ok === false) {
-    ctx.error(`Failed to create texture: ${result.error}`);
-    return;
+    ctx.errors.push(`[GLTFLoader.load] Failed to create texture -> ${result.error}`);
+    return false;
   }
   texture._textureId = textureId;
+  return true;
 }
 
-function parseMaterials(ctx: ParsingContext): void {
-  if (!ctx.sceneModel) {
-    return;
-  }
+function parseMaterials(ctx: ParsingContext): boolean {
   const gltfData = ctx.gltfData;
   const materials = gltfData.materials;
   if (materials) {
     for (let i = 0, len = materials.length; i < len; i++) {
       const material = materials[i];
-      material._textureSetId = parseTextureSet(ctx, material);
+      const textureSetCfg = parseTextureSet(ctx, material);
+      if (textureSetCfg) {
+        const textureSetResult = ctx.sceneModel.createTextureSet(textureSetCfg);
+        if (textureSetResult.ok === false) {
+          ctx.errors.push(`Failed to create texture set -> ${textureSetResult.error}`);
+          return false;
+        }
+        const textureSet = textureSetResult.value;
+        material._textureSetId = textureSet.id;
+      }
       material._attributes = parseMaterialAttributes(ctx, material);
     }
   }
+  return true;
 }
 
-function parseTextureSet(ctx: ParsingContext, material: any): null | string {
-  // @ts-ignore
-
+function parseTextureSet(ctx: ParsingContext, material: any): null | SceneTextureSetParams {
   const textureSetCfg: SceneTextureSetParams = {
-    // @ts-ignore
     id: null,
     occlusionTextureId: undefined,
     emissiveTextureId: undefined,
@@ -283,13 +286,7 @@ function parseTextureSet(ctx: ParsingContext, material: any): null | string {
     textureSetCfg.colorTextureId !== undefined ||
     textureSetCfg.metallicRoughnessTextureId !== undefined) {
     textureSetCfg.id = `textureSet-${ctx.nextId++};`
-    // @ts-ignore
-   const textureSetResult = ctx.sceneModel.createTextureSet(textureSetCfg);
-    if (textureSetResult.ok === false) {
-      ctx.error(`Failed to create texture set: ${textureSetResult.error}`);
-      return null;
-    }
-    return textureSetCfg.id;
+    return textureSetCfg;
   }
   return null;
 }
@@ -354,20 +351,20 @@ function parseMaterialAttributes(ctx: ParsingContext, material: any): any { // S
   return materialAttributes;
 }
 
-function parseDefaultScene(ctx: ParsingContext) {
+function parseDefaultScene(ctx: ParsingContext): boolean {
   const gltfData = ctx.gltfData;
   const scene = gltfData.scene || gltfData.scenes[0];
   if (!scene) {
-    ctx.error("glTF has no default scene");
-    return;
+    ctx.errors.push("[GLTFLoader.load] Cannot load glTF - glTF has no default scene");
+    return false;
   }
-  parseScene(ctx, scene);
+  return parseScene(ctx, scene);
 }
 
-function parseScene(ctx: ParsingContext, scene: any) {
+function parseScene(ctx: ParsingContext, scene: any): boolean {
   const nodes = scene.nodes;
   if (!nodes) {
-    return;
+    return true;
   }
   for (let i = 0, len = nodes.length; i < len && !ctx.nodesHaveNames; i++) {
     const node = nodes[i];
@@ -376,17 +373,22 @@ function parseScene(ctx: ParsingContext, scene: any) {
     }
   }
   if (!ctx.nodesHaveNames) {
-    ctx.log(`Warning: No "name" attributes found on glTF scene nodes - objects in XKT may not be what you expect`);
+    //   ctx.log(`Warning: No "name" attributes found on glTF scene nodes - objects in XKT may not be what you expect`);
     for (let i = 0, len = nodes.length; i < len; i++) {
       const node = nodes[i];
-      parseNodesWithoutNames(ctx, node, 0, null);
+      if (!parseNodesWithoutNames(ctx, node, 0, null)) {
+        return false;
+      }
     }
   } else {
     for (let i = 0, len = nodes.length; i < len; i++) {
       const node = nodes[i];
-      parseNodesWithNames(ctx, node, 0, null);
+      if (!parseNodesWithNames(ctx, node, 0, null)) {
+        return false;
+      }
     }
   }
+  return true;
 }
 
 function createPrimitiveHash(ctx, primitive) {
@@ -406,9 +408,9 @@ function createPrimitiveHash(ctx, primitive) {
   return hash.join(".");
 }
 
-function testIfNodesHaveNames(node, level = 0) {
+function testIfNodesHaveNames(node, level = 0): boolean {
   if (!node) {
-    return;
+    return false;
   }
   if (node.name) {
     return true;
@@ -433,9 +435,9 @@ const parseNodesWithoutNames = (function () {
 
   const meshIds = [];
 
-  return function (ctx, node, depth, matrix) {
+  return function (ctx, node, depth, matrix): boolean {
     if (!node) {
-      return;
+      return true;
     }
     matrix = parseNodeMatrix(node, matrix);
     if (node.mesh) {
@@ -451,17 +453,18 @@ const parseNodesWithoutNames = (function () {
     if (depth === 0) {
       const objectId = "entity-" + ctx.nextId++;
       if (meshIds && meshIds.length > 0) {
-        ctx.log("Creating SceneObject with default ID: " + objectId);
         const result = ctx.sceneModel.createObject({
           id: objectId,
           meshIds
         });
         if (result.ok === false) {
-          ctx.error(`Failed to create SceneObject: ${result.error}`);
+          ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
+          return false;
         }
         meshIds.length = 0;
       }
     }
+    return true;
   }
 })();
 
@@ -480,16 +483,17 @@ const parseNodesWithNames = (function () {
   const meshIdsStack = [];
   let meshIds = null;
 
-  return function (ctx, node, depth, matrix) {
+  return function (ctx, node, depth, matrix): boolean {
     if (!node) {
-      return;
+      return true;
     }
     matrix = parseNodeMatrix(node, matrix);
     if (node.name) {
       meshIds = [];
       let objectId = node.name;
       if (!!objectId && ctx.sceneModel.objects[objectId]) {
-        ctx.log(`Warning: Two or more glTF nodes found with same 'name' attribute: '${objectId} - will randomly-generating an object ID in XKT`);
+        ctx.errors.push(`[GLTFLoader.load] Two or more glTF nodes found with same value for 'name' attribute: '${objectId}'`);
+        return false;
       }
       while (!objectId || ctx.sceneModel.objects[objectId]) {
         objectId = "entity-" + ctx.nextId++;
@@ -498,13 +502,17 @@ const parseNodesWithNames = (function () {
       meshIdsStack.push(meshIds);
     }
     if (meshIds && node.mesh) {
-      parseMesh(node, ctx, matrix, meshIds);
+      if (!parseMesh(node, ctx, matrix, meshIds)) {
+        return false;
+      }
     }
     if (node.children) {
       const children = node.children;
       for (let i = 0, len = children.length; i < len; i++) {
         const childNode = children[i];
-        parseNodesWithNames(ctx, childNode, depth + 1, matrix);
+        if (!parseNodesWithNames(ctx, childNode, depth + 1, matrix)) {
+          return false;
+        }
       }
     }
     const nodeName = node.name;
@@ -520,11 +528,13 @@ const parseNodesWithNames = (function () {
           meshIds: entityMeshIds
         });
         if (result.ok === false) {
-          ctx.error(`Failed to create SceneObject: ${result.error}`);
+          ctx.errors.push(`[GLTFLoader.load] Failed to create SceneObject -> ${result.error}`);
+          return false;
         }
       }
       meshIds = meshIdsStack.length > 0 ? meshIdsStack[meshIdsStack.length - 1] : null;
     }
+    return true;
   }
 })();
 
@@ -568,7 +578,7 @@ function parseNodeMatrix(node, matrix) {
   return matrix;
 }
 
-function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string[]) {
+function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string[]): boolean {
 
   if (node.mesh) {
 
@@ -578,16 +588,14 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
     for (let i = 0; i < numPrimitives; i++) {
       const primitive = mesh.primitives[i];
 
-      // FIXME: Too many clashes happening on createPrimitiveHash?
-      // FIXME: geometryIds are not globally unique across multiple glTF chunks
-
       const geometryId = createPrimitiveHash(ctx, primitive);
 
       //  geometryId = createUUID();
-      if (!ctx.geometryCreated[geometryId]) {
+      if (!ctx.sceneModel.geometries[geometryId]) {
         const POSITION = primitive.attributes.POSITION;
         if (!POSITION) {
-          continue;
+          ctx.errors.push(`[GLTFLoader.load] Primitive has no POSITION attribute`);
+          return false;
         }
         const geometryParams: SceneGeometryParams = {
           id: geometryId,
@@ -633,10 +641,9 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
         // @ts-ignore
         const result = ctx.sceneModel.createGeometry(geometryParams);
         if (result.ok === false) {
-          ctx.error(`Failed to create SceneGeometry: ${result.error}`);
-          continue;
+          ctx.errors.push(`[GLTFLoader.load] Failed to create SceneGeometry -> ${result.error}`);
+          return false;
         }
-        ctx.geometryCreated[geometryId] = true;
       }
 
       const meshId = `${ctx.nextId++}`;
@@ -649,7 +656,7 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
       const material = primitive.material;
       if (material) {
         //     meshParams.textureSetId = material._textureSetId;
-        meshParams.color = material._attributes.color.slice(0,3);
+        meshParams.color = material._attributes.color.slice(0, 3);
         meshParams.opacity = material._attributes.opacity;
         // meshParams.metallic = material._attributes.metallic;
         // meshParams.roughness = material._attributes.roughness;
@@ -658,12 +665,14 @@ function parseMesh(node: any, ctx: ParsingContext, matrix: Mat4, meshIds: string
         meshParams.opacity = 1.0;
       }
       // @ts-ignore
-     const result =  ctx.sceneModel.createMesh(meshParams);
+      const result = ctx.sceneModel.createMesh(meshParams);
       if (result.ok === false) {
-        ctx.error(`Failed to create SceneMesh: ${result.error}`);
-        continue;
+        ctx.errors.push(`[GLTFLoader.load] Failed to create SceneMesh -> ${result.error}`);
+        return false;
       }
       meshIds.push(meshId);
     }
   }
+
+  return true;
 }

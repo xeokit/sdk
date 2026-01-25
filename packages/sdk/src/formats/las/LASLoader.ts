@@ -118,7 +118,7 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
             colorsCompressed: colorsChunks[j]
           });
           if (geometryResult.ok===false) {
-            log(`[ERROR] Cannot load point cloud: ${geometryResult.error}`);
+            log(`[ERROR] Cannot load point cloud -> geometryResult.error}`);
           } else {
             const meshId = `mesh-${j}`;
             meshIds.push(meshId);
@@ -127,7 +127,7 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
               geometryId
             });
             if (meshResult.ok===false) {
-              log(`[ERROR] Cannot load point cloud: ${meshResult.error}`);
+              log(`[ERROR] Cannot load point cloud -> meshResult.error}`);
             }
           }
         }
@@ -156,7 +156,7 @@ function parseLAS(params: ModelParseParams, options: LASLoaderOptions = {}): Pro
       }
       resolve();
     }, (errMsg) => {
-      return reject(`Error parsing LAS/LAZ data: ${errMsg}`);
+      return reject(`Error parsing LAS/LAZ data -> errMsg}`);
     });
 
     function readPositions(positionsValue) {

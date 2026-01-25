@@ -70,7 +70,7 @@
  * const xktLoader = new XKTLoader();
  *
  * if (!viewResult.ok) {
- *     console.error(`Error creating View: ${viewResult.error}`);
+ *     console.error(`Error creating View -> ${viewResult.error}`);
  *
  * } else {
  *
@@ -87,7 +87,7 @@
  *     });
  *
  *     if (!sceneModelResult.ok) {
- *         console.error(`Error creating SceneModel: ${sceneModel.error}`);
+ *         console.error(`Error creating SceneModel -> ${sceneModel.error}`);
  *
  *     } else {
  *
@@ -106,15 +106,15 @@
  *
  *                 }).catch(sdkError => {
  *                     sceneModel.destroy();
- *                     console.error(`Error loading XKT: ${sdkError.message}`);
+ *                     console.error(`Error loading XKT -> ${sdkError.message}`);
  *                 });
  *
  *             }).catch(message => {
- *                 console.error(`Error creating ArrayBuffer: ${message}`);
+ *                 console.error(`Error creating ArrayBuffer -> ${message}`);
  *             });
  *
  *         }).catch(message => {
- *             console.error(`Error fetching model: ${message}`);
+ *             console.error(`Error fetching model -> ${message}`);
  *         });
  *     }
  * }

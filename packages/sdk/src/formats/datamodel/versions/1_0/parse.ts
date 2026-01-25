@@ -8,7 +8,7 @@ export function parse(params: ModelParseParams, options?: any): Promise<void> {
     if (params.dataModel && params.fileData) {
       const result = params.dataModel.fromParams(params.fileData);
         if (result.ok===false) {
-            return reject(new Error(`Failed to parse data model: ${result.error}`));
+            return reject(`[@xeokit/packages/sdk/formats/datamodel/versions/1_0/parse] Failed to parse data model -> ${result.error}`);
         }
     }
     return resolve();

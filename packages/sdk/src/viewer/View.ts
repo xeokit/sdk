@@ -694,7 +694,7 @@ class View {
       this.viewer.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[View set renderMode] View already destroyed"
+        error: "[View.renderMode] View already destroyed"
       });
       return;
     }
@@ -730,7 +730,7 @@ class View {
       this.viewer.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[View set backgroundColor] View already destroyed"
+        error: "[View.backgroundColor] View already destroyed"
       });
       return;
     }
@@ -739,7 +739,7 @@ class View {
         this.viewer.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
-          error: "[View set backgroundColor] Expected FloatArrayParam with at least 3 elements"
+          error: "[View.backgroundColor] Expected FloatArrayParam with at least 3 elements"
         });
         return;
       }
@@ -785,7 +785,7 @@ class View {
       this.viewer.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[View set backgroundColorFromAmbientLight] View already destroyed"
+        error: "[View.backgroundColorFromAmbientLight] View already destroyed"
       });
       return;
     }
@@ -1567,7 +1567,7 @@ class View {
       return this.viewer.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[View.createLayer] Cannot create ViewLayer: Missing layer ID."
+        error: "[View.createLayer] Missing layer ID."
       });
     }
 
@@ -1642,7 +1642,7 @@ class View {
       return this.viewer.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: `[View.fromParams] Cannot set View parameters: View "${this.id}" is destroyed.`
+        error: `[View.fromParams] View "${this.id}" has been destroyed`
       });
     }
     if (viewParams.camera) {

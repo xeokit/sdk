@@ -91,7 +91,7 @@ export class SceneObject {
       return this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneObject.createMesh] Mesh with ID '${meshId}' does not exist in model '${this.model.id}'`
+        error: `[SceneObject.addMesh] Mesh with ID '${meshId}' does not exist in model '${this.model.id}'`
       });
     }
     if (mesh.object) {
@@ -99,13 +99,13 @@ export class SceneObject {
         return this.model.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidOperation,
-          error: `[SceneObject.createMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
+          error: `[SceneObject.addMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
         });
       }
       return this.model.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: `[SceneObject.createMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
+        error: `[SceneObject.addMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
       });
     }
     this.meshes.push(mesh);

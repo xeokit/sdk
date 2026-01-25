@@ -312,7 +312,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createTransform] Cannot create SceneTransform: SceneModel already destroyed"
+        error: "[SceneModel.createTransform] SceneModel already destroyed"
       });
     }
 
@@ -320,7 +320,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createTransform] Cannot create SceneTransform: Parameter expected: transformParams.id"
+        error: "[SceneModel.createTransform] Parameter expected: transformParams.id"
       });
     }
 
@@ -328,7 +328,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createTransform] Cannot create SceneTransform: SceneTransform already exists with this ID: ${transformParams.id}`
+        error: `[SceneModel.createTransform] SceneTransform already exists with this ID: ${transformParams.id}`
       });
     }
 
@@ -339,7 +339,7 @@ export class SceneModel {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
-          error: `[SceneModel.createTransform] Cannot create SceneTransform: parent SceneTransform not found: ${transformParams.parentTransformId}`
+          error: `[SceneModel.createTransform] Parent SceneTransform not found: ${transformParams.parentTransformId}`
         });
       }
     }
@@ -454,14 +454,14 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createTexture] Cannot create SceneTexture - SceneModel already destroyed"
+        error: "[SceneModel.createTexture] SceneModel already destroyed"
       });
     }
     if (!textureParams.id) {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createTexture] Cannot create SceneTexture - Parameter expected: textureParams.id"
+        error: "[SceneModel.createTexture] Parameter expected: textureParams.id"
       });
     }
     if (!textureParams.imageData && !textureParams.src && !textureParams.buffers) {
@@ -469,7 +469,7 @@ export class SceneModel {
         ok: false,
         type: SDKErrorType.InvalidInput,
         error:
-          "[SceneModel.createTexture] Cannot create SceneTexture - Parameter expected: textureParams.imageData, textureParams.src or textureParams.buffers"
+          "[SceneModel.createTexture] Parameter expected: textureParams.imageData, textureParams.src or textureParams.buffers"
       });
     }
 
@@ -572,7 +572,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createTextureSet] Cannot create TextureSet - TextureSet already exists with this ID: '${textureSetParams.id}'`
+        error: `[SceneModel.createTextureSet] TextureSet already exists with this ID: '${textureSetParams.id}'`
       });
     }
 
@@ -584,7 +584,7 @@ export class SceneModel {
           ok: false,
           type: SDKErrorType.InvalidInput,
           error:
-            `[SceneModel.createTextureSet] Cannot create TextureSet - Texture not found: '${textureSetParams.colorTextureId}' - ` +
+            `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.colorTextureId}' - ` +
             "ensure that you create it first with createTexture()"
         });
       }
@@ -599,7 +599,7 @@ export class SceneModel {
           ok: false,
           type: SDKErrorType.InvalidInput,
           error:
-            `[SceneModel.createTextureSet] Cannot create TextureSet - Texture not found: '${textureSetParams.metallicRoughnessTextureId}' - ` +
+            `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.metallicRoughnessTextureId}' - ` +
             "ensure that you create it first with createTexture()"
         });
       }
@@ -614,7 +614,7 @@ export class SceneModel {
           ok: false,
           type: SDKErrorType.InvalidInput,
           error:
-            `[SceneModel.createTextureSet] Cannot create TextureSet - Texture not found: '${textureSetParams.normalsTextureId}' - ` +
+            `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.normalsTextureId}' - ` +
             "ensure that you create it first with createTexture()"
         });
       }
@@ -629,7 +629,7 @@ export class SceneModel {
           ok: false,
           type: SDKErrorType.InvalidInput,
           error:
-            `[SceneModel.createTextureSet] Cannot create TextureSet - Texture not found: '${textureSetParams.emissiveTextureId}' - ` +
+            `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.emissiveTextureId}' - ` +
             "ensure that you create it first with createTexture()"
         });
       }
@@ -644,7 +644,7 @@ export class SceneModel {
           ok: false,
           type: SDKErrorType.InvalidInput,
           error:
-            `[SceneModel.createTextureSet] Cannot create TextureSet - Texture not found: '${textureSetParams.occlusionTextureId}' - ` +
+            `[SceneModel.createTextureSet] Texture not found: '${textureSetParams.occlusionTextureId}' - ` +
             "ensure that you create it first with createTexture()"
         });
       }
@@ -745,7 +745,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createGeometry] Cannot create SceneGeometry: SceneModel already destroyed"
+        error: "[SceneModel.createGeometry] SceneModel already destroyed"
       });
     }
 
@@ -753,7 +753,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createGeometry] Cannot create SceneGeometry: Missing required 'geometryParams'."
+        error: "[SceneModel.createGeometry] Missing required 'geometryParams'."
       });
     }
 
@@ -763,7 +763,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createGeometry] Cannot create SceneGeometry: Missing required 'id' in geometryParams."
+        error: "[SceneModel.createGeometry] Missing required 'id' in geometryParams."
       });
     }
 
@@ -771,7 +771,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createGeometry] Cannot create SceneGeometry: A geometry with ID '${id}' already exists in this SceneModel.`
+        error: `[SceneModel.createGeometry] A geometry with ID '${id}' already exists in this SceneModel.`
       });
     }
 
@@ -779,7 +779,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createGeometry] Cannot create SceneGeometry: Missing required 'positions' in geometryParams."
+        error: "[SceneModel.createGeometry] Missing required 'positions' in geometryParams."
       });
     }
 
@@ -787,7 +787,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createGeometry] Cannot create SceneGeometry: Missing required 'indices' for the specified primitive type."
+        error: "[SceneModel.createGeometry] Missing required 'indices' for the specified primitive type."
       });
     }
 
@@ -802,7 +802,7 @@ export class SceneModel {
         ok: false,
         type: SDKErrorType.InvalidInput,
         error:
-          `[SceneModel.createGeometry] Cannot create SceneGeometry: Unsupported value for geometryParams.primitive: '${primitive}' - ` +
+          `[SceneModel.createGeometry] Unsupported value for geometryParams.primitive: '${primitive}' - ` +
           "supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive"
       });
     }
@@ -812,7 +812,7 @@ export class SceneModel {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
-          error: "[SceneModel.createGeometry] Cannot create SceneGeometry: Mismatch between given quantities of vertex positions and UVs"
+          error: "[SceneModel.createGeometry] Mismatch between given quantities of vertex positions and UVs"
         });
       }
     }
@@ -825,7 +825,7 @@ export class SceneModel {
           return this.scene.logError({
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: "[SceneModel.createGeometry] Cannot create SceneGeometry: indices out of range of vertex positions"
+            error: "[SceneModel.createGeometry] Indices out of range of vertex positions"
           });
         }
         if (uvs) {
@@ -834,7 +834,7 @@ export class SceneModel {
             return this.scene.logError({
               ok: false,
               type: SDKErrorType.InvalidInput,
-              error: "[SceneModel.createGeometry] Cannot create SceneGeometry: indices out of range of vertex UVs"
+              error: "[SceneModel.createGeometry] Indices out of range of vertex UVs"
             });
           }
         }
@@ -928,7 +928,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createGeometryCompressed] Cannot add compressed SceneGeometry: SceneModel already destroyed"
+        error: "[SceneModel.createGeometryCompressed] SceneModel already destroyed"
       });
     }
 
@@ -936,7 +936,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createGeometryCompressed] Cannot add compressed SceneGeometry: Parameters expected: geometryCompressedParams"
+        error: "[SceneModel.createGeometryCompressed] Parameters expected: geometryCompressedParams"
       });
     }
 
@@ -946,7 +946,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createGeometryCompressed] Cannot add compressed SceneGeometry: Missing required 'id' in geometryCompressedParams."
+        error: "[SceneModel.createGeometryCompressed] Parameter expected: 'id'"
       });
     }
 
@@ -954,7 +954,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createGeometryCompressed] Cannot add compressed SceneGeometry: Missing required 'positionsCompressed' in geometryCompressedParams."
+        error: "[SceneModel.createGeometryCompressed] Parameter expected: 'positionsCompressed'"
       });
     }
 
@@ -962,7 +962,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createGeometryCompressed] Cannot add compressed SceneGeometry: Missing required 'indices' for the specified primitive type."
+        error: "[SceneModel.createGeometryCompressed] Missing expected 'indices' for the specified primitive type."
       });
     }
 
@@ -972,7 +972,7 @@ export class SceneModel {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
-          error: "[SceneModel.createGeometryCompressed] Cannot create SceneGeometry: Mismatch between given quantities of vertex positions and UVs"
+          error: "[SceneModel.createGeometryCompressed] Mismatch between given quantities of vertex positions and UVs"
         });
       }
     }
@@ -985,7 +985,7 @@ export class SceneModel {
           return this.scene.logError({
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: "[SceneModel.createGeometryCompressed] Cannot create SceneGeometry: indices out of range of vertex positions"
+            error: "[SceneModel.createGeometryCompressed] Indices out of range of vertex positions"
           });
         }
         if (uvsCompressed) {
@@ -994,7 +994,7 @@ export class SceneModel {
             return this.scene.logError({
               ok: false,
               type: SDKErrorType.InvalidInput,
-              error: "[SceneModel.createGeometryCompressed] Cannot create SceneGeometry: indices out of range of vertex UVs"
+              error: "[SceneModel.createGeometryCompressed] Indices out of range of vertex UVs"
             });
           }
         }
@@ -1006,7 +1006,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createGeometryCompressed] Cannot add compressed SceneGeometry: SceneGeometry with this ID already created: '${geometryId}'`
+        error: `[SceneModel.createGeometryCompressed] SceneGeometry with this ID already exists: '${geometryId}'`
       });
     }
 
@@ -1021,7 +1021,7 @@ export class SceneModel {
         ok: false,
         type: SDKErrorType.InvalidInput,
         error:
-          `[SceneModel.createGeometryCompressed] Cannot add compressed SceneGeometry: Unsupported value for geometryCompressedParams.primitive: '${primitive}' - ` +
+          `[SceneModel.createGeometryCompressed] Unsupported value for parameter 'primitive': '${primitive}' - ` +
           "supported values are PointsPrimitive, LinesPrimitive, TrianglesPrimitive, SolidPrimitive and SurfacePrimitive"
       });
     }
@@ -1132,7 +1132,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.addMesh] Cannot create SceneMesh: SceneModel already destroyed"
+        error: "[SceneModel.addMesh] SceneModel already destroyed"
       });
     }
 
@@ -1140,7 +1140,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createMesh] Cannot create SceneMesh: SceneMesh already exists with this ID: '${id}'`
+        error: `[SceneModel.createMesh] SceneMesh already exists with this ID: '${id}'`
       });
     }
 
@@ -1151,7 +1151,7 @@ export class SceneModel {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
-          error: `[SceneModel.createMesh] Cannot create SceneMesh: parent SceneTransform not found: '${parentTransformId}'`
+          error: `[SceneModel.createMesh] parent SceneTransform not found: '${parentTransformId}'`
         });
       }
     }
@@ -1161,7 +1161,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createMesh] Cannot create SceneMesh: SceneGeometry not found: '${geometryId}'`
+        error: `[SceneModel.createMesh] SceneGeometry not found: '${geometryId}'`
       });
     }
 
@@ -1170,7 +1170,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createMesh] Cannot create SceneMesh: TextureSet not found: '${textureSetId}'`
+        error: `[SceneModel.createMesh] TextureSet not found: '${textureSetId}'`
       });
     }
 
@@ -1183,7 +1183,7 @@ export class SceneModel {
           return this.scene.logError({
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: `[SceneModel.createMesh] Cannot create SceneMesh: position must be a vec3 array`
+            error: `[SceneModel.createMesh] Parameter 'position' is not a vec3 array`
           });
         }
 
@@ -1191,7 +1191,7 @@ export class SceneModel {
           return this.scene.logError({
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: `[SceneModel.createMesh] Cannot create SceneMesh: scale must be a vec3 array`
+            error: `[SceneModel.createMesh] Parameter 'scale' is not a vec3 array`
           });
         }
 
@@ -1199,7 +1199,7 @@ export class SceneModel {
           return this.scene.logError({
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: `[SceneModel.createMesh] Cannot create SceneMesh: rotation must be a vec3 array`
+            error: `[SceneModel.createMesh] Parameter 'rotation' is not a vec3 array`
           });
         }
 
@@ -1207,7 +1207,7 @@ export class SceneModel {
           return this.scene.logError({
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: `[SceneModel.createMesh] Cannot create SceneMesh: quaternion must be a vec4 array`
+            error: `[SceneModel.createMesh] Parameter 'quaternion' is not a vec4 array`
           });
         }
 
@@ -1227,7 +1227,7 @@ export class SceneModel {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
-          error: `[SceneModel.createMesh] Cannot create SceneMesh: matrix must be a mat4 array`
+          error: `[SceneModel.createMesh] Parameter 'matrix' is not a mat4 array`
         });
       }
       matrix = createMat4Float64(matrix);
@@ -1237,7 +1237,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createMesh] Cannot create SceneMesh: color must be a vec3 array`
+        error: `[SceneModel.createMesh] Parameter 'color' is not a vec3 array`
       });
     }
 
@@ -1349,7 +1349,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.createObject] Cannot create SceneObject - SceneModel already destroyed"
+        error: "[SceneModel.createObject] SceneModel already destroyed"
       });
     }
 
@@ -1357,7 +1357,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[SceneModel.createObject] Cannot create SceneObject - no meshes specified"
+        error: "[SceneModel.createObject] No meshes specified"
       });
     }
 
@@ -1366,7 +1366,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[SceneModel.createObject] Cannot create SceneObject - SceneObject already exists: '${objectId}'`
+        error: `[SceneModel.createObject] SceneObject already exists: '${objectId}'`
       });
     }
 
@@ -1378,14 +1378,14 @@ export class SceneModel {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
-          error: `[SceneModel.createObject] Cannot create SceneObject - SceneMesh not found: '${meshId}'`
+          error: `[SceneModel.createObject] SceneMesh not found: '${meshId}'`
         });
       }
       if (mesh.object) {
         return this.scene.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
-          error: `[SceneModel.createObject] Cannot create SceneObject - SceneMesh '${meshId}' already belongs to existing SceneObject '${mesh.object.id}'`
+          error: `[SceneModel.createObject] SceneMesh '${meshId}' already belongs to existing SceneObject '${mesh.object.id}'`
         });
       }
       meshes.push(mesh);
@@ -1453,7 +1453,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.fromParams] Cannot add components to SceneModel - SceneModel already destroyed"
+        error: "[SceneModel.fromParams] SceneModel already destroyed"
       });
     }
 
@@ -1586,7 +1586,7 @@ export class SceneModel {
       return this.scene.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[SceneModel.destroy] Cannot destroy SceneModel - SceneModel already destroyed"
+        error: "[SceneModel.destroy] SceneModel already destroyed"
       });
     }
     for (const key in this.objects) {

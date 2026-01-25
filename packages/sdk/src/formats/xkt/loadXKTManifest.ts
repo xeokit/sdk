@@ -68,7 +68,7 @@ export function loadXKTManifest(params: {
                       i++;
                       loadNextXKT();
                     }).catch((error) => {
-                      reject(`Error loading XKT file: ${error}`);
+                      reject(`Error loading XKT file -> ${error}`);
                     })
                   });
                 });
@@ -94,7 +94,7 @@ export function loadXKTManifest(params: {
                       i++;
                       loadNextMetaModelFile();
                     }).catch((error) => {
-                      reject(`Error loading XKT metadata file: ${error}`);
+                      reject(`Error loading XKT metadata file -> ${error}`);
                     })
                   });
                 });

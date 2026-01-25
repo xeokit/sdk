@@ -9,6 +9,7 @@ import {type ModelLoadOptions} from "./ModelLoadOptions";
 
 const fileIO = createFileIO();
 
+
 /**
  * Loads a model file into a {@link scene!SceneModel | SceneModel} and/or a {@link data!DataModel | DataModel}.
  */
@@ -72,43 +73,38 @@ export class ModelLoader {
    */
   load(params: ModelLoadParams, options: ModelLoadOptions = {}): Promise<any> {
     return new Promise<void>((resolve, reject) => {
+      const className = this.constructor.name;
       if (!params) {
-        return reject("Argument expected: params");
+        return reject(`[${className}.load] Argument expected: params`);
       }
       const {filePath, fileData, sceneModel, dataModel} = params;
       if (sceneModel) {
-        // if (!(sceneModel instanceof SceneModel)) {
-        //   return reject("Argument type mismatch: params.sceneModel should be a SceneModel");
-        // }
         if (sceneModel.destroyed) {
-          return reject("SceneModel already destroyed");
+          return reject(`[${className}.load] SceneModel already destroyed`);
         }
       }
       if (dataModel) {
-        // if (!(dataModel instanceof DataModel)) {
-        //   return reject("Argument type mismatch: params.dataModel should be a DataModel");
-        // }
         if (dataModel.destroyed) {
-          return reject("DataModel already destroyed");
+          return reject(`[${className}.load] DataModel already destroyed`);
         }
       }
       if (!filePath && !fileData) {
-        return reject("Argument expected: filePath or fileData");
+        return reject(`[${className}.load] Argument expected: filePath or fileData`);
       }
       const loadFileData = (fileData) => {
         if (this.fileDataType === "json" && !isJSONObject(fileData)) {
-          return reject("Argument type mismatch: params.fileData should be a JSON object");
+          return reject(`[${className}.load] Argument type mismatch: params.fileData should be a JSON object`);
         }
-        // if (parser.fileDataType === "arraybuffer" && !isArraybuffer(fileData)) {
-        //     return reject("Argument type mismatch: params.fileData should be an ArrayBuffer");
-        // }
+        if (this.fileDataType === "arraybuffer" && !(fileData instanceof ArrayBuffer)) {
+            return reject("Argument type mismatch: params.fileData should be an ArrayBuffer");
+        }
         const version = this.getVersion(fileData);
         if (!version) {
-          return reject(`Cannot determine schema version of source file`);
+          return reject(`[${className}.load] Cannot determine schema version of source file`);
         }
         const parser = this.parsers[version];
         if (!parser) {
-          return reject(`Unsupported source file schema version: ${version} - supported versions are [${this.versions}]`);
+          return reject(`[${className}.load] Unsupported source file schema version: ${version} - supported versions are [${this.versions}]`);
         }
         if (sceneModel || dataModel) {
           parser({fileData, sceneModel, dataModel}, options)
@@ -116,7 +112,7 @@ export class ModelLoader {
               resolve();
             })
             .catch(err => {
-              reject(`Cannot load source file: ${err}`);
+              reject(err); // We expect the parser to prefix its errors
             });
         } else {
           return resolve();
@@ -126,7 +122,7 @@ export class ModelLoader {
         fileIO.load(filePath).then((fileData) => {
           loadFileData(fileData);
         }).catch(err => {
-          reject(`Cannot load source file: ${err}`);
+          reject(`[${className}.load] Cannot load glTF -> ${err}`);
         });
       } else {
         loadFileData(fileData);

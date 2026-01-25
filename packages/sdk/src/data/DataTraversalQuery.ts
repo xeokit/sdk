@@ -84,7 +84,7 @@ export class DataTraversalQuery {
     if (this.startObjectId) {
       const startObject = this.data.objects[this.startObjectId];
       if (!startObject) {
-        return new SDKInternalException(`Cannot search DataObjects - starting DataObject not found in Data: "${this.startObjectId}"`);
+        return new SDKInternalException(`[DataTraversalQuery.query] Cannot search DataObjects - starting DataObject not found in Data: "${this.startObjectId}"`);
       }
       visit(startObject, depth);
     } else {

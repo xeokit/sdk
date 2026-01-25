@@ -39,7 +39,7 @@ export function buildGridGeometry(cfg : {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "Negative size not allowed."
+      error: "[buildGridGeometry] Negative size not allowed."
     };
   }
 

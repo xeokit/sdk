@@ -55,17 +55,17 @@ export class ModelChunksLoader {
     return new Promise<void>((resolve, reject) => {
 
       if (!params) {
-        return reject("Argument expected: params");
+        return reject("[ModelChunksLoader.load] Argument expected: params");
       }
 
       const {modelChunksManifest, baseDir, sceneModel, dataModel} = params;
 
       if (!modelChunksManifest) {
-        return reject("Parameter expected: modelChunksManifest");
+        return reject("[ModelChunksLoader.load] Parameter expected: modelChunksManifest");
       }
 
       if (!baseDir) {
-        return reject("Parameter expected: baseDir");
+        return reject("[ModelChunksLoader.load] Parameter expected: baseDir");
       }
 
       const sceneModelFiles = modelChunksManifest.sceneModelFiles;
@@ -94,13 +94,13 @@ export class ModelChunksLoader {
                     i++;
                     loadNextSceneModelFile();
                   }).catch((error) => {
-                    reject(`Error loading SceneModel file: ${error}`);
+                    reject(`[ModelChunksLoader.load] Error loading SceneModel file -> ${error}`);
                   });
                 }).catch((error) => {
-                reject(`Error loading SceneModel file: ${error}`);
+                reject(`[ModelChunksLoader.load] Error loading SceneModel file -> ${error}`);
               });
             }).catch((error) => {
-              reject(`Error loading SceneModel file: ${error}`);
+              reject(`[ModelChunksLoader.load] Error loading SceneModel file -> ${error}`);
             });
           }
         }
@@ -131,10 +131,10 @@ export class ModelChunksLoader {
                     loadNextDataModelFile();
                   });
                 }).catch((error) => {
-                reject(`Error loading DataModel file: ${error}`);
+                reject(`[ModelChunksLoader.load] Error loading DataModel file -> ${error}`);
               });
             }).catch((error) => {
-              reject(`Error loading DataModel file: ${error}`);
+              reject(`[ModelChunksLoader.load] Error loading DataModel file -> ${error}`);
             });
           }
         }

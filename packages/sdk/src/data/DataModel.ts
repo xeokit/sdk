@@ -179,14 +179,14 @@ export class DataModel  {
       return this.data.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[Data.createPropertySet] Cannot create PropertySet - DataModel already destroyed"
+        error: "[DataModel.createPropertySet] DataModel already destroyed"
       });
     }
     if (this.propertySets[propertySetCfg.id]) {
       return this.data.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[Data.createPropertySet] Cannot create PropertySet - PropertySet with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel."
+        error: "[DataModel.createPropertySet] PropertySet with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel."
       });
     }
     let propertySet = this.data.propertySets[propertySetCfg.id];
@@ -229,7 +229,7 @@ export class DataModel  {
       return this.data.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[Data.createObject] Cannot create DataObject - DataModel already destroyed"
+        error: "[DataModel.createObject] DataModel already destroyed"
       });
     }
     const id = dataObjectParams.id;
@@ -237,7 +237,7 @@ export class DataModel  {
       return this.data.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: "[Data.createObject] Cannot create DataObject - DataObject with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel."
+        error: "[DataModel.createObject] DataObject with same ID already created in this DataModel. It's OK to have duplicates shared between DataModels, but they must be unique within each DataModel."
       });
     }
     const type = dataObjectParams.type;
@@ -252,14 +252,14 @@ export class DataModel  {
             return this.data.logError({
               ok: false,
               type: SDKErrorType.InvalidInput,
-              error: `[Data.createObject] Cannot create DataObject - PropertySet not found: "${propertySetId}"`
+              error: `[DataModel.createObject] PropertySet not found: "${propertySetId}"`
             });
           } else {
             if (propertySet.schema !== dataObjectParams.schema) {
               return this.data.logError({
                 ok: false,
                 type: SDKErrorType.InvalidInput,
-                error: `[Data.createObject] Cannot create DataObject - PropertySet "${propertySet.id}" and DataObject "${dataObjectParams.id}" belong to different schemas`
+                error: `[DataModel.createObject] PropertySet "${propertySet.id}" and DataObject "${dataObjectParams.id}" belong to different schemas`
               });
             }
             propertySets.push(propertySet);
@@ -309,7 +309,7 @@ export class DataModel  {
       return this.data.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[DataModel.createRelationship] Cannot create Relationship - DataModel already destroyed"
+        error: "[DataModel.createRelationship] DataModel already destroyed"
       });
     }
     const relatingObject = this.data.objects[relationshipParams.relatingObjectId];
@@ -317,7 +317,7 @@ export class DataModel  {
       return this.data.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[DataModel.createRelationship] Cannot create Relationship - relating DataObject not found: ${relationshipParams.relatingObjectId}`
+        error: `[DataModel.createRelationship] Relating DataObject not found: ${relationshipParams.relatingObjectId}`
       });
     }
     const relatedObject = this.data.objects[relationshipParams.relatedObjectId];
@@ -325,7 +325,7 @@ export class DataModel  {
       return this.data.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[DataModel.createRelationship] Cannot create Relationship - related DataObject not found: ${relationshipParams.relatedObjectId}`
+        error: `[DataModel.createRelationship] Related DataObject not found: ${relationshipParams.relatedObjectId}`
       });
     }
     if (relatingObject.schema !== relatedObject.schema) {
@@ -364,7 +364,7 @@ export class DataModel  {
       return this.data.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[DataModel.fromParams] Cannot add components to DataModel - DataModel already destroyed"
+        error: "[DataModel.fromParams] DataModel already destroyed"
       });
     }
     if (dataModelParams.propertySets) {
@@ -374,7 +374,7 @@ export class DataModel  {
           return this.data.logError({
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: `[DataModel.fromParams] Failed to create PropertySet: ${result.error}`
+            error: `[DataModel.fromParams] Failed to create PropertySet -> ${result.error}`
           });
         }
       }
@@ -386,7 +386,7 @@ export class DataModel  {
           return this.data.logError({
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: `[DataModel.fromParams] Failed to create DataObject: ${result.error}`
+            error: `[DataModel.fromParams] Failed to create DataObject -> ${result.error}`
           });
         }
       }
@@ -398,7 +398,7 @@ export class DataModel  {
           return this.data.logError({
             ok: false,
           type: SDKErrorType.InvalidInput,
-            error: `[DataModel.fromParams] Failed to create Relationship: ${result.error}`
+            error: `[DataModel.fromParams] Failed to create Relationship -> ${result.error}`
           });
         }
       }
@@ -500,7 +500,7 @@ export class DataModel  {
       return this.data.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[DataModel.destroy] Cannot destroy DataModel - DataModel already destroyed"
+        error: "[DataModel.destroy] DataModel already destroyed"
       });
     }
     for (const id in this.objects) {

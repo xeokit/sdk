@@ -178,7 +178,7 @@ export abstract class PortionDataTexture extends DataTexture {
       return {
         ok: false,
         type: SDKErrorType.MemoryAllocationFailed,
-        error: "Failed to allocate new portion: " + e
+        error: "[PortionDataTexture] Failed to allocate new portion: " + e
       };
     }
     this._setPortionData(newHandle, data);

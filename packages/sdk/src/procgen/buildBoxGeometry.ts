@@ -54,7 +54,7 @@ export function buildBoxGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "Center must be a 3D point [x, y, z]"
+      error: "[buildBoxGeometry] Center must be a 3D point [x, y, z]"
     };
   }
 
@@ -63,7 +63,7 @@ export function buildBoxGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "Negative xSize not allowed"
+      error: "[buildBoxGeometry] Negative xSize not allowed"
     };
   }
 
@@ -72,7 +72,7 @@ export function buildBoxGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "Negative ySize not allowed"
+      error: "[buildBoxGeometry] Negative ySize not allowed"
     };
   }
 
@@ -81,7 +81,7 @@ export function buildBoxGeometry(cfg: {
     return {
       ok: false,
       type: SDKErrorType.InvalidInput,
-      error: "Negative zSize not allowed"
+      error: "[buildBoxGeometry] Negative zSize not allowed"
     };
   }
 

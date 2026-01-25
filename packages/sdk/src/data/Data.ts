@@ -108,7 +108,7 @@ export class Data {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[Data.createModel] Cannot create DataModel - Data already destroyed"
+        error: "[Data.createModel] Data already destroyed"
       });
     }
     const id = dataModelParams.id || createUUID();
@@ -116,7 +116,7 @@ export class Data {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[Data.createModel] Cannot create DataModel - DataModel already created in this Data: ${id}`
+        error: `[Data.createModel] DataModel already created in this Data: ${id}`
       });
     }
     // @ts-ignore

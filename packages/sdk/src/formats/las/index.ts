@@ -90,11 +90,11 @@
  *         }).catch(err => {
  *             sceneModel.destroy();
  *             dataModel.destroy();
- *             console.error(`Error loading LAS: ${err}`);
+ *             console.error(`Error loading LAS -> err}`);
  *         });
  *     })
  *     .catch(err => {
- *         console.error(`Error fetching or parsing LAS: ${err}`);
+ *         console.error(`Error fetching or parsing LAS -> ${err}`);
  *     });
  * ```
  *

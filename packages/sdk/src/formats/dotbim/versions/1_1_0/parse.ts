@@ -60,7 +60,7 @@ export const parse: ModelParser = async (params, options) => {
             position: [vector.x, vector.y, vector.z],
           });
           if (!meshRes.ok) {
-            // params.error(`[SceneModel.addMesh]: ${meshRes.error}`);
+            // params.error(`[SceneModel.addMesh] -> ${meshRes.error}`);
             continue;
           }
 
@@ -84,7 +84,7 @@ export const parse: ModelParser = async (params, options) => {
               description: info?.Description,
             });
             if (!dataObjectRes.ok) {
-              // params.error(`[DataModel.createObject]: ${dataObjectRes.error}`);
+              // params.error(`[@xeokit/sdk/data/DataModel.createObject] -> ${dataObjectRes.error}`);
             }
           }
         }

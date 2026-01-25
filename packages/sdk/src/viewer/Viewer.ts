@@ -115,7 +115,7 @@ export class Viewer {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[Viewer.attachScene] Cannot attach Scene - Viewer has been destroyed."
+        error: "[Viewer.attachScene] Viewer has been destroyed."
       });
     }
     if (this.scene === scene) {
@@ -129,7 +129,7 @@ export class Viewer {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[Viewer.attachScene] Cannot attach Scene - Scene has been destroyed."
+        error: "[Viewer.attachScene] Scene has been destroyed."
       });
     }
     if (this.scene) {
@@ -193,7 +193,7 @@ export class Viewer {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[Viewer.detachScene] Cannot detach Scene - Viewer has been destroyed."
+        error: "[Viewer.detachScene] Viewer has been destroyed."
       });
     }
     if (!this.scene) {
@@ -252,7 +252,7 @@ export class Viewer {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidOperation,
-        error: "[Viewer.createView] Cannot create View - Viewer has been destroyed."
+        error: "[Viewer.createView] Viewer has been destroyed."
       });
     }
     const viewId = viewParams.id || createUUID();
@@ -260,14 +260,14 @@ export class Viewer {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[Viewer.createView] Cannot create View - A View with ID "${viewId}" already exists.`
+        error: `[Viewer.createView] A View with ID "${viewId}" already exists.`
       });
     }
     if (!viewParams.elementId && !viewParams.htmlElement) {
       return this.logError({
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `[Viewer.createView] Cannot create View - Must provide either elementId or htmlElement in viewParams.`
+        error: `[Viewer.createView] Must provide either elementId or htmlElement in viewParams.`
       });
     }
     if (viewParams.elementId) {
@@ -276,7 +276,7 @@ export class Viewer {
         return this.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
-          error: `[Viewer.createView] Cannot create View - The elementId "${viewParams.elementId}" does not reference a valid HTMLElement.`
+          error: `[Viewer.createView] The elementId "${viewParams.elementId}" does not reference a valid HTMLElement.`
         });
       }
     }
@@ -285,7 +285,7 @@ export class Viewer {
         return this.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
-          error: `[Viewer.createView] Cannot create View - The provided htmlElement is not a valid HTMLElement.`
+          error: `[Viewer.createView] The provided htmlElement is not a valid HTMLElement.`
         });
       }
     }
@@ -295,7 +295,7 @@ export class Viewer {
         return this.logError({
           ok: false,
           type: SDKErrorType.InvalidInput,
-          error: `[Viewer.createView] Cannot create View - The provided backgroundColor must have at least three elements for R, G, and B.`
+          error: `[Viewer.createView] The provided backgroundColor must have at least three elements for R, G, and B.`
         });
       }
       for (let i = 0; i < 3; i++) {
@@ -304,7 +304,7 @@ export class Viewer {
           return this.logError({
             ok: false,
             type: SDKErrorType.InvalidInput,
-            error: `[Viewer.createView] Cannot create View - The provided backgroundColor elements must be in range [0..1].`
+            error: `[Viewer.createView] The provided backgroundColor elements must be in range [0..1].`
           });
         }
       }

@@ -23,7 +23,7 @@ export function searchObjects(data: Data, searchParams: SearchParams): SDKResult
     return {
       ok: false,
       type: SDKErrorType.InvalidOperation,
-      error: "Data already destroyed"
+      error: "[searchObjects] Data already destroyed"
     };
   }
   const includeObjects = (searchParams.includeObjects && searchParams.includeObjects.length > 0) ? arrayToMap(searchParams.includeObjects) : null;
@@ -85,7 +85,7 @@ export function searchObjects(data: Data, searchParams: SearchParams): SDKResult
       return {
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `Cannot search DataObjects - starting DataObject not found in Data: "${searchParams.startObjectId}"`
+        error: `[searchObjects] Cannot search DataObjects - starting DataObject not found in Data: "${searchParams.startObjectId}"`
       };
     }
     visit(startObject, depth);
@@ -94,7 +94,7 @@ export function searchObjects(data: Data, searchParams: SearchParams): SDKResult
       return {
         ok: false,
         type: SDKErrorType.InvalidInput,
-        error: `Cannot search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`
+        error: `[searchObjects] Cannot search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`
       };
     }
     visit(searchParams.startObject, depth + 1);

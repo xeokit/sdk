@@ -12084,9 +12084,19 @@ var SceneObject = class {
   /**
    * Optional layer ID for this SceneObject.
    *
-   * When the {@link Scene} is attached to a {@link viewer!View | View}, this will identify an optional {@link viewer!ViewLayer | ViewLayer}
+   * When the {@link Scene} is attached to a {@link viewer!Viewer | Viewer}, this will identify an optional {@link viewer!ViewLayer | ViewLayer}
    * to assign the object to. ViewLayers allow users to group and segregate object based on their roles or aspects in a scene,
    * simplifying interaction and focusing operations on specific object groups.
+   *
+   * When the Scene is attached to a Viewer, if this property is defined, then you could find the ViewObject
+   * corresponding to this SceneObject in the ViewLayer with the same ID, like so:
+   *
+   * ```typescript
+   * const view = viewer.views["myViewId"];
+   * const viewLayer = view.layers[this.layerId || "default"];
+   * const viewObject = viewLayer.objects[this.id];
+   * const sceneObject = viewObject.sceneObject;
+   * ```
    */
   layerId;
   /**
@@ -98043,7 +98053,7 @@ function parseMetaModel(params) {
           name: propertySetData.name,
           properties: propertySetData.properties
         });
-        if (!result.ok) {
+        if (result.ok === false) {
           return Promise.reject(`[MetaModelLoader.load]: Could not create PropertySet -> ${result.error}`);
         }
       }
@@ -98065,7 +98075,7 @@ function parseMetaModel(params) {
           name: metaObjectData.name,
           propertySetIds
         });
-        if (!result2.ok) {
+        if (result2.ok === false) {
           return Promise.reject(`[MetaModelLoader.load]: Could not create DataObject -> ${result2.error}`);
         }
         if (metaObjectData.parent) {
@@ -98074,7 +98084,7 @@ function parseMetaModel(params) {
             relatedObjectId: id,
             type: "IfcRelAggregates"
           });
-          if (!result3.ok) {
+          if (result3.ok === false) {
             return Promise.reject(`[MetaModelLoader.load]: Could not create Relationship -> ${result3.error}`);
           }
         }
@@ -117507,14 +117517,14 @@ var parse9 = async (params, options) => {
             quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : void 0,
             position: [vector.x, vector.y, vector.z]
           });
-          if (!meshRes.ok) {
+          if (meshRes.ok === false) {
             return reject(`[DotBIMLoader.load] Failed to create scene mesh -> ${meshRes.error}`);
           }
           const sceneObjectRes = params.sceneModel.createObject({
             id: objectId,
             meshIds: [meshId]
           });
-          if (!sceneObjectRes.ok) {
+          if (sceneObjectRes.ok === false) {
             return reject(`[DotBIMLoader.load] Failed to create scene object -> ${sceneObjectRes.error}`);
           }
         }
@@ -117527,7 +117537,7 @@ var parse9 = async (params, options) => {
               name: info?.Name,
               description: info?.Description
             });
-            if (!dataObjectRes.ok) {
+            if (dataObjectRes.ok === false) {
               return reject(`[DotBIMLoader.load] Failed to create data object -> ${dataObjectRes.error}`);
             }
           }
@@ -117554,7 +117564,7 @@ var parse10 = async (params, options) => {
             positions: mesh.coordinates,
             indices: mesh.indices
           });
-          if (!geometryRes.ok) {
+          if (geometryRes.ok === false) {
           }
         }
       }
@@ -117579,14 +117589,14 @@ var parse10 = async (params, options) => {
             quaternion: rotation ? [rotation.qx, rotation.qy, rotation.qz, rotation.qw] : void 0,
             position: [vector.x, vector.y, vector.z]
           });
-          if (!meshRes.ok) {
+          if (meshRes.ok === false) {
             continue;
           }
           const sceneObjectRes = params.sceneModel.createObject({
             id: objectId,
             meshIds: [meshId]
           });
-          if (!sceneObjectRes.ok) {
+          if (sceneObjectRes.ok === false) {
             continue;
           }
         }
@@ -125000,6 +125010,18 @@ var PointLight = class {
   }
 };
 
+// ../sdk/src/viewer/SnapshotResult.ts
+var SnapshotResult = class {
+  constructor() {
+    this.reset();
+  }
+  /**
+   * @private
+   */
+  reset() {
+  }
+};
+
 // ../sdk/src/viewer/PickResult.ts
 var PickResult = class {
   #sceneMesh;
@@ -125344,18 +125366,6 @@ var PickResult = class {
   }
 };
 
-// ../sdk/src/viewer/SnapshotResult.ts
-var SnapshotResult = class {
-  constructor() {
-    this.reset();
-  }
-  /**
-   * @private
-   */
-  reset() {
-  }
-};
-
 // ../sdk/src/webglrenderer/index.ts
 var webglrenderer_exports = {};
 __export(webglrenderer_exports, {
@@ -125639,6 +125649,9 @@ var RenderBuffers = class {
   }
 };
 
+// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/DataTextures.ts
+var DataTextures_exports = {};
+
 // ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/DataTexture.ts
 var import_strongly_typed_events10 = __toESM(require_dist8());
 var DataTexture = class {
@@ -125861,257 +125874,6 @@ var DataTexture = class {
     }
   }
 };
-
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/ItemDataTexture.ts
-var ItemDataTexture = class extends DataTexture {
-  dirtyItemIndices = /* @__PURE__ */ new Set();
-  /**
-   * Marks an item as dirty, so it will be uploaded on the next update.
-   * @param itemIndex Index of the item to mark as dirty.
-   */
-  setItemDirty(itemIndex) {
-    this.dirtyItemIndices.add(itemIndex);
-  }
-  /**
-   * Cancels all pending uploads by clearing the dirty set.
-   */
-  cancelUploads() {
-    this.dirtyItemIndices.clear();
-  }
-  /**
-   * Uploads all dirty items to the GPU as efficiently as possible.
-   *
-   * Internal algorithm:
-   * - Dirty items are indices of items whose data has changed and needs to be uploaded to the GPU.
-   * - The method sorts all dirty indices and finds contiguous runs (sequences of adjacent indices).
-   * - For each run, it uploads the run in chunks, where each chunk fits within a row of the texture.
-   * - This minimizes the number of WebGL `texSubImage2D` calls by uploading as large a block as possible per call.
-   * - After all dirty items are uploaded, the dirty set is cleared, the texture is unbound, and update notifications are sent.
-   *
-   * @returns True if any uploads occurred, false otherwise.
-   */
-  uploadChanges() {
-    if (this.dirtyItemIndices.size === 0) {
-      return false;
-    }
-    const startTimeMs = this.debugging ? performance.now() : 0;
-    const gl = this.gl;
-    gl.bindTexture(gl.TEXTURE_2D, this.texture);
-    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-    gl.texSubImage2D(
-      gl.TEXTURE_2D,
-      0,
-      0,
-      0,
-      this.width,
-      this.height,
-      this.format,
-      this.type,
-      this.buffer
-    );
-    this.dirtyItemIndices.clear();
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    this.notifyUpdated();
-    return true;
-  }
-};
-
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/MatrixTexture.ts
-var MatrixTexture = class _MatrixTexture extends ItemDataTexture {
-  static itemSizeInBytes = 64;
-  // 16 × float per mat4
-  /**
-   * @private
-   * @param options
-   */
-  constructor(options) {
-    super({
-      gl: options.gl,
-      description: options.description,
-      format: options.gl.RGBA,
-      type: options.gl.FLOAT,
-      internalFormat: options.gl.RGBA32F,
-      maxItems: options.maxItems,
-      getNumItems: options.getNumItems,
-      width: 4096,
-      itemSizeInBytes: _MatrixTexture.itemSizeInBytes,
-      texelsPerItem: 4,
-      elementsPerTexel: 4
-    });
-  }
-  /**
-   * Sets the matrix for the given item index.
-   * @param itemIndex
-   * @param matrix
-   */
-  setItem(itemIndex, matrix) {
-    this.buffer.set(matrix, itemIndex * this.elementsPerItem);
-    this.setItemDirty(itemIndex);
-  }
-  /**
-   * Gets the matrix for the given item index.
-   * @param itemIndex
-   */
-  getItem(itemIndex) {
-    const offset = itemIndex * this.elementsPerItem;
-    return {
-      matrix: Array.from(this.buffer.subarray(offset, offset + this.elementsPerItem))
-    };
-  }
-};
-
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/GPUTileManager.ts
-var NUM_VIEWS = 4;
-var NUM_TILES = 2e3;
-var tempVec3a8 = createVec3Float64();
-var GPUTileManager = class {
-  _renderContext;
-  _viewTileCameraMatrixTexture = [];
-  _viewTilePickMatrixTexture = [];
-  _tileIndexesUsed = [];
-  _lastFreeTileIndex = 0;
-  _tiles = /* @__PURE__ */ new Map();
-  _numTiles = 0;
-  /**
-   * Creates a tile manager for a WebGLRenderer.
-   */
-  constructor(renderContext, viewTileCameraMatrixTexture, viewTilePickMatrixTexture) {
-    this._renderContext = renderContext;
-    this._viewTileCameraMatrixTexture = viewTileCameraMatrixTexture;
-    this._viewTilePickMatrixTexture = viewTilePickMatrixTexture;
-  }
-  /**
-   * Called when a View's camera view matrix is updated.
-   * Synchronizes all tile RTC view matrices to the given Camera's view matrix.
-   */
-  cameraViewMatrixUpdated(camera) {
-    this._synchTilesToViewMatrix(camera);
-  }
-  /**
-   * Get a GPUTile that contains the given 3D World-space position.
-   */
-  getTile(worldPos) {
-    const tileSize = this._renderContext.memoryConfigs.tileSize;
-    const rtcCenter2 = worldToRTCCenter(worldPos, tempVec3a8, tileSize);
-    const id = this._makeTileId(rtcCenter2);
-    let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter2);
-    tile.useCount++;
-    return tile;
-  }
-  /**
-   * Releases a GPUTile back to the tile manager.
-   * The GPUTile is destroyed as soon as it is released as many times as it was retrieved.
-   */
-  putTile(tile) {
-    if (--tile.useCount === 0) {
-      this._tiles.delete(tile.id);
-      this._putFreeTileIndex(tile.tileIndex);
-    }
-  }
-  /**
-   * Move a GPUTile, if necessary, so that it contains the given World-space 3D position.
-   */
-  moveTile(tile, worldPos) {
-    const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a8);
-    const newId = this._makeTileId(newRTCCenter);
-    if (newId === tile.id) {
-      return tile;
-    }
-    this.putTile(tile);
-    let newTile = this._tiles.get(newId) ?? this._createTile(newId, newRTCCenter);
-    newTile.useCount++;
-    return newTile;
-  }
-  /**
-   * Number of currently allocated tiles.
-   */
-  get numTiles() {
-    return this._numTiles;
-  }
-  /**
-   * Sets the pick matrices for all tiles for the given view.
-   */
-  setViewPickMatrix(view, pickMatrix) {
-    const viewIndex = view.viewIndex;
-    const viewTilePickMatrixTexture = this._viewTilePickMatrixTexture[viewIndex];
-    for (const [_, tile] of this._tiles) {
-      const rtcPickMatrix = tile.rtcRayPickMatrix[viewIndex];
-      createRTCViewMat(pickMatrix, tile.center, rtcPickMatrix);
-      viewTilePickMatrixTexture.setItem(tile.tileIndex, rtcPickMatrix);
-    }
-  }
-  /**
-   * Destroys this tile manager.
-   */
-  destroy() {
-    console.log(`GPUTileManager.destroy: Destroying GPUTileManager with ${this._numTiles} tiles`);
-  }
-  /**
-   * Synchronizes all tile RTC view matrices to the given View's camera view matrix.
-   */
-  _synchTilesToViewMatrix(camera) {
-    const view = camera.view;
-    const viewMatrix = camera.viewMatrix;
-    const viewIndex = view.viewIndex;
-    const matrixTexture = this._viewTileCameraMatrixTexture[viewIndex];
-    for (const [_, tile] of this._tiles) {
-      const rtcViewMatrix = tile.rtcViewMatrix[viewIndex];
-      createRTCViewMat(viewMatrix, tile.center, rtcViewMatrix);
-      matrixTexture.setItem(tile.tileIndex, rtcViewMatrix);
-    }
-  }
-  _makeTileId(rtcCenter2) {
-    return rtcCenter2.join("-");
-  }
-  _createTile(id, rtcCenter2) {
-    const { viewList, numViews } = this._renderContext.viewer;
-    const center2 = createVec3Float64(rtcCenter2);
-    const rtcViewMatrix = Array.from(
-      { length: NUM_VIEWS },
-      (_, i) => i < numViews ? createRTCViewMat(viewList[i].camera.viewMatrix, center2, createMat4Float64()) : createMat4Float64()
-    );
-    const rtcPickMatrix = Array.from(
-      { length: NUM_VIEWS },
-      (_, i) => i < numViews ? createRTCViewMat(viewList[i].camera.viewMatrix, center2, createMat4Float64()) : createMat4Float64()
-    );
-    const tileIndex = this._getFreeTileIndex();
-    const tile = {
-      id,
-      tileIndex,
-      useCount: 0,
-      // callers will increment once per acquisition
-      center: center2,
-      rtcViewMatrix,
-      rtcRayPickMatrix: rtcPickMatrix
-    };
-    for (let viewIndex = 0; viewIndex < NUM_VIEWS; viewIndex++) {
-      this._viewTileCameraMatrixTexture[viewIndex].setItem(tileIndex, rtcViewMatrix[viewIndex]);
-      this._viewTilePickMatrixTexture[viewIndex].setItem(tileIndex, rtcPickMatrix[viewIndex]);
-    }
-    this._tiles.set(id, tile);
-    this._numTiles++;
-    return tile;
-  }
-  _getFreeTileIndex() {
-    for (let i = this._lastFreeTileIndex; ; i = (i + 1) % NUM_TILES) {
-      if (!this._tileIndexesUsed[i]) {
-        this._tileIndexesUsed[i] = true;
-        this._lastFreeTileIndex = i;
-        return i;
-      }
-    }
-  }
-  _putFreeTileIndex(index) {
-    if (this._tileIndexesUsed[index]) {
-      delete this._tileIndexesUsed[index];
-      this._lastFreeTileIndex = index;
-      this._numTiles--;
-    }
-  }
-};
-
-// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/DataTextures.ts
-var DataTextures_exports = {};
 
 // ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/PrimitiveMeshIndexTexture.ts
 var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTexture {
@@ -126392,6 +126154,60 @@ var PrimitiveMeshIndexTexture = class _PrimitiveMeshIndexTexture extends DataTex
   }
 };
 
+// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/ItemDataTexture.ts
+var ItemDataTexture = class extends DataTexture {
+  dirtyItemIndices = /* @__PURE__ */ new Set();
+  /**
+   * Marks an item as dirty, so it will be uploaded on the next update.
+   * @param itemIndex Index of the item to mark as dirty.
+   */
+  setItemDirty(itemIndex) {
+    this.dirtyItemIndices.add(itemIndex);
+  }
+  /**
+   * Cancels all pending uploads by clearing the dirty set.
+   */
+  cancelUploads() {
+    this.dirtyItemIndices.clear();
+  }
+  /**
+   * Uploads all dirty items to the GPU as efficiently as possible.
+   *
+   * Internal algorithm:
+   * - Dirty items are indices of items whose data has changed and needs to be uploaded to the GPU.
+   * - The method sorts all dirty indices and finds contiguous runs (sequences of adjacent indices).
+   * - For each run, it uploads the run in chunks, where each chunk fits within a row of the texture.
+   * - This minimizes the number of WebGL `texSubImage2D` calls by uploading as large a block as possible per call.
+   * - After all dirty items are uploaded, the dirty set is cleared, the texture is unbound, and update notifications are sent.
+   *
+   * @returns True if any uploads occurred, false otherwise.
+   */
+  uploadChanges() {
+    if (this.dirtyItemIndices.size === 0) {
+      return false;
+    }
+    const startTimeMs = this.debugging ? performance.now() : 0;
+    const gl = this.gl;
+    gl.bindTexture(gl.TEXTURE_2D, this.texture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texSubImage2D(
+      gl.TEXTURE_2D,
+      0,
+      0,
+      0,
+      this.width,
+      this.height,
+      this.format,
+      this.type,
+      this.buffer
+    );
+    this.dirtyItemIndices.clear();
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    this.notifyUpdated();
+    return true;
+  }
+};
+
 // ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/MeshAttributeTexture.ts
 var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
   static itemSizeInBytes = 16;
@@ -126428,6 +126244,50 @@ var MeshAttributeTexture = class _MeshAttributeTexture extends ItemDataTexture {
   }
   toU32(x) {
     return typeof x === "bigint" ? Number(x & 0xFFFFFFFFn) : x >>> 0;
+  }
+};
+
+// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/dataTextures/MatrixTexture.ts
+var MatrixTexture = class _MatrixTexture extends ItemDataTexture {
+  static itemSizeInBytes = 64;
+  // 16 × float per mat4
+  /**
+   * @private
+   * @param options
+   */
+  constructor(options) {
+    super({
+      gl: options.gl,
+      description: options.description,
+      format: options.gl.RGBA,
+      type: options.gl.FLOAT,
+      internalFormat: options.gl.RGBA32F,
+      maxItems: options.maxItems,
+      getNumItems: options.getNumItems,
+      width: 4096,
+      itemSizeInBytes: _MatrixTexture.itemSizeInBytes,
+      texelsPerItem: 4,
+      elementsPerTexel: 4
+    });
+  }
+  /**
+   * Sets the matrix for the given item index.
+   * @param itemIndex
+   * @param matrix
+   */
+  setItem(itemIndex, matrix) {
+    this.buffer.set(matrix, itemIndex * this.elementsPerItem);
+    this.setItemDirty(itemIndex);
+  }
+  /**
+   * Gets the matrix for the given item index.
+   * @param itemIndex
+   */
+  getItem(itemIndex) {
+    const offset = itemIndex * this.elementsPerItem;
+    return {
+      matrix: Array.from(this.buffer.subarray(offset, offset + this.elementsPerItem))
+    };
   }
 };
 
@@ -126995,6 +126855,307 @@ var IndexTexture = class _IndexTexture extends PortionDataTexture {
   getItem(itemIndex) {
     const offset = itemIndex * this.elementsPerItem;
     return this.buffer[offset];
+  }
+};
+
+// ../sdk/src/webglrenderer/viewManager/meshManager/RendererObject.ts
+var tempIntRGB = new Uint16Array([0, 0, 0]);
+var RendererObject = class {
+  /**
+   * Unique identifier for the object.
+   * This ID is used to reference the object within the renderer.
+   */
+  id;
+  /**
+   * List of renderer meshes associated with this object.
+   * Each mesh can represent a part of the object, such as its geometry and texture.
+   * The object controls the visual state of these meshes in the renderer, as a whole.
+   */
+  _rendererMeshes;
+  /**
+   * The RenderContext associated with this object.
+   */
+  _renderContext;
+  /**
+   * @private
+   */
+  constructor(params) {
+    this.id = params.id;
+    this._rendererMeshes = params.rendererMeshes || [];
+    this._renderContext = params.renderContext;
+  }
+  /**
+   * Adds a renderer mesh to this object.
+   */
+  addRendererMesh(rendererMesh) {
+    this._rendererMeshes.push(rendererMesh);
+  }
+  /**
+   * Removes a renderer mesh from this object.
+   */
+  removeRendererMesh(rendererMesh) {
+    const index = this._rendererMeshes.indexOf(rendererMesh);
+    if (index !== -1) {
+      this._rendererMeshes.splice(index, 1);
+    }
+  }
+  /**
+   * Sets the visibility of the object in a specific view.
+   */
+  setVisible(viewIndex, visible) {
+    this._rendererMeshes.forEach((mesh) => mesh.setObjectVisible(viewIndex, visible));
+  }
+  /**
+   * Sets the highlighted state of the object in a specific view.
+   */
+  setHighlighted(viewIndex, highlighted) {
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setHighlighted(viewIndex, highlighted);
+    }
+  }
+  /**
+   * Sets the XRayed state of the object in a specific view.
+   */
+  setXRayed(viewIndex, xrayed) {
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setXRayed(viewIndex, xrayed);
+    }
+  }
+  /**
+   * Sets the selected state of the object in a specific view.
+   */
+  setSelected(viewIndex, selected) {
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setSelected(viewIndex, selected);
+    }
+  }
+  /**
+   * Sets the culled state of the object in a specific view.
+   */
+  setCulled(viewIndex, culled) {
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setCulled(viewIndex, culled);
+    }
+  }
+  /**
+   * Sets the clippable state of the object in a specific view.
+   */
+  setClippable(viewIndex, clippable) {
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setClippable(viewIndex, clippable);
+    }
+  }
+  /**
+   * Sets the collidable state of the object in a specific view.
+   */
+  setCollidable(viewIndex, collidable) {
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setCollidable(viewIndex, collidable);
+    }
+  }
+  /**
+   * Sets the pickable state of the object in a specific view.
+   */
+  setPickable(viewIndex, pickable) {
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setPickable(viewIndex, pickable);
+    }
+  }
+  /**
+   * Sets the colorize color of the object in a specific view.
+   */
+  setColorize(viewIndex, color2) {
+    if (color2) {
+      tempIntRGB[0] = Math.floor(color2[0] * 255);
+      tempIntRGB[1] = Math.floor(color2[1] * 255);
+      tempIntRGB[2] = Math.floor(color2[2] * 255);
+      for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+        this._rendererMeshes[i].setColorInView(viewIndex, tempIntRGB);
+      }
+    } else {
+      for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+        this._rendererMeshes[i].setColorInView(viewIndex, null);
+      }
+    }
+  }
+  /**
+   * Sets the opacity of the object in a specific view.
+   */
+  setOpacity(viewIndex, opacity) {
+    if (this._rendererMeshes.length === 0) {
+      return;
+    }
+    const lastOpacityQuantized = this._rendererMeshes[0].opacity;
+    let opacityQuantized = 255;
+    if (opacity !== null && opacity !== void 0) {
+      if (opacity < 0) {
+        opacity = 0;
+      } else if (opacity > 1) {
+        opacity = 1;
+      }
+      opacityQuantized = Math.floor(opacity * 255);
+      if (lastOpacityQuantized === opacityQuantized) {
+        return;
+      }
+    } else {
+      opacityQuantized = 255;
+      if (lastOpacityQuantized === opacityQuantized) {
+        return;
+      }
+    }
+    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
+      this._rendererMeshes[i].setOpacityInView(viewIndex, opacityQuantized);
+    }
+  }
+};
+
+// ../sdk/src/webglrenderer/viewManager/gpuMemoryManager/GPUTileManager.ts
+var NUM_VIEWS = 4;
+var NUM_TILES = 2e3;
+var tempVec3a8 = createVec3Float64();
+var GPUTileManager = class {
+  _renderContext;
+  _viewTileCameraMatrixTexture = [];
+  _viewTilePickMatrixTexture = [];
+  _tileIndexesUsed = [];
+  _lastFreeTileIndex = 0;
+  _tiles = /* @__PURE__ */ new Map();
+  _numTiles = 0;
+  /**
+   * Creates a tile manager for a WebGLRenderer.
+   */
+  constructor(renderContext, viewTileCameraMatrixTexture, viewTilePickMatrixTexture) {
+    this._renderContext = renderContext;
+    this._viewTileCameraMatrixTexture = viewTileCameraMatrixTexture;
+    this._viewTilePickMatrixTexture = viewTilePickMatrixTexture;
+  }
+  /**
+   * Called when a View's camera view matrix is updated.
+   * Synchronizes all tile RTC view matrices to the given Camera's view matrix.
+   */
+  cameraViewMatrixUpdated(camera) {
+    this._synchTilesToViewMatrix(camera);
+  }
+  /**
+   * Get a GPUTile that contains the given 3D World-space position.
+   */
+  getTile(worldPos) {
+    const tileSize = this._renderContext.memoryConfigs.tileSize;
+    const rtcCenter2 = worldToRTCCenter(worldPos, tempVec3a8, tileSize);
+    const id = this._makeTileId(rtcCenter2);
+    let tile = this._tiles.get(id) ?? this._createTile(id, rtcCenter2);
+    tile.useCount++;
+    return tile;
+  }
+  /**
+   * Releases a GPUTile back to the tile manager.
+   * The GPUTile is destroyed as soon as it is released as many times as it was retrieved.
+   */
+  putTile(tile) {
+    if (--tile.useCount === 0) {
+      this._tiles.delete(tile.id);
+      this._putFreeTileIndex(tile.tileIndex);
+    }
+  }
+  /**
+   * Move a GPUTile, if necessary, so that it contains the given World-space 3D position.
+   */
+  moveTile(tile, worldPos) {
+    const newRTCCenter = worldToRTCCenter(worldPos, tempVec3a8);
+    const newId = this._makeTileId(newRTCCenter);
+    if (newId === tile.id) {
+      return tile;
+    }
+    this.putTile(tile);
+    let newTile = this._tiles.get(newId) ?? this._createTile(newId, newRTCCenter);
+    newTile.useCount++;
+    return newTile;
+  }
+  /**
+   * Number of currently allocated tiles.
+   */
+  get numTiles() {
+    return this._numTiles;
+  }
+  /**
+   * Sets the pick matrices for all tiles for the given view.
+   */
+  setViewPickMatrix(view, pickMatrix) {
+    const viewIndex = view.viewIndex;
+    const viewTilePickMatrixTexture = this._viewTilePickMatrixTexture[viewIndex];
+    for (const [_, tile] of this._tiles) {
+      const rtcPickMatrix = tile.rtcRayPickMatrix[viewIndex];
+      createRTCViewMat(pickMatrix, tile.center, rtcPickMatrix);
+      viewTilePickMatrixTexture.setItem(tile.tileIndex, rtcPickMatrix);
+    }
+  }
+  /**
+   * Destroys this tile manager.
+   */
+  destroy() {
+    console.log(`GPUTileManager.destroy: Destroying GPUTileManager with ${this._numTiles} tiles`);
+  }
+  /**
+   * Synchronizes all tile RTC view matrices to the given View's camera view matrix.
+   */
+  _synchTilesToViewMatrix(camera) {
+    const view = camera.view;
+    const viewMatrix = camera.viewMatrix;
+    const viewIndex = view.viewIndex;
+    const matrixTexture = this._viewTileCameraMatrixTexture[viewIndex];
+    for (const [_, tile] of this._tiles) {
+      const rtcViewMatrix = tile.rtcViewMatrix[viewIndex];
+      createRTCViewMat(viewMatrix, tile.center, rtcViewMatrix);
+      matrixTexture.setItem(tile.tileIndex, rtcViewMatrix);
+    }
+  }
+  _makeTileId(rtcCenter2) {
+    return rtcCenter2.join("-");
+  }
+  _createTile(id, rtcCenter2) {
+    const { viewList, numViews } = this._renderContext.viewer;
+    const center2 = createVec3Float64(rtcCenter2);
+    const rtcViewMatrix = Array.from(
+      { length: NUM_VIEWS },
+      (_, i) => i < numViews ? createRTCViewMat(viewList[i].camera.viewMatrix, center2, createMat4Float64()) : createMat4Float64()
+    );
+    const rtcPickMatrix = Array.from(
+      { length: NUM_VIEWS },
+      (_, i) => i < numViews ? createRTCViewMat(viewList[i].camera.viewMatrix, center2, createMat4Float64()) : createMat4Float64()
+    );
+    const tileIndex = this._getFreeTileIndex();
+    const tile = {
+      id,
+      tileIndex,
+      useCount: 0,
+      // callers will increment once per acquisition
+      center: center2,
+      rtcViewMatrix,
+      rtcRayPickMatrix: rtcPickMatrix
+    };
+    for (let viewIndex = 0; viewIndex < NUM_VIEWS; viewIndex++) {
+      this._viewTileCameraMatrixTexture[viewIndex].setItem(tileIndex, rtcViewMatrix[viewIndex]);
+      this._viewTilePickMatrixTexture[viewIndex].setItem(tileIndex, rtcPickMatrix[viewIndex]);
+    }
+    this._tiles.set(id, tile);
+    this._numTiles++;
+    return tile;
+  }
+  _getFreeTileIndex() {
+    for (let i = this._lastFreeTileIndex; ; i = (i + 1) % NUM_TILES) {
+      if (!this._tileIndexesUsed[i]) {
+        this._tileIndexesUsed[i] = true;
+        this._lastFreeTileIndex = i;
+        return i;
+      }
+    }
+  }
+  _putFreeTileIndex(index) {
+    if (this._tileIndexesUsed[index]) {
+      delete this._tileIndexesUsed[index];
+      this._lastFreeTileIndex = index;
+      this._numTiles--;
+    }
   }
 };
 
@@ -128558,157 +128719,6 @@ var RendererMesh = class {
     this._meshBatch.removeMesh(this._meshHandle);
     if (this.gpuTile) {
       this._gpuMemoryManager.putTile(this.gpuTile);
-    }
-  }
-};
-
-// ../sdk/src/webglrenderer/viewManager/meshManager/RendererObject.ts
-var tempIntRGB = new Uint16Array([0, 0, 0]);
-var RendererObject = class {
-  /**
-   * Unique identifier for the object.
-   * This ID is used to reference the object within the renderer.
-   */
-  id;
-  /**
-   * List of renderer meshes associated with this object.
-   * Each mesh can represent a part of the object, such as its geometry and texture.
-   * The object controls the visual state of these meshes in the renderer, as a whole.
-   */
-  _rendererMeshes;
-  /**
-   * The RenderContext associated with this object.
-   */
-  _renderContext;
-  /**
-   * @private
-   */
-  constructor(params) {
-    this.id = params.id;
-    this._rendererMeshes = params.rendererMeshes || [];
-    this._renderContext = params.renderContext;
-  }
-  /**
-   * Adds a renderer mesh to this object.
-   */
-  addRendererMesh(rendererMesh) {
-    this._rendererMeshes.push(rendererMesh);
-  }
-  /**
-   * Removes a renderer mesh from this object.
-   */
-  removeRendererMesh(rendererMesh) {
-    const index = this._rendererMeshes.indexOf(rendererMesh);
-    if (index !== -1) {
-      this._rendererMeshes.splice(index, 1);
-    }
-  }
-  /**
-   * Sets the visibility of the object in a specific view.
-   */
-  setVisible(viewIndex, visible) {
-    this._rendererMeshes.forEach((mesh) => mesh.setObjectVisible(viewIndex, visible));
-  }
-  /**
-   * Sets the highlighted state of the object in a specific view.
-   */
-  setHighlighted(viewIndex, highlighted) {
-    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setHighlighted(viewIndex, highlighted);
-    }
-  }
-  /**
-   * Sets the XRayed state of the object in a specific view.
-   */
-  setXRayed(viewIndex, xrayed) {
-    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setXRayed(viewIndex, xrayed);
-    }
-  }
-  /**
-   * Sets the selected state of the object in a specific view.
-   */
-  setSelected(viewIndex, selected) {
-    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setSelected(viewIndex, selected);
-    }
-  }
-  /**
-   * Sets the culled state of the object in a specific view.
-   */
-  setCulled(viewIndex, culled) {
-    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setCulled(viewIndex, culled);
-    }
-  }
-  /**
-   * Sets the clippable state of the object in a specific view.
-   */
-  setClippable(viewIndex, clippable) {
-    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setClippable(viewIndex, clippable);
-    }
-  }
-  /**
-   * Sets the collidable state of the object in a specific view.
-   */
-  setCollidable(viewIndex, collidable) {
-    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setCollidable(viewIndex, collidable);
-    }
-  }
-  /**
-   * Sets the pickable state of the object in a specific view.
-   */
-  setPickable(viewIndex, pickable) {
-    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setPickable(viewIndex, pickable);
-    }
-  }
-  /**
-   * Sets the colorize color of the object in a specific view.
-   */
-  setColorize(viewIndex, color2) {
-    if (color2) {
-      tempIntRGB[0] = Math.floor(color2[0] * 255);
-      tempIntRGB[1] = Math.floor(color2[1] * 255);
-      tempIntRGB[2] = Math.floor(color2[2] * 255);
-      for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-        this._rendererMeshes[i].setColorInView(viewIndex, tempIntRGB);
-      }
-    } else {
-      for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-        this._rendererMeshes[i].setColorInView(viewIndex, null);
-      }
-    }
-  }
-  /**
-   * Sets the opacity of the object in a specific view.
-   */
-  setOpacity(viewIndex, opacity) {
-    if (this._rendererMeshes.length === 0) {
-      return;
-    }
-    const lastOpacityQuantized = this._rendererMeshes[0].opacity;
-    let opacityQuantized = 255;
-    if (opacity !== null && opacity !== void 0) {
-      if (opacity < 0) {
-        opacity = 0;
-      } else if (opacity > 1) {
-        opacity = 1;
-      }
-      opacityQuantized = Math.floor(opacity * 255);
-      if (lastOpacityQuantized === opacityQuantized) {
-        return;
-      }
-    } else {
-      opacityQuantized = 255;
-      if (lastOpacityQuantized === opacityQuantized) {
-        return;
-      }
-    }
-    for (let i = 0, len = this._rendererMeshes.length; i < len; i++) {
-      this._rendererMeshes[i].setOpacityInView(viewIndex, opacityQuantized);
     }
   }
 };
@@ -131517,6 +131527,31 @@ var RenderManager = class {
           drawOps[meshBatch.primitive]?.opaque?.drawBatch(meshBatch);
         }
       }
+      if (transparent) {
+        bins.normalFillTransparent.push(meshBatch);
+      }
+      if (xray && xrayMaterial.fill) {
+        (xrayMaterial.fillAlpha < 1 ? bins.xrayedSilhouetteTransparent : bins.xrayedSilhouetteOpaque).push(meshBatch);
+      }
+      if (highlight && highlightMaterial.fill) {
+        (highlightMaterial.fillAlpha < 1 ? bins.highlightedSilhouetteTransparent : bins.highlightedSilhouetteOpaque).push(meshBatch);
+      }
+      if (select && selectedMaterial.fill) {
+        (selectedMaterial.fillAlpha < 1 ? bins.selectedSilhouetteTransparent : bins.selectedSilhouetteOpaque).push(meshBatch);
+      }
+      if (edgeMaterial.applied) {
+        if (opaque) {
+          bins.edgesColorOpaque.push(meshBatch);
+        }
+        if (transparent) {
+          bins.edgesColorTransparent.push(meshBatch);
+        }
+        (selectedMaterial.edgeAlpha < 1 ? bins.selectedEdgesTransparent : bins.selectedEdgesOpaque).push(meshBatch);
+        if (xray) {
+          (xrayMaterial.edgeAlpha < 1 ? bins.xrayEdgesTransparent : bins.xrayEdgesOpaque).push(meshBatch);
+        }
+        (highlightMaterial.edgeAlpha < 1 ? bins.highlightedEdgesTransparent : bins.highlightedEdgesOpaque).push(meshBatch);
+      }
     }
     for (let i = 0; i < bins.normalDrawSAO.length; i++) {
     }
@@ -134191,6 +134226,7 @@ var WebGLRenderer3 = class {
       // Log errors from these calls
       viewerEvents.onViewCreated.subscribe((_, view) => this.logError(viewManager.viewCreated(view))),
       viewerEvents.onViewUpdated.subscribe((_, view) => this.logError(viewManager.viewUpdated(view))),
+      // View ready to re-render
       viewerEvents.onViewDestroyed.subscribe((_, view) => this.logError(viewManager.viewDestroyed(view))),
       // SceneMesh and SceneTransform state changes
       sceneEvents.onSceneMeshGeometryChanged.subscribe((_, sceneMesh) => viewManager.sceneMeshGeometryChanged(sceneMesh)),
@@ -134252,7 +134288,7 @@ var WebGLRenderer3 = class {
   /**
    * Performs a GPU-accelerated pick operation in the specified {@link View}.
    *
-   * This method queries the rendered scene to identify the {@link ViewObject} (and optionally the 3D surface position)
+   * This method queries the renderer to identify the {@link ViewObject} (and optionally the 3D surface position)
    * at a given canvas coordinate or along a specified world-space ray. Picking is performed using the renderer's
    * internal GPU resources and shaders.
    *

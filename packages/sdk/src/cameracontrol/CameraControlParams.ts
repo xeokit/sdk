@@ -1,7 +1,29 @@
+import {type PickParams, type PickResult, View} from "../viewer";
+import {type SDKResult} from "../core";
+
+/**
+ * Signature for custom pick functions for {@link CameraControl}.
+ *
+ * @param view The {@link viewer!View | View} from which to pick.
+ * @param pickParams Parameters for the pick operation.
+ * @returns The result of the pick operation.
+ */
+export type CameraControlPickFn = (
+    view: View,
+    pickParams: PickParams
+) => SDKResult<PickResult>;
+
 /**
  * Configuration options for {@link CameraControl}.
  */
 export interface CameraControlParams {
+
+  /**
+   * Custom pick function for {@link cameracontrol!CameraControl} to use when determining
+   * what the {@link viewer!Camera | Camera} should dolly toward or orbit around. When this
+   * isn't specified, then dolly and orbit will not be "pointer smart" and will be less user-friendly.
+   */
+  pick?: CameraControlPickFn;
 
   /**
    * Sensitivity of the mouse wheel for dollying (moving forward and backward) with the {@link viewer!Camera | Camera}.
@@ -138,5 +160,5 @@ export interface CameraControlParams {
    *
    * Default: `false`
    */
-  keyboardEnabledOnlyOfMouseover?: boolean;
+  keyboardEnabledOnlyOnMouseover?: boolean;
 }

@@ -505,3 +505,5 @@ export * from "./Texturing";
 export * from "./TickParams";
 export * from "./SnapshotParams";
 export * from "./SnapshotResult";
+export * from "./PickResult";
+export * from "./PickParams";

@@ -1,6 +1,6 @@
-import type {ViewObject} from "../viewer/ViewObject";
+import type {ViewObject} from "./ViewObject";
 import {SceneMesh, SceneObject} from "../scene";
-import {View} from "../viewer/View";
+import {View} from "./View";
 import {createVec2Int32, createVec2Float64, createVec3Float64, type Vec2, type Vec3} from "../math/vector";
 
 

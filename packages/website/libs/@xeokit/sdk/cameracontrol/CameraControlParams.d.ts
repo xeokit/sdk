@@ -118,6 +118,6 @@ export interface CameraControlParams {
      *
      * Default: `false`
      */
-    keyboardEnabledOnlyOfMouseover?: boolean;
+    keyboardEnabledOnlyOnMouseover?: boolean;
 }
 //# sourceMappingURL=CameraControlParams.d.ts.map

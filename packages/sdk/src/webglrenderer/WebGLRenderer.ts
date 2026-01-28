@@ -1,5 +1,6 @@
 import {EventEmitter, SDKErrorType, SDKInternalException, type SDKResult} from "../core";
 import type {Viewer} from "../viewer";
+import {View} from "../viewer";
 import {ViewManager} from "./viewManager/ViewManager";
 import {EventDispatcher} from "strongly-typed-events";
 import {getWebGLExtension} from "../webglutils";
@@ -11,10 +12,9 @@ import {type MemoryUsage} from "./MemoryUsage";
 import {type MemoryView} from "./internal/MemoryView";
 import {type DataTextures} from "./viewManager/gpuMemoryManager/DataTextures";
 import {SceneGeometry, SceneMesh} from "../scene";
-import { View} from "../viewer";
 import {ShaderView} from "./internal";
-import {type PickParams} from "./PickParams";
-import {type PickResult} from "./PickResult";
+import {type PickParams, type PickResult} from "../viewer";
+
 
 /**
  * WebGL renderer backing a {@link Viewer}.
@@ -335,7 +335,7 @@ export class WebGLRenderer {
    * @param viewer Viewer to attach.
    * @returns Success or failure. Attaching while another Viewer is already attached is an error.
    */
-  public attachViewer(viewer: Viewer): SDKResult<void> {
+  attachViewer(viewer: Viewer): SDKResult<void> {
 
     if (this._viewer) {
       return this.logError({
@@ -502,7 +502,7 @@ export class WebGLRenderer {
   /**
    * Retrieves the Viewer currently attached to this WebGLRenderer, if any.
    */
-  public get viewer(): Viewer | null {
+  get viewer(): Viewer | null {
     return this._viewer;
   }
 
@@ -512,7 +512,7 @@ export class WebGLRenderer {
    * Rendering is considered active when a Viewer with an attached Scene is present
    * and the renderer’s internal rendering state has been initialized.
    */
-  public get rendering(): boolean {
+  get rendering(): boolean {
     return !!this._viewManager;
   }
 
@@ -532,7 +532,7 @@ export class WebGLRenderer {
    * - The returned {@link PickResult} is a transient, renderer-owned instance. Its contents are valid only until the next pick operation.
    *   Do not modify or retain the result.
    */
-  public pick(view: View, pickParams: PickParams): SDKResult<PickResult> {
+  pick(view: View, pickParams: PickParams): SDKResult<PickResult> {
 
     // TODO: Define abstract picking interface, ie. new MyControlThatNeedsPicking(view, renderer as <PickProvider>)
     // Or just configure te likes of MyControlThatNeedsPicking with the renderer.pick.bind(renderer) method, as callback?
@@ -560,7 +560,7 @@ export class WebGLRenderer {
    * If rendering is active, this also tears down the renderer’s internal rendering state
    * before emitting lifecycle events.
    */
-  public detachViewer(): void {
+  detachViewer(): void {
     if (!this._viewer) {
       return;
     }
@@ -596,7 +596,7 @@ export class WebGLRenderer {
    * and emits {@link events.onRendererDestroyed}. After this call, the instance
    * should be considered unusable.
    */
-  public destroy(): void {
+  destroy(): void {
     if (this._destroyed) {
       return;
     }

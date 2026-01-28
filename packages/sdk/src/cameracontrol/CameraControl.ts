@@ -22,7 +22,7 @@ import {
   KEY_X,
   KEY_Z
 } from "./keycodes";
-import type {PickResult, View} from "../viewer";
+import type {View} from "../viewer";
 import type {CameraControlParams} from "./CameraControlParams";
 import {CameraFlightAnimation} from "../cameraflight";
 import {CameraUpdater} from "./CameraUpdater";
@@ -39,6 +39,7 @@ import {PickController} from "./PickController";
 import {PivotController} from "./PivotController";
 import {TouchPanRotateAndDollyHandler} from "./TouchPanRotateAndDollyHandler";
 import {TouchPickHandler} from "./TouchPickHandler";
+import {PickResult} from "../viewer";
 
 
 const DEFAULT_SNAP_PICK_RADIUS = 30;

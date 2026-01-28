@@ -1,5 +1,6 @@
 import {RenderContext} from "./RenderContext";
-import {Camera, type PickParams,  PickResult, View, Viewer, ViewObject} from "../../viewer";
+import {Camera, View, Viewer, ViewObject} from "../../viewer";
+import { type PickParams, type PickResult} from "../../viewer";
 import {SDKInternalException, SDKErrorType, type SDKResult} from "../../core";
 import {ViewRenderState} from "./ViewRenderState";
 import {RenderManager} from "./renderManager";

@@ -42,4 +42,4 @@
 //         }
 //     }
 // }
-//# sourceMappingURL=WebGLRenderBufferManager.js.map
+//# sourceMappingURL=RenderBuffers.js.map

@@ -1,1 +1,1 @@
-//# sourceMappingURL=WebGLRenderBufferManager.d.ts.map
+//# sourceMappingURL=RenderBuffers.d.ts.map

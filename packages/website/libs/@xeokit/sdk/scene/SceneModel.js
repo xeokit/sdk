@@ -3,7 +3,7 @@
 import { EventDispatcher } from "strongly-typed-events";
 import { Component, EventEmitter, SDKError } from "../core";
 import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, TrianglesPrimitive } from "../constants";
-import { collapseAABB3, createAABB3, expandAABB3 } from "../boundaries";
+import { collapseAABB3, createAABBFloat64, expandAABB3 } from "../boundaries";
 import { SceneGeometry } from "./SceneGeometry";
 import { SceneObject } from "./SceneObject";
 import { SceneTextureSet } from "./SceneTextureSet";
@@ -85,7 +85,7 @@ export class SceneModel extends Component {
      *
      * * Set ````true```` by {@link scene!SceneModel.build | SceneModel.build}.
      * * Subscribe to updates using {@link scene!SceneModel.onBuilt | SceneModel.onBuilt}
-     * and {@link scene!Scene.onModelCreated | Scene.onModelCreated}.
+     * and {@link scene!SceneEvents.onSceneModelCreated | SceneEvents.onSceneModelCreated}.
      * * Don't create anything more in this SceneModel once it's built.
      */
     built;
@@ -187,7 +187,7 @@ export class SceneModel extends Component {
         this.onDestroyed = new EventEmitter(new EventDispatcher());
         this.#numObjects = 0;
         this.#meshUsedByObject = {};
-        this.#aabb = createAABB3();
+        this.#aabb = createAABBFloat64();
         this.#aabbDirty = true;
         this.streamParams = sceneModelParams.streamParams;
         this.globalizedIds = (!!sceneModelParams.globalizedIds);
@@ -235,10 +235,10 @@ export class SceneModel extends Component {
      */
     fromJSON(sceneModelParams) {
         if (this.destroyed) {
-            return new SDKError("Failed to add components to SceneModel - SceneModel already destroyed");
+            return new SDKError("Cannot add components to SceneModel - SceneModel already destroyed");
         }
         if (this.built) {
-            return new SDKError("Failed to add components to SceneModel - SceneModel already built");
+            return new SDKError("Cannot add components to SceneModel - SceneModel already built");
         }
         if (sceneModelParams.geometries) {
             for (let i = 0, len = sceneModelParams.geometries.length; i < len; i++) {
@@ -310,16 +310,16 @@ export class SceneModel extends Component {
      */
     createTexture(textureParams) {
         if (this.destroyed) {
-            return new SDKError("Failed to create SceneTexture in SceneModel - SceneModel already destroyed");
+            return new SDKError("Cannot create SceneTexture in SceneModel - SceneModel already destroyed");
         }
         if (this.built) {
-            return new SDKError("Failed to create SceneTexture in SceneModel - SceneModel already built");
+            return new SDKError("Cannot create SceneTexture in SceneModel - SceneModel already built");
         }
         if (!textureParams.imageData && !textureParams.src && !textureParams.buffers) {
-            return new SDKError("Failed to create SceneTexture in SceneModel - Parameter expected: textureParams.imageData, textureParams.src or textureParams.buffers");
+            return new SDKError("Cannot create SceneTexture in SceneModel - Parameter expected: textureParams.imageData, textureParams.src or textureParams.buffers");
         }
         if (this.textures[textureParams.id]) {
-            return new SDKError(`Failed to create Texture in SceneModel - Texture already exists with this ID: ${textureParams.id}`);
+            return new SDKError(`Cannot create Texture in SceneModel - Texture already exists with this ID: ${textureParams.id}`);
         }
         if (textureParams.src) {
             const fileExt = textureParams.src.split('.').pop();
@@ -367,13 +367,13 @@ export class SceneModel extends Component {
      */
     createTextureSet(textureSetParams) {
         if (this.destroyed) {
-            return new SDKError("Failed to create SceneTextureSet in SceneModel - SceneModel already destroyed");
+            return new SDKError("Cannot create SceneTextureSet in SceneModel - SceneModel already destroyed");
         }
         if (this.built) {
-            return new SDKError("Failed to create SceneTextureSet in SceneModel - SceneModel already built");
+            return new SDKError("Cannot create SceneTextureSet in SceneModel - SceneModel already built");
         }
         if (this.textureSets[textureSetParams.id]) {
-            return new SDKError(`Failed to create TextureSet in SceneModel - TextureSet already exists with this ID: ${textureSetParams.id}`);
+            return new SDKError(`Cannot create TextureSet in SceneModel - TextureSet already exists with this ID: ${textureSetParams.id}`);
         }
         let colorTexture;
         if (textureSetParams.colorTextureId !== undefined && textureSetParams.colorTextureId !== null) {
@@ -741,7 +741,7 @@ export class SceneModel extends Component {
      * Creates a new {@link scene!SceneObject}.
      *
      * * Stores the new {@link scene!SceneObject} in {@link scene!SceneModel.objects | SceneModel.objects} and {@link scene!Scene.objects | Scene.objects}.
-     * * Fires an event via {@link scene!Scene.onObjectCreated | Scene.onObjectCreated}.
+     * * Fires an event via {@link scene!Scene.objectCreated | Scene.objectCreated}.
      * * Each {@link scene!SceneMesh} is allowed to belong to one SceneObject.
      * * SceneObject IDs must be unique within the SceneModel's {@link scene!Scene | Scene}.
      *
@@ -805,7 +805,7 @@ export class SceneModel extends Component {
         }
         const sceneObject = new SceneObject({
             id: objectId,
-            originallSystemId: objectParams.originalSystemId,
+            originalSystemId: objectParams.originalSystemId,
             layerId: this.layerId || objectParams.layerId,
             model: this,
             meshes
@@ -823,7 +823,7 @@ export class SceneModel extends Component {
     /**
      * Finalizes this SceneModel, readying it for use.
      *
-     * * Fires an event via {@link scene!SceneModel.onBuilt | SceneModel.onBuilt} and {@link scene!Scene.onModelCreated | SceneModel.onCreated}, to indicate to subscribers that
+     * * Fires an event via {@link scene!SceneModel.onBuilt | SceneModel.onBuilt} and {@link scene!SceneEvents.onSceneModelCreated | SceneModel.onCreated}, to indicate to subscribers that
      * the SceneModel is complete and ready to use.
      * * Sets {@link scene!SceneModel.built | SceneModel.built} ````true````.
      * * You can only call this method once on a SceneModel.
@@ -837,7 +837,7 @@ export class SceneModel extends Component {
      *     // Our SceneModel is built and ready to use
      * });
      *
-     * myScene.onModelCreated.subscribe((sceneModel)=>{
+     * mySceneEvents.onSceneModelCreated.subscribe((sceneModel)=>{
      *     // Another way to subscribe to SceneModel readiness
      * });
      *

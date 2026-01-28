@@ -20,7 +20,7 @@ export class SceneObject {
      */
     originalSystemId;
     /**
-     * Optional layer ID for this SceneObject.
+     * Optional _layer ID for this SceneObject.
      */
     layerId;
     /**
@@ -47,7 +47,7 @@ export class SceneObject {
      */
     constructor(cfg) {
         this.id = cfg.id;
-        this.originalSystemId = cfg.originallSystemId || this.id;
+        this.originalSystemId = cfg.originalSystemId || this.id;
         this.layerId = cfg.layerId;
         this.meshes = cfg.meshes;
         this.#aabb = null;

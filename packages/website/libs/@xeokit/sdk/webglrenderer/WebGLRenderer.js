@@ -142,7 +142,7 @@ export class WebGLRenderer {
         this.#shadersDirty = true;
         this.#occlusionTester = null; // Lazy-created in #addMarker()
         // this.#saoDepthRenderBuffer = null;
-        // this.#renderBufferManager = null;
+        // this.#renderBuffers = null;
         this.#logarithmicDepthBufferEnabled = false;
         this.#rendererModels = {};
         this.#viewMatrixDirty = true;
@@ -174,11 +174,11 @@ export class WebGLRenderer {
         };
         this.#gl = webglCanvasElement.getContext("webgl2", contextAttr);
         if (!this.#gl) {
-            throw new SDKError(`Failed to get a WebGL2 context`);
+            throw new SDKError(`Cannot get a WebGL2 context`);
         }
         this.#gl.hint(this.#gl.FRAGMENT_SHADER_DERIVATIVE_HINT, this.#gl.NICEST);
         this.#pickBufferManager = new WebGLRenderBufferManager(this.#gl, webglCanvasElement);
-        // this.tileManager = new DTXTiles({camera: view.camera, gl});
+        // this.tileManager = new GPUTileManager({camera: view.camera, gl});
     }
     /**
      * The Viewer this WebGLRenderer is currently attached to, if any.
@@ -208,7 +208,7 @@ export class WebGLRenderer {
             gl = htmlElement.getContext("webgl2");
         }
         catch (e) {
-            console.error('Failed to get a WebGL context');
+            console.error('Cannot get a WebGL context');
         }
         if (gl) {
             capabilities.astcSupported = !!getWebGLExtension(gl, 'WEBGL_compressed_texture_astc');
@@ -365,10 +365,10 @@ export class WebGLRenderer {
      * upload state updates to the Renderer.
      *
      * * Sets a {@link scene!RendererModel} on {@link scene!SceneModel.rendererModel | SceneModel.rendererModel}
-     * * Sets a {@link scene!RendererObject} on each {@link scene!SceneObject.rendererObject | SceneObject.rendererObject}
-     * * Sets a {@link scene!RendererMesh} on each {@link scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh}
-     * * Sets a {@link scene!RendererTextureSet} on each {@link scene!SceneTextureSet.rendererTextureSet | SceneTextureSet.rendererTextureSet}
-     * * Sets a {@link scene!RendererTexture} on each {@link scene!SceneTexture.rendererTexture | SceneTexture.rendererTexture}
+     * * Sets a {@link scene!SceneObjectRendererProxy} on each {@link scene!SceneObject.sceneObjectRendererProxy | SceneObject.sceneObjectRendererProxy}
+     * * Sets a {@link scene!SceneMeshRendererProxy} on each {@link scene!SceneMesh.sceneObjectRendererProxy | SceneMesh.sceneObjectRendererProxy}
+     * * Sets a {@link scene!SceneTextureSetRendererProxy} on each {@link scene!SceneTextureSet.sceneTextureSetRendererProxy | SceneTextureSet.sceneTextureSetRendererProxy}
+     * * Sets a {@link scene!SceneTextureRendererProxy} on each {@link scene!SceneTexture.sceneTextureRendererProxy | SceneTexture.sceneTextureRendererProxy}
      *
      * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
      *
@@ -411,9 +411,9 @@ export class WebGLRenderer {
     /**
      * Detaches a {@link scene!SceneModel | SceneModel} from this WebGLRenderer.
      *
-     * Detaches and destroys the {@link scene!RendererModel}, {@link scene!RendererObject} and
-     * {@link scene!RendererMesh},
-     * {@link scene!RendererTexture} instances that were attached in {@link webglrenderer!WebGLRenderer.attachSceneModel}.
+     * Detaches and destroys the {@link scene!RendererModel}, {@link scene!SceneObjectRendererProxy} and
+     * {@link scene!SceneMeshRendererProxy},
+     * {@link scene!SceneTextureRendererProxy} instances that were attached in {@link webglrenderer!WebGLRenderer.attachSceneModel}.
      *
      * @internal
      * @returns *void*
@@ -476,7 +476,7 @@ export class WebGLRenderer {
     }
     /**
      * Sets whether the WebGLRenderer draws edges.
-     * Triggers a new frame render.
+     * Triggers a new frame draw.
      * @internal
      */
     setEdgesEnabled(viewIndex, enabled) {
@@ -488,7 +488,7 @@ export class WebGLRenderer {
     }
     /**
      * Sets whether the WebGLRenderer draws with physically-based rendering.
-     * Triggers a new frame render.
+     * Triggers a new frame draw.
      * @internal
      */
     setPBREnabled(viewIndex, enabled) {
@@ -504,7 +504,7 @@ export class WebGLRenderer {
     }
     /**
      * Sets whether the WebGLRenderer draws with SAO.
-     * Triggers a new frame render.
+     * Triggers a new frame draw.
      * @internal
      */
     setSAOEnabled(viewIndex, enabled) {
@@ -598,7 +598,7 @@ export class WebGLRenderer {
      *
      * @internal
      * @param viewIndex Handle to the View, returned earlier by {@param params Rendering params.
-     * @param [params.force=false] True to force a render, else only render if needed.
+     * @param [params.force=false] True to force a draw, else only draw if needed.
      * @link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
      * @returns *{@link core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.
@@ -606,7 +606,7 @@ export class WebGLRenderer {
      */
     render(viewIndex, params) {
         if (!this.#viewer) {
-            throw new SDKError("Can't render with WebGLRenderer - no Viewer and View is attached");
+            throw new SDKError("Can't draw with WebGLRenderer - no Viewer and View is attached");
         }
         const rendererView = this.#rendererViewsList[viewIndex];
         if (!rendererView) {
@@ -733,7 +733,7 @@ export class WebGLRenderer {
         const rendererView = this.#rendererViewsList[viewIndex];
         const view = rendererView.view;
         const sao = view.sao;
-        // Render depth buffer
+        // Render depth _buffer
         const depthRenderBuffer = rendererView.renderBufferManager.getRenderBuffer("saoDepth", {
             depthTexture: WEBGL_INFO.SUPPORTED_EXTENSIONS["WEBGL_depth_texture"]
         });
@@ -741,7 +741,7 @@ export class WebGLRenderer {
         depthRenderBuffer.clear();
         this.#drawDepth(params);
         depthRenderBuffer.unbind();
-        // Render occlusion buffer
+        // Render occlusion _buffer
         const occlusionRenderBuffer1 = rendererView.renderBufferManager.getRenderBuffer("saoOcclusion");
         occlusionRenderBuffer1.bind();
         occlusionRenderBuffer1.clear();
@@ -751,7 +751,7 @@ export class WebGLRenderer {
         });
         occlusionRenderBuffer1.unbind();
         if (sao.blur) {
-            // Horizontally blur occlusion buffer 1 into occlusion buffer 2
+            // Horizontally blur occlusion _buffer 1 into occlusion _buffer 2
             const occlusionRenderBuffer2 = rendererView.renderBufferManager.getRenderBuffer("saoOcclusion2");
             occlusionRenderBuffer2.bind();
             occlusionRenderBuffer2.clear();
@@ -762,7 +762,7 @@ export class WebGLRenderer {
                 direction: 0
             });
             occlusionRenderBuffer2.unbind();
-            // Vertically blur occlusion buffer 2 back into occlusion buffer 1
+            // Vertically blur occlusion _buffer 2 back into occlusion _buffer 1
             occlusionRenderBuffer1.bind();
             occlusionRenderBuffer1.clear();
             this.#saoDepthLimitedBlurRenderer.render({
@@ -852,7 +852,7 @@ export class WebGLRenderer {
         if (params.clear !== false) {
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
         }
-        // Render normal opaque solids, defer others to subsequent bins, to render after
+        // Render normal opaque solids, defer others to subsequent bins, to draw after
         for (let i = 0, len = this.#layerList.length; i < len; i++) {
             const layer = this.#layerList[i];
             const meshCounts = layer.meshCounts[viewIndex];
@@ -1260,7 +1260,7 @@ export class WebGLRenderer {
         // if (!rendererView) {
         //     throw new SDKError(`Can't begin snapshot with WebGLRenderer.beginSnapshot() - no View attached at given viewIndex: ${viewIndex}`);
         // }
-        // const snapshotBuffer = rendererView.renderBufferManager.getRenderBuffer("snapshot");
+        // const snapshotBuffer = rendererView.renderBuffers.getRenderBuffer("snapshot");
         // if (params && params.width && params.height) {
         //     snapshotBuffer.setSize([params.width, params.height]);
         // }
@@ -1271,14 +1271,14 @@ export class WebGLRenderer {
     renderSnapshot() {
         // const rendererView = this.#rendererViewsList[viewIndex];
         // if (!rendererView) {
-        //     throw new SDKError(`Can't render snapshot with WebGLRenderer.renderSnapshot() - no View attached at given viewIndex: ${viewIndex}`);
+        //     throw new SDKError(`Can't draw snapshot with WebGLRenderer.renderSnapshot() - no View attached at given viewIndex: ${viewIndex}`);
         // }
         // if (!this.#snapshotBound) {
         //     return;
         // }
-        // const snapshotBuffer = rendererView.renderBufferManager.getRenderBuffer("snapshot");
+        // const snapshotBuffer = rendererView.renderBuffers.getRenderBuffer("snapshot");
         // snapshotBuffer.clear();
-        // this.render(viewIndex, {
+        // this.draw(viewIndex, {
         //     force: true,
         //     opaqueOnly: false
         // });
@@ -1292,7 +1292,7 @@ export class WebGLRenderer {
         // if (!this.#snapshotBound) {
         //     return;
         // }
-        // const snapshotBuffer = rendererView.renderBufferManager.getRenderBuffer("snapshot");
+        // const snapshotBuffer = rendererView.renderBuffers.getRenderBuffer("snapshot");
         // return snapshotBuffer.readImage(params);
         return "";
     }
@@ -1304,7 +1304,7 @@ export class WebGLRenderer {
         // if (!this.#snapshotBound) {
         //     return;
         // }
-        // const snapshotBuffer = rendererView.renderBufferManager.getRenderBuffer("snapshot");
+        // const snapshotBuffer = rendererView.renderBuffers.getRenderBuffer("snapshot");
         // return snapshotBuffer.readImageAsCanvas();
         return null;
     }
@@ -1321,7 +1321,7 @@ export class WebGLRenderer {
         // if (!this.#snapshotBound) {
         //     return;
         // }
-        // const snapshotBuffer = rendererView.renderBufferManager.getRenderBuffer("snapshot");
+        // const snapshotBuffer = rendererView.renderBuffers.getRenderBuffer("snapshot");
         // snapshotBuffer.unbind();
         this.#snapshotBound = false;
     }

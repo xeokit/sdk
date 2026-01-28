@@ -19,7 +19,7 @@
  * - **Pointer-following** for dynamically adjusting the camera's target.
  * - **Context-aware movement scaling** to move quickly in open spaces and slowly in confined spaces.
  * - **Pivot-about-point** to orbit picked surface positions.
- * - **Axis-aligned views** for precise positioning.
+ * - **Axis-aligned viewManager** for precise positioning.
  * - **Configurable behaviors** like vertical movement constraints and double-click object focusing.
  *
  * <br>

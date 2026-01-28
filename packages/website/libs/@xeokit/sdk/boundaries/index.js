@@ -41,7 +41,7 @@ const tempMat4a = createMat4();
 /**
  * Returns a new, uninitialized 3D axis-aligned bounding box.
  */
-export function createAABB3(values) {
+export function createAABBFloat64(values) {
     // @ts-ignore
     return new Float64Array(values || 6);
 }
@@ -133,7 +133,7 @@ export function containsAABB3(aabb1, aabb2) {
     return result;
 }
 /**
- * Gets the diagonal size of an createAABB3 given as minima and maxima.
+ * Gets the diagonal size of an createAABBFloat64 given as minima and maxima.
  */
 export const getAABB3Diag = (() => {
     const min = newFloatArray(3);
@@ -207,7 +207,7 @@ export function getAABB2Center(aabb, dest = createVec2()) {
  * Collapses a 3D axis-aligned boundary, ready to expand to fit 3D points.
  * Creates new AABB if none supplied.
  */
-export function collapseAABB3(aabb = createAABB3()) {
+export function collapseAABB3(aabb = createAABBFloat64()) {
     aabb[0] = MAX_DOUBLE;
     aabb[1] = MAX_DOUBLE;
     aabb[2] = MAX_DOUBLE;
@@ -235,7 +235,7 @@ export function collapseAABB3Int16(aabb = createAABB3Int16()) {
  *
  * @private
  */
-export function AABB3ToOBB3(aabb = createAABB3(), obb = createOBB3()) {
+export function AABB3ToOBB3(aabb = createAABBFloat64(), obb = createOBB3()) {
     obb[0] = aabb[0];
     obb[1] = aabb[1];
     obb[2] = aabb[2];
@@ -431,7 +431,7 @@ export function ABB3ToOBB3(aabb, obb = createOBB3()) {
 export const positions3ToAABB3 = (() => {
     const p = newFloatArray(3);
     return (positions, aabb, positionsDecompressMatrix) => {
-        aabb = aabb || createAABB3();
+        aabb = aabb || createAABBFloat64();
         let xmin = MAX_DOUBLE;
         let ymin = MAX_DOUBLE;
         let zmin = MAX_DOUBLE;
@@ -487,7 +487,7 @@ export const positions3ToAABB3 = (() => {
 /**
  * Finds the minimum axis-aligned 3D boundary enclosing the homogeneous 3D points (x,y,z,w) given in a flattened array.
  */
-export function OBB3ToAABB3(obb, aabb = createAABB3()) {
+export function OBB3ToAABB3(obb, aabb = createAABBFloat64()) {
     let xmin = MAX_DOUBLE;
     let ymin = MAX_DOUBLE;
     let zmin = MAX_DOUBLE;
@@ -531,7 +531,7 @@ export function OBB3ToAABB3(obb, aabb = createAABB3()) {
 /**
  * Finds the minimum axis-aligned 3D boundary enclosing the given 3D points.
  */
-export function points3ToAABB3(points, aabb = createAABB3()) {
+export function points3ToAABB3(points, aabb = createAABBFloat64()) {
     let xmin = MAX_DOUBLE;
     let ymin = MAX_DOUBLE;
     let zmin = MAX_DOUBLE;

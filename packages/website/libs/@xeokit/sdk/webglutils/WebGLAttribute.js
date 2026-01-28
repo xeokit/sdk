@@ -14,7 +14,7 @@ export class WebGLAttribute {
         this.location = location;
     }
     /**
-     * Binds an array buffer to this vertex attribute.
+     * Binds an array _buffer to this vertex attribute.
      * @param arrayBuf
      */
     bindArrayBuffer(arrayBuf) {

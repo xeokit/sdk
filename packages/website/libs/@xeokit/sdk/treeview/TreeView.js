@@ -273,7 +273,7 @@ export class TreeView extends Component {
             const modelId = modelIds[i];
             this.#addModel(modelId);
         }
-        this.#viewer.scene.onModelCreated.subscribe((scene, sceneModel) => {
+        this.#viewer.SceneEvents.onSceneModelCreated.subscribe((scene, sceneModel) => {
             if (this.data.models[sceneModel.id]) {
                 this.#addModel(sceneModel.id);
             }
@@ -621,7 +621,7 @@ export class TreeView extends Component {
             case TreeView.GroupsHierarchy:
                 this.#buildGroupsNodes();
                 if (this.#rootNodes.length === 0) {
-                    this.error("Failed to build hierarchy TreeView.GroupsHierarchy");
+                    this.error("Cannot build hierarchy TreeView.GroupsHierarchy");
                 }
                 break;
             case TreeView.TypesHierarchy:

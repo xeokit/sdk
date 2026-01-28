@@ -60,7 +60,7 @@ export interface EmphasisMaterialParams {
      */
     fill?: boolean;
     /**
-     * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+     * Sets whether to draw emphasized objects over the top of other objects, as if they were "glowing through".
      *
      * Default is ````true````.
      *

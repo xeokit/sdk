@@ -81,7 +81,7 @@ sceneModel.createGeometry({
   ]
 });
 
-sceneModel.createMesh({
+sceneModel.addMesh({
   id: "redLegMesh",
   geometryId: "demoBoxGeometry",
   matrix: xeokit.scene.buildMat4({
@@ -96,7 +96,7 @@ sceneModel.createObject({
   meshIds: ["redLegMesh"]
 });
 
-sceneModel.createMesh({
+sceneModel.addMesh({
   id: "greenLegMesh",
   geometryId: "demoBoxGeometry",
   matrix: xeokit.scene.buildMat4({
@@ -111,7 +111,7 @@ sceneModel.createObject({
   meshIds: ["greenLegMesh"]
 });
 
-sceneModel.createMesh({
+sceneModel.addMesh({
   id: "blueLegMesh",
   geometryId: "demoBoxGeometry",
   matrix: xeokit.scene.buildMat4({
@@ -126,7 +126,7 @@ sceneModel.createObject({
   meshIds: ["blueLegMesh"]
 });
 
-sceneModel.createMesh({
+sceneModel.addMesh({
   id: "yellowLegMesh",
   geometryId: "demoBoxGeometry",
   matrix: xeokit.scene.buildMat4({
@@ -141,7 +141,7 @@ sceneModel.createObject({
   meshIds: ["yellowLegMesh"]
 });
 
-sceneModel.createMesh({
+sceneModel.addMesh({
   id: "purpleTableTopMesh",
   geometryId: "demoBoxGeometry",
   matrix: xeokit.scene.buildMat4({

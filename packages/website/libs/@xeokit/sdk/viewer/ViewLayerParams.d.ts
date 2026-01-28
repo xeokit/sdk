@@ -3,7 +3,7 @@
  *
  * * Returned by {@link ViewLayer.toParams | ViewLayer.toParams}
  * * Passed to {@link ViewLayer.fromParams | ViewLayer.fromParams} and {@link View.createLayer | View.createLayer}
- * * Located at {@link ViewParams.layers | ViewParams.layers}
+ * * Located at {@link ViewParams.renderGraph | ViewParams.renderGraph}
  */
 export interface ViewLayerParams {
     /**

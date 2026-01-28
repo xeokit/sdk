@@ -43,7 +43,7 @@ class EmphasisMaterial extends Component {
             return;
         }
         this.#state.fill = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets if the surfaces of emphasized {@link viewer!ViewObject | ViewObjects} are filled with color.
@@ -66,7 +66,7 @@ class EmphasisMaterial extends Component {
         fillColor[0] = 0.4;
         fillColor[1] = 0.4;
         fillColor[2] = 0.4;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the RGB surface fill color for the surfaces of emphasized {@link viewer!ViewObject | ViewObjects}.
@@ -88,7 +88,7 @@ class EmphasisMaterial extends Component {
             return;
         }
         this.#state.fillAlpha = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the transparency of the surfaces of emphasized {@link viewer!ViewObject | ViewObjects}.
@@ -110,7 +110,7 @@ class EmphasisMaterial extends Component {
             return;
         }
         this.#state.edges = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets if the edges on emphasized {@link viewer!ViewObject | ViewObjects} are visible.
@@ -133,7 +133,7 @@ class EmphasisMaterial extends Component {
         edgeColor[0] = 0.2;
         edgeColor[1] = 0.2;
         edgeColor[2] = 0.2;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the RGB color of the edges of emphasized {@link viewer!ViewObject | ViewObjects}.
@@ -155,7 +155,7 @@ class EmphasisMaterial extends Component {
             return;
         }
         this.#state.edgeAlpha = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the transparency of the edges of emphasized {@link viewer!ViewObject | ViewObjects}.
@@ -174,7 +174,7 @@ class EmphasisMaterial extends Component {
      */
     set edgeWidth(value) {
         this.#state.edgeWidth = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the width of the edges of emphasized {@link viewer!ViewObject | ViewObjects}.
@@ -187,7 +187,7 @@ class EmphasisMaterial extends Component {
         return this.#state.edgeWidth;
     }
     /**
-     * Sets whether to render backfaces of emphasized {@link viewer!ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
+     * Sets whether to draw backfaces of emphasized {@link viewer!ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
      *
      * Default is ````false````.
      */
@@ -196,10 +196,10 @@ class EmphasisMaterial extends Component {
             return;
         }
         this.#state.backfaces = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
-     * Gets whether to render backfaces of emphasized {@link viewer!ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
+     * Gets whether to draw backfaces of emphasized {@link viewer!ViewObject | ViewObjects} when {@link EmphasisMaterial.fill} is ````true````.
      *
      * Default is ````false````.
      */
@@ -207,7 +207,7 @@ class EmphasisMaterial extends Component {
         return this.#state.backfaces;
     }
     /**
-     * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+     * Sets whether to draw emphasized objects over the top of other objects, as if they were "glowing through".
      *
      * Default is ````true````.
      *
@@ -221,10 +221,10 @@ class EmphasisMaterial extends Component {
             return;
         }
         this.#state.glowThrough = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
-     * Sets whether to render emphasized objects over the top of other objects, as if they were "glowing through".
+     * Sets whether to draw emphasized objects over the top of other objects, as if they were "glowing through".
      *
      * Default is ````true````.
      *

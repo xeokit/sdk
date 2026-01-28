@@ -83,10 +83,10 @@ export declare abstract class VBORenderer {
     vertexPickBatchingTransformLogic(src: string[]): void;
     vertexDrawInstancingTransformLogic(src: string[]): void;
     vertexPickInstancingTransformLogic(src: string[]): void;
-    vertexDrawLambertDefs(src: string[]): void;
-    vertexDrawLambertLogic(src: string[]): void;
-    vertexSilhouetteDefs(src: string[]): void;
-    vertexSilhouetteLogic(src: string[]): void;
+    vertexLambertShadingDefs(src: string[]): void;
+    vertexLambertShadingLogic(src: string[]): void;
+    vertexDrawSilhouetteDefs(src: string[]): void;
+    vertexDrawSilhouetteLogic(src: string[]): void;
     vertexDrawFlatColorLogic(src: string[]): void;
     vertexDrawFlatColorDefs(src: string[]): void;
     vertexDrawEdgesColorLogic(src: string[]): void;
@@ -100,8 +100,8 @@ export declare abstract class VBORenderer {
     fragmentHeader(src: string[]): void;
     fragmentPrecisionDefs(src: string[]): void;
     fragmentCommonDefs(src: string[]): void;
-    fragmentDrawLambertDefs(src: string[]): void;
-    fragmentDrawLambertLogic(src: string[]): void;
+    fragmentLambertShadingDefs(src: string[]): void;
+    fragmentLambertShadingLogic(src: string[]): void;
     fragmentDrawSAODefs(src: string[]): void;
     fragmentSilhouetteDefs(src: string[]): void;
     fragmentDrawFlatColorDefs(src: string[]): void;
@@ -109,7 +109,7 @@ export declare abstract class VBORenderer {
     fragmentDrawSAOLogic(src: string[]): void;
     fragmentDrawDepthDefs(src: string[]): void;
     fragmentDrawDepthLogic(src: string[]): void;
-    fragmentSilhouetteLogic(src: string[]): void;
+    fragmentDrawSilhouetteLogic(src: string[]): void;
     fragmentPickMeshDefs(src: string[]): void;
     fragmentPickMeshLogic(src: string[]): void;
     fragmentSlicingDefs(src: string[]): void;

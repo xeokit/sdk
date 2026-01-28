@@ -17,4 +17,4 @@ export declare class WebGLRendererTextureSet implements RendererTextureSet {
         occlusionRendererTexture: WebGLRendererTexture;
     });
 }
-//# sourceMappingURL=WebGLRendererTextureSet.d.ts.map
+//# sourceMappingURL=RendererTextureSet.d.ts.map

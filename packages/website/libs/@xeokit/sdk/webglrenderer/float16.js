@@ -16,11 +16,11 @@ function r(r, n) {
 // @ts-ignore
 const { apply: n, construct: e, defineProperty: o, get: i, getOwnPropertyDescriptor: s, getPrototypeOf: c, has: u, ownKeys: f, set: h, setPrototypeOf: l } = Reflect, a = Proxy, y = Number, { isFinite: p, isNaN: w } = y, { iterator: g, species: d, toStringTag: v, for: b } = Symbol, A = Object, { create: m, defineProperty: B, freeze: x, is: E
 // @ts-ignore
- } = A, T = A.prototype, O = t(T.isPrototypeOf), j = A.hasOwn || t(T.hasOwnProperty), I = Array, P = I.isArray, 
+ } = A, T = A.prototype, O = t(T.isPrototypeOf), j = A.hasOwn || t(T.hasOwnProperty), I = Array, P = I.isArray,
 // @ts-ignore
-S = I.prototype, _ = t(S.join), F = t(S.push), L = t(S.toLocaleString), R = S[g], C = t(R), N = Math.trunc, U = ArrayBuffer, M = U.isView, D = t(U.prototype.slice), k = r(U.prototype, "byteLength"), W = "undefined" != typeof SharedArrayBuffer ? SharedArrayBuffer : null, V = W && r(W.prototype, "byteLength"), 
+S = I.prototype, _ = t(S.join), F = t(S.push), L = t(S.toLocaleString), R = S[g], C = t(R), N = Math.trunc, U = ArrayBuffer, M = U.isView, D = t(U.prototype.slice), k = r(U.prototype, "byteLength"), W = "undefined" != typeof SharedArrayBuffer ? SharedArrayBuffer : null, V = W && r(W.prototype, "byteLength"),
 // @ts-ignore
-Y = c(Uint8Array), z = Y.from, G = Y.prototype, K = G[g], X = t(G.keys), q = t(G.values), H = t(G.entries), J = t(G.set), Q = t(G.reverse), Z = t(G.fill), $ = t(G.copyWithin), tt = t(G.sort), rt = t(G.slice), nt = t(G.subarray), et = r(G, "buffer"), ot = r(G, "byteOffset"), it = r(G, "length"), st = r(G, v), 
+Y = c(Uint8Array), z = Y.from, G = Y.prototype, K = G[g], X = t(G.keys), q = t(G.values), H = t(G.entries), J = t(G.set), Q = t(G.reverse), Z = t(G.fill), $ = t(G.copyWithin), tt = t(G.sort), rt = t(G.slice), nt = t(G.subarray), et = r(G, "buffer"), ot = r(G, "byteOffset"), it = r(G, "length"), st = r(G, v),
 // @ts-ignore
 ct = Uint16Array, ut = (...t) => n(z, ct, t), ft = Uint32Array, ht = Float32Array, lt = c([][g]()), at = t(lt.next), yt = t(function* () {
     // @ts-ignore
@@ -409,7 +409,7 @@ class ar {
     }
     map(t, ...r) {
         sr(this);
-        const e = ur(this), o = it(e), i = r[0], 
+        const e = ur(this), o = it(e), i = r[0],
         // @ts-ignore
         s = tr(e, ar);
         if (s === ar) {
@@ -431,7 +431,7 @@ class ar {
     }
     filter(t, ...r) {
         sr(this);
-        const e = ur(this), o = it(e), i = r[0], 
+        const e = ur(this), o = it(e), i = r[0],
         // @ts-ignore
         s = [];
         for (let r = 0; r < o; ++r) {
@@ -570,7 +570,7 @@ class ar {
     }
     slice(...t) {
         sr(this);
-        const r = ur(this), 
+        const r = ur(this),
         // @ts-ignore
         n = tr(r, ar);
         if (n === ar) {
@@ -593,7 +593,7 @@ class ar {
     }
     subarray(...t) {
         sr(this);
-        const r = ur(this), 
+        const r = ur(this),
         // @ts-ignore
         n = tr(r, ar), e = new ct(et(r), ot(r), it(r)), o = nt(e, ...kt(t)), i = new n(et(o), ot(o), it(o));
         // @ts-ignore

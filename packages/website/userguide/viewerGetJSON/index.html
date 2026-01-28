@@ -112,7 +112,7 @@ npm install @xeokit/core/constants
 <pre class="code-section"><code class="hljs"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>xeokit Spinning Box<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>xeokit Spinning Box<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;myView1&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
@@ -126,7 +126,8 @@ npm install @xeokit/core/constants
 <li>Create a Viewer with a WebGLRenderer and a Scene.</li>
 <li>In the Viewer, create a View that draws to the canvas.</li>
 <li>Position the View's Camera to look at the center of the 3D coordinate system (default).</li>
-<li>In the Scene, create a SceneModel that contains a SceneObject, a SceneMesh, and a SceneGeometry that defines the shape of the box.</li>
+<li>In the Scene, create a SceneModel that contains a SceneObject, a SceneMesh, and a SceneGeometry that defines the
+shape of the box.</li>
 <li>Build the SceneModel. This causes the SceneMode's objects to appear in the View's canvas.</li>
 <li>Get the Viewer's current configuration in a ViewerParams. Log the ViewerParams to the console.</li>
 </ol>
@@ -145,15 +146,15 @@ npm install @xeokit/core/constants
 <span class="hljs-keyword">const</span> scene = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Scene</span>();
 
 <span class="hljs-keyword">const</span> viewer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Viewer</span>({
-    renderer,
-    scene
+  renderer,
+  scene
 });
 
 <span class="hljs-comment">// 3.</span>
 
 <span class="hljs-keyword">const</span> view = viewer.<span class="hljs-title function_">createView</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;myView&quot;</span>,
-    <span class="hljs-attr">elementId</span>: <span class="hljs-string">&quot;myView1&quot;</span>
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;myView&quot;</span>,
+  <span class="hljs-attr">elementId</span>: <span class="hljs-string">&quot;myView1&quot;</span>
 });
 
 <span class="hljs-comment">// 4.</span>
@@ -167,37 +168,32 @@ view.<span class="hljs-property">camera</span>.<span class="hljs-property">up</s
 <span class="hljs-keyword">const</span> sceneModel = scene.<span class="hljs-title function_">createModel</span>(); <span class="hljs-comment">// Start building the model</span>
 
 sceneModel.<span class="hljs-title function_">createGeometry</span>({ <span class="hljs-comment">// Define a box-shaped geometry</span>
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;boxGeometry&quot;</span>,
-    <span class="hljs-attr">primitive</span>: <span class="hljs-title class_">TrianglesPrimitive</span>,
-    <span class="hljs-attr">positions</span>: [-<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, ...],
-    <span class="hljs-attr">indices</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">4</span>, ...]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;boxGeometry&quot;</span>,
+  <span class="hljs-attr">primitive</span>: <span class="hljs-title class_">TrianglesPrimitive</span>,
+  <span class="hljs-attr">positions</span>: [-<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, ...],
+  <span class="hljs-attr">indices</span>: [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">4</span>, ...]
 });
 
 sceneModel.<span class="hljs-title function_">addMesh</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;boxMesh&quot;</span>,
-    <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;boxGeometry&quot;</span>,
-    <span class="hljs-attr">color</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;boxMesh&quot;</span>,
+  <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;boxGeometry&quot;</span>,
+  <span class="hljs-attr">color</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>]
 });
 
 sceneModel.<span class="hljs-title function_">createObject</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;boxObject&quot;</span>,
-    <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;boxMesh&quot;</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;boxObject&quot;</span>,
+  <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;boxMesh&quot;</span>]
 });
 
 <span class="hljs-comment">// 6.</span>
 
-sceneModel
-    .<span class="hljs-title function_">build</span>()
-    .<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
+<span class="hljs-comment">// A box object now appears on our View&#x27;s canvas.</span>
 
-        <span class="hljs-comment">// A box object now appears on our View&#x27;s canvas.</span>
+<span class="hljs-comment">// 7.</span>
 
-        <span class="hljs-comment">// 7.</span>
+<span class="hljs-keyword">const</span> viewerParams = viewer.<span class="hljs-title function_">getJSON</span>();
 
-        <span class="hljs-keyword">const</span> viewerParams = viewer.<span class="hljs-title function_">getJSON</span>();
-
-        <span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-variable constant_">JSON</span>.<span class="hljs-title function_">stringify</span>(viewerParams, <span class="hljs-literal">null</span>, <span class="hljs-number">2</span>));
-    });
+<span class="hljs-variable language_">console</span>.<span class="hljs-title function_">log</span>(<span class="hljs-variable constant_">JSON</span>.<span class="hljs-title function_">stringify</span>(viewerParams, <span class="hljs-literal">null</span>, <span class="hljs-number">2</span>));
 </code></pre>
 
             </div>

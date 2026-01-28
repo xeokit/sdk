@@ -167,14 +167,14 @@
 //     let countEntityMeshesPortion = 0;
 //     let eachMeshMaterialAttributesIndex = 0;
 //     let matricesIndex = 0;
-//     let meshIndex = 0;
+//     let _meshIndex = 0;
 //
 //     const metallic = 1;
 //     const roughness = 1;0
 //
-//     for (let tileIndex = 0; tileIndex < numTiles; tileIndex++) {
+//     for (let index = 0; index < numTiles; index++) {
 //
-//         const tile = tilesList [tileIndex];
+//         const tile = tilesList [index];
 //         const tileEntities = tile.entities;
 //         const numTileEntities = tileEntities.length;
 //
@@ -182,7 +182,7 @@
 //             continue;
 //         }
 //
-//         xktData.eachTileEntitiesPortion[tileIndex] = entityIndex;
+//         xktData.eachTileEntitiesPortion[index] = entityIndex;
 //
 //         const tileAABB = tile.aabb;
 //
@@ -202,11 +202,11 @@
 //
 //                 if (mesh.geometry.numMeshes > 1) {
 //                     xktData.matrices.set(mesh.matrix, matricesIndex);
-//                     xktData.eachMeshMatricesPortion [meshIndex] = matricesIndex;
+//                     xktData.eachMeshMatricesPortion [_meshIndex] = matricesIndex;
 //                     matricesIndex += 16;
 //                 }
 //
-//                 xktData.eachMeshTextureSet[meshIndex] = mesh.textureSet ? mesh.textureSet.textureSetIndex : -1;
+//                 xktData.eachMeshTextureSet[_meshIndex] = mesh.textureSet ? mesh.textureSet.textureSetIndex : -1;
 //
 //                 xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[0] * 255); // Color RGB
 //                 xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (mesh.color[1] * 255);
@@ -215,7 +215,7 @@
 //                 xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (metallic * 255); // Metallic
 //                 xktData.eachMeshMaterialAttributes[eachMeshMaterialAttributesIndex++] = (roughness * 255); // Roughness
 //
-//                 meshIndex++;
+//                 _meshIndex++;
 //             }
 //
 //             xktData.eachEntityId [entityIndex] = entity.entityId;
@@ -225,7 +225,7 @@
 //             countEntityMeshesPortion += numEntityMeshes;
 //         }
 //
-//         const tileAABBIndex = tileIndex * 6;
+//         const tileAABBIndex = index * 6;
 //
 //         xktData.eachTileAABB.set(tileAABB, tileAABBIndex);
 //     }

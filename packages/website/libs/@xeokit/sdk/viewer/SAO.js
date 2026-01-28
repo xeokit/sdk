@@ -28,7 +28,7 @@ export class SAO extends Component {
         };
     }
     /**
-     * Sets which rendering modes in which to render edges.
+     * Sets which rendering modes in which to draw edges.
      *
      * Accepted modes are {@link constants!QualityRender | QualityRender} and {@link constants!FastRender | FastRender}.
      *
@@ -36,10 +36,10 @@ export class SAO extends Component {
      */
     set renderModes(value) {
         this.#state.renderModes = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
-     * Gets which rendering modes in which to render SAO.
+     * Gets which rendering modes in which to draw SAO.
      *
      * Supported rendering modes are:
      *
@@ -82,7 +82,7 @@ export class SAO extends Component {
             return;
         }
         this.#state.enabled = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Returns true if SAO is currently possible, where it is supported, enabled, and the current view state is compatible.
@@ -126,7 +126,7 @@ export class SAO extends Component {
             return;
         }
         this.#state.kernelRadius = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the degree of darkening (ambient obscurance) produced by the SAO effect.
@@ -149,7 +149,7 @@ export class SAO extends Component {
             return;
         }
         this.#state.intensity = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the SAO bias.
@@ -172,7 +172,7 @@ export class SAO extends Component {
             return;
         }
         this.#state.bias = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the SAO occlusion scale.
@@ -195,7 +195,7 @@ export class SAO extends Component {
             return;
         }
         this.#state.scale = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the SAO minimum resolution.
@@ -218,7 +218,7 @@ export class SAO extends Component {
             return;
         }
         this.#state.minResolution = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the number of SAO samples.
@@ -243,7 +243,7 @@ export class SAO extends Component {
             return;
         }
         this.#state.numSamples = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets whether Guassian blur is enabled.
@@ -264,7 +264,7 @@ export class SAO extends Component {
             return;
         }
         this.#state.blur = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the SAO blend cutoff.
@@ -291,7 +291,7 @@ export class SAO extends Component {
             return;
         }
         this.#state.blendCutoff = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the SAO blend scale.
@@ -318,7 +318,7 @@ export class SAO extends Component {
             return;
         }
         this.#state.blendFactor = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets if SAO is currently applied.

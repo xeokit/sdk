@@ -12,11 +12,11 @@ export class VBOTrianglesBatchingDrawColorSAORenderer extends VBOBatchingRendere
         this.vertexCommonDefs(src);
         this.vertexBatchingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexDrawLambertDefs(src);
+        this.vertexLambertShadingDefs(src);
         this.vertexDrawMainOpen(src);
         {
             this.vertexDrawBatchingTransformLogic(src);
-            this.vertexDrawLambertLogic(src);
+            this.vertexLambertShadingLogic(src);
             this.vertexSlicingLogic(src);
         }
         this.vertexMainClose(src);
@@ -26,12 +26,12 @@ export class VBOTrianglesBatchingDrawColorSAORenderer extends VBOBatchingRendere
         this.fragmentPrecisionDefs(src);
         this.fragmentCommonDefs(src);
         this.fragmentSlicingDefs(src);
-        this.fragmentDrawLambertDefs(src);
+        this.fragmentLambertShadingDefs(src);
         this.fragmentDrawSAODefs(src);
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
-            this.fragmentDrawLambertLogic(src);
+            this.fragmentLambertShadingLogic(src);
             this.fragmentDrawSAOLogic(src);
             this.fragmentCommonOutput(src);
         }

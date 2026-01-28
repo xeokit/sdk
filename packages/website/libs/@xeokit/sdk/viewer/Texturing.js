@@ -28,7 +28,7 @@ class Texturing extends Component {
         };
     }
     /**
-     * Sets which rendering modes in which to render textures.
+     * Sets which rendering modes in which to draw textures.
      *
      * Accepted modes are {@link constants!QualityRender} and {@link constants!FastRender}.
      *
@@ -36,10 +36,10 @@ class Texturing extends Component {
      */
     set renderModes(value) {
         this.#state.renderModes = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
-     * Gets which rendering modes in which to render textures.
+     * Gets which rendering modes in which to draw textures.
      *
      * Accepted modes are {@link constants!QualityRender} and {@link constants!FastRender}.
      *
@@ -58,7 +58,7 @@ class Texturing extends Component {
             return;
         }
         this.#state.enabled = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets if textures on {@link ViewObject | ViewObjects} are visible.

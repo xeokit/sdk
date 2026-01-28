@@ -160,7 +160,7 @@ export class VBOInstancingLayer {
             for (let viewIndex = 0; viewIndex < numViews; viewIndex++) {
                 renderState.colorsBuf[viewIndex] = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, colors, this.#buffer.colors.length, 4, gl.DYNAMIC_DRAW, notNormalized);
             }
-            this.#buffer.colors = []; // Release memory
+            this.#buffer.colors = []; // Release _gpuMemoryManager
         }
         if (flagsLength > 0) {
             // Because we only build flags arrays here,
@@ -216,7 +216,7 @@ export class VBOInstancingLayer {
         if (this.#buffer.pickColors.length > 0) {
             const normalized = false;
             renderState.pickColorsBuf = new WebGLArrayBuf(gl, gl.ARRAY_BUFFER, new Uint8Array(this.#buffer.pickColors), this.#buffer.pickColors.length, 4, gl.STATIC_DRAW, normalized);
-            this.#buffer.pickColors = []; // Release memory
+            this.#buffer.pickColors = []; // Release _gpuMemoryManager
         }
         renderState.pbrSupported
             = !!renderState.metallicRoughnessBuf
@@ -533,7 +533,7 @@ export class VBOInstancingLayer {
             return;
         }
         // if (this.#rendererSet.normalsRenderer) {
-        //     this.#rendererSet.normalsRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.DRAW_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
+        //     this.#rendererSet.normalsRenderer.renderVBOInstancingLayer(this, RENDER_PASSES.OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
         // }
     }
     drawSilhouetteXRayed() {
@@ -634,12 +634,12 @@ export class VBOInstancingLayer {
         }
     }
     drawShadow() {
-        // if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-        //     this.meshCounts[viewIndex].numVisible === 0) {
+        // if (this._meshCounts[viewIndex].numCulled === this._meshCounts[viewIndex].numMeshes ||
+        //     this._meshCounts[viewIndex].numVisible === 0) {
         //     return;
         // }
         // if (this.#rendererSet.shadowRenderer) {
-        //     this.#rendererSet.shadowRenderer.render( this, RENDER_PASSES.DRAW_OPAQUE);
+        //     this.#rendererSet.shadowRenderer.draw( this, RENDER_PASSES.OPAQUE);
         // }
     }
     drawPickMesh() {
@@ -679,11 +679,11 @@ export class VBOInstancingLayer {
         }
     }
     drawPickNormals() {
-        // if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes || this.meshCounts[viewIndex].numVisible === 0) {
+        // if (this._meshCounts[viewIndex].numCulled === this._meshCounts[viewIndex].numMeshes || this._meshCounts[viewIndex].numVisible === 0) {
         //     return;
         // }
         // if (this.#rendererSet.pickNormalsRenderer) {
-        //     this.#rendererSet.pickNormalsRenderer.render( this, RENDER_PASSES.PICK);
+        //     this.#rendererSet.pickNormalsRenderer.draw( this, RENDER_PASSES.PICK);
         // }
     }
     destroy() {

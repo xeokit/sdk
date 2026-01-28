@@ -131,7 +131,7 @@ export function loadLAS(params, options = {}) {
                         colors: colorsChunks[j]
                     });
                     if (geometry instanceof SDKError) {
-                        log(`[ERROR] Failed to load point cloud: ${geometry.message}`);
+                        log(`[ERROR] Cannot load point cloud: ${geometry.message}`);
                     }
                     else {
                         const meshId = `mesh-${j}`;
@@ -141,7 +141,7 @@ export function loadLAS(params, options = {}) {
                             geometryId
                         });
                         if (mesh instanceof SDKError) {
-                            log(`[ERROR] Failed to load point cloud: ${mesh.message}`);
+                            log(`[ERROR] Cannot load point cloud: ${mesh.message}`);
                         }
                     }
                 }

@@ -37,7 +37,7 @@
  * In the example below, we will create a {@link viewer!Viewer | Viewer} with
  * a {@link webglrenderer!WebGLRenderer | WebGLRenderer}  and a {@link scene!Scene | Scene}, which holds model geometry and materials.
  *
- * On our Viewer, we will create a single {@link viewer!View | View} to render it to a canvas element on the page. We will
+ * On our Viewer, we will create a single {@link viewer!View | View} to draw it to a canvas element on the page. We will
  * also attach a {@link cameracontrol!CameraControl | CameraControl} to our View, allowing us to control its camera with mouse and touch input.
  *
  * Within the Scene, we will create a {@link scene!SceneModel | SceneModel} to hold a model. We will then use

@@ -98,11 +98,11 @@
             <div class="col-lg-12">
                 <h2>Introduction</h2>
 <hr>
-<p>In this tutorial, we'll view a glTF model in the browser using a xeokit <a class="doc-link" data-template="Viewer_template"  href="http://localhost:8080/api-docs#./docs/api/classes/viewer.Viewer.html" target="_parent">Viewer</a>
+<p>In this tutorial, we'll view a glTF model in the browser using a xeokit <a class="doc-link" data-template="Viewer_template"  href="http://localhost:8080" target="_parent">Viewer</a>
 <template class="doc-link-tooltip" id="Viewer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
-<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewer / Viewer /</p>
-<p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class Viewer</p>
-<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">3D model viewer.</p>
+<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewManager / Viewer /</p>
+<p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">null Viewer</p>
+<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;"></p>
 </template>. To optimize performance, we'll first
 convert the glTF file to an XGF file and a <a class="doc-link" data-template="DataModelParams_template"  href="http://localhost:8080/api-docs#./docs/api/interfaces/data.DataModelParams.html" target="_parent">DataModelParams</a>
 <template class="doc-link-tooltip" id="DataModelParams_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
@@ -117,11 +117,11 @@ convert the glTF file to an XGF file and a <a class="doc-link" data-template="Da
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / xgf / XGFLoader /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class XGFLoader</p>
 <p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Loads an XGF file into a SceneModel and/or a DataModel.</p>
-</template> and <a class="doc-link" data-template="DataModelParamsLoader_template"  href="http://localhost:8080/api-docs#./docs/api/classes/data.DataModelParamsLoader.html" target="_parent">DataModelParamsLoader</a>
+</template> and <a class="doc-link" data-template="DataModelParamsLoader_template"  href="http://localhost:8080/api-docs#./docs/api/classes/datamodel.DataModelParamsLoader.html" target="_parent">DataModelParamsLoader</a>
 <template class="doc-link-tooltip" id="DataModelParamsLoader_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
-<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / data / DataModelParamsLoader /</p>
+<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / datamodel / DataModelParamsLoader /</p>
 <p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class DataModelParamsLoader</p>
-<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Reads DataModelParams into a DataModel.</p>
+<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">Reads DataModelParams | DataModelParams into a DataModel.</p>
 </template> to load the XGF and JSON <a class="doc-link" data-template="DataModelParams_template"  href="http://localhost:8080/api-docs#./docs/api/interfaces/data.DataModelParams.html" target="_parent">DataModelParams</a>
 <template class="doc-link-tooltip" id="DataModelParams_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
 <p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / data / DataModelParams /</p>
@@ -134,40 +134,7 @@ convert the glTF file to an XGF file and a <a class="doc-link" data-template="Da
 <p>For this tutorial, we'll use the Duplex glTF model (source: <a href="http://drumbeat.cs.hut.fi/ifc/"><code>http://drumbeat.cs.hut.fi/ifc/</code></a>).</p>
 <p>Below is the final result— the model loaded from XGF and DataModelParams JSON files into a xeokit Viewer.
 In the following steps, we'll walk through the process of achieving this.</p>
-<div id="gltf2xgf_Duplex-interactivePlaceholder" class="example-run-container">
-                        <div id="gltf2xgf_Duplex-overlay" class="overlay"><div id="gltf2xgf_Duplex-text-overlay" class="text-overlay">Click to load</div></div>
-                        <img id="gltf2xgf_Duplex-img" src="../../examples/gltf2xgf_Duplex/index.png"  alt="Placeholder image"/>
-                        <iframe id="gltf2xgf_Duplex-iframe"></iframe>
-                        <p><i>Viewing a glTF Model, Converted to XKF by gltf2xgf</i></p>
-                    </div>
-                    <br>
-                    <script>
-                        const placeholder = document.getElementById("gltf2xgf_Duplex-interactivePlaceholder");
-                        placeholder.addEventListener('click', function() {
-                            const overlay = document.getElementById("gltf2xgf_Duplex-overlay");
-                                  const textOverlay = document.getElementById("gltf2xgf_Duplex-text-overlay");
-                                  textOverlay.innerText = "Loading...";
-                                  const img = document.getElementById("gltf2xgf_Duplex-img");
-     const imgStyles = window.getComputedStyle(img);
-    const iframe = document.getElementById("gltf2xgf_Duplex-iframe")
-    iframe.src = "../../examples/gltf2xgf_Duplex/index.html";
-                            iframe.onload = () =>{
-                                const checkElement = () => {
-                                    try {
-                                        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                                        if (iframeDoc && iframeDoc.getElementById("ExampleLoaded")) {
-                                            clearInterval(checkInterval);
-                                            img.remove();
-                                                        overlay.remove();
-                                        }
-                                    } catch (error) {
-                                        console.warn("Unable to access iframe contents (possible cross-origin issue)");
-                                    }
-                                };
-                                const checkInterval = setInterval(checkElement, 100);
-                            };
-                     });
-             </script>
+<p>example-run:gltf2xgf_Duplex</p>
 <br>
 <h2>Step 1. Convert glTF into XGF and DataModelParams Files</h2>
 <hr>
@@ -190,21 +157,21 @@ the xeoconvert CLI tool to do this conversion step:</p>
 <br>
 <h2>Step 2. View the XGF and DataModelParams Files</h2>
 <hr>
-<p>Now we'll create a Web page containing a xeokit <a class="doc-link" data-template="Viewer_template"  href="http://localhost:8080/api-docs#./docs/api/classes/viewer.Viewer.html" target="_parent">Viewer</a>
+<p>Now we'll create a Web page containing a xeokit <a class="doc-link" data-template="Viewer_template"  href="http://localhost:8080" target="_parent">Viewer</a>
 <template class="doc-link-tooltip" id="Viewer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
-<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewer / Viewer /</p>
-<p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class Viewer</p>
-<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">3D model viewer.</p>
+<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewManager / Viewer /</p>
+<p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">null Viewer</p>
+<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;"></p>
 </template> that views our converted model.</p>
 <h4>HTML</h4>
 <p>Create an HTML page in <code>index.html</code> that contains a canvas element:</p>
 <p>example-html:ifc2xgf_Duplex</p>
 <h4>JavaScript</h4>
-<p>Then create JavaScript in <code>index.js</code> to create the <a class="doc-link" data-template="Viewer_template"  href="http://localhost:8080/api-docs#./docs/api/classes/viewer.Viewer.html" target="_parent">Viewer</a>
+<p>Then create JavaScript in <code>index.js</code> to create the <a class="doc-link" data-template="Viewer_template"  href="http://localhost:8080" target="_parent">Viewer</a>
 <template class="doc-link-tooltip" id="Viewer_template" style="font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529;">
-<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewer / Viewer /</p>
-<p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">Class Viewer</p>
-<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;">3D model viewer.</p>
+<p style="font-weight: lighter; color: grey;  font-size: 0.8rem; padding-top:0">@xeokit/sdk / viewManager / Viewer /</p>
+<p style="font-weight: bold; font-size: 1.2rem; margin: 0; padding-top:0">null Viewer</p>
+<p style="font-weight: normal; font-size: 1rem; margin-top: 5px; margin-bottom: 0; padding-top:0; padding-bottom: 0;"></p>
 </template> and view our converted model.</p>
 <p>The steps in the JavaScript are as follows.</p>
 <p>example-javascript:ifc2xgf_Duplex</p>

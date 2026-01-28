@@ -202,7 +202,7 @@ export class OrthoProjection extends Component {
         orthoMat4c(left, right, bottom, top, this.#state.near, this.#state.far, this.#state.projMatrix);
         this.#inverseMatrixDirty = true;
         this.#transposedProjMatrixDirty = true;
-        this.camera.view.redraw();
+        this.camera.view.needsRedraw();
         this.onProjMatrix.dispatch(this, this.#state.projMatrix);
     }
     /**

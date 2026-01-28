@@ -100,7 +100,7 @@ export class Viewer extends Component {
         super(null, {});
         this.id = params.id || createUUID();
         if (params.renderer.viewer !== undefined) {
-            throw new SDKError(`Failed to create Viewer - the given Renderer is currently attached to another Viewer`);
+            throw new SDKError(`Cannot create Viewer - the given Renderer is currently attached to another Viewer`);
         }
         this.onLog = new EventEmitter(new EventDispatcher());
         this.onTick = new EventEmitter(new EventDispatcher());
@@ -125,10 +125,10 @@ export class Viewer extends Component {
         params.renderer.getCapabilities(this.capabilities);
         this.renderer = params.renderer;
         this.#tickifiedFunctions = {};
-        this.scene.onModelCreated.subscribe((scene, sceneModel) => {
+        this.SceneEvents.onSceneModelCreated.subscribe((scene, sceneModel) => {
             this.renderer.attachSceneModel(sceneModel);
         });
-        this.scene.onModelDestroyed.subscribe((scene, sceneModel) => {
+        this.SceneEvents.onModelDestroyed.subscribe((scene, sceneModel) => {
             this.renderer.detachSceneModel(sceneModel);
         });
         scheduler.registerViewer(this);
@@ -185,7 +185,7 @@ export class Viewer extends Component {
     /**
      * Creates a new {@link viewer!View} within this Viewer.
      *
-     * * The maximum number of views you're allowed to create is provided in {@link Capabilities.maxViews}. This
+     * * The maximum number of viewManager you're allowed to create is provided in {@link Capabilities.maxViews}. This
      * will be determined by the {@link Renderer} implementation the Viewer is configured with.
      * * To destroy the View after use, call {@link View.destroy}.
      * * You must add a View to the Viewer before you can create or load content into the Viewer's Viewer.
@@ -233,7 +233,7 @@ export class Viewer extends Component {
         {
             const result = this.renderer.attachView(view);
             if (result instanceof SDKError) {
-                this.error(`Failed to create View (id = "${view.viewId}"): ${result.message}`);
+                this.error(`Cannot create View (id = "${view.viewId}"): ${result.message}`);
                 return result;
             }
         }
@@ -243,7 +243,7 @@ export class Viewer extends Component {
             this.renderer.detachView(view);
             this.onViewDestroyed.dispatch(this, view);
         });
-        // Renderer.attachSceneModel creates RendererObjects in Renderer.rendererObjects,
+        // Renderer.attachSceneModel creates RendererObjects in Renderer._rendererObjects,
         // which are then expected by View.initViewObjects
         for (let id in this.scene.models) {
             this.renderer.attachSceneModel(this.scene.models[id]);
@@ -253,13 +253,13 @@ export class Viewer extends Component {
         return view;
     }
     /**
-     * Trigger redraw of all {@link View | Views} belonging to this Viewer.
+     * Trigger needsRedraw of all {@link View | Views} belonging to this Viewer.
      *
      * @private
      */
     redraw() {
         for (let viewId in this.views) {
-            this.views[viewId].redraw();
+            this.views[viewId].needsRedraw();
         }
     }
     /**
@@ -301,7 +301,7 @@ export class Viewer extends Component {
      */
     render(params) {
         for (let viewIndex = 0; viewIndex < this.viewList.length; viewIndex++) {
-            // console.log("this.renderer.render()");
+            // console.log("this.renderer.draw()");
             // console.log("...");
             this.renderer.render(viewIndex, { force: false });
         }

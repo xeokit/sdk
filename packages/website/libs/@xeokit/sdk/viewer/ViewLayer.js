@@ -2,7 +2,7 @@ import { EventDispatcher } from "strongly-typed-events";
 import { Component, EventEmitter } from "../core";
 import { ViewObject } from "./ViewObject";
 /**
- * A layer of {@link viewer!ViewObject | ViewObjects} within a {@link viewer!View}.
+ * A _layer of {@link viewer!ViewObject | ViewObjects} within a {@link viewer!View}.
  *
  * ViewLayers allow users to group and segregate ViewObjects based on their roles or aspects in a scene, simplifying interaction and focusing operations
  * on specific object groups.
@@ -17,7 +17,7 @@ import { ViewObject } from "./ViewObject";
  * # Automatic vs. Manual ViewLayers
  *
  * * **Automatic ViewLayers** - Created automatically on-the-fly as SceneObjects with {@link scene!SceneObject.layerId | layerIds}
- * are created and destroyed. Ensures a dynamic and self-managing system where layers appear and disappear based on the existence of relevant objects.
+ * are created and destroyed. Ensures a dynamic and self-managing system where renderGraph appear and disappear based on the existence of relevant objects.
  *
  * * **Manual ViewLayers** - Requires user's manual creation and destruction of {@link viewer!ViewLayer | ViewLayers}.
  * ViewLayers persist even after objects are destroyed.
@@ -27,7 +27,7 @@ import { ViewObject } from "./ViewObject";
  * # Automatic ViewLayers
  *
  * ViewLayers are useful for separating different types of objects, such as models and environment objects. A common use case is to
- * create separate layers for models and environment objects like the ground or skybox. This allows focusing on model objects for
+ * create separate renderGraph for models and environment objects like the ground or skybox. This allows focusing on model objects for
  * operations like highlighting, hiding, or interacting, without affecting background objects.
  *
  * Create a {@link viewer!Viewer | Viewer}:
@@ -102,10 +102,10 @@ import { ViewObject } from "./ViewObject";
  * We can now focus our updates on the ViewObjects in each ViewLayer.
  *
  * ````javascript
- * const environmentLayer = view1.layers["environment"];
+ * const environmentLayer = view1.renderGraph["environment"];
  * environmentLayer.setObjectsVisible(environmentLayer.objectIds, true);
 
- * const modelLayer = view1.layers["model"];
+ * const modelLayer = view1.renderGraph["model"];
  * modelLayer.setObjectsSelected(modelLayer.objectIds, true);
  * ````
  *
@@ -191,7 +191,7 @@ import { ViewObject } from "./ViewObject";
  * From this View's perspective, the "environment" SceneObjects don't exist because no "environmnet" ViewLayer exists.
  *
  * ````javascript
- * const modelLayer = view1.layers["model"];
+ * const modelLayer = view1.renderGraph["model"];
  * modelLayer.setObjectsVisible(modelLayer.objectIds, true);
  * ````
  *
@@ -285,10 +285,10 @@ import { ViewObject } from "./ViewObject";
  * Let's show all the model objects, and hide all the environmental objects:
  *
  * ````javascript
- * const modelLayer = view1.layers["model"];
+ * const modelLayer = view1.renderGraph["model"];
  * modelLayer.setObjectsVisible(modelLayer.objectIds, true);
  *
- * const environmentLayer = view1.layers["environmentLayer"];
+ * const environmentLayer = view1.renderGraph["environmentLayer"];
  * environmentLayer.setObjectsVisible(environmentLayer.objectIds, false);
  * ````
  */
@@ -425,7 +425,7 @@ class ViewLayer extends Component {
         return 1.0;
     }
     /**
-     * Sets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Sets which rendering modes in which to draw the {@link ViewObject | ViewObjects} in this ViewLayer.
      *
      * Default value is [].
      */
@@ -434,7 +434,7 @@ class ViewLayer extends Component {
         this.view.redraw();
     }
     /**
-     * Gets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets which rendering modes in which to draw the {@link ViewObject | ViewObjects} in this ViewLayer.
      *
      * Default value is [].
      */
@@ -870,10 +870,10 @@ class ViewLayer extends Component {
             const model = models[id];
             this.#createViewObjects(model);
         }
-        this.viewer.scene.onModelCreated.subscribe((scene, model) => {
+        this.viewer.SceneEvents.onSceneModelCreated.subscribe((scene, model) => {
             this.#createViewObjects(model);
         });
-        // this.viewer.scene.onModelDestroyed.subscribe((scene:Scene, model: SceneModel) => {
+        // this.viewer.scene.modelDestroyed.subscribe((scene:Scene, model: SceneModel) => {
         //     this.#destroyViewObjects(model);
         // });
     }

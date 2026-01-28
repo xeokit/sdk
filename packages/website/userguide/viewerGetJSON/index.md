@@ -84,7 +84,7 @@ sceneModel.createGeometry({ // Define a box-shaped geometry
   indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ...]
 });
 
-sceneModel.createMesh({
+sceneModel.addMesh({
   id: "boxMesh",
   geometryId: "boxGeometry",
   color: [1, 1, 1]

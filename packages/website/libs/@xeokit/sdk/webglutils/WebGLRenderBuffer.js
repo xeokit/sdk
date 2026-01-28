@@ -1,5 +1,5 @@
 /**
- * @desc Represents a WebGL render buffer.
+ * @desc Represents a WebGL draw _buffer.
  * @private
  */
 class WebGLRenderBuffer {
@@ -24,7 +24,7 @@ class WebGLRenderBuffer {
         this.#hasDepthTexture = !!options.depthTexture;
     }
     /**
-     * Sets the size of this render buffer.
+     * Sets the size of this draw _buffer.
      * @param size
      */
     setSize(size) {
@@ -37,7 +37,7 @@ class WebGLRenderBuffer {
         this.bound = false;
     }
     /**
-     * Binds this render buffer.
+     * Binds this draw _buffer.
      */
     bind(...internalformats) {
         this.touch(...internalformats);
@@ -171,17 +171,17 @@ class WebGLRenderBuffer {
         this.bound = false;
     }
     /**
-     * Clears this render buffer.
+     * Clears this draw _buffer.
      */
     clear() {
         if (!this.bound) {
-            throw "Render buffer not bound";
+            throw "Render _buffer not bound";
         }
         const gl = this.#gl;
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
     /**
-     * Reads a pixel from this render buffer.
+     * Reads a pixel from this draw _buffer.
      * @param pickX
      * @param pickY
      */
@@ -234,7 +234,7 @@ class WebGLRenderBuffer {
         return canvas;
     }
     /**
-     * Redas an image from this render buffer.
+     * Redas an image from this draw _buffer.
      * @param params
      */
     readImage(params) {
@@ -318,7 +318,7 @@ class WebGLRenderBuffer {
         return this.#hasDepthTexture;
     }
     /**
-     * Gets the depth texture component of this render buffer, if any.
+     * Gets the depth texture component of this draw _buffer, if any.
      */
     getDepthTexture() {
         if (!this.#hasDepthTexture) {

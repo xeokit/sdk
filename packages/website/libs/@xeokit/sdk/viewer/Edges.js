@@ -32,7 +32,7 @@ class Edges extends Component {
         };
     }
     /**
-     * Sets which rendering modes in which to render edges.
+     * Sets which rendering modes in which to draw edges.
      *
      * Accepted modes are {@link constants!QualityRender | QualityRender} and {@link constants!FastRender | FastRender}.
      *
@@ -40,10 +40,10 @@ class Edges extends Component {
      */
     set renderModes(value) {
         this.#state.renderModes = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
-     * Gets which rendering modes in which to render edges.
+     * Gets which rendering modes in which to draw edges.
      *
      * Accepted modes are {@link constants!QualityRender | QualityRender} and {@link constants!FastRender | FastRender}.
      *
@@ -62,7 +62,7 @@ class Edges extends Component {
             return;
         }
         this.#state.enabled = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets if edges of {@link ViewObject | ViewObjects} are visible.
@@ -89,7 +89,7 @@ class Edges extends Component {
         edgeColor[0] = 0.2;
         edgeColor[1] = 0.2;
         edgeColor[2] = 0.2;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets RGB edge color for {@link ViewObject | ViewObjects}.
@@ -111,7 +111,7 @@ class Edges extends Component {
             return;
         }
         this.#state.edgeAlpha = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets edge transparency for {@link ViewObject | ViewObjects}.
@@ -133,7 +133,7 @@ class Edges extends Component {
             return;
         }
         this.#state.edgeWidth = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets edge width for {@link ViewObject | ViewObjects}.

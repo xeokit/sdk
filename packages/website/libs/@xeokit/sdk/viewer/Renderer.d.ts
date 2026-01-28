@@ -9,7 +9,7 @@ import { PickResult } from "./PickResult";
 /**
  * Interface defining the rendering strategy used internally by a {@link Viewer | Viewer}.
  *
- * A Viewer integrates with an implementation of this interface to manage and render geometry
+ * A Viewer integrates with an implementation of this interface to manage and draw geometry
  * and materials using a supported browser 3D graphics API, such as WebGL or WebGPU.
  *
  * ## Example Usage

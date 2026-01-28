@@ -38,7 +38,7 @@
  * The following example demonstrates how to create a {@link viewer!Viewer | Viewer} with a {@link webglrenderer!WebGLRenderer | WebGLRenderer}
  * and a {@link scene!Scene | Scene} that holds model geometry and materials.
  *
- * The example also creates a single {@link viewer!View | View} to render the model to a canvas element on the page,
+ * The example also creates a single {@link viewer!View | View} to draw the model to a canvas element on the page,
  * and attaches a {@link cameracontrol!CameraControl | CameraControl} to control the camera using mouse and touch input.
  *
  * Within the Scene, a {@link scene!SceneModel | SceneModel} is created to hold the model. Then, the {@link gltf!GLTFLoader | GLTFLoader} function

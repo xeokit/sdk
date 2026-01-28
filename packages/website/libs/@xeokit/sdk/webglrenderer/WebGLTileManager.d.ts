@@ -25,4 +25,4 @@ export declare class WebGLTileManager implements TileManager {
     moveTile(tile: Tile, newCenter: FloatArrayParam): Tile;
     refreshMatrices(): void;
 }
-//# sourceMappingURL=DTXTiles.d.ts.map
+//# sourceMappingURL=GPUTileManager.d.ts.map

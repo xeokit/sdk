@@ -2,7 +2,7 @@ import type { GeometryArrays } from "./GeometryArrays";
 /**
  * Creates a sphere-shaped {@link scene!SceneGeometry | SceneGeometry}.
  *
- * This function generates a sphere geometry by calculating the positions of vertices based on the specified parameters. The sphere is defined by its radius and the number of latitudinal and longitudinal segments. The resulting geometry includes the positions, normals, UVs, and indices necessary to render the sphere.
+ * This function generates a sphere geometry by calculating the positions of vertices based on the specified parameters. The sphere is defined by its radius and the number of latitudinal and longitudinal segments. The resulting geometry includes the positions, normals, UVs, and indices necessary to draw the sphere.
  *
  * ## Usage
  *

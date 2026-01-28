@@ -56,4 +56,4 @@ export interface Layer {
     destroy(): void;
     initFlags(viewIndex: number, meshIndex: number, flags: number, transparent: any): void;
 }
-//# sourceMappingURL=Layer.d.ts.map
+//# sourceMappingURL=RenderLayerImpl.d.ts.map

@@ -65,9 +65,9 @@ export class ViewObject {
             opacityUpdated: false,
         };
         this.#rendererObject.setVisible(this.layer.view.viewIndex, this.#state.visible);
-        // this.#rendererObject.initFlags(this.layer.view.viewIndex, this.#state);
+        // this.#sceneObjectRendererProxy.initFlags(this._layer.view.viewIndex, this.#state);
         this.layer.objectVisibilityUpdated(this, this.#state.visible, true);
-        //this.#rendererObject.setClippable(this.layer.view.viewIndex, this.#state.clippable);
+        //this.#sceneObjectRendererProxy.setClippable(this._layer.view.viewIndex, this.#state.clippable);
         this.#rendererObject.setPickable(this.layer.view.viewIndex, this.#state.pickable);
     }
     /**
@@ -104,7 +104,7 @@ export class ViewObject {
             throw result;
         }
         this.layer.objectVisibilityUpdated(this, visible, true);
-        this.layer.redraw();
+        this.layer.needsRedraw();
     }
     /**
      * Gets if this ViewObject is X-rayed.
@@ -131,7 +131,7 @@ export class ViewObject {
             throw result;
         }
         this.layer.objectXRayedUpdated(this, xrayed);
-        this.layer.redraw();
+        this.layer.needsRedraw();
     }
     /**
      * Gets if this ViewObject is highlighted.
@@ -158,7 +158,7 @@ export class ViewObject {
             throw result;
         }
         this.layer.objectHighlightedUpdated(this, highlighted);
-        this.layer.redraw();
+        this.layer.needsRedraw();
     }
     /**
      * Gets if this ViewObject is selected.
@@ -185,7 +185,7 @@ export class ViewObject {
             throw result;
         }
         this.layer.objectSelectedUpdated(this, selected);
-        this.layer.redraw();
+        this.layer.needsRedraw();
     }
     /**
      * Gets if this ViewObject is culled.
@@ -211,7 +211,7 @@ export class ViewObject {
             throw result;
         }
         this.#state.culled = culled;
-        this.layer.redraw();
+        this.layer.needsRedraw();
     }
     /**
      * Gets if this ViewObject is clippable.
@@ -237,7 +237,7 @@ export class ViewObject {
             throw result;
         }
         this.#state.clippable = clippable;
-        this.layer.redraw();
+        this.layer.needsRedraw();
     }
     /**
      * Gets if this ViewObject is included in boundary calculations.
@@ -266,7 +266,7 @@ export class ViewObject {
         }
         this.#state.collidable = collidable;
         // this._setAABBDirty();
-        // this.layer._aabbDirty = true;
+        // this._layer._aabbDirty = true;
     }
     /**
      * Gets if this ViewObject is pickable.
@@ -292,7 +292,7 @@ export class ViewObject {
             throw result;
         }
         this.#state.pickable = pickable;
-        // No need to trigger a render;
+        // No need to trigger a draw;
         // state is only used when picking
     }
     /**
@@ -331,7 +331,7 @@ export class ViewObject {
         }
         this.#state.colorized = !!value;
         this.layer.objectColorizeUpdated(this, this.#state.colorized);
-        this.layer.redraw();
+        this.layer.needsRedraw();
     }
     /**
      * Gets the opacity factor for this ViewObject.
@@ -355,7 +355,7 @@ export class ViewObject {
         // @ts-ignore
         colorize[3] = this.#state.opacityUpdated ? opacity : 1.0;
         this.layer.objectOpacityUpdated(this, this.#state.opacityUpdated);
-        this.layer.redraw();
+        this.layer.needsRedraw();
     }
     /**
      * @private
@@ -380,7 +380,7 @@ export class ViewObject {
         if (this.#state.opacityUpdated) {
             this.layer.objectOpacityUpdated(this, false);
         }
-        this.layer.redraw();
+        this.layer.needsRedraw();
     }
 }
 //# sourceMappingURL=ViewObject.js.map

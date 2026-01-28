@@ -24,12 +24,12 @@ export declare class RenderContext {
     gl: WebGL2RenderingContext;
     viewMatrixDataTexture: WebGLDataTexture;
     /**
-     * Whether to render a quality representation for triangle surfaces.
+     * Whether to draw a quality representation for triangle surfaces.
      *
-     * When ````false````, we'll render them with a fast vertex-shaded Gouraud-shaded representation, which
+     * When ````false````, we'll draw them with a fast vertex-shaded Gouraud-shaded representation, which
      * is great for zillions of objects.
      *
-     * When ````true````, we'll render them at a better visual quality, using smooth, per-fragment shading
+     * When ````true````, we'll draw them at a better visual quality, using smooth, per-fragment shading
      * and a more realistic lighting model.
      */
     pbrEnabled: boolean;
@@ -107,7 +107,7 @@ export declare class RenderContext {
      */
     reset(): void;
     /**
-     * Gets the next available texture unit for this render
+     * Gets the next available texture unit for this draw
      */
     get nextTextureUnit(): number;
 }

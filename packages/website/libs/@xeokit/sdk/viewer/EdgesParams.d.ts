@@ -28,7 +28,7 @@ export interface EdgesParams {
      */
     edgeAlpha?: number;
     /**
-     * Which rendering modes in which to render edges.
+     * Which rendering modes in which to draw edges.
      *
      * Default value is [{@link constants!QualityRender | QualityRender}].
      */

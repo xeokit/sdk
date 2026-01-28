@@ -113,7 +113,7 @@ npm install @xeokit/core/constants
 <pre class="code-section"><code class="hljs"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
-    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>xeokit Spinning Box<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>xeokit Spinning Box<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
 <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
 <span class="hljs-tag">&lt;<span class="hljs-name">canvas</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;myView1&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">canvas</span>&gt;</span>
@@ -131,14 +131,14 @@ npm install @xeokit/core/constants
 <span class="hljs-keyword">const</span> scene = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Scene</span>();
 
 <span class="hljs-keyword">const</span> viewer = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Viewer</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoViewer&quot;</span>,
-    scene,
-    <span class="hljs-attr">renderer</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Web</span>GLRenderer({})
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoViewer&quot;</span>,
+  scene,
+  <span class="hljs-attr">renderer</span>: <span class="hljs-keyword">new</span> <span class="hljs-title class_">Web</span>GLRenderer({})
 });
 
 <span class="hljs-keyword">const</span> view = viewer.<span class="hljs-title function_">createView</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoView&quot;</span>,
-    <span class="hljs-attr">elementId</span>: <span class="hljs-string">&quot;demoCanvas&quot;</span>
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoView&quot;</span>,
+  <span class="hljs-attr">elementId</span>: <span class="hljs-string">&quot;demoCanvas&quot;</span>
 });
 
 view.<span class="hljs-property">camera</span>.<span class="hljs-property">eye</span> = [<span class="hljs-number">0</span>, -<span class="hljs-number">5</span>, <span class="hljs-number">20</span>];
@@ -148,110 +148,103 @@ view.<span class="hljs-property">camera</span>.<span class="hljs-property">up</s
 <span class="hljs-keyword">new</span> <span class="hljs-title class_">CameraControl</span>(view);
 
 <span class="hljs-keyword">const</span> sceneModel = scene.<span class="hljs-title function_">createModel</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoModel&quot;</span>
 });
 
 sceneModel.<span class="hljs-title function_">createGeometry</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
-    <span class="hljs-attr">primitive</span>: xeokit.<span class="hljs-property">constants</span>.<span class="hljs-property">TrianglesPrimitive</span>,
-    <span class="hljs-attr">positions</span>: [
-        <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>,
-        -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>,
-        -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>
-    ],
-    <span class="hljs-attr">indices</span>: [
-        <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>,            <span class="hljs-comment">// front</span>
-        <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>,            <span class="hljs-comment">// right</span>
-        <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">8</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>,         <span class="hljs-comment">// top</span>
-        <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">12</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>,      <span class="hljs-comment">// left</span>
-        <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">16</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>,      <span class="hljs-comment">// bottom</span>
-        <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">20</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>
-    ]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+  <span class="hljs-attr">primitive</span>: xeokit.<span class="hljs-property">constants</span>.<span class="hljs-property">TrianglesPrimitive</span>,
+  <span class="hljs-attr">positions</span>: [
+    <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>,
+    -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>,
+    -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, -<span class="hljs-number">1</span>
+  ],
+  <span class="hljs-attr">indices</span>: [
+    <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">0</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>,            <span class="hljs-comment">// front</span>
+    <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">4</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>,            <span class="hljs-comment">// right</span>
+    <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">8</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>,         <span class="hljs-comment">// top</span>
+    <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">12</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>,      <span class="hljs-comment">// left</span>
+    <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">16</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>,      <span class="hljs-comment">// bottom</span>
+    <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">20</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>
+  ]
 });
 
 sceneModel.<span class="hljs-title function_">addMesh</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;redLegMesh&quot;</span>,
-    <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
-    <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
-        <span class="hljs-attr">position</span>: [-<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, -<span class="hljs-number">4</span>],
-        <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
-    }),
-    <span class="hljs-attr">color</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">0.3</span>, <span class="hljs-number">0.3</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;redLegMesh&quot;</span>,
+  <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+  <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
+    <span class="hljs-attr">position</span>: [-<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, -<span class="hljs-number">4</span>],
+    <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
+  }),
+  <span class="hljs-attr">color</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">0.3</span>, <span class="hljs-number">0.3</span>]
 });
 
 sceneModel.<span class="hljs-title function_">createObject</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;redLeg&quot;</span>,
-    <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;redLegMesh&quot;</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;redLeg&quot;</span>,
+  <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;redLegMesh&quot;</span>]
 });
 
 sceneModel.<span class="hljs-title function_">addMesh</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;greenLegMesh&quot;</span>,
-    <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
-    <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
-        <span class="hljs-attr">position</span>: [<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, -<span class="hljs-number">4</span>],
-        <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
-    }),
-    <span class="hljs-attr">color</span>: [<span class="hljs-number">0.3</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.3</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;greenLegMesh&quot;</span>,
+  <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+  <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
+    <span class="hljs-attr">position</span>: [<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, -<span class="hljs-number">4</span>],
+    <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
+  }),
+  <span class="hljs-attr">color</span>: [<span class="hljs-number">0.3</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.3</span>]
 });
 
 sceneModel.<span class="hljs-title function_">createObject</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;greenLeg&quot;</span>,
-    <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;greenLegMesh&quot;</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;greenLeg&quot;</span>,
+  <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;greenLegMesh&quot;</span>]
 });
 
 sceneModel.<span class="hljs-title function_">addMesh</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;blueLegMesh&quot;</span>,
-    <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
-    <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
-        <span class="hljs-attr">position</span>: [<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, <span class="hljs-number">4</span>],
-        <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
-    }),
-    <span class="hljs-attr">color</span>: [<span class="hljs-number">0.3</span>, <span class="hljs-number">0.3</span>, <span class="hljs-number">1.0</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;blueLegMesh&quot;</span>,
+  <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+  <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
+    <span class="hljs-attr">position</span>: [<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, <span class="hljs-number">4</span>],
+    <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
+  }),
+  <span class="hljs-attr">color</span>: [<span class="hljs-number">0.3</span>, <span class="hljs-number">0.3</span>, <span class="hljs-number">1.0</span>]
 });
 
 sceneModel.<span class="hljs-title function_">createObject</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;blueLeg&quot;</span>,
-    <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;blueLegMesh&quot;</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;blueLeg&quot;</span>,
+  <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;blueLegMesh&quot;</span>]
 });
 
 sceneModel.<span class="hljs-title function_">addMesh</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;yellowLegMesh&quot;</span>,
-    <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
-    <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
-        <span class="hljs-attr">position</span>: [-<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, <span class="hljs-number">4</span>],
-        <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
-    }),
-    <span class="hljs-attr">color</span>: [<span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;yellowLegMesh&quot;</span>,
+  <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+  <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
+    <span class="hljs-attr">position</span>: [-<span class="hljs-number">4</span>, -<span class="hljs-number">6</span>, <span class="hljs-number">4</span>],
+    <span class="hljs-attr">scale</span>: [<span class="hljs-number">1</span>, <span class="hljs-number">3</span>, <span class="hljs-number">1</span>]
+  }),
+  <span class="hljs-attr">color</span>: [<span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.0</span>]
 });
 
 sceneModel.<span class="hljs-title function_">createObject</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;yellowLeg&quot;</span>,
-    <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;yellowLegMesh&quot;</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;yellowLeg&quot;</span>,
+  <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;yellowLegMesh&quot;</span>]
 });
 
 sceneModel.<span class="hljs-title function_">addMesh</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;purpleTableTopMesh&quot;</span>,
-    <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
-    <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
-        <span class="hljs-attr">position</span>: [<span class="hljs-number">0</span>, -<span class="hljs-number">3</span>, <span class="hljs-number">0</span>],
-        <span class="hljs-attr">scale</span>: [<span class="hljs-number">6</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">6</span>]
-    }),
-    <span class="hljs-attr">color</span>: [<span class="hljs-number">1.0</span>, <span class="hljs-number">0.3</span>, <span class="hljs-number">1.0</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;purpleTableTopMesh&quot;</span>,
+  <span class="hljs-attr">geometryId</span>: <span class="hljs-string">&quot;demoBoxGeometry&quot;</span>,
+  <span class="hljs-attr">matrix</span>: xeokit.<span class="hljs-property">scene</span>.<span class="hljs-title function_">buildMat4</span>({
+    <span class="hljs-attr">position</span>: [<span class="hljs-number">0</span>, -<span class="hljs-number">3</span>, <span class="hljs-number">0</span>],
+    <span class="hljs-attr">scale</span>: [<span class="hljs-number">6</span>, <span class="hljs-number">0.5</span>, <span class="hljs-number">6</span>]
+  }),
+  <span class="hljs-attr">color</span>: [<span class="hljs-number">1.0</span>, <span class="hljs-number">0.3</span>, <span class="hljs-number">1.0</span>]
 });
 
 sceneModel.<span class="hljs-title function_">createObject</span>({
-    <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;purpleTableTop&quot;</span>,
-    <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;purpleTableTopMesh&quot;</span>]
+  <span class="hljs-attr">id</span>: <span class="hljs-string">&quot;purpleTableTop&quot;</span>,
+  <span class="hljs-attr">meshIds</span>: [<span class="hljs-string">&quot;purpleTableTopMesh&quot;</span>]
 });
 
-sceneModel.<span class="hljs-title function_">build</span>().<span class="hljs-title function_">then</span>(<span class="hljs-function">() =&gt;</span> {
-
-    demoHelper.<span class="hljs-title function_">finished</span>();
-
-}).<span class="hljs-title function_">catch</span>(<span class="hljs-function">(<span class="hljs-params">e</span>) =&gt;</span> {
-    demoHelper.<span class="hljs-title function_">log</span>(<span class="hljs-string">`Error building SceneModel: <span class="hljs-subst">${e}</span>`</span>);
-    <span class="hljs-keyword">throw</span> e;
-});
+demoHelper.<span class="hljs-title function_">finished</span>();
 </code></pre>
 
             </div>

@@ -45,7 +45,7 @@ export function createSceneModelStreamParams(sceneModel) {
             if (canCreate) {
                 sceneMesh.streamLayerIndex = layerIndex;
             }
-            else { // Layer is full
+            else { // RenderLayerImpl is full
                 delete layersBeingBuilt[layerId];
                 layer = null;
             }

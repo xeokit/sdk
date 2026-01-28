@@ -186,7 +186,7 @@ export class WebGLRendererModel extends Component {
         // }
     }
     #attachTexture(texture) {
-        // Attaches a WebGLRendererTexture to the given SceneTexture
+        // Attaches a RendererTexture to the given SceneTexture
         const textureId = texture.id;
         if (this.rendererTextures[textureId]) {
             throw new SDKError(`WebGLRendererTexture with ID ${textureId} already created in WebGLRendererModel`);
@@ -266,7 +266,7 @@ export class WebGLRendererModel extends Component {
         this.rendererTextures[textureId] = rendererTexture;
     }
     #attachGeometry(geometry) {
-        // Attaches a WebGLRendererGeometry to the given SceneGeometry
+        // Attaches a RendererGeometry to the given SceneGeometry
         const geometryId = geometry.id;
         if (this.rendererGeometries[geometryId]) {
             throw new SDKError(`RendererGeometry with ID ${geometryId} already created in WebGLRendererModel`);
@@ -277,7 +277,7 @@ export class WebGLRendererModel extends Component {
         this.#numGeometries++;
     }
     #attachMesh(mesh) {
-        // Attaches a WebGLRendererMesh to the given SceneMesh
+        // Attaches a RendererMesh to the given SceneMesh
         const rendererGeometry = this.rendererGeometries[mesh.geometry.id];
         if (!rendererGeometry) {
             throw new SDKError(`RendererGeometry with ID ${mesh.geometry.id} not found in WebGLRendererModel`);
@@ -311,9 +311,9 @@ export class WebGLRendererModel extends Component {
         const g = rendererMesh.pickId >> 8 & 0xFF;
         const r = rendererMesh.pickId & 0xFF;
         const pickColor = new Uint8Array([r, g, b, a]);
-        //    collapseAABB3(rendererMesh.aabb);
+        //    collapseAABB3(sceneObjectRendererProxy.aabb);
         const meshIndex = layer.createLayerMesh({ pickColor }, mesh);
-        //  expandAABB3(this.#aabb, rendererMesh.aabb);
+        //  expandAABB3(this.#aabb, sceneObjectRendererProxy.aabb);
         rendererMesh.layer = layer;
         rendererMesh.meshIndex = meshIndex;
         this.rendererMeshes[mesh.id] = rendererMesh;
@@ -344,7 +344,7 @@ export class WebGLRendererModel extends Component {
             textureSet = this.rendererTextureSets[textureSetId];
             if (!textureSet) {
                 this.error(`TextureSet with ID "${textureSetId}" not found in WebGLRendererModel - ensure that you create it first with createTextureSet()`);
-                // Create layer without texture set
+                // Create _layer without texture set
             }
         }
         if (instancing) {
@@ -374,7 +374,7 @@ export class WebGLRendererModel extends Component {
                     this.log(`Creating new VBOLinesInstancingLayer`);
                     break;
                 case PointsPrimitive:
-                    // layer = new VBOPointsInstancingLayer(<VBOInstancingLayerParams>{
+                    // _layer = new VBOPointsInstancingLayer(<VBOInstancingLayerParams>{
                     //     #renderContext: this.##renderContext,
                     //     rendererModel: this,
                     //     sceneGeometry,
@@ -437,7 +437,7 @@ export class WebGLRendererModel extends Component {
         return layer;
     }
     #attachSceneObject(sceneObject) {
-        // Attaches a WebGLRendererObject to the given SceneObject
+        // Attaches a RendererObject to the given SceneObject
         let objectId = sceneObject.id;
         if (objectId === undefined) {
             objectId = createUUID();
@@ -455,7 +455,7 @@ export class WebGLRendererModel extends Component {
             const mesh = meshes[i];
             const rendererMesh = this.rendererMeshes[mesh.id];
             if (!rendererMesh) {
-                console.error("WebGLRendererMesh not found: + " + mesh.id);
+                console.error("RendererMesh not found: + " + mesh.id);
             }
             else {
                 rendererMeshes.push(rendererMesh);
@@ -472,7 +472,7 @@ export class WebGLRendererModel extends Component {
             layerId: this.#layerId
         });
         this.rendererObjectsList.push(rendererObject);
-        this.rendererObjects[objectId] = rendererObject; // <RendererObject>
+        this.rendererObjects[objectId] = rendererObject; // <SceneObjectRendererProxy>
         sceneObject.rendererObject = rendererObject;
         this.#numRendererObjects++;
     }
@@ -592,7 +592,7 @@ export class WebGLRendererModel extends Component {
         // const renderFlags = this.renderFlags;
         // const sectionPlanes = this.scene._sectionPlanesState.sectionPlanes;
         // const numSectionPlanes = sectionPlanes.length;
-        // const baseIndex = layer.layerIndex * numSectionPlanes;
+        // const baseIndex = _layer.layerIndex * numSectionPlanes;
         // if (numSectionPlanes > 0) {
         //     for (let i = 0; i < numSectionPlanes; i++) {
         //         const sectionPlane = sectionPlanes[i];
@@ -686,17 +686,17 @@ export class WebGLRendererModel extends Component {
     }
     #build() {
         // for (let layerId in this.#currentLayers) {
-        //     let layer = this.#currentLayers[layerId];
-        //     layer.build();
+        //     let _layer = this.#currentLayers[layerId];
+        //     _layer.build();
         //     delete this.#currentLayers[layerId];
         // }
         // for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-        //     const rendererObject = this.rendererObjectsList[i];
-        //     rendererObject.initFlags();
+        //     const sceneObjectRendererProxy = this.rendererObjectsList[i];
+        //     sceneObjectRendererProxy.initFlags();
         // }
         // for (let i = 0, len = this.rendererObjectsList.length; i < len; i++) {
-        //     const rendererObject = this.rendererObjectsList[i];
-        //     rendererObject.commitRendererState();
+        //     const sceneObjectRendererProxy = this.rendererObjectsList[i];
+        //     sceneObjectRendererProxy.commitRendererState();
         // }
     }
     // build() {
@@ -714,12 +714,12 @@ export class WebGLRendererModel extends Component {
     //         }
     //     }
     //     for (let i = 0, len = this.objectList.length; i < len; i++) {
-    //         const rendererObject = this.objectList[i];
-    //         rendererObject.build();
+    //         const sceneObjectRendererProxy = this.objectList[i];
+    //         sceneObjectRendererProxy.build();
     //     }
     //     for (let i = 0, len = this.objectList.length; i < len; i++) {
-    //         const rendererObject = this.objectList[i];
-    //         rendererObject.build2();
+    //         const sceneObjectRendererProxy = this.objectList[i];
+    //         sceneObjectRendererProxy.build2();
     //     }
     //     // this.layerList.sort((a, b) => {
     //     //     if (a.sortId < b.sortId) {
@@ -731,8 +731,8 @@ export class WebGLRendererModel extends Component {
     //     //     return 0;
     //     // });
     //     for (let i = 0, len = this.layerList.length; i < len; i++) {
-    //         const layer = this.layerList[i];
-    //         layer.layerIndex = i;
+    //         const _layer = this.layerList[i];
+    //         _layer.layerIndex = i;
     //     }
     //     this.#currentLayers = {};
     //     this.built = true;

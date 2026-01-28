@@ -1,5 +1,5 @@
 /**
- * Provides scratch memory for methods like TrianglesBatchingLayer setFlags() and setColors(),
+ * Provides scratch _gpuMemoryManager for methods like TrianglesBatchingLayer setFlags() and setColors(),
  * so they don't need to allocate temporary arrays that need garbage collection.
  *
  * @private

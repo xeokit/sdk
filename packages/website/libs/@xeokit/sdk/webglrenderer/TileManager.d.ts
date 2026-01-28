@@ -9,4 +9,4 @@ export interface TileManager {
     moveTile(tile: Tile, newCenter: FloatArrayParam): Tile;
     refreshMatrices(): void;
 }
-//# sourceMappingURL=TileManager.d.ts.map
+//# sourceMappingURL=GPUTileManager.d.ts.map

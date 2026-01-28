@@ -115,7 +115,7 @@ export class WebGLProgram {
         // @ts-ignore
         this.handle = gl.createProgram();
         if (!this.handle) {
-            this.errors = ["Failed to allocate program"];
+            this.errors = ["Cannot allocate program"];
             return;
         }
         gl.attachShader(this.handle, this.vertexShader.handle);
@@ -123,7 +123,7 @@ export class WebGLProgram {
         gl.linkProgram(this.handle);
         this.linked = gl.getProgramParameter(this.handle, gl.LINK_STATUS);
         // HACK: Disable validation temporarily: https://github.com/xeolabs/xeokit-sdk/issues/5
-        // Perhaps we should defer validation until render-time, when the program has values set for all inputs?
+        // Perhaps we should defer validation until draw-time, when the program has values set for all inputs?
         this.validated = true;
         if (!this.linked || !this.validated) {
             this.errors = [];

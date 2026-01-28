@@ -1,10 +1,10 @@
 import { Component } from "../core";
 import { FastRender } from "../constants";
 //  /**
-//      * Gets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
+//      * Gets the scale of the canvas back _buffer relative to the CSS-defined size of the canvas.
 //      *
 //      * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
-//      * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
+//      * setting this to a value between ````[0..1]```` (eg ````0.5````) will draw into a smaller back _buffer, giving
 //      * a performance boost.
 //      *
 //      * @returns  The resolution scale.
@@ -14,10 +14,10 @@ import { FastRender } from "../constants";
 // }
 //
 // /**
-//  * Sets the scale of the canvas back buffer relative to the CSS-defined size of the canvas.
+//  * Sets the scale of the canvas back _buffer relative to the CSS-defined size of the canvas.
 //  *
 //  * This is a kdtree3 way to trade off rendering quality for speed. If the canvas size is defined in CSS, then
-//  * setting this to a value between ````[0..1]```` (eg ````0.5````) will render into a smaller back buffer, giving
+//  * setting this to a value between ````[0..1]```` (eg ````0.5````) will draw into a smaller back _buffer, giving
 //  * a performance boost.
 //  *
 //  * @param resolutionScale The resolution scale.
@@ -35,7 +35,7 @@ import { FastRender } from "../constants";
 //     htmlElement.height = Math.round(
 //         htmlElement.clientHeight * this.#resolutionScale
 //     );
-//     this.redraw();
+//     this.needsRedraw();
 // }
 /**
  * Configures the appearance of {@link viewer!ViewObject | ViewObjects} when canvas resolution scaling is applied.
@@ -75,7 +75,7 @@ export class ResolutionScale extends Component {
             return;
         }
         this.#state.enabled = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets if resolution scaling is enabled.
@@ -94,7 +94,7 @@ export class ResolutionScale extends Component {
      */
     set renderModes(value) {
         this.#state.renderModes = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets which rendering modes in which to apply ResolutionScale.
@@ -116,7 +116,7 @@ export class ResolutionScale extends Component {
             return;
         }
         this.#state.resolutionScale = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the scale when ResolutionScale is applied.

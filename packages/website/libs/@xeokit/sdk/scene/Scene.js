@@ -2,7 +2,7 @@ import { Component, EventEmitter, SDKError } from "../core";
 import { MAX_DOUBLE, MIN_DOUBLE } from "../math";
 import { EventDispatcher } from "strongly-typed-events";
 import { SceneModel } from "./SceneModel";
-import { createAABB3 } from "../boundaries";
+import { createAABBFloat64 } from "../boundaries";
 import { SceneTile } from "./SceneTile";
 /**
  * Container of model geometry and materials.
@@ -61,7 +61,7 @@ export class Scene extends Component {
      */
     constructor() {
         super(null, {});
-        this.#aabb = createAABB3();
+        this.#aabb = createAABBFloat64();
         this.#aabbDirty = true;
         this.models = {};
         this.objects = {};
@@ -152,7 +152,7 @@ export class Scene extends Component {
      *
      * Remember to call {@link scene!SceneModel.build | SceneModel.build} when you've finished building or
      * loading the SceneModel. That will
-     * fire events via {@link scene!Scene.onModelCreated | Scene.onModelCreated} and {@link scene!SceneModel.onBuilt | SceneModel.onBuilt}, to
+     * fire events via {@link scene!SceneEvents.onSceneModelCreated | SceneEvents.onSceneModelCreated} and {@link scene!SceneModel.onBuilt | SceneModel.onBuilt}, to
      * indicate to any subscribers that the SceneModel is built and ready for use.
      *
      * See {@link "@xeokit/scene" | @xeokit/scene}  for more details on usage.
@@ -197,7 +197,7 @@ export class Scene extends Component {
     /**
      * Destroys all contained {@link scene!SceneModel | SceneModels}.
      *
-     * * Fires {@link scene!Scene.onModelDestroyed | Scene.onModelDestroyed} and
+     * * Fires {@link scene!Scene.modelDestroyed | Scene.modelDestroyed} and
      * {@link scene!SceneModel.onDestroyed | SceneModel.onDestroyed} for each existing SceneModel in this Scene.
      *
      * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
@@ -217,9 +217,9 @@ export class Scene extends Component {
     /**
      * Destroys this Scene and all contained {@link scene!SceneModel | SceneModels}.
      *
-     * * Fires {@link scene!Scene.onModelDestroyed | Scene.onModelDestroyed} and {@link scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
+     * * Fires {@link scene!Scene.modelDestroyed | Scene.modelDestroyed} and {@link scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
      * for each existing SceneModels in this Data.
-     * * Unsubscribes all subscribers to {@link scene!Scene.onModelCreated | Scene.onModelCreated}, {@link scene!Scene.onModelDestroyed | Scene.onModelDestroyed}, {@link scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
+     * * Unsubscribes all subscribers to {@link scene!SceneEvents.onSceneModelCreated | SceneEvents.onSceneModelCreated}, {@link scene!Scene.modelDestroyed | Scene.modelDestroyed}, {@link scene!SceneModel.onDestroyed | SceneModel.onDestroyed}
      *
      * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
      *

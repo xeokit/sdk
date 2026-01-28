@@ -75,7 +75,7 @@ class PointLight extends Component {
      */
     set pos(pos) {
         this.#state.pos.set(pos || [1.0, 1.0, 1.0]);
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the RGB color of this PointLight.
@@ -96,7 +96,7 @@ class PointLight extends Component {
      */
     set color(color) {
         this.#state.color.set(color || [0.7, 0.7, 0.8]);
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the intensity of this PointLight.
@@ -120,7 +120,7 @@ class PointLight extends Component {
             return;
         }
         this.#state.intensity = intensity;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the constant attenuation factor for this PointLight.
@@ -141,7 +141,7 @@ class PointLight extends Component {
      */
     set constantAttenuation(value) {
         this.#state.attenuation[0] = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the linear attenuation factor for this PointLight.
@@ -162,7 +162,7 @@ class PointLight extends Component {
      */
     set linearAttenuation(value) {
         this.#state.attenuation[1] = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the quadratic attenuation factor for this PointLight.
@@ -183,7 +183,7 @@ class PointLight extends Component {
      */
     set quadraticAttenuation(value) {
         this.#state.attenuation[2] = value;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Destroys this PointLight.
@@ -191,7 +191,7 @@ class PointLight extends Component {
     destroy() {
         super.destroy();
         this.view.deregisterLight(this);
-        this.view.redraw();
+        this.view.needsRedraw();
     }
 }
 export { PointLight };

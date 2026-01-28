@@ -87,14 +87,14 @@ export class Data extends Component {
      * Creates a new {@link data!DataModel | DataModel} in this Data.
      *
      * Remember to call {@link data!DataModel.build | DataModel.build} when you've finished building or loading the DataModel. That will
-     * fire events via {@link data!Data.onModelCreated | Data.onModelCreated} and {@link data!DataModel.onBuilt | DataModel.onBuilt}, to
+     * fire events via {@link data!Data.modelCreated | Data.modelCreated} and {@link data!DataModel.onBuilt | DataModel.onBuilt}, to
      * indicate to any subscribers that the DataModel is built and ready for use.
      *
      * Note that while we're building/loading the DataModel, each call that we make to {@link data!DataModel.createObject | DataModel.createObject}
      * will create a new {@link data!DataObject | DataObject}
      * in {@link data!Data.objects | Data.objects} and {@link data!DataModel.objects | DataModel.objects}, and will also fire an event
-     * via {@link data!Data.onObjectCreated | Data.onObjectCreated}. However,
-     * only when we've received the {@link data!Data.onModelCreated | Data.onModelCreated} and {@link data!DataModel.onBuilt | DataModel.onBuilt}
+     * via {@link data!Data.objectCreated | Data.objectCreated}. However,
+     * only when we've received the {@link data!Data.modelCreated | Data.modelCreated} and {@link data!DataModel.onBuilt | DataModel.onBuilt}
      * events can we actually consider the DataModel to be fully constructed.
      *
      * See {@link "@xeokit/data" | @xeokit/data}  for more details on usage.
@@ -225,13 +225,13 @@ export class Data extends Component {
         if (searchParams.startObjectId) {
             const startObject = this.objects[searchParams.startObjectId];
             if (!startObject) {
-                return new SDKError(`Failed to search DataObjects - starting DataObject not found in Data: "${searchParams.startObjectId}"`);
+                return new SDKError(`Cannot search DataObjects - starting DataObject not found in Data: "${searchParams.startObjectId}"`);
             }
             visit(startObject, depth);
         }
         else if (searchParams.startObject) {
             if (searchParams.startObject.data != this) {
-                return new SDKError(`Failed to search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`);
+                return new SDKError(`Cannot search DataObjects - starting DataObject not in same Data: "${searchParams.startObjectId}"`);
             }
             visit(searchParams.startObject, depth + 1);
         }
@@ -244,7 +244,7 @@ export class Data extends Component {
     /**
      * Destroys all contained {@link DataModel | DataModels}.
      *
-     * * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
+     * * Fires {@link Data.onModelDestroyed | Data.modelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
      * for each existing DataModel in this Data.
      *
      * See {@link "@xeokit/data" | @xeokit/data}  for usage.
@@ -265,9 +265,9 @@ export class Data extends Component {
     /**
      * Destroys this Data and all contained {@link DataModel | DataModels}.
      *
-     * * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
+     * * Fires {@link Data.onModelDestroyed | Data.modelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
      * for each existing DataModels in this Data.
-     * * Unsubscribes all subscribers to {@link Data.onModelCreated | Data.onModelCreated}, {@link Data.onModelDestroyed | Data.onModelDestroyed}, {@link DataModel.onDestroyed | DataModel.onDestroyed}
+     * * Unsubscribes all subscribers to {@link Data.onModelCreated | Data.modelCreated}, {@link Data.onModelDestroyed | Data.modelDestroyed}, {@link DataModel.onDestroyed | DataModel.onDestroyed}
      *
      * See {@link "@xeokit/data" | @xeokit/data}  for usage.
      *

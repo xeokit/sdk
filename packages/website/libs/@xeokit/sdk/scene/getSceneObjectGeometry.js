@@ -60,7 +60,7 @@ export function getSceneObjectGeometry(sceneObject, withEachGeometry) {
     // for (let i = 0, len = sceneObject.meshes.length; i < len; i++) {
     //     const mesh = sceneObject.meshes[i];
     //     geometryView.mesh = mesh;
-    //     geometryView.meshIndex = i;
+    //     geometryView._meshIndex = i;
     //     const geometry = mesh.geometry;
     //     geometryView.geometry = geometry;
     //     for (let j = 0, lenj = geometry.geometryBuckets.length; j < lenj; j++) {

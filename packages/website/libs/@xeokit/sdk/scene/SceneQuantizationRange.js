@@ -1,4 +1,4 @@
-import { createAABB3 } from "../boundaries";
+import { createAABBFloat64 } from "../boundaries";
 /**
  * A geometry in a {@link scene!SceneModel | SceneModel}.
  *
@@ -18,7 +18,7 @@ export class SceneQuantizationRange {
      */
     aabb;
     constructor(params) {
-        this.aabb = params.aabb ? params.aabb.slice() : createAABB3();
+        this.aabb = params.aabb ? params.aabb.slice() : createAABBFloat64();
     }
     /**
      * Gets this SceneQuantizationRange as JSON.

@@ -214,7 +214,7 @@ export class PerspectiveProjection extends Component {
         perspectiveMat4(fov * (Math.PI / 180.0), aspect, this.#state.near, this.#state.far, this.#state.projMatrix);
         this.#inverseMatrixDirty = true;
         this.#transposedProjMatrixDirty = true;
-        this.camera.view.redraw();
+        this.camera.view.needsRedraw();
         this.onProjMatrix.dispatch(this, this.#state.projMatrix);
     }
     /**

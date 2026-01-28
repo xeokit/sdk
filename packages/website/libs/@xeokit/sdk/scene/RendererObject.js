@@ -1,2 +1,2 @@
 export {};
-//# sourceMappingURL=RendererObject.js.map
+//# sourceMappingURL=SceneObjectRendererProxy.js.map

@@ -26,7 +26,7 @@ const viewer = new xeokit.viewer.Viewer({
   renderer
 });
 
-// Give the Viewer a single View to render the Scene in our HTML canvas element
+// Give the Viewer a single View to draw the Scene in our HTML canvas element
 const view = viewer.createView({
   id: "demoView",
   elementId: "demoCanvas"

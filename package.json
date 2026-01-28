@@ -25,11 +25,9 @@
         "website-build-local": "pnpm website-sdk-docs && pnpm --filter @xeokit/website website-build-local && pnpm website-example-snapshots"
     },
     "devDependencies": {
+        "@boneskull/typedoc-plugin-mermaid": "^0.1.0",
         "@changesets/cli": "^2.27.1",
-        "@eslint/js": "catalog:lint",
         "@kayahr/jest-electron-runner": "^29.11.0",
-        "@stylistic/eslint-plugin-js": "catalog:lint",
-        "@stylistic/eslint-plugin-ts": "catalog:lint",
         "@types/command-exists": "1.2.0",
         "@types/jest": "^29.2.5",
         "@types/ndarray": "1.0.11",
@@ -38,7 +36,6 @@
         "concurrently": "7.6.0",
         "copyfiles": "^2.4.1",
         "esbuild": "^0.20.0",
-        "eslint": "catalog:lint",
         "http-server": "^14.1.1",
         "jest": "^29.7.0",
         "jest-environment-jsdom": "^29.7.0",
@@ -56,8 +53,7 @@
         "ts-loader": "^9.4.2",
         "ts-node": "10.9.1",
         "typedoc": "^0.27.6",
-        "typescript": "^5.7.2",
-        "typescript-eslint": "catalog:lint"
+        "typescript": "^5.7.2"
     },
     "optionalDependencies": {
         "canvas": "^2.11.2"

@@ -8,5 +8,7 @@
     "excludeNotDocumented": true,
     "includeVersion": true,
     "titleLink": "https://xeokit.io",
-    "plugin": ["typedoc-plugin-mermaid"]
+  "ignoredHighlightLanguages": ["mermaid"],
+  "plugin": ["@boneskull/typedoc-plugin-mermaid"],
+  "useTsLinkResolution": true
 }

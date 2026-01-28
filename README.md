@@ -1,431 +1,328 @@
-# @xeokit
+# @xeokit SDK (V3)
 
-#### Welcome to the xeokit SDK - a flexible and powerful tool for creating stunning visualizations of AECO models in your browser. 
+> **High‑performance AECO visualization for the web and Node.js**
 
-Built with TypeScript, xeokit offers lightning-fast loading and rendering of even the most complex models, while using minimal 
-system resources. 
+Welcome to **xeokit**, a flexible, production‑grade SDK for creating fast, interactive visualizations of AECO (Architecture, Engineering, Construction & Operations) models directly in the browser or in Node.js.
 
-The scene graph works seamlessly on both browser and NodeJS platforms, allowing you to create, convert and 
-provide content for the model viewer. 
+Built with **TypeScript**, xeokit is designed for **extreme performance**: it streams, loads, and renders very large models with minimal memory and CPU usage. The SDK cleanly separates **data**, **scene representation**, and **rendering**, making it suitable for everything from lightweight viewers to complex BIM pipelines.
 
-Benefit from built-in support for multiple canvases, utility libraries with complete 
-documentation, and the ability to import/export models as industry-standard AECO file formats. Collaborate with other BIM software 
-via BCF Viewpoints and bring your AECO models to life with xeokit.
+---
 
-# Table of Contents
+## Key Features
 
-1[Modules](#modules)
-   - [Scene Graph](#scene-graph)
-   - [Data Graph](#data-graph)
-   - [Model Viewer](#model-viewer)
-   - [Model Importers and Exporters](#model-importers-and-exporters)
-   - [Interoperating with BIM Software](#interoperating-with-bim-software)
-   - [Utility Libraries](#utility-libraries)
-2[Examples](#examples)
-   - [Spinning Textured Box](#spinning-textured-box)
-   - [glTF Model Viewer](#gltf-model-viewer)
-   - [Convert a glTF file to XKT](#convert-a-gltf-file-to-xkt)
-3[Project development](#project-development)
-   - [Preparing](#preparing)
-   - [Building](#building)
-   - [Testing](#testing)
-4[License](#license)
-5[Credits](#credits)
+* **Lightning‑fast rendering** of massive AECO models
+* **Browser & Node.js support** for viewing, conversion, and preprocessing
+* **Scene graph + data graph** architecture
+* **Multi‑canvas, multi‑view viewers**
+* **Pluggable renderer backends** (WebGL today, WebGPU ready)
+* **Import, export & convert** industry‑standard AECO formats
+* **BIM collaboration** via BCF Viewpoints
+* **Fully documented utility libraries**
 
-     
-# Installation
+---
 
-To start developing this project, you should first install it, preferably globally:
+## Table of Contents
 
-```bash
-npm i pnpm -g
-```
+1. [Modules](#modules)
 
-Then clone the repository:
+  * [Scene Graph](#scene-graph)
+  * [Data Graph](#data-graph)
+  * [Model Viewer & Renderer](#model-viewer--renderer-backend)
+  * [Importers & Exporters](#model-importers-and-exporters)
+  * [Model Conversion](#model-conversion)
+  * [BIM Interoperability (BCF)](#bim-interoperability-via-bcf-viewpoints)
+2. [Examples](#examples)
+
+  * [Spinning Textured Box](#spinning-textured-box)
+  * [glTF Model Viewer](#gltf-model-viewer)
+3. [Project Development](#project-development)
+
+  * [Installation](#installation)
+  * [Building the SDK](#build-sdk)
+  * [Generating Docs](#build-typedocs)
+4. [License](#license)
+5. [Credits](#credits)
+
+---
+
+## Project Development
+
+### Installation
+
+Install the package manager (recommended globally):
+
+````
+
+Clone the repository:
 
 ```bash
 git clone https://github.com/xeokit/sdk
-```
+cd sdk
+````
 
-Install the project using:
+Install dependencies:
 
 ```bash
-pnpm i
+pnpm install
 ```
 
-## Build SDK :
+---
 
-To build the xeokit SDK:
+### Build SDK
+
+Build the xeokit SDK:
 
 ```bash
 pnpm sdk-dist
 ```
 
-This will create directory ```./packages/sdk/dist```, which will contain the built JavaScript source and dependencies.
+Output:
 
-## Build TypeDocs:
+```
+./packages/sdk/dist
+```
+
+This directory contains the compiled JavaScript bundles and dependencies.
+
+---
+
+### Build TypeDocs
+
+Generate API documentation:
 
 ```bash
 pnpm website-sdk-docs
 ```
 
-This will create directory ```./packages/website/docs```, which will contain the generated TypeDocs. They are generated in the `website` package 
-because we've configured that package to be the root directory for our GitHub Pages setup.
+Output:
 
-# License
+```
+./packages/website/docs
+```
 
-Copyright 2020, AGPL3 License.
+The `website` package is configured as the root for GitHub Pages hosting.
 
-# Modules
+---
 
-## Scene Graph
+## Modules
 
-The SDK represents models in a scene graph that include the model's objects, geometries, and materials. This scene graph works on 
-both the browser and NodeJS platforms and can be used to create models, convert between model formats, and provide content for the 
-SDK's model viewer.
-   
-| Package                                                                  | Modules                                                               | Description                                                                  |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------|
-| [`@xeokit/scene`](https://www.npmjs.com/package/@xeokit/scene)           | [`@xeokit/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html)                       | Scene graph that contains model representations (geometries, materials etc.) |
-   
-   
-[![](https://mermaid.ink/img/pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww?type=png)](https://mermaid.live/edit#pako:eNqNVctu2zAQ_BWBpzZIAhToycc2QC41CsQ58sKQG5stKRp8BDEC_3tXlGgvJSqoL5Rmx7Nv6oNJp4BtmDQihAct9l5Y3ivtQUbt-u7XE--7_MuMbiehh4-CZdyDiLBFGfPla2UwIHwN2YEVKOJe_qCnC3RueMvSxKVW1-fZ3wcXEA5AgT04C9HrCozwHpOHHcQGSqAxud_ZC01lShp9LdHH0eFpaXke9VcNGA61vSRtFAUUhOgdEW6Vawy2ahGt2LxCM4khpW6l2NIZ56-v3qX9oYdAyoV5C1ND7iikjifCEdiM9-v71B_CuDZnJcipXO0421wU-zStiTZLxWj5VLJcMJyUJgVckoUFrA5Bv8HMMIuszMlaXEevrY4oQyAX9LCW4QGks0cc1bCdlTO9fWIstf6R5F9Y3brHikXDu_j_OTkAVXluwRpvE9mYtzysHWffOLu5u8Pz_v6GM7LyFTEjK-xx4v9Ht8EcoSV_WIRCvHRqwapLVfh5iQiXEAuFjGUl-h25s7FpqD2TDSm0crJbZsFboRVe67l3nMUDWOBsg48KXkUykTPen5EqUnS7Uy_ZJvoEtywdFd5H04eAbV6FCYiC0tH57fSpGI7zP49r0Ww)
+### Scene Graph
 
-## Data Graph
+The **scene graph** represents model geometry, materials, and objects. It is renderer‑agnostic and works identically in the browser and Node.js. You can use it to:
 
-The SDK employs a generic entity-relationship data graph to manage model semantics, which includes entities, properties, and 
-relationships. This data graph is compatible with both the browser and NodeJS and facilitates model generation, format conversion, 
-and content navigation within the SDK's model viewer.
+* Build models programmatically
+* Convert between file formats
+* Drive one or more viewers
 
-| Package                                                                  | Modules                                                               | Description                                                                  |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------|
-| [`@xeokit/data`](https://www.npmjs.com/package/@xeokit/data)             | [`@xeokit/data`](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html)                        | Entity-relationship graph that contains model semantic data.                 |
-   
-[![](https://mermaid.ink/img/pako:eNqNVMFunDAU_BX0Tu1qgxaW9QLnHBOlSm4VFwc7WVeAkTFV6Wr_vcZmu89A0nIBzxvPmzdGPkMpGYccyop23b2g74rWRcOE4qUWsgkenosmsI9lBPdU0_MVcrjiVPNHI1N9-epVOk5VeXp6_WG0ulmtrExxhtWjRudB0m32sFbJlis9vHC_cP2-LB1bd9i2YGixbLLewk3q5sHWHf7MKzpG1p1Eu6x-uyni4msvKoYBxjut5HCDVqZxDrxT8OYJ9NByvF4bZ6aL_CFhLDuJCP4viQAJNLRGTn7SqkdLbHOmhcPEev5kyrKadxfIDOfMh_92GCMMCogK2NzdmXcYbgq4_SaYZoF1ri_-seaS5xDD3kzsnWOjI_hA9hPWwuk61cvVCl7JN2f5eqz_v3WePPKxzOhanMiwhZqrmgpmLiV78AXoEzd_EeTmk_E32le6gKK5GCrttXwZmhJyrXq-hb5lpv10jUH-RqvOoC1tID_DL8hjEoVRdDxEJE73GSHZYQuDgeMwyY7kkGTRMSbp_nDZwm8pjcIuTGOSJGS_yxKSpjvD50xoqR6na3N82Q7fLX-0cfkD0IeHkg?type=png)](https://mermaid.live/edit#pako:eNqNVMFunDAU_BX0Tu1qgxaW9QLnHBOlSm4VFwc7WVeAkTFV6Wr_vcZmu89A0nIBzxvPmzdGPkMpGYccyop23b2g74rWRcOE4qUWsgkenosmsI9lBPdU0_MVcrjiVPNHI1N9-epVOk5VeXp6_WG0ulmtrExxhtWjRudB0m32sFbJlis9vHC_cP2-LB1bd9i2YGixbLLewk3q5sHWHf7MKzpG1p1Eu6x-uyni4msvKoYBxjut5HCDVqZxDrxT8OYJ9NByvF4bZ6aL_CFhLDuJCP4viQAJNLRGTn7SqkdLbHOmhcPEev5kyrKadxfIDOfMh_92GCMMCogK2NzdmXcYbgq4_SaYZoF1ri_-seaS5xDD3kzsnWOjI_hA9hPWwuk61cvVCl7JN2f5eqz_v3WePPKxzOhanMiwhZqrmgpmLiV78AXoEzd_EeTmk_E32le6gKK5GCrttXwZmhJyrXq-hb5lpv10jUH-RqvOoC1tID_DL8hjEoVRdDxEJE73GSHZYQuDgeMwyY7kkGTRMSbp_nDZwm8pjcIuTGOSJGS_yxKSpjvD50xoqR6na3N82Q7fLX-0cfkD0IeHkg)
+The scene graph emits events for every structural or visual change.
 
+| Module                                                                              | Description                                               |
+| ----------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [`@xeokit/sdk/scene`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scene.html) | Scene graph containing geometries, materials, and objects |
 
-## Model Viewer
+---
 
-The SDK contains a high-performance Web viewer for displaying our model representations. Through a pluggable renderer strategy, 
-the viewer can be extended to utilize various browser graphics APIs, including WebGL and WebGPU. Multiple models can be viewed 
-simultaneously, and the viewer allows for the creation of separate canvases, featuring lights, section planes, annotations, 
-and other elements, to display multiple views of our models.
+### Data Graph
 
-| Package                                                                  | Modules                                                               | Description                                          |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
-| [`@xeokit/viewer`](https://www.npmjs.com/package/@xeokit/viewer)         | [`@xeokit/viewer`](https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html)                     | Browser-based model viewer                           |
-| [`@xeokit/cameracontrol`](https://www.npmjs.com/package/@xeokit/cameracontrol)  | [`@xeokit/cameracontrol`](https://xeokit.github.io/sdk/docs/modules/cameracontrol.html)        | Interactive camera control for a viewer                     |
-| [`@xeokit/webglrenderer`](https://www.npmjs.com/package/@xeokit/webglrenderer)  | [`@xeokit/webglrenderer`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html) | WebGL rendering strategy for a viewer       |
-| [`@xeokit/treeview`](https://www.npmjs.com/package/@xeokit/treeview)     | [`@xeokit/treeview`](https://xeokit.github.io/sdk/docs/modules/_xeokit_treeview.html)                 | HTML tree view widget for a Viewer                          |
-| [`@xeokit/locale`](https://www.npmjs.com/package/@xeokit/locale)     | [`@xeokit/locale`](https://xeokit.github.io/sdk/docs/modules/_xeokit_locale.html)                 | Localization service for a viewer                         |
+The **data graph** manages model semantics using an entity‑relationship structure. It stores:
 
-[![](https://mermaid.ink/img/pako:eNqNVUtv2kAQ_ivWntoKUEyMAQtxIVJ7ADWCPqTKl7U9CZssu-7apnEI_737dGweVX3xeuabb97rA0p5BihCKcVFcUfwo8C7mGVEQFoSzrzlOmZa5_0g8AeEd4iZZx4BLAMBwgiKFBiY414iC3NMBeASlOmHj0YSs2Ob0fGlmO2xNeLJk_TuGPAOBDZnSh63Tl6YAO8pZmBFFNcgOo6XSuI8G9GmZdfVLBW7EnUC1BQuSpJdiPB3hSkp67Uux4n1Vw08Nd-TgiQUXCJUQsCqtjIInaYTvAgZgD2nnHJBXq1hSkme44YnJ-nz-xfGSdKKZaGr6OKAGjxbMs6fzanKLY3gT6ZELfN20RxJzgvPsshxaff1jghdS4dUagfVKXSmYG3HSKNnM5wUpcBpOZ-3MD8h-bzsALWyCU_NnvO2kwNNL06S7vJKqZvGU8Ci03JNpTH_7LnhMt11ZElFaOY-MpBp8Pqc-3widCJmu2Lkx6jfn-v3utmvC8qNWTfzahSfrMI4uarW-VmtOV9lOHUt9UoU2R1X5zOlsY2agr3LNKSTgsXKKcgFFMDKwiPM-_JttWyuhIs-9FpGbuMbSYxuBoP_CKdTy4W9Ys4cuUGO3MVzhmgvhmpjM6Ozt37_ZGwjj-xyCjuV5CXk_fcr0PYKLziTc9UMp75r9Qh11J0y-KYMqIckYodJJq97bR6jcit9xCiSxwwecEVlhySbhOKq5JuapSgqRQU9VOWZHHj7g0DRA6aFlEJGSi5W9heiXj2UY4aiA3pB0TD0B74_HvnhcHI7DcPpqIdqKR4Oguk4HAVTfzwMJ7ejYw-9ci5ZbwaTYRgE4XAajCfBKBhNNd0vrVRxHP8CUYMzSw?type=png)](https://mermaid.live/edit#pako:eNqNVUtv2kAQ_ivWntoKUEyMAQtxIVJ7ADWCPqTKl7U9CZssu-7apnEI_737dGweVX3xeuabb97rA0p5BihCKcVFcUfwo8C7mGVEQFoSzrzlOmZa5_0g8AeEd4iZZx4BLAMBwgiKFBiY414iC3NMBeASlOmHj0YSs2Ob0fGlmO2xNeLJk_TuGPAOBDZnSh63Tl6YAO8pZmBFFNcgOo6XSuI8G9GmZdfVLBW7EnUC1BQuSpJdiPB3hSkp67Uux4n1Vw08Nd-TgiQUXCJUQsCqtjIInaYTvAgZgD2nnHJBXq1hSkme44YnJ-nz-xfGSdKKZaGr6OKAGjxbMs6fzanKLY3gT6ZELfN20RxJzgvPsshxaff1jghdS4dUagfVKXSmYG3HSKNnM5wUpcBpOZ-3MD8h-bzsALWyCU_NnvO2kwNNL06S7vJKqZvGU8Ci03JNpTH_7LnhMt11ZElFaOY-MpBp8Pqc-3widCJmu2Lkx6jfn-v3utmvC8qNWTfzahSfrMI4uarW-VmtOV9lOHUt9UoU2R1X5zOlsY2agr3LNKSTgsXKKcgFFMDKwiPM-_JttWyuhIs-9FpGbuMbSYxuBoP_CKdTy4W9Ys4cuUGO3MVzhmgvhmpjM6Ozt37_ZGwjj-xyCjuV5CXk_fcr0PYKLziTc9UMp75r9Qh11J0y-KYMqIckYodJJq97bR6jcit9xCiSxwwecEVlhySbhOKq5JuapSgqRQU9VOWZHHj7g0DRA6aFlEJGSi5W9heiXj2UY4aiA3pB0TD0B74_HvnhcHI7DcPpqIdqKR4Oguk4HAVTfzwMJ7ejYw-9ci5ZbwaTYRgE4XAajCfBKBhNNd0vrVRxHP8CUYMzSw)
+* Entities
+* Properties
+* Relationships
 
-## Model Importers and Exporters
+Like the scene graph, it runs in both browser and Node.js environments and emits change events independently of rendering.
 
-The SDK provides functions for importing and exporting its model representations and semantics as industry-standard 
-AECO file formats. These functions can be used in NodeJS scripts for file format conversion or in the browser to load 
-various file formats into the viewer.
+| Module                                                                            | Description                        |
+| --------------------------------------------------------------------------------- | ---------------------------------- |
+| [`@xeokit/sdk/data`](https://xeokit.github.io/sdk/docs/modules/_xeokit_data.html) | Semantic entity‑relationship graph |
 
-| Package                                                              | Modules                                                                               | Description                 |
-|----------------------------------------------------------------------|---------------------------------------------------------------------------------------|-----------------------------|
-| [`@xeokit/xgf`](https://www.npmjs.com/package/@xeokit/xgf)           | [`@xeokit/xgf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xgf.html)           | Import and export XKT files |
-| [`@xeokit/gltf`](https://www.npmjs.com/package/@xeokit/gltf)         | [`@xeokit/gltf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html)         | Import glTF files           |
-| [`@xeokit/las`](https://www.npmjs.com/package/@xeokit/las)           | [`@xeokit/las`](https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html)           | Import LAS pointcloud scans |
-| [`@xeokit/cityjson`](https://www.npmjs.com/package/@xeokit/cityjson) | [`@xeokit/cityjson`](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html) | Import CityJSON files       |
-| [`@xeokit/webifc`](https://www.npmjs.com/package/@xeokit/webifc)     | [`@xeokit/webifc`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webifc.html)     | Import IFC files            |
-| [`@xeokit/xkt`](https://www.npmjs.com/package/@xeokit/xkt)           | [`@xeokit/xkt`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html)           | Import XKT files            |
+---
 
-## Interoperating with BIM Software
+### Model Viewer & Renderer Backend
 
-The SDK offers functions for sharing bookmarks of viewer state with other BIM software as industry-standard BCF Viewpoints. 
-These functions can be used to develop applications that facilitate collaboration on construction projects.
+xeokit includes a high‑performance **browser viewer** that attaches to a scene graph and reacts to its events in real time.
 
-| Package                                                                  | Modules                                                               | Description                                          |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
-| [`@xeokit/bcf`](https://www.npmjs.com/package/@xeokit/bcf)               | [`@xeokit/bcf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_bcf.html)                           | Load and save BCF                    |
+Rendering is handled by **pluggable backends**, allowing support for multiple graphics APIs.
 
-### Utility Libraries
+Key capabilities:
 
-The SDK's internal and lower-level functionalities are mostly available as utility libraries with complete documentation.
+* Multiple simultaneous models
+* Multiple canvases and views
+* Cameras, lights, section planes, annotations
+* UI widgets and localization
 
-| Package                                                                  | Modules                                                                                             | Description                                          |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|------------------------------------------------------|
-| [`@xeokit/core`](https://www.npmjs.com/package/@xeokit/core)             | [`@xeokit/core`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_components.html)            | Basic component types used throughout the xeokit SDK |
-|                                                                          | [`@xeokit/constants`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_constants.html)        | Constants used throughout the xeokit SDK             |
-|                                                                          | [`@xeokit/utils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_utils.html)                | Core utilities used throughout the xeokit SDK        |
-| [`@xeokit/basictypes`](https://www.npmjs.com/package/@xeokit/basictypes) | [`@xeokit/basictypes`](https://xeokit.github.io/sdk/docs/modules/_xeokit_datatypes_basicTypes.html) | Basic semantic data type constants  |
-|                                                                          | [`@xeokit/ifctypes`](https://xeokit.github.io/sdk/docs/modules/_xeokit_datatypes_ifcTypes.html)     | IFC data type constants  |
-| [`@xeokit/math`](https://www.npmjs.com/package/@xeokit/math)             | [`@xeokit/math`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_math.html)                  | General math definitions and constants               |
-|                                                                          | [`@xeokit/boundaries`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_boundaries.html)      | Boundaries math library                              |
-|                                                                          | [`@xeokit/compression`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html)    | SceneGeometry de/compression utilities library            |
-|                                                                          | [`@xeokit/curves`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_curves.html)              | Spline curves math library                           |
-|                                                                          | [`@xeokit/rtc`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_rtc.html)                    | Relative-to-center (RTC) coordinates math library    |
-| [`@xeokit/webgl`](https://www.npmjs.com/package/@xeokit/webglutils)      | [`@xeokit/webglutils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglutils.html)           | WebGL utilities library        |
-| [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen)       | [`@xeokit/procgen`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen_geometry.html)        | SceneGeometry generation functions                     |
-| [`@xeokit/ktx2`](https://www.npmjs.com/package/@xeokit/ktx2)             | [`@xeokit/ktx2`](https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html)                       | Compressed texture support              |
+| Module                                                                                              | Description                 |
+| --------------------------------------------------------------------------------------------------- | --------------------------- |
+| [`@xeokit/sdk/viewer`](https://xeokit.github.io/sdk/docs/modules/_xeokit_viewer.html)               | Browser‑based model viewer  |
+| [`@xeokit/sdk/webglrenderer`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglrenderer.html) | WebGL rendering backend     |
+| [`@xeokit/sdk/cameracontrol`](https://xeokit.github.io/sdk/docs/modules/cameracontrol.html)         | Interactive camera controls |
+| [`@xeokit/sdk/treeview`](https://xeokit.github.io/sdk/docs/modules/_xeokit_treeview.html)           | HTML tree view widget       |
+| [`@xeokit/sdk/locale`](https://xeokit.github.io/sdk/docs/modules/_xeokit_locale.html)               | Localization service        |
 
-# Examples
+---
 
-## Spinning Textured Box
+### Model Importers and Exporters
 
-Let's make a simple application using xeokit - a spinning, textured box.
+xeokit supports a wide range of industry‑standard AECO formats. These modules can be used in:
 
-First import the npm modules we need from the SDK:
+* Node.js (offline conversion pipelines)
+* Browsers (runtime loading)
 
-````bash
-npm install @xeokit/scene
-npm install @xeokit/viewer
-npm install @xeokit/webglrenderer
-npm install @xeokit/core/constants
-````
+| Module                                                                                              | Description             |
+| --------------------------------------------------------------------------------------------------- | ----------------------- |
+| [`@xeokit/sdk/formats/dotbim`](https://xeokit.github.io/sdk/docs/modules/_xeokit_dotbim.html)       | Import/export DotBIM    |
+| [`@xeokit/sdk/formats/xgf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xgf.html)             | Import/export XGF       |
+| [`@xeokit/sdk/formats/gltf`](https://xeokit.github.io/sdk/docs/modules/_xeokit_gltf.html)           | Import glTF / GLB       |
+| [`@xeokit/sdk/formats/las`](https://xeokit.github.io/sdk/docs/modules/_xeokit_las.html)             | Import LAS point clouds |
+| [`@xeokit/sdk/formats/cityjson`](https://xeokit.github.io/sdk/docs/modules/_xeokit_cityjson.html)   | Import CityJSON         |
+| [`@xeokit/sdk/formats/ifc`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webifc.html)          | Import IFC              |
+| [`@xeokit/sdk/formats/xkt`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xkt.html)             | Import XKT              |
+| [`@xeokit/sdk/formats/datamodel`](https://xeokit.github.io/sdk/docs/modules/_xeokit_datamodel.html) | Native data models      |
+| [`@xeokit/sdk/formats/scenedata`](https://xeokit.github.io/sdk/docs/modules/_xeokit_scenedata.html) | Native scene models     |
 
-Then create a simple HTML page with a canvas element:
+---
 
-````html
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>xeokit Spinning Textured Box</title>
-  </head>
-  <body>
-    <canvas id="myCanvas"></canvas>
-  </body>
-</html>
-````
+### Model Conversion
 
-Now let's write some JavaScript to create the spinning, textured box.
+Convert between multiple AECO formats using a unified API or CLI.
 
-````javascript
-import {Scene} from "@xeokit/scene";
-import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
-import {Viewer} from "@xeokit/viewer";
-import {WebGLRenderer} from "@xeokit/webglrenderer";
+| Module                                                                                                | Description            |
+| ----------------------------------------------------------------------------------------------------- | ---------------------- |
+| [`@xeokit/sdk/modelconverter`](https://xeokit.github.io/sdk/docs/modules/_xeokit_modelconverter.html) | Multi‑format converter |
+| [`@xeokit/sdk/xeoconvert`](https://xeokit.github.io/sdk/docs/modules/_xeokit_xeoconvert.html)         | CLI wrapper            |
 
-// Create the Scene, Viewer and Renderer 
+---
 
-const scene = new Scene(); 
+### BIM Interoperability via BCF Viewpoints
 
-const viewer = new Viewer({ 
-  scene
-});
+Share viewer state and issues with other BIM tools using **BCF Viewpoints**, enabling collaborative workflows across platforms.
 
-const renderer = new WebGLRenderer({
-  viewer
-});
+| Module                                                             | Description                  |
+| ------------------------------------------------------------------ | ---------------------------- |
+| [`@xeokit/sdk/bcf`](https://www.npmjs.com/package/@xeokit/sdk/bcf) | Load and save BCF Viewpoints |
 
-// Log any errors to the console.
+---
 
-const logError = (sdkResult) => {
-  if (sdkResult.ok === false) {
-    console.error(sdkResult.error);
-  }
-}
+## Examples
 
-scene.events.onError.subscribe(logError);
-viewer.events.onError.subscribe(logError);
-renderer.events.onError.subscribe(logError);
+### Spinning Box
 
-// Create a View
+A minimal example showing how to create a scene, viewer, and animated object.
 
-const viewResult = myViewer.createView({  
-    id: "myView",
-    canvasId: "myView1"
-});
+```bash
+npm install @xeokit/sdk
+```
 
-if (!viewResult.ok) {
-    throw viewResult.error;
-}
+```javascript
+import { Scene } from "@xeokit/sdk/scene";
+import { Viewer } from "@xeokit/sdk/viewer";
+import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
+import { SDKTask } from "@xeokit/sdk/core";
+import { TrianglesPrimitive } from "@xeokit/sdk/constants";
 
-const view = viewResult.value;
+const scene = new Scene();
+const viewer = new Viewer({ scene });
+const renderer = new WebGLRenderer({ viewer });
 
-view.camera.eye = [0, 0, 10]; // Looking down the -Z axis
+const view = viewer.createView({ id: "view", elementId: "myCanvas" }).value;
+
+view.camera.eye = [0, 0, 10];
 view.camera.look = [0, 0, 0];
 view.camera.up = [0, 1, 0];
 
-// Create a SceneModel with a textured box
+const model = scene.createModel().value;
 
-const sceneModelResult = scene.createModel(); 
-
-if (!sceneModelResult.ok) {
-    throw sceneModelResult.error;
-}
-
-const sceneModel = sceneModelResult.value;
-
-sceneModel.createGeometry({ 
-    id: "boxGeometry",
-    primitive: TrianglesPrimitive,
-    positions: [-1, -1, -1, 1, -1, -1, ],
-    uvs: [1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, ],
-    indices: [0, 1, 2, 0, 2, 3, 4, 5, 6, 4, ]
+model.createGeometry({
+  id: "boxGeometry",
+  primitive: TrianglesPrimitive,
+  positions: [-1, -1, -1, 1, -1, -1, 1, 1, -1, -1, 1, -1],
+  indices: [0, 1, 2, 0, 2, 3]
 });
 
-sceneModel.createTexture({ // 
-    id: "boxColorTexture",
-    src: "myTexture.png",
-    encoding: LinearEncoding,
-    magFilter: LinearFilter,
-    minFilter: LinearFilter
+model.addMesh({ id: "boxMesh", geometryId: "boxGeometry", color: [1, 0, 0] });
+model.createObject({ id: "box", meshIds: ["boxMesh"] });
+
+new SDKTask({
+  repeat: true,
+  task: () => view.camera.orbitYaw(1)
 });
+```
 
-sceneModel.createTextureSet({
-    id: "boxTextureSet",
-    colorTextureId: "boxColorTexture"
-});
+---
 
-sceneModel.addMesh({
-    id: "boxMesh",
-    geometryId: "boxGeometry",
-    color: [1, 1, 1],
-    metallic: 0.8, // PBR material attributes
-    roughness: 0.3,
-    textureSetId: "boxTextureSet"
-});
+### glTF Model Viewer
 
-sceneModel.createObject({
-    id: "boxObject",
-    meshIds: ["boxMesh"]
-});
+Load and display a glTF/GLB model in the browser, including optional semantic structure via the data graph.
 
-// A textured box object now appears on our View's canvas.
+```javascript
+import { Scene } from "@xeokit/sdk/scene";
+import { Data } from "@xeokit/sdk/data";
+import { Viewer } from "@xeokit/sdk/viewer";
+import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
+import { CameraControl } from "@xeokit/sdk/cameracontrol";
+import { GLTFLoader } from "@xeokit/sdk/formats/gltf";
 
-// We can now show/hide/select/highlight our box through the View:
-
-view.objects["boxObject"].visible = true;
-view.objects["boxObject"].highlighted = false;  // etc.
-
-// Start orbiting the camera:
-
-viewer.events.onTick.subscribe(() => {
-    view.camera.orbitYaw(1.0);
-});
-````
-
-## glTF Model Viewer
-
-Let's make a simple application that views a glTF file in the browser.
-
-First import the npm modules we need from the SDK:
-
-````bash
-npm install @xeokit/scene
-npm install @xeokit/viewer
-npm install @xeokit/webglrenderer
-npm install @xeokit/core/constants
-npm install @xeokit/gltf
-````
-
-Here's the JavaScript for our glTF viewer app:
-
-````javascript
-import {Scene} from "@xeokit/scene";
-import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
-import {Viewer} from "@xeokit/viewer";
-import {WebGLRenderer} from "@xeokit/webglrenderer";
-import {loadGLTF} from "@xeokit/gltf";
-
-const scene = new Scene(); // Scene graph
-
-const renderer = new WebGLRenderer({}); // WebGL renderers kernel
-
-const viewer = new Viewer({ // Browser-base viewer
-    scene,
-    renderer
-});
-
-const view = myViewer.createView({ // Independent view 
-    id: "myView",
-    canvasId: "myView1"
-});
-
-view.camera.eye = [0, 0, 10]; // Looking down the -Z axis
-view.camera.look = [0, 0, 0];
-view.camera.up = [0, 1, 0];
-
-const sceneModel = scene.createModel(); // Start building the scene graph
-
-fetch("myModel.glb").then(response => {
-
-    response.arrayBuffer().then(data => {
-
-        loadGLTF({data, scene}).then(() => {
-
-            sceneModel.build().then(() => { // Compresses textures, geometries etc.
-
-                // A model now appears on our View's canvas.
-
-                // We can now show/hide/select/highlight the model's objects through the View:
-
-                view.objects["2hExBg8jj4NRG6zzE$aSi6"].visible = true;
-                view.objects["2hExBg8jj4NRG6zzE$aSi6"].highlighted = false;  // etc.
-
-                // Start orbiting the camera:
-
-                viewer.onTick.subscribe(() => {
-                    view.camera.orbitYaw(1.0);
-                });
-            });
-        });
-    });
-});
-````
-
-## Convert a glTF file to XKT
-
-Let's make a simple NodeJS script that converts a glTF file into xeokit's native XKT format.
-
-First import the npm modules we need from the SDK. Note that we don't need the viewer for this example.
-
-````bash
-npm install @xeokit/scene
-npm install @xeokit/core/constants
-npm install @xeokit/gltf
-npm install @xeokit/xgf
-````
-
-Here's the JavaScript for our converter script.
-
-````javascript
-import {Scene} from "@xeokit/scene";
-import {Data} from "@xeokit/data";
-import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/constants";
-import {loadGLTF} from "@xeokit/gltf";
-import {saveXKT} from "packages/xgf";
-
-const fs = require('fs');
-
-const scene = new Scene(); // Scene graph
-const sceneModel = scene.createModel({id: "myModel"}); // Start building the scene graph
-
+// 1) Create containers for geometry and optional structural data
+const scene = new Scene();
 const data = new Data();
-const dataModel = data.createModel({id: "myModel"}); // Will model the glTF scene hierarchy
 
-fs.readFile("./tests/assets/HousePlan.glb", (err, _buffer) => {
-    const arraybuffer = toArrayBuffer(_buffer);
-    loadGLTF({
-        data: arrayBuffer,
-        sceneModel,
-        dataModel
-    }).then(() => {
-        sceneModel.build().then(() => { // Compresses textures, geometries etc.
-            const arrayBuffer = saveXKT({sceneModel, dataModel});
-            fs.writeFile('myModel.xgf', arrayBuffer, err => {
-            });
-        });
-    })
-});
+// 2) Create a Viewer and WebGL renderer
+const viewer = new Viewer({ scene });
+new WebGLRenderer({ viewer });
 
-function toArrayBuffer(buf) {
-    const ab = new ArrayBuffer(buf.length);
-    const view = new Uint8Array(ab);
-    for (let i = 0; i < buf.length; ++i) {
-        view[i] = buf[i];
-    }
-    return ab;
-}
-````
+// 3) Create a View bound to an existing canvas element
+const view = viewer.createView({
+  id: "myView",
+  elementId: "myCanvas" // Ensure this element exists
+}).value;
 
-# Credits
+// 4) Position the camera
+view.camera.eye = [1841982.93, 10.03, -5173286.74];
+view.camera.look = [1842009.49, 9.68, -5173295.85];
+view.camera.up = [0, 1, 0];
 
-See [*Credits*](/credits.html).
+// 5) Enable mouse / touch camera interaction
+new CameraControl(view, {});
+
+// 6) Create target models for the loader
+const sceneModel = scene.createModel({ id: "myModel" }).value;
+const dataModel = data.createModel({ id: "myModel" }).value;
+
+// 7) Create the glTF loader
+const glTFLoader = new GLTFLoader();
+
+// 8) Fetch and decode the binary glTF file
+fetch("model.glb")
+  .then((r) => r.arrayBuffer())
+  .then((fileData) => {
+    // 9) Load geometry (and optional node hierarchy) into the models
+    return glTFLoader.load({
+      fileData,
+      sceneModel,
+      dataModel
+    });
+  })
+  .then(() => {
+    // Model successfully loaded and visible
+  })
+  .catch((err) => {
+    // Clean up on failure
+    sceneModel.destroy();
+    dataModel.destroy();
+    console.error("Error loading glTF:", err);
+  });
+```
+
+---
+
+## License
+
+Copyright © 2026
+
+Licensed under the **AGPL‑3.0**.
+
+---
+
+## Credits
+
+See [Credits](/credits.html).

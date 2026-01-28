@@ -1,2 +1,2 @@
 export {};
-//# sourceMappingURL=RendererMesh.js.map
+//# sourceMappingURL=SceneMeshRendererProxy.js.map

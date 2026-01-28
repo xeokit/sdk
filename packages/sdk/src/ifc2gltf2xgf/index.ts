@@ -73,14 +73,17 @@
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Data } from "@xeokit/sdk/data";
  * import { ModelChunksLoader } from "@xeokit/sdk/modelChunksLoader";
- * import { GLTFLoader } from "@xeokit/sdk/gltf";
+ * import { GLTFLoader } from "@xeokit/sdk/formats/gltf";
  * import { loadMetaModel } from "@xeokit/sdk/metamodel";
  *
  * const scene = new Scene();
  * const data = new Data();
  *
- * const sceneModel = scene.createModel({ id: "myModel" });
- * const dataModel = data.createModel({ id: "myModel" });
+ * const sceneModelResult = scene.createModel({ id: "myModel" });
+ * const sceneModel = sceneModelResult.value;
+ *
+ * const dataModelResult = data.createModel({ id: "myModel" });
+ * const dataModel = dataModelResult.value;
  *
  * const modelChunksLoader = new ModelChunksLoader({
  *     sceneModelLoader: GLTFLoader,
@@ -96,8 +99,7 @@
  *             sceneModel,
  *             dataModel
  *         }).then(() => {
- *             sceneModel.build();
- *             dataModel.build();
+ *             // Loaded
  *         });
  *     });
  * });
@@ -119,14 +121,17 @@
  * import { Scene } from "@xeokit/sdk/scene";
  * import { Data } from "@xeokit/sdk/data";
  * import { ModelChunksLoader } from "@xeokit/sdk/modelChunksLoader";
- * import { XGFLoader } from "@xeokit/sdk/xgf";
+ * import { XGFLoader } from "@xeokit/sdk/formats/xgf";
  * import { DataModelParamsLoader } from "@xeokit/sdk/data";
  *
  * const scene = new Scene();
  * const data = new Data();
  *
- * const sceneModel = scene.createModel({ id: "myModel" });
- * const dataModel = data.createModel({ id: "myModel" });
+ * const sceneModelResult = scene.createModel({ id: "myModel" });
+ * const sceneModel = sceneModelResult.value;
+ *
+ * const dataModelResult = data.createModel({ id: "myModel" });
+ * const dataModel = dataModelResult.value;
  *
  * const modelChunksLoader = new ModelChunksLoader({
  *     sceneModelLoader: new XGFLoader(),
@@ -141,8 +146,7 @@
  *             sceneModel,
  *             dataModel
  *         }).then(() => {
- *             sceneModel.build();
- *             dataModel.build();
+ *             // Loaded
  *         });
  *     });
  * });

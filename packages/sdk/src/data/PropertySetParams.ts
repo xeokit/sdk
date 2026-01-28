@@ -29,6 +29,11 @@ export interface PropertySetParams {
   type: string;
 
   /**
+   * The schema that this PropertySet conforms to.
+   */
+  schema?: string;
+
+  /**
    * The collection of {@link Property | Properties} within the PropertySet.
    */
   properties: PropertyParams[];

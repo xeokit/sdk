@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>DTXMeshViewAttribs — WebGL2 Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    html,body{height:100%;margin:0;background:#0b0d12;color:#d8e0ff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+    #wrap{display:flex;gap:16px;align-items:flex-start;padding:12px}
+    #controls{width:340px;background:#111520;border:1px solid #1c2233;border-radius:12px;padding:12px}
+    #controls h1{font-size:16px;margin:0 0 8px;color:#a8b3ff}
+    #controls button{margin:6px 6px 0 0;padding:8px 10px;border-radius:8px;border:1px solid #26304a;background:#151b2b;color:#e7ecff;cursor:pointer}
+    #controls button:hover{background:#1a2236}
+    #info{font:12px/1.4 monospace;color:#a4b1ff;margin-top:8px;white-space:pre-wrap}
+    canvas{flex:1;display:block;height:80vh;border:1px solid #1c2233;border-radius:12px;background:#0b0e18}
+    code{color:#c9d3ff}
+  </style>
+</head>
+<body>
+<div id="wrap">
+  <div id="controls">
+    <h1>DTXMeshViewAttribs — RGBA8UI (color, flags1, flags2)</h1>
+    <div>
+      <button id="toggleAnim">Toggle Anim</button>
+      <button id="randOneColor">Randomize 1 Color</button>
+      <button id="toggleOneWobble">Toggle 1 Wobble</button>
+      <button id="randAllColors">Randomize All Colors</button>
+      <button id="flushNow">Flush Now</button>
+    </div>
+    <div id="info"></div>
+    <div style="font:12px/1.4 monospace;opacity:.85;margin-top:8px">
+      Layout per mesh: 3 texels → <code>[color RGBA8]</code>, <code>[flags1 RGBA8]</code>, <code>[flags2 RGBA8]</code>.<br/>
+      flags1 bits: <code>bit0 = wobble</code>, <code>bit1 = rotate</code>, <code>byte1 (8..15) = scale 0..255</code>.
+    </div>
+  </div>
+  <canvas id="glcanvas"></canvas>
+</div>
+
+<script type="module">
+  'use strict';
+
+  /* ======================= Minimal JS port of DTXMeshViewAttribs ======================= */
+
+  class DTXMeshViewAttribs {
+    /** @param {{gl: WebGL2RenderingContext, capacity: number}} options */
+    constructor(options){
+      this._gl = options.gl;
+      this.capacity = options.capacity;
+
+      // Fixed layout: 3 texels per struct, RGBA8UI lanes
+      this.constructor.TEXELS_PER_STRUCT = 3;
+      this.constructor.BYTES_PER_TEXEL = 4;
+
+      // Wide rows to exercise row-chunked uploads when capacity is large
+      this._texWidth = 4096; // texels
+      this._texelsPerRow = this._texWidth;
+
+      const texelsNeeded = this.capacity * this.constructor.TEXELS_PER_STRUCT;
+      this._texHeight = Math.max(1, Math.ceil(texelsNeeded / this._texelsPerRow));
+
+      const totalTexels = this._texWidth * this._texHeight;
+      const totalBytes = totalTexels * this.constructor.BYTES_PER_TEXEL;
+      this.buffer = new Uint8Array(totalBytes);
+      this._dirty = new Set();
+
+      const gl = this._gl;
+      const tex = gl.createTexture();
+      if(!tex) throw new Error('Failed to create texture');
+      this.texture = tex;
+
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+      gl.texImage2D(
+        gl.TEXTURE_2D, 0,
+        gl.RGBA8UI,
+        this._texWidth, this._texHeight,
+        0,
+        gl.RGBA_INTEGER, gl.UNSIGNED_BYTE,
+        this.buffer
+      );
+
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    get texWidth(){ return this._texWidth; }
+    get texHeight(){ return this._texHeight; }
+
+    /** view into 3 texels worth of bytes for a given struct index */
+    _structBytes(meshIndex){
+      const startTexel = meshIndex * this.constructor.TEXELS_PER_STRUCT;
+      const byteOffset = startTexel * this.constructor.BYTES_PER_TEXEL;
+      return this.buffer.subarray(byteOffset, byteOffset + 3 * this.constructor.BYTES_PER_TEXEL);
+    }
+
+    /** @param {number} meshIndex @param {{color?:[number,number,number,number], flags1?:number, flags2?:number}} data */
+    setAttribs(meshIndex, data){
+      if (meshIndex < 0 || meshIndex >= this.capacity) {
+        throw new RangeError(`meshIndex ${meshIndex} out of range [0, ${this.capacity})`);
+      }
+      const v = this._structBytes(meshIndex);
+
+      const writeRGBA = (base, c)=>{
+        if(!c) return;
+        v[base+0]=(c[0]|0)&255; v[base+1]=(c[1]|0)&255; v[base+2]=(c[2]|0)&255; v[base+3]=(c[3]|0)&255;
+      };
+      const writeU32 = (base, n)=>{
+        if(n===undefined) return;
+        const u = (n>>>0);
+        v[base+0]= u       &255;
+        v[base+1]=(u>>>8)  &255;
+        v[base+2]=(u>>>16) &255;
+        v[base+3]=(u>>>24) &255;
+      };
+
+      // color @ texel0 (bytes 0..3)
+      writeRGBA(0, data.color);
+      // flags1 @ texel1 (bytes 4..7)
+      writeU32(4, data.flags1);
+      // flags2 @ texel2 (bytes 8..11)
+      writeU32(8, data.flags2);
+
+      this._dirty.add(meshIndex);
+    }
+
+    flush(){
+      if(this._dirty.size===0) return;
+      const gl=this._gl;
+      gl.bindTexture(gl.TEXTURE_2D, this.texture);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+      const TEXELS_PER_STRUCT = this.constructor.TEXELS_PER_STRUCT;
+      for(const idx of this._dirty){
+        let startTexel = idx * TEXELS_PER_STRUCT;
+        let remaining  = TEXELS_PER_STRUCT;
+
+        while(remaining>0){
+          const row = Math.floor(startTexel / this._texelsPerRow);
+          const x   = startTexel % this._texelsPerRow;
+          const rowLeft = this._texelsPerRow - x;
+          const chunk = Math.min(remaining, rowLeft);
+
+          const byteStart = (row * this._texelsPerRow + x) * this.constructor.BYTES_PER_TEXEL;
+          const byteEnd   = byteStart + chunk * this.constructor.BYTES_PER_TEXEL;
+          const sub = this.buffer.subarray(byteStart, byteEnd);
+
+          gl.texSubImage2D(gl.TEXTURE_2D, 0, x, row, chunk, 1, gl.RGBA_INTEGER, gl.UNSIGNED_BYTE, sub);
+
+          startTexel += chunk;
+          remaining  -= chunk;
+        }
+      }
+
+      this._dirty.clear();
+      gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    getTexture(){ return this.texture; }
+    destroy(){ this._gl.deleteTexture(this.texture); }
+  }
+
+  /* ============================== WebGL2 Demo App ============================== */
+
+  const canvas = document.getElementById('glcanvas');
+  const infoEl = document.getElementById('info');
+  const gl = canvas.getContext('webgl2');
+  if(!gl){ alert('WebGL2 required'); throw new Error('WebGL2 not supported'); }
+
+  // Dummy VAO (WebGL2 drawArrays without VBOs)
+  gl.bindVertexArray(gl.createVertexArray());
+
+  // Shaders: read RGBA8UI in VERTEX SHADER, compute transform by flags, pass color.
+  const VS = `#version 300 es
+precision highp float;
+precision highp int;
+precision highp usampler2D;
+
+uniform highp usampler2D uViewAttribs;
+uniform float uCellX, uCellY;
+uniform float uGridHalfX, uGridHalfY;
+uniform float uTime;
+uniform int   uCols;
+uniform float uTriScale;
+
+out vec4 vColor;
+
+ivec2 texCoord(uint texelIndex, int texWidth){
+  return ivec2(int(texelIndex % uint(texWidth)), int(texelIndex / uint(texWidth)));
+}
+uvec4 fetchTexel(uint texelIndex){
+  int texW = textureSize(uViewAttribs, 0).x;
+  return texelFetch(uViewAttribs, texCoord(texelIndex, texW), 0);
+}
+uvec4 readColor (uint i){ return fetchTexel(i*3u + 0u); }
+uvec4 readFlags1(uint i){ return fetchTexel(i*3u + 1u); }
+uvec4 readFlags2(uint i){ return fetchTexel(i*3u + 2u); }
+uint unpackU32(uvec4 lanes){ return lanes.r + (lanes.g<<8u) + (lanes.b<<16u) + (lanes.a<<24u); }
+
+void main(){
+  uint vid = uint(gl_VertexID);
+  uint inst = vid / 3u;
+  uint v = vid % 3u;
+
+  // Base triangle in local space
+  vec2 p;
+  if(v==0u)      p = vec2(-0.35, -0.25);
+  else if(v==1u) p = vec2( 0.35, -0.25);
+  else           p = vec2( 0.00,  0.45);
+
+  // Unpack attributes
+  vec4 col = vec4(readColor(inst)) / 255.0;
+  uint f1 = unpackU32(readFlags1(inst));
+  // uint f2 = unpackU32(readFlags2(inst)); // reserved for your extra experiments
+
+  // flags1:
+  // bit0 = wobble, bit1 = rotate, byte1 (bits 8..15) = scaleByte 0..255
+  bool wobble  = (f1 & 1u) != 0u;
+  bool rotate  = (f1 & 2u) != 0u;
+  float scaleB = float( (f1 >> 8u) & 255u );
+  float S      = mix(0.25, 2.0, scaleB / 255.0);
+
+  // Per-instance grid placement
+  int instI = int(inst);
+  int gx = instI % uCols;
+  int gy = instI / uCols;
+
+  float ox = (float(gx) - uGridHalfX) * uCellX;
+  float oy = (float(gy) - uGridHalfY) * uCellY;
+
+  // Apply flags-driven transforms
+  float a = rotate ? (0.9 * sin(uTime*0.7 + float(inst)*0.13)) : 0.0;
+  float c = cos(a), s = sin(a);
+vec2 rp = (mat2(c, -s, s, c) * p) * (S * uTriScale);
+
+  float wob = wobble ? (0.12 * sin(uTime*1.6 + float(inst)*0.07)) : 0.0;
+
+  gl_Position = vec4(rp + vec2(ox, oy + wob), 0.0, 1.0);
+  vColor = vec4(col.rgb, 1.0);
+}
+`;
+
+  const FS = `#version 300 es
+precision highp float;
+in vec4 vColor;
+out vec4 outColor;
+void main(){ outColor = vColor; }
+`;
+
+  function compile(type, src){
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
+      console.error(src);
+      throw new Error(gl.getShaderInfoLog(s) || 'shader compile error');
+    }
+    return s;
+  }
+  function makeProgram(vs, fs){
+    const p = gl.createProgram();
+    gl.attachShader(p, compile(gl.VERTEX_SHADER, vs));
+    gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+    gl.linkProgram(p);
+    if(!gl.getProgramParameter(p, gl.LINK_STATUS)){
+      throw new Error(gl.getProgramInfoLog(p) || 'link error');
+    }
+    return p;
+  }
+
+  const program = makeProgram(VS, FS);
+  gl.useProgram(program);
+  const loc = {
+    uViewAttribs: gl.getUniformLocation(program, 'uViewAttribs'),
+    uCellX:       gl.getUniformLocation(program, 'uCellX'),
+    uCellY:       gl.getUniformLocation(program, 'uCellY'),
+    uGridHalfX:   gl.getUniformLocation(program, 'uGridHalfX'),
+    uGridHalfY:   gl.getUniformLocation(program, 'uGridHalfY'),
+    uTime:        gl.getUniformLocation(program, 'uTime'),
+    uCols:        gl.getUniformLocation(program, 'uCols'),
+    uTriScale:    gl.getUniformLocation(program, 'uTriScale'),   // <-- add this
+  };
+
+  // pick a base scale; 0.4–0.55 works well
+  gl.uniform1f(loc.uTriScale, 0.05);
+
+
+  // Grid big enough to cross a 4096-texel row boundary (3 texels/struct → ~1365 structs/row)
+  const COLS = 48, ROWS = 32; // 1536 structs → spans 2 rows
+  const CAPACITY = COLS * ROWS;
+
+  // Create DTX and fill it
+  const dtx = new DTXMeshViewAttribs({ gl, capacity: CAPACITY });
+
+  // Helper packing
+  const clamp255 = v => Math.max(0, Math.min(255, v|0));
+  const colorRGBA = (r,g,b,a=255)=>[clamp255(r),clamp255(g),clamp255(b),clamp255(a)];
+  const mkFlags1 = (wobble, rotate, scaleByte)=>{
+    const b0 = wobble ? 1 : 0;
+    const b1 = rotate ? 2 : 0;
+    const sb = clamp255(scaleByte) << 8; // byte1
+    return (b0 | b1 | sb) >>> 0;
+  };
+
+  // Nice initial palette + flags
+  for(let i=0;i<CAPACITY;i++){
+    const t = i / CAPACITY;
+    const r = Math.floor((0.5 + 0.5*Math.sin(6.2831*(t + 0.00))) * 255);
+    const g = Math.floor((0.5 + 0.5*Math.sin(6.2831*(t + 0.33))) * 255);
+    const b = Math.floor((0.5 + 0.5*Math.sin(6.2831*(t + 0.66))) * 255);
+    const wobble = (i % 7) === 0;
+    const rotate = (i % 11) === 0;
+    const scaleB = 96 + Math.floor(128*Math.random());
+    dtx.setAttribs(i, {
+      color: colorRGBA(r,g,b,255),
+      flags1: mkFlags1(wobble, rotate, scaleB),
+      flags2: 0
+    });
+  }
+  dtx.flush();
+
+  // Bind to unit 0
+  function rebindTexture(){
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, dtx.getTexture());
+    gl.uniform1i(loc.uViewAttribs, 0);
+  }
+  rebindTexture();
+
+  // GL state
+  gl.disable(gl.DEPTH_TEST);
+  gl.clearColor(0.03, 0.04, 0.08, 1);
+
+  // Spacing
+  const cellX = 2.0 / (COLS + 2);
+  const cellY = 2.0 / (ROWS + 2);
+  gl.uniform1f(loc.uCellX, cellX);
+  gl.uniform1f(loc.uCellY, cellY);
+  gl.uniform1f(loc.uGridHalfX, (COLS - 1) * 0.5);
+  gl.uniform1f(loc.uGridHalfY, (ROWS - 1) * 0.5);
+  gl.uniform1i(loc.uCols, COLS);
+
+  // Resize
+  function resize(){
+    const dpr = Math.min(devicePixelRatio||1, 2);
+    const w = (canvas.clientWidth || (innerWidth - 380))|0;
+    const h = (canvas.clientHeight || (innerHeight*0.8))|0;
+    canvas.width = Math.floor(w*dpr);
+    canvas.height= Math.floor(h*dpr);
+    gl.viewport(0,0,canvas.width,canvas.height);
+  }
+  new ResizeObserver(resize).observe(canvas);
+  resize();
+
+  // UI + animation
+  let anim = true, tick = 0;
+  document.getElementById('toggleAnim').onclick = ()=> anim = !anim;
+  document.getElementById('flushNow').onclick   = ()=> { dtx.flush(); rebindTexture(); };
+
+  document.getElementById('randOneColor').onclick = ()=>{
+    const i = (Math.random()*CAPACITY)|0;
+    dtx.setAttribs(i, { color: colorRGBA(Math.random()*255, Math.random()*255, Math.random()*255, 255) });
+    dtx.flush(); rebindTexture();
+  };
+  document.getElementById('randAllColors').onclick = ()=>{
+    for(let i=0;i<CAPACITY;i++){
+      dtx.setAttribs(i, { color: colorRGBA(Math.random()*255, Math.random()*255, Math.random()*255, 255) });
+    }
+    dtx.flush(); rebindTexture();
+  };
+  document.getElementById('toggleOneWobble').onclick = ()=>{
+    const i = (Math.random()*CAPACITY)|0;
+    // Readback current flags1 from buffer (little-endian packed in bytes 4..7 of struct)
+    const startTexel = i * 3;
+    const byteBase = startTexel * 4;
+    const r = dtx.buffer[byteBase+4], g = dtx.buffer[byteBase+5], b = dtx.buffer[byteBase+6], a = dtx.buffer[byteBase+7];
+    let flags1 = (r | (g<<8) | (b<<16) | (a<<24)) >>> 0;
+    flags1 ^= 1; // toggle wobble bit
+    flags1 ^= 2; // toggle rotate bit
+    dtx.setAttribs(i, { flags1 });
+    dtx.flush(); rebindTexture();
+  };
+
+  function draw(tms){
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const t = tms*0.001;
+    gl.uniform1f(loc.uTime, t);
+
+    if (anim){
+      // update one struct per frame to exercise partial uploads (often split at row ends)
+      const i = tick % CAPACITY;
+      // Animate scale byte sinusoidally
+      const s = Math.floor((0.5 + 0.5*Math.sin(t*2.0 + i*0.05)) * 255);
+      // Keep wobble/rotate bits from old flags1; only change scale byte
+      const base = i*3*4;
+      const r = dtx.buffer[base+4], g = dtx.buffer[base+5], b = dtx.buffer[base+6], a = dtx.buffer[base+7];
+      let f1 = (r | (g<<8) | (b<<16) | (a<<24)) >>> 0;
+      f1 = (f1 & ~0x0000FF00) | ((s & 255) << 8);
+      dtx.setAttribs(i, { flags1: f1 });
+      dtx.flush();
+      rebindTexture();
+      tick++;
+    }
+
+    // Draw: one triangle (3 verts) per struct
+    gl.drawArrays(gl.TRIANGLES, 0, CAPACITY * 3);
+
+    infoEl.textContent =
+      `capacity: ${CAPACITY}
+tex size: ${dtx.texWidth} x ${dtx.texHeight}  (3 texels/struct)
+dirty queued: ${dtx._dirty.size}
+anim: ${anim ? 'on' : 'off'}`;
+    requestAnimationFrame(draw);
+  }
+  requestAnimationFrame(draw);
+</script>
+</body>
+</html>

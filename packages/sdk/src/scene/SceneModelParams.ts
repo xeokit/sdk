@@ -1,13 +1,14 @@
-import type {FloatArrayParam} from "../math";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
 import type {SceneGeometryParams} from "./SceneGeometryParams";
 import type {SceneMeshParams} from "./SceneMeshParams";
-import type {SceneModelStreamParams} from "./SceneModelStreamParams";
 import type {SceneObjectParams} from "./SceneObjectParams";
 import type {SceneTextureParams} from "./SceneTextureParams";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
 import type {CoordinateSystemParams} from "./CoordinateSystemParams";
-
+import {SceneTransform} from "./SceneTransform";
+import type  {  Vec3} from "../math/vector";
+import type  {Mat4} from "../math/matrix";
+import type {Quat} from "../math/quat";
 
 /**
  * Parameters for a {@link SceneModel}.
@@ -32,12 +33,6 @@ export interface SceneModelParams {
   coordinateSystem?: CoordinateSystemParams;
 
   /**
-   * Indicates what renderer resources will need to be allocated in a {@link viewer!Viewer | Viewer's}
-   * {@link viewer!Renderer | Renderer} to support progressive loading for a {@link SceneModel | SceneModel}.
-   */
-  streamParams?: SceneModelStreamParams;
-
-  /**
    * Whether IDs of the {@link SceneObject | SceneObjects} are globalized.
    *
    * When globalized, the IDs are prefixed with the value of {@link SceneModel.id | SceneModel.id}
@@ -49,29 +44,34 @@ export interface SceneModelParams {
   /**
    * 4x4 transform matrix.
    */
-  matrix?: FloatArrayParam;
+  matrix?: Mat4;
 
   /**
    * Scale of the SceneModel.
    *
    * Default is ````[1,1,1]````.
    */
-  scale?: FloatArrayParam;
+  scale?: Vec3;
 
   /**
    * Quaternion defining the orientation of the SceneModel.
    */
-  quaternion?: FloatArrayParam;
+  quaternion?: Quat;
 
   /**
    * Orientation of the SceneModel, given as Euler angles in degrees for X, Y and Z axis.
    */
-  rotation?: FloatArrayParam;
+  rotation?: Vec3;
 
   /**
    * World-space position of the SceneModel.
    */
-  position?: FloatArrayParam;
+  position?: Vec3;
+
+  /**
+   * Parameters for {@link SceneTransform  | SceneTransforms} in the {@link SceneModel | SceneModel}.
+   */
+  transforms?: SceneTransform[];
 
   /**
    * Parameters for {@link SceneGeometry  | SceneGeometries} in the {@link SceneModel | SceneModel}.
@@ -112,21 +112,4 @@ export interface SceneModelParams {
    * Overrides {@link SceneObjectParams.layerId | SceneObjectParams.layerId}.
    */
   layerId?: string;
-
-  /**
-   * Whether this SceneModel retains its {@link SceneObject | SceneObjects}, {@link SceneMesh | SceneMeshes},
-   * {@link SceneGeometry | SceneGeometries} etc. after we call {@link SceneModel.build | SceneModel.build}.
-   *
-   * Default value is `true`.
-   */
-  retained?: boolean;
-
-  /**
-   * The axis-aligned 3D World-space boundary of the {@link SceneModel | SceneModel}.
-   *
-   * This is created by {@link SceneModel.toParams | SceneModel.toParams} to provide the SceneModel's
-   * boundary, and is ignored by {@link SceneModel.fromParams | SceneModel.fromParams} and the SceneModel
-   * constructor.
-   */
-  aabb?: number[]
 }

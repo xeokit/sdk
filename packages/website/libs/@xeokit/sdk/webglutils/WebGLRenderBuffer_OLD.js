@@ -1,5 +1,5 @@
 /**
- * Represents a WebGL2 render buffer.
+ * Represents a WebGL2 draw _buffer.
  */
 export class WebGLRenderBuffer {
     #canvas;
@@ -13,7 +13,7 @@ export class WebGLRenderBuffer {
     #texture;
     #depthTexture;
     /**
-     * Creates a new render buffer.
+     * Creates a new draw _buffer.
      * @param canvas
      * @param gl
      * @param options
@@ -28,14 +28,14 @@ export class WebGLRenderBuffer {
         this.#hasDepthTexture = !!options.depthTexture;
     }
     /**
-     * Sets the size of this render buffer.
+     * Sets the size of this draw _buffer.
      * @param size
      */
     setSize(size) {
         this.#size = size;
     }
     /**
-     * Binds this render buffer.
+     * Binds this draw _buffer.
      */
     bind() {
         this.#touch();
@@ -133,17 +133,17 @@ export class WebGLRenderBuffer {
         this.#bound = false;
     }
     /**
-     * Clears this render buffer.
+     * Clears this draw _buffer.
      */
     clear() {
         if (!this.#bound) {
-            throw "Render buffer not bound";
+            throw "Render _buffer not bound";
         }
         const gl = this.#gl;
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
     /**
-     * Reads a pixel from this render buffer.
+     * Reads a pixel from this draw _buffer.
      * @param pickX
      * @param pickY
      */
@@ -156,7 +156,7 @@ export class WebGLRenderBuffer {
         return pix;
     }
     /**
-     * Redas an image from this render buffer.
+     * Redas an image from this draw _buffer.
      * @param params
      */
     readImage(params) {
@@ -207,7 +207,7 @@ export class WebGLRenderBuffer {
         // return image;
     }
     /**
-     * Redas image from this render buffer as a image data.
+     * Redas image from this draw _buffer as a image data.
      */
     readImageData() {
         const gl = this.#gl;
@@ -248,7 +248,7 @@ export class WebGLRenderBuffer {
         return imageDataCache;
     }
     /**
-     * Unbinds this render buffer.
+     * Unbinds this draw _buffer.
      */
     unbind() {
         const gl = this.#gl;
@@ -256,7 +256,7 @@ export class WebGLRenderBuffer {
         this.#bound = false;
     }
     /**
-     * Gets a texture that has the contents of this render buffer.
+     * Gets a texture that has the contents of this draw _buffer.
      */
     getTexture() {
         return this.#texture || (this.#texture = {
@@ -279,13 +279,13 @@ export class WebGLRenderBuffer {
         });
     }
     /**
-     * Does this render buffer have a depth texture component?
+     * Does this draw _buffer have a depth texture component?
      */
     hasDepthTexture() {
         return this.#hasDepthTexture;
     }
     /**
-     * Gets the depth texture component of this render buffer, if any.
+     * Gets the depth texture component of this draw _buffer, if any.
      */
     getDepthTexture() {
         if (!this.#hasDepthTexture) {
@@ -311,7 +311,7 @@ export class WebGLRenderBuffer {
         });
     }
     /**
-     * Destroys this render buffer.
+     * Destroys this draw _buffer.
      */
     destroy() {
         if (this.#allocated) {

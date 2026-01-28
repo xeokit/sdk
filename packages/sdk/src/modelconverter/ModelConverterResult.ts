@@ -15,9 +15,14 @@ export interface ModelConverterResult {
    */
   modelConverter: ModelConverter;
 
-
+  /**
+   * The scene model produced by the conversion.
+   */
   scene: Scene;
 
+  /**
+   * The data model produced by the conversion.
+   */
   data: Data;
 
   /**
@@ -38,4 +43,9 @@ export interface ModelConverterResult {
   outputs: {
     [key: string]: ModelConverterResultOutput;
   };
+
+  /**
+   * Any errors that occurred during the conversion.
+   */
+  errors: string[];
 }

@@ -14,7 +14,7 @@ module.exports = {
         '@xeokit/cityjson/(.*)$': path.join(__dirname, '../cityjson/src/$1'),
         '@xeokit/cityjson2xgf/(.*)$': path.join(__dirname, '../cityjson2xgf/src/$1'),
         '@xeokit/cityjsontypes_1_1_3/(.*)$': path.join(__dirname, '../cityjsontypes_1_1_3/src/$1'),
-        '@xeokit/compression(.*)$': path.join(__dirname, '../compression/src/$1'),
+        '@xeokit/compression(.*)$': path.join(__dirname, '../math/compression/src/$1'),
         '@xeokit/constants(.*)$': path.join(__dirname, '../constants/src/$1'),
         '@xeokit/core(.*)$': path.join(__dirname, '../core/src/$1'),
         '@xeokit/curves(.*)$': path.join(__dirname, '../curves/src/$1'),

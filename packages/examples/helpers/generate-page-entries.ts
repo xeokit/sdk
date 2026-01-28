@@ -1,11 +1,11 @@
 
-// This script generates a JSON file that maps directories to their index.html files
+// This script generates a JSON file that maps directories to their tileIndex.html files
 // It is used for building application
 // It return list of entries for rollup
 // {
-//   'src/IFCLoader_IfcOpenHouse4': 'src/IFCLoader_IfcOpenHouse4/index.html',
-//   'src/DotBIMLoader_BlenderHouse': 'src/DotBIMLoader_BlenderHouse/index.html',
-//   'src/aaa/DotBIMLoader_BlenderHouse': 'src/aaa/DotBIMLoader_BlenderHouse/index.html'
+//   'src/IFCLoader_IfcOpenHouse4': 'src/IFCLoader_IfcOpenHouse4/tileIndex.html',
+//   'src/DotBIMLoader_BlenderHouse': 'src/DotBIMLoader_BlenderHouse/tileIndex.html',
+//   'src/aaa/DotBIMLoader_BlenderHouse': 'src/aaa/DotBIMLoader_BlenderHouse/tileIndex.html'
 // }
 
 import { glob } from 'glob';

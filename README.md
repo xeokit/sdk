@@ -149,23 +149,21 @@ These functions can be used to develop applications that facilitate collaboratio
 
 The SDK's internal and lower-level functionalities are mostly available as utility libraries with complete documentation.
 
-| Package                                                                  | Modules                                                               | Description                                          |
-|--------------------------------------------------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
-| [`@xeokit/core`](https://www.npmjs.com/package/@xeokit/core)             | [`@xeokit/core`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_components.html)   | Basic component types used throughout the xeokit SDK |
-|                                                                          | [`@xeokit/core/constants`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_constants.html)     | Constants used throughout the xeokit SDK             |
-|                                                                          | [`@xeokit/core/utils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_utils.html)             | Core utilities used throughout the xeokit SDK        |
-| [`@xeokit/basictypes`](https://www.npmjs.com/package/@xeokit/basictypes) | [`@xeokit/basictypes/basicTypes`](https://xeokit.github.io/sdk/docs/modules/_xeokit_datatypes_basicTypes.html)  | Basic semantic data type constants  |
-|                                                                          | [`@xeokit/ifctypes`](https://xeokit.github.io/sdk/docs/modules/_xeokit_datatypes_ifcTypes.html)      | IFC data type constants  |
-| [`@xeokit/math`](https://www.npmjs.com/package/@xeokit/math)             | [`@xeokit/math/math`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_math.html)               | General math definitions and constants               |
-|                                                                          | [`@xeokit/math/boundaries`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_boundaries.html)   | Boundaries math library                              |
-|                                                                          | [`@xeokit/math/compression`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html) | SceneGeometry de/compression utilities library            |
-|                                                                          | [`@xeokit/math/curves`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_curves.html)           | Spline curves math library                           |
-|                                                                          | [`@xeokit/math/geometry`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_geometry.html)       | SceneMesh generation functions                            |
-|                                                                          | [`@xeokit/math/matrix`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_matrix.html)           | Matrix and vector math utilities library             |
-|                                                                          | [`@xeokit/math/rtc`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_rtc.html)                 | Relative-to-center (RTC) coordinates math library    |
-| [`@xeokit/webgl`](https://www.npmjs.com/package/@xeokit/webglutils)      | [`@xeokit/webglutils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglutils.html)             | WebGL utilities library        |
-| [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen)       | [`@xeokit/procgen/geometry`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen_geometry.html) | SceneGeometry generation functions                     |
-| [`@xeokit/ktx2`](https://www.npmjs.com/package/@xeokit/ktx2)             | [`@xeokit/ktx2`](https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html)                         | Compressed texture support              |
+| Package                                                                  | Modules                                                                                             | Description                                          |
+|--------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|------------------------------------------------------|
+| [`@xeokit/core`](https://www.npmjs.com/package/@xeokit/core)             | [`@xeokit/core`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_components.html)            | Basic component types used throughout the xeokit SDK |
+|                                                                          | [`@xeokit/constants`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_constants.html)        | Constants used throughout the xeokit SDK             |
+|                                                                          | [`@xeokit/utils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_core_utils.html)                | Core utilities used throughout the xeokit SDK        |
+| [`@xeokit/basictypes`](https://www.npmjs.com/package/@xeokit/basictypes) | [`@xeokit/basictypes`](https://xeokit.github.io/sdk/docs/modules/_xeokit_datatypes_basicTypes.html) | Basic semantic data type constants  |
+|                                                                          | [`@xeokit/ifctypes`](https://xeokit.github.io/sdk/docs/modules/_xeokit_datatypes_ifcTypes.html)     | IFC data type constants  |
+| [`@xeokit/math`](https://www.npmjs.com/package/@xeokit/math)             | [`@xeokit/math`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_math.html)                  | General math definitions and constants               |
+|                                                                          | [`@xeokit/boundaries`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_boundaries.html)      | Boundaries math library                              |
+|                                                                          | [`@xeokit/compression`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_compression.html)    | SceneGeometry de/compression utilities library            |
+|                                                                          | [`@xeokit/curves`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_curves.html)              | Spline curves math library                           |
+|                                                                          | [`@xeokit/rtc`](https://xeokit.github.io/sdk/docs/modules/_xeokit_math_rtc.html)                    | Relative-to-center (RTC) coordinates math library    |
+| [`@xeokit/webgl`](https://www.npmjs.com/package/@xeokit/webglutils)      | [`@xeokit/webglutils`](https://xeokit.github.io/sdk/docs/modules/_xeokit_webglutils.html)           | WebGL utilities library        |
+| [`@xeokit/procgen`](https://www.npmjs.com/package/@xeokit/procgen)       | [`@xeokit/procgen`](https://xeokit.github.io/sdk/docs/modules/_xeokit_procgen_geometry.html)        | SceneGeometry generation functions                     |
+| [`@xeokit/ktx2`](https://www.npmjs.com/package/@xeokit/ktx2)             | [`@xeokit/ktx2`](https://xeokit.github.io/sdk/docs/modules/_xeokit_ktx2.html)                       | Compressed texture support              |
 
 # Examples
 
@@ -204,27 +202,58 @@ import {TrianglesPrimitive, LinearEncoding, LinearFilter} from "@xeokit/core/con
 import {Viewer} from "@xeokit/viewer";
 import {WebGLRenderer} from "@xeokit/webglrenderer";
 
-const scene = new Scene(); // Scene graph
+// Create the Scene, Viewer and Renderer 
 
-const renderer = new WebGLRenderer({}); // WebGL renderers kernel
+const scene = new Scene(); 
 
-const viewer = new Viewer({ // Browser-base viewer
-    scene,
-    renderer
+const viewer = new Viewer({ 
+  scene
 });
 
-const view = myViewer.createView({ // Independent view 
+const renderer = new WebGLRenderer({
+  viewer
+});
+
+// Log any errors to the console.
+
+const logError = (sdkResult) => {
+  if (sdkResult.ok === false) {
+    console.error(sdkResult.error);
+  }
+}
+
+scene.events.onError.subscribe(logError);
+viewer.events.onError.subscribe(logError);
+renderer.events.onError.subscribe(logError);
+
+// Create a View
+
+const viewResult = myViewer.createView({  
     id: "myView",
     canvasId: "myView1"
 });
+
+if (!viewResult.ok) {
+    throw viewResult.error;
+}
+
+const view = viewResult.value;
 
 view.camera.eye = [0, 0, 10]; // Looking down the -Z axis
 view.camera.look = [0, 0, 0];
 view.camera.up = [0, 1, 0];
 
-const sceneModel = scene.createModel(); // Start building the scene graph
+// Create a SceneModel with a textured box
 
-sceneModel.createGeometry({ // Define a box-shaped geometry
+const sceneModelResult = scene.createModel(); 
+
+if (!sceneModelResult.ok) {
+    throw sceneModelResult.error;
+}
+
+const sceneModel = sceneModelResult.value;
+
+sceneModel.createGeometry({ 
     id: "boxGeometry",
     primitive: TrianglesPrimitive,
     positions: [-1, -1, -1, 1, -1, -1, ],
@@ -245,7 +274,7 @@ sceneModel.createTextureSet({
     colorTextureId: "boxColorTexture"
 });
 
-sceneModel.createLayerMesh({
+sceneModel.addMesh({
     id: "boxMesh",
     geometryId: "boxGeometry",
     color: [1, 1, 1],
@@ -259,20 +288,17 @@ sceneModel.createObject({
     meshIds: ["boxMesh"]
 });
 
-sceneModel.build().then(() => { // Compresses textures, geometries etc.
+// A textured box object now appears on our View's canvas.
 
-    // A textured box object now appears on our View's canvas.
+// We can now show/hide/select/highlight our box through the View:
 
-    // We can now show/hide/select/highlight our box through the View:
+view.objects["boxObject"].visible = true;
+view.objects["boxObject"].highlighted = false;  // etc.
 
-    view.objects["boxObject"].visible = true;
-    view.objects["boxObject"].highlighted = false;  // etc.
+// Start orbiting the camera:
 
-    // Start orbiting the camera:
-
-    viewer.onTick.subscribe(() => {
-        view.camera.orbitYaw(1.0);
-    });
+viewer.events.onTick.subscribe(() => {
+    view.camera.orbitYaw(1.0);
 });
 ````
 
@@ -375,8 +401,8 @@ const sceneModel = scene.createModel({id: "myModel"}); // Start building the sce
 const data = new Data();
 const dataModel = data.createModel({id: "myModel"}); // Will model the glTF scene hierarchy
 
-fs.readFile("./tests/assets/HousePlan.glb", (err, buffer) => {
-    const arraybuffer = toArrayBuffer(buffer);
+fs.readFile("./tests/assets/HousePlan.glb", (err, _buffer) => {
+    const arraybuffer = toArrayBuffer(_buffer);
     loadGLTF({
         data: arrayBuffer,
         sceneModel,

@@ -1,34 +1,35 @@
-import {Component, EventEmitter} from "../core";
+import {EventEmitter, SDKErrorType, type SDKResult, SDKTask,} from "../core";
 import {FastRender, QualityRender} from "../constants";
-import type {FloatArrayParam, IntArrayParam} from "../math";
-import type {Scene, SceneModel} from "../scene";
+import type {FloatArrayParam} from "../math";
+import type { Vec3} from "../math/vector";
+import type {SceneObject} from "../scene";
 import {AmbientLight} from "./AmbientLight";
 import {Camera} from "./Camera";
 import {createUUID} from "../utils";
-import {createVec3} from "../matrix";
+import {createVec3Float64} from "../math/vector";
 import {DirLight} from "./DirLight";
 import {Edges} from "./Edges";
 import {EmphasisMaterial} from "./EmphasisMaterial";
-import {EventDispatcher} from "strongly-typed-events";
 import {LinesMaterial} from "./LinesMaterial";
-import type {PickParams} from "./PickParams";
-import type {PickResult} from "./PickResult";
 import type {PointLight} from "./PointLight";
 import {PointsMaterial} from "./PointsMaterial";
-import type {RendererObject} from "../scene";
 import {ResolutionScale} from "./ResolutionScale";
 import {SAO} from "./SAO";
-import type {SDKError} from "../core";
 import {SectionPlane} from "./SectionPlane";
 import type {SectionPlaneParams} from "./SectionPlaneParams";
-import {type SnapshotParams} from "./SnapshotParams";
-import {SnapshotResult} from "./SnapshotResult";
 import {Texturing} from "./Texturing";
 import type {Viewer} from "./Viewer";
 import {ViewLayer} from "./ViewLayer";
 import type {ViewLayerParams} from "./ViewLayerParams";
 import {ViewObject} from "./ViewObject";
 import type {ViewParams} from "./ViewParams";
+import {EventDispatcher} from "strongly-typed-events";
+import type {CameraParams} from "./CameraParams";
+import type {SAOParams} from "./SAOParams";
+import type {EdgesParams} from "./EdgesParams";
+import type {EmphasisMaterialParams} from "./EmphasisMaterialParams";
+import type {PointsMaterialParams} from "./PointsMaterialParams";
+import type {ResolutionScaleParams} from "./ResolutionScaleParams";
 
 /**
  * Event that signifies the beginning of a canvas snapshot captured with
@@ -51,28 +52,28 @@ export interface SnapshotFinishedEvent {
  *
  * See {@link viewer | @xeokit/sdk/viewer } for usage.
  */
-class View extends Component {
+class View {
 
   /**
    ID of this View, unique within the {@link Viewer | Viewer}.
    */
-  declare viewId: string;
+  public readonly id: string;
 
   /**
    * The Viewer to which this View belongs.
    */
-  declare readonly viewer: Viewer;
+  public readonly viewer: Viewer;
 
   /**
-   * The index of this View in {@link Viewer.viewList}.
+   * The tileIndex of this View in {@link Viewer.viewList}.
    * @internal
    */
-  viewIndex: number;
+  public viewIndex: number;
 
   /**
    * Manages the Camera for this View.
    */
-  readonly camera: Camera;
+  public readonly camera: Camera;
 
   /**
    * The HTML canvas.
@@ -93,12 +94,12 @@ class View extends Component {
   /**
    * Configures Scalable Ambient Obscurance (SAO) for this View.
    */
-  readonly sao: SAO;
+  public readonly sao: SAO;
 
   /**
    * Configures when textures are rendered for this View.
    */
-  readonly texturing: Texturing;
+  public readonly texturing: Texturing;
 
   /**
    * Configures the appearance of edges belonging to {@link ViewObject} in this View.
@@ -141,7 +142,7 @@ class View extends Component {
    * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
    *
    * The View automatically ensures that there is a {@link ViewObject} here for
-   * each {@link RendererObject} in the {@link Viewer | Viewer}
+   * each {@link ViewObject} in the {@link Viewer | Viewer}
    */
   readonly objects: { [key: string]: ViewObject };
 
@@ -229,122 +230,47 @@ class View extends Component {
   /**
    * Emits an event each time the canvas boundary changes.
    *
-   * @event
+   * @private
    */
-  readonly onBoundary: EventEmitter<View, IntArrayParam>;
+  readonly onBoundary: EventEmitter<View, FloatArrayParam>;
 
   /**
-   * Emits an event each time a {@link ViewObject} is created in this View.
-   *
-   * @event
+   * True if this View has been destroyed.
    */
-  readonly onObjectCreated: EventEmitter<View, ViewObject>;
+  public destroyed: boolean = false;
 
-  /**
-   * Emits an event each time a {@link ViewObject} is destroyed in this View.
-   *
-   * @event
-   */
-  readonly onObjectDestroyed: EventEmitter<View, ViewObject>;
-
-  /**
-   * Emits an event each time the visibility of a {@link ViewObject} changes in this View.
-   *
-   * ViewObjects are shown and hidden with {@link View.setObjectsVisible}, {@link ViewLayer.setObjectsVisible} or {@link ViewObject.visible}.
-   *
-   * @event
-   */
-  readonly onObjectVisibility: EventEmitter<View, ViewObject>;
-
-  /**
-   * Emits an event each time the X-ray state of a {@link ViewObject} changes in this View.
-   *
-   * ViewObjects are X-rayed with {@link View.setObjectsXRayed}, {@link ViewLayer.setObjectsXRayed} or {@link ViewObject.xrayed}.
-   *
-   * @event
-   */
-  readonly onObjectXRayed: EventEmitter<View, ViewObject>;
-
-  /**
-   * Emits an event each time a {@link ViewLayer} is created in this View.
-   *
-   * Layers are created explicitly with {@link View.createLayer}, or implicitly with {@link scene!SceneModel.createObject | SceneModel.createObject} and {@link scene!SceneObjectParams.layerId | SceneObjectParams.layerId}.
-   *
-   * @event
-   */
-  readonly onLayerCreated: EventEmitter<View, ViewLayer>;
-
-  /**
-   * Emits an event each time a {@link ViewLayer} in this View is destroyed.
-   *
-   * ViewLayers are destroyed explicitly with {@link ViewLayer.destroy}, or implicitly when they become empty and {@link View.autoLayers} is false.
-   *
-   * @event
-   */
-  readonly onLayerDestroyed: EventEmitter<View, ViewLayer>;
-
-  /**
-   * Emits an event each time a {@link SectionPlane} is created in this View.
-   *
-   * @event
-   */
-  readonly onSectionPlaneCreated: EventEmitter<View, SectionPlane>;
-
-  /**
-   * Emits an event each time a {@link SectionPlane} in this View is destroyed.
-   *
-   * @event
-   */
-  readonly onSectionPlaneDestroyed: EventEmitter<View, SectionPlane>;
-
-  /**
-   * Emits an event each time a snapshot is initiated with {@link View.getSnapshot}.
-   *
-   * @event
-   */
-  readonly onSnapshotStarted: EventEmitter<View, SnapshotStartedEvent>;
-
-  /**
-   * Emits an event each time a snapshot is completed with {@link View.getSnapshot}.
-   *
-   * @event
-   */
-  readonly onSnapshotFinished: EventEmitter<View, SnapshotFinishedEvent>;
-
-  #onTick: () => void;
-
-  #renderMode: number = QualityRender;
-
-  #autoLayers: boolean;
-  #backgroundColor: FloatArrayParam;
-  #backgroundColorFromAmbientLight: boolean;
-  #numObjects: number;
-  #objectIds: string[] | null;
-  #numVisibleObjects: number;
-  #visibleObjectIds: string[] | null;
-  #numXRayedObjects: number;
-  #xrayedObjectIds: string[] | null;
-  #numHighlightedObjects: number;
-  #highlightedObjectIds: string[] | null;
-  #numSelectedObjects: number;
-  #selectedObjectIds: string[] | null;
-  #numColorizedObjects: number;
-  #colorizedObjectIds: string[] | null;
-  #numOpacityObjects: number;
-  #opacityObjectIds: string[] | null;
-  #lightsHash: string | null = null;
-  #sectionPlanesHash: string | null = null;
-  #snapshotBegun: boolean;
-  #autoCanvas: boolean;
+  private _renderMode: number = QualityRender;
+  private _autoLayers: boolean;
+  private _backgroundColor: FloatArrayParam;
+  private _backgroundColorFromAmbientLight: boolean;
+  private _numObjects: number;
+  private _objectIds: string[] | null;
+  private _numVisibleObjects: number;
+  private _visibleObjectIds: string[] | null;
+  private _numXRayedObjects: number;
+  private _xrayedObjectIds: string[] | null;
+  private _numHighlightedObjects: number;
+  private _highlightedObjectIds: string[] | null;
+  private _numSelectedObjects: number;
+  private _selectedObjectIds: string[] | null;
+  private _numColorizedObjects: number;
+  private _colorizedObjectIds: string[] | null;
+  private _numOpacityObjects: number;
+  private _opacityObjectIds: string[] | null;
+  private _lightsHash: string | null = null;
+  private _sectionPlanesHash: string | null = null;
+  private _snapshotBegun: boolean;
+  private _autoCanvas: boolean;
+  private _needsRender: boolean;
+  private _checkViewResizedTask: SDKTask;
+  private _fireViewUpdatedEventTask: SDKTask;
 
   /**
    * @private
    */
-  constructor(viewer: Viewer,
-              viewParams: ViewParams) {
+  constructor(viewer: Viewer, viewParams: ViewParams) {
 
-    super(null, viewParams);
-
+    this.id = viewParams.id || createUUID();
     this.viewer = viewer;
 
     let canvas;
@@ -355,7 +281,7 @@ class View extends Component {
       if (!(canvas instanceof HTMLElement)) {
         console.error("Mandatory View config expected: valid HTMLElement");
       }
-      this.#autoCanvas = false;
+      this._autoCanvas = false;
     }
 
     if (!canvas) {
@@ -368,7 +294,7 @@ class View extends Component {
       canvas.style.background = 'white';
       canvas.style.border = '0';
       document.body.appendChild(canvas);
-      this.#autoCanvas = true;
+      this._autoCanvas = true;
     }
 
     this.htmlElement = canvas;
@@ -386,25 +312,25 @@ class View extends Component {
     this.lightsList = [];
     this.layers = {};
 
-    this.#numObjects = 0;
-    this.#objectIds = null;
-    this.#numVisibleObjects = 0;
-    this.#visibleObjectIds = null;
-    this.#numXRayedObjects = 0;
-    this.#xrayedObjectIds = null;
-    this.#numHighlightedObjects = 0;
-    this.#highlightedObjectIds = null;
-    this.#numSelectedObjects = 0;
-    this.#selectedObjectIds = null;
-    this.#numColorizedObjects = 0;
-    this.#colorizedObjectIds = null;
-    this.#numOpacityObjects = 0;
-    this.#opacityObjectIds = null;
+    this._numObjects = 0;
+    this._objectIds = null;
+    this._numVisibleObjects = 0;
+    this._visibleObjectIds = null;
+    this._numXRayedObjects = 0;
+    this._xrayedObjectIds = null;
+    this._numHighlightedObjects = 0;
+    this._highlightedObjectIds = null;
+    this._numSelectedObjects = 0;
+    this._selectedObjectIds = null;
+    this._numColorizedObjects = 0;
+    this._colorizedObjectIds = null;
+    this._numOpacityObjects = 0;
+    this._opacityObjectIds = null;
     this.gammaOutput = true;
-    this.#snapshotBegun = false;
+    this._snapshotBegun = false;
 
-    this.#sectionPlanesHash = null;
-    this.#lightsHash = null;
+    this._sectionPlanesHash = null;
+    this._lightsHash = null;
 
     // this.canvas = new View(this, {
     //     canvas: canvas,
@@ -414,20 +340,20 @@ class View extends Component {
     //     premultipliedAlpha: !!viewParams.premultipliedAlpha
     // });
     //
-    // this.canvas.onBoundary.subscribe(() => {
-    //     this.redraw();
+    // this.canvas.viewCanvasBoundary.subscribe(() => {
+    //     this.needsRender();
     // });
 
-    this.onBoundary = new EventEmitter(
-      new EventDispatcher<View, IntArrayParam>()
-    );
+    // this.viewCanvasBoundary = new EventEmitter(
+    //   new EventDispatcher<View, IntArrayParam>()
+    // );
 
-    this.#backgroundColor = createVec3([
+    this._backgroundColor = createVec3Float64([
       viewParams.backgroundColor ? viewParams.backgroundColor[0] : 1,
       viewParams.backgroundColor ? viewParams.backgroundColor[1] : 1,
       viewParams.backgroundColor ? viewParams.backgroundColor[2] : 1,
     ]);
-    this.#backgroundColorFromAmbientLight =
+    this._backgroundColorFromAmbientLight =
       !!viewParams.backgroundColorFromAmbientLight;
     this.transparent = !!viewParams.transparent;
     // this.htmlElement.width = this.htmlElement.clientWidth;
@@ -438,82 +364,6 @@ class View extends Component {
       this.htmlElement.clientWidth,
       this.htmlElement.clientHeight,
     ];
-
-    // Publish htmlElement size and position changes on each scene tick
-
-    let lastWindowWidth = 0;
-    let lastWindowHeight = 0;
-    let lastViewWidth = 0;
-    let lastViewHeight = 0;
-    let lastViewOffsetLeft = 0;
-    let lastViewOffsetTop = 0;
-    let lastParent: null | HTMLElement = null;
-
-    const lastResolutionScale: null | number = null;
-
-    this.#onTick = this.viewer.onTick.subscribe(() => {
-      const htmlElement = this.htmlElement;
-      const newResolutionScale = this.resolutionScale.resolutionScale !== lastResolutionScale;
-      const newWindowSize =
-        window.innerWidth !== lastWindowWidth ||
-        window.innerHeight !== lastWindowHeight;
-      const newViewSize =
-        htmlElement.clientWidth !== lastViewWidth ||
-        htmlElement.clientHeight !== lastViewHeight;
-      const newViewPos =
-        htmlElement.offsetLeft !== lastViewOffsetLeft ||
-        htmlElement.offsetTop !== lastViewOffsetTop;
-      const parent = htmlElement.parentElement;
-      const newParent = parent !== lastParent;
-
-      if (
-        newResolutionScale ||
-        newWindowSize ||
-        newViewSize ||
-        newViewPos ||
-        newParent
-      ) {
-        //   this._spinner._adjustPosition();
-        if (newResolutionScale || newViewSize || newViewPos) {
-          const newWidth = htmlElement.clientWidth;
-          const newHeight = htmlElement.clientHeight;
-          if (newResolutionScale || newViewSize) {
-            //////////////////////////////////////////////////////////////////////////////////////
-            // TODO: apply resolutionscale properly
-            //////////////////////////////////////////////////////////////////////////////////////
-            // htmlElement.width = Math.round(
-            //     htmlElement.clientWidth * this.resolutionScale.resolutionScale
-            // );
-            // htmlElement.height = Math.round(
-            //     htmlElement.clientHeight * this.resolutionScale.resolutionScale
-            // );
-          }
-          const boundary = this.boundary;
-          boundary[0] = htmlElement.offsetLeft;
-          boundary[1] = htmlElement.offsetTop;
-          boundary[2] = newWidth;
-          boundary[3] = newHeight;
-          if (!newResolutionScale || newViewSize) {
-            this.onBoundary.dispatch(this, boundary);
-          }
-          lastViewWidth = newWidth;
-          lastViewHeight = newHeight;
-        }
-
-        if (newResolutionScale) {
-          //   lastResolutionScale = this.#resolutionScale;
-        }
-        if (newWindowSize) {
-          lastWindowWidth = window.innerWidth;
-          lastWindowHeight = window.innerHeight;
-        }
-        if (newViewPos) {
-          lastViewOffsetLeft = htmlElement.offsetLeft;
-          lastViewOffsetTop = htmlElement.offsetTop;
-        }
-        lastParent = parent;
-      }
-    });
 
     this.camera = new Camera(this);
 
@@ -580,47 +430,7 @@ class View extends Component {
 
     this.lights = {};
 
-    this.#autoLayers = viewParams.autoLayers !== false;
-
-    this.onObjectCreated = new EventEmitter(
-      new EventDispatcher<View, ViewObject>()
-    );
-
-    this.onObjectDestroyed = new EventEmitter(
-      new EventDispatcher<View, ViewObject>()
-    );
-
-    this.onObjectVisibility = new EventEmitter(
-      new EventDispatcher<View, ViewObject>()
-    );
-
-    this.onObjectXRayed = new EventEmitter(
-      new EventDispatcher<View, ViewObject>()
-    );
-
-    this.onLayerCreated = new EventEmitter(
-      new EventDispatcher<View, ViewLayer>()
-    );
-
-    this.onLayerDestroyed = new EventEmitter(
-      new EventDispatcher<View, ViewLayer>()
-    );
-
-    this.onSectionPlaneCreated = new EventEmitter(
-      new EventDispatcher<View, SectionPlane>()
-    );
-
-    this.onSectionPlaneDestroyed = new EventEmitter(
-      new EventDispatcher<View, SectionPlane>()
-    );
-
-    this.onSnapshotStarted = new EventEmitter(
-      new EventDispatcher<View, null>()
-    );
-
-    this.onSnapshotFinished = new EventEmitter(
-      new EventDispatcher<View, null>()
-    );
+    this._autoLayers = viewParams.autoLayers !== false;
 
     new AmbientLight(this, {
       color: [1.0, 1.0, 1.0],
@@ -648,71 +458,178 @@ class View extends Component {
       space: "world"
     });
 
+    this.onBoundary = new EventEmitter(new EventDispatcher<View, FloatArrayParam>());
+
+    // Publish htmlElement size and position changes on each scene tick
+
+    let lastWindowWidth = 0;
+    let lastWindowHeight = 0;
+    let lastViewWidth = 0;
+    let lastViewHeight = 0;
+    let lastViewOffsetLeft = 0;
+    let lastViewOffsetTop = 0;
+    let lastParent: null | HTMLElement = null;
+
+    const lastResolutionScale: null | number = null;
+
+    const handleResize = () => {
+      const htmlElement = this.htmlElement;
+      const newResolutionScale = this.resolutionScale.resolutionScale !== lastResolutionScale;
+      const newWindowSize =
+        window.innerWidth !== lastWindowWidth ||
+        window.innerHeight !== lastWindowHeight;
+      const newViewSize =
+        htmlElement.clientWidth !== lastViewWidth ||
+        htmlElement.clientHeight !== lastViewHeight;
+      const newViewPos =
+        htmlElement.offsetLeft !== lastViewOffsetLeft ||
+        htmlElement.offsetTop !== lastViewOffsetTop;
+      const parent = htmlElement.parentElement;
+      const newParent = parent !== lastParent;
+
+      if (
+        newResolutionScale ||
+        newWindowSize ||
+        newViewSize ||
+        newViewPos ||
+        newParent
+      ) {
+        //   this._spinner._adjustPosition();
+        if (newResolutionScale || newViewSize || newViewPos) {
+          const newWidth = htmlElement.clientWidth;
+          const newHeight = htmlElement.clientHeight;
+          if (newResolutionScale || newViewSize) {
+            //////////////////////////////////////////////////////////////////////////////////////
+            // TODO: apply resolutionscale properly
+            //////////////////////////////////////////////////////////////////////////////////////
+            // htmlElement.width = Math.round(
+            //     htmlElement.clientWidth * this.resolutionScale.resolutionScale
+            // );
+            // htmlElement.height = Math.round(
+            //     htmlElement.clientHeight * this.resolutionScale.resolutionScale
+            // );
+          }
+          const boundary = this.boundary;
+          boundary[0] = htmlElement.offsetLeft;
+          boundary[1] = htmlElement.offsetTop;
+          boundary[2] = newWidth;
+          boundary[3] = newHeight;
+          if (!newResolutionScale || newViewSize) {
+            this.onBoundary.dispatch(this, boundary); // Internal event
+            this.viewer.events.onViewCanvasBoundaryChanged.dispatch(this, boundary); // External event
+          }
+          lastViewWidth = newWidth;
+          lastViewHeight = newHeight;
+        }
+
+        if (newResolutionScale) {
+          //   lastResolutionScale = this._resolutionScale;
+        }
+        if (newWindowSize) {
+          lastWindowWidth = window.innerWidth;
+          lastWindowHeight = window.innerHeight;
+        }
+        if (newViewPos) {
+          lastViewOffsetLeft = htmlElement.offsetLeft;
+          lastViewOffsetTop = htmlElement.offsetTop;
+        }
+        lastParent = parent;
+      }
+    }
+
+    // Handle resizes on each tick
+    this._checkViewResizedTask = new SDKTask({
+      name: "View._checkViewResizedTask",
+      task: handleResize,
+      stage: SDKTask.CollectInputStage,
+      repeat: true
+    });
+
+    this._fireViewUpdatedEventTask = new SDKTask({
+      name: "View._fireViewUpdatedEventTask",
+      task: () => {
+        if (this._needsRender) {
+          this.viewer.events.onViewUpdated.dispatch(this, this);
+          this._needsRender = false;
+        }
+      },
+      stage: SDKTask.RenderStage
+    });
   }
 
   /**
    * @private
    */
-  initViewObjects() {
-    this.#createViewObjectsForScene();
-    this.viewer.scene.onModelCreated.subscribe((scene: Scene, sceneModel: SceneModel) => {
-        this.#createViewObjectsForSceneModel(sceneModel);
+   _attachSceneObject(sceneObject: SceneObject) {
+    const layerId = sceneObject.layerId || "default";
+    let viewLayer = this.layers[layerId];
+    if (!viewLayer) {
+      if (!this._autoLayers) {
+        return;
       }
-    );
-    this.viewer.scene.onModelDestroyed.subscribe((scene: Scene, sceneModel: SceneModel) => {
-        this.#destroyViewObjectsForSceneModel(sceneModel);
-      }
-    );
-  }
-
-  #createViewObjectsForScene() {
-    for (const id in this.viewer.scene.models) {
-      this.#createViewObjectsForSceneModel(this.viewer.scene.models[id]);
+      viewLayer = new ViewLayer({
+        id: layerId,
+        view: this,
+        viewer: this.viewer,
+      });
+      this.layers[layerId] = viewLayer;
+      this.viewer.events.onViewLayerCreated.dispatch(this, viewLayer);
     }
+    const viewObject = new ViewObject(viewLayer, sceneObject);
+    viewLayer._attachViewObject(viewObject);
+    this._attachViewObject(viewObject);
+    this.viewer.events.onViewObjectCreated.dispatch(this, viewObject);
   }
 
-  #createViewObjectsForSceneModel(sceneModel: SceneModel) {
-    // The Renderer has a RendererObject for each object, through which a ViewObject can
-    // push state changes into the Renderer for its object.
-    // The RendererObject
-    const sceneObjects = sceneModel.objects;
-    for (const id in sceneObjects) {
-      if (!this.objects[id]) {
-        const sceneObject = sceneObjects[id];
-        const layerId = sceneObject.layerId || "default";
-        let viewLayer = this.layers[layerId];
-        if (!viewLayer) {
-          if (!this.#autoLayers) {
-            continue;
-          }
-          viewLayer = new ViewLayer({
-            id: layerId,
-            view: this,
-            viewer: this.viewer,
-          });
-          this.layers[layerId] = viewLayer;
-          viewLayer.onDestroyed.one(() => {
-            delete this.layers[viewLayer.id];
-            this.onLayerDestroyed.dispatch(this, viewLayer);
-          });
-          this.onLayerCreated.dispatch(this, viewLayer);
+  /**
+   * @private
+   */
+   _attachViewObject(viewObject: ViewObject) {
+    this.objects[viewObject.id] = viewObject;
+    this._numObjects++;
+    this._objectIds = null; // Lazy regenerate
+  }
+
+  /**
+   * @private
+   */
+  _detachSceneObject(sceneObject: SceneObject) {
+    const viewObject = this.objects[sceneObject.id];
+    if (viewObject) {
+      const layerId = sceneObject.layerId || "default";
+      this._deattachViewObject(viewObject);
+      const viewLayer = this.layers[layerId];
+      if (viewLayer) {
+        viewLayer._deattachViewObject(viewObject);
+        if (viewLayer.autoDestroy && viewLayer.numObjects === 0) {
+          viewLayer.destroy();
         }
-        const rendererObjects = this.viewer.renderer.rendererObjects;
-        const rendererObject = rendererObjects[id];
-        const viewObject = new ViewObject(viewLayer, sceneObject, rendererObject);
-        viewLayer.registerViewObject(viewObject);
-        this.registerViewObject(viewObject);
-        this.onObjectCreated.dispatch(this, viewObject);
       }
+      this.viewer.events.onViewObjectDestroyed.dispatch(this, viewObject);
     }
   }
 
   /**
-   * Sets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
-   * as {@link RendererObject | ViewerObjects} are created.
+   * @private
+   */
+  _deattachViewObject(viewObject: ViewObject) {
+    delete this.objects[viewObject.id];
+    delete this.visibleObjects[viewObject.id];
+    delete this.xrayedObjects[viewObject.id];
+    delete this.highlightedObjects[viewObject.id];
+    delete this.selectedObjects[viewObject.id];
+    delete this.colorizedObjects[viewObject.id];
+    delete this.opacityObjects[viewObject.id];
+    this._numObjects--;
+    this._objectIds = null; // Lazy regenerate
+  }
+
+  /**
+   * Sets whether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
+   * as {@link ViewObject | ViewerObjects} are created.
    *
    * When ````true```` (default), the View will automatically create {@link ViewLayer | ViewLayers} as needed for each new
-   * {@link RendererObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
+   * {@link ViewObject.layerId} encountered, including a "default" ViewLayer for ViewerObjects that have no
    * layerId. This "default" ViewLayer ensures that a ViewObject is created in the View for every SceneObject that is created.
    *
    * If you set this ````false````, however, then the View will only create {@link ViewObject | ViewObjects} for
@@ -728,21 +645,40 @@ class View extends Component {
    * @param autoLayers The new value for atuoLayers
    */
   set autoLayers(autoLayers: boolean) {
-    if (this.#autoLayers === autoLayers) {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.autoLayers] View already destroyed"
+      });
       return;
     }
-    this.#autoLayers = autoLayers;
+    if (this._autoLayers === autoLayers) {
+      return;
+    }
+    this._autoLayers = autoLayers;
     if (autoLayers) {
-      this.#createViewObjectsForScene();
+      this._createViewObjectsForScene();
+    }
+  }
+
+  private _createViewObjectsForScene() {
+    const scene = this.viewer.scene;
+    if (!scene) {
+      return;
+    }
+    for (const sceneObjectId in scene.objects) {
+      const sceneObject = scene.objects[sceneObjectId];
+      this._attachSceneObject(sceneObject);
     }
   }
 
   /**
-   * Gets wether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
-   * as {@link RendererObject | ViewerObjects} are created.
+   * Gets whether this View will automatically create {@link ViewLayer | ViewLayers} on-demand
+   * as {@link ViewObject | ViewerObjects} are created.
    */
   get autoLayers(): boolean {
-    return this.#autoLayers;
+    return this._autoLayers;
   }
 
   /**
@@ -754,8 +690,16 @@ class View extends Component {
    * be active in that mode, while deactivating all other effects.
    */
   set renderMode(renderMode: number) {
-    this.#renderMode = renderMode;
-    this.redraw();
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.renderMode] View already destroyed"
+      });
+      return;
+    }
+    this._renderMode = renderMode;
+    this.needsRender();
   }
 
   /**
@@ -764,14 +708,7 @@ class View extends Component {
    * Default value is {@link constants!QualityRender | QualityRender}.
    */
   get renderMode(): number {
-    return this.#renderMode;
-  }
-
-  /**
-   *
-   */
-  get aabb(): FloatArrayParam {
-    return this.viewer.scene.aabb;
+    return this._renderMode;
   }
 
   /**
@@ -780,7 +717,7 @@ class View extends Component {
    * Default value is ````[1, 1, 1]````.
    */
   get backgroundColor(): FloatArrayParam {
-    return this.#backgroundColor;
+    return this._backgroundColor;
   }
 
   /**
@@ -789,32 +726,48 @@ class View extends Component {
    * Default value is ````[1, 1, 1]````.
    */
   set backgroundColor(value: FloatArrayParam) {
-    if (value) {
-      this.#backgroundColor[0] = value[0];
-      this.#backgroundColor[1] = value[1];
-      this.#backgroundColor[2] = value[2];
-    } else {
-      this.#backgroundColor[0] = 1.0;
-      this.#backgroundColor[1] = 1.0;
-      this.#backgroundColor[2] = 1.0;
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.backgroundColor] View already destroyed"
+      });
+      return;
     }
-    this.redraw();
+    if (value) {
+      if (value.length < 3) {
+        this.viewer.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[View.backgroundColor] Expected FloatArrayParam with at least 3 elements"
+        });
+        return;
+      }
+      this._backgroundColor[0] = value[0];
+      this._backgroundColor[1] = value[1];
+      this._backgroundColor[2] = value[2];
+    } else {
+      this._backgroundColor[0] = 1.0;
+      this._backgroundColor[1] = 1.0;
+      this._backgroundColor[2] = 1.0;
+    }
+    this.needsRender();
   }
 
   /**
-   * Gets whether the canvas clear color will be derived from {@link AmbientLight} or {@link View#backgroundColor}
-   * when {@link View#transparent} is ```true```.
+   * Gets whether the canvas clear color will be derived from {@link AmbientLight} or {@link View.backgroundColor}
+   * when {@link View.transparent} is ```true```.
    *
-   * When {@link View#transparent} is ```true``` and this is ````true````, then the canvas clear color will
+   * When {@link View.transparent} is ```true``` and this is ````true````, then the canvas clear color will
    * be taken from the ambient light color.
    *
-   * When {@link View#transparent} is ```true``` and this is ````false````, then the canvas clear color will
-   * be taken from {@link View#backgroundColor}.
+   * When {@link View.transparent} is ```true``` and this is ````false````, then the canvas clear color will
+   * be taken from {@link View.backgroundColor}.
    *
    * Default value is ````true````.
    */
   get backgroundColorFromAmbientLight(): boolean {
-    return this.#backgroundColorFromAmbientLight;
+    return this._backgroundColorFromAmbientLight;
   }
 
   /**
@@ -828,7 +781,15 @@ class View extends Component {
   set backgroundColorFromAmbientLight(
     backgroundColorFromAmbientLight: boolean
   ) {
-    this.#backgroundColorFromAmbientLight =
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.backgroundColorFromAmbientLight] View already destroyed"
+      });
+      return;
+    }
+    this._backgroundColorFromAmbientLight =
       backgroundColorFromAmbientLight !== false;
   }
 
@@ -844,146 +805,123 @@ class View extends Component {
    * Gets the number of {@link ViewObject | ViewObjects} in this View.
    */
   get numObjects(): number {
-    return this.#numObjects;
+    return this._numObjects;
   }
 
   /**
    * Gets the IDs of the {@link ViewObject | ViewObjects} in this View.
    */
   get objectIds(): string[] {
-    if (!this.#objectIds) {
-      this.#objectIds = Object.keys(this.objects);
+    if (!this._objectIds) {
+      this._objectIds = Object.keys(this.objects);
     }
-    return this.#objectIds;
+    return this._objectIds;
   }
 
   /**
    * Gets the number of visible {@link ViewObject | ViewObjects} in this View.
    */
   get numVisibleObjects(): number {
-    return this.#numVisibleObjects;
+    return this._numVisibleObjects;
   }
 
   /**
    * Gets the IDs of the visible {@link ViewObject | ViewObjects} in this View.
    */
   get visibleObjectIds(): string[] {
-    if (!this.#visibleObjectIds) {
-      this.#visibleObjectIds = Object.keys(this.visibleObjects);
+    if (!this._visibleObjectIds) {
+      this._visibleObjectIds = Object.keys(this.visibleObjects);
     }
-    return this.#visibleObjectIds;
+    return this._visibleObjectIds;
   }
 
   /**
    * Gets the number of X-rayed {@link ViewObject | ViewObjects} in this View.
    */
   get numXRayedObjects(): number {
-    return this.#numXRayedObjects;
+    return this._numXRayedObjects;
   }
 
   /**
    * Gets the IDs of the X-rayed {@link ViewObject | ViewObjects} in this View.
    */
   get xrayedObjectIds(): string[] {
-    if (!this.#xrayedObjectIds) {
-      this.#xrayedObjectIds = Object.keys(this.xrayedObjects);
+    if (!this._xrayedObjectIds) {
+      this._xrayedObjectIds = Object.keys(this.xrayedObjects);
     }
-    return this.#xrayedObjectIds;
+    return this._xrayedObjectIds;
   }
 
   /**
    * Gets the number of highlighted {@link ViewObject | ViewObjects} in this View.
    */
   get numHighlightedObjects(): number {
-    return this.#numHighlightedObjects;
+    return this._numHighlightedObjects;
   }
 
   /**
    * Gets the IDs of the highlighted {@link ViewObject | ViewObjects} in this View.
    */
   get highlightedObjectIds(): string[] {
-    if (!this.#highlightedObjectIds) {
-      this.#highlightedObjectIds = Object.keys(this.highlightedObjects);
+    if (!this._highlightedObjectIds) {
+      this._highlightedObjectIds = Object.keys(this.highlightedObjects);
     }
-    return this.#highlightedObjectIds;
+    return this._highlightedObjectIds;
   }
 
   /**
    * Gets the number of selected {@link ViewObject | ViewObjects} in this View.
    */
   get numSelectedObjects(): number {
-    return this.#numSelectedObjects;
+    return this._numSelectedObjects;
   }
 
   /**
    * Gets the IDs of the selected {@link ViewObject | ViewObjects} in this View.
    */
   get selectedObjectIds(): string[] {
-    if (!this.#selectedObjectIds) {
-      this.#selectedObjectIds = Object.keys(this.selectedObjects);
+    if (!this._selectedObjectIds) {
+      this._selectedObjectIds = Object.keys(this.selectedObjects);
     }
-    return this.#selectedObjectIds;
+    return this._selectedObjectIds;
   }
 
   /**
    * Gets the number of colorized {@link ViewObject | ViewObjects} in this View.
    */
   get numColorizedObjects(): number {
-    return this.#numColorizedObjects;
+    return this._numColorizedObjects;
   }
 
   /**
    * Gets the IDs of the colorized {@link ViewObject | ViewObjects} in this View.
    */
   get colorizedObjectIds(): string[] {
-    if (!this.#colorizedObjectIds) {
-      this.#colorizedObjectIds = Object.keys(this.colorizedObjects);
+    if (!this._colorizedObjectIds) {
+      this._colorizedObjectIds = Object.keys(this.colorizedObjects);
     }
-    return this.#colorizedObjectIds;
+    return this._colorizedObjectIds;
   }
 
   /**
    * Gets the IDs of the {@link ViewObject | ViewObjects} in this View that have updated opacities.
    */
   get opacityObjectIds(): string[] {
-    if (!this.#opacityObjectIds) {
-      this.#opacityObjectIds = Object.keys(this.opacityObjects);
+    if (!this._opacityObjectIds) {
+      this._opacityObjectIds = Object.keys(this.opacityObjects);
     }
-    return this.#opacityObjectIds;
+    return this._opacityObjectIds;
   }
 
   /**
    * Gets the number of {@link ViewObject | ViewObjects} in this View that have updated opacities.
    */
   get numOpacityObjects(): number {
-    return this.#numOpacityObjects;
+    return this._numOpacityObjects;
   }
 
   /**
-   * @private
-   */
-  registerViewObject(viewObject: ViewObject) {
-    this.objects[viewObject.id] = viewObject;
-    this.#numObjects++;
-    this.#objectIds = null; // Lazy regenerate
-  }
-
-  /**
-   * @private
-   */
-  deregisterViewObject(viewObject: ViewObject) {
-    delete this.objects[viewObject.id];
-    delete this.visibleObjects[viewObject.id];
-    delete this.xrayedObjects[viewObject.id];
-    delete this.highlightedObjects[viewObject.id];
-    delete this.selectedObjects[viewObject.id];
-    delete this.colorizedObjects[viewObject.id];
-    delete this.opacityObjects[viewObject.id];
-    this.#numObjects--;
-    this.#objectIds = null; // Lazy regenerate
-  }
-
-  /**
+   * Called by ViewObject.visible setter.
    * @private
    */
   objectVisibilityUpdated(
@@ -993,18 +931,20 @@ class View extends Component {
   ) {
     if (visible) {
       this.visibleObjects[viewObject.id] = viewObject;
-      this.#numVisibleObjects++;
+      this._numVisibleObjects++;
     } else {
       delete this.visibleObjects[viewObject.id];
-      this.#numVisibleObjects--;
+      this._numVisibleObjects--;
     }
-    this.#visibleObjectIds = null; // Lazy regenerate
+    this._visibleObjectIds = null; // Lazy regenerate
     if (notify) {
-      this.onObjectVisibility.dispatch(this, viewObject);
+      this.viewer.events.onViewObjectVisibleChanged.dispatch(this, viewObject);
     }
+    this.needsRender();
   }
 
   /**
+   * Called by ViewObject.xrayed setter.
    * @private
    */
   objectXRayedUpdated(
@@ -1014,115 +954,189 @@ class View extends Component {
   ) {
     if (xrayed) {
       this.xrayedObjects[viewObject.id] = viewObject;
-      this.#numXRayedObjects++;
+      this._numXRayedObjects++;
     } else {
       delete this.xrayedObjects[viewObject.id];
-      this.#numXRayedObjects--;
+      this._numXRayedObjects--;
     }
-    this.#xrayedObjectIds = null; // Lazy regenerate
+    this._xrayedObjectIds = null; // Lazy regenerate
     if (notify) {
-      this.onObjectXRayed.dispatch(this, viewObject);
+      this.viewer.events.onViewObjectXRayedChanged.dispatch(this, viewObject);
     }
+    this.needsRender();
   }
 
   /**
+   * Called by ViewObject.highlighted setter.
    * @private
    */
-  objectHighlightedUpdated(viewObject: ViewObject, highlighted: boolean) {
+  objectHighlightedUpdated(
+    viewObject: ViewObject,
+    highlighted: boolean,
+    notify: boolean = true) {
     if (highlighted) {
       this.highlightedObjects[viewObject.id] = viewObject;
-      this.#numHighlightedObjects++;
+      this._numHighlightedObjects++;
     } else {
       delete this.highlightedObjects[viewObject.id];
-      this.#numHighlightedObjects--;
+      this._numHighlightedObjects--;
     }
-    this.#highlightedObjectIds = null; // Lazy regenerate
+    this._highlightedObjectIds = null; // Lazy regenerate
+    if (notify) {
+      this.viewer.events.onViewObjectHighlightedChanged.dispatch(this, viewObject);
+    }
+    this.needsRender();
   }
 
   /**
+   * Called by ViewObject.selected setter.
    * @private
    */
-  objectSelectedUpdated(viewObject: ViewObject, selected: boolean) {
+  objectSelectedUpdated(
+    viewObject: ViewObject,
+    selected: boolean,
+    notify: boolean = true) {
     if (selected) {
       this.selectedObjects[viewObject.id] = viewObject;
-      this.#numSelectedObjects++;
+      this._numSelectedObjects++;
     } else {
       delete this.selectedObjects[viewObject.id];
-      this.#numSelectedObjects--;
+      this._numSelectedObjects--;
     }
-    this.#selectedObjectIds = null; // Lazy regenerate
+    this._selectedObjectIds = null; // Lazy regenerate
+    if (notify) {
+      this.viewer.events.onViewObjectSelectedChanged.dispatch(this, viewObject);
+    }
+    this.needsRender();
   }
 
   /**
+   * Called by ViewObject.colorized setter.
    * @private
    */
   objectColorizeUpdated(viewObject: ViewObject, colorized: boolean) {
     if (colorized) {
       this.colorizedObjects[viewObject.id] = viewObject;
-      this.#numColorizedObjects++;
+      this._numColorizedObjects++;
     } else {
       delete this.colorizedObjects[viewObject.id];
-      this.#numColorizedObjects--;
+      this._numColorizedObjects--;
     }
-    this.#colorizedObjectIds = null; // Lazy regenerate
+    this._colorizedObjectIds = null; // Lazy regenerate
+    this.needsRender();
   }
 
   /**
+   * Called by ViewObject.opacity setter.
    * @private
    */
   objectOpacityUpdated(viewObject: ViewObject, opacityUpdated: boolean) {
     if (opacityUpdated) {
       this.opacityObjects[viewObject.id] = viewObject;
-      this.#numOpacityObjects++;
+      this._numOpacityObjects++;
     } else {
       delete this.opacityObjects[viewObject.id];
-      this.#numOpacityObjects--;
+      this._numOpacityObjects--;
     }
-    this.#opacityObjectIds = null; // Lazy regenerate
+    this._opacityObjectIds = null; // Lazy regenerate
+    this.needsRender();
   }
 
   /**
    * Creates a {@link SectionPlane} in this View.
    *
-   * @param sectionPlaneParams
+   * The SectionPlane is then registered in {@link View.sectionPlanes}.
+   *
+   * If a SectionPlane with the given ID already exists, the method returns an error.
+   *
+   * # Usage
+   *
+   * ```typescript
+   * const sectionPlaneResult = view.createSectionPlane({
+   *   id: "mySectionPlane",
+   *   pos: [0, 0, 0],
+   *   dir: [1, 0, 0],
+   * });
+   *
+   * if (!sectionPlaneResult.ok) {
+   *   console.error(sectionPlaneResult.error);
+   * } else {
+   *   const sectionPlane = sectionPlaneResult.value;
+   *   console.log("SectionPlane created:", sectionPlane.id);
+   * }
+   *```
+   *
+   * @param sectionPlaneParams - Configuration parameters for the new {@link SectionPlane}.
+   * @returns A result containing the created {@link SectionPlane} on success,
+   * or an error message on failure.
    */
-  createSectionPlane(sectionPlaneParams: SectionPlaneParams): SectionPlane {
-    let id = sectionPlaneParams.id || createUUID();
-    if (this.sectionPlanes[id]) {
-      this.error(
-        `SectionPlane with ID "${id}" already exists - will randomly-generate ID`
-      );
-      id = createUUID();
+  createSectionPlane(sectionPlaneParams: SectionPlaneParams): SDKResult<SectionPlane> {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.createSectionPlane] View already destroyed"
+      });
+      return;
+    }
+    sectionPlaneParams.id ||= createUUID();
+    if (this.sectionPlanes[sectionPlaneParams.id]) {
+      return this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[View.createSectionPlane] SectionPlane with ID "${sectionPlaneParams.id}" already exists.`
+      });
     }
     const sectionPlane = new SectionPlane(this, sectionPlaneParams);
-    this.#registerSectionPlane(sectionPlane);
-    sectionPlane.onDestroyed.one(() => {
-      this.#deregisterSectionPlane(sectionPlane);
-    });
-    return sectionPlane;
+    this.sectionPlanesList.push(sectionPlane);
+    this.sectionPlanes[sectionPlane.id] = sectionPlane;
+    this._sectionPlanesHash = null;
+    //    this.rebuild();
+    this.viewer.events.onSectionPlaneCreated.dispatch(this, sectionPlane);
+    return {
+      ok: true,
+      value: sectionPlane
+    };
+  }
+
+  /**
+   * Called by a {@link SectionPlane} when destroyed.
+   * @private
+   */
+  _removeSectionPlane(sectionPlane: SectionPlane) {
+    this._deregisterSectionPlane(sectionPlane);
+    this.viewer.events.onSectionPlaneDestroyed.dispatch(this, sectionPlane);
   }
 
   /**
    * Destroys the {@link SectionPlane | SectionPlanes} in this View.
    */
   clearSectionPlanes(): void {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.clearSectionPlanes] View already destroyed"
+      });
+      return;
+    }
     const objectIds = Object.keys(this.sectionPlanes);
     for (let i = 0, len = objectIds.length; i < len; i++) {
       this.sectionPlanes[objectIds[i]].destroy();
     }
     this.sectionPlanesList.length = 0;
-    this.#sectionPlanesHash = null;
+    this._sectionPlanesHash = null;
   }
 
   /**
    * @private
    */
   getSectionPlanesHash() {
-    if (this.#sectionPlanesHash) {
-      return this.#sectionPlanesHash;
+    if (this._sectionPlanesHash) {
+      return this._sectionPlanesHash;
     }
     if (this.sectionPlanesList.length === 0) {
-      return (this.#sectionPlanesHash = ";");
+      return (this._sectionPlanesHash = ";");
     }
     let sectionPlane;
     const hashParts = [];
@@ -1131,8 +1145,8 @@ class View extends Component {
       hashParts.push("cp");
     }
     hashParts.push(";");
-    this.#sectionPlanesHash = hashParts.join("");
-    return this.#sectionPlanesHash;
+    this._sectionPlanesHash = hashParts.join("");
+    return this._sectionPlanesHash;
   }
 
   /**
@@ -1141,8 +1155,8 @@ class View extends Component {
   registerLight(light: PointLight | DirLight | AmbientLight) {
     this.lightsList.push(light);
     this.lights[light.id] = light;
-    this.#lightsHash = null;
-    this.rebuild();
+    this._lightsHash = null;
+    //  this.rebuild();
   }
 
   /**
@@ -1152,9 +1166,9 @@ class View extends Component {
     for (let i = 0, len = this.lightsList.length; i < len; i++) {
       if (this.lightsList[i].id === light.id) {
         this.lightsList.splice(i, 1);
-        this.#lightsHash = null;
+        this._lightsHash = null;
         delete this.lights[light.id];
-        this.rebuild();
+        //       this.rebuild();
         return;
       }
     }
@@ -1164,6 +1178,14 @@ class View extends Component {
    * Destroys the {@link DirLight | DirLights}, {@link PointLight | PointLights} and {@link AmbientLight | AmbientLights} in this View.
    */
   clearLights(): void {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.clearLights] View already destroyed"
+      });
+      return;
+    }
     const lightIds = Object.keys(this.lights);
     for (let i = 0, len = lightIds.length; i < len; i++) {
       this.lights[lightIds[i]].destroy();
@@ -1174,11 +1196,11 @@ class View extends Component {
    * @private
    */
   getLightsHash() {
-    if (this.#lightsHash) {
-      return this.#lightsHash;
+    if (this._lightsHash) {
+      return this._lightsHash;
     }
     if (this.lightsList.length === 0) {
-      return (this.#lightsHash = ";");
+      return (this._lightsHash = ";");
     }
     const hashParts = [];
     const lights = this.lightsList;
@@ -1198,22 +1220,19 @@ class View extends Component {
     //     hashParts.push("/rm");
     // }
     hashParts.push(";");
-    this.#lightsHash = hashParts.join("");
-    return this.#lightsHash;
+    this._lightsHash = hashParts.join("");
+    return this._lightsHash;
   }
 
   /**
    * @private
    */
-  rebuild() {
-    this.viewer.renderer.setNeedsRebuild(this.viewIndex);
-  }
-
-  /**
-   * @private
-   */
-  redraw() {
-    this.viewer.renderer.setImageDirty(this.viewIndex);
+  needsRender() {
+    if (this._needsRender) {
+      return;
+    }
+    this._needsRender = true;
+    this._fireViewUpdatedEventTask.schedule();
   }
 
   /**
@@ -1234,6 +1253,14 @@ class View extends Component {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsVisible(objectIds: string[], visible: boolean): boolean {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.setObjectsVisible] View already destroyed"
+      });
+      return;
+    }
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.visible !== visible;
       viewObject.visible = visible;
@@ -1251,6 +1278,14 @@ class View extends Component {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsCollidable(objectIds: string[], collidable: boolean): boolean {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.setObjectsCollidable] View already destroyed"
+      });
+      return;
+    }
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.collidable !== collidable;
       viewObject.collidable = collidable;
@@ -1268,6 +1303,14 @@ class View extends Component {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsCulled(objectIds: string[], culled: boolean): boolean {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.setObjectsCulled] View already destroyed"
+      });
+      return;
+    }
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.culled !== culled;
       viewObject.culled = culled;
@@ -1286,6 +1329,14 @@ class View extends Component {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsSelected(objectIds: string[], selected: boolean): boolean {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.setObjectsSelected] View already destroyed"
+      });
+      return;
+    }
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.selected !== selected;
       viewObject.selected = selected;
@@ -1304,6 +1355,14 @@ class View extends Component {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsHighlighted(objectIds: string[], highlighted: boolean): boolean {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.setObjectsHighlighted] View already destroyed"
+      });
+      return;
+    }
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.highlighted !== highlighted;
       viewObject.highlighted = highlighted;
@@ -1322,6 +1381,14 @@ class View extends Component {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsXRayed(objectIds: string[], xrayed: boolean): boolean {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.setObjectsXRayed] View already destroyed"
+      });
+      return;
+    }
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.xrayed !== xrayed;
       if (changed) {
@@ -1341,7 +1408,15 @@ class View extends Component {
    * @param colorize - RGB colorize factors in range ````[0..1,0..1,0..1]````.
    * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */
-  setObjectsColorized(objectIds: string[], colorize: number[]) {
+  setObjectsColorized(objectIds: string[], colorize: Vec3) {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.setObjectsColorized] View already destroyed"
+      });
+      return;
+    }
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       viewObject.colorize = colorize;
     });
@@ -1358,6 +1433,14 @@ class View extends Component {
    * @returns True if any {@link ViewObject | ViewObjects} changed opacity, else false if all updates were redundant and not applied.
    */
   setObjectsOpacity(objectIds: string[], opacity: number): boolean {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.setObjecrsOpacity] View already destroyed"
+      });
+      return;
+    }
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.opacity !== opacity;
       if (changed) {
@@ -1378,6 +1461,14 @@ class View extends Component {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsPickable(objectIds: string[], pickable: boolean): boolean {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.setObjectsPickable] View already destroyed"
+      });
+      return;
+    }
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.pickable !== pickable;
       if (changed) {
@@ -1398,6 +1489,14 @@ class View extends Component {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   setObjectsClippable(objectIds: string[], clippable: boolean): boolean {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.setObjectsClippable] View already destroyed"
+      });
+      return;
+    }
     return this.withObjects(objectIds, (viewObject: ViewObject) => {
       const changed = viewObject.clippable !== clippable;
       if (changed) {
@@ -1415,6 +1514,14 @@ class View extends Component {
    * @returns True if any {@link ViewObject | ViewObjects} were updated, else false if all updates were redundant and not applied.
    */
   withObjects(objectIds: string[], callback: Function): boolean {
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.withObjects] View already destroyed"
+      });
+      return;
+    }
     let changed = false;
     for (let i = 0, len = objectIds.length; i < len; i++) {
       const id = objectIds[i];
@@ -1431,150 +1538,92 @@ class View extends Component {
    *
    * The ViewLayer is then registered in {@link View.layers}.
    *
+   * Fires {@link viewer!ViewerEvents.onViewLayerCreated | ViewerEvents.onViewLayerCreated} event.
+   *
    * Since the ViewLayer is created explicitly by this method, the ViewLayer will persist until {@link ViewLayer.destroy}
-   * is called, or the {@link View} itself is destroyed. If a ViewLayer with the given ID already exists, then the method
-   * returns that existing ViewLayer. The method will also ensure that the existing ViewLayer likewise persists.
+   * is called, or the {@link View} itself is destroyed. If a ViewLayer with the given ID already exists, the method
+   * returns that existing ViewLayer. The method also ensures that the existing ViewLayer likewise persists.
    *
-   * @param viewLayerParams
-   * @returns The new ViewLayer
+   * # Usage
+   *
+   * ```typescript
+   * const layerResult = view.createLayer({
+   *   id: "myLayer",
+   *   autoDestroy: true,
+   * });
+   *
+   * if (!layerResult.ok) {
+   *   console.error(layerResult.error);
+   * } else {
+   *   const viewLayer = layerResult.value;
+   *   console.log("ViewLayer created:", viewLayer.id);
+   * }
+   * ```
+   * @param viewLayerParams - Configuration parameters for the new {@link ViewLayer}.
+   * @returns A result containing the created {@link ViewLayer} on success, or an error message on failure.
    */
-  createLayer(viewLayerParams: ViewLayerParams): ViewLayer {
+  createLayer(viewLayerParams: ViewLayerParams): SDKResult<ViewLayer> {
+    if (!viewLayerParams.id) {
+      return this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: "[View.createLayer] Missing layer ID."
+      });
+    }
+
     let viewLayer = this.layers[viewLayerParams.id];
-    if (!viewLayer) {
-      viewLayer = new ViewLayer({
-        // Automatically creates ViewObjects
-        id: viewLayerParams.id,
-        view: this,
-        viewer: this.viewer,
-      });
-      this.layers[viewLayerParams.id] = viewLayer;
-      this.onLayerCreated.dispatch(this, viewLayer);
-      viewLayer.onDestroyed.one(() => {
-        delete this.layers[viewLayer.id];
-        this.onLayerDestroyed.dispatch(this, viewLayer);
-      });
+    if (viewLayer) {
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[View.createLayer] ViewLayer with ID "${viewLayerParams.id}" already exists.`
+      };
     }
-    viewLayer.autoDestroy = viewLayerParams.autoDestroy || false;
-    return viewLayer;
+    viewLayer = new ViewLayer({
+      id: viewLayerParams.id,
+      view: this,
+      viewer: this.viewer,
+      autoDestroy: viewLayerParams.autoDestroy || false
+    });
+    this.layers[viewLayerParams.id] = viewLayer;
+    this.viewer.events.onViewLayerCreated.dispatch(this, viewLayer);
+    return {
+      ok: true,
+      value: viewLayer
+    };
   }
+
 
   /**
-   * Attempts to pick a ViewObject in this View.
-   *
-   * @param pickParams Picking parameters.
-   * @param pickResult Picking results, when caller wants to manage them externally.
-   * @throws {@link core!SDKError | SDKError}
-   * * No View is currently attached to this Renderer.
-   * * Can't find a View attached to this Renderer with the given handle.
-   * * Illegal picking parameters given.
-   * @returns {@link PickResult}
-   * * Picking attempt completed.
+   * @private
+   * @param viewLayer
    */
-  pick(pickParams: PickParams, pickResult?: PickResult): PickResult | null | SDKError {
-    return this.viewer.renderer.pick(this.viewIndex, pickParams, pickResult);
+  _destroyLayer(viewLayer: ViewLayer) {
+    delete this.layers[viewLayer.id];
+    this.viewer.events.onViewLayerDestroyed.dispatch(this, viewLayer);
   }
+
+
+  // #registerSectionPlane(sectionPlane: SectionPlane) {
+  //   this.sectionPlanesList.push(sectionPlane);
+  //   this.sectionPlanes[sectionPlane.id] = sectionPlane;
+  //   this.#sectionPlanesHash = null;
+  //   this.rebuild();
+  //   this.viewer.events.onSectionPlaneCreated.dispatch(this, sectionPlane);
+  // }
 
   /**
-   * Enter snapshot mode.
-   *
-   * Switches rendering to a hidden snapshot canvas.
-   *
-   * Exit snapshot mode using {@link viewer!Viewer.endSnapshot | Viewer.endSnapshot}.
+   * @private
+   * @param sectionPlane
    */
-  beginSnapshot() {
-    if (this.#snapshotBegun) {
-      return;
-    }
-    this.viewer.renderer.beginSnapshot(this.viewIndex);
-    this.#snapshotBegun = true;
-  }
-
-  /**
-   * Captures a snapshot image of this View.
-   *
-   * @param snapshotParams
-   * @param snapshotResult
-   */
-  getSnapshot(snapshotParams: SnapshotParams, snapshotResult?: SnapshotResult): SnapshotResult {
-    // const needFinishSnapshot = (!this.#snapshotBegun);
-    // const resize = (snapshotParams.width !== undefined && snapshotParams.height !== undefined);
-    // const canvas = this.htmlElement;
-    // const saveWidth = canvas.clientWidth;
-    // const saveHeight = canvas.clientHeight;
-    // const width = snapshotParams.width ? Math.floor(snapshotParams.width) : canvas.width;
-    // const height = snapshotParams.height ? Math.floor(snapshotParams.height) : canvas.height;
-    //
-    // if (resize) {
-    //     // canvas.width = width;
-    //     // canvas.height = height;
-    // }
-    //
-    // if (!this.#snapshotBegun) {
-    //     this.onSnapshotStarted.dispatch(this, {
-    //         width,
-    //         height
-    //     });
-    // }
-
-    // if (!snapshotParams.includeGizmos) {
-    //     this.sendToPlugins("snapshotStarting"); // Tells plugins to hide things that shouldn't be in snapshot
-    // }
-    //
-    // const captured = {};
-    // for (let i = 0, len = this._plugins.length; i < len; i++) {
-    //     const plugin = this._plugins[i];
-    //     if (plugin.getContainerElement) {
-    //         const container = plugin.getContainerElement();
-    //         if (container !== document.body) {
-    //             if (!captured[container.id]) {
-    //                 captured[container.id] = true;
-    //                 html2canvas(container).then(function (canvas) {
-    //                     document.body.appendChild(canvas);
-    //                 });
-    //             }
-    //         }
-    //     }
-    // }
-    //
-    // this.scene._renderer.renderSnapshot();
-    //
-    // const imageDataURI = this.scene._renderer.readSnapshot(snapshotParams);
-    //
-    // if (resize) {
-    //     canvas.width = saveWidth;
-    //     canvas.height = saveHeight;
-    //
-    //     this.scene.glRedraw();
-    // }
-    //
-    // if (!snapshotParams.includeGizmos) {
-    //     this.sendToPlugins("snapshotFinished");
-    // }
-    //
-    // if (needFinishSnapshot) {
-    //     this.endSnapshot();
-    // }
-
-    //    return imageDataURI;
-    return new SnapshotResult();
-  }
-
-  #registerSectionPlane(sectionPlane: SectionPlane) {
-    this.sectionPlanesList.push(sectionPlane);
-    this.sectionPlanes[sectionPlane.id] = sectionPlane;
-    this.#sectionPlanesHash = null;
-    this.rebuild();
-    this.onSectionPlaneCreated.dispatch(this, sectionPlane);
-  }
-
-  #deregisterSectionPlane(sectionPlane: SectionPlane) {
+  _deregisterSectionPlane(sectionPlane: SectionPlane) {
     for (let i = 0, len = this.sectionPlanesList.length; i < len; i++) {
       if (this.sectionPlanesList[i].id === sectionPlane.id) {
         this.sectionPlanesList.splice(i, 1);
-        this.#sectionPlanesHash = null;
+        this._sectionPlanesHash = null;
         delete this.sectionPlanes[sectionPlane.id];
-        this.rebuild();
-        this.onSectionPlaneDestroyed.dispatch(this, sectionPlane);
+        // this.rebuild();
+        this.viewer.events.onSectionPlaneDestroyed.dispatch(this, sectionPlane);
         return;
       }
     }
@@ -1588,69 +1637,113 @@ class View extends Component {
    * Sets the state of this View.
    * @param viewParams
    */
-  fromParams(viewParams: ViewParams) {
+  fromParams(viewParams: ViewParams): SDKResult<any> {
+    if (this.destroyed) {
+      return this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[View.fromParams] View "${this.id}" has been destroyed`
+      });
+    }
     if (viewParams.camera) {
-      this.camera.fromParams(viewParams.camera);
+      const result = this.camera.fromParams(viewParams.camera);
+      if (result.ok === false) {
+        return result;
+      }
     }
     this.autoLayers = viewParams.autoLayers;
     if (viewParams.layers) {
       for (const viewLayerParams of viewParams.layers) {
         const existingViewLayer = this.layers[viewLayerParams.id];
         if (!existingViewLayer) {
-          this.createLayer(viewLayerParams);
+          const result = this.createLayer(viewLayerParams);
+          if (result.ok === false) {
+            return result;
+          }
         }
       }
     }
-    if (viewParams.sectionPlanes) {
-      for (const sectionPlaneParams of viewParams.sectionPlanes) {
-        const existingSectionPlane = this.sectionPlanes[sectionPlaneParams.id];
-        if (existingSectionPlane) {
-          existingSectionPlane.fromParams(sectionPlaneParams);
-        } else {
-          this.createSectionPlane(sectionPlaneParams);
-        }
-      }
-    }
+    // if (viewParams.sectionPlanes) {
+    //     for (const sectionPlaneParams of viewParams.sectionPlanes) {
+    //         const existingSectionPlane = this.sectionPlanes[sectionPlaneParams.id];
+    //         if (existingSectionPlane) {
+    //             const result = existingSectionPlane.fromParams(sectionPlaneParams);
+    //             if (result.ok === false) {
+    //                 return result;
+    //             }
+    //         } else {
+    //             const result = this.createSectionPlane(sectionPlaneParams);
+    //             if (result.ok === false) {
+    //                 return result;
+    //             }
+    //         }
+    //     }
+    // }
     if (viewParams.sao) {
-      this.sao.fromParams(viewParams.sao);
+      const result = this.sao.fromParams(viewParams.sao);
+      if (result.ok === false) {
+        return result;
+      }
     }
     if (viewParams.edges) {
-      this.edges.fromParams(viewParams.edges);
+      const result = this.edges.fromParams(viewParams.edges);
+      if (result.ok === false) {
+        return result;
+      }
     }
     if (viewParams.highlightMaterial) {
-      this.highlightMaterial.fromParams(viewParams.highlightMaterial);
+      const result = this.highlightMaterial.fromParams(viewParams.highlightMaterial);
+      if (result.ok === false) {
+        return result;
+      }
     }
     if (viewParams.selectedMaterial) {
-      this.selectedMaterial.fromParams(viewParams.selectedMaterial);
+      const result = this.selectedMaterial.fromParams(viewParams.selectedMaterial);
+      if (result.ok === false) {
+        return result;
+      }
     }
     if (viewParams.xrayMaterial) {
-      this.xrayMaterial.fromParams(viewParams.xrayMaterial);
+      const result = this.xrayMaterial.fromParams(viewParams.xrayMaterial);
+      if (result.ok === false) {
+        return result;
+      }
     }
     if (viewParams.pointsMaterial) {
-      this.pointsMaterial.fromParams(viewParams.pointsMaterial);
+      const result = this.pointsMaterial.fromParams(viewParams.pointsMaterial);
+      if (result.ok === false) {
+        return result;
+      }
     }
     // TODO: Update lights
+    return {
+      ok: true,
+      value: null
+    };
   }
 
   /**
    * Gets this View as JSON.
    */
-  toParams(): ViewParams {
+  toParams(): SDKResult<ViewParams> {
     return {
-      id: this.id,
-      camera: this.camera.toParams(),
-      autoLayers: this.autoLayers,
-      layers: Object.values(this.layers).map(viewLayer => viewLayer.toParams()),
-      sectionPlanes: Object.values(this.sectionPlanes).map(sectionPlane => sectionPlane.toParams()),
-      lights: Object.values(this.lights).map(light => light.toParams()),
-      sao: this.sao.toParams(),
-      edges: this.edges.toParams(),
-      highlightMaterial: this.highlightMaterial.toParams(),
-      selectedMaterial: this.selectedMaterial.toParams(),
-      xrayMaterial: this.xrayMaterial.toParams(),
-      pointsMaterial: this.pointsMaterial.toParams(),
-      resolutionScale: this.resolutionScale.toParams(),
-      renderMode: this.renderMode
+      ok: true,
+      value: {
+        id: this.id,
+        camera: (<{ value: CameraParams }>this.camera.toParams()).value,
+        autoLayers: this.autoLayers,
+        layers: Object.values(this.layers).map(viewLayer => (<{ value: ViewLayerParams }>viewLayer.toParams()).value),
+        // sectionPlanes: Object.values(this.sectionPlanes).map(sectionPlane => (<{ value: SectionPlaneParams }>sectionPlane.toParams()).value),
+        // lights: Object.values(this.lights).map(light => light.toParams()),
+        sao: (<{ value: SAOParams }>this.sao.toParams()).value,
+        edges: (<{ value: EdgesParams }>this.edges.toParams()).value,
+        highlightMaterial: (<{ value: EmphasisMaterialParams }>this.highlightMaterial.toParams()).value,
+        selectedMaterial: (<{ value: EmphasisMaterialParams }>this.selectedMaterial.toParams()).value,
+        xrayMaterial: (<{ value: EmphasisMaterialParams }>this.xrayMaterial.toParams()).value,
+        pointsMaterial: (<{ value: PointsMaterialParams }>this.pointsMaterial.toParams()).value,
+        resolutionScale: (<{ value: ResolutionScaleParams }>this.resolutionScale.toParams()).value,
+        renderMode: this.renderMode
+      }
     };
   }
 
@@ -1660,39 +1753,23 @@ class View extends Component {
    * Causes {@link Viewer | Viewer} to fire a "viewDestroyed" event.
    */
   destroy() {
-    this.viewer.onTick.unsubscribe(this.#onTick);
-    this.#destroyViewLayers();
-    this.#destroyViewObjects();
-    this.onObjectCreated.clear();
-    this.onObjectDestroyed.clear();
-    this.onObjectVisibility.clear();
-    this.onObjectXRayed.clear();
-    this.onLayerCreated.clear();
-    this.onLayerDestroyed.clear();
-    this.onSectionPlaneCreated.clear();
-    this.onSectionPlaneDestroyed.clear();
-    super.destroy();
-  }
-
-  #destroyViewObjectsForSceneModel(sceneModel: SceneModel) {
-    const objects = sceneModel.objects;
-    for (const id in objects) {
-      const object = objects[id];
-      const layerId = object.layerId || "default";
-      const viewLayer = this.layers[layerId];
-      const viewObject = this.objects[object.id];
-      this.deregisterViewObject(viewObject);
-      if (viewLayer) {
-        viewLayer.deregisterViewObject(viewObject);
-        if (viewLayer.autoDestroy && viewLayer.numObjects === 0) {
-          viewLayer.destroy();
-        }
-      }
-      this.onObjectDestroyed.dispatch(this, viewObject);
+    if (this.destroyed) {
+      this.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[View.destroy] View already destroyed"
+      });
+      return;
     }
+    this._checkViewResizedTask.destroy();
+    this._fireViewUpdatedEventTask.destroy();
+    this._destroyViewLayers();
+    this._destroyViewObjects();
+    this.viewer._destroyView(this);
+    this.destroyed = true;
   }
 
-  #destroyViewLayers() {
+  _destroyViewLayers() {
     const layers = this.layers;
     for (const id in layers) {
       const viewLayer = layers[id];
@@ -1700,7 +1777,7 @@ class View extends Component {
     }
   }
 
-  #destroyViewObjects() {
+  _destroyViewObjects() {
     const objects = this.objects;
     for (const id in objects) {
       const object = objects[id];
@@ -1708,14 +1785,14 @@ class View extends Component {
       const layerId = sceneObject.layerId || "default";
       const viewLayer = this.layers[layerId];
       const viewObject = this.objects[object.id];
-      this.deregisterViewObject(viewObject);
+      this._deattachViewObject(viewObject);
       if (viewLayer) {
-        viewLayer.deregisterViewObject(viewObject);
+        viewLayer._deattachViewObject(viewObject);
         if (viewLayer.autoDestroy && viewLayer.numObjects === 0) {
           viewLayer.destroy();
         }
       }
-      this.onObjectDestroyed.dispatch(this, viewObject);
+      this.viewer.events.onViewObjectDestroyed.dispatch(this, viewObject);
     }
   }
 }

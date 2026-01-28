@@ -5,4 +5,4 @@ import type { RendererGeometry } from "../scene";
 export declare class WebGLRendererGeometry implements RendererGeometry {
     constructor();
 }
-//# sourceMappingURL=WebGLRendererGeometry.d.ts.map
+//# sourceMappingURL=RendererGeometry.d.ts.map

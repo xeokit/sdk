@@ -134,10 +134,10 @@ export declare class WebGLRenderer implements Renderer {
      * upload state updates to the Renderer.
      *
      * * Sets a {@link scene!RendererModel} on {@link scene!SceneModel.rendererModel | SceneModel.rendererModel}
-     * * Sets a {@link scene!RendererObject} on each {@link scene!SceneObject.rendererObject | SceneObject.rendererObject}
-     * * Sets a {@link scene!RendererMesh} on each {@link scene!SceneMesh.rendererMesh | SceneMesh.rendererMesh}
-     * * Sets a {@link scene!RendererTextureSet} on each {@link scene!SceneTextureSet.rendererTextureSet | SceneTextureSet.rendererTextureSet}
-     * * Sets a {@link scene!RendererTexture} on each {@link scene!SceneTexture.rendererTexture | SceneTexture.rendererTexture}
+     * * Sets a {@link scene!SceneObjectRendererProxy} on each {@link scene!SceneObject.sceneObjectRendererProxy | SceneObject.sceneObjectRendererProxy}
+     * * Sets a {@link scene!SceneMeshRendererProxy} on each {@link scene!SceneMesh.sceneObjectRendererProxy | SceneMesh.sceneObjectRendererProxy}
+     * * Sets a {@link scene!SceneTextureSetRendererProxy} on each {@link scene!SceneTextureSet.sceneTextureSetRendererProxy | SceneTextureSet.sceneTextureSetRendererProxy}
+     * * Sets a {@link scene!SceneTextureRendererProxy} on each {@link scene!SceneTexture.sceneTextureRendererProxy | SceneTexture.sceneTextureRendererProxy}
      *
      * Then, when we make any state updates to those components, they will upload the updates into the Renderer.
      *
@@ -155,9 +155,9 @@ export declare class WebGLRenderer implements Renderer {
     /**
      * Detaches a {@link scene!SceneModel | SceneModel} from this WebGLRenderer.
      *
-     * Detaches and destroys the {@link scene!RendererModel}, {@link scene!RendererObject} and
-     * {@link scene!RendererMesh},
-     * {@link scene!RendererTexture} instances that were attached in {@link webglrenderer!WebGLRenderer.attachSceneModel}.
+     * Detaches and destroys the {@link scene!RendererModel}, {@link scene!SceneObjectRendererProxy} and
+     * {@link scene!SceneMeshRendererProxy},
+     * {@link scene!SceneTextureRendererProxy} instances that were attached in {@link webglrenderer!WebGLRenderer.attachSceneModel}.
      *
      * @internal
      * @returns *void*
@@ -182,20 +182,20 @@ export declare class WebGLRenderer implements Renderer {
     setImageDirty(viewIndex?: number): void;
     /**
      * Sets whether the WebGLRenderer draws edges.
-     * Triggers a new frame render.
+     * Triggers a new frame draw.
      * @internal
      */
     setEdgesEnabled(viewIndex: number, enabled: boolean): void;
     /**
      * Sets whether the WebGLRenderer draws with physically-based rendering.
-     * Triggers a new frame render.
+     * Triggers a new frame draw.
      * @internal
      */
     setPBREnabled(viewIndex: number, enabled: boolean): void;
     getSAOSupported(): boolean;
     /**
      * Sets whether the WebGLRenderer draws with SAO.
-     * Triggers a new frame render.
+     * Triggers a new frame draw.
      * @internal
      */
     setSAOEnabled(viewIndex: number, enabled: boolean): void;
@@ -251,7 +251,7 @@ export declare class WebGLRenderer implements Renderer {
      *
      * @internal
      * @param viewIndex Handle to the View, returned earlier by {@param params Rendering params.
-     * @param [params.force=false] True to force a render, else only render if needed.
+     * @param [params.force=false] True to force a draw, else only draw if needed.
      * @link webglrenderer!WebGLRenderer.attachView | Renderer.attachView}.
      * @returns *{@link core!SDKError | SDKError}*
      * * No View is currently attached to this Renderer.

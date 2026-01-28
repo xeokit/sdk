@@ -11,7 +11,12 @@ export interface RelationshipParams {
   /**
    * The relationship type.
    */
-  type: number,
+  type: string,
+
+  /**
+   * The relationship schema version, if applicable.
+   */
+  schema?: string,
 
   /**
    * The relating {@link DataObject | DataObject}.

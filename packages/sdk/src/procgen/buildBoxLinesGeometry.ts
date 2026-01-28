@@ -1,7 +1,8 @@
 import * as constants from "../constants";
 import * as utils from "../utils";
-import type {FloatArrayParam} from "../math";
 import type {GeometryArrays} from "./GeometryArrays";
+import {SDKErrorType, type SDKResult} from "../core";
+import type {Vec3} from "../math/vector";
 
 /**
  * Creates a box-shaped wireframe geometry.
@@ -13,7 +14,7 @@ import type {GeometryArrays} from "./GeometryArrays";
  * ## Usage
  *
  * ````javascript
- * const wireframeGeometry = buildBoxLinesGeometry({
+ * const wireframeGeometryResult = buildBoxLinesGeometry({
  *     center: [0, 0, 0],   // Center of the box
  *     xSize: 2,            // Half-size along the X-axis
  *     ySize: 1,            // Half-size along the Y-axis
@@ -26,12 +27,10 @@ import type {GeometryArrays} from "./GeometryArrays";
  * @param [cfg.xSize=1.0] Half-size of the box along the X-axis. The default value is `1.0`.
  * @param [cfg.ySize=1.0] Half-size of the box along the Y-axis. The default value is `1.0`.
  * @param [cfg.zSize=1.0] Half-size of the box along the Z-axis. The default value is `1.0`.
- * @returns {GeometryArrays} The geometry arrays for a box wireframe, including positions and indices for the wireframe.
- *
- * @throws {SDKError} If any of the sizes (`xSize`, `ySize`, or `zSize`) are negative, the function automatically inverts the sizes and logs a warning.
+ * @returns {SDKResult<GeometryArrays>} The geometry arrays for a box wireframe, including positions and indices, or an error message.
  */
 export function buildBoxLinesGeometry(cfg: {
-  center?: FloatArrayParam,
+  center?: Vec3,
   ySize?: number,
   xSize?: number,
   zSize?: number
@@ -40,27 +39,45 @@ export function buildBoxLinesGeometry(cfg: {
   xSize: 1,
   ySize: 1,
   zSize: 1
-}): GeometryArrays {
-
-  let xSize = cfg.xSize || 1;
-  if (xSize < 0) {
-    console.error("negative xSize not allowed - will invert");
-    xSize *= -1;
-  }
-
-  let ySize = cfg.ySize || 1;
-  if (ySize < 0) {
-    console.error("negative ySize not allowed - will invert");
-    ySize *= -1;
-  }
-
-  let zSize = cfg.zSize || 1;
-  if (zSize < 0) {
-    console.error("negative zSize not allowed - will invert");
-    zSize *= -1;
-  }
+}): SDKResult<GeometryArrays> {
 
   const center = cfg.center;
+
+  if (center && center.length !== 3) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildBoxLinesGeometry] Center must be a 3D point [x, y, z]."
+    };
+  }
+
+  const xSize = cfg.xSize || 1;
+  if (xSize < 0) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildBoxLinesGeometry] Negative xSize not allowed."
+    };
+  }
+
+  const ySize = cfg.ySize || 1;
+  if (ySize < 0) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildBoxLinesGeometry] Negative ySize not allowed."
+    };
+  }
+
+  const zSize = cfg.zSize || 1;
+  if (zSize < 0) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildBoxLinesGeometry] Negative zSize not allowed."
+    };
+  }
+
   const centerX = center ? center[0] : 0;
   const centerY = center ? center[1] : 0;
   const centerZ = center ? center[2] : 0;
@@ -72,7 +89,7 @@ export function buildBoxLinesGeometry(cfg: {
   const ymax = ySize + centerY;
   const zmax = zSize + centerZ;
 
-  return utils.apply(cfg, {
+  const geometryArrays = utils.apply(cfg, {
     primitive: constants.LinesPrimitive,
 
     // The positions represent the vertices of the box.
@@ -104,4 +121,6 @@ export function buildBoxLinesGeometry(cfg: {
       3, 7 // line from v3 to v7
     ]
   });
+
+  return { ok: true, value: geometryArrays };
 }

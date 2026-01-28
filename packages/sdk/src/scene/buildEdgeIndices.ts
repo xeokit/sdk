@@ -1,6 +1,7 @@
-import {createVec3, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "../matrix";
-import {decompressPoint3WithAABB3, decompressPoint3WithMat4} from "../compression";
+import {createVec3Float64, cross3Vec3, dotVec3, normalizeVec3, subVec3} from "../math/vector";
+import {decompressPoint3WithAABB3} from "../math/compression";
 import {DEGTORAD, type FloatArrayParam, type IntArrayParam} from "../math";
+import type {AABB3} from "../math/boundaries";
 
 const uniquePositions: number[] = [];
 const indicesLookup: number[] = [];
@@ -14,13 +15,13 @@ let numFaces = 0;
 const compa = new Uint16Array(3);
 const compb = new Uint16Array(3);
 const compc = new Uint16Array(3);
-const a = createVec3();
-const b = createVec3();
-const c = createVec3();
-const cb = createVec3();
-const ab = createVec3();
-const cross = createVec3();
-const normal = createVec3();
+const a = createVec3Float64();
+const b = createVec3Float64();
+const c = createVec3Float64();
+const cb = createVec3Float64();
+const ab = createVec3Float64();
+const cross = createVec3Float64();
+const normal = createVec3Float64();
 
 function weldVertices(positions: FloatArrayParam, indices: IntArrayParam) {
   const positionsMap = {}; // Hashmap for looking up vertices by position coordinates (and making sure they are unique)
@@ -55,7 +56,7 @@ function weldVertices(positions: FloatArrayParam, indices: IntArrayParam) {
   }
 }
 
-function buildFaces(numIndices: number, aabb: FloatArrayParam) {
+function buildFaces(numIndices: number, aabb: AABB3) {
   numFaces = 0;
   for (let i = 0, len = numIndices; i < len; i += 3) {
     const ia = ((weldedIndices[i]) * 3);
@@ -91,7 +92,7 @@ function buildFaces(numIndices: number, aabb: FloatArrayParam) {
     cross3Vec3(cb, ab, cross);
     normalizeVec3(cross, normal);
     // @ts-ignore
-    const face = faces[numFaces] || (faces[numFaces] = {normal: createVec3()});
+    const face = faces[numFaces] || (faces[numFaces] = {normal: createVec3Float64()});
     face.normal[0] = normal[0];
     face.normal[1] = normal[1];
     face.normal[2] = normal[2];
@@ -107,7 +108,7 @@ function buildFaces(numIndices: number, aabb: FloatArrayParam) {
 export function buildEdgeIndices(
   positions: FloatArrayParam,
   indices: IntArrayParam,
-  aabb: FloatArrayParam,
+  aabb: AABB3,
   edgeThreshold: number): IntArrayParam {
 
   weldVertices(positions, indices);

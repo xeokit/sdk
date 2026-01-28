@@ -14,7 +14,7 @@ export class VBOPointsBatchingSilhouetteRenderer extends VBOBatchingRenderer {
         this.vertexBatchingTransformDefs(src);
         this.vertexSlicingDefs(src);
         this.vertexPointsGeometryDefs(src);
-        this.vertexSilhouetteDefs(src);
+        this.vertexDrawSilhouetteDefs(src);
         this.vertexSilhouetteMainOpen(src);
         {
             this.vertexPointsFilterLogicOpenBlock(src);
@@ -38,7 +38,7 @@ export class VBOPointsBatchingSilhouetteRenderer extends VBOBatchingRenderer {
         {
             this.fragmentPointsGeometryLogic(src);
             this.fragmentSlicingLogic(src);
-            this.fragmentSilhouetteLogic(src);
+            this.fragmentDrawSilhouetteLogic(src);
             this.fragmentCommonOutput(src);
         }
         src.push("}");

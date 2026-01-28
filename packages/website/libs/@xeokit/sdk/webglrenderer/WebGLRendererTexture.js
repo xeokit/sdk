@@ -14,4 +14,4 @@ export class WebGLRendererTexture {
         }
     }
 }
-//# sourceMappingURL=WebGLRendererTexture.js.map
+//# sourceMappingURL=RendererTexture.js.map

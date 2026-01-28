@@ -42,6 +42,11 @@ export class PropertySet {
   public readonly type: string;
 
   /**
+   * The schema version that this PropertySet conforms to, if applicable.
+   */
+  public readonly schema?: string;
+
+  /**
    * The collection of {@link Property | Properties} within this PropertySet.
    */
   public readonly properties: Property[];
@@ -59,6 +64,7 @@ export class PropertySet {
     this.id = propertySetCfg.id;
     this.name = propertySetCfg.name;
     this.type = propertySetCfg.type;
+    this.schema = propertySetCfg.schema;
     this.properties = [];
     if (propertySetCfg.properties) {
       for (let i = 0, len = propertySetCfg.properties.length; i < len; i++) {

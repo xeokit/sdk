@@ -15,10 +15,9 @@ import {
   RepeatWrapping,
   sRGBEncoding
 } from "../constants";
-import {createVec4} from "../matrix";
-import type {FloatArrayParam} from "../math";
-import type {RendererTexture} from "./RendererTexture";
+import {createVec4Float64, type Vec4} from "../math/vector";
 import type {SceneTextureParams} from "./SceneTextureParams";
+import type {SceneModel} from "./SceneModel";
 
 /**
  * A texture in a {@link SceneModel | SceneModel}.
@@ -32,15 +31,6 @@ import type {SceneTextureParams} from "./SceneTextureParams";
  * See {@link scene | @xeokit/sdk/scene}   for usage.
  */
 export class SceneTexture {
-
-  /**
-   *  Internal interface through which this {@link SceneTexture} can load property updates into a renderers.
-   *
-   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
-   *
-   * @internal
-   */
-  rendererTexture: RendererTexture | null;
 
   /**
    * ID for the texture.
@@ -150,7 +140,7 @@ export class SceneTexture {
   /**
    * RGBA color to preload the texture with.
    */
-  preloadColor: FloatArrayParam;
+  preloadColor: Vec4;
 
   /**
    * @private
@@ -158,9 +148,20 @@ export class SceneTexture {
   channel: number;
 
   /**
+   * The SceneModel that this texture belongs to.
+   */
+  public model: SceneModel;
+
+  /**
+   * True if this SceneTexture has been destroyed.
+   */
+  public destroyed: boolean = false;
+
+  /**
    * @private
    */
-  constructor(params: SceneTextureParams) {
+  constructor(sceneModel: SceneModel, params: SceneTextureParams) {
+    this.model = sceneModel;
     this.id = params.id;
     this.imageData = params.imageData;
     this.src = params.src;
@@ -171,9 +172,23 @@ export class SceneTexture {
     this.wrapT = params.wrapT || RepeatWrapping;
     this.wrapR = params.wrapR || RepeatWrapping
     this.encoding = params.encoding || LinearEncoding;
-    this.preloadColor = createVec4(params.preloadColor || [1, 1, 1, 1]);
+    this.preloadColor = createVec4Float64(params.preloadColor || [1, 1, 1, 1]);
     this.channel = 0;
-    this.rendererTexture = null;
+  }
+
+  /**
+   * Destroy this SceneTexture.
+   */
+  destroy() {
+    if (this.destroyed) {
+        return;
+    }
+    //  TODO: Null any TextureSet references to this texture
+    this.image = undefined;
+    this.imageData = undefined;
+    this.buffers = undefined;
+    this.model._destroyTexture(this);
+    this.destroyed = true;
   }
 }
 

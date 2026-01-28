@@ -1,348 +1,268 @@
-// Import the SDK from a bundle built for these examples
+// Import the SDK from a bundle built for these examples.
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-import {DemoHelper} from "../../js/DemoHelper.js";
+// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
-// Create a Scene to hold geometry and materials
+import { DemoHelper } from "../../js/DemoHelper.js";
 
-const scene = new xeokit.scene.Scene();
+const demoHelper = new DemoHelper({});
 
-// Create a Data to hold semantic data
+demoHelper.init().then(({
+                          scene,
+                          data,
+                          viewer,
+                          view,
+                          renderer
+}) => {
 
-const data = new xeokit.data.Data();
+  // Position the View camera so the demo model will be in frame.
 
-// Create a WebGLRenderer to use the browser's WebGL API for 3D graphics
+  view.camera.eye = [10, -2, 15];
+  view.camera.look = [0, -6, 0];
+  view.camera.up = [0, 1, 0];
 
-const renderer = new xeokit.webglrenderer.WebGLRenderer({});
+  // Create a DataModel to hold semantic objects, properties, and relationships.
 
-// Create a Viewer that draws our Scene using the WebGLRenderer. Note that the
-// Scene and WebGLRenderer can only be attached to one Viewer at a time.
+  const dataModelResult = data.createModel({
+    id: "demoModel",
+  });
 
-const viewer = new xeokit.viewer.Viewer({
-    id: "demoViewer",
-    scene,
-    renderer
-});
+  if (!dataModelResult.ok) {
+    throw new Error(dataModelResult.error);
+  }
 
-// Give the Viewer a single View to render the Scene in our HTML canvas element
+  const dataModel = dataModelResult.value;
 
-const view = viewer.createView({
-    id: "demoView",
-    elementId: "demoCanvas"
-});
+  // Create PropertySets that describe reusable property groups for table components.
 
-// Position the View's Camera
+  const makeWeightHeightProps = (weight, height) => [
+    {
+      name: "Weight",
+      value: weight,
+      type: "",
+      valueType: "",
+      description: "Weight of the thing",
+    },
+    {
+      name: "Height",
+      value: height,
+      type: "",
+      valueType: "",
+      description: "Height of the thing",
+    },
+  ];
 
-view.camera.eye = [10, -2, 15];
-view.camera.look = [0, -6, 0];
-view.camera.up = [0, 1, 0];
+  dataModel.createPropertySet({
+    id: "tablePropertySet",
+    name: "Table properties",
+    type: "BasicPropertySet",
+    schema: "MySchema",
+    properties: makeWeightHeightProps(5, 12),
+  });
 
-// Add a CameraControl to interactively control the View's Camera with keyboard,
-// mouse and touch input
+  dataModel.createPropertySet({
+    id: "tableTopPropertySet",
+    name: "Table top properties",
+    type: "BasicPropertySet",
+    schema: "MySchema",
+    properties: makeWeightHeightProps(10, 3),
+  });
 
-new xeokit.cameracontrol.CameraControl(view);
+  dataModel.createPropertySet({
+    id: "tableLegPropertySet",
+    name: "Table leg properties",
+    type: "BasicPropertySet",
+    schema: "MySchema",
+    properties: makeWeightHeightProps(5, 12),
+  });
 
-// Ignore this DemoHelper
+  // Create DataObjects that represent the table assembly and each of its parts.
 
-const demoHelper = new DemoHelper({
-    elementId: "info-container",
-    viewer,
-    data
-});
+  dataModel.createObject({
+    id: "table",
+    type: "BasicEntity",
+    schema: "MySchema",
+    name: "Table",
+    propertySetIds: ["tablePropertySet"],
+  });
 
-demoHelper.init()
-    .then(() => {
+  dataModel.createObject({
+    id: "redLeg",
+    type: "BasicEntity",
+    schema: "MySchema",
+    name: "Red table leg",
+    propertySetIds: ["tableLegPropertySet"],
+  });
 
-        // Create a DataModel to hold semantic information for the
-        // objects in our table model
+  dataModel.createObject({
+    id: "greenLeg",
+    type: "BasicEntity",
+    schema: "MySchema",
+    name: "Green table leg",
+    propertySetIds: ["tableLegPropertySet"],
+  });
 
-        const dataModel = data.createModel({
-            id: "demoModel"
-        });
+  dataModel.createObject({
+    id: "blueLeg",
+    type: "BasicEntity",
+    schema: "MySchema",
+    name: "Blue table leg",
+    propertySetIds: ["tableLegPropertySet"],
+  });
 
-        // Create some PropertySets in our DataModel
+  dataModel.createObject({
+    id: "yellowLeg",
+    type: "BasicEntity",
+    schema: "MySchema",
+    name: "Yellow table leg",
+    propertySetIds: ["tableLegPropertySet"],
+  });
 
-        dataModel.createPropertySet({ // PropertySet | SDKError
-            id: "tablePropertySet",
-            name: "Table properties",
-            type: "",
-            properties: [ // Property[]
-                {
-                    name: "Weight",
-                    value: 5,
-                    type: "",
-                    valueType: "",
-                    description: "Weight of the thing"
-                },
-                {
-                    name: "Height",
-                    value: 12,
-                    type: "",
-                    valueType: "",
-                    description: "Height of the thing"
-                }
-            ]
-        });
+  dataModel.createObject({
+    id: "tableTop",
+    type: "BasicEntity",
+    schema: "MySchema",
+    name: "Purple table top",
+    propertySetIds: ["tableTopPropertySet"],
+  });
 
-        dataModel.createPropertySet({ // PropertySet | SDKError
-            id: "tableTopPropertySet",
-            name: "Table Top properties",
-            type: "",
-            properties: [ // Property[]
-                {
-                    name: "Weight",
-                    value: 10,
-                    type: "",
-                    valueType: "",
-                    description: "Weight of the thing"
-                },
-                {
-                    name: "Height",
-                    value: 3,
-                    type: "",
-                    valueType: "",
-                    description: "Height of the thing"
-                }
-            ]
-        });
+  // Create aggregation relationships so the table object owns the tabletop and the tabletop owns the legs.
 
-        dataModel.createPropertySet({
-            id: "tableLegPropertySet",
-            name: "Table leg properties",
-            type: "",
-            properties: [
-                {
-                    name: "Weight",
-                    value: 5,
-                    type: "",
-                    valueType: "",
-                    description: "Weight of the thing"
-                },
-                {
-                    name: "Height",
-                    value: 12,
-                    type: "",
-                    valueType: "",
-                    description: "Height of the thing"
-                }
-            ]
-        });
+  const rel0 = dataModel.createRelationship({
+    type: "BasicAggregation",
+    relatingObjectId: "table",
+    relatedObjectId: "tableTop",
+  });
 
-        dataModel.createObject({ // DataObject | SDKError
-            id: "table",
-            type: xeokit.basictypes.BasicEntity,
-            name: "Table",
-            propertySetIds: ["tablePropertySet"]
-        });
+  if (!rel0.ok) {
+    throw new Error(rel0.error);
+  }
 
-        dataModel.createObject({
-            id: "redLeg",
-            name: "Red table Leg",
-            type: xeokit.basictypes.BasicEntity,
-            propertySetIds: ["tableLegPropertySet"]
-        });
+  dataModel.createRelationship({
+    type: "BasicAggregation",
+    relatingObjectId: "tableTop",
+    relatedObjectId: "redLeg",
+  });
 
-        dataModel.createObject({
-            id: "greenLeg",
-            name: "Green table leg",
-            type: xeokit.basictypes.BasicEntity,
-            propertySetIds: ["tableLegPropertySet"]
-        });
+  dataModel.createRelationship({
+    type: "BasicAggregation",
+    relatingObjectId: "tableTop",
+    relatedObjectId: "greenLeg",
+  });
 
-        dataModel.createObject({
-            id: "blueLeg",
-            name: "Blue table leg",
-            type: xeokit.basictypes.BasicEntity,
-            propertySetIds: ["tableLegPropertySet"]
-        });
+  dataModel.createRelationship({
+    type: "BasicAggregation",
+    relatingObjectId: "tableTop",
+    relatedObjectId: "blueLeg",
+  });
 
-        dataModel.createObject({
-            id: "yellowLeg",
-            name: "Yellow table leg",
-            type: xeokit.basictypes.BasicEntity,
-            propertySetIds: ["tableLegPropertySet"]
-        });
+  dataModel.createRelationship({
+    type: "BasicAggregation",
+    relatingObjectId: "tableTop",
+    relatedObjectId: "yellowLeg",
+  });
 
-        dataModel.createObject({
-            id: "tableTop",
-            name: "Purple table top",
-            type: xeokit.basictypes.BasicEntity,
-            propertySetIds: ["tableTopPropertySet"]
-        });
+  // Create a SceneModel to hold geometry, meshes, and scene objects for rendering.
 
-        // Create Relationships to connect the DataObjects together
-        // so that the DataObject that represents the table assembly aggregates
-        // the other five DataObjects.
+  const sceneModelResult = scene.createModel({
+    id: "demoModel",
+  });
 
-        const myRelationship = dataModel.createRelationship({
-            type: xeokit.basictypes.BasicAggregation,
-            relatingObjectId: "table",
-            relatedObjectId: "tableTop"
-        });
+  if (!sceneModelResult.ok) {
+    throw new Error(sceneModelResult.error);
+  }
 
-        if (myRelationship instanceof xeokit.core.SDKError) {
-            console.error(myRelationship.message);
-        }
+  const sceneModel = sceneModelResult.value;
 
-        dataModel.createRelationship({
-            type: xeokit.basictypes.BasicAggregation,
-            relatingObjectId: "tableTop",
-            relatedObjectId: "redLeg"
-        });
+  // Create a reusable box geometry that will be instanced by the tabletop and each leg.
 
-        dataModel.createRelationship({
-            type: xeokit.basictypes.BasicAggregation,
-            relatingObjectId: "tableTop",
-            relatedObjectId: "greenLeg"
-        });
+  sceneModel.createGeometry({
+    id: "demoBoxGeometry",
+    primitive: xeokit.constants.TrianglesPrimitive,
+    positions: [
+      1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1,
+      1, -1, 1, 1, 1, 1, 1, -1, -1, 1, -1, -1, 1, 1, -1, 1, 1, -1, 1, -1, -1,
+      -1, -1, -1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1, -1,
+      -1, -1, -1, -1, -1, 1, -1, 1, 1, -1,
+    ],
+    indices: [
+      0, 1, 2, 0, 2, 3,
+      4, 5, 6, 4, 6, 7,
+      8, 9, 10, 8, 10, 11,
+      12, 13, 14, 12, 14, 15,
+      16, 17, 18, 16, 18, 19,
+      20, 21, 22, 20, 22, 23,
+    ],
+  });
 
-        dataModel.createRelationship({
-            type: xeokit.basictypes.BasicAggregation,
-            relatingObjectId: "tableTop",
-            relatedObjectId: "blueLeg"
-        });
+  // Create meshes that instance the box geometry with a transform and a color for each component.
 
-        dataModel.createRelationship({
-            type: xeokit.basictypes.BasicAggregation,
-            relatingObjectId: "tableTop",
-            relatedObjectId: "yellowLeg"
-        });
+  const createLeg = ({ id, position, color }) => {
+    const meshId = `${id}Mesh`;
 
-        // Build the DataModel, making it ready for use
-
-        dataModel.build(); // void | SDKError
-
-        // Create a SceneModel to hold geometry and materials
-
-        const sceneModel = scene.createModel({
-            id: "demoModel"
-        });
-
-        // Create a box-shaped SceneGeometry, which we'll reuse for the tabletop and legs.
-
-        sceneModel.createGeometry({
-            id: "demoBoxGeometry",
-            primitive: xeokit.constants.TrianglesPrimitive,
-            positions: [
-                1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1, 1, 1, 1, 1, -1, -1, 1,
-                -1, -1, 1, 1, -1, 1, 1, -1, 1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, 1, -1, -1, 1, -1, 1, -1, -1, 1, 1,
-                -1, -1, -1, -1, -1, -1, 1, -1, 1, 1, -1
-            ],
-            indices: [
-                0, 1, 2, 0, 2, 3,            // front
-                4, 5, 6, 4, 6, 7,            // right
-                8, 9, 10, 8, 10, 11,         // top
-                12, 13, 14, 12, 14, 15,      // left
-                16, 17, 18, 16, 18, 19,      // bottom
-                20, 21, 22, 20, 22, 23
-            ]
-        });
-
-        // Create SceneObjects to represent the tabletop and legs. Each SceneObject
-        // gets a SceneMesh that instances the SceneGeometry, configured with a color
-        // and a 4x4 modeling transform matrix to apply to the SceneGeometry's
-        // vertex positons.
-
-        sceneModel.createMesh({
-            id: "redLegMesh",
-            geometryId: "demoBoxGeometry",
-            matrix: xeokit.scene.buildMat4({
-                position: [-4, -6, -4],
-                scale: [1, 3, 1]
-            }),
-            color: [1, 0.3, 0.3]
-        });
-
-        sceneModel.createObject({
-            id: "redLeg",
-            meshIds: ["redLegMesh"]
-        });
-
-        sceneModel.createMesh({
-            id: "greenLegMesh",
-            geometryId: "demoBoxGeometry",
-            matrix: xeokit.scene.buildMat4({
-                position: [4, -6, -4],
-                scale: [1, 3, 1]
-            }),
-            color: [0.3, 1.0, 0.3]
-        });
-
-        sceneModel.createObject({
-            id: "greenLeg",
-            meshIds: ["greenLegMesh"]
-        });
-
-        sceneModel.createMesh({
-            id: "blueLegMesh",
-            geometryId: "demoBoxGeometry",
-            matrix: xeokit.scene.buildMat4({
-                position: [4, -6, 4],
-                scale: [1, 3, 1]
-            }),
-            color: [0.3, 0.3, 1.0]
-        });
-
-        sceneModel.createObject({
-            id: "blueLeg",
-            meshIds: ["blueLegMesh"]
-        });
-
-        sceneModel.createMesh({
-            id: "yellowLegMesh",
-            geometryId: "demoBoxGeometry",
-            matrix: xeokit.scene.buildMat4({
-                position: [-4, -6, 4],
-                scale: [1, 3, 1]
-            }),
-            color: [1.0, 1.0, 0.0]
-        });
-
-        sceneModel.createObject({
-            id: "yellowLeg",
-            meshIds: ["yellowLegMesh"]
-        });
-
-        sceneModel.createMesh({
-            id: "purpleTableTopMesh",
-            geometryId: "demoBoxGeometry",
-            matrix: xeokit.scene.buildMat4({
-                position: [0, -3, 0],
-                scale: [6, 0.5, 6]
-            }),
-            color: [1.0, 0.3, 1.0]
-        });
-
-        sceneModel.createObject({
-            id: "purpleTableTop",
-            meshIds: ["purpleTableTopMesh"]
-        });
-
-        // Build the SceneModel. The View will now contain a ViewObject for each
-        // SceneObject in the SceneModel.
-
-        sceneModel.build().then(() => {
-
-            // At this point, the View will contain five ViewObjects that have the same
-            // IDs as our SceneObjects. Through these ViewObjects, we can update the
-            // appearance of our model elements in that View. We'll make the yellow leg
-            // translucent, highlight the red leg and make the tabletop green.
-
-            view.objects["yellowLeg"].opacity = 0.5;
-            view.objects["redLeg"].highlighted = true;
-            view.objects["purpleTableTop"].colorize = [0,1,0];
-
-            // We can also apply these sorts of updates in batches, to multiple
-            // ViewObjects at a time. The View remembers the IDs of whetever
-            // ViewObjects we update, so we can use such batch updates to restore the
-            // ViewObjects to their original states.
-
-            view.setObjectsOpacity(view.opacityObjectIds, 1.0);
-            view.setObjectsHighlighted(view.highlightedObjectIds, false);
-            view.setObjectsSelected(view.selectedObjectIds, false);
-
-            demoHelper.finished();
-        });
+    sceneModel.createMesh({
+      id: meshId,
+      geometryId: "demoBoxGeometry",
+      matrix: xeokit.scene.buildMat4({
+        position,
+        scale: [1, 3, 1],
+      }),
+      color,
     });
 
+    sceneModel.createObject({
+      id,
+      meshIds: [meshId],
+    });
+  };
+
+  createLeg({
+    id: "redLeg",
+    position: [-4, -6, -4],
+    color: [1, 0.3, 0.3],
+  });
+
+  createLeg({
+    id: "greenLeg",
+    position: [4, -6, -4],
+    color: [0.3, 1.0, 0.3],
+  });
+
+  createLeg({
+    id: "blueLeg",
+    position: [4, -6, 4],
+    color: [0.3, 0.3, 1.0],
+  });
+
+  createLeg({
+    id: "yellowLeg",
+    position: [-4, -6, 4],
+    color: [1.0, 1.0, 0.0],
+  });
+
+  // Create the tabletop mesh and scene object as a scaled instance of the same box geometry.
+
+  const tableTopMeshResult = sceneModel.createMesh({
+    id: "purpleTableTopMesh",
+    geometryId: "demoBoxGeometry",
+    matrix: xeokit.scene.buildMat4({
+      position: [0, -3, 0],
+      scale: [6, 0.5, 6],
+    }),
+    color: [1.0, 0.3, 1.0],
+  });
+
+  if (!tableTopMeshResult.ok) {
+    throw new Error(tableTopMeshResult.error);
+  }
+
+  sceneModel.createObject({
+    id: "purpleTableTop",
+    meshIds: ["purpleTableTopMesh"],
+  });
+
+  // Signal that the demo is ready once all setup is complete.
+
+  demoHelper.finished();
+});

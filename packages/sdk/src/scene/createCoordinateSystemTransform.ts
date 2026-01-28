@@ -1,21 +1,22 @@
 import type {FloatArrayParam} from "../math";
-import type {CoordinateSystemParams} from "./CoordinateSystemParams";
-import {createMat4, createVec3} from "../matrix";
+import {createVec3Float64} from "../math/vector";
+import {createMat4Float64, type Mat4} from "../math/matrix";
+import {CoordinateSystem} from "./CoordinateSystem";
 
-const tempMat3a = createMat4(); // e.g., transposed viewer basis
-const tempMat3b = createMat4();// result of matrix multiplication
-const tempVec3a = createVec3(); // delta origin
-const tempVec3b = createVec3(); // transformed delta origin
+const tempMat3a = createMat4Float64(); // e.g., transposed viewer basis
+const tempMat3b = createMat4Float64();// result of matrix multiplication
+const tempVec3a = createVec3Float64(); // delta origin
+const tempVec3b = createVec3Float64(); // transformed delta origin
 
 /**
- * Computes a 4x4 transformation matrix to convert coordinates from one CoordinateSystemParams to another.
- * Uses provided result buffers to avoid unnecessary allocations.
+ * Computes a 4x4 transformation matrix to convert coordinates from one CoordinateSystem to another.
  */
 export function createCoordinateSystemTransform(
-  model: CoordinateSystemParams,
-  viewer: CoordinateSystemParams,
-  outMat4: FloatArrayParam,
-): FloatArrayParam {
+  model: CoordinateSystem,
+  viewer: CoordinateSystem,
+  outMat4: Mat4,
+): Mat4 {
+
   const modelBasis = model.basis;
   const viewerBasis = viewer.basis;
 
@@ -83,7 +84,7 @@ function apply3x3(m: FloatArrayParam, v: FloatArrayParam, out: FloatArrayParam):
   out[2] = m[2] * v[0] + m[5] * v[1] + m[8] * v[2];
 }
 
-function unitScale(unit: CoordinateSystemParams['units']): number {
+function unitScale(unit: CoordinateSystem['units']): number {
   switch (unit) {
     case 'meters':
       return 1;

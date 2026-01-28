@@ -11,4 +11,4 @@ export declare class WebGLRenderBufferManager {
     }): WebGLRenderBuffer;
     destroy(): void;
 }
-//# sourceMappingURL=WebGLRenderBufferManager.d.ts.map
+//# sourceMappingURL=RenderBuffers.d.ts.map

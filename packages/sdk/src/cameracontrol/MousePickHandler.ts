@@ -1,6 +1,9 @@
-import {canvasPosToWorldRay, createVec3, subVec3} from "../matrix";
+import { createVec3Float64, subVec3} from "../math/vector";
 import type {PickResult, View} from "../viewer";
-import {getAABB3Center} from "../boundaries";
+import {getAABB3Center} from "../math/boundaries";
+import {getSceneAABB3Index, SceneAABB3Index} from "../collision/aabb/SceneAABB3Index";
+
+const tempVec3a = createVec3Float64();
 
 /**
  * @private
@@ -15,10 +18,12 @@ class MousePickHandler {
   #canvasMouseMoveHandler: (e) => void;
   #canvasMouseUpHandler: (e) => void;
   #documentMouseUpHandler: (e) => void;
+  #aabbIndex: SceneAABB3Index;
 
   constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 
     this.#view = view;
+    this.#aabbIndex = getSceneAABB3Index(view.viewer.scene);
 
     const pickController = controllers.pickController;
     const pivotController = controllers.pivotController;
@@ -38,110 +43,113 @@ class MousePickHandler {
       if (pickResult && pickResult.worldPos) {
         pos = pickResult.worldPos
       }
-      const aabb = pickResult && pickResult.viewObject ? pickResult.viewObject.aabb : view.aabb;
+      const aabb = pickResult && pickResult.viewObject
+        ? this.#aabbIndex.getObjectAABB(pickResult.viewObject.id)
+        : this.#aabbIndex.getSceneAABB();
+
       if (pos) { // Fly to look at point, don't change eye->look dist
         const camera = view.camera;
-        const diff = subVec3(camera.eye, camera.look, []);
+        const diff = subVec3(camera.eye, camera.look, tempVec3a);
         controllers.cameraFlight.flyTo({
           // look: pos,
           // eye: xeokit.addVec3(pos, diff, []),
           // up: camera.up,
-          aabb: aabb
+          aabb
         });
         // TODO: Option to back off to fit AABB in view
       } else {// Fly to fit target boundary in view
         controllers.cameraFlight.flyTo({
-          aabb: aabb
+          aabb
         });
       }
     };
 
-    const tickifiedMouseMoveFn = view.viewer.tickify(
-      this.#canvasMouseMoveHandler = (e) => {
-        if (!(configs.active && configs.pointerEnabled)) {
-          return;
-        }
-
-        if (leftDown || rightDown) {
-          return;
-        }
-
-        if (cameraControl.onRayMove.count > 0) {
-          const origin = createVec3();
-          const direction = createVec3();
-          canvasPosToWorldRay(view.htmlElement, view.camera.viewMatrix, view.camera.projMatrix, view.camera.projection, states.pointerCanvasPos, origin, direction);
-          cameraControl.onRayMove.dispatch(cameraControl, {
-            canvasPos: states.pointerCanvasPos,
-            ray: {
-              origin: origin,
-              direction: direction,
-              canvasPos: states.pointerCanvasPos
-            }
-          });
-        }
-
-        const hoverSubs = cameraControl.onHover.count > 0;
-        const hoverEnterSubs = cameraControl.onHoverEnter.count > 0;
-        const hoverOutSubs = cameraControl.onHoverOut.count > 0;
-        const hoverOffSubs = cameraControl.onHoverOff.count > 0;
-        const hoverSurfaceSubs = cameraControl.onHoverSurface.count > 0;
-        const hoverSnapOrSurfaceSubs = cameraControl.onHoverSnapOrSurface.count > 0;
-
-        if (hoverSubs || hoverEnterSubs || hoverOutSubs || hoverOffSubs || hoverSurfaceSubs || hoverSnapOrSurfaceSubs) {
-
-          pickController.pickCursorPos = states.pointerCanvasPos;
-          pickController.schedulePickEntity = true;
-          pickController.schedulePickSurface = hoverSurfaceSubs;
-          pickController.scheduleSnapOrPick = hoverSnapOrSurfaceSubs
-
-          pickController.update();
-
-          if (pickController.pickResult) {
-
-            if (pickController.pickResult.viewObject) {
-              const pickedEntityId = pickController.pickResult.viewObject.id;
-
-              if (this.#lastPickedEntityId !== pickedEntityId) {
-
-                if (this.#lastPickedEntityId !== undefined) {
-
-                  cameraControl.onHoverOut.dispatch(cameraControl, { // Hovered off an entity
-                    viewObject: view.objects[this.#lastPickedEntityId]
-                  });
-                }
-
-                cameraControl.onHoverEnter.dispatch(cameraControl, pickController.pickResult); // Hovering over a new entity
-
-                this.#lastPickedEntityId = pickedEntityId;
-              }
-            }
-
-            cameraControl.onHover.dispatch(cameraControl, pickController.pickResult);
-
-            if (pickController.pickResult.worldPos || pickController.pickResult.snappedWorldPos) { // Hovering the surface of an entity
-              cameraControl.onHoverSurface.dispatch(cameraControl, pickController.pickResult);
-            }
-
-          } else {
-
-            if (this.#lastPickedEntityId !== undefined) {
-
-              cameraControl.onHoverOut.dispatch(cameraControl, { // Hovered off an entity
-                viewObject: view.objects[this.#lastPickedEntityId]
-              });
-
-              this.#lastPickedEntityId = undefined;
-            }
-
-            cameraControl.onHoverOff.dispatch(cameraControl, { // Not hovering on any entity
-              canvasPos: pickController.pickCursorPos
-            });
-          }
-        }
-      }
-    );
-
-    htmlElement.addEventListener("mousemove", tickifiedMouseMoveFn);
+    // const tickifiedMouseMoveFn = view.viewer.tickify(
+    //   this.#canvasMouseMoveHandler = (e) => {
+    //     if (!(configs.active && configs.pointerEnabled)) {
+    //       return;
+    //     }
+    //
+    //     if (leftDown || rightDown) {
+    //       return;
+    //     }
+    //
+    //     if (cameraControl.onRayMove.count > 0) {
+    //       const origin = createVec3Float64();
+    //       const direction = createVec3Float64();
+    //       canvasPosToWorldRay(view.htmlElement, view.camera.viewMatrix, view.camera.projMatrix, view.camera.projection, states.pointerCanvasPos, origin, direction);
+    //       cameraControl.onRayMove.dispatch(cameraControl, {
+    //         canvasPos: states.pointerCanvasPos,
+    //         ray: {
+    //           origin: origin,
+    //           direction: direction,
+    //           canvasPos: states.pointerCanvasPos
+    //         }
+    //       });
+    //     }
+    //
+    //     const hoverSubs = cameraControl.onHover.count > 0;
+    //     const hoverEnterSubs = cameraControl.onHoverEnter.count > 0;
+    //     const hoverOutSubs = cameraControl.onHoverOut.count > 0;
+    //     const hoverOffSubs = cameraControl.onHoverOff.count > 0;
+    //     const hoverSurfaceSubs = cameraControl.onHoverSurface.count > 0;
+    //     const hoverSnapOrSurfaceSubs = cameraControl.onHoverSnapOrSurface.count > 0;
+    //
+    //     if (hoverSubs || hoverEnterSubs || hoverOutSubs || hoverOffSubs || hoverSurfaceSubs || hoverSnapOrSurfaceSubs) {
+    //
+    //       pickController.pickCursorPos = states.pointerCanvasPos;
+    //       pickController.schedulePickEntity = true;
+    //       pickController.schedulePickSurface = hoverSurfaceSubs;
+    //       pickController.scheduleSnapOrPick = hoverSnapOrSurfaceSubs
+    //
+    //       pickController.update();
+    //
+    //       if (pickController.pickResult) {
+    //
+    //         if (pickController.pickResult.viewObject) {
+    //           const pickedEntityId = pickController.pickResult.viewObject.id;
+    //
+    //           if (this.#lastPickedEntityId !== pickedEntityId) {
+    //
+    //             if (this.#lastPickedEntityId !== undefined) {
+    //
+    //               cameraControl.onHoverOut.dispatch(cameraControl, { // Hovered off an entity
+    //                 viewObject: view.objects[this.#lastPickedEntityId]
+    //               });
+    //             }
+    //
+    //             cameraControl.onHoverEnter.dispatch(cameraControl, pickController.pickResult); // Hovering over a new entity
+    //
+    //             this.#lastPickedEntityId = pickedEntityId;
+    //           }
+    //         }
+    //
+    //         cameraControl.onHover.dispatch(cameraControl, pickController.pickResult);
+    //
+    //         if (pickController.pickResult.worldPos || pickController.pickResult.snappedWorldPos) { // Hovering the surface of an entity
+    //           cameraControl.onHoverSurface.dispatch(cameraControl, pickController.pickResult);
+    //         }
+    //
+    //       } else {
+    //
+    //         if (this.#lastPickedEntityId !== undefined) {
+    //
+    //           cameraControl.onHoverOut.dispatch(cameraControl, { // Hovered off an entity
+    //             viewObject: view.objects[this.#lastPickedEntityId]
+    //           });
+    //
+    //           this.#lastPickedEntityId = undefined;
+    //         }
+    //
+    //         cameraControl.onHoverOff.dispatch(cameraControl, { // Not hovering on any entity
+    //           canvasPos: pickController.pickCursorPos
+    //         });
+    //       }
+    //     }
+    //   }
+    // );
+    //
+    // htmlElement.addEventListener("mousemove", tickifiedMouseMoveFn);
 
     htmlElement.addEventListener('mousedown', this.#canvasMouseDownHandler = (e) => {
 
@@ -332,7 +340,7 @@ class MousePickHandler {
 
             flyCameraTo(pickController.pickResult);
 
-            if ((!configs.firstPerson) && configs.followPointer) {
+            if (pickController.pickResult.viewObject && (!configs.firstPerson) && configs.followPointer) {
 
               const pickedEntityAABB = pickController.pickResult.viewObject.aabb;
               const pickedEntityCenterPos = getAABB3Center(pickedEntityAABB);
@@ -357,10 +365,7 @@ class MousePickHandler {
 
             if ((!configs.firstPerson) && configs.followPointer) {
 
-              const sceneAABB = view.aabb;
-              const sceneCenterPos = getAABB3Center(sceneAABB);
-
-              controllers.pivotController.setPivotPos(sceneCenterPos);
+              controllers.pivotController.setPivotPos(this.#aabbIndex.getSceneCenter());
 
               if (controllers.pivotController.startPivot()) {
                 controllers.pivotController.showPivot();

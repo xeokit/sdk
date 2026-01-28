@@ -1,5 +1,5 @@
 /**
- * <img style="padding:10px; width:300px" src="https://xeokit.github.io/sdk/docs/assets/xeokit_components_icon.png"/>
+ * <img style="padding:20px" src="https://xeokit.github.io/sdk/docs/assets/geometry_icon.png"/>
  *
  * # xeokit SDK Core Utilities Library
  *
@@ -23,11 +23,7 @@
 
 export * from "./Map";
 export * from "./Queue";
-export * from "./Loader";
-export * from "./LoadingManager";
-export * from "./WorkerPool";
-export * from "./Cache";
-export * from "./FileLoader";
+
 
 /**
  *
@@ -180,7 +176,7 @@ export function loadJSON(url: string,
       try {
         json = JSON.parse(response);
       } catch (e) {
-        err(`utils.loadJSON(): Failed to parse JSON response - ${e}`);
+        err(`utils.loadJSON(): Cannot parse JSON response - ${e}`);
       }
       ok(json);
     } else if (this.status === 0) {
@@ -190,7 +186,7 @@ export function loadJSON(url: string,
       try {
         ok(JSON.parse(response));
       } catch (e) {
-        err(`utils.loadJSON(): Failed to parse JSON response - ${e}`);
+        err(`utils.loadJSON(): Cannot parse JSON response - ${e}`);
       }
     } else {
       err(event);

@@ -1,419 +1,480 @@
-import type {WebGLAbstractTexture} from "./WebGLAbstractTexture";
+import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
 
 /**
- *  Represents a WebGL render buffer.
- * @private
+ * Represents a WebGL render buffer with optional depth texture and MRT support.
+ * Internally manages a framebuffer + one or more color textures and an optional depth attachment
+ * (either a texture or a renderbuffer).
+ *
+ * Notes:
+ * - Framebuffer completeness is checked while bound.
+ * - Resizes lazily via `touch()` when size or drawingBuffer changes.
+ * - Provides small wrapper objects compatible with `WebGLAbstractTexture` for sampling the color/depth textures.
+ * - `allocated` is derived from internal state (getter) instead of a manual flag.
  */
 class WebGLRenderBuffer {
   #gl: WebGL2RenderingContext;
-  allocated: boolean;
   canvas: HTMLCanvasElement;
-  #buffer: any;
-  bound: boolean;
-  size: any;
-  #imageDataCache: any;
-  #texture: WebGLAbstractTexture;
-  #depthTexture: WebGLAbstractTexture;
+  #buffer: BufferState | null = null;
+  bound = false;
+  size?: readonly [number, number];
+  #imageDataCache: ImageCache | null = null;
+  #texture: WebGLAbstractTexture | null = null;
+  #depthTexture: WebGLAbstractTexture | null = null;
   #hasDepthTexture: boolean;
 
-  constructor(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, options: {
-    depthTexture: boolean;
-    size?: number[];
-  }) {
-    /** @type {WebGL2RenderingContext} */
+  /**
+   * Creates a WebGLRenderBuffer.
+   * @param canvas
+   * @param gl
+   * @param options
+   */
+  constructor(
+      canvas: HTMLCanvasElement,
+      gl: WebGL2RenderingContext,
+      options: { depthTexture: boolean; size?: readonly [number, number] }
+  ) {
     this.#gl = gl;
-    this.allocated = false;
     this.canvas = canvas;
-    this.#buffer = null;
-    this.bound = false;
     this.size = options.size;
     this.#hasDepthTexture = !!options.depthTexture;
   }
 
-  /**
-   * Sets the size of this render buffer.
-   * @param size
-   */
-  setSize(size: any) {
+  /** Whether GPU resources are currently allocated. */
+  get allocated(): boolean {
+    return !!this.#buffer;
+  }
+
+  /** Sets the desired size; actual allocation happens on next bind/touch. */
+  setSize(size: readonly [number, number]) {
     this.size = size;
   }
 
+  /** Re-associate with a restored WebGL2 context. */
   webglContextRestored(gl: WebGL2RenderingContext) {
     this.#gl = gl;
-    this.#buffer = null;
-    this.allocated = false;
+    this.#disposeGPUResources();
     this.bound = false;
   }
 
-  /**
-   * Binds this render buffer.
-   */
-  bind(...internalformats: any) {
+  /** Bind the framebuffer, allocating or resizing as needed. */
+  bind(...internalformats: number[]) {
     this.touch(...internalformats);
-    if (this.bound) {
-      return;
-    }
+    if (this.bound || !this.#buffer) return;
     const gl = this.#gl;
-    // @ts-ignore
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.#buffer.framebuf);
     this.bound = true;
   }
 
-  /**
-   * Create and specify a WebGL texture image.
-   *
-   * @param { number } width
-   * @param { number } height
-   * @param { GLenum } [internalformat=null]
-   *
-   * @returns { WebGLTexture }
-   */
-  createTexture(width: number, height: number, internalformat = null) {
+  /** Ensure GPU resources exist and match the desired size. */
+  touch(...internalformats: number[]) {
     const gl = this.#gl;
 
-    const colorTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, colorTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    const [width, height] = this.size
+        ? [this.size[0], this.size[1]]
+        : [gl.drawingBufferWidth, gl.drawingBufferHeight];
 
-    if (internalformat) {
-      gl.texStorage2D(gl.TEXTURE_2D, 1, internalformat, width, height);
-    } else {
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-    }
+    const needsResize =
+        !this.#buffer ||
+        this.#buffer.width !== width ||
+        this.#buffer.height !== height;
 
-    return colorTexture;
-  }
+    if (!needsResize) return;
 
-  /**
-   *
-   * @param {number[]} [internalformats=[]]
-   * @returns
-   */
-  touch(...internalformats: any) {
+    // Dispose previous resources (if any)
+    this.#disposeGPUResources();
 
-    let width;
-    let height;
-    const gl = this.#gl;
-
-    if (this.size) {
-      width = this.size[0];
-      height = this.size[1];
-
-    } else {
-      width = gl.drawingBufferWidth;
-      height = gl.drawingBufferHeight;
-    }
-
-    if (this.#buffer) {
-
-      if (this.#buffer.width === width && this.#buffer.height === height) {
-        return;
-
-      } else {
-        this.#buffer.textures.forEach(texture => gl.deleteTexture(texture));
-        gl.deleteFramebuffer(this.#buffer.framebuf);
-        gl.deleteRenderbuffer(this.#buffer.renderbuf);
-      }
-    }
-
-    const colorTextures = [];
+    // Create color textures
+    const colorTextures: WebGLTexture[] = [];
     if (internalformats.length > 0) {
-      colorTextures.push(...internalformats.map(internalformat => this.createTexture(width, height, internalformat)));
+      for (const fmt of internalformats) {
+        colorTextures.push(this.#createColorTexture(width, height, fmt));
+      }
     } else {
-      colorTextures.push(this.createTexture(width, height));
+      colorTextures.push(this.#createColorTexture(width, height, null));
     }
 
-    let depthTexture;
-
-    if (this.#hasDepthTexture) {
-      depthTexture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, depthTexture);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT32F, width, height, 0, gl.DEPTH_COMPONENT, gl.FLOAT, null);
-    }
-
-    const renderbuf = gl.createRenderbuffer();
-    gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuf);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT32F, width, height);
+    // Optional depth as texture; otherwise a renderbuffer
+    let depthTex: WebGLTexture | null = null;
+    let depthRbo: WebGLRenderbuffer | null = null;
 
     const framebuf = gl.createFramebuffer();
+    if (!framebuf) throw new Error("Failed to create framebuffer");
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebuf);
+
+    // Attach colors
     for (let i = 0; i < colorTextures.length; i++) {
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0 + i, gl.TEXTURE_2D, colorTextures[i], 0);
+      gl.framebufferTexture2D(
+          gl.FRAMEBUFFER,
+          gl.COLOR_ATTACHMENT0 + i,
+          gl.TEXTURE_2D,
+          colorTextures[i],
+          0
+      );
     }
-    if (internalformats.length > 0) {
+
+    if (colorTextures.length > 1) {
       gl.drawBuffers(colorTextures.map((_, i) => gl.COLOR_ATTACHMENT0 + i));
     }
 
     if (this.#hasDepthTexture) {
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depthTexture, 0);
+      depthTex = gl.createTexture();
+      if (!depthTex) throw new Error("Failed to create depth texture");
+      gl.bindTexture(gl.TEXTURE_2D, depthTex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      // Use DEPTH_COMPONENT24 for wide compatibility; 32F may be unsupported on some devices.
+      gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.DEPTH_COMPONENT24,
+          width,
+          height,
+          0,
+          gl.DEPTH_COMPONENT,
+          gl.UNSIGNED_INT,
+          null
+      );
+      gl.framebufferTexture2D(
+          gl.FRAMEBUFFER,
+          gl.DEPTH_ATTACHMENT,
+          gl.TEXTURE_2D,
+          depthTex,
+          0
+      );
     } else {
-      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, renderbuf);
+      depthRbo = gl.createRenderbuffer();
+      if (!depthRbo) throw new Error("Failed to create renderbuffer");
+      gl.bindRenderbuffer(gl.RENDERBUFFER, depthRbo);
+      gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, width, height);
+      gl.framebufferRenderbuffer(
+          gl.FRAMEBUFFER,
+          gl.DEPTH_ATTACHMENT,
+          gl.RENDERBUFFER,
+          depthRbo
+      );
     }
 
+    // Check completeness while bound
+    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+    if (status !== gl.FRAMEBUFFER_COMPLETE) {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      // Clean up partially-created resources before throwing
+      for (const t of colorTextures) gl.deleteTexture(t);
+      if (depthTex) gl.deleteTexture(depthTex);
+      if (depthRbo) gl.deleteRenderbuffer(depthRbo);
+      gl.deleteFramebuffer(framebuf);
+
+      const reason = framebufferStatusToString(gl, status);
+      throw new Error(`Incomplete framebuffer: ${reason}`);
+    }
+
+    // Unbind
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-    // Verify framebuffer is OK
-
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuf);
-    if (!gl.isFramebuffer(framebuf)) {
-      throw "Invalid framebuffer";
-    }
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-    const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-
-    switch (status) {
-
-      case gl.FRAMEBUFFER_COMPLETE:
-        break;
-
-      case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
-        throw "Incomplete framebuffer: FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
-
-      case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
-        throw "Incomplete framebuffer: FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
-
-      case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
-        throw "Incomplete framebuffer: FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
-
-      case gl.FRAMEBUFFER_UNSUPPORTED:
-        throw "Incomplete framebuffer: FRAMEBUFFER_UNSUPPORTED";
-
-      default:
-        throw "Incomplete framebuffer: " + status;
-    }
-
     this.#buffer = {
-      framebuf: framebuf,
-      renderbuf: renderbuf,
-      texture: colorTextures[0],
+      framebuf,
+      renderbuf: depthRbo,
       textures: colorTextures,
-      depthTexture: depthTexture,
-      width: width,
-      height: height
+      depthTexture: depthTex,
+      width,
+      height,
     };
 
     this.bound = false;
   }
 
-  /**
-   * Clears this render buffer.
-   */
-  clear() {
-    if (!this.bound) {
-      throw "Render buffer not bound";
-    }
-    const gl = this.#gl;
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  /** Clear currently bound framebuffer. */
+  clear(mask: number = this.#gl.COLOR_BUFFER_BIT | this.#gl.DEPTH_BUFFER_BIT) {
+    if (!this.bound) throw new Error("Render buffer not bound");
+    this.#gl.clear(mask);
   }
 
-  /**
-   * Reads a pixel from this render buffer.
-   * @param pickX
-   * @param pickY
-   */
-  read(pickX: number, pickY: number, glFormat = null, glType = null, arrayType = Uint8Array, arrayMultiplier: number = 4, colorBufferIndex = 0) {
+  /** Read a single pixel from the given color attachment (default 0). */
+  read(
+      pickX: number,
+      pickY: number,
+      glFormat: number | null = null,
+      glType: number | null = null,
+      arrayType: TypedArrayConstructor = Uint8Array,
+      arrayMultiplier: number = 4,
+      colorBufferIndex = 0
+  ) {
+    if (!this.#buffer) throw new Error("No buffer allocated");
+    const gl = this.#gl;
     const x = pickX;
-    const y = this.#buffer.height ? (this.#buffer.height - pickY - 1) : (this.#gl.drawingBufferHeight - pickY);
+    const y = this.#buffer.height ? this.#buffer.height - pickY - 1 : gl.drawingBufferHeight - pickY;
     const pix = new arrayType(arrayMultiplier);
-    const gl = this.#gl;
     gl.readBuffer(gl.COLOR_ATTACHMENT0 + colorBufferIndex);
-    gl.readPixels(x, y, 1, 1, glFormat || gl.RGBA, glType || gl.UNSIGNED_BYTE, pix, 0);
+    gl.readPixels(
+        x,
+        y,
+        1,
+        1,
+        glFormat ?? gl.RGBA,
+        glType ?? gl.UNSIGNED_BYTE,
+        pix,
+        0
+    );
     return pix;
   }
 
-  readArray(glFormat = null, glType = null, arrayType = Uint8Array, arrayMultiplier = 4, colorBufferIndex = 0) {
-    const pix = new arrayType(this.#buffer.width * this.#buffer.height * arrayMultiplier);
+  /** Read the entire color attachment into a typed array. */
+  readArray(
+      glFormat: number | null = null,
+      glType: number | null = null,
+      arrayType: TypedArrayConstructor = Uint8Array,
+      arrayMultiplier = 4,
+      colorBufferIndex = 0
+  ) {
+    if (!this.#buffer) throw new Error("No buffer allocated");
+    const { width, height } = this.#buffer;
     const gl = this.#gl;
+    const pix = new arrayType(width * height * arrayMultiplier);
     gl.readBuffer(gl.COLOR_ATTACHMENT0 + colorBufferIndex);
-    gl.readPixels(0, 0, this.#buffer.width, this.#buffer.height, glFormat || gl.RGBA, glType || gl.UNSIGNED_BYTE, pix, 0);
+    gl.readPixels(0, 0, width, height, glFormat ?? gl.RGBA, glType ?? gl.UNSIGNED_BYTE, pix, 0);
     return pix;
   }
 
   /**
-   * Returns an HTMLCanvas containing the contents of the RenderBuffer as an image.
-   *
-   * - The HTMLCanvas has a CanvasRenderingContext2D.
-   * - Expects the caller to draw more things on the HTMLCanvas (annotations etc).
-   *
-   * @returns {HTMLCanvasElement}
+   * Returns an HTMLCanvasElement containing the current contents.
+   * Also updates an internal CPU-side ImageData cache for reuse.
    */
-  readImageAsCanvas() {
-    const gl = this.#gl;
-    const imageDataCache = this._getImageDataCache();
-    //const pixelData = imageDataCache.pixelData;
-    const canvas = imageDataCache.canvas;
-    // const imageData = imageDataCache.imageData;
-    // const context = imageDataCache.context;
-    //   gl.readPixels(0, 0, this.#buffer.width, this.#buffer.height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
-    // const width = this.#buffer.width;
-    // const height = this.#buffer.height;
-    //  const halfHeight = height / 2 | 0;  // the | 0 keeps the result an int
-    //  const bytesPerRow = width * 4;
-    //  const temp = new Uint8Array(width * 4);
-    // for (let y = 0; y < halfHeight; ++y) {
-    //     const topOffset = y * bytesPerRow;
-    //     const bottomOffset = (height - y - 1) * bytesPerRow;
-    //     temp.set(pixelData.subarray(topOffset, topOffset + bytesPerRow));
-    //     pixelData.copyWithin(topOffset, bottomOffset, bottomOffset + bytesPerRow);
-    //     pixelData.set(temp, bottomOffset);
-    // }
-    // imageData.data.set(pixelData);
-    // context.putImageData(imageData, 0, 0);
-    return canvas;
+  readImageAsCanvas(): HTMLCanvasElement {
+    this.#updateImageCacheFromGPU();
+    if (!this.#imageDataCache) throw new Error("Image cache unavailable");
+    return this.#imageDataCache.canvas;
   }
 
-  /**
-   * Redas an image from this render buffer.
-   * @param params
-   */
-  readImage(params: {
-    height?: number;
-    width?: number;
-    format?: string;
-  }) {
-    const gl = this.#gl;
-    const imageDataCache = this._getImageDataCache();
-    const pixelData = imageDataCache.pixelData;
-    const canvas = imageDataCache.canvas;
-    const imageData = imageDataCache.imageData;
-    const context = imageDataCache.context;
-    const {width, height} = this.#buffer;
-    // gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixelData);
-    // imageData.data.set(pixelData);
-    // context.putImageData(imageData, 0, 0);
-
-    // flip Y
-    // context.save();
-    // context.globalCompositeOperation = 'copy';
-    // context.scale(1, -1);
-    // context.drawImage(canvas, 0, -height, width, height);
-    // context.restore();
-    //
+  /** Returns a data URL (png/jpeg/bmp) of the current contents. */
+  readImage(params: { height?: number; width?: number; format?: string } = {}) {
+    this.#updateImageCacheFromGPU();
+    if (!this.#imageDataCache) throw new Error("Image cache unavailable");
     const format = params.format || "png";
-    // if (format !== "jpeg" && format !== "png" && format !== "bmp") {
-    //     console.error("Unsupported image format: '" + format + "' - supported types are 'jpeg', 'bmp' and 'png' - defaulting to 'png'");
-    //     format = "png";
-    //        }
-    return canvas.toDataURL(`image/${format}`);
+    return this.#imageDataCache.canvas.toDataURL(`image/${format}`);
   }
 
-  _getImageDataCache(type = Uint8Array, multiplier = 4) {
-
-    const bufferWidth = this.#buffer.width;
-    const bufferHeight = this.#buffer.height;
-
-    let imageDataCache = this.#imageDataCache;
-
-    if (imageDataCache) {
-      if (imageDataCache.width !== bufferWidth || imageDataCache.height !== bufferHeight) {
-        this.#imageDataCache = null;
-        imageDataCache = null;
-      }
-    }
-
-    if (!imageDataCache) {
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      canvas.width = bufferWidth;
-      canvas.height = bufferHeight;
-      imageDataCache = {
-        pixelData: new type(bufferWidth * bufferHeight * multiplier),
-        canvas: canvas,
-        context: context,
-        imageData: context.createImageData(bufferWidth, bufferHeight),
-        width: bufferWidth,
-        height: bufferHeight
-      };
-
-      this.#imageDataCache = imageDataCache;
-    }
-    imageDataCache.context.resetTransform(); // Prevents strange scale-accumulation effect with html2canvas
-    return imageDataCache;
-  }
-
+  /** Unbind the framebuffer. */
   unbind() {
-    const gl = this.#gl;
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    this.#gl.bindFramebuffer(this.#gl.FRAMEBUFFER, null);
     this.bound = false;
   }
 
+  /** Wrapper texture for sampling the first color target. */
   getTexture(): WebGLAbstractTexture {
-    return this.#texture || (this.#texture = {
+    if (this.#texture) return this.#texture;
+    this.#texture = {
       bind: (unit: number) => {
-        if (this.#buffer && this.#buffer.texture) {
-          // @ts-ignore
-          this.#gl.activeTexture(this.#gl["TEXTURE" + unit]);
-          this.#gl.bindTexture(this.#gl.TEXTURE_2D, this.#buffer.texture);
+        const buf = this.#buffer;
+        if (buf && buf.textures[0]) {
+          const gl = this.#gl;
+          // @ts-ignore indexer exists on WebGL2 contexts
+          gl.activeTexture(gl["TEXTURE" + unit]);
+          gl.bindTexture(gl.TEXTURE_2D, buf.textures[0]);
           return true;
         }
         return false;
       },
       unbind: (unit: number) => {
-        if (this.#buffer && this.#buffer.texture) {
-          // @ts-ignore
-          this.#gl.activeTexture(this.#gl["TEXTURE" + unit]);
-          this.#gl.bindTexture(this.#gl.TEXTURE_2D, null);
+        const buf = this.#buffer;
+        if (buf && buf.textures[0]) {
+          const gl = this.#gl;
+          // @ts-ignore indexer exists on WebGL2 contexts
+          gl.activeTexture(gl["TEXTURE" + unit]);
+          gl.bindTexture(gl.TEXTURE_2D, null);
         }
-      }
-    });
+      },
+    };
+    return this.#texture;
   }
 
+  /** Whether this FBO has a depth texture attachment. */
   hasDepthTexture(): boolean {
     return this.#hasDepthTexture;
   }
 
-  /**
-   * Gets the depth texture component of this render buffer, if any.
-   */
+  /** Wrapper texture for sampling the depth texture (if present). */
   getDepthTexture(): WebGLAbstractTexture | null {
-    if (!this.#hasDepthTexture) {
-      return null;
-    }
-    return this.#depthTexture || (this.#depthTexture = {
+    if (!this.#hasDepthTexture) return null;
+    if (this.#depthTexture) return this.#depthTexture;
+    this.#depthTexture = {
       bind: (unit: number) => {
-        if (this.#buffer && this.#buffer.depthTexture) {
-          // @ts-ignore
-          this.#gl.activeTexture(this.#gl["TEXTURE" + unit]);
-          this.#gl.bindTexture(this.#gl.TEXTURE_2D, this.#buffer.depthTexture);
+        const buf = this.#buffer;
+        if (buf && buf.depthTexture) {
+          const gl = this.#gl;
+          // @ts-ignore indexer exists on WebGL2 contexts
+          gl.activeTexture(gl["TEXTURE" + unit]);
+          gl.bindTexture(gl.TEXTURE_2D, buf.depthTexture);
           return true;
         }
         return false;
       },
       unbind: (unit: number) => {
-        if (this.#buffer && this.#buffer.depthTexture) {
-          // @ts-ignore
-          this.#gl.activeTexture(this.#gl["TEXTURE" + unit]);
-          this.#gl.bindTexture(this.#gl.TEXTURE_2D, null);
+        const buf = this.#buffer;
+        if (buf && buf.depthTexture) {
+          const gl = this.#gl;
+          // @ts-ignore indexer exists on WebGL2 contexts
+          gl.activeTexture(gl["TEXTURE" + unit]);
+          gl.bindTexture(gl.TEXTURE_2D, null);
         }
-      }
-    });
+      },
+    };
+    return this.#depthTexture;
   }
 
+  /** Destroy GPU resources and caches. */
   destroy() {
-    if (this.allocated) {
-      const gl = this.#gl;
-      this.#buffer.textures.forEach(texture => gl.deleteTexture(texture));
-      gl.deleteTexture(this.#buffer.depthTexture);
-      gl.deleteFramebuffer(this.#buffer.framebuf);
-      gl.deleteRenderbuffer(this.#buffer.renderbuf);
-      this.allocated = false;
-      this.#buffer = null;
-      this.bound = false;
-    }
+    this.#disposeGPUResources();
+    this.bound = false;
     this.#imageDataCache = null;
     this.#texture = null;
     this.#depthTexture = null;
   }
+
+  // ---------- Internals ----------
+
+  #createColorTexture(width: number, height: number, internalformat: number | null): WebGLTexture {
+    const gl = this.#gl;
+    const tex = gl.createTexture();
+    if (!tex) throw new Error("Failed to create texture");
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    if (internalformat != null) {
+      gl.texStorage2D(gl.TEXTURE_2D, 1, internalformat, width, height);
+    } else {
+      gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA,
+          width,
+          height,
+          0,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          null
+      );
+    }
+
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    return tex;
+  }
+
+  #disposeGPUResources() {
+    const buf = this.#buffer;
+    if (!buf) return;
+    const gl = this.#gl;
+    for (const t of buf.textures) gl.deleteTexture(t);
+    if (buf.depthTexture) gl.deleteTexture(buf.depthTexture);
+    if (buf.renderbuf) gl.deleteRenderbuffer(buf.renderbuf);
+    gl.deleteFramebuffer(buf.framebuf);
+    this.#buffer = null;
+  }
+
+  #updateImageCacheFromGPU() {
+    if (!this.#buffer) throw new Error("No buffer allocated");
+    const gl = this.#gl;
+    const { width, height } = this.#buffer;
+
+    const cache = this.#getImageDataCache(Uint8Array, 4);
+
+    // Read pixels (bottom-left origin) then flip into top-left origin for Canvas2D
+    gl.readBuffer(gl.COLOR_ATTACHMENT0);
+    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, cache.pixelData, 0);
+
+    // Vertical flip into ImageData
+    const bytesPerRow = width * 4;
+    for (let y = 0; y < height; y++) {
+      const srcOffset = (height - 1 - y) * bytesPerRow;
+      const dstOffset = y * bytesPerRow;
+      cache.imageData.data.set(cache.pixelData.subarray(srcOffset, srcOffset + bytesPerRow), dstOffset);
+    }
+
+    cache.context.putImageData(cache.imageData, 0, 0);
+  }
+
+  #getImageDataCache<T extends TypedArrayConstructor>(type: T, multiplier: number): ImageCache {
+    if (!this.#buffer) throw new Error("No buffer allocated");
+    const bufferWidth = this.#buffer.width;
+    const bufferHeight = this.#buffer.height;
+
+    let cache = this.#imageDataCache;
+    if (cache && (cache.width !== bufferWidth || cache.height !== bufferHeight)) {
+      this.#imageDataCache = null;
+      cache = null;
+    }
+
+    if (!cache) {
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("2D context unavailable");
+
+      canvas.width = bufferWidth;
+      canvas.height = bufferHeight;
+
+      cache = {
+        pixelData: new type(bufferWidth * bufferHeight * multiplier) as unknown as Uint8Array<any>,
+        canvas,
+        context,
+        imageData: context.createImageData(bufferWidth, bufferHeight),
+        width: bufferWidth,
+        height: bufferHeight,
+      };
+      this.#imageDataCache = cache;
+    }
+
+    // Prevent transform accumulation if caller draws/reads repeatedly
+    cache.context.resetTransform();
+    return cache;
+  }
 }
 
-export {WebGLRenderBuffer};
+// ---------- Types ----------
+
+type TypedArrayConstructor = {
+  new (length: number): any;
+};
+
+interface BufferState {
+  framebuf: WebGLFramebuffer;
+  renderbuf: WebGLRenderbuffer | null;
+  textures: WebGLTexture[];
+  depthTexture: WebGLTexture | null;
+  width: number;
+  height: number;
+}
+
+interface ImageCache {
+  pixelData: Uint8Array<any>;
+  canvas: HTMLCanvasElement;
+  context: CanvasRenderingContext2D;
+  imageData: ImageData;
+  width: number;
+  height: number;
+}
+
+function framebufferStatusToString(gl: WebGL2RenderingContext, status: number): string {
+  switch (status) {
+    case gl.FRAMEBUFFER_COMPLETE:
+      return "FRAMEBUFFER_COMPLETE";
+    case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      return "FRAMEBUFFER_INCOMPLETE_ATTACHMENT";
+    case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+      return "FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT";
+      // WebGL2 does not expose FRAMEBUFFER_INCOMPLETE_DIMENSIONS as a status constant; include for clarity if provided by impl
+    case (gl as any).FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+      return "FRAMEBUFFER_INCOMPLETE_DIMENSIONS";
+    case gl.FRAMEBUFFER_UNSUPPORTED:
+      return "FRAMEBUFFER_UNSUPPORTED";
+    default:
+      return String(status);
+  }
+}
+
+export { WebGLRenderBuffer };

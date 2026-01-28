@@ -25,203 +25,241 @@
  *
  * # Usage
  *
- * ## Using the ModelConverter Class
+ * ## Using the ModelConverter class
  *
- * The {@link ModelConverter | ModelConverter} manages file format conversions via a set of predefined:
+ * The {@link ModelConverter | ModelConverter} manages conversions using:
  *
- * - **{@link io!ModelLoader | ModelLoaders}**: loaders for input formats
- * - **{@link io!ModelExporter | ModelExporters}**: generators for output formats
- * - **Pipelines**: structured workflows describing how inputs are transformed into outputs
+ * - **{@link formats!ModelLoader | ModelLoaders}**: parse/ingest input formats into a {@link scene!Scene | Scene} / {@link data!Data | Data}
+ * - **{@link formats!ModelExporter | ModelExporters}**: generate output formats from those models
+ * - **Pipelines**: declarative workflows wiring inputs to outputs
+ *
+ * You configure the converter with {@link ModelConverterParams | ModelConverterParams}:
+ *
+ * - `loaders`: a map of loader instances (keyed by id)
+ * - `exporters`: a map of exporter instances (keyed by id)
+ * - `pipelines`: a map of pipeline configs (keyed by pipeline id)
+ *
+ * > Note: `outputs` and `reports` in {@link ModelConverterRequest | ModelConverterRequest} are currently required by the type,
+ * > but the converter does not automatically write files to disk. The converted file data is returned on
+ * > {@link ModelConverterResult.outputs | ModelConverterResult.outputs}, and it’s up to you to persist it (e.g., using `fs.writeFile`).
  *
  * <br>
  *
- * ## Converting a DotBIM file to XGF and DataModelParams JSON formats
+ * ## Converting a DotBIM file to XGF and DataModelParams JSON
  *
- * ### 1. Import dependencies
+ * ### 1) Import dependencies
  *
  * ````ts
- * import { readFile, writeFile } from 'fs/promises';
- * import path from 'path';
+ * import { readFile, writeFile } from "fs/promises";
  *
- * import { ModelConverter } from "@xeokit/sdk/modelconverter";
- * import { DotBIMLoader } from "@xeokit/sdk/dotbim";
- * import { XGFExporter } from "@xeokit/sdk/xgf";
+ * import { ModelConverter, type ModelConverterRequest } from "@xeokit/sdk/modelconverter";
+ * import { DotBIMLoader } from "@xeokit/sdk/formats/dotbim";
+ * import { XGFExporter } from "@xeokit/sdk/formats/xgf";
  * import { DataModelParamsExporter } from "@xeokit/sdk/data";
  * ````
  *
- * ### 2. Set up the converter
+ * ### 2) Set up the converter
  *
- * Create a {@link ModelConverter | ModelConverter} instance, configured with loaders,
- * exporters, and a single "dotbim2xgf" pipeline definition that connects those together to perform our conversion.
+ * Create a {@link ModelConverter | ModelConverter} configured with loaders/exporters and a `dotbim2xgf` pipeline:
  *
- * The loaders and exporters we'll use are:
- *
- * - {@link dotbim!DotBIMLoader | DotBIMLoader} to load `.bim` files
- * - {@link xgf!XGFExporter | XGFExporter} to export geometry to `.xgf`
- * - {@link data!DataModelParamsExporter | DataModelParamsExporter} for exporting semantic metadata
+ * - {@link DotBIMLoader} loads `.bim`
+ * - {@link XGFExporter} exports `.xgf`
+ * - {@link DataModelParamsExporter} exports semantic JSON
  *
  * ````ts
  * const modelConverter = new ModelConverter({
- *     loaders: {
- *         dotbim: new DotBIMLoader()
- *     },
- *     exporters: {
- *         xgf: new XGFExporter(),
- *         datamodel: new DataModelParamsExporter()
- *     },
- *     pipelines: {
- *         dotbim2xgf: {
- *             inputs: {
- *                 dotbim: {
- *                     loader: "dotbim",
- *                     options: {}
- *                 }
- *             },
- *             outputs: {
- *                 xgf: {
- *                     exporter: "xgf",
- *                     version: "1.0",
- *                     options: {}
- *                 },
- *                 datamodel: {
- *                     exporter: "datamodel",
- *                     version: "1.0",
- *                     options: {}
- *                 }
- *             }
+ *   loaders: {
+ *     dotbim: new DotBIMLoader()
+ *   },
+ *   exporters: {
+ *     xgf: new XGFExporter(),
+ *     datamodel: new DataModelParamsExporter()
+ *   },
+ *   pipelines: {
+ *     dotbim2xgf: {
+ *       inputs: {
+ *         dotbim: {
+ *           loader: "dotbim",
+ *           options: {}
  *         }
+ *       },
+ *       outputs: {
+ *         xgf: {
+ *           exporter: "xgf",
+ *           version: "1.0",
+ *           options: {}
+ *         },
+ *         datamodel: {
+ *           exporter: "datamodel",
+ *           version: "1.0",
+ *           options: {}
+ *         }
+ *       }
  *     }
+ *   }
  * });
  * ````
  *
- * ### 3. Perform the conversion
+ * ### 3) Perform the conversion
+ *
+ * Provide the input via `fileData` (or use `filePath` to let the converter read it).
+ * Outputs are returned in {@link ModelConverterResult.outputs | result.outputs}.
  *
  * ````ts
  * const dotBIMFileData = JSON.parse(await readFile("model.bim", "utf-8"));
  *
- * modelConverter.convert({
- *      pipeline: "dotbim2xgf",
- *      inputs: {
- *         dotbim: {
- *           fileData: dotBIMFileData
- *         }
- *      }
- * }).then(async result => {
+ * const request: ModelConverterRequest = {
+ *   pipeline: "dotbim2xgf",
+ *   inputs: {
+ *     dotbim: { fileData: dotBIMFileData }
+ *     // Alternative:
+ *     // dotbim: { filePath: "model.bim" }
+ *   }
+ * };
  *
- *      const xgfOutput = result.outputs.xgf;
+ * const result = await modelConverter.convert(request);
  *
- *      const xgfFileData = xgfOutput.fileData;
- *      const xgfFileDataType = xgfOutput.fileDataType; // "arraybuffer"
- *      const xgfVersion = xgfOutput.version; // "1.0.0"
- *      const xgfSceneModel = xgfOutput.sceneModel;
- *      const xgfDataModel = xgfOutput.dataModel;
+ * const xgfOutput = result.outputs.xgf;
+ * const datamodelOutput = result.outputs.datamodel;
  *
- *      const datamodelOutput = result.outputs.datamodel;
+ * // XGF is typically binary (ArrayBuffer)
+ * await writeFile("model.xgf", xgfOutput.fileData);
  *
- *      const datamodelFileData = datamodelOutput.fileData;
- *      const datamodelFileDataType = datamodelOutput.fileDataType; // "json"
- *      const datamodelVersion = datamodelOutput.version; // "1.1.0"
- *      const datamodelSceneModel = datamodelOutput.sceneModel;
- *      const datamodelDataModel = datamodelOutput.dataModel;
- *
- *     await writeFile("model.xgf", xgfFileData);
- *     await writeFile("model.json", JSON.stringify(datamodelFileData, null, 2), "utf-8");
- * });
+ * // DataModelParams is JSON
+ * await writeFile("model.json", JSON.stringify(datamodelOutput.fileData, null, 2), "utf-8");
  * ````
  *
  * <br>
  *
  * ## Converting XGF and DataModelParams JSON back to DotBIM
  *
- * ### 1. Import dependencies
+ * ### 1) Import dependencies
  *
  * ````ts
- * import { readFile, writeFile } from 'fs/promises';
- * import path from 'path';
+ * import { readFile, writeFile } from "fs/promises";
  *
- * import { ModelConverter } from "@xeokit/sdk/modelconverter";
- * import { DotBIMLoader } from "@xeokit/sdk/dotbim";
- * import { XGFExporter } from "@xeokit/sdk/xgf";
- * import { DataModelParamsExporter } from "@xeokit/sdk/data";
+ * import { ModelConverter, type ModelConverterRequest } from "@xeokit/sdk/modelconverter";
+ * import { DotBIMExporter } from "@xeokit/sdk/formats/dotbim";
+ * import { XGFLoader } from "@xeokit/sdk/formats/xgf";
+ * import { DataModelParamsLoader } from "@xeokit/sdk/data";
  * ````
  *
- * ### 2. Set up the converter
+ * ### 2) Set up the converter
  *
- * Create a {@link ModelConverter | ModelConverter} instance, configured with loaders,
- * exporters, and a single "dotbim2xgf" pipeline definition that connects those together to perform our conversion.
- *
- * The loaders and exporters we'll use are:
- *
- * - {@link dotbim!DotBIMLoader | DotBIMLoader} to load `.bim` files
- * - {@link xgf!XGFExporter | XGFExporter} to export geometry to `.xgf`
- * - {@link data!DataModelParamsExporter | DataModelParamsExporter} for exporting semantic metadata
+ * Configure loaders for XGF + DataModelParams, and a DotBIM exporter:
  *
  * ````ts
  * const modelConverter = new ModelConverter({
- *     loaders: {
- *         xgf: new XGFLoader(),
- *         datamodel: new DataModelParamsLoader()
- *     },
- *     exporters: {
- *         dotbim: new DotBIMExporter()
- *     },
- *     pipelines: {
- *         xgf2dotbim: {
- *             inputs: {
- *                 xgf: {
- *                     loader: "xgf",
- *                     sceneModel: "mySceneModel",
- *                     options: {}
- *                 },
- *                 datamodel: {
- *                     loader: "datamodel",
- *                     dataModel: "myDataModel",
- *                     options: {}
- *                 }
- *             },
- *             outputs: {
- *                 dotbim: {
- *                     exporter: "dotbim",
- *                     sceneModel: "mySceneModel",
- *                     dataModel: "myDataModel",
- *                     version: "1.1",
- *                     options: {}
- *                 }
- *             }
+ *   loaders: {
+ *     xgf: new XGFLoader(),
+ *     datamodel: new DataModelParamsLoader()
+ *   },
+ *   exporters: {
+ *     dotbim: new DotBIMExporter()
+ *   },
+ *   pipelines: {
+ *     xgf2dotbim: {
+ *       inputs: {
+ *         xgf: {
+ *           loader: "xgf",
+ *           sceneModel: "mySceneModel",
+ *           options: {}
+ *         },
+ *         datamodel: {
+ *           loader: "datamodel",
+ *           dataModel: "myDataModel",
+ *           options: {}
  *         }
+ *       },
+ *       outputs: {
+ *         dotbim: {
+ *           exporter: "dotbim",
+ *           sceneModel: "mySceneModel",
+ *           dataModel: "myDataModel",
+ *           version: "1.1",
+ *           options: {}
+ *         }
+ *       }
  *     }
+ *   }
  * });
  * ````
  *
- * ### 3. Perform the conversion
+ * ### 3) Perform the conversion
  *
  * ````ts
  * const xgfFileData = await readFile("model.xgf");
  * const datamodelFileData = JSON.parse(await readFile("model.json", "utf-8"));
  *
- * modelConverter.convert({
- *     pipeline: "xgf2dotbim",
- *     inputs: {
- *         xgf: {
- *            fileData: xgfFileData
- *         },
- *         datamodel: {
- *            fileData: datamodelFileData
- *         }
+ * const request: ModelConverterRequest = {
+ *   pipeline: "xgf2dotbim",
+ *   inputs: {
+ *     xgf: { fileData: xgfFileData },
+ *     datamodel: { fileData: datamodelFileData }
+ *   }
+ * };
+ *
+ * const result = await modelConverter.convert(request);
+ *
+ * await writeFile("model.bim", result.outputs.dotbim.fileData, "utf-8");
+ * ````
+ *
+ * <br>
+ *
+ * # Advanced usage
+ *
+ * ## Sharing models across multiple inputs and outputs
+ *
+ * Use `sceneModel` / `dataModel` ids to make multiple inputs populate the same models,
+ * and multiple outputs export from those same models.
+ *
+ * ````ts
+ * import type { ModelConverterRequest } from "@xeokit/sdk/modelconverter";
+ *
+ * const modelConverter = new ModelConverter({
+ *   loaders: {
+ *     xgf: new XGFLoader(),
+ *     datamodel: new DataModelParamsLoader()
+ *   },
+ *   exporters: {
+ *     xgf: new XGFExporter(),
+ *     datamodel: new DataModelParamsExporter()
+ *   },
+ *   pipelines: {
+ *     roundTripLike: {
+ *       inputs: {
+ *         geom:   { loader: "xgf", sceneModel: "main", dataModel: "main" },
+ *         props:  { loader: "datamodel", dataModel: "main" }
+ *       },
+ *       outputs: {
+ *         outGeom:  { exporter: "xgf", sceneModel: "main", dataModel: "main", version: "1.0" },
+ *         outProps: { exporter: "datamodel", dataModel: "main", version: "1.0" }
+ *       }
  *     }
- * }).then(async result => {
- *     const dotbimFileData = result.outputs.dotbim.fileData;
- *     await writeFile("model.bim", dotbimFileData, "utf-8");
+ *   }
  * });
+ *
+ * const request: ModelConverterRequest = {
+ *   pipeline: "roundTripLike",
+ *   inputs: {
+ *     geom:  { filePath: "model.xgf" },
+ *     props: { filePath: "model.json" }
+ *   }
+ * };
+ *
+ * const result = await modelConverter.convert(request);
+ *
+ * await writeFile("out/model.xgf", result.outputs.outGeom.fileData);
+ * await writeFile("out/model.json", JSON.stringify(result.outputs.outProps.fileData, null, 2), "utf-8");
  * ````
  *
  * @module modelconverter
  */
 export * from "./ModelConverter";
 export * from "./ModelConverterParams";
-export * from "./ModelConverterPipelineParams";
-export * from "./ModelConverterInputParams";
-export * from "./ModelConverterOutputParams";
+export * from "./ModelConverterPipelineConfig";
+export * from "./ModelConverterInputConfig";
+export * from "./ModelConverterOutputConfig";
 
 export * from "./ModelConverterConfig";
 
@@ -230,4 +268,6 @@ export * from "./ModelConverterResult";
 export * from "./ModelConverterResultInput";
 export * from "./ModelConverterResultOutput";
 
-export * from "./reporters"
+export * as reporters from "./reporters"
+// export * as exporters from "./exporters";
+

@@ -1,68 +1,144 @@
+import {SDKErrorType, type SDKResult} from "../core";
+import {type WebGLContextProvider} from "./WebGLContextProvider";
+
 /**
  * Represents a WebGL2 shader.
  */
 export class WebGLShader {
 
-  /**
-   * Compilation errors, if any.
-   */
-  errors: string[];
+    /**
+     * True when this shader was successfully allocated.
+     */
+    allocated: boolean;
 
-  /**
-   * True when this shader was successfully allocated.
-   */
-  allocated: boolean;
+    /**
+     * True when this shader was successfully compiled.
+     */
+    compiled: boolean;
 
-  /**
-   * True when this shader was successfully compiled.
-   */
-  compiled: boolean;
+    /**
+     * Handle to GPU-resident WebGL2 shader.
+     */
+    handle: any;
 
-  /**
-   * Handle to GPU-resident WebGL2 shader.
-   */
-  handle: WebGLShader;
+    private _glSrc: WebGLContextProvider;
+    private _type: number;
+    private _source: string;
 
-  /**
-   * Creates a new shader.
-   * @param gl
-   * @param type
-   * @param source
-   */
-  constructor(gl: WebGL2RenderingContext, type: number, source: string) {
-    this.allocated = false;
-    this.compiled = false;
-    // @ts-ignore
-    this.handle = gl.createShader(type);
-    if (!this.handle) {
-      this.errors = [
-        "Failed to allocate"
-      ];
-      return;
+    /**
+     * Creates a new shader.
+     * @param glSrc
+     * @param type
+     * @param source
+     */
+    constructor(glSrc:WebGLContextProvider, type: number, source: string) {
+        this._glSrc = glSrc;
+        this._type = type;
+        this.allocated = false;
+        this.compiled = false;
+        this._source = source;
     }
-    this.allocated = true;
-    gl.shaderSource(this.handle, source);
-    gl.compileShader(this.handle);
-    this.compiled = gl.getShaderParameter(this.handle, gl.COMPILE_STATUS);
-    if (!this.compiled) {
-      if (!gl.isContextLost()) { // Handled explicitly elsewhere, so won't re-handle here
-        const lines = source.split("\n");
-        const numberedLines = [];
-        for (let i = 0; i < lines.length; i++) {
-          numberedLines.push((i + 1) + ": " + lines[i] + "\n");
+
+    /**
+     * Initializes this shader.
+     */
+    init(): SDKResult<any> {
+
+        const gl = this._glSrc.gl;
+
+        this.handle = gl.createShader(this._type);
+
+        if (!this.handle) {
+            return {
+                ok: false,
+                type: SDKErrorType.InitializationFailed,
+                error: "Cannot allocate WebGL2 shader"
+            };
         }
-        this.errors = [];
-        this.errors.push("");
-        this.errors.push(gl.getShaderInfoLog(this.handle) || "");
-        this.errors = this.errors.concat(numberedLines.join(""));
-      }
+
+        this.allocated = true;
+
+        gl.shaderSource(this.handle, this._source);
+
+        gl.compileShader(this.handle);
+
+        this.compiled = gl.getShaderParameter(this.handle, gl.COMPILE_STATUS);
+
+        if (!this.compiled) {
+            if (!gl.isContextLost()) {
+                const lines = this._source.split("\n");
+                const numberedLines = lines.map((line, index) => `${index + 1}: ${line}`);
+                const shaderInfoLog = gl.getShaderInfoLog(this.handle) || "Unknown error during shader compilation";
+                const errorDetails = [
+                    "Shader Compilation Error:",
+                    shaderInfoLog,
+                    "Shader Source:",
+                    numberedLines.join("\n")
+                ].join("\n");
+
+                this.destroy();
+
+                return {
+                    ok: false,
+                    type: SDKErrorType.InitializationFailed,
+                    error: errorDetails
+                };
+            } else {
+
+                this.destroy();
+
+                return {
+                    ok: false,
+                    type: SDKErrorType.WebGLContextLost,
+                    error: "WebGL context lost during shader compilation"
+                };
+            }
+        }
+
+        return {
+            ok: true,
+            value: undefined
+        };
     }
-  }
 
-  /**
-   * Destroys this shader.
-   */
-  destroy() {
 
-  }
+    /**
+     * Rebuilds the shader after WebGL context has been restored.
+     */
+    webglContextRestored(): SDKResult<any> {
+
+        if (!this._glSrc.gl || !this._source || !this._type) {
+            return {
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "Cannot restore shader: Missing WebGL context, source, or type"
+            };
+        }
+
+        const result = this.init();
+
+        if (result.ok === false) {
+            return {
+                ok: false,
+                type: result.type,
+                error: `Failed to restore shader: ${result.error}`
+            };
+        }
+
+        return {
+            ok: true,
+            value: undefined
+        };
+    }
+
+
+    /**
+     * Destroys this shader, releasing its GPU resources.
+     */
+    destroy(): void {
+        if (this.allocated) {
+            this._glSrc.gl?.deleteShader(this.handle);
+            this.allocated = false;
+        }
+    }
 }

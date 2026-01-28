@@ -1,7 +1,8 @@
-import * as utils from "../utils";
-import type {FloatArrayParam} from "../math";
+
 import type {GeometryArrays} from "./GeometryArrays";
 import {TrianglesPrimitive} from "../constants";
+import {SDKErrorType, type SDKResult} from "../core";
+import type {Vec3} from "../math/vector";
 
 /**
  * Creates a cylinder-shaped geometry.
@@ -12,7 +13,7 @@ import {TrianglesPrimitive} from "../constants";
  * ## Usage
  *
  * ````javascript
- * const cylinderGeometry = buildCylinderGeometry({
+ * const cylinderGeometryResult = buildCylinderGeometry({
  *     center: [0, 0, 0],        // Center of the cylinder
  *     radiusTop: 1,             // Radius of the top of the cylinder
  *     radiusBottom: 1,          // Radius of the bottom of the cylinder
@@ -21,6 +22,13 @@ import {TrianglesPrimitive} from "../constants";
  *     heightSegments: 1,        // Number of segments vertically
  *     openEnded: false          // Whether the cylinder has caps at the ends
  * });
+ *
+ * if (cylinderGeometryResult.ok) {
+ *    const cylinderGeometry = cylinderGeometryResult.value;
+ *    // Use cylinderGeometry here
+ * } else {
+ *    console.error("Error creating cylinder geometry:", cylinderGeometryResult.error);
+ * }
  * ````
  *
  * @param cfg Configuration for the cylinder geometry.
@@ -31,234 +39,161 @@ import {TrianglesPrimitive} from "../constants";
  * @param [cfg.radialSegments=60] The number of radial (horizontal) segments. Default is `60`.
  * @param [cfg.heightSegments=1] The number of vertical segments. Default is `1`.
  * @param [cfg.openEnded=false] Whether or not the cylinder has solid caps at the top and bottom. Default is `false`.
- * @returns {GeometryArrays} The geometry arrays for the cylinder, including positions, normals, UVs, and indices for the faces.
- *
- * @throws {SDKError} If any of the size parameters (`radiusTop`, `radiusBottom`, `height`, `radialSegments`, `heightSegments`) are negative, the function automatically inverts the values and logs a warning.
+ * @returns {SDKResult<GeometryArrays>} The geometry arrays for the cylinder, including positions, normals, UVs, and indices, or an error message.
  */
 export function buildCylinderGeometry(cfg: {
-  radiusBottom: number;
-  center: FloatArrayParam;
-  radialSegments: number;
-  heightSegments: number;
-  openEnded: boolean;
-  radiusTop: number;
-  height: number;
+    center?: Vec3;
+    radiusTop?: number;
+    radiusBottom?: number;
+    height?: number;
+    radialSegments?: number;
+    heightSegments?: number;
+    openEnded?: boolean;
 } = {
-  radiusTop: 1,
-  radiusBottom: 1,
-  height: 1,
-  radialSegments: 60,
-  heightSegments: 1,
-  openEnded: false,
-  center: [0, 0, 0]
-}): GeometryArrays {
+    center: [0, 0, 0],
+    radiusTop: 1,
+    radiusBottom: 1,
+    height: 1,
+    radialSegments: 60,
+    heightSegments: 1,
+    openEnded: false,
+}): SDKResult<GeometryArrays> {
+    const center = cfg.center || [0, 0, 0];
+    const radiusTop = cfg.radiusTop ?? 1;
+    const radiusBottom = cfg.radiusBottom ?? 1;
+    const height = cfg.height ?? 1;
+    const radialSegments = cfg.radialSegments ?? 60;
+    const heightSegments = cfg.heightSegments ?? 1;
+    const openEnded = cfg.openEnded ?? false;
 
-  let radiusTop = cfg.radiusTop || 1;
-  if (radiusTop < 0) {
-    console.error("negative radiusTop not allowed - will invert");
-    radiusTop *= -1;
+  if (center.length !== 3) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildCylinderGeometry] Center must be a 3D point [x, y, z]."
+    };
   }
 
-  let radiusBottom = cfg.radiusBottom || 1;
-  if (radiusBottom < 0) {
-    console.error("negative radiusBottom not allowed - will invert");
-    radiusBottom *= -1;
-  }
-
-  let height = cfg.height || 1;
-  if (height < 0) {
-    console.error("negative height not allowed - will invert");
-    height *= -1;
-  }
-
-  let radialSegments = cfg.radialSegments || 32;
-  if (radialSegments < 0) {
-    console.error("negative radialSegments not allowed - will invert");
-    radialSegments *= -1;
-  }
-  if (radialSegments < 3) {
-    radialSegments = 3;
-  }
-
-  let heightSegments = cfg.heightSegments || 1;
-  if (heightSegments < 0) {
-    console.error("negative heightSegments not allowed - will invert");
-    heightSegments *= -1;
-  }
-  if (heightSegments < 1) {
-    heightSegments = 1;
-  }
-
-  const openEnded = cfg.openEnded;
-
-  const center = cfg.center;
-  const centerX = center ? center[0] : 0;
-  const centerY = center ? center[1] : 0;
-  const centerZ = center ? center[2] : 0;
-
-  const heightHalf = height / 2;
-  const heightLength = height / heightSegments;
-  const radialAngle = (2.0 * Math.PI / radialSegments);
-  const radialLength = 1.0 / radialSegments;
-  const radiusChange = (radiusTop - radiusBottom) / heightSegments;
-
-  const positions = [];
-  const normals = [];
-  const uvs = [];
-  const indices = [];
-
-  let h;
-  let i;
-
-  let x;
-  let z;
-
-  let currentRadius;
-  let currentHeight;
-
-  let first;
-  let second;
-
-  let startIndex;
-  let tu;
-  let tv;
-
-  // create vertices
-  const normalY = (90.0 - (Math.atan(height / (radiusBottom - radiusTop))) * 180 / Math.PI) / 90.0;
-
-  for (h = 0; h <= heightSegments; h++) {
-    currentRadius = radiusTop - h * radiusChange;
-    currentHeight = heightHalf - h * heightLength;
-
-    for (i = 0; i <= radialSegments; i++) {
-      x = Math.sin(i * radialAngle);
-      z = Math.cos(i * radialAngle);
-
-      normals.push(currentRadius * x);
-      normals.push(normalY); //todo
-      normals.push(currentRadius * z);
-
-      uvs.push((i * radialLength));
-      uvs.push(h * 1 / heightSegments);
-
-      positions.push((currentRadius * x) + centerX);
-      positions.push((currentHeight) + centerY);
-      positions.push((currentRadius * z) + centerZ);
+  if (radiusTop < 0 || radiusBottom < 0) {
+        return {
+            ok: false,
+            type: SDKErrorType.InvalidInput,
+            error: "[buildCylinderGeometry] Negative radius values are not allowed."
+        };
     }
-  }
-
-  // create faces
-  for (h = 0; h < heightSegments; h++) {
-    for (i = 0; i <= radialSegments; i++) {
-
-      first = h * (radialSegments + 1) + i;
-      second = first + radialSegments;
-
-      indices.push(first);
-      indices.push(second);
-      indices.push(second + 1);
-
-      indices.push(first);
-      indices.push(second + 1);
-      indices.push(first + 1);
+    if (height < 0) {
+        return {
+            ok: false,
+            type: SDKErrorType.InvalidInput,
+            error: "[buildCylinderGeometry] Negative height is not allowed."
+        };
     }
-  }
-
-  // create top cap
-  if (!openEnded && radiusTop > 0) {
-    startIndex = (positions.length / 3);
-
-    // top center
-    normals.push(0.0);
-    normals.push(1.0);
-    normals.push(0.0);
-
-    uvs.push(0.5);
-    uvs.push(0.5);
-
-    positions.push(0 + centerX);
-    positions.push(heightHalf + centerY);
-    positions.push(0 + centerZ);
-
-    // top triangle fan
-    for (i = 0; i <= radialSegments; i++) {
-      x = Math.sin(i * radialAngle);
-      z = Math.cos(i * radialAngle);
-      tu = (0.5 * Math.sin(i * radialAngle)) + 0.5;
-      tv = (0.5 * Math.cos(i * radialAngle)) + 0.5;
-
-      normals.push(radiusTop * x);
-      normals.push(1.0);
-      normals.push(radiusTop * z);
-
-      uvs.push(tu);
-      uvs.push(tv);
-
-      positions.push((radiusTop * x) + centerX);
-      positions.push((heightHalf) + centerY);
-      positions.push((radiusTop * z) + centerZ);
+    if (radialSegments < 3) {
+        return {
+            ok: false,
+            type: SDKErrorType.InvalidInput,
+            error: "[buildCylinderGeometry] radialSegments must be at least 3."
+        };
+    }
+    if (heightSegments < 1) {
+        return {
+            ok: false,
+            type: SDKErrorType.InvalidInput,
+            error: "[buildCylinderGeometry] heightSegments must be at least 1."
+        };
     }
 
-    for (i = 0; i < radialSegments; i++) {
-      first = startIndex + 1 + i;
+    const positions: number[] = [];
+    const normals: number[] = [];
+    const uvs: number[] = [];
+    const indices: number[] = [];
 
-      indices.push(first);
-      indices.push(first + 1);
-      indices.push(startIndex);
-    }
-  }
+    const halfHeight = height / 2;
 
-  // create bottom cap
-  if (!openEnded && radiusBottom > 0) {
+    for (let y = 0; y <= heightSegments; y++) {
+        const indexRow: number[] = [];
+        const v = y / heightSegments;
+        const radius = v * (radiusBottom - radiusTop) + radiusTop;
 
-    startIndex = (positions.length / 3);
+        for (let x = 0; x <= radialSegments; x++) {
+            const u = x / radialSegments;
+            const theta = u * Math.PI * 2;
 
-    // top center
-    normals.push(0.0);
-    normals.push(-1.0);
-    normals.push(0.0);
+            const sinTheta = Math.sin(theta);
+            const cosTheta = Math.cos(theta);
 
-    uvs.push(0.5);
-    uvs.push(0.5);
+            const vertexX = radius * sinTheta;
+            const vertexY = -v * height + halfHeight;
+            const vertexZ = radius * cosTheta;
 
-    positions.push(0 + centerX);
-    positions.push(0 - heightHalf + centerY);
-    positions.push(0 + centerZ);
+            positions.push(vertexX + center[0], vertexY + center[1], vertexZ + center[2]);
+            normals.push(sinTheta, 0, cosTheta);
+            uvs.push(u, 1 - v);
 
-    // top triangle fan
-    for (i = 0; i <= radialSegments; i++) {
+            indexRow.push(positions.length / 3 - 1);
+        }
 
-      x = Math.sin(i * radialAngle);
-      z = Math.cos(i * radialAngle);
+        if (y > 0) {
+            for (let x = 0; x < radialSegments; x++) {
+                const a = indexRow[x];
+                const b = indexRow[x + 1];
+                const c = indexRow[x + radialSegments + 1];
+                const d = indexRow[x + radialSegments];
 
-      tu = (0.5 * Math.sin(i * radialAngle)) + 0.5;
-      tv = (0.5 * Math.cos(i * radialAngle)) + 0.5;
-
-      normals.push(radiusBottom * x);
-      normals.push(-1.0);
-      normals.push(radiusBottom * z);
-
-      uvs.push(tu);
-      uvs.push(tv);
-
-      positions.push((radiusBottom * x) + centerX);
-      positions.push((0 - heightHalf) + centerY);
-      positions.push((radiusBottom * z) + centerZ);
+                indices.push(a, b, d);
+                indices.push(b, c, d);
+            }
+        }
     }
 
-    for (i = 0; i < radialSegments; i++) {
-      first = startIndex + 1 + i;
-      indices.push(startIndex);
-      indices.push(first + 1);
-      indices.push(first);
-    }
-  }
+    if (!openEnded) {
+        const cap = (isTop: boolean) => {
+            const sign = isTop ? 1 : -1;
+            const radius = isTop ? radiusTop : radiusBottom;
+            const centerIndex = positions.length / 3;
 
-  return utils.apply(cfg, {
-    primitive: TrianglesPrimitive,
-    positions: positions,
-    normals: normals,
-    uv: uvs,
-    indices: indices
-  });
+            positions.push(center[0], center[1] + sign * halfHeight, center[2]);
+            normals.push(0, sign, 0);
+            uvs.push(0.5, 0.5);
+
+            for (let x = 0; x <= radialSegments; x++) {
+                const theta = (x / radialSegments) * Math.PI * 2;
+                const cosTheta = Math.cos(theta);
+                const sinTheta = Math.sin(theta);
+
+                positions.push(
+                    radius * sinTheta + center[0],
+                    center[1] + sign * halfHeight,
+                    radius * cosTheta + center[2]
+                );
+                normals.push(0, sign, 0);
+                uvs.push((cosTheta + 1) / 2, (sinTheta + 1) / 2);
+
+                if (x > 0) {
+                    const a = centerIndex;
+                    const b = centerIndex + x;
+                    const c = centerIndex + x + 1;
+
+                    if (isTop) {
+                        indices.push(a, b, c);
+                    } else {
+                        indices.push(a, c, b);
+                    }
+                }
+            }
+        };
+
+        cap(true);
+        cap(false);
+    }
+
+    const geometryArrays: GeometryArrays = {
+        primitive: TrianglesPrimitive,
+        positions,
+        normals,
+        uv: uvs,
+        indices,
+    };
+
+    return {ok: true, value: geometryArrays};
 }

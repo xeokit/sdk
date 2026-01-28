@@ -15,4 +15,4 @@ export declare const SCENE_OBJECT_FLAGS: {
     BACKFACES: number;
     TRANSPARENT: number;
 };
-//# sourceMappingURL=SCENE_OBJECT_FLAGS.d.ts.map
+//# sourceMappingURL=RENDER_FLAGS.d.ts.map

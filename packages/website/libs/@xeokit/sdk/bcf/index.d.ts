@@ -111,7 +111,7 @@
  *
  * {@link viewer!ViewLayer | ViewLayers} allow selective export of {@link viewer!ViewObject | ViewObjects}. In this example:
  * - **Two ViewLayers** (`foreground` and `background`) are created.
- * - **Only the foreground layer** is exported.
+ * - **Only the foreground _layer** is exported.
  *
  * ```javascript
  * const foregroundViewLayer = view.createLayer({ id: "foreground" });
@@ -130,7 +130,7 @@
  * });
  * ```
  *
- * The viewpoint is restored only for the `foreground` layer:
+ * The viewpoint is restored only for the `foreground` _layer:
  *
  * ```javascript
  * loadBCFViewpoint({

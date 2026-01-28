@@ -5,4 +5,4 @@ export class WebGLRendererGeometry {
     constructor() {
     }
 }
-//# sourceMappingURL=WebGLRendererGeometry.js.map
+//# sourceMappingURL=RendererGeometry.js.map

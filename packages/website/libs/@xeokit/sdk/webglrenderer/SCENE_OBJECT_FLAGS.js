@@ -15,4 +15,4 @@ export const SCENE_OBJECT_FLAGS = {
     BACKFACES: 1 << 11,
     TRANSPARENT: 1 << 12
 };
-//# sourceMappingURL=SCENE_OBJECT_FLAGS.js.map
+//# sourceMappingURL=RENDER_FLAGS.js.map

@@ -1,8 +1,8 @@
 import { createMat4, createVec4, identityMat4, isIdentityMat4, transformPoint4 } from "../matrix";
-import { collapseAABB3, createAABB3, expandAABB3Point3 } from "../boundaries";
+import { collapseAABB3, createAABBFloat64, expandAABB3Point3 } from "../boundaries";
 const tempVec4a = createVec4();
 const tempVec4b = createVec4();
-function getPositionsWorldAABB3(positions, aabb, matrix, worldAABB = createAABB3()) {
+function getPositionsWorldAABB3(positions, aabb, matrix, worldAABB = createAABBFloat64()) {
     collapseAABB3(worldAABB);
     const xScale = (aabb[3] - aabb[0]) / 65535;
     const xOffset = aabb[0];
@@ -24,7 +24,7 @@ function getPositionsWorldAABB3(positions, aabb, matrix, worldAABB = createAABB3
  * A mesh in a {@link scene!SceneModel | SceneModel}.
  *
  * * Stored in {@link scene!SceneModel.meshes | SceneModel.meshes}
- * * Created with {@link scene!SceneModel.createMesh | SceneModel.createMesh}
+ * * Created with {@link scene!SceneModel.addMesh | SceneModel.addMesh}
  * * Referenced by {@link scene!SceneObject.meshes | SceneObject.meshes}
  *
  * See {@link "@xeokit/scene" | @xeokit/scene}  for usage.
@@ -79,7 +79,7 @@ export class SceneMesh {
         this.id = meshParams.id;
         this.#matrix = meshParams.matrix ? createMat4(meshParams.matrix) : identityMat4();
         this.#rtcMatrix = meshParams.rtcMatrix ? createMat4(meshParams.rtcMatrix) : this.#matrix.slice();
-        this.#aabb = createAABB3();
+        this.#aabb = createAABBFloat64();
         this.#aabbDirty = true;
         this.geometry = meshParams.geometry;
         this.textureSet = meshParams.textureSet;
@@ -186,7 +186,7 @@ export class SceneMesh {
         }
         this.#opacity = opacity;
         if (this.rendererMesh) {
-            //       this.rendererMesh.setOpacity(this.#opacity);
+            //       this.sceneObjectRendererProxy.setOpacity(this.#opacity);
         }
     }
     /**

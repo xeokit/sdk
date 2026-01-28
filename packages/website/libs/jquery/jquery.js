@@ -890,7 +890,7 @@ function assert( fn ) {
 		if ( el.parentNode ) {
 			el.parentNode.removeChild( el );
 		}
-		// release memory in IE
+		// release _gpuMemoryManager in IE
 		el = null;
 	}
 }
@@ -3213,7 +3213,7 @@ function createOptions( options ) {
  *
  *	once:			will ensure the callback list can only be fired once (like a Deferred)
  *
- *	memory:			will keep track of previous values and will call any callback added
+ *	_gpuMemoryManager:			will keep track of previous values and will call any callback added
  *					after the list has been fired right away with the latest "memorized"
  *					values (like a Deferred)
  *
@@ -3303,7 +3303,7 @@ jQuery.Callbacks = function( options ) {
 			add: function() {
 				if ( list ) {
 
-					// If we have memory from a past run, we should fire after adding
+					// If we have _gpuMemoryManager from a past run, we should fire after adding
 					if ( memory && !firing ) {
 						firingIndex = list.length - 1;
 						queue.push( memory );
@@ -3375,7 +3375,7 @@ jQuery.Callbacks = function( options ) {
 			},
 
 			// Disable .fire
-			// Also disable .add unless we have memory (since it would have no effect)
+			// Also disable .add unless we have _gpuMemoryManager (since it would have no effect)
 			// Abort any pending executions
 			lock: function() {
 				locked = queue = [];
@@ -3466,10 +3466,10 @@ jQuery.extend( {
 				// ... .then handlers, argument index, [final state]
 				[ "notify", "progress", jQuery.Callbacks( "memory" ),
 					jQuery.Callbacks( "memory" ), 2 ],
-				[ "resolve", "done", jQuery.Callbacks( "once memory" ),
-					jQuery.Callbacks( "once memory" ), 0, "resolved" ],
-				[ "reject", "fail", jQuery.Callbacks( "once memory" ),
-					jQuery.Callbacks( "once memory" ), 1, "rejected" ]
+				[ "resolve", "done", jQuery.Callbacks( "once _gpuMemoryManager" ),
+					jQuery.Callbacks( "once _gpuMemoryManager" ), 0, "resolved" ],
+				[ "reject", "fail", jQuery.Callbacks( "once _gpuMemoryManager" ),
+					jQuery.Callbacks( "once _gpuMemoryManager" ), 1, "rejected" ]
 			],
 			state = "pending",
 			promise = {
@@ -4385,7 +4385,7 @@ jQuery.extend( {
 	_queueHooks: function( elem, type ) {
 		var key = type + "queueHooks";
 		return dataPriv.get( elem, key ) || dataPriv.access( elem, key, {
-			empty: jQuery.Callbacks( "once memory" ).add( function() {
+			empty: jQuery.Callbacks( "once _gpuMemoryManager" ).add( function() {
 				dataPriv.remove( elem, [ type + "queue", key ] );
 			} )
 		} );
@@ -5935,7 +5935,7 @@ jQuery.fn.extend( {
 		for ( ; ( elem = this[ i ] ) != null; i++ ) {
 			if ( elem.nodeType === 1 ) {
 
-				// Prevent memory leaks
+				// Prevent _gpuMemoryManager leaks
 				jQuery.cleanData( getAll( elem, false ) );
 
 				// Remove any remaining nodes
@@ -5975,7 +5975,7 @@ jQuery.fn.extend( {
 					for ( ; i < l; i++ ) {
 						elem = this[ i ] || {};
 
-						// Remove element nodes and prevent memory leaks
+						// Remove element nodes and prevent _gpuMemoryManager leaks
 						if ( elem.nodeType === 1 ) {
 							jQuery.cleanData( getAll( elem, false ) );
 							elem.innerHTML = value;
@@ -6100,7 +6100,7 @@ var rboxStyle = new RegExp( cssExpand.join( "|" ), "i" );
 
 		documentElement.removeChild( container );
 
-		// Nullify the div so it wouldn't be stored in the memory and
+		// Nullify the div so it wouldn't be stored in the _gpuMemoryManager and
 		// it will also be a sign that checks already performed
 		div = null;
 	}
@@ -8946,7 +8946,7 @@ jQuery.extend( {
 
 			// Deferreds
 			deferred = jQuery.Deferred(),
-			completeDeferred = jQuery.Callbacks( "once memory" ),
+			completeDeferred = jQuery.Callbacks( "once _gpuMemoryManager" ),
 
 			// Status-dependent callbacks
 			statusCode = s.statusCode || {},

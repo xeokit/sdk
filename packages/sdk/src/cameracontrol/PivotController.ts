@@ -1,34 +1,37 @@
 import {
   addVec3,
   compareVec3,
-  createVec2,
-  createVec3,
-  createVec4,
+  createVec2Float64, createVec3Float32,
+  createVec3Float64,
+  createVec4Float64,
   cross3Vec3,
-  distVec3, dotVec4,
-  inverseMat4, lenVec3, lookAtMat4v, mulVec3Scalar, normalizeVec3, sqLenVec3, subVec3,
+  distVec3, dotVec4, lenVec3, mulVec3Scalar, normalizeVec3, sqLenVec3, subVec3, type Vec3
+} from "../math/vector";
+
+import {
+  inverseMat4, lookAtMat4v,
   transformPoint3, transformVec3
-} from "../matrix";
-import type {FloatArrayParam} from "../math";
+} from "../math/matrix";
 import {clamp} from "../math";
 import type {View} from "../viewer";
-import {worldToRTCPos} from "../rtc";
+import {worldToRTCPos} from "../math/rtc";
+import {getSceneAABB3Index} from "../collision/aabb/SceneAABB3Index";
+import {SDKTask} from "../core";
 
-const tempVec3a = createVec3();
-const tempVec3b = createVec3();
-const tempVec3c = createVec3();
-
-const tempVec4a = createVec4();
-const tempVec4b = createVec4();
-const tempVec4c = createVec4();
+const tempVec3a = createVec3Float64();
+const tempVec3b = createVec3Float64();
+const tempVec3c = createVec3Float64();
+const tempVec3d = createVec3Float64();
+const tempVec3e = createVec3Float64();
+const tempVec3f = createVec3Float64();
 
 
 /** @private */
 class PivotController {
   #view: View;
   #configs: any;
-  #pivotWorldPos: Float64Array;
-  #cameraOffset: Float64Array;
+  #pivotWorldPos: Vec3;
+  #cameraOffset: Vec3;
   #azimuth: number;
   #polar: number;
   #radius: number;
@@ -40,8 +43,8 @@ class PivotController {
   #pivotSphereSize: number;
   #pivotSphereGeometry: any;
   #pivotSphereMaterial: any;
-  #rtcCenter: Float64Array;
-  #rtcPos: Float64Array;
+  #rtcCenter: Vec3;
+  #rtcPos: Vec3;
   #pivotViewPos: any;
   #pivotProjPos: any;
   #pivotCanvasPos: any;
@@ -50,6 +53,8 @@ class PivotController {
   #onProjMatrix: () => void;
   #onTick: () => void;
   #pivotElement: any;
+  #aabbIndex: any;
+  private _updateTask: SDKTask;
 
   /**
    * @private
@@ -59,9 +64,10 @@ class PivotController {
     // Pivot math by: http://www.derschmale.com/
 
     this.#view = view;
+    this.#aabbIndex = getSceneAABB3Index(view.viewer.scene);
     this.#configs = configs;
-    this.#pivotWorldPos = createVec3();
-    this.#cameraOffset = createVec3();
+    this.#pivotWorldPos = createVec3Float64();
+    this.#cameraOffset = createVec3Float64();
     this.#azimuth = 0;
     this.#polar = 0;
     this.#radius = 0;
@@ -74,25 +80,30 @@ class PivotController {
     this.#pivotSphereSize = 1;
     this.#pivotSphereGeometry = null;
     this.#pivotSphereMaterial = null;
-    this.#rtcCenter = createVec3();
-    this.#rtcPos = createVec3();
+    this.#rtcCenter = createVec3Float64();
+    this.#rtcPos = createVec3Float64();
 
-    this.#pivotViewPos = createVec4();
-    this.#pivotProjPos = createVec4();
-    this.#pivotCanvasPos = createVec2();
+    this.#pivotViewPos = createVec4Float64();
+    this.#pivotProjPos = createVec4Float64();
+    this.#pivotCanvasPos = createVec2Float64();
     this.#cameraDirty = true;
 
-    this.#onViewMatrix = this.#view.camera.onViewMatrix.sub(() => {
+    this.#onViewMatrix = this.#view.viewer.events.onCameraViewMatrixUpdated.sub(() => {
       this.#cameraDirty = true;
     });
 
-    this.#onProjMatrix = this.#view.camera.onProjMatrix.sub(() => {
+    this.#onProjMatrix = this.#view.viewer.events.onCameraProjMatrixUpdated.sub(() => {
       this.#cameraDirty = true;
     });
 
-    this.#onTick = this.#view.viewer.onTick.sub(() => {
-      this.updatePivotElement();
-      this.updatePivotSphere();
+    this._updateTask = new SDKTask({
+      name: "CameraControl->PivotController._updateTask",
+      stage: SDKTask.CollectInputStage,
+      repeat: true, // TODO: make this event-driven instead of repeating every frame?
+      task: () => {
+        this.updatePivotElement();
+        this.updatePivotSphere();
+      }
     });
   }
 
@@ -239,7 +250,7 @@ class PivotController {
     lookat = inverseMat4(lookat);
 
     const offset = transformVec3(lookat, this.#cameraOffset);
-    const diff = createVec3();
+    const diff = createVec3Float64();
 
     subVec3(camera.eye, pivotPos, diff);
     addVec3(diff, offset);
@@ -278,7 +289,8 @@ class PivotController {
    *
    * @param {Number[]} worldPos The new World-space pivot position.
    */
-  setPivotPos(worldPos) {
+  setPivotPos(worldPos: Vec3) {
+    // @ts-ignore
     this.#pivotWorldPos.set(worldPos);
     this.#pivotPosSet = true;
   }
@@ -292,18 +304,18 @@ class PivotController {
    */
   setCanvasPivotPos(canvasPos) {
     const camera = this.#view.camera;
-    const pivotShereRadius = Math.abs(distVec3(this.#view.viewer.scene.center, camera.eye));
+    const pivotShereRadius = Math.abs(distVec3(this.#aabbIndex.getSceneCenter(), camera.eye));
     const transposedProjectMat = camera.projection.transposedProjMatrix;
     // @ts-ignore
     const Pt3 = transposedProjectMat.subarray(8, 12);
     // @ts-ignore
     const Pt4 = transposedProjectMat.subarray(12);
-    const D = [0, 0, -1.0, 1];
+    const D = createVec4Float64([0, 0, -1.0, 1]);
     const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
-    const worldPos = tempVec4a;
-    camera.projection.unproject(canvasPos, screenZ, tempVec4b, tempVec4c, worldPos);
-    const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3a));
-    const posOnSphere = addVec3(camera.eye, mulVec3Scalar(eyeWorldPosVec, pivotShereRadius, tempVec3b), tempVec3c);
+    const worldPos = tempVec3a;
+    camera.projection.unproject(canvasPos, screenZ, tempVec3b, tempVec3c, worldPos);
+    const eyeWorldPosVec = normalizeVec3(subVec3(worldPos, camera.eye, tempVec3d));
+    const posOnSphere = addVec3(camera.eye, mulVec3Scalar(eyeWorldPosVec, pivotShereRadius, tempVec3e), tempVec3f);
     this.setPivotPos(posOnSphere);
   }
 
@@ -311,7 +323,7 @@ class PivotController {
    * Gets the current position we're pivoting about.
    * @returns {Number[]} The current World-space pivot position.
    */
-  getPivotPos(): FloatArrayParam {
+  getPivotPos(): Vec3 {
     return (this.#pivotPosSet) ? this.#pivotWorldPos : this.#view.camera.look; // Avoid pivoting about [0,0,0] by default
   }
 
@@ -338,18 +350,18 @@ class PivotController {
     this.#azimuth += -dx * .01;
     this.#polar += dy * .01;
     this.#polar = clamp(this.#polar, .001, Math.PI - .001);
-    const pos = [
+    const pos = createVec3Float64([
       this.#radius * Math.sin(this.#polar) * Math.sin(this.#azimuth),
       this.#radius * Math.cos(this.#polar),
       this.#radius * Math.sin(this.#polar) * Math.cos(this.#azimuth)
-    ];
+    ]);
     if (worldUp[2] === 1) {
       const t = pos[1];
       pos[1] = pos[2];
       pos[2] = t;
     }
     // Preserve the eye->look distance, since in xeokit "look" is the point-of-interest, not the direction vector.
-    const eyeLookLen = lenVec3(subVec3(camera.look, camera.eye, createVec3()));
+    const eyeLookLen = lenVec3(subVec3(camera.look, camera.eye, createVec3Float64()));
     const pivotPos = this.getPivotPos();
     addVec3(pos, pivotPos);
     let lookat = lookAtMat4v(pos, pivotPos, worldUp);
@@ -358,7 +370,7 @@ class PivotController {
     lookat[12] -= offset[0];
     lookat[13] -= offset[1];
     lookat[14] -= offset[2];
-    const zAxis = [lookat[8], lookat[9], lookat[10]];
+    const zAxis = createVec3Float32([lookat[8], lookat[9], lookat[10]]);
     camera.eye = [lookat[12], lookat[13], lookat[14]];
     subVec3(camera.eye, mulVec3Scalar(zAxis, eyeLookLen), camera.look);
     camera.up = [lookat[4], lookat[5], lookat[6]];
@@ -412,9 +424,9 @@ class PivotController {
 
   destroy() {
     this.destroyPivotSphere();
-    this.#view.camera.onViewMatrix.unsub(this.#onViewMatrix);
-    this.#view.camera.onProjMatrix.unsub(this.#onProjMatrix);
-    this.#view.viewer.onTick.unsub(this.#onTick);
+    this.#view.viewer.events.onCameraViewMatrixUpdated.unsub(this.#onViewMatrix);
+    this.#view.viewer.events.onCameraProjMatrixUpdated.unsub(this.#onProjMatrix);
+    this._updateTask.destroy();
   }
 }
 

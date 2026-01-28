@@ -15,7 +15,7 @@ import { ResolutionScaleParams } from "./ResolutionScaleParams";
  *
  * * Returned by {@link View.toParams | View.toParams}
  * * Passed to {@link View.fromParams | View.fromParams} and {@link Viewer.createView | Viewer.createView}
- * * Located at {@link ViewerParams.views | ViewerParams.views}
+ * * Located at {@link ViewerParams.viewManager | ViewerParams.viewManager}
  */
 export interface ViewParams {
     /**

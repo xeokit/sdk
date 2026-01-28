@@ -11,11 +11,11 @@ export class VBOTrianglesInstancingDrawColorRenderer extends VBOInstancingRender
         this.vertexCommonDefs(src);
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexDrawLambertDefs(src);
+        this.vertexLambertShadingDefs(src);
         this.vertexDrawMainOpen(src);
         {
             this.vertexDrawInstancingTransformLogic(src);
-            this.vertexDrawLambertLogic(src);
+            this.vertexLambertShadingLogic(src);
             this.vertexSlicingLogic(src);
         }
         this.vertexMainClose(src);
@@ -25,11 +25,11 @@ export class VBOTrianglesInstancingDrawColorRenderer extends VBOInstancingRender
         this.fragmentPrecisionDefs(src);
         this.fragmentCommonDefs(src);
         this.fragmentSlicingDefs(src);
-        this.fragmentDrawLambertDefs(src);
+        this.fragmentLambertShadingDefs(src);
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
-            this.fragmentDrawLambertLogic(src);
+            this.fragmentLambertShadingLogic(src);
             this.fragmentCommonOutput(src);
         }
         src.push("}");

@@ -1,4 +1,5 @@
 import {type ModelConverterStatsReportInput} from "./ModelConverterStatsReportInput";
+import {type ModelConverterStatsReportOutput} from "./ModelConverterStatsReportOutput";
 import {type SceneModelStats} from "../../../scene";
 import {type DataModelStats} from "../../../data";
 
@@ -55,6 +56,11 @@ export interface ModelConverterStatsReport {
    * A map of output identifiers to their corresponding output statistics.
    */
   outputs: {
-    [key: string]: ModelConverterStatsReportInput;
+    [key: string]: ModelConverterStatsReportOutput;
   };
+
+  /**
+   * Any errors that occurred during the conversion process.
+   */
+  errors: string[];
 }

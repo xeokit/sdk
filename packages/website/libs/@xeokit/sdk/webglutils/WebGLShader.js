@@ -31,7 +31,7 @@ export class WebGLShader {
         this.handle = gl.createShader(type);
         if (!this.handle) {
             this.errors = [
-                "Failed to allocate"
+                "Cannot allocate"
             ];
             return;
         }

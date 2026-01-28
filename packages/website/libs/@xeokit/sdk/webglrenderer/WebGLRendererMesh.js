@@ -1,4 +1,4 @@
-import { createAABB3 } from "../boundaries";
+import { createAABBFloat64 } from "../boundaries";
 import { createMat4, mulMat4, transformPoint3, translationMat4c } from "../matrix";
 const tempMat4a = createMat4();
 const tempMat4b = createMat4();
@@ -40,9 +40,9 @@ export class WebGLRendererMesh {
         this.layer = params.layer;
         this.matrix = params.matrix;
         this.opacity = params.opacity;
-        this.aabb = createAABB3();
+        this.aabb = createAABBFloat64();
         this.rendererTextureSet = params.rendererTextureSet;
-        this.rendererGeometry = params.rendererGeometry;
+        this.rendererGeometry = params.sceneGeometryRendererProxy;
         this.meshIndex = params.meshIndex;
     }
     delegatePickedEntity() {
@@ -57,7 +57,7 @@ export class WebGLRendererMesh {
     setMatrix(matrix) {
         const center = transformPoint3(matrix, [0, 0, 0]);
         const oldTile = this.tile;
-        this.tile = oldTile ? this.tileManager.updateTileCenter(oldTile, center) : this.tileManager.getTile(center);
+        this.tile = oldTile ? this.tileManager.moveTile(oldTile, center) : this.tileManager.getTile(center);
         const tileChanged = !oldTile || oldTile.id !== this.tile.id;
         const tileCenter = this.tile.center;
         const needRTC = (tileCenter[0] !== 0 || tileCenter[1] !== 0 || tileCenter[2] !== 0);
@@ -65,7 +65,7 @@ export class WebGLRendererMesh {
             ? mulMat4(matrix, translationMat4c(-tileCenter[0], -tileCenter[1], -tileCenter[2], tempMat4a), tempMat4b)
             : matrix);
         if (tileChanged) {
-            //   this.layer.setLayerMeshViewMatrixIndex(this.meshIndex, this.tile.index);
+            //   this._layer.setLayerMeshViewMatrixIndex(this._meshIndex, this.tile.index);
         }
     }
     setColor(color) {
@@ -148,7 +148,7 @@ export class WebGLRendererMesh {
         return true;
     }
     drawPickNormals(renderContext) {
-        //this.rendererObject.rendererModel.drawPickNormals(renderContext);
+        //this.sceneObjectRendererProxy.rendererModel.drawPickNormals(#renderContext);
     }
     initFlags(viewIndex, flags) {
         this.layer.initFlags(viewIndex, this.meshIndex, flags, this.attribs[viewIndex].transparent);
@@ -162,4 +162,4 @@ export class WebGLRendererMesh {
         }
     }
 }
-//# sourceMappingURL=WebGLRendererMesh.js.map
+//# sourceMappingURL=RendererMesh.js.map

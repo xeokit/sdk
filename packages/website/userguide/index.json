@@ -61,6 +61,19 @@
       ],
       "topic": "import.gltf"
     },
+    "example_IFCLoader_Duplex": {
+      "title": "Viewing IFC using IFCLoader",
+      "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "IFC",
+        "XGF",
+        "webifc2xgf",
+        "_Featured"
+      ],
+      "topic": "import.ifc"
+    },
     "example_IFCLoader_IfcOpenHouse4": {
       "title": "Viewing IFC using IFCLoader",
       "description": "How to use IFCLoader to view an IFC model in the browser with a xeokit web viewer.",
@@ -140,6 +153,17 @@
       ],
       "topic": "import.dotbim"
     },
+    "example_ModelConverter_ifc2dotbim": {
+      "title": "Viewing .BIM using ModelConverter and IFCLoader",
+      "description": "Use the ModelConverter class to convert a model from dotbim (.bim) format to JSON SceneModelParams and DataModelParams, then use SceneModelParamsLoader and DataModelParamsLoader to view the model in a xeokit web viewer.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "Importing",
+        "DotBIM"
+      ],
+      "topic": "import.dotbim"
+    },
     "example_ModelConverter_ifc2xgf": {
       "title": "Viewing IFC using ModelConverter and XGFLoader",
       "description": "Use the ModelConverter class to convert a model from IFC format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer.",
@@ -189,6 +213,16 @@
       ],
       "topic": "modeling.scene.geometry"
     },
+    "example_SceneModel_build_boxes": {
+      "title": "Creating a Cube",
+      "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "SDK"
+      ],
+      "topic": "modeling.scene.geometry"
+    },
     "example_SceneModel_build_geometries": {
       "title": "Creating Various Geometries",
       "description": "In this example, we'll use the xeokit SDK to create and view a model containing objects with various shapes, using the SDK's geometry genorator functions.",
@@ -217,6 +251,16 @@
       ],
       "topic": "modeling.scene.object"
     },
+    "example_SceneModel_build_thing": {
+      "title": "Creating a Cube",
+      "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "SDK"
+      ],
+      "topic": "modeling.scene.geometry"
+    },
     "example_SceneModel_build_triangle": {
       "title": "Creating a 3D Triangle",
       "description": "Using xeokit SDK to create and view a single 3D triangle in the browser.",
@@ -235,6 +279,26 @@
         "_Featured"
       ],
       "topic": "modeling.scene.object"
+    },
+    "example_SceneModel_stressTest": {
+      "title": "Creating a 3D Model",
+      "description": "Using xeokit to create a 3D model composed of multiple objects with triangle mesh geometry.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "_Featured"
+      ],
+      "topic": "modeling.scene.object"
+    },
+    "example_SceneModel_test1": {
+      "title": "Creating a Cube",
+      "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
+      "tags": [
+        "Tutorial",
+        "Example",
+        "SDK"
+      ],
+      "topic": "modeling.scene.geometry"
     },
     "example_ViewLayer_auto": {
       "title": "Creating a Viewer with automatic ViewLayers",
@@ -482,6 +546,7 @@
     "XGF": [
       "dev-status",
       "dotbim2xgf",
+      "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4",
       "example_XGFLoader_MAP",
       "gltf2xgf",
@@ -493,6 +558,7 @@
     "IFC": [
       "dev-status",
       "dotbim2xgf",
+      "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4",
       "example_ModelConverter_ifc2xgf",
       "ifc2gltf",
@@ -507,6 +573,7 @@
       "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
       "example_ModelConverter_dotbim2xgf",
+      "example_ModelConverter_ifc2dotbim",
       "overview-pipelines"
     ],
     "glTF": [
@@ -535,6 +602,7 @@
       "example_CityJSONLoader_Railway",
       "example_DotBIMLoader_BlenderHouse",
       "example_GLTFLoader_MAP",
+      "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4",
       "example_LASLoader_Pumpkin",
       "example_ModelConverter_cityjson2xgf",
@@ -542,16 +610,21 @@
       "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
       "example_ModelConverter_dotbim2xgf",
+      "example_ModelConverter_ifc2dotbim",
       "example_ModelConverter_ifc2xgf",
       "example_SceneModel_DataModel_build_table",
       "example_SceneModel_DataModel_fromParams_IfcOpenHouse4",
       "example_SceneModel_build_box",
       "example_SceneModel_build_box_compressedGeometry",
+      "example_SceneModel_build_boxes",
       "example_SceneModel_build_geometries",
       "example_SceneModel_build_lines",
       "example_SceneModel_build_table",
+      "example_SceneModel_build_thing",
       "example_SceneModel_build_triangle",
       "example_SceneModel_fromParams_table",
+      "example_SceneModel_stressTest",
+      "example_SceneModel_test1",
       "example_ViewLayer_auto",
       "example_ViewLayer_manual",
       "example_ViewLayer_multiView",
@@ -568,6 +641,7 @@
       "example_CityJSONLoader_Railway",
       "example_DotBIMLoader_BlenderHouse",
       "example_GLTFLoader_MAP",
+      "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4",
       "example_LASLoader_Pumpkin",
       "example_ModelConverter_cityjson2xgf",
@@ -575,16 +649,21 @@
       "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
       "example_ModelConverter_dotbim2xgf",
+      "example_ModelConverter_ifc2dotbim",
       "example_ModelConverter_ifc2xgf",
       "example_SceneModel_DataModel_build_table",
       "example_SceneModel_DataModel_fromParams_IfcOpenHouse4",
       "example_SceneModel_build_box",
       "example_SceneModel_build_box_compressedGeometry",
+      "example_SceneModel_build_boxes",
       "example_SceneModel_build_geometries",
       "example_SceneModel_build_lines",
       "example_SceneModel_build_table",
+      "example_SceneModel_build_thing",
       "example_SceneModel_build_triangle",
       "example_SceneModel_fromParams_table",
+      "example_SceneModel_stressTest",
+      "example_SceneModel_test1",
       "example_ViewLayer_auto",
       "example_ViewLayer_manual",
       "example_ViewLayer_multiView",
@@ -600,11 +679,13 @@
     "_Featured": [
       "example_CityJSONLoader_Railway",
       "example_GLTFLoader_MAP",
+      "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4",
       "example_LASLoader_Pumpkin",
       "example_SceneModel_DataModel_build_table",
       "example_SceneModel_build_table",
       "example_SceneModel_fromParams_table",
+      "example_SceneModel_stressTest",
       "example_View_multiView_IFCLoader",
       "example_View_multiView_SceneModel_build_table",
       "example_XGFLoader_MAP",
@@ -617,9 +698,11 @@
       "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
       "example_ModelConverter_dotbim2xgf",
+      "example_ModelConverter_ifc2dotbim",
       "example_ModelConverter_ifc2xgf"
     ],
     "webifc2xgf": [
+      "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4"
     ],
     "LAS": [
@@ -627,7 +710,10 @@
       "las2xgf"
     ],
     "SDK": [
-      "example_SceneModel_build_box"
+      "example_SceneModel_build_box",
+      "example_SceneModel_build_boxes",
+      "example_SceneModel_build_thing",
+      "example_SceneModel_test1"
     ],
     "Viewer": [
       "example_Viewer_fromParams",

@@ -21,12 +21,12 @@ export class RenderContext {
     gl;
     viewMatrixDataTexture;
     /**
-     * Whether to render a quality representation for triangle surfaces.
+     * Whether to draw a quality representation for triangle surfaces.
      *
-     * When ````false````, we'll render them with a fast vertex-shaded Gouraud-shaded representation, which
+     * When ````false````, we'll draw them with a fast vertex-shaded Gouraud-shaded representation, which
      * is great for zillions of objects.
      *
-     * When ````true````, we'll render them at a better visual quality, using smooth, per-fragment shading
+     * When ````true````, we'll draw them at a better visual quality, using smooth, per-fragment shading
      * and a more realistic lighting model.
      */
     pbrEnabled;
@@ -125,7 +125,7 @@ export class RenderContext {
         this.saoOcclusionTexture = null;
     }
     /**
-     * Gets the next available texture unit for this render
+     * Gets the next available texture unit for this draw
      */
     get nextTextureUnit() {
         const textureUnit = this.textureUnit;

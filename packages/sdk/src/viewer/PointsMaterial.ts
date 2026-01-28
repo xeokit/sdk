@@ -1,34 +1,30 @@
-import {Component} from "../core";
-import type {EmphasisMaterialParams} from "./EmphasisMaterialParams";
-import type {PointsMaterialParams} from "./PointsMaterialParams";
+import type { PointsMaterialParams} from "./PointsMaterialParams";
 import type {View} from "./View";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * Configures the size and shape of {@link ViewObject | ViewObjects} that represent clouds of points.
- *
- *
  *
  * * Located at {@link View.pointsMaterial}.
  * * Supports round and square points.
  * * Optional perspective point scaling.
  */
-class PointsMaterial extends Component {
+class PointsMaterial {
 
   /**
    * The View to which this PointsMaterial belongs.
    */
   public readonly view: View;
 
-  #state: {
-    pointSize: number,
-    roundPoints: boolean,
-    perspectivePoints: boolean,
-    minPerspectivePointSize: number,
-    maxPerspectivePointSize: number,
-    filterIntensity: boolean,
-    minIntensity: number,
-    maxIntensity: number
-  };
+  private _pointSize: number;
+  private _roundPoints: boolean;
+  private _perspectivePoints: boolean;
+  private _minPerspectivePointSize: number;
+  private _maxPerspectivePointSize: number;
+  private _filterIntensity: boolean;
+  private _minIntensity: number;
+  private _maxIntensity: number;
+  private _destroyed: boolean = false;
 
   /**
    * @private
@@ -44,20 +40,16 @@ class PointsMaterial extends Component {
     maxIntensity?: number
   } = {}) {
 
-    super(view, options);
-
     this.view = view;
 
-    this.#state = {
-      pointSize: (options.pointSize !== undefined && options.pointSize !== null) ? options.pointSize : 1,
-      roundPoints: options.roundPoints !== false,
-      perspectivePoints: options.perspectivePoints !== false,
-      minPerspectivePointSize: (options.minPerspectivePointSize !== undefined && options.minPerspectivePointSize !== null) ? options.minPerspectivePointSize : 1,
-      maxPerspectivePointSize: (options.maxPerspectivePointSize !== undefined && options.maxPerspectivePointSize !== null) ? options.maxPerspectivePointSize : 6,
-      filterIntensity: !!options.filterIntensity,
-      minIntensity: (options.minIntensity !== undefined && options.minIntensity !== null) ? options.minIntensity : 0,
-      maxIntensity: (options.maxIntensity !== undefined && options.maxIntensity !== null) ? options.maxIntensity : 1
-    };
+    this._pointSize = (options.pointSize !== undefined && options.pointSize !== null) ? options.pointSize : 1;
+    this._roundPoints = options.roundPoints !== false;
+    this._perspectivePoints = options.perspectivePoints !== false;
+    this._minPerspectivePointSize = (options.minPerspectivePointSize !== undefined && options.minPerspectivePointSize !== null) ? options.minPerspectivePointSize : 1;
+    this._maxPerspectivePointSize = (options.maxPerspectivePointSize !== undefined && options.maxPerspectivePointSize !== null) ? options.maxPerspectivePointSize : 6;
+    this._filterIntensity = !!options.filterIntensity;
+    this._minIntensity = (options.minIntensity !== undefined && options.minIntensity !== null) ? options.minIntensity : 0;
+    this._maxIntensity = (options.maxIntensity !== undefined && options.maxIntensity !== null) ? options.maxIntensity : 1;
   }
 
   /**
@@ -66,8 +58,8 @@ class PointsMaterial extends Component {
    * Default value is ````2.0```` pixels.
    */
   set pointSize(value: number) {
-    this.#state.pointSize = value;
-    this.view.redraw();
+    this._pointSize = value;
+    this.view.needsRender();
   }
 
   /**
@@ -76,9 +68,8 @@ class PointsMaterial extends Component {
    * Default value is ````2.0```` pixels.
    */
   get pointSize(): number {
-    return this.#state.pointSize;
+    return this._pointSize;
   }
-
 
   /**
    * Sets if points are round or square.
@@ -86,11 +77,11 @@ class PointsMaterial extends Component {
    * Default is ````true```` to set points round.
    */
   set roundPoints(value: boolean) {
-    if (this.#state.roundPoints === value) {
+    if (this._roundPoints === value) {
       return;
     }
-    this.#state.roundPoints = value;
-    this.view.rebuild();
+    this._roundPoints = value;
+    //this.view.rebuild();
   }
 
   /**
@@ -99,7 +90,7 @@ class PointsMaterial extends Component {
    * Default is ````true```` to set points round.
    */
   get roundPoints(): boolean {
-    return this.#state.roundPoints;
+    return this._roundPoints;
   }
 
   /**
@@ -108,11 +99,11 @@ class PointsMaterial extends Component {
    * Default is ````true````.
    */
   set perspectivePoints(value: boolean) {
-    if (this.#state.perspectivePoints === value) {
+    if (this._perspectivePoints === value) {
       return;
     }
-    this.#state.perspectivePoints = value;
-    this.view.rebuild();
+    this._perspectivePoints = value;
+   // this.view.rebuild();
   }
 
   /**
@@ -121,7 +112,7 @@ class PointsMaterial extends Component {
    * Default is ````false````.
    */
   get perspectivePoints(): boolean {
-    return this.#state.perspectivePoints;
+    return this._perspectivePoints;
   }
 
   /**
@@ -130,11 +121,11 @@ class PointsMaterial extends Component {
    * Default value is ````1.0```` pixels.
    */
   set minPerspectivePointSize(value: number) {
-    if (this.#state.minPerspectivePointSize === value) {
+    if (this._minPerspectivePointSize === value) {
       return;
     }
-    this.#state.minPerspectivePointSize = value;
-    this.view.rebuild();
+    this._minPerspectivePointSize = value;
+   // this.view.rebuild();
   }
 
   /**
@@ -145,7 +136,7 @@ class PointsMaterial extends Component {
    * @type {Number}
    */
   get minPerspectivePointSize(): number {
-    return this.#state.minPerspectivePointSize;
+    return this._minPerspectivePointSize;
   }
 
   /**
@@ -154,11 +145,11 @@ class PointsMaterial extends Component {
    * Default value is ````6```` pixels.
    */
   set maxPerspectivePointSize(value: number) {
-    if (this.#state.maxPerspectivePointSize === value) {
+    if (this._maxPerspectivePointSize === value) {
       return;
     }
-    this.#state.maxPerspectivePointSize = value;
-    this.view.rebuild();
+    this._maxPerspectivePointSize = value;
+  //  this.view.rebuild();
   }
 
   /**
@@ -167,7 +158,7 @@ class PointsMaterial extends Component {
    * Default value is ````6```` pixels.
    */
   get maxPerspectivePointSize(): number {
-    return this.#state.maxPerspectivePointSize;
+    return this._maxPerspectivePointSize;
   }
 
   /**
@@ -177,11 +168,11 @@ class PointsMaterial extends Component {
    * Default is ````false````.
    */
   set filterIntensity(value: boolean) {
-    if (this.#state.filterIntensity === value) {
+    if (this._filterIntensity === value) {
       return;
     }
-    this.#state.filterIntensity = value;
-    this.view.rebuild();
+    this._filterIntensity = value;
+ //   this.view.rebuild();
   }
 
   /**
@@ -191,7 +182,7 @@ class PointsMaterial extends Component {
    * Default is ````false````.
    */
   get filterIntensity(): boolean {
-    return this.#state.filterIntensity;
+    return this._filterIntensity;
   }
 
   /**
@@ -200,11 +191,11 @@ class PointsMaterial extends Component {
    * Default value is ````0````.
    */
   set minIntensity(value: number) {
-    if (this.#state.minIntensity === value) {
+    if (this._minIntensity === value) {
       return;
     }
-    this.#state.minIntensity = value;
-    this.view.redraw();
+    this._minIntensity = value;
+    this.view.needsRender();
   }
 
   /**
@@ -213,7 +204,7 @@ class PointsMaterial extends Component {
    * Default value is ````0````.
    */
   get minIntensity(): number {
-    return this.#state.minIntensity;
+    return this._minIntensity;
   }
 
   /**
@@ -222,11 +213,11 @@ class PointsMaterial extends Component {
    * Default value is ````1````.
    */
   set maxIntensity(value: number) {
-    if (this.#state.maxIntensity === value) {
+    if (this._maxIntensity === value) {
       return;
     }
-    this.#state.maxIntensity = value;
-    this.view.redraw();
+    this._maxIntensity = value;
+    this.view.needsRender();
   }
 
   /**
@@ -235,20 +226,19 @@ class PointsMaterial extends Component {
    * Default value is ````1````.
    */
   get maxIntensity(): number {
-    return this.#state.maxIntensity;
+    return this._maxIntensity;
   }
 
   /**
    * @private
    */
   get hash(): string {
-    const state = this.#state;
-    return `${state.pointSize};
-        ${state.roundPoints};
-        ${state.perspectivePoints};
-        ${state.minPerspectivePointSize};
-        ${state.maxPerspectivePointSize};
-        ${state.filterIntensity}`;
+    return `${this._pointSize};
+        ${this._roundPoints};
+        ${this._perspectivePoints};
+        ${this._minPerspectivePointSize};
+        ${this._maxPerspectivePointSize};
+        ${this._filterIntensity}`;
   }
 
   /**
@@ -256,7 +246,14 @@ class PointsMaterial extends Component {
    *
    * @param pointsMaterialParams
    */
-  fromParams(pointsMaterialParams: PointsMaterialParams) {
+  fromParams(pointsMaterialParams: PointsMaterialParams): SDKResult<any> {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[PointsMaterial.fromParams] PointsMaterial has been destroyed."
+      });
+    }
     if (pointsMaterialParams.pointSize !== undefined) {
       this.pointSize = pointsMaterialParams.pointSize;
     }
@@ -275,21 +272,34 @@ class PointsMaterial extends Component {
     if (pointsMaterialParams.filterIntensity !== undefined) {
       this.filterIntensity = pointsMaterialParams.filterIntensity;
     }
+    if (pointsMaterialParams.minIntensity !== undefined) {
+      this.minIntensity = pointsMaterialParams.minIntensity;
+    }
+    if (pointsMaterialParams.maxIntensity !== undefined) {
+      this.maxIntensity = pointsMaterialParams.maxIntensity;
+    }
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   /**
    * Gets the current configuration of this PointsMaterial.
    */
-  toParams(): PointsMaterialParams {
+  toParams(): SDKResult<PointsMaterialParams> {
     return {
-      pointSize: this.pointSize,
-      roundPoints: this.roundPoints,
-      perspectivePoints: this.perspectivePoints,
-      minPerspectivePointSize: this.minPerspectivePointSize,
-      maxPerspectivePointSize: this.maxPerspectivePointSize,
-      filterIntensity: this.filterIntensity,
-      minIntensity: this.minIntensity,
-      maxIntensity: this.maxIntensity
+      ok: true,
+      value: {
+        pointSize: this.pointSize,
+        roundPoints: this.roundPoints,
+        perspectivePoints: this.perspectivePoints,
+        minPerspectivePointSize: this.minPerspectivePointSize,
+        maxPerspectivePointSize: this.maxPerspectivePointSize,
+        filterIntensity: this.filterIntensity,
+        minIntensity: this.minIntensity,
+        maxIntensity: this.maxIntensity
+      }
     };
   }
 
@@ -297,7 +307,7 @@ class PointsMaterial extends Component {
    * @private
    */
   destroy() {
-    super.destroy();
+    this._destroyed = true;
   }
 }
 

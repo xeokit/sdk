@@ -4,7 +4,7 @@ import type { Viewer } from "./Viewer";
 import type { View } from "./View";
 import { ViewLayerParams } from "./ViewLayerParams";
 /**
- * A layer of {@link ViewObject | ViewObjects} within a {@link View}.
+ * A _layer of {@link ViewObject | ViewObjects} within a {@link View}.
  *
  * ViewLayers allow users to group and segregate ViewObjects based on their roles or aspects in a scene, simplifying interaction and focusing operations
  * on specific object groups.
@@ -19,7 +19,7 @@ import { ViewLayerParams } from "./ViewLayerParams";
  * # Automatic vs. Manual ViewLayers
  *
  * * **Automatic ViewLayers** - Created automatically on-the-fly as SceneObjects with {@link scene!SceneObject.layerId | layerIds}
- * are created and destroyed. Ensures a dynamic and self-managing system where layers appear and disappear based on the existence of relevant objects.
+ * are created and destroyed. Ensures a dynamic and self-managing system where renderGraph appear and disappear based on the existence of relevant objects.
  *
  * * **Manual ViewLayers** - Requires user's manual creation and destruction of {@link ViewLayer | ViewLayers}.
  * ViewLayers persist even after objects are destroyed.
@@ -29,7 +29,7 @@ import { ViewLayerParams } from "./ViewLayerParams";
  * # Automatic ViewLayers
  *
  * ViewLayers are useful for separating different types of objects, such as models and environment objects. A common use case is to
- * create separate layers for models and environment objects like the ground or skybox. This allows focusing on model objects for
+ * create separate renderGraph for models and environment objects like the ground or skybox. This allows focusing on model objects for
  * operations like highlighting, hiding, or interacting, without affecting background objects.
  *
  * Create a {@link Viewer | Viewer}:
@@ -104,10 +104,10 @@ import { ViewLayerParams } from "./ViewLayerParams";
  * We can now focus our updates on the ViewObjects in each ViewLayer.
  *
  * ````javascript
- * const environmentLayer = view1.layers["environment"];
+ * const environmentLayer = view1.renderGraph["environment"];
  * environmentLayer.setObjectsVisible(environmentLayer.objectIds, true);
 
- * const modelLayer = view1.layers["model"];
+ * const modelLayer = view1.renderGraph["model"];
  * modelLayer.setObjectsSelected(modelLayer.objectIds, true);
  * ````
  *
@@ -193,7 +193,7 @@ import { ViewLayerParams } from "./ViewLayerParams";
  * From this View's perspective, the "environment" SceneObjects don't exist because no "environment" ViewLayer exists.
  *
  * ````javascript
- * const modelLayer = view1.layers["model"];
+ * const modelLayer = view1.renderGraph["model"];
  * modelLayer.setObjectsVisible(modelLayer.objectIds, true);
  * ````
  *
@@ -287,10 +287,10 @@ import { ViewLayerParams } from "./ViewLayerParams";
  * Let's show all the model objects, and hide all the environmental objects:
  *
  * ````javascript
- * const modelLayer = view1.layers["model"];
+ * const modelLayer = view1.renderGraph["model"];
  * modelLayer.setObjectsVisible(modelLayer.objectIds, true);
  *
- * const environmentLayer = view1.layers["environmentLayer"];
+ * const environmentLayer = view1.renderGraph["environmentLayer"];
  * environmentLayer.setObjectsVisible(environmentLayer.objectIds, false);
  * ````
  */
@@ -318,7 +318,7 @@ declare class ViewLayer extends Component {
      * Each {@link ViewObject} is mapped here by {@link ViewObject.id}.
      *
      * The ViewLayer automatically ensures that there is a {@link ViewObject} here for
-     * each {@link scene!RendererObject} in the {@link Viewer | Viewer}
+     * each {@link scene!SceneObjectRendererProxy} in the {@link Viewer | Viewer}
      */
     readonly objects: {
         [key: string]: ViewObject;
@@ -418,13 +418,13 @@ declare class ViewLayer extends Component {
      */
     get gammaFactor(): number;
     /**
-     * Sets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Sets which rendering modes in which to draw the {@link ViewObject | ViewObjects} in this ViewLayer.
      *
      * Default value is [].
      */
     set renderModes(value: number[]);
     /**
-     * Gets which rendering modes in which to render the {@link ViewObject | ViewObjects} in this ViewLayer.
+     * Gets which rendering modes in which to draw the {@link ViewObject | ViewObjects} in this ViewLayer.
      *
      * Default value is [].
      */

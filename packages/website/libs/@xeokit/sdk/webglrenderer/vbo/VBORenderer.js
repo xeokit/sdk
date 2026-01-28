@@ -250,20 +250,20 @@ export class VBORenderer {
         src.push("          vec4 viewPosition  = viewMatrix * vec4(dot(worldPosition, modelMatrixCol0), dot(worldPosition, modelMatrixCol1), dot(worldPosition, modelMatrixCol2), 1.0); ");
         src.push("          gl_Position = remapPickClipPos(projMatrix * viewPosition);");
     }
-    vertexDrawLambertDefs(src) {
+    vertexLambertShadingDefs(src) {
         src.push("          in  vec4 color;");
         src.push("          out vec4 vColor;");
         src.push("          out vec4 vViewPosition;");
     }
-    vertexDrawLambertLogic(src) {
+    vertexLambertShadingLogic(src) {
         src.push("          vColor = vec4(float(color.r) / 255.0, float(color.g) / 255.0, float(color.b) / 255.0, 1.0);");
         src.push("          vViewPosition = viewPosition;");
     }
-    vertexSilhouetteDefs(src) {
+    vertexDrawSilhouetteDefs(src) {
         src.push("          uniform vec4 silhouetteColor;");
         src.push("          out vec4 vColor;");
     }
-    vertexSilhouetteLogic(src) {
+    vertexDrawSilhouetteLogic(src) {
         src.push("          vColor = vec4(silhouetteColor.r, silhouetteColor.g, silhouetteColor.b, 0.5);");
     }
     vertexDrawFlatColorLogic(src) {
@@ -338,7 +338,7 @@ export class VBORenderer {
         src.push("vec4 color;");
         src.push("out vec4 outColor;");
     }
-    fragmentDrawLambertDefs(src) {
+    fragmentLambertShadingDefs(src) {
         const view = this.renderContext.view;
         src.push("in vec4 vColor;");
         src.push("in vec4 vViewPosition;");
@@ -358,7 +358,7 @@ export class VBORenderer {
             }
         }
     }
-    fragmentDrawLambertLogic(src) {
+    fragmentLambertShadingLogic(src) {
         const view = this.renderContext.view;
         src.push("vec3 reflectedColor = vec3(0.0, 0.0, 0.0);");
         src.push("vec3 viewLightDir = vec3(0.0, 0.0, -1.0);");
@@ -416,7 +416,7 @@ export class VBORenderer {
     }
     fragmentDrawSAOLogic(src) {
         // Doing SAO blend in the main solid fill draw shader just so that edge lines can be drawn over the top
-        // TODO: Would be more efficient to defer this, then render lines later, using same depth buffer for Z-reject
+        // TODO: Would be more efficient to defer this, then draw lines later, using same depth _buffer for Z-reject
         src.push("   float saoViewportWidth = saoParams[0];");
         src.push("   float saoViewportHeight = saoParams[1];");
         src.push("   float saoBlendCutoff = saoParams[2];");
@@ -432,7 +432,7 @@ export class VBORenderer {
         src.push("float depthFragCoordZ = 0.5 * vHighPrecisionZW[0] / vHighPrecisionZW[1] + 0.5;");
         src.push("color = vec4(vec3(1.0 - depthFragCoordZ), 1.0); ");
     }
-    fragmentSilhouetteLogic(src) {
+    fragmentDrawSilhouetteLogic(src) {
         src.push("color = vColor;");
     }
     fragmentPickMeshDefs(src) {
@@ -612,4 +612,4 @@ export class VBORenderer {
         this.program = null;
     }
 }
-//# sourceMappingURL=VBORenderer.js.map
+//# sourceMappingURL=LayerRenderer.js.map

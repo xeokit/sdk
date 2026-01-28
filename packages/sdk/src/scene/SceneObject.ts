@@ -1,9 +1,7 @@
-import {collapseAABB3, expandAABB3} from "../boundaries";
-import type {FloatArrayParam} from "../math";
-import type {RendererObject} from "./RendererObject";
 import type {SceneMesh} from "./SceneMesh";
 import type {SceneModel} from "./SceneModel";
 import type {SceneObjectParams} from "./SceneObjectParams";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * An object within a {@link SceneModel | SceneModel}.
@@ -31,9 +29,19 @@ export class SceneObject {
   /**
    * Optional layer ID for this SceneObject.
    *
-   * When the {@link Scene} is attached to a {@link viewer!View | View}, this will identify an optional {@link viewer!ViewLayer | ViewLayer}
+   * When the {@link Scene} is attached to a {@link viewer!Viewer | Viewer}, this will identify an optional {@link viewer!ViewLayer | ViewLayer}
    * to assign the object to. ViewLayers allow users to group and segregate object based on their roles or aspects in a scene,
    * simplifying interaction and focusing operations on specific object groups.
+   *
+   * When the Scene is attached to a Viewer, if this property is defined, then you could find the ViewObject
+   * corresponding to this SceneObject in the ViewLayer with the same ID, like so:
+   *
+   * ```typescript
+   * const view = viewer.views["myViewId"];
+   * const viewLayer = view.layers[this.layerId || "default"];
+   * const viewObject = viewLayer.objects[this.id];
+   * const sceneObject = viewObject.sceneObject;
+   * ```
    */
   public readonly layerId?: string;
 
@@ -48,17 +56,9 @@ export class SceneObject {
   public readonly meshes: SceneMesh[];
 
   /**
-   *  Internal interface through which a {@link viewer!ViewObject | ViewObject} can load property updates
-   *  into a {@link viewer!Renderer | Renderer} for this SceneObject.
-   *
-   *  This is defined when the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
-   *
-   * @internal
+   * True if this SceneObject has been destroyed.
    */
-  rendererObject: RendererObject | null;
-
-  #aabb: FloatArrayParam;
-  #aabbDirty: boolean;
+  public destroyed: boolean = false;
 
   /**
    * @private
@@ -67,50 +67,122 @@ export class SceneObject {
     model: SceneModel;
     meshes: SceneMesh[];
     id: string;
-    originallSystemId?: string;
+    originalSystemId?: string;
     layerId?: string;
   }) {
     this.id = cfg.id;
-    this.originalSystemId = cfg.originallSystemId || this.id;
+    this.originalSystemId = cfg.originalSystemId || this.id;
     this.layerId = cfg.layerId;
+    this.model = cfg.model;
     this.meshes = cfg.meshes;
-    this.#aabb = null;
-    this.#aabbDirty = true;
-    this.rendererObject = null;
   }
 
   /**
-   * @private
+   * Adds a SceneMesh to this SceneObject.
+   *
+   * The SceneMesh must exist in the parent SceneModel and
+   * must not already be assigned to a SceneObject.
+   *
+   * Fires {@link SceneEvents.onSceneObjectMeshAdded | SceneEvents.onSceneObjectMeshAdded} event.
+   *
+   * @param meshId The ID of the SceneMesh to add.
+   * @returns SDKResult<void> indicating success or failure.
    */
-  setAABBDirty() {
-    this.#aabbDirty = true;
+  addMesh(meshId: string): SDKResult<void> {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneObject.addMesh] SceneObject already destroyed"
+      });
+    }
+    const mesh = this.model.meshes[meshId];
+    if (!mesh) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneObject.addMesh] Mesh with ID '${meshId}' does not exist in model '${this.model.id}'`
+      });
+    }
+    if (mesh.object) {
+      if (mesh.object.id === this.id) {
+        return this.model.scene.logError({
+          ok: false,
+          type: SDKErrorType.InvalidOperation,
+          error: `[SceneObject.addMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
+        });
+      }
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneObject.addMesh] Mesh with ID '${meshId}' is already added to SceneObject '${this.id}'`
+      });
+    }
+    this.meshes.push(mesh);
+    this.model.scene.events.onSceneObjectMeshAdded.dispatch(this, mesh);
+    return {ok: true, value: undefined};
   }
 
   /**
-   * Gets the axis-aligned 3D World-space boundary of this SceneObject.
+   * Removes a SceneMesh from this SceneObject.
+   *
+   * The SceneMesh must exist in the parent SceneModel and
+   * must be assigned to this SceneObject.
+   *
+   * Fires {@link SceneEvents.onSceneObjectMeshRemoved | SceneEvents.onSceneObjectMeshRemoved} event.
+   *
+   * @param meshId The ID of the SceneMesh to remove.
+   * @returns SDKResult<void> indicating success or failure.
    */
-  get aabb(): FloatArrayParam {
-    if (this.meshes.length === 1) {
-      return this.meshes[0].aabb;
+  removeMesh(meshId: string): SDKResult<void> {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneObject.removeMesh] SceneObject already destroyed"
+      });
     }
-    if (this.#aabbDirty) {
-      if (!this.#aabb) {
-        this.#aabb = collapseAABB3();
-      } else {
-        collapseAABB3(this.#aabb);
-      }
-      for (let i = 0, len = this.meshes.length; i < len; i++) {
-        expandAABB3(this.#aabb, this.meshes[i].aabb);
-      }
-      this.#aabbDirty = false;
+    const mesh = this.model.meshes[meshId];
+    if (!mesh) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidInput,
+        error: `[SceneObject.removeMesh] Mesh with ID '${meshId}' does not exist in model '${this.model.id}'`
+      });
     }
-    return this.#aabb;
+    if (mesh.object === undefined) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneObject.removeMesh] Mesh with ID '${meshId}' is not part of any SceneObject`
+      });
+    }
+    if (mesh.object?.id !== this.id) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[SceneObject.removeMesh] Mesh with ID '${meshId}' is not part of SceneObject '${this.id}'`
+      });
+    }
+    const index = this.meshes.indexOf(mesh);
+    if (index !== -1) {
+      this.meshes.splice(index, 1);
+    }
+    this.model.scene.events.onSceneObjectMeshRemoved.dispatch(this, mesh);
+    return {ok: true, value: undefined};
   }
 
   /**
    * Gets this SceneObject as SceneObjectParams.
    */
-  toParams(): SceneObjectParams {
+  toParams(): SDKResult<SceneObjectParams> {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneObject.toParams] SceneObject already destroyed"
+      });
+    }
     const sceneObjectParams = <SceneObjectParams>{
       id: this.id,
       meshIds: []
@@ -123,6 +195,30 @@ export class SceneObject {
         sceneObjectParams.meshIds.push(this.meshes[i].id);
       }
     }
-    return sceneObjectParams;
+    return {
+      ok: true,
+      value: sceneObjectParams
+    };
+  }
+
+  /**
+   * Destroys this SceneObject.
+   *
+   * Fires {@link SceneEvents.onSceneObjectDestroyed | SceneEvents.onSceneObjectDestroyed} event.
+   */
+  destroy(): SDKResult<void> {
+    if (this.destroyed) {
+      return this.model.scene.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SceneObject.destroy] SceneObject already destroyed"
+      });
+    }
+    this.model._destroyObject(this);
+    this.destroyed = true;
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 }

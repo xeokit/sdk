@@ -1,0 +1,14 @@
+{
+  "id": "WebGLRenderer_createGPUMemoryConfigs",
+  "title": "Configuring WebGLRenderer GPU Memory Limits",
+  "description": "",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [],
+  "categories": [
+    "Renderer",
+    "DotBIM"
+  ],
+  "topic": "renderer.configs",
+  "template": "basicPage"
+}

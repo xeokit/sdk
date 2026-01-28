@@ -91,14 +91,14 @@ export declare class Data extends Component {
      * Creates a new {@link DataModel | DataModel} in this Data.
      *
      * Remember to call {@link DataModel.build | DataModel.build} when you've finished building or loading the DataModel. That will
-     * fire events via {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}, to
+     * fire events via {@link Data.onModelCreated | Data.modelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}, to
      * indicate to any subscribers that the DataModel is built and ready for use.
      *
      * Note that while we're building/loading the DataModel, each call that we make to {@link DataModel.createObject | DataModel.createObject}
      * will create a new {@link DataObject | DataObject}
      * in {@link Data.objects | Data.objects} and {@link DataModel.objects | DataModel.objects}, and will also fire an event
-     * via {@link Data.onObjectCreated | Data.onObjectCreated}. However,
-     * only when we've received the {@link Data.onModelCreated | Data.onModelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}
+     * via {@link Data.onObjectCreated | Data.objectCreated}. However,
+     * only when we've received the {@link Data.onModelCreated | Data.modelCreated} and {@link DataModel.onBuilt | DataModel.onBuilt}
      * events can we actually consider the DataModel to be fully constructed.
      *
      * See {@link data | @xeokit/sdk/data}   for more details on usage.
@@ -132,7 +132,7 @@ export declare class Data extends Component {
     /**
      * Destroys all contained {@link DataModel | DataModels}.
      *
-     * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
+     * Fires {@link Data.onModelDestroyed | Data.modelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
      * for each existing DataModel in this Data.
      *
      * See {@link data | @xeokit/sdk/data}   for usage.
@@ -146,9 +146,9 @@ export declare class Data extends Component {
     /**
      * Destroys this Data and all contained {@link DataModel | DataModels}.
      *
-     * * Fires {@link Data.onModelDestroyed | Data.onModelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
+     * * Fires {@link Data.onModelDestroyed | Data.modelDestroyed} and {@link DataModel.onDestroyed | DataModel.onDestroyed}
      * for each existing DataModels in this Data.
-     * * Unsubscribes all subscribers to {@link Data.onModelCreated | Data.onModelCreated}, {@link Data.onModelDestroyed | Data.onModelDestroyed}, {@link DataModel.onDestroyed | DataModel.onDestroyed}
+     * * Unsubscribes all subscribers to {@link Data.onModelCreated | Data.modelCreated}, {@link Data.onModelDestroyed | Data.modelDestroyed}, {@link DataModel.onDestroyed | DataModel.onDestroyed}
      *
      * See {@link data | @xeokit/sdk/data}   for usage.
      *

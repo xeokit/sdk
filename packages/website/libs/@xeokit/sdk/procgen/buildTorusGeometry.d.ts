@@ -2,7 +2,7 @@ import { GeometryArrays } from "./GeometryArrays";
 /**
  * Creates a torus-shaped {@link scene!SceneGeometry | SceneGeometry}.
  *
- * This function generates a torus (doughnut shape) geometry by calculating the positions of vertices based on the specified parameters. It also calculates the normals and UV coordinates for each vertex. The resulting geometry can be used to render a torus mesh in 3D environments.
+ * This function generates a torus (doughnut shape) geometry by calculating the positions of vertices based on the specified parameters. It also calculates the normals and UV coordinates for each vertex. The resulting geometry can be used to draw a torus mesh in 3D environments.
  *
  * ## Usage
  *

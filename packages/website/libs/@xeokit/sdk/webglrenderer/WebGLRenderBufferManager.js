@@ -39,4 +39,4 @@ export class WebGLRenderBufferManager {
         }
     }
 }
-//# sourceMappingURL=WebGLRenderBufferManager.js.map
+//# sourceMappingURL=RenderBuffers.js.map

@@ -21,7 +21,7 @@ declare class Texturing extends Component {
         renderModes?: number[];
     });
     /**
-     * Sets which rendering modes in which to render textures.
+     * Sets which rendering modes in which to draw textures.
      *
      * Accepted modes are {@link constants!QualityRender} and {@link constants!FastRender}.
      *
@@ -29,7 +29,7 @@ declare class Texturing extends Component {
      */
     set renderModes(value: number[]);
     /**
-     * Gets which rendering modes in which to render textures.
+     * Gets which rendering modes in which to draw textures.
      *
      * Accepted modes are {@link constants!QualityRender} and {@link constants!FastRender}.
      *

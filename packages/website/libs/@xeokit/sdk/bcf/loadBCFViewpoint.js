@@ -117,7 +117,7 @@ export function loadBCFViewpoint(params) {
     */
     ///////////////////////////////////////////
     // TODO
-    // Filter on layers
+    // Filter on renderGraph
     ///////////////////////////////////////////
     if (reset) {
         view.setObjectsXRayed(view.xrayedObjectIds, false);

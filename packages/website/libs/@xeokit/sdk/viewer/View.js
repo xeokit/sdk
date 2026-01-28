@@ -42,7 +42,7 @@ import { ResolutionScale } from "./ResolutionScale";
  * * Create light sources with {@link View.createLightSource}
  * * Create slicing planes with {@link View createSectionPlane}
  * * Each View automatically has a {@link viewer!ViewObject} for every {@link RendererObject}
- * * Uses {@link viewer!ViewLayer | ViewLayers} to organize ViewObjects into layers
+ * * Uses {@link viewer!ViewLayer | ViewLayers} to organize ViewObjects into renderGraph
  * * Optionally uses ViewLayers to mask which ViewObjects are automatically maintained
  * * Control the visibility of ViewObjects with {@link View.setObjectsVisible}
  * * Emphasise ViewObjects with {@link View.setObjectsHighlighted}, {@link View.setObjectsSelected}, {@link View.setObjectsXRayed} and {@link View.setObjectsColorized}
@@ -386,8 +386,8 @@ class View extends Component {
         //     premultipliedAlpha: !!options.premultipliedAlpha
         // });
         //
-        // this.canvas.onBoundary.subscribe(() => {
-        //     this.redraw();
+        // this.canvas.viewCanvasBoundary.subscribe(() => {
+        //     this.needsRedraw();
         // });
         this.onBoundary = new EventEmitter(new EventDispatcher());
         this.#backgroundColor = createVec3([
@@ -574,17 +574,17 @@ class View extends Component {
         for (const id in this.viewer.scene.models) {
             this.#createViewObjectsForSceneModel(this.viewer.scene.models[id]);
         }
-        this.viewer.scene.onModelCreated.subscribe((scene, sceneModel) => {
+        this.viewer.SceneEvents.onSceneModelCreated.subscribe((scene, sceneModel) => {
             this.#createViewObjectsForSceneModel(sceneModel);
         });
-        this.viewer.scene.onModelDestroyed.subscribe((scene, sceneModel) => {
+        this.viewer.SceneEvents.onModelDestroyed.subscribe((scene, sceneModel) => {
             this.#destroyViewObjectsForSceneModel(sceneModel);
         });
     }
     #createViewObjectsForSceneModel(sceneModel) {
-        // The Renderer has a RendererObject for each object, through which a ViewObject can
+        // The Renderer has a SceneObjectRendererProxy for each object, through which a ViewObject can
         // push state changes into the Renderer for its object.
-        // The RendererObject
+        // The SceneObjectRendererProxy
         const sceneObjects = sceneModel.objects;
         const rendererObjects = this.viewer.renderer.rendererObjects;
         for (let id in sceneObjects) {
@@ -630,7 +630,7 @@ class View extends Component {
      */
     setRenderMode(renderMode) {
         if (renderMode !== QualityRender && renderMode !== FastRender) {
-            return new SDKError(`Failed to set render mode for View - unsupported mode - supported modes are FastRender and QualityRender`);
+            return new SDKError(`Cannot set render mode for View - unsupported mode - supported modes are FastRender and QualityRender`);
         }
         this.#renderMode = renderMode;
     }

@@ -15,4 +15,4 @@ export class WebGLRendererTextureSet {
         this.occlusionRendererTexture = params.occlusionRendererTexture;
     }
 }
-//# sourceMappingURL=WebGLRendererTextureSet.js.map
+//# sourceMappingURL=RendererTextureSet.js.map

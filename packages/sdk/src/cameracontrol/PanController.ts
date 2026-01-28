@@ -1,17 +1,25 @@
-import {addVec3, createVec3, createVec4, dotVec4, lenVec3, mulVec3Scalar, normalizeVec3, subVec3} from "../matrix";
+import {
+  addVec3,
+  createVec3Float64, createVec4Float32,
+  dotVec4,
+  lenVec3,
+  mulVec3Scalar,
+  normalizeVec3,
+  subVec3,
+  type Vec2, type Vec3
+} from "../math/vector";
 import {OrthoProjectionType, PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
 
-const screenPos = createVec4();
-const viewPos = createVec4();
+const screenPos = createVec3Float64();
+const viewPos = createVec3Float64();
 
-const tempVec3a = createVec3();
-const tempVec3b = createVec3();
-const tempVec3c = createVec3();
-
-const tempVec4a = createVec4();
-const tempVec4b = createVec4();
-const tempVec4c = createVec4();
+const tempVec3a = createVec3Float64();
+const tempVec3b = createVec3Float64();
+const tempVec3c = createVec3Float64();
+const tempVec3d = createVec3Float64();
+const tempVec3e = createVec3Float64();
+const tempVec3f = createVec3Float64();
 
 /**
  * @private
@@ -51,9 +59,9 @@ class PanController {
 
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
 
-      const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec4a);
-      const offset = subVec3(unprojectedWorldPos, camera.eye, tempVec4c);
-      const moveVec = mulVec3Scalar(normalizeVec3(offset), -dollyDelta, []);
+      const unprojectedWorldPos = this._unproject(targetCanvasPos, tempVec3a);
+      const offset = subVec3(unprojectedWorldPos, camera.eye, tempVec3b);
+      const moveVec = mulVec3Scalar(normalizeVec3(offset), -dollyDelta, tempVec3c);
 
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
       camera.look = [camera.look[0] - moveVec[0], camera.look[1] - moveVec[1], camera.look[2] - moveVec[2]];
@@ -66,9 +74,9 @@ class PanController {
         // suddenly a lot closer than the point we pivoted about on the surface of the last object
         // that we click-drag-pivoted on.
 
-        const eyeTargetVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3a);
+        const eyeTargetVec = subVec3(optionalTargetWorldPos, camera.eye, tempVec3d);
         const lenEyeTargetVec = lenVec3(eyeTargetVec);
-        const eyeLookVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3b)), lenEyeTargetVec);
+        const eyeLookVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3e)), lenEyeTargetVec);
         camera.look = [camera.eye[0] + eyeLookVec[0], camera.eye[1] + eyeLookVec[1], camera.eye[2] + eyeLookVec[2]];
       }
 
@@ -78,17 +86,17 @@ class PanController {
       // - get the vector in which we're dollying;
       // - add both vectors to camera eye and look.
 
-      const worldPos1 = this._unproject(targetCanvasPos, tempVec4a);
+      const worldPos1 = this._unproject(targetCanvasPos, tempVec3a);
 
       camera.orthoProjection.scale = camera.orthoProjection.scale - dollyDelta;
 
       ////////////////////////////// TODO
       // camera.orthoProjection._update(); // HACK
 
-      const worldPos2 = this._unproject(targetCanvasPos, tempVec4b);
-      const offset = subVec3(worldPos2, worldPos1, tempVec4c);
-      const eyeLookMoveVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3a)), -dollyDelta, tempVec3b);
-      const moveVec = addVec3(offset, eyeLookMoveVec, tempVec3c);
+      const worldPos2 = this._unproject(targetCanvasPos, tempVec3b);
+      const offset = subVec3(worldPos2, worldPos1, tempVec3c);
+      const eyeLookMoveVec = mulVec3Scalar(normalizeVec3(subVec3(camera.look, camera.eye, tempVec3d)), -dollyDelta, tempVec3e);
+      const moveVec = addVec3(offset, eyeLookMoveVec, tempVec3f);
 
       camera.eye = [camera.eye[0] - moveVec[0], camera.eye[1] - moveVec[1], camera.eye[2] - moveVec[2]];
       camera.look = [camera.look[0] - moveVec[0], camera.look[1] - moveVec[1], camera.look[2] - moveVec[2]];
@@ -97,7 +105,7 @@ class PanController {
     return dolliedThroughSurface;
   }
 
-  _unproject(canvasPos, worldPos) {
+  _unproject(canvasPos: Vec2, worldPos: Vec3) {
 
     const camera = this.#view.camera;
     const transposedProjectMat = camera.projection.transposedProjMatrix;
@@ -106,7 +114,7 @@ class PanController {
     const Pt3 = transposedProjectMat.subarray(8, 12);
     // @ts-ignore
     const Pt4 = transposedProjectMat.subarray(12);
-    const D = [0, 0, -1.0, 1];
+    const D = createVec4Float32([0, 0, -1.0, 1]);
     const screenZ = dotVec4(D, Pt3) / dotVec4(D, Pt4);
 
     camera.projection.unproject(canvasPos, screenZ, screenPos, viewPos, worldPos);

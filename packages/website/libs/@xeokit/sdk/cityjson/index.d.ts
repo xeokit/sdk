@@ -33,7 +33,7 @@
  * The following example demonstrates how to:
  * - Set up a {@link viewer!Viewer | Viewer} with a {@link webglrenderer!WebGLRenderer | WebGLRenderer} and a {@link scene!Scene | Scene}.
  * - Attach a {@link cameracontrol!CameraControl | CameraControl} for interactive navigation.
- * - Load and render a CityJSON model using {@link cityjson!loadCityJSON | loadCityJSON}.
+ * - Load and draw a CityJSON model using {@link cityjson!loadCityJSON | loadCityJSON}.
  * - Handle potential errors using {@link core!SDKError | SDKError}.
  *
  * ```javascript

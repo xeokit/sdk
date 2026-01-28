@@ -36,4 +36,4 @@ export declare class WebGLRendererObject implements RendererObject {
     commitRendererState(viewIndex: number): void;
     destroy(): void;
 }
-//# sourceMappingURL=WebGLRendererObject.d.ts.map
+//# sourceMappingURL=RendererObject.d.ts.map

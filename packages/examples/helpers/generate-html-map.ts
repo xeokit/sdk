@@ -1,10 +1,10 @@
-// This script generates a JSON file that maps directories to their index.html files.
+// This script generates a JSON file that maps directories to their tileIndex.html files.
 // It is used to create a list of examples for the SDK documentation.
 // This script is run by Vite during the build process and when the server starts.
 // {
-//   'src/IFCLoader_IfcOpenHouse4': 'src/IFCLoader_IfcOpenHouse4/index.html',
-//   'src/DotBIMLoader_BlenderHouse': 'src/DotBIMLoader_BlenderHouse/index.html',
-//   'src/aaa/DotBIMLoader_BlenderHouse': 'src/aaa/DotBIMLoader_BlenderHouse/index.html'
+//   'src/IFCLoader_IfcOpenHouse4': 'src/IFCLoader_IfcOpenHouse4/tileIndex.html',
+//   'src/DotBIMLoader_BlenderHouse': 'src/DotBIMLoader_BlenderHouse/tileIndex.html',
+//   'src/aaa/DotBIMLoader_BlenderHouse': 'src/aaa/DotBIMLoader_BlenderHouse/tileIndex.html'
 // }
 
 import fs from 'fs';
@@ -16,7 +16,7 @@ const OUTPUT_FILE = './src/html-map.json';
 
 export async function generateHtmlMap() {
   try {
-    // Find all index.html files recursively in src directory but not in src itself
+    // Find all tileIndex.html files recursively in src directory but not in src itself
     const htmlFiles = await glob(`${SRC_DIR}/**/index.html`);
 
     const map = {};
@@ -31,7 +31,7 @@ export async function generateHtmlMap() {
       if (dirName === 'src') {
         return;
       }
-      map[dirName] = path.join(dirName, "index.html");
+      map[dirName] = path.join(dirName, "tileIndex.html");
     });
 
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(map, null, 2));

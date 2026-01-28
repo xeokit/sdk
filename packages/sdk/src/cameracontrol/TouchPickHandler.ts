@@ -1,5 +1,6 @@
-import {distVec2, subVec3} from "../matrix";
+import {createVec2Float32, distVec2, subVec3} from "../math/vector";
 import type {PickResult, View} from "../viewer";
+import {getSceneAABB3Index, SceneAABB3Index} from "../collision/aabb/SceneAABB3Index";
 
 
 const TAP_INTERVAL = 150;
@@ -34,17 +35,19 @@ export class TouchPickHandler {
   #view: View;
   #canvasTouchStartHandler: (e) => void;
   #canvasTouchEndHandler: (e) => void;
+  #aabbIndex: SceneAABB3Index;
 
   constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 
     this.#view = view;
+    this.#aabbIndex = getSceneAABB3Index(view.viewer.scene);
 
     const pickController = controllers.pickController;
     const cameraControl = controllers.cameraControl;
 
     let touchStartTime;
     const activeTouches = [];
-    const tapStartPos = new Float32Array(2);
+    const tapStartPos = createVec2Float32();
     let tapStartTime = -1;
     let lastTapTime = -1;
 
@@ -55,17 +58,20 @@ export class TouchPickHandler {
       if (pickResult && pickResult.worldPos) {
         pos = pickResult.worldPos
       }
-      const aabb = pickResult ? pickResult.viewObject.aabb : view.aabb;
+      const aabb = pickResult && pickResult.viewObject
+        ? this.#aabbIndex.getObjectAABB(pickResult.viewObject.id)
+        : this.#aabbIndex.getSceneAABB();
+
       if (pos) { // Fly to look at point, don't change eye->look dist
         const camera = view.camera;
-        const diff = subVec3(camera.eye, camera.look, []);
+       // const diff = subVec3(camera.eye, camera.look, []);
         controllers.cameraFlight.flyTo({
-          aabb: aabb
+          aabb
         });
         // TODO: Option to back off to fit AABB in view
       } else {// Fly to fit target boundary in view
         controllers.cameraFlight.flyTo({
-          aabb: aabb
+          aabb
         });
       }
     };

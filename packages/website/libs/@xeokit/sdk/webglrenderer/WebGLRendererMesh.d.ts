@@ -59,4 +59,4 @@ export declare class WebGLRendererMesh implements RendererMesh, Pickable {
     commitRendererState(viewIndex: number): void;
     destroy(): void;
 }
-//# sourceMappingURL=WebGLRendererMesh.d.ts.map
+//# sourceMappingURL=RendererMesh.d.ts.map

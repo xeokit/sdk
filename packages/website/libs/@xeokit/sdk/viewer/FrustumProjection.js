@@ -209,7 +209,7 @@ export class FrustumProjection extends Component {
         frustumMat4(this.#state.left, this.#state.right, this.#state.bottom, this.#state.top, this.#state.near, this.#state.far, this.#state.projMatrix);
         this.#inverseMatrixDirty = true;
         this.#transposedProjMatrixDirty = true;
-        this.camera.view.redraw();
+        this.camera.view.needsRedraw();
         this.onProjMatrix.dispatch(this, this.#state.projMatrix);
     }
     /**

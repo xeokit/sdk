@@ -84,6 +84,12 @@ export class WebGLArrayBuf {
   handle: WebGLBuffer;
 
   /**
+   * True if the values are integers.
+   * Used to select vertexAttribIPointer vs vertexAttribPointer.
+   */
+  isInteger: boolean;
+
+  /**
    * Creates a WebGL ArrayBuffer.
    */
   constructor(
@@ -106,36 +112,43 @@ export class WebGLArrayBuf {
       case Uint8Array:
         this.itemType = gl.UNSIGNED_BYTE;
         this.itemByteSize = 1;
+        this.isInteger = true;
         break;
 
       case Int8Array:
         this.itemType = gl.BYTE;
         this.itemByteSize = 1;
+        this.isInteger = true;
         break;
 
       case Uint16Array:
         this.itemType = gl.UNSIGNED_SHORT;
         this.itemByteSize = 2;
+        this.isInteger = true;
         break;
 
       case Int16Array:
         this.itemType = gl.SHORT;
         this.itemByteSize = 2;
+        this.isInteger = true;
         break;
 
       case Uint32Array:
         this.itemType = gl.UNSIGNED_INT;
         this.itemByteSize = 4;
+        this.isInteger = true;
         break;
 
       case Int32Array:
         this.itemType = gl.INT;
         this.itemByteSize = 4;
+        this.isInteger = true;
         break;
 
       default:
         this.itemType = gl.FLOAT;
         this.itemByteSize = 4;
+        this.isInteger = false;
     }
 
     this.usage = usage;
@@ -155,7 +168,7 @@ export class WebGLArrayBuf {
     // @ts-ignore
     this.handle = this.gl.createBuffer();
     if (!this.handle) {
-      throw new Error("Failed to allocate WebGL ArrayBuffer");
+      throw new Error("Cannot allocate WebGL ArrayBuffer");
     }
     if (this.handle) {
       this.gl.bindBuffer(this.type, this.handle);
@@ -181,7 +194,7 @@ export class WebGLArrayBuf {
       this._allocate(data);
     } else { // No reallocation needed
       this.gl.bindBuffer(this.type, this.handle);
-      if (offset || offset === 0) {
+      if (offset && offset !== 0) {
         this.gl.bufferSubData(this.type, offset * this.itemByteSize, data);
       } else {
         this.gl.bufferData(this.type, data, this.usage);

@@ -47,7 +47,7 @@ export class WebGLTileManager {
             this.#numTiles--;
         }
     }
-    updateTileCenter(tile, newCenter) {
+    moveTile(tile, newCenter) {
         const newRTCCenter = worldToRTCCenter(newCenter, createVec3());
         const newId = `${newRTCCenter[0]}-${newRTCCenter[1]}-${newRTCCenter[2]}`;
         if (newId === tile.id) {
@@ -126,4 +126,4 @@ export class WebGLTileManager {
         return new WebGLDataTexture({ gl, texture, textureWidth, textureHeight, textureData });
     }
 }
-//# sourceMappingURL=WebGLTileManager.js.map
+//# sourceMappingURL=GPUTileManager.js.map

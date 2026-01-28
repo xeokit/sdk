@@ -1,6 +1,8 @@
 import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
 import {LinesPrimitive} from "../constants";
+import {SDKErrorType, type SDKResult} from "../core";
+import type {Vec3} from "../math/vector";
 
 
 const letters = {
@@ -1599,7 +1601,7 @@ const letters = {
  *
  * ## Parameters:
  * @param cfg Configuration object for generating the text geometry.
-  * @param [cfg.origin] A 3D point (array of 3 numbers) indicating the top-left corner of the text in the 3D space. This sets the initial position for the first character of the text.
+ * @param [cfg.origin] A 3D point (array of 3 numbers) indicating the top-left corner of the text in the 3D space. This sets the initial position for the first character of the text.
  * @param [cfg.size=1] The size of each character in the text. Default is 1.
  * @param [cfg.text=""] The text string to display. It can include multiple lines (using `\n`).
  *
@@ -1608,11 +1610,17 @@ const letters = {
  *
  * ## Example:
  * ````javascript
- * const textGeometry = buildVectorTextGeometry({
+ * const textGeometryResult = buildVectorTextGeometry({
  *     size: 1.5,
  *     origin: [0, 0, 0],
  *     text: "Sample Text"
  * });
+ *
+ * if (textGeometryResult.ok) {
+ *   const textGeometry = textGeometryResult.value;
+ * } else {
+ *   console.error("Error generating text geometry:", textGeometryResult.error);
+ * }
  * ````
  *
  * ## Notes:
@@ -1620,23 +1628,49 @@ const letters = {
  * - The geometry is created by breaking down each character into a series of points, connecting those points with lines to form the wireframe.
  * - The `size` parameter scales the text, and the `mag` constant adjusts the scaling factor for the points' positions.
  *
- * @returns {GeometryArrays} The geometry data for the wireframe vector text.
+ * @returns {SDKResult<GeometryArrays>} A result object containing the geometry arrays for the wireframe text or an error message.
  */
 export function buildVectorTextGeometry(cfg: {
   size: number;
-  origin: number[];
+  origin: Vec3;
   text: string;
 } = {
   origin: [0, 0, 0],
   size: 1,
   text: ""
-}): GeometryArrays {
+}): SDKResult<GeometryArrays> {
 
   const origin = cfg.origin || [0, 0, 0];
+
+  if (origin.length !== 3) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildVectorTextGeometry] Origin must be a 3D point (array of 3 numbers)."
+    };
+  }
+
+  const size = cfg.size || 1;
+
+  if (size <= 0) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildVectorTextGeometry] Size must be a positive non-zero number."
+    };
+  }
+
+  if (!cfg.text) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildVectorTextGeometry] Text string is required."
+    };
+  }
+
   const xOrigin = origin[0];
   const yOrigin = origin[1];
   const zOrigin = origin[2];
-  const size = cfg.size || 1;
 
   const positions: number[] = [];
   const indices: number[] = [];
@@ -1726,11 +1760,14 @@ export function buildVectorTextGeometry(cfg: {
     y -= 35 * mag * size; // Vertical spacing for each line of text
   }
 
-  return utils.apply(cfg, {
-    primitive: LinesPrimitive, // The geometry is constructed as wireframe lines
-    positions: positions,
-    indices: indices
-  });
+  return {
+    ok: true,
+    value: utils.apply(cfg, {
+      primitive: LinesPrimitive, // The geometry is constructed as wireframe lines
+      positions: positions,
+      indices: indices
+    })
+  };
 }
 
 

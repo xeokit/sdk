@@ -1,4 +1,4 @@
-import { createAABB3 } from "../boundaries";
+import { createAABBFloat64 } from "../boundaries";
 import { createVec3 } from "../matrix";
 import { SCENE_OBJECT_FLAGS } from './SCENE_OBJECT_FLAGS';
 const tempIntRGB = new Uint16Array([0, 0, 0]);
@@ -29,7 +29,7 @@ export class WebGLRendererObject {
         ///////////////////////////////////
         this.#flags = [0, 0, 0, 0];
         this.#aabb = params.aabb;
-        this.#offsetAABB = createAABB3(params.aabb);
+        this.#offsetAABB = createAABBFloat64(params.aabb);
         this.#offset = createVec3();
         this.#colorizeUpdated = false;
         this.#opacityUpdated = false;
@@ -178,4 +178,4 @@ export class WebGLRendererObject {
         }
     }
 }
-//# sourceMappingURL=WebGLRendererObject.js.map
+//# sourceMappingURL=RendererObject.js.map

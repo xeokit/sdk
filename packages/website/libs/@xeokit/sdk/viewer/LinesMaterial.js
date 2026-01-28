@@ -27,7 +27,7 @@ class LinesMaterial extends Component {
      */
     set lineWidth(value) {
         this.#state.lineWidth = value || 1;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the line width.

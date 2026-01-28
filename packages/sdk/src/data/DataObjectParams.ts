@@ -29,7 +29,12 @@ export interface DataObjectParams {
   /**
    * The type of the {@link DataObject | DataObject}.
    */
-  type: number;
+  type: string;
+
+  /**
+   * The model schema version, if available.
+   */
+  schema?: string;
 
   /**
    * A human-readable name for the DataObject.

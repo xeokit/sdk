@@ -54,47 +54,51 @@
  * import { Data } from "@xeokit/sdk/data";
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
- * import { loadXKT } from "@xeokit/sdk/xkt";
+ * import { loadXKT } from "@xeokit/sdk/formats/xkt";
  * import { saveBCFViewpoint, loadBCFViewpoint } from "@xeokit/sdk/bcf";
  *
  * const scene = new Scene();
  * const data = new Data();
  *
  * const viewer = new Viewer({
- *      scene,
- *      renderer: new WebGLRenderer()
+ *      scene
  * });
  *
- * const view = viewer.createView({
+ * const renderer = new WebGLRenderer({
+ *    viewer
+ * });
+ *
+ * const viewResult = viewer.createView({
  *     id: "myView",
  *     elementId: "myCanvas"
  * });
  *
- * const sceneModel = scene.createModel({ id: "myModel" });
- * const dataModel = data.createModel({ id: "myModel" });
+ * const view = viewResult.value;
+ *
+ * const sceneModelResult = scene.createModel({ id: "myModel" });
+ * const sceneModel = sceneModelResult.value;
+ *
+ * const dataModelResult = data.createModel({ id: "myModel" });
+ * const dataModel = dataModelResult.value;
  *
  * fetch("myModel.xkt").then(response => response.arrayBuffer().then(fileData => {
  *     loadXKT({ data, sceneModel, dataModel });
- *     sceneModel.build();
- *     dataModel.build();
  * }));
  * ```
  *
- * Once the model is loaded and built, we can capture a viewpoint:
+ * Once the model is loaded, we can capture a viewpoint:
  *
  * ```javascript
- * sceneModel.onBuilt.one(() => {
+ * view.camera.eye = [0, 0, -33];
+ * view.camera.look = [0, 0, 0];
+ * view.camera.up = [0, 0, 1];
  *
- *     view.camera.eye = [0, 0, -33];
- *     view.camera.look = [0, 0, 0];
- *     view.camera.up = [0, 0, 1];
+ * view.setObjectsVisible(view.objectIds, false);
+ * view.setObjectsVisible(["myObject1", "myObject2"], true);
+ * view.setObjectsXRayed(["myObject1"], true);
  *
- *     view.setObjectsVisible(view.objectIds, false);
- *     view.setObjectsVisible(["myObject1", "myObject2"], true);
- *     view.setObjectsXRayed(["myObject1"], true);
- *
- *     const bcfViewpoint = saveBCFViewpoint({ view });
- * });
+ * const bcfViewpointResult = saveBCFViewpoint({ view });
+ * const bcfViewpoint = bcfViewpointResult.value;
  * ```
  *
  * The saved {@link BCFViewpoint | BCFViewpoint} can be restored later:
@@ -111,26 +115,28 @@
  *
  * {@link viewer!ViewLayer | ViewLayers} allow selective export of {@link viewer!ViewObject | ViewObjects}. In this example:
  * - **Two ViewLayers** (`foreground` and `background`) are created.
- * - **Only the foreground layer** is exported.
+ * - **Only the foreground _layer** is exported.
  *
  * ```javascript
- * const foregroundViewLayer = view.createLayer({ id: "foreground" });
- * const backgroundViewLayer = view.createLayer({ id: "background" });
+ * view.createLayer({ id: "foreground" });
+ * view.createLayer({ id: "background" });
  *
- * const sceneModel = scene.createModel({
+ * scene.createModel({
  *     id: "myModel",
  *     layerId: "foreground"
  * });
  *
- * sceneModel.build();
+ * //...
  *
- * const bcfViewpoint = saveBCFViewpoint({
+ * const bcfViewpointResult = saveBCFViewpoint({
  *     view,
  *     includeViewLayerIds: ["foreground"]
  * });
+ *
+ * const bcfViewpoint = bcfViewpointResult.value;
  * ```
  *
- * The viewpoint is restored only for the `foreground` layer:
+ * The viewpoint is restored only for the `foreground` _layer:
  *
  * ```javascript
  * loadBCFViewpoint({

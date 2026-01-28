@@ -1,6 +1,6 @@
 import { WebGLAbstractTexture } from "./WebGLAbstractTexture";
 /**
- *  Represents a WebGL render buffer.
+ *  Represents a WebGL draw _buffer.
  * @private
  */
 declare class WebGLRenderBuffer {
@@ -14,13 +14,13 @@ declare class WebGLRenderBuffer {
         size?: number[];
     });
     /**
-     * Sets the size of this render buffer.
+     * Sets the size of this draw _buffer.
      * @param size
      */
     setSize(size: any): void;
     webglContextRestored(gl: WebGL2RenderingContext): void;
     /**
-     * Binds this render buffer.
+     * Binds this draw _buffer.
      */
     bind(...internalformats: any): void;
     /**
@@ -40,11 +40,11 @@ declare class WebGLRenderBuffer {
      */
     touch(...internalformats: any): void;
     /**
-     * Clears this render buffer.
+     * Clears this draw _buffer.
      */
     clear(): void;
     /**
-     * Reads a pixel from this render buffer.
+     * Reads a pixel from this draw _buffer.
      * @param pickX
      * @param pickY
      */
@@ -60,7 +60,7 @@ declare class WebGLRenderBuffer {
      */
     readImageAsCanvas(): any;
     /**
-     * Redas an image from this render buffer.
+     * Redas an image from this draw _buffer.
      * @param params
      */
     readImage(params: {
@@ -73,7 +73,7 @@ declare class WebGLRenderBuffer {
     getTexture(): WebGLAbstractTexture;
     hasDepthTexture(): boolean;
     /**
-     * Gets the depth texture component of this render buffer, if any.
+     * Gets the depth texture component of this draw _buffer, if any.
      */
     getDepthTexture(): WebGLAbstractTexture | null;
     destroy(): void;

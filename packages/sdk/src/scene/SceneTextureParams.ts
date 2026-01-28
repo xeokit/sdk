@@ -1,5 +1,5 @@
-import type {FloatArrayParam} from "../math";
-import type {LinearEncoding} from "../constants";
+
+import type {Vec4} from "../math/vector";
 
 /**
  * {@link SceneTexture} creation parameters for {@link SceneModel.createTexture | SceneModel.createTexture}.
@@ -91,5 +91,5 @@ export interface SceneTextureParams {
   /**
    * RGBA color to preload the texture with.
    */
-  preloadColor?: FloatArrayParam;
+  preloadColor?: Vec4;
 }

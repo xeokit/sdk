@@ -1,2 +1,2 @@
 export {};
-//# sourceMappingURL=RendererTexture.js.map
+//# sourceMappingURL=SceneTextureRendererProxy.js.map

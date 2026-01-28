@@ -1,30 +1,41 @@
 /**
- * <img style="padding: 20px 0 30px; height: 140px;" src="https://xeokit.github.io/sdk/docs/assets/math_icon.png"/>
+ * <img style="padding:0px; padding-top:20px; padding-bottom:20px;  height:270px" src="https://xeokit.github.io/sdk/docs/assets/3D-Cart.svg"/>
  *
- * # xeokit Core Math Utilities
- *
- * ---
- *
- * **Basic math types and constants**
+ * # xeokit SDK Math Libraries
  *
  * ---
  *
- * ## Installation
+ * ***Mathematical functions for 2D/3D matrices, quaternions, and vectors***
  *
- * ```bash
+ * ---
+ *
+ * This library provides a set of utilities for working with mathematical operations commonly used in 3D graphics,
+ * including vector and matrix operations such as dot products, vector negation, addition, and more.
+ *
+ * # Installation
+ *
+ * To install the xeokit SDK, use the following npm command:
+ *
+ * ````bash
  * npm install @xeokit/sdk
- * ```
+ * ````
  *
- * ## Usage
+ * # Usage
  *
- * ```javascript
- * import { MIN_DOUBLE, MAX_DOUBLE, DEGTORAD } from "@xeokit/sdk/math";
+ * You can import and use functions from the math module as follows:
  *
- * //...
- * ```
+ * ````javascript
+ * import { dotVec3, createVec3Float64 } from "@xeokit/sdk/math";
+ *
+ * const a = createVec3Float64([0.1, 1, 2.1]);
+ * const b = createVec3Float64([0.5, 2.1, -1.3]);
+ *
+ * const c = dotVec3(a, b); // Computes the dot product of vectors a and b
+ * ````
  *
  * @module math
  */
+
 
 /**
  * Represents an array of floating-point numbers.
@@ -112,3 +123,13 @@ export function safeInv(x: number): number {
   const result = 1 / x;
   return isFinite(result) ? result : 1;
 }
+
+export * as vector from "./vector";
+export * as matrix from "./matrix";
+export * as quat from "./quat";
+export * from "./misc";
+
+export * as boundaries from "../math/boundaries";
+export * as rtc from "./rtc";
+export * as compression from "./compression";
+export * as curves from "./curves";

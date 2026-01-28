@@ -1,8 +1,9 @@
-import {createAABB3} from "../boundaries";
-import type {FloatArrayParam} from "../math";
+import {type  AABB3Float32, createAABB3Float32} from "../math/boundaries";
 import type {IntArrayParam} from "../math";
-import type {RendererGeometry} from "./RendererGeometry";
 import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParams";
+import {SceneModel} from "./SceneModel";
+import {SDKErrorType, type SDKResult} from "../core";
+import type {Mat4} from "../math/matrix";
 
 /**
  * A geometry in a {@link SceneModel | SceneModel}.
@@ -17,120 +18,157 @@ import type {SceneGeometryCompressedParams} from "./SceneGeometryCompressedParam
  */
 export class SceneGeometry {
 
-  /**
-   * ID for the geometry.
-   */
-  id: string;
+    /**
+     * ID for the geometry.
+     */
+    id: string;
 
-  /**
-   * Primitive type.
-   *
-   * Possible values are {@link constants!SolidPrimitive}, {@link constants!SurfacePrimitive},
-   * {@link constants!LinesPrimitive}, {@link constants!PointsPrimitive}
-   * and {@link constants!TrianglesPrimitive}.
-   */
-  primitive: number;
+    /**
+     * The SceneModel that contains this SceneGeometry.
+     */
+    model: SceneModel;
 
-  /**
-   * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
-   */
-  aabb?: FloatArrayParam;
+    /**
+     * Primitive type.
+     *
+     * Possible values are {@link constants!SolidPrimitive}, {@link constants!SurfacePrimitive},
+     * {@link constants!LinesPrimitive}, {@link constants!PointsPrimitive}
+     * and {@link constants!TrianglesPrimitive}.
+     */
+    primitive: number;
 
-  /**
-   * 4x4 matrix to de-quantize the geometry's UV coordinates, when UVs are provided.
-   */
-  uvsDecompressMatrix?: FloatArrayParam;
+    /**
+     * Axis-aligned, non-quantized 3D boundary of the geometry's vertex positions.
+     */
+    aabb?: AABB3Float32;
 
-  /**
-   * 3D vertex positions, quantized as 16-bit integers.
-   *
-   * Internally, the Viewer dequantizes these using {@link SceneGeometry.aabb | SceneGeometry.aabb}, which provides their unquantized 3D boundary.
-   *
-   * Vertex positions are required for all primitive types.
-   */
-  positionsCompressed: IntArrayParam;
+    /**
+     * 4x4 matrix to de-quantize the geometry's UV coordinates, when UVs are provided.
+     */
+    uvsDecompressMatrix?: Mat4;
 
-  /**
-   * UV coordinates, quantized as 16-bit integers.
-   *
-   * Internally, the Viewer de-quantizes these with {@link SceneGeometry.uvsDecompressMatrix | SceneGeometry.uvsDecompressMatrix}.
-   */
-  uvsCompressed?: IntArrayParam;
+    /**
+     * 3D vertex positions, quantized as 16-bit integers.
+     *
+     * Internally, the Viewer dequantizes these using {@link SceneGeometry.aabb | SceneGeometry.aabb}, which provides their unquantized 3D boundary.
+     *
+     * Vertex positions are required for all primitive types.
+     */
+    positionsCompressed: IntArrayParam;
 
-  /**
-   * Vertex RGB colors, quantized as 8-bit integers.
-   */
-  colorsCompressed?: IntArrayParam;
+    /**
+     * UV coordinates, quantized as 16-bit integers.
+     *
+     * Internally, the Viewer de-quantizes these with {@link SceneGeometry.uvsDecompressMatrix | SceneGeometry.uvsDecompressMatrix}.
+     */
+    uvsCompressed?: IntArrayParam;
 
-  /**
-   * primitive indices.
-   *
-   * This is either an array of 8-bit, 16-bit or 32-bit values.
-   */
-  indices?: IntArrayParam;
+    /**
+     * Vertex RGB colors, quantized as 8-bit integers.
+     */
+    colorsCompressed?: IntArrayParam;
 
-  /**
-   * Edge indices.
-   *
-   * This is either an array of 8-bit, 16-bit or 32-bit values.
-   */
-  edgeIndices?: IntArrayParam;
+    /**
+     * primitive indices.
+     *
+     * This is either an array of 8-bit, 16-bit or 32-bit values.
+     */
+    indices?: IntArrayParam;
 
-  /**
-   * Interface through which this SceneGeometry can load any user-updated geometry arrays into the renderers.
-   *
-   * @internal
-   */
-  rendererGeometry: RendererGeometry | null;
+    /**
+     * Edge indices.
+     *
+     * This is either an array of 8-bit, 16-bit or 32-bit values.
+     */
+    edgeIndices?: IntArrayParam;
 
-  /**
-   * TODO
-   */
-  origin?: FloatArrayParam;
+    /**
+     * The count of {@link SceneMesh | SceneMeshes} that reference this SceneGeometry.
+     */
+    numMeshes: number;
 
-  /**
-   * The count of {@link SceneMesh | SceneMeshes} that reference this SceneGeometry.
-   */
-  numMeshes: number;
+    /**
+     * True if this SceneGeometry has been destroyed.
+     */
+    destroyed: boolean = false;
 
-  constructor(params: SceneGeometryCompressedParams) {
-    this.id = params.id;
-    this.primitive = params.primitive;
-    this.positionsCompressed = params.positionsCompressed;
-    this.uvsCompressed = params.uvsCompressed;
-    this.colorsCompressed = params.colorsCompressed;
-    this.indices = params.indices;
-    this.edgeIndices = params.edgeIndices;
-    this.origin = params.origin;
-    this.aabb = params.aabb ? params.aabb.slice() : createAABB3();
-    this.numMeshes = 0;
-  }
-
-  /**
-   * Gets this SceneGeometry as SceneGeometryCompressedParams.
-   */
-  toParams(): SceneGeometryCompressedParams {
-    const params = <SceneGeometryCompressedParams>{
-      id: this.id,
-      primitive: this.primitive,
-      aabb: Array.from(this.aabb),
-      positionsCompressed: Array.from(this.positionsCompressed)
-    };
-    if (this.positionsCompressed) {
-      params.positionsCompressed = Array.from(this.positionsCompressed);
+    /**
+     * @private
+     */
+    constructor(model: SceneModel, params: SceneGeometryCompressedParams) {
+        this.model = model;
+        this.id = params.id;
+        this.primitive = params.primitive;
+        this.positionsCompressed = params.positionsCompressed;
+        this.uvsCompressed = params.uvsCompressed;
+        this.colorsCompressed = params.colorsCompressed;
+        this.indices = params.indices;
+        this.edgeIndices = params.edgeIndices;
+        this.aabb = createAABB3Float32(params.aabb);
+        this.numMeshes = 0;
     }
-    if (this.uvsCompressed) {
-      params.uvsCompressed = Array.from(this.uvsCompressed);
+
+    /**
+     * Gets this SceneGeometry as SceneGeometryCompressedParams.
+     */
+    toParams(): SDKResult<SceneGeometryCompressedParams> {
+        if (this.destroyed) {
+            return this.model.scene.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[SceneGeometry.toParams] SceneGeometry already destroyed"
+            });
+        }
+        const params = <SceneGeometryCompressedParams>{
+            id: this.id,
+            primitive: this.primitive,
+            aabb: Array.from(this.aabb),
+            positionsCompressed: Array.from(this.positionsCompressed)
+        };
+        if (this.positionsCompressed) {
+            params.positionsCompressed = Array.from(this.positionsCompressed);
+        }
+        if (this.uvsCompressed) {
+            params.uvsCompressed = Array.from(this.uvsCompressed);
+        }
+        if (this.colorsCompressed) {
+            params.colorsCompressed = Array.from(this.colorsCompressed);
+        }
+        if (this.indices) {
+            params.indices = Array.from(this.indices);
+        }
+        if (this.edgeIndices) {
+            params.edgeIndices = Array.from(this.edgeIndices);
+        }
+        return {
+            ok: true,
+            value: params
+        };
     }
-    if (this.colorsCompressed) {
-      params.colorsCompressed = Array.from(this.colorsCompressed);
+
+    /**
+     * Destroys this SceneGeometry.
+     */
+    destroy() : SDKResult<void>{
+        if (this.destroyed) {
+            return this.model.scene.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[SceneGeometry.destroy] SceneGeometry already destroyed"
+            });
+        }
+        if (this.numMeshes > 0) {
+            return this.model.scene.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: `[SceneGeometry.destroy] Cannot destroy SceneGeometry ${this.id} - SceneGeometry is currently used by at least one SceneMesh, which you need to destroy first`
+            });
+        }
+        this.model._destroyGeometry(this);
+        this.destroyed = true;
+        return {
+            ok: true,
+            value: undefined
+        };
     }
-    if (this.indices) {
-      params.indices = Array.from(this.indices);
-    }
-    if (this.edgeIndices) {
-      params.edgeIndices = Array.from(this.edgeIndices);
-    }
-    return params;
-  }
 }

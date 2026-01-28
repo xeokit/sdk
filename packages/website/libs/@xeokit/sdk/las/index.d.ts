@@ -39,7 +39,7 @@
  * {@link webglrenderer!WebGLRenderer | WebGLRenderer} and a {@link scene!Scene | Scene}
  * to manage the 3D scene.
  *
- * We also define a single {@link viewer!View | View} to render the scene on a canvas.
+ * We also define a single {@link viewer!View | View} to draw the scene on a canvas.
  * A {@link cameracontrol!CameraControl | CameraControl} is attached to the view,
  * allowing interaction via mouse and touch input.
  *

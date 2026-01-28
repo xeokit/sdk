@@ -1,4 +1,4 @@
-import type {FloatArrayParam} from "../math";
+import type {Vec3} from "../math/vector";
 
 /**
  * Parameters for a View's selected, highlighted and x-ray effects.
@@ -14,7 +14,7 @@ export interface EmphasisMaterialParams {
    *
    * Default is ```` [0.2, 0.2, 0.2]````.
    */
-  edgeColor?: FloatArrayParam;
+  edgeColor?: Vec3;
 
   /**
    * Pixel width of {@link EmphasisMaterial | EmphasisMaterial} edges.
@@ -44,7 +44,7 @@ export interface EmphasisMaterialParams {
    *
    * Default is ```` [1.0, 1.0, 1.0]````.
    */
-  fillColor?: FloatArrayParam;
+  fillColor?: Vec3;
 
   /**
    * Whether {@link EmphasisMaterial | EmphasisMaterial} backfaces are visible.

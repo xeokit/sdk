@@ -1,11 +1,21 @@
-import {Component, EventEmitter} from "../core";
-import {createMat4, inverseMat4, mulMat4v4, mulVec3Scalar, orthoMat4c, transposeMat4} from "../matrix";
+import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
+import {
+  createMat4Float64,
+  inverseMat4,
+  orthoMat4c,
+  transposeMat4
+} from "../math/matrix";
+import {
+  type Vec2,
+  type Vec3
+} from "../math/vector";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
-import type {FloatArrayParam} from "../math";
+import type {Mat4} from "../math/matrix";
 import type {OrthoProjectionParams} from "./OrthoProjectionParams";
 import {OrthoProjectionType} from "../constants";
 import type {Projection} from "./Projection";
+import {SDKTask} from "../core/SDKTask";
 
 
 /**
@@ -18,7 +28,12 @@ import type {Projection} from "./Projection";
  * * {@link OrthoProjection.near | OrthoProjection.near} and {@link OrthoProjection.far | OrthoProjection.far} indicated the distances to the clipping planes.
  * * {@link OrthoProjection.onProjMatrix | OrthoProjection.onProjMatrix} will fire an event whenever {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-export class OrthoProjection extends Component implements Projection {
+export class OrthoProjection implements Projection {
+
+  /**
+   * The task that updates the projection matrix.
+   */
+  private _buildMatricesTask: SDKTask;
 
   /**
    * The Camera this OrthoProjection belongs to.
@@ -27,54 +42,91 @@ export class OrthoProjection extends Component implements Projection {
 
   /**
    * Emits an event each time {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix} updates.
-   *
-   * @event
    */
-  readonly onProjMatrix: EventEmitter<OrthoProjection, FloatArrayParam>;
+  readonly onProjMatrix: EventEmitter<OrthoProjection, Mat4>;
 
   /**
    * The type of this projection.
    */
   static readonly type: number = OrthoProjectionType;
 
-  #state: {
-    far: number;
-    near: number;
-    scale: number;
-    projMatrix: FloatArrayParam;
-    inverseProjMatrix: FloatArrayParam;
-    transposedProjMatrix: FloatArrayParam;
-  };
-
-  #inverseMatrixDirty: boolean;
-  #transposedProjMatrixDirty: boolean;
-  #onViewBoundary: any;
+  private _far: number;
+  private _near: number;
+  private _scale: number;
+  private _projMatrix: Mat4;
+  private _inverseProjMatrix: Mat4;
+  private _transposedProjMatrix: Mat4;
+  private _inverseMatrixDirty: boolean;
+  private _transposedProjMatrixDirty: boolean;
+  private _onViewBoundary: any;
+  private _destroyed: boolean = false;
 
   /**
    * @private
    */
   constructor(camera: Camera, cfg: OrthoProjectionParams = {}) {
 
-    super(camera, cfg);
-
     this.camera = camera;
+    this._near = cfg.near || 0.1;
+    this._far = cfg.far || 2000.0;
+    this._scale = cfg.scale || 1.0;
+    this._projMatrix = createMat4Float64();
+    this._inverseProjMatrix = createMat4Float64();
+    this._transposedProjMatrix = createMat4Float64();
 
-    this.#state = {
-      near: cfg.near || 0.1,
-      far: cfg.far || 2000.0,
-      scale: cfg.scale || 1.0,
-      projMatrix: createMat4(),
-      inverseProjMatrix: createMat4(),
-      transposedProjMatrix: createMat4()
-    };
+    this.onProjMatrix = new EventEmitter(new EventDispatcher<OrthoProjection, Mat4>());
 
-    this.onProjMatrix = new EventEmitter(new EventDispatcher<OrthoProjection, FloatArrayParam>());
+    this._inverseMatrixDirty = true;
+    this._transposedProjMatrixDirty = true;
 
-    this.#inverseMatrixDirty = true;
-    this.#transposedProjMatrixDirty = true;
+    this._onViewBoundary = this.camera.view.viewer.events.onViewCanvasBoundaryChanged
+      .subscribe((view, _) => {
+        if (view === this.camera.view) {
+          this._buildMatricesTask.schedule();
+        }
+      });
 
-    this.#onViewBoundary = this.camera.view.onBoundary.subscribe(() => {
-      this.setDirty();
+    this._buildMatricesTask = new SDKTask({
+      name: "OrthoProjection._buildMatricesTask",
+      task: () => {
+        const WIDTH_INDEX = 2;
+        const HEIGHT_INDEX = 3;
+
+        const view = this.camera.view;
+        const scale = this._scale;
+        const halfSize = 0.5 * scale;
+
+        const boundary = view.boundary;
+        const boundaryWidth = boundary[WIDTH_INDEX];
+        const boundaryHeight = boundary[HEIGHT_INDEX];
+        const aspect = boundaryWidth / boundaryHeight;
+
+        let left;
+        let right;
+        let top;
+        let bottom;
+
+        if (boundaryWidth > boundaryHeight) {
+          left = -halfSize;
+          right = halfSize;
+          top = halfSize / aspect;
+          bottom = -halfSize / aspect;
+
+        } else {
+          left = -halfSize * aspect;
+          right = halfSize * aspect;
+          top = halfSize;
+          bottom = -halfSize;
+        }
+
+        orthoMat4c(left, right, bottom, top, this._near, this._far, this._projMatrix);
+
+        this._inverseMatrixDirty = true;
+        this._transposedProjMatrixDirty = true;
+
+        this.onProjMatrix.dispatch(this, this._projMatrix);
+      },
+      stage: SDKTask.ComputeStage
     });
   }
 
@@ -88,7 +140,7 @@ export class OrthoProjection extends Component implements Projection {
    * returns New OrthoProjection scale value.
    */
   get scale(): number {
-    return this.#state.scale;
+    return this._scale;
   }
 
   /**
@@ -103,8 +155,8 @@ export class OrthoProjection extends Component implements Projection {
     if (value <= 0) {
       value = 0.01;
     }
-    this.#state.scale = value;
-    this.setDirty();
+    this._scale = value;
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -115,7 +167,7 @@ export class OrthoProjection extends Component implements Projection {
    * returns New OrthoProjection near plane position.
    */
   get near(): number {
-    return this.#state.near;
+    return this._near;
   }
 
   /**
@@ -126,11 +178,11 @@ export class OrthoProjection extends Component implements Projection {
    * @param value New OrthoProjection near plane position.
    */
   set near(value: number) {
-    if (this.#state.near === value) {
+    if (this._near === value) {
       return;
     }
-    this.#state.near = value;
-    this.setDirty();
+    this._near = value;
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -141,7 +193,7 @@ export class OrthoProjection extends Component implements Projection {
    * returns New far ortho plane position.
    */
   get far(): number {
-    return this.#state.far;
+    return this._far;
   }
 
   /**
@@ -152,11 +204,11 @@ export class OrthoProjection extends Component implements Projection {
    * @param value New far ortho plane position.
    */
   set far(value: number) {
-    if (this.#state.far === value) {
+    if (this._far === value) {
       return;
     }
-    this.#state.far = value;
-    this.setDirty();
+    this._far = value;
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -166,11 +218,11 @@ export class OrthoProjection extends Component implements Projection {
    *
    * @returns  The OrthoProjection's projection matrix.
    */
-  get projMatrix(): FloatArrayParam {
-    if (this.dirty) {
-      this.cleanIfDirty();
+  get projMatrix(): Mat4 {
+    if (this._buildMatricesTask.scheduled) {
+      this._buildMatricesTask.runIfScheduled();
     }
-    return this.#state.projMatrix;
+    return this._projMatrix;
   }
 
   /**
@@ -178,15 +230,15 @@ export class OrthoProjection extends Component implements Projection {
    *
    * @returns  The inverse of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
    */
-  get inverseProjMatrix(): FloatArrayParam {
-    if (this.dirty) {
-      this.cleanIfDirty();
+  get inverseProjMatrix(): Mat4 {
+    if (this._buildMatricesTask.scheduled) {
+      this._buildMatricesTask.runIfScheduled();
     }
-    if (this.#inverseMatrixDirty) {
-      inverseMat4(this.#state.projMatrix, this.#state.inverseProjMatrix);
-      this.#inverseMatrixDirty = false;
+    if (this._inverseMatrixDirty) {
+      inverseMat4(this._projMatrix, this._inverseProjMatrix);
+      this._inverseMatrixDirty = false;
     }
-    return this.#state.inverseProjMatrix;
+    return this._inverseProjMatrix;
   }
 
   /**
@@ -194,60 +246,15 @@ export class OrthoProjection extends Component implements Projection {
    *
    * @returns  The transpose of {@link OrthoProjection.projMatrix | OrthoProjection.projMatrix}.
    */
-  get transposedProjMatrix(): FloatArrayParam {
-    if (this.dirty) {
-      this.cleanIfDirty();
+  get transposedProjMatrix(): Mat4 {
+    if (this._buildMatricesTask.scheduled) {
+      this._buildMatricesTask.runIfScheduled();
     }
-    if (this.#transposedProjMatrixDirty) {
-      transposeMat4(this.#state.projMatrix, this.#state.transposedProjMatrix);
-      this.#transposedProjMatrixDirty = false;
+    if (this._transposedProjMatrixDirty) {
+      transposeMat4(this._projMatrix, this._transposedProjMatrix);
+      this._transposedProjMatrixDirty = false;
     }
-    return this.#state.transposedProjMatrix;
-  }
-
-  /**
-   * @private
-   */
-  clean() {
-
-    const WIDTH_INDEX = 2;
-    const HEIGHT_INDEX = 3;
-
-    const view = this.camera.view;
-    const scale = this.#state.scale;
-    const halfSize = 0.5 * scale;
-
-    const boundary = view.boundary;
-    const boundaryWidth = boundary[WIDTH_INDEX];
-    const boundaryHeight = boundary[HEIGHT_INDEX];
-    const aspect = boundaryWidth / boundaryHeight;
-
-    let left;
-    let right;
-    let top;
-    let bottom;
-
-    if (boundaryWidth > boundaryHeight) {
-      left = -halfSize;
-      right = halfSize;
-      top = halfSize / aspect;
-      bottom = -halfSize / aspect;
-
-    } else {
-      left = -halfSize * aspect;
-      right = halfSize * aspect;
-      top = halfSize;
-      bottom = -halfSize;
-    }
-
-    orthoMat4c(left, right, bottom, top, this.#state.near, this.#state.far, this.#state.projMatrix);
-
-    this.#inverseMatrixDirty = true;
-    this.#transposedProjMatrixDirty = true;
-
-    this.camera.view.redraw();
-
-    this.onProjMatrix.dispatch(this, this.#state.projMatrix);
+    return this._transposedProjMatrix;
   }
 
   /**
@@ -260,29 +267,29 @@ export class OrthoProjection extends Component implements Projection {
    * @param worldPos Outputs un-projected 3D World-space coordinates.
    */
   unproject(
-    canvasPos: FloatArrayParam,
+    canvasPos: Vec2,
     screenZ: number,
-    screenPos: FloatArrayParam,
-    viewPos: FloatArrayParam,
-    worldPos: FloatArrayParam): FloatArrayParam {
+    screenPos: Vec3,
+    viewPos: Vec3,
+    worldPos: Vec3): Vec3 {
 
-    const canvas = this.camera.view.htmlElement;
-
-    const halfViewWidth = canvas.offsetWidth / 2.0;
-    const halfViewHeight = canvas.offsetHeight / 2.0;
-
-    screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
-    screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
-    screenPos[2] = screenZ;
-    screenPos[3] = 1.0;
-
-    mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
-    mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
-
-    viewPos[3] = 1.0;
-    viewPos[1] *= -1;
-
-    mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
+    // const canvas = this.camera.view.htmlElement;
+    //
+    // const halfViewWidth = canvas.offsetWidth / 2.0;
+    // const halfViewHeight = canvas.offsetHeight / 2.0;
+    //
+    // screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
+    // screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
+    // screenPos[2] = screenZ;
+    // screenPos[3] = 1.0;
+    //
+    // mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
+    // mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
+    //
+    // viewPos[3] = 1.0;
+    // viewPos[1] *= -1;
+    //
+    // mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
 
     return worldPos;
   }
@@ -292,7 +299,14 @@ export class OrthoProjection extends Component implements Projection {
    *
    * @param orthoProjectionParams
    */
-  fromParams(orthoProjectionParams: OrthoProjectionParams) {
+  fromParams(orthoProjectionParams: OrthoProjectionParams): SDKResult<any> {
+    if (this._destroyed) {
+      return this.camera.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[OrthoProjection.fromParams] OrthoProjection has been destroyed."
+      });
+    }
     if (orthoProjectionParams.far !== undefined) {
       this.far = orthoProjectionParams.far;
     }
@@ -302,26 +316,41 @@ export class OrthoProjection extends Component implements Projection {
     if (orthoProjectionParams.scale !== undefined) {
       this.scale = orthoProjectionParams.scale;
     }
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   /**
    * Gets the current configuration of this OrthoProjection.
    */
-  toParams(): OrthoProjectionParams {
+  toParams(): SDKResult<OrthoProjectionParams> {
+    if (this._destroyed) {
+      return this.camera.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[OrthoProjection.toParams] OrthoProjection has been destroyed."
+      });
+    }
     return {
-      far: this.far,
-      near: this.near,
-      scale: this.scale
+      ok: true,
+      value: {
+        far: this.far,
+        near: this.near,
+        scale: this.scale
+      }
     };
   }
 
-  /** @private
-   *
+  /**
+   * @private
    */
   destroy() {
-    super.destroy();
-    this.camera.view.onBoundary.unsubscribe(this.#onViewBoundary);
+    this._buildMatricesTask.destroy();
+    this.camera.view.viewer.events.onViewCanvasBoundaryChanged.unsubscribe(this._onViewBoundary);
     this.onProjMatrix.clear();
+    this._destroyed = true;
   }
 }
 

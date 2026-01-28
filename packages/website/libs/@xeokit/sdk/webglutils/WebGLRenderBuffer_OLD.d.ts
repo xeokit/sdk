@@ -1,11 +1,11 @@
 import type { WebGLAbstractTexture } from "./WebGLAbstractTexture";
 /**
- * Represents a WebGL2 render buffer.
+ * Represents a WebGL2 draw _buffer.
  */
 export declare class WebGLRenderBuffer {
     #private;
     /**
-     * Creates a new render buffer.
+     * Creates a new draw _buffer.
      * @param canvas
      * @param gl
      * @param options
@@ -15,26 +15,26 @@ export declare class WebGLRenderBuffer {
         size: number[];
     });
     /**
-     * Sets the size of this render buffer.
+     * Sets the size of this draw _buffer.
      * @param size
      */
     setSize(size: number[]): void;
     /**
-     * Binds this render buffer.
+     * Binds this draw _buffer.
      */
     bind(): void;
     /**
-     * Clears this render buffer.
+     * Clears this draw _buffer.
      */
     clear(): void;
     /**
-     * Reads a pixel from this render buffer.
+     * Reads a pixel from this draw _buffer.
      * @param pickX
      * @param pickY
      */
     read(pickX: number, pickY: number): Uint8Array;
     /**
-     * Redas an image from this render buffer.
+     * Redas an image from this draw _buffer.
      * @param params
      */
     readImage(params: {
@@ -43,27 +43,27 @@ export declare class WebGLRenderBuffer {
         format?: string;
     }): any;
     /**
-     * Redas image from this render buffer as a image data.
+     * Redas image from this draw _buffer as a image data.
      */
     readImageData(): any;
     /**
-     * Unbinds this render buffer.
+     * Unbinds this draw _buffer.
      */
     unbind(): void;
     /**
-     * Gets a texture that has the contents of this render buffer.
+     * Gets a texture that has the contents of this draw _buffer.
      */
     getTexture(): WebGLAbstractTexture;
     /**
-     * Does this render buffer have a depth texture component?
+     * Does this draw _buffer have a depth texture component?
      */
     hasDepthTexture(): boolean;
     /**
-     * Gets the depth texture component of this render buffer, if any.
+     * Gets the depth texture component of this draw _buffer, if any.
      */
     getDepthTexture(): WebGLAbstractTexture | null;
     /**
-     * Destroys this render buffer.
+     * Destroys this draw _buffer.
      */
     destroy(): void;
 }

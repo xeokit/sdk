@@ -10,7 +10,7 @@
  * ---
  *
  * The {@link Viewer | Viewer} is a tool for interactive 3D scene exploration, compatible with major browsers and mobile platforms. It
- * supports precise rendering with double-precision coordinates, multiple views with independent configurations, and integration of
+ * supports precise rendering with double-precision coordinates, multiple viewManager with independent configurations, and integration of
  * semantic data models.
  *
  * Key features include dynamic slicing, object interaction, ambient occlusion, edge highlighting, BIM and BCF support, and
@@ -318,7 +318,7 @@
  *
  * When building a SceneModel, the Viewer loads all geometry data into the {@link scene!Renderer | Renderer} (e.g., a {@link webglrenderer!WebGLRenderer | WebGLRenderer}).
  *
- * By default, the SceneModel retains this geometry data in {@link scene!SceneGeometry | SceneGeometry} components for tasks like runtime querying and file saving. If this data isn't needed, you can configure the SceneModel to discard it, reducing memory usage.
+ * By default, the SceneModel retains this geometry data in {@link scene!SceneGeometry | SceneGeometry} components for tasks like runtime querying and file saving. If this data isn't needed, you can configure the SceneModel to discard it, reducing _gpuMemoryManager usage.
  *
  * ````javascript
  * const sceneModel = scene.createModel({
@@ -338,7 +338,7 @@
  *
  * After calling `SceneModel.build`, the `geometry` property of each contained `SceneObject` becomes `null`. Normally, this property would hold a `SceneGeometry` instance if geometry were retained.
  *
- * The geometry remains fully viewable and functional but is no longer accessible from JavaScript memory, as it is stored solely on the GPU.
+ * The geometry remains fully viewable and functional but is no longer accessible from JavaScript _gpuMemoryManager, as it is stored solely on the GPU.
  *
  * <br>
  *
@@ -597,7 +597,7 @@
  *
  * ## Creating ViewLayers
  *
- * A {@link ViewLayer} is a layer of {@link ViewObject | ViewObjects} within a {@link View}.
+ * A {@link ViewLayer} is a _layer of {@link ViewObject | ViewObjects} within a {@link View}.
  *
  * ViewLayers allow users to group and segregate ViewObjects based on their roles or aspects in a scene, simplifying
  * interaction and focusing operations
@@ -728,7 +728,7 @@
  * myView.renderMode = FastRender;
  * ```
  *
- * To render the View with full resolution, edge enhancements, and ambient shadows, simply switch to QualityRender mode:
+ * To draw the View with full resolution, edge enhancements, and ambient shadows, simply switch to QualityRender mode:
  *
  * ```javascript
  * myView.renderMode = QualityRender;
@@ -817,9 +817,9 @@
  * {@link ViewParams} object between two Views:
  *
  * ````javascript
- * const viewParams = viewer.views["myView"].toParams();
+ * const viewParams = viewer.viewManager["myView"].toParams();
  *
- * viewer2.views["myView"].fromParams(viewParams);
+ * viewer2.viewManager["myView"].fromParams(viewParams);
  * ````
  *
  * Since all fields in a parameter object are optional, the `fromParams()` methods will only configure the relevant component (and its child components) based on the fields present in the parameter object.
@@ -827,25 +827,25 @@
  * To go deeper, let's copy a {@link CameraParams} object between the Cameras of two Views:
  *
  * ````javascript
- * const cameraParams = viewer.views["myView"].camera.toParams();
+ * const cameraParams = viewer.viewManager["myView"].camera.toParams();
  *
- * viewer2.views["myView"].camera.fromParams(cameraParams);
+ * viewer2.viewManager["myView"].camera.fromParams(cameraParams);
  * ````
  *
  * Delving further, let's exchange a {@link PerspectiveProjectionParams} object between the {@link PerspectiveProjection | PerspectiveProjections} of two Cameras:
  *
  * ````javascript
- * const perspectiveProjectionParams = viewer.views["myView"].camera.perspective.toParams();
+ * const perspectiveProjectionParams = viewer.viewManager["myView"].camera.perspective.toParams();
  *
- * viewer2.views["myView"].camera.perspective.fromParams(perspectiveProjectionParams);
+ * viewer2.viewManager["myView"].camera.perspective.fromParams(perspectiveProjectionParams);
  * ````
  *
  * We can even transfer configurations for rendering effects, such as X-Ray mode:
  *
  * ````javascript
- * const xrayMaterialParams = viewer.views["myView"].xrayMaterial.toParams();
+ * const xrayMaterialParams = viewer.viewManager["myView"].xrayMaterial.toParams();
  *
- * viewer2.views["myView"].xrayMaterial.fromParams(xrayMaterialParams);
+ * viewer2.viewManager["myView"].xrayMaterial.fromParams(xrayMaterialParams);
  * ````
  *
  * @module viewer

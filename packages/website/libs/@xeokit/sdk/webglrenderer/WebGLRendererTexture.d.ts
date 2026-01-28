@@ -9,4 +9,4 @@ export declare class WebGLRendererTexture implements RendererTexture {
     constructor(texture: SceneTexture | null, texture2D: WebGLTexture);
     destroy(): void;
 }
-//# sourceMappingURL=WebGLRendererTexture.d.ts.map
+//# sourceMappingURL=RendererTexture.d.ts.map

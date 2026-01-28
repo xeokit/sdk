@@ -1,12 +1,22 @@
-import {Component, EventEmitter} from "../core";
-import {createMat4, frustumMat4, inverseMat4, mulMat4v4, mulVec3Scalar, transposeMat4} from "../matrix";
+import {EventEmitter, SDKErrorType, type SDKResult} from "../core";
+import {
+ type Vec2,
+  type Vec3
+} from "../math/vector";
+import {
+  createMat4Float64,
+  type Mat4,
+  frustumMat4,
+  inverseMat4,
+  transposeMat4
+} from "../math/matrix";
 import type {Camera} from "./Camera";
 import {EventDispatcher} from "strongly-typed-events";
 import type {FloatArrayParam} from "../math";
 import type {FrustumProjectionParams} from "./FrustumProjectionParams";
 import {FrustumProjectionType} from "../constants";
-import type {PerspectiveProjectionParams} from "./PerspectiveProjectionParams";
 import type {Projection} from "./Projection";
+import {SDKTask} from "../core/SDKTask";
 
 /**
  *  FrustumProjection-based perspective projection configuration for a {@link Camera | Camera} .
@@ -16,62 +26,76 @@ import type {Projection} from "./Projection";
  * * {@link FrustumProjection.near} and {@link FrustumProjection.far} specify the distances to the clipping planes.
  * * {@link FrustumProjection.onProjMatrix} will fire an event whenever {@link FrustumProjection.projMatrix} updates, which indicates that one or more other properties have updated.
  */
-export class FrustumProjection extends Component implements Projection {
+export class FrustumProjection implements Projection {
+
+  /**
+   * The task that updates the projection matrix.
+   * @private
+   */
+  private _buildMatricesTask: SDKTask;
 
   /**
    * The type of this projection.
    */
   static readonly type: number = FrustumProjectionType;
+
   /**
    * The Camera this FrustumProjection belongs to.
    */
   public readonly camera: Camera;
+
   /**
    * Emits an event each time {@link FrustumProjection.projMatrix} updates.
    *
-   * @event
+   * @private
    */
   readonly onProjMatrix: EventEmitter<FrustumProjection, FloatArrayParam>;
-  #state: {
-    far: number;
-    near: number;
-    left: number;
-    right: number;
-    bottom: number;
-    top: number;
-    projMatrix: FloatArrayParam;
-    inverseProjMatrix: FloatArrayParam;
-    transposedProjMatrix: FloatArrayParam;
-  };
 
-  #inverseMatrixDirty: boolean;
-  #transposedProjMatrixDirty: boolean;
+  private _far: number;
+  private _near: number;
+  private _left: number;
+  private _right: number;
+  private _bottom: number;
+  private _top: number;
+  private _projMatrix: Mat4;
+  private _inverseProjMatrix: Mat4;
+  private _transposedProjMatrix: Mat4;
+  private _inverseMatrixDirty: boolean;
+  private _transposedProjMatrixDirty: boolean;
+  private _destroyed: boolean = false;
 
   /**
    * @private
    */
   constructor(camera: Camera, cfg: FrustumProjectionParams = {}) {
 
-    super(camera, cfg);
-
     this.camera = camera;
 
-    this.#state = {
-      projMatrix: createMat4(),
-      inverseProjMatrix: createMat4(),
-      transposedProjMatrix: createMat4(),
-      near: 0.1,
-      far: 10000.0,
-      left: (cfg.left !== undefined && cfg.left !== null) ? cfg.left : -1.0,
-      right: (cfg.right !== undefined && cfg.right !== null) ? cfg.right : 1.0,
-      bottom: (cfg.bottom !== undefined && cfg.bottom !== null) ? cfg.bottom : -1.0,
-      top: (cfg.top !== undefined && cfg.top !== null) ? cfg.top : 1.0
-    };
+    this._projMatrix = createMat4Float64();
+    this._inverseProjMatrix = createMat4Float64();
+    this._transposedProjMatrix = createMat4Float64();
+    this._near = 0.1;
+    this._far = 10000.0;
+    this._left = (cfg.left !== undefined && cfg.left !== null) ? cfg.left : -1.0;
+    this._right = (cfg.right !== undefined && cfg.right !== null) ? cfg.right : 1.0;
+    this._bottom = (cfg.bottom !== undefined && cfg.bottom !== null) ? cfg.bottom : -1.0;
+    this._top = (cfg.top !== undefined && cfg.top !== null) ? cfg.top : 1.0;
 
-    this.onProjMatrix = new EventEmitter(new EventDispatcher<FrustumProjection, FloatArrayParam>());
+    this.onProjMatrix = new EventEmitter(new EventDispatcher<FrustumProjection, Mat4>());
 
-    this.#inverseMatrixDirty = true;
-    this.#transposedProjMatrixDirty = true;
+    this._inverseMatrixDirty = true;
+    this._transposedProjMatrixDirty = true;
+
+    this._buildMatricesTask = new SDKTask({
+      name: "FrustumProjection._buildMatricesTask",
+      task: () => {
+        frustumMat4(this._left, this._right, this._bottom, this._top, this._near, this._far, this.projMatrix);
+        this._inverseMatrixDirty = true;
+        this._transposedProjMatrixDirty = true;
+        this.onProjMatrix.dispatch(this, this.projMatrix);
+      },
+      stage: SDKTask.ComputeStage
+    });
   }
 
   /**
@@ -80,7 +104,7 @@ export class FrustumProjection extends Component implements Projection {
    * @return {Number} Left frustum plane position.
    */
   get left(): number {
-    return this.#state.left;
+    return this._left;
   }
 
   /**
@@ -89,8 +113,8 @@ export class FrustumProjection extends Component implements Projection {
    * @param value New left frustum plane position.
    */
   set left(value: number) {
-    this.#state.left = value;
-    this.setDirty();
+    this._left = value;
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -99,7 +123,7 @@ export class FrustumProjection extends Component implements Projection {
    * @return {Number} Right frustum plane position.
    */
   get right(): number {
-    return this.#state.right;
+    return this._right;
   }
 
   /**
@@ -108,8 +132,8 @@ export class FrustumProjection extends Component implements Projection {
    * @param value New right frustum plane position.
    */
   set right(value: number) {
-    this.#state.right = value
-    this.setDirty();
+    this._right = value
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -118,7 +142,7 @@ export class FrustumProjection extends Component implements Projection {
    * @return {Number} Top frustum plane position.
    */
   get top(): number {
-    return this.#state.top;
+    return this._top;
   }
 
   /**
@@ -127,8 +151,8 @@ export class FrustumProjection extends Component implements Projection {
    * @param value New top frustum plane position.
    */
   set top(value: number) {
-    this.#state.top = value
-    this.setDirty();
+    this._top = value
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -137,7 +161,7 @@ export class FrustumProjection extends Component implements Projection {
    * @return {Number} Bottom frustum plane position.
    */
   get bottom(): number {
-    return this.#state.bottom;
+    return this._bottom;
   }
 
   /**
@@ -146,8 +170,8 @@ export class FrustumProjection extends Component implements Projection {
    * @param value New bottom frustum plane position.
    */
   set bottom(value: number) {
-    this.#state.bottom = value
-    this.setDirty();
+    this._bottom = value
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -158,7 +182,7 @@ export class FrustumProjection extends Component implements Projection {
    * @return {Number} Near frustum plane position.
    */
   get near(): number {
-    return this.#state.near;
+    return this._near;
   }
 
   /**
@@ -169,8 +193,8 @@ export class FrustumProjection extends Component implements Projection {
    * @param value New FrustumProjection near plane position.
    */
   set near(value: number) {
-    this.#state.near = value
-    this.setDirty();
+    this._near = value
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -181,7 +205,7 @@ export class FrustumProjection extends Component implements Projection {
    * @return {Number} Far frustum plane position.
    */
   get far(): number {
-    return this.#state.far;
+    return this._far;
   }
 
   /**
@@ -192,8 +216,8 @@ export class FrustumProjection extends Component implements Projection {
    * @param value New far frustum plane position.
    */
   set far(value: number) {
-    this.#state.far = value
-    this.setDirty();
+    this._far = value
+    this._buildMatricesTask.schedule();
   }
 
   /**
@@ -203,11 +227,11 @@ export class FrustumProjection extends Component implements Projection {
    *
    * @returns The FrustumProjection's projection matrix
    */
-  get projMatrix(): FloatArrayParam {
-    if (this.dirty) {
-      this.cleanIfDirty();
+  get projMatrix(): Mat4 {
+    if (this._buildMatricesTask.scheduled) {
+      this._buildMatricesTask.runIfScheduled();
     }
-    return this.#state.projMatrix;
+    return this._projMatrix;
   }
 
   /**
@@ -215,15 +239,15 @@ export class FrustumProjection extends Component implements Projection {
    *
    * @returns  The inverse orthographic projection projMatrix.
    */
-  get inverseProjMatrix(): FloatArrayParam {
-    if (this.dirty) {
-      this.cleanIfDirty();
+  get inverseProjMatrix(): Mat4 {
+    if (this._buildMatricesTask.scheduled) {
+      this._buildMatricesTask.runIfScheduled();
     }
-    if (this.#inverseMatrixDirty) {
-      inverseMat4(this.#state.projMatrix, this.#state.inverseProjMatrix);
-      this.#inverseMatrixDirty = false;
+    if (this._inverseMatrixDirty) {
+      inverseMat4(this.projMatrix, this._inverseProjMatrix);
+      this._inverseMatrixDirty = false;
     }
-    return this.#state.inverseProjMatrix;
+    return this._inverseProjMatrix;
   }
 
   /**
@@ -231,26 +255,15 @@ export class FrustumProjection extends Component implements Projection {
    *
    * @returns The transpose of {@link FrustumProjection.projMatrix}.
    */
-  get transposedProjMatrix(): FloatArrayParam {
-    if (this.dirty) {
-      this.cleanIfDirty();
+  get transposedProjMatrix(): Mat4 {
+    if (this._buildMatricesTask.scheduled) {
+      this._buildMatricesTask.runIfScheduled();
     }
-    if (this.#transposedProjMatrixDirty) {
-      transposeMat4(this.#state.projMatrix, this.#state.transposedProjMatrix);
-      this.#transposedProjMatrixDirty = false;
+    if (this._transposedProjMatrixDirty) {
+      transposeMat4(this.projMatrix, this._transposedProjMatrix);
+      this._transposedProjMatrixDirty = false;
     }
-    return this.#state.transposedProjMatrix;
-  }
-
-  /**
-   * @private
-   */
-  clean() {
-    frustumMat4(this.#state.left, this.#state.right, this.#state.bottom, this.#state.top, this.#state.near, this.#state.far, this.#state.projMatrix);
-    this.#inverseMatrixDirty = true;
-    this.#transposedProjMatrixDirty = true;
-    this.camera.view.redraw();
-    this.onProjMatrix.dispatch(this, this.#state.projMatrix);
+    return this._transposedProjMatrix;
   }
 
   /**
@@ -263,29 +276,29 @@ export class FrustumProjection extends Component implements Projection {
    * @param worldPos Outputs un-projected 3D World-space coordinates.
    */
   unproject(
-    canvasPos: FloatArrayParam,
+    canvasPos: Vec2,
     screenZ: number,
-    screenPos: FloatArrayParam,
-    viewPos: FloatArrayParam,
-    worldPos: FloatArrayParam): FloatArrayParam {
+    screenPos: Vec3,
+    viewPos: Vec3,
+    worldPos: Vec3): Vec3{
 
-    const htmlElement = this.camera.view.htmlElement;
-
-    const halfViewWidth = htmlElement.offsetWidth / 2.0;
-    const halfViewHeight = htmlElement.offsetHeight / 2.0;
-
-    screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
-    screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
-    screenPos[2] = screenZ;
-    screenPos[3] = 1.0;
-
-    mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
-    mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
-
-    viewPos[3] = 1.0;
-    viewPos[1] *= -1;
-
-    mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
+    // const htmlElement = this.camera.view.htmlElement;
+    //
+    // const halfViewWidth = htmlElement.offsetWidth / 2.0;
+    // const halfViewHeight = htmlElement.offsetHeight / 2.0;
+    //
+    // screenPos[0] = (canvasPos[0] - halfViewWidth) / halfViewWidth;
+    // screenPos[1] = (canvasPos[1] - halfViewHeight) / halfViewHeight;
+    // screenPos[2] = screenZ;
+    // screenPos[3] = 1.0;
+    //
+    // mulMat4v4(this.inverseProjMatrix, screenPos, viewPos);
+    // mulVec3Scalar(viewPos, 1.0 / viewPos[3]);
+    //
+    // viewPos[3] = 1.0;
+    // viewPos[1] *= -1;
+    //
+    // mulMat4v4(this.camera.inverseViewMatrix, viewPos, worldPos);
 
     return worldPos;
   }
@@ -295,46 +308,69 @@ export class FrustumProjection extends Component implements Projection {
    *
    * @param frustumProjectionParams
    */
-  fromParams(frustumProjectionParams: FrustumProjectionParams) {
+  fromParams(frustumProjectionParams: FrustumProjectionParams): SDKResult<any> {
+    if (this._destroyed) {
+      return this.camera.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[FrustumProjection.fromParams] FrustumProjection has been destroyed."
+      });
+    }
     if (frustumProjectionParams.far !== undefined) {
-      this.far = frustumProjectionParams.far;
+      this._far = frustumProjectionParams.far;
     }
     if (frustumProjectionParams.near !== undefined) {
-      this.near = frustumProjectionParams.near;
+      this._near = frustumProjectionParams.near;
     }
     if (frustumProjectionParams.top !== undefined) {
-      this.top = frustumProjectionParams.top;
+      this._top = frustumProjectionParams.top;
     }
     if (frustumProjectionParams.bottom !== undefined) {
-      this.bottom = frustumProjectionParams.bottom;
+      this._bottom = frustumProjectionParams.bottom;
     }
     if (frustumProjectionParams.right !== undefined) {
-      this.right = frustumProjectionParams.right;
+      this._right = frustumProjectionParams.right;
     }
     if (frustumProjectionParams.left !== undefined) {
-      this.left = frustumProjectionParams.left;
+      this._left = frustumProjectionParams.left;
     }
+    this._buildMatricesTask.schedule();
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   /**
    * Gets the current configuration of this FrustumProjection.
    */
-  toParams(): FrustumProjectionParams {
+  toParams(): SDKResult<FrustumProjectionParams> {
+    if (this._destroyed) {
+      return this.camera.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[FrustumProjection.toParams] FrustumProjection has been destroyed."
+      });
+    }
     return {
-      far: this.far,
-      near: this.near,
-      top: this.top,
-      bottom: this.bottom,
-      right: this.right,
-      left: this.left
+      ok: true,
+      value: {
+        far: this._far,
+        near: this._near,
+        top: this._top,
+        bottom: this._bottom,
+        right: this._right,
+        left: this._left
+      }
     };
   }
 
-  /** @private
-   *
+  /**
+   * @private
    */
   destroy() {
-    super.destroy();
+    this._destroyed = true;
     this.onProjMatrix.clear();
+    this._buildMatricesTask.destroy();
   }
 }

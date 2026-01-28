@@ -1,4 +1,4 @@
-import type {KdTree3, PrimsKdTree3} from "../kdtree3";
+import type {KdTree3, PrimsKdTree3} from "../collision/kdtree3";
 import type {FloatArrayParam} from "../math";
 
 /**

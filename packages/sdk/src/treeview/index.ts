@@ -26,27 +26,38 @@
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
  * import { Data } from "@xeokit/sdk/data";
- * import * as ifcTypes from "@xeokit/sdk/ifctypes";
+ * import { Scene } from "@xeokit/sdk/scene";
+ * import * as ifcTypes from "@xeokit/sdk/formats/ifc/ifctypes_4_0_2_1";
  * import { TreeView } from "@xeokit/sdk/treeview";
- * import { XGFLoader } from "@xeokit/sdk/xgf";
+ * import { XGFLoader } from "@xeokit/sdk/formats/xgf";
  * ```
  *
  * ### Initialize a Viewer with a WebGL Renderer
  *
  * ```javascript
- * const myViewer = new Viewer({
- *     id: "myViewer",
- *     renderer: new WebGLRenderer({})
+ *
+ * const data = new Data();
+ *
+ * const scene = new Scene();
+ *
+ * const viewer = new Viewer({
+ *     scene
+ * });
+ *
+ * new WebGLRenderer({
+ *   viewer,
  * });
  * ```
  *
  * ### Create a View and Set Up the Camera
  *
  * ```javascript
- * const view1 = myViewer.createView({
+ * const view1Result = myViewer.createView({
  *     id: "myView",
  *     canvasId: "myView1"
  * });
+ *
+ * const view = view1Result.value;
  *
  * view1.camera.eye = [-3.933, 2.855, 27.018];
  * view1.camera.look = [4.400, 3.724, 8.899];
@@ -59,8 +70,8 @@
  *
  * ```javascript
  * const treeView = new TreeView({
- *     view: myView,
- *     data: myData,
+ *     view,
+ *     data,
  *     containerElement: document.getElementById("myTreeViewContainer"),
  *     hierarchy: TreeView.GroupsHierarchy,
  *     linkType: ifcTypes.IfcRelAggregates,
@@ -71,15 +82,15 @@
  * ### Load a Model and Add it to the Viewer
  *
  * ```javascript
- * const sceneModel = new SceneModel();
- * const dataModel = data.createModel({ id: "myModel" });
+ * const sceneModelResult = scene.createModel({ id: "myModel" });
+ * const sceneModel = sceneModelResult.value;
+ *
+ * const dataModelResult = data.createModel({ id: "myModel" });
+ * const dataModel = dataModelResult.value;
  *
  * fetch("myModel.xgf").then(response => {
- *     response.arrayBuffer().then(data => {
- *         XGFLoader.load({ data, sceneModel, dataModel });
- *         sceneModel.build();
- *         dataModel.build();
- *         myViewer.scene.addModel({ id: "myModel", sceneModel });
+ *     response.arrayBuffer().then(fileData => {
+ *         XGFLoader.load({ fileData, sceneModel, dataModel });
  *     });
  * });
  * ```

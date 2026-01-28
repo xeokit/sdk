@@ -33,36 +33,36 @@ export interface SearchParams {
   /**
    * The types of {@link DataObject | DataObjects} to exclusively include in the search results.
    */
-  includeObjects?: number[];
+  includeObjects?: string[];
 
   /**
    * The types of {@link DataObject | DataObjects} to exclude from the search results.
    */
-  excludeObjects?: number[];
+  excludeObjects?: string[];
 
   /**
    * The types of {@link Relationship | Relationships} to exclusively follow in each
    * {@link DataObject.relating | DataObject.relating} during the search.
    */
-  includeRelating?: number[];
+  includeRelating?: string[];
 
   /**
    * The types of {@link Relationship | Relationships} to exclude from being followed in each
    * {@link DataObject.related | DataObject.related} during the search.
    */
-  excludeRelating?: number[];
+  excludeRelating?: string[];
 
   /**
    * The types of {@link Relationship | Relationships} to exclusively follow in each
    * {@link DataObject.related | DataObject.related} during the search.
    */
-  includeRelated?: number[];
+  includeRelated?: string[];
 
   /**
    * The types of {@link Relationship | Relationships} to exclude from being followed in each
    * {@link DataObject.relating | DataObject.relating} during the search.
    */
-  excludeRelated?: number[];
+  excludeRelated?: string[];
 
   /**
    * Collects the search results as a list of {@link DataObject | DataObject} IDs.

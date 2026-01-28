@@ -20,37 +20,38 @@
  * npm install @xeokit/sdk
  * ```
  *
- * ## Usage Example
+ * ## Usage
  *
  * The following example demonstrates how to:
  * - Set up a {@link viewer!Viewer | Viewer} with a {@link webglrenderer!WebGLRenderer | WebGLRenderer} and a {@link scene!Scene | Scene}.
  * - Attach a {@link cameracontrol!CameraControl | CameraControl} for user interaction.
  * - Load and render a CityJSON model using {@link cityjson!CityJSONLoader | CityJSONLoader}.
- * - Handle potential errors using {@link core!SDKError | SDKError}.
  *
  * ```javascript
- * import { SDKError } from "@xeokit/sdk/core";
+ * import { SDKInternalException } from "@xeokit/sdk/core";
  * import { Scene } from "@xeokit/sdk/scene";
  * import { WebGLRenderer } from "@xeokit/sdk/webglrenderer";
  * import { Viewer } from "@xeokit/sdk/viewer";
  * import { CameraControl } from "@xeokit/sdk/cameracontrol";
- * import { CityJSONLoader } from "@xeokit/sdk/cityjson";
+ * import { CityJSONLoader } from "@xeokit/sdk/formats/cityjson";
  *
  * const scene = new Scene();
  * const data = new Data();
  *
- * const renderer = new WebGLRenderer({});
- *
  * const viewer = new Viewer({
- *     id: "myViewer",
- *     scene,
- *     renderer
+ *   scene
  * });
  *
- * const view = viewer.createView({
- *     id: "myView",
- *     elementId: "myCanvas" // Ensure this HTMLElement exists on the page
+ * const renderer = new WebGLRenderer({
+ *   viewer
  * });
+ *
+ * const viewResult = viewer.createView({
+ *   id: "myView",
+ *   elementId: "myCanvas" // Ensure this HTMLElement exists on the page
+ * });
+ *
+ * const view = viewResult.value;
  *
  * // Set the initial camera position
  * view.camera.eye = [1841982.93, 10.03, -5173286.74];
@@ -59,8 +60,11 @@
  *
  * new CameraControl(view, {});
  *
- * const sceneModel = scene.createModel({ id: "myModel" });
- * const dataModel = data.createModel({ id: "myModel" });
+ * const sceneModelResult = scene.createModel({ id: "myModel" });
+ * const sceneModel = sceneModelResult.value;
+ *
+ * const dataModelResult = data.createModel({ id: "myModel" });
+ * const dataModel = dataModelResult.value;
  *
  * const cityJSONLoader = new CityJSONLoader();
  *
@@ -71,8 +75,7 @@
  *             sceneModel,
  *             dataModel
  *         }).then(() => {
- *             sceneModel.build();
- *             dataModel.build();
+ *             // Loaded
  *         }).catch(err => {
  *             sceneModel.destroy();
  *             dataModel.destroy();

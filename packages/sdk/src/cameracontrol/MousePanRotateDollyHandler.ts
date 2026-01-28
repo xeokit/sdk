@@ -1,13 +1,13 @@
 /**
  * @private
  */
-import {createVec2, createVec3, lenVec3, subVec3} from "../matrix";
+import {createVec2Float64, createVec3Float32, createVec3Float64, lenVec3, subVec3} from "../math/vector";
 import {KEY_SHIFT} from "./keycodes";
 import {PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
 
 
-const canvasPos = createVec2();
+const canvasPos = createVec2Float64();
 
 export const getCanvasPosFromEvent = function (event, canvasPos) {
   if (!event) {
@@ -66,7 +66,7 @@ export class MousePanRotateDollyHandler {
     let mouseDownRight;
 
     let mouseDownPicked = false;
-    const pickedWorldPos = createVec3();
+    const pickedWorldPos = createVec3Float64();
 
     let mouseMovedOnCanvasSinceLastWheel = true;
 
@@ -121,6 +121,7 @@ export class MousePanRotateDollyHandler {
 
       if (pickController.picked && pickController.pickedSurface && pickController.pickResult && pickController.pickResult.worldPos) {
         mouseDownPicked = true;
+        // @ts-ignore
         pickedWorldPos.set(pickController.pickResult.worldPos);
       } else {
         mouseDownPicked = false;
@@ -208,7 +209,7 @@ export class MousePanRotateDollyHandler {
 
         if (camera.projectionType === PerspectiveProjectionType) {
 
-          const depth = Math.abs(mouseDownPicked ? lenVec3(subVec3(pickedWorldPos, view.camera.eye, [])) : view.camera.eyeLookDist);
+          const depth = Math.abs(mouseDownPicked ? lenVec3(subVec3(pickedWorldPos, view.camera.eye, createVec3Float32())) : view.camera.eyeLookDist);
           const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
 
           updates.panDeltaX += (1.5 * xDelta * targetDistance / canvasHeight);

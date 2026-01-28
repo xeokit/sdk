@@ -63,7 +63,7 @@ class DirLight extends Component {
      */
     set dir(value) {
         this.#state.dir.set(value);
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the RGB color of this DirLight.
@@ -84,7 +84,7 @@ class DirLight extends Component {
      */
     set color(color) {
         this.#state.color.set(color);
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the intensity of this DirLight.
@@ -105,7 +105,7 @@ class DirLight extends Component {
      */
     set intensity(intensity) {
         this.#state.intensity = intensity;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Destroys this DirLight.
@@ -113,7 +113,7 @@ class DirLight extends Component {
     destroy() {
         super.destroy();
         this.view.deregisterLight(this);
-        this.view.redraw();
+        this.view.needsRedraw();
     }
 }
 export { DirLight };

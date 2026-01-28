@@ -1,7 +1,8 @@
 import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
-import {SDKError} from "../core";
+import {SDKErrorType, type SDKResult} from "../core";
 import {TrianglesPrimitive} from "../constants";
+import type {Vec3} from "../math/vector";
 
 /**
  * Creates box-shaped geometry.
@@ -13,12 +14,19 @@ import {TrianglesPrimitive} from "../constants";
  * ## Usage
  *
  * ````javascript
- * const boxGeometry = buildBoxGeometry({
+ * const boxGeometryResult = buildBoxGeometry({
  *     center: [0, 0, 0],   // Center of the box
  *     xSize: 2,            // Half-size along the X-axis
  *     ySize: 1,            // Half-size along the Y-axis
  *     zSize: 1.5           // Half-size along the Z-axis
  * });
+ *
+ * if (boxGeometryResult.ok) {
+ *    const boxGeometry = boxGeometryResult.value;
+ *    // Use boxGeometry here
+ * } else {
+ *    console.error("Error creating box geometry:", boxGeometryResult.error);
+ * }
  * ````
  *
  * @param cfg Configurations for the box geometry.
@@ -26,12 +34,10 @@ import {TrianglesPrimitive} from "../constants";
  * @param [cfg.xSize=1.0] Half-size of the box along the X-axis. The default value is `1.0`.
  * @param [cfg.ySize=1.0] Half-size of the box along the Y-axis. The default value is `1.0`.
  * @param [cfg.zSize=1.0] Half-size of the box along the Z-axis. The default value is `1.0`.
- * @returns {GeometryArrays | SDKError} Returns the geometry arrays for the box or an {@link SDKError} if the input sizes are invalid.
- *
- * @throws {SDKError} If any of the sizes (`xSize`, `ySize`, or `zSize`) are negative, an error is thrown.
+ * @returns {SDKResult<GeometryArrays>} The geometry arrays for a box, including positions, UVs, and indices, or an error message.
  */
 export function buildBoxGeometry(cfg: {
-  center?: number[],
+  center?: Vec3,
   ySize?: number,
   xSize?: number,
   zSize?: number
@@ -40,24 +46,45 @@ export function buildBoxGeometry(cfg: {
   xSize: 1,
   ySize: 1,
   zSize: 1
-}): GeometryArrays | SDKError {
+}): SDKResult<GeometryArrays> {
+
+  const center = cfg.center;
+
+  if (center && center.length !== 3) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildBoxGeometry] Center must be a 3D point [x, y, z]"
+    };
+  }
 
   const xSize = cfg.xSize || 1;
   if (xSize < 0) {
-    return new SDKError("Negative xSize not allowed");
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildBoxGeometry] Negative xSize not allowed"
+    };
   }
 
   const ySize = cfg.ySize || 1;
   if (ySize < 0) {
-    return new SDKError("Negative ySize not allowed");
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildBoxGeometry] Negative ySize not allowed"
+    };
   }
 
   const zSize = cfg.zSize || 1;
   if (zSize < 0) {
-    return new SDKError("Negative zSize not allowed");
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildBoxGeometry] Negative zSize not allowed"
+    };
   }
 
-  const center = cfg.center;
   const centerX = center ? center[0] : 0;
   const centerY = center ? center[1] : 0;
   const centerZ = center ? center[2] : 0;

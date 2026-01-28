@@ -14,11 +14,11 @@ export class VBOTrianglesInstancingEdgesSilhouetteRenderer extends VBOInstancing
         this.vertexCommonDefs(src);
         this.vertexInstancingTransformDefs(src);
         this.vertexSlicingDefs(src);
-        this.vertexSilhouetteDefs(src);
+        this.vertexDrawSilhouetteDefs(src);
         this.vertexSilhouetteMainOpen(src);
         {
             this.vertexDrawInstancingTransformLogic(src);
-            this.vertexSilhouetteLogic(src);
+            this.vertexDrawSilhouetteLogic(src);
             this.vertexSlicingLogic(src);
         }
         this.vertexMainClose(src);
@@ -32,7 +32,7 @@ export class VBOTrianglesInstancingEdgesSilhouetteRenderer extends VBOInstancing
         src.push("void main(void) {");
         {
             this.fragmentSlicingLogic(src);
-            this.fragmentSilhouetteLogic(src);
+            this.fragmentDrawSilhouetteLogic(src);
             this.fragmentCommonOutput(src);
         }
         src.push("}");

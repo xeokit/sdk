@@ -26,9 +26,9 @@
  * ## Usage Example
  *
  * ```javascript
- * import { createAABB3 } from "@xeokit/sdk/boundaries";
+ * import { createAABBFloat64 } from "@xeokit/sdk/boundaries";
  *
- * const aabb = createAABB3([-100, -100, -100, 100, 100, 100]);
+ * const aabb = createAABBFloat64([-100, -100, -100, 100, 100, 100]);
  * ```
  *
  * @module boundaries
@@ -40,7 +40,7 @@ import { FloatArrayParam, IntArrayParam } from "../math";
  * @param values - Optional initial values for the AABB3.
  * @returns A new Float64Array representing the AABB3.
  */
-export declare function createAABB3(values?: FloatArrayParam): Float64Array<any>;
+export declare function createAABBFloat64(values?: FloatArrayParam): Float64Array<any>;
 /**
  * Creates a new 3D axis-aligned bounding box (AABB3) with Int16 values.
  *

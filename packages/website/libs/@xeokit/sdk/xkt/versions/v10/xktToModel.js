@@ -1,6 +1,6 @@
 import { LinesPrimitive, PointsPrimitive, SolidPrimitive, SurfacePrimitive, JPEGMediaType, PNGMediaType } from "../../../constants";
 import { createVec3, createVec4 } from "../../../matrix";
-import { createAABB3, getAABB3Center } from "../../../boundaries";
+import { createAABBFloat64, getAABB3Center } from "../../../boundaries";
 const tempVec4a = createVec4();
 const tempVec4b = createVec4();
 const NUM_TEXTURE_ATTRIBUTES = 9;
@@ -164,14 +164,14 @@ export function xktToModel(params) {
     }
     // Iterate over tiles
     const tileCenter = createVec3();
-    const rtcAABB = createAABB3();
+    const rtcAABB = createAABBFloat64();
     const geometryArraysCache = {};
-    for (let tileIndex = 0; tileIndex < numTiles; tileIndex++) {
+    for (let index = 0; index < numTiles; index++) {
         const lastTileIndex = (numTiles - 1);
-        const atLastTile = (tileIndex === lastTileIndex);
-        const firstTileEntityIndex = eachTileEntitiesPortion[tileIndex];
-        const lastTileEntityIndex = atLastTile ? (numEntities - 1) : (eachTileEntitiesPortion[tileIndex + 1] - 1);
-        const tileAABBIndex = tileIndex * 6;
+        const atLastTile = (index === lastTileIndex);
+        const firstTileEntityIndex = eachTileEntitiesPortion[index];
+        const lastTileEntityIndex = atLastTile ? (numEntities - 1) : (eachTileEntitiesPortion[index + 1] - 1);
+        const tileAABBIndex = index * 6;
         const tileAABB = eachTileAABB.subarray(tileAABBIndex, tileAABBIndex + 6);
         getAABB3Center(tileAABB, tileCenter);
         rtcAABB[0] = tileAABB[0] - tileCenter[0];
@@ -208,7 +208,7 @@ export function xktToModel(params) {
                     // Create mesh for multi-use geometry - create (or reuse) geometry, create mesh using that geometry
                     const meshMatrixIndex = eachMeshMatricesPortion[meshIndex];
                     const meshMatrix = matrices.slice(meshMatrixIndex, meshMatrixIndex + 16);
-                    const geometryId = `${modelPartId}-geometry.${tileIndex}.${geometryIndex}`; // These IDs are local to the SceneModel
+                    const geometryId = `${modelPartId}-geometry.${index}.${geometryIndex}`; // These IDs are local to the SceneModel
                     let geometryArrays = geometryArraysCache[geometryId];
                     if (!geometryArrays) {
                         geometryArrays = {};

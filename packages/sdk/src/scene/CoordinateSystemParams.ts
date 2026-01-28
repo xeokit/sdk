@@ -1,4 +1,5 @@
-import type {FloatArrayParam} from "../math";
+
+import type {Vec3, Vec9} from "../math/vector";
 
 /**
  * Describes the coordinate system, origin, and unit system in which a 3D model was authored.
@@ -13,12 +14,12 @@ export interface CoordinateSystemParams {
    * [ x0, x1, x2, y0, y1, y2, z0, z1, z2 ]
    * Each axis should be a normalized vector.
    */
-  basis: FloatArrayParam;
+  basis: Vec9;
 
   /**
    * The origin of the coordinate system in global space.
    */
-  origin: FloatArrayParam;
+  origin: Vec3;
 
   /**
    * The unit of measurement used in coordinates.

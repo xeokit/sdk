@@ -1,6 +1,6 @@
-import type {RendererTextureSet} from "./RendererTextureSet";
 import type {SceneTexture} from "./SceneTexture";
 import type {SceneTextureSetParams} from "./SceneTextureSetParams";
+import type {SceneModel} from "./SceneModel";
 
 /**
  * A set of {@link SceneTexture | Textures} in a {@link SceneModel | SceneModel}.
@@ -13,56 +13,69 @@ import type {SceneTextureSetParams} from "./SceneTextureSetParams";
  */
 export class SceneTextureSet {
 
-  /**
-   * The ID of this SceneTextureSet.
-   */
-  id: string;
+    /**
+     * The ID of this SceneTextureSet.
+     */
+    id: string;
 
-  /**
-   * The color {@link SceneTexture} in this set.
-   */
-  colorTexture?: SceneTexture;
+    /**
+     * The color {@link SceneTexture} in this set.
+     */
+    colorTexture?: SceneTexture;
 
-  /**
-   * The metallic-roughness {@link SceneTexture} in this set.
-   */
-  metallicRoughnessTexture?: SceneTexture;
+    /**
+     * The metallic-roughness {@link SceneTexture} in this set.
+     */
+    metallicRoughnessTexture?: SceneTexture;
 
-  /**
-   * The occlusion {@link SceneTexture} in this set.
-   */
-  occlusionTexture?: SceneTexture;
+    /**
+     * The occlusion {@link SceneTexture} in this set.
+     */
+    occlusionTexture?: SceneTexture;
 
-  /**
-   * The emissive {@link SceneTexture} in this set.
-   */
-  emissiveTexture?: SceneTexture;
+    /**
+     * The emissive {@link SceneTexture} in this set.
+     */
+    emissiveTexture?: SceneTexture;
 
-  /**
-   *  Internal interface through which a SceneTextureSet can load property updates into a renderers.
-   *
-   *  This is defined while the owner {@link SceneModel | SceneModel} has been added to a {@link viewer!Viewer | Viewer}.
-   *
-   * @internal
-   */
-  rendererTextureSet: RendererTextureSet | null;
+    /**
+     * The {@link SceneModel} that owns this SceneTextureSet.
+     * @private
+     */
+    model: SceneModel;
 
-  /**
-   * @private
-   */
-  constructor(textureSetParams: SceneTextureSetParams,
-              textures: {
-                emissiveTexture?: SceneTexture;
-                occlusionTexture?: SceneTexture;
-                metallicRoughnessTexture?: SceneTexture;
-                colorTexture?: SceneTexture;
-              }) {
+    /**
+     * True if this SceneTextureSet has been destroyed.
+     */
+    public destroyed: boolean = false;
 
-    this.id = textureSetParams.id;
-    this.colorTexture = textures.colorTexture;
-    this.metallicRoughnessTexture = textures.metallicRoughnessTexture;
-    this.occlusionTexture = textures.occlusionTexture;
-    this.emissiveTexture = textures.emissiveTexture;
-    this.rendererTextureSet = null;
-  }
+    /**
+     * @private
+     */
+    constructor(model: SceneModel, textureSetParams: SceneTextureSetParams,
+                textures: {
+                    emissiveTexture?: SceneTexture;
+                    occlusionTexture?: SceneTexture;
+                    metallicRoughnessTexture?: SceneTexture;
+                    colorTexture?: SceneTexture;
+                }) {
+
+        this.model = model;
+        this.id = textureSetParams.id;
+        this.colorTexture = textures.colorTexture;
+        this.metallicRoughnessTexture = textures.metallicRoughnessTexture;
+        this.occlusionTexture = textures.occlusionTexture;
+        this.emissiveTexture = textures.emissiveTexture;
+    }
+
+    /**
+     * Destroys this SceneTextureSet.
+     */
+    destroy(): void {
+        if (this.destroyed) {
+                 return;
+        }
+        this.model._destroyTextureSet(this);
+        this.destroyed = true;
+    }
 }

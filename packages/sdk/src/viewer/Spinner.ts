@@ -1,7 +1,3 @@
-import {Component, EventEmitter} from "../core";
-import {EventDispatcher} from "strongly-typed-events";
-
-
 const defaultCSS = ".sk-fading-circle {\
         background: transparent;\
         margin: 20px auto;\
@@ -162,25 +158,11 @@ const defaultCSS = ".sk-fading-circle {\
  * spinner.process--;
  * ````
  */
-class Spinner extends Component {
+class Spinner  {
   private _canvas: any;
   private _element: any;
   private _isCustom: boolean;
   private _processes: number;
-
-  /**
-   * Emits an event each time the number of active processes updates.
-   *
-   * @event
-   */
-  readonly onProcesses: EventEmitter<Spinner, number>;
-
-  /**
-   * Emits an event when there are zero processes running.
-   *
-   * @event
-   */
-  readonly onZeroProcesses: EventEmitter<Spinner, number>;
 
   /**
    @private
@@ -192,19 +174,18 @@ class Spinner extends Component {
   /**
    @private
    */
-  constructor(owner: Component, cfg: {
+  constructor( cfg: {
     element: HTMLElement,
     elementId: false,
     canvas: HTMLElement
   }) {
-    super(owner, cfg);
     this._canvas = cfg.canvas;
     this._element = null;
     this._isCustom = false; // True when the element is custom HTML
     if (cfg.elementId) { // Custom spinner element supplied
       this._element = document.getElementById(cfg.elementId);
       if (!this._element) {
-        this.error("Can't find given Spinner HTML element: '" + cfg.elementId + "' - will automatically create default element");
+        console.error("Can't find given Spinner HTML element: '" + cfg.elementId + "' - will automatically create default element");
       } else {
         this._adjustPosition();
       }
@@ -213,8 +194,6 @@ class Spinner extends Component {
       this._createDefaultSpinner();
     }
     this.processes = 0;
-    this.onProcesses = new EventEmitter(new EventDispatcher<Spinner, number>());
-    this.onZeroProcesses = new EventEmitter(new EventDispatcher<Spinner, number>());
   }
 
   /** @private */
@@ -223,7 +202,7 @@ class Spinner extends Component {
     const element = document.createElement('div');
     const style = element.style;
     // @ts-ignore
-    style["z-index"] = "9000";
+    style["z-tileIndex"] = "9000";
     style.position = "absolute";
     element.innerHTML = '<div class="sk-fading-circle">\
                 <div class="sk-circle1 sk-circle"></div>\
@@ -302,10 +281,10 @@ class Spinner extends Component {
     if (element) {
       element.style["visibility"] = (this._processes > 0) ? "visible" : "hidden";
     }
-    this.onProcesses.dispatch(this, this._processes);
-    if (this._processes === 0 && this._processes !== prevValue) {
-      this.onZeroProcesses.dispatch(this, this._processes);
-    }
+    // this.viewer.events.processes.dispatch(this, this._processes);
+    // if (this._processes === 0 && this._processes !== prevValue) {
+    //   this.onZeroProcesses.dispatch(this, this._processes);
+    // }
   }
 
   /**
@@ -329,8 +308,8 @@ class Spinner extends Component {
       // @ts-ignore
       styleElement.parentNode.removeChild(styleElement)
     }
-    this.onProcesses.clear();
-    this.onZeroProcesses.clear();
+    // this.onProcesses.clear();
+    // this.onZeroProcesses.clear();
   }
 }
 

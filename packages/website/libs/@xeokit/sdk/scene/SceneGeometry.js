@@ -1,4 +1,4 @@
-import { createAABB3 } from "../boundaries";
+import { createAABBFloat64 } from "../boundaries";
 /**
  * A geometry in a {@link scene!SceneModel | SceneModel}.
  *
@@ -84,7 +84,7 @@ export class SceneGeometry {
         this.indices = params.indices;
         this.edgeIndices = params.edgeIndices;
         this.origin = params.origin;
-        this.aabb = params.aabb ? params.aabb.slice() : createAABB3();
+        this.aabb = params.aabb ? params.aabb.slice() : createAABBFloat64();
         this.numMeshes = 0;
     }
     /**

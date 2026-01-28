@@ -42,9 +42,4 @@ export interface DataModelParams extends DataModelContentParams {
    * The application used to create the data model, if known.
    */
   creatingApplication?: string;
-
-  /**
-   * The schema version of the data model, if available.
-   */
-  schema?: string;
 }

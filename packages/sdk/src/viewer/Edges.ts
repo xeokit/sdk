@@ -1,8 +1,8 @@
-import {Component, SDKError} from "../core";
 import type {EdgesParams} from "./EdgesParams";
-import type {FloatArrayParam} from "../math";
 import {QualityRender} from "../constants";
 import type {View} from "./View";
+import {SDKErrorType, type SDKResult} from "../core";
+import {createVec3Float64, type Vec3} from "../math/vector";
 
 
 /**
@@ -14,183 +14,196 @@ import type {View} from "./View";
  *
  * See {@link viewer | @xeokit/sdk/viewer} for usage info.
  */
-class Edges extends Component {
+class Edges {
 
-  /**
-   * The View to which this Edges belongs.
-   */
-  public readonly view: View;
+    /**
+     * The View to which this Edges belongs.
+     */
+    public readonly view: View;
 
-  /**
-   * @private
-   */
-  #state: {
-    edgeColor: FloatArrayParam;
-    edgeWidth: number;
-    edgeAlpha: number;
-    renderModes: number[];
-  };
+    private _edgeColor: Vec3;
+    private _edgeWidth: number;
+    private _edgeAlpha: number;
+    private _renderModes: number[];
+    private _destroyed = false;
 
-  /**
-   * @private
-   */
-  constructor(view: View, options: EdgesParams = {}) {
+    /**
+     * @private
+     */
+    constructor(view: View, options: EdgesParams = {}) {
 
-    super(view, options);
+        this.view = view;
 
-    this.view = view;
-
-    this.#state = {
-      renderModes: options.renderModes || [QualityRender],
-      edgeColor: new Float32Array(options.edgeColor || [0.2, 0.2, 0.2]),
-      edgeAlpha: (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.5,
-      edgeWidth: (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1
-    };
-  }
-
-  /**
-   * Sets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
-   *
-   * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
-   *
-   * Default value is [{@link constants!QualityRender | QualityRender}].
-   */
-  set renderModes(value: number[]) {
-    this.#state.renderModes = value;
-    this.view.redraw();
-  }
-
-  /**
-   * Gets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
-   *
-   * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
-   *
-   * Default value is [{@link constants!QualityRender | QualityRender}].
-   */
-  get renderModes(): number[] {
-    return this.#state.renderModes;
-  }
-
-  /**
-   * Sets RGB edge color for {@link ViewObject | ViewObjects}.
-   *
-   * Default value is ````[0.2, 0.2, 0.2]````.
-   */
-  set edgeColor(value: FloatArrayParam) {
-    const edgeColor = this.#state.edgeColor;
-    if (value && edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
-      return;
+        this._renderModes = options.renderModes || [QualityRender];
+        this._edgeColor = createVec3Float64(options.edgeColor || [0.2, 0.2, 0.2]);
+        this._edgeAlpha = (options.edgeAlpha !== undefined && options.edgeAlpha !== null) ? options.edgeAlpha : 0.5;
+        this._edgeWidth = (options.edgeWidth !== undefined && options.edgeWidth !== null) ? options.edgeWidth : 1;
     }
-    edgeColor[0] = 0.2;
-    edgeColor[1] = 0.2;
-    edgeColor[2] = 0.2;
-    this.view.redraw();
-  }
 
-  /**
-   * Gets RGB edge color for {@link ViewObject | ViewObjects}.
-   *
-   * Default value is ````[0.2, 0.2, 0.2]````.
-   */
-  get edgeColor(): FloatArrayParam {
-    return this.#state.edgeColor;
-  }
-
-  /**
-   * Sets edge transparency for {@link ViewObject | ViewObjects}.
-   *
-   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-   *
-   * Default value is ````1.0````.
-   */
-  set edgeAlpha(value: number) {
-    if (this.#state.edgeAlpha === value) {
-      return;
+    /**
+     * Sets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
+     *
+     * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
+     *
+     * Default value is [{@link constants!QualityRender | QualityRender}].
+     */
+    set renderModes(value: number[]) {
+        this._renderModes = value;
+        this.view.needsRender();
     }
-    this.#state.edgeAlpha = value;
-    this.view.redraw();
-  }
 
-  /**
-   * Gets edge transparency for {@link ViewObject | ViewObjects}.
-   *
-   * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
-   *
-   * Default value is ````1.0````.
-   */
-  get edgeAlpha(): number {
-    return this.#state.edgeAlpha;
-  }
-
-  /**
-   * Sets edge width for {@link ViewObject | ViewObjects}.
-   *
-   * Default value is ````1.0```` pixels.
-   */
-  set edgeWidth(value: number) {
-    if (this.#state.edgeWidth === value) {
-      return;
+    /**
+     * Gets which rendering modes in which to show edges on {@link ViewObject | ViewObjects}.
+     *
+     * The {@link View} will show edges whenever {@link View.renderMode} has been set one of these values.
+     *
+     * Default value is [{@link constants!QualityRender | QualityRender}].
+     */
+    get renderModes(): number[] {
+        return this._renderModes;
     }
-    this.#state.edgeWidth = value;
-    this.view.redraw();
-  }
 
-  /**
-   * Gets edge width for {@link ViewObject | ViewObjects}.
-   *
-   * This is not supported by WebGL implementations based on DirectX [2019].
-   *
-   * Default value is ````1.0```` pixels.
-   */
-  get edgeWidth(): number {
-    return this.#state.edgeWidth;
-  }
-
-  /**
-   * Gets if edges are currently applied.
-   *
-   * This is `true` when {@link View.renderMode | View.renderMode} is
-   * in {@link Edges.renderModes | Edges.renderModes}.
-   */
-  get applied(): boolean {
-    for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
-      if (this.view.renderMode === this.#state.renderModes[i]) {
-        return true;
+    /**
+     * Sets RGB edge color for {@link ViewObject | ViewObjects}.
+     *
+     * Default value is ````[0.2, 0.2, 0.2]````.
+     */
+    set edgeColor(value: Vec3) {
+      if (!value || value.length < 3) {
+        this.view.viewer.logError({
+          ok: false,
+          type: SDKErrorType.InvalidInput,
+          error: "[Edges set edgeColor] Invalid color parameter."
+        });
       }
+        const edgeColor = this._edgeColor;
+        if (value && edgeColor[0] === value[0] && edgeColor[1] === value[1] && edgeColor[2] === value[2]) {
+            return;
+        }
+        edgeColor[0] = 0.2;
+        edgeColor[1] = 0.2;
+        edgeColor[2] = 0.2;
+        this.view.needsRender();
     }
-    return false;
-  }
 
-  /**
-   * Gets the current configuration of this Edges effect.
-   */
-  toParams(): EdgesParams {
-    return {
-      renderModes: this.renderModes,
-      edgeColor: Array.from(this.edgeColor),
-      edgeWidth: this.edgeWidth,
-      edgeAlpha: this.edgeAlpha
-    };
-  }
+    /**
+     * Gets RGB edge color for {@link ViewObject | ViewObjects}.
+     *
+     * Default value is ````[0.2, 0.2, 0.2]````.
+     */
+    get edgeColor(): Vec3 {
+        return this._edgeColor;
+    }
 
-  /**
-   * Configures this Edges effect.
-   *
-   * @param edgesParams
-   */
-  fromParams(edgesParams: EdgesParams) {
-    this.renderModes = edgesParams.renderModes;
-    this.edgeColor = Array.from(edgesParams.edgeColor);
-    this.edgeWidth = edgesParams.edgeWidth;
-    this.edgeAlpha = edgesParams.edgeAlpha;
-  }
+    /**
+     * Sets edge transparency for {@link ViewObject | ViewObjects}.
+     *
+     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+     *
+     * Default value is ````1.0````.
+     */
+    set edgeAlpha(value: number) {
+        if (this._edgeAlpha === value) {
+            return;
+        }
+        this._edgeAlpha = value;
+        this.view.needsRender();
+    }
 
-  /**
-   * @private
-   */
-  destroy() {
-    super.destroy();
-  }
+    /**
+     * Gets edge transparency for {@link ViewObject | ViewObjects}.
+     *
+     * A value of ````0.0```` indicates fully transparent, ````1.0```` is fully opaque.
+     *
+     * Default value is ````1.0````.
+     */
+    get edgeAlpha(): number {
+        return this._edgeAlpha;
+    }
+
+    /**
+     * Sets edge width for {@link ViewObject | ViewObjects}.
+     *
+     * Default value is ````1.0```` pixels.
+     */
+    set edgeWidth(value: number) {
+        if (this._edgeWidth === value) {
+            return;
+        }
+        this._edgeWidth = value;
+        this.view.needsRender();
+    }
+
+    /**
+     * Gets edge width for {@link ViewObject | ViewObjects}.
+     *
+     * This is not supported by WebGL implementations based on DirectX [2019].
+     *
+     * Default value is ````1.0```` pixels.
+     */
+    get edgeWidth(): number {
+        return this._edgeWidth;
+    }
+
+    /**
+     * Gets if edges are currently applied.
+     *
+     * This is `true` when {@link View.renderMode | View.renderMode} is
+     * in {@link Edges.renderModes | Edges.renderModes}.
+     */
+    get applied(): boolean {
+        for (let i = 0, len = this._renderModes.length; i < len; i++) {
+            if (this.view.renderMode === this._renderModes[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Gets the current configuration of this Edges effect.
+     */
+    toParams(): SDKResult<EdgesParams> {
+        return {
+          ok: true,
+          value:{
+            renderModes: this.renderModes,
+            edgeColor: <Vec3> Array.from(this.edgeColor),
+            edgeWidth: this.edgeWidth,
+            edgeAlpha: this.edgeAlpha
+        }
+        };
+    }
+
+    /**
+     * Configures this Edges effect.
+     *
+     * @param edgesParams
+     */
+    fromParams(edgesParams: EdgesParams) : SDKResult<any> {
+        if (this._destroyed) {
+            return this.view.viewer.logError({
+                ok: false,
+                type: SDKErrorType.InvalidOperation,
+                error: "[Edges.fromParams] Edges has been destroyed."
+            });
+        }
+        this.renderModes = edgesParams.renderModes;
+        this.edgeColor = <Vec3>Array.from(edgesParams.edgeColor);
+        this.edgeWidth = edgesParams.edgeWidth;
+        this.edgeAlpha = edgesParams.edgeAlpha;
+        return {
+            ok: true,
+            value: undefined
+        };
+    }
+
+    /**
+     * @private
+     */
+    destroy() {
+        this._destroyed = true;
+    }
 }
 
 export {Edges};

@@ -23,7 +23,6 @@
 
 export * from "./WebGLArrayBuf";
 export * from "./WebGLAttribute";
-export * from "./WebGLDataTexture";
 export * from "./WebGLProgram";
 export * from "./WebGLRenderBuffer";
 export * from "./WebGLSampler";

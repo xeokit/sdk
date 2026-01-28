@@ -133,7 +133,7 @@ export declare class Viewer extends Component {
     /**
      * Creates a new {@link View} within this Viewer.
      *
-     * * The maximum number of views you're allowed to create is provided in {@link Capabilities.maxViews}. This
+     * * The maximum number of viewManager you're allowed to create is provided in {@link Capabilities.maxViews}. This
      * will be determined by the {@link Renderer} implementation the Viewer is configured with.
      * * To destroy the View after use, call {@link View.destroy}.
      * * You must add a View to the Viewer before you can create or load content into the Viewer's Viewer.
@@ -166,7 +166,7 @@ export declare class Viewer extends Component {
      */
     createView(viewParams: ViewParams): View | SDKError;
     /**
-     * Trigger redraw of all {@link View | Views} belonging to this Viewer.
+     * Trigger needsRedraw of all {@link View | Views} belonging to this Viewer.
      *
      * @private
      */

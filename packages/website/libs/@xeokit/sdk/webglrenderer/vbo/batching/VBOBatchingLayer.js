@@ -563,7 +563,7 @@ export class VBOBatchingLayer {
             return;
         }
         // if (this.#rendererSet.normalsRenderer) {
-        //     this.#rendererSet.normalsRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.DRAW_OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
+        //     this.#rendererSet.normalsRenderer.renderVBOBatchingLayer(this, RENDER_PASSES.OPAQUE);  // Assume whatever post-effect uses normals (eg SAO) does not apply to transparent objects
         // }
     }
     drawSilhouetteXRayed() {
@@ -665,12 +665,12 @@ export class VBOBatchingLayer {
     }
     drawShadow() {
         const viewIndex = this.renderContext.view.viewIndex;
-        // if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes ||
-        //     this.meshCounts[viewIndex].numVisible === 0) {
+        // if (this._meshCounts[viewIndex].numCulled === this._meshCounts[viewIndex].numMeshes ||
+        //     this._meshCounts[viewIndex].numVisible === 0) {
         //     return;
         // }
         // if (this.#rendererSet.shadowRenderer) {
-        //     this.#rendererSet.shadowRenderer.render( this, RENDER_PASSES.DRAW_OPAQUE);
+        //     this.#rendererSet.shadowRenderer.draw( this, RENDER_PASSES.OPAQUE);
         // }
     }
     drawPickMesh() {
@@ -710,11 +710,11 @@ export class VBOBatchingLayer {
         }
     }
     drawPickNormals() {
-        // if (this.meshCounts[viewIndex].numCulled === this.meshCounts[viewIndex].numMeshes || this.meshCounts[viewIndex].numVisible === 0) {
+        // if (this._meshCounts[viewIndex].numCulled === this._meshCounts[viewIndex].numMeshes || this._meshCounts[viewIndex].numVisible === 0) {
         //     return;
         // }
         // if (this.#rendererSet.pickNormalsRenderer) {
-        //     this.#rendererSet.pickNormalsRenderer.render( this, RENDER_PASSES.PICK);
+        //     this.#rendererSet.pickNormalsRenderer.draw( this, RENDER_PASSES.PICK);
         // }
     }
     destroy() {

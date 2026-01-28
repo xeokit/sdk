@@ -414,7 +414,7 @@
  * myView.renderMode = FastRender;
  * ````
  *
- * Now, whenever we want to render the View with full resoltion, edge enhancement and ambient shadows, we just switch
+ * Now, whenever we want to draw the View with full resoltion, edge enhancement and ambient shadows, we just switch
  * it over to QualityRender mode.
  *
  * ````javascript

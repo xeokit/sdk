@@ -1,5 +1,7 @@
 import * as utils from "../utils";
 import type {GeometryArrays} from "./GeometryArrays";
+import {SDKErrorType, type SDKResult} from "../core";
+import type {Vec3} from "../math/vector";
 
 /**
  * Creates a plane-shaped geometry.
@@ -11,64 +13,83 @@ import type {GeometryArrays} from "./GeometryArrays";
  * ## Usage
  *
  * ````javascript
- * const planeGeometry = buildPlaneGeometry({
+ * const planeGeometryResult = buildPlaneGeometry({
  *     xSize: 10,              // Width of the plane
  *     zSize: 10,              // Depth of the plane
  *     xSegments: 10,          // Number of segments along the X-axis
  *     zSegments: 10,          // Number of segments along the Z-axis
  *     center: [0, 0, 0]       // Center position of the plane in 3D space
  * });
+ *
+ * if (planeGeometryResult.ok) {
+ *    const planeGeometry = planeGeometryResult.value;
+ *    // Use planeGeometry here
+ * } else {
+ *    console.error("Error creating plane geometry:", planeGeometryResult.error);
+ * }
  * ````
  *
  * @param cfg Configuration for the plane geometry.
  * @param [cfg.center=[0, 0, 0]] The 3D point indicating the center of the plane.
-  * @param [cfg.xSize=1] The width of the plane along the X-axis. Default is `1`.
+ * @param [cfg.xSize=1] The width of the plane along the X-axis. Default is `1`.
  * @param [cfg.zSize=1] The depth of the plane along the Z-axis. Default is `1`.
  * @param [cfg.xSegments=1] The number of segments along the X-axis. Default is `1`.
  * @param [cfg.zSegments=1] The number of segments along the Z-axis. Default is `1`.
- * @returns {GeometryArrays} The geometry arrays for the plane, including positions, normals, UVs, and indices.
- *
- * @throws {SDKError} If any of the size or segment parameters are negative, the function automatically inverts the values and logs a warning.
+ * @returns {SDKResult<GeometryArrays>} The geometry arrays for the plane, including positions, normals, UVs, and indices, or an error message.
  */
-export function buildPlaneGeometry(cfg = {
-  xSize: 0,
-  zSize: 0,
-  xSegments: 1,
-  zSegments: 1,
-  center: [0, 0, 0]
-}): GeometryArrays {
-
+export function buildPlaneGeometry(cfg : {
+  xSize?: number,
+  zSize?: number,
+  xSegments?: number,
+  zSegments?: number,
+  center?: Vec3
+}): SDKResult<GeometryArrays> {
   let xSize = cfg.xSize || 1;
   if (xSize < 0) {
-    console.error("negative xSize not allowed - will invert");
-    xSize *= -1;
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildPlaneGeometry] Negative xSize not allowed."
+    };
   }
 
   let zSize = cfg.zSize || 1;
   if (zSize < 0) {
-    console.error("negative zSize not allowed - will invert");
-    zSize *= -1;
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildPlaneGeometry] Negative zSize not allowed."
+    };
   }
 
   let xSegments = cfg.xSegments || 1;
-  if (xSegments < 0) {
-    console.error("negative xSegments not allowed - will invert");
-    xSegments *= -1;
-  }
   if (xSegments < 1) {
-    xSegments = 1;
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildPlaneGeometry] xSegments must be at least 1."
+    };
   }
 
   let zSegments = cfg.zSegments || 1;
-  if (zSegments < 0) {
-    console.error("negative zSegments not allowed - will invert");
-    zSegments *= -1;
-  }
   if (zSegments < 1) {
-    zSegments = 1;
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildPlaneGeometry] zSegments must be at least 1."
+    };
   }
 
   const center = cfg.center;
+
+  if (center && center.length !== 3) {
+    return {
+      ok: false,
+      type: SDKErrorType.InvalidInput,
+      error: "[buildPlaneGeometry] Center must be a 3D point [x, y, z]."
+    };
+  }
+
   const centerX = center ? center[0] : 0;
   const centerY = center ? center[1] : 0;
   const centerZ = center ? center[2] : 0;
@@ -76,15 +97,14 @@ export function buildPlaneGeometry(cfg = {
   const halfWidth = xSize / 2;
   const halfHeight = zSize / 2;
 
-  const planeX = Math.floor(xSegments) || 1;
-  const planeZ = Math.floor(zSegments) || 1;
+  const planeX = Math.floor(xSegments);
+  const planeZ = Math.floor(zSegments);
 
   const planeX1 = planeX + 1;
   const planeZ1 = planeZ + 1;
 
   const segmentWidth = xSize / planeX;
   const segmentHeight = zSize / planeZ;
-
   const positions = new Float32Array(planeX1 * planeZ1 * 3);
   const normals = new Float32Array(planeX1 * planeZ1 * 3);
   const uvs = new Float32Array(planeX1 * planeZ1 * 2);
@@ -92,22 +112,12 @@ export function buildPlaneGeometry(cfg = {
   let offset = 0;
   let offset2 = 0;
 
-  let iz;
-  let ix;
-  let x;
-  let a;
-  let b;
-  let c;
-  let d;
-
   // Create the grid of vertices, normals, and UVs
-  for (iz = 0; iz < planeZ1; iz++) {
-
+  for (let iz = 0; iz < planeZ1; iz++) {
     const z = iz * segmentHeight - halfHeight;
 
-    for (ix = 0; ix < planeX1; ix++) {
-
-      x = ix * segmentWidth - halfWidth;
+    for (let ix = 0; ix < planeX1; ix++) {
+      const x = ix * segmentWidth - halfWidth;
 
       positions[offset] = x + centerX;
       positions[offset + 1] = centerY;
@@ -115,8 +125,8 @@ export function buildPlaneGeometry(cfg = {
 
       normals[offset + 2] = -1;
 
-      uvs[offset2] = (ix) / planeX;
-      uvs[offset2 + 1] = ((planeZ - iz) / planeZ);
+      uvs[offset2] = ix / planeX;
+      uvs[offset2 + 1] = (planeZ - iz) / planeZ;
 
       offset += 3;
       offset2 += 2;
@@ -128,31 +138,32 @@ export function buildPlaneGeometry(cfg = {
   // Create the indices for the plane's faces
   const indices = new ((positions.length / 3) > 65535 ? Uint32Array : Uint16Array)(planeX * planeZ * 6);
 
-  for (iz = 0; iz < planeZ; iz++) {
+  for (let iz = 0; iz < planeZ; iz++) {
+    for (let ix = 0; ix < planeX; ix++) {
+      const a = ix + planeX1 * iz;
+      const b = ix + planeX1 * (iz + 1);
+      const c = (ix + 1) + planeX1 * (iz + 1);
+      const d = (ix + 1) + planeX1 * iz;
 
-    for (ix = 0; ix < planeX; ix++) {
-
-      a = ix + planeX1 * iz;
-      b = ix + planeX1 * (iz + 1);
-      c = (ix + 1) + planeX1 * (iz + 1);
-      d = (ix + 1) + planeX1 * iz;
-
-      indices[offset] = d;
+      indices[offset] = a;
       indices[offset + 1] = b;
-      indices[offset + 2] = a;
+      indices[offset + 2] = d;
 
-      indices[offset + 3] = d;
+      indices[offset + 3] = b;
       indices[offset + 4] = c;
-      indices[offset + 5] = b;
+      indices[offset + 5] = d;
 
       offset += 6;
     }
   }
 
-  return utils.apply(cfg, {
-    positions: positions,
-    normals: normals,
+  const geometryArrays: GeometryArrays = utils.apply(cfg, {
+    primitive: "triangles",
+    positions,
+    normals,
     uv: uvs,
-    indices: indices
+    indices
   });
+
+  return { ok: true, value: geometryArrays };
 }

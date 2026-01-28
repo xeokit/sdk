@@ -123,7 +123,7 @@ export declare class DataModel extends Component {
      * Indicates if this DataModel has been built.
      *
      * * Set true by {@link DataModel.build | DataModel.build}.
-     * * Subscribe to updates using {@link DataModel.onBuilt | DataModel.onBuilt} and {@link Data.onModelCreated | Data.onModelCreated}.
+     * * Subscribe to updates using {@link DataModel.onBuilt | DataModel.onBuilt} and {@link Data.onModelCreated | Data.modelCreated}.
      */
     built: boolean;
     /**
@@ -189,7 +189,7 @@ export declare class DataModel extends Component {
      *
      * - The new DataObject is stored in {@link DataModel.objects | DataModel.objects} and
      *   {@link Data.objects | Data.objects}.
-     * - Triggers an event via {@link Data.onObjectCreated | Data.onObjectCreated}.
+     * - Triggers an event via {@link Data.onObjectCreated | Data.objectCreated}.
      * - DataObject IDs are **globally unique**. If a DataObject with the given ID already exists in the same Data,
      *   it will be reused and shared across DataModels rather than creating a duplicate.
      * - This behavior enables xeokit to support [*federated data models*](https://xeokit.github.io/sdk/docs/pages/GLOSSARY.html#federated-models).
@@ -280,7 +280,7 @@ export declare class DataModel extends Component {
      *
      * - Triggers the following events to notify subscribers:
      *   - {@link DataModel.onBuilt | DataModel.onBuilt}
-     *   - {@link Data.onModelCreated | Data.onModelCreated}
+     *   - {@link Data.onModelCreated | Data.modelCreated}
      * - Sets {@link DataModel.built | DataModel.built} to `true`.
      * - Can only be called once per DataModel.
      * - Once built, no additional components can be created within this DataModel.
@@ -292,7 +292,7 @@ export declare class DataModel extends Component {
      *     // The DataModel is built and ready for use
      * });
      *
-     * data.onModelCreated.subscribe((dataModel) => {
+     * data.modelCreated.subscribe((dataModel) => {
      *     // Another way to listen for DataModel readiness
      * });
      *
@@ -339,7 +339,7 @@ export declare class DataModel extends Component {
      *
      * This method performs the following actions:
      * * Fires an event via {@link DataModel.onDestroyed | DataModel.onDestroyed} and
-     * {@link Data.onModelDestroyed | Data.onModelDestroyed}.
+     * {@link Data.onModelDestroyed | Data.modelDestroyed}.
      * * Can only be called once on a DataModel.
      * * After destruction, no more components can be created in the DataModel.
      * * It is safe to call this method even if the DataModel has not yet been built.

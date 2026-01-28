@@ -1,109 +1,79 @@
-// Import the SDK from a bundle built for these examples
+// Import the SDK from a bundle built for these examples.
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
+// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
+
 import {DemoHelper} from "../../js/DemoHelper.js";
 
-// Create a GLTFLoader to load .glb files
+const demoHelper = new DemoHelper({});
 
-const gltfLoader = new xeokit.gltf.GLTFLoader();
-
-// Create a Scene to hold geometry and materials
-
-const scene = new xeokit.scene.Scene();
-
-// Create a Data to hold semantic data
-
-const data = new xeokit.data.Data();
-
-// Create a WebGLRenderer to use the browser's WebGL graphics API for rendering
-
-const renderer = new xeokit.webglrenderer.WebGLRenderer({});
-
-// Create a Viewer that will use the WebGLRenderer to draw the Scene
-
-const viewer = new xeokit.viewer.Viewer({
-    id: "demoViewer",
-    scene,
-    renderer
-});
-
-// Give the Viewer a single View to render the Scene in our HTML canvas element
-
-const view = viewer.createView({
-    id: "demoView",
-    elementId: "demoCanvas"
-});
+demoHelper.init().then(({
+                          scene,
+                          data,
+                          viewer,
+                          view,
+                          renderer
+                        }) => {
 
 // Arrange the View's Camera within our +Z "up" coordinate system
 
-view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
-view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
-view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
-
-// Add a CameraControl to interactively control the View's Camera with keyboard,
-// mouse and touch input
-
-new xeokit.cameracontrol.CameraControl(view, {});
+  view.camera.eye = [1841982.9384371885, 10.031355126263318, -5173286.744630201];
+  view.camera.look = [1842009.4968455553, 9.685518291306686, -5173295.851503017];
+  view.camera.up = [0.011650847910481935, 0.9999241456889114, -0.003995073374452514];
 
 // Create a SceneModel to hold our model's geometry and materials
 
-const sceneModel = scene.createModel({
+  const sceneModelResult = scene.createModel({
     id: "demoModel"
-});
+  });
 
-// Ignore the DemHelper
+  if (!sceneModelResult.ok) {
+    throw new Error(`Error creating SceneModel: ${sceneModelResult.error}`);
+  }
 
-const demoHelper = new DemoHelper({
-    viewer,
-    data
-});
+  // Create a DataModel to hold semantic data for our model
 
-demoHelper.init()
-    .then(() => {
+  const dataModelResult = data.createModel({
+    id: "demoModel"
+  });
 
-        // Create a DataModel to hold semantic data for our model
+  if (dataModelResult.ok === false) {
+    throw new Error(`Error creating SceneModel: ${dataModelResult.message}`);
+  }
 
-        const dataModel = data.createModel({
-            id: "demoModel"
+  const sceneModel = sceneModelResult.value;
+  const dataModel = dataModelResult.value;
+
+  // Use GLTFLoader to load a glTF model into our SceneModel and DataModel
+
+  const gltfLoader = new xeokit.formats.gltf.GLTFLoader();
+
+  fetch("../../models/MAP/gltf/model.glb").then(response => {
+
+    response
+      .arrayBuffer()
+      .then(fileData => {
+
+        gltfLoader.load({
+          fileData,
+          sceneModel,
+          dataModel
+        }).then(() => {
+
+          // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
+          // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
+          // will have a corresponding DataObject with the same ID, to attach semantic meaning.
+          // The View will contain a ViewObject corresponding to each SceneObject, through which the
+          // appearance of the object can be controlled in the View.
+
+          demoHelper.finished();
+
+        }).catch(message => {
+          console.error(`Error loading glTF: ${message}`);
         });
+      });
+  });
+});
 
-        if (sceneModel instanceof xeokit.core.SDKError) {
-            console.error(`Error creating SceneModel: ${sceneModel.message}`);
-
-        } else {
-
-            // Use GLTFLoader to load a glTF model into our SceneModel and DataModel
-
-            fetch("../../models/MAP/gltf/model.glb").then(response => {
-
-                response
-                    .arrayBuffer()
-                    .then(fileData => {
-
-                        gltfLoader.load({
-                            fileData,
-                            sceneModel,
-                            dataModel
-                        }).then(() => {
-
-                            // Build the SceneModel and DataModel.
-                            // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
-                            // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
-                            // will have a corresponding DataObject with the same ID, to attach semantic meaning.
-                            // The View will contain a ViewObject corresponding to each SceneObject, through which the
-                            // appearance of the object can be controlled in the View.
-
-                            dataModel.build();
-                            sceneModel.build();
-
-                            demoHelper.finished();
-
-                        }).catch(message => {
-                            console.error(`Error loading glTF: ${message}`);
-                        });
-                    });
-            });
-        }
-    });
 

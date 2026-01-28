@@ -1,6 +1,7 @@
-import {createVec2, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../matrix";
+import {createVec2Float64, createVec3Float32, distVec2, geometricMeanVec2, lenVec3, subVec2, subVec3} from "../math/vector";
 import {PerspectiveProjectionType} from "../constants";
 import type {View} from "../viewer";
+import {getSceneAABB3Index, SceneAABB3Index} from "../collision/aabb/SceneAABB3Index";
 
 const getCanvasPosFromEvent = function (event, canvasPos) {
   if (!event) {
@@ -31,18 +32,20 @@ class TouchPanRotateAndDollyHandler {
   #view: View;
   #canvasTouchEndHandler: any;
   #tickSub: () => void;
+  #aabbIndex: SceneAABB3Index;
 
   constructor(view: View, controllers: any, configs: any, states: any, updates: any) {
 
     this.#view = view;
+    this.#aabbIndex = getSceneAABB3Index(view.viewer.scene);
 
     const pickController = controllers.pickController;
     const pivotController = controllers.pivotController;
 
-    const tapStartCanvasPos = createVec2();
-    const tapCanvasPos0 = createVec2();
-    const tapCanvasPos1 = createVec2();
-    const touch0Vec = createVec2();
+    const tapStartCanvasPos = createVec2Float64();
+    const tapCanvasPos0 = createVec2Float64();
+    const tapCanvasPos1 = createVec2Float64();
+    const touch0Vec = createVec2Float64();
 
     const lastCanvasTouchPosList = [];
     const canvas = this.#view.htmlElement;
@@ -51,9 +54,9 @@ class TouchPanRotateAndDollyHandler {
     let tapStartTime = -1;
     let waitForTick = false;
 
-    this.#tickSub = view.viewer.onTick.sub(() => {
-      waitForTick = false;
-    });
+    // this.#tickSub = view.viewer.onTick.sub(() => {
+    //   waitForTick = false;
+    // });
 
     let firstDragDeltaX = 0;
     let firstDragDeltaY = 1;
@@ -114,7 +117,7 @@ class TouchPanRotateAndDollyHandler {
       }
 
       while (lastCanvasTouchPosList.length < touches.length) {
-        lastCanvasTouchPosList.push(createVec2());
+        lastCanvasTouchPosList.push(createVec2Float64());
       }
 
       for (let i = 0, len = touches.length; i < len; ++i) {
@@ -190,9 +193,9 @@ class TouchPanRotateAndDollyHandler {
           if (camera.projectionType === PerspectiveProjectionType) {
 
             const touchPicked = false;
-            const pickedWorldPos = [0, 0, 0];
+            const pickedWorldPos = createVec3Float32([0, 0, 0]);
 
-            const depth = Math.abs(touchPicked ? lenVec3(subVec3(pickedWorldPos, view.camera.eye, [])) : view.camera.eyeLookDist);
+            const depth = Math.abs(touchPicked ? lenVec3(subVec3(pickedWorldPos, view.camera.eye, createVec3Float32())) : view.camera.eyeLookDist);
             const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
 
             updates.panDeltaX += (xPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
@@ -230,9 +233,9 @@ class TouchPanRotateAndDollyHandler {
         getCanvasPosFromEvent(touch1, tapCanvasPos1);
 
         const lastMiddleTouch = geometricMeanVec2(lastCanvasTouchPosList[0], lastCanvasTouchPosList[1]);
-        const currentMiddleTouch = geometricMeanVec2(tapCanvasPos0, tapCanvasPos1);
+        const currentMiddleTouch = geometricMeanVec2(<any>tapCanvasPos0, <any>tapCanvasPos1);
 
-        const touchDelta = createVec2();
+        const touchDelta = createVec2Float64();
 
         subVec2(lastMiddleTouch, currentMiddleTouch, touchDelta);
 
@@ -255,9 +258,9 @@ class TouchPanRotateAndDollyHandler {
           // We use only canvasHeight here so that aspect ratio does not distort speed
 
           if (camera.projectionType === PerspectiveProjectionType) {
-            const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : view.viewer.scene.center;
+            const pickedWorldPos = pickController.pickResult ? pickController.pickResult.worldPos : this.#aabbIndex.getSceneCenter();
 
-            const depth = Math.abs(lenVec3(subVec3(pickedWorldPos, view.camera.eye, [])));
+            const depth = Math.abs(lenVec3(subVec3(pickedWorldPos, view.camera.eye, createVec3Float32())));
             const targetDistance = depth * Math.tan((camera.perspectiveProjection.fov / 2) * Math.PI / 180.0);
 
             updates.panDeltaX -= (xPanDelta * targetDistance / canvasHeight) * configs.touchPanRate;
@@ -288,7 +291,7 @@ class TouchPanRotateAndDollyHandler {
     canvas.removeEventListener("touchstart", this.#canvasTouchStartHandler);
     canvas.removeEventListener("touchend", this.#canvasTouchEndHandler);
     canvas.removeEventListener("touchmove", this.#canvasTouchMoveHandler);
-    this.#view.viewer.onTick.unsub(this.#tickSub);
+   // this.#view.viewer.onTick.unsub(this.#tickSub);
   }
 }
 

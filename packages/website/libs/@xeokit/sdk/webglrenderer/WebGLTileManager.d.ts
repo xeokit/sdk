@@ -22,7 +22,7 @@ export declare class WebGLTileManager implements TileManager {
     });
     getTile(center: FloatArrayParam): Tile;
     putTile(tile: Tile): void;
-    updateTileCenter(tile: Tile, newCenter: FloatArrayParam): Tile;
+    moveTile(tile: Tile, newCenter: FloatArrayParam): Tile;
     refreshMatrices(): void;
 }
-//# sourceMappingURL=WebGLTileManager.d.ts.map
+//# sourceMappingURL=GPUTileManager.d.ts.map

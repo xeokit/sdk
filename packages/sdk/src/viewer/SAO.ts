@@ -1,7 +1,7 @@
-import {Component, SDKError} from "../core";
-import {CustomProjectionType, FastRender, FrustumProjectionType, QualityRender} from "../constants";
+import {CustomProjectionType, FrustumProjectionType, QualityRender} from "../constants";
 import {type SAOParams} from "./SAOParams";
 import type {View} from "./View";
+import {SDKErrorType, type SDKResult} from "../core";
 
 /**
  * Configures Scalable Ambient Obscurance (SAO) for a {@link View}.
@@ -12,45 +12,40 @@ import type {View} from "./View";
  *
  * See {@link viewer | @xeokit/sdk/viewer} for usage info.
  */
-export class SAO extends Component {
+export class SAO {
 
   /**
    * The View to which this SAO belongs.
    */
   public readonly view: View;
 
-  #state: {
-    renderModes: number[];
-    intensity: number;
-    minResolution: number;
-    blendFactor: number;
-    numSamples: number;
-    bias: number;
-    scale: number;
-    blur: boolean;
-    blendCutoff: number;
-    kernelRadius: number;
-  }
+  private _renderModes: number[];
+  private _intensity: number;
+  private _minResolution: number;
+  private _blendFactor: number;
+  private _numSamples: number;
+  private _bias: number;
+  private _scale: number;
+  private _blur: boolean;
+  private _blendCutoff: number;
+  private _kernelRadius: number;
+  private _destroyed: boolean = false;
 
   /** @private */
   constructor(view: View, saoParams: SAOParams) {
 
-    super(view, saoParams);
-
     this.view = view;
 
-    this.#state = {
-      renderModes: [QualityRender],
-      kernelRadius: saoParams.kernelRadius || 100.0,
-      intensity: (saoParams.intensity !== undefined) ? saoParams.intensity : 0.15,
-      bias: (saoParams.bias !== undefined) ? saoParams.bias : 0.5,
-      scale: (saoParams.scale !== undefined) ? saoParams.scale : 1.0,
-      minResolution: (saoParams.minResolution !== undefined) ? saoParams.minResolution : 0.0,
-      numSamples: (saoParams.numSamples !== undefined) ? saoParams.numSamples : 10,
-      blur: !!(saoParams.blur),
-      blendCutoff: (saoParams.blendCutoff !== undefined) ? saoParams.blendCutoff : 0.3,
-      blendFactor: (saoParams.blendFactor !== undefined) ? saoParams.blendFactor : 1.0
-    };
+    this._renderModes = [QualityRender];
+    this._kernelRadius = saoParams.kernelRadius || 100.0;
+    this._intensity = (saoParams.intensity !== undefined) ? saoParams.intensity : 0.15;
+    this._bias = (saoParams.bias !== undefined) ? saoParams.bias : 0.5;
+    this._scale = (saoParams.scale !== undefined) ? saoParams.scale : 1.0;
+    this._minResolution = (saoParams.minResolution !== undefined) ? saoParams.minResolution : 0.0;
+    this._numSamples = (saoParams.numSamples !== undefined) ? saoParams.numSamples : 10;
+    this._blur = !!(saoParams.blur);
+    this._blendCutoff = (saoParams.blendCutoff !== undefined) ? saoParams.blendCutoff : 0.3;
+    this._blendFactor = (saoParams.blendFactor !== undefined) ? saoParams.blendFactor : 1.0;
   }
 
   /**
@@ -61,8 +56,8 @@ export class SAO extends Component {
    * Default value is [{@link constants!QualityRender | QualityRender}].
    */
   set renderModes(value: number[]) {
-    this.#state.renderModes = value;
-    this.view.redraw();
+    this._renderModes = value;
+    this.view.needsRender();
   }
 
   /**
@@ -73,7 +68,7 @@ export class SAO extends Component {
    * Default value is [{@link constants!QualityRender | QualityRender}].
    */
   get renderModes(): number[] {
-    return this.#state.renderModes;
+    return this._renderModes;
   }
 
   /**
@@ -82,7 +77,7 @@ export class SAO extends Component {
    * Even when enabled, SAO will only work if supported.
    */
   get supported(): boolean {
-    return this.view.viewer.renderer.getSAOSupported();
+    return false; //  this.view.viewer.renderer.getSAOSupported();
   }
 
   /**
@@ -110,7 +105,7 @@ export class SAO extends Component {
    * Default value is ````100.0````.
    */
   get kernelRadius(): number {
-    return this.#state.kernelRadius;
+    return this._kernelRadius;
   }
 
   /**
@@ -122,11 +117,11 @@ export class SAO extends Component {
     if (value === undefined || value === null) {
       value = 100.0;
     }
-    if (this.#state.kernelRadius === value) {
+    if (this._kernelRadius === value) {
       return;
     }
-    this.#state.kernelRadius = value;
-    this.view.redraw();
+    this._kernelRadius = value;
+    this.view.needsRender();
   }
 
   /**
@@ -135,7 +130,7 @@ export class SAO extends Component {
    * Default value is ````0.15````.
    */
   get intensity(): number {
-    return this.#state.intensity;
+    return this._intensity;
   }
 
   /**
@@ -147,11 +142,11 @@ export class SAO extends Component {
     if (value === undefined || value === null) {
       value = 0.15;
     }
-    if (this.#state.intensity === value) {
+    if (this._intensity === value) {
       return;
     }
-    this.#state.intensity = value;
-    this.view.redraw();
+    this._intensity = value;
+    this.view.needsRender();
   }
 
   /**
@@ -160,7 +155,7 @@ export class SAO extends Component {
    * Default value is ````0.5````.
    */
   get bias(): number {
-    return this.#state.bias;
+    return this._bias;
   }
 
   /**
@@ -172,11 +167,11 @@ export class SAO extends Component {
     if (value === undefined || value === null) {
       value = 0.5;
     }
-    if (this.#state.bias === value) {
+    if (this._bias === value) {
       return;
     }
-    this.#state.bias = value;
-    this.view.redraw();
+    this._bias = value;
+    this.view.needsRender();
   }
 
   /**
@@ -185,7 +180,7 @@ export class SAO extends Component {
    * Default value is ````1.0````.
    */
   get scale(): number {
-    return this.#state.scale;
+    return this._scale;
   }
 
   /**
@@ -197,11 +192,11 @@ export class SAO extends Component {
     if (value === undefined || value === null) {
       value = 1.0;
     }
-    if (this.#state.scale === value) {
+    if (this._scale === value) {
       return;
     }
-    this.#state.scale = value;
-    this.view.redraw();
+    this._scale = value;
+    this.view.needsRender();
   }
 
   /**
@@ -210,7 +205,7 @@ export class SAO extends Component {
    * Default value is ````0.0````.
    */
   get minResolution(): number {
-    return this.#state.minResolution;
+    return this._minResolution;
   }
 
   /**
@@ -222,11 +217,11 @@ export class SAO extends Component {
     if (value === undefined || value === null) {
       value = 0.0;
     }
-    if (this.#state.minResolution === value) {
+    if (this._minResolution === value) {
       return;
     }
-    this.#state.minResolution = value;
-    this.view.redraw();
+    this._minResolution = value;
+    this.view.needsRender();
   }
 
   /**
@@ -235,7 +230,7 @@ export class SAO extends Component {
    * Default value is ````10````.
    */
   get numSamples(): number {
-    return this.#state.numSamples;
+    return this._numSamples;
   }
 
   /**
@@ -249,11 +244,11 @@ export class SAO extends Component {
     if (value === undefined || value === null) {
       value = 10;
     }
-    if (this.#state.numSamples === value) {
+    if (this._numSamples === value) {
       return;
     }
-    this.#state.numSamples = value;
-    this.view.redraw();
+    this._numSamples = value;
+    this.view.needsRender();
   }
 
   /**
@@ -262,7 +257,7 @@ export class SAO extends Component {
    * Default value is ````true````.
    */
   get blur(): boolean {
-    return this.#state.blur;
+    return this._blur;
   }
 
   /**
@@ -272,11 +267,11 @@ export class SAO extends Component {
    */
   set blur(value: boolean) {
     value = (value !== false);
-    if (this.#state.blur === value) {
+    if (this._blur === value) {
       return;
     }
-    this.#state.blur = value;
-    this.view.redraw();
+    this._blur = value;
+    this.view.needsRender();
   }
 
   /**
@@ -287,7 +282,7 @@ export class SAO extends Component {
    * Normally you don't need to alter this.
    */
   get blendCutoff(): number {
-    return this.#state.blendCutoff;
+    return this._blendCutoff;
   }
 
   /**
@@ -301,11 +296,11 @@ export class SAO extends Component {
     if (value === undefined || value === null) {
       value = 0.3;
     }
-    if (this.#state.blendCutoff === value) {
+    if (this._blendCutoff === value) {
       return;
     }
-    this.#state.blendCutoff = value;
-    this.view.redraw();
+    this._blendCutoff = value;
+    this.view.needsRender();
   }
 
   /**
@@ -316,7 +311,7 @@ export class SAO extends Component {
    * Normally you don't need to alter this.
    */
   get blendFactor(): number {
-    return this.#state.blendFactor;
+    return this._blendFactor;
   }
 
   /**
@@ -330,11 +325,11 @@ export class SAO extends Component {
     if (value === undefined || value === null) {
       value = 1.0;
     }
-    if (this.#state.blendFactor === value) {
+    if (this._blendFactor === value) {
       return;
     }
-    this.#state.blendFactor = value;
-    this.view.redraw();
+    this._blendFactor = value;
+    this.view.needsRender();
   }
 
   /**
@@ -344,8 +339,8 @@ export class SAO extends Component {
    * in {@link SAO.renderModes | SAO.renderModes}.
    */
   get applied(): boolean {
-    for (let i = 0, len = this.#state.renderModes.length; i < len; i++) {
-      if (this.view.renderMode === this.#state.renderModes[i]) {
+    for (let i = 0, len = this._renderModes.length; i < len; i++) {
+      if (this.view.renderMode === this._renderModes[i]) {
         return true;
       }
     }
@@ -355,18 +350,21 @@ export class SAO extends Component {
   /**
    * Gets the current configuration of this SAO.
    */
-  toParams(): SAOParams {
+  toParams(): SDKResult<SAOParams> {
     return {
-      renderModes: this.renderModes,
-      intensity: this.intensity,
-      minResolution: this.minResolution,
-      blendFactor: this.blendFactor,
-      numSamples: this.numSamples,
-      bias: this.bias,
-      scale: this.scale,
-      blur: this.blur,
-      blendCutoff: this.blendCutoff,
-      kernelRadius: this.kernelRadius
+      ok: true,
+      value: {
+        renderModes: this.renderModes,
+        intensity: this.intensity,
+        minResolution: this.minResolution,
+        blendFactor: this.blendFactor,
+        numSamples: this.numSamples,
+        bias: this.bias,
+        scale: this.scale,
+        blur: this.blur,
+        blendCutoff: this.blendCutoff,
+        kernelRadius: this.kernelRadius
+      }
     };
   }
 
@@ -375,7 +373,14 @@ export class SAO extends Component {
    *
    * @param saoParams
    */
-  fromParams(saoParams: SAOParams) {
+  fromParams(saoParams: SAOParams): SDKResult<any> {
+    if (this._destroyed) {
+      return this.view.viewer.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[SAO.fromParams] SAO has been destroyed."
+      });
+    }
     this.renderModes = saoParams.renderModes;
     this.intensity = saoParams.intensity;
     this.minResolution = saoParams.minResolution;
@@ -386,12 +391,16 @@ export class SAO extends Component {
     this.blur = saoParams.blur;
     this.blendCutoff = saoParams.blendCutoff;
     this.kernelRadius = saoParams.kernelRadius;
+    return {
+      ok: true,
+      value: undefined
+    };
   }
 
   /**
    * @private
    */
   destroy() {
-    super.destroy();
+    this._destroyed = true;
   }
 }

@@ -17,7 +17,7 @@ Motivation:
 Configuration of project. 
 * strict type checking
 * linting from root of repository
-* app serve index.html as simple table of content (html-map.json created by vite plugin)
+* app serve tileIndex.html as simple table of content (html-map.json created by vite plugin)
 * examples (main.ts) shows how to use xeokit/sdk which is aliased in vite configuration (no need for rebuild sdk)
 * models in examples are references to external sources not relative reference `const model = "https://raw.githubusercontent.com/xeokit/sdk/refs/heads/develop/packages/website/models/BlenderHouse/dotbim/model.bim"`
   

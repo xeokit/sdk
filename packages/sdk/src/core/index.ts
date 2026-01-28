@@ -3,9 +3,6 @@
  *
  * # xeokit SDK Core Components
  *
- * * {@link core!Component | Component} base class
- * * Various interfaces that are implemented throughout the SDK.
- *
  * # Installation
  *
  * ````bash
@@ -15,7 +12,7 @@
  * # Usage
  *
  * ````javascript
- * import {Component, SDKError} from "@xeokit/sdk/core";
+ * import {SDKResult} from "@xeokit/sdk/core";
  *
  * //...
  * ````
@@ -23,10 +20,14 @@
  * @module core
  */
 
-export * from "./Component";
-export * from "./SDKError";
+export * from "./SDKTask";
+export * from "./SDKTaskRunner";
+export * from "./SDKResult";
+export * from "./SDKInternalException";
 export * from "./EventEmitter";
-export * from "./Capabilities";
 export * from "./TextureTranscoder";
 export * from "./TextureCompressedParams";
 export * from "./ModelChunksManifestParams";
+export * from "./SDKErrorType";
+export * from "./EventsLogger";
+

@@ -1,19 +1,16 @@
-import {addVec3, createVec3, negateVec3, subVec3} from "../matrix";
-import {IfcOpeningElement, IfcSpace} from "../ifctypes";
+import {addVec3, createVec3Float64, type Vec3, negateVec3, subVec3} from "../math/vector";
 import {OrthoProjectionType, PerspectiveProjectionType} from "../constants";
-import {BasicAggregation} from "../basictypes";
 import type {BCFComponent} from "./BCFComponent";
 import type {BCFVector} from "./BCFVector";
 import type {DataObject} from "../data";
-import type {FloatArrayParam} from "../math";
 import type {LoadBCFViewpointParams} from "./LoadBCFViewpointParams";
-import {PickResult, ViewObject} from "../viewer";
+import {ViewObject} from "../viewer";
 import {searchObjects} from "../data";
 
-const tempVec3 = createVec3();
-const tempVec3a = createVec3();
-const tempVec3b = createVec3();
-const tempVec3c = createVec3();
+const tempVec3 = createVec3Float64();
+const tempVec3a = createVec3Float64();
+const tempVec3b = createVec3Float64();
+const tempVec3c = createVec3Float64();
 
 /**
  * Loads a {@link BCFViewpoint | BCFViewpoint} into a {@link viewer!View | View}.
@@ -34,7 +31,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
   const rayCast = (!!params.rayCast);
   const reset = (params.reset !== false);
   //const realWorldOffset = scene.realWorldOffset;
-  const realWorldOffset = createVec3();
+  const realWorldOffset = createVec3Float64();
   const reverseClippingPlanes = (params.reverseClippingPlanes === true);
   const bcfViewpoint = params.bcfViewpoint;
 
@@ -52,7 +49,10 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
         pos = ZToY(pos);
         dir = ZToY(dir);
       }
-      view.createSectionPlane({pos, dir});
+      view.createSectionPlane({
+        pos,
+        dir
+      });
     });
   }
 
@@ -174,7 +174,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
           searchObjects(data, { // Updated aggregated IFC elements
             startObjectId: dataObject.id,
             includeStart: true,
-            includeRelated: [BasicAggregation],
+            includeRelated: ["BasicAggregation"],
             resultCallback: (dataObject: DataObject): boolean => {
               const viewObject = view.objects[dataObject.id];
               if (viewObject) {
@@ -203,7 +203,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
           searchObjects(data, {
             startObjectId: dataObject.id,
             includeStart: true,
-            includeRelated: [BasicAggregation],
+            includeRelated: ["BasicAggregation"],
             resultCallback: (dataObject: DataObject): boolean => {
               const viewObject = view.objects[dataObject.id];
               if (viewObject) {
@@ -257,12 +257,12 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
       const view_setup_hints = bcfViewpoint.components.visibility.view_setup_hints;
       if (view_setup_hints) {
         if (view_setup_hints.spaces_visible === false) { // Hide IfcSpaces
-          withViewObjectsOfType(IfcSpace, viewObject => {
+          withViewObjectsOfType("IfcSpace", viewObject => {
             viewObject.visible = false;
           });
         }
         if (view_setup_hints.spaces_translucent !== undefined) { // X-ray IfcSpaces
-          withViewObjectsOfType(IfcSpace, viewObject => {
+          withViewObjectsOfType("IfcSpace", viewObject => {
             viewObject.xrayed = true;
           });
         }
@@ -270,7 +270,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
           // TODO
         }
         if (view_setup_hints.openings_visible === false) { // Hide IfcOpeningElements
-          withViewObjectsOfType(IfcOpeningElement, viewObject => {
+          withViewObjectsOfType("IfcOpeningElement", viewObject => {
             viewObject.visible = false;
           });
         }
@@ -278,7 +278,7 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
           // TODO
         }
         if (view_setup_hints.openings_translucent !== undefined) { // X-ray IfcOpeningElements
-          withViewObjectsOfType(IfcOpeningElement, viewObject => {
+          withViewObjectsOfType("IfcOpeningElement", viewObject => {
             viewObject.xrayed = true;
           });
         }
@@ -356,16 +356,16 @@ export function loadBCFViewpoint(params: LoadBCFViewpointParams): void {
       look = ZToY(look);
       up = ZToY(up);
     }
-    if (rayCast) {
-      const hit = view.pick({
-        pickSurface: true, // <<------ This causes picking to find the intersection point on the viewObject
-        rayOrigin: eye,
-        rayDirection: look
-      });
-      look = (hit instanceof PickResult ? hit.worldPos : addVec3(eye, look, tempVec3));
-    } else {
+    // if (rayCast) {
+    //   const hit = view.pick({
+    //     pickSurface: true, // <<------ This causes picking to find the intersection point on the viewObject
+    //     rayOrigin: eye,
+    //     rayDirection: look
+    //   });
+    //   look = (hit instanceof PickResult ? hit.worldPos : addVec3(eye, look, tempVec3));
+    // } else {
       look = addVec3(eye, look, tempVec3);
-    }
+   // }
     camera.eye = eye;
     camera.look = look;
     camera.up = up;
@@ -378,13 +378,13 @@ function globalizeObjectId(modelId: string, objectId: string): string {
   return (modelId + "#" + objectId)
 }
 
-function xyzObjectToArray(xyz: BCFVector, arry: FloatArrayParam): FloatArrayParam {
+function xyzObjectToArray(xyz: BCFVector, arry: Vec3): Vec3 {
   arry[0] = xyz.x;
   arry[1] = xyz.y;
   arry[2] = xyz.z;
   return arry;
 }
 
-function ZToY(vec: FloatArrayParam): FloatArrayParam {
-  return new Float64Array([vec[0], vec[2], -vec[1]]);
+function ZToY(vec: Vec3): Vec3 {
+  return createVec3Float64([vec[0], vec[2], -vec[1]]);
 }

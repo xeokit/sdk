@@ -1,18 +1,28 @@
-import {type FloatArrayParam} from "../math";
+import type {Mat4} from "../math/matrix";
+import type { Vec2, Vec3} from "../math/vector";
 
 /**
- *
+ * Defines a projection for a {@link Camera | Camera}.
  */
 export interface Projection {
 
-  readonly projMatrix: FloatArrayParam;
-
-  readonly inverseProjMatrix: FloatArrayParam;
-
-  readonly transposedProjMatrix: FloatArrayParam;
+  /**
+   * The type of this projection.
+   */
+  readonly projMatrix: Mat4;
 
   /**
-   * Un-projects the given View-space coordinates, using this OrthoProjection projection.
+   * The inverse of the projection matrix.
+   */
+  readonly inverseProjMatrix: Mat4;
+
+  /**
+   * The transposed projection matrix.
+   */
+  readonly transposedProjMatrix: Mat4;
+
+  /**
+   * Un-projects 2D View-space coordinates to 3D Screen/Clip-space, View-space, and World-space coordinates.
    *
    * @param canvasPos Inputs 2D View-space coordinates.
    * @param screenZ Inputs Screen-space Z coordinate.
@@ -21,9 +31,9 @@ export interface Projection {
    * @param worldPos Outputs un-projected 3D World-space coordinates.
    */
   unproject(
-    canvasPos: FloatArrayParam,
+    canvasPos: Vec2,
     screenZ: number,
-    screenPos: FloatArrayParam,
-    viewPos: FloatArrayParam,
-    worldPos: FloatArrayParam): FloatArrayParam;
+    screenPos: Vec3,
+    viewPos: Vec3,
+    worldPos: Vec3): Vec3;
 }

@@ -1,2 +1,2 @@
 export {};
-//# sourceMappingURL=TileManager.js.map
+//# sourceMappingURL=GPUTileManager.js.map

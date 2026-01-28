@@ -36,7 +36,7 @@ class AmbientLight extends Component {
      */
     set color(color) {
         this.#state.color.set(color);
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the RGB color of this AmbientLight.
@@ -55,7 +55,7 @@ class AmbientLight extends Component {
      */
     set intensity(intensity) {
         this.#state.intensity = intensity !== undefined ? intensity : 1.0;
-        this.view.redraw();
+        this.view.needsRedraw();
     }
     /**
      * Gets the intensity of this AmbientLight.

@@ -1,4 +1,3 @@
-
 import type {ModelLoadParams} from "../ModelLoadParams";
 import {ModelLoader} from "../ModelLoader";
 import {DataModel} from "../../data";
@@ -38,15 +37,15 @@ function parseMetaModel(params: ModelLoadParams): Promise<void> {
       }
       const propertySet = dataModel.propertySets[propertySetData.id];
       if (!propertySet) {
-        dataModel.createPropertySet({
+        const result = dataModel.createPropertySet({
           id: propertySetData.id,
           type: propertySetData.type,
           name: propertySetData.name,
-
-          // FIXME: Properties not translated right here
-
           properties: propertySetData.properties
         });
+        if (result.ok ===false) {
+          return Promise.reject(`[MetaModelLoader.load]: Could not create PropertySet -> ${result.error}`);
+        }
       }
     }
   }
@@ -59,19 +58,25 @@ function parseMetaModel(params: ModelLoadParams): Promise<void> {
         const originalSystemId = metaObjectData.originalSystemId;
         const propertySetIds = metaObjectData.propertySets || metaObjectData.propertySetIds;
         const type = metaObjectData.type;
-        dataModel.createObject({
+        const result2 = dataModel.createObject({
           id,
           originalSystemId,
           type,
           name: metaObjectData.name,
           propertySetIds
         });
+        if (result2.ok===false) {
+          return Promise.reject(`[MetaModelLoader.load]: Could not create DataObject -> ${result2.error}`);
+        }
         if (metaObjectData.parent) {
-          dataModel.createRelationship({
+          const result3 = dataModel.createRelationship({
             relatingObjectId: metaObjectData.parent,
             relatedObjectId: id,
             type: "IfcRelAggregates"
-          })
+          });
+          if (result3.ok===false) {
+            return Promise.reject(`[MetaModelLoader.load]: Could not create Relationship -> ${result3.error}`);
+          }
         }
       }
     }

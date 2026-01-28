@@ -819,7 +819,7 @@ vec4 packUintToRGBA8(uint v) {
    * Generates vertex shader logic for Lambert shading.
    * @protected
    */
-  protected vsLambertShadingLogic() {
+  protected vsLambertShadingLogicOLD() {
     this._vertSrcBuf.push(
 
       // For triangles, get the three vertex positions for the triangle
@@ -875,6 +875,46 @@ vec4 packUintToRGBA8(uint v) {
 
     //  "    vColor = vec4(color.rgb, 1.0);");
      );
+  }
+
+  protected vsLambertShadingLogic() {
+    this._vertSrcBuf.push(
+      // Compute triangle vertex positions in view space
+      "    uint triIndex = geometryAttributes.indicesBase + primOffset * numVertsPerPrim;",
+      "    uint ia = getVertexIndex(triIndex + 0u);",
+      "    uint ib = getVertexIndex(triIndex + 1u);",
+      "    uint ic = getVertexIndex(triIndex + 2u);",
+      "    vec3 pa = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ia))), 1.0))).xyz;",
+      "    vec3 pb = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ib))), 1.0))).xyz;",
+      "    vec3 pc = vec4(viewMatrix * (modelMatrix * vec4( quantRange.offset + (quantRange.scale * vec3(getVertexPosition(ic))), 1.0))).xyz;",
+
+      // Ensure clockwise winding order: if normal faces away from +view Z, swap pb and pc
+      "    vec3 normal = normalize(cross(pc - pa, pb - pa));",
+      "    // Reference direction: +Z in view space (outward)",
+      "    float winding = dot(normal, vec3(0.0, 0.0, 1.0));",
+      "    if (winding < 0.0) {",
+      "        // Swap pb and pc to enforce clockwise winding",
+      "        vec3 tmp = pb;",
+      "        pb = pc;",
+      "        pc = tmp;",
+      "        normal = normalize(cross(pc - pa, pb - pa));",
+      "    }",
+
+      "    float lambertian = 1.0;",
+      "    vec3 reflectedColor = vec3(0.0, 0.0, 0.0);",
+      "    vec4 lightAmbient = vec4(0.3, 0.3, 0.3, 1.0);",
+      "    vec3 lightDir1 = normalize(vec3(0.0, 0.0, -1.0));",
+      "    vec4 lightColor1 = vec4(0.7, 0.7, 0.7, 1.0);",
+      "    vec3 lightDir2 = normalize(vec3(-1.0, -1.0, -1.0));",
+      "    vec4 lightColor2 = vec4(1.0, 1.0, 1.0, 0.5);",
+      "    vec3 lightDir3 = normalize(vec3(-1.0, 1.0, 1.0));",
+      "    vec4 lightColor3 = vec4(1.0, 1.0, 1.0, 0.2);",
+      "    lambertian = max( dot(normal, normalize(lightDir2)), 0.0);",
+      "    if (lambertian < 0.0) lambertian = lambertian * -1.0;",
+      "    reflectedColor += lambertian * (lightColor2.rgb * lightColor2.a);",
+      "    vec4 color = vec4(meshViewAttributes.color) /255.0;",
+      "    vColor =  vec4((lightAmbient.rgb * lightAmbient.a * color.rgb) + (reflectedColor * color.rgb), 1.0);"
+    );
   }
 
   /**

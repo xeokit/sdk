@@ -21,7 +21,7 @@ export const parse: ModelParser = async (params, options) => {
             positions: mesh.coordinates,
             indices: mesh.indices,
           });
-          if (!geometryRes.ok) {
+          if (geometryRes.ok=== false) {
            // Error is logged via Scene.events.onError
           }
         }
@@ -59,7 +59,7 @@ export const parse: ModelParser = async (params, options) => {
                 : undefined,
             position: [vector.x, vector.y, vector.z],
           });
-          if (!meshRes.ok) {
+          if (meshRes.ok===false) {
             // params.error(`[SceneModel.addMesh] -> ${meshRes.error}`);
             continue;
           }
@@ -68,7 +68,7 @@ export const parse: ModelParser = async (params, options) => {
             id: objectId,
             meshIds: [meshId],
           });
-          if (!sceneObjectRes.ok) {
+          if (sceneObjectRes.ok===false) {
             // Error is logged via Scene.events.onError
             continue;
           }

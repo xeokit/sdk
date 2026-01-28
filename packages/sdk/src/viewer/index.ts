@@ -498,8 +498,6 @@ export * from "./SectionPlane";
 export * from "./SectionPlaneParams";
 export * from "./SAO";
 export * from "./SAOParams";
-export * from "./PickParams";
-export * from "./PickResult";
 export * from "./ViewLayerParams";
 export * from "./ResolutionScale";
 export * from "./ResolutionScaleParams";

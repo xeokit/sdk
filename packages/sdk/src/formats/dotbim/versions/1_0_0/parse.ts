@@ -61,7 +61,7 @@ export const parse: ModelParser = async (params, options) => {
             position: [vector.x, vector.y, vector.z],
           });
 
-          if (!meshRes.ok) {
+          if (meshRes.ok===false) {
             return reject(`[DotBIMLoader.load] Failed to create scene mesh -> ${meshRes.error}`);
           }
 
@@ -70,7 +70,7 @@ export const parse: ModelParser = async (params, options) => {
             meshIds: [meshId],
           });
 
-          if (!sceneObjectRes.ok) {
+          if (sceneObjectRes.ok===false) {
             return reject(`[DotBIMLoader.load] Failed to create scene object -> ${sceneObjectRes.error}`);
           }
         }
@@ -85,7 +85,7 @@ export const parse: ModelParser = async (params, options) => {
               description: info?.Description,
             });
 
-            if (!dataObjectRes.ok) {
+            if (dataObjectRes.ok===false) {
               return reject(`[DotBIMLoader.load] Failed to create data object -> ${dataObjectRes.error}`);
             }
           }

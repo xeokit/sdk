@@ -24,17 +24,17 @@ export function loadXKTManifest(params: {
   return new Promise<void>((resolve, reject) => {
 
     if (!params) {
-      return reject("Argument expected: params");
+      return reject("[loadXKTManifest] Argument expected: params");
     }
 
     const sceneModel = params.sceneModel;
     if (!sceneModel) {
-      return reject("Parameter expected: sceneModel");
+      return reject("[loadXKTManifest] Parameter expected: sceneModel");
     }
 
     const dataModel = params.dataModel;
     if (!params.manifest && !params.src) {
-      return reject("Parameter expected: manifest or src");
+      return reject("[loadXKTManifest] Parameter expected: manifest or src");
     }
 
     const metaModelReader = new MetaModelLoader();
@@ -68,7 +68,7 @@ export function loadXKTManifest(params: {
                       i++;
                       loadNextXKT();
                     }).catch((error) => {
-                      reject(`Error loading XKT file -> ${error}`);
+                      reject(`[loadXKTManifest] Error loading XKT file -> ${error}`);
                     })
                   });
                 });
@@ -94,7 +94,7 @@ export function loadXKTManifest(params: {
                       i++;
                       loadNextMetaModelFile();
                     }).catch((error) => {
-                      reject(`Error loading XKT metadata file -> ${error}`);
+                      reject(`[loadXKTManifest] Error loading XKT metadata file -> ${error}`);
                     })
                   });
                 });

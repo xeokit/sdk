@@ -8,7 +8,7 @@ import {
   transformVec4
 } from "../../../math/matrix";
 import {
-  addVec3,  createVec2Float64, createVec3Float64, createVec4Float64,
+  addVec3, createVec2Float64, createVec3Float64, createVec4Float64,
   cross3Vec3, dotVec4,
   mulVec4Scalar,
   normalizeVec3, subVec3
@@ -25,6 +25,7 @@ import {ViewManager} from "../ViewManager";
 import {GPUMemoryManager} from "../gpuMemoryManager/GPUMemoryManager";
 import {getDrawOps, DrawOps, putDrawOps} from "../drawOps/DrawOps";
 import {SceneMesh} from "../../../scene";
+import {RENDER_PASSES} from "../RENDER_PASSES";
 
 const tempVec3a = createVec3Float64();
 const tempVec3b = createVec3Float64();
@@ -62,7 +63,7 @@ export class PickManager {
   private _renderContext: RenderContext;
   private _gpuMemoryManager: GPUMemoryManager;
   private _meshBatchManager: MeshManager;
-  private _drawOps: DrawOps;
+  private _drawOps: DrawOps = null;
 
 
   constructor(cfg: {
@@ -73,159 +74,155 @@ export class PickManager {
     this._gpuMemoryManager = cfg.gpuMemoryManager;
     this._meshBatchManager = cfg.meshManager;
     this._renderContext = cfg.renderContext;
-   // this._drawOps = getDrawOps(this._renderContext, this._gpuMemoryManager as GPUMemoryReader);
     this._pickResult = new PickResult();
   }
 
   /**
    *
    */
-  init() : SDKResult<void>{
+  init(): SDKResult<void> {
     const drawOpsResult = getDrawOps(this._renderContext, this._gpuMemoryManager as GPUMemoryReader);
     if (drawOpsResult.ok === false) {
       return drawOpsResult;
     }
+    this._drawOps = drawOpsResult.value;
     return {ok: true, value: undefined};
   }
 
-  webglContextRestored() : SDKResult<void> {
-    return this._drawOps
-      ? this._drawOps.webglContextRestored()
-      : {
-        ok: true,
-        value: undefined
-      };
+  webglContextRestored(): SDKResult<void> {
+    return this._drawOps ? this._drawOps.webglContextRestored() : {ok: true, value: undefined};
   }
 
   /**
-   * Picks a {@link ViewObject} and/or a 3D position on its surface, given either canvas coordinates or a World-space ray.
+   * Picks a {@link ViewObject} and/or a 3D position on its surface,
+   * given either canvas coordinates or a World-space ray.
    */
-  pick( rendererView: ViewRenderState,
-        pickParams: PickParams,
-        pickResult = this._pickResult ): boolean{
-return;
-    // if (!this._renderContext) {
-    //   throw new SDKInternalException("Can't pick object with WebGLRenderer - no Viewer and View is attached");
-    // }
-    //
-    // const view = rendererView.view;
-    // const camera = view.camera;
-    //
-    // pickResult.reset();
-    //
-    // pickResult.view = view;
-    //
-    // const {
-    //   pickCanvasPos,
-    //   pickViewMatrix,
-    //   pickProjMatrix,
-    //   pickWorldRayOrigin,
-    //   pickWorldRayDir
-    // } = pickTemps;
-    //
-    // let rayPick = false;
-    //
-    // if (pickParams.canvasPos) {
-    //
-    //   // @ts-ignore
-    //   pickCanvasPos.set(pickParams.canvasPos);
-    //   // @ts-ignore
-    //   pickViewMatrix.set(camera.viewMatrix);
-    //   // @ts-ignore
-    //   pickProjMatrix.set(camera.projMatrix);
-    //
-    //   pickResult.canvasPos = pickParams.canvasPos;
-    //
-    // } else {
-    //
-    //   // Picking with arbitrary World-space ray
-    //   // Align camera along ray and fire ray through center of canvas
-    //
-    //     rayPick = true;
-    //
-    //   pickCanvasPos[0] = view.htmlElement.clientWidth * 0.5;
-    //   pickCanvasPos[1] = view.htmlElement.clientHeight * 0.5;
-    //
-    //   if (pickParams.rayMatrix) {
-    //
-    //     // Ray defined as matrix
-    //
-    //     this._gpuMemoryManager.setViewPickMatrix(view, pickParams.rayMatrix);
-    //
-    //     // @ts-ignore
-    //     pickViewMatrix.set(pickParams.rayMatrix);
-    //     // @ts-ignore
-    //     pickProjMatrix.set(camera.orthoProjection.projMatrix);
-    //
-    //   } else {
-    //
-    //     // Ray defined as origin and direction
-    //
-    //     // @ts-ignore
-    //     pickWorldRayOrigin.set(pickParams.rayOrigin || [0, 0, 0]);
-    //     // @ts-ignore
-    //     pickWorldRayDir.set(pickParams.rayDirection || [0, 1, 0]);
-    //
-    //     const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a);
-    //
-    //     tempVec3b[0] = Math.random();
-    //     tempVec3b[1] = Math.random();
-    //     tempVec3b[2] = Math.random();
-    //     normalizeVec3(tempVec3b);
-    //     cross3Vec3(pickWorldRayDir, tempVec3b, tempVec3c);
-    //     const rayMatrix = lookAtMat4v(pickWorldRayOrigin, look, tempVec3c, tempMat4b);
-    //
-    //     this._gpuMemoryManager.setViewPickMatrix(view, rayMatrix);
-    //
-    //     // @ts-ignore
-    //     pickViewMatrix.set(rayMatrix);
-    //     // @ts-ignore
-    //     pickProjMatrix.set(camera.orthoProjection.projMatrix);
-    //
-    //     pickResult.origin = pickWorldRayOrigin;
-    //     pickResult.direction = pickWorldRayDir;
-    //   }
-    // }
-    //
-    // if (pickParams.pickViewObject || pickParams.pickSurface) {
-    //
-    //   const pickMeshResult = this._pickMesh({
-    //     rendererView,
-    //     rayPick,
-    //     pickCanvasPos,
-    //     pickViewMatrix,
-    //     pickProjMatrix,
-    //     pickInvisible: !!pickParams.pickInvisible
-    //   });
-    //
-    //   if (!pickMeshResult) {
-    //     return false;
-    //   }
-    //
-    //   pickResult.sceneMesh = pickMeshResult.sceneMesh;
-    //
-    //   if (pickParams.pickSurface) {
-    //
-    //     const worldPos = this._pickWorldPos({
-    //       rendererView,
-    //       meshIndex: pickMeshResult.meshIndex,
-    //       batchIndex: pickMeshResult.batchIndex,
-    //       sceneMesh: pickMeshResult.sceneMesh,
-    //       pickCanvasPos,
-    //       pickViewMatrix,
-    //       pickProjMatrix,
-    //       pickInvisible: pickParams.pickInvisible
-    //     });
-    //
-    //     if (!worldPos) {
-    //       return false
-    //     }
-    //
-    //       pickResult.worldPos = worldPos;
-    //   }
-    // }
+  pick(rendererView: ViewRenderState, pickParams: PickParams): SDKResult<PickResult> {
 
-    return true; // All requested pick info obtained
+    if (!this._drawOps) {
+      throw new SDKInternalException("[PickManager.pick] PickManager not initialized");
+    }
+
+    const view = rendererView.view;
+    const camera = view.camera;
+
+    const pickResult = this._pickResult;
+    pickResult.reset();
+    pickResult.view = view;
+
+    const {
+      pickCanvasPos,
+      pickViewMatrix,
+      pickProjMatrix,
+      pickWorldRayOrigin,
+      pickWorldRayDir
+    } = pickTemps;
+
+    let rayPick = false;
+
+    if (pickParams.canvasPos) {
+
+      // Picking at canvas coordinates
+
+      // @ts-ignore
+      pickCanvasPos.set(pickParams.canvasPos);
+      // @ts-ignore
+      pickViewMatrix.set(camera.viewMatrix);
+      // @ts-ignore
+      pickProjMatrix.set(camera.projMatrix);
+
+      pickResult.canvasPos = pickParams.canvasPos;
+
+    } else {
+
+      // Picking with arbitrary World-space ray
+      // Align camera along ray and fire ray through center of canvas
+
+        rayPick = true;
+
+      pickCanvasPos[0] = view.htmlElement.clientWidth * 0.5;
+      pickCanvasPos[1] = view.htmlElement.clientHeight * 0.5;
+
+      if (pickParams.rayMatrix) {
+
+        // Ray defined as matrix
+
+        this._gpuMemoryManager.setViewPickMatrix(view, pickParams.rayMatrix);
+
+        // @ts-ignore
+        pickViewMatrix.set(pickParams.rayMatrix);
+        // @ts-ignore
+        pickProjMatrix.set(camera.orthoProjection.projMatrix);
+
+      } else {
+
+        // Ray defined as origin and direction
+
+        // @ts-ignore
+        pickWorldRayOrigin.set(pickParams.rayOrigin || [0, 0, 0]);
+        // @ts-ignore
+        pickWorldRayDir.set(pickParams.rayDirection || [0, 1, 0]);
+
+        const look = addVec3(pickWorldRayOrigin, pickWorldRayDir, tempVec3a);
+
+        tempVec3b[0] = Math.random();
+        tempVec3b[1] = Math.random();
+        tempVec3b[2] = Math.random();
+        normalizeVec3(tempVec3b);
+        cross3Vec3(pickWorldRayDir, tempVec3b, tempVec3c);
+        const rayMatrix = lookAtMat4v(pickWorldRayOrigin, look, tempVec3c, tempMat4b);
+
+        this._gpuMemoryManager.setViewPickMatrix(view, rayMatrix);
+
+        // @ts-ignore
+        pickViewMatrix.set(rayMatrix);
+        // @ts-ignore
+        pickProjMatrix.set(camera.orthoProjection.projMatrix);
+
+        pickResult.origin = pickWorldRayOrigin;
+        pickResult.direction = pickWorldRayDir;
+      }
+    }
+
+    if (pickParams.pickViewObject || pickParams.pickSurface) {
+
+      const pickMeshResult = this._pickMesh({
+        rendererView,
+        rayPick,
+        pickCanvasPos,
+        pickViewMatrix,
+        pickProjMatrix,
+        pickInvisible: !!pickParams.pickInvisible
+      });
+
+      if (!pickMeshResult) {
+        return { ok: true, value: null };
+      }
+
+      pickResult.sceneMesh = pickMeshResult.sceneMesh;
+
+      // if (pickParams.pickSurface) {
+      //
+      //   const worldPos = this._pickWorldPos({
+      //     rendererView,
+      //     meshIndex: pickMeshResult.meshIndex,
+      //     batchIndex: pickMeshResult.batchIndex,
+      //     sceneMesh: pickMeshResult.sceneMesh,
+      //     pickCanvasPos,
+      //     pickViewMatrix,
+      //     pickProjMatrix,
+      //     pickInvisible: pickParams.pickInvisible
+      //   });
+      //
+      //   if (!worldPos) {
+      //     return false
+      //   }
+      //
+      //     pickResult.worldPos = worldPos;
+      // }
+    }
+
+    return { ok: true, value: pickResult };
   };
 
   _pickMesh(
@@ -236,13 +233,33 @@ return;
       pickViewMatrix?: FloatArrayParam,
       pickProjMatrix: FloatArrayParam,
       pickInvisible: boolean
-    } ): { meshIndex: number; batchIndex: number; sceneMesh: SceneMesh } |null {
+    }
+  ): {
+    meshIndex: number;
+    batchIndex: number;
+    sceneMesh: SceneMesh;
+  } | null {
 
-    const {rendererView, rayPick, pickCanvasPos, pickProjMatrix, pickViewMatrix, pickInvisible} = params;
+    if (!this._drawOps) {
+      throw new SDKInternalException("[PickManager.pick] PickManager not initialized");
+    }
+
+    const {
+      rendererView,
+      rayPick,
+      pickCanvasPos,
+      pickProjMatrix,
+      pickViewMatrix,
+      pickInvisible
+    } = params;
+
+    // Validate required objects
+    if (!rendererView || !pickCanvasPos || !pickViewMatrix || !pickProjMatrix) {
+      return null;
+    }
 
     const view = rendererView.view;
     const viewIndex = view.viewIndex;
-    const boundingRect = rendererView.view.htmlElement.getBoundingClientRect();
     const resolutionScale = view.resolutionScale;
     const renderContext = this._renderContext;
     const gl = renderContext.gl;
@@ -250,13 +267,17 @@ return;
       depthTexture: false,
       size: [1, 1]
     });
+
+    // Bind and clear pick buffer
     pickBuffer.bind();
     pickBuffer.clear();
+
+    // Set up render context for picking
     renderContext.reset();
     renderContext.activeView = view;
     renderContext.rayPicking = rayPick;
     renderContext.backfaces = true;
-    renderContext.frontface = true; // "ccw"
+    renderContext.frontface = true;
     renderContext.pickViewMatrix = pickViewMatrix;
     renderContext.pickProjMatrix = pickProjMatrix;
     renderContext.pickInvisible = !!pickInvisible;
@@ -265,6 +286,7 @@ return;
       this._getClipPosY(pickCanvasPos[1] * resolutionScale.resolutionScale, gl.drawingBufferHeight)
     ];
 
+    // Set WebGL state for picking
     gl.viewport(0, 0, 1, 1);
     gl.depthMask(true);
     gl.enable(gl.DEPTH_TEST);
@@ -272,63 +294,51 @@ return;
     gl.disable(gl.BLEND);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    const batches = this._meshBatchManager.sortedBatches; // Batches are sorted by prim type
-    for (let i = 0, len = batches.length; i < len; i++) {
-      const batch = batches[i];
-      // const meshCounts = batch.meshCounts[viewIndex];
-      // if (meshCounts.numVisible === 0 ||
-      //     meshCounts.numCulled === meshCounts.numMeshes ||
-      //     meshCounts.numPickable ===0
-      // ) {
-      //   continue;
-      // }
-      this._drawOps.prims[batch.primitive]?.pick?.drawBatch(batch);
+    // Draw all mesh batches that are pickable in this view
+    const meshBatches = this._meshBatchManager.sortedBatches;
+    for (let i = 0, len = meshBatches.length; i < len; i++) {
+      const meshBatch = meshBatches[i];
+      if (meshBatch.hasMeshesInRenderPass(viewIndex, RENDER_PASSES.PICK)) {
+        this._drawOps[meshBatch.primitive]?.pick?.drawBatch(meshBatch);
+      }
     }
 
+    // Read pick result
     const pix = pickBuffer.read(0, 0);
-    const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
     pickBuffer.unbind();
 
+    if (!pix || pix.length < 4) {
+      return null;
+    }
+
+    const pickID = pix[0] + (pix[1] << 8) + (pix[2] << 16) + (pix[3] << 24);
     if (pickID < 0) {
       return null;
     }
 
-    const result = this._extract16BitParts(pickID);
+    const unsignedPickId = pickID >>> 0;
+    const batchIndex = (unsignedPickId >>> 16) & 0xFFFF;
+    const meshIndex = unsignedPickId & 0xFFFF;
 
-    const sceneMesh = this._meshBatchManager.getMeshAtIndex(result.batchIndex,result.meshIndex);
-
-    return sceneMesh
-        ? {sceneMesh,
-          batchIndex: result.batchIndex,
-          meshIndex: result.meshIndex
+    const sceneMesh = this._meshBatchManager.getMeshAtIndex(batchIndex, meshIndex);
+    if (!sceneMesh) {
+      return null;
     }
-        : null;
+
+    return { sceneMesh, batchIndex, meshIndex };
   }
 
-  _extract16BitParts(unsignedInt) {
-    // Ensure input is treated as an unsigned 32-bit integer
-    unsignedInt = unsignedInt >>> 0;
-    // Extract high 16 bits by shifting right
-    const high16 = (unsignedInt >>> 16) & 0xFFFF;
-    // Extract low 16 bits by masking
-    const low16 = unsignedInt & 0xFFFF;
-    return {
-      batchIndex: high16,
-      meshIndex: low16
-    };
-  }
-
-  _pickWorldPos(
+  private _pickWorldPos(
     params: {
       rendererView: ViewRenderState,
       sceneMesh: SceneMesh,
-        batchIndex: number,
-        meshIndex: number,
+      batchIndex: number,
+      meshIndex: number,
       pickCanvasPos: FloatArrayParam,
       pickViewMatrix: FloatArrayParam,
       pickProjMatrix: FloatArrayParam,
       pickInvisible: boolean
-    } ): FloatArrayParam|null {
+    }): FloatArrayParam | null {
     return null;
     //
     // const {rendererView, batchIndex, meshIndex, sceneMesh, pickCanvasPos, pickProjMatrix, pickViewMatrix} = params;
@@ -411,17 +421,17 @@ return;
     // return worldPos;
   }
 
-  _unpackDepth( depthZ ) {
+  _unpackDepth(depthZ) {
     const vec = createVec4Float64([depthZ[0] / 256.0, depthZ[1] / 256.0, depthZ[2] / 256.0, depthZ[3] / 256.0]);
     const bitShift = createVec4Float64([1.0 / (256.0 * 256.0 * 256.0), 1.0 / (256.0 * 256.0), 1.0 / 256.0, 1.0]);
     return 1.0 - dotVec4(vec, bitShift);
   }
 
-  _getClipPosX( pos: number, size: number ) {
+  _getClipPosX(pos: number, size: number) {
     return 2 * (pos / size) - 1;
   }
 
-  _getClipPosY( pos: number, size: number ) {
+  _getClipPosY(pos: number, size: number) {
     return 1 - 2 * (pos / size);
   }
 

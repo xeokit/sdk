@@ -33,6 +33,8 @@ export const parse: ModelParser = async (
     if (sceneModel || dataModel) {
       const ctx = {
         fileData,
+        errors: [],
+        warnings: [],
         vertices: (fileData.transform && sceneModel)
           ? transformVertices(fileData.vertices, fileData.transform)
           : fileData.vertices,
@@ -41,9 +43,13 @@ export const parse: ModelParser = async (
         nextId: 0,
         options: options || {}
       };
-      parseCityJSON(ctx);
+      if (!parseCityJSON(ctx)) {
+        return reject(
+          ctx.errors.length > 0
+            ? `[CityJSONLoader] Failed to parse CityJSON file:${ctx.errors[0]}`
+            : `[CityJSONLoader] Failed to parse CityJSON file: Unknown error`);
+      }
     }
-
     resolve();
   });
 };
@@ -62,32 +68,42 @@ function transformVertices(vertices: any, transform: any) {
   return transformedVertices;
 }
 
-function parseCityJSON(ctx: any) {
+function parseCityJSON(ctx: any): boolean {
   const fileData = ctx.fileData;
   const cityObjects = fileData.CityObjects;
   for (const objectId in cityObjects) {
-    parseCityObject(ctx, cityObjects[objectId], objectId);
+    if (!parseCityObject(ctx, cityObjects[objectId], objectId)) {
+      return false;
+    }
   }
   if (ctx.dataModel) {
     for (const objectId in cityObjects) {
-      parseRelationship(ctx, cityObjects[objectId], objectId);
+      if (!parseRelationship(ctx, cityObjects[objectId], objectId)) {
+        return false;
+      }
     }
   }
+  return true;
 }
 
-function parseCityObject(ctx: any, cityObject: any, objectId: any) {
+function parseCityObject(ctx: any, cityObject: any, objectId: any): boolean {
   if (ctx.dataModel) {
-    ctx.dataModel.createObject({
+    const result = ctx.dataModel.createObject({
       id: objectId,
       name: cityObject.type + " : " + objectId,
       type: cityObject.type,
       schema: SCHEMA,
       parent: cityObject.parents ? cityObject.parents[0] : null
     });
+    if (!result.ok) {
+      ctx.errors.push(`[CityJSONLoader] Failed to create data object for CityJSON object ${objectId} -> ${result.error}`);
+      return false;
+    }
   }
   if (ctx.sceneModel) {
     if (!(cityObject.geometry && cityObject.geometry.length > 0)) {
-      return;
+      ctx.warnings.push(`[CityJSONLoader] CityJSON object ${objectId} has no geometry`);
+      return true;
     }
     const meshIds: string | any[] = [];
     for (let i = 0, len = cityObject.geometry.length; i < len; i++) {
@@ -122,32 +138,46 @@ function parseCityObject(ctx: any, cityObject: any, objectId: any) {
         }
       }
       if (surfaceMaterials) {
-        parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, meshIds);
+        if (!parseGeometrySurfacesWithOwnMaterials(ctx, geometry, surfaceMaterials, meshIds)) {
+          return false;
+        }
       } else {
-        parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, meshIds);
+        if (!parseGeometrySurfacesWithSharedMaterial(ctx, geometry, objectMaterial, meshIds)) {
+          return false;
+        }
       }
     }
     if (meshIds.length > 0) {
-      ctx.sceneModel.createObject({
+      const result = ctx.sceneModel.createObject({
         id: objectId,
         schema: SCHEMA,
         meshIds: meshIds
       });
+      if (!result.ok) {
+        ctx.errors.push(`[CityJSONLoader] Failed to create scene object for CityJSON object ${objectId} -> ${result.error}`);
+        return false;
+      }
     }
   }
+  return true;
 }
 
-function parseRelationship(ctx: any, cityObject: any, objectId: any) {
+function parseRelationship(ctx: any, cityObject: any, objectId: any): boolean {
   if (cityObject.parents) {
-    ctx.dataModel.createRelationship({
+    const result = ctx.dataModel.createRelationship({
       relatingObjectId: cityObject.parents[0],
       relatedObjectId: objectId,
       type: "BasicAggregation"
     });
+    if (!result.ok) {
+      ctx.errors.push(`[CityJSONLoader] Failed to create relationship for CityJSON object ${objectId} -> ${result.error}`);
+      return false;
+    }
   }
+  return true;
 }
 
-function parseGeometrySurfacesWithOwnMaterials(ctx: any, geometry: any, surfaceMaterials: any, meshIds: any) {
+function parseGeometrySurfacesWithOwnMaterials(ctx: any, geometry: any, surfaceMaterials: any, meshIds: any): boolean {
   const geomType = geometry.type;
   switch (geomType) {
     case "MultiPoint":
@@ -157,13 +187,12 @@ function parseGeometrySurfacesWithOwnMaterials(ctx: any, geometry: any, surfaceM
     case "MultiSurface":
     case "CompositeSurface":
       const surfaces = geometry.boundaries;
-      parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds);
-      break;
+      return parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds);
     case "Solid":
       const shells = geometry.boundaries;
       for (let j = 0; j < shells.length; j++) {
         const surfaces = shells[j];
-        parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds);
+        return parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds);
       }
       break;
     case "MultiSolid":
@@ -172,16 +201,17 @@ function parseGeometrySurfacesWithOwnMaterials(ctx: any, geometry: any, surfaceM
       for (let j = 0; j < solids.length; j++) {
         for (let k = 0; k < solids[j].length; k++) {
           const surfaces = solids[j][k];
-          parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds);
+          return parseSurfacesWithOwnMaterials(ctx, surfaceMaterials, surfaces, meshIds);
         }
       }
       break;
     case "GeometryInstance":
       break;
   }
+  return true;
 }
 
-function parseSurfacesWithOwnMaterials(ctx: any, surfaceMaterials: any, surfaces: any, meshIds: any) {
+function parseSurfacesWithOwnMaterials(ctx: any, surfaceMaterials: any, surfaces: any, meshIds: any): boolean {
   const vertices = ctx.vertices;
   const sceneModel = ctx.sceneModel;
   for (let i = 0; i < surfaces.length; i++) {
@@ -233,24 +263,33 @@ function parseSurfacesWithOwnMaterials(ctx: any, surfaceMaterials: any, surfaces
       }
     }
     const geometryId = "" + ctx.nextId++;
-    sceneModel.createGeometry({
+    const result = sceneModel.createGeometry({
       id: geometryId,
       primitive: TrianglesPrimitive,
       positions: geometryCfg.positions,
       indices: geometryCfg.indices
     });
+    if (!result.ok) {
+      ctx.errors.push(`[CityJSONLoader] Failed to create geometry for CityJSON surface -> ${result.error}`);
+      return false;
+    }
     const meshId = "" + ctx.nextId++;
-    sceneModel.createMesh({
+    const result2 = sceneModel.createMesh({
       id: meshId,
       geometryId,
       color: (surfaceMaterial && surfaceMaterial.diffuseColor) ? surfaceMaterial.diffuseColor : [0.8, 0.8, 0.8],
       opacity: (surfaceMaterial && surfaceMaterial.transparency !== undefined) ? (1.0 - surfaceMaterial.transparency) : 1.0
     });
+    if (!result2.ok) {
+      ctx.errors.push(`[CityJSONLoader] Failed to create mesh for CityJSON surface -> ${result2.error}`);
+      return false;
+    }
     meshIds.push(meshId);
   }
+  return true;
 }
 
-function parseGeometrySurfacesWithSharedMaterial(ctx: any, geometry: any, objectMaterial: any, meshIds: any) {
+function parseGeometrySurfacesWithSharedMaterial(ctx: any, geometry: any, objectMaterial: any, meshIds: any): boolean {
   const sceneModel = ctx.sceneModel;
   const sharedIndices: any = [];
   const geometryCfg: any = {
@@ -266,13 +305,17 @@ function parseGeometrySurfacesWithSharedMaterial(ctx: any, geometry: any, object
     case "MultiSurface":
     case "CompositeSurface":
       const surfaces = geometry.boundaries;
-      parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, geometryCfg);
+      if (!parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, geometryCfg)) {
+        return false;
+      }
       break;
     case "Solid":
       const shells = geometry.boundaries;
       for (let j = 0; j < shells.length; j++) {
         const surfaces = shells[j];
-        parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, geometryCfg);
+        if (!parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, geometryCfg)) {
+          return false;
+        }
       }
       break;
     case "MultiSolid":
@@ -281,7 +324,9 @@ function parseGeometrySurfacesWithSharedMaterial(ctx: any, geometry: any, object
       for (let j = 0; j < solids.length; j++) {
         for (let k = 0; k < solids[j].length; k++) {
           const surfaces = solids[j][k];
-          parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, geometryCfg);
+          if (!parseSurfacesWithSharedMaterial(ctx, surfaces, sharedIndices, geometryCfg)) {
+            return false;
+          }
         }
       }
       break;
@@ -290,24 +335,33 @@ function parseGeometrySurfacesWithSharedMaterial(ctx: any, geometry: any, object
   }
   if (geometryCfg.positions.length > 0 && geometryCfg.indices.length > 0) {
     const geometryId = "" + ctx.nextId++;
-    sceneModel.createGeometry({
+    const geometryResult = sceneModel.createGeometry({
       id: geometryId,
       primitive: TrianglesPrimitive,
       positions: geometryCfg.positions,
       indices: geometryCfg.indices
     });
+    if (!geometryResult.ok) {
+      ctx.errors.push(`[CityJSONLoader] Failed to create geometry for CityJSON object -> ${geometryResult.error}`);
+      return false;
+    }
     const meshId = "" + ctx.nextId++;
-    sceneModel.createMesh({
+    const meshResult = sceneModel.createMesh({
       id: meshId,
       geometryId,
       color: (objectMaterial && objectMaterial.diffuseColor) ? objectMaterial.diffuseColor : [0.8, 0.8, 0.8],
       opacity: 1.0
     });
+    if (!meshResult.ok) {
+      ctx.errors.push(`[CityJSONLoader] Failed to create mesh for CityJSON object -> ${meshResult.error}`);
+      return false;
+    }
     meshIds.push(meshId);
   }
+  return true;
 }
 
-function parseSurfacesWithSharedMaterial(ctx: any, surfaces: any, sharedIndices: any, primitiveCfg: any) {
+function parseSurfacesWithSharedMaterial(ctx: any, surfaces: any, sharedIndices: any, primitiveCfg: any): boolean {
   const vertices = ctx.vertices;
   for (let i = 0; i < surfaces.length; i++) {
     const boundary = [];
@@ -347,6 +401,7 @@ function parseSurfacesWithSharedMaterial(ctx: any, surfaces: any, sharedIndices:
       }
     }
   }
+  return true;
 }
 
 function extractLocalIndices(ctx: any, boundary: any, sharedIndices: any, geometryCfg: any) {

@@ -162,4 +162,7 @@ export * from "./MemoryConfigs";
 export * from "./createMemoryConfigs";
 export * from "./MemoryUsage";
 
+export * from "./PickParams";
+export * from "./PickResult";
+
 export * as internal from "./internal";

@@ -11,8 +11,10 @@ import {type MemoryUsage} from "./MemoryUsage";
 import {type MemoryView} from "./internal/MemoryView";
 import {type DataTextures} from "./viewManager/gpuMemoryManager/DataTextures";
 import {SceneGeometry, SceneMesh} from "../scene";
-import {View} from "../viewer";
+import { View} from "../viewer";
 import {ShaderView} from "./internal";
+import {type PickParams} from "./PickParams";
+import {type PickResult} from "./PickResult";
 
 /**
  * WebGL renderer backing a {@link Viewer}.
@@ -440,7 +442,7 @@ export class WebGLRenderer {
       // Log errors from these calls
 
       viewerEvents.onViewCreated.subscribe((_, view) => this.logError(viewManager.viewCreated(view))),
-      viewerEvents.onViewUpdated.subscribe((_, view) => this.logError(viewManager.viewUpdated(view))),
+      viewerEvents.onViewUpdated.subscribe((_, view) => this.logError(viewManager.viewUpdated(view))), // View ready to re-render
       viewerEvents.onViewDestroyed.subscribe((_, view) => this.logError(viewManager.viewDestroyed(view))),
 
       // SceneMesh and SceneTransform state changes
@@ -512,6 +514,44 @@ export class WebGLRenderer {
    */
   public get rendering(): boolean {
     return !!this._viewManager;
+  }
+
+  /**
+   * Performs a GPU-accelerated pick operation in the specified {@link View}.
+   *
+   * This method queries the renderer to identify the {@link ViewObject} (and optionally the 3D surface position)
+   * at a given canvas coordinate or along a specified world-space ray. Picking is performed using the renderer's
+   * internal GPU resources and shaders.
+   *
+   * @param view The {@link View} in which to perform the pick. Must belong to the currently attached {@link Viewer}.
+   * @param pickParams Parameters specifying the pick mode and target (canvas coordinates or world-space ray).
+   * @returns An {@link SDKResult} containing the {@link PickResult} on success, or an error result on failure.
+   *
+   * @remarks
+   * - Returns an error if no Viewer with an attached Scene is present, or if the View does not belong to the attached Viewer.
+   * - The returned {@link PickResult} is a transient, renderer-owned instance. Its contents are valid only until the next pick operation.
+   *   Do not modify or retain the result.
+   */
+  public pick(view: View, pickParams: PickParams): SDKResult<PickResult> {
+
+    // TODO: Define abstract picking interface, ie. new MyControlThatNeedsPicking(view, renderer as <PickProvider>)
+    // Or just configure te likes of MyControlThatNeedsPicking with the renderer.pick.bind(renderer) method, as callback?
+
+    if (!this._viewManager) {
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGLRenderer.pick] Viewer with Scene is currently attached."
+      });
+    }
+    if (view.viewer !== this._viewer) {
+      return this.logError({
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: "[WebGLRenderer.pick] The specified View does not belong to the currently attached Viewer."
+      });
+    }
+    return this._viewManager.pick(view, pickParams);
   }
 
   /**

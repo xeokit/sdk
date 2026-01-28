@@ -29,9 +29,19 @@ export class SceneObject {
   /**
    * Optional layer ID for this SceneObject.
    *
-   * When the {@link Scene} is attached to a {@link viewer!View | View}, this will identify an optional {@link viewer!ViewLayer | ViewLayer}
+   * When the {@link Scene} is attached to a {@link viewer!Viewer | Viewer}, this will identify an optional {@link viewer!ViewLayer | ViewLayer}
    * to assign the object to. ViewLayers allow users to group and segregate object based on their roles or aspects in a scene,
    * simplifying interaction and focusing operations on specific object groups.
+   *
+   * When the Scene is attached to a Viewer, if this property is defined, then you could find the ViewObject
+   * corresponding to this SceneObject in the ViewLayer with the same ID, like so:
+   *
+   * ```typescript
+   * const view = viewer.views["myViewId"];
+   * const viewLayer = view.layers[this.layerId || "default"];
+   * const viewObject = viewLayer.objects[this.id];
+   * const sceneObject = viewObject.sceneObject;
+   * ```
    */
   public readonly layerId?: string;
 

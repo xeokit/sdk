@@ -1,5 +1,5 @@
 import {RenderContext} from "./RenderContext";
-import {Camera,  View, Viewer, ViewObject} from "../../viewer";
+import {Camera, type PickParams,  PickResult, View, Viewer, ViewObject} from "../../viewer";
 import {SDKInternalException, SDKErrorType, type SDKResult} from "../../core";
 import {ViewRenderState} from "./ViewRenderState";
 import {RenderManager} from "./renderManager";
@@ -625,6 +625,24 @@ export class ViewManager {
   }
 
   /**
+   * Performs a pick operation in the given view with the specified parameters.
+   * Forwards to {@link PickManager}.
+   * @param view
+   * @param pickParams
+   */
+  pick(view: View, pickParams: PickParams) : SDKResult<PickResult>{
+    const rendererView = this._rendererViews[view.id];
+    if (!rendererView) { // This is handled at a higher level, but just in case
+      return {
+        ok: false,
+        type: SDKErrorType.InvalidOperation,
+        error: `[ViewManager.pick] View not found with id ${view.id}`
+      };
+    }
+    return this._pickManager.pick(rendererView, pickParams);
+  }
+
+  /**
    * Destroys all renderer-managed resources and detaches from the {@link Viewer}.
    *
    * After calling this, the instance must not be used unless {@link init} is called again.
@@ -652,8 +670,6 @@ export class ViewManager {
     this.dataTextures = undefined as unknown as DataTextures;
     this.shaderView = undefined as unknown as ShaderView;
   }
-
-
 
 
 }

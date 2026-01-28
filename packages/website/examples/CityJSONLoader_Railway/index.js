@@ -1,113 +1,100 @@
-// Import the SDK from a bundle built for these examples
+// Import the SDK from a bundle built for these examples.
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
+// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
+
 import {DemoHelper} from "../../js/DemoHelper.js";
 
-// Create a CityJSONLoader to load CityJSON files
+const demoHelper = new DemoHelper({});
 
-const cityJSONLoader = new xeokit.cityjson.CityJSONLoader();
+demoHelper.init().then(({
+                          scene,
+                          data,
+                          viewer,
+                          view,
+                          renderer
+                        }) => {
 
-// Create a Scene to hold geometry and materials
+  // Create a CityJSONLoader to load CityJSON files
 
-const scene = new xeokit.scene.Scene();
+  const cityJSONLoader = new xeokit.formats.cityjson.CityJSONLoader();
 
-// Create a Data to hold semantic data
+  // Configure the View's World-space coordinate axis to make the +Z axis "up.
+  // This is actually the default, but we show it here for clarity
 
-const data = new xeokit.data.Data();
-
-// Create a WebGLRenderer to use the browser's WebGL graphics API for rendering
-
-const renderer = new xeokit.webglrenderer.WebGLRenderer({});
-
-// Create a Viewer that will use the WebGLRenderer to draw the Scene
-
-const viewer = new xeokit.viewer.Viewer({
-    id: "demoViewer",
-    scene,
-    renderer
-});
-
-// Give the Viewer a single View to render the Scene in our HTML canvas element
-
-const view = viewer.createView({
-    id: "demoView",
-    elementId: "demoCanvas"
-});
-
-// Configure the View's World-space coordinate axis to make the +Z axis "up"
-
-view.camera.worldAxis = [
+  view.camera.worldAxis = [
     1, 0, 0, // Right +X
     0, 0, 1, // Up +Z
     0, -1, 0  // Forward -Y
-];
+  ];
 
-// Arrange the View's Camera within our +Z "up" coordinate system
+  // Arrange the View's Camera within our +Z "up" coordinate system
 
-view.camera.eye = [11.50, 16.32, 15.12];
-view.camera.look = [9.01, 9.65, 11.22];
-view.camera.up = [-0.16, -0.45, 0.87];
+  view.camera.eye = [11.50, 16.32, 15.12];
+  view.camera.look = [9.01, 9.65, 11.22];
+  view.camera.up = [-0.16, -0.45, 0.87];
 
-view.camera.zoom(-15)
+  view.camera.zoom(-15)
 
-// Add a CameraControl to interactively control the View's Camera with keyboard,
-// mouse and touch input
+  // Create a SceneModel to hold our model's geometry and materials
 
-new xeokit.cameracontrol.CameraControl(view, {});
+  const sceneModelResult = scene.createModel({
+    id: "demoModel",
+    // coordinateSystem: { // Model's local CityJSON-standard coordinate system
+    //   basis: [
+    //     1, 0, 0, // Right +X
+    //     0, 0, 1, // Up +Z
+    //     0, -1, 0  // Forward -Y
+    //   ],
+    //   origin: [0, 0, 0],
+    //   units: "meters"
+    // }
+  });
 
-// Create a SceneModel to hold our model's geometry and materials
+  if (!sceneModelResult.ok) {
+    return;
+  }
 
-const sceneModel = scene.createModel({
+  const sceneModel = sceneModelResult.value;
+
+  // Create a DataModel to hold semantic data for our model
+
+  const dataModelResult = data.createModel({
     id: "demoModel"
-});
+  });
 
-// Ignore the DemHelper
+  if (!dataModelResult.ok) {
+    return;
+  }
 
-const demoHelper = new DemoHelper({
-    viewer,
-    data
-});
+  const dataModel = dataModelResult.value;
 
-demoHelper.init()
-    .then(() => {
+  // Use CityJSONLoader to load an IFC model from a dotbim file into our SceneModel and DataModel
 
-        // Create a DataModel to hold semantic data for our model
+  fetch("../../models/LoD3_Railway/cityjson/model.json").then(response => {
 
-        const dataModel = data.createModel({
-            id: "demoModel"
+    response
+      .json()
+      .then(fileData => {
+
+        cityJSONLoader.load({
+          fileData,
+          sceneModel,
+          dataModel
+        }).then(() => {
+
+          // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
+          // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
+          // will have a corresponding DataObject with the same ID, to attach semantic meaning.
+          // The View will contain a ViewObject corresponding to each SceneObject, through which the
+          // appearance of the object can be controlled in the View.
+
+          demoHelper.finished();
+
+        }).catch(message => {
+          console.error(`Error loading CityJSON: ${message}`);
         });
-
-        if (sceneModel instanceof xeokit.core.SDKError) {
-            console.error(`Error creating SceneModel: ${sceneModel.message}`);
-
-        } else {
-
-            // Use CityJSONLoader to load an IFC model from a dotbim file into our SceneModel and DataModel
-
-            fetch("../../models/LoD3_Railway/cityjson/model.json").then(response => {
-
-                response
-                    .json()
-                    .then(fileData => {
-
-                        cityJSONLoader.load({
-                            fileData,
-                            sceneModel,
-                            dataModel
-                        }).then(() => {
-
-                            // The Scene and SceneModel will now contain a SceneObject for each displayable object in our model.
-                            // The Data and DataModel will contain a DataObject for each IFC element in the model. Each SceneObject
-                            // will have a corresponding DataObject with the same ID, to attach semantic meaning.
-                            // The View will contain a ViewObject corresponding to each SceneObject, through which the
-                            // appearance of the object can be controlled in the View.
-
-                            demoHelper.finished();
-                        }).catch(message => {
-                            console.error(`Error loading CityJSON: ${message}`);
-                        });;
-                    });
-            });
-        }
-    });
+      });
+  });
+});

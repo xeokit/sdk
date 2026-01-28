@@ -1,0 +1,15 @@
+{
+  "id": "DTXArray_test",
+  "title": "Using DTXArray",
+  "description": "This example demonstrates how to use the xeokit SDK DTXArray component in a custom application.",
+  "isTutorial": true,
+  "isVisualTest": true,
+  "tags": [
+    "SDK"
+  ],
+  "categories": [
+    "Utilities",
+    "WebGL"
+  ],
+  "topic": "utilities.webgl"
+}

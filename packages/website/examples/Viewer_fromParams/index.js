@@ -7,19 +7,35 @@ import {DemoHelper} from "../../js/DemoHelper.js";
 
 const scene = new xeokit.scene.Scene();
 
+// Create a Viewer that viewManager our Scene using the WebGLRenderer. Note that the
+// Scene and WebGLRenderer can only be attached to one Viewer at a time.
+
+const viewer = new xeokit.viewer.Viewer({
+    id: "demoViewer"
+});
+
+const result = viewer.attachScene(scene);
+if (!result.ok) {
+    throw new Error("Unable to attach Scene to Viewer: " + result.error);
+}
+
 // Create a WebGLRenderer to use the browser's WebGL API for 3D graphics
 
 const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
-// Create a Viewer that views our Scene using the WebGLRenderer. Note that the
-// Scene and WebGLRenderer can only be attached to one Viewer at a time.
+// Attach the WebGLRenderer to the Viewer
 
-const viewer = new xeokit.viewer.Viewer({
-    id: "demoViewer",
-    scene,
-    renderer
-});
+const attachResult = renderer.attachViewer(viewer);
+if (!attachResult.ok) {
+    throw new Error("Unable to attach WebGLRenderer to Viewer: " + attachResult.error);
+}
 
+// Log any errors to the console.
+
+new xeokit.core.EventsLogger(scene.events, {prefix: `[Scene    ]`});
+new xeokit.core.EventsLogger(viewer.events, {prefix: `[Viewer   ]`});
+new xeokit.core.EventsLogger(renderer.events, {prefix: `[Renderer ]`});
+3
 // Configure the Viewer using the given ViewerParams object. This will
 // create and configure a single View within the Viewer.
 
@@ -27,6 +43,7 @@ const viewerParams = {
     "views": [
         {
             "id": "demoView",
+            "elementId": "demoCanvas",
             "camera": {
                 "eye": [0, 0, 10],
                 "look": [0, 0, 0],
@@ -121,9 +138,7 @@ const viewerParams = {
                 "glowThrough": false
             },
             "xrayMaterial": {
-                "fillColor": [
-                    0.8, 0.6, 0.6
-                ],
+                "fillColor": [0.8, 0.6, 0.6],
                 "backfaces": false,
                 "edgeColor": [0.5, 0.4, 0.4],
                 "edgeWidth": 1,
@@ -153,7 +168,10 @@ const viewerParams = {
     ]
 };
 
-viewer.fromParams(viewerParams);
+const fromParamsResult = viewer.fromParams(viewerParams);
+if (!fromParamsResult.ok) {
+    throw new Error("Unable to configure Viewer from ViewerParams: " + fromParamsResult.error);
+}
 
 // Add a CameraControl to interactively control the View's Camera with keyboard,
 // mouse and touch input
@@ -161,8 +179,7 @@ viewer.fromParams(viewerParams);
 new xeokit.cameracontrol.CameraControl(viewer.viewList[0]);
 
 const demoHelper = new DemoHelper({
-    elementId: "info-container",
-    viewer
+  makeComponents: false // Don't use boilerplate demo xeokit components
 });
 
 demoHelper.init()
@@ -171,7 +188,7 @@ demoHelper.init()
         // Within the Scene, create a SceneModel to hold geometry and materials for
         // our model
 
-        const sceneModel = scene.createModel({
+        const sceneModelResult = scene.createModel({
             id: "demoModel",
             geometries: [
                 {
@@ -196,7 +213,7 @@ demoHelper.init()
                 {
                     id: "boxMesh",
                     geometryId: "boxGeometry",
-                    color: [1, 1, 0, 1],
+                    color: [1, 1, 0],
                     opacity: 1
                 }
             ],
@@ -207,6 +224,10 @@ demoHelper.init()
                 }
             ]
         });
+
+        if (!sceneModelResult.ok) {
+            throw new Error("Unable to create SceneModel: " + sceneModelResult.error);
+        }
 
       // The model now appears in the View's canvas.
 

@@ -1,103 +1,94 @@
-// Import the SDK from a bundle built for these examples
+// Import the SDK from a bundle built for these examples.
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
+// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
+
 import {DemoHelper} from "../../js/DemoHelper.js";
 
+const demoHelper = new DemoHelper({});
 
-// Create a Scene to hold geometry and materials
+demoHelper.init().then(({
+                          scene,
+                          data,
+                          viewer,
+                          view,
+                          renderer
+                        }) => {
 
-const scene = new xeokit.scene.Scene();
+  // Position the View's Camera to look at the origin of the World coordinate system
 
-// Create a WebGLRenderer to use the browser's WebGL API for 3D graphics
+  view.camera.eye = [2, 2, 10]; // Default is [0,0,10]
+  view.camera.look = [0, 0, 0]; // Default
+  view.camera.up = [0, 1, 0]; // Default
 
-const renderer = new xeokit.webglrenderer.WebGLRenderer({});
+  // Add a CameraControl to control the Camera
 
-// Create a Viewer that views our Scene using the WebGLRenderer. Note that the
-// Scene and WebGLRenderer can only be attached to one Viewer at a time.
+  new xeokit.cameracontrol.CameraControl(view);
 
-const viewer = new xeokit.viewer.Viewer({
-  id: "demoViewer",
-  scene,
-  renderer
-});
+  // Create a SceneModel containing a SceneObject, a SceneMesh and a box-shaped SceneGeometry
 
-// Ignore the DemoHelper
-
-const demoHelper = new DemoHelper({
-  viewer
-});
-
-demoHelper.init()
-  .then(() => {
-
-    // Create a View that renders to the canvas in our HTML
-
-    const view = viewer.createView({
-      id: "demoView",
-      elementId: "demoCanvas"
-    });
-
-    // Position the View's Camera to look at the origin of the World coordinate system
-
-    view.camera.eye = [2, 2, 3]; // Default is [0,0,10]
-    view.camera.look = [0, 0, 0]; // Default
-    view.camera.up = [0, 1, 0]; // Default
-
-    // Add a CameraControl to control the Camera
-
-    new xeokit.cameracontrol.CameraControl(view);
-
-    // Create a SceneModel containing a SceneObject, a SceneMesh and a box-shaped SceneGeometry
-
-    const sceneModel = scene.createModel({
-      id: "demoModel"
-    });
-
-    sceneModel.createGeometryCompressed({
-      id: "boxGeometry",
-      primitive: xeokit.constants.TrianglesPrimitive,
-      aabb: [-1, -1, -1, 1, 1, 1],
-      positionsCompressed: [
-        65525, 65525, 65525, 0, 65525, 65525, 0, 0, 65525, 65525, 0,
-        65525, 65525, 65525, 65525, 65525, 0, 65525, 65525, 0, 0,
-        65525, 65525, 0, 65525, 65525, 65525, 65525, 65525, 0, 0,
-        65525, 0, 0, 65525, 65525, 0, 65525, 65525, 0, 65525, 0,
-        0, 0, 0, 0, 0, 65525, 0, 0, 0, 65525, 0, 0, 65525, 0, 65525,
-        0, 0, 65525, 65525, 0, 0, 0, 0, 0, 0, 65525, 0, 65525, 65525, 0
-      ],
-      indices: [
-        0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13,
-        14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
-      ],
-      edgeIndices: [
-        8, 12, 12, 19, 19, 18, 8, 18, 18, 20, 20, 23,
-        8, 23, 23, 22, 12, 22, 22, 21, 19, 21, 20, 21
-      ]
-    });
-
-    sceneModel.createMesh({
-      id: "boxMesh",
-      geometryId: "boxGeometry",
-      position: [0, 0, 0], // Default
-      scale: [1, 1, 1], // Default
-      rotation: [0, 0, 0], // Default
-      color: [1.0, 0.0, 0.0] // Default is [1,1,1]
-    });
-
-    sceneModel.createObject({
-      id: "boxObject",
-      meshIds: ["boxMesh"]
-    });
-
-
-    // At this point, the View will contain a single ViewObject that has the same ID as the SceneModel. Through
-    // the ViewObject, we can update the appearance of the box in that View.
-
-    view.objects["boxObject"].highlighted = true;
-    view.setObjectsHighlighted(view.highlightedObjectIds, false);
-
-    // Ignore the DemoHelper
-
-    demoHelper.finished();
+  const sceneModelResult = scene.createModel({
+    id: "demoModel"
   });
+
+  if (!sceneModelResult.ok) {
+    throw new Error(sceneModelResult.message);
+  }
+
+  const sceneModel = sceneModelResult.value;
+
+  sceneModel.createGeometryCompressed({
+    id: "boxGeometry",
+    primitive: xeokit.constants.TrianglesPrimitive,
+    aabb: [-1, -1, -1, 1, 1, 1],
+    positionsCompressed: [
+      65525, 65525, 65525, 0, 65525, 65525, 0, 0, 65525, 65525, 0,
+      65525, 65525, 65525, 65525, 65525, 0, 65525, 65525, 0, 0,
+      65525, 65525, 0, 65525, 65525, 65525, 65525, 65525, 0, 0,
+      65525, 0, 0, 65525, 65525, 0, 65525, 65525, 0, 65525, 0,
+      0, 0, 0, 0, 0, 65525, 0, 0, 0, 65525, 0, 0, 65525, 0, 65525,
+      0, 0, 65525, 65525, 0, 0, 0, 0, 0, 0, 65525, 0, 65525, 65525, 0
+    ],
+    indices: [
+      0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11, 12, 13,
+      14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23
+    ],
+    edgeIndices: [
+      8, 12, 12, 19, 19, 18, 8, 18, 18, 20, 20, 23,
+      8, 23, 23, 22, 12, 22, 22, 21, 19, 21, 20, 21
+    ]
+  });
+
+  sceneModel.createMesh({
+    id: "boxMesh",
+    geometryId: "boxGeometry",
+    position: [0, 0, 0], // Default
+    scale: [1, 1, 1], // Default
+    rotation: [0, 0, 0], // Default
+    color: [1.0, 0.0, 0.0] // Default is [1,1,1]
+  });
+
+  sceneModel.createObject({
+    id: "boxObject",
+    meshIds: ["boxMesh"]
+  });
+
+
+  // At this point, the View will contain a single ViewObject that has the same ID as the SceneModel. Through
+  // the ViewObject, we can update the appearance of the box in that View.
+
+  view.objects["boxObject"].highlighted = true;
+  view.setObjectsHighlighted(view.highlightedObjectIds, false);
+
+  // Ignore the DemoHelper
+
+  demoHelper.finished();
+
+  // let y = 0;
+  // setInterval(() => {
+  //     view.camera.orbitYaw(.2);
+  //     view.camera.orbitPitch(.2);
+  //    // view.camera.clean();
+  // }, 20);
+});

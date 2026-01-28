@@ -7,35 +7,58 @@ import {DemoHelper} from "../../js/DemoHelper.js";
 
 const scene = new xeokit.scene.Scene();
 
+// Create a Viewer that viewManager our Scene using the WebGLRenderer. Note that the
+// Scene and WebGLRenderer can only be attached to one Viewer at a time.
+
+const viewer = new xeokit.viewer.Viewer({
+  id: "demoViewer"
+});
+
+const result = viewer.attachScene(scene);
+if (!result.ok) {
+  throw new Error("Unable to attach Scene to Viewer: " + result.error);
+}
+
 // Create a WebGLRenderer to use the browser's WebGL API for 3D graphics
 
 const renderer = new xeokit.webglrenderer.WebGLRenderer({});
 
-// Create a Viewer that views our Scene using the WebGLRenderer. Note that the
-// Scene and WebGLRenderer can only be attached to one Viewer at a time.
+// Attach the WebGLRenderer to the Viewer
 
-const viewer = new xeokit.viewer.Viewer({
-  id: "demoViewer",
-  scene,
-  renderer
-});
+const attachResult = renderer.attachViewer(viewer);
+if (!attachResult.ok) {
+  throw new Error("Unable to attach WebGLRenderer to Viewer: " + attachResult.error);
+}
+
+// Log any errors to the console.
+
+new xeokit.core.EventsLogger(scene.events, {prefix: `[Scene    ]`});
+new xeokit.core.EventsLogger(viewer.events, {prefix: `[Viewer   ]`});
+new xeokit.core.EventsLogger(renderer.events, {prefix: `[Renderer ]`});
 
 // Ignore the DemoHelper
 
 const demoHelper = new DemoHelper({
-  viewer
+  makeComponents: false // Don't use boilerplate demo xeokit components
 });
 
-demoHelper.init()
+demoHelper
+  .init()
   .then(() => {
 
-    // Add a View, which will render an independent view of the Scene within the
+    // Add a View, which will draw an independent view of the Scene within the
     // given DOM element.
 
-    const view = viewer.createView({
+    const viewResult = viewer.createView({
       id: "demoView",
       elementId: "demoCanvas"
     });
+
+    if (!viewResult.ok) {
+      throw new Error("Unable to create View: " + viewResult.error);
+    }
+
+    const view = viewResult.value;
 
     view.camera.eye = [0, 0, 10]; // Default
     view.camera.look = [0, 0, 0]; // Default
@@ -48,7 +71,7 @@ demoHelper.init()
 
     // Create a minimal SceneModel that contains a single triangle
 
-    const sceneModel = scene.createModel({
+    const sceneModelResult = scene.createModel({
       id: "demoModel",
       geometries: [
         {
@@ -73,7 +96,7 @@ demoHelper.init()
         {
           id: "boxMesh",
           geometryId: "boxGeometry",
-          color: [1, 1, 1, 1],
+          color: [1, 1, 1],
           opacity: 1
         }
       ],
@@ -85,9 +108,13 @@ demoHelper.init()
       ]
     });
 
+    if (!sceneModelResult.ok) {
+      throw new Error("Unable to create SceneModel: " + sceneModelResult.error);
+    }
+
     // Serialize the Viewer's state to a JSON object of type ViewerParams.
 
-    console.log(JSON.stringify(viewer.getJSON(), null, 2));
+    console.log(JSON.stringify(viewer.toParams(), null, 2));
 
     demoHelper.finished();
   });

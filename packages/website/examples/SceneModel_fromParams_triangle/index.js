@@ -1,40 +1,20 @@
+// Import the SDK from a bundle built for these examples.
+
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
+
+// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
 import {DemoHelper} from "../../js/DemoHelper.js";
 
-// Create a Scene to hold geometry and materials
+const demoHelper = new DemoHelper({});
 
-const scene = new xeokit.scene.Scene();
-
-// Create a WebGLRenderer to use the browser's WebGL API for 3D graphics
-
-const renderer = new xeokit.webglrenderer.WebGLRenderer({});
-
-// Create a Viewer that views our Scene using the WebGLRenderer. Note that the
-// Scene and WebGLRenderer can only be attached to one Viewer at a time.
-
-const viewer = new xeokit.viewer.Viewer({
-  id: "demoViewer",
-  scene,
-  renderer
-});
-
-// Ignore the DemoHelper
-
-const demoHelper = new DemoHelper({
-  elementId: "info-container",
-  viewer
-});
-
-demoHelper.init()
-  .then(() => {
-
-    // Give the Viewer a single View to render the Scene in our HTML canvas element
-
-    const view = viewer.createView({
-      id: "demoView",
-      elementId: "demoCanvas"
-    });
+demoHelper.init().then(({
+                          scene,
+                          data,
+                          viewer,
+                          view,
+                          renderer
+                        }) => {
 
     // Position the View's Camera
 
@@ -42,12 +22,7 @@ demoHelper.init()
     view.camera.look = [0, 0, 0];
     view.camera.up = [0, 1, 0];
 
-    // Add a CameraControl to interactively control the Camera with keyboard,
-    // mouse and touch input
-
-    new xeokit.cameracontrol.CameraControl(view);
-
-    const sceneModel = scene.createModel({
+    const sceneModelResult = scene.createModel({
       id: "demoModel",
       geometries: [
         {
@@ -67,7 +42,7 @@ demoHelper.init()
         {
           id: "triangleMesh",
           geometryId: "triangleGeometry",
-          color: [1, 1, 1, 1],
+          color: [1, 1, 1],
           opacity: 1
         }
       ],
@@ -79,11 +54,15 @@ demoHelper.init()
       ]
     });
 
+    if (!sceneModelResult.ok) {
+      throw new Error("Unable to create SceneModel: " + sceneModelResult.error);
+    }
+
     // At this point, the View will contain a single ViewObject that has the same
     // ID as the SceneObject. Through the ViewObject, we can now update the
     // appearance of the box in that View.
 
-    view.objects["triangleObject"].highlighted = true;
+  //  view.objects["triangleObject"].highlighted = true;
 
     demoHelper.finished();
 

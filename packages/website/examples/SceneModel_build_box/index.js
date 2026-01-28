@@ -1,56 +1,38 @@
-// Import the SDK from a bundle built for these examples
+// Import the SDK from a bundle built for these examples.
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-import {DemoHelper} from "../../js/DemoHelper.js";
+// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
-// Create a Scene to hold geometry and materials
+import { DemoHelper } from "../../js/DemoHelper.js";
 
-const scene = new xeokit.scene.Scene();
+const demoHelper = new DemoHelper({});
 
-// Create a WebGLRenderer to use the browser's WebGL API for 3D graphics
-
-const renderer = new xeokit.webglrenderer.WebGLRenderer({});
-
-// Create a Viewer that views our Scene using the WebGLRenderer. Note that the
-// Scene and WebGLRenderer can only be attached to one Viewer at a time.
-
-const viewer = new xeokit.viewer.Viewer({
-  id: "demoViewer",
-  scene,
-  renderer
-});
-
-// Ignore the DemoHelper
-
-const demoHelper = new DemoHelper({
-  viewer
-});
-
-demoHelper.init().then(() => {
-
-  // Create a single View that renders to a canvas in the page
-
-  const view = viewer.createView({
-    id: "demoView",
-    elementId: "demoCanvas"
-  });
+demoHelper.init().then(({
+                          scene,
+                          data,
+                          viewer,
+                          view,
+                          renderer
+                        }) => {
 
   // Position the View's Camera to look at the origin of the coordinate system
 
-  view.camera.eye = [2, 3, 2];
+  view.camera.eye = [0, 5, 2];
   view.camera.look = [0, 0, 0];
   view.camera.up = [0, 0, 1];
 
-  // Add a CameraControl to the View to control its Camera with mouse and touchpad input
-
-  new xeokit.cameracontrol.CameraControl(view);
-
   // Within the Scene, create a SceneModel to hold geometry and materials for our model
 
-  const sceneModel = scene.createModel({
+  const sceneModelResult = scene.createModel({
     id: "demoModel"
   });
+
+  if (!sceneModelResult.ok) {
+    throw new Error(sceneModelResult.error);
+  }
+
+  const sceneModel = sceneModelResult.value;
 
   // Create a SceneGeometry that defines the shape of the box
 
@@ -129,10 +111,14 @@ demoHelper.init().then(() => {
   sceneModel.createMesh({
     id: "boxMesh",
     geometryId: "boxGeometry",
-    position: [0, 0, 0], // Default
-    scale: [1, 1, 1], // Default
-    rotation: [0, 0, 0], // Default
-    color: [1.0, 0.0, 0.0] // Default is [1,1,1]
+    matrix: xeokit.scene.buildMat4({
+      position: [0, 0, 0], // Default
+      scale: [1, 1, 1], // Default
+      rotation: [20, .1, 0], // Default
+    }),
+
+
+    color: [1.0, 0.0, 0.5] // Default is [1,1,1]
   });
 
   // Create a SceneObject that aggregates our SceneMesh
@@ -142,16 +128,15 @@ demoHelper.init().then(() => {
     meshIds: ["boxMesh"]
   });
 
-
-  // At this point, the View will contain a single ViewObject that has the same
-  // ID as the SceneObject. Through the ViewObject, we can now update the
-  // appearance of the box in that View.
-
-  view.objects["boxObject"].highlighted = true;
-  view.setObjectsHighlighted(view.highlightedObjectIds, false);
-
-  // Ignore the DemoHelper
-
   demoHelper.finished();
 
+  // let y = 0;
+  // setInterval(() => {
+  //    view.camera.orbitYaw(.2);
+  //    view.camera.orbitPitch(.2);
+  // }, 20);
+  //
 });
+
+
+

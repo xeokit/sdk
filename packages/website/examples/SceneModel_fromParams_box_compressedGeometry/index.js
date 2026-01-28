@@ -1,42 +1,20 @@
-// Import the SDK from a bundle built for these examples
+// Import the SDK from a bundle built for these examples.
 
 import * as xeokit from "../../js/xeokit-demo-bundle.js";
 
-import {DemoHelper} from "../../js/DemoHelper.js";
+// Create a helper that sets up the Scene, Data, Viewer, and WebGLRenderer used by this demo.
 
-// Create a Scene to hold geometry and materials
+import { DemoHelper } from "../../js/DemoHelper.js";
 
-const scene = new xeokit.scene.Scene();
+const demoHelper = new DemoHelper({});
 
-// Create a WebGLRenderer to use the browser's WebGL API for 3D graphics
-
-const renderer = new xeokit.webglrenderer.WebGLRenderer({});
-
-// Create a Viewer that views our Scene using the WebGLRenderer. Note that the
-// Scene and WebGLRenderer can only be attached to one Viewer at a time.
-
-const viewer = new xeokit.viewer.Viewer({
-  id: "demoViewer",
-  scene,
-  renderer
-});
-
-// Ignore this DemoHelper
-
-const demoHelper = new DemoHelper({
-  elementId: "info-container",
-  viewer
-});
-
-demoHelper.init()
-  .then(() => {
-
-    // Give the Viewer a single View to render the Scene in our HTML canvas element
-
-    const view = viewer.createView({
-      id: "demoView",
-      elementId: "demoCanvas"
-    });
+demoHelper.init().then(({
+                          scene,
+                          data,
+                          viewer,
+                          view,
+                          renderer
+                        }) => {
 
     // Position the View's Camera
 
@@ -44,18 +22,13 @@ demoHelper.init()
     view.camera.look = [0, 0, 0];
     view.camera.up = [0, 1, 0];
 
-    // Add a CameraControl to interactively control the Camera with keyboard,
-    // mouse and touch input
-
-    new xeokit.cameracontrol.CameraControl(view);
-
     // Create a SceneModel to hold geometry and materials. We'll
     // create the SceneModel from an argument of type SceneModelParams. In this example,
     // we create our SceneGeometry with vertex positions that are quantized
     // to 16-bit integer values within the range indicated by the axis-aligned
     // 3D boundary specified by parameter aabb.
 
-    const sceneModel = scene.createModel({
+    const sceneModelResult = scene.createModel({
       id: "demoModel",
       geometriesCompressed: [
         {
@@ -96,12 +69,16 @@ demoHelper.init()
       ]
     });
 
+    if (!sceneModelResult.ok) {
+      return;
+    }
+
     // At this point, the View will contain a single ViewObject that has the same
     // ID as the SceneObject. Through the ViewObject, we can now update the
     // appearance of the box in that View.
 
-    view.objects["boxObject"].highlighted = true;
-    view.setObjectsHighlighted(view.highlightedObjectIds, false);
+    // view.objects["boxObject"].highlighted = true;
+    // view.setObjectsHighlighted(view.highlightedObjectIds, false);
 
     demoHelper.finished();
   });

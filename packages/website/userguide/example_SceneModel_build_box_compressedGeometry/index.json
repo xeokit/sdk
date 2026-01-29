@@ -1,0 +1,9 @@
+{
+  "title": "Creating a Cube from Pre-Compressed Geometry",
+  "description": "In this example, we'll use the xeokit SDK to build and display a 3D cube in the browser, defined using compressed geometry data.",
+  "tags": [
+    "Tutorial",
+    "Example"
+  ],
+  "topic": "modeling.scene.geometry"
+}

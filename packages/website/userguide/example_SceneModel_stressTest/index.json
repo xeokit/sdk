@@ -1,0 +1,10 @@
+{
+  "title": "Creating a 3D Model",
+  "description": "Using xeokit to create a 3D model composed of multiple objects with triangle mesh geometry.",
+  "tags": [
+    "Tutorial",
+    "Example",
+    "_Featured"
+  ],
+  "topic": "modeling.scene.object"
+}

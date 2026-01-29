@@ -87,64 +87,9 @@
       ],
       "topic": "import.ifc"
     },
-    "example_LASLoader_Pumpkin": {
-      "title": "Viewing a LAZ-encoded LiDAR scan using LASLoader",
-      "description": "How to load a LiDAR scan from LAS (.laz) format directly into a xeokit web viewer.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "LAS",
-        "_Featured"
-      ],
-      "topic": "import.las"
-    },
-    "example_ModelConverter_cityjson2xgf": {
-      "title": "Viewing CityJSON using ModelConverter and XGFLoader",
-      "description": "Use the ModelConverter class to convert a model from CityJSON format to XGF, then use XGFLoader to view the XGF in a xeokit web viewer.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "Importing",
-        "CityJSON"
-      ],
-      "topic": "import.cityjson"
-    },
-    "example_ModelConverter_dotbim2gltf": {
-      "title": "Viewing .BIM using ModelConverter and GLTFLoader",
-      "description": "Use the ModelConverter class to convert an IFC model from dotbim (.bim) format into glTF, then use GLTFLoader to load the glTF into a xeokit web viewer.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "Importing",
-        "DotBIM"
-      ],
-      "topic": "import.dotbim"
-    },
-    "example_ModelConverter_dotbim2ifc": {
-      "title": "Viewing .BIM using ModelConverter and IFCLoader",
-      "description": "Use the ModelConverter class to convert a model from dotbim (.bim) format to IFC, then use IFCLoader to view the IFC in a xeokit web viewer.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "Importing",
-        "DotBIM"
-      ],
-      "topic": "import.dotbim"
-    },
     "example_ModelConverter_dotbim2json": {
       "title": "Viewing .BIM using ModelConverter and IFCLoader",
       "description": "Use the ModelConverter class to convert a model from dotbim (.bim) format to JSON SceneModelParams and DataModelParams, then use SceneModelParamsLoader and DataModelParamsLoader to view the model in a xeokit web viewer.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "Importing",
-        "DotBIM"
-      ],
-      "topic": "import.dotbim"
-    },
-    "example_ModelConverter_dotbim2xgf": {
-      "title": "Viewing .BIM using ModelConverter and XGFLoader",
-      "description": "Use the ModelConverter class to convert an IFC model from dotbim (.bim) format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer.",
       "tags": [
         "Tutorial",
         "Example",
@@ -164,17 +109,6 @@
       ],
       "topic": "import.dotbim"
     },
-    "example_ModelConverter_ifc2xgf": {
-      "title": "Viewing IFC using ModelConverter and XGFLoader",
-      "description": "Use the ModelConverter class to convert a model from IFC format into XGF, then use XGFLoader to load the XGF into a xeokit web viewer.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "Importing",
-        "IFC"
-      ],
-      "topic": "import.ifc"
-    },
     "example_SceneModel_DataModel_build_table": {
       "title": "Creating a 3D Model with Semantic Data",
       "description": "In this example, we'll use the xeokit SDK to create a 3D model with semantic data attached.",
@@ -182,15 +116,6 @@
         "Tutorial",
         "Example",
         "_Featured"
-      ],
-      "topic": "modeling.data"
-    },
-    "example_SceneModel_DataModel_fromParams_IfcOpenHouse4": {
-      "title": "Using xeokit SDK to view an IFC model, loaded from JSON",
-      "description": "",
-      "tags": [
-        "Tutorial",
-        "Example"
       ],
       "topic": "modeling.data"
     },
@@ -222,34 +147,6 @@
         "SDK"
       ],
       "topic": "modeling.scene.geometry"
-    },
-    "example_SceneModel_build_geometries": {
-      "title": "Creating Various Geometries",
-      "description": "In this example, we'll use the xeokit SDK to create and view a model containing objects with various shapes, using the SDK's geometry genorator functions.",
-      "tags": [
-        "Tutorial",
-        "Example"
-      ],
-      "topic": "modeling.scene.geometry"
-    },
-    "example_SceneModel_build_lines": {
-      "title": "Creating a Wireframe Model",
-      "description": "In this example, we'll use the xeokit SDK to create and view a multi-object wireframe model with line geometries.",
-      "tags": [
-        "Tutorial",
-        "Example"
-      ],
-      "topic": "modeling.scene.geometry"
-    },
-    "example_SceneModel_build_table": {
-      "title": "Creating a 3D Model",
-      "description": "Using xeokit to create a 3D model composed of multiple objects with triangle mesh geometry.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "_Featured"
-      ],
-      "topic": "modeling.scene.object"
     },
     "example_SceneModel_build_thing": {
       "title": "Creating a Cube",
@@ -318,44 +215,6 @@
       ],
       "topic": "viewer.view.viewlayer"
     },
-    "example_ViewLayer_multiView": {
-      "title": "Creating a Viewer with multiple Views and ViewLayers",
-      "description": "",
-      "tags": [
-        "Tutorial",
-        "Example"
-      ],
-      "topic": "viewer.view.viewlayer"
-    },
-    "example_ViewLayer_multiView_lighting": {
-      "title": "Creating a Viewer with multiple Views and light sources",
-      "description": "",
-      "tags": [
-        "Tutorial",
-        "Example"
-      ],
-      "topic": "viewer.view.viewlayer"
-    },
-    "example_View_multiView_IFCLoader": {
-      "title": "Viewing an IFC model in multiple Views",
-      "description": "In this example, we'll use the xeokit SDK to view an IFC file within multiple canvases in the browser",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "_Featured"
-      ],
-      "topic": "general"
-    },
-    "example_View_multiView_SceneModel_build_table": {
-      "title": "Creating a 3D Model and Viewing it in Multiple Canvases",
-      "description": "",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "_Featured"
-      ],
-      "topic": "general"
-    },
     "example_Viewer_fromParams": {
       "title": "Loading a Viewer Configuration",
       "description": "This example demonstrates how to load a JSON snapshot of a xeokit Viewer's current runtime configuration.",
@@ -363,15 +222,6 @@
         "Tutorial",
         "Example",
         "Viewer"
-      ],
-      "topic": "viewer.configuration"
-    },
-    "example_Viewer_getCapabilities": {
-      "title": "Querying Viewer Capabilities",
-      "description": "",
-      "tags": [
-        "Tutorial",
-        "Example"
       ],
       "topic": "viewer.configuration"
     },
@@ -385,27 +235,14 @@
       ],
       "topic": "viewer.configuration"
     },
-    "example_XGFLoader_MAP": {
-      "title": "Viewing XGF using XGFLoader",
-      "description": "How to load an IFC model from XGF format directly into a xeokit web viewer.",
+    "example_WebGLRenderer_createGPUMemoryConfigs": {
+      "title": "Configuring WebGLRenderer GPU Memory Limits",
+      "description": "",
       "tags": [
         "Tutorial",
-        "Example",
-        "XGF",
-        "_Featured"
+        "Example"
       ],
-      "topic": "import.xgf"
-    },
-    "example_XKTLoader_MAP": {
-      "title": "Viewing XKT using XKTLoader",
-      "description": "How to load an IFC model from XKT format directly into a xeokit web viewer.",
-      "tags": [
-        "Tutorial",
-        "Example",
-        "XKT",
-        "_Featured"
-      ],
-      "topic": "import.xkt"
+      "topic": "renderer.configs"
     },
     "gltf2xgf": {
       "title": "Viewing glTF using xeoconvert and XGFLoader",
@@ -548,7 +385,6 @@
       "dotbim2xgf",
       "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4",
-      "example_XGFLoader_MAP",
       "gltf2xgf",
       "ifc2gltf",
       "ifc2gltf2xgf",
@@ -560,7 +396,6 @@
       "dotbim2xgf",
       "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4",
-      "example_ModelConverter_ifc2xgf",
       "ifc2gltf",
       "ifc2gltf2xgf",
       "overview-pipelines"
@@ -569,10 +404,7 @@
       "dev-status",
       "dotbim2xgf",
       "example_DotBIMLoader_BlenderHouse",
-      "example_ModelConverter_dotbim2gltf",
-      "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
-      "example_ModelConverter_dotbim2xgf",
       "example_ModelConverter_ifc2dotbim",
       "overview-pipelines"
     ],
@@ -587,7 +419,6 @@
     "CityJSON": [
       "dev-status",
       "example_CityJSONLoader_Railway",
-      "example_ModelConverter_cityjson2xgf",
       "overview-pipelines"
     ],
     "Featured": [
@@ -604,22 +435,12 @@
       "example_GLTFLoader_MAP",
       "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4",
-      "example_LASLoader_Pumpkin",
-      "example_ModelConverter_cityjson2xgf",
-      "example_ModelConverter_dotbim2gltf",
-      "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
-      "example_ModelConverter_dotbim2xgf",
       "example_ModelConverter_ifc2dotbim",
-      "example_ModelConverter_ifc2xgf",
       "example_SceneModel_DataModel_build_table",
-      "example_SceneModel_DataModel_fromParams_IfcOpenHouse4",
       "example_SceneModel_build_box",
       "example_SceneModel_build_box_compressedGeometry",
       "example_SceneModel_build_boxes",
-      "example_SceneModel_build_geometries",
-      "example_SceneModel_build_lines",
-      "example_SceneModel_build_table",
       "example_SceneModel_build_thing",
       "example_SceneModel_build_triangle",
       "example_SceneModel_fromParams_table",
@@ -627,15 +448,9 @@
       "example_SceneModel_test1",
       "example_ViewLayer_auto",
       "example_ViewLayer_manual",
-      "example_ViewLayer_multiView",
-      "example_ViewLayer_multiView_lighting",
-      "example_View_multiView_IFCLoader",
-      "example_View_multiView_SceneModel_build_table",
       "example_Viewer_fromParams",
-      "example_Viewer_getCapabilities",
       "example_Viewer_toParams",
-      "example_XGFLoader_MAP",
-      "example_XKTLoader_MAP"
+      "example_WebGLRenderer_createGPUMemoryConfigs"
     ],
     "Example": [
       "example_CityJSONLoader_Railway",
@@ -643,22 +458,12 @@
       "example_GLTFLoader_MAP",
       "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4",
-      "example_LASLoader_Pumpkin",
-      "example_ModelConverter_cityjson2xgf",
-      "example_ModelConverter_dotbim2gltf",
-      "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
-      "example_ModelConverter_dotbim2xgf",
       "example_ModelConverter_ifc2dotbim",
-      "example_ModelConverter_ifc2xgf",
       "example_SceneModel_DataModel_build_table",
-      "example_SceneModel_DataModel_fromParams_IfcOpenHouse4",
       "example_SceneModel_build_box",
       "example_SceneModel_build_box_compressedGeometry",
       "example_SceneModel_build_boxes",
-      "example_SceneModel_build_geometries",
-      "example_SceneModel_build_lines",
-      "example_SceneModel_build_table",
       "example_SceneModel_build_thing",
       "example_SceneModel_build_triangle",
       "example_SceneModel_fromParams_table",
@@ -666,48 +471,27 @@
       "example_SceneModel_test1",
       "example_ViewLayer_auto",
       "example_ViewLayer_manual",
-      "example_ViewLayer_multiView",
-      "example_ViewLayer_multiView_lighting",
-      "example_View_multiView_IFCLoader",
-      "example_View_multiView_SceneModel_build_table",
       "example_Viewer_fromParams",
-      "example_Viewer_getCapabilities",
       "example_Viewer_toParams",
-      "example_XGFLoader_MAP",
-      "example_XKTLoader_MAP"
+      "example_WebGLRenderer_createGPUMemoryConfigs"
     ],
     "_Featured": [
       "example_CityJSONLoader_Railway",
       "example_GLTFLoader_MAP",
       "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4",
-      "example_LASLoader_Pumpkin",
       "example_SceneModel_DataModel_build_table",
-      "example_SceneModel_build_table",
       "example_SceneModel_fromParams_table",
-      "example_SceneModel_stressTest",
-      "example_View_multiView_IFCLoader",
-      "example_View_multiView_SceneModel_build_table",
-      "example_XGFLoader_MAP",
-      "example_XKTLoader_MAP"
+      "example_SceneModel_stressTest"
     ],
     "Importing": [
       "example_DotBIMLoader_BlenderHouse",
-      "example_ModelConverter_cityjson2xgf",
-      "example_ModelConverter_dotbim2gltf",
-      "example_ModelConverter_dotbim2ifc",
       "example_ModelConverter_dotbim2json",
-      "example_ModelConverter_dotbim2xgf",
-      "example_ModelConverter_ifc2dotbim",
-      "example_ModelConverter_ifc2xgf"
+      "example_ModelConverter_ifc2dotbim"
     ],
     "webifc2xgf": [
       "example_IFCLoader_Duplex",
       "example_IFCLoader_IfcOpenHouse4"
-    ],
-    "LAS": [
-      "example_LASLoader_Pumpkin",
-      "las2xgf"
     ],
     "SDK": [
       "example_SceneModel_build_box",
@@ -723,9 +507,6 @@
       "sceneModelBuildTable",
       "viewerGetJSON"
     ],
-    "XKT": [
-      "example_XKTLoader_MAP"
-    ],
     "gltf2xgf": [
       "gltf2xgf"
     ],
@@ -735,6 +516,9 @@
     ],
     "ifc2gltf2xgf": [
       "ifc2gltf2xgf"
+    ],
+    "LAS": [
+      "las2xgf"
     ],
     "xeoconvert": [
       "las2xgf"

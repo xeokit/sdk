@@ -1,0 +1,9 @@
+{
+  "title": "Configuring WebGLRenderer GPU Memory Limits",
+  "description": "",
+  "tags": [
+    "Tutorial",
+    "Example"
+  ],
+  "topic": "renderer.configs"
+}

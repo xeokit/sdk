@@ -1,0 +1,10 @@
+{
+  "title": "Creating a Cube",
+  "description": "This example demonstrates how to use the xeokit SDK to create and display a 3D box in the browser.",
+  "tags": [
+    "Tutorial",
+    "Example",
+    "SDK"
+  ],
+  "topic": "modeling.scene.geometry"
+}

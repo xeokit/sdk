@@ -47,3 +47,7 @@ export * as contextmenu from "./contextmenu";
 export * as ifc2gltf2xgf from "./ifc2gltf2xgf";
 
 export * as xeoconvert from "./xeoconvert";
+
+// Demo helpers
+
+export * as demo from "./demo";

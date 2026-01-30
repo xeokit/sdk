@@ -546,7 +546,7 @@ export class GPUMemoryBatch {
       clippable: true
     });
 
-    this._meshMatrixTexture.setItem(meshIndex, sceneMesh.matrix);
+    this._meshMatrixTexture.setItem(meshIndex, new Float32Array(sceneMesh.matrix));
 
     const primitiveCount = sceneGeometry.primitive === PointsPrimitive
       ? sceneGeometry.positionsCompressed.length / 3

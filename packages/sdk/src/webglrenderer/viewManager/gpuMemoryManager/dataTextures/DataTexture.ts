@@ -94,6 +94,11 @@ export abstract class DataTexture {
    */
   public itemSizeInBytes: number;
 
+    /**
+     * Size in bytes of a single texel in the data texture.
+     */
+  public bytesPerTexel: number;
+
   /**
    * Number of texels occupied by a single logical item in the data texture.
    */
@@ -186,7 +191,7 @@ export abstract class DataTexture {
     this.width = params.width;
     this.height = Math.max(1, Math.ceil(this.maxItems / this.width));
     switch (this.type) {
-      case this.gl.UNSIGNED_BYTE:
+        case this.gl.UNSIGNED_BYTE:
         this.bufferClass = Uint8Array;
         break;
       case this.gl.UNSIGNED_INT:
@@ -200,6 +205,24 @@ export abstract class DataTexture {
         this.bufferClass = Float32Array;
         break;
     }
+
+    switch (this.format) {
+        case this.gl.RGBA:
+            this.bytesPerTexel = 4 * (this.type === this.gl.FLOAT
+                ? 4 : (this.type === this.gl.UNSIGNED_INT ? 4 : (this.type === this.gl.UNSIGNED_SHORT ? 2 : 1)));
+            break;
+        case this.gl.RGB:
+            this.bytesPerTexel = 3 * (this.type === this.gl.FLOAT
+                ? 4 : (this.type === this.gl.UNSIGNED_INT ? 4 : (this.type === this.gl.UNSIGNED_SHORT ? 2 : 1)));
+            break;
+        case this.gl.RED:
+        case this.gl.RED_INTEGER:
+            this.bytesPerTexel = 1 * (this.type === this.gl.FLOAT ? 4 : (this.type === this.gl.UNSIGNED_INT ? 4 : (this.type === this.gl.UNSIGNED_SHORT ? 2 : 1)));
+            break;
+        default:
+            this.bytesPerTexel = 4 * (this.type === this.gl.FLOAT ? 4 : (this.type === this.gl.UNSIGNED_INT ? 4 : (this.type === this.gl.UNSIGNED_SHORT ? 2 : 1)));
+            break;
+    }
   }
 
   /**
@@ -207,8 +230,8 @@ export abstract class DataTexture {
    * @internal
    */
   public allocate(): SDKResult<void> {
-    this.buffer = new this.bufferClass(this.width * this.height * this.elementsPerTexel);
-    return this._allocateTexture(false);
+      this.buffer = new this.bufferClass(this.width * this.height * this.bytesPerTexel);
+      return this._allocateTexture(false);
   }
 
   private _allocateTexture(uploadBuffer: boolean):SDKResult<void>{
